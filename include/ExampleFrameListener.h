@@ -76,6 +76,7 @@ public:
 	// Console functions
 	void printText(string text);
 	void executePromptCommand();
+	string getHelpText(string arg);
 	
 
 protected:

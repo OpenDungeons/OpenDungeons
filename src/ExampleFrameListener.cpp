@@ -188,6 +188,7 @@ void ExampleFrameListener::windowClosed(RenderWindow* rw)
 
 ExampleFrameListener::~ExampleFrameListener()
 {
+	gameMap.clearAll();
 	mSceneMgr->destroyQuery(mRaySceneQuery);
 
 	//Remove ourself as a Window listener
@@ -195,6 +196,8 @@ ExampleFrameListener::~ExampleFrameListener()
 	windowClosed(mWindow);
 }
 
+//FIXME:  This function is no longer used and should be deleted once the
+// remaining functionality has been moved over to the buffered keyboard hadler
 bool ExampleFrameListener::processUnbufferedKeyInput(const FrameEvent& evt)
 {
 	using namespace OIS;
@@ -204,106 +207,6 @@ bool ExampleFrameListener::processUnbufferedKeyInput(const FrameEvent& evt)
 
 	static double xAccel = 0.0, yAccel = 0.0, lrAccel = 0.0, udAccel;
 	static bool xPositive, yPositive, lrPositive, udPositive;
-
-	/*
-	// Move left
-	if(mKeyboard->isKeyDown(KC_LEFT))
-	{
-		handleAcceleration(xyAccelFactor, xyAccelLimit, xAccel, xPositive, true, false);
-		mTranslateVector.x = -mMoveScale + xAccel;	// Move camera forward
-
-		// Move right
-	} else if(mKeyboard->isKeyDown(KC_RIGHT))
-		{
-			handleAcceleration(xyAccelFactor, xyAccelLimit, xAccel, xPositive, true, true);
-			mTranslateVector.x = mMoveScale + xAccel;	// Move camera backward
-		}
-		else
-		{
-			handleAcceleration(xyAccelFactor, xyAccelLimit, xAccel, xPositive, false, true);
-			mTranslateVector.x += 1.3*xAccel;
-		}
-
-	// Move backward
-	if(mKeyboard->isKeyDown(KC_DOWN))
-	{
-		handleAcceleration(xyAccelFactor, xyAccelLimit, yAccel, yPositive, true, false);
-		mTranslateVector.y = -mMoveScale + yAccel;	// Move camera forward
-
-		// Move forward
-	} else if(mKeyboard->isKeyDown(KC_UP))
-		{
-			handleAcceleration(xyAccelFactor, xyAccelLimit, yAccel, yPositive, true, true);
-			mTranslateVector.y = mMoveScale + yAccel;	// Move camera backward
-		}
-		else
-		{
-			handleAcceleration(xyAccelFactor, xyAccelLimit, yAccel, yPositive, false, false);
-			mTranslateVector.y += 1.3*yAccel;
-		}
-
-	// Tilt up
-	if(mKeyboard->isKeyDown(KC_HOME) || mKeyboard->isKeyDown(KC_W))
-	{
-		handleAcceleration(udAccelFactor, udAccelLimit, udAccel, udPositive, true, true);
-		mCamNode->rotate(Ogre::Vector3::UNIT_X, mRotScale + Degree(udAccel), Node::TS_LOCAL);
-	}
-	else
-	{
-		// Tilt down
-		if(mKeyboard->isKeyDown(KC_END) || mKeyboard->isKeyDown(KC_S))
-		{
-			handleAcceleration(udAccelFactor, udAccelLimit, udAccel, udPositive, true, false);
-			mCamNode->rotate(Ogre::Vector3::UNIT_X, -mRotScale + Degree(udAccel), Node::TS_LOCAL);
-		}
-		else
-		{
-			handleAcceleration(udAccelFactor, udAccelLimit, udAccel, udPositive, false, false);
-			mCamNode->rotate(Ogre::Vector3::UNIT_X, Degree(udAccel), Node::TS_LOCAL);
-		}
-	}
-
-
-	// Turn left
-	if(mKeyboard->isKeyDown(KC_DELETE) || mKeyboard->isKeyDown(KC_A))
-	{
-		handleAcceleration(lrAccelFactor, lrAccelLimit, lrAccel, lrPositive, true, true);
-		mCamNode->rotate(Ogre::Vector3::UNIT_Z, mRotScale + Degree(lrAccel), Node::TS_WORLD);
-	}
-	else
-	{
-		// Turn right
-		if(mKeyboard->isKeyDown(KC_PGDOWN) || mKeyboard->isKeyDown(KC_D))
-		{
-			handleAcceleration(lrAccelFactor, lrAccelLimit, lrAccel, lrPositive, true, false);
-			mCamNode->rotate(Ogre::Vector3::UNIT_Z, -mRotScale + Degree(lrAccel), Node::TS_WORLD);
-		}
-		else
-		{
-			handleAcceleration(lrAccelFactor, lrAccelLimit, lrAccel, lrPositive, false, false);
-			mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(lrAccel), Node::TS_WORLD);
-		}
-	}
-
-	// Zoom out
-	if(mKeyboard->isKeyDown(KC_INSERT) || mKeyboard->isKeyDown(KC_Q))
-	{
-		mCamNode->translate(mMoveScale*Ogre::Vector3::UNIT_Z, Node::TS_LOCAL);
-	}
-
-	// Zoom in
-	if(mKeyboard->isKeyDown(KC_PGUP) || mKeyboard->isKeyDown(KC_E))
-	{
-		mCamNode->translate(-mMoveScale*Ogre::Vector3::UNIT_Z, Node::TS_LOCAL);
-	}
-
-	if( mKeyboard->isKeyDown(KC_F) && mTimeUntilNextToggle <= 0 )
-	{
-		mStatsOn = !mStatsOn;
-		showDebugOverlay(mStatsOn);
-		mTimeUntilNextToggle = 1;
-	}
-	*/
 
 	if( mKeyboard->isKeyDown(KC_T) && mTimeUntilNextToggle <= 0 )
 	{
@@ -328,15 +231,6 @@ bool ExampleFrameListener::processUnbufferedKeyInput(const FrameEvent& evt)
 
 		showDebugOverlay(mStatsOn);
 		mTimeUntilNextToggle = 1;
-	}
-
-	if(mKeyboard->isKeyDown(KC_SYSRQ) && mTimeUntilNextToggle <= 0)
-	{
-		std::ostringstream ss;
-		ss << "screenshot_" << ++mNumScreenShots << ".png";
-		mWindow->writeContentsToFile(ss.str());
-		mTimeUntilNextToggle = 0.5;
-		mDebugText = "Saved: " + ss.str();
 	}
 
 	if(mKeyboard->isKeyDown(KC_R) && mTimeUntilNextToggle <=0)
@@ -880,6 +774,15 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				writeGameMapToFile( ((string)"Media/levels/Test.level" + (string)".out") );
 				mContinue = false;
 				break;
+
+			// Print a screenshot
+			case KC_SYSRQ:
+				std::ostringstream ss;
+				ss << "screenshot_" << ++mNumScreenShots << ".png";
+				mWindow->writeContentsToFile(ss.str());
+				mTimeUntilNextToggle = 0.5;
+				mDebugText = "Saved: " + ss.str();
+				break;
 		}
 	}
 	else
@@ -1145,7 +1048,7 @@ void ExampleFrameListener::executePromptCommand()
 		{
 			if(arguments.size() > 0)
 			{
-				commandOutput = "Help for command:  " + arguments;
+				commandOutput = "Help for command:  " + arguments + "\n\n" + getHelpText(arguments);
 			}
 			else
 			{
@@ -1161,25 +1064,23 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS.str(arguments);
 				tempSS >> terminalWordWrap;
 			}
-			else
+
+			// Print the "tens" place line at the top
+			int maxWidth = terminalWordWrap;
+			for(int i = 0; i < maxWidth/10; i++)
 			{
-				// Print the "tens" place line at the top
-				int maxWidth = terminalWordWrap;
-				for(int i = 0; i < maxWidth/10; i++)
-				{
-					char tempArray[255];
-					sprintf(tempArray, "         %i", i+1);
-					commandOutput += tempArray;
-				}
+				char tempArray[255];
+				sprintf(tempArray, "         %i", i+1);
+				commandOutput += tempArray;
+			}
 
-				commandOutput += "\n";
+			commandOutput += "\n";
 
-				// Print the "ones" place
-				for(int i = 0; i < maxWidth-1; i++)
-				{
-					string tempString = "1234567890";
-					commandOutput += tempString.substr(i%10, 1);
-				}
+			// Print the "ones" place
+			for(int i = 0; i < maxWidth-1; i++)
+			{
+				string tempString = "1234567890";
+				commandOutput += tempString.substr(i%10, 1);
 			}
 
 		}
@@ -1335,5 +1236,70 @@ void ExampleFrameListener::executePromptCommand()
 		else commandOutput = "Command not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.";
 
 	promptCommand = "";
+}
+
+string ExampleFrameListener::getHelpText(string arg)
+{
+	for(int i = 0; i < arg.size(); i++)
+	{
+		arg[i] = tolower(arg[i]);
+	}
+
+	if(arg.compare("save") == 0)
+	{
+		return "Save the current level to a file.  The file name is given as an argument to the save command.\n\nExample:\n" + prompt + "save Test\n\nThe above command will save the level to Media/levels/Test.level.  The Test level is loaded automatically when OpenDungeons starts.";
+	}
+
+	else if(arg.compare("load") == 0)
+	{
+		return "Load a level from a file.  The new level replaces the current level.  The levels are stored in the Media/levels/ directory and have a .level extension on the end.  Both the directory and the .level extension are automatically applied for you.\n\nExample:\n" + prompt + "load Level1\n\nThe above command will load the file Level1.level from the Media/levels directory.";
+	}
+
+	else if(arg.compare("addclass") == 0)
+	{
+		return "Add a new class decription to the current map.  Because it is common to load many creatures of the same type creatures are given a class which stores their common information such as the mesh to load, scaling, etc.  Addclass defines a new class of creature, allowing creatures of this class to be loaded in the future.  The argument to addclass is interpreted in the same was as a class description line in the .level file format.\n\nExample:\n" + prompt + "addclass Skeleton Skeleton.mesh 0.01 0.01 0.01\n\nThe above command defines the class \"Skeleton\" which uses the mesh file \"Skeleton.mesh\" and has a scale factor of 0.01 in the X, Y, and Z dimensions.";
+	}
+
+	else if(arg.compare("addcreature") == 0)
+	{
+		return "Add a new creature to the current map.  The creature class to be used must be loaded first, either from the loaded map file or by using the addclass command.  Once a class has been declared a creature can be loaded using that class.  The argument to the addcreature command is interpreted in the same way as a creature line in a .level file.\n\nExample:\n" + prompt + "addcreature Skeleton Bob 10 15 0\n\nThe above command adds a creature of class \"Skeleton\" whose name is \"Bob\" at location X=10, y=15, and Z=0.  The new creature's name must be unique to the creatures in that level.";
+	}
+
+	else if(arg.compare("quit") == 0)
+	{
+		return "Exits OpenDungeons";
+	}
+
+	else if(arg.compare("termwidth") == 0)
+	{
+		return "The termwidth program sets the maximum number of characters that can be displayed on the terminal without word wrapping taking place.  When run with no arguments, termwidth displays a ruler across the top of you terminal indicating the terminal's current width.  When run with an argument, termwidth sets the terminal width to a new value specified in the argument.\n\nExample:\n" + prompt + "termwidth 80\n\nThe above command sets the terminal width to 80.";
+	}
+
+	else if(arg.compare("addtiles") == 0)
+	{
+		return "The addtiles command adds a rectangular region of tiles to the map.  The tiles are initialized to a fullness of 100 and have their type set to dirt.  The region to be added is given as two pairs of X-Y coordinates.\n\nExample:\n" + prompt + "addtiles -10 -5 34 20\n\nThe above command adds the tiles in the given region to the map.  Tiles which overlap already existing tiles will be ignored.";
+	}
+
+	else if(arg.compare("newmap") == 0)
+	{
+		return "Replaces the existing map with a new rectangular map.  The X and Y dimensions of the new map are given as arguments to the newmap command.\n\nExample:\n" + prompt + "newmap 10 20\n\nThe above command creates a new map 10 tiles by 20 tiles.  The new map will be filled with dirt tiles with a fullness of 100.";
+	}
+
+	else if(arg.compare("movespeed") == 0)
+	{
+		return "The movespeed command sets how fast the camera moves at.  When run with no argument movespeed simply prints out the current camera move speed.  With an argument movespeed sets the camera move speed.\n\nExample:\n" + prompt + "movespeed 3.7\n\nThe above command sets the camera move speed to 3.7.";
+	}
+
+	else if(arg.compare("rotatespeed") == 0)
+	{
+		return "The rotatespeed command sets how fast the camera rotates.  When run with no argument rotatespeed simply prints out the current camera rotation speed.  With an argument rotatespeed sets the camera rotation speed.\n\nExample:\n" + prompt + "rotatespeed 35\n\nThe above command sets the camera rotation speed to 35.";
+	}
+
+	else if(arg.compare("ambientlight") == 0)
+	{
+		return "The ambientlight command sets the minumum light that every object in the scene is illuminated with.  It takes as it's argument and RGB triplet whose values for red, green, and blue range from 0.0 to 1.0.\n\nExample:\n" + prompt + "ambientlight 0.4 0.6 0.5\n\nThe above command sets the ambient light color to red=0.4, green=0.6, and blue = 0.5.";
+	}
+
+	return "";
 }
 

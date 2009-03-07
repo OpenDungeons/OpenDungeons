@@ -1,0 +1,88 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.7	//
+Creature	src/Creature.cpp	/^Creature::Creature()$/;"	f	class:Creature
+Creature	src/Creature.cpp	/^Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)$/;"	f	class:Creature
+ExampleFrameListener	src/ExampleFrameListener.cpp	/^ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, SceneManager *sceneManager, CEGUI::Renderer *renderer, bool bufferedKeys, bool bufferedMouse, bool bufferedJoy)$/;"	f	class:ExampleFrameListener
+MOTD	src/main.cpp	/^string MOTD = (string)"Welcome to Open Dungeons\\nVersion:  " + VERSION;$/;"	v
+MapEditor	src/MapEditor.cpp	/^MapEditor::MapEditor()$/;"	f	class:MapEditor
+TextRenderer	src/TextRenderer.cpp	/^TextRenderer::TextRenderer()$/;"	f	class:TextRenderer
+Tile	src/Tile.cpp	/^Tile::Tile()$/;"	f	class:Tile
+Tile	src/Tile.cpp	/^Tile::Tile(int nX, int nY, TileType nType, int nFullness)$/;"	f	class:Tile
+WIN32_LEAN_AND_MEAN	src/main.cpp	13;"	d	file:
+WinMain	src/main.cpp	/^INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )$/;"	f
+addClassDescription	src/GameMap.cpp	/^void GameMap::addClassDescription(Creature *c)$/;"	f	class:GameMap
+addClassDescription	src/GameMap.cpp	/^void GameMap::addClassDescription(Creature c)$/;"	f	class:GameMap
+addCreature	src/GameMap.cpp	/^void GameMap::addCreature(Creature *c)$/;"	f	class:GameMap
+addTextBox	src/TextRenderer.cpp	/^void TextRenderer::addTextBox($/;"	f	class:TextRenderer
+addTile	src/GameMap.cpp	/^void GameMap::addTile(Tile *t)$/;"	f	class:GameMap
+chooseSceneManager	src/MapEditor.cpp	/^void MapEditor::chooseSceneManager(void)$/;"	f	class:MapEditor
+clearAll	src/GameMap.cpp	/^void GameMap::clearAll()$/;"	f	class:GameMap
+clearClasses	src/GameMap.cpp	/^void GameMap::clearClasses()$/;"	f	class:GameMap
+clearCreatures	src/GameMap.cpp	/^void GameMap::clearCreatures()$/;"	f	class:GameMap
+clearTiles	src/GameMap.cpp	/^void GameMap::clearTiles()$/;"	f	class:GameMap
+convertButton	src/ExampleFrameListener.cpp	/^CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID)$/;"	f
+createAllEntities	src/GameMap.cpp	/^void GameMap::createAllEntities()$/;"	f	class:GameMap
+createCamera	src/MapEditor.cpp	/^void MapEditor::createCamera(void)$/;"	f	class:MapEditor
+createFrameListener	src/MapEditor.cpp	/^void MapEditor::createFrameListener(void)$/;"	f	class:MapEditor
+createMesh	src/Creature.cpp	/^void Creature::createMesh()$/;"	f	class:Creature
+createMesh	src/Tile.cpp	/^void Tile::createMesh()$/;"	f	class:Tile
+createNewMap	src/GameMap.cpp	/^void GameMap::createNewMap(int xSize, int ySize)$/;"	f	class:GameMap
+createScene	src/MapEditor.cpp	/^void MapEditor::createScene(void)$/;"	f	class:MapEditor
+destroyMesh	src/Creature.cpp	/^void Creature::destroyMesh()$/;"	f	class:Creature
+destroyMesh	src/Tile.cpp	/^void Tile::destroyMesh()$/;"	f	class:Tile
+executePromptCommand	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::executePromptCommand()$/;"	f	class:ExampleFrameListener
+frameEnded	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::frameEnded(const FrameEvent& evt)$/;"	f	class:ExampleFrameListener
+frameStarted	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::frameStarted(const FrameEvent& evt)$/;"	f	class:ExampleFrameListener
+gameMap	src/main.cpp	/^GameMap gameMap;$/;"	v
+getClass	src/GameMap.cpp	/^Creature* GameMap::getClass(string query)$/;"	f	class:GameMap
+getClassDescription	src/GameMap.cpp	/^Creature* GameMap::getClassDescription(int index)$/;"	f	class:GameMap
+getCreature	src/GameMap.cpp	/^Creature* GameMap::getCreature(int index)$/;"	f	class:GameMap
+getCreature	src/GameMap.cpp	/^Creature* GameMap::getCreature(string cName)$/;"	f	class:GameMap
+getFullness	src/Tile.cpp	/^int Tile::getFullness()$/;"	f	class:Tile
+getFullnessMeshNumber	src/Tile.cpp	/^int Tile::getFullnessMeshNumber()$/;"	f	class:Tile
+getHelpText	src/ExampleFrameListener.cpp	/^string ExampleFrameListener::getHelpText(string arg)$/;"	f	class:ExampleFrameListener
+getSelected	src/Tile.cpp	/^bool Tile::getSelected()$/;"	f	class:Tile
+getTile	src/GameMap.cpp	/^Tile* GameMap::getTile(int index)$/;"	f	class:GameMap
+getTile	src/GameMap.cpp	/^Tile* GameMap::getTile(int x, int y)$/;"	f	class:GameMap
+getType	src/Tile.cpp	/^Tile::TileType Tile::getType()$/;"	f	class:Tile
+handleAcceleration	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::handleAcceleration(double accelFactor, double accelLimit, double &accel, bool &positive, bool driven, bool sameDir)$/;"	f	class:ExampleFrameListener
+keyPressed	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)$/;"	f	class:ExampleFrameListener
+keyReleased	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)$/;"	f	class:ExampleFrameListener
+mouseMoved	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)$/;"	f	class:ExampleFrameListener
+mousePressed	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)$/;"	f	class:ExampleFrameListener
+mouseReleased	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)$/;"	f	class:ExampleFrameListener
+moveCamera	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::moveCamera(double frameTime)$/;"	f	class:ExampleFrameListener
+ms_Singleton	src/TextRenderer.cpp	/^template<> TextRenderer* Ogre::Singleton<TextRenderer>::ms_Singleton = 0;$/;"	m	class:Ogre::Singleton	file:
+nextTileFullness	src/Tile.cpp	/^int Tile::nextTileFullness(int f)$/;"	f	class:Tile
+nextTileType	src/Tile.cpp	/^Tile::TileType Tile::nextTileType(TileType t)$/;"	f	class:Tile
+numClassDescriptions	src/GameMap.cpp	/^int GameMap::numClassDescriptions()$/;"	f	class:GameMap
+numCreatures	src/GameMap.cpp	/^int GameMap::numCreatures()$/;"	f	class:GameMap
+numTiles	src/GameMap.cpp	/^int GameMap::numTiles()$/;"	f	class:GameMap
+operator <<	src/Creature.cpp	/^ostream& operator<<(ostream& os, Creature *c)$/;"	f
+operator <<	src/Tile.cpp	/^ostream& operator<<(ostream& os, Tile *t)$/;"	f
+operator >>	src/Creature.cpp	/^istream& operator>>(istream& is, Creature *c)$/;"	f
+operator >>	src/Tile.cpp	/^istream& operator>>(istream& is, Tile *t)$/;"	f
+printText	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::printText(string text)$/;"	f	class:ExampleFrameListener
+processUnbufferedKeyInput	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::processUnbufferedKeyInput(const FrameEvent& evt)$/;"	f	class:ExampleFrameListener
+processUnbufferedMouseInput	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::processUnbufferedMouseInput(const FrameEvent& evt)$/;"	f	class:ExampleFrameListener
+quit	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)$/;"	f	class:ExampleFrameListener
+readGameMapFromFile	src/Functions.cpp	/^void readGameMapFromFile(string fileName)$/;"	f
+refreshMesh	src/Tile.cpp	/^void Tile::refreshMesh()$/;"	f	class:Tile
+removeTextBox	src/TextRenderer.cpp	/^void TextRenderer::removeTextBox(const std::string& ID)$/;"	f	class:TextRenderer
+setFullness	src/Tile.cpp	/^void Tile::setFullness(int f)$/;"	f	class:Tile
+setSelected	src/Tile.cpp	/^void Tile::setSelected(bool s)$/;"	f	class:Tile
+setText	src/TextRenderer.cpp	/^void TextRenderer::setText(const std::string& ID, const std::string& Text)$/;"	f	class:TextRenderer
+setType	src/Tile.cpp	/^void Tile::setType(TileType t)$/;"	f	class:Tile
+showDebugOverlay	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::showDebugOverlay(bool show)$/;"	f	class:ExampleFrameListener
+tileTypeToString	src/Tile.cpp	/^string Tile::tileTypeToString(TileType t)$/;"	f	class:Tile
+updateStats	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::updateStats(void)$/;"	f	class:ExampleFrameListener
+windowClosed	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::windowClosed(RenderWindow* rw)$/;"	f	class:ExampleFrameListener
+windowResized	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::windowResized(RenderWindow* rw)$/;"	f	class:ExampleFrameListener
+writeGameMapToFile	src/Functions.cpp	/^void writeGameMapToFile(string fileName)$/;"	f
+~ExampleFrameListener	src/ExampleFrameListener.cpp	/^ExampleFrameListener::~ExampleFrameListener()$/;"	f	class:ExampleFrameListener
+~MapEditor	src/MapEditor.cpp	/^MapEditor::~MapEditor() $/;"	f	class:MapEditor
+~Tile	src/Tile.cpp	/^Tile::~Tile()$/;"	f	class:Tile
