@@ -1,4 +1,4 @@
-# Install script for directory: /home/buck/Code/newOpenDungeons
+# Install script for directory: /home/buck/Code/OpenDungeons
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -37,7 +37,7 @@ IF(CMAKE_INSTALL_COMPONENT)
 ELSE(CMAKE_INSTALL_COMPONENT)
   SET(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 ENDIF(CMAKE_INSTALL_COMPONENT)
-FILE(WRITE "/home/buck/Code/newOpenDungeons/${CMAKE_INSTALL_MANIFEST}" "")
+FILE(WRITE "/home/buck/Code/OpenDungeons/${CMAKE_INSTALL_MANIFEST}" "")
 FOREACH(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  FILE(APPEND "/home/buck/Code/newOpenDungeons/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  FILE(APPEND "/home/buck/Code/OpenDungeons/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 ENDFOREACH(file)

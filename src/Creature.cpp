@@ -48,5 +48,14 @@ void Creature::createMesh()
 
 void Creature::destroyMesh()
 {
+	Entity *ent;
+	SceneNode *node;
+
+	ent = mSceneMgr->getEntity( ("Creature_" + name).c_str() );
+	node = mSceneMgr->getSceneNode( (name + "_node").c_str() );
+	mSceneMgr->getRootSceneNode()->removeChild( node );
+	node->detachObject( ent );
+	mSceneMgr->destroyEntity( ent );
+	mSceneMgr->destroySceneNode( (name + "_node") );
 }
 

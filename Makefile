@@ -34,10 +34,10 @@ RM = /usr/bin/cmake -E remove -f
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/buck/Code/newOpenDungeons
+CMAKE_SOURCE_DIR = /home/buck/Code/OpenDungeons
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/buck/Code/newOpenDungeons
+CMAKE_BINARY_DIR = /home/buck/Code/OpenDungeons
 
 # Include the progress variables for this target.
 include CMakeFiles/progress.make
@@ -63,9 +63,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/buck/Code/newOpenDungeons/CMakeFiles $(CMAKE_ALL_PROGRESS)
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_ALL_PROGRESS)
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/buck/Code/newOpenDungeons/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/buck/Code/OpenDungeons/CMakeFiles 0
 
 # The main clean target
 clean:
@@ -146,18 +146,6 @@ src/GameMap.s:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/GameMap.s
 
 # target to build an object file
-src/Main.o:
-	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Main.o
-
-# target to preprocess a source file
-src/Main.i:
-	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Main.i
-
-# target to generate assembly for a file
-src/Main.s:
-	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Main.s
-
-# target to build an object file
 src/MapEditor.o:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/MapEditor.o
 
@@ -193,6 +181,18 @@ src/Tile.i:
 src/Tile.s:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Tile.s
 
+# target to build an object file
+src/main.o:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/main.o
+
+# target to preprocess a source file
+src/main.i:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/main.i
+
+# target to generate assembly for a file
+src/main.s:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/main.s
+
 # Help Target
 help::
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -214,9 +214,6 @@ help::
 	@echo "... src/GameMap.o"
 	@echo "... src/GameMap.i"
 	@echo "... src/GameMap.s"
-	@echo "... src/Main.o"
-	@echo "... src/Main.i"
-	@echo "... src/Main.s"
 	@echo "... src/MapEditor.o"
 	@echo "... src/MapEditor.i"
 	@echo "... src/MapEditor.s"
@@ -226,6 +223,9 @@ help::
 	@echo "... src/Tile.o"
 	@echo "... src/Tile.i"
 	@echo "... src/Tile.s"
+	@echo "... src/main.o"
+	@echo "... src/main.i"
+	@echo "... src/main.s"
 
 
 
