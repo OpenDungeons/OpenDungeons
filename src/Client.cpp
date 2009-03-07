@@ -1,3 +1,4 @@
+#include "stdio.h"
 #include <string>
 using namespace std;
 
@@ -12,11 +13,18 @@ void *clientSocketProcessor(void *p)
 	Socket *sock = ((CSPStruct*)p)->nSocket;
 	ExampleFrameListener *frameListener = ((CSPStruct*)p)->nFrameListener;
 
+
 	sock->send((string)"OpenDungeons V" + VERSION + "\n");
 	while(sock->is_valid())
 	{
-		sock->recv(tempString);
-		frameListener->chatString += tempString;
+		int charsRead = sock->recv(tempString);
+		// If the server closed the connection
+		if(charsRead <= 0)
+		{
+			break;
+		}
+
+		frameListener->chatMessages.push_back(pair<time_t,string>(time(NULL),tempString));
 	}
 }
 

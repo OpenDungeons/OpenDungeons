@@ -7,7 +7,7 @@ using namespace std;
 
 SceneManager* mSceneMgr;
 GameMap gameMap;
-string MOTD = (string)"Welcome to Open Dungeons\nVersion:  " + VERSION;
+string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN

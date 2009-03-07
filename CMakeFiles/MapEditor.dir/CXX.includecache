@@ -1,4 +1,6 @@
 /home/buck/Code/OpenDungeons/src/Client.cpp
+stdio.h
+/home/buck/Code/OpenDungeons/src/stdio.h
 string
 -
 Defines.h
@@ -3945,6 +3947,10 @@ map
 -
 
 include/Client.h
+deque
+-
+utility
+-
 
 include/Creature.h
 Ogre.h

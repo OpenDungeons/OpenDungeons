@@ -1,6 +1,9 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
+#include <deque>
+#include <utility>
+
 class CSPStruct
 {
 	public:

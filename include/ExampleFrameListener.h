@@ -115,6 +115,7 @@ protected:
 	int mAniso;
 	Tile::TileType mCurrentTileType;
 	int mCurrentFullness;
+	double frameDelay;
 
 	int mSceneDetailIndex ;
 	Real mMoveSpeed;

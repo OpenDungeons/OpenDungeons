@@ -103,7 +103,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mDebugOverlay(0), mInputManager(0), mMouse(0), mKeyboard(0), mJoy(0),
 	mGUIRenderer(renderer), zChange(0.0), mZoomSpeed(.33),
 	mCurrentTileType(Tile::dirt), mCurrentFullness(100),
-	mDragType(ExampleFrameListener::nullDragType)
+	mDragType(ExampleFrameListener::nullDragType), frameDelay(0.0)
 {
 	mCount = 0;
 	mCurrentObject = NULL;
@@ -203,12 +203,14 @@ ExampleFrameListener::~ExampleFrameListener()
 bool ExampleFrameListener::processUnbufferedKeyInput(const FrameEvent& evt)
 {
 	using namespace OIS;
+	/*
 	const double xyAccelFactor = 0.04, xyAccelLimit = 0.07;
 	const double lrAccelFactor = 3, lrAccelLimit = 10;
 	const double udAccelFactor = 1.5, udAccelLimit = 5;
 
 	static double xAccel = 0.0, yAccel = 0.0, lrAccel = 0.0, udAccel;
 	static bool xPositive, yPositive, lrPositive, udPositive;
+	*/
 
 	if( mKeyboard->isKeyDown(KC_T) && mTimeUntilNextToggle <= 0 )
 	{
@@ -308,6 +310,27 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 {
 	using namespace OIS;
 
+		string chatBaseString = "\n---------- Chat ----------\n";
+		chatString = chatBaseString;
+		for(unsigned int i = 0; i < chatMessages.size(); i++)
+		{
+			char tempArray[255];
+			sprintf(tempArray, "%li: %s", chatMessages[i].first, chatMessages[i].second.c_str());
+			chatString += tempArray;
+		}
+
+		string nullString = "";
+		printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + (chatMessages.size()>0?chatString:nullString));
+
+		frameDelay -= evt.timeSinceLastFrame;
+		if(frameDelay > 0.0)
+		{
+			usleep(1e6 * frameDelay);
+		}
+		else
+		{
+			frameDelay = 1.0/(double)MAX_FRAMES_PER_SECOND;
+		}
 	if(mWindow->isClosed())	return false;
 
 	//Need to capture/update each device
@@ -688,10 +711,12 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 			case OIS::KC_GRAVE:
 				terminalActive = true;
 
+				/*
 				if(commandOutput.size() > 0)
 					printText(commandOutput + "\n" + prompt + promptCommand + chatString);
 				else
 					printText(prompt + promptCommand + chatString);
+				*/
 
 				mKeyboard->setTextTranslation(Keyboard::Ascii);
 				break;
@@ -757,7 +782,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				mCurrentTileType = Tile::nextTileType(mCurrentTileType);
 				sprintf(tempArray, "Tile type:  %s", Tile::tileTypeToString(mCurrentTileType).c_str());
 				MOTD = tempArray;
-				printText(MOTD + chatString);
+				//printText(MOTD + chatString);
 				break;
 
 			//Toggle mCurrentFullness
@@ -765,7 +790,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
 				sprintf(tempArray, "Tile fullness:  %i", mCurrentFullness);
 				MOTD = tempArray;
-				printText(MOTD + chatString);
+				//printText(MOTD + chatString);
 				break;
 
 			// Toggle the framerate display
@@ -803,7 +828,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 			case KC_GRAVE:
 			case KC_ESCAPE:
 				terminalActive = false;
-				printText(MOTD + chatString);
+				//printText(MOTD + chatString);
 				break;
 
 			default:
@@ -833,10 +858,12 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 		// The keyboard processing may have de-activated the terminal
 		if(terminalActive)
 		{
+			/*
 			if(commandOutput.size() > 0)
 				printText(commandOutput + "\n" + prompt + promptCommand + chatString);
 			else
 				printText(prompt + promptCommand);
+			*/
 		}
 
 	}
@@ -957,7 +984,7 @@ void ExampleFrameListener::executePromptCommand()
 	if(promptCommand.size() == 0)
 	{
 		promptCommand = "";
-		printText(MOTD + chatString);
+		//printText(MOTD + chatString);
 		terminalActive = false;
 
 		return;
@@ -1263,6 +1290,7 @@ void ExampleFrameListener::executePromptCommand()
 					csps->nSocket = &clientSocket;
 					csps->nFrameListener = this;
 					
+					// Start a thread to talk to the server
 					pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
 				}
 				else
