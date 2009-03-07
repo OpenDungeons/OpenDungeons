@@ -30,11 +30,13 @@ keyboard and mouse movements.
 #include <algorithm>
 using namespace std;
 
+#include "Socket.h"
 #include "Defines.h"
 #include "Tile.h"
 #include "Globals.h"
 #include "Functions.h"
 #include "ExampleFrameListener.h"
+#include "Client.h"
 
 using namespace Ogre;
 
@@ -680,13 +682,16 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 		// Keyboard is used to move around and play game
 		switch(arg.key)
 		{
+			default:
+				break;
+
 			case OIS::KC_GRAVE:
 				terminalActive = true;
 
 				if(commandOutput.size() > 0)
-					printText(commandOutput + "\n" + prompt + promptCommand);
+					printText(commandOutput + "\n" + prompt + promptCommand + chatString);
 				else
-					printText(prompt + promptCommand);
+					printText(prompt + promptCommand + chatString);
 
 				mKeyboard->setTextTranslation(Keyboard::Ascii);
 				break;
@@ -752,7 +757,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				mCurrentTileType = Tile::nextTileType(mCurrentTileType);
 				sprintf(tempArray, "Tile type:  %s", Tile::tileTypeToString(mCurrentTileType).c_str());
 				MOTD = tempArray;
-				printText(MOTD);
+				printText(MOTD + chatString);
 				break;
 
 			//Toggle mCurrentFullness
@@ -760,7 +765,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
 				sprintf(tempArray, "Tile fullness:  %i", mCurrentFullness);
 				MOTD = tempArray;
-				printText(MOTD);
+				printText(MOTD + chatString);
 				break;
 
 			// Toggle the framerate display
@@ -798,7 +803,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 			case KC_GRAVE:
 			case KC_ESCAPE:
 				terminalActive = false;
-				printText(MOTD);
+				printText(MOTD + chatString);
 				break;
 
 			default:
@@ -816,6 +821,9 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 						case KC_BACK:
 							promptCommand = promptCommand.substr(0,promptCommand.size()-1);
 							break;
+
+						default:
+							break;
 					}
 				}
 
@@ -826,7 +834,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 		if(terminalActive)
 		{
 			if(commandOutput.size() > 0)
-				printText(commandOutput + "\n" + prompt + promptCommand);
+				printText(commandOutput + "\n" + prompt + promptCommand + chatString);
 			else
 				printText(prompt + promptCommand);
 		}
@@ -845,6 +853,9 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 	{
 		switch(arg.key)
 		{
+			default:
+				break;
+
 			// Move left
 			case KC_LEFT:
 			case KC_A:
@@ -946,7 +957,7 @@ void ExampleFrameListener::executePromptCommand()
 	if(promptCommand.size() == 0)
 	{
 		promptCommand = "";
-		printText(MOTD);
+		printText(MOTD + chatString);
 		terminalActive = false;
 
 		return;
@@ -1233,6 +1244,37 @@ void ExampleFrameListener::executePromptCommand()
 			}
 		}
 
+		// Connect to a server
+		else if(command.compare("connect") == 0)
+		{
+			if(arguments.size() > 0)
+			{
+				if(!clientSocket.create())
+				{
+					commandOutput = "ERROR:  Could not create client socket!";
+					goto ConnectEndLabel;
+				}
+
+				if(clientSocket.connect(arguments, PORT_NUMBER))
+				{
+					commandOutput = "Connection successful.";
+
+					CSPStruct *csps = new CSPStruct;
+					csps->nSocket = &clientSocket;
+					csps->nFrameListener = this;
+					
+					pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
+				}
+				else
+				{
+					commandOutput = "Connection failed!";
+				}
+			}
+
+		ConnectEndLabel:
+			commandOutput += "\n";
+		}
+
 		else commandOutput = "Command not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.";
 
 	promptCommand = "";
@@ -1240,7 +1282,7 @@ void ExampleFrameListener::executePromptCommand()
 
 string ExampleFrameListener::getHelpText(string arg)
 {
-	for(int i = 0; i < arg.size(); i++)
+	for(unsigned int i = 0; i < arg.size(); i++)
 	{
 		arg[i] = tolower(arg[i]);
 	}

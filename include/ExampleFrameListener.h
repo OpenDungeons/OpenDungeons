@@ -23,10 +23,15 @@ keyboard and mouse movements.
 #ifndef __ExampleFrameListener_H__
 #define __ExampleFrameListener_H__
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
 #include "Ogre.h"
 #include "OgreStringConverter.h"
 #include "OgreException.h"
 
+#include <deque>
 #include <CEGUI/CEGUI.h>
 #include <OIS/OIS.h>
 #include <OgreCEGUIRenderer.h>
@@ -39,6 +44,8 @@ keyboard and mouse movements.
 using namespace Ogre;
 
 #include "TextRenderer.h"
+#include "Socket.h"
+#include "Tile.h"
 
 class ExampleFrameListener: public FrameListener, public WindowEventListener, public OIS::MouseListener, public OIS::KeyListener
 {
@@ -78,6 +85,11 @@ public:
 	void executePromptCommand();
 	string getHelpText(string arg);
 	
+	// Console variables
+	string command, arguments, commandOutput, prompt;
+	deque< pair<time_t, string> > chatMessages;
+	string consoleBuffer, promptCommand, chatString;
+
 
 protected:
 	Camera* mCamera;
@@ -125,7 +137,6 @@ protected:
 	SceneNode *mCurrentObject;         // The newly created object
 	CEGUI::Renderer *mGUIRenderer;     // CEGUI renderer
 	int xPos, yPos;
-	string consoleBuffer, promptCommand;
 
 	enum DragType {creature, tileSelection, nullDragType};
 
@@ -138,8 +149,9 @@ private:
 	DragType mDragType;
 	string mDraggedCreature;
 
-	// Console variables
-	string command, arguments, commandOutput, prompt;
+	// Multiplayer stuff
+	Socket clientSocket, serverSocket;
+	pthread_t clientThread;
 };
 
 #endif

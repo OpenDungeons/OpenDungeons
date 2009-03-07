@@ -101,6 +101,7 @@ void MapEditor::createScene(void)
 	light->setDiffuseColour(ColourValue(.1, .1, .1));
 	light->setSpecularColour(ColourValue(.3, .3, .3));
 	light->setPosition(0, 0, 0.5);
+	light->setAttenuation(1.0, 0.0, 1.0, 3.0);
 	node->attachObject(light);
 
 
@@ -131,7 +132,7 @@ void MapEditor::createScene(void)
 
 void MapEditor::createFrameListener(void)
 {
-	mFrameListener= new ExampleFrameListener(mWindow, mCamera, mSceneMgr, mRenderer, true, true, false);
+	mFrameListener = new ExampleFrameListener(mWindow, mCamera, mSceneMgr, mRenderer, true, true, false);
 	mFrameListener->showDebugOverlay(true);
 	mRoot->addFrameListener(mFrameListener);
 }
@@ -141,4 +142,4 @@ void MapEditor::chooseSceneManager(void)
 	// Use the terrain scene manager.
 	mSceneMgr = mRoot->createSceneManager(ST_EXTERIOR_CLOSE);
 }
-			    
+

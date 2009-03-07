@@ -98,6 +98,18 @@ MapEditor/fast:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/build
 
 # target to build an object file
+src/Client.o:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Client.o
+
+# target to preprocess a source file
+src/Client.i:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Client.i
+
+# target to generate assembly for a file
+src/Client.s:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Client.s
+
+# target to build an object file
 src/Creature.o:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Creature.o
 
@@ -158,6 +170,18 @@ src/MapEditor.s:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/MapEditor.s
 
 # target to build an object file
+src/Socket.o:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Socket.o
+
+# target to preprocess a source file
+src/Socket.i:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Socket.i
+
+# target to generate assembly for a file
+src/Socket.s:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Socket.s
+
+# target to build an object file
 src/TextRenderer.o:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/TextRenderer.o
 
@@ -202,6 +226,9 @@ help::
 	@echo "... MapEditor"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... src/Client.o"
+	@echo "... src/Client.i"
+	@echo "... src/Client.s"
 	@echo "... src/Creature.o"
 	@echo "... src/Creature.i"
 	@echo "... src/Creature.s"
@@ -217,6 +244,9 @@ help::
 	@echo "... src/MapEditor.o"
 	@echo "... src/MapEditor.i"
 	@echo "... src/MapEditor.s"
+	@echo "... src/Socket.o"
+	@echo "... src/Socket.i"
+	@echo "... src/Socket.s"
 	@echo "... src/TextRenderer.o"
 	@echo "... src/TextRenderer.i"
 	@echo "... src/TextRenderer.s"

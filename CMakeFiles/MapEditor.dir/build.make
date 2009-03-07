@@ -94,11 +94,35 @@ CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o.provides: CMakeFiles/MapEdit
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o.provides.build: CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o
 
 CMakeFiles/MapEditor.dir/depend.make.mark: CMakeFiles/MapEditor.dir/flags.make
+CMakeFiles/MapEditor.dir/depend.make.mark: src/Client.cpp
+
+CMakeFiles/MapEditor.dir/src/Client.o: CMakeFiles/MapEditor.dir/flags.make
+CMakeFiles/MapEditor.dir/src/Client.o: src/Client.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_3)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/MapEditor.dir/src/Client.o"
+	/usr/bin/c++   $(CXX_FLAGS) -o CMakeFiles/MapEditor.dir/src/Client.o -c /home/buck/Code/OpenDungeons/src/Client.cpp
+
+CMakeFiles/MapEditor.dir/src/Client.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MapEditor.dir/src/Client.i"
+	/usr/bin/c++  $(CXX_FLAGS) -E /home/buck/Code/OpenDungeons/src/Client.cpp > CMakeFiles/MapEditor.dir/src/Client.i
+
+CMakeFiles/MapEditor.dir/src/Client.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MapEditor.dir/src/Client.s"
+	/usr/bin/c++  $(CXX_FLAGS) -S /home/buck/Code/OpenDungeons/src/Client.cpp -o CMakeFiles/MapEditor.dir/src/Client.s
+
+CMakeFiles/MapEditor.dir/src/Client.o.requires:
+
+CMakeFiles/MapEditor.dir/src/Client.o.provides: CMakeFiles/MapEditor.dir/src/Client.o.requires
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Client.o.provides.build
+
+CMakeFiles/MapEditor.dir/src/Client.o.provides.build: CMakeFiles/MapEditor.dir/src/Client.o
+
+CMakeFiles/MapEditor.dir/depend.make.mark: CMakeFiles/MapEditor.dir/flags.make
 CMakeFiles/MapEditor.dir/depend.make.mark: src/GameMap.cpp
 
 CMakeFiles/MapEditor.dir/src/GameMap.o: CMakeFiles/MapEditor.dir/flags.make
 CMakeFiles/MapEditor.dir/src/GameMap.o: src/GameMap.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_3)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_4)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/MapEditor.dir/src/GameMap.o"
 	/usr/bin/c++   $(CXX_FLAGS) -o CMakeFiles/MapEditor.dir/src/GameMap.o -c /home/buck/Code/OpenDungeons/src/GameMap.cpp
 
@@ -118,11 +142,35 @@ CMakeFiles/MapEditor.dir/src/GameMap.o.provides: CMakeFiles/MapEditor.dir/src/Ga
 CMakeFiles/MapEditor.dir/src/GameMap.o.provides.build: CMakeFiles/MapEditor.dir/src/GameMap.o
 
 CMakeFiles/MapEditor.dir/depend.make.mark: CMakeFiles/MapEditor.dir/flags.make
+CMakeFiles/MapEditor.dir/depend.make.mark: src/Socket.cpp
+
+CMakeFiles/MapEditor.dir/src/Socket.o: CMakeFiles/MapEditor.dir/flags.make
+CMakeFiles/MapEditor.dir/src/Socket.o: src/Socket.cpp
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_5)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/MapEditor.dir/src/Socket.o"
+	/usr/bin/c++   $(CXX_FLAGS) -o CMakeFiles/MapEditor.dir/src/Socket.o -c /home/buck/Code/OpenDungeons/src/Socket.cpp
+
+CMakeFiles/MapEditor.dir/src/Socket.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/MapEditor.dir/src/Socket.i"
+	/usr/bin/c++  $(CXX_FLAGS) -E /home/buck/Code/OpenDungeons/src/Socket.cpp > CMakeFiles/MapEditor.dir/src/Socket.i
+
+CMakeFiles/MapEditor.dir/src/Socket.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/MapEditor.dir/src/Socket.s"
+	/usr/bin/c++  $(CXX_FLAGS) -S /home/buck/Code/OpenDungeons/src/Socket.cpp -o CMakeFiles/MapEditor.dir/src/Socket.s
+
+CMakeFiles/MapEditor.dir/src/Socket.o.requires:
+
+CMakeFiles/MapEditor.dir/src/Socket.o.provides: CMakeFiles/MapEditor.dir/src/Socket.o.requires
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Socket.o.provides.build
+
+CMakeFiles/MapEditor.dir/src/Socket.o.provides.build: CMakeFiles/MapEditor.dir/src/Socket.o
+
+CMakeFiles/MapEditor.dir/depend.make.mark: CMakeFiles/MapEditor.dir/flags.make
 CMakeFiles/MapEditor.dir/depend.make.mark: src/Functions.cpp
 
 CMakeFiles/MapEditor.dir/src/Functions.o: CMakeFiles/MapEditor.dir/flags.make
 CMakeFiles/MapEditor.dir/src/Functions.o: src/Functions.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_4)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_6)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/MapEditor.dir/src/Functions.o"
 	/usr/bin/c++   $(CXX_FLAGS) -o CMakeFiles/MapEditor.dir/src/Functions.o -c /home/buck/Code/OpenDungeons/src/Functions.cpp
 
@@ -146,7 +194,7 @@ CMakeFiles/MapEditor.dir/depend.make.mark: src/main.cpp
 
 CMakeFiles/MapEditor.dir/src/main.o: CMakeFiles/MapEditor.dir/flags.make
 CMakeFiles/MapEditor.dir/src/main.o: src/main.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_5)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_7)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/MapEditor.dir/src/main.o"
 	/usr/bin/c++   $(CXX_FLAGS) -o CMakeFiles/MapEditor.dir/src/main.o -c /home/buck/Code/OpenDungeons/src/main.cpp
 
@@ -170,7 +218,7 @@ CMakeFiles/MapEditor.dir/depend.make.mark: src/MapEditor.cpp
 
 CMakeFiles/MapEditor.dir/src/MapEditor.o: CMakeFiles/MapEditor.dir/flags.make
 CMakeFiles/MapEditor.dir/src/MapEditor.o: src/MapEditor.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_6)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_8)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/MapEditor.dir/src/MapEditor.o"
 	/usr/bin/c++   $(CXX_FLAGS) -o CMakeFiles/MapEditor.dir/src/MapEditor.o -c /home/buck/Code/OpenDungeons/src/MapEditor.cpp
 
@@ -194,7 +242,7 @@ CMakeFiles/MapEditor.dir/depend.make.mark: src/Tile.cpp
 
 CMakeFiles/MapEditor.dir/src/Tile.o: CMakeFiles/MapEditor.dir/flags.make
 CMakeFiles/MapEditor.dir/src/Tile.o: src/Tile.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_7)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_9)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/MapEditor.dir/src/Tile.o"
 	/usr/bin/c++   $(CXX_FLAGS) -o CMakeFiles/MapEditor.dir/src/Tile.o -c /home/buck/Code/OpenDungeons/src/Tile.cpp
 
@@ -218,7 +266,7 @@ CMakeFiles/MapEditor.dir/depend.make.mark: src/TextRenderer.cpp
 
 CMakeFiles/MapEditor.dir/src/TextRenderer.o: CMakeFiles/MapEditor.dir/flags.make
 CMakeFiles/MapEditor.dir/src/TextRenderer.o: src/TextRenderer.cpp
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_8)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles $(CMAKE_PROGRESS_10)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/MapEditor.dir/src/TextRenderer.o"
 	/usr/bin/c++   $(CXX_FLAGS) -o CMakeFiles/MapEditor.dir/src/TextRenderer.o -c /home/buck/Code/OpenDungeons/src/TextRenderer.cpp
 
@@ -247,7 +295,9 @@ CMakeFiles/MapEditor.dir/depend.make.mark:
 MapEditor_OBJECTS = \
 "CMakeFiles/MapEditor.dir/src/Creature.o" \
 "CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o" \
+"CMakeFiles/MapEditor.dir/src/Client.o" \
 "CMakeFiles/MapEditor.dir/src/GameMap.o" \
+"CMakeFiles/MapEditor.dir/src/Socket.o" \
 "CMakeFiles/MapEditor.dir/src/Functions.o" \
 "CMakeFiles/MapEditor.dir/src/main.o" \
 "CMakeFiles/MapEditor.dir/src/MapEditor.o" \
@@ -259,7 +309,9 @@ MapEditor_EXTERNAL_OBJECTS =
 
 MapEditor: CMakeFiles/MapEditor.dir/src/Creature.o
 MapEditor: CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o
+MapEditor: CMakeFiles/MapEditor.dir/src/Client.o
 MapEditor: CMakeFiles/MapEditor.dir/src/GameMap.o
+MapEditor: CMakeFiles/MapEditor.dir/src/Socket.o
 MapEditor: CMakeFiles/MapEditor.dir/src/Functions.o
 MapEditor: CMakeFiles/MapEditor.dir/src/main.o
 MapEditor: CMakeFiles/MapEditor.dir/src/MapEditor.o
@@ -275,7 +327,9 @@ CMakeFiles/MapEditor.dir/build: MapEditor
 
 CMakeFiles/MapEditor.dir/requires: CMakeFiles/MapEditor.dir/src/Creature.o.requires
 CMakeFiles/MapEditor.dir/requires: CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o.requires
+CMakeFiles/MapEditor.dir/requires: CMakeFiles/MapEditor.dir/src/Client.o.requires
 CMakeFiles/MapEditor.dir/requires: CMakeFiles/MapEditor.dir/src/GameMap.o.requires
+CMakeFiles/MapEditor.dir/requires: CMakeFiles/MapEditor.dir/src/Socket.o.requires
 CMakeFiles/MapEditor.dir/requires: CMakeFiles/MapEditor.dir/src/Functions.o.requires
 CMakeFiles/MapEditor.dir/requires: CMakeFiles/MapEditor.dir/src/main.o.requires
 CMakeFiles/MapEditor.dir/requires: CMakeFiles/MapEditor.dir/src/MapEditor.o.requires

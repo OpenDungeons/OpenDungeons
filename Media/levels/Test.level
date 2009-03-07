@@ -8326,8 +8326,8 @@
 89	39	0	0
 
 2
-Skeleton	Skeleton.mesh	0.001	0.001	0.005
-Knight	Knight.mesh	0.01	0.01	0.02
+Skeleton	Skeleton.mesh	0.003	0.003	0.008
+Knight	Knight.mesh	0.03	0.03	0.03
 
 2
 Skeleton	Skeleton1	35	27	0

@@ -196,7 +196,7 @@ void Tile::destroyMesh()
 {
 	if(mSceneMgr->hasEntity(name.c_str()))
 	{
-		cout << endl << "destroying mesh " << name << endl;
+		cout << "destroying mesh " << name << endl;
 		cout.flush();
 
 		char tempString[255];
