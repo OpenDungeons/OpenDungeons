@@ -1,0 +1,10 @@
+3
+Skeleton	Skeleton.mesh 	0.001  0.001  0.005
+Knight	Knight.mesh 	0.01  0.01  0.02
+Dragon	Dragon.mesh	0.01	0.01	0.01
+
+3
+Skeleton	Skeleton1		26 22 0
+Knight		Knight1		28 22 0
+Dragon		Dragon1		30 22 0
+

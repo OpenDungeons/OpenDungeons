@@ -1,0 +1,87 @@
+<?xml version="1.0" ?>
+<Falagard>
+
+<WidgetLook name="TaharezLook/Button">
+	<ImagerySection name="normal_imagery">
+		<ImageryComponent>
+			<Area>
+				<Dim type="LeftEdge"> <AbsoluteDim value="0" /> </Dim>
+				<Dim type="TopEdge"> <AbsoluteDim value="0" /> </Dim>
+
+				<Dim type="LeftEdge"> <AbsoluteDim value="0" /> </Dim>
+				<Dim type="TopEdge"> <AbsoluteDim value="0" /> </Dim>
+
+				<Dim type="Height"> <UnifiedDim scale="1.0" type="Height" /> </Dim>
+			</Area>
+
+			<Image imageset="TaharezLook" image="ButtonLeftNormal" />
+			<VertFormat type="Stretched" />
+		</ImageryComponent>
+
+		  <ImageryComponent>
+		  <Area>
+			   <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+			   <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+			   <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+			   <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+		  </Area>
+
+		  <Image imageset="TaharezLook" image="ButtonRightNormal" />
+		  <VertFormat type="Stretched" />
+		  <HorzFormat type="RightAligned" />
+		  </ImageryComponent>
+
+
+	</ImagerySection>
+
+	 <ImageryComponent>
+		  <Area>
+		  <Dim type="LeftEdge">
+		  <ImageDim
+		  imageset="TaharezLook"
+		  image="ButtonLeftNormal"
+		  dimension="Width"
+		  />
+		  </Dim>
+		  <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+		  <Dim type="RightEdge>
+		  <UnifiedDim scale="1" type="Width>
+		  <DimOperator op="Subtract">
+		  <ImageDim
+		  imageset="TaharezLook"
+		  image="ButtonRightNormal"
+		  dimension="Width"
+		  />
+		  </DimOperator>
+		  </UnifiedDim>
+		  </Dim>
+		  <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+		  </Area>
+		  <Image imageset="TaharezLook" image="ButtonMiddleNormal" />
+		  <VertFormat type="Stretched" />
+		  <HorzFormat type="Stretched" />
+	 </ImageryComponent>
+
+	<ImagerySection name="hover_imagery">
+	</ImagerySection>
+
+	<ImagerySection name="pushed_imagery">
+	</ImagerySection>
+
+
+	<StateImagery name="Normal">
+	</StateImagery>
+
+	<StateImagery name="Hover">
+	</StateImagery>
+
+	<StateImagery name="Pushed">
+	</StateImagery>
+
+	<StateImagery name="Disabled">
+	</StateImagery>
+
+</WidgetLook>
+
+</Falagard>
+

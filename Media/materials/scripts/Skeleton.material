@@ -1,0 +1,70 @@
+material Steel
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.434545 0.497790 0.623271 1.000000
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Material.001
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.227928 0.144751 0.043848 1.000000
+			specular 0.149202 0.149202 0.149202 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Darkness
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.068326 0.069060 0.052191 1.000000
+			specular 0.000000 0.000000 0.000000 1.000000 3.250000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Bone
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.383912 0.386791 0.320608 1.000000
+			specular 0.023475 0.025074 0.116076 1.000000 3.250000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Teeth
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.770708 0.773017 0.719927 1.000000
+			specular 0.007747 0.007747 0.007747 1.000000 3.250000
+			emissive 0.049319 0.049467 0.046069 1.000000
+		}
+	}
+}

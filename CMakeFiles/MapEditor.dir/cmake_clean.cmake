@@ -1,0 +1,12 @@
+FILE(REMOVE
+"MapEditor.pdb"
+"MapEditor"
+"CMakeFiles/MapEditor.dir/src/Creature.o"
+"CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o"
+"CMakeFiles/MapEditor.dir/src/GameMap.o"
+"CMakeFiles/MapEditor.dir/src/Main.o"
+"CMakeFiles/MapEditor.dir/src/Functions.o"
+"CMakeFiles/MapEditor.dir/src/MapEditor.o"
+"CMakeFiles/MapEditor.dir/src/Tile.o"
+"CMakeFiles/MapEditor.dir/src/TextRenderer.o"
+)

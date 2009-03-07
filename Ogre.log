@@ -1,0 +1,296 @@
+14:25:01: Creating resource group General
+14:25:01: Creating resource group Internal
+14:25:01: Creating resource group Autodetect
+14:25:01: SceneManagerFactory for type 'DefaultSceneManager' registered.
+14:25:01: Registering ResourceManager for type Material
+14:25:01: Registering ResourceManager for type Mesh
+14:25:01: Registering ResourceManager for type Skeleton
+14:25:01: MovableObjectFactory for type 'ParticleSystem' registered.
+14:25:01: OverlayElementFactory for type Panel registered.
+14:25:01: OverlayElementFactory for type BorderPanel registered.
+14:25:01: OverlayElementFactory for type TextArea registered.
+14:25:01: Registering ResourceManager for type Font
+14:25:01: ArchiveFactory for archive type FileSystem registered.
+14:25:01: ArchiveFactory for archive type Zip registered.
+14:25:01: FreeImage version: 3.9.3
+14:25:01: This program uses FreeImage, a free, open source image library supporting all common bitmap formats. See http://freeimage.sourceforge.net for details
+14:25:01: Supported formats: bmp,ico,jpg,jif,jpeg,jpe,jng,koa,iff,lbm,mng,pbm,pbm,pcd,pcx,pgm,pgm,png,ppm,ppm,ras,tga,targa,tif,tiff,wap,wbmp,wbm,psd,cut,xbm,xpm,gif,hdr,g3,sgi
+14:25:01: DDS codec registering
+14:25:01: Registering ResourceManager for type HighLevelGpuProgram
+14:25:01: Registering ResourceManager for type Compositor
+14:25:01: MovableObjectFactory for type 'Entity' registered.
+14:25:01: MovableObjectFactory for type 'Light' registered.
+14:25:01: MovableObjectFactory for type 'BillboardSet' registered.
+14:25:01: MovableObjectFactory for type 'ManualObject' registered.
+14:25:01: MovableObjectFactory for type 'BillboardChain' registered.
+14:25:01: MovableObjectFactory for type 'RibbonTrail' registered.
+14:25:01: Loading library /usr/lib/OGRE/RenderSystem_GL.so
+14:25:01: Installing plugin: GL RenderSystem
+14:25:01: OpenGL Rendering Subsystem created.
+14:25:01: Plugin successfully installed
+14:25:01: Loading library /usr/lib/OGRE/Plugin_ParticleFX.so
+14:25:01: Installing plugin: ParticleFX
+14:25:01: Particle Emitter Type 'Point' registered
+14:25:01: Particle Emitter Type 'Box' registered
+14:25:01: Particle Emitter Type 'Ellipsoid' registered
+14:25:01: Particle Emitter Type 'Cylinder' registered
+14:25:01: Particle Emitter Type 'Ring' registered
+14:25:01: Particle Emitter Type 'HollowEllipsoid' registered
+14:25:01: Particle Affector Type 'LinearForce' registered
+14:25:01: Particle Affector Type 'ColourFader' registered
+14:25:01: Particle Affector Type 'ColourFader2' registered
+14:25:01: Particle Affector Type 'ColourImage' registered
+14:25:01: Particle Affector Type 'ColourInterpolator' registered
+14:25:01: Particle Affector Type 'Scaler' registered
+14:25:01: Particle Affector Type 'Rotator' registered
+14:25:01: Particle Affector Type 'DirectionRandomiser' registered
+14:25:01: Particle Affector Type 'DeflectorPlane' registered
+14:25:01: Plugin successfully installed
+14:25:01: Loading library /usr/lib/OGRE/Plugin_BSPSceneManager.so
+14:25:01: Installing plugin: BSP Scene Manager
+14:25:01: Plugin successfully installed
+14:25:01: Loading library /usr/lib/OGRE/Plugin_OctreeSceneManager.so
+14:25:01: Installing plugin: Octree & Terrain Scene Manager
+14:25:01: Plugin successfully installed
+14:25:01: *-*-* OGRE Initialising
+14:25:01: *-*-* Version 1.4.5 (Eihort)
+14:25:01: Creating resource group Bootstrap
+14:25:01: Added resource location 'Media/packs/OgreCore.zip' of type 'Zip' to resource group 'Bootstrap'
+14:25:01: Added resource location 'Media' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/fonts' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/materials/programs' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/materials/scripts' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/materials/textures' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/models' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/overlays' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/particle' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/gui' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/DeferredShadingMedia' of type 'FileSystem' to resource group 'General'
+14:25:01: Added resource location 'Media/packs/cubemap.zip' of type 'Zip' to resource group 'General'
+14:25:01: Added resource location 'Media/packs/cubemapsJS.zip' of type 'Zip' to resource group 'General'
+14:25:01: Added resource location 'Media/packs/dragon.zip' of type 'Zip' to resource group 'General'
+14:25:01: Added resource location 'Media/packs/fresneldemo.zip' of type 'Zip' to resource group 'General'
+14:25:01: Added resource location 'Media/packs/ogretestmap.zip' of type 'Zip' to resource group 'General'
+14:25:01: Added resource location 'Media/packs/skybox.zip' of type 'Zip' to resource group 'General'
+14:25:03: CPU Identifier & Features
+14:25:03: -------------------------
+14:25:03:  *   CPU ID: GenuineIntel: Intel(R) Atom(TM) CPU N270   @ 1.60GHz
+14:25:03:  *      SSE: yes
+14:25:03:  *     SSE2: yes
+14:25:03:  *     SSE3: yes
+14:25:03:  *      MMX: yes
+14:25:03:  *   MMXEXT: yes
+14:25:03:  *    3DNOW: no
+14:25:03:  * 3DNOWEXT: no
+14:25:03:  *     CMOV: yes
+14:25:03:  *      TSC: yes
+14:25:03:  *      FPU: yes
+14:25:03:  *      PRO: yes
+14:25:03:  *       HT: no
+14:25:03: -------------------------
+14:25:03: ******************************
+*** Starting GLX Subsystem ***
+******************************
+14:25:03: GLRenderSystem::createRenderWindow "OGRE Render Window", 800x600 windowed  miscParams: FSAA=0 title=OGRE Render Window 
+14:25:03: GLXWindow::create
+14:25:03: Parsing miscParams
+14:25:03: GLXWindow::create -- Best visual is 37
+14:25:03: OGRE EXCEPTION(6:FileNotFoundException): Cannot locate resource GLX_icon.png in resource group General or any other group. in ResourceGroupManager::openResource at OgreResourceGroupManager.cpp (line 604)
+14:25:03: GL_VERSION = 1.3 Mesa 7.0.3-rc2
+14:25:03: GL_VENDOR = Tungsten Graphics, Inc
+14:25:03: GL_RENDERER = Mesa DRI Intel(R) 945GME 20061017 x86/MMX/SSE2
+14:25:03: GL_EXTENSIONS = GL_ARB_depth_texture GL_ARB_fragment_program GL_ARB_imaging GL_ARB_multisample GL_ARB_multitexture GL_ARB_point_parameters GL_ARB_shadow GL_ARB_texture_border_clamp GL_ARB_texture_compression GL_ARB_texture_cube_map GL_ARB_texture_env_add GL_ARB_texture_env_combine GL_ARB_texture_env_crossbar GL_ARB_texture_env_dot3 GL_ARB_texture_mirrored_repeat GL_ARB_texture_rectangle GL_ARB_transpose_matrix GL_ARB_vertex_buffer_object GL_ARB_vertex_program GL_ARB_window_pos GL_EXT_abgr GL_EXT_bgra GL_EXT_blend_color GL_EXT_blend_equation_separate GL_EXT_blend_func_separate GL_EXT_blend_minmax GL_EXT_blend_subtract GL_EXT_clip_volume_hint GL_EXT_cull_vertex GL_EXT_compiled_vertex_array GL_EXT_convolution GL_EXT_copy_texture GL_EXT_draw_range_elements GL_EXT_fog_coord GL_EXT_histogram GL_EXT_multi_draw_arrays GL_EXT_packed_pixels GL_EXT_point_parameters GL_EXT_polygon_offset GL_EXT_rescale_normal GL_EXT_secondary_color GL_EXT_separate_specular_color GL_EXT_shadow_funcs GL_EXT_stencil_wrap GL_EXT_subtexture GL_EXT_texture GL_EXT_texture3D GL_EXT_texture_edge_clamp GL_EXT_texture_env_add GL_EXT_texture_env_combine GL_EXT_texture_env_dot3 GL_EXT_texture_filter_anisotropic GL_EXT_texture_lod_bias GL_EXT_texture_object GL_EXT_texture_rectangle GL_EXT_vertex_array GL_3DFX_texture_compression_FXT1 GL_APPLE_client_storage GL_APPLE_packed_pixels GL_ATI_blend_equation_separate GL_IBM_rasterpos_clip GL_IBM_texture_mirrored_repeat GL_INGR_blend_func_separate GL_MESA_pack_invert GL_MESA_ycbcr_texture GL_MESA_window_pos GL_NV_blend_square GL_NV_light_max_exponent GL_NV_texture_rectangle GL_NV_texgen_reflection GL_NV_vertex_program GL_NV_vertex_program1_1 GL_OES_read_format GL_SGI_color_matrix GL_SGI_color_table GL_SGIS_generate_mipmap GL_SGIS_texture_border_clamp GL_SGIS_texture_edge_clamp GL_SGIS_texture_lod GL_SGIX_depth_texture GL_SUN_multi_draw_arrays
+14:25:03: ***************************
+14:25:03: *** GL Renderer Started ***
+14:25:03: ***************************
+14:25:03: Registering ResourceManager for type GpuProgram
+14:25:03: GL: Using framebuffer copy for rendering to textures (worst)
+14:25:03: GL: Warning: RenderTexture size is restricted to size of framebuffer. If you are on Linux, consider using GLX instead of SDL.
+14:25:03: RenderSystem capabilities
+14:25:03: -------------------------
+14:25:03:  * Hardware generation of mipmaps: yes
+14:25:03:  * Texture blending: yes
+14:25:03:  * Anisotropic texture filtering: yes
+14:25:03:  * Dot product texture operation: yes
+14:25:03:  * Cube mapping: yes
+14:25:03:  * Hardware stencil buffer: yes
+14:25:03:    - Stencil depth: 8
+14:25:03:    - Two sided stencil support: no
+14:25:03:    - Wrap stencil values: yes
+14:25:03:  * Hardware vertex / index buffers: yes
+14:25:03:  * Vertex programs: yes
+14:25:03:    - Max vertex program version: arbvp1
+14:25:03:  * Fragment programs: yes
+14:25:03:    - Max fragment program version: arbfp1
+14:25:03:  * Texture Compression: yes
+14:25:03:    - DXT: no
+14:25:03:    - VTC: no
+14:25:03:  * Scissor Rectangle: yes
+14:25:03:  * Hardware Occlusion Query: no
+14:25:03:  * User clip planes: yes
+14:25:03:  * VET_UBYTE4 vertex element type: yes
+14:25:03:  * Infinite far plane projection: yes
+14:25:03:  * Hardware render-to-texture: no
+14:25:03:  * Floating point textures: no
+14:25:03:  * Non-power-of-two textures: no
+14:25:03:  * Volume textures: yes
+14:25:03:  * Multiple Render Targets: 1
+14:25:03:  * Point Sprites: no
+14:25:03:  * Extended point parameters: yes
+14:25:03:  * Max Point Size: 255
+14:25:03:  * Vertex texture fetch: no
+14:25:03: Registering ResourceManager for type Texture
+14:25:03: ResourceBackgroundQueue - threading disabled
+14:25:03: Particle Renderer Type 'billboard' registered
+14:25:03: SceneManagerFactory for type 'BspSceneManager' registered.
+14:25:03: Registering ResourceManager for type BspLevel
+14:25:03: SceneManagerFactory for type 'OctreeSceneManager' registered.
+14:25:03: SceneManagerFactory for type 'TerrainSceneManager' registered.
+14:25:03: TerrainSceneManager: Registered a new PageSource for type Heightmap
+14:25:03: Creating viewport on target 'OGRE Render Window', rendering from camera 'PlayerCam', relative dimensions L: 0.00 T: 0.00 W: 1.00 H: 1.00 ZOrder: 0
+14:25:03: Parsing scripts for resource group Autodetect
+14:25:03: Finished parsing scripts for resource group Autodetect
+14:25:03: Parsing scripts for resource group Bootstrap
+14:25:03: Parsing script OgreCore.material
+14:25:03: Parsing script OgreProfiler.material
+14:25:03: Parsing script Ogre.fontdef
+14:25:03: Parsing script OgreDebugPanel.overlay
+14:25:03: Texture: New_Ogre_Border_Center.png: Loading 1 faces(PF_A8R8G8B8,256x128x1) with 5 hardware generated mipmaps from Image. Internal format is PF_A8R8G8B8,256x128x1.
+14:25:03: Texture: New_Ogre_Border.png: Loading 1 faces(PF_A8R8G8B8,256x256x1) with 5 hardware generated mipmaps from Image. Internal format is PF_A8R8G8B8,256x256x1.
+14:25:03: Texture: New_Ogre_Border_Break.png: Loading 1 faces(PF_A8R8G8B8,32x32x1) with 5 hardware generated mipmaps from Image. Internal format is PF_A8R8G8B8,32x32x1.
+14:25:03: Font BlueHighwayusing texture size 512x512
+14:25:03: Info: Freetype returned null for character 127 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 128 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 129 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 130 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 131 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 132 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 133 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 134 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 135 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 136 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 137 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 138 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 139 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 140 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 141 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 142 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 143 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 144 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 145 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 146 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 147 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 148 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 149 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 150 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 151 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 152 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 153 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 154 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 155 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 156 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 157 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 158 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 159 in font BlueHighway
+14:25:03: Info: Freetype returned null for character 160 in font BlueHighway
+14:25:03: Texture: BlueHighwayTexture: Loading 1 faces(PF_BYTE_LA,512x512x1) with  hardware generated mipmaps from Image. Internal format is PF_BYTE_LA,512x512x1.
+14:25:03: Texture: ogretext.png: Loading 1 faces(PF_A8R8G8B8,256x128x1) with 5 hardware generated mipmaps from Image. Internal format is PF_A8R8G8B8,256x128x1.
+14:25:03: Parsing script OgreLoadingPanel.overlay
+14:25:03: Finished parsing scripts for resource group Bootstrap
+14:25:03: Parsing scripts for resource group General
+14:25:03: Parsing script deferred.glsl.program
+14:25:03: Parsing script deferred_post_onepass.hlsl.program
+14:25:03: Parsing script deferred_post_minilight.glsl.program
+14:25:03: Parsing script deferred_post_multipass.glsl.program
+14:25:03: Parsing script deferred_post_onepass.glsl.program
+14:25:03: Parsing script deferred_post_minilight.hlsl.program
+14:25:03: Parsing script deferred.hlsl.program
+14:25:03: Parsing script deferred_post_debug.glsl.program
+14:25:03: Parsing script deferred_post_multipass.hlsl.program
+14:25:03: Parsing script deferred_post_debug.hlsl.program
+14:25:03: Parsing script Dirt.material
+14:25:03: Parsing script Claimed.material
+14:25:03: Parsing script Water.material
+14:25:03: Parsing script Skeleton.material
+14:25:03: Parsing script Gold.material
+14:25:03: Parsing script Knight.material
+14:25:03: Parsing script Rock.material
+14:25:03: Parsing script Lava.material
+14:25:03: Parsing script deferred_post_onepass.material
+14:25:03: Parsing script deferred.material
+14:25:03: Parsing script deferred_post_multipass.material
+14:25:03: Parsing script deferreddemo.material
+14:25:03: Parsing script deferred_post_debug.material
+14:25:03: Parsing script deferred_post_minilight.material
+14:25:03: Parsing script RomanBath.material
+14:25:03: Parsing script sample.fontdef
+14:25:03: Parsing script Example.particle
+14:25:03: Parsing script smoke.particle
+14:25:03: Parsing script Example-Water.particle
+14:25:03: Parsing script emitted_emitter.particle
+14:25:03: Parsing script Shadows.overlay
+14:25:03: Parsing script Example-DynTex.overlay
+14:25:03: Parsing script DP3.overlay
+14:25:03: Parsing script Compositor.overlay
+14:25:03: Parsing script Example-Water.overlay
+14:25:04: Parsing script Example-CubeMapping.overlay
+14:25:04: Finished parsing scripts for resource group General
+14:25:04: Parsing scripts for resource group Internal
+14:25:04: Finished parsing scripts for resource group Internal
+14:25:04: Mesh: Loading Claimed0.mesh.
+14:25:04: Mesh: Loading Claimed104.mesh.
+14:25:04: Mesh: Loading Dirt104.mesh.
+14:25:04: Mesh: Loading Dirt0.mesh.
+14:25:04: Mesh: Loading Lava0.mesh.
+14:25:04: Mesh: Loading Dirt25.mesh.
+14:25:04: Mesh: Loading Rock25.mesh.
+14:25:04: Mesh: Loading Rock104.mesh.
+14:25:04: Mesh: Loading Dirt75.mesh.
+14:25:04: Mesh: Loading Dirt50.mesh.
+14:25:04: Mesh: Loading Water0.mesh.
+14:25:04: Mesh: Loading Claimed25.mesh.
+14:25:04: Mesh: Loading Skeleton.mesh.
+14:25:04: Skeleton: Loading Skeleton.skeleton
+14:25:04: OGRE EXCEPTION(6:FileNotFoundException): Cannot locate resource Skeleton.skeleton in resource group General or any other group. in ResourceGroupManager::openResource at OgreResourceGroupManager.cpp (line 604)
+14:25:04: Unable to load skeleton Skeleton.skeleton for Mesh Skeleton.mesh. This Mesh will not be animated. You can ignore this message if you are using an offline tool.
+14:25:04: Mesh: Loading Knight.mesh.
+14:25:04: Skeleton: Loading Knight.skeleton
+14:25:04: OGRE EXCEPTION(6:FileNotFoundException): Cannot locate resource Knight.skeleton in resource group General or any other group. in ResourceGroupManager::openResource at OgreResourceGroupManager.cpp (line 604)
+14:25:04: Unable to load skeleton Knight.skeleton for Mesh Knight.mesh. This Mesh will not be animated. You can ignore this message if you are using an offline tool.
+14:25:04: OGRE EXCEPTION(6:FileNotFoundException): Cannot locate resource Knight.png in resource group General or any other group. in ResourceGroupManager::openResource at OgreResourceGroupManager.cpp (line 604)
+14:25:04: Error loading texture Knight.png. Texture layer will be blank. Loading the texture failed with the following exception: OGRE EXCEPTION(6:FileNotFoundException): Cannot locate resource Knight.png in resource group General or any other group. in ResourceGroupManager::openResource at OgreResourceGroupManager.cpp (line 604)
+14:25:04: Mesh: Loading SquareSelector.mesh.
+14:25:04: Texture: TaharezLook.tga: Loading 1 faces(PF_A8R8G8B8,256x256x1) with  hardware generated mipmaps from Image. Internal format is PF_A8R8G8B8,256x256x1.
+14:25:04: Font MyFontusing texture size 256x256
+14:25:04: Info: Freetype returned null for character 160 in font MyFont
+14:25:04: Texture: MyFontTexture: Loading 1 faces(PF_BYTE_LA,256x256x1) with  hardware generated mipmaps from Image. Internal format is PF_BYTE_LA,256x256x1.
+14:25:04: *** Initializing OIS ***
+14:25:14: Mesh: Loading Water104.mesh.
+14:25:14: Mesh: Loading Water75.mesh.
+14:25:33: Mesh: Loading Claimed50.mesh.
+14:26:23: Unregistering ResourceManager for type BspLevel
+14:26:23: *-*-* OGRE Shutdown
+14:26:23: Unregistering ResourceManager for type Compositor
+14:26:23: Unregistering ResourceManager for type Font
+14:26:23: Unregistering ResourceManager for type Skeleton
+14:26:23: Unregistering ResourceManager for type Mesh
+14:26:23: Unregistering ResourceManager for type HighLevelGpuProgram
+14:26:23: Uninstalling plugin: Octree & Terrain Scene Manager
+14:26:23: Plugin successfully uninstalled
+14:26:23: Unloading library /usr/lib/OGRE/Plugin_OctreeSceneManager.so
+14:26:23: Uninstalling plugin: BSP Scene Manager
+14:26:23: Plugin successfully uninstalled
+14:26:23: Unloading library /usr/lib/OGRE/Plugin_BSPSceneManager.so
+14:26:23: Uninstalling plugin: ParticleFX
+14:26:23: Plugin successfully uninstalled
+14:26:23: Unloading library /usr/lib/OGRE/Plugin_ParticleFX.so
+14:26:23: Uninstalling plugin: GL RenderSystem
+14:26:23: Render Target 'OGRE Render Window' Average FPS: 10.0633 Best FPS: 12.5847 Worst FPS: 3.25733
+14:26:23: Unregistering ResourceManager for type GpuProgram
+14:26:23: ******************************
+*** Stopping GLX Subsystem ***
+******************************
+14:26:23: Unregistering ResourceManager for type Texture
+14:26:23: Plugin successfully uninstalled
+14:26:23: Unloading library /usr/lib/OGRE/RenderSystem_GL.so
+14:26:23: Unregistering ResourceManager for type Material

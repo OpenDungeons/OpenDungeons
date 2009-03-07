@@ -1,0 +1,12 @@
+You may need to custom build a version of CEGUI for your system which uses a different XML parsing engine than the one some prebuilt binaries use.  When you build CEGUI use these instructions (run from the directory where you unpacked the CEGUI source code):
+
+./configure --with-default-xml-parser=TinyXMLParser
+make
+sudo make install
+
+
+Once you have done that you can build and run the game by running (from the directory where this README file is):
+
+make
+./MapEditor
+

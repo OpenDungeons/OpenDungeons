@@ -1,0 +1,14 @@
+material Concrete
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.327008 0.326186 0.326186 1.000000
+			specular 0.032882 0.049157 0.063193 1.000000 0.250000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
