@@ -1372,13 +1372,13 @@ void ExampleFrameListener::executePromptCommand()
 		{
 			if(clientSocket != NULL)
 			{
-				clientSocket->send(arguments);
+				clientSocket->send(arguments + "\n");
 			}
 			else if(serverSocket != NULL)
 			{
 				// Since the server keeps a socket for each client we
 				// need to send the chat out the right connection.
-				clientSockets[0]->send(arguments);
+				clientSockets[0]->send(arguments + "\n");
 			}
 		}
 
