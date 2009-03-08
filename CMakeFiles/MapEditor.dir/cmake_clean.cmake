@@ -6,6 +6,7 @@ FILE(REMOVE
 "CMakeFiles/MapEditor.dir/src/Client.o"
 "CMakeFiles/MapEditor.dir/src/GameMap.o"
 "CMakeFiles/MapEditor.dir/src/Socket.o"
+"CMakeFiles/MapEditor.dir/src/Server.o"
 "CMakeFiles/MapEditor.dir/src/Functions.o"
 "CMakeFiles/MapEditor.dir/src/main.o"
 "CMakeFiles/MapEditor.dir/src/MapEditor.o"

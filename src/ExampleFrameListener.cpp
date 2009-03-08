@@ -37,6 +37,7 @@ using namespace std;
 #include "Functions.h"
 #include "ExampleFrameListener.h"
 #include "Client.h"
+#include "Server.h"
 
 using namespace Ogre;
 
@@ -103,7 +104,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mDebugOverlay(0), mInputManager(0), mMouse(0), mKeyboard(0), mJoy(0),
 	mGUIRenderer(renderer), zChange(0.0), mZoomSpeed(.33),
 	mCurrentTileType(Tile::dirt), mCurrentFullness(100),
-	mDragType(ExampleFrameListener::nullDragType), frameDelay(0.0)
+	mDragType(ExampleFrameListener::nullDragType), frameDelay(0.0),
+	serverSocket(NULL), clientSocket(NULL)
 {
 	mCount = 0;
 	mCurrentObject = NULL;
@@ -112,7 +114,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mSceneMgr = sceneManager;
 	terminalActive = false;
 	prompt = "-->  ";
-	terminalWordWrap = 50;
+	terminalWordWrap = 78;
 
 	using namespace OIS;
 
@@ -312,6 +314,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		string chatBaseString = "\n---------- Chat ----------\n";
 		chatString = chatBaseString;
+
+		while(chatMessages.size() > 5)
+		{
+			chatMessages.pop_front();
+		}
+
 		for(unsigned int i = 0; i < chatMessages.size(); i++)
 		{
 			char tempArray[255];
@@ -322,15 +330,21 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		string nullString = "";
 		printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + (chatMessages.size()>0?chatString:nullString));
 
+		// Sleep to limit the framerate to the max value
 		frameDelay -= evt.timeSinceLastFrame;
 		if(frameDelay > 0.0)
 		{
-			usleep(1e6 * frameDelay);
+			cout << "one\n";
+			//usleep(1e6 * frameDelay - 10000);
+			usleep(1e6 * frameDelay );
 		}
 		else
 		{
 			frameDelay = 1.0/(double)MAX_FRAMES_PER_SECOND;
+			cout << "two\t" << frameDelay << endl;
+
 		}
+		cout.flush();
 	if(mWindow->isClosed())	return false;
 
 	//Need to capture/update each device
@@ -584,7 +598,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 
 				if(resultName.find("Creature_") != string::npos)
 				{
-					Entity *resultEnt = mSceneMgr->getEntity(resultName);
+					//Entity *resultEnt = mSceneMgr->getEntity(resultName);
 					mSceneMgr->getEntity("SquareSelector")->setVisible(false);
 
 					
@@ -949,7 +963,7 @@ void ExampleFrameListener::printText(string text)
 {
 	string tempString;
 	int lineLength = 0;
-	for(int i = 0; i < text.size(); i++)
+	for(unsigned int i = 0; i < text.size(); i++)
 	{
 		if(text[i] == '\n')
 		{
@@ -992,7 +1006,7 @@ void ExampleFrameListener::executePromptCommand()
 
 	// Split the raw text into command and argument strings
 	firstSpace = promptCommand.find(" ");
-	if(firstSpace != string::npos)
+	if((unsigned int)firstSpace != string::npos)
 	{
 		command = promptCommand.substr(0, firstSpace);
 
@@ -1011,7 +1025,7 @@ void ExampleFrameListener::executePromptCommand()
 	}
 
 	// Force command to lower case
-	for(int i = 0; i < command.size(); i++)
+	for(unsigned int i = 0; i < command.size(); i++)
 	{
 		command[i] = tolower(command[i]);
 	}
@@ -1196,6 +1210,27 @@ void ExampleFrameListener::executePromptCommand()
 			}
 		}
 
+		// Set max frames per second
+		else if(command.compare("fps") == 0)
+		{
+			char tempArray[255];
+			if(arguments.size() > 0)
+			{
+				int tempInt;
+				tempSS.str(arguments);
+				tempSS >> tempInt;
+				MAX_FRAMES_PER_SECOND = tempInt;
+				
+				sprintf(tempArray, "Maximum framerate set to %i", MAX_FRAMES_PER_SECOND);
+				commandOutput = tempArray;
+			}
+			else
+			{
+				sprintf(tempArray, "Current maximum framerate is %i", MAX_FRAMES_PER_SECOND);
+				commandOutput = tempArray;
+			}
+		}
+
 		// Add a new instance of a creature to the current map.  The argument is
 		// read as if it were a line in a .level file.
 		else if(command.compare("addcreature") == 0)
@@ -1274,39 +1309,84 @@ void ExampleFrameListener::executePromptCommand()
 		// Connect to a server
 		else if(command.compare("connect") == 0)
 		{
-			if(arguments.size() > 0)
+			if(clientSocket == NULL)
 			{
-				if(!clientSocket.create())
+				if(arguments.size() > 0)
 				{
-					commandOutput = "ERROR:  Could not create client socket!";
-					goto ConnectEndLabel;
+					clientSocket = new Socket;
+
+					if(!clientSocket->create())
+					{
+						commandOutput = "ERROR:  Could not create client socket!";
+						goto ConnectEndLabel;
+					}
+
+					if(clientSocket->connect(arguments, PORT_NUMBER))
+					{
+						commandOutput = "Connection successful.";
+
+						CSPStruct *csps = new CSPStruct;
+						csps->nSocket = clientSocket;
+						csps->nFrameListener = this;
+						
+						// Start a thread to talk to the server
+						pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
+					}
+					else
+					{
+						commandOutput = "Connection failed!";
+					}
 				}
 
-				if(clientSocket.connect(arguments, PORT_NUMBER))
-				{
-					commandOutput = "Connection successful.";
-
-					CSPStruct *csps = new CSPStruct;
-					csps->nSocket = &clientSocket;
-					csps->nFrameListener = this;
-					
-					// Start a thread to talk to the server
-					pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
-				}
-				else
-				{
-					commandOutput = "Connection failed!";
-				}
 			}
 
 		ConnectEndLabel:
 			commandOutput += "\n";
 		}
 
+		// Host a server
+		else if(command.compare("host") == 0)
+		{
+			if(serverSocket == NULL)
+			{
+				serverSocket = new Socket;
+
+				if(serverSocket != NULL)
+				{
+					SSPStruct ssps;
+					ssps.nSocket = serverSocket;
+					ssps.nFrameListener = this;
+					pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) &ssps);
+					commandOutput = "Server started successfully.";
+				}
+				else
+				{
+					commandOutput = "ERROR:  Could not start server!";
+				}
+
+			}
+		}
+
+		// Send a chat message
+		else if(command.compare("chat") == 0 || command.compare("c") == 0)
+		{
+			if(clientSocket != NULL)
+			{
+				clientSocket->send(arguments);
+			}
+			else if(serverSocket != NULL)
+			{
+				// Since the server keeps a socket for each client we
+				// need to send the chat out the right connection.
+				clientSockets[0]->send(arguments);
+			}
+		}
+
 		else commandOutput = "Command not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.";
 
 	promptCommand = "";
 }
+
 
 string ExampleFrameListener::getHelpText(string arg)
 {
@@ -1332,7 +1412,7 @@ string ExampleFrameListener::getHelpText(string arg)
 
 	else if(arg.compare("addcreature") == 0)
 	{
-		return "Add a new creature to the current map.  The creature class to be used must be loaded first, either from the loaded map file or by using the addclass command.  Once a class has been declared a creature can be loaded using that class.  The argument to the addcreature command is interpreted in the same way as a creature line in a .level file.\n\nExample:\n" + prompt + "addcreature Skeleton Bob 10 15 0\n\nThe above command adds a creature of class \"Skeleton\" whose name is \"Bob\" at location X=10, y=15, and Z=0.  The new creature's name must be unique to the creatures in that level.";
+		return "Add a new creature to the current map.  The creature class to be used must be loaded first, either from the loaded map file or by using the addclass command.  Once a class has been declared a creature can be loaded using that class.  The argument to the addcreature command is interpreted in the same way as a creature line in a .level file.\n\nExample:\n" + prompt + "addcreature Skeleton Bob 10 15 0\n\nThe above command adds a creature of class \"Skeleton\" whose name is \"Bob\" at location X=10, y=15, and Z=0.  The new creature's name must be unique to the creatures in that level.  Alternatively the name can be se to \"autoname\" to have OpenDungeons assign a unique name.";
 	}
 
 	else if(arg.compare("quit") == 0)
@@ -1370,6 +1450,17 @@ string ExampleFrameListener::getHelpText(string arg)
 		return "The ambientlight command sets the minumum light that every object in the scene is illuminated with.  It takes as it's argument and RGB triplet whose values for red, green, and blue range from 0.0 to 1.0.\n\nExample:\n" + prompt + "ambientlight 0.4 0.6 0.5\n\nThe above command sets the ambient light color to red=0.4, green=0.6, and blue = 0.5.";
 	}
 
-	return "";
+	else if(arg.compare("host") == 0)
+	{
+		//FIXME:  add some code to automatically include the default port number in this help file.
+		return "Starts a server thread running on this machine.  This utility takes a port number as an argument.  The port number is the port to listen on for a connection.  The default (if no argument is given) is to use 31222 for the port number.";
+	}
+
+	else if(arg.compare("connnect") == 0)
+	{
+		return "Connect establishes a connection with a server.  It takes as its argument an IP address specified in dotted decimal notation (such as 192.168.1.100), and starts a client thread which monitors the connection for events.";
+	}
+
+	return "Help for command:  \"" + arguments + "\" not found.";
 }
 

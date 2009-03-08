@@ -27,7 +27,7 @@ void GameMap::createNewMap(int xSize, int ySize)
 
 Tile* GameMap::getTile(int x, int y)
 {
-	for(int i = 0; i < tiles.size(); i++)
+	for(unsigned int i = 0; i < tiles.size(); i++)
 	{
 		if(tiles[i]->x == x && tiles[i]->y == y)
 		{
@@ -111,7 +111,7 @@ void GameMap::addCreature(Creature *c)
 
 Creature* GameMap::getClass(string query)
 {
-	for(int i = 0; i < classDescriptions.size(); i++)
+	for(unsigned int i = 0; i < classDescriptions.size(); i++)
 	{
 		if(classDescriptions[i]->className.compare(query) == 0)
 			return classDescriptions[i];

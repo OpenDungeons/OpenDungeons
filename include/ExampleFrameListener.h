@@ -91,6 +91,12 @@ public:
 	string consoleBuffer, promptCommand, chatString;
 
 
+	// Multiplayer stuff
+	Socket *clientSocket, *serverSocket;
+	vector<Socket*> clientSockets;
+	pthread_t clientThread;
+	pthread_t serverThread;
+
 protected:
 	Camera* mCamera;
 	SceneNode *mCamNode;
@@ -150,9 +156,6 @@ private:
 	DragType mDragType;
 	string mDraggedCreature;
 
-	// Multiplayer stuff
-	Socket clientSocket, serverSocket;
-	pthread_t clientThread;
 };
 
 #endif

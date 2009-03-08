@@ -1,3 +1,5 @@
+#include <ctype.h>
+
 #include "Functions.h"
 #include "Creature.h"
 
@@ -111,5 +113,17 @@ void writeGameMapToFile(string fileName)
 	levelFile << endl;
 
 	levelFile.close();
+}
+
+string forceLowercase(string s)
+{
+	string tempString;
+	
+	for(unsigned int i = 0; i < s.size(); i++)
+	{
+		tempString += tolower(s[i]);
+	}
+
+	return tempString;
 }
 

@@ -170,6 +170,18 @@ src/MapEditor.s:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/MapEditor.s
 
 # target to build an object file
+src/Server.o:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Server.o
+
+# target to preprocess a source file
+src/Server.i:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Server.i
+
+# target to generate assembly for a file
+src/Server.s:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Server.s
+
+# target to build an object file
 src/Socket.o:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Socket.o
 
@@ -244,6 +256,9 @@ help::
 	@echo "... src/MapEditor.o"
 	@echo "... src/MapEditor.i"
 	@echo "... src/MapEditor.s"
+	@echo "... src/Server.o"
+	@echo "... src/Server.i"
+	@echo "... src/Server.s"
 	@echo "... src/Socket.o"
 	@echo "... src/Socket.i"
 	@echo "... src/Socket.s"

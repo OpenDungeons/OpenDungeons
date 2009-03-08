@@ -8326,10 +8326,28 @@
 89	39	0	0
 
 2
-Skeleton	Skeleton.mesh	0.003	0.003	0.008
+Skeleton	Skeleton.mesh	0.004	0.004	0.008
 Knight	Knight.mesh	0.03	0.03	0.03
 
-2
-Skeleton	Skeleton1	35	27	0
-Knight	Knight1	28	22	0
+20
+Skeleton	autoname	31	29	0
+Skeleton	autoname	32	29	0
+Skeleton	autoname	33	29	0
+Skeleton	autoname	34	29	0
+Skeleton	autoname	35	29	0
+Skeleton	autoname	36	29	0
+Skeleton	autoname	37	29	0
+Skeleton	autoname	38	29	0
+Skeleton	autoname	39	29	0
+Skeleton	autoname	40	29	0
+Knight	autoname	20	22	0
+Knight	autoname	21	22	0
+Knight	autoname	22	22	0
+Knight	autoname	23	22	0
+Knight	autoname	24	22	0
+Knight	autoname	25	22	0
+Knight	autoname	26	22	0
+Knight	autoname	27	22	0
+Knight	autoname	28	22	0
+Knight	autoname	29	22	0
 

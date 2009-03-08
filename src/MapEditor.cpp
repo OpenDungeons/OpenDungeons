@@ -85,7 +85,7 @@ void MapEditor::createScene(void)
 
 	// Create the scene node that the camera attaches to
 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 1.6));
-	node->pitch(Degree(50), Node::TS_WORLD);
+	node->pitch(Degree(25), Node::TS_WORLD);
 	node->roll(Degree(30), Node::TS_WORLD);
 	node->attachObject(mCamera);
 

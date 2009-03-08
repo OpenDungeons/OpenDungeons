@@ -31,7 +31,7 @@ textBox->setPosition(x, y);
 textBox->setWidth(width);
 textBox->setHeight(height);
 textBox->setParameter("font_name", "MyFont");
-textBox->setParameter("char_height", "12");
+textBox->setParameter("char_height", "16");
 textBox->setColour(color);
 
 textBox->setCaption(text);

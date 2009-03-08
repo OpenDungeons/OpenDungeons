@@ -25,10 +25,30 @@ ostream& operator<<(ostream& os, Creature *c)
 
 istream& operator>>(istream& is, Creature *c)
 {
+	static int uniqueNumber = 10000;
 	double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
-	is >> c->className >> c->name >> xLocation >> yLocation >> zLocation;
+	string tempString;
+	is >> c->className;
+
+	is >> tempString;
+
+	if(tempString.compare((string)"autoname") == 0)
+	{
+		cout << "\n\n\n\nautoname happening...";
+
+		char tempArray[255];
+		sprintf(tempArray, "%5i", uniqueNumber);
+		cout << tempArray;
+		cout.flush();
+		tempString = string(tempArray);
+	}
+
+	c->name = tempString;
+
+	is >> xLocation >> yLocation >> zLocation;
 	c->position = Ogre::Vector3(xLocation, yLocation, zLocation);
 
+	uniqueNumber++;
 	return is;
 }
 

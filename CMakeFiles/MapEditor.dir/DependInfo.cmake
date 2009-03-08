@@ -21,6 +21,8 @@ SET(CMAKE_DEPENDS_CHECK_CXX
   "/home/buck/Code/OpenDungeons/CMakeFiles/MapEditor.dir/src/main.o"
   "/home/buck/Code/OpenDungeons/src/Functions.cpp"
   "/home/buck/Code/OpenDungeons/CMakeFiles/MapEditor.dir/src/Functions.o"
+  "/home/buck/Code/OpenDungeons/src/Server.cpp"
+  "/home/buck/Code/OpenDungeons/CMakeFiles/MapEditor.dir/src/Server.o"
   "/home/buck/Code/OpenDungeons/src/Socket.cpp"
   "/home/buck/Code/OpenDungeons/CMakeFiles/MapEditor.dir/src/Socket.o"
   )

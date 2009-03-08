@@ -52,7 +52,7 @@ CMAKE_BINARY_DIR = /home/buck/Code/OpenDungeons
 CMakeFiles/MapEditor.dir/all:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/depend
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/build
-	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles  1 2 3 4 5 6 7 8 9 10
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/buck/Code/OpenDungeons/CMakeFiles  1 2 3 4 5 6 7 8 9 10 11
 	@echo "Built target MapEditor"
 
 # Include target in all.
@@ -60,7 +60,7 @@ all: CMakeFiles/MapEditor.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/MapEditor.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/buck/Code/OpenDungeons/CMakeFiles 10
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/buck/Code/OpenDungeons/CMakeFiles 11
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/MapEditor.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/buck/Code/OpenDungeons/CMakeFiles 0
 
