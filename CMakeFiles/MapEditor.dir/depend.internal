@@ -416,12 +416,14 @@ CMakeFiles/MapEditor.dir/src/Client.o
  /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
- include/Client.h
+ include/ChatMessage.h
  include/Creature.h
  include/Defines.h
  include/ExampleFrameListener.h
  include/GameMap.h
  include/Globals.h
+ include/Network.h
+ include/Player.h
  include/Socket.h
  include/TextRenderer.h
  include/Tile.h
@@ -634,6 +636,54 @@ CMakeFiles/MapEditor.dir/src/TextRenderer.o
  /usr/include/unistd.h
  /usr/include/xlocale.h
  include/TextRenderer.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o
+ /home/buck/Code/OpenDungeons/src/ChatMessage.cpp
+ /usr/include/_G_config.h
+ /usr/include/bits/endian.h
+ /usr/include/bits/libc-lock.h
+ /usr/include/bits/libio-ldbl.h
+ /usr/include/bits/pthreadtypes.h
+ /usr/include/bits/sched.h
+ /usr/include/bits/setjmp.h
+ /usr/include/bits/sigaction.h
+ /usr/include/bits/sigcontext.h
+ /usr/include/bits/siginfo.h
+ /usr/include/bits/signum.h
+ /usr/include/bits/sigset.h
+ /usr/include/bits/sigstack.h
+ /usr/include/bits/sigthread.h
+ /usr/include/bits/stdio-ldbl.h
+ /usr/include/bits/stdio-lock.h
+ /usr/include/bits/stdio.h
+ /usr/include/bits/stdio2.h
+ /usr/include/bits/stdio_lim.h
+ /usr/include/bits/sys_errlist.h
+ /usr/include/bits/time.h
+ /usr/include/bits/types.h
+ /usr/include/bits/typesizes.h
+ /usr/include/bits/wchar-ldbl.h
+ /usr/include/bits/wchar.h
+ /usr/include/bits/wchar2.h
+ /usr/include/bits/wordsize.h
+ /usr/include/ctype.h
+ /usr/include/endian.h
+ /usr/include/features.h
+ /usr/include/gconv.h
+ /usr/include/getopt.h
+ /usr/include/gnu/stubs-32.h
+ /usr/include/gnu/stubs.h
+ /usr/include/libio.h
+ /usr/include/pthread.h
+ /usr/include/sched.h
+ /usr/include/signal.h
+ /usr/include/stdio.h
+ /usr/include/sys/cdefs.h
+ /usr/include/sys/ucontext.h
+ /usr/include/time.h
+ /usr/include/wchar.h
+ /usr/include/wctype.h
+ /usr/include/xlocale.h
+ include/ChatMessage.h
 CMakeFiles/MapEditor.dir/src/Creature.o
  /home/buck/Code/OpenDungeons/src/Creature.cpp
  /usr/include/OGRE/GLX/OgreTimerImp.h
@@ -846,6 +896,7 @@ CMakeFiles/MapEditor.dir/src/Creature.o
  include/Defines.h
  include/GameMap.h
  include/Globals.h
+ include/Player.h
  include/Tile.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o
  /home/buck/Code/OpenDungeons/src/ExampleFrameListener.cpp
@@ -1262,14 +1313,15 @@ CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o
  /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
- include/Client.h
+ include/ChatMessage.h
  include/Creature.h
  include/Defines.h
  include/ExampleFrameListener.h
  include/Functions.h
  include/GameMap.h
  include/Globals.h
- include/Server.h
+ include/Network.h
+ include/Player.h
  include/Socket.h
  include/TextRenderer.h
  include/Tile.h
@@ -1696,6 +1748,7 @@ CMakeFiles/MapEditor.dir/src/Tile.o
  include/Defines.h
  include/GameMap.h
  include/Globals.h
+ include/Player.h
  include/Tile.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o
  /home/buck/Code/OpenDungeons/src/MapEditor.cpp
@@ -2112,6 +2165,7 @@ CMakeFiles/MapEditor.dir/src/MapEditor.o
  /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
+ include/ChatMessage.h
  include/Creature.h
  include/Defines.h
  include/ExampleApplication.h
@@ -2120,6 +2174,7 @@ CMakeFiles/MapEditor.dir/src/MapEditor.o
  include/GameMap.h
  include/Globals.h
  include/MapEditor.h
+ include/Player.h
  include/Socket.h
  include/TextRenderer.h
  include/Tile.h
@@ -2538,6 +2593,7 @@ CMakeFiles/MapEditor.dir/src/main.o
  /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
+ include/ChatMessage.h
  include/Creature.h
  include/Defines.h
  include/ExampleApplication.h
@@ -2545,6 +2601,7 @@ CMakeFiles/MapEditor.dir/src/main.o
  include/GameMap.h
  include/Globals.h
  include/MapEditor.h
+ include/Player.h
  include/Socket.h
  include/TextRenderer.h
  include/Tile.h
@@ -2760,6 +2817,7 @@ CMakeFiles/MapEditor.dir/src/Functions.o
  include/Functions.h
  include/GameMap.h
  include/Globals.h
+ include/Player.h
  include/Tile.h
 CMakeFiles/MapEditor.dir/src/Server.o
  /home/buck/Code/OpenDungeons/src/Server.cpp
@@ -3176,12 +3234,14 @@ CMakeFiles/MapEditor.dir/src/Server.o
  /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
  /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
+ include/ChatMessage.h
  include/Creature.h
  include/Defines.h
  include/ExampleFrameListener.h
  include/GameMap.h
  include/Globals.h
- include/Server.h
+ include/Network.h
+ include/Player.h
  include/Socket.h
  include/TextRenderer.h
  include/Tile.h

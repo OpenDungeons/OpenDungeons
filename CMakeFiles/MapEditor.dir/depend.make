@@ -415,12 +415,14 @@ CMakeFiles/MapEditor.dir/src/Client.o: /usr/local/include/CEGUI/falagard/CEGUIFa
 CMakeFiles/MapEditor.dir/src/Client.o: /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
 CMakeFiles/MapEditor.dir/src/Client.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
 CMakeFiles/MapEditor.dir/src/Client.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
-CMakeFiles/MapEditor.dir/src/Client.o: include/Client.h
+CMakeFiles/MapEditor.dir/src/Client.o: include/ChatMessage.h
 CMakeFiles/MapEditor.dir/src/Client.o: include/Creature.h
 CMakeFiles/MapEditor.dir/src/Client.o: include/Defines.h
 CMakeFiles/MapEditor.dir/src/Client.o: include/ExampleFrameListener.h
 CMakeFiles/MapEditor.dir/src/Client.o: include/GameMap.h
 CMakeFiles/MapEditor.dir/src/Client.o: include/Globals.h
+CMakeFiles/MapEditor.dir/src/Client.o: include/Network.h
+CMakeFiles/MapEditor.dir/src/Client.o: include/Player.h
 CMakeFiles/MapEditor.dir/src/Client.o: include/Socket.h
 CMakeFiles/MapEditor.dir/src/Client.o: include/TextRenderer.h
 CMakeFiles/MapEditor.dir/src/Client.o: include/Tile.h
@@ -634,6 +636,54 @@ CMakeFiles/MapEditor.dir/src/TextRenderer.o: /usr/include/unistd.h
 CMakeFiles/MapEditor.dir/src/TextRenderer.o: /usr/include/xlocale.h
 CMakeFiles/MapEditor.dir/src/TextRenderer.o: include/TextRenderer.h
 
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: src/ChatMessage.cpp
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/_G_config.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/endian.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/libc-lock.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/libio-ldbl.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/pthreadtypes.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/sched.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/setjmp.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/sigaction.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/sigcontext.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/siginfo.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/signum.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/sigset.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/sigstack.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/sigthread.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/stdio-ldbl.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/stdio-lock.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/stdio.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/stdio2.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/stdio_lim.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/sys_errlist.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/time.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/types.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/typesizes.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/wchar-ldbl.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/wchar.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/wchar2.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/bits/wordsize.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/ctype.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/endian.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/features.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/gconv.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/getopt.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/gnu/stubs-32.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/gnu/stubs.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/libio.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/pthread.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/sched.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/signal.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/stdio.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/sys/cdefs.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/sys/ucontext.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/time.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/wchar.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/wctype.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: /usr/include/xlocale.h
+CMakeFiles/MapEditor.dir/src/ChatMessage.o: include/ChatMessage.h
+
 CMakeFiles/MapEditor.dir/src/Creature.o: src/Creature.cpp
 CMakeFiles/MapEditor.dir/src/Creature.o: /usr/include/OGRE/GLX/OgreTimerImp.h
 CMakeFiles/MapEditor.dir/src/Creature.o: /usr/include/OGRE/Ogre.h
@@ -845,6 +895,7 @@ CMakeFiles/MapEditor.dir/src/Creature.o: include/Creature.h
 CMakeFiles/MapEditor.dir/src/Creature.o: include/Defines.h
 CMakeFiles/MapEditor.dir/src/Creature.o: include/GameMap.h
 CMakeFiles/MapEditor.dir/src/Creature.o: include/Globals.h
+CMakeFiles/MapEditor.dir/src/Creature.o: include/Player.h
 CMakeFiles/MapEditor.dir/src/Creature.o: include/Tile.h
 
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: src/ExampleFrameListener.cpp
@@ -1261,14 +1312,15 @@ CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: /usr/local/include/CEGUI/fa
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
-CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Client.h
+CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/ChatMessage.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Creature.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Defines.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/ExampleFrameListener.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Functions.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/GameMap.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Globals.h
-CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Server.h
+CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Network.h
+CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Player.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Socket.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/TextRenderer.h
 CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o: include/Tile.h
@@ -1695,6 +1747,7 @@ CMakeFiles/MapEditor.dir/src/Tile.o: include/Creature.h
 CMakeFiles/MapEditor.dir/src/Tile.o: include/Defines.h
 CMakeFiles/MapEditor.dir/src/Tile.o: include/GameMap.h
 CMakeFiles/MapEditor.dir/src/Tile.o: include/Globals.h
+CMakeFiles/MapEditor.dir/src/Tile.o: include/Player.h
 CMakeFiles/MapEditor.dir/src/Tile.o: include/Tile.h
 
 CMakeFiles/MapEditor.dir/src/MapEditor.o: src/MapEditor.cpp
@@ -2111,6 +2164,7 @@ CMakeFiles/MapEditor.dir/src/MapEditor.o: /usr/local/include/CEGUI/falagard/CEGU
 CMakeFiles/MapEditor.dir/src/MapEditor.o: /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
+CMakeFiles/MapEditor.dir/src/MapEditor.o: include/ChatMessage.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: include/Creature.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: include/Defines.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: include/ExampleApplication.h
@@ -2119,6 +2173,7 @@ CMakeFiles/MapEditor.dir/src/MapEditor.o: include/Functions.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: include/GameMap.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: include/Globals.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: include/MapEditor.h
+CMakeFiles/MapEditor.dir/src/MapEditor.o: include/Player.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: include/Socket.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: include/TextRenderer.h
 CMakeFiles/MapEditor.dir/src/MapEditor.o: include/Tile.h
@@ -2537,6 +2592,7 @@ CMakeFiles/MapEditor.dir/src/main.o: /usr/local/include/CEGUI/falagard/CEGUIFalS
 CMakeFiles/MapEditor.dir/src/main.o: /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
 CMakeFiles/MapEditor.dir/src/main.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
 CMakeFiles/MapEditor.dir/src/main.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
+CMakeFiles/MapEditor.dir/src/main.o: include/ChatMessage.h
 CMakeFiles/MapEditor.dir/src/main.o: include/Creature.h
 CMakeFiles/MapEditor.dir/src/main.o: include/Defines.h
 CMakeFiles/MapEditor.dir/src/main.o: include/ExampleApplication.h
@@ -2544,6 +2600,7 @@ CMakeFiles/MapEditor.dir/src/main.o: include/ExampleFrameListener.h
 CMakeFiles/MapEditor.dir/src/main.o: include/GameMap.h
 CMakeFiles/MapEditor.dir/src/main.o: include/Globals.h
 CMakeFiles/MapEditor.dir/src/main.o: include/MapEditor.h
+CMakeFiles/MapEditor.dir/src/main.o: include/Player.h
 CMakeFiles/MapEditor.dir/src/main.o: include/Socket.h
 CMakeFiles/MapEditor.dir/src/main.o: include/TextRenderer.h
 CMakeFiles/MapEditor.dir/src/main.o: include/Tile.h
@@ -2759,6 +2816,7 @@ CMakeFiles/MapEditor.dir/src/Functions.o: include/Creature.h
 CMakeFiles/MapEditor.dir/src/Functions.o: include/Functions.h
 CMakeFiles/MapEditor.dir/src/Functions.o: include/GameMap.h
 CMakeFiles/MapEditor.dir/src/Functions.o: include/Globals.h
+CMakeFiles/MapEditor.dir/src/Functions.o: include/Player.h
 CMakeFiles/MapEditor.dir/src/Functions.o: include/Tile.h
 
 CMakeFiles/MapEditor.dir/src/Server.o: src/Server.cpp
@@ -3175,12 +3233,14 @@ CMakeFiles/MapEditor.dir/src/Server.o: /usr/local/include/CEGUI/falagard/CEGUIFa
 CMakeFiles/MapEditor.dir/src/Server.o: /usr/local/include/CEGUI/falagard/CEGUIFalTextComponent.h
 CMakeFiles/MapEditor.dir/src/Server.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetComponent.h
 CMakeFiles/MapEditor.dir/src/Server.o: /usr/local/include/CEGUI/falagard/CEGUIFalWidgetLookFeel.h
+CMakeFiles/MapEditor.dir/src/Server.o: include/ChatMessage.h
 CMakeFiles/MapEditor.dir/src/Server.o: include/Creature.h
 CMakeFiles/MapEditor.dir/src/Server.o: include/Defines.h
 CMakeFiles/MapEditor.dir/src/Server.o: include/ExampleFrameListener.h
 CMakeFiles/MapEditor.dir/src/Server.o: include/GameMap.h
 CMakeFiles/MapEditor.dir/src/Server.o: include/Globals.h
-CMakeFiles/MapEditor.dir/src/Server.o: include/Server.h
+CMakeFiles/MapEditor.dir/src/Server.o: include/Network.h
+CMakeFiles/MapEditor.dir/src/Server.o: include/Player.h
 CMakeFiles/MapEditor.dir/src/Server.o: include/Socket.h
 CMakeFiles/MapEditor.dir/src/Server.o: include/TextRenderer.h
 CMakeFiles/MapEditor.dir/src/Server.o: include/Tile.h

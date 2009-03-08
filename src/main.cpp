@@ -4,11 +4,14 @@ using namespace std;
 #include "Defines.h"
 #include "MapEditor.h"
 #include "GameMap.h"
+#include "Player.h"
 
 SceneManager* mSceneMgr;
 GameMap gameMap;
 string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
 int MAX_FRAMES_PER_SECOND = 15;
+vector<Player*> players;
+Player *me;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN

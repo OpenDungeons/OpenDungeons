@@ -8330,24 +8330,24 @@ Skeleton	Skeleton.mesh	0.004	0.004	0.008
 Knight	Knight.mesh	0.03	0.03	0.03
 
 20
-Skeleton	10000	31	29	0
-Skeleton	10001	32	29	0
-Skeleton	10002	33	29	0
-Skeleton	10003	34	29	0
-Skeleton	10004	35	29	0
-Skeleton	10005	36	29	0
-Skeleton	10006	37	29	0
-Skeleton	10007	38	29	0
-Skeleton	10008	39	29	0
-Skeleton	10009	40	29	0
-Knight	10010	20	22	0
-Knight	10011	21	22	0
-Knight	10012	22	22	0
-Knight	10013	23	22	0
-Knight	10014	24	22	0
-Knight	10015	25	22	0
-Knight	10016	26	22	0
-Knight	10017	27	22	0
-Knight	10018	28	22	0
-Knight	10019	29	22	0
+Skeleton	Skeleton_0001	31	29	0
+Skeleton	Skeleton_0002	32	29	0
+Skeleton	Skeleton_0003	33	29	0
+Skeleton	Skeleton_0004	34	29	0
+Skeleton	Skeleton_0005	35	29	0
+Skeleton	Skeleton_0006	36	29	0
+Skeleton	Skeleton_0007	37	29	0
+Skeleton	Skeleton_0008	38	29	0
+Skeleton	Skeleton_0009	39	29	0
+Skeleton	Skeleton_0010	40	29	0
+Knight	Knight_0011	20	22	0
+Knight	Knight_0012	21	22	0
+Knight	Knight_0013	22	22	0
+Knight	Knight_0014	23	22	0
+Knight	Knight_0015	24	22	0
+Knight	Knight_0016	25	22	0
+Knight	Knight_0017	26	22	0
+Knight	Knight_0018	27	22	0
+Knight	Knight_0019	28	22	0
+Knight	Knight_0020	29	22	0
 

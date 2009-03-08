@@ -25,21 +25,17 @@ ostream& operator<<(ostream& os, Creature *c)
 
 istream& operator>>(istream& is, Creature *c)
 {
-	static int uniqueNumber = 10000;
+	static int uniqueNumber = 1;
 	double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
 	string tempString;
 	is >> c->className;
 
 	is >> tempString;
 
-	if(tempString.compare((string)"autoname") == 0)
+	if(tempString.compare("autoname") == 0)
 	{
-		cout << "\n\n\n\nautoname happening...";
-
 		char tempArray[255];
-		sprintf(tempArray, "%5i", uniqueNumber);
-		cout << tempArray;
-		cout.flush();
+		sprintf(tempArray, "%s_%04i", c->className.c_str(), uniqueNumber);
 		tempString = string(tempArray);
 	}
 
@@ -77,5 +73,19 @@ void Creature::destroyMesh()
 	node->detachObject( ent );
 	mSceneMgr->destroyEntity( ent );
 	mSceneMgr->destroySceneNode( (name + "_node") );
+}
+
+void Creature::setPosition(double x, double y, double z)
+{
+	SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(name + "_node");
+
+	//FIXME: X-Y reversal issue.
+	creatureSceneNode->setPosition(y/BLENDER_UNITS_PER_OGRE_UNIT, x/BLENDER_UNITS_PER_OGRE_UNIT, z/BLENDER_UNITS_PER_OGRE_UNIT);
+	gameMap.getCreature(name)->position = Ogre::Vector3(y, x, z);
+}
+
+Ogre::Vector3 Creature::getPosition()
+{
+	return position;
 }
 

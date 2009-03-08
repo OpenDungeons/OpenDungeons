@@ -27,3 +27,9 @@ Once you have built and installed the CEGUI libraries, return to the OpenDungeon
 	make
 	./MapEditor
 
+
+*  Once the game is loaded, clicking the mouse, before moving the mouse will produce a crash.
+
+*  While the game is loading you must keep the mouse inside the game window.  When
+the scene initializes if the mouse cursor is outside of the window it will
+cause a crash.

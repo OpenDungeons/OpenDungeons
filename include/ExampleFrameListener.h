@@ -46,6 +46,7 @@ using namespace Ogre;
 #include "TextRenderer.h"
 #include "Socket.h"
 #include "Tile.h"
+#include "ChatMessage.h"
 
 class ExampleFrameListener: public FrameListener, public WindowEventListener, public OIS::MouseListener, public OIS::KeyListener
 {
@@ -87,7 +88,8 @@ public:
 	
 	// Console variables
 	string command, arguments, commandOutput, prompt;
-	deque< pair<time_t, string> > chatMessages;
+	//deque< pair<time_t, string> > chatMessages;
+	deque< ChatMessage* > chatMessages;
 	string consoleBuffer, promptCommand, chatString;
 
 

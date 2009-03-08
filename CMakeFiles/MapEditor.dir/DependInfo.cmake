@@ -7,6 +7,8 @@ SET(CMAKE_DEPENDS_CHECK_CXX
   "/home/buck/Code/OpenDungeons/CMakeFiles/MapEditor.dir/src/Client.o"
   "/home/buck/Code/OpenDungeons/src/TextRenderer.cpp"
   "/home/buck/Code/OpenDungeons/CMakeFiles/MapEditor.dir/src/TextRenderer.o"
+  "/home/buck/Code/OpenDungeons/src/ChatMessage.cpp"
+  "/home/buck/Code/OpenDungeons/CMakeFiles/MapEditor.dir/src/ChatMessage.o"
   "/home/buck/Code/OpenDungeons/src/Creature.cpp"
   "/home/buck/Code/OpenDungeons/CMakeFiles/MapEditor.dir/src/Creature.o"
   "/home/buck/Code/OpenDungeons/src/ExampleFrameListener.cpp"

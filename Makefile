@@ -98,6 +98,18 @@ MapEditor/fast:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/build
 
 # target to build an object file
+src/ChatMessage.o:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/ChatMessage.o
+
+# target to preprocess a source file
+src/ChatMessage.i:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/ChatMessage.i
+
+# target to generate assembly for a file
+src/ChatMessage.s:
+	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/ChatMessage.s
+
+# target to build an object file
 src/Client.o:
 	$(MAKE) -f CMakeFiles/MapEditor.dir/build.make CMakeFiles/MapEditor.dir/src/Client.o
 
@@ -238,6 +250,9 @@ help::
 	@echo "... MapEditor"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
+	@echo "... src/ChatMessage.o"
+	@echo "... src/ChatMessage.i"
+	@echo "... src/ChatMessage.s"
 	@echo "... src/Client.o"
 	@echo "... src/Client.i"
 	@echo "... src/Client.s"

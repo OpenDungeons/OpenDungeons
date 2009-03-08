@@ -1,3 +1,7 @@
+/home/buck/Code/OpenDungeons/src/ChatMessage.cpp
+ChatMessage.h
+/home/buck/Code/OpenDungeons/src/ChatMessage.h
+
 /home/buck/Code/OpenDungeons/src/Client.cpp
 stdio.h
 /home/buck/Code/OpenDungeons/src/stdio.h
@@ -9,8 +13,10 @@ Socket.h
 /home/buck/Code/OpenDungeons/src/Socket.h
 ExampleFrameListener.h
 /home/buck/Code/OpenDungeons/src/ExampleFrameListener.h
-Client.h
-/home/buck/Code/OpenDungeons/src/Client.h
+Network.h
+/home/buck/Code/OpenDungeons/src/Network.h
+ChatMessage.h
+/home/buck/Code/OpenDungeons/src/ChatMessage.h
 
 /home/buck/Code/OpenDungeons/src/Creature.cpp
 Creature.h
@@ -39,10 +45,12 @@ Functions.h
 /home/buck/Code/OpenDungeons/src/Functions.h
 ExampleFrameListener.h
 /home/buck/Code/OpenDungeons/src/ExampleFrameListener.h
-Client.h
-/home/buck/Code/OpenDungeons/src/Client.h
-Server.h
-/home/buck/Code/OpenDungeons/src/Server.h
+Creature.h
+/home/buck/Code/OpenDungeons/src/Creature.h
+ChatMessage.h
+/home/buck/Code/OpenDungeons/src/ChatMessage.h
+Network.h
+/home/buck/Code/OpenDungeons/src/Network.h
 
 /home/buck/Code/OpenDungeons/src/Functions.cpp
 ctype.h
@@ -80,7 +88,7 @@ Tile.h
 
 /home/buck/Code/OpenDungeons/src/Server.cpp
 stdio.h
-/home/buck/Code/OpenDungeons/src/stdio.h
+-
 string
 -
 Defines.h
@@ -89,8 +97,10 @@ Socket.h
 /home/buck/Code/OpenDungeons/src/Socket.h
 ExampleFrameListener.h
 /home/buck/Code/OpenDungeons/src/ExampleFrameListener.h
-Server.h
-/home/buck/Code/OpenDungeons/src/Server.h
+Network.h
+/home/buck/Code/OpenDungeons/src/Network.h
+ChatMessage.h
+/home/buck/Code/OpenDungeons/src/ChatMessage.h
 
 /home/buck/Code/OpenDungeons/src/Socket.cpp
 Socket.h
@@ -125,6 +135,8 @@ MapEditor.h
 /home/buck/Code/OpenDungeons/src/MapEditor.h
 GameMap.h
 /home/buck/Code/OpenDungeons/src/GameMap.h
+Player.h
+/home/buck/Code/OpenDungeons/src/Player.h
 windows.h
 /home/buck/Code/OpenDungeons/src/windows.h
 
@@ -3964,10 +3976,10 @@ falagard/CEGUIFalNamedArea.h
 map
 -
 
-include/Client.h
-deque
+include/ChatMessage.h
+stdio.h
 -
-utility
+string
 -
 
 include/Creature.h
@@ -4021,6 +4033,8 @@ Socket.h
 include/Socket.h
 Tile.h
 include/Tile.h
+ChatMessage.h
+include/ChatMessage.h
 
 include/Functions.h
 string
@@ -4047,6 +4061,8 @@ Tile.h
 include/Tile.h
 GameMap.h
 include/GameMap.h
+Player.h
+include/Player.h
 
 include/MapEditor.h
 string
@@ -4068,10 +4084,14 @@ OIS/OIS.h
 OgreCEGUIRenderer.h
 -
 
-include/Server.h
+include/Network.h
 deque
 -
 utility
+-
+
+include/Player.h
+string
 -
 
 include/Socket.h

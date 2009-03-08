@@ -1,0 +1,6 @@
+CMakeCache.txt
+*.log
+CMakeFiles/*
+MapEditor
+Makefile
+

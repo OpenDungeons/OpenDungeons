@@ -3,6 +3,7 @@ FILE(REMOVE
 "MapEditor"
 "CMakeFiles/MapEditor.dir/src/Creature.o"
 "CMakeFiles/MapEditor.dir/src/ExampleFrameListener.o"
+"CMakeFiles/MapEditor.dir/src/ChatMessage.o"
 "CMakeFiles/MapEditor.dir/src/Client.o"
 "CMakeFiles/MapEditor.dir/src/GameMap.o"
 "CMakeFiles/MapEditor.dir/src/Socket.o"

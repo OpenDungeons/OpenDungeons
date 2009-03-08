@@ -36,8 +36,9 @@ using namespace std;
 #include "Globals.h"
 #include "Functions.h"
 #include "ExampleFrameListener.h"
-#include "Client.h"
-#include "Server.h"
+#include "Creature.h"
+#include "ChatMessage.h"
+#include "Network.h"
 
 using namespace Ogre;
 
@@ -115,6 +116,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	terminalActive = false;
 	prompt = "-->  ";
 	terminalWordWrap = 78;
+	me = new Player;
+	me->nick = "";
 
 	using namespace OIS;
 
@@ -315,16 +318,18 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		string chatBaseString = "\n---------- Chat ----------\n";
 		chatString = chatBaseString;
 
+		// Only keep the N newest chat messages
 		while(chatMessages.size() > 5)
 		{
+			delete chatMessages.front();
 			chatMessages.pop_front();
 		}
 
 		for(unsigned int i = 0; i < chatMessages.size(); i++)
 		{
 			char tempArray[255];
-			sprintf(tempArray, "%li: %s", chatMessages[i].first, chatMessages[i].second.c_str());
-			chatString += tempArray;
+			sprintf(tempArray, "%li: %s: %s", chatMessages[i]->recvTime, chatMessages[i]->clientNick.c_str(), chatMessages[i]->message.c_str());
+			chatString += (string)tempArray + "\n";
 		}
 
 		string nullString = "";
@@ -334,23 +339,21 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		frameDelay -= evt.timeSinceLastFrame;
 		if(frameDelay > 0.0)
 		{
-			cout << "one\n";
-			//usleep(1e6 * frameDelay - 10000);
 			usleep(1e6 * frameDelay );
 		}
 		else
 		{
-			frameDelay = 1.0/(double)MAX_FRAMES_PER_SECOND;
-			cout << "two\t" << frameDelay << endl;
-
+			//FIXME: I think this 2.0 should be a 1.0 but this gives the
+			// correct result.  This probably indicates a bug.
+			frameDelay += 2.0/(double)MAX_FRAMES_PER_SECOND;
 		}
-		cout.flush();
+
 	if(mWindow->isClosed())	return false;
 
 	//Need to capture/update each device
 	mKeyboard->capture();
 	mMouse->capture();
-	if( mJoy ) mJoy->capture();
+	//if( mJoy ) mJoy->capture();
 
 	bool buffJ = (mJoy) ? mJoy->buffered() : true;
 
@@ -668,13 +671,14 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 		// Check to see if we are moving a creature
 		if(mDragType == ExampleFrameListener::creature)
 		{
-			SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(mDraggedCreature	+ "_node");
+			//FIXME: X-Y reversal issue.
+			SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
 			mSceneMgr->getSceneNode("SquareSelectorNode")->removeChild(creatureSceneNode);
 			mSceneMgr->getRootSceneNode()->addChild(creatureSceneNode);
-			creatureSceneNode->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
 			mDragType = ExampleFrameListener::nullDragType;
-			gameMap.getCreature(mDraggedCreature)->position = Ogre::Vector3(yPos, xPos, 0);
-
+			gameMap.getCreature(mDraggedCreature)->setPosition(xPos, yPos, 0);
+			//creatureSceneNode->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
+			//gameMap.getCreature(mDraggedCreature)->position = Ogre::Vector3(yPos, xPos, 0);
 		}
 
 		// Check to see if we are dragging out a selection of tiles
@@ -1191,6 +1195,7 @@ void ExampleFrameListener::executePromptCommand()
 			}
 		}
 
+		// A utility to set the camera rotation speed.
 		else if(command.compare("rotatespeed") == 0)
 		{
 			char tempArray[255];
@@ -1213,6 +1218,7 @@ void ExampleFrameListener::executePromptCommand()
 		// Set max frames per second
 		else if(command.compare("fps") == 0)
 		{
+		Ogre::Vector3 getPosition();
 			char tempArray[255];
 			if(arguments.size() > 0)
 			{
@@ -1248,7 +1254,7 @@ void ExampleFrameListener::executePromptCommand()
 				// Create the mesh and SceneNode for the new creature
 				Entity *ent = mSceneMgr->createEntity( ("Creature_" + tempCreature->name).c_str(), tempCreature->meshName.c_str());
 				SceneNode *node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (tempCreature->name + "_node").c_str() );
-				node->setPosition(tempCreature->position/BLENDER_UNITS_PER_OGRE_UNIT);
+				node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
 				//FIXME: Something needs to be done about the caling issue here.
 				//node->setScale(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT);
 				node->setScale(tempCreature->scale);
@@ -1275,7 +1281,7 @@ void ExampleFrameListener::executePromptCommand()
 
 		// Print out various lists of information, the creatures in the
 		// scene, the levels available for loading, etc
-		else if(command.compare("list") == 0)
+		else if(command.compare("list") == 0 || command.compare("ls") == 0)
 		{
 			if(arguments.size() > 0)
 			{
@@ -1284,12 +1290,39 @@ void ExampleFrameListener::executePromptCommand()
 
 				if(arguments.compare("creatures") == 0)
 				{
+					tempSS << "Class:\tCreature name:\tLocation:\n\n";
 					for(int i = 0; i < gameMap.numCreatures(); i++)
 					{
 						tempSS << gameMap.getCreature(i);
-						commandOutput += tempSS.str();
 					}
 				}
+
+				else if(arguments.compare("classes") == 0)
+				{
+					tempSS << "Class:\tMesh:\tScale\n\n";
+					for(int i = 0; i < gameMap.numClassDescriptions(); i++)
+					{
+						Creature *currentClassDesc = gameMap.getClassDescription(i);
+						tempSS << currentClassDesc->className << "\t" << currentClassDesc->meshName << "\t";
+						tempSS << currentClassDesc->scale << "\n";
+					}
+				}
+
+				else if(arguments.compare("players") == 0)
+				{
+					tempSS << "Not implemented yet.";
+				}
+
+				else if(arguments.compare("network") == 0)
+				{
+					tempSS << "Not implemented yet.";
+				}
+
+				commandOutput = tempSS.str();
+			}
+			else
+			{
+				commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork";
 			}
 		}
 
@@ -1306,64 +1339,101 @@ void ExampleFrameListener::executePromptCommand()
 			}
 		}
 
+		// Set your nickname
+		else if(command.compare("nick") == 0)
+		{
+			char tempArray[255];
+			if(arguments.size() > 0)
+			{
+				tempSS.str(arguments);
+				tempSS >> me->nick;
+				sprintf(tempArray, "Nickname set to %s", me->nick.c_str());
+				commandOutput = tempArray;
+			}
+			else
+			{
+				sprintf(tempArray, "Current nickname is %s", me->nick.c_str());
+				commandOutput = tempArray;
+			}
+		}
+
 		// Connect to a server
 		else if(command.compare("connect") == 0)
 		{
-			if(clientSocket == NULL)
+			if(me->nick.size() > 0)
 			{
-				if(arguments.size() > 0)
+				if(clientSocket == NULL)
 				{
-					clientSocket = new Socket;
-
-					if(!clientSocket->create())
+					if(arguments.size() > 0)
 					{
-						commandOutput = "ERROR:  Could not create client socket!";
-						goto ConnectEndLabel;
-					}
+						clientSocket = new Socket;
 
-					if(clientSocket->connect(arguments, PORT_NUMBER))
-					{
-						commandOutput = "Connection successful.";
+						if(!clientSocket->create())
+						{
+							commandOutput = "ERROR:  Could not create client socket!";
+							goto ConnectEndLabel;
+						}
 
-						CSPStruct *csps = new CSPStruct;
-						csps->nSocket = clientSocket;
-						csps->nFrameListener = this;
-						
-						// Start a thread to talk to the server
-						pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
+						if(clientSocket->connect(arguments, PORT_NUMBER))
+						{
+							commandOutput = "Connection successful.";
+
+							CSPStruct *csps = new CSPStruct;
+							csps->nSocket = clientSocket;
+							csps->nFrameListener = this;
+							
+							// Start a thread to talk to the server
+							pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
+						}
+						else
+						{
+							commandOutput = "Connection failed!";
+						}
 					}
 					else
 					{
-						commandOutput = "Connection failed!";
+						commandOutput = "You must specify the IP address of the server you want to connect to.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1";
 					}
-				}
 
+				}
+			}
+			else
+			{
+				commandOutput = "You must set a nick with the \"nick\" command before you can join a server.";
 			}
 
 		ConnectEndLabel:
 			commandOutput += "\n";
+
 		}
 
 		// Host a server
 		else if(command.compare("host") == 0)
 		{
-			if(serverSocket == NULL)
+			if(me->nick.size() > 0)
 			{
-				serverSocket = new Socket;
-
-				if(serverSocket != NULL)
+				if(serverSocket == NULL)
 				{
-					SSPStruct ssps;
-					ssps.nSocket = serverSocket;
-					ssps.nFrameListener = this;
-					pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) &ssps);
-					commandOutput = "Server started successfully.";
-				}
-				else
-				{
-					commandOutput = "ERROR:  Could not start server!";
-				}
+					serverSocket = new Socket;
 
+					if(serverSocket != NULL)
+					{
+						SSPStruct ssps;
+						ssps.nSocket = serverSocket;
+						ssps.nFrameListener = this;
+						pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) &ssps);
+						commandOutput = "Server started successfully.";
+					}
+					else
+					{
+						commandOutput = "ERROR:  Could not start server!";
+					}
+
+				}
+			}
+			else
+			{
+				commandOutput = "You must set a nick with the \"nick\" command before you can host a server.";
 			}
 		}
 
@@ -1372,13 +1442,13 @@ void ExampleFrameListener::executePromptCommand()
 		{
 			if(clientSocket != NULL)
 			{
-				clientSocket->send(arguments + "\n");
+				clientSocket->send(formatCommand("chat", me->nick + ":" + arguments));
 			}
 			else if(serverSocket != NULL)
 			{
 				// Since the server keeps a socket for each client we
 				// need to send the chat out the right connection.
-				clientSockets[0]->send(arguments + "\n");
+				clientSockets[0]->send(formatCommand("chat", me->nick + ":" + arguments));
 			}
 		}
 
@@ -1459,6 +1529,11 @@ string ExampleFrameListener::getHelpText(string arg)
 	else if(arg.compare("connnect") == 0)
 	{
 		return "Connect establishes a connection with a server.  It takes as its argument an IP address specified in dotted decimal notation (such as 192.168.1.100), and starts a client thread which monitors the connection for events.";
+	}
+
+	else if(arg.compare("chat") == 0)
+	{
+		return "Chat (or c for short) is a utility to send messages to other players participating in the same game.  The argument to chat is broadcast to all members of the game, along with the nick of the person who sent the chat message.  When a chat message is recieved it is added to the chat buffer along with a timestamp indicating when it was recieved.\n\nThe chat buffer displays the last n chat messages recieved.  The number of displayed messages can be set with the \"chathist\" command.  Displayed chat messages will also be removed from the chat buffer after they age beyond a certain point.";
 	}
 
 	return "Help for command:  \"" + arguments + "\" not found.";

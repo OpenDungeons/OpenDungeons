@@ -14,6 +14,8 @@ class Creature
 		friend istream& operator>>(istream& is, Creature *c);
 		void createMesh();
 		void destroyMesh();
+		void setPosition(double x, double y, double z);
+		Ogre::Vector3 getPosition();
 
 		// Class properties
 		string className;
@@ -23,9 +25,11 @@ class Creature
 		// Individual properties
 		string name;
 		string meshID, nodeID;
-		Ogre::Vector3 position;
 		int color;
 		int hp, mana;
+
+	private:
+		Ogre::Vector3 position;
 };
 
 #endif
