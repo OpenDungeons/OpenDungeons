@@ -731,6 +731,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				break;
 
 			case OIS::KC_GRAVE:
+			case OIS::KC_F12:
 				terminalActive = true;
 
 				/*
@@ -848,6 +849,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				break;
 
 			case KC_GRAVE:
+			case OIS::KC_F12:
 			case KC_ESCAPE:
 				terminalActive = false;
 				//printText(MOTD + chatString);

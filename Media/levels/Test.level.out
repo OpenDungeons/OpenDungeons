@@ -8334,7 +8334,7 @@ Skeleton	Skeleton_0001	31	29	0
 Skeleton	Skeleton_0002	32	29	0
 Skeleton	Skeleton_0003	33	29	0
 Skeleton	Skeleton_0004	34	29	0
-Skeleton	Skeleton_0005	35	29	0
+Skeleton	Skeleton_0005	37	24	0
 Skeleton	Skeleton_0006	36	29	0
 Skeleton	Skeleton_0007	37	29	0
 Skeleton	Skeleton_0008	38	29	0
@@ -8342,9 +8342,9 @@ Skeleton	Skeleton_0009	39	29	0
 Skeleton	Skeleton_0010	40	29	0
 Knight	Knight_0011	20	22	0
 Knight	Knight_0012	21	22	0
-Knight	Knight_0013	22	22	0
+Knight	Knight_0013	26	20	0
 Knight	Knight_0014	23	22	0
-Knight	Knight_0015	24	22	0
+Knight	Knight_0015	26	18	0
 Knight	Knight_0016	25	22	0
 Knight	Knight_0017	26	22	0
 Knight	Knight_0018	27	22	0
