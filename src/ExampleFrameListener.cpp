@@ -454,123 +454,123 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 	CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
 	string  resultName;
 
-		//FIXME:  This code should be put into a function it is duplicated by mousePressed()
-		// Setup the ray scene query, use CEGUI's mouse position
-		CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();
-		Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x/float(arg.state.width), mousePos.d_y/float(arg.state.height));
-		mRaySceneQuery->setRay(mouseRay);
-		mRaySceneQuery->setSortByDistance(true);
+	//FIXME:  This code should be put into a function it is duplicated by mousePressed()
+	// Setup the ray scene query, use CEGUI's mouse position
+	CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();
+	Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x/float(arg.state.width), mousePos.d_y/float(arg.state.height));
+	mRaySceneQuery->setRay(mouseRay);
+	mRaySceneQuery->setSortByDistance(true);
+	
+	// Execute query
+	RaySceneQueryResult &result = mRaySceneQuery->execute();
+	RaySceneQueryResult::iterator itr = result.begin( );
+
+	if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::nullDragType)
+	{
+		// See if the mouse is over any creatures
+		while (itr != result.end() )
+		{
+			if(itr->movable != NULL)
+			{
+				resultName = itr->movable->getName();
+
+				if(resultName.find("Creature_") != string::npos)
+				{
+					mSceneMgr->getEntity(resultName);
+					mSceneMgr->getEntity("SquareSelector")->setVisible(false);
+					break;
+				}
+
+			}
+
+			itr++;
+		}
+
+		// If no creatures are under the  mouse run through the list again to check for tiles
+		itr = result.begin( );
+		while(itr != result.end())
+		{
+			if(itr->movable != NULL)
+			{
+				resultName = itr->movable->getName();
+				if(resultName.find("Level_") != string::npos)
+				{
+					sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
+
+					mSceneMgr->getEntity("SquareSelector")->setVisible(true);
+					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
+
+					if(mLMouseDown)
+					{
+						for(int i = 0; i < gameMap.numTiles(); i++)
+						{
+							Tile *tempTile = gameMap.getTile(i);
+							if(tempTile->x >= min(xPos, mLStartDragX) && \
+									tempTile->x <= max(xPos, mLStartDragX) && \
+									tempTile->y >= min(yPos, mLStartDragY) && \
+									tempTile->y <= max(yPos, mLStartDragY))
+							{
+								gameMap.getTile(i)->setSelected(true);
+							}
+							else
+							{
+								gameMap.getTile(i)->setSelected(false);
+							}
+
+						}
+					}
+
+					if(mRMouseDown)
+					{
+						for(int i = 0; i < gameMap.numTiles(); i++)
+						{
+							Tile *tempTile = gameMap.getTile(i);
+							if(tempTile->x >= min(xPos, mRStartDragX) && \
+									tempTile->x <= max(xPos, mRStartDragX) && \
+									tempTile->y >= min(yPos, mRStartDragY) && \
+									tempTile->y <= max(yPos, mRStartDragY))
+							{
+								gameMap.getTile(i)->setSelected(true);
+							}
+							else
+							{
+								gameMap.getTile(i)->setSelected(false);
+							}
+
+						}
+					}
+
+					break;
+				}
+			}
+
+			itr++;
+		}
+	}
+	else //if(mDragType == ExampleFrameListener::creature)
+	{
+		itr = result.begin( );
+		while(itr != result.end())
+		{
+			if(itr->movable != NULL)
+			{
+				resultName = itr->movable->getName();
+				cout << resultName << "\n";
+				if(resultName.find("Level_") != string::npos)
+				{
+					sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
+		cout << "Other thing happenening\n" << xPos << "\t" << yPos << "\n";
+		cout.flush();
 		
-		// Execute query
-		RaySceneQueryResult &result = mRaySceneQuery->execute();
-		RaySceneQueryResult::iterator itr = result.begin( );
 
-		if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::nullDragType)
-		{
-			// See if the mouse is over any creatures
-			while (itr != result.end() )
-			{
-				if(itr->movable != NULL)
-				{
-					resultName = itr->movable->getName();
-
-					if(resultName.find("Creature_") != string::npos)
-					{
-						mSceneMgr->getEntity(resultName);
-						mSceneMgr->getEntity("SquareSelector")->setVisible(false);
-						break;
-					}
-
+					mSceneMgr->getEntity("SquareSelector")->setVisible(true);
+					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
 				}
-
-				itr++;
 			}
 
-			// If no creatures are under the  mouse run through the list again to check for tiles
-			itr = result.begin( );
-			while(itr != result.end())
-			{
-				if(itr->movable != NULL)
-				{
-					resultName = itr->movable->getName();
-					if(resultName.find("Level_") != string::npos)
-					{
-						sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
-
-						mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-						mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
-
-						if(mLMouseDown)
-						{
-							for(int i = 0; i < gameMap.numTiles(); i++)
-							{
-								Tile *tempTile = gameMap.getTile(i);
-								if(tempTile->x >= min(xPos, mLStartDragX) && \
-										tempTile->x <= max(xPos, mLStartDragX) && \
-										tempTile->y >= min(yPos, mLStartDragY) && \
-										tempTile->y <= max(yPos, mLStartDragY))
-								{
-									gameMap.getTile(i)->setSelected(true);
-								}
-								else
-								{
-									gameMap.getTile(i)->setSelected(false);
-								}
-
-							}
-						}
-
-						if(mRMouseDown)
-						{
-							for(int i = 0; i < gameMap.numTiles(); i++)
-							{
-								Tile *tempTile = gameMap.getTile(i);
-								if(tempTile->x >= min(xPos, mRStartDragX) && \
-										tempTile->x <= max(xPos, mRStartDragX) && \
-										tempTile->y >= min(yPos, mRStartDragY) && \
-										tempTile->y <= max(yPos, mRStartDragY))
-								{
-									gameMap.getTile(i)->setSelected(true);
-								}
-								else
-								{
-									gameMap.getTile(i)->setSelected(false);
-								}
-
-							}
-						}
-
-						break;
-					}
-				}
-
-				itr++;
-			}
+			itr++;
 		}
-		else //if(mDragType == ExampleFrameListener::creature)
-		{
-			itr = result.begin( );
-			while(itr != result.end())
-			{
-				if(itr->movable != NULL)
-				{
-					resultName = itr->movable->getName();
-					cout << resultName << "\n";
-					if(resultName.find("Level_") != string::npos)
-					{
-						sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
-			cout << "Other thing happenening\n" << xPos << "\t" << yPos << "\n";
-			cout.flush();
-			
-
-						mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-						mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
-					}
-				}
-
-				itr++;
-			}
-		}
+	}
 
 	return true;
 }
@@ -688,9 +688,13 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 			{
 				for(int j = min(yPos, mLStartDragY); j <= max(yPos, mLStartDragY); j++)
 				{
-					//gameMap.getTile(i, j)->setType( Tile::nextTileType(gameMap.getTile(i, j)->getType()) );
-					gameMap.getTile(i, j)->setType( mCurrentTileType );
-					gameMap.getTile(i, j)->setFullness( mCurrentFullness );
+					// Make sure the tile exists before we set its value
+					Tile *currentTile = gameMap.getTile(i, j);
+					if(currentTile != NULL)
+					{
+						currentTile->setType( mCurrentTileType );
+						currentTile->setFullness( mCurrentFullness );
+					}
 				}
 			}
 		}
@@ -1531,9 +1535,14 @@ string ExampleFrameListener::getHelpText(string arg)
 		return "Connect establishes a connection with a server.  It takes as its argument an IP address specified in dotted decimal notation (such as 192.168.1.100), and starts a client thread which monitors the connection for events.";
 	}
 
-	else if(arg.compare("chat") == 0)
+	else if(arg.compare("chat") == 0 || arg.compare("c") == 0)
 	{
-		return "Chat (or c for short) is a utility to send messages to other players participating in the same game.  The argument to chat is broadcast to all members of the game, along with the nick of the person who sent the chat message.  When a chat message is recieved it is added to the chat buffer along with a timestamp indicating when it was recieved.\n\nThe chat buffer displays the last n chat messages recieved.  The number of displayed messages can be set with the \"chathist\" command.  Displayed chat messages will also be removed from the chat buffer after they age beyond a certain point.";
+		return "Chat (or \"c\" for short) is a utility to send messages to other players participating in the same game.  The argument to chat is broadcast to all members of the game, along with the nick of the person who sent the chat message.  When a chat message is recieved it is added to the chat buffer along with a timestamp indicating when it was recieved.\n\nThe chat buffer displays the last n chat messages recieved.  The number of displayed messages can be set with the \"chathist\" command.  Displayed chat messages will also be removed from the chat buffer after they age beyond a certain point.";
+	}
+
+	else if(arg.compare("list") == 0 || arg.compare("ls") == 0)
+	{
+		return "List (or \"ls\" for short is a utility which lists various types of information about the current game.  Running list without an argument will produce a list of the lists available.  Running list with an argument displays the contents of that list.\n\nExample:\n" + prompt + "list creatures\n\nThe above command will produce a list of all the creatures currently in the game.";
 	}
 
 	return "Help for command:  \"" + arguments + "\" not found.";

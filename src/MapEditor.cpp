@@ -101,7 +101,7 @@ void MapEditor::createScene(void)
 	light->setDiffuseColour(ColourValue(.1, .1, .1));
 	light->setSpecularColour(ColourValue(.3, .3, .3));
 	light->setPosition(0, 0, 0.5);
-	light->setAttenuation(1.0, 0.0, 1.0, 3.0);
+	light->setAttenuation(1.0, 0.0, 3.0, 5.0);
 	node->attachObject(light);
 
 
