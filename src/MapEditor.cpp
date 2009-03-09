@@ -32,6 +32,7 @@ void MapEditor::createCamera(void)
 	// Set up the main camera
 	mCamera = mSceneMgr->createCamera("PlayerCam");
 	mCamera->setNearClipDistance(.05);
+	mCamera->setFarClipDistance(7.0);
 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("CameraTarget");
 	mCamera->setAutoTracking(false, node, Ogre::Vector3(0, 0, 0));
 
@@ -80,8 +81,8 @@ void MapEditor::createScene(void)
 	Light *light = mSceneMgr->createLight("Light1");
 	light->setType(Light::LT_POINT);
 	light->setPosition(Ogre::Vector3(10, 10, 10));
-	light->setDiffuseColour(ColourValue(.3, .3, .3));
-	light->setSpecularColour(ColourValue(.3, .3, .3));
+	light->setDiffuseColour(ColourValue(.15, .15, .15));
+	light->setSpecularColour(ColourValue(.0, .0, .0));
 
 	// Create the scene node that the camera attaches to
 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 1.6));
@@ -99,7 +100,7 @@ void MapEditor::createScene(void)
 	light = mSceneMgr->createLight("MouseLight");
 	light->setType(Light::LT_POINT);
 	light->setDiffuseColour(ColourValue(.1, .1, .1));
-	light->setSpecularColour(ColourValue(.3, .3, .3));
+	light->setSpecularColour(ColourValue(.0, .0, .0));
 	light->setPosition(0, 0, 0.5);
 	light->setAttenuation(1.0, 0.0, 3.0, 5.0);
 	node->attachObject(light);

@@ -288,6 +288,11 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	mCamNode->translate(mTranslateVector * frameTime, Node::TS_LOCAL);
 	Ogre::Vector3 tempVector2 = mCamNode->getPosition();
 	tempVector2.z = tempVector.z + zChange*frameTime*mZoomSpeed;
+	
+	// Prevent camera from moving down into the tiles
+	if(tempVector2.z <= 4.5/(double)BLENDER_UNITS_PER_OGRE_UNIT)
+		tempVector2.z = 4.5/(double)BLENDER_UNITS_PER_OGRE_UNIT;
+
 	mCamNode->setPosition(tempVector2);
 
 	mCamNode->rotate(Ogre::Vector3::UNIT_X, Degree(mRotateLocalVector.x * frameTime), Node::TS_LOCAL);
@@ -314,9 +319,19 @@ void ExampleFrameListener::showDebugOverlay(bool show)
 bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 {
 	using namespace OIS;
+	static double timeUntilNextTurn = 1.0/turnsPerSecond;
 
 		string chatBaseString = "\n---------- Chat ----------\n";
 		chatString = chatBaseString;
+
+		timeUntilNextTurn -= evt.timeSinceLastFrame;
+		if(timeUntilNextTurn < 0.0)
+		{
+			// Do a turn in the game
+			gameMap.doTurn();
+			turnNumber++;
+			timeUntilNextTurn = 1.0/turnsPerSecond;
+		}
 
 		// Only keep the N newest chat messages
 		while(chatMessages.size() > 5)
@@ -333,7 +348,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		}
 
 		string nullString = "";
-		printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + (chatMessages.size()>0?chatString:nullString));
+		char turnArray[255];
+		sprintf(turnArray, "Turn number:  %li", turnNumber);
+		printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnArray + "\n" + (chatMessages.size()>0?chatString:nullString));
 
 		// Sleep to limit the framerate to the max value
 		frameDelay -= evt.timeSinceLastFrame;
@@ -555,13 +572,9 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 			if(itr->movable != NULL)
 			{
 				resultName = itr->movable->getName();
-				cout << resultName << "\n";
 				if(resultName.find("Level_") != string::npos)
 				{
 					sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
-		cout << "Other thing happenening\n" << xPos << "\t" << yPos << "\n";
-		cout.flush();
-		
 
 					mSceneMgr->getEntity("SquareSelector")->setVisible(true);
 					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
@@ -581,17 +594,20 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 	string  resultName;
 
 
-		//FIXME:  This code should be put into a function it is duplicated by mousePressed()
-		// Setup the ray scene query, use CEGUI's mouse position
-		CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();
-		Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x/float(arg.state.width), mousePos.d_y/float(arg.state.height));
-		mRaySceneQuery->setRay(mouseRay);
-		mRaySceneQuery->setSortByDistance(true);
-		
-		// Execute query
-		RaySceneQueryResult &result = mRaySceneQuery->execute();
-		RaySceneQueryResult::iterator itr = result.begin( );
+	//FIXME:  This code should be put into a function it is duplicated by mousePressed()
+	// Setup the ray scene query, use CEGUI's mouse position
+	CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();
+	Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x/float(arg.state.width), mousePos.d_y/float(arg.state.height));
+	mRaySceneQuery->setRay(mouseRay);
+	mRaySceneQuery->setSortByDistance(true);
+	
+	// Execute query
+	RaySceneQueryResult &result = mRaySceneQuery->execute();
+	RaySceneQueryResult::iterator itr = result.begin( );
 
+	// Left mouse button down
+	if (id == OIS::MB_Left)
+	{
 		// See if the mouse is over any creatures
 		while (itr != result.end() )
 		{
@@ -634,9 +650,6 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			}
 		}
 
-	// Left mouse button down
-	if (id == OIS::MB_Left)
-	{
 		
 		mLMouseDown = true;
 		mLStartDragX = xPos;
@@ -646,7 +659,6 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 	// Right mouse button down
 	if(id == OIS::MB_Right)
 	{
-
 		mRMouseDown = true;
 		mRStartDragX = xPos;
 		mRStartDragY = yPos;
@@ -1097,11 +1109,22 @@ void ExampleFrameListener::executePromptCommand()
 		else if(command.compare("ambientlight") == 0)
 		{
 			double tempR, tempG, tempB;
+			char tempArray[255];
+
 			if(arguments.size() > 0)
 			{
 				tempSS.str(arguments);
 				tempSS >> tempR >> tempG >> tempB;
 				mSceneMgr->setAmbientLight(ColourValue(tempR,tempG,tempB));
+				sprintf(tempArray, "Abmbient light set to:\nRed:  %lf/1.0    Green:  %lf/1.0    Blue:  %lf/1.0", tempR, tempG, tempB);
+				commandOutput = tempArray;
+
+			}
+			else
+			{
+				ColourValue curLight = mSceneMgr->getAmbientLight();
+				sprintf(tempArray, "Current Ambient Light:\nRed:  %f/1.0    Green:  %f/1.0    Blue:  %f/1.0", curLight.r, curLight.g, curLight.b);
+				commandOutput = tempArray;
 			}
 		}
 
@@ -1224,7 +1247,6 @@ void ExampleFrameListener::executePromptCommand()
 		// Set max frames per second
 		else if(command.compare("fps") == 0)
 		{
-		Ogre::Vector3 getPosition();
 			char tempArray[255];
 			if(arguments.size() > 0)
 			{
@@ -1239,6 +1261,48 @@ void ExampleFrameListener::executePromptCommand()
 			else
 			{
 				sprintf(tempArray, "Current maximum framerate is %i", MAX_FRAMES_PER_SECOND);
+				commandOutput = tempArray;
+			}
+		}
+
+		// Set near clip distance
+		else if(command.compare("nearclip") == 0)
+		{
+			char tempArray[255];
+			if(arguments.size() > 0)
+			{
+				double tempDouble;
+				tempSS.str(arguments);
+				tempSS >> tempDouble;
+				mCamera->setNearClipDistance(tempDouble);
+				
+				sprintf(tempArray, "Near clip distance set to %lf", mCamera->getNearClipDistance());
+				commandOutput = tempArray;
+			}
+			else
+			{
+				sprintf(tempArray, "Near clip distance set to %lf", mCamera->getNearClipDistance());
+				commandOutput = tempArray;
+			}
+		}
+
+		// Set far clip distance
+		else if(command.compare("farclip") == 0)
+		{
+			char tempArray[255];
+			if(arguments.size() > 0)
+			{
+				double tempDouble;
+				tempSS.str(arguments);
+				tempSS >> tempDouble;
+				mCamera->setFarClipDistance(tempDouble);
+				
+				sprintf(tempArray, "Far clip distance set to %lf", mCamera->getFarClipDistance());
+				commandOutput = tempArray;
+			}
+			else
+			{
+				sprintf(tempArray, "Far clip distance set to %lf", mCamera->getFarClipDistance());
 				commandOutput = tempArray;
 			}
 		}
@@ -1449,12 +1513,14 @@ void ExampleFrameListener::executePromptCommand()
 			if(clientSocket != NULL)
 			{
 				clientSocket->send(formatCommand("chat", me->nick + ":" + arguments));
+				chatMessages.push_back(new ChatMessage(me->nick, arguments, time(NULL), time(NULL)));
 			}
 			else if(serverSocket != NULL)
 			{
 				// Since the server keeps a socket for each client we
 				// need to send the chat out the right connection.
 				clientSockets[0]->send(formatCommand("chat", me->nick + ":" + arguments));
+				chatMessages.push_back(new ChatMessage(me->nick, arguments, time(NULL), time(NULL)));
 			}
 		}
 

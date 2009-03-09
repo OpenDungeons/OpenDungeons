@@ -26,6 +26,7 @@ class GameMap
 		int numClassDescriptions();
 		Creature* getCreature(int index);
 		Creature* getCreature(string cName);
+		void doTurn();
 
 	private:
 		vector<Tile*> tiles;

@@ -1,0 +1,12 @@
+fix keyboard repeat issue.
+
+Fix crash on entering a nonexistant mesh to addclass after calling addcreature
+using this class.
+
+when the terminal becomes active if a key is held down the keyup message gets
+caught by the terminal and the key is "stuck" down.
+
+add mouse move.
+
+add the possibility for multiple clients to connect to the server.
+

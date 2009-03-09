@@ -12,6 +12,8 @@ string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
 int MAX_FRAMES_PER_SECOND = 15;
 vector<Player*> players;
 Player *me;
+double turnsPerSecond = 1.0;
+long int turnNumber = 1;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN

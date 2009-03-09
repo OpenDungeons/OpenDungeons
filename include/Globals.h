@@ -11,6 +11,8 @@ extern string MOTD;
 extern int MAX_FRAMES_PER_SECOND;
 extern vector<Player*> players;
 extern Player *me;
+extern double turnsPerSecond;
+extern long int turnNumber;
 
 #endif
 

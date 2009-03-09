@@ -127,3 +127,44 @@ string forceLowercase(string s)
 	return tempString;
 }
 
+/************************************************
+*randomDouble() returns a double between the 
+*lower number entered and the higher number 
+*entered.  One or both numbers can be negative
+************************************************/
+double randomDouble(double min,double max)
+{
+	if(min > max)
+	{
+	double temp = min;
+	min = max;
+	max = temp;
+	}
+	
+double r = -1*((double)rand()/(double)(RAND_MAX+1));
+double value = min;
+value += r*(max-min);
+
+return value;
+}
+
+//returns a gaussian distributed random double value in [-1,1]
+double gaussianRandomDouble()
+{
+	double temp1 = randomDouble(0.0, 1.0);
+	double temp2 = randomDouble(0.0, 1.0);
+
+	double val1;
+	//double val2;
+
+	val1 = sqrt(-2.0*log(temp1)) * cos(2.0*M_PI*temp2);
+	// val2 = sqrt(-2.0*log(temp1)) * sin(2.0*M_PI*temp2);
+	
+	return val1;
+}
+
+void seedRandomNumberGenerator()
+{
+	srand(time(0));
+}
+

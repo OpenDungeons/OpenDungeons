@@ -16,6 +16,7 @@ class Creature
 		void destroyMesh();
 		void setPosition(double x, double y, double z);
 		Ogre::Vector3 getPosition();
+		virtual void doTurn();
 
 		// Class properties
 		string className;

@@ -77,7 +77,7 @@ void *serverSocketProcessor(void *p)
 
 			if(clientCommand.compare("hello") == 0)
 			{
-				ChatMessage *newMessage = new ChatMessage("SERVER_INFORMATION", arguments, time(NULL));
+				ChatMessage *newMessage = new ChatMessage("SERVER_INFORMATION", "Client connect with version: " + arguments, time(NULL));
 				frameListener->chatMessages.push_back(newMessage);
 
 				int charsSent = curSock->send(formatCommand("picknick", ""));

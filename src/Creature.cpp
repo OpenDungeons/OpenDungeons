@@ -89,3 +89,7 @@ Ogre::Vector3 Creature::getPosition()
 	return position;
 }
 
+void Creature::doTurn()
+{
+}
+

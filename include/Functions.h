@@ -12,6 +12,9 @@ using namespace std;
 
 void readGameMapFromFile(string fileName);
 void writeGameMapToFile(string fileName);
+double randomDouble(double min,double max);
+double gaussianRandomDouble();
+void seedRandomNumberGenerator();
 
 #endif
 

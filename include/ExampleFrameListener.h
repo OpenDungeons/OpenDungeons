@@ -157,7 +157,6 @@ private:
 
 	DragType mDragType;
 	string mDraggedCreature;
-
 };
 
 #endif

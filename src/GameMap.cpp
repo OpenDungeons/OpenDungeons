@@ -1,3 +1,5 @@
+#include "Functions.h"
+#include "Defines.h"
 #include "GameMap.h"
 
 void GameMap::createNewMap(int xSize, int ySize)
@@ -169,5 +171,13 @@ Creature* GameMap::getCreature(string cName)
 	}
 
 	return NULL;
+}
+
+void GameMap::doTurn()
+{
+	for(int i = 0; i < numCreatures(); i++)
+	{
+		creatures[i]->doTurn();
+	}
 }
 
