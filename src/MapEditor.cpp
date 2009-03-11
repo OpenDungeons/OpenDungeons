@@ -32,10 +32,9 @@ void MapEditor::createCamera(void)
 	// Set up the main camera
 	mCamera = mSceneMgr->createCamera("PlayerCam");
 	mCamera->setNearClipDistance(.05);
-	mCamera->setFarClipDistance(7.0);
+	mCamera->setFarClipDistance(300.0);
 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("CameraTarget");
 	mCamera->setAutoTracking(false, node, Ogre::Vector3(0, 0, 0));
-
 }
 
 void MapEditor::createScene(void)
@@ -80,12 +79,12 @@ void MapEditor::createScene(void)
 	// Create the main scene light
 	Light *light = mSceneMgr->createLight("Light1");
 	light->setType(Light::LT_POINT);
-	light->setPosition(Ogre::Vector3(10, 10, 10));
-	light->setDiffuseColour(ColourValue(.15, .15, .15));
+	light->setPosition(Ogre::Vector3(80, 80, 80));
+	light->setDiffuseColour(ColourValue(.65, .65, .85));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
 
 	// Create the scene node that the camera attaches to
-	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 1.6));
+	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 16));
 	node->pitch(Degree(25), Node::TS_WORLD);
 	node->roll(Degree(30), Node::TS_WORLD);
 	node->attachObject(mCamera);
@@ -93,16 +92,19 @@ void MapEditor::createScene(void)
 	// Create the single tile selection mesh
 	ent = mSceneMgr->createEntity("SquareSelector", "SquareSelector.mesh");
 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("SquareSelectorNode");
-	node->translate(Ogre::Vector3(1/BLENDER_UNITS_PER_OGRE_UNIT, 1/BLENDER_UNITS_PER_OGRE_UNIT, 0));
+	//node->translate(Ogre::Vector3(1/BLENDER_UNITS_PER_OGRE_UNIT, 1/BLENDER_UNITS_PER_OGRE_UNIT, 0));
+	node->translate(Ogre::Vector3(0, 0, 0));
+	node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT));
 	node->attachObject(ent);
 
 	// Create the light which follows the single tile selection mesh
 	light = mSceneMgr->createLight("MouseLight");
 	light->setType(Light::LT_POINT);
-	light->setDiffuseColour(ColourValue(.1, .1, .1));
+	light->setDiffuseColour(ColourValue(.8, .8, .6));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
-	light->setPosition(0, 0, 0.5);
-	light->setAttenuation(1.0, 0.0, 3.0, 5.0);
+	//light->setPosition(0, 0, 1.45/BLENDER_UNITS_PER_OGRE_UNIT);
+	light->setPosition(0, 0, 5.45);
+	light->setAttenuation(65, 0.0, 0.4, 0.6);
 	node->attachObject(light);
 
 

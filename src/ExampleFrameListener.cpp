@@ -101,9 +101,9 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	: mCamera(cam), mTranslateVector(Ogre::Vector3::ZERO), mWindow(win),
 	mStatsOn(true), mNumScreenShots(0), mMoveScale(0.0f), mRotScale(0.0f),
 	mTimeUntilNextToggle(0), mFiltering(TFO_BILINEAR), mAniso(1),
-	mSceneDetailIndex(0), mMoveSpeed(2.7), mRotateSpeed(36),
+	mSceneDetailIndex(0), mMoveSpeed(50.0), mRotateSpeed(36),
 	mDebugOverlay(0), mInputManager(0), mMouse(0), mKeyboard(0), mJoy(0),
-	mGUIRenderer(renderer), zChange(0.0), mZoomSpeed(.33),
+	mGUIRenderer(renderer), zChange(0.0), mZoomSpeed(.5),
 	mCurrentTileType(Tile::dirt), mCurrentFullness(100),
 	mDragType(ExampleFrameListener::nullDragType), frameDelay(0.0),
 	serverSocket(NULL), clientSocket(NULL)
@@ -287,11 +287,20 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	Ogre::Vector3 tempVector = mCamNode->getPosition();
 	mCamNode->translate(mTranslateVector * frameTime, Node::TS_LOCAL);
 	Ogre::Vector3 tempVector2 = mCamNode->getPosition();
+
 	tempVector2.z = tempVector.z + zChange*frameTime*mZoomSpeed;
+	//FIXME:  The double divide could be simplified and it would eb afster but it's more readable this way
+	//double horizontalSpeedFactor = (tempVector2.z >= 25.0/BLENDER_UNITS_PER_OGRE_UNIT) ? 1.0 : tempVector2.z/(25.0/BLENDER_UNITS_PER_OGRE_UNIT);
+	double horizontalSpeedFactor = (tempVector2.z >= 25.0) ? 1.0 : tempVector2.z/(25.0);
+	//horizontalSpeedFactor *= horizontalSpeedFactor;
+	tempVector2.x = tempVector.x + (mMouseTranslateVector.x + (tempVector2.x - tempVector.x)) * horizontalSpeedFactor;
+	tempVector2.y = tempVector.y + (mMouseTranslateVector.y + (tempVector2.y - tempVector.y)) * horizontalSpeedFactor;
 	
 	// Prevent camera from moving down into the tiles
-	if(tempVector2.z <= 4.5/(double)BLENDER_UNITS_PER_OGRE_UNIT)
-		tempVector2.z = 4.5/(double)BLENDER_UNITS_PER_OGRE_UNIT;
+	//if(tempVector2.z <= 4.5/(double)BLENDER_UNITS_PER_OGRE_UNIT)
+	if(tempVector2.z <= 4.5)
+		//tempVector2.z = 4.5/(double)BLENDER_UNITS_PER_OGRE_UNIT;
+		tempVector2.z = 4.5;
 
 	mCamNode->setPosition(tempVector2);
 
@@ -468,8 +477,30 @@ bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)
 
 bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 {
-	CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
 	string  resultName;
+
+	CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
+
+	// Mouse move code.  This does not work yet, moving the mouse to all four edges of the screen seems to make it work hence the if statement for the delay.
+	/*
+	if(turnNumber > 10)
+	{
+		unsigned int width, height, depth;
+		int left, top;
+		mWindow->getMetrics(width, height, depth, left, top);
+
+		// It is odd that this must be done as a separate subtraction and then multiply but I think it has to be done this way.
+		double tempX = width/2.0 - arg.state.X.abs;
+		//tempX *= -1.0;
+		double tempY = height/2.0 - arg.state.Y.abs;
+		tempY *= -1.0;
+		tempX /= width/2.0;
+		tempY /= height/2.0;
+		mMouseTranslateVector.x = tempX;
+		mMouseTranslateVector.y = tempY;
+		cout << mMouseTranslateVector.x << "\t" << mMouseTranslateVector.y << endl;
+	}
+	*/
 
 	//FIXME:  This code should be put into a function it is duplicated by mousePressed()
 	// Setup the ray scene query, use CEGUI's mouse position
@@ -515,7 +546,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 					sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
 
 					mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
+					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos, xPos, 0);
 
 					if(mLMouseDown)
 					{
@@ -577,7 +608,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 					sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
 
 					mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
+					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos, xPos, 0);
 				}
 			}
 
@@ -745,14 +776,6 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 			case OIS::KC_GRAVE:
 			case OIS::KC_F12:
 				terminalActive = true;
-
-				/*
-				if(commandOutput.size() > 0)
-					printText(commandOutput + "\n" + prompt + promptCommand + chatString);
-				else
-					printText(prompt + promptCommand + chatString);
-				*/
-
 				mKeyboard->setTextTranslation(Keyboard::Ascii);
 				break;
 
@@ -817,7 +840,6 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				mCurrentTileType = Tile::nextTileType(mCurrentTileType);
 				sprintf(tempArray, "Tile type:  %s", Tile::tileTypeToString(mCurrentTileType).c_str());
 				MOTD = tempArray;
-				//printText(MOTD + chatString);
 				break;
 
 			//Toggle mCurrentFullness
@@ -825,7 +847,6 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
 				sprintf(tempArray, "Tile fullness:  %i", mCurrentFullness);
 				MOTD = tempArray;
-				//printText(MOTD + chatString);
 				break;
 
 			// Toggle the framerate display
@@ -864,7 +885,6 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 			case OIS::KC_F12:
 			case KC_ESCAPE:
 				terminalActive = false;
-				//printText(MOTD + chatString);
 				break;
 
 			default:
@@ -890,18 +910,6 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 				break;
 		}
-
-		// The keyboard processing may have de-activated the terminal
-		if(terminalActive)
-		{
-			/*
-			if(commandOutput.size() > 0)
-				printText(commandOutput + "\n" + prompt + promptCommand + chatString);
-			else
-				printText(prompt + promptCommand);
-			*/
-		}
-
 	}
 
 	return mContinue;
@@ -1017,10 +1025,10 @@ void ExampleFrameListener::executePromptCommand()
 	command = "";
 	arguments = "";
 
+	// If the user just presses enter without entering a command we return to the game
 	if(promptCommand.size() == 0)
 	{
 		promptCommand = "";
-		//printText(MOTD + chatString);
 		terminalActive = false;
 
 		return;
@@ -1028,17 +1036,19 @@ void ExampleFrameListener::executePromptCommand()
 
 	// Split the raw text into command and argument strings
 	firstSpace = promptCommand.find(" ");
-	if((unsigned int)firstSpace != string::npos)
+	if(firstSpace != string::npos)
 	{
 		command = promptCommand.substr(0, firstSpace);
 
 		// Skip any extra spaces in between the command and the arguments
 		lastSpace = firstSpace;
-		while(promptCommand[lastSpace] == ' ')
+		while(promptCommand[lastSpace] == ' ' && lastSpace < promptCommand.size())
 		{
 			lastSpace++;
 		}
 
+		cout << "\n\nWEFHEFWEGFHWEGFJHGJFWEGJFGJWEGJFGWEGJGFJGWEJHGFEJFGJHWEGGJ\n\n\n" << lastSpace << "\t" << promptCommand.size() << "\n\n";
+		cout.flush();
 		arguments = promptCommand.substr(lastSpace, promptCommand.size()-lastSpace);
 	}
 	else
@@ -1324,7 +1334,8 @@ void ExampleFrameListener::executePromptCommand()
 				// Create the mesh and SceneNode for the new creature
 				Entity *ent = mSceneMgr->createEntity( ("Creature_" + tempCreature->name).c_str(), tempCreature->meshName.c_str());
 				SceneNode *node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (tempCreature->name + "_node").c_str() );
-				node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
+				//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
+				node->setPosition(tempCreature->getPosition());
 				//FIXME: Something needs to be done about the caling issue here.
 				//node->setScale(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT);
 				node->setScale(tempCreature->scale);

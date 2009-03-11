@@ -104,6 +104,7 @@ protected:
 	SceneNode *mCamNode;
 
 	Ogre::Vector3 mTranslateVector;
+	Ogre::Vector3 mMouseTranslateVector;
 	double zChange;
 	Ogre::Vector3 mRotateLocalVector;
 	Ogre::Vector3 mRotateWorldVector;

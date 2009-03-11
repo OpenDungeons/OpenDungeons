@@ -28,10 +28,16 @@ class GameMap
 		Creature* getCreature(string cName);
 		void doTurn();
 
+		int numCreaturesInHand();
+		Creature *getCreatureInHand(int i);
+		void addCreatureToHand(Creature *c);
+		void removeCreatureFromHand(int i);
+
 	private:
 		vector<Tile*> tiles;
 		vector<Creature*> classDescriptions;
 		vector<Creature*> creatures;
+		vector<Creature*> creaturesInHand;
 };
 
 #endif

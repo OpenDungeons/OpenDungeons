@@ -181,3 +181,30 @@ void GameMap::doTurn()
 	}
 }
 
+int GameMap::numCreaturesInHand()
+{
+	return creaturesInHand.size();
+}
+
+Creature* GameMap::getCreatureInHand(int i)
+{
+	return creaturesInHand[i];
+}
+
+void GameMap::addCreatureToHand(Creature *c)
+{
+	creaturesInHand.push_back(c);
+}
+
+void GameMap::removeCreatureFromHand(int i)
+{
+	vector<Creature*>::iterator curCreature = creaturesInHand.begin();
+	while(i > 0 && curCreature != creaturesInHand.end())
+	{
+		i--;
+		curCreature++;
+	}
+
+	creaturesInHand.erase(curCreature);
+}
+

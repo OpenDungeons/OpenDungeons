@@ -1,3 +1,5 @@
+Re-export all the tiles so they are the right size again.
+
 fix keyboard repeat issue.
 
 Fix crash on entering a nonexistant mesh to addclass after calling addcreature
@@ -6,7 +8,15 @@ using this class.
 when the terminal becomes active if a key is held down the keyup message gets
 caught by the terminal and the key is "stuck" down.
 
-add mouse move.
+Fix the issue with Mouse move.
 
 add the possibility for multiple clients to connect to the server.
+
+find out about separate subtraction and multiply issue in ExampleFrameLiyystener::mouseMoved(const OIS::MouseEvent &arg)
+
+implement history on the terminal.
+
+implement line editing on the terminal.
+
+add help for "fps", "conncet", "nearclip", "farclip".
 

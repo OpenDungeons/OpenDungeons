@@ -1,0 +1,213 @@
+material Kobold skin/TEXFACE/kobold_skin6.png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.712696 0.712696 0.712696 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture kobold_skin6.png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.035536 0.045176 0.075544 1.000000 5.000000
+			scene_blend add
+		}
+	}
+}
+material Dirt_Image/TEXFACE/Dirt_(texture).png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.761228 0.761228 0.761228 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture Dirt_(texture).png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.274281 0.214664 0.058960 1.000000 0.750000
+			scene_blend add
+		}
+	}
+}
+material Gold
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.161580 0.127739 0.032991 1.000000
+			specular 0.124607 0.125121 0.017434 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Dirt
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.331442 0.256370 0.046183 1.000000
+			specular 0.274281 0.214664 0.058960 1.000000 0.750000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Lava
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.400425 0.056684 0.048601 1.000000
+			specular 0.124594 0.124594 0.124594 1.000000 0.250000
+			emissive 0.428259 0.060625 0.051979 1.000000
+		}
+	}
+}
+material Water
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.064236 0.052765 0.601495 1.000000
+			specular 0.124594 0.124594 0.124594 1.000000 3.750000
+			emissive 0.037127 0.030497 0.347649 1.000000
+		}
+	}
+}
+material Concrete
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.327008 0.326186 0.326186 1.000000
+			specular 0.032882 0.049157 0.063193 1.000000 0.250000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Material.001/TEXFACE/Knight.png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.885990 0.885990 0.885990 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture Knight.png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.024500 0.035985 0.044454 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
+material Red rock
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.066760 0.030798 0.007980 1.000000
+			specular 0.021226 0.021226 0.021226 1.000000 7.250000
+			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Kobold skin/TWOSIDE/TEXFACE/kobold_skin6.png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.712696 0.712696 0.712696 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			cull_hardware none
+			cull_software none
+			texture_unit
+			{
+				texture kobold_skin6.png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.035536 0.045176 0.075544 1.000000 5.000000
+			scene_blend add
+			cull_hardware none
+			cull_software none
+		}
+	}
+}
+material Material.001/TEXFACE/Knight_sword.png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.885990 0.885990 0.885990 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture Knight_sword.png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.024500 0.035985 0.044454 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}

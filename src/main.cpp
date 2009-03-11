@@ -9,7 +9,7 @@ using namespace std;
 SceneManager* mSceneMgr;
 GameMap gameMap;
 string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
-int MAX_FRAMES_PER_SECOND = 15;
+int MAX_FRAMES_PER_SECOND = 25;
 vector<Player*> players;
 Player *me;
 double turnsPerSecond = 1.0;

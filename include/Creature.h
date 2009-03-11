@@ -5,6 +5,8 @@
 #include <string>
 using namespace std;
 
+#include "Tile.h"
+
 class Creature
 {
 	public:
@@ -29,8 +31,15 @@ class Creature
 		int color;
 		int hp, mana;
 
+		// AI stuff
+		enum Action {idle, walkTo};
+		Action currentTask;
+		vector<Tile*> visibleTiles;
+		void updateVisibleTiles();
+
 	private:
 		Ogre::Vector3 position;
+		int destinationX, destinationY;
 };
 
 #endif
