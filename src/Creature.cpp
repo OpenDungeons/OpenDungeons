@@ -7,6 +7,7 @@ Creature::Creature()
 {
 	position = Ogre::Vector3(0,0,0);
 	scale = Ogre::Vector3(1,1,1);
+	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
 }
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
@@ -14,6 +15,7 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
 	className = nClassName;
 	meshName = nMeshName;
 	scale = nScale;
+	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
 }
 
 ostream& operator<<(ostream& os, Creature *c)
@@ -85,6 +87,7 @@ void Creature::setPosition(double x, double y, double z)
 	//creatureSceneNode->setPosition(y/BLENDER_UNITS_PER_OGRE_UNIT, x/BLENDER_UNITS_PER_OGRE_UNIT, z/BLENDER_UNITS_PER_OGRE_UNIT);
 	creatureSceneNode->setPosition(y, x, z);
 	gameMap.getCreature(name)->position = Ogre::Vector3(y, x, z);
+	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
 }
 
 Ogre::Vector3 Creature::getPosition()
@@ -94,61 +97,89 @@ Ogre::Vector3 Creature::getPosition()
 
 void Creature::doTurn()
 {
+	// If we are not standing somewhere on the map, do nothing.
+	if(positionTile == NULL)
+		return;
+
+	bool loopBack;
 	// Look at the surrounding area
 
-	// Carry out the current task
-	int tempX, tempY;
-	switch(currentTask)
+	// If the current task was 'idle' and it changed to something else, start doing the next
+	// thing during this turn instead of waiting unitl the next turn.
+	do
 	{
-		case idle:
-			if(randomDouble(0.0, 1.0) < 0.3)
-			{
-				do
+		loopBack = false;
+
+		// Carry out the current task
+		int tempX, tempY;
+		switch(currentTask)
+		{
+			case idle:
+				//FIXME: make this into a while loop over a vector of <action, probability> pairs
+				if(randomDouble(0.0, 1.0) < 0.3)
 				{
+					loopBack = true;
 					currentTask = walkTo;
+				}
 
-					if(randomDouble(0.0, 1.0) < 0.5)
-						tempX = 1;
-					else
-						tempX = -1;
-
-					if(randomDouble(0.0, 1.0) < 0.5)
-						tempY = 1;
-					else
-						tempY = -1;
-				} while(gameMap.getTile((int)(position.y) + tempY, (int)(position.x) + tempX)->getFullness() != 0);
-
-				setPosition(position.x + tempX, position.y + tempY, position.z);
-			}
-			break;
-
-		case walkTo:
-			if(randomDouble(0.0, 1.0) < 0.7)
-			{
-				do
+				else if(randomDouble(0.0, 1.0) < 0.3)
 				{
-					if(randomDouble(0.0, 1.0) < 0.5)
-						tempX = 1;
-					else
-						tempX = -1;
+					loopBack = true;
+					currentTask = dig;
+				}
+				break;
 
-					if(randomDouble(0.0, 1.0) < 0.5)
-						tempY = 1;
-					else
-						tempY = -1;
-				} while(gameMap.getTile((int)(position.y) + tempY, (int)(position.x) + tempX)->getFullness() != 0);
+			case walkTo:
+				/*
+				if(randomDouble(0.0, 1.0) < 0.7)
+				{
+					// Choose a tile for the next step towards the destination, and make sure we can walk on it.
+					// loopCount sets the number of times to try to pick a tile before giving up
+					int loopCount = 9;
+					do
+					{
+						if(randomDouble(0.0, 1.0) < 0.5)
+							tempX = 1;
+						else
+							tempX = -1;
 
-				setPosition(position.x + tempX, position.y + tempY, position.z);
-			}
-			else
-			{
-				currentTask = idle;
-			}
-			break;
-	}
+						if(randomDouble(0.0, 1.0) < 0.5)
+							tempY = 1;
+						else
+							tempY = -1;
+
+						loopCount--;
+						cout << tempX << "\t" << tempY << endl;
+						cout.flush();
+
+					} while(gameMap.getTile((int)(position.x) + tempX, (int)(position.y) + tempY)->getFullness() != 0 && gameMap.getTile((int)(position.x) + tempX, (int)(position.y) + tempY)->getType() == Tile::lava && loopCount > 0);
+
+					setPosition(position.x + tempX, position.y + tempY, position.z);
+				}
+				else
+				{
+					currentTask = idle;
+				}
+				*/
+				break;
+
+			case dig:
+
+			default:
+				break;
+		}
+	} while(loopBack);
 }
 
 void Creature::updateVisibleTiles()
+{
+}
+
+void createVisualDebugEntities()
+{
+}
+
+void destroyVisualDebugEntities()
 {
 }
 

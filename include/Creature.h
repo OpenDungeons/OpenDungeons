@@ -26,16 +26,21 @@ class Creature
 		Ogre::Vector3 scale;
 
 		// Individual properties
-		string name;
-		string meshID, nodeID;
-		int color;
-		int hp, mana;
+		string name;			// The creature's unique name
+		string meshID, nodeID;		// The unique names for the OGRE entities
+		int color;			// The color of the player who controls this creature
+		int hp, mana;			// Basic stats
+
+		// Visual debugging routines
+		void createVisualDebugEntities();
+		void destroyVisualDebugEntities();
 
 		// AI stuff
-		enum Action {idle, walkTo};
+		enum Action {idle, walkTo, dig};
 		Action currentTask;
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
+		Tile *positionTile;
 
 	private:
 		Ogre::Vector3 position;

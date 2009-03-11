@@ -2,6 +2,7 @@
 using namespace std;
 
 #include "Defines.h"
+#include "Functions.h"
 #include "MapEditor.h"
 #include "GameMap.h"
 #include "Player.h"
@@ -24,6 +25,8 @@ INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 int main(int argc, char **argv)
 #endif
 {
+	seedRandomNumberGenerator();
+
 	// Create application object
 	MapEditor app;
 

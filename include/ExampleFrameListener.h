@@ -98,6 +98,7 @@ public:
 	vector<Socket*> clientSockets;
 	pthread_t clientThread;
 	pthread_t serverThread;
+	pthread_t creatureThread;
 
 protected:
 	Camera* mCamera;

@@ -328,19 +328,9 @@ void ExampleFrameListener::showDebugOverlay(bool show)
 bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 {
 	using namespace OIS;
-	static double timeUntilNextTurn = 1.0/turnsPerSecond;
 
 		string chatBaseString = "\n---------- Chat ----------\n";
 		chatString = chatBaseString;
-
-		timeUntilNextTurn -= evt.timeSinceLastFrame;
-		if(timeUntilNextTurn < 0.0)
-		{
-			// Do a turn in the game
-			gameMap.doTurn();
-			turnNumber++;
-			timeUntilNextTurn = 1.0/turnsPerSecond;
-		}
 
 		// Only keep the N newest chat messages
 		while(chatMessages.size() > 5)
@@ -989,6 +979,8 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 	return true;
 }
 
+// Displays the given text on the screen starting in the upper-left corner.
+// This is the function which displays the text on the in game console.
 void ExampleFrameListener::printText(string text)
 {
 	string tempString;
@@ -1047,8 +1039,6 @@ void ExampleFrameListener::executePromptCommand()
 			lastSpace++;
 		}
 
-		cout << "\n\nWEFHEFWEGFHWEGFJHGJFWEGJFGJWEGJFGWEGJGFJGWEJHGFEJFGJHWEGGJ\n\n\n" << lastSpace << "\t" << promptCommand.size() << "\n\n";
-		cout.flush();
 		arguments = promptCommand.substr(lastSpace, promptCommand.size()-lastSpace);
 	}
 	else
@@ -1064,7 +1054,9 @@ void ExampleFrameListener::executePromptCommand()
 
 	// Begin Command Implementation
 	//
-	// All the code from here to the rest of the function is the implementation code for specific commands which are handled by the terminal.
+	// All the code from here to the rest of the function is the implementation code
+	// for specific commands which are handled by the terminal.
+
 	// Exit the program
 	if(command.compare("quit") == 0 || command.compare("exit") == 0)
 	{
@@ -1497,6 +1489,7 @@ void ExampleFrameListener::executePromptCommand()
 				{
 					serverSocket = new Socket;
 
+					// Start the server socket listener as well as the server socket thread
 					if(serverSocket != NULL)
 					{
 						SSPStruct ssps;
@@ -1510,6 +1503,8 @@ void ExampleFrameListener::executePromptCommand()
 						commandOutput = "ERROR:  Could not start server!";
 					}
 
+					// Start the creature AI thread
+					pthread_create(&creatureThread, NULL, creatureAIThread, NULL);
 				}
 			}
 			else

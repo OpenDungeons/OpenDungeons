@@ -123,3 +123,21 @@ ChatMessage *processChatMessage(string arguments)
 	return new ChatMessage(messageNick,message,time(NULL));
 }
 
+void *creatureAIThread(void *p)
+{
+	double timeUntilNextTurn = 1.0/turnsPerSecond;
+
+	while(true)
+	{
+		//FIXME:  Something should be done to make the clock sleep for a shorter time if the AI is slow.
+		//timeUntilNextTurn -= evt.timeSinceLastFrame;
+
+		// Do a turn in the game
+		gameMap.doTurn();
+		turnNumber++;
+		timeUntilNextTurn = 1.0/turnsPerSecond;
+
+		usleep(1e6 * timeUntilNextTurn);
+	}
+}
+

@@ -7,6 +7,7 @@
 // Functions called by pthread_create
 void *clientSocketProcessor(void *p);
 void *serverSocketProcessor(void *p);
+void *creatureAIThread(void *p);
 
 // Other functions  (these are defined in src/Server.cpp)
 string formatCommand(string command, string arguments);

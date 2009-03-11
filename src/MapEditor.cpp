@@ -41,7 +41,10 @@ void MapEditor::createScene(void)
 {
 	int choice;
 	int newXSize, newYSize;
-	mSceneMgr->setAmbientLight(ColourValue(0.3,0.3,0.3));
+	mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
+
+	// Turn on shadows
+	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
 
 	Entity *ent;
 	SceneNode *node;
@@ -78,8 +81,8 @@ void MapEditor::createScene(void)
 
 	// Create the main scene light
 	Light *light = mSceneMgr->createLight("Light1");
-	light->setType(Light::LT_POINT);
-	light->setPosition(Ogre::Vector3(80, 80, 80));
+	light->setType(Light::LT_DIRECTIONAL);
+	light->setDirection(Ogre::Vector3(-1, -1, -1));
 	light->setDiffuseColour(ColourValue(.65, .65, .85));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
 
@@ -128,9 +131,6 @@ void MapEditor::createScene(void)
 	// FIXME: OpenDungeons.layout needs to be filled in to get a gui going.
 	//CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"OpenDungeons.layout"); 
 	//mSystem->setGUISheet(sheet);
-
-
-
 }
 
 void MapEditor::createFrameListener(void)

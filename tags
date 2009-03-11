@@ -9,19 +9,20 @@ ChatMessage	src/ChatMessage.cpp	/^ChatMessage::ChatMessage(string nNick, string 
 Creature	src/Creature.cpp	/^Creature::Creature()$/;"	f	class:Creature
 Creature	src/Creature.cpp	/^Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)$/;"	f	class:Creature
 ExampleFrameListener	src/ExampleFrameListener.cpp	/^ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, SceneManager *sceneManager, CEGUI::Renderer *renderer, bool bufferedKeys, bool bufferedMouse, bool bufferedJoy)$/;"	f	class:ExampleFrameListener
-MAX_FRAMES_PER_SECOND	src/main.cpp	/^int MAX_FRAMES_PER_SECOND = 15;$/;"	v
+MAX_FRAMES_PER_SECOND	src/main.cpp	/^int MAX_FRAMES_PER_SECOND = 25;$/;"	v
 MOTD	src/main.cpp	/^string MOTD = (string)"Welcome to Open Dungeons\\tVersion:  " + VERSION;$/;"	v
 MapEditor	src/MapEditor.cpp	/^MapEditor::MapEditor()$/;"	f	class:MapEditor
 Socket	src/Socket.cpp	/^Socket::Socket() :$/;"	f	class:Socket
 TextRenderer	src/TextRenderer.cpp	/^TextRenderer::TextRenderer()$/;"	f	class:TextRenderer
 Tile	src/Tile.cpp	/^Tile::Tile()$/;"	f	class:Tile
 Tile	src/Tile.cpp	/^Tile::Tile(int nX, int nY, TileType nType, int nFullness)$/;"	f	class:Tile
-WIN32_LEAN_AND_MEAN	src/main.cpp	17;"	d	file:
+WIN32_LEAN_AND_MEAN	src/main.cpp	19;"	d	file:
 WinMain	src/main.cpp	/^INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )$/;"	f
 accept	src/Socket.cpp	/^bool Socket::accept ( Socket& new_socket ) const$/;"	f	class:Socket
 addClassDescription	src/GameMap.cpp	/^void GameMap::addClassDescription(Creature *c)$/;"	f	class:GameMap
 addClassDescription	src/GameMap.cpp	/^void GameMap::addClassDescription(Creature c)$/;"	f	class:GameMap
 addCreature	src/GameMap.cpp	/^void GameMap::addCreature(Creature *c)$/;"	f	class:GameMap
+addCreatureToHand	src/GameMap.cpp	/^void GameMap::addCreatureToHand(Creature *c)$/;"	f	class:GameMap
 addTextBox	src/TextRenderer.cpp	/^void TextRenderer::addTextBox($/;"	f	class:TextRenderer
 addTile	src/GameMap.cpp	/^void GameMap::addTile(Tile *t)$/;"	f	class:GameMap
 bind	src/Socket.cpp	/^bool Socket::bind ( const int port )$/;"	f	class:Socket
@@ -43,16 +44,20 @@ createNewMap	src/GameMap.cpp	/^void GameMap::createNewMap(int xSize, int ySize)$
 createScene	src/MapEditor.cpp	/^void MapEditor::createScene(void)$/;"	f	class:MapEditor
 destroyMesh	src/Creature.cpp	/^void Creature::destroyMesh()$/;"	f	class:Creature
 destroyMesh	src/Tile.cpp	/^void Tile::destroyMesh()$/;"	f	class:Tile
+doTurn	src/Creature.cpp	/^void Creature::doTurn()$/;"	f	class:Creature
+doTurn	src/GameMap.cpp	/^void GameMap::doTurn()$/;"	f	class:GameMap
 executePromptCommand	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::executePromptCommand()$/;"	f	class:ExampleFrameListener
 forceLowercase	src/Functions.cpp	/^string forceLowercase(string s)$/;"	f
 formatCommand	src/Server.cpp	/^string formatCommand(string command, string arguments)$/;"	f
 frameEnded	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::frameEnded(const FrameEvent& evt)$/;"	f	class:ExampleFrameListener
 frameStarted	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::frameStarted(const FrameEvent& evt)$/;"	f	class:ExampleFrameListener
 gameMap	src/main.cpp	/^GameMap gameMap;$/;"	v
+gaussianRandomDouble	src/Functions.cpp	/^double gaussianRandomDouble()$/;"	f
 getClass	src/GameMap.cpp	/^Creature* GameMap::getClass(string query)$/;"	f	class:GameMap
 getClassDescription	src/GameMap.cpp	/^Creature* GameMap::getClassDescription(int index)$/;"	f	class:GameMap
 getCreature	src/GameMap.cpp	/^Creature* GameMap::getCreature(int index)$/;"	f	class:GameMap
 getCreature	src/GameMap.cpp	/^Creature* GameMap::getCreature(string cName)$/;"	f	class:GameMap
+getCreatureInHand	src/GameMap.cpp	/^Creature* GameMap::getCreatureInHand(int i)$/;"	f	class:GameMap
 getFullness	src/Tile.cpp	/^int Tile::getFullness()$/;"	f	class:Tile
 getFullnessMeshNumber	src/Tile.cpp	/^int Tile::getFullnessMeshNumber()$/;"	f	class:Tile
 getHelpText	src/ExampleFrameListener.cpp	/^string ExampleFrameListener::getHelpText(string arg)$/;"	f	class:ExampleFrameListener
@@ -75,20 +80,26 @@ nextTileFullness	src/Tile.cpp	/^int Tile::nextTileFullness(int f)$/;"	f	class:Ti
 nextTileType	src/Tile.cpp	/^Tile::TileType Tile::nextTileType(TileType t)$/;"	f	class:Tile
 numClassDescriptions	src/GameMap.cpp	/^int GameMap::numClassDescriptions()$/;"	f	class:GameMap
 numCreatures	src/GameMap.cpp	/^int GameMap::numCreatures()$/;"	f	class:GameMap
+numCreaturesInHand	src/GameMap.cpp	/^int GameMap::numCreaturesInHand()$/;"	f	class:GameMap
 numTiles	src/GameMap.cpp	/^int GameMap::numTiles()$/;"	f	class:GameMap
 operator <<	src/Creature.cpp	/^ostream& operator<<(ostream& os, Creature *c)$/;"	f
 operator <<	src/Tile.cpp	/^ostream& operator<<(ostream& os, Tile *t)$/;"	f
 operator >>	src/Creature.cpp	/^istream& operator>>(istream& is, Creature *c)$/;"	f
 operator >>	src/Tile.cpp	/^istream& operator>>(istream& is, Tile *t)$/;"	f
+parseCommand	src/Server.cpp	/^void parseCommand(string command, string &commandName, string &arguments)$/;"	f
 players	src/main.cpp	/^vector<Player*> players;$/;"	v
 printText	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::printText(string text)$/;"	f	class:ExampleFrameListener
+processChatMessage	src/Server.cpp	/^ChatMessage *processChatMessage(string arguments)$/;"	f
 processUnbufferedKeyInput	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::processUnbufferedKeyInput(const FrameEvent& evt)$/;"	f	class:ExampleFrameListener
 processUnbufferedMouseInput	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::processUnbufferedMouseInput(const FrameEvent& evt)$/;"	f	class:ExampleFrameListener
 quit	src/ExampleFrameListener.cpp	/^bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)$/;"	f	class:ExampleFrameListener
+randomDouble	src/Functions.cpp	/^double randomDouble(double min,double max)$/;"	f
 readGameMapFromFile	src/Functions.cpp	/^void readGameMapFromFile(string fileName)$/;"	f
 recv	src/Socket.cpp	/^int Socket::recv ( std::string& s ) const$/;"	f	class:Socket
 refreshMesh	src/Tile.cpp	/^void Tile::refreshMesh()$/;"	f	class:Tile
+removeCreatureFromHand	src/GameMap.cpp	/^void GameMap::removeCreatureFromHand(int i)$/;"	f	class:GameMap
 removeTextBox	src/TextRenderer.cpp	/^void TextRenderer::removeTextBox(const std::string& ID)$/;"	f	class:TextRenderer
+seedRandomNumberGenerator	src/Functions.cpp	/^void seedRandomNumberGenerator()$/;"	f
 send	src/Socket.cpp	/^bool Socket::send ( const std::string s ) const$/;"	f	class:Socket
 serverSocketProcessor	src/Server.cpp	/^void *serverSocketProcessor(void *p)$/;"	f
 setFullness	src/Tile.cpp	/^void Tile::setFullness(int f)$/;"	f	class:Tile
@@ -99,7 +110,10 @@ setType	src/Tile.cpp	/^void Tile::setType(TileType t)$/;"	f	class:Tile
 set_non_blocking	src/Socket.cpp	/^void Socket::set_non_blocking ( const bool b )$/;"	f	class:Socket
 showDebugOverlay	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::showDebugOverlay(bool show)$/;"	f	class:ExampleFrameListener
 tileTypeToString	src/Tile.cpp	/^string Tile::tileTypeToString(TileType t)$/;"	f	class:Tile
+turnNumber	src/main.cpp	/^long int turnNumber = 1;$/;"	v
+turnsPerSecond	src/main.cpp	/^double turnsPerSecond = 1.0;$/;"	v
 updateStats	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::updateStats(void)$/;"	f	class:ExampleFrameListener
+updateVisibleTiles	src/Creature.cpp	/^void Creature::updateVisibleTiles()$/;"	f	class:Creature
 windowClosed	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::windowClosed(RenderWindow* rw)$/;"	f	class:ExampleFrameListener
 windowResized	src/ExampleFrameListener.cpp	/^void ExampleFrameListener::windowResized(RenderWindow* rw)$/;"	f	class:ExampleFrameListener
 writeGameMapToFile	src/Functions.cpp	/^void writeGameMapToFile(string fileName)$/;"	f
