@@ -8,6 +8,7 @@ Creature::Creature()
 	position = Ogre::Vector3(0,0,0);
 	scale = Ogre::Vector3(1,1,1);
 	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
+	sightRadius = 10.0;
 }
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
@@ -16,6 +17,7 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
 	meshName = nMeshName;
 	scale = nScale;
 	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
+	sightRadius = 10.0;
 }
 
 ostream& operator<<(ostream& os, Creature *c)
@@ -63,6 +65,7 @@ void Creature::createMesh()
 	//FIXME: Something needs to be done about the caling issue here.
 	//node->setScale(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT);
 	node->setScale(scale);
+	ent->setNormaliseNormals(true);
 	node->attachObject(ent);
 }
 
@@ -164,6 +167,10 @@ void Creature::doTurn()
 				break;
 
 			case dig:
+				for(int i = 0; i < visibleTiles.size(); i++)
+				{
+				}
+				break;
 
 			default:
 				break;
@@ -173,6 +180,28 @@ void Creature::doTurn()
 
 void Creature::updateVisibleTiles()
 {
+	int xMin, yMin, xMax, yMax;
+
+	visibleTiles.clear();
+	xMin = (int)position.x - sightRadius;
+	xMax = (int)position.x + sightRadius;
+	yMin = (int)position.y - sightRadius;
+	yMax = (int)position.y + sightRadius;
+
+	// Add the circular portion of the visible region
+	for(int i = xMin; i < xMax; i++)
+	{
+		for(int j = yMin; j < yMax; j++)
+		{
+			int distSQ = powl(position.x - i, 2.0) + powl(position.y - j, 2.0);
+			if(distSQ < sightRadius * sightRadius)
+			{
+				visibleTiles.push_back(gameMap.getTile(i,j));
+			}
+		}
+	}
+
+	//TODO:  Add the sector shaped region of the visible region
 }
 
 void createVisualDebugEntities()

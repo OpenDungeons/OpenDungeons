@@ -41,10 +41,11 @@ void MapEditor::createScene(void)
 {
 	int choice;
 	int newXSize, newYSize;
-	mSceneMgr->setAmbientLight(ColourValue(0.5, 0.5, 0.5));
 
 	// Turn on shadows
-	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);
+	//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
+	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);	// Quality 2
+	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);	// Quality 3
 
 	Entity *ent;
 	SceneNode *node;
@@ -79,12 +80,28 @@ void MapEditor::createScene(void)
 	// Create ogre entities for the tiles and creatures
 	gameMap.createAllEntities();
 
-	// Create the main scene light
+	// Create the main scene lights
+	mSceneMgr->setAmbientLight(ColourValue(0.1, 0.1, 0.1));
+	double mainLightR = .7;
+	double mainLightG = .7;
+	double mainLightB = .5;
+	double mainLightAttenuationD = 200.0;
+	double mainLightAttenuationE = 0.0;
+	double mainLightAttenuationL = 0.0;
+	double mainLightAttenuationQ = 0.002;
 	Light *light = mSceneMgr->createLight("Light1");
-	light->setType(Light::LT_DIRECTIONAL);
-	light->setDirection(Ogre::Vector3(-1, -1, -1));
-	light->setDiffuseColour(ColourValue(.65, .65, .85));
+	light->setType(Light::LT_POINT);
+	light->setPosition(Ogre::Vector3(80, 80, 40));
+	light->setDiffuseColour(ColourValue(mainLightR, mainLightG, mainLightB));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
+	light->setAttenuation(mainLightAttenuationD, mainLightAttenuationE, mainLightAttenuationL, mainLightAttenuationQ);
+
+	light = mSceneMgr->createLight("Light2");
+	light->setType(Light::LT_POINT);
+	light->setPosition(Ogre::Vector3(-30, 40, 40));
+	light->setDiffuseColour(ColourValue(mainLightR, mainLightG, mainLightB));
+	light->setSpecularColour(ColourValue(.0, .0, .0));
+	light->setAttenuation(mainLightAttenuationD, mainLightAttenuationE, mainLightAttenuationL, mainLightAttenuationQ);
 
 	// Create the scene node that the camera attaches to
 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 16));
@@ -98,16 +115,17 @@ void MapEditor::createScene(void)
 	//node->translate(Ogre::Vector3(1/BLENDER_UNITS_PER_OGRE_UNIT, 1/BLENDER_UNITS_PER_OGRE_UNIT, 0));
 	node->translate(Ogre::Vector3(0, 0, 0));
 	node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT));
+	ent->setNormaliseNormals(true);
 	node->attachObject(ent);
 
 	// Create the light which follows the single tile selection mesh
 	light = mSceneMgr->createLight("MouseLight");
 	light->setType(Light::LT_POINT);
-	light->setDiffuseColour(ColourValue(.8, .8, .6));
+	light->setDiffuseColour(ColourValue(.2, .2, .2));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
 	//light->setPosition(0, 0, 1.45/BLENDER_UNITS_PER_OGRE_UNIT);
-	light->setPosition(0, 0, 5.45);
-	light->setAttenuation(65, 0.0, 0.4, 0.6);
+	light->setPosition(0, 0, 7.45);
+	light->setAttenuation(35, 0.0, 0.0, 0.01);
 	node->attachObject(light);
 
 

@@ -41,6 +41,7 @@ class Creature
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
 		Tile *positionTile;
+		double sightRadius;
 
 	private:
 		Ogre::Vector3 position;

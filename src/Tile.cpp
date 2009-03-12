@@ -190,6 +190,8 @@ void Tile::createMesh()
 	//node->setPosition(Ogre::Vector3(y/BLENDER_UNITS_PER_OGRE_UNIT, x/BLENDER_UNITS_PER_OGRE_UNIT, 0));
 	node->setPosition(Ogre::Vector3(y, x, 0));
 	node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
+	ent->setNormaliseNormals(true);
+
 
 	node->attachObject(ent);
 }

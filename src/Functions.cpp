@@ -50,15 +50,9 @@ void readGameMapFromFile(string fileName)
 	for(int i = 0; i < objectsToLoad; i++)
 	{
 		double tempX, tempY, tempZ;
-		//levelFile >> tempCreature.className >> tempCreature.meshName >> tempX >> tempY >> tempZ;
-		//tempCreature.scale = Ogre::Vector3(tempX, tempY, tempZ);
-	
-
 		levelFile >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
 		Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ));
 		gameMap.addClassDescription(p);
-
-		//gameMap.addClassDescription(tempCreature);
 	}
 
 	// Read in the actual creatures themselves
