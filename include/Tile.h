@@ -7,7 +7,12 @@
 using namespace std;
 using namespace Ogre;
 
+#include <semaphore.h>
+
+//FIXME:  this extern is probably not needed once the rendering code is all in one thread.
 extern SceneManager* mSceneMgr;
+
+#include "RenderRequest.h"
 
 class Tile
 {

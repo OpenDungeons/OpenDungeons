@@ -1,9 +1,12 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <semaphore.h>
+
 #include "Tile.h"
-#include "GameMap.h"
 #include "Player.h"
+#include "GameMap.h"
+#include "RenderRequest.h"
 
 extern GameMap gameMap;
 extern SceneManager* mSceneMgr;
@@ -13,6 +16,8 @@ extern vector<Player*> players;
 extern Player *me;
 extern double turnsPerSecond;
 extern long int turnNumber;
+extern deque<RenderRequest*> renderQueue;
+extern sem_t renderQueueSemaphore;
 
 #endif
 

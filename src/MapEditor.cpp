@@ -88,7 +88,7 @@ void MapEditor::createScene(void)
 	double mainLightAttenuationD = 200.0;
 	double mainLightAttenuationE = 0.0;
 	double mainLightAttenuationL = 0.0;
-	double mainLightAttenuationQ = 0.002;
+	double mainLightAttenuationQ = 0.001;
 	Light *light = mSceneMgr->createLight("Light1");
 	light->setType(Light::LT_POINT);
 	light->setPosition(Ogre::Vector3(80, 80, 40));

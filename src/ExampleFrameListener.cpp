@@ -329,6 +329,79 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 {
 	using namespace OIS;
 
+	// Process the queue of render tasks from the other threads
+	//FIXME:  this is a very large critical section.  It should be confined to just the queue operations, not the whole loop.
+	sem_wait(&renderQueueSemaphore);
+	while(renderQueue.size() > 0)
+	{
+		char tempString[255];
+		char meshName[255];
+		string tileTypeString;
+		Entity *ent;
+		SceneNode *node;
+		Tile *curTile = NULL;
+
+		RenderRequest *curReq = renderQueue.front();
+		renderQueue.pop_front();
+
+		switch(curReq->type)
+		{
+			case RenderRequest::refreshTile:
+				curTile = (Tile*)curReq->p;
+				if(mSceneMgr->hasSceneNode( (curTile->name + "_node").c_str() ) )
+				{
+					mSceneMgr->getSceneNode( (curTile->name + "_node").c_str() )->detachObject(curTile->name.c_str());
+					mSceneMgr->destroyEntity(curTile->name.c_str());
+
+					string tileTypeString = Tile::tileTypeToString(curTile->getType());
+					sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
+					ent = mSceneMgr->createEntity(curTile->name.c_str(), meshName);
+					ent->setNormaliseNormals(true);
+
+					mSceneMgr->getSceneNode((curTile->name + "_node").c_str())->attachObject(ent);
+				}
+				break;
+
+
+
+
+
+
+
+
+			case RenderRequest::createTile:
+				curTile = (Tile*)curReq->p;
+				tileTypeString = Tile::tileTypeToString(curTile->getType());
+
+				sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
+				ent = mSceneMgr->createEntity(curTile->name.c_str(), meshName);
+
+				sprintf(tempString, "%s_node", curTile->name.c_str());
+				node = mSceneMgr->getRootSceneNode()->createChildSceneNode(tempString);
+				//node->setPosition(Ogre::Vector3(y/BLENDER_UNITS_PER_OGRE_UNIT, x/BLENDER_UNITS_PER_OGRE_UNIT, 0));
+				node->setPosition(Ogre::Vector3(curTile->y, curTile->x, 0));
+				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
+				ent->setNormaliseNormals(true);
+
+				node->attachObject(ent);
+				break;
+
+
+
+
+			case RenderRequest::noRequest:
+				break;
+
+			default:
+				cout << "\n\n\nERROR: Unhandled render request!\n\n\n";
+				break;
+		}
+
+		delete curReq;
+		curReq = NULL;
+	}
+	sem_post(&renderQueueSemaphore);
+	
 		string chatBaseString = "\n---------- Chat ----------\n";
 		chatString = chatBaseString;
 
@@ -408,6 +481,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		moveCamera(evt.timeSinceLastFrame);
 
 	moveCamera(evt.timeSinceLastFrame);
+
 	return mContinue;
 }
 

@@ -66,7 +66,7 @@ material Dirt_Image/TEXFACE/Dirt_(texture).png
 		}
 		pass
 		{
-			ambient 0.0 0.0 0.0
+			ambient 0.8 0.8 0.8
 			diffuse 0.8 0.8 0.8
 			specular 0.274281 0.214664 0.058960 1.000000 0.750000
 			scene_blend add

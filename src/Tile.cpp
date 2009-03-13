@@ -1,5 +1,6 @@
 #include "Defines.h"
 #include "Tile.h"
+#include "Globals.h"
 
 Tile::Tile()
 {
@@ -9,7 +10,6 @@ Tile::Tile()
 	type = dirt;
 	setFullness(100);
 	rotation = 0.0;
-
 }
 
 Tile::Tile(int nX, int nY, TileType nType, int nFullness)
@@ -164,53 +164,34 @@ int Tile::nextTileFullness(int f)
 
 void Tile::refreshMesh()
 {
-	 char meshName[255];
-	 Entity *ent;
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::refreshTile;
+	request->p = this;
 
-	 if(mSceneMgr->hasSceneNode( (name + "_node").c_str() ) )
-	 {
-		  mSceneMgr->getSceneNode( (name + "_node").c_str() )->detachObject(name.c_str());
-		  mSceneMgr->destroyEntity(name.c_str());
-
-		  string tileTypeString = tileTypeToString(type);
-		  sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), fullnessMeshNumber);
-		  ent = mSceneMgr->createEntity(name.c_str(), meshName);
-
-		  mSceneMgr->getSceneNode((name + "_node").c_str())->attachObject(ent);
-	 }
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	sem_post(&renderQueueSemaphore);
 }
 
 void Tile::createMesh()
 {
-	char meshName[255];
-	char tempString[255];
-	Entity *ent;
-	SceneNode *node;
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::createTile;
+	request->p = this;
 
-	string tileTypeString = Tile::tileTypeToString(getType());
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	sem_post(&renderQueueSemaphore);
 
-	sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), getFullnessMeshNumber());
-	ent = mSceneMgr->createEntity(name.c_str(), meshName);
-
-	sprintf(tempString, "%s_node", name.c_str());
-	node = mSceneMgr->getRootSceneNode()->createChildSceneNode(tempString);
-	//node->setPosition(Ogre::Vector3(y/BLENDER_UNITS_PER_OGRE_UNIT, x/BLENDER_UNITS_PER_OGRE_UNIT, 0));
-	node->setPosition(Ogre::Vector3(y, x, 0));
-	node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
-	ent->setNormaliseNormals(true);
-
-
-	node->attachObject(ent);
 }
 
 void Tile::destroyMesh()
 {
+	SceneNode *node;
+	Entity *ent;
+
 	if(mSceneMgr->hasEntity(name.c_str()))
 	{
-		char tempString[255];
-		Entity *ent;
-		SceneNode *node;
-
 		ent = mSceneMgr->getEntity(name.c_str());
 		node = mSceneMgr->getSceneNode((name + "_node").c_str());
 		//mSceneMgr->getRootSceneNode()->detachObject((name + "_node").c_str());

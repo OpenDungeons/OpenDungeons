@@ -1,4 +1,6 @@
 #include <vector>
+#include <deque>
+#include <semaphore.h>
 using namespace std;
 
 #include "Defines.h"
@@ -6,6 +8,7 @@ using namespace std;
 #include "MapEditor.h"
 #include "GameMap.h"
 #include "Player.h"
+#include "RenderRequest.h"
 
 SceneManager* mSceneMgr;
 GameMap gameMap;
@@ -15,6 +18,8 @@ vector<Player*> players;
 Player *me;
 double turnsPerSecond = 1.0;
 long int turnNumber = 1;
+deque<RenderRequest*> renderQueue;
+sem_t renderQueueSemaphore;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -26,6 +31,7 @@ int main(int argc, char **argv)
 #endif
 {
 	seedRandomNumberGenerator();
+	sem_init(&renderQueueSemaphore, 0, 1);
 
 	// Create application object
 	MapEditor app;
