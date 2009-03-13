@@ -36,6 +36,9 @@ class Tile
 		void setSelected(bool s);
 		bool getSelected();
 
+		void setMarkedForDigging(bool s);
+		bool getMarkedForDigging();
+
 		Vector3 location;
 		int x, y;
 		vector<Tile*> neighbors;
@@ -48,7 +51,7 @@ class Tile
 
 	private:
 		TileType type;
-		bool selected;
+		bool selected, markedForDigging;
 		int fullness;
 		int fullnessMeshNumber;
 };

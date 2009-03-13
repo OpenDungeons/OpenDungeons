@@ -24,6 +24,8 @@ class Creature
 		string className;
 		string meshName;
 		Ogre::Vector3 scale;
+		double sightRadius;		//FIXME: not set from file yet
+		double digRate;			//FIXME: not set from file yet
 
 		// Individual properties
 		string name;			// The creature's unique name
@@ -41,7 +43,6 @@ class Creature
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
 		Tile *positionTile;
-		double sightRadius;
 
 	private:
 		Ogre::Vector3 position;

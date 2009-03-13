@@ -18,5 +18,9 @@ implement history on the terminal.
 
 implement line editing on the terminal.
 
-add help for "fps", "conncet", "nearclip", "farclip".
+add help for "fps", "connect", "nearclip", "farclip".
+
+move all of the ogre code into one thread or implement a semaphore on the drawing routines, although this might suck to implement.
+
+instead of having a current task, have a queue of tasks to do, the current one being the one at the head of the queue.
 

@@ -9,6 +9,7 @@ Creature::Creature()
 	scale = Ogre::Vector3(1,1,1);
 	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
 	sightRadius = 10.0;
+	digRate = 10.0;
 }
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
@@ -18,6 +19,7 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
 	scale = nScale;
 	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
 	sightRadius = 10.0;
+	digRate = 10.0;
 }
 
 ostream& operator<<(ostream& os, Creature *c)
@@ -100,12 +102,15 @@ Ogre::Vector3 Creature::getPosition()
 
 void Creature::doTurn()
 {
+	vector<Tile*> markedTiles;
+
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile == NULL)
 		return;
 
 	bool loopBack;
 	// Look at the surrounding area
+	updateVisibleTiles();
 
 	// If the current task was 'idle' and it changed to something else, start doing the next
 	// thing during this turn instead of waiting unitl the next turn.
@@ -167,9 +172,22 @@ void Creature::doTurn()
 				break;
 
 			case dig:
+				cout << "Starting dig\n\n\n\n\n";
+				cout.flush();
+
+				// Find visible tiles, marked for digging
 				for(int i = 0; i < visibleTiles.size(); i++)
 				{
+					// Check to see if the tile is marked for digging
+					if(visibleTiles[i]->getMarkedForDigging())
+					{
+						markedTiles.push_back(visibleTiles[i]);
+					}
 				}
+
+				// Dig one out
+				if(markedTiles.size() > 0)
+					markedTiles[0]->setFullness(markedTiles[0]->getFullness() - digRate);
 				break;
 
 			default:
@@ -196,7 +214,9 @@ void Creature::updateVisibleTiles()
 			int distSQ = powl(position.x - i, 2.0) + powl(position.y - j, 2.0);
 			if(distSQ < sightRadius * sightRadius)
 			{
-				visibleTiles.push_back(gameMap.getTile(i,j));
+				Tile *currentTile = gameMap.getTile(i, j);
+				if(currentTile != NULL)
+					visibleTiles.push_back(gameMap.getTile(i,j));
 			}
 		}
 	}

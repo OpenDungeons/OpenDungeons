@@ -548,11 +548,27 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 									tempTile->y >= min(yPos, mLStartDragY) && \
 									tempTile->y <= max(yPos, mLStartDragY))
 							{
-								gameMap.getTile(i)->setSelected(true);
+								// See if we are hosting a game or not
+								if(serverSocket == NULL)
+								{
+									gameMap.getTile(i)->setSelected(true);
+								}
+								else
+								{
+									gameMap.getTile(i)->setMarkedForDigging(true);
+								}
 							}
 							else
 							{
-								gameMap.getTile(i)->setSelected(false);
+								// See if we are hosting a game or not
+								if(serverSocket == NULL)
+								{
+									gameMap.getTile(i)->setSelected(false);
+								}
+								else
+								{
+									gameMap.getTile(i)->setMarkedForDigging(false);
+								}
 							}
 
 						}
@@ -568,11 +584,27 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 									tempTile->y >= min(yPos, mRStartDragY) && \
 									tempTile->y <= max(yPos, mRStartDragY))
 							{
-								gameMap.getTile(i)->setSelected(true);
+								// See if we are hosting a game or not
+								if(serverSocket == NULL)
+								{
+									gameMap.getTile(i)->setSelected(true);
+								}
+								else
+								{
+									gameMap.getTile(i)->setMarkedForDigging(true);
+								}
 							}
 							else
 							{
-								gameMap.getTile(i)->setSelected(false);
+								// See if we are hosting a game or not
+								if(serverSocket == NULL)
+								{
+									gameMap.getTile(i)->setSelected(false);
+								}
+								else
+								{
+									gameMap.getTile(i)->setMarkedForDigging(false);
+								}
 							}
 
 						}
@@ -695,7 +727,15 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 	// Unselect all tiles
 	for(int i = 0; i < gameMap.numTiles(); i++)
 	{
-		gameMap.getTile(i)->setSelected(false);
+		// See if we are hosting a game or not
+		if(serverSocket == NULL)
+		{
+			gameMap.getTile(i)->setSelected(false);
+		}
+		else
+		{
+			gameMap.getTile(i)->setMarkedForDigging(false);
+		}
 	}
 
 	// Left mouse button up
@@ -725,8 +765,16 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 					Tile *currentTile = gameMap.getTile(i, j);
 					if(currentTile != NULL)
 					{
-						currentTile->setType( mCurrentTileType );
-						currentTile->setFullness( mCurrentFullness );
+						// See if we are hosting a game or not
+						if(serverSocket == NULL)
+						{
+							currentTile->setType( mCurrentTileType );
+							currentTile->setFullness( mCurrentFullness );
+						}
+						else
+						{
+							currentTile->setMarkedForDigging(true);
+						}
 					}
 				}
 			}

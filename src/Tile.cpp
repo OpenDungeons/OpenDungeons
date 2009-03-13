@@ -3,6 +3,8 @@
 
 Tile::Tile()
 {
+	selected = false;
+	markedForDigging = false;
 	location = Ogre::Vector3(0.0, 0.0, 0.0);
 	type = dirt;
 	setFullness(100);
@@ -12,6 +14,8 @@ Tile::Tile()
 
 Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 {
+	selected = false;
+	markedForDigging = false;
 	x = nX;
 	y = nY;
 	setType(nType);
@@ -51,6 +55,9 @@ void Tile::setFullness(int f)
 	 else if(f > 50 && f <= 75)	fullnessMeshNumber = 75;
 	 else if(f >= 75)	fullnessMeshNumber = 104;
 	 refreshMesh();
+
+	 if(fullness <= 0.01 && getMarkedForDigging() == true)
+		 setMarkedForDigging(false);
 }
 
 int Tile::getFullness()
@@ -218,6 +225,8 @@ void Tile::setSelected(bool s)
 	Entity *ent;
 	char tempString[255];
 	char tempString2[255];
+
+	//FIXME:  This code should probably only exectute if it needs to for speed reasons.
 	sprintf(tempString, "Level_%3i_%3i_selction_indicator", x, y);
 	if(mSceneMgr->hasEntity(tempString))
 	{
@@ -251,5 +260,47 @@ void Tile::setSelected(bool s)
 bool Tile::getSelected()
 {
 	return selected;
+}
+
+void Tile::setMarkedForDigging(bool s)
+{
+	Entity *ent;
+	char tempString[255];
+	char tempString2[255];
+
+	//FIXME:  This code should probably only exectute if it needs to for speed reasons.
+	sprintf(tempString, "Level_%3i_%3i_selction_indicator", x, y);
+	if(mSceneMgr->hasEntity(tempString))
+	{
+		ent = mSceneMgr->getEntity(tempString);
+	}
+	else
+	{
+		sprintf(tempString2, "Level_%3i_%3i_node", x, y);
+		SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
+
+		ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
+		tempNode->attachObject(ent);
+		ent->setVisible(false);
+	}
+
+	if(markedForDigging != s)
+	{
+		markedForDigging = s;
+
+		if(markedForDigging)
+		{
+			ent->setVisible(true);
+		}
+		else
+		{
+			ent->setVisible(false);
+		}
+	}
+}
+
+bool Tile::getMarkedForDigging()
+{
+	return markedForDigging;
 }
 
