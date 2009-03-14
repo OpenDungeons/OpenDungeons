@@ -42,7 +42,7 @@ class Creature
 		Action currentTask;
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
-		Tile *positionTile;
+		Tile* positionTile();
 
 	private:
 		Ogre::Vector3 position;

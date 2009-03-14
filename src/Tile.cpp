@@ -56,7 +56,7 @@ void Tile::setFullness(int f)
 	 else if(f >= 75)	fullnessMeshNumber = 104;
 	 refreshMesh();
 
-	 if(fullness <= 0.01 && getMarkedForDigging() == true)
+	 if(fullness <= 1 && getMarkedForDigging() == true)
 		 setMarkedForDigging(false);
 }
 
@@ -248,24 +248,24 @@ void Tile::setMarkedForDigging(bool s)
 	char tempString[255];
 	char tempString2[255];
 
-	//FIXME:  This code should probably only exectute if it needs to for speed reasons.
-	sprintf(tempString, "Level_%3i_%3i_selction_indicator", x, y);
-	if(mSceneMgr->hasEntity(tempString))
-	{
-		ent = mSceneMgr->getEntity(tempString);
-	}
-	else
-	{
-		sprintf(tempString2, "Level_%3i_%3i_node", x, y);
-		SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
-
-		ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
-		tempNode->attachObject(ent);
-		ent->setVisible(false);
-	}
-
 	if(markedForDigging != s)
 	{
+		//FIXME:  This code should probably only exectute if it needs to for speed reasons.
+		sprintf(tempString, "Level_%3i_%3i_selction_indicator", x, y);
+		if(mSceneMgr->hasEntity(tempString))
+		{
+			ent = mSceneMgr->getEntity(tempString);
+		}
+		else
+		{
+			sprintf(tempString2, "Level_%3i_%3i_node", x, y);
+			SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
+
+			ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
+			tempNode->attachObject(ent);
+			ent->setVisible(false);
+		}
+
 		markedForDigging = s;
 
 		if(markedForDigging)

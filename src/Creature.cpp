@@ -7,7 +7,6 @@ Creature::Creature()
 {
 	position = Ogre::Vector3(0,0,0);
 	scale = Ogre::Vector3(1,1,1);
-	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
 	sightRadius = 10.0;
 	digRate = 10.0;
 	destinationX = 0;
@@ -19,7 +18,6 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
 	className = nClassName;
 	meshName = nMeshName;
 	scale = nScale;
-	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
 	sightRadius = 10.0;
 	digRate = 10.0;
 	destinationX = 0;
@@ -88,10 +86,9 @@ void Creature::setPosition(double x, double y, double z)
 	SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(name + "_node");
 
 	//FIXME: X-Y reversal issue.
-	//creatureSceneNode->setPosition(y/BLENDER_UNITS_PER_OGRE_UNIT, x/BLENDER_UNITS_PER_OGRE_UNIT, z/BLENDER_UNITS_PER_OGRE_UNIT);
-	creatureSceneNode->setPosition(y, x, z);
-	gameMap.getCreature(name)->position = Ogre::Vector3(y, x, z);
-	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
+	//creatureSceneNode->setPosition(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, z/BLENDER_UNITS_PER_OGRE_UNIT);
+	creatureSceneNode->setPosition(x, y, z);
+	gameMap.getCreature(name)->position = Ogre::Vector3(x, y, z);
 }
 
 Ogre::Vector3 Creature::getPosition()
@@ -106,7 +103,7 @@ void Creature::doTurn()
 	list<Tile*>walkPath;
 
 	// If we are not standing somewhere on the map, do nothing.
-	if(positionTile == NULL)
+	if(positionTile() == NULL)
 		return;
 
 	bool loopBack;
@@ -125,28 +122,32 @@ void Creature::doTurn()
 		{
 			case idle:
 				//FIXME: make this into a while loop over a vector of <action, probability> pairs
+
+				if(randomDouble(0.0, 1.0) < 0.7)
+				{
+					loopBack = true;
+					currentTask = dig;
+					break;
+				}
+
+				/*
 				if(randomDouble(0.0, 1.0) < 0.3)
 				{
 					loopBack = true;
 					currentTask = walkTo;
-					destinationX = destinationY = 3;
-				}
-
-				/*
-				else if(randomDouble(0.0, 1.0) < 0.3)
-				{
-					loopBack = true;
-					currentTask = dig;
+					destinationX = 5;
+					destinationY = 3;
+					break;
 				}
 				*/
 				break;
 
 			case walkTo:
-				if(randomDouble(0.0, 1.0) < 0.9)
+				if(randomDouble(0.0, 1.0) < 0.7)
 				{
 					// Choose a tile for the next step towards the destination
 					//FIXME:  X-Y reversal
-					walkPath = gameMap.path((int)position.y, (int)position.x, destinationY, destinationX);
+					walkPath = gameMap.path((int)position.x, (int)position.y, destinationX, destinationY);
 					cout << "\n\n\n\n\nWalk path size = " << walkPath.size() << endl;
 					cout.flush();
 					if(walkPath.size() == 1)
@@ -187,9 +188,52 @@ void Creature::doTurn()
 					}
 				}
 
-				// Dig one out
-				if(markedTiles.size() > 0)
-					markedTiles[0]->setFullness(markedTiles[0]->getFullness() - digRate);
+				// See if any of the tiles is one of our neighbors
+				for(int i = 0; i < markedTiles.size(); i++)
+				{
+					//FIXME:  X-Y reversal
+					if(fabs((double)markedTiles[i]->x - position.x) <= 1.55 \
+							&& fabs((double)markedTiles[i]->y - position.y) <= 1.55)
+					{
+						markedTiles[i]->setFullness(markedTiles[i]->getFullness() - digRate);
+						break;
+					}
+				}
+
+				// If no tiles are next to us, see if we can walk to one to dig it out
+				for(int i = 0; i < markedTiles.size(); i++)
+				{
+					for(int j = 0; j < 8; j++)
+					{
+						tempX = markedTiles[i]->x;
+						tempY = markedTiles[i]->y;
+						switch(j)
+						{
+							case 0:  tempX += -1;  tempY += -1;  break;
+							case 1:  tempX += -1;  tempY += -0;  break;
+							case 2:  tempX += -1;  tempY += 1;  break;
+							case 3:  tempX += 0;  tempY += -1;  break;
+							case 4:  tempX += 0;  tempY += 1;  break;
+							case 5:  tempX += 1;  tempY += -1;  break;
+							case 6:  tempX += 1;  tempY += 0;  break;
+							case 7:  tempX += 1;  tempY += 1;  break;
+						}
+
+						//FIXME:  X-Y reversal
+						walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
+
+						if(walkPath.size() >= 2)
+						{
+							nextStep = *(++(walkPath.begin()));
+							//FIXME:  X-Y reversal
+							setPosition(nextStep->x, nextStep->y, position.z);
+							break;
+						}
+					}
+				}
+
+				// If we still can't do anything then give up and idle
+				currentTask = idle;
 				break;
 
 			default:
@@ -228,9 +272,16 @@ void Creature::updateVisibleTiles()
 
 void createVisualDebugEntities()
 {
+	//TODO:  fill in this stub method.
 }
 
 void destroyVisualDebugEntities()
 {
+	//TODO:  fill in this stub method.
+}
+
+Tile* Creature::positionTile()
+{
+	return gameMap.getTile((int)(position.x), (int)(position.y));
 }
 

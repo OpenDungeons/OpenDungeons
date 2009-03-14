@@ -296,8 +296,8 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 		//cout.flush();
 
 
-				cout << "\n\nF:  " << neighbor->tile->getFullness() << Tile::tileTypeToString(neighbor->tile->getType()) << endl;
-				cout.flush();
+				//cout << "\n\nF:  " << neighbor->tile->getFullness() << Tile::tileTypeToString(neighbor->tile->getType()) << endl;
+				//cout.flush();
 			// See if the neighbor tile in question is walkable
 			if(neighbor->tile != NULL && neighbor->tile->getFullness() == 0)
 			{

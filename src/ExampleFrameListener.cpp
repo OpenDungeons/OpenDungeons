@@ -372,8 +372,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				sprintf(tempString, "%s_node", curTile->name.c_str());
 				node = mSceneMgr->getRootSceneNode()->createChildSceneNode(tempString);
-				//node->setPosition(Ogre::Vector3(y/BLENDER_UNITS_PER_OGRE_UNIT, x/BLENDER_UNITS_PER_OGRE_UNIT, 0));
-				node->setPosition(Ogre::Vector3(curTile->y, curTile->x, 0));
+				//node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
+				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
 				ent->setNormaliseNormals(true);
 
@@ -614,7 +614,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 					sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
 
 					mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos, xPos, 0);
+					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(xPos, yPos, 0);
 
 					if(mLMouseDown)
 					{
@@ -708,7 +708,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 					sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
 
 					mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(yPos, xPos, 0);
+					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(xPos, yPos, 0);
 				}
 			}
 
@@ -828,8 +828,8 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 			mSceneMgr->getRootSceneNode()->addChild(creatureSceneNode);
 			mDragType = ExampleFrameListener::nullDragType;
 			gameMap.getCreature(mDraggedCreature)->setPosition(xPos, yPos, 0);
-			//creatureSceneNode->setPosition(yPos/BLENDER_UNITS_PER_OGRE_UNIT, xPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
-			//gameMap.getCreature(mDraggedCreature)->position = Ogre::Vector3(yPos, xPos, 0);
+			//creatureSceneNode->setPosition(xPos/BLENDER_UNITS_PER_OGRE_UNIT, yPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
+			//gameMap.getCreature(mDraggedCreature)->position = Ogre::Vector3(xPos, yPos, 0);
 		}
 
 		// Check to see if we are dragging out a selection of tiles
