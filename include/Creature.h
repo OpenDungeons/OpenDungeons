@@ -11,7 +11,7 @@ class Creature
 {
 	public:
 		Creature();
-		Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale);
+		Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate);
 		friend ostream& operator<<(ostream& os, Creature *c);
 		friend istream& operator>>(istream& is, Creature *c);
 		void createMesh();
@@ -24,8 +24,8 @@ class Creature
 		string className;
 		string meshName;
 		Ogre::Vector3 scale;
-		double sightRadius;		//FIXME: not set from file yet
-		double digRate;			//FIXME: not set from file yet
+		double sightRadius;		// The inner radius where the creature sees everything
+		double digRate;			// Fullness removed per turn of digging
 
 		// Individual properties
 		string name;			// The creature's unique name

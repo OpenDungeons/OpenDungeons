@@ -633,7 +633,10 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 								}
 								else
 								{
-									gameMap.getTile(i)->setMarkedForDigging(true);
+									if(gameMap.getTile(i)->getFullness() > 0)
+									{
+										gameMap.getTile(i)->setMarkedForDigging(true);
+									}
 								}
 							}
 							else
@@ -851,7 +854,10 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 						}
 						else
 						{
-							currentTile->setMarkedForDigging(true);
+							if(currentTile->getFullness() > 0)
+							{
+								currentTile->setMarkedForDigging(true);
+							}
 						}
 					}
 				}
@@ -1468,11 +1474,12 @@ void ExampleFrameListener::executePromptCommand()
 			{
 				//FIXME: this code should be standardaized with the equivalent code in readGameMapFromFile()
 				// This will require making CreatureClass a base class of Creature
-				double tempX, tempY, tempZ;
+				double tempX, tempY, tempZ, tempSightRadius, tempDigRate;
+				int tempHP, tempMana;
 				string tempString, tempString2;
 				tempSS.str(arguments);
-				tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
-				Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ));
+				tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ >> tempHP >> tempMana >> tempSightRadius >> tempDigRate;
+				Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate);
 				gameMap.addClassDescription(p);
 			}
 

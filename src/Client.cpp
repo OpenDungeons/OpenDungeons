@@ -39,6 +39,11 @@ void *clientSocketProcessor(void *p)
 			ChatMessage *newMessage = processChatMessage(arguments);
 			frameListener->chatMessages.push_back(newMessage);
 		}
+
+		else if(serverCommand.compare("newmap") == 0)
+		{
+			gameMap.clearAll();
+		}
 	}
 }
 

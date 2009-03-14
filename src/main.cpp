@@ -16,7 +16,7 @@ string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
 int MAX_FRAMES_PER_SECOND = 25;
 vector<Player*> players;
 Player *me;
-double turnsPerSecond = 1.0;
+double turnsPerSecond = 3.0;
 long int turnNumber = 1;
 deque<RenderRequest*> renderQueue;
 sem_t renderQueueSemaphore;

@@ -4,3 +4,5 @@ MapEditor
 Makefile
 *.o
 
+cmake_install.cmake
+

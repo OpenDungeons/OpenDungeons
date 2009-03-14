@@ -214,6 +214,8 @@ void GameMap::removeCreatureFromHand(int i)
 	creaturesInHand.erase(curCreature);
 }
 
+// Calculates the walkable path between tiles (x1, y1) and (x2, y2)
+// The path returned contains both the starting and ending tiles
 list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 {
 	astarEntry *currentEntry;
@@ -263,11 +265,13 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 
 		// Check the tiles surrounding the current square, the squares are numbered like
 		//
-		//            0    1    2
-		//            3    C    4
-		//            5    6    7
+		//            4    0    6
+		//            2    C    3
+		//            7    1    5
 		//
-		for(int i = 0; i < 8; i++)
+		// The loop should go to 4 or 8 depending on whether or not you want the creatures
+		// to be able to cut corners.  Setting it to 4 does not allow cutting corners, 8 does.
+		for(int i = 0; i < 4; i++)
 		{
 			int tempX, tempY;
 			double nDist;
@@ -276,14 +280,17 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 			tempY = currentEntry->tile->y;
 			switch(i)
 			{
-				case 0: tempX -= 1;  tempY += 1;  nDist = sqrt(2.0);  break;
-				case 1: tempX -= 0;  tempY += 1;  nDist = 1;  break;
-				case 2: tempX += 1;  tempY += 1;  nDist = sqrt(2.0);  break;
-				case 3: tempX -= 1;  tempY += 0;  nDist = 1;  break;
-				case 4: tempX += 1;  tempY += 0;  nDist = 1;  break;
-				case 5: tempX -= 1;  tempY -= 1;  nDist = sqrt(2.0);  break;
-				case 6: tempX -= 0;  tempY -= 1;  nDist = 1;  break;
-				case 7: tempX += 1;  tempY -= 1;  nDist = sqrt(2.0);  break;
+				// Adjacent neighbors
+				case 0: tempX -= 0;  tempY += 1;  nDist = 1;  break;
+				case 1: tempX -= 0;  tempY -= 1;  nDist = 1;  break;
+				case 2: tempX -= 1;  tempY += 0;  nDist = 1;  break;
+				case 3: tempX += 1;  tempY += 0;  nDist = 1;  break;
+
+				// Corner neighbors
+				case 4: tempX -= 1;  tempY += 1;  nDist = sqrt(2.0);  break;
+				case 5: tempX += 1;  tempY -= 1;  nDist = sqrt(2.0);  break;
+				case 6: tempX += 1;  tempY += 1;  nDist = sqrt(2.0);  break;
+				case 7: tempX -= 1;  tempY -= 1;  nDist = sqrt(2.0);  break;
 
 				default:
 					cout << "\n\n\nERROR:  Wrong neighbor index in astar search.\n\n\n";
@@ -292,12 +299,12 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 			}
 
 			neighbor->tile = getTile(tempX, tempY);
-		//cout << endl << tempX << "\t" << tempY;
-		//cout.flush();
+			//cout << endl << tempX << "\t" << tempY;
+			//cout.flush();
 
 
-				//cout << "\n\nF:  " << neighbor->tile->getFullness() << Tile::tileTypeToString(neighbor->tile->getType()) << endl;
-				//cout.flush();
+			//cout << "\n\nF:  " << neighbor->tile->getFullness() << Tile::tileTypeToString(neighbor->tile->getType()) << endl;
+			//cout.flush();
 			// See if the neighbor tile in question is walkable
 			if(neighbor->tile != NULL && neighbor->tile->getFullness() == 0)
 			{
@@ -339,6 +346,8 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 					}
 					else
 					{
+						// If this path to the given neighbor tile is a shorter path than the
+						// one already given, make this the new parent.
 						if(currentEntry->g + nDist < (*itr)->g)
 						{
 							(*itr)->g = currentEntry->g + nDist;

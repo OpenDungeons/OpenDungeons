@@ -49,9 +49,14 @@ void readGameMapFromFile(string fileName)
 	levelFile >> objectsToLoad;
 	for(int i = 0; i < objectsToLoad; i++)
 	{
-		double tempX, tempY, tempZ;
+		double tempX, tempY, tempZ, tempSightRadius, tempDigRate;
+		int tempHP, tempMana;
 		levelFile >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
-		Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ));
+
+		levelFile >> tempHP >> tempMana;
+		levelFile >> tempSightRadius >> tempDigRate;
+
+		Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate);
 		gameMap.addClassDescription(p);
 	}
 
@@ -94,7 +99,9 @@ void writeGameMapToFile(string fileName)
 	{
 		
 		tempCreature = gameMap.getClassDescription(i);
-		levelFile << tempCreature->className << "\t" << tempCreature->meshName << "\t" << tempCreature->scale.x << "\t" << tempCreature->scale.y << "\t" << tempCreature->scale.z << "\n";
+		levelFile << tempCreature->className << "\t" << tempCreature->meshName << "\t" << tempCreature->scale.x << "\t" << tempCreature->scale.y << "\t" << tempCreature->scale.z << "\t";
+		levelFile << tempCreature->hp << "\t" << tempCreature->mana << "\t";
+		levelFile << tempCreature->sightRadius << "\t" << tempCreature->digRate << "\n";
 	}
 
 	// Write out the individual creatures to the file

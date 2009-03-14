@@ -11,9 +11,14 @@ Creature::Creature()
 	digRate = 10.0;
 	destinationX = 0;
 	destinationY = 0;
+
+	hp = 10;
+	mana = 10;
+	sightRadius = 10;
+	digRate = 10;
 }
 
-Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
+Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate)
 {
 	className = nClassName;
 	meshName = nMeshName;
@@ -22,12 +27,18 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
 	digRate = 10.0;
 	destinationX = 0;
 	destinationY = 0;
+
+	hp = nHP;
+	mana = nMana;
+	sightRadius = nSightRadius;
+	digRate = nDigRate;
 }
 
 ostream& operator<<(ostream& os, Creature *c)
 {
 	os << c->className << "\t" << c->name << "\t";
-	os << c->position.x << "\t" << c->position.y << "\t" << c->position.z << "\n";
+	os << c->position.x << "\t" << c->position.y << "\t" << c->position.z << "\t";
+	os << c->color << "\n";
 
 	return os;
 }
@@ -46,14 +57,15 @@ istream& operator>>(istream& is, Creature *c)
 		char tempArray[255];
 		sprintf(tempArray, "%s_%04i", c->className.c_str(), uniqueNumber);
 		tempString = string(tempArray);
+		uniqueNumber++;
 	}
 
 	c->name = tempString;
 
 	is >> xLocation >> yLocation >> zLocation;
 	c->position = Ogre::Vector3(xLocation, yLocation, zLocation);
+	is >> c->color;
 
-	uniqueNumber++;
 	return is;
 }
 
@@ -175,65 +187,82 @@ void Creature::doTurn()
 				break;
 
 			case dig:
-				cout << "Starting dig\n\n\n\n\n";
-				cout.flush();
-
-				// Find visible tiles, marked for digging
-				for(int i = 0; i < visibleTiles.size(); i++)
+				if(digRate > 0.1)
 				{
-					// Check to see if the tile is marked for digging
-					if(visibleTiles[i]->getMarkedForDigging())
-					{
-						markedTiles.push_back(visibleTiles[i]);
-					}
-				}
+					cout << "Starting dig\nDR:  " << digRate << "\n\n\n\n";
+					cout.flush();
 
-				// See if any of the tiles is one of our neighbors
-				for(int i = 0; i < markedTiles.size(); i++)
-				{
-					//FIXME:  X-Y reversal
-					if(fabs((double)markedTiles[i]->x - position.x) <= 1.55 \
-							&& fabs((double)markedTiles[i]->y - position.y) <= 1.55)
+					// Find visible tiles, marked for digging
+					for(int i = 0; i < visibleTiles.size(); i++)
 					{
-						markedTiles[i]->setFullness(markedTiles[i]->getFullness() - digRate);
-						break;
-					}
-				}
-
-				// If no tiles are next to us, see if we can walk to one to dig it out
-				for(int i = 0; i < markedTiles.size(); i++)
-				{
-					for(int j = 0; j < 8; j++)
-					{
-						tempX = markedTiles[i]->x;
-						tempY = markedTiles[i]->y;
-						switch(j)
+						// Check to see if the tile is marked for digging
+						if(visibleTiles[i]->getMarkedForDigging())
 						{
-							case 0:  tempX += -1;  tempY += -1;  break;
-							case 1:  tempX += -1;  tempY += -0;  break;
-							case 2:  tempX += -1;  tempY += 1;  break;
-							case 3:  tempX += 0;  tempY += -1;  break;
-							case 4:  tempX += 0;  tempY += 1;  break;
-							case 5:  tempX += 1;  tempY += -1;  break;
-							case 6:  tempX += 1;  tempY += 0;  break;
-							case 7:  tempX += 1;  tempY += 1;  break;
+							markedTiles.push_back(visibleTiles[i]);
 						}
+					}
 
+					// See if any of the tiles is one of our neighbors
+					for(int i = 0; i < markedTiles.size(); i++)
+					{
 						//FIXME:  X-Y reversal
-						walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
-
-						if(walkPath.size() >= 2)
+						if(fabs((double)markedTiles[i]->x - position.x) <= 1.55 \
+								&& fabs((double)markedTiles[i]->y - position.y) <= 1.55)
 						{
-							nextStep = *(++(walkPath.begin()));
-							//FIXME:  X-Y reversal
-							setPosition(nextStep->x, nextStep->y, position.z);
+							markedTiles[i]->setFullness(markedTiles[i]->getFullness() - digRate);
 							break;
 						}
 					}
+
+					// If no tiles are next to us, see if we can walk to one to dig it out
+					for(int i = 0; i < markedTiles.size(); i++)
+					{
+						//  j<4 :  Allow standing on adjacent corners only, when digging.
+						//  j<8 :  Allow standing on any corners, when digging.
+						for(int j = 0; j < 4; j++)
+						{
+							tempX = markedTiles[i]->x;
+							tempY = markedTiles[i]->y;
+							switch(j)
+							{
+								// Adjacent tiles
+								case 0:  tempX += -1;  tempY += -0;  break;
+								case 1:  tempX += 0;  tempY += -1;  break;
+								case 2:  tempX += 0;  tempY += 1;  break;
+								case 3:  tempX += 1;  tempY += 0;  break;
+
+								 // Corner tiles
+								case 4:  tempX += -1;  tempY += -1;  break;
+								case 5:  tempX += -1;  tempY += 1;  break;
+								case 6:  tempX += 1;  tempY += -1;  break;
+								case 7:  tempX += 1;  tempY += 1;  break;
+							}
+
+							if(gameMap.getTile(tempX, tempY)->getFullness() == 0)
+							{
+								//FIXME:  X-Y reversal
+								walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
+
+								if(walkPath.size() >= 2)
+								{
+									nextStep = *(++(walkPath.begin()));
+									//FIXME:  X-Y reversal
+									setPosition(nextStep->x, nextStep->y, position.z);
+									break;
+								}
+							}
+						}
+					}
+					// If we still can't do anything then give up and idle
+					currentTask = idle;
+				}
+				else
+				{
+					// If our di rate is too low to be of use
+					currentTask = idle;
+					loopBack = true;
 				}
 
-				// If we still can't do anything then give up and idle
-				currentTask = idle;
 				break;
 
 			default:
