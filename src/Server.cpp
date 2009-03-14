@@ -77,15 +77,48 @@ void *serverSocketProcessor(void *p)
 
 			if(clientCommand.compare("hello") == 0)
 			{
-				ChatMessage *newMessage = new ChatMessage("SERVER_INFORMATION", "Client connect with version: " + arguments, time(NULL));
-				frameListener->chatMessages.push_back(newMessage);
+				stringstream tempSS;
+				frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client connect with version: " + arguments, time(NULL)));
 
-				int charsSent = curSock->send(formatCommand("picknick", ""));
+				// Tell the client to give us their nickname and to clear their map
+				curSock->send(formatCommand("picknick", ""));
+				curSock->send(formatCommand("newmap", ""));
+
+				// Send over the map tiles from the current game map.
+				//TODO: Only send the tiles which the client is supposed to see due to fog of war.
+				for(int i = 0; i < gameMap.numTiles(); i++)
+				{
+					tempString = "";
+					tempSS.str(tempString);
+					tempSS << gameMap.getTile(i);
+					curSock->send(formatCommand("addtile", tempSS.str()));
+					// Throw away the ok response
+					curSock->recv(tempString);
+				}
+
+				// Send over the class descriptions in use on the current game map
+				//TODO: Only send the classes which the client is supposed to see due to fog of war.
+				for(int i = 0; i < gameMap.numClassDescriptions(); i++)
+				{
+					Creature *tempCreature = gameMap.getClassDescription(i);
+
+					tempString = "";
+					tempSS.str(tempString);
+					tempSS << tempCreature->className << "\t" << tempCreature->meshName << "\t";
+					tempSS << tempCreature->scale.x << "\t" << tempCreature->scale.y << "\t" << tempCreature->scale.z << "\t";
+					tempSS << tempCreature->hp << "\t" << tempCreature->mana << "\t";
+					tempSS << tempCreature->sightRadius << "\t" << tempCreature->digRate << "\n";
+
+					curSock->send(formatCommand("addclass", tempSS.str()));
+					// Throw away the ok response
+					curSock->recv(tempString);
+				}
 			}
 
 			else if(clientCommand.compare("setnick") == 0)
 			{
 				clientNick = arguments;
+				frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client nick is: " + clientNick, time(NULL)));
 			}
 
 			else if(clientCommand.compare("chat") == 0)

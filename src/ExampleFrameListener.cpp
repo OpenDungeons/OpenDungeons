@@ -380,6 +380,30 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->attachObject(ent);
 				break;
 
+			case RenderRequest::destroyTile:
+				cout << "Destroying tile\n";
+				cout.flush();
+
+				curTile = (Tile*)curReq->p;
+				if(mSceneMgr->hasEntity(curTile->name.c_str()))
+				{
+					ent = mSceneMgr->getEntity(curTile->name.c_str());
+					node = mSceneMgr->getSceneNode((curTile->name + "_node").c_str());
+					//mSceneMgr->getRootSceneNode()->detachObject((curTile->name + "_node").c_str());
+					node->detachAllObjects();
+					mSceneMgr->destroySceneNode((curTile->name + "_node").c_str());
+					mSceneMgr->destroyEntity(ent);
+				}
+				break;
+
+			case RenderRequest::deleteTile:
+				cout << "Deleting tile\n";
+				cout.flush();
+
+				curTile = (Tile*)curReq->p;
+				delete curTile;
+				break;
+
 			case RenderRequest::createCreature:
 				curCreature = (Creature*)curReq->p;
 				ent = mSceneMgr->createEntity( ("Creature_" + curCreature->name).c_str(), curCreature->meshName.c_str());
@@ -391,6 +415,24 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
 				node->attachObject(ent);
+				break;
+
+			case RenderRequest::destroyCreature:
+				curCreature = (Creature*)curReq->p;
+				if(mSceneMgr->hasEntity( ("Creature_" + curCreature->name).c_str() ))
+				{
+					ent = mSceneMgr->getEntity( ("Creature_" + curCreature->name).c_str() );
+					node = mSceneMgr->getSceneNode( (curCreature->name + "_node").c_str() );
+					mSceneMgr->getRootSceneNode()->removeChild( node );
+					node->detachObject( ent );
+					mSceneMgr->destroyEntity( ent );
+					mSceneMgr->destroySceneNode( (curCreature->name + "_node") );
+				}
+				break;
+
+			case RenderRequest::deleteCreature:
+				curCreature = (Creature*)curReq->p;
+				delete curCreature;
 				break;
 
 			case RenderRequest::noRequest:

@@ -21,7 +21,6 @@ class Tile
 
 		Tile();
 		Tile(int nX, int nY, TileType nType, int nFullness);
-		~Tile();
 
 		void setType(TileType t);
 		TileType getType();
@@ -37,6 +36,7 @@ class Tile
 		void refreshMesh();
 		void createMesh();
 		void destroyMesh();
+		void deleteYourself();
 
 		void setSelected(bool s);
 		bool getSelected();

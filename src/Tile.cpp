@@ -22,11 +22,6 @@ Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 	setFullness(nFullness);
 }
 
-Tile::~Tile()
-{
-	destroyMesh();
-}
-
 void Tile::setType(TileType t)
 {
 	// If the type has changed from its previous value we need to see if
@@ -79,11 +74,19 @@ ostream& operator<<(ostream& os, Tile *t)
 
 istream& operator>>(istream& is, Tile *t)
 {
-	int tempInt;
+	int tempInt, xLocation, yLocation;
+	char tempCellName[255];
 
-	is >> t->x >> t->y;
+	is >> xLocation >> yLocation;
+	t->location = Ogre::Vector3(xLocation, yLocation, 0);
+	sprintf(tempCellName, "Level_%3i_%3i", xLocation, yLocation);
+	t->name = tempCellName;
+	t->x = xLocation;
+	t->y = yLocation;
+
 	is >> tempInt;
-	t->type = (Tile::TileType) tempInt;
+	t->setType( (Tile::TileType) tempInt );
+
 	is >> tempInt;
 	t->setFullness(tempInt);
 
@@ -186,18 +189,13 @@ void Tile::createMesh()
 
 void Tile::destroyMesh()
 {
-	SceneNode *node;
-	Entity *ent;
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::destroyTile;
+	request->p = this;
 
-	if(mSceneMgr->hasEntity(name.c_str()))
-	{
-		ent = mSceneMgr->getEntity(name.c_str());
-		node = mSceneMgr->getSceneNode((name + "_node").c_str());
-		//mSceneMgr->getRootSceneNode()->detachObject((name + "_node").c_str());
-		node->detachAllObjects();
-		mSceneMgr->destroySceneNode((name + "_node").c_str());
-		mSceneMgr->destroyEntity(ent);
-	}
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	sem_post(&renderQueueSemaphore);
 }
 
 void Tile::setSelected(bool s)
@@ -282,5 +280,21 @@ void Tile::setMarkedForDigging(bool s)
 bool Tile::getMarkedForDigging()
 {
 	return markedForDigging;
+}
+
+void Tile::deleteYourself()
+{
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::destroyTile;
+	request->p = this;
+
+	RenderRequest *request2 = new RenderRequest;
+	request2->type = RenderRequest::deleteTile;
+	request2->p = this;
+
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	renderQueue.push_back(request2);
+	sem_post(&renderQueueSemaphore);
 }
 

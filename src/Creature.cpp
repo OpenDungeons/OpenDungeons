@@ -23,8 +23,6 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	className = nClassName;
 	meshName = nMeshName;
 	scale = nScale;
-	sightRadius = 10.0;
-	digRate = 10.0;
 	destinationX = 0;
 	destinationY = 0;
 
@@ -82,15 +80,13 @@ void Creature::createMesh()
 
 void Creature::destroyMesh()
 {
-	Entity *ent;
-	SceneNode *node;
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::destroyCreature;
+	request->p = this;
 
-	ent = mSceneMgr->getEntity( ("Creature_" + name).c_str() );
-	node = mSceneMgr->getSceneNode( (name + "_node").c_str() );
-	mSceneMgr->getRootSceneNode()->removeChild( node );
-	node->detachObject( ent );
-	mSceneMgr->destroyEntity( ent );
-	mSceneMgr->destroySceneNode( (name + "_node") );
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	sem_post(&renderQueueSemaphore);
 }
 
 void Creature::setPosition(double x, double y, double z)
@@ -130,54 +126,52 @@ void Creature::doTurn()
 
 		// Carry out the current task
 		int tempX, tempY;
+		double diceRoll;
+		diceRoll = randomDouble(0.0, 1.0);
 		switch(currentTask)
 		{
 			case idle:
 				//FIXME: make this into a while loop over a vector of <action, probability> pairs
 
-				if(randomDouble(0.0, 1.0) < 0.7)
+				if(diceRoll < 0.6)
 				{
 					loopBack = true;
 					currentTask = dig;
-					break;
 				}
 
-				/*
-				if(randomDouble(0.0, 1.0) < 0.3)
+				else if(diceRoll < 0.9)
 				{
 					loopBack = true;
 					currentTask = walkTo;
-					destinationX = 5;
-					destinationY = 3;
-					break;
+					destinationX = position.x + 2.0*gaussianRandomDouble();
+					destinationY = position.y + 2.0*gaussianRandomDouble();
 				}
-				*/
+				else
+				{
+					// Remain idle
+				}
+
 				break;
 
 			case walkTo:
-				if(randomDouble(0.0, 1.0) < 0.7)
+				if((int)positionTile()->x != destinationX || (int)positionTile()->y != destinationY)
 				{
 					// Choose a tile for the next step towards the destination
 					//FIXME:  X-Y reversal
 					walkPath = gameMap.path((int)position.x, (int)position.y, destinationX, destinationY);
-					cout << "\n\n\n\n\nWalk path size = " << walkPath.size() << endl;
-					cout.flush();
-					if(walkPath.size() == 1)
+					//cout << "\n\nWalk path size = " << walkPath.size() << endl;
+					//cout.flush();
+
+					if(walkPath.size() >= 2)
 					{
-						nextStep = *(walkPath.begin());
+						nextStep = *(++(walkPath.begin()));
 						setPosition(nextStep->x, nextStep->y, position.z);
 					}
 					else
 					{
-						if(walkPath.size() >= 2)
-						{
-						nextStep = *(++(walkPath.begin()));
-						setPosition(nextStep->x, nextStep->y, position.z);
-						}
-						else
-						{
-							cout << "\n\nCould not find path to destination.";
-						}
+						currentTask = idle;
+						loopBack = true;
+						//cout << "\n\nCould not find path to destination.";
 					}
 				}
 				else
@@ -189,8 +183,8 @@ void Creature::doTurn()
 			case dig:
 				if(digRate > 0.1)
 				{
-					cout << "Starting dig\nDR:  " << digRate << "\n\n\n\n";
-					cout.flush();
+					//cout << "Starting dig\nDR:  " << digRate << "\n\n";
+					//cout.flush();
 
 					// Find visible tiles, marked for digging
 					for(int i = 0; i < visibleTiles.size(); i++)
@@ -312,5 +306,21 @@ void destroyVisualDebugEntities()
 Tile* Creature::positionTile()
 {
 	return gameMap.getTile((int)(position.x), (int)(position.y));
+}
+
+void Creature::deleteYourself()
+{
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::destroyCreature;
+	request->p = this;
+
+	RenderRequest *request2 = new RenderRequest;
+	request2->type = RenderRequest::deleteCreature;
+	request2->p = this;
+
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	renderQueue.push_back(request2);
+	sem_post(&renderQueueSemaphore);
 }
 

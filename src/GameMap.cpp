@@ -43,7 +43,7 @@ Tile* GameMap::getTile(int x, int y)
 		}
 	}
 
-	cerr << "Error: Tile not found: (" << x << ", " << y << ")\n\n\n";
+	//cerr << "Error: Tile not found: (" << x << ", " << y << ")\n\n\n";
 	return NULL;
 }
 
@@ -63,8 +63,8 @@ void GameMap::clearTiles()
 {
 	for(int i = 0; i < numTiles(); i++)
 	{
-		tiles[i]->destroyMesh();
-		delete tiles[i];
+		//tiles[i]->destroyMesh();
+		tiles[i]->deleteYourself();
 	}
 
 	tiles.clear();
@@ -74,8 +74,7 @@ void GameMap::clearCreatures()
 {
 	for(int i = 0; i < numCreatures(); i++)
 	{
-		creatures[i]->destroyMesh();
-		delete creatures[i];
+		creatures[i]->deleteYourself();
 	}
 
 	creatures.clear();

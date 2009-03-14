@@ -44,6 +44,44 @@ void *clientSocketProcessor(void *p)
 		{
 			gameMap.clearAll();
 		}
+
+		else if(serverCommand.compare("addtile") == 0)
+		{
+			stringstream tempSS(arguments);
+			Tile *newTile = new Tile;
+			tempSS >> newTile;
+			gameMap.addTile(newTile);
+			//newTile->createMesh();
+			sock->send(formatCommand("ok", "addtile"));
+		}
+
+		else if(serverCommand.compare("addclass") == 0)
+		{
+			// This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
+			// Changes to this code should be reflected in that code as well
+			double tempX, tempY, tempZ, tempSightRadius, tempDigRate;
+			int tempHP, tempMana;
+			stringstream tempSS;
+			string tempString2;
+
+			tempSS.str(arguments);
+
+			tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
+			tempSS >> tempHP >> tempMana;
+			tempSS >> tempSightRadius >> tempDigRate;
+
+			Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate);
+			gameMap.addClassDescription(p);
+			sock->send(formatCommand("ok", "addclass"));
+		}
+
+		else
+		{
+			cout << "\n\n\nERROR:  Unknown server command!\nCommand:";
+			cout << serverCommand << "\nArguments:" << arguments << "\n\n";
+		}
 	}
+
+
 }
 

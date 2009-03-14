@@ -22,3 +22,5 @@ move all of the ogre code into one thread or implement a semaphore on the drawin
 
 instead of having a current task, have a queue of tasks to do, the current one being the one at the head of the queue.
 
+chat message displays user friendly time rather than seconds.
+

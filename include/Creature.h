@@ -16,6 +16,7 @@ class Creature
 		friend istream& operator>>(istream& is, Creature *c);
 		void createMesh();
 		void destroyMesh();
+		void deleteYourself();
 		void setPosition(double x, double y, double z);
 		Ogre::Vector3 getPosition();
 		virtual void doTurn();

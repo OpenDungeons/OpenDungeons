@@ -29,18 +29,7 @@ void readGameMapFromFile(string fileName)
 	{
 		
 		tempTile = new Tile;
-		levelFile >> xLocation >> yLocation;
-		tempTile->location = Ogre::Vector3(xLocation, yLocation, 0);
-		sprintf(tempCellName, "Level_%3i_%3i", xLocation, yLocation);
-		tempTile->name = tempCellName;
-		tempTile->x = xLocation;
-		tempTile->y = yLocation;
-
-		levelFile >> tempInt;
-		tempTile->setType( (Tile::TileType) tempInt );
-
-		levelFile >> tempInt;
-		tempTile->setFullness(tempInt);
+		levelFile >> tempTile;
 
 		gameMap.addTile(tempTile);
 	}
@@ -49,6 +38,8 @@ void readGameMapFromFile(string fileName)
 	levelFile >> objectsToLoad;
 	for(int i = 0; i < objectsToLoad; i++)
 	{
+		// This code is duplicated in the client side method "addclass" defined in src/Client.cpp
+		// Changes to this code should be reflected in that code as well
 		double tempX, tempY, tempZ, tempSightRadius, tempDigRate;
 		int tempHP, tempMana;
 		levelFile >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
