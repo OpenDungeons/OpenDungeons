@@ -7,7 +7,7 @@ using namespace std;
 class RenderRequest
 {
 	public:
-		enum RequestType {createTile, refreshTile, noRequest};
+		enum RequestType {createTile, refreshTile, createCreature, noRequest};
 
 		RenderRequest();
 

@@ -1,3 +1,9 @@
+#include <iostream>
+#include <algorithm>
+using namespace std;
+
+#include <math.h>
+
 #include "Functions.h"
 #include "Defines.h"
 #include "GameMap.h"
@@ -206,5 +212,173 @@ void GameMap::removeCreatureFromHand(int i)
 	}
 
 	creaturesInHand.erase(curCreature);
+}
+
+list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
+{
+	astarEntry *currentEntry;
+	astarEntry *neighbor = new astarEntry;
+	list<astarEntry*> openList;
+	list<astarEntry*> closedList;
+
+	currentEntry = new astarEntry;
+	currentEntry->tile = getTile(x1, y1);
+	currentEntry->parent = NULL;
+	currentEntry->g = 0.0;
+	// Use the manhattan distance for the heuristic
+	// FIXME:  This is not the only place the heuristic is calculated
+	currentEntry->h = fabs(x2-x1) + fabs(y2-y1);
+	openList.push_back(currentEntry);
+
+	bool pathFound = false;
+	while(true)
+	{
+		//cout << "\n\nStuck in this loop..." << openList.size();
+		//cout.flush();
+
+
+		// if the openList is empty we failed to find a path
+		if(openList.size() <= 0)
+			break;
+
+		// Get the lowest fScore from the openList and move it to the closed list
+		list<astarEntry*>::iterator itr = openList.begin(), smallestAstar = openList.begin();
+		while(itr != openList.end())
+		{
+			if((*itr)->fCost() < (*smallestAstar)->fCost())
+				smallestAstar = itr;
+			itr++;
+		}
+
+		currentEntry = *smallestAstar;
+		openList.erase(smallestAstar);
+		closedList.push_back(currentEntry);
+
+		// We found the path, break out of the search loop
+		if(currentEntry->tile == getTile(x2, y2))
+		{
+			pathFound = true;
+			break;
+		}
+
+		// Check the tiles surrounding the current square, the squares are numbered like
+		//
+		//            0    1    2
+		//            3    C    4
+		//            5    6    7
+		//
+		for(int i = 0; i < 8; i++)
+		{
+			int tempX, tempY;
+			double nDist;
+
+			tempX = currentEntry->tile->x;
+			tempY = currentEntry->tile->y;
+			switch(i)
+			{
+				case 0: tempX -= 1;  tempY += 1;  nDist = sqrt(2.0);  break;
+				case 1: tempX -= 0;  tempY += 1;  nDist = 1;  break;
+				case 2: tempX += 1;  tempY += 1;  nDist = sqrt(2.0);  break;
+				case 3: tempX -= 1;  tempY += 0;  nDist = 1;  break;
+				case 4: tempX += 1;  tempY += 0;  nDist = 1;  break;
+				case 5: tempX -= 1;  tempY -= 1;  nDist = sqrt(2.0);  break;
+				case 6: tempX -= 0;  tempY -= 1;  nDist = 1;  break;
+				case 7: tempX += 1;  tempY -= 1;  nDist = sqrt(2.0);  break;
+
+				default:
+					cout << "\n\n\nERROR:  Wrong neighbor index in astar search.\n\n\n";
+					exit(1);
+					break;
+			}
+
+			neighbor->tile = getTile(tempX, tempY);
+		//cout << endl << tempX << "\t" << tempY;
+		//cout.flush();
+
+
+				cout << "\n\nF:  " << neighbor->tile->getFullness() << Tile::tileTypeToString(neighbor->tile->getType()) << endl;
+				cout.flush();
+			// See if the neighbor tile in question is walkable
+			if(neighbor->tile != NULL && neighbor->tile->getFullness() == 0)
+			{
+				// See if the neighbor is in the closed list
+				bool neighborFound = false;
+				list<astarEntry*>::iterator itr = closedList.begin();
+				while(itr != closedList.end() && !neighborFound)
+				{
+					if(neighbor->tile == (*itr)->tile)
+						neighborFound = true;
+					else
+						itr++;
+				}
+
+				// Ignore the neighbor if it is on the closed list
+				if(!neighborFound)
+				{
+					// See if the neighbor is in the open list
+					neighborFound = false;
+					list<astarEntry*>::iterator itr = openList.begin();
+					while(itr != openList.end() && !neighborFound)
+					{
+						if(neighbor->tile == (*itr)->tile)
+							neighborFound = true;
+						else
+							itr++;
+					}
+
+					// If the neighbor is not in the open list
+					if(!neighborFound)
+					{
+						neighbor->g = currentEntry->g + nDist;
+						// Use the manhattan distance for the heuristic
+						// FIXME:  This is not the only place the heuristic is calculated
+						neighbor->h = fabs(x2-tempX) + fabs(y2-tempY);
+						neighbor->parent = currentEntry;
+
+						openList.push_back(new astarEntry(*neighbor));
+					}
+					else
+					{
+						if(currentEntry->g + nDist < (*itr)->g)
+						{
+							(*itr)->g = currentEntry->g + nDist;
+							(*itr)->parent = currentEntry;
+						}
+					}
+
+				}
+			}
+		}
+	}
+
+	//cout << "\n\n\n\n\n\nYEAH\n\n\n\n";
+	//cout.flush();
+	list<Tile*> returnList;
+	if(pathFound)
+	{
+		//Find the destination tile in the closed list
+		list<astarEntry*>::iterator itr = closedList.begin();
+		while(itr != closedList.end())
+		{
+			if((*itr)->tile == getTile(x2, y2))
+				break;
+			else
+				itr++;
+		}
+
+		// Follow the parent chain back the the starting tile
+		currentEntry = (*itr);
+		do
+		{
+			if(currentEntry->tile != NULL)
+			{
+				returnList.push_front(currentEntry->tile);
+				currentEntry = currentEntry->parent;
+			}
+
+		}while(currentEntry != NULL);
+	}
+
+	return returnList;
 }
 

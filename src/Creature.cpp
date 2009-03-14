@@ -10,6 +10,8 @@ Creature::Creature()
 	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
 	sightRadius = 10.0;
 	digRate = 10.0;
+	destinationX = 0;
+	destinationY = 0;
 }
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
@@ -20,6 +22,8 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale)
 	positionTile = gameMap.getTile((int)(position.y), (int)(position.x));
 	sightRadius = 10.0;
 	digRate = 10.0;
+	destinationX = 0;
+	destinationY = 0;
 }
 
 ostream& operator<<(ostream& os, Creature *c)
@@ -57,18 +61,13 @@ istream& operator>>(istream& is, Creature *c)
 
 void Creature::createMesh()
 {
-	Entity *ent;
-	SceneNode *node;
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::createCreature;
+	request->p = this;
 
-	ent = mSceneMgr->createEntity( ("Creature_" + name).c_str(), meshName.c_str());
-	node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (name + "_node").c_str() );
-	//node->setPosition(position/BLENDER_UNITS_PER_OGRE_UNIT);
-	node->setPosition(position);
-	//FIXME: Something needs to be done about the caling issue here.
-	//node->setScale(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT);
-	node->setScale(scale);
-	ent->setNormaliseNormals(true);
-	node->attachObject(ent);
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	sem_post(&renderQueueSemaphore);
 }
 
 void Creature::destroyMesh()
@@ -103,6 +102,8 @@ Ogre::Vector3 Creature::getPosition()
 void Creature::doTurn()
 {
 	vector<Tile*> markedTiles;
+	Tile *nextStep;
+	list<Tile*>walkPath;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile == NULL)
@@ -128,47 +129,48 @@ void Creature::doTurn()
 				{
 					loopBack = true;
 					currentTask = walkTo;
+					destinationX = destinationY = 3;
 				}
 
+				/*
 				else if(randomDouble(0.0, 1.0) < 0.3)
 				{
 					loopBack = true;
 					currentTask = dig;
 				}
+				*/
 				break;
 
 			case walkTo:
-				/*
-				if(randomDouble(0.0, 1.0) < 0.7)
+				if(randomDouble(0.0, 1.0) < 0.9)
 				{
-					// Choose a tile for the next step towards the destination, and make sure we can walk on it.
-					// loopCount sets the number of times to try to pick a tile before giving up
-					int loopCount = 9;
-					do
+					// Choose a tile for the next step towards the destination
+					//FIXME:  X-Y reversal
+					walkPath = gameMap.path((int)position.y, (int)position.x, destinationY, destinationX);
+					cout << "\n\n\n\n\nWalk path size = " << walkPath.size() << endl;
+					cout.flush();
+					if(walkPath.size() == 1)
 					{
-						if(randomDouble(0.0, 1.0) < 0.5)
-							tempX = 1;
+						nextStep = *(walkPath.begin());
+						setPosition(nextStep->x, nextStep->y, position.z);
+					}
+					else
+					{
+						if(walkPath.size() >= 2)
+						{
+						nextStep = *(++(walkPath.begin()));
+						setPosition(nextStep->x, nextStep->y, position.z);
+						}
 						else
-							tempX = -1;
-
-						if(randomDouble(0.0, 1.0) < 0.5)
-							tempY = 1;
-						else
-							tempY = -1;
-
-						loopCount--;
-						cout << tempX << "\t" << tempY << endl;
-						cout.flush();
-
-					} while(gameMap.getTile((int)(position.x) + tempX, (int)(position.y) + tempY)->getFullness() != 0 && gameMap.getTile((int)(position.x) + tempX, (int)(position.y) + tempY)->getType() == Tile::lava && loopCount > 0);
-
-					setPosition(position.x + tempX, position.y + tempY, position.z);
+						{
+							cout << "\n\nCould not find path to destination.";
+						}
+					}
 				}
 				else
 				{
 					currentTask = idle;
 				}
-				*/
 				break;
 
 			case dig:

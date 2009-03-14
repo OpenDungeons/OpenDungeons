@@ -182,7 +182,6 @@ void Tile::createMesh()
 	sem_wait(&renderQueueSemaphore);
 	renderQueue.push_back(request);
 	sem_post(&renderQueueSemaphore);
-
 }
 
 void Tile::destroyMesh()

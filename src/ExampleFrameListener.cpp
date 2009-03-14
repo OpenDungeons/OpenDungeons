@@ -340,6 +340,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Entity *ent;
 		SceneNode *node;
 		Tile *curTile = NULL;
+		Creature *curCreature = NULL;
 
 		RenderRequest *curReq = renderQueue.front();
 		renderQueue.pop_front();
@@ -362,13 +363,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				}
 				break;
 
-
-
-
-
-
-
-
 			case RenderRequest::createTile:
 				curTile = (Tile*)curReq->p;
 				tileTypeString = Tile::tileTypeToString(curTile->getType());
@@ -386,8 +380,18 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->attachObject(ent);
 				break;
 
-
-
+			case RenderRequest::createCreature:
+				curCreature = (Creature*)curReq->p;
+				ent = mSceneMgr->createEntity( ("Creature_" + curCreature->name).c_str(), curCreature->meshName.c_str());
+				node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (curCreature->name + "_node").c_str() );
+				//node->setPosition(position/BLENDER_UNITS_PER_OGRE_UNIT);
+				node->setPosition(curCreature->getPosition());
+				//FIXME: Something needs to be done about the caling issue here.
+				//node->setScale(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT);
+				node->setScale(curCreature->scale);
+				ent->setNormaliseNormals(true);
+				node->attachObject(ent);
+				break;
 
 			case RenderRequest::noRequest:
 				break;

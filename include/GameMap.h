@@ -28,6 +28,8 @@ class GameMap
 		Creature* getCreature(string cName);
 		void doTurn();
 
+		list<Tile*> path(int x1, int y1, int x2, int y2);
+
 		int numCreaturesInHand();
 		Creature *getCreatureInHand(int i);
 		void addCreatureToHand(Creature *c);
@@ -38,6 +40,15 @@ class GameMap
 		vector<Creature*> classDescriptions;
 		vector<Creature*> creatures;
 		vector<Creature*> creaturesInHand;
+};
+
+class astarEntry
+{
+	public:
+		Tile *tile;
+		astarEntry *parent;
+		double g, h;
+		double fCost()	{return g+h;}
 };
 
 #endif

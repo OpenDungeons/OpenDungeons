@@ -1,5 +1,3 @@
-Re-export all the tiles so they are the right size again.
-
 fix keyboard repeat issue.
 
 Fix crash on entering a nonexistant mesh to addclass after calling addcreature
