@@ -14,6 +14,8 @@ extern SceneManager* mSceneMgr;
 
 #include "RenderRequest.h"
 
+class Creature;
+
 class Tile
 {
 	public:
@@ -44,6 +46,11 @@ class Tile
 		void setMarkedForDigging(bool s);
 		bool getMarkedForDigging();
 
+		void addCreature(Creature *c);
+		void removeCreature(Creature *c);
+		int numCreaturesInCell();
+		Creature* getCreature(int index);
+
 		Vector3 location;
 		int x, y;
 		vector<Tile*> neighbors;
@@ -59,6 +66,7 @@ class Tile
 		bool selected, markedForDigging;
 		int fullness;
 		int fullnessMeshNumber;
+		vector<Creature*> creaturesInCell;
 };
 
 

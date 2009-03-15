@@ -16,10 +16,7 @@ void readGameMapFromFile(string fileName)
 
 	Tile *tempTile;
 	string tempString, tempString2;
-	int tempInt;
 	Creature tempCreature;
-	char tempCellName[255];
-	int xLocation, yLocation, zLocation;
 	int objectsToLoad;
 
 	levelFile >> objectsToLoad;

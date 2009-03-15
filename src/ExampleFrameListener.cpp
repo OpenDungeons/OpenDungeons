@@ -103,9 +103,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mTimeUntilNextToggle(0), mFiltering(TFO_BILINEAR), mAniso(1),
 	mSceneDetailIndex(0), mMoveSpeed(50.0), mRotateSpeed(36),
 	mDebugOverlay(0), mInputManager(0), mMouse(0), mKeyboard(0), mJoy(0),
-	mGUIRenderer(renderer), zChange(0.0), mZoomSpeed(.5),
+	mZoomSpeed(.5),
 	mCurrentTileType(Tile::dirt), mCurrentFullness(100),
-	mDragType(ExampleFrameListener::nullDragType), frameDelay(0.0),
 	serverSocket(NULL), clientSocket(NULL)
 {
 	mCount = 0;
@@ -118,6 +117,10 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	terminalWordWrap = 78;
 	me = new Player;
 	me->nick = "";
+	mDragType = ExampleFrameListener::nullDragType;
+	frameDelay = 0.0;
+	mGUIRenderer = renderer;
+	zChange = 0.0;
 
 	using namespace OIS;
 
@@ -1184,7 +1187,7 @@ void ExampleFrameListener::printText(string text)
 
 void ExampleFrameListener::executePromptCommand()
 {
-	int firstSpace, lastSpace;
+	unsigned int firstSpace, lastSpace;
 	stringstream tempSS;
 
 	commandOutput = "";
@@ -1538,7 +1541,7 @@ void ExampleFrameListener::executePromptCommand()
 
 				if(arguments.compare("creatures") == 0)
 				{
-					tempSS << "Class:\tCreature name:\tLocation:\n\n";
+					tempSS << "Class:\tCreature name:\tLocation:\tColor:\n\n";
 					for(int i = 0; i < gameMap.numCreatures(); i++)
 					{
 						tempSS << gameMap.getCreature(i);
@@ -1547,12 +1550,14 @@ void ExampleFrameListener::executePromptCommand()
 
 				else if(arguments.compare("classes") == 0)
 				{
-					tempSS << "Class:\tMesh:\tScale\n\n";
+					tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\n\n";
 					for(int i = 0; i < gameMap.numClassDescriptions(); i++)
 					{
 						Creature *currentClassDesc = gameMap.getClassDescription(i);
 						tempSS << currentClassDesc->className << "\t" << currentClassDesc->meshName << "\t";
-						tempSS << currentClassDesc->scale << "\n";
+						tempSS << currentClassDesc->scale << "\t" << currentClassDesc->hp << "\t";
+						tempSS << currentClassDesc->mana << "\t" << currentClassDesc->sightRadius << "\t";
+						tempSS << currentClassDesc->digRate << "\n";
 					}
 				}
 

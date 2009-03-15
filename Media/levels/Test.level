@@ -10006,8 +10006,10 @@ Knight	Knight.mesh	0.2	0.2	0.3	80	3	10	0
 Kobold	Kobold.mesh	0.15	0.15	0.15	20	6	15	20
 Dragon	Dragon.mesh	1.3	1.3	1.3	220	50	20	0
 
-10
-Skeleton	Skeleton_0001	17	10	0	1
+12
+Skeleton	Bob	17	10	0	1
+Skeleton	Mel	15	10	0	1
+Skeleton	George	13	10	0	1
 Knight	Knight_0001	17	12	0	1
 Dragon	Dragon1	16	12	0	1
 Kobold	Kobold_0001	16	11	0	1

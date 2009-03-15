@@ -304,8 +304,13 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 
 			//cout << "\n\nF:  " << neighbor->tile->getFullness() << Tile::tileTypeToString(neighbor->tile->getType()) << endl;
 			//cout.flush();
-			// See if the neighbor tile in question is walkable
-			if(neighbor->tile != NULL && neighbor->tile->getFullness() == 0)
+
+			// See if the neighbor tile in question is walkable and empty
+			// The "numCreaturesInCell" comaprison sets the max creatures in a cell at a time.
+			// note:  this does not prevent two creatures from both walking into an empty cell
+			// during the same turn, only one creature moving into the cell occupied by another.
+			//FIXME: this creature collision avoidance needs to be updated.  it will cause weird behaviour.
+			if(neighbor->tile != NULL && neighbor->tile->getFullness() == 0 && !neighbor->tile->numCreaturesInCell() <= 1)
 			{
 				// See if the neighbor is in the closed list
 				bool neighborFound = false;

@@ -16,6 +16,9 @@ Creature::Creature()
 	mana = 10;
 	sightRadius = 10;
 	digRate = 10;
+
+	if(positionTile() != NULL)
+		positionTile()->addCreature(this);
 }
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate)
@@ -30,6 +33,9 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	mana = nMana;
 	sightRadius = nSightRadius;
 	digRate = nDigRate;
+
+	if(positionTile() != NULL)
+		positionTile()->addCreature(this);
 }
 
 ostream& operator<<(ostream& os, Creature *c)
@@ -93,10 +99,16 @@ void Creature::setPosition(double x, double y, double z)
 {
 	SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(name + "_node");
 
-	//FIXME: X-Y reversal issue.
 	//creatureSceneNode->setPosition(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, z/BLENDER_UNITS_PER_OGRE_UNIT);
 	creatureSceneNode->setPosition(x, y, z);
-	gameMap.getCreature(name)->position = Ogre::Vector3(x, y, z);
+	Tile *oldPositionTile = positionTile();
+	position = Ogre::Vector3(x, y, z);
+
+	if(oldPositionTile != NULL)
+		oldPositionTile->removeCreature(this);
+
+	if(positionTile() != NULL)
+		positionTile()->addCreature(this);
 }
 
 Ogre::Vector3 Creature::getPosition()
@@ -157,13 +169,13 @@ void Creature::doTurn()
 				if((int)positionTile()->x != destinationX || (int)positionTile()->y != destinationY)
 				{
 					// Choose a tile for the next step towards the destination
-					//FIXME:  X-Y reversal
 					walkPath = gameMap.path((int)position.x, (int)position.y, destinationX, destinationY);
 					//cout << "\n\nWalk path size = " << walkPath.size() << endl;
 					//cout.flush();
 
 					if(walkPath.size() >= 2)
 					{
+						// The second tile is the one we want
 						nextStep = *(++(walkPath.begin()));
 						setPosition(nextStep->x, nextStep->y, position.z);
 					}
@@ -187,7 +199,7 @@ void Creature::doTurn()
 					//cout.flush();
 
 					// Find visible tiles, marked for digging
-					for(int i = 0; i < visibleTiles.size(); i++)
+					for(unsigned int i = 0; i < visibleTiles.size(); i++)
 					{
 						// Check to see if the tile is marked for digging
 						if(visibleTiles[i]->getMarkedForDigging())
@@ -197,9 +209,8 @@ void Creature::doTurn()
 					}
 
 					// See if any of the tiles is one of our neighbors
-					for(int i = 0; i < markedTiles.size(); i++)
+					for(unsigned int i = 0; i < markedTiles.size(); i++)
 					{
-						//FIXME:  X-Y reversal
 						if(fabs((double)markedTiles[i]->x - position.x) <= 1.55 \
 								&& fabs((double)markedTiles[i]->y - position.y) <= 1.55)
 						{
@@ -209,7 +220,7 @@ void Creature::doTurn()
 					}
 
 					// If no tiles are next to us, see if we can walk to one to dig it out
-					for(int i = 0; i < markedTiles.size(); i++)
+					for(unsigned int i = 0; i < markedTiles.size(); i++)
 					{
 						//  j<4 :  Allow standing on adjacent corners only, when digging.
 						//  j<8 :  Allow standing on any corners, when digging.
@@ -234,13 +245,12 @@ void Creature::doTurn()
 
 							if(gameMap.getTile(tempX, tempY)->getFullness() == 0)
 							{
-								//FIXME:  X-Y reversal
 								walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
 
 								if(walkPath.size() >= 2)
 								{
+									// The second tile is the one we want
 									nextStep = *(++(walkPath.begin()));
-									//FIXME:  X-Y reversal
 									setPosition(nextStep->x, nextStep->y, position.z);
 									break;
 								}
@@ -310,6 +320,9 @@ Tile* Creature::positionTile()
 
 void Creature::deleteYourself()
 {
+	if(positionTile() != NULL)
+		positionTile()->removeCreature(this);
+
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::destroyCreature;
 	request->p = this;

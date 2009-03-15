@@ -1,6 +1,7 @@
 #include "Defines.h"
 #include "Tile.h"
 #include "Globals.h"
+#include "Creature.h"
 
 Tile::Tile()
 {
@@ -297,4 +298,33 @@ void Tile::deleteYourself()
 	renderQueue.push_back(request2);
 	sem_post(&renderQueueSemaphore);
 }
+
+void Tile::addCreature(Creature *c)
+{
+	creaturesInCell.push_back(c);
+}
+
+void Tile::removeCreature(Creature *c)
+{
+	vector<Creature*>::iterator itr;
+	for(itr = creaturesInCell.begin(); itr != creaturesInCell.end(); itr++)
+	{
+		if((*itr) == c)
+		{
+			creaturesInCell.erase(itr);
+			return;
+		}
+	}
+}
+
+int Tile::numCreaturesInCell()
+{
+	return creaturesInCell.size();
+}
+
+Creature* Tile::getCreature(int index)
+{
+	return creaturesInCell[index];
+}
+
 
