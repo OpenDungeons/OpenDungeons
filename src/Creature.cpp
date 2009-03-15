@@ -121,6 +121,7 @@ void Creature::doTurn()
 	vector<Tile*> markedTiles;
 	Tile *nextStep;
 	list<Tile*>walkPath;
+	list<Tile*>basePath;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
@@ -137,8 +138,10 @@ void Creature::doTurn()
 		loopBack = false;
 
 		// Carry out the current task
-		int tempX, tempY;
+		int tempX, tempY, baseEndX, baseEndY;
 		double diceRoll;
+		Tile *neighborTile;
+
 		diceRoll = randomDouble(0.0, 1.0);
 		switch(currentTask)
 		{
@@ -224,6 +227,8 @@ void Creature::doTurn()
 					{
 						//  j<4 :  Allow standing on adjacent corners only, when digging.
 						//  j<8 :  Allow standing on any corners, when digging.
+						walkPath.clear();
+						basePath.clear();
 						for(int j = 0; j < 4; j++)
 						{
 							tempX = markedTiles[i]->x;
@@ -243,13 +248,28 @@ void Creature::doTurn()
 								case 7:  tempX += 1;  tempY += 1;  break;
 							}
 
-							if(gameMap.getTile(tempX, tempY)->getFullness() == 0)
+							neighborTile = gameMap.getTile(tempX, tempY);
+							if(neighborTile != NULL && neighborTile->getFullness() == 0)
 							{
-								walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
+								// If we have a path to one neighbor, use that as a starting point for the search for other neighbors
+								if(basePath.size() > 2)
+								{
+									// This gets the second to the last tile
+									baseEndX = (*(--(basePath.end())))->x;
+									baseEndY = (*(--(basePath.end())))->y;
+									walkPath = gameMap.path(baseEndX, baseEndY, tempX, tempY);
+									walkPath.insert(walkPath.begin(), basePath.begin(), basePath.end());
+								}
+								else
+								{
+									walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
+									basePath = walkPath;
+								}
 
+								// If we found a path to the neighbor tile
 								if(walkPath.size() >= 2)
 								{
-									// The second tile is the one we want
+									// Take a step towards the neighbor tile, the second tile is the one we want
 									nextStep = *(++(walkPath.begin()));
 									setPosition(nextStep->x, nextStep->y, position.z);
 									break;
@@ -262,7 +282,7 @@ void Creature::doTurn()
 				}
 				else
 				{
-					// If our di rate is too low to be of use
+					// If our dig rate is too low to be of use
 					currentTask = idle;
 					loopBack = true;
 				}
@@ -275,6 +295,7 @@ void Creature::doTurn()
 	} while(loopBack);
 }
 
+// Creates a list of Tile pointers in visibleTiles
 void Creature::updateVisibleTiles()
 {
 	int xMin, yMin, xMax, yMax;
@@ -295,7 +316,7 @@ void Creature::updateVisibleTiles()
 			{
 				Tile *currentTile = gameMap.getTile(i, j);
 				if(currentTile != NULL)
-					visibleTiles.push_back(gameMap.getTile(i,j));
+					visibleTiles.push_back(currentTile);
 			}
 		}
 	}

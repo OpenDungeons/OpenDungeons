@@ -70,13 +70,15 @@ void writeGameMapToFile(string fileName)
 {
 	ofstream levelFile(fileName.c_str(), ifstream::out);
 	Creature *tempCreature;
+	Tile *tempTile;
 
 	// Write out the tiles to the file
 	levelFile << gameMap.numTiles() << endl;
 	for(int i = 0; i < gameMap.numTiles(); i++)
 	{
-		levelFile << gameMap.getTile(i)->x << "\t" << gameMap.getTile(i)->y << "\t";
-		levelFile << gameMap.getTile(i)->getType() << "\t" << gameMap.getTile(i)->getFullness();
+		tempTile = gameMap.getTile(i);
+		levelFile << tempTile->x << "\t" << tempTile->y << "\t";
+		levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
 
 		levelFile << endl;
 	}

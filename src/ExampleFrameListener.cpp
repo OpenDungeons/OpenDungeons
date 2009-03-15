@@ -101,7 +101,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	: mCamera(cam), mTranslateVector(Ogre::Vector3::ZERO), mWindow(win),
 	mStatsOn(true), mNumScreenShots(0), mMoveScale(0.0f), mRotScale(0.0f),
 	mTimeUntilNextToggle(0), mFiltering(TFO_BILINEAR), mAniso(1),
-	mSceneDetailIndex(0), mMoveSpeed(50.0), mRotateSpeed(36),
+	mSceneDetailIndex(0), mMoveSpeed(50.0), mRotateSpeed(50),
 	mDebugOverlay(0), mInputManager(0), mMouse(0), mKeyboard(0), mJoy(0),
 	mZoomSpeed(.5),
 	mCurrentTileType(Tile::dirt), mCurrentFullness(100),
@@ -674,13 +674,13 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 								// See if we are hosting a game or not
 								if(serverSocket == NULL)
 								{
-									gameMap.getTile(i)->setSelected(true);
+									tempTile->setSelected(true);
 								}
 								else
 								{
-									if(gameMap.getTile(i)->getFullness() > 0)
+									if(tempTile->getFullness() > 0)
 									{
-										gameMap.getTile(i)->setMarkedForDigging(true);
+										tempTile->setMarkedForDigging(true);
 									}
 								}
 							}
@@ -689,11 +689,11 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 								// See if we are hosting a game or not
 								if(serverSocket == NULL)
 								{
-									gameMap.getTile(i)->setSelected(false);
+									tempTile->setSelected(false);
 								}
 								else
 								{
-									gameMap.getTile(i)->setMarkedForDigging(false);
+									tempTile->setMarkedForDigging(false);
 								}
 							}
 
@@ -713,11 +713,11 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 								// See if we are hosting a game or not
 								if(serverSocket == NULL)
 								{
-									gameMap.getTile(i)->setSelected(true);
+									tempTile->setSelected(true);
 								}
 								else
 								{
-									gameMap.getTile(i)->setMarkedForDigging(true);
+									tempTile->setMarkedForDigging(true);
 								}
 							}
 							else
@@ -725,11 +725,11 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 								// See if we are hosting a game or not
 								if(serverSocket == NULL)
 								{
-									gameMap.getTile(i)->setSelected(false);
+									tempTile->setSelected(false);
 								}
 								else
 								{
-									gameMap.getTile(i)->setMarkedForDigging(false);
+									tempTile->setMarkedForDigging(false);
 								}
 							}
 
@@ -803,7 +803,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 					mDraggedCreature = resultName.substr(((string)"Creature_").size(), resultName.size());
 					SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(mDraggedCreature	+ "_node");
 					mSceneMgr->getRootSceneNode()->removeChild(creatureSceneNode);
-					mSceneMgr->getSceneNode("SquareSelectorNode")->addChild(creatureSceneNode);
+					mSceneMgr->getSceneNode("Hand_Node")->addChild(creatureSceneNode);
 					creatureSceneNode->setPosition(0,0,0);
 					mDragType = ExampleFrameListener::creature;
 					break;
@@ -872,7 +872,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 		{
 			//FIXME: X-Y reversal issue.
 			SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
-			mSceneMgr->getSceneNode("SquareSelectorNode")->removeChild(creatureSceneNode);
+			mSceneMgr->getSceneNode("Hand_Node")->removeChild(creatureSceneNode);
 			mSceneMgr->getRootSceneNode()->addChild(creatureSceneNode);
 			mDragType = ExampleFrameListener::nullDragType;
 			gameMap.getCreature(mDraggedCreature)->setPosition(xPos, yPos, 0);
@@ -994,12 +994,12 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 			// Turn left
 			case KC_DELETE:
-				mRotateWorldVector.z += mRotateSpeed.valueDegrees();
+				mRotateWorldVector.z += 1.3 * mRotateSpeed.valueDegrees();
 				break;
 
 			// Turn right
 			case KC_PGDOWN:
-				mRotateWorldVector.z += -mRotateSpeed.valueDegrees();
+				mRotateWorldVector.z += -1.3 * mRotateSpeed.valueDegrees();
 				break;
 
 			//Toggle mCurrentTileType
@@ -1142,12 +1142,12 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 
 			// Turn left
 			case KC_DELETE:
-				mRotateWorldVector.z -= mRotateSpeed.valueDegrees();
+				mRotateWorldVector.z -= 1.3 * mRotateSpeed.valueDegrees();
 				break;
 
 			// Turn right
 			case KC_PGDOWN:
-				mRotateWorldVector.z -= -mRotateSpeed.valueDegrees();
+				mRotateWorldVector.z -= -1.3 * mRotateSpeed.valueDegrees();
 				break;
 
 		}
@@ -1204,19 +1204,28 @@ void ExampleFrameListener::executePromptCommand()
 	}
 
 	// Split the raw text into command and argument strings
-	firstSpace = promptCommand.find(" ");
+	firstSpace = promptCommand.find(' ');
 	if(firstSpace != string::npos)
 	{
 		command = promptCommand.substr(0, firstSpace);
 
 		// Skip any extra spaces in between the command and the arguments
 		lastSpace = firstSpace;
-		while(promptCommand[lastSpace] == ' ' && lastSpace < promptCommand.size())
+		while(lastSpace < promptCommand.size() && promptCommand[lastSpace] == ' ')
 		{
 			lastSpace++;
 		}
 
-		arguments = promptCommand.substr(lastSpace, promptCommand.size()-lastSpace);
+		//FIXME: This if statement is a hack to prevent a crash, the code above needs
+		// to be fixed but i don't see the problem with it.
+		if(lastSpace < promptCommand.size())
+		{
+			arguments = promptCommand.substr(lastSpace, promptCommand.size()-lastSpace);
+		}
+		else
+		{
+			command = promptCommand;
+		}
 	}
 	else
 	{
@@ -1440,6 +1449,25 @@ void ExampleFrameListener::executePromptCommand()
 			else
 			{
 				sprintf(tempArray, "Current maximum framerate is %i", MAX_FRAMES_PER_SECOND);
+				commandOutput = tempArray;
+			}
+		}
+
+		// Set the turnsPerSecond variable to control the AI speed
+		else if(command.compare("turnspersecond") == 0)
+		{
+			char tempArray[255];
+			if(arguments.size() > 0)
+			{
+				tempSS.str(arguments);
+				tempSS >> turnsPerSecond;
+				
+				sprintf(tempArray, "The game will proceed at %lf turns per second.", turnsPerSecond);
+				commandOutput = tempArray;
+			}
+			else
+			{
+				sprintf(tempArray, "The game is proceeding at %lf turns per second.", turnsPerSecond);
 				commandOutput = tempArray;
 			}
 		}

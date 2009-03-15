@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string>
+#include <sys/time.h>
 using namespace std;
 
 #include "Defines.h"
@@ -159,6 +160,8 @@ ChatMessage *processChatMessage(string arguments)
 void *creatureAIThread(void *p)
 {
 	double timeUntilNextTurn = 1.0/turnsPerSecond;
+	Ogre::Timer stopwatch;
+	unsigned long int timeTaken;
 
 	while(true)
 	{
@@ -166,11 +169,16 @@ void *creatureAIThread(void *p)
 		//timeUntilNextTurn -= evt.timeSinceLastFrame;
 
 		// Do a turn in the game
+		stopwatch.reset();
 		gameMap.doTurn();
 		turnNumber++;
 		timeUntilNextTurn = 1.0/turnsPerSecond;
+		timeTaken = stopwatch.getMicroseconds();
+		cout << 1e6*timeUntilNextTurn - timeTaken << "\n\n";
+		cout.flush();
 
-		usleep(1e6 * timeUntilNextTurn);
+		if(1e6 * timeUntilNextTurn - timeTaken > 0)
+			usleep(1e6 * timeUntilNextTurn - timeTaken );
 	}
 }
 

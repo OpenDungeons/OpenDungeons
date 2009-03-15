@@ -217,13 +217,25 @@ void GameMap::removeCreatureFromHand(int i)
 // The path returned contains both the starting and ending tiles
 list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 {
+	list<Tile*> returnList;
 	astarEntry *currentEntry;
+	Tile *destination;
 	astarEntry *neighbor = new astarEntry;
 	list<astarEntry*> openList;
 	list<astarEntry*> closedList;
 
 	currentEntry = new astarEntry;
 	currentEntry->tile = getTile(x1, y1);
+
+	// If the start tile was not found return an empty path
+	if(currentEntry->tile == NULL)
+		return returnList;
+
+	// If the end tile was not found return an empty path
+	destination = getTile(x2, y2);
+	if(destination == NULL)
+		return returnList;
+
 	currentEntry->parent = NULL;
 	currentEntry->g = 0.0;
 	// Use the manhattan distance for the heuristic
@@ -256,7 +268,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 		closedList.push_back(currentEntry);
 
 		// We found the path, break out of the search loop
-		if(currentEntry->tile == getTile(x2, y2))
+		if(currentEntry->tile == destination)
 		{
 			pathFound = true;
 			break;
@@ -366,14 +378,13 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 
 	//cout << "\n\n\n\n\n\nYEAH\n\n\n\n";
 	//cout.flush();
-	list<Tile*> returnList;
 	if(pathFound)
 	{
 		//Find the destination tile in the closed list
 		list<astarEntry*>::iterator itr = closedList.begin();
 		while(itr != closedList.end())
 		{
-			if((*itr)->tile == getTile(x2, y2))
+			if((*itr)->tile == destination)
 				break;
 			else
 				itr++;

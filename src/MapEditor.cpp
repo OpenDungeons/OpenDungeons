@@ -88,7 +88,7 @@ void MapEditor::createScene(void)
 	double mainLightAttenuationD = 200.0;
 	double mainLightAttenuationE = 0.0;
 	double mainLightAttenuationL = 0.0;
-	double mainLightAttenuationQ = 0.001;
+	double mainLightAttenuationQ = 0.0006;
 	Light *light = mSceneMgr->createLight("Light1");
 	light->setType(Light::LT_POINT);
 	light->setPosition(Ogre::Vector3(80, 80, 40));
@@ -117,11 +117,14 @@ void MapEditor::createScene(void)
 	node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT));
 	ent->setNormaliseNormals(true);
 	node->attachObject(ent);
+	SceneNode *node2 = node->createChildSceneNode("Hand_Node");
+	//node2->translate(0, 0, 1.8);
+	node2->scale(Ogre::Vector3(1.0/BLENDER_UNITS_PER_OGRE_UNIT,1.0/BLENDER_UNITS_PER_OGRE_UNIT,1.0/BLENDER_UNITS_PER_OGRE_UNIT));
 
 	// Create the light which follows the single tile selection mesh
 	light = mSceneMgr->createLight("MouseLight");
 	light->setType(Light::LT_POINT);
-	light->setDiffuseColour(ColourValue(.2, .2, .2));
+	light->setDiffuseColour(ColourValue(.23, .18, .16));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
 	//light->setPosition(0, 0, 1.45/BLENDER_UNITS_PER_OGRE_UNIT);
 	light->setPosition(0, 0, 7.45);
