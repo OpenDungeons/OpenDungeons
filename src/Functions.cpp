@@ -45,6 +45,8 @@ void readGameMapFromFile(string fileName)
 		levelFile >> tempSightRadius >> tempDigRate;
 
 		Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate);
+		cout << "\nnew dig rate:  " << p->digRate;
+		cout.flush();
 		gameMap.addClassDescription(p);
 	}
 
@@ -57,8 +59,13 @@ void readGameMapFromFile(string fileName)
 
 		levelFile >> newCreature;
 
-		newCreature->meshName = gameMap.getClass(newCreature->className)->meshName;
-		newCreature->scale = gameMap.getClass(newCreature->className)->scale;
+		Creature *creatureClass = gameMap.getClass(newCreature->className);
+		newCreature->meshName = creatureClass->meshName;
+		newCreature->scale = creatureClass->scale;
+		newCreature->sightRadius = creatureClass->sightRadius;
+		newCreature->digRate = creatureClass->digRate;
+		newCreature->hp = creatureClass->hp;
+		newCreature->mana = creatureClass->mana;
 
 		gameMap.addCreature(newCreature);
 	}

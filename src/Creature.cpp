@@ -17,6 +17,9 @@ Creature::Creature()
 	sightRadius = 10;
 	digRate = 10;
 
+	currentTask = idle;
+	animationState = NULL;
+
 	if(positionTile() != NULL)
 		positionTile()->addCreature(this);
 }
@@ -33,6 +36,9 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	mana = nMana;
 	sightRadius = nSightRadius;
 	digRate = nDigRate;
+
+	currentTask = idle;
+	animationState = NULL;
 
 	if(positionTile() != NULL)
 		positionTile()->addCreature(this);
@@ -146,6 +152,7 @@ void Creature::doTurn()
 		switch(currentTask)
 		{
 			case idle:
+				cout << "idle ";
 				//FIXME: make this into a while loop over a vector of <action, probability> pairs
 
 				if(diceRoll < 0.6)
@@ -164,21 +171,23 @@ void Creature::doTurn()
 				else
 				{
 					// Remain idle
+					setAnimationState("Idle");
 				}
 
 				break;
 
 			case walkTo:
+				cout << "walkTo ";
 				if((int)positionTile()->x != destinationX || (int)positionTile()->y != destinationY)
 				{
 					// Choose a tile for the next step towards the destination
 					walkPath = gameMap.path((int)position.x, (int)position.y, destinationX, destinationY);
-					//cout << "\n\nWalk path size = " << walkPath.size() << endl;
-					//cout.flush();
+					cout << "Walk path size = " << walkPath.size() << " ";
+					cout.flush();
 
 					if(walkPath.size() >= 2)
 					{
-						// The second tile is the one we want
+						// We found a path, the second tile is the one we want
 						nextStep = *(++(walkPath.begin()));
 						setPosition(nextStep->x, nextStep->y, position.z);
 					}
@@ -196,10 +205,11 @@ void Creature::doTurn()
 				break;
 
 			case dig:
+				cout << "dig ";
 				if(digRate > 0.1)
 				{
-					//cout << "Starting dig\nDR:  " << digRate << "\n\n";
-					//cout.flush();
+					cout << "Starting dig: rate:  " << digRate << " ";
+					cout.flush();
 
 					// Find visible tiles, marked for digging
 					for(unsigned int i = 0; i < visibleTiles.size(); i++)
@@ -290,6 +300,7 @@ void Creature::doTurn()
 				break;
 
 			default:
+				cout << "default ";
 				break;
 		}
 	} while(loopBack);
@@ -356,5 +367,22 @@ void Creature::deleteYourself()
 	renderQueue.push_back(request);
 	renderQueue.push_back(request2);
 	sem_post(&renderQueueSemaphore);
+}
+
+void Creature::setAnimationState(string s)
+{
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::setCreatureAnimationState;
+	request->p = this;
+	request->str = s;
+
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	sem_post(&renderQueueSemaphore);
+}
+
+AnimationState* Creature::getAnimationState()
+{
+	return animationState;
 }
 

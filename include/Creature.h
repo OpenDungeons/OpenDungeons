@@ -44,6 +44,9 @@ class Creature
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
 		Tile* positionTile();
+		AnimationState *animationState;
+		void setAnimationState(string s);
+		AnimationState* getAnimationState();
 
 	private:
 		Ogre::Vector3 position;

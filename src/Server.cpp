@@ -174,11 +174,14 @@ void *creatureAIThread(void *p)
 		turnNumber++;
 		timeUntilNextTurn = 1.0/turnsPerSecond;
 		timeTaken = stopwatch.getMicroseconds();
-		cout << 1e6*timeUntilNextTurn - timeTaken << "\n\n";
+		cout << "\nCreature AI finished " << 1e6*timeUntilNextTurn - timeTaken << " microsecods early.\n";
 		cout.flush();
 
 		if(1e6 * timeUntilNextTurn - timeTaken > 0)
 			usleep(1e6 * timeUntilNextTurn - timeTaken );
 	}
+
+	// Return something to make the compiler happy
+	return NULL;
 }
 

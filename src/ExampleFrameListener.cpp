@@ -420,6 +420,21 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->attachObject(ent);
 				break;
 
+			case RenderRequest::setCreatureAnimationState:
+				curCreature = (Creature*)curReq->p;
+				ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
+
+				if(ent->hasSkeleton())
+				{
+					cout << "\n\n\nANIMATION SET ON MESH\n\n\n";
+					cout.flush();
+
+					curCreature->animationState = ent->getAnimationState(curReq->str.c_str());
+					curCreature->animationState->setLoop(true);
+					curCreature->animationState->setEnabled(true);
+				}
+				break;
+
 			case RenderRequest::destroyCreature:
 				curCreature = (Creature*)curReq->p;
 				if(mSceneMgr->hasEntity( ("Creature_" + curCreature->name).c_str() ))
@@ -487,6 +502,14 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		}
 
 	if(mWindow->isClosed())	return false;
+
+	// Update the animations on any creatures who have them
+	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
+	{
+		Creature *currentCreature = gameMap.getCreature(i);
+		if(currentCreature->animationState != NULL)
+			currentCreature->animationState->addTime(evt.timeSinceLastFrame);
+	}
 
 	//Need to capture/update each device
 	mKeyboard->capture();

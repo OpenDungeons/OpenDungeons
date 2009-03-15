@@ -180,8 +180,10 @@ Creature* GameMap::getCreature(string cName)
 
 void GameMap::doTurn()
 {
+	cout << "\nStarting creature AI for turn " << turnNumber;
 	for(int i = 0; i < numCreatures(); i++)
 	{
+		cout << "\nCreature " << i << "  " << creatures[i]->name << " calling doTurn.\t";
 		creatures[i]->doTurn();
 	}
 }
