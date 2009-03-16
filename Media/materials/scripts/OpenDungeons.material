@@ -1,28 +1,3 @@
-material Gold_Image/TEXFACE/Gold_(texture).png
-{
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.500000 0.500000 0.500000 1.000000
-			diffuse 0.887808 0.887808 0.887808 1.000000
-			emissive 0.000000 0.000000 0.000000 1.000000
-			texture_unit
-			{
-				texture Gold_(texture).png
-				colour_op modulate
-			}
-		}
-		pass
-		{
-			ambient 0.0 0.0 0.0
-			diffuse 0.8 0.8 0.8
-			specular 0.124607 0.125121 0.017434 1.000000 12.500000
-			scene_blend add
-		}
-	}
-}
 material Kobold skin/TEXFACE/kobold_skin6.png
 {
 	receive_shadows on
@@ -48,6 +23,60 @@ material Kobold skin/TEXFACE/kobold_skin6.png
 		}
 	}
 }
+material Kobold skin/TWOSIDE/TEXFACE/kobold_skin6.png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.712696 0.712696 0.712696 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			cull_hardware none
+			cull_software none
+			texture_unit
+			{
+				texture kobold_skin6.png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.8 0.8 0.8
+			specular 0.035536 0.045176 0.075544 1.000000 5.000000
+			scene_blend add
+			cull_hardware none
+			cull_software none
+		}
+	}
+}
+material Gold_Image/TEXFACE/Gold_(texture).png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.887808 0.887808 0.887808 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture Gold_(texture).png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.8 0.8 0.8
+			specular 0.124607 0.125121 0.017434 1.000000 12.500000
+			scene_blend add
+		}
+	}
+}
 material Dirt_Image/TEXFACE/Dirt_(texture).png
 {
 	receive_shadows on
@@ -66,7 +95,7 @@ material Dirt_Image/TEXFACE/Dirt_(texture).png
 		}
 		pass
 		{
-			ambient 0.8 0.8 0.8
+			ambient 0.0 0.0 0.0
 			diffuse 0.8 0.8 0.8
 			specular 0.274281 0.214664 0.058960 1.000000 0.750000
 			scene_blend add
@@ -179,35 +208,6 @@ material Red rock
 			diffuse 0.066760 0.030798 0.007980 1.000000
 			specular 0.021226 0.021226 0.021226 1.000000 7.250000
 			emissive 0.000000 0.000000 0.000000 1.000000
-		}
-	}
-}
-material Kobold skin/TWOSIDE/TEXFACE/kobold_skin6.png
-{
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.500000 0.500000 0.500000 1.000000
-			diffuse 0.712696 0.712696 0.712696 1.000000
-			emissive 0.000000 0.000000 0.000000 1.000000
-			cull_hardware none
-			cull_software none
-			texture_unit
-			{
-				texture kobold_skin6.png
-				colour_op modulate
-			}
-		}
-		pass
-		{
-			ambient 0.0 0.0 0.0
-			diffuse 0.8 0.8 0.8
-			specular 0.035536 0.045176 0.075544 1.000000 5.000000
-			scene_blend add
-			cull_hardware none
-			cull_software none
 		}
 	}
 }

@@ -16,6 +16,7 @@ Creature::Creature()
 	mana = 10;
 	sightRadius = 10;
 	digRate = 10;
+	moveSpeed = 1.0;
 
 	currentTask = idle;
 	animationState = NULL;
@@ -36,6 +37,7 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	mana = nMana;
 	sightRadius = nSightRadius;
 	digRate = nDigRate;
+	moveSpeed = 1.0;
 
 	currentTask = idle;
 	animationState = NULL;
@@ -99,6 +101,11 @@ void Creature::destroyMesh()
 	sem_wait(&renderQueueSemaphore);
 	renderQueue.push_back(request);
 	sem_post(&renderQueueSemaphore);
+}
+
+void Creature::setPosition(Ogre::Vector3 v)
+{
+	setPosition(v.x, v.y, v.z);
 }
 
 void Creature::setPosition(double x, double y, double z)
@@ -189,11 +196,14 @@ void Creature::doTurn()
 					{
 						// We found a path, the second tile is the one we want
 						nextStep = *(++(walkPath.begin()));
-						setPosition(nextStep->x, nextStep->y, position.z);
+						//setPosition(nextStep->x, nextStep->y, position.z);
+						addDestination(nextStep->x, nextStep->y);
+						setAnimationState("Walk");
 					}
 					else
 					{
 						currentTask = idle;
+						setAnimationState("Idle");
 						loopBack = true;
 						//cout << "\n\nCould not find path to destination.";
 					}
@@ -227,6 +237,7 @@ void Creature::doTurn()
 						if(fabs((double)markedTiles[i]->x - position.x) <= 1.55 \
 								&& fabs((double)markedTiles[i]->y - position.y) <= 1.55)
 						{
+							setAnimationState("Dig");
 							markedTiles[i]->setFullness(markedTiles[i]->getFullness() - digRate);
 							break;
 						}
@@ -261,39 +272,30 @@ void Creature::doTurn()
 							neighborTile = gameMap.getTile(tempX, tempY);
 							if(neighborTile != NULL && neighborTile->getFullness() == 0)
 							{
-								// If we have a path to one neighbor, use that as a starting point for the search for other neighbors
-								if(basePath.size() > 2)
-								{
-									// This gets the second to the last tile
-									baseEndX = (*(--(basePath.end())))->x;
-									baseEndY = (*(--(basePath.end())))->y;
-									walkPath = gameMap.path(baseEndX, baseEndY, tempX, tempY);
-									walkPath.insert(walkPath.begin(), basePath.begin(), basePath.end());
-								}
-								else
-								{
-									walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
-									basePath = walkPath;
-								}
+								walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
 
 								// If we found a path to the neighbor tile
 								if(walkPath.size() >= 2)
 								{
 									// Take a step towards the neighbor tile, the second tile is the one we want
 									nextStep = *(++(walkPath.begin()));
-									setPosition(nextStep->x, nextStep->y, position.z);
+									//setPosition(nextStep->x, nextStep->y, position.z);
+									addDestination(nextStep->x, nextStep->y);
+									setAnimationState("Walk");
 									break;
 								}
 							}
 						}
 					}
 					// If we still can't do anything then give up and idle
+					setAnimationState("Idle");
 					currentTask = idle;
 				}
 				else
 				{
 					// If our dig rate is too low to be of use
 					currentTask = idle;
+					setAnimationState("Idle");
 					loopBack = true;
 				}
 
@@ -386,3 +388,21 @@ AnimationState* Creature::getAnimationState()
 	return animationState;
 }
 
+void Creature::addDestination(int x, int y)
+{
+	if(walkQueue.size() == 0)
+	{
+		walkQueue.push_back(Ogre::Vector3(x, y, 0));
+		shortDistance = position.distance(walkQueue.front());
+		walkDirection = walkQueue.front() - position;
+
+		SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
+		Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
+		Quaternion quat = src.getRotationTo(walkDirection);
+		node->rotate(quat);
+	}
+	else
+	{
+		walkQueue.push_back(Ogre::Vector3(x, y, 0));
+	}
+}

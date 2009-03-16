@@ -3,6 +3,7 @@
 
 #include <Ogre.h>
 #include <string>
+#include <deque>
 using namespace std;
 
 #include "Tile.h"
@@ -18,6 +19,7 @@ class Creature
 		void destroyMesh();
 		void deleteYourself();
 		void setPosition(double x, double y, double z);
+		void setPosition(Ogre::Vector3 v);
 		Ogre::Vector3 getPosition();
 		virtual void doTurn();
 
@@ -33,6 +35,7 @@ class Creature
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
 		int hp, mana;			// Basic stats
+		double moveSpeed;		//FIXME:  This is not set from file yet.
 
 		// Visual debugging routines
 		void createVisualDebugEntities();
@@ -47,6 +50,10 @@ class Creature
 		AnimationState *animationState;
 		void setAnimationState(string s);
 		AnimationState* getAnimationState();
+		double shortDistance;
+		deque<Ogre::Vector3> walkQueue;
+		Ogre::Vector3 walkDirection;
+		void addDestination(int x, int y);
 
 	private:
 		Ogre::Vector3 position;

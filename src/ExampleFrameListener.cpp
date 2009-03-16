@@ -426,9 +426,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				if(ent->hasSkeleton())
 				{
-					cout << "\n\n\nANIMATION SET ON MESH\n\n\n";
-					cout.flush();
-
 					curCreature->animationState = ent->getAnimationState(curReq->str.c_str());
 					curCreature->animationState->setLoop(true);
 					curCreature->animationState->setEnabled(true);
@@ -507,8 +504,44 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 	{
 		Creature *currentCreature = gameMap.getCreature(i);
+
+		// Advance the animation
 		if(currentCreature->animationState != NULL)
 			currentCreature->animationState->addTime(evt.timeSinceLastFrame);
+
+		// Move the creature
+		if(currentCreature->walkQueue.size() > 0)
+		{
+			double moveDist = currentCreature->moveSpeed * evt.timeSinceLastFrame;
+			currentCreature->shortDistance -= moveDist;
+
+			if(currentCreature->shortDistance <= 0.0)
+			{
+				currentCreature->setPosition(currentCreature->walkQueue.front());
+				currentCreature->walkQueue.pop_front();
+
+				if(currentCreature->walkQueue.size() == 0)
+				{
+					currentCreature->setAnimationState("Idle");
+				}
+				else
+				{
+					SceneNode *node = mSceneMgr->getSceneNode(currentCreature->name + "_node");
+
+					currentCreature->shortDistance = currentCreature->getPosition().distance(currentCreature->walkQueue.front());
+					currentCreature->walkDirection = currentCreature->walkQueue.front() - currentCreature->getPosition();
+					Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
+					Quaternion quat = src.getRotationTo(currentCreature->walkDirection);
+					node->rotate(quat);
+
+				}
+			}
+			else
+			{
+				currentCreature->setPosition(currentCreature->getPosition() + currentCreature->walkDirection * moveDist);
+			}
+		}
+
 	}
 
 	//Need to capture/update each device
@@ -519,16 +552,16 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	bool buffJ = (mJoy) ? mJoy->buffered() : true;
 
 	//Check if one of the devices is not buffered
-	if( !mMouse->buffered() || !mKeyboard->buffered() || !buffJ )
+	if( !mMouse->buffered() || !mKeyboard->buffered() )
 	{
 		// one of the input modes is immediate, so setup what is needed for immediate movement
-		if (mTimeUntilNextToggle >= 0)
-			mTimeUntilNextToggle -= evt.timeSinceLastFrame;
+		//if (mTimeUntilNextToggle >= 0)
+			//mTimeUntilNextToggle -= evt.timeSinceLastFrame;
 
 		// Move about 100 units per second
-		mMoveScale = mMoveSpeed * evt.timeSinceLastFrame;
+		//mMoveScale = mMoveSpeed * evt.timeSinceLastFrame;
 		// Take about 10 seconds for full rotation
-		mRotScale = mRotateSpeed * evt.timeSinceLastFrame;
+		//mRotScale = mRotateSpeed * evt.timeSinceLastFrame;
 
 		mRotX = 0;
 		mRotY = 0;
@@ -537,9 +570,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// Move about 100 units per second
-	mMoveScale = mMoveSpeed * evt.timeSinceLastFrame;
+	//mMoveScale = mMoveSpeed * evt.timeSinceLastFrame;
 	// Take about 10 seconds for full rotation
-	mRotScale = mRotateSpeed * evt.timeSinceLastFrame;
+	//mRotScale = mRotateSpeed * evt.timeSinceLastFrame;
 
 	//Check to see which device is not buffered, and handle it
 	if( !mKeyboard->buffered() )
