@@ -292,17 +292,12 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	Ogre::Vector3 tempVector2 = mCamNode->getPosition();
 
 	tempVector2.z = tempVector.z + zChange*frameTime*mZoomSpeed;
-	//FIXME:  The double divide could be simplified and it would eb afster but it's more readable this way
-	//double horizontalSpeedFactor = (tempVector2.z >= 25.0/BLENDER_UNITS_PER_OGRE_UNIT) ? 1.0 : tempVector2.z/(25.0/BLENDER_UNITS_PER_OGRE_UNIT);
 	double horizontalSpeedFactor = (tempVector2.z >= 25.0) ? 1.0 : tempVector2.z/(25.0);
-	//horizontalSpeedFactor *= horizontalSpeedFactor;
 	tempVector2.x = tempVector.x + (mMouseTranslateVector.x + (tempVector2.x - tempVector.x)) * horizontalSpeedFactor;
 	tempVector2.y = tempVector.y + (mMouseTranslateVector.y + (tempVector2.y - tempVector.y)) * horizontalSpeedFactor;
 	
 	// Prevent camera from moving down into the tiles
-	//if(tempVector2.z <= 4.5/(double)BLENDER_UNITS_PER_OGRE_UNIT)
 	if(tempVector2.z <= 4.5)
-		//tempVector2.z = 4.5/(double)BLENDER_UNITS_PER_OGRE_UNIT;
 		tempVector2.z = 4.5;
 
 	mCamNode->setPosition(tempVector2);
@@ -333,8 +328,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	using namespace OIS;
 
 	// Process the queue of render tasks from the other threads
-	//FIXME:  this is a very large critical section.  It should be confined to just the queue operations, not the whole loop.
-	sem_wait(&renderQueueSemaphore);
 	while(renderQueue.size() > 0)
 	{
 		char tempString[255];
@@ -345,8 +338,10 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Tile *curTile = NULL;
 		Creature *curCreature = NULL;
 
+		sem_wait(&renderQueueSemaphore);
 		RenderRequest *curReq = renderQueue.front();
 		renderQueue.pop_front();
+		sem_post(&renderQueueSemaphore);
 
 		switch(curReq->type)
 		{
@@ -461,7 +456,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		delete curReq;
 		curReq = NULL;
 	}
-	sem_post(&renderQueueSemaphore);
 	
 		string chatBaseString = "\n---------- Chat ----------\n";
 		chatString = chatBaseString;
@@ -926,14 +920,11 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 		// Check to see if we are moving a creature
 		if(mDragType == ExampleFrameListener::creature)
 		{
-			//FIXME: X-Y reversal issue.
 			SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
 			mSceneMgr->getSceneNode("Hand_Node")->removeChild(creatureSceneNode);
 			mSceneMgr->getRootSceneNode()->addChild(creatureSceneNode);
 			mDragType = ExampleFrameListener::nullDragType;
 			gameMap.getCreature(mDraggedCreature)->setPosition(xPos, yPos, 0);
-			//creatureSceneNode->setPosition(xPos/BLENDER_UNITS_PER_OGRE_UNIT, yPos/BLENDER_UNITS_PER_OGRE_UNIT, 0);
-			//gameMap.getCreature(mDraggedCreature)->position = Ogre::Vector3(xPos, yPos, 0);
 		}
 
 		// Check to see if we are dragging out a selection of tiles
