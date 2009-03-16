@@ -379,12 +379,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				break;
 
 			case RenderRequest::destroyTile:
-				cout << "Destroying tile\n";
-				cout.flush();
-
 				curTile = (Tile*)curReq->p;
 				if(mSceneMgr->hasEntity(curTile->name.c_str()))
 				{
+					cout << "Destroying tile\n";
+					cout.flush();
+
 					ent = mSceneMgr->getEntity(curTile->name.c_str());
 					node = mSceneMgr->getSceneNode((curTile->name + "_node").c_str());
 					//mSceneMgr->getRootSceneNode()->detachObject((curTile->name + "_node").c_str());
@@ -406,10 +406,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature = (Creature*)curReq->p;
 				ent = mSceneMgr->createEntity( ("Creature_" + curCreature->name).c_str(), curCreature->meshName.c_str());
 				node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (curCreature->name + "_node").c_str() );
-				//node->setPosition(position/BLENDER_UNITS_PER_OGRE_UNIT);
 				node->setPosition(curCreature->getPosition());
-				//FIXME: Something needs to be done about the caling issue here.
-				//node->setScale(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT);
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
 				node->attachObject(ent);
@@ -1580,8 +1577,6 @@ void ExampleFrameListener::executePromptCommand()
 				SceneNode *node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (tempCreature->name + "_node").c_str() );
 				//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
 				node->setPosition(tempCreature->getPosition());
-				//FIXME: Something needs to be done about the caling issue here.
-				//node->setScale(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT);
 				node->setScale(tempCreature->scale);
 				node->attachObject(ent);
 			}

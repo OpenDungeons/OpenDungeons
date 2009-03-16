@@ -56,6 +56,7 @@ class Creature
 		void addDestination(int x, int y);
 
 	private:
+		deque<Action> actionQueue;
 		Ogre::Vector3 position;
 		int destinationX, destinationY;
 };

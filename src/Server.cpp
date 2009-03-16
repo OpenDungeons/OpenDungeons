@@ -97,14 +97,17 @@ void *serverSocketProcessor(void *p)
 					curSock->recv(tempString);
 				}
 
-				// Send over the class descriptions in use on the current game map
+				// Send over the actual creatures in use on the current game map
 				//TODO: Only send the classes which the client is supposed to see due to fog of war.
 				for(int i = 0; i < gameMap.numClassDescriptions(); i++)
 				{
+					//NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
+					// Changes to this code should be reflected in that code as well
 					Creature *tempCreature = gameMap.getClassDescription(i);
 
 					tempString = "";
 					tempSS.str(tempString);
+
 					tempSS << tempCreature->className << "\t" << tempCreature->meshName << "\t";
 					tempSS << tempCreature->scale.x << "\t" << tempCreature->scale.y << "\t" << tempCreature->scale.z << "\t";
 					tempSS << tempCreature->hp << "\t" << tempCreature->mana << "\t";
@@ -114,6 +117,23 @@ void *serverSocketProcessor(void *p)
 					// Throw away the ok response
 					curSock->recv(tempString);
 				}
+
+				// Send over the class descriptions in use on the current game map
+				//TODO: Only send the classes which the client is supposed to see due to fog of war.
+				for(int i = 0; i < gameMap.numCreatures(); i++)
+				{
+					Creature *tempCreature = gameMap.getCreature(i);
+
+					tempString = "";
+					tempSS.str(tempString);
+
+					tempSS << tempCreature;
+
+					curSock->send(formatCommand("addcreature", tempSS.str()));
+					// Throw away the ok response
+					curSock->recv(tempString);
+				}
+
 			}
 
 			else if(clientCommand.compare("setnick") == 0)

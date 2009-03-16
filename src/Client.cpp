@@ -57,7 +57,7 @@ void *clientSocketProcessor(void *p)
 
 		else if(serverCommand.compare("addclass") == 0)
 		{
-			// This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
+			//NOTE: This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
 			// Changes to this code should be reflected in that code as well
 			double tempX, tempY, tempZ, tempSightRadius, tempDigRate;
 			int tempHP, tempMana;
@@ -73,6 +73,20 @@ void *clientSocketProcessor(void *p)
 			Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate);
 			gameMap.addClassDescription(p);
 			sock->send(formatCommand("ok", "addclass"));
+		}
+
+		else if(serverCommand.compare("addcreature") == 0)
+		{
+			//NOTE: This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
+			// Changes to this code should be reflected in that code as well
+			Creature *newCreature = new Creature;
+
+			stringstream tempSS;
+			tempSS.str(arguments);
+			tempSS >> newCreature;
+
+			gameMap.addCreature(newCreature);
+			sock->send(formatCommand("ok", "addcreature"));
 		}
 
 		else

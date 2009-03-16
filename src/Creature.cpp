@@ -78,6 +78,15 @@ istream& operator>>(istream& is, Creature *c)
 	c->position = Ogre::Vector3(xLocation, yLocation, zLocation);
 	is >> c->color;
 
+	// Copy the class based items
+	Creature *creatureClass = gameMap.getClass(c->className);
+	c->meshName = creatureClass->meshName;
+	c->scale = creatureClass->scale;
+	c->sightRadius = creatureClass->sightRadius;
+	c->digRate = creatureClass->digRate;
+	c->hp = creatureClass->hp;
+	c->mana = creatureClass->mana;
+
 	return is;
 }
 
@@ -190,7 +199,7 @@ void Creature::doTurn()
 					// Choose a tile for the next step towards the destination
 					walkPath = gameMap.path((int)position.x, (int)position.y, destinationX, destinationY);
 					cout << "Walk path size = " << walkPath.size() << " ";
-					cout.flush();
+					//cout.flush();
 
 					if(walkPath.size() >= 2)
 					{
@@ -219,7 +228,7 @@ void Creature::doTurn()
 				if(digRate > 0.1)
 				{
 					cout << "Starting dig: rate:  " << digRate << " ";
-					cout.flush();
+					//cout.flush();
 
 					// Find visible tiles, marked for digging
 					for(unsigned int i = 0; i < visibleTiles.size(); i++)
@@ -239,18 +248,34 @@ void Creature::doTurn()
 						{
 							setAnimationState("Dig");
 							markedTiles[i]->setFullness(markedTiles[i]->getFullness() - digRate);
+
+							if(markedTiles[i]->getFullness() < 0)
+							{
+								markedTiles[i]->setFullness(0);
+							}
+
+							// If the tile has been dug out, move into that tile and idle
+							if(markedTiles[i]->getFullness() == 0)
+							{
+								destinationX = markedTiles[i]->x;
+								destinationY = markedTiles[i]->y;
+								setAnimationState("Idle");
+								currentTask = walkTo;
+							}
+
 							break;
 						}
 					}
 
 					// If no tiles are next to us, see if we can walk to one to dig it out
-					for(unsigned int i = 0; i < markedTiles.size(); i++)
+					bool destinationFound =  false;
+					for(unsigned int i = 0; i < markedTiles.size() && !destinationFound; i++)
 					{
 						//  j<4 :  Allow standing on adjacent corners only, when digging.
 						//  j<8 :  Allow standing on any corners, when digging.
 						walkPath.clear();
 						basePath.clear();
-						for(int j = 0; j < 4; j++)
+						for(int j = 0; j < 4 && !destinationFound; j++)
 						{
 							tempX = markedTiles[i]->x;
 							tempY = markedTiles[i]->y;
@@ -282,6 +307,7 @@ void Creature::doTurn()
 									//setPosition(nextStep->x, nextStep->y, position.z);
 									addDestination(nextStep->x, nextStep->y);
 									setAnimationState("Walk");
+									destinationFound = true;
 									break;
 								}
 							}
@@ -290,6 +316,7 @@ void Creature::doTurn()
 					// If we still can't do anything then give up and idle
 					setAnimationState("Idle");
 					currentTask = idle;
+					loopBack = true;
 				}
 				else
 				{
@@ -390,6 +417,8 @@ AnimationState* Creature::getAnimationState()
 
 void Creature::addDestination(int x, int y)
 {
+	cout << "w(" << x << ", " << y << ") ";
+
 	if(walkQueue.size() == 0)
 	{
 		walkQueue.push_back(Ogre::Vector3(x, y, 0));
