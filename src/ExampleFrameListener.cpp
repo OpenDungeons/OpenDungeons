@@ -355,9 +355,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					string tileTypeString = Tile::tileTypeToString(curTile->getType());
 					sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
 					ent = mSceneMgr->createEntity(curTile->name.c_str(), meshName);
-					ent->setNormaliseNormals(true);
 
 					mSceneMgr->getSceneNode((curTile->name + "_node").c_str())->attachObject(ent);
+					ent->setNormaliseNormals(true);
 				}
 				break;
 
@@ -373,9 +373,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				//node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
 				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
-				ent->setNormaliseNormals(true);
 
 				node->attachObject(ent);
+				ent->setNormaliseNormals(true);
 				break;
 
 			case RenderRequest::destroyTile:
@@ -498,12 +498,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		// Advance the animation
 		if(currentCreature->animationState != NULL)
-			currentCreature->animationState->addTime(evt.timeSinceLastFrame);
+			currentCreature->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame);
 
 		// Move the creature
 		if(currentCreature->walkQueue.size() > 0)
 		{
-			double moveDist = currentCreature->moveSpeed * evt.timeSinceLastFrame;
+			double moveDist = turnsPerSecond * currentCreature->moveSpeed * evt.timeSinceLastFrame;
 			currentCreature->shortDistance -= moveDist;
 
 			if(currentCreature->shortDistance <= 0.0)
@@ -525,7 +525,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 					Quaternion quat = src.getRotationTo(currentCreature->walkDirection);
 					node->rotate(quat);
-
 				}
 			}
 			else
@@ -711,9 +710,10 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 					if(mLMouseDown)
 					{
-						for(int i = 0; i < gameMap.numTiles(); i++)
+						TileMap_t::iterator itr = gameMap.firstTile();
+						while(itr != gameMap.lastTile())
 						{
-							Tile *tempTile = gameMap.getTile(i);
+							Tile *tempTile = itr->second;
 							if(tempTile->x >= min(xPos, mLStartDragX) && \
 									tempTile->x <= max(xPos, mLStartDragX) && \
 									tempTile->y >= min(yPos, mLStartDragY) && \
@@ -745,14 +745,17 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 								}
 							}
 
+							itr++;
 						}
 					}
 
 					if(mRMouseDown)
 					{
-						for(int i = 0; i < gameMap.numTiles(); i++)
+						TileMap_t::iterator itr = gameMap.firstTile();
+						while(itr != gameMap.lastTile())
 						{
-							Tile *tempTile = gameMap.getTile(i);
+							Tile *tempTile = itr->second;
+
 							if(tempTile->x >= min(xPos, mRStartDragX) && \
 									tempTile->x <= max(xPos, mRStartDragX) && \
 									tempTile->y >= min(yPos, mRStartDragY) && \
@@ -781,6 +784,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 								}
 							}
 
+							itr++;
 						}
 					}
 
@@ -899,17 +903,21 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 	CEGUI::System::getSingleton().injectMouseButtonUp(convertButton(id));
 
 	// Unselect all tiles
-	for(int i = 0; i < gameMap.numTiles(); i++)
+	//for(int i = 0; i < gameMap.numTiles(); i++)
+	TileMap_t::iterator itr = gameMap.firstTile();
+	while(itr != gameMap.lastTile())
 	{
 		// See if we are hosting a game or not
 		if(serverSocket == NULL)
 		{
-			gameMap.getTile(i)->setSelected(false);
+			itr->second->setSelected(false);
 		}
 		else
 		{
-			gameMap.getTile(i)->setMarkedForDigging(false);
+			itr->second->setMarkedForDigging(false);
 		}
+
+		itr++;
 	}
 
 	// Left mouse button up
@@ -1579,6 +1587,7 @@ void ExampleFrameListener::executePromptCommand()
 				//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
 				node->setPosition(tempCreature->getPosition());
 				node->setScale(tempCreature->scale);
+				ent->setNormaliseNormals(true);
 				node->attachObject(ent);
 			}
 		}

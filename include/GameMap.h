@@ -4,6 +4,8 @@
 #include "Tile.h"
 #include "Creature.h"
 
+typedef map< pair<int,int>, Tile*> TileMap_t;
+
 class GameMap
 {
 	public:
@@ -14,7 +16,8 @@ class GameMap
 		void clearClasses();
 		void createAllEntities();
 		Tile* getTile(int x, int y);
-		Tile* getTile(int index);
+		TileMap_t::iterator firstTile();
+		TileMap_t::iterator lastTile();
 		Creature* getClassDescription(int index);
 		int numTiles();
 		void addTile(Tile *t);
@@ -36,7 +39,7 @@ class GameMap
 		void removeCreatureFromHand(int i);
 
 	private:
-		vector<Tile*> tiles;
+		map< pair<int,int>, Tile*> tiles;
 		vector<Creature*> classDescriptions;
 		vector<Creature*> creatures;
 		vector<Creature*> creaturesInHand;

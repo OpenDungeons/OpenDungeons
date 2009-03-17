@@ -75,13 +75,16 @@ void writeGameMapToFile(string fileName)
 
 	// Write out the tiles to the file
 	levelFile << gameMap.numTiles() << endl;
-	for(int i = 0; i < gameMap.numTiles(); i++)
+	TileMap_t::iterator itr = gameMap.firstTile();
+	while(itr != gameMap.lastTile())
 	{
-		tempTile = gameMap.getTile(i);
+		tempTile = itr->second;
 		levelFile << tempTile->x << "\t" << tempTile->y << "\t";
 		levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
 
 		levelFile << endl;
+
+		itr++;
 	}
 
 	// Write out the creature descriptions to the file

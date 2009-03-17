@@ -13,7 +13,8 @@ void GameMap::createNewMap(int xSize, int ySize)
 	Tile *tempTile;
 	char tempString[255];
 
-	clearTiles();
+	//clearTiles();
+	clearAll();
 
 	for(int j = 0; j < ySize; j++)
 	{
@@ -28,13 +29,22 @@ void GameMap::createNewMap(int xSize, int ySize)
 			sprintf(tempString, "Level_%3i_%3i", i, j);
 			tempTile->name = tempString;
 			tempTile->createMesh();
-			tiles.push_back(tempTile);
+			//tiles.push_back(tempTile);
+			tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(i,j), tempTile) );
 		}
 	}
 }
 
 Tile* GameMap::getTile(int x, int y)
 {
+	pair<int,int> location(x, y);
+	TileMap_t::iterator itr = tiles.find(location);
+	if(itr != tiles.end())
+		return itr->second;
+	else
+		return NULL;
+
+	/*
 	for(unsigned int i = 0; i < tiles.size(); i++)
 	{
 		if(tiles[i]->x == x && tiles[i]->y == y)
@@ -42,15 +52,24 @@ Tile* GameMap::getTile(int x, int y)
 			return tiles[i];
 		}
 	}
+	*/
 
 	//cerr << "Error: Tile not found: (" << x << ", " << y << ")\n\n\n";
 	return NULL;
 }
 
+/*
+//FIXME:  looping from over this function is now quadratic rather than linear and this should be fixed
 Tile* GameMap::getTile(int index)
 {
-	return tiles[index];
+	//return tiles[index];
+	TileMap_t::iterator itr = tiles.begin();
+	for(int i = 0; i < index; i++)
+		itr++;
+
+	return itr->second;
 }
+*/
 
 void GameMap::clearAll()
 {
@@ -61,10 +80,11 @@ void GameMap::clearAll()
 
 void GameMap::clearTiles()
 {
-	for(int i = 0; i < numTiles(); i++)
+	TileMap_t::iterator itr = tiles.begin();
+	while(itr != tiles.end())
 	{
-		//tiles[i]->destroyMesh();
-		tiles[i]->deleteYourself();
+		itr->second->deleteYourself();
+		itr++;
 	}
 
 	tiles.clear();
@@ -98,7 +118,8 @@ int GameMap::numTiles()
 
 void GameMap::addTile(Tile *t)
 {
-	tiles.push_back(t);
+	tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(t->x,t->y), t) );
+	//tiles.push_back(t);
 }
 
 void GameMap::addClassDescription(Creature *c)
@@ -151,9 +172,11 @@ Creature* GameMap::getClassDescription(int index)
 void GameMap::createAllEntities()
 {
 	// Create OGRE entities for map tiles
-	for(int i = 0; i < numTiles(); i++)
+	TileMap_t::iterator itr = tiles.begin();
+	while(itr != tiles.end())
 	{
-		getTile(i)->createMesh();
+		itr->second->createMesh();
+		itr++;
 	}
 
 	// Create OGRE entities for the creatures
@@ -406,5 +429,15 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 	}
 
 	return returnList;
+}
+
+TileMap_t::iterator GameMap::firstTile()
+{
+	return tiles.begin();
+}
+
+TileMap_t::iterator GameMap::lastTile()
+{
+	return tiles.end();
 }
 

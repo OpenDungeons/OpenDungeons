@@ -87,11 +87,12 @@ void *serverSocketProcessor(void *p)
 
 				// Send over the map tiles from the current game map.
 				//TODO: Only send the tiles which the client is supposed to see due to fog of war.
-				for(int i = 0; i < gameMap.numTiles(); i++)
+				TileMap_t::iterator itr = gameMap.firstTile();
+				while(itr != gameMap.lastTile())
 				{
 					tempString = "";
 					tempSS.str(tempString);
-					tempSS << gameMap.getTile(i);
+					tempSS << itr->second;
 					curSock->send(formatCommand("addtile", tempSS.str()));
 					// Throw away the ok response
 					curSock->recv(tempString);
