@@ -186,6 +186,9 @@ void Tile::createMesh()
 	sem_wait(&renderQueueSemaphore);
 	renderQueue.push_back(request);
 	sem_post(&renderQueueSemaphore);
+
+	//FIXME:  this refreshMesh is a test to see if it fixes the hidden tiles bug at load time.
+	refreshMesh();
 }
 
 void Tile::destroyMesh()
