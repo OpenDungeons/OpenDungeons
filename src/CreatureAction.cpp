@@ -7,3 +7,10 @@ CreatureAction::CreatureAction()
 	creature = NULL;
 }
 
+CreatureAction::CreatureAction(ActionType nType, Tile *nTile, Creature *nCreature)
+{
+	type = nType;
+	tile = nTile;
+	creature = nCreature;
+}
+

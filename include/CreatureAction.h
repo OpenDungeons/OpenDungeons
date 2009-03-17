@@ -2,13 +2,16 @@
 #define CREATUREACTION_H
 
 #include "Tile.h"
+class CreatureAction;
 #include "Creature.h"
 
 class CreatureAction
 {
 	public:
-		CreatureAction();
 		enum ActionType {walkToTile, digTile, attackCreature, idle};
+
+		CreatureAction();
+		CreatureAction(ActionType nType, Tile *nTile=NULL, Creature *nCreature=NULL);
 
 		ActionType type;
 		Tile *tile;

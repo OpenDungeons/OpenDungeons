@@ -7,6 +7,7 @@
 using namespace std;
 
 #include "Tile.h"
+#include "CreatureAction.h"
 
 class Creature
 {
@@ -56,7 +57,7 @@ class Creature
 		void addDestination(int x, int y);
 
 	private:
-		deque<Action> actionQueue;
+		deque<CreatureAction> actionQueue;
 		Ogre::Vector3 position;
 		int destinationX, destinationY;
 };

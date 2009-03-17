@@ -513,6 +513,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				if(currentCreature->walkQueue.size() == 0)
 				{
+					currentCreature->walkDirection = Ogre::Vector3::ZERO;
 					currentCreature->setAnimationState("Idle");
 				}
 				else
