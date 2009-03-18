@@ -197,13 +197,17 @@ void Creature::doTurn()
 						int tempX = position.x + 2.0*gaussianRandomDouble();
 						int tempY = position.y + 2.0*gaussianRandomDouble();
 
-						setAnimationState("Walk");
-						list<Tile*> result = gameMap.path(positionTile()->x+1, positionTile()->y, tempX, tempY);
-						list<Tile*>::iterator itr = result.begin();
-						while(itr != result.end())
+						list<Tile*> result = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
+						if(result.size() >= 2)
 						{
-							addDestination((*itr)->x, (*itr)->y);
+							setAnimationState("Walk");
+							list<Tile*>::iterator itr = result.begin();
 							itr++;
+							while(itr != result.end())
+							{
+								addDestination((*itr)->x, (*itr)->y);
+								itr++;
+							}
 						}
 					}
 					else
@@ -252,8 +256,11 @@ void Creature::doTurn()
 							if(markedTiles[i]->getFullness() == 0)
 							{
 								addDestination(markedTiles[i]->x, markedTiles[i]->y);
-								setAnimationState("Idle");
+								setAnimationState("Walk");
 								currentTask = walkTo;
+								// Remove the dig action and replace it with
+								// walking to the newly dug out tile.
+								actionQueue.pop_front();
 								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 							}
 
@@ -290,11 +297,11 @@ void Creature::doTurn()
 								case 7:  tempX += 1;  tempY += 1;  break;
 							}
 
-							// The +1 is a hack to check the neighbor of the marked tile.
-							walkPath = gameMap.path(positionTile()->x, positionTile()->y, markedTiles[i]->x+tempX, markedTiles[i]->y+tempY);
+							walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
 
-							if(walkPath.size() > 2)
+							if(walkPath.size() >= 2)
 							{
+								setAnimationState("Walk");
 								list<Tile*>::iterator itr = walkPath.begin();
 								itr++;
 								while(itr != walkPath.end())
@@ -312,104 +319,12 @@ void Creature::doTurn()
 
 					// If none of our neighbors are marked for digging we got here too late.
 					// Finish digging
-					actionQueue.pop_front();
-					break;
-					/*
-					cout << "dig ";
-					if(digRate > 0.1)
+					if(actionQueue.front().type == CreatureAction::digTile)
 					{
-						cout << "Starting dig: rate:  " << digRate << " ";
-						//cout.flush();
-
-
-						// See if any of the tiles is one of our neighbors
-						for(unsigned int i = 0; i < markedTiles.size(); i++)
-						{
-							if(fabs((double)markedTiles[i]->x - position.x) <= 1.55 \
-									&& fabs((double)markedTiles[i]->y - position.y) <= 1.55)
-							{
-								setAnimationState("Dig");
-								markedTiles[i]->setFullness(markedTiles[i]->getFullness() - digRate);
-
-								if(markedTiles[i]->getFullness() < 0)
-								{
-									markedTiles[i]->setFullness(0);
-								}
-
-								// If the tile has been dug out, move into that tile and idle
-								if(markedTiles[i]->getFullness() == 0)
-								{
-									destinationX = markedTiles[i]->x;
-									destinationY = markedTiles[i]->y;
-									setAnimationState("Idle");
-									currentTask = walkTo;
-								}
-
-								break;
-							}
-						}
-
-						// If no tiles are next to us, see if we can walk to one to dig it out
-						bool destinationFound =  false;
-						for(unsigned int i = 0; i < markedTiles.size() && !destinationFound; i++)
-						{
-							//  j<4 :  Allow standing on adjacent corners only, when digging.
-							//  j<8 :  Allow standing on any corners, when digging.
-							walkPath.clear();
-							basePath.clear();
-							for(int j = 0; j < 4 && !destinationFound; j++)
-							{
-								tempX = markedTiles[i]->x;
-								tempY = markedTiles[i]->y;
-								switch(j)
-								{
-									// Adjacent tiles
-									case 0:  tempX += -1;  tempY += -0;  break;
-									case 1:  tempX += 0;  tempY += -1;  break;
-									case 2:  tempX += 0;  tempY += 1;  break;
-									case 3:  tempX += 1;  tempY += 0;  break;
-
-									 // Corner tiles
-									case 4:  tempX += -1;  tempY += -1;  break;
-									case 5:  tempX += -1;  tempY += 1;  break;
-									case 6:  tempX += 1;  tempY += -1;  break;
-									case 7:  tempX += 1;  tempY += 1;  break;
-								}
-
-								neighborTile = gameMap.getTile(tempX, tempY);
-								if(neighborTile != NULL && neighborTile->getFullness() == 0)
-								{
-									walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
-
-									// If we found a path to the neighbor tile
-									if(walkPath.size() >= 2)
-									{
-										// Take a step towards the neighbor tile, the second tile is the one we want
-										nextStep = *(++(walkPath.begin()));
-										//setPosition(nextStep->x, nextStep->y, position.z);
-										addDestination(nextStep->x, nextStep->y);
-										setAnimationState("Walk");
-										destinationFound = true;
-										break;
-									}
-								}
-							}
-						}
-						// If we still can't do anything then give up and idle
-						setAnimationState("Idle");
-						currentTask = idle;
+						actionQueue.pop_front();
 						loopBack = true;
 					}
-					else
-					{
-						// If our dig rate is too low to be of use
-						currentTask = idle;
-						setAnimationState("Idle");
-						loopBack = true;
-					}
-
 					break;
-					*/
 
 				default:
 					cout << "default ";
