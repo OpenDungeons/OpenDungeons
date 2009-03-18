@@ -31,6 +31,16 @@ void readGameMapFromFile(string fileName)
 		gameMap.addTile(tempTile);
 	}
 
+	// Loop over all the tiles and force them to examine their
+	// neighbors.  This allows them to switch to a mesh with fewer
+	// polygons if some are hidden by the neighbors.
+	TileMap_t::iterator itr = gameMap.firstTile();
+	while(itr != gameMap.lastTile())
+	{
+		itr->second->setFullness( itr->second->getFullness() );
+		itr++;
+	}
+
 	// Read in the creature class descriptions
 	levelFile >> objectsToLoad;
 	for(int i = 0; i < objectsToLoad; i++)

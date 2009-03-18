@@ -13,7 +13,6 @@ void GameMap::createNewMap(int xSize, int ySize)
 	Tile *tempTile;
 	char tempString[255];
 
-	//clearTiles();
 	clearAll();
 
 	for(int j = 0; j < ySize; j++)
@@ -33,6 +32,17 @@ void GameMap::createNewMap(int xSize, int ySize)
 			tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(i,j), tempTile) );
 		}
 	}
+
+	// Loop over all the tiles and force them to examine their
+	// neighbors.  This allows them to switch to a mesh with fewer
+	// polygons if some are hidden by the neighbors.
+	TileMap_t::iterator itr = gameMap.firstTile();
+	while(itr != gameMap.lastTile())
+	{
+		itr->second->setFullness( itr->second->getFullness() );
+		itr++;
+	}
+
 }
 
 Tile* GameMap::getTile(int x, int y)

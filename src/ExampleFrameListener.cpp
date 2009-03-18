@@ -936,14 +936,21 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 		// Check to see if we are dragging out a selection of tiles
 		else if(mDragType == ExampleFrameListener::tileSelection)
 		{
-			for(int i = min(xPos, mLStartDragX); i <= max(xPos, mLStartDragX); i++)
+			list<Tile*> affectedTiles;
+			int xMin = min(xPos, mLStartDragX);
+			int xMax = max(xPos, mLStartDragX);
+			int yMin = min(yPos, mLStartDragY);
+			int yMax = max(yPos, mLStartDragY);
+			for(int i = xMin; i <= xMax; i++)
 			{
-				for(int j = min(yPos, mLStartDragY); j <= max(yPos, mLStartDragY); j++)
+				for(int j = yMin; j <= yMax; j++)
 				{
 					// Make sure the tile exists before we set its value
 					Tile *currentTile = gameMap.getTile(i, j);
 					if(currentTile != NULL)
 					{
+						affectedTiles.push_back(currentTile);
+
 						// See if we are hosting a game or not
 						if(serverSocket == NULL)
 						{
@@ -958,6 +965,56 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 							}
 						}
 					}
+				}
+			}
+
+			// In server mode the mouse drag does not change the tiles fullness so we can skip this step
+			if(serverSocket == NULL)
+			{
+				// Add any tiles which border the affected region to the affected tiles list
+				// as they may alo want to swicth meshes to optimize polycount now too.
+				//      Adding the top and bottom rows
+				for(int i = xMin-1; i < xMax+1; i++)
+				{
+					Tile *currentTile = gameMap.getTile(i, yMax+1);
+					if(currentTile != NULL)
+					{
+						affectedTiles.push_back(currentTile);
+					}
+
+					currentTile = gameMap.getTile(i, yMin-1);
+					if(currentTile != NULL)
+					{
+						affectedTiles.push_back(currentTile);
+					}
+				}
+
+				//      Adding the side rows
+				for(int j = yMin; j < yMax; j++)
+				{
+					Tile *currentTile = gameMap.getTile(xMax+1, j);
+					if(currentTile != NULL)
+					{
+						affectedTiles.push_back(currentTile);
+					}
+
+					currentTile = gameMap.getTile(xMin-1, j);
+					if(currentTile != NULL)
+					{
+						affectedTiles.push_back(currentTile);
+					}
+				}
+
+
+
+				// Loop over all the affected tiles and force them to examine their
+				// neighbors.  This allows them to switch to a mesh with fewer
+				// polygons if some are hidden by the neighbors.
+				list<Tile*>::iterator itr = affectedTiles.begin();
+				while(itr != affectedTiles.end())
+				{
+					(*itr)->setFullness( (*itr)->getFullness() );
+					itr++;
 				}
 			}
 		}

@@ -49,7 +49,32 @@ void Tile::setFullness(int f)
 	 if(f > 0 && f <= 25)	fullnessMeshNumber = 25;
 	 else if(f > 25 && f <= 50)	fullnessMeshNumber = 50;
 	 else if(f > 50 && f <= 75)	fullnessMeshNumber = 75;
-	 else if(f >= 75)	fullnessMeshNumber = 104;
+	 else if(f > 75)
+	 {
+		 // If  all 4 neighbors exist and are also in the "full"
+		 // category, then we dont draw the sides on this tile.
+		 Tile *top = gameMap.getTile(x, y+1);
+		 Tile *bottom = gameMap.getTile(x, y-1);
+		 Tile *left = gameMap.getTile(x-1, y);
+		 Tile *right = gameMap.getTile(x+1, y);
+		 if(top != NULL && bottom != NULL && left != NULL && right != NULL)
+		 {
+			 if(top->getFullness() > 75 && bottom->getFullness() > 75 && \
+			 	left->getFullness() > 75 && right->getFullness() > 75)
+			 {
+				 fullnessMeshNumber = 100;
+			 }
+			 else
+			 {
+				 fullnessMeshNumber = 104;
+			 }
+		 }
+		 else
+		 {
+			 fullnessMeshNumber = 104;
+		 }
+	 }
+
 	 refreshMesh();
 
 	 if(fullness <= 1 && getMarkedForDigging() == true)
