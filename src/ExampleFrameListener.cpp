@@ -675,6 +675,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 	if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::nullDragType)
 	{
+		/*
 		// See if the mouse is over any creatures
 		while (itr != result.end() )
 		{
@@ -693,6 +694,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 			itr++;
 		}
+		*/
 
 		// If no creatures are under the  mouse run through the list again to check for tiles
 		itr = result.begin( );
@@ -719,30 +721,11 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 									tempTile->y >= min(yPos, mLStartDragY) && \
 									tempTile->y <= max(yPos, mLStartDragY))
 							{
-								// See if we are hosting a game or not
-								if(serverSocket == NULL)
-								{
-									tempTile->setSelected(true);
-								}
-								else
-								{
-									if(tempTile->getFullness() > 0)
-									{
-										tempTile->setMarkedForDigging(true);
-									}
-								}
+								tempTile->setSelected(true);
 							}
 							else
 							{
-								// See if we are hosting a game or not
-								if(serverSocket == NULL)
-								{
-									tempTile->setSelected(false);
-								}
-								else
-								{
-									tempTile->setMarkedForDigging(false);
-								}
+								tempTile->setSelected(false);
 							}
 
 							itr++;
@@ -846,6 +829,8 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			}
 		}
 
+		if(serverSocket != NULL)
+			digSetBool = !gameMap.getTile(xPos, yPos)->getMarkedForDigging();
 		
 		mLMouseDown = true;
 		mLStartDragX = xPos;
@@ -872,15 +857,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 	TileMap_t::iterator itr = gameMap.firstTile();
 	while(itr != gameMap.lastTile())
 	{
-		// See if we are hosting a game or not
-		if(serverSocket == NULL)
-		{
-			itr->second->setSelected(false);
-		}
-		else
-		{
-			itr->second->setMarkedForDigging(false);
-		}
+		itr->second->setSelected(false);
 
 		itr++;
 	}
@@ -926,14 +903,16 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 						{
 							if(currentTile->getFullness() > 0)
 							{
-								currentTile->setMarkedForDigging(true);
+								currentTile->setMarkedForDigging(digSetBool);
 							}
 						}
 					}
 				}
 			}
 
-			// In server mode the mouse drag does not change the tiles fullness so we can skip this step
+			// Loop over any tiles which had their fullness values changed and recheck their
+			// neighbors to see if they need to update their meshes.  In server mode the mouse
+			// drag does not change the tiles fullness so we can skip this step
 			if(serverSocket == NULL)
 			{
 				// Add any tiles which border the affected region to the affected tiles list
@@ -955,7 +934,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 				}
 
 				//      Adding the side rows
-				for(int j = yMin; j < yMax; j++)
+				for(int j = yMin-1; j < yMax+1; j++)
 				{
 					Tile *currentTile = gameMap.getTile(xMax+1, j);
 					if(currentTile != NULL)
@@ -969,8 +948,6 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 						affectedTiles.push_back(currentTile);
 					}
 				}
-
-
 
 				// Loop over all the affected tiles and force them to examine their
 				// neighbors.  This allows them to switch to a mesh with fewer

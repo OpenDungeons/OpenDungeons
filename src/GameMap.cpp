@@ -309,48 +309,11 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 			break;
 		}
 
-		// Check the tiles surrounding the current square, the squares are numbered like
-		//
-		//            4    0    6
-		//            2    C    3
-		//            7    1    5
-		//
-		// The loop should go to 4 or 8 depending on whether or not you want the creatures
-		// to be able to cut corners.  Setting it to 4 does not allow cutting corners, 8 does.
-		for(int i = 0; i < 4; i++)
+		// Check the tiles surrounding the current square
+		vector<Tile*>neighbors = neighborTiles(currentEntry->tile->x, currentEntry->tile->y);
+		for(int i = 0; i < neighbors.size(); i++)
 		{
-			int tempX, tempY;
-			double nDist;
-
-			tempX = currentEntry->tile->x;
-			tempY = currentEntry->tile->y;
-			switch(i)
-			{
-				// Adjacent neighbors
-				case 0: tempX -= 0;  tempY += 1;  nDist = 1;  break;
-				case 1: tempX -= 0;  tempY -= 1;  nDist = 1;  break;
-				case 2: tempX -= 1;  tempY += 0;  nDist = 1;  break;
-				case 3: tempX += 1;  tempY += 0;  nDist = 1;  break;
-
-				// Corner neighbors
-				case 4: tempX -= 1;  tempY += 1;  nDist = sqrt(2.0);  break;
-				case 5: tempX += 1;  tempY -= 1;  nDist = sqrt(2.0);  break;
-				case 6: tempX += 1;  tempY += 1;  nDist = sqrt(2.0);  break;
-				case 7: tempX -= 1;  tempY -= 1;  nDist = sqrt(2.0);  break;
-
-				default:
-					cout << "\n\n\nERROR:  Wrong neighbor index in astar search.\n\n\n";
-					exit(1);
-					break;
-			}
-
-			neighbor->tile = getTile(tempX, tempY);
-			//cout << endl << tempX << "\t" << tempY;
-			//cout.flush();
-
-
-			//cout << "\n\nF:  " << neighbor->tile->getFullness() << Tile::tileTypeToString(neighbor->tile->getType()) << endl;
-			//cout.flush();
+			neighbor->tile = neighbors[i];
 
 			// See if the neighbor tile in question is walkable and empty
 			// The "numCreaturesInCell" comaprison sets the max creatures in a cell at a time.
@@ -386,10 +349,13 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 					// If the neighbor is not in the open list
 					if(!neighborFound)
 					{
-						neighbor->g = currentEntry->g + nDist;
+						// NOTE: This +1 weights all steps the same, diagonal steps
+						// should get a greater wieght iis they are included in the future
+						neighbor->g = currentEntry->g + 1;
+
 						// Use the manhattan distance for the heuristic
 						// FIXME:  This is not the only place the heuristic is calculated
-						neighbor->h = fabs(x2-tempX) + fabs(y2-tempY);
+						neighbor->h = fabs(x2-neighbor->tile->x) + fabs(y2-neighbor->tile->y);
 						neighbor->parent = currentEntry;
 
 						openList.push_back(new astarEntry(*neighbor));
@@ -398,9 +364,13 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 					{
 						// If this path to the given neighbor tile is a shorter path than the
 						// one already given, make this the new parent.
-						if(currentEntry->g + nDist < (*itr)->g)
+						// NOTE: This +1 weights all steps the same, diagonal steps
+						// should get a greater wieght iis they are included in the future
+						if(currentEntry->g + 1 < (*itr)->g)
 						{
-							(*itr)->g = currentEntry->g + nDist;
+							// NOTE: This +1 weights all steps the same, diagonal steps
+							// should get a greater wieght iis they are included in the future
+							(*itr)->g = currentEntry->g + 1;
 							(*itr)->parent = currentEntry;
 						}
 					}
@@ -448,5 +418,43 @@ TileMap_t::iterator GameMap::firstTile()
 TileMap_t::iterator GameMap::lastTile()
 {
 	return tiles.end();
+}
+
+vector<Tile*> GameMap::neighborTiles(int x, int y)
+{
+	Tile *t = getTile(x, y);
+	Tile *neighbor;
+	vector<Tile*> neighbors;
+
+	if(t != NULL)
+	{
+		for(int i = 0; i < 4; i++)
+		{
+			int tempX, tempY;
+			double nDist;
+
+			tempX = x;
+			tempY = y;
+			switch(i)
+			{
+				// Adjacent neighbors
+				case 0: tempX -= 0;  tempY += 1;  break;
+				case 1: tempX -= 0;  tempY -= 1;  break;
+				case 2: tempX -= 1;  tempY += 0;  break;
+				case 3: tempX += 1;  tempY += 0;  break;
+
+				default:
+					cout << "\n\n\nERROR:  Wrong neighbor index in astar search.\n\n\n";
+					exit(1);
+					break;
+			}
+
+			neighbor = getTile(tempX, tempY);
+			if(neighbor != NULL)
+				neighbors.push_back(neighbor);
+		}
+	}
+
+	return neighbors;
 }
 

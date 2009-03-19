@@ -32,6 +32,7 @@ class GameMap
 		void doTurn();
 
 		list<Tile*> path(int x1, int y1, int x2, int y2);
+		vector<Tile*> neighborTiles(int x, int y);
 
 		int numCreaturesInHand();
 		Creature *getCreatureInHand(int i);

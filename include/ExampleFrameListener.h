@@ -149,6 +149,7 @@ protected:
 	SceneNode *mCurrentObject;         // The newly created object
 	CEGUI::Renderer *mGUIRenderer;     // CEGUI renderer
 	int xPos, yPos;
+	bool digSetBool;                   // For server mode - hods whether to mark or unmark a tile for digging
 
 	enum DragType {creature, tileSelection, nullDragType};
 

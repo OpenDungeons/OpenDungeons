@@ -167,6 +167,7 @@ void Creature::doTurn()
 		int tempX, tempY, baseEndX, baseEndY;
 		double diceRoll;
 		Tile *neighborTile;
+		vector<Tile*>neighbors, creatureNeighbors;
 		bool wasANeighbor = false;
 
 		diceRoll = randomDouble(0.0, 1.0);
@@ -239,24 +240,31 @@ void Creature::doTurn()
 
 					// See if any of the tiles is one of our neighbors
 					wasANeighbor = false;
-					for(unsigned int i = 0; i < markedTiles.size() && !wasANeighbor; i++)
+					creatureNeighbors = gameMap.neighborTiles(position.x, position.y);
+					for(unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; i++)
 					{
-						//FIXME:  This if statement condition is a hack, and only the 4 neareast neighbors should be checked
-						if(fabs((double)markedTiles[i]->x - position.x) <= 1.55 \
-								&& fabs((double)markedTiles[i]->y - position.y) <= 1.55)
+						if(creatureNeighbors[i]->getMarkedForDigging())
 						{
 							setAnimationState("Dig");
-							markedTiles[i]->setFullness(markedTiles[i]->getFullness() - digRate);
+							creatureNeighbors[i]->setFullness(creatureNeighbors[i]->getFullness() - digRate);
 
-							if(markedTiles[i]->getFullness() < 0)
+							// Force all the neighbors to recheck their meshes as we may have exposed
+							// a new side that was not visible before.
+							neighbors = gameMap.neighborTiles(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
+							for(unsigned int j = 0; j < neighbors.size(); j++)
 							{
-								markedTiles[i]->setFullness(0);
+								neighbors[j]->setFullness(neighbors[j]->getFullness());
+							}
+
+							if(creatureNeighbors[i]->getFullness() < 0)
+							{
+								creatureNeighbors[i]->setFullness(0);
 							}
 
 							// If the tile has been dug out, move into that tile and idle
-							if(markedTiles[i]->getFullness() == 0)
+							if(creatureNeighbors[i]->getFullness() == 0)
 							{
-								addDestination(markedTiles[i]->x, markedTiles[i]->y);
+								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
 								setAnimationState("Walk");
 								currentTask = walkTo;
 								// Remove the dig action and replace it with
@@ -277,29 +285,13 @@ void Creature::doTurn()
 					possiblePaths.clear();
 					for(unsigned int i = 0; i < markedTiles.size(); i++)
 					{
-						for(int j = 0; j < 4; j++)
+						neighbors = gameMap.neighborTiles(markedTiles[i]->x, markedTiles[i]->y);
+						for(int j = 0; j < neighbors.size(); j++)
 						{
-							tempX = markedTiles[i]->x;
-							tempY = markedTiles[i]->y;
-							switch(j)
-							{
-								// Adjacent tiles
-								case 0:  tempX += -1;  tempY += -0;  break;
-								case 1:  tempX += 0;  tempY += -1;  break;
-								case 2:  tempX += 0;  tempY += 1;  break;
-								case 3:  tempX += 1;  tempY += 0;  break;
-
-								 // Corner tiles
-								case 4:  tempX += -1;  tempY += -1;  break;
-								case 5:  tempX += -1;  tempY += 1;  break;
-								case 6:  tempX += 1;  tempY += -1;  break;
-								case 7:  tempX += 1;  tempY += 1;  break;
-							}
-
 							//walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
-							neighborTile = gameMap.getTile(tempX, tempY);
+							neighborTile = neighbors[j];
 							if(neighborTile != NULL && neighborTile->getFullness() == 0)
-								possiblePaths.push_back(gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY));
+								possiblePaths.push_back(gameMap.path(positionTile()->x, positionTile()->y, neighborTile->x, neighborTile->y));
 
 						}
 					}
