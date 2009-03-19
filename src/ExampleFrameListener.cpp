@@ -751,41 +751,6 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 					if(mRMouseDown)
 					{
-						TileMap_t::iterator itr = gameMap.firstTile();
-						while(itr != gameMap.lastTile())
-						{
-							Tile *tempTile = itr->second;
-
-							if(tempTile->x >= min(xPos, mRStartDragX) && \
-									tempTile->x <= max(xPos, mRStartDragX) && \
-									tempTile->y >= min(yPos, mRStartDragY) && \
-									tempTile->y <= max(yPos, mRStartDragY))
-							{
-								// See if we are hosting a game or not
-								if(serverSocket == NULL)
-								{
-									tempTile->setSelected(true);
-								}
-								else
-								{
-									tempTile->setMarkedForDigging(true);
-								}
-							}
-							else
-							{
-								// See if we are hosting a game or not
-								if(serverSocket == NULL)
-								{
-									tempTile->setSelected(false);
-								}
-								else
-								{
-									tempTile->setMarkedForDigging(false);
-								}
-							}
-
-							itr++;
-						}
 					}
 
 					break;
@@ -1750,16 +1715,20 @@ void ExampleFrameListener::executePromptCommand()
 		// Connect to a server
 		else if(command.compare("connect") == 0)
 		{
+			// Make sure we have set a nickname
 			if(me->nick.size() > 0)
 			{
+				// Make sure we are not already connected to a server
 				if(clientSocket == NULL)
 				{
+					// Make sure an IP address to connect to was provided
 					if(arguments.size() > 0)
 					{
 						clientSocket = new Socket;
 
 						if(!clientSocket->create())
 						{
+							clientSocket = NULL;
 							commandOutput = "ERROR:  Could not create client socket!";
 							goto ConnectEndLabel;
 						}
@@ -1777,6 +1746,7 @@ void ExampleFrameListener::executePromptCommand()
 						}
 						else
 						{
+							clientSocket = NULL;
 							commandOutput = "Connection failed!";
 						}
 					}
@@ -1785,6 +1755,10 @@ void ExampleFrameListener::executePromptCommand()
 						commandOutput = "You must specify the IP address of the server you want to connect to.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1";
 					}
 
+				}
+				else
+				{
+					commandOutput = "You are already connected to a server.  You must disconnect before you can connect to a new game.";
 				}
 			}
 			else
@@ -1812,7 +1786,13 @@ void ExampleFrameListener::executePromptCommand()
 						SSPStruct ssps;
 						ssps.nSocket = serverSocket;
 						ssps.nFrameListener = this;
+
+						// Start the server thread which will listen for, and accept, connections
 						pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) &ssps);
+
+						// Start the creature AI thread
+						pthread_create(&creatureThread, NULL, creatureAIThread, NULL);
+
 						commandOutput = "Server started successfully.";
 					}
 					else
@@ -1820,8 +1800,6 @@ void ExampleFrameListener::executePromptCommand()
 						commandOutput = "ERROR:  Could not start server!";
 					}
 
-					// Start the creature AI thread
-					pthread_create(&creatureThread, NULL, creatureAIThread, NULL);
 				}
 			}
 			else
@@ -1836,14 +1814,22 @@ void ExampleFrameListener::executePromptCommand()
 			if(clientSocket != NULL)
 			{
 				clientSocket->send(formatCommand("chat", me->nick + ":" + arguments));
-				chatMessages.push_back(new ChatMessage(me->nick, arguments, time(NULL), time(NULL)));
+				//chatMessages.push_back(new ChatMessage(me->nick, arguments, time(NULL), time(NULL)));
 			}
 			else if(serverSocket != NULL)
 			{
-				// Since the server keeps a socket for each client we
-				// need to send the chat out the right connection.
-				clientSockets[0]->send(formatCommand("chat", me->nick + ":" + arguments));
+				// Send the chat to all the connected clients
+				for(unsigned int i = 0; i < clientSockets.size(); i++)
+				{
+					clientSockets[i]->send(formatCommand("chat", me->nick + ":" + arguments));
+				}
+
+				// Display the chat message in our own message queue
 				chatMessages.push_back(new ChatMessage(me->nick, arguments, time(NULL), time(NULL)));
+			}
+			else
+			{
+				commandOutput = "You must be either connected to a server, or hosting a server to use chat.";
 			}
 		}
 

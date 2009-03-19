@@ -7,6 +7,7 @@
 // Functions called by pthread_create
 void *clientSocketProcessor(void *p);
 void *serverSocketProcessor(void *p);
+void *clientHandlerThread(void *p);
 void *creatureAIThread(void *p);
 
 // Other functions  (these are defined in src/Server.cpp)
@@ -23,6 +24,14 @@ class SSPStruct
 };
 
 class CSPStruct
+{
+	public:
+		Socket *nSocket;
+		ExampleFrameListener *nFrameListener;
+};
+
+// A structure to pass parameters to the clientHandlerThread function defined above
+class CHTStruct
 {
 	public:
 		Socket *nSocket;

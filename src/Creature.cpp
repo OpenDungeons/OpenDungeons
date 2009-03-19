@@ -147,6 +147,7 @@ void Creature::doTurn()
 	Tile *nextStep;
 	list<Tile*>walkPath;
 	list<Tile*>basePath;
+	vector< list<Tile*> > possiblePaths;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
@@ -185,7 +186,6 @@ void Creature::doTurn()
 						//currentTask = dig;
 						actionQueue.push_front(CreatureAction(CreatureAction::digTile));
 						loopBack = true;
-
 					}
 
 					// Decide to "wander" a short distance
@@ -241,6 +241,7 @@ void Creature::doTurn()
 					wasANeighbor = false;
 					for(unsigned int i = 0; i < markedTiles.size() && !wasANeighbor; i++)
 					{
+						//FIXME:  This if statement condition is a hack, and only the 4 neareast neighbors should be checked
 						if(fabs((double)markedTiles[i]->x - position.x) <= 1.55 \
 								&& fabs((double)markedTiles[i]->y - position.y) <= 1.55)
 						{
@@ -272,13 +273,11 @@ void Creature::doTurn()
 					if(wasANeighbor)
 						break;
 
-					// Try to find a path to one of the marked tiles
-					walkPath.clear();
-					for(unsigned int i = 0; i < markedTiles.size() && walkPath.size() == 0; i++)
+					// Find paths to all of the neighbor tiles for all of the marked visible tiles.
+					possiblePaths.clear();
+					for(unsigned int i = 0; i < markedTiles.size(); i++)
 					{
-						
-						bool destinationFound =  false;
-						for(int j = 0; j < 4 && !destinationFound; j++)
+						for(int j = 0; j < 4; j++)
 						{
 							tempX = markedTiles[i]->x;
 							tempY = markedTiles[i]->y;
@@ -297,23 +296,53 @@ void Creature::doTurn()
 								case 7:  tempX += 1;  tempY += 1;  break;
 							}
 
-							walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
+							//walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
+							neighborTile = gameMap.getTile(tempX, tempY);
+							if(neighborTile != NULL && neighborTile->getFullness() == 0)
+								possiblePaths.push_back(gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY));
 
-							if(walkPath.size() >= 2)
+						}
+					}
+
+					// Find the shortest path and start walking toward the tile to be dug out
+					if(possiblePaths.size() > 0)
+					{
+						// Find the shortest path  start by setting the shortest to the
+						// first one long enough to be considered a valid path
+						int shortestIndex = 0;
+						int shortestDistance = possiblePaths[0].size();
+						while(shortestIndex < possiblePaths.size() && shortestDistance < 2)
+						{
+							shortestIndex++;
+							shortestDistance = possiblePaths[shortestIndex].size();
+						}
+
+						// Now see if there are any valid paths shorter than this first guess
+						for(unsigned int i = 0; i < possiblePaths.size(); i++)
+						{
+							if(possiblePaths[i].size() < shortestDistance && possiblePaths[i].size() >= 2)
 							{
-								setAnimationState("Walk");
-								list<Tile*>::iterator itr = walkPath.begin();
-								itr++;
-								while(itr != walkPath.end())
-								{
-									addDestination((*itr)->x, (*itr)->y);
-									itr++;
-								}
-
-								destinationFound = true;
-								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
-								break;
+								shortestIndex = i;
+								shortestDistance = possiblePaths[i].size();
 							}
+						}
+
+						walkPath = possiblePaths[shortestIndex];
+
+						// If the path is a legitamate path, walk down it to the tile to be dug out
+						if(walkPath.size() >= 2)
+						{
+							setAnimationState("Walk");
+							list<Tile*>::iterator itr = walkPath.begin();
+							itr++;
+							while(itr != walkPath.end())
+							{
+								addDestination((*itr)->x, (*itr)->y);
+								itr++;
+							}
+
+							actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+							break;
 						}
 					}
 

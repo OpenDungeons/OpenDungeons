@@ -19,7 +19,9 @@ FEATURE ADDITIONS:
 
 *  chat message displays user friendly time rather than seconds.
 
-*  add the possibility for multiple clients to connect to the server.
-
 *  make camera center stay focused on the same point and rotate around it rather than rotating the camera around a fixed point.
+
+*  add a neighborTiles function to the Tile class.
+
+*  add a disconnect command to stop the running client or server thread.
 

@@ -51,7 +51,7 @@ void *clientSocketProcessor(void *p)
 			Tile *newTile = new Tile;
 			tempSS >> newTile;
 			gameMap.addTile(newTile);
-			//newTile->createMesh();
+			newTile->createMesh();
 			sock->send(formatCommand("ok", "addtile"));
 		}
 
@@ -86,7 +86,15 @@ void *clientSocketProcessor(void *p)
 			tempSS >> newCreature;
 
 			gameMap.addCreature(newCreature);
+			newCreature->createMesh();
 			sock->send(formatCommand("ok", "addcreature"));
+		}
+
+		else if(serverCommand.compare("newturn") == 0)
+		{
+			stringstream tempSS;
+			tempSS.str(arguments);
+			tempSS >> turnNumber;
 		}
 
 		else
