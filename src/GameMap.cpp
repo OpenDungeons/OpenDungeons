@@ -102,7 +102,7 @@ void GameMap::clearTiles()
 
 void GameMap::clearCreatures()
 {
-	for(int i = 0; i < numCreatures(); i++)
+	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
 		creatures[i]->deleteYourself();
 	}
@@ -113,7 +113,7 @@ void GameMap::clearCreatures()
 
 void GameMap::clearClasses()
 {
-	for(int i = 0; i < numClassDescriptions(); i++)
+	for(unsigned int i = 0; i < numClassDescriptions(); i++)
 	{
 		delete classDescriptions[i];
 	}
@@ -121,7 +121,7 @@ void GameMap::clearClasses()
 	classDescriptions.clear();
 }
 
-int GameMap::numTiles()
+unsigned int GameMap::numTiles()
 {
 	return tiles.size();
 }
@@ -158,12 +158,12 @@ Creature* GameMap::getClass(string query)
 	return NULL;
 }
 
-int GameMap::numCreatures()
+unsigned int GameMap::numCreatures()
 {
 	return creatures.size();
 }
 
-int GameMap::numClassDescriptions()
+unsigned int GameMap::numClassDescriptions()
 {
 	return classDescriptions.size();
 }
@@ -190,7 +190,7 @@ void GameMap::createAllEntities()
 	}
 
 	// Create OGRE entities for the creatures
-	for(int i = 0; i < numCreatures(); i++)
+	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
 		Creature *currentCreature = getCreature(i);
 
@@ -200,7 +200,7 @@ void GameMap::createAllEntities()
 
 Creature* GameMap::getCreature(string cName)
 {
-	for(int i = 0; i < numCreatures(); i++)
+	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
 		if(creatures[i]->name.compare(cName) == 0)
 		{
@@ -214,14 +214,14 @@ Creature* GameMap::getCreature(string cName)
 void GameMap::doTurn()
 {
 	cout << "\nStarting creature AI for turn " << turnNumber;
-	for(int i = 0; i < numCreatures(); i++)
+	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
 		cout << "\nCreature " << i << "  " << creatures[i]->name << " calling doTurn.\t";
 		creatures[i]->doTurn();
 	}
 }
 
-int GameMap::numCreaturesInHand()
+unsigned int GameMap::numCreaturesInHand()
 {
 	return creaturesInHand.size();
 }

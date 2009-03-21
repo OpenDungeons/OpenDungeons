@@ -1760,12 +1760,16 @@ void ExampleFrameListener::executePromptCommand()
 					// Start the server socket listener as well as the server socket thread
 					if(serverSocket != NULL)
 					{
+						// Start the server thread which will listen for, and accept, connections
 						SSPStruct ssps;
 						ssps.nSocket = serverSocket;
 						ssps.nFrameListener = this;
-
-						// Start the server thread which will listen for, and accept, connections
 						pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) &ssps);
+
+						// Start the thread which will watch for local events to send to the clients
+						SNPStruct snps;
+						snps.nFrameListener = this;
+						pthread_create(&serverNotificationThread, NULL, serverNotificationProcessor, &snps);
 
 						// Start the creature AI thread
 						pthread_create(&creatureThread, NULL, creatureAIThread, NULL);
@@ -1790,7 +1794,9 @@ void ExampleFrameListener::executePromptCommand()
 		{
 			if(clientSocket != NULL)
 			{
+				sem_wait(&clientSocket->semaphore);
 				clientSocket->send(formatCommand("chat", me->nick + ":" + arguments));
+				sem_post(&clientSocket->semaphore);
 				//chatMessages.push_back(new ChatMessage(me->nick, arguments, time(NULL), time(NULL)));
 			}
 			else if(serverSocket != NULL)
@@ -1798,7 +1804,9 @@ void ExampleFrameListener::executePromptCommand()
 				// Send the chat to all the connected clients
 				for(unsigned int i = 0; i < clientSockets.size(); i++)
 				{
+					sem_wait(&clientSockets[i]->semaphore);
 					clientSockets[i]->send(formatCommand("chat", me->nick + ":" + arguments));
+					sem_post(&clientSockets[i]->semaphore);
 				}
 
 				// Display the chat message in our own message queue

@@ -19,14 +19,14 @@ class GameMap
 		TileMap_t::iterator firstTile();
 		TileMap_t::iterator lastTile();
 		Creature* getClassDescription(int index);
-		int numTiles();
+		unsigned int numTiles();
 		void addTile(Tile *t);
 		void addCreature(Creature *c);
 		void addClassDescription(Creature c);
 		void addClassDescription(Creature *c);
 		Creature* getClass(string query);
-		int numCreatures();
-		int numClassDescriptions();
+		unsigned int numCreatures();
+		unsigned int numClassDescriptions();
 		Creature* getCreature(int index);
 		Creature* getCreature(string cName);
 		void doTurn();
@@ -34,7 +34,7 @@ class GameMap
 		list<Tile*> path(int x1, int y1, int x2, int y2);
 		vector<Tile*> neighborTiles(int x, int y);
 
-		int numCreaturesInHand();
+		unsigned int numCreaturesInHand();
 		Creature *getCreatureInHand(int i);
 		void addCreatureToHand(Creature *c);
 		void removeCreatureFromHand(int i);

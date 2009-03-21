@@ -13,6 +13,7 @@
 Socket::Socket() :
   m_sock ( -1 )
 {
+	sem_init(&semaphore, 0, 1);
 	memset ( &m_addr, 0, sizeof ( m_addr ) );
 }
 

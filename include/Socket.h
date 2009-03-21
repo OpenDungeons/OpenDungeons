@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <string>
 #include <arpa/inet.h>
+#include <semaphore.h>
 
 
 const int MAXHOSTNAME = 200;
@@ -40,6 +41,7 @@ class Socket
   void set_non_blocking ( const bool );
 
   bool is_valid() const { return m_sock != -1; }
+  sem_t semaphore;
 
  private:
 

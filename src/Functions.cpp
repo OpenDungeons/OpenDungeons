@@ -99,7 +99,7 @@ void writeGameMapToFile(string fileName)
 
 	// Write out the creature descriptions to the file
 	levelFile << "\n" << gameMap.numClassDescriptions() << "\n";
-	for(int i = 0; i < gameMap.numClassDescriptions(); i++)
+	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 	{
 		
 		tempCreature = gameMap.getClassDescription(i);
@@ -110,7 +110,7 @@ void writeGameMapToFile(string fileName)
 
 	// Write out the individual creatures to the file
 	levelFile << "\n" << gameMap.numCreatures() << "\n";
-	for(int i = 0; i < gameMap.numCreatures(); i++)
+	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 	{
 		levelFile << gameMap.getCreature(i);
 	}

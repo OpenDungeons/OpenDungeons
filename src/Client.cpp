@@ -17,7 +17,9 @@ void *clientSocketProcessor(void *p)
 
 
 	// Send a hello request to start the conversation with the server
+	sem_wait(&sock->semaphore);
 	sock->send(formatCommand("hello", (string)"OpenDungeons V " + VERSION));
+	sem_post(&sock->semaphore);
 	while(sock->is_valid())
 	{
 		int charsRead = sock->recv(tempString);
@@ -31,7 +33,9 @@ void *clientSocketProcessor(void *p)
 
 		if(serverCommand.compare("picknick") == 0)
 		{
+			sem_wait(&sock->semaphore);
 			sock->send(formatCommand("setnick", me->nick));
+			sem_post(&sock->semaphore);
 		}
 
 		else if(serverCommand.compare("chat") == 0)
@@ -52,7 +56,17 @@ void *clientSocketProcessor(void *p)
 			tempSS >> newTile;
 			gameMap.addTile(newTile);
 			newTile->createMesh();
+			sem_wait(&sock->semaphore);
 			sock->send(formatCommand("ok", "addtile"));
+			sem_post(&sock->semaphore);
+
+			// Loop over the tile's neighbors to force them to recheck
+			// their mesh to see if they can use an optimized one
+			vector<Tile*> neighbors = gameMap.neighborTiles(newTile->x, newTile->y);
+			for(unsigned int i = 0; i < neighbors.size(); i++)
+			{
+				neighbors[i]->setFullness(neighbors[i]->getFullness());
+			}
 		}
 
 		else if(serverCommand.compare("addclass") == 0)
@@ -72,7 +86,9 @@ void *clientSocketProcessor(void *p)
 
 			Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate);
 			gameMap.addClassDescription(p);
+			sem_wait(&sock->semaphore);
 			sock->send(formatCommand("ok", "addclass"));
+			sem_post(&sock->semaphore);
 		}
 
 		else if(serverCommand.compare("addcreature") == 0)
@@ -87,7 +103,9 @@ void *clientSocketProcessor(void *p)
 
 			gameMap.addCreature(newCreature);
 			newCreature->createMesh();
+			sem_wait(&sock->semaphore);
 			sock->send(formatCommand("ok", "addcreature"));
+			sem_post(&sock->semaphore);
 		}
 
 		else if(serverCommand.compare("newturn") == 0)
@@ -104,6 +122,7 @@ void *clientSocketProcessor(void *p)
 		}
 	}
 
-
+	// Return something to make the compiler happy
+	return NULL;
 }
 

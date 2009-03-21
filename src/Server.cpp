@@ -94,12 +94,19 @@ void *creatureAIThread(void *p)
 
 		// Do a turn in the game
 		stopwatch.reset();
+
+		ServerNotification *serverNotification = new ServerNotification;
+		serverNotification->type = ServerNotification::turnStarted;
+		serverNotificationQueue.push_back(serverNotification);
+		sem_post(&serverNotificationQueueSemaphore);
+
 		gameMap.doTurn();
 		turnNumber++;
 		timeUntilNextTurn = 1.0/turnsPerSecond;
+
 		timeTaken = stopwatch.getMicroseconds();
 
-
+		// Sleep this thread if it is necessary to keep the turns from happening to fast
 		if(1e6 * timeUntilNextTurn - timeTaken > 0)
 		{
 			cout << "\nCreature AI finished " << 1e6*timeUntilNextTurn - timeTaken << "us early.\n";
@@ -111,6 +118,45 @@ void *creatureAIThread(void *p)
 		{
 			cout << "\nCreature AI finished " << 1e6*timeUntilNextTurn - timeTaken << "us late.\n";
 			cout.flush();
+		}
+	}
+
+	// Return something to make the compiler happy
+	return NULL;
+}
+
+void *serverNotificationProcessor(void *p)
+{
+	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
+	string tempString;
+	stringstream tempSS;
+
+	while(true)
+	{
+		// Wait until a message is put into the serverNotificationQueue
+		sem_wait(&serverNotificationQueueSemaphore);
+
+		ServerNotification *event = serverNotificationQueue.front();
+		serverNotificationQueue.pop_front();
+
+		switch(event->type)
+		{
+			case ServerNotification::turnStarted:
+				tempSS.str(tempString);
+				tempSS << turnNumber;
+
+				for(unsigned int i = 0; i < frameListener->clientSockets.size(); i++)
+				{
+					sem_wait(&frameListener->clientSockets[i]->semaphore);
+					frameListener->clientSockets[i]->send(formatCommand("newturn", tempSS.str()));
+					sem_post(&frameListener->clientSockets[i]->semaphore);
+				}
+				break;
+
+			default:
+				cout << "\n\nError:  Unhandled ServerNotification type encoutered!\n\n";
+				exit(1);
+				break;
 		}
 	}
 
@@ -135,6 +181,7 @@ void *clientHandlerThread(void *p)
 		// If the client closed the connection
 		if(charsRead <= 0)
 		{
+			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client disconnect: " + clientNick, time(NULL)));
 			break;
 		}
 
@@ -160,6 +207,7 @@ void *clientHandlerThread(void *p)
 			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client connect with version: " + arguments, time(NULL)));
 
 			// Tell the client to give us their nickname and to clear their map
+			sem_wait(&curSock->semaphore);
 			curSock->send(formatCommand("picknick", ""));
 
 			// Set the nickname that the client sends back, tempString2 is just used
@@ -187,7 +235,7 @@ void *clientHandlerThread(void *p)
 
 			// Send over the actual creatures in use on the current game map
 			//TODO: Only send the classes which the client is supposed to see due to fog of war.
-			for(int i = 0; i < gameMap.numClassDescriptions(); i++)
+			for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 			{
 				//NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
 				// Changes to this code should be reflected in that code as well
@@ -208,7 +256,7 @@ void *clientHandlerThread(void *p)
 
 			// Send over the class descriptions in use on the current game map
 			//TODO: Only send the classes which the client is supposed to see due to fog of war.
-			for(int i = 0; i < gameMap.numCreatures(); i++)
+			for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 			{
 				Creature *tempCreature = gameMap.getCreature(i);
 
@@ -227,6 +275,8 @@ void *clientHandlerThread(void *p)
 			tempSS.str(tempString);
 			tempSS << turnNumber;
 			curSock->send(formatCommand("newturn", tempSS.str()));
+
+			sem_post(&curSock->semaphore);
 		}
 
 		/*
@@ -244,12 +294,17 @@ void *clientHandlerThread(void *p)
 			// Send the message to all the connected clients
 			for(unsigned int i = 0; i < frameListener->clientSockets.size(); i++)
 			{
+				sem_wait(&frameListener->clientSockets[i]->semaphore);
 				frameListener->clientSockets[i]->send(formatCommand("chat", newMessage->clientNick + ":" + newMessage->message));
+				sem_post(&frameListener->clientSockets[i]->semaphore);
 			}
 
 			// Put the message in our own queue
 			frameListener->chatMessages.push_back(newMessage);
 		}
 	}
+
+	// Return something to make the compiler happy
+	return NULL;
 }
 

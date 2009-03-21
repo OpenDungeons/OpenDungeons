@@ -20,6 +20,8 @@ double turnsPerSecond = 1.0;
 long int turnNumber = 1;
 deque<RenderRequest*> renderQueue;
 sem_t renderQueueSemaphore;
+deque<ServerNotification*> serverNotificationQueue;
+sem_t serverNotificationQueueSemaphore;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -32,6 +34,7 @@ int main(int argc, char **argv)
 {
 	seedRandomNumberGenerator();
 	sem_init(&renderQueueSemaphore, 0, 1);
+	sem_init(&serverNotificationQueueSemaphore, 0, 0);
 
 	// Create application object
 	MapEditor app;

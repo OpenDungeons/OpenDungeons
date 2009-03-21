@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "GameMap.h"
 #include "RenderRequest.h"
+#include "ServerNotification.h"
 
 extern GameMap gameMap;
 extern SceneManager* mSceneMgr;
@@ -18,6 +19,8 @@ extern double turnsPerSecond;
 extern long int turnNumber;
 extern deque<RenderRequest*> renderQueue;
 extern sem_t renderQueueSemaphore;
+extern deque<ServerNotification*> serverNotificationQueue;
+extern sem_t serverNotificationQueueSemaphore;
 
 #endif
 

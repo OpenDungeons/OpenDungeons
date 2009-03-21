@@ -7,6 +7,7 @@
 // Functions called by pthread_create
 void *clientSocketProcessor(void *p);
 void *serverSocketProcessor(void *p);
+void *serverNotificationProcessor(void *p);
 void *clientHandlerThread(void *p);
 void *creatureAIThread(void *p);
 
@@ -35,6 +36,12 @@ class CHTStruct
 {
 	public:
 		Socket *nSocket;
+		ExampleFrameListener *nFrameListener;
+};
+
+class SNPStruct
+{
+	public:
 		ExampleFrameListener *nFrameListener;
 };
 
