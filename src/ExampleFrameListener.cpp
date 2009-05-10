@@ -279,6 +279,9 @@ bool ExampleFrameListener::processUnbufferedMouseInput(const FrameEvent& evt)
 	return true;
 }
 
+/*! \brief Sets the camera to a new location while still satisfying the constraints placed on its movement
+ *
+ */
 void ExampleFrameListener::moveCamera(double frameTime)
 {
 	// Make all the changes to the camera
@@ -322,7 +325,13 @@ void ExampleFrameListener::showDebugOverlay(bool show)
 	}
 }
 
-// Override frameStarted event to process that (don't care about frameEnded)
+/*! \brief The main rendering function for the OGRE 3d environment.
+ *
+ * This function is the one which actually carries out all of the rendering in
+ * the OGRE 3d system.  Since all the rendering must happen here, one of the
+ * operations performed by this function is the processing of a request queue
+ * full of RenderRequest structures.
+ */
 bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 {
 	using namespace OIS;
@@ -359,6 +368,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->getSceneNode((curTile->name + "_node").c_str())->attachObject(ent);
 					ent->setNormaliseNormals(true);
 				}
+
 				break;
 
 			case RenderRequest::createTile:
@@ -454,41 +464,45 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		curReq = NULL;
 	}
 	
-		string chatBaseString = "\n---------- Chat ----------\n";
-		chatString = chatBaseString;
+	string chatBaseString = "\n---------- Chat ----------\n";
+	chatString = chatBaseString;
 
-		// Only keep the N newest chat messages
-		while(chatMessages.size() > 5)
-		{
-			delete chatMessages.front();
-			chatMessages.pop_front();
-		}
+	// Only keep the N newest chat messages
+	//FIXME:  Make this loop over all the messages looking at the arrival time and delete them based on age.
+	while(chatMessages.size() > 5)
+	{
+		delete chatMessages.front();
+		chatMessages.pop_front();
+	}
 
-		for(unsigned int i = 0; i < chatMessages.size(); i++)
-		{
-			char tempArray[255];
-			struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
-			sprintf(tempArray, "%i:%02i:%02i  %s: %s", friendlyTime->tm_hour, friendlyTime->tm_min, friendlyTime->tm_sec, chatMessages[i]->clientNick.c_str(), chatMessages[i]->message.c_str());
-			chatString += (string)tempArray + "\n";
-		}
+	// Fill up the chat window with the arrival time and contents of all the chat messages left in the queue.
+	for(unsigned int i = 0; i < chatMessages.size(); i++)
+	{
+		char tempArray[255];
+		struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
+		sprintf(tempArray, "%i:%02i:%02i  %s: %s", friendlyTime->tm_hour, friendlyTime->tm_min, friendlyTime->tm_sec, chatMessages[i]->clientNick.c_str(), chatMessages[i]->message.c_str());
+		chatString += (string)tempArray + "\n";
+	}
 
-		string nullString = "";
-		char turnArray[255];
-		sprintf(turnArray, "Turn number:  %li", turnNumber);
-		printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnArray + "\n" + (chatMessages.size()>0?chatString:nullString));
+	// Display the termianl, the current turn number, and the
+	// visible chat messages at the top of the screen
+	string nullString = "";
+	char turnArray[255];
+	sprintf(turnArray, "Turn number:  %li", turnNumber);
+	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnArray + "\n" + (chatMessages.size()>0?chatString:nullString));
 
-		// Sleep to limit the framerate to the max value
-		frameDelay -= evt.timeSinceLastFrame;
-		if(frameDelay > 0.0)
-		{
-			usleep(1e6 * frameDelay );
-		}
-		else
-		{
-			//FIXME: I think this 2.0 should be a 1.0 but this gives the
-			// correct result.  This probably indicates a bug.
-			frameDelay += 2.0/(double)MAX_FRAMES_PER_SECOND;
-		}
+	// Sleep to limit the framerate to the max value
+	frameDelay -= evt.timeSinceLastFrame;
+	if(frameDelay > 0.0)
+	{
+		usleep(1e6 * frameDelay );
+	}
+	else
+	{
+		//FIXME: I think this 2.0 should be a 1.0 but this gives the
+		// correct result.  This probably indicates a bug.
+		frameDelay += 2.0/(double)MAX_FRAMES_PER_SECOND;
+	}
 
 	if(mWindow->isClosed())	return false;
 
@@ -504,23 +518,29 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		// Move the creature
 		if(currentCreature->walkQueue.size() > 0)
 		{
+			//FIXME: The moveDist should probably be tied to the scale of the creature as well
 			double moveDist = turnsPerSecond * currentCreature->moveSpeed * evt.timeSinceLastFrame;
 			currentCreature->shortDistance -= moveDist;
 
+			// Check to see if we have walked to, or past, the first destination in the queue
 			if(currentCreature->shortDistance <= 0.0)
 			{
+				// Compensate for any overshoot and place the creature at the intended destination
 				currentCreature->setPosition(currentCreature->walkQueue.front());
 				currentCreature->walkQueue.pop_front();
 
+				// If there are no more places to walk to still left in the queue
 				if(currentCreature->walkQueue.size() == 0)
 				{
+					// Stop walking
 					currentCreature->walkDirection = Ogre::Vector3::ZERO;
 					currentCreature->setAnimationState("Idle");
 				}
-				else
+				else // There are still entries left in the queue
 				{
 					SceneNode *node = mSceneMgr->getSceneNode(currentCreature->name + "_node");
 
+					// Turn to face the next direction
 					currentCreature->shortDistance = currentCreature->getPosition().distance(currentCreature->walkQueue.front());
 					currentCreature->walkDirection = currentCreature->walkQueue.front() - currentCreature->getPosition();
 					Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
@@ -528,7 +548,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					node->rotate(quat);
 				}
 			}
-			else
+			else // We have not reached the destination at the front of the queue
 			{
 				currentCreature->setPosition(currentCreature->getPosition() + currentCreature->walkDirection * moveDist);
 			}
@@ -543,6 +563,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 	bool buffJ = (mJoy) ? mJoy->buffered() : true;
 
+	//FIXME: This code needs to be reviewed since the keyboard is now using buffered input
 	//Check if one of the devices is not buffered
 	if( !mMouse->buffered() || !mKeyboard->buffered() )
 	{
@@ -630,12 +651,21 @@ void ExampleFrameListener::handleAcceleration(double accelFactor, double accelLi
 	}
 }
 
+/*! \brief Exit the game.
+ *
+ */
 bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)
 {
 	mContinue = false;
 	return true;
 }
 
+/*! \brief Process the mouse movement event.
+ *
+ * The function does a raySceneQuery to determine what object the mouse is over
+ * to handle things like dragging out selections of tiles and selecting
+ * creatures.
+ */
 bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 {
 	string  resultName;
@@ -768,6 +798,11 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 	return true;
 }
 
+/*! \brief Handle mouse clicks.
+ *
+ * This function does a ray scene query to determine what is under the mouse
+ * and determines whether a creature or a selection of tiles, is being dragged.
+ */
 bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
 	CEGUI::System::getSingleton().injectMouseButtonDown(convertButton(id));
@@ -849,6 +884,10 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 	return true;
 }
 
+/*! \brief Handle mouse button releases.
+ *
+ * Finalize the selection of tiles or drop a creature when the user releases the mouse button.
+ */
 bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
 	CEGUI::System::getSingleton().injectMouseButtonUp(convertButton(id));
@@ -974,7 +1013,14 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 	return true;
 }
 
-
+/*! \brief Handle the keyboard input.
+ *
+ * The operation of this function is largely determined by whether or not the
+ * terminal is active or not.  When the terminal is active the keypresses are
+ * treated as line editing on the terminal's command prompt.  When the terminal
+ * is not active the keyboard is used to move the camera and control the game
+ * through hotkeys.
+ */
 bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 {
 	using namespace OIS;
@@ -1135,6 +1181,10 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 	return mContinue;
 }
 
+/*! \brief Process the key up event.
+ *
+ * When a key is released during normal gamplay the camera movement may need to be stopped.
+ */
 bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 {
 	using namespace OIS;
@@ -1209,8 +1259,11 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 	return true;
 }
 
-// Displays the given text on the screen starting in the upper-left corner.
-// This is the function which displays the text on the in game console.
+/*! \brief Print a string in the upper left corner of the screen.
+ *
+ * Displays the given text on the screen starting in the upper-left corner.
+ * This is the function which displays the text on the in game console.
+ */
 void ExampleFrameListener::printText(string text)
 {
 	string tempString;
@@ -1238,6 +1291,9 @@ void ExampleFrameListener::printText(string text)
 	TextRenderer::getSingleton().setText("DebugMessages", tempString);
 }
 
+/*! \brief Process the commandline from the terminal and carry out the actions specified in by the user.
+ *
+ */
 void ExampleFrameListener::executePromptCommand()
 {
 	unsigned int firstSpace, lastSpace;
@@ -1824,7 +1880,9 @@ void ExampleFrameListener::executePromptCommand()
 	promptCommand = "";
 }
 
-
+/*! \brief A helper function to return a help text string for a given termianl command.
+ *
+ */
 string ExampleFrameListener::getHelpText(string arg)
 {
 	for(unsigned int i = 0; i < arg.size(); i++)

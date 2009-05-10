@@ -9,13 +9,21 @@ using namespace std;
 #include "Tile.h"
 #include "CreatureAction.h"
 
+/*! \brief Position, status, and AI state for a single game creature.
+ *
+ *  The creature class is the place where an individual creature's state is
+ *  stored and manipulated.
+ */
 class Creature
 {
 	public:
+		// Constructors and operators
 		Creature();
 		Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate);
 		friend ostream& operator<<(ostream& os, Creature *c);
 		friend istream& operator>>(istream& is, Creature *c);
+
+		// Object methods
 		void createMesh();
 		void destroyMesh();
 		void deleteYourself();
@@ -43,8 +51,8 @@ class Creature
 		void destroyVisualDebugEntities();
 
 		// AI stuff
-		enum Action {idle, walkTo, dig};
-		Action currentTask;
+		//enum Action {idle, walkTo, dig};
+		//Action currentTask;
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
 		Tile* positionTile();

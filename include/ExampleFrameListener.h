@@ -48,6 +48,13 @@ using namespace Ogre;
 #include "Tile.h"
 #include "ChatMessage.h"
 
+/*! \brief The main OGRE rendering class.
+ *
+ * This class provides the rendering framework for the OGRE subsystem, as well
+ * as processing keyboard and mouse input from the user.  It loads and
+ * initializes the meshes for creatures and tiles, moves the camera, and
+ * displays the terminal and chat messages on the game screen.
+ */
 class ExampleFrameListener: public FrameListener, public WindowEventListener, public OIS::MouseListener, public OIS::KeyListener
 {
 protected:

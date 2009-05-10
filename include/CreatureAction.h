@@ -5,6 +5,10 @@
 class CreatureAction;
 #include "Creature.h"
 
+/*! \brief A data structure to be used in the creature AI calculations.
+ *
+ * 
+*/
 class CreatureAction
 {
 	public:
