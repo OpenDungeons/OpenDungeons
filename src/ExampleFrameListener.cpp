@@ -467,7 +467,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		for(unsigned int i = 0; i < chatMessages.size(); i++)
 		{
 			char tempArray[255];
-			sprintf(tempArray, "%li: %s: %s", chatMessages[i]->recvTime, chatMessages[i]->clientNick.c_str(), chatMessages[i]->message.c_str());
+			struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
+			sprintf(tempArray, "%i:%02i:%02i  %s: %s", friendlyTime->tm_hour, friendlyTime->tm_min, friendlyTime->tm_sec, chatMessages[i]->clientNick.c_str(), chatMessages[i]->message.c_str());
 			chatString += (string)tempArray + "\n";
 		}
 
@@ -1621,7 +1622,7 @@ void ExampleFrameListener::executePromptCommand()
 				if(arguments.compare("creatures") == 0)
 				{
 					tempSS << "Class:\tCreature name:\tLocation:\tColor:\n\n";
-					for(int i = 0; i < gameMap.numCreatures(); i++)
+					for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 					{
 						tempSS << gameMap.getCreature(i);
 					}
@@ -1630,7 +1631,7 @@ void ExampleFrameListener::executePromptCommand()
 				else if(arguments.compare("classes") == 0)
 				{
 					tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\n\n";
-					for(int i = 0; i < gameMap.numClassDescriptions(); i++)
+					for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 					{
 						Creature *currentClassDesc = gameMap.getClassDescription(i);
 						tempSS << currentClassDesc->className << "\t" << currentClassDesc->meshName << "\t";

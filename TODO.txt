@@ -1,7 +1,6 @@
 BUGS:
 *  fix keyboard repeat issue.
 *  Fix crash on entering a nonexistant mesh to addclass after calling addcreature using this class.
-*  When a tile is dug out, the neighboring tiles must be re-checked to see if they need to switch to a more complete mesh.
 *  Terminal commands with no arguments but spaces at the end, like 'host ', will not be recognized as valid commands.
 
 
@@ -21,8 +20,6 @@ FEATURE ADDITIONS:
 *  chat message displays user friendly time rather than seconds.
 
 *  make camera center stay focused on the same point and rotate around it rather than rotating the camera around a fixed point.
-
-*  add a neighborTiles function to the Tile class.
 
 *  add a disconnect command to stop the running client or server thread.
 

@@ -311,7 +311,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 
 		// Check the tiles surrounding the current square
 		vector<Tile*>neighbors = neighborTiles(currentEntry->tile->x, currentEntry->tile->y);
-		for(int i = 0; i < neighbors.size(); i++)
+		for(unsigned int i = 0; i < neighbors.size(); i++)
 		{
 			neighbor->tile = neighbors[i];
 
