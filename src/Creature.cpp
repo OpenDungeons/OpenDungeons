@@ -19,7 +19,7 @@ Creature::Creature()
 	digRate = 10;
 	moveSpeed = 1.0;
 
-	currentTask = idle;
+	//currentTask = idle;
 	animationState = NULL;
 
 	if(positionTile() != NULL)
@@ -42,7 +42,7 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	digRate = nDigRate;
 	moveSpeed = 1.0;
 
-	currentTask = idle;
+	//currentTask = idle;
 	animationState = NULL;
 
 	if(positionTile() != NULL)
@@ -93,6 +93,12 @@ istream& operator>>(istream& is, Creature *c)
 	return is;
 }
 
+/*! \brief Allocate storage for, load, and inform OGRE about a mesh for this creature.
+ *
+ *  This function is called after a creature has been loaded from hard disk,
+ *  recieved from a network connection, or created during the game play by the
+ *  game engine itself.
+ */
 void Creature::createMesh()
 {
 	RenderRequest *request = new RenderRequest;
@@ -104,6 +110,11 @@ void Creature::createMesh()
 	sem_post(&renderQueueSemaphore);
 }
 
+
+/*! \brief Free the mesh and remove the links from the OGRE system that the mesh has been destroyed.
+ *
+ *  This function is primarily a helper function for other methods.
+ */
 void Creature::destroyMesh()
 {
 	RenderRequest *request = new RenderRequest;
@@ -115,32 +126,83 @@ void Creature::destroyMesh()
 	sem_post(&renderQueueSemaphore);
 }
 
+/*! \brief Changes the creatures position to a new position.
+ *
+ *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
+ */
 void Creature::setPosition(Ogre::Vector3 v)
 {
 	setPosition(v.x, v.y, v.z);
 }
 
+/*! \brief Changes the creatures position to a new position.
+ *
+ *  Moves the creature to a new location in 3d space.  This function is
+ *  responsible for informing OGRE anything it needs to know, as well as
+ *  maintaining the list of creatures in the individual tiles.
+ */
 void Creature::setPosition(double x, double y, double z)
 {
 	SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(name + "_node");
 
 	//creatureSceneNode->setPosition(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, z/BLENDER_UNITS_PER_OGRE_UNIT);
 	creatureSceneNode->setPosition(x, y, z);
+
+	// Move the creature relative to its parent scene node.  We record the
+	// tile the creature is in before and after the move to properly
+	// maintain the results returned by the positionTile() function.
 	Tile *oldPositionTile = positionTile();
 	position = Ogre::Vector3(x, y, z);
+	Tile *newPositionTile = positionTile();
 
-	if(oldPositionTile != NULL)
-		oldPositionTile->removeCreature(this);
+	if(oldPositionTile != newPositionTile)
+	{
+		if(oldPositionTile != NULL)
+			oldPositionTile->removeCreature(this);
 
-	if(positionTile() != NULL)
-		positionTile()->addCreature(this);
+		if(positionTile() != NULL)
+			positionTile()->addCreature(this);
+	}
 }
 
+/*! \brief A simple accessor function to get the creatures current position in 3d space.
+ *
+ */
 Ogre::Vector3 Creature::getPosition()
 {
 	return position;
 }
 
+/*! \brief The main AI routine which decides what the creature will do and carries out that action.
+ *
+ * The doTurn routine is the heart of the Creature AI subsystem.  The other,
+ * higher level, functions such as GameMap::doTurn() ultimately just call this
+ * function to make the creatures act.
+ *
+ * The function begins in a pre-cognition phase which prepares the creature's
+ * brain state for decision making.  This involves generating lists of known
+ * about creatures, either through sight, hearing, keeper knowledge, etc, as
+ * well as some other bookkeeping stuff.
+ *
+ * Next the function enters the cognition phase where the creature's current
+ * state is examined and a decision is made about what to do.  The state of the
+ * creature is in the form of a queue, which is really used more like a stack.
+ * At the beginning of the game the 'idle' action is pushed onto each
+ * creature's actionQueue, this action is never removed from the tail end of
+ * the queue and acts as a "last resort" for when the creature completely runs
+ * out of things to do.  Other actions such as 'walkToTile' or 'attackCreature'
+ * are then pushed onto the front of the queue and will determine the
+ * creature's future behavior.  When actions are complete they are popped off
+ * the front of the action queue, causing the creature to revert back into the
+ * state it was in when the actions was placed onto the queue.  This allows
+ * actions to be carried out recursively, i.e. if a creature is trying to dig a
+ * tile and it is not nearby it can begin walking toward the tile as a new
+ * action, and when it arrives at the tile it will revert to the 'digTile'
+ * action.
+ *
+ * In the future there should also be a post-cognition phase to do any
+ * additional checks after it tries to move, etc.
+ */
 void Creature::doTurn()
 {
 	vector<Tile*> markedTiles;
@@ -184,7 +246,6 @@ void Creature::doTurn()
 					if(diceRoll < 0.4 && digRate > 0.1)
 					{
 						//loopBack = true;
-						//currentTask = dig;
 						actionQueue.push_front(CreatureAction(CreatureAction::digTile));
 						loopBack = true;
 					}
@@ -193,7 +254,6 @@ void Creature::doTurn()
 					else if(diceRoll < 0.6)
 					{
 						//loopBack = true;
-						//currentTask = walkTo;
 						actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 						int tempX = position.x + 2.0*gaussianRandomDouble();
 						int tempY = position.y + 2.0*gaussianRandomDouble();
@@ -266,7 +326,7 @@ void Creature::doTurn()
 							{
 								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
 								setAnimationState("Walk");
-								currentTask = walkTo;
+
 								// Remove the dig action and replace it with
 								// walking to the newly dug out tile.
 								actionQueue.pop_front();
@@ -286,7 +346,7 @@ void Creature::doTurn()
 					for(unsigned int i = 0; i < markedTiles.size(); i++)
 					{
 						neighbors = gameMap.neighborTiles(markedTiles[i]->x, markedTiles[i]->y);
-						for(int j = 0; j < neighbors.size(); j++)
+						for(unsigned int j = 0; j < neighbors.size(); j++)
 						{
 							//walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
 							neighborTile = neighbors[j];
@@ -302,7 +362,7 @@ void Creature::doTurn()
 						// Find the shortest path  start by setting the shortest to the
 						// first one long enough to be considered a valid path
 						int shortestIndex = 0;
-						int shortestDistance = possiblePaths[0].size();
+						unsigned int shortestDistance = possiblePaths[0].size();
 						while(shortestIndex < possiblePaths.size() && shortestDistance < 2)
 						{
 							shortestIndex++;
@@ -355,7 +415,12 @@ void Creature::doTurn()
 	} while(loopBack);
 }
 
-// Creates a list of Tile pointers in visibleTiles
+/*! \brief Creates a list of Tile pointers in visibleTiles
+ *
+ * The tiles are currently determined to be visible or not, according only to
+ * the the distance they are away fron the creature.  Because of this they can
+ * currently see through walls, etc.
+*/
 void Creature::updateVisibleTiles()
 {
 	int xMin, yMin, xMax, yMax;
@@ -386,21 +451,38 @@ void Creature::updateVisibleTiles()
 	//TODO:  Add the sector shaped region of the visible region
 }
 
+
+/*! \brief Stub method, not implemented yet.
+ *
+ * 
+*/
 void createVisualDebugEntities()
 {
 	//TODO:  fill in this stub method.
 }
 
+/*! \brief Stub method, not implemented yet.
+ *
+ * 
+*/
 void destroyVisualDebugEntities()
 {
 	//TODO:  fill in this stub method.
 }
 
+/*! \brief Returns the tile the creature is currently standing in.
+ *
+ * 
+*/
 Tile* Creature::positionTile()
 {
 	return gameMap.getTile((int)(position.x), (int)(position.y));
 }
 
+/*! \brief Completely destroy this creature, including its OGRE entities, scene nodes, etc.
+ *
+ * 
+*/
 void Creature::deleteYourself()
 {
 	if(positionTile() != NULL)
@@ -420,6 +502,10 @@ void Creature::deleteYourself()
 	sem_post(&renderQueueSemaphore);
 }
 
+/*! \brief Sets a new animation state from the creature's library of animations.
+ *
+ * 
+*/
 void Creature::setAnimationState(string s)
 {
 	RenderRequest *request = new RenderRequest;
@@ -432,11 +518,19 @@ void Creature::setAnimationState(string s)
 	sem_post(&renderQueueSemaphore);
 }
 
+/*! \brief Returns the creature's currently active animation state.
+ *
+ * 
+*/
 AnimationState* Creature::getAnimationState()
 {
 	return animationState;
 }
 
+/*! \brief Adds a position in 3d space to the creature's walk queue and, if necessary, starts it walking.
+ *
+ * 
+*/
 void Creature::addDestination(int x, int y)
 {
 	cout << "w(" << x << ", " << y << ") ";
@@ -457,3 +551,4 @@ void Creature::addDestination(int x, int y)
 		walkQueue.push_back(Ogre::Vector3(x, y, 0));
 	}
 }
+
