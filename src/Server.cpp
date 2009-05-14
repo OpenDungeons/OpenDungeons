@@ -9,6 +9,15 @@ using namespace std;
 #include "Network.h"
 #include "ChatMessage.h"
 
+/*! \brief A thread function which runs on the server and listens for new connections from clients.
+ *
+ * A single instance of this thread is spawned by runniing the "host" command
+ * from the in-game console.  The thread then binds annd listens on the
+ * specified port and when clients connect a new socket, and a
+ * clientHandlerThread are spawned to handle communications with that client.
+ * This function currently has no way of breaking out of its primary loop, so
+ * once it is started it never exits until the program is closed.
+ */
 void *serverSocketProcessor(void *p)
 {
 	Socket *sock = ((SSPStruct*)p)->nSocket;
@@ -55,13 +64,29 @@ void *serverSocketProcessor(void *p)
 	}
 }
 
+/*! \brief A helper function to pack a message into a packet to send over the network.
+ *
+ * This function packs the command and arguments to be sent over the network
+ * into a return string which is then sent over the network.  This decouples
+ * the encoding from the actual program code so changes in the wire protocol
+ * are confined to this function and its sister function, parseCommand.
+ */
 string formatCommand(string command, string arguments)
 {
+	//FIXME:  Need to protect the ":" symbol with an escape sequence.
 	return "<" + command + ":" + arguments + ">";
 }
 
+/*! \brief A helper function to unpack a message from a packet received over the network.
+ *
+ * This function unpacks the command and arguments sent over the network into
+ * two strings.  This decouples the decoding from the actual program code so
+ * changes in the wire protocol are confined to this function and its sister
+ * function, formatCommand.
+ */
 void parseCommand(string command, string &commandName, string &arguments)
 {
+	//FIXME:  Need to protect the ":" symbol with an escape sequence.
 	int index, index2;
 	index = command.find("<");
 	index2 = command.find(":");
@@ -72,6 +97,12 @@ void parseCommand(string command, string &commandName, string &arguments)
 	cout << "\n\n\nParse command:  " << command << "\n" << commandName << "\n" << arguments << "\n\n";
 }
 
+/*! \brief A helper function to unpack the argument of a chat command into a ChatMessage structure.
+ *
+ * Once a command recieved from the network and hase been parsed by
+ * parseCommand, this function then takes the argument of that message and
+ * further unpacks a username and a chat message.
+ */
 ChatMessage *processChatMessage(string arguments)
 {
 	int index = arguments.find(":");
@@ -81,6 +112,24 @@ ChatMessage *processChatMessage(string arguments)
 	return new ChatMessage(messageNick,message,time(NULL));
 }
 
+/*! \brief The thread which decides what creatures will do and carries out their actions.
+ *
+ * Creature AI is currently done only on an individual basis.  The creatures
+ * are looped over, calling each one's doTurn method in succession.  The
+ * doTurn method is responsible for deciding what action is taken by the
+ * creature in the upcoming turn.  Once a course of action has been decided
+ * upon the doTurn method also moves the creature, sets its animation state,
+ * adjusts the creature's HP, etc.
+ *
+ * Since the creature AI thread runs on the server, changes to the creature's
+ * state must be communicated to the some or all clients (depending on fog of
+ * war, etc).  This is accomplished by building a ServerNotification request
+ * and placing it in the serverNotificationQueue.  Since the
+ * serverNotificationProcessor will decide which clients should know about a
+ * given event, we can simply generate a notification request for any state
+ * change and dump it in the queue and not worry about which clients need to
+ * know about it.
+ */
 void *creatureAIThread(void *p)
 {
 	double timeUntilNextTurn = 1.0/turnsPerSecond;
@@ -95,18 +144,20 @@ void *creatureAIThread(void *p)
 		// Do a turn in the game
 		stopwatch.reset();
 
+		// Place a message in the queue to inform the clients that a new turn has started
 		ServerNotification *serverNotification = new ServerNotification;
 		serverNotification->type = ServerNotification::turnStarted;
 		serverNotificationQueue.push_back(serverNotification);
 		sem_post(&serverNotificationQueueSemaphore);
 
+		// Go to each creature and call their individual doTurn methods
 		gameMap.doTurn();
 		turnNumber++;
 		timeUntilNextTurn = 1.0/turnsPerSecond;
 
 		timeTaken = stopwatch.getMicroseconds();
 
-		// Sleep this thread if it is necessary to keep the turns from happening to fast
+		// Sleep this thread if it is necessary to keep the turns from happening too fast
 		if(1e6 * timeUntilNextTurn - timeTaken > 0)
 		{
 			cout << "\nCreature AI finished " << 1e6*timeUntilNextTurn - timeTaken << "us early.\n";
@@ -125,6 +176,13 @@ void *creatureAIThread(void *p)
 	return NULL;
 }
 
+/*! \brief The thread which monitors the serverNotificationQueue for new events and informs the clients about them.
+ *
+ * This thread runs on the server and acts as a "consumer" on the
+ * serverNotificationQueue.  It takes an event out of the queue, determines
+ * which clients need to be informed about that particular event, and
+ * dispacthes TCP packets to inform the clients about the new information.
+ */
 void *serverNotificationProcessor(void *p)
 {
 	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
@@ -136,6 +194,7 @@ void *serverNotificationProcessor(void *p)
 		// Wait until a message is put into the serverNotificationQueue
 		sem_wait(&serverNotificationQueueSemaphore);
 
+		// Take a message out of the front of the notification queue
 		ServerNotification *event = serverNotificationQueue.front();
 		serverNotificationQueue.pop_front();
 
@@ -164,6 +223,14 @@ void *serverNotificationProcessor(void *p)
 	return NULL;
 }
 
+/*! \brief The thread running  on the server which listens for messages from an individual, already connected, client.
+ *
+ * This thread recieves TCP packets one at a time from a connected client,
+ * decodes them, and carries out requests for the client, returning any
+ * results.  Since this is not the only thread which can send messages to the
+ * client, a semaphore is used to control which thread talks to the client at
+ * any given time.
+ */
 void *clientHandlerThread(void *p)
 {
 	Socket *curSock = ((CHTStruct*)p)->nSocket;
@@ -191,6 +258,9 @@ void *clientHandlerThread(void *p)
 		unsigned int index = tempString.find(":");
 		if(index == string::npos)
 		{
+			// Going back to the beginning of the loop effectively disregards this
+			// message from the client.  This may cause problems if the command is
+			// split up into many packets since the ":" might not be in the first packet.
 			continue;
 		}
 
@@ -211,7 +281,7 @@ void *clientHandlerThread(void *p)
 			curSock->send(formatCommand("picknick", ""));
 
 			// Set the nickname that the client sends back, tempString2 is just used
-			// to discard the command portion of the respone which will be "setnick"
+			// to discard the command portion of the respone which should be "setnick"
 			curSock->recv(tempString);
 			parseCommand(tempString, tempString2, clientNick);
 			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client nick is: " + clientNick, time(NULL)));
@@ -279,6 +349,7 @@ void *clientHandlerThread(void *p)
 			sem_post(&curSock->semaphore);
 		}
 
+		// This code is commeted out because it is handled by the "hello" function, it may be deleted in the future.
 		/*
 		else if(clientCommand.compare("setnick") == 0)
 		{

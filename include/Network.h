@@ -16,7 +16,10 @@ string formatCommand(string command, string arguments);
 void parseCommand(string command, string &commandName, string &arguments);
 ChatMessage *processChatMessage(string arguments);
 
-// A pair of structures to pass parameters to the thread functions listed above.
+/*! \brief Server Socket Processor Structure
+ *
+ * This is a data structure used for passing arguments to the serverSocketProcessor(void *p) defined in src/Server.cpp.
+ */
 class SSPStruct
 {
 	public:
@@ -24,6 +27,10 @@ class SSPStruct
 		ExampleFrameListener *nFrameListener;
 };
 
+/*! \brief Client Socket Processor Structure
+ *
+ * This is a data structure used for passing arguments to the clientSocketProcessor(void *p) defined in src/Client.cpp.
+ */
 class CSPStruct
 {
 	public:
@@ -31,7 +38,10 @@ class CSPStruct
 		ExampleFrameListener *nFrameListener;
 };
 
-// A structure to pass parameters to the clientHandlerThread function defined above
+/*! \brief Client Handler Thread Structure
+ *
+ * This is a data structure used for passing arguments to the clientHandlerThread(void *p) defined in src/Server.cpp.
+ */
 class CHTStruct
 {
 	public:
@@ -39,6 +49,10 @@ class CHTStruct
 		ExampleFrameListener *nFrameListener;
 };
 
+/*! \brief Server Notification Processor Structure
+ *
+ * This is a data structure used for passing arguments to the serverNotiificationProcessor(void *p) defined in src/Server.cpp.
+ */
 class SNPStruct
 {
 	public:

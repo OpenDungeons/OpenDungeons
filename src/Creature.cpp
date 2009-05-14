@@ -111,7 +111,7 @@ void Creature::createMesh()
 }
 
 
-/*! \brief Free the mesh and remove the links from the OGRE system that the mesh has been destroyed.
+/*! \brief Free the mesh and inform the OGRE system that the mesh has been destroyed.
  *
  *  This function is primarily a helper function for other methods.
  */
@@ -165,7 +165,7 @@ void Creature::setPosition(double x, double y, double z)
 	}
 }
 
-/*! \brief A simple accessor function to get the creatures current position in 3d space.
+/*! \brief A simple accessor function to get the creature's current position in 3d space.
  *
  */
 Ogre::Vector3 Creature::getPosition()

@@ -8,6 +8,14 @@ using namespace std;
 #include "Network.h"
 #include "ChatMessage.h"
 
+/*! \brief A thread function which runs on the client to handle communications with the server.
+ *
+ * A single instance of this thread is spawned by the client when it connects
+ * to a server.  The socket connection itself is established before this thread
+ * executes and the CSPStruct is used to pass this spawned socket instance, as
+ * well as a pointer to the instance of the ExampleFrameListener being used by
+ * the game.
+ */
 void *clientSocketProcessor(void *p)
 {
 	string tempString;

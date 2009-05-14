@@ -12,7 +12,11 @@ using namespace std;
 /*! \brief Position, status, and AI state for a single game creature.
  *
  *  The creature class is the place where an individual creature's state is
- *  stored and manipulated.
+ *  stored and manipulated.  The creature class is also used to store creature
+ *  class descriptions, since a class decription is really just a subset of the
+ *  overall creature information.  This is not really an optimal design and
+ *  will probably be refined later but it works fine for now and the code
+ *  affected by this change is relatively limited.
  */
 class Creature
 {
