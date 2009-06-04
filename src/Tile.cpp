@@ -23,6 +23,11 @@ Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 	setFullness(nFullness);
 }
 
+/*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
+ *
+ * In addition to setting the tile type this function also reloads the new mesh
+ * for the tile.
+ */
 void Tile::setType(TileType t)
 {
 	// If the type has changed from its previous value we need to see if
@@ -34,11 +39,24 @@ void Tile::setType(TileType t)
 	 }
 }
 
+/*! \brief An accessor which returns the tile type (rock, claimed, etc.).
+ *
+ */
 Tile::TileType Tile::getType()
 {
 	 return type;
 }
 
+/*! \brief A mutator to change how "filled in" the tile is.
+ *
+ * Additionally this function reloads the proper mesh to display to the user
+ * how full the tile is.  In the future this function will also be responsible
+ * for determining the orientation of the tile to make corners display
+ * correctly.  Both of these tasks are accomplished by setting the
+ * fullnessMeshNumber variable which is concatenated to the tile's type to
+ * determine the mesh to load, e.g. Rock104.mesh for a rocky tile which has all
+ * 4 sides shown because it is an "island" with all four sides visible.
+ */
 void Tile::setFullness(int f)
 {
 	 fullness = f;
@@ -52,7 +70,7 @@ void Tile::setFullness(int f)
 	 else if(f > 75)
 	 {
 		 // If  all 4 neighbors exist and are also in the "full"
-		 // category, then we dont draw the sides on this tile.
+		 // category, then we don't draw the sides on this tile.
 		 Tile *top = gameMap.getTile(x, y+1);
 		 Tile *bottom = gameMap.getTile(x, y-1);
 		 Tile *left = gameMap.getTile(x-1, y);
@@ -81,16 +99,29 @@ void Tile::setFullness(int f)
 		 setMarkedForDigging(false);
 }
 
+/*! \brief An accessor which returns the tile's fullness which should range from 0 to 100.
+ *
+ */
 int Tile::getFullness()
 {
 	 return fullness;
 }
 
+/*! \brief An accessor which returns the tile's fullness mesh number.
+ *
+ * The fullness mesh number is concatenated to the tile's type to determine the
+ * mesh to load to display a given tile type.
+ */
 int Tile::getFullnessMeshNumber()
 {
 	return fullnessMeshNumber;
 }
 
+/*! \brief The << operator is used for saving tiles to a file and sending them over the net.
+ *
+ * This operator is used in conjunction with the >> operator to standardize
+ * tile format in the level files, as well as sending tiles over the network.
+ */
 ostream& operator<<(ostream& os, Tile *t)
 {
 	os << t->x << "\t" << t->y << "\t" << t->getType() << "\t" << t->getFullness();
@@ -98,6 +129,11 @@ ostream& operator<<(ostream& os, Tile *t)
 	return os;
 }
 
+/*! \brief The >> operator is used for loading tiles from a file and for receiving them over the net.
+ *
+ * This operator is used in conjunction with the << operator to standardize
+ * tile format in the level files, as well as sending tiles over the network.
+ */
 istream& operator>>(istream& is, Tile *t)
 {
 	int tempInt, xLocation, yLocation;
@@ -119,6 +155,13 @@ istream& operator>>(istream& is, Tile *t)
 	return is;
 }
 
+/*! \brief This is a helper function which just converts the tile type enum into a string.
+ *
+ * This function is used primarily in forming the mesh names to load from disk
+ * for the various tile types.  The name returned by this function is
+ * concatenated with a fullnessMeshNumber to form the filename, e.g.
+ * Dirt104.mesh is a 4 sided dirt mesh with 100% fullness.
+ */
 string Tile::tileTypeToString(TileType t)
 {
 	switch(t)
@@ -150,6 +193,12 @@ string Tile::tileTypeToString(TileType t)
 	}
 }
 
+/*! \brief This is a helper function to scroll through the list of available tile types.
+ *
+ * This function is used in the map editor when the user presses the button to
+ * select the next tile type to be active in the user interface.  The active
+ * tile type is the one which is placed when the user clicks the mouse button.
+ */
 Tile::TileType Tile::nextTileType(TileType t)
 {
 	int currentType = (int)t;
@@ -159,6 +208,13 @@ Tile::TileType Tile::nextTileType(TileType t)
 	return (TileType) currentType;
 }
 
+/*! \brief This is a helper function to scroll through the list of available fullness levels.
+ *
+ * This function is used in the map editor when the user presses the button to
+ * select the next tile fullness level to be active in the user interface.  The
+ * active fullness level is the one which is placed when the user clicks the
+ * mouse button.
+ */
 int Tile::nextTileFullness(int f)
 {
 
@@ -191,6 +247,9 @@ int Tile::nextTileFullness(int f)
 	}
 }
 
+/*! \brief This function puts a message in the renderQueue to change the mesh for this tile.
+ *
+ */
 void Tile::refreshMesh()
 {
 	RenderRequest *request = new RenderRequest;
@@ -202,6 +261,9 @@ void Tile::refreshMesh()
 	sem_post(&renderQueueSemaphore);
 }
 
+/*! \brief This function puts a message in the renderQueue to load the mesh for this tile.
+ *
+ */
 void Tile::createMesh()
 {
 	RenderRequest *request = new RenderRequest;
@@ -216,6 +278,9 @@ void Tile::createMesh()
 	refreshMesh();
 }
 
+/*! \brief This function puts a message in the renderQueue to unload the mesh for this tile.
+ *
+ */
 void Tile::destroyMesh()
 {
 	RenderRequest *request = new RenderRequest;
@@ -227,14 +292,17 @@ void Tile::destroyMesh()
 	sem_post(&renderQueueSemaphore);
 }
 
+/*! \brief This function marks the tile as being selected through a mouse click or drag.
+ *
+ */
 void Tile::setSelected(bool s)
 {
 	Entity *ent;
 	char tempString[255];
 	char tempString2[255];
 
-	//FIXME:  This code should probably only exectute if it needs to for speed reasons.
-	sprintf(tempString, "Level_%3i_%3i_selction_indicator", x, y);
+	//FIXME:  This code should probably only execute if it needs to for speed reasons.
+	sprintf(tempString, "Level_%3i_%3i_selection_indicator", x, y);
 	if(mSceneMgr->hasEntity(tempString))
 	{
 		ent = mSceneMgr->getEntity(tempString);
@@ -264,11 +332,17 @@ void Tile::setSelected(bool s)
 	}
 }
 
+/*! \brief This accessor function returns whether or not the tile has been selected.
+ *
+ */
 bool Tile::getSelected()
 {
 	return selected;
 }
 
+/*! \brief This function marks the tile to be dug out by workers, and displays the dig indicator on it.
+ *
+ */
 void Tile::setMarkedForDigging(bool s)
 {
 	Entity *ent;
@@ -277,8 +351,8 @@ void Tile::setMarkedForDigging(bool s)
 
 	if(markedForDigging != s)
 	{
-		//FIXME:  This code should probably only exectute if it needs to for speed reasons.
-		sprintf(tempString, "Level_%3i_%3i_selction_indicator", x, y);
+		//FIXME:  This code should probably only execute if it needs to for speed reasons.
+		sprintf(tempString, "Level_%3i_%3i_selection_indicator", x, y);
 		if(mSceneMgr->hasEntity(tempString))
 		{
 			ent = mSceneMgr->getEntity(tempString);
@@ -306,11 +380,17 @@ void Tile::setMarkedForDigging(bool s)
 	}
 }
 
+/*! \brief This accessor function returns whether or not the tile has been marked to be dug out.
+ *
+ */
 bool Tile::getMarkedForDigging()
 {
 	return markedForDigging;
 }
 
+/*! \brief This function places a message in the render queue to unload the mesh and delete the tile structure.
+ *
+ */
 void Tile::deleteYourself()
 {
 	RenderRequest *request = new RenderRequest;
@@ -327,29 +407,43 @@ void Tile::deleteYourself()
 	sem_post(&renderQueueSemaphore);
 }
 
+/*! \brief This function adds a creature to the list of creatures in this tile.
+ *
+ */
 void Tile::addCreature(Creature *c)
 {
 	creaturesInCell.push_back(c);
 }
 
+/*! \brief This function removes a creature to the list of creatures in this tile.
+ *
+ */
 void Tile::removeCreature(Creature *c)
 {
+	// Check to see if the given crature is actually in this tile
 	vector<Creature*>::iterator itr;
 	for(itr = creaturesInCell.begin(); itr != creaturesInCell.end(); itr++)
 	{
 		if((*itr) == c)
 		{
+			// Remove the creature from the list
 			creaturesInCell.erase(itr);
 			return;
 		}
 	}
 }
 
+/*! \brief This function returns the count of the number of creatures in the tile.
+ *
+ */
 int Tile::numCreaturesInCell()
 {
 	return creaturesInCell.size();
 }
 
+/*! \brief This function returns the i'th creature in the tile.
+ *
+ */
 Creature* Tile::getCreature(int index)
 {
 	return creaturesInCell[index];

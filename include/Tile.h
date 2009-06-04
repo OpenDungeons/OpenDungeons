@@ -16,6 +16,13 @@ extern SceneManager* mSceneMgr;
 
 class Creature;
 
+/*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
+ *
+ * A Tile is the basic building block for the GameMap.  It consists of a tile
+ * type (rock, dirt, gold, etc.) as well as a fullness which indicates how much
+ * the tile has been dug out.  Additionally the tile contains lists of the
+ * entities located within it to aid in AI calculations.
+ */
 class Tile
 {
 	public:
