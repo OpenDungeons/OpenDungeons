@@ -433,7 +433,6 @@ void Creature::updateVisibleTiles()
 	yMax = (int)position.y + sightRadius;
 
 	// Add the circular portion of the visible region
-	//TODO:  This does not implement terrain yet, i.e. the creature can see through walls
 	for(int i = xMin; i < xMax; i++)
 	{
 		for(int j = yMin; j < yMax; j++)
@@ -443,6 +442,8 @@ void Creature::updateVisibleTiles()
 			{
 				Tile *currentTile = gameMap.getTile(i, j);
 				if(currentTile != NULL)
+					//TODO:  This does not implement terrain yet, i.e. the creature can see through walls
+					// if(currentTile->isVisibleFrom(positionTile()))
 					visibleTiles.push_back(currentTile);
 			}
 		}
@@ -470,7 +471,7 @@ void destroyVisualDebugEntities()
 	//TODO:  fill in this stub method.
 }
 
-/*! \brief Returns the tile the creature is currently standing in.
+/*! \brief Returns a pointer to the tile the creature is currently standing in.
  *
  * 
 */
@@ -529,18 +530,24 @@ AnimationState* Creature::getAnimationState()
 
 /*! \brief Adds a position in 3d space to the creature's walk queue and, if necessary, starts it walking.
  *
+ * This function also places a message in the serverNotificationQueue so that
+ * relevant clients are informed about the change.
  * 
 */
 void Creature::addDestination(int x, int y)
 {
 	cout << "w(" << x << ", " << y << ") ";
+	Ogre::Vector3 destination(x, y, 0);
 
+	// if there are currently no destinations in the walk queue
 	if(walkQueue.size() == 0)
 	{
-		walkQueue.push_back(Ogre::Vector3(x, y, 0));
+		// Add the destination and set the remaining distance counter
+		walkQueue.push_back(destination);
 		shortDistance = position.distance(walkQueue.front());
-		walkDirection = walkQueue.front() - position;
 
+		// Rotate the creature to face the direction of the destination
+		walkDirection = walkQueue.front() - position;
 		SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
 		Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 		Quaternion quat = src.getRotationTo(walkDirection);
@@ -548,7 +555,16 @@ void Creature::addDestination(int x, int y)
 	}
 	else
 	{
-		walkQueue.push_back(Ogre::Vector3(x, y, 0));
+		// Add the destination
+		walkQueue.push_back(destination);
 	}
+
+	// Place a message in the queue to inform the clients about the new destination
+	ServerNotification *serverNotification = new ServerNotification;
+	serverNotification->type = ServerNotification::creatureAddDestination;
+	serverNotification->str = name;
+	serverNotification->vec = destination;
+	serverNotificationQueue.push_back(serverNotification);
+	sem_post(&serverNotificationQueueSemaphore);
 }
 

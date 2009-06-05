@@ -84,8 +84,9 @@ string formatCommand(string command, string arguments)
  * changes in the wire protocol are confined to this function and its sister
  * function, formatCommand.
  */
-void parseCommand(string command, string &commandName, string &arguments)
+bool parseCommand(string &command, string &commandName, string &arguments)
 {
+	string tempString;
 	//FIXME:  Need to protect the ":" symbol with an escape sequence.
 	int index, index2;
 	index = command.find("<");
@@ -94,7 +95,14 @@ void parseCommand(string command, string &commandName, string &arguments)
 	index = index2;
 	index2 = command.find(">");
 	arguments = command.substr(index+1, index2-index-1);
+	tempString = command.substr(index2+1, command.length()-index2+1);
+	command = tempString;
 	cout << "\n\n\nParse command:  " << command << "\n" << commandName << "\n" << arguments << "\n\n";
+
+	if(tempString.length() > 0)
+		return true;
+	else
+		return false;
 }
 
 /*! \brief A helper function to unpack the argument of a chat command into a ChatMessage structure.
@@ -188,6 +196,7 @@ void *serverNotificationProcessor(void *p)
 	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
 	string tempString;
 	stringstream tempSS;
+	Tile *tempTile;
 
 	while(true)
 	{
@@ -204,12 +213,29 @@ void *serverNotificationProcessor(void *p)
 				tempSS.str(tempString);
 				tempSS << turnNumber;
 
-				for(unsigned int i = 0; i < frameListener->clientSockets.size(); i++)
-				{
-					sem_wait(&frameListener->clientSockets[i]->semaphore);
-					frameListener->clientSockets[i]->send(formatCommand("newturn", tempSS.str()));
-					sem_post(&frameListener->clientSockets[i]->semaphore);
-				}
+				sendToAllClients(frameListener, formatCommand("newturn", tempSS.str()));
+				break;
+
+			case ServerNotification::creatureAddDestination:
+				tempSS.str(tempString);
+				tempSS << event->str << ":" << event->vec.x << ":" << event->vec.y << ":" << event->vec.z;
+
+				sendToAllClients(frameListener, formatCommand("creatureAddDestination", tempSS.str()));
+				break;
+
+			case ServerNotification::setTurnsPerSecond:
+				tempSS.str(tempString);
+				tempSS << turnsPerSecond;
+
+				sendToAllClients(frameListener, formatCommand("turnsPerSecond", tempSS.str()));
+				break;
+
+			case ServerNotification::tileFullnessChange:
+				tempSS.str(tempString);
+				tempTile = event->tile;
+				tempSS << tempTile->getFullness() << ":" << tempTile->x << ":" << tempTile->y;
+
+				sendToAllClients(frameListener, formatCommand("tileFullnessChange", tempSS.str()));
 				break;
 
 			default:
@@ -377,5 +403,15 @@ void *clientHandlerThread(void *p)
 
 	// Return something to make the compiler happy
 	return NULL;
+}
+
+void sendToAllClients(ExampleFrameListener *frameListener, String str)
+{
+	for(unsigned int i = 0; i < frameListener->clientSockets.size(); i++)
+	{
+		sem_wait(&frameListener->clientSockets[i]->semaphore);
+		frameListener->clientSockets[i]->send(str);
+		sem_post(&frameListener->clientSockets[i]->semaphore);
+	}
 }
 

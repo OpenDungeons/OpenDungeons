@@ -13,8 +13,9 @@ void *creatureAIThread(void *p);
 
 // Other functions  (these are defined in src/Server.cpp)
 string formatCommand(string command, string arguments);
-void parseCommand(string command, string &commandName, string &arguments);
+bool parseCommand(string &command, string &commandName, string &arguments);
 ChatMessage *processChatMessage(string arguments);
+void sendToAllClients(ExampleFrameListener *frameListener, String str);
 
 /*! \brief Server Socket Processor Structure
  *

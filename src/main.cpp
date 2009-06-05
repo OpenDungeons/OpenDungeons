@@ -9,11 +9,12 @@ using namespace std;
 #include "GameMap.h"
 #include "Player.h"
 #include "RenderRequest.h"
+#include "Socket.h"
 
 SceneManager* mSceneMgr;
 GameMap gameMap;
 string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
-int MAX_FRAMES_PER_SECOND = 25;
+double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 vector<Player*> players;
 Player *me;
 double turnsPerSecond = 1.0;
@@ -22,6 +23,7 @@ deque<RenderRequest*> renderQueue;
 sem_t renderQueueSemaphore;
 deque<ServerNotification*> serverNotificationQueue;
 sem_t serverNotificationQueueSemaphore;
+Socket *serverSocket = NULL, *clientSocket = NULL;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN

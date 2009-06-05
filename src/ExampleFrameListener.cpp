@@ -104,8 +104,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mSceneDetailIndex(0), mMoveSpeed(50.0), mRotateSpeed(50),
 	mDebugOverlay(0), mInputManager(0), mMouse(0), mKeyboard(0), mJoy(0),
 	mZoomSpeed(.5),
-	mCurrentTileType(Tile::dirt), mCurrentFullness(100),
-	serverSocket(NULL), clientSocket(NULL)
+	mCurrentTileType(Tile::dirt), mCurrentFullness(100)
 {
 	mCount = 0;
 	mCurrentObject = NULL;
@@ -491,19 +490,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	sprintf(turnArray, "Turn number:  %li", turnNumber);
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnArray + "\n" + (chatMessages.size()>0?chatString:nullString));
 
-	// Sleep to limit the framerate to the max value
-	frameDelay -= evt.timeSinceLastFrame;
-	if(frameDelay > 0.0)
-	{
-		usleep(1e6 * frameDelay );
-	}
-	else
-	{
-		//FIXME: I think this 2.0 should be a 1.0 but this gives the
-		// correct result.  This probably indicates a bug.
-		frameDelay += 2.0/(double)MAX_FRAMES_PER_SECOND;
-	}
-
 	if(mWindow->isClosed())	return false;
 
 	// Update the animations on any creatures who have them
@@ -519,6 +505,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		if(currentCreature->walkQueue.size() > 0)
 		{
 			//FIXME: The moveDist should probably be tied to the scale of the creature as well
+			//FIXME: When the client and the server are using different frame rates, the creatures walk at different speeds
 			double moveDist = turnsPerSecond * currentCreature->moveSpeed * evt.timeSinceLastFrame;
 			currentCreature->shortDistance -= moveDist;
 
@@ -599,6 +586,19 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		moveCamera(evt.timeSinceLastFrame);
 
 	moveCamera(evt.timeSinceLastFrame);
+
+	// Sleep to limit the framerate to the max value
+	frameDelay -= evt.timeSinceLastFrame;
+	if(frameDelay > 0.0)
+	{
+		usleep(1e6 * frameDelay );
+	}
+	else
+	{
+		//FIXME: I think this 2.0 should be a 1.0 but this gives the
+		// correct result.  This probably indicates a bug.
+		frameDelay += 2.0/(double)MAX_FRAMES_PER_SECOND;
+	}
 
 	return mContinue;
 }
@@ -1552,12 +1552,12 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS >> tempInt;
 				MAX_FRAMES_PER_SECOND = tempInt;
 				
-				sprintf(tempArray, "Maximum framerate set to %i", MAX_FRAMES_PER_SECOND);
+				sprintf(tempArray, "Maximum framerate set to %lf", MAX_FRAMES_PER_SECOND);
 				commandOutput = tempArray;
 			}
 			else
 			{
-				sprintf(tempArray, "Current maximum framerate is %i", MAX_FRAMES_PER_SECOND);
+				sprintf(tempArray, "Current maximum framerate is %lf", MAX_FRAMES_PER_SECOND);
 				commandOutput = tempArray;
 			}
 		}
@@ -1573,6 +1573,16 @@ void ExampleFrameListener::executePromptCommand()
 				
 				sprintf(tempArray, "The game will proceed at %lf turns per second.", turnsPerSecond);
 				commandOutput = tempArray;
+
+				if(serverSocket != NULL)
+				{
+					// Inform any connected clients about the change
+					ServerNotification *serverNotification = new ServerNotification;
+					serverNotification->type = ServerNotification::setTurnsPerSecond;
+					serverNotification->doub = turnsPerSecond;
+					serverNotificationQueue.push_back(serverNotification);
+					sem_post(&serverNotificationQueueSemaphore);
+				}
 			}
 			else
 			{

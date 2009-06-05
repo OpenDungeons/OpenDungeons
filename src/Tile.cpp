@@ -59,44 +59,54 @@ Tile::TileType Tile::getType()
  */
 void Tile::setFullness(int f)
 {
-	 fullness = f;
+	fullness = f;
 
-	 //FIXME:  This needs to be updated to reflect the allowable fill states for each tile type
-	 // This is also where the logic for checking neighboring fullness should go
-	 fullnessMeshNumber = 0;
-	 if(f > 0 && f <= 25)	fullnessMeshNumber = 25;
-	 else if(f > 25 && f <= 50)	fullnessMeshNumber = 50;
-	 else if(f > 50 && f <= 75)	fullnessMeshNumber = 75;
-	 else if(f > 75)
-	 {
-		 // If  all 4 neighbors exist and are also in the "full"
-		 // category, then we don't draw the sides on this tile.
-		 Tile *top = gameMap.getTile(x, y+1);
-		 Tile *bottom = gameMap.getTile(x, y-1);
-		 Tile *left = gameMap.getTile(x-1, y);
-		 Tile *right = gameMap.getTile(x+1, y);
-		 if(top != NULL && bottom != NULL && left != NULL && right != NULL)
-		 {
-			 if(top->getFullness() > 75 && bottom->getFullness() > 75 && \
-			 	left->getFullness() > 75 && right->getFullness() > 75)
-			 {
-				 fullnessMeshNumber = 100;
-			 }
-			 else
-			 {
-				 fullnessMeshNumber = 104;
-			 }
-		 }
-		 else
-		 {
-			 fullnessMeshNumber = 104;
-		 }
-	 }
+	//FIXME:  This needs to be updated to reflect the allowable fill states for each tile type
+	// This is also where the logic for checking neighboring fullness should go
+	fullnessMeshNumber = 0;
+	if(f > 0 && f <= 25)	fullnessMeshNumber = 25;
+	else if(f > 25 && f <= 50)	fullnessMeshNumber = 50;
+	else if(f > 50 && f <= 75)	fullnessMeshNumber = 75;
+	else if(f > 75)
+	{
+		// If  all 4 neighbors exist and are also in the "full"
+		// category, then we don't draw the sides on this tile.
+		Tile *top = gameMap.getTile(x, y+1);
+		Tile *bottom = gameMap.getTile(x, y-1);
+		Tile *left = gameMap.getTile(x-1, y);
+		Tile *right = gameMap.getTile(x+1, y);
+		if(top != NULL && bottom != NULL && left != NULL && right != NULL)
+		{
+			if(top->getFullness() > 75 && bottom->getFullness() > 75 && \
+			left->getFullness() > 75 && right->getFullness() > 75)
+			{
+				fullnessMeshNumber = 100;
+			}
+			else
+			{
+				fullnessMeshNumber = 104;
+			}
+		}
+		else
+		{
+			fullnessMeshNumber = 104;
+		}
+	}
 
-	 refreshMesh();
+	refreshMesh();
 
-	 if(fullness <= 1 && getMarkedForDigging() == true)
-		 setMarkedForDigging(false);
+	if(fullness <= 1 && getMarkedForDigging() == true)
+		setMarkedForDigging(false);
+
+	if(serverSocket != NULL)
+	{
+		// Inform the clients that the fullness has changed.
+		ServerNotification *serverNotification = new ServerNotification;
+		serverNotification->type = ServerNotification::tileFullnessChange;
+		serverNotification->tile = this;
+		serverNotificationQueue.push_back(serverNotification);
+		sem_post(&serverNotificationQueueSemaphore);
+	}
 }
 
 /*! \brief An accessor which returns the tile's fullness which should range from 0 to 100.

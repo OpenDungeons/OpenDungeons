@@ -101,7 +101,6 @@ public:
 
 
 	// Multiplayer stuff
-	Socket *clientSocket, *serverSocket;
 	vector<Socket*> clientSockets;
 	pthread_t clientThread;
 	pthread_t serverThread;
