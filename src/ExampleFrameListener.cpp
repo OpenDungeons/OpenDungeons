@@ -119,8 +119,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	terminalActive = false;
 	prompt = "-->  ";
 	terminalWordWrap = 78;
-	me = new Player;
-	me->nick = "";
+	gameMap.me = new Player;
+	gameMap.me->nick = "";
 	mDragType = ExampleFrameListener::nullDragType;
 	frameDelay = 0.0;
 	mGUIRenderer = renderer;
@@ -412,7 +412,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		deque< ChatMessage* >::iterator itr;
 		itr = chatMessages.begin() + i;
 		currentMessage = *itr;
-		if(difftime(now, currentMessage->recvTime) > 30.0)
+		if(difftime(now, currentMessage->recvTime) > 20.0)
 		{
 			chatMessages.erase(itr);
 		}
@@ -1596,8 +1596,8 @@ void ExampleFrameListener::executePromptCommand()
 				Creature *tempCreature = new Creature;
 				stringstream tempSS(arguments);
 				tempSS >> tempCreature;
-				tempCreature->meshName = gameMap.getClass(tempCreature->className)->meshName;
-				tempCreature->scale = gameMap.getClass(tempCreature->className)->scale;
+				tempCreature->meshName = gameMap.getClassDescription(tempCreature->className)->meshName;
+				tempCreature->scale = gameMap.getClassDescription(tempCreature->className)->scale;
 				gameMap.addCreature(tempCreature);
 
 				// Create the mesh and SceneNode for the new creature
@@ -1698,13 +1698,13 @@ void ExampleFrameListener::executePromptCommand()
 			if(arguments.size() > 0)
 			{
 				tempSS.str(arguments);
-				tempSS >> me->nick;
-				sprintf(tempArray, "Nickname set to %s", me->nick.c_str());
+				tempSS >> gameMap.me->nick;
+				sprintf(tempArray, "Nickname set to %s", gameMap.me->nick.c_str());
 				commandOutput = tempArray;
 			}
 			else
 			{
-				sprintf(tempArray, "Current nickname is %s", me->nick.c_str());
+				sprintf(tempArray, "Current nickname is %s", gameMap.me->nick.c_str());
 				commandOutput = tempArray;
 			}
 		}
@@ -1713,7 +1713,7 @@ void ExampleFrameListener::executePromptCommand()
 		else if(command.compare("connect") == 0)
 		{
 			// Make sure we have set a nickname
-			if(me->nick.size() > 0)
+			if(gameMap.me->nick.size() > 0)
 			{
 				// Make sure we are not already connected to a server
 				if(clientSocket == NULL)
@@ -1771,7 +1771,7 @@ void ExampleFrameListener::executePromptCommand()
 		// Host a server
 		else if(command.compare("host") == 0)
 		{
-			if(me->nick.size() > 0)
+			if(gameMap.me->nick.size() > 0)
 			{
 				if(serverSocket == NULL)
 				{
@@ -1815,9 +1815,8 @@ void ExampleFrameListener::executePromptCommand()
 			if(clientSocket != NULL)
 			{
 				sem_wait(&clientSocket->semaphore);
-				clientSocket->send(formatCommand("chat", me->nick + ":" + arguments));
+				clientSocket->send(formatCommand("chat", gameMap.me->nick + ":" + arguments));
 				sem_post(&clientSocket->semaphore);
-				//chatMessages.push_back(new ChatMessage(me->nick, arguments, time(NULL), time(NULL)));
 			}
 			else if(serverSocket != NULL)
 			{
@@ -1825,12 +1824,12 @@ void ExampleFrameListener::executePromptCommand()
 				for(unsigned int i = 0; i < clientSockets.size(); i++)
 				{
 					sem_wait(&clientSockets[i]->semaphore);
-					clientSockets[i]->send(formatCommand("chat", me->nick + ":" + arguments));
+					clientSockets[i]->send(formatCommand("chat", gameMap.me->nick + ":" + arguments));
 					sem_post(&clientSockets[i]->semaphore);
 				}
 
 				// Display the chat message in our own message queue
-				chatMessages.push_back(new ChatMessage(me->nick, arguments, time(NULL), time(NULL)));
+				chatMessages.push_back(new ChatMessage(gameMap.me->nick, arguments, time(NULL), time(NULL)));
 			}
 			else
 			{

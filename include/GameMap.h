@@ -3,6 +3,7 @@
 
 #include "Tile.h"
 #include "Creature.h"
+#include "Player.h"
 
 typedef map< pair<int,int>, Tile*> TileMap_t;
 
@@ -19,40 +20,49 @@ class GameMap
 {
 	public:
 		void createNewMap(int xSize, int ySize);
-		void clearAll();
-		void clearTiles();
-		void clearCreatures();
-		void clearClasses();
 		void createAllEntities();
+		void clearAll();
+
+		// Game state methods
+		void clearTiles();
+		void addTile(Tile *t);
 		Tile* getTile(int x, int y);
 		TileMap_t::iterator firstTile();
 		TileMap_t::iterator lastTile();
-		Creature* getClassDescription(int index);
 		unsigned int numTiles();
-		void addTile(Tile *t);
+
+		void clearCreatures();
 		void addCreature(Creature *c);
-		void addClassDescription(Creature c);
-		void addClassDescription(Creature *c);
-		Creature* getClass(string query);
-		unsigned int numCreatures();
-		unsigned int numClassDescriptions();
 		Creature* getCreature(int index);
 		Creature* getCreature(string cName);
+		unsigned int numCreatures();
+
+		void clearClasses();
+		void addClassDescription(Creature c);
+		void addClassDescription(Creature *c);
+		Creature* getClassDescription(int index);
+		Creature* getClassDescription(string query);
+		unsigned int numClassDescriptions();
+
+		void clearPlayers();
+		void addPlayer(Player *p);
+		Player* getPlayer(int index);
+		Player* getPlayer(string cName);
+		unsigned int numPlayers();
+
+		// AI Methods
 		void doTurn();
 
 		list<Tile*> path(int x1, int y1, int x2, int y2);
 		vector<Tile*> neighborTiles(int x, int y);
 
-		unsigned int numCreaturesInHand();
-		Creature *getCreatureInHand(int i);
-		void addCreatureToHand(Creature *c);
-		void removeCreatureFromHand(int i);
+		Player *me;
 
 	private:
 		map< pair<int,int>, Tile*> tiles;
 		vector<Creature*> classDescriptions;
 		vector<Creature*> creatures;
-		vector<Creature*> creaturesInHand;
+		vector<Player*> players;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.

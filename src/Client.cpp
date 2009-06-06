@@ -70,7 +70,7 @@ void *clientSocketProcessor(void *p)
 			if(serverCommand.compare("picknick") == 0)
 			{
 				sem_wait(&sock->semaphore);
-				sock->send(formatCommand("setnick", me->nick));
+				sock->send(formatCommand("setnick", gameMap.me->nick));
 				sem_post(&sock->semaphore);
 			}
 
@@ -240,6 +240,7 @@ void *clientSocketProcessor(void *p)
 				cout << serverCommand << "\nArguments:" << arguments << "\n\n";
 			}
 
+			//NOTE: This command is duplicated at the beginning of this do-while loop.
 			parseReturnValue = parseCommand(commandFromServer, serverCommand, arguments);
 		}while(parseReturnValue);
 	}

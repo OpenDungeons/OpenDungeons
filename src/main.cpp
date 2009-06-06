@@ -15,8 +15,6 @@ SceneManager* mSceneMgr;
 GameMap gameMap;
 string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
 double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
-vector<Player*> players;
-Player *me;
 double turnsPerSecond = 1.0;
 long int turnNumber = 1;
 deque<RenderRequest*> renderQueue;

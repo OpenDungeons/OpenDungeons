@@ -121,6 +121,16 @@ void GameMap::clearClasses()
 	classDescriptions.clear();
 }
 
+void GameMap::clearPlayers()
+{
+	for(unsigned int i = 0; i < numPlayers(); i++)
+	{
+		delete players[i];
+	}
+
+	players.clear();
+}
+
 unsigned int GameMap::numTiles()
 {
 	return tiles.size();
@@ -147,7 +157,7 @@ void GameMap::addCreature(Creature *c)
 	creatures.push_back(c);
 }
 
-Creature* GameMap::getClass(string query)
+Creature* GameMap::getClassDescription(string query)
 {
 	for(unsigned int i = 0; i < classDescriptions.size(); i++)
 	{
@@ -219,33 +229,6 @@ void GameMap::doTurn()
 		cout << "\nCreature " << i << "  " << creatures[i]->name << " calling doTurn.\t";
 		creatures[i]->doTurn();
 	}
-}
-
-unsigned int GameMap::numCreaturesInHand()
-{
-	return creaturesInHand.size();
-}
-
-Creature* GameMap::getCreatureInHand(int i)
-{
-	return creaturesInHand[i];
-}
-
-void GameMap::addCreatureToHand(Creature *c)
-{
-	creaturesInHand.push_back(c);
-}
-
-void GameMap::removeCreatureFromHand(int i)
-{
-	vector<Creature*>::iterator curCreature = creaturesInHand.begin();
-	while(i > 0 && curCreature != creaturesInHand.end())
-	{
-		i--;
-		curCreature++;
-	}
-
-	creaturesInHand.erase(curCreature);
 }
 
 // Calculates the walkable path between tiles (x1, y1) and (x2, y2)
@@ -456,5 +439,33 @@ vector<Tile*> GameMap::neighborTiles(int x, int y)
 	}
 
 	return neighbors;
+}
+
+void GameMap::addPlayer(Player *p)
+{
+	players.push_back(p);
+}
+
+Player* GameMap::getPlayer(int index)
+{
+	return players[index];
+}
+
+Player* GameMap::getPlayer(string pName)
+{
+	for(unsigned int i = 0; i < numPlayers(); i++)
+	{
+		if(players[i]->nick.compare(pName) == 0)
+		{
+			return players[i];
+		}
+	}
+
+	return NULL;
+}
+
+unsigned int GameMap::numPlayers()
+{
+	return players.size();
 }
 

@@ -14,8 +14,6 @@ extern GameMap gameMap;
 extern SceneManager* mSceneMgr;
 extern string MOTD;
 extern double MAX_FRAMES_PER_SECOND;
-extern vector<Player*> players;
-extern Player *me;
 extern double turnsPerSecond;
 extern long int turnNumber;
 extern deque<RenderRequest*> renderQueue;
