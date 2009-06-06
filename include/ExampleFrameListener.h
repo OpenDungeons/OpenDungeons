@@ -130,7 +130,8 @@ protected:
 	TextureFilterOptions mFiltering;
 	int mAniso;
 	Tile::TileType mCurrentTileType;
-	int mCurrentFullness;
+	int mCurrentFullness, mCurrentTileRadius;
+	bool mBrushMode;
 	double frameDelay;
 
 	int mSceneDetailIndex ;
@@ -156,7 +157,7 @@ protected:
 	int xPos, yPos;
 	bool digSetBool;                   // For server mode - hods whether to mark or unmark a tile for digging
 
-	enum DragType {creature, tileSelection, nullDragType};
+	enum DragType {creature, tileSelection, tileBrushSelection, nullDragType};
 
 private:
 	void handleAcceleration(double accelFactor, double accelLimit, double &accel, bool &positive, bool driven, bool sameDir);

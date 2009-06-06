@@ -125,6 +125,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	frameDelay = 0.0;
 	mGUIRenderer = renderer;
 	zChange = 0.0;
+	mCurrentTileRadius = 1;
+	mBrushMode = false;
 
 	using namespace OIS;
 
@@ -713,6 +715,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 			itr++;
 		}
 	}
+
 	else //if(mDragType == ExampleFrameListener::creature)
 	{
 		itr = result.begin( );
@@ -733,6 +736,47 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 			itr++;
 		}
 	}
+
+	if(mLMouseDown && mDragType == ExampleFrameListener::tileBrushSelection && serverSocket == NULL && clientSocket == NULL)
+	{
+		Tile *currentTile;
+		list<Tile*> affectedTiles;
+		for(int i = -1*mCurrentTileRadius; i <= mCurrentTileRadius; i++)
+		{
+			for(int j = -1*mCurrentTileRadius; j <= mCurrentTileRadius; j++)
+			{
+				currentTile = gameMap.getTile(xPos + i, yPos + j);
+
+				if(currentTile != NULL)
+				{
+					affectedTiles.push_back(currentTile);
+					currentTile->setType(mCurrentTileType);
+					currentTile->setFullness(mCurrentFullness);
+				}
+				else
+				{
+					//currentTile = new Tile;
+					char tempArray[255];
+					sprintf(tempArray, "Level_%3i_%3i", xPos + i, yPos + j);
+					currentTile = new Tile(xPos + i, yPos + j, mCurrentTileType, mCurrentFullness);
+					currentTile->name = tempArray;
+					gameMap.addTile(currentTile);
+					currentTile->createMesh();
+				}
+			}
+		}
+
+		// Loop over all the affected tiles and force them to examine their
+		// neighbors.  This allows them to switch to a mesh with fewer
+		// polygons if some are hidden by the neighbors.
+		list<Tile*>::iterator itr = affectedTiles.begin();
+		while(itr != affectedTiles.end())
+		{
+			(*itr)->setFullness( (*itr)->getFullness() );
+			itr++;
+		}
+	}
+
 
 	return true;
 }
@@ -798,7 +842,15 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			{
 				if(resultName.find("Level_") != string::npos)
 				{
-					mDragType = ExampleFrameListener::tileSelection;
+					if(serverSocket != NULL || clientSocket != NULL || !mBrushMode)
+					{
+						mDragType = ExampleFrameListener::tileSelection;
+					}
+					else
+					{
+						mDragType = ExampleFrameListener::tileBrushSelection;
+					}
+
 					break;
 				}
 			}
@@ -1054,6 +1106,52 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				{
 					mCurrentTileType = Tile::nextTileType(mCurrentTileType);
 					sprintf(tempArray, "Tile type:  %s", Tile::tileTypeToString(mCurrentTileType).c_str());
+					MOTD = tempArray;
+				}
+				break;
+
+			//Decrease brush radius
+			case KC_COMMA:
+				if(serverSocket == NULL && clientSocket == NULL)
+				{
+					if(mCurrentTileRadius > 1)
+					{
+						mCurrentTileRadius--;
+					}
+
+					sprintf(tempArray, "Tile type:  %i", mCurrentTileRadius);
+					MOTD = tempArray;
+				}
+				break;
+
+			//Increase brush radius
+			case KC_PERIOD:
+				if(serverSocket == NULL && clientSocket == NULL)
+				{
+					if(mCurrentTileRadius < 10)
+					{
+						mCurrentTileRadius++;
+					}
+
+					sprintf(tempArray, "Tile type:  %i", mCurrentTileRadius);
+					MOTD = tempArray;
+				}
+				break;
+
+			//Toggle mBrushMode
+			case KC_B:
+				if(serverSocket == NULL && clientSocket == NULL)
+				{
+					mBrushMode = !mBrushMode;
+					if(mBrushMode)
+					{
+						sprintf(tempArray, "Brush mode turned on");
+					}
+					else
+					{
+						sprintf(tempArray, "Brush mode turned off");
+					}
+
 					MOTD = tempArray;
 				}
 				break;

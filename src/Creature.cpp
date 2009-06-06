@@ -211,6 +211,7 @@ void Creature::doTurn()
 	list<Tile*>walkPath;
 	list<Tile*>basePath;
 	vector< list<Tile*> > possiblePaths;
+	vector< list<Tile*> > shortPaths;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
@@ -360,7 +361,6 @@ void Creature::doTurn()
 					// Find the shortest path and start walking toward the tile to be dug out
 					if(possiblePaths.size() > 0)
 					{
-						// Find the shortest path  start by setting the shortest to the
 						// first one long enough to be considered a valid path
 						int shortestIndex = 0;
 						unsigned int shortestDistance = possiblePaths[0].size();
@@ -370,16 +370,43 @@ void Creature::doTurn()
 							shortestDistance = possiblePaths[shortestIndex].size();
 						}
 
-						// Now see if there are any valid paths shorter than this first guess
+						shortPaths.clear();
+						shortPaths.push_back(possiblePaths[shortestIndex]);
+
+						// Find the N shortest valid paths, see if there are any valid paths shorter than this first guess
 						for(unsigned int i = 0; i < possiblePaths.size(); i++)
 						{
-							if(possiblePaths[i].size() < shortestDistance && possiblePaths[i].size() >= 2)
+							// If the current path is long enough to be valid
+							unsigned int currentLength = possiblePaths[i].size();
+							if(currentLength >= 2)
 							{
-								shortestIndex = i;
-								shortestDistance = possiblePaths[i].size();
+								shortPaths.push_back(possiblePaths[i]);
+
+								// If we already have enough short paths
+								if(shortPaths.size() > 5)
+								{
+									unsigned int longestLength, longestIndex;
+
+									// Kick out the longest
+									longestLength = shortPaths[0].size();
+									longestIndex = 0;
+									for(unsigned int j = 1; j < shortPaths.size(); j++)
+									{
+										if(shortPaths[j].size() > longestLength)
+										{
+											longestLength = shortPaths.size();
+											longestIndex = j;
+										}
+									}
+
+									shortPaths.erase(shortPaths.begin() + longestIndex);
+								}
 							}
 						}
 
+						// Randomly pick a short path to take
+						unsigned int numShortPaths = shortPaths.size();
+						shortestIndex = (int)randomDouble(0, (double)numShortPaths-0.001);
 						walkPath = possiblePaths[shortestIndex];
 
 						// If the path is a legitamate path, walk down it to the tile to be dug out
