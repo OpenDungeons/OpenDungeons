@@ -466,8 +466,27 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	string chatBaseString = "\n---------- Chat ----------\n";
 	chatString = chatBaseString;
 
+	//TODO:  Lock this queue before doing this stuff
+	time_t now;
+	time(&now);
+	ChatMessage *currentMessage;
+	unsigned int i = 0;
+	while(i < chatMessages.size())
+	{
+		deque< ChatMessage* >::iterator itr;
+		itr = chatMessages.begin() + i;
+		currentMessage = *itr;
+		if(difftime(now, currentMessage->recvTime) > 30.0)
+		{
+			chatMessages.erase(itr);
+		}
+		else
+		{
+			i++;
+		}
+	}
+
 	// Only keep the N newest chat messages
-	//FIXME:  Make this loop over all the messages looking at the arrival time and delete them based on age.
 	while(chatMessages.size() > 5)
 	{
 		delete chatMessages.front();
@@ -936,8 +955,16 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 						// See if we are hosting a game or not
 						if(serverSocket == NULL)
 						{
-							currentTile->setType( mCurrentTileType );
-							currentTile->setFullness( mCurrentFullness );
+							if(clientSocket == NULL)
+							{
+								// Fill the current tile with the new value
+								currentTile->setType( mCurrentTileType );
+								currentTile->setFullness( mCurrentFullness );
+							}
+							else
+							{
+								//TODO: Inform the server we are trying to dig the current tile
+							}
 						}
 						else
 						{

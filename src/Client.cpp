@@ -43,9 +43,15 @@ void *clientSocketProcessor(void *p)
 			// If the server closed the connection
 			if(charsRead <= 0)
 			{
+				// Place a chat message in the queue to inform
+				// the user about the disconnect
+				frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Server disconnect." , time(NULL)));
+
 				return NULL;
 			}
 
+			// Check to see if one or more complete packets in the buffer
+			//FIXME:  This needs to be updated to include escaped closing brackets
 			commandFromServer += tempString;
 			if(commandFromServer[commandFromServer.length()-1] == '>')
 			{
@@ -53,9 +59,13 @@ void *clientSocketProcessor(void *p)
 			}
 		}
 
+		// Parse a command out of the bytestream from the server.
+		//NOTE: This command is duplicated at the end of this do-while loop.
 		bool parseReturnValue = parseCommand(commandFromServer, serverCommand, arguments);
 		do
 		{
+			// This if-else chain functions like a switch statement
+			// on the command recieved from the server.
 
 			if(serverCommand.compare("picknick") == 0)
 			{

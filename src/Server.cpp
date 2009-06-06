@@ -329,7 +329,7 @@ void *clientHandlerThread(void *p)
 				itr++;
 			}
 
-			// Send over the actual creatures in use on the current game map
+			// Send over the class descriptions in use on the current game map
 			//TODO: Only send the classes which the client is supposed to see due to fog of war.
 			for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 			{
@@ -350,8 +350,8 @@ void *clientHandlerThread(void *p)
 				curSock->recv(tempString);
 			}
 
-			// Send over the class descriptions in use on the current game map
-			//TODO: Only send the classes which the client is supposed to see due to fog of war.
+			// Send over the actual creatures in use on the current game map
+			//TODO: Only send the creatures which the client is supposed to see due to fog of war.
 			for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 			{
 				Creature *tempCreature = gameMap.getCreature(i);
@@ -366,11 +366,13 @@ void *clientHandlerThread(void *p)
 				curSock->recv(tempString);
 			}
 
+			/*
 			// Send tell the client to start this turn
 			tempString = "";
 			tempSS.str(tempString);
 			tempSS << turnNumber;
 			curSock->send(formatCommand("newturn", tempSS.str()));
+			*/
 
 			sem_post(&curSock->semaphore);
 		}
