@@ -223,6 +223,12 @@ void *serverNotificationProcessor(void *p)
 				sendToAllClients(frameListener, formatCommand("creatureAddDestination", tempSS.str()));
 				break;
 
+			case ServerNotification::creatureSetAnimationState:
+				tempSS.str(tempString);
+				tempSS << event->cre->name << ":" << event->str;
+				sendToAllClients(frameListener, formatCommand("creatureSetAnimationState", tempSS.str()));
+				break;
+
 			case ServerNotification::setTurnsPerSecond:
 				tempSS.str(tempString);
 				tempSS << turnsPerSecond;

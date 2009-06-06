@@ -185,6 +185,29 @@ void *clientSocketProcessor(void *p)
 				}
 			}
 
+			else if(serverCommand.compare("creatureSetAnimationState") == 0)
+			{
+
+				char array[255];
+				string tempState;
+				stringstream tempSS;
+				tempSS.str(arguments);
+
+				// Parse the creature name and get a pointer to it
+				tempSS.getline(array, sizeof(array), ':');
+				Creature *tempCreature = gameMap.getCreature(array);
+
+				// Parse the animation state
+				tempSS.getline(array, sizeof(array));
+				tempState = array;
+
+				if(tempCreature != NULL)
+				{
+					tempCreature->setAnimationState(tempState);
+				}
+
+			}
+
 			else if(serverCommand.compare("tileFullnessChange") == 0)
 			{
 				char array[255];

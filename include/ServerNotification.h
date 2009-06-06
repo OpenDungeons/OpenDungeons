@@ -14,13 +14,23 @@ using namespace std;
 class ServerNotification
 {
 	public:
-		enum ServerNotificationType {turnStarted, creatureAddDestination, setTurnsPerSecond, tileFullnessChange};
+		enum ServerNotificationType
+		{
+			turnStarted,
+			setTurnsPerSecond,
+
+			tileFullnessChange,
+
+			creatureAddDestination,
+			creatureSetAnimationState
+		};
 
 		ServerNotificationType type;
 		string str;
 		Ogre::Vector3 vec;
 		double doub;
 		Tile *tile;
+		Creature *cre;
 };
 
 #endif

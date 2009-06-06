@@ -3,6 +3,7 @@
 #include "Globals.h"
 #include "Functions.h"
 #include "CreatureAction.h"
+#include "Network.h"
 
 Creature::Creature()
 {
@@ -509,10 +510,23 @@ void Creature::deleteYourself()
 */
 void Creature::setAnimationState(string s)
 {
+	string tempString;
+	stringstream tempSS;
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::setCreatureAnimationState;
 	request->p = this;
 	request->str = s;
+
+	if(serverSocket != NULL)
+	{
+		// Place a message in the queue to inform the clients about the new animation state
+		ServerNotification *serverNotification = new ServerNotification;
+		serverNotification->type = ServerNotification::creatureSetAnimationState;
+		serverNotification->str = s;
+		serverNotification->cre = this;
+		serverNotificationQueue.push_back(serverNotification);
+		sem_post(&serverNotificationQueueSemaphore);
+	}
 
 	sem_wait(&renderQueueSemaphore);
 	renderQueue.push_back(request);

@@ -71,8 +71,6 @@ public:
 	virtual void windowClosed(RenderWindow* rw);
 	virtual ~ExampleFrameListener();
 
-	virtual bool processUnbufferedKeyInput(const FrameEvent& evt);
-	bool processUnbufferedMouseInput(const FrameEvent& evt);
 	void moveCamera(double frameTime);
 	void showDebugOverlay(bool show);
 

@@ -42,6 +42,9 @@ using namespace std;
 
 using namespace Ogre;
 
+/*! \brief A required function to pass input to the OIS system.
+ *
+ */
 CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID)
 {
 	switch (buttonID)
@@ -96,7 +99,9 @@ void ExampleFrameListener::updateStats(void)
 	catch(...) { /* ignore */ }
 }
 
-// Constructor takes a RenderWindow because it uses that to determine input context
+/*! \brief This constructor is where the OGRE system is initialized and started.
+ *
+ */
 ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, SceneManager *sceneManager, CEGUI::Renderer *renderer, bool bufferedKeys, bool bufferedMouse, bool bufferedJoy)
 	: mCamera(cam), mTranslateVector(Ogre::Vector3::ZERO), mWindow(win),
 	mStatsOn(true), mNumScreenShots(0), mMoveScale(0.0f), mRotScale(0.0f),
@@ -165,7 +170,9 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 
 }
 
-//Adjust mouse clipping area
+/*! \brief Adjust mouse clipping area
+ *
+ */
 void ExampleFrameListener::windowResized(RenderWindow* rw)
 {
 	unsigned int width, height, depth;
@@ -177,7 +184,9 @@ void ExampleFrameListener::windowResized(RenderWindow* rw)
 	ms.height = height;
 }
 
-//Unattach OIS before window shutdown (very important under Linux)
+/*! \brief Unattach OIS before window shutdown (very important under Linux)
+ *
+ */
 void ExampleFrameListener::windowClosed(RenderWindow* rw)
 {
 	//Only close for window that created OIS (the main window in these demos)
@@ -203,79 +212,6 @@ ExampleFrameListener::~ExampleFrameListener()
 	//Remove ourself as a Window listener
 	WindowEventUtilities::removeWindowEventListener(mWindow, this);
 	windowClosed(mWindow);
-}
-
-//FIXME:  This function is no longer used and should be deleted once the
-// remaining functionality has been moved over to the buffered keyboard hadler
-bool ExampleFrameListener::processUnbufferedKeyInput(const FrameEvent& evt)
-{
-	using namespace OIS;
-	/*
-	const double xyAccelFactor = 0.04, xyAccelLimit = 0.07;
-	const double lrAccelFactor = 3, lrAccelLimit = 10;
-	const double udAccelFactor = 1.5, udAccelLimit = 5;
-
-	static double xAccel = 0.0, yAccel = 0.0, lrAccel = 0.0, udAccel;
-	static bool xPositive, yPositive, lrPositive, udPositive;
-	*/
-
-	if( mKeyboard->isKeyDown(KC_T) && mTimeUntilNextToggle <= 0 )
-	{
-		switch(mFiltering)
-		{
-		case TFO_BILINEAR:
-			mFiltering = TFO_TRILINEAR;
-			mAniso = 1;
-			break;
-		case TFO_TRILINEAR:
-			mFiltering = TFO_ANISOTROPIC;
-			mAniso = 8;
-			break;
-		case TFO_ANISOTROPIC:
-			mFiltering = TFO_BILINEAR;
-			mAniso = 1;
-			break;
-		default: break;
-		}
-		MaterialManager::getSingleton().setDefaultTextureFiltering(mFiltering);
-		MaterialManager::getSingleton().setDefaultAnisotropy(mAniso);
-
-		showDebugOverlay(mStatsOn);
-		mTimeUntilNextToggle = 1;
-	}
-
-	if(mKeyboard->isKeyDown(KC_R) && mTimeUntilNextToggle <=0)
-	{
-		mSceneDetailIndex = (mSceneDetailIndex+1)%3 ;
-		switch(mSceneDetailIndex) {
-			case 0 : mCamera->setPolygonMode(PM_SOLID); break;
-			case 1 : mCamera->setPolygonMode(PM_WIREFRAME); break;
-			case 2 : mCamera->setPolygonMode(PM_POINTS); break;
-		}
-		mTimeUntilNextToggle = 0.5;
-	}
-
-	static bool displayCameraDetails = false;
-	if(mKeyboard->isKeyDown(KC_P) && mTimeUntilNextToggle <= 0)
-	{
-		displayCameraDetails = !displayCameraDetails;
-		mTimeUntilNextToggle = 0.5;
-		if (!displayCameraDetails)
-			mDebugText = "";
-	}
-
-	// Print camera details
-	if(displayCameraDetails)
-		mDebugText = "P: " + StringConverter::toString(mCamera->getDerivedPosition()) +
-					 " " + "O: " + StringConverter::toString(mCamera->getDerivedOrientation());
-
-	// Return true to continue rendering
-	return true;
-}
-
-bool ExampleFrameListener::processUnbufferedMouseInput(const FrameEvent& evt)
-{
-	return true;
 }
 
 /*! \brief Sets the camera to a new location while still satisfying the constraints placed on its movement
@@ -587,22 +523,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		mRotZ = 0;
 		mTranslateVector = Ogre::Vector3::ZERO;
 	}
-
-	// Move about 100 units per second
-	//mMoveScale = mMoveSpeed * evt.timeSinceLastFrame;
-	// Take about 10 seconds for full rotation
-	//mRotScale = mRotateSpeed * evt.timeSinceLastFrame;
-
-	//Check to see which device is not buffered, and handle it
-	if( !mKeyboard->buffered() )
-		if( processUnbufferedKeyInput(evt) == false )
-			return false;
-	if( !mMouse->buffered() )
-		if( processUnbufferedMouseInput(evt) == false )
-			return false;
-
-	if( !mMouse->buffered() || !mKeyboard->buffered() || !buffJ )
-		moveCamera(evt.timeSinceLastFrame);
 
 	moveCamera(evt.timeSinceLastFrame);
 
@@ -1130,16 +1050,22 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 			//Toggle mCurrentTileType
 			case KC_R:
-				mCurrentTileType = Tile::nextTileType(mCurrentTileType);
-				sprintf(tempArray, "Tile type:  %s", Tile::tileTypeToString(mCurrentTileType).c_str());
-				MOTD = tempArray;
+				if(serverSocket == NULL && clientSocket == NULL)
+				{
+					mCurrentTileType = Tile::nextTileType(mCurrentTileType);
+					sprintf(tempArray, "Tile type:  %s", Tile::tileTypeToString(mCurrentTileType).c_str());
+					MOTD = tempArray;
+				}
 				break;
 
 			//Toggle mCurrentFullness
 			case KC_T:
-				mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
-				sprintf(tempArray, "Tile fullness:  %i", mCurrentFullness);
-				MOTD = tempArray;
+				if(serverSocket == NULL && clientSocket == NULL)
+				{
+					mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
+					sprintf(tempArray, "Tile fullness:  %i", mCurrentFullness);
+					MOTD = tempArray;
+				}
 				break;
 
 			// Toggle the framerate display

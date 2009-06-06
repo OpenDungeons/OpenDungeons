@@ -4,6 +4,9 @@
 #include <deque>
 #include <utility>
 
+#include "ExampleFrameListener.h"
+#include "ChatMessage.h"
+
 // Functions called by pthread_create
 void *clientSocketProcessor(void *p);
 void *serverSocketProcessor(void *p);
