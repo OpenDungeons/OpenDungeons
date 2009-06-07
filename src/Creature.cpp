@@ -407,7 +407,7 @@ void Creature::doTurn()
 						// Randomly pick a short path to take
 						unsigned int numShortPaths = shortPaths.size();
 						shortestIndex = (int)randomDouble(0, (double)numShortPaths-0.001);
-						walkPath = possiblePaths[shortestIndex];
+						walkPath = shortPaths[shortestIndex];
 
 						// If the path is a legitamate path, walk down it to the tile to be dug out
 						if(walkPath.size() >= 2)
