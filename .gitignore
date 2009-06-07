@@ -6,3 +6,5 @@ Makefile
 
 cmake_install.cmake
 
+ogre.cfg
+

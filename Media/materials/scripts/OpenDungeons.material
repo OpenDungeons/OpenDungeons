@@ -6,7 +6,7 @@ material Kobold skin/TEXFACE/kobold_skin6.png
 		pass
 		{
 			ambient 0.500000 0.500000 0.500000 1.000000
-			diffuse 0.712696 0.712696 0.712696 1.000000
+			diffuse 0.512696 0.512696 0.512696 1.000000
 			emissive 0.000000 0.000000 0.000000 1.000000
 			texture_unit
 			{
@@ -17,7 +17,7 @@ material Kobold skin/TEXFACE/kobold_skin6.png
 		pass
 		{
 			ambient 0.0 0.0 0.0
-			diffuse 0.8 0.8 0.8
+			diffuse 0.5 0.5 0.5
 			specular 0.035536 0.045176 0.075544 1.000000 5.000000
 			scene_blend add
 		}
@@ -31,7 +31,7 @@ material Kobold skin/TWOSIDE/TEXFACE/kobold_skin6.png
 		pass
 		{
 			ambient 0.500000 0.500000 0.500000 1.000000
-			diffuse 0.712696 0.712696 0.712696 1.000000
+			diffuse 0.512696 0.512696 0.512696 1.000000
 			emissive 0.000000 0.000000 0.000000 1.000000
 			cull_hardware none
 			cull_software none
@@ -44,7 +44,7 @@ material Kobold skin/TWOSIDE/TEXFACE/kobold_skin6.png
 		pass
 		{
 			ambient 0.0 0.0 0.0
-			diffuse 0.8 0.8 0.8
+			diffuse 0.5 0.5 0.5
 			specular 0.035536 0.045176 0.075544 1.000000 5.000000
 			scene_blend add
 			cull_hardware none
@@ -180,7 +180,7 @@ material Material.001/TEXFACE/Knight.png
 		pass
 		{
 			ambient 0.500000 0.500000 0.500000 1.000000
-			diffuse 0.885990 0.885990 0.885990 1.000000
+			diffuse 0.555990 0.555990 0.555990 1.000000
 			emissive 0.000000 0.000000 0.000000 1.000000
 			texture_unit
 			{
@@ -191,7 +191,7 @@ material Material.001/TEXFACE/Knight.png
 		pass
 		{
 			ambient 0.0 0.0 0.0
-			diffuse 0.8 0.8 0.8
+			diffuse 0.5 0.5 0.5
 			specular 0.024500 0.035985 0.044454 1.000000 12.500000
 			scene_blend add
 		}

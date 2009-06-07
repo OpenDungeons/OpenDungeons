@@ -2,6 +2,7 @@
 #define RENDERREQUEST_H
 
 #include <iostream>
+#include <semaphore.h>
 using namespace std;
 
 /*! \brief A data structure to be used for requesting that the OGRE rendering thread perform certain tasks.

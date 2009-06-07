@@ -8,6 +8,7 @@ using namespace std;
 #include "ExampleFrameListener.h"
 #include "Network.h"
 #include "ChatMessage.h"
+#include "Functions.h"
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
@@ -206,6 +207,13 @@ void *serverNotificationProcessor(void *p)
 		// Take a message out of the front of the notification queue
 		ServerNotification *event = serverNotificationQueue.front();
 		serverNotificationQueue.pop_front();
+
+		//FIXME:  This really should never happen but the queue does occasionally pop a NULL.
+		//This is probably a bug somewhere else where a NULL is being place in the queue.
+		if(event == NULL)
+		{
+			continue;
+		}
 
 		switch(event->type)
 		{

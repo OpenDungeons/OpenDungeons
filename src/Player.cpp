@@ -1,5 +1,13 @@
 #include "Player.h"
 
+Player::Player()
+{
+	nick =  "";
+	color = 1;
+	mana = 1000;
+	humanPlayer = true;
+}
+
 unsigned int Player::numCreaturesInHand()
 {
 	return creaturesInHand.size();

@@ -86,6 +86,7 @@ void GameMap::clearAll()
 	clearTiles();
 	clearCreatures();
 	clearClasses();
+	clearPlayers();
 }
 
 void GameMap::clearTiles()

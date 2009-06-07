@@ -10,6 +10,7 @@ using namespace std;
 #include "ExampleApplication.h"
 #include "ExampleFrameListener.h"
 #include "Tile.h"
+#include "Network.h"
 
 MapEditor::MapEditor()
 	: mSystem(0), mRenderer(0)
@@ -39,9 +40,6 @@ void MapEditor::createCamera(void)
 
 void MapEditor::createScene(void)
 {
-	int choice;
-	int newXSize, newYSize;
-
 	// Turn on shadows
 	//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
 	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);	// Quality 2
@@ -49,6 +47,9 @@ void MapEditor::createScene(void)
 
 	Entity *ent;
 	SceneNode *node;
+
+	int newXSize, newYSize;
+	int choice;
 
 	//FIXME:  This menu (or  something like it) should be enabled in the full game
 	//cout << "Open Dungeons\tVersion:  " << VERSION << endl;

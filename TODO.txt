@@ -12,6 +12,8 @@ FEATURE ADDITIONS:
 *  add help for "fps", "nearclip", "farclip".
 *  when the terminal becomes active if a key is held down the keyup message gets caught by the terminal and the key is "stuck" down.
 *  add a flyTo method to make the camera fly to a particular location (and orientation?).
+*  Add a keyboard controls help message under "help keys".
+*  Server needs to send the "turnsPerSecond" message as part of the initial client setup.
 
 
 *  Fix the issue with Mouse move.

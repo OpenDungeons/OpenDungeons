@@ -160,7 +160,6 @@ protected:
 	enum DragType {creature, tileSelection, tileBrushSelection, nullDragType};
 
 private:
-	void handleAcceleration(double accelFactor, double accelLimit, double &accel, bool &positive, bool driven, bool sameDir);
 	bool mContinue;
 	bool terminalActive;
 	int terminalWordWrap;

@@ -101,6 +101,8 @@ void ExampleFrameListener::updateStats(void)
 
 /*! \brief This constructor is where the OGRE system is initialized and started.
  *
+ * The primary function of this routine is to initialize variables, and start
+ * up the OGRE system.
  */
 ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, SceneManager *sceneManager, CEGUI::Renderer *renderer, bool bufferedKeys, bool bufferedMouse, bool bufferedJoy)
 	: mCamera(cam), mTranslateVector(Ogre::Vector3::ZERO), mWindow(win),
@@ -221,16 +223,13 @@ ExampleFrameListener::~ExampleFrameListener()
  */
 void ExampleFrameListener::moveCamera(double frameTime)
 {
-	// Make all the changes to the camera
-	// Note that YAW direction is around a fixed axis (freelook style) rather than a natural YAW
-	//(e.g. airplane)
-	//mCamera->yaw(mRotX);
-	//mCamera->pitch(mRotY);
-	//mCamera->roll(mRotZ);
+	// Record the camera's position, move it, the re-record the position
+	// for constraint calculations
 	Ogre::Vector3 tempVector = mCamNode->getPosition();
 	mCamNode->translate(mTranslateVector * frameTime, Node::TS_LOCAL);
 	Ogre::Vector3 tempVector2 = mCamNode->getPosition();
 
+	// Apply the valid motion into tempVector2
 	tempVector2.z = tempVector.z + zChange*frameTime*mZoomSpeed;
 	double horizontalSpeedFactor = (tempVector2.z >= 25.0) ? 1.0 : tempVector2.z/(25.0);
 	tempVector2.x = tempVector.x + (mMouseTranslateVector.x + (tempVector2.x - tempVector.x)) * horizontalSpeedFactor;
@@ -240,8 +239,10 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	if(tempVector2.z <= 4.5)
 		tempVector2.z = 4.5;
 
+	// Move the camera to the new location
 	mCamNode->setPosition(tempVector2);
 
+	// Rotate the camera
 	mCamNode->rotate(Ogre::Vector3::UNIT_X, Degree(mRotateLocalVector.x * frameTime), Node::TS_LOCAL);
 	mCamNode->rotate(Ogre::Vector3::UNIT_Y, Degree(mRotateLocalVector.y * frameTime), Node::TS_LOCAL);
 	mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(mRotateLocalVector.z * frameTime), Node::TS_LOCAL);
@@ -284,28 +285,32 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Tile *curTile = NULL;
 		Creature *curCreature = NULL;
 
+		// Remove the first item from the render queue
 		sem_wait(&renderQueueSemaphore);
 		RenderRequest *curReq = renderQueue.front();
 		renderQueue.pop_front();
 		sem_post(&renderQueueSemaphore);
 
+		// Switch based on the type of render request we are processing
 		switch(curReq->type)
 		{
 			case RenderRequest::refreshTile:
 				curTile = (Tile*)curReq->p;
 				if(mSceneMgr->hasSceneNode( (curTile->name + "_node").c_str() ) )
 				{
+					// Unlink and delete the old mesh
 					mSceneMgr->getSceneNode( (curTile->name + "_node").c_str() )->detachObject(curTile->name.c_str());
 					mSceneMgr->destroyEntity(curTile->name.c_str());
 
+					// Create the new mesh
 					string tileTypeString = Tile::tileTypeToString(curTile->getType());
 					sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
 					ent = mSceneMgr->createEntity(curTile->name.c_str(), meshName);
 
+					// Link the tile mesh back to the relevant scene node so OGRE will render it
 					mSceneMgr->getSceneNode((curTile->name + "_node").c_str())->attachObject(ent);
 					ent->setNormaliseNormals(true);
 				}
-
 				break;
 
 			case RenderRequest::createTile:
@@ -400,10 +405,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		delete curReq;
 		curReq = NULL;
 	}
-	
+
 	string chatBaseString = "\n---------- Chat ----------\n";
 	chatString = chatBaseString;
 
+	// Delete any chat messages older than the maximum allowable age
 	//TODO:  Lock this queue before doing this stuff
 	time_t now;
 	time(&now);
@@ -424,7 +430,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		}
 	}
 
-	// Only keep the N newest chat messages
+	// Only keep the N newest chat messages of the ones that remain
 	while(chatMessages.size() > 5)
 	{
 		delete chatMessages.front();
@@ -505,27 +511,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	mMouse->capture();
 	//if( mJoy ) mJoy->capture();
 
-	bool buffJ = (mJoy) ? mJoy->buffered() : true;
-
-	//FIXME: This code needs to be reviewed since the keyboard is now using buffered input
-	//Check if one of the devices is not buffered
-	if( !mMouse->buffered() || !mKeyboard->buffered() )
-	{
-		// one of the input modes is immediate, so setup what is needed for immediate movement
-		//if (mTimeUntilNextToggle >= 0)
-			//mTimeUntilNextToggle -= evt.timeSinceLastFrame;
-
-		// Move about 100 units per second
-		//mMoveScale = mMoveSpeed * evt.timeSinceLastFrame;
-		// Take about 10 seconds for full rotation
-		//mRotScale = mRotateSpeed * evt.timeSinceLastFrame;
-
-		mRotX = 0;
-		mRotY = 0;
-		mRotZ = 0;
-		mTranslateVector = Ogre::Vector3::ZERO;
-	}
-
 	moveCamera(evt.timeSinceLastFrame);
 
 	// Sleep to limit the framerate to the max value
@@ -548,48 +533,6 @@ bool ExampleFrameListener::frameEnded(const FrameEvent& evt)
 {
 	updateStats();
 	return true;
-}
-
-// This function causes the camera to "coast" a bit after we stop holding the
-// button to move in that direction.  It also makes the camera movement speed
-// up in a given direction if the key to move that way is held down for a
-// period of time.
-void ExampleFrameListener::handleAcceleration(double accelFactor, double accelLimit, double &accel, bool &positive, bool driven, bool sameDir)
-{
-	if(!sameDir && driven)
-	{
-		positive = false;
-		accel -= accelFactor;
-
-		if(accel < -accelLimit) accel = -accelLimit;
-
-		return;
-	}
-
-	if(sameDir && driven)
-	{
-		positive = true;
-		accel += accelFactor;
-
-		if(accel > accelLimit) accel = accelLimit;
-
-		return;
-	}
-
-	// The following if statement is guaranteed to be true so it could be optimised out
-	if(!driven)
-	{
-		if(positive)
-		{
-			accel -= accelFactor;
-			if(accel < 0.0) accel = 0.0;
-		}
-		else
-		{
-			accel += accelFactor;
-			if(accel > 0.0) accel = 0.0;
-		}
-	}
 }
 
 /*! \brief Exit the game.

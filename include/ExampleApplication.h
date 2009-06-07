@@ -134,8 +134,7 @@ protected:
 		// Load resources
 		loadResources();
 
-		// Create the scene
-        createScene();
+	createScene();
 
         createFrameListener();
 

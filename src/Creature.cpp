@@ -97,7 +97,7 @@ istream& operator>>(istream& is, Creature *c)
 /*! \brief Allocate storage for, load, and inform OGRE about a mesh for this creature.
  *
  *  This function is called after a creature has been loaded from hard disk,
- *  recieved from a network connection, or created during the game play by the
+ *  received from a network connection, or created during the game play by the
  *  game engine itself.
  */
 void Creature::createMesh()
@@ -109,6 +109,9 @@ void Creature::createMesh()
 	sem_wait(&renderQueueSemaphore);
 	renderQueue.push_back(request);
 	sem_post(&renderQueueSemaphore);
+
+	//FIXME:  This function needs to wait until the render queue has processed the request before returning.  This should fix the bug where the client crashes loading levels with lots of creatures.  Other create mesh routines should have a similar wait statement.
+
 }
 
 
@@ -222,7 +225,7 @@ void Creature::doTurn()
 	updateVisibleTiles();
 
 	// If the current task was 'idle' and it changed to something else, start doing the next
-	// thing during this turn instead of waiting unitl the next turn.
+	// thing during this turn instead of waiting until the next turn.
 	do
 	{
 		loopBack = false;
@@ -409,7 +412,7 @@ void Creature::doTurn()
 						shortestIndex = (int)randomDouble(0, (double)numShortPaths-0.001);
 						walkPath = shortPaths[shortestIndex];
 
-						// If the path is a legitamate path, walk down it to the tile to be dug out
+						// If the path is a legitimate path, walk down it to the tile to be dug out
 						if(walkPath.size() >= 2)
 						{
 							setAnimationState("Walk");
@@ -446,7 +449,7 @@ void Creature::doTurn()
 /*! \brief Creates a list of Tile pointers in visibleTiles
  *
  * The tiles are currently determined to be visible or not, according only to
- * the the distance they are away fron the creature.  Because of this they can
+ * the distance they are away from the creature.  Because of this they can
  * currently see through walls, etc.
 */
 void Creature::updateVisibleTiles()
