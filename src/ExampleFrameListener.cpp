@@ -493,6 +493,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					// Turn to face the next direction
 					currentCreature->shortDistance = currentCreature->getPosition().distance(currentCreature->walkQueue.front());
 					currentCreature->walkDirection = currentCreature->walkQueue.front() - currentCreature->getPosition();
+					currentCreature->walkDirection.normalise();
 					Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 					Quaternion quat = src.getRotationTo(currentCreature->walkDirection);
 					node->rotate(quat);

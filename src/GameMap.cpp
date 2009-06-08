@@ -415,7 +415,6 @@ vector<Tile*> GameMap::neighborTiles(int x, int y)
 		for(int i = 0; i < 4; i++)
 		{
 			int tempX, tempY;
-			double nDist;
 
 			tempX = x;
 			tempY = y;
@@ -468,5 +467,133 @@ Player* GameMap::getPlayer(string pName)
 unsigned int GameMap::numPlayers()
 {
 	return players.size();
+}
+
+list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
+{
+	list<Tile*> path;
+
+	int Dx = x1 - x0;
+	int Dy = y1 - y0;
+	int steep = (abs(Dy) >= abs(Dx));
+	if (steep)
+	{
+		swap(x0, y0);
+		swap(x1, y1);
+		// recompute Dx, Dy after swap
+		Dx = x1 - x0;
+		Dy = y1 - y0;
+	}
+	int xstep = 1;
+	if (Dx < 0)
+	{
+		xstep = -1;
+		Dx = -Dx;
+	}
+	int ystep = 1;
+	if (Dy < 0)
+	{
+		ystep = -1;
+		Dy = -Dy;
+	}
+	int TwoDy = 2*Dy;
+	int TwoDyTwoDx = TwoDy - 2*Dx; // 2*Dy - 2*Dx
+	int E = TwoDy - Dx; //2*Dy - Dx
+	int y = y0;
+	int xDraw, yDraw;
+	for (int x = x0; x != x1; x += xstep)
+	{
+		if (steep)
+		{
+			xDraw = y;
+			yDraw = x;
+		}
+		else
+		{
+			xDraw = x;
+			yDraw = y;
+		}
+		
+		// if the tile exists, add it to the path
+		Tile *currentTile = getTile(xDraw, yDraw);
+		if(currentTile != NULL)
+		{
+			path.push_back(currentTile);
+		}
+
+		// next
+		if (E > 0)
+		{
+			E += TwoDyTwoDx; //E += 2*Dy - 2*Dx;
+			y = y + ystep;
+		}
+		else
+		{
+			E += TwoDy; //E += 2*Dy;
+		}
+	}
+
+	return path;
+}
+
+bool GameMap::pathIsClear(list<Tile*> path)
+{
+	list<Tile*>::iterator itr;
+
+	// Loop over each space and check to see if it is clear
+	bool isClear = true;
+	for(itr = path.begin(); itr != path.end() && isClear; itr++)
+	{
+		isClear = (isClear && (*itr)->getFullness() <= 1.0);
+	}
+
+	return isClear;
+}
+
+void GameMap::cutCorners(list<Tile*> &path)
+{
+	if(path.size() <= 3)
+		return;
+
+	list<Tile*>::iterator t1 = path.begin();
+	list<Tile*>::iterator t2 = t1;
+	t2++;
+	list<Tile*>::iterator t3;
+	list<Tile*>::iterator t4;
+	list<Tile*>::iterator secondLast = path.end();
+	secondLast--;
+
+	// Loop t1 over all but the last tile in the path
+	while(t1 != secondLast && t1 != path.end()) 
+	{
+		// Loop t2 from t1 until the end of the path
+		t2 = t1;
+		t2++;
+		while(t2 != path.end())
+		{
+			// If we have a clear line of sight to t2, advance to
+			// the next tile else break out of the inner loop
+			if( pathIsClear( lineOfSight( (*t1)->x, (*t1)->y, (*t2)->x, (*t2)->y )) )
+				t2++;
+			else
+				break;
+		}
+
+		// Delete the tiles 'strictly between' t1 and t2
+		t3 = t1;
+		t3++;
+		if(t3 != t2)
+		{
+			t4 = t2;
+			t4--;
+			if(t3 != t4)
+				path.erase(t3, t4);
+		}
+
+		t1 = t2;
+
+		secondLast = path.end();
+		secondLast--;
+	}
 }
 

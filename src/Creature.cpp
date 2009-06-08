@@ -267,6 +267,7 @@ void Creature::doTurn()
 						if(result.size() >= 2)
 						{
 							setAnimationState("Walk");
+							gameMap.cutCorners(result);
 							list<Tile*>::iterator itr = result.begin();
 							itr++;
 							while(itr != result.end())
@@ -416,6 +417,7 @@ void Creature::doTurn()
 						if(walkPath.size() >= 2)
 						{
 							setAnimationState("Walk");
+							gameMap.cutCorners(walkPath);
 							list<Tile*>::iterator itr = walkPath.begin();
 							itr++;
 							while(itr != walkPath.end())
@@ -592,6 +594,8 @@ void Creature::addDestination(int x, int y)
 
 		// Rotate the creature to face the direction of the destination
 		walkDirection = walkQueue.front() - position;
+		walkDirection.normalise();
+
 		SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
 		Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 		Quaternion quat = src.getRotationTo(walkDirection);
