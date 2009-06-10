@@ -49,6 +49,7 @@ class Creature
 		int color;			// The color of the player who controls this creature
 		int hp, mana;			// Basic stats
 		double moveSpeed;		//FIXME:  This is not set from file yet.
+		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.
 
 		// Visual debugging routines
 		void createVisualDebugEntities();

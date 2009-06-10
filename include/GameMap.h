@@ -53,10 +53,9 @@ class GameMap
 		// AI Methods
 		void doTurn();
 
-		list<Tile*> path(int x1, int y1, int x2, int y2);
+		list<Tile*> path(int x1, int y1, int x2, int y2, Tile::TileClearType clearType);
 		vector<Tile*> neighborTiles(int x, int y);
 		list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
-		//enum TileClearType { walkable, flyable, visible };
 		bool pathIsClear(list<Tile*> path);
 		void cutCorners(list<Tile*> &path);
 

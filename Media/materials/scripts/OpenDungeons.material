@@ -1,3 +1,27 @@
+material Material_Wyvern.png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.413012 0.364322 0.364322 1.000000
+			specular 0.111422 0.124347 0.112595 1.000000 31.750000
+			emissive 0.042543 0.037528 0.037528 1.000000
+			scene_blend alpha_blend
+			depth_write off
+			texture_unit
+			{
+				texture Wyvern.png
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}
+
 material Kobold skin/TEXFACE/kobold_skin6.png
 {
 	receive_shadows on

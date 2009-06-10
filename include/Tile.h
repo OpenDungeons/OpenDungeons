@@ -27,6 +27,8 @@ class Tile
 {
 	public:
 		enum TileType {dirt=0, gold=1, rock=2, water=3, lava=4, claimed=5, nullTileType};
+		// Changes to this enum must be reflected in Tile::getTilePassability() as well as in GameMap::path()
+		enum TileClearType { impassableTile=0, walkableTile=1, flyableTile=2 };
 
 		Tile();
 		Tile(int nX, int nY, TileType nType, int nFullness);
@@ -37,6 +39,7 @@ class Tile
 		void setFullness(int f);
 		int getFullness();
 		int getFullnessMeshNumber();
+		TileClearType getTilePassability();
 
 		static string tileTypeToString(TileType t);
 		static TileType nextTileType(TileType t);

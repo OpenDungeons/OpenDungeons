@@ -19,6 +19,7 @@ Creature::Creature()
 	sightRadius = 10;
 	digRate = 10;
 	moveSpeed = 1.0;
+	tilePassability = Tile::walkableTile;
 
 	//currentTask = idle;
 	animationState = NULL;
@@ -42,6 +43,7 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	sightRadius = nSightRadius;
 	digRate = nDigRate;
 	moveSpeed = 1.0;
+	tilePassability = Tile::walkableTile;
 
 	//currentTask = idle;
 	animationState = NULL;
@@ -263,7 +265,7 @@ void Creature::doTurn()
 						int tempX = position.x + 2.0*gaussianRandomDouble();
 						int tempY = position.y + 2.0*gaussianRandomDouble();
 
-						list<Tile*> result = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
+						list<Tile*> result = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY, tilePassability);
 						if(result.size() >= 2)
 						{
 							setAnimationState("Walk");
@@ -288,7 +290,10 @@ void Creature::doTurn()
 				case CreatureAction::walkToTile:
 					cout << "walkToTile ";
 					if(walkQueue.size() == 0)
+					{
 						actionQueue.pop_front();
+						loopBack = true;
+					}
 					break;
 
 				case CreatureAction::digTile:
@@ -354,10 +359,9 @@ void Creature::doTurn()
 						neighbors = gameMap.neighborTiles(markedTiles[i]->x, markedTiles[i]->y);
 						for(unsigned int j = 0; j < neighbors.size(); j++)
 						{
-							//walkPath = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY);
 							neighborTile = neighbors[j];
 							if(neighborTile != NULL && neighborTile->getFullness() == 0)
-								possiblePaths.push_back(gameMap.path(positionTile()->x, positionTile()->y, neighborTile->x, neighborTile->y));
+								possiblePaths.push_back(gameMap.path(positionTile()->x, positionTile()->y, neighborTile->x, neighborTile->y, tilePassability));
 
 						}
 					}

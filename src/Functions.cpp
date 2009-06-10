@@ -25,6 +25,9 @@ void readGameMapFromFile(string fileName)
 	for(int i = 0; i < objectsToLoad; i++)
 	{
 		
+		//NOTE: This code is duplicated in the client side method
+		//"addclass" defined in src/Client.cpp and readGameMapFromFile.
+		//Changes to this code should be reflected in that code as well
 		tempTile = new Tile;
 		levelFile >> tempTile;
 
@@ -45,8 +48,9 @@ void readGameMapFromFile(string fileName)
 	levelFile >> objectsToLoad;
 	for(int i = 0; i < objectsToLoad; i++)
 	{
-		//NOTE: This code is duplicated in the client side method "addclass" defined in src/Client.cpp
-		// Changes to this code should be reflected in that code as well
+		//NOTE: This code is duplicated in the client side method
+		//"addclass" defined in src/Client.cpp and writeGameMapToFile.
+		//Changes to this code should be reflected in that code as well
 		double tempX, tempY, tempZ, tempSightRadius, tempDigRate;
 		int tempHP, tempMana;
 		levelFile >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
@@ -65,8 +69,9 @@ void readGameMapFromFile(string fileName)
 	for(int i = 0; i < objectsToLoad; i++)
 	{
 
-		//NOTE: This code is duplicated in the client side method "addclass" defined in src/Client.cpp
-		// Changes to this code should be reflected in that code as well
+		//NOTE: This code is duplicated in the client side method
+		//"addclass" defined in src/Client.cpp and writeGameMapToFile.
+		//Changes to this code should be reflected in that code as well
 		Creature *newCreature = new Creature;
 
 		levelFile >> newCreature;
@@ -88,6 +93,9 @@ void writeGameMapToFile(string fileName)
 	TileMap_t::iterator itr = gameMap.firstTile();
 	while(itr != gameMap.lastTile())
 	{
+		//NOTE: This code is duplicated in the client side method
+		//"addclass" defined in src/Client.cpp and readGameMapFromFile.
+		//Changes to this code should be reflected in that code as well
 		tempTile = itr->second;
 		levelFile << tempTile->x << "\t" << tempTile->y << "\t";
 		levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
@@ -102,6 +110,9 @@ void writeGameMapToFile(string fileName)
 	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 	{
 		
+		//NOTE: This code is duplicated in the client side method
+		//"addclass" defined in src/Client.cpp and readGameMapFromFile.
+		//Changes to this code should be reflected in that code as well
 		tempCreature = gameMap.getClassDescription(i);
 		levelFile << tempCreature->className << "\t" << tempCreature->meshName << "\t" << tempCreature->scale.x << "\t" << tempCreature->scale.y << "\t" << tempCreature->scale.z << "\t";
 		levelFile << tempCreature->hp << "\t" << tempCreature->mana << "\t";
@@ -112,6 +123,9 @@ void writeGameMapToFile(string fileName)
 	levelFile << "\n" << gameMap.numCreatures() << "\n";
 	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 	{
+		//NOTE: This code is duplicated in the client side method
+		//"addclass" defined in src/Client.cpp and readGameMapFromFile.
+		//Changes to this code should be reflected in that code as well
 		levelFile << gameMap.getCreature(i);
 	}
 

@@ -127,6 +127,40 @@ int Tile::getFullnessMeshNumber()
 	return fullnessMeshNumber;
 }
 
+/*! \brief Returns the 'passability' state of a tile (impassableTile, walkableTile, etc.).
+ *
+ * The passability of a tile indicates what type of creatures may move into the
+ * given tile.  As an example, no creatures may move into an 'impassableTile'
+ * like Dirt100 and only flying creatures may move into a 'flyableTile' like
+ * Lava0.
+ */
+Tile::TileClearType Tile::getTilePassability()
+{
+	switch(type)
+	{
+		case dirt:
+		case gold:
+		case rock:
+		case claimed:
+			if(fullness >= 0 && fullness < 1)
+				return walkableTile;
+			break;
+
+		case water:
+			return walkableTile;
+			break;
+
+		case lava:
+			return flyableTile;
+
+		default:
+			cout << "\n\nERROR:  Unhandled tile type in Tile::getTilePassability()\n\n";
+			exit(1);
+			break;
+	}
+
+}
+
 /*! \brief The << operator is used for saving tiles to a file and sending them over the net.
  *
  * This operator is used in conjunction with the >> operator to standardize

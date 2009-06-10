@@ -234,7 +234,7 @@ void GameMap::doTurn()
 
 // Calculates the walkable path between tiles (x1, y1) and (x2, y2)
 // The path returned contains both the starting and ending tiles
-list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
+list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
 {
 	list<Tile*> returnList;
 	astarEntry *currentEntry;
@@ -299,12 +299,32 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2)
 		{
 			neighbor->tile = neighbors[i];
 
-			// See if the neighbor tile in question is walkable and empty
-			// The "numCreaturesInCell" comaprison sets the max creatures in a cell at a time.
-			// note:  this does not prevent two creatures from both walking into an empty cell
-			// during the same turn, only one creature moving into the cell occupied by another.
-			if(neighbor->tile != NULL && neighbor->tile->getFullness() == 0)
+			if(neighbor->tile != NULL)
 			{
+				// See if the neighbor tile in question is passable
+				switch(passability)
+				{
+					case Tile::walkableTile:
+						if( !(neighbor->tile->getTilePassability() == Tile::walkableTile) )
+							continue;  // skip this tile and go on to the next neighbor tile
+						break;
+
+					case Tile::flyableTile:
+						if( !(neighbor->tile->getTilePassability() == Tile::walkableTile || neighbor->tile->getTilePassability() == Tile::flyableTile) )
+							continue;  // skip this tile and go on to the next neighbor tile
+						break;
+
+					case Tile::impassableTile:
+						cout << "\n\nERROR:  Trying to find a path through impassable tiles in GameMap::path()\n\n";
+						exit(1);
+						break;
+
+					default:
+						cout << "\n\nERROR:  Unhandled tile type in GameMap::path()\n\n";
+						exit(1);
+						break;
+				}
+
 				// See if the neighbor is in the closed list
 				bool neighborFound = false;
 				list<astarEntry*>::iterator itr = closedList.begin();
