@@ -152,6 +152,7 @@ void *creatureAIThread(void *p)
 
 		// Do a turn in the game
 		stopwatch.reset();
+		turnNumber++;
 
 		// Place a message in the queue to inform the clients that a new turn has started
 		ServerNotification *serverNotification = new ServerNotification;
@@ -161,7 +162,6 @@ void *creatureAIThread(void *p)
 
 		// Go to each creature and call their individual doTurn methods
 		gameMap.doTurn();
-		turnNumber++;
 		timeUntilNextTurn = 1.0/turnsPerSecond;
 
 		timeTaken = stopwatch.getMicroseconds();

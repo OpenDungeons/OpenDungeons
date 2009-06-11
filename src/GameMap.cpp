@@ -8,6 +8,11 @@ using namespace std;
 #include "Defines.h"
 #include "GameMap.h"
 
+/*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
+ *
+ * The new map consists entirely of the same kind of tile, with no creature
+ * classes loaded, no players, and no creatures.
+ */
 void GameMap::createNewMap(int xSize, int ySize)
 {
 	Tile *tempTile;
@@ -45,6 +50,11 @@ void GameMap::createNewMap(int xSize, int ySize)
 
 }
 
+/*! \brief Returns a pointer to the tile at location (x, y).
+ *
+ * The tile pointers are stored internally in a map so calls to this function
+ * have a complexity O(log(N)) where N is the number of tiles in the map.
+ */
 Tile* GameMap::getTile(int x, int y)
 {
 	pair<int,int> location(x, y);
@@ -53,34 +63,11 @@ Tile* GameMap::getTile(int x, int y)
 		return itr->second;
 	else
 		return NULL;
-
-	/*
-	for(unsigned int i = 0; i < tiles.size(); i++)
-	{
-		if(tiles[i]->x == x && tiles[i]->y == y)
-		{
-			return tiles[i];
-		}
-	}
-	*/
-
-	//cerr << "Error: Tile not found: (" << x << ", " << y << ")\n\n\n";
-	return NULL;
 }
 
-/*
-//FIXME:  looping from over this function is now quadratic rather than linear and this should be fixed
-Tile* GameMap::getTile(int index)
-{
-	//return tiles[index];
-	TileMap_t::iterator itr = tiles.begin();
-	for(int i = 0; i < index; i++)
-		itr++;
-
-	return itr->second;
-}
-*/
-
+/*! \brief Clears the mesh and deletes the data structure for all the tiles, creatures, classes, and players in the GameMap.
+ *
+ */
 void GameMap::clearAll()
 {
 	clearTiles();
@@ -89,6 +76,9 @@ void GameMap::clearAll()
 	clearPlayers();
 }
 
+/*! \brief Clears the mesh and deletes the data structure for all the tiles in the GameMap.
+ *
+ */
 void GameMap::clearTiles()
 {
 	TileMap_t::iterator itr = tiles.begin();
@@ -101,6 +91,9 @@ void GameMap::clearTiles()
 	tiles.clear();
 }
 
+/*! \brief Clears the mesh and deletes the data structure for all the creatures in the GameMap.
+ *
+ */
 void GameMap::clearCreatures()
 {
 	for(unsigned int i = 0; i < numCreatures(); i++)
@@ -112,6 +105,9 @@ void GameMap::clearCreatures()
 
 }
 
+/*! \brief Deletes the data structure for all the creature classes in the GameMap.
+ *
+ */
 void GameMap::clearClasses()
 {
 	for(unsigned int i = 0; i < numClassDescriptions(); i++)
@@ -122,6 +118,9 @@ void GameMap::clearClasses()
 	classDescriptions.clear();
 }
 
+/*! \brief Deletes the data structure for all the players in the GameMap.
+ *
+ */
 void GameMap::clearPlayers()
 {
 	for(unsigned int i = 0; i < numPlayers(); i++)
@@ -132,32 +131,56 @@ void GameMap::clearPlayers()
 	players.clear();
 }
 
+/*! \brief Returns the number of tile pointers currently stored in this GameMap.
+ *
+ */
 unsigned int GameMap::numTiles()
 {
 	return tiles.size();
 }
 
+/*! \brief Adds the address of a new tile to be stored in this GameMap.
+ *
+ */
 void GameMap::addTile(Tile *t)
 {
 	tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(t->x,t->y), t) );
 	//tiles.push_back(t);
 }
 
+/*! \brief Adds the address of a new class description to be stored in this GameMap.
+ *
+ * The class descriptions take the form of a creature data structure with most
+ * of the data members filled in.  This class structure is then copied into the
+ * data structure of new creatures that are added who are of this class.  The
+ * copied members include things like HP, mana, etc, that are the same for all
+ * members of that class.  Creature specific things like location, etc. are
+ * then filled out for the individual creature.
+ */
 void GameMap::addClassDescription(Creature *c)
 {
 	classDescriptions.push_back( c );
 }
 
+/*! \brief Copies the creature class structure into a newly created structure and stores the address of the new structure in this GameMap.
+ *
+ */
 void GameMap::addClassDescription(Creature c)
 {
 	classDescriptions.push_back( new Creature(c) );
 }
 
+/*! \brief Adds the address of a new creature to be stored in this GameMap.
+ *
+ */
 void GameMap::addCreature(Creature *c)
 {
 	creatures.push_back(c);
 }
 
+/*! \brief Returns a pointer to the first class description whose 'name' parameter matches the query string.
+ *
+ */
 Creature* GameMap::getClassDescription(string query)
 {
 	for(unsigned int i = 0; i < classDescriptions.size(); i++)
@@ -265,10 +288,6 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	bool pathFound = false;
 	while(true)
 	{
-		//cout << "\n\nStuck in this loop..." << openList.size();
-		//cout.flush();
-
-
 		// if the openList is empty we failed to find a path
 		if(openList.size() <= 0)
 			break;
@@ -384,8 +403,6 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 		}
 	}
 
-	//cout << "\n\n\n\n\n\nYEAH\n\n\n\n";
-	//cout.flush();
 	if(pathFound)
 	{
 		//Find the destination tile in the closed list

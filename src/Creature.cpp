@@ -449,6 +449,12 @@ void Creature::doTurn()
 					break;
 			}
 		}
+		else
+		{
+			cout << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
+			exit(1);
+		}
+
 	} while(loopBack);
 }
 

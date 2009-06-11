@@ -2,7 +2,7 @@ BUGS:
 *  fix keyboard repeat issue.
 *  Fix crash on entering a nonexistant mesh to addclass after calling addcreature using this class.
 *  Terminal commands with no arguments but spaces at the end, like 'host ', will not be recognized as valid commands.
-*  Fix crash on loading a new map from the server, I think it has to do with getting peices of messages in a single packet.
+*  Fix crash on loading a new map from the server, I think it has to do with getting peices of messages in a single packet.  This assumption may or may not be true, it may be that the RenderQueue is somehow processing the addDestination message before the createMesh message.
 
 
 
@@ -14,6 +14,7 @@ FEATURE ADDITIONS:
 *  add a flyTo method to make the camera fly to a particular location (and orientation?).
 *  Add a keyboard controls help message under "help keys".
 *  Server needs to send the "turnsPerSecond" message as part of the initial client setup.
+*  Store creature classes and class descriptions in maps rather than vectors to allow for faster lookups.
 
 
 *  Fix the issue with Mouse move.
