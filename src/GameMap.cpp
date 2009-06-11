@@ -192,27 +192,41 @@ Creature* GameMap::getClassDescription(string query)
 	return NULL;
 }
 
+/*! \brief Returns the total number of creatures stored in this game map.
+ *
+ */
 unsigned int GameMap::numCreatures()
 {
 	return creatures.size();
 }
 
+/*! \brief Returns the total number of class descriptions stored in this game map.
+ *
+ */
 unsigned int GameMap::numClassDescriptions()
 {
 	return classDescriptions.size();
 }
 
+/*! \brief Gets the i'th creature in this GameMap.
+ *
+ */
 Creature* GameMap::getCreature(int index)
 {
 	return creatures[index];
 }
 
+/*! \brief Gets the i'th class description in this GameMap.
+ *
+ */
 Creature* GameMap::getClassDescription(int index)
 {
 	return classDescriptions[index];
 }
 
-
+/*! \brief Creates meshes for all the tiles and creatures stored in this GameMap.
+ *
+ */
 void GameMap::createAllEntities()
 {
 	// Create OGRE entities for map tiles
@@ -227,11 +241,13 @@ void GameMap::createAllEntities()
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
 		Creature *currentCreature = getCreature(i);
-
 		currentCreature->createMesh();
 	}
 }
 
+/*! \brief Returns a pointer to the creature whose name matches cName.
+ *
+ */
 Creature* GameMap::getCreature(string cName)
 {
 	for(unsigned int i = 0; i < numCreatures(); i++)
@@ -245,6 +261,9 @@ Creature* GameMap::getCreature(string cName)
 	return NULL;
 }
 
+/*! \brief Loops over all the creatures and calls their individual doTurn methods.
+ *
+ */
 void GameMap::doTurn()
 {
 	cout << "\nStarting creature AI for turn " << turnNumber;
@@ -255,8 +274,17 @@ void GameMap::doTurn()
 	}
 }
 
-// Calculates the walkable path between tiles (x1, y1) and (x2, y2)
-// The path returned contains both the starting and ending tiles
+/*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
+ *
+ * The search is carried out using the A-star search algorithm.
+ * The path returned contains both the starting and ending tiles, and consists
+ * entirely of tiles which satify the 'passability' criterion specified in the
+ * search.  The returned tiles are also a "manhattan path" meaning that every
+ * successive tile is one of the 4 nearest neighbors of the previous tile in
+ * the path.  In most cases you will want to call GameMap::cutCorners on the
+ * returned path to shorten the number of steps on the path, as well as the
+ * actual walking distance along the path.
+ */
 list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
 {
 	list<Tile*> returnList;
@@ -320,6 +348,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 
 			if(neighbor->tile != NULL)
 			{
+				//TODO:  This code is duplicated in GameMap::pathIsClear, it should be moved into a function.
 				// See if the neighbor tile in question is passable
 				switch(passability)
 				{
@@ -431,16 +460,25 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	return returnList;
 }
 
+/*! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
+ *
+ */
 TileMap_t::iterator GameMap::firstTile()
 {
 	return tiles.begin();
 }
 
+/*! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
+ *
+ */
 TileMap_t::iterator GameMap::lastTile()
 {
 	return tiles.end();
 }
 
+/*! \brief Returns the (up to) 4 nearest neighbor tiles of the tile located at (x, y).
+ *
+ */
 vector<Tile*> GameMap::neighborTiles(int x, int y)
 {
 	Tile *t = getTile(x, y);
@@ -478,16 +516,25 @@ vector<Tile*> GameMap::neighborTiles(int x, int y)
 	return neighbors;
 }
 
+/*! \brief Adds a pointer to a player structure to the players stored by this GameMap.
+ *
+ */
 void GameMap::addPlayer(Player *p)
 {
 	players.push_back(p);
 }
 
+/*! \brief Returns a pointer to the i'th player structure stored by this GameMap.
+ *
+ */
 Player* GameMap::getPlayer(int index)
 {
 	return players[index];
 }
 
+/*! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
+ *
+ */
 Player* GameMap::getPlayer(string pName)
 {
 	for(unsigned int i = 0; i < numPlayers(); i++)
@@ -501,17 +548,29 @@ Player* GameMap::getPlayer(string pName)
 	return NULL;
 }
 
+/*! \brief Returns the number of player structures stored in this GameMap.
+ *
+ */
 unsigned int GameMap::numPlayers()
 {
 	return players.size();
 }
 
+/*! \brief Returns a list of valid tiles along a stright line from (x1, y1) to (x2, y2).
+ *
+ * This algorithm is from
+ * http://en.wikipedia.org/w/index.php?title=Bresenham%27s_line_algorithm&oldid=295047020
+ * A more detailed description of how it works can be found there.
+ */
 list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 {
 	list<Tile*> path;
 
+	// Calculate the components of the 'manhattan distance'
 	int Dx = x1 - x0;
 	int Dy = y1 - y0;
+
+	// Determine if the slope of the line is greater than 1
 	int steep = (abs(Dy) >= abs(Dx));
 	if (steep)
 	{
@@ -521,18 +580,24 @@ list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 		Dx = x1 - x0;
 		Dy = y1 - y0;
 	}
+
+	// Determine whether the x component is increasing or decreasing
 	int xstep = 1;
 	if (Dx < 0)
 	{
 		xstep = -1;
 		Dx = -Dx;
 	}
+
+	// Determine whether the y component is increasing or decreasing
 	int ystep = 1;
 	if (Dy < 0)
 	{
 		ystep = -1;
 		Dy = -Dy;
 	}
+
+	// Loop over the pixels on the line and add them to the return list
 	int TwoDy = 2*Dy;
 	int TwoDyTwoDx = TwoDy - 2*Dx; // 2*Dy - 2*Dx
 	int E = TwoDy - Dx; //2*Dy - Dx
@@ -540,6 +605,7 @@ list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 	int xDraw, yDraw;
 	for (int x = x0; x != x1; x += xstep)
 	{
+		// Treat a steep line as if it were actually its inverse
 		if (steep)
 		{
 			xDraw = y;
@@ -558,7 +624,7 @@ list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 			path.push_back(currentTile);
 		}
 
-		// next
+		// If the error has accumulated to the next tile, "increment" the y coordinate
 		if (E > 0)
 		{
 			E += TwoDyTwoDx; //E += 2*Dy - 2*Dx;
@@ -573,22 +639,49 @@ list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 	return path;
 }
 
-bool GameMap::pathIsClear(list<Tile*> path)
+/*! \brief Determines whether or not you can travel along a path.
+ *
+ */
+bool GameMap::pathIsClear(list<Tile*> path, Tile::TileClearType passability)
 {
 	list<Tile*>::iterator itr;
 
-	// Loop over each space and check to see if it is clear
+	// Loop over tile in the path and check to see if it is clear
 	bool isClear = true;
 	for(itr = path.begin(); itr != path.end() && isClear; itr++)
 	{
-		isClear = (isClear && (*itr)->getFullness() <= 1.0);
+	 	//TODO:  This code is duplicated in GameMap::path, it should be moved into a function.
+		// See if the path tile in question is passable
+		switch(passability)
+		{
+			// Walking creatures can only move through walkableTile's.
+			case Tile::walkableTile:
+				isClear = (isClear && ((*itr)->getTilePassability() == Tile::walkableTile));
+				break;
+
+			// Flying creatures can move through walkableTile's or flyableTile's.
+			case Tile::flyableTile:
+				isClear = (isClear && ((*itr)->getTilePassability() == Tile::walkableTile || (*itr)->getTilePassability() == Tile::flyableTile));
+				break;
+
+			// No creatures can walk through impassableTile's
+			case Tile::impassableTile:
+				isClear = false;
+				break;
+
+			default:
+				cout << "\n\nERROR:  Unhandled tile type in GameMap::pathIsClear()\n\n";
+				exit(1);
+				break;
+		}
 	}
 
 	return isClear;
 }
 
-void GameMap::cutCorners(list<Tile*> &path)
+void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 {
+	// Size must be >= 3 or else t3 and t4 can end up pointing at the same value
 	if(path.size() <= 3)
 		return;
 
@@ -601,7 +694,7 @@ void GameMap::cutCorners(list<Tile*> &path)
 	secondLast--;
 
 	// Loop t1 over all but the last tile in the path
-	while(t1 != secondLast && t1 != path.end()) 
+	while(t1 != path.end()) 
 	{
 		// Loop t2 from t1 until the end of the path
 		t2 = t1;
@@ -610,7 +703,7 @@ void GameMap::cutCorners(list<Tile*> &path)
 		{
 			// If we have a clear line of sight to t2, advance to
 			// the next tile else break out of the inner loop
-			if( pathIsClear( lineOfSight( (*t1)->x, (*t1)->y, (*t2)->x, (*t2)->y )) )
+			if( pathIsClear( lineOfSight( (*t1)->x, (*t1)->y, (*t2)->x, (*t2)->y ), passability) )
 				t2++;
 			else
 				break;

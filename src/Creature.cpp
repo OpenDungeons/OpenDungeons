@@ -269,7 +269,7 @@ void Creature::doTurn()
 						if(result.size() >= 2)
 						{
 							setAnimationState("Walk");
-							gameMap.cutCorners(result);
+							gameMap.cutCorners(result, tilePassability);
 							list<Tile*>::iterator itr = result.begin();
 							itr++;
 							while(itr != result.end())
@@ -369,19 +369,8 @@ void Creature::doTurn()
 					// Find the shortest path and start walking toward the tile to be dug out
 					if(possiblePaths.size() > 0)
 					{
-						// first one long enough to be considered a valid path
-						int shortestIndex = 0;
-						unsigned int shortestDistance = possiblePaths[0].size();
-						while(shortestIndex < possiblePaths.size() && shortestDistance < 2)
-						{
-							shortestIndex++;
-							shortestDistance = possiblePaths[shortestIndex].size();
-						}
-
-						shortPaths.clear();
-						shortPaths.push_back(possiblePaths[shortestIndex]);
-
 						// Find the N shortest valid paths, see if there are any valid paths shorter than this first guess
+						shortPaths.clear();
 						for(unsigned int i = 0; i < possiblePaths.size(); i++)
 						{
 							// If the current path is long enough to be valid
@@ -414,24 +403,28 @@ void Creature::doTurn()
 
 						// Randomly pick a short path to take
 						unsigned int numShortPaths = shortPaths.size();
-						shortestIndex = (int)randomDouble(0, (double)numShortPaths-0.001);
-						walkPath = shortPaths[shortestIndex];
-
-						// If the path is a legitimate path, walk down it to the tile to be dug out
-						if(walkPath.size() >= 2)
+						if(numShortPaths > 0)
 						{
-							setAnimationState("Walk");
-							gameMap.cutCorners(walkPath);
-							list<Tile*>::iterator itr = walkPath.begin();
-							itr++;
-							while(itr != walkPath.end())
-							{
-								addDestination((*itr)->x, (*itr)->y);
-								itr++;
-							}
+							unsigned int shortestIndex;
+							shortestIndex = (int)randomDouble(0, (double)numShortPaths-0.001);
+							walkPath = shortPaths[shortestIndex];
 
-							actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
-							break;
+							// If the path is a legitimate path, walk down it to the tile to be dug out
+							if(walkPath.size() >= 2)
+							{
+								setAnimationState("Walk");
+								gameMap.cutCorners(walkPath, tilePassability);
+								list<Tile*>::iterator itr = walkPath.begin();
+								itr++;
+								while(itr != walkPath.end())
+								{
+									addDestination((*itr)->x, (*itr)->y);
+									itr++;
+								}
+
+								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+								break;
+							}
 						}
 					}
 

@@ -53,11 +53,11 @@ class GameMap
 		// AI Methods
 		void doTurn();
 
-		list<Tile*> path(int x1, int y1, int x2, int y2, Tile::TileClearType clearType);
+		list<Tile*> path(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
 		vector<Tile*> neighborTiles(int x, int y);
 		list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
-		bool pathIsClear(list<Tile*> path);
-		void cutCorners(list<Tile*> &path);
+		bool pathIsClear(list<Tile*> path, Tile::TileClearType passability);
+		void cutCorners(list<Tile*> &path, Tile::TileClearType passability);
 
 		Player *me;
 

@@ -3,6 +3,7 @@ BUGS:
 *  Fix crash on entering a nonexistant mesh to addclass after calling addcreature using this class.
 *  Terminal commands with no arguments but spaces at the end, like 'host ', will not be recognized as valid commands.
 *  Fix crash on loading a new map from the server, I think it has to do with getting peices of messages in a single packet.  This assumption may or may not be true, it may be that the RenderQueue is somehow processing the addDestination message before the createMesh message.
+*  The GameMap::cutCorners() function sometimes causes creatures to walk through walls, this could be a problem with the lineOfSight function.
 
 
 

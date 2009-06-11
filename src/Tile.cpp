@@ -136,14 +136,16 @@ int Tile::getFullnessMeshNumber()
  */
 Tile::TileClearType Tile::getTilePassability()
 {
+	if(fullnessMeshNumber != 0)
+		return impassableTile;
+
 	switch(type)
 	{
 		case dirt:
 		case gold:
 		case rock:
 		case claimed:
-			if(fullness >= 0 && fullness < 1)
-				return walkableTile;
+			return walkableTile;
 			break;
 
 		case water:
@@ -152,6 +154,7 @@ Tile::TileClearType Tile::getTilePassability()
 
 		case lava:
 			return flyableTile;
+			break;
 
 		default:
 			cout << "\n\nERROR:  Unhandled tile type in Tile::getTilePassability()\n\n";
@@ -159,6 +162,11 @@ Tile::TileClearType Tile::getTilePassability()
 			break;
 	}
 
+	// Return something to make the compiler happy.
+	// Control should really never reach here because of the exit(1) call in the default switch case above
+	cout << "\n\nERROR:  Control reached the end of Tile::getTilePassability, this should never actually happen.\n\n";
+	exit(1);
+	return impassableTile;
 }
 
 /*! \brief The << operator is used for saving tiles to a file and sending them over the net.
