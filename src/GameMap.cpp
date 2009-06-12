@@ -342,10 +342,12 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 
 		// Check the tiles surrounding the current square
 		vector<Tile*>neighbors = neighborTiles(currentEntry->tile->x, currentEntry->tile->y);
+		bool processNeighbor;
 		for(unsigned int i = 0; i < neighbors.size(); i++)
 		{
 			neighbor->tile = neighbors[i];
 
+			processNeighbor = true;
 			if(neighbor->tile != NULL)
 			{
 				//TODO:  This code is duplicated in GameMap::pathIsClear, it should be moved into a function.
@@ -354,12 +356,16 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 				{
 					case Tile::walkableTile:
 						if( !(neighbor->tile->getTilePassability() == Tile::walkableTile) )
-							continue;  // skip this tile and go on to the next neighbor tile
+						{
+							processNeighbor = false;  // skip this tile and go on to the next neighbor tile
+						}
 						break;
 
 					case Tile::flyableTile:
 						if( !(neighbor->tile->getTilePassability() == Tile::walkableTile || neighbor->tile->getTilePassability() == Tile::flyableTile) )
-							continue;  // skip this tile and go on to the next neighbor tile
+						{
+							processNeighbor = false;  // skip this tile and go on to the next neighbor tile
+						}
 						break;
 
 					case Tile::impassableTile:
@@ -373,24 +379,12 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 						break;
 				}
 
-				// See if the neighbor is in the closed list
-				bool neighborFound = false;
-				list<astarEntry*>::iterator itr = closedList.begin();
-				while(itr != closedList.end() && !neighborFound)
+				if(processNeighbor)
 				{
-					if(neighbor->tile == (*itr)->tile)
-						neighborFound = true;
-					else
-						itr++;
-				}
-
-				// Ignore the neighbor if it is on the closed list
-				if(!neighborFound)
-				{
-					// See if the neighbor is in the open list
-					neighborFound = false;
-					list<astarEntry*>::iterator itr = openList.begin();
-					while(itr != openList.end() && !neighborFound)
+					// See if the neighbor is in the closed list
+					bool neighborFound = false;
+					list<astarEntry*>::iterator itr = closedList.begin();
+					while(itr != closedList.end() && !neighborFound)
 					{
 						if(neighbor->tile == (*itr)->tile)
 							neighborFound = true;
@@ -398,35 +392,50 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 							itr++;
 					}
 
-					// If the neighbor is not in the open list
+					// Ignore the neighbor if it is on the closed list
 					if(!neighborFound)
 					{
-						// NOTE: This +1 weights all steps the same, diagonal steps
-						// should get a greater wieght iis they are included in the future
-						neighbor->g = currentEntry->g + 1;
+						// See if the neighbor is in the open list
+						neighborFound = false;
+						list<astarEntry*>::iterator itr = openList.begin();
+						while(itr != openList.end() && !neighborFound)
+						{
+							if(neighbor->tile == (*itr)->tile)
+								neighborFound = true;
+							else
+								itr++;
+						}
 
-						// Use the manhattan distance for the heuristic
-						// FIXME:  This is not the only place the heuristic is calculated
-						neighbor->h = fabs(x2-neighbor->tile->x) + fabs(y2-neighbor->tile->y);
-						neighbor->parent = currentEntry;
-
-						openList.push_back(new astarEntry(*neighbor));
-					}
-					else
-					{
-						// If this path to the given neighbor tile is a shorter path than the
-						// one already given, make this the new parent.
-						// NOTE: This +1 weights all steps the same, diagonal steps
-						// should get a greater wieght iis they are included in the future
-						if(currentEntry->g + 1 < (*itr)->g)
+						// If the neighbor is not in the open list
+						if(!neighborFound)
 						{
 							// NOTE: This +1 weights all steps the same, diagonal steps
 							// should get a greater wieght iis they are included in the future
-							(*itr)->g = currentEntry->g + 1;
-							(*itr)->parent = currentEntry;
-						}
-					}
+							neighbor->g = currentEntry->g + 1;
 
+							// Use the manhattan distance for the heuristic
+							// FIXME:  This is not the only place the heuristic is calculated
+							neighbor->h = fabs(x2-neighbor->tile->x) + fabs(y2-neighbor->tile->y);
+							neighbor->parent = currentEntry;
+
+							openList.push_back(new astarEntry(*neighbor));
+						}
+						else
+						{
+							// If this path to the given neighbor tile is a shorter path than the
+							// one already given, make this the new parent.
+							// NOTE: This +1 weights all steps the same, diagonal steps
+							// should get a greater wieght iis they are included in the future
+							if(currentEntry->g + 1 < (*itr)->g)
+							{
+								// NOTE: This +1 weights all steps the same, diagonal steps
+								// should get a greater wieght iis they are included in the future
+								(*itr)->g = currentEntry->g + 1;
+								(*itr)->parent = currentEntry;
+							}
+						}
+
+					}
 				}
 			}
 		}
@@ -679,6 +688,9 @@ bool GameMap::pathIsClear(list<Tile*> path, Tile::TileClearType passability)
 	return isClear;
 }
 
+/*! \brief Loops over a path an replaces 'manhattan' paths with 'as the crow flies' paths.
+ *
+ */
 void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 {
 	// Size must be >= 3 or else t3 and t4 can end up pointing at the same value
@@ -693,21 +705,39 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 	list<Tile*>::iterator secondLast = path.end();
 	secondLast--;
 
+	cout << "\n\nStarting cutCorners\nCurrentPath is:  ";
+	for(list<Tile*>::iterator itr = path.begin(); itr != path.end(); itr++)
+	{
+		cout << "  (" << (*itr)->x << ", " << (*itr)->y << ") ";
+	}
+
 	// Loop t1 over all but the last tile in the path
 	while(t1 != path.end()) 
 	{
 		// Loop t2 from t1 until the end of the path
 		t2 = t1;
 		t2++;
+		cout << "\nouterloop started t1:  (" << (*t1) << ")\tt2:  (" << (*t2) << ")";
 		while(t2 != path.end())
 		{
 			// If we have a clear line of sight to t2, advance to
 			// the next tile else break out of the inner loop
-			if( pathIsClear( lineOfSight( (*t1)->x, (*t1)->y, (*t2)->x, (*t2)->y ), passability) )
+			cout << "\ninnerloop started t1:  (" << (*t1) << ")\tt2:  (" << (*t2) << ")";
+			list<Tile*> lineOfSightPath = lineOfSight( (*t1)->x, (*t1)->y, (*t2)->x, (*t2)->y );
+
+			cout << "\n\nLine of sight path is:  ";
+			for(list<Tile*>::iterator itr = lineOfSightPath.begin(); itr != lineOfSightPath.end(); itr++)
+			{
+				cout << "  (" << (*itr) << ") ";
+			}
+
+
+			if( pathIsClear( lineOfSightPath, passability)  )
 				t2++;
 			else
 				break;
 		}
+		cout << "\nbroke out of loop.";
 
 		// Delete the tiles 'strictly between' t1 and t2
 		t3 = t1;
@@ -717,13 +747,22 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 			t4 = t2;
 			t4--;
 			if(t3 != t4)
+			{
+				cout << "\nerasing  (" << (*t3) << ") to (" << (*t4) << ")";
 				path.erase(t3, t4);
+			}
 		}
 
 		t1 = t2;
 
 		secondLast = path.end();
 		secondLast--;
+
+		cout << "\nLoop finished\nCurrentPath is:  ";
+		for(list<Tile*>::iterator itr = path.begin(); itr != path.end(); itr++)
+		{
+			cout << "\n(" << (*itr) << ")";
+		}
 	}
 }
 

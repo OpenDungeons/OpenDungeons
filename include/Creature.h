@@ -54,6 +54,7 @@ class Creature
 		// Visual debugging routines
 		void createVisualDebugEntities();
 		void destroyVisualDebugEntities();
+		bool getHasVisualDebuggingEntities();
 
 		// AI stuff
 		//enum Action {idle, walkTo, dig};
@@ -73,6 +74,9 @@ class Creature
 		deque<CreatureAction> actionQueue;
 		Ogre::Vector3 position;
 		int destinationX, destinationY;
+		bool hasVisualDebuggingEntities;
+		Tile *previousPositionTile;
+		list<Tile*> visualDebugEntityTiles;
 };
 
 #endif

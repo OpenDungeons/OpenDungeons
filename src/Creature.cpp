@@ -7,6 +7,7 @@
 
 Creature::Creature()
 {
+	hasVisualDebuggingEntities = false;
 	position = Ogre::Vector3(0,0,0);
 	scale = Ogre::Vector3(1,1,1);
 	sightRadius = 10.0;
@@ -32,6 +33,7 @@ Creature::Creature()
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate)
 {
+	hasVisualDebuggingEntities = false;
 	className = nClassName;
 	meshName = nMeshName;
 	scale = nScale;
@@ -52,6 +54,9 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 		positionTile()->addCreature(this);
 }
 
+/*! \brief A matched function to transport creatures between files and over the network.
+ *
+ */
 ostream& operator<<(ostream& os, Creature *c)
 {
 	os << c->className << "\t" << c->name << "\t";
@@ -61,6 +66,9 @@ ostream& operator<<(ostream& os, Creature *c)
 	return os;
 }
 
+/*! \brief A matched function to transport creatures between files and over the network.
+ *
+ */
 istream& operator>>(istream& is, Creature *c)
 {
 	static int uniqueNumber = 1;
@@ -449,6 +457,18 @@ void Creature::doTurn()
 		}
 
 	} while(loopBack);
+
+	// Update the visual debugging entities
+	if(hasVisualDebuggingEntities)
+	{
+		// if we are standing in a different tile than we were last turn
+		Tile *currentPositionTile = positionTile();
+		if(currentPositionTile != previousPositionTile)
+		{
+			destroyVisualDebugEntities();
+			createVisualDebugEntities();
+		}
+	}
 }
 
 /*! \brief Creates a list of Tile pointers in visibleTiles
@@ -460,6 +480,8 @@ void Creature::doTurn()
 void Creature::updateVisibleTiles()
 {
 	int xMin, yMin, xMax, yMax;
+	const double sightRadiusSquared = sightRadius * sightRadius;
+	Tile *tempPositionTile;
 
 	//cout << "sightrad: " << sightRadius << " ";
 	visibleTiles.clear();
@@ -468,19 +490,28 @@ void Creature::updateVisibleTiles()
 	yMin = (int)position.y - sightRadius;
 	yMax = (int)position.y + sightRadius;
 
-	// Add the circular portion of the visible region
+	// Add the circular portion of the visible region.  We start with a
+	// square regeion and reject tiles in the corners which are too far away
+	//TODO:  Optimize this by working from the center, outwards.
 	for(int i = xMin; i < xMax; i++)
 	{
 		for(int j = yMin; j < yMax; j++)
 		{
+			// Check to see if the current tile is actually close enough to be visible
 			int distSQ = powl(position.x - i, 2.0) + powl(position.y - j, 2.0);
-			if(distSQ < sightRadius * sightRadius)
+			if(distSQ < sightRadiusSquared)
 			{
 				Tile *currentTile = gameMap.getTile(i, j);
 				if(currentTile != NULL)
-					//TODO:  This does not implement terrain yet, i.e. the creature can see through walls
-					// if(currentTile->isVisibleFrom(positionTile()))
-					visibleTiles.push_back(currentTile);
+				{
+					// Check if we can actually see the tile in question
+					// or if it is blocked by terrain
+					tempPositionTile = positionTile();
+					if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, i,  j), Tile::flyableTile))
+					{
+						visibleTiles.push_back(currentTile);
+					}
+				}
 			}
 		}
 	}
@@ -488,23 +519,68 @@ void Creature::updateVisibleTiles()
 	//TODO:  Add the sector shaped region of the visible region
 }
 
-
-/*! \brief Stub method, not implemented yet.
+/*! \brief Displays a mesh on all of the tiles visible to the creature.
  *
- * 
 */
-void createVisualDebugEntities()
+void Creature::createVisualDebugEntities()
 {
+	hasVisualDebuggingEntities = true;
+	visualDebugEntityTiles.clear();
+
+	Tile *currentTile = NULL;
 	//TODO:  fill in this stub method.
+	updateVisibleTiles();
+	for(unsigned int i = 0; i < visibleTiles.size(); i++)
+	{
+		currentTile = visibleTiles[i];
+
+		if(currentTile != NULL)
+		{
+			// Create a mesh for the current visible tile
+			RenderRequest *request = new RenderRequest;
+			request->type = RenderRequest::createCreatureVisualDebug;
+			request->p = currentTile;
+			request->p2 = this;
+
+			visualDebugEntityTiles.push_back(currentTile);
+
+			sem_wait(&renderQueueSemaphore);
+			renderQueue.push_back(request);
+			sem_post(&renderQueueSemaphore);
+		}
+	}
 }
 
-/*! \brief Stub method, not implemented yet.
+/*! \brief Destroy the meshes created by createVisualDebuggingEntities().
  *
- * 
 */
-void destroyVisualDebugEntities()
+void Creature::destroyVisualDebugEntities()
 {
+	hasVisualDebuggingEntities = false;
+
 	//TODO:  fill in this stub method.
+	Tile *currentTile = NULL;
+	//TODO:  fill in this stub method.
+	updateVisibleTiles();
+	list<Tile*>::iterator itr;
+	for(itr = visualDebugEntityTiles.begin(); itr != visualDebugEntityTiles.end(); itr++)
+	{
+		currentTile = *itr;
+
+		if(currentTile != NULL)
+		{
+			// Destroy the mesh for the current visible tile
+			RenderRequest *request = new RenderRequest;
+			request->type = RenderRequest::destroyCreatureVisualDebug;
+			request->p = currentTile;
+			request->p2 = this;
+
+			sem_wait(&renderQueueSemaphore);
+			renderQueue.push_back(request);
+			sem_post(&renderQueueSemaphore);
+		}
+	}
+
 }
 
 /*! \brief Returns a pointer to the tile the creature is currently standing in.
@@ -617,5 +693,13 @@ void Creature::addDestination(int x, int y)
 	serverNotification->vec = destination;
 	serverNotificationQueue.push_back(serverNotification);
 	sem_post(&serverNotificationQueueSemaphore);
+}
+
+/*! \brief An accessor to return the status of this creature's visual debugging entities
+ *
+*/
+bool Creature::getHasVisualDebuggingEntities()
+{
+	return hasVisualDebuggingEntities;
 }
 

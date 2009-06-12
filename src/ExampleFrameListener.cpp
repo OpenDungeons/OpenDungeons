@@ -334,7 +334,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curTile = (Tile*)curReq->p;
 				if(mSceneMgr->hasEntity(curTile->name.c_str()))
 				{
-					cout << "Destroying tile\n";
+					cout << "\nDestroying tile: (" << curTile->x << ", " << curTile->y << ")";
 					cout.flush();
 
 					ent = mSceneMgr->getEntity(curTile->name.c_str());
@@ -362,6 +362,47 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
 				node->attachObject(ent);
+				break;
+
+			case RenderRequest::createCreatureVisualDebug:
+				curTile = (Tile*)curReq->p;
+				curCreature = (Creature*)curReq->p2;
+
+				if(curTile != NULL && curCreature != NULL)
+				{
+					//cout << "\nCreating visdebug:  " << meshName;
+					//cout.flush();
+
+					sprintf(meshName, "Creature_vision_%s_%i_%i", curCreature->name.c_str(), curTile->x, curTile->y);
+					ent = mSceneMgr->createEntity( meshName, "Cre_vision_indicator.mesh");
+					node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (string)(meshName) + "_node" );
+					node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
+					node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
+					ent->setNormaliseNormals(true);
+					node->attachObject(ent);
+				}
+				break;
+
+			case RenderRequest::destroyCreatureVisualDebug:
+				curTile = (Tile*)curReq->p;
+				curCreature = (Creature*)curReq->p2;
+				sprintf(meshName, "Creature_vision_%s_%i_%i", curCreature->name.c_str(), curTile->x, curTile->y);
+
+				//cout << "\ntrying to Destroy visdebug:  " << meshName;
+				//cout.flush();
+
+				if(mSceneMgr->hasEntity(meshName))
+				{
+					//cout << "\nDestroying visdebug:  " << meshName;
+					//cout.flush();
+
+					ent = mSceneMgr->getEntity(meshName);
+					node = mSceneMgr->getSceneNode((string)(meshName) + "_node");
+
+					node->detachAllObjects();
+					mSceneMgr->destroyEntity(ent);
+					mSceneMgr->destroySceneNode((string)(meshName) + "_node");
+				}
 				break;
 
 			case RenderRequest::setCreatureAnimationState:
@@ -591,27 +632,6 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 	if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::nullDragType)
 	{
-		/*
-		// See if the mouse is over any creatures
-		while (itr != result.end() )
-		{
-			if(itr->movable != NULL)
-			{
-				resultName = itr->movable->getName();
-
-				if(resultName.find("Creature_") != string::npos)
-				{
-					mSceneMgr->getEntity(resultName);
-					mSceneMgr->getEntity("SquareSelector")->setVisible(false);
-					break;
-				}
-
-			}
-
-			itr++;
-		}
-		*/
-
 		// If no creatures are under the  mouse run through the list again to check for tiles
 		itr = result.begin( );
 		while(itr != result.end())
@@ -1879,6 +1899,36 @@ void ExampleFrameListener::executePromptCommand()
 			}
 		}
 
+		// Start the visual debugging indicators for a given creature
+		else if(command.compare("visdebug") == 0)
+		{
+			if(arguments.length() > 0)
+			{
+				if(serverSocket != NULL)
+				{
+					// Activate visual debugging
+					Creature *tempCreature = gameMap.getCreature(arguments);
+					if(tempCreature != NULL)
+					{
+						tempCreature->createVisualDebugEntities();
+						commandOutput = "Visual debugging entities created for creature:  " + arguments;
+					}
+					else
+					{
+						commandOutput = "Could not create visual debugging entities for creature:  " + arguments;
+					}
+				}
+				else
+				{
+					commandOutput = "ERROR:  Visual debugging only works when you are hosting a game.";
+				}
+			}
+			else
+			{
+				commandOutput = "ERROR:  You must supply a valid creature name to create debug entities for.";
+			}
+		}
+
 		else commandOutput = "Command not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.";
 
 	promptCommand = "";
@@ -1968,6 +2018,11 @@ string ExampleFrameListener::getHelpText(string arg)
 	else if(arg.compare("list") == 0 || arg.compare("ls") == 0)
 	{
 		return "List (or \"ls\" for short is a utility which lists various types of information about the current game.  Running list without an argument will produce a list of the lists available.  Running list with an argument displays the contents of that list.\n\nExample:\n" + prompt + "list creatures\n\nThe above command will produce a list of all the creatures currently in the game.";
+	}
+
+	else if(arg.compare("visdebug") == 0)
+	{
+		return "Visual debugging is a way to see a given creature\'s AI state.\n\nExample:\n" + prompt + "visdebug skeletor\n\nThe above command wil turn on visual debugging for the creature named \'skeletor\'.";
 	}
 
 	return "Help for command:  \"" + arguments + "\" not found.";

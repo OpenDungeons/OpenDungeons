@@ -125,7 +125,7 @@ void MapEditor::createScene(void)
 	// Create the light which follows the single tile selection mesh
 	light = mSceneMgr->createLight("MouseLight");
 	light->setType(Light::LT_POINT);
-	light->setDiffuseColour(ColourValue(.23, .18, .16));
+	light->setDiffuseColour(ColourValue(.18, .14, .11));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
 	//light->setPosition(0, 0, 1.45/BLENDER_UNITS_PER_OGRE_UNIT);
 	light->setPosition(0, 0, 7.45);
