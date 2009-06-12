@@ -524,20 +524,28 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				if(currentCreature->walkQueue.size() == 0)
 				{
 					// Stop walking
-					currentCreature->walkDirection = Ogre::Vector3::ZERO;
-					currentCreature->setAnimationState("Idle");
+					currentCreature->stopWalking();
 				}
 				else // There are still entries left in the queue
 				{
 					SceneNode *node = mSceneMgr->getSceneNode(currentCreature->name + "_node");
 
 					// Turn to face the next direction
-					currentCreature->shortDistance = currentCreature->getPosition().distance(currentCreature->walkQueue.front());
 					currentCreature->walkDirection = currentCreature->walkQueue.front() - currentCreature->getPosition();
-					currentCreature->walkDirection.normalise();
+					currentCreature->shortDistance = currentCreature->walkDirection.normalise();
+
 					Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
-					Quaternion quat = src.getRotationTo(currentCreature->walkDirection);
-					node->rotate(quat);
+
+					// Work around 180 degree quaternion rotation quirk
+					if ((1.0f + src.dotProduct(currentCreature->walkDirection)) < 0.0001f)
+					{
+						node->roll(Degree(180));
+					}
+					else
+					{
+						Quaternion quat = src.getRotationTo(currentCreature->walkDirection);
+						node->rotate(quat);
+					}
 				}
 			}
 			else // We have not reached the destination at the front of the queue
@@ -1578,7 +1586,7 @@ void ExampleFrameListener::executePromptCommand()
 		}
 
 		// Set the turnsPerSecond variable to control the AI speed
-		else if(command.compare("turnspersecond") == 0)
+		else if(command.compare("turnspersecond") == 0 || command.compare("tps") == 0)
 		{
 			char tempArray[255];
 			if(arguments.size() > 0)
@@ -1902,9 +1910,9 @@ void ExampleFrameListener::executePromptCommand()
 		// Start the visual debugging indicators for a given creature
 		else if(command.compare("visdebug") == 0)
 		{
-			if(arguments.length() > 0)
+			if(serverSocket != NULL)
 			{
-				if(serverSocket != NULL)
+				if(arguments.length() > 0)
 				{
 					// Activate visual debugging
 					Creature *tempCreature = gameMap.getCreature(arguments);
@@ -1920,12 +1928,12 @@ void ExampleFrameListener::executePromptCommand()
 				}
 				else
 				{
-					commandOutput = "ERROR:  Visual debugging only works when you are hosting a game.";
+					commandOutput = "ERROR:  You must supply a valid creature name to create debug entities for.";
 				}
 			}
 			else
 			{
-				commandOutput = "ERROR:  You must supply a valid creature name to create debug entities for.";
+				commandOutput = "ERROR:  Visual debugging only works when you are hosting a game.";
 			}
 		}
 
@@ -2023,6 +2031,11 @@ string ExampleFrameListener::getHelpText(string arg)
 	else if(arg.compare("visdebug") == 0)
 	{
 		return "Visual debugging is a way to see a given creature\'s AI state.\n\nExample:\n" + prompt + "visdebug skeletor\n\nThe above command wil turn on visual debugging for the creature named \'skeletor\'.";
+	}
+
+	else if(arg.compare("turnspersecond") == 0 || arg.compare("tps") == 0)
+	{
+		return "turnspersecond (or \"tps\" for short is a utility which displays or sets the speed at which the game is running.\n\nExample:\n" + prompt + "tps 5\n\nThe above command will set the current game speed to 5 turns per second.";
 	}
 
 	return "Help for command:  \"" + arguments + "\" not found.";

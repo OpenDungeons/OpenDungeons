@@ -15,7 +15,7 @@ void writeGameMapToFile(string fileName);
 double randomDouble(double min,double max);
 double gaussianRandomDouble();
 void seedRandomNumberGenerator();
-void swap(int a, int b);
+void swap(int &a, int &b);
 
 #endif
 

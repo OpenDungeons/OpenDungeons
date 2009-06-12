@@ -273,7 +273,13 @@ void Creature::doTurn()
 						int tempX = position.x + 2.0*gaussianRandomDouble();
 						int tempY = position.y + 2.0*gaussianRandomDouble();
 
-						list<Tile*> result = gameMap.path(positionTile()->x, positionTile()->y, tempX, tempY, tilePassability);
+						Tile *tempPositionTile = positionTile();
+						list<Tile*> result;
+						if(tempPositionTile != NULL)
+						{
+							result = gameMap.path(tempPositionTile->x, tempPositionTile->y, tempX, tempY, tilePassability);
+						}
+
 						if(result.size() >= 2)
 						{
 							setAnimationState("Walk");
@@ -296,6 +302,23 @@ void Creature::doTurn()
 					break;
 
 				case CreatureAction::walkToTile:
+					//TODO: Peek at the item that caused us to walk
+					if(actionQueue[1].type == CreatureAction::digTile)
+					{
+						// Check to see if the tile is still marked for digging
+						int index = walkQueue.size();
+						Tile *currentTile = gameMap.getTile((int)walkQueue[index].x, (int)walkQueue[index].y);
+						if(currentTile != NULL)
+						{
+							// If it is not marked
+							if(!currentTile->getMarkedForDigging())
+							{
+								// Clear the walk queue
+								clearDestinations();
+							}
+						}
+					}
+
 					cout << "walkToTile ";
 					if(walkQueue.size() == 0)
 					{
@@ -589,7 +612,7 @@ void Creature::destroyVisualDebugEntities()
 */
 Tile* Creature::positionTile()
 {
-	return gameMap.getTile((int)(position.x), (int)(position.y));
+	return gameMap.getTile((int)(position.x + 0.4999), (int)(position.y + 0.4999));
 }
 
 /*! \brief Completely destroy this creature, including its OGRE entities, scene nodes, etc.
@@ -677,8 +700,17 @@ void Creature::addDestination(int x, int y)
 
 		SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
 		Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
-		Quaternion quat = src.getRotationTo(walkDirection);
-		node->rotate(quat);
+
+		// Work around 180 degree quaternion rotation quirk
+		if ((1.0f + src.dotProduct(walkDirection)) < 0.0001f)
+		{
+			node->roll(Degree(180));
+		}
+		else
+		{
+			Quaternion quat = src.getRotationTo(walkDirection);
+			node->rotate(quat);
+		}
 	}
 	else
 	{
@@ -686,13 +718,28 @@ void Creature::addDestination(int x, int y)
 		walkQueue.push_back(destination);
 	}
 
-	// Place a message in the queue to inform the clients about the new destination
-	ServerNotification *serverNotification = new ServerNotification;
-	serverNotification->type = ServerNotification::creatureAddDestination;
-	serverNotification->str = name;
-	serverNotification->vec = destination;
-	serverNotificationQueue.push_back(serverNotification);
-	sem_post(&serverNotificationQueueSemaphore);
+	if(serverSocket != NULL)
+	{
+		// Place a message in the queue to inform the clients about the new destination
+		ServerNotification *serverNotification = new ServerNotification;
+		serverNotification->type = ServerNotification::creatureAddDestination;
+		serverNotification->str = name;
+		serverNotification->vec = destination;
+		serverNotificationQueue.push_back(serverNotification);
+		sem_post(&serverNotificationQueueSemaphore);
+	}
+}
+
+void Creature::clearDestinations()
+{
+	walkQueue.clear();
+	stopWalking();
+}
+
+void Creature::stopWalking()
+{
+	walkDirection = Ogre::Vector3::ZERO;
+	setAnimationState("Idle");
 }
 
 /*! \brief An accessor to return the status of this creature's visual debugging entities

@@ -654,6 +654,12 @@ list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 bool GameMap::pathIsClear(list<Tile*> path, Tile::TileClearType passability)
 {
 	list<Tile*>::iterator itr;
+	list<Tile*>::iterator last;
+
+	if(path.size() == 0)
+		return false;
+
+	last = --path.end();
 
 	// Loop over tile in the path and check to see if it is clear
 	bool isClear = true;
