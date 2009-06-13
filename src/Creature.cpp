@@ -568,6 +568,9 @@ void Creature::updateVisibleTiles()
 	//TODO:  Add the sector shaped region of the visible region
 }
 
+/*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
+ *
+*/
 vector<Creature*> Creature::getVisibleEnemies()
 {
 	vector<Creature*> returnList;
@@ -780,19 +783,25 @@ void Creature::addDestination(int x, int y)
 	}
 }
 
+/*! \brief Clears all future destinations from the walk queue, stops the creature where it is, and sets its animation state.
+ *
+*/
 void Creature::clearDestinations()
 {
 	walkQueue.clear();
 	stopWalking();
 }
 
+/*! \brief Stops the creature where it is, and sets its animation state.
+ *
+*/
 void Creature::stopWalking()
 {
 	walkDirection = Ogre::Vector3::ZERO;
 	setAnimationState("Idle");
 }
 
-/*! \brief An accessor to return the status of this creature's visual debugging entities
+/*! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
  *
 */
 bool Creature::getHasVisualDebuggingEntities()
