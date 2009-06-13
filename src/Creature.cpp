@@ -220,15 +220,11 @@ Ogre::Vector3 Creature::getPosition()
 void Creature::doTurn()
 {
 	vector<Tile*> markedTiles;
-	Tile *nextStep;
 	list<Tile*>walkPath;
 	list<Tile*>basePath;
 	list<Tile*>::iterator tileListItr;
 	vector< list<Tile*> > possiblePaths;
 	vector< list<Tile*> > shortPaths;
-	Creature *targetCreature;
-	Tile *targetTile, *myTile;
-	bool initialCharge;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
@@ -263,7 +259,6 @@ void Creature::doTurn()
 		loopBack = false;
 
 		// Carry out the current task
-		int tempX, tempY, baseEndX, baseEndY;
 		double diceRoll;
 		Tile *neighborTile;
 		vector<Tile*>neighbors, creatureNeighbors;
@@ -530,43 +525,73 @@ void Creature::updateVisibleTiles()
 {
 	//int xMin, yMin, xMax, yMax;
 	const double sightRadiusSquared = sightRadius * sightRadius;
-	Tile *tempPositionTile;
+	Tile *tempPositionTile = positionTile();
+	Tile *currentTile;
+	int xBase = tempPositionTile->x;
+	int yBase = tempPositionTile->y;
+	int xLoc, yLoc;
 
-	//cout << "sightrad: " << sightRadius << " ";
 	visibleTiles.clear();
-	//xMin = (int)position.x - sightRadius;
-	//xMax = (int)position.x + sightRadius;
-	//yMin = (int)position.y - sightRadius;
-	//yMax = (int)position.y + sightRadius;
 
-	// Add the circular portion of the visible region.  We start with a
-	// square regeion and reject tiles in the corners which are too far away
-	//TODO:  Optimize this by working from the center, outwards.
-	for(int i = 0; i < sightRadius; i++)
+	// Add the tile the creature is standing in
+	if(tempPositionTile != NULL)
 	{
-		for(int j = 0; j < sightRadius; j++)
+		visibleTiles.push_back(tempPositionTile);
+	}
+
+	// Add the 4 principle axes rays
+	for(int i = 1; i < sightRadius; i++)
+	{
+		for(int j = 0; j < 4; j++)
+		{
+			switch(j)
+			{
+				case 0:  xLoc = xBase+i;   yLoc = yBase;  break;
+				case 1:  xLoc = xBase-i;   yLoc = yBase;  break;
+				case 2:  xLoc = xBase;   yLoc = yBase+i;  break;
+				case 3:  xLoc = xBase;   yLoc = yBase-i;  break;
+			}
+
+			currentTile = gameMap.getTile(xLoc, yLoc);
+
+			if(currentTile != NULL)
+			{
+				// Check if we can actually see the tile in question
+				// or if it is blocked by terrain
+				if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, xLoc, yLoc), Tile::flyableTile))
+				{
+					visibleTiles.push_back(currentTile);
+				}
+			}
+		}
+	}
+
+	// Fill in the 4 pie slice shaped sectors
+	for(int i = 1; i < sightRadius; i++)
+	{
+		for(int j = 1; j < sightRadius; j++)
 		{
 			// Check to see if the current tile is actually close enough to be visible
 			int distSQ = i*i + j*j;
 			if(distSQ < sightRadiusSquared)
 			{
-				Tile *currentTile;
 				for(int k = 0; k < 4; k++)
 				{
 					switch(k)
 					{
-						case 0:  currentTile = gameMap.getTile(position.x+i, position.y+j);  break;
-						case 1:  currentTile = gameMap.getTile(position.x+i, position.y-j);  break;
-						case 2:  currentTile = gameMap.getTile(position.x-i, position.y+j);  break;
-						case 3:  currentTile = gameMap.getTile(position.x-i, position.y-j);  break;
+						case 0:  xLoc = xBase+i;   yLoc = yBase+j;  break;
+						case 1:  xLoc = xBase+i;   yLoc = yBase-j;  break;
+						case 2:  xLoc = xBase-i;   yLoc = yBase+j;  break;
+						case 3:  xLoc = xBase-i;   yLoc = yBase-j;  break;
 					}
+
+					currentTile = gameMap.getTile(xLoc, yLoc);
 					
 					if(currentTile != NULL)
 					{
 						// Check if we can actually see the tile in question
 						// or if it is blocked by terrain
-						tempPositionTile = positionTile();
-						if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, i,  j), Tile::flyableTile))
+						if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, xLoc, yLoc), Tile::flyableTile))
 						{
 							visibleTiles.push_back(currentTile);
 						}
@@ -575,6 +600,8 @@ void Creature::updateVisibleTiles()
 			}
 			else
 			{
+				// If this tile is too far away then any tile with a j value greater than this
+				// will also be too far away.  Setting j=sightRadius will break out of the inner loop
 				j = sightRadius;
 			}
 		}
