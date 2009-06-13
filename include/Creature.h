@@ -61,6 +61,7 @@ class Creature
 		//Action currentTask;
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
+		vector<Creature*> getVisibleEnemies();
 		Tile* positionTile();
 		AnimationState *animationState;
 		void setAnimationState(string s);

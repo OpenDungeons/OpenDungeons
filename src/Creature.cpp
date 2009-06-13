@@ -223,8 +223,12 @@ void Creature::doTurn()
 	Tile *nextStep;
 	list<Tile*>walkPath;
 	list<Tile*>basePath;
+	list<Tile*>::iterator tileListItr;
 	vector< list<Tile*> > possiblePaths;
 	vector< list<Tile*> > shortPaths;
+	Creature *targetCreature;
+	Tile *targetTile, *myTile;
+	bool initialCharge;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
@@ -233,9 +237,27 @@ void Creature::doTurn()
 	bool loopBack;
 	// Look at the surrounding area
 	updateVisibleTiles();
+	vector<Creature*> visibleEnemies = getVisibleEnemies();
 
-	// If the current task was 'idle' and it changed to something else, start doing the next
-	// thing during this turn instead of waiting until the next turn.
+	// If the creature can see enemies
+	if(visibleEnemies.size() > 0)
+	{
+
+		// if we are not already fighting with a creature
+		if(actionQueue.size() > 0 && actionQueue.front().type != CreatureAction::attackCreature && randomDouble(0.0, 1.0) > 0.3)
+		{
+			/*
+			CreatureAction tempAction;
+			tempAction.creature = visibleEnemies[0];
+			tempAction.type = CreatureAction::attackCreature;
+			actionQueue.push_front(tempAction);
+			initialCharge = true;
+			*/
+		}
+	}
+
+	// The loopback variable allows creatures to begin processing a new
+	// action immediately after some other action happens.
 	do
 	{
 		loopBack = false;
@@ -468,8 +490,12 @@ void Creature::doTurn()
 					}
 					break;
 
+				case CreatureAction::attackCreature:
+					break;
+
 				default:
-					cout << "default ";
+					cout << "\n\nERROR:  Unhandled action type in Creature::doTurn().\n\n";
+					exit(1);
 					break;
 			}
 		}
@@ -540,6 +566,30 @@ void Creature::updateVisibleTiles()
 	}
 
 	//TODO:  Add the sector shaped region of the visible region
+}
+
+vector<Creature*> Creature::getVisibleEnemies()
+{
+	vector<Creature*> returnList;
+
+	// Loop over the visible tiles
+	vector<Tile*>::iterator itr;
+	for(itr = visibleTiles.begin(); itr != visibleTiles.end(); itr++)
+	{
+		// Loop over the creatures in the given tile
+		for(int i = 0; i < (*itr)->numCreaturesInCell(); i++)
+		{
+			Creature *tempCreature = (*itr)->getCreature(i);
+			// If it is an enemy
+			if(tempCreature->color != color)
+			{
+				// Add the current creature
+				returnList.push_back(tempCreature);
+			}
+		}
+	}
+
+	return returnList;
 }
 
 /*! \brief Displays a mesh on all of the tiles visible to the creature.
