@@ -528,39 +528,54 @@ void Creature::doTurn()
 */
 void Creature::updateVisibleTiles()
 {
-	int xMin, yMin, xMax, yMax;
+	//int xMin, yMin, xMax, yMax;
 	const double sightRadiusSquared = sightRadius * sightRadius;
 	Tile *tempPositionTile;
 
 	//cout << "sightrad: " << sightRadius << " ";
 	visibleTiles.clear();
-	xMin = (int)position.x - sightRadius;
-	xMax = (int)position.x + sightRadius;
-	yMin = (int)position.y - sightRadius;
-	yMax = (int)position.y + sightRadius;
+	//xMin = (int)position.x - sightRadius;
+	//xMax = (int)position.x + sightRadius;
+	//yMin = (int)position.y - sightRadius;
+	//yMax = (int)position.y + sightRadius;
 
 	// Add the circular portion of the visible region.  We start with a
 	// square regeion and reject tiles in the corners which are too far away
 	//TODO:  Optimize this by working from the center, outwards.
-	for(int i = xMin; i < xMax; i++)
+	for(int i = 0; i < sightRadius; i++)
 	{
-		for(int j = yMin; j < yMax; j++)
+		for(int j = 0; j < sightRadius; j++)
 		{
 			// Check to see if the current tile is actually close enough to be visible
-			int distSQ = powl(position.x - i, 2.0) + powl(position.y - j, 2.0);
+			int distSQ = i*i + j*j;
 			if(distSQ < sightRadiusSquared)
 			{
-				Tile *currentTile = gameMap.getTile(i, j);
-				if(currentTile != NULL)
+				Tile *currentTile;
+				for(int k = 0; k < 4; k++)
 				{
-					// Check if we can actually see the tile in question
-					// or if it is blocked by terrain
-					tempPositionTile = positionTile();
-					if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, i,  j), Tile::flyableTile))
+					switch(k)
 					{
-						visibleTiles.push_back(currentTile);
+						case 0:  currentTile = gameMap.getTile(position.x+i, position.y+j);  break;
+						case 1:  currentTile = gameMap.getTile(position.x+i, position.y-j);  break;
+						case 2:  currentTile = gameMap.getTile(position.x-i, position.y+j);  break;
+						case 3:  currentTile = gameMap.getTile(position.x-i, position.y-j);  break;
+					}
+					
+					if(currentTile != NULL)
+					{
+						// Check if we can actually see the tile in question
+						// or if it is blocked by terrain
+						tempPositionTile = positionTile();
+						if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, i,  j), Tile::flyableTile))
+						{
+							visibleTiles.push_back(currentTile);
+						}
 					}
 				}
+			}
+			else
+			{
+				j = sightRadius;
 			}
 		}
 	}
@@ -601,7 +616,6 @@ void Creature::createVisualDebugEntities()
 	visualDebugEntityTiles.clear();
 
 	Tile *currentTile = NULL;
-	//TODO:  fill in this stub method.
 	updateVisibleTiles();
 	for(unsigned int i = 0; i < visibleTiles.size(); i++)
 	{
@@ -631,9 +645,7 @@ void Creature::destroyVisualDebugEntities()
 {
 	hasVisualDebuggingEntities = false;
 
-	//TODO:  fill in this stub method.
 	Tile *currentTile = NULL;
-	//TODO:  fill in this stub method.
 	updateVisibleTiles();
 	list<Tile*>::iterator itr;
 	for(itr = visualDebugEntityTiles.begin(); itr != visualDebugEntityTiles.end(); itr++)
