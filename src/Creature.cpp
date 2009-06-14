@@ -752,7 +752,11 @@ void Creature::setAnimationState(string s)
 			serverNotification->type = ServerNotification::creatureSetAnimationState;
 			serverNotification->str = s;
 			serverNotification->cre = this;
+
+			sem_wait(&serverNotificationQueueLockSemaphore);
 			serverNotificationQueue.push_back(serverNotification);
+			sem_post(&serverNotificationQueueLockSemaphore);
+
 			sem_post(&serverNotificationQueueSemaphore);
 		}
 		catch(bad_alloc&)
@@ -828,7 +832,11 @@ void Creature::addDestination(int x, int y)
 			serverNotification->type = ServerNotification::creatureAddDestination;
 			serverNotification->str = name;
 			serverNotification->vec = destination;
+
+			sem_wait(&serverNotificationQueueLockSemaphore);
 			serverNotificationQueue.push_back(serverNotification);
+			sem_post(&serverNotificationQueueLockSemaphore);
+
 			sem_post(&serverNotificationQueueSemaphore);
 		}
 		catch(bad_alloc&)

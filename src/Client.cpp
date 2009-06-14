@@ -271,8 +271,10 @@ void *clientNotificationProcessor(void *p)
 		sem_wait(&clientNotificationQueueSemaphore);
 
 		// Take a message out of the front of the notification queue
+		sem_wait(&clientNotificationQueueLockSemaphore);
 		ClientNotification *event = clientNotificationQueue.front();
 		clientNotificationQueue.pop_front();
+		sem_post(&clientNotificationQueueLockSemaphore);
 
 		switch(event->type)
 		{

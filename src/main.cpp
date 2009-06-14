@@ -21,6 +21,8 @@ deque<ServerNotification*> serverNotificationQueue;
 deque<ClientNotification*> clientNotificationQueue;
 sem_t serverNotificationQueueSemaphore;
 sem_t clientNotificationQueueSemaphore;
+sem_t serverNotificationQueueLockSemaphore;
+sem_t clientNotificationQueueLockSemaphore;
 
 Socket *serverSocket = NULL, *clientSocket = NULL;
 
@@ -42,6 +44,8 @@ int main(int argc, char **argv)
 	sem_init(&renderQueueSemaphore, 0, 1);
 	sem_init(&serverNotificationQueueSemaphore, 0, 0);
 	sem_init(&clientNotificationQueueSemaphore, 0, 0);
+	sem_init(&serverNotificationQueueLockSemaphore, 0, 1);
+	sem_init(&clientNotificationQueueLockSemaphore, 0, 1);
 
 	// Create application object
 	MapEditor app;

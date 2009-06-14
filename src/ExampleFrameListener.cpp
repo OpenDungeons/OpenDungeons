@@ -1607,7 +1607,11 @@ void ExampleFrameListener::executePromptCommand()
 						ServerNotification *serverNotification = new ServerNotification;
 						serverNotification->type = ServerNotification::setTurnsPerSecond;
 						serverNotification->doub = turnsPerSecond;
+
+						sem_wait(&serverNotificationQueueLockSemaphore);
 						serverNotificationQueue.push_back(serverNotification);
+						sem_post(&serverNotificationQueueLockSemaphore);
+
 						sem_post(&serverNotificationQueueSemaphore);
 					}
 					catch(bad_alloc&)

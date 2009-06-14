@@ -21,6 +21,8 @@ extern deque<ServerNotification*> serverNotificationQueue;
 extern deque<ClientNotification*> clientNotificationQueue;
 extern sem_t serverNotificationQueueSemaphore;
 extern sem_t clientNotificationQueueSemaphore;
+extern sem_t serverNotificationQueueLockSemaphore;
+extern sem_t clientNotificationQueueLockSemaphore;
 
 extern Socket *serverSocket, *clientSocket;
 

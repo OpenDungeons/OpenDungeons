@@ -18,6 +18,7 @@ FEATURE ADDITIONS:
 *  Add a keyboard controls help message under "help keys".
 *  Server needs to send the "turnsPerSecond" message as part of the initial client setup.
 *  Store creature classes and class descriptions in maps rather than vectors to allow for faster lookups.
+*  Add play, pause, and single turn commands to the terminal to aid in AI debugging. 
 
 
 *  Fix the issue with Mouse move.

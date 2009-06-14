@@ -161,7 +161,11 @@ void *creatureAIThread(void *p)
 		{
 			ServerNotification *serverNotification = new ServerNotification;
 			serverNotification->type = ServerNotification::turnStarted;
+
+			sem_wait(&serverNotificationQueueLockSemaphore);
 			serverNotificationQueue.push_back(serverNotification);
+			sem_post(&serverNotificationQueueLockSemaphore);
+
 			sem_post(&serverNotificationQueueSemaphore);
 		}
 		catch(bad_alloc&)
@@ -218,8 +222,10 @@ void *serverNotificationProcessor(void *p)
 		sem_wait(&serverNotificationQueueSemaphore);
 
 		// Take a message out of the front of the notification queue
+		sem_wait(&serverNotificationQueueLockSemaphore);
 		ServerNotification *event = serverNotificationQueue.front();
 		serverNotificationQueue.pop_front();
+		sem_post(&serverNotificationQueueLockSemaphore);
 
 		//FIXME:  This really should never happen but the queue does occasionally pop a NULL.
 		//This is probably a bug somewhere else where a NULL is being place in the queue.

@@ -106,7 +106,11 @@ void Tile::setFullness(int f)
 			ServerNotification *serverNotification = new ServerNotification;
 			serverNotification->type = ServerNotification::tileFullnessChange;
 			serverNotification->tile = this;
+
+			sem_wait(&serverNotificationQueueLockSemaphore);
 			serverNotificationQueue.push_back(serverNotification);
+			sem_post(&serverNotificationQueueLockSemaphore);
+
 			sem_post(&serverNotificationQueueSemaphore);
 		}
 		catch(bad_alloc&)
