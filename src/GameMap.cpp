@@ -711,7 +711,7 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 	list<Tile*>::iterator secondLast = path.end();
 	secondLast--;
 
-	cout << "\n\nStarting cutCorners\nCurrentPath is:  ";
+	//cout << "\n\nStarting cutCorners\nCurrentPath is:  ";
 	for(list<Tile*>::iterator itr = path.begin(); itr != path.end(); itr++)
 	{
 		cout << "  (" << (*itr)->x << ", " << (*itr)->y << ") ";
@@ -723,19 +723,21 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 		// Loop t2 from t1 until the end of the path
 		t2 = t1;
 		t2++;
-		cout << "\nouterloop started t1:  (" << (*t1) << ")\tt2:  (" << (*t2) << ")";
+		//cout << "\nouterloop started t1:  (" << (*t1) << ")\tt2:  (" << (*t2) << ")";
 		while(t2 != path.end())
 		{
 			// If we have a clear line of sight to t2, advance to
 			// the next tile else break out of the inner loop
-			cout << "\ninnerloop started t1:  (" << (*t1) << ")\tt2:  (" << (*t2) << ")";
+			//cout << "\ninnerloop started t1:  (" << (*t1) << ")\tt2:  (" << (*t2) << ")";
 			list<Tile*> lineOfSightPath = lineOfSight( (*t1)->x, (*t1)->y, (*t2)->x, (*t2)->y );
 
+			/*
 			cout << "\n\nLine of sight path is:  ";
 			for(list<Tile*>::iterator itr = lineOfSightPath.begin(); itr != lineOfSightPath.end(); itr++)
 			{
 				cout << "  (" << (*itr) << ") ";
 			}
+			*/
 
 
 			if( pathIsClear( lineOfSightPath, passability)  )
@@ -743,7 +745,7 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 			else
 				break;
 		}
-		cout << "\nbroke out of loop.";
+		//cout << "\nbroke out of loop.";
 
 		// Delete the tiles 'strictly between' t1 and t2
 		t3 = t1;
@@ -754,7 +756,7 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 			t4--;
 			if(t3 != t4)
 			{
-				cout << "\nerasing  (" << (*t3) << ") to (" << (*t4) << ")";
+				//cout << "\nerasing  (" << (*t3) << ") to (" << (*t4) << ")";
 				path.erase(t3, t4);
 			}
 		}
@@ -764,7 +766,7 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 		secondLast = path.end();
 		secondLast--;
 
-		cout << "\nLoop finished\nCurrentPath is:  ";
+		//cout << "\nLoop finished\nCurrentPath is:  ";
 		for(list<Tile*>::iterator itr = path.begin(); itr != path.end(); itr++)
 		{
 			cout << "\n(" << (*itr) << ")";

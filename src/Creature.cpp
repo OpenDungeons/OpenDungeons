@@ -623,7 +623,7 @@ vector<Creature*> Creature::getVisibleEnemies()
 		{
 			Creature *tempCreature = (*itr)->getCreature(i);
 			// If it is an enemy
-			if(tempCreature->color != color)
+			if(tempCreature != NULL && tempCreature->color != color)
 			{
 				// Add the current creature
 				returnList.push_back(tempCreature);
@@ -742,13 +742,21 @@ void Creature::setAnimationState(string s)
 
 	if(serverSocket != NULL)
 	{
-		// Place a message in the queue to inform the clients about the new animation state
-		ServerNotification *serverNotification = new ServerNotification;
-		serverNotification->type = ServerNotification::creatureSetAnimationState;
-		serverNotification->str = s;
-		serverNotification->cre = this;
-		serverNotificationQueue.push_back(serverNotification);
-		sem_post(&serverNotificationQueueSemaphore);
+		try
+		{
+			// Place a message in the queue to inform the clients about the new animation state
+			ServerNotification *serverNotification = new ServerNotification;
+			serverNotification->type = ServerNotification::creatureSetAnimationState;
+			serverNotification->str = s;
+			serverNotification->cre = this;
+			serverNotificationQueue.push_back(serverNotification);
+			sem_post(&serverNotificationQueueSemaphore);
+		}
+		catch(bad_alloc&)
+		{
+			cout << "\n\nERROR:  bad alloc in Creature::setAnimationState\n\n";
+			exit(1);
+		}
 	}
 
 	sem_wait(&renderQueueSemaphore);
@@ -790,6 +798,7 @@ void Creature::addDestination(int x, int y)
 		SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
 		Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
+		cout << "\nParent scene node name:  " << node->getParentSceneNode()->getName();
 		// Work around 180 degree quaternion rotation quirk
 		if ((1.0f + src.dotProduct(walkDirection)) < 0.0001f)
 		{
@@ -809,13 +818,21 @@ void Creature::addDestination(int x, int y)
 
 	if(serverSocket != NULL)
 	{
-		// Place a message in the queue to inform the clients about the new destination
-		ServerNotification *serverNotification = new ServerNotification;
-		serverNotification->type = ServerNotification::creatureAddDestination;
-		serverNotification->str = name;
-		serverNotification->vec = destination;
-		serverNotificationQueue.push_back(serverNotification);
-		sem_post(&serverNotificationQueueSemaphore);
+		try
+		{
+			// Place a message in the queue to inform the clients about the new destination
+			ServerNotification *serverNotification = new ServerNotification;
+			serverNotification->type = ServerNotification::creatureAddDestination;
+			serverNotification->str = name;
+			serverNotification->vec = destination;
+			serverNotificationQueue.push_back(serverNotification);
+			sem_post(&serverNotificationQueueSemaphore);
+		}
+		catch(bad_alloc&)
+		{
+			cout << "\n\nERROR:  bad alloc in Creature::addDestination\n\n";
+			exit(1);
+		}
 	}
 }
 

@@ -129,6 +129,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	zChange = 0.0;
 	mCurrentTileRadius = 1;
 	mBrushMode = false;
+	creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
 
 	using namespace OIS;
 
@@ -357,7 +358,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			case RenderRequest::createCreature:
 				curCreature = (Creature*)curReq->p;
 				ent = mSceneMgr->createEntity( ("Creature_" + curCreature->name).c_str(), curCreature->meshName.c_str());
-				node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (curCreature->name + "_node").c_str() );
+				node = creatureSceneNode->createChildSceneNode( (curCreature->name + "_node").c_str() );
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
@@ -375,7 +376,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					sprintf(meshName, "Creature_vision_%s_%i_%i", curCreature->name.c_str(), curTile->x, curTile->y);
 					ent = mSceneMgr->createEntity( meshName, "Cre_vision_indicator.mesh");
-					node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (string)(meshName) + "_node" );
+					node = creatureSceneNode->createChildSceneNode( (string)(meshName) + "_node" );
 					node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 					node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
 					ent->setNormaliseNormals(true);
@@ -423,7 +424,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				{
 					ent = mSceneMgr->getEntity( ("Creature_" + curCreature->name).c_str() );
 					node = mSceneMgr->getSceneNode( (curCreature->name + "_node").c_str() );
-					mSceneMgr->getRootSceneNode()->removeChild( node );
+					creatureSceneNode->removeChild( node );
 					node->detachObject( ent );
 					mSceneMgr->destroyEntity( ent );
 					mSceneMgr->destroySceneNode( (curCreature->name + "_node") );
@@ -536,6 +537,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
+					cout << "\nParent scene node name:  " << node->getParentSceneNode()->getName();
 					// Work around 180 degree quaternion rotation quirk
 					if ((1.0f + src.dotProduct(currentCreature->walkDirection)) < 0.0001f)
 					{
@@ -1599,12 +1601,20 @@ void ExampleFrameListener::executePromptCommand()
 
 				if(serverSocket != NULL)
 				{
-					// Inform any connected clients about the change
-					ServerNotification *serverNotification = new ServerNotification;
-					serverNotification->type = ServerNotification::setTurnsPerSecond;
-					serverNotification->doub = turnsPerSecond;
-					serverNotificationQueue.push_back(serverNotification);
-					sem_post(&serverNotificationQueueSemaphore);
+					try
+					{
+						// Inform any connected clients about the change
+						ServerNotification *serverNotification = new ServerNotification;
+						serverNotification->type = ServerNotification::setTurnsPerSecond;
+						serverNotification->doub = turnsPerSecond;
+						serverNotificationQueue.push_back(serverNotification);
+						sem_post(&serverNotificationQueueSemaphore);
+					}
+					catch(bad_alloc&)
+					{
+						cout << "\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n";
+						exit(1);
+					}
 				}
 			}
 			else

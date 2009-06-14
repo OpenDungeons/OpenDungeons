@@ -100,12 +100,20 @@ void Tile::setFullness(int f)
 
 	if(serverSocket != NULL)
 	{
-		// Inform the clients that the fullness has changed.
-		ServerNotification *serverNotification = new ServerNotification;
-		serverNotification->type = ServerNotification::tileFullnessChange;
-		serverNotification->tile = this;
-		serverNotificationQueue.push_back(serverNotification);
-		sem_post(&serverNotificationQueueSemaphore);
+		try
+		{
+			// Inform the clients that the fullness has changed.
+			ServerNotification *serverNotification = new ServerNotification;
+			serverNotification->type = ServerNotification::tileFullnessChange;
+			serverNotification->tile = this;
+			serverNotificationQueue.push_back(serverNotification);
+			sem_post(&serverNotificationQueueSemaphore);
+		}
+		catch(bad_alloc&)
+		{
+			cout << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
+			exit(1);
+		}
 	}
 }
 

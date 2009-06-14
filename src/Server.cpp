@@ -155,10 +155,18 @@ void *creatureAIThread(void *p)
 		turnNumber++;
 
 		// Place a message in the queue to inform the clients that a new turn has started
-		ServerNotification *serverNotification = new ServerNotification;
-		serverNotification->type = ServerNotification::turnStarted;
-		serverNotificationQueue.push_back(serverNotification);
-		sem_post(&serverNotificationQueueSemaphore);
+		try
+		{
+			ServerNotification *serverNotification = new ServerNotification;
+			serverNotification->type = ServerNotification::turnStarted;
+			serverNotificationQueue.push_back(serverNotification);
+			sem_post(&serverNotificationQueueSemaphore);
+		}
+		catch(bad_alloc&)
+		{
+			cout << "\n\nERROR:  bad alloc in creatureAIThread at turnStarted\n\n";
+			exit(1);
+		}
 
 		// Go to each creature and call their individual doTurn methods
 		gameMap.doTurn();
