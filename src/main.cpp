@@ -13,15 +13,21 @@ using namespace std;
 
 SceneManager* mSceneMgr;
 GameMap gameMap;
+
+deque<RenderRequest*> renderQueue;
+sem_t renderQueueSemaphore;
+
+deque<ServerNotification*> serverNotificationQueue;
+deque<ClientNotification*> clientNotificationQueue;
+sem_t serverNotificationQueueSemaphore;
+sem_t clientNotificationQueueSemaphore;
+
+Socket *serverSocket = NULL, *clientSocket = NULL;
+
 string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
 double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double turnsPerSecond = 1.0;
 long int turnNumber = 1;
-deque<RenderRequest*> renderQueue;
-sem_t renderQueueSemaphore;
-deque<ServerNotification*> serverNotificationQueue;
-sem_t serverNotificationQueueSemaphore;
-Socket *serverSocket = NULL, *clientSocket = NULL;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -35,6 +41,7 @@ int main(int argc, char **argv)
 	seedRandomNumberGenerator();
 	sem_init(&renderQueueSemaphore, 0, 1);
 	sem_init(&serverNotificationQueueSemaphore, 0, 0);
+	sem_init(&clientNotificationQueueSemaphore, 0, 0);
 
 	// Create application object
 	MapEditor app;

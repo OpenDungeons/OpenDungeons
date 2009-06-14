@@ -5,6 +5,7 @@ BUGS:
 *  Fix crash on loading a new map from the server, I think it has to do with getting peices of messages in a single packet.  This assumption may or may not be true, it may be that the RenderQueue is somehow processing the addDestination message before the createMesh message.
 *  The GameMap::cutCorners() function sometimes causes creatures to walk through walls, this could be a problem with the lineOfSight function.
 *  I think the crash in root->startRendering possibly has to do with attatching things directly to the root scene node.
+*  The client has code to handle when messages are split across packets, but the server does not.  This needs to be added.
 
 
 

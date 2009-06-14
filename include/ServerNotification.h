@@ -25,6 +25,7 @@ class ServerNotification
 			creatureSetAnimationState
 		};
 
+		//TODO:  Employ some void pointers on this to make this data structure smaller
 		ServerNotificationType type;
 		string str;
 		Ogre::Vector3 vec;

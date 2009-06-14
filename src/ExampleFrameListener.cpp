@@ -1820,6 +1820,11 @@ void ExampleFrameListener::executePromptCommand()
 							
 							// Start a thread to talk to the server
 							pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
+
+							// Start the thread which will watch for local events to send to the server
+							CNPStruct *cnps = new CNPStruct;
+							cnps->nFrameListener = this;
+							pthread_create(&clientNotificationThread, NULL, clientNotificationProcessor, cnps);
 						}
 						else
 						{
@@ -1861,15 +1866,15 @@ void ExampleFrameListener::executePromptCommand()
 					if(serverSocket != NULL)
 					{
 						// Start the server thread which will listen for, and accept, connections
-						SSPStruct ssps;
-						ssps.nSocket = serverSocket;
-						ssps.nFrameListener = this;
-						pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) &ssps);
+						SSPStruct *ssps = new SSPStruct;
+						ssps->nSocket = serverSocket;
+						ssps->nFrameListener = this;
+						pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) ssps);
 
 						// Start the thread which will watch for local events to send to the clients
-						SNPStruct snps;
-						snps.nFrameListener = this;
-						pthread_create(&serverNotificationThread, NULL, serverNotificationProcessor, &snps);
+						SNPStruct *snps = new SNPStruct;
+						snps->nFrameListener = this;
+						pthread_create(&serverNotificationThread, NULL, serverNotificationProcessor, snps);
 
 						// Start the creature AI thread
 						pthread_create(&creatureThread, NULL, creatureAIThread, NULL);

@@ -7,12 +7,15 @@
 #include "ExampleFrameListener.h"
 #include "ChatMessage.h"
 
-// Functions called by pthread_create
-void *clientSocketProcessor(void *p);
+// Functions called by pthread_create which run on the server
 void *serverSocketProcessor(void *p);
 void *serverNotificationProcessor(void *p);
 void *clientHandlerThread(void *p);
 void *creatureAIThread(void *p);
+
+// Functions called by pthread_create which run on the client
+void *clientSocketProcessor(void *p);
+void *clientNotificationProcessor(void *p);
 
 // Other functions  (these are defined in src/Server.cpp)
 string formatCommand(string command, string arguments);
@@ -55,9 +58,19 @@ class CHTStruct
 
 /*! \brief Server Notification Processor Structure
  *
- * This is a data structure used for passing arguments to the serverNotiificationProcessor(void *p) defined in src/Server.cpp.
+ * This is a data structure used for passing arguments to the serverNotificationProcessor(void *p) defined in src/Server.cpp.
  */
 class SNPStruct
+{
+	public:
+		ExampleFrameListener *nFrameListener;
+};
+
+/*! \brief Client Notification Processor Structure
+ *
+ * This is a data structure used for passing arguments to the clientNotificationProcessor(void *p) defined in src/Client.cpp.
+ */
+class CNPStruct
 {
 	public:
 		ExampleFrameListener *nFrameListener;

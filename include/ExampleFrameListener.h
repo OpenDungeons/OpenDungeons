@@ -103,6 +103,7 @@ public:
 	pthread_t clientThread;
 	pthread_t serverThread;
 	pthread_t serverNotificationThread;
+	pthread_t clientNotificationThread;
 	vector<pthread_t*> clientHandlerThreads;
 	pthread_t creatureThread;
 

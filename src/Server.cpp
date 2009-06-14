@@ -24,6 +24,8 @@ void *serverSocketProcessor(void *p)
 	Socket *sock = ((SSPStruct*)p)->nSocket;
 	Socket *curSock;
 	ExampleFrameListener *frameListener = ((SSPStruct*)p)->nFrameListener;
+	delete p;
+	p = NULL;
 
 	// Set up the socket to listen on the specified port
 	if(!sock->create())
@@ -203,6 +205,9 @@ void *creatureAIThread(void *p)
 void *serverNotificationProcessor(void *p)
 {
 	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
+	delete p;
+	p = NULL;
+
 	string tempString;
 	stringstream tempSS;
 	Tile *tempTile;
@@ -291,6 +296,8 @@ void *clientHandlerThread(void *p)
 {
 	Socket *curSock = ((CHTStruct*)p)->nSocket;
 	ExampleFrameListener *frameListener = ((CHTStruct*)p)->nFrameListener;
+	delete p;
+	p = NULL;
 
 	string clientNick = "UNSET_CLIENT_NICKNAME";
 	string clientCommand, arguments;

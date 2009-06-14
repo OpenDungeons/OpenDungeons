@@ -22,6 +22,9 @@ void *clientSocketProcessor(void *p)
 	string serverCommand, arguments;
 	Socket *sock = ((CSPStruct*)p)->nSocket;
 	ExampleFrameListener *frameListener = ((CSPStruct*)p)->nFrameListener;
+	delete p;
+	p = NULL;
+
 
 
 	// Send a hello request to start the conversation with the server
@@ -247,5 +250,42 @@ void *clientSocketProcessor(void *p)
 
 	// Return something to make the compiler happy
 	return NULL;
+}
+
+/*! \brief The thread which monitors the clientNotificationQueue for new events and informs the server about them.
+ *
+ * This thread runs on the client and acts as a "consumer" on the
+ * clientNotificationQueue.  It takes an event out of the queue, determines
+ * which clients need to be informed about that particular event, and
+ * dispacthes TCP packets to inform the clients about the new information.
+ */
+void *clientNotificationProcessor(void *p)
+{
+	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
+	string tempString;
+	stringstream tempSS;
+	Tile *tempTile;
+
+	while(true)
+	{
+		sem_wait(&clientNotificationQueueSemaphore);
+
+		// Take a message out of the front of the notification queue
+		ClientNotification *event = clientNotificationQueue.front();
+		clientNotificationQueue.pop_front();
+
+		switch(event->type)
+		{
+			default:
+				cout << "\n\nError:  Unhandled ClientNotification type encoutered!\n\n";
+
+				//TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
+				Creature * throwAsegfault = NULL;
+				throwAsegfault->getPosition();
+
+				exit(1);
+				break;
+		}
+	}
 }
 
