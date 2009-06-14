@@ -262,9 +262,17 @@ void *serverNotificationProcessor(void *p)
 
 			default:
 				cout << "\n\nError:  Unhandled ServerNotification type encoutered!\n\n";
+
+				//TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
+				Creature * throwAsegfault = NULL;
+				throwAsegfault->getPosition();
+
 				exit(1);
 				break;
 		}
+
+		delete event;
+		event = NULL;
 	}
 
 	// Return something to make the compiler happy

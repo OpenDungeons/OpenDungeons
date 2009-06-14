@@ -269,7 +269,7 @@ void GameMap::doTurn()
 	cout << "\nStarting creature AI for turn " << turnNumber;
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
-		cout << "\nCreature " << i << "  " << creatures[i]->name << " calling doTurn.\t";
+		//cout << "\nCreature " << i << "  " << creatures[i]->name << " calling doTurn.\t";
 		creatures[i]->doTurn();
 	}
 }
@@ -293,6 +293,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	astarEntry *neighbor = new astarEntry;
 	list<astarEntry*> openList;
 	list<astarEntry*> closedList;
+	list<astarEntry*>::iterator itr;
 
 	currentEntry = new astarEntry;
 	currentEntry->tile = getTile(x1, y1);
@@ -444,7 +445,8 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	if(pathFound)
 	{
 		//Find the destination tile in the closed list
-		list<astarEntry*>::iterator itr = closedList.begin();
+		//TODO:  Optimize this by remembering this from above so this loop does not need to be carried out.
+		itr = closedList.begin();
 		while(itr != closedList.end())
 		{
 			if((*itr)->tile == destination)
@@ -464,6 +466,21 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 			}
 
 		}while(currentEntry != NULL);
+	}
+
+	// Clean up the memory we allocated by deleting the astarEntries in the open and closed lists
+	itr = openList.begin();
+	while(itr != openList.end())
+	{
+		delete *itr;
+		itr++;
+	}
+
+	itr = closedList.begin();
+	while(itr != closedList.end())
+	{
+		delete *itr;
+		itr++;
 	}
 
 	return returnList;

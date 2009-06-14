@@ -270,7 +270,7 @@ void Creature::doTurn()
 			switch(actionQueue.front().type)
 			{
 				case CreatureAction::idle:
-					cout << "idle ";
+					//cout << "idle ";
 					setAnimationState("Idle");
 					//FIXME: make this into a while loop over a vector of <action, probability> pairs
 
@@ -336,7 +336,7 @@ void Creature::doTurn()
 						}
 					}
 
-					cout << "walkToTile ";
+					//cout << "walkToTile ";
 					if(walkQueue.size() == 0)
 					{
 						actionQueue.pop_front();
@@ -345,7 +345,7 @@ void Creature::doTurn()
 					break;
 
 				case CreatureAction::digTile:
-					cout << "dig ";
+					//cout << "dig ";
 
 					// Find visible tiles, marked for digging
 					for(unsigned int i = 0; i < visibleTiles.size(); i++)
@@ -784,7 +784,7 @@ AnimationState* Creature::getAnimationState()
 */
 void Creature::addDestination(int x, int y)
 {
-	cout << "w(" << x << ", " << y << ") ";
+	//cout << "w(" << x << ", " << y << ") ";
 	Ogre::Vector3 destination(x, y, 0);
 
 	// if there are currently no destinations in the walk queue
