@@ -180,7 +180,6 @@ protected:
     virtual void createFrameListener(void)
     {
         mFrameListener= new ExampleFrameListener(mWindow, mCamera, NULL, NULL, false, false, false);
-        //mFrameListener= new ExampleFrameListener(mWindow, mCamera);
         mFrameListener->showDebugOverlay(true);
         mRoot->addFrameListener(mFrameListener);
     }

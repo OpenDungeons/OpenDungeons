@@ -3,9 +3,10 @@ BUGS:
 *  Fix crash on entering a nonexistant mesh to addclass after calling addcreature using this class.
 *  Terminal commands with no arguments but spaces at the end, like 'host ', will not be recognized as valid commands.
 *  Fix crash on loading a new map from the server, I think it has to do with getting peices of messages in a single packet.  This assumption may or may not be true, it may be that the RenderQueue is somehow processing the addDestination message before the createMesh message.
-*  The GameMap::cutCorners() function sometimes causes creatures to walk through walls, this could be a problem with the lineOfSight function.
-*  I think the crash in root->startRendering possibly has to do with attatching things directly to the root scene node.
+*  The GameMap::cutCorners() function sometimes causes creatures to walk through walls, this could be a problem with the lineOfSight function.  Actually I think it has to do with Creature::PositionTile().
+*  Solved? - I think the crash in root->startRendering possibly has to do with attatching things directly to the root scene node.
 *  The client has code to handle when messages are split across packets, but the server does not.  This needs to be added.
+*  when the terminal becomes active if a key is held down the keyup message gets caught by the terminal and the key is "stuck" down.
 
 
 
@@ -13,7 +14,6 @@ FEATURE ADDITIONS:
 *  implement history on the terminal.
 *  implement line editing on the terminal.
 *  add help for "fps", "nearclip", "farclip".
-*  when the terminal becomes active if a key is held down the keyup message gets caught by the terminal and the key is "stuck" down.
 *  add a flyTo method to make the camera fly to a particular location (and orientation?).
 *  Add a keyboard controls help message under "help keys".
 *  Server needs to send the "turnsPerSecond" message as part of the initial client setup.

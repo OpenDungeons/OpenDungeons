@@ -44,6 +44,8 @@ void *serverSocketProcessor(void *p)
 	// Listen for connectections and spawn a new socket+thread to handle them
 	while(true)
 	{
+		//FIXME:  This function leaks memory as none of these structures are deleted.
+
 		// Wait until a client connects
 		if(!sock->listen())
 		{
@@ -419,15 +421,6 @@ void *clientHandlerThread(void *p)
 
 			sem_post(&curSock->semaphore);
 		}
-
-		// This code is commeted out because it is handled by the "hello" function, it may be deleted in the future.
-		/*
-		else if(clientCommand.compare("setnick") == 0)
-		{
-			clientNick = arguments;
-			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client nick is: " + clientNick, time(NULL)));
-		}
-		*/
 
 		else if(clientCommand.compare("chat") == 0)
 		{

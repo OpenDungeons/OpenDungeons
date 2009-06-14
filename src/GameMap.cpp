@@ -290,6 +290,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	list<Tile*> returnList;
 	astarEntry *currentEntry;
 	Tile *destination;
+	//TODO:  make this a local variable, don't forget to remove the delete statement at the end of this function.
 	astarEntry *neighbor = new astarEntry;
 	list<astarEntry*> openList;
 	list<astarEntry*> closedList;
@@ -482,6 +483,8 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 		delete *itr;
 		itr++;
 	}
+
+	delete neighbor;
 
 	return returnList;
 }
