@@ -369,12 +369,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature = (Creature*)curReq->p;
 				if(mSceneMgr->hasEntity( ("Creature_" + curCreature->name).c_str() ))
 				{
-					ent = mSceneMgr->getEntity( ("Creature_" + curCreature->name).c_str() );
-					node = mSceneMgr->getSceneNode( (curCreature->name + "_node").c_str() );
-					creatureSceneNode->removeChild( node );
+					ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
+					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
 					node->detachObject( ent );
+					creatureSceneNode->removeChild( node );
 					mSceneMgr->destroyEntity( ent );
-					mSceneMgr->destroySceneNode( (curCreature->name + "_node") );
+					mSceneMgr->destroySceneNode(curCreature->name + "_node");
 				}
 				break;
 
@@ -549,7 +549,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
-					cout << "\nParent scene node name:  " << node->getParentSceneNode()->getName();
 					// Work around 180 degree quaternion rotation quirk
 					if ((1.0f + src.dotProduct(currentCreature->walkDirection)) < 0.0001f)
 					{
@@ -1780,7 +1779,13 @@ void ExampleFrameListener::executePromptCommand()
 
 				else if(arguments.compare("players") == 0)
 				{
-					tempSS << "Not implemented yet.";
+					tempSS << "Player:\tNick:\tColor:\n\n";
+					tempSS << "me\t\t" << gameMap.me->nick << "\t" << gameMap.me->color << "\n\n";
+					for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+					{
+						Player *currentPlayer = gameMap.getPlayer(i);
+						tempSS << i << "\t\t" << currentPlayer->nick << "\t" << currentPlayer->color << "\n";
+					}
 				}
 
 				else if(arguments.compare("network") == 0)

@@ -29,7 +29,9 @@ void Player::addCreatureToHand(Creature *c)
  * This function takes care of all of the operations required for a player to
  * pick up a creature.  If the player is the user we need to move the creature
  * oncreen to the "hand" as well as add the creature to the list of creatures
- * in our own hand.  If 
+ * in our own hand, this is done by setting moveToHand to true.  If move to
+ * hand is false we just hide the creature (and stop its AI, etc.), rather than
+ * making it follow the cursor.
  */
 void Player::pickUpCreature(Creature *c)
 {
@@ -42,10 +44,27 @@ void Player::pickUpCreature(Creature *c)
 
 	if(serverSocket != NULL || clientSocket != NULL)
 	{
+		// Inform the clients
+		if(serverSocket != NULL)
+		{
+			// Place a message in the queue to inform the clients that we picked up this creature
+			ServerNotification *serverNotification = new ServerNotification;
+			serverNotification->type = ServerNotification::creaturePickUp;
+			serverNotification->cre = c;
+			serverNotification->player = this;
+
+			sem_wait(&serverNotificationQueueLockSemaphore);
+			serverNotificationQueue.push_back(serverNotification);
+			sem_post(&serverNotificationQueueLockSemaphore);
+
+			sem_post(&serverNotificationQueueSemaphore);
+		}
+
 		// If it is actually the user picking up a creature we move the scene node and inform
 		// the server, otherwise we just hide the creature from the map.
 		if(this == gameMap.me)
 		{
+			// Send a render request to move the crature into the "hand"
 			RenderRequest *request = new RenderRequest;
 			request->type = RenderRequest::pickUpCreature;
 			request->p = c;
@@ -54,12 +73,7 @@ void Player::pickUpCreature(Creature *c)
 			renderQueue.push_back(request);
 			sem_post(&renderQueueSemaphore);
 
-			//TODO: Inform the server or the clients
-			if(serverSocket != NULL)
-			{
-				// Send a message to the clients telling them that we picked up this creature
-			}
-			else
+			if(clientSocket != NULL)
 			{
 				// Send a message to the server telling it we picked up this creature
 			}
@@ -67,6 +81,7 @@ void Player::pickUpCreature(Creature *c)
 		else // it is just a message indicating another player has picked up a creature
 		{
 			// Hide the creature
+			c->destroyMesh();
 		}
 
 	}

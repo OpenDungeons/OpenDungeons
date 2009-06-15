@@ -77,6 +77,17 @@ void *clientSocketProcessor(void *p)
 				sem_post(&sock->semaphore);
 			}
 
+			else if(serverCommand.compare("addplayer") == 0)
+			{
+				Player *tempPlayer = new Player;
+				tempPlayer->nick = arguments;
+				gameMap.addPlayer(tempPlayer);
+
+				sem_wait(&sock->semaphore);
+				sock->send(formatCommand("ok", "addplayer"));
+				sem_post(&sock->semaphore);
+			}
+
 			else if(serverCommand.compare("chat") == 0)
 			{
 				ChatMessage *newMessage = processChatMessage(arguments);
@@ -185,6 +196,27 @@ void *clientSocketProcessor(void *p)
 					cout << endl << tempCreature->name << tempX << ",  " << tempY << ",  " << tempZ << endl;
 
 					tempCreature->addDestination(tempVector.x, tempVector.y);
+				}
+			}
+
+			else if(serverCommand.compare("creaturePickUp") == 0)
+			{
+				char array[255];
+
+				stringstream tempSS;
+				tempSS.str(arguments);
+
+				tempSS.getline(array, sizeof(array), ':');
+				string playerNick = array;
+				tempSS.getline(array, sizeof(array));
+				string creatureName = array;
+
+				Player *tempPlayer = gameMap.getPlayer(playerNick);
+				Creature *tempCreature = gameMap.getCreature(creatureName);
+
+				if(tempPlayer != NULL && tempCreature != NULL)
+				{
+					tempPlayer->pickUpCreature(tempCreature);
 				}
 			}
 

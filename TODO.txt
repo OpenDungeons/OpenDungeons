@@ -7,6 +7,7 @@ BUGS:
 *  Solved? - I think the crash in root->startRendering possibly has to do with attatching things directly to the root scene node.
 *  The client has code to handle when messages are split across packets, but the server does not.  This needs to be added.
 *  when the terminal becomes active if a key is held down the keyup message gets caught by the terminal and the key is "stuck" down.
+*  Client and server need to negiotiate and set a color for the newly connected client.
 
 
 
@@ -20,6 +21,7 @@ FEATURE ADDITIONS:
 *  Store creature classes and class descriptions in maps rather than vectors to allow for faster lookups.
 *  Add play, pause, and single turn commands to the terminal to aid in AI debugging. 
 *  Add a terminal command to set the number of chat messages and the time to display them for (both as one command maybe).
+*  Overload the << operator on the Player class, do the same for all the others.
 
 
 *  Fix the issue with Mouse move.

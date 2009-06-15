@@ -805,7 +805,6 @@ void Creature::addDestination(int x, int y)
 		SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
 		Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
-		cout << "\nParent scene node name:  " << node->getParentSceneNode()->getName();
 		// Work around 180 degree quaternion rotation quirk
 		if ((1.0f + src.dotProduct(walkDirection)) < 0.0001f)
 		{
