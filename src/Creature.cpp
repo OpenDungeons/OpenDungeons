@@ -852,6 +852,7 @@ void Creature::addDestination(int x, int y)
 */
 void Creature::clearDestinations()
 {
+	//TODO: inform the clients about this.
 	walkQueue.clear();
 	stopWalking();
 }

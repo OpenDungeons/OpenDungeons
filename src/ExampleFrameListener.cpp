@@ -365,6 +365,31 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->attachObject(ent);
 				break;
 
+			case RenderRequest::destroyCreature:
+				curCreature = (Creature*)curReq->p;
+				if(mSceneMgr->hasEntity( ("Creature_" + curCreature->name).c_str() ))
+				{
+					ent = mSceneMgr->getEntity( ("Creature_" + curCreature->name).c_str() );
+					node = mSceneMgr->getSceneNode( (curCreature->name + "_node").c_str() );
+					creatureSceneNode->removeChild( node );
+					node->detachObject( ent );
+					mSceneMgr->destroyEntity( ent );
+					mSceneMgr->destroySceneNode( (curCreature->name + "_node") );
+				}
+				break;
+
+			case RenderRequest::pickUpCreature:
+				curCreature = (Creature*)curReq->p;
+				// Detach the creature from the creature scene node
+				node = mSceneMgr->getSceneNode( (curCreature->name + "_node").c_str() );
+				creatureSceneNode->removeChild(node);
+
+				// Attatch the creature to the hand scene node
+				mSceneMgr->getSceneNode("Hand_Node")->addChild(node);
+				node->setPosition(gameMap.me->numCreaturesInHand() + 1 , 0.0, 0.0);
+				node->scale(0.333, 0.333, 0.333);
+				break;
+
 			case RenderRequest::createCreatureVisualDebug:
 				curTile = (Tile*)curReq->p;
 				curCreature = (Creature*)curReq->p2;
@@ -415,19 +440,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					curCreature->animationState = ent->getAnimationState(curReq->str.c_str());
 					curCreature->animationState->setLoop(true);
 					curCreature->animationState->setEnabled(true);
-				}
-				break;
-
-			case RenderRequest::destroyCreature:
-				curCreature = (Creature*)curReq->p;
-				if(mSceneMgr->hasEntity( ("Creature_" + curCreature->name).c_str() ))
-				{
-					ent = mSceneMgr->getEntity( ("Creature_" + curCreature->name).c_str() );
-					node = mSceneMgr->getSceneNode( (curCreature->name + "_node").c_str() );
-					creatureSceneNode->removeChild( node );
-					node->detachObject( ent );
-					mSceneMgr->destroyEntity( ent );
-					mSceneMgr->destroySceneNode( (curCreature->name + "_node") );
 				}
 				break;
 
@@ -789,17 +801,36 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 
 				if(resultName.find("Creature_") != string::npos)
 				{
-					//Entity *resultEnt = mSceneMgr->getEntity(resultName);
-					mSceneMgr->getEntity("SquareSelector")->setVisible(false);
+					// if in a game:  Pick the creature up and put it in our hand
+					if(serverSocket != NULL || clientSocket != NULL)
+					{
+						// through away everything before the '_' and then copy the rest into 'array'
+						char array[255];
+						stringstream tempSS;
+						tempSS.str(resultName);
+						tempSS.getline(array, sizeof(array), '_');
+						tempSS.getline(array, sizeof(array));
 
-					
-					mDraggedCreature = resultName.substr(((string)"Creature_").size(), resultName.size());
-					SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(mDraggedCreature	+ "_node");
-					mSceneMgr->getRootSceneNode()->removeChild(creatureSceneNode);
-					mSceneMgr->getSceneNode("Hand_Node")->addChild(creatureSceneNode);
-					creatureSceneNode->setPosition(0,0,0);
-					mDragType = ExampleFrameListener::creature;
-					break;
+						Creature *currentCreature = gameMap.getCreature(array);
+						if(currentCreature != NULL)
+						{
+							gameMap.me->pickUpCreature(currentCreature);
+						}
+					}
+					else  // if in the Map Editor:  Begin dragging the creature
+					{
+						//Entity *resultEnt = mSceneMgr->getEntity(resultName);
+						mSceneMgr->getEntity("SquareSelector")->setVisible(false);
+
+						
+						mDraggedCreature = resultName.substr(((string)"Creature_").size(), resultName.size());
+						SceneNode *node = mSceneMgr->getSceneNode(mDraggedCreature	+ "_node");
+						creatureSceneNode->removeChild(node);
+						mSceneMgr->getSceneNode("Hand_Node")->addChild(node);
+						node->setPosition(0,0,0);
+						mDragType = ExampleFrameListener::creature;
+						break;
+					}
 				}
 
 			}
@@ -873,11 +904,14 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 		// Check to see if we are moving a creature
 		if(mDragType == ExampleFrameListener::creature)
 		{
-			SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
-			mSceneMgr->getSceneNode("Hand_Node")->removeChild(creatureSceneNode);
-			mSceneMgr->getRootSceneNode()->addChild(creatureSceneNode);
-			mDragType = ExampleFrameListener::nullDragType;
-			gameMap.getCreature(mDraggedCreature)->setPosition(xPos, yPos, 0);
+			if(serverSocket == NULL && clientSocket == NULL)
+			{
+				SceneNode *node = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
+				mSceneMgr->getSceneNode("Hand_Node")->removeChild(node);
+				creatureSceneNode->addChild(node);
+				mDragType = ExampleFrameListener::nullDragType;
+				gameMap.getCreature(mDraggedCreature)->setPosition(xPos, yPos, 0);
+			}
 		}
 
 		// Check to see if we are dragging out a selection of tiles

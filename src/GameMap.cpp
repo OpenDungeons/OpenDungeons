@@ -178,6 +178,21 @@ void GameMap::addCreature(Creature *c)
 	creatures.push_back(c);
 }
 
+/*! \brief Removes the creature from the game map but does not delete its data structure.
+ *
+ */
+void GameMap::removeCreature(Creature *c)
+{
+	for(unsigned int i = 0; i < numCreatures(); i++)
+	{
+		if(c == creatures[i])
+		{
+			creatures.erase(creatures.begin()+i);
+			return;
+		}
+	}
+}
+
 /*! \brief Returns a pointer to the first class description whose 'name' parameter matches the query string.
  *
  */

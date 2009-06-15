@@ -119,7 +119,7 @@ void MapEditor::createScene(void)
 	ent->setNormaliseNormals(true);
 	node->attachObject(ent);
 	SceneNode *node2 = node->createChildSceneNode("Hand_Node");
-	node2->translate(0/BLENDER_UNITS_PER_OGRE_UNIT, 0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT);
+	node2->setPosition(0.0/BLENDER_UNITS_PER_OGRE_UNIT, 0.0/BLENDER_UNITS_PER_OGRE_UNIT, 3.0/BLENDER_UNITS_PER_OGRE_UNIT);
 	node2->scale(Ogre::Vector3(1.0/BLENDER_UNITS_PER_OGRE_UNIT,1.0/BLENDER_UNITS_PER_OGRE_UNIT,1.0/BLENDER_UNITS_PER_OGRE_UNIT));
 
 	// Create the light which follows the single tile selection mesh
@@ -128,7 +128,7 @@ void MapEditor::createScene(void)
 	light->setDiffuseColour(ColourValue(.18, .14, .11));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
 	//light->setPosition(0, 0, 1.45/BLENDER_UNITS_PER_OGRE_UNIT);
-	light->setPosition(0, 0, 7.45);
+	light->setPosition(0, 0, 11);
 	light->setAttenuation(35, 0.0, 0.0, 0.01);
 	node->attachObject(light);
 
