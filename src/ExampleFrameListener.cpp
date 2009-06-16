@@ -278,13 +278,16 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// Process the queue of render tasks from the other threads
 	while(renderQueue.size() > 0)
 	{
-		char tempString[255];
+		char array[255];
 		char meshName[255];
+		string tempString;
+		stringstream tempSS;
 		string tileTypeString;
 		Entity *ent;
 		SceneNode *node;
 		Tile *curTile = NULL;
 		Creature *curCreature = NULL;
+		int tempInt;
 
 		// Remove the first item from the render queue
 		sem_wait(&renderQueueSemaphore);
@@ -321,8 +324,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
 				ent = mSceneMgr->createEntity(curTile->name.c_str(), meshName);
 
-				sprintf(tempString, "%s_node", curTile->name.c_str());
-				node = mSceneMgr->getRootSceneNode()->createChildSceneNode(tempString);
+				sprintf(array, "%s_node", curTile->name.c_str());
+				node = mSceneMgr->getRootSceneNode()->createChildSceneNode(array);
 				//node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
 				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
@@ -335,8 +338,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curTile = (Tile*)curReq->p;
 				if(mSceneMgr->hasEntity(curTile->name.c_str()))
 				{
-					cout << "\nDestroying tile: (" << curTile->x << ", " << curTile->y << ")";
-					cout.flush();
+					//cout << "\nDestroying tile: (" << curTile->x << ", " << curTile->y << ")";
+					//cout.flush();
 
 					ent = mSceneMgr->getEntity(curTile->name.c_str());
 					node = mSceneMgr->getSceneNode((curTile->name + "_node").c_str());
@@ -348,8 +351,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				break;
 
 			case RenderRequest::deleteTile:
-				cout << "Deleting tile\n";
-				cout.flush();
+				//cout << "Deleting tile\n";
+				//cout.flush();
 
 				curTile = (Tile*)curReq->p;
 				delete curTile;
@@ -386,7 +389,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				// Attatch the creature to the hand scene node
 				mSceneMgr->getSceneNode("Hand_Node")->addChild(node);
-				node->setPosition(gameMap.me->numCreaturesInHand() + 1 , 0.0, 0.0);
+				tempInt = gameMap.me->numCreaturesInHand();
+				node->setPosition(tempInt%6 + 1, (tempInt/(int)6), 0.0);
 				node->scale(0.333, 0.333, 0.333);
 				break;
 
@@ -399,35 +403,41 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					//cout << "\nCreating visdebug:  " << meshName;
 					//cout.flush();
 
-					sprintf(meshName, "Creature_vision_%s_%i_%i", curCreature->name.c_str(), curTile->x, curTile->y);
-					ent = mSceneMgr->createEntity( meshName, "Cre_vision_indicator.mesh");
-					node = creatureSceneNode->createChildSceneNode( (string)(meshName) + "_node" );
+					tempString = "";
+					tempSS.str(tempString);
+					tempSS << "Creature_vision_" << curCreature->name.c_str() << "_" << curTile->x << "_" << curTile->y;
+
+					ent = mSceneMgr->createEntity( tempSS.str(), "Cre_vision_indicator.mesh");
+					node = creatureSceneNode->createChildSceneNode( tempSS.str() + "_node" );
+					node->attachObject(ent);
 					node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 					node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
 					ent->setNormaliseNormals(true);
-					node->attachObject(ent);
 				}
 				break;
 
 			case RenderRequest::destroyCreatureVisualDebug:
 				curTile = (Tile*)curReq->p;
 				curCreature = (Creature*)curReq->p2;
-				sprintf(meshName, "Creature_vision_%s_%i_%i", curCreature->name.c_str(), curTile->x, curTile->y);
+
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << "Creature_vision_" << curCreature->name.c_str() << "_" << curTile->x << "_" << curTile->y;
 
 				//cout << "\ntrying to Destroy visdebug:  " << meshName;
 				//cout.flush();
 
-				if(mSceneMgr->hasEntity(meshName))
+				if(mSceneMgr->hasEntity(tempSS.str()))
 				{
 					//cout << "\nDestroying visdebug:  " << meshName;
 					//cout.flush();
 
-					ent = mSceneMgr->getEntity(meshName);
-					node = mSceneMgr->getSceneNode((string)(meshName) + "_node");
+					ent = mSceneMgr->getEntity(tempSS.str());
+					node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
 
 					node->detachAllObjects();
 					mSceneMgr->destroyEntity(ent);
-					mSceneMgr->destroySceneNode((string)(meshName) + "_node");
+					mSceneMgr->destroySceneNode(tempSS.str() + "_node");
 				}
 				break;
 
@@ -1976,8 +1986,16 @@ void ExampleFrameListener::executePromptCommand()
 					Creature *tempCreature = gameMap.getCreature(arguments);
 					if(tempCreature != NULL)
 					{
-						tempCreature->createVisualDebugEntities();
-						commandOutput = "Visual debugging entities created for creature:  " + arguments;
+						if(!tempCreature->getHasVisualDebuggingEntities())
+						{
+							tempCreature->createVisualDebugEntities();
+							commandOutput = "Visual debugging entities created for creature:  " + arguments;
+						}
+						else
+						{
+							tempCreature->destroyVisualDebugEntities();
+							commandOutput = "Visual debugging entities destroyed for creature:  " + arguments;
+						}
 					}
 					else
 					{
@@ -2088,7 +2106,7 @@ string ExampleFrameListener::getHelpText(string arg)
 
 	else if(arg.compare("visdebug") == 0)
 	{
-		return "Visual debugging is a way to see a given creature\'s AI state.\n\nExample:\n" + prompt + "visdebug skeletor\n\nThe above command wil turn on visual debugging for the creature named \'skeletor\'.";
+		return "Visual debugging is a way to see a given creature\'s AI state.\n\nExample:\n" + prompt + "visdebug skeletor\n\nThe above command wil turn on visual debugging for the creature named \'skeletor\'.  The same command will turn it back off again.";
 	}
 
 	else if(arg.compare("turnspersecond") == 0 || arg.compare("tps") == 0)

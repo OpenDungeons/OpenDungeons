@@ -193,9 +193,19 @@ void *clientSocketProcessor(void *p)
 
 				if(tempCreature != NULL)
 				{
-					cout << endl << tempCreature->name << tempX << ",  " << tempY << ",  " << tempZ << endl;
+					//cout << endl << tempCreature->name << tempX << ",  " << tempY << ",  " << tempZ << endl;
 
 					tempCreature->addDestination(tempVector.x, tempVector.y);
+				}
+			}
+
+			else if(serverCommand.compare("creatureClearDestinations") == 0)
+			{
+				Creature *tempCreature = gameMap.getCreature(arguments);
+
+				if(tempCreature != NULL)
+				{
+					tempCreature->clearDestinations();
 				}
 			}
 
@@ -261,7 +271,6 @@ void *clientSocketProcessor(void *p)
 				Tile *tempTile = gameMap.getTile(tempX, tempY);
 				if(tempTile != NULL)
 				{
-					cout << "\nSetting tile fullness for tile " << tempX << ", " << tempY << " to " << tempFullness << "\n";
 					tempTile->setFullness(tempFullness);
 				}
 				else

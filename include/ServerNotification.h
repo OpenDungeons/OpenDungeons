@@ -23,6 +23,7 @@ class ServerNotification
 			tileFullnessChange,
 
 			creatureAddDestination,
+			creatureClearDestinations,
 			creatureSetAnimationState,
 			creaturePickUp
 		};

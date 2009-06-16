@@ -42,6 +42,12 @@ void Player::pickUpCreature(Creature *c)
 	// Start tracking this creature as being in this player's hand
 	addCreatureToHand(c);
 
+	// Destroy the creature's visual debugging entities if it has them
+	if(c->getHasVisualDebuggingEntities())
+	{
+		c->destroyVisualDebugEntities();
+	}
+
 	if(serverSocket != NULL || clientSocket != NULL)
 	{
 		// Inform the clients

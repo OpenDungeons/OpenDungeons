@@ -509,6 +509,7 @@ void Creature::doTurn()
 		Tile *currentPositionTile = positionTile();
 		if(currentPositionTile != previousPositionTile)
 		{
+			//TODO:  This destroy and re-create is kind of a hack as its likely only a few tiles will actually change.
 			destroyVisualDebugEntities();
 			createVisualDebugEntities();
 		}
@@ -851,9 +852,22 @@ void Creature::addDestination(int x, int y)
 */
 void Creature::clearDestinations()
 {
-	//TODO: inform the clients about this.
 	walkQueue.clear();
 	stopWalking();
+
+	if(serverSocket != NULL)
+	{
+		// Place a message in the queue to inform the clients about the clear
+		ServerNotification *serverNotification = new ServerNotification;
+		serverNotification->type = ServerNotification::creatureClearDestinations;
+		serverNotification->cre = this;
+
+		sem_wait(&serverNotificationQueueLockSemaphore);
+		serverNotificationQueue.push_back(serverNotification);
+		sem_post(&serverNotificationQueueLockSemaphore);
+
+		sem_post(&serverNotificationQueueSemaphore);
+	}
 }
 
 /*! \brief Stops the creature where it is, and sets its animation state.

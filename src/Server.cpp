@@ -252,6 +252,12 @@ void *serverNotificationProcessor(void *p)
 				sendToAllClients(frameListener, formatCommand("creatureAddDestination", tempSS.str()));
 				break;
 
+			case ServerNotification::creatureClearDestinations:
+				tempSS.str(tempString);
+				tempSS << event->cre->name;
+				sendToAllClients(frameListener, formatCommand("creatureClearDestinations", tempSS.str()));
+				break;
+
 			case ServerNotification::creaturePickUp:
 				tempSS.str(tempString);
 				tempSS << event->player->nick << ":" << event->cre->name;
