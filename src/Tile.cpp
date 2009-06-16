@@ -95,8 +95,8 @@ void Tile::setFullness(int f)
 
 	refreshMesh();
 
-	if(fullness <= 1 && getMarkedForDigging() == true)
-		setMarkedForDigging(false);
+	if(fullness <= 1 && getMarkedForDigging(gameMap.me) == true)
+		setMarkedForDigging(false, gameMap.me);
 
 	if(serverSocket != NULL)
 	{
@@ -407,16 +407,16 @@ bool Tile::getSelected()
 /*! \brief This function marks the tile to be dug out by workers, and displays the dig indicator on it.
  *
  */
-void Tile::setMarkedForDigging(bool s)
+void Tile::setMarkedForDigging(bool s, Player *p)
 {
 	Entity *ent;
 	char tempString[255];
 	char tempString2[255];
 
-	if(markedForDigging != s)
+	if(getMarkedForDigging(p) != s)
 	{
 		//FIXME:  This code should probably only execute if it needs to for speed reasons.
-		sprintf(tempString, "Level_%3i_%3i_selection_indicator", x, y);
+		sprintf(tempString, "Level_%i_%i_selection_indicator", x, y);
 		if(mSceneMgr->hasEntity(tempString))
 		{
 			ent = mSceneMgr->getEntity(tempString);
@@ -424,32 +424,45 @@ void Tile::setMarkedForDigging(bool s)
 		else
 		{
 			sprintf(tempString2, "Level_%3i_%3i_node", x, y);
+			cout << "\n\nTempstring2:  " << tempString2;
+			cout.flush();
 			SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
 
-			ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
+			ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
+			ent->setNormaliseNormals(true);
 			tempNode->attachObject(ent);
-			ent->setVisible(false);
 		}
 
-		markedForDigging = s;
-
-		if(markedForDigging)
+		if(s)
 		{
 			ent->setVisible(true);
+			addPlayerMarkingTile(p);
 		}
 		else
 		{
 			ent->setVisible(false);
+			removePlayerMarkingTile(p);
 		}
 	}
 }
 
-/*! \brief This accessor function returns whether or not the tile has been marked to be dug out.
+/*! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.
  *
  */
-bool Tile::getMarkedForDigging()
+bool Tile::getMarkedForDigging(Player *p)
 {
-	return markedForDigging;
+	bool isMarkedForDigging = false;
+
+	// Loop over any players who have marked this tile and see if 'p' is one of them
+	for(unsigned int i = 0; i < playersMarkingTile.size(); i++)
+	{
+		if(playersMarkingTile[i] == p)
+		{
+			return true;
+		}
+	}
+
+	return isMarkedForDigging;
 }
 
 /*! \brief This function places a message in the render queue to unload the mesh and delete the tile structure.
@@ -513,4 +526,33 @@ Creature* Tile::getCreature(int index)
 	return creaturesInCell[index];
 }
 
+/*! \brief Add a player to the vector of players who have marked this tile for digging.
+ *
+ */
+void Tile::addPlayerMarkingTile(Player *p)
+{
+	playersMarkingTile.push_back(p);
+}
+
+void Tile::removePlayerMarkingTile(Player *p)
+{
+	for(unsigned int i = 0; i < playersMarkingTile.size(); i++)
+	{
+		if(p == playersMarkingTile[i])
+		{
+			playersMarkingTile.erase(playersMarkingTile.begin()+i);
+			return;
+		}
+	}
+}
+
+int Tile::numPlayersMarkingTile()
+{
+	return playersMarkingTile.size();
+}
+
+Player* Tile::getPlayerMarkingTile(int index)
+{
+	return playersMarkingTile[index];
+}
 

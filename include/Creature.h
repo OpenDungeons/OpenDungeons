@@ -72,6 +72,7 @@ class Creature
 		void addDestination(int x, int y);
 		void clearDestinations();
 		void stopWalking();
+		Player* getControllingPlayer();
 
 	private:
 		deque<CreatureAction> actionQueue;

@@ -15,6 +15,7 @@ extern SceneManager* mSceneMgr;
 #include "RenderRequest.h"
 
 class Creature;
+class Player;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -53,13 +54,18 @@ class Tile
 		void setSelected(bool s);
 		bool getSelected();
 
-		void setMarkedForDigging(bool s);
-		bool getMarkedForDigging();
+		void setMarkedForDigging(bool s, Player *p);
+		bool getMarkedForDigging(Player *p);
 
 		void addCreature(Creature *c);
 		void removeCreature(Creature *c);
 		int numCreaturesInCell();
 		Creature* getCreature(int index);
+
+		void addPlayerMarkingTile(Player *p);
+		void removePlayerMarkingTile(Player *p);
+		int numPlayersMarkingTile();
+		Player* getPlayerMarkingTile(int index);
 
 		Vector3 location;
 		int x, y;
@@ -77,6 +83,7 @@ class Tile
 		int fullness;
 		int fullnessMeshNumber;
 		vector<Creature*> creaturesInCell;
+		vector<Player*> playersMarkingTile;
 };
 
 

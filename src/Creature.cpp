@@ -263,6 +263,7 @@ void Creature::doTurn()
 		Tile *neighborTile;
 		vector<Tile*>neighbors, creatureNeighbors;
 		bool wasANeighbor = false;
+		Player *tempPlayer;
 
 		diceRoll = randomDouble(0.0, 1.0);
 		if(actionQueue.size() > 0)
@@ -322,13 +323,14 @@ void Creature::doTurn()
 					//TODO: Peek at the item that caused us to walk
 					if(actionQueue[1].type == CreatureAction::digTile)
 					{
+						tempPlayer = getControllingPlayer();
 						// Check to see if the tile is still marked for digging
 						int index = walkQueue.size();
 						Tile *currentTile = gameMap.getTile((int)walkQueue[index].x, (int)walkQueue[index].y);
 						if(currentTile != NULL)
 						{
 							// If it is not marked
-							if(!currentTile->getMarkedForDigging())
+							if(tempPlayer != NULL && !currentTile->getMarkedForDigging(tempPlayer))
 							{
 								// Clear the walk queue
 								clearDestinations();
@@ -345,13 +347,14 @@ void Creature::doTurn()
 					break;
 
 				case CreatureAction::digTile:
+					tempPlayer = getControllingPlayer();
 					//cout << "dig ";
 
 					// Find visible tiles, marked for digging
 					for(unsigned int i = 0; i < visibleTiles.size(); i++)
 					{
 						// Check to see if the tile is marked for digging
-						if(visibleTiles[i]->getMarkedForDigging())
+						if(tempPlayer != NULL && visibleTiles[i]->getMarkedForDigging(tempPlayer))
 						{
 							markedTiles.push_back(visibleTiles[i]);
 						}
@@ -362,7 +365,7 @@ void Creature::doTurn()
 					creatureNeighbors = gameMap.neighborTiles(position.x, position.y);
 					for(unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; i++)
 					{
-						if(creatureNeighbors[i]->getMarkedForDigging())
+						if(tempPlayer != NULL && creatureNeighbors[i]->getMarkedForDigging(tempPlayer))
 						{
 							setAnimationState("Dig");
 							creatureNeighbors[i]->setFullness(creatureNeighbors[i]->getFullness() - digRate);
@@ -885,5 +888,31 @@ void Creature::stopWalking()
 bool Creature::getHasVisualDebuggingEntities()
 {
 	return hasVisualDebuggingEntities;
+}
+
+/*! \brief Returns the first player whose color matches this creature's color.
+ *
+*/
+Player* Creature::getControllingPlayer()
+{
+	Player *tempPlayer;
+
+	if(gameMap.me->color == color)
+	{
+		return gameMap.me;
+	}
+
+	// Try to find and return a player with color equal to this creature's
+	for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+	{
+		tempPlayer = gameMap.getPlayer(i);
+		if(tempPlayer->color == color)
+		{
+			return tempPlayer;
+		}
+	}
+
+	// No player found, return NULL
+	return NULL;
 }
 

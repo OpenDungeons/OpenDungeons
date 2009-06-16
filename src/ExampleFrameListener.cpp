@@ -105,13 +105,7 @@ void ExampleFrameListener::updateStats(void)
  * up the OGRE system.
  */
 ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, SceneManager *sceneManager, CEGUI::Renderer *renderer, bool bufferedKeys, bool bufferedMouse, bool bufferedJoy)
-	: mCamera(cam), mTranslateVector(Ogre::Vector3::ZERO), mWindow(win),
-	mStatsOn(true), mNumScreenShots(0), mMoveScale(0.0f), mRotScale(0.0f),
-	mTimeUntilNextToggle(0), mFiltering(TFO_BILINEAR), mAniso(1),
-	mSceneDetailIndex(0), mMoveSpeed(50.0), mRotateSpeed(50),
-	mDebugOverlay(0), mInputManager(0), mMouse(0), mKeyboard(0), mJoy(0),
-	mZoomSpeed(.5),
-	mCurrentTileType(Tile::dirt), mCurrentFullness(100)
+	: mCamera(cam), mTranslateVector(Ogre::Vector3::ZERO), mWindow(win)
 {
 	mCount = 0;
 	mCurrentObject = NULL;
@@ -130,6 +124,25 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mCurrentTileRadius = 1;
 	mBrushMode = false;
 	creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
+
+	mStatsOn = true;
+	mNumScreenShots = 0;
+	mMoveScale = 0.0f;
+	mRotScale = 0.0f;
+	mTimeUntilNextToggle = 0;
+	mFiltering = TFO_BILINEAR;
+	mAniso = 1;
+	mSceneDetailIndex = 0;
+	mMoveSpeed = 50.0;
+	mRotateSpeed = 50;
+	mDebugOverlay = 0;
+	mInputManager = 0;
+	mMouse = 0;
+	mKeyboard = 0;
+	mJoy = 0;
+	mZoomSpeed = .5;
+	mCurrentTileType = Tile::dirt;
+	mCurrentFullness = 100;
 
 	using namespace OIS;
 
@@ -871,7 +884,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		}
 
 		if(serverSocket != NULL)
-			digSetBool = !gameMap.getTile(xPos, yPos)->getMarkedForDigging();
+			digSetBool = !gameMap.getTile(xPos, yPos)->getMarkedForDigging(gameMap.me);
 		
 		mLMouseDown = true;
 		mLStartDragX = xPos;
@@ -959,7 +972,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 						{
 							if(currentTile->getFullness() > 0)
 							{
-								currentTile->setMarkedForDigging(digSetBool);
+								currentTile->setMarkedForDigging(digSetBool, gameMap.me);
 							}
 						}
 					}
