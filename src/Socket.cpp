@@ -1,14 +1,14 @@
 // Implementation of the Socket class.
 
 
-#include "Socket.h"
 #include "string.h"
 #include <iostream>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
 
-
+#include "Socket.h"
+#include "Defines.h"
 
 Socket::Socket() :
   m_sock ( -1 )
@@ -80,7 +80,12 @@ bool Socket::listen() const
 bool Socket::accept ( Socket& new_socket ) const
 {
 	int addr_length = sizeof ( m_addr );
+
+#ifdef WIN32
+	new_socket.m_sock = ::accept ( m_sock, ( sockaddr * ) &m_addr, ( int * ) &addr_length );
+#else
 	new_socket.m_sock = ::accept ( m_sock, ( sockaddr * ) &m_addr, ( socklen_t * ) &addr_length );
+#endif
 
 	if ( new_socket.m_sock <= 0 )
 		return false;
@@ -135,10 +140,40 @@ bool Socket::connect ( const std::string host, const int port )
 	m_addr.sin_family = AF_INET;
 	m_addr.sin_port = htons ( port );
 
-	int status = inet_pton ( AF_INET, host.c_str(), &m_addr.sin_addr );
+	int status;
+
+#ifdef WIN32
+	/*
+	struct addrinfo *result = NULL;
+	struct addrinfo hints;
+
+	ZeroMemory( &hints, sizeof(hints) );
+	hints.ai_family = AF_INET;
+	hints.ai_socktype = SOCK_STREAM;
+	hints.ai_protocol = IPPROTO_TCP;
+
+	int status = getaddrinfo(host.c_str(), PORT_NUMBER_STRING, &hints, &result);
+
+	if ( status != 0 )
+	{
+		cout << "getaddrinfo failed with error: " << status << endl;
+		WSACleanup();
+		exit(1);
+	}
+
+	m_addr.sin_addr = ((sockaddr_in*)(result->ai_addr))->sin_addr;
+	*/
+
+	struct sockaddr_storage ss;
+	int sslen = sizeof(ss);
+	WSAStringToAddress((CHAR*)host.c_str(), AF_INET, NULL, (struct sockaddr*)&ss, &sslen);
+	m_addr.sin_addr = ((struct sockaddr_in *)&ss)->sin_addr;
+#else
+	status = inet_pton ( AF_INET, host.c_str(), &m_addr.sin_addr );
 
 	if ( errno == EAFNOSUPPORT )
 		return false;
+#endif
 
 	status = ::connect ( m_sock, ( sockaddr * ) &m_addr, sizeof ( m_addr ) );
 
@@ -148,6 +183,7 @@ bool Socket::connect ( const std::string host, const int port )
 		return false;
 }
 
+/*
 void Socket::set_non_blocking ( const bool b )
 {
 	int opts;
@@ -166,4 +202,5 @@ void Socket::set_non_blocking ( const bool b )
 
 	fcntl ( m_sock, F_SETFL,opts );
 }
+*/
 

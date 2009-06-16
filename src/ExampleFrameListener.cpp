@@ -39,6 +39,7 @@ using namespace std;
 #include "Creature.h"
 #include "ChatMessage.h"
 #include "Network.h"
+#include "Sleep.h"
 
 using namespace Ogre;
 
@@ -326,7 +327,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					// Link the tile mesh back to the relevant scene node so OGRE will render it
 					mSceneMgr->getSceneNode((curTile->name + "_node").c_str())->attachObject(ent);
-					ent->setNormaliseNormals(true);
+					//ent->setNormaliseNormals(true);
 				}
 				break;
 
@@ -344,7 +345,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
 
 				node->attachObject(ent);
-				ent->setNormaliseNormals(true);
+				//ent->setNormaliseNormals(true);
 				break;
 
 			case RenderRequest::destroyTile:
@@ -377,7 +378,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node = creatureSceneNode->createChildSceneNode( (curCreature->name + "_node").c_str() );
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
-				ent->setNormaliseNormals(true);
+				//ent->setNormaliseNormals(true);
 				node->attachObject(ent);
 				break;
 
@@ -425,7 +426,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					node->attachObject(ent);
 					node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 					node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
-					ent->setNormaliseNormals(true);
+					//ent->setNormaliseNormals(true);
 				}
 				break;
 
@@ -1746,7 +1747,7 @@ void ExampleFrameListener::executePromptCommand()
 				//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
 				node->setPosition(tempCreature->getPosition());
 				node->setScale(tempCreature->scale);
-				ent->setNormaliseNormals(true);
+				//ent->setNormaliseNormals(true);
 				node->attachObject(ent);
 			}
 		}

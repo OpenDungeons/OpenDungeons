@@ -429,7 +429,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 			SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
 
 			ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
-			ent->setNormaliseNormals(true);
+			//ent->setNormaliseNormals(true);
 			tempNode->attachObject(ent);
 		}
 
