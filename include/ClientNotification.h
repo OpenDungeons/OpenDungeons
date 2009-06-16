@@ -14,12 +14,13 @@ class ClientNotification
 	public:
 		enum ClientNotificationType
 		{
-			pickUpCreature
+			creaturePickUp
 		};
 
 		ClientNotificationType type;
 
 		void *p;
+		void *p2;
 };
 
 #endif

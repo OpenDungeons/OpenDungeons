@@ -76,6 +76,16 @@ void Player::pickUpCreature(Creature *c)
 			if(clientSocket != NULL)
 			{
 				// Send a message to the server telling it we picked up this creature
+				ClientNotification *clientNotification = new ClientNotification;
+				clientNotification->type = ClientNotification::creaturePickUp;
+				clientNotification->p = c;
+				clientNotification->p2 = this;
+
+				sem_wait(&clientNotificationQueueLockSemaphore);
+				clientNotificationQueue.push_back(clientNotification);
+				sem_post(&clientNotificationQueueLockSemaphore);
+
+				sem_post(&clientNotificationQueueSemaphore);
 			}
 		}
 		else // it is just a message indicating another player has picked up a creature

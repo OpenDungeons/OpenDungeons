@@ -22,7 +22,7 @@ void *clientSocketProcessor(void *p)
 	string serverCommand, arguments;
 	Socket *sock = ((CSPStruct*)p)->nSocket;
 	ExampleFrameListener *frameListener = ((CSPStruct*)p)->nFrameListener;
-	delete p;
+	delete (CSPStruct*)p;
 	p = NULL;
 
 
@@ -199,6 +199,7 @@ void *clientSocketProcessor(void *p)
 				}
 			}
 
+			//NOTE:  This code is duplicated in serverSocketProcessor()
 			else if(serverCommand.compare("creaturePickUp") == 0)
 			{
 				char array[255];
@@ -297,6 +298,8 @@ void *clientNotificationProcessor(void *p)
 	string tempString;
 	stringstream tempSS;
 	Tile *tempTile;
+	Creature *tempCreature;
+	Player *tempPlayer;
 
 	while(true)
 	{
@@ -310,6 +313,19 @@ void *clientNotificationProcessor(void *p)
 
 		switch(event->type)
 		{
+			case ClientNotification::creaturePickUp:
+				tempCreature = (Creature*)event->p;
+				tempPlayer = (Player*)event->p2;
+
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << tempPlayer->nick << ":" << tempCreature->name;
+
+				sem_wait(&clientSocket->semaphore);
+				clientSocket->send(formatCommand("creaturePickUp", tempSS.str()));
+				sem_post(&clientSocket->semaphore);
+				break;
+
 			default:
 				cout << "\n\nError:  Unhandled ClientNotification type encoutered!\n\n";
 

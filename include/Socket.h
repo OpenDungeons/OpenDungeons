@@ -20,36 +20,33 @@ const int MAXRECV = 2048;
 
 class Socket
 {
- public:
-  Socket();
-  virtual ~Socket();
+	public:
+		Socket();
+		virtual ~Socket();
 
-  // Server initialization
-  bool create();
-  bool bind ( const int port );
-  bool listen() const;
-  bool accept ( Socket& ) const;
+		// Server initialization
+		bool create();
+		bool bind ( const int port );
+		bool listen() const;
+		bool accept ( Socket& ) const;
 
-  // Client initialization
-  bool connect ( const std::string host, const int port );
+		// Client initialization
+		bool connect ( const std::string host, const int port );
 
-  // Data Transimission
-  bool send ( const std::string ) const;
-  int recv ( std::string& ) const;
+		// Data Transimission
+		bool send ( const std::string ) const;
+		int recv ( std::string& ) const;
 
+		void set_non_blocking ( const bool );
 
-  void set_non_blocking ( const bool );
+		bool is_valid() const { return m_sock != -1; }
+		sem_t semaphore;
 
-  bool is_valid() const { return m_sock != -1; }
-  sem_t semaphore;
-
- private:
-
-  int m_sock;
-  sockaddr_in m_addr;
-
+	private:
+		int m_sock;
+		sockaddr_in m_addr;
 
 };
 
-
 #endif
+

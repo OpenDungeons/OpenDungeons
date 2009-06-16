@@ -465,6 +465,28 @@ void *clientHandlerThread(void *p)
 			// Put the message in our own queue
 			frameListener->chatMessages.push_back(newMessage);
 		}
+
+		//NOTE:  This code is duplicated in clientSocketProcessor()
+		else if(clientCommand.compare("creaturePickUp") == 0)
+		{
+			char array[255];
+
+			stringstream tempSS;
+			tempSS.str(arguments);
+
+			tempSS.getline(array, sizeof(array), ':');
+			string playerNick = array;
+			tempSS.getline(array, sizeof(array));
+			string creatureName = array;
+
+			Player *tempPlayer = gameMap.getPlayer(playerNick);
+			Creature *tempCreature = gameMap.getCreature(creatureName);
+
+			if(tempPlayer != NULL && tempCreature != NULL)
+			{
+				tempPlayer->pickUpCreature(tempCreature);
+			}
+		}
 	}
 
 	// Return something to make the compiler happy
