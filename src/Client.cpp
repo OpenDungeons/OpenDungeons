@@ -22,7 +22,7 @@ void *clientSocketProcessor(void *p)
 	string serverCommand, arguments;
 	Socket *sock = ((CSPStruct*)p)->nSocket;
 	ExampleFrameListener *frameListener = ((CSPStruct*)p)->nFrameListener;
-	delete p;
+	delete (CSPStruct*)p;
 	p = NULL;
 
 
@@ -74,6 +74,17 @@ void *clientSocketProcessor(void *p)
 			{
 				sem_wait(&sock->semaphore);
 				sock->send(formatCommand("setnick", gameMap.me->nick));
+				sem_post(&sock->semaphore);
+			}
+
+			else if(serverCommand.compare("addplayer") == 0)
+			{
+				Player *tempPlayer = new Player;
+				tempPlayer->nick = arguments;
+				gameMap.addPlayer(tempPlayer);
+
+				sem_wait(&sock->semaphore);
+				sock->send(formatCommand("ok", "addplayer"));
 				sem_post(&sock->semaphore);
 			}
 
@@ -182,9 +193,41 @@ void *clientSocketProcessor(void *p)
 
 				if(tempCreature != NULL)
 				{
-					cout << endl << tempCreature->name << tempX << ",  " << tempY << ",  " << tempZ << endl;
+					//cout << endl << tempCreature->name << tempX << ",  " << tempY << ",  " << tempZ << endl;
 
 					tempCreature->addDestination(tempVector.x, tempVector.y);
+				}
+			}
+
+			else if(serverCommand.compare("creatureClearDestinations") == 0)
+			{
+				Creature *tempCreature = gameMap.getCreature(arguments);
+
+				if(tempCreature != NULL)
+				{
+					tempCreature->clearDestinations();
+				}
+			}
+
+			//NOTE:  This code is duplicated in serverSocketProcessor()
+			else if(serverCommand.compare("creaturePickUp") == 0)
+			{
+				char array[255];
+
+				stringstream tempSS;
+				tempSS.str(arguments);
+
+				tempSS.getline(array, sizeof(array), ':');
+				string playerNick = array;
+				tempSS.getline(array, sizeof(array));
+				string creatureName = array;
+
+				Player *tempPlayer = gameMap.getPlayer(playerNick);
+				Creature *tempCreature = gameMap.getCreature(creatureName);
+
+				if(tempPlayer != NULL && tempCreature != NULL)
+				{
+					tempPlayer->pickUpCreature(tempCreature);
 				}
 			}
 
@@ -228,7 +271,6 @@ void *clientSocketProcessor(void *p)
 				Tile *tempTile = gameMap.getTile(tempX, tempY);
 				if(tempTile != NULL)
 				{
-					cout << "\nSetting tile fullness for tile " << tempX << ", " << tempY << " to " << tempFullness << "\n";
 					tempTile->setFullness(tempFullness);
 				}
 				else
@@ -265,6 +307,8 @@ void *clientNotificationProcessor(void *p)
 	string tempString;
 	stringstream tempSS;
 	Tile *tempTile;
+	Creature *tempCreature;
+	Player *tempPlayer;
 
 	while(true)
 	{
@@ -278,6 +322,19 @@ void *clientNotificationProcessor(void *p)
 
 		switch(event->type)
 		{
+			case ClientNotification::creaturePickUp:
+				tempCreature = (Creature*)event->p;
+				tempPlayer = (Player*)event->p2;
+
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << tempPlayer->nick << ":" << tempCreature->name;
+
+				sem_wait(&clientSocket->semaphore);
+				clientSocket->send(formatCommand("creaturePickUp", tempSS.str()));
+				sem_post(&clientSocket->semaphore);
+				break;
+
 			default:
 				cout << "\n\nError:  Unhandled ClientNotification type encoutered!\n\n";
 

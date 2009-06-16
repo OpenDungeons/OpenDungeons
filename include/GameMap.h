@@ -33,6 +33,7 @@ class GameMap
 
 		void clearCreatures();
 		void addCreature(Creature *c);
+		void removeCreature(Creature *c);
 		Creature* getCreature(int index);
 		Creature* getCreature(string cName);
 		unsigned int numCreatures();

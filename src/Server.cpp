@@ -24,7 +24,7 @@ void *serverSocketProcessor(void *p)
 	Socket *sock = ((SSPStruct*)p)->nSocket;
 	Socket *curSock;
 	ExampleFrameListener *frameListener = ((SSPStruct*)p)->nFrameListener;
-	delete p;
+	delete (SSPStruct*)p;
 	p = NULL;
 
 	// Set up the socket to listen on the specified port
@@ -102,7 +102,7 @@ bool parseCommand(string &command, string &commandName, string &arguments)
 	arguments = command.substr(index+1, index2-index-1);
 	tempString = command.substr(index2+1, command.length()-index2+1);
 	command = tempString;
-	cout << "\n\n\nParse command:  " << command << "\n" << commandName << "\n" << arguments << "\n\n";
+	//cout << "\n\n\nParse command:  " << command << "\n" << commandName << "\n" << arguments << "\n\n";
 
 	if(tempString.length() > 0)
 		return true;
@@ -211,7 +211,7 @@ void *creatureAIThread(void *p)
 void *serverNotificationProcessor(void *p)
 {
 	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
-	delete p;
+	delete (SNPStruct*)p;
 	p = NULL;
 
 	string tempString;
@@ -250,6 +250,19 @@ void *serverNotificationProcessor(void *p)
 				tempSS << event->str << ":" << event->vec.x << ":" << event->vec.y << ":" << event->vec.z;
 
 				sendToAllClients(frameListener, formatCommand("creatureAddDestination", tempSS.str()));
+				break;
+
+			case ServerNotification::creatureClearDestinations:
+				tempSS.str(tempString);
+				tempSS << event->cre->name;
+				sendToAllClients(frameListener, formatCommand("creatureClearDestinations", tempSS.str()));
+				break;
+
+			case ServerNotification::creaturePickUp:
+				tempSS.str(tempString);
+				tempSS << event->player->nick << ":" << event->cre->name;
+
+				sendToAllClients(frameListener, formatCommand("creaturePickUp", tempSS.str()));
 				break;
 
 			case ServerNotification::creatureSetAnimationState:
@@ -304,7 +317,8 @@ void *clientHandlerThread(void *p)
 {
 	Socket *curSock = ((CHTStruct*)p)->nSocket;
 	ExampleFrameListener *frameListener = ((CHTStruct*)p)->nFrameListener;
-	delete p;
+	Player *curPlayer = NULL;
+	delete (CHTStruct*)p;
 	p = NULL;
 
 	string clientNick = "UNSET_CLIENT_NICKNAME";
@@ -353,12 +367,32 @@ void *clientHandlerThread(void *p)
 
 			// Set the nickname that the client sends back, tempString2 is just used
 			// to discard the command portion of the respone which should be "setnick"
+			//TODO:  verify that this really is true
 			curSock->recv(tempString);
 			parseCommand(tempString, tempString2, clientNick);
 			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client nick is: " + clientNick, time(NULL)));
 
+			// Create a player structure for the client
+			//TODO:  negotiate and set a color
+			curPlayer = new Player;
+			curPlayer->nick = clientNick;
+			gameMap.addPlayer(curPlayer);
 
 			curSock->send(formatCommand("newmap", ""));
+
+			// Send over the information about the players in the game
+			curSock->send(formatCommand("addplayer", gameMap.me->nick));
+			for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+			{
+				// Don't tell the client about its own player structure
+				Player *tempPlayer = gameMap.getPlayer(i);
+				if(curPlayer != tempPlayer && tempPlayer != NULL)
+				{
+					curSock->send(formatCommand("addplayer", tempPlayer->nick));
+					// Throw away the ok response
+					curSock->recv(tempString);
+				}
+			}
 
 			// Send over the map tiles from the current game map.
 			//TODO: Only send the tiles which the client is supposed to see due to fog of war.
@@ -436,6 +470,28 @@ void *clientHandlerThread(void *p)
 
 			// Put the message in our own queue
 			frameListener->chatMessages.push_back(newMessage);
+		}
+
+		//NOTE:  This code is duplicated in clientSocketProcessor()
+		else if(clientCommand.compare("creaturePickUp") == 0)
+		{
+			char array[255];
+
+			stringstream tempSS;
+			tempSS.str(arguments);
+
+			tempSS.getline(array, sizeof(array), ':');
+			string playerNick = array;
+			tempSS.getline(array, sizeof(array));
+			string creatureName = array;
+
+			Player *tempPlayer = gameMap.getPlayer(playerNick);
+			Creature *tempCreature = gameMap.getCreature(creatureName);
+
+			if(tempPlayer != NULL && tempCreature != NULL)
+			{
+				tempPlayer->pickUpCreature(tempCreature);
+			}
 		}
 	}
 

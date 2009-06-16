@@ -6,6 +6,7 @@ using namespace std;
 #include <Ogre.h>
 
 #include "Tile.h"
+#include "Player.h"
 
 /*! \brief A data structure used to pass messages to the serverNotificationProcessor thread.
  *
@@ -22,7 +23,9 @@ class ServerNotification
 			tileFullnessChange,
 
 			creatureAddDestination,
-			creatureSetAnimationState
+			creatureClearDestinations,
+			creatureSetAnimationState,
+			creaturePickUp
 		};
 
 		//TODO:  Employ some void pointers on this to make this data structure smaller
@@ -32,6 +35,7 @@ class ServerNotification
 		double doub;
 		Tile *tile;
 		Creature *cre;
+		Player *player;
 };
 
 #endif
