@@ -493,6 +493,39 @@ void *clientHandlerThread(void *p)
 				tempPlayer->pickUpCreature(tempCreature);
 			}
 		}
+
+		else if(clientCommand.compare("markTile") == 0)
+		{
+			char array[255];
+			stringstream tempSS;
+			tempSS.str(arguments);
+
+			tempSS.getline(array, sizeof(array), ':');
+			int tempX = atoi(array);
+			tempSS.getline(array, sizeof(array), ':');
+			int tempY = atoi(array);
+			tempSS.getline(array, sizeof(array));
+			string flagName = array;
+
+			Tile *tempTile = gameMap.getTile(tempX, tempY);
+			if(tempTile != NULL)
+			{
+				Player *tempPlayer = gameMap.getPlayer(clientNick);
+				if(tempPlayer != NULL)
+				{
+					bool flag;
+					flagName.compare("true") == 0 ? flag = true : flag = false;
+					tempTile->setMarkedForDigging(flag, tempPlayer);
+				}
+			}
+		}
+
+		else
+		{
+			cout << "\n\nERROR:  Unhandled command recieved from client:\nCommand:  ";
+			cout << clientCommand << "\nArguments:  " << arguments << "\n\n";
+			exit(1);
+		}
 	}
 
 	// Return something to make the compiler happy

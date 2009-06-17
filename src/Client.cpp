@@ -309,9 +309,11 @@ void *clientNotificationProcessor(void *p)
 	Tile *tempTile;
 	Creature *tempCreature;
 	Player *tempPlayer;
+	bool flag;
 
 	while(true)
 	{
+		// Wait until a message is place in the queue
 		sem_wait(&clientNotificationQueueSemaphore);
 
 		// Take a message out of the front of the notification queue
@@ -332,6 +334,18 @@ void *clientNotificationProcessor(void *p)
 
 				sem_wait(&clientSocket->semaphore);
 				clientSocket->send(formatCommand("creaturePickUp", tempSS.str()));
+				sem_post(&clientSocket->semaphore);
+				break;
+
+			case ClientNotification::markTile:
+				tempTile = (Tile*)event->p;
+				flag = event->flag;
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << tempTile->x << ":" << tempTile->y << ":" << (flag ? "true" : "false");
+
+				sem_wait(&clientSocket->semaphore);
+				clientSocket->send(formatCommand("markTile", tempSS.str()));
 				sem_post(&clientSocket->semaphore);
 				break;
 

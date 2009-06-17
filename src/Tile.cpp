@@ -415,32 +415,45 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 
 	if(getMarkedForDigging(p) != s)
 	{
-		//FIXME:  This code should probably only execute if it needs to for speed reasons.
-		sprintf(tempString, "Level_%i_%i_selection_indicator", x, y);
-		if(mSceneMgr->hasEntity(tempString))
+		bool thisRequestIsForMe = (p == gameMap.me);
+		if(thisRequestIsForMe)
 		{
-			ent = mSceneMgr->getEntity(tempString);
-		}
-		else
-		{
-			sprintf(tempString2, "Level_%3i_%3i_node", x, y);
-			cout << "\n\nTempstring2:  " << tempString2;
-			cout.flush();
-			SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
+			//FIXME:  This code should probably only execute if it needs to for speed reasons.
+			//FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
+			sprintf(tempString, "Level_%i_%i_selection_indicator", x, y);
+			if(mSceneMgr->hasEntity(tempString))
+			{
+				ent = mSceneMgr->getEntity(tempString);
+			}
+			else
+			{
+				sprintf(tempString2, "Level_%3i_%3i_node", x, y);
+				cout << "\n\nTempstring2:  " << tempString2;
+				cout.flush();
+				SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
 
-			ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
-			ent->setNormaliseNormals(true);
-			tempNode->attachObject(ent);
+				ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
+				ent->setNormaliseNormals(true);
+				tempNode->attachObject(ent);
+			}
 		}
 
 		if(s)
 		{
-			ent->setVisible(true);
+			//FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
+			if(thisRequestIsForMe)
+			{
+				ent->setVisible(true);
+			}
 			addPlayerMarkingTile(p);
 		}
 		else
 		{
-			ent->setVisible(false);
+			//FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
+			if(thisRequestIsForMe)
+			{
+				ent->setVisible(false);
+			}
 			removePlayerMarkingTile(p);
 		}
 	}

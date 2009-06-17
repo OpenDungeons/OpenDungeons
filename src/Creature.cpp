@@ -806,6 +806,7 @@ void Creature::addDestination(int x, int y)
 		walkDirection = walkQueue.front() - position;
 		walkDirection.normalise();
 
+		//TODO:  this is OGRE rendering code and it should be moved to the RenderRequest system
 		SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
 		Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 

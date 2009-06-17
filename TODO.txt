@@ -1,3 +1,9 @@
+WINDOWS:
+*  Remove extra #ifdef about getaddr() from include/Socket.h.
+*  Remove the ginormous exectable from the git tree.
+*  Make a windows version of plugins.conf.
+
+
 BUGS:
 *  fix keyboard repeat issue.
 *  Fix crash on entering a nonexistant mesh to addclass after calling addcreature using this class.

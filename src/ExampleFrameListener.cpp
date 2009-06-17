@@ -883,8 +883,14 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			}
 		}
 
-		if(serverSocket != NULL)
-			digSetBool = !gameMap.getTile(xPos, yPos)->getMarkedForDigging(gameMap.me);
+		if(serverSocket != NULL || clientSocket != NULL)
+		{
+			Tile *tempTile = gameMap.getTile(xPos, yPos);
+			if(tempTile != NULL)
+			{
+				digSetBool = !(tempTile->getMarkedForDigging(gameMap.me));
+			}
+		}
 		
 		mLMouseDown = true;
 		mLStartDragX = xPos;
@@ -959,13 +965,28 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 						{
 							if(clientSocket == NULL)
 							{
-								// Fill the current tile with the new value
+								// In the map editor:  Fill the current tile with the new value
 								currentTile->setType( mCurrentTileType );
 								currentTile->setFullness( mCurrentFullness );
 							}
 							else
 							{
-								//TODO: Inform the server we are trying to dig the current tile
+								// On the client:  Inform the server about our choice
+								if(currentTile->getFullness() > 0)
+								{
+									ClientNotification *clientNotification = new ClientNotification;
+									clientNotification->type = ClientNotification::markTile;
+									clientNotification->p = currentTile;
+									clientNotification->flag = digSetBool;
+
+									sem_wait(&clientNotificationQueueLockSemaphore);
+									clientNotificationQueue.push_back(clientNotification);
+									sem_post(&clientNotificationQueueLockSemaphore);
+
+									sem_post(&clientNotificationQueueSemaphore);
+
+									currentTile->setMarkedForDigging(digSetBool, gameMap.me);
+								}
 							}
 						}
 						else
