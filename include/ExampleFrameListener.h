@@ -34,7 +34,7 @@ keyboard and mouse movements.
 #include <deque>
 #include <CEGUI/CEGUI.h>
 #include <OIS/OIS.h>
-#include <OgreCEGUIRenderer.h>
+#include <CEGUI/CEGUIRenderer.h>
 
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)

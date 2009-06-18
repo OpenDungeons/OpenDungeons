@@ -20,7 +20,7 @@ Socket::Socket() :
 Socket::~Socket()
 {
 	if ( is_valid() )
-		::close ( m_sock );
+		closesocket ( m_sock );
 }
 
 bool Socket::create()

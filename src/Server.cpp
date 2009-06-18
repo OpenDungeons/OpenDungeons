@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string>
-#include <sys/time.h>
+#include <time.h>
 using namespace std;
 
 #include "Defines.h"

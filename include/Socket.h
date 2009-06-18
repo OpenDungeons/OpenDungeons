@@ -4,13 +4,13 @@
 #define Socket_class
 
 
-#ifdef WIN32
-#include <windows.h>
+#if defined(WIN32) || defined(_WIN32)
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#include <windows.h>
 
 //TODO:  This is a hack to make the windows version compile, it may not work properly at runtime
-#define MSG_WAITALL 0
+//#define MSG_WAITALL 0
 #define MSG_NOSIGNAL 0
 
 #else

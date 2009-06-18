@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <time.h>
 using namespace std;
 
 /*! \brief A data structure to store a chat message and its relevant time stamps.

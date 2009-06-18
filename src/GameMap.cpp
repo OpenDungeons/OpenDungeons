@@ -1,8 +1,9 @@
 #include <iostream>
 #include <algorithm>
-using namespace std;
 
-#include <math.h>
+#define _USE_MATH_DEFINES
+#include <cmath>
+using namespace std;
 
 #include "Functions.h"
 #include "Defines.h"
@@ -327,7 +328,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	currentEntry->g = 0.0;
 	// Use the manhattan distance for the heuristic
 	// FIXME:  This is not the only place the heuristic is calculated
-	currentEntry->h = fabs(x2-x1) + fabs(y2-y1);
+	currentEntry->h = fabs((double)(x2-x1)) + fabs((double)(y2-y1));
 	openList.push_back(currentEntry);
 
 	bool pathFound = false;
@@ -432,7 +433,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 
 							// Use the manhattan distance for the heuristic
 							// FIXME:  This is not the only place the heuristic is calculated
-							neighbor->h = fabs(x2-neighbor->tile->x) + fabs(y2-neighbor->tile->y);
+							neighbor->h = fabs((double)(x2-neighbor->tile->x)) + fabs((double)(y2-neighbor->tile->y));
 							neighbor->parent = currentEntry;
 
 							openList.push_back(new astarEntry(*neighbor));

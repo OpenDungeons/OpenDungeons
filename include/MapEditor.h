@@ -26,7 +26,7 @@ class MapEditor : public ExampleApplication
 	protected:
 		void chooseSceneManager(void);
 		CEGUI::System *mSystem;
-		CEGUI::OgreCEGUIRenderer *mRenderer;
+		CEGUI::Renderer *mRenderer;
 };
 
 #endif

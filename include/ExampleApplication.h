@@ -114,8 +114,7 @@ protected:
 		pluginsPath = mResourcePath + "plugins.cfg";
 #endif
 		
-        mRoot = new Root(pluginsPath, 
-            mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
+        mRoot = new Root(pluginsPath, mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
 
         setupResources();
 

@@ -3,6 +3,11 @@
 #include "Functions.h"
 #include "Creature.h"
 
+#if defined(WIN32) || defined(_WIN32)
+double const M_PI = 2 * acos(0.0);
+#endif
+
+
 void readGameMapFromFile(string fileName)
 {
 	ifstream levelFile(fileName.c_str(), ifstream::in);

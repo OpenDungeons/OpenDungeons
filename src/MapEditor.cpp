@@ -132,7 +132,6 @@ void MapEditor::createScene(void)
 	light->setAttenuation(35, 0.0, 0.0, 0.01);
 	node->attachObject(light);
 
-
 	// Setup CEGUI
 	mRenderer = new CEGUI::OgreCEGUIRenderer(mWindow, Ogre::RENDER_QUEUE_OVERLAY, false, 3000, mSceneMgr);
 	mSystem = new CEGUI::System(mRenderer);
