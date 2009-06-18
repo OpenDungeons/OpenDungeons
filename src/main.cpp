@@ -1,6 +1,7 @@
 #include <vector>
 #include <deque>
 #include <semaphore.h>
+#include <iostream>
 using namespace std;
 
 #include "Defines.h"
@@ -42,6 +43,21 @@ INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 int main(int argc, char **argv)
 #endif
 {
+	// Set up windows sockets
+#ifdef WIN32
+	WSADATA wsaData;
+	WORD wVersionRequested;
+	int err;
+
+	wVersionRequested = MAKEWORD( 2, 0 ); // 2.0 and above version of WinSock
+	err = WSAStartup( wVersionRequested, &wsaData );
+	if ( err != 0 )
+	{
+		cerr << "Couldn't not find a usable WinSock DLL.n";
+		exit(1);
+	}
+#endif
+
 	seedRandomNumberGenerator();
 	sem_init(&renderQueueSemaphore, 0, 1);
 	sem_init(&serverNotificationQueueSemaphore, 0, 0);
@@ -63,6 +79,11 @@ int main(int argc, char **argv)
 	e.what());
 #endif
 	}
+
+#ifdef WIN32
+	WSACleanup();
+#endif
+
 
 	return 0;
 }

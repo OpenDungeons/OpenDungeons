@@ -5,7 +5,7 @@
 #include <string>
 #include <deque>
 using namespace std;
-
+class Creature;
 #include "Tile.h"
 #include "CreatureAction.h"
 

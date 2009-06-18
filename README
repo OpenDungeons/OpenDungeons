@@ -11,6 +11,23 @@ For keyboard controls see:
 http://andrewbuck.homelinux.org/wiki/Game_controls
 
 
+To build on windows you will need to link against the following libraries:
+*  DirectX SDK
+*  OGRE SDK
+*  OIS
+*  CEGUI SDK
+*  pthreads-win32
+
+There is a makefile provided for the mingw compiler.  Since the library paths
+depend on where you install them to, you may need to edit the makefile slightly
+(start with the WINEDIR variable).  To build using mingw do the following
+
+cp Makefile.mingw Makefile
+make depend
+make
+
+
+
 --- Bugs: ---
 
 You may need to custom build a version of CEGUI for your system which uses a different XML parsing engine than the one some prebuilt binaries use.  This is known to be a problem on Debian and Ubuntu systems.  When you build CEGUI use these instructions (run from the directory where you unpacked the CEGUI source code):

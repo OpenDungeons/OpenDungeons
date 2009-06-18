@@ -2,8 +2,8 @@
 #define CREATUREACTION_H
 
 #include "Tile.h"
-class CreatureAction;
-#include "Creature.h"
+//class CreatureAction;
+//#include "Creature.h"
 
 /*! \brief A data structure to be used in the creature AI calculations.
  *

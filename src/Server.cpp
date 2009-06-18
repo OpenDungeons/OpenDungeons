@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string>
-#include <sys/time.h>
+#include <time.h>
 using namespace std;
 
 #include "Defines.h"
@@ -9,6 +9,7 @@ using namespace std;
 #include "Network.h"
 #include "ChatMessage.h"
 #include "Functions.h"
+#include "Sleep.h"
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *

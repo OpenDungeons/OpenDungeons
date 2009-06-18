@@ -1,6 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <sys/types.h>
 #include <semaphore.h>
 
 #include "Tile.h"
