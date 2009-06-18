@@ -20,7 +20,12 @@ Socket::Socket() :
 Socket::~Socket()
 {
 	if ( is_valid() )
+#if defined(WIN32) || defined(_WIN32)
 		closesocket ( m_sock );
+#else
+		::close ( m_sock );
+#endif
+
 }
 
 bool Socket::create()
@@ -81,7 +86,7 @@ bool Socket::accept ( Socket& new_socket ) const
 {
 	int addr_length = sizeof ( m_addr );
 
-#ifdef WIN32
+#if defined(WIN32) || defined(_WIN32)
 	new_socket.m_sock = ::accept ( m_sock, ( sockaddr * ) &m_addr, ( int * ) &addr_length );
 #else
 	new_socket.m_sock = ::accept ( m_sock, ( sockaddr * ) &m_addr, ( socklen_t * ) &addr_length );
