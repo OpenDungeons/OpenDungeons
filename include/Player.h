@@ -32,6 +32,7 @@ class Player
 		void addCreatureToHand(Creature *c);
 		void removeCreatureFromHand(int i);
 		void pickUpCreature(Creature *c);
+		bool dropCreature(Tile *t);
 
 	private:
 		vector<Creature*> creaturesInHand;

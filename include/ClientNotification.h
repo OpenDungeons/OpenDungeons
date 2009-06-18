@@ -15,6 +15,7 @@ class ClientNotification
 		enum ClientNotificationType
 		{
 			creaturePickUp,
+			creatureDrop,
 			markTile
 		};
 

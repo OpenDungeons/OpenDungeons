@@ -281,12 +281,16 @@ Creature* GameMap::getCreature(string cName)
  */
 void GameMap::doTurn()
 {
+	sem_wait(&creatureAISemaphore);
+
 	cout << "\nStarting creature AI for turn " << turnNumber;
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
 		//cout << "\nCreature " << i << "  " << creatures[i]->name << " calling doTurn.\t";
 		creatures[i]->doTurn();
 	}
+
+	sem_post(&creatureAISemaphore);
 }
 
 /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).

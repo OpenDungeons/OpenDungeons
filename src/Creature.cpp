@@ -7,6 +7,7 @@
 
 Creature::Creature()
 {
+	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	hasVisualDebuggingEntities = false;
 	position = Ogre::Vector3(0,0,0);
 	scale = Ogre::Vector3(1,1,1);
@@ -33,6 +34,7 @@ Creature::Creature()
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate)
 {
+	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	hasVisualDebuggingEntities = false;
 	className = nClassName;
 	meshName = nMeshName;
@@ -131,6 +133,7 @@ void Creature::createMesh()
  */
 void Creature::destroyMesh()
 {
+	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::destroyCreature;
 	request->p = this;

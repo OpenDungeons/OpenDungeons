@@ -16,7 +16,8 @@ class RenderRequest
 	public:
 		enum RequestType {createTile, refreshTile, destroyTile, deleteTile,
 				createCreature, destroyCreature, deleteCreature, setCreatureAnimationState,
-				createCreatureVisualDebug, destroyCreatureVisualDebug, pickUpCreature,
+				createCreatureVisualDebug, destroyCreatureVisualDebug,
+				pickUpCreature, dropCreature,
 			      	noRequest};
 
 		RenderRequest();

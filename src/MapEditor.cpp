@@ -118,7 +118,7 @@ void MapEditor::createScene(void)
 	node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT));
 	ent->setNormaliseNormals(true);
 	node->attachObject(ent);
-	SceneNode *node2 = node->createChildSceneNode("Hand_Node");
+	SceneNode *node2 = node->createChildSceneNode("Hand_node");
 	node2->setPosition(0.0/BLENDER_UNITS_PER_OGRE_UNIT, 0.0/BLENDER_UNITS_PER_OGRE_UNIT, 3.0/BLENDER_UNITS_PER_OGRE_UNIT);
 	node2->scale(Ogre::Vector3(1.0/BLENDER_UNITS_PER_OGRE_UNIT,1.0/BLENDER_UNITS_PER_OGRE_UNIT,1.0/BLENDER_UNITS_PER_OGRE_UNIT));
 

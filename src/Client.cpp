@@ -231,6 +231,30 @@ void *clientSocketProcessor(void *p)
 				}
 			}
 
+			//NOTE:  This code is duplicated in serverSocketProcessor()
+			else if(serverCommand.compare("creatureDrop") == 0)
+			{
+				char array[255];
+
+				stringstream tempSS;
+				tempSS.str(arguments);
+
+				tempSS.getline(array, sizeof(array), ':');
+				string playerNick = array;
+				tempSS.getline(array, sizeof(array), ':');
+				int tempX = atoi(array);
+				tempSS.getline(array, sizeof(array));
+				int tempY = atoi(array);
+
+				Player *tempPlayer = gameMap.getPlayer(playerNick);
+				Tile *tempTile = gameMap.getTile(tempX, tempY);
+
+				if(tempPlayer != NULL && tempTile != NULL)
+				{
+					tempPlayer->dropCreature(tempTile);
+				}
+			}
+
 			else if(serverCommand.compare("creatureSetAnimationState") == 0)
 			{
 
@@ -283,6 +307,7 @@ void *clientSocketProcessor(void *p)
 			{
 				cout << "\n\n\nERROR:  Unknown server command!\nCommand:";
 				cout << serverCommand << "\nArguments:" << arguments << "\n\n";
+				exit(1);
 			}
 
 			//NOTE: This command is duplicated at the beginning of this do-while loop.
@@ -324,6 +349,7 @@ void *clientNotificationProcessor(void *p)
 
 		switch(event->type)
 		{
+			//NOTE: this code is duplicated in serverNotificationProcessor
 			case ClientNotification::creaturePickUp:
 				tempCreature = (Creature*)event->p;
 				tempPlayer = (Player*)event->p2;
@@ -334,6 +360,20 @@ void *clientNotificationProcessor(void *p)
 
 				sem_wait(&clientSocket->semaphore);
 				clientSocket->send(formatCommand("creaturePickUp", tempSS.str()));
+				sem_post(&clientSocket->semaphore);
+				break;
+
+			//NOTE: this code is duplicated in serverNotificationProcessor
+			case ClientNotification::creatureDrop:
+				tempPlayer = (Player*)event->p;
+				tempTile = (Tile*)event->p2;
+
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << tempPlayer->nick << ":" << tempTile->x << ":" << tempTile->y;
+
+				sem_wait(&clientSocket->semaphore);
+				clientSocket->send(formatCommand("creatureDrop", tempSS.str()));
 				sem_post(&clientSocket->semaphore);
 				break;
 

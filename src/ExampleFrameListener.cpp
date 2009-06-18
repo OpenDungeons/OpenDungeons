@@ -300,6 +300,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		SceneNode *node;
 		Tile *curTile = NULL;
 		Creature *curCreature = NULL;
+		Player *curPlayer = NULL;
 		int tempInt;
 
 		// Remove the first item from the render queue
@@ -373,12 +374,15 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 			case RenderRequest::createCreature:
 				curCreature = (Creature*)curReq->p;
+				cout << "\ncreateCreature:  " << curCreature->name;
+				cout.flush();
 				ent = mSceneMgr->createEntity( ("Creature_" + curCreature->name).c_str(), curCreature->meshName.c_str());
 				node = creatureSceneNode->createChildSceneNode( (curCreature->name + "_node").c_str() );
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
 				node->attachObject(ent);
+				sem_post(&curCreature->meshCreationFinishedSemaphore);
 				break;
 
 			case RenderRequest::destroyCreature:
@@ -397,14 +401,39 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			case RenderRequest::pickUpCreature:
 				curCreature = (Creature*)curReq->p;
 				// Detach the creature from the creature scene node
-				node = mSceneMgr->getSceneNode( (curCreature->name + "_node").c_str() );
+				node = mSceneMgr->getSceneNode(curCreature->name + "_node");
 				creatureSceneNode->removeChild(node);
 
 				// Attatch the creature to the hand scene node
-				mSceneMgr->getSceneNode("Hand_Node")->addChild(node);
+				mSceneMgr->getSceneNode("Hand_node")->addChild(node);
 				tempInt = gameMap.me->numCreaturesInHand();
 				node->setPosition(tempInt%6 + 1, (tempInt/(int)6), 0.0);
 				node->scale(0.333, 0.333, 0.333);
+				break;
+
+			case RenderRequest::dropCreature:
+				curCreature = (Creature*)curReq->p;
+				curPlayer = (Player*)curReq->p2;
+				// Detach the creature from the "hand" scene node
+				cout << "\nblah1:  " << curCreature->name;
+				cout.flush();
+				node = mSceneMgr->getSceneNode(curCreature->name + "_node");
+				mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
+
+				// Attach the creature from the creature scene node
+				creatureSceneNode->addChild(node);
+				node->setPosition(curCreature->getPosition());
+				node->scale(3.0, 3.0, 3.0);
+
+				// Move the other creatures in the player's hand to replace the dropped one
+				for(unsigned int i = 0; i < curPlayer->numCreaturesInHand(); i++)
+				{
+					curCreature = curPlayer->getCreatureInHand(i);
+					cout << "\nblah2:  " << curCreature->name;
+					cout.flush();
+					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
+					node->setPosition(i%6 + 1, (i/(int)6), 0.0);
+				}
 				break;
 
 			case RenderRequest::createCreatureVisualDebug:
@@ -848,7 +877,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 						mDraggedCreature = resultName.substr(((string)"Creature_").size(), resultName.size());
 						SceneNode *node = mSceneMgr->getSceneNode(mDraggedCreature	+ "_node");
 						creatureSceneNode->removeChild(node);
-						mSceneMgr->getSceneNode("Hand_Node")->addChild(node);
+						mSceneMgr->getSceneNode("Hand_node")->addChild(node);
 						node->setPosition(0,0,0);
 						mDragType = ExampleFrameListener::creature;
 						break;
@@ -903,6 +932,12 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		mRMouseDown = true;
 		mRStartDragX = xPos;
 		mRStartDragY = yPos;
+
+		Tile *curTile = gameMap.getTile(xPos, yPos);
+		if(curTile != NULL)
+		{
+			gameMap.me->dropCreature(curTile);
+		}
 	}
 	       
 	return true;
@@ -935,7 +970,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 			if(serverSocket == NULL && clientSocket == NULL)
 			{
 				SceneNode *node = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
-				mSceneMgr->getSceneNode("Hand_Node")->removeChild(node);
+				mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
 				creatureSceneNode->addChild(node);
 				mDragType = ExampleFrameListener::nullDragType;
 				gameMap.getCreature(mDraggedCreature)->setPosition(xPos, yPos, 0);

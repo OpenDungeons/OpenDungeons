@@ -24,6 +24,8 @@ sem_t clientNotificationQueueSemaphore;
 sem_t serverNotificationQueueLockSemaphore;
 sem_t clientNotificationQueueLockSemaphore;
 
+sem_t creatureAISemaphore;
+
 Socket *serverSocket = NULL, *clientSocket = NULL;
 
 string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
@@ -46,6 +48,7 @@ int main(int argc, char **argv)
 	sem_init(&clientNotificationQueueSemaphore, 0, 0);
 	sem_init(&serverNotificationQueueLockSemaphore, 0, 1);
 	sem_init(&clientNotificationQueueLockSemaphore, 0, 1);
+	sem_init(&creatureAISemaphore, 0, 1);
 
 	// Create application object
 	MapEditor app;

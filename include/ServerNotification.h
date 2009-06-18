@@ -25,7 +25,8 @@ class ServerNotification
 			creatureAddDestination,
 			creatureClearDestinations,
 			creatureSetAnimationState,
-			creaturePickUp
+			creaturePickUp,
+			creatureDrop
 		};
 
 		//TODO:  Employ some void pointers on this to make this data structure smaller

@@ -50,6 +50,7 @@ class Creature
 		int hp, mana;			// Basic stats
 		double moveSpeed;		//FIXME:  This is not set from file yet.
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.
+		sem_t meshCreationFinishedSemaphore;
 
 		// Visual debugging routines
 		void createVisualDebugEntities();

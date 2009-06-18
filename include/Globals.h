@@ -24,6 +24,8 @@ extern sem_t clientNotificationQueueSemaphore;
 extern sem_t serverNotificationQueueLockSemaphore;
 extern sem_t clientNotificationQueueLockSemaphore;
 
+extern sem_t creatureAISemaphore;
+
 extern Socket *serverSocket, *clientSocket;
 
 extern string MOTD;

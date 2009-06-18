@@ -217,6 +217,7 @@ void *serverNotificationProcessor(void *p)
 	string tempString;
 	stringstream tempSS;
 	Tile *tempTile;
+	Player *tempPlayer;
 
 	while(true)
 	{
@@ -258,11 +259,24 @@ void *serverNotificationProcessor(void *p)
 				sendToAllClients(frameListener, formatCommand("creatureClearDestinations", tempSS.str()));
 				break;
 
+			//NOTE: this code is duplicated in clientNotificationProcessor
 			case ServerNotification::creaturePickUp:
 				tempSS.str(tempString);
 				tempSS << event->player->nick << ":" << event->cre->name;
 
 				sendToAllClients(frameListener, formatCommand("creaturePickUp", tempSS.str()));
+				break;
+
+			//NOTE: this code is duplicated in clientNotificationProcessor
+			case ServerNotification::creatureDrop:
+				tempPlayer = event->player;
+				tempTile = event->tile;
+
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << tempPlayer->nick << ":" << tempTile->x << ":" << tempTile->y;
+
+				sendToAllClients(frameListener, formatCommand("creatureDrop", tempSS.str()));
 				break;
 
 			case ServerNotification::creatureSetAnimationState:
@@ -491,6 +505,30 @@ void *clientHandlerThread(void *p)
 			if(tempPlayer != NULL && tempCreature != NULL)
 			{
 				tempPlayer->pickUpCreature(tempCreature);
+			}
+		}
+
+		//NOTE:  This code is duplicated in clientSocketProcessor()
+		else if(clientCommand.compare("creatureDrop") == 0)
+		{
+			char array[255];
+
+			stringstream tempSS;
+			tempSS.str(arguments);
+
+			tempSS.getline(array, sizeof(array), ':');
+			string playerNick = array;
+			tempSS.getline(array, sizeof(array), ':');
+			int tempX = atoi(array);
+			tempSS.getline(array, sizeof(array));
+			int tempY = atoi(array);
+
+			Player *tempPlayer = gameMap.getPlayer(playerNick);
+			Tile *tempTile = gameMap.getTile(tempX, tempY);
+
+			if(tempPlayer != NULL && tempTile != NULL)
+			{
+				tempPlayer->dropCreature(tempTile);
 			}
 		}
 
