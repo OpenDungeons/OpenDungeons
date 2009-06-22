@@ -96,12 +96,15 @@ istream& operator>>(istream& is, Creature *c)
 
 	// Copy the class based items
 	Creature *creatureClass = gameMap.getClassDescription(c->className);
-	c->meshName = creatureClass->meshName;
-	c->scale = creatureClass->scale;
-	c->sightRadius = creatureClass->sightRadius;
-	c->digRate = creatureClass->digRate;
-	c->hp = creatureClass->hp;
-	c->mana = creatureClass->mana;
+	if(creatureClass != NULL)
+	{
+		c->meshName = creatureClass->meshName;
+		c->scale = creatureClass->scale;
+		c->sightRadius = creatureClass->sightRadius;
+		c->digRate = creatureClass->digRate;
+		c->hp = creatureClass->hp;
+		c->mana = creatureClass->mana;
+	}
 
 	return is;
 }

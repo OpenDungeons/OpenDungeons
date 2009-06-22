@@ -1793,18 +1793,27 @@ void ExampleFrameListener::executePromptCommand()
 				Creature *tempCreature = new Creature;
 				stringstream tempSS(arguments);
 				tempSS >> tempCreature;
-				tempCreature->meshName = gameMap.getClassDescription(tempCreature->className)->meshName;
-				tempCreature->scale = gameMap.getClassDescription(tempCreature->className)->scale;
-				gameMap.addCreature(tempCreature);
+				Creature *tempClass = gameMap.getClassDescription(tempCreature->className);
+				if(tempClass != NULL)
+				{
+					tempCreature->meshName = tempClass->meshName;
+					tempCreature->scale = tempClass->scale;
+					gameMap.addCreature(tempCreature);
 
-				// Create the mesh and SceneNode for the new creature
-				Entity *ent = mSceneMgr->createEntity( ("Creature_" + tempCreature->name).c_str(), tempCreature->meshName.c_str());
-				SceneNode *node = mSceneMgr->getRootSceneNode()->createChildSceneNode( (tempCreature->name + "_node").c_str() );
-				//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
-				node->setPosition(tempCreature->getPosition());
-				node->setScale(tempCreature->scale);
-				//ent->setNormaliseNormals(true);
-				node->attachObject(ent);
+					// Create the mesh and SceneNode for the new creature
+					Entity *ent = mSceneMgr->createEntity( ("Creature_" + tempCreature->name).c_str(), tempCreature->meshName.c_str());
+					SceneNode *node = creatureSceneNode->createChildSceneNode(tempCreature->name + "_node");
+					//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
+					node->setPosition(tempCreature->getPosition());
+					node->setScale(tempCreature->scale);
+					//ent->setNormaliseNormals(true);
+					node->attachObject(ent);
+					commandOutput = "Creature added successfully";
+				}
+				else
+				{
+					commandOutput = "Invalid creature class name, you need to first add a class with the \'addclass\' terminal command.";
+				}
 			}
 		}
 
@@ -2182,6 +2191,11 @@ string ExampleFrameListener::getHelpText(string arg)
 	else if(arg.compare("turnspersecond") == 0 || arg.compare("tps") == 0)
 	{
 		return "turnspersecond (or \"tps\" for short is a utility which displays or sets the speed at which the game is running.\n\nExample:\n" + prompt + "tps 5\n\nThe above command will set the current game speed to 5 turns per second.";
+	}
+
+	else if(arg.compare("framespersecond") == 0 || arg.compare("fps") == 0)
+	{
+		return "framespersecond (or \"fps\" for short is a utility which displays or sets the maximum framerate at which the rendering will attempt to update the screen.\n\nExample:\n" + prompt + "fps 35\n\nThe above command will set the current maximum framerate to 35 turns per second.";
 	}
 
 	return "Help for command:  \"" + arguments + "\" not found.";

@@ -6,7 +6,6 @@ WINDOWS:
 
 BUGS:
 *  fix keyboard repeat issue.
-*  Fix crash on entering a nonexistant mesh to addclass after calling addcreature using this class.
 *  Terminal commands with no arguments but spaces at the end, like 'host ', will not be recognized as valid commands.
 *  Fix crash on loading a new map from the server, I think it has to do with getting peices of messages in a single packet.  This assumption may or may not be true, it may be that the RenderQueue is somehow processing the addDestination message before the createMesh message.
 *  The GameMap::cutCorners() function sometimes causes creatures to walk through walls, this could be a problem with the lineOfSight function.  Actually I think it has to do with Creature::PositionTile().
@@ -21,10 +20,9 @@ BUGS:
 FEATURE ADDITIONS:
 *  implement history on the terminal.
 *  implement line editing on the terminal.
-*  add help for "fps", "nearclip", "farclip".
-*  add a flyTo method to make the camera fly to a particular location (and orientation?).
+*  add help for "nearclip", "farclip".
 *  Add a keyboard controls help message under "help keys".
-*  Server needs to send the "turnsPerSecond" message as part of the initial client setup.
+*  add a flyTo method to make the camera fly to a particular location (and orientation?).
 *  Store creature classes and class descriptions in maps rather than vectors to allow for faster lookups.
 *  Add play, pause, and single turn commands to the terminal to aid in AI debugging. 
 *  Add a terminal command to set the number of chat messages and the time to display them for (both as one command maybe).

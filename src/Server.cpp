@@ -395,6 +395,11 @@ void *clientHandlerThread(void *p)
 
 			curSock->send(formatCommand("newmap", ""));
 
+			tempString = "";
+			tempSS.str(tempString);
+			tempSS << turnsPerSecond;
+			curSock->send(formatCommand("turnsPerSecond", tempSS.str()));
+
 			// Send over the information about the players in the game
 			curSock->send(formatCommand("addplayer", gameMap.me->nick));
 			for(unsigned int i = 0; i < gameMap.numPlayers(); i++)

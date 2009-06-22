@@ -331,7 +331,7 @@ void *clientNotificationProcessor(void *p)
 	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
 	string tempString;
 	stringstream tempSS;
-	//Tile *tempTile; - TODO :: use this?
+	Tile *tempTile;
 	Creature *tempCreature;
 	Player *tempPlayer;
 	bool flag;
