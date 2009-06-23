@@ -1685,10 +1685,10 @@ void ExampleFrameListener::executePromptCommand()
 			char tempArray[255];
 			if(arguments.size() > 0)
 			{
-				int tempInt;
+				double tempDouble;
 				tempSS.str(arguments);
-				tempSS >> tempInt;
-				MAX_FRAMES_PER_SECOND = tempInt;
+				tempSS >> tempDouble;
+				MAX_FRAMES_PER_SECOND = tempDouble;
 				
 				sprintf(tempArray, "Maximum framerate set to %lf", MAX_FRAMES_PER_SECOND);
 				commandOutput = tempArray;
