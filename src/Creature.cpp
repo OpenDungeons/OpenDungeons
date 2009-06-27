@@ -23,6 +23,9 @@ Creature::Creature()
 	moveSpeed = 1.0;
 	tilePassability = Tile::walkableTile;
 
+	weaponL = "none";
+	weaponR = "none";
+
 	//currentTask = idle;
 	animationState = NULL;
 
@@ -63,7 +66,8 @@ ostream& operator<<(ostream& os, Creature *c)
 {
 	os << c->className << "\t" << c->name << "\t";
 	os << c->position.x << "\t" << c->position.y << "\t" << c->position.z << "\t";
-	os << c->color << "\n";
+	os << c->color << "\t";
+	os << c->weaponL << "\t" << c->weaponR << "\n";
 
 	return os;
 }
@@ -93,6 +97,7 @@ istream& operator>>(istream& is, Creature *c)
 	is >> xLocation >> yLocation >> zLocation;
 	c->position = Ogre::Vector3(xLocation, yLocation, zLocation);
 	is >> c->color;
+	is >> c->weaponL >> c->weaponR;
 
 	// Copy the class based items
 	Creature *creatureClass = gameMap.getClassDescription(c->className);

@@ -297,8 +297,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		string tempString;
 		stringstream tempSS;
 		string tileTypeString;
-		Entity *ent;
-		SceneNode *node;
+		Entity *ent, *weaponL, *weaponR;
+		SceneNode *node, *weaponLNode, *weaponRNode;
+		Bone *weaponLBone, *weaponRBone;
+		Ogre::Matrix3 boneRot;
+		Ogre::Vector3 tempVector;
+		Quaternion tempQuaternion;
 		Tile *curTile = NULL;
 		Creature *curCreature = NULL;
 		Player *curPlayer = NULL;
@@ -328,7 +332,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					// Link the tile mesh back to the relevant scene node so OGRE will render it
 					mSceneMgr->getSceneNode((curTile->name + "_node").c_str())->attachObject(ent);
-					//ent->setNormaliseNormals(true);
+					ent->setNormaliseNormals(true);
 				}
 				break;
 
@@ -346,7 +350,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
 
 				node->attachObject(ent);
-				//ent->setNormaliseNormals(true);
+				ent->setNormaliseNormals(true);
 				break;
 
 			case RenderRequest::destroyTile:
@@ -381,7 +385,34 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node = creatureSceneNode->createChildSceneNode( (curCreature->name + "_node").c_str() );
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
-				//ent->setNormaliseNormals(true);
+				ent->setNormaliseNormals(true);
+
+
+				if(ent->hasSkeleton())
+				{
+					if(curCreature->weaponL.compare("none") != 0)
+					{
+						weaponL = mSceneMgr->createEntity("Creature_weaponL_" + curCreature->name, curCreature->weaponL + ".mesh");
+						weaponLBone = ent->getSkeleton()->getBone("Weapon_L");
+						weaponLBone->getWorldOrientation().ToRotationMatrix(boneRot);
+						tempVector = -weaponLBone->getWorldPosition()*boneRot;
+						tempQuaternion = weaponLBone->getWorldOrientation().Inverse();
+
+						ent->attachObjectToBone(weaponLBone->getName(), weaponL, tempQuaternion, tempVector);
+					}
+
+					if(curCreature->weaponR.compare("none") != 0)
+					{
+						weaponR = mSceneMgr->createEntity("Creature_weaponR_" + curCreature->name, curCreature->weaponR + ".mesh");
+						weaponRBone = ent->getSkeleton()->getBone("Weapon_R");
+						weaponRBone->getWorldOrientation().ToRotationMatrix(boneRot);
+						tempVector = -weaponRBone->getWorldPosition()*boneRot;
+						tempQuaternion = weaponRBone->getWorldOrientation().Inverse();
+
+						ent->attachObjectToBone(weaponRBone->getName(), weaponR, tempQuaternion, tempVector);
+					}
+				}
+
 				node->attachObject(ent);
 				sem_post(&curCreature->meshCreationFinishedSemaphore);
 				break;
@@ -455,7 +486,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					node->attachObject(ent);
 					node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 					node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
-					//ent->setNormaliseNormals(true);
+					ent->setNormaliseNormals(true);
 				}
 				break;
 
@@ -488,7 +519,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature = (Creature*)curReq->p;
 				ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
 
-				if(ent->hasSkeleton())
+				if(ent->hasSkeleton() && ent->getSkeleton()->hasAnimation(curReq->str.c_str()))
 				{
 					curCreature->animationState = ent->getAnimationState(curReq->str.c_str());
 					curCreature->animationState->setLoop(true);
@@ -1806,7 +1837,7 @@ void ExampleFrameListener::executePromptCommand()
 					//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
 					node->setPosition(tempCreature->getPosition());
 					node->setScale(tempCreature->scale);
-					//ent->setNormaliseNormals(true);
+					ent->setNormaliseNormals(true);
 					node->attachObject(ent);
 					commandOutput = "Creature added successfully";
 				}
