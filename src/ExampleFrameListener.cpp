@@ -303,6 +303,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Ogre::Matrix3 boneRot;
 		Ogre::Vector3 tempVector;
 		Quaternion tempQuaternion;
+		SubEntity *tempSubEntity;
+		MaterialPtr tempMaterial;
 		Tile *curTile = NULL;
 		Creature *curCreature = NULL;
 		Player *curPlayer = NULL;
@@ -381,12 +383,21 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature = (Creature*)curReq->p;
 				cout << "\ncreateCreature:  " << curCreature->name;
 				cout.flush();
-				ent = mSceneMgr->createEntity( ("Creature_" + curCreature->name).c_str(), curCreature->meshName.c_str());
-				node = creatureSceneNode->createChildSceneNode( (curCreature->name + "_node").c_str() );
+
+				// Load the mesh for the creature
+				ent = mSceneMgr->createEntity("Creature_" + curCreature->name, curCreature->meshName);
+				node = creatureSceneNode->createChildSceneNode(curCreature->name + "_node");
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
 
+				// Colorize the the textures
+				// Loop over the sub entities in the mesh
+				for(unsigned int i = 0; i < ent->getNumSubEntities(); i++)
+				{
+					tempSubEntity = ent->getSubEntity(i);
+					tempSubEntity->setMaterialName(colourizeMaterial(tempSubEntity->getMaterialName(), curCreature->color));
+				}
 
 				if(ent->hasSkeleton())
 				{
@@ -1877,7 +1888,7 @@ void ExampleFrameListener::executePromptCommand()
 
 				if(arguments.compare("creatures") == 0)
 				{
-					tempSS << "Class:\tCreature name:\tLocation:\tColor:\n\n";
+					tempSS << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
 					for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 					{
 						tempSS << gameMap.getCreature(i);
