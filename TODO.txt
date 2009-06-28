@@ -29,6 +29,7 @@ FEATURE ADDITIONS:
 *  Overload the << operator on the Player class, do the same for all the others.
 *  Add upkeep rounds to the GameMap::doTurn() method.
 *  Create various levels of quality for each mesh and make a RenderRequest that switches to new meshes when some criteria is met (use something stable like num items onscreen at once to avoid churning between mesh detail levels, or change the meshes one at a time and re-evaluate)
+*  Test limiting the number of render requests that can be handled per frame, initial tests did not seem encouraging so maybe this is a bad idea.
 
 
 *  Fix the issue with Mouse move.

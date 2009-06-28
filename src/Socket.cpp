@@ -123,7 +123,7 @@ int Socket::recv ( std::string& s ) const
 
 	if ( status == -1 )
 	{
-		std::cout << "status == -1   errno == " << errno << "  in Socket::recv\n";
+		std::cerr << "\n\nERROR:  status == -1   errno == " << errno << "  in Socket::recv\n";
 		return 0;
 	}
 	else if ( status == 0 )
@@ -148,27 +148,6 @@ bool Socket::connect ( const std::string host, const int port )
 	int status;
 
 #ifdef WIN32
-	/*
-	struct addrinfo *result = NULL;
-	struct addrinfo hints;
-
-	ZeroMemory( &hints, sizeof(hints) );
-	hints.ai_family = AF_INET;
-	hints.ai_socktype = SOCK_STREAM;
-	hints.ai_protocol = IPPROTO_TCP;
-
-	int status = getaddrinfo(host.c_str(), PORT_NUMBER_STRING, &hints, &result);
-
-	if ( status != 0 )
-	{
-		cout << "getaddrinfo failed with error: " << status << endl;
-		WSACleanup();
-		exit(1);
-	}
-
-	m_addr.sin_addr = ((sockaddr_in*)(result->ai_addr))->sin_addr;
-	*/
-
 	struct sockaddr_storage ss;
 	int sslen = sizeof(ss);
 	WSAStringToAddress((CHAR*)host.c_str(), AF_INET, NULL, (struct sockaddr*)&ss, &sslen);

@@ -173,7 +173,7 @@ void *creatureAIThread(void *p)
 		}
 		catch(bad_alloc&)
 		{
-			cout << "\n\nERROR:  bad alloc in creatureAIThread at turnStarted\n\n";
+			cerr << "\n\nERROR:  bad alloc in creatureAIThread at turnStarted\n\n";
 			exit(1);
 		}
 
@@ -187,14 +187,14 @@ void *creatureAIThread(void *p)
 		if(1e6 * timeUntilNextTurn - timeTaken > 0)
 		{
 			cout << "\nCreature AI finished " << 1e6*timeUntilNextTurn - timeTaken << "us early.\n";
-			cout.flush();
+			//cout.flush();
 
 			usleep(1e6 * timeUntilNextTurn - timeTaken );
 		}
 		else
 		{
 			cout << "\nCreature AI finished " << 1e6*timeUntilNextTurn - timeTaken << "us late.\n";
-			cout.flush();
+			//cout.flush();
 		}
 	}
 
@@ -302,7 +302,7 @@ void *serverNotificationProcessor(void *p)
 				break;
 
 			default:
-				cout << "\n\nError:  Unhandled ServerNotification type encoutered!\n\n";
+				cerr << "\n\nERROR:  Unhandled ServerNotification type encoutered!\n\n";
 
 				//TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
 				Creature * throwAsegfault = NULL;
@@ -368,8 +368,8 @@ void *clientHandlerThread(void *p)
 		parseCommand(tempString, clientCommand, arguments);
 		//clientCommand = tempString.substr(1, index-1);
 		//arguments = tempString.substr(index+1, tempString.size()-index-3);
-		cout << "\n\n\n" << clientCommand << "\n" << arguments;
-		cout.flush();
+		//cout << "\n\n\n" << clientCommand << "\n" << arguments;
+		//cout.flush();
 
 		if(clientCommand.compare("hello") == 0)
 		{
@@ -566,8 +566,8 @@ void *clientHandlerThread(void *p)
 
 		else
 		{
-			cout << "\n\nERROR:  Unhandled command recieved from client:\nCommand:  ";
-			cout << clientCommand << "\nArguments:  " << arguments << "\n\n";
+			cerr << "\n\nERROR:  Unhandled command recieved from client:\nCommand:  ";
+			cerr << clientCommand << "\nArguments:  " << arguments << "\n\n";
 			exit(1);
 		}
 	}

@@ -13,7 +13,7 @@ void readGameMapFromFile(string fileName)
 	ifstream levelFile(fileName.c_str(), ifstream::in);
 	if( !levelFile.good() )
 	{
-		cout << "Error: File not found:  " << fileName << "\n\n\n";
+		cerr << "ERROR: File not found:  " << fileName << "\n\n\n";
 		exit(1);
 	}
 

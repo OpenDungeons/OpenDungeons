@@ -328,7 +328,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					// Link the tile mesh back to the relevant scene node so OGRE will render it
 					mSceneMgr->getSceneNode((curTile->name + "_node").c_str())->attachObject(ent);
-					//ent->setNormaliseNormals(true);
+					ent->setNormaliseNormals(true);
 				}
 				break;
 
@@ -346,7 +346,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
 
 				node->attachObject(ent);
-				//ent->setNormaliseNormals(true);
+				ent->setNormaliseNormals(true);
 				break;
 
 			case RenderRequest::destroyTile:
@@ -375,13 +375,13 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 			case RenderRequest::createCreature:
 				curCreature = (Creature*)curReq->p;
-				cout << "\ncreateCreature:  " << curCreature->name;
-				cout.flush();
+				//cout << "\ncreateCreature:  " << curCreature->name;
+				//cout.flush();
 				ent = mSceneMgr->createEntity( ("Creature_" + curCreature->name).c_str(), curCreature->meshName.c_str());
 				node = creatureSceneNode->createChildSceneNode( (curCreature->name + "_node").c_str() );
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
-				//ent->setNormaliseNormals(true);
+				ent->setNormaliseNormals(true);
 				node->attachObject(ent);
 				sem_post(&curCreature->meshCreationFinishedSemaphore);
 				break;
@@ -416,8 +416,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature = (Creature*)curReq->p;
 				curPlayer = (Player*)curReq->p2;
 				// Detach the creature from the "hand" scene node
-				cout << "\nblah1:  " << curCreature->name;
-				cout.flush();
 				node = mSceneMgr->getSceneNode(curCreature->name + "_node");
 				mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
 
@@ -430,8 +428,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				for(unsigned int i = 0; i < curPlayer->numCreaturesInHand(); i++)
 				{
 					curCreature = curPlayer->getCreatureInHand(i);
-					cout << "\nblah2:  " << curCreature->name;
-					cout.flush();
 					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
 					node->setPosition(i%6 + 1, (i/(int)6), 0.0);
 				}
@@ -455,7 +451,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					node->attachObject(ent);
 					node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 					node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
-					//ent->setNormaliseNormals(true);
+					ent->setNormaliseNormals(true);
 				}
 				break;
 
@@ -505,7 +501,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				break;
 
 			default:
-				cout << "\n\n\nERROR: Unhandled render request!\n\n\n";
+				cerr << "\n\n\nERROR: Unhandled render request!\n\n\n";
 				break;
 		}
 
@@ -1729,7 +1725,7 @@ void ExampleFrameListener::executePromptCommand()
 					}
 					catch(bad_alloc&)
 					{
-						cout << "\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n";
+						cerr << "\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n";
 						exit(1);
 					}
 				}
@@ -1806,7 +1802,7 @@ void ExampleFrameListener::executePromptCommand()
 					//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
 					node->setPosition(tempCreature->getPosition());
 					node->setScale(tempCreature->scale);
-					//ent->setNormaliseNormals(true);
+					ent->setNormaliseNormals(true);
 					node->attachObject(ent);
 					commandOutput = "Creature added successfully";
 				}

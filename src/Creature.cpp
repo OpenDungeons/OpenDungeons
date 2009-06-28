@@ -498,14 +498,14 @@ void Creature::doTurn()
 					break;
 
 				default:
-					cout << "\n\nERROR:  Unhandled action type in Creature::doTurn().\n\n";
+					cerr << "\n\nERROR:  Unhandled action type in Creature::doTurn().\n\n";
 					exit(1);
 					break;
 			}
 		}
 		else
 		{
-			cout << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
+			cerr << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
 			exit(1);
 		}
 
@@ -771,7 +771,7 @@ void Creature::setAnimationState(string s)
 		}
 		catch(bad_alloc&)
 		{
-			cout << "\n\nERROR:  bad alloc in Creature::setAnimationState\n\n";
+			cerr << "\n\nERROR:  bad alloc in Creature::setAnimationState\n\n";
 			exit(1);
 		}
 	}
@@ -851,7 +851,7 @@ void Creature::addDestination(int x, int y)
 		}
 		catch(bad_alloc&)
 		{
-			cout << "\n\nERROR:  bad alloc in Creature::addDestination\n\n";
+			cerr << "\n\nERROR:  bad alloc in Creature::addDestination\n\n";
 			exit(1);
 		}
 	}

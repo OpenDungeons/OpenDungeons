@@ -115,7 +115,7 @@ void Tile::setFullness(int f)
 		}
 		catch(bad_alloc&)
 		{
-			cout << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
+			cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
 			exit(1);
 		}
 	}
@@ -169,14 +169,14 @@ Tile::TileClearType Tile::getTilePassability()
 			break;
 
 		default:
-			cout << "\n\nERROR:  Unhandled tile type in Tile::getTilePassability()\n\n";
+			cerr << "\n\nERROR:  Unhandled tile type in Tile::getTilePassability()\n\n";
 			exit(1);
 			break;
 	}
 
 	// Return something to make the compiler happy.
 	// Control should really never reach here because of the exit(1) call in the default switch case above
-	cout << "\n\nERROR:  Control reached the end of Tile::getTilePassability, this should never actually happen.\n\n";
+	cerr << "\n\nERROR:  Control reached the end of Tile::getTilePassability, this should never actually happen.\n\n";
 	exit(1);
 	return impassableTile;
 }
@@ -428,12 +428,10 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 			else
 			{
 				sprintf(tempString2, "Level_%3i_%3i_node", x, y);
-				cout << "\n\nTempstring2:  " << tempString2;
-				cout.flush();
 				SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
 
 				ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
-				//ent->setNormaliseNormals(true);
+				ent->setNormaliseNormals(true);
 				tempNode->attachObject(ent);
 			}
 		}

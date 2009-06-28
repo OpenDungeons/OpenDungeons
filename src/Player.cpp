@@ -140,8 +140,8 @@ bool Player::dropCreature(Tile *t)
 			gameMap.addCreature(c);
 
 			// If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
-			cout << "\nthis:  " << this << "\nme:  " << gameMap.me << endl;
-			cout.flush();
+			//cout << "\nthis:  " << this << "\nme:  " << gameMap.me << endl;
+			//cout.flush();
 			if(this != gameMap.me)
 			{
 				c->createMesh();

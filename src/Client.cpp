@@ -299,14 +299,14 @@ void *clientSocketProcessor(void *p)
 				}
 				else
 				{
-					cout << "\nERROR:  Server told us to set the fullness for a nonexistent tile.\n";
+					cerr << "\nERROR:  Server told us to set the fullness for a nonexistent tile.\n";
 				}
 			}
 
 			else
 			{
-				cout << "\n\n\nERROR:  Unknown server command!\nCommand:";
-				cout << serverCommand << "\nArguments:" << arguments << "\n\n";
+				cerr << "\n\n\nERROR:  Unknown server command!\nCommand:";
+				cerr << serverCommand << "\nArguments:" << arguments << "\n\n";
 				exit(1);
 			}
 
@@ -390,7 +390,7 @@ void *clientNotificationProcessor(void *p)
 				break;
 
 			default:
-				cout << "\n\nError:  Unhandled ClientNotification type encoutered!\n\n";
+				cerr << "\n\nError:  Unhandled ClientNotification type encoutered!\n\n";
 
 				//TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
 				Creature * throwAsegfault = NULL;
