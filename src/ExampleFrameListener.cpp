@@ -125,6 +125,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mCurrentTileRadius = 1;
 	mBrushMode = false;
 	creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
+	roomSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Room_scene_node");
 
 	mStatsOn = true;
 	mNumScreenShots = 0;
@@ -300,6 +301,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Entity *ent;
 		SceneNode *node;
 		Tile *curTile = NULL;
+		Room *curRoom = NULL;
 		Creature *curCreature = NULL;
 		Player *curPlayer = NULL;
 		int tempInt;
@@ -353,32 +355,60 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curTile = (Tile*)curReq->p;
 				if(mSceneMgr->hasEntity(curTile->name.c_str()))
 				{
-					//cout << "\nDestroying tile: (" << curTile->x << ", " << curTile->y << ")";
-					//cout.flush();
-
 					ent = mSceneMgr->getEntity(curTile->name.c_str());
-					node = mSceneMgr->getSceneNode((curTile->name + "_node").c_str());
-					//mSceneMgr->getRootSceneNode()->detachObject((curTile->name + "_node").c_str());
+					node = mSceneMgr->getSceneNode(curTile->name + "_node");
 					node->detachAllObjects();
-					mSceneMgr->destroySceneNode((curTile->name + "_node").c_str());
+					mSceneMgr->destroySceneNode(curTile->name + "_node");
 					mSceneMgr->destroyEntity(ent);
 				}
 				break;
 
-			case RenderRequest::deleteTile:
-				//cout << "Deleting tile\n";
-				//cout.flush();
+			case RenderRequest::createRoom:
+				curRoom = (Room*)curReq->p;
+				curTile = (Tile*)curReq->p2;
 
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
+				ent = mSceneMgr->createEntity(tempSS.str(), curRoom->meshName);
+				node = roomSceneNode->createChildSceneNode(tempSS.str() + "_node");
+				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.05));
+				ent->setNormaliseNormals(true);
+				node->attachObject(ent);
+				break;
+
+			case RenderRequest::destroyRoom:
+				curRoom = (Room*)curReq->p;
+				curTile = (Tile*)curReq->p2;
+
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
+				if(mSceneMgr->hasEntity(tempSS.str()))
+				{
+					ent = mSceneMgr->getEntity(tempSS.str());
+					node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
+					node->detachObject(ent);
+					roomSceneNode->removeChild(node);
+					mSceneMgr->destroyEntity(ent);
+					mSceneMgr->destroySceneNode(tempSS.str() + "_node");
+				}
+				break;
+
+			case RenderRequest::deleteRoom:
+				curRoom = (Room*)curReq->p;
+				delete curRoom;
+				break;
+
+			case RenderRequest::deleteTile:
 				curTile = (Tile*)curReq->p;
 				delete curTile;
 				break;
 
 			case RenderRequest::createCreature:
 				curCreature = (Creature*)curReq->p;
-				//cout << "\ncreateCreature:  " << curCreature->name;
-				//cout.flush();
-				ent = mSceneMgr->createEntity( ("Creature_" + curCreature->name).c_str(), curCreature->meshName.c_str());
-				node = creatureSceneNode->createChildSceneNode( (curCreature->name + "_node").c_str() );
+				ent = mSceneMgr->createEntity("Creature_" + curCreature->name, curCreature->meshName);
+				node = creatureSceneNode->createChildSceneNode(curCreature->name + "_node");
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
@@ -388,7 +418,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 			case RenderRequest::destroyCreature:
 				curCreature = (Creature*)curReq->p;
-				if(mSceneMgr->hasEntity( ("Creature_" + curCreature->name).c_str() ))
+				if(mSceneMgr->hasEntity("Creature_" + curCreature->name))
 				{
 					ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
 					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
@@ -439,9 +469,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				if(curTile != NULL && curCreature != NULL)
 				{
-					//cout << "\nCreating visdebug:  " << meshName;
-					//cout.flush();
-
 					tempString = "";
 					tempSS.str(tempString);
 					tempSS << "Creature_vision_" << curCreature->name.c_str() << "_" << curTile->x << "_" << curTile->y;
@@ -463,14 +490,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				tempSS.str(tempString);
 				tempSS << "Creature_vision_" << curCreature->name.c_str() << "_" << curTile->x << "_" << curTile->y;
 
-				//cout << "\ntrying to Destroy visdebug:  " << meshName;
-				//cout.flush();
-
 				if(mSceneMgr->hasEntity(tempSS.str()))
 				{
-					//cout << "\nDestroying visdebug:  " << meshName;
-					//cout.flush();
-
 					ent = mSceneMgr->getEntity(tempSS.str());
 					node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
 
@@ -667,27 +688,6 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 	string  resultName;
 
 	CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
-
-	// Mouse move code.  This does not work yet, moving the mouse to all four edges of the screen seems to make it work hence the if statement for the delay.
-	/*
-	if(turnNumber > 10)
-	{
-		unsigned int width, height, depth;
-		int left, top;
-		mWindow->getMetrics(width, height, depth, left, top);
-
-		// It is odd that this must be done as a separate subtraction and then multiply but I think it has to be done this way.
-		double tempX = width/2.0 - arg.state.X.abs;
-		//tempX *= -1.0;
-		double tempY = height/2.0 - arg.state.Y.abs;
-		tempY *= -1.0;
-		tempX /= width/2.0;
-		tempY /= height/2.0;
-		mMouseTranslateVector.x = tempX;
-		mMouseTranslateVector.y = tempY;
-		cout << mMouseTranslateVector.x << "\t" << mMouseTranslateVector.y << endl;
-	}
-	*/
 
 	//FIXME:  This code should be put into a function it is duplicated by mousePressed()
 	// Setup the ray scene query, use CEGUI's mouse position

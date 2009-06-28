@@ -1,3 +1,4 @@
+#include "Globals.h"
 #include "Room.h"
 
 Room::Room()
@@ -35,5 +36,50 @@ unsigned int Room::numCoveredTiles()
 void Room::clearCoveredTiles()
 {
 	coveredTiles.clear();
+}
+
+void Room::createMeshes()
+{
+	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	{
+		Tile *tempTile = coveredTiles[i];
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::createRoom;
+		request->p = this;
+		request->p2 = tempTile;
+
+		sem_wait(&renderQueueSemaphore);
+		renderQueue.push_back(request);
+		sem_post(&renderQueueSemaphore);
+	}
+}
+
+void Room::destroyMeshes()
+{
+	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	{
+		Tile *tempTile = coveredTiles[i];
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::destroyRoom;
+		request->p = this;
+		request->p2 = tempTile;
+
+		sem_wait(&renderQueueSemaphore);
+		renderQueue.push_back(request);
+		sem_post(&renderQueueSemaphore);
+	}
+}
+
+void Room::deleteYourself()
+{
+	destroyMeshes();
+
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::deleteRoom;
+	request->p = this;
+
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	sem_post(&renderQueueSemaphore);
 }
 

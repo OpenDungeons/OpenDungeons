@@ -75,6 +75,7 @@ void GameMap::clearAll()
 	clearCreatures();
 	clearClasses();
 	clearPlayers();
+	clearRooms();
 }
 
 /*! \brief Clears the mesh and deletes the data structure for all the tiles in the GameMap.
@@ -259,6 +260,13 @@ void GameMap::createAllEntities()
 		Creature *currentCreature = getCreature(i);
 		currentCreature->createMesh();
 	}
+
+	// Create OGRE entities for the rooms
+	for(unsigned int i = 0; i < numRooms(); i++)
+	{
+		Room *currentRoom = getRoom(i);
+		currentRoom->createMeshes();
+	}
 }
 
 /*! \brief Returns a pointer to the creature whose name matches cName.
@@ -285,9 +293,9 @@ void GameMap::doTurn()
 	sem_wait(&creatureAISemaphore);
 
 	cout << "\nStarting creature AI for turn " << turnNumber;
+	// Call the individual creature AI for each creature in this game map
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
-		//cout << "\nCreature " << i << "  " << creatures[i]->name << " calling doTurn.\t";
 		creatures[i]->doTurn();
 	}
 
@@ -792,6 +800,11 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 
 void GameMap::clearRooms()
 {
+	for(unsigned int i = 0; i < numRooms(); i++)
+	{
+		getRoom(i)->deleteYourself();
+	}
+
 	rooms.clear();
 }
 

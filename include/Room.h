@@ -19,8 +19,9 @@ class Room
 		unsigned int numCoveredTiles();
 		void clearCoveredTiles();
 
-		//void createMeshes();
-		//void destroyMeshes();
+		void createMeshes();
+		void destroyMeshes();
+		void deleteYourself();
 
 		int HP;
 		Player *controllingPlayer;

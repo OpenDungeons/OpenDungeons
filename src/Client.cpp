@@ -193,8 +193,6 @@ void *clientSocketProcessor(void *p)
 
 				if(tempCreature != NULL)
 				{
-					//cout << endl << tempCreature->name << tempX << ",  " << tempY << ",  " << tempZ << endl;
-
 					tempCreature->addDestination(tempVector.x, tempVector.y);
 				}
 			}
@@ -390,7 +388,7 @@ void *clientNotificationProcessor(void *p)
 				break;
 
 			default:
-				cerr << "\n\nError:  Unhandled ClientNotification type encoutered!\n\n";
+				cerr << "\n\nERROR:  Unhandled ClientNotification type encoutered!\n\n";
 
 				//TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
 				Creature * throwAsegfault = NULL;

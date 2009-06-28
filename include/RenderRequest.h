@@ -18,6 +18,7 @@ class RenderRequest
 				createCreature, destroyCreature, deleteCreature, setCreatureAnimationState,
 				createCreatureVisualDebug, destroyCreatureVisualDebug,
 				pickUpCreature, dropCreature,
+				createRoom, destroyRoom, deleteRoom,
 			      	noRequest};
 
 		RenderRequest();

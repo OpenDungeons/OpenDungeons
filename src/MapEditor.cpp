@@ -48,37 +48,10 @@ void MapEditor::createScene(void)
 	Entity *ent;
 	SceneNode *node;
 
-	int newXSize, newYSize;
-	int choice;
+	// Read in the default game map
+	readGameMapFromFile("Media/levels/Test.level");
 
-	//FIXME:  This menu (or  something like it) should be enabled in the full game
-	//cout << "Open Dungeons\tVersion:  " << VERSION << endl;
-	//cout << "Main Menu:\n  1:  Create new level\n  2:  Load existing level\n\nChoice:  ";
-	//cin >> choice;
-	choice = 2;
-
-	switch(choice)
-	{
-		case 1:
-			//FIXME:  This menu (or  something like it) should be enabled in the full game
-			//cout << "\n\nEnter X and Y dimensions for new map:  ";
-			//cin >> newXSize >> newYSize;
-			newXSize = 30;
-			newYSize = 60;
-			gameMap.createNewMap(newXSize, newYSize);
-			break;
-
-		case 2:
-			//FIXME:  Another menu needed here too
-			readGameMapFromFile("Media/levels/Test.level");
-			break;
-
-		default:
-			exit(1);
-			break;
-	}
-
-	// Create ogre entities for the tiles and creatures
+	// Create ogre entities for the tiles, rooms, and creatures
 	gameMap.createAllEntities();
 
 	// Create the main scene lights
