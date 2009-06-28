@@ -214,9 +214,12 @@ string colourizeMaterial(string materialName, int color)
 	tempSS << "Color_" << color << "_" << materialName;
 	MaterialPtr tempMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
 
+	cout << "\n\nCloning material:  " << tempSS.str();
+
 	// If this texture has not been copied and colorized yet then do so
 	if(tempMaterial.isNull())
 	{
+		cout << "   Material does not exist, creating a new one.";
 		//MaterialPtr newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().create(tempSS.str(), "manualMaterialsGroup"));
 		MaterialPtr newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialName))->clone(tempSS.str());
 
@@ -244,22 +247,22 @@ string colourizeMaterial(string materialName, int color)
 					{
 						for(unsigned int y = 0; y < tempTexture->getHeight(); y++)
 						{
-							        uint8 *blue = pixelData++;
-								uint8 *green = pixelData++;
-								uint8 *red = pixelData++;
-								uint8 *alpha = pixelData++;
+							uint8 *blue = pixelData++;
+							uint8 *green = pixelData++;
+							uint8 *red = pixelData++;
+							uint8 *alpha = pixelData++;
 
-								// Check to see if the current pixel matches the target color
-								if(*blue == 255 && *green == 0 && *red == 255)
+							// Check to see if the current pixel matches the target color
+							if(*blue == 255 && *green == 0 && *red == 255)
+							{
+								if(color < playerColourValues.size())
 								{
-									if(color < playerColourValues.size())
-									{
-										*blue = (uint8)(playerColourValues[color].b * 255);
-										*green = (uint8)(playerColourValues[color].g * 255);
-										*red = (uint8)(playerColourValues[color].r * 255);
-										*alpha = (uint8)(playerColourValues[color].a * 255);
-									}
+									*blue = (uint8)(playerColourValues[color].b * 255);
+									*green = (uint8)(playerColourValues[color].g * 255);
+									*red = (uint8)(playerColourValues[color].r * 255);
+									*alpha = (uint8)(playerColourValues[color].a * 255);
 								}
+							}
 						}
 					}
 

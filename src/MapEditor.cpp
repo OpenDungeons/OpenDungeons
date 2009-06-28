@@ -83,32 +83,35 @@ void MapEditor::createScene(void)
 
 	// Create the main scene lights
 	mSceneMgr->setAmbientLight(ColourValue(0.1, 0.1, 0.1));
-	double mainLightR = .7;
-	double mainLightG = .7;
-	double mainLightB = .5;
-	double mainLightAttenuationD = 200.0;
-	double mainLightAttenuationE = 0.0;
-	double mainLightAttenuationL = 0.0;
-	double mainLightAttenuationQ = 0.0006;
+	double mainLightR = .6;
+	double mainLightG = .5;
+	double mainLightB = .3;
+	double mainLightAttenuationD = 100.0;
+	double mainLightAttenuationE = 0.5;
+	double mainLightAttenuationL = 0.001;
+	double mainLightAttenuationQ = 0.001;
 	Light *light = mSceneMgr->createLight("Light1");
 	light->setType(Light::LT_POINT);
-	light->setPosition(Ogre::Vector3(80, 80, 40));
+	light->setPosition(Ogre::Vector3(0, 0, 0));
 	light->setDiffuseColour(ColourValue(mainLightR, mainLightG, mainLightB));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
 	light->setAttenuation(mainLightAttenuationD, mainLightAttenuationE, mainLightAttenuationL, mainLightAttenuationQ);
 
+	/*
 	light = mSceneMgr->createLight("Light2");
 	light->setType(Light::LT_POINT);
 	light->setPosition(Ogre::Vector3(-30, 40, 40));
 	light->setDiffuseColour(ColourValue(mainLightR, mainLightG, mainLightB));
 	light->setSpecularColour(ColourValue(.0, .0, .0));
 	light->setAttenuation(mainLightAttenuationD, mainLightAttenuationE, mainLightAttenuationL, mainLightAttenuationQ);
+	*/
 
 	// Create the scene node that the camera attaches to
 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 16));
 	node->pitch(Degree(25), Node::TS_WORLD);
 	node->roll(Degree(30), Node::TS_WORLD);
 	node->attachObject(mCamera);
+	node->attachObject(light);
 
 	// Create the single tile selection mesh
 	ent = mSceneMgr->createEntity("SquareSelector", "SquareSelector.mesh");

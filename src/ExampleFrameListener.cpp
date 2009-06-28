@@ -300,6 +300,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Entity *ent, *weaponL, *weaponR;
 		SceneNode *node, *weaponLNode, *weaponRNode;
 		Bone *weaponLBone, *weaponRBone;
+		Node *tempNode;
 		Ogre::Matrix3 boneRot;
 		Ogre::Vector3 tempVector;
 		Quaternion tempQuaternion;
@@ -405,20 +406,35 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					{
 						weaponL = mSceneMgr->createEntity("Creature_weaponL_" + curCreature->name, curCreature->weaponL + ".mesh");
 						weaponLBone = ent->getSkeleton()->getBone("Weapon_L");
-						weaponLBone->getWorldOrientation().ToRotationMatrix(boneRot);
-						tempVector = -weaponLBone->getWorldPosition()*boneRot;
-						tempQuaternion = weaponLBone->getWorldOrientation().Inverse();
+						tempVector = Ogre::Vector3(0, 0, 0);
+						tempNode = weaponLBone->getParent();
+						while(tempNode != NULL)
+						{
+							tempNode->getOrientation().ToRotationMatrix(boneRot);
+							tempVector -= tempNode->getPosition()*boneRot;
+							tempNode = tempNode->getParent();
+						}
 
-						ent->attachObjectToBone(weaponLBone->getName(), weaponL, tempQuaternion, tempVector);
+						tempQuaternion = weaponLBone->getWorldOrientation();
+
+						tempVector = weaponLBone->getWorldPosition();
+						ent->attachObjectToBone(weaponLBone->getName(), weaponL);
 					}
 
 					if(curCreature->weaponR.compare("none") != 0)
 					{
 						weaponR = mSceneMgr->createEntity("Creature_weaponR_" + curCreature->name, curCreature->weaponR + ".mesh");
 						weaponRBone = ent->getSkeleton()->getBone("Weapon_R");
-						weaponRBone->getWorldOrientation().ToRotationMatrix(boneRot);
-						tempVector = -weaponRBone->getWorldPosition()*boneRot;
-						tempQuaternion = weaponRBone->getWorldOrientation().Inverse();
+						tempVector = Ogre::Vector3(0, 0, 0);
+						tempNode = weaponRBone->getParent();
+						while(tempNode != NULL)
+						{
+							tempNode->getWorldOrientation().ToRotationMatrix(boneRot);
+							tempVector -= tempNode->getWorldPosition()*boneRot;
+							tempNode = tempNode->getParent();
+						}
+
+						tempQuaternion = weaponRBone->getWorldOrientation();
 
 						ent->attachObjectToBone(weaponRBone->getName(), weaponR, tempQuaternion, tempVector);
 					}

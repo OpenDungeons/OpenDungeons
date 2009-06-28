@@ -203,7 +203,7 @@ material Material/TEXFACE/Knight.png
 	{
 		pass
 		{
-			ambient 0.500000 0.500000 0.500000 1.000000
+			ambient 0.000000 0.000000 0.000000 1.000000
 			diffuse 0.800000 0.800000 0.800000 1.000000
 			emissive 0.000000 0.000000 0.000000 1.000000
 			texture_unit
@@ -232,31 +232,6 @@ material Red rock
 			diffuse 0.066760 0.030798 0.007980 1.000000
 			specular 0.021226 0.021226 0.021226 1.000000 7.250000
 			emissive 0.000000 0.000000 0.000000 1.000000
-		}
-	}
-}
-material Material.001/TEXFACE/Knight_sword.png
-{
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.500000 0.500000 0.500000 1.000000
-			diffuse 0.885990 0.885990 0.885990 1.000000
-			emissive 0.000000 0.000000 0.000000 1.000000
-			texture_unit
-			{
-				texture Knight_sword.png
-				colour_op modulate
-			}
-		}
-		pass
-		{
-			ambient 0.0 0.0 0.0
-			diffuse 0.8 0.8 0.8
-			specular 0.024500 0.035985 0.044454 1.000000 12.500000
-			scene_blend add
 		}
 	}
 }
@@ -312,6 +287,60 @@ material Sabre_handle
 			diffuse 0.227928 0.144751 0.043848 1.000000
 			specular 0.149202 0.149202 0.149202 1.000000 12.500000
 			emissive 0.000000 0.000000 0.000000 1.000000
+		}
+	}
+}
+material Kobold_skin/TEXFACE/kobold_skin6.png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.000000 0.000000 0.000000 1.000000
+			diffuse 0.712696 0.712696 0.712696 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture kobold_skin6.png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.8 0.8 0.8
+			specular 0.035536 0.045176 0.075544 1.000000 5.000000
+			scene_blend add
+		}
+	}
+}
+material Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.000000 0.000000 0.000000 1.000000
+			diffuse 0.712696 0.712696 0.712696 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			cull_hardware none
+			cull_software none
+			texture_unit
+			{
+				texture kobold_skin6.png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.8 0.8 0.8
+			specular 0.035536 0.045176 0.075544 1.000000 5.000000
+			scene_blend add
+			cull_hardware none
+			cull_software none
 		}
 	}
 }
