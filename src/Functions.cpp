@@ -137,7 +137,7 @@ void writeGameMapToFile(string fileName)
 		tempCreature = gameMap.getClassDescription(i);
 		levelFile << tempCreature->className << "\t" << tempCreature->meshName << "\t" << tempCreature->scale.x << "\t" << tempCreature->scale.y << "\t" << tempCreature->scale.z << "\t";
 		levelFile << tempCreature->hp << "\t" << tempCreature->mana << "\t";
-		levelFile << tempCreature->sightRadius << "\t" << tempCreature->digRate << "\n";
+		levelFile << tempCreature->sightRadius << "\t" << tempCreature->digRate << "\t" << tempCreature->moveSpeed << "\n";
 	}
 
 	// Write out the individual creatures to the file
@@ -280,14 +280,26 @@ string colourizeMaterial(string materialName, int colour)
 							uint8 *red = pixelData++;
 							uint8 *alpha = pixelData++;
 
+							int deltaR = *red - 235, deltaG = *green - 20, deltaB = *blue - 235;
+							int totalDistance = fabs(deltaR) + fabs(deltaG) + fabs(deltaB);
+							int factor = 10;
 							// Check to see if the current pixel matches the target colour
-							if(*blue == 255 && *green == 0 && *red == 255)
+							if(totalDistance <= 65)
 							{
 								if(colour < playerColourValues.size())
 								{
-									*blue = (uint8)(playerColourValues[colour].b * 255);
-									*green = (uint8)(playerColourValues[colour].g * 255);
-									*red = (uint8)(playerColourValues[colour].r * 255);
+									int newR = playerColourValues[colour].r*255 + factor*deltaR;
+									int newG = playerColourValues[colour].g*255 + factor*deltaG;
+									int newB = playerColourValues[colour].b*255 + factor*deltaB;
+									newR = (newR < 0) ? 0 : newR;
+									newR = (newR > 255) ? 255 : newR;
+									newG = (newG < 0) ? 0 : newG;
+									newG = (newG > 255) ? 255 : newG;
+									newB = (newB < 0) ? 0 : newB;
+									newB = (newB > 255) ? 255 : newB;
+									*blue = (uint8)newB;
+									*green = (uint8)newG;
+									*red = (uint8)newR;
 									*alpha = (uint8)(playerColourValues[colour].a * 255);
 								}
 							}

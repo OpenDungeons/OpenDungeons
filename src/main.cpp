@@ -68,10 +68,14 @@ int main(int argc, char **argv)
 	sem_init(&clientNotificationQueueLockSemaphore, 0, 1);
 	sem_init(&creatureAISemaphore, 0, 1);
 
-	playerColourValues.push_back(ColourValue(1.0, 1.0, 1.0, 1.0));
-	playerColourValues.push_back(ColourValue(1.0, 0.0, 0.0, 1.0));
-	playerColourValues.push_back(ColourValue(0.0, 1.0, 0.0, 1.0));
-	playerColourValues.push_back(ColourValue(0.0, 0.0, 1.0, 1.0));
+	playerColourValues.push_back(ColourValue(0.8, 0.8, 0.8, 1.0));
+	playerColourValues.push_back(ColourValue(0.8, 0.0, 0.0, 1.0));
+	playerColourValues.push_back(ColourValue(0.0, 0.8, 0.0, 1.0));
+	playerColourValues.push_back(ColourValue(0.0, 0.0, 0.8, 1.0));
+	playerColourValues.push_back(ColourValue(0.4, 0.4, 0.4, 1.0));
+	playerColourValues.push_back(ColourValue(0.4, 0.0, 0.0, 1.0));
+	playerColourValues.push_back(ColourValue(0.0, 0.4, 0.0, 1.0));
+	playerColourValues.push_back(ColourValue(0.0, 0.0, 0.4, 1.0));
 
 	// Create application object
 	MapEditor app;

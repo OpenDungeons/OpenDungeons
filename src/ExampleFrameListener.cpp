@@ -376,6 +376,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				tempSS.str(tempString);
 				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
 				ent = mSceneMgr->createEntity(tempSS.str(), curRoom->meshName + ".mesh");
+				//colourizeEntity(ent, curRoom->color);
 				node = roomSceneNode->createChildSceneNode(tempSS.str() + "_node");
 				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.0));
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
@@ -416,12 +417,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				// Load the mesh for the creature
 				ent = mSceneMgr->createEntity("Creature_" + curCreature->name, curCreature->meshName);
+				//colourizeEntity(ent, curCreature->color);
 				node = creatureSceneNode->createChildSceneNode(curCreature->name + "_node");
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
-
-				colourizeEntity(ent, curCreature->color);
 
 				if(ent->hasSkeleton())
 				{
@@ -438,10 +438,10 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 							tempNode = tempNode->getParent();
 						}
 
-						tempQuaternion = weaponLBone->getWorldOrientation();
+						tempQuaternion = weaponLBone->getWorldOrientation().Inverse();
 
 						tempVector = weaponLBone->getWorldPosition();
-						ent->attachObjectToBone(weaponLBone->getName(), weaponL);
+						ent->attachObjectToBone(weaponLBone->getName(), weaponL, tempQuaternion);
 					}
 
 					if(curCreature->weaponR.compare("none") != 0)
@@ -452,14 +452,15 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 						tempNode = weaponRBone->getParent();
 						while(tempNode != NULL)
 						{
-							tempNode->getWorldOrientation().ToRotationMatrix(boneRot);
-							tempVector -= tempNode->getWorldPosition()*boneRot;
+							tempNode->getOrientation().ToRotationMatrix(boneRot);
+							tempVector -= tempNode->getPosition()*boneRot;
 							tempNode = tempNode->getParent();
 						}
 
 						tempQuaternion = weaponRBone->getWorldOrientation();
 
-						ent->attachObjectToBone(weaponRBone->getName(), weaponR, tempQuaternion, tempVector);
+						tempVector = weaponRBone->getWorldPosition();
+						ent->attachObjectToBone(weaponRBone->getName(), weaponR);
 					}
 				}
 
@@ -1955,6 +1956,11 @@ void ExampleFrameListener::executePromptCommand()
 					{
 						tempSS << "You are currently acting as a server.";
 					}
+
+					if(clientSocket == NULL && serverSocket == NULL)
+					{
+						tempSS << "You are currently in the map editor.";
+					}
 				}
 
 				else if(arguments.compare("rooms") == 0)
@@ -1968,11 +1974,20 @@ void ExampleFrameListener::executePromptCommand()
 					}
 				}
 
+				else if(arguments.compare("colors") == 0 || arguments.compare("colours"))
+				{
+					tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
+					for(unsigned int i = 0; i < playerColourValues.size(); i++)
+					{
+						tempSS << "\n" << i << "\t\t" << playerColourValues[i].r << "\t\t" << playerColourValues[i].g << "\t\t" << playerColourValues[i].b;
+					}
+				}
+
 				commandOutput = tempSS.str();
 			}
 			else
 			{
-				commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork\trooms";
+				commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork\trooms\tcolors";
 			}
 		}
 
@@ -2180,6 +2195,56 @@ void ExampleFrameListener::executePromptCommand()
 			else
 			{
 				commandOutput = "ERROR:  Visual debugging only works when you are hosting a game.";
+			}
+		}
+
+		else if(command.compare("addcolor") == 0)
+		{
+			string tempString;
+
+			if(arguments.size() > 0)
+			{
+				double tempR, tempG, tempB;
+				tempSS.str(arguments);
+				tempSS >> tempR >> tempG >> tempB;
+				playerColourValues.push_back(ColourValue(tempR, tempG, tempB));
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << "Color number " << playerColourValues.size() << " added.";
+				commandOutput = tempSS.str();
+			}
+			else
+			{
+				commandOutput = "ERROR:  You need to specify and RGB triplet with values in (0.0, 1.0)";
+			}
+		}
+
+		else if(command.compare("setcolor") == 0)
+		{
+			string tempString;
+
+			if(arguments.size() > 0)
+			{
+				unsigned int index;
+				double tempR, tempG, tempB;
+				tempSS.str(arguments);
+				tempSS >> index >> tempR >> tempG >> tempB;
+				if(index < playerColourValues.size())
+				{
+					playerColourValues[index] = ColourValue(tempR, tempG, tempB);
+					tempString = "";
+					tempSS.str(tempString);
+					tempSS << "Color number " << index << " changed to " << tempR << "\t" << tempG << "\t" << tempB;
+					commandOutput = tempSS.str();
+				}
+
+			}
+			else
+			{
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << "ERROR:  You need to specify a color index between 0 and " << playerColourValues.size() << " and an RGB triplet with values in (0.0, 1.0)";
+				commandOutput = tempSS.str();
 			}
 		}
 

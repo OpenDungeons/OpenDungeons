@@ -818,13 +818,14 @@ Quarters	1
 
 
 5
-Skeleton	Skeleton.mesh	0.025	0.025	0.09	35	5	10	0	0.4
-Wyvern		Wyvern.mesh	0.15	0.15	0.15	27	10	15	0	1.3
-Knight		Knight.mesh	0.2	0.2	0.3	80	3	10	0	1.0
-Kobold		Kobold.mesh	0.15	0.15	0.15	20	6	15	20	2.5
-Dragon		Dragon.mesh	1.3	1.3	1.3	220	50	10	0	0.9
+Skeleton	Skeleton.mesh	1.0	1.0	1.0	35	5	10	0	0.4
+Wyvern	Wyvern.mesh	1.0	1.0	1.0	27	10	15	0	1.3
+Knight	Knight.mesh	1.0	1.0	1.0	80	3	10	0	1
+Kobold	Kobold.mesh	0.1	0.1	0.1	20	6	15	20	2.5
+Dragon	Dragon.mesh	1.0	1.0	1.0	220	50	10	0	0.9
 
-12
+13
+Dragon	Dragon_0000	7	5	0	2	none	none
 Knight	Knight_0000	7	7	0	2	none	none
 Knight	Knight_0001	-3	7	0	2	Longsword	none
 Knight	Knight_0002	3	7	0	2	none	none
@@ -837,3 +838,4 @@ Kobold	Kobold_0002	3	9	0	1	none	none
 Kobold	Kobold_0003	-5	9	0	2	none	none
 Kobold	Kobold_0004	5	9	0	2	none	none
 Kobold	Kobold_0005	-7	9	0	2	none	none
+
