@@ -16,6 +16,7 @@ double randomDouble(double min,double max);
 double gaussianRandomDouble();
 void seedRandomNumberGenerator();
 void swap(int &a, int &b);
+string colourizeMaterial(string materialName, int color);
 
 #endif
 

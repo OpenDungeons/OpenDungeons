@@ -34,6 +34,8 @@ double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double turnsPerSecond = 1.0;
 long int turnNumber = 1;
 
+vector<ColourValue> playerColourValues;
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
@@ -65,6 +67,11 @@ int main(int argc, char **argv)
 	sem_init(&serverNotificationQueueLockSemaphore, 0, 1);
 	sem_init(&clientNotificationQueueLockSemaphore, 0, 1);
 	sem_init(&creatureAISemaphore, 0, 1);
+
+	playerColourValues.push_back(ColourValue(1.0, 1.0, 1.0, 1.0));
+	playerColourValues.push_back(ColourValue(1.0, 0.0, 0.0, 1.0));
+	playerColourValues.push_back(ColourValue(0.0, 1.0, 0.0, 1.0));
+	playerColourValues.push_back(ColourValue(0.0, 0.0, 1.0, 1.0));
 
 	// Create application object
 	MapEditor app;

@@ -1,5 +1,6 @@
 #include <ctype.h>
 
+#include "Globals.h"
 #include "Functions.h"
 #include "Creature.h"
 
@@ -212,5 +213,83 @@ void swap(int &a, int &b)
 	int temp = a;
 	a = b;
 	b = temp;
+}
+
+string colourizeMaterial(string materialName, int color)
+{
+	string tempString;
+	stringstream tempSS;
+	HardwarePixelBufferSharedPtr tempPixBuf;
+	PixelBox tempPixelBox;
+	Technique *tempTechnique;
+	Pass *tempPass;
+	TextureUnitState *tempTextureUnitState;
+	TexturePtr tempTexture;
+	uint8 *pixelData;
+
+	tempSS.str(tempString);
+	tempSS << "Color_" << color << "_" << materialName;
+	MaterialPtr tempMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
+
+	cout << "\n\nCloning material:  " << tempSS.str();
+
+	// If this texture has not been copied and colorized yet then do so
+	if(tempMaterial.isNull())
+	{
+		cout << "   Material does not exist, creating a new one.";
+		//MaterialPtr newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().create(tempSS.str(), "manualMaterialsGroup"));
+		MaterialPtr newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialName))->clone(tempSS.str());
+
+		// Loop over the techniques for the new material
+		for(unsigned int j = 0; j < newMaterial->getNumTechniques(); j++)
+		{
+			tempTechnique = newMaterial->getTechnique(j);
+			// Loop over the passes for the current technique
+			for(unsigned int k = 0; k < tempTechnique->getNumPasses(); k++)
+			{
+				tempPass = tempTechnique->getPass(k);
+				// Loop over the TextureUnitStates for the current pass
+				for(unsigned int l = 0; l < tempPass->getNumTextureUnitStates(); l++)
+				{
+					// Get a pointer to the actual pixel data for this texture
+					tempTextureUnitState = tempPass->getTextureUnitState(l);
+					tempTexture = tempTextureUnitState->_getTexturePtr();
+					tempPixBuf = tempTexture->getBuffer();
+					tempPixBuf->lock(HardwareBuffer::HBL_NORMAL);
+					tempPixelBox = tempPixBuf->getCurrentLock();
+					pixelData = static_cast<uint8*>(tempPixelBox.data);
+
+					// Loop over the pixels themselves and change the bright pink ones to the given color
+					for(unsigned int x = 0; x < tempTexture->getWidth(); x++)
+					{
+						for(unsigned int y = 0; y < tempTexture->getHeight(); y++)
+						{
+							uint8 *blue = pixelData++;
+							uint8 *green = pixelData++;
+							uint8 *red = pixelData++;
+							uint8 *alpha = pixelData++;
+
+							// Check to see if the current pixel matches the target color
+							if(*blue == 255 && *green == 0 && *red == 255)
+							{
+								if(color < playerColourValues.size())
+								{
+									*blue = (uint8)(playerColourValues[color].b * 255);
+									*green = (uint8)(playerColourValues[color].g * 255);
+									*red = (uint8)(playerColourValues[color].r * 255);
+									*alpha = (uint8)(playerColourValues[color].a * 255);
+								}
+							}
+						}
+					}
+
+					tempPixBuf->unlock();
+				}
+			}
+		}
+	}
+
+	return tempSS.str();
+
 }
 
