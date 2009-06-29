@@ -35,7 +35,7 @@ Creature::Creature()
 	actionQueue.push_back(CreatureAction(CreatureAction::idle));
 }
 
-Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate)
+Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed)
 {
 	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	hasVisualDebuggingEntities = false;
@@ -49,7 +49,7 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	mana = nMana;
 	sightRadius = nSightRadius;
 	digRate = nDigRate;
-	moveSpeed = 1.0;
+	moveSpeed = nMoveSpeed;
 	tilePassability = Tile::walkableTile;
 
 	//currentTask = idle;
@@ -109,6 +109,7 @@ istream& operator>>(istream& is, Creature *c)
 		c->digRate = creatureClass->digRate;
 		c->hp = creatureClass->hp;
 		c->mana = creatureClass->mana;
+		c->moveSpeed = creatureClass->moveSpeed;
 	}
 
 	return is;

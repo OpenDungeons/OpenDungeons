@@ -10001,8 +10001,8 @@
 99	99	3	0
 
 2
-Skeleton	Skeleton.mesh	0.04	0.04	0.04	25	10	10	0
-Kobold	Kobold.mesh	0.1	0.1	0.1	25	11	10	25
+Skeleton	Skeleton.mesh	0.025	0.025	0.09	35	5	10	0	0.4
+Kobold		Kobold.mesh	0.15	0.15	0.15	20	6	15	20	2.5
 
 2
 Skeleton	skelly	31	36	0	1	none	none

@@ -68,14 +68,14 @@ void readGameMapFromFile(string fileName)
 		//NOTE: This code is duplicated in the client side method
 		//"addclass" defined in src/Client.cpp and writeGameMapToFile.
 		//Changes to this code should be reflected in that code as well
-		double tempX, tempY, tempZ, tempSightRadius, tempDigRate;
+		double tempX, tempY, tempZ, tempSightRadius, tempDigRate, tempMoveSpeed;
 		int tempHP, tempMana;
 		levelFile >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
 
 		levelFile >> tempHP >> tempMana;
-		levelFile >> tempSightRadius >> tempDigRate;
+		levelFile >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
 
-		Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate);
+		Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate, tempMoveSpeed);
 		gameMap.addClassDescription(p);
 	}
 
@@ -215,7 +215,18 @@ void swap(int &a, int &b)
 	b = temp;
 }
 
-string colourizeMaterial(string materialName, int color)
+void colourizeEntity(Entity *ent, int colour)
+{
+	// Colorize the the textures
+	// Loop over the sub entities in the mesh
+	for(unsigned int i = 0; i < ent->getNumSubEntities(); i++)
+	{
+		SubEntity *tempSubEntity = ent->getSubEntity(i);
+		tempSubEntity->setMaterialName(colourizeMaterial(tempSubEntity->getMaterialName(), colour));
+	}
+}
+
+string colourizeMaterial(string materialName, int colour)
 {
 	string tempString;
 	stringstream tempSS;
@@ -228,12 +239,12 @@ string colourizeMaterial(string materialName, int color)
 	uint8 *pixelData;
 
 	tempSS.str(tempString);
-	tempSS << "Color_" << color << "_" << materialName;
+	tempSS << "Color_" << colour << "_" << materialName;
 	MaterialPtr tempMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
 
 	cout << "\n\nCloning material:  " << tempSS.str();
 
-	// If this texture has not been copied and colorized yet then do so
+	// If this texture has not been copied and colourized yet then do so
 	if(tempMaterial.isNull())
 	{
 		cout << "   Material does not exist, creating a new one.";
@@ -259,7 +270,7 @@ string colourizeMaterial(string materialName, int color)
 					tempPixelBox = tempPixBuf->getCurrentLock();
 					pixelData = static_cast<uint8*>(tempPixelBox.data);
 
-					// Loop over the pixels themselves and change the bright pink ones to the given color
+					// Loop over the pixels themselves and change the bright pink ones to the given colour
 					for(unsigned int x = 0; x < tempTexture->getWidth(); x++)
 					{
 						for(unsigned int y = 0; y < tempTexture->getHeight(); y++)
@@ -269,15 +280,15 @@ string colourizeMaterial(string materialName, int color)
 							uint8 *red = pixelData++;
 							uint8 *alpha = pixelData++;
 
-							// Check to see if the current pixel matches the target color
+							// Check to see if the current pixel matches the target colour
 							if(*blue == 255 && *green == 0 && *red == 255)
 							{
-								if(color < playerColourValues.size())
+								if(colour < playerColourValues.size())
 								{
-									*blue = (uint8)(playerColourValues[color].b * 255);
-									*green = (uint8)(playerColourValues[color].g * 255);
-									*red = (uint8)(playerColourValues[color].r * 255);
-									*alpha = (uint8)(playerColourValues[color].a * 255);
+									*blue = (uint8)(playerColourValues[colour].b * 255);
+									*green = (uint8)(playerColourValues[colour].g * 255);
+									*red = (uint8)(playerColourValues[colour].r * 255);
+									*alpha = (uint8)(playerColourValues[colour].a * 255);
 								}
 							}
 						}

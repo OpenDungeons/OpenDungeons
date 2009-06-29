@@ -421,13 +421,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
 
-				// Colorize the the textures
-				// Loop over the sub entities in the mesh
-				for(unsigned int i = 0; i < ent->getNumSubEntities(); i++)
-				{
-					tempSubEntity = ent->getSubEntity(i);
-					tempSubEntity->setMaterialName(colourizeMaterial(tempSubEntity->getMaterialName(), curCreature->color));
-				}
+				colourizeEntity(ent, curCreature->color);
 
 				if(ent->hasSkeleton())
 				{
@@ -658,7 +652,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		// Advance the animation
 		if(currentCreature->animationState != NULL)
-			currentCreature->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame);
+			currentCreature->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame * currentCreature->moveSpeed);
 
 		// Move the creature
 		if(currentCreature->walkQueue.size() > 0)
@@ -1897,12 +1891,12 @@ void ExampleFrameListener::executePromptCommand()
 			{
 				//FIXME: this code should be standardaized with the equivalent code in readGameMapFromFile()
 				// This will require making CreatureClass a base class of Creature
-				double tempX, tempY, tempZ, tempSightRadius, tempDigRate;
+				double tempX, tempY, tempZ, tempSightRadius, tempDigRate, tempMoveSpeed;
 				int tempHP, tempMana;
 				string tempString, tempString2;
 				tempSS.str(arguments);
-				tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ >> tempHP >> tempMana >> tempSightRadius >> tempDigRate;
-				Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate);
+				tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ >> tempHP >> tempMana >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
+				Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate, tempMoveSpeed);
 				gameMap.addClassDescription(p);
 			}
 
@@ -1928,14 +1922,14 @@ void ExampleFrameListener::executePromptCommand()
 
 				else if(arguments.compare("classes") == 0)
 				{
-					tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\n\n";
+					tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
 					for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 					{
 						Creature *currentClassDesc = gameMap.getClassDescription(i);
 						tempSS << currentClassDesc->className << "\t" << currentClassDesc->meshName << "\t";
 						tempSS << currentClassDesc->scale << "\t" << currentClassDesc->hp << "\t";
 						tempSS << currentClassDesc->mana << "\t" << currentClassDesc->sightRadius << "\t";
-						tempSS << currentClassDesc->digRate << "\n";
+						tempSS << currentClassDesc->digRate << "\t" << currentClassDesc->moveSpeed << "\n";
 					}
 				}
 
@@ -1952,12 +1946,26 @@ void ExampleFrameListener::executePromptCommand()
 
 				else if(arguments.compare("network") == 0)
 				{
-					tempSS << "Not implemented yet.";
+					if(clientSocket != NULL)
+					{
+						tempSS << "You are currently connected to a server.";
+					}
+
+					if(serverSocket != NULL)
+					{
+						tempSS << "You are currently acting as a server.";
+					}
 				}
 
 				else if(arguments.compare("rooms") == 0)
 				{
-					tempSS << "Not implemented yet.";
+					tempSS << "Name:\tColor:\tNum tiles:\n\n";
+					for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+					{
+						Room *currentRoom;
+						currentRoom = gameMap.getRoom(i);
+						tempSS << currentRoom->name << "\t" << currentRoom->color << "\t" << currentRoom->numCoveredTiles() << "\n";
+					}
 				}
 
 				commandOutput = tempSS.str();

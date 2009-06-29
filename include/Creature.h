@@ -24,18 +24,9 @@ class Creature
 	public:
 		// Constructors and operators
 		Creature();
-		Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate);
+		Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed);
 		friend ostream& operator<<(ostream& os, Creature *c);
 		friend istream& operator>>(istream& is, Creature *c);
-
-		// Object methods
-		void createMesh();
-		void destroyMesh();
-		void deleteYourself();
-		void setPosition(double x, double y, double z);
-		void setPosition(Ogre::Vector3 v);
-		Ogre::Vector3 getPosition();
-		virtual void doTurn();
 
 		// Class properties
 		string className;
@@ -50,18 +41,20 @@ class Creature
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
 		int hp, mana;			// Basic stats
-		double moveSpeed;		//FIXME:  This is not set from file yet.
+		double moveSpeed;		// How fast the creature moves and animates
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.
 		sem_t meshCreationFinishedSemaphore;
 
-		// Visual debugging routines
-		void createVisualDebugEntities();
-		void destroyVisualDebugEntities();
-		bool getHasVisualDebuggingEntities();
+		// Object methods
+		void createMesh();
+		void destroyMesh();
+		void deleteYourself();
+		void setPosition(double x, double y, double z);
+		void setPosition(Ogre::Vector3 v);
+		Ogre::Vector3 getPosition();
+		virtual void doTurn();
 
 		// AI stuff
-		//enum Action {idle, walkTo, dig};
-		//Action currentTask;
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
 		vector<Creature*> getVisibleEnemies();
@@ -76,6 +69,11 @@ class Creature
 		void clearDestinations();
 		void stopWalking();
 		Player* getControllingPlayer();
+
+		// Visual debugging routines
+		void createVisualDebugEntities();
+		void destroyVisualDebugEntities();
+		bool getHasVisualDebuggingEntities();
 
 	private:
 		deque<CreatureAction> actionQueue;

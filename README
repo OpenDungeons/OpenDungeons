@@ -18,6 +18,10 @@ To build on windows you will need to link against the following libraries:
 *  CEGUI SDK
 *  pthreads-win32
 
+-----  Building under visual studio  -----
+OVisual studio project and solution files can be automatically generated using the 'cmake' program.
+
+-----  Building under mingw  -----
 There is a makefile provided for the mingw compiler.  Since the library paths
 depend on where you install them to, you may need to edit the makefile slightly
 (start with the WINEDIR variable).  To build using mingw do the following
