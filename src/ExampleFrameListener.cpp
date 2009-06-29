@@ -370,9 +370,10 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				tempString = "";
 				tempSS.str(tempString);
 				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
-				ent = mSceneMgr->createEntity(tempSS.str(), curRoom->meshName);
+				ent = mSceneMgr->createEntity(tempSS.str(), curRoom->meshName + ".mesh");
 				node = roomSceneNode->createChildSceneNode(tempSS.str() + "_node");
-				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.05));
+				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.0));
+				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
 				ent->setNormaliseNormals(true);
 				node->attachObject(ent);
 				break;
@@ -1878,11 +1879,16 @@ void ExampleFrameListener::executePromptCommand()
 					tempSS << "Not implemented yet.";
 				}
 
+				else if(arguments.compare("rooms") == 0)
+				{
+					tempSS << "Not implemented yet.";
+				}
+
 				commandOutput = tempSS.str();
 			}
 			else
 			{
-				commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork";
+				commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork\trooms";
 			}
 		}
 

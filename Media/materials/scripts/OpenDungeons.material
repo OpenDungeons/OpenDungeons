@@ -260,3 +260,28 @@ material Material.001/TEXFACE/Knight_sword.png
 		}
 	}
 }
+material Quarters/TEXFACE/Quarters.png
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.566959 0.566959 0.566959 1.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture Quarters.png
+				colour_op modulate
+			}
+		}
+		pass
+		{
+			ambient 0.0 0.0 0.0
+			diffuse 0.0 0.0 0.0
+			specular 0.032882 0.049157 0.063193 1.000000 0.250000
+			scene_blend add
+		}
+	}
+}

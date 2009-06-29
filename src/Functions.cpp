@@ -20,6 +20,7 @@ void readGameMapFromFile(string fileName)
 	gameMap.clearAll();
 
 	Tile *tempTile;
+	Room *tempRoom;
 	string tempString, tempString2;
 	Creature tempCreature;
 	int objectsToLoad;
@@ -47,6 +48,16 @@ void readGameMapFromFile(string fileName)
 	{
 		itr->second->setFullness( itr->second->getFullness() );
 		itr++;
+	}
+
+	// Read in the rooms
+	levelFile >> objectsToLoad;
+	for(int i = 0; i < objectsToLoad; i++)
+	{
+		tempRoom = new Room;
+		levelFile >> tempRoom;
+
+		gameMap.addRoom(tempRoom);
 	}
 
 	// Read in the creature class descriptions
@@ -108,11 +119,17 @@ void writeGameMapToFile(string fileName)
 		itr++;
 	}
 
+	// Write out the rooms to the file
+	levelFile << "\n" << gameMap.numRooms() << "\n";
+	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+	{
+		levelFile << gameMap.getRoom(i) << endl;
+	}
+
 	// Write out the creature descriptions to the file
 	levelFile << "\n" << gameMap.numClassDescriptions() << "\n";
 	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 	{
-		
 		//NOTE: This code is duplicated in the client side method
 		//"addclass" defined in src/Client.cpp and readGameMapFromFile.
 		//Changes to this code should be reflected in that code as well

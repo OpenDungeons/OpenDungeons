@@ -83,3 +83,45 @@ void Room::deleteYourself()
 	sem_post(&renderQueueSemaphore);
 }
 
+istream& operator>>(istream& is, Room *r)
+{
+	static int uniqueNumber = 1;
+	int tilesToLoad, tempX, tempY;
+	string tempString;
+	stringstream tempSS;
+
+	is >> r->meshName >> r->color;
+
+	tempString = "";
+	tempSS.str(tempString);
+	tempSS << r->meshName << "_" << uniqueNumber;
+	uniqueNumber++;
+	r->name = tempSS.str();
+
+	is >> tilesToLoad;
+	for(int i = 0; i < tilesToLoad; i++)
+	{
+		is >> tempX >> tempY;
+		Tile *tempTile = gameMap.getTile(tempX, tempY);
+		if(tempTile != NULL)
+		{
+			r->addCoveredTile(tempTile);
+		}
+	}
+	
+	return is;
+}
+
+ostream& operator<<(ostream& os, Room *r)
+{
+	os << r->meshName << "\t" << r->color << "\n";
+	os << r->coveredTiles.size() << "\n";
+	for(unsigned int i = 0; i < r->coveredTiles.size(); i++)
+	{
+		Tile *tempTile = r->coveredTiles[i];
+		os << tempTile->x << "\t" << tempTile->y << "\n";
+	}
+
+	return os;
+}
+

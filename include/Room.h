@@ -11,7 +11,10 @@ using namespace std;
 class Room
 {
 	public:
+		// Constructors and operators
 		Room();
+		friend ostream& operator<<(ostream& os, Room *r);
+		friend istream& operator>>(istream& is, Room *r);
 
 		void addCoveredTile(Tile* t);
 		void removeCoveredTile(Tile* t);
@@ -26,6 +29,7 @@ class Room
 		int HP;
 		Player *controllingPlayer;
 		string name, meshName;
+		int color;
 		
 	private:
 		vector<Tile*> coveredTiles;
