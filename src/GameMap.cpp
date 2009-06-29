@@ -331,8 +331,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	currentEntry->parent = NULL;
 	currentEntry->g = 0.0;
 	// Use the manhattan distance for the heuristic
-	// FIXME:  This is not the only place the heuristic is calculated
-	currentEntry->h = fabs((double)(x2-x1)) + fabs((double)(y2-y1));
+	currentEntry->setHeuristic(x1, y1, x2, y2);
 	openList.push_back(currentEntry);
 
 	bool pathFound = false;
@@ -436,8 +435,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 							neighbor->g = currentEntry->g + 1;
 
 							// Use the manhattan distance for the heuristic
-							// FIXME:  This is not the only place the heuristic is calculated
-							neighbor->h = fabs((double)(x2-neighbor->tile->x)) + fabs((double)(y2-neighbor->tile->y));
+							currentEntry->setHeuristic(x1, y1, neighbor->tile->x, neighbor->tile->y);
 							neighbor->parent = currentEntry;
 
 							openList.push_back(new astarEntry(*neighbor));

@@ -82,6 +82,10 @@ class astarEntry
 		astarEntry *parent;
 		double g, h;
 		double fCost()	{return g+h;}
+		void setHeuristic(int x1, int y1, int x2, int y2)
+		{
+			h = fabs((double)(x2-x1)) + fabs((double)(y2-y1));
+		}
 };
 
 #endif

@@ -14,6 +14,7 @@ BUGS:
 *  when the terminal becomes active if a key is held down the keyup message gets caught by the terminal and the key is "stuck" down.
 *  Client and server need to negiotiate and set a color for the newly connected client.
 *  Visual debugging entities for creatures dissappear after a short time.
+*  Terminal command 'load' will probably crash the game if given a non-existant level name.
 
 
 
