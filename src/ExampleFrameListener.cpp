@@ -292,13 +292,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// Process the queue of render tasks from the other threads
 	while(renderQueue.size() > 0)
 	{
-		char array[255];
 		char meshName[255];
 		string tempString;
 		stringstream tempSS;
 		string tileTypeString;
 		Entity *ent, *weaponL, *weaponR;
-		SceneNode *node, *weaponLNode, *weaponRNode;
+		SceneNode *node;
 		Bone *weaponLBone, *weaponRBone;
 		Node *tempNode;
 		Ogre::Matrix3 boneRot;
@@ -322,19 +321,19 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		{
 			case RenderRequest::refreshTile:
 				curTile = (Tile*)curReq->p;
-				if(mSceneMgr->hasSceneNode( (curTile->name + "_node").c_str() ) )
+				if(mSceneMgr->hasSceneNode(curTile->name + "_node"))
 				{
 					// Unlink and delete the old mesh
-					mSceneMgr->getSceneNode( (curTile->name + "_node").c_str() )->detachObject(curTile->name.c_str());
-					mSceneMgr->destroyEntity(curTile->name.c_str());
+					mSceneMgr->getSceneNode(curTile->name + "_node")->detachObject(curTile->name);
+					mSceneMgr->destroyEntity(curTile->name);
 
 					// Create the new mesh
 					string tileTypeString = Tile::tileTypeToString(curTile->getType());
 					sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
-					ent = mSceneMgr->createEntity(curTile->name.c_str(), meshName);
+					ent = mSceneMgr->createEntity(curTile->name, meshName);
 
 					// Link the tile mesh back to the relevant scene node so OGRE will render it
-					mSceneMgr->getSceneNode((curTile->name + "_node").c_str())->attachObject(ent);
+					mSceneMgr->getSceneNode(curTile->name + "_node")->attachObject(ent);
 					ent->setNormaliseNormals(true);
 				}
 				break;
@@ -344,10 +343,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				tileTypeString = Tile::tileTypeToString(curTile->getType());
 
 				sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
-				ent = mSceneMgr->createEntity(curTile->name.c_str(), meshName);
+				ent = mSceneMgr->createEntity(curTile->name, meshName);
 
-				sprintf(array, "%s_node", curTile->name.c_str());
-				node = mSceneMgr->getRootSceneNode()->createChildSceneNode(array);
+				node = mSceneMgr->getRootSceneNode()->createChildSceneNode(curTile->name + "_node");
 				//node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
 				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
@@ -358,16 +356,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 			case RenderRequest::destroyTile:
 				curTile = (Tile*)curReq->p;
-				if(mSceneMgr->hasEntity(curTile->name.c_str()))
+				if(mSceneMgr->hasEntity(curTile->name))
 				{
-					//cout << "\nDestroying tile: (" << curTile->x << ", " << curTile->y << ")";
-					//cout.flush();
-
-					ent = mSceneMgr->getEntity(curTile->name.c_str());
-					node = mSceneMgr->getSceneNode((curTile->name + "_node").c_str());
-					//mSceneMgr->getRootSceneNode()->detachObject((curTile->name + "_node").c_str());
+					ent = mSceneMgr->getEntity(curTile->name);
+					node = mSceneMgr->getSceneNode(curTile->name + "_node");
 					node->detachAllObjects();
-					mSceneMgr->destroySceneNode((curTile->name + "_node").c_str());
+					mSceneMgr->destroySceneNode(curTile->name + "_node");
 					mSceneMgr->destroyEntity(ent);
 				}
 				break;
@@ -446,13 +440,27 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 			case RenderRequest::destroyCreature:
 				curCreature = (Creature*)curReq->p;
-				if(mSceneMgr->hasEntity( ("Creature_" + curCreature->name).c_str() ))
+				if(mSceneMgr->hasEntity("Creature_" + curCreature->name))
 				{
+					if(curCreature->weaponL.compare("none") != 0)
+					{
+						ent = mSceneMgr->getEntity("Creature_weaponL_" + curCreature->name);
+						//ent->getParentNode()->removeChild("Creature_weaponL_" + curCreature->name);
+						mSceneMgr->destroyEntity(ent);
+					}
+
+					if(curCreature->weaponR.compare("none") != 0)
+					{
+						ent = mSceneMgr->getEntity("Creature_weaponR_" + curCreature->name);
+						//ent->getParentNode()->removeChild("Creature_weaponR_" + curCreature->name);
+						mSceneMgr->destroyEntity(ent);
+					}
+
 					ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
 					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
-					node->detachObject( ent );
-					creatureSceneNode->removeChild( node );
-					mSceneMgr->destroyEntity( ent );
+					node->detachObject(ent);
+					creatureSceneNode->removeChild(node);
+					mSceneMgr->destroyEntity(ent);
 					mSceneMgr->destroySceneNode(curCreature->name + "_node");
 				}
 				break;
@@ -506,7 +514,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					tempString = "";
 					tempSS.str(tempString);
-					tempSS << "Creature_vision_" << curCreature->name.c_str() << "_" << curTile->x << "_" << curTile->y;
+					tempSS << "Creature_vision_" << curCreature->name << "_" << curTile->x << "_" << curTile->y;
 
 					ent = mSceneMgr->createEntity( tempSS.str(), "Cre_vision_indicator.mesh");
 					node = creatureSceneNode->createChildSceneNode( tempSS.str() + "_node" );
@@ -523,7 +531,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				tempString = "";
 				tempSS.str(tempString);
-				tempSS << "Creature_vision_" << curCreature->name.c_str() << "_" << curTile->x << "_" << curTile->y;
+				tempSS << "Creature_vision_" << curCreature->name << "_" << curTile->x << "_" << curTile->y;
 
 				//cout << "\ntrying to Destroy visdebug:  " << meshName;
 				//cout.flush();
@@ -546,9 +554,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature = (Creature*)curReq->p;
 				ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
 
-				if(ent->hasSkeleton() && ent->getSkeleton()->hasAnimation(curReq->str.c_str()))
+				if(ent->hasSkeleton() && ent->getSkeleton()->hasAnimation(curReq->str))
 				{
-					curCreature->animationState = ent->getAnimationState(curReq->str.c_str());
+					curCreature->animationState = ent->getAnimationState(curReq->str);
 					curCreature->animationState->setLoop(true);
 					curCreature->animationState->setEnabled(true);
 				}
@@ -605,10 +613,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// Fill up the chat window with the arrival time and contents of all the chat messages left in the queue.
 	for(unsigned int i = 0; i < chatMessages.size(); i++)
 	{
-		char tempArray[255];
 		struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
-		sprintf(tempArray, "%i:%02i:%02i  %s: %s", friendlyTime->tm_hour, friendlyTime->tm_min, friendlyTime->tm_sec, chatMessages[i]->clientNick.c_str(), chatMessages[i]->message.c_str());
-		chatString += (string)tempArray + "\n";
+		string tempString = "";
+		stringstream tempSS(tempString);
+		tempSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":" << friendlyTime->tm_sec << "  " << chatMessages[i]->clientNick << chatMessages[i]->message;
+		chatString += tempSS.str() + "\n";
 	}
 
 	// Display the termianl, the current turn number, and the
@@ -1169,6 +1178,8 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 {
 	using namespace OIS;
 	char tempArray[255];
+	string tempString;
+	stringstream tempSS;
 
 	CEGUI::System *sys = CEGUI::System::getSingletonPtr();
 	sys->injectKeyDown(arg.key);
@@ -1250,8 +1261,10 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				if(serverSocket == NULL && clientSocket == NULL)
 				{
 					mCurrentTileType = Tile::nextTileType(mCurrentTileType);
-					sprintf(tempArray, "Tile type:  %s", Tile::tileTypeToString(mCurrentTileType).c_str());
-					MOTD = tempArray;
+					tempString = "";
+					tempSS.str(tempString);
+					tempSS << "Tile type:  " << Tile::tileTypeToString(mCurrentTileType);
+					MOTD = tempSS.str();
 				}
 				break;
 
@@ -1580,15 +1593,16 @@ void ExampleFrameListener::executePromptCommand()
 		{
 			if(arguments.size() > 0)
 			{
+				//FIXME:  This will likely crash if a non-existant level name is given
 				gameMap.clearAll();
 
-				string tempString;
-				char tempArray[255];
-				tempString = "Media/levels/" + arguments + ".level";
+				string tempString = "Media/levels/" + arguments + ".level";
 				readGameMapFromFile(tempString);
 
-				sprintf(tempArray, "Successfully loaded file:  %s\nNum tiles:  %i\nNum class descriptions:  %i\nNum creatures:  %i", tempString.c_str(), gameMap.numTiles(), gameMap.numClassDescriptions(), gameMap.numCreatures());
-				commandOutput = tempArray;
+				string tempString2 = "";
+				stringstream tempSS(tempString2);
+				tempSS << "Successfully loaded file:  " << tempString << "\nNum tiles:  " << gameMap.numTiles() << "\nNum classes:  " << gameMap.numClassDescriptions() << "\nNum creatures:  " << gameMap.numCreatures();
+				commandOutput = tempSS.str();
 
 				gameMap.createAllEntities();
 			}
@@ -1859,7 +1873,7 @@ void ExampleFrameListener::executePromptCommand()
 					gameMap.addCreature(tempCreature);
 
 					// Create the mesh and SceneNode for the new creature
-					Entity *ent = mSceneMgr->createEntity( ("Creature_" + tempCreature->name).c_str(), tempCreature->meshName.c_str());
+					Entity *ent = mSceneMgr->createEntity("Creature_" + tempCreature->name, tempCreature->meshName);
 					SceneNode *node = creatureSceneNode->createChildSceneNode(tempCreature->name + "_node");
 					//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
 					node->setPosition(tempCreature->getPosition());
@@ -1964,18 +1978,23 @@ void ExampleFrameListener::executePromptCommand()
 		// Set your nickname
 		else if(command.compare("nick") == 0)
 		{
-			char tempArray[255];
+			string tempString;
 			if(arguments.size() > 0)
 			{
 				tempSS.str(arguments);
 				tempSS >> gameMap.me->nick;
-				sprintf(tempArray, "Nickname set to %s", gameMap.me->nick.c_str());
-				commandOutput = tempArray;
+
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << "Nickname set to:  " << gameMap.me->nick;
+				commandOutput = tempSS.str();
 			}
 			else
 			{
-				sprintf(tempArray, "Current nickname is %s", gameMap.me->nick.c_str());
-				commandOutput = tempArray;
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << "Nickname set to:  " << gameMap.me->nick;
+				commandOutput = tempSS.str();
 			}
 		}
 

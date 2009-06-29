@@ -348,7 +348,7 @@ void *clientHandlerThread(void *p)
 		// If the client closed the connection
 		if(charsRead <= 0)
 		{
-			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client disconnect: " + clientNick, time(NULL)));
+			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION: ", "Client disconnect: " + clientNick, time(NULL)));
 			break;
 		}
 
@@ -374,7 +374,7 @@ void *clientHandlerThread(void *p)
 		if(clientCommand.compare("hello") == 0)
 		{
 			stringstream tempSS;
-			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client connect with version: " + arguments, time(NULL)));
+			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION: ", "Client connect with version: " + arguments, time(NULL)));
 
 			// Tell the client to give us their nickname and to clear their map
 			sem_wait(&curSock->semaphore);
@@ -385,7 +385,7 @@ void *clientHandlerThread(void *p)
 			//TODO:  verify that this really is true
 			curSock->recv(tempString);
 			parseCommand(tempString, tempString2, clientNick);
-			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION", "Client nick is: " + clientNick, time(NULL)));
+			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION: ", "Client nick is: " + clientNick, time(NULL)));
 
 			// Create a player structure for the client
 			//TODO:  negotiate and set a color
