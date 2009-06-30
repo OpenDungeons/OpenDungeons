@@ -44,6 +44,7 @@ class Creature
 		double moveSpeed;		// How fast the creature moves and animates
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.
 		sem_t meshCreationFinishedSemaphore;
+		sem_t meshDestructionFinishedSemaphore;
 
 		// Object methods
 		void createMesh();

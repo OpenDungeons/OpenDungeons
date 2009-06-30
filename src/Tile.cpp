@@ -11,6 +11,8 @@ Tile::Tile()
 	type = dirt;
 	setFullness(100);
 	rotation = 0.0;
+	sem_init(&meshCreationFinishedSemaphore, 0, 0);
+	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 }
 
 Tile::Tile(int nX, int nY, TileType nType, int nFullness)
@@ -21,6 +23,8 @@ Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 	y = nY;
 	setType(nType);
 	setFullness(nFullness);
+	sem_init(&meshCreationFinishedSemaphore, 0, 0);
+	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 }
 
 /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
@@ -205,7 +209,7 @@ istream& operator>>(istream& is, Tile *t)
 
 	is >> xLocation >> yLocation;
 	t->location = Ogre::Vector3(xLocation, yLocation, 0);
-	sprintf(tempCellName, "Level_%3i_%3i", xLocation, yLocation);
+	snprintf(tempCellName, sizeof(tempCellName), "Level_%3i_%3i", xLocation, yLocation);
 	t->name = tempCellName;
 	t->x = xLocation;
 	t->y = yLocation;
@@ -340,6 +344,9 @@ void Tile::createMesh()
 
 	//FIXME:  this refreshMesh is a test to see if it fixes the hidden tiles bug at load time.
 	refreshMesh();
+
+	//FIXME:  This wait needs to happen however it currently causes the program to lock up because this function is called from the rendering thread which causes that thread to wait on itself
+	//sem_wait(&meshCreationFinishedSemaphore);
 }
 
 /*! \brief This function puts a message in the renderQueue to unload the mesh for this tile.
@@ -354,6 +361,9 @@ void Tile::destroyMesh()
 	sem_wait(&renderQueueSemaphore);
 	renderQueue.push_back(request);
 	sem_post(&renderQueueSemaphore);
+
+	//FIXME:  This wait needs to happen however it currently causes the program to lock up because this function is called from the rendering thread which causes that thread to wait on itself
+	//sem_wait(&meshDestructionFinishedSemaphore);
 }
 
 /*! \brief This function marks the tile as being selected through a mouse click or drag.
@@ -366,14 +376,14 @@ void Tile::setSelected(bool s)
 	char tempString2[255];
 
 	//FIXME:  This code should probably only execute if it needs to for speed reasons.
-	sprintf(tempString, "Level_%3i_%3i_selection_indicator", x, y);
+	snprintf(tempString, sizeof(tempString), "Level_%3i_%3i_selection_indicator", x, y);
 	if(mSceneMgr->hasEntity(tempString))
 	{
 		ent = mSceneMgr->getEntity(tempString);
 	}
 	else
 	{
-		sprintf(tempString2, "Level_%3i_%3i_node", x, y);
+		snprintf(tempString2, sizeof(tempString2), "Level_%3i_%3i_node", x, y);
 		SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
 
 		ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
@@ -420,14 +430,14 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 		{
 			//FIXME:  This code should probably only execute if it needs to for speed reasons.
 			//FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
-			sprintf(tempString, "Level_%i_%i_selection_indicator", x, y);
+			snprintf(tempString, sizeof(tempString), "Level_%i_%i_selection_indicator", x, y);
 			if(mSceneMgr->hasEntity(tempString))
 			{
 				ent = mSceneMgr->getEntity(tempString);
 			}
 			else
 			{
-				sprintf(tempString2, "Level_%3i_%3i_node", x, y);
+				snprintf(tempString2, sizeof(tempString2), "Level_%3i_%3i_node", x, y);
 				SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
 
 				ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");

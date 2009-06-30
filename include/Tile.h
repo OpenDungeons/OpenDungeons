@@ -72,6 +72,8 @@ class Tile
 		vector<Tile*> neighbors;
 		double rotation;
 		string name;
+		sem_t meshCreationFinishedSemaphore;
+		sem_t meshDestructionFinishedSemaphore;
 
 		friend ostream& operator<<(ostream& os, Tile *t);
 		friend istream& operator>>(istream& is, Tile *t);

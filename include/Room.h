@@ -30,6 +30,8 @@ class Room
 		Player *controllingPlayer;
 		string name, meshName;
 		int color;
+		sem_t meshCreationFinishedSemaphore;
+		sem_t meshDestructionFinishedSemaphore;
 		
 	private:
 		vector<Tile*> coveredTiles;

@@ -331,7 +331,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					// Create the new mesh
 					string tileTypeString = Tile::tileTypeToString(curTile->getType());
-					sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
+					snprintf(meshName, sizeof(meshName), "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
 					ent = mSceneMgr->createEntity(curTile->name, meshName);
 
 					// Link the tile mesh back to the relevant scene node so OGRE will render it
@@ -344,7 +344,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curTile = (Tile*)curReq->p;
 				tileTypeString = Tile::tileTypeToString(curTile->getType());
 
-				sprintf(meshName, "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
+				snprintf(meshName, sizeof(meshName), "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
 				ent = mSceneMgr->createEntity(curTile->name, meshName);
 
 				node = mSceneMgr->getRootSceneNode()->createChildSceneNode(curTile->name + "_node");
@@ -382,6 +382,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
 				ent->setNormaliseNormals(true);
 				node->attachObject(ent);
+				sem_post(&curRoom->meshCreationFinishedSemaphore);
 				break;
 
 			case RenderRequest::destroyRoom:
@@ -400,6 +401,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->destroyEntity(ent);
 					mSceneMgr->destroySceneNode(tempSS.str() + "_node");
 				}
+				sem_post(&curRoom->meshDestructionFinishedSemaphore);
 				break;
 
 			case RenderRequest::deleteRoom:
@@ -493,6 +495,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->destroyEntity(ent);
 					mSceneMgr->destroySceneNode(curCreature->name + "_node");
 				}
+				sem_post(&curCreature->meshDestructionFinishedSemaphore);
 				break;
 
 			case RenderRequest::pickUpCreature:
@@ -621,7 +624,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// Only keep the N newest chat messages of the ones that remain
-	while(chatMessages.size() > 5)
+	while(chatMessages.size() > 10)
 	{
 		delete chatMessages.front();
 		chatMessages.pop_front();
@@ -633,7 +636,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
 		string tempString = "";
 		stringstream tempSS(tempString);
-		tempSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":" << friendlyTime->tm_sec << "  " << chatMessages[i]->clientNick << chatMessages[i]->message;
+		tempSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":" << friendlyTime->tm_sec << "  " << chatMessages[i]->clientNick << ":  " << chatMessages[i]->message;
 		chatString += tempSS.str() + "\n";
 	}
 
@@ -641,7 +644,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// visible chat messages at the top of the screen
 	string nullString = "";
 	char turnArray[255];
-	sprintf(turnArray, "Turn number:  %li", turnNumber);
+	snprintf(turnArray, sizeof(turnArray), "Turn number:  %li", turnNumber);
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnArray + "\n" + (chatMessages.size()>0?chatString:nullString));
 
 	if(mWindow->isClosed())	return false;
@@ -858,7 +861,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 				{
 					//currentTile = new Tile;
 					char tempArray[255];
-					sprintf(tempArray, "Level_%3i_%3i", xPos + i, yPos + j);
+					snprintf(tempArray, sizeof(tempArray), "Level_%3i_%3i", xPos + i, yPos + j);
 					currentTile = new Tile(xPos + i, yPos + j, mCurrentTileType, mCurrentFullness);
 					currentTile->name = tempArray;
 					gameMap.addTile(currentTile);
@@ -1273,7 +1276,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 						mCurrentTileRadius--;
 					}
 
-					sprintf(tempArray, "Tile type:  %i", mCurrentTileRadius);
+					snprintf(tempArray, sizeof(tempArray), "Tile type:  %i", mCurrentTileRadius);
 					MOTD = tempArray;
 				}
 				break;
@@ -1287,7 +1290,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 						mCurrentTileRadius++;
 					}
 
-					sprintf(tempArray, "Tile type:  %i", mCurrentTileRadius);
+					snprintf(tempArray, sizeof(tempArray), "Tile type:  %i", mCurrentTileRadius);
 					MOTD = tempArray;
 				}
 				break;
@@ -1299,11 +1302,11 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 					mBrushMode = !mBrushMode;
 					if(mBrushMode)
 					{
-						sprintf(tempArray, "Brush mode turned on");
+						snprintf(tempArray, sizeof(tempArray), "Brush mode turned on");
 					}
 					else
 					{
-						sprintf(tempArray, "Brush mode turned off");
+						snprintf(tempArray, sizeof(tempArray), "Brush mode turned off");
 					}
 
 					MOTD = tempArray;
@@ -1315,7 +1318,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				if(serverSocket == NULL && clientSocket == NULL)
 				{
 					mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
-					sprintf(tempArray, "Tile fullness:  %i", mCurrentFullness);
+					snprintf(tempArray, sizeof(tempArray), "Tile fullness:  %i", mCurrentFullness);
 					MOTD = tempArray;
 				}
 				break;
@@ -1619,14 +1622,14 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS.str(arguments);
 				tempSS >> tempR >> tempG >> tempB;
 				mSceneMgr->setAmbientLight(ColourValue(tempR,tempG,tempB));
-				sprintf(tempArray, "Abmbient light set to:\nRed:  %lf/1.0    Green:  %lf/1.0    Blue:  %lf/1.0", tempR, tempG, tempB);
+				snprintf(tempArray, sizeof(tempArray), "Abmbient light set to:\nRed:  %lf/1.0    Green:  %lf/1.0    Blue:  %lf/1.0", tempR, tempG, tempB);
 				commandOutput = tempArray;
 
 			}
 			else
 			{
 				ColourValue curLight = mSceneMgr->getAmbientLight();
-				sprintf(tempArray, "Current Ambient Light:\nRed:  %f/1.0    Green:  %f/1.0    Blue:  %f/1.0", curLight.r, curLight.g, curLight.b);
+				snprintf(tempArray, sizeof(tempArray), "Current Ambient Light:\nRed:  %f/1.0    Green:  %f/1.0    Blue:  %f/1.0", curLight.r, curLight.g, curLight.b);
 				commandOutput = tempArray;
 			}
 		}
@@ -1658,7 +1661,7 @@ void ExampleFrameListener::executePromptCommand()
 			for(int i = 0; i < maxWidth/10; i++)
 			{
 				char tempArray[255];
-				sprintf(tempArray, "         %i", i+1);
+				snprintf(tempArray, sizeof(tempArray), "         %i", i+1);
 				commandOutput += tempArray;
 			}
 
@@ -1687,7 +1690,7 @@ void ExampleFrameListener::executePromptCommand()
 			yMin = min(y1,y2);
 			yMax = max(y1, y2);
 
-			sprintf(tempArray, "Creating tiles for region:\n\n\t(%i, %i)\tto\t(%i, %i)", xMin, yMin, xMax, yMax);
+			snprintf(tempArray, sizeof(tempArray), "Creating tiles for region:\n\n\t(%i, %i)\tto\t(%i, %i)", xMin, yMin, xMax, yMax);
 
 			for(int j = yMin; j < yMax; j++)
 			{
@@ -1697,7 +1700,7 @@ void ExampleFrameListener::executePromptCommand()
 					{
 
 						char tempArray[255];
-						sprintf(tempArray, "Level_%3i_%3i", i, j);
+						snprintf(tempArray, sizeof(tempArray), "Level_%3i_%3i", i, j);
 						Tile *t = new Tile(i, j, Tile::dirt, 100);
 						t->name = tempArray;
 						gameMap.addTile(t);
@@ -1717,12 +1720,12 @@ void ExampleFrameListener::executePromptCommand()
 			{
 				tempSS.str(arguments);
 				tempSS >> mMoveSpeed;
-				sprintf(tempArray, "movespeed set to %lf", mMoveSpeed);
+				snprintf(tempArray, sizeof(tempArray), "movespeed set to %lf", mMoveSpeed);
 				commandOutput = tempArray;
 			}
 			else
 			{
-				sprintf(tempArray, "Current movespeed is %lf", mMoveSpeed);
+				snprintf(tempArray, sizeof(tempArray), "Current movespeed is %lf", mMoveSpeed);
 				commandOutput = tempArray;
 			}
 		}
@@ -1737,12 +1740,12 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS.str(arguments);
 				tempSS >> tempDouble;
 				mRotateSpeed = Ogre::Degree(tempDouble);
-				sprintf(tempArray, "rotatespeed set to %lf", mRotateSpeed.valueDegrees());
+				snprintf(tempArray, sizeof(tempArray), "rotatespeed set to %lf", mRotateSpeed.valueDegrees());
 				commandOutput = tempArray;
 			}
 			else
 			{
-				sprintf(tempArray, "Current rotatespeed is %lf", mRotateSpeed.valueDegrees());
+				snprintf(tempArray, sizeof(tempArray), "Current rotatespeed is %lf", mRotateSpeed.valueDegrees());
 				commandOutput = tempArray;
 			}
 		}
@@ -1758,12 +1761,12 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS >> tempDouble;
 				MAX_FRAMES_PER_SECOND = tempDouble;
 				
-				sprintf(tempArray, "Maximum framerate set to %lf", MAX_FRAMES_PER_SECOND);
+				snprintf(tempArray, sizeof(tempArray), "Maximum framerate set to %lf", MAX_FRAMES_PER_SECOND);
 				commandOutput = tempArray;
 			}
 			else
 			{
-				sprintf(tempArray, "Current maximum framerate is %lf", MAX_FRAMES_PER_SECOND);
+				snprintf(tempArray, sizeof(tempArray), "Current maximum framerate is %lf", MAX_FRAMES_PER_SECOND);
 				commandOutput = tempArray;
 			}
 		}
@@ -1777,7 +1780,7 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS.str(arguments);
 				tempSS >> turnsPerSecond;
 				
-				sprintf(tempArray, "The game will proceed at %lf turns per second.", turnsPerSecond);
+				snprintf(tempArray, sizeof(tempArray), "The game will proceed at %lf turns per second.", turnsPerSecond);
 				commandOutput = tempArray;
 
 				if(serverSocket != NULL)
@@ -1804,7 +1807,7 @@ void ExampleFrameListener::executePromptCommand()
 			}
 			else
 			{
-				sprintf(tempArray, "The game is proceeding at %lf turns per second.", turnsPerSecond);
+				snprintf(tempArray, sizeof(tempArray), "The game is proceeding at %lf turns per second.", turnsPerSecond);
 				commandOutput = tempArray;
 			}
 		}
@@ -1820,12 +1823,12 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS >> tempDouble;
 				mCamera->setNearClipDistance(tempDouble);
 				
-				sprintf(tempArray, "Near clip distance set to %lf", mCamera->getNearClipDistance());
+				snprintf(tempArray, sizeof(tempArray), "Near clip distance set to %lf", mCamera->getNearClipDistance());
 				commandOutput = tempArray;
 			}
 			else
 			{
-				sprintf(tempArray, "Near clip distance set to %lf", mCamera->getNearClipDistance());
+				snprintf(tempArray, sizeof(tempArray), "Near clip distance set to %lf", mCamera->getNearClipDistance());
 				commandOutput = tempArray;
 			}
 		}
@@ -1841,12 +1844,12 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS >> tempDouble;
 				mCamera->setFarClipDistance(tempDouble);
 				
-				sprintf(tempArray, "Far clip distance set to %lf", mCamera->getFarClipDistance());
+				snprintf(tempArray, sizeof(tempArray), "Far clip distance set to %lf", mCamera->getFarClipDistance());
 				commandOutput = tempArray;
 			}
 			else
 			{
-				sprintf(tempArray, "Far clip distance set to %lf", mCamera->getFarClipDistance());
+				snprintf(tempArray, sizeof(tempArray), "Far clip distance set to %lf", mCamera->getFarClipDistance());
 				commandOutput = tempArray;
 			}
 		}

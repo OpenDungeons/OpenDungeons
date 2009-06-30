@@ -31,7 +31,7 @@ void GameMap::createNewMap(int xSize, int ySize)
 			tempTile->x = i;
 			tempTile->y = j;
 
-			sprintf(tempString, "Level_%3i_%3i", i, j);
+			snprintf(tempString, sizeof(tempString), "Level_%3i_%3i", i, j);
 			tempTile->name = tempString;
 			tempTile->createMesh();
 			//tiles.push_back(tempTile);

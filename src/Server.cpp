@@ -183,17 +183,19 @@ void *creatureAIThread(void *p)
 
 		timeTaken = stopwatch.getMicroseconds();
 
+		char timeTakenArray[255];
+		snprintf(timeTakenArray, sizeof(timeTakenArray), "%09i", (int)(1e6*timeUntilNextTurn - timeTaken));
 		// Sleep this thread if it is necessary to keep the turns from happening too fast
 		if(1e6 * timeUntilNextTurn - timeTaken > 0)
 		{
-			cout << "\nCreature AI finished " << 1e6*timeUntilNextTurn - timeTaken << "us early.\n";
+		       	cout << "\nCreature AI finished " << timeTakenArray << "us early.\n";
 			//cout.flush();
 
 			usleep(1e6 * timeUntilNextTurn - timeTaken );
 		}
 		else
 		{
-			cout << "\nCreature AI finished " << 1e6*timeUntilNextTurn - timeTaken << "us late.\n";
+			cout << "\nCreature AI finished " << timeTakenArray << "us late.\n";
 			//cout.flush();
 		}
 	}
@@ -426,6 +428,19 @@ void *clientHandlerThread(void *p)
 				// Throw away the ok response
 				curSock->recv(tempString);
 				itr++;
+			}
+
+
+			// Send over the rooms in use on the current game map
+			//TODO: Only send the classes which the client is supposed to see due to fog of war.
+			for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+			{
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << gameMap.getRoom(i);
+				curSock->send(formatCommand("addroom", tempSS.str()));
+				// Throw away the ok response
+				curSock->recv(tempString);
 			}
 
 			// Send over the class descriptions in use on the current game map

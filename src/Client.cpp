@@ -25,8 +25,6 @@ void *clientSocketProcessor(void *p)
 	delete (CSPStruct*)p;
 	p = NULL;
 
-
-
 	// Send a hello request to start the conversation with the server
 	sem_wait(&sock->semaphore);
 	sock->send(formatCommand("hello", (string)"OpenDungeons V " + VERSION));
@@ -122,6 +120,18 @@ void *clientSocketProcessor(void *p)
 				{
 					neighbors[i]->setFullness(neighbors[i]->getFullness());
 				}
+			}
+
+			else if(serverCommand.compare("addroom") == 0)
+			{
+				stringstream tempSS(arguments);
+				Room *newRoom = new Room;
+				tempSS >> newRoom;
+				gameMap.addRoom(newRoom);
+				newRoom->createMeshes();
+				sem_wait(&sock->semaphore);
+				sock->send(formatCommand("ok", "addroom"));
+				sem_post(&sock->semaphore);
 			}
 
 			else if(serverCommand.compare("addclass") == 0)

@@ -4,6 +4,8 @@
 Room::Room()
 {
 	HP = 10;
+	sem_init(&meshCreationFinishedSemaphore, 0, 0);
+	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 }
 
 void Room::addCoveredTile(Tile* t)
@@ -51,6 +53,7 @@ void Room::createMeshes()
 		sem_wait(&renderQueueSemaphore);
 		renderQueue.push_back(request);
 		sem_post(&renderQueueSemaphore);
+		//sem_wait(&meshCreationFinishedSemaphore);
 	}
 }
 
@@ -67,12 +70,20 @@ void Room::destroyMeshes()
 		sem_wait(&renderQueueSemaphore);
 		renderQueue.push_back(request);
 		sem_post(&renderQueueSemaphore);
+
+		//FIXME:  This wait needs to happen however it currently causes the program to lock up because this function is called from the rendering thread which causes that thread to wait on itself
+		//sem_wait(&meshDestructionFinishedSemaphore);
 	}
 }
 
 void Room::deleteYourself()
 {
 	destroyMeshes();
+	unsigned int numToWait = coveredTiles.size();
+	for(unsigned int i = 0; i < numToWait; i++)
+	{
+		//sem_wait(&meshDestructionFinishedSemaphore);
+	}
 
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::deleteRoom;

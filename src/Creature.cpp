@@ -8,6 +8,7 @@
 Creature::Creature()
 {
 	sem_init(&meshCreationFinishedSemaphore, 0, 0);
+	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 	hasVisualDebuggingEntities = false;
 	position = Ogre::Vector3(0,0,0);
 	scale = Ogre::Vector3(1,1,1);
@@ -38,6 +39,7 @@ Creature::Creature()
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed)
 {
 	sem_init(&meshCreationFinishedSemaphore, 0, 0);
+	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 	hasVisualDebuggingEntities = false;
 	className = nClassName;
 	meshName = nMeshName;
@@ -87,7 +89,7 @@ istream& operator>>(istream& is, Creature *c)
 	if(tempString.compare("autoname") == 0)
 	{
 		char tempArray[255];
-		sprintf(tempArray, "%s_%04i", c->className.c_str(), uniqueNumber);
+		snprintf(tempArray, sizeof(tempArray), "%s_%04i", c->className.c_str(), uniqueNumber);
 		tempString = string(tempArray);
 		uniqueNumber++;
 	}
@@ -123,6 +125,9 @@ istream& operator>>(istream& is, Creature *c)
  */
 void Creature::createMesh()
 {
+	//NOTE: I think this line is redundant since the a sem_wait on any previous destruction should return the sem to 0 anyway but this takes care of it in case it is forgotten somehow
+	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
+
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::createCreature;
 	request->p = this;
@@ -131,7 +136,8 @@ void Creature::createMesh()
 	renderQueue.push_back(request);
 	sem_post(&renderQueueSemaphore);
 
-	//FIXME:  This function needs to wait until the render queue has processed the request before returning.  This should fix the bug where the client crashes loading levels with lots of creatures.  Other create mesh routines should have a similar wait statement.
+	//FIXME:  This function needs to wait until the render queue has processed the request before returning.  This should fix the bug where the client crashes loading levels with lots of creatures.  Other create mesh routines should have a similar wait statement.  It currently breaks the program since this function gets called from the rendering thread causing the thread to wait for itself to do something.
+	//sem_wait(&meshCreationFinishedSemaphore);
 
 }
 
@@ -142,7 +148,9 @@ void Creature::createMesh()
  */
 void Creature::destroyMesh()
 {
-	sem_init(&meshCreationFinishedSemaphore, 0, 0);
+	//NOTE: I think this line is redundant since the a sem_wait on any previous creation should return the sem to 0 anyway but this takes care of it in case it is forgotten somehow
+	//sem_init(&meshCreationFinishedSemaphore, 0, 0);
+
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::destroyCreature;
 	request->p = this;
@@ -150,6 +158,7 @@ void Creature::destroyMesh()
 	sem_wait(&renderQueueSemaphore);
 	renderQueue.push_back(request);
 	sem_post(&renderQueueSemaphore);
+	sem_wait(&meshDestructionFinishedSemaphore);
 }
 
 /*! \brief Changes the creatures position to a new position.
