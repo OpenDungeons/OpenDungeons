@@ -38,14 +38,10 @@ Creature::Creature()
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed)
 {
-	sem_init(&meshCreationFinishedSemaphore, 0, 0);
-	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
-	hasVisualDebuggingEntities = false;
+	// This constructor is meant to be used to initialize a creature class so no creature specific stuff should be set
 	className = nClassName;
 	meshName = nMeshName;
 	scale = nScale;
-	destinationX = 0;
-	destinationY = 0;
 
 	hp = nHP;
 	mana = nMana;
@@ -53,12 +49,6 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	digRate = nDigRate;
 	moveSpeed = nMoveSpeed;
 	tilePassability = Tile::walkableTile;
-
-	//currentTask = idle;
-	animationState = NULL;
-
-	if(positionTile() != NULL)
-		positionTile()->addCreature(this);
 }
 
 /*! \brief A matched function to transport creatures between files and over the network.
@@ -183,20 +173,30 @@ void Creature::setPosition(double x, double y, double z)
 	//creatureSceneNode->setPosition(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, z/BLENDER_UNITS_PER_OGRE_UNIT);
 	creatureSceneNode->setPosition(x, y, z);
 
-	// Move the creature relative to its parent scene node.  We record the
-	// tile the creature is in before and after the move to properly
-	// maintain the results returned by the positionTile() function.
-	Tile *oldPositionTile = positionTile();
-	position = Ogre::Vector3(x, y, z);
-	Tile *newPositionTile = positionTile();
-
-	if(oldPositionTile != newPositionTile)
+	// If we are on the gameMap we may need to update the tile we are in
+	if(gameMap.getCreature(name) != NULL)
 	{
-		if(oldPositionTile != NULL)
-			oldPositionTile->removeCreature(this);
+		// We are on the map
+		// Move the creature relative to its parent scene node.  We record the
+		// tile the creature is in before and after the move to properly
+		// maintain the results returned by the positionTile() function.
+		Tile *oldPositionTile = positionTile();
+		position = Ogre::Vector3(x, y, z);
+		Tile *newPositionTile = positionTile();
 
-		if(positionTile() != NULL)
-			positionTile()->addCreature(this);
+		if(oldPositionTile != newPositionTile)
+		{
+			if(oldPositionTile != NULL)
+				oldPositionTile->removeCreature(this);
+
+			if(positionTile() != NULL)
+				positionTile()->addCreature(this);
+		}
+	}
+	else
+	{
+		// We are not on the map
+		position = Ogre::Vector3(x, y, z);
 	}
 }
 
@@ -246,30 +246,34 @@ void Creature::doTurn()
 	list<Tile*>::iterator tileListItr;
 	vector< list<Tile*> > possiblePaths;
 	vector< list<Tile*> > shortPaths;
+	bool loopBack;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
 		return;
 
-	bool loopBack;
 	// Look at the surrounding area
 	updateVisibleTiles();
 	vector<Creature*> visibleEnemies = getVisibleEnemies();
+
+	cout << "\nCreature sees enemies:  " << visibleEnemies.size() << "   " << name << "\nvisibleEnemies:\n";
 
 	// If the creature can see enemies
 	if(visibleEnemies.size() > 0)
 	{
 
+		for(unsigned int i = 0; i < visibleEnemies.size(); i++)
+		{
+			cout << visibleEnemies[i]->positionTile()->getCreature(0) << " e ";
+		}
+
 		// if we are not already fighting with a creature
 		if(actionQueue.size() > 0 && actionQueue.front().type != CreatureAction::attackCreature && randomDouble(0.0, 1.0) > 0.3)
 		{
-			/*
 			CreatureAction tempAction;
 			tempAction.creature = visibleEnemies[0];
 			tempAction.type = CreatureAction::attackCreature;
 			actionQueue.push_front(tempAction);
-			initialCharge = true;
-			*/
 		}
 	}
 
@@ -510,6 +514,10 @@ void Creature::doTurn()
 					break;
 
 				case CreatureAction::attackCreature:
+					if(visibleEnemies.size() == 0)
+					{
+						actionQueue.pop_front();
+					}
 					break;
 
 				default:
@@ -936,5 +944,14 @@ Player* Creature::getControllingPlayer()
 
 	// No player found, return NULL
 	return NULL;
+}
+
+/*! \brief Clears the action queue, except for the Idle action at the end.
+ *
+*/
+void Creature::clearActionQueue()
+{
+	actionQueue.clear();
+	actionQueue.push_back(CreatureAction(CreatureAction::idle));
 }
 

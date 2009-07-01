@@ -37,6 +37,7 @@ void Player::pickUpCreature(Creature *c)
 {
 	// Stop the creature walking and take it off the gameMap to prevent the AI from running on it.
 	c->clearDestinations();
+	c->clearActionQueue();
 	gameMap.removeCreature(c);
 
 	// Start tracking this creature as being in this player's hand

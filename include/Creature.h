@@ -68,6 +68,7 @@ class Creature
 		Ogre::Vector3 walkDirection;
 		void addDestination(int x, int y);
 		void clearDestinations();
+		void clearActionQueue();
 		void stopWalking();
 		Player* getControllingPlayer();
 

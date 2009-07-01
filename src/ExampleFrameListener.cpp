@@ -1276,7 +1276,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 						mCurrentTileRadius--;
 					}
 
-					snprintf(tempArray, sizeof(tempArray), "Tile type:  %i", mCurrentTileRadius);
+					snprintf(tempArray, sizeof(tempArray), "Brush size:  %i", mCurrentTileRadius);
 					MOTD = tempArray;
 				}
 				break;
@@ -1290,7 +1290,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 						mCurrentTileRadius++;
 					}
 
-					snprintf(tempArray, sizeof(tempArray), "Tile type:  %i", mCurrentTileRadius);
+					snprintf(tempArray, sizeof(tempArray), "Brush size:  %i", mCurrentTileRadius);
 					MOTD = tempArray;
 				}
 				break;

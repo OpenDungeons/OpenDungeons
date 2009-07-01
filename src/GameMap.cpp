@@ -178,6 +178,7 @@ void GameMap::addClassDescription(Creature c)
 void GameMap::addCreature(Creature *c)
 {
 	creatures.push_back(c);
+	c->positionTile()->addCreature(c);
 }
 
 /*! \brief Removes the creature from the game map but does not delete its data structure.
@@ -185,10 +186,14 @@ void GameMap::addCreature(Creature *c)
  */
 void GameMap::removeCreature(Creature *c)
 {
+	// Loop over the creatures looking for creature c
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
 		if(c == creatures[i])
 		{
+			// Creature found
+			// Remove the creature from the tile it's in
+			c->positionTile()->removeCreature(c);
 			creatures.erase(creatures.begin()+i);
 			return;
 		}
