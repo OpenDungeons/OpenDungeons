@@ -3,6 +3,7 @@
 using namespace std;
 
 #include "Defines.h"
+#include "Globals.h"
 #include "Socket.h"
 #include "ExampleFrameListener.h"
 #include "Network.h"

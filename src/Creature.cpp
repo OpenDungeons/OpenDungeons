@@ -59,7 +59,8 @@ ostream& operator<<(ostream& os, Creature *c)
 	os << c->className << "\t" << c->name << "\t";
 	os << c->position.x << "\t" << c->position.y << "\t" << c->position.z << "\t";
 	os << c->color << "\t";
-	os << c->weaponL << "\t" << c->weaponR << "\n";
+	os << c->weaponR << "\t" << c->damageR << "\t" << c->defenseR << "\t"; 
+	os << c->weaponL << "\t" << c->damageL << "\t" << c->defenseL << "\n";
 
 	return os;
 }
@@ -89,7 +90,8 @@ istream& operator>>(istream& is, Creature *c)
 	is >> xLocation >> yLocation >> zLocation;
 	c->position = Ogre::Vector3(xLocation, yLocation, zLocation);
 	is >> c->color;
-	is >> c->weaponL >> c->weaponR;
+	is >> c->weaponR >> c->damageR >> c->defenseR;
+	is >> c->weaponL >> c->damageL >> c->defenseL;
 
 	// Copy the class based items
 	Creature *creatureClass = gameMap.getClassDescription(c->className);
@@ -256,15 +258,17 @@ void Creature::doTurn()
 	updateVisibleTiles();
 	vector<Creature*> visibleEnemies = getVisibleEnemies();
 
-	cout << "\nCreature sees enemies:  " << visibleEnemies.size() << "   " << name << "\nvisibleEnemies:\n";
+	cout << "\nCreature sees enemies:  " << visibleEnemies.size() << "   " << name;
 
 	// If the creature can see enemies
 	if(visibleEnemies.size() > 0)
 	{
 
+		cout << "\nvisibleEnemies:\n";
+
 		for(unsigned int i = 0; i < visibleEnemies.size(); i++)
 		{
-			cout << visibleEnemies[i]->positionTile()->getCreature(0) << " e ";
+			cout << visibleEnemies[i];
 		}
 
 		// if we are not already fighting with a creature

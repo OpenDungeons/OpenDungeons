@@ -1,46 +1,98 @@
-WINDOWS:
-*  Remove extra #ifdef about getaddr() from include/Socket.h.
-*  Remove the ginormous exectable from the git tree.
+--------------- WINDOWS: ---------------
 *  Make a windows version of plugins.conf.
 
 
-BUGS:
-*  fix keyboard repeat issue (when the game crashes keyboard repeat is disabled but the OS still thinks it's on, turning it off and then back on again restores the functionality).
-*  Terminal commands with no arguments but spaces at the end, like 'host ', will not be recognized as valid commands.
-*  Fix crash on loading a new map from the server, I think it has to do with getting peices of messages in a single packet.  This assumption may or may not be true, it may be that the RenderQueue is somehow processing the addDestination message before the createMesh message.
-*  The GameMap::cutCorners() function sometimes causes creatures to walk through walls, this could be a problem with the lineOfSight function.  Actually I think it has to do with Creature::PositionTile().
-*  Solved? - I think the crash in root->startRendering possibly has to do with attatching things directly to the root scene node.
-*  The client has code to handle when messages are split across packets, but the server does not.  This needs to be added.
-*  when the terminal becomes active if a key is held down the keyup message gets caught by the terminal and the key is "stuck" down.
-*  Client and server need to negiotiate and set a color for the newly connected client.
+--------------- BUGS: ---------------
+*  fix keyboard repeat issue (when the game crashes keyboard repeat is disabled
+*  but the OS still thinks it's on, turning it off and then back on again
+*  restores the functionality).
+
+*  Terminal commands with no arguments but spaces at the end, like 'host ',
+*  will not be recognized as valid commands.
+
+*  Fix crash on loading a new map from the server, I think it has to do with
+*  getting peices of messages in a single packet.  This assumption may or may
+*  not be true, it may be that the RenderQueue is somehow processing the
+*  addDestination message before the createMesh message.
+
+*  The GameMap::cutCorners() function sometimes causes creatures to walk
+*  through walls, this could be a problem with the lineOfSight function.
+*  Actually I think it has to do with Creature::positionTile(), this is mostly
+*  fixed although positionTile() may still need some work.
+
+*  Solved? Confirmed solved v0.3.3 - I think the crash in root->startRendering possibly has to do with
+*  attatching things directly to the root scene node.
+
+*  The client has code to handle when messages are split across packets, but
+*  the server does not.  This needs to be added.
+
+*  when the terminal becomes active if a key is held down the keyup message
+*  gets caught by the terminal and the key is "stuck" down.
+
+*  Client and server need to negiotiate and set a color for the newly connected
+*  client.
+
 *  Visual debugging entities for creatures dissappear after a short time.
-*  Terminal command 'load' will probably crash the game if given a non-existant level name.
+
+*  Terminal command 'load' will probably crash the game if given a non-existant
+*  level name.
 
 
 
-FEATURE ADDITIONS:
+--------------- FEATURE ADDITIONS: ---------------
 *  implement history on the terminal.
+
 *  implement line editing on the terminal.
+
 *  add help for "nearclip", "farclip".
+
 *  Add a keyboard controls help message under "help keys".
-*  add a flyTo method to make the camera fly to a particular location (and orientation?).
-*  Store creature classes and class descriptions in maps rather than vectors to allow for faster lookups.
-*  Add play, pause, and single turn commands to the terminal to aid in AI debugging. 
-*  Add a terminal command to set the number of chat messages and the time to display them for (both as one command maybe).
-*  Overload the << operator on the Player class, do the same for all the others.
+
+*  add a flyTo method to make the camera fly to a particular location (and
+*  orientation?).
+
+*  Store creature classes and class descriptions in maps rather than vectors to
+*  allow for faster lookups.
+
+*  Add play, pause, and single turn commands to the terminal to aid in AI
+*  debugging. 
+
+*  Add a terminal command to set the number of chat messages and the time to
+*  display them for (both as one command maybe).
+
+*  Overload the << operator on the Player class, do the same for all the
+*  others.
+
 *  Add upkeep rounds to the GameMap::doTurn() method.
-*  Create various levels of quality for each mesh and make a RenderRequest that switches to new meshes when some criteria is met (use something stable like num items onscreen at once to avoid churning between mesh detail levels, or change the meshes one at a time and re-evaluate)
-*  Test limiting the number of render requests that can be handled per frame, initial tests did not seem encouraging so maybe this is a bad idea.
-*  Add a 'weapon' class to hold damage, range, etc for weapons and make it work in a fashion similar to create class descriptions.
-*  Add terminal commands to set the max number and max display time of chat messages.
+
+*  Create various levels of quality for each mesh and make a RenderRequest that
+*  switches to new meshes when some criteria is met (use something stable like
+*  num items onscreen at once to avoid churning between mesh detail levels, or
+*  change the meshes one at a time and re-evaluate)
+
+*  Test limiting the number of render requests that can be handled per frame,
+*  initial tests did not seem encouraging so maybe this is a bad idea.
+
+*  Add a 'weapon' class to hold damage, range, etc for weapons and make it work
+*  in a fashion similar to create class descriptions.
+
+*  Add terminal commands to set the max number and max display time of chat
+*  messages.
+
 *  Color chat messages with the color of the player who sent them.
 
+ ---------------
 
 *  Fix the issue with Mouse move.
-*  find out about separate subtraction and multiply issue in ExampleFrameLiyystener::mouseMoved(const OIS::MouseEvent &arg)
 
+*  find out about separate subtraction and multiply issue in
+*  ExampleFrameLiyystener::mouseMoved(const OIS::MouseEvent &arg)
 
-*  make camera center stay focused on the same point and rotate around it rather than rotating the camera around a fixed point.
+ ---------------
+
+*  make camera center stay focused on the same point and rotate around it
+*  rather than rotating the camera around a fixed point.
+
 *  add a disconnect command to stop the running client or server thread.
 
 

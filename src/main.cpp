@@ -29,6 +29,7 @@ sem_t creatureAISemaphore;
 
 Socket *serverSocket = NULL, *clientSocket = NULL;
 
+string versionString = (string)"OpenDungeons_Version:" + VERSION;
 string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
 double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double turnsPerSecond = 1.0;

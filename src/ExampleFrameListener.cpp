@@ -304,7 +304,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Ogre::Matrix3 boneRot;
 		Ogre::Vector3 tempVector;
 		Quaternion tempQuaternion;
-		SubEntity *tempSubEntity;
 		MaterialPtr tempMaterial;
 		Tile *curTile = NULL;
 		Room *curRoom = NULL;
@@ -933,6 +932,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 						if(currentCreature != NULL)
 						{
 							gameMap.me->pickUpCreature(currentCreature);
+							break;
 						}
 					}
 					else  // if in the Map Editor:  Begin dragging the creature
@@ -2248,6 +2248,26 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS.str(tempString);
 				tempSS << "ERROR:  You need to specify a color index between 0 and " << playerColourValues.size() << " and an RGB triplet with values in (0.0, 1.0)";
 				commandOutput = tempSS.str();
+			}
+		}
+
+		//FIXME:  This function is not yet implemented.
+		else if(command.compare("disconnect") == 0)
+		{
+			if(serverSocket != NULL)
+			{
+				commandOutput = "Stopping server.";
+			}
+			else
+			{
+				if(clientSocket != NULL)
+				{
+					commandOutput = "Disconnecting from server.";
+				}
+				else
+				{
+					commandOutput = "You are not connected to a server and you are not hosting a server.";
+				}
 			}
 		}
 

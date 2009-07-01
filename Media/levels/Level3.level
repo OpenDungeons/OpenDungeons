@@ -1,3 +1,5 @@
+OpenDungeons_Version:0.3.3
+
 10000
 0	0	0	100
 0	1	0	100
@@ -10004,9 +10006,9 @@
 
 2
 Skeleton	Skeleton.mesh	0.025	0.025	0.09	35	5	10	0	0.4
-Kobold		Kobold.mesh	0.15	0.15	0.15	20	6	15	20	2.5
+Kobold		Kobold.mesh	0.1	0.1	0.1	20	6	15	20	2.5
 
 2
-Skeleton	skelly	31	36	0	1	none	none
-Kobold	kobby	59	42	0	1	none	none
+Skeleton	skelly	31	36	0	1	none	0	0	none	0	0
+Kobold	kobby	59	42	0	1	none	0	0	none	0	0
 

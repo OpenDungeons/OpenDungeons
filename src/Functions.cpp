@@ -1,6 +1,7 @@
 #include <ctype.h>
 
 #include "Globals.h"
+#include "Defines.h"
 #include "Functions.h"
 #include "Creature.h"
 
@@ -25,6 +26,19 @@ void readGameMapFromFile(string fileName)
 	string tempString, tempString2;
 	Creature tempCreature;
 	int objectsToLoad;
+
+	// Read in the version number from the level file
+	char array[255];
+	levelFile.getline(array, sizeof(array));
+	tempString = array;
+	if(tempString.compare(versionString) != 0)
+	{
+		cerr << "\n\n\nERROR:  Attempting to load a file produced by a different version of OpenDungeons.\n";
+		cerr << "ERROR:  Filename:  " << fileName;
+		cerr << "\nERROR:  The file is for OpenDungeons:  " << tempString;
+		cerr << "\nERROR:  This version of OpenDungeons:  " << versionString << "\n\n\n";
+		exit(1);
+	}
 
 	levelFile >> objectsToLoad;
 
@@ -102,6 +116,9 @@ void writeGameMapToFile(string fileName)
 	ofstream levelFile(fileName.c_str(), ifstream::out);
 	Creature *tempCreature;
 	Tile *tempTile;
+
+	// Write the identifier string and the version number
+	levelFile << versionString << "\n\n";
 
 	// Write out the tiles to the file
 	levelFile << gameMap.numTiles() << endl;
