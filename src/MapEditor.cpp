@@ -126,8 +126,25 @@ void MapEditor::createScene(void)
 	TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 10, 10, 50, 70, Ogre::ColourValue::Green);
 
 	// FIXME: OpenDungeons.layout needs to be filled in to get a gui going.
-	//CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"OpenDungeons.layout"); 
-	//mSystem->setGUISheet(sheet);
+	try
+	{
+		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"OpenDungeons.layout"); 
+		mSystem->setGUISheet(sheet);
+		cerr << "\n\none.\n";
+
+		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
+		CEGUI::Window *quitWindow = wmgr->getWindow((CEGUI::utf8*)"QuitButton");
+		cerr << "\n\ntwo.\n";
+
+		//quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&ExampleFrameListener::quit));
+		quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
+		cerr << "\n\nthree.\n";
+	}
+	catch (...)
+	{
+		cerr << "\n\nERROR:  Caught and ignored an exception.\n\n";
+	}
+
 }
 
 void MapEditor::createFrameListener(void)

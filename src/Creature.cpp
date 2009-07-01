@@ -30,9 +30,6 @@ Creature::Creature()
 	//currentTask = idle;
 	animationState = NULL;
 
-	if(positionTile() != NULL)
-		positionTile()->addCreature(this);
-
 	actionQueue.push_back(CreatureAction(CreatureAction::idle));
 }
 
@@ -258,12 +255,10 @@ void Creature::doTurn()
 	updateVisibleTiles();
 	vector<Creature*> visibleEnemies = getVisibleEnemies();
 
-	cout << "\nCreature sees enemies:  " << visibleEnemies.size() << "   " << name;
-
 	// If the creature can see enemies
 	if(visibleEnemies.size() > 0)
 	{
-
+		cout << "\nCreature sees enemies:  " << visibleEnemies.size() << "   " << name;
 		cout << "\nvisibleEnemies:\n";
 
 		for(unsigned int i = 0; i < visibleEnemies.size(); i++)

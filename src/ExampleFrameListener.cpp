@@ -127,7 +127,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
 	roomSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Room_scene_node");
 
-	mStatsOn = true;
+	mStatsOn = false;
 	mNumScreenShots = 0;
 	mMoveScale = 0.0f;
 	mRotScale = 0.0f;
@@ -145,10 +145,10 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mZoomSpeed = .5;
 	mCurrentTileType = Tile::dirt;
 	mCurrentFullness = 100;
+	ceguiHasControl = false;
+	ignoreOneMouseReleased = false;
 
 	using namespace OIS;
-
-	mDebugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
 
 	LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
 	ParamList pl;
@@ -174,8 +174,6 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	//Set initial mouse clipping size
 	windowResized(mWindow);
 
-	showDebugOverlay(true);
-
 	//Register as a Window listener
 	WindowEventUtilities::addWindowEventListener(mWindow, this);
 
@@ -187,7 +185,6 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mKeyboard->setEventCallback(this);
 
 	mRaySceneQuery = mSceneMgr->createRayQuery(Ray());
-
 }
 
 /*! \brief Adjust mouse clipping area
@@ -276,6 +273,13 @@ void ExampleFrameListener::showDebugOverlay(bool show)
 			mDebugOverlay->show();
 		else
 			mDebugOverlay->hide();
+	}
+	else
+	{
+		if(show)
+		{
+			mDebugOverlay = OverlayManager::getSingleton().getByName("Core/DebugOverlay");
+		}
 	}
 }
 
@@ -746,6 +750,11 @@ bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)
 	return true;
 }
 
+bool quitButtonPressed(const CEGUI::EventArgs &e)
+{
+	cout << "\n\nHello world\n\n";
+}
+
 /*! \brief Process the mouse movement event.
  *
  * The function does a raySceneQuery to determine what object the mouse is over
@@ -894,6 +903,36 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 	CEGUI::System::getSingleton().injectMouseButtonDown(convertButton(id));
 	string  resultName;
 
+	// If the mouse press is on a CEGUI window ignore it
+	CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getWindowContainingMouse();
+	if(tempWindow != NULL && tempWindow->getName().compare("Root") != 0)
+	{
+		//cout << "\n\nWindowName:  " << tempWindow->getName();
+		ceguiHasControl = true;
+		return true;
+	}
+	else
+	{
+		// The mouse press is somewhere not on a CEGUI window
+		// Deactivate the active CEGUI control to return keyboard control back to OpenDungeons
+		if(ceguiHasControl)
+		{
+			ceguiHasControl = false;
+			ignoreOneMouseReleased = true;
+
+			CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getGUISheet();
+			if(tempWindow != NULL)
+			{
+				tempWindow = tempWindow->getActiveChild();
+				if(tempWindow != NULL)
+				{
+					//cout << "\nUser clicked on root window, returning to normal OpenDungeons controls.";
+					tempWindow->deactivate();
+				}
+			}
+			return true;
+		}
+	}
 
 	//FIXME:  This code should be put into a function it is duplicated by mousePressed()
 	// Setup the ray scene query, use CEGUI's mouse position
@@ -1017,6 +1056,18 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
 	CEGUI::System::getSingleton().injectMouseButtonUp(convertButton(id));
+
+	// If the mouse release is on a CEGUI window ignore it
+	if(ceguiHasControl)
+	{
+		return true;
+	}
+
+	if(ignoreOneMouseReleased)
+	{
+		ignoreOneMouseReleased = false;
+		return true;
+	}
 
 	// Unselect all tiles
 	//for(int i = 0; i < gameMap.numTiles(); i++)
@@ -1183,6 +1234,12 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 	CEGUI::System *sys = CEGUI::System::getSingletonPtr();
 	sys->injectKeyDown(arg.key);
 	sys->injectChar(arg.text);
+
+	if(ceguiHasControl && arg.key != OIS::KC_ESCAPE)
+	{
+		//cout << "\n\nKey press ignored because CEGUI is active.";
+		return mContinue;
+	}
 
 	if(!terminalActive)
 	{
@@ -1397,6 +1454,12 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 {
 	using namespace OIS;
 	CEGUI::System::getSingleton().injectKeyUp(arg.key);
+
+	if(ceguiHasControl)
+	{
+		//cout << "\nKey release ignored because CEGUI is active.";
+		return mContinue;
+	}
 
 	if(!terminalActive)
 	{

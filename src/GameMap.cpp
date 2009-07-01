@@ -298,6 +298,11 @@ void GameMap::doTurn()
 	sem_wait(&creatureAISemaphore);
 
 	cout << "\nStarting creature AI for turn " << turnNumber;
+	for(unsigned int i = 0; i < getTile(0, 0)->numCreaturesInCell(); i++)
+	{
+		cout << getTile(0, 0)->getCreature(i);
+	}
+
 	// Call the individual creature AI for each creature in this game map
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{

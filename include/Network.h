@@ -22,6 +22,8 @@ string formatCommand(string command, string arguments);
 bool parseCommand(string &command, string &commandName, string &arguments);
 ChatMessage *processChatMessage(string arguments);
 void sendToAllClients(ExampleFrameListener *frameListener, String str);
+bool quitButtonPressed(const CEGUI::EventArgs &e);
+
 
 /*! \brief Server Socket Processor Structure
  *
