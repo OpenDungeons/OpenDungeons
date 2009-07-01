@@ -76,6 +76,7 @@ void GameMap::clearAll()
 	clearClasses();
 	clearPlayers();
 	clearRooms();
+	clearSeats();
 }
 
 /*! \brief Clears the mesh and deletes the data structure for all the tiles in the GameMap.
@@ -584,9 +585,18 @@ vector<Tile*> GameMap::neighborTiles(int x, int y)
 /*! \brief Adds a pointer to a player structure to the players stored by this GameMap.
  *
  */
-void GameMap::addPlayer(Player *p)
+bool GameMap::addPlayer(Player *p)
 {
-	players.push_back(p);
+	if(seats.size() > 0)
+	{
+		p->seat = popSeat();
+		players.push_back(p);
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 /*! \brief Returns a pointer to the i'th player structure stored by this GameMap.
@@ -595,6 +605,19 @@ void GameMap::addPlayer(Player *p)
 Player* GameMap::getPlayer(int index)
 {
 	return players[index];
+}
+
+Player* GameMap::getPlayerByColour(int colour)
+{
+	for(unsigned int i = 0; i < players.size(); i++)
+	{
+		if(players[i]->seat->color == colour)
+		{
+			return players[i];
+		}
+	}
+
+	return NULL;
 }
 
 /*! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
@@ -830,4 +853,37 @@ unsigned int GameMap::numRooms()
 {
 	return rooms.size();
 }
+
+void GameMap::clearSeats()
+{
+	seats.clear();
+}
+
+void GameMap::addSeat(Seat *s)
+{
+	seats.push_back(s);
+}
+
+Seat* GameMap::getSeat(int index)
+{
+	return seats[index];
+}
+
+Seat* GameMap::popSeat()
+{
+	Seat *s = NULL;
+	if(seats.size() > 0)
+	{
+		s = seats[0];
+		seats.erase(seats.begin());
+	}
+
+	return s;
+}
+
+unsigned int GameMap::numSeats()
+{
+	return seats.size();
+}
+
 

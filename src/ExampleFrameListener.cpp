@@ -968,7 +968,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 						tempSS.getline(array, sizeof(array));
 
 						Creature *currentCreature = gameMap.getCreature(array);
-						if(currentCreature != NULL)
+						if(currentCreature != NULL && currentCreature->color == gameMap.me->seat->color)
 						{
 							gameMap.me->pickUpCreature(currentCreature);
 							break;
@@ -2003,11 +2003,11 @@ void ExampleFrameListener::executePromptCommand()
 				else if(arguments.compare("players") == 0)
 				{
 					tempSS << "Player:\tNick:\tColor:\n\n";
-					tempSS << "me\t\t" << gameMap.me->nick << "\t" << gameMap.me->color << "\n\n";
+					tempSS << "me\t\t" << gameMap.me->nick << "\t" << gameMap.me->seat->color << "\n\n";
 					for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
 					{
 						Player *currentPlayer = gameMap.getPlayer(i);
-						tempSS << i << "\t\t" << currentPlayer->nick << "\t" << currentPlayer->color << "\n";
+						tempSS << i << "\t\t" << currentPlayer->nick << "\t" << currentPlayer->seat->color << "\n";
 					}
 				}
 
@@ -2167,8 +2167,9 @@ void ExampleFrameListener::executePromptCommand()
 					serverSocket = new Socket;
 
 					// Start the server socket listener as well as the server socket thread
-					if(serverSocket != NULL)
+					if(serverSocket != NULL && gameMap.numSeats() > 0)
 					{
+						gameMap.me->seat = gameMap.popSeat();
 						// Start the server thread which will listen for, and accept, connections
 						SSPStruct *ssps = new SSPStruct;
 						ssps->nSocket = serverSocket;

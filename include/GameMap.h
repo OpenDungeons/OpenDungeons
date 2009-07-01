@@ -5,6 +5,7 @@
 #include "Creature.h"
 #include "Player.h"
 #include "Room.h"
+#include "Seat.h"
 
 typedef map< pair<int,int>, Tile*> TileMap_t;
 
@@ -47,15 +48,22 @@ class GameMap
 		unsigned int numClassDescriptions();
 
 		void clearPlayers();
-		void addPlayer(Player *p);
+		bool addPlayer(Player *p);
 		Player* getPlayer(int index);
 		Player* getPlayer(string cName);
+		Player* getPlayerByColour(int colour);
 		unsigned int numPlayers();
 
 		void clearRooms();
 		void addRoom(Room *r);
 		Room* getRoom(int index);
 		unsigned int numRooms();
+
+		void clearSeats();
+		void addSeat(Seat *s);
+		Seat* getSeat(int index);
+		Seat* popSeat();
+		unsigned int numSeats();
 
 		// AI Methods
 		void doTurn();
@@ -74,6 +82,7 @@ class GameMap
 		vector<Creature*> creatures;
 		vector<Player*> players;
 		vector<Room*> rooms;
+		vector<Seat*> seats;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.

@@ -1,5 +1,12 @@
 OpenDungeons_Version:0.3.3
 
+5
+1	Undead	0	0	0.0	0.8	0.0
+2	Heroes	15	0	0.8	0.8	0.8
+3	Villians	15	0.8	0.3	0.3
+4	Constructs	15	0.8	0.8	0.0
+5	Animals	15	0.8	0.8	0.0
+
 1160
 -21	-7	0	100
 -21	-6	0	100
@@ -1164,8 +1171,9 @@ OpenDungeons_Version:0.3.3
 
 2
 Quarters	1
-5
-4	10
+6
+4	9
+5	9
 5	10
 6	10
 6	11
@@ -1186,7 +1194,7 @@ Knight	Knight.mesh	1	1	1	80	3	10	0	1
 Kobold	Kobold.mesh	0.1	0.1	0.1	20	6	5	20	2.5
 Dragon	Dragon.mesh	1	1	1	220	50	10	0	0.9
 
-13
+19
 Dragon	Dragon	8	11	0	2	none	0	0	none	0	0
 Knight	Knight	6	10	0	2	Sabre	8	0	none	0	0
 Knight	Knight_0001	6	7	0	2	Longsword	14	0	none	0	0
@@ -1194,10 +1202,16 @@ Knight	Knight_0002	8	13	0	2	Sabre	8	0	Roundshield	0	7
 Knight	Knight_0003	6	4	0	2	none	0	0	Longsword	14	0
 Knight	Knight_0004	10	8	0	2	none	0	0	none	0	0
 Knight	Knight_0005	8	9	0	2	Longsword	14	0	Longsword	14	0
-Kobold	Kobold	-5	10	0	1	none	0	0	none	0	0
+Kobold	Kobold	-5	10	0	1	Longsword	10	0	Longsword	10	0
 Kobold	Kobold_0001	-7	13	0	1	none	0	0	none	0	0
 Kobold	Kobold_0002	-3	7	0	1	none	0	0	none	0	0
 Kobold	Kobold_0003	-6	10	0	1	none	0	0	none	0	0
 Kobold	Kobold_0004	-7	7	0	1	none	0	0	none	0	0
 Kobold	Kobold_0005	-4	13	0	1	none	0	0	none	0	0
+Kobold	Kobold_0006	5	10	0	2	Longsword	10	0	Longsword	10	0
+Kobold	Kobold_0007	7	13	0	2	none	0	0	none	0	0
+Kobold	Kobold_0008	3	7	0	2	none	0	0	none	0	0
+Kobold	Kobold_0009	6	10	0	2	none	0	0	none	0	0
+Kobold	Kobold_0010	7	7	0	2	none	0	0	none	0	0
+Kobold	Kobold_0011	4	13	0	2	none	0	0	none	0	0
 

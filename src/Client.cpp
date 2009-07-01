@@ -76,6 +76,35 @@ void *clientSocketProcessor(void *p)
 				sem_post(&sock->semaphore);
 			}
 
+			/*
+			else if(serverCommand.compare("yourseat") == 0)
+			{
+				stringstream tempSS(arguments);
+				Seat *tempSeat = new Seat;
+				cout << "\nAbout to read in seat.\n";
+				cout.flush();
+				tempSS >> tempSeat;
+				gameMap.me->seat = tempSeat;
+				sem_wait(&sock->semaphore);
+			}
+			*/
+
+			else if(serverCommand.compare("addseat") == 0)
+			{
+				stringstream tempSS(arguments);
+				Seat *tempSeat = new Seat;
+				tempSS >> tempSeat;
+				gameMap.addSeat(tempSeat);
+				if(gameMap.me->seat == NULL)
+				{
+					gameMap.me->seat = gameMap.popSeat();
+				}
+
+				sem_wait(&sock->semaphore);
+				sock->send(formatCommand("ok", "addseat"));
+				sem_post(&sock->semaphore);
+			}
+
 			else if(serverCommand.compare("addplayer") == 0)
 			{
 				Player *tempPlayer = new Player;

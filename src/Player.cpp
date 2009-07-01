@@ -4,9 +4,8 @@
 Player::Player()
 {
 	nick =  "";
-	color = 1;
-	mana = 1000;
 	humanPlayer = true;
+	seat = NULL;
 }
 
 unsigned int Player::numCreaturesInHand()

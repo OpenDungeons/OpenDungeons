@@ -1,5 +1,5 @@
-#ifndef GAMEMAP_H
-#define GAMEMAP_H
+#ifndef FIELD_H
+#define FIELD_H
 
 #include <iostream>
 #include <utility>
@@ -20,6 +20,7 @@ class Field
 
 		void addField(Field *f, double scale);
 		void subtractField(Field *f, double scale);
+		void clear();
 
 	private:
 		FieldType theField;

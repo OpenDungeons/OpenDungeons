@@ -4,6 +4,7 @@
 #include "Functions.h"
 #include "CreatureAction.h"
 #include "Network.h"
+#include "Field.h"
 
 Creature::Creature()
 {
@@ -254,6 +255,7 @@ void Creature::doTurn()
 	// Look at the surrounding area
 	updateVisibleTiles();
 	vector<Creature*> visibleEnemies = getVisibleEnemies();
+	vector<Creature*> visibleAllies = getVisibleAllies();
 
 	// If the creature can see enemies
 	if(visibleEnemies.size() > 0)
@@ -288,6 +290,7 @@ void Creature::doTurn()
 		vector<Tile*>neighbors, creatureNeighbors;
 		bool wasANeighbor = false;
 		Player *tempPlayer;
+		Field battleField;
 
 		diceRoll = randomDouble(0.0, 1.0);
 		if(actionQueue.size() > 0)
@@ -516,7 +519,11 @@ void Creature::doTurn()
 					if(visibleEnemies.size() == 0)
 					{
 						actionQueue.pop_front();
+						loopBack = true;
+						break;
 					}
+
+					battleField.clear();
 					break;
 
 				default:
@@ -647,6 +654,16 @@ void Creature::updateVisibleTiles()
 */
 vector<Creature*> Creature::getVisibleEnemies()
 {
+	return getVisibleForce(color, true);
+}
+
+vector<Creature*> Creature::getVisibleAllies()
+{
+	return getVisibleForce(color, false);
+}
+
+vector<Creature*> Creature::getVisibleForce(int color, bool invert)
+{
 	vector<Creature*> returnList;
 
 	// Loop over the visible tiles
@@ -658,10 +675,24 @@ vector<Creature*> Creature::getVisibleEnemies()
 		{
 			Creature *tempCreature = (*itr)->getCreature(i);
 			// If it is an enemy
-			if(tempCreature != NULL && tempCreature->color != color)
+			if(tempCreature != NULL)
 			{
-				// Add the current creature
-				returnList.push_back(tempCreature);
+				if(invert)
+				{
+					if(tempCreature->color != color)
+					{
+						// Add the current creature
+						returnList.push_back(tempCreature);
+					}
+				}
+				else
+				{
+					if(tempCreature->color == color)
+					{
+						// Add the current creature
+						returnList.push_back(tempCreature);
+					}
+				}
 			}
 		}
 	}
@@ -926,7 +957,7 @@ Player* Creature::getControllingPlayer()
 {
 	Player *tempPlayer;
 
-	if(gameMap.me->color == color)
+	if(gameMap.me->seat->color == color)
 	{
 		return gameMap.me;
 	}
@@ -935,7 +966,7 @@ Player* Creature::getControllingPlayer()
 	for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
 	{
 		tempPlayer = gameMap.getPlayer(i);
-		if(tempPlayer->color == color)
+		if(tempPlayer->seat->color == color)
 		{
 			return tempPlayer;
 		}

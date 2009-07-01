@@ -64,3 +64,8 @@ void Field::subtractField(Field *f, double scale=1.0)
 	addField(f, -1.0*scale);
 }
 
+void Field::clear()
+{
+	theField.clear();
+}
+

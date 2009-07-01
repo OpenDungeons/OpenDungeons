@@ -5,6 +5,7 @@
 using namespace std;
 
 #include "Creature.h"
+#include "Seat.h"
 
 /*! \brief The player cleass contains information about a human, or computer, player in the game.
  *
@@ -20,8 +21,6 @@ class Player
 	public:
 		Player();
 		string nick;		/**< The nickname used un chat, etc. */
-		int color;		/**< The color which identifies the players creatures and tiles. */
-		int mana;		/**< The amount of 'keeper mana' the player has. */
 		bool humanPlayer;	/**< True: player is human.    False: player is a computer. */
 		//int goldInTreasury();
 		//int oreInRefinery();
@@ -33,6 +32,7 @@ class Player
 		void removeCreatureFromHand(int i);
 		void pickUpCreature(Creature *c);
 		bool dropCreature(Tile *t);
+		Seat *seat;
 
 	private:
 		vector<Creature*> creaturesInHand;

@@ -397,6 +397,12 @@ void *clientHandlerThread(void *p)
 
 			curSock->send(formatCommand("newmap", ""));
 
+			// Tell the player which seat it has
+			tempString = "";
+			tempSS.str(tempString);
+			tempSS << curPlayer->seat;
+			curSock->send(formatCommand("addseat", tempSS.str()));
+
 			tempString = "";
 			tempSS.str(tempString);
 			tempSS << turnsPerSecond;
@@ -410,6 +416,13 @@ void *clientHandlerThread(void *p)
 				Player *tempPlayer = gameMap.getPlayer(i);
 				if(curPlayer != tempPlayer && tempPlayer != NULL)
 				{
+					tempString = "";
+					tempSS.str(tempString);
+					tempSS << tempPlayer->seat;
+					curSock->send(formatCommand("addseat", tempSS.str()));
+					// Throw away the ok response
+					curSock->recv(tempString);
+
 					curSock->send(formatCommand("addplayer", tempPlayer->nick));
 					// Throw away the ok response
 					curSock->recv(tempString);

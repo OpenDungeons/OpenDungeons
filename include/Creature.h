@@ -61,6 +61,8 @@ class Creature
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
 		vector<Creature*> getVisibleEnemies();
+		vector<Creature*> getVisibleAllies();
+		vector<Creature*> getVisibleForce(int color, bool invert);
 		Tile* positionTile();
 		AnimationState *animationState;
 		void setAnimationState(string s);

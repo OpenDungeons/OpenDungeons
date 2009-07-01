@@ -9,7 +9,6 @@
 double const M_PI = 2 * acos(0.0);
 #endif
 
-
 void readGameMapFromFile(string fileName)
 {
 	ifstream levelFile(fileName.c_str(), ifstream::in);
@@ -21,6 +20,7 @@ void readGameMapFromFile(string fileName)
 
 	gameMap.clearAll();
 
+	Seat *tempSeat;
 	Tile *tempTile;
 	Room *tempRoom;
 	string tempString, tempString2;
@@ -38,6 +38,16 @@ void readGameMapFromFile(string fileName)
 		cerr << "\nERROR:  The file is for OpenDungeons:  " << tempString;
 		cerr << "\nERROR:  This version of OpenDungeons:  " << versionString << "\n\n\n";
 		exit(1);
+	}
+
+	levelFile >> objectsToLoad;
+	// Read in the seats from the level file
+	for(int i = 0; i < objectsToLoad; i++)
+	{
+		tempSeat = new Seat;
+		levelFile >> tempSeat;
+
+		gameMap.addSeat(tempSeat);
 	}
 
 	levelFile >> objectsToLoad;
@@ -120,8 +130,15 @@ void writeGameMapToFile(string fileName)
 	// Write the identifier string and the version number
 	levelFile << versionString << "\n\n";
 
+	// Write out the seats to the file
+	levelFile << gameMap.numSeats() << "\n";
+	for(unsigned int i = 0; i < gameMap.numSeats(); i++)
+	{
+		levelFile << gameMap.getSeat(i);
+	}
+
 	// Write out the tiles to the file
-	levelFile << gameMap.numTiles() << endl;
+	levelFile << "\n" << gameMap.numTiles() << endl;
 	TileMap_t::iterator itr = gameMap.firstTile();
 	while(itr != gameMap.lastTile())
 	{
@@ -303,11 +320,13 @@ string colourizeMaterial(string materialName, int colour)
 							// Check to see if the current pixel matches the target colour
 							if(totalDistance <= 65)
 							{
-								if(colour < playerColourValues.size())
+								//if(colour < playerColourValues.size())
+								Player *tempPlayer = gameMap.getPlayerByColour(colour);
+								if(tempPlayer != NULL)
 								{
-									int newR = playerColourValues[colour].r*255 + factor*deltaR;
-									int newG = playerColourValues[colour].g*255 + factor*deltaG;
-									int newB = playerColourValues[colour].b*255 + factor*deltaB;
+									int newR = tempPlayer->seat->colourValue.r*255 + factor*deltaR;
+									int newG = tempPlayer->seat->colourValue.g*255 + factor*deltaG;
+									int newB = tempPlayer->seat->colourValue.b*255 + factor*deltaB;
 									newR = (newR < 0) ? 0 : newR;
 									newR = (newR > 255) ? 255 : newR;
 									newG = (newG < 0) ? 0 : newG;
@@ -317,7 +336,7 @@ string colourizeMaterial(string materialName, int colour)
 									*blue = (uint8)newB;
 									*green = (uint8)newG;
 									*red = (uint8)newR;
-									*alpha = (uint8)(playerColourValues[colour].a * 255);
+									*alpha = (uint8)(tempPlayer->seat->colourValue.a * 255);
 								}
 							}
 						}
