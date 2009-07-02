@@ -55,14 +55,14 @@ void MapEditor::createScene(void)
 	gameMap.createAllEntities();
 
 	// Create the main scene lights
-	mSceneMgr->setAmbientLight(ColourValue(0.1, 0.1, 0.1));
-	double mainLightR = .6;
-	double mainLightG = .5;
-	double mainLightB = .3;
-	double mainLightAttenuationD = 100.0;
+	mSceneMgr->setAmbientLight(ColourValue(0.3, 0.36, 0.28));
+	double mainLightR = .42;
+	double mainLightG = .4;
+	double mainLightB = .35;
+	double mainLightAttenuationD = 300.0;
 	double mainLightAttenuationE = 0.5;
 	double mainLightAttenuationL = 0.001;
-	double mainLightAttenuationQ = 0.001;
+	double mainLightAttenuationQ = 0.0005;
 	Light *light = mSceneMgr->createLight("Light1");
 	light->setType(Light::LT_POINT);
 	light->setPosition(Ogre::Vector3(0, 0, 0));

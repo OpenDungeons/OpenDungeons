@@ -265,6 +265,8 @@ void GameMap::createAllEntities()
 	{
 		Creature *currentCreature = getCreature(i);
 		currentCreature->createMesh();
+		currentCreature->weaponL->createMesh();
+		currentCreature->weaponR->createMesh();
 	}
 
 	// Create OGRE entities for the rooms

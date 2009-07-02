@@ -9,6 +9,7 @@ class Creature;
 
 #include "Tile.h"
 #include "CreatureAction.h"
+#include "Weapon.h"
 
 /*! \brief Position, status, and AI state for a single game creature.
  *
@@ -37,9 +38,7 @@ class Creature
 
 		// Individual properties
 		string name;			// The creature's unique name
-		string weaponL, weaponR;	// The names of the weapons the creature is holding
-		double damageL, damageR;
-		double defenseL, defenseR;
+		Weapon *weaponL, *weaponR;	// The weapons the creature is holding
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
 		int hp, mana;			// Basic stats

@@ -181,7 +181,7 @@ void writeGameMapToFile(string fileName)
 		//NOTE: This code is duplicated in the client side method
 		//"addclass" defined in src/Client.cpp and readGameMapFromFile.
 		//Changes to this code should be reflected in that code as well
-		levelFile << gameMap.getCreature(i);
+		levelFile << gameMap.getCreature(i) << endl;
 	}
 
 	levelFile << endl;

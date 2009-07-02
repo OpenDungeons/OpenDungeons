@@ -301,9 +301,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		string tempString;
 		stringstream tempSS;
 		string tileTypeString;
-		Entity *ent, *weaponL, *weaponR;
+		Entity *ent, *weaponEntity;
 		SceneNode *node;
-		Bone *weaponLBone, *weaponRBone;
 		Node *tempNode;
 		Ogre::Matrix3 boneRot;
 		Ogre::Vector3 tempVector;
@@ -312,6 +311,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Tile *curTile = NULL;
 		Room *curRoom = NULL;
 		Creature *curCreature = NULL;
+		Weapon *curWeapon = NULL;
+		Bone *weaponBone;
+		string boneString;
 		Player *curPlayer = NULL;
 		int tempInt;
 
@@ -428,47 +430,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->setScale(curCreature->scale);
 				ent->setNormaliseNormals(true);
 
-				if(ent->hasSkeleton())
-				{
-					if(curCreature->weaponL.compare("none") != 0)
-					{
-						weaponL = mSceneMgr->createEntity("Creature_weaponL_" + curCreature->name, curCreature->weaponL + ".mesh");
-						weaponLBone = ent->getSkeleton()->getBone("Weapon_L");
-						tempVector = Ogre::Vector3(0, 0, 0);
-						tempNode = weaponLBone->getParent();
-						while(tempNode != NULL)
-						{
-							tempNode->getOrientation().ToRotationMatrix(boneRot);
-							tempVector -= tempNode->getPosition()*boneRot;
-							tempNode = tempNode->getParent();
-						}
-
-						tempQuaternion = weaponLBone->getWorldOrientation().Inverse();
-
-						tempVector = weaponLBone->getWorldPosition();
-						ent->attachObjectToBone(weaponLBone->getName(), weaponL, tempQuaternion);
-					}
-
-					if(curCreature->weaponR.compare("none") != 0)
-					{
-						weaponR = mSceneMgr->createEntity("Creature_weaponR_" + curCreature->name, curCreature->weaponR + ".mesh");
-						weaponRBone = ent->getSkeleton()->getBone("Weapon_R");
-						tempVector = Ogre::Vector3(0, 0, 0);
-						tempNode = weaponRBone->getParent();
-						while(tempNode != NULL)
-						{
-							tempNode->getOrientation().ToRotationMatrix(boneRot);
-							tempVector -= tempNode->getPosition()*boneRot;
-							tempNode = tempNode->getParent();
-						}
-
-						tempQuaternion = weaponRBone->getWorldOrientation();
-
-						tempVector = weaponRBone->getWorldPosition();
-						ent->attachObjectToBone(weaponRBone->getName(), weaponR);
-					}
-				}
-
 				node->attachObject(ent);
 				sem_post(&curCreature->meshCreationFinishedSemaphore);
 				break;
@@ -477,20 +438,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature = (Creature*)curReq->p;
 				if(mSceneMgr->hasEntity("Creature_" + curCreature->name))
 				{
-					if(curCreature->weaponL.compare("none") != 0)
-					{
-						ent = mSceneMgr->getEntity("Creature_weaponL_" + curCreature->name);
-						//ent->getParentNode()->removeChild("Creature_weaponL_" + curCreature->name);
-						mSceneMgr->destroyEntity(ent);
-					}
-
-					if(curCreature->weaponR.compare("none") != 0)
-					{
-						ent = mSceneMgr->getEntity("Creature_weaponR_" + curCreature->name);
-						//ent->getParentNode()->removeChild("Creature_weaponR_" + curCreature->name);
-						mSceneMgr->destroyEntity(ent);
-					}
-
 					ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
 					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
 					node->detachObject(ent);
@@ -499,6 +446,44 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->destroySceneNode(curCreature->name + "_node");
 				}
 				sem_post(&curCreature->meshDestructionFinishedSemaphore);
+				break;
+
+			case RenderRequest::createWeapon:
+				curWeapon = (Weapon*)curReq->p;
+				curCreature = (Creature*)curReq->p2;
+				cout << "\nCreating weapon:  " << curWeapon->name << endl;
+
+				ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
+
+				weaponEntity = mSceneMgr->createEntity("Creature_weapon" + curWeapon->handString + "_" + curCreature->name, curWeapon->meshName);
+				boneString = (string)"Weapon_" + curWeapon->handString;
+				weaponBone = ent->getSkeleton()->getBone(boneString);
+				tempVector = Ogre::Vector3(0, 0, 0);
+				tempNode = weaponBone->getParent();
+				while(tempNode != NULL)
+				{
+					tempNode->getOrientation().ToRotationMatrix(boneRot);
+					tempVector -= tempNode->getPosition()*boneRot;
+					tempNode = tempNode->getParent();
+				}
+
+				tempQuaternion = weaponBone->getWorldOrientation().Inverse();
+
+				tempVector = weaponBone->getWorldPosition();
+				ent->attachObjectToBone(weaponBone->getName(), weaponEntity, tempQuaternion);
+				break;
+
+			case RenderRequest::destroyWeapon:
+				curWeapon = (Weapon*)curReq->p;
+				curCreature = (Creature*)curReq->p2;
+				cout << "\nDestroying weapon:  " << curWeapon->name << endl;
+
+				if(curWeapon->name.compare("none") != 0)
+				{
+					ent = mSceneMgr->getEntity("Creature_weapon" + curWeapon->handString + "_" + curCreature->name);
+					mSceneMgr->destroyEntity(ent);
+				}
+				sem_post(&curRoom->meshDestructionFinishedSemaphore);
 				break;
 
 			case RenderRequest::pickUpCreature:

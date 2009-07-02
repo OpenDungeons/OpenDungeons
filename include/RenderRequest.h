@@ -17,6 +17,7 @@ class RenderRequest
 		enum RequestType {createTile, refreshTile, destroyTile, deleteTile,
 				createCreature, destroyCreature, deleteCreature, setCreatureAnimationState,
 				createCreatureVisualDebug, destroyCreatureVisualDebug,
+				createWeapon, destroyWeapon,
 				pickUpCreature, dropCreature,
 				createRoom, destroyRoom, deleteRoom,
 			      	noRequest};
@@ -26,6 +27,7 @@ class RenderRequest
 		RequestType type;
 		void *p;
 		void *p2;
+		void *p3;
 		string str;
 };
 

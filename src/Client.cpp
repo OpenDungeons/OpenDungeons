@@ -198,6 +198,8 @@ void *clientSocketProcessor(void *p)
 
 				gameMap.addCreature(newCreature);
 				newCreature->createMesh();
+				newCreature->weaponL->createMesh();
+				newCreature->weaponR->createMesh();
 				sem_wait(&sock->semaphore);
 				sock->send(formatCommand("ok", "addcreature"));
 				sem_post(&sock->semaphore);

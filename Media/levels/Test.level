@@ -1,11 +1,11 @@
 OpenDungeons_Version:0.3.3
 
 5
-1	Undead	0	0	0.0	0.8	0.0
+1	Undead	0	0	0	0.8	0
 2	Heroes	15	0	0.8	0.8	0.8
-3	Villians	15	0.8	0.3	0.3
-4	Constructs	15	0.8	0.8	0.0
-5	Animals	15	0.8	0.8	0.0
+3	Villians	15	0	0.8	0.3	0.3
+4	Constructs	15	0	0.8	0.8	0
+5	Animals	15	0	0.8	0.8	0
 
 1160
 -21	-7	0	100
@@ -698,11 +698,11 @@ OpenDungeons_Version:0.3.3
 2	1	0	100
 2	2	0	100
 2	3	0	100
-2	4	0	100
-2	5	0	100
-2	6	0	100
-2	7	0	100
-2	8	0	100
+2	4	5	0
+2	5	5	0
+2	6	5	0
+2	7	5	0
+2	8	5	0
 2	9	0	100
 2	10	0	100
 2	11	0	100
@@ -733,16 +733,16 @@ OpenDungeons_Version:0.3.3
 3	0	0	100
 3	1	0	100
 3	2	0	100
-3	3	0	100
-3	4	0	100
-3	5	0	100
-3	6	0	100
-3	7	0	100
-3	8	0	100
-3	9	0	100
-3	10	0	100
-3	11	0	100
-3	12	0	100
+3	3	5	0
+3	4	5	0
+3	5	5	0
+3	6	5	0
+3	7	5	0
+3	8	5	0
+3	9	5	0
+3	10	5	0
+3	11	5	0
+3	12	5	0
 3	13	0	100
 3	14	0	100
 3	15	0	100
@@ -771,10 +771,10 @@ OpenDungeons_Version:0.3.3
 4	2	0	0
 4	3	0	0
 4	4	0	0
-4	5	0	0
-4	6	0	0
-4	7	0	0
-4	8	0	0
+4	5	5	0
+4	6	5	0
+4	7	5	0
+4	8	5	0
 4	9	5	0
 4	10	5	0
 4	11	5	0
@@ -806,10 +806,10 @@ OpenDungeons_Version:0.3.3
 5	2	0	0
 5	3	0	0
 5	4	0	0
-5	5	0	0
-5	6	0	0
-5	7	0	0
-5	8	0	0
+5	5	5	0
+5	6	5	0
+5	7	5	0
+5	8	5	0
 5	9	5	0
 5	10	5	0
 5	11	5	0
@@ -842,7 +842,7 @@ OpenDungeons_Version:0.3.3
 6	3	0	0
 6	4	0	0
 6	5	0	0
-6	6	0	0
+6	6	5	0
 6	7	0	0
 6	8	0	0
 6	9	5	0
@@ -877,8 +877,8 @@ OpenDungeons_Version:0.3.3
 7	3	0	0
 7	4	0	0
 7	5	0	0
-7	6	0	0
-7	7	0	0
+7	6	5	0
+7	7	5	0
 7	8	0	0
 7	9	5	0
 7	10	5	0
@@ -942,7 +942,7 @@ OpenDungeons_Version:0.3.3
 9	2	0	0
 9	3	0	0
 9	4	5	0
-9	5	5	100
+9	5	5	0
 9	6	5	0
 9	7	5	0
 9	8	5	0
@@ -1195,23 +1195,23 @@ Kobold	Kobold.mesh	0.1	0.1	0.1	20	6	5	20	2.5
 Dragon	Dragon.mesh	1	1	1	220	50	10	0	0.9
 
 19
-Dragon	Dragon	8	11	0	2	none	0	0	none	0	0
-Knight	Knight	6	10	0	2	Sabre	8	0	none	0	0
-Knight	Knight_0001	6	7	0	2	Longsword	14	0	none	0	0
-Knight	Knight_0002	8	13	0	2	Sabre	8	0	Roundshield	0	7
-Knight	Knight_0003	6	4	0	2	none	0	0	Longsword	14	0
-Knight	Knight_0004	10	8	0	2	none	0	0	none	0	0
-Knight	Knight_0005	8	9	0	2	Longsword	14	0	Longsword	14	0
-Kobold	Kobold	-5	10	0	1	Longsword	10	0	Longsword	10	0
-Kobold	Kobold_0001	-7	13	0	1	none	0	0	none	0	0
-Kobold	Kobold_0002	-3	7	0	1	none	0	0	none	0	0
-Kobold	Kobold_0003	-6	10	0	1	none	0	0	none	0	0
-Kobold	Kobold_0004	-7	7	0	1	none	0	0	none	0	0
-Kobold	Kobold_0005	-4	13	0	1	none	0	0	none	0	0
-Kobold	Kobold_0006	5	10	0	2	Longsword	10	0	Longsword	10	0
-Kobold	Kobold_0007	7	13	0	2	none	0	0	none	0	0
-Kobold	Kobold_0008	3	7	0	2	none	0	0	none	0	0
-Kobold	Kobold_0009	6	10	0	2	none	0	0	none	0	0
-Kobold	Kobold_0010	7	7	0	2	none	0	0	none	0	0
-Kobold	Kobold_0011	4	13	0	2	none	0	0	none	0	0
+Dragon	Dragon	8	10	0	2	none	0	0	0	none	0	0	0
+Knight	Knight	7	8	0	2	Sabre	8	2	0	none	0	0	0
+Knight	Knight_0001	4	8	0	2	Longsword	14	3	0	none	0	0	0
+Knight	Knight_0002	5	5	0	2	Sabre	8	2	0	Roundshield	0	0	7
+Knight	Knight_0003	6	14	0	2	none	0	0	0	Longsword	14	3	0
+Knight	Knight_0004	10	9	0	2	none	0	0	0	none	0	0	0
+Knight	Knight_0005	9	7	0	2	Longsword	14	3	0	Longsword	14	3	0
+Kobold	Kobold	-3	9	0	1	Longsword	14	3	0	Longsword	14	3	0
+Kobold	Kobold_0001	-7	13	0	1	none	0	0	0	none	0	0	0
+Kobold	Kobold_0002	-3	7	0	1	none	0	0	0	none	0	0	0
+Kobold	Kobold_0003	-6	10	0	1	none	0	0	0	none	0	0	0
+Kobold	Kobold_0004	-7	7	0	1	none	0	0	0	none	0	0	0
+Kobold	Kobold_0005	-4	13	0	1	none	0	0	0	none	0	0	0
+Kobold	Kobold_0006	5	10	0	2	Longsword	14	3	0	Longsword	14	3	0
+Kobold	Kobold_0007	7	13	0	2	none	0	0	0	none	0	0	0
+Kobold	Kobold_0008	3	7	0	2	none	0	0	0	none	0	0	0
+Kobold	Kobold_0009	6	10	0	2	none	0	0	0	none	0	0	0
+Kobold	Kobold_0010	7	6	0	2	none	0	0	0	none	0	0	0
+Kobold	Kobold_0011	4	13	0	2	none	0	0	0	none	0	0	0
 

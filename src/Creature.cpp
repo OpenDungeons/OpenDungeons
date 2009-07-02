@@ -5,6 +5,7 @@
 #include "CreatureAction.h"
 #include "Network.h"
 #include "Field.h"
+#include "Weapon.h"
 
 Creature::Creature()
 {
@@ -25,10 +26,9 @@ Creature::Creature()
 	moveSpeed = 1.0;
 	tilePassability = Tile::walkableTile;
 
-	weaponL = "none";
-	weaponR = "none";
+	weaponL = NULL;
+	weaponR = NULL;
 
-	//currentTask = idle;
 	animationState = NULL;
 
 	actionQueue.push_back(CreatureAction(CreatureAction::idle));
@@ -57,8 +57,7 @@ ostream& operator<<(ostream& os, Creature *c)
 	os << c->className << "\t" << c->name << "\t";
 	os << c->position.x << "\t" << c->position.y << "\t" << c->position.z << "\t";
 	os << c->color << "\t";
-	os << c->weaponR << "\t" << c->damageR << "\t" << c->defenseR << "\t"; 
-	os << c->weaponL << "\t" << c->damageL << "\t" << c->defenseL << "\n";
+	os << c->weaponR << "\t" << c->weaponL;
 
 	return os;
 }
@@ -88,8 +87,16 @@ istream& operator>>(istream& is, Creature *c)
 	is >> xLocation >> yLocation >> zLocation;
 	c->position = Ogre::Vector3(xLocation, yLocation, zLocation);
 	is >> c->color;
-	is >> c->weaponR >> c->damageR >> c->defenseR;
-	is >> c->weaponL >> c->damageL >> c->defenseL;
+
+	c->weaponL = new Weapon;
+	is >> c->weaponL;
+	c->weaponL->parentCreature = c;
+	c->weaponL->handString = "R";
+
+	c->weaponR = new Weapon;
+	is >> c->weaponR;
+	c->weaponR->parentCreature = c;
+	c->weaponR->handString = "L";
 
 	// Copy the class based items
 	Creature *creatureClass = gameMap.getClassDescription(c->className);
@@ -116,6 +123,7 @@ istream& operator>>(istream& is, Creature *c)
 void Creature::createMesh()
 {
 	//NOTE: I think this line is redundant since the a sem_wait on any previous destruction should return the sem to 0 anyway but this takes care of it in case it is forgotten somehow
+	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 
 	RenderRequest *request = new RenderRequest;
@@ -138,6 +146,9 @@ void Creature::createMesh()
  */
 void Creature::destroyMesh()
 {
+	weaponL->destroyMesh();
+	weaponR->destroyMesh();
+
 	//NOTE: I think this line is redundant since the a sem_wait on any previous creation should return the sem to 0 anyway but this takes care of it in case it is forgotten somehow
 	//sem_init(&meshCreationFinishedSemaphore, 0, 0);
 
@@ -776,6 +787,9 @@ Tile* Creature::positionTile()
 */
 void Creature::deleteYourself()
 {
+	weaponL->destroyMesh();
+	weaponR->destroyMesh();
+
 	if(positionTile() != NULL)
 		positionTile()->removeCreature(this);
 
