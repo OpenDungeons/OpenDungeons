@@ -10,6 +10,7 @@ class Creature;
 #include "Tile.h"
 #include "CreatureAction.h"
 #include "Weapon.h"
+#include "Field.h"
 
 /*! \brief Position, status, and AI state for a single game creature.
  *
@@ -87,6 +88,7 @@ class Creature
 		bool hasVisualDebuggingEntities;
 		Tile *previousPositionTile;
 		list<Tile*> visualDebugEntityTiles;
+		Field *battleField;
 };
 
 #endif

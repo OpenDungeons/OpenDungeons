@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "Creature.h"
 #include "Defines.h"
 #include "Globals.h"
@@ -32,6 +34,7 @@ Creature::Creature()
 	animationState = NULL;
 
 	actionQueue.push_back(CreatureAction(CreatureAction::idle));
+	battleField = new Field("autoname");
 }
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed)
@@ -297,11 +300,14 @@ void Creature::doTurn()
 
 		// Carry out the current task
 		double diceRoll;
+		double tempDouble;
 		Tile *neighborTile;
 		vector<Tile*>neighbors, creatureNeighbors;
 		bool wasANeighbor = false;
 		Player *tempPlayer;
-		Field battleField;
+		Tile *tempTile, *myTile;
+		list<Tile*> tempPath;
+		pair<LocationType, double> min;
 
 		diceRoll = randomDouble(0.0, 1.0);
 		if(actionQueue.size() > 0)
@@ -534,7 +540,53 @@ void Creature::doTurn()
 						break;
 					}
 
-					battleField.clear();
+					myTile = positionTile();
+					battleField->clear();
+					for(unsigned int i = 0; i < visibleTiles.size(); i++)
+					{
+						tempTile = visibleTiles[i];
+						double rSquared = tempTile->x*tempTile->x + tempTile->y*tempTile->y;
+						double tileValue = 1 - sqrt(rSquared)/sightRadius;
+
+						for(unsigned int j = 0; j < visibleEnemies.size(); j++)
+						{
+							Tile *tempTile2 = visibleEnemies[j]->positionTile();
+
+							// Compensate for how close the creature is to me
+							rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
+							double factor = 1.0 / (rSquared + 1.0);
+
+							// Subtract for the distance from the enemy creature to r
+							rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
+							tileValue += factor*rSquared;
+						}
+
+						for(unsigned int j = 0; j < visibleAllies.size(); j++)
+						{
+							Tile *tempTile2 = visibleAllies[j]->positionTile();
+							rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
+							if(rSquared < 25.0)
+							{
+								tileValue += 5.0 * (rSquared/25.0);
+							}
+						}
+
+						double jitter = 0.0001;
+						battleField->set(tempTile->x, tempTile->y, tileValue + randomDouble(-1.0*jitter, jitter));
+					}
+
+					clearDestinations();
+				       	min = battleField->min();
+					tempDouble = 4;
+					tempPath = gameMap.path(positionTile()->x, positionTile()->y, min.first.first + randomDouble(-1.0*tempDouble,tempDouble), min.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
+					if(tempPath.size() > 2)
+					{
+						list<Tile*>::iterator itr = tempPath.begin();
+						itr++;
+						addDestination((*itr)->x, (*itr)->y);
+					}
+
+					//battleField->refreshMeshes(4.0);
 					break;
 
 				default:

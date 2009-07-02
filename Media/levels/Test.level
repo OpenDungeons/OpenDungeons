@@ -1,4 +1,4 @@
-OpenDungeons_Version:0.3.3
+OpenDungeons_Version:0.3.4
 
 5
 1	Undead	0	0	0	0.8	0
@@ -1191,7 +1191,7 @@ Quarters	1
 4
 Wyvern	Wyvern.mesh	1	1	1	27	10	15	0	1.3
 Knight	Knight.mesh	1	1	1	80	3	10	0	1
-Kobold	Kobold.mesh	0.1	0.1	0.1	20	6	5	20	2.5
+Kobold	Kobold.mesh	0.1	0.1	0.1	20	6	10	20	2.5
 Dragon	Dragon.mesh	1	1	1	220	50	10	0	0.9
 
 19

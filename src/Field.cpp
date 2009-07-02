@@ -1,4 +1,24 @@
+#include "Globals.h"
 #include "Field.h"
+#include "RenderRequest.h"
+
+Field::Field(string nName)
+{
+	static int uniqueNumber = 0;
+
+	char array[255];
+	if(nName.compare("autoname") == 0)
+	{
+		snprintf(array, sizeof(array), "field_%i", uniqueNumber++);
+		name = array;
+	}
+	else
+	{
+		name = nName;
+	}
+
+	hasMeshes = false;
+}
 
 /*! \brief Returns the stored value at a position (or 0) and a boolean indicating whether the value was wactually found.
  *
@@ -12,6 +32,17 @@ pair<double,bool> Field::get(int x, int y)
 	
 	return pair<double,bool>( found?(*itr).second:0.0, found );
 }
+
+FieldType::iterator Field::begin()
+{
+	return theField.begin();
+}
+
+FieldType::iterator Field::end()
+{
+	return theField.end();
+}
+
 
 /*! \brief Sets the field value at location (x,y) to the value f adding that place if necessary.
  *
@@ -67,5 +98,74 @@ void Field::subtractField(Field *f, double scale=1.0)
 void Field::clear()
 {
 	theField.clear();
+}
+
+pair<LocationType, double> Field::min()
+{
+	if(theField.size() == 0)
+	{
+		cerr << "\n\nERROR:  Trying to find the minumum value on a field of 0 elements.\n\n";
+		exit(1);
+	}
+
+	FieldType::iterator itr = theField.begin();
+	FieldType::iterator minimum = theField.begin();
+	while(itr != theField.end())
+	{
+		if(itr->second < minimum->second)
+		{
+			minimum = itr;
+		}
+
+		itr++;
+	}
+
+	return *minimum;
+}
+
+void Field::refreshMeshes(double offset = 0.0)
+{
+	if(!hasMeshes)
+	{
+		createMeshes(offset);
+	}
+	else
+	{
+	}
+}
+
+void Field::createMeshes(double offset = 0.0)
+{
+	if(hasMeshes)
+	{
+		return;
+	}
+	hasMeshes = true;
+
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::createField;
+	request->p = this;
+	request->p2 = new double(offset);
+
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	sem_post(&renderQueueSemaphore);
+}
+
+void Field::destroyMeshes()
+{
+	if(!hasMeshes)
+	{
+		return;
+	}
+	hasMeshes = false;
+
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::destroyField;
+	request->p = this;
+
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(request);
+	sem_post(&renderQueueSemaphore);
 }
 

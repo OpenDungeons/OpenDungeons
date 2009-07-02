@@ -40,6 +40,7 @@ using namespace std;
 #include "ChatMessage.h"
 #include "Network.h"
 #include "Sleep.h"
+#include "Field.h"
 
 using namespace Ogre;
 
@@ -126,6 +127,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mBrushMode = false;
 	creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
 	roomSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Room_scene_node");
+	fieldSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Field_scene_node");
 
 	mStatsOn = false;
 	mNumScreenShots = 0;
@@ -315,7 +317,10 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Bone *weaponBone;
 		string boneString;
 		Player *curPlayer = NULL;
-		int tempInt;
+		Field *curField = NULL;
+		FieldType::iterator fieldItr;
+		int tempInt, tempX, tempY;
+		double tempDouble, tempDouble2;
 
 		// Remove the first item from the render queue
 		sem_wait(&renderQueueSemaphore);
@@ -484,6 +489,35 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->destroyEntity(ent);
 				}
 				sem_post(&curRoom->meshDestructionFinishedSemaphore);
+				break;
+
+			case RenderRequest::createField:
+				curField = (Field*)curReq->p;
+				tempDouble = *(double*)curReq->p2;
+				delete (double*)curReq->p2;
+				cout << "\n\n\nCreating field:  " << curField->name;
+
+				fieldItr = curField->begin();
+				while(fieldItr != curField->end())
+				{
+					tempX = fieldItr->first.first;
+					tempY = fieldItr->first.second;
+					tempDouble2 = fieldItr->second;
+					//cout << "\ncreating field tile:  " << tempX << "\t" << tempY << "\t" << tempDouble;
+					tempString = "";
+					tempSS.str(tempString);
+					tempSS << "Field_" << curField->name << "_" << tempX << "_" << tempY;
+					ent = mSceneMgr->createEntity(tempSS.str(), "Field_indicator.mesh");
+					node = fieldSceneNode->createChildSceneNode(tempSS.str() + "_node");
+					node->setPosition(tempX, tempY, tempDouble + tempDouble2);
+					ent->setNormaliseNormals(true);
+					node->attachObject(ent);
+
+					fieldItr++;
+				}
+				break;
+
+			case RenderRequest::destroyField:
 				break;
 
 			case RenderRequest::pickUpCreature:
