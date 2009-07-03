@@ -306,6 +306,25 @@ void GameMap::doTurn()
 		cout << getTile(0, 0)->getCreature(i);
 	}
 
+	// Remove dead creatures
+	unsigned int count = 0;
+	while(count < numCreatures())
+	{
+		if(creatures[count]->hp < 0.0)
+		{
+			removeCreature(creatures[count]);
+			//sem_init(&creatures[count]->meshDestructionFinishedSemaphore, 0, 0);
+			creatures[count]->destroyMesh();
+			//TODO: This leaks memory because the delete statement is not called however calling it causes a crash
+			//sem_wait(&creatures[count]->meshDestructionFinishedSemaphore);
+			//creatures[count]->deleteYourself();
+		}
+		else
+		{
+			count++;
+		}
+	}
+
 	// Call the individual creature AI for each creature in this game map
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
@@ -328,6 +347,7 @@ void GameMap::doTurn()
  */
 list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
 {
+	//TODO:  Make the openList a priority queue sorted by the cost to improve lookup times on retrieving the next open item.
 	list<Tile*> returnList;
 	astarEntry *currentEntry;
 	Tile *destination;

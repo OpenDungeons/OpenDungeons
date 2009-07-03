@@ -1,4 +1,6 @@
 #include <math.h>
+#include <algorithm>
+using namespace std;
 
 #include "Creature.h"
 #include "Defines.h"
@@ -261,6 +263,7 @@ void Creature::doTurn()
 	vector< list<Tile*> > possiblePaths;
 	vector< list<Tile*> > shortPaths;
 	bool loopBack;
+	int tempInt;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
@@ -279,7 +282,7 @@ void Creature::doTurn()
 
 		for(unsigned int i = 0; i < visibleEnemies.size(); i++)
 		{
-			cout << visibleEnemies[i];
+			cout << visibleEnemies[i] << endl;
 		}
 
 		// if we are not already fighting with a creature
@@ -533,6 +536,7 @@ void Creature::doTurn()
 					break;
 
 				case CreatureAction::attackCreature:
+					// If there are no more enemies visible, stop attacking
 					if(visibleEnemies.size() == 0)
 					{
 						actionQueue.pop_front();
@@ -540,53 +544,91 @@ void Creature::doTurn()
 						break;
 					}
 
+					// Find the first enemy close enough to hit and attack it
+					for(unsigned int i = 0; i < visibleEnemies.size(); i++)
+					{
+						Tile *tempTile = visibleEnemies[i]->positionTile();
+						double rSquared = powl(myTile->x - tempTile->x, 2.0) + powl(myTile->y - tempTile->y, 2.0);
+						if(sqrt(rSquared) < max(weaponL->range, weaponR->range))
+						{
+							double damageDone = weaponL->damage + weaponR->damage;
+							visibleEnemies[i]->hp -= damageDone;
+							break;
+						}
+					}
+
+					// If we exited the above loop early it means we attacked
+					// a creature and are done with this turn
+					/*
+					if(i < visibleEnemies.size())
+					{
+						break;
+					}
+					*/
+
+					// Loop over the tiles in this creatures battleField and compute their value.
+					// The creature will then walk towards the tile with the minimum value.
 					myTile = positionTile();
 					battleField->clear();
 					for(unsigned int i = 0; i < visibleTiles.size(); i++)
 					{
 						tempTile = visibleTiles[i];
 						double rSquared = tempTile->x*tempTile->x + tempTile->y*tempTile->y;
-						double tileValue = 1 - sqrt(rSquared)/sightRadius;
+						double tileValue = 0.0;// - sqrt(rSquared)/sightRadius;
 
+						// Enemies
 						for(unsigned int j = 0; j < visibleEnemies.size(); j++)
 						{
 							Tile *tempTile2 = visibleEnemies[j]->positionTile();
 
 							// Compensate for how close the creature is to me
 							rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
-							double factor = 1.0 / (rSquared + 1.0);
+							double factor = 1.0 / (sqrt(rSquared) + 1.0);
 
 							// Subtract for the distance from the enemy creature to r
 							rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
-							tileValue += factor*rSquared;
+							tileValue += factor*sqrt(rSquared);
 						}
 
+						// Allies
 						for(unsigned int j = 0; j < visibleAllies.size(); j++)
 						{
 							Tile *tempTile2 = visibleAllies[j]->positionTile();
+
+							// Compensate for how close the creature is to me
+							rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
+							double factor = 1.0 / (sqrt(rSquared) + 1.0);
+
 							rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
-							if(rSquared < 25.0)
-							{
-								tileValue += 5.0 * (rSquared/25.0);
-							}
+							tileValue += 15.0 / (sqrt(rSquared+1.0));
 						}
 
-						double jitter = 0.0001;
-						battleField->set(tempTile->x, tempTile->y, tileValue + randomDouble(-1.0*jitter, jitter));
+						double jitter = 0.05;
+						double tileScaleFactor = 0.05;
+						battleField->set(tempTile->x, tempTile->y, (tileValue + randomDouble(-1.0*jitter, jitter))*tileScaleFactor);
 					}
 
 					clearDestinations();
 				       	min = battleField->min();
 					tempDouble = 4;
 					tempPath = gameMap.path(positionTile()->x, positionTile()->y, min.first.first + randomDouble(-1.0*tempDouble,tempDouble), min.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
-					if(tempPath.size() > 2)
+					tempInt = 3;
+					if(tempPath.size() > tempInt+2)
 					{
 						list<Tile*>::iterator itr = tempPath.begin();
-						itr++;
+						int count = 0;
+						while(itr != tempPath.end() && count < tempInt)
+						{
+							itr++;
+							count++;
+						}
 						addDestination((*itr)->x, (*itr)->y);
 					}
 
-					//battleField->refreshMeshes(4.0);
+					if(battleField->name.compare("field_1") == 0)
+					{
+						battleField->refreshMeshes(0.0);
+					}
 					break;
 
 				default:

@@ -125,17 +125,37 @@ pair<LocationType, double> Field::min()
 
 void Field::refreshMeshes(double offset = 0.0)
 {
+	if(theField.size() == 0 && !hasMeshes)
+	{
+		return;
+	}
+
 	if(!hasMeshes)
 	{
 		createMeshes(offset);
 	}
 	else
 	{
+		hasMeshes = true;
+
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::refreshField;
+		request->p = this;
+		request->p2 = new double(offset);
+
+		sem_wait(&renderQueueSemaphore);
+		renderQueue.push_back(request);
+		sem_post(&renderQueueSemaphore);
 	}
 }
 
 void Field::createMeshes(double offset = 0.0)
 {
+	if(theField.size() == 0)
+	{
+		return;
+	}
+
 	if(hasMeshes)
 	{
 		return;

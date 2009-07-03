@@ -476,6 +476,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				tempVector = weaponBone->getWorldPosition();
 				ent->attachObjectToBone(weaponBone->getName(), weaponEntity, tempQuaternion);
+				sem_post(&curWeapon->meshCreationFinishedSemaphore);
 				break;
 
 			case RenderRequest::destroyWeapon:
@@ -488,7 +489,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					ent = mSceneMgr->getEntity("Creature_weapon" + curWeapon->handString + "_" + curCreature->name);
 					mSceneMgr->destroyEntity(ent);
 				}
-				sem_post(&curRoom->meshDestructionFinishedSemaphore);
+				sem_post(&curWeapon->meshDestructionFinishedSemaphore);
 				break;
 
 			case RenderRequest::createField:
@@ -515,6 +516,45 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					fieldItr++;
 				}
+				break;
+
+			case RenderRequest::refreshField:
+				curField = (Field*)curReq->p;
+				tempDouble = *(double*)curReq->p2;
+				delete (double*)curReq->p2;
+				cout << "\n\n\nRefreshing field:  " << curField->name;
+
+				// Update existing meshes and create any new ones needed.
+				fieldItr = curField->begin();
+				while(fieldItr != curField->end())
+				{
+					tempString = "";
+					tempSS.str(tempString);
+					tempSS << "Field_" << curField->name << "_" << tempX << "_" << tempY;
+
+					tempX = fieldItr->first.first;
+					tempY = fieldItr->first.second;
+					tempDouble2 = fieldItr->second;
+
+					if(mSceneMgr->hasEntity(tempSS.str()))
+					{
+						// The mesh alread exists, just get the existing one
+						node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
+					}
+					else
+					{
+						// The mesh does not exist, create a new one
+						ent = mSceneMgr->createEntity(tempSS.str(), "Field_indicator.mesh");
+						node = fieldSceneNode->createChildSceneNode(tempSS.str() + "_node");
+						node->attachObject(ent);
+					}
+
+					node->setPosition(tempX, tempY, tempDouble + tempDouble2);
+					fieldItr++;
+				}
+
+				//TODO:  This is not done yet.
+				// Delete any meshes not in the field currently
 				break;
 
 			case RenderRequest::destroyField:

@@ -40,6 +40,9 @@
 
 
 --------------- FEATURE ADDITIONS: ---------------
+*  Make the HP loaded by the creature class the max HP and make the creature IO
+*  read/write the current HP.
+
 *  implement history on the terminal.
 
 *  implement line editing on the terminal.

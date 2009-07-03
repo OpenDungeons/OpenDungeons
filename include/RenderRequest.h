@@ -20,7 +20,7 @@ class RenderRequest
 				createWeapon, destroyWeapon,
 				pickUpCreature, dropCreature,
 				createRoom, destroyRoom, deleteRoom,
-				createField, destroyField,
+				createField, refreshField, destroyField,
 			      	noRequest};
 
 		RenderRequest();
