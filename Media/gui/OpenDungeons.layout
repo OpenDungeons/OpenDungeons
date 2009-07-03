@@ -11,14 +11,180 @@
             <Property Name="UnifiedAreaRect" Value="{{0.00624909,0},{0.78125,0},{0.992189,0},{0.995834,0}}" />
             <Window Type="DefaultWindow" Name="Root/MapEditorTabControl/Tab 1" >
                 <Property Name="Text" Value="Rooms" />
+                <Property Name="Visible" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+                <Window Type="TaharezLook/TabControl" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab" >
+                    <Property Name="TabHeight" Value="{0,22.4934}" />
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="TabPanePosition" Value="Top" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.00681449,0},{0.00873874,0},{0.995325,0},{0.870387,0}}" />
+                    <Window Type="DefaultWindow" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1" >
+                        <Property Name="Text" Value="Basic" />
+                        <Property Name="Visible" Value="False" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/QuartersButton" >
+                            <Property Name="Text" Value="Quarters" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.0162324,0},{0.142254,0},{0.134769,0},{0.910564,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/ForgeButton" >
+                            <Property Name="Text" Value="Forge" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.158918,0},{0.153521,0},{0.277454,0},{0.921831,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/ShopButton" >
+                            <Property Name="Text" Value="Shop" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.303206,0},{0.142254,0},{0.421743,0},{0.910564,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/DojoButton" >
+                            <Property Name="Text" Value="Dojo" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.447495,0},{0.153521,0},{0.566031,0},{0.921831,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/LibraryButton" >
+                            <Property Name="Text" Value="Library" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.590181,0},{0.142254,0},{0.708717,0},{0.910564,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/TreasuryButton" >
+                            <Property Name="Text" Value="Treasury" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.731263,0},{0.153521,0},{0.849799,0},{0.921831,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/FooderyButton" >
+                            <Property Name="Text" Value="Foodery" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.867535,0},{0.142254,0},{0.986072,0},{0.910564,0}}" />
+                        </Window>
+                    </Window>
+                    <Window Type="DefaultWindow" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2" >
+                        <Property Name="Text" Value="Advanced" />
+                        <Property Name="Visible" Value="False" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/TavernButton" >
+                            <Property Name="Text" Value="Tavern" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.013026,0},{0.164789,0},{0.105912,0},{0.944366,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/CathedralButton" >
+                            <Property Name="Text" Value="Cathedral" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.13006,0},{0.176057,0},{0.222946,0},{0.955634,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/CasinoButton" >
+                            <Property Name="Text" Value="Casino" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.250301,0},{0.176057,0},{0.343187,0},{0.955634,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/TortureChamberButton" >
+                            <Property Name="Text" >Torture
+Chamber</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.375351,0},{0.164789,0},{0.468237,0},{0.944366,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/CemetaryButton" >
+                            <Property Name="Text" Value="Cemetary" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.508417,0},{0.176057,0},{0.601303,0},{0.955634,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/AltarButton" >
+                            <Property Name="Text" Value="Altar" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.636673,0},{0.153521,0},{0.72956,0},{0.933098,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/AugmentationFacilityButton" >
+                            <Property Name="Text" >Aug
+Facility</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.768137,0},{0.164789,0},{0.861023,0},{0.944366,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/ArenaButton" >
+                            <Property Name="Text" Value="Arena" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.896393,0},{0.164789,0},{0.989279,0},{0.944366,0}}" />
+                        </Window>
+                    </Window>
+                </Window>
             </Window>
             <Window Type="DefaultWindow" Name="Root/MapEditorTabControl/Tab 2" >
                 <Property Name="Text" Value="Traps" />
                 <Property Name="Visible" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{-0.00158479,0},{0,0},{0.998415,0},{1,0}}" />
+                <Window Type="TaharezLook/TabControl" Name="Root/MapEditorTabControl/Tab 2/TrapsSubTab" >
+                    <Property Name="TabHeight" Value="{0,22.4934}" />
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="TabPanePosition" Value="Top" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.00522955,0},{-0.000969961,0},{0.99691,0},{0.860678,0}}" />
+                    <Window Type="DefaultWindow" Name="Root/MapEditorTabControl/Tab 2/TrapsSubTab/Tab 1" >
+                        <Property Name="Text" Value="Traps" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="UnifiedAreaRect" Value="{{0.00159808,0},{0.0112676,0},{1.0016,0},{1.01127,0}}" />
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/CannonButton" >
+                            <Property Name="Text" Value="Cannon" />
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.0685858,0},{0.130986,0},{0.161472,0},{0.910563,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/DartLauncherButton" >
+                            <Property Name="Text" >Dart
+Launcher</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.263552,0},{0.130986,0},{0.356438,0},{0.910563,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/SpikePitButton" >
+                            <Property Name="Text" >Spike
+Pit</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.466509,0},{0.130986,0},{0.559395,0},{0.910563,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/CoveredPitButton" >
+                            <Property Name="Text" >Covered
+Pit</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.661475,0},{0.130986,0},{0.754361,0},{0.910563,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/CutWireButton" >
+                            <Property Name="Text" >Cut
+Wire</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.842058,0},{0.119719,0},{0.934944,0},{0.899296,0}}" />
+                        </Window>
+                    </Window>
+                    <Window Type="DefaultWindow" Name="Root/MapEditorTabControl/Tab 2/TrapsSubTab/Tab 2" >
+                        <Property Name="Text" Value="Triggers" />
+                        <Property Name="Visible" Value="False" />
+                        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                        <Property Name="UnifiedAreaRect" Value="{{0.00159811,0},{0.0225352,0},{1.0016,0},{1.02254,0}}" />
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/FloorTriggerButton" >
+                            <Property Name="Text" >Floor
+Trigger</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.556002,0},{0.0971834,0},{0.687241,0},{0.87676,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/TripWireButton" >
+                            <Property Name="Text" >Trip
+Wire</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.08137,0},{0.108451,0},{0.214208,0},{0.888028,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/TemperatureTriggerButton" >
+                            <Property Name="Text" >Temperature
+Trigger</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.324279,0},{0.0971834,0},{0.449127,0},{0.87676,0}}" />
+                        </Window>
+                        <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/DoorTriggerButton" >
+                            <Property Name="Text" >Door
+Trigger</Property>
+                            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                            <Property Name="UnifiedAreaRect" Value="{{0.782929,0},{0.0971834,0},{0.920561,0},{0.87676,0}}" />
+                        </Window>
+                    </Window>
+                </Window>
             </Window>
             <Window Type="DefaultWindow" Name="Root/MapEditorTabControl/Tab 3" >
                 <Property Name="Text" Value="Spells" />
@@ -41,6 +207,27 @@
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                     <Property Name="UnifiedAreaRect" Value="{{0.0210775,0},{0.533009,0},{0.271078,0},{0.783009,0}}" />
                 </Window>
+                <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 4/FightingCreaturesButton" >
+                    <Property Name="Text" >Fighting
+Creatures
+8</Property>
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.433281,0},{0.128156,0},{0.550158,0},{0.892718,0}}" />
+                </Window>
+                <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 4/IdleCreaturesButton" >
+                    <Property Name="Text" >Idle
+Creatures
+8</Property>
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.601269,0},{0.118447,0},{0.718146,0},{0.883009,0}}" />
+                </Window>
+                <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 4/WorkingCreaturesButton" >
+                    <Property Name="Text" >Working
+Creatures
+8</Property>
+                    <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.769257,0},{0.128156,0},{0.886134,0},{0.892718,0}}" />
+                </Window>
             </Window>
             <Window Type="DefaultWindow" Name="Root/MapEditorTabControl/Tab 5" >
                 <Property Name="Text" Value="Combat" />
@@ -50,18 +237,17 @@
             </Window>
             <Window Type="DefaultWindow" Name="Root/MapEditorTabControl/Tab 6" >
                 <Property Name="Text" Value="System" />
-                <Property Name="Visible" Value="False" />
                 <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                 <Property Name="UnifiedAreaRect" Value="{{-6.98492e-010,0},{-3.1665e-008,0},{1,0},{1,0}}" />
                 <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 6/SaveButton" >
                     <Property Name="Text" Value="Save Map" />
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                    <Property Name="UnifiedAreaRect" Value="{{0.030586,0},{0.115535,0},{0.144295,0},{0.365535,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.030586,0},{0.144661,0},{0.136371,0},{0.579126,0}}" />
                 </Window>
                 <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 6/LoadButton" >
                     <Property Name="Text" Value="Load Map" />
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                    <Property Name="UnifiedAreaRect" Value="{{0.163866,0},{0.115535,0},{0.277575,0},{0.365535,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.146433,0},{0.144661,0},{0.249049,0},{0.579126,0}}" />
                 </Window>
                 <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 6/QuitButton" >
                     <Property Name="Text" Value="Quit" />
@@ -72,26 +258,26 @@
                     <Property Name="Text" Value="Test" />
                     <Property Name="MaxTextLength" Value="1073741823" />
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                    <Property Name="UnifiedAreaRect" Value="{{0.0323295,0},{0.545631,0},{0.274406,0},{0.79563,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.0323295,0},{0.652427,0},{0.247463,0},{0.902426,0}}" />
                 </Window>
                 <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 6/ServerButton" >
                     <Property Name="Text" >Host a
 Server</Property>
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                    <Property Name="UnifiedAreaRect" Value="{{0.312519,0},{0.0932042,0},{0.445245,0},{0.780096,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.26656,0},{0.151456,0},{0.366005,0},{0.585922,0}}" />
                 </Window>
                 <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 6/ClientButton" >
                     <Property Name="Text" >Connect to
 server</Property>
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                    <Property Name="UnifiedAreaRect" Value="{{0.0432647,0},{0.125243,0},{0.196592,0},{0.559708,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{-0.0660856,0},{0.14466,0},{0.0428678,0},{0.579125,0}}" />
                     <Property Name="HorizontalAlignment" Value="Centre" />
                 </Window>
                 <Window Type="TaharezLook/Editbox" Name="Root/MapEditorTabControl/Tab 6/ServerAddressEditBox" >
                     <Property Name="Text" Value="127.0.0.1" />
                     <Property Name="MaxTextLength" Value="1073741823" />
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-                    <Property Name="UnifiedAreaRect" Value="{{0.471315,0},{0.6233,0},{0.61672,0},{0.8733,0}}" />
+                    <Property Name="UnifiedAreaRect" Value="{{0.385736,0},{0.642717,0},{0.483599,0},{0.892717,0}}" />
                 </Window>
             </Window>
         </Window>
@@ -100,21 +286,27 @@ server</Property>
 1234</Property>
             <Property Name="HorzFormatting" Value="HorzCentred" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="UnifiedAreaRect" Value="{{0.890626,0},{0.0145834,0},{0.989063,0},{0.0895826,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.896876,0},{0.00416673,0},{0.995313,0},{0.0791659,0}}" />
         </Window>
         <Window Type="TaharezLook/StaticText" Name="Root/TerritoryDisplay" >
             <Property Name="Text" >Territory
 1234</Property>
             <Property Name="HorzFormatting" Value="HorzCentred" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="UnifiedAreaRect" Value="{{0.689063,0},{0.0166667,0},{0.782812,0},{0.0895831,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.701563,0},{0.00625003,0},{0.795312,0},{0.0791664,0}}" />
         </Window>
         <Window Type="TaharezLook/StaticText" Name="Root/GoldDisplay" >
             <Property Name="Text" >Gold
 1234</Property>
             <Property Name="HorzFormatting" Value="HorzCentred" />
             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
-            <Property Name="UnifiedAreaRect" Value="{{0.790625,0},{0.0166668,0},{0.884375,0},{0.0895827,0}}" />
+            <Property Name="UnifiedAreaRect" Value="{{0.798437,0},{0.00625013,0},{0.892187,0},{0.079166,0}}" />
+        </Window>
+        <Window Type="TaharezLook/FrameWindow" Name="Root/MessagesDisplayWindow" >
+            <Property Name="TitlebarFont" Value="Commonwealth-10" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.707814,0},{0.508334,0},{0.992189,0},{0.791664,0}}" />
         </Window>
     </Window>
 </GUILayout>

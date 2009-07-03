@@ -627,7 +627,7 @@ void Creature::doTurn()
 
 					if(battleField->name.compare("field_1") == 0)
 					{
-						battleField->refreshMeshes(0.0);
+						//battleField->refreshMeshes(0.0);
 					}
 					break;
 

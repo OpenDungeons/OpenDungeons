@@ -307,6 +307,7 @@ void GameMap::doTurn()
 	}
 
 	// Remove dead creatures
+	/*
 	unsigned int count = 0;
 	while(count < numCreatures())
 	{
@@ -324,6 +325,7 @@ void GameMap::doTurn()
 			count++;
 		}
 	}
+	*/
 
 	// Call the individual creature AI for each creature in this game map
 	for(unsigned int i = 0; i < numCreatures(); i++)
