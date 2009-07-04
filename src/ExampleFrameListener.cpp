@@ -305,7 +305,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		string tileTypeString;
 		Entity *ent, *weaponEntity;
 		SceneNode *node;
-		Node *tempNode;
 		Ogre::Matrix3 boneRot;
 		Ogre::Vector3 tempVector;
 		Quaternion tempQuaternion;
@@ -803,6 +802,20 @@ bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)
 bool quitButtonPressed(const CEGUI::EventArgs &e)
 {
 	cout << "\n\nHello world\n\n";
+
+	return true;
+}
+
+RaySceneQueryResult& ExampleFrameListener::doRaySceneQuery(const OIS::MouseEvent &arg)
+{
+	// Setup the ray scene query, use CEGUI's mouse position
+	CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();
+	Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x/float(arg.state.width), mousePos.d_y/float(arg.state.height));
+	mRaySceneQuery->setRay(mouseRay);
+	mRaySceneQuery->setSortByDistance(true);
+	
+	// Execute query
+	return mRaySceneQuery->execute();
 }
 
 /*! \brief Process the mouse movement event.
@@ -817,15 +830,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 	CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
 
-	//FIXME:  This code should be put into a function it is duplicated by mousePressed()
-	// Setup the ray scene query, use CEGUI's mouse position
-	CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();
-	Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x/float(arg.state.width), mousePos.d_y/float(arg.state.height));
-	mRaySceneQuery->setRay(mouseRay);
-	mRaySceneQuery->setSortByDistance(true);
-	
-	// Execute query
-	RaySceneQueryResult &result = mRaySceneQuery->execute();
+	RaySceneQueryResult &result = doRaySceneQuery(arg);
 	RaySceneQueryResult::iterator itr = result.begin( );
 
 	if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::nullDragType)
@@ -984,15 +989,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		}
 	}
 
-	//FIXME:  This code should be put into a function it is duplicated by mousePressed()
-	// Setup the ray scene query, use CEGUI's mouse position
-	CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();
-	Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x/float(arg.state.width), mousePos.d_y/float(arg.state.height));
-	mRaySceneQuery->setRay(mouseRay);
-	mRaySceneQuery->setSortByDistance(true);
-	
-	// Execute query
-	RaySceneQueryResult &result = mRaySceneQuery->execute();
+	RaySceneQueryResult &result = doRaySceneQuery(arg);
 	RaySceneQueryResult::iterator itr = result.begin( );
 
 	// Left mouse button down
@@ -1617,7 +1614,6 @@ void ExampleFrameListener::printText(string text)
  */
 void ExampleFrameListener::executePromptCommand()
 {
-	unsigned int firstSpace, lastSpace;
 	stringstream tempSS;
 
 	commandOutput = "";
@@ -1633,33 +1629,18 @@ void ExampleFrameListener::executePromptCommand()
 		return;
 	}
 
-	// Split the raw text into command and argument strings
-	firstSpace = promptCommand.find(' ');
-	if(firstSpace != string::npos)
-	{
-		command = promptCommand.substr(0, firstSpace);
+	char array2[255];
+	stringstream tempSS2;
+	tempSS2.str(promptCommand);
+	tempSS2.getline(array2, sizeof(array2), ' ');
+	command = array2;
+	tempSS2.getline(array2, sizeof(array2));
+	arguments = array2;
 
-		// Skip any extra spaces in between the command and the arguments
-		lastSpace = firstSpace;
-		while(lastSpace < promptCommand.size() && promptCommand[lastSpace] == ' ')
-		{
-			lastSpace++;
-		}
-
-		//FIXME: This if statement is a hack to prevent a crash, the code above needs
-		// to be fixed but i don't see the problem with it.
-		if(lastSpace < promptCommand.size())
-		{
-			arguments = promptCommand.substr(lastSpace, promptCommand.size()-lastSpace);
-		}
-		else
-		{
-			command = promptCommand;
-		}
-	}
-	else
+	unsigned int count = 0;
+	while(count < arguments.size() && arguments[count] == ' ')
 	{
-		command = promptCommand;
+		arguments = arguments.substr(1, arguments.size()-1);
 	}
 
 	// Force command to lower case
@@ -1728,22 +1709,19 @@ void ExampleFrameListener::executePromptCommand()
 		else if(command.compare("ambientlight") == 0)
 		{
 			double tempR, tempG, tempB;
-			char tempArray[255];
 
 			if(arguments.size() > 0)
 			{
 				tempSS.str(arguments);
 				tempSS >> tempR >> tempG >> tempB;
 				mSceneMgr->setAmbientLight(ColourValue(tempR,tempG,tempB));
-				snprintf(tempArray, sizeof(tempArray), "Abmbient light set to:\nRed:  %lf/1.0    Green:  %lf/1.0    Blue:  %lf/1.0", tempR, tempG, tempB);
-				commandOutput = tempArray;
+				commandOutput = "Ambient light set to:\nRed:  " + StringConverter::toString((Real)tempR) + "    Green:  " + StringConverter::toString((Real)tempG) + "    Blue:  " + StringConverter::toString((Real)tempB);
 
 			}
 			else
 			{
 				ColourValue curLight = mSceneMgr->getAmbientLight();
-				snprintf(tempArray, sizeof(tempArray), "Current Ambient Light:\nRed:  %f/1.0    Green:  %f/1.0    Blue:  %f/1.0", curLight.r, curLight.g, curLight.b);
-				commandOutput = tempArray;
+				commandOutput = "Current ambient light is:\nRed:  " + StringConverter::toString((Real)curLight.r) + "    Green:  " + StringConverter::toString((Real)curLight.g) + "    Blue:  " + StringConverter::toString((Real)curLight.b);
 			}
 		}
 
@@ -2033,7 +2011,7 @@ void ExampleFrameListener::executePromptCommand()
 					tempSS << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
 					for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 					{
-						tempSS << gameMap.getCreature(i);
+						tempSS << gameMap.getCreature(i) << endl;
 					}
 				}
 
@@ -2126,20 +2104,13 @@ void ExampleFrameListener::executePromptCommand()
 			string tempString;
 			if(arguments.size() > 0)
 			{
-				tempSS.str(arguments);
-				tempSS >> gameMap.me->nick;
+				gameMap.me->nick = arguments;
 
-				tempString = "";
-				tempSS.str(tempString);
-				tempSS << "Nickname set to:  " << gameMap.me->nick;
-				commandOutput = tempSS.str();
+				commandOutput = "Nickname set to:  " + gameMap.me->nick;
 			}
 			else
 			{
-				tempString = "";
-				tempSS.str(tempString);
-				tempSS << "Nickname set to:  " << gameMap.me->nick;
-				commandOutput = tempSS.str();
+				commandOutput = "Current nickname is:  " + gameMap.me->nick;
 			}
 		}
 

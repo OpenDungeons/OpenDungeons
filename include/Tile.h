@@ -59,12 +59,12 @@ class Tile
 
 		void addCreature(Creature *c);
 		void removeCreature(Creature *c);
-		int numCreaturesInCell();
+		unsigned int numCreaturesInCell();
 		Creature* getCreature(int index);
 
 		void addPlayerMarkingTile(Player *p);
 		void removePlayerMarkingTile(Player *p);
-		int numPlayersMarkingTile();
+		unsigned int numPlayersMarkingTile();
 		Player* getPlayerMarkingTile(int index);
 
 		Vector3 location;

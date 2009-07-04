@@ -315,7 +315,7 @@ string colourizeMaterial(string materialName, int colour)
 							uint8 *alpha = pixelData++;
 
 							int deltaR = *red - 235, deltaG = *green - 20, deltaB = *blue - 235;
-							int totalDistance = fabs(deltaR) + fabs(deltaG) + fabs(deltaB);
+							int totalDistance = fabs((double)deltaR) + fabs((double)deltaG) + fabs((double)deltaB);
 							int factor = 10;
 							// Check to see if the current pixel matches the target colour
 							if(totalDistance <= 65)

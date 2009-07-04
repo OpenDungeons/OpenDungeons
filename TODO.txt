@@ -7,9 +7,6 @@
 *  but the OS still thinks it's on, turning it off and then back on again
 *  restores the functionality).
 
-*  Terminal commands with no arguments but spaces at the end, like 'host ',
-*  will not be recognized as valid commands.
-
 *  Fix crash on loading a new map from the server, I think it has to do with
 *  getting peices of messages in a single packet.  This assumption may or may
 *  not be true, it may be that the RenderQueue is somehow processing the
@@ -19,9 +16,6 @@
 *  through walls, this could be a problem with the lineOfSight function.
 *  Actually I think it has to do with Creature::positionTile(), this is mostly
 *  fixed although positionTile() may still need some work.
-
-*  Solved? Confirmed solved v0.3.3 - I think the crash in root->startRendering possibly has to do with
-*  attatching things directly to the root scene node.
 
 *  The client has code to handle when messages are split across packets, but
 *  the server does not.  This needs to be added.
@@ -40,6 +34,8 @@
 
 
 --------------- FEATURE ADDITIONS: ---------------
+*  Add terminal command 'ls levels'
+
 *  Begin phasing out snprintf since it is not portable.
 
 *  Change prefix on weapon names, selection indicators, dig indicators, and

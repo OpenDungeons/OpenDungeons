@@ -301,10 +301,6 @@ void GameMap::doTurn()
 	sem_wait(&creatureAISemaphore);
 
 	cout << "\nStarting creature AI for turn " << turnNumber;
-	for(unsigned int i = 0; i < getTile(0, 0)->numCreaturesInCell(); i++)
-	{
-		cout << getTile(0, 0)->getCreature(i);
-	}
 
 	// Remove dead creatures
 	/*

@@ -534,7 +534,7 @@ void Tile::removeCreature(Creature *c)
 /*! \brief This function returns the count of the number of creatures in the tile.
  *
  */
-int Tile::numCreaturesInCell()
+unsigned int Tile::numCreaturesInCell()
 {
 	return creaturesInCell.size();
 }
@@ -567,7 +567,7 @@ void Tile::removePlayerMarkingTile(Player *p)
 	}
 }
 
-int Tile::numPlayersMarkingTile()
+unsigned int Tile::numPlayersMarkingTile()
 {
 	return playersMarkingTile.size();
 }
