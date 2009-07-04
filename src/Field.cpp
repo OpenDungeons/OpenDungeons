@@ -6,11 +6,9 @@ Field::Field(string nName)
 {
 	static int uniqueNumber = 0;
 
-	char array[255];
 	if(nName.compare("autoname") == 0)
 	{
-		snprintf(array, sizeof(array), "field_%i", uniqueNumber++);
-		name = array;
+		name = "field_" + StringConverter::toString(uniqueNumber++);
 	}
 	else
 	{

@@ -2368,9 +2368,9 @@ Dragon	Dragon.mesh	0.3	0.3	0.3	220	50	15	0	0.9
 
 19
 Dragon	Dragon	10	14	0	2	none	0	0	0	none	0	0	0
-Knight	Knight	14	-1	0	2	none	0	0	0	Sabre	8	2	0
+Knight	Knight	14	-1	0	2	Sabre	8	2	0	none	0	0	0
 Knight	Knight_0001	14	5	0	2	none	0	0	0	Longsword	14	3	0
-Knight	Knight_0002	11	-3	0	2	Roundshield	0	0	7	Sabre	8	2	0
+Knight	Knight_0002	11	-3	0	2	Sabre	8	2	0	Roundshield	0	0	7
 Knight	Knight_0003	9	-5	0	2	Longsword	14	3	0	none	0	0	0
 Knight	Knight_0004	10	9	0	2	none	0	0	0	none	0	0	0
 Knight	Knight_0005	9	7	0	2	Longsword	14	3	0	Longsword	14	3	0

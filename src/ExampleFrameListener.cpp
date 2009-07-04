@@ -459,22 +459,13 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				cout << "\nCreating weapon:  " << curWeapon->name << endl;
 
 				ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
-
-				weaponEntity = mSceneMgr->createEntity("Creature_weapon" + curWeapon->handString + "_" + curCreature->name, curWeapon->meshName);
+				weaponEntity = mSceneMgr->createEntity("Weapon_creature_" + curWeapon->handString + "_" + curCreature->name, curWeapon->meshName);
 				boneString = (string)"Weapon_" + curWeapon->handString;
 				weaponBone = ent->getSkeleton()->getBone(boneString);
-				tempVector = Ogre::Vector3(0, 0, 0);
-				tempNode = weaponBone->getParent();
-				while(tempNode != NULL)
-				{
-					tempNode->getOrientation().ToRotationMatrix(boneRot);
-					tempVector -= tempNode->getPosition()*boneRot;
-					tempNode = tempNode->getParent();
-				}
 
-				tempQuaternion = weaponBone->getWorldOrientation().Inverse();
+				//tempQuaternion = weaponBone->getWorldOrientation().Inverse();
+				tempQuaternion = weaponBone->_getDerivedOrientation().Inverse();
 
-				tempVector = weaponBone->getWorldPosition();
 				ent->attachObjectToBone(weaponBone->getName(), weaponEntity, tempQuaternion);
 				sem_post(&curWeapon->meshCreationFinishedSemaphore);
 				break;

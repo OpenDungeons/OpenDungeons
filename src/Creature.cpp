@@ -2,6 +2,8 @@
 #include <algorithm>
 using namespace std;
 
+#include <Ogre.h>
+
 #include "Creature.h"
 #include "Defines.h"
 #include "Globals.h"
@@ -81,9 +83,7 @@ istream& operator>>(istream& is, Creature *c)
 
 	if(tempString.compare("autoname") == 0)
 	{
-		char tempArray[255];
-		snprintf(tempArray, sizeof(tempArray), "%s_%04i", c->className.c_str(), uniqueNumber);
-		tempString = string(tempArray);
+		tempString = c->className + Ogre::StringConverter::toString(uniqueNumber);
 		uniqueNumber++;
 	}
 

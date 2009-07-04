@@ -40,6 +40,15 @@
 
 
 --------------- FEATURE ADDITIONS: ---------------
+*  Begin phasing out snprintf since it is not portable.
+
+*  Change prefix on weapon names, selection indicators, dig indicators, and
+*  creature visual debug so they are not mistaken for creatures in the
+*  raySceneQuery.
+
+*  Add a terminal command 'chathelp' which will lookup a help message and then
+*  chat it to the people in the game, to allow for showing people how to do stuff.
+
 *  Make the HP loaded by the creature class the max HP and make the creature IO
 *  read/write the current HP.
 
