@@ -294,6 +294,8 @@ void ExampleFrameListener::showDebugOverlay(bool show)
  */
 bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 {
+	if(mWindow->isClosed())	return false;
+
 	using namespace OIS;
 
 	// Process the queue of render tasks from the other threads
@@ -692,14 +694,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		chatString += tempSS.str() + "\n";
 	}
 
-	// Display the termianl, the current turn number, and the
+	// Display the terminal, the current turn number, and the
 	// visible chat messages at the top of the screen
 	string nullString = "";
-	char turnArray[255];
-	snprintf(turnArray, sizeof(turnArray), "Turn number:  %li", turnNumber);
-	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnArray + "\n" + (chatMessages.size()>0?chatString:nullString));
-
-	if(mWindow->isClosed())	return false;
+	string turnString = "Turn number:  " + StringConverter::toString(turnNumber);
+	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));
 
 	// Update the animations on any creatures who have them
 	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
@@ -1274,7 +1273,6 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 {
 	using namespace OIS;
-	char tempArray[255];
 	string tempString;
 	stringstream tempSS;
 
@@ -1380,8 +1378,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 						mCurrentTileRadius--;
 					}
 
-					snprintf(tempArray, sizeof(tempArray), "Brush size:  %i", mCurrentTileRadius);
-					MOTD = tempArray;
+					MOTD = "Brush size:  " + StringConverter::toString(mCurrentTileRadius);
 				}
 				break;
 
@@ -1394,8 +1391,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 						mCurrentTileRadius++;
 					}
 
-					snprintf(tempArray, sizeof(tempArray), "Brush size:  %i", mCurrentTileRadius);
-					MOTD = tempArray;
+					MOTD = "Brush size:  " + StringConverter::toString(mCurrentTileRadius);
 				}
 				break;
 
@@ -1406,14 +1402,12 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 					mBrushMode = !mBrushMode;
 					if(mBrushMode)
 					{
-						snprintf(tempArray, sizeof(tempArray), "Brush mode turned on");
+						MOTD = "Brush mode turned on";
 					}
 					else
 					{
-						snprintf(tempArray, sizeof(tempArray), "Brush mode turned off");
+						MOTD = "Brush mode turned off";
 					}
-
-					MOTD = tempArray;
 				}
 				break;
 
@@ -1422,8 +1416,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				if(serverSocket == NULL && clientSocket == NULL)
 				{
 					mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
-					snprintf(tempArray, sizeof(tempArray), "Tile fullness:  %i", mCurrentFullness);
-					MOTD = tempArray;
+					MOTD = "Tile fullness:  " + StringConverter::toString(mCurrentFullness);
 				}
 				break;
 
@@ -1751,9 +1744,7 @@ void ExampleFrameListener::executePromptCommand()
 			int maxWidth = terminalWordWrap;
 			for(int i = 0; i < maxWidth/10; i++)
 			{
-				char tempArray[255];
-				snprintf(tempArray, sizeof(tempArray), "         %i", i+1);
-				commandOutput += tempArray;
+				commandOutput += "         " + StringConverter::toString(i+1);
 			}
 
 			commandOutput += "\n";
@@ -1774,14 +1765,11 @@ void ExampleFrameListener::executePromptCommand()
 			int x1, y1, x2, y2;
 			tempSS.str(arguments);
 			tempSS >> x1 >> y1 >> x2 >> y2;
-			char tempArray[255];
 			int xMin, yMin, xMax, yMax;
 			xMin = min(x1, x2);
 			xMax = max(x1, x2);
 			yMin = min(y1,y2);
 			yMax = max(y1, y2);
-
-			snprintf(tempArray, sizeof(tempArray), "Creating tiles for region:\n\n\t(%i, %i)\tto\t(%i, %i)", xMin, yMin, xMax, yMax);
 
 			for(int j = yMin; j < yMax; j++)
 			{
@@ -1800,44 +1788,38 @@ void ExampleFrameListener::executePromptCommand()
 				}
 			}
 
-			commandOutput = tempArray;
+			commandOutput = "Creating tiles for region:\n\n\t(" + StringConverter::toString(xMin) + ", " + StringConverter::toString(yMin) + ")\tto\t(" + StringConverter::toString(xMax) + ", " + StringConverter::toString(yMax) + ")";
 		}
 
 		// A utility to set the camera movement speed
 		else if(command.compare("movespeed") == 0)
 		{
-			char tempArray[255];
 			if(arguments.size() > 0)
 			{
 				tempSS.str(arguments);
 				tempSS >> mMoveSpeed;
-				snprintf(tempArray, sizeof(tempArray), "movespeed set to %lf", mMoveSpeed);
-				commandOutput = tempArray;
+				commandOutput = "movespeed set to " + StringConverter::toString(mMoveSpeed);
 			}
 			else
 			{
-				snprintf(tempArray, sizeof(tempArray), "Current movespeed is %lf", mMoveSpeed);
-				commandOutput = tempArray;
+				commandOutput =  "Current movespeed is " + StringConverter::toString(mMoveSpeed);
 			}
 		}
 
 		// A utility to set the camera rotation speed.
 		else if(command.compare("rotatespeed") == 0)
 		{
-			char tempArray[255];
 			if(arguments.size() > 0)
 			{
 				double tempDouble;
 				tempSS.str(arguments);
 				tempSS >> tempDouble;
 				mRotateSpeed = Ogre::Degree(tempDouble);
-				snprintf(tempArray, sizeof(tempArray), "rotatespeed set to %lf", mRotateSpeed.valueDegrees());
-				commandOutput = tempArray;
+				commandOutput = "rotatespeed set to " + StringConverter::toString((Real)mRotateSpeed.valueDegrees());
 			}
 			else
 			{
-				snprintf(tempArray, sizeof(tempArray), "Current rotatespeed is %lf", mRotateSpeed.valueDegrees());
-				commandOutput = tempArray;
+				commandOutput =  "Current rotatespeed is " + StringConverter::toString((Real)mRotateSpeed.valueDegrees());
 			}
 		}
 

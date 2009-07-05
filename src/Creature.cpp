@@ -504,7 +504,7 @@ void Creature::doTurn()
 						if(numShortPaths > 0)
 						{
 							unsigned int shortestIndex;
-							shortestIndex = (int)randomDouble(0, (double)numShortPaths-0.001);
+							shortestIndex = randomUint(0, numShortPaths-1);
 							walkPath = shortPaths[shortestIndex];
 
 							// If the path is a legitimate path, walk down it to the tile to be dug out
@@ -543,6 +543,8 @@ void Creature::doTurn()
 						loopBack = true;
 						break;
 					}
+
+					myTile = positionTile();
 
 					// Find the first enemy close enough to hit and attack it
 					for(unsigned int i = 0; i < visibleEnemies.size(); i++)
@@ -776,7 +778,7 @@ vector<Creature*> Creature::getVisibleForce(int color, bool invert)
 	for(itr = visibleTiles.begin(); itr != visibleTiles.end(); itr++)
 	{
 		// Loop over the creatures in the given tile
-		for(int i = 0; i < (*itr)->numCreaturesInCell(); i++)
+		for(unsigned int i = 0; i < (*itr)->numCreaturesInCell(); i++)
 		{
 			Creature *tempCreature = (*itr)->getCreature(i);
 			// If it is an enemy

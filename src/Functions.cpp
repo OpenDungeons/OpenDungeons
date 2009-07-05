@@ -201,25 +201,109 @@ string forceLowercase(string s)
 	return tempString;
 }
 
+namespace Random
+{
+	unsigned long myRandomSeed = 14329;
+	unsigned long MAX = 32768;
+
+	// This is a very simple random number generator.  It is nothing fancy
+	// but should be good enough for our purposes.  The rand() function
+	// behave slightly differently on different systems and was causing
+	// bugs so it was replaced with this one.
+	unsigned long randgen()
+	{
+		myRandomSeed = myRandomSeed*1103515245 + 12345; 
+		return (unsigned int)(myRandomSeed / 65536) % 32768; 
+	}
+
+	// uniformly distributed number [0;1)
+	double uniform()
+	{
+		return randgen() * (1.0 / ((double) MAX));
+	}
+
+	// uniformly distributed number [0;hi)
+	double uniform(double hi)
+	{
+		return uniform() * hi;
+	}
+
+	// uniformly distributed number [lo;hi)
+	double uniform(double lo, double hi)
+	{
+		return (uniform() * (hi - lo)) + lo;
+	}
+
+	// random bit
+	signed randint()
+	{
+		return uniform() > 0.5 ? 1 : 0;
+	}
+
+	// random integer [0;hi]
+	signed randint(signed hi)
+	{
+		return static_cast<signed>(uniform() * (hi + 1));
+	}
+
+	// random integer [lo;hi]
+	signed randint(signed lo, signed hi)
+	{
+		return static_cast<signed> (lo + (uniform() * ((hi + 1) - lo)));
+	}
+
+	// random unsigned integer [0;hi]
+	unsigned int randuint(unsigned int hi)
+	{
+		return static_cast<unsigned int> (uniform() * (hi + 1));
+	}
+
+	// random unsigned integer [lo;hi]
+	unsigned int randuint(unsigned int lo, unsigned int hi)
+	{
+		return static_cast<unsigned int> (lo + (uniform() * ((hi + 1) - lo)));
+	}
+} //end namespace Random
+
 /************************************************
 *randomDouble() returns a double between the 
 *lower number entered and the higher number 
 *entered.  One or both numbers can be negative
 ************************************************/
-double randomDouble(double min,double max)
+double randomDouble(double min, double max)
 {
 	if(min > max)
 	{
-	double temp = min;
-	min = max;
-	max = temp;
+		double temp = min;
+		min = max;
+		max = temp;
 	}
 	
-double r = -1*((double)rand()/(double)(RAND_MAX+1));
-double value = min;
-value += r*(max-min);
+	return Random::uniform(min, max);
+}
 
-return value;
+int randomInt(int min, int max)
+{
+	if(min > max)
+	{
+		int temp = min;
+		min = max;
+		max = temp;
+	}
+	
+	return Random::randint(min, max);
+}
+
+unsigned int randomUint(unsigned int min, unsigned int max)
+{
+	if(min > max)
+	{
+		unsigned int temp = min;
+		min = max;
+		max = temp;
+	}
+	
+	return Random::randuint(min, max);
 }
 
 //returns a gaussian distributed random double value in [-1,1]
@@ -239,7 +323,7 @@ double gaussianRandomDouble()
 
 void seedRandomNumberGenerator()
 {
-	srand(time(0));
+	Random::myRandomSeed = time(0);
 }
 
 void swap(int &a, int &b)
