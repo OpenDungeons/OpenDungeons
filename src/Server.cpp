@@ -183,20 +183,16 @@ void *creatureAIThread(void *p)
 
 		timeTaken = stopwatch.getMicroseconds();
 
-		char timeTakenArray[255];
-		snprintf(timeTakenArray, sizeof(timeTakenArray), "%09i", (int)(1e6*timeUntilNextTurn - timeTaken));
+		string timeTakenString = StringConverter::toString((int)(1e6*timeUntilNextTurn - timeTaken), 9);
 		// Sleep this thread if it is necessary to keep the turns from happening too fast
 		if(1e6 * timeUntilNextTurn - timeTaken > 0)
 		{
-		       	cout << "\nCreature AI finished " << timeTakenArray << "us early.\n";
-			//cout.flush();
-
+		       	cout << "\nCreature AI finished " << timeTakenString << "us early.\n";
 			usleep(1e6 * timeUntilNextTurn - timeTaken );
 		}
 		else
 		{
-			cout << "\nCreature AI finished " << timeTakenArray << "us late.\n";
-			//cout.flush();
+			cout << "\nCreature AI finished " << timeTakenString << "us late.\n";
 		}
 	}
 
@@ -492,14 +488,6 @@ void *clientHandlerThread(void *p)
 				// Throw away the ok response
 				curSock->recv(tempString);
 			}
-
-			/*
-			// Send tell the client to start this turn
-			tempString = "";
-			tempSS.str(tempString);
-			tempSS << turnNumber;
-			curSock->send(formatCommand("newturn", tempSS.str()));
-			*/
 
 			sem_post(&curSock->semaphore);
 		}

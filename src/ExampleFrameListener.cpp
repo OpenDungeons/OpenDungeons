@@ -1,30 +1,3 @@
-/*
------------------------------------------------------------------------------
-This source file is part of OGRE
-(Object-oriented Graphics Rendering Engine)
-For the latest info, see http://www.ogre3d.org/
-
-Copyright (c) 2000-2006 Torus Knot Software Ltd
-Also see acknowledgements in Readme.html
-
-You may use this sample code for anything you like, it is not covered by the
-LGPL like the rest of the engine.
------------------------------------------------------------------------------
-*/
-/*
------------------------------------------------------------------------------
-Filename:    ExampleFrameListener.h
-Description: Defines an example frame listener which responds to frame events.
-This frame listener just moves a specified camera around based on
-keyboard and mouse movements.
-     F:        Toggle frame rate stats on/off
-		 R:        Render mode
-     T:        Cycle texture filtering
-	       Bilinear, Trilinear, Anisotropic(8)
-     P:        Toggle on/off display of camera position / orientation
------------------------------------------------------------------------------
-*/
-
 #include <stdio.h>
 #include <iostream>
 #include <algorithm>
@@ -346,7 +319,10 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					ent = mSceneMgr->createEntity(curTile->name, meshName);
 
 					// Link the tile mesh back to the relevant scene node so OGRE will render it
-					mSceneMgr->getSceneNode(curTile->name + "_node")->attachObject(ent);
+					node = mSceneMgr->getSceneNode(curTile->name + "_node");
+					node->attachObject(ent);
+					node->resetOrientation();
+					node->roll(Degree(curTile->rotation));
 					ent->setNormaliseNormals(true);
 				}
 				break;
@@ -360,10 +336,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				node = mSceneMgr->getRootSceneNode()->createChildSceneNode(curTile->name + "_node");
 				//node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
+				node->attachObject(ent);
 				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
+				node->resetOrientation();
+				node->roll(Degree(curTile->rotation));
 
-				node->attachObject(ent);
 				ent->setNormaliseNormals(true);
 				break;
 
@@ -907,9 +885,9 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 	{
 		Tile *currentTile;
 		list<Tile*> affectedTiles;
-		for(int i = -1*mCurrentTileRadius; i <= mCurrentTileRadius; i++)
+		for(int i = -1*(mCurrentTileRadius-1); i <= (mCurrentTileRadius-1); i++)
 		{
-			for(int j = -1*mCurrentTileRadius; j <= mCurrentTileRadius; j++)
+			for(int j = -1*(mCurrentTileRadius-1); j <= (mCurrentTileRadius-1); j++)
 			{
 				currentTile = gameMap.getTile(xPos + i, yPos + j);
 
@@ -929,6 +907,44 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 					gameMap.addTile(currentTile);
 					currentTile->createMesh();
 				}
+			}
+		}
+
+		// Add any tiles which border the affected region to the affected tiles list
+		// as they may alo want to swicth meshes to optimize polycount now too.
+		//      Adding the top and bottom rows
+		int xMin = -1 * (mCurrentTileRadius-1) + xPos;
+		int xMax = (mCurrentTileRadius-1) + xPos;
+		int yMin = -1 * (mCurrentTileRadius-1) + yPos;
+		int yMax = (mCurrentTileRadius-1) + yPos;
+		for(int i = xMin-1; i < xMax+1; i++)
+		{
+			Tile *currentTile = gameMap.getTile(i, yMax+1);
+			if(currentTile != NULL)
+			{
+				affectedTiles.push_back(currentTile);
+			}
+
+			currentTile = gameMap.getTile(i, yMin-1);
+			if(currentTile != NULL)
+			{
+				affectedTiles.push_back(currentTile);
+			}
+		}
+
+		//      Adding the side rows
+		for(int j = yMin-1; j < yMax+1; j++)
+		{
+			Tile *currentTile = gameMap.getTile(xMax+1, j);
+			if(currentTile != NULL)
+			{
+				affectedTiles.push_back(currentTile);
+			}
+
+			currentTile = gameMap.getTile(xMin-1, j);
+			if(currentTile != NULL)
+			{
+				affectedTiles.push_back(currentTile);
 			}
 		}
 
@@ -1826,36 +1842,28 @@ void ExampleFrameListener::executePromptCommand()
 		// Set max frames per second
 		else if(command.compare("fps") == 0)
 		{
-			char tempArray[255];
 			if(arguments.size() > 0)
 			{
 				double tempDouble;
 				tempSS.str(arguments);
 				tempSS >> tempDouble;
 				MAX_FRAMES_PER_SECOND = tempDouble;
-				
-				snprintf(tempArray, sizeof(tempArray), "Maximum framerate set to %lf", MAX_FRAMES_PER_SECOND);
-				commandOutput = tempArray;
+				commandOutput = "Maximum framerate set to " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND);
 			}
 			else
 			{
-				snprintf(tempArray, sizeof(tempArray), "Current maximum framerate is %lf", MAX_FRAMES_PER_SECOND);
-				commandOutput = tempArray;
+				commandOutput = "Current maximum framerate is " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND);
 			}
 		}
 
 		// Set the turnsPerSecond variable to control the AI speed
 		else if(command.compare("turnspersecond") == 0 || command.compare("tps") == 0)
 		{
-			char tempArray[255];
 			if(arguments.size() > 0)
 			{
 				tempSS.str(arguments);
 				tempSS >> turnsPerSecond;
 				
-				snprintf(tempArray, sizeof(tempArray), "The game will proceed at %lf turns per second.", turnsPerSecond);
-				commandOutput = tempArray;
-
 				if(serverSocket != NULL)
 				{
 					try
@@ -1877,32 +1885,29 @@ void ExampleFrameListener::executePromptCommand()
 						exit(1);
 					}
 				}
+
+				commandOutput = "Maximum turns per second set to " + StringConverter::toString((Real)turnsPerSecond);
 			}
 			else
 			{
-				snprintf(tempArray, sizeof(tempArray), "The game is proceeding at %lf turns per second.", turnsPerSecond);
-				commandOutput = tempArray;
+				commandOutput = "Current maximum turns per second is " + StringConverter::toString((Real)turnsPerSecond);
 			}
 		}
 
 		// Set near clip distance
 		else if(command.compare("nearclip") == 0)
 		{
-			char tempArray[255];
 			if(arguments.size() > 0)
 			{
 				double tempDouble;
 				tempSS.str(arguments);
 				tempSS >> tempDouble;
 				mCamera->setNearClipDistance(tempDouble);
-				
-				snprintf(tempArray, sizeof(tempArray), "Near clip distance set to %lf", mCamera->getNearClipDistance());
-				commandOutput = tempArray;
+				commandOutput = "Near clip distance set to " + StringConverter::toString((Real)mCamera->getNearClipDistance());
 			}
 			else
 			{
-				snprintf(tempArray, sizeof(tempArray), "Near clip distance set to %lf", mCamera->getNearClipDistance());
-				commandOutput = tempArray;
+				commandOutput = "Current near clip distance is " + StringConverter::toString((Real)mCamera->getNearClipDistance());
 			}
 		}
 
@@ -1916,14 +1921,11 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS.str(arguments);
 				tempSS >> tempDouble;
 				mCamera->setFarClipDistance(tempDouble);
-				
-				snprintf(tempArray, sizeof(tempArray), "Far clip distance set to %lf", mCamera->getFarClipDistance());
-				commandOutput = tempArray;
+				commandOutput = "Far clip distance set to " + StringConverter::toString((Real)mCamera->getFarClipDistance());
 			}
 			else
 			{
-				snprintf(tempArray, sizeof(tempArray), "Far clip distance set to %lf", mCamera->getFarClipDistance());
-				commandOutput = tempArray;
+				commandOutput = "Current far clip distance is " + StringConverter::toString((Real)mCamera->getFarClipDistance());
 			}
 		}
 

@@ -17,14 +17,14 @@ Tile::Tile()
 
 Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 {
+	sem_init(&meshCreationFinishedSemaphore, 0, 0);
+	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 	selected = false;
 	markedForDigging = false;
 	x = nX;
 	y = nY;
 	setType(nType);
 	setFullness(nFullness);
-	sem_init(&meshCreationFinishedSemaphore, 0, 0);
-	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 }
 
 /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
@@ -65,6 +65,8 @@ void Tile::setFullness(int f)
 {
 	fullness = f;
 
+	int tempInt;
+
 	//FIXME:  This needs to be updated to reflect the allowable fill states for each tile type
 	// This is also where the logic for checking neighboring fullness should go
 	fullnessMeshNumber = 0;
@@ -73,28 +75,109 @@ void Tile::setFullness(int f)
 	else if(f > 50 && f <= 75)	fullnessMeshNumber = 75;
 	else if(f > 75)
 	{
-		// If  all 4 neighbors exist and are also in the "full"
-		// category, then we don't draw the sides on this tile.
-		Tile *top = gameMap.getTile(x, y+1);
-		Tile *bottom = gameMap.getTile(x, y-1);
-		Tile *left = gameMap.getTile(x-1, y);
-		Tile *right = gameMap.getTile(x+1, y);
-		if(top != NULL && bottom != NULL && left != NULL && right != NULL)
+		// 		4 0 7		    180    
+		// 		2 8 3		270  .  90 
+		// 		7 1 5		     0     
+		//
+		bool fillStatus[9];
+		Tile *tempTile = gameMap.getTile(x, y+1);
+		fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
+		tempTile = gameMap.getTile(x, y-1);
+		fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
+		tempTile = gameMap.getTile(x-1, y);
+		fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
+		tempTile = gameMap.getTile(x+1, y);
+		fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
+
+		int fullNeighbors = 0;
+		if(fillStatus[0])	fullNeighbors++;
+		if(fillStatus[1])	fullNeighbors++;
+		if(fillStatus[2])	fullNeighbors++;
+		if(fillStatus[3])	fullNeighbors++;
+
+		switch(fullNeighbors)
 		{
-			if(top->getFullness() > 75 && bottom->getFullness() > 75 && \
-			left->getFullness() > 75 && right->getFullness() > 75)
-			{
-				fullnessMeshNumber = 100;
-			}
-			else
-			{
+			//TODO:  Determine the rotation for each of these case statements
+			case 0:
 				fullnessMeshNumber = 104;
-			}
+				rotation = 0;
+				break;
+
+			case 1:
+				fullnessMeshNumber = 103;
+				if(fillStatus[0])	{rotation = 180; break;}//correct
+				if(fillStatus[1])	{rotation = 0; break;}//correct
+				if(fillStatus[2])	{rotation = 270; break;}//correct
+				if(fillStatus[3])	{rotation = 90; break;}//correct
+				break;
+
+			case 2:
+				tempInt = 0;
+				if(fillStatus[0])	tempInt += 1;
+				if(fillStatus[1])	tempInt += 2;
+				if(fillStatus[2])	tempInt += 4;
+				if(fillStatus[3])	tempInt += 8;
+
+				switch(tempInt)
+				{
+					case 5:
+						fullnessMeshNumber = 105;
+						rotation = 270;
+						break;
+
+					case 6:
+						fullnessMeshNumber = 105;
+						rotation = 0;
+						break;
+
+					case 9:
+						fullnessMeshNumber = 105;
+						rotation = 180;
+						break;
+
+					case 10:
+						fullnessMeshNumber = 105;
+						rotation = 90;
+						break;
+
+
+
+					case 3:
+						fullnessMeshNumber = 102;
+						rotation = 0.0;
+						break;
+
+					case 12:
+						fullnessMeshNumber = 102;
+						rotation = 90.0;
+						break;
+
+					default:
+					cerr << "\n\nERROR:  Unhandled case statement in Tile::setFullness(), exiting.  tempInt = " << tempInt << "\n\n";
+					exit(1);
+					break;
+				}
+				break;
+
+			case 3:
+				fullnessMeshNumber = 101;  //this is wrong for now it should be 101
+				if(!fillStatus[0])	{rotation = 90; break;}//correct
+				if(!fillStatus[1])	{rotation = 270; break;}
+				if(!fillStatus[2])	{rotation = 180; break;}
+				if(!fillStatus[3])	{rotation = 0; break;}
+				break;
+
+			case 4:
+				fullnessMeshNumber = 100;
+				rotation = 0;
+				break;
+
+			default:
+				cerr << "\n\nERROR:  fullNeighbors != 0 or 1 or 2 or 3 or 4.  This is impossible, exiting program.\n\n";
+				exit(1);
+				break;
 		}
-		else
-		{
-			fullnessMeshNumber = 104;
-		}
+
 	}
 
 	refreshMesh();

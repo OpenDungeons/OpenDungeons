@@ -1,4 +1,4 @@
-OpenDungeons_Version:0.3.4
+OpenDungeons_Version:0.3.5
 
 5
 1	Undead	0	0	0	0.8	0
@@ -694,7 +694,7 @@ OpenDungeons_Version:0.3.4
 -11	-2	0	0
 -11	-1	0	0
 -11	0	0	0
--11	1	0	0
+-11	1	0	100
 -11	2	0	0
 -11	3	0	0
 -11	4	0	0
@@ -748,9 +748,9 @@ OpenDungeons_Version:0.3.4
 -10	-3	0	0
 -10	-2	0	0
 -10	-1	0	0
--10	0	0	0
--10	1	0	0
--10	2	0	0
+-10	0	0	100
+-10	1	0	100
+-10	2	0	100
 -10	3	0	0
 -10	4	0	0
 -10	5	0	0
@@ -808,7 +808,7 @@ OpenDungeons_Version:0.3.4
 -9	2	0	0
 -9	3	0	0
 -9	4	0	0
--9	5	0	0
+-9	5	0	100
 -9	6	0	0
 -9	7	0	0
 -9	8	0	0
@@ -855,7 +855,7 @@ OpenDungeons_Version:0.3.4
 -8	-6	0	0
 -8	-5	0	0
 -8	-4	0	0
--8	-3	0	0
+-8	-3	0	100
 -8	-2	0	0
 -8	-1	0	0
 -8	0	0	0
@@ -863,8 +863,8 @@ OpenDungeons_Version:0.3.4
 -8	2	0	0
 -8	3	0	0
 -8	4	0	0
--8	5	0	0
--8	6	0	0
+-8	5	0	100
+-8	6	0	100
 -8	7	0	0
 -8	8	0	0
 -8	9	0	0
@@ -909,8 +909,8 @@ OpenDungeons_Version:0.3.4
 -7	-7	0	0
 -7	-6	0	0
 -7	-5	0	0
--7	-4	0	0
--7	-3	0	0
+-7	-4	0	100
+-7	-3	0	100
 -7	-2	0	0
 -7	-1	0	0
 -7	0	0	0
@@ -918,7 +918,7 @@ OpenDungeons_Version:0.3.4
 -7	2	0	0
 -7	3	0	0
 -7	4	0	0
--7	5	0	0
+-7	5	0	100
 -7	6	0	0
 -7	7	0	0
 -7	8	0	0
@@ -963,7 +963,7 @@ OpenDungeons_Version:0.3.4
 -6	-6	0	0
 -6	-5	0	0
 -6	-4	0	0
--6	-3	0	0
+-6	-3	0	100
 -6	-2	0	0
 -6	-1	0	0
 -6	0	0	0
@@ -1019,9 +1019,9 @@ OpenDungeons_Version:0.3.4
 -5	-3	0	0
 -5	-2	0	0
 -5	-1	0	0
--5	0	0	0
--5	1	0	0
--5	2	0	0
+-5	0	0	100
+-5	1	0	100
+-5	2	0	100
 -5	3	0	0
 -5	4	0	0
 -5	5	0	0
@@ -1072,7 +1072,7 @@ OpenDungeons_Version:0.3.4
 -4	-2	0	0
 -4	-1	0	0
 -4	0	0	0
--4	1	0	0
+-4	1	0	100
 -4	2	0	0
 -4	3	0	0
 -4	4	0	0
@@ -2368,10 +2368,10 @@ Dragon	Dragon.mesh	0.3	0.3	0.3	220	50	15	0	0.9
 
 19
 Dragon	Dragon	10	14	0	2	none	0	0	0	none	0	0	0
-Knight	Knight	14	-1	0	2	Sabre	8	2	0	none	0	0	0
-Knight	Knight_0001	14	5	0	2	none	0	0	0	Longsword	14	3	0
-Knight	Knight_0002	11	-3	0	2	Sabre	8	2	0	Roundshield	0	0	7
-Knight	Knight_0003	9	-5	0	2	Longsword	14	3	0	none	0	0	0
+Knight	Knight	14	-1	0	2	none	0	0	0	Sabre	8	2	0
+Knight	Knight_0001	14	5	0	2	Longsword	14	3	0	none	0	0	0
+Knight	Knight_0002	11	-3	0	2	Roundshield	0	0	7	Sabre	8	2	0
+Knight	Knight_0003	9	-5	0	2	none	0	0	0	Longsword	14	3	0
 Knight	Knight_0004	10	9	0	2	none	0	0	0	none	0	0	0
 Knight	Knight_0005	9	7	0	2	Longsword	14	3	0	Longsword	14	3	0
 Kobold	Kobold	-19	-6	0	1	Longsword	14	3	0	Longsword	14	3	0
