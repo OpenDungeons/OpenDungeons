@@ -12,7 +12,10 @@
 class CreatureAction
 {
 	public:
-		enum ActionType {walkToTile=1, digTile=2, attackCreature=3, idle=4};
+		enum ActionType
+		{
+			walkToTile, digTile, claimTile, attackCreature, idle
+		};
 
 		CreatureAction();
 		CreatureAction(ActionType nType, Tile *nTile=NULL, Creature *nCreature=NULL);

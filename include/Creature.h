@@ -36,6 +36,7 @@ class Creature
 		Ogre::Vector3 scale;
 		double sightRadius;		// The inner radius where the creature sees everything
 		double digRate;			// Fullness removed per turn of digging
+		double danceRate;		// How much the danced upon tile's color changes per turn of dancing
 
 		// Individual properties
 		string name;			// The creature's unique name

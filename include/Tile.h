@@ -69,6 +69,8 @@ class Tile
 
 		Vector3 location;
 		int x, y;
+		int color;
+		double colorDouble;
 		vector<Tile*> neighbors;
 		double rotation;
 		string name;

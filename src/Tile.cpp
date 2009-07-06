@@ -11,6 +11,8 @@ Tile::Tile()
 	type = dirt;
 	setFullness(100);
 	rotation = 0.0;
+	color = 0;
+	colorDouble = 0.0;
 	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 }
@@ -19,6 +21,8 @@ Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 {
 	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
+	color = 0;
+	colorDouble = 0.0;
 	selected = false;
 	markedForDigging = false;
 	x = nX;

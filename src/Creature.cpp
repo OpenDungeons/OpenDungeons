@@ -22,6 +22,7 @@ Creature::Creature()
 	scale = Ogre::Vector3(1,1,1);
 	sightRadius = 10.0;
 	digRate = 10.0;
+	danceRate = 0.2;
 	destinationX = 0;
 	destinationY = 0;
 
@@ -277,6 +278,7 @@ void Creature::doTurn()
 	// If the creature can see enemies
 	if(visibleEnemies.size() > 0)
 	{
+		/*
 		cout << "\nCreature sees enemies:  " << visibleEnemies.size() << "   " << name;
 		cout << "\nvisibleEnemies:\n";
 
@@ -284,6 +286,7 @@ void Creature::doTurn()
 		{
 			cout << visibleEnemies[i] << endl;
 		}
+		*/
 
 		// if we are not already fighting with a creature
 		if(actionQueue.size() > 0 && actionQueue.front().type != CreatureAction::attackCreature && randomDouble(0.0, 1.0) > 0.3)
@@ -305,7 +308,7 @@ void Creature::doTurn()
 		double diceRoll;
 		double tempDouble;
 		Tile *neighborTile;
-		vector<Tile*>neighbors, creatureNeighbors;
+		vector<Tile*>neighbors, creatureNeighbors, claimableTiles;
 		bool wasANeighbor = false;
 		Player *tempPlayer;
 		Tile *tempTile, *myTile;
@@ -322,18 +325,24 @@ void Creature::doTurn()
 					setAnimationState("Idle");
 					//FIXME: make this into a while loop over a vector of <action, probability> pairs
 
-					// Decide to check for diggable tiles with some probability
-					if(diceRoll < 0.4 && digRate > 0.1)
+					// Decide to check for clamiable tiles
+					if(diceRoll < 0.2 && digRate > 0.1)
 					{
-						//loopBack = true;
-						actionQueue.push_front(CreatureAction(CreatureAction::digTile));
 						loopBack = true;
+						actionQueue.push_front(CreatureAction(CreatureAction::claimTile));
+					}
+
+					// Decide to check for diggable tiles
+					else if(diceRoll < 0.4 && digRate > 0.1)
+					{
+						loopBack = true;
+						actionQueue.push_front(CreatureAction(CreatureAction::digTile));
 					}
 
 					// Decide to "wander" a short distance
 					else if(diceRoll < 0.6)
 					{
-						//loopBack = true;
+						loopBack = true;
 						actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 						int tempX = position.x + 2.0*gaussianRandomDouble();
 						int tempY = position.y + 2.0*gaussianRandomDouble();
@@ -390,6 +399,76 @@ void Creature::doTurn()
 					{
 						actionQueue.pop_front();
 						loopBack = true;
+					}
+					break;
+
+				case CreatureAction::claimTile:
+					// See if the tile we are standing on can be claimed
+					myTile = positionTile();
+					if(myTile != NULL && (myTile->color != color || myTile->colorDouble < 1.0))
+					{
+						cout << "\nTrying to claim the tile I am standing on.";
+						// Check to see if one of the tile's neighbors is claimed for our color
+						neighbors = gameMap.neighborTiles(myTile->x, myTile->y);
+						for(unsigned int j = 0; j < neighbors.size(); j++)
+						{
+							// Check to see if the current neighbor is already claimed
+							tempTile = neighbors[j];
+							if(tempTile->color == color && tempTile->colorDouble >= 1.0)
+							{
+								cout << "\t\tFound a neighbor that is claimed.";
+								// If we found a neighbor that is claimed for our side than we
+								// can start dancing on this tile
+								if(myTile->color == color)
+								{
+									cout << "\t\tmyTile is My color.";
+									myTile->colorDouble += danceRate;
+									if(myTile->colorDouble >= 1.0)
+									{
+										// Claim the tile and finish claiming
+										//FIXME:  Change Dig to Dance
+										setAnimationState("Dig");
+										myTile->colorDouble = 1.0;
+										myTile->setType(Tile::claimed);
+										actionQueue.pop_front();
+									}
+								}
+								else
+								{
+									myTile->colorDouble -= danceRate;
+									if(myTile->colorDouble <= 0.0)
+									{
+										myTile->colorDouble *= -1.0;
+										myTile->color = color;
+									}
+								}
+
+								// Break out of this loop but not out of the switch statement
+								j = neighbors.size();
+							}
+						}
+					}
+
+					cout << "\nLooking at the visible tiles to see if I can claim a tile.";
+					// The tile we are standing on is already claimed or is not currently
+					// claimable, find candidates for claiming
+					for(unsigned int i = 0; i < visibleTiles.size(); i++)
+					{
+						// if this tile is not fully claimed yet or the tile is of another player's color
+						tempTile = visibleTiles[i];
+						if(tempTile->colorDouble < 1.0 || tempTile->color != color)
+						{
+							// Check to see if one of the tile's neighbors is claimed for our color
+							neighbors = gameMap.neighborTiles(visibleTiles[i]->x, visibleTiles[i]->y);
+							for(unsigned int j = 0; j < neighbors.size(); j++)
+							{
+								tempTile = neighbors[j];
+								if(tempTile->color == color && tempTile->colorDouble >= 1.0)
+								{
+									claimableTiles.push_back(tempTile);
+								}
+							}
+						}
 					}
 					break;
 
@@ -599,7 +678,7 @@ void Creature::doTurn()
 
 							// Compensate for how close the creature is to me
 							rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
-							double factor = 1.0 / (sqrt(rSquared) + 1.0);
+							//double factor = 1.0 / (sqrt(rSquared) + 1.0);
 
 							rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
 							tileValue += 15.0 / (sqrt(rSquared+1.0));
@@ -615,7 +694,7 @@ void Creature::doTurn()
 					tempDouble = 4;
 					tempPath = gameMap.path(positionTile()->x, positionTile()->y, min.first.first + randomDouble(-1.0*tempDouble,tempDouble), min.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
 					tempInt = 3;
-					if(tempPath.size() > tempInt+2)
+					if(tempPath.size() > (unsigned int)tempInt+2)
 					{
 						list<Tile*>::iterator itr = tempPath.begin();
 						int count = 0;

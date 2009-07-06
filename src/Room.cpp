@@ -117,6 +117,8 @@ istream& operator>>(istream& is, Room *r)
 		if(tempTile != NULL)
 		{
 			r->addCoveredTile(tempTile);
+			tempTile->color = r->color;
+			tempTile->colorDouble = 1.0;
 		}
 	}
 	
