@@ -403,9 +403,17 @@ void Creature::doTurn()
 					break;
 
 				case CreatureAction::claimTile:
-					// See if the tile we are standing on can be claimed
 					myTile = positionTile();
-					if(myTile != NULL && (myTile->color != color || myTile->colorDouble < 1.0))
+					//NOTE:  This is a workaround for the problem with the positionTile() function,
+					// it can be removed when that issue is resolved.
+					if(myTile == NULL)
+					{
+						actionQueue.pop_front();
+						goto claimTileBreakStatement;
+					}
+
+					// See if the tile we are standing on can be claimed
+					if(myTile->color != color || myTile->colorDouble < 1.0)
 					{
 						cout << "\nTrying to claim the tile I am standing on.";
 						// Check to see if one of the tile's neighbors is claimed for our color
@@ -430,7 +438,6 @@ void Creature::doTurn()
 										setAnimationState("Dig");
 										myTile->colorDouble = 1.0;
 										myTile->setType(Tile::claimed);
-										actionQueue.pop_front();
 									}
 								}
 								else
@@ -443,20 +450,58 @@ void Creature::doTurn()
 									}
 								}
 
-								// Break out of this loop but not out of the switch statement
-								j = neighbors.size();
+								// Since we danced on a tile we are done for this turn
+								goto claimTileBreakStatement;
 							}
 						}
 					}
 
-					cout << "\nLooking at the visible tiles to see if I can claim a tile.";
+					// Randomly decide to stop claiming with a small probability
+					if(randomDouble(0.0, 1.0) < 0.1)
+					{
+						loopBack = true;
+						actionQueue.pop_front();
+						break;
+					}
+
+					cout << "\nLooking at the neighbor tiles to see if I can claim a tile.";
 					// The tile we are standing on is already claimed or is not currently
-					// claimable, find candidates for claiming
+					// claimable, find candidates for claiming.
+					// Start by checking the neighbor tiles of the one we are already in
+					neighbors = gameMap.neighborTiles(myTile->x, myTile->y);
+					while(neighbors.size() > 0)
+					{
+						// If the current neigbor is claimable, walk into it and skip to the end of this turn
+						tempInt = randomUint(0, neighbors.size()-1);
+						tempTile = neighbors[tempInt];
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->color != color || tempTile->colorDouble < 1.0))
+						{
+							clearDestinations();
+							addDestination(tempTile->x, tempTile->y);
+							setAnimationState("Walk");
+							goto claimTileBreakStatement;
+						}
+						else
+						{
+							neighbors.erase(neighbors.begin()+tempInt);
+						}
+					}
+
+					// Randomly decide to stop claiming with a larger probability
+					if(randomDouble(0.0, 1.0) < 0.3)
+					{
+						loopBack = true;
+						actionQueue.pop_front();
+						break;
+					}
+
+					cout << "\nLooking at the visible tiles to see if I can claim a tile.";
+					// If we still haven't found a tile to claim, check the rest of the visible tiles
 					for(unsigned int i = 0; i < visibleTiles.size(); i++)
 					{
 						// if this tile is not fully claimed yet or the tile is of another player's color
 						tempTile = visibleTiles[i];
-						if(tempTile->colorDouble < 1.0 || tempTile->color != color)
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->color != color))
 						{
 							// Check to see if one of the tile's neighbors is claimed for our color
 							neighbors = gameMap.neighborTiles(visibleTiles[i]->x, visibleTiles[i]->y);
@@ -470,11 +515,50 @@ void Creature::doTurn()
 							}
 						}
 					}
+
+					cout << "  I see " << claimableTiles.size() << " tiles I can claim.";
+					// Randomly pick a claimable tile, plot a path to it and walk to it
+					while(claimableTiles.size() > 0)
+					{
+						tempTile = claimableTiles[randomUint(0, claimableTiles.size()-1)];
+						if(tempTile != NULL)
+						{
+							// If we find a valid path to the tile start walking to it and break
+							tempPath = gameMap.path(myTile->x, myTile->y, tempTile->x, tempTile->y, tilePassability);
+							if(tempPath.size() > 2)
+							{
+								clearDestinations();
+								gameMap.cutCorners(tempPath, tilePassability);
+								list<Tile*>::iterator itr;
+								for(itr = tempPath.begin(); itr != tempPath.end(); itr++)
+								{
+									addDestination((*itr)->x, (*itr)->y);
+								}
+
+								//loopBack = true;
+								actionQueue.push_back(CreatureAction::walkToTile);
+								setAnimationState("Walk");
+								goto claimTileBreakStatement;
+							}
+						}
+					}
+
+					// We couldn't find a tile to try to claim so we stop trying
+					actionQueue.pop_front();
+claimTileBreakStatement:
 					break;
 
 				case CreatureAction::digTile:
 					tempPlayer = getControllingPlayer();
 					//cout << "dig ";
+
+					// Randomly decide to stop digging with a small probability
+					if(randomDouble(0.0, 1.0) < 0.1)
+					{
+						loopBack = true;
+						actionQueue.pop_front();
+						goto claimTileBreakStatement;
+					}
 
 					// Find visible tiles, marked for digging
 					for(unsigned int i = 0; i < visibleTiles.size(); i++)
@@ -528,6 +612,14 @@ void Creature::doTurn()
 
 					if(wasANeighbor)
 						break;
+
+					// Randomly decide to stop digging with a larger probability
+					if(randomDouble(0.0, 1.0) < 0.3)
+					{
+						loopBack = true;
+						actionQueue.pop_front();
+						goto claimTileBreakStatement;
+					}
 
 					// Find paths to all of the neighbor tiles for all of the marked visible tiles.
 					possiblePaths.clear();
@@ -953,7 +1045,8 @@ void Creature::destroyVisualDebugEntities()
 */
 Tile* Creature::positionTile()
 {
-	return gameMap.getTile((int)(position.x + 0.4999), (int)(position.y + 0.4999));
+	//return gameMap.getTile((int)(position.x + 0.4999), (int)(position.y + 0.4999));
+	return gameMap.getTile((int)(position.x), (int)(position.y));
 }
 
 /*! \brief Completely destroy this creature, including its OGRE entities, scene nodes, etc.
