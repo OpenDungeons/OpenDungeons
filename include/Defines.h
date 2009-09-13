@@ -22,7 +22,7 @@ For information on how to use a particular command, type help followed by the co
 \n\tnewmap - Creates a new rectangular map\
 \n\tmovespeed - sets the camera movement speed\
 \n\trotatespeed - sets the camera rotation speed\
-\n\tfps - sets the maaximum framerate\
+\n\tfps - sets the maximum framerate\
 \n\tturnspersecond - sets the number of turns the AI will carry out per second\
 \n\tambientlight - set the ambient light color\
 \n\tconnect - connect to a server\

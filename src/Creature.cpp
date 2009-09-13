@@ -308,10 +308,10 @@ void Creature::doTurn()
 		double diceRoll;
 		double tempDouble;
 		Tile *neighborTile;
-		vector<Tile*>neighbors, creatureNeighbors, claimableTiles;
+		vector<Tile*>neighbors, neighbors2, creatureNeighbors, claimableTiles;
 		bool wasANeighbor = false;
 		Player *tempPlayer;
-		Tile *tempTile, *myTile;
+		Tile *tempTile, *tempTile2, *myTile;
 		list<Tile*> tempPath;
 		pair<LocationType, double> min;
 
@@ -412,6 +412,14 @@ void Creature::doTurn()
 						goto claimTileBreakStatement;
 					}
 
+					// Randomly decide to stop claiming with a small probability
+					if(randomDouble(0.0, 1.0) < 0.1)
+					{
+						loopBack = true;
+						actionQueue.pop_front();
+						break;
+					}
+
 					// See if the tile we are standing on can be claimed
 					if(myTile->color != color || myTile->colorDouble < 1.0)
 					{
@@ -456,14 +464,6 @@ void Creature::doTurn()
 						}
 					}
 
-					// Randomly decide to stop claiming with a small probability
-					if(randomDouble(0.0, 1.0) < 0.1)
-					{
-						loopBack = true;
-						actionQueue.pop_front();
-						break;
-					}
-
 					cout << "\nLooking at the neighbor tiles to see if I can claim a tile.";
 					// The tile we are standing on is already claimed or is not currently
 					// claimable, find candidates for claiming.
@@ -476,15 +476,23 @@ void Creature::doTurn()
 						tempTile = neighbors[tempInt];
 						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->color != color || tempTile->colorDouble < 1.0))
 						{
-							clearDestinations();
-							addDestination(tempTile->x, tempTile->y);
-							setAnimationState("Walk");
-							goto claimTileBreakStatement;
+							// The neighbor tile is a potential candidate for claiming, to be an actual candidate
+							// though it must have a neighbor of its own that is already claimed for our side.
+							neighbors2 = gameMap.neighborTiles(tempTile->x, tempTile->y);
+							for(unsigned int i = 0; i < neighbors2.size(); i++)
+							{
+								tempTile2 = neighbors2[i];
+								if(tempTile2->color == color && tempTile2->colorDouble >= 1.0)
+								{
+									clearDestinations();
+									addDestination(tempTile->x, tempTile->y);
+									setAnimationState("Walk");
+									goto claimTileBreakStatement;
+								}
+							}
 						}
-						else
-						{
-							neighbors.erase(neighbors.begin()+tempInt);
-						}
+
+						neighbors.erase(neighbors.begin()+tempInt);
 					}
 
 					// Randomly decide to stop claiming with a larger probability
