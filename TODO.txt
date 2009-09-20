@@ -1,11 +1,8 @@
---------------- WINDOWS: ---------------
-*  Make a windows version of plugins.conf.
-
-
 --------------- BUGS: ---------------
 *  fix keyboard repeat issue (when the game crashes keyboard repeat is disabled
 *  but the OS still thinks it's on, turning it off and then back on again
-*  restores the functionality).
+*  restores the functionality).  This seems to be a bug in OIS so there might
+*  not be anything we can do about it.
 
 *  Fix crash on loading a new map from the server, I think it has to do with
 *  getting peices of messages in a single packet.  This assumption may or may

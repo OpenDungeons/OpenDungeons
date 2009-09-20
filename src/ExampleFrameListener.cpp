@@ -323,7 +323,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					node->attachObject(ent);
 					node->resetOrientation();
 					node->roll(Degree(curTile->rotation));
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
 					ent->setNormaliseNormals(true);
+#endif
 				}
 				break;
 
@@ -342,7 +344,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->resetOrientation();
 				node->roll(Degree(curTile->rotation));
 
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
 				ent->setNormaliseNormals(true);
+#endif
 				break;
 
 			case RenderRequest::destroyTile:
@@ -369,7 +373,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node = roomSceneNode->createChildSceneNode(tempSS.str() + "_node");
 				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.0));
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
 				ent->setNormaliseNormals(true);
+#endif
 				node->attachObject(ent);
 				sem_post(&curRoom->meshCreationFinishedSemaphore);
 				break;
@@ -412,7 +418,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node = creatureSceneNode->createChildSceneNode(curCreature->name + "_node");
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
 				ent->setNormaliseNormals(true);
+#endif
 
 				node->attachObject(ent);
 				sem_post(&curCreature->meshCreationFinishedSemaphore);
@@ -481,7 +489,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					ent = mSceneMgr->createEntity(tempSS.str(), "Field_indicator.mesh");
 					node = fieldSceneNode->createChildSceneNode(tempSS.str() + "_node");
 					node->setPosition(tempX, tempY, tempDouble + tempDouble2);
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
 					ent->setNormaliseNormals(true);
+#endif
 					node->attachObject(ent);
 
 					fieldItr++;
@@ -579,7 +589,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					node->attachObject(ent);
 					node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
 					node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
 					ent->setNormaliseNormals(true);
+#endif
 				}
 				break;
 
@@ -1952,7 +1964,9 @@ void ExampleFrameListener::executePromptCommand()
 					//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
 					node->setPosition(tempCreature->getPosition());
 					node->setScale(tempCreature->scale);
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
 					ent->setNormaliseNormals(true);
+#endif
 					node->attachObject(ent);
 					commandOutput = "Creature added successfully";
 				}

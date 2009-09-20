@@ -3,8 +3,12 @@ CMakeCache.txt
 MapEditor
 Makefile
 *.o
+core*
+.*.swp
 
 cmake_install.cmake
 
 ogre.cfg
+
+CMakeFiles/
 

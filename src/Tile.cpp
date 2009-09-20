@@ -528,7 +528,9 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 				SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
 
 				ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
 				ent->setNormaliseNormals(true);
+#endif
 				tempNode->attachObject(ent);
 			}
 		}
