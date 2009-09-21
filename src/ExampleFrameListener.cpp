@@ -449,9 +449,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				weaponEntity = mSceneMgr->createEntity("Weapon_creature_" + curWeapon->handString + "_" + curCreature->name, curWeapon->meshName);
 				boneString = (string)"Weapon_" + curWeapon->handString;
 				weaponBone = ent->getSkeleton()->getBone(boneString);
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
+				weaponEntity->setNormaliseNormals(true);
+#endif
 
-				//tempQuaternion = weaponBone->getWorldOrientation().Inverse();
-				tempQuaternion = weaponBone->_getDerivedOrientation().Inverse();
+				// Rotate by -PI/2 around the x-axis from the bone's rotation.  I'm not sure this is 100% correct but it seems to work.
+				tempQuaternion = Quaternion(-3.14159/2.0, 1.0, 0.0, 0.0);
 
 				ent->attachObjectToBone(weaponBone->getName(), weaponEntity, tempQuaternion);
 				sem_post(&curWeapon->meshCreationFinishedSemaphore);
@@ -2066,13 +2069,18 @@ void ExampleFrameListener::executePromptCommand()
 					}
 				}
 
-				else if(arguments.compare("colors") == 0 || arguments.compare("colours"))
+				else if(arguments.compare("colors") == 0 || arguments.compare("colours") == 0)
 				{
 					tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
 					for(unsigned int i = 0; i < playerColourValues.size(); i++)
 					{
 						tempSS << "\n" << i << "\t\t" << playerColourValues[i].r << "\t\t" << playerColourValues[i].g << "\t\t" << playerColourValues[i].b;
 					}
+				}
+
+				else
+				{
+					tempSS << "ERROR:  Unrecognized list.  Type \"list\" with no arguments to see available lists.";
 				}
 
 				commandOutput = tempSS.str();

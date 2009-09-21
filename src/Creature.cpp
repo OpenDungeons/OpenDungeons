@@ -22,7 +22,7 @@ Creature::Creature()
 	scale = Ogre::Vector3(1,1,1);
 	sightRadius = 10.0;
 	digRate = 10.0;
-	danceRate = 0.2;
+	danceRate = 0.35;
 	destinationX = 0;
 	destinationY = 0;
 

@@ -2366,7 +2366,8 @@ Knight	Knight.mesh	1	1	1	80	3	15	0	1
 Kobold	Kobold.mesh	0.1	0.1	0.1	20	6	15	20	2.5
 Dragon	Dragon.mesh	0.3	0.3	0.3	220	50	15	0	0.9
 
-6
+7
+Knight	Knight_0001	-4	11	0	1	Longsword	5	6	4	Longsword	3	3	4
 Kobold	Kobold	-2	11	0	1	Longsword	14	3	0	Longsword	14	3	0
 Kobold	Kobold_0001	-5	15	0	1	none	0	0	0	none	0	0	0
 Kobold	Kobold_0002	-6	14	0	1	none	0	0	0	none	0	0	0
