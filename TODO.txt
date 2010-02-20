@@ -48,8 +48,6 @@
 
 *  implement line editing on the terminal.
 
-*  add help for "nearclip", "farclip".
-
 *  Add a keyboard controls help message under "help keys".
 
 *  add a flyTo method to make the camera fly to a particular location (and
@@ -72,13 +70,11 @@
 *  Create various levels of quality for each mesh and make a RenderRequest that
 *  switches to new meshes when some criteria is met (use something stable like
 *  num items onscreen at once to avoid churning between mesh detail levels, or
-*  change the meshes one at a time and re-evaluate)
+*  change the meshes one at a time and re-evaluate).  It looks like OGRE has a
+*  built in mechanism to do this dynamically.
 
 *  Test limiting the number of render requests that can be handled per frame,
 *  initial tests did not seem encouraging so maybe this is a bad idea.
-
-*  Add a 'weapon' class to hold damage, range, etc for weapons and make it work
-*  in a fashion similar to create class descriptions.
 
 *  Add terminal commands to set the max number and max display time of chat
 *  messages.

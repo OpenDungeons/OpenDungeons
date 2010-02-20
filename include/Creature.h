@@ -62,6 +62,7 @@ class Creature
 		vector<Tile*> visibleTiles;
 		void updateVisibleTiles();
 		vector<Creature*> getVisibleEnemies();
+		vector<Creature*> getEnemiesInRange(const vector<Creature*> &enemiesToCheck);
 		vector<Creature*> getVisibleAllies();
 		vector<Tile*> getVisibleMarkedTiles();
 		vector<Creature*> getVisibleForce(int color, bool invert);

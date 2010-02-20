@@ -265,6 +265,8 @@ void Creature::doTurn()
 	vector< list<Tile*> > shortPaths;
 	bool loopBack;
 	int tempInt;
+	unsigned int tempUnsigned;
+	CreatureAction tempAction;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
@@ -273,6 +275,7 @@ void Creature::doTurn()
 	// Look at the surrounding area
 	updateVisibleTiles();
 	vector<Creature*> visibleEnemies = getVisibleEnemies();
+	vector<Creature*> enemiesInRange = getEnemiesInRange(visibleEnemies);
 	vector<Creature*> visibleAllies = getVisibleAllies();
 	if(digRate > 0.1)
 		markedTiles = getVisibleMarkedTiles();
@@ -290,12 +293,11 @@ void Creature::doTurn()
 		}
 		*/
 
-		// if we are not already fighting with a creature
-		if(actionQueue.size() > 0 && actionQueue.front().type != CreatureAction::attackCreature && randomDouble(0.0, 1.0) > 0.3)
+		// If we are not already fighting with a creature or maneuvering then start doing so.
+		tempAction = actionQueue.front();
+		if(tempAction.type != CreatureAction::attackCreature || tempAction.type != CreatureAction::maneuver)
 		{
-			CreatureAction tempAction;
-			tempAction.creature = visibleEnemies[0];
-			tempAction.type = CreatureAction::attackCreature;
+			tempAction.type = CreatureAction::maneuver;
 			actionQueue.push_front(tempAction);
 		}
 	}
@@ -529,7 +531,7 @@ void Creature::doTurn()
 					{
 						// Randomly find a "good" tile to claim.  A good tile is one that has many neighbors
 						// already claimed, this makes the claimed are more "round" and less jagged.
-						tempInt = 0;
+						tempUnsigned = 0;
 						do
 						{
 							int numNeighborsClaimed;
@@ -552,16 +554,16 @@ void Creature::doTurn()
 							// according to how many neighbors are already claimed.
 							//NOTE: The bar can be negative, when this happens we are guarenteed to use this candidate tile.
 							double bar;
-							bar = 1.0 - (numNeighborsClaimed/4.0) - (tempInt/(double)(claimableTiles.size()-1));
+							bar = 1.0 - (numNeighborsClaimed/4.0) - (tempUnsigned/(double)(claimableTiles.size()-1));
 							if(randomDouble(0.0, 1.0) >= bar)
 								break;
 
 							// Safety catch to prevent infinite loop in case the bar for success is too high and is never met.
-							if(tempInt >= claimableTiles.size()-1)
+							if(tempUnsigned >= claimableTiles.size()-1)
 								break;
 
 							// Increment the counter indicating how many candidate tiles we have rejected so far.
-							tempInt++;
+							tempUnsigned++;
 						} while(true);
 
 						if(tempTile != NULL)
@@ -751,26 +753,43 @@ claimTileBreakStatement:
 					myTile = positionTile();
 
 					// Find the first enemy close enough to hit and attack it
-					for(unsigned int i = 0; i < visibleEnemies.size(); i++)
+					if(enemiesInRange.size() > 0)
 					{
-						Tile *tempTile = visibleEnemies[i]->positionTile();
-						double rSquared = powl(myTile->x - tempTile->x, 2.0) + powl(myTile->y - tempTile->y, 2.0);
-						if(sqrt(rSquared) < max(weaponL->range, weaponR->range))
-						{
-							double damageDone = weaponL->damage + weaponR->damage;
-							visibleEnemies[i]->hp -= damageDone;
-							break;
-						}
-					}
-
-					// If we exited the above loop early it means we attacked
-					// a creature and are done with this turn
-					/*
-					if(i < visibleEnemies.size())
-					{
+						//FIXME: We should only do as much damage as is allowed by the weapon ranges in case one is in range and one is not.
+						double damageDone = weaponL->damage + weaponR->damage;
+						damageDone = randomInt(0, (int)damageDone);
+						enemiesInRange[0]->hp -= damageDone;
+						cout << "\n" << name << " did " << damageDone << " damage to " << enemiesInRange[0]->name;
+						cout << " who now has " << enemiesInRange[0]->hp;
 						break;
 					}
-					*/
+
+					// There is not an enemy within range, begin maneuvering to try to get near an enemy, or out of the combat situation.
+					actionQueue.push_front(CreatureAction(CreatureAction::maneuver));
+					loopBack = true;
+					break;
+
+				case CreatureAction::maneuver:
+					// If there are no more enemies visible, stop maneuvering.
+					if(visibleEnemies.size() == 0)
+					{
+						actionQueue.pop_front();
+						loopBack = true;
+						break;
+					}
+
+					// If there is an enemy within range, stop maneuvering and attack it.
+					if(enemiesInRange.size() > 0)
+					{
+						actionQueue.pop_front();
+						loopBack = true;
+
+						// If the next action down the stack is not an attackCreature action, add it.
+						if(actionQueue.front().type != CreatureAction::attackCreature)
+							actionQueue.push_front(CreatureAction(CreatureAction::attackCreature));
+
+						break;
+					}
 
 					// Loop over the tiles in this creatures battleField and compute their value.
 					// The creature will then walk towards the tile with the minimum value.
@@ -972,6 +991,34 @@ void Creature::updateVisibleTiles()
 vector<Creature*> Creature::getVisibleEnemies()
 {
 	return getVisibleForce(color, true);
+}
+
+/*! \brief Loops over the enemiesToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
+ *
+*/
+vector<Creature*> Creature::getEnemiesInRange(const vector<Creature*> &enemiesToCheck)
+{
+	vector<Creature*> tempVector;
+
+	// If there are no enemies to check we are done.
+	if(enemiesToCheck.size() == 0)
+		return tempVector;
+
+	// Find our location and calculate the square of the max weapon range we have.
+	Tile *myTile = positionTile();
+	double weaponRangeSquared = max(weaponL->range, weaponR->range);
+	weaponRangeSquared *= weaponRangeSquared;
+
+	// Loop over the enemiesToCheck and add any within range to the tempVector.
+	for(unsigned int i = 0; i < enemiesToCheck.size(); i++)
+	{
+		Tile *tempTile = enemiesToCheck[i]->positionTile();
+		double rSquared = powl(myTile->x - tempTile->x, 2.0) + powl(myTile->y - tempTile->y, 2.0);
+		if(rSquared < weaponRangeSquared)
+			tempVector.push_back(enemiesToCheck[i]);
+	}
+
+	return tempVector;
 }
 
 vector<Creature*> Creature::getVisibleAllies()

@@ -1683,355 +1683,358 @@ void ExampleFrameListener::executePromptCommand()
 		mContinue = false;
 	}
 	
-		// Repeat the arguments of the command back to you
-		else if(command.compare("echo") == 0)
-		{
-			commandOutput = arguments;
-		}
+	// Repeat the arguments of the command back to you
+	else if(command.compare("echo") == 0)
+	{
+		commandOutput = arguments;
+	}
 
-		// Write the current level out to file specified as an argument
-		else if(command.compare("save") == 0)
+	// Write the current level out to file specified as an argument
+	else if(command.compare("save") == 0)
+	{
+		if(arguments.size() > 0)
 		{
-			if(arguments.size() > 0)
+			string tempFileName = "Media/levels/" + arguments + ".level";
+			writeGameMapToFile(tempFileName);
+			commandOutput = "File saved to   " + tempFileName;
+		}
+		else
+		{
+			commandOutput = "ERROR:  No level name given";
+		}
+	}
+
+	// Clear the current level and load a new one from a file
+	else if(command.compare("load") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			string tempString = "Media/levels/" + arguments + ".level";
+			if(readGameMapFromFile(tempString))
 			{
-				string tempFileName = "Media/levels/" + arguments + ".level";
-				writeGameMapToFile(tempFileName);
-				commandOutput = "File saved to   " + tempFileName;
+				string tempString2 = "";
+				stringstream tempSS(tempString2);
+				tempSS << "Successfully loaded file:  " << tempString << "\nNum tiles:  " << gameMap.numTiles() << "\nNum classes:  " << gameMap.numClassDescriptions() << "\nNum creatures:  " << gameMap.numCreatures();
+				commandOutput = tempSS.str();
+
+				gameMap.createAllEntities();
 			}
 			else
 			{
-				commandOutput = "ERROR:  No level name given";
+				tempSS << "ERROR: Could not load game map \'" << tempString << "\'.";
+				commandOutput = tempSS.str();
 			}
 		}
-
-		// Clear the current level and load a new one from a file
-		else if(command.compare("load") == 0)
+		else
 		{
-			if(arguments.size() > 0)
-			{
-				string tempString = "Media/levels/" + arguments + ".level";
-				if(readGameMapFromFile(tempString))
-				{
-					string tempString2 = "";
-					stringstream tempSS(tempString2);
-					tempSS << "Successfully loaded file:  " << tempString << "\nNum tiles:  " << gameMap.numTiles() << "\nNum classes:  " << gameMap.numClassDescriptions() << "\nNum creatures:  " << gameMap.numCreatures();
-					commandOutput = tempSS.str();
-
-					gameMap.createAllEntities();
-				}
-				else
-				{
-					tempSS << "ERROR: Could not load game map \'" << tempString << "\'.";
-					commandOutput = tempSS.str();
-				}
-			}
-			else
-			{
-				commandOutput = "ERROR:  No level name given";
-			}
+			commandOutput = "ERROR:  No level name given";
 		}
+	}
 
-		// Set the ambient light color
-		else if(command.compare("ambientlight") == 0)
+	// Set the ambient light color
+	else if(command.compare("ambientlight") == 0)
+	{
+		double tempR, tempG, tempB;
+
+		if(arguments.size() > 0)
 		{
-			double tempR, tempG, tempB;
-
-			if(arguments.size() > 0)
-			{
-				tempSS.str(arguments);
-				tempSS >> tempR >> tempG >> tempB;
-				mSceneMgr->setAmbientLight(ColourValue(tempR,tempG,tempB));
-				commandOutput = "Ambient light set to:\nRed:  " + StringConverter::toString((Real)tempR) + "    Green:  " + StringConverter::toString((Real)tempG) + "    Blue:  " + StringConverter::toString((Real)tempB);
-
-			}
-			else
-			{
-				ColourValue curLight = mSceneMgr->getAmbientLight();
-				commandOutput = "Current ambient light is:\nRed:  " + StringConverter::toString((Real)curLight.r) + "    Green:  " + StringConverter::toString((Real)curLight.g) + "    Blue:  " + StringConverter::toString((Real)curLight.b);
-			}
-		}
-
-		// Print the help message
-		else if(command.compare("help") == 0)
-		{
-			if(arguments.size() > 0)
-			{
-				commandOutput = "Help for command:  " + arguments + "\n\n" + getHelpText(arguments);
-			}
-			else
-			{
-				commandOutput = HELP_MESSAGE;
-			}
-		}
-
-		// A utility to set the wordrap on the terminal to a specific value
-		else if(command.compare("termwidth") == 0)
-		{
-			if(arguments.size() > 0)
-			{
-				tempSS.str(arguments);
-				tempSS >> terminalWordWrap;
-			}
-
-			// Print the "tens" place line at the top
-			int maxWidth = terminalWordWrap;
-			for(int i = 0; i < maxWidth/10; i++)
-			{
-				commandOutput += "         " + StringConverter::toString(i+1);
-			}
-
-			commandOutput += "\n";
-
-			// Print the "ones" place
-			for(int i = 0; i < maxWidth-1; i++)
-			{
-				string tempString = "1234567890";
-				commandOutput += tempString.substr(i%10, 1);
-			}
-
-		}
-
-		// A utility which adds a new section of the map given as the
-		// rectangular region between two pairs of coordinates
-		else if(command.compare("addtiles") == 0)
-		{
-			int x1, y1, x2, y2;
 			tempSS.str(arguments);
-			tempSS >> x1 >> y1 >> x2 >> y2;
-			int xMin, yMin, xMax, yMax;
-			xMin = min(x1, x2);
-			xMax = max(x1, x2);
-			yMin = min(y1,y2);
-			yMax = max(y1, y2);
+			tempSS >> tempR >> tempG >> tempB;
+			mSceneMgr->setAmbientLight(ColourValue(tempR,tempG,tempB));
+			commandOutput = "Ambient light set to:\nRed:  " + StringConverter::toString((Real)tempR) + "    Green:  " + StringConverter::toString((Real)tempG) + "    Blue:  " + StringConverter::toString((Real)tempB);
 
-			for(int j = yMin; j < yMax; j++)
+		}
+		else
+		{
+			ColourValue curLight = mSceneMgr->getAmbientLight();
+			commandOutput = "Current ambient light is:\nRed:  " + StringConverter::toString((Real)curLight.r) + "    Green:  " + StringConverter::toString((Real)curLight.g) + "    Blue:  " + StringConverter::toString((Real)curLight.b);
+		}
+	}
+
+	// Print the help message
+	else if(command.compare("help") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			commandOutput = "Help for command:  " + arguments + "\n\n" + getHelpText(arguments);
+		}
+		else
+		{
+			commandOutput = HELP_MESSAGE;
+		}
+	}
+
+	// A utility to set the wordrap on the terminal to a specific value
+	else if(command.compare("termwidth") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			tempSS.str(arguments);
+			tempSS >> terminalWordWrap;
+		}
+
+		// Print the "tens" place line at the top
+		int maxWidth = terminalWordWrap;
+		for(int i = 0; i < maxWidth/10; i++)
+		{
+			commandOutput += "         " + StringConverter::toString(i+1);
+		}
+
+		commandOutput += "\n";
+
+		// Print the "ones" place
+		for(int i = 0; i < maxWidth-1; i++)
+		{
+			string tempString = "1234567890";
+			commandOutput += tempString.substr(i%10, 1);
+		}
+
+	}
+
+	// A utility which adds a new section of the map given as the
+	// rectangular region between two pairs of coordinates
+	else if(command.compare("addtiles") == 0)
+	{
+		int x1, y1, x2, y2;
+		tempSS.str(arguments);
+		tempSS >> x1 >> y1 >> x2 >> y2;
+		int xMin, yMin, xMax, yMax;
+		xMin = min(x1, x2);
+		xMax = max(x1, x2);
+		yMin = min(y1,y2);
+		yMax = max(y1, y2);
+
+		for(int j = yMin; j < yMax; j++)
+		{
+			for(int i = xMin; i < xMax; i++)
 			{
-				for(int i = xMin; i < xMax; i++)
+				if(gameMap.getTile(i, j) == NULL)
 				{
-					if(gameMap.getTile(i, j) == NULL)
-					{
 
-						char tempArray[255];
-						snprintf(tempArray, sizeof(tempArray), "Level_%3i_%3i", i, j);
-						Tile *t = new Tile(i, j, Tile::dirt, 100);
-						t->name = tempArray;
-						gameMap.addTile(t);
-						t->createMesh();
-					}
+					char tempArray[255];
+					snprintf(tempArray, sizeof(tempArray), "Level_%3i_%3i", i, j);
+					Tile *t = new Tile(i, j, Tile::dirt, 100);
+					t->name = tempArray;
+					gameMap.addTile(t);
+					t->createMesh();
+				}
+			}
+		}
+
+		commandOutput = "Creating tiles for region:\n\n\t(" + StringConverter::toString(xMin) + ", " + StringConverter::toString(yMin) + ")\tto\t(" + StringConverter::toString(xMax) + ", " + StringConverter::toString(yMax) + ")";
+	}
+
+	// A utility to set the camera movement speed
+	else if(command.compare("movespeed") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			tempSS.str(arguments);
+			tempSS >> mMoveSpeed;
+			commandOutput = "movespeed set to " + StringConverter::toString(mMoveSpeed);
+		}
+		else
+		{
+			commandOutput =  "Current movespeed is " + StringConverter::toString(mMoveSpeed);
+		}
+	}
+
+	// A utility to set the camera rotation speed.
+	else if(command.compare("rotatespeed") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			double tempDouble;
+			tempSS.str(arguments);
+			tempSS >> tempDouble;
+			mRotateSpeed = Ogre::Degree(tempDouble);
+			commandOutput = "rotatespeed set to " + StringConverter::toString((Real)mRotateSpeed.valueDegrees());
+		}
+		else
+		{
+			commandOutput =  "Current rotatespeed is " + StringConverter::toString((Real)mRotateSpeed.valueDegrees());
+		}
+	}
+
+	// Set max frames per second
+	else if(command.compare("fps") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			double tempDouble;
+			tempSS.str(arguments);
+			tempSS >> tempDouble;
+			MAX_FRAMES_PER_SECOND = tempDouble;
+			commandOutput = "Maximum framerate set to " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND);
+		}
+		else
+		{
+			commandOutput = "Current maximum framerate is " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND);
+		}
+	}
+
+	// Set the turnsPerSecond variable to control the AI speed
+	else if(command.compare("turnspersecond") == 0 || command.compare("tps") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			tempSS.str(arguments);
+			tempSS >> turnsPerSecond;
+			
+			if(serverSocket != NULL)
+			{
+				try
+				{
+					// Inform any connected clients about the change
+					ServerNotification *serverNotification = new ServerNotification;
+					serverNotification->type = ServerNotification::setTurnsPerSecond;
+					serverNotification->doub = turnsPerSecond;
+
+					sem_wait(&serverNotificationQueueLockSemaphore);
+					serverNotificationQueue.push_back(serverNotification);
+					sem_post(&serverNotificationQueueLockSemaphore);
+
+					sem_post(&serverNotificationQueueSemaphore);
+				}
+				catch(bad_alloc&)
+				{
+					cerr << "\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n";
+					exit(1);
 				}
 			}
 
-			commandOutput = "Creating tiles for region:\n\n\t(" + StringConverter::toString(xMin) + ", " + StringConverter::toString(yMin) + ")\tto\t(" + StringConverter::toString(xMax) + ", " + StringConverter::toString(yMax) + ")";
+			commandOutput = "Maximum turns per second set to " + StringConverter::toString((Real)turnsPerSecond);
 		}
-
-		// A utility to set the camera movement speed
-		else if(command.compare("movespeed") == 0)
+		else
 		{
-			if(arguments.size() > 0)
-			{
-				tempSS.str(arguments);
-				tempSS >> mMoveSpeed;
-				commandOutput = "movespeed set to " + StringConverter::toString(mMoveSpeed);
-			}
-			else
-			{
-				commandOutput =  "Current movespeed is " + StringConverter::toString(mMoveSpeed);
-			}
+			commandOutput = "Current maximum turns per second is " + StringConverter::toString((Real)turnsPerSecond);
 		}
+	}
 
-		// A utility to set the camera rotation speed.
-		else if(command.compare("rotatespeed") == 0)
+	// Set near clip distance
+	else if(command.compare("nearclip") == 0)
+	{
+		if(arguments.size() > 0)
 		{
-			if(arguments.size() > 0)
-			{
-				double tempDouble;
-				tempSS.str(arguments);
-				tempSS >> tempDouble;
-				mRotateSpeed = Ogre::Degree(tempDouble);
-				commandOutput = "rotatespeed set to " + StringConverter::toString((Real)mRotateSpeed.valueDegrees());
-			}
-			else
-			{
-				commandOutput =  "Current rotatespeed is " + StringConverter::toString((Real)mRotateSpeed.valueDegrees());
-			}
+			double tempDouble;
+			tempSS.str(arguments);
+			tempSS >> tempDouble;
+			mCamera->setNearClipDistance(tempDouble);
+			commandOutput = "Near clip distance set to " + StringConverter::toString((Real)mCamera->getNearClipDistance());
 		}
-
-		// Set max frames per second
-		else if(command.compare("fps") == 0)
+		else
 		{
-			if(arguments.size() > 0)
-			{
-				double tempDouble;
-				tempSS.str(arguments);
-				tempSS >> tempDouble;
-				MAX_FRAMES_PER_SECOND = tempDouble;
-				commandOutput = "Maximum framerate set to " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND);
-			}
-			else
-			{
-				commandOutput = "Current maximum framerate is " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND);
-			}
+			commandOutput = "Current near clip distance is " + StringConverter::toString((Real)mCamera->getNearClipDistance());
 		}
+	}
 
-		// Set the turnsPerSecond variable to control the AI speed
-		else if(command.compare("turnspersecond") == 0 || command.compare("tps") == 0)
+	// Set far clip distance
+	else if(command.compare("farclip") == 0)
+	{
+		char tempArray[255];
+		if(arguments.size() > 0)
 		{
-			if(arguments.size() > 0)
-			{
-				tempSS.str(arguments);
-				tempSS >> turnsPerSecond;
-				
-				if(serverSocket != NULL)
-				{
-					try
-					{
-						// Inform any connected clients about the change
-						ServerNotification *serverNotification = new ServerNotification;
-						serverNotification->type = ServerNotification::setTurnsPerSecond;
-						serverNotification->doub = turnsPerSecond;
-
-						sem_wait(&serverNotificationQueueLockSemaphore);
-						serverNotificationQueue.push_back(serverNotification);
-						sem_post(&serverNotificationQueueLockSemaphore);
-
-						sem_post(&serverNotificationQueueSemaphore);
-					}
-					catch(bad_alloc&)
-					{
-						cerr << "\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n";
-						exit(1);
-					}
-				}
-
-				commandOutput = "Maximum turns per second set to " + StringConverter::toString((Real)turnsPerSecond);
-			}
-			else
-			{
-				commandOutput = "Current maximum turns per second is " + StringConverter::toString((Real)turnsPerSecond);
-			}
+			double tempDouble;
+			tempSS.str(arguments);
+			tempSS >> tempDouble;
+			mCamera->setFarClipDistance(tempDouble);
+			commandOutput = "Far clip distance set to " + StringConverter::toString((Real)mCamera->getFarClipDistance());
 		}
-
-		// Set near clip distance
-		else if(command.compare("nearclip") == 0)
+		else
 		{
-			if(arguments.size() > 0)
-			{
-				double tempDouble;
-				tempSS.str(arguments);
-				tempSS >> tempDouble;
-				mCamera->setNearClipDistance(tempDouble);
-				commandOutput = "Near clip distance set to " + StringConverter::toString((Real)mCamera->getNearClipDistance());
-			}
-			else
-			{
-				commandOutput = "Current near clip distance is " + StringConverter::toString((Real)mCamera->getNearClipDistance());
-			}
+			commandOutput = "Current far clip distance is " + StringConverter::toString((Real)mCamera->getFarClipDistance());
 		}
+	}
 
-		// Set far clip distance
-		else if(command.compare("farclip") == 0)
+	// Add a new instance of a creature to the current map.  The argument is
+	// read as if it were a line in a .level file.
+	else if(command.compare("addcreature") == 0)
+	{
+		if(arguments.size() > 0)
 		{
-			char tempArray[255];
-			if(arguments.size() > 0)
+			// Creature the creature and add it to the gameMap
+			Creature *tempCreature = new Creature;
+			stringstream tempSS(arguments);
+			tempSS >> tempCreature;
+			Creature *tempClass = gameMap.getClassDescription(tempCreature->className);
+			if(tempClass != NULL)
 			{
-				double tempDouble;
-				tempSS.str(arguments);
-				tempSS >> tempDouble;
-				mCamera->setFarClipDistance(tempDouble);
-				commandOutput = "Far clip distance set to " + StringConverter::toString((Real)mCamera->getFarClipDistance());
-			}
-			else
-			{
-				commandOutput = "Current far clip distance is " + StringConverter::toString((Real)mCamera->getFarClipDistance());
-			}
-		}
+				tempCreature->meshName = tempClass->meshName;
+				tempCreature->scale = tempClass->scale;
+				gameMap.addCreature(tempCreature);
 
-		// Add a new instance of a creature to the current map.  The argument is
-		// read as if it were a line in a .level file.
-		else if(command.compare("addcreature") == 0)
-		{
-			if(arguments.size() > 0)
-			{
-				// Creature the creature and add it to the gameMap
-				Creature *tempCreature = new Creature;
-				stringstream tempSS(arguments);
-				tempSS >> tempCreature;
-				Creature *tempClass = gameMap.getClassDescription(tempCreature->className);
-				if(tempClass != NULL)
-				{
-					tempCreature->meshName = tempClass->meshName;
-					tempCreature->scale = tempClass->scale;
-					gameMap.addCreature(tempCreature);
-
-					// Create the mesh and SceneNode for the new creature
-					Entity *ent = mSceneMgr->createEntity("Creature_" + tempCreature->name, tempCreature->meshName);
-					SceneNode *node = creatureSceneNode->createChildSceneNode(tempCreature->name + "_node");
-					//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
-					node->setPosition(tempCreature->getPosition());
-					node->setScale(tempCreature->scale);
+				// Create the mesh and SceneNode for the new creature
+				Entity *ent = mSceneMgr->createEntity("Creature_" + tempCreature->name, tempCreature->meshName);
+				SceneNode *node = creatureSceneNode->createChildSceneNode(tempCreature->name + "_node");
+				//node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
+				node->setPosition(tempCreature->getPosition());
+				node->setScale(tempCreature->scale);
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
-					ent->setNormaliseNormals(true);
+				ent->setNormaliseNormals(true);
 #endif
-					node->attachObject(ent);
-					commandOutput = "Creature added successfully";
-				}
-				else
-				{
-					commandOutput = "Invalid creature class name, you need to first add a class with the \'addclass\' terminal command.";
-				}
+				node->attachObject(ent);
+				commandOutput = "Creature added successfully";
+			}
+			else
+			{
+				commandOutput = "Invalid creature class name, you need to first add a class with the \'addclass\' terminal command.";
 			}
 		}
+	}
 
-		// Adds the basic information about a type of creature (mesh name, scaling, etc)
-		else if(command.compare("addclass") == 0)
+	// Adds the basic information about a type of creature (mesh name, scaling, etc)
+	else if(command.compare("addclass") == 0)
+	{
+		if(arguments.size() > 0)
 		{
-			if(arguments.size() > 0)
-			{
-				//FIXME: this code should be standardaized with the equivalent code in readGameMapFromFile()
-				// This will require making CreatureClass a base class of Creature
-				double tempX, tempY, tempZ, tempSightRadius, tempDigRate, tempMoveSpeed;
-				int tempHP, tempMana;
-				string tempString, tempString2;
-				tempSS.str(arguments);
-				tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ >> tempHP >> tempMana >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
-				Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate, tempMoveSpeed);
-				gameMap.addClassDescription(p);
-			}
-
+			//FIXME: this code should be standardaized with the equivalent code in readGameMapFromFile()
+			// This will require making CreatureClass a base class of Creature
+			double tempX, tempY, tempZ, tempSightRadius, tempDigRate, tempMoveSpeed;
+			int tempHP, tempMana;
+			string tempString, tempString2;
+			tempSS.str(arguments);
+			tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ >> tempHP >> tempMana >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
+			Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate, tempMoveSpeed);
+			gameMap.addClassDescription(p);
 		}
 
-		// Print out various lists of information, the creatures in the
-		// scene, the levels available for loading, etc
-		else if(command.compare("list") == 0 || command.compare("ls") == 0)
+	}
+
+	// Print out various lists of information, the creatures in the
+	// scene, the levels available for loading, etc
+	else if(command.compare("list") == 0 || command.compare("ls") == 0)
+	{
+		if(arguments.size() > 0)
 		{
-			if(arguments.size() > 0)
+			string tempString;
+			tempSS.str(tempString);
+
+			if(arguments.compare("creatures") == 0)
 			{
-				string tempString;
-				tempSS.str(tempString);
-
-				if(arguments.compare("creatures") == 0)
+				tempSS << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
+				for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 				{
-					tempSS << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
-					for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
-					{
-						tempSS << gameMap.getCreature(i) << endl;
-					}
+					tempSS << gameMap.getCreature(i) << endl;
 				}
+			}
 
-				else if(arguments.compare("classes") == 0)
+			else if(arguments.compare("classes") == 0)
+			{
+				tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
+				for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 				{
-					tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
-					for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
-					{
-						Creature *currentClassDesc = gameMap.getClassDescription(i);
-						tempSS << currentClassDesc->className << "\t" << currentClassDesc->meshName << "\t";
-						tempSS << currentClassDesc->scale << "\t" << currentClassDesc->hp << "\t";
-						tempSS << currentClassDesc->mana << "\t" << currentClassDesc->sightRadius << "\t";
-						tempSS << currentClassDesc->digRate << "\t" << currentClassDesc->moveSpeed << "\n";
-					}
+					Creature *currentClassDesc = gameMap.getClassDescription(i);
+					tempSS << currentClassDesc->className << "\t" << currentClassDesc->meshName << "\t";
+					tempSS << currentClassDesc->scale << "\t" << currentClassDesc->hp << "\t";
+					tempSS << currentClassDesc->mana << "\t" << currentClassDesc->sightRadius << "\t";
+					tempSS << currentClassDesc->digRate << "\t" << currentClassDesc->moveSpeed << "\n";
 				}
+			}
 
-				else if(arguments.compare("players") == 0)
+			else if(arguments.compare("players") == 0)
+			{
+				// There are only players if we are in a game.
+				if(serverSocket != NULL || clientSocket != NULL)
 				{
 					tempSS << "Player:\tNick:\tColor:\n\n";
 					tempSS << "me\t\t" << gameMap.me->nick << "\t" << gameMap.me->seat->color << "\n\n";
@@ -2041,330 +2044,337 @@ void ExampleFrameListener::executePromptCommand()
 						tempSS << i << "\t\t" << currentPlayer->nick << "\t" << currentPlayer->seat->color << "\n";
 					}
 				}
-
-				else if(arguments.compare("network") == 0)
-				{
-					if(clientSocket != NULL)
-					{
-						tempSS << "You are currently connected to a server.";
-					}
-
-					if(serverSocket != NULL)
-					{
-						tempSS << "You are currently acting as a server.";
-					}
-
-					if(clientSocket == NULL && serverSocket == NULL)
-					{
-						tempSS << "You are currently in the map editor.";
-					}
-				}
-
-				else if(arguments.compare("rooms") == 0)
-				{
-					tempSS << "Name:\tColor:\tNum tiles:\n\n";
-					for(unsigned int i = 0; i < gameMap.numRooms(); i++)
-					{
-						Room *currentRoom;
-						currentRoom = gameMap.getRoom(i);
-						tempSS << currentRoom->name << "\t" << currentRoom->color << "\t" << currentRoom->numCoveredTiles() << "\n";
-					}
-				}
-
-				else if(arguments.compare("colors") == 0 || arguments.compare("colours") == 0)
-				{
-					tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
-					for(unsigned int i = 0; i < playerColourValues.size(); i++)
-					{
-						tempSS << "\n" << i << "\t\t" << playerColourValues[i].r << "\t\t" << playerColourValues[i].g << "\t\t" << playerColourValues[i].b;
-					}
-				}
-
 				else
 				{
-					tempSS << "ERROR:  Unrecognized list.  Type \"list\" with no arguments to see available lists.";
-				}
-
-				commandOutput = tempSS.str();
-			}
-			else
-			{
-				commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork\trooms\tcolors";
-			}
-		}
-
-		// clearmap   Erase all of the tiles leaving an empty map
-		else if(command.compare("newmap") == 0)
-		{
-			if(arguments.size() > 0)
-			{
-				int tempX, tempY;
-
-				tempSS.str(arguments);
-				tempSS >> tempX >> tempY;
-				gameMap.createNewMap(tempX, tempY);
-			}
-		}
-
-		// Set your nickname
-		else if(command.compare("nick") == 0)
-		{
-			string tempString;
-			if(arguments.size() > 0)
-			{
-				gameMap.me->nick = arguments;
-
-				commandOutput = "Nickname set to:  " + gameMap.me->nick;
-			}
-			else
-			{
-				commandOutput = "Current nickname is:  " + gameMap.me->nick;
-			}
-		}
-
-		// Connect to a server
-		else if(command.compare("connect") == 0)
-		{
-			// Make sure we have set a nickname
-			if(gameMap.me->nick.size() > 0)
-			{
-				// Make sure we are not already connected to a server
-				if(clientSocket == NULL)
-				{
-					// Make sure an IP address to connect to was provided
-					if(arguments.size() > 0)
-					{
-						clientSocket = new Socket;
-
-						if(!clientSocket->create())
-						{
-							clientSocket = NULL;
-							commandOutput = "ERROR:  Could not create client socket!";
-							goto ConnectEndLabel;
-						}
-
-						if(clientSocket->connect(arguments, PORT_NUMBER))
-						{
-							commandOutput = "Connection successful.";
-
-							CSPStruct *csps = new CSPStruct;
-							csps->nSocket = clientSocket;
-							csps->nFrameListener = this;
-							
-							// Start a thread to talk to the server
-							pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
-
-							// Start the thread which will watch for local events to send to the server
-							CNPStruct *cnps = new CNPStruct;
-							cnps->nFrameListener = this;
-							pthread_create(&clientNotificationThread, NULL, clientNotificationProcessor, cnps);
-						}
-						else
-						{
-							clientSocket = NULL;
-							commandOutput = "Connection failed!";
-						}
-					}
-					else
-					{
-						commandOutput = "You must specify the IP address of the server you want to connect to.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1";
-					}
-
-				}
-				else
-				{
-					commandOutput = "You are already connected to a server.  You must disconnect before you can connect to a new game.";
+					tempSS << "You must either host or join a game before you can list the players in the game.\n";
 				}
 			}
-			else
-			{
-				commandOutput = "You must set a nick with the \"nick\" command before you can join a server.";
-			}
 
-		ConnectEndLabel:
-			commandOutput += "\n";
-
-		}
-
-		// Host a server
-		else if(command.compare("host") == 0)
-		{
-			if(gameMap.me->nick.size() > 0)
-			{
-				if(serverSocket == NULL)
-				{
-					serverSocket = new Socket;
-
-					// Start the server socket listener as well as the server socket thread
-					if(serverSocket != NULL && gameMap.numSeats() > 0)
-					{
-						gameMap.me->seat = gameMap.popSeat();
-						// Start the server thread which will listen for, and accept, connections
-						SSPStruct *ssps = new SSPStruct;
-						ssps->nSocket = serverSocket;
-						ssps->nFrameListener = this;
-						pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) ssps);
-
-						// Start the thread which will watch for local events to send to the clients
-						SNPStruct *snps = new SNPStruct;
-						snps->nFrameListener = this;
-						pthread_create(&serverNotificationThread, NULL, serverNotificationProcessor, snps);
-
-						// Start the creature AI thread
-						pthread_create(&creatureThread, NULL, creatureAIThread, NULL);
-
-						commandOutput = "Server started successfully.";
-					}
-					else
-					{
-						commandOutput = "ERROR:  Could not start server!";
-					}
-
-				}
-			}
-			else
-			{
-				commandOutput = "You must set a nick with the \"nick\" command before you can host a server.";
-			}
-		}
-
-		// Send a chat message
-		else if(command.compare("chat") == 0 || command.compare("c") == 0)
-		{
-			if(clientSocket != NULL)
-			{
-				sem_wait(&clientSocket->semaphore);
-				clientSocket->send(formatCommand("chat", gameMap.me->nick + ":" + arguments));
-				sem_post(&clientSocket->semaphore);
-			}
-			else if(serverSocket != NULL)
-			{
-				// Send the chat to all the connected clients
-				for(unsigned int i = 0; i < clientSockets.size(); i++)
-				{
-					sem_wait(&clientSockets[i]->semaphore);
-					clientSockets[i]->send(formatCommand("chat", gameMap.me->nick + ":" + arguments));
-					sem_post(&clientSockets[i]->semaphore);
-				}
-
-				// Display the chat message in our own message queue
-				chatMessages.push_back(new ChatMessage(gameMap.me->nick, arguments, time(NULL), time(NULL)));
-			}
-			else
-			{
-				commandOutput = "You must be either connected to a server, or hosting a server to use chat.";
-			}
-		}
-
-		// Start the visual debugging indicators for a given creature
-		else if(command.compare("visdebug") == 0)
-		{
-			if(serverSocket != NULL)
-			{
-				if(arguments.length() > 0)
-				{
-					// Activate visual debugging
-					Creature *tempCreature = gameMap.getCreature(arguments);
-					if(tempCreature != NULL)
-					{
-						if(!tempCreature->getHasVisualDebuggingEntities())
-						{
-							tempCreature->createVisualDebugEntities();
-							commandOutput = "Visual debugging entities created for creature:  " + arguments;
-						}
-						else
-						{
-							tempCreature->destroyVisualDebugEntities();
-							commandOutput = "Visual debugging entities destroyed for creature:  " + arguments;
-						}
-					}
-					else
-					{
-						commandOutput = "Could not create visual debugging entities for creature:  " + arguments;
-					}
-				}
-				else
-				{
-					commandOutput = "ERROR:  You must supply a valid creature name to create debug entities for.";
-				}
-			}
-			else
-			{
-				commandOutput = "ERROR:  Visual debugging only works when you are hosting a game.";
-			}
-		}
-
-		else if(command.compare("addcolor") == 0)
-		{
-			string tempString;
-
-			if(arguments.size() > 0)
-			{
-				double tempR, tempG, tempB;
-				tempSS.str(arguments);
-				tempSS >> tempR >> tempG >> tempB;
-				playerColourValues.push_back(ColourValue(tempR, tempG, tempB));
-				tempString = "";
-				tempSS.str(tempString);
-				tempSS << "Color number " << playerColourValues.size() << " added.";
-				commandOutput = tempSS.str();
-			}
-			else
-			{
-				commandOutput = "ERROR:  You need to specify and RGB triplet with values in (0.0, 1.0)";
-			}
-		}
-
-		else if(command.compare("setcolor") == 0)
-		{
-			string tempString;
-
-			if(arguments.size() > 0)
-			{
-				unsigned int index;
-				double tempR, tempG, tempB;
-				tempSS.str(arguments);
-				tempSS >> index >> tempR >> tempG >> tempB;
-				if(index < playerColourValues.size())
-				{
-					playerColourValues[index] = ColourValue(tempR, tempG, tempB);
-					tempString = "";
-					tempSS.str(tempString);
-					tempSS << "Color number " << index << " changed to " << tempR << "\t" << tempG << "\t" << tempB;
-					commandOutput = tempSS.str();
-				}
-
-			}
-			else
-			{
-				tempString = "";
-				tempSS.str(tempString);
-				tempSS << "ERROR:  You need to specify a color index between 0 and " << playerColourValues.size() << " and an RGB triplet with values in (0.0, 1.0)";
-				commandOutput = tempSS.str();
-			}
-		}
-
-		//FIXME:  This function is not yet implemented.
-		else if(command.compare("disconnect") == 0)
-		{
-			if(serverSocket != NULL)
-			{
-				commandOutput = "Stopping server.";
-			}
-			else
+			else if(arguments.compare("network") == 0)
 			{
 				if(clientSocket != NULL)
 				{
-					commandOutput = "Disconnecting from server.";
+					tempSS << "You are currently connected to a server.";
+				}
+
+				if(serverSocket != NULL)
+				{
+					tempSS << "You are currently acting as a server.";
+				}
+
+				if(clientSocket == NULL && serverSocket == NULL)
+				{
+					tempSS << "You are currently in the map editor.";
+				}
+			}
+
+			else if(arguments.compare("rooms") == 0)
+			{
+				tempSS << "Name:\tColor:\tNum tiles:\n\n";
+				for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+				{
+					Room *currentRoom;
+					currentRoom = gameMap.getRoom(i);
+					tempSS << currentRoom->name << "\t" << currentRoom->color << "\t" << currentRoom->numCoveredTiles() << "\n";
+				}
+			}
+
+			else if(arguments.compare("colors") == 0 || arguments.compare("colours") == 0)
+			{
+				tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
+				for(unsigned int i = 0; i < playerColourValues.size(); i++)
+				{
+					tempSS << "\n" << i << "\t\t" << playerColourValues[i].r << "\t\t" << playerColourValues[i].g << "\t\t" << playerColourValues[i].b;
+				}
+			}
+
+			else
+			{
+				tempSS << "ERROR:  Unrecognized list.  Type \"list\" with no arguments to see available lists.";
+			}
+
+			commandOutput = tempSS.str();
+		}
+		else
+		{
+			commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork\trooms\tcolors";
+		}
+	}
+
+	// clearmap   Erase all of the tiles leaving an empty map
+	else if(command.compare("newmap") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			int tempX, tempY;
+
+			tempSS.str(arguments);
+			tempSS >> tempX >> tempY;
+			gameMap.createNewMap(tempX, tempY);
+		}
+	}
+
+	// Set your nickname
+	else if(command.compare("nick") == 0)
+	{
+		string tempString;
+		if(arguments.size() > 0)
+		{
+			gameMap.me->nick = arguments;
+
+			commandOutput = "Nickname set to:  " + gameMap.me->nick;
+		}
+		else
+		{
+			commandOutput = "Current nickname is:  " + gameMap.me->nick;
+		}
+	}
+
+	// Connect to a server
+	else if(command.compare("connect") == 0)
+	{
+		// Make sure we have set a nickname
+		if(gameMap.me->nick.size() > 0)
+		{
+			// Make sure we are not already connected to a server
+			if(clientSocket == NULL)
+			{
+				// Make sure an IP address to connect to was provided
+				if(arguments.size() > 0)
+				{
+					clientSocket = new Socket;
+
+					if(!clientSocket->create())
+					{
+						clientSocket = NULL;
+						commandOutput = "ERROR:  Could not create client socket!";
+						goto ConnectEndLabel;
+					}
+
+					if(clientSocket->connect(arguments, PORT_NUMBER))
+					{
+						commandOutput = "Connection successful.";
+
+						CSPStruct *csps = new CSPStruct;
+						csps->nSocket = clientSocket;
+						csps->nFrameListener = this;
+						
+						// Start a thread to talk to the server
+						pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
+
+						// Start the thread which will watch for local events to send to the server
+						CNPStruct *cnps = new CNPStruct;
+						cnps->nFrameListener = this;
+						pthread_create(&clientNotificationThread, NULL, clientNotificationProcessor, cnps);
+					}
+					else
+					{
+						clientSocket = NULL;
+						commandOutput = "Connection failed!";
+					}
 				}
 				else
 				{
-					commandOutput = "You are not connected to a server and you are not hosting a server.";
+					commandOutput = "You must specify the IP address of the server you want to connect to.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1";
 				}
+
+			}
+			else
+			{
+				commandOutput = "You are already connected to a server.  You must disconnect before you can connect to a new game.";
 			}
 		}
+		else
+		{
+			commandOutput = "You must set a nick with the \"nick\" command before you can join a server.";
+		}
 
-		else commandOutput = "Command not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.";
+	ConnectEndLabel:
+		commandOutput += "\n";
+
+	}
+
+	// Host a server
+	else if(command.compare("host") == 0)
+	{
+		if(gameMap.me->nick.size() > 0)
+		{
+			if(serverSocket == NULL)
+			{
+				serverSocket = new Socket;
+
+				// Start the server socket listener as well as the server socket thread
+				if(serverSocket != NULL && gameMap.numSeats() > 0)
+				{
+					// Sit down at the first available seat.
+					gameMap.me->seat = gameMap.popSeat();
+
+					// Start the server thread which will listen for, and accept, connections
+					SSPStruct *ssps = new SSPStruct;
+					ssps->nSocket = serverSocket;
+					ssps->nFrameListener = this;
+					pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) ssps);
+
+					// Start the thread which will watch for local events to send to the clients
+					SNPStruct *snps = new SNPStruct;
+					snps->nFrameListener = this;
+					pthread_create(&serverNotificationThread, NULL, serverNotificationProcessor, snps);
+
+					// Start the creature AI thread
+					pthread_create(&creatureThread, NULL, creatureAIThread, NULL);
+
+					commandOutput = "Server started successfully.";
+				}
+				else
+				{
+					commandOutput = "ERROR:  Could not start server!";
+				}
+
+			}
+		}
+		else
+		{
+			commandOutput = "You must set a nick with the \"nick\" command before you can host a server.";
+		}
+	}
+
+	// Send a chat message
+	else if(command.compare("chat") == 0 || command.compare("c") == 0)
+	{
+		if(clientSocket != NULL)
+		{
+			sem_wait(&clientSocket->semaphore);
+			clientSocket->send(formatCommand("chat", gameMap.me->nick + ":" + arguments));
+			sem_post(&clientSocket->semaphore);
+		}
+		else if(serverSocket != NULL)
+		{
+			// Send the chat to all the connected clients
+			for(unsigned int i = 0; i < clientSockets.size(); i++)
+			{
+				sem_wait(&clientSockets[i]->semaphore);
+				clientSockets[i]->send(formatCommand("chat", gameMap.me->nick + ":" + arguments));
+				sem_post(&clientSockets[i]->semaphore);
+			}
+
+			// Display the chat message in our own message queue
+			chatMessages.push_back(new ChatMessage(gameMap.me->nick, arguments, time(NULL), time(NULL)));
+		}
+		else
+		{
+			commandOutput = "You must be either connected to a server, or hosting a server to use chat.";
+		}
+	}
+
+	// Start the visual debugging indicators for a given creature
+	else if(command.compare("visdebug") == 0)
+	{
+		if(serverSocket != NULL)
+		{
+			if(arguments.length() > 0)
+			{
+				// Activate visual debugging
+				Creature *tempCreature = gameMap.getCreature(arguments);
+				if(tempCreature != NULL)
+				{
+					if(!tempCreature->getHasVisualDebuggingEntities())
+					{
+						tempCreature->createVisualDebugEntities();
+						commandOutput = "Visual debugging entities created for creature:  " + arguments;
+					}
+					else
+					{
+						tempCreature->destroyVisualDebugEntities();
+						commandOutput = "Visual debugging entities destroyed for creature:  " + arguments;
+					}
+				}
+				else
+				{
+					commandOutput = "Could not create visual debugging entities for creature:  " + arguments;
+				}
+			}
+			else
+			{
+				commandOutput = "ERROR:  You must supply a valid creature name to create debug entities for.";
+			}
+		}
+		else
+		{
+			commandOutput = "ERROR:  Visual debugging only works when you are hosting a game.";
+		}
+	}
+
+	else if(command.compare("addcolor") == 0)
+	{
+		string tempString;
+
+		if(arguments.size() > 0)
+		{
+			double tempR, tempG, tempB;
+			tempSS.str(arguments);
+			tempSS >> tempR >> tempG >> tempB;
+			playerColourValues.push_back(ColourValue(tempR, tempG, tempB));
+			tempString = "";
+			tempSS.str(tempString);
+			tempSS << "Color number " << playerColourValues.size() << " added.";
+			commandOutput = tempSS.str();
+		}
+		else
+		{
+			commandOutput = "ERROR:  You need to specify and RGB triplet with values in (0.0, 1.0)";
+		}
+	}
+
+	else if(command.compare("setcolor") == 0)
+	{
+		string tempString;
+
+		if(arguments.size() > 0)
+		{
+			unsigned int index;
+			double tempR, tempG, tempB;
+			tempSS.str(arguments);
+			tempSS >> index >> tempR >> tempG >> tempB;
+			if(index < playerColourValues.size())
+			{
+				playerColourValues[index] = ColourValue(tempR, tempG, tempB);
+				tempString = "";
+				tempSS.str(tempString);
+				tempSS << "Color number " << index << " changed to " << tempR << "\t" << tempG << "\t" << tempB;
+				commandOutput = tempSS.str();
+			}
+
+		}
+		else
+		{
+			tempString = "";
+			tempSS.str(tempString);
+			tempSS << "ERROR:  You need to specify a color index between 0 and " << playerColourValues.size() << " and an RGB triplet with values in (0.0, 1.0)";
+			commandOutput = tempSS.str();
+		}
+	}
+
+	//FIXME:  This function is not yet implemented.
+	else if(command.compare("disconnect") == 0)
+	{
+		if(serverSocket != NULL)
+		{
+			commandOutput = "Stopping server.";
+		}
+		else
+		{
+			if(clientSocket != NULL)
+			{
+				commandOutput = "Disconnecting from server.";
+			}
+			else
+			{
+				commandOutput = "You are not connected to a server and you are not hosting a server.";
+			}
+		}
+	}
+
+	else commandOutput = "Command not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.";
 
 	promptCommand = "";
 }

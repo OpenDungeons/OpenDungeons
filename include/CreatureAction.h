@@ -14,7 +14,12 @@ class CreatureAction
 	public:
 		enum ActionType
 		{
-			walkToTile, digTile, claimTile, attackCreature, idle
+			walkToTile,		// Calculate a path to the tile and follow it each turn.
+			maneuver,		// Like walkToTile but used for combat situations.
+			digTile,		// (worker only) Dig out a tile, i.e. decrease its fullness.
+			claimTile,		// (worker only) "Dance" on tile to change its color.
+			attackCreature,	// Do damage to a creature withing range, if not in range begin maneuvering.
+			idle		// Stand around doing nothing.
 		};
 
 		CreatureAction();
