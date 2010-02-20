@@ -5,6 +5,9 @@ Makefile
 *.o
 core*
 .*.swp
+Changelog.txt
+Media/levels/Test.level.out
+Documentation/
 
 cmake_install.cmake
 

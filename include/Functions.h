@@ -10,7 +10,7 @@ using namespace std;
 #include "Globals.h"
 #include "Tile.h"
 
-void readGameMapFromFile(string fileName);
+bool readGameMapFromFile(string fileName);
 void writeGameMapToFile(string fileName);
 
 double randomDouble(double min, double max);

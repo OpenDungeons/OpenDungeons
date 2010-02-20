@@ -446,7 +446,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				cout << "\nCreating weapon:  " << curWeapon->name << endl;
 
 				ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
-				weaponEntity = mSceneMgr->createEntity("Weapon_creature_" + curWeapon->handString + "_" + curCreature->name, curWeapon->meshName);
+				weaponEntity = mSceneMgr->createEntity("Weapon_" + curWeapon->handString + "_" + curCreature->name, curWeapon->meshName);
 				boneString = (string)"Weapon_" + curWeapon->handString;
 				weaponBone = ent->getSkeleton()->getBone(boneString);
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
@@ -467,7 +467,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				if(curWeapon->name.compare("none") != 0)
 				{
-					ent = mSceneMgr->getEntity("Creature_weapon" + curWeapon->handString + "_" + curCreature->name);
+					ent = mSceneMgr->getEntity("Weapon_" + curWeapon->handString + "_" + curCreature->name);
 					mSceneMgr->destroyEntity(ent);
 				}
 				sem_post(&curWeapon->meshDestructionFinishedSemaphore);
@@ -585,7 +585,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				{
 					tempString = "";
 					tempSS.str(tempString);
-					tempSS << "Creature_vision_" << curCreature->name << "_" << curTile->x << "_" << curTile->y;
+					tempSS << "Vision_indicator_" << curCreature->name << "_" << curTile->x << "_" << curTile->y;
 
 					ent = mSceneMgr->createEntity( tempSS.str(), "Cre_vision_indicator.mesh");
 					node = creatureSceneNode->createChildSceneNode( tempSS.str() + "_node" );
@@ -604,8 +604,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				tempString = "";
 				tempSS.str(tempString);
-				tempSS << "Creature_vision_" << curCreature->name << "_" << curTile->x << "_" << curTile->y;
-
+				tempSS << "Vision_indicator_" << curCreature->name << "_" << curTile->x << "_" << curTile->y; 
 				if(mSceneMgr->hasEntity(tempSS.str()))
 				{
 					ent = mSceneMgr->getEntity(tempSS.str());
@@ -1710,18 +1709,21 @@ void ExampleFrameListener::executePromptCommand()
 		{
 			if(arguments.size() > 0)
 			{
-				//FIXME:  This will likely crash if a non-existant level name is given
-				gameMap.clearAll();
-
 				string tempString = "Media/levels/" + arguments + ".level";
-				readGameMapFromFile(tempString);
+				if(readGameMapFromFile(tempString))
+				{
+					string tempString2 = "";
+					stringstream tempSS(tempString2);
+					tempSS << "Successfully loaded file:  " << tempString << "\nNum tiles:  " << gameMap.numTiles() << "\nNum classes:  " << gameMap.numClassDescriptions() << "\nNum creatures:  " << gameMap.numCreatures();
+					commandOutput = tempSS.str();
 
-				string tempString2 = "";
-				stringstream tempSS(tempString2);
-				tempSS << "Successfully loaded file:  " << tempString << "\nNum tiles:  " << gameMap.numTiles() << "\nNum classes:  " << gameMap.numClassDescriptions() << "\nNum creatures:  " << gameMap.numCreatures();
-				commandOutput = tempSS.str();
-
-				gameMap.createAllEntities();
+					gameMap.createAllEntities();
+				}
+				else
+				{
+					tempSS << "ERROR: Could not load game map \'" << tempString << "\'.";
+					commandOutput = tempSS.str();
+				}
 			}
 			else
 			{

@@ -132,19 +132,16 @@ void MapEditor::createScene(void)
 	{
 		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"OpenDungeons.layout"); 
 		mSystem->setGUISheet(sheet);
-		cerr << "\n\none.\n";
 
 		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
 		CEGUI::Window *quitWindow = wmgr->getWindow((CEGUI::utf8*)"QuitButton");
-		cerr << "\n\ntwo.\n";
 
 		//quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&ExampleFrameListener::quit));
 		quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
-		cerr << "\n\nthree.\n";
 	}
 	catch (...)
 	{
-		cerr << "\n\nERROR:  Caught and ignored an exception.\n\n";
+		cerr << "\n\nERROR:  Caught and ignored an exception in the loading of the CEGUI overlay, the game will continue to function albeit without the GUI overlay functionality.\n\n";
 	}
 
 }

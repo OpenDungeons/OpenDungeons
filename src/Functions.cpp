@@ -9,13 +9,13 @@
 double const M_PI = 2 * acos(0.0);
 #endif
 
-void readGameMapFromFile(string fileName)
+bool readGameMapFromFile(string fileName)
 {
 	ifstream levelFile(fileName.c_str(), ifstream::in);
 	if( !levelFile.good() )
 	{
 		cerr << "ERROR: File not found:  " << fileName << "\n\n\n";
-		exit(1);
+		return false;
 	}
 
 	gameMap.clearAll();
@@ -119,6 +119,8 @@ void readGameMapFromFile(string fileName)
 	}
 
 	levelFile.close();
+
+	return true;
 }
 
 void writeGameMapToFile(string fileName)

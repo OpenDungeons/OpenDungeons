@@ -25,8 +25,6 @@
 
 *  Visual debugging entities for creatures dissappear after a short time.
 
-*  Terminal command 'load' will probably crash the game if given a non-existant
-*  level name.
 
 
 
@@ -39,10 +37,6 @@
 *  Add terminal command 'ls levels'
 
 *  Begin phasing out snprintf since it is not portable.
-
-*  Change prefix on weapon names, selection indicators, dig indicators, and
-*  creature visual debug so they are not mistaken for creatures in the
-*  raySceneQuery.
 
 *  Add a terminal command 'chathelp' which will lookup a help message and then
 *  chat it to the people in the game, to allow for showing people how to do stuff.
@@ -96,7 +90,7 @@
 *  Fix the issue with Mouse move.
 
 *  find out about separate subtraction and multiply issue in
-*  ExampleFrameLiyystener::mouseMoved(const OIS::MouseEvent &arg)
+*  ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
  ---------------
 
