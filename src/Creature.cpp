@@ -274,6 +274,8 @@ void Creature::doTurn()
 	updateVisibleTiles();
 	vector<Creature*> visibleEnemies = getVisibleEnemies();
 	vector<Creature*> visibleAllies = getVisibleAllies();
+	if(digRate > 0.1)
+		markedTiles = getVisibleMarkedTiles();
 
 	// If the creature can see enemies
 	if(visibleEnemies.size() > 0)
@@ -413,17 +415,22 @@ void Creature::doTurn()
 					}
 
 					// Randomly decide to stop claiming with a small probability
-					if(randomDouble(0.0, 1.0) < 0.1)
+					if(randomDouble(0.0, 1.0) < 0.1 + 0.2*markedTiles.size())
 					{
 						loopBack = true;
 						actionQueue.pop_front();
+
+						// If there are any visible tiles marked for digging start working on that.
+						if(markedTiles.size() > 0)
+							actionQueue.push_front(CreatureAction(CreatureAction::digTile));
+
 						break;
 					}
 
 					// See if the tile we are standing on can be claimed
 					if(myTile->color != color || myTile->colorDouble < 1.0)
 					{
-						cout << "\nTrying to claim the tile I am standing on.";
+						//cout << "\nTrying to claim the tile I am standing on.";
 						// Check to see if one of the tile's neighbors is claimed for our color
 						neighbors = gameMap.neighborTiles(myTile->x, myTile->y);
 						for(unsigned int j = 0; j < neighbors.size(); j++)
@@ -432,12 +439,12 @@ void Creature::doTurn()
 							tempTile = neighbors[j];
 							if(tempTile->color == color && tempTile->colorDouble >= 1.0)
 							{
-								cout << "\t\tFound a neighbor that is claimed.";
+								//cout << "\t\tFound a neighbor that is claimed.";
 								// If we found a neighbor that is claimed for our side than we
 								// can start dancing on this tile
 								if(myTile->color == color)
 								{
-									cout << "\t\tmyTile is My color.";
+									//cout << "\t\tmyTile is My color.";
 									myTile->colorDouble += danceRate;
 									if(myTile->colorDouble >= 1.0)
 									{
@@ -464,7 +471,7 @@ void Creature::doTurn()
 						}
 					}
 
-					cout << "\nLooking at the neighbor tiles to see if I can claim a tile.";
+					//cout << "\nLooking at the neighbor tiles to see if I can claim a tile.";
 					// The tile we are standing on is already claimed or is not currently
 					// claimable, find candidates for claiming.
 					// Start by checking the neighbor tiles of the one we are already in
@@ -495,15 +502,7 @@ void Creature::doTurn()
 						neighbors.erase(neighbors.begin()+tempInt);
 					}
 
-					// Randomly decide to stop claiming with a larger probability
-					if(randomDouble(0.0, 1.0) < 0.3)
-					{
-						loopBack = true;
-						actionQueue.pop_front();
-						break;
-					}
-
-					cout << "\nLooking at the visible tiles to see if I can claim a tile.";
+					//cout << "\nLooking at the visible tiles to see if I can claim a tile.";
 					// If we still haven't found a tile to claim, check the rest of the visible tiles
 					for(unsigned int i = 0; i < visibleTiles.size(); i++)
 					{
@@ -524,11 +523,47 @@ void Creature::doTurn()
 						}
 					}
 
-					cout << "  I see " << claimableTiles.size() << " tiles I can claim.";
+					//cout << "  I see " << claimableTiles.size() << " tiles I can claim.";
 					// Randomly pick a claimable tile, plot a path to it and walk to it
 					while(claimableTiles.size() > 0)
 					{
-						tempTile = claimableTiles[randomUint(0, claimableTiles.size()-1)];
+						// Randomly find a "good" tile to claim.  A good tile is one that has many neighbors
+						// already claimed, this makes the claimed are more "round" and less jagged.
+						tempInt = 0;
+						do
+						{
+							int numNeighborsClaimed;
+
+							// Start by randomly picking a candidate tile.
+							tempTile = claimableTiles[randomUint(0, claimableTiles.size()-1)];
+
+							// Count how many of the candidate tile's neighbors are already claimed.
+							neighbors = gameMap.neighborTiles(tempTile->x, tempTile->y);
+							numNeighborsClaimed = 0;
+							for(unsigned int i = 0; i < neighbors.size(); i++)
+							{
+								if(neighbors[i]->color == color && neighbors[i]->colorDouble >= 1.0)
+									numNeighborsClaimed++;
+							}
+
+							// Pick a random number in [0:1], if this number is high enough, than use this tile to claim.  The
+							// bar for success approaches 0 as numTiles approaches N so this will be guaranteed to succeed at,
+							// or before the time we get to the last unclaimed tile.  The bar for success is also lowered
+							// according to how many neighbors are already claimed.
+							//NOTE: The bar can be negative, when this happens we are guarenteed to use this candidate tile.
+							double bar;
+							bar = 1.0 - (numNeighborsClaimed/4.0) - (tempInt/(double)(claimableTiles.size()-1));
+							if(randomDouble(0.0, 1.0) >= bar)
+								break;
+
+							// Safety catch to prevent infinite loop in case the bar for success is too high and is never met.
+							if(tempInt >= claimableTiles.size()-1)
+								break;
+
+							// Increment the counter indicating how many candidate tiles we have rejected so far.
+							tempInt++;
+						} while(true);
+
 						if(tempTile != NULL)
 						{
 							// If we find a valid path to the tile start walking to it and break
@@ -561,21 +596,11 @@ claimTileBreakStatement:
 					//cout << "dig ";
 
 					// Randomly decide to stop digging with a small probability
-					if(randomDouble(0.0, 1.0) < 0.1)
+					if(randomDouble(0.0, 1.0) < 0.5 - 0.2*markedTiles.size())
 					{
 						loopBack = true;
 						actionQueue.pop_front();
 						goto claimTileBreakStatement;
-					}
-
-					// Find visible tiles, marked for digging
-					for(unsigned int i = 0; i < visibleTiles.size(); i++)
-					{
-						// Check to see if the tile is marked for digging
-						if(tempPlayer != NULL && visibleTiles[i]->getMarkedForDigging(tempPlayer))
-						{
-							markedTiles.push_back(visibleTiles[i]);
-						}
 					}
 
 					// See if any of the tiles is one of our neighbors
@@ -887,6 +912,12 @@ void Creature::updateVisibleTiles()
 				{
 					visibleTiles.push_back(currentTile);
 				}
+				else
+				{
+					// If we cannot see this tile than we cannot see any tiles farther away 
+					// than this one (in this direction) so move on to the next direction.
+					continue;
+				}
 			}
 		}
 	}
@@ -926,8 +957,8 @@ void Creature::updateVisibleTiles()
 			else
 			{
 				// If this tile is too far away then any tile with a j value greater than this
-				// will also be too far away.  Setting j=sightRadius will break out of the inner loop
-				j = sightRadius;
+				// will also be too far away.
+				break;
 			}
 		}
 	}
@@ -946,6 +977,22 @@ vector<Creature*> Creature::getVisibleEnemies()
 vector<Creature*> Creature::getVisibleAllies()
 {
 	return getVisibleForce(color, false);
+}
+
+vector<Tile*> Creature::getVisibleMarkedTiles()
+{
+	vector<Tile*> tempVector;
+	Player *tempPlayer = getControllingPlayer();
+
+	// Loop over all the visible tiles.
+	for(unsigned int i = 0; i < visibleTiles.size(); i++)
+	{
+		// Check to see if the tile is marked for digging.
+		if(tempPlayer != NULL && visibleTiles[i]->getMarkedForDigging(tempPlayer))
+			tempVector.push_back(visibleTiles[i]);
+	}
+	
+	return tempVector;
 }
 
 vector<Creature*> Creature::getVisibleForce(int color, bool invert)
