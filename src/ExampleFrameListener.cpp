@@ -453,8 +453,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				weaponEntity->setNormaliseNormals(true);
 #endif
 
-				// Rotate by -PI/2 around the x-axis from the bone's rotation.  I'm not sure this is 100% correct but it seems to work.
-				tempQuaternion = Quaternion(-3.14159/2.0, 1.0, 0.0, 0.0);
+				// Rotate by -90 degrees around the x-axis from the bone's rotation.
+				tempQuaternion.FromAngleAxis(Degree(-90.0), Ogre::Vector3(1.0, 0.0, 0.0));
 
 				ent->attachObjectToBone(weaponBone->getName(), weaponEntity, tempQuaternion);
 				sem_post(&curWeapon->meshCreationFinishedSemaphore);
@@ -463,7 +463,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			case RenderRequest::destroyWeapon:
 				curWeapon = (Weapon*)curReq->p;
 				curCreature = (Creature*)curReq->p2;
-				cout << "\nDestroying weapon:  " << curWeapon->name << endl;
+				cout << "\nDestroying weapon:  " << curWeapon->name;
 
 				if(curWeapon->name.compare("none") != 0)
 				{
@@ -630,6 +630,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 			case RenderRequest::deleteCreature:
 				curCreature = (Creature*)curReq->p;
+				cout << "\nCalling delete on creature " << curCreature->name;
+				cout.flush();
 				delete curCreature;
 				break;
 
@@ -1931,7 +1933,6 @@ void ExampleFrameListener::executePromptCommand()
 	// Set far clip distance
 	else if(command.compare("farclip") == 0)
 	{
-		char tempArray[255];
 		if(arguments.size() > 0)
 		{
 			double tempDouble;

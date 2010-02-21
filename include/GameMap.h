@@ -36,6 +36,7 @@ class GameMap
 		void clearCreatures();
 		void addCreature(Creature *c);
 		void removeCreature(Creature *c);
+		void queueCreatureForDeletion(Creature *c);
 		Creature* getCreature(int index);
 		Creature* getCreature(string cName);
 		unsigned int numCreatures();
@@ -80,6 +81,7 @@ class GameMap
 		map< pair<int,int>, Tile*> tiles;
 		vector<Creature*> classDescriptions;
 		vector<Creature*> creatures;
+		vector<Creature*> creaturesToDelete;
 		vector<Player*> players;
 		vector<Room*> rooms;
 		vector<Seat*> seats;

@@ -2363,17 +2363,17 @@ Quarters	1
 4
 Wyvern	Wyvern.mesh	1	1	1	27	10	15	0	1.3
 Knight	Knight.mesh	1	1	1	80	3	15	0	1
-Kobold	Kobold.mesh	0.1	0.1	0.1	20	6	15	20	2.5
+Kobold	Kobold.mesh	0.1	0.1	0.1	40	6	15	20	2.5
 Dragon	Dragon.mesh	0.3	0.3	0.3	220	50	15	0	0.9
 
 9
 Knight	Knight_0001	0	10	0	1	Longsword	3	3	4	Longsword	5	6	4
 Kobold	Kobold	-2	11	0	1	Longsword	14	3	0	Longsword	14	3	0
-Kobold	Kobold_0001	-5	15	0	1	none	0	0	0	none	0	0	0
-Kobold	Kobold_0002	-6	14	0	1	none	0	0	0	none	0	0	0
-Kobold	Kobold_0003	-8	13	0	1	none	0	0	0	none	0	0	0
-Kobold	Kobold_0004	-1	15	0	1	none	0	0	0	none	0	0	0
-Kobold	Kobold_0005	-3	14	0	1	none	0	0	0	none	0	0	0
+Kobold	Kobold_0001	-5	15	0	1	none	10	2	0	none	0	2	0
+Kobold	Kobold_0002	-6	14	0	1	none	10	2	0	none	0	2	0
+Kobold	Kobold_0003	-8	13	0	1	none	10	2	0	none	0	2	0
+Kobold	Kobold_0004	-1	15	0	1	none	10	2	0	none	0	2	0
+Kobold	Kobold_0005	-3	14	0	1	none	10	2	0	none	0	2	0
 Knight	Knight_0002	10	14	0	2	Longsword	3	3	4	Longsword	5	6	4
 Knight	Knight_0003	10	11	0	2	Longsword	3	3	4	Longsword	5	6	4
 

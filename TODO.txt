@@ -81,6 +81,8 @@
 
 *  Color chat messages with the color of the player who sent them.
 
+*  Make use of std::set instead of std::vector where appropriate.
+
  ---------------
 
 *  Fix the issue with Mouse move.

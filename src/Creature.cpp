@@ -760,7 +760,7 @@ claimTileBreakStatement:
 						damageDone = randomInt(0, (int)damageDone);
 						enemiesInRange[0]->hp -= damageDone;
 						cout << "\n" << name << " did " << damageDone << " damage to " << enemiesInRange[0]->name;
-						cout << " who now has " << enemiesInRange[0]->hp;
+						cout << " who now has " << enemiesInRange[0]->hp << "hp";
 						break;
 					}
 

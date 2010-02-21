@@ -201,6 +201,11 @@ void GameMap::removeCreature(Creature *c)
 	}
 }
 
+void GameMap::queueCreatureForDeletion(Creature *c)
+{
+	creaturesToDelete.push_back(c);
+}
+
 /*! \brief Returns a pointer to the first class description whose 'name' parameter matches the query string.
  *
  */
@@ -302,31 +307,43 @@ void GameMap::doTurn()
 
 	cout << "\nStarting creature AI for turn " << turnNumber;
 
-	// Remove dead creatures
-	/*
-	unsigned int count = 0;
-	while(count < numCreatures())
+	// Remove meshes for creatures who died last turn.
+	//FIXME: The deletion queue should be (Creature*,turnNumber) pairs and the given creatures should only be deleted when all threads have reported that they have entirely purged all references and pointers for the turn when the creature was put into the queue.
+	while(creaturesToDelete.size() > 0)
 	{
-		if(creatures[count]->hp < 0.0)
-		{
-			removeCreature(creatures[count]);
-			//sem_init(&creatures[count]->meshDestructionFinishedSemaphore, 0, 0);
-			creatures[count]->destroyMesh();
-			//TODO: This leaks memory because the delete statement is not called however calling it causes a crash
-			//sem_wait(&creatures[count]->meshDestructionFinishedSemaphore);
-			//creatures[count]->deleteYourself();
-		}
-		else
-		{
-			count++;
-		}
+		cout << "\nSending message to delete creature " << creaturesToDelete[0]->name;
+		cout.flush();
+		creaturesToDelete[0]->deleteYourself();  // If this line causes problems replace it with the destroyMesh() line below which will leave the actual data structure in tact and just get rid of the rendered mesh.  This will of course leak memory, though.
+		//creaturesToDelete[0]->destroyMesh();
+		creaturesToDelete.erase(creaturesToDelete.begin());
 	}
-	*/
 
 	// Call the individual creature AI for each creature in this game map
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
 		creatures[i]->doTurn();
+	}
+
+	// Remove dead creatures from the map and put them into the deletion queue.
+	unsigned int count = 0;
+	while(count < numCreatures())
+	{
+		// Check to see if the creature has died.
+		//TODO: Add code so creatures lay stunned for a while before they actually die.
+		Creature *tempCreature = creatures[count];
+		if(tempCreature->hp < 0.0)
+		{
+			// Remove the creature from the game map and into the deletion queue, it will be deleted
+			// when it is safe, i.e. all other pointers to it have been wiped from the program.
+			cout << "\nMoving creature " << tempCreature->name << " from the game map to the deletion list.";
+			cout.flush();
+			removeCreature(tempCreature);
+			queueCreatureForDeletion(tempCreature);
+		}
+		else
+		{
+			count++;
+		}
 	}
 
 	sem_post(&creatureAISemaphore);
