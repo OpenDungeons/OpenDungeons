@@ -1,3 +1,9 @@
+cmake_minimum_required(VERSION 2.6.2)
+if(POLICY CMP0011)
+       cmake_policy(SET CMP0011 OLD) # or even better, NEW
+endif(POLICY CMP0011)
+
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 #Change PROJECT_NAME to the name of your project
