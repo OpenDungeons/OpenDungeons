@@ -60,8 +60,13 @@ class Creature
 
 		// AI stuff
 		vector<Tile*> visibleTiles;
+		vector<Creature*> visibleEnemies;
+		vector<Creature*> reachableEnemies;
+		vector<Creature*> enemiesInRange;
+		vector<Creature*> visibleAllies;
 		void updateVisibleTiles();
 		vector<Creature*> getVisibleEnemies();
+		vector<Creature*> getReachableCreatures(const vector<Creature*> &creaturesToCheck);
 		vector<Creature*> getEnemiesInRange(const vector<Creature*> &enemiesToCheck);
 		vector<Creature*> getVisibleAllies();
 		vector<Tile*> getVisibleMarkedTiles();
@@ -74,10 +79,12 @@ class Creature
 		deque<Ogre::Vector3> walkQueue;
 		Ogre::Vector3 walkDirection;
 		void addDestination(int x, int y);
+		bool setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop);
 		void clearDestinations();
 		void clearActionQueue();
 		void stopWalking();
 		Player* getControllingPlayer();
+		void computeBattlefield();
 
 		// Visual debugging routines
 		void createVisualDebugEntities();

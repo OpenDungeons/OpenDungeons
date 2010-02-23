@@ -25,6 +25,8 @@
 
 *  Visual debugging entities for creatures dissappear after a short time.
 
+*  Make the terminal "host" command automatically close the terminal.
+
 
 
 

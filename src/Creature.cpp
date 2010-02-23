@@ -274,14 +274,15 @@ void Creature::doTurn()
 
 	// Look at the surrounding area
 	updateVisibleTiles();
-	vector<Creature*> visibleEnemies = getVisibleEnemies();
-	vector<Creature*> enemiesInRange = getEnemiesInRange(visibleEnemies);
-	vector<Creature*> visibleAllies = getVisibleAllies();
+	visibleEnemies = getVisibleEnemies();
+	reachableEnemies = getReachableCreatures(visibleEnemies);
+	enemiesInRange = getEnemiesInRange(visibleEnemies);
+	visibleAllies = getVisibleAllies();
 	if(digRate > 0.1)
 		markedTiles = getVisibleMarkedTiles();
 
-	// If the creature can see enemies
-	if(visibleEnemies.size() > 0)
+	// If the creature can see enemies that are reachable.
+	if(reachableEnemies.size() > 0)
 	{
 		/*
 		cout << "\nCreature sees enemies:  " << visibleEnemies.size() << "   " << name;
@@ -358,18 +359,8 @@ void Creature::doTurn()
 							result = gameMap.path(tempPositionTile->x, tempPositionTile->y, tempX, tempY, tilePassability);
 						}
 
-						if(result.size() >= 2)
-						{
-							setAnimationState("Walk");
-							gameMap.cutCorners(result, tilePassability);
-							list<Tile*>::iterator itr = result.begin();
-							itr++;
-							while(itr != result.end())
-							{
-								addDestination((*itr)->x, (*itr)->y);
-								itr++;
-							}
-						}
+						gameMap.cutCorners(result, tilePassability);
+						setWalkPath(result, 2, true);
 					}
 					else
 					{
@@ -570,19 +561,11 @@ void Creature::doTurn()
 						{
 							// If we find a valid path to the tile start walking to it and break
 							tempPath = gameMap.path(myTile->x, myTile->y, tempTile->x, tempTile->y, tilePassability);
-							if(tempPath.size() > 2)
+							gameMap.cutCorners(tempPath, tilePassability);
+							if(setWalkPath(tempPath, 2, true))
 							{
-								clearDestinations();
-								gameMap.cutCorners(tempPath, tilePassability);
-								list<Tile*>::iterator itr;
-								for(itr = tempPath.begin(); itr != tempPath.end(); itr++)
-								{
-									addDestination((*itr)->x, (*itr)->y);
-								}
-
 								//loopBack = true;
 								actionQueue.push_back(CreatureAction::walkToTile);
-								setAnimationState("Walk");
 								goto claimTileBreakStatement;
 							}
 						}
@@ -714,18 +697,9 @@ claimTileBreakStatement:
 							walkPath = shortPaths[shortestIndex];
 
 							// If the path is a legitimate path, walk down it to the tile to be dug out
-							if(walkPath.size() >= 2)
+							gameMap.cutCorners(walkPath, tilePassability);
+							if(setWalkPath(walkPath, 2, false))
 							{
-								setAnimationState("Walk");
-								gameMap.cutCorners(walkPath, tilePassability);
-								list<Tile*>::iterator itr = walkPath.begin();
-								itr++;
-								while(itr != walkPath.end())
-								{
-									addDestination((*itr)->x, (*itr)->y);
-									itr++;
-								}
-
 								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 								break;
 							}
@@ -742,8 +716,10 @@ claimTileBreakStatement:
 					break;
 
 				case CreatureAction::attackCreature:
-					// If there are no more enemies visible, stop attacking
-					if(visibleEnemies.size() == 0)
+					setAnimationState("Attack1");
+
+					// If there are no more enemies which are reachable, stop attacking
+					if(reachableEnemies.size() == 0)
 					{
 						actionQueue.pop_front();
 						loopBack = true;
@@ -761,6 +737,11 @@ claimTileBreakStatement:
 						enemiesInRange[0]->hp -= damageDone;
 						cout << "\n" << name << " did " << damageDone << " damage to " << enemiesInRange[0]->name;
 						cout << " who now has " << enemiesInRange[0]->hp << "hp";
+
+						// Randomly decide to start maneuvering again so we don't just stand still and fight.
+						if(randomDouble(0.0, 1.0) <= 0.6)
+							actionQueue.pop_front();
+
 						break;
 					}
 
@@ -770,8 +751,10 @@ claimTileBreakStatement:
 					break;
 
 				case CreatureAction::maneuver:
-					// If there are no more enemies visible, stop maneuvering.
-					if(visibleEnemies.size() == 0)
+					setAnimationState("Walk");
+
+					// If there are no more enemies which are reachable, stop maneuvering.
+					if(reachableEnemies.size() == 0)
 					{
 						actionQueue.pop_front();
 						loopBack = true;
@@ -791,65 +774,24 @@ claimTileBreakStatement:
 						break;
 					}
 
-					// Loop over the tiles in this creatures battleField and compute their value.
-					// The creature will then walk towards the tile with the minimum value.
-					myTile = positionTile();
-					battleField->clear();
-					for(unsigned int i = 0; i < visibleTiles.size(); i++)
-					{
-						tempTile = visibleTiles[i];
-						double rSquared = tempTile->x*tempTile->x + tempTile->y*tempTile->y;
-						double tileValue = 0.0;// - sqrt(rSquared)/sightRadius;
+					// Prepare the battlefield so we can decide where to move.
+					computeBattlefield();
 
-						// Enemies
-						for(unsigned int j = 0; j < visibleEnemies.size(); j++)
-						{
-							Tile *tempTile2 = visibleEnemies[j]->positionTile();
-
-							// Compensate for how close the creature is to me
-							rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
-							double factor = 1.0 / (sqrt(rSquared) + 1.0);
-
-							// Subtract for the distance from the enemy creature to r
-							rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
-							tileValue += factor*sqrt(rSquared);
-						}
-
-						// Allies
-						for(unsigned int j = 0; j < visibleAllies.size(); j++)
-						{
-							Tile *tempTile2 = visibleAllies[j]->positionTile();
-
-							// Compensate for how close the creature is to me
-							rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
-							//double factor = 1.0 / (sqrt(rSquared) + 1.0);
-
-							rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
-							tileValue += 15.0 / (sqrt(rSquared+1.0));
-						}
-
-						double jitter = 0.05;
-						double tileScaleFactor = 0.05;
-						battleField->set(tempTile->x, tempTile->y, (tileValue + randomDouble(-1.0*jitter, jitter))*tileScaleFactor);
-					}
-
+					// Move to the desired location on the battlefield, a minumum if we are
+					// trying to "attack" and a maximum if we are trying to "retreat".
 					clearDestinations();
-				       	min = battleField->min();
+				       	min = battleField->min();  // Currently always attack, never retreat.
 					tempDouble = 4;
 					tempPath = gameMap.path(positionTile()->x, positionTile()->y, min.first.first + randomDouble(-1.0*tempDouble,tempDouble), min.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
-					tempInt = 3;
-					if(tempPath.size() > (unsigned int)tempInt+2)
-					{
-						list<Tile*>::iterator itr = tempPath.begin();
-						int count = 0;
-						while(itr != tempPath.end() && count < tempInt)
-						{
-							itr++;
-							count++;
-						}
-						addDestination((*itr)->x, (*itr)->y);
-					}
 
+					// Walk a maximum of 5 tiles before recomputing the destination since we are in combat.
+					if(tempPath.size() >= 5)
+						tempPath.resize(5);
+
+					gameMap.cutCorners(tempPath, tilePassability);
+					setWalkPath(tempPath, 2, true);
+
+					// This is a debugging statement, it produces a visual display of the battlefield as seen by the first creature.
 					if(battleField->name.compare("field_1") == 0)
 					{
 						//battleField->refreshMeshes(0.0);
@@ -991,6 +933,30 @@ void Creature::updateVisibleTiles()
 vector<Creature*> Creature::getVisibleEnemies()
 {
 	return getVisibleForce(color, true);
+}
+
+/*! \brief Loops over creaturesToCheck and returns a vector containing all the ones which can be reached via a valid path.
+ *
+*/
+vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creaturesToCheck)
+{
+	vector<Creature*> tempVector;
+	Tile *myTile = positionTile(), *creatureTile;
+	list<Tile*> tempPath;
+
+	// Loop over the vector of creatures we are supposed to check.
+	for(unsigned int i = 0; i < creaturesToCheck.size(); i++)
+	{
+		// Try to find a valid path from the tile this creature is in to the tile where the current target creature is standing.
+		creatureTile = creaturesToCheck[i]->positionTile();
+		tempPath = gameMap.path(myTile->x, myTile->y, creatureTile->x, creatureTile->y, tilePassability);
+
+		// If the path we found is valid, then add the creature to the ones we return.
+		if(tempPath.size() >= 2)
+			tempVector.push_back(creaturesToCheck[i]);
+	}
+
+	return tempVector;
 }
 
 /*! \brief Loops over the enemiesToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
@@ -1294,6 +1260,39 @@ void Creature::addDestination(int x, int y)
 	}
 }
 
+bool Creature::setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop)
+{
+	// Remove any existing stops from the walk queue.
+	clearDestinations();
+
+	// Verify that the given path is long enough to be considered valid.
+	if(path.size() >= minDestinations)
+	{
+		setAnimationState("Walk");
+		list<Tile*>::iterator itr = path.begin();
+
+		// If we are not supposed to add the first tile in the path to the destination queue, then we skip over it.
+		if(!addFirstStop)
+			itr++;
+
+		// Loop over the path adding each tile as a destination in the walkQueue.
+		while(itr != path.end())
+		{
+			addDestination((*itr)->x, (*itr)->y);
+			itr++;
+		}
+
+		return true;
+	}
+	else
+	{
+		setAnimationState("Idle");
+		return false;
+	}
+
+	return true;
+}
+
 /*! \brief Clears all future destinations from the walk queue, stops the creature where it is, and sets its animation state.
  *
 */
@@ -1367,5 +1366,53 @@ void Creature::clearActionQueue()
 {
 	actionQueue.clear();
 	actionQueue.push_back(CreatureAction(CreatureAction::idle));
+}
+
+void Creature::computeBattlefield()
+{
+	Tile *myTile, *tempTile, *tempTile2;
+	double rSquared;
+
+	// Loop over the tiles in this creature's battleField and compute their value.
+	// The creature will then walk towards the tile with the minimum value to
+	// attack or towards the maximum value to retreat.
+	myTile = positionTile();
+	battleField->clear();
+	for(unsigned int i = 0; i < visibleTiles.size(); i++)
+	{
+		tempTile = visibleTiles[i];
+		double tileValue = 0.0;// - sqrt(rSquared)/sightRadius;
+
+		// Enemies
+		for(unsigned int j = 0; j < reachableEnemies.size(); j++)
+		{
+			Tile *tempTile2 = reachableEnemies[j]->positionTile();
+
+			// Compensate for how close the creature is to me
+			//rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
+			//double factor = 1.0 / (sqrt(rSquared) + 1.0);
+
+			// Subtract for the distance from the enemy creature to r
+			rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
+			tileValue += sqrt(rSquared);
+		}
+
+		// Allies
+		for(unsigned int j = 0; j < visibleAllies.size(); j++)
+		{
+			Tile *tempTile2 = visibleAllies[j]->positionTile();
+
+			// Compensate for how close the creature is to me
+			//rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
+			//double factor = 1.0 / (sqrt(rSquared) + 1.0);
+
+			rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
+			tileValue += 15.0 / (sqrt(rSquared+1.0));
+		}
+
+		double jitter = 0.05;
+		double tileScaleFactor = 0.05;
+		battleField->set(tempTile->x, tempTile->y, (tileValue + randomDouble(-1.0*jitter, jitter))*tileScaleFactor);
+	}
 }
 
