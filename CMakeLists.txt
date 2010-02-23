@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 2.6.2)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
 if(POLICY CMP0011)
        cmake_policy(SET CMP0011 OLD) # or even better, NEW
 endif(POLICY CMP0011)
 
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 #Change PROJECT_NAME to the name of your project
 PROJECT(OpenDungeons)
@@ -39,7 +39,7 @@ INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 
 IF (NOT WIN32) # Unix
     # Add compiler warnings
-    ADD_DEFINITIONS( "-Wall -Wunused -ansi" )
+    ADD_DEFINITIONS( "-Wall -Wunused -ansi -Wno-deprecated" )
 ENDIF (NOT WIN32)
 
 IF (MSVC_IDE)
