@@ -11,6 +11,11 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
+cmake_minimum_required(VERSION 2.6.2)
+if(POLICY CMP0011)
+       cmake_policy(SET CMP0011 OLD) # or even better, NEW
+       endif(POLICY CMP0011)
+
 IF (CEGUI_LIBRARIES AND CEGUI_INCLUDE_DIR)
 	SET(CEGUI_FIND_QUIETLY TRUE)
 ENDIF (CEGUI_LIBRARIES AND CEGUI_INCLUDE_DIR)
