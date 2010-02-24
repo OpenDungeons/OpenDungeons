@@ -66,6 +66,10 @@ class GameMap
 		Seat* popSeat();
 		unsigned int numSeats();
 
+		void addGoalForAllPlayers(Goal *g);
+		Goal* getGoalForAllPlayers(unsigned int i);
+		unsigned int numGoalsForAllPlayers();
+
 		// AI Methods
 		void doTurn();
 
@@ -76,6 +80,7 @@ class GameMap
 		void cutCorners(list<Tile*> &path, Tile::TileClearType passability);
 
 		Player *me;
+		vector<int> winningColors;
 
 	private:
 		map< pair<int,int>, Tile*> tiles;
@@ -85,6 +90,7 @@ class GameMap
 		vector<Player*> players;
 		vector<Room*> rooms;
 		vector<Seat*> seats;
+		vector<Goal*> goalsForAllPlayers;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.

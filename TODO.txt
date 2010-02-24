@@ -27,6 +27,9 @@
 
 *  Make the terminal "host" command automatically close the terminal.
 
+*  When a level is loaded via the terminal, the room tiles are not deleted.
+*  This is probably a bug in GameMap::clear().
+
 
 
 

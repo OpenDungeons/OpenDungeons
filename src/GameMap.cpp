@@ -923,4 +923,18 @@ unsigned int GameMap::numSeats()
 	return seats.size();
 }
 
+void GameMap::addGoalForAllPlayers(Goal *g)
+{
+	goalsForAllPlayers.push_back(g);
+}
+
+Goal* GameMap::getGoalForAllPlayers(unsigned int i)
+{
+	return goalsForAllPlayers[i];
+}
+
+unsigned int GameMap::numGoalsForAllPlayers()
+{
+	return goalsForAllPlayers.size();
+}
 

@@ -1,4 +1,4 @@
-OpenDungeons_Version:0.3.5
+OpenDungeons_Version:0.3.6		# The version string identifies the version of Opendungeons this level is compatible with.
 
 5
 1	Undead	0	0	0.0	0.8	0.0
@@ -6,6 +6,10 @@ OpenDungeons_Version:0.3.5
 3	Villians	15	0.8	0.3	0.3
 4	Constructs	15	0.8	0.8	0.0
 5	Animals	15	0.8	0.8	0.0
+
+# Universal Goals
+1 # The number of universal goals to read in.  The first player (or players) to complete all of the universal goals is the winner.
+KillAllEnemies	NULL
 
 17195
 -37	0	0	100

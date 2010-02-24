@@ -1,6 +1,16 @@
-OpenDungeons_Version:0.3.4
+OpenDungeons_Version:0.3.6		# The version string identifies the version of Opendungeons this level is compatible with.
 
-0
+# Seats
+5 # The number of Seats to load.  One or more players can sit at each seat.  If two players are in the same seat they are on the same team.
+1	Undead	0	0	0	0.8	0
+2	Heroes	15	0	0.8	0.8	0.8
+3	Villians	15	0	0.8	0.3	0.3
+4	Constructs	15	0	0.8	0.8	0
+5	Animals	15	0	0.8	0.8	0
+
+# Universal Goals
+1 # The number of universal goals to read in.  The first player (or players) to complete all of the universal goals is the winner.
+KillAllEnemies	NULL
 
 3600
 0	0	0	100

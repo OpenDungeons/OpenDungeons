@@ -20,6 +20,7 @@ double gaussianRandomDouble();
 void seedRandomNumberGenerator();
 
 void swap(int &a, int &b);
+string stripCommentsFromLine(string line);
 
 void colourizeEntity(Entity *ent, int colour);
 string colourizeMaterial(string materialName, int color);

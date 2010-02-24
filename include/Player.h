@@ -4,6 +4,7 @@
 #include <string>
 using namespace std;
 
+class Goal;
 #include "Creature.h"
 #include "Seat.h"
 

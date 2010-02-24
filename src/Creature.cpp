@@ -65,7 +65,7 @@ ostream& operator<<(ostream& os, Creature *c)
 	os << c->className << "\t" << c->name << "\t";
 	os << c->position.x << "\t" << c->position.y << "\t" << c->position.z << "\t";
 	os << c->color << "\t";
-	os << c->weaponR << "\t" << c->weaponL;
+	os << c->weaponL << "\t" << c->weaponR;
 
 	return os;
 }
@@ -97,12 +97,12 @@ istream& operator>>(istream& is, Creature *c)
 	c->weaponL = new Weapon;
 	is >> c->weaponL;
 	c->weaponL->parentCreature = c;
-	c->weaponL->handString = "R";
+	c->weaponL->handString = "L";
 
 	c->weaponR = new Weapon;
 	is >> c->weaponR;
 	c->weaponR->parentCreature = c;
-	c->weaponR->handString = "L";
+	c->weaponR->handString = "R";
 
 	// Copy the class based items
 	Creature *creatureClass = gameMap.getClassDescription(c->className);

@@ -1,3 +1,6 @@
+#include <sstream>
+using namespace std;
+
 #include <ctype.h>
 
 #include "Globals.h"
@@ -11,26 +14,37 @@ double const M_PI = 2 * acos(0.0);
 
 bool readGameMapFromFile(string fileName)
 {
-	ifstream levelFile(fileName.c_str(), ifstream::in);
-	if( !levelFile.good() )
-	{
-		cerr << "ERROR: File not found:  " << fileName << "\n\n\n";
-		return false;
-	}
-
-	gameMap.clearAll();
-
 	Seat *tempSeat;
+	Goal *tempGoal;
 	Tile *tempTile;
 	Room *tempRoom;
 	string tempString, tempString2;
 	Creature tempCreature;
 	int objectsToLoad;
 
+	// Try to open the input file for reading and throw an error if we can't.
+	ifstream baseLevelFile(fileName.c_str(), ifstream::in);
+	if( !baseLevelFile.good() )
+	{
+		cerr << "ERROR: File not found:  " << fileName << "\n\n\n";
+		return false;
+	}
+
+	// Read in the whole baseLevelFile, strip it of comments and feed it into
+	// the stringstream levelFile, to be read by the rest of the function.
+	stringstream levelFile;
+	while(baseLevelFile.good())
+	{
+		getline(baseLevelFile, tempString);
+		levelFile << stripCommentsFromLine(tempString) << "\n";
+	}
+
+	baseLevelFile.close();
+
+	gameMap.clearAll();
+
 	// Read in the version number from the level file
-	char array[255];
-	levelFile.getline(array, sizeof(array));
-	tempString = array;
+	levelFile >> tempString;
 	if(tempString.compare(versionString) != 0)
 	{
 		cerr << "\n\n\nERROR:  Attempting to load a file produced by a different version of OpenDungeons.\n";
@@ -40,8 +54,8 @@ bool readGameMapFromFile(string fileName)
 		exit(1);
 	}
 
-	levelFile >> objectsToLoad;
 	// Read in the seats from the level file
+	levelFile >> objectsToLoad;
 	for(int i = 0; i < objectsToLoad; i++)
 	{
 		tempSeat = new Seat;
@@ -50,12 +64,20 @@ bool readGameMapFromFile(string fileName)
 		gameMap.addSeat(tempSeat);
 	}
 
+	// Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
 	levelFile >> objectsToLoad;
-
-	// Read in the map tiles from disk
 	for(int i = 0; i < objectsToLoad; i++)
 	{
-		
+		tempGoal = Goal::instantiateFromStream(levelFile);
+
+		if(tempGoal != NULL)
+			gameMap.addGoalForAllPlayers(tempGoal);
+	}
+
+	// Read in the map tiles from disk
+	levelFile >> objectsToLoad;
+	for(int i = 0; i < objectsToLoad; i++)
+	{
 		//NOTE: This code is duplicated in the client side method
 		//"addclass" defined in src/Client.cpp and readGameMapFromFile.
 		//Changes to this code should be reflected in that code as well
@@ -118,8 +140,6 @@ bool readGameMapFromFile(string fileName)
 		gameMap.addCreature(newCreature);
 	}
 
-	levelFile.close();
-
 	return true;
 }
 
@@ -137,6 +157,13 @@ void writeGameMapToFile(string fileName)
 	for(unsigned int i = 0; i < gameMap.numSeats(); i++)
 	{
 		levelFile << gameMap.getSeat(i);
+	}
+
+	// Write out the goals shared by all players to the file.
+	levelFile << "\n" << gameMap.numGoalsForAllPlayers() << "\n";
+	for(unsigned int i = 0; i < gameMap.numGoalsForAllPlayers(); i++)
+	{
+		levelFile << gameMap.getGoalForAllPlayers(i);
 	}
 
 	// Write out the tiles to the file
@@ -333,6 +360,13 @@ void swap(int &a, int &b)
 	int temp = a;
 	a = b;
 	b = temp;
+}
+
+string stripCommentsFromLine(string line)
+{
+	// Find the first occurrence of the comment symbol on the line and return everything before that character.
+	size_t index = line.find('#');
+	return line.substr(0, index);
 }
 
 void colourizeEntity(Entity *ent, int colour)
