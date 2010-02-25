@@ -9,21 +9,24 @@ GoalKillAllEnemies::GoalKillAllEnemies(string nName, string nArguments, Player *
 
 bool GoalKillAllEnemies::isMet(Seat *s)
 {
-	return false;
-}
+	bool enemiesFound = false;
 
-bool GoalKillAllEnemies::isVisible()
-{
-	return true;
+	// Loop over all the creatures in the game map and check to see if any of them are of a different color than our seat.
+	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
+	{
+		if(gameMap.getCreature(i)->color != s->color)
+		{
+			enemiesFound = true;
+			break;
+		}
+	}
+
+	return !enemiesFound;
 }
 
 string GoalKillAllEnemies::getSuccessMessage()
 {
-	return "Congratulations:  You have killed all enemy creatures.";
-}
-
-void GoalKillAllEnemies::doSuccessAction()
-{
+	return "Congratulations:  You have killed all the enemy creatures.";
 }
 
 string GoalKillAllEnemies::getDescription()

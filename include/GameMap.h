@@ -60,11 +60,21 @@ class GameMap
 		Room* getRoom(int index);
 		unsigned int numRooms();
 
-		void clearSeats();
-		void addSeat(Seat *s);
-		Seat* getSeat(int index);
-		Seat* popSeat();
-		unsigned int numSeats();
+		void clearEmptySeats();
+		void addEmptySeat(Seat *s);
+		Seat* getEmptySeat(int index);
+		Seat* popEmptySeat();
+		unsigned int numEmptySeats();
+
+		void clearFilledSeats();
+		void addFilledSeat(Seat *s);
+		Seat* getFilledSeat(int index);
+		Seat* popFilledSeat();
+		unsigned int numFilledSeats();
+
+		void addWinningSeat(Seat *s);
+		Seat* getWinningSeat(unsigned int index);
+		unsigned int getNumWinningSeats();
 
 		void addGoalForAllSeats(Goal *g);
 		Goal* getGoalForAllSeats(unsigned int i);
@@ -80,7 +90,6 @@ class GameMap
 		void cutCorners(list<Tile*> &path, Tile::TileClearType passability);
 
 		Player *me;
-		vector<int> winningColors;
 
 	private:
 		map< pair<int,int>, Tile*> tiles;
@@ -89,7 +98,9 @@ class GameMap
 		vector<Creature*> creaturesToDelete;
 		vector<Player*> players;
 		vector<Room*> rooms;
-		vector<Seat*> seats;
+		vector<Seat*> emptySeats;
+		vector<Seat*> filledSeats;
+		vector<Seat*> winningSeats;
 		vector<Goal*> goalsForAllSeats;
 };
 

@@ -25,11 +25,25 @@ Goal* Seat::getCompletedGoal(unsigned int index)
 	return completedGoals[index];
 }
 
-void Seat::completeGoal(unsigned int index)
+bool Seat::checkAllGoals()
 {
-	Goal *tempGoal = goals[index];
-	goals.erase(goals.begin() + index);
-	completedGoals.push_back(tempGoal);
+	cout << "seat has " << goals.size() << " unmet goals and " << completedGoals.size() << " completed goals.";
+	// Loop over the goals vector and move any goals that have been met to the completed goals vector.
+	vector<Goal*>::iterator currentGoal = goals.begin();
+	while(currentGoal != goals.end())
+	{
+		if((*currentGoal)->isMet(this))
+		{
+			completedGoals.push_back(*currentGoal);
+			currentGoal = goals.erase(currentGoal);
+		}
+		else
+		{
+			currentGoal++;
+		}
+	}
+
+	return (goals.size() == 0);
 }
 
 ostream& operator<<(ostream& os, Seat *s)

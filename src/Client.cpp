@@ -94,10 +94,10 @@ void *clientSocketProcessor(void *p)
 				stringstream tempSS(arguments);
 				Seat *tempSeat = new Seat;
 				tempSS >> tempSeat;
-				gameMap.addSeat(tempSeat);
+				gameMap.addEmptySeat(tempSeat);
 				if(gameMap.me->seat == NULL)
 				{
-					gameMap.me->seat = gameMap.popSeat();
+					gameMap.me->seat = gameMap.popEmptySeat();
 				}
 
 				sem_wait(&sock->semaphore);

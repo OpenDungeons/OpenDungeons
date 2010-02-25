@@ -2106,7 +2106,7 @@ void ExampleFrameListener::executePromptCommand()
 					for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); i++)
 					{
 						Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
-						tempSS << tempGoal->getName() << ":\t" << tempGoal->getDescription() << "\n";
+						tempSS << tempGoal->getName() << ":\t" << tempGoal->getSuccessMessage() << "\n";
 					}
 				}
 				else
@@ -2231,10 +2231,10 @@ void ExampleFrameListener::executePromptCommand()
 				serverSocket = new Socket;
 
 				// Start the server socket listener as well as the server socket thread
-				if(serverSocket != NULL && gameMap.numSeats() > 0)
+				if(serverSocket != NULL && gameMap.numEmptySeats() > 0)
 				{
 					// Sit down at the first available seat.
-					gameMap.me->seat = gameMap.popSeat();
+					gameMap.me->seat = gameMap.popEmptySeat();
 
 					// Start the server thread which will listen for, and accept, connections
 					SSPStruct *ssps = new SSPStruct;

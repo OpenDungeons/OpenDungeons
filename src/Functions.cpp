@@ -61,7 +61,7 @@ bool readGameMapFromFile(string fileName)
 		tempSeat = new Seat;
 		levelFile >> tempSeat;
 
-		gameMap.addSeat(tempSeat);
+		gameMap.addEmptySeat(tempSeat);
 	}
 
 	// Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
@@ -153,10 +153,15 @@ void writeGameMapToFile(string fileName)
 	levelFile << versionString << "\n\n";
 
 	// Write out the seats to the file
-	levelFile << gameMap.numSeats() << "\n";
-	for(unsigned int i = 0; i < gameMap.numSeats(); i++)
+	levelFile << gameMap.numEmptySeats()+gameMap.numFilledSeats() << "\n";
+	for(unsigned int i = 0; i < gameMap.numEmptySeats(); i++)
 	{
-		levelFile << gameMap.getSeat(i);
+		levelFile << gameMap.getEmptySeat(i);
+	}
+
+	for(unsigned int i = 0; i < gameMap.numFilledSeats(); i++)
+	{
+		levelFile << gameMap.getFilledSeat(i);
 	}
 
 	// Write out the goals shared by all players to the file.

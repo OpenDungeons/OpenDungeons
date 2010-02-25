@@ -105,6 +105,7 @@ void Player::pickUpCreature(Creature *c)
 
 void Player::removeCreatureFromHand(int i)
 {
+	//FIXME:  This loop can be done away with since a vector allows random access.
 	vector<Creature*>::iterator curCreature = creaturesInHand.begin();
 	while(i > 0 && curCreature != creaturesInHand.end())
 	{

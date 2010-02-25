@@ -7,6 +7,15 @@ Goal::Goal(string nName, string nArguments, Player *nPlayer)
 	player = nPlayer;
 }
 
+void Goal::doSuccessAction()
+{
+}
+
+bool Goal::isVisible()
+{
+	return true;
+}
+
 string Goal::getName()
 {
 	return name;

@@ -10,13 +10,19 @@ class Seat;
 class Goal
 {
 	public:
+		// Constructors
 		Goal(string nName, string nArguments, Player *nPlayer);
 
+		// Functions which must be overridden by child classes
 		virtual bool isMet(Seat *s) = 0;
-		virtual bool isVisible() = 0;
 		virtual string getSuccessMessage() = 0;
-		virtual void doSuccessAction() = 0;
 		virtual string getDescription() = 0;
+
+		// Functions which can be overridden (but do not have to be) by child classes
+		virtual void doSuccessAction();
+		virtual bool isVisible();
+
+		// Functions which cannot be overridden by child classes
 		string getName();
 
 		friend ostream& operator<<(ostream& os, Goal *g);

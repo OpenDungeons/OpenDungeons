@@ -76,7 +76,7 @@ void GameMap::clearAll()
 	clearClasses();
 	clearPlayers();
 	clearRooms();
-	clearSeats();
+	clearEmptySeats();
 }
 
 /*! \brief Clears the mesh and deletes the data structure for all the tiles in the GameMap.
@@ -298,7 +298,7 @@ Creature* GameMap::getCreature(string cName)
 	return NULL;
 }
 
-/*! \brief Loops over all the creatures and calls their individual doTurn methods.
+/*! \brief Loops over all the creatures and calls their individual doTurn methods, also check goals and do the upkeep.
  *
  */
 void GameMap::doTurn()
@@ -316,6 +316,15 @@ void GameMap::doTurn()
 		creaturesToDelete[0]->deleteYourself();  // If this line causes problems replace it with the destroyMesh() line below which will leave the actual data structure in tact and just get rid of the rendered mesh.  This will of course leak memory, though.
 		//creaturesToDelete[0]->destroyMesh();
 		creaturesToDelete.erase(creaturesToDelete.begin());
+	}
+
+	// Loop over all the filled seats in the game and check all the unfinished goals for each seat.
+	// Add any seats with no remaining goals to the winningSeats vector.
+	for(unsigned int i = 0; i < numFilledSeats(); i++)
+	{
+		// Check the goals and move completed ones to the completedGoals list for the seat.
+		if(filledSeats[i]->checkAllGoals())
+			addWinningSeat(filledSeats[i]);
 	}
 
 	// Call the individual creature AI for each creature in this game map
@@ -624,9 +633,9 @@ vector<Tile*> GameMap::neighborTiles(int x, int y)
  */
 bool GameMap::addPlayer(Player *p)
 {
-	if(seats.size() > 0)
+	if(emptySeats.size() > 0)
 	{
-		p->seat = popSeat();
+		p->seat = popEmptySeat();
 		players.push_back(p);
 		return true;
 	}
@@ -891,49 +900,113 @@ unsigned int GameMap::numRooms()
 	return rooms.size();
 }
 
-void GameMap::clearSeats()
+void GameMap::clearEmptySeats()
 {
-	seats.clear();
+	emptySeats.clear();
 }
 
-void GameMap::addSeat(Seat *s)
+void GameMap::addEmptySeat(Seat *s)
 {
-	seats.push_back(s);
+	emptySeats.push_back(s);
 
 	// Add the goals for all seats to this seat.
 	for(unsigned int i = 0; i < numGoalsForAllSeats(); i++)
 		s->addGoal(getGoalForAllSeats(i));
 }
 
-Seat* GameMap::getSeat(int index)
+Seat* GameMap::getEmptySeat(int index)
 {
-	return seats[index];
+	return emptySeats[index];
 }
 
-Seat* GameMap::popSeat()
+Seat* GameMap::popEmptySeat()
 {
 	Seat *s = NULL;
-	if(seats.size() > 0)
+	if(emptySeats.size() > 0)
 	{
-		s = seats[0];
-		seats.erase(seats.begin());
+		s = emptySeats[0];
+		emptySeats.erase(emptySeats.begin());
+		filledSeats.push_back(s);
 	}
 
 	return s;
 }
 
-unsigned int GameMap::numSeats()
+unsigned int GameMap::numEmptySeats()
 {
-	return seats.size();
+	return emptySeats.size();
+}
+
+void GameMap::clearFilledSeats()
+{
+	filledSeats.clear();
+}
+
+void GameMap::addFilledSeat(Seat *s)
+{
+	filledSeats.push_back(s);
+
+	// Add the goals for all seats to this seat.
+	for(unsigned int i = 0; i < numGoalsForAllSeats(); i++)
+		s->addGoal(getGoalForAllSeats(i));
+}
+
+Seat* GameMap::getFilledSeat(int index)
+{
+	return filledSeats[index];
+}
+
+Seat* GameMap::popFilledSeat()
+{
+	Seat *s = NULL;
+	if(filledSeats.size() > 0)
+	{
+		s = filledSeats[0];
+		filledSeats.erase(filledSeats.begin());
+		emptySeats.push_back(s);
+	}
+
+	return s;
+}
+
+unsigned int GameMap::numFilledSeats()
+{
+	return filledSeats.size();
+}
+
+void GameMap::addWinningSeat(Seat *s)
+{
+	// Make sure the seat has not already been added.
+	for(unsigned int i = 0; i < winningSeats.size(); i++)
+	{
+		if(winningSeats[i] == s)
+			return;
+	}
+
+	winningSeats.push_back(s);
+}
+
+Seat* GameMap::getWinningSeat(unsigned int index)
+{
+	return winningSeats[index];
+}
+
+unsigned int GameMap::getNumWinningSeats()
+{
+	return winningSeats.size();
 }
 
 void GameMap::addGoalForAllSeats(Goal *g)
 {
 	goalsForAllSeats.push_back(g);
 
-	// Add the goal to each of the seats currently in the game.
-	for(unsigned int i = 0; i < numSeats(); i++)
-		seats[i]->addGoal(g);
+	// Add the goal to each of the empty seats currently in the game.
+	for(unsigned int i = 0; i < numEmptySeats(); i++)
+		emptySeats[i]->addGoal(g);
+
+	// Add the goal to each of the filled seats currently in the game.
+	for(unsigned int i = 0; i < numFilledSeats(); i++)
+		filledSeats[i]->addGoal(g);
 }
 
 Goal* GameMap::getGoalForAllSeats(unsigned int i)
