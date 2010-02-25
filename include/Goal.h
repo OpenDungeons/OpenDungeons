@@ -12,7 +12,7 @@ class Goal
 	public:
 		Goal(string nName, string nArguments, Player *nPlayer);
 
-		virtual bool isMet() = 0;
+		virtual bool isMet(Seat *s) = 0;
 		virtual bool isVisible() = 0;
 		virtual string getSuccessMessage() = 0;
 		virtual void doSuccessAction() = 0;

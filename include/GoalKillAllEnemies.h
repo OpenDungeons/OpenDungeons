@@ -9,7 +9,7 @@ class GoalKillAllEnemies : public Goal
 		GoalKillAllEnemies(string nName, string nArguments, Player *nPlayer);
 
 		// Inherited functions
-		bool isMet();
+		bool isMet(Seat *s);
 		bool isVisible();
 		string getSuccessMessage();
 		void doSuccessAction();

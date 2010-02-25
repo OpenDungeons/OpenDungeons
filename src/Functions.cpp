@@ -71,7 +71,7 @@ bool readGameMapFromFile(string fileName)
 		tempGoal = Goal::instantiateFromStream(levelFile);
 
 		if(tempGoal != NULL)
-			gameMap.addGoalForAllPlayers(tempGoal);
+			gameMap.addGoalForAllSeats(tempGoal);
 	}
 
 	// Read in the map tiles from disk
@@ -160,10 +160,10 @@ void writeGameMapToFile(string fileName)
 	}
 
 	// Write out the goals shared by all players to the file.
-	levelFile << "\n" << gameMap.numGoalsForAllPlayers() << "\n";
-	for(unsigned int i = 0; i < gameMap.numGoalsForAllPlayers(); i++)
+	levelFile << "\n" << gameMap.numGoalsForAllSeats() << "\n";
+	for(unsigned int i = 0; i < gameMap.numGoalsForAllSeats(); i++)
 	{
-		levelFile << gameMap.getGoalForAllPlayers(i);
+		levelFile << gameMap.getGoalForAllSeats(i);
 	}
 
 	// Write out the tiles to the file

@@ -2089,6 +2089,32 @@ void ExampleFrameListener::executePromptCommand()
 				}
 			}
 
+			else if(arguments.compare("goals") == 0)
+			{
+				if(serverSocket != NULL || clientSocket != NULL)
+				{
+					// Loop over the list of unmet goals for the seat we are sitting in an print them.
+					tempSS << "Unfinished Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
+					for(unsigned int i = 0; i < gameMap.me->seat->numGoals(); i++)
+					{
+						Goal *tempGoal = gameMap.me->seat->getGoal(i);
+						tempSS << tempGoal->getName() << ":\t" << tempGoal->getDescription() << "\n";
+					}
+
+					// Loop over the list of completed goals for the seat we are sitting in an print them.
+					tempSS << "\n\nCompleted Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
+					for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); i++)
+					{
+						Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
+						tempSS << tempGoal->getName() << ":\t" << tempGoal->getDescription() << "\n";
+					}
+				}
+				else
+				{
+					tempSS << "\n\nERROR: You do not have any goals to meet until you host or join a game.\n\n";
+				}
+			}
+
 			else
 			{
 				tempSS << "ERROR:  Unrecognized list.  Type \"list\" with no arguments to see available lists.";
@@ -2098,7 +2124,7 @@ void ExampleFrameListener::executePromptCommand()
 		}
 		else
 		{
-			commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork\trooms\tcolors";
+			commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork\trooms\tcolors\tgoals";
 		}
 	}
 

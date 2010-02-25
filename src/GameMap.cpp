@@ -899,6 +899,10 @@ void GameMap::clearSeats()
 void GameMap::addSeat(Seat *s)
 {
 	seats.push_back(s);
+
+	// Add the goals for all seats to this seat.
+	for(unsigned int i = 0; i < numGoalsForAllSeats(); i++)
+		s->addGoal(getGoalForAllSeats(i));
 }
 
 Seat* GameMap::getSeat(int index)
@@ -923,18 +927,22 @@ unsigned int GameMap::numSeats()
 	return seats.size();
 }
 
-void GameMap::addGoalForAllPlayers(Goal *g)
+void GameMap::addGoalForAllSeats(Goal *g)
 {
-	goalsForAllPlayers.push_back(g);
+	goalsForAllSeats.push_back(g);
+
+	// Add the goal to each of the seats currently in the game.
+	for(unsigned int i = 0; i < numSeats(); i++)
+		seats[i]->addGoal(g);
 }
 
-Goal* GameMap::getGoalForAllPlayers(unsigned int i)
+Goal* GameMap::getGoalForAllSeats(unsigned int i)
 {
-	return goalsForAllPlayers[i];
+	return goalsForAllSeats[i];
 }
 
-unsigned int GameMap::numGoalsForAllPlayers()
+unsigned int GameMap::numGoalsForAllSeats()
 {
-	return goalsForAllPlayers.size();
+	return goalsForAllSeats.size();
 }
 

@@ -7,7 +7,7 @@ GoalKillAllEnemies::GoalKillAllEnemies(string nName, string nArguments, Player *
 	cout << "\nAdding goal " << getName();
 }
 
-bool GoalKillAllEnemies::isMet()
+bool GoalKillAllEnemies::isMet(Seat *s)
 {
 	return false;
 }
