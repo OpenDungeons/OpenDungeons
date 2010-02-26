@@ -9,8 +9,9 @@ OpenDungeons_Version:0.3.6		# The version string identifies the version of Opend
 5	Animals	15	0	0.8	0.8	0
 
 # Universal Goals
-1 # The number of universal goals to read in.  The first player (or players) to complete all of the universal goals is the winner.
+2 # The number of universal goals to read in.  The first player (or players) to complete all of the universal goals is the winner.
 KillAllEnemies	NULL
+ProtectCreature	Knight_0001
 
 2332
 -30	0	0	0

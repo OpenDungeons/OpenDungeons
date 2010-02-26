@@ -30,6 +30,13 @@
 *  When a level is loaded via the terminal, the room tiles are not deleted.
 *  This is probably a bug in GameMap::clear().
 
+*  When creatures are in the state CreatureAction::maneuver, they sometimes get
+*  "stuck" behind an obstacle since they only locally follow the field
+*  gradient.  This can be fixed by making them make use of GameMap::path() to
+*  find a good path to the destination and sticking with it far enough to get
+*  them to their destination.
+
+*  Add a vector of failedGoals to the Seat class similar to completedGoals.
 
 
 

@@ -38,9 +38,15 @@ Goal* Goal::instantiateFromStream(istream& is)
 	if(tempArguments.compare("NULL") == 0)
 		tempArguments = "";
 
+	// Parse the goal type name to find out what subclass of goal tempGoal should be instantiated as.
 	if(tempName.compare("KillAllEnemies") == 0)
 	{
 		tempGoal = new GoalKillAllEnemies(tempName, tempArguments, NULL);
+	}
+
+	else if(tempName.compare("ProtectCreature") == 0)
+	{
+		tempGoal = new GoalProtectCreature(tempName, tempArguments, NULL);
 	}
 
 	return tempGoal;

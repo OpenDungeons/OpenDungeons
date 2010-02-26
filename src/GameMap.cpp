@@ -322,8 +322,12 @@ void GameMap::doTurn()
 	// Add any seats with no remaining goals to the winningSeats vector.
 	for(unsigned int i = 0; i < numFilledSeats(); i++)
 	{
+		// Check the previously completed goals to make sure they are still met.
+		filledSeats[i]->checkAllCompletedGoals();
+
 		// Check the goals and move completed ones to the completedGoals list for the seat.
-		if(filledSeats[i]->checkAllGoals())
+		//NOTE: Once seats are placed on this list, they stay there even if goals ar unmet.  We may want to change this.
+		if(filledSeats[i]->checkAllGoals() == 0)
 			addWinningSeat(filledSeats[i]);
 	}
 

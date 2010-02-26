@@ -569,6 +569,18 @@ void Creature::doTurn()
 								goto claimTileBreakStatement;
 							}
 						}
+
+						// If we got to this point, the tile we randomly picked cannot be gotten to via a
+						// valid path.  Delete it from the claimable tiles vector and repeat the outer
+						// loop to try to find another valid tile.
+						for(unsigned int i = 0; i < claimableTiles.size(); i++)
+						{
+						        if(claimableTiles[i] == tempTile)
+						        {
+							    claimableTiles.erase(claimableTiles.begin() + i);
+							    break;  // Break out of this for loop.
+						        }
+						}
 					}
 
 					// We couldn't find a tile to try to claim so we stop trying

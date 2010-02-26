@@ -10,6 +10,7 @@ class GoalKillAllEnemies : public Goal
 
 		// Inherited functions
 		bool isMet(Seat *s);
+		bool isUnmet(Seat *s);
 		string getSuccessMessage();
 		string getDescription();
 };

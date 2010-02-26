@@ -17,7 +17,8 @@ class Seat
 		unsigned int numGoals();
 		Goal* getGoal(unsigned int index);
 
-		bool checkAllGoals();
+		unsigned int checkAllGoals();
+		unsigned int checkAllCompletedGoals();
 
 		unsigned int numCompletedGoals();
 		Goal* getCompletedGoal(unsigned int index);
