@@ -27,15 +27,19 @@ class Player
 		//int oreInRefinery();
 		//int ironInRefinery();
 
+		// Public functions
 		unsigned int numCreaturesInHand();
 		Creature *getCreatureInHand(int i);
-		void addCreatureToHand(Creature *c);
-		void removeCreatureFromHand(int i);
 		void pickUpCreature(Creature *c);
 		bool dropCreature(Tile *t);
 		Seat *seat;
 
 	private:
+		// Private functions
+		void addCreatureToHand(Creature *c);	// Private, for other classes use pickUpCreature() instead.
+		void removeCreatureFromHand(int i);	// Private, for other classes use dropCreature() instead.
+
+		// Private datamembers
 		vector<Creature*> creaturesInHand;
 };
 

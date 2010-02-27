@@ -8,16 +8,25 @@ Player::Player()
 	seat = NULL;
 }
 
+/** \brief A simple accessor function to return the number of creatures this player is holding in their hand.
+ *
+*/ 
 unsigned int Player::numCreaturesInHand()
 {
 	return creaturesInHand.size();
 }
 
+/** \brief A simple accessor function to return a pointer to the i'th creature in the players hand.
+ *
+*/ 
 Creature* Player::getCreatureInHand(int i)
 {
 	return creaturesInHand[i];
 }
 
+/** \brief A simple mutator function to put the given creature into the player's hand, note this should NOT be called directly for creatures on the map, for that you should use pickUpCreature() instead.
+ *
+*/ 
 void Player::addCreatureToHand(Creature *c)
 {
 	creaturesInHand.push_back(c);
@@ -103,6 +112,9 @@ void Player::pickUpCreature(Creature *c)
 	}
 }
 
+/** \brief A simple mutator function to remove a creature from the player's hand, note this should NOT be called directly for creatures on the map, for that you should use dropCreature() instead.
+ *
+*/ 
 void Player::removeCreatureFromHand(int i)
 {
 	//FIXME:  This loop can be done away with since a vector allows random access.

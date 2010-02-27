@@ -36,11 +36,21 @@
 *  find a good path to the destination and sticking with it far enough to get
 *  them to their destination.
 
-*  Add a vector of failedGoals to the Seat class similar to completedGoals.
-
 
 
 --------------- FEATURE ADDITIONS: ---------------
+*  Optimize GameMap::neighborTiles() to make it just return the neighborTiles
+*  vector from the tile class, note this will require making the tile class
+*  properly maintain the state of this vector.
+
+*  Add a vector of failedGoals to the Seat class similar to completedGoals.
+
+*  Add a vector of sub goals to the Goal class which are added to the queue
+*  after the given goal is completed.
+
+*  Add a function and a datamember to the Creature class to go into a specified
+*  animation state when the walk queue becomes empty.
+
 *  Add tile colors to the level file and network protocols.
 
 *  Add a seperate thread to generate a pool of 5000 or so random numbers for

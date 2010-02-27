@@ -999,11 +999,17 @@ vector<Creature*> Creature::getEnemiesInRange(const vector<Creature*> &enemiesTo
 	return tempVector;
 }
 
+/*! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
+ *
+*/
 vector<Creature*> Creature::getVisibleAllies()
 {
 	return getVisibleForce(color, false);
 }
 
+/*! \brief Loops over the visibleTiles and adds any which are marked for digging to a vector which it returns.
+ *
+*/
 vector<Tile*> Creature::getVisibleMarkedTiles()
 {
 	vector<Tile*> tempVector;
@@ -1020,6 +1026,9 @@ vector<Tile*> Creature::getVisibleMarkedTiles()
 	return tempVector;
 }
 
+/*! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
+ *
+*/
 vector<Creature*> Creature::getVisibleForce(int color, bool invert)
 {
 	vector<Creature*> returnList;

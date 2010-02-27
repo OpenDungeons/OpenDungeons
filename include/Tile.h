@@ -31,6 +31,7 @@ class Tile
 		// Changes to this enum must be reflected in Tile::getTilePassability() as well as in GameMap::path()
 		enum TileClearType { impassableTile=0, walkableTile=1, flyableTile=2 };
 
+		// Public functions
 		Tile();
 		Tile(int nX, int nY, TileType nType, int nFullness);
 
@@ -67,25 +68,26 @@ class Tile
 		unsigned int numPlayersMarkingTile();
 		Player* getPlayerMarkingTile(int index);
 
+		friend ostream& operator<<(ostream& os, Tile *t);
+		friend istream& operator>>(istream& is, Tile *t);
+
+		// Public datamembers
 		Vector3 location;
 		int x, y;
 		int color;
 		double colorDouble;
-		vector<Tile*> neighbors;
 		double rotation;
 		string name;
 		sem_t meshCreationFinishedSemaphore;
 		sem_t meshDestructionFinishedSemaphore;
 
-		friend ostream& operator<<(ostream& os, Tile *t);
-		friend istream& operator>>(istream& is, Tile *t);
-
-
 	private:
+		// Private datamembers
 		TileType type;
 		bool selected, markedForDigging;
 		int fullness;
 		int fullnessMeshNumber;
+		vector<Tile*> neighbors;
 		vector<Creature*> creaturesInCell;
 		vector<Player*> playersMarkingTile;
 };

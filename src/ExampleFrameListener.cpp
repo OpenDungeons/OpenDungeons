@@ -828,22 +828,27 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 	if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::nullDragType)
 	{
-		// If no creatures are under the  mouse run through the list again to check for tiles
-		itr = result.begin( );
+		// Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
+		itr = result.begin();
 		while(itr != result.end())
 		{
 			if(itr->movable != NULL)
 			{
+				// Check to see if the current query result is a tile.
 				resultName = itr->movable->getName();
 				if(resultName.find("Level_") != string::npos)
 				{
+					// Get the x-y coordinates of the tile.
 					sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
 
+					// Make sure the "square selector" mesh is visible and position it over the current tile.
 					mSceneMgr->getEntity("SquareSelector")->setVisible(true);
 					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(xPos, yPos, 0);
 
 					if(mLMouseDown)
 					{
+						// Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
+						//TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords rather than the reverse that it is doing now.
 						TileMap_t::iterator itr = gameMap.firstTile();
 						while(itr != gameMap.lastTile())
 						{
@@ -878,16 +883,21 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 	else //if(mDragType == ExampleFrameListener::creature)
 	{
+		// We are dragging a creature but we want to loop over the result set to find the first tile entry,
+		// we do this to get the current x-y location of where the "square selector" should be drawn.
 		itr = result.begin( );
 		while(itr != result.end())
 		{
 			if(itr->movable != NULL)
 			{
+				// Check to see if the current query result is a tile.
 				resultName = itr->movable->getName();
 				if(resultName.find("Level_") != string::npos)
 				{
+					// Get the x-y coordinates of the tile.
 					sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
 
+					// Make sure the "square selector" mesh is visible and position it over the current tile.
 					mSceneMgr->getEntity("SquareSelector")->setVisible(true);
 					mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(xPos, yPos, 0);
 				}
@@ -897,24 +907,30 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 		}
 	}
 
+	// If we are drawing with the brush in the map editor.
 	if(mLMouseDown && mDragType == ExampleFrameListener::tileBrushSelection && serverSocket == NULL && clientSocket == NULL)
 	{
+		// Loop over the square region surrounding current mouse location and either set the tile type of the affected tiles or create new ones.
 		Tile *currentTile;
 		list<Tile*> affectedTiles;
 		for(int i = -1*(mCurrentTileRadius-1); i <= (mCurrentTileRadius-1); i++)
 		{
 			for(int j = -1*(mCurrentTileRadius-1); j <= (mCurrentTileRadius-1); j++)
 			{
+				//TODO: Rather than drawing a rectangular region around the brush, check the rSquared distance and use that to exclude tiles that do not lie in a circle of the same radius as the rectangle, note: the next loop which checks the meshes needs to reflect this change.
 				currentTile = gameMap.getTile(xPos + i, yPos + j);
 
+				// Check to see if the current tile already exists.
 				if(currentTile != NULL)
 				{
+					// It does exist so set its type and fullness.
 					affectedTiles.push_back(currentTile);
 					currentTile->setType(mCurrentTileType);
 					currentTile->setFullness(mCurrentFullness);
 				}
 				else
 				{
+					// The current tile does not exist so we need to create it.
 					//currentTile = new Tile;
 					char tempArray[255];
 					snprintf(tempArray, sizeof(tempArray), "Level_%3i_%3i", xPos + i, yPos + j);
@@ -927,7 +943,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 		}
 
 		// Add any tiles which border the affected region to the affected tiles list
-		// as they may alo want to swicth meshes to optimize polycount now too.
+		// as they may alo want to switch meshes to optimize polycount now too.
 		//      Adding the top and bottom rows
 		int xMin = -1 * (mCurrentTileRadius-1) + xPos;
 		int xMax = (mCurrentTileRadius-1) + xPos;

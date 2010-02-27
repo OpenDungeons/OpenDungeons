@@ -618,7 +618,7 @@ vector<Tile*> GameMap::neighborTiles(int x, int y)
 				case 3: tempX += 1;  tempY += 0;  break;
 
 				default:
-					cerr << "\n\n\nERROR:  Wrong neighbor index in astar search.\n\n\n";
+					cerr << "\n\n\nERROR:  Wrong neighbor index in tile neighbor calculation.\n\n\n";
 					exit(1);
 					break;
 			}
