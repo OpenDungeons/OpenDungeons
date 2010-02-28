@@ -1281,6 +1281,12 @@ void Creature::addDestination(int x, int y)
 	}
 }
 
+/*! \brief Replaces a creature's current walk queue with a new path.
+ *
+ * This replacement is done if, and only if, the new path is at least minDestinations
+ * long; if addFirstStop is false the new path will start with the second entry in path.
+ * 
+*/
 bool Creature::setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop)
 {
 	// Remove any existing stops from the walk queue.
@@ -1389,6 +1395,10 @@ void Creature::clearActionQueue()
 	actionQueue.push_back(CreatureAction(CreatureAction::idle));
 }
 
+/** \brief This function loops over the visible tiles and computes a score for each one indicating how
+  * frindly or hostile that tile is and stores it in the battleField variable.
+  *
+*/
 void Creature::computeBattlefield()
 {
 	Tile *myTile, *tempTile, *tempTile2;

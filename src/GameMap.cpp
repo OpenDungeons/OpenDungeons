@@ -201,8 +201,16 @@ void GameMap::removeCreature(Creature *c)
 	}
 }
 
+/** \brief Adds the given creature to the queue of creatures to be deleted in a future turn
+  * when it is safe to do so after all references to the creature have been cleared.
+  *
+*/
 void GameMap::queueCreatureForDeletion(Creature *c)
 {
+	// Remove the creature from the GameMap in case the caller forgot to do so.
+	removeCreature(c);
+
+	//TODO: This needs to include the turn number that the creature was pushed so proper multithreaded locks can be by the threads to retire the creatures.
 	creaturesToDelete.push_back(c);
 }
 
@@ -879,6 +887,9 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 	}
 }
 
+/** \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
+  *
+*/ 
 void GameMap::clearRooms()
 {
 	for(unsigned int i = 0; i < numRooms(); i++)
@@ -889,26 +900,41 @@ void GameMap::clearRooms()
 	rooms.clear();
 }
 
+/** \brief A simple mutator method to add the given Room to the GameMap.
+  *
+*/ 
 void GameMap::addRoom(Room *r)
 {
 	rooms.push_back(r);
 }
 
+/** \brief A simple accessor method to return the given Room.
+  *
+*/ 
 Room* GameMap::getRoom(int index)
 {
 	return rooms[index];
 }
 
+/** \brief A simple accessor method to return the number of Rooms stored in the GameMap.
+  *
+*/ 
 unsigned int GameMap::numRooms()
 {
 	return rooms.size();
 }
 
+/** \brief A simple mutator method to clear the vector of empty Seats stored in the GameMap.
+  *
+*/ 
 void GameMap::clearEmptySeats()
 {
 	emptySeats.clear();
 }
 
+/** \brief A simple mutator method to add another empty Seat to the GameMap.
+  *
+*/ 
 void GameMap::addEmptySeat(Seat *s)
 {
 	emptySeats.push_back(s);
@@ -918,11 +944,17 @@ void GameMap::addEmptySeat(Seat *s)
 		s->addGoal(getGoalForAllSeats(i));
 }
 
+/** \brief A simple accessor method to return the given Seat.
+  *
+*/ 
 Seat* GameMap::getEmptySeat(int index)
 {
 	return emptySeats[index];
 }
 
+/** \brief Removes the first empty Seat from the GameMap and returns a pointer to it, this is used when a Player "sits down" at the GameMap.
+  *
+*/ 
 Seat* GameMap::popEmptySeat()
 {
 	Seat *s = NULL;
@@ -936,6 +968,9 @@ Seat* GameMap::popEmptySeat()
 	return s;
 }
 
+/** \brief A simple accessor method to return the number of empty Seats on the GameMap.
+  *
+*/ 
 unsigned int GameMap::numEmptySeats()
 {
 	return emptySeats.size();
