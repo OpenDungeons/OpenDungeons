@@ -7,6 +7,7 @@ using namespace std;
 #include "Defines.h"
 #include "Functions.h"
 #include "Creature.h"
+#include "MapLight.h"
 
 #if defined(WIN32) || defined(_WIN32)
 double const M_PI = 2 * acos(0.0);
@@ -18,6 +19,7 @@ bool readGameMapFromFile(string fileName)
 	Goal *tempGoal;
 	Tile *tempTile;
 	Room *tempRoom;
+	MapLight *tempLight;
 	string tempString, tempString2;
 	Creature tempCreature;
 	int objectsToLoad;
@@ -107,6 +109,16 @@ bool readGameMapFromFile(string fileName)
 		gameMap.addRoom(tempRoom);
 	}
 
+	// Read in the lights
+	levelFile >> objectsToLoad;
+	for(int i = 0; i < objectsToLoad; i++)
+	{
+		tempLight = new MapLight;
+		levelFile >> tempLight;
+
+		gameMap.addMapLight(tempLight);
+	}
+
 	// Read in the creature class descriptions
 	levelFile >> objectsToLoad;
 	for(int i = 0; i < objectsToLoad; i++)
@@ -193,6 +205,13 @@ void writeGameMapToFile(string fileName)
 	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
 	{
 		levelFile << gameMap.getRoom(i) << endl;
+	}
+
+	// Write out the lights to the file.
+	levelFile << "\n" << gameMap.numMapLights() << "\n";
+	for(unsigned int i = 0; i < gameMap.numMapLights(); i++)
+	{
+		levelFile << gameMap.getMapLight(i) << endl;
 	}
 
 	// Write out the creature descriptions to the file

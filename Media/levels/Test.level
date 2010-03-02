@@ -1,4 +1,4 @@
-OpenDungeons_Version:0.3.6		# The version string identifies the version of Opendungeons this level is compatible with.
+OpenDungeons_Version:0.3.7		# The version string identifies the version of Opendungeons this level is compatible with.
 
 # Seats
 5 # The number of Seats to load.  One or more players can sit at each seat.  If two players are in the same seat they are on the same team.
@@ -13,7 +13,8 @@ OpenDungeons_Version:0.3.6		# The version string identifies the version of Opend
 KillAllEnemies	NULL
 ProtectCreature	Knight_0001
 
-2332
+# Tiles
+2332 # The number of tiles to load.
 -30	0	0	0
 -30	1	0	0
 -30	2	0	0
@@ -2347,9 +2348,13 @@ ProtectCreature	Knight_0001
 25	5	0	0
 25	6	0	0
 
-2
+# Rooms
+# The first number below is the number of "room blocks" to load, note that each
+# block consists of a single line to describe the room type followed by another
+# size counter indicating the x-y coordinates that are covered by that room.
+2 # Number of "room blocks".
 Quarters	2
-6
+6 # Number of tiles that this room covers.
 4	9
 5	9
 5	10
@@ -2365,14 +2370,19 @@ Quarters	1
 -6	11
 -5	11
 
+# Lights
+1 # The number of lights to load.
+5	10	4	0.4	0.35	0.35	0.4	0.35	0.35	20	0	0	0.2
 
-4
+# Creature class descriptions.
+4 # The number of classes to load.
 Wyvern	Wyvern.mesh	1	1	1	27	10	15	0	1.3
 Knight	Knight.mesh	1	1	1	80	3	15	0	1
 Kobold	Kobold.mesh	0.1	0.1	0.1	40	6	15	20	2.5
 Dragon	Dragon.mesh	0.3	0.3	0.3	220	50	15	0	0.9
 
-9
+# Creatures
+9 # The number of creatures to load.
 Knight	Knight_0001	-2	12	0	1	Longsword	5	6	4	Longsword	3	3	4
 Kobold	Kobold	-8	1	0	1	Longsword	14	3	0	Longsword	14	3	0
 Kobold	Kobold_0001	-5	15	0	1	none	0	2	0	none	10	2	0

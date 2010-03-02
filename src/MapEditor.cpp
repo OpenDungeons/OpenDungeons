@@ -56,6 +56,7 @@ void MapEditor::createScene(void)
 
 	// Create the main scene lights
 	mSceneMgr->setAmbientLight(ColourValue(0.3, 0.36, 0.28));
+	/*
 	double mainLightR = .42;
 	double mainLightG = .4;
 	double mainLightB = .35;
@@ -63,19 +64,23 @@ void MapEditor::createScene(void)
 	double mainLightAttenuationE = 0.5;
 	double mainLightAttenuationL = 0.001;
 	double mainLightAttenuationQ = 0.0005;
+	*/
+	Light *light;
+	/*
 	Light *light = mSceneMgr->createLight("Light1");
 	light->setType(Light::LT_POINT);
 	light->setPosition(Ogre::Vector3(0, 0, 0));
 	light->setDiffuseColour(ColourValue(mainLightR, mainLightG, mainLightB));
-	light->setSpecularColour(ColourValue(.0, .0, .0));
+	light->setSpecularColour(ColourValue(mainLightR, mainLightG, mainLightB));
 	light->setAttenuation(mainLightAttenuationD, mainLightAttenuationE, mainLightAttenuationL, mainLightAttenuationQ);
+	*/
 
 	/*
 	light = mSceneMgr->createLight("Light2");
 	light->setType(Light::LT_POINT);
 	light->setPosition(Ogre::Vector3(-30, 40, 40));
 	light->setDiffuseColour(ColourValue(mainLightR, mainLightG, mainLightB));
-	light->setSpecularColour(ColourValue(.0, .0, .0));
+	light->setSpecularColour(ColourValue(mainLightR, mainLightG, mainLightB));
 	light->setAttenuation(mainLightAttenuationD, mainLightAttenuationE, mainLightAttenuationL, mainLightAttenuationQ);
 	*/
 
@@ -84,7 +89,7 @@ void MapEditor::createScene(void)
 	node->pitch(Degree(25), Node::TS_WORLD);
 	node->roll(Degree(30), Node::TS_WORLD);
 	node->attachObject(mCamera);
-	node->attachObject(light);
+	//node->attachObject(light);
 
 	// Create the single tile selection mesh
 	ent = mSceneMgr->createEntity("SquareSelector", "SquareSelector.mesh");
@@ -103,11 +108,11 @@ void MapEditor::createScene(void)
 	// Create the light which follows the single tile selection mesh
 	light = mSceneMgr->createLight("MouseLight");
 	light->setType(Light::LT_POINT);
-	light->setDiffuseColour(ColourValue(.18, .14, .11));
-	light->setSpecularColour(ColourValue(.0, .0, .0));
+	light->setDiffuseColour(ColourValue(.44, .36, .32));
+	light->setSpecularColour(ColourValue(.44, .36, .32));
 	//light->setPosition(0, 0, 1.45/BLENDER_UNITS_PER_OGRE_UNIT);
 	light->setPosition(0, 0, 11);
-	light->setAttenuation(35, 0.0, 0.0, 0.01);
+	light->setAttenuation(35, 0.0, 0.0, 0.017);
 	node->attachObject(light);
 
 	// Setup CEGUI

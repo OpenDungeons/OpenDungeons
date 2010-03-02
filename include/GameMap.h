@@ -6,6 +6,7 @@
 #include "Player.h"
 #include "Room.h"
 #include "Seat.h"
+#include "MapLight.h"
 
 typedef map< pair<int,int>, Tile*> TileMap_t;
 
@@ -60,6 +61,11 @@ class GameMap
 		Room* getRoom(int index);
 		unsigned int numRooms();
 
+		void clearMapLights();
+		void addMapLight(MapLight *m);
+		MapLight* getMapLight(int index);
+		unsigned int numMapLights();
+
 		void clearEmptySeats();
 		void addEmptySeat(Seat *s);
 		Seat* getEmptySeat(int index);
@@ -98,6 +104,7 @@ class GameMap
 		vector<Creature*> creaturesToDelete;
 		vector<Player*> players;
 		vector<Room*> rooms;
+		vector<MapLight*> mapLights;
 		vector<Seat*> emptySeats;
 		vector<Seat*> filledSeats;
 		vector<Seat*> winningSeats;

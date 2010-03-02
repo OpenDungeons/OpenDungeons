@@ -924,6 +924,26 @@ unsigned int GameMap::numRooms()
 	return rooms.size();
 }
 
+void GameMap::clearMapLights()
+{
+	mapLights.clear();
+}
+
+void GameMap::addMapLight(MapLight *m)
+{
+	mapLights.push_back(m);
+}
+
+MapLight* GameMap::getMapLight(int index)
+{
+	return mapLights[index];
+}
+
+unsigned int GameMap::numMapLights()
+{
+	return mapLights.size();
+}
+
 /** \brief A simple mutator method to clear the vector of empty Seats stored in the GameMap.
   *
 */ 

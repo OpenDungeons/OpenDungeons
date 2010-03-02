@@ -1,4 +1,9 @@
 --------------- BUGS: ---------------
+*  When the terminal command "load" is executed if the loaded level is from a
+*  different version of OpenDungeons than the current game the game will print
+*  an error message to the terminal and quit, this should be handled more
+*  gracefully.
+
 *  fix keyboard repeat issue (when the game crashes keyboard repeat is disabled
 *  but the OS still thinks it's on, turning it off and then back on again
 *  restores the functionality).  This seems to be a bug in OIS so there might
@@ -39,6 +44,9 @@
 
 
 --------------- FEATURE ADDITIONS: ---------------
+*  Make the writeGameMapToFile() function add comments to the file it outputs
+*  describing the file format to make it easier for humans to edit the file.
+
 *  Optimize GameMap::neighborTiles() to make it just return the neighborTiles
 *  vector from the tile class, note this will require making the tile class
 *  properly maintain the state of this vector.
