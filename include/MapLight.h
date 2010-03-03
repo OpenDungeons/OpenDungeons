@@ -7,20 +7,6 @@ using namespace std;
 
 #include <Ogre.h>
 
-struct MapLightProperties
-{
-	Ogre::Vector3 position;
-	Ogre::ColourValue diffuseColor;
-	Ogre::ColourValue specularColor;
-
-	double attenuationRange;
-	double attenuationConstant;
-	double attenuationLinear;
-	double attenuationQuadratic;
-
-	string name;
-};
-
 class MapLight
 {
 	public:
@@ -30,14 +16,34 @@ class MapLight
 		void setDiffuseColor(double red, double green, double blue);
 		void setSpecularColor(double red, double green, double blue);
 		void setAttenuation (double range, double constant, double linear, double quadratic);
-		//void createOgreEntity();
-		//void destroyOgreEntity();
+
+		void createOgreEntity();
+		void destroyOgreEntity();
+		void deleteYourself();
+
+		string getName();
+		Ogre::Vector3 getPosition();
+		Ogre::ColourValue getDiffuseColor();
+		Ogre::ColourValue getSpecularColor();
+		double getAttenuationRange();
+		double getAttenuationConstant();
+		double getAttenuationLinear();
+		double getAttenuationQuadratic();
 
 		friend ostream& operator<<(ostream& os, MapLight *m);
 		friend istream& operator>>(istream& is, MapLight *m);
 
 	private:
-		MapLightProperties properties;
+		Ogre::Vector3 position;
+		Ogre::ColourValue diffuseColor;
+		Ogre::ColourValue specularColor;
+
+		double attenuationRange;
+		double attenuationConstant;
+		double attenuationLinear;
+		double attenuationQuadratic;
+
+		string name;
 		bool ogreEntityExists;
 };
 

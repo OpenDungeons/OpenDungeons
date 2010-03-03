@@ -101,6 +101,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
 	roomSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Room_scene_node");
 	fieldSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Field_scene_node");
+	lightSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Light_scene_node");
 
 	mStatsOn = false;
 	mNumScreenShots = 0;
@@ -287,6 +288,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Tile *curTile = NULL;
 		Room *curRoom = NULL;
 		Creature *curCreature = NULL;
+		MapLight *curMapLight = NULL;
+		Light *light;
 		Weapon *curWeapon = NULL;
 		Bone *weaponBone;
 		string boneString;
@@ -471,6 +474,42 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->destroyEntity(ent);
 				}
 				sem_post(&curWeapon->meshDestructionFinishedSemaphore);
+				break;
+
+			case RenderRequest::createMapLight:
+				curMapLight = (MapLight*)curReq->p;
+
+				// Create the light and attach it to the lightSceneNode.
+				tempString = (string)"MapLight_" + curMapLight->getName();
+				light = mSceneMgr->createLight(tempString);
+				light->setDiffuseColour(curMapLight->getDiffuseColor());
+				light->setSpecularColour(curMapLight->getSpecularColor());
+				light->setAttenuation(curMapLight->getAttenuationRange(), curMapLight->getAttenuationConstant(),
+						curMapLight->getAttenuationLinear(), curMapLight->getAttenuationQuadratic());
+				node = lightSceneNode->createChildSceneNode(tempString + "_node");
+				node->setPosition(curMapLight->getPosition());
+
+				node->attachObject(light);
+				//TODO: Post a creation finished semaphore for the light if necessary.
+				break;
+
+			case RenderRequest::destroyMapLight:
+				curMapLight = (MapLight*)curReq->p;
+				tempString = (string)"MapLight_" + curMapLight->getName();
+				if(mSceneMgr->hasLight(tempString))
+				{
+					light = mSceneMgr->getLight(tempString);
+					node = mSceneMgr->getSceneNode(tempString + "_node");
+					node->detachObject(light);
+					lightSceneNode->removeChild(node);
+					mSceneMgr->destroyLight(light);
+					mSceneMgr->destroySceneNode(node->getName());
+				}
+				break;
+
+			case RenderRequest::deleteMapLight:
+				curMapLight = (MapLight*)curReq->p;
+				delete curMapLight;
 				break;
 
 			case RenderRequest::createField:

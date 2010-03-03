@@ -185,10 +185,9 @@ void Creature::setPosition(Ogre::Vector3 v)
  */
 void Creature::setPosition(double x, double y, double z)
 {
-	SceneNode *creatureSceneNode = mSceneMgr->getSceneNode(name + "_node");
+	SceneNode *tempSceneNode = mSceneMgr->getSceneNode(name + "_node");
 
-	//creatureSceneNode->setPosition(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, z/BLENDER_UNITS_PER_OGRE_UNIT);
-	creatureSceneNode->setPosition(x, y, z);
+	tempSceneNode->setPosition(x, y, z);
 
 	// If we are on the gameMap we may need to update the tile we are in
 	if(gameMap.getCreature(name) != NULL)

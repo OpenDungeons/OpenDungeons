@@ -41,6 +41,8 @@
 *  find a good path to the destination and sticking with it far enough to get
 *  them to their destination.
 
+*  When a new level is unloaded (for example when a new level is to be loaded)
+*  the goals for the old level must be destroyed.
 
 
 --------------- FEATURE ADDITIONS: ---------------

@@ -169,7 +169,7 @@ private:
 
 	DragType mDragType;
 	string mDraggedCreature;
-	SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode;
+	SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode, *lightSceneNode;
 };
 
 #endif

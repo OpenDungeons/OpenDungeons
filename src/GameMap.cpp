@@ -75,6 +75,7 @@ void GameMap::clearAll()
 	clearCreatures();
 	clearClasses();
 	clearPlayers();
+	clearMapLights();
 	clearRooms();
 	clearEmptySeats();
 }
@@ -105,7 +106,6 @@ void GameMap::clearCreatures()
 	}
 
 	creatures.clear();
-
 }
 
 /*! \brief Deletes the data structure for all the creature classes in the GameMap.
@@ -280,6 +280,13 @@ void GameMap::createAllEntities()
 		currentCreature->createMesh();
 		currentCreature->weaponL->createMesh();
 		currentCreature->weaponR->createMesh();
+	}
+
+	// Create OGRE entities for the map lights.
+	for(unsigned int i = 0; i < numMapLights(); i++)
+	{
+		MapLight *currentMapLight = getMapLight(i);
+		currentMapLight->createOgreEntity();
 	}
 
 	// Create OGRE entities for the rooms
@@ -926,6 +933,11 @@ unsigned int GameMap::numRooms()
 
 void GameMap::clearMapLights()
 {
+	for(unsigned int i = 0; i < mapLights.size(); i++)
+	{
+		mapLights[i]->deleteYourself();
+	}
+
 	mapLights.clear();
 }
 
