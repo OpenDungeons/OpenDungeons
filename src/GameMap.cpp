@@ -71,13 +71,17 @@ Tile* GameMap::getTile(int x, int y)
  */
 void GameMap::clearAll()
 {
-	clearTiles();
+	clearGoalsForAllSeats();
+	clearEmptySeats();
+	clearFilledSeats();
+	clearPlayers();
+
 	clearCreatures();
 	clearClasses();
-	clearPlayers();
+
 	clearMapLights();
 	clearRooms();
-	clearEmptySeats();
+	clearTiles();
 }
 
 /*! \brief Clears the mesh and deletes the data structure for all the tiles in the GameMap.
@@ -1088,5 +1092,24 @@ Goal* GameMap::getGoalForAllSeats(unsigned int i)
 unsigned int GameMap::numGoalsForAllSeats()
 {
 	return goalsForAllSeats.size();
+}
+
+void GameMap::clearGoalsForAllSeats()
+{
+	goalsForAllSeats.clear();
+
+	// Add the goal to each of the empty seats currently in the game.
+	for(unsigned int i = 0; i < numEmptySeats(); i++)
+	{
+		emptySeats[i]->clearGoals();
+		emptySeats[i]->clearCompletedGoals();
+	}
+
+	// Add the goal to each of the filled seats currently in the game.
+	for(unsigned int i = 0; i < numFilledSeats(); i++)
+	{
+		filledSeats[i]->clearGoals();
+		filledSeats[i]->clearCompletedGoals();
+	}
 }
 

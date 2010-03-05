@@ -24,6 +24,22 @@ Goal* Seat::getGoal(unsigned int index)
 	return goals[index];
 }
 
+/** \brief A simple mutator to clear the vector of unmet goals.
+  *
+*/
+void Seat::clearGoals()
+{
+	goals.clear();
+}
+
+/** \brief A simple mutator to clear the vector of met goals.
+  *
+*/
+void Seat::clearCompletedGoals()
+{
+	completedGoals.clear();
+}
+
 /** \brief A simple accessor function to return the number of goals completed by this seat.
   *
 */

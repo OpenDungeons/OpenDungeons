@@ -85,6 +85,7 @@ class GameMap
 		void addGoalForAllSeats(Goal *g);
 		Goal* getGoalForAllSeats(unsigned int i);
 		unsigned int numGoalsForAllSeats();
+		void clearGoalsForAllSeats();
 
 		// AI Methods
 		void doTurn();

@@ -16,6 +16,8 @@ class Seat
 		void addGoal(Goal *g);
 		unsigned int numGoals();
 		Goal* getGoal(unsigned int index);
+		void clearGoals();
+		void clearCompletedGoals();
 
 		unsigned int checkAllGoals();
 		unsigned int checkAllCompletedGoals();

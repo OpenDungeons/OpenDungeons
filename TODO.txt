@@ -41,8 +41,11 @@
 *  find a good path to the destination and sticking with it far enough to get
 *  them to their destination.
 
-*  When a new level is unloaded (for example when a new level is to be loaded)
-*  the goals for the old level must be destroyed.
+*  When the game exits, many items are placed into the render queue to be
+*  deleted, etc.  However, the game exits before calling
+*  ExampleFrameListener::startFrame() one last time.  Some kind of mechanism
+*  must be put in place to call frameStarted again to flush the render queue so
+*  everything is properly freed up.
 
 
 --------------- FEATURE ADDITIONS: ---------------

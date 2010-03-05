@@ -154,7 +154,6 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	WindowEventUtilities::addWindowEventListener(mWindow, this);
 
 	mCamNode = cam->getParentSceneNode();
-	
 
 	mContinue = true;
 	mMouse->setEventCallback(this);
@@ -2215,11 +2214,11 @@ void ExampleFrameListener::executePromptCommand()
 	// Connect to a server
 	else if(command.compare("connect") == 0)
 	{
-		// Make sure we have set a nickname
+		// Make sure we have set a nickname.
 		if(gameMap.me->nick.size() > 0)
 		{
-			// Make sure we are not already connected to a server
-			if(clientSocket == NULL)
+			// Make sure we are not already connected to a server or hosting a game.
+			if(serverSocket == NULL && clientSocket == NULL)
 			{
 				// Make sure an IP address to connect to was provided
 				if(arguments.size() > 0)
@@ -2279,9 +2278,11 @@ void ExampleFrameListener::executePromptCommand()
 	// Host a server
 	else if(command.compare("host") == 0)
 	{
+		// Make sure we have set a nickname.
 		if(gameMap.me->nick.size() > 0)
 		{
-			if(serverSocket == NULL)
+			// Make sure we are not already connected to a server or hosting a game.
+			if(serverSocket == NULL && clientSocket == NULL)
 			{
 				serverSocket = new Socket;
 
@@ -2312,6 +2313,10 @@ void ExampleFrameListener::executePromptCommand()
 					commandOutput = "ERROR:  Could not start server!";
 				}
 
+			}
+			else
+			{
+				commandOutput = "ERROR:  You are already connected to a game or are already hosting a game!";
 			}
 		}
 		else
