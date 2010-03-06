@@ -496,3 +496,10 @@ string colourizeMaterial(string materialName, int colour)
 
 }
 
+void queueRenderRequest(RenderRequest *r)
+{
+	sem_wait(&renderQueueSemaphore);
+	renderQueue.push_back(r);
+	sem_post(&renderQueueSemaphore);
+}
+

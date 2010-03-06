@@ -9,6 +9,7 @@ using namespace std;
 
 #include "Globals.h"
 #include "Tile.h"
+#include "RenderRequest.h"
 
 bool readGameMapFromFile(string fileName);
 void writeGameMapToFile(string fileName);
@@ -24,6 +25,8 @@ string stripCommentsFromLine(string line);
 
 void colourizeEntity(Entity *ent, int colour);
 string colourizeMaterial(string materialName, int color);
+
+void queueRenderRequest(RenderRequest *r);
 
 #endif
 

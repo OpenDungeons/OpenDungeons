@@ -1,4 +1,5 @@
 #include "Globals.h"
+#include "Functions.h"
 #include "Player.h"
 
 Player::Player()
@@ -84,9 +85,8 @@ void Player::pickUpCreature(Creature *c)
 			request->type = RenderRequest::pickUpCreature;
 			request->p = c;
 
-			sem_wait(&renderQueueSemaphore);
-			renderQueue.push_back(request);
-			sem_post(&renderQueueSemaphore);
+			// Add the request to the queue of rendering operations to be performed before the next frame.
+			queueRenderRequest(request);
 
 			if(clientSocket != NULL)
 			{
@@ -170,9 +170,8 @@ bool Player::dropCreature(Tile *t)
 				request->p = c;
 				request->p2 = this;
 
-				sem_wait(&renderQueueSemaphore);
-				renderQueue.push_back(request);
-				sem_post(&renderQueueSemaphore);
+				// Add the request to the queue of rendering operations to be performed before the next frame.
+				queueRenderRequest(request);
 			}
 
 			c->setPosition(t->x, t->y, 0.0);

@@ -1,4 +1,5 @@
 #include "Defines.h"
+#include "Functions.h"
 #include "Tile.h"
 #include "Globals.h"
 #include "Creature.h"
@@ -411,9 +412,8 @@ void Tile::refreshMesh()
 	request->type = RenderRequest::refreshTile;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 /*! \brief This function puts a message in the renderQueue to load the mesh for this tile.
@@ -425,9 +425,8 @@ void Tile::createMesh()
 	request->type = RenderRequest::createTile;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 
 	//FIXME:  this refreshMesh is a test to see if it fixes the hidden tiles bug at load time.
 	refreshMesh();
@@ -445,9 +444,8 @@ void Tile::destroyMesh()
 	request->type = RenderRequest::destroyTile;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 
 	//FIXME:  This wait needs to happen however it currently causes the program to lock up because this function is called from the rendering thread which causes that thread to wait on itself
 	//sem_wait(&meshDestructionFinishedSemaphore);
@@ -588,10 +586,9 @@ void Tile::deleteYourself()
 	request2->type = RenderRequest::deleteTile;
 	request2->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	renderQueue.push_back(request2);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
+	queueRenderRequest(request2);
 }
 
 /*! \brief This function adds a creature to the list of creatures in this tile.

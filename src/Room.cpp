@@ -1,4 +1,5 @@
 #include "Globals.h"
+#include "Functions.h"
 #include "Room.h"
 
 Room::Room()
@@ -50,9 +51,8 @@ void Room::createMeshes()
 		request->p = this;
 		request->p2 = tempTile;
 
-		sem_wait(&renderQueueSemaphore);
-		renderQueue.push_back(request);
-		sem_post(&renderQueueSemaphore);
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
 		//sem_wait(&meshCreationFinishedSemaphore);
 	}
 }
@@ -67,9 +67,8 @@ void Room::destroyMeshes()
 		request->p = this;
 		request->p2 = tempTile;
 
-		sem_wait(&renderQueueSemaphore);
-		renderQueue.push_back(request);
-		sem_post(&renderQueueSemaphore);
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
 
 		//FIXME:  This wait needs to happen however it currently causes the program to lock up because this function is called from the rendering thread which causes that thread to wait on itself
 		//sem_wait(&meshDestructionFinishedSemaphore);
@@ -89,9 +88,8 @@ void Room::deleteYourself()
 	request->type = RenderRequest::deleteRoom;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 istream& operator>>(istream& is, Room *r)

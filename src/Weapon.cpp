@@ -1,4 +1,5 @@
 #include "Globals.h"
+#include "Functions.h"
 #include "Weapon.h"
 #include "RenderRequest.h"
 #include "Creature.h"
@@ -22,9 +23,8 @@ void Weapon::createMesh()
 	request->p2 = parentCreature;
 	request->p3 = &handString;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 void Weapon::destroyMesh()
@@ -34,9 +34,8 @@ void Weapon::destroyMesh()
 	request->p = this;
 	request->p2 = parentCreature;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 
 	//FIXME:  This waits forever however it should be enabled to prevent a race condition.
 	//sem_wait(&meshDestructionFinishedSemaphore);

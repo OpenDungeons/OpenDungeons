@@ -1,4 +1,5 @@
 #include "Globals.h"
+#include "Functions.h"
 #include "Field.h"
 #include "RenderRequest.h"
 
@@ -141,9 +142,8 @@ void Field::refreshMeshes(double offset = 0.0)
 		request->p = this;
 		request->p2 = new double(offset);
 
-		sem_wait(&renderQueueSemaphore);
-		renderQueue.push_back(request);
-		sem_post(&renderQueueSemaphore);
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
 	}
 }
 
@@ -165,9 +165,8 @@ void Field::createMeshes(double offset = 0.0)
 	request->p = this;
 	request->p2 = new double(offset);
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 void Field::destroyMeshes()
@@ -182,8 +181,7 @@ void Field::destroyMeshes()
 	request->type = RenderRequest::destroyField;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 

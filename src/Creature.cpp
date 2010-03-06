@@ -136,9 +136,8 @@ void Creature::createMesh()
 	request->type = RenderRequest::createCreature;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 
 	//FIXME:  This function needs to wait until the render queue has processed the request before returning.  This should fix the bug where the client crashes loading levels with lots of creatures.  Other create mesh routines should have a similar wait statement.  It currently breaks the program since this function gets called from the rendering thread causing the thread to wait for itself to do something.
 	//sem_wait(&meshCreationFinishedSemaphore);
@@ -162,9 +161,9 @@ void Creature::destroyMesh()
 	request->type = RenderRequest::destroyCreature;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
+
 	sem_wait(&meshDestructionFinishedSemaphore);
 }
 
@@ -1082,17 +1081,17 @@ void Creature::createVisualDebugEntities()
 
 		if(currentTile != NULL)
 		{
-			// Create a mesh for the current visible tile
+			// Create a render request to create a mesh for the current visible tile.
 			RenderRequest *request = new RenderRequest;
 			request->type = RenderRequest::createCreatureVisualDebug;
 			request->p = currentTile;
 			request->p2 = this;
 
+			// Add the request to the queue of rendering operations to be performed before the next frame.
+			queueRenderRequest(request);
+
 			visualDebugEntityTiles.push_back(currentTile);
 
-			sem_wait(&renderQueueSemaphore);
-			renderQueue.push_back(request);
-			sem_post(&renderQueueSemaphore);
 		}
 	}
 }
@@ -1119,9 +1118,8 @@ void Creature::destroyVisualDebugEntities()
 			request->p = currentTile;
 			request->p2 = this;
 
-			sem_wait(&renderQueueSemaphore);
-			renderQueue.push_back(request);
-			sem_post(&renderQueueSemaphore);
+			// Add the request to the queue of rendering operations to be performed before the next frame.
+			queueRenderRequest(request);
 		}
 	}
 
@@ -1157,10 +1155,9 @@ void Creature::deleteYourself()
 	request2->type = RenderRequest::deleteCreature;
 	request2->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	renderQueue.push_back(request2);
-	sem_post(&renderQueueSemaphore);
+	// Add the requests to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
+	queueRenderRequest(request2);
 }
 
 /*! \brief Sets a new animation state from the creature's library of animations.
@@ -1199,9 +1196,8 @@ void Creature::setAnimationState(string s)
 		}
 	}
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 /*! \brief Returns the creature's currently active animation state.

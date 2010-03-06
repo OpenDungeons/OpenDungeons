@@ -2,6 +2,7 @@
 using namespace std;
 
 #include "Globals.h"
+#include "Functions.h"
 #include "MapLight.h"
 #include "RenderRequest.h"
 
@@ -54,9 +55,8 @@ void MapLight::createOgreEntity()
 	request->type = RenderRequest::createMapLight;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 
 	//FIXME:  Wait until the render queue has finished processing this request to move on.
 	//sem_wait(&meshCreationFinishedSemaphore);
@@ -72,9 +72,8 @@ void MapLight::destroyOgreEntity()
 	request->type = RenderRequest::destroyMapLight;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 
 	ogreEntityExists = false;
 }
@@ -87,9 +86,8 @@ void MapLight::deleteYourself()
 	request->type = RenderRequest::deleteMapLight;
 	request->p = this;
 
-	sem_wait(&renderQueueSemaphore);
-	renderQueue.push_back(request);
-	sem_post(&renderQueueSemaphore);
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 string MapLight::getName()
