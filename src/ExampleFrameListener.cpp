@@ -445,7 +445,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			case RenderRequest::createWeapon:
 				curWeapon = (Weapon*)curReq->p;
 				curCreature = (Creature*)curReq->p2;
-				cout << "\nCreating weapon:  " << curWeapon->name << endl;
 
 				ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
 				weaponEntity = mSceneMgr->createEntity("Weapon_" + curWeapon->handString + "_" + curCreature->name, curWeapon->meshName);
@@ -465,7 +464,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			case RenderRequest::destroyWeapon:
 				curWeapon = (Weapon*)curReq->p;
 				curCreature = (Creature*)curReq->p2;
-				cout << "\nDestroying weapon:  " << curWeapon->name;
 
 				if(curWeapon->name.compare("none") != 0)
 				{
@@ -488,6 +486,14 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node = lightSceneNode->createChildSceneNode(tempString + "_node");
 				node->setPosition(curMapLight->getPosition());
 
+				if(serverSocket == NULL && clientSocket == NULL)
+				{
+					// Create the MapLightIndicator mesh so the light can be drug around in the map editor.
+					tempString = (string)"MapLightIndicator_" + curMapLight->getName();
+					ent = mSceneMgr->createEntity(tempString, "Light.mesh");
+					node->attachObject(ent);
+				}
+
 				node->attachObject(light);
 				//TODO: Post a creation finished semaphore for the light if necessary.
 				break;
@@ -502,7 +508,28 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					node->detachObject(light);
 					lightSceneNode->removeChild(node);
 					mSceneMgr->destroyLight(light);
+					tempString = (string)"MapLightIndicator_" + curMapLight->getName();
+					if(mSceneMgr->hasEntity(tempString))
+					{
+						ent = mSceneMgr->getEntity(tempString);
+						node->detachObject(ent);
+					}
 					mSceneMgr->destroySceneNode(node->getName());
+				}
+				break;
+
+			case RenderRequest::destroyMapLightVisualIndicator:
+				curMapLight = (MapLight*)curReq->p;
+				tempString = (string)"MapLight_" + curMapLight->getName();
+				if(mSceneMgr->hasLight(tempString))
+				{
+					node = mSceneMgr->getSceneNode(tempString + "_node");
+					tempString = (string)"MapLightIndicator_" + curMapLight->getName();
+					if(mSceneMgr->hasEntity(tempString))
+					{
+						ent = mSceneMgr->getEntity(tempString);
+						node->detachObject(ent);
+					}
 				}
 				break;
 
@@ -515,7 +542,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curField = (Field*)curReq->p;
 				tempDouble = *(double*)curReq->p2;
 				delete (double*)curReq->p2;
-				cout << "\n\n\nCreating field:  " << curField->name;
 
 				fieldItr = curField->begin();
 				while(fieldItr != curField->end())
@@ -543,7 +569,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curField = (Field*)curReq->p;
 				tempDouble = *(double*)curReq->p2;
 				delete (double*)curReq->p2;
-				cout << "\n\n\nRefreshing field:  " << curField->name;
 
 				// Update existing meshes and create any new ones needed.
 				fieldItr = curField->begin();
@@ -668,9 +693,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 			case RenderRequest::deleteCreature:
 				curCreature = (Creature*)curReq->p;
-				cout << "\nCalling delete on creature " << curCreature->name;
-				cout.flush();
 				delete curCreature;
+				break;
+
+			case RenderRequest::moveSceneNode:
+				node = mSceneMgr->getSceneNode(curReq->str);
+				node->setPosition(curReq->vec);
 				break;
 
 			case RenderRequest::noRequest:
@@ -1029,6 +1057,13 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 		}
 	}
 
+	// If we are dragging a map light we need to update its position to the current x-y location.
+	if(mLMouseDown && mDragType == ExampleFrameListener::mapLight && serverSocket == NULL && clientSocket == NULL)
+	{
+		MapLight *tempMapLight = gameMap.getMapLight(draggedMapLight);
+		if(tempMapLight != NULL)
+			tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
+	}
 
 	return true;
 }
@@ -1080,6 +1115,10 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 	// Left mouse button down
 	if (id == OIS::MB_Left)
 	{
+		mLMouseDown = true;
+		mLStartDragX = xPos;
+		mLStartDragY = yPos;
+
 		// See if the mouse is over any creatures
 		while (itr != result.end() )
 		{
@@ -1103,7 +1142,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 						if(currentCreature != NULL && currentCreature->color == gameMap.me->seat->color)
 						{
 							gameMap.me->pickUpCreature(currentCreature);
-							break;
+							return true;
 						}
 					}
 					else  // if in the Map Editor:  Begin dragging the creature
@@ -1112,13 +1151,13 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 						mSceneMgr->getEntity("SquareSelector")->setVisible(false);
 
 						
-						mDraggedCreature = resultName.substr(((string)"Creature_").size(), resultName.size());
-						SceneNode *node = mSceneMgr->getSceneNode(mDraggedCreature	+ "_node");
+						draggedCreature = resultName.substr(((string)"Creature_").size(), resultName.size());
+						SceneNode *node = mSceneMgr->getSceneNode(draggedCreature	+ "_node");
 						creatureSceneNode->removeChild(node);
 						mSceneMgr->getSceneNode("Hand_node")->addChild(node);
 						node->setPosition(0,0,0);
 						mDragType = ExampleFrameListener::creature;
-						break;
+						return true;
 					}
 				}
 
@@ -1127,7 +1166,27 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			itr++;
 		}
 
-		// If no creatures are under the  mouse run through the list again to check for tiles
+		// If no creatures are under the  mouse run through the list again to check for lights
+		if(serverSocket == NULL && clientSocket == NULL)
+		{
+			itr = result.begin( );
+			while(itr != result.end())
+			{
+				itr++;
+				if(itr->movable != NULL)
+				{
+					resultName = itr->movable->getName();
+					if(resultName.find("MapLightIndicator_") != string::npos)
+					{
+						mDragType = ExampleFrameListener::mapLight;
+						draggedMapLight = resultName.substr(((string)"MapLightIndicator_").size(), resultName.size());
+						return true;
+					}
+				}
+			}
+		}
+
+		// If no creatures or lights are under the  mouse run through the list again to check for tiles
 		itr = result.begin( );
 		while(itr != result.end())
 		{
@@ -1158,10 +1217,6 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 				digSetBool = !(tempTile->getMarkedForDigging(gameMap.me));
 			}
 		}
-		
-		mLMouseDown = true;
-		mLStartDragX = xPos;
-		mLStartDragY = yPos;
 	}
 
 	// Right mouse button down
@@ -1219,11 +1274,22 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 		{
 			if(serverSocket == NULL && clientSocket == NULL)
 			{
-				SceneNode *node = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
+				SceneNode *node = mSceneMgr->getSceneNode(draggedCreature + "_node");
 				mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
 				creatureSceneNode->addChild(node);
 				mDragType = ExampleFrameListener::nullDragType;
-				gameMap.getCreature(mDraggedCreature)->setPosition(xPos, yPos, 0);
+				gameMap.getCreature(draggedCreature)->setPosition(xPos, yPos, 0);
+			}
+		}
+
+		// Check to see if we are dragging a map light.
+		else if(mDragType == ExampleFrameListener::mapLight)
+		{
+			if(serverSocket == NULL && clientSocket == NULL)
+			{
+				MapLight *tempMapLight = gameMap.getMapLight(draggedMapLight);
+				if(tempMapLight != NULL)
+					tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
 			}
 		}
 
@@ -2247,6 +2313,9 @@ void ExampleFrameListener::executePromptCommand()
 						CNPStruct *cnps = new CNPStruct;
 						cnps->nFrameListener = this;
 						pthread_create(&clientNotificationThread, NULL, clientNotificationProcessor, cnps);
+
+						// Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
+						gameMap.clearMapLightIndicators();
 					}
 					else
 					{
@@ -2305,6 +2374,9 @@ void ExampleFrameListener::executePromptCommand()
 
 					// Start the creature AI thread
 					pthread_create(&creatureThread, NULL, creatureAIThread, NULL);
+
+					// Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
+					gameMap.clearMapLightIndicators();
 
 					commandOutput = "Server started successfully.";
 				}

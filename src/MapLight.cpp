@@ -48,8 +48,8 @@ void MapLight::setAttenuation (double range, double constant, double linear, dou
 
 void MapLight::createOgreEntity()
 {
-	//if(ogreEntityExists)
-		//return;
+	if(ogreEntityExists)
+		return;
 
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::createMapLight;
@@ -61,12 +61,13 @@ void MapLight::createOgreEntity()
 	//FIXME:  Wait until the render queue has finished processing this request to move on.
 	//sem_wait(&meshCreationFinishedSemaphore);
 	ogreEntityExists = true;
+	ogreEntityVisualIndicatorExists = true;
 }
 
 void MapLight::destroyOgreEntity()
 {
-	//if(!ogreEntityExists)
-		//return;
+	if(!ogreEntityExists)
+		return;
 
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::destroyMapLight;
@@ -76,6 +77,22 @@ void MapLight::destroyOgreEntity()
 	queueRenderRequest(request);
 
 	ogreEntityExists = false;
+	ogreEntityVisualIndicatorExists = false;
+}
+
+void MapLight::destroyOgreEntityVisualIndicator()
+{
+	if(!ogreEntityExists || !ogreEntityVisualIndicatorExists)
+		return;
+
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::destroyMapLightVisualIndicator;
+	request->p = this;
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
+
+	ogreEntityVisualIndicatorExists = false;
 }
 
 void MapLight::deleteYourself()
@@ -93,6 +110,26 @@ void MapLight::deleteYourself()
 string MapLight::getName()
 {
 	return name;
+}
+
+void MapLight::setPosition(double nX, double nY, double nZ)
+{
+	Ogre::Vector3 tempPosition(nX, nY, nZ);
+	setPosition(tempPosition);
+}
+
+void MapLight::setPosition(Ogre::Vector3 nPosition)
+{
+	position = nPosition;
+
+	// Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::moveSceneNode;
+	request->str = (string)"MapLight_" + name + "_node";
+	request->vec = position;
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 Ogre::Vector3 MapLight::getPosition()

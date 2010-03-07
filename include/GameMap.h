@@ -62,8 +62,10 @@ class GameMap
 		unsigned int numRooms();
 
 		void clearMapLights();
+		void clearMapLightIndicators();
 		void addMapLight(MapLight *m);
 		MapLight* getMapLight(int index);
+		MapLight* getMapLight(string name);
 		unsigned int numMapLights();
 
 		void clearEmptySeats();

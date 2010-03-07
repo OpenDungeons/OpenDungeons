@@ -19,9 +19,12 @@ class MapLight
 
 		void createOgreEntity();
 		void destroyOgreEntity();
+		void destroyOgreEntityVisualIndicator();
 		void deleteYourself();
 
 		string getName();
+		void setPosition(double nX, double nY, double nZ);
+		void setPosition(Ogre::Vector3 nPosition);
 		Ogre::Vector3 getPosition();
 		Ogre::ColourValue getDiffuseColor();
 		Ogre::ColourValue getSpecularColor();
@@ -45,6 +48,7 @@ class MapLight
 
 		string name;
 		bool ogreEntityExists;
+		bool ogreEntityVisualIndicatorExists;
 };
 
 #endif

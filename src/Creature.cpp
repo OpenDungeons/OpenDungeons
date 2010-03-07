@@ -184,10 +184,6 @@ void Creature::setPosition(Ogre::Vector3 v)
  */
 void Creature::setPosition(double x, double y, double z)
 {
-	SceneNode *tempSceneNode = mSceneMgr->getSceneNode(name + "_node");
-
-	tempSceneNode->setPosition(x, y, z);
-
 	// If we are on the gameMap we may need to update the tile we are in
 	if(gameMap.getCreature(name) != NULL)
 	{
@@ -213,6 +209,15 @@ void Creature::setPosition(double x, double y, double z)
 		// We are not on the map
 		position = Ogre::Vector3(x, y, z);
 	}
+
+	// Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::moveSceneNode;
+	request->str = name + "_node";
+	request->vec = position;
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 /*! \brief A simple accessor function to get the creature's current position in 3d space.

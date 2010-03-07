@@ -945,6 +945,12 @@ void GameMap::clearMapLights()
 	mapLights.clear();
 }
 
+void GameMap::clearMapLightIndicators()
+{
+	for(unsigned int i = 0; i < mapLights.size(); i++)
+		mapLights[i]->destroyOgreEntityVisualIndicator();
+}
+
 void GameMap::addMapLight(MapLight *m)
 {
 	mapLights.push_back(m);
@@ -953,6 +959,17 @@ void GameMap::addMapLight(MapLight *m)
 MapLight* GameMap::getMapLight(int index)
 {
 	return mapLights[index];
+}
+
+MapLight* GameMap::getMapLight(string name)
+{
+	for(unsigned int i = 0; i < mapLights.size(); i++)
+	{
+		if(mapLights[i]->getName() == name)
+			return mapLights[i];
+	}
+
+	return NULL;
 }
 
 unsigned int GameMap::numMapLights()

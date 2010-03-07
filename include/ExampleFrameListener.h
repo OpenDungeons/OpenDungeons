@@ -160,7 +160,7 @@ protected:
 	bool digSetBool;                   // For server mode - hods whether to mark or unmark a tile for digging
 	bool ceguiHasControl, ignoreOneMouseReleased;
 
-	enum DragType {creature, tileSelection, tileBrushSelection, nullDragType};
+	enum DragType {creature, mapLight, tileSelection, tileBrushSelection, nullDragType};
 
 private:
 	bool mContinue;
@@ -168,7 +168,7 @@ private:
 	int terminalWordWrap;
 
 	DragType mDragType;
-	string mDraggedCreature;
+	string draggedCreature, draggedMapLight;
 	SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode, *lightSceneNode;
 };
 
