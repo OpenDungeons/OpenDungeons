@@ -17,7 +17,8 @@
 *  The GameMap::cutCorners() function sometimes causes creatures to walk
 *  through walls, this could be a problem with the lineOfSight function.
 *  Actually I think it has to do with Creature::positionTile(), this is mostly
-*  fixed although positionTile() may still need some work.
+*  fixed although positionTile() may still need some work.  I think that this
+*  is fixed now.
 
 *  The client has code to handle when messages are split across packets, but
 *  the server does not.  This needs to be added.

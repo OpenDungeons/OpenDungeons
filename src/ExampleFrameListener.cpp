@@ -275,11 +275,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	while(renderQueue.size() > 0)
 	{
 		char meshName[255];
-		string tempString;
+		string tempString, tempString2;
 		stringstream tempSS;
 		string tileTypeString;
 		Entity *ent, *weaponEntity;
-		SceneNode *node;
+		SceneNode *node, *node2;
 		Ogre::Matrix3 boneRot;
 		Ogre::Vector3 tempVector;
 		Quaternion tempQuaternion;
@@ -483,18 +483,23 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				light->setSpecularColour(curMapLight->getSpecularColor());
 				light->setAttenuation(curMapLight->getAttenuationRange(), curMapLight->getAttenuationConstant(),
 						curMapLight->getAttenuationLinear(), curMapLight->getAttenuationQuadratic());
+
+				// Create the base node that the "flicker_node" and the mesh attach to.
 				node = lightSceneNode->createChildSceneNode(tempString + "_node");
 				node->setPosition(curMapLight->getPosition());
 
 				if(serverSocket == NULL && clientSocket == NULL)
 				{
 					// Create the MapLightIndicator mesh so the light can be drug around in the map editor.
-					tempString = (string)"MapLightIndicator_" + curMapLight->getName();
-					ent = mSceneMgr->createEntity(tempString, "Light.mesh");
+					tempString2 = (string)"MapLightIndicator_" + curMapLight->getName();
+					ent = mSceneMgr->createEntity(tempString2, "Light.mesh");
 					node->attachObject(ent);
 				}
 
-				node->attachObject(light);
+				// Create the "flicker_node" which moves around randomly relative to
+				// the base node.  This node carries the light itself.
+				node2 = node->createChildSceneNode(tempString + "_flicker_node");
+				node2->attachObject(light);
 				//TODO: Post a creation finished semaphore for the light if necessary.
 				break;
 
@@ -505,15 +510,17 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				{
 					light = mSceneMgr->getLight(tempString);
 					node = mSceneMgr->getSceneNode(tempString + "_node");
-					node->detachObject(light);
+					node2 = mSceneMgr->getSceneNode(tempString + "_flicker_node");
+					node2->detachObject(light);
 					lightSceneNode->removeChild(node);
 					mSceneMgr->destroyLight(light);
-					tempString = (string)"MapLightIndicator_" + curMapLight->getName();
+					tempString2 = (string)"MapLightIndicator_" + curMapLight->getName();
 					if(mSceneMgr->hasEntity(tempString))
 					{
-						ent = mSceneMgr->getEntity(tempString);
+						ent = mSceneMgr->getEntity(tempString2);
 						node->detachObject(ent);
 					}
+					mSceneMgr->destroySceneNode(node2->getName());
 					mSceneMgr->destroySceneNode(node->getName());
 				}
 				break;
@@ -818,6 +825,13 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			}
 		}
 
+	}
+
+	// Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
+	for(unsigned int i = 0; i < gameMap.numMapLights(); i++)
+	{
+	        MapLight *tempMapLight = gameMap.getMapLight(i);
+	        tempMapLight->advanceFlicker(evt.timeSinceLastFrame);
 	}
 
 	//Need to capture/update each device

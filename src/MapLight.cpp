@@ -16,6 +16,13 @@ MapLight::MapLight()
 	tempSS << "Map_light_ " << lightNumber;
 	name = tempSS.str();
 
+	thetaX = 0.0;
+	thetaY = 0.0;
+	thetaZ = 0.0;
+	factorX = 1;
+	factorY = 1;
+	factorZ = 1;
+
 	lightNumber++;
 }
 
@@ -165,6 +172,33 @@ double MapLight::getAttenuationLinear()
 double MapLight::getAttenuationQuadratic()
 {
 	return attenuationQuadratic;
+}
+
+/** \brief Moves the light in a semi-random fashion around its "native" position.  The time
+  * variable indicates how much time has elapsed since the last update.
+  *
+*/
+void MapLight::advanceFlicker(double time)
+{
+
+	thetaX += factorX * 6.28*time;
+	thetaY += factorY * 6.28*time;
+	thetaZ += factorZ * 6.28*time;
+
+	if(randomDouble(0.0, 1.0) < 0.1)  factorX *= -1;
+	if(randomDouble(0.0, 1.0) < 0.1)  factorY *= -1;
+	if(randomDouble(0.0, 1.0) < 0.1)  factorZ *= -1;
+
+	flickerPosition = Ogre::Vector3(sin(thetaX), sin(thetaY), sin(thetaZ));
+
+	// Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::moveSceneNode;
+	request->str = (string)"MapLight_" + name + "_flicker_node";
+	request->vec = flickerPosition;
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 ostream& operator<<(ostream& os, MapLight *m)

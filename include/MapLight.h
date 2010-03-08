@@ -33,6 +33,8 @@ class MapLight
 		double getAttenuationLinear();
 		double getAttenuationQuadratic();
 
+		void advanceFlicker(double time);
+
 		friend ostream& operator<<(ostream& os, MapLight *m);
 		friend istream& operator>>(istream& is, MapLight *m);
 
@@ -49,6 +51,14 @@ class MapLight
 		string name;
 		bool ogreEntityExists;
 		bool ogreEntityVisualIndicatorExists;
+
+		Ogre::Vector3 flickerPosition;
+		double thetaX;
+		double thetaY;
+		double thetaZ;
+		int factorX;
+		int factorY;
+		int factorZ;
 };
 
 #endif

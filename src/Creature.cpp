@@ -1132,17 +1132,14 @@ void Creature::destroyVisualDebugEntities()
 
 /*! \brief Returns a pointer to the tile the creature is currently standing in.
  *
- * 
 */
 Tile* Creature::positionTile()
 {
-	//return gameMap.getTile((int)(position.x + 0.4999), (int)(position.y + 0.4999));
 	return gameMap.getTile((int)(position.x), (int)(position.y));
 }
 
 /*! \brief Completely destroy this creature, including its OGRE entities, scene nodes, etc.
  *
- * 
 */
 void Creature::deleteYourself()
 {
@@ -1167,7 +1164,6 @@ void Creature::deleteYourself()
 
 /*! \brief Sets a new animation state from the creature's library of animations.
  *
- * 
 */
 void Creature::setAnimationState(string s)
 {
@@ -1207,7 +1203,6 @@ void Creature::setAnimationState(string s)
 
 /*! \brief Returns the creature's currently active animation state.
  *
- * 
 */
 AnimationState* Creature::getAnimationState()
 {
@@ -1218,7 +1213,6 @@ AnimationState* Creature::getAnimationState()
  *
  * This function also places a message in the serverNotificationQueue so that
  * relevant clients are informed about the change.
- * 
 */
 void Creature::addDestination(int x, int y)
 {
@@ -1285,7 +1279,6 @@ void Creature::addDestination(int x, int y)
  *
  * This replacement is done if, and only if, the new path is at least minDestinations
  * long; if addFirstStop is false the new path will start with the second entry in path.
- * 
 */
 bool Creature::setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop)
 {
