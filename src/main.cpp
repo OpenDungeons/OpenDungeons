@@ -37,8 +37,6 @@ long int turnNumber = 1;
 
 vector<ColourValue> playerColourValues;
 
-MapEditor app;
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include "windows.h"
@@ -79,6 +77,9 @@ int main(int argc, char **argv)
 	playerColourValues.push_back(ColourValue(0.4, 0.0, 0.0, 1.0));
 	playerColourValues.push_back(ColourValue(0.0, 0.4, 0.0, 1.0));
 	playerColourValues.push_back(ColourValue(0.0, 0.0, 0.4, 1.0));
+
+	// Create application object
+	MapEditor app;
 
 	try {
 	app.go();
