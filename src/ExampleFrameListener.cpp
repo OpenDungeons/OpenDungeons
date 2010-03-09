@@ -267,6 +267,8 @@ void ExampleFrameListener::showDebugOverlay(bool show)
  */
 bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 {
+	stringstream tempSS;
+
 	if(mWindow->isClosed())	return false;
 
 	using namespace OIS;
@@ -276,7 +278,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	{
 		char meshName[255];
 		string tempString, tempString2;
-		stringstream tempSS;
 		string tileTypeString;
 		Entity *ent, *weaponEntity;
 		SceneNode *node, *node2;
@@ -834,6 +835,22 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	        tempMapLight->advanceFlicker(evt.timeSinceLastFrame);
 	}
 
+	// Update the CEGUI displays of gold, mana, etc.
+	if(serverSocket != NULL || clientSocket != NULL)
+	{
+		CEGUI::WindowManager *windowManager = CEGUI::WindowManager::getSingletonPtr();
+
+		CEGUI::Window *tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/GoldDisplay");
+		tempSS.str("");
+		tempSS << "Gold\n" << gameMap.me->seat->gold;
+		tempWindow->setText(tempSS.str());
+
+		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/ManaDisplay");
+		tempSS.str("");
+		tempSS << "Mana\n" << gameMap.me->seat->mana;
+		tempWindow->setText(tempSS.str());
+	}
+
 	//Need to capture/update each device
 	mKeyboard->capture();
 	mMouse->capture();
@@ -869,13 +886,6 @@ bool ExampleFrameListener::frameEnded(const FrameEvent& evt)
 bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)
 {
 	mContinue = false;
-	return true;
-}
-
-bool quitButtonPressed(const CEGUI::EventArgs &e)
-{
-	cout << "\n\nHello world\n\n";
-
 	return true;
 }
 

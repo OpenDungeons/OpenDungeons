@@ -322,6 +322,10 @@ Creature* GameMap::getCreature(string cName)
  */
 void GameMap::doTurn()
 {
+	// Local variables
+	double tempDouble;
+	Seat *tempSeat;
+
 	sem_wait(&creatureAISemaphore);
 
 	cout << "\nStarting creature AI for turn " << turnNumber;
@@ -376,6 +380,16 @@ void GameMap::doTurn()
 		{
 			count++;
 		}
+	}
+
+	// Carry out the upkeep round for each seat.  This means recomputing how much gold is
+	// available in their treasuries, how much mana they gain/lose during this turn, etc.
+	for(unsigned int i = 0; i < filledSeats.size(); i++)
+	{
+		tempSeat = filledSeats[i];
+		tempSeat->mana += 50;
+		if(tempSeat->mana > 250000)
+			tempSeat->mana = 250000;
 	}
 
 	sem_post(&creatureAISemaphore);

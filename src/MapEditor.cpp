@@ -11,6 +11,7 @@ using namespace std;
 #include "ExampleFrameListener.h"
 #include "Tile.h"
 #include "Network.h"
+#include "ButtonHandler.h"
 
 MapEditor::MapEditor()
 	: mSystem(0), mRenderer(0)
@@ -139,9 +140,8 @@ void MapEditor::createScene(void)
 		mSystem->setGUISheet(sheet);
 
 		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
-		CEGUI::Window *quitWindow = wmgr->getWindow((CEGUI::utf8*)"QuitButton");
+		CEGUI::Window *quitWindow = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/QuitButton");
 
-		//quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&ExampleFrameListener::quit));
 		quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
 	}
 	catch (...)

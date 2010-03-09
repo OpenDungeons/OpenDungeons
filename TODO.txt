@@ -1,8 +1,8 @@
 --------------- BUGS: ---------------
-*  When the terminal command "load" is executed if the loaded level is from a
-*  different version of OpenDungeons than the current game the game will print
-*  an error message to the terminal and quit, this should be handled more
-*  gracefully.
++  When the terminal command "load" is executed if the loaded level is from a
++  different version of OpenDungeons than the current game the game will print
++  an error message to the terminal and quit, this should be handled more
++  gracefully.
 
 *  fix keyboard repeat issue (when the game crashes keyboard repeat is disabled
 *  but the OS still thinks it's on, turning it off and then back on again
@@ -20,18 +20,18 @@
 *  fixed although positionTile() may still need some work.  I think that this
 *  is fixed now.
 
-*  The client has code to handle when messages are split across packets, but
-*  the server does not.  This needs to be added.
++  The client has code to handle when messages are split across packets, but
++  the server does not.  This needs to be added.
 
-*  when the terminal becomes active if a key is held down the keyup message
-*  gets caught by the terminal and the key is "stuck" down.
++  when the terminal becomes active if a key is held down the keyup message
++  gets caught by the terminal and the key is "stuck" down.
 
 *  Client and server need to negiotiate and set a color for the newly connected
 *  client.
 
 *  Visual debugging entities for creatures dissappear after a short time.
 
-*  Make the terminal "host" command automatically close the terminal.
++  Make the terminal "host" command automatically close the terminal.
 
 *  When creatures are in the state CreatureAction::maneuver, they sometimes get
 *  "stuck" behind an obstacle since they only locally follow the field
@@ -54,20 +54,20 @@
 *  vector from the tile class, note this will require making the tile class
 *  properly maintain the state of this vector.
 
-*  Add a vector of failedGoals to the Seat class similar to completedGoals.
++  Add a vector of failedGoals to the Seat class similar to completedGoals.
 
-*  Add a vector of sub goals to the Goal class which are added to the queue
-*  after the given goal is completed.
++  Add a vector of sub goals to the Goal class which are added to the queue
++  after the given goal is completed.
 
-*  Add a function and a datamember to the Creature class to go into a specified
-*  animation state when the walk queue becomes empty.
++  Add a function and a datamember to the Creature class to go into a specified
++  animation state when the walk queue becomes empty.
 
 *  Add tile colors to the level file and network protocols.
 
 *  Add a seperate thread to generate a pool of 5000 or so random numbers for
 *  use when needed and make the randomDouble, etc. functions consumers on this pool.
 
-*  Add terminal command 'ls levels'
++  Add terminal command 'ls levels'
 
 *  Begin phasing out snprintf since it is not portable.
 
@@ -81,7 +81,7 @@
 
 *  implement line editing on the terminal.
 
-*  Add a keyboard controls help message under "help keys".
++  Add a keyboard controls help message under "help keys".
 
 *  add a flyTo method to make the camera fly to a particular location (and
 *  orientation?).
@@ -96,9 +96,10 @@
 *  display them for (both as one command maybe).
 
 *  Overload the << operator on the Player class, do the same for all the
-*  others.
+*  others.  This is already done I think, at least for most classes.
 
-*  Add upkeep rounds to the GameMap::doTurn() method.
++  Add upkeep rounds to the GameMap::doTurn() method.  This is also somewhat
++  complete although mana, etc, still need to be added.
 
 *  Create various levels of quality for each mesh and make a RenderRequest that
 *  switches to new meshes when some criteria is met (use something stable like
@@ -109,8 +110,8 @@
 *  Test limiting the number of render requests that can be handled per frame,
 *  initial tests did not seem encouraging so maybe this is a bad idea.
 
-*  Add terminal commands to set the max number and max display time of chat
-*  messages.
++  Add terminal commands to set the max number and max display time of chat
++  messages.
 
 *  Color chat messages with the color of the player who sent them.
 
@@ -129,5 +130,4 @@
 *  rather than rotating the camera around a fixed point.
 
 *  add a disconnect command to stop the running client or server thread.
-
 

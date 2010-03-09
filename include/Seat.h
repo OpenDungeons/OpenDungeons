@@ -12,6 +12,9 @@ using namespace std;
 class Seat
 {
 	public:
+		// Constructors
+		Seat();
+
 		// Public functions
 		void addGoal(Goal *g);
 		unsigned int numGoals();
@@ -32,7 +35,8 @@ class Seat
 		int startingY;		/**< \brief The starting camera location (in tile coordinates) of this seat. */
 		Ogre::ColourValue colourValue;		/**< \brief The actual color that this color index translates into. */
 		double mana;		/**< \brief The amount of 'keeper mana' the player has. */
-		double HP;		/**< \brief The amount of 'keeper HP' the player has. */
+		double hp;		/**< \brief The amount of 'keeper HP' the player has. */
+		int gold;		/**< \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart. */
 
 		friend ostream& operator<<(ostream& os, Seat *s);
 		friend istream& operator>>(istream& is, Seat *s);

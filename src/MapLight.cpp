@@ -181,9 +181,9 @@ double MapLight::getAttenuationQuadratic()
 void MapLight::advanceFlicker(double time)
 {
 
-	thetaX += factorX * 6.28*time;
-	thetaY += factorY * 6.28*time;
-	thetaZ += factorZ * 6.28*time;
+	thetaX += factorX * 3.14*time;
+	thetaY += factorY * 3.14*time;
+	thetaZ += factorZ * 3.14*time;
 
 	if(randomDouble(0.0, 1.0) < 0.1)  factorX *= -1;
 	if(randomDouble(0.0, 1.0) < 0.1)  factorY *= -1;

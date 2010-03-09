@@ -1,5 +1,12 @@
 #include "Seat.h"
 
+Seat::Seat()
+{
+	mana = 1000;
+	hp = 1000;
+	gold = 500;
+}
+
 /** \brief Adds a goal to the vector of goals which must be completed by this seat before it can be declared a winner.
   *
 */

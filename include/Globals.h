@@ -11,6 +11,7 @@
 #include "ServerNotification.h"
 #include "ClientNotification.h"
 #include "Socket.h"
+#include "MapEditor.h"
 
 extern GameMap gameMap;
 extern SceneManager* mSceneMgr;
@@ -36,6 +37,9 @@ extern double turnsPerSecond;
 extern long int turnNumber;
 
 extern vector<ColourValue> playerColourValues;
+
+class MapEditor;
+extern MapEditor app;
 
 #endif
 

@@ -96,10 +96,11 @@ public:
         destroyScene();
     }
 
+    ExampleFrameListener* mFrameListener;
+
 protected:
     Root *mRoot;
     Camera* mCamera;
-    ExampleFrameListener* mFrameListener;
     RenderWindow* mWindow;
 	Ogre::String mResourcePath;
 
