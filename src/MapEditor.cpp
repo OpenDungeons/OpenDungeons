@@ -142,7 +142,7 @@ void MapEditor::createScene(void)
 		CEGUI::Window *quitWindow = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/QuitButton");
 
 		//quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&ExampleFrameListener::quit));
-		quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
+		//quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
 	}
 	catch (...)
 	{
