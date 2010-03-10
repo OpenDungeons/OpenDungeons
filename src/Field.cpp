@@ -140,7 +140,7 @@ void Field::refreshMeshes(double offset = 0.0)
 		RenderRequest *request = new RenderRequest;
 		request->type = RenderRequest::refreshField;
 		request->p = this;
-		request->p2 = new double(offset);
+		request->p2 = new double(offset);  //FIXME: This leaks memory, it should either be deleted in the request handler or passed via a different method.
 
 		// Add the request to the queue of rendering operations to be performed before the next frame.
 		queueRenderRequest(request);

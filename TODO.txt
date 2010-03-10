@@ -37,7 +37,9 @@
 *  "stuck" behind an obstacle since they only locally follow the field
 *  gradient.  This can be fixed by making them make use of GameMap::path() to
 *  find a good path to the destination and sticking with it far enough to get
-*  them to their destination.
+*  them to their destination.  I have partially fixed this by making the
+*  creatures push a walkToTile action to their actionQueue to force them to
+*  walk a ways but they could still get stuck in a "big" local minima.
 
 *  When the game exits, many items are placed into the render queue to be
 *  deleted, etc.  However, the game exits before calling
@@ -45,10 +47,24 @@
 *  must be put in place to call frameStarted again to flush the render queue so
 *  everything is properly freed up.
 
+*  When the game exits during a match with lots of creatures who can see
+*  enemies the game will segfault in the Creature::getReachableCreatures()
+*  function because the tile that a given creature is standing on
+*  (creatureTile) gets deleted from the game map and thus when the query is
+*  done it returns NULL.
+
++  Creature class descriptions don't need to include the ".mesh" on their
++  meshName in the level file since the game engine could just add this itself
++  like it does for rooms, etc.
 
 --------------- FEATURE ADDITIONS: ---------------
-*  Make the writeGameMapToFile() function add comments to the file it outputs
-*  describing the file format to make it easier for humans to edit the file.
++  Add a parameter to the GameMap class to store the name of the map that was
++  loaded and make the terminal commands load/save automatically use this name
++  unless another level name is provided.
+
++  When a level is loaded the number of tiles, classes, and creatures loaded is
++  displayed, make this also display the number of MapLights, etc.  Possibly
++  make the save command do the same.
 
 *  Optimize GameMap::neighborTiles() to make it just return the neighborTiles
 *  vector from the tile class, note this will require making the tile class

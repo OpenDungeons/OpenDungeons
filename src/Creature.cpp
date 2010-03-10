@@ -62,11 +62,10 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 */
 string Creature::getFormat()
 {
-	string tempString = "className\tname\tposX\tposY\tposZ\tcolor\tweaponL(";
+	string tempString = "className\tname\tposX\tposY\tposZ\tcolor\tweaponL";
 	tempString += Weapon::getFormat();
-	tempString += ")\tweaponR(";
+	tempString += "\tweaponR";
 	tempString += Weapon::getFormat();
-	tempString += ")";
 
 	return tempString;
 }
@@ -311,9 +310,19 @@ void Creature::doTurn()
 		}
 		*/
 
+		// Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
+		bool alreadyFighting = false;
+		for(unsigned int i = 0; i < actionQueue.size(); i++)
+		{
+			if(actionQueue[i].type == CreatureAction::attackCreature || actionQueue[i].type == CreatureAction::maneuver)
+			{
+				alreadyFighting = true;
+				break;
+			}
+		}
+
 		// If we are not already fighting with a creature or maneuvering then start doing so.
-		tempAction = actionQueue.front();
-		if(tempAction.type != CreatureAction::attackCreature || tempAction.type != CreatureAction::maneuver)
+		if(!alreadyFighting)
 		{
 			tempAction.type = CreatureAction::maneuver;
 			actionQueue.push_front(tempAction);
@@ -803,6 +812,7 @@ claimTileBreakStatement:
 						break;
 					}
 
+					// There are no enemy creatures in range so we will have to maneuver towards one.
 					// Prepare the battlefield so we can decide where to move.
 					computeBattlefield();
 
@@ -810,20 +820,26 @@ claimTileBreakStatement:
 					// trying to "attack" and a maximum if we are trying to "retreat".
 					clearDestinations();
 				       	min = battleField->min();  // Currently always attack, never retreat.
-					tempDouble = 4;
+					tempDouble = max(weaponL->range, weaponR->range);  // Pick a true destination randomly within the max range of our weapons.
+					tempDouble = sqrt(tempDouble);
 					tempPath = gameMap.path(positionTile()->x, positionTile()->y, min.first.first + randomDouble(-1.0*tempDouble,tempDouble), min.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
 
-					// Walk a maximum of 5 tiles before recomputing the destination since we are in combat.
-					if(tempPath.size() >= 5)
-						tempPath.resize(5);
+					// Walk a maximum of N tiles before recomputing the destination since we are in combat.
+					tempInt = 5;
+					if(tempPath.size() >= tempInt)
+						tempPath.resize(tempInt);
 
 					gameMap.cutCorners(tempPath, tilePassability);
 					setWalkPath(tempPath, 2, true);
 
+					// Push a walkToTile action into the creature's action queue to make them walk the path they have
+					// decided on without recomputing, this helps prevent them from getting stuck in local minima.
+					actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+
 					// This is a debugging statement, it produces a visual display of the battlefield as seen by the first creature.
 					if(battleField->name.compare("field_1") == 0)
 					{
-						//battleField->refreshMeshes(0.0);
+						//battleField->refreshMeshes(1.0);
 					}
 					break;
 
@@ -1409,6 +1425,7 @@ void Creature::clearActionQueue()
 void Creature::computeBattlefield()
 {
 	Tile *myTile, *tempTile, *tempTile2;
+	int xDist, yDist;
 	double rSquared;
 
 	// Loop over the tiles in this creature's battleField and compute their value.
@@ -1431,8 +1448,9 @@ void Creature::computeBattlefield()
 			//double factor = 1.0 / (sqrt(rSquared) + 1.0);
 
 			// Subtract for the distance from the enemy creature to r
-			rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
-			tileValue += sqrt(rSquared);
+			xDist = tempTile->x - tempTile2->x;
+			yDist = tempTile->y - tempTile2->y;
+			tileValue -= 1.0 / sqrt(xDist*xDist + yDist*yDist + 1);
 		}
 
 		// Allies
@@ -1444,12 +1462,13 @@ void Creature::computeBattlefield()
 			//rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
 			//double factor = 1.0 / (sqrt(rSquared) + 1.0);
 
-			rSquared = powl(tempTile->x - tempTile2->x, 2.0) + powl(tempTile->y - tempTile2->y, 2.0);
-			tileValue += 15.0 / (sqrt(rSquared+1.0));
+			xDist = tempTile->x - tempTile2->x;
+			yDist = tempTile->y - tempTile2->y;
+			tileValue += 0.5 / (sqrt(xDist*xDist + yDist*yDist + 1));
 		}
 
-		double jitter = 0.05;
-		double tileScaleFactor = 0.05;
+		const double jitter = 0.00;
+		const double tileScaleFactor = 0.5;
 		battleField->set(tempTile->x, tempTile->y, (tileValue + randomDouble(-1.0*jitter, jitter))*tileScaleFactor);
 	}
 }
