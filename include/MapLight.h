@@ -35,6 +35,7 @@ class MapLight
 
 		void advanceFlicker(double time);
 
+		static string getFormat();
 		friend ostream& operator<<(ostream& os, MapLight *m);
 		friend istream& operator>>(istream& is, MapLight *m);
 

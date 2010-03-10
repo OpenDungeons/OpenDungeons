@@ -162,10 +162,11 @@ void writeGameMapToFile(string fileName)
 	Tile *tempTile;
 
 	// Write the identifier string and the version number
-	levelFile << versionString << "\n\n";
+	levelFile << versionString << "  # The version of OpenDungeons which created this file (for compatability reasons).\n";
 
 	// Write out the seats to the file
-	levelFile << gameMap.numEmptySeats()+gameMap.numFilledSeats() << "\n";
+	levelFile << "\n# Seats\n" << gameMap.numEmptySeats()+gameMap.numFilledSeats() << "  # The number of seats to load.\n";
+	levelFile << "# " << Seat::getFormat() << "\n";
 	for(unsigned int i = 0; i < gameMap.numEmptySeats(); i++)
 	{
 		levelFile << gameMap.getEmptySeat(i);
@@ -177,14 +178,16 @@ void writeGameMapToFile(string fileName)
 	}
 
 	// Write out the goals shared by all players to the file.
-	levelFile << "\n" << gameMap.numGoalsForAllSeats() << "\n";
+	levelFile << "\n# Goals\n" << gameMap.numGoalsForAllSeats() << "  # The number of goals to load.\n";
+	levelFile << "# " << Goal::getFormat() << "\n";
 	for(unsigned int i = 0; i < gameMap.numGoalsForAllSeats(); i++)
 	{
 		levelFile << gameMap.getGoalForAllSeats(i);
 	}
 
 	// Write out the tiles to the file
-	levelFile << "\n" << gameMap.numTiles() << endl;
+	levelFile << "\n# Tiles\n" << gameMap.numTiles() << "  # The number of tiles to load.\n";
+	levelFile << "# " << Tile::getFormat() << "\n";
 	TileMap_t::iterator itr = gameMap.firstTile();
 	while(itr != gameMap.lastTile())
 	{
@@ -201,21 +204,24 @@ void writeGameMapToFile(string fileName)
 	}
 
 	// Write out the rooms to the file
-	levelFile << "\n" << gameMap.numRooms() << "\n";
+	levelFile << "\n# Rooms\n" << gameMap.numRooms() << "  # The number of rooms to load.\n";
+	levelFile << "# " << Room::getFormat() << "\n";
 	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
 	{
 		levelFile << gameMap.getRoom(i) << endl;
 	}
 
 	// Write out the lights to the file.
-	levelFile << "\n" << gameMap.numMapLights() << "\n";
+	levelFile << "\n# Lights\n" << gameMap.numMapLights() << "  # The number of lights to load.\n";
+	levelFile << "# " << MapLight::getFormat() << "\n";
 	for(unsigned int i = 0; i < gameMap.numMapLights(); i++)
 	{
 		levelFile << gameMap.getMapLight(i) << endl;
 	}
 
 	// Write out the creature descriptions to the file
-	levelFile << "\n" << gameMap.numClassDescriptions() << "\n";
+	levelFile << "\n# Creature classes\n" << gameMap.numClassDescriptions() << "  # The number of creature classes to load.\n";
+	levelFile << "# className\tmeshName\tscaleX\tscaleY\tscaleZ\tHP\tmana\tsightRadius\tdigRate\tmoveSpeed\n";
 	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 	{
 		//NOTE: This code is duplicated in the client side method
@@ -228,7 +234,8 @@ void writeGameMapToFile(string fileName)
 	}
 
 	// Write out the individual creatures to the file
-	levelFile << "\n" << gameMap.numCreatures() << "\n";
+	levelFile << "\n# Creatures\n" << gameMap.numCreatures() << "  # The number of creatures to load.\n";
+	levelFile << "# " << Creature::getFormat() << "\n";
 	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
 	{
 		//NOTE: This code is duplicated in the client side method

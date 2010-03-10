@@ -18,6 +18,7 @@ class Weapon
 		void createMesh();
 		void destroyMesh();
 
+		static string getFormat();
 		friend ostream& operator<<(ostream& os, Weapon *w);
 		friend istream& operator>>(istream& is, Weapon *w);
 

@@ -27,8 +27,6 @@ class Creature
 		// Constructors and operators
 		Creature();
 		Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed);
-		friend ostream& operator<<(ostream& os, Creature *c);
-		friend istream& operator>>(istream& is, Creature *c);
 
 		// Class properties
 		string className;
@@ -90,6 +88,10 @@ class Creature
 		void createVisualDebugEntities();
 		void destroyVisualDebugEntities();
 		bool getHasVisualDebuggingEntities();
+
+		static string getFormat();
+		friend ostream& operator<<(ostream& os, Creature *c);
+		friend istream& operator>>(istream& is, Creature *c);
 
 	private:
 		deque<CreatureAction> actionQueue;

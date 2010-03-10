@@ -92,6 +92,11 @@ void Room::deleteYourself()
 	queueRenderRequest(request);
 }
 
+string Room::getFormat()
+{
+        return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
+}
+
 istream& operator>>(istream& is, Room *r)
 {
 	static int uniqueNumber = 1;

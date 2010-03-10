@@ -21,6 +21,11 @@ string Goal::getName()
 	return name;
 }
 
+string Goal::getFormat()
+{
+        return "goalName\targuments";
+}
+
 ostream& operator<<(ostream& os, Goal *g)
 {
 	os << g->name << "\t";

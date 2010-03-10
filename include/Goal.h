@@ -26,6 +26,7 @@ class Goal
 		// Functions which cannot be overridden by child classes
 		string getName();
 
+		static string getFormat();
 		friend ostream& operator<<(ostream& os, Goal *g);
 		static Goal* instantiateFromStream(istream& is);
 

@@ -57,6 +57,20 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	tilePassability = Tile::walkableTile;
 }
 
+/** \brief A function which returns a string describing the IO format of the << and >> operators.
+ *
+*/
+string Creature::getFormat()
+{
+	string tempString = "className\tname\tposX\tposY\tposZ\tcolor\tweaponL(";
+	tempString += Weapon::getFormat();
+	tempString += ")\tweaponR(";
+	tempString += Weapon::getFormat();
+	tempString += ")";
+
+	return tempString;
+}
+
 /*! \brief A matched function to transport creatures between files and over the network.
  *
  */

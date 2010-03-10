@@ -109,6 +109,11 @@ unsigned int Seat::checkAllCompletedGoals()
 	return completedGoals.size();
 }
 
+string Seat::getFormat()
+{
+	return "color\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB";
+}
+
 ostream& operator<<(ostream& os, Seat *s)
 {
 	os << s->color << "\t" << s->faction << "\t" << s->startingX << "\t" << s->startingY << "\t";

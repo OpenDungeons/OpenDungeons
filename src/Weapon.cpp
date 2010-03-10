@@ -41,6 +41,11 @@ void Weapon::destroyMesh()
 	//sem_wait(&meshDestructionFinishedSemaphore);
 }
 
+string Weapon::getFormat()
+{
+        return "name\tdamage\trange\tdefense";
+}
+
 ostream& operator<<(ostream& os, Weapon *w)
 {
 	os << w->name << "\t" << w->damage << "\t" << w->range << "\t" << w->defense;

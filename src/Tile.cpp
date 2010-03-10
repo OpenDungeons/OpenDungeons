@@ -273,6 +273,11 @@ Tile::TileClearType Tile::getTilePassability()
 	return impassableTile;
 }
 
+string Tile::getFormat()
+{
+        return "posX\tposY\ttype\tfullness";
+}
+
 /*! \brief The << operator is used for saving tiles to a file and sending them over the net.
  *
  * This operator is used in conjunction with the >> operator to standardize

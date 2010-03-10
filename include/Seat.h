@@ -38,6 +38,7 @@ class Seat
 		double hp;		/**< \brief The amount of 'keeper HP' the player has. */
 		int gold;		/**< \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart. */
 
+		static string getFormat();
 		friend ostream& operator<<(ostream& os, Seat *s);
 		friend istream& operator>>(istream& is, Seat *s);
 

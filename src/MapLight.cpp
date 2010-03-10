@@ -201,6 +201,11 @@ void MapLight::advanceFlicker(double time)
 	queueRenderRequest(request);
 }
 
+string MapLight::getFormat()
+{
+        return "posX\tposY\tposZ\tdiffuseR\tdiffuseG\tdiffuseB\tspecularR\tspecularG\tspecularB\tattenRange\tattenConst\tattenLin\tattenQuad";
+}
+
 ostream& operator<<(ostream& os, MapLight *m)
 {
 	os << m->position.x << "\t" << m->position.y << "\t" << m->position.z << "\t";

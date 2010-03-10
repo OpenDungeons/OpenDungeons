@@ -68,6 +68,7 @@ class Tile
 		unsigned int numPlayersMarkingTile();
 		Player* getPlayerMarkingTile(int index);
 
+		static string getFormat();
 		friend ostream& operator<<(ostream& os, Tile *t);
 		friend istream& operator>>(istream& is, Tile *t);
 

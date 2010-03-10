@@ -13,6 +13,7 @@ class Room
 	public:
 		// Constructors and operators
 		Room();
+		static string getFormat();
 		friend ostream& operator<<(ostream& os, Room *r);
 		friend istream& operator>>(istream& is, Room *r);
 
