@@ -514,6 +514,9 @@ bool Tile::getSelected()
  */
 void Tile::setMarkedForDigging(bool s, Player *p)
 {
+	if(s && (type != dirt && type != gold))
+		return;
+
 	Entity *ent;
 	char tempString[255];
 	char tempString2[255];

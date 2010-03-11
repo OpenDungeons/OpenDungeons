@@ -1221,10 +1221,14 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		// If no creatures are under the  mouse run through the list again to check for lights
 		if(serverSocket == NULL && clientSocket == NULL)
 		{
+			//FIXME: These other code blocks that loop over the result list should probably use this same loop structure.
 			itr = result.begin( );
 			while(itr != result.end())
 			{
 				itr++;
+				if(itr == result.end())
+					break;
+
 				if(itr->movable != NULL)
 				{
 					resultName = itr->movable->getName();

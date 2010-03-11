@@ -797,7 +797,6 @@ claimTileBreakStatement:
 					{
 						setAnimationState("Attack1");
 
-
 						//FIXME: We should only do as much damage as is allowed by the weapon ranges in case one is in range and one is not.
 						double damageDone = weaponL->damage + weaponR->damage;
 						damageDone = randomInt(0, (int)damageDone);
@@ -1092,9 +1091,13 @@ vector<Creature*> Creature::getEnemiesInRange(const vector<Creature*> &enemiesTo
 	for(unsigned int i = 0; i < enemiesToCheck.size(); i++)
 	{
 		Tile *tempTile = enemiesToCheck[i]->positionTile();
-		double rSquared = powl(myTile->x - tempTile->x, 2.0) + powl(myTile->y - tempTile->y, 2.0);
-		if(rSquared < weaponRangeSquared)
-			tempVector.push_back(enemiesToCheck[i]);
+		if(tempTile != NULL)
+		{
+			double rSquared = powl(myTile->x - tempTile->x, 2.0) + powl(myTile->y - tempTile->y, 2.0);
+
+			if(rSquared < weaponRangeSquared)
+				tempVector.push_back(enemiesToCheck[i]);
+		}
 	}
 
 	return tempVector;
