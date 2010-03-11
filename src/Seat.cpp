@@ -3,8 +3,10 @@
 Seat::Seat()
 {
 	mana = 1000;
+	manaDelta = 0;
 	hp = 1000;
 	gold = 500;
+	numClaimedTiles = 0;
 }
 
 /** \brief Adds a goal to the vector of goals which must be completed by this seat before it can be declared a winner.

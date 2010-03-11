@@ -80,6 +80,8 @@ class GameMap
 		Seat* popFilledSeat();
 		unsigned int numFilledSeats();
 
+		Seat* getSeatByColor(int color);
+
 		void addWinningSeat(Seat *s);
 		Seat* getWinningSeat(unsigned int index);
 		unsigned int getNumWinningSeats();

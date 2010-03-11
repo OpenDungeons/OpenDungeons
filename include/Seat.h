@@ -35,8 +35,10 @@ class Seat
 		int startingY;		/**< \brief The starting camera location (in tile coordinates) of this seat. */
 		Ogre::ColourValue colourValue;		/**< \brief The actual color that this color index translates into. */
 		double mana;		/**< \brief The amount of 'keeper mana' the player has. */
+		double manaDelta;	/**< \brief The amount of 'keeper mana' the player gains/loses per turn, updated in GameMap::doTurn(). */
 		double hp;		/**< \brief The amount of 'keeper HP' the player has. */
 		int gold;		/**< \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart. */
+		unsigned int numClaimedTiles;	/**< \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn(). */
 
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Seat *s);

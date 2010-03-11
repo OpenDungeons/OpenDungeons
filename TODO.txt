@@ -94,8 +94,9 @@
 *  read/write the current HP.
 
 *  implement history on the terminal.
-
 *  implement line editing on the terminal.
+	Both of these will be fixed by moving to a better terminal, see:
+	http://www.ogre3d.org/wiki/index.php/CodeSnippits#Console
 
 +  Add a keyboard controls help message under "help keys".
 

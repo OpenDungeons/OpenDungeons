@@ -847,7 +847,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/ManaDisplay");
 		tempSS.str("");
-		tempSS << "Mana\n" << gameMap.me->seat->mana;
+		Seat *tempSeat = gameMap.me->seat;
+		tempSS << "Mana\n" << tempSeat->mana << "\n" << (tempSeat->manaDelta >= 0 ? "+" : "-") << tempSeat->manaDelta;
 		tempWindow->setText(tempSS.str());
 	}
 

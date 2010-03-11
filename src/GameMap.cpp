@@ -325,6 +325,7 @@ void GameMap::doTurn()
 	// Local variables
 	double tempDouble;
 	Seat *tempSeat;
+	Tile *tempTile;
 
 	sem_wait(&creatureAISemaphore);
 
@@ -382,12 +383,40 @@ void GameMap::doTurn()
 		}
 	}
 
+	// Determine the number of tiles claimed by each seat.
+	// Begin by setting the number of claimed tiles for each seat to 0.
+	for(unsigned int i = 0; i < filledSeats.size(); i++)
+		filledSeats[i]->numClaimedTiles = 0;
+
+	for(unsigned int i = 0; i < emptySeats.size(); i++)
+		emptySeats[i]->numClaimedTiles = 0;
+
+	// Now loop over all the tiles, if the tile is claimed increment the given seats count.
+	map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
+	while(currentTile != tiles.end())
+	{
+		tempTile = currentTile->second;
+
+		// Check to see if the current tile is claimed by anyone.
+		if(tempTile->getType() == Tile::claimed)
+		{
+			// Increment the count of the seat who owns the tile.
+			tempSeat = getSeatByColor(tempTile->color);
+			if(tempSeat != NULL)
+				tempSeat->numClaimedTiles++;
+		}
+
+		currentTile++;
+	}
+	
 	// Carry out the upkeep round for each seat.  This means recomputing how much gold is
 	// available in their treasuries, how much mana they gain/lose during this turn, etc.
 	for(unsigned int i = 0; i < filledSeats.size(); i++)
 	{
 		tempSeat = filledSeats[i];
-		tempSeat->mana += 50;
+		cout << "\nSeat " << i << " has " << tempSeat->numClaimedTiles << " claimed tiles.";
+		tempSeat->manaDelta = 50 + tempSeat->numClaimedTiles;
+		tempSeat->mana += tempSeat->manaDelta;
 		if(tempSeat->mana > 250000)
 			tempSeat->mana = 250000;
 	}
@@ -690,6 +719,7 @@ Player* GameMap::getPlayer(int index)
 	return players[index];
 }
 
+//FIXME: This function is deprecated by getSeatByColor() and calls to this should likely be replaced by that function.
 Player* GameMap::getPlayerByColour(int colour)
 {
 	for(unsigned int i = 0; i < players.size(); i++)
@@ -1078,6 +1108,23 @@ Seat* GameMap::popFilledSeat()
 unsigned int GameMap::numFilledSeats()
 {
 	return filledSeats.size();
+}
+
+Seat* GameMap::getSeatByColor(int color)
+{
+	for(unsigned int i = 0; i < filledSeats.size(); i++)
+	{
+		if(filledSeats[i]->color == color)
+			return filledSeats[i];
+	}
+
+	for(unsigned int i = 0; i < emptySeats.size(); i++)
+	{
+		if(emptySeats[i]->color == color)
+			return emptySeats[i];
+	}
+
+	return NULL;
 }
 
 void GameMap::addWinningSeat(Seat *s)

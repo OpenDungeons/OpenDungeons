@@ -500,6 +500,7 @@ void Creature::doTurn()
 						// If the current neigbor is claimable, walk into it and skip to the end of this turn
 						tempInt = randomUint(0, neighbors.size()-1);
 						tempTile = neighbors[tempInt];
+						//NOTE:  I don't think the "colorDouble" check should happen here.
 						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->color != color || tempTile->colorDouble < 1.0))
 						{
 							// The neighbor tile is a potential candidate for claiming, to be an actual candidate
@@ -1386,6 +1387,7 @@ bool Creature::getHasVisualDebuggingEntities()
 /*! \brief Returns the first player whose color matches this creature's color.
  *
 */
+//FIXME: This should be made into getControllingSeat(), when this is done it can simply be a call to GameMap::getSeatByColor().
 Player* Creature::getControllingPlayer()
 {
 	Player *tempPlayer;
