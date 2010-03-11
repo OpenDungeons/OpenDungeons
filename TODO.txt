@@ -66,10 +66,6 @@
 +  displayed, make this also display the number of MapLights, etc.  Possibly
 +  make the save command do the same.
 
-*  Optimize GameMap::neighborTiles() to make it just return the neighborTiles
-*  vector from the tile class, note this will require making the tile class
-*  properly maintain the state of this vector.
-
 +  Add a vector of failedGoals to the Seat class similar to completedGoals.
 
 +  Add a vector of sub goals to the Goal class which are added to the queue

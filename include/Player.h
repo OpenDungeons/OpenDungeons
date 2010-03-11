@@ -32,6 +32,9 @@ class Player
 		Creature *getCreatureInHand(int i);
 		void pickUpCreature(Creature *c);
 		bool dropCreature(Tile *t);
+		void rotateCreaturesInHand(int n);
+
+		// Public data members
 		Seat *seat;
 
 	private:

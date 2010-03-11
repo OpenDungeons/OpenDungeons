@@ -3,6 +3,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <stdlib.h>
 using namespace std;
 
 #include "Functions.h"
@@ -151,8 +152,34 @@ unsigned int GameMap::numTiles()
  */
 void GameMap::addTile(Tile *t)
 {
+	// Notify the neighbor tiles already existing on the GameMap of our existance.
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		int tempX = t->x, tempY = t->y;
+		switch(i)
+		{
+			break;
+			case 0:  tempX++;  break;
+			case 1:  tempY++;  break;
+			case 2:  tempX--;  break;
+			case 3:  tempY--;  break;
+
+			default:
+				 cerr << "\n\n\nERROR:  Unknown neighbor index.\n\n\n";
+				 exit(1);
+		}
+
+		// If the current neigbor tile exists, add the current tile as one of its
+		// neighbors and add it as one of the current tile's neighbors.
+		Tile *tempTile = getTile(tempX, tempY);
+		if(tempTile != NULL)
+		{
+			tempTile->addNeighbor(t);
+			t->addNeighbor(tempTile);
+		}
+	}
+
 	tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(t->x,t->y), t) );
-	//tiles.push_back(t);
 }
 
 /*! \brief Adds the address of a new class description to be stored in this GameMap.
@@ -659,39 +686,12 @@ TileMap_t::iterator GameMap::lastTile()
  */
 vector<Tile*> GameMap::neighborTiles(int x, int y)
 {
-	Tile *t = getTile(x, y);
-	Tile *neighbor;
-	vector<Tile*> neighbors;
-
-	if(t != NULL)
-	{
-		for(int i = 0; i < 4; i++)
-		{
-			int tempX, tempY;
-
-			tempX = x;
-			tempY = y;
-			switch(i)
-			{
-				// Adjacent neighbors
-				case 0: tempX -= 0;  tempY += 1;  break;
-				case 1: tempX -= 0;  tempY -= 1;  break;
-				case 2: tempX -= 1;  tempY += 0;  break;
-				case 3: tempX += 1;  tempY += 0;  break;
-
-				default:
-					cerr << "\n\n\nERROR:  Wrong neighbor index in tile neighbor calculation.\n\n\n";
-					exit(1);
-					break;
-			}
-
-			neighbor = getTile(tempX, tempY);
-			if(neighbor != NULL)
-				neighbors.push_back(neighbor);
-		}
-	}
-
-	return neighbors;
+	vector<Tile*> tempVector;
+	Tile *tempTile = getTile(x, y);
+	if(tempTile != NULL)
+		return tempTile->getAllNeighbors();
+	else
+		return tempVector;
 }
 
 /*! \brief Adds a pointer to a player structure to the players stored by this GameMap.

@@ -68,6 +68,10 @@ class Tile
 		unsigned int numPlayersMarkingTile();
 		Player* getPlayerMarkingTile(int index);
 
+		void addNeighbor(Tile *n);
+		Tile* getNeighbor(unsigned int index);
+		vector<Tile*> getAllNeighbors();
+
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Tile *t);
 		friend istream& operator>>(istream& is, Tile *t);

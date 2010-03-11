@@ -20,7 +20,7 @@ class RenderRequest
 				createCreature, destroyCreature, deleteCreature, setCreatureAnimationState,
 				createCreatureVisualDebug, destroyCreatureVisualDebug,
 				createWeapon, destroyWeapon,
-				pickUpCreature, dropCreature,
+				pickUpCreature, dropCreature, rotateCreaturesInHand,
 				createRoom, destroyRoom, deleteRoom,
 				createMapLight, updateMapLight, destroyMapLight, destroyMapLightVisualIndicator, deleteMapLight,
 				createField, refreshField, destroyField,

@@ -30,7 +30,20 @@ Creature* Player::getCreatureInHand(int i)
 */ 
 void Player::addCreatureToHand(Creature *c)
 {
-	creaturesInHand.push_back(c);
+	if(creaturesInHand.size() == 0)
+	{
+		creaturesInHand.push_back(c);
+	}
+	else
+	{
+		//creaturesInHand.push_front(c);
+		// Since vectors have no push_front method we need to move all of the elements in the vector back one and then add this one to the beginning.
+		creaturesInHand.push_back(NULL);
+		for(unsigned int j = creaturesInHand.size()-1; j > 0; j--)
+			creaturesInHand[j] = creaturesInHand[j-1];
+
+		creaturesInHand[0] = c;
+	}
 }
 
 /*! \brief Check to see if it is the user or another player picking up the creature and act accordingly.
@@ -222,5 +235,43 @@ bool Player::dropCreature(Tile *t)
 	}
 
 	return false;
+}
+
+void Player::rotateCreaturesInHand(int n)
+{
+	Creature *tempCreature;
+
+	// If there are no creatures or only one creature in our hand, rotation doesn't change the order.
+	if(creaturesInHand.size() < 2)
+		return;
+
+	for(unsigned int i = 0; i < (unsigned int)fabs(n); i++)
+	{
+		if(n > 0)
+		{
+			tempCreature = creaturesInHand.back();
+
+			//creaturesInHand.push_front(tempCreature);
+			// Since vectors have no push_front method we need to move all of the elements in the vector back one and then add this one to the beginning.
+			for(unsigned int j = creaturesInHand.size()-1; j > 0; j--)
+				creaturesInHand[j] = creaturesInHand[j-1];
+
+			creaturesInHand[0] = tempCreature;
+
+		}
+		else
+		{
+			tempCreature = creaturesInHand.front();
+			creaturesInHand.erase(creaturesInHand.begin());
+			creaturesInHand.push_back(tempCreature);
+		}
+	}
+
+	// Send a render request to move the crature into the "hand"
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::rotateCreaturesInHand;
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 

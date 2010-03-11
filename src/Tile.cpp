@@ -668,3 +668,18 @@ Player* Tile::getPlayerMarkingTile(int index)
 	return playersMarkingTile[index];
 }
 
+void Tile::addNeighbor(Tile *n)
+{
+	neighbors.push_back(n);
+}
+
+Tile* Tile::getNeighbor(unsigned int index)
+{
+	return neighbors[index];
+}
+
+vector<Tile*> Tile::getAllNeighbors()
+{
+	return neighbors;
+}
+

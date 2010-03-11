@@ -622,9 +622,15 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				// Attatch the creature to the hand scene node
 				mSceneMgr->getSceneNode("Hand_node")->addChild(node);
-				tempInt = gameMap.me->numCreaturesInHand();
-				node->setPosition(tempInt%6 + 1, (tempInt/(int)6), 0.0);
 				node->scale(0.333, 0.333, 0.333);
+
+				// Move the other creatures in the player's hand to make room for the one just picked up.
+				for(unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); i++)
+				{
+					curCreature = gameMap.me->getCreatureInHand(i);
+					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
+					node->setPosition(i%6 + 1, (i/(int)6), 0.0);
+				}
 				break;
 
 			case RenderRequest::dropCreature:
@@ -643,6 +649,16 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				for(unsigned int i = 0; i < curPlayer->numCreaturesInHand(); i++)
 				{
 					curCreature = curPlayer->getCreatureInHand(i);
+					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
+					node->setPosition(i%6 + 1, (i/(int)6), 0.0);
+				}
+				break;
+
+			case RenderRequest::rotateCreaturesInHand:
+				// Loop over the creatures in our hand and redraw each of them in their new location.
+				for(unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); i++)
+				{
+					curCreature = gameMap.me->getCreatureInHand(i);
 					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
 					node->setPosition(i%6 + 1, (i/(int)6), 0.0);
 				}
@@ -1088,6 +1104,17 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 		MapLight *tempMapLight = gameMap.getMapLight(draggedMapLight);
 		if(tempMapLight != NULL)
 			tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
+	}
+
+	// Check the scroll wheel.
+	if(arg.state.Z.rel > 0)
+	{
+		gameMap.me->rotateCreaturesInHand(1);
+	}
+
+	if(arg.state.Z.rel < 0)
+	{
+		gameMap.me->rotateCreaturesInHand(-1);
 	}
 
 	return true;
