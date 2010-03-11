@@ -58,6 +58,9 @@
 +  like it does for rooms, etc.
 
 --------------- FEATURE ADDITIONS: ---------------
++  Overload the GameMap::path() command to allow the calculation paths between a
++  pair of creature, a creature and a tile,  etc.
+
 +  Add a parameter to the GameMap class to store the name of the map that was
 +  loaded and make the terminal commands load/save automatically use this name
 +  unless another level name is provided.

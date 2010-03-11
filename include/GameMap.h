@@ -22,6 +22,8 @@ typedef map< pair<int,int>, Tile*> TileMap_t;
 class GameMap
 {
 	public:
+		GameMap();
+
 		void createNewMap(int xSize, int ySize);
 		void createAllEntities();
 		void clearAll();
@@ -100,6 +102,8 @@ class GameMap
 		bool pathIsClear(list<Tile*> path, Tile::TileClearType passability);
 		void cutCorners(list<Tile*> &path, Tile::TileClearType passability);
 
+		int uniqueFloodFillColor();
+
 		Player *me;
 
 	private:
@@ -114,6 +118,7 @@ class GameMap
 		vector<Seat*> filledSeats;
 		vector<Seat*> winningSeats;
 		vector<Goal*> goalsForAllSeats;
+		int nextUniqueFloodFillColor;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.

@@ -35,6 +35,8 @@ class Creature
 		double sightRadius;		// The inner radius where the creature sees everything
 		double digRate;			// Fullness removed per turn of digging
 		double danceRate;		// How much the danced upon tile's color changes per turn of dancing
+		unsigned int level;
+		double exp;
 
 		// Individual properties
 		string name;			// The creature's unique name
@@ -64,7 +66,7 @@ class Creature
 		vector<Creature*> visibleAllies;
 		void updateVisibleTiles();
 		vector<Creature*> getVisibleEnemies();
-		vector<Creature*> getReachableCreatures(const vector<Creature*> &creaturesToCheck);
+		vector<Creature*> getReachableCreatures(const vector<Creature*> &creaturesToCheck, unsigned int *minRange, Creature **nearestCreature);
 		vector<Creature*> getEnemiesInRange(const vector<Creature*> &enemiesToCheck);
 		vector<Creature*> getVisibleAllies();
 		vector<Tile*> getVisibleMarkedTiles();

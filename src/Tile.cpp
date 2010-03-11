@@ -14,6 +14,7 @@ Tile::Tile()
 	rotation = 0.0;
 	color = 0;
 	colorDouble = 0.0;
+	floodFillColor = -1;
 	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 }
@@ -24,6 +25,7 @@ Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 	color = 0;
 	colorDouble = 0.0;
+	floodFillColor = -1;
 	selected = false;
 	markedForDigging = false;
 	x = nX;
@@ -69,6 +71,9 @@ Tile::TileType Tile::getType()
 void Tile::setFullness(int f)
 {
 	fullness = f;
+
+	if(fullness < 0.1 && floodFillColor < 0)
+		floodFillColor = gameMap.uniqueFloodFillColor();
 
 	int tempInt;
 

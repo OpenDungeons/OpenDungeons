@@ -10,6 +10,11 @@ using namespace std;
 #include "Defines.h"
 #include "GameMap.h"
 
+GameMap::GameMap()
+{
+	nextUniqueFloodFillColor = 1;
+}
+
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
  *
  * The new map consists entirely of the same kind of tile, with no creature
@@ -153,6 +158,7 @@ unsigned int GameMap::numTiles()
 void GameMap::addTile(Tile *t)
 {
 	// Notify the neighbor tiles already existing on the GameMap of our existance.
+	bool allNeighborsSameColor = true;
 	for(unsigned int i = 0; i < 4; i++)
 	{
 		int tempX = t->x, tempY = t->y;
@@ -176,7 +182,11 @@ void GameMap::addTile(Tile *t)
 		{
 			tempTile->addNeighbor(t);
 			t->addNeighbor(tempTile);
+
+			allNeighborsSameColor = allNeighborsSameColor && (tempTile->floodFillColor == t->floodFillColor);
 		}
+
+		cout << "\nAll neighbors same color = " << allNeighborsSameColor;
 	}
 
 	tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(t->x,t->y), t) );
@@ -401,6 +411,7 @@ void GameMap::doTurn()
 			// when it is safe, i.e. all other pointers to it have been wiped from the program.
 			cout << "\nMoving creature " << tempCreature->name << " from the game map to the deletion list.";
 			cout.flush();
+			tempCreature->setAnimationState("Die");
 			removeCreature(tempCreature);
 			queueCreatureForDeletion(tempCreature);
 		}
@@ -1189,5 +1200,11 @@ void GameMap::clearGoalsForAllSeats()
 		filledSeats[i]->clearGoals();
 		filledSeats[i]->clearCompletedGoals();
 	}
+}
+
+int GameMap::uniqueFloodFillColor()
+{
+	nextUniqueFloodFillColor++;
+	return nextUniqueFloodFillColor;
 }
 

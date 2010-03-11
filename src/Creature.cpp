@@ -22,6 +22,8 @@ Creature::Creature()
 	scale = Ogre::Vector3(1,1,1);
 	sightRadius = 10.0;
 	digRate = 10.0;
+	exp = 0.0;
+	level = 1;
 	danceRate = 0.35;
 	destinationX = 0;
 	destinationY = 0;
@@ -53,6 +55,8 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	mana = nMana;
 	sightRadius = nSightRadius;
 	digRate = nDigRate;
+	exp = 0.0;
+	level = 1;
 	moveSpeed = nMoveSpeed;
 	tilePassability = Tile::walkableTile;
 }
@@ -282,16 +286,27 @@ void Creature::doTurn()
 	bool loopBack;
 	int tempInt;
 	unsigned int tempUnsigned;
+	unsigned int rangeToNearestEnemy;
+	Creature *nearestEnemy;
 	CreatureAction tempAction;
+	Ogre::Vector3 tempVector;
+	Quaternion tempQuat;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
 		return;
 
+	// Check to see if we have earned enough experience to level up.
+	if(exp >= 5*level + 5*powl(level/3, 2))
+	{
+		level++;
+		cout << "\n\n" << name << " has reached level " << level << "\n\n";
+	}
+
 	// Look at the surrounding area
 	updateVisibleTiles();
 	visibleEnemies = getVisibleEnemies();
-	reachableEnemies = getReachableCreatures(visibleEnemies);
+	reachableEnemies = getReachableCreatures(visibleEnemies, &rangeToNearestEnemy, &nearestEnemy);
 	enemiesInRange = getEnemiesInRange(visibleEnemies);
 	visibleAllies = getVisibleAllies();
 	if(digRate > 0.1)
@@ -324,8 +339,11 @@ void Creature::doTurn()
 		// If we are not already fighting with a creature or maneuvering then start doing so.
 		if(!alreadyFighting)
 		{
-			tempAction.type = CreatureAction::maneuver;
-			actionQueue.push_front(tempAction);
+			if(randomDouble(0.0, 1.0) < (1.0/(rangeToNearestEnemy) - digRate/100.0))
+			{
+				tempAction.type = CreatureAction::maneuver;
+				actionQueue.push_front(tempAction);
+			}
 		}
 	}
 
@@ -397,6 +415,15 @@ void Creature::doTurn()
 					break;
 
 				case CreatureAction::walkToTile:
+					if(rangeToNearestEnemy < 5)
+					{
+						actionQueue.pop_front();
+						tempAction.type = CreatureAction::maneuver;
+						actionQueue.push_front(tempAction);
+						clearDestinations();
+						loopBack = true;
+					}
+
 					//TODO: Peek at the item that caused us to walk
 					if(actionQueue[1].type == CreatureAction::digTile)
 					{
@@ -755,8 +782,6 @@ claimTileBreakStatement:
 					break;
 
 				case CreatureAction::attackCreature:
-					setAnimationState("Attack1");
-
 					// If there are no more enemies which are reachable, stop attacking
 					if(reachableEnemies.size() == 0)
 					{
@@ -770,10 +795,15 @@ claimTileBreakStatement:
 					// Find the first enemy close enough to hit and attack it
 					if(enemiesInRange.size() > 0)
 					{
+						setAnimationState("Attack1");
+
+
 						//FIXME: We should only do as much damage as is allowed by the weapon ranges in case one is in range and one is not.
 						double damageDone = weaponL->damage + weaponR->damage;
 						damageDone = randomInt(0, (int)damageDone);
 						enemiesInRange[0]->hp -= damageDone;
+						exp += 1.0 + 0.2*powl(damageDone, 1.3);
+
 						cout << "\n" << name << " did " << damageDone << " damage to " << enemiesInRange[0]->name;
 						cout << " who now has " << enemiesInRange[0]->hp << "hp";
 
@@ -791,6 +821,22 @@ claimTileBreakStatement:
 
 				case CreatureAction::maneuver:
 					setAnimationState("Walk");
+
+					// Check to see if we should try to strafe the enemy
+					if(randomDouble(0.0, 1.0) < 0.3)
+					{
+						tempVector = nearestEnemy->position - position;
+						tempVector.normalise();
+						tempVector *= randomDouble(0.0, 3.0);
+						tempQuat.FromAngleAxis(Ogre::Degree((randomDouble(0.0, 1.0) < 0.5 ? 90 : 270)), Ogre::Vector3::UNIT_Z);
+						tempTile = gameMap.getTile(positionTile()->x + tempVector.x, positionTile()->y + tempVector.y);
+						if(tempTile != NULL)
+						{
+							tempPath = gameMap.path(positionTile()->x, positionTile()->y, tempTile->x, tempTile->y, tilePassability);
+
+							setWalkPath(tempPath, 2, false);
+						}
+					}
 
 					// If there are no more enemies which are reachable, stop maneuvering.
 					if(reachableEnemies.size() == 0)
@@ -826,7 +872,7 @@ claimTileBreakStatement:
 					tempPath = gameMap.path(positionTile()->x, positionTile()->y, min.first.first + randomDouble(-1.0*tempDouble,tempDouble), min.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
 
 					// Walk a maximum of N tiles before recomputing the destination since we are in combat.
-					tempInt = 5;
+					tempInt = max((double)5, rangeToNearestEnemy/0.4);
 					if(tempPath.size() >= tempInt)
 						tempPath.resize(tempInt);
 
@@ -984,11 +1030,12 @@ vector<Creature*> Creature::getVisibleEnemies()
 /*! \brief Loops over creaturesToCheck and returns a vector containing all the ones which can be reached via a valid path.
  *
 */
-vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creaturesToCheck)
+vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creaturesToCheck, unsigned int *minRange, Creature **nearestCreature)
 {
 	vector<Creature*> tempVector;
 	Tile *myTile = positionTile(), *creatureTile;
 	list<Tile*> tempPath;
+	bool minRangeSet = true;
 
 	// Loop over the vector of creatures we are supposed to check.
 	for(unsigned int i = 0; i < creaturesToCheck.size(); i++)
@@ -999,7 +1046,27 @@ vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creat
 
 		// If the path we found is valid, then add the creature to the ones we return.
 		if(tempPath.size() >= 2)
+		{
 			tempVector.push_back(creaturesToCheck[i]);
+
+			if(minRange != NULL)
+			{
+				if(!minRangeSet)
+				{
+					*nearestCreature = creaturesToCheck[i];
+					*minRange = tempPath.size();
+					minRangeSet = true;
+				}
+				else
+				{
+					if(tempPath.size() < *minRange)
+					{
+						*minRange = tempPath.size();
+						*nearestCreature = creaturesToCheck[i];
+					}
+				}
+			}
+		}
 	}
 
 	return tempVector;

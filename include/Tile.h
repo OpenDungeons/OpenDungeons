@@ -81,6 +81,7 @@ class Tile
 		int x, y;
 		int color;
 		double colorDouble;
+		int floodFillColor;
 		double rotation;
 		string name;
 		sem_t meshCreationFinishedSemaphore;
