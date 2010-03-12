@@ -443,6 +443,15 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				sem_post(&curCreature->meshDestructionFinishedSemaphore);
 				break;
 
+			case RenderRequest::reorientSceneNode:
+				node = (SceneNode*)curReq->p;
+				tempQuaternion = curReq->quaternion;
+
+				if(node != NULL)
+					node->rotate(tempQuaternion);
+
+				break;
+
 			case RenderRequest::createWeapon:
 				curWeapon = (Weapon*)curReq->p;
 				curCreature = (Creature*)curReq->p2;

@@ -24,7 +24,7 @@ class RenderRequest
 				createRoom, destroyRoom, deleteRoom,
 				createMapLight, updateMapLight, destroyMapLight, destroyMapLightVisualIndicator, deleteMapLight,
 				createField, refreshField, destroyField,
-				moveSceneNode,
+				moveSceneNode, reorientSceneNode,
 			      	noRequest};
 
 		RenderRequest();
@@ -35,6 +35,7 @@ class RenderRequest
 		void *p3;
 		string str;
 		Ogre::Vector3 vec;
+		Ogre::Quaternion quaternion;
 		//TODO:  Add a pointer called destroyMe which is used to pass a void pointer which should be deleted after it is used, this can replace the need for str and vec.
 };
 

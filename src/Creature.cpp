@@ -1310,19 +1310,26 @@ void Creature::addDestination(int x, int y)
 		walkDirection = walkQueue.front() - position;
 		walkDirection.normalise();
 
-		//TODO:  this is OGRE rendering code and it should be moved to the RenderRequest system
 		SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
 		Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
 		// Work around 180 degree quaternion rotation quirk
 		if ((1.0f + src.dotProduct(walkDirection)) < 0.0001f)
 		{
+			//FIXME:  this is OGRE rendering code and it should be moved to the RenderRequest system, it is likely the source of a segfault here.
 			node->roll(Degree(180));
 		}
 		else
 		{
 			Quaternion quat = src.getRotationTo(walkDirection);
-			node->rotate(quat);
+
+			RenderRequest *request = new RenderRequest;
+			request->type = RenderRequest::reorientSceneNode;
+			request->p = node;
+			request->quaternion = quat;
+
+			// Add the request to the queue of rendering operations to be performed before the next frame.
+			queueRenderRequest(request);
 		}
 	}
 	else
