@@ -488,28 +488,7 @@ void Creature::doTurn()
 								//cout << "\t\tFound a neighbor that is claimed.";
 								// If we found a neighbor that is claimed for our side than we
 								// can start dancing on this tile
-								if(myTile->color == color)
-								{
-									//cout << "\t\tmyTile is My color.";
-									myTile->colorDouble += danceRate;
-									if(myTile->colorDouble >= 1.0)
-									{
-										// Claim the tile and finish claiming
-										//FIXME:  Change Dig to Dance
-										setAnimationState("Dig");
-										myTile->colorDouble = 1.0;
-										myTile->setType(Tile::claimed);
-									}
-								}
-								else
-								{
-									myTile->colorDouble -= danceRate;
-									if(myTile->colorDouble <= 0.0)
-									{
-										myTile->colorDouble *= -1.0;
-										myTile->color = color;
-									}
-								}
+								myTile->claimForColor(color, danceRate);
 
 								// Since we danced on a tile we are done for this turn
 								goto claimTileBreakStatement;

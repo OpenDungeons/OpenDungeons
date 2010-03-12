@@ -719,6 +719,31 @@ void Tile::addNeighbor(Tile *n)
 	neighbors.push_back(n);
 }
 
+void Tile::claimForColor(int nColor, double nDanceRate)
+{
+	if(nColor == color)
+	{
+		//cout << "\t\tmyTile is My color.";
+		colorDouble += nDanceRate;
+		if(colorDouble >= 1.0)
+		{
+			// Claim the tile.
+			colorDouble = 1.0;
+			setType(Tile::claimed);
+		}
+	}
+	else
+	{
+		colorDouble -= nDanceRate;
+		if(colorDouble <= 0.0)
+		{
+			// The tile is not yet claimed, but it is now our color.
+			colorDouble *= -1.0;
+			color = nColor;
+		}
+	}
+}
+
 Tile* Tile::getNeighbor(unsigned int index)
 {
 	return neighbors[index];

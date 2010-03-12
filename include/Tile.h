@@ -72,6 +72,8 @@ class Tile
 		Tile* getNeighbor(unsigned int index);
 		vector<Tile*> getAllNeighbors();
 
+		void claimForColor(int nColor, double nDanceRate);
+
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Tile *t);
 		friend istream& operator>>(istream& is, Tile *t);

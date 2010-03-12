@@ -429,7 +429,7 @@ void GameMap::doTurn()
 	for(unsigned int i = 0; i < emptySeats.size(); i++)
 		emptySeats[i]->numClaimedTiles = 0;
 
-	// Now loop over all the tiles, if the tile is claimed increment the given seats count.
+	// Now loop over all of the tiles, if the tile is claimed increment the given seats count.
 	map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
 	while(currentTile != tiles.end())
 	{
@@ -441,7 +441,17 @@ void GameMap::doTurn()
 			// Increment the count of the seat who owns the tile.
 			tempSeat = getSeatByColor(tempTile->color);
 			if(tempSeat != NULL)
+			{
 				tempSeat->numClaimedTiles++;
+
+				// Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
+				vector<Tile*> neighbors = neighborTiles((currentTile->second)->x, (currentTile->second)->y);
+				for(unsigned int i = 0; i < neighbors.size(); i++)
+				{
+					if(neighbors[i]->getType() == Tile::dirt && neighbors[i]->getFullness() < 0.1)// && neighbors[i]->colorDouble < 0.8)
+						neighbors[i]->claimForColor(tempSeat->color, 0.04);
+				}
+			}
 		}
 
 		currentTile++;
