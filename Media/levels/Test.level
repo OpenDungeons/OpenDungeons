@@ -11,11 +11,11 @@ Battle # The level to load after this level is complete.
 5	Animals	15	0	0.8	0.8	0
 
 # Goals
-2  # The number of goals to load.
+3  # The number of goals to load.
 # goalName	arguments
-#KillAllEnemies	NULL
+KillAllEnemies	NULL
 ProtectCreature	Knight_001
-ClaimNTiles	20
+ClaimNTiles	250
 
 # Tiles
 2332  # The number of tiles to load.

@@ -867,7 +867,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		CEGUI::WindowManager *windowManager = CEGUI::WindowManager::getSingletonPtr();
 
-		CEGUI::Window *tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/GoldDisplay");
+		CEGUI::Window *tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/TerritoryDisplay");
+		tempSS.str("");
+		tempSS << "Territory\n" << gameMap.me->seat->numClaimedTiles;
+		tempWindow->setText(tempSS.str());
+
+		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/GoldDisplay");
 		tempSS.str("");
 		tempSS << "Gold\n" << gameMap.me->seat->gold;
 		tempWindow->setText(tempSS.str());
