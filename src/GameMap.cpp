@@ -185,11 +185,12 @@ void GameMap::addTile(Tile *t)
 
 			allNeighborsSameColor = allNeighborsSameColor && (tempTile->floodFillColor == t->floodFillColor);
 		}
-
-		cout << "\nAll neighbors same color = " << allNeighborsSameColor;
 	}
 
 	tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(t->x,t->y), t) );
+
+	// Do a flood fill to update the contiguous region touching the tile.
+	doFloodFill(t->x, t->y, Tile::walkableTile, -1);
 }
 
 /*! \brief Adds the address of a new class description to be stored in this GameMap.
@@ -778,6 +779,28 @@ unsigned int GameMap::numPlayers()
 	return players.size();
 }
 
+bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
+{
+	Tile *tempTile1, *tempTile2;
+	tempTile1 = getTile(x1, y1);
+	if(tempTile1)
+	{
+		tempTile2 = getTile(x2, y2);
+		if(tempTile2)
+		{
+			return (tempTile1->floodFillColor == tempTile2->floodFillColor);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
+}
+
 /*! \brief Returns a list of valid tiles along a stright line from (x1, y1) to (x2, y2).
  *
  * This algorithm is from
@@ -1216,5 +1239,30 @@ int GameMap::uniqueFloodFillColor()
 {
 	nextUniqueFloodFillColor++;
 	return nextUniqueFloodFillColor;
+}
+
+unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType passability, int color = -1)
+{
+	unsigned int tilesFlooded = 1;
+
+	if(color < 0)
+		color = uniqueFloodFillColor();
+
+	// Color the current tile.
+	Tile *tempTile = gameMap.getTile(startX, startY);
+	if(tempTile != NULL)
+		tempTile->floodFillColor = color;
+
+	// Get the current tile's neighbors, loop over each of them.
+	vector<Tile*> neighbors = gameMap.neighborTiles(startX, startY);
+	for(unsigned int i = 0; i < neighbors.size(); i++)
+	{
+		if(neighbors[i]->floodFillColor != color)
+		{
+			tilesFlooded += doFloodFill(neighbors[i]->x, neighbors[i]->y, passability, color);
+		}
+	}
+
+	return tilesFlooded;
 }
 

@@ -96,6 +96,7 @@ class GameMap
 		// AI Methods
 		void doTurn();
 
+		bool walkablePathExists(int x1, int y1, int x2, int y2);
 		list<Tile*> path(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
 		vector<Tile*> neighborTiles(int x, int y);
 		list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
@@ -103,6 +104,7 @@ class GameMap
 		void cutCorners(list<Tile*> &path, Tile::TileClearType passability);
 
 		int uniqueFloodFillColor();
+		unsigned int doFloodFill(int startX, int startY, Tile::TileClearType passability, int color);
 
 		Player *me;
 
