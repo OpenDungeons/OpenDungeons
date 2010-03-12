@@ -13,6 +13,7 @@ using namespace std;
 GameMap::GameMap()
 {
 	nextUniqueFloodFillColor = 1;
+	loadNextLevel = false;
 }
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
@@ -365,7 +366,34 @@ void GameMap::doTurn()
 	Seat *tempSeat;
 	Tile *tempTile;
 
+	static int numTurnsToWaitOnLevelLoad = 3;
+
 	sem_wait(&creatureAISemaphore);
+
+	if(loadNextLevel)
+	{
+		if(numCreatures() > 0)
+		{
+			while(numCreatures() > 0)
+			{
+				queueCreatureForDeletion(creatures[0]);
+				removeCreature(creatures[0]);
+			}
+		}
+		else
+		{
+			if(numTurnsToWaitOnLevelLoad > 0)
+			{
+				numTurnsToWaitOnLevelLoad--;
+				return;
+			}
+			else
+			{
+				loadNextLevel = false;
+				readGameMapFromFile((string)"Media/levels/" + nextLevel + ".level");
+			}
+		}
+	}
 
 	cout << "\nStarting creature AI for turn " << turnNumber;
 
@@ -1191,6 +1219,21 @@ Seat* GameMap::getWinningSeat(unsigned int index)
 unsigned int GameMap::getNumWinningSeats()
 {
 	return winningSeats.size();
+}
+
+bool GameMap::seatIsAWinner(Seat *s)
+{
+	bool isAWinner = false;
+	for(unsigned int i = 0; i < getNumWinningSeats(); i++)
+	{
+		if(getWinningSeat(i) == s)
+		{
+			isAWinner = true;
+			break;
+		}
+	}
+
+	return isAWinner;
 }
 
 void GameMap::addGoalForAllSeats(Goal *g)

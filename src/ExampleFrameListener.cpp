@@ -863,6 +863,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// Update the CEGUI displays of gold, mana, etc.
 	if(serverSocket != NULL || clientSocket != NULL)
 	{
+		Seat *mySeat = gameMap.me->seat;
+
 		CEGUI::WindowManager *windowManager = CEGUI::WindowManager::getSingletonPtr();
 
 		CEGUI::Window *tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/GoldDisplay");
@@ -872,9 +874,43 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/ManaDisplay");
 		tempSS.str("");
-		Seat *tempSeat = gameMap.me->seat;
-		tempSS << "Mana\n" << tempSeat->mana << "\n" << (tempSeat->manaDelta >= 0 ? "+" : "-") << tempSeat->manaDelta;
+		tempSS << "Mana\n" << mySeat->mana << "\n" << (mySeat->manaDelta >= 0 ? "+" : "-") << mySeat->manaDelta;
 		tempWindow->setText(tempSS.str());
+
+		// Update the goals display in the message window.
+		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/MessagesDisplayWindow");
+		tempSS.str("");
+		if(serverSocket != NULL || clientSocket != NULL)
+		{
+			bool iAmAWinner = gameMap.seatIsAWinner(gameMap.me->seat);
+
+			if(!iAmAWinner)
+			{
+				// Loop over the list of unmet goals for the seat we are sitting in an print them.
+				tempSS << "Unfinished Goals:\n----------\t-----------\n";
+				for(unsigned int i = 0; i < gameMap.me->seat->numGoals(); i++)
+				{
+					Goal *tempGoal = gameMap.me->seat->getGoal(i);
+					tempSS << tempGoal->getName() << ":\t" << tempGoal->getDescription() << "\n";
+				}
+			}
+
+			// Loop over the list of completed goals for the seat we are sitting in an print them.
+			tempSS << "\n\nCompleted Goals:\n----------\t-----------\n";
+			for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); i++)
+			{
+				Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
+				tempSS << tempGoal->getName() << ":\t" << tempGoal->getSuccessMessage() << "\n";
+			}
+
+			if(iAmAWinner)
+			{
+				tempSS << "\nCongratulations, you have completed this level.\nOpen the terminal and run the \'next\'\n";
+				tempSS << "command to move on to move on to the next level.\n\nThe next level is:  " << gameMap.nextLevel;
+			}
+		}
+		tempWindow->setText(tempSS.str());
+
 	}
 
 	//Need to capture/update each device
@@ -2595,6 +2631,20 @@ void ExampleFrameListener::executePromptCommand()
 			{
 				commandOutput = "You are not connected to a server and you are not hosting a server.";
 			}
+		}
+	}
+
+	// Load the next level.
+	else if(command.compare("next") == 0)
+	{
+		if(gameMap.seatIsAWinner(gameMap.me->seat))
+		{
+			gameMap.loadNextLevel = true;
+			commandOutput = (string)"Loading level Media/levels/" + gameMap.nextLevel + ".level";
+		}
+		else
+		{
+			commandOutput = "You have not completed this level yet.";
 		}
 	}
 

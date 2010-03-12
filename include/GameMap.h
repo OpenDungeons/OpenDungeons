@@ -87,6 +87,7 @@ class GameMap
 		void addWinningSeat(Seat *s);
 		Seat* getWinningSeat(unsigned int index);
 		unsigned int getNumWinningSeats();
+		bool seatIsAWinner(Seat *s);
 
 		void addGoalForAllSeats(Goal *g);
 		Goal* getGoalForAllSeats(unsigned int i);
@@ -107,6 +108,8 @@ class GameMap
 		unsigned int doFloodFill(int startX, int startY, Tile::TileClearType passability, int color);
 
 		Player *me;
+		string nextLevel;
+		bool loadNextLevel;
 
 	private:
 		map< pair<int,int>, Tile*> tiles;

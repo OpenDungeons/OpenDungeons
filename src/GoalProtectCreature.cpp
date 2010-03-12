@@ -36,7 +36,7 @@ bool GoalProtectCreature::isUnmet(Seat *s)
 
 string GoalProtectCreature::getSuccessMessage()
 {
-	return (string)"The creature " + creatureName + " is still alive, keep protecting it.";
+	return creatureName + " is still alive";
 }
 
 string GoalProtectCreature::getDescription()
