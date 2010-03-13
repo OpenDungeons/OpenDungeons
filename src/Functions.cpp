@@ -81,6 +81,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the map tiles from disk
 	levelFile >> objectsToLoad;
+	gameMap.disableFloodFill();
 	for(int i = 0; i < objectsToLoad; i++)
 	{
 		//NOTE: This code is duplicated in the client side method
@@ -91,6 +92,7 @@ bool readGameMapFromFile(string fileName)
 
 		gameMap.addTile(tempTile);
 	}
+	gameMap.enableFloodFill();
 
 	// Loop over all the tiles and force them to examine their
 	// neighbors.  This allows them to switch to a mesh with fewer

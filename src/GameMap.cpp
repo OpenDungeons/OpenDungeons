@@ -14,6 +14,8 @@ GameMap::GameMap()
 {
 	nextUniqueFloodFillColor = 1;
 	loadNextLevel = false;
+	floodFillEnabled = false;
+	numCallsTo_path = 0;
 }
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
@@ -189,9 +191,6 @@ void GameMap::addTile(Tile *t)
 	}
 
 	tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(t->x,t->y), t) );
-
-	// Do a flood fill to update the contiguous region touching the tile.
-	doFloodFill(t->x, t->y, Tile::walkableTile, -1);
 }
 
 /*! \brief Adds the address of a new class description to be stored in this GameMap.
@@ -396,6 +395,7 @@ void GameMap::doTurn()
 	}
 
 	cout << "\nStarting creature AI for turn " << turnNumber;
+	unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
 	// Remove meshes for creatures who died last turn.
 	//FIXME: The deletion queue should be (Creature*,turnNumber) pairs and the given creatures should only be deleted when all threads have reported that they have entirely purged all references and pointers for the turn when the creature was put into the queue.
@@ -498,6 +498,8 @@ void GameMap::doTurn()
 			tempSeat->mana = 250000;
 	}
 
+	cout << "\nDuring this turn there were " << numCallsTo_path-numCallsTo_path_atStart << " calls to GameMap::path().";
+
 	sem_post(&creatureAISemaphore);
 }
 
@@ -514,6 +516,8 @@ void GameMap::doTurn()
  */
 list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
 {
+	numCallsTo_path++;
+
 	//TODO:  Make the openList a priority queue sorted by the cost to improve lookup times on retrieving the next open item.
 	list<Tile*> returnList;
 	astarEntry *currentEntry;
@@ -534,6 +538,10 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	// If the end tile was not found return an empty path
 	destination = getTile(x2, y2);
 	if(destination == NULL)
+		return returnList;
+
+	// If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are colored differently.
+	if(floodFillEnabled && passability == Tile::walkableTile && !walkablePathExists(x1, y1, x2, y2))
 		return returnList;
 
 	currentEntry->parent = NULL;
@@ -1284,17 +1292,27 @@ int GameMap::uniqueFloodFillColor()
 	return nextUniqueFloodFillColor;
 }
 
-unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType passability, int color = -1)
+unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType passability, int color)
 {
 	unsigned int tilesFlooded = 1;
+
+	if(!floodFillEnabled)
+		return 0;
 
 	if(color < 0)
 		color = uniqueFloodFillColor();
 
-	// Color the current tile.
+	// Check to see if we should color the current tile.
 	Tile *tempTile = gameMap.getTile(startX, startY);
 	if(tempTile != NULL)
-		tempTile->floodFillColor = color;
+	{
+		// If the tile is walkable, color it.
+		//FIXME:  This should be improved to use the "passability" parameter.
+		if(tempTile->getTilePassability() == Tile::walkableTile)
+			tempTile->floodFillColor = color;
+		else
+			return 0;
+	}
 
 	// Get the current tile's neighbors, loop over each of them.
 	vector<Tile*> neighbors = gameMap.neighborTiles(startX, startY);
@@ -1307,5 +1325,38 @@ unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType pa
 	}
 
 	return tilesFlooded;
+}
+
+void GameMap::disableFloodFill()
+{
+	floodFillEnabled = false;
+}
+
+void GameMap::enableFloodFill()
+{
+	Tile *tempTile;
+
+	// Carry out a flood fill of the whole level to make sure everything is good.
+	// Start by setting the flood fill color for every tile on the map to -1.
+	map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
+	while(currentTile != tiles.end())
+	{
+		tempTile = currentTile->second;
+		tempTile->floodFillColor = -1;
+		currentTile++;
+	}
+
+	// Loop over the tiles again, this time flood filling when the flood fill color is -1.  This will flood the map enough times to cover the whole map.
+
+	floodFillEnabled = true;
+	currentTile = tiles.begin();
+	while(currentTile != tiles.end())
+	{
+		tempTile = currentTile->second;
+		if(tempTile->floodFillColor == -1)
+			doFloodFill(tempTile->x, tempTile->y);
+
+		currentTile++;
+	}
 }
 

@@ -254,6 +254,10 @@ void Tile::setFullness(int f)
 			exit(1);
 		}
 	}
+
+	// Do a flood fill to update the contiguous region touching the tile.
+	//TODO:  We only really need to do this when the tile's passability changes.
+	gameMap.doFloodFill(x, y);
 }
 
 /*! \brief An accessor which returns the tile's fullness which should range from 0 to 100.

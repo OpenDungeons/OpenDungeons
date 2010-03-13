@@ -105,7 +105,9 @@ class GameMap
 		void cutCorners(list<Tile*> &path, Tile::TileClearType passability);
 
 		int uniqueFloodFillColor();
-		unsigned int doFloodFill(int startX, int startY, Tile::TileClearType passability, int color);
+		unsigned int doFloodFill(int startX, int startY, Tile::TileClearType passability = Tile::walkableTile, int color = -1);
+		void disableFloodFill();
+		void enableFloodFill();
 
 		Player *me;
 		string nextLevel;
@@ -124,6 +126,9 @@ class GameMap
 		vector<Seat*> winningSeats;
 		vector<Goal*> goalsForAllSeats;
 		int nextUniqueFloodFillColor;
+		bool floodFillEnabled;
+
+		unsigned int numCallsTo_path;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.
