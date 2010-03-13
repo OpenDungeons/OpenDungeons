@@ -368,7 +368,7 @@ void *clientSocketProcessor(void *p)
  */
 void *clientNotificationProcessor(void *p)
 {
-	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
+	//ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
 	string tempString;
 	stringstream tempSS;
 	Tile *tempTile;

@@ -298,7 +298,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Player *curPlayer = NULL;
 		Field *curField = NULL;
 		FieldType::iterator fieldItr;
-		int tempInt, tempX, tempY;
+		int tempX, tempY;
 		double tempDouble, tempDouble2;
 
 		// Remove the first item from the render queue
@@ -793,6 +793,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// visible chat messages at the top of the screen
 	string nullString = "";
 	string turnString = "Turn number:  " + StringConverter::toString(turnNumber);
+	turnString += "\nAverage AI leftover time:  " + StringConverter::toString((Ogre::Real)gameMap.averageAILeftoverTime) + " s ";
+	turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));
 
 	// Update the animations on any creatures who have them
@@ -824,6 +826,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				{
 					// Stop walking
 					currentCreature->stopWalking();
+					currentCreature->setAnimationState(currentCreature->destinationAnimationState);
 				}
 				else // There are still entries left in the queue
 				{

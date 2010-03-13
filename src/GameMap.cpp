@@ -16,6 +16,7 @@ GameMap::GameMap()
 	loadNextLevel = false;
 	floodFillEnabled = false;
 	numCallsTo_path = 0;
+	averageAILeftoverTime = 0.0;
 }
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
@@ -360,8 +361,16 @@ Creature* GameMap::getCreature(string cName)
  */
 void GameMap::doTurn()
 {
+	unsigned int tempUnsigned;
+
+	averageAILeftoverTime = 0.0;
+	for(tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); tempUnsigned++)
+		averageAILeftoverTime += previousLeftoverTimes[tempUnsigned];
+
+	if(tempUnsigned > 0)
+		averageAILeftoverTime /= (double)tempUnsigned;
+
 	// Local variables
-	double tempDouble;
 	Seat *tempSeat;
 	Tile *tempTile;
 
@@ -1286,6 +1295,35 @@ void GameMap::clearGoalsForAllSeats()
 	}
 }
 
+double GameMap::crowDistance(int x1, int x2, int y1, int y2)
+{
+	const double badValue = -1.0;
+	double distance;
+	Tile *t1, *t2;
+
+	t1 = getTile(x1, y1);
+	if(t1 != NULL)
+	{
+		t2 = getTile(x2, y2);
+		if(t2 != NULL)
+		{
+			int xDist, yDist;
+			distance = xDist*xDist + yDist*yDist;
+			distance = sqrt(distance);
+			return distance;
+		}
+		else
+		{
+			return badValue;
+		}
+	}
+	else
+	{
+		return badValue;
+	}
+
+}
+
 int GameMap::uniqueFloodFillColor()
 {
 	nextUniqueFloodFillColor++;
@@ -1358,5 +1396,22 @@ void GameMap::enableFloodFill()
 
 		currentTile++;
 	}
+}
+
+list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability)
+{
+	return path(c1->positionTile()->x, c1->positionTile()->y, c2->positionTile()->x, c2->positionTile()->y, passability);
+}
+
+list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability)
+{
+	return path(t1->x, t1->y, t2->x, t2->y, passability);
+}
+
+double GameMap::crowDistance(Creature *c1, Creature *c2)
+{
+	//TODO:  This is sub-optimal, improve it.
+	Tile *tempTile1 = c1->positionTile(), *tempTile2 = c2->positionTile();
+	return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
 }
 

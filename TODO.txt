@@ -62,7 +62,7 @@
 +  use the passibility of the tile where the fill started.
 
 +  Overload the GameMap::path() command to allow the calculation paths between a
-+  pair of creature, a creature and a tile,  etc.
++  pair of creature, a creature and a tile,  etc, do the same for other functions?
 
 +  Add a parameter to the GameMap class to store the name of the map that was
 +  loaded and make the terminal commands load/save automatically use this name

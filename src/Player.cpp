@@ -130,15 +130,7 @@ void Player::pickUpCreature(Creature *c)
 */ 
 void Player::removeCreatureFromHand(int i)
 {
-	//FIXME:  This loop can be done away with since a vector allows random access.
-	vector<Creature*>::iterator curCreature = creaturesInHand.begin();
-	while(i > 0 && curCreature != creaturesInHand.end())
-	{
-		i--;
-		curCreature++;
-	}
-
-	creaturesInHand.erase(curCreature);
+	creaturesInHand.erase(creaturesInHand.begin()+i);
 }
 
 /*! \brief Check to see the first creatureInHand can be dropped on Tile t and do so if possible.
@@ -147,12 +139,20 @@ void Player::removeCreatureFromHand(int i)
 bool Player::dropCreature(Tile *t)
 {
 
+	Creature *tempCreature;
 	// if we have a creature to drop
 	if(creaturesInHand.size() > 0)
 	{
+		tempCreature = creaturesInHand[0];
+
 		// if the tile is a valid place to drop a creature
 		//FIXME:  This could be a race condition, if the tile state changes on the server before the client knows about it.
-		if(t->getFullness() == 0)
+		if(t->getFullness() == 0 && \
+				(
+					(tempCreature->digRate > 0.1 && t->getType() == Tile::dirt) ||
+					(t->getType() == Tile::claimed && t->color == gameMap.me->seat->color)
+				)
+		  )
 		{
 			// Pause the creature AI thread
 			if(serverSocket != NULL)

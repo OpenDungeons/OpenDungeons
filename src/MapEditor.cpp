@@ -138,11 +138,13 @@ void MapEditor::createScene(void)
 		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"OpenDungeons.layout"); 
 		mSystem->setGUISheet(sheet);
 
+		/*
 		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
 		CEGUI::Window *quitWindow = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/QuitButton");
 
 		//quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&ExampleFrameListener::quit));
-		//quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
+		quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
+		*/
 	}
 	catch (...)
 	{

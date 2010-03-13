@@ -39,6 +39,7 @@ Creature::Creature()
 	weaponR = NULL;
 
 	animationState = NULL;
+	destinationAnimationState = "Idle";
 
 	actionQueue.push_back(CreatureAction(CreatureAction::idle));
 	battleField = new Field("autoname");
@@ -299,8 +300,7 @@ void Creature::doTurn()
 	// Check to see if we have earned enough experience to level up.
 	if(exp >= 5*level + 5*powl(level/3, 2))
 	{
-		level++;
-		cout << "\n\n" << name << " has reached level " << level << "\n\n";
+		doLevelUp();
 	}
 
 	// Look at the surrounding area
@@ -339,7 +339,7 @@ void Creature::doTurn()
 		// If we are not already fighting with a creature or maneuvering then start doing so.
 		if(!alreadyFighting)
 		{
-			if(randomDouble(0.0, 1.0) < (1.0/(rangeToNearestEnemy) - digRate/100.0))
+			if(randomDouble(0.0, 1.0) < (1.0/(rangeToNearestEnemy) - digRate/80.0))
 			{
 				tempAction.type = CreatureAction::maneuver;
 				actionQueue.push_front(tempAction);
@@ -593,7 +593,7 @@ void Creature::doTurn()
 						if(tempTile != NULL)
 						{
 							// If we find a valid path to the tile start walking to it and break
-							tempPath = gameMap.path(myTile->x, myTile->y, tempTile->x, tempTile->y, tilePassability);
+							tempPath = gameMap.path(myTile, tempTile, tilePassability);
 							gameMap.cutCorners(tempPath, tilePassability);
 							if(setWalkPath(tempPath, 2, true))
 							{
@@ -659,6 +659,7 @@ claimTileBreakStatement:
 							// If the tile has been dug out, move into that tile and idle
 							if(creatureNeighbors[i]->getFullness() == 0)
 							{
+								exp += 2;
 								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
 								setAnimationState("Walk");
 
@@ -693,7 +694,7 @@ claimTileBreakStatement:
 						{
 							neighborTile = neighbors[j];
 							if(neighborTile != NULL && neighborTile->getFullness() == 0)
-								possiblePaths.push_back(gameMap.path(positionTile()->x, positionTile()->y, neighborTile->x, neighborTile->y, tilePassability));
+								possiblePaths.push_back(gameMap.path(positionTile(), neighborTile, tilePassability));
 
 						}
 					}
@@ -777,14 +778,21 @@ claimTileBreakStatement:
 						tempCreature = enemiesInRange[0];
 						setAnimationState("Attack1");
 
-						//FIXME: We should only do as much damage as is allowed by the weapon ranges in case one is in range and one is not.
-						double damageDone = weaponL->damage + weaponR->damage;
-						damageDone = randomInt(0, (int)damageDone);
-						damageDone *= log(level);
-						damageDone -= randomDouble(0.0, 1.0)*tempCreature->getDefense();
+						// Calculate how much damage we do.
+						//TODO:  This ignores the range of the creatures, fix this.
+						double damageDone = getHitroll(0); // gameMap.crowDistance(this, tempCreature));
+						damageDone *= randomDouble(0.0, 1.0);
+						damageDone -= powl(randomDouble(0.0, 0.4), 2.0)*tempCreature->getDefense();
+
+						// Make sure the damage is positive.
 						if(damageDone < 0.0)  damageDone = 0.0;
+
+						// Do the damage and award experience points to both creatures.
 						tempCreature->hp -= damageDone;
-						exp += 1.0 + 0.2*powl(damageDone, 1.3);
+						double expGained;
+						expGained = 1.0 + 0.2*powl(damageDone, 1.3);
+						exp += expGained;
+						tempCreature->exp += 0.15*expGained;
 
 						cout << "\n" << name << " did " << damageDone << " damage to " << enemiesInRange[0]->name;
 						cout << " who now has " << enemiesInRange[0]->hp << "hp";
@@ -814,7 +822,7 @@ claimTileBreakStatement:
 						tempTile = gameMap.getTile(positionTile()->x + tempVector.x, positionTile()->y + tempVector.y);
 						if(tempTile != NULL)
 						{
-							tempPath = gameMap.path(positionTile()->x, positionTile()->y, tempTile->x, tempTile->y, tilePassability);
+							tempPath = gameMap.path(positionTile(), tempTile, tilePassability);
 
 							setWalkPath(tempPath, 2, false);
 						}
@@ -854,9 +862,9 @@ claimTileBreakStatement:
 					tempPath = gameMap.path(positionTile()->x, positionTile()->y, min.first.first + randomDouble(-1.0*tempDouble,tempDouble), min.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
 
 					// Walk a maximum of N tiles before recomputing the destination since we are in combat.
-					tempInt = max((double)5, rangeToNearestEnemy/0.4);
-					if(tempPath.size() >= tempInt)
-						tempPath.resize(tempInt);
+					tempUnsigned = max((double)5, rangeToNearestEnemy/0.4);
+					if(tempPath.size() >= tempUnsigned)
+						tempPath.resize(tempUnsigned);
 
 					gameMap.cutCorners(tempPath, tilePassability);
 					setWalkPath(tempPath, 2, true);
@@ -900,6 +908,17 @@ claimTileBreakStatement:
 	}
 }
 
+double Creature::getHitroll(double range)
+{
+	double tempHitroll = 1.0;
+
+	if(weaponL != NULL && weaponL->range >= range)  tempHitroll += weaponL->damage;
+	if(weaponR != NULL && weaponR->range >= range)  tempHitroll += weaponR->damage;
+	tempHitroll *= log(log(level+1)+1);
+
+	return tempHitroll;
+}
+
 double Creature::getDefense()
 {
 	double returnValue = 3.0;
@@ -907,6 +926,17 @@ double Creature::getDefense()
 	if(weaponR != NULL)  returnValue += weaponR->defense;
 
 	return returnValue;
+}
+
+void Creature::doLevelUp()
+{
+	level++;
+	if(digRate > 0.1)
+		digRate *= 1.0 + log(log(level+1)+1);
+
+	if(digRate >= 60)  digRate = 60;
+
+	cout << "\n\n" << name << " has reached level " << level << "\n\n";
 }
 
 /*! \brief Creates a list of Tile pointers in visibleTiles
@@ -1033,7 +1063,7 @@ vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creat
 	{
 		// Try to find a valid path from the tile this creature is in to the tile where the current target creature is standing.
 		creatureTile = creaturesToCheck[i]->positionTile();
-		tempPath = gameMap.path(myTile->x, myTile->y, creatureTile->x, creatureTile->y, tilePassability);
+		tempPath = gameMap.path(myTile, creatureTile, tilePassability);
 
 		// If the path we found is valid, then add the creature to the ones we return.
 		if(tempPath.size() >= 2)
@@ -1495,9 +1525,8 @@ void Creature::clearActionQueue()
 */
 void Creature::computeBattlefield()
 {
-	Tile *myTile, *tempTile, *tempTile2;
+	Tile *myTile, *tempTile;
 	int xDist, yDist;
-	double rSquared;
 
 	// Loop over the tiles in this creature's battleField and compute their value.
 	// The creature will then walk towards the tile with the minimum value to

@@ -56,10 +56,12 @@ class Creature
 		void setPosition(double x, double y, double z);
 		void setPosition(Ogre::Vector3 v);
 		Ogre::Vector3 getPosition();
-		virtual void doTurn();
-		double getDefense();
 
 		// AI stuff
+		virtual void doTurn();
+		double getHitroll(double range);
+		double getDefense();
+		void doLevelUp();
 		vector<Tile*> visibleTiles;
 		vector<Creature*> visibleEnemies;
 		vector<Creature*> reachableEnemies;
@@ -73,12 +75,9 @@ class Creature
 		vector<Tile*> getVisibleMarkedTiles();
 		vector<Creature*> getVisibleForce(int color, bool invert);
 		Tile* positionTile();
-		AnimationState *animationState;
 		void setAnimationState(string s);
 		AnimationState* getAnimationState();
-		double shortDistance;
-		deque<Ogre::Vector3> walkQueue;
-		Ogre::Vector3 walkDirection;
+
 		void addDestination(int x, int y);
 		bool setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop);
 		void clearDestinations();
@@ -95,6 +94,13 @@ class Creature
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Creature *c);
 		friend istream& operator>>(istream& is, Creature *c);
+
+		// Public data members
+		AnimationState *animationState;
+		string destinationAnimationState;
+		double shortDistance;
+		deque<Ogre::Vector3> walkQueue;
+		Ogre::Vector3 walkDirection;
 
 	private:
 		deque<CreatureAction> actionQueue;
