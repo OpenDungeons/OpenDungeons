@@ -1,5 +1,5 @@
 OpenDungeons_Version:0.3.8  # The version of OpenDungeons which created this file (for compatability reasons).
-Battle # The level to load after this level is complete. 
+Battle # The level to load after this level is complete.
 
 # Seats
 5  # The number of seats to load.
@@ -2379,45 +2379,47 @@ Quarters	1
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
 -6	-2	3.75	0.9	0.9	0.9	0.6	0.6	0.6	50	0.005	0.25	0.0013
 3	-8	3.75	0.9	0.9	0.9	0.6	0.6	0.6	50	0.005	0.25	0.0013
--12	5	3.75	0.9	0.9	0.9	0.6	0.6	0.6	50	0.005	0.25	0.0013
+-7	16	3.75	0.9	0.9	0.9	0.6	0.6	0.6	50	0.005	0.25	0.0013
 6	2	3.75	0.9	0.9	0.9	0.6	0.6	0.6	50	0.005	0.25	0.0013
--1	15	3.75	0.9	0.9	0.9	0.6	0.6	0.6	50	0.005	0.25	0.0013
+3	14	3.75	0.9	0.9	0.9	0.6	0.6	0.6	50	0.005	0.25	0.0013
 
 # Creature classes
-8  # The number of creature classes to load.
+9  # The number of creature classes to load.
 # className	meshName	scaleX	scaleY	scaleZ	HP	mana	sightRadius	digRate	moveSpeed
 Wyvern	Wyvern.mesh	1	1	1	27	10	15	0	1.3
 Knight	Knight.mesh	1	1	1	80	3	15	0	1
+BigKnight	Knight.mesh	1.2	1.2	1.2	120	5	15	0	1.2
 Kobold	Kobold.mesh	0.1	0.1	0.1	20	6	15	20	2.5
 Dragon	Dragon.mesh	0.5	0.5	0.5	220	50	15	0	0.9
 Dwarf1	Dwarf1.mesh	1	1	1	80	3	15	0	1
 Dwarf2	Dwarf2.mesh	1	1	1	80	3	15	0	1
 Orc	Orc.mesh	1	1	1	80	3	15	0	1
-Kreatur	Kreatur.mesh	1	1	1	80	15	0	0	1
+Kreatur	Kreatur.mesh	1	1	1	120	15	0	0	1
 
 # Creatures
-22  # The number of creatures to load.
+23  # The number of creatures to load.
 # className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense
-Dwarf1	Dwarf1_001	3	-2	0	2	Sabre	8	2	0	none	0	3	0
+Dwarf1	Dwarf1_001	3	-2	0	2	Sabre	12	2	0	none	0	3	0
 Dwarf1	Dwarf1_002	8	0	0	2	none	8	2	0	none	0	3	0
 Dwarf2	Dwarf2_001	5	-2	0	2	none	8	2	0	none	0	3	0
 Orc	Orc_0001	7	5	0	2	none	8	2	0	none	0	3	0
-Dwarf2	Dwarf2_002	3	4	0	2	none	8	2	0	none	0	3	0
-Dwarf2	Dwarf3_001	9	5	0	2	none	8	2	0	none	0	3	0
-Kreatur	Kreatur_001	8	-6	0	2	none	10	3	0	none	14	3	0
+Dwarf2	Dwarf2_002	3	4	0	2	Longsword	14	2	0	none	0	3	0
+Dwarf2	Dwarf3_001	9	5	0	2	Longsword	8	2	0	Roundshield	0	3	4
+Kreatur	Kreatur_001	8	-6	0	2	none	10	4	0	none	14	4	0
+Kreatur	Kreatur_002	8	6	0	2	none	10	4	0	none	14	4	0
 Kobold	Kobold_010	-14	5	0	1	none	5	3	0	none	0	3	0
-Kobold	Kobold_008	-13	5	0	1	none	5	3	0	none	0	3	0
-Knight	Knight_002	-14	4	0	1	Sabre	8	3	0	Roundshield	0	3	7
-Knight	Knight_005	-13	4	0	1	Longsword	14	3	0	Longsword	14	3	0
+Kobold	Kobold_008	-12	5	0	1	none	5	3	0	none	0	3	0
+BigKnight	Knight_001	-12	1	0	1	Sabre	12	3	0	Roundshield	0	3	7
+Knight	Knight_005	-12	4	0	1	Longsword	14	3	0	Longsword	14	3	0
 Knight	Knight_004	-14	3	0	1	none	7	3	0	none	0	3	0
-Knight	Knight_006	-13	3	0	1	Sabre	8	3	0	none	0	3	0
+Knight	Knight_006	-12	3	0	1	Sabre	8	3	0	none	0	3	0
 Knight	Knight	-14	2	0	1	Sabre	8	3	0	none	0	3	0
-Knight	Knight_007	-13	2	0	1	Sabre	8	3	0	none	0	3	0
-Knight	Knight_003	-13	1	0	1	Longsword	14	3	0	none	0	3	0
-Knight	Knight_001	-14	1	0	1	none	0	3	0	Longsword	14	3	0
-Kobold	Kobold_012	-14	6	0	1	Longsword	14	3	0	Longsword	14	3	0
-Kobold	Kobold_007	-13	6	0	1	none	5	3	0	none	0	3	0
-Dragon	Dragon	-14	-2	0	1	none	10	3	0	none	0	3	0
+Knight	Knight_007	-12	2	0	1	Sabre	8	3	0	none	0	3	0
+Knight	Knight_003	-14	1	0	1	Longsword	14	3	0	none	0	3	0
+Knight	Knight_002	-14	4	0	1	none	0	3	0	Longsword	14	3	0
+Kobold	Kobold_012	-15	7	0	1	Longsword	14	3	0	Longsword	14	3	0
+Kobold	Kobold_007	-12	6	0	1	none	5	3	0	none	0	3	0
+Dragon	Dragon	-13	-1	0	1	none	10	3	0	none	0	3	0
 Kobold	Kobold_009	-14	7	0	1	none	5	3	0	none	0	3	0
-Kobold	Kobold_011	-13	7	0	1	none	5	3	0	none	0	3	0
+Kobold	Kobold_011	-12	7	0	1	none	5	3	0	none	0	3	0
 

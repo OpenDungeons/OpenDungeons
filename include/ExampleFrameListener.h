@@ -47,6 +47,7 @@ using namespace Ogre;
 #include "Socket.h"
 #include "Tile.h"
 #include "ChatMessage.h"
+#include "Room.h"
 
 /*! \brief The main OGRE rendering class.
  *
@@ -134,6 +135,7 @@ protected:
 	Tile::TileType mCurrentTileType;
 	int mCurrentFullness, mCurrentTileRadius;
 	bool mBrushMode;
+	bool addRoomsMode;
 	double frameDelay;
 
 	int mSceneDetailIndex ;
@@ -160,7 +162,7 @@ protected:
 	bool digSetBool;                   // For server mode - hods whether to mark or unmark a tile for digging
 	bool ceguiHasControl, ignoreOneMouseReleased;
 
-	enum DragType {creature, mapLight, tileSelection, tileBrushSelection, nullDragType};
+	enum DragType {creature, mapLight, tileSelection, tileBrushSelection, addNewRoom, nullDragType};
 
 private:
 	bool mContinue;
@@ -169,6 +171,7 @@ private:
 
 	DragType mDragType;
 	string draggedCreature, draggedMapLight;
+	Room::RoomType newRoomType;
 	SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode, *lightSceneNode;
 };
 

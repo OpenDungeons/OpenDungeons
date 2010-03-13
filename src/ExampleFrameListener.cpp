@@ -93,11 +93,13 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	gameMap.me = new Player;
 	gameMap.me->nick = "";
 	mDragType = ExampleFrameListener::nullDragType;
+	newRoomType = Room::quarters;
 	frameDelay = 0.0;
 	mGUIRenderer = renderer;
 	zChange = 0.0;
 	mCurrentTileRadius = 1;
 	mBrushMode = false;
+	addRoomsMode = false;
 	creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
 	roomSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Room_scene_node");
 	fieldSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Field_scene_node");

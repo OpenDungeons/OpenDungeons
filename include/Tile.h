@@ -27,6 +27,7 @@ class Player;
 class Tile
 {
 	public:
+		//TODO:  These should be renumbered to put 0 as the nullTileType, however this will mean converting all the dirt tiles in the level files.
 		enum TileType {dirt=0, gold=1, rock=2, water=3, lava=4, claimed=5, nullTileType};
 		// Changes to this enum must be reflected in Tile::getTilePassability() as well as in GameMap::path()
 		enum TileClearType { impassableTile=0, walkableTile=1, flyableTile=2 };

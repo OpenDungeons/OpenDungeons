@@ -57,6 +57,7 @@ class Creature
 		void setPosition(Ogre::Vector3 v);
 		Ogre::Vector3 getPosition();
 		virtual void doTurn();
+		double getDefense();
 
 		// AI stuff
 		vector<Tile*> visibleTiles;

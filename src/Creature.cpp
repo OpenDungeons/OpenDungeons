@@ -287,7 +287,7 @@ void Creature::doTurn()
 	int tempInt;
 	unsigned int tempUnsigned;
 	unsigned int rangeToNearestEnemy;
-	Creature *nearestEnemy;
+	Creature *tempCreature, *nearestEnemy;
 	CreatureAction tempAction;
 	Ogre::Vector3 tempVector;
 	Quaternion tempQuat;
@@ -774,12 +774,16 @@ claimTileBreakStatement:
 					// Find the first enemy close enough to hit and attack it
 					if(enemiesInRange.size() > 0)
 					{
+						tempCreature = enemiesInRange[0];
 						setAnimationState("Attack1");
 
 						//FIXME: We should only do as much damage as is allowed by the weapon ranges in case one is in range and one is not.
 						double damageDone = weaponL->damage + weaponR->damage;
 						damageDone = randomInt(0, (int)damageDone);
-						enemiesInRange[0]->hp -= damageDone;
+						damageDone *= log(level);
+						damageDone -= randomDouble(0.0, 1.0)*tempCreature->getDefense();
+						if(damageDone < 0.0)  damageDone = 0.0;
+						tempCreature->hp -= damageDone;
 						exp += 1.0 + 0.2*powl(damageDone, 1.3);
 
 						cout << "\n" << name << " did " << damageDone << " damage to " << enemiesInRange[0]->name;
@@ -894,6 +898,15 @@ claimTileBreakStatement:
 			createVisualDebugEntities();
 		}
 	}
+}
+
+double Creature::getDefense()
+{
+	double returnValue = 3.0;
+	if(weaponL != NULL)  returnValue += weaponL->defense;
+	if(weaponR != NULL)  returnValue += weaponR->defense;
+
+	return returnValue;
 }
 
 /*! \brief Creates a list of Tile pointers in visibleTiles
