@@ -9809,19 +9809,19 @@ Orc	Orc.mesh	1	1	1	80	3	15	0	1
 Kreatur	Kreatur.mesh	1	1	1	120	15	0	0	1
 
 # Creatures
-23  # The number of creatures to load.
+26  # The number of creatures to load.
 # className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense
 Dwarf1	Dwarf1_001	-2	-23	0	2	Sabre	12	4	0	none	8	3	0
 Dwarf1	Dwarf1_002	16	-60	0	2	none	8	4	0	none	8	3	0
-Dwarf2	Dwarf2_001	6	4	0	2	none	8	4	0	none	8	3	0
-Orc	Orc_0001	6	-31	0	2	none	8	4	0	none	8	3	0
+Dwarf2	Dwarf2_001	11	-1	0	2	none	8	4	0	none	8	3	0
+Orc	Orc_0001	9	-1	0	2	none	8	4	0	none	8	3	0
 Dwarf2	Dwarf2_002	2	-9	0	2	Longsword	14	4	0	none	8	3	0
 Dwarf2	Dwarf3_001	6	-28	0	2	Longsword	8	4	0	Roundshield	0	3	4
 Kreatur	Kreatur_001	-29	-98	0	2	none	10	4	0	none	14	4	0
 Kreatur	Kreatur_002	-39	-95	0	2	none	10	4	0	none	14	4	0
 Kobold	Kobold_010	-14	5	0	1	none	5	4	0	none	8	3	0
 Kobold	Kobold_008	-12	5	0	1	none	5	4	0	none	8	3	0
-BigKnight	Knight_001	-12	1	0	1	Sabre	12	4	0	Roundshield	0	3	7
+BigKnight	Knight_001	5	6	0	1	Sabre	12	4	0	Roundshield	0	3	7
 Knight	Knight_005	-12	4	0	1	Longsword	14	4	0	Longsword	14	3	0
 Knight	Knight_004	-14	3	0	1	none	7	4	0	none	8	3	0
 Knight	Knight_006	-12	3	0	1	Sabre	8	4	0	none	8	3	0
@@ -9830,8 +9830,11 @@ Knight	Knight_007	-12	2	0	1	Sabre	8	4	0	none	0	3	0
 Knight	Knight_003	-14	1	0	1	Longsword	14	4	0	none	8	3	0
 Knight	Knight_002	-14	4	0	1	none	0	4	0	Longsword	14	3	0
 Kobold	Kobold_012	-15	7	0	1	Longsword	14	4	0	Longsword	14	3	0
-Kobold	Kobold_007	-12	6	0	1	none	5	4	0	none	8	3	0
-Dragon	Dragon	-13	-1	0	1	none	10	4	0	none	8	3	0
+Kobold	Kobold_007	7	5	0	1	none	5	4	0	none	8	3	0
+Dragon	Dragon_001	-14	-1	0	1	none	10	4	0	none	8	3	0
+Dragon	Dragon_002	-12	-2	0	1	none	10	4	0	none	8	3	0
+Dragon	Dragon_003	3	5	0	1	none	10	4	0	none	8	3	0
+Dragon	Dragon_004	-12	-4	0	1	none	10	4	0	none	8	3	0
 Kobold	Kobold_009	-14	7	0	1	none	5	4	0	none	8	3	0
 Kobold	Kobold_011	-12	7	0	1	none	5	4	0	none	8	3	0
 

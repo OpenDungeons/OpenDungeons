@@ -43,7 +43,7 @@ class Creature
 		Weapon *weaponL, *weaponR;	// The weapons the creature is holding
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
-		int hp, mana;			// Basic stats
+		int hp, maxHP, mana, maxMana;			// Basic stats
 		double moveSpeed;		// How fast the creature moves and animates
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.
 		sem_t meshCreationFinishedSemaphore;
@@ -67,6 +67,7 @@ class Creature
 		vector<Creature*> reachableEnemies;
 		vector<Creature*> enemiesInRange;
 		vector<Creature*> visibleAllies;
+		vector<Creature*> reachableAllies;
 		void updateVisibleTiles();
 		vector<Creature*> getVisibleEnemies();
 		vector<Creature*> getReachableCreatures(const vector<Creature*> &creaturesToCheck, unsigned int *minRange, Creature **nearestCreature);
@@ -101,6 +102,7 @@ class Creature
 		double shortDistance;
 		deque<Ogre::Vector3> walkQueue;
 		Ogre::Vector3 walkDirection;
+		SceneNode *sceneNode;
 
 	private:
 		deque<CreatureAction> actionQueue;
@@ -110,6 +112,7 @@ class Creature
 		Tile *previousPositionTile;
 		list<Tile*> visualDebugEntityTiles;
 		Field *battleField;
+		bool meshesExist;
 };
 
 #endif

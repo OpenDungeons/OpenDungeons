@@ -421,6 +421,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				ent = mSceneMgr->createEntity("Creature_" + curCreature->name, curCreature->meshName);
 				//colourizeEntity(ent, curCreature->color);
 				node = creatureSceneNode->createChildSceneNode(curCreature->name + "_node");
+				curCreature->sceneNode = node;
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
@@ -442,6 +443,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->destroyEntity(ent);
 					mSceneMgr->destroySceneNode(curCreature->name + "_node");
 				}
+				curCreature->sceneNode = NULL;
 				sem_post(&curCreature->meshDestructionFinishedSemaphore);
 				break;
 
@@ -451,6 +453,15 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				if(node != NULL)
 					node->rotate(tempQuaternion);
+
+				break;
+
+			case RenderRequest::scaleSceneNode:
+				node = (SceneNode*)curReq->p;
+				tempVector = curReq->vec;
+
+				if(node != NULL)
+					node->scale(tempVector);
 
 				break;
 
@@ -792,9 +803,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// Display the terminal, the current turn number, and the
 	// visible chat messages at the top of the screen
 	string nullString = "";
-	string turnString = "Turn number:  " + StringConverter::toString(turnNumber);
-	turnString += "\nAverage AI leftover time:  " + StringConverter::toString((Ogre::Real)gameMap.averageAILeftoverTime) + " s ";
+	string turnString = "Average AI leftover time:  " + StringConverter::toString((Ogre::Real)fabs(gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
 	turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
+	turnString += "\nTurn number:  " + StringConverter::toString(turnNumber);
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));
 
 	// Update the animations on any creatures who have them

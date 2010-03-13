@@ -24,7 +24,7 @@ class RenderRequest
 				createRoom, destroyRoom, deleteRoom,
 				createMapLight, updateMapLight, destroyMapLight, destroyMapLightVisualIndicator, deleteMapLight,
 				createField, refreshField, destroyField,
-				moveSceneNode, reorientSceneNode,
+				moveSceneNode, reorientSceneNode, scaleSceneNode,
 			      	noRequest};
 
 		RenderRequest();

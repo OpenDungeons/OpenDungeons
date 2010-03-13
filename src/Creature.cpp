@@ -30,6 +30,8 @@ Creature::Creature()
 
 	hp = 10;
 	mana = 10;
+	maxHP = 10;
+	maxMana = 10;
 	sightRadius = 10;
 	digRate = 10;
 	moveSpeed = 1.0;
@@ -41,8 +43,12 @@ Creature::Creature()
 	animationState = NULL;
 	destinationAnimationState = "Idle";
 
+	sceneNode = NULL;
+
 	actionQueue.push_back(CreatureAction(CreatureAction::idle));
 	battleField = new Field("autoname");
+
+	meshesExist = false;
 }
 
 Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed)
@@ -53,13 +59,18 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	scale = nScale;
 
 	hp = nHP;
+	maxHP = nHP;
 	mana = nMana;
+	maxMana = nMana;
 	sightRadius = nSightRadius;
 	digRate = nDigRate;
 	exp = 0.0;
 	level = 1;
 	moveSpeed = nMoveSpeed;
 	tilePassability = Tile::walkableTile;
+
+	sceneNode = NULL;
+	meshesExist = false;
 }
 
 /** \brief A function which returns a string describing the IO format of the << and >> operators.
@@ -131,7 +142,9 @@ istream& operator>>(istream& is, Creature *c)
 		c->sightRadius = creatureClass->sightRadius;
 		c->digRate = creatureClass->digRate;
 		c->hp = creatureClass->hp;
+		c->maxHP = creatureClass->maxHP;
 		c->mana = creatureClass->mana;
+		c->maxMana = creatureClass->maxMana;
 		c->moveSpeed = creatureClass->moveSpeed;
 	}
 
@@ -146,6 +159,9 @@ istream& operator>>(istream& is, Creature *c)
  */
 void Creature::createMesh()
 {
+	if(meshesExist)
+		return;
+
 	//NOTE: I think this line is redundant since the a sem_wait on any previous destruction should return the sem to 0 anyway but this takes care of it in case it is forgotten somehow
 	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
@@ -153,6 +169,8 @@ void Creature::createMesh()
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::createCreature;
 	request->p = this;
+
+	meshesExist = true;
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
@@ -169,6 +187,10 @@ void Creature::createMesh()
  */
 void Creature::destroyMesh()
 {
+	if(!meshesExist)
+		return;
+
+	meshesExist = false;
 	weaponL->destroyMesh();
 	weaponR->destroyMesh();
 
@@ -287,11 +309,21 @@ void Creature::doTurn()
 	bool loopBack;
 	int tempInt;
 	unsigned int tempUnsigned;
-	unsigned int rangeToNearestEnemy;
-	Creature *tempCreature, *nearestEnemy;
+	unsigned int rangeToNearestEnemy, rangeToNearestAlly;
+	Creature *tempCreature, *nearestEnemy, *nearestAlly;
 	CreatureAction tempAction;
 	Ogre::Vector3 tempVector;
 	Quaternion tempQuat;
+
+	// Heal.
+	hp += 0.25;
+	if(hp > maxHP)
+		hp = maxHP;
+	
+	// Regenrate mana.
+	mana += 0.75;
+	if(mana > maxMana)
+		mana = maxMana;
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
@@ -309,6 +341,7 @@ void Creature::doTurn()
 	reachableEnemies = getReachableCreatures(visibleEnemies, &rangeToNearestEnemy, &nearestEnemy);
 	enemiesInRange = getEnemiesInRange(visibleEnemies);
 	visibleAllies = getVisibleAllies();
+	reachableAllies = getReachableCreatures(visibleAllies, &rangeToNearestAlly, &nearestAlly);
 	if(digRate > 0.1)
 		markedTiles = getVisibleMarkedTiles();
 
@@ -393,8 +426,36 @@ void Creature::doTurn()
 					{
 						loopBack = true;
 						actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
-						int tempX = position.x + 2.0*gaussianRandomDouble();
-						int tempY = position.y + 2.0*gaussianRandomDouble();
+
+						// If we are not a worker check to see if there is a nearby worker we can follow around.
+						int tempX, tempY;
+						bool workerFound;
+						if(digRate < 0.1)
+						{
+							workerFound = false;
+							for(unsigned int i = 0; i < reachableAllies.size(); i++)
+							{
+								// Check to see if we found a worker.
+								if(reachableAllies[i]->digRate > 0.1)
+								{
+									tempTile = reachableAllies[i]->positionTile();
+									tempX = tempTile->x + 3.0*gaussianRandomDouble();
+									tempY = tempTile->y + 3.0*gaussianRandomDouble();
+									workerFound = true;
+								}
+
+								// Give up looking for nearby workers with a certain probability for each ally we check.
+								if(randomDouble(0.0, 1.0) < 0.20)
+									break;
+							}
+						}
+
+						if(!workerFound)
+						{
+							tempX = position.x + 2.0*gaussianRandomDouble();
+							tempY = position.y + 2.0*gaussianRandomDouble();
+						}
+
 
 						Tile *tempPositionTile = positionTile();
 						list<Tile*> result;
@@ -937,6 +998,19 @@ void Creature::doLevelUp()
 	if(digRate >= 60)  digRate = 60;
 
 	cout << "\n\n" << name << " has reached level " << level << "\n\n";
+	// Scale up the mesh.
+	if(meshesExist && level < 100)
+	{
+		double scaleFactor = 1.0 + level/200.0;
+		if(scaleFactor > 1.05)  scaleFactor = 1.05;
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::scaleSceneNode;
+		request->p = sceneNode;
+		request->vec = Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor);
+
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
+	}
 }
 
 /*! \brief Creates a list of Tile pointers in visibleTiles

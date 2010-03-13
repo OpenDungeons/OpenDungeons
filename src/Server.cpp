@@ -189,14 +189,16 @@ void *creatureAIThread(void *p)
 		{
 		       	cout << "\nCreature AI finished " << timeTakenString << "us early.\n";
 			usleep(1e6 * timeUntilNextTurn - timeTaken );
-			gameMap.previousLeftoverTimes.push_front(timeTaken);
+			gameMap.previousLeftoverTimes.push_front(timeTaken/(double)1e6);
 		}
 		else
 		{
 			cout << "\nCreature AI finished " << timeTakenString << "us late.\n";
-			gameMap.previousLeftoverTimes.push_front(-1.0*timeTaken);
+			gameMap.previousLeftoverTimes.push_front(-1.0*timeTaken/(double)1e6);
 		}
-		gameMap.previousLeftoverTimes.resize(10);
+
+		if(gameMap.previousLeftoverTimes.size() > 10)
+			gameMap.previousLeftoverTimes.resize(10);
 	}
 
 	// Return something to make the compiler happy
