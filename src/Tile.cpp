@@ -83,13 +83,13 @@ void Tile::setFullness(int f)
 	//
 	bool fillStatus[9];
 	Tile *tempTile = gameMap.getTile(x, y+1);
-	fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
+	fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
 	tempTile = gameMap.getTile(x, y-1);
-	fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
+	fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
 	tempTile = gameMap.getTile(x-1, y);
-	fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
+	fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
 	tempTile = gameMap.getTile(x+1, y);
-	fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
+	fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
 
 	int fullNeighbors = 0;
 	if(fillStatus[0])	fullNeighbors++;
