@@ -1,3 +1,5 @@
+#define snprintf _snprintf
+
 #include <iostream>
 #include <algorithm>
 

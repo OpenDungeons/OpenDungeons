@@ -1,3 +1,5 @@
+#define snprintf _snprintf
+
 #include <math.h>
 #include <algorithm>
 using namespace std;
@@ -1452,7 +1454,7 @@ void Creature::computeBattlefield()
 			// Subtract for the distance from the enemy creature to r
 			xDist = tempTile->x - tempTile2->x;
 			yDist = tempTile->y - tempTile2->y;
-			tileValue -= 1.0 / sqrt(xDist*xDist + yDist*yDist + 1);
+			tileValue -= 1.0 / sqrt((double)(xDist*xDist + yDist*yDist + 1));
 		}
 
 		// Allies
@@ -1466,7 +1468,7 @@ void Creature::computeBattlefield()
 
 			xDist = tempTile->x - tempTile2->x;
 			yDist = tempTile->y - tempTile2->y;
-			tileValue += 0.5 / (sqrt(xDist*xDist + yDist*yDist + 1));
+			tileValue += 0.5 / (sqrt((double)(xDist*xDist + yDist*yDist + 1)));
 		}
 
 		const double jitter = 0.00;

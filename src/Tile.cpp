@@ -1,3 +1,5 @@
+#define snprintf _snprintf
+
 #include "Defines.h"
 #include "Functions.h"
 #include "Tile.h"
