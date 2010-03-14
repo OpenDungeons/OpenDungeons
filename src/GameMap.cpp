@@ -1310,6 +1310,8 @@ double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 		if(t2 != NULL)
 		{
 			int xDist, yDist;
+			xDist = t2->x - t1->x;
+			yDist = t2->y - t1->y;
 			distance = xDist*xDist + yDist*yDist;
 			distance = sqrt(distance);
 			return distance;

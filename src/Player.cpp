@@ -245,7 +245,7 @@ void Player::rotateCreaturesInHand(int n)
 	if(creaturesInHand.size() < 2)
 		return;
 
-	for(unsigned int i = 0; i < (unsigned int)fabs(n); i++)
+	for(unsigned int i = 0; i < (unsigned int)fabs((double)n); i++)
 	{
 		if(n > 0)
 		{

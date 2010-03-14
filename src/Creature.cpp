@@ -977,7 +977,7 @@ double Creature::getHitroll(double range)
 
 	if(weaponL != NULL && weaponL->range >= range)  tempHitroll += weaponL->damage;
 	if(weaponR != NULL && weaponR->range >= range)  tempHitroll += weaponR->damage;
-	tempHitroll *= log(log(level+1)+1);
+	tempHitroll *= log((double)log((double)level+1)+1);
 
 	return tempHitroll;
 }
@@ -995,7 +995,7 @@ void Creature::doLevelUp()
 {
 	level++;
 	if(digRate > 0.1)
-		digRate *= 1.0 + log(log(level+1)+1);
+		digRate *= 1.0 + log((double)log((double)level+1)+1);
 
 	if(digRate >= 60)  digRate = 60;
 
