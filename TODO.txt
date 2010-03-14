@@ -3,7 +3,7 @@
 +  different version of OpenDungeons than the current game the game will print
 +  an error message to the terminal and quit, this should be handled more
 +  gracefully.
-
++
 *  fix keyboard repeat issue (when the game crashes keyboard repeat is disabled
 *  but the OS still thinks it's on, turning it off and then back on again
 *  restores the functionality).  This seems to be a bug in OIS so there might
@@ -22,17 +22,17 @@
 
 +  The client has code to handle when messages are split across packets, but
 +  the server does not.  This needs to be added.
-
++
 +  when the terminal becomes active if a key is held down the keyup message
 +  gets caught by the terminal and the key is "stuck" down.
-
++
 *  Client and server need to negiotiate and set a color for the newly connected
 *  client.
 
 *  Visual debugging entities for creatures dissappear after a short time.
 
 +  Make the terminal "host" command automatically close the terminal.
-
++
 *  When creatures are in the state CreatureAction::maneuver, they sometimes get
 *  "stuck" behind an obstacle since they only locally follow the field
 *  gradient.  This can be fixed by making them make use of GameMap::path() to
@@ -56,37 +56,37 @@
 +  Creature class descriptions don't need to include the ".mesh" on their
 +  meshName in the level file since the game engine could just add this itself
 +  like it does for rooms, etc.
-
---------------- FEATURE ADDITIONS: ---------------
++
++--------------- FEATURE ADDITIONS: ---------------
 +  When doing the floodfill, instead of taking an argument of tile passability,
 +  use the passibility of the tile where the fill started.
-
++
 +  Overload the GameMap::path() command to allow the calculation paths between a
 +  pair of creature, a creature and a tile,  etc, do the same for other functions?
-
++
 +  Add a parameter to the GameMap class to store the name of the map that was
 +  loaded and make the terminal commands load/save automatically use this name
 +  unless another level name is provided.
-
++
 +  When a level is loaded the number of tiles, classes, and creatures loaded is
 +  displayed, make this also display the number of MapLights, etc.  Possibly
 +  make the save command do the same.
-
++
 +  Add a vector of failedGoals to the Seat class similar to completedGoals.
-
++
 +  Add a vector of sub goals to the Goal class which are added to the queue
 +  after the given goal is completed.
-
++
 +  Add a function and a datamember to the Creature class to go into a specified
 +  animation state when the walk queue becomes empty.
-
++
 *  Add tile colors to the level file and network protocols.
 
 *  Add a seperate thread to generate a pool of 5000 or so random numbers for
 *  use when needed and make the randomDouble, etc. functions consumers on this pool.
 
 +  Add terminal command 'ls levels'
-
++
 *  Begin phasing out snprintf since it is not portable.
 
 *  Add a terminal command 'chathelp' which will lookup a help message and then
@@ -101,7 +101,7 @@
 	http://www.ogre3d.org/wiki/index.php/CodeSnippits#Console
 
 +  Add a keyboard controls help message under "help keys".
-
++
 *  add a flyTo method to make the camera fly to a particular location (and
 *  orientation?).
 
@@ -119,7 +119,7 @@
 
 +  Add upkeep rounds to the GameMap::doTurn() method.  This is also somewhat
 +  complete although mana, etc, still need to be added.
-
++
 *  Create various levels of quality for each mesh and make a RenderRequest that
 *  switches to new meshes when some criteria is met (use something stable like
 *  num items onscreen at once to avoid churning between mesh detail levels, or
@@ -131,7 +131,7 @@
 
 +  Add terminal commands to set the max number and max display time of chat
 +  messages.
-
++
 *  Color chat messages with the color of the player who sent them.
 
 *  Make use of std::set instead of std::vector where appropriate.
