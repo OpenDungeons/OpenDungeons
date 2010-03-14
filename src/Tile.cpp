@@ -65,21 +65,56 @@ Tile::TileType Tile::getType()
 /*! \brief A mutator to change how "filled in" the tile is.
  *
  * Additionally this function reloads the proper mesh to display to the user
- * how full the tile is.  In the future this function will also be responsible
- * for determining the orientation of the tile to make corners display
- * correctly.  Both of these tasks are accomplished by setting the
- * fullnessMeshNumber variable which is concatenated to the tile's type to
- * determine the mesh to load, e.g. Rock104.mesh for a rocky tile which has all
- * 4 sides shown because it is an "island" with all four sides visible.
+ * how full the tile is.  It also determines the orientation of the
+ * tile to make corners display correctly.  Both of these tasks are
+ * accomplished by setting the fullnessMeshNumber variable which is
+ * concatenated to the tile's type to determine the mesh to load, e.g.
+ * Rock104.mesh for a rocky tile which has all 4 sides shown because it is an
+ * "island" with all four sides visible.  Claimed102.mesh would be a fully
+ * filled in tile but only two sides are drawn because it borders full tiles on
+ * 2 sides.
  */
 void Tile::setFullness(int f)
 {
+	int oldFullnessMeshNumber = fullnessMeshNumber;
+	TileClearType oldTilePassability = getTilePassability();
+	int tempInt;
+
 	fullness = f;
 
-	if(fullness < 0.1 && floodFillColor < 0)
-		floodFillColor = gameMap.uniqueFloodFillColor();
+	// If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
+	//FIXME:  If other players have it marked for digging, it will not be unmarked for them, we need to write a "setMarkedForDiggingForAllSeats()".
+	if(fullness <= 1 && getMarkedForDigging(gameMap.me) == true)
+	{
+		setMarkedForDigging(false, gameMap.me);
+		fullness = 0.0;
+	}
 
-	int tempInt;
+	// If we are a sever, the clients need to be told about the change to the tile's fullness.
+	if(serverSocket != NULL)
+	{
+		try
+		{
+			// Inform the clients that the fullness has changed.
+			ServerNotification *serverNotification = new ServerNotification;
+			serverNotification->type = ServerNotification::tileFullnessChange;
+			serverNotification->tile = this;
+
+			queueServerNotification(serverNotification);
+		}
+		catch(bad_alloc&)
+		{
+			cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
+			exit(1);
+		}
+	}
+
+	// If the passability has changed we may have opened up new paths on the gameMap.
+	if(oldTilePassability != getTilePassability())
+	{
+		// Do a flood fill to update the contiguous region touching the tile.
+		gameMap.doFloodFill(x, y);
+	}
 
 	// 		4 0 7		    180    
 	// 		2 8 3		270  .  90 
@@ -232,36 +267,11 @@ void Tile::setFullness(int f)
 
 	}
 
-	refreshMesh();
-
-	if(fullness <= 1 && getMarkedForDigging(gameMap.me) == true)
-		setMarkedForDigging(false, gameMap.me);
-
-	if(serverSocket != NULL)
+	// If the mesh has changed it means that a new path may have opened up.
+	if(oldFullnessMeshNumber != fullnessMeshNumber)
 	{
-		try
-		{
-			// Inform the clients that the fullness has changed.
-			ServerNotification *serverNotification = new ServerNotification;
-			serverNotification->type = ServerNotification::tileFullnessChange;
-			serverNotification->tile = this;
-
-			sem_wait(&serverNotificationQueueLockSemaphore);
-			serverNotificationQueue.push_back(serverNotification);
-			sem_post(&serverNotificationQueueLockSemaphore);
-
-			sem_post(&serverNotificationQueueSemaphore);
-		}
-		catch(bad_alloc&)
-		{
-			cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
-			exit(1);
-		}
+		refreshMesh();
 	}
-
-	// Do a flood fill to update the contiguous region touching the tile.
-	//TODO:  We only really need to do this when the tile's passability changes.
-	gameMap.doFloodFill(x, y);
 }
 
 /*! \brief An accessor which returns the tile's fullness which should range from 0 to 100.
@@ -291,7 +301,7 @@ int Tile::getFullnessMeshNumber()
  */
 Tile::TileClearType Tile::getTilePassability()
 {
-	if(fullnessMeshNumber != 0)
+	if(fullness > 0.1)
 		return impassableTile;
 
 	switch(type)

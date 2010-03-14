@@ -57,6 +57,9 @@
 +  meshName in the level file since the game engine could just add this itself
 +  like it does for rooms, etc.
 
+*  Currently tiles are marked for digging on a player-by-player basis but this,
+*  like color, should be moved into the Seat class.
+
 --------------- FEATURE ADDITIONS: ---------------
 +  When doing the floodfill, instead of taking an argument of tile passability,
 +  use the passibility of the tile where the fill started.

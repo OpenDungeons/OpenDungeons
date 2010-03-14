@@ -518,3 +518,12 @@ void queueRenderRequest(RenderRequest *r)
 	sem_post(&renderQueueSemaphore);
 }
 
+void queueServerNotification(ServerNotification *n)
+{
+	sem_wait(&serverNotificationQueueLockSemaphore);
+	serverNotificationQueue.push_back(n);
+	sem_post(&serverNotificationQueueLockSemaphore);
+
+	sem_post(&serverNotificationQueueSemaphore);
+}
+

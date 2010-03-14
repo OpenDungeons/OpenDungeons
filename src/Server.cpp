@@ -165,11 +165,7 @@ void *creatureAIThread(void *p)
 			ServerNotification *serverNotification = new ServerNotification;
 			serverNotification->type = ServerNotification::turnStarted;
 
-			sem_wait(&serverNotificationQueueLockSemaphore);
-			serverNotificationQueue.push_back(serverNotification);
-			sem_post(&serverNotificationQueueLockSemaphore);
-
-			sem_post(&serverNotificationQueueSemaphore);
+			queueServerNotification(serverNotification);
 		}
 		catch(bad_alloc&)
 		{

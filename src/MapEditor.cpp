@@ -56,45 +56,17 @@ void MapEditor::createScene(void)
 
 	// Create the main scene lights
 	mSceneMgr->setAmbientLight(ColourValue(0.3, 0.36, 0.28));
-	/*
-	double mainLightR = .42;
-	double mainLightG = .4;
-	double mainLightB = .35;
-	double mainLightAttenuationD = 300.0;
-	double mainLightAttenuationE = 0.5;
-	double mainLightAttenuationL = 0.001;
-	double mainLightAttenuationQ = 0.0005;
-	*/
 	Light *light;
-	/*
-	Light *light = mSceneMgr->createLight("Light1");
-	light->setType(Light::LT_POINT);
-	light->setPosition(Ogre::Vector3(0, 0, 0));
-	light->setDiffuseColour(ColourValue(mainLightR, mainLightG, mainLightB));
-	light->setSpecularColour(ColourValue(mainLightR, mainLightG, mainLightB));
-	light->setAttenuation(mainLightAttenuationD, mainLightAttenuationE, mainLightAttenuationL, mainLightAttenuationQ);
-	*/
-
-	/*
-	light = mSceneMgr->createLight("Light2");
-	light->setType(Light::LT_POINT);
-	light->setPosition(Ogre::Vector3(-30, 40, 40));
-	light->setDiffuseColour(ColourValue(mainLightR, mainLightG, mainLightB));
-	light->setSpecularColour(ColourValue(mainLightR, mainLightG, mainLightB));
-	light->setAttenuation(mainLightAttenuationD, mainLightAttenuationE, mainLightAttenuationL, mainLightAttenuationQ);
-	*/
 
 	// Create the scene node that the camera attaches to
 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 16));
 	node->pitch(Degree(25), Node::TS_WORLD);
 	node->roll(Degree(30), Node::TS_WORLD);
 	node->attachObject(mCamera);
-	//node->attachObject(light);
 
 	// Create the single tile selection mesh
 	ent = mSceneMgr->createEntity("SquareSelector", "SquareSelector.mesh");
 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode("SquareSelectorNode");
-	//node->translate(Ogre::Vector3(1/BLENDER_UNITS_PER_OGRE_UNIT, 1/BLENDER_UNITS_PER_OGRE_UNIT, 0));
 	node->translate(Ogre::Vector3(0, 0, 0));
 	node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT,BLENDER_UNITS_PER_OGRE_UNIT));
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
@@ -108,11 +80,10 @@ void MapEditor::createScene(void)
 	// Create the light which follows the single tile selection mesh
 	light = mSceneMgr->createLight("MouseLight");
 	light->setType(Light::LT_POINT);
-	light->setDiffuseColour(ColourValue(.8, .7, .6));
+	light->setDiffuseColour(ColourValue(.5, .7, .6));
 	light->setSpecularColour(ColourValue(.5, .4, .4));
-	//light->setPosition(0, 0, 1.45/BLENDER_UNITS_PER_OGRE_UNIT);
-	light->setPosition(0, 0, 11);
-	light->setAttenuation(35, 0.0, 0.0, 0.017);
+	light->setPosition(0, 0, 5);
+	light->setAttenuation(20, 0.15, 0.15, 0.017);
 	node->attachObject(light);
 
 	// Setup CEGUI
@@ -124,7 +95,6 @@ void MapEditor::createScene(void)
 	mSystem->setDefaultMouseCursor((CEGUI::utf8*)"TaharezLook", (CEGUI::utf8*)"MouseArrow");
 	mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 	CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
-
 
 	// Create the singleton for the TextRenderer class
 	new TextRenderer();

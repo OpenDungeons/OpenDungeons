@@ -82,11 +82,7 @@ void Player::pickUpCreature(Creature *c)
 			serverNotification->cre = c;
 			serverNotification->player = this;
 
-			sem_wait(&serverNotificationQueueLockSemaphore);
-			serverNotificationQueue.push_back(serverNotification);
-			sem_post(&serverNotificationQueueLockSemaphore);
-
-			sem_post(&serverNotificationQueueSemaphore);
+			queueServerNotification(serverNotification);
 		}
 
 		// If it is actually the user picking up a creature we move the scene node and inform
@@ -199,11 +195,7 @@ bool Player::dropCreature(Tile *t)
 					serverNotification->player = this;
 					serverNotification->tile = t;
 
-					sem_wait(&serverNotificationQueueLockSemaphore);
-					serverNotificationQueue.push_back(serverNotification);
-					sem_post(&serverNotificationQueueLockSemaphore);
-
-					sem_post(&serverNotificationQueueSemaphore);
+					queueServerNotification(serverNotification);
 				}
 				else
 				{

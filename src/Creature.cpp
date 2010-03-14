@@ -1385,11 +1385,7 @@ void Creature::setAnimationState(string s)
 			serverNotification->str = s;
 			serverNotification->cre = this;
 
-			sem_wait(&serverNotificationQueueLockSemaphore);
-			serverNotificationQueue.push_back(serverNotification);
-			sem_post(&serverNotificationQueueLockSemaphore);
-
-			sem_post(&serverNotificationQueueSemaphore);
+			queueServerNotification(serverNotification);
 		}
 		catch(bad_alloc&)
 		{
@@ -1469,11 +1465,7 @@ void Creature::addDestination(int x, int y)
 			serverNotification->str = name;
 			serverNotification->vec = destination;
 
-			sem_wait(&serverNotificationQueueLockSemaphore);
-			serverNotificationQueue.push_back(serverNotification);
-			sem_post(&serverNotificationQueueLockSemaphore);
-
-			sem_post(&serverNotificationQueueSemaphore);
+			queueServerNotification(serverNotification);
 		}
 		catch(bad_alloc&)
 		{
@@ -1536,11 +1528,7 @@ void Creature::clearDestinations()
 		serverNotification->type = ServerNotification::creatureClearDestinations;
 		serverNotification->cre = this;
 
-		sem_wait(&serverNotificationQueueLockSemaphore);
-		serverNotificationQueue.push_back(serverNotification);
-		sem_post(&serverNotificationQueueLockSemaphore);
-
-		sem_post(&serverNotificationQueueSemaphore);
+		queueServerNotification(serverNotification);
 	}
 }
 
