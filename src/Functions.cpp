@@ -1,4 +1,6 @@
 #include <sstream>
+#include <stdio.h>
+#include <dirent.h>
 using namespace std;
 
 #include <ctype.h>
@@ -518,12 +520,22 @@ void queueRenderRequest(RenderRequest *r)
 	sem_post(&renderQueueSemaphore);
 }
 
-void queueServerNotification(ServerNotification *n)
-{
-	sem_wait(&serverNotificationQueueLockSemaphore);
-	serverNotificationQueue.push_back(n);
-	sem_post(&serverNotificationQueueLockSemaphore);
 
-	sem_post(&serverNotificationQueueSemaphore);
+vector<string> listAllFiles(string directoryName)
+{
+    vector<string> tempVector;
+    DIR *d;
+    struct dirent *dir;
+    d = opendir(directoryName.c_str());
+    if (d)
+    {
+        while ((dir = readdir(d)) != NULL)
+        {
+            tempVector.push_back(dir->d_name);
+        }
+
+        closedir(d);
+    }
+    return tempVector;
 }
 

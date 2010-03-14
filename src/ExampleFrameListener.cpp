@@ -2331,6 +2331,16 @@ void ExampleFrameListener::executePromptCommand()
 				}
 			}
 
+                        else if(arguments.compare("levels") == 0)
+                        {
+                            vector<string> tempVector;
+                            tempVector = listAllFiles("./Media/levels");
+                            for(unsigned int j = 0; j < tempVector.size(); j++)
+                            {
+                                tempSS << tempVector[j];
+                            }
+                        }
+
 			else if(arguments.compare("goals") == 0)
 			{
 				if(serverSocket != NULL || clientSocket != NULL)
