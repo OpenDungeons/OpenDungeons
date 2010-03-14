@@ -1,5 +1,3 @@
-#define snprintf _snprintf
-
 #include <math.h>
 #include <algorithm>
 using namespace std;
@@ -14,6 +12,10 @@ using namespace std;
 #include "Network.h"
 #include "Field.h"
 #include "Weapon.h"
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#define snprintf _snprintf
+#endif
 
 Creature::Creature()
 {

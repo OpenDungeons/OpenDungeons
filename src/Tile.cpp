@@ -1,10 +1,12 @@
-#define snprintf _snprintf
-
 #include "Defines.h"
 #include "Functions.h"
 #include "Tile.h"
 #include "Globals.h"
 #include "Creature.h"
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#define snprintf _snprintf
+#endif
 
 Tile::Tile()
 {

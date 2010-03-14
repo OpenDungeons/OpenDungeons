@@ -1,5 +1,3 @@
-#define snprintf _snprintf
-
 #include <stdio.h>
 #include <iostream>
 #include <algorithm>
@@ -18,6 +16,10 @@ using namespace std;
 #include "Field.h"
 
 using namespace Ogre;
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#define snprintf _snprintf
+#endif
 
 /*! \brief A required function to pass input to the OIS system.
  *

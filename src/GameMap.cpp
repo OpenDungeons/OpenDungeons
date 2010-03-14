@@ -1,4 +1,4 @@
-#define snprintf _snprintf
+//#define snprintf _snprintf
 
 #include <iostream>
 #include <algorithm>
