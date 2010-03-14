@@ -37,6 +37,8 @@ class Creature
 		double danceRate;		// How much the danced upon tile's color changes per turn of dancing
 		unsigned int level;
 		double exp;
+		double hpPerLevel;
+		double manaPerLevel;
 
 		// Individual properties
 		string name;			// The creature's unique name

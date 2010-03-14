@@ -36,6 +36,8 @@ Creature::Creature()
 	mana = 10;
 	maxHP = 10;
 	maxMana = 10;
+	hpPerLevel = 0.0;
+	manaPerLevel = 0.0;
 	sightRadius = 10;
 	digRate = 10;
 	moveSpeed = 1.0;
@@ -66,6 +68,8 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	maxHP = nHP;
 	mana = nMana;
 	maxMana = nMana;
+	hpPerLevel = 0.0;
+	manaPerLevel = 0.0;
 	sightRadius = nSightRadius;
 	digRate = nDigRate;
 	exp = 0.0;

@@ -135,7 +135,7 @@ bool readGameMapFromFile(string fileName)
 		int tempHP, tempMana;
 		levelFile >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
 
-		levelFile >> tempHP >> tempMana;
+		levelFile >> tempHP >> tempMana >> tempHPPerLevel >> tempManaPerLevel;
 		levelFile >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
 
 		Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate, tempMoveSpeed);
