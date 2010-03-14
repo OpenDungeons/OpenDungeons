@@ -182,18 +182,23 @@ void *creatureAIThread(void *p)
 		timeUntilNextTurn = 1.0/turnsPerSecond;
 
 		timeTaken = stopwatch.getMicroseconds();
-
 		string timeTakenString = StringConverter::toString((int)(1e6*timeUntilNextTurn - timeTaken), 9);
+
 		// Sleep this thread if it is necessary to keep the turns from happening too fast
 		if(1e6 * timeUntilNextTurn - timeTaken > 0)
 		{
 		       	cout << "\nCreature AI finished " << timeTakenString << "us early.\n";
 			usleep(1e6 * timeUntilNextTurn - timeTaken );
+			gameMap.previousLeftoverTimes.push_front(timeTaken/(double)1e6);
 		}
 		else
 		{
 			cout << "\nCreature AI finished " << timeTakenString << "us late.\n";
+			gameMap.previousLeftoverTimes.push_front(-1.0*timeTaken/(double)1e6);
 		}
+
+		if(gameMap.previousLeftoverTimes.size() > 10)
+			gameMap.previousLeftoverTimes.resize(10);
 	}
 
 	// Return something to make the compiler happy

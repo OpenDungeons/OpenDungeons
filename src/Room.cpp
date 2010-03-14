@@ -97,6 +97,12 @@ string Room::getFormat()
         return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
+void Room::doUpkeep()
+{
+	// By default, do nothing.  Base classes can override this if they need calculations to be made every turn.
+	return;
+}
+
 istream& operator>>(istream& is, Room *r)
 {
 	static int uniqueNumber = 1;

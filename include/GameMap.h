@@ -22,6 +22,8 @@ typedef map< pair<int,int>, Tile*> TileMap_t;
 class GameMap
 {
 	public:
+		GameMap();
+
 		void createNewMap(int xSize, int ySize);
 		void createAllEntities();
 		void clearAll();
@@ -85,6 +87,7 @@ class GameMap
 		void addWinningSeat(Seat *s);
 		Seat* getWinningSeat(unsigned int index);
 		unsigned int getNumWinningSeats();
+		bool seatIsAWinner(Seat *s);
 
 		void addGoalForAllSeats(Goal *g);
 		Goal* getGoalForAllSeats(unsigned int i);
@@ -94,13 +97,30 @@ class GameMap
 		// AI Methods
 		void doTurn();
 
+		bool walkablePathExists(int x1, int y1, int x2, int y2);
 		list<Tile*> path(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
 		vector<Tile*> neighborTiles(int x, int y);
 		list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
 		bool pathIsClear(list<Tile*> path, Tile::TileClearType passability);
 		void cutCorners(list<Tile*> &path, Tile::TileClearType passability);
+		double crowDistance(int x1, int x2, int y1, int y2);
+		//double manhattanDistance(int x1, int x2, int y1, int y2);
+
+		int uniqueFloodFillColor();
+		unsigned int doFloodFill(int startX, int startY, Tile::TileClearType passability = Tile::walkableTile, int color = -1);
+		void disableFloodFill();
+		void enableFloodFill();
 
 		Player *me;
+		string nextLevel;
+		bool loadNextLevel;
+		double averageAILeftoverTime;
+
+		// Overloaded method declarations (these just make it easier to call the above functions)
+		list<Tile*> path(Creature *c1, Creature *c2, Tile::TileClearType passability);
+		list<Tile*> path(Tile *t1, Tile *t2, Tile::TileClearType passability);
+		double crowDistance(Creature *c1, Creature *c2);
+		deque<double> previousLeftoverTimes;
 
 	private:
 		map< pair<int,int>, Tile*> tiles;
@@ -114,6 +134,10 @@ class GameMap
 		vector<Seat*> filledSeats;
 		vector<Seat*> winningSeats;
 		vector<Goal*> goalsForAllSeats;
+		int nextUniqueFloodFillColor;
+		bool floodFillEnabled;
+
+		unsigned int numCallsTo_path;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.

@@ -56,6 +56,9 @@ bool readGameMapFromFile(string fileName)
 		exit(1);
 	}
 
+	// Read in the name of the next level to load after this one is complete.
+	levelFile >> gameMap.nextLevel;
+
 	// Read in the seats from the level file
 	levelFile >> objectsToLoad;
 	for(int i = 0; i < objectsToLoad; i++)
@@ -78,6 +81,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the map tiles from disk
 	levelFile >> objectsToLoad;
+	gameMap.disableFloodFill();
 	for(int i = 0; i < objectsToLoad; i++)
 	{
 		//NOTE: This code is duplicated in the client side method
@@ -88,6 +92,7 @@ bool readGameMapFromFile(string fileName)
 
 		gameMap.addTile(tempTile);
 	}
+	gameMap.enableFloodFill();
 
 	// Loop over all the tiles and force them to examine their
 	// neighbors.  This allows them to switch to a mesh with fewer
@@ -163,6 +168,9 @@ void writeGameMapToFile(string fileName)
 
 	// Write the identifier string and the version number
 	levelFile << versionString << "  # The version of OpenDungeons which created this file (for compatability reasons).\n";
+
+	// write out the name of the next level to load after this one is complete.
+	levelFile << gameMap.nextLevel << " # The level to load after this level is complete.\n";
 
 	// Write out the seats to the file
 	levelFile << "\n# Seats\n" << gameMap.numEmptySeats()+gameMap.numFilledSeats() << "  # The number of seats to load.\n";

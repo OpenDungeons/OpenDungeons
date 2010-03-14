@@ -95,11 +95,13 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	gameMap.me = new Player;
 	gameMap.me->nick = "";
 	mDragType = ExampleFrameListener::nullDragType;
+	newRoomType = Room::quarters;
 	frameDelay = 0.0;
 	mGUIRenderer = renderer;
 	zChange = 0.0;
 	mCurrentTileRadius = 1;
 	mBrushMode = false;
+	addRoomsMode = false;
 	creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
 	roomSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Room_scene_node");
 	fieldSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("Field_scene_node");
@@ -298,7 +300,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Player *curPlayer = NULL;
 		Field *curField = NULL;
 		FieldType::iterator fieldItr;
-		int tempInt, tempX, tempY;
+		int tempX, tempY;
 		double tempDouble, tempDouble2;
 
 		// Remove the first item from the render queue
@@ -421,6 +423,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				ent = mSceneMgr->createEntity("Creature_" + curCreature->name, curCreature->meshName);
 				//colourizeEntity(ent, curCreature->color);
 				node = creatureSceneNode->createChildSceneNode(curCreature->name + "_node");
+				curCreature->sceneNode = node;
 				node->setPosition(curCreature->getPosition());
 				node->setScale(curCreature->scale);
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
@@ -442,7 +445,26 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->destroyEntity(ent);
 					mSceneMgr->destroySceneNode(curCreature->name + "_node");
 				}
+				curCreature->sceneNode = NULL;
 				sem_post(&curCreature->meshDestructionFinishedSemaphore);
+				break;
+
+			case RenderRequest::reorientSceneNode:
+				node = (SceneNode*)curReq->p;
+				tempQuaternion = curReq->quaternion;
+
+				if(node != NULL)
+					node->rotate(tempQuaternion);
+
+				break;
+
+			case RenderRequest::scaleSceneNode:
+				node = (SceneNode*)curReq->p;
+				tempVector = curReq->vec;
+
+				if(node != NULL)
+					node->scale(tempVector);
+
 				break;
 
 			case RenderRequest::createWeapon:
@@ -624,9 +646,15 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				// Attatch the creature to the hand scene node
 				mSceneMgr->getSceneNode("Hand_node")->addChild(node);
-				tempInt = gameMap.me->numCreaturesInHand();
-				node->setPosition(tempInt%6 + 1, (tempInt/(int)6), 0.0);
 				node->scale(0.333, 0.333, 0.333);
+
+				// Move the other creatures in the player's hand to make room for the one just picked up.
+				for(unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); i++)
+				{
+					curCreature = gameMap.me->getCreatureInHand(i);
+					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
+					node->setPosition(i%6 + 1, (i/(int)6), 0.0);
+				}
 				break;
 
 			case RenderRequest::dropCreature:
@@ -645,6 +673,16 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				for(unsigned int i = 0; i < curPlayer->numCreaturesInHand(); i++)
 				{
 					curCreature = curPlayer->getCreatureInHand(i);
+					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
+					node->setPosition(i%6 + 1, (i/(int)6), 0.0);
+				}
+				break;
+
+			case RenderRequest::rotateCreaturesInHand:
+				// Loop over the creatures in our hand and redraw each of them in their new location.
+				for(unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); i++)
+				{
+					curCreature = gameMap.me->getCreatureInHand(i);
 					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
 					node->setPosition(i%6 + 1, (i/(int)6), 0.0);
 				}
@@ -767,7 +805,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// Display the terminal, the current turn number, and the
 	// visible chat messages at the top of the screen
 	string nullString = "";
-	string turnString = "Turn number:  " + StringConverter::toString(turnNumber);
+	string turnString = "Average AI leftover time:  " + StringConverter::toString((Ogre::Real)fabs(gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
+	turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
+	turnString += "\nTurn number:  " + StringConverter::toString(turnNumber);
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));
 
 	// Update the animations on any creatures who have them
@@ -799,6 +839,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				{
 					// Stop walking
 					currentCreature->stopWalking();
+					currentCreature->setAnimationState(currentCreature->destinationAnimationState);
 				}
 				else // There are still entries left in the queue
 				{
@@ -840,18 +881,59 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// Update the CEGUI displays of gold, mana, etc.
 	if(serverSocket != NULL || clientSocket != NULL)
 	{
+		Seat *mySeat = gameMap.me->seat;
+
 		CEGUI::WindowManager *windowManager = CEGUI::WindowManager::getSingletonPtr();
 
-		CEGUI::Window *tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/GoldDisplay");
+		CEGUI::Window *tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/TerritoryDisplay");
+		tempSS.str("");
+		tempSS << "Territory\n" << gameMap.me->seat->numClaimedTiles;
+		tempWindow->setText(tempSS.str());
+
+		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/GoldDisplay");
 		tempSS.str("");
 		tempSS << "Gold\n" << gameMap.me->seat->gold;
 		tempWindow->setText(tempSS.str());
 
 		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/ManaDisplay");
 		tempSS.str("");
-		Seat *tempSeat = gameMap.me->seat;
-		tempSS << "Mana\n" << tempSeat->mana << "\n" << (tempSeat->manaDelta >= 0 ? "+" : "-") << tempSeat->manaDelta;
+		tempSS << "Mana\n" << mySeat->mana << "\n" << (mySeat->manaDelta >= 0 ? "+" : "-") << mySeat->manaDelta;
 		tempWindow->setText(tempSS.str());
+
+		// Update the goals display in the message window.
+		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/MessagesDisplayWindow");
+		tempSS.str("");
+		if(serverSocket != NULL || clientSocket != NULL)
+		{
+			bool iAmAWinner = gameMap.seatIsAWinner(gameMap.me->seat);
+
+			if(!iAmAWinner)
+			{
+				// Loop over the list of unmet goals for the seat we are sitting in an print them.
+				tempSS << "Unfinished Goals:\n----------\t-----------\n";
+				for(unsigned int i = 0; i < gameMap.me->seat->numGoals(); i++)
+				{
+					Goal *tempGoal = gameMap.me->seat->getGoal(i);
+					tempSS << tempGoal->getName() << ":\t" << tempGoal->getDescription() << "\n";
+				}
+			}
+
+			// Loop over the list of completed goals for the seat we are sitting in an print them.
+			tempSS << "\n\nCompleted Goals:\n----------\t-----------\n";
+			for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); i++)
+			{
+				Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
+				tempSS << tempGoal->getName() << ":\t" << tempGoal->getSuccessMessage() << "\n";
+			}
+
+			if(iAmAWinner)
+			{
+				tempSS << "\nCongratulations, you have completed this level.\nOpen the terminal and run the \'next\'\n";
+				tempSS << "command to move on to move on to the next level.\n\nThe next level is:  " << gameMap.nextLevel;
+			}
+		}
+		tempWindow->setText(tempSS.str());
+
 	}
 
 	//Need to capture/update each device
@@ -1092,6 +1174,17 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 			tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
 	}
 
+	// Check the scroll wheel.
+	if(arg.state.Z.rel > 0)
+	{
+		gameMap.me->rotateCreaturesInHand(1);
+	}
+
+	if(arg.state.Z.rel < 0)
+	{
+		gameMap.me->rotateCreaturesInHand(-1);
+	}
+
 	return true;
 }
 
@@ -1196,10 +1289,14 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		// If no creatures are under the  mouse run through the list again to check for lights
 		if(serverSocket == NULL && clientSocket == NULL)
 		{
+			//FIXME: These other code blocks that loop over the result list should probably use this same loop structure.
 			itr = result.begin( );
 			while(itr != result.end())
 			{
 				itr++;
+				if(itr == result.end())
+					break;
+
 				if(itr->movable != NULL)
 				{
 					resultName = itr->movable->getName();
@@ -2557,6 +2654,20 @@ void ExampleFrameListener::executePromptCommand()
 			{
 				commandOutput = "You are not connected to a server and you are not hosting a server.";
 			}
+		}
+	}
+
+	// Load the next level.
+	else if(command.compare("next") == 0)
+	{
+		if(gameMap.seatIsAWinner(gameMap.me->seat))
+		{
+			gameMap.loadNextLevel = true;
+			commandOutput = (string)"Loading level Media/levels/" + gameMap.nextLevel + ".level";
+		}
+		else
+		{
+			commandOutput = "You have not completed this level yet.";
 		}
 	}
 

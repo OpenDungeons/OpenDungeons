@@ -11,6 +11,8 @@ using namespace std;
 class Room
 {
 	public:
+		enum RoomType {nullRoomType = 0, dungeonTemple, vein, quarters};
+
 		// Constructors and operators
 		Room();
 		static string getFormat();
@@ -33,6 +35,9 @@ class Room
 		int color;
 		sem_t meshCreationFinishedSemaphore;
 		sem_t meshDestructionFinishedSemaphore;
+
+		// Functions which can be overridden by child classes.
+		virtual void doUpkeep();
 		
 	private:
 		vector<Tile*> coveredTiles;

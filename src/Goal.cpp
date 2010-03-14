@@ -16,6 +16,11 @@ bool Goal::isVisible()
 	return true;
 }
 
+bool Goal::isUnmet(Seat *s)
+{
+	return !isMet(s);
+}
+
 string Goal::getName()
 {
 	return name;
@@ -52,6 +57,11 @@ Goal* Goal::instantiateFromStream(istream& is)
 	else if(tempName.compare("ProtectCreature") == 0)
 	{
 		tempGoal = new GoalProtectCreature(tempName, tempArguments, NULL);
+	}
+
+	else if(tempName.compare("ClaimNTiles") == 0)
+	{
+		tempGoal = new GoalClaimNTiles(tempName, tempArguments, NULL);
 	}
 
 	return tempGoal;

@@ -16,6 +16,7 @@ Tile::Tile()
 	rotation = 0.0;
 	color = 0;
 	colorDouble = 0.0;
+	floodFillColor = -1;
 	sem_init(&meshCreationFinishedSemaphore, 0, 0);
 	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 }
@@ -26,6 +27,7 @@ Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 	color = 0;
 	colorDouble = 0.0;
+	floodFillColor = -1;
 	selected = false;
 	markedForDigging = false;
 	x = nX;
@@ -72,36 +74,77 @@ void Tile::setFullness(int f)
 {
 	fullness = f;
 
+	if(fullness < 0.1 && floodFillColor < 0)
+		floodFillColor = gameMap.uniqueFloodFillColor();
+
 	int tempInt;
+
+	// 		4 0 7		    180    
+	// 		2 8 3		270  .  90 
+	// 		7 1 5		     0     
+	//
+	bool fillStatus[9];
+	Tile *tempTile = gameMap.getTile(x, y+1);
+	fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
+	tempTile = gameMap.getTile(x, y-1);
+	fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
+	tempTile = gameMap.getTile(x-1, y);
+	fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
+	tempTile = gameMap.getTile(x+1, y);
+	fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
+
+	int fullNeighbors = 0;
+	if(fillStatus[0])	fullNeighbors++;
+	if(fillStatus[1])	fullNeighbors++;
+	if(fillStatus[2])	fullNeighbors++;
+	if(fillStatus[3])	fullNeighbors++;
 
 	//FIXME:  This needs to be updated to reflect the allowable fill states for each tile type
 	// This is also where the logic for checking neighboring fullness should go
 	fullnessMeshNumber = 0;
 	if(f > 0 && f <= 25)	fullnessMeshNumber = 25;
-	else if(f > 25 && f <= 50)	fullnessMeshNumber = 50;
-	else if(f > 50 && f <= 75)	fullnessMeshNumber = 75;
+	else if(f > 25 && f <= 50)
+	{
+		fullnessMeshNumber = 50;
+		switch(fullNeighbors)
+		{
+			case 1:
+				fullnessMeshNumber = 51;
+				if(fillStatus[0])	{rotation = 270; break;}//correct
+				if(fillStatus[1])	{rotation = 90; break;}//correct
+				if(fillStatus[2])	{rotation = 0; break;}//correct
+				if(fillStatus[3])	{rotation = 180; break;}//correct
+				break;
+
+			case 2:
+				fullnessMeshNumber = 52;
+				if(fillStatus[0] && fillStatus[2])	{rotation = 270; break;}//correct
+				if(fillStatus[0] && fillStatus[3])	{rotation = 180; break;}//correct
+				if(fillStatus[1] && fillStatus[2])	{rotation = 0; break;}//correct
+				if(fillStatus[1] && fillStatus[3])	{rotation = 90; break;}//correct
+
+				//TODO:  These next two options are for when the half full tile is in the middle of a wall, the need a separate mesh to be made.
+				if(fillStatus[0] && fillStatus[1])	{fullnessMeshNumber = 51; rotation = 0; break;}//correct
+				if(fillStatus[2] && fillStatus[3])	{fullnessMeshNumber = 51; rotation = 90; break;}//correct
+				break;
+		}
+	}
+
+	else if(f > 50 && f <= 75)	
+	{
+		fullnessMeshNumber = 75;
+		switch(fullNeighbors)
+		{
+			case 1:
+				if(fillStatus[0])	{rotation = 270; break;}//correct
+				if(fillStatus[1])	{rotation = 90; break;}//correct
+				if(fillStatus[2])	{rotation = 0; break;}//correct
+				if(fillStatus[3])	{rotation = 180; break;}//correct
+				break;
+		}
+	}
 	else if(f > 75)
 	{
-		// 		4 0 7		    180    
-		// 		2 8 3		270  .  90 
-		// 		7 1 5		     0     
-		//
-		bool fillStatus[9];
-		Tile *tempTile = gameMap.getTile(x, y+1);
-		fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
-		tempTile = gameMap.getTile(x, y-1);
-		fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
-		tempTile = gameMap.getTile(x-1, y);
-		fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
-		tempTile = gameMap.getTile(x+1, y);
-		fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 75 : false;
-
-		int fullNeighbors = 0;
-		if(fillStatus[0])	fullNeighbors++;
-		if(fillStatus[1])	fullNeighbors++;
-		if(fillStatus[2])	fullNeighbors++;
-		if(fillStatus[3])	fullNeighbors++;
-
 		switch(fullNeighbors)
 		{
 			//TODO:  Determine the rotation for each of these case statements
@@ -128,22 +171,22 @@ void Tile::setFullness(int f)
 				switch(tempInt)
 				{
 					case 5:
-						fullnessMeshNumber = 105;
+						fullnessMeshNumber = 52;
 						rotation = 270;
 						break;
 
 					case 6:
-						fullnessMeshNumber = 105;
+						fullnessMeshNumber = 52;
 						rotation = 0;
 						break;
 
 					case 9:
-						fullnessMeshNumber = 105;
+						fullnessMeshNumber = 52;
 						rotation = 180;
 						break;
 
 					case 10:
-						fullnessMeshNumber = 105;
+						fullnessMeshNumber = 52;
 						rotation = 90;
 						break;
 
@@ -213,6 +256,10 @@ void Tile::setFullness(int f)
 			exit(1);
 		}
 	}
+
+	// Do a flood fill to update the contiguous region touching the tile.
+	//TODO:  We only really need to do this when the tile's passability changes.
+	gameMap.doFloodFill(x, y);
 }
 
 /*! \brief An accessor which returns the tile's fullness which should range from 0 to 100.
@@ -511,6 +558,9 @@ bool Tile::getSelected()
  */
 void Tile::setMarkedForDigging(bool s, Player *p)
 {
+	if(s && (type != dirt && type != gold))
+		return;
+
 	Entity *ent;
 	char tempString[255];
 	char tempString2[255];
@@ -668,5 +718,45 @@ unsigned int Tile::numPlayersMarkingTile()
 Player* Tile::getPlayerMarkingTile(int index)
 {
 	return playersMarkingTile[index];
+}
+
+void Tile::addNeighbor(Tile *n)
+{
+	neighbors.push_back(n);
+}
+
+void Tile::claimForColor(int nColor, double nDanceRate)
+{
+	if(nColor == color)
+	{
+		//cout << "\t\tmyTile is My color.";
+		colorDouble += nDanceRate;
+		if(colorDouble >= 1.0)
+		{
+			// Claim the tile.
+			colorDouble = 1.0;
+			setType(Tile::claimed);
+		}
+	}
+	else
+	{
+		colorDouble -= nDanceRate;
+		if(colorDouble <= 0.0)
+		{
+			// The tile is not yet claimed, but it is now our color.
+			colorDouble *= -1.0;
+			color = nColor;
+		}
+	}
+}
+
+Tile* Tile::getNeighbor(unsigned int index)
+{
+	return neighbors[index];
+}
+
+vector<Tile*> Tile::getAllNeighbors()
+{
+	return neighbors;
 }
 

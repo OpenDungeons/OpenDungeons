@@ -35,13 +35,15 @@ class Creature
 		double sightRadius;		// The inner radius where the creature sees everything
 		double digRate;			// Fullness removed per turn of digging
 		double danceRate;		// How much the danced upon tile's color changes per turn of dancing
+		unsigned int level;
+		double exp;
 
 		// Individual properties
 		string name;			// The creature's unique name
 		Weapon *weaponL, *weaponR;	// The weapons the creature is holding
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
-		int hp, mana;			// Basic stats
+		int hp, maxHP, mana, maxMana;			// Basic stats
 		double moveSpeed;		// How fast the creature moves and animates
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.
 		sem_t meshCreationFinishedSemaphore;
@@ -54,28 +56,29 @@ class Creature
 		void setPosition(double x, double y, double z);
 		void setPosition(Ogre::Vector3 v);
 		Ogre::Vector3 getPosition();
-		virtual void doTurn();
 
 		// AI stuff
+		virtual void doTurn();
+		double getHitroll(double range);
+		double getDefense();
+		void doLevelUp();
 		vector<Tile*> visibleTiles;
 		vector<Creature*> visibleEnemies;
 		vector<Creature*> reachableEnemies;
 		vector<Creature*> enemiesInRange;
 		vector<Creature*> visibleAllies;
+		vector<Creature*> reachableAllies;
 		void updateVisibleTiles();
 		vector<Creature*> getVisibleEnemies();
-		vector<Creature*> getReachableCreatures(const vector<Creature*> &creaturesToCheck);
+		vector<Creature*> getReachableCreatures(const vector<Creature*> &creaturesToCheck, unsigned int *minRange, Creature **nearestCreature);
 		vector<Creature*> getEnemiesInRange(const vector<Creature*> &enemiesToCheck);
 		vector<Creature*> getVisibleAllies();
 		vector<Tile*> getVisibleMarkedTiles();
 		vector<Creature*> getVisibleForce(int color, bool invert);
 		Tile* positionTile();
-		AnimationState *animationState;
 		void setAnimationState(string s);
 		AnimationState* getAnimationState();
-		double shortDistance;
-		deque<Ogre::Vector3> walkQueue;
-		Ogre::Vector3 walkDirection;
+
 		void addDestination(int x, int y);
 		bool setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop);
 		void clearDestinations();
@@ -93,6 +96,14 @@ class Creature
 		friend ostream& operator<<(ostream& os, Creature *c);
 		friend istream& operator>>(istream& is, Creature *c);
 
+		// Public data members
+		AnimationState *animationState;
+		string destinationAnimationState;
+		double shortDistance;
+		deque<Ogre::Vector3> walkQueue;
+		Ogre::Vector3 walkDirection;
+		SceneNode *sceneNode;
+
 	private:
 		deque<CreatureAction> actionQueue;
 		Ogre::Vector3 position;
@@ -101,6 +112,7 @@ class Creature
 		Tile *previousPositionTile;
 		list<Tile*> visualDebugEntityTiles;
 		Field *battleField;
+		bool meshesExist;
 };
 
 #endif

@@ -5,11 +5,21 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
+#include <stdlib.h>
 using namespace std;
 
 #include "Functions.h"
 #include "Defines.h"
 #include "GameMap.h"
+
+GameMap::GameMap()
+{
+	nextUniqueFloodFillColor = 1;
+	loadNextLevel = false;
+	floodFillEnabled = false;
+	numCallsTo_path = 0;
+	averageAILeftoverTime = 0.0;
+}
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
  *
@@ -153,8 +163,37 @@ unsigned int GameMap::numTiles()
  */
 void GameMap::addTile(Tile *t)
 {
+	// Notify the neighbor tiles already existing on the GameMap of our existance.
+	bool allNeighborsSameColor = true;
+	for(unsigned int i = 0; i < 4; i++)
+	{
+		int tempX = t->x, tempY = t->y;
+		switch(i)
+		{
+			break;
+			case 0:  tempX++;  break;
+			case 1:  tempY++;  break;
+			case 2:  tempX--;  break;
+			case 3:  tempY--;  break;
+
+			default:
+				 cerr << "\n\n\nERROR:  Unknown neighbor index.\n\n\n";
+				 exit(1);
+		}
+
+		// If the current neigbor tile exists, add the current tile as one of its
+		// neighbors and add it as one of the current tile's neighbors.
+		Tile *tempTile = getTile(tempX, tempY);
+		if(tempTile != NULL)
+		{
+			tempTile->addNeighbor(t);
+			t->addNeighbor(tempTile);
+
+			allNeighborsSameColor = allNeighborsSameColor && (tempTile->floodFillColor == t->floodFillColor);
+		}
+	}
+
 	tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(t->x,t->y), t) );
-	//tiles.push_back(t);
 }
 
 /*! \brief Adds the address of a new class description to be stored in this GameMap.
@@ -324,14 +363,50 @@ Creature* GameMap::getCreature(string cName)
  */
 void GameMap::doTurn()
 {
+	unsigned int tempUnsigned;
+
+	averageAILeftoverTime = 0.0;
+	for(tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); tempUnsigned++)
+		averageAILeftoverTime += previousLeftoverTimes[tempUnsigned];
+
+	if(tempUnsigned > 0)
+		averageAILeftoverTime /= (double)tempUnsigned;
+
 	// Local variables
-	double tempDouble;
 	Seat *tempSeat;
 	Tile *tempTile;
 
+	static int numTurnsToWaitOnLevelLoad = 3;
+
 	sem_wait(&creatureAISemaphore);
 
+	if(loadNextLevel)
+	{
+		if(numCreatures() > 0)
+		{
+			while(numCreatures() > 0)
+			{
+				queueCreatureForDeletion(creatures[0]);
+				removeCreature(creatures[0]);
+			}
+		}
+		else
+		{
+			if(numTurnsToWaitOnLevelLoad > 0)
+			{
+				numTurnsToWaitOnLevelLoad--;
+				return;
+			}
+			else
+			{
+				loadNextLevel = false;
+				readGameMapFromFile((string)"Media/levels/" + nextLevel + ".level");
+			}
+		}
+	}
+
 	cout << "\nStarting creature AI for turn " << turnNumber;
+	unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
 	// Remove meshes for creatures who died last turn.
 	//FIXME: The deletion queue should be (Creature*,turnNumber) pairs and the given creatures should only be deleted when all threads have reported that they have entirely purged all references and pointers for the turn when the creature was put into the queue.
@@ -376,6 +451,7 @@ void GameMap::doTurn()
 			// when it is safe, i.e. all other pointers to it have been wiped from the program.
 			cout << "\nMoving creature " << tempCreature->name << " from the game map to the deletion list.";
 			cout.flush();
+			tempCreature->setAnimationState("Die");
 			removeCreature(tempCreature);
 			queueCreatureForDeletion(tempCreature);
 		}
@@ -393,7 +469,7 @@ void GameMap::doTurn()
 	for(unsigned int i = 0; i < emptySeats.size(); i++)
 		emptySeats[i]->numClaimedTiles = 0;
 
-	// Now loop over all the tiles, if the tile is claimed increment the given seats count.
+	// Now loop over all of the tiles, if the tile is claimed increment the given seats count.
 	map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
 	while(currentTile != tiles.end())
 	{
@@ -405,7 +481,17 @@ void GameMap::doTurn()
 			// Increment the count of the seat who owns the tile.
 			tempSeat = getSeatByColor(tempTile->color);
 			if(tempSeat != NULL)
+			{
 				tempSeat->numClaimedTiles++;
+
+				// Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
+				vector<Tile*> neighbors = neighborTiles((currentTile->second)->x, (currentTile->second)->y);
+				for(unsigned int i = 0; i < neighbors.size(); i++)
+				{
+					if(neighbors[i]->getType() == Tile::dirt && neighbors[i]->getFullness() < 0.1)// && neighbors[i]->colorDouble < 0.8)
+						neighbors[i]->claimForColor(tempSeat->color, 0.04);
+				}
+			}
 		}
 
 		currentTile++;
@@ -423,6 +509,8 @@ void GameMap::doTurn()
 			tempSeat->mana = 250000;
 	}
 
+	cout << "\nDuring this turn there were " << numCallsTo_path-numCallsTo_path_atStart << " calls to GameMap::path().";
+
 	sem_post(&creatureAISemaphore);
 }
 
@@ -439,6 +527,8 @@ void GameMap::doTurn()
  */
 list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
 {
+	numCallsTo_path++;
+
 	//TODO:  Make the openList a priority queue sorted by the cost to improve lookup times on retrieving the next open item.
 	list<Tile*> returnList;
 	astarEntry *currentEntry;
@@ -459,6 +549,10 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	// If the end tile was not found return an empty path
 	destination = getTile(x2, y2);
 	if(destination == NULL)
+		return returnList;
+
+	// If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are colored differently.
+	if(floodFillEnabled && passability == Tile::walkableTile && !walkablePathExists(x1, y1, x2, y2))
 		return returnList;
 
 	currentEntry->parent = NULL;
@@ -661,39 +755,12 @@ TileMap_t::iterator GameMap::lastTile()
  */
 vector<Tile*> GameMap::neighborTiles(int x, int y)
 {
-	Tile *t = getTile(x, y);
-	Tile *neighbor;
-	vector<Tile*> neighbors;
-
-	if(t != NULL)
-	{
-		for(int i = 0; i < 4; i++)
-		{
-			int tempX, tempY;
-
-			tempX = x;
-			tempY = y;
-			switch(i)
-			{
-				// Adjacent neighbors
-				case 0: tempX -= 0;  tempY += 1;  break;
-				case 1: tempX -= 0;  tempY -= 1;  break;
-				case 2: tempX -= 1;  tempY += 0;  break;
-				case 3: tempX += 1;  tempY += 0;  break;
-
-				default:
-					cerr << "\n\n\nERROR:  Wrong neighbor index in tile neighbor calculation.\n\n\n";
-					exit(1);
-					break;
-			}
-
-			neighbor = getTile(tempX, tempY);
-			if(neighbor != NULL)
-				neighbors.push_back(neighbor);
-		}
-	}
-
-	return neighbors;
+	vector<Tile*> tempVector;
+	Tile *tempTile = getTile(x, y);
+	if(tempTile != NULL)
+		return tempTile->getAllNeighbors();
+	else
+		return tempVector;
 }
 
 /*! \brief Adds a pointer to a player structure to the players stored by this GameMap.
@@ -757,6 +824,28 @@ Player* GameMap::getPlayer(string pName)
 unsigned int GameMap::numPlayers()
 {
 	return players.size();
+}
+
+bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
+{
+	Tile *tempTile1, *tempTile2;
+	tempTile1 = getTile(x1, y1);
+	if(tempTile1)
+	{
+		tempTile2 = getTile(x2, y2);
+		if(tempTile2)
+		{
+			return (tempTile1->floodFillColor == tempTile2->floodFillColor);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	else
+	{
+		return false;
+	}
 }
 
 /*! \brief Returns a list of valid tiles along a stright line from (x1, y1) to (x2, y2).
@@ -1151,6 +1240,21 @@ unsigned int GameMap::getNumWinningSeats()
 	return winningSeats.size();
 }
 
+bool GameMap::seatIsAWinner(Seat *s)
+{
+	bool isAWinner = false;
+	for(unsigned int i = 0; i < getNumWinningSeats(); i++)
+	{
+		if(getWinningSeat(i) == s)
+		{
+			isAWinner = true;
+			break;
+		}
+	}
+
+	return isAWinner;
+}
+
 void GameMap::addGoalForAllSeats(Goal *g)
 {
 	goalsForAllSeats.push_back(g);
@@ -1191,5 +1295,125 @@ void GameMap::clearGoalsForAllSeats()
 		filledSeats[i]->clearGoals();
 		filledSeats[i]->clearCompletedGoals();
 	}
+}
+
+double GameMap::crowDistance(int x1, int x2, int y1, int y2)
+{
+	const double badValue = -1.0;
+	double distance;
+	Tile *t1, *t2;
+
+	t1 = getTile(x1, y1);
+	if(t1 != NULL)
+	{
+		t2 = getTile(x2, y2);
+		if(t2 != NULL)
+		{
+			int xDist, yDist;
+			distance = xDist*xDist + yDist*yDist;
+			distance = sqrt(distance);
+			return distance;
+		}
+		else
+		{
+			return badValue;
+		}
+	}
+	else
+	{
+		return badValue;
+	}
+
+}
+
+int GameMap::uniqueFloodFillColor()
+{
+	nextUniqueFloodFillColor++;
+	return nextUniqueFloodFillColor;
+}
+
+unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType passability, int color)
+{
+	unsigned int tilesFlooded = 1;
+
+	if(!floodFillEnabled)
+		return 0;
+
+	if(color < 0)
+		color = uniqueFloodFillColor();
+
+	// Check to see if we should color the current tile.
+	Tile *tempTile = gameMap.getTile(startX, startY);
+	if(tempTile != NULL)
+	{
+		// If the tile is walkable, color it.
+		//FIXME:  This should be improved to use the "passability" parameter.
+		if(tempTile->getTilePassability() == Tile::walkableTile)
+			tempTile->floodFillColor = color;
+		else
+			return 0;
+	}
+
+	// Get the current tile's neighbors, loop over each of them.
+	vector<Tile*> neighbors = gameMap.neighborTiles(startX, startY);
+	for(unsigned int i = 0; i < neighbors.size(); i++)
+	{
+		if(neighbors[i]->floodFillColor != color)
+		{
+			tilesFlooded += doFloodFill(neighbors[i]->x, neighbors[i]->y, passability, color);
+		}
+	}
+
+	return tilesFlooded;
+}
+
+void GameMap::disableFloodFill()
+{
+	floodFillEnabled = false;
+}
+
+void GameMap::enableFloodFill()
+{
+	Tile *tempTile;
+
+	// Carry out a flood fill of the whole level to make sure everything is good.
+	// Start by setting the flood fill color for every tile on the map to -1.
+	map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
+	while(currentTile != tiles.end())
+	{
+		tempTile = currentTile->second;
+		tempTile->floodFillColor = -1;
+		currentTile++;
+	}
+
+	// Loop over the tiles again, this time flood filling when the flood fill color is -1.  This will flood the map enough times to cover the whole map.
+
+	floodFillEnabled = true;
+	currentTile = tiles.begin();
+	while(currentTile != tiles.end())
+	{
+		tempTile = currentTile->second;
+		if(tempTile->floodFillColor == -1)
+			doFloodFill(tempTile->x, tempTile->y);
+
+		currentTile++;
+	}
+}
+
+list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability)
+{
+	return path(c1->positionTile()->x, c1->positionTile()->y, c2->positionTile()->x, c2->positionTile()->y, passability);
+}
+
+list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability)
+{
+	return path(t1->x, t1->y, t2->x, t2->y, passability);
+}
+
+double GameMap::crowDistance(Creature *c1, Creature *c2)
+{
+	//TODO:  This is sub-optimal, improve it.
+	Tile *tempTile1 = c1->positionTile(), *tempTile2 = c2->positionTile();
+	return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
 }
 

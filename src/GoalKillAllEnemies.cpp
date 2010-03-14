@@ -31,7 +31,7 @@ bool GoalKillAllEnemies::isUnmet(Seat *s)
 
 string GoalKillAllEnemies::getSuccessMessage()
 {
-	return "Congratulations:  You have killed all the enemy creatures.";
+	return "You have killed all the enemy creatures.";
 }
 
 string GoalKillAllEnemies::getDescription()

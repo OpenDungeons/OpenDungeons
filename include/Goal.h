@@ -15,13 +15,13 @@ class Goal
 
 		// Functions which must be overridden by child classes
 		virtual bool isMet(Seat *s) = 0;
-		virtual bool isUnmet(Seat *s) = 0;
 		virtual string getSuccessMessage() = 0;
 		virtual string getDescription() = 0;
 
 		// Functions which can be overridden (but do not have to be) by child classes
 		virtual void doSuccessAction();
 		virtual bool isVisible();
+		virtual bool isUnmet(Seat *s);
 
 		// Functions which cannot be overridden by child classes
 		string getName();
@@ -42,6 +42,7 @@ class Goal
 
 #include "GoalKillAllEnemies.h"
 #include "GoalProtectCreature.h"
+#include "GoalClaimNTiles.h"
 
 #endif
 

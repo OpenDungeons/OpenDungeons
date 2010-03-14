@@ -11,22 +11,42 @@ GoalProtectCreature::GoalProtectCreature(string nName, string nArguments, Player
 
 bool GoalProtectCreature::isMet(Seat *s)
 {
-	bool creatureIsAlive;
+	Player *tempPlayer;
 
+	// Check to see if the creature exists on the game map.
 	Creature *tempCreature = gameMap.getCreature(creatureName);
 	if(tempCreature != NULL)
 	{
 		if(tempCreature->hp > 0.0)
-			creatureIsAlive = true;
+			return true;
 		else
-			creatureIsAlive = false;
+			return false;
 	}
 	else
 	{
-		creatureIsAlive = false;
-	}
+		// The creature is not on the gameMap but it could be in one of the players hands.
+		for(unsigned i = 0; i < gameMap.numPlayers(); i++)
+		{
+			tempPlayer = gameMap.getPlayer(i);
+			for(unsigned int j = 0; j < tempPlayer->numCreaturesInHand(); j++)
+			{
+				Creature *tempCreature = tempPlayer->getCreatureInHand(j);
+				if(tempCreature->name == creatureName)
+					return true;
+			}
+		}
 
-	return creatureIsAlive;
+		// The creature could be in my hand.
+		tempPlayer = gameMap.me;
+		for(unsigned int j = 0; j < tempPlayer->numCreaturesInHand(); j++)
+		{
+			Creature *tempCreature = tempPlayer->getCreatureInHand(j);
+			if(tempCreature->name == creatureName)
+				return true;
+		}
+
+		return false;
+	}
 }
 
 bool GoalProtectCreature::isUnmet(Seat *s)
@@ -36,7 +56,7 @@ bool GoalProtectCreature::isUnmet(Seat *s)
 
 string GoalProtectCreature::getSuccessMessage()
 {
-	return (string)"The creature " + creatureName + " is still alive, keep protecting it.";
+	return creatureName + " is still alive";
 }
 
 string GoalProtectCreature::getDescription()
