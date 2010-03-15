@@ -2331,14 +2331,27 @@ void ExampleFrameListener::executePromptCommand()
 				}
 			}
 
-                        else if(arguments.compare("levels") == 0)
+                        // Loop over level directory and display only level files 
+                        else if(arguments.compare("levels") == 0)      
                         {
                             vector<string> tempVector;
-                            tempVector = listAllFiles("./Media/levels");
+                            size_t found;
+                            size_t found2;
+                            string suffix = ".level";
+                            string suffix2 = ".level.";
+                            tempVector = listAllFiles("./Media/levels/");
                             for(unsigned int j = 0; j < tempVector.size(); j++)
+                            
                             {
-                                tempSS << tempVector[j];
+                                found = tempVector[j].find(suffix);
+                                found2 = tempVector[j].find(suffix2);
+                                if(found != string::npos && (!(found2 != string::npos)))
+                                {
+                                    tempSS << tempVector[j] << endl;
+                                }
                             }
+                            
+
                         }
 
 			else if(arguments.compare("goals") == 0)
@@ -2376,7 +2389,7 @@ void ExampleFrameListener::executePromptCommand()
 		}
 		else
 		{
-			commandOutput = "lists available:\t\tclasses\tcreatures\tplayers\tnetwork\trooms\tcolors\tgoals";
+			commandOutput = "lists available:\n\t\tclasses\tcreatures\tplayers\n\t\tnetwork\trooms\tcolors\n\t\tgoals\tlevels";
 		}
 	}
 

@@ -85,8 +85,6 @@
 *  Add a seperate thread to generate a pool of 5000 or so random numbers for
 *  use when needed and make the randomDouble, etc. functions consumers on this pool.
 
-+  Add terminal command 'ls levels'
-+
 *  Begin phasing out snprintf since it is not portable.
 
 *  Add a terminal command 'chathelp' which will lookup a help message and then
