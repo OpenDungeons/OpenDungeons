@@ -2798,12 +2798,27 @@ string ExampleFrameListener::getHelpText(string arg)
 		return "framespersecond (or \"fps\" for short is a utility which displays or sets the maximum framerate at which the rendering will attempt to update the screen.\n\nExample:\n" + prompt + "fps 35\n\nThe above command will set the current maximum framerate to 35 turns per second.";
 	}
 
-        else if(arg.compare("keys") == 0)
-        {
-            return "|| Action           || Keyboard 1       || Keyboard 2       ||\n=============================================================\n|| Zoom In          || Page Up          || e                ||\n|| Zoom Out         || Insert           || q                ||\n|| Pan Left         || Left             || a                ||\n|| Pan Right        || Right            || d                ||\n|| Pan Forward      || Up               || w                ||\n|| Pan Backward     || Down             || s                ||\n|| Tilt Up          || Home             || N/A              ||\n|| Tilt Down        || End              || N/A              ||\n|| Rotate Left      || Delete           || N/A              ||\n|| Rotate right     || Page Down        || N/A              ||\n|| Toggle Console   || `                || F12              ||\n|| Quit Game        || ESC              || N/A              ||\n|| Toggle Framerate || f                || N/A              ||";
+	else if(arg.compare("keys") == 0)
+	{
+		string tempString = "";
+		tempString += "|| Action           || Keyboard 1       || Keyboard 2       ||\n";
+		tempString += "=============================================================\n";
+		tempString += "|| Zoom In          || Page Up          || e                ||\n";
+		tempString += "|| Zoom Out         || Insert           || q                ||\n";
+		tempString += "|| Pan Left         || Left             || a                ||\n";
+		tempString += "|| Pan Right        || Right            || d                ||\n";
+		tempString += "|| Pan Forward      || Up               || w                ||\n";
+		tempString += "|| Pan Backward     || Down             || s                ||\n";
+		tempString += "|| Tilt Up          || Home             || N/A              ||\n";
+		tempString += "|| Tilt Down        || End              || N/A              ||\n";
+		tempString += "|| Rotate Left      || Delete           || N/A              ||\n";
+		tempString += "|| Rotate right     || Page Down        || N/A              ||\n";
+		tempString += "|| Toggle Console   || `                || F12              ||\n";
+		tempString += "|| Quit Game        || ESC              || N/A              ||\n";
+		tempString += "|| Toggle Framerate || f                || N/A              ||";
 
-        }
-
+		return tempString;
+	}
 
 	return "Help for command:  \"" + arguments + "\" not found.";
 }

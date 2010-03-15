@@ -12,6 +12,7 @@ The console is a way of interacting with the underlying game engine directly.  \
 Commands given to the the console are made up of two parts: a \'command name\' and one or more \'arguments\'.  \
 For information on how to use a particular command, type help followed by the command name.\
 \n\nThe following commands are avaliable:\
+\n\thelp keys - shows the keyboard controls\
 \n\tlist - print out lists of creatures, classes, etc\n\thelp - displays this help screen\n\tsave - saves the current level to a file\
 \n\tload - loads a level from a file\
 \n\tquit - exit the program\
