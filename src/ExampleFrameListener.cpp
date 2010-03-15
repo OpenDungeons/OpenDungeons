@@ -2540,6 +2540,9 @@ void ExampleFrameListener::executePromptCommand()
 		{
 			commandOutput = "You must set a nick with the \"nick\" command before you can host a server.";
 		}
+
+		terminalActive = false;
+
 	}
 
 	// Send a chat message

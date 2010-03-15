@@ -31,8 +31,6 @@
 
 *  Visual debugging entities for creatures dissappear after a short time.
 
-+  Make the terminal "host" command automatically close the terminal.
-+
 *  When creatures are in the state CreatureAction::maneuver, they sometimes get
 *  "stuck" behind an obstacle since they only locally follow the field
 *  gradient.  This can be fixed by making them make use of GameMap::path() to
