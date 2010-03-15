@@ -98,8 +98,6 @@
 	Both of these will be fixed by moving to a better terminal, see:
 	http://www.ogre3d.org/wiki/index.php/CodeSnippits#Console
 
-+  Add a keyboard controls help message under "help keys".
-+
 *  add a flyTo method to make the camera fly to a particular location (and
 *  orientation?).
 
