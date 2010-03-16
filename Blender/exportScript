@@ -1,9 +1,0 @@
-#!/bin/bash
-
-	for file in `ls *.mesh.xml`
-	do
-	OgreXMLConverter $file
-	done
-
-mv *.mesh ../Media/models/
-

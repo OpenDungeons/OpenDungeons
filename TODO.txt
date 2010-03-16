@@ -12,7 +12,9 @@
 *  Fix crash on loading a new map from the server, I think it has to do with
 *  getting peices of messages in a single packet.  This assumption may or may
 *  not be true, it may be that the RenderQueue is somehow processing the
-*  addDestination message before the createMesh message.
+*  addDestination message before the createMesh message.  This can be fixed by
+*  adding a mutex style semaphore on the critical sections the
+*  ClientSocketProcessor, ClientNotificationProcessor, etc.
 
 *  The GameMap::cutCorners() function sometimes causes creatures to walk
 *  through walls, this could be a problem with the lineOfSight function.
@@ -57,11 +59,18 @@
 *  When running a multiplayer game if another player in the game picks up/drops
 *  creatures you don't see the effects on your own display.
 
++  When using the << and >> operators the 'endl' thing does a flush of the
++  stream, this is likely unnecessary so the endl should usually be replaced by a "\n".
+
 +  Creature class descriptions don't need to include the ".mesh" on their
 +  meshName in the level file since the game engine could just add this itself
 +  like it does for rooms, etc.
 +
 +--------------- FEATURE ADDITIONS: ---------------
+*  Add a function to encapsulate the semaphore lock/unlock as well as the
+*  actual Socket::send() command into a single call in something like
+*  sendToServer(), also do the same for server->client communication.
+
 +  When doing the floodfill, instead of taking an argument of tile passability,
 +  use the passibility of the tile where the fill started.
 +
@@ -93,9 +102,6 @@
 
 *  Add a terminal command 'chathelp' which will lookup a help message and then
 *  chat it to the people in the game, to allow for showing people how to do stuff.
-
-*  Make the HP loaded by the creature class the max HP and make the creature IO
-*  read/write the current HP.
 
 *  implement history on the terminal.
 *  implement line editing on the terminal.
@@ -135,6 +141,9 @@
 *  Color chat messages with the color of the player who sent them.
 
 *  Make use of std::set instead of std::vector where appropriate.
+
+*  Add a new tile type which automatically grows tiles next to it when a
+*  creature gets within a certain distance of it.
 
  ---------------
 

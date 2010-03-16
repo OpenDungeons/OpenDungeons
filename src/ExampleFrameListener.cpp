@@ -2198,12 +2198,12 @@ void ExampleFrameListener::executePromptCommand()
 			// Creature the creature and add it to the gameMap
 			Creature *tempCreature = new Creature;
 			stringstream tempSS(arguments);
-			tempSS >> tempCreature;
-			Creature *tempClass = gameMap.getClassDescription(tempCreature->className);
+			CreatureClass *tempClass = gameMap.getClassDescription(tempCreature->className);
 			if(tempClass != NULL)
 			{
-				tempCreature->meshName = tempClass->meshName;
-				tempCreature->scale = tempClass->scale;
+				*tempCreature = *tempClass;
+				tempSS >> tempCreature;
+
 				gameMap.addCreature(tempCreature);
 
 				// Create the mesh and SceneNode for the new creature
@@ -2230,17 +2230,11 @@ void ExampleFrameListener::executePromptCommand()
 	{
 		if(arguments.size() > 0)
 		{
-			//FIXME: this code should be standardaized with the equivalent code in readGameMapFromFile()
-			// This will require making CreatureClass a base class of Creature
-			double tempX, tempY, tempZ, tempSightRadius, tempDigRate, tempMoveSpeed;
-			double tempHP, tempMana, tempHPPerLevel, tempManaPerLevel;
-			string tempString, tempString2;
+			CreatureClass *tempClass = new CreatureClass;
 			tempSS.str(arguments);
-			tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ >> tempHP >> tempMana >> tempHPPerLevel >> tempManaPerLevel;
-			tempSS >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
-			Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempHPPerLevel, tempManaPerLevel,\
-					tempSightRadius, tempDigRate, tempMoveSpeed);
-			gameMap.addClassDescription(p);
+			tempSS >> tempClass;
+
+			gameMap.addClassDescription(tempClass);
 		}
 
 	}
@@ -2268,12 +2262,8 @@ void ExampleFrameListener::executePromptCommand()
 				tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
 				for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 				{
-					Creature *currentClassDesc = gameMap.getClassDescription(i);
-					tempSS << currentClassDesc->className << "\t" << currentClassDesc->meshName << "\t";
-					tempSS << currentClassDesc->scale << "\t" << currentClassDesc->hp << "\t";
-					tempSS << currentClassDesc->mana << "\t" << currentClassDesc->hpPerLevel << "\t";
-					tempSS << currentClassDesc->manaPerLevel << "\t" << currentClassDesc->sightRadius << "\t";
-					tempSS << currentClassDesc->digRate << "\t" << currentClassDesc->moveSpeed << "\n";
+					CreatureClass *currentClassDesc = gameMap.getClassDescription(i);
+					tempSS << currentClassDesc << "\n";
 				}
 			}
 

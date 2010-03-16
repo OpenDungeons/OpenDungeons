@@ -459,19 +459,15 @@ void *clientHandlerThread(void *p)
 			{
 				//NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
 				// Changes to this code should be reflected in that code as well
-				Creature *tempCreature = gameMap.getClassDescription(i);
+				CreatureClass *tempClass = gameMap.getClassDescription(i);
 
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 
-				tempSS << tempCreature->className << "\t" << tempCreature->meshName << "\t";
-				tempSS << tempCreature->scale.x << "\t" << tempCreature->scale.y << "\t" << tempCreature->scale.z << "\t";
-				tempSS << tempCreature->hp << "\t" << tempCreature->mana << "\t";
-				tempSS << tempCreature->hpPerLevel << "\t" << tempCreature->manaPerLevel << "\t";
-				tempSS << tempCreature->sightRadius << "\t" << tempCreature->digRate << "\t" << tempCreature->moveSpeed << "\n";
+				tempSS << tempClass;
 
 				curSock->send(formatCommand("addclass", tempSS.str()));
 				// Throw away the ok response
+				//TODO:  Actually check this.
 				curSock->recv(tempString);
 			}
 
