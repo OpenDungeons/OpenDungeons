@@ -26,7 +26,8 @@ class Creature
 	public:
 		// Constructors and operators
 		Creature();
-		Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed);
+		Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, double nHP, double nMana, double nHPPerLevel, double nManaPerLevel,\
+				double nSightRadius, double nDigRate, double nMoveSpeed);
 
 		// Class properties
 		string className;
@@ -37,13 +38,15 @@ class Creature
 		double danceRate;		// How much the danced upon tile's color changes per turn of dancing
 		unsigned int level;
 		double exp;
+		double hpPerLevel;
+		double manaPerLevel;
 
 		// Individual properties
 		string name;			// The creature's unique name
 		Weapon *weaponL, *weaponR;	// The weapons the creature is holding
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
-		int hp, maxHP, mana, maxMana;			// Basic stats
+		double hp, maxHP, mana, maxMana;	// Basic stats
 		double moveSpeed;		// How fast the creature moves and animates
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.
 		sem_t meshCreationFinishedSemaphore;

@@ -134,13 +134,16 @@ bool readGameMapFromFile(string fileName)
 		//"addclass" defined in src/Client.cpp and writeGameMapToFile.
 		//Changes to this code should be reflected in that code as well
 		double tempX, tempY, tempZ, tempSightRadius, tempDigRate, tempMoveSpeed;
-		int tempHP, tempMana;
+		double tempHP, tempMana, tempHPPerLevel, tempManaPerLevel;
+
 		levelFile >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
 
-		levelFile >> tempHP >> tempMana;
+		levelFile >> tempHP >> tempMana >> tempHPPerLevel >> tempManaPerLevel;
 		levelFile >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
 
-		Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate, tempMoveSpeed);
+		Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana,\
+				tempHPPerLevel, tempManaPerLevel, tempSightRadius, tempDigRate, tempMoveSpeed);
+
 		gameMap.addClassDescription(p);
 	}
 
@@ -231,7 +234,7 @@ void writeGameMapToFile(string fileName)
 
 	// Write out the creature descriptions to the file
 	levelFile << "\n# Creature classes\n" << gameMap.numClassDescriptions() << "  # The number of creature classes to load.\n";
-	levelFile << "# className\tmeshName\tscaleX\tscaleY\tscaleZ\tHP\tmana\tsightRadius\tdigRate\tmoveSpeed\n";
+	levelFile << "# className\tmeshName\tscaleX\tscaleY\tscaleZ\tHP\tmana\thp/level\tmana/level\tsightRadius\tdigRate\tmoveSpeed\n";
 	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
 	{
 		//NOTE: This code is duplicated in the client side method
@@ -239,7 +242,7 @@ void writeGameMapToFile(string fileName)
 		//Changes to this code should be reflected in that code as well
 		tempCreature = gameMap.getClassDescription(i);
 		levelFile << tempCreature->className << "\t" << tempCreature->meshName << "\t" << tempCreature->scale.x << "\t" << tempCreature->scale.y << "\t" << tempCreature->scale.z << "\t";
-		levelFile << tempCreature->hp << "\t" << tempCreature->mana << "\t";
+		levelFile << tempCreature->hp << "\t" << tempCreature->mana << "\t" << tempCreature->hpPerLevel << "\t" << tempCreature->manaPerLevel << "\t";
 		levelFile << tempCreature->sightRadius << "\t" << tempCreature->digRate << "\t" << tempCreature->moveSpeed << "\n";
 	}
 

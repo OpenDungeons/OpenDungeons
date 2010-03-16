@@ -51,6 +51,12 @@
 *  (creatureTile) gets deleted from the game map and thus when the query is
 *  done it returns NULL.
 
+*  When running a mulitplayer game the client does not get sent the MapLights
+*  or the Goals.
+
+*  When running a multiplayer game if another player in the game picks up/drops
+*  creatures you don't see the effects on your own display.
+
 +  Creature class descriptions don't need to include the ".mesh" on their
 +  meshName in the level file since the game engine could just add this itself
 +  like it does for rooms, etc.
