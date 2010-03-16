@@ -36,6 +36,8 @@ Creature::Creature()
 	mana = 10;
 	maxHP = 10;
 	maxMana = 10;
+	hpPerLevel = 0.0;
+	manaPerLevel = 0.0;
 	sightRadius = 10;
 	digRate = 10;
 	moveSpeed = 1.0;
@@ -55,28 +57,6 @@ Creature::Creature()
 	meshesExist = false;
 }
 
-Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed)
-{
-	// This constructor is meant to be used to initialize a creature class so no creature specific stuff should be set
-	className = nClassName;
-	meshName = nMeshName;
-	scale = nScale;
-
-	hp = nHP;
-	maxHP = nHP;
-	mana = nMana;
-	maxMana = nMana;
-	sightRadius = nSightRadius;
-	digRate = nDigRate;
-	exp = 0.0;
-	level = 1;
-	moveSpeed = nMoveSpeed;
-	tilePassability = Tile::walkableTile;
-
-	sceneNode = NULL;
-	meshesExist = false;
-}
-
 /** \brief A function which returns a string describing the IO format of the << and >> operators.
  *
 */
@@ -86,6 +66,7 @@ string Creature::getFormat()
 	tempString += Weapon::getFormat();
 	tempString += "\tweaponR";
 	tempString += Weapon::getFormat();
+	tempString += "\tHP\tmana";
 
 	return tempString;
 }
@@ -98,7 +79,8 @@ ostream& operator<<(ostream& os, Creature *c)
 	os << c->className << "\t" << c->name << "\t";
 	os << c->position.x << "\t" << c->position.y << "\t" << c->position.z << "\t";
 	os << c->color << "\t";
-	os << c->weaponL << "\t" << c->weaponR;
+	os << c->weaponL << "\t" << c->weaponR << "\t";
+	os << c->hp << "\t" << c->mana;
 
 	return os;
 }
@@ -138,21 +120,32 @@ istream& operator>>(istream& is, Creature *c)
 	c->weaponR->handString = "R";
 
 	// Copy the class based items
-	Creature *creatureClass = gameMap.getClassDescription(c->className);
+	CreatureClass *creatureClass = gameMap.getClassDescription(c->className);
 	if(creatureClass != NULL)
 	{
-		c->meshName = creatureClass->meshName;
-		c->scale = creatureClass->scale;
-		c->sightRadius = creatureClass->sightRadius;
-		c->digRate = creatureClass->digRate;
-		c->hp = creatureClass->hp;
-		c->maxHP = creatureClass->maxHP;
-		c->mana = creatureClass->mana;
-		c->maxMana = creatureClass->maxMana;
-		c->moveSpeed = creatureClass->moveSpeed;
+		*c = *creatureClass;
 	}
 
+	is >> c->hp >> c->mana;
+
 	return is;
+}
+
+Creature Creature::operator=(CreatureClass c2)
+{
+	className = c2.className;
+	meshName = c2.meshName;
+	scale = c2.scale;
+	sightRadius = c2.sightRadius;
+	digRate = c2.digRate;
+	danceRate = c2.danceRate;
+	hpPerLevel = c2.hpPerLevel;
+	manaPerLevel = c2.manaPerLevel;
+	moveSpeed = c2.moveSpeed;
+	maxHP = c2.maxHP;
+	maxMana = c2.maxMana;
+
+	return *this;
 }
 
 /*! \brief Allocate storage for, load, and inform OGRE about a mesh for this creature.
@@ -996,12 +989,16 @@ double Creature::getDefense()
 void Creature::doLevelUp()
 {
 	level++;
+	cout << "\n\n" << name << " has reached level " << level << "\n\n";
+
 	if(digRate > 0.1)
 		digRate *= 1.0 + log((double)log((double)level+1)+1);
 
 	if(digRate >= 60)  digRate = 60;
 
-	cout << "\n\n" << name << " has reached level " << level << "\n\n";
+	maxHP += hpPerLevel;
+	maxMana += manaPerLevel;
+
 	// Scale up the mesh.
 	if(meshesExist && level < 100)
 	{

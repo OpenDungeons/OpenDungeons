@@ -45,10 +45,10 @@ class GameMap
 		unsigned int numCreatures();
 
 		void clearClasses();
-		void addClassDescription(Creature c);
-		void addClassDescription(Creature *c);
-		Creature* getClassDescription(int index);
-		Creature* getClassDescription(string query);
+		void addClassDescription(CreatureClass c);
+		void addClassDescription(CreatureClass *c);
+		CreatureClass* getClassDescription(int index);
+		CreatureClass* getClassDescription(string query);
 		unsigned int numClassDescriptions();
 
 		void clearPlayers();
@@ -124,7 +124,7 @@ class GameMap
 
 	private:
 		map< pair<int,int>, Tile*> tiles;
-		vector<Creature*> classDescriptions;
+		vector<CreatureClass*> classDescriptions;
 		vector<Creature*> creatures;
 		vector<Creature*> creaturesToDelete;
 		vector<Player*> players;

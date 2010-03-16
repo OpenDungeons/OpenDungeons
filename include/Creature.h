@@ -11,6 +11,7 @@ class Creature;
 #include "CreatureAction.h"
 #include "Weapon.h"
 #include "Field.h"
+#include "CreatureClass.h"
 
 /*! \brief Position, status, and AI state for a single game creature.
  *
@@ -21,31 +22,20 @@ class Creature;
  *  will probably be refined later but it works fine for now and the code
  *  affected by this change is relatively limited.
  */
-class Creature
+class Creature : public CreatureClass
 {
 	public:
-		// Constructors and operators
 		Creature();
-		Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed);
-
-		// Class properties
-		string className;
-		string meshName;
-		Ogre::Vector3 scale;
-		double sightRadius;		// The inner radius where the creature sees everything
-		double digRate;			// Fullness removed per turn of digging
-		double danceRate;		// How much the danced upon tile's color changes per turn of dancing
-		unsigned int level;
-		double exp;
 
 		// Individual properties
 		string name;			// The creature's unique name
 		Weapon *weaponL, *weaponR;	// The weapons the creature is holding
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
-		int hp, maxHP, mana, maxMana;			// Basic stats
-		double moveSpeed;		// How fast the creature moves and animates
-		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.
+		double hp, mana;		// Basic stats
+		unsigned int level;
+		double exp;
+		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.  Also, it should be moved to CreatureClass.
 		sem_t meshCreationFinishedSemaphore;
 		sem_t meshDestructionFinishedSemaphore;
 
@@ -95,6 +85,7 @@ class Creature
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Creature *c);
 		friend istream& operator>>(istream& is, Creature *c);
+		Creature operator=(CreatureClass c2);
 
 		// Public data members
 		AnimationState *animationState;

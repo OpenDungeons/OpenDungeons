@@ -205,7 +205,7 @@ void GameMap::addTile(Tile *t)
  * members of that class.  Creature specific things like location, etc. are
  * then filled out for the individual creature.
  */
-void GameMap::addClassDescription(Creature *c)
+void GameMap::addClassDescription(CreatureClass *c)
 {
 	classDescriptions.push_back( c );
 }
@@ -213,9 +213,9 @@ void GameMap::addClassDescription(Creature *c)
 /*! \brief Copies the creature class structure into a newly created structure and stores the address of the new structure in this GameMap.
  *
  */
-void GameMap::addClassDescription(Creature c)
+void GameMap::addClassDescription(CreatureClass c)
 {
-	classDescriptions.push_back( new Creature(c) );
+	classDescriptions.push_back( new CreatureClass(c) );
 }
 
 /*! \brief Adds the address of a new creature to be stored in this GameMap.
@@ -262,7 +262,7 @@ void GameMap::queueCreatureForDeletion(Creature *c)
 /*! \brief Returns a pointer to the first class description whose 'name' parameter matches the query string.
  *
  */
-Creature* GameMap::getClassDescription(string query)
+CreatureClass* GameMap::getClassDescription(string query)
 {
 	for(unsigned int i = 0; i < classDescriptions.size(); i++)
 	{
@@ -300,7 +300,7 @@ Creature* GameMap::getCreature(int index)
 /*! \brief Gets the i'th class description in this GameMap.
  *
  */
-Creature* GameMap::getClassDescription(int index)
+CreatureClass* GameMap::getClassDescription(int index)
 {
 	return classDescriptions[index];
 }

@@ -166,21 +166,12 @@ void *clientSocketProcessor(void *p)
 
 			else if(serverCommand.compare("addclass") == 0)
 			{
-				//NOTE: This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
-				// Changes to this code should be reflected in that code as well
-				double tempX, tempY, tempZ, tempSightRadius, tempDigRate, tempMoveSpeed;
-				int tempHP, tempMana;
-				stringstream tempSS;
-				string tempString2;
+				stringstream tempSS(arguments);;
+				CreatureClass *tempClass = new CreatureClass;
 
-				tempSS.str(arguments);
+				tempSS >> tempClass;
 
-				tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
-				tempSS >> tempHP >> tempMana;
-				tempSS >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
-
-				Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate, tempMoveSpeed);
-				gameMap.addClassDescription(p);
+				gameMap.addClassDescription(tempClass);
 				sem_wait(&sock->semaphore);
 				sock->send(formatCommand("ok", "addclass"));
 				sem_post(&sock->semaphore);
