@@ -169,17 +169,19 @@ void *clientSocketProcessor(void *p)
 				//NOTE: This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
 				// Changes to this code should be reflected in that code as well
 				double tempX, tempY, tempZ, tempSightRadius, tempDigRate, tempMoveSpeed;
-				int tempHP, tempMana;
+				double tempHP, tempMana, tempHPPerLevel, tempManaPerLevel;
 				stringstream tempSS;
 				string tempString2;
 
 				tempSS.str(arguments);
 
 				tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ;
-				tempSS >> tempHP >> tempMana;
+				tempSS >> tempHP >> tempMana >> tempHPPerLevel >> tempManaPerLevel;
 				tempSS >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
 
-				Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate, tempMoveSpeed);
+				Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana,\
+						tempHPPerLevel, tempManaPerLevel, tempSightRadius, tempDigRate, tempMoveSpeed);
+
 				gameMap.addClassDescription(p);
 				sem_wait(&sock->semaphore);
 				sock->send(formatCommand("ok", "addclass"));

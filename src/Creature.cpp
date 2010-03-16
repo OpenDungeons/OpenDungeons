@@ -57,7 +57,8 @@ Creature::Creature()
 	meshesExist = false;
 }
 
-Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, int nHP, int nMana, double nSightRadius, double nDigRate, double nMoveSpeed)
+Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, double nHP, double nMana, double nHPPerLevel, double nManaPerLevel,\
+				double nSightRadius, double nDigRate, double nMoveSpeed)
 {
 	// This constructor is meant to be used to initialize a creature class so no creature specific stuff should be set
 	className = nClassName;
@@ -68,8 +69,8 @@ Creature::Creature(string nClassName, string nMeshName, Ogre::Vector3 nScale, in
 	maxHP = nHP;
 	mana = nMana;
 	maxMana = nMana;
-	hpPerLevel = 0.0;
-	manaPerLevel = 0.0;
+	hpPerLevel = nHPPerLevel;
+	manaPerLevel = nManaPerLevel;
 	sightRadius = nSightRadius;
 	digRate = nDigRate;
 	exp = 0.0;
@@ -1000,12 +1001,16 @@ double Creature::getDefense()
 void Creature::doLevelUp()
 {
 	level++;
+	cout << "\n\n" << name << " has reached level " << level << "\n\n";
+
 	if(digRate > 0.1)
 		digRate *= 1.0 + log((double)log((double)level+1)+1);
 
 	if(digRate >= 60)  digRate = 60;
 
-	cout << "\n\n" << name << " has reached level " << level << "\n\n";
+	maxHP += hpPerLevel;
+	maxMana += manaPerLevel;
+
 	// Scale up the mesh.
 	if(meshesExist && level < 100)
 	{

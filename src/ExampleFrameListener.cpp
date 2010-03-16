@@ -2233,11 +2233,13 @@ void ExampleFrameListener::executePromptCommand()
 			//FIXME: this code should be standardaized with the equivalent code in readGameMapFromFile()
 			// This will require making CreatureClass a base class of Creature
 			double tempX, tempY, tempZ, tempSightRadius, tempDigRate, tempMoveSpeed;
-			int tempHP, tempMana;
+			double tempHP, tempMana, tempHPPerLevel, tempManaPerLevel;
 			string tempString, tempString2;
 			tempSS.str(arguments);
-			tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ >> tempHP >> tempMana >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
-			Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempSightRadius, tempDigRate, tempMoveSpeed);
+			tempSS >> tempString >> tempString2 >> tempX >> tempY >> tempZ >> tempHP >> tempMana >> tempHPPerLevel >> tempManaPerLevel;
+			tempSS >> tempSightRadius >> tempDigRate >> tempMoveSpeed;
+			Creature *p = new Creature(tempString, tempString2, Ogre::Vector3(tempX, tempY, tempZ), tempHP, tempMana, tempHPPerLevel, tempManaPerLevel,\
+					tempSightRadius, tempDigRate, tempMoveSpeed);
 			gameMap.addClassDescription(p);
 		}
 
@@ -2269,7 +2271,8 @@ void ExampleFrameListener::executePromptCommand()
 					Creature *currentClassDesc = gameMap.getClassDescription(i);
 					tempSS << currentClassDesc->className << "\t" << currentClassDesc->meshName << "\t";
 					tempSS << currentClassDesc->scale << "\t" << currentClassDesc->hp << "\t";
-					tempSS << currentClassDesc->mana << "\t" << currentClassDesc->sightRadius << "\t";
+					tempSS << currentClassDesc->mana << "\t" << currentClassDesc->hpPerLevel << "\t";
+					tempSS << currentClassDesc->manaPerLevel << "\t" << currentClassDesc->sightRadius << "\t";
 					tempSS << currentClassDesc->digRate << "\t" << currentClassDesc->moveSpeed << "\n";
 				}
 			}

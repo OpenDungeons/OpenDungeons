@@ -467,6 +467,7 @@ void *clientHandlerThread(void *p)
 				tempSS << tempCreature->className << "\t" << tempCreature->meshName << "\t";
 				tempSS << tempCreature->scale.x << "\t" << tempCreature->scale.y << "\t" << tempCreature->scale.z << "\t";
 				tempSS << tempCreature->hp << "\t" << tempCreature->mana << "\t";
+				tempSS << tempCreature->hpPerLevel << "\t" << tempCreature->manaPerLevel << "\t";
 				tempSS << tempCreature->sightRadius << "\t" << tempCreature->digRate << "\t" << tempCreature->moveSpeed << "\n";
 
 				curSock->send(formatCommand("addclass", tempSS.str()));
