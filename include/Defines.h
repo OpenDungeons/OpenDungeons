@@ -16,6 +16,8 @@ For information on how to use a particular command, type help followed by the co
 \n\tlist - print out lists of creatures, classes, etc\n\thelp - displays this help screen\n\tsave - saves the current level to a file\
 \n\tload - loads a level from a file\
 \n\tquit - exit the program\
+\n\tmaxmessages - Sets or displays the max number of chat messages to display\
+\n\tmaxtime - Sets or displays the max time for chat messages to be displayed\
 \n\ttermwidth - set the terminal width\
 \n\taddcreature - load a creature into the file.\
 \n\taddclass - Define a creature class\

@@ -123,9 +123,6 @@
 *  Test limiting the number of render requests that can be handled per frame,
 *  initial tests did not seem encouraging so maybe this is a bad idea.
 
-+  Add terminal commands to set the max number and max display time of chat
-+  messages.
-+
 *  Color chat messages with the color of the player who sent them.
 
 *  Make use of std::set instead of std::vector where appropriate.

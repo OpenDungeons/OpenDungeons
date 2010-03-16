@@ -86,6 +86,8 @@ void ExampleFrameListener::updateStats(void)
 ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, SceneManager *sceneManager, CEGUI::Renderer *renderer, bool bufferedKeys, bool bufferedMouse, bool bufferedJoy)
 	: mCamera(cam), mTranslateVector(Ogre::Vector3::ZERO), mWindow(win)
 {
+	chatMaxMessages = 10;
+	chatMaxTimeDisplay = 20;
 	mCount = 0;
 	mCurrentObject = NULL;
 	mLMouseDown = false;
@@ -777,7 +779,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		deque< ChatMessage* >::iterator itr;
 		itr = chatMessages.begin() + i;
 		currentMessage = *itr;
-		if(difftime(now, currentMessage->recvTime) > 20.0)
+		if(difftime(now, currentMessage->recvTime) > chatMaxTimeDisplay)
 		{
 			chatMessages.erase(itr);
 		}
@@ -788,7 +790,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// Only keep the N newest chat messages of the ones that remain
-	while(chatMessages.size() > 10)
+	while(chatMessages.size() > chatMaxMessages)
 	{
 		delete chatMessages.front();
 		chatMessages.pop_front();
@@ -2409,7 +2411,7 @@ void ExampleFrameListener::executePromptCommand()
 	// Set your nickname
 	else if(command.compare("nick") == 0)
 	{
-		string tempString;
+		//string tempString; // FIXME Needed?
 		if(arguments.size() > 0)
 		{
 			gameMap.me->nick = arguments;
@@ -2421,6 +2423,43 @@ void ExampleFrameListener::executePromptCommand()
 			commandOutput = "Current nickname is:  " + gameMap.me->nick;
 		}
 	}
+
+	// Set chat message variables
+	else if(command.compare("maxtime") == 0)
+	{
+		if (arguments.size() > 0)
+		{
+			chatMaxTimeDisplay = atoi(arguments.c_str());
+			tempSS << "Max display time for chat messages was changed to: " << arguments;
+		}
+
+		else
+		{
+			tempSS << "Max display time for chat messages is: " << chatMaxTimeDisplay;
+		}
+
+		commandOutput = tempSS.str();
+	}
+
+	else if(command.compare("maxmessages") == 0)
+	{
+		if (arguments.size() > 0)
+		{
+			chatMaxMessages = atoi(arguments.c_str());
+			tempSS << "Max chat messages to display has been set to: " << arguments;
+		}
+
+		else
+		{
+			tempSS << "Max chat messages to display is: " << chatMaxMessages;
+		}
+
+		commandOutput = tempSS.str();
+	}
+
+
+
+
 
 	// Connect to a server
 	else if(command.compare("connect") == 0)
@@ -2805,7 +2844,7 @@ string ExampleFrameListener::getHelpText(string arg)
 	{
 		string tempString = "";
 		tempString += "|| Action           || Keyboard 1       || Keyboard 2       ||\n";
-		tempString += "=============================================================\n";
+		tempString += "==============================================================\n";
 		tempString += "|| Zoom In          || Page Up          || e                ||\n";
 		tempString += "|| Zoom Out         || Insert           || q                ||\n";
 		tempString += "|| Pan Left         || Left             || a                ||\n";

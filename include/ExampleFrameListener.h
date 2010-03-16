@@ -109,6 +109,10 @@ public:
 	vector<pthread_t*> clientHandlerThreads;
 	pthread_t creatureThread;
 
+	// Variables for chat messages
+	unsigned int chatMaxMessages;
+	unsigned int chatMaxTimeDisplay;
+
 protected:
 	Camera* mCamera;
 	SceneNode *mCamNode;
