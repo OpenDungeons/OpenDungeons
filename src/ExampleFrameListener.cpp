@@ -1724,12 +1724,44 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 	}
 	else
 	{
+		stringstream tempSS2;
 		// If the terminal is active
 		// Keyboard is used to command the terminal
 		switch(arg.key)
 		{
 			case KC_RETURN:
-				executePromptCommand();
+				
+				// If the user just presses enter without entering a command we return to the game
+				if(promptCommand.size() == 0)
+				{
+					promptCommand = "";
+					terminalActive = false;
+
+					break;
+				}
+
+				char array2[255];
+				tempSS2.str(promptCommand);
+				tempSS2.getline(array2, sizeof(array2), ' ');
+				command = array2;
+				tempSS2.getline(array2, sizeof(array2));
+				arguments = array2;
+
+				unsigned int count;
+				count = 0;
+
+				while(count < arguments.size() && arguments[count] == ' ')
+				{
+					arguments = arguments.substr(1, arguments.size()-1);
+				}
+
+				// Force command to lower case
+				for(unsigned int i = 0; i < command.size(); i++)
+				{
+					command[i] = tolower(command[i]);
+				}
+
+				executePromptCommand(command, arguments);
 				break;
 
 			case KC_GRAVE:
@@ -1885,42 +1917,11 @@ void ExampleFrameListener::printText(string text)
 /*! \brief Process the commandline from the terminal and carry out the actions specified in by the user.
  *
  */
-void ExampleFrameListener::executePromptCommand()
+void ExampleFrameListener::executePromptCommand(string command, string arguments)
 {
 	stringstream tempSS;
 
 	commandOutput = "";
-	command = "";
-	arguments = "";
-
-	// If the user just presses enter without entering a command we return to the game
-	if(promptCommand.size() == 0)
-	{
-		promptCommand = "";
-		terminalActive = false;
-
-		return;
-	}
-
-	char array2[255];
-	stringstream tempSS2;
-	tempSS2.str(promptCommand);
-	tempSS2.getline(array2, sizeof(array2), ' ');
-	command = array2;
-	tempSS2.getline(array2, sizeof(array2));
-	arguments = array2;
-
-	unsigned int count = 0;
-	while(count < arguments.size() && arguments[count] == ' ')
-	{
-		arguments = arguments.substr(1, arguments.size()-1);
-	}
-
-	// Force command to lower case
-	for(unsigned int i = 0; i < command.size(); i++)
-	{
-		command[i] = tolower(command[i]);
-	}
 
 	// Begin Command Implementation
 	//
@@ -2555,6 +2556,9 @@ void ExampleFrameListener::executePromptCommand()
 					// Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
 					gameMap.clearMapLightIndicators();
 
+					// Automatically closes the terminal
+					terminalActive = false;
+
 					commandOutput = "Server started successfully.";
 				}
 				else
@@ -2573,8 +2577,42 @@ void ExampleFrameListener::executePromptCommand()
 			commandOutput = "You must set a nick with the \"nick\" command before you can host a server.";
 		}
 
-		terminalActive = false;
+	}
 
+	// Send help command information to all players
+	else if(command.compare("chathelp") == 0)
+	{
+		if(serverSocket != NULL || clientSocket != NULL)
+		{
+
+			if(arguments.size() > 0)
+			{
+				// call getHelpText()
+				string tempString;
+				tempString = getHelpText(arguments);
+
+				if(tempString.compare("Help for command:  \"" + arguments + "\" not found.") == 0)
+				{
+					tempSS << tempString << "\n";
+				}
+				else
+				{
+					executePromptCommand("chat", "\n" + tempString);
+				}
+			}
+					
+			else
+			{
+				tempSS << "No command argument specified. See 'help' for a list of arguments.\n";
+			}
+		}
+
+		else
+		{
+			tempSS << "Please host or connect to a game before running chathelp.\n";
+		}
+
+		commandOutput = tempSS.str();
 	}
 
 	// Send a chat message

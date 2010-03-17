@@ -90,7 +90,7 @@ public:
 
 	// Console functions
 	void printText(string text);
-	void executePromptCommand();
+	void executePromptCommand(string command, string arguments);
 	string getHelpText(string arg);
 	
 	// Console variables
