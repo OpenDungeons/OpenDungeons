@@ -1960,7 +1960,21 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 	{
 		if(arguments.size() > 0)
 		{
-			string tempString = "Media/levels/" + arguments + ".level";
+			string tempString;
+			size_t found;
+			found = arguments.find(".level");
+
+			// If the starting point of the string found is equal to the size of the level name minus the extension (.level) 
+			if(found == (arguments.size() - 6))
+			{
+				tempString = "Media/levels/" + arguments;
+			}
+
+			else
+			{
+				tempString = "Media/levels/" + arguments + ".level";
+			}
+				
 			if(readGameMapFromFile(tempString))
 			{
 				string tempString2 = "";
