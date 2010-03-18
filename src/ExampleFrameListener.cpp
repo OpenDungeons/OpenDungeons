@@ -305,12 +305,19 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		Field *curField = NULL;
 		FieldType::iterator fieldItr;
 		int tempX, tempY;
+		unsigned int tempUnsigned;
 		double tempDouble, tempDouble2;
+		bool releaseRenderQueueBarrier = false;
 
 		// Remove the first item from the render queue
 		sem_wait(&renderQueueSemaphore);
 		RenderRequest *curReq = renderQueue.front();
 		renderQueue.pop_front();
+
+		// If the renderQueue now contains 0 objects we should process this object and then
+		// release any of the other threads which were waiting on a renderQueue flush.
+		releaseRenderQueueBarrier = (renderQueue.size() == 0);
+
 		sem_post(&renderQueueSemaphore);
 
 		// Switch based on the type of render request we are processing
@@ -763,6 +770,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		delete curReq;
 		curReq = NULL;
+
+		// If we have finished processing the last renderRequest that was in the queue we
+		// can release all of the threads that were waiting for the queue to be flushed.
+		tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.getObject();
+		for(unsigned int i = 0; i < tempUnsigned; i++)
+			sem_post(&renderQueueEmptySemaphore);
 	}
 
 	string chatBaseString = "\n---------- Chat ----------\n";
@@ -2449,10 +2462,6 @@ void ExampleFrameListener::executePromptCommand()
 
 		commandOutput = tempSS.str();
 	}
-
-
-
-
 
 	// Connect to a server
 	else if(command.compare("connect") == 0)

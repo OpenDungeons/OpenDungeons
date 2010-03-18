@@ -11,12 +11,15 @@
 #include "ServerNotification.h"
 #include "ClientNotification.h"
 #include "Socket.h"
+#include "ProtectedObject.h"
 
 extern GameMap gameMap;
 extern SceneManager* mSceneMgr;
 
 extern deque<RenderRequest*> renderQueue;
 extern sem_t renderQueueSemaphore;
+extern sem_t renderQueueEmptySemaphore;
+extern ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;
 
 extern deque<ServerNotification*> serverNotificationQueue;
 extern deque<ClientNotification*> clientNotificationQueue;

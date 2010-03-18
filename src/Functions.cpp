@@ -532,3 +532,15 @@ vector<string> listAllFiles(string directoryName)
     return tempVector;
 }
 
+//NOTE: This function has not yet been tested.
+void waitOnRenderQueueFlush()
+{
+	numThreadsWaitingOnRenderQueueEmpty.lock();
+	unsigned int tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.rawGetObject();
+	tempUnsigned++;
+	numThreadsWaitingOnRenderQueueEmpty.rawSetObject(tempUnsigned);
+	numThreadsWaitingOnRenderQueueEmpty.unlock();
+
+	sem_wait(&renderQueueEmptySemaphore);
+}
+

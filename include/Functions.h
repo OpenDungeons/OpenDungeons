@@ -32,5 +32,7 @@ void queueServerNotification(ServerNotification *n);
 
 vector<string> listAllFiles(string directoryName);
 
+void waitOnRenderQueueFlush();
+
 #endif
 

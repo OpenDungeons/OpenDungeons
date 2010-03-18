@@ -11,12 +11,15 @@ using namespace std;
 #include "Player.h"
 #include "RenderRequest.h"
 #include "Socket.h"
+#include "ProtectedObject.h"
 
 SceneManager* mSceneMgr;
 GameMap gameMap;
 
 deque<RenderRequest*> renderQueue;
 sem_t renderQueueSemaphore;
+sem_t renderQueueEmptySemaphore;
+ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty(0);
 
 deque<ServerNotification*> serverNotificationQueue;
 deque<ClientNotification*> clientNotificationQueue;
@@ -63,6 +66,7 @@ int main(int argc, char **argv)
 
 	seedRandomNumberGenerator();
 	sem_init(&renderQueueSemaphore, 0, 1);
+	sem_init(&renderQueueEmptySemaphore, 0, 0);
 	sem_init(&serverNotificationQueueSemaphore, 0, 0);
 	sem_init(&clientNotificationQueueSemaphore, 0, 0);
 	sem_init(&serverNotificationQueueLockSemaphore, 0, 1);

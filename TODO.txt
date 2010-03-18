@@ -67,6 +67,9 @@
 +  like it does for rooms, etc.
 +
 +--------------- FEATURE ADDITIONS: ---------------
+*  Add a goal type ChatMessage which is automatically met and just chats its
+*  arguments in its doSuccessAction().
+
 *  Add a function to encapsulate the semaphore lock/unlock as well as the
 *  actual Socket::send() command into a single call in something like
 *  sendToServer(), also do the same for server->client communication.
