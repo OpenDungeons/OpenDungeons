@@ -63,7 +63,7 @@
 +  stream, this is likely unnecessary so the endl should usually be replaced by a "\n".
 
 +  Make commandOutput do += rather that = so we see the output form multiple
-+  commands.
++  commands. //TODO - Need to check that this does as expected -??
 
 *  When the "tps" terminal command is given a really small value (0.001) the
 *  doTurn routine will go into a sleep call for a very long time, subsequent
@@ -73,8 +73,11 @@
 
 +  Creature class descriptions don't need to include the ".mesh" on their
 +  meshName in the level file since the game engine could just add this itself
-+  like it does for rooms, etc.
++  like it does for rooms, etc
 +
+
+*  Convert string casts to string constructors
+
 +--------------- FEATURE ADDITIONS: ---------------
 *  Add a goal type ChatMessage which is automatically met and just chats its
 *  arguments in its doSuccessAction().
