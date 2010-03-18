@@ -62,6 +62,15 @@
 +  When using the << and >> operators the 'endl' thing does a flush of the
 +  stream, this is likely unnecessary so the endl should usually be replaced by a "\n".
 
++  Make commandOutput do += rather that = so we see the output form multiple
++  commands.
+
+*  When the "tps" terminal command is given a really small value (0.001) the
+*  doTurn routine will go into a sleep call for a very long time, subsequent
+*  changes of the tps command should cancel the existing sleep routine and
+*  re-call it wil the new computed value.  The "fps" command would likely
+*  exhibit the exact same behavior.
+
 +  Creature class descriptions don't need to include the ".mesh" on their
 +  meshName in the level file since the game engine could just add this itself
 +  like it does for rooms, etc.
