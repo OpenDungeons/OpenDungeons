@@ -719,6 +719,7 @@ claimTileBreakStatement:
 							{
 								exp += 2;
 								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
+								creatureNeighbors[i]->setType(Tile::dirt);
 								setAnimationState("Walk");
 
 								// Remove the dig action and replace it with

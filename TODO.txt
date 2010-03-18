@@ -103,9 +103,6 @@
 
 *  Begin phasing out snprintf since it is not portable.
 
-*  Add a terminal command 'chathelp' which will lookup a help message and then
-*  chat it to the people in the game, to allow for showing people how to do stuff.
-
 *  implement history on the terminal.
 *  implement line editing on the terminal.
 	Both of these will be fixed by moving to a better terminal, see:
