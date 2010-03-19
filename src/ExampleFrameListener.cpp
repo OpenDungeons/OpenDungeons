@@ -1762,6 +1762,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 					break;
 				}
 
+				// Split the prompt command into a command and arguments at the first space symbol.
 				char array2[255];
 				tempSS2.str(promptCommand);
 				tempSS2.getline(array2, sizeof(array2), ' ');
@@ -1769,13 +1770,9 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				tempSS2.getline(array2, sizeof(array2));
 				arguments = array2;
 
-				unsigned int count;
-				count = 0;
-
-				while(count < arguments.size() && arguments[count] == ' ')
-				{
+				// Strip any leading spaces off the arguments string.
+				while(arguments.size() > 0 && arguments[0] == ' ')
 					arguments = arguments.substr(1, arguments.size()-1);
-				}
 
 				// Force command to lower case
 				for(unsigned int i = 0; i < command.size(); i++)
@@ -1783,6 +1780,8 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 					command[i] = tolower(command[i]);
 				}
 
+				// Clear any old command output and execute the new command with the given arguments string.
+				commandOutput = "";
 				executePromptCommand(command, arguments);
 				break;
 
@@ -1943,8 +1942,6 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 {
 	stringstream tempSS;
 
-	commandOutput = "";
-
 	// Begin Command Implementation
 	//
 	// All the code from here to the rest of the function is the implementation code
@@ -2039,7 +2036,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		else
 		{
 			ColourValue curLight = mSceneMgr->getAmbientLight();
-			commandOutput = "\nCurrent ambient light is:\nRed:  " + StringConverter::toString((Real)curLight.r) + "    Green:  " + StringConverter::toString((Real)curLight.g) + "    Blue:  " + StringConverter::toString((Real)curLight.b) + "\n";
+			commandOutput += "\nCurrent ambient light is:\nRed:  " + StringConverter::toString((Real)curLight.r) + "    Green:  " + StringConverter::toString((Real)curLight.g) + "    Blue:  " + StringConverter::toString((Real)curLight.b) + "\n";
 		}
 	}
 
@@ -2730,7 +2727,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			playerColourValues.push_back(ColourValue(tempR, tempG, tempB));
 			tempSS.str("");
 			tempSS << "Color number " << playerColourValues.size() << " added.";
-			commandOutput = "\n" + tempSS.str() + "\n";
+			commandOutput += "\n" + tempSS.str() + "\n";
 		}
 		else
 		{
