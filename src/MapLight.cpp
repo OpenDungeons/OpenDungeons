@@ -76,6 +76,8 @@ void MapLight::destroyOgreEntity()
 	if(!ogreEntityExists)
 		return;
 
+	destroyOgreEntityVisualIndicator();
+
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::destroyMapLight;
 	request->p = this;

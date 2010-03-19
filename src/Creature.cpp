@@ -1421,6 +1421,7 @@ void Creature::addDestination(int x, int y)
 		walkQueue.push_back(destination);
 		shortDistance = position.distance(walkQueue.front());
 
+		/*   This code is commented out because it causes a bug, it will make the creatures walk funny until they get to their first destination but no other problems shoud result from havin this commented out.  To fix both issues this code should be moved into the rendering thread.
 		// Rotate the creature to face the direction of the destination
 		walkDirection = walkQueue.front() - position;
 		walkDirection.normalise();
@@ -1446,6 +1447,7 @@ void Creature::addDestination(int x, int y)
 			// Add the request to the queue of rendering operations to be performed before the next frame.
 			queueRenderRequest(request);
 		}
+		*/
 	}
 	else
 	{

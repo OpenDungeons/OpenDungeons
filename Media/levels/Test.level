@@ -1,5 +1,5 @@
 OpenDungeons_Version:0.3.9  # The version of OpenDungeons which created this file (for compatability reasons).
-Battle # The level to load after this level is complete.
+Media/levels/Test.level # The level to load after this level is complete.
 
 # Seats
 5  # The number of seats to load.

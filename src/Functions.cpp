@@ -418,7 +418,7 @@ string colourizeMaterial(string materialName, int colour)
 	TexturePtr tempTexture;
 	uint8 *pixelData;
 
-	tempSS.str(tempString);
+	tempSS.str("");
 	tempSS << "Color_" << colour << "_" << materialName;
 	MaterialPtr tempMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
 

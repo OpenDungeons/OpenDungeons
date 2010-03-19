@@ -129,12 +129,6 @@
 *  Add a terminal command to set the number of chat messages and the time to
 *  display them for (both as one command maybe).
 
-*  Overload the << operator on the Player class, do the same for all the
-*  others.  This is already done I think, at least for most classes.
-
-+  Add upkeep rounds to the GameMap::doTurn() method.  This is also somewhat
-+  complete although mana, etc, still need to be added.
-+
 *  Create various levels of quality for each mesh and make a RenderRequest that
 *  switches to new meshes when some criteria is met (use something stable like
 *  num items onscreen at once to avoid churning between mesh detail levels, or

@@ -29,7 +29,7 @@ GameMap::GameMap()
 void GameMap::createNewMap(int xSize, int ySize)
 {
 	Tile *tempTile;
-	char tempString[255];
+	char array[255];
 
 	clearAll();
 
@@ -43,8 +43,8 @@ void GameMap::createNewMap(int xSize, int ySize)
 			tempTile->x = i;
 			tempTile->y = j;
 
-			snprintf(tempString, sizeof(tempString), "Level_%3i_%3i", i, j);
-			tempTile->name = tempString;
+			snprintf(array, sizeof(array), "Level_%3i_%3i", i, j);
+			tempTile->name = array;
 			tempTile->createMesh();
 			//tiles.push_back(tempTile);
 			tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(i,j), tempTile) );
@@ -60,7 +60,6 @@ void GameMap::createNewMap(int xSize, int ySize)
 		itr->second->setFullness( itr->second->getFullness() );
 		itr++;
 	}
-
 }
 
 /*! \brief Returns a pointer to the tile at location (x, y).
@@ -376,8 +375,6 @@ void GameMap::doTurn()
 	Seat *tempSeat;
 	Tile *tempTile;
 
-	static int numTurnsToWaitOnLevelLoad = 3;
-
 	sem_wait(&creatureAISemaphore);
 
 	if(loadNextLevel)
@@ -385,23 +382,15 @@ void GameMap::doTurn()
 		if(numCreatures() > 0)
 		{
 			while(numCreatures() > 0)
-			{
 				queueCreatureForDeletion(creatures[0]);
-				removeCreature(creatures[0]);
-			}
 		}
 		else
 		{
-			if(numTurnsToWaitOnLevelLoad > 0)
-			{
-				numTurnsToWaitOnLevelLoad--;
-				return;
-			}
-			else
-			{
-				loadNextLevel = false;
-				readGameMapFromFile((string)"Media/levels/" + nextLevel + ".level");
-			}
+			loadNextLevel = false;
+			//TODO: The return value from the level load should be checked to make sure it loaded properly.
+			readGameMapFromFile(nextLevel);
+			createAllEntities();
+			me->seat = popEmptySeat();
 		}
 	}
 

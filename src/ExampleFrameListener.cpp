@@ -282,7 +282,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	using namespace OIS;
 
 	// Process the queue of render tasks from the other threads
-	while(renderQueue.size() > 0)
+	while(true)
 	{
 		char meshName[255];
 		string tempString, tempString2;
@@ -311,6 +311,15 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		// Remove the first item from the render queue
 		sem_wait(&renderQueueSemaphore);
+
+		// Verify that the renderQueue still contains items, this can happen because the check at the top
+		// of the loop is not semaphore protected and is therefore subject to a race condition.
+		if(renderQueue.size() == 0)
+		{
+			sem_post(&renderQueueSemaphore);
+			break;
+		}
+
 		RenderRequest *curReq = renderQueue.front();
 		renderQueue.pop_front();
 
@@ -383,8 +392,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curRoom = (Room*)curReq->p;
 				curTile = (Tile*)curReq->p2;
 
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
 				ent = mSceneMgr->createEntity(tempSS.str(), curRoom->meshName + ".mesh");
 				//colourizeEntity(ent, curRoom->color);
@@ -402,8 +410,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curRoom = (Room*)curReq->p;
 				curTile = (Tile*)curReq->p2;
 
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
 				if(mSceneMgr->hasEntity(tempSS.str()))
 				{
@@ -593,8 +600,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					tempY = fieldItr->first.second;
 					tempDouble2 = fieldItr->second;
 					//cout << "\ncreating field tile:  " << tempX << "\t" << tempY << "\t" << tempDouble;
-					tempString = "";
-					tempSS.str(tempString);
+					tempSS.str("");
 					tempSS << "Field_" << curField->name << "_" << tempX << "_" << tempY;
 					ent = mSceneMgr->createEntity(tempSS.str(), "Field_indicator.mesh");
 					node = fieldSceneNode->createChildSceneNode(tempSS.str() + "_node");
@@ -617,8 +623,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				fieldItr = curField->begin();
 				while(fieldItr != curField->end())
 				{
-					tempString = "";
-					tempSS.str(tempString);
+					tempSS.str("");
 					tempSS << "Field_" << curField->name << "_" << tempX << "_" << tempY;
 
 					tempX = fieldItr->first.first;
@@ -705,8 +710,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				if(curTile != NULL && curCreature != NULL)
 				{
-					tempString = "";
-					tempSS.str(tempString);
+					tempSS.str("");
 					tempSS << "Vision_indicator_" << curCreature->name << "_" << curTile->x << "_" << curTile->y;
 
 					ent = mSceneMgr->createEntity( tempSS.str(), "Cre_vision_indicator.mesh");
@@ -724,8 +728,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curTile = (Tile*)curReq->p;
 				curCreature = (Creature*)curReq->p2;
 
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << "Vision_indicator_" << curCreature->name << "_" << curTile->x << "_" << curTile->y; 
 				if(mSceneMgr->hasEntity(tempSS.str()))
 				{
@@ -756,8 +759,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				break;
 
 			case RenderRequest::moveSceneNode:
-				node = mSceneMgr->getSceneNode(curReq->str);
-				node->setPosition(curReq->vec);
+				if(mSceneMgr->hasSceneNode(curReq->str))
+				{
+					node = mSceneMgr->getSceneNode(curReq->str);
+					node->setPosition(curReq->vec);
+				}
 				break;
 
 			case RenderRequest::noRequest:
@@ -813,8 +819,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	for(unsigned int i = 0; i < chatMessages.size(); i++)
 	{
 		struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
-		string tempString = "";
-		stringstream tempSS(tempString);
+		stringstream tempSS("");
 		tempSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":" << friendlyTime->tm_sec << "  " << chatMessages[i]->clientNick << ":  " << chatMessages[i]->message;
 		chatString += tempSS.str() + "\n";
 	}
@@ -822,8 +827,13 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	// Display the terminal, the current turn number, and the
 	// visible chat messages at the top of the screen
 	string nullString = "";
-	string turnString = "Average AI leftover time:  " + StringConverter::toString((Ogre::Real)fabs(gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
-	turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
+	string turnString = "";
+	if(serverSocket != NULL)
+	{
+		turnString = "On average the creature AI is finishing ";
+		turnString += StringConverter::toString((Ogre::Real)fabs(gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
+		turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
+	}
 	turnString += "\nTurn number:  " + StringConverter::toString(turnNumber);
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));
 
@@ -1655,8 +1665,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				if(serverSocket == NULL && clientSocket == NULL)
 				{
 					mCurrentTileType = Tile::nextTileType(mCurrentTileType);
-					tempString = "";
-					tempSS.str(tempString);
+					tempSS.str("");
 					tempSS << "Tile type:  " << Tile::tileTypeToString(mCurrentTileType);
 					MOTD = tempSS.str();
 				}
@@ -1971,7 +1980,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 	// Clear the current level and load a new one from a file
 	else if(command.compare("load") == 0)
 	{
-		if(arguments.size() > 0)
+		if(arguments.size() > 0 && clientSocket == NULL)
 		{
 			string tempString;
 			size_t found;
@@ -1979,33 +1988,38 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 
 			// If the starting point of the string found is equal to the size of the level name minus the extension (.level) 
 			if(found == (arguments.size() - 6))
-			{
 				tempString = "Media/levels/" + arguments;
-			}
-
 			else
-			{
 				tempString = "Media/levels/" + arguments + ".level";
-			}
 				
-			if(readGameMapFromFile(tempString))
+			if(serverSocket != NULL)
 			{
-				string tempString2 = "";
-				stringstream tempSS(tempString2);
-				tempSS << "Successfully loaded file:  " << tempString << "\nNum tiles:  " << gameMap.numTiles() << "\nNum classes:  " << gameMap.numClassDescriptions() << "\nNum creatures:  " << gameMap.numCreatures();
-				commandOutput = tempSS.str();
-
-				gameMap.createAllEntities();
+				gameMap.nextLevel = tempString;
+				gameMap.loadNextLevel = true;
 			}
 			else
 			{
-				tempSS << "ERROR: Could not load game map \'" << tempString << "\'.";
-				commandOutput = tempSS.str();
+				if(readGameMapFromFile(tempString))
+				{
+					stringstream tempSS("");
+					tempSS << "Successfully loaded file:  " << tempString << "\nNum tiles:  " << gameMap.numTiles() << "\nNum classes:  " << gameMap.numClassDescriptions() << "\nNum creatures:  " << gameMap.numCreatures();
+					commandOutput = tempSS.str();
+
+					gameMap.createAllEntities();
+				}
+				else
+				{
+					tempSS << "ERROR: Could not load game map \'" << tempString << "\'.";
+					commandOutput = tempSS.str();
+				}
 			}
 		}
 		else
 		{
-			commandOutput = "ERROR:  No level name given";
+			if(arguments.size() == 0)
+				commandOutput = "ERROR:  No level name given.";
+			else // if(clientSocket != NULL)
+				commandOutput = "ERROR:  Cannot load a level if you are a client, only the sever can load new levels.";
 		}
 	}
 
@@ -2275,8 +2289,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 	{
 		if(arguments.size() > 0)
 		{
-			string tempString;
-			tempSS.str(tempString);
+			tempSS.str("");
 
 			if(arguments.compare("creatures") == 0)
 			{
@@ -2559,6 +2572,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				// Start the server socket listener as well as the server socket thread
 				if(serverSocket != NULL && gameMap.numEmptySeats() > 0)
 				{
+					//NOTE: Code added to this routine may also need to be added to GameMap::doTurn() in the "loadNextLevel" stuff.
 					// Sit down at the first available seat.
 					gameMap.me->seat = gameMap.popEmptySeat();
 
@@ -2714,8 +2728,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			tempSS.str(arguments);
 			tempSS >> tempR >> tempG >> tempB;
 			playerColourValues.push_back(ColourValue(tempR, tempG, tempB));
-			tempString = "";
-			tempSS.str(tempString);
+			tempSS.str("");
 			tempSS << "Color number " << playerColourValues.size() << " added.";
 			commandOutput = tempSS.str();
 		}
@@ -2738,8 +2751,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			if(index < playerColourValues.size())
 			{
 				playerColourValues[index] = ColourValue(tempR, tempG, tempB);
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << "Color number " << index << " changed to " << tempR << "\t" << tempG << "\t" << tempB;
 				commandOutput = tempSS.str();
 			}
@@ -2747,8 +2759,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		}
 		else
 		{
-			tempString = "";
-			tempSS.str(tempString);
+			tempSS.str("");
 			tempSS << "ERROR:  You need to specify a color index between 0 and " << playerColourValues.size() << " and an RGB triplet with values in (0.0, 1.0)";
 			commandOutput = tempSS.str();
 		}

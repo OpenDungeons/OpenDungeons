@@ -385,8 +385,7 @@ void *clientNotificationProcessor(void *p)
 				tempCreature = (Creature*)event->p;
 				tempPlayer = (Player*)event->p2;
 
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << tempPlayer->nick << ":" << tempCreature->name;
 
 				sem_wait(&clientSocket->semaphore);
@@ -399,8 +398,7 @@ void *clientNotificationProcessor(void *p)
 				tempPlayer = (Player*)event->p;
 				tempTile = (Tile*)event->p2;
 
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << tempPlayer->nick << ":" << tempTile->x << ":" << tempTile->y;
 
 				sem_wait(&clientSocket->semaphore);
@@ -411,8 +409,7 @@ void *clientNotificationProcessor(void *p)
 			case ClientNotification::markTile:
 				tempTile = (Tile*)event->p;
 				flag = event->flag;
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << tempTile->x << ":" << tempTile->y << ":" << (flag ? "true" : "false");
 
 				sem_wait(&clientSocket->semaphore);

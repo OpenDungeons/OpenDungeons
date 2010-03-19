@@ -112,8 +112,7 @@ istream& operator>>(istream& is, Room *r)
 
 	is >> r->meshName >> r->color;
 
-	tempString = "";
-	tempSS.str(tempString);
+	tempSS.str("");
 	tempSS << r->meshName << "_" << uniqueNumber;
 	uniqueNumber++;
 	r->name = tempSS.str();

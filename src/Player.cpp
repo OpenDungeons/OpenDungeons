@@ -166,6 +166,7 @@ bool Player::dropCreature(Tile *t)
 			//cout.flush();
 			if(this != gameMap.me)
 			{
+				//FIXME:  This is rendering code and should be moved to the render queue.
 				c->createMesh();
 				c->weaponL->createMesh();
 				c->weaponR->createMesh();

@@ -178,6 +178,7 @@ void *creatureAIThread(void *p)
 		timeUntilNextTurn = 1.0/turnsPerSecond;
 
 		timeTaken = stopwatch.getMicroseconds();
+		gameMap.previousLeftoverTimes.push_front((1e6*timeUntilNextTurn-timeTaken)/(double)1e6);
 		string timeTakenString = StringConverter::toString((int)(1e6*timeUntilNextTurn - timeTaken), 9);
 
 		// Sleep this thread if it is necessary to keep the turns from happening too fast
@@ -185,12 +186,10 @@ void *creatureAIThread(void *p)
 		{
 		       	cout << "\nCreature AI finished " << timeTakenString << "us early.\n";
 			usleep(1e6 * timeUntilNextTurn - timeTaken );
-			gameMap.previousLeftoverTimes.push_front(timeTaken/(double)1e6);
 		}
 		else
 		{
 			cout << "\nCreature AI finished " << timeTakenString << "us late.\n";
-			gameMap.previousLeftoverTimes.push_front(-1.0*timeTaken/(double)1e6);
 		}
 
 		if(gameMap.previousLeftoverTimes.size() > 10)
@@ -240,28 +239,28 @@ void *serverNotificationProcessor(void *p)
 		switch(event->type)
 		{
 			case ServerNotification::turnStarted:
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << turnNumber;
 
 				sendToAllClients(frameListener, formatCommand("newturn", tempSS.str()));
 				break;
 
 			case ServerNotification::creatureAddDestination:
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << event->str << ":" << event->vec.x << ":" << event->vec.y << ":" << event->vec.z;
 
 				sendToAllClients(frameListener, formatCommand("creatureAddDestination", tempSS.str()));
 				break;
 
 			case ServerNotification::creatureClearDestinations:
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << event->cre->name;
 				sendToAllClients(frameListener, formatCommand("creatureClearDestinations", tempSS.str()));
 				break;
 
 			//NOTE: this code is duplicated in clientNotificationProcessor
 			case ServerNotification::creaturePickUp:
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << event->player->nick << ":" << event->cre->name;
 
 				sendToAllClients(frameListener, formatCommand("creaturePickUp", tempSS.str()));
@@ -272,28 +271,27 @@ void *serverNotificationProcessor(void *p)
 				tempPlayer = event->player;
 				tempTile = event->tile;
 
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << tempPlayer->nick << ":" << tempTile->x << ":" << tempTile->y;
 
 				sendToAllClients(frameListener, formatCommand("creatureDrop", tempSS.str()));
 				break;
 
 			case ServerNotification::creatureSetAnimationState:
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << event->cre->name << ":" << event->str;
 				sendToAllClients(frameListener, formatCommand("creatureSetAnimationState", tempSS.str()));
 				break;
 
 			case ServerNotification::setTurnsPerSecond:
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << turnsPerSecond;
 
 				sendToAllClients(frameListener, formatCommand("turnsPerSecond", tempSS.str()));
 				break;
 
 			case ServerNotification::tileFullnessChange:
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempTile = event->tile;
 				tempSS << tempTile->getFullness() << ":" << tempTile->x << ":" << tempTile->y;
 
@@ -395,13 +393,11 @@ void *clientHandlerThread(void *p)
 			curSock->send(formatCommand("newmap", ""));
 
 			// Tell the player which seat it has
-			tempString = "";
-			tempSS.str(tempString);
+			tempSS.str("");
 			tempSS << curPlayer->seat;
 			curSock->send(formatCommand("addseat", tempSS.str()));
 
-			tempString = "";
-			tempSS.str(tempString);
+			tempSS.str("");
 			tempSS << turnsPerSecond;
 			curSock->send(formatCommand("turnsPerSecond", tempSS.str()));
 
@@ -413,8 +409,7 @@ void *clientHandlerThread(void *p)
 				Player *tempPlayer = gameMap.getPlayer(i);
 				if(curPlayer != tempPlayer && tempPlayer != NULL)
 				{
-					tempString = "";
-					tempSS.str(tempString);
+					tempSS.str("");
 					tempSS << tempPlayer->seat;
 					curSock->send(formatCommand("addseat", tempSS.str()));
 					// Throw away the ok response
@@ -431,8 +426,7 @@ void *clientHandlerThread(void *p)
 			TileMap_t::iterator itr = gameMap.firstTile();
 			while(itr != gameMap.lastTile())
 			{
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << itr->second;
 				curSock->send(formatCommand("addtile", tempSS.str()));
 				// Throw away the ok response
@@ -445,8 +439,7 @@ void *clientHandlerThread(void *p)
 			//TODO: Only send the classes which the client is supposed to see due to fog of war.
 			for(unsigned int i = 0; i < gameMap.numRooms(); i++)
 			{
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 				tempSS << gameMap.getRoom(i);
 				curSock->send(formatCommand("addroom", tempSS.str()));
 				// Throw away the ok response
@@ -477,8 +470,7 @@ void *clientHandlerThread(void *p)
 			{
 				Creature *tempCreature = gameMap.getCreature(i);
 
-				tempString = "";
-				tempSS.str(tempString);
+				tempSS.str("");
 
 				tempSS << tempCreature;
 
