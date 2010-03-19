@@ -1959,7 +1959,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 	// Repeat the arguments of the command back to you
 	else if(command.compare("echo") == 0)
 	{
-		commandOutput = arguments;
+		commandOutput += "\n" + arguments + "\n";
 	}
 
 	// Write the current level out to file specified as an argument
@@ -1969,11 +1969,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		{
 			string tempFileName = "Media/levels/" + arguments + ".level";
 			writeGameMapToFile(tempFileName);
-			commandOutput = "File saved to   " + tempFileName;
+			commandOutput += "\nFile saved to   " + tempFileName + "\n";
 		}
 		else
 		{
-			commandOutput = "ERROR:  No level name given";
+			commandOutput += "\nERROR:  No level name given\n";
 		}
 	}
 
@@ -2003,23 +2003,23 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				{
 					stringstream tempSS("");
 					tempSS << "Successfully loaded file:  " << tempString << "\nNum tiles:  " << gameMap.numTiles() << "\nNum classes:  " << gameMap.numClassDescriptions() << "\nNum creatures:  " << gameMap.numCreatures();
-					commandOutput = tempSS.str();
+					commandOutput += tempSS.str();
 
 					gameMap.createAllEntities();
 				}
 				else
 				{
 					tempSS << "ERROR: Could not load game map \'" << tempString << "\'.";
-					commandOutput = tempSS.str();
+					commandOutput += tempSS.str();
 				}
 			}
 		}
 		else
 		{
 			if(arguments.size() == 0)
-				commandOutput = "ERROR:  No level name given.";
+				commandOutput += "ERROR:  No level name given.";
 			else // if(clientSocket != NULL)
-				commandOutput = "ERROR:  Cannot load a level if you are a client, only the sever can load new levels.";
+				commandOutput += "ERROR:  Cannot load a level if you are a client, only the sever can load new levels.";
 		}
 	}
 
@@ -2033,13 +2033,13 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			tempSS.str(arguments);
 			tempSS >> tempR >> tempG >> tempB;
 			mSceneMgr->setAmbientLight(ColourValue(tempR,tempG,tempB));
-			commandOutput = "Ambient light set to:\nRed:  " + StringConverter::toString((Real)tempR) + "    Green:  " + StringConverter::toString((Real)tempG) + "    Blue:  " + StringConverter::toString((Real)tempB);
+			commandOutput += "\nAmbient light set to:\nRed:  " + StringConverter::toString((Real)tempR) + "    Green:  " + StringConverter::toString((Real)tempG) + "    Blue:  " + StringConverter::toString((Real)tempB) + "\n";
 
 		}
 		else
 		{
 			ColourValue curLight = mSceneMgr->getAmbientLight();
-			commandOutput = "Current ambient light is:\nRed:  " + StringConverter::toString((Real)curLight.r) + "    Green:  " + StringConverter::toString((Real)curLight.g) + "    Blue:  " + StringConverter::toString((Real)curLight.b);
+			commandOutput = "\nCurrent ambient light is:\nRed:  " + StringConverter::toString((Real)curLight.r) + "    Green:  " + StringConverter::toString((Real)curLight.g) + "    Blue:  " + StringConverter::toString((Real)curLight.b) + "\n";
 		}
 	}
 
@@ -2048,11 +2048,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 	{
 		if(arguments.size() > 0)
 		{
-			commandOutput = "Help for command:  " + arguments + "\n\n" + getHelpText(arguments);
+			commandOutput += "\nHelp for command:  " + arguments + "\n\n" + getHelpText(arguments) + "\n";
 		}
 		else
 		{
-			commandOutput = HELP_MESSAGE;
+			commandOutput += "\n" +(string) HELP_MESSAGE + "\n";
 		}
 	}
 
@@ -2113,7 +2113,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			}
 		}
 
-		commandOutput = "Creating tiles for region:\n\n\t(" + StringConverter::toString(xMin) + ", " + StringConverter::toString(yMin) + ")\tto\t(" + StringConverter::toString(xMax) + ", " + StringConverter::toString(yMax) + ")";
+		commandOutput += "\nCreating tiles for region:\n\n\t(" + StringConverter::toString(xMin) + ", " + StringConverter::toString(yMin) + ")\tto\t(" + StringConverter::toString(xMax) + ", " + StringConverter::toString(yMax) + ")\n";
 	}
 
 	// A utility to set the camera movement speed
@@ -2123,11 +2123,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		{
 			tempSS.str(arguments);
 			tempSS >> mMoveSpeed;
-			commandOutput = "movespeed set to " + StringConverter::toString(mMoveSpeed);
+			commandOutput += "\nmovespeed set to " + StringConverter::toString(mMoveSpeed) + "\n";
 		}
 		else
 		{
-			commandOutput =  "Current movespeed is " + StringConverter::toString(mMoveSpeed);
+			commandOutput +=  "\nCurrent movespeed is " + StringConverter::toString(mMoveSpeed) + "\n";
 		}
 	}
 
@@ -2140,11 +2140,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			tempSS.str(arguments);
 			tempSS >> tempDouble;
 			mRotateSpeed = Ogre::Degree(tempDouble);
-			commandOutput = "rotatespeed set to " + StringConverter::toString((Real)mRotateSpeed.valueDegrees());
+			commandOutput += "\nrotatespeed set to " + StringConverter::toString((Real)mRotateSpeed.valueDegrees()) + "\n";
 		}
 		else
 		{
-			commandOutput =  "Current rotatespeed is " + StringConverter::toString((Real)mRotateSpeed.valueDegrees());
+			commandOutput +=  "\nCurrent rotatespeed is " + StringConverter::toString((Real)mRotateSpeed.valueDegrees()) + "\n";
 		}
 	}
 
@@ -2157,11 +2157,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			tempSS.str(arguments);
 			tempSS >> tempDouble;
 			MAX_FRAMES_PER_SECOND = tempDouble;
-			commandOutput = "Maximum framerate set to " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND);
+			commandOutput += "\nMaximum framerate set to " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND) + "\n";
 		}
 		else
 		{
-			commandOutput = "Current maximum framerate is " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND);
+			commandOutput += "\nCurrent maximum framerate is " + StringConverter::toString((Real)MAX_FRAMES_PER_SECOND) + "\n";
 		}
 	}
 
@@ -2191,11 +2191,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				}
 			}
 
-			commandOutput = "Maximum turns per second set to " + StringConverter::toString((Real)turnsPerSecond);
+			commandOutput += "\nMaximum turns per second set to " + StringConverter::toString((Real)turnsPerSecond) + "\n";
 		}
 		else
 		{
-			commandOutput = "Current maximum turns per second is " + StringConverter::toString((Real)turnsPerSecond);
+			commandOutput += "\nCurrent maximum turns per second is " + StringConverter::toString((Real)turnsPerSecond) + "\n";
 		}
 	}
 
@@ -2208,11 +2208,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			tempSS.str(arguments);
 			tempSS >> tempDouble;
 			mCamera->setNearClipDistance(tempDouble);
-			commandOutput = "Near clip distance set to " + StringConverter::toString((Real)mCamera->getNearClipDistance());
+			commandOutput += "\nNear clip distance set to " + StringConverter::toString((Real)mCamera->getNearClipDistance()) + "\n";
 		}
 		else
 		{
-			commandOutput = "Current near clip distance is " + StringConverter::toString((Real)mCamera->getNearClipDistance());
+			commandOutput += "\nCurrent near clip distance is " + StringConverter::toString((Real)mCamera->getNearClipDistance()) + "\n";
 		}
 	}
 
@@ -2225,11 +2225,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			tempSS.str(arguments);
 			tempSS >> tempDouble;
 			mCamera->setFarClipDistance(tempDouble);
-			commandOutput = "Far clip distance set to " + StringConverter::toString((Real)mCamera->getFarClipDistance());
+			commandOutput += "\nFar clip distance set to " + StringConverter::toString((Real)mCamera->getFarClipDistance()) + "\n";
 		}
 		else
 		{
-			commandOutput = "Current far clip distance is " + StringConverter::toString((Real)mCamera->getFarClipDistance());
+			commandOutput += "\nCurrent far clip distance is " + StringConverter::toString((Real)mCamera->getFarClipDistance()) + "\n";
 		}
 	}
 
@@ -2260,11 +2260,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				ent->setNormaliseNormals(true);
 #endif
 				node->attachObject(ent);
-				commandOutput = "Creature added successfully";
+				commandOutput += "\nCreature added successfully\n";
 			}
 			else
 			{
-				commandOutput = "Invalid creature class name, you need to first add a class with the \'addclass\' terminal command.";
+				commandOutput += "\nInvalid creature class name, you need to first add a class with the \'addclass\' terminal command.\n";
 			}
 		}
 	}
@@ -2421,11 +2421,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				tempSS << "ERROR:  Unrecognized list.  Type \"list\" with no arguments to see available lists.";
 			}
 
-			commandOutput = tempSS.str();
+			commandOutput += "+\n" + tempSS.str() + "\n";
 		}
 		else
 		{
-			commandOutput = "lists available:\n\t\tclasses\tcreatures\tplayers\n\t\tnetwork\trooms\tcolors\n\t\tgoals\tlevels";
+			commandOutput += "lists available:\n\t\tclasses\tcreatures\tplayers\n\t\tnetwork\trooms\tcolors\n\t\tgoals\tlevels\n";
 		}
 	}
 
@@ -2450,11 +2450,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		{
 			gameMap.me->nick = arguments;
 
-			commandOutput = "Nickname set to:  " + gameMap.me->nick;
+			commandOutput += "\nNickname set to:  " + gameMap.me->nick + "\n";
 		}
 		else
 		{
-			commandOutput = "Current nickname is:  " + gameMap.me->nick;
+			commandOutput += "\nCurrent nickname is:  " + gameMap.me->nick + "\n";
 		}
 	}
 
@@ -2472,7 +2472,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			tempSS << "Max display time for chat messages is: " << chatMaxTimeDisplay;
 		}
 
-		commandOutput = tempSS.str();
+		commandOutput += "\n " + tempSS.str() + "\n";
 	}
 
 	else if(command.compare("maxmessages") == 0)
@@ -2488,7 +2488,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			tempSS << "Max chat messages to display is: " << chatMaxMessages;
 		}
 
-		commandOutput = tempSS.str();
+		commandOutput += "\n" + tempSS.str() + "\n";
 	}
 
 	// Connect to a server
@@ -2508,13 +2508,13 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 					if(!clientSocket->create())
 					{
 						clientSocket = NULL;
-						commandOutput = "ERROR:  Could not create client socket!";
+						commandOutput += "\nERROR:  Could not create client socket!\n";
 						goto ConnectEndLabel;
 					}
 
 					if(clientSocket->connect(arguments, PORT_NUMBER))
 					{
-						commandOutput = "Connection successful.";
+						commandOutput += "\nConnection successful.\n";
 
 						CSPStruct *csps = new CSPStruct;
 						csps->nSocket = clientSocket;
@@ -2534,23 +2534,23 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 					else
 					{
 						clientSocket = NULL;
-						commandOutput = "Connection failed!";
+						commandOutput += "\nConnection failed!\n";
 					}
 				}
 				else
 				{
-					commandOutput = "You must specify the IP address of the server you want to connect to.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1";
+					commandOutput += "\nYou must specify the IP address of the server you want to connect to.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1\n";
 				}
 
 			}
 			else
 			{
-				commandOutput = "You are already connected to a server.  You must disconnect before you can connect to a new game.";
+				commandOutput += "\nYou are already connected to a server.  You must disconnect before you can connect to a new game.\n";
 			}
 		}
 		else
 		{
-			commandOutput = "You must set a nick with the \"nick\" command before you can join a server.";
+			commandOutput += "\nYou must set a nick with the \"nick\" command before you can join a server.\n";
 		}
 
 	ConnectEndLabel:
@@ -2596,22 +2596,22 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 					// Automatically closes the terminal
 					terminalActive = false;
 
-					commandOutput = "Server started successfully.";
+					commandOutput += "\nServer started successfully.\n";
 				}
 				else
 				{
-					commandOutput = "ERROR:  Could not start server!";
+					commandOutput += "\nERROR:  Could not start server!\n";
 				}
 
 			}
 			else
 			{
-				commandOutput = "ERROR:  You are already connected to a game or are already hosting a game!";
+				commandOutput += "\nERROR:  You are already connected to a game or are already hosting a game!\n";
 			}
 		}
 		else
 		{
-			commandOutput = "You must set a nick with the \"nick\" command before you can host a server.";
+			commandOutput += "\nYou must set a nick with the \"nick\" command before you can host a server.\n";
 		}
 
 	}
@@ -2649,7 +2649,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			tempSS << "Please host or connect to a game before running chathelp.\n";
 		}
 
-		commandOutput = tempSS.str();
+		commandOutput += "\n " + tempSS.str() + "\n";
 	}
 
 	// Send a chat message
@@ -2676,7 +2676,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		}
 		else
 		{
-			commandOutput = "You must be either connected to a server, or hosting a server to use chat.";
+			commandOutput += "\nYou must be either connected to a server, or hosting a server to use chat.\n";
 		}
 	}
 
@@ -2694,27 +2694,27 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 					if(!tempCreature->getHasVisualDebuggingEntities())
 					{
 						tempCreature->createVisualDebugEntities();
-						commandOutput = "Visual debugging entities created for creature:  " + arguments;
+						commandOutput += "\nVisual debugging entities created for creature:  " + arguments + "\n";
 					}
 					else
 					{
 						tempCreature->destroyVisualDebugEntities();
-						commandOutput = "Visual debugging entities destroyed for creature:  " + arguments;
+						commandOutput += "\nVisual debugging entities destroyed for creature:  " + arguments + "\n";
 					}
 				}
 				else
 				{
-					commandOutput = "Could not create visual debugging entities for creature:  " + arguments;
+					commandOutput += "\nCould not create visual debugging entities for creature:  " + arguments + "\n";
 				}
 			}
 			else
 			{
-				commandOutput = "ERROR:  You must supply a valid creature name to create debug entities for.";
+				commandOutput += "\nERROR:  You must supply a valid creature name to create debug entities for.\n";
 			}
 		}
 		else
 		{
-			commandOutput = "ERROR:  Visual debugging only works when you are hosting a game.";
+			commandOutput += "\nERROR:  Visual debugging only works when you are hosting a game.\n";
 		}
 	}
 
@@ -2730,11 +2730,11 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			playerColourValues.push_back(ColourValue(tempR, tempG, tempB));
 			tempSS.str("");
 			tempSS << "Color number " << playerColourValues.size() << " added.";
-			commandOutput = tempSS.str();
+			commandOutput = "\n" + tempSS.str() + "\n";
 		}
 		else
 		{
-			commandOutput = "ERROR:  You need to specify and RGB triplet with values in (0.0, 1.0)";
+			commandOutput  += "\nERROR:  You need to specify and RGB triplet with values in (0.0, 1.0)\n";
 		}
 	}
 
@@ -2753,7 +2753,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				playerColourValues[index] = ColourValue(tempR, tempG, tempB);
 				tempSS.str("");
 				tempSS << "Color number " << index << " changed to " << tempR << "\t" << tempG << "\t" << tempB;
-				commandOutput = tempSS.str();
+				commandOutput += "an" + tempSS.str() + "\n";
 			}
 
 		}
@@ -2761,7 +2761,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		{
 			tempSS.str("");
 			tempSS << "ERROR:  You need to specify a color index between 0 and " << playerColourValues.size() << " and an RGB triplet with values in (0.0, 1.0)";
-			commandOutput = tempSS.str();
+			commandOutput += "\n" + tempSS.str() + "\n";
 		}
 	}
 
@@ -2770,17 +2770,17 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 	{
 		if(serverSocket != NULL)
 		{
-			commandOutput = "Stopping server.";
+			commandOutput += "\nStopping server.\n";
 		}
 		else
 		{
 			if(clientSocket != NULL)
 			{
-				commandOutput = "Disconnecting from server.";
+				commandOutput += "\nDisconnecting from server.\n";
 			}
 			else
 			{
-				commandOutput = "You are not connected to a server and you are not hosting a server.";
+				commandOutput += "\nYou are not connected to a server and you are not hosting a server.";
 			}
 		}
 	}
@@ -2791,15 +2791,15 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		if(gameMap.seatIsAWinner(gameMap.me->seat))
 		{
 			gameMap.loadNextLevel = true;
-			commandOutput = (string)"Loading level Media/levels/" + gameMap.nextLevel + ".level";
+			commandOutput += (string)"\nLoading level Media/levels/" + gameMap.nextLevel + ".level\n";
 		}
 		else
 		{
-			commandOutput = "You have not completed this level yet.";
+			commandOutput += "\nYou have not completed this level yet.\n";
 		}
 	}
 
-	else commandOutput = "Command not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.";
+	else commandOutput += "\nCommand not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.\n";
 
 	promptCommand = "";
 }
