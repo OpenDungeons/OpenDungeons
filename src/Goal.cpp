@@ -1,10 +1,9 @@
 #include "Goal.h"
 
-Goal::Goal(string nName, string nArguments, Player *nPlayer)
+Goal::Goal(string nName, string nArguments)
 {
 	name = nName;
 	arguments = nArguments;
-	player = nPlayer;
 }
 
 void Goal::doSuccessAction()
@@ -51,17 +50,17 @@ Goal* Goal::instantiateFromStream(istream& is)
 	// Parse the goal type name to find out what subclass of goal tempGoal should be instantiated as.
 	if(tempName.compare("KillAllEnemies") == 0)
 	{
-		tempGoal = new GoalKillAllEnemies(tempName, tempArguments, NULL);
+		tempGoal = new GoalKillAllEnemies(tempName, tempArguments);
 	}
 
 	else if(tempName.compare("ProtectCreature") == 0)
 	{
-		tempGoal = new GoalProtectCreature(tempName, tempArguments, NULL);
+		tempGoal = new GoalProtectCreature(tempName, tempArguments);
 	}
 
 	else if(tempName.compare("ClaimNTiles") == 0)
 	{
-		tempGoal = new GoalClaimNTiles(tempName, tempArguments, NULL);
+		tempGoal = new GoalClaimNTiles(tempName, tempArguments);
 	}
 
 	return tempGoal;

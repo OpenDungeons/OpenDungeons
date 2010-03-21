@@ -1,8 +1,8 @@
 #include "Globals.h"
 #include "GoalKillAllEnemies.h"
 
-GoalKillAllEnemies::GoalKillAllEnemies(string nName, string nArguments, Player *nPlayer)
-	: Goal(nName, nArguments, nPlayer)
+GoalKillAllEnemies::GoalKillAllEnemies(string nName, string nArguments)
+	: Goal(nName, nArguments)
 {
 	cout << "\nAdding goal " << getName();
 }
@@ -22,11 +22,6 @@ bool GoalKillAllEnemies::isMet(Seat *s)
 	}
 
 	return !enemiesFound;
-}
-
-bool GoalKillAllEnemies::isUnmet(Seat *s)
-{
-	return !isMet(s);
 }
 
 string GoalKillAllEnemies::getSuccessMessage()

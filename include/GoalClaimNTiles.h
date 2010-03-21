@@ -6,7 +6,7 @@
 class GoalClaimNTiles : public Goal
 {
 	public:
-		GoalClaimNTiles(string nName, string nArguments, Player *nPlayer);
+		GoalClaimNTiles(string nName, string nArguments);
 
 		// Inherited functions
 		bool isMet(Seat *s);

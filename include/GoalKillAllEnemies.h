@@ -6,11 +6,10 @@
 class GoalKillAllEnemies : public Goal
 {
 	public:
-		GoalKillAllEnemies(string nName, string nArguments, Player *nPlayer);
+		GoalKillAllEnemies(string nName, string nArguments);
 
 		// Inherited functions
 		bool isMet(Seat *s);
-		bool isUnmet(Seat *s);
 		string getSuccessMessage();
 		string getDescription();
 };

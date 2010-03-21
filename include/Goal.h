@@ -11,7 +11,7 @@ class Goal
 {
 	public:
 		// Constructors
-		Goal(string nName, string nArguments, Player *nPlayer);
+		Goal(string nName, string nArguments);
 
 		// Functions which must be overridden by child classes
 		virtual bool isMet(Seat *s) = 0;
@@ -31,11 +31,8 @@ class Goal
 		static Goal* instantiateFromStream(istream& is);
 
 	protected:
-		Player *player;
-
-	private:
-		string arguments;
 		string name;
+		string arguments;
 };
 
 #include "Seat.h"

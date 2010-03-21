@@ -3,8 +3,8 @@ using namespace std;
 
 #include "Globals.h"
 
-GoalClaimNTiles::GoalClaimNTiles(string nName, string nArguments, Player *nPlayer)
-	: Goal(nName, nArguments, nPlayer)
+GoalClaimNTiles::GoalClaimNTiles(string nName, string nArguments)
+	: Goal(nName, nArguments)
 {
 	cout << "\nAdding goal " << getName();
 	numberOfTiles = atoi(nArguments.c_str());

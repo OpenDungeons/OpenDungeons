@@ -8,11 +8,10 @@
 class GoalProtectCreature : public Goal
 {
 	public:
-		GoalProtectCreature(string nName, string nArguments, Player *nPlayer);
+		GoalProtectCreature(string nName, string nArguments);
 
 		// Inherited functions
 		bool isMet(Seat *s);
-		bool isUnmet(Seat *s);
 		string getSuccessMessage();
 		string getDescription();
 

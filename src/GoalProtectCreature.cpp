@@ -1,8 +1,8 @@
 #include "Globals.h"
 #include "GoalProtectCreature.h"
 
-GoalProtectCreature::GoalProtectCreature(string nName, string nArguments, Player *nPlayer)
-	: Goal(nName, nArguments, nPlayer)
+GoalProtectCreature::GoalProtectCreature(string nName, string nArguments)
+	: Goal(nName, nArguments)
 {
 	creatureName = nArguments;
 
@@ -47,11 +47,6 @@ bool GoalProtectCreature::isMet(Seat *s)
 
 		return false;
 	}
-}
-
-bool GoalProtectCreature::isUnmet(Seat *s)
-{
-	return !isMet(s);
 }
 
 string GoalProtectCreature::getSuccessMessage()
