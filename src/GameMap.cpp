@@ -394,7 +394,7 @@ void GameMap::doTurn()
 		}
 	}
 
-	cout << "\nStarting creature AI for turn " << turnNumber;
+	cout << "\nStarting creature AI for turn " << turnNumber.get();
 	unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
 	// Remove meshes for creatures who died last turn.

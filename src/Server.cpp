@@ -157,7 +157,9 @@ void *creatureAIThread(void *p)
 
 		// Do a turn in the game
 		stopwatch.reset();
-		turnNumber++;
+		turnNumber.lock();
+		turnNumber.rawSet(turnNumber.rawGet() + 1);
+		turnNumber.unlock();
 
 		// Place a message in the queue to inform the clients that a new turn has started
 		try
@@ -240,7 +242,7 @@ void *serverNotificationProcessor(void *p)
 		{
 			case ServerNotification::turnStarted:
 				tempSS.str("");
-				tempSS << turnNumber;
+				tempSS << turnNumber.get();
 
 				sendToAllClients(frameListener, formatCommand("newturn", tempSS.str()));
 				break;

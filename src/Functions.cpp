@@ -536,9 +536,9 @@ vector<string> listAllFiles(string directoryName)
 void waitOnRenderQueueFlush()
 {
 	numThreadsWaitingOnRenderQueueEmpty.lock();
-	unsigned int tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.rawGetObject();
+	unsigned int tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.rawGet();
 	tempUnsigned++;
-	numThreadsWaitingOnRenderQueueEmpty.rawSetObject(tempUnsigned);
+	numThreadsWaitingOnRenderQueueEmpty.rawSet(tempUnsigned);
 	numThreadsWaitingOnRenderQueueEmpty.unlock();
 
 	sem_wait(&renderQueueEmptySemaphore);

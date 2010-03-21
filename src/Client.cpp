@@ -200,7 +200,9 @@ void *clientSocketProcessor(void *p)
 			{
 				stringstream tempSS;
 				tempSS.str(arguments);
-				tempSS >> turnNumber;
+				long int tempLongInt;
+				tempSS >> tempLongInt;
+				turnNumber.set(tempLongInt);
 			}
 
 			else if(serverCommand.compare("creatureAddDestination") == 0)

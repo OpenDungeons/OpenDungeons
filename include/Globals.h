@@ -36,7 +36,7 @@ extern string versionString;
 extern string MOTD;
 extern double MAX_FRAMES_PER_SECOND;
 extern double turnsPerSecond;
-extern long int turnNumber;
+extern ProtectedObject<long int> turnNumber;
 
 extern vector<ColourValue> playerColourValues;
 

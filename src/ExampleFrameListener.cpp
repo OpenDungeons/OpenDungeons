@@ -779,7 +779,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		// If we have finished processing the last renderRequest that was in the queue we
 		// can release all of the threads that were waiting for the queue to be flushed.
-		tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.getObject();
+		tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.get();
 		for(unsigned int i = 0; i < tempUnsigned; i++)
 			sem_post(&renderQueueEmptySemaphore);
 	}
@@ -834,7 +834,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		turnString += StringConverter::toString((Ogre::Real)fabs(gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
 		turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
 	}
-	turnString += "\nTurn number:  " + StringConverter::toString(turnNumber);
+	turnString += "\nTurn number:  " + StringConverter::toString(turnNumber.get());
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));
 
 	// Update the animations on any creatures who have them
@@ -849,6 +849,30 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		// Move the creature
 		if(currentCreature->walkQueue.size() > 0)
 		{
+			// If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
+			if(currentCreature->walkQueueFirstEntryAdded)
+			{
+				currentCreature->walkQueueFirstEntryAdded = false;
+
+				// Rotate the creature to face the direction of the destination
+				currentCreature->walkDirection = currentCreature->walkQueue.front() - currentCreature->getPosition();
+				currentCreature->walkDirection.normalise();
+
+				SceneNode *node = mSceneMgr->getSceneNode(currentCreature->name + "_node");
+				Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
+
+				// Work around 180 degree quaternion rotation quirk
+				if ((1.0f + src.dotProduct(currentCreature->walkDirection)) < 0.0001f)
+				{
+					node->roll(Degree(180));
+				}
+				else
+				{
+					Quaternion quat = src.getRotationTo(currentCreature->walkDirection);
+					node->rotate(quat);
+				}
+			}
+
 			//FIXME: The moveDist should probably be tied to the scale of the creature as well
 			//FIXME: When the client and the server are using different frame rates, the creatures walk at different speeds
 			double moveDist = turnsPerSecond * currentCreature->moveSpeed * evt.timeSinceLastFrame;
@@ -895,7 +919,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				currentCreature->setPosition(currentCreature->getPosition() + currentCreature->walkDirection * moveDist);
 			}
 		}
-
 	}
 
 	// Advance the "flickering" of the lights by the amount of time that has passed since the last frame.

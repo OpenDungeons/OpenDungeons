@@ -92,6 +92,7 @@ class Creature : public CreatureClass
 		string destinationAnimationState;
 		double shortDistance;
 		deque<Ogre::Vector3> walkQueue;
+		bool walkQueueFirstEntryAdded;
 		Ogre::Vector3 walkDirection;
 		SceneNode *sceneNode;
 

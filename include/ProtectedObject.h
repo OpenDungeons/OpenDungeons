@@ -10,12 +10,12 @@ class ProtectedObject
 		ProtectedObject();
 		ProtectedObject(ObjectType init);
 
-		void setObject(ObjectType o);
-		ObjectType getObject();
+		void set(ObjectType o);
+		ObjectType get();
 		void lock();
 		void unlock();
-		void rawSetObject(ObjectType o);
-		ObjectType rawGetObject();
+		void rawSet(ObjectType o);
+		ObjectType rawGet();
 
 	private:
 		ObjectType object;
@@ -36,7 +36,7 @@ ProtectedObject<ObjectType>::ProtectedObject(ObjectType init)
 }
 
 template <class ObjectType>
-void ProtectedObject<ObjectType>::setObject(ObjectType o)
+void ProtectedObject<ObjectType>::set(ObjectType o)
 {
 	lock();
 	object = o;
@@ -44,7 +44,7 @@ void ProtectedObject<ObjectType>::setObject(ObjectType o)
 }
 
 template <class ObjectType>
-ObjectType ProtectedObject<ObjectType>::getObject()
+ObjectType ProtectedObject<ObjectType>::get()
 {
 	ObjectType returnValue;
 
@@ -68,13 +68,13 @@ void ProtectedObject<ObjectType>::unlock()
 }
 
 template <class ObjectType>
-void ProtectedObject<ObjectType>::rawSetObject(ObjectType o)
+void ProtectedObject<ObjectType>::rawSet(ObjectType o)
 {
 	object = o;
 }
 
 template <class ObjectType>
-ObjectType ProtectedObject<ObjectType>::rawGetObject()
+ObjectType ProtectedObject<ObjectType>::rawGet()
 {
 	return object;
 }
