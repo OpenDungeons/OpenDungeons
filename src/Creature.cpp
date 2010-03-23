@@ -406,7 +406,7 @@ void Creature::doTurn()
 					//FIXME: make this into a while loop over a vector of <action, probability> pairs
 
 					// Decide to check for clamiable tiles
-					if(diceRoll < 0.2 && digRate > 0.1)
+					if(diceRoll < 0.2 && danceRate > 0.1)
 					{
 						loopBack = true;
 						actionQueue.push_front(CreatureAction(CreatureAction::claimTile));
@@ -1247,21 +1247,12 @@ vector<Creature*> Creature::getVisibleForce(int color, bool invert)
 			// If it is an enemy
 			if(tempCreature != NULL)
 			{
-				if(invert)
+				// The invert flag is used to determine whether we want to return a list of those creatures
+				// whose color matches the one supplied or is any color but the one supplied.
+				if( (invert && tempCreature->color != color) || (!invert && tempCreature->color == color) )
 				{
-					if(tempCreature->color != color)
-					{
-						// Add the current creature
-						returnList.push_back(tempCreature);
-					}
-				}
-				else
-				{
-					if(tempCreature->color == color)
-					{
-						// Add the current creature
-						returnList.push_back(tempCreature);
-					}
+					// Add the current creature
+					returnList.push_back(tempCreature);
 				}
 			}
 		}
