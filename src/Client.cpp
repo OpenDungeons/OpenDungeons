@@ -17,6 +17,7 @@ using namespace std;
  * well as a pointer to the instance of the ExampleFrameListener being used by
  * the game.
  */
+// THREAD - This function is meant to be called by pthread_create.
 void *clientSocketProcessor(void *p)
 {
 	string tempString;
@@ -359,6 +360,7 @@ void *clientSocketProcessor(void *p)
  * which clients need to be informed about that particular event, and
  * dispacthes TCP packets to inform the clients about the new information.
  */
+// THREAD - This function is meant to be called by pthread_create.
 void *clientNotificationProcessor(void *p)
 {
 	//ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;

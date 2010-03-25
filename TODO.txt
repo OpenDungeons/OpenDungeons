@@ -78,6 +78,9 @@
 
 *  Convert string casts to string constructors
 
+*  Make the rest of the threads properly call threadLockForTurn() and
+*  threadUnlockForTurn() to prevent race conditions.
+
 +--------------- FEATURE ADDITIONS: ---------------
 *  Add a goal type ChatMessage which is automatically met and just chats its
 *  arguments in its doSuccessAction().

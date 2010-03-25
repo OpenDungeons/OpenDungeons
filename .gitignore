@@ -15,3 +15,9 @@ ogre.cfg
 
 CMakeFiles/
 
+Media/fonts/
+Media/materials/
+Media/models/
+Media/overlays/
+Media/packs/
+Media/particle/

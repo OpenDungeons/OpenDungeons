@@ -29,6 +29,7 @@ class RenderRequest
 
 		RenderRequest();
 
+		long int turnNumber;
 		RequestType type;
 		void *p;
 		void *p2;

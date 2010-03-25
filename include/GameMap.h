@@ -1,12 +1,15 @@
 #ifndef GAMEMAP_H
 #define GAMEMAP_H
 
+#include <semaphore.h>
+
 #include "Tile.h"
 #include "Creature.h"
 #include "Player.h"
 #include "Room.h"
 #include "Seat.h"
 #include "MapLight.h"
+#include "ProtectedObject.h"
 
 typedef map< pair<int,int>, Tile*> TileMap_t;
 
@@ -122,11 +125,17 @@ class GameMap
 		double crowDistance(Creature *c1, Creature *c2);
 		deque<double> previousLeftoverTimes;
 
+		void threadLockForTurn(long int turn);
+		void threadUnlockForTurn(long int turn);
+
 	private:
+		// Private functions
+		void processDeletionQueues();
+
+		// Private datamembers
 		map< pair<int,int>, Tile*> tiles;
 		vector<CreatureClass*> classDescriptions;
 		vector<Creature*> creatures;
-		vector<Creature*> creaturesToDelete;
 		vector<Player*> players;
 		vector<Room*> rooms;
 		vector<MapLight*> mapLights;
@@ -136,6 +145,10 @@ class GameMap
 		vector<Goal*> goalsForAllSeats;
 		int nextUniqueFloodFillColor;
 		bool floodFillEnabled;
+
+		map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
+		map<long int, vector<Creature*> > creaturesToDelete;
+		sem_t threadReferenceCountLockSemaphore;
 
 		unsigned int numCallsTo_path;
 };

@@ -19,6 +19,7 @@ GameMap::GameMap()
 	floodFillEnabled = false;
 	numCallsTo_path = 0;
 	averageAILeftoverTime = 0.0;
+	sem_init(&threadReferenceCountLockSemaphore, 0, 1);
 }
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
@@ -255,7 +256,7 @@ void GameMap::queueCreatureForDeletion(Creature *c)
 	removeCreature(c);
 
 	//TODO: This needs to include the turn number that the creature was pushed so proper multithreaded locks can be by the threads to retire the creatures.
-	creaturesToDelete.push_back(c);
+	creaturesToDelete[turnNumber.get()].push_back(c);
 }
 
 /*! \brief Returns a pointer to the first class description whose 'name' parameter matches the query string.
@@ -397,16 +398,7 @@ void GameMap::doTurn()
 	cout << "\nStarting creature AI for turn " << turnNumber.get();
 	unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
-	// Remove meshes for creatures who died last turn.
-	//FIXME: The deletion queue should be (Creature*,turnNumber) pairs and the given creatures should only be deleted when all threads have reported that they have entirely purged all references and pointers for the turn when the creature was put into the queue.
-	while(creaturesToDelete.size() > 0)
-	{
-		cout << "\nSending message to delete creature " << creaturesToDelete[0]->name;
-		cout.flush();
-		creaturesToDelete[0]->deleteYourself();  // If this line causes problems replace it with the destroyMesh() line below which will leave the actual data structure in tact and just get rid of the rendered mesh.  This will of course leak memory, though.
-		//creaturesToDelete[0]->destroyMesh();
-		creaturesToDelete.erase(creaturesToDelete.begin());
-	}
+	processDeletionQueues();
 
 	// Loop over all the filled seats in the game and check all the unfinished goals for each seat.
 	// Add any seats with no remaining goals to the winningSeats vector.
@@ -1406,5 +1398,109 @@ double GameMap::crowDistance(Creature *c1, Creature *c2)
 	//TODO:  This is sub-optimal, improve it.
 	Tile *tempTile1 = c1->positionTile(), *tempTile2 = c2->positionTile();
 	return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
+}
+
+void GameMap::threadLockForTurn(long int turn)
+{
+	unsigned int tempUnsigned;
+
+	// Lock the thread reference count map to prevent race conditions.
+	sem_wait(&threadReferenceCountLockSemaphore);
+
+	map<long int, ProtectedObject<unsigned int> >::iterator result = threadReferenceCount.find(turn);
+	if(result != threadReferenceCount.end())
+	{
+		(*result).second.lock();
+		tempUnsigned = (*result).second.rawGet();
+		tempUnsigned++;
+		(*result).second.rawSet(tempUnsigned);
+		(*result).second.unlock();
+	}
+	else
+	{
+		threadReferenceCount[turn].rawSet(1);
+	}
+
+	// Unlock the thread reference count map.
+	sem_post(&threadReferenceCountLockSemaphore);
+}
+
+void GameMap::threadUnlockForTurn(long int turn)
+{
+	unsigned int tempUnsigned;
+
+	// Lock the thread reference count map to prevent race conditions.
+	sem_wait(&threadReferenceCountLockSemaphore);
+
+	map<long int, ProtectedObject<unsigned int> >::iterator result = threadReferenceCount.find(turn);
+	if(result != threadReferenceCount.end())
+	{
+		(*result).second.lock();
+		tempUnsigned = (*result).second.rawGet();
+		tempUnsigned--;
+		(*result).second.rawSet(tempUnsigned);
+		(*result).second.unlock();
+	}
+	else
+	{
+		cout << "\n\n\nERROR:  Calling threadUnlockForTurn on a turn number which does not have any current locks, bailing out.\n\n\n";
+		exit(1);
+	}
+
+	// Unlock the thread reference count map.
+	sem_post(&threadReferenceCountLockSemaphore);
+}
+
+void GameMap::processDeletionQueues()
+{
+	long int turn = turnNumber.get();
+
+	cout << "\n\nProcessing deletion queues on turn " << turn << ":\n";
+	long int latestTurnToBeRetired = -1;
+
+	// Loop over the thread reference count and find the first turn number which has 0 outstanding threads holding references for that turn.
+	map<long int, ProtectedObject<unsigned int> >::iterator currentThreadReferenceCount = threadReferenceCount.begin();
+	while(currentThreadReferenceCount != threadReferenceCount.end())
+	{
+		//cout << "(" << (*currentThreadReferenceCount).first << ", " << (*currentThreadReferenceCount).second.get() << ")   ";
+		if((*currentThreadReferenceCount).second.get() == 0)
+		{
+			// There are no threads which could be holding references to objects from the current turn so it is safe to retire.
+			latestTurnToBeRetired = (*currentThreadReferenceCount).first;
+		}
+		else
+		{
+			// There is one or more threads which could still be holding references to objects from the current turn so we cannot retire it.
+			break;
+		}
+
+		currentThreadReferenceCount++;
+	}
+	
+	cout << "\nThe latest turn to be retired is " << latestTurnToBeRetired << "\n";
+
+	// If we did not find any turns which have no threads locking them we are safe to retire this turn.
+	if(latestTurnToBeRetired < 0)
+		return;
+
+	// Loop over the creaturesToDeleteMap and delete all the creatures in any mapped vector whose
+	// key value (the turn those creatures were added) is less than the latestTurnToBeRetired.
+	map<long int, vector<Creature*> >::iterator currentTurnForCreatureRetirement = creaturesToDelete.begin();
+	while(currentTurnForCreatureRetirement != creaturesToDelete.end() && (*currentTurnForCreatureRetirement).first <= latestTurnToBeRetired)
+	{
+		long int currentTurnToRetire = (*currentTurnForCreatureRetirement).first;
+
+		// Check to see if any creatures can be deleted.
+		while(creaturesToDelete[currentTurnToRetire].size() > 0)
+		{
+			cout << "\nSending message to delete creature " << (*creaturesToDelete[currentTurnToRetire].begin())->name;
+			cout.flush();
+
+			(*creaturesToDelete[currentTurnToRetire].begin())->deleteYourself();
+			creaturesToDelete[currentTurnToRetire].erase(creaturesToDelete[currentTurnToRetire].begin());
+		}
+
+		currentTurnForCreatureRetirement++;
+	}
 }
 

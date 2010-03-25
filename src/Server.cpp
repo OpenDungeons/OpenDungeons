@@ -20,6 +20,7 @@ using namespace std;
  * This function currently has no way of breaking out of its primary loop, so
  * once it is started it never exits until the program is closed.
  */
+// THREAD - This function is meant to be called by pthread_create.
 void *serverSocketProcessor(void *p)
 {
 	Socket *sock = ((SSPStruct*)p)->nSocket;
@@ -144,6 +145,7 @@ ChatMessage *processChatMessage(string arguments)
  * change and dump it in the queue and not worry about which clients need to
  * know about it.
  */
+// THREAD - This function is meant to be called by pthread_create.
 void *creatureAIThread(void *p)
 {
 	double timeUntilNextTurn = 1.0/turnsPerSecond;
@@ -209,6 +211,7 @@ void *creatureAIThread(void *p)
  * which clients need to be informed about that particular event, and
  * dispacthes TCP packets to inform the clients about the new information.
  */
+// THREAD - This function is meant to be called by pthread_create.
 void *serverNotificationProcessor(void *p)
 {
 	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
@@ -311,6 +314,9 @@ void *serverNotificationProcessor(void *p)
 				break;
 		}
 
+		// Decrement the number of outstanding references to things from the turn number the event was queued on.
+		gameMap.threadUnlockForTurn(event->turnNumber);
+
 		delete event;
 		event = NULL;
 	}
@@ -327,6 +333,7 @@ void *serverNotificationProcessor(void *p)
  * client, a semaphore is used to control which thread talks to the client at
  * any given time.
  */
+// THREAD - This function is meant to be called by pthread_create.
 void *clientHandlerThread(void *p)
 {
 	Socket *curSock = ((CHTStruct*)p)->nSocket;

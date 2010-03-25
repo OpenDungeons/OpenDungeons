@@ -500,6 +500,9 @@ string colourizeMaterial(string materialName, int colour)
 
 void queueRenderRequest(RenderRequest *r)
 {
+	r->turnNumber = turnNumber.get();
+	gameMap.threadLockForTurn(r->turnNumber);
+
 	sem_wait(&renderQueueSemaphore);
 	renderQueue.push_back(r);
 	sem_post(&renderQueueSemaphore);
@@ -507,6 +510,9 @@ void queueRenderRequest(RenderRequest *r)
 
 void queueServerNotification(ServerNotification *n)
 {
+	n->turnNumber = turnNumber.get();
+	gameMap.threadLockForTurn(n->turnNumber);
+
 	sem_wait(&serverNotificationQueueLockSemaphore);
 	serverNotificationQueue.push_back(n);
 	sem_post(&serverNotificationQueueLockSemaphore);

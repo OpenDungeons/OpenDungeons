@@ -37,6 +37,7 @@ class ServerNotification
 		Tile *tile;
 		Creature *cre;
 		Player *player;
+		long int turnNumber;
 };
 
 #endif

@@ -1,3 +1,4 @@
+// THREAD - This class contains the rendering code which runs as in the initial thread created by the executable.
 #include <stdio.h>
 #include <iostream>
 #include <algorithm>
@@ -275,9 +276,16 @@ void ExampleFrameListener::showDebugOverlay(bool show)
  */
 bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 {
+	long int currentTurnNumber;
+
 	stringstream tempSS;
 
 	if(mWindow->isClosed())	return false;
+
+	// Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
+	//NOTE:  If this function exits early the corresponding unlock function must be called.
+	currentTurnNumber = turnNumber.get();
+	gameMap.threadLockForTurn(currentTurnNumber);
 
 	using namespace OIS;
 
@@ -774,6 +782,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				break;
 		}
 
+		// Decrement the number of outstanding references to things from the turn number the event was queued on.
+		gameMap.threadUnlockForTurn(curReq->turnNumber);
+
 		delete curReq;
 		curReq = NULL;
 
@@ -985,6 +996,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		tempWindow->setText(tempSS.str());
 
 	}
+
+	// Decrement the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
+	gameMap.threadUnlockForTurn(currentTurnNumber);
 
 	//Need to capture/update each device
 	mKeyboard->capture();
