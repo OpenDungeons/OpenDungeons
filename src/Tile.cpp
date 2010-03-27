@@ -570,7 +570,12 @@ bool Tile::getSelected()
  */
 void Tile::setMarkedForDigging(bool s, Player *p)
 {
+	// If we are trying to mark a tile that is not dirt or gold, ignore the request.
 	if(s && (type != dirt && type != gold))
+		return;
+
+	// If we are trying to mark a tile that is already dug out, ignore the request.
+	if(s && (getFullness() <= 0))
 		return;
 
 	Entity *ent;

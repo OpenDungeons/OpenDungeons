@@ -7,6 +7,7 @@ Player::Player()
 	nick =  "";
 	humanPlayer = true;
 	seat = NULL;
+	newRoomType = Room::nullRoomType;
 }
 
 /** \brief A simple accessor function to return the number of creatures this player is holding in their hand.

@@ -11,6 +11,7 @@ using namespace std;
 #include "ExampleFrameListener.h"
 #include "Tile.h"
 #include "Network.h"
+#include "ButtonHandlers.h"
 
 MapEditor::MapEditor()
 	: mSystem(0), mRenderer(0)
@@ -108,13 +109,23 @@ void MapEditor::createScene(void)
 		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"OpenDungeons.layout"); 
 		mSystem->setGUISheet(sheet);
 
-		/*
 		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
-		CEGUI::Window *quitWindow = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/QuitButton");
 
-		//quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::SubscriberSlot(&ExampleFrameListener::quit));
-		quitWindow->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
-		*/
+		CEGUI::Window *window;
+
+		// Set the active tabs on the tab selector across the bottom of the screen so
+		// the user doesn't have to click into them first to see the contents.
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl");
+		((CEGUI::TabControl*)window)->setSelectedTab(0);
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab");
+		((CEGUI::TabControl*)window)->setSelectedTab(0);
+
+		// Subscribe the various button handlers to the CEGUI button pressed events.
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/QuitButton");
+		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
+
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/QuartersButton");
+		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quartersButtonPressed));
 	}
 	catch (...)
 	{

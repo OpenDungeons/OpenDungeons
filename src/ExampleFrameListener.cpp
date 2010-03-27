@@ -100,7 +100,6 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	gameMap.me = new Player;
 	gameMap.me->nick = "";
 	mDragType = ExampleFrameListener::nullDragType;
-	newRoomType = Room::quarters;
 	frameDelay = 0.0;
 	mGUIRenderer = renderer;
 	zChange = 0.0;
@@ -130,8 +129,6 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mZoomSpeed = .5;
 	mCurrentTileType = Tile::dirt;
 	mCurrentFullness = 100;
-	ceguiHasControl = false;
-	ignoreOneMouseReleased = false;
 
 	using namespace OIS;
 
@@ -1280,31 +1277,12 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 	CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getWindowContainingMouse();
 	if(tempWindow != NULL && tempWindow->getName().compare("Root") != 0)
 	{
-		//cout << "\n\nWindowName:  " << tempWindow->getName();
-		ceguiHasControl = true;
+		mouseDownOnCEGUIWindow = true;
 		return true;
 	}
 	else
 	{
-		// The mouse press is somewhere not on a CEGUI window
-		// Deactivate the active CEGUI control to return keyboard control back to OpenDungeons
-		if(ceguiHasControl)
-		{
-			ceguiHasControl = false;
-			ignoreOneMouseReleased = true;
-
-			CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getGUISheet();
-			if(tempWindow != NULL)
-			{
-				tempWindow = tempWindow->getActiveChild();
-				if(tempWindow != NULL)
-				{
-					//cout << "\nUser clicked on root window, returning to normal OpenDungeons controls.";
-					tempWindow->deactivate();
-				}
-			}
-			return true;
-		}
+		mouseDownOnCEGUIWindow = false;
 	}
 
 	RaySceneQueryResult &result = doRaySceneQuery(arg);
@@ -1397,14 +1375,16 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			{
 				if(resultName.find("Level_") != string::npos)
 				{
-					if(serverSocket != NULL || clientSocket != NULL || !mBrushMode)
-					{
-						mDragType = ExampleFrameListener::tileSelection;
-					}
-					else
-					{
+					// Start by assuming this is a tileSelection drag.
+					mDragType = ExampleFrameListener::tileSelection;
+
+					// If we are in the map editor, use a brush selection if it has been activated.
+					if(serverSocket == NULL && clientSocket == NULL && mBrushMode)
 						mDragType = ExampleFrameListener::tileBrushSelection;
-					}
+
+					// If we have selected a room type to add to the map, use a addNewRoom drag type.
+					if(gameMap.me->newRoomType != Room::nullRoomType)
+						mDragType = ExampleFrameListener::addNewRoom;
 
 					break;
 				}
@@ -1433,6 +1413,9 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		{
 			gameMap.me->dropCreature(curTile);
 		}
+
+		mDragType = ExampleFrameListener::nullDragType;
+		gameMap.me->newRoomType = Room::nullRoomType;
 	}
 	       
 	return true;
@@ -1446,17 +1429,9 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 {
 	CEGUI::System::getSingleton().injectMouseButtonUp(convertButton(id));
 
-	// If the mouse release is on a CEGUI window ignore it
-	if(ceguiHasControl)
-	{
+	// If the mouse press was on a CEGUI window ignore it
+	if(mouseDownOnCEGUIWindow)
 		return true;
-	}
-
-	if(ignoreOneMouseReleased)
-	{
-		ignoreOneMouseReleased = false;
-		return true;
-	}
 
 	// Unselect all tiles
 	//for(int i = 0; i < gameMap.numTiles(); i++)
@@ -1513,41 +1488,36 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 					{
 						affectedTiles.push_back(currentTile);
 
-						// See if we are hosting a game or not
-						if(serverSocket == NULL)
+						// See if we are in a game or not
+						if(serverSocket != NULL || clientSocket != NULL)
 						{
-							if(clientSocket == NULL)
+							if(serverSocket != NULL)
 							{
-								// In the map editor:  Fill the current tile with the new value
-								currentTile->setType( mCurrentTileType );
-								currentTile->setFullness( mCurrentFullness );
+								// On the server:  Just mark the tile for digging.
+								currentTile->setMarkedForDigging(digSetBool, gameMap.me);
 							}
 							else
 							{
 								// On the client:  Inform the server about our choice
-								if(currentTile->getFullness() > 0)
-								{
-									ClientNotification *clientNotification = new ClientNotification;
-									clientNotification->type = ClientNotification::markTile;
-									clientNotification->p = currentTile;
-									clientNotification->flag = digSetBool;
+								ClientNotification *clientNotification = new ClientNotification;
+								clientNotification->type = ClientNotification::markTile;
+								clientNotification->p = currentTile;
+								clientNotification->flag = digSetBool;
 
-									sem_wait(&clientNotificationQueueLockSemaphore);
-									clientNotificationQueue.push_back(clientNotification);
-									sem_post(&clientNotificationQueueLockSemaphore);
+								sem_wait(&clientNotificationQueueLockSemaphore);
+								clientNotificationQueue.push_back(clientNotification);
+								sem_post(&clientNotificationQueueLockSemaphore);
 
-									sem_post(&clientNotificationQueueSemaphore);
+								sem_post(&clientNotificationQueueSemaphore);
 
-									currentTile->setMarkedForDigging(digSetBool, gameMap.me);
-								}
+								currentTile->setMarkedForDigging(digSetBool, gameMap.me);
 							}
 						}
 						else
 						{
-							if(currentTile->getFullness() > 0)
-							{
-								currentTile->setMarkedForDigging(digSetBool, gameMap.me);
-							}
+							// In the map editor:  Fill the current tile with the new value
+							currentTile->setType( mCurrentTileType );
+							currentTile->setFullness( mCurrentFullness );
 						}
 					}
 				}
@@ -1633,12 +1603,6 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 	CEGUI::System *sys = CEGUI::System::getSingletonPtr();
 	sys->injectKeyDown(arg.key);
 	sys->injectChar(arg.text);
-
-	if(ceguiHasControl && arg.key != OIS::KC_ESCAPE)
-	{
-		//cout << "\n\nKey press ignored because CEGUI is active.";
-		return mContinue;
-	}
 
 	if(!terminalActive)
 	{
@@ -1878,12 +1842,6 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 {
 	using namespace OIS;
 	CEGUI::System::getSingleton().injectKeyUp(arg.key);
-
-	if(ceguiHasControl)
-	{
-		//cout << "\nKey release ignored because CEGUI is active.";
-		return mContinue;
-	}
 
 	if(!terminalActive)
 	{

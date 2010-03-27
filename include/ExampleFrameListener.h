@@ -164,7 +164,7 @@ protected:
 	CEGUI::Renderer *mGUIRenderer;     // CEGUI renderer
 	int xPos, yPos;
 	bool digSetBool;                   // For server mode - hods whether to mark or unmark a tile for digging
-	bool ceguiHasControl, ignoreOneMouseReleased;
+	bool mouseDownOnCEGUIWindow;
 
 	enum DragType {creature, mapLight, tileSelection, tileBrushSelection, addNewRoom, nullDragType};
 
@@ -175,7 +175,6 @@ private:
 
 	DragType mDragType;
 	string draggedCreature, draggedMapLight;
-	Room::RoomType newRoomType;
 	SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode, *lightSceneNode;
 };
 
