@@ -25,6 +25,13 @@ string GoalClaimNTiles::getSuccessMessage()
 	return tempSS.str();
 }
 
+string GoalClaimNTiles::getFailedMessage()
+{
+	stringstream tempSS;
+	tempSS << "You have failed to claim more than " << numberOfTiles << " tiles.";
+	return tempSS.str();
+}
+
 string GoalClaimNTiles::getDescription()
 {
 	stringstream tempSS;

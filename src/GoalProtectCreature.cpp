@@ -49,9 +49,24 @@ bool GoalProtectCreature::isMet(Seat *s)
 	}
 }
 
+bool GoalProtectCreature::isUnmet(Seat *s)
+{
+	return false;
+}
+
+bool GoalProtectCreature::isFailed(Seat *s)
+{
+	return !isMet(s);
+}
+
 string GoalProtectCreature::getSuccessMessage()
 {
 	return creatureName + " is still alive";
+}
+
+string GoalProtectCreature::getFailedMessage()
+{
+	return creatureName + " is not alive";
 }
 
 string GoalProtectCreature::getDescription()

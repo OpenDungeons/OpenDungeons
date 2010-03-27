@@ -20,6 +20,11 @@ bool Goal::isUnmet(Seat *s)
 	return !isMet(s);
 }
 
+bool Goal::isFailed(Seat *s)
+{
+	return false;
+}
+
 string Goal::getName()
 {
 	return name;

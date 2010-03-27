@@ -65,7 +65,24 @@ Goal* Seat::getCompletedGoal(unsigned int index)
 	return completedGoals[index];
 }
 
-/** \brief Loop over the vector of unmet goals and call the isMet() function on each one, if it is met move it to the completedGoals vector.
+/** \brief A simple accessor function to return the number of goals failed by this seat.
+  *
+*/
+unsigned int Seat::numFailedGoals()
+{
+	return failedGoals.size();
+}
+
+/** \brief A simple accessor function to allow for looping over the goals failed by this seat.
+  *
+*/
+Goal* Seat::getFailedGoal(unsigned int index)
+{
+	return failedGoals[index];
+}
+
+/** \brief Loop over the vector of unmet goals and call the isMet() and isFailed() functions on
+  * each one, if it is met move it to the completedGoals vector.
   *
 */
 unsigned int Seat::checkAllGoals()
@@ -74,6 +91,7 @@ unsigned int Seat::checkAllGoals()
 	vector<Goal*>::iterator currentGoal = goals.begin();
 	while(currentGoal != goals.end())
 	{
+		// Start by checking if the goal has been met by this seat.
 		if((*currentGoal)->isMet(this))
 		{
 			completedGoals.push_back(*currentGoal);
@@ -81,7 +99,16 @@ unsigned int Seat::checkAllGoals()
 		}
 		else
 		{
-			currentGoal++;
+			// If the goal has not been met, check to see if it cannot be met in the future.
+			if((*currentGoal)->isFailed(this))
+			{
+				failedGoals.push_back(*currentGoal);
+				currentGoal = goals.erase(currentGoal);
+			}
+			else
+			{
+				currentGoal++;
+			}
 		}
 	}
 
@@ -97,6 +124,7 @@ unsigned int Seat::checkAllCompletedGoals()
 	vector<Goal*>::iterator currentGoal = completedGoals.begin();
 	while(currentGoal != completedGoals.end())
 	{
+		// Start by checking if this previously met goal has now been unmet.
 		if((*currentGoal)->isUnmet(this))
 		{
 			goals.push_back(*currentGoal);
@@ -104,7 +132,16 @@ unsigned int Seat::checkAllCompletedGoals()
 		}
 		else
 		{
-			currentGoal++;
+			// Next check to see if this previously met goal has now been failed.
+			if((*currentGoal)->isFailed(this))
+			{
+				failedGoals.push_back(*currentGoal);
+				currentGoal = completedGoals.erase(currentGoal);
+			}
+			else
+			{
+				currentGoal++;
+			}
 		}
 	}
 

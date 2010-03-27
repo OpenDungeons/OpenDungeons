@@ -12,8 +12,11 @@ class GoalProtectCreature : public Goal
 
 		// Inherited functions
 		bool isMet(Seat *s);
-		string getSuccessMessage();
+		bool isUnmet(Seat *s);
+		bool isFailed(Seat *s);
 		string getDescription();
+		string getSuccessMessage();
+		string getFailedMessage();
 
 	private:
 		string creatureName;

@@ -29,6 +29,11 @@ string GoalKillAllEnemies::getSuccessMessage()
 	return "You have killed all the enemy creatures.";
 }
 
+string GoalKillAllEnemies::getFailedMessage()
+{
+	return "You have failed to kill all the enemy creatures.";
+}
+
 string GoalKillAllEnemies::getDescription()
 {
 	return "Kill all enemy creatures.";

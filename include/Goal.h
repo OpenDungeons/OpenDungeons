@@ -15,13 +15,15 @@ class Goal
 
 		// Functions which must be overridden by child classes
 		virtual bool isMet(Seat *s) = 0;
-		virtual string getSuccessMessage() = 0;
 		virtual string getDescription() = 0;
+		virtual string getSuccessMessage() = 0;
+		virtual string getFailedMessage() = 0;
 
 		// Functions which can be overridden (but do not have to be) by child classes
 		virtual void doSuccessAction();
 		virtual bool isVisible();
 		virtual bool isUnmet(Seat *s);
+		virtual bool isFailed(Seat *s);
 
 		// Functions which cannot be overridden by child classes
 		string getName();

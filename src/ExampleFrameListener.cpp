@@ -968,23 +968,37 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		{
 			bool iAmAWinner = gameMap.seatIsAWinner(gameMap.me->seat);
 
-			if(!iAmAWinner)
+			if(gameMap.me->seat->numGoals() > 0)
 			{
 				// Loop over the list of unmet goals for the seat we are sitting in an print them.
-				tempSS << "Unfinished Goals:\n----------\t-----------\n";
+				tempSS << "Unfinished Goals:\n---------------------\n";
 				for(unsigned int i = 0; i < gameMap.me->seat->numGoals(); i++)
 				{
 					Goal *tempGoal = gameMap.me->seat->getGoal(i);
-					tempSS << tempGoal->getName() << ":\t" << tempGoal->getDescription() << "\n";
+					tempSS << tempGoal->getName() << ":  " << tempGoal->getDescription() << "\n";
 				}
 			}
 
-			// Loop over the list of completed goals for the seat we are sitting in an print them.
-			tempSS << "\n\nCompleted Goals:\n----------\t-----------\n";
-			for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); i++)
+			if(gameMap.me->seat->numCompletedGoals() > 0)
 			{
-				Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
-				tempSS << tempGoal->getName() << ":\t" << tempGoal->getSuccessMessage() << "\n";
+				// Loop over the list of completed goals for the seat we are sitting in an print them.
+				tempSS << "\n\nCompleted Goals:\n---------------------\n";
+				for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); i++)
+				{
+					Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
+					tempSS << tempGoal->getName() << ":  " << tempGoal->getSuccessMessage() << "\n";
+				}
+			}
+
+			if(gameMap.me->seat->numFailedGoals() > 0)
+			{
+				// Loop over the list of completed goals for the seat we are sitting in an print them.
+				tempSS << "\n\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
+				for(unsigned int i = 0; i < gameMap.me->seat->numFailedGoals(); i++)
+				{
+					Goal *tempGoal = gameMap.me->seat->getFailedGoal(i);
+					tempSS << tempGoal->getName() << ":  " << tempGoal->getFailedMessage() << "\n";
+				}
 			}
 
 			if(iAmAWinner)
@@ -2206,6 +2220,9 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		{
 			tempSS.str(arguments);
 			tempSS >> turnsPerSecond;
+
+			// Clear the queue of early/late time counts to reset the moving window average in the AI time display.
+			gameMap.previousLeftoverTimes.clear();
 			
 			if(serverSocket != NULL)
 			{

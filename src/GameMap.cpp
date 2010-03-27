@@ -408,8 +408,8 @@ void GameMap::doTurn()
 		filledSeats[i]->checkAllCompletedGoals();
 
 		// Check the goals and move completed ones to the completedGoals list for the seat.
-		//NOTE: Once seats are placed on this list, they stay there even if goals ar unmet.  We may want to change this.
-		if(filledSeats[i]->checkAllGoals() == 0)
+		//NOTE: Once seats are placed on this list, they stay there even if goals are unmet.  We may want to change this.
+		if(filledSeats[i]->checkAllGoals() == 0 && filledSeats[i]->numFailedGoals() == 0)
 			addWinningSeat(filledSeats[i]);
 	}
 
@@ -1458,6 +1458,9 @@ void GameMap::processDeletionQueues()
 	cout << "\n\nProcessing deletion queues on turn " << turn << ":\n";
 	long int latestTurnToBeRetired = -1;
 
+	// Lock the thread reference count map to prevent race conditions.
+	sem_wait(&threadReferenceCountLockSemaphore);
+
 	// Loop over the thread reference count and find the first turn number which has 0 outstanding threads holding references for that turn.
 	map<long int, ProtectedObject<unsigned int> >::iterator currentThreadReferenceCount = threadReferenceCount.begin();
 	while(currentThreadReferenceCount != threadReferenceCount.end())
@@ -1476,6 +1479,9 @@ void GameMap::processDeletionQueues()
 
 		currentThreadReferenceCount++;
 	}
+
+	// Unlock the thread reference count map.
+	sem_post(&threadReferenceCountLockSemaphore);
 	
 	cout << "\nThe latest turn to be retired is " << latestTurnToBeRetired << "\n";
 

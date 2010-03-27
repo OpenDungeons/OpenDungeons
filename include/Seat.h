@@ -28,6 +28,9 @@ class Seat
 		unsigned int numCompletedGoals();
 		Goal* getCompletedGoal(unsigned int index);
 
+		unsigned int numFailedGoals();
+		Goal* getFailedGoal(unsigned int index);
+
 		// Public data members
 		int color;		/**< \brief The color index of the players sitting in this seat. */
 		string faction;		/**< \brief The name of the faction that this seat is playing as. */
@@ -47,6 +50,7 @@ class Seat
 	private:
 		vector<Goal*> goals;		/**< \brief The currently unmet goals for this seat, the first Seat to empty this wins. */
 		vector<Goal*> completedGoals;	/**< \brief The met goals for this seat. */
+		vector<Goal*> failedGoals;	/**< \brief The unmet goals for this seat which cannot possibly be met in the future. */
 };
 
 #endif
