@@ -1162,12 +1162,17 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 	{
 		// Loop over the square region surrounding current mouse location and either set the tile type of the affected tiles or create new ones.
 		Tile *currentTile;
-		list<Tile*> affectedTiles;
+		vector<Tile*> affectedTiles;
+		int radiusSquared = mCurrentTileRadius*mCurrentTileRadius;
 		for(int i = -1*(mCurrentTileRadius-1); i <= (mCurrentTileRadius-1); i++)
 		{
 			for(int j = -1*(mCurrentTileRadius-1); j <= (mCurrentTileRadius-1); j++)
 			{
-				//TODO: Rather than drawing a rectangular region around the brush, check the rSquared distance and use that to exclude tiles that do not lie in a circle of the same radius as the rectangle, note: the next loop which checks the meshes needs to reflect this change.
+				// Check to see if the current location falls inside a circle with a radius of mCurrentTileRadius.
+				int distSquared = i*i + j*j;
+				if(distSquared > radiusSquared)
+					continue;
+
 				currentTile = gameMap.getTile(xPos + i, yPos + j);
 
 				// Check to see if the current tile already exists.
@@ -1194,51 +1199,14 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 		// Add any tiles which border the affected region to the affected tiles list
 		// as they may alo want to switch meshes to optimize polycount now too.
-		//      Adding the top and bottom rows
-		int xMin = -1 * (mCurrentTileRadius-1) + xPos;
-		int xMax = (mCurrentTileRadius-1) + xPos;
-		int yMin = -1 * (mCurrentTileRadius-1) + yPos;
-		int yMax = (mCurrentTileRadius-1) + yPos;
-		for(int i = xMin-1; i < xMax+1; i++)
-		{
-			Tile *currentTile = gameMap.getTile(i, yMax+1);
-			if(currentTile != NULL)
-			{
-				affectedTiles.push_back(currentTile);
-			}
-
-			currentTile = gameMap.getTile(i, yMin-1);
-			if(currentTile != NULL)
-			{
-				affectedTiles.push_back(currentTile);
-			}
-		}
-
-		//      Adding the side rows
-		for(int j = yMin-1; j < yMax+1; j++)
-		{
-			Tile *currentTile = gameMap.getTile(xMax+1, j);
-			if(currentTile != NULL)
-			{
-				affectedTiles.push_back(currentTile);
-			}
-
-			currentTile = gameMap.getTile(xMin-1, j);
-			if(currentTile != NULL)
-			{
-				affectedTiles.push_back(currentTile);
-			}
-		}
+		vector<Tile*> borderingTiles = gameMap.tilesBorderedByRegion(affectedTiles);
+		affectedTiles.insert(affectedTiles.end(), borderingTiles.begin(), borderingTiles.end());
 
 		// Loop over all the affected tiles and force them to examine their
 		// neighbors.  This allows them to switch to a mesh with fewer
 		// polygons if some are hidden by the neighbors.
-		list<Tile*>::iterator itr = affectedTiles.begin();
-		while(itr != affectedTiles.end())
-		{
-			(*itr)->setFullness( (*itr)->getFullness() );
-			itr++;
-		}
+		for(unsigned int i = 0; i < affectedTiles.size(); i++)
+			affectedTiles[i]->setFullness(affectedTiles[i]->getFullness());
 	}
 
 	// If we are dragging a map light we need to update its position to the current x-y location.

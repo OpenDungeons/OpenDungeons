@@ -38,6 +38,9 @@ class GameMap
 		TileMap_t::iterator firstTile();
 		TileMap_t::iterator lastTile();
 		unsigned int numTiles();
+		vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);
+		vector<Tile*> circularRegion(int x, int y, double radius);
+		vector<Tile*> tilesBorderedByRegion(const vector<Tile*> &region);
 
 		void clearCreatures();
 		void addCreature(Creature *c);

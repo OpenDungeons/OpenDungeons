@@ -196,6 +196,111 @@ void GameMap::addTile(Tile *t)
 	tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(t->x,t->y), t) );
 }
 
+/** \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
+ *
+ */
+vector<Tile*> GameMap::rectangularRegion(int x1, int y1, int x2, int y2)
+{
+	vector<Tile*> returnList;
+	Tile *tempTile;
+
+	if(x1 > x2)  swap(x1, x2);
+	if(y1 > y2)  swap(y1, y2);
+
+	for(int i = x1; i <= x2; i++)
+	{
+		for(int j = y1; j <= y2; j++)
+		{
+			//TODO:  This routine could be sped up by using the neighborTiles function.
+			tempTile = getTile(i, j);
+
+			if(tempTile != NULL)
+				returnList.push_back(tempTile);
+		}
+	}
+
+	return returnList;
+}
+
+/** \brief Returns all the valid tiles in the curcular region surrounding the given point and extending outward to the specified radius.
+ *
+ */
+vector<Tile*> GameMap::circularRegion(int x, int y, double radius)
+{
+	vector<Tile*> returnList;
+	Tile *tempTile;
+	int xDist, yDist, distSquared;
+	double radiusSquared = radius*radius;
+
+	if(radius < 0.0)  radius = 0.0;
+
+	for(int i = x-radius; i <= x+radius; i++)
+	{
+		for(int j = y-radius; j <= y+radius; j++)
+		{
+			//TODO:  This routine could be sped up by using the neighborTiles function.
+			xDist = i - x;
+			yDist = j - y;
+			distSquared = xDist*xDist + yDist*yDist;
+			if(distSquared < radiusSquared)
+			{
+				tempTile = getTile(i, j);
+				if(tempTile != NULL)
+					returnList.push_back(tempTile);
+			}
+		}
+	}
+	return returnList;
+}
+
+/** \brief Returns a vector of all the valid tiles which are a neighbor to one or more tiles in the specified region, i.e. the "perimeter" of the region extended out one tile.
+ *
+ */
+vector<Tile*> GameMap::tilesBorderedByRegion(const vector<Tile*> &region)
+{
+	vector<Tile*> neighbors, returnList;
+
+	// Loop over all the tiles in the specified region.
+	for(unsigned int i = 0; i < region.size(); i++)
+	{
+		// Get the tiles bordering the current tile and loop over them.
+		neighbors = neighborTiles(region[i]->x, region[i]->y);
+		for(unsigned int j = 0; j < neighbors.size(); j++)
+		{
+			bool neighborFound = false;
+
+			// Check to see if the current neighbor is one of the tiles in the region.
+			for(unsigned int k = 0; k < region.size(); k++)
+			{
+				if(region[k] == neighbors[j])
+				{
+					neighborFound = true;
+					break;
+				}
+			}
+
+			if(!neighborFound)
+			{
+				// Check to see if the current neighbor is already in the returnList.
+				for(unsigned int k = 0; k < returnList.size(); k++)
+				{
+					if(returnList[k] == neighbors[j])
+					{
+						neighborFound = true;
+						break;
+					}
+				}
+			}
+
+			// If the given neighbor was not already in the returnList, then add it.
+			if(!neighborFound)
+				returnList.push_back(neighbors[j]);
+		}
+	}
+
+	return returnList;
+}
+
 /*! \brief Adds the address of a new class description to be stored in this GameMap.
  *
  * The class descriptions take the form of a creature data structure with most
