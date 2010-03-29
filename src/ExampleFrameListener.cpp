@@ -1076,7 +1076,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 	RaySceneQueryResult &result = doRaySceneQuery(arg);
 	RaySceneQueryResult::iterator itr = result.begin( );
 
-	if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::nullDragType)
+	if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::addNewRoom || mDragType == ExampleFrameListener::nullDragType)
 	{
 		// Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
 		itr = result.begin();
@@ -1359,6 +1359,8 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			}
 		}
 
+		// If we are in a game we store the opposite of whether this tile is marked for diggin or not, this allows us to mark tiles
+		// by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
 		if(serverSocket != NULL || clientSocket != NULL)
 		{
 			Tile *tempTile = gameMap.getTile(xPos, yPos);
@@ -1376,12 +1378,15 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		mRStartDragX = xPos;
 		mRStartDragY = yPos;
 
+		// If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
+		//TODO:  This should probably contain a check to see if we are in a game.
 		Tile *curTile = gameMap.getTile(xPos, yPos);
 		if(curTile != NULL)
 		{
 			gameMap.me->dropCreature(curTile);
 		}
 
+		// Stop creating rooms.
 		mDragType = ExampleFrameListener::nullDragType;
 		gameMap.me->newRoomType = Room::nullRoomType;
 	}
@@ -1438,107 +1443,113 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 			}
 		}
 
-		// Check to see if we are dragging out a selection of tiles
-		else if(mDragType == ExampleFrameListener::tileSelection)
+		// Check to see if we are dragging out a selection of tiles or creating a new room
+		else if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::addNewRoom)
 		{
-			list<Tile*> affectedTiles;
-			int xMin = min(xPos, mLStartDragX);
-			int xMax = max(xPos, mLStartDragX);
-			int yMin = min(yPos, mLStartDragY);
-			int yMax = max(yPos, mLStartDragY);
-			for(int i = xMin; i <= xMax; i++)
+			// Loop over the valid tiles in the affected region.  If we are doing a tileSelection (changing the tile type and fullness) this
+			// loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
+			// which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
+			// the next loop will actually create the room.
+			vector<Tile*> affectedTiles = gameMap.rectangularRegion(xPos, yPos, mLStartDragX, mLStartDragY);
+			vector<Tile*>::iterator itr = affectedTiles.begin();
+			while(itr != affectedTiles.end())
 			{
-				for(int j = yMin; j <= yMax; j++)
+				Tile *currentTile = *itr;
+
+				// If we are dragging out tiles.
+				if(mDragType == ExampleFrameListener::tileSelection)
 				{
-					// Make sure the tile exists before we set its value
-					Tile *currentTile = gameMap.getTile(i, j);
-					if(currentTile != NULL)
+					// See if we are in a game or not
+					if(serverSocket != NULL || clientSocket != NULL)
 					{
-						affectedTiles.push_back(currentTile);
-
-						// See if we are in a game or not
-						if(serverSocket != NULL || clientSocket != NULL)
+						if(serverSocket != NULL)
 						{
-							if(serverSocket != NULL)
-							{
-								// On the server:  Just mark the tile for digging.
-								currentTile->setMarkedForDigging(digSetBool, gameMap.me);
-							}
-							else
-							{
-								// On the client:  Inform the server about our choice
-								ClientNotification *clientNotification = new ClientNotification;
-								clientNotification->type = ClientNotification::markTile;
-								clientNotification->p = currentTile;
-								clientNotification->flag = digSetBool;
-
-								sem_wait(&clientNotificationQueueLockSemaphore);
-								clientNotificationQueue.push_back(clientNotification);
-								sem_post(&clientNotificationQueueLockSemaphore);
-
-								sem_post(&clientNotificationQueueSemaphore);
-
-								currentTile->setMarkedForDigging(digSetBool, gameMap.me);
-							}
+							// On the server:  Just mark the tile for digging.
+							currentTile->setMarkedForDigging(digSetBool, gameMap.me);
 						}
 						else
 						{
-							// In the map editor:  Fill the current tile with the new value
-							currentTile->setType( mCurrentTileType );
-							currentTile->setFullness( mCurrentFullness );
+							// On the client:  Inform the server about our choice
+							ClientNotification *clientNotification = new ClientNotification;
+							clientNotification->type = ClientNotification::markTile;
+							clientNotification->p = currentTile;
+							clientNotification->flag = digSetBool;
+
+							sem_wait(&clientNotificationQueueLockSemaphore);
+							clientNotificationQueue.push_back(clientNotification);
+							sem_post(&clientNotificationQueueLockSemaphore);
+
+							sem_post(&clientNotificationQueueSemaphore);
+
+							currentTile->setMarkedForDigging(digSetBool, gameMap.me);
+						}
+					}
+					else
+					{
+						// In the map editor:  Fill the current tile with the new value
+						currentTile->setType( mCurrentTileType );
+						currentTile->setFullness( mCurrentFullness );
+					}
+				}
+				else // if(mDragType == ExampleFrameListener::addNewRoom)
+				{
+					//FIXME: We should also prune out this tile if it already contains a room of any type.
+					// If we are in a game.
+					if(serverSocket != NULL || clientSocket != NULL)
+					{
+						// If the currentTile is not empty and claimed for my color, then remove it from the affectedTiles vector.
+						if( !(currentTile->getFullness() == 0 && \
+									currentTile->getType() == Tile::claimed && \
+									currentTile->colorDouble > 0.99 && \
+									currentTile->color == gameMap.me->seat->color))
+						{
+							itr = affectedTiles.erase(itr);
+							continue;
+						}
+					}
+					else // We are in the map editor
+					{
+						// If the currentTile is not empty and claimed, then remove it from the affectedTiles vector.
+						if( !(currentTile->getFullness() == 0 && \
+									currentTile->getType() == Tile::claimed))
+						{
+							itr = affectedTiles.erase(itr);
+							continue;
 						}
 					}
 				}
+
+				itr++;
 			}
 
-			// Loop over any tiles which had their fullness values changed and recheck their
-			// neighbors to see if they need to update their meshes.  In server mode the mouse
-			// drag does not change the tiles fullness so we can skip this step
-			if(serverSocket == NULL)
+			// If we are adding new rooms the above loop will have pruned out the tiles not eligible
+			// for adding rooms to.  This block then actually adds rooms to the remaining tiles.
+			//TODO:  Make this check to make sure we have enough gold to create the room.
+			if(mDragType == ExampleFrameListener::addNewRoom)
 			{
-				// Add any tiles which border the affected region to the affected tiles list
-				// as they may alo want to swicth meshes to optimize polycount now too.
-				//      Adding the top and bottom rows
-				for(int i = xMin-1; i < xMax+1; i++)
-				{
-					Tile *currentTile = gameMap.getTile(i, yMax+1);
-					if(currentTile != NULL)
-					{
-						affectedTiles.push_back(currentTile);
-					}
+				cout << "\n\n\nAdding rooms to " << affectedTiles.size() << " tiles.\n\n\n";
+				cout.flush();
 
-					currentTile = gameMap.getTile(i, yMin-1);
-					if(currentTile != NULL)
-					{
-						affectedTiles.push_back(currentTile);
-					}
-				}
+				int newRoomColor = 0;
+				if(serverSocket != NULL || clientSocket != NULL)
+					newRoomColor = gameMap.me->seat->color;
 
-				//      Adding the side rows
-				for(int j = yMin-1; j < yMax+1; j++)
-				{
-					Tile *currentTile = gameMap.getTile(xMax+1, j);
-					if(currentTile != NULL)
-					{
-						affectedTiles.push_back(currentTile);
-					}
+				Room *tempRoom = new Room(gameMap.me->newRoomType, affectedTiles, newRoomColor);
+				gameMap.addRoom(tempRoom);
+				tempRoom->createMeshes();
+			}
 
-					currentTile = gameMap.getTile(xMin-1, j);
-					if(currentTile != NULL)
-					{
-						affectedTiles.push_back(currentTile);
-					}
-				}
+			// Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
+			vector<Tile*> borderTiles = gameMap.tilesBorderedByRegion(affectedTiles);
+			affectedTiles.insert(affectedTiles.end(), borderTiles.begin(), borderTiles.end());
 
-				// Loop over all the affected tiles and force them to examine their
-				// neighbors.  This allows them to switch to a mesh with fewer
-				// polygons if some are hidden by the neighbors.
-				list<Tile*>::iterator itr = affectedTiles.begin();
-				while(itr != affectedTiles.end())
-				{
-					(*itr)->setFullness( (*itr)->getFullness() );
-					itr++;
-				}
+			 // Loop over all the affected tiles and force them to examine their neighbors.  This allows
+			 // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
+			itr = affectedTiles.begin();
+			while(itr != affectedTiles.end())
+			{
+				(*itr)->setFullness( (*itr)->getFullness() );
+				itr++;
 			}
 		}
 

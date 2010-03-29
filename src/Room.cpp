@@ -9,6 +9,25 @@ Room::Room()
 	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 }
 
+Room::Room(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor)
+{
+	color = nColor;
+
+	static int uniqueNumber = -1;
+	stringstream tempSS;
+
+	//TODO: This should actually just call setType() but this will require a change to the >> operator.
+	meshName = getMeshNameFromRoomType(gameMap.me->newRoomType);
+
+	tempSS.str("");
+	tempSS << meshName << "_" << uniqueNumber;
+	uniqueNumber--;
+	name = tempSS.str();
+
+	for(unsigned int i = 0; i < nCoveredTiles.size(); i++)
+		addCoveredTile(nCoveredTiles[i]);
+}
+
 void Room::addCoveredTile(Tile* t)
 {
 	coveredTiles.push_back(t);
@@ -144,5 +163,29 @@ ostream& operator<<(ostream& os, Room *r)
 	}
 
 	return os;
+}
+
+string Room::getMeshNameFromRoomType(RoomType t)
+{
+	switch(t)
+	{
+		case nullRoomType:
+			return "NullRoomType";
+			break;
+
+		case dungeonTemple:
+			return "DungeonTemple";
+			break;
+
+		case vein:
+			return "Vein";
+			break;
+
+		case quarters:
+			return "Quarters";
+			break;
+	}
+
+	return "UnknownRoomType";
 }
 

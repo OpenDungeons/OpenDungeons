@@ -81,6 +81,12 @@
 *  Make the rest of the threads properly call threadLockForTurn() and
 *  threadUnlockForTurn() to prevent race conditions.
 
+*  When changing the tiles (fullness and type) on a large area (like when
+*  dragging out a box in the map editor), the gameMap should temporarily
+*  disable flood filling, change the tiles, then re-enable it since each tile
+*  change entails an new flood fill which gets expensive on large contiguous
+*  areas.
+
 +--------------- FEATURE ADDITIONS: ---------------
 *  Add a goal type ChatMessage which is automatically met and just chats its
 *  arguments in its doSuccessAction().

@@ -15,6 +15,7 @@ class Room
 
 		// Constructors and operators
 		Room();
+		Room(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor);
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Room *r);
 		friend istream& operator>>(istream& is, Room *r);
@@ -28,6 +29,8 @@ class Room
 		void createMeshes();
 		void destroyMeshes();
 		void deleteYourself();
+
+		static string getMeshNameFromRoomType(RoomType t);
 
 		int HP;
 		Player *controllingPlayer;
