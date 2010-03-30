@@ -1345,12 +1345,9 @@ Tile* Creature::positionTile()
 */
 void Creature::deleteYourself()
 {
-	weaponL->destroyMesh();
-	weaponR->destroyMesh();
-
 	// Make sure the weapons are deleted as well.
-	//weaponL->deleteYourself();
-	//weaponR->deleteYourself();
+	weaponL->deleteYourself();
+	weaponR->deleteYourself();
 
 	// If we are standing in a valid tile, we need to notify that tile we are no longer there.
 	if(positionTile() != NULL)
