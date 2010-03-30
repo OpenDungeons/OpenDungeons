@@ -763,6 +763,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				delete curCreature;
 				break;
 
+			case RenderRequest::deleteWeapon:
+				curWeapon = (Weapon*)curReq->p;
+				delete curWeapon;
+				break;
+
 			case RenderRequest::moveSceneNode:
 				if(mSceneMgr->hasSceneNode(curReq->str))
 				{

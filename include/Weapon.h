@@ -17,6 +17,7 @@ class Weapon
 
 		void createMesh();
 		void destroyMesh();
+		void deleteYourself();
 
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Weapon *w);
@@ -26,6 +27,7 @@ class Weapon
 		sem_t meshDestructionFinishedSemaphore;
 
 	private:
+		bool meshExists;
 };
 
 #endif

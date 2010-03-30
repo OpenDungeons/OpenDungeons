@@ -19,7 +19,7 @@ Field::Field(string nName)
 	hasMeshes = false;
 }
 
-/*! \brief Returns the stored value at a position (or 0) and a boolean indicating whether the value was wactually found.
+/*! \brief Returns the stored value at a position (or 0) and a boolean indicating whether the value was actually found.
  *
  */
 pair<double,bool> Field::get(int x, int y)

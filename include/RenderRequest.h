@@ -19,7 +19,7 @@ class RenderRequest
 		enum RequestType {createTile, refreshTile, destroyTile, deleteTile,
 				createCreature, destroyCreature, deleteCreature, setCreatureAnimationState,
 				createCreatureVisualDebug, destroyCreatureVisualDebug,
-				createWeapon, destroyWeapon,
+				createWeapon, destroyWeapon, deleteWeapon,
 				pickUpCreature, dropCreature, rotateCreaturesInHand,
 				createRoom, destroyRoom, deleteRoom,
 				createMapLight, updateMapLight, destroyMapLight, destroyMapLightVisualIndicator, deleteMapLight,

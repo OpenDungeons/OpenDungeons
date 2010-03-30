@@ -58,6 +58,17 @@ Creature::Creature()
 	meshesExist = false;
 }
 
+/*  This function causes a segfault in Creature::doTurn() when computeBattlefield() is called.
+Creature::~Creature()
+{
+	if(battleField != NULL)
+	{
+		delete battleField;
+		battleField = NULL;
+	}
+}
+*/
+
 /** \brief A function which returns a string describing the IO format of the << and >> operators.
  *
 */
@@ -1337,20 +1348,24 @@ void Creature::deleteYourself()
 	weaponL->destroyMesh();
 	weaponR->destroyMesh();
 
+	// Make sure the weapons are deleted as well.
+	//weaponL->deleteYourself();
+	//weaponR->deleteYourself();
+
+	// If we are standing in a valid tile, we need to notify that tile we are no longer there.
 	if(positionTile() != NULL)
 		positionTile()->removeCreature(this);
 
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::destroyCreature;
-	request->p = this;
+	if(meshesExist)
+		destroyMesh();
 
-	RenderRequest *request2 = new RenderRequest;
-	request2->type = RenderRequest::deleteCreature;
-	request2->p = this;
+	// Create a render request asking the render queue to actually do the deletion of this creature.
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::deleteCreature;
+	request->p = this;
 
 	// Add the requests to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
-	queueRenderRequest(request2);
 }
 
 /*! \brief Sets a new animation state from the creature's library of animations.

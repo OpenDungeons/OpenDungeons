@@ -1560,7 +1560,7 @@ void GameMap::processDeletionQueues()
 {
 	long int turn = turnNumber.get();
 
-	cout << "\n\nProcessing deletion queues on turn " << turn << ":\n";
+	cout << "\nProcessing deletion queues on turn " << turn << ":\n";
 	long int latestTurnToBeRetired = -1;
 
 	// Lock the thread reference count map to prevent race conditions.
@@ -1570,7 +1570,7 @@ void GameMap::processDeletionQueues()
 	map<long int, ProtectedObject<unsigned int> >::iterator currentThreadReferenceCount = threadReferenceCount.begin();
 	while(currentThreadReferenceCount != threadReferenceCount.end())
 	{
-		//cout << "(" << (*currentThreadReferenceCount).first << ", " << (*currentThreadReferenceCount).second.get() << ")   ";
+		cout << "(" << (*currentThreadReferenceCount).first << ", " << (*currentThreadReferenceCount).second.rawGet() << ")   ";
 		if((*currentThreadReferenceCount).second.get() == 0)
 		{
 			// There are no threads which could be holding references to objects from the current turn so it is safe to retire.
@@ -1588,7 +1588,7 @@ void GameMap::processDeletionQueues()
 	// Unlock the thread reference count map.
 	sem_post(&threadReferenceCountLockSemaphore);
 	
-	cout << "\nThe latest turn to be retired is " << latestTurnToBeRetired << "\n";
+	cout << "\nThe latest turn to be retired is " << latestTurnToBeRetired;
 
 	// If we did not find any turns which have no threads locking them we are safe to retire this turn.
 	if(latestTurnToBeRetired < 0)

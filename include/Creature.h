@@ -26,6 +26,7 @@ class Creature : public CreatureClass
 {
 	public:
 		Creature();
+		//~Creature();
 
 		// Individual properties
 		string name;			// The creature's unique name
