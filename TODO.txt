@@ -91,6 +91,8 @@
 *  variable called meshExists and that it updates and uses it appropriately.
 
 +--------------- FEATURE ADDITIONS: ---------------
++  Add a terminal command 'ls seats'.
+
 *  Add a goal type ChatMessage which is automatically met and just chats its
 *  arguments in its doSuccessAction().
 

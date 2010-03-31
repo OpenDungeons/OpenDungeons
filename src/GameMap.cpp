@@ -117,9 +117,7 @@ void GameMap::clearTiles()
 void GameMap::clearCreatures()
 {
 	for(unsigned int i = 0; i < numCreatures(); i++)
-	{
 		creatures[i]->deleteYourself();
-	}
 
 	creatures.clear();
 }
@@ -619,17 +617,12 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	list<Tile*> returnList;
 	astarEntry *currentEntry;
 	Tile *destination;
-	//TODO:  make this a local variable, don't forget to remove the delete statement at the end of this function.
-	astarEntry *neighbor = new astarEntry;
 	list<astarEntry*> openList;
 	list<astarEntry*> closedList;
 	list<astarEntry*>::iterator itr;
 
-	currentEntry = new astarEntry;
-	currentEntry->tile = getTile(x1, y1);
-
 	// If the start tile was not found return an empty path
-	if(currentEntry->tile == NULL)
+	if(getTile(x1, y1) == NULL)
 		return returnList;
 
 	// If the end tile was not found return an empty path
@@ -641,9 +634,13 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 	if(floodFillEnabled && passability == Tile::walkableTile && !walkablePathExists(x1, y1, x2, y2))
 		return returnList;
 
+	//TODO:  make this a local variable, don't forget to remove the delete statement at the end of this function.
+	astarEntry *neighbor = new astarEntry;
+
+	currentEntry = new astarEntry;
+	currentEntry->tile = getTile(x1, y1);
 	currentEntry->parent = NULL;
 	currentEntry->g = 0.0;
-	// Use the manhattan distance for the heuristic
 	currentEntry->setHeuristic(x1, y1, x2, y2);
 	openList.push_back(currentEntry);
 
@@ -1203,6 +1200,9 @@ unsigned int GameMap::numMapLights()
 */ 
 void GameMap::clearEmptySeats()
 {
+	for(unsigned int i = 0; i < numEmptySeats(); i++)
+		delete emptySeats[i];
+
 	emptySeats.clear();
 }
 
@@ -1252,6 +1252,9 @@ unsigned int GameMap::numEmptySeats()
 
 void GameMap::clearFilledSeats()
 {
+	for(unsigned int i = 0; i < numFilledSeats(); i++)
+		delete filledSeats[i];
+
 	filledSeats.clear();
 }
 
