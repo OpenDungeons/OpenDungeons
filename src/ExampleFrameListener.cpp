@@ -408,7 +408,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				ent->setNormaliseNormals(true);
 #endif
 				node->attachObject(ent);
-				sem_post(&curRoom->meshCreationFinishedSemaphore);
 				break;
 
 			case RenderRequest::destroyRoom:
@@ -426,7 +425,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->destroyEntity(ent);
 					mSceneMgr->destroySceneNode(tempSS.str() + "_node");
 				}
-				sem_post(&curRoom->meshDestructionFinishedSemaphore);
 				break;
 
 			case RenderRequest::deleteRoom:
@@ -454,7 +452,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 #endif
 
 				node->attachObject(ent);
-				sem_post(&curCreature->meshCreationFinishedSemaphore);
 				break;
 
 			case RenderRequest::destroyCreature:
@@ -469,7 +466,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					mSceneMgr->destroySceneNode(curCreature->name + "_node");
 				}
 				curCreature->sceneNode = NULL;
-				sem_post(&curCreature->meshDestructionFinishedSemaphore);
 				break;
 
 			case RenderRequest::reorientSceneNode:
@@ -506,7 +502,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				tempQuaternion.FromAngleAxis(Degree(-90.0), Ogre::Vector3(1.0, 0.0, 0.0));
 
 				ent->attachObjectToBone(weaponBone->getName(), weaponEntity, tempQuaternion);
-				sem_post(&curWeapon->meshCreationFinishedSemaphore);
 				break;
 
 			case RenderRequest::destroyWeapon:
@@ -518,7 +513,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					ent = mSceneMgr->getEntity("Weapon_" + curWeapon->handString + "_" + curCreature->name);
 					mSceneMgr->destroyEntity(ent);
 				}
-				sem_post(&curWeapon->meshDestructionFinishedSemaphore);
 				break;
 
 			case RenderRequest::createMapLight:

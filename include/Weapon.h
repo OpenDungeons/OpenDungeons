@@ -23,9 +23,6 @@ class Weapon
 		friend ostream& operator<<(ostream& os, Weapon *w);
 		friend istream& operator>>(istream& is, Weapon *w);
 
-		sem_t meshCreationFinishedSemaphore;
-		sem_t meshDestructionFinishedSemaphore;
-
 	private:
 		bool meshExists;
 };

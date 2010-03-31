@@ -37,8 +37,6 @@ class Creature : public CreatureClass
 		unsigned int level;
 		double exp;
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.  Also, it should be moved to CreatureClass.
-		sem_t meshCreationFinishedSemaphore;
-		sem_t meshDestructionFinishedSemaphore;
 
 		// Object methods
 		void createMesh();

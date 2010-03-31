@@ -65,8 +65,6 @@ void MapLight::createOgreEntity()
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
 
-	//FIXME:  Wait until the render queue has finished processing this request to move on.
-	//sem_wait(&meshCreationFinishedSemaphore);
 	ogreEntityExists = true;
 	ogreEntityVisualIndicatorExists = true;
 }

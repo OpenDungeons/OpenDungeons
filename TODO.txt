@@ -87,6 +87,9 @@
 *  change entails an new flood fill which gets expensive on large contiguous
 *  areas.
 
+*  Make sure that every class that has a createMesh function also has a
+*  variable called meshExists and that it updates and uses it appropriately.
+
 +--------------- FEATURE ADDITIONS: ---------------
 *  Add a goal type ChatMessage which is automatically met and just chats its
 *  arguments in its doSuccessAction().

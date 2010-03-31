@@ -19,8 +19,6 @@ using namespace std;
 
 Creature::Creature()
 {
-	sem_init(&meshCreationFinishedSemaphore, 0, 0);
-	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 	hasVisualDebuggingEntities = false;
 	position = Ogre::Vector3(0,0,0);
 	scale = Ogre::Vector3(1,1,1);
@@ -171,10 +169,6 @@ void Creature::createMesh()
 	if(meshesExist)
 		return;
 
-	//NOTE: I think this line is redundant since the a sem_wait on any previous destruction should return the sem to 0 anyway but this takes care of it in case it is forgotten somehow
-	sem_init(&meshCreationFinishedSemaphore, 0, 0);
-	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
-
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::createCreature;
 	request->p = this;
@@ -183,10 +177,6 @@ void Creature::createMesh()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
-
-	//FIXME:  This function needs to wait until the render queue has processed the request before returning.  This should fix the bug where the client crashes loading levels with lots of creatures.  Other create mesh routines should have a similar wait statement.  It currently breaks the program since this function gets called from the rendering thread causing the thread to wait for itself to do something.
-	//sem_wait(&meshCreationFinishedSemaphore);
-
 }
 
 
@@ -203,17 +193,12 @@ void Creature::destroyMesh()
 	weaponL->destroyMesh();
 	weaponR->destroyMesh();
 
-	//NOTE: I think this line is redundant since the a sem_wait on any previous creation should return the sem to 0 anyway but this takes care of it in case it is forgotten somehow
-	//sem_init(&meshCreationFinishedSemaphore, 0, 0);
-
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::destroyCreature;
 	request->p = this;
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
-
-	sem_wait(&meshDestructionFinishedSemaphore);
 }
 
 /*! \brief Changes the creatures position to a new position.

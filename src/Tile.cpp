@@ -19,14 +19,10 @@ Tile::Tile()
 	color = 0;
 	colorDouble = 0.0;
 	floodFillColor = -1;
-	sem_init(&meshCreationFinishedSemaphore, 0, 0);
-	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 }
 
 Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 {
-	sem_init(&meshCreationFinishedSemaphore, 0, 0);
-	sem_init(&meshDestructionFinishedSemaphore, 0, 0);
 	color = 0;
 	colorDouble = 0.0;
 	floodFillColor = -1;
@@ -496,9 +492,6 @@ void Tile::createMesh()
 
 	//FIXME:  this refreshMesh is a test to see if it fixes the hidden tiles bug at load time.
 	refreshMesh();
-
-	//FIXME:  This wait needs to happen however it currently causes the program to lock up because this function is called from the rendering thread which causes that thread to wait on itself
-	//sem_wait(&meshCreationFinishedSemaphore);
 }
 
 /*! \brief This function puts a message in the renderQueue to unload the mesh for this tile.
@@ -512,9 +505,6 @@ void Tile::destroyMesh()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
-
-	//FIXME:  This wait needs to happen however it currently causes the program to lock up because this function is called from the rendering thread which causes that thread to wait on itself
-	//sem_wait(&meshDestructionFinishedSemaphore);
 }
 
 /*! \brief This function marks the tile as being selected through a mouse click or drag.

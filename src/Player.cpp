@@ -171,7 +171,6 @@ bool Player::dropCreature(Tile *t)
 				c->createMesh();
 				c->weaponL->createMesh();
 				c->weaponR->createMesh();
-				sem_wait(&c->meshCreationFinishedSemaphore);
 			}
 			else // This is the reult of the player on the local computer dropping the creature
 			{

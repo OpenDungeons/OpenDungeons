@@ -87,8 +87,6 @@ class Tile
 		int floodFillColor;
 		double rotation;
 		string name;
-		sem_t meshCreationFinishedSemaphore;
-		sem_t meshDestructionFinishedSemaphore;
 
 	private:
 		// Private datamembers
