@@ -1,4 +1,9 @@
 --------------- BUGS: ---------------
++  The workers (kobolds) have code in them to ignore enemies (with some
++  probability?) to allow them to worry more about working than fighting, when
++  they are alone with an enemy, however the should either stand their ground and
++  fight or run away, not just stand there working while they are attacked.
+
 +  When the terminal command "load" is executed if the loaded level is from a
 +  different version of OpenDungeons than the current game the game will print
 +  an error message to the terminal and quit, this should be handled more

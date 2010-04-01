@@ -20,6 +20,8 @@ GameMap::GameMap()
 	numCallsTo_path = 0;
 	averageAILeftoverTime = 0.0;
 	sem_init(&threadReferenceCountLockSemaphore, 0, 1);
+	sem_init(&creaturesLockSemaphore, 0, 1);
+	sem_init(&tilesLockSemaphore, 0, 1);
 }
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
@@ -47,8 +49,9 @@ void GameMap::createNewMap(int xSize, int ySize)
 			snprintf(array, sizeof(array), "Level_%3i_%3i", i, j);
 			tempTile->name = array;
 			tempTile->createMesh();
-			//tiles.push_back(tempTile);
+			sem_wait(&tilesLockSemaphore);
 			tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(i,j), tempTile) );
+			sem_post(&tilesLockSemaphore);
 		}
 	}
 
@@ -70,12 +73,18 @@ void GameMap::createNewMap(int xSize, int ySize)
  */
 Tile* GameMap::getTile(int x, int y)
 {
+	Tile *returnValue = NULL;
 	pair<int,int> location(x, y);
+
+	sem_wait(&tilesLockSemaphore);
 	TileMap_t::iterator itr = tiles.find(location);
 	if(itr != tiles.end())
-		return itr->second;
+		returnValue = itr->second;
 	else
-		return NULL;
+		returnValue = NULL;
+	sem_post(&tilesLockSemaphore);
+
+	return returnValue;
 }
 
 /*! \brief Clears the mesh and deletes the data structure for all the tiles, creatures, classes, and players in the GameMap.
@@ -101,6 +110,7 @@ void GameMap::clearAll()
  */
 void GameMap::clearTiles()
 {
+	sem_wait(&tilesLockSemaphore);
 	TileMap_t::iterator itr = tiles.begin();
 	while(itr != tiles.end())
 	{
@@ -109,6 +119,7 @@ void GameMap::clearTiles()
 	}
 
 	tiles.clear();
+	sem_post(&tilesLockSemaphore);
 }
 
 /*! \brief Clears the mesh and deletes the data structure for all the creatures in the GameMap.
@@ -116,10 +127,12 @@ void GameMap::clearTiles()
  */
 void GameMap::clearCreatures()
 {
-	for(unsigned int i = 0; i < numCreatures(); i++)
+	sem_wait(&creaturesLockSemaphore);
+	for(unsigned int i = 0; i < creatures.size(); i++)
 		creatures[i]->deleteYourself();
 
 	creatures.clear();
+	sem_post(&creaturesLockSemaphore);
 }
 
 /*! \brief Deletes the data structure for all the creature classes in the GameMap.
@@ -153,7 +166,11 @@ void GameMap::clearPlayers()
  */
 unsigned int GameMap::numTiles()
 {
-	return tiles.size();
+	sem_wait(&tilesLockSemaphore);
+	unsigned int tempUnsigned = tiles.size();
+	sem_post(&tilesLockSemaphore);
+
+	return tempUnsigned;
 }
 
 /*! \brief Adds the address of a new tile to be stored in this GameMap.
@@ -191,7 +208,9 @@ void GameMap::addTile(Tile *t)
 		}
 	}
 
+	sem_wait(&tilesLockSemaphore);
 	tiles.insert( pair< pair<int,int>, Tile* >(pair<int,int>(t->x,t->y), t) );
+	sem_post(&tilesLockSemaphore);
 }
 
 /** \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
@@ -262,7 +281,7 @@ vector<Tile*> GameMap::tilesBorderedByRegion(const vector<Tile*> &region)
 	for(unsigned int i = 0; i < region.size(); i++)
 	{
 		// Get the tiles bordering the current tile and loop over them.
-		neighbors = neighborTiles(region[i]->x, region[i]->y);
+		neighbors = neighborTiles(region[i]);
 		for(unsigned int j = 0; j < neighbors.size(); j++)
 		{
 			bool neighborFound = false;
@@ -326,7 +345,10 @@ void GameMap::addClassDescription(CreatureClass c)
  */
 void GameMap::addCreature(Creature *c)
 {
+	sem_wait(&creaturesLockSemaphore);
 	creatures.push_back(c);
+	sem_post(&creaturesLockSemaphore);
+
 	c->positionTile()->addCreature(c);
 }
 
@@ -335,8 +357,10 @@ void GameMap::addCreature(Creature *c)
  */
 void GameMap::removeCreature(Creature *c)
 {
+	sem_wait(&creaturesLockSemaphore);
+
 	// Loop over the creatures looking for creature c
-	for(unsigned int i = 0; i < numCreatures(); i++)
+	for(unsigned int i = 0; i < creatures.size(); i++)
 	{
 		if(c == creatures[i])
 		{
@@ -344,9 +368,11 @@ void GameMap::removeCreature(Creature *c)
 			// Remove the creature from the tile it's in
 			c->positionTile()->removeCreature(c);
 			creatures.erase(creatures.begin()+i);
-			return;
+			break;
 		}
 	}
+
+	sem_post(&creaturesLockSemaphore);
 }
 
 /** \brief Adds the given creature to the queue of creatures to be deleted in a future turn
@@ -381,7 +407,11 @@ CreatureClass* GameMap::getClassDescription(string query)
  */
 unsigned int GameMap::numCreatures()
 {
-	return creatures.size();
+	sem_wait(&creaturesLockSemaphore);
+	unsigned int tempUnsigned = creatures.size();
+	sem_post(&creaturesLockSemaphore);
+
+	return tempUnsigned;
 }
 
 /*! \brief Returns the total number of class descriptions stored in this game map.
@@ -397,7 +427,11 @@ unsigned int GameMap::numClassDescriptions()
  */
 Creature* GameMap::getCreature(int index)
 {
-	return creatures[index];
+	sem_wait(&creaturesLockSemaphore);
+	Creature *tempCreature = creatures[index];
+	sem_post(&creaturesLockSemaphore);
+
+	return tempCreature;
 }
 
 /*! \brief Gets the i'th class description in this GameMap.
@@ -414,12 +448,14 @@ CreatureClass* GameMap::getClassDescription(int index)
 void GameMap::createAllEntities()
 {
 	// Create OGRE entities for map tiles
+	sem_wait(&tilesLockSemaphore);
 	TileMap_t::iterator itr = tiles.begin();
 	while(itr != tiles.end())
 	{
 		itr->second->createMesh();
 		itr++;
 	}
+	sem_post(&tilesLockSemaphore);
 
 	// Create OGRE entities for the creatures
 	for(unsigned int i = 0; i < numCreatures(); i++)
@@ -450,15 +486,20 @@ void GameMap::createAllEntities()
  */
 Creature* GameMap::getCreature(string cName)
 {
-	for(unsigned int i = 0; i < numCreatures(); i++)
+	Creature *returnValue = NULL;
+
+	sem_wait(&creaturesLockSemaphore);
+	for(unsigned int i = 0; i < creatures.size(); i++)
 	{
 		if(creatures[i]->name.compare(cName) == 0)
 		{
-			return creatures[i];
+			returnValue = creatures[i];
+			break; 
 		}
 	}
+	sem_post(&creaturesLockSemaphore);
 
-	return NULL;
+	return returnValue;
 }
 
 /*! \brief Loops over all the creatures and calls their individual doTurn methods, also check goals and do the upkeep.
@@ -486,7 +527,13 @@ void GameMap::doTurn()
 		if(numCreatures() > 0)
 		{
 			while(numCreatures() > 0)
-				queueCreatureForDeletion(creatures[0]);
+			{
+				sem_wait(&creaturesLockSemaphore);
+				Creature *tempCreature = creatures[0];
+				sem_post(&creaturesLockSemaphore);
+
+				queueCreatureForDeletion(tempCreature);
+			}
 		}
 		else
 		{
@@ -519,7 +566,11 @@ void GameMap::doTurn()
 	// Call the individual creature AI for each creature in this game map
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
-		creatures[i]->doTurn();
+		sem_wait(&creaturesLockSemaphore);
+		Creature *tempCreature = creatures[i];
+		sem_post(&creaturesLockSemaphore);
+
+		tempCreature->doTurn();
 	}
 
 	// Remove dead creatures from the map and put them into the deletion queue.
@@ -528,15 +579,16 @@ void GameMap::doTurn()
 	{
 		// Check to see if the creature has died.
 		//TODO: Add code so creatures lay stunned for a while before they actually die.
+		sem_wait(&creaturesLockSemaphore);
 		Creature *tempCreature = creatures[count];
-		if(tempCreature->hp < 0.0)
+		sem_post(&creaturesLockSemaphore);
+		if(tempCreature->getHP() < 0.0)
 		{
 			// Remove the creature from the game map and into the deletion queue, it will be deleted
 			// when it is safe, i.e. all other pointers to it have been wiped from the program.
 			cout << "\nMoving creature " << tempCreature->name << " from the game map to the deletion list.";
 			cout.flush();
 			tempCreature->setAnimationState("Die");
-			removeCreature(tempCreature);
 			queueCreatureForDeletion(tempCreature);
 		}
 		else
@@ -554,6 +606,7 @@ void GameMap::doTurn()
 		emptySeats[i]->numClaimedTiles = 0;
 
 	// Now loop over all of the tiles, if the tile is claimed increment the given seats count.
+	sem_wait(&tilesLockSemaphore);
 	map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
 	while(currentTile != tiles.end())
 	{
@@ -569,7 +622,7 @@ void GameMap::doTurn()
 				tempSeat->numClaimedTiles++;
 
 				// Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
-				vector<Tile*> neighbors = neighborTiles((currentTile->second)->x, (currentTile->second)->y);
+				vector<Tile*> neighbors = neighborTiles(currentTile->second);
 				for(unsigned int i = 0; i < neighbors.size(); i++)
 				{
 					if(neighbors[i]->getType() == Tile::dirt && neighbors[i]->getFullness() < 0.1)// && neighbors[i]->colorDouble < 0.8)
@@ -580,6 +633,7 @@ void GameMap::doTurn()
 
 		currentTile++;
 	}
+	sem_post(&tilesLockSemaphore);
 	
 	// Carry out the upkeep round for each seat.  This means recomputing how much gold is
 	// available in their treasuries, how much mana they gain/lose during this turn, etc.
@@ -672,7 +726,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 		}
 
 		// Check the tiles surrounding the current square
-		vector<Tile*>neighbors = neighborTiles(currentEntry->tile->x, currentEntry->tile->y);
+		vector<Tile*>neighbors = neighborTiles(currentEntry->tile);
 		bool processNeighbor;
 		for(unsigned int i = 0; i < neighbors.size(); i++)
 		{
@@ -822,7 +876,11 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
  */
 TileMap_t::iterator GameMap::firstTile()
 {
-	return tiles.begin();
+	sem_wait(&tilesLockSemaphore);
+	TileMap_t::iterator tempItr = tiles.begin();
+	sem_post(&tilesLockSemaphore);
+
+	return tempItr;
 }
 
 /*! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
@@ -830,7 +888,11 @@ TileMap_t::iterator GameMap::firstTile()
  */
 TileMap_t::iterator GameMap::lastTile()
 {
-	return tiles.end();
+	sem_wait(&tilesLockSemaphore);
+	TileMap_t::iterator tempItr = tiles.end();
+	sem_post(&tilesLockSemaphore);
+
+	return tempItr;
 }
 
 /*! \brief Returns the (up to) 4 nearest neighbor tiles of the tile located at (x, y).
@@ -839,11 +901,17 @@ TileMap_t::iterator GameMap::lastTile()
 vector<Tile*> GameMap::neighborTiles(int x, int y)
 {
 	vector<Tile*> tempVector;
+
 	Tile *tempTile = getTile(x, y);
 	if(tempTile != NULL)
-		return tempTile->getAllNeighbors();
-	else
-		return tempVector;
+		tempVector = neighborTiles(tempTile);
+
+	return tempVector;
+}
+
+vector<Tile*> GameMap::neighborTiles(Tile *t)
+{
+	return t->getAllNeighbors();
 }
 
 /*! \brief Adds a pointer to a player structure to the players stored by this GameMap.
@@ -1469,6 +1537,7 @@ void GameMap::enableFloodFill()
 
 	// Carry out a flood fill of the whole level to make sure everything is good.
 	// Start by setting the flood fill color for every tile on the map to -1.
+	sem_wait(&tilesLockSemaphore);
 	map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
 	while(currentTile != tiles.end())
 	{
@@ -1476,12 +1545,17 @@ void GameMap::enableFloodFill()
 		tempTile->floodFillColor = -1;
 		currentTile++;
 	}
+	sem_post(&tilesLockSemaphore);
 
 	// Loop over the tiles again, this time flood filling when the flood fill color is -1.  This will flood the map enough times to cover the whole map.
 
+	//TODO:  The looping construct here has a potential race condition in that the endTile could change between the time when it is initialized and the end of this loop.  If this happens the loop could continue infinitely.
 	floodFillEnabled = true;
+	sem_wait(&tilesLockSemaphore);
 	currentTile = tiles.begin();
-	while(currentTile != tiles.end())
+	map< pair<int,int>, Tile*>::iterator endTile = tiles.end();
+	sem_post(&tilesLockSemaphore);
+	while(currentTile != endTile)
 	{
 		tempTile = currentTile->second;
 		if(tempTile->floodFillColor == -1)
@@ -1578,14 +1652,14 @@ void GameMap::processDeletionQueues()
 		{
 			// There are no threads which could be holding references to objects from the current turn so it is safe to retire.
 			latestTurnToBeRetired = (*currentThreadReferenceCount).first;
+			map<long int, ProtectedObject<unsigned int> >::iterator tempIterator = currentThreadReferenceCount++; 
+			threadReferenceCount.erase(tempIterator);
 		}
 		else
 		{
 			// There is one or more threads which could still be holding references to objects from the current turn so we cannot retire it.
 			break;
 		}
-
-		currentThreadReferenceCount++;
 	}
 
 	// Unlock the thread reference count map.

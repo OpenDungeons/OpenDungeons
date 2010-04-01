@@ -20,7 +20,12 @@ using namespace std;
 Creature::Creature()
 {
 	hasVisualDebuggingEntities = false;
+
+	sem_init(&positionLockSemaphore, 0, 1);
+	sem_wait(&positionLockSemaphore);
 	position = Ogre::Vector3(0,0,0);
+	sem_post(&positionLockSemaphore);
+
 	scale = Ogre::Vector3(1,1,1);
 	sightRadius = 10.0;
 	digRate = 10.0;
@@ -30,8 +35,14 @@ Creature::Creature()
 	destinationX = 0;
 	destinationY = 0;
 
+	sem_init(&hpLockSemaphore, 0, 1);
+	sem_wait(&hpLockSemaphore);
 	hp = 10;
+	sem_post(&hpLockSemaphore);
+	sem_init(&manaLockSemaphore, 0, 1);
+	sem_wait(&manaLockSemaphore);
 	mana = 10;
+	sem_post(&manaLockSemaphore);
 	maxHP = 10;
 	maxMana = 10;
 	hpPerLevel = 0.0;
@@ -47,6 +58,7 @@ Creature::Creature()
 	animationState = NULL;
 	destinationAnimationState = "Idle";
 	walkQueueFirstEntryAdded = false;
+	sem_init(&walkQueueLockSemaphore, 0, 1);
 
 	sceneNode = NULL;
 
@@ -87,10 +99,21 @@ string Creature::getFormat()
 ostream& operator<<(ostream& os, Creature *c)
 {
 	os << c->className << "\t" << c->name << "\t";
+
+	sem_wait(&c->positionLockSemaphore);
 	os << c->position.x << "\t" << c->position.y << "\t" << c->position.z << "\t";
+	sem_post(&c->positionLockSemaphore);
+
 	os << c->color << "\t";
 	os << c->weaponL << "\t" << c->weaponR << "\t";
-	os << c->hp << "\t" << c->mana;
+
+	sem_wait(&c->hpLockSemaphore);
+	os << c->hp << "\t";
+	sem_post(&c->hpLockSemaphore);
+
+	sem_wait(&c->manaLockSemaphore);
+	os << c->mana;
+	sem_post(&c->manaLockSemaphore);
 
 	return os;
 }
@@ -116,7 +139,10 @@ istream& operator>>(istream& is, Creature *c)
 	c->name = tempString;
 
 	is >> xLocation >> yLocation >> zLocation;
+	sem_wait(&c->positionLockSemaphore);
 	c->position = Ogre::Vector3(xLocation, yLocation, zLocation);
+	sem_post(&c->positionLockSemaphore);
+
 	is >> c->color;
 
 	c->weaponL = new Weapon;
@@ -136,7 +162,13 @@ istream& operator>>(istream& is, Creature *c)
 		*c = *creatureClass;
 	}
 
-	is >> c->hp >> c->mana;
+	sem_wait(&c->hpLockSemaphore);
+	is >> c->hp;
+	sem_post(&c->hpLockSemaphore);
+
+	sem_wait(&c->manaLockSemaphore);
+	is >> c->mana;
+	sem_post(&c->manaLockSemaphore);
 
 	return is;
 }
@@ -226,7 +258,9 @@ void Creature::setPosition(double x, double y, double z)
 		// tile the creature is in before and after the move to properly
 		// maintain the results returned by the positionTile() function.
 		Tile *oldPositionTile = positionTile();
+		sem_wait(&positionLockSemaphore);
 		position = Ogre::Vector3(x, y, z);
+		sem_post(&positionLockSemaphore);
 		Tile *newPositionTile = positionTile();
 
 		if(oldPositionTile != newPositionTile)
@@ -241,7 +275,9 @@ void Creature::setPosition(double x, double y, double z)
 	else
 	{
 		// We are not on the map
+		sem_wait(&positionLockSemaphore);
 		position = Ogre::Vector3(x, y, z);
+		sem_post(&positionLockSemaphore);
 	}
 
 	// Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
@@ -259,8 +295,45 @@ void Creature::setPosition(double x, double y, double z)
  */
 Ogre::Vector3 Creature::getPosition()
 {
-	return position;
+	sem_wait(&positionLockSemaphore);
+	Ogre::Vector3 tempVector(position);
+	sem_post(&positionLockSemaphore);
+
+	return tempVector;
 }
+
+void Creature::setHP(double nHP)
+{
+	sem_wait(&hpLockSemaphore);
+	hp = nHP;
+	sem_post(&hpLockSemaphore);
+}
+
+double Creature::getHP()
+{
+	sem_wait(&hpLockSemaphore);
+	double tempDouble = hp;
+	sem_post(&hpLockSemaphore);
+
+	return tempDouble;
+}
+
+void Creature::setMana(double nMana)
+{
+	sem_wait(&manaLockSemaphore);
+	mana = nMana;
+	sem_post(&manaLockSemaphore);
+}
+
+double Creature::getMana()
+{
+	sem_wait(&manaLockSemaphore);
+	double tempDouble = mana;
+	sem_post(&manaLockSemaphore);
+
+	return tempDouble;
+}
+
 
 /*! \brief The main AI routine which decides what the creature will do and carries out that action.
  *
@@ -310,14 +383,18 @@ void Creature::doTurn()
 	Quaternion tempQuat;
 
 	// Heal.
+	sem_wait(&hpLockSemaphore);
 	hp += 0.25;
 	if(hp > maxHP)
 		hp = maxHP;
+	sem_post(&hpLockSemaphore);
 	
 	// Regenrate mana.
+	sem_wait(&manaLockSemaphore);
 	mana += 0.75;
 	if(mana > maxMana)
 		mana = maxMana;
+	sem_post(&manaLockSemaphore);
 
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
@@ -446,8 +523,10 @@ void Creature::doTurn()
 
 						if(!workerFound)
 						{
+							sem_wait(&positionLockSemaphore);
 							tempX = position.x + 2.0*gaussianRandomDouble();
 							tempY = position.y + 2.0*gaussianRandomDouble();
+							sem_post(&positionLockSemaphore);
 						}
 
 
@@ -484,8 +563,10 @@ void Creature::doTurn()
 					{
 						tempPlayer = getControllingPlayer();
 						// Check to see if the tile is still marked for digging
+						sem_wait(&walkQueueLockSemaphore);
 						int index = walkQueue.size();
 						Tile *currentTile = gameMap.getTile((int)walkQueue[index].x, (int)walkQueue[index].y);
+						sem_post(&walkQueueLockSemaphore);
 						if(currentTile != NULL)
 						{
 							// If it is not marked
@@ -498,11 +579,13 @@ void Creature::doTurn()
 					}
 
 					//cout << "walkToTile ";
+					sem_wait(&walkQueueLockSemaphore);
 					if(walkQueue.size() == 0)
 					{
 						actionQueue.pop_front();
 						loopBack = true;
 					}
+					sem_post(&walkQueueLockSemaphore);
 					break;
 
 				case CreatureAction::claimTile:
@@ -533,7 +616,7 @@ void Creature::doTurn()
 					{
 						//cout << "\nTrying to claim the tile I am standing on.";
 						// Check to see if one of the tile's neighbors is claimed for our color
-						neighbors = gameMap.neighborTiles(myTile->x, myTile->y);
+						neighbors = gameMap.neighborTiles(myTile);
 						for(unsigned int j = 0; j < neighbors.size(); j++)
 						{
 							// Check to see if the current neighbor is already claimed
@@ -555,7 +638,7 @@ void Creature::doTurn()
 					// The tile we are standing on is already claimed or is not currently
 					// claimable, find candidates for claiming.
 					// Start by checking the neighbor tiles of the one we are already in
-					neighbors = gameMap.neighborTiles(myTile->x, myTile->y);
+					neighbors = gameMap.neighborTiles(myTile);
 					while(neighbors.size() > 0)
 					{
 						// If the current neigbor is claimable, walk into it and skip to the end of this turn
@@ -566,7 +649,7 @@ void Creature::doTurn()
 						{
 							// The neighbor tile is a potential candidate for claiming, to be an actual candidate
 							// though it must have a neighbor of its own that is already claimed for our side.
-							neighbors2 = gameMap.neighborTiles(tempTile->x, tempTile->y);
+							neighbors2 = gameMap.neighborTiles(tempTile);
 							for(unsigned int i = 0; i < neighbors2.size(); i++)
 							{
 								tempTile2 = neighbors2[i];
@@ -592,7 +675,7 @@ void Creature::doTurn()
 						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->color != color))
 						{
 							// Check to see if one of the tile's neighbors is claimed for our color
-							neighbors = gameMap.neighborTiles(visibleTiles[i]->x, visibleTiles[i]->y);
+							neighbors = gameMap.neighborTiles(visibleTiles[i]);
 							for(unsigned int j = 0; j < neighbors.size(); j++)
 							{
 								tempTile = neighbors[j];
@@ -619,7 +702,7 @@ void Creature::doTurn()
 							tempTile = claimableTiles[randomUint(0, claimableTiles.size()-1)];
 
 							// Count how many of the candidate tile's neighbors are already claimed.
-							neighbors = gameMap.neighborTiles(tempTile->x, tempTile->y);
+							neighbors = gameMap.neighborTiles(tempTile);
 							numNeighborsClaimed = 0;
 							for(unsigned int i = 0; i < neighbors.size(); i++)
 							{
@@ -690,7 +773,9 @@ claimTileBreakStatement:
 
 					// See if any of the tiles is one of our neighbors
 					wasANeighbor = false;
+					sem_wait(&positionLockSemaphore);
 					creatureNeighbors = gameMap.neighborTiles(position.x, position.y);
+					sem_post(&positionLockSemaphore);
 					for(unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; i++)
 					{
 						if(tempPlayer != NULL && creatureNeighbors[i]->getMarkedForDigging(tempPlayer))
@@ -700,7 +785,7 @@ claimTileBreakStatement:
 
 							// Force all the neighbors to recheck their meshes as we may have exposed
 							// a new side that was not visible before.
-							neighbors = gameMap.neighborTiles(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
+							neighbors = gameMap.neighborTiles(creatureNeighbors[i]);
 							for(unsigned int j = 0; j < neighbors.size(); j++)
 							{
 								neighbors[j]->setFullness(neighbors[j]->getFullness());
@@ -745,7 +830,7 @@ claimTileBreakStatement:
 					possiblePaths.clear();
 					for(unsigned int i = 0; i < markedTiles.size(); i++)
 					{
-						neighbors = gameMap.neighborTiles(markedTiles[i]->x, markedTiles[i]->y);
+						neighbors = gameMap.neighborTiles(markedTiles[i]);
 						for(unsigned int j = 0; j < neighbors.size(); j++)
 						{
 							neighborTile = neighbors[j];
@@ -844,14 +929,18 @@ claimTileBreakStatement:
 						if(damageDone < 0.0)  damageDone = 0.0;
 
 						// Do the damage and award experience points to both creatures.
+						sem_wait(&tempCreature->hpLockSemaphore);
 						tempCreature->hp -= damageDone;
+						sem_post(&tempCreature->hpLockSemaphore);
 						double expGained;
 						expGained = 1.0 + 0.2*powl(damageDone, 1.3);
 						exp += expGained;
 						tempCreature->exp += 0.15*expGained;
 
 						cout << "\n" << name << " did " << damageDone << " damage to " << enemiesInRange[0]->name;
+						sem_wait(&enemiesInRange[0]->hpLockSemaphore);
 						cout << " who now has " << enemiesInRange[0]->hp << "hp";
+						sem_post(&enemiesInRange[0]->hpLockSemaphore);
 
 						// Randomly decide to start maneuvering again so we don't just stand still and fight.
 						if(randomDouble(0.0, 1.0) <= 0.6)
@@ -871,7 +960,9 @@ claimTileBreakStatement:
 					// Check to see if we should try to strafe the enemy
 					if(randomDouble(0.0, 1.0) < 0.3)
 					{
+						sem_wait(&positionLockSemaphore);
 						tempVector = nearestEnemy->position - position;
+						sem_post(&positionLockSemaphore);
 						tempVector.normalise();
 						tempVector *= randomDouble(0.0, 3.0);
 						tempQuat.FromAngleAxis(Ogre::Degree((randomDouble(0.0, 1.0) < 0.5 ? 90 : 270)), Ogre::Vector3::UNIT_Z);
@@ -1322,7 +1413,11 @@ void Creature::destroyVisualDebugEntities()
 */
 Tile* Creature::positionTile()
 {
-	return gameMap.getTile((int)(position.x), (int)(position.y));
+	sem_wait(&positionLockSemaphore);
+	Ogre::Vector3 tempPosition(position);
+	sem_post(&positionLockSemaphore);
+
+	return gameMap.getTile((int)(tempPosition.x), (int)(tempPosition.y));
 }
 
 /*! \brief Completely destroy this creature, including its OGRE entities, scene nodes, etc.
@@ -1404,11 +1499,14 @@ void Creature::addDestination(int x, int y)
 	Ogre::Vector3 destination(x, y, 0);
 
 	// if there are currently no destinations in the walk queue
+	sem_wait(&walkQueueLockSemaphore);
 	if(walkQueue.size() == 0)
 	{
 		// Add the destination and set the remaining distance counter
 		walkQueue.push_back(destination);
+		sem_wait(&positionLockSemaphore);
 		shortDistance = position.distance(walkQueue.front());
+		sem_post(&positionLockSemaphore);
 		walkQueueFirstEntryAdded = true;
 	}
 	else
@@ -1416,6 +1514,7 @@ void Creature::addDestination(int x, int y)
 		// Add the destination
 		walkQueue.push_back(destination);
 	}
+	sem_post(&walkQueueLockSemaphore);
 
 	if(serverSocket != NULL)
 	{
@@ -1480,7 +1579,9 @@ bool Creature::setWalkPath(list<Tile*> path, unsigned int minDestinations, bool 
 */
 void Creature::clearDestinations()
 {
+	sem_wait(&walkQueueLockSemaphore);
 	walkQueue.clear();
+	sem_post(&walkQueueLockSemaphore);
 	stopWalking();
 
 	if(serverSocket != NULL)

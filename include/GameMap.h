@@ -106,6 +106,7 @@ class GameMap
 		bool walkablePathExists(int x1, int y1, int x2, int y2);
 		list<Tile*> path(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
 		vector<Tile*> neighborTiles(int x, int y);
+		vector<Tile*> neighborTiles(Tile *t);
 		list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
 		bool pathIsClear(list<Tile*> path, Tile::TileClearType passability);
 		void cutCorners(list<Tile*> &path, Tile::TileClearType passability);
@@ -137,8 +138,10 @@ class GameMap
 
 		// Private datamembers
 		map< pair<int,int>, Tile*> tiles;
+		sem_t tilesLockSemaphore;
 		vector<CreatureClass*> classDescriptions;
 		vector<Creature*> creatures;
+		sem_t creaturesLockSemaphore;  //TODO: Most of these other vectors should also probably have semaphore locks on them.
 		vector<Player*> players;
 		vector<Room*> rooms;
 		vector<MapLight*> mapLights;

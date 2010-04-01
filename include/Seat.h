@@ -6,6 +6,7 @@
 using namespace std;
 
 #include <Ogre.h>
+#include <semaphore.h>
 
 #include "Goal.h"
 
@@ -49,8 +50,11 @@ class Seat
 
 	private:
 		vector<Goal*> goals;		/**< \brief The currently unmet goals for this seat, the first Seat to empty this wins. */
+		sem_t goalsLockSemaphore;
 		vector<Goal*> completedGoals;	/**< \brief The met goals for this seat. */
+		sem_t completedGoalsLockSemaphore;
 		vector<Goal*> failedGoals;	/**< \brief The unmet goals for this seat which cannot possibly be met in the future. */
+		sem_t failedGoalsLockSemaphore;
 };
 
 #endif

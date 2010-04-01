@@ -96,6 +96,7 @@ class Tile
 		int fullnessMeshNumber;
 		vector<Tile*> neighbors;
 		vector<Creature*> creaturesInCell;
+		sem_t creaturesInCellLockSemaphore;
 		vector<Player*> playersMarkingTile;
 };
 

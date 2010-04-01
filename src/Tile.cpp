@@ -19,6 +19,7 @@ Tile::Tile()
 	color = 0;
 	colorDouble = 0.0;
 	floodFillColor = -1;
+	sem_init(&creaturesInCellLockSemaphore, 0, 1);
 }
 
 Tile::Tile(int nX, int nY, TileType nType, int nFullness)
@@ -32,6 +33,7 @@ Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 	y = nY;
 	setType(nType);
 	setFullness(nFullness);
+	sem_init(&creaturesInCellLockSemaphore, 0, 1);
 }
 
 /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
@@ -660,7 +662,9 @@ void Tile::deleteYourself()
  */
 void Tile::addCreature(Creature *c)
 {
+	sem_wait(&creaturesInCellLockSemaphore);
 	creaturesInCell.push_back(c);
+	sem_post(&creaturesInCellLockSemaphore);
 }
 
 /*! \brief This function removes a creature to the list of creatures in this tile.
@@ -668,6 +672,8 @@ void Tile::addCreature(Creature *c)
  */
 void Tile::removeCreature(Creature *c)
 {
+	sem_wait(&creaturesInCellLockSemaphore);
+
 	// Check to see if the given crature is actually in this tile
 	vector<Creature*>::iterator itr;
 	for(itr = creaturesInCell.begin(); itr != creaturesInCell.end(); itr++)
@@ -676,9 +682,11 @@ void Tile::removeCreature(Creature *c)
 		{
 			// Remove the creature from the list
 			creaturesInCell.erase(itr);
-			return;
+			break;
 		}
 	}
+
+	sem_post(&creaturesInCellLockSemaphore);
 }
 
 /*! \brief This function returns the count of the number of creatures in the tile.
@@ -686,7 +694,11 @@ void Tile::removeCreature(Creature *c)
  */
 unsigned int Tile::numCreaturesInCell()
 {
-	return creaturesInCell.size();
+	sem_wait(&creaturesInCellLockSemaphore);
+	unsigned int tempUnsigned = creaturesInCell.size();
+	sem_post(&creaturesInCellLockSemaphore);
+
+	return tempUnsigned;
 }
 
 /*! \brief This function returns the i'th creature in the tile.
@@ -694,7 +706,11 @@ unsigned int Tile::numCreaturesInCell()
  */
 Creature* Tile::getCreature(int index)
 {
-	return creaturesInCell[index];
+	sem_wait(&creaturesInCellLockSemaphore);
+	Creature *tempCreature = creaturesInCell[index];
+	sem_post(&creaturesInCellLockSemaphore);
+
+	return tempCreature;
 }
 
 /*! \brief Add a player to the vector of players who have marked this tile for digging.

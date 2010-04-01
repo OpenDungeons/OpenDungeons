@@ -5,6 +5,9 @@
 #include <string>
 #include <deque>
 using namespace std;
+
+#include <semaphore.h>
+
 class Creature;
 
 #include "Tile.h"
@@ -33,7 +36,6 @@ class Creature : public CreatureClass
 		Weapon *weaponL, *weaponR;	// The weapons the creature is holding
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
-		double hp, mana;		// Basic stats
 		unsigned int level;
 		double exp;
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.  Also, it should be moved to CreatureClass.
@@ -42,9 +44,16 @@ class Creature : public CreatureClass
 		void createMesh();
 		void destroyMesh();
 		void deleteYourself();
+
 		void setPosition(double x, double y, double z);
 		void setPosition(Ogre::Vector3 v);
 		Ogre::Vector3 getPosition();
+
+		void setHP(double nHP);
+		double getHP();
+
+		void setMana(double nMana);
+		double getMana();
 
 		// AI stuff
 		virtual void doTurn();
@@ -91,13 +100,19 @@ class Creature : public CreatureClass
 		string destinationAnimationState;
 		double shortDistance;
 		deque<Ogre::Vector3> walkQueue;
+		sem_t walkQueueLockSemaphore;
 		bool walkQueueFirstEntryAdded;
 		Ogre::Vector3 walkDirection;
 		SceneNode *sceneNode;
 
 	private:
+		double hp;
+		sem_t hpLockSemaphore;
+		double mana;
+		sem_t manaLockSemaphore;
 		deque<CreatureAction> actionQueue;
 		Ogre::Vector3 position;
+		sem_t positionLockSemaphore;
 		int destinationX, destinationY;
 		bool hasVisualDebuggingEntities;
 		Tile *previousPositionTile;

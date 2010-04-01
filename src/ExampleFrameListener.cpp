@@ -854,6 +854,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			currentCreature->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame * currentCreature->moveSpeed);
 
 		// Move the creature
+		sem_wait(&currentCreature->walkQueueLockSemaphore);
 		if(currentCreature->walkQueue.size() > 0)
 		{
 			// If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
@@ -926,6 +927,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				currentCreature->setPosition(currentCreature->getPosition() + currentCreature->walkDirection * moveDist);
 			}
 		}
+		sem_post(&currentCreature->walkQueueLockSemaphore);
 	}
 
 	// Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
