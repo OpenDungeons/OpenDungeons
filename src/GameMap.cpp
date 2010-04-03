@@ -507,18 +507,18 @@ Creature* GameMap::getCreature(string cName)
  */
 void GameMap::doTurn()
 {
+	// Local variables
+	Seat *tempSeat;
+	Tile *tempTile;
 	unsigned int tempUnsigned;
 
+	// Compute the moving window average of how much extra time was left over after the previous doTurn() calls finished.
 	averageAILeftoverTime = 0.0;
 	for(tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); tempUnsigned++)
 		averageAILeftoverTime += previousLeftoverTimes[tempUnsigned];
 
 	if(tempUnsigned > 0)
 		averageAILeftoverTime /= (double)tempUnsigned;
-
-	// Local variables
-	Seat *tempSeat;
-	Tile *tempTile;
 
 	sem_wait(&creatureAISemaphore);
 
@@ -635,6 +635,10 @@ void GameMap::doTurn()
 	}
 	sem_post(&tilesLockSemaphore);
 	
+	// Carry out the upkeep on each of the Rooms in the gameMap.
+	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+		gameMap.getRoom(i)->doUpkeep();
+
 	// Carry out the upkeep round for each seat.  This means recomputing how much gold is
 	// available in their treasuries, how much mana they gain/lose during this turn, etc.
 	for(unsigned int i = 0; i < filledSeats.size(); i++)

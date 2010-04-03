@@ -5,25 +5,45 @@
 Room::Room()
 {
 	HP = 10;
+	color = 0;
+	controllingPlayer = NULL;
 }
 
-Room::Room(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor)
+Room* Room::CreateRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor)
 {
-	color = nColor;
+	Room *tempRoom = NULL;
+
+	switch(nType)
+	{
+		case quarters:
+			tempRoom = new RoomQuarters();
+			break;
+	}
+
+	if(tempRoom == NULL)
+	{
+		cerr << "\n\n\nERROR: Trying to create a room of unknown type, bailing out.\n";
+		cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__ << "\n\n\n";
+		exit(1);
+	}
+
+	tempRoom->color = nColor;
 
 	static int uniqueNumber = -1;
 	stringstream tempSS;
 
 	//TODO: This should actually just call setType() but this will require a change to the >> operator.
-	meshName = getMeshNameFromRoomType(gameMap.me->newRoomType);
+	tempRoom->meshName = getMeshNameFromRoomType(gameMap.me->newRoomType);
 
 	tempSS.str("");
-	tempSS << meshName << "_" << uniqueNumber;
+	tempSS << tempRoom->meshName << "_" << uniqueNumber;
 	uniqueNumber--;
-	name = tempSS.str();
+	tempRoom->name = tempSS.str();
 
 	for(unsigned int i = 0; i < nCoveredTiles.size(); i++)
-		addCoveredTile(nCoveredTiles[i]);
+		tempRoom->addCoveredTile(nCoveredTiles[i]);
+
+	return tempRoom;
 }
 
 void Room::addCoveredTile(Tile* t)
@@ -107,8 +127,7 @@ string Room::getFormat()
 
 void Room::doUpkeep()
 {
-	// By default, do nothing.  Base classes can override this if they need calculations to be made every turn.
-	return;
+	// Do any generic upkeep here (i.e. any upkeep that all room types should do).  All base classes of room should call this function during their doUpkeep() routine.
 }
 
 istream& operator>>(istream& is, Room *r)
