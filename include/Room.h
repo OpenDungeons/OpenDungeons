@@ -13,7 +13,7 @@ class Room
 {
 	public:
 		// When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
-		enum RoomType {nullRoomType = 0, dungeonTemple, vein, quarters};
+		enum RoomType {nullRoomType = 0, dungeonTemple, vein, quarters, treasury};
 
 		// Constructors and operators
 		Room();
@@ -24,15 +24,10 @@ class Room
 		friend ostream& operator<<(ostream& os, Room *r);
 		friend istream& operator>>(istream& is, Room *r);
 
-		void addCoveredTile(Tile* t);
-		void removeCoveredTile(Tile* t);
-		Tile* getCoveredTile(int index);
-		unsigned int numCoveredTiles();
-		void clearCoveredTiles();
-
 		void createMeshes();
 		void destroyMeshes();
 		void deleteYourself();
+		RoomType getType();
 
 		static string getMeshNameFromRoomType(RoomType t);
 		static RoomType getRoomTypeFromMeshName(string s);
@@ -46,12 +41,19 @@ class Room
 		// Functions which can be overridden by child classes.
 		virtual void doUpkeep();
 		
+		virtual void addCoveredTile(Tile* t);
+		virtual void removeCoveredTile(Tile* t);
+		virtual Tile* getCoveredTile(int index);
+		virtual unsigned int numCoveredTiles();
+		virtual void clearCoveredTiles();
+
 	private:
 		vector<Tile*> coveredTiles;
 		RoomType type;
 };
 
 #include "RoomQuarters.h"
+#include "RoomTreasury.h"
 
 #endif
 

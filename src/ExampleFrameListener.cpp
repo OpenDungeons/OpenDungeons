@@ -1494,7 +1494,13 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 				}
 				else // if(mDragType == ExampleFrameListener::addNewRoom)
 				{
-					//FIXME: We should also prune out this tile if it already contains a room of any type.
+					// If the tile already contains a room, prune it from the list of affected tiles.
+					if(currentTile->getCoveringRoom() != NULL)
+					{
+						itr = affectedTiles.erase(itr);
+						continue;
+					}
+
 					// If we are in a game.
 					if(serverSocket != NULL || clientSocket != NULL)
 					{

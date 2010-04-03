@@ -11,3 +11,8 @@ bool quartersButtonPressed(const CEGUI::EventArgs &e)
 	return true;
 }
 
+bool treasuryButtonPressed(const CEGUI::EventArgs &e)
+{
+	gameMap.me->newRoomType = Room::treasury;
+	return true;
+}

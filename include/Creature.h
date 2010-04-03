@@ -104,12 +104,14 @@ class Creature : public CreatureClass
 		bool walkQueueFirstEntryAdded;
 		Ogre::Vector3 walkDirection;
 		SceneNode *sceneNode;
+		static const int maxGoldCarriedByWorkers = 1500;
 
 	private:
 		double hp;
 		sem_t hpLockSemaphore;
 		double mana;
 		sem_t manaLockSemaphore;
+		int gold;
 		deque<CreatureAction> actionQueue;
 		Ogre::Vector3 position;
 		sem_t positionLockSemaphore;

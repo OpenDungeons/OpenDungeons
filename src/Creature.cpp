@@ -47,6 +47,7 @@ Creature::Creature()
 	maxMana = 10;
 	hpPerLevel = 0.0;
 	manaPerLevel = 0.0;
+	gold = 0;
 	sightRadius = 10;
 	digRate = 10;
 	moveSpeed = 1.0;
@@ -465,8 +466,10 @@ void Creature::doTurn()
 		bool wasANeighbor = false;
 		Player *tempPlayer;
 		Tile *tempTile, *tempTile2, *myTile;
+		Room *tempRoom;
 		list<Tile*> tempPath;
 		pair<LocationType, double> min;
+		vector<Room*> treasuriesOwned;
 
 		diceRoll = randomDouble(0.0, 1.0);
 		if(actionQueue.size() > 0)
@@ -490,6 +493,13 @@ void Creature::doTurn()
 					{
 						loopBack = true;
 						actionQueue.push_front(CreatureAction(CreatureAction::digTile));
+					}
+
+					// Decide to deposit the gold we are carrying into a treasury.
+					else if(diceRoll < 0.4+(gold/(double)maxGoldCarriedByWorkers) && digRate > 0.1)
+					{
+						loopBack = true;
+						actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
 					}
 
 					// Decide to "wander" a short distance
@@ -780,8 +790,12 @@ claimTileBreakStatement:
 					{
 						if(tempPlayer != NULL && creatureNeighbors[i]->getMarkedForDigging(tempPlayer))
 						{
+							// Dig out the tile by decreasing the tile's fullness.  Also accrue gold if the tile is mineable.
 							setAnimationState("Dig");
 							creatureNeighbors[i]->setFullness(creatureNeighbors[i]->getFullness() - digRate);
+							if(creatureNeighbors[i]->getType() == Tile::gold)
+								//FIXME: This is subject to a race condition since multiple creatures can dig out the tile when it is almost gone, this allows them to extract more gold than the tile actually contains.  The tile itself should store how much gold it contains and creatures should decrement this amount when they dig to prevent this from happening.
+								gold += 25*digRate;
 
 							// Force all the neighbors to recheck their meshes as we may have exposed
 							// a new side that was not visible before.
@@ -815,6 +829,15 @@ claimTileBreakStatement:
 						}
 					}
 
+					// Check to see if we are carrying the maximum amount of gold we can carry, and if so, try to take it to a treasury.
+					if(gold >= maxGoldCarriedByWorkers)
+					{
+						// Remove the dig action and replace it with a depositGold action.
+						actionQueue.pop_front();
+						actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
+					}
+
+					// If we successfully dug a tile then we are done for this turn.
 					if(wasANeighbor)
 						break;
 
@@ -899,6 +922,49 @@ claimTileBreakStatement:
 					{
 						actionQueue.pop_front();
 						loopBack = true;
+					}
+					break;
+
+				case CreatureAction::depositGold:
+					// Check to see if we are standing in a treasury.
+					myTile = positionTile();
+					if(myTile != NULL)
+					{
+						tempRoom = myTile->getCoveringRoom();
+						if(tempRoom != NULL && tempRoom->getType() == Room::treasury)
+						{
+							// Deposit all the gold we are carrying into this treasury.
+							((RoomTreasury*)tempRoom)->depositGold(gold, myTile);
+							gold = 0;
+							actionQueue.pop_front();
+							break;
+						}
+					}
+
+					// We were not standing in a treasury, so try to find one to walk to.
+					// Check to see if our seat controls any treasuries.
+					treasuriesOwned = gameMap.getRoomsByTypeAndColor(Room::treasury, color);
+					if(treasuriesOwned.size() > 0)
+					{
+						//TODO:  Check to actually find the nearest one.
+						Tile *nearestTreasuryTile = treasuriesOwned[0]->getCoveredTile(0);
+						
+						// Begin walking to this treasury.
+						//FIXME:  This will fail if the chosen treasury tile cannot be walked to.
+						tempPath = gameMap.path(myTile, nearestTreasuryTile, tilePassability);
+						gameMap.cutCorners(tempPath, tilePassability);
+						if(setWalkPath(tempPath, 2, false))
+						{
+							actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+							break;
+						}
+					}
+					else
+					{
+						// There are no treasuries available so just go back to what we were doing.
+						actionQueue.pop_front();
+						loopBack = true;
+						break;
 					}
 					break;
 

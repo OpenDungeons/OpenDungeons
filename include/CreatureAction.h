@@ -18,6 +18,7 @@ class CreatureAction
 			maneuver,		// Like walkToTile but used for combat situations.
 			digTile,		// (worker only) Dig out a tile, i.e. decrease its fullness.
 			claimTile,		// (worker only) "Dance" on tile to change its color.
+			depositGold,		// (worker only) Carry gold that has been mined to a treasury.
 			attackCreature,	// Do damage to a creature withing range, if not in range begin maneuvering.
 			idle		// Stand around doing nothing.
 		};

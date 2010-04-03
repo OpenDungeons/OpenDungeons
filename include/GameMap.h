@@ -68,6 +68,7 @@ class GameMap
 		void addRoom(Room *r);
 		Room* getRoom(int index);
 		unsigned int numRooms();
+		vector<Room*> getRoomsByTypeAndColor(Room::RoomType type, int color);
 
 		void clearMapLights();
 		void clearMapLightIndicators();

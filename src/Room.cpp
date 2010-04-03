@@ -18,6 +18,10 @@ Room* Room::createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int n
 		case quarters:
 			tempRoom = new RoomQuarters();
 			break;
+
+		case treasury:
+			tempRoom = new RoomTreasury();
+			break;
 	}
 
 	if(tempRoom == NULL)
@@ -59,6 +63,7 @@ Room* Room::createRoomFromStream(istream &is)
 void Room::addCoveredTile(Tile* t)
 {
 	coveredTiles.push_back(t);
+	t->setCoveringRoom(this);
 }
 
 void Room::removeCoveredTile(Tile* t)
@@ -68,6 +73,7 @@ void Room::removeCoveredTile(Tile* t)
 		if(t == coveredTiles[i])
 		{
 			coveredTiles.erase(coveredTiles.begin() + i);
+			t->setCoveringRoom(NULL);
 			break;
 		}
 	}
@@ -128,6 +134,11 @@ void Room::deleteYourself()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
+}
+
+Room::RoomType Room::getType()
+{
+	return type;
 }
 
 string Room::getFormat()
@@ -203,6 +214,10 @@ string Room::getMeshNameFromRoomType(RoomType t)
 		case quarters:
 			return "Quarters";
 			break;
+
+		case treasury:
+			return "Treasury";
+			break;
 	}
 
 	return "UnknownRoomType";
@@ -216,6 +231,8 @@ Room::RoomType Room::getRoomTypeFromMeshName(string s)
 		return vein;
 	else if(s.compare("Quarters") == 0)
 		return quarters;
+	else if(s.compare("Treasury") == 0)
+		return treasury;
 	else
 	{
 		cerr << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";

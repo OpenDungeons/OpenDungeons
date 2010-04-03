@@ -11,11 +11,13 @@ using namespace Ogre;
 
 //FIXME:  this extern is probably not needed once the rendering code is all in one thread.
 extern SceneManager* mSceneMgr;
-
-#include "RenderRequest.h"
-
+class Tile;
 class Creature;
 class Player;
+class Room;
+
+#include "RenderRequest.h"
+#include "Room.h"
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -75,6 +77,9 @@ class Tile
 
 		void claimForColor(int nColor, double nDanceRate);
 
+		Room* getCoveringRoom();
+		void setCoveringRoom(Room *r);
+
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Tile *t);
 		friend istream& operator>>(istream& is, Tile *t);
@@ -98,6 +103,7 @@ class Tile
 		vector<Creature*> creaturesInCell;
 		sem_t creaturesInCellLockSemaphore;
 		vector<Player*> playersMarkingTile;
+		Room *coveringRoom;
 };
 
 

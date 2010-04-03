@@ -510,6 +510,7 @@ void GameMap::doTurn()
 	// Local variables
 	Seat *tempSeat;
 	Tile *tempTile;
+	int tempInt;
 	unsigned int tempUnsigned;
 
 	// Compute the moving window average of how much extra time was left over after the previous doTurn() calls finished.
@@ -644,11 +645,21 @@ void GameMap::doTurn()
 	for(unsigned int i = 0; i < filledSeats.size(); i++)
 	{
 		tempSeat = filledSeats[i];
+
+		// Add the amount of mana this seat accrued this turn.
 		cout << "\nSeat " << i << " has " << tempSeat->numClaimedTiles << " claimed tiles.";
 		tempSeat->manaDelta = 50 + tempSeat->numClaimedTiles;
 		tempSeat->mana += tempSeat->manaDelta;
 		if(tempSeat->mana > 250000)
 			tempSeat->mana = 250000;
+
+		// Update the count on how much gold is available in all of the treasuries claimed by the given seat.
+		tempInt = 0;
+		vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, tempSeat->color);
+		for(unsigned int i = 0; i < treasuriesOwned.size(); i++)
+			tempInt += ((RoomTreasury*)treasuriesOwned[i])->getTotalGold();
+
+		tempSeat->gold = tempInt;
 	}
 
 	cout << "\nDuring this turn there were " << numCallsTo_path-numCallsTo_path_atStart << " calls to GameMap::path().";
@@ -1223,6 +1234,18 @@ Room* GameMap::getRoom(int index)
 unsigned int GameMap::numRooms()
 {
 	return rooms.size();
+}
+
+vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)
+{
+	vector<Room*> returnList;
+	for(unsigned int i = 0; i < rooms.size(); i++)
+	{
+		if(rooms[i]->getType() == type && rooms[i]->color == color)
+			returnList.push_back(rooms[i]);
+	}
+
+	return returnList;
 }
 
 void GameMap::clearMapLights()

@@ -8,6 +8,7 @@
 
 bool quitButtonPressed(const CEGUI::EventArgs &e);
 bool quartersButtonPressed(const CEGUI::EventArgs &e);
+bool treasuryButtonPressed(const CEGUI::EventArgs &e);
 
 #endif
 

@@ -20,6 +20,7 @@ Tile::Tile()
 	colorDouble = 0.0;
 	floodFillColor = -1;
 	sem_init(&creaturesInCellLockSemaphore, 0, 1);
+	coveringRoom = NULL;
 }
 
 Tile::Tile(int nX, int nY, TileType nType, int nFullness)
@@ -34,6 +35,7 @@ Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 	setType(nType);
 	setFullness(nFullness);
 	sem_init(&creaturesInCellLockSemaphore, 0, 1);
+	coveringRoom = NULL;
 }
 
 /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
@@ -330,6 +332,16 @@ Tile::TileClearType Tile::getTilePassability()
 	cerr << "\n\nERROR:  Control reached the end of Tile::getTilePassability, this should never actually happen.\n\n";
 	exit(1);
 	return impassableTile;
+}
+
+Room* Tile::getCoveringRoom()
+{
+	return coveringRoom;
+}
+
+void Tile::setCoveringRoom(Room *r)
+{
+	coveringRoom = r;
 }
 
 string Tile::getFormat()
