@@ -110,8 +110,7 @@ bool readGameMapFromFile(string fileName)
 	levelFile >> objectsToLoad;
 	for(int i = 0; i < objectsToLoad; i++)
 	{
-		tempRoom = new Room;
-		levelFile >> tempRoom;
+		tempRoom = Room::createRoomFromStream(levelFile);
 
 		gameMap.addRoom(tempRoom);
 	}

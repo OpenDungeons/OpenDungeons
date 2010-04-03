@@ -1535,7 +1535,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 				if(serverSocket != NULL || clientSocket != NULL)
 					newRoomColor = gameMap.me->seat->color;
 
-				Room *tempRoom = Room::CreateRoom(gameMap.me->newRoomType, affectedTiles, newRoomColor);
+				Room *tempRoom = Room::createRoom(gameMap.me->newRoomType, affectedTiles, newRoomColor);
 				gameMap.addRoom(tempRoom);
 				tempRoom->createMeshes();
 			}

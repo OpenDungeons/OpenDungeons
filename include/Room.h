@@ -4,6 +4,7 @@
 #include <Ogre.h>
 #include <string>
 #include <deque>
+#include <iostream>
 using namespace std;
 
 #include "Tile.h"
@@ -16,7 +17,8 @@ class Room
 
 		// Constructors and operators
 		Room();
-		static Room* CreateRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor);
+		static Room* createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor);
+		static Room* createRoomFromStream(istream &is);
 
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Room *r);
@@ -33,6 +35,7 @@ class Room
 		void deleteYourself();
 
 		static string getMeshNameFromRoomType(RoomType t);
+		static RoomType getRoomTypeFromMeshName(string s);
 
 		// Public data members
 		int HP;
@@ -45,6 +48,7 @@ class Room
 		
 	private:
 		vector<Tile*> coveredTiles;
+		RoomType type;
 };
 
 #include "RoomQuarters.h"

@@ -9,7 +9,7 @@ Room::Room()
 	controllingPlayer = NULL;
 }
 
-Room* Room::CreateRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor)
+Room* Room::createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor)
 {
 	Room *tempRoom = NULL;
 
@@ -33,7 +33,8 @@ Room* Room::CreateRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int n
 	stringstream tempSS;
 
 	//TODO: This should actually just call setType() but this will require a change to the >> operator.
-	tempRoom->meshName = getMeshNameFromRoomType(gameMap.me->newRoomType);
+	tempRoom->meshName = getMeshNameFromRoomType(nType);
+	tempRoom->type = nType;
 
 	tempSS.str("");
 	tempSS << tempRoom->meshName << "_" << uniqueNumber;
@@ -44,6 +45,15 @@ Room* Room::CreateRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int n
 		tempRoom->addCoveredTile(nCoveredTiles[i]);
 
 	return tempRoom;
+}
+
+Room* Room::createRoomFromStream(istream &is)
+{
+	Room tempRoom;
+	is >> &tempRoom;
+
+	Room *returnRoom = createRoom(tempRoom.type, tempRoom.coveredTiles, tempRoom.color);
+	return returnRoom;
 }
 
 void Room::addCoveredTile(Tile* t)
@@ -157,6 +167,7 @@ istream& operator>>(istream& is, Room *r)
 		}
 	}
 	
+	r->type = Room::getRoomTypeFromMeshName(r->meshName);
 	return is;
 }
 
@@ -195,5 +206,21 @@ string Room::getMeshNameFromRoomType(RoomType t)
 	}
 
 	return "UnknownRoomType";
+}
+
+Room::RoomType Room::getRoomTypeFromMeshName(string s)
+{
+	if(s.compare("DungeonTemple") == 0)
+		return dungeonTemple;
+	else if(s.compare("Vein") == 0)
+		return vein;
+	else if(s.compare("Quarters") == 0)
+		return quarters;
+	else
+	{
+		cerr << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";
+		cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__ << "\n\n\n";
+		exit(1);
+	}
 }
 

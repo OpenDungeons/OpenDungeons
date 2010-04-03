@@ -156,8 +156,7 @@ void *clientSocketProcessor(void *p)
 			else if(serverCommand.compare("addroom") == 0)
 			{
 				stringstream tempSS(arguments);
-				Room *newRoom = new Room;
-				tempSS >> newRoom;
+				Room *newRoom = Room::createRoomFromStream(tempSS);
 				gameMap.addRoom(newRoom);
 				newRoom->createMeshes();
 				sem_wait(&sock->semaphore);
