@@ -32,6 +32,8 @@ class Room
 		static string getMeshNameFromRoomType(RoomType t);
 		static RoomType getRoomTypeFromMeshName(string s);
 
+		static int costPerTile(RoomType t);
+
 		// Public data members
 		int HP;
 		Player *controllingPlayer;

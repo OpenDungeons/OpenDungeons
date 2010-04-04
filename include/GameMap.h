@@ -69,6 +69,8 @@ class GameMap
 		Room* getRoom(int index);
 		unsigned int numRooms();
 		vector<Room*> getRoomsByTypeAndColor(Room::RoomType type, int color);
+		int getTotalGoldForColor(int color);
+		int withdrawFromTreasuries(int gold, int color);
 
 		void clearMapLights();
 		void clearMapLightIndicators();

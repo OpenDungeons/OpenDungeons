@@ -1537,16 +1537,25 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 			//TODO:  Make this check to make sure we have enough gold to create the room.
 			if(mDragType == ExampleFrameListener::addNewRoom)
 			{
-				cout << "\n\n\nAdding rooms to " << affectedTiles.size() << " tiles.\n\n\n";
-				cout.flush();
-
-				int newRoomColor = 0;
+				int newRoomColor = 0, goldRequired = 0;
 				if(serverSocket != NULL || clientSocket != NULL)
+				{
 					newRoomColor = gameMap.me->seat->color;
+					goldRequired = affectedTiles.size() * Room::costPerTile(gameMap.me->newRoomType);
+				}
 
-				Room *tempRoom = Room::createRoom(gameMap.me->newRoomType, affectedTiles, newRoomColor);
-				gameMap.addRoom(tempRoom);
-				tempRoom->createMeshes();
+				// Check to see if we are in the map editor OR if we are in a game, check to see if we have enough gold to create the room.
+				if((serverSocket == NULL && clientSocket == NULL) || (gameMap.getTotalGoldForColor(gameMap.me->seat->color) >= goldRequired))
+				{
+					// Create the room
+					Room *tempRoom = Room::createRoom(gameMap.me->newRoomType, affectedTiles, newRoomColor);
+					gameMap.addRoom(tempRoom);
+					tempRoom->createMeshes();
+
+					// If we are in a game, withdraw the gold required for the room from the players treasuries.
+					if(serverSocket != NULL || clientSocket != NULL)
+						gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->seat->color);
+				}
 			}
 
 			// Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.

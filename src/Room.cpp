@@ -199,25 +199,11 @@ string Room::getMeshNameFromRoomType(RoomType t)
 {
 	switch(t)
 	{
-		case nullRoomType:
-			return "NullRoomType";
-			break;
-
-		case dungeonTemple:
-			return "DungeonTemple";
-			break;
-
-		case vein:
-			return "Vein";
-			break;
-
-		case quarters:
-			return "Quarters";
-			break;
-
-		case treasury:
-			return "Treasury";
-			break;
+		case nullRoomType:      return "NullRoomType";      break;
+		case dungeonTemple:     return "DungeonTemple";     break; 
+		case vein:              return "Vein";              break; 
+		case quarters:          return "Quarters";          break; 
+		case treasury:          return "Treasury";          break;
 	}
 
 	return "UnknownRoomType";
@@ -239,5 +225,19 @@ Room::RoomType Room::getRoomTypeFromMeshName(string s)
 		cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__ << "\n\n\n";
 		exit(1);
 	}
+}
+
+int Room::costPerTile(RoomType t)
+{
+	switch(t)
+	{
+		case nullRoomType:      return 0;         break;
+		case dungeonTemple:     return 10000;     break; 
+		case vein:              return 25;        break; 
+		case quarters:          return 250;       break; 
+		case treasury:          return 125;       break;
+	}
+
+	return 0;
 }
 

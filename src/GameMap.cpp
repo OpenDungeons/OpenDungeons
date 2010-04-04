@@ -510,7 +510,6 @@ void GameMap::doTurn()
 	// Local variables
 	Seat *tempSeat;
 	Tile *tempTile;
-	int tempInt;
 	unsigned int tempUnsigned;
 
 	// Compute the moving window average of how much extra time was left over after the previous doTurn() calls finished.
@@ -654,12 +653,7 @@ void GameMap::doTurn()
 			tempSeat->mana = 250000;
 
 		// Update the count on how much gold is available in all of the treasuries claimed by the given seat.
-		tempInt = 0;
-		vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, tempSeat->color);
-		for(unsigned int i = 0; i < treasuriesOwned.size(); i++)
-			tempInt += ((RoomTreasury*)treasuriesOwned[i])->getTotalGold();
-
-		tempSeat->gold = tempInt;
+		tempSeat->gold = getTotalGoldForColor(tempSeat->color);
 	}
 
 	cout << "\nDuring this turn there were " << numCallsTo_path-numCallsTo_path_atStart << " calls to GameMap::path().";
@@ -1246,6 +1240,32 @@ vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)
 	}
 
 	return returnList;
+}
+
+int GameMap::getTotalGoldForColor(int color)
+{
+	int tempInt = 0;
+	vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
+	for(unsigned int i = 0; i < treasuriesOwned.size(); i++)
+		tempInt += ((RoomTreasury*)treasuriesOwned[i])->getTotalGold();
+
+	return tempInt;
+}
+
+int GameMap::withdrawFromTreasuries(int gold, int color)
+{
+	// Check to see if there is enough gold available in all of the treasuries owned by the given color.
+	int totalGold = getTotalGoldForColor(color);
+	if(totalGold < gold)
+		return 0;
+
+	// Loop over the treasuries withdrawing gold until the full amount has been withdrawn.
+	int goldStillNeeded = gold;
+	vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
+	for(unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; i++)
+		goldStillNeeded -= ((RoomTreasury*)treasuriesOwned[i])->withdrawGold(goldStillNeeded);
+
+	return gold;
 }
 
 void GameMap::clearMapLights()
