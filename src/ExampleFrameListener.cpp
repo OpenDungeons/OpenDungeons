@@ -130,6 +130,9 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mCurrentTileType = Tile::dirt;
 	mCurrentFullness = 100;
 
+	mRotateLocalVector = Ogre::Vector3(0.0, 0.0, 0.0);
+	mRotateWorldVector = Ogre::Vector3(0.0, 0.0, 0.0);
+
 	using namespace OIS;
 
 	LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
