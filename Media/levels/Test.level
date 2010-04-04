@@ -11,11 +11,12 @@ Media/levels/Test.level # The level to load after this level is complete.
 5	Animals	15	0	0.8	0.8	0
 
 # Goals
-3  # The number of goals to load.
+4  # The number of goals to load.
 # goalName	arguments
 KillAllEnemies	NULL
 ProtectCreature	Knight_001
 ClaimNTiles	1000
+MineNGold	2500
 
 # Tiles
 9727  # The number of tiles to load.

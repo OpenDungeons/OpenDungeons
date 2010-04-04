@@ -2,6 +2,7 @@
 using namespace std;
 
 #include "Globals.h"
+#include "GoalClaimNTiles.h"
 
 GoalClaimNTiles::GoalClaimNTiles(string nName, string nArguments)
 	: Goal(nName, nArguments)

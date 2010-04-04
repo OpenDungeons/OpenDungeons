@@ -68,6 +68,11 @@ Goal* Goal::instantiateFromStream(istream& is)
 		tempGoal = new GoalClaimNTiles(tempName, tempArguments);
 	}
 
+	else if(tempName.compare("MineNGold") == 0)
+	{
+		tempGoal = new GoalMineNGold(tempName, tempArguments);
+	}
+
 	return tempGoal;
 }
 
