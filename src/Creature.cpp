@@ -468,7 +468,7 @@ void Creature::doTurn()
 		Tile *tempTile, *tempTile2, *myTile;
 		Room *tempRoom;
 		list<Tile*> tempPath;
-		pair<LocationType, double> min;
+		pair<LocationType, double> minimumFieldValue;
 		vector<Room*> treasuriesOwned;
 
 		diceRoll = randomDouble(0.0, 1.0);
@@ -790,12 +790,13 @@ claimTileBreakStatement:
 					{
 						if(tempPlayer != NULL && creatureNeighbors[i]->getMarkedForDigging(tempPlayer))
 						{
-							// Dig out the tile by decreasing the tile's fullness.  Also accrue gold if the tile is mineable.
-							setAnimationState("Dig");
-							creatureNeighbors[i]->setFullness(creatureNeighbors[i]->getFullness() - digRate);
+							// If the tile is a gold tile accumulate gold for this creature.
 							if(creatureNeighbors[i]->getType() == Tile::gold)
-								//FIXME: This is subject to a race condition since multiple creatures can dig out the tile when it is almost gone, this allows them to extract more gold than the tile actually contains.  The tile itself should store how much gold it contains and creatures should decrement this amount when they dig to prevent this from happening.
-								gold += 25*digRate;
+								gold += 25*min(digRate, (double)creatureNeighbors[i]->getFullness());
+
+							// Dig out the tile by decreasing the tile's fullness.
+							setAnimationState("Dig");
+							creatureNeighbors[i]->setFullness(max(0.0, creatureNeighbors[i]->getFullness()-digRate));
 
 							// Force all the neighbors to recheck their meshes as we may have exposed
 							// a new side that was not visible before.
@@ -803,11 +804,6 @@ claimTileBreakStatement:
 							for(unsigned int j = 0; j < neighbors.size(); j++)
 							{
 								neighbors[j]->setFullness(neighbors[j]->getFullness());
-							}
-
-							if(creatureNeighbors[i]->getFullness() < 0)
-							{
-								creatureNeighbors[i]->setFullness(0);
 							}
 
 							// If the tile has been dug out, move into that tile and idle
@@ -933,9 +929,8 @@ claimTileBreakStatement:
 						tempRoom = myTile->getCoveringRoom();
 						if(tempRoom != NULL && tempRoom->getType() == Room::treasury)
 						{
-							// Deposit all the gold we are carrying into this treasury.
-							((RoomTreasury*)tempRoom)->depositGold(gold, myTile);
-							gold = 0;
+							// Deposit as much of the gold we are carrying as we can into this treasury.
+							gold -= ((RoomTreasury*)tempRoom)->depositGold(gold, myTile);
 							actionQueue.pop_front();
 							break;
 						}
@@ -1069,10 +1064,10 @@ claimTileBreakStatement:
 					// Move to the desired location on the battlefield, a minumum if we are
 					// trying to "attack" and a maximum if we are trying to "retreat".
 					clearDestinations();
-				       	min = battleField->min();  // Currently always attack, never retreat.
+				       	minimumFieldValue = battleField->min();  // Currently always attack, never retreat.
 					tempDouble = max(weaponL->range, weaponR->range);  // Pick a true destination randomly within the max range of our weapons.
 					tempDouble = sqrt(tempDouble);
-					tempPath = gameMap.path(positionTile()->x, positionTile()->y, min.first.first + randomDouble(-1.0*tempDouble,tempDouble), min.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
+					tempPath = gameMap.path(positionTile()->x, positionTile()->y, minimumFieldValue.first.first + randomDouble(-1.0*tempDouble,tempDouble), minimumFieldValue.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
 
 					// Walk a maximum of N tiles before recomputing the destination since we are in combat.
 					tempUnsigned = max((double)5, rangeToNearestEnemy/0.4);
