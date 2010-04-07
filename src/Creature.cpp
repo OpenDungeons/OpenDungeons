@@ -539,7 +539,6 @@ void Creature::doTurn()
 							sem_post(&positionLockSemaphore);
 						}
 
-
 						Tile *tempPositionTile = positionTile();
 						list<Tile*> result;
 						if(tempPositionTile != NULL)

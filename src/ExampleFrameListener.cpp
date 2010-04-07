@@ -430,6 +430,51 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				}
 				break;
 
+			case RenderRequest::createTreasuryIndicator:
+				curTile = (Tile*)curReq->p;
+				curRoom = (Room*)curReq->p2;
+
+				tempSS.str("");
+				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
+				ent = mSceneMgr->createEntity(tempSS.str() + "_treasury_indicator", curReq->str + ".mesh");
+				node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
+
+				//FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
+				node = node->createChildSceneNode(node->getName() + "_hack_node");
+				node->setScale(Ogre::Vector3(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT));
+
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
+				ent->setNormaliseNormals(true);
+#endif
+				node->attachObject(ent);
+
+				break;
+
+			case RenderRequest::destroyTreasuryIndicator:
+				curTile = (Tile*)curReq->p;
+				curRoom = (Room*)curReq->p2;
+
+				tempSS.str("");
+				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
+				if(mSceneMgr->hasEntity(tempSS.str() + "_treasury_indicator"))
+				{
+					ent = mSceneMgr->getEntity(tempSS.str() + "_treasury_indicator");
+
+					//FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
+					node = mSceneMgr->getSceneNode(tempSS.str() + "_node" + "_hack_node");
+
+					/*  The proper code once the above hack is fixed.
+					node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
+					*/
+					node->detachObject(ent);
+
+					//FIXME: This line is not needed once the above hack is fixed.
+					mSceneMgr->destroySceneNode(node->getName());
+
+					mSceneMgr->destroyEntity(ent);
+				}
+				break;
+
 			case RenderRequest::deleteRoom:
 				curRoom = (Room*)curReq->p;
 				delete curRoom;

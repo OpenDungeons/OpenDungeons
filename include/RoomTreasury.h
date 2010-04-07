@@ -20,7 +20,19 @@ class RoomTreasury : public Room
 		int withdrawGold(int gold);
 
 	private:
+		enum TreasuryTileFullness {empty, bag, chest, overfull};
+		TreasuryTileFullness getTreasuryTileFullness(int gold);
+		string getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
+
+		void updateMeshesForTile(Tile *t);
+		void createMeshesForTile(Tile *t);
+		void destroyMeshesForTile(Tile *t);
+
+		static const int maxGoldWhichCanBeStoredInABag = 3000;
+		static const int maxGoldWhichCanBeStoredInAChest = 5000;
+
 		map<Tile*,int> goldInTile;
+		map<Tile*,TreasuryTileFullness> fullnessOfTile;
 };
 
 #endif

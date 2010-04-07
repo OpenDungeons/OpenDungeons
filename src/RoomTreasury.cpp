@@ -1,4 +1,5 @@
 #include "RoomTreasury.h"
+#include "Functions.h"
 
 RoomTreasury::RoomTreasury()
 	: Room()
@@ -16,18 +17,21 @@ void RoomTreasury::addCoveredTile(Tile* t)
 {
 	Room::addCoveredTile(t);
 	goldInTile[t] = 0;
+	fullnessOfTile[t] = empty;
 }
 
 void RoomTreasury::removeCoveredTile(Tile* t)
 {
 	Room::removeCoveredTile(t);
 	goldInTile.erase(t);
+	fullnessOfTile.erase(t);
 }
 
 void RoomTreasury::clearCoveredTiles()
 {
 	Room::clearCoveredTiles();
 	goldInTile.clear();
+	fullnessOfTile.clear();
 }
 
 int RoomTreasury::getTotalGold()
@@ -42,9 +46,28 @@ int RoomTreasury::getTotalGold()
 
 int RoomTreasury::depositGold(int gold, Tile *tile)
 {
-	//TODO: Make this enforce limits on how much gold can be deposited in the treasury.
-	goldInTile[tile] += gold;
-	return gold;
+	int goldDeposited, goldToDeposit = gold, emptySpace;
+
+	// Start by trying to deposit the gold in the requested tile.
+	emptySpace = maxGoldWhichCanBeStoredInAChest - goldInTile[tile];
+	goldDeposited = min(emptySpace, goldToDeposit);
+	goldInTile[tile] += goldDeposited;
+	goldToDeposit -= goldDeposited;
+	updateMeshesForTile(tile);
+
+	// If there is still gold left to deposit after the first tile, loop over all of the tiles and see if we can put the gold in another tile.
+	for(map<Tile*,int>::iterator itr = goldInTile.begin(); itr != goldInTile.end() && goldToDeposit > 0; itr++)
+	{
+		// Store as much gold as we can in this tile.
+		emptySpace = maxGoldWhichCanBeStoredInAChest - itr->second;
+		goldDeposited = min(emptySpace, goldToDeposit);
+		itr->second += goldDeposited;
+		goldToDeposit -= goldDeposited;
+		updateMeshesForTile(itr->first);
+	}
+
+	// Return the amount we were actually able to deposit (i.e. the amount we wanted to deposit minus the amount we were unable to deposit).
+	return gold - goldToDeposit;
 }
 
 int RoomTreasury::withdrawGold(int gold)
@@ -59,6 +82,7 @@ int RoomTreasury::withdrawGold(int gold)
 			// There is enough to satisfy the request so we do so and exit the loop.
 			withdrawlAmount += goldStillNeeded;
 			itr->second -= goldStillNeeded;
+			updateMeshesForTile(itr->first);
 			break;
 		}
 		else
@@ -66,9 +90,88 @@ int RoomTreasury::withdrawGold(int gold)
 			// There is not enough to satisfy the request so take everything there is and move on to the next tile.
 			withdrawlAmount += itr->second;
 			itr->second = 0;
+			updateMeshesForTile(itr->first);
 		}
 	}
 
 	return withdrawlAmount;
+}
+
+RoomTreasury::TreasuryTileFullness RoomTreasury::getTreasuryTileFullness(int gold)
+{
+	if(gold <= 0)
+		return empty;
+
+	if(gold <= maxGoldWhichCanBeStoredInABag)
+		return bag;
+
+	if(gold <= maxGoldWhichCanBeStoredInAChest)
+		return chest;
+
+	return overfull;
+}
+
+string RoomTreasury::getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness)
+{
+	switch(fullness)
+	{
+		// The empty case should really never happen since we shouldn't be creating meshes for an empty tile anyway.
+		case empty:        return "TreasuryTileEmptyError";     break;
+		case bag:          return "GoldBag";                    break;
+		case chest:        return "GoldChest";                  break;
+		case overfull:     return "TreasuryTileOverfullError";  break;
+	}
+
+	return "TreasuryTileFullnessMeshError";
+}
+
+void RoomTreasury::updateMeshesForTile(Tile *t)
+{
+	TreasuryTileFullness newFullness = getTreasuryTileFullness(goldInTile[t]);
+
+	// If the mesh has not changed we do not need to do anything.
+	if(fullnessOfTile[t] == newFullness)
+		return;
+
+	// Since the fullness level has changed we need to destroy the existing indicator mesh (if it exists) and create a new one.
+	destroyMeshesForTile(t);
+	fullnessOfTile[t] = newFullness;
+	createMeshesForTile(t);
+}
+
+void RoomTreasury::createMeshesForTile(Tile *t)
+{
+	// If the tile is empty, there is no indicator mesh to create so we just return.
+	if(fullnessOfTile[t] == empty)
+		return;
+
+	string indicatorMeshName = getMeshNameForTreasuryTileFullness(fullnessOfTile[t]);
+
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::createTreasuryIndicator;
+	request->p = t;
+	request->p2 = this;
+	request->str = indicatorMeshName;
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
+}
+
+void RoomTreasury::destroyMeshesForTile(Tile *t)
+{
+	// If the tile is empty, there is no indicator mesh to destroy so we just return.
+	if(fullnessOfTile[t] == empty)
+		return;
+
+	string indicatorMeshName = getMeshNameForTreasuryTileFullness(fullnessOfTile[t]);
+
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::destroyTreasuryIndicator;
+	request->p = t;
+	request->p2 = this;
+	request->str = indicatorMeshName;
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
