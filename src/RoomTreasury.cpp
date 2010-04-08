@@ -44,6 +44,11 @@ int RoomTreasury::getTotalGold()
 	return tempInt;
 }
 
+int RoomTreasury::emptyStorageSpace()
+{
+	return numCoveredTiles()*maxGoldWhichCanBeStoredInAChest - getTotalGold();
+}
+
 int RoomTreasury::depositGold(int gold, Tile *tile)
 {
 	int goldDeposited, goldToDeposit = gold, emptySpace;

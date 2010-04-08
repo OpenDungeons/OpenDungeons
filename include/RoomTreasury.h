@@ -16,6 +16,7 @@ class RoomTreasury : public Room
 
 		// Functions specific to this class.
 		int getTotalGold();
+		int emptyStorageSpace();
 		int depositGold(int gold, Tile *tile);
 		int withdrawGold(int gold);
 

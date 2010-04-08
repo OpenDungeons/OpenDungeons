@@ -467,7 +467,7 @@ void Creature::doTurn()
 		Player *tempPlayer;
 		Tile *tempTile, *tempTile2, *myTile;
 		Room *tempRoom;
-		list<Tile*> tempPath;
+		list<Tile*> tempPath, tempPath2;
 		pair<LocationType, double> minimumFieldValue;
 		vector<Room*> treasuriesOwned;
 
@@ -496,7 +496,7 @@ void Creature::doTurn()
 					}
 
 					// Decide to deposit the gold we are carrying into a treasury.
-					else if(diceRoll < 0.4+(gold/(double)maxGoldCarriedByWorkers) && digRate > 0.1)
+					else if(diceRoll < 0.4+0.6*(gold/(double)maxGoldCarriedByWorkers) && digRate > 0.1)
 					{
 						loopBack = true;
 						actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
@@ -930,27 +930,64 @@ claimTileBreakStatement:
 						{
 							// Deposit as much of the gold we are carrying as we can into this treasury.
 							gold -= ((RoomTreasury*)tempRoom)->depositGold(gold, myTile);
-							actionQueue.pop_front();
-							break;
+
+							// Depending on how much gold we have left (what did not fit in this treasury) we may want to continue
+							// looking for another treasury to put the gold into.  Roll a dice to see if we want to quit looking not.
+							if(randomDouble(1.0, maxGoldCarriedByWorkers) > gold)
+							{
+								actionQueue.pop_front();
+								break;
+							}
 						}
 					}
 
-					// We were not standing in a treasury, so try to find one to walk to.
+					// We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
 					// Check to see if our seat controls any treasuries.
 					treasuriesOwned = gameMap.getRoomsByTypeAndColor(Room::treasury, color);
 					if(treasuriesOwned.size() > 0)
 					{
-						//TODO:  Check to actually find the nearest one.
-						Tile *nearestTreasuryTile = treasuriesOwned[0]->getCoveredTile(0);
-						
-						// Begin walking to this treasury.
-						//FIXME:  This will fail if the chosen treasury tile cannot be walked to.
-						tempPath = gameMap.path(myTile, nearestTreasuryTile, tilePassability);
-						gameMap.cutCorners(tempPath, tilePassability);
-						if(setWalkPath(tempPath, 2, false))
+						Tile *nearestTreasuryTile;  nearestTreasuryTile = NULL;
+						unsigned int nearestTreasuryDistance;
+						bool validPathFound;  validPathFound = false;
+						tempPath.clear();
+						tempPath2.clear();
+						// Loop over the treasuries to find the closest one.
+						for(unsigned int i = 0; i < treasuriesOwned.size(); i++)
 						{
-							actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
-							break;
+							if(!validPathFound)
+							{
+								// We have not yet found a valid path to a treasury, check to see if we can get to this treasury.
+								nearestTreasuryTile = treasuriesOwned[i]->getCoveredTile(0);
+								tempPath = gameMap.path(myTile, nearestTreasuryTile, tilePassability);
+								if(tempPath.size() >= 2 && ((RoomTreasury*)treasuriesOwned[i])->emptyStorageSpace() > 0)
+								{
+									validPathFound = true;
+									nearestTreasuryDistance = tempPath.size();
+								}
+							}
+							else
+							{
+								// We have already found at least one valid path to a treasury, see if this one is closer.
+								tempTile = treasuriesOwned[i]->getCoveredTile(0);
+								tempPath2 = gameMap.path(myTile, tempTile, tilePassability);
+								if(tempPath2.size() >= 2 && tempPath2.size() < nearestTreasuryDistance \
+										&& ((RoomTreasury*)treasuriesOwned[i])->emptyStorageSpace() > 0)
+								{
+									tempPath = tempPath2;
+									nearestTreasuryDistance = tempPath.size();
+								}
+							}
+						}
+						
+						if(validPathFound)
+						{
+							// Begin walking to this treasury.
+							gameMap.cutCorners(tempPath, tilePassability);
+							if(setWalkPath(tempPath, 2, false))
+							{
+								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+								break;
+							}
 						}
 					}
 					else
@@ -960,6 +997,11 @@ claimTileBreakStatement:
 						loopBack = true;
 						break;
 					}
+
+					// If we get to here, there is either no treasuries controlled by us, or they are all
+					// unreachable, or they are all full, so quit trying to deposit gold.
+					actionQueue.pop_front();
+					loopBack = true;
 					break;
 
 				case CreatureAction::attackCreature:
