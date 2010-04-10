@@ -52,6 +52,7 @@ Creature::Creature()
 	digRate = 10;
 	moveSpeed = 1.0;
 	tilePassability = Tile::walkableTile;
+	homeTile = NULL;
 
 	weaponL = NULL;
 	weaponR = NULL;
@@ -397,15 +398,13 @@ void Creature::doTurn()
 		mana = maxMana;
 	sem_post(&manaLockSemaphore);
 
+	// Check to see if we have earned enough experience to level up.
+	if(exp >= 5*level + 5*powl(level/3, 2))
+		doLevelUp();
+
 	// If we are not standing somewhere on the map, do nothing.
 	if(positionTile() == NULL)
 		return;
-
-	// Check to see if we have earned enough experience to level up.
-	if(exp >= 5*level + 5*powl(level/3, 2))
-	{
-		doLevelUp();
-	}
 
 	// Look at the surrounding area
 	updateVisibleTiles();
@@ -420,16 +419,6 @@ void Creature::doTurn()
 	// If the creature can see enemies that are reachable.
 	if(reachableEnemies.size() > 0)
 	{
-		/*
-		cout << "\nCreature sees enemies:  " << visibleEnemies.size() << "   " << name;
-		cout << "\nvisibleEnemies:\n";
-
-		for(unsigned int i = 0; i < visibleEnemies.size(); i++)
-		{
-			cout << visibleEnemies[i] << endl;
-		}
-		*/
-
 		// Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
 		bool alreadyFighting = false;
 		for(unsigned int i = 0; i < actionQueue.size(); i++)
@@ -452,6 +441,19 @@ void Creature::doTurn()
 		}
 	}
 
+	// Check to see if we have found a "home" tile where we can sleep yet.
+	if(randomDouble(0.0, 1.0) < 0.1 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
+	{
+		// Check to see if there are any quarters owned by our color that we can reach.
+		vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
+		tempRooms = gameMap.getReachableRooms(tempRooms, positionTile(), tilePassability);
+		if(tempRooms.size() > 0)
+		{
+			tempAction.type = CreatureAction::findHome;
+			actionQueue.push_front(tempAction);
+		}
+	}
+
 	// The loopback variable allows creatures to begin processing a new
 	// action immediately after some other action happens.
 	do
@@ -470,6 +472,7 @@ void Creature::doTurn()
 		list<Tile*> tempPath, tempPath2;
 		pair<LocationType, double> minimumFieldValue;
 		vector<Room*> treasuriesOwned;
+		vector<Room*> tempRooms;
 
 		diceRoll = randomDouble(0.0, 1.0);
 		if(actionQueue.size() > 0)
@@ -940,6 +943,10 @@ claimTileBreakStatement:
 							}
 						}
 					}
+					else
+					{
+						break;
+					}
 
 					// We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
 					// Check to see if our seat controls any treasuries.
@@ -986,6 +993,7 @@ claimTileBreakStatement:
 							if(setWalkPath(tempPath, 2, false))
 							{
 								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+								loopBack = true;
 								break;
 							}
 						}
@@ -1000,6 +1008,87 @@ claimTileBreakStatement:
 
 					// If we get to here, there is either no treasuries controlled by us, or they are all
 					// unreachable, or they are all full, so quit trying to deposit gold.
+					actionQueue.pop_front();
+					loopBack = true;
+					break;
+
+				case CreatureAction::findHome:
+					// Check to see if we are standing in an open quarters tile that we can claim as our home.
+					myTile = positionTile();
+					if(myTile != NULL)
+					{
+						tempRoom = myTile->getCoveringRoom();
+						if(tempRoom != NULL && tempRoom->getType() == Room::quarters)
+						{
+							if(((RoomQuarters*)tempRoom)->claimTileForSleeping(myTile, this))
+								homeTile = myTile;
+						}
+					}
+					else
+					{
+						break;
+					}
+
+					// If we found a tile to claim as our home in the above block.
+					if(homeTile != NULL)
+					{
+						actionQueue.pop_front();
+						loopBack = true;
+					}
+
+					// Check to see if we can walk to a quarters that does have an open tile.
+					tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
+					unsigned int nearestQuartersDistance;
+					bool validPathFound;  validPathFound = false;
+					tempPath.clear();
+					tempPath2.clear();
+					for(unsigned int i = 0; i < tempRooms.size(); i++)
+					{
+						// Get the list of open rooms at the current quarters and check to see if there is at least one open room.
+						vector<Tile*> tempTiles = ((RoomQuarters*)tempRooms[i])->getOpenTiles();
+						if(tempTiles.size() > 0)
+						{
+							// Pick a random open room in the current quarters.
+							tempTile = tempTiles[randomUint(0, tempTiles.size()-1)];
+							tempPath2 = gameMap.path(myTile, tempTile, tilePassability);
+						}
+
+						// Find out the minimum valid path length of the paths determined in the above block.
+						if(!validPathFound)
+						{
+							// If the current path is long enough to be valid then record the path and the distance.
+							if(tempPath2.size() >= 2)
+							{
+								tempPath = tempPath2;
+								nearestQuartersDistance = tempPath.size();
+								validPathFound = true;
+							}
+						}
+						else
+						{
+							// If the current path is long enough to be valid but shorter than the
+							// shortest path seen so far, then record the path and the distance.
+							if(tempPath2.size() >= 2 && tempPath2.size() < nearestQuartersDistance)
+							{
+								tempPath = tempPath2;
+								nearestQuartersDistance = tempPath.size();
+							}
+						}
+					}
+
+					// If we found a valid path to an open room in a quarters, then start walking along it.
+					if(validPathFound)
+					{
+						gameMap.cutCorners(tempPath, tilePassability);
+						if(setWalkPath(tempPath, 2, false))
+						{
+							actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+							loopBack = true;
+							break;
+						}
+					}
+
+					// If we got here there are no reachable quarters that are unclaimed so we quit trying to find one.
 					actionQueue.pop_front();
 					loopBack = true;
 					break;

@@ -661,6 +661,14 @@ void GameMap::doTurn()
 	sem_post(&creatureAISemaphore);
 }
 
+bool GameMap::pathExists(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
+{
+	if(passability == Tile::walkableTile)
+		return walkablePathExists(x1, y1, x2, y2);
+	else
+		return path(x1, y1, x2, y2, passability).size() >= 2;
+}
+
 /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
  *
  * The search is carried out using the A-star search algorithm.
@@ -827,7 +835,6 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 								(*itr)->parent = currentEntry;
 							}
 						}
-
 					}
 				}
 			}
@@ -1240,6 +1247,19 @@ vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)
 	}
 
 	return returnList;
+}
+
+vector<Room*> GameMap::getReachableRooms(const vector<Room*> &vec, Tile *startTile, Tile::TileClearType passability)
+{
+	vector<Room*> returnVector;
+
+	for(unsigned int i = 0; i < vec.size(); i++)
+	{
+		if(pathExists(startTile->x, startTile->y, vec[i]->getCoveredTile(0)->x, vec[i]->getCoveredTile(0)->y, passability))
+			returnVector.push_back(vec[i]);
+	}
+
+	return returnVector;
 }
 
 int GameMap::getTotalGoldForColor(int color)

@@ -69,6 +69,8 @@ class GameMap
 		Room* getRoom(int index);
 		unsigned int numRooms();
 		vector<Room*> getRoomsByTypeAndColor(Room::RoomType type, int color);
+		vector<Room*> getReachableRooms(const vector<Room*> &vec, Tile *startTile, Tile::TileClearType passability);
+
 		int getTotalGoldForColor(int color);
 		int withdrawFromTreasuries(int gold, int color);
 
@@ -106,7 +108,7 @@ class GameMap
 		// AI Methods
 		void doTurn();
 
-		bool walkablePathExists(int x1, int y1, int x2, int y2);
+		bool pathExists(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
 		list<Tile*> path(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
 		vector<Tile*> neighborTiles(int x, int y);
 		vector<Tile*> neighborTiles(Tile *t);
@@ -138,6 +140,7 @@ class GameMap
 	private:
 		// Private functions
 		void processDeletionQueues();
+		bool walkablePathExists(int x1, int y1, int x2, int y2);
 
 		// Private datamembers
 		map< pair<int,int>, Tile*> tiles;
