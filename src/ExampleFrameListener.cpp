@@ -447,7 +447,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				ent->setNormaliseNormals(true);
 #endif
 				node->attachObject(ent);
-
 				break;
 
 			case RenderRequest::destroyTreasuryIndicator:
@@ -459,6 +458,52 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				if(mSceneMgr->hasEntity(tempSS.str() + "_treasury_indicator"))
 				{
 					ent = mSceneMgr->getEntity(tempSS.str() + "_treasury_indicator");
+
+					//FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
+					node = mSceneMgr->getSceneNode(tempSS.str() + "_node" + "_hack_node");
+
+					/*  The proper code once the above hack is fixed.
+					node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
+					*/
+					node->detachObject(ent);
+
+					//FIXME: This line is not needed once the above hack is fixed.
+					mSceneMgr->destroySceneNode(node->getName());
+
+					mSceneMgr->destroyEntity(ent);
+				}
+				break;
+
+			case RenderRequest::createBed:
+				curTile = (Tile*)curReq->p;
+				curCreature = (Creature*)curReq->p2;
+				curRoom = (Room*)curReq->p3;
+
+				tempSS.str("");
+				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
+				ent = mSceneMgr->createEntity(tempSS.str() + "_bed", curCreature->bedMeshName);
+				node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
+
+				//FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
+				node = node->createChildSceneNode(node->getName() + "_hack_node");
+				node->setScale(Ogre::Vector3(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT));
+
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
+				ent->setNormaliseNormals(true);
+#endif
+				node->attachObject(ent);
+				break;
+
+			case RenderRequest::destroyBed:
+				curTile = (Tile*)curReq->p;
+				curCreature = (Creature*)curReq->p2;
+				curRoom = (Room*)curReq->p3;
+
+				tempSS.str("");
+				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
+				if(mSceneMgr->hasEntity(tempSS.str() + "_bed"))
+				{
+					ent = mSceneMgr->getEntity(tempSS.str() + "_bed");
 
 					//FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
 					node = mSceneMgr->getSceneNode(tempSS.str() + "_node" + "_hack_node");
@@ -1580,7 +1625,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 			// If we are adding new rooms the above loop will have pruned out the tiles not eligible
 			// for adding rooms to.  This block then actually adds rooms to the remaining tiles.
 			//TODO:  Make this check to make sure we have enough gold to create the room.
-			if(mDragType == ExampleFrameListener::addNewRoom)
+			if(mDragType == ExampleFrameListener::addNewRoom && affectedTiles.size() > 0)
 			{
 				int newRoomColor = 0, goldRequired = 0;
 				if(serverSocket != NULL || clientSocket != NULL)

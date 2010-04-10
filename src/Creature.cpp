@@ -188,6 +188,7 @@ Creature Creature::operator=(CreatureClass c2)
 	moveSpeed = c2.moveSpeed;
 	maxHP = c2.maxHP;
 	maxMana = c2.maxMana;
+	bedMeshName = c2.bedMeshName;
 
 	return *this;
 }
@@ -1034,6 +1035,7 @@ claimTileBreakStatement:
 					{
 						actionQueue.pop_front();
 						loopBack = true;
+						break;
 					}
 
 					// Check to see if we can walk to a quarters that does have an open tile.

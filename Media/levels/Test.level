@@ -1,4 +1,4 @@
-OpenDungeons_Version:0.4.0  # The version of OpenDungeons which created this file (for compatability reasons).
+OpenDungeons_Version:0.4.1  # The version of OpenDungeons which created this file (for compatability reasons).
 Media/levels/Test.level # The level to load after this level is complete.
 
 # Seats
@@ -9810,17 +9810,17 @@ Treasury	1
 
 # Creature classes
 9  # The number of creature classes to load.
-# className	meshName	scaleX	scaleY	scaleZ	hp/level	mana/level	sightRadius	digRate	danceRate	moveSpeed
+# className	meshName	bedMeshName	scaleX	scaleY	scaleZ	hp/level	mana/level	sightRadius	digRate	danceRate	moveSpeed
 
-Wyvern	Wyvern.mesh	1	1	1	5	5	15	0	0	1.3
-Knight	Knight.mesh	1	1	1	5	5	15	0	0	1
-BigKnight	Knight.mesh	1.2	1.2	1.2	5	5	15	0	0	1.2
-Kobold	Kobold.mesh	0.1	0.1	0.1	5	5	15	20	0.35	2.5
-Dragon	Dragon.mesh	0.5	0.5	0.5	5	5	15	0	0	0.9
-Dwarf1	Dwarf1.mesh	1	1	1	5	5	15	0	0	1
-Dwarf2	Dwarf2.mesh	1	1	1	5	5	15	0	0	1
-Orc	Orc.mesh	1	1	1	5	5	15	0	0	1
-Kreatur	Kreatur.mesh	1	1	1	5	5	15	0	0	1
+Wyvern	Wyvern.mesh	Bed.mesh	1	1	1	5	5	15	0	0	1.3
+Knight	Knight.mesh	Bed.mesh	1	1	1	5	5	15	0	0	1
+BigKnight	Knight.mesh	Bed.mesh	1.2	1.2	1.2	5	5	15	0	0	1.2
+Kobold	Kobold.mesh	Bed.mesh	0.1	0.1	0.1	5	5	15	20	0.35	2.5
+Dragon	Dragon.mesh	Bed.mesh	0.5	0.5	0.5	5	5	15	0	0	0.9
+Dwarf1	Dwarf1.mesh	Bed.mesh	1	1	1	5	5	15	0	0	1
+Dwarf2	Dwarf2.mesh	Bed.mesh	1	1	1	5	5	15	0	0	1
+Orc	Orc.mesh	Bed.mesh	1	1	1	5	5	15	0	0	1
+Kreatur	Kreatur.mesh	Bed.mesh	1	1	1	5	5	15	0	0	1
 
 # Creatures
 38  # The number of creatures to load.

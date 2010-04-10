@@ -381,6 +381,10 @@ void GameMap::removeCreature(Creature *c)
 */
 void GameMap::queueCreatureForDeletion(Creature *c)
 {
+	// If the creature has a homeTile where they sleep, their bed needs to be destroyed.
+	if(c->homeTile != NULL)
+		((RoomQuarters*)c->homeTile->getCoveringRoom())->releaseTileForSleeping(c->homeTile, c);
+
 	// Remove the creature from the GameMap in case the caller forgot to do so.
 	removeCreature(c);
 

@@ -15,13 +15,12 @@ class CreatureClass
 
 		// Constructors and operators
 		CreatureClass();
-		CreatureClass(string nClassName, string nMeshName, Ogre::Vector3 nScale, double nHPPerLevel, double nManaPerLevel,\
-				double nSightRadius, double nDigRate, double nMoveSpeed);
 
 		// Class properties
 		//NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
 		string className;
 		string meshName;
+		string bedMeshName;
 		Ogre::Vector3 scale;
 		double sightRadius;		// The inner radius where the creature sees everything
 		double digRate;			// Fullness removed per turn of digging

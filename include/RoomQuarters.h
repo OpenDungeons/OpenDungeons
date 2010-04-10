@@ -17,6 +17,7 @@ class RoomQuarters : public Room
 		// Functions specific to this class.
 		vector<Tile*> getOpenTiles();
 		bool claimTileForSleeping(Tile *t, Creature *c);
+		bool releaseTileForSleeping(Tile *t, Creature *c);
 
 	private:
 		map<Tile*,Creature*> creatureSleepingInTile;

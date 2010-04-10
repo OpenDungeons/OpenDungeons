@@ -1,4 +1,5 @@
 #include "RoomQuarters.h"
+#include "Functions.h"
 
 RoomQuarters::RoomQuarters()
 	: Room()
@@ -20,8 +21,20 @@ void RoomQuarters::addCoveredTile(Tile* t)
 
 void RoomQuarters::removeCoveredTile(Tile* t)
 {
-	Room::removeCoveredTile(t);
+	if(creatureSleepingInTile[t] != NULL)
+	{
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::destroyBed;
+		request->p = t;
+		request->p2 = creatureSleepingInTile[t];
+		request->p3 = this;
+
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
+	}
+
 	creatureSleepingInTile.erase(t);
+	Room::removeCoveredTile(t);
 }
 
 void RoomQuarters::clearCoveredTiles()
@@ -49,6 +62,37 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 	if(creatureSleepingInTile[t] == NULL)
 	{
 		creatureSleepingInTile[t] = c;
+
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::createBed;
+		request->p = t;
+		request->p2 = c;
+		request->p3 = this;
+
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
+
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
+{
+	if(creatureSleepingInTile[t] != NULL)
+	{
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::destroyBed;
+		request->p = t;
+		request->p2 = c;
+		request->p3 = this;
+
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
+
 		return true;
 	}
 	else
