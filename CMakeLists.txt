@@ -19,6 +19,46 @@ SET( Required_Packages OIS OGRE CEGUI CEGUIOGRE )
 
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include )
 
+# Copy the configuration files to the binary directory
+IF( WIN32 )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${PROJECT_BINARY_DIR}/plugins.cfg
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/plugins.cfg.windows ${PROJECT_BINARY_DIR}/plugins.cfg
+    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/plugins.cfg.windows
+    )
+ELSE( )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${PROJECT_BINARY_DIR}/plugins.cfg
+    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/plugins.cfg.linux ${PROJECT_BINARY_DIR}/plugins.cfg
+    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/plugins.cfg.linux
+    )
+ENDIF( )
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${PROJECT_BINARY_DIR}/resources.cfg
+  COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/resources.cfg ${PROJECT_BINARY_DIR}
+  MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/resources.cfg
+  )
+ADD_CUSTOM_COMMAND(
+  OUTPUT ${PROJECT_BINARY_DIR}/media.cfg
+  COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/media.cfg ${PROJECT_BINARY_DIR}
+  MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/media.cfg
+  )
+ADD_CUSTOM_TARGET(
+  copy-config ALL
+  DEPENDS ${PROJECT_BINARY_DIR}/plugins.cfg ${PROJECT_BINARY_DIR}/resources.cfg ${PROJECT_BINARY_DIR}/media.cfg
+  )
+
+# Copy the media files to the binary directory
+IF( WIN32 )
+  FILE( COPY ${PROJECT_SOURCE_DIR}/Media DESTINATION ${PROJECT_BINARY_DIR} )
+ELSE( )
+  ADD_CUSTOM_COMMAND(
+    OUTPUT ${PROJECT_BINARY_DIR}/Media
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/Media ${PROJECT_BINARY_DIR}/Media
+    )
+  ADD_CUSTOM_TARGET( copy-media ALL DEPENDS ${PROJECT_BINARY_DIR}/Media )
+ENDIF( )
+
 IF( NOT WIN32 )
   # Add compiler warnings
   ADD_DEFINITIONS( "-Wall -Wunused -ansi -Wno-deprecated" )
