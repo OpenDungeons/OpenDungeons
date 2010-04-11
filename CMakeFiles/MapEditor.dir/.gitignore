@@ -1,7 +1,0 @@
-*.make
-*.cmake
-CXX.includecache
-depend.internal
-depend.make.mark
-src
-
