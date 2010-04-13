@@ -21,6 +21,7 @@ class CreatureClass
 		string className;
 		string meshName;
 		string bedMeshName;
+		int bedDim1, bedDim2;
 		Ogre::Vector3 scale;
 		double sightRadius;		// The inner radius where the creature sees everything
 		double digRate;			// Fullness removed per turn of digging

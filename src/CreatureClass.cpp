@@ -14,12 +14,14 @@ CreatureClass::CreatureClass()
 
 string CreatureClass::getFormat()
 {
-	return "# className\tmeshName\tbedMeshName\tscaleX\tscaleY\tscaleZ\thp/level\tmana/level\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\n";
+	return "# className\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\thp/level\tmana/level\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\n";
 }
 
 ostream& operator<<(ostream& os, CreatureClass *c)
 {
-	os << c->className << "\t" << c->meshName << "\t" << c->bedMeshName << "\t" << c->scale.x << "\t" << c->scale.y << "\t" << c->scale.z << "\t";
+	os << c->className << "\t" << c->meshName << "\t";
+	os << c->bedMeshName << "\t" << c->bedDim1 << "\t" << c->bedDim2 << "\t";
+	os << c->scale.x << "\t" << c->scale.y << "\t" << c->scale.z << "\t";
 	os << c->hpPerLevel << "\t" << c->manaPerLevel << "\t";
 	os << c->sightRadius << "\t" << c->digRate << "\t" << c->danceRate << "\t" << c->moveSpeed;
 	return os;
@@ -27,7 +29,9 @@ ostream& operator<<(ostream& os, CreatureClass *c)
 
 istream& operator>>(istream& is, CreatureClass *c)
 {
-	is >> c->className >> c->meshName >> c->bedMeshName >> c->scale.x >> c->scale.y >> c->scale.z;
+	is >> c->className >> c->meshName;
+	is >> c->bedMeshName >> c->bedDim1 >> c->bedDim2;
+	is >> c->scale.x >> c->scale.y >> c->scale.z;
 	is >> c->hpPerLevel >> c->manaPerLevel;
 	is >> c->sightRadius >> c->digRate >> c->danceRate >> c->moveSpeed;
 

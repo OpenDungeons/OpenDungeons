@@ -484,8 +484,23 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				ent = mSceneMgr->createEntity(tempSS.str() + "_bed", curCreature->bedMeshName);
 				node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
 
-				//FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
-				node = node->createChildSceneNode(node->getName() + "_hack_node");
+				double xOffset, yOffset, rotation;
+				if(!curReq->b)
+				{
+					xOffset = (curCreature->bedDim2)/2.0 - 0.5;
+					yOffset = (curCreature->bedDim1)/2.0 - 0.5;
+					rotation = 90.0;
+				}
+				else
+				{
+					xOffset = (curCreature->bedDim1)/2.0 - 0.5;
+					yOffset = (curCreature->bedDim2)/2.0 - 0.5;
+					rotation = 0.0;
+				}
+
+				node = node->createChildSceneNode(node->getName() + "_bed_node");
+				node->setPosition(xOffset/BLENDER_UNITS_PER_OGRE_UNIT, yOffset/BLENDER_UNITS_PER_OGRE_UNIT, 0);
+				node->roll(Ogre::Degree(rotation));
 				node->setScale(Ogre::Vector3(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT));
 
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
@@ -505,15 +520,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				{
 					ent = mSceneMgr->getEntity(tempSS.str() + "_bed");
 
-					//FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
-					node = mSceneMgr->getSceneNode(tempSS.str() + "_node" + "_hack_node");
-
-					/*  The proper code once the above hack is fixed.
-					node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
-					*/
+					node = mSceneMgr->getSceneNode(tempSS.str() + "_node" + "_bed_node");
 					node->detachObject(ent);
-
-					//FIXME: This line is not needed once the above hack is fixed.
 					mSceneMgr->destroySceneNode(node->getName());
 
 					mSceneMgr->destroyEntity(ent);

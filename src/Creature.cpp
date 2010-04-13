@@ -189,6 +189,8 @@ Creature Creature::operator=(CreatureClass c2)
 	maxHP = c2.maxHP;
 	maxMana = c2.maxMana;
 	bedMeshName = c2.bedMeshName;
+	bedDim1 = c2.bedDim1;
+	bedDim2 = c2.bedDim2;
 
 	return *this;
 }
@@ -400,7 +402,7 @@ void Creature::doTurn()
 	sem_post(&manaLockSemaphore);
 
 	// Check to see if we have earned enough experience to level up.
-	if(exp >= 5*level + 5*powl(level/3, 2))
+	while(exp >= 5*level + 5*powl(level/3, 2))
 		doLevelUp();
 
 	// If we are not standing somewhere on the map, do nothing.
@@ -1040,40 +1042,40 @@ claimTileBreakStatement:
 
 					// Check to see if we can walk to a quarters that does have an open tile.
 					tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
+					std::random_shuffle(tempRooms.begin(), tempRooms.end());
 					unsigned int nearestQuartersDistance;
 					bool validPathFound;  validPathFound = false;
 					tempPath.clear();
 					tempPath2.clear();
 					for(unsigned int i = 0; i < tempRooms.size(); i++)
 					{
-						// Get the list of open rooms at the current quarters and check to see if there is at least one open room.
-						vector<Tile*> tempTiles = ((RoomQuarters*)tempRooms[i])->getOpenTiles();
-						if(tempTiles.size() > 0)
+						// Get the list of open rooms at the current quarters and check to see if
+						// there is a place where we could put a bed big enough to sleep in.
+						tempTile = ((RoomQuarters*)tempRooms[i])->getLocationForBed(bedDim1, bedDim2);
+						if(tempTile != NULL)
 						{
-							// Pick a random open room in the current quarters.
-							tempTile = tempTiles[randomUint(0, tempTiles.size()-1)];
 							tempPath2 = gameMap.path(myTile, tempTile, tilePassability);
-						}
 
-						// Find out the minimum valid path length of the paths determined in the above block.
-						if(!validPathFound)
-						{
-							// If the current path is long enough to be valid then record the path and the distance.
-							if(tempPath2.size() >= 2)
+							// Find out the minimum valid path length of the paths determined in the above block.
+							if(!validPathFound)
 							{
-								tempPath = tempPath2;
-								nearestQuartersDistance = tempPath.size();
-								validPathFound = true;
+								// If the current path is long enough to be valid then record the path and the distance.
+								if(tempPath2.size() >= 2)
+								{
+									tempPath = tempPath2;
+									nearestQuartersDistance = tempPath.size();
+									validPathFound = true;
+								}
 							}
-						}
-						else
-						{
-							// If the current path is long enough to be valid but shorter than the
-							// shortest path seen so far, then record the path and the distance.
-							if(tempPath2.size() >= 2 && tempPath2.size() < nearestQuartersDistance)
+							else
 							{
-								tempPath = tempPath2;
-								nearestQuartersDistance = tempPath.size();
+								// If the current path is long enough to be valid but shorter than the
+								// shortest path seen so far, then record the path and the distance.
+								if(tempPath2.size() >= 2 && tempPath2.size() < nearestQuartersDistance)
+								{
+									tempPath = tempPath2;
+									nearestQuartersDistance = tempPath.size();
+								}
 							}
 						}
 					}

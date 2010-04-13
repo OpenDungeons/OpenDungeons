@@ -18,8 +18,11 @@ class RoomQuarters : public Room
 		vector<Tile*> getOpenTiles();
 		bool claimTileForSleeping(Tile *t, Creature *c);
 		bool releaseTileForSleeping(Tile *t, Creature *c);
+		Tile* getLocationForBed(int xDim, int yDim);
 
 	private:
+		bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);
+
 		map<Tile*,Creature*> creatureSleepingInTile;
 };
 
