@@ -9750,7 +9750,7 @@ MineNGold	2500
 61	-119	2	100
 
 # Rooms
-6  # The number of rooms to load.
+5  # The number of rooms to load.
 # meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
 Quarters	2
 6
@@ -9779,12 +9779,11 @@ Treasury	1
 -4	15
 
 Treasury	1
-1
+4
 -7	13
-
-Treasury	1
-1
--2	14
+-8	13
+-7	14
+-8	14
 
 
 # Lights

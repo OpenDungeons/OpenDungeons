@@ -967,7 +967,8 @@ claimTileBreakStatement:
 							if(!validPathFound)
 							{
 								// We have not yet found a valid path to a treasury, check to see if we can get to this treasury.
-								nearestTreasuryTile = treasuriesOwned[i]->getCoveredTile(0);
+								tempUnsigned = randomUint(0, treasuriesOwned[i]->numCoveredTiles()-1);
+								nearestTreasuryTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
 								tempPath = gameMap.path(myTile, nearestTreasuryTile, tilePassability);
 								if(tempPath.size() >= 2 && ((RoomTreasury*)treasuriesOwned[i])->emptyStorageSpace() > 0)
 								{
@@ -978,7 +979,8 @@ claimTileBreakStatement:
 							else
 							{
 								// We have already found at least one valid path to a treasury, see if this one is closer.
-								tempTile = treasuriesOwned[i]->getCoveredTile(0);
+								tempUnsigned = randomUint(0, treasuriesOwned[i]->numCoveredTiles()-1);
+								tempTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
 								tempPath2 = gameMap.path(myTile, tempTile, tilePassability);
 								if(tempPath2.size() >= 2 && tempPath2.size() < nearestTreasuryDistance \
 										&& ((RoomTreasury*)treasuriesOwned[i])->emptyStorageSpace() > 0)
@@ -1052,6 +1054,12 @@ claimTileBreakStatement:
 						// Get the list of open rooms at the current quarters and check to see if
 						// there is a place where we could put a bed big enough to sleep in.
 						tempTile = ((RoomQuarters*)tempRooms[i])->getLocationForBed(bedDim1, bedDim2);
+
+						// If the previous attempt to place the bed in this quarters failed, try again with the bed the other way.
+						if(tempTile == NULL)
+							tempTile = ((RoomQuarters*)tempRooms[i])->getLocationForBed(bedDim2, bedDim1);
+
+						// Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
 						if(tempTile != NULL)
 						{
 							tempPath2 = gameMap.path(myTile, tempTile, tilePassability);
