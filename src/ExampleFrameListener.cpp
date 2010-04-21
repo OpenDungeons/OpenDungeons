@@ -847,10 +847,22 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				if(ent->hasSkeleton() && ent->getSkeleton()->hasAnimation(curReq->str))
 				{
+					// Disable the animation for all of the animations on this entity.
+					AnimationStateSet *animationStateSet;
+					animationStateSet = ent->getAllAnimationStates();
+					AnimationStateIterator animationStateIterator(animationStateSet->getAnimationStateIterator());
+					while(animationStateIterator.hasMoreElements())
+					{
+						AnimationState *tempState = animationStateIterator.getNext();
+						tempState->setEnabled(false);
+					}
+
+					// Enable the animation specified in the RenderRequest object.
 					curCreature->animationState = ent->getAnimationState(curReq->str);
 					curCreature->animationState->setLoop(true);
 					curCreature->animationState->setEnabled(true);
 				}
+				//TODO:  Handle the case where this entity does not have the requested animation.
 				break;
 
 			case RenderRequest::deleteCreature:
