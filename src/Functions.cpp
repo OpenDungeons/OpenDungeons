@@ -1,7 +1,12 @@
 #include <sstream>
 #include <stdio.h>
-#include <dirent.h>
 using namespace std;
+
+#if defined(WIN32) || defined(_WIN32)
+	//TODO: Add the proper windows include file for this (handling directory listings).
+#else
+	#include <dirent.h>
+#endif
 
 #include <ctype.h>
 
@@ -522,7 +527,11 @@ void queueServerNotification(ServerNotification *n)
 vector<string> listAllFiles(string directoryName)
 {
     vector<string> tempVector;
-    DIR *d;
+
+#if defined(WIN32) || defined(_WIN32)
+	//TODO: Add the proper code to do this under windows.
+#else
+	DIR *d;
     struct dirent *dir;
     d = opendir(directoryName.c_str());
     if (d)
@@ -534,7 +543,8 @@ vector<string> listAllFiles(string directoryName)
 
         closedir(d);
     }
-    return tempVector;
+#endif
+	return tempVector;
 }
 
 //NOTE: This function has not yet been tested.
