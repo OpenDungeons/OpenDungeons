@@ -195,13 +195,10 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 	if(tile == NULL || tile->getCoveringRoom() != this)  return false;
 
 	// Create a 2 dimensional array of booleans initially all set to false.
-	bool tileOpen[xDim][yDim];
+	vector< vector<bool> > tileOpen(xDim);
 	for(int i = 0; i < xDim; i++)
 	{
-		for(int j = 0; j < yDim; j++)
-		{
-			tileOpen[i][j] = false;
-		}
+		tileOpen[i].resize(yDim, false);
 	}
 
 	// Now loop over the list of all the open tiles in this quarters.  For each tile, if it falls within
