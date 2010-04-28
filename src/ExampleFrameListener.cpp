@@ -130,6 +130,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mCurrentTileType = Tile::dirt;
 	mCurrentFullness = 100;
 
+	mTranslateVector = Ogre::Vector3(0.0, 0.0, 0.0);
+	mMouseTranslateVector = Ogre::Vector3(0.0, 0.0, 0.0);
 	mRotateLocalVector = Ogre::Vector3(0.0, 0.0, 0.0);
 	mRotateWorldVector = Ogre::Vector3(0.0, 0.0, 0.0);
 

@@ -574,14 +574,20 @@ void Creature::doTurn()
 					}
 
 					//TODO: Peek at the item that caused us to walk
+					// If we are walking toward a tile we are trying to dig out, check to see if it is still marked for digging.
 					if(actionQueue[1].type == CreatureAction::digTile)
 					{
 						tempPlayer = getControllingPlayer();
+
 						// Check to see if the tile is still marked for digging
 						sem_wait(&walkQueueLockSemaphore);
-						int index = walkQueue.size();
-						Tile *currentTile = gameMap.getTile((int)walkQueue[index].x, (int)walkQueue[index].y);
+						unsigned int index = walkQueue.size();
+						Tile *currentTile = NULL;
+						if(index > 0)
+							currentTile = gameMap.getTile((int)walkQueue[index-1].x, (int)walkQueue[index-1].y);
+
 						sem_post(&walkQueueLockSemaphore);
+
 						if(currentTile != NULL)
 						{
 							// If it is not marked
@@ -1158,6 +1164,14 @@ claimTileBreakStatement:
 					break;
 
 				case CreatureAction::maneuver:
+					// If there are no more enemies which are reachable, stop maneuvering.
+					if(reachableEnemies.size() == 0)
+					{
+						actionQueue.pop_front();
+						loopBack = true;
+						break;
+					}
+
 					setAnimationState("Walk");
 
 					// Check to see if we should try to strafe the enemy
@@ -1176,14 +1190,6 @@ claimTileBreakStatement:
 
 							setWalkPath(tempPath, 2, false);
 						}
-					}
-
-					// If there are no more enemies which are reachable, stop maneuvering.
-					if(reachableEnemies.size() == 0)
-					{
-						actionQueue.pop_front();
-						loopBack = true;
-						break;
 					}
 
 					// If there is an enemy within range, stop maneuvering and attack it.
