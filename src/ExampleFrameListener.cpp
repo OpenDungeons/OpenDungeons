@@ -1431,7 +1431,6 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			itr = result.begin( );
 			while(itr != result.end())
 			{
-				itr++;
 				if(itr == result.end())
 					break;
 
@@ -1445,6 +1444,8 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 						return true;
 					}
 				}
+
+				itr++;
 			}
 		}
 
@@ -1452,7 +1453,6 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		itr = result.begin( );
 		while(itr != result.end())
 		{
-			itr++;
 			if(itr->movable != NULL)
 			{
 				if(resultName.find("Level_") != string::npos)
@@ -1471,6 +1471,8 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 					break;
 				}
 			}
+
+		itr++;
 		}
 
 		// If we are in a game we store the opposite of whether this tile is marked for diggin or not, this allows us to mark tiles
