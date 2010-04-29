@@ -564,13 +564,14 @@ void Creature::doTurn()
 					break;
 
 				case CreatureAction::walkToTile:
-					if(rangeToNearestEnemy < 5)
+					if(reachableEnemies.size() > 0 && rangeToNearestEnemy < 5)
 					{
 						actionQueue.pop_front();
 						tempAction.type = CreatureAction::maneuver;
 						actionQueue.push_front(tempAction);
 						clearDestinations();
 						loopBack = true;
+						break;
 					}
 
 					//TODO: Peek at the item that caused us to walk
@@ -605,8 +606,13 @@ void Creature::doTurn()
 					{
 						actionQueue.pop_front();
 						loopBack = true;
+
+						// This extra post is included here because if the break statement happens
+						// the one at the end of the 'if' block will not happen.
+						sem_post(&walkQueueLockSemaphore);
+						break;
 					}
-					sem_post(&walkQueueLockSemaphore);
+					sem_post(&walkQueueLockSemaphore);  // If this is removed remove the one in the 'if' block as well.
 					break;
 
 				case CreatureAction::claimTile:
@@ -1435,7 +1441,7 @@ vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creat
 	vector<Creature*> tempVector;
 	Tile *myTile = positionTile(), *creatureTile;
 	list<Tile*> tempPath;
-	bool minRangeSet = true;
+	bool minRangeSet = false;
 
 	// Loop over the vector of creatures we are supposed to check.
 	for(unsigned int i = 0; i < creaturesToCheck.size(); i++)
@@ -1468,6 +1474,10 @@ vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creat
 			}
 		}
 	}
+
+	//TODO: Maybe thing of a better canary value for this.
+	if(!minRangeSet)
+		*minRange = 999999;
 
 	return tempVector;
 }
