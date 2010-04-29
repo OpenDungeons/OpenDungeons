@@ -805,6 +805,9 @@ claimTileBreakStatement:
 							if(creatureNeighbors[i]->getType() == Tile::gold)
 								gold += 25*min(digRate, (double)creatureNeighbors[i]->getFullness());
 
+							// Turn so that we are facing toward the tile we are going to dig out.
+							faceToward(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
+
 							// Dig out the tile by decreasing the tile's fullness.
 							setAnimationState("Dig");
 							creatureNeighbors[i]->setFullness(max(0.0, creatureNeighbors[i]->getFullness()-digRate));
@@ -1126,6 +1129,9 @@ claimTileBreakStatement:
 					if(enemiesInRange.size() > 0)
 					{
 						tempCreature = enemiesInRange[0];
+
+						// Turn to face the creature we are attacking and set the animation state to Attack.
+						faceToward(tempCreature->getPosition().x, tempCreature->getPosition().y);
 						setAnimationState("Attack1");
 
 						// Calculate how much damage we do.
@@ -1811,6 +1817,40 @@ void Creature::stopWalking()
 {
 	walkDirection = Ogre::Vector3::ZERO;
 	setAnimationState("Idle");
+}
+
+/** Rotates the creature so that it is facing toward the given x-y location.
+ *
+*/
+void Creature::faceToward(int x, int y)
+{
+	// Rotate the creature to face the direction of the destination
+	Ogre::Vector3 tempPosition = getPosition();
+	walkDirection = Ogre::Vector3(x, y, tempPosition.z) - tempPosition;
+	walkDirection.normalise();
+
+	//FIXME: Having this OGRE code here is probably sub-optimal and may introduce bugs.
+	SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
+	Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
+
+	// Work around 180 degree quaternion rotation quirk
+	if ((1.0f + src.dotProduct(walkDirection)) < 0.0001f)
+	{
+		//FIXME: Having this OGRE code here is probably sub-optimal and may introduce bugs.
+		node->roll(Degree(180));
+	}
+	else
+	{
+		Quaternion quat = src.getRotationTo(walkDirection);
+
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::reorientSceneNode;
+		request->p = node;
+		request->quaternion = quat;
+
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
+	}
 }
 
 /*! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.

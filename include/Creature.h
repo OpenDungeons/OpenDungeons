@@ -83,6 +83,8 @@ class Creature : public CreatureClass
 		void clearDestinations();
 		void clearActionQueue();
 		void stopWalking();
+		void faceToward(int x, int y);
+
 		Player* getControllingPlayer();
 		void computeBattlefield();
 

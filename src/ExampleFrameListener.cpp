@@ -976,24 +976,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			if(currentCreature->walkQueueFirstEntryAdded)
 			{
 				currentCreature->walkQueueFirstEntryAdded = false;
-
-				// Rotate the creature to face the direction of the destination
-				currentCreature->walkDirection = currentCreature->walkQueue.front() - currentCreature->getPosition();
-				currentCreature->walkDirection.normalise();
-
-				SceneNode *node = mSceneMgr->getSceneNode(currentCreature->name + "_node");
-				Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
-
-				// Work around 180 degree quaternion rotation quirk
-				if ((1.0f + src.dotProduct(currentCreature->walkDirection)) < 0.0001f)
-				{
-					node->roll(Degree(180));
-				}
-				else
-				{
-					Quaternion quat = src.getRotationTo(currentCreature->walkDirection);
-					node->rotate(quat);
-				}
+				currentCreature->faceToward(currentCreature->walkQueue.front().x, currentCreature->walkQueue.front().y);
 			}
 
 			//FIXME: The moveDist should probably be tied to the scale of the creature as well
@@ -1017,24 +1000,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				}
 				else // There are still entries left in the queue
 				{
-					SceneNode *node = mSceneMgr->getSceneNode(currentCreature->name + "_node");
-
 					// Turn to face the next direction
-					currentCreature->walkDirection = currentCreature->walkQueue.front() - currentCreature->getPosition();
-					currentCreature->shortDistance = currentCreature->walkDirection.normalise();
+					currentCreature->faceToward(currentCreature->walkQueue.front().x, currentCreature->walkQueue.front().y);
 
-					Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
-
-					// Work around 180 degree quaternion rotation quirk
-					if ((1.0f + src.dotProduct(currentCreature->walkDirection)) < 0.0001f)
-					{
-						node->roll(Degree(180));
-					}
-					else
-					{
-						Quaternion quat = src.getRotationTo(currentCreature->walkDirection);
-						node->rotate(quat);
-					}
+					// Compute the distance to the next location in the queue and store it in the shortDistance datamember.
+					Ogre::Vector3 tempVector = currentCreature->walkQueue.front() - currentCreature->getPosition();
+					currentCreature->shortDistance = tempVector.normalise();
 				}
 			}
 			else // We have not reached the destination at the front of the queue
