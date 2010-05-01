@@ -9,6 +9,7 @@ class RoomQuarters : public Room
 		RoomQuarters();
 
 		// Functions overriding virtual functions in the Room base class.
+		void absorbRoom(Room *r);
 		void doUpkeep();
 		void addCoveredTile(Tile* t);
 		void removeCoveredTile(Tile* t);
@@ -24,6 +25,7 @@ class RoomQuarters : public Room
 		bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);
 
 		map<Tile*,Creature*> creatureSleepingInTile;
+		map<Tile*,bool> bedOrientationForTile;
 };
 
 #endif

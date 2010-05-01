@@ -19,6 +19,7 @@ class Room
 		Room();
 		static Room* createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor);
 		static Room* createRoomFromStream(istream &is);
+		virtual void absorbRoom(Room *r);
 
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Room *r);
@@ -52,6 +53,7 @@ class Room
 	private:
 		vector<Tile*> coveredTiles;
 		RoomType type;
+		bool meshExists;
 };
 
 #include "RoomQuarters.h"

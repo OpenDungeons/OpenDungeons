@@ -1635,11 +1635,26 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 					// Create the room
 					Room *tempRoom = Room::createRoom(gameMap.me->newRoomType, affectedTiles, newRoomColor);
 					gameMap.addRoom(tempRoom);
-					tempRoom->createMeshes();
 
 					// If we are in a game, withdraw the gold required for the room from the players treasuries.
 					if(serverSocket != NULL || clientSocket != NULL)
 						gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->seat->color);
+
+					// Check all the tiles that border the newly created room and see if they
+					// contain rooms which can be absorbed into this newly created room.
+					vector<Tile*> borderTiles = gameMap.tilesBorderedByRegion(affectedTiles);
+					for(unsigned int i = 0; i < borderTiles.size(); i++)
+					{
+						Room *borderingRoom = borderTiles[i]->getCoveringRoom();
+						if(borderingRoom != NULL && borderingRoom->getType() == tempRoom->getType() && borderingRoom != tempRoom)
+						{
+							tempRoom->absorbRoom(borderingRoom);
+							gameMap.removeRoom(borderingRoom);
+							//FIXME:  Need to delete the bordering room to avoid a memory leak, the deletion should be done in a safe way though as there will still be outstanding RenderRequests.
+						}
+					}
+
+					tempRoom->createMeshes();
 				}
 			}
 

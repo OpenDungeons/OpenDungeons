@@ -7,6 +7,53 @@ RoomQuarters::RoomQuarters()
 	return;
 }
 
+void RoomQuarters::absorbRoom(Room *r)
+{
+	// Start by delting the Ogre meshes associated with both rooms.
+	destroyMeshes();
+	r->destroyMeshes();
+
+	// Copy over the information about the creatures that are sleeping in the other quarters before we remove its rooms.
+	for(unsigned int i = 0; i < r->numCoveredTiles(); i++)
+	{
+		Tile *tempTile = r->getCoveredTile(i);
+
+		if(((RoomQuarters*)r)->creatureSleepingInTile[tempTile] != NULL)
+			cout << "\nCreature sleeping in tile " << tempTile << "\n" << ((RoomQuarters*)r)->creatureSleepingInTile[tempTile];
+		else
+			cout << "\nCreature sleeping in tile " << tempTile << "\nNULL";
+
+		cout << "\n";
+		creatureSleepingInTile[tempTile] = ((RoomQuarters*)r)->creatureSleepingInTile[tempTile];
+
+		if(((RoomQuarters*)r)->bedOrientationForTile.find(tempTile) != ((RoomQuarters*)r)->bedOrientationForTile.end())
+			bedOrientationForTile[tempTile] = ((RoomQuarters*)r)->bedOrientationForTile[tempTile];
+	}
+
+	// Use the superclass function to copy over the covered tiles to this room and get rid of them in the other room.
+	Room::absorbRoom(r);
+
+	// Recreate the meshes for this new room which contains both rooms.
+	createMeshes();
+
+	// Recreate the beds which were destroyed when the meshes were cleared.
+	map<Tile*,bool>::iterator itr = bedOrientationForTile.begin();
+	while(itr != bedOrientationForTile.end())
+	{
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::createBed;
+		request->p = itr->first;
+		request->p2 = creatureSleepingInTile[itr->first];
+		request->p3 = this;
+		request->b = itr->second;
+
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
+
+		itr++;
+	}
+}
+
 void RoomQuarters::doUpkeep()
 {
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
@@ -16,7 +63,11 @@ void RoomQuarters::doUpkeep()
 void RoomQuarters::addCoveredTile(Tile* t)
 {
 	Room::addCoveredTile(t);
-	creatureSleepingInTile[t] = NULL;
+
+	// Only initialize the tile to NULL if it is a tile being added to a new room.  If it is being absorbed
+	// from another room the map value will already have been set and we don't want to override it.
+	if(creatureSleepingInTile.find(t) == creatureSleepingInTile.end())
+		creatureSleepingInTile[t] = NULL;
 }
 
 void RoomQuarters::removeCoveredTile(Tile* t)
@@ -37,7 +88,7 @@ void RoomQuarters::removeCoveredTile(Tile* t)
 		RenderRequest *request = new RenderRequest;
 		request->type = RenderRequest::destroyBed;
 		request->p = t;
-		request->p2 = creatureSleepingInTile[t];
+		request->p2 = c;
 		request->p3 = this;
 
 		// Add the request to the queue of rendering operations to be performed before the next frame.
@@ -45,6 +96,7 @@ void RoomQuarters::removeCoveredTile(Tile* t)
 	}
 
 	creatureSleepingInTile.erase(t);
+	bedOrientationForTile.erase(t);
 	Room::removeCoveredTile(t);
 }
 
@@ -105,6 +157,8 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 				}
 			}
 
+			bedOrientationForTile[t] = normalDirection;
+
 			RenderRequest *request = new RenderRequest;
 			request->type = RenderRequest::createBed;
 			request->p = t;
@@ -138,6 +192,8 @@ bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
 			if(itr->second == c)
 				itr->second = NULL;
 		}
+
+		bedOrientationForTile.erase(t);
 
 		RenderRequest *request = new RenderRequest;
 		request->type = RenderRequest::destroyBed;

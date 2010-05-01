@@ -445,7 +445,7 @@ void Creature::doTurn()
 	}
 
 	// Check to see if we have found a "home" tile where we can sleep yet.
-	if(randomDouble(0.0, 1.0) < 0.1 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
+	if(randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
 	{
 		// Check to see if there are any quarters owned by our color that we can reach.
 		vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);

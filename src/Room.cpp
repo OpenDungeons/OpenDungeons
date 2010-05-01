@@ -7,6 +7,7 @@ Room::Room()
 	HP = 10;
 	color = 0;
 	controllingPlayer = NULL;
+	meshExists = false;
 }
 
 Room* Room::createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor)
@@ -31,6 +32,7 @@ Room* Room::createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int n
 		exit(1);
 	}
 
+	tempRoom->meshExists = false;
 	tempRoom->color = nColor;
 
 	static int uniqueNumber = -1;
@@ -49,6 +51,17 @@ Room* Room::createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int n
 		tempRoom->addCoveredTile(nCoveredTiles[i]);
 
 	return tempRoom;
+}
+
+void Room::absorbRoom(Room *r)
+{
+	// Subclasses overriding this function can call this to do the generic stuff or they can reiplement it entirely.
+	while(r->numCoveredTiles() > 0)
+	{
+		Tile *tempTile = r->getCoveredTile(0);
+		r->removeCoveredTile(tempTile);
+		addCoveredTile(tempTile);
+	}
 }
 
 Room* Room::createRoomFromStream(istream &is)
@@ -96,6 +109,11 @@ void Room::clearCoveredTiles()
 
 void Room::createMeshes()
 {
+	if(meshExists)
+		return;
+
+	meshExists = true;
+
 	for(unsigned int i = 0; i < coveredTiles.size(); i++)
 	{
 		Tile *tempTile = coveredTiles[i];
@@ -111,6 +129,11 @@ void Room::createMeshes()
 
 void Room::destroyMeshes()
 {
+	if(!meshExists)
+		return;
+
+	meshExists = false;
+
 	for(unsigned int i = 0; i < coveredTiles.size(); i++)
 	{
 		Tile *tempTile = coveredTiles[i];
