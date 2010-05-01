@@ -792,12 +792,17 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 					// See if the neighbor is in the closed list
 					bool neighborFound = false;
 					list<astarEntry*>::iterator itr = closedList.begin();
-					while(itr != closedList.end() && !neighborFound)
+					while(itr != closedList.end())
 					{
 						if(neighbor->tile == (*itr)->tile)
+						{
 							neighborFound = true;
+							break;
+						}
 						else
+						{
 							itr++;
+						}
 					}
 
 					// Ignore the neighbor if it is on the closed list
@@ -806,12 +811,17 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 						// See if the neighbor is in the open list
 						neighborFound = false;
 						list<astarEntry*>::iterator itr = openList.begin();
-						while(itr != openList.end() && !neighborFound)
+						while(itr != openList.end())
 						{
 							if(neighbor->tile == (*itr)->tile)
+							{
 								neighborFound = true;
+								break;
+							}
 							else
+							{
 								itr++;
+							}
 						}
 
 						// If the neighbor is not in the open list
