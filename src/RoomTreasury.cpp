@@ -7,6 +7,31 @@ RoomTreasury::RoomTreasury()
 	return;
 }
 
+void RoomTreasury::absorbRoom(Room *r)
+{
+	// Start by deleting the Ogre meshes associated with both rooms.
+	destroyMeshes();
+	destroyGoldMeshes();
+	r->destroyMeshes();
+
+	// Copy over the information about the gold that is stored in the other treasury before we remove its rooms.
+	for(unsigned int i = 0; i < r->numCoveredTiles(); i++)
+	{
+		Tile *tempTile = r->getCoveredTile(i);
+		goldInTile[tempTile] = ((RoomTreasury*)r)->goldInTile[tempTile];
+		fullnessOfTile[tempTile] = ((RoomTreasury*)r)->fullnessOfTile[tempTile];
+	}
+
+	// Use the superclass function to copy over the covered tiles to this room and get rid of them in the other room.
+	Room::absorbRoom(r);
+
+	// Recreate the meshes for this new room which contains both rooms.
+	createMeshes();
+
+	// Recreate the gold indicators which were destroyed when the meshes were cleared.
+	createGoldMeshes();
+}
+
 void RoomTreasury::doUpkeep()
 {
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
@@ -16,8 +41,13 @@ void RoomTreasury::doUpkeep()
 void RoomTreasury::addCoveredTile(Tile* t)
 {
 	Room::addCoveredTile(t);
-	goldInTile[t] = 0;
-	fullnessOfTile[t] = empty;
+
+	// Only initialize the tile to empty if it has not already been set by the absorbRoom() function.
+	if(goldInTile.find(t) == goldInTile.end())
+	{
+		goldInTile[t] = 0;
+		fullnessOfTile[t] = empty;
+	}
 }
 
 void RoomTreasury::removeCoveredTile(Tile* t)
@@ -178,5 +208,17 @@ void RoomTreasury::destroyMeshesForTile(Tile *t)
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
+}
+
+void RoomTreasury::createGoldMeshes()
+{
+	for(unsigned int i = 0; i < numCoveredTiles(); i++)
+		createMeshesForTile(getCoveredTile(i));
+}
+
+void RoomTreasury::destroyGoldMeshes()
+{
+	for(unsigned int i = 0; i < numCoveredTiles(); i++)
+		destroyMeshesForTile(getCoveredTile(i));
 }
 

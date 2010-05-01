@@ -9,6 +9,7 @@ class RoomTreasury : public Room
 		RoomTreasury();
 
 		// Functions overriding virtual functions in the Room base class.
+		void absorbRoom(Room *r);
 		void doUpkeep();
 		void addCoveredTile(Tile* t);
 		void removeCoveredTile(Tile* t);
@@ -28,6 +29,8 @@ class RoomTreasury : public Room
 		void updateMeshesForTile(Tile *t);
 		void createMeshesForTile(Tile *t);
 		void destroyMeshesForTile(Tile *t);
+		void createGoldMeshes();
+		void destroyGoldMeshes();
 
 		static const int maxGoldWhichCanBeStoredInABag = 3000;
 		static const int maxGoldWhichCanBeStoredInAChest = 5000;
