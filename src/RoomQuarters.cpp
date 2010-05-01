@@ -9,8 +9,9 @@ RoomQuarters::RoomQuarters()
 
 void RoomQuarters::absorbRoom(Room *r)
 {
-	// Start by delting the Ogre meshes associated with both rooms.
+	// Start by deleting the Ogre meshes associated with both rooms.
 	destroyMeshes();
+	destroyBedMeshes();
 	r->destroyMeshes();
 
 	// Copy over the information about the creatures that are sleeping in the other quarters before we remove its rooms.
@@ -280,5 +281,24 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 	}
 
 	return returnValue;
+}
+
+void RoomQuarters::destroyBedMeshes()
+{
+	map<Tile*,bool>::iterator itr = bedOrientationForTile.begin();
+	while(itr != bedOrientationForTile.end())
+	{
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::destroyBed;
+		request->p = itr->first;
+		request->p2 = creatureSleepingInTile[itr->first];
+		request->p3 = this;
+		request->b = itr->second;
+
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
+
+		itr++;
+	}
 }
 

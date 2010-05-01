@@ -66,6 +66,7 @@ class GameMap
 
 		void clearRooms();
 		void addRoom(Room *r);
+		void removeRoom(Room *r);
 		Room* getRoom(int index);
 		unsigned int numRooms();
 		vector<Room*> getRoomsByTypeAndColor(Room::RoomType type, int color);

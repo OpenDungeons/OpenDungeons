@@ -1227,6 +1227,19 @@ void GameMap::addRoom(Room *r)
 	rooms.push_back(r);
 }
 
+void GameMap::removeRoom(Room *r)
+{
+	for(unsigned int i = 0; i < rooms.size(); i++)
+	{
+		if(r == rooms[i])
+		{
+			//TODO:  Loop over the tiles and make any whose coveringRoom variable points to this room point to NULL.
+			rooms.erase(rooms.begin()+i);
+			break;
+		}
+	}
+}
+
 /** \brief A simple accessor method to return the given Room.
   *
 */ 

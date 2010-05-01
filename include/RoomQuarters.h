@@ -20,6 +20,7 @@ class RoomQuarters : public Room
 		bool claimTileForSleeping(Tile *t, Creature *c);
 		bool releaseTileForSleeping(Tile *t, Creature *c);
 		Tile* getLocationForBed(int xDim, int yDim);
+		void destroyBedMeshes();
 
 	private:
 		bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);
