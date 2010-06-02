@@ -28,6 +28,7 @@ class Field
 		void subtractField(Field *f, double scale);
 		void clear();
 		pair<LocationType, double> min();
+		pair<LocationType, double> max();
 
 		void refreshMeshes(double offset);
 		void createMeshes(double offset);

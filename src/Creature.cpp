@@ -445,7 +445,7 @@ void Creature::doTurn()
 	}
 
 	// Check to see if we have found a "home" tile where we can sleep yet.
-	if(randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
+	if(digRate <= 0.1 && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
 	{
 		// Check to see if there are any quarters owned by our color that we can reach.
 		vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
@@ -1155,8 +1155,18 @@ claimTileBreakStatement:
 						sem_post(&tempCreature->hpLockSemaphore);
 						double expGained;
 						expGained = 1.0 + 0.2*powl(damageDone, 1.3);
-						exp += expGained;
+
+						// Give a small amount of experince to the creature we hit.
 						tempCreature->exp += 0.15*expGained;
+
+						// Add a bonus modifier based on the level of the creature we hit
+						// to expGained and give ourselves that much experience.
+						if(tempCreature->level >= level)
+							expGained *= 1.0 + (tempCreature->level - level)/10.0;
+						else
+							expGained /= 1.0 + (level - tempCreature->level)/10.0;
+
+						exp += expGained;
 
 						cout << "\n" << name << " did " << damageDone << " damage to " << enemiesInRange[0]->name;
 						sem_wait(&enemiesInRange[0]->hpLockSemaphore);
@@ -1176,6 +1186,8 @@ claimTileBreakStatement:
 					break;
 
 				case CreatureAction::maneuver:
+					myTile = positionTile();
+
 					// If there are no more enemies which are reachable, stop maneuvering.
 					if(reachableEnemies.size() == 0)
 					{
@@ -1221,12 +1233,20 @@ claimTileBreakStatement:
 					// Prepare the battlefield so we can decide where to move.
 					computeBattlefield();
 
-					// Move to the desired location on the battlefield, a minumum if we are
+
+
+					// Find location on the battlefield, we try to find a minumum if we are
 					// trying to "attack" and a maximum if we are trying to "retreat".
+					if(battleField->get(myTile->x, myTile->y).first > 0.0)
+						minimumFieldValue = battleField->min();  // Attack
+					else
+						minimumFieldValue = battleField->max();  // Retreat
+
+					// Pick a destination tile near the tile we got from the battlefield.
 					clearDestinations();
-				       	minimumFieldValue = battleField->min();  // Currently always attack, never retreat.
 					tempDouble = max(weaponL->range, weaponR->range);  // Pick a true destination randomly within the max range of our weapons.
 					tempDouble = sqrt(tempDouble);
+					//FIXME:  This should find a path to a tile we can walk to, it does not always do this the way it is right now.
 					tempPath = gameMap.path(positionTile()->x, positionTile()->y, minimumFieldValue.first.first + randomDouble(-1.0*tempDouble,tempDouble), minimumFieldValue.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
 
 					// Walk a maximum of N tiles before recomputing the destination since we are in combat.

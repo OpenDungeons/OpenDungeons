@@ -122,6 +122,28 @@ pair<LocationType, double> Field::min()
 	return *minimum;
 }
 
+pair<LocationType, double> Field::max()
+{
+	if(theField.size() == 0)
+	{
+		cerr << "\n\nERROR:  Trying to find the minumum value on a field of 0 elements.\n\n";
+		exit(1);
+	}
+
+	FieldType::iterator itr = theField.begin();
+	FieldType::iterator maximum = theField.begin();
+	while(itr != theField.end())
+	{
+		if(itr->second > maximum->second)
+		{
+			maximum = itr;
+		}
+
+		itr++;
+	}
+
+	return *maximum;
+}
 void Field::refreshMeshes(double offset = 0.0)
 {
 	if(theField.size() == 0 && !hasMeshes)
