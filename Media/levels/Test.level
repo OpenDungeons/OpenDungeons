@@ -2369,8 +2369,8 @@ MineNGold	2500
 -10	-3	0	0
 -10	-2	0	0
 -10	-1	0	0
--10	0	5	100
--10	1	5	100
+-10	0	0	0
+-10	1	0	0
 -10	2	0	0
 -10	3	0	0
 -10	4	0	0
@@ -2489,10 +2489,10 @@ MineNGold	2500
 -9	-6	0	0
 -9	-5	0	0
 -9	-4	0	0
--9	-3	5	100
--9	-2	5	100
--9	-1	5	100
--9	0	5	100
+-9	-3	0	0
+-9	-2	0	0
+-9	-1	0	0
+-9	0	0	0
 -9	1	0	0
 -9	2	0	0
 -9	3	0	0
@@ -2610,9 +2610,9 @@ MineNGold	2500
 -8	-10	0	100
 -8	-9	0	0
 -8	-8	0	0
--8	-7	5	100
--8	-6	5	100
--8	-5	5	100
+-8	-7	0	0
+-8	-6	0	0
+-8	-5	0	0
 -8	-4	0	0
 -8	-3	0	0
 -8	-2	0	0
@@ -2736,9 +2736,9 @@ MineNGold	2500
 -7	-10	0	100
 -7	-9	0	0
 -7	-8	0	0
--7	-7	5	100
--7	-6	0	100
--7	-5	5	100
+-7	-7	0	0
+-7	-6	0	0
+-7	-5	0	0
 -7	-4	0	0
 -7	-3	0	0
 -7	-2	0	0
@@ -2866,9 +2866,9 @@ MineNGold	2500
 -6	-10	0	100
 -6	-9	0	0
 -6	-8	0	0
--6	-7	5	100
--6	-6	5	100
--6	-5	5	100
+-6	-7	0	0
+-6	-6	0	0
+-6	-5	0	0
 -6	-4	0	0
 -6	-3	0	0
 -6	-2	0	0
@@ -9838,15 +9838,15 @@ Kobold	Kobold_011	-7	13	0	1	none	5	4	0	none	8	3	0	25	3
 BigKnight	Knight_001	-16	-1	0	1	Roundshield	12	4	0	Sabre	0	3	7	80	10
 Knight	Knight_005	29	-62	0	1	Roundshield	14	4	0	Longsword	14	3	0	55	2
 Knight	Knight_004	-14	-3	0	1	none	7	4	0	none	8	3	0	55	2
-Knight	Knight_006	-13	-2	0	1	none	8	4	0	Sabre	8	3	0	55	2
+Knight	Knight_006	-16	-3	0	1	none	8	4	0	Sabre	8	3	0	55	2
 Knight	Knight	-21	4	0	1	none	8	4	0	Sabre	0	3	0	55	2
 Knight	Knight_007	28	-63	0	1	none	8	4	0	Sabre	0	3	0	55	2
-Knight	Knight_003	-12	0	0	1	none	14	4	0	Longsword	8	3	0	55	2
+Knight	Knight_003	-16	1	0	1	none	14	4	0	Longsword	8	3	0	55	2
 Knight	Knight_002	-12	-5	0	1	none	0	4	0	Longsword	14	3	0	55	2
 Dragon	Dragon_001	-42	-91	0	1	none	10	4	0	none	8	3	0	100	25
 Dragon	Dragon_002	-20	7	0	1	none	10	4	0	none	8	3	0	100	25
 Dragon	Dragon_003	-14	1	0	1	none	10	4	0	none	8	3	0	100	25
-Dragon	Dragon_004	-11	2	0	1	none	10	4	0	none	8	3	0	100	25
+Dragon	Dragon_004	-12	3	0	1	none	10	4	0	none	8	3	0	100	25
 Wyvern	Wyvern_001	-23	-110	0	1	none	8	3	0	none	6	3	0	50	5
 Wyvern	Wyvern_002	-14	-115	0	1	none	8	3	0	none	6	3	0	50	5
 Wyvern	Wyvern_003	-17	-95	0	1	none	8	3	0	none	6	3	0	50	5
@@ -9860,7 +9860,7 @@ Dwarf1	Dwarf1_007	12	-57	0	2	none	8	4	0	none	8	3	0	45	7
 Dwarf2	Dwarf2_001	11	-1	0	2	none	8	4	0	none	8	3	0	45	7
 Dwarf2	Dwarf2_002	2	-9	0	2	none	14	4	0	Longsword	8	3	0	45	7
 Dwarf2	Dwarf3_001	6	-28	0	2	Roundshield	8	4	0	Longsword	0	3	4	45	7
-Orc	Orc_0001	9	-1	0	2	none	8	4	0	Longsword	8	3	0	65	10
+Orc	Orc_0001	-7	0	0	2	none	8	4	0	Longsword	8	3	0	65	10
 Orc	Orc_0002	3	4	0	2	none	8	4	0	Longsword	8	3	0	65	10
 Kreatur	Kreatur_001	-45	-90	0	2	none	12	4	0	none	14	4	0	80	10
 Kreatur	Kreatur_002	-41	-88	0	2	none	12	4	0	none	14	4	0	80	10

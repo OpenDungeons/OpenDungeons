@@ -553,7 +553,8 @@ void Creature::doTurn()
 						}
 
 						gameMap.cutCorners(result, tilePassability);
-						setWalkPath(result, 2, true);
+						setAnimationState("Walk");
+						setWalkPath(result, 2, false);
 					}
 					else
 					{
@@ -564,6 +565,7 @@ void Creature::doTurn()
 					break;
 
 				case CreatureAction::walkToTile:
+					/*
 					if(reachableEnemies.size() > 0 && rangeToNearestEnemy < 5)
 					{
 						actionQueue.pop_front();
@@ -573,6 +575,7 @@ void Creature::doTurn()
 						loopBack = true;
 						break;
 					}
+					*/
 
 					//TODO: Peek at the item that caused us to walk
 					// If we are walking toward a tile we are trying to dig out, check to see if it is still marked for digging.
@@ -758,9 +761,10 @@ void Creature::doTurn()
 						if(tempTile != NULL)
 						{
 							// If we find a valid path to the tile start walking to it and break
+							setAnimationState("Walk");
 							tempPath = gameMap.path(myTile, tempTile, tilePassability);
 							gameMap.cutCorners(tempPath, tilePassability);
-							if(setWalkPath(tempPath, 2, true))
+							if(setWalkPath(tempPath, 2, false))
 							{
 								//loopBack = true;
 								actionQueue.push_back(CreatureAction::walkToTile);
@@ -926,6 +930,7 @@ claimTileBreakStatement:
 							gameMap.cutCorners(walkPath, tilePassability);
 							if(setWalkPath(walkPath, 2, false))
 							{
+								setAnimationState("Walk");
 								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 								break;
 							}
@@ -1012,6 +1017,7 @@ claimTileBreakStatement:
 							gameMap.cutCorners(tempPath, tilePassability);
 							if(setWalkPath(tempPath, 2, false))
 							{
+								setAnimationState("Walk");
 								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 								loopBack = true;
 								break;
@@ -1109,6 +1115,7 @@ claimTileBreakStatement:
 						gameMap.cutCorners(tempPath, tilePassability);
 						if(setWalkPath(tempPath, 2, false))
 						{
+							setAnimationState("Walk");
 							actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 							loopBack = true;
 							break;
@@ -1196,8 +1203,6 @@ claimTileBreakStatement:
 						break;
 					}
 
-					setAnimationState("Walk");
-
 					// Check to see if we should try to strafe the enemy
 					if(randomDouble(0.0, 1.0) < 0.3)
 					{
@@ -1212,7 +1217,8 @@ claimTileBreakStatement:
 						{
 							tempPath = gameMap.path(positionTile(), tempTile, tilePassability);
 
-							setWalkPath(tempPath, 2, false);
+							if(setWalkPath(tempPath, 2, false))
+								setAnimationState("Walk");
 						}
 					}
 
@@ -1233,14 +1239,21 @@ claimTileBreakStatement:
 					// Prepare the battlefield so we can decide where to move.
 					computeBattlefield();
 
-
+					cout << "\n\nMy name is " << name << "\tbattlefield score is " << battleField->get(myTile->x, myTile->y).first;
 
 					// Find location on the battlefield, we try to find a minumum if we are
 					// trying to "attack" and a maximum if we are trying to "retreat".
 					if(battleField->get(myTile->x, myTile->y).first > 0.0)
+					{
 						minimumFieldValue = battleField->min();  // Attack
+						setAnimationState("Walk");
+						//TODO: Set this to some sort of Attack-move animation.
+					}
 					else
+					{
 						minimumFieldValue = battleField->max();  // Retreat
+						setAnimationState("Flee");
+					}
 
 					// Pick a destination tile near the tile we got from the battlefield.
 					clearDestinations();
@@ -1255,7 +1268,8 @@ claimTileBreakStatement:
 						tempPath.resize(tempUnsigned);
 
 					gameMap.cutCorners(tempPath, tilePassability);
-					setWalkPath(tempPath, 2, true);
+					if(setWalkPath(tempPath, 2, false))
+						setAnimationState("Walk");
 
 					// Push a walkToTile action into the creature's action queue to make them walk the path they have
 					// decided on without recomputing, this helps prevent them from getting stuck in local minima.
@@ -1794,7 +1808,6 @@ bool Creature::setWalkPath(list<Tile*> path, unsigned int minDestinations, bool 
 	// Verify that the given path is long enough to be considered valid.
 	if(path.size() >= minDestinations)
 	{
-		setAnimationState("Walk");
 		list<Tile*>::iterator itr = path.begin();
 
 		// If we are not supposed to add the first tile in the path to the destination queue, then we skip over it.
@@ -1812,7 +1825,7 @@ bool Creature::setWalkPath(list<Tile*> path, unsigned int minDestinations, bool 
 	}
 	else
 	{
-		setAnimationState("Idle");
+		//setAnimationState("Idle");
 		return false;
 	}
 
@@ -1846,7 +1859,6 @@ void Creature::clearDestinations()
 void Creature::stopWalking()
 {
 	walkDirection = Ogre::Vector3::ZERO;
-	setAnimationState("Idle");
 }
 
 /** Rotates the creature so that it is facing toward the given x-y location.

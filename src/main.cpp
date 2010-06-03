@@ -35,7 +35,7 @@ Socket *serverSocket = NULL, *clientSocket = NULL;
 string versionString = (string)"OpenDungeons_Version:" + VERSION;
 string MOTD = (string)"Welcome to Open Dungeons\tVersion:  " + VERSION;
 double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
-double turnsPerSecond = 1.0;
+double turnsPerSecond = 1.4;
 ProtectedObject<long int> turnNumber(1);
 
 vector<ColourValue> playerColourValues;
