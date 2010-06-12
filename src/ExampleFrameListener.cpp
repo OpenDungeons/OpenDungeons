@@ -251,6 +251,32 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(mRotateWorldVector.z * frameTime), Node::TS_WORLD);
 }
 
+/** \brief Computes a vector whose z-component is 0 and whose x-y coordinates are the position on the floor that the camera is pointed at.
+  *
+*/
+Ogre::Vector3 ExampleFrameListener::getCameraViewTarget()
+{
+	Ogre::Vector3 target, position, viewDirection, offset;
+
+	// Get the position of the camera and direction that the camera is facing.
+	position = mCamera->getRealPosition();
+	viewDirection = mCamera->getDerivedDirection();
+
+	// Compute the offset, this is how far you would move in the x-y plane if
+	// you follow along the view direction vector until you get to z = 0.
+	viewDirection.normalise();
+	viewDirection /= fabs(viewDirection.z);
+	offset = position.z * viewDirection;
+	offset.z = 0.0;
+
+	// The location we are looking at is then simply the camera's positon plus the view
+	// offset computed above.  We zero the z-value on the target for consistency.
+	target = position + offset;
+	target.z = 0.0;
+
+	return target;
+}
+
 void ExampleFrameListener::showDebugOverlay(bool show)
 {
 	if (mDebugOverlay)

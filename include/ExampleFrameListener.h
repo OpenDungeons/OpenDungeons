@@ -73,6 +73,8 @@ public:
 	virtual ~ExampleFrameListener();
 
 	void moveCamera(double frameTime);
+	Ogre::Vector3 getCameraViewTarget();
+
 	void showDebugOverlay(bool show);
 
 	// Override frameStarted event to process that (don't care about frameEnded)
