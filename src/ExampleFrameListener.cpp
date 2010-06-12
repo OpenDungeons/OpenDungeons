@@ -120,7 +120,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mAniso = 1;
 	mSceneDetailIndex = 0;
 	mMoveSpeed = 50.0;
-	mRotateSpeed = 50;
+	mRotateSpeed = 90;
+	swivelDegrees = 0.0;
 	mDebugOverlay = 0;
 	mInputManager = 0;
 	mMouse = 0;
@@ -241,14 +242,22 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	// Move the camera to the new location
 	mCamNode->setPosition(tempVector2);
 
-	// Rotate the camera
+	// Tilt the camera up or down.
 	mCamNode->rotate(Ogre::Vector3::UNIT_X, Degree(mRotateLocalVector.x * frameTime), Node::TS_LOCAL);
 	mCamNode->rotate(Ogre::Vector3::UNIT_Y, Degree(mRotateLocalVector.y * frameTime), Node::TS_LOCAL);
 	mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(mRotateLocalVector.z * frameTime), Node::TS_LOCAL);
 
-	mCamNode->rotate(Ogre::Vector3::UNIT_X, Degree(mRotateWorldVector.x * frameTime), Node::TS_WORLD);
-	mCamNode->rotate(Ogre::Vector3::UNIT_Y, Degree(mRotateWorldVector.y * frameTime), Node::TS_WORLD);
-	mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(mRotateWorldVector.z * frameTime), Node::TS_WORLD);
+	// Swivel the camera to the left or right, while maintaining the same view target location on the ground.
+	Ogre::Vector3 viewTarget = getCameraViewTarget();
+	double deltaX =  tempVector2.x - viewTarget.x;
+	double deltaY =  tempVector2.y - viewTarget.y;
+	double radius = sqrt(deltaX*deltaX + deltaY*deltaY);
+	double theta = atan2(deltaY, deltaX);
+	theta += swivelDegrees.valueRadians()*frameTime;
+	tempVector2.x = viewTarget.x + radius*cos(theta);
+	tempVector2.y = viewTarget.y + radius*sin(theta);
+	mCamNode->setPosition(tempVector2);
+	mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(swivelDegrees * frameTime), Node::TS_WORLD);
 }
 
 /** \brief Computes a vector whose z-component is 0 and whose x-y coordinates are the position on the floor that the camera is pointed at.
@@ -1791,12 +1800,12 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 			// Turn left
 			case KC_DELETE:
-				mRotateWorldVector.z += 1.3 * mRotateSpeed.valueDegrees();
+				swivelDegrees -= 1.3 * mRotateSpeed;
 				break;
 
 			// Turn right
 			case KC_PGDOWN:
-				mRotateWorldVector.z += -1.3 * mRotateSpeed.valueDegrees();
+				swivelDegrees -= -1.3 * mRotateSpeed;
 				break;
 
 			//Toggle mCurrentTileType
@@ -2022,12 +2031,12 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 
 			// Turn left
 			case KC_DELETE:
-				mRotateWorldVector.z -= 1.3 * mRotateSpeed.valueDegrees();
+				swivelDegrees += 1.3 * mRotateSpeed;
 				break;
 
 			// Turn right
 			case KC_PGDOWN:
-				mRotateWorldVector.z -= -1.3 * mRotateSpeed.valueDegrees();
+				swivelDegrees += -1.3 * mRotateSpeed;
 				break;
 
 		}

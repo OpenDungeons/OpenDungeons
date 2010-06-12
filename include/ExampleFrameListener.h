@@ -147,6 +147,7 @@ protected:
 	int mSceneDetailIndex ;
 	Real mMoveSpeed;
 	Degree mRotateSpeed;
+	Degree swivelDegrees;
 	Overlay* mDebugOverlay;
 
 	//OIS Input devices
