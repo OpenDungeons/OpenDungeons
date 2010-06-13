@@ -4,7 +4,7 @@ Media/levels/Test.level # The level to load after this level is complete.
 # Seats
 5  # The number of seats to load.
 # color	faction	startingX	startingY	colorR	colorG	colorB
-1	Undead	0	0	0	0.8	0
+1	Undead	-5	10	0	0.8	0
 2	Heroes	15	0	0.8	0.8	0.8
 3	Villians	15	0	0.8	0.3	0.3
 4	Constructs	15	0	0.8	0.8	0

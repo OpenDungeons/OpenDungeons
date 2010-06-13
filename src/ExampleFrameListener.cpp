@@ -85,7 +85,7 @@ void ExampleFrameListener::updateStats(void)
  * up the OGRE system.
  */
 ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, SceneManager *sceneManager, CEGUI::Renderer *renderer, bool bufferedKeys, bool bufferedMouse, bool bufferedJoy)
-	: mCamera(cam), mTranslateVector(Ogre::Vector3::ZERO), mWindow(win)
+	: mCamera(cam), mWindow(win)
 {
 	chatMaxMessages = 10;
 	chatMaxTimeDisplay = 20;
@@ -135,6 +135,9 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mMouseTranslateVector = Ogre::Vector3(0.0, 0.0, 0.0);
 	mRotateLocalVector = Ogre::Vector3(0.0, 0.0, 0.0);
 	mRotateWorldVector = Ogre::Vector3(0.0, 0.0, 0.0);
+
+	cameraIsFlying = false;
+	cameraFlightSpeed = 70.0;
 
 	using namespace OIS;
 
@@ -227,20 +230,17 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	// for constraint calculations
 	Ogre::Vector3 tempVector = mCamNode->getPosition();
 	mCamNode->translate(mTranslateVector * frameTime, Node::TS_LOCAL);
-	Ogre::Vector3 tempVector2 = mCamNode->getPosition();
+	Ogre::Vector3 newPosition = mCamNode->getPosition();
 
-	// Apply the valid motion into tempVector2
-	tempVector2.z = tempVector.z + zChange*frameTime*mZoomSpeed;
-	double horizontalSpeedFactor = (tempVector2.z >= 25.0) ? 1.0 : tempVector2.z/(25.0);
-	tempVector2.x = tempVector.x + (mMouseTranslateVector.x + (tempVector2.x - tempVector.x)) * horizontalSpeedFactor;
-	tempVector2.y = tempVector.y + (mMouseTranslateVector.y + (tempVector2.y - tempVector.y)) * horizontalSpeedFactor;
+	// Apply the valid motion into newPosition
+	newPosition.z = tempVector.z + zChange*frameTime*mZoomSpeed;
+	double horizontalSpeedFactor = (newPosition.z >= 25.0) ? 1.0 : newPosition.z/(25.0);
+	newPosition.x = tempVector.x + (mMouseTranslateVector.x + (newPosition.x - tempVector.x)) * horizontalSpeedFactor;
+	newPosition.y = tempVector.y + (mMouseTranslateVector.y + (newPosition.y - tempVector.y)) * horizontalSpeedFactor;
 	
 	// Prevent camera from moving down into the tiles
-	if(tempVector2.z <= 4.5)
-		tempVector2.z = 4.5;
-
-	// Move the camera to the new location
-	mCamNode->setPosition(tempVector2);
+	if(newPosition.z <= 4.5)
+		newPosition.z = 4.5;
 
 	// Tilt the camera up or down.
 	mCamNode->rotate(Ogre::Vector3::UNIT_X, Degree(mRotateLocalVector.x * frameTime), Node::TS_LOCAL);
@@ -249,15 +249,39 @@ void ExampleFrameListener::moveCamera(double frameTime)
 
 	// Swivel the camera to the left or right, while maintaining the same view target location on the ground.
 	Ogre::Vector3 viewTarget = getCameraViewTarget();
-	double deltaX =  tempVector2.x - viewTarget.x;
-	double deltaY =  tempVector2.y - viewTarget.y;
+	double deltaX =  newPosition.x - viewTarget.x;
+	double deltaY =  newPosition.y - viewTarget.y;
 	double radius = sqrt(deltaX*deltaX + deltaY*deltaY);
 	double theta = atan2(deltaY, deltaX);
 	theta += swivelDegrees.valueRadians()*frameTime;
-	tempVector2.x = viewTarget.x + radius*cos(theta);
-	tempVector2.y = viewTarget.y + radius*sin(theta);
-	mCamNode->setPosition(tempVector2);
+	newPosition.x = viewTarget.x + radius*cos(theta);
+	newPosition.y = viewTarget.y + radius*sin(theta);
 	mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(swivelDegrees * frameTime), Node::TS_WORLD);
+
+	// If the camera is trying to fly toward a destination, move it in that direction.
+	if(cameraIsFlying)
+	{
+		// Compute the direction and distance the camera needs to move to get to its intended destination.
+		Ogre::Vector3 flightDirection = cameraFlightDestination - viewTarget;
+		radius = flightDirection.normalise();
+
+		// If we are withing the stopping distance of the target, then quit flying.  Otherwise we move towards the destination.
+		if(radius <= 0.25)
+		{
+			// We are withing the stopping distance of the target destination so stop flying towards it.
+			cameraIsFlying = false;
+		}
+		else
+		{
+			// Scale the flight direction to move towards at the given speed (the min function prevents
+			// overshooting the target) then add this offset vector to the camera position.
+			flightDirection *= min(cameraFlightSpeed*frameTime, radius);
+			newPosition += flightDirection;
+		}
+	}
+
+	// Move the camera to the new location
+	mCamNode->setPosition(newPosition);
 }
 
 /** \brief Computes a vector whose z-component is 0 and whose x-y coordinates are the position on the floor that the camera is pointed at.
@@ -284,6 +308,16 @@ Ogre::Vector3 ExampleFrameListener::getCameraViewTarget()
 	target.z = 0.0;
 
 	return target;
+}
+
+/** \brief Starts the camera moving towards a destination position, it will stop moving when it gets there.
+  *
+*/
+void ExampleFrameListener::flyTo(Ogre::Vector3 destination)
+{
+	cameraFlightDestination = destination;
+	cameraFlightDestination.z = 0.0;
+	cameraIsFlying = true;
 }
 
 void ExampleFrameListener::showDebugOverlay(bool show)
@@ -1863,10 +1897,16 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 			//Toggle mCurrentFullness
 			case KC_T:
+				// If we are not in a game.
 				if(serverSocket == NULL && clientSocket == NULL)
 				{
 					mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
 					MOTD = "Tile fullness:  " + StringConverter::toString(mCurrentFullness);
+				}
+				else  // If we are in a game.
+				{
+					Seat *tempSeat = gameMap.me->seat;
+					flyTo(Ogre::Vector3(tempSeat->startingX, tempSeat->startingY, 0.0));
 				}
 				break;
 

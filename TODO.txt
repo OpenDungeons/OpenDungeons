@@ -127,10 +127,7 @@
 +
 +  Add a vector of sub goals to the Goal class which are added to the queue
 +  after the given goal is completed.
-+
-+  Add a function and a datamember to the Creature class to go into a specified
-+  animation state when the walk queue becomes empty.
-+
+
 *  Add tile colors to the level file and network protocols.
 
 *  Add a seperate thread to generate a pool of 5000 or so random numbers for
@@ -143,26 +140,17 @@
 	Both of these will be fixed by moving to a better terminal, see:
 	http://www.ogre3d.org/wiki/index.php/CodeSnippits#Console
 
-*  add a flyTo method to make the camera fly to a particular location (and
-*  orientation?).
-
 *  Store creature classes and class descriptions in maps rather than vectors to
 *  allow for faster lookups.
 
 *  Add play, pause, and single turn commands to the terminal to aid in AI
 *  debugging. 
 
-*  Add a terminal command to set the number of chat messages and the time to
-*  display them for (both as one command maybe).
-
 *  Create various levels of quality for each mesh and make a RenderRequest that
 *  switches to new meshes when some criteria is met (use something stable like
 *  num items onscreen at once to avoid churning between mesh detail levels, or
 *  change the meshes one at a time and re-evaluate).  It looks like OGRE has a
 *  built in mechanism to do this dynamically.
-
-*  Test limiting the number of render requests that can be handled per frame,
-*  initial tests did not seem encouraging so maybe this is a bad idea.
 
 *  Color chat messages with the color of the player who sent them.
 
@@ -179,9 +167,6 @@
 *  ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
  ---------------
-
-*  make camera center stay focused on the same point and rotate around it
-*  rather than rotating the camera around a fixed point.
 
 *  add a disconnect command to stop the running client or server thread.
 

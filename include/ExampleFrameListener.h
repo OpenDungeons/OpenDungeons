@@ -74,6 +74,7 @@ public:
 
 	void moveCamera(double frameTime);
 	Ogre::Vector3 getCameraViewTarget();
+	void flyTo(Ogre::Vector3 destination);
 
 	void showDebugOverlay(bool show);
 
@@ -121,6 +122,9 @@ protected:
 
 	Ogre::Vector3 mTranslateVector;
 	Ogre::Vector3 mMouseTranslateVector;
+	Ogre::Vector3 cameraFlightDestination;
+	bool cameraIsFlying;
+	double cameraFlightSpeed;
 	double zChange;
 	Ogre::Vector3 mRotateLocalVector;
 	Ogre::Vector3 mRotateWorldVector;
