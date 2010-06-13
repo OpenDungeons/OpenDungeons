@@ -1514,7 +1514,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 				}
 			}
 
-		itr++;
+			itr++;
 		}
 
 		// If we are in a game we store the opposite of whether this tile is marked for diggin or not, this allows us to mark tiles
@@ -1536,6 +1536,10 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		mRStartDragX = xPos;
 		mRStartDragY = yPos;
 
+		// Stop creating rooms.
+		mDragType = ExampleFrameListener::nullDragType;
+		gameMap.me->newRoomType = Room::nullRoomType;
+
 		// If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
 		//TODO:  This should probably contain a check to see if we are in a game.
 		Tile *curTile = gameMap.getTile(xPos, yPos);
@@ -1544,9 +1548,28 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			gameMap.me->dropCreature(curTile);
 		}
 
-		// Stop creating rooms.
-		mDragType = ExampleFrameListener::nullDragType;
-		gameMap.me->newRoomType = Room::nullRoomType;
+		// See if the mouse is over any creatures
+		while (itr != result.end() )
+		{
+			if(itr->movable != NULL)
+			{
+				resultName = itr->movable->getName();
+
+				if(resultName.find("Creature_") != string::npos)
+				{
+					CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
+					CEGUI::Window *rootWindow = CEGUI::System::getSingleton().getGUISheet();
+
+					//TODO:  This is commented out because it seems to break my development system, I thik once I have upgraded it will work correctly.
+					//CEGUI::Window *statsWindow = wmgr->createWindow("TaharezLook/FrameWindow", (string)"Root/CreatureStatsWindows/" + resultName);
+					//rootWindow->addChildWindow(statsWindow);
+
+					return true;
+				}
+			}
+
+			itr++;
+		}
 	}
 	       
 	return true;

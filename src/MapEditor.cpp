@@ -103,7 +103,6 @@ void MapEditor::createScene(void)
 	// Display some text
 	TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 10, 10, 50, 70, Ogre::ColourValue::Green);
 
-	// FIXME: OpenDungeons.layout needs to be filled in to get a gui going.
 	try
 	{
 		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"OpenDungeons.layout"); 
