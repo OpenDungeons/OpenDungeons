@@ -120,18 +120,25 @@ protected:
 	Camera* mCamera;
 	SceneNode *mCamNode;
 
-	Ogre::Vector3 mTranslateVector;
+	Ogre::Vector3 translateVector;
+	Ogre::Vector3 translateVectorAccel;
 	Ogre::Vector3 mMouseTranslateVector;
 	Ogre::Vector3 cameraFlightDestination;
-	bool cameraIsFlying;
-	double cameraFlightSpeed;
-	double zChange;
 	Ogre::Vector3 mRotateLocalVector;
-	Ogre::Vector3 mRotateWorldVector;
+	double zChange;
+	//Ogre::Vector3 mRotateWorldVector;
 	RenderWindow* mWindow;
-	bool mStatsOn;
+	bool cameraIsFlying;
+	Real moveSpeed;
+	Real moveSpeedAccel;
+	Degree mRotateSpeed;
+	Degree swivelDegrees;
+	double cameraFlightSpeed;
+	bool hotkeyLocationIsValid[10];
+	Ogre::Vector3 hotkeyLocation[10];
 
 	std::string mDebugText;
+	bool mStatsOn;
 
 	unsigned int mNumScreenShots;
 	float mMoveScale;
@@ -149,9 +156,6 @@ protected:
 	double frameDelay;
 
 	int mSceneDetailIndex ;
-	Real mMoveSpeed;
-	Degree mRotateSpeed;
-	Degree swivelDegrees;
 	Overlay* mDebugOverlay;
 
 	//OIS Input devices

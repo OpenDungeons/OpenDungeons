@@ -119,7 +119,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mFiltering = TFO_BILINEAR;
 	mAniso = 1;
 	mSceneDetailIndex = 0;
-	mMoveSpeed = 50.0;
+	moveSpeed = 50.0;
+	moveSpeedAccel = 100.0;
 	mRotateSpeed = 90;
 	swivelDegrees = 0.0;
 	mDebugOverlay = 0;
@@ -131,13 +132,19 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mCurrentTileType = Tile::dirt;
 	mCurrentFullness = 100;
 
-	mTranslateVector = Ogre::Vector3(0.0, 0.0, 0.0);
+	translateVector = Ogre::Vector3(0.0, 0.0, 0.0);
+	translateVectorAccel = Ogre::Vector3(0.0, 0.0, 0.0);
 	mMouseTranslateVector = Ogre::Vector3(0.0, 0.0, 0.0);
 	mRotateLocalVector = Ogre::Vector3(0.0, 0.0, 0.0);
-	mRotateWorldVector = Ogre::Vector3(0.0, 0.0, 0.0);
 
 	cameraIsFlying = false;
 	cameraFlightSpeed = 70.0;
+
+	for(int i = 0; i < 10; i++)
+	{
+		hotkeyLocationIsValid[i] = false;
+		hotkeyLocation[i] = Ogre::Vector3::ZERO;
+	}
 
 	using namespace OIS;
 
@@ -226,10 +233,22 @@ ExampleFrameListener::~ExampleFrameListener()
  */
 void ExampleFrameListener::moveCamera(double frameTime)
 {
+	// Carry out the acceleration/deceleration calculations on the camera translation.
+	double speed = translateVector.normalise();
+	translateVector *= max(0.0, speed - (0.75+(speed/moveSpeed))*moveSpeedAccel*frameTime);
+	translateVector += translateVectorAccel*(frameTime*2.0);
+
+	// If we have sped up to more than the maximum moveSpeed then recale the vector to that length.
+	if(translateVector.squaredLength() > moveSpeed*moveSpeed)
+	{
+		translateVector.normalise();
+		translateVector *= moveSpeed;
+	}
+
 	// Record the camera's position, move it, the re-record the position
 	// for constraint calculations
 	Ogre::Vector3 tempVector = mCamNode->getPosition();
-	mCamNode->translate(mTranslateVector * frameTime, Node::TS_LOCAL);
+	mCamNode->translate(translateVector * frameTime, Node::TS_LOCAL);
 	Ogre::Vector3 newPosition = mCamNode->getPosition();
 
 	// Apply the valid motion into newPosition
@@ -1794,6 +1813,9 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 	sys->injectKeyDown(arg.key);
 	sys->injectChar(arg.text);
 
+	std::ostringstream ss;
+	int hotkeyNumber;
+
 	if(!terminalActive)
 	{
 		// If the terminal is not active
@@ -1812,37 +1834,37 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 			// Move left
 			case KC_LEFT:
 			case KC_A:
-				mTranslateVector.x += -mMoveSpeed;	// Move camera left
+				translateVectorAccel.x += -moveSpeedAccel;	// Move camera left
 				break;
 
 			// Move right
 			case KC_RIGHT:
 			case KC_D:
-				mTranslateVector.x += mMoveSpeed;	// Move camera right
+				translateVectorAccel.x += moveSpeedAccel;	// Move camera right
 				break;
 			
 			// Move forward
 			case KC_UP:
 			case KC_W:
-				mTranslateVector.y += mMoveSpeed;	// Move camera forward
+				translateVectorAccel.y += moveSpeedAccel;	// Move camera forward
 				break;
 
 			// Move backward
 			case KC_DOWN:
 			case KC_S:
-				mTranslateVector.y += -mMoveSpeed;	// Move camera backward
+				translateVectorAccel.y += -moveSpeedAccel;	// Move camera backward
 				break;
 
 			// Move down
 			case KC_PGUP:
 			case KC_E:
-				zChange += -mMoveSpeed;	// Move straight down
+				zChange += -moveSpeed;	// Move straight down
 				break;
 
 			// Move up
 			case KC_INSERT:
 			case KC_Q:
-				zChange += mMoveSpeed;	// Move straight up
+				zChange += moveSpeed;	// Move straight up
 				break;
 
 			// Tilt up
@@ -1857,12 +1879,12 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 			// Turn left
 			case KC_DELETE:
-				swivelDegrees -= 1.3 * mRotateSpeed;
+				swivelDegrees += 1.3 * mRotateSpeed;
 				break;
 
 			// Turn right
 			case KC_PGDOWN:
-				swivelDegrees -= -1.3 * mRotateSpeed;
+				swivelDegrees += -1.3 * mRotateSpeed;
 				break;
 
 			//Toggle mCurrentTileType
@@ -1947,11 +1969,36 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 			// Print a screenshot
 			case KC_SYSRQ:
-				std::ostringstream ss;
 				ss << "screenshot_" << ++mNumScreenShots << ".png";
 				mWindow->writeContentsToFile(ss.str());
 				mTimeUntilNextToggle = 0.5;
 				mDebugText = "Saved: " + ss.str();
+				break;
+
+			case KC_1:  hotkeyNumber = 1;  goto processHotkey;
+			case KC_2:  hotkeyNumber = 2;  goto processHotkey;
+			case KC_3:  hotkeyNumber = 3;  goto processHotkey;
+			case KC_4:  hotkeyNumber = 4;  goto processHotkey;
+			case KC_5:  hotkeyNumber = 5;  goto processHotkey;
+			case KC_6:  hotkeyNumber = 6;  goto processHotkey;
+			case KC_7:  hotkeyNumber = 7;  goto processHotkey;
+			case KC_8:  hotkeyNumber = 8;  goto processHotkey;
+			case KC_9:  hotkeyNumber = 9;  goto processHotkey;
+			case KC_0:  hotkeyNumber = 0;  goto processHotkey;
+processHotkey:
+				// If the shift key is pressed we store this hotkey location, otherwise we fly the camera to a stored position.
+				if(mKeyboard->isModifierDown(OIS::Keyboard::Shift))
+				{
+					// Store the camera position into the array.
+					hotkeyLocationIsValid[hotkeyNumber] = true;
+					hotkeyLocation[hotkeyNumber] = getCameraViewTarget();
+				}
+				else
+				{
+					// If there has already been a location set for this hotkey then fly there, otherwise ignore this command.
+					if(hotkeyLocationIsValid[hotkeyNumber])
+						flyTo(hotkeyLocation[hotkeyNumber]);
+				}
 				break;
 		}
 	}
@@ -2049,37 +2096,37 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 			// Move left
 			case KC_LEFT:
 			case KC_A:
-				mTranslateVector.x -= -mMoveSpeed;	// Move camera forward
+				translateVectorAccel.x -= -moveSpeedAccel;	// Move camera forward
 				break;
 
 			// Move right
 			case KC_D:
 			case KC_RIGHT:
-				mTranslateVector.x -= mMoveSpeed;	// Move camera backward
+				translateVectorAccel.x -= moveSpeedAccel;	// Move camera backward
 				break;
 			
 			// Move forward
 			case KC_UP:
 			case KC_W:
-				mTranslateVector.y -= mMoveSpeed;	// Move camera forward
+				translateVectorAccel.y -= moveSpeedAccel;	// Move camera forward
 				break;
 
 			// Move backward
 			case KC_DOWN:
 			case KC_S:
-				mTranslateVector.y -= -mMoveSpeed;	// Move camera backward
+				translateVectorAccel.y -= -moveSpeedAccel;	// Move camera backward
 				break;
 
 			// Move down
 			case KC_PGUP:
 			case KC_E:
-				zChange -= -mMoveSpeed;	// Move straight down
+				zChange -= -moveSpeed;	// Move straight down
 				break;
 
 			// Move up
 			case KC_INSERT:
 			case KC_Q:
-				zChange -= mMoveSpeed;	// Move straight up
+				zChange -= moveSpeed;	// Move straight up
 				break;
 
 			// Tilt up
@@ -2094,12 +2141,12 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 
 			// Turn left
 			case KC_DELETE:
-				swivelDegrees += 1.3 * mRotateSpeed;
+				swivelDegrees -= 1.3 * mRotateSpeed;
 				break;
 
 			// Turn right
 			case KC_PGDOWN:
-				swivelDegrees += -1.3 * mRotateSpeed;
+				swivelDegrees -= -1.3 * mRotateSpeed;
 				break;
 
 		}
@@ -2324,12 +2371,12 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		if(arguments.size() > 0)
 		{
 			tempSS.str(arguments);
-			tempSS >> mMoveSpeed;
-			commandOutput += "\nmovespeed set to " + StringConverter::toString(mMoveSpeed) + "\n";
+			tempSS >> moveSpeed;
+			commandOutput += "\nmovespeed set to " + StringConverter::toString(moveSpeed) + "\n";
 		}
 		else
 		{
-			commandOutput +=  "\nCurrent movespeed is " + StringConverter::toString(mMoveSpeed) + "\n";
+			commandOutput +=  "\nCurrent movespeed is " + StringConverter::toString(moveSpeed) + "\n";
 		}
 	}
 
