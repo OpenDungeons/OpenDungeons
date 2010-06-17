@@ -4,7 +4,6 @@
 
 Room::Room()
 {
-	HP = 10;
 	color = 0;
 	controllingPlayer = NULL;
 	meshExists = false;
@@ -73,9 +72,10 @@ Room* Room::createRoomFromStream(istream &is)
 	return returnRoom;
 }
 
-void Room::addCoveredTile(Tile* t)
+void Room::addCoveredTile(Tile* t, double nHP)
 {
 	coveredTiles.push_back(t);
+	tileHP[t] = nHP;
 	t->setCoveringRoom(this);
 }
 
@@ -87,6 +87,7 @@ void Room::removeCoveredTile(Tile* t)
 		{
 			coveredTiles.erase(coveredTiles.begin() + i);
 			t->setCoveringRoom(NULL);
+			tileHP.erase(t);
 			break;
 		}
 	}
@@ -169,9 +170,26 @@ string Room::getFormat()
         return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
-void Room::doUpkeep()
+/** \brief Carry out per turn upkeep on the room, the parameter r should be set to 'this' if called from a subclass to determine the room type.
+  *
+*/
+void Room::doUpkeep(Room *r)
 {
 	// Do any generic upkeep here (i.e. any upkeep that all room types should do).  All base classes of room should call this function during their doUpkeep() routine.
+
+	// If r is non-null we use it to determine the type of the room (quarters, treasury, etc) of the room so we can call the room specific functions.
+	if(r != NULL)
+	{
+		// Loop over the tiles in Room r and remove any whose HP has dropped to zero.
+		unsigned int i = r->coveredTiles.size();
+		while(i < r->coveredTiles.size())
+		{
+			if(r->tileHP[r->coveredTiles[i]] <= 0.0)
+				r->removeCoveredTile(r->coveredTiles[i]);
+			else
+				i++;
+		}
+	}
 }
 
 istream& operator>>(istream& is, Room *r)

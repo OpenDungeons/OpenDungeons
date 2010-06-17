@@ -55,15 +55,15 @@ void RoomQuarters::absorbRoom(Room *r)
 	}
 }
 
-void RoomQuarters::doUpkeep()
+void RoomQuarters::doUpkeep(Room *r)
 {
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
-	Room::doUpkeep();
+	Room::doUpkeep(this);
 }
 
-void RoomQuarters::addCoveredTile(Tile* t)
+void RoomQuarters::addCoveredTile(Tile* t, double nHP)
 {
-	Room::addCoveredTile(t);
+	Room::addCoveredTile(t, nHP);
 
 	// Only initialize the tile to NULL if it is a tile being added to a new room.  If it is being absorbed
 	// from another room the map value will already have been set and we don't want to override it.

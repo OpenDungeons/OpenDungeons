@@ -10,8 +10,8 @@ class RoomTreasury : public Room
 
 		// Functions overriding virtual functions in the Room base class.
 		void absorbRoom(Room *r);
-		void doUpkeep();
-		void addCoveredTile(Tile* t);
+		void doUpkeep(Room *r);
+		void addCoveredTile(Tile* t, double nHP = Room::defaultTileHP);
 		void removeCoveredTile(Tile* t);
 		void clearCoveredTiles();
 

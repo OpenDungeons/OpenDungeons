@@ -36,22 +36,25 @@ class Room
 		static int costPerTile(RoomType t);
 
 		// Public data members
-		int HP;
 		Player *controllingPlayer;
 		string name, meshName;
 		int color;
 
 		// Functions which can be overridden by child classes.
-		virtual void doUpkeep();
+		virtual void doUpkeep(Room *r);
 		
-		virtual void addCoveredTile(Tile* t);
+		virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
 		virtual void removeCoveredTile(Tile* t);
 		virtual Tile* getCoveredTile(int index);
 		virtual unsigned int numCoveredTiles();
 		virtual void clearCoveredTiles();
 
+	protected:
+		const static double defaultTileHP = 10.0;
+
 	private:
 		vector<Tile*> coveredTiles;
+		map<Tile*,double> tileHP;
 		RoomType type;
 		bool meshExists;
 };

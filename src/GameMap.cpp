@@ -643,7 +643,10 @@ void GameMap::doTurn()
 	
 	// Carry out the upkeep on each of the Rooms in the gameMap.
 	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
-		gameMap.getRoom(i)->doUpkeep();
+	{
+		Room *tempRoom = gameMap.getRoom(i);
+		tempRoom->doUpkeep(tempRoom);
+	}
 
 	// Carry out the upkeep round for each seat.  This means recomputing how much gold is
 	// available in their treasuries, how much mana they gain/lose during this turn, etc.

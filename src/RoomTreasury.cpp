@@ -32,15 +32,15 @@ void RoomTreasury::absorbRoom(Room *r)
 	createGoldMeshes();
 }
 
-void RoomTreasury::doUpkeep()
+void RoomTreasury::doUpkeep(Room *r)
 {
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
-	Room::doUpkeep();
+	Room::doUpkeep(this);
 }
 
-void RoomTreasury::addCoveredTile(Tile* t)
+void RoomTreasury::addCoveredTile(Tile* t, double nHP)
 {
-	Room::addCoveredTile(t);
+	Room::addCoveredTile(t, nHP);
 
 	// Only initialize the tile to empty if it has not already been set by the absorbRoom() function.
 	if(goldInTile.find(t) == goldInTile.end())
