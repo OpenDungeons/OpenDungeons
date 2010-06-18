@@ -119,16 +119,16 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mFiltering = TFO_BILINEAR;
 	mAniso = 1;
 	mSceneDetailIndex = 0;
-	moveSpeed = 50.0;
-	moveSpeedAccel = 100.0;
+	moveSpeed = 2.0;
+	moveSpeedAccel = 2.0*moveSpeed; // if this is changed, also change it in the terminal command 'movespeed'.
 	mRotateSpeed = 90;
 	swivelDegrees = 0.0;
+	mZoomSpeed = 7;
 	mDebugOverlay = 0;
 	mInputManager = 0;
 	mMouse = 0;
 	mKeyboard = 0;
 	mJoy = 0;
-	mZoomSpeed = .5;
 	mCurrentTileType = Tile::dirt;
 	mCurrentFullness = 100;
 
@@ -238,26 +238,29 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	translateVector *= max(0.0, speed - (0.75+(speed/moveSpeed))*moveSpeedAccel*frameTime);
 	translateVector += translateVectorAccel*(frameTime*2.0);
 
-	// If we have sped up to more than the maximum moveSpeed then recale the vector to that length.
+	// If we have sped up to more than the maximum moveSpeed then rescale the vector to that length.
+	// We use the squaredLength() in this calculation since squaring the RHS is faster than sqrt'ing the LHS.
 	if(translateVector.squaredLength() > moveSpeed*moveSpeed)
 	{
-		translateVector.normalise();
-		translateVector *= moveSpeed;
+		speed = translateVector.length();
+		translateVector *= moveSpeed/speed;
 	}
 
-	// Record the camera's position, move it, the re-record the position
-	// for constraint calculations
-	Ogre::Vector3 tempVector = mCamNode->getPosition();
-	mCamNode->translate(translateVector * frameTime, Node::TS_LOCAL);
+	// Get the camera's current position.
 	Ogre::Vector3 newPosition = mCamNode->getPosition();
 
-	// Apply the valid motion into newPosition
-	newPosition.z = tempVector.z + zChange*frameTime*mZoomSpeed;
+	// Get a quaternion which will rotate the "camera relative" x-y values for the translateVector into the global x-y used to position the camera.
+	Ogre::Vector3 viewTarget = getCameraViewTarget();
+	Ogre::Vector3 viewDirection = viewTarget - newPosition;
+	viewDirection.z = 0.0;
+	Quaternion viewDirectionQuaternion = Ogre::Vector3::UNIT_Y.getRotationTo(viewDirection);
+
+	// Adjust the newPosition vector to account for the translation due to the movement keys on the keyboard (the arrow keys and/or WASD).
+	newPosition.z += zChange*frameTime*mZoomSpeed;
 	double horizontalSpeedFactor = (newPosition.z >= 25.0) ? 1.0 : newPosition.z/(25.0);
-	newPosition.x = tempVector.x + (mMouseTranslateVector.x + (newPosition.x - tempVector.x)) * horizontalSpeedFactor;
-	newPosition.y = tempVector.y + (mMouseTranslateVector.y + (newPosition.y - tempVector.y)) * horizontalSpeedFactor;
+	newPosition += horizontalSpeedFactor*(viewDirectionQuaternion*translateVector);
 	
-	// Prevent camera from moving down into the tiles
+	// Prevent camera from moving down into the tiles.
 	if(newPosition.z <= 4.5)
 		newPosition.z = 4.5;
 
@@ -267,7 +270,6 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(mRotateLocalVector.z * frameTime), Node::TS_LOCAL);
 
 	// Swivel the camera to the left or right, while maintaining the same view target location on the ground.
-	Ogre::Vector3 viewTarget = getCameraViewTarget();
 	double deltaX =  newPosition.x - viewTarget.x;
 	double deltaY =  newPosition.y - viewTarget.y;
 	double radius = sqrt(deltaX*deltaX + deltaY*deltaY);
@@ -2372,6 +2374,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		{
 			tempSS.str(arguments);
 			tempSS >> moveSpeed;
+			moveSpeedAccel = 2.0*moveSpeed; // if this is changed, also change it in the ExampleFrameListener constructor.
 			commandOutput += "\nmovespeed set to " + StringConverter::toString(moveSpeed) + "\n";
 		}
 		else
