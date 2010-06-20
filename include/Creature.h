@@ -15,6 +15,7 @@ class Creature;
 #include "Weapon.h"
 #include "Field.h"
 #include "CreatureClass.h"
+#include "AttackableObject.h"
 
 /*! \brief Position, status, and AI state for a single game creature.
  *
@@ -25,7 +26,7 @@ class Creature;
  *  will probably be refined later but it works fine for now and the code
  *  affected by this change is relatively limited.
  */
-class Creature : public CreatureClass
+class Creature : public CreatureClass, public AttackableObject
 {
 	public:
 		Creature();
@@ -75,8 +76,14 @@ class Creature : public CreatureClass
 		vector<Tile*> getVisibleMarkedTiles();
 		vector<Creature*> getVisibleForce(int color, bool invert);
 		Tile* positionTile();
+		vector<Tile*> getCoveredTiles();
 		void setAnimationState(string s);
 		AnimationState* getAnimationState();
+		bool isMobile();
+		int getLevel();
+		int getColor();
+		void takeDamage(double damage);
+		void recieveExp(double experience);
 
 		void addDestination(int x, int y);
 		bool setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop);

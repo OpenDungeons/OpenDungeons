@@ -357,7 +357,7 @@ double Creature::getMana()
  * At the beginning of the game the 'idle' action is pushed onto each
  * creature's actionQueue, this action is never removed from the tail end of
  * the queue and acts as a "last resort" for when the creature completely runs
- * out of things to do.  Other actions such as 'walkToTile' or 'attackCreature'
+ * out of things to do.  Other actions such as 'walkToTile' or 'attackObject'
  * are then pushed onto the front of the queue and will determine the
  * creature's future behavior.  When actions are complete they are popped off
  * the front of the action queue, causing the creature to revert back into the
@@ -426,7 +426,7 @@ void Creature::doTurn()
 		bool alreadyFighting = false;
 		for(unsigned int i = 0; i < actionQueue.size(); i++)
 		{
-			if(actionQueue[i].type == CreatureAction::attackCreature || actionQueue[i].type == CreatureAction::maneuver)
+			if(actionQueue[i].type == CreatureAction::attackObject || actionQueue[i].type == CreatureAction::maneuver)
 			{
 				alreadyFighting = true;
 				break;
@@ -1127,7 +1127,7 @@ claimTileBreakStatement:
 					loopBack = true;
 					break;
 
-				case CreatureAction::attackCreature:
+				case CreatureAction::attackObject:
 					// If there are no more enemies which are reachable, stop attacking
 					if(reachableEnemies.size() == 0)
 					{
@@ -1228,9 +1228,9 @@ claimTileBreakStatement:
 						actionQueue.pop_front();
 						loopBack = true;
 
-						// If the next action down the stack is not an attackCreature action, add it.
-						if(actionQueue.front().type != CreatureAction::attackCreature)
-							actionQueue.push_front(CreatureAction(CreatureAction::attackCreature));
+						// If the next action down the stack is not an attackObject action, add it.
+						if(actionQueue.front().type != CreatureAction::attackObject)
+							actionQueue.push_front(CreatureAction(CreatureAction::attackObject));
 
 						break;
 					}
@@ -1679,6 +1679,16 @@ Tile* Creature::positionTile()
 	return gameMap.getTile((int)(tempPosition.x), (int)(tempPosition.y));
 }
 
+/** \brief Returns a vector containing the tile the creature is in, this is to conform to the AttackableObject interface.
+ *
+*/
+vector<Tile*> Creature::getCoveredTiles()
+{
+	vector<Tile*> tempVector;
+	tempVector.push_back(positionTile());
+	return tempVector;
+}
+
 /*! \brief Completely destroy this creature, including its OGRE entities, scene nodes, etc.
  *
 */
@@ -1745,6 +1755,46 @@ void Creature::setAnimationState(string s)
 AnimationState* Creature::getAnimationState()
 {
 	return animationState;
+}
+
+/** \brief Returns whether or not this creature is capable of moving, this is to conform to the AttackableObject interface.
+ *
+*/
+bool Creature::isMobile()
+{
+	return true;
+}
+
+/** \brief Returns the creature's level, this is to conform to the AttackableObject interface.
+ *
+*/
+int Creature::getLevel()
+{
+	return level;
+}
+
+/** \brief Returns the creature's color, this is to conform to the AttackableObject interface.
+ *
+*/
+int Creature::getColor()
+{
+	return color;
+}
+
+/** \brief Deducts a given amount of HP from this creature, this is to conform to the AttackableObject interface.
+ *
+*/
+void Creature::takeDamage(double damage)
+{
+	hp -= damage;
+}
+
+/** \brief Adds experience to this creature, this is to conform to the AttackableObject interface.
+ *
+*/
+void Creature::recieveExp(double experience)
+{
+	exp += experience;
 }
 
 /*! \brief Adds a position in 3d space to the creature's walk queue and, if necessary, starts it walking.

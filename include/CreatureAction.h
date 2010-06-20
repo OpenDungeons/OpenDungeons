@@ -19,7 +19,7 @@ class CreatureAction
 			digTile,		// (worker only) Dig out a tile, i.e. decrease its fullness.
 			claimTile,		// (worker only) "Dance" on tile to change its color.
 			depositGold,		// (worker only) Carry gold that has been mined to a treasury.
-			attackCreature,	// Do damage to a creature withing range, if not in range begin maneuvering.
+			attackObject,	// Do damage to an attackableObject withing range, if not in range begin maneuvering.
 			findHome,	// Try to find a "home" tile in a quarters somewhere where the creature can sleep.
 			idle		// Stand around doing nothing.
 		};
