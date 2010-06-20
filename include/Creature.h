@@ -63,18 +63,18 @@ class Creature : public CreatureClass, public AttackableObject
 		double getDefense();
 		void doLevelUp();
 		vector<Tile*> visibleTiles;
-		vector<Creature*> visibleEnemies;
-		vector<Creature*> reachableEnemies;
-		vector<Creature*> enemiesInRange;
-		vector<Creature*> visibleAllies;
-		vector<Creature*> reachableAllies;
+		vector<AttackableObject*> visibleEnemyObjects;
+		vector<AttackableObject*> reachableEnemyObjects;
+		vector<AttackableObject*> enemyObjectsInRange;
+		vector<AttackableObject*> visibleAlliedObjects;
+		vector<AttackableObject*> reachableAlliedObjects;
 		void updateVisibleTiles();
-		vector<Creature*> getVisibleEnemies();
-		vector<Creature*> getReachableCreatures(const vector<Creature*> &creaturesToCheck, unsigned int *minRange, Creature **nearestCreature);
-		vector<Creature*> getEnemiesInRange(const vector<Creature*> &enemiesToCheck);
-		vector<Creature*> getVisibleAllies();
+		vector<AttackableObject*> getVisibleEnemyObjects();
+		vector<AttackableObject*> getReachableAttackableObjects(const vector<AttackableObject*> &objectsToCheck, unsigned int *minRange, AttackableObject **nearestObject);
+		vector<AttackableObject*> getEnemyObjectsInRange(const vector<AttackableObject*> &enemyObjectsToCheck);
+		vector<AttackableObject*> getVisibleAlliedObjects();
 		vector<Tile*> getVisibleMarkedTiles();
-		vector<Creature*> getVisibleForce(int color, bool invert);
+		vector<AttackableObject*> getVisibleForce(int color, bool invert);
 		Tile* positionTile();
 		vector<Tile*> getCoveredTiles();
 		void setAnimationState(string s);
@@ -84,6 +84,8 @@ class Creature : public CreatureClass, public AttackableObject
 		int getColor();
 		void takeDamage(double damage);
 		void recieveExp(double experience);
+		AttackableObject::AttackableObjectType getAttackableObjectType();
+		string getName();
 
 		void addDestination(int x, int y);
 		bool setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop);

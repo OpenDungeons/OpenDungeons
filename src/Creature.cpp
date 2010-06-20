@@ -381,8 +381,10 @@ void Creature::doTurn()
 	bool loopBack;
 	int tempInt;
 	unsigned int tempUnsigned;
-	unsigned int rangeToNearestEnemy, rangeToNearestAlly;
-	Creature *tempCreature, *nearestEnemy, *nearestAlly;
+	unsigned int rangeToNearestEnemyObject, rangeToNearestAlliedObject;
+	Creature *tempCreature;
+	AttackableObject *tempAttackableObject;
+	AttackableObject *nearestEnemyObject, *nearestAlliedObject;
 	CreatureAction tempAction;
 	Ogre::Vector3 tempVector;
 	Quaternion tempQuat;
@@ -411,16 +413,16 @@ void Creature::doTurn()
 
 	// Look at the surrounding area
 	updateVisibleTiles();
-	visibleEnemies = getVisibleEnemies();
-	reachableEnemies = getReachableCreatures(visibleEnemies, &rangeToNearestEnemy, &nearestEnemy);
-	enemiesInRange = getEnemiesInRange(visibleEnemies);
-	visibleAllies = getVisibleAllies();
-	reachableAllies = getReachableCreatures(visibleAllies, &rangeToNearestAlly, &nearestAlly);
+	visibleEnemyObjects = getVisibleEnemyObjects();
+	reachableEnemyObjects = getReachableAttackableObjects(visibleEnemyObjects, &rangeToNearestEnemyObject, &nearestEnemyObject);
+	enemyObjectsInRange = getEnemyObjectsInRange(visibleEnemyObjects);
+	visibleAlliedObjects = getVisibleAlliedObjects();
+	reachableAlliedObjects = getReachableAttackableObjects(visibleAlliedObjects, &rangeToNearestAlliedObject, &nearestAlliedObject);
 	if(digRate > 0.1)
 		markedTiles = getVisibleMarkedTiles();
 
 	// If the creature can see enemies that are reachable.
-	if(reachableEnemies.size() > 0)
+	if(reachableEnemyObjects.size() > 0)
 	{
 		// Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
 		bool alreadyFighting = false;
@@ -436,7 +438,7 @@ void Creature::doTurn()
 		// If we are not already fighting with a creature or maneuvering then start doing so.
 		if(!alreadyFighting)
 		{
-			if(randomDouble(0.0, 1.0) < (1.0/(rangeToNearestEnemy) - digRate/80.0))
+			if(randomDouble(0.0, 1.0) < (1.0/(rangeToNearestEnemyObject) - digRate/80.0))
 			{
 				tempAction.type = CreatureAction::maneuver;
 				actionQueue.push_front(tempAction);
@@ -520,12 +522,14 @@ void Creature::doTurn()
 						if(digRate < 0.1)
 						{
 							workerFound = false;
-							for(unsigned int i = 0; i < reachableAllies.size(); i++)
+							for(unsigned int i = 0; i < reachableAlliedObjects.size(); i++)
 							{
 								// Check to see if we found a worker.
-								if(reachableAllies[i]->digRate > 0.1)
+								if(reachableAlliedObjects[i]->getAttackableObjectType() == AttackableObject::creature && \
+										((Creature*)reachableAlliedObjects[i])->digRate > 0.1)
 								{
-									tempTile = reachableAllies[i]->positionTile();
+									//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+									tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
 									tempX = tempTile->x + 3.0*gaussianRandomDouble();
 									tempY = tempTile->y + 3.0*gaussianRandomDouble();
 									workerFound = true;
@@ -566,7 +570,7 @@ void Creature::doTurn()
 
 				case CreatureAction::walkToTile:
 					/*
-					if(reachableEnemies.size() > 0 && rangeToNearestEnemy < 5)
+					if(reachableEnemyObjects.size() > 0 && rangeToNearestEnemyObject < 5)
 					{
 						actionQueue.pop_front();
 						tempAction.type = CreatureAction::maneuver;
@@ -833,7 +837,7 @@ claimTileBreakStatement:
 							// If the tile has been dug out, move into that tile and idle
 							if(creatureNeighbors[i]->getFullness() == 0)
 							{
-								exp += 2;
+								recieveExp(2);
 								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
 								creatureNeighbors[i]->setType(Tile::dirt);
 								setAnimationState("Walk");
@@ -1129,7 +1133,7 @@ claimTileBreakStatement:
 
 				case CreatureAction::attackObject:
 					// If there are no more enemies which are reachable, stop attacking
-					if(reachableEnemies.size() == 0)
+					if(reachableEnemyObjects.size() == 0)
 					{
 						actionQueue.pop_front();
 						loopBack = true;
@@ -1139,46 +1143,44 @@ claimTileBreakStatement:
 					myTile = positionTile();
 
 					// Find the first enemy close enough to hit and attack it
-					if(enemiesInRange.size() > 0)
+					if(enemyObjectsInRange.size() > 0)
 					{
-						tempCreature = enemiesInRange[0];
+						tempAttackableObject = enemyObjectsInRange[0];
 
 						// Turn to face the creature we are attacking and set the animation state to Attack.
-						faceToward(tempCreature->getPosition().x, tempCreature->getPosition().y);
+						//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+						tempTile = tempAttackableObject->getCoveredTiles()[0];
+						faceToward(tempTile->x, tempTile->y);
 						setAnimationState("Attack1");
 
 						// Calculate how much damage we do.
 						//TODO:  This ignores the range of the creatures, fix this.
 						double damageDone = getHitroll(0); // gameMap.crowDistance(this, tempCreature));
 						damageDone *= randomDouble(0.0, 1.0);
-						damageDone -= powl(randomDouble(0.0, 0.4), 2.0)*tempCreature->getDefense();
+						damageDone -= powl(randomDouble(0.0, 0.4), 2.0)*tempAttackableObject->getDefense();
 
 						// Make sure the damage is positive.
 						if(damageDone < 0.0)  damageDone = 0.0;
 
 						// Do the damage and award experience points to both creatures.
-						sem_wait(&tempCreature->hpLockSemaphore);
-						tempCreature->hp -= damageDone;
-						sem_post(&tempCreature->hpLockSemaphore);
+						tempAttackableObject->takeDamage(damageDone);
 						double expGained;
 						expGained = 1.0 + 0.2*powl(damageDone, 1.3);
 
 						// Give a small amount of experince to the creature we hit.
-						tempCreature->exp += 0.15*expGained;
+						tempAttackableObject->recieveExp(0.15*expGained);
 
 						// Add a bonus modifier based on the level of the creature we hit
 						// to expGained and give ourselves that much experience.
-						if(tempCreature->level >= level)
-							expGained *= 1.0 + (tempCreature->level - level)/10.0;
+						if(tempAttackableObject->getLevel() >= level)
+							expGained *= 1.0 + (tempAttackableObject->getLevel() - level)/10.0;
 						else
-							expGained /= 1.0 + (level - tempCreature->level)/10.0;
+							expGained /= 1.0 + (level - tempAttackableObject->getLevel())/10.0;
 
-						exp += expGained;
+						recieveExp(expGained);
 
-						cout << "\n" << name << " did " << damageDone << " damage to " << enemiesInRange[0]->name;
-						sem_wait(&enemiesInRange[0]->hpLockSemaphore);
-						cout << " who now has " << enemiesInRange[0]->hp << "hp";
-						sem_post(&enemiesInRange[0]->hpLockSemaphore);
+						cout << "\n" << name << " did " << damageDone << " damage to " << enemyObjectsInRange[0]->getName();
+						cout << " who now has " << enemyObjectsInRange[0]->getHP() << "hp";
 
 						// Randomly decide to start maneuvering again so we don't just stand still and fight.
 						if(randomDouble(0.0, 1.0) <= 0.6)
@@ -1196,7 +1198,7 @@ claimTileBreakStatement:
 					myTile = positionTile();
 
 					// If there are no more enemies which are reachable, stop maneuvering.
-					if(reachableEnemies.size() == 0)
+					if(reachableEnemyObjects.size() == 0)
 					{
 						actionQueue.pop_front();
 						loopBack = true;
@@ -1206,8 +1208,11 @@ claimTileBreakStatement:
 					// Check to see if we should try to strafe the enemy
 					if(randomDouble(0.0, 1.0) < 0.3)
 					{
+						//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+						tempTile = nearestEnemyObject->getCoveredTiles()[0];
+						tempVector = Ogre::Vector3(tempTile->x, tempTile->y, 0.0);
 						sem_wait(&positionLockSemaphore);
-						tempVector = nearestEnemy->position - position;
+						tempVector -= position;
 						sem_post(&positionLockSemaphore);
 						tempVector.normalise();
 						tempVector *= randomDouble(0.0, 3.0);
@@ -1223,7 +1228,7 @@ claimTileBreakStatement:
 					}
 
 					// If there is an enemy within range, stop maneuvering and attack it.
-					if(enemiesInRange.size() > 0)
+					if(enemyObjectsInRange.size() > 0)
 					{
 						actionQueue.pop_front();
 						loopBack = true;
@@ -1263,7 +1268,7 @@ claimTileBreakStatement:
 					tempPath = gameMap.path(positionTile()->x, positionTile()->y, minimumFieldValue.first.first + randomDouble(-1.0*tempDouble,tempDouble), minimumFieldValue.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
 
 					// Walk a maximum of N tiles before recomputing the destination since we are in combat.
-					tempUnsigned = max((double)5, rangeToNearestEnemy/0.4);
+					tempUnsigned = max((double)5, rangeToNearestEnemyObject/0.4);
 					if(tempPath.size() >= tempUnsigned)
 						tempPath.resize(tempUnsigned);
 
@@ -1462,38 +1467,39 @@ void Creature::updateVisibleTiles()
 /*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
  *
 */
-vector<Creature*> Creature::getVisibleEnemies()
+vector<AttackableObject*> Creature::getVisibleEnemyObjects()
 {
 	return getVisibleForce(color, true);
 }
 
-/*! \brief Loops over creaturesToCheck and returns a vector containing all the ones which can be reached via a valid path.
+/*! \brief Loops over objectsToCheck and returns a vector containing all the ones which can be reached via a valid path.
  *
 */
-vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creaturesToCheck, unsigned int *minRange, Creature **nearestCreature)
+vector<AttackableObject*> Creature::getReachableAttackableObjects(const vector<AttackableObject*> &objectsToCheck, unsigned int *minRange, AttackableObject **nearestObject)
 {
-	vector<Creature*> tempVector;
-	Tile *myTile = positionTile(), *creatureTile;
+	vector<AttackableObject*> tempVector;
+	Tile *myTile = positionTile(), *objectTile;
 	list<Tile*> tempPath;
 	bool minRangeSet = false;
 
-	// Loop over the vector of creatures we are supposed to check.
-	for(unsigned int i = 0; i < creaturesToCheck.size(); i++)
+	// Loop over the vector of objects we are supposed to check.
+	for(unsigned int i = 0; i < objectsToCheck.size(); i++)
 	{
-		// Try to find a valid path from the tile this creature is in to the tile where the current target creature is standing.
-		creatureTile = creaturesToCheck[i]->positionTile();
-		tempPath = gameMap.path(myTile, creatureTile, tilePassability);
+		// Try to find a valid path from the tile this creature is in to the nearest tile where the current target object is.
+		//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+		objectTile = objectsToCheck[i]->getCoveredTiles()[0];
+		tempPath = gameMap.path(myTile, objectTile, tilePassability);
 
 		// If the path we found is valid, then add the creature to the ones we return.
 		if(tempPath.size() >= 2)
 		{
-			tempVector.push_back(creaturesToCheck[i]);
+			tempVector.push_back(objectsToCheck[i]);
 
 			if(minRange != NULL)
 			{
 				if(!minRangeSet)
 				{
-					*nearestCreature = creaturesToCheck[i];
+					*nearestObject = objectsToCheck[i];
 					*minRange = tempPath.size();
 					minRangeSet = true;
 				}
@@ -1502,7 +1508,7 @@ vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creat
 					if(tempPath.size() < *minRange)
 					{
 						*minRange = tempPath.size();
-						*nearestCreature = creaturesToCheck[i];
+						*nearestObject = objectsToCheck[i];
 					}
 				}
 			}
@@ -1516,15 +1522,15 @@ vector<Creature*> Creature::getReachableCreatures(const vector<Creature*> &creat
 	return tempVector;
 }
 
-/*! \brief Loops over the enemiesToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
+/*! \brief Loops over the enemyObjectsToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
  *
 */
-vector<Creature*> Creature::getEnemiesInRange(const vector<Creature*> &enemiesToCheck)
+vector<AttackableObject*> Creature::getEnemyObjectsInRange(const vector<AttackableObject*> &enemyObjectsToCheck)
 {
-	vector<Creature*> tempVector;
+	vector<AttackableObject*> tempVector;
 
 	// If there are no enemies to check we are done.
-	if(enemiesToCheck.size() == 0)
+	if(enemyObjectsToCheck.size() == 0)
 		return tempVector;
 
 	// Find our location and calculate the square of the max weapon range we have.
@@ -1532,16 +1538,17 @@ vector<Creature*> Creature::getEnemiesInRange(const vector<Creature*> &enemiesTo
 	double weaponRangeSquared = max(weaponL->range, weaponR->range);
 	weaponRangeSquared *= weaponRangeSquared;
 
-	// Loop over the enemiesToCheck and add any within range to the tempVector.
-	for(unsigned int i = 0; i < enemiesToCheck.size(); i++)
+	// Loop over the enemyObjectsToCheck and add any within range to the tempVector.
+	for(unsigned int i = 0; i < enemyObjectsToCheck.size(); i++)
 	{
-		Tile *tempTile = enemiesToCheck[i]->positionTile();
+		//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+		Tile *tempTile = enemyObjectsToCheck[i]->getCoveredTiles()[0];
 		if(tempTile != NULL)
 		{
 			double rSquared = powl(myTile->x - tempTile->x, 2.0) + powl(myTile->y - tempTile->y, 2.0);
 
 			if(rSquared < weaponRangeSquared)
-				tempVector.push_back(enemiesToCheck[i]);
+				tempVector.push_back(enemyObjectsToCheck[i]);
 		}
 	}
 
@@ -1551,7 +1558,7 @@ vector<Creature*> Creature::getEnemiesInRange(const vector<Creature*> &enemiesTo
 /*! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
  *
 */
-vector<Creature*> Creature::getVisibleAllies()
+vector<AttackableObject*> Creature::getVisibleAlliedObjects()
 {
 	return getVisibleForce(color, false);
 }
@@ -1578,9 +1585,10 @@ vector<Tile*> Creature::getVisibleMarkedTiles()
 /*! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
  *
 */
-vector<Creature*> Creature::getVisibleForce(int color, bool invert)
+vector<AttackableObject*> Creature::getVisibleForce(int color, bool invert)
 {
-	vector<Creature*> returnList;
+	//TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
+	vector<AttackableObject*> returnList;
 
 	// Loop over the visible tiles
 	vector<Tile*>::iterator itr;
@@ -1781,12 +1789,30 @@ int Creature::getColor()
 	return color;
 }
 
+/** \brief Returns the type of AttackableObject that this is (Creature, Room, etc), this is to conform to the AttackableObject interface.
+ *
+*/
+AttackableObject::AttackableObjectType Creature::getAttackableObjectType()
+{
+	return AttackableObject::creature;
+}
+
+/** \brief Returns the name of this creature, this is to conform to the AttackableObject interface.
+ *
+*/
+string Creature::getName()
+{
+	return name;
+}
+
 /** \brief Deducts a given amount of HP from this creature, this is to conform to the AttackableObject interface.
  *
 */
 void Creature::takeDamage(double damage)
 {
+	sem_wait(&hpLockSemaphore);
 	hp -= damage;
+	sem_post(&hpLockSemaphore);
 }
 
 /** \brief Adds experience to this creature, this is to conform to the AttackableObject interface.
@@ -2009,9 +2035,10 @@ void Creature::computeBattlefield()
 		double tileValue = 0.0;// - sqrt(rSquared)/sightRadius;
 
 		// Enemies
-		for(unsigned int j = 0; j < reachableEnemies.size(); j++)
+		for(unsigned int j = 0; j < reachableEnemyObjects.size(); j++)
 		{
-			Tile *tempTile2 = reachableEnemies[j]->positionTile();
+			//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+			Tile *tempTile2 = reachableEnemyObjects[j]->getCoveredTiles()[0];
 
 			// Compensate for how close the creature is to me
 			//rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
@@ -2024,9 +2051,10 @@ void Creature::computeBattlefield()
 		}
 
 		// Allies
-		for(unsigned int j = 0; j < visibleAllies.size(); j++)
+		for(unsigned int j = 0; j < visibleAlliedObjects.size(); j++)
 		{
-			Tile *tempTile2 = visibleAllies[j]->positionTile();
+			//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+			Tile *tempTile2 = visibleAlliedObjects[j]->getCoveredTiles()[0];
 
 			// Compensate for how close the creature is to me
 			//rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
