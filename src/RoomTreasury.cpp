@@ -55,6 +55,8 @@ void RoomTreasury::removeCoveredTile(Tile* t)
 	Room::removeCoveredTile(t);
 	goldInTile.erase(t);
 	fullnessOfTile.erase(t);
+
+	//TODO:  When the tile contains gold we need to put it on the map as an item which can be picked up.
 }
 
 void RoomTreasury::clearCoveredTiles()

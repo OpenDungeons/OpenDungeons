@@ -314,7 +314,7 @@ void Creature::setHP(double nHP)
 	sem_post(&hpLockSemaphore);
 }
 
-double Creature::getHP()
+double Creature::getHP(Tile *tile)
 {
 	sem_wait(&hpLockSemaphore);
 	double tempDouble = hp;
@@ -1163,7 +1163,7 @@ claimTileBreakStatement:
 						if(damageDone < 0.0)  damageDone = 0.0;
 
 						// Do the damage and award experience points to both creatures.
-						tempAttackableObject->takeDamage(damageDone);
+						tempAttackableObject->takeDamage(damageDone, tempTile);
 						double expGained;
 						expGained = 1.0 + 0.2*powl(damageDone, 1.3);
 
@@ -1180,7 +1180,7 @@ claimTileBreakStatement:
 						recieveExp(expGained);
 
 						cout << "\n" << name << " did " << damageDone << " damage to " << enemyObjectsInRange[0]->getName();
-						cout << " who now has " << enemyObjectsInRange[0]->getHP() << "hp";
+						cout << " who now has " << enemyObjectsInRange[0]->getHP(tempTile) << "hp";
 
 						// Randomly decide to start maneuvering again so we don't just stand still and fight.
 						if(randomDouble(0.0, 1.0) <= 0.6)
@@ -1603,11 +1603,35 @@ vector<AttackableObject*> Creature::getVisibleForce(int color, bool invert)
 			{
 				// The invert flag is used to determine whether we want to return a list of those creatures
 				// whose color matches the one supplied or is any color but the one supplied.
-				if( (invert && tempCreature->color != color) || (!invert && tempCreature->color == color) )
+				if( (invert && tempCreature->getColor() != color) || (!invert && tempCreature->getColor() == color) )
 				{
 					// Add the current creature
 					returnList.push_back(tempCreature);
 				}
+			}
+		}
+
+		// Check to see if the tile is covered by a Room, if it is then check to see if it should be added to the returnList.
+		Room *tempRoom = (*itr)->getCoveringRoom();
+		if(tempRoom != NULL)
+		{
+			// Check to see if the color is appropriate based on the condition of the invert flag.
+			if( (invert && tempRoom->getColor() != color) || (!invert && tempRoom->getColor() != color) )
+			{
+				// Check to see if the given room is already in the returnList.
+				bool roomFound = false;
+				for(unsigned int i = 0; i < returnList.size(); i++)
+				{
+					if(returnList[i] == tempRoom)
+					{
+						roomFound = true;
+						break;
+					}
+				}
+
+				// If the room is not in the return list already then add it.
+				if(!roomFound)
+					returnList.push_back(tempRoom);
 			}
 		}
 	}
@@ -1808,7 +1832,7 @@ string Creature::getName()
 /** \brief Deducts a given amount of HP from this creature, this is to conform to the AttackableObject interface.
  *
 */
-void Creature::takeDamage(double damage)
+void Creature::takeDamage(double damage, Tile *tileTakingDamage)
 {
 	sem_wait(&hpLockSemaphore);
 	hp -= damage;

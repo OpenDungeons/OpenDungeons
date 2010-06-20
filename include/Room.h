@@ -8,8 +8,9 @@
 using namespace std;
 
 #include "Tile.h"
+#include "AttackableObject.h"
 
-class Room
+class Room : public AttackableObject
 {
 	public:
 		// When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
@@ -46,8 +47,21 @@ class Room
 		virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
 		virtual void removeCoveredTile(Tile* t);
 		virtual Tile* getCoveredTile(int index);
+		vector<Tile*> getCoveredTiles();
 		virtual unsigned int numCoveredTiles();
 		virtual void clearCoveredTiles();
+
+		// Methods inherited from AttackableObject.
+		//TODO:  Sort these into the proper places in the rest of the file.
+		double getHP(Tile *tile);
+		double getDefense();
+		void takeDamage(double damage, Tile *tileTakingDamage);
+		void recieveExp(double experience);
+		bool isMobile();
+		int getLevel();
+		int getColor();
+		string getName();
+		AttackableObject::AttackableObjectType getAttackableObjectType();
 
 	protected:
 		const static double defaultTileHP = 10.0;

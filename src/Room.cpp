@@ -91,11 +91,28 @@ void Room::removeCoveredTile(Tile* t)
 			break;
 		}
 	}
+
+	// Destroy the mesh for this tile.
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::destroyRoom;
+	request->p = this;
+	request->p2 = t;
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 Tile* Room::getCoveredTile(int index)
 {
 	return coveredTiles[index];
+}
+
+/** \brief Returns all of the tiles which are part of this room, this is to conform to the AttackableObject interface.
+  *
+*/
+vector<Tile*> Room::getCoveredTiles()
+{
+	return coveredTiles;
 }
 
 unsigned int Room::numCoveredTiles()
@@ -181,7 +198,7 @@ void Room::doUpkeep(Room *r)
 	if(r != NULL)
 	{
 		// Loop over the tiles in Room r and remove any whose HP has dropped to zero.
-		unsigned int i = r->coveredTiles.size();
+		unsigned int i = 0;
 		while(i < r->coveredTiles.size())
 		{
 			if(r->tileHP[r->coveredTiles[i]] <= 0.0)
@@ -280,5 +297,51 @@ int Room::costPerTile(RoomType t)
 	}
 
 	return 0;
+}
+
+double Room::getHP(Tile *tile)
+{
+	return tileHP[tile];
+}
+
+double Room::getDefense()
+{
+	return 0.0;
+}
+
+void Room::takeDamage(double damage, Tile *tileTakingDamage)
+{
+	tileHP[tileTakingDamage] -= damage;
+}
+
+void Room::recieveExp(double experience)
+{
+	// Do nothing since Rooms do not have exp.
+}
+
+bool Room::isMobile()
+{
+	return false;
+}
+
+int Room::getLevel()
+{
+	// Since rooms do not have exp or level we just consider them level 1 for compatibility with the AttackableObject interface.
+	return 1;
+}
+
+int Room::getColor()
+{
+	return color;
+}
+
+string Room::getName()
+{
+	return name;
+}
+
+AttackableObject::AttackableObjectType Room::getAttackableObjectType()
+{
+	return AttackableObject::room;
 }
 

@@ -7,9 +7,9 @@ class AttackableObject
 		enum AttackableObjectType {creature, room, trap, door};
 
 		virtual vector<Tile*> getCoveredTiles() = 0;
-		virtual double getHP() = 0;
+		virtual double getHP(Tile *tile) = 0;
 		virtual double getDefense() = 0;
-		virtual void takeDamage(double damage) = 0;
+		virtual void takeDamage(double damage, Tile *tileTakingDamage) = 0;
 		virtual void recieveExp(double experience) = 0;
 		virtual bool isMobile() = 0;
 		virtual int getLevel() = 0;

@@ -52,7 +52,7 @@ class Creature : public CreatureClass, public AttackableObject
 		Ogre::Vector3 getPosition();
 
 		void setHP(double nHP);
-		double getHP();
+		double getHP(Tile *tile);
 
 		void setMana(double nMana);
 		double getMana();
@@ -82,7 +82,7 @@ class Creature : public CreatureClass, public AttackableObject
 		bool isMobile();
 		int getLevel();
 		int getColor();
-		void takeDamage(double damage);
+		void takeDamage(double damage, Tile *tileTakingDamage);
 		void recieveExp(double experience);
 		AttackableObject::AttackableObjectType getAttackableObjectType();
 		string getName();

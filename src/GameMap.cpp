@@ -588,7 +588,7 @@ void GameMap::doTurn()
 		sem_wait(&creaturesLockSemaphore);
 		Creature *tempCreature = creatures[count];
 		sem_post(&creaturesLockSemaphore);
-		if(tempCreature->getHP() < 0.0)
+		if(tempCreature->getHP(tempCreature->positionTile()) < 0.0)
 		{
 			// Remove the creature from the game map and into the deletion queue, it will be deleted
 			// when it is safe, i.e. all other pointers to it have been wiped from the program.
@@ -646,6 +646,8 @@ void GameMap::doTurn()
 	{
 		Room *tempRoom = gameMap.getRoom(i);
 		tempRoom->doUpkeep(tempRoom);
+
+		//TODO:  Check to see if the room now has 0 covered tiles, if it does we can remove it from the map.
 	}
 
 	// Carry out the upkeep round for each seat.  This means recomputing how much gold is
