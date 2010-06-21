@@ -642,12 +642,19 @@ void GameMap::doTurn()
 	sem_post(&tilesLockSemaphore);
 	
 	// Carry out the upkeep on each of the Rooms in the gameMap.
+	//NOTE:  The auto-increment on this loop is canceled by a decrement in the if statement, changes to the loop structure will need to keep this consistent.
 	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
 	{
 		Room *tempRoom = gameMap.getRoom(i);
 		tempRoom->doUpkeep(tempRoom);
 
-		//TODO:  Check to see if the room now has 0 covered tiles, if it does we can remove it from the map.
+		// Check to see if the room now has 0 covered tiles, if it does we can remove it from the map.
+		if(tempRoom->numCoveredTiles() == 0)
+		{
+			removeRoom(tempRoom);
+			tempRoom->deleteYourself();
+			i--;  //NOTE:  This decrement is to cancel out the increment that will happen on the next loop iteration.
+		}
 	}
 
 	// Carry out the upkeep round for each seat.  This means recomputing how much gold is

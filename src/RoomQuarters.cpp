@@ -76,8 +76,11 @@ void RoomQuarters::removeCoveredTile(Tile* t)
 	if(creatureSleepingInTile[t] != NULL)
 	{
 		Creature *c = creatureSleepingInTile[t];
-		if(c != NULL)
+		if(c != NULL)  // This check is probably redundant but I don't think it is a problem.
 		{
+			// Inform the creature that it no longer has a place to sleep.
+			c->homeTile = NULL;
+
 			// Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
 			for(map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
 			{

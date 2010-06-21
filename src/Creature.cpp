@@ -86,6 +86,7 @@ Creature::~Creature()
 */
 string Creature::getFormat()
 {
+	//NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.
 	string tempString = "className\tname\tposX\tposY\tposZ\tcolor\tweaponL";
 	tempString += Weapon::getFormat();
 	tempString += "\tweaponR";
@@ -125,7 +126,6 @@ ostream& operator<<(ostream& os, Creature *c)
  */
 istream& operator>>(istream& is, Creature *c)
 {
-	static int uniqueNumber = 1;
 	double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
 	string tempString;
 	is >> c->className;
@@ -133,10 +133,7 @@ istream& operator>>(istream& is, Creature *c)
 	is >> tempString;
 
 	if(tempString.compare("autoname") == 0)
-	{
-		tempString = c->className + Ogre::StringConverter::toString(uniqueNumber);
-		uniqueNumber++;
-	}
+		tempString = c->getUniqueCreatureName();
 
 	c->name = tempString;
 
@@ -1746,6 +1743,14 @@ void Creature::deleteYourself()
 	queueRenderRequest(request);
 }
 
+string Creature::getUniqueCreatureName()
+{
+	static int uniqueNumber = 1;
+	string tempString = className + Ogre::StringConverter::toString(uniqueNumber);
+	uniqueNumber++;
+	return tempString;
+}
+
 /*! \brief Sets a new animation state from the creature's library of animations.
  *
 */
@@ -1811,6 +1816,14 @@ int Creature::getLevel()
 int Creature::getColor()
 {
 	return color;
+}
+
+/** \brief Sets the creature's color.
+ *
+*/
+void Creature::setColor(int nColor)
+{
+	color = nColor;
 }
 
 /** \brief Returns the type of AttackableObject that this is (Creature, Room, etc), this is to conform to the AttackableObject interface.

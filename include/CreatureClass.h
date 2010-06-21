@@ -31,6 +31,16 @@ class CreatureClass
 		double moveSpeed;		// How fast the creature moves and animates
 		double maxHP, maxMana;
 
+		// Probability coefficients to determine how likely a creature is to come through the portal.
+		double coefficientHumans;
+		double coefficientCorpars;
+		double coefficientUndead;
+		double coefficientConstructs;
+		double coefficientDenizens;
+		double coefficientAltruism;
+		double coefficientOrder;
+		double coefficientPeace;
+
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, CreatureClass *c);
 		friend istream& operator>>(istream& is, CreatureClass *c);

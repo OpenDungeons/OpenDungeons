@@ -63,6 +63,7 @@ void Weapon::deleteYourself()
 
 string Weapon::getFormat()
 {
+	//NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.
         return "name\tdamage\trange\tdefense";
 }
 

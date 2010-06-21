@@ -32,6 +32,11 @@ void RoomPortal::doUpkeep(Room *r)
 
 void RoomPortal::spawnCreature()
 {
+	// If the room has been destroyed, or has not yet been assigned any tiles, then we
+	// cannot determine where to place the new creature and we should just give up.
+	if(coveredTiles.size() == 0)
+		return;
+
 	CreatureClass *classToSpawn = NULL;
 	double randomValue = randomDouble(0.0, 1.0);
 
@@ -55,6 +60,42 @@ void RoomPortal::spawnCreature()
 	}
 
 	cout << "\n\n\nSpawning a creature of class " << classToSpawn->className << "\n\n\n";
+
+	// Create a new creature and copy over the class-based creature parameters.
+	Creature *newCreature = new Creature;
+	*newCreature = *classToSpawn;
+
+	// Set the creature specific parameters.
+	//NOTE:  This needs to be modified manually when the level file creature format changes.
+	newCreature->name = newCreature->getUniqueCreatureName();
+	newCreature->setPosition(xCenter, yCenter, 0.0);
+	newCreature->setColor(color);
+
+	//NOTE:  This needs to be modified manually when the level file weapon format changes.
+	newCreature->weaponL = new Weapon;
+	newCreature->weaponL->name = "none";
+	newCreature->weaponL->damage = 5;
+	newCreature->weaponL->range = 4;
+	newCreature->weaponL->defense = 0;
+	newCreature->weaponL->parentCreature = newCreature;
+	newCreature->weaponL->handString = "L";
+
+	newCreature->weaponR = new Weapon;
+	newCreature->weaponR->name = "none";
+	newCreature->weaponR->damage = 5;
+	newCreature->weaponR->range = 4;
+	newCreature->weaponR->defense = 0;
+	newCreature->weaponR->parentCreature = newCreature;
+	newCreature->weaponR->handString = "R";
+
+	newCreature->setHP(classToSpawn->maxHP);
+	newCreature->setMana(classToSpawn->maxMana);
+
+	// Add the creature to the gameMap and create meshes so it is visible.
+	gameMap.addCreature(newCreature);
+	newCreature->createMesh();
+	newCreature->weaponL->createMesh();
+	newCreature->weaponR->createMesh();
 }
 
 void RoomPortal::recomputeClassProbabilities()
@@ -88,6 +129,10 @@ void RoomPortal::recomputeClassProbabilities()
 void RoomPortal::recomputeCenterPosition()
 {
 	xCenter = yCenter = 0.0;
+
+	// Prevent a divide by 0 error, just leave the center position at (0, 0).
+	if(coveredTiles.size() == 0)
+		return;
 
 	// Loop over the covered tiles and compute the average location (i.e. the center) of the portal.
 	for(unsigned int i = 0; i < coveredTiles.size(); i++)

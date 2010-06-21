@@ -46,6 +46,7 @@ class Creature : public CreatureClass, public AttackableObject
 		void createMesh();
 		void destroyMesh();
 		void deleteYourself();
+		string getUniqueCreatureName();
 
 		void setPosition(double x, double y, double z);
 		void setPosition(Ogre::Vector3 v);
@@ -82,6 +83,7 @@ class Creature : public CreatureClass, public AttackableObject
 		bool isMobile();
 		int getLevel();
 		int getColor();
+		void setColor(int nColor);
 		void takeDamage(double damage, Tile *tileTakingDamage);
 		void recieveExp(double experience);
 		AttackableObject::AttackableObjectType getAttackableObjectType();
