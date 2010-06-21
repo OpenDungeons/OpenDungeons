@@ -22,6 +22,7 @@ SET(
      Player.cpp
      RenderRequest.cpp
      Room.cpp
+     RoomPortal.cpp
      RoomQuarters.cpp
      RoomTreasury.cpp
      Seat.cpp

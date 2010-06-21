@@ -1,0 +1,103 @@
+#include "Functions.h"
+#include "RoomPortal.h"
+
+RoomPortal::RoomPortal()
+	: Room()
+{
+	return;
+}
+
+void RoomPortal::addCoveredTile(Tile* t, double nHP)
+{
+	Room::addCoveredTile(t, nHP);
+	recomputeCenterPosition();
+}
+
+void RoomPortal::removeCoveredTile(Tile* t)
+{
+	Room::removeCoveredTile(t);
+	recomputeCenterPosition();
+}
+
+void RoomPortal::doUpkeep(Room *r)
+{
+	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
+	Room::doUpkeep(this);
+
+	// Randomly choose to spawn a creature.
+	//TODO:  Improve this probability calculation.
+	if(randomDouble(0.0, 1.0) <= 0.1)
+		spawnCreature();
+}
+
+void RoomPortal::spawnCreature()
+{
+	CreatureClass *classToSpawn = NULL;
+	double randomValue = randomDouble(0.0, 1.0);
+
+	// Compute and normalize the probabilities based on the current composition of creatures in the dungeon.
+	recomputeClassProbabilities();
+
+	// Determine which class the creature we spawn will be.
+	for(unsigned int i = 0; i < classProbabilities.size(); i++)
+	{
+		randomValue -= classProbabilities[i].second;
+		
+		// When the randomValue drops below 0 it is because the cumulative probability values so far have
+		// exceeded it and the one that finally made it negative is the one we choose.  This makes it more
+		// likely that classes with large probability will be chosen since they are likely to be the
+		// one that pushed it into the negatives.
+		if(randomValue <= 0.0)
+		{
+			classToSpawn = classProbabilities[i].first;
+			break;
+		}
+	}
+
+	cout << "\n\n\nSpawning a creature of class " << classToSpawn->className << "\n\n\n";
+}
+
+void RoomPortal::recomputeClassProbabilities()
+{
+	double probability, totalProbability = 0.0;
+
+	// Loop over the CreatureClasses in the gameMap and for each one, compute
+	// the probability that a creature of that type will be selected.
+	classProbabilities.clear();
+	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
+	{
+		CreatureClass *tempClass = gameMap.getClassDescription(i);
+
+		// Compute the probability that a creature of the current class will be chosen.
+		//TODO:  Actually implement this probability calculation.
+		probability = 1.0/gameMap.numClassDescriptions();
+
+		// Store the computed probability and compute the sum of the probabilites to be used for renormalization.
+		classProbabilities.push_back(pair<CreatureClass*,double>(tempClass, probability));
+		totalProbability += probability;
+	}
+
+	// Loop over the stored probabilities and renormalie them (i.e. divide each by the total so the sum is 1.0).
+	for(unsigned int i = 0; i < classProbabilities.size(); i++)
+	{
+		probability = classProbabilities[i].second / totalProbability;
+		classProbabilities[i].second = probability;
+	}
+}
+
+void RoomPortal::recomputeCenterPosition()
+{
+	xCenter = yCenter = 0.0;
+
+	// Loop over the covered tiles and compute the average location (i.e. the center) of the portal.
+	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	{
+		Tile *tempTile = coveredTiles[i];
+		xCenter += tempTile->x;
+		yCenter += tempTile->y;
+	}
+
+	xCenter /= (double)coveredTiles.size();
+	yCenter /= (double)coveredTiles.size();
+}
+

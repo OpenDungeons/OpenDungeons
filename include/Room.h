@@ -14,7 +14,7 @@ class Room : public AttackableObject
 {
 	public:
 		// When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
-		enum RoomType {nullRoomType = 0, dungeonTemple, vein, quarters, treasury};
+		enum RoomType {nullRoomType = 0, dungeonTemple, vein, quarters, treasury, portal};
 
 		// Constructors and operators
 		Room();
@@ -37,7 +37,7 @@ class Room : public AttackableObject
 		static int costPerTile(RoomType t);
 
 		// Public data members
-		Player *controllingPlayer;
+		Player *controllingPlayer;  //TODO:  This should be a controlling seat rather than a player.
 		string name, meshName;
 		int color;
 
@@ -66,7 +66,6 @@ class Room : public AttackableObject
 	protected:
 		const static double defaultTileHP = 10.0;
 
-	private:
 		vector<Tile*> coveredTiles;
 		map<Tile*,double> tileHP;
 		RoomType type;
@@ -75,6 +74,7 @@ class Room : public AttackableObject
 
 #include "RoomQuarters.h"
 #include "RoomTreasury.h"
+#include "RoomPortal.h"
 
 #endif
 

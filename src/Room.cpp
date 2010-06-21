@@ -15,13 +15,9 @@ Room* Room::createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int n
 
 	switch(nType)
 	{
-		case quarters:
-			tempRoom = new RoomQuarters();
-			break;
-
-		case treasury:
-			tempRoom = new RoomTreasury();
-			break;
+		case quarters:     tempRoom = new RoomQuarters();      break;
+		case treasury:     tempRoom = new RoomTreasury();      break;
+		case portal:       tempRoom = new RoomPortal();        break;
 	}
 
 	if(tempRoom == NULL)
@@ -262,6 +258,7 @@ string Room::getMeshNameFromRoomType(RoomType t)
 		case vein:              return "Vein";              break; 
 		case quarters:          return "Quarters";          break; 
 		case treasury:          return "Treasury";          break;
+		case portal:            return "Portal";            break;
 	}
 
 	return "UnknownRoomType";
@@ -277,6 +274,8 @@ Room::RoomType Room::getRoomTypeFromMeshName(string s)
 		return quarters;
 	else if(s.compare("Treasury") == 0)
 		return treasury;
+	else if(s.compare("Portal") == 0)
+		return portal;
 	else
 	{
 		cerr << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";
@@ -294,6 +293,7 @@ int Room::costPerTile(RoomType t)
 		case vein:              return 25;        break; 
 		case quarters:          return 250;       break; 
 		case treasury:          return 125;       break;
+		case portal:            return 0;         break;
 	}
 
 	return 0;
