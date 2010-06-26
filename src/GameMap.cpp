@@ -567,6 +567,18 @@ void GameMap::doTurn()
 		//NOTE: Once seats are placed on this list, they stay there even if goals are unmet.  We may want to change this.
 		if(filledSeats[i]->checkAllGoals() == 0 && filledSeats[i]->numFailedGoals() == 0)
 			addWinningSeat(filledSeats[i]);
+
+		// Set all the alignment and faction coefficients for this seat to 0, they will be
+		// filled up in the loop below which removes the dead creatures from the map.
+		filledSeats[i]->numCreaturesControlled = 0;
+		filledSeats[i]->factionHumans = 0.0;
+		filledSeats[i]->factionCorpars = 0.0;
+		filledSeats[i]->factionUndead = 0.0;
+		filledSeats[i]->factionConstructs = 0.0;
+		filledSeats[i]->factionDenizens = 0.0;
+		filledSeats[i]->alignmentAltruism = 0.0;
+		filledSeats[i]->alignmentOrder = 0.0;
+		filledSeats[i]->alignmentPeace = 0.0;
 	}
 
 	// Call the individual creature AI for each creature in this game map
@@ -599,6 +611,26 @@ void GameMap::doTurn()
 		}
 		else
 		{
+			// Since the creature is still alive we should add its alignment and faction to
+			// its controlling seat to be used in the RoomPortal::spawnCreature routine.
+			Player *tempPlayer = tempCreature->getControllingPlayer();
+			if(tempPlayer != NULL)
+			{
+				Seat *tempSeat = tempPlayer->seat;
+
+				tempSeat->numCreaturesControlled++;
+
+				tempSeat->factionHumans += tempCreature->coefficientHumans;
+				tempSeat->factionCorpars += tempCreature->coefficientCorpars;
+				tempSeat->factionUndead += tempCreature->coefficientUndead;
+				tempSeat->factionConstructs += tempCreature->coefficientConstructs;
+				tempSeat->factionDenizens += tempCreature->coefficientDenizens;
+
+				tempSeat->alignmentAltruism += tempCreature->coefficientAltruism;
+				tempSeat->alignmentOrder += tempCreature->coefficientOrder;
+				tempSeat->alignmentPeace += tempCreature->coefficientPeace;
+			}
+
 			count++;
 		}
 	}

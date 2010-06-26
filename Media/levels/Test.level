@@ -9840,15 +9840,15 @@ Portal	2
 9  # The number of creature classes to load.
 # className	meshName	bedMeshName	bedDim1	bedDim2	scaleX	scaleY	scaleZ	hp/level	mana/level	sightRadius	digRate	danceRate	moveSpeed	cHumans	cCorpars	cUndead	cConstructs	cDenizens	cAltruism	cOrder	cPeace
 
-Wyvern	Wyvern.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1.3	0	0	0	0	0	0	0	0
-Knight	Knight.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	0	0	0	0	0	0	0
-BigKnight	Knight.mesh	Bed.mesh	1	2	1.2	1.2	1.2	5	5	15	0	0	1.2	0	0	0	0	0	0	0	0
-Kobold	Kobold.mesh	Bed.mesh	1	2	0.1	0.1	0.1	5	5	15	20	0.35	2.5	0	0	0	0	0	0	0	0
-Dragon	Dragon.mesh	Bed.mesh	1	2	0.5	0.5	0.5	5	5	15	0	0	0.9	0	0	0	0	0	0	0	0
-Dwarf1	Dwarf1.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	0	0	0	0	0	0	0
-Dwarf2	Dwarf2.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	0	0	0	0	0	0	0
-Orc	Orc.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	0	0	0	0	0	0	0
-Kreatur	Kreatur.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	0	0	0	0	0	0	0
+Wyvern	Wyvern.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1.3	1	0	0	0	0	0	1	0
+Knight	Knight.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	1	0	0	0	0	1	1	1
+BigKnight	Knight.mesh	Bed.mesh	1	2	1.2	1.2	1.2	5	5	15	0	0	1.2	1	0	0	0	0	1	1	1
+Kobold	Kobold.mesh	Bed.mesh	1	2	0.1	0.1	0.1	5	5	15	20	0.35	2.5	0	0	0	0	1	0	0	0
+Dragon	Dragon.mesh	Bed.mesh	1	2	0.5	0.5	0.5	5	5	15	0	0	0.9	1	0	0	0	0	0	1	-1
+Dwarf1	Dwarf1.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
+Dwarf2	Dwarf2.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
+Orc	Orc.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	0	-1
+Kreatur	Kreatur.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	-1	0	-1
 
 # Creatures
 39  # The number of creatures to load.

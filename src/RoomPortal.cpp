@@ -32,18 +32,22 @@ void RoomPortal::doUpkeep(Room *r)
 
 void RoomPortal::spawnCreature()
 {
+	CreatureClass *classToSpawn = NULL;
+
 	// If the room has been destroyed, or has not yet been assigned any tiles, then we
 	// cannot determine where to place the new creature and we should just give up.
 	if(coveredTiles.size() == 0)
 		return;
 
-	CreatureClass *classToSpawn = NULL;
-	double randomValue = randomDouble(0.0, 1.0);
+	// If there is not a player sitting in the seat which controls this room, do not spawn a creature.
+	if(gameMap.getPlayerByColour(color) == NULL && gameMap.me->seat->color != color)
+		return;
 
 	// Compute and normalize the probabilities based on the current composition of creatures in the dungeon.
 	recomputeClassProbabilities();
 
 	// Determine which class the creature we spawn will be.
+	double randomValue = randomDouble(0.0, 1.0);
 	for(unsigned int i = 0; i < classProbabilities.size(); i++)
 	{
 		randomValue -= classProbabilities[i].second;
@@ -100,7 +104,28 @@ void RoomPortal::spawnCreature()
 
 void RoomPortal::recomputeClassProbabilities()
 {
-	double probability, totalProbability = 0.0;
+	double probability, totalProbability = 0.0, tempDouble;
+	Seat *controllingSeat = gameMap.getSeatByColor(color);
+
+	// Normalize the faction and alignment coefficients.
+	tempDouble = controllingSeat->factionHumans + controllingSeat->factionCorpars + \
+		controllingSeat->factionUndead + controllingSeat->factionConstructs + controllingSeat->factionDenizens;
+	if(fabs(tempDouble) > 0.000001)
+	{
+		controllingSeat->factionHumans /= tempDouble;
+		controllingSeat->factionCorpars /= tempDouble;
+		controllingSeat->factionUndead /= tempDouble;
+		controllingSeat->factionConstructs /= tempDouble;
+		controllingSeat->factionDenizens /= tempDouble;
+	}
+
+	tempDouble = controllingSeat->alignmentAltruism + controllingSeat->alignmentOrder + controllingSeat->alignmentPeace;
+	if(fabs(tempDouble) > 0.000001)
+	{
+		controllingSeat->alignmentAltruism /= tempDouble;
+		controllingSeat->alignmentOrder /= tempDouble;
+		controllingSeat->alignmentPeace /= tempDouble;
+	}
 
 	// Loop over the CreatureClasses in the gameMap and for each one, compute
 	// the probability that a creature of that type will be selected.
@@ -113,16 +138,29 @@ void RoomPortal::recomputeClassProbabilities()
 		//TODO:  Actually implement this probability calculation.
 		probability = 1.0/gameMap.numClassDescriptions();
 
-		// Store the computed probability and compute the sum of the probabilites to be used for renormalization.
+		probability += controllingSeat->factionHumans*tempClass->coefficientHumans;
+		probability += controllingSeat->factionCorpars*tempClass->coefficientCorpars;
+		probability += controllingSeat->factionUndead*tempClass->coefficientUndead;
+		probability += controllingSeat->factionConstructs*tempClass->coefficientConstructs;
+		probability += controllingSeat->factionDenizens*tempClass->coefficientDenizens;
+
+		probability += controllingSeat->alignmentAltruism*tempClass->coefficientAltruism;
+		probability += controllingSeat->alignmentOrder*tempClass->coefficientOrder;
+		probability += controllingSeat->alignmentPeace*tempClass->coefficientPeace;
+
+		// Store the computed probability and compute the sum of the probabilities to be used for renormalization.
 		classProbabilities.push_back(pair<CreatureClass*,double>(tempClass, probability));
 		totalProbability += probability;
 	}
 
-	// Loop over the stored probabilities and renormalie them (i.e. divide each by the total so the sum is 1.0).
-	for(unsigned int i = 0; i < classProbabilities.size(); i++)
+	// Loop over the stored probabilities and renormalise them (i.e. divide each by the total so the sum is 1.0).
+	if(fabs(totalProbability) > 0.000001)
 	{
-		probability = classProbabilities[i].second / totalProbability;
-		classProbabilities[i].second = probability;
+		for(unsigned int i = 0; i < classProbabilities.size(); i++)
+		{
+			probability = classProbabilities[i].second / totalProbability;
+			classProbabilities[i].second = probability;
+		}
 	}
 }
 

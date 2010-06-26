@@ -43,6 +43,15 @@ class Seat
 		double hp;		/**< \brief The amount of 'keeper HP' the player has. */
 		int gold;		/**< \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart. */
 		unsigned int numClaimedTiles;	/**< \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn(). */
+		int numCreaturesControlled;
+		double factionHumans;
+		double factionCorpars;
+		double factionUndead;
+		double factionConstructs;
+		double factionDenizens;
+		double alignmentAltruism;
+		double alignmentOrder;
+		double alignmentPeace;
 
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Seat *s);

@@ -1471,7 +1471,6 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 						//Entity *resultEnt = mSceneMgr->getEntity(resultName);
 						mSceneMgr->getEntity("SquareSelector")->setVisible(false);
 
-						
 						draggedCreature = resultName.substr(((string)"Creature_").size(), resultName.size());
 						SceneNode *node = mSceneMgr->getSceneNode(draggedCreature	+ "_node");
 						creatureSceneNode->removeChild(node);

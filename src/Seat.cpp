@@ -10,6 +10,16 @@ Seat::Seat()
 	sem_init(&goalsLockSemaphore, 0, 1);
 	sem_init(&completedGoalsLockSemaphore, 0, 1);
 	sem_init(&failedGoalsLockSemaphore, 0, 1);
+
+	numCreaturesControlled = 0;
+	factionHumans = 0.0;
+	factionCorpars = 0.0;
+	factionUndead = 0.0;
+	factionConstructs = 0.0;
+	factionDenizens = 0.0;
+	alignmentAltruism = 0.0;
+	alignmentOrder = 0.0;
+	alignmentPeace = 0.0;
 }
 
 /** \brief Adds a goal to the vector of goals which must be completed by this seat before it can be declared a winner.
