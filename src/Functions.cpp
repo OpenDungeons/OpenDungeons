@@ -420,20 +420,23 @@ string colourizeMaterial(string materialName, int colour)
 	Pass *tempPass;
 	TextureUnitState *tempTextureUnitState;
 	TexturePtr tempTexture;
-	uint8 *pixelData;
 
 	tempSS.str("");
 	tempSS << "Color_" << colour << "_" << materialName;
-	MaterialPtr tempMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
+	MaterialPtr newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
 
-	cout << "\n\nCloning material:  " << tempSS.str();
+	cout << "\nCloning material:  " << tempSS.str();
 
 	// If this texture has not been copied and colourized yet then do so
-	if(tempMaterial.isNull())
+	if(newMaterial.isNull())
 	{
-		cout << "   Material does not exist, creating a new one.";
-		//MaterialPtr newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().create(tempSS.str(), "manualMaterialsGroup"));
-		MaterialPtr newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialName))->clone(tempSS.str());
+		// Check to see if we find a seat with the requested color, if not then just use the original, uncolored material.
+		Seat *tempSeat = gameMap.getSeatByColor(colour);
+		if(tempSeat == NULL)
+			return materialName;
+
+		cout << "   Material does not exist, creating a new one.\n";
+		newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialName))->clone(tempSS.str());
 
 		// Loop over the techniques for the new material
 		for(unsigned int j = 0; j < newMaterial->getNumTechniques(); j++)
@@ -450,49 +453,48 @@ string colourizeMaterial(string materialName, int colour)
 					tempTextureUnitState = tempPass->getTextureUnitState(l);
 					tempTexture = tempTextureUnitState->_getTexturePtr();
 					tempPixBuf = tempTexture->getBuffer();
-					tempPixBuf->lock(HardwareBuffer::HBL_NORMAL);
-					tempPixelBox = tempPixBuf->getCurrentLock();
-					pixelData = static_cast<uint8*>(tempPixelBox.data);
+					size_t bufferLen = PixelUtil::getMemorySize(tempTexture->getWidth(), tempTexture->getHeight(), tempTexture->getDepth(), tempTexture->getFormat());
+					uint8 pixelData[bufferLen];
+					uint8 *pixelDataPtr = pixelData;
+					Image::Box imageBox(0, 0, tempTexture->getWidth(), tempTexture->getHeight());
+					PixelBox newPixelBox(tempTexture->getWidth(), tempTexture->getHeight(), tempTexture->getDepth(), tempTexture->getFormat(), pixelData);
+					tempPixBuf->blitToMemory(newPixelBox);
 
 					// Loop over the pixels themselves and change the bright pink ones to the given colour
 					for(unsigned int x = 0; x < tempTexture->getWidth(); x++)
 					{
 						for(unsigned int y = 0; y < tempTexture->getHeight(); y++)
 						{
-							uint8 *blue = pixelData++;
-							uint8 *green = pixelData++;
-							uint8 *red = pixelData++;
-							uint8 *alpha = pixelData++;
+							uint8 *blue = pixelDataPtr++;
+							uint8 *green = pixelDataPtr++;
+							uint8 *red = pixelDataPtr++;
+							uint8 *alpha = pixelDataPtr++;
 
-							int deltaR = *red - 235, deltaG = *green - 20, deltaB = *blue - 235;
+							uint8 deltaR = *red - 235, deltaG = *green - 20, deltaB = *blue - 235;
 							int totalDistance = fabs((double)deltaR) + fabs((double)deltaG) + fabs((double)deltaB);
 							int factor = 10;
 							// Check to see if the current pixel matches the target colour
 							if(totalDistance <= 65)
 							{
-								//if(colour < playerColourValues.size())
-								Player *tempPlayer = gameMap.getPlayerByColour(colour);
-								if(tempPlayer != NULL)
-								{
-									int newR = tempPlayer->seat->colourValue.r*255 + factor*deltaR;
-									int newG = tempPlayer->seat->colourValue.g*255 + factor*deltaG;
-									int newB = tempPlayer->seat->colourValue.b*255 + factor*deltaB;
-									newR = (newR < 0) ? 0 : newR;
-									newR = (newR > 255) ? 255 : newR;
-									newG = (newG < 0) ? 0 : newG;
-									newG = (newG > 255) ? 255 : newG;
-									newB = (newB < 0) ? 0 : newB;
-									newB = (newB > 255) ? 255 : newB;
-									*blue = (uint8)newB;
-									*green = (uint8)newG;
-									*red = (uint8)newR;
-									*alpha = (uint8)(tempPlayer->seat->colourValue.a * 255);
-								}
+								uint8 newR = tempSeat->colourValue.r*255 + factor*deltaR;
+								uint8 newG = tempSeat->colourValue.g*255 + factor*deltaG;
+								uint8 newB = tempSeat->colourValue.b*255 + factor*deltaB;
+								newR = (newR < 0) ? 0 : newR;
+								newR = (newR > 255) ? 255 : newR;
+								newG = (newG < 0) ? 0 : newG;
+								newG = (newG > 255) ? 255 : newG;
+								newB = (newB < 0) ? 0 : newB;
+								newB = (newB > 255) ? 255 : newB;
+
+								*blue = (uint8)newB;
+								*green = (uint8)newG;
+								*red = (uint8)newR;
+								*alpha = (uint8)(tempSeat->colourValue.a * 255);
 							}
 						}
 					}
 
-					tempPixBuf->unlock();
+					tempPixBuf->blitFromMemory(newPixelBox);
 				}
 			}
 		}
