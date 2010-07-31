@@ -1,5 +1,4 @@
 #include <sstream>
-using namespace std;
 
 #include "Globals.h"
 #include "Functions.h"
@@ -12,7 +11,7 @@ MapLight::MapLight()
 
 	ogreEntityExists = false;
 
-	stringstream tempSS;
+	std::stringstream tempSS;
 	tempSS << "Map_light_ " << lightNumber;
 	name = tempSS.str();
 

@@ -687,7 +687,7 @@ void Tile::removeCreature(Creature *c)
 	sem_wait(&creaturesInCellLockSemaphore);
 
 	// Check to see if the given crature is actually in this tile
-	vector<Creature*>::iterator itr;
+	std::vector<Creature*>::iterator itr;
 	for(itr = creaturesInCell.begin(); itr != creaturesInCell.end(); itr++)
 	{
 		if((*itr) == c)
@@ -790,7 +790,7 @@ Tile* Tile::getNeighbor(unsigned int index)
 	return neighbors[index];
 }
 
-vector<Tile*> Tile::getAllNeighbors()
+std::vector<Tile*> Tile::getAllNeighbors()
 {
 	return neighbors;
 }

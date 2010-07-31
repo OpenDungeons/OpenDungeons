@@ -16,7 +16,7 @@ class RoomQuarters : public Room
 		void clearCoveredTiles();
 
 		// Functions specific to this class.
-		vector<Tile*> getOpenTiles();
+		std::vector<Tile*> getOpenTiles();
 		bool claimTileForSleeping(Tile *t, Creature *c);
 		bool releaseTileForSleeping(Tile *t, Creature *c);
 		Tile* getLocationForBed(int xDim, int yDim);
@@ -25,8 +25,8 @@ class RoomQuarters : public Room
 	private:
 		bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);
 
-		map<Tile*,Creature*> creatureSleepingInTile;
-		map<Tile*,bool> bedOrientationForTile;
+		std::map<Tile*,Creature*> creatureSleepingInTile;
+		std::map<Tile*,bool> bedOrientationForTile;
 };
 
 #endif

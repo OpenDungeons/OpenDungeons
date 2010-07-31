@@ -11,6 +11,10 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
+if( POLICY CMP0011 )
+  cmake_policy( SET CMP0011 OLD ) # or even better, NEW
+endif( POLICY CMP0011 )
+
 IF (CEGUIOGRE_LIBRARIES AND CEGUIOGRE_INCLUDE_DIR)
 	SET(CEGUIOGRE_FIND_QUIETLY TRUE)
 ENDIF (CEGUIOGRE_LIBRARIES AND CEGUIOGRE_INCLUDE_DIR)

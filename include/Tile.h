@@ -4,7 +4,6 @@
 #include <iostream>
 #include <Ogre.h>
 #include <OgreIteratorWrappers.h>
-using namespace std;
 using namespace Ogre;
 
 #include <semaphore.h>
@@ -73,7 +72,7 @@ class Tile
 
 		void addNeighbor(Tile *n);
 		Tile* getNeighbor(unsigned int index);
-		vector<Tile*> getAllNeighbors();
+		std::vector<Tile*> getAllNeighbors();
 
 		void claimForColor(int nColor, double nDanceRate);
 
@@ -99,10 +98,10 @@ class Tile
 		bool selected, markedForDigging;
 		int fullness;
 		int fullnessMeshNumber;
-		vector<Tile*> neighbors;
-		vector<Creature*> creaturesInCell;
+		std::vector<Tile*> neighbors;
+		std::vector<Creature*> creaturesInCell;
 		sem_t creaturesInCellLockSemaphore;
-		vector<Player*> playersMarkingTile;
+		std::vector<Player*> playersMarkingTile;
 		Room *coveringRoom;
 };
 

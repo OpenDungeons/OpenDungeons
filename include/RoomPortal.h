@@ -21,7 +21,7 @@ class RoomPortal : public Room
 		void recomputeClassProbabilities();
 		void recomputeCenterPosition();
 
-		vector< pair<CreatureClass*,double> > classProbabilities;
+		std::vector< pair<CreatureClass*,double> > classProbabilities;
 		double xCenter, yCenter;
 };
 

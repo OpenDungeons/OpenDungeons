@@ -9,7 +9,7 @@ Room::Room()
 	meshExists = false;
 }
 
-Room* Room::createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor)
+Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, int nColor)
 {
 	Room *tempRoom = NULL;
 
@@ -31,7 +31,7 @@ Room* Room::createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int n
 	tempRoom->color = nColor;
 
 	static int uniqueNumber = -1;
-	stringstream tempSS;
+	std::stringstream tempSS;
 
 	//TODO: This should actually just call setType() but this will require a change to the >> operator.
 	tempRoom->meshName = getMeshNameFromRoomType(nType);
@@ -106,7 +106,7 @@ Tile* Room::getCoveredTile(int index)
 /** \brief Returns all of the tiles which are part of this room, this is to conform to the AttackableObject interface.
   *
 */
-vector<Tile*> Room::getCoveredTiles()
+std::vector<Tile*> Room::getCoveredTiles()
 {
 	return coveredTiles;
 }
@@ -210,7 +210,7 @@ istream& operator>>(istream& is, Room *r)
 	static int uniqueNumber = 1;
 	int tilesToLoad, tempX, tempY;
 	string tempString;
-	stringstream tempSS;
+	std::stringstream tempSS;
 
 	is >> r->meshName >> r->color;
 

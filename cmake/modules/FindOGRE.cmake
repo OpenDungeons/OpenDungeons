@@ -11,6 +11,10 @@
 # Redistribution and use is allowed according to the terms of the BSD license.
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
+if( POLICY CMP0011 )
+  cmake_policy( SET CMP0011 OLD ) # or even better, NEW
+endif( POLICY CMP0011 )
+
 IF (OGRE_LIBRARIES AND OGRE_INCLUDE_DIR)
 	SET(OGRE_FIND_QUIETLY TRUE) # Already in cache, be silent
 ENDIF (OGRE_LIBRARIES AND OGRE_INCLUDE_DIR)

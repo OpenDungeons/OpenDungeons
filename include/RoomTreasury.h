@@ -35,8 +35,8 @@ class RoomTreasury : public Room
 		static const int maxGoldWhichCanBeStoredInABag = 3000;
 		static const int maxGoldWhichCanBeStoredInAChest = 5000;
 
-		map<Tile*,int> goldInTile;
-		map<Tile*,TreasuryTileFullness> fullnessOfTile;
+		std::map<Tile*,int> goldInTile;
+		std::map<Tile*,TreasuryTileFullness> fullnessOfTile;
 };
 
 #endif

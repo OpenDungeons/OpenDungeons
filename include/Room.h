@@ -5,7 +5,6 @@
 #include <string>
 #include <deque>
 #include <iostream>
-using namespace std;
 
 #include "Tile.h"
 #include "AttackableObject.h"
@@ -18,7 +17,7 @@ class Room : public AttackableObject
 
 		// Constructors and operators
 		Room();
-		static Room* createRoom(RoomType nType, const vector<Tile*> &nCoveredTiles, int nColor);
+		static Room* createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, int nColor);
 		static Room* createRoomFromStream(istream &is);
 		virtual void absorbRoom(Room *r);
 
@@ -47,7 +46,7 @@ class Room : public AttackableObject
 		virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
 		virtual void removeCoveredTile(Tile* t);
 		virtual Tile* getCoveredTile(int index);
-		vector<Tile*> getCoveredTiles();
+		std::vector<Tile*> getCoveredTiles();
 		virtual unsigned int numCoveredTiles();
 		virtual void clearCoveredTiles();
 
@@ -66,8 +65,8 @@ class Room : public AttackableObject
 	protected:
 		const static double defaultTileHP = 10.0;
 
-		vector<Tile*> coveredTiles;
-		map<Tile*,double> tileHP;
+		std::vector<Tile*> coveredTiles;
+		std::map<Tile*,double> tileHP;
 		RoomType type;
 		bool meshExists;
 };

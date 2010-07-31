@@ -30,7 +30,7 @@ string colourizeMaterial(string materialName, int color);
 void queueRenderRequest(RenderRequest *r);
 void queueServerNotification(ServerNotification *n);
 
-vector<string> listAllFiles(string directoryName);
+std::vector<string> listAllFiles(string directoryName);
 
 void waitOnRenderQueueFlush();
 

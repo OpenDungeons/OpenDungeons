@@ -1,5 +1,4 @@
 #include <sstream>
-using namespace std;
 
 #include "Globals.h"
 #include "GoalMineNGold.h"
@@ -21,21 +20,21 @@ bool GoalMineNGold::isMet(Seat *s)
 
 string GoalMineNGold::getDescription()
 {
-	stringstream tempSS;
+	std::stringstream tempSS;
 	tempSS << "Mined " << gameMap.me->seat->gold << " of " << goldToMine << " gold coins.";
 	return tempSS.str();
 }
 
 string GoalMineNGold::getSuccessMessage()
 {
-	stringstream tempSS;
+	std::stringstream tempSS;
 	tempSS << "You have mined more than " << goldToMine << " gold coins.";
 	return tempSS.str();
 }
 
 string GoalMineNGold::getFailedMessage()
 {
-	stringstream tempSS;
+	std::stringstream tempSS;
 	tempSS << "You have failed to mine more than " << goldToMine << " gold coins.";
 	return tempSS.str();
 }

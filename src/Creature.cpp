@@ -1,6 +1,5 @@
 #include <math.h>
 #include <algorithm>
-using namespace std;
 
 #include <Ogre.h>
 
@@ -369,12 +368,12 @@ double Creature::getMana()
  */
 void Creature::doTurn()
 {
-	vector<Tile*> markedTiles;
-	list<Tile*>walkPath;
-	list<Tile*>basePath;
-	list<Tile*>::iterator tileListItr;
-	vector< list<Tile*> > possiblePaths;
-	vector< list<Tile*> > shortPaths;
+	std::vector<Tile*> markedTiles;
+	std::list<Tile*>walkPath;
+	std::list<Tile*>basePath;
+	std::list<Tile*>::iterator tileListItr;
+	std::vector< std::list<Tile*> > possiblePaths;
+	std::vector< std::list<Tile*> > shortPaths;
 	bool loopBack;
 	int tempInt;
 	unsigned int tempUnsigned;
@@ -447,7 +446,7 @@ void Creature::doTurn()
 	if(digRate <= 0.1 && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
 	{
 		// Check to see if there are any quarters owned by our color that we can reach.
-		vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
+		std::vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
 		tempRooms = gameMap.getReachableRooms(tempRooms, positionTile(), tilePassability);
 		if(tempRooms.size() > 0)
 		{
@@ -466,15 +465,15 @@ void Creature::doTurn()
 		double diceRoll;
 		double tempDouble;
 		Tile *neighborTile;
-		vector<Tile*>neighbors, neighbors2, creatureNeighbors, claimableTiles;
+		std::vector<Tile*>neighbors, neighbors2, creatureNeighbors, claimableTiles;
 		bool wasANeighbor = false;
 		Player *tempPlayer;
 		Tile *tempTile, *tempTile2, *myTile;
 		Room *tempRoom;
-		list<Tile*> tempPath, tempPath2;
+		std::list<Tile*> tempPath, tempPath2;
 		pair<LocationType, double> minimumFieldValue;
-		vector<Room*> treasuriesOwned;
-		vector<Room*> tempRooms;
+		std::vector<Room*> treasuriesOwned;
+		std::vector<Room*> tempRooms;
 
 		diceRoll = randomDouble(0.0, 1.0);
 		if(actionQueue.size() > 0)
@@ -547,7 +546,7 @@ void Creature::doTurn()
 						}
 
 						Tile *tempPositionTile = positionTile();
-						list<Tile*> result;
+						std::list<Tile*> result;
 						if(tempPositionTile != NULL)
 						{
 							result = gameMap.path(tempPositionTile->x, tempPositionTile->y, tempX, tempY, tilePassability);
@@ -1464,7 +1463,7 @@ void Creature::updateVisibleTiles()
 /*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
  *
 */
-vector<AttackableObject*> Creature::getVisibleEnemyObjects()
+std::vector<AttackableObject*> Creature::getVisibleEnemyObjects()
 {
 	return getVisibleForce(color, true);
 }
@@ -1472,11 +1471,11 @@ vector<AttackableObject*> Creature::getVisibleEnemyObjects()
 /*! \brief Loops over objectsToCheck and returns a vector containing all the ones which can be reached via a valid path.
  *
 */
-vector<AttackableObject*> Creature::getReachableAttackableObjects(const vector<AttackableObject*> &objectsToCheck, unsigned int *minRange, AttackableObject **nearestObject)
+std::vector<AttackableObject*> Creature::getReachableAttackableObjects(const std::vector<AttackableObject*> &objectsToCheck, unsigned int *minRange, AttackableObject **nearestObject)
 {
-	vector<AttackableObject*> tempVector;
+	std::vector<AttackableObject*> tempVector;
 	Tile *myTile = positionTile(), *objectTile;
-	list<Tile*> tempPath;
+	std::list<Tile*> tempPath;
 	bool minRangeSet = false;
 
 	// Loop over the vector of objects we are supposed to check.
@@ -1522,9 +1521,9 @@ vector<AttackableObject*> Creature::getReachableAttackableObjects(const vector<A
 /*! \brief Loops over the enemyObjectsToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
  *
 */
-vector<AttackableObject*> Creature::getEnemyObjectsInRange(const vector<AttackableObject*> &enemyObjectsToCheck)
+std::vector<AttackableObject*> Creature::getEnemyObjectsInRange(const std::vector<AttackableObject*> &enemyObjectsToCheck)
 {
-	vector<AttackableObject*> tempVector;
+	std::vector<AttackableObject*> tempVector;
 
 	// If there are no enemies to check we are done.
 	if(enemyObjectsToCheck.size() == 0)
@@ -1555,7 +1554,7 @@ vector<AttackableObject*> Creature::getEnemyObjectsInRange(const vector<Attackab
 /*! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
  *
 */
-vector<AttackableObject*> Creature::getVisibleAlliedObjects()
+std::vector<AttackableObject*> Creature::getVisibleAlliedObjects()
 {
 	return getVisibleForce(color, false);
 }
@@ -1563,9 +1562,9 @@ vector<AttackableObject*> Creature::getVisibleAlliedObjects()
 /*! \brief Loops over the visibleTiles and adds any which are marked for digging to a vector which it returns.
  *
 */
-vector<Tile*> Creature::getVisibleMarkedTiles()
+std::vector<Tile*> Creature::getVisibleMarkedTiles()
 {
-	vector<Tile*> tempVector;
+	std::vector<Tile*> tempVector;
 	Player *tempPlayer = getControllingPlayer();
 
 	// Loop over all the visible tiles.
@@ -1582,13 +1581,13 @@ vector<Tile*> Creature::getVisibleMarkedTiles()
 /*! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
  *
 */
-vector<AttackableObject*> Creature::getVisibleForce(int color, bool invert)
+std::vector<AttackableObject*> Creature::getVisibleForce(int color, bool invert)
 {
 	//TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
-	vector<AttackableObject*> returnList;
+	std::vector<AttackableObject*> returnList;
 
 	// Loop over the visible tiles
-	vector<Tile*>::iterator itr;
+	std::vector<Tile*>::iterator itr;
 	for(itr = visibleTiles.begin(); itr != visibleTiles.end(); itr++)
 	{
 		// Loop over the creatures in the given tile
@@ -1676,7 +1675,7 @@ void Creature::destroyVisualDebugEntities()
 
 	Tile *currentTile = NULL;
 	updateVisibleTiles();
-	list<Tile*>::iterator itr;
+	std::list<Tile*>::iterator itr;
 	for(itr = visualDebugEntityTiles.begin(); itr != visualDebugEntityTiles.end(); itr++)
 	{
 		currentTile = *itr;
@@ -1711,9 +1710,9 @@ Tile* Creature::positionTile()
 /** \brief Returns a vector containing the tile the creature is in, this is to conform to the AttackableObject interface.
  *
 */
-vector<Tile*> Creature::getCoveredTiles()
+std::vector<Tile*> Creature::getCoveredTiles()
 {
-	vector<Tile*> tempVector;
+	std::vector<Tile*> tempVector;
 	tempVector.push_back(positionTile());
 	return tempVector;
 }
@@ -1757,7 +1756,7 @@ string Creature::getUniqueCreatureName()
 void Creature::setAnimationState(string s)
 {
 	string tempString;
-	stringstream tempSS;
+	std::stringstream tempSS;
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::setCreatureAnimationState;
 	request->p = this;
@@ -1913,7 +1912,7 @@ void Creature::addDestination(int x, int y)
  * This replacement is done if, and only if, the new path is at least minDestinations
  * long; if addFirstStop is false the new path will start with the second entry in path.
 */
-bool Creature::setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop)
+bool Creature::setWalkPath(std::list<Tile*> path, unsigned int minDestinations, bool addFirstStop)
 {
 	// Remove any existing stops from the walk queue.
 	clearDestinations();
@@ -1921,7 +1920,7 @@ bool Creature::setWalkPath(list<Tile*> path, unsigned int minDestinations, bool 
 	// Verify that the given path is long enough to be considered valid.
 	if(path.size() >= minDestinations)
 	{
-		list<Tile*>::iterator itr = path.begin();
+		std::list<Tile*>::iterator itr = path.begin();
 
 		// If we are not supposed to add the first tile in the path to the destination queue, then we skip over it.
 		if(!addFirstStop)

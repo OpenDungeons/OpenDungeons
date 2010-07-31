@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string>
 #include <time.h>
-using namespace std;
 
 #include "Defines.h"
 #include "Socket.h"
@@ -219,7 +218,7 @@ void *serverNotificationProcessor(void *p)
 	p = NULL;
 
 	string tempString;
-	stringstream tempSS;
+	std::stringstream tempSS;
 	Tile *tempTile;
 	Player *tempPlayer;
 
@@ -379,7 +378,7 @@ void *clientHandlerThread(void *p)
 
 		if(clientCommand.compare("hello") == 0)
 		{
-			stringstream tempSS;
+			std::stringstream tempSS;
 			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION: ", "Client connect with version: " + arguments, time(NULL)));
 
 			// Tell the client to give us their nickname and to clear their map
@@ -512,7 +511,7 @@ void *clientHandlerThread(void *p)
 		{
 			char array[255];
 
-			stringstream tempSS;
+			std::stringstream tempSS;
 			tempSS.str(arguments);
 
 			tempSS.getline(array, sizeof(array), ':');
@@ -534,7 +533,7 @@ void *clientHandlerThread(void *p)
 		{
 			char array[255];
 
-			stringstream tempSS;
+			std::stringstream tempSS;
 			tempSS.str(arguments);
 
 			tempSS.getline(array, sizeof(array), ':');
@@ -556,7 +555,7 @@ void *clientHandlerThread(void *p)
 		else if(clientCommand.compare("markTile") == 0)
 		{
 			char array[255];
-			stringstream tempSS;
+			std::stringstream tempSS;
 			tempSS.str(arguments);
 
 			tempSS.getline(array, sizeof(array), ':');

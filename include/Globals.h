@@ -16,13 +16,13 @@
 extern GameMap gameMap;
 extern SceneManager* mSceneMgr;
 
-extern deque<RenderRequest*> renderQueue;
+extern std::deque<RenderRequest*> renderQueue;
 extern sem_t renderQueueSemaphore;
 extern sem_t renderQueueEmptySemaphore;
 extern ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;
 
-extern deque<ServerNotification*> serverNotificationQueue;
-extern deque<ClientNotification*> clientNotificationQueue;
+extern std::deque<ServerNotification*> serverNotificationQueue;
+extern std::deque<ClientNotification*> clientNotificationQueue;
 extern sem_t serverNotificationQueueSemaphore;
 extern sem_t clientNotificationQueueSemaphore;
 extern sem_t serverNotificationQueueLockSemaphore;
@@ -38,7 +38,7 @@ extern double MAX_FRAMES_PER_SECOND;
 extern double turnsPerSecond;
 extern ProtectedObject<long int> turnNumber;
 
-extern vector<ColourValue> playerColourValues;
+extern std::vector<ColourValue> playerColourValues;
 
 #endif
 

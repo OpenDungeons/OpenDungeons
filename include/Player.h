@@ -2,7 +2,6 @@
 #define PLAYER_H
 
 #include <string>
-using namespace std;
 
 class Goal;
 #include "Creature.h"
@@ -45,7 +44,7 @@ class Player
 		void removeCreatureFromHand(int i);	// Private, for other classes use dropCreature() instead.
 
 		// Private datamembers
-		vector<Creature*> creaturesInHand;
+		std::vector<Creature*> creaturesInHand;
 };
 
 #endif

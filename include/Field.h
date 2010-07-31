@@ -4,10 +4,9 @@
 #include <iostream>
 #include <utility>
 #include <map>
-using namespace std;
 
 typedef pair<int,int> LocationType;
-typedef map<LocationType, double> FieldType;
+typedef std::map<LocationType, double> FieldType;
 
 class Field
 {

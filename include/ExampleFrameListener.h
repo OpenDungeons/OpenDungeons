@@ -99,17 +99,17 @@ public:
 	// Console variables
 	string command, arguments, commandOutput, prompt;
 	//deque< pair<time_t, string> > chatMessages;
-	deque< ChatMessage* > chatMessages;
+	std::deque< ChatMessage* > chatMessages;
 	string consoleBuffer, promptCommand, chatString;
 
 
 	// Multiplayer stuff
-	vector<Socket*> clientSockets;
+	std::vector<Socket*> clientSockets;
 	pthread_t clientThread;
 	pthread_t serverThread;
 	pthread_t serverNotificationThread;
 	pthread_t clientNotificationThread;
-	vector<pthread_t*> clientHandlerThreads;
+	std::vector<pthread_t*> clientHandlerThreads;
 	pthread_t creatureThread;
 
 	// Variables for chat messages

@@ -1,5 +1,4 @@
 #include <sstream>
-using namespace std;
 
 #include "Globals.h"
 #include "GoalClaimNTiles.h"
@@ -21,21 +20,21 @@ bool GoalClaimNTiles::isMet(Seat *s)
 
 string GoalClaimNTiles::getSuccessMessage()
 {
-	stringstream tempSS;
+	std::stringstream tempSS;
 	tempSS << "You have claimed more than " << numberOfTiles << " tiles.";
 	return tempSS.str();
 }
 
 string GoalClaimNTiles::getFailedMessage()
 {
-	stringstream tempSS;
+	std::stringstream tempSS;
 	tempSS << "You have failed to claim more than " << numberOfTiles << " tiles.";
 	return tempSS.str();
 }
 
 string GoalClaimNTiles::getDescription()
 {
-	stringstream tempSS;
+	std::stringstream tempSS;
 	tempSS << "Claimed " << gameMap.me->seat->numClaimedTiles << " of " << numberOfTiles << " tiles.";
 	return tempSS.str();
 }

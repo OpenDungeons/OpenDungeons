@@ -2,7 +2,6 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-using namespace std;
 
 #include "Defines.h"
 #include "Globals.h"
@@ -21,7 +20,8 @@ MapEditor::MapEditor()
 MapEditor::~MapEditor() 
 {
 	if(mSystem)
-		delete mSystem;
+		//delete mSystem;   // use this line if using a CEGUI version before 0.7
+		mSystem->destroy(); // use this line if using a CEGUI version after 0.7
 
 	if(mRenderer)
 		delete mRenderer;
@@ -88,11 +88,11 @@ void MapEditor::createScene(void)
 	node->attachObject(light);
 
 	// Setup CEGUI
-	mRenderer = new CEGUI::OgreCEGUIRenderer(mWindow, Ogre::RENDER_QUEUE_OVERLAY, false, 3000, mSceneMgr);
-	mSystem = new CEGUI::System(mRenderer);
+	mRenderer = &CEGUI::OgreRenderer::create();
+	mSystem = &CEGUI::System::create(*mRenderer);
 
 	// Show the mouse cursor
-	CEGUI::SchemeManager::getSingleton().loadScheme((CEGUI::utf8*)"TaharezLookSkin.scheme");
+	CEGUI::SchemeManager::getSingleton().create((CEGUI::utf8*)"Media/gui/TaharezLookSkin.scheme");
 	mSystem->setDefaultMouseCursor((CEGUI::utf8*)"TaharezLook", (CEGUI::utf8*)"MouseArrow");
 	mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 	CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
@@ -105,7 +105,7 @@ void MapEditor::createScene(void)
 
 	try
 	{
-		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"OpenDungeons.layout"); 
+		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"Media/gui/OpenDungeons.layout"); 
 		mSystem->setGUISheet(sheet);
 
 		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();

@@ -16,13 +16,13 @@ using namespace std;
 SceneManager* mSceneMgr;
 GameMap gameMap;
 
-deque<RenderRequest*> renderQueue;
+std::deque<RenderRequest*> renderQueue;
 sem_t renderQueueSemaphore;
 sem_t renderQueueEmptySemaphore;
 ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty(0);
 
-deque<ServerNotification*> serverNotificationQueue;
-deque<ClientNotification*> clientNotificationQueue;
+std::deque<ServerNotification*> serverNotificationQueue;
+std::deque<ClientNotification*> clientNotificationQueue;
 sem_t serverNotificationQueueSemaphore;
 sem_t clientNotificationQueueSemaphore;
 sem_t serverNotificationQueueLockSemaphore;
@@ -38,7 +38,7 @@ double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double turnsPerSecond = 1.4;
 ProtectedObject<long int> turnNumber(1);
 
-vector<ColourValue> playerColourValues;
+std::vector<ColourValue> playerColourValues;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN

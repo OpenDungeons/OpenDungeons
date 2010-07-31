@@ -1,6 +1,5 @@
 #include <sstream>
 #include <stdio.h>
-using namespace std;
 
 #if defined(WIN32) || defined(_WIN32)
 	//TODO: Add the proper windows include file for this (handling directory listings).
@@ -41,7 +40,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the whole baseLevelFile, strip it of comments and feed it into
 	// the stringstream levelFile, to be read by the rest of the function.
-	stringstream levelFile;
+	std::stringstream levelFile;
 	while(baseLevelFile.good())
 	{
 		getline(baseLevelFile, tempString);
@@ -413,7 +412,7 @@ void colourizeEntity(Entity *ent, int colour)
 string colourizeMaterial(string materialName, int colour)
 {
 	string tempString;
-	stringstream tempSS;
+	std::stringstream tempSS;
 	HardwarePixelBufferSharedPtr tempPixBuf;
 	PixelBox tempPixelBox;
 	Technique *tempTechnique;
@@ -526,25 +525,25 @@ void queueServerNotification(ServerNotification *n)
 	sem_post(&serverNotificationQueueSemaphore);
 }
 
-vector<string> listAllFiles(string directoryName)
+std::vector<string> listAllFiles(string directoryName)
 {
-    vector<string> tempVector;
+	std::vector<string> tempVector;
 
 #if defined(WIN32) || defined(_WIN32)
 	//TODO: Add the proper code to do this under windows.
 #else
 	DIR *d;
-    struct dirent *dir;
-    d = opendir(directoryName.c_str());
-    if (d)
-    {
-        while ((dir = readdir(d)) != NULL)
-        {
-            tempVector.push_back(dir->d_name);
-        }
+	struct dirent *dir;
+	d = opendir(directoryName.c_str());
+	if (d)
+	{
+		while ((dir = readdir(d)) != NULL)
+		{
+			tempVector.push_back(dir->d_name);
+		}
 
-        closedir(d);
-    }
+		closedir(d);
+	}
 #endif
 	return tempVector;
 }

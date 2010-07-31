@@ -132,7 +132,7 @@ unsigned int Seat::checkAllGoals()
 {
 	// Loop over the goals vector and move any goals that have been met to the completed goals vector.
 	sem_wait(&goalsLockSemaphore);
-	vector<Goal*>::iterator currentGoal = goals.begin();
+	std::vector<Goal*>::iterator currentGoal = goals.begin();
 	while(currentGoal != goals.end())
 	{
 		// Start by checking if the goal has been met by this seat.
@@ -173,7 +173,7 @@ unsigned int Seat::checkAllCompletedGoals()
 {
 	// Loop over the goals vector and move any goals that have been met to the completed goals vector.
 	sem_wait(&completedGoalsLockSemaphore);
-	vector<Goal*>::iterator currentGoal = completedGoals.begin();
+	std::vector<Goal*>::iterator currentGoal = completedGoals.begin();
 	while(currentGoal != completedGoals.end())
 	{
 		// Start by checking if this previously met goal has now been unmet.

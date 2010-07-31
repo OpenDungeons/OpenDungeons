@@ -1,6 +1,5 @@
 #include "stdio.h"
 #include <string>
-using namespace std;
 
 #include "Defines.h"
 #include "Globals.h"
@@ -80,7 +79,7 @@ void *clientSocketProcessor(void *p)
 			/*
 			else if(serverCommand.compare("yourseat") == 0)
 			{
-				stringstream tempSS(arguments);
+				std::stringstream tempSS(arguments);
 				Seat *tempSeat = new Seat;
 				cout << "\nAbout to read in seat.\n";
 				cout.flush();
@@ -92,7 +91,7 @@ void *clientSocketProcessor(void *p)
 
 			else if(serverCommand.compare("addseat") == 0)
 			{
-				stringstream tempSS(arguments);
+				std::stringstream tempSS(arguments);
 				Seat *tempSeat = new Seat;
 				tempSS >> tempSeat;
 				gameMap.addEmptySeat(tempSeat);
@@ -135,7 +134,7 @@ void *clientSocketProcessor(void *p)
 
 			else if(serverCommand.compare("addtile") == 0)
 			{
-				stringstream tempSS(arguments);
+				std::stringstream tempSS(arguments);
 				Tile *newTile = new Tile;
 				tempSS >> newTile;
 				gameMap.addTile(newTile);
@@ -146,7 +145,7 @@ void *clientSocketProcessor(void *p)
 
 				// Loop over the tile's neighbors to force them to recheck
 				// their mesh to see if they can use an optimized one
-				vector<Tile*> neighbors = gameMap.neighborTiles(newTile);
+				std::vector<Tile*> neighbors = gameMap.neighborTiles(newTile);
 				for(unsigned int i = 0; i < neighbors.size(); i++)
 				{
 					neighbors[i]->setFullness(neighbors[i]->getFullness());
@@ -155,7 +154,7 @@ void *clientSocketProcessor(void *p)
 
 			else if(serverCommand.compare("addroom") == 0)
 			{
-				stringstream tempSS(arguments);
+				std::stringstream tempSS(arguments);
 				Room *newRoom = Room::createRoomFromStream(tempSS);
 				gameMap.addRoom(newRoom);
 				newRoom->createMeshes();
@@ -166,7 +165,7 @@ void *clientSocketProcessor(void *p)
 
 			else if(serverCommand.compare("addclass") == 0)
 			{
-				stringstream tempSS(arguments);;
+				std::stringstream tempSS(arguments);;
 				CreatureClass *tempClass = new CreatureClass;
 
 				tempSS >> tempClass;
@@ -183,7 +182,7 @@ void *clientSocketProcessor(void *p)
 				// Changes to this code should be reflected in that code as well
 				Creature *newCreature = new Creature;
 
-				stringstream tempSS;
+				std::stringstream tempSS;
 				tempSS.str(arguments);
 				tempSS >> newCreature;
 
@@ -198,7 +197,7 @@ void *clientSocketProcessor(void *p)
 
 			else if(serverCommand.compare("newturn") == 0)
 			{
-				stringstream tempSS;
+				std::stringstream tempSS;
 				tempSS.str(arguments);
 				long int tempLongInt;
 				tempSS >> tempLongInt;
@@ -209,7 +208,7 @@ void *clientSocketProcessor(void *p)
 			{
 				char array[255];
 
-				stringstream tempSS;
+				std::stringstream tempSS;
 				tempSS.str(arguments);
 
 				tempSS.getline(array, sizeof(array), ':');
@@ -247,7 +246,7 @@ void *clientSocketProcessor(void *p)
 			{
 				char array[255];
 
-				stringstream tempSS;
+				std::stringstream tempSS;
 				tempSS.str(arguments);
 
 				tempSS.getline(array, sizeof(array), ':');
@@ -269,7 +268,7 @@ void *clientSocketProcessor(void *p)
 			{
 				char array[255];
 
-				stringstream tempSS;
+				std::stringstream tempSS;
 				tempSS.str(arguments);
 
 				tempSS.getline(array, sizeof(array), ':');
@@ -293,7 +292,7 @@ void *clientSocketProcessor(void *p)
 
 				char array[255];
 				string tempState;
-				stringstream tempSS;
+				std::stringstream tempSS;
 				tempSS.str(arguments);
 
 				// Parse the creature name and get a pointer to it
@@ -315,7 +314,7 @@ void *clientSocketProcessor(void *p)
 			{
 				char array[255];
 				double tempFullness, tempX, tempY;
-				stringstream tempSS;
+				std::stringstream tempSS;
 
 				tempSS.str(arguments);
 				tempSS.getline(array, sizeof(array), ':');
@@ -364,7 +363,7 @@ void *clientNotificationProcessor(void *p)
 {
 	//ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
 	string tempString;
-	stringstream tempSS;
+	std::stringstream tempSS;
 	Tile *tempTile;
 	Creature *tempCreature;
 	Player *tempPlayer;

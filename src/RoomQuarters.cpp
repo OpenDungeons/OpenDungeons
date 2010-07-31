@@ -38,7 +38,7 @@ void RoomQuarters::absorbRoom(Room *r)
 	createMeshes();
 
 	// Recreate the beds which were destroyed when the meshes were cleared.
-	map<Tile*,bool>::iterator itr = bedOrientationForTile.begin();
+	std::map<Tile*,bool>::iterator itr = bedOrientationForTile.begin();
 	while(itr != bedOrientationForTile.end())
 	{
 		RenderRequest *request = new RenderRequest;
@@ -82,7 +82,7 @@ void RoomQuarters::removeCoveredTile(Tile* t)
 			c->homeTile = NULL;
 
 			// Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
-			for(map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
+			for(std::map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
 			{
 				if(itr->second == c)
 					itr->second = NULL;
@@ -110,11 +110,11 @@ void RoomQuarters::clearCoveredTiles()
 	creatureSleepingInTile.clear();
 }
 
-vector<Tile*> RoomQuarters::getOpenTiles()
+std::vector<Tile*> RoomQuarters::getOpenTiles()
 {
-	vector<Tile*> returnVector;
+	std::vector<Tile*> returnVector;
 
-	for(map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
+	for(std::map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
 	{
 		if(itr->second == NULL)
 			returnVector.push_back(itr->first);
@@ -191,7 +191,7 @@ bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
 	if(creatureSleepingInTile[t] != NULL)
 	{
 		// Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
-		for(map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
+		for(std::map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
 		{
 			if(itr->second == c)
 				itr->second = NULL;
@@ -223,7 +223,7 @@ Tile* RoomQuarters::getLocationForBed(int xDim, int yDim)
 	if(yDim < 0)  yDim *= -1;
 
 	// Check to see if there is even enough space available for the bed.
-	vector<Tile*> tempVector = getOpenTiles();
+	std::vector<Tile*> tempVector = getOpenTiles();
 	if(tempVector.size() < xDim*yDim)  return NULL;
 
 	// Randomly shuffle the open tiles in tempVector so that the quarters are filled up in a random order.
@@ -255,7 +255,7 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 	if(tile == NULL || tile->getCoveringRoom() != this)  return false;
 
 	// Create a 2 dimensional array of booleans initially all set to false.
-	vector< vector<bool> > tileOpen(xDim);
+	std::vector< std::vector<bool> > tileOpen(xDim);
 	for(int i = 0; i < xDim; i++)
 	{
 		tileOpen[i].resize(yDim, false);
@@ -263,7 +263,7 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 
 	// Now loop over the list of all the open tiles in this quarters.  For each tile, if it falls within
 	// the xDim by yDim area from the starting tile we set the corresponding tileOpen entry to true.
-	vector<Tile*> tempTiles = getOpenTiles();
+	std::vector<Tile*> tempTiles = getOpenTiles();
 	for(unsigned int i = 0; i < tempTiles.size(); i++)
 	{
 		int xDist = tempTiles[i]->x - tile->x;
@@ -288,7 +288,7 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 
 void RoomQuarters::destroyBedMeshes()
 {
-	map<Tile*,bool>::iterator itr = bedOrientationForTile.begin();
+	std::map<Tile*,bool>::iterator itr = bedOrientationForTile.begin();
 	while(itr != bedOrientationForTile.end())
 	{
 		RenderRequest *request = new RenderRequest;

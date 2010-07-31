@@ -8,7 +8,6 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <stdlib.h>
-using namespace std;
 
 #include "Functions.h"
 #include "Defines.h"
@@ -218,9 +217,9 @@ void GameMap::addTile(Tile *t)
 /** \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
  *
  */
-vector<Tile*> GameMap::rectangularRegion(int x1, int y1, int x2, int y2)
+std::vector<Tile*> GameMap::rectangularRegion(int x1, int y1, int x2, int y2)
 {
-	vector<Tile*> returnList;
+	std::vector<Tile*> returnList;
 	Tile *tempTile;
 
 	if(x1 > x2)  swap(x1, x2);
@@ -244,9 +243,9 @@ vector<Tile*> GameMap::rectangularRegion(int x1, int y1, int x2, int y2)
 /** \brief Returns all the valid tiles in the curcular region surrounding the given point and extending outward to the specified radius.
  *
  */
-vector<Tile*> GameMap::circularRegion(int x, int y, double radius)
+std::vector<Tile*> GameMap::circularRegion(int x, int y, double radius)
 {
-	vector<Tile*> returnList;
+	std::vector<Tile*> returnList;
 	Tile *tempTile;
 	int xDist, yDist, distSquared;
 	double radiusSquared = radius*radius;
@@ -275,9 +274,9 @@ vector<Tile*> GameMap::circularRegion(int x, int y, double radius)
 /** \brief Returns a vector of all the valid tiles which are a neighbor to one or more tiles in the specified region, i.e. the "perimeter" of the region extended out one tile.
  *
  */
-vector<Tile*> GameMap::tilesBorderedByRegion(const vector<Tile*> &region)
+std::vector<Tile*> GameMap::tilesBorderedByRegion(const std::vector<Tile*> &region)
 {
-	vector<Tile*> neighbors, returnList;
+	std::vector<Tile*> neighbors, returnList;
 
 	// Loop over all the tiles in the specified region.
 	for(unsigned int i = 0; i < region.size(); i++)
@@ -645,7 +644,7 @@ void GameMap::doTurn()
 
 	// Now loop over all of the tiles, if the tile is claimed increment the given seats count.
 	sem_wait(&tilesLockSemaphore);
-	map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
+	std::map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
 	while(currentTile != tiles.end())
 	{
 		tempTile = currentTile->second;
@@ -660,7 +659,7 @@ void GameMap::doTurn()
 				tempSeat->numClaimedTiles++;
 
 				// Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
-				vector<Tile*> neighbors = neighborTiles(currentTile->second);
+				std::vector<Tile*> neighbors = neighborTiles(currentTile->second);
 				for(unsigned int i = 0; i < neighbors.size(); i++)
 				{
 					if(neighbors[i]->getType() == Tile::dirt && neighbors[i]->getFullness() < 0.1)// && neighbors[i]->colorDouble < 0.8)
@@ -730,17 +729,17 @@ bool GameMap::pathExists(int x1, int y1, int x2, int y2, Tile::TileClearType pas
  * returned path to shorten the number of steps on the path, as well as the
  * actual walking distance along the path.
  */
-list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
+std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
 {
 	numCallsTo_path++;
 
 	//TODO:  Make the openList a priority queue sorted by the cost to improve lookup times on retrieving the next open item.
-	list<Tile*> returnList;
+	std::list<Tile*> returnList;
 	astarEntry *currentEntry;
 	Tile *destination;
-	list<astarEntry*> openList;
-	list<astarEntry*> closedList;
-	list<astarEntry*>::iterator itr;
+	std::list<astarEntry*> openList;
+	std::list<astarEntry*> closedList;
+	std::list<astarEntry*>::iterator itr;
 
 	// If the start tile was not found return an empty path
 	if(getTile(x1, y1) == NULL)
@@ -773,7 +772,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 			break;
 
 		// Get the lowest fScore from the openList and move it to the closed list
-		list<astarEntry*>::iterator itr = openList.begin(), smallestAstar = openList.begin();
+		std::list<astarEntry*>::iterator itr = openList.begin(), smallestAstar = openList.begin();
 		while(itr != openList.end())
 		{
 			if((*itr)->fCost() < (*smallestAstar)->fCost())
@@ -793,7 +792,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 		}
 
 		// Check the tiles surrounding the current square
-		vector<Tile*>neighbors = neighborTiles(currentEntry->tile);
+		std::vector<Tile*>neighbors = neighborTiles(currentEntry->tile);
 		bool processNeighbor;
 		for(unsigned int i = 0; i < neighbors.size(); i++)
 		{
@@ -835,7 +834,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 				{
 					// See if the neighbor is in the closed list
 					bool neighborFound = false;
-					list<astarEntry*>::iterator itr = closedList.begin();
+					std::list<astarEntry*>::iterator itr = closedList.begin();
 					while(itr != closedList.end())
 					{
 						if(neighbor->tile == (*itr)->tile)
@@ -854,7 +853,7 @@ list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType pa
 					{
 						// See if the neighbor is in the open list
 						neighborFound = false;
-						list<astarEntry*>::iterator itr = openList.begin();
+						std::list<astarEntry*>::iterator itr = openList.begin();
 						while(itr != openList.end())
 						{
 							if(neighbor->tile == (*itr)->tile)
@@ -974,9 +973,9 @@ TileMap_t::iterator GameMap::lastTile()
 /*! \brief Returns the (up to) 4 nearest neighbor tiles of the tile located at (x, y).
  *
  */
-vector<Tile*> GameMap::neighborTiles(int x, int y)
+std::vector<Tile*> GameMap::neighborTiles(int x, int y)
 {
-	vector<Tile*> tempVector;
+	std::vector<Tile*> tempVector;
 
 	Tile *tempTile = getTile(x, y);
 	if(tempTile != NULL)
@@ -985,7 +984,7 @@ vector<Tile*> GameMap::neighborTiles(int x, int y)
 	return tempVector;
 }
 
-vector<Tile*> GameMap::neighborTiles(Tile *t)
+std::vector<Tile*> GameMap::neighborTiles(Tile *t)
 {
 	return t->getAllNeighbors();
 }
@@ -1081,9 +1080,9 @@ bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
  * http://en.wikipedia.org/w/index.php?title=Bresenham%27s_line_algorithm&oldid=295047020
  * A more detailed description of how it works can be found there.
  */
-list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
+std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 {
-	list<Tile*> path;
+	std::list<Tile*> path;
 
 	// Calculate the components of the 'manhattan distance'
 	int Dx = x1 - x0;
@@ -1161,10 +1160,10 @@ list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 /*! \brief Determines whether or not you can travel along a path.
  *
  */
-bool GameMap::pathIsClear(list<Tile*> path, Tile::TileClearType passability)
+bool GameMap::pathIsClear(std::list<Tile*> path, Tile::TileClearType passability)
 {
-	list<Tile*>::iterator itr;
-	list<Tile*>::iterator last;
+	std::list<Tile*>::iterator itr;
+	std::list<Tile*>::iterator last;
 
 	if(path.size() == 0)
 		return false;
@@ -1207,18 +1206,18 @@ bool GameMap::pathIsClear(list<Tile*> path, Tile::TileClearType passability)
 /*! \brief Loops over a path an replaces 'manhattan' paths with 'as the crow flies' paths.
  *
  */
-void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
+void GameMap::cutCorners(std::list<Tile*> &path, Tile::TileClearType passability)
 {
 	// Size must be >= 3 or else t3 and t4 can end up pointing at the same value
 	if(path.size() <= 3)
 		return;
 
-	list<Tile*>::iterator t1 = path.begin();
-	list<Tile*>::iterator t2 = t1;
+	std::list<Tile*>::iterator t1 = path.begin();
+	std::list<Tile*>::iterator t2 = t1;
 	t2++;
-	list<Tile*>::iterator t3;
-	list<Tile*>::iterator t4;
-	list<Tile*>::iterator secondLast = path.end();
+	std::list<Tile*>::iterator t3;
+	std::list<Tile*>::iterator t4;
+	std::list<Tile*>::iterator secondLast = path.end();
 	secondLast--;
 
 	// Loop t1 over all but the last tile in the path
@@ -1232,7 +1231,7 @@ void GameMap::cutCorners(list<Tile*> &path, Tile::TileClearType passability)
 		{
 			// If we have a clear line of sight to t2, advance to
 			// the next tile else break out of the inner loop
-			list<Tile*> lineOfSightPath = lineOfSight( (*t1)->x, (*t1)->y, (*t2)->x, (*t2)->y );
+			std::list<Tile*> lineOfSightPath = lineOfSight( (*t1)->x, (*t1)->y, (*t2)->x, (*t2)->y );
 
 			if( pathIsClear( lineOfSightPath, passability)  )
 				t2++;
@@ -1310,9 +1309,9 @@ unsigned int GameMap::numRooms()
 	return rooms.size();
 }
 
-vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)
+std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)
 {
-	vector<Room*> returnList;
+	std::vector<Room*> returnList;
 	for(unsigned int i = 0; i < rooms.size(); i++)
 	{
 		if(rooms[i]->getType() == type && rooms[i]->color == color)
@@ -1322,9 +1321,9 @@ vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)
 	return returnList;
 }
 
-vector<Room*> GameMap::getReachableRooms(const vector<Room*> &vec, Tile *startTile, Tile::TileClearType passability)
+std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec, Tile *startTile, Tile::TileClearType passability)
 {
-	vector<Room*> returnVector;
+	std::vector<Room*> returnVector;
 
 	for(unsigned int i = 0; i < vec.size(); i++)
 	{
@@ -1338,7 +1337,7 @@ vector<Room*> GameMap::getReachableRooms(const vector<Room*> &vec, Tile *startTi
 int GameMap::getTotalGoldForColor(int color)
 {
 	int tempInt = 0;
-	vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
+	std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
 	for(unsigned int i = 0; i < treasuriesOwned.size(); i++)
 		tempInt += ((RoomTreasury*)treasuriesOwned[i])->getTotalGold();
 
@@ -1354,7 +1353,7 @@ int GameMap::withdrawFromTreasuries(int gold, int color)
 
 	// Loop over the treasuries withdrawing gold until the full amount has been withdrawn.
 	int goldStillNeeded = gold;
-	vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
+	std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
 	for(unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; i++)
 		goldStillNeeded -= ((RoomTreasury*)treasuriesOwned[i])->withdrawGold(goldStillNeeded);
 
@@ -1654,7 +1653,7 @@ unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType pa
 	}
 
 	// Get the current tile's neighbors, loop over each of them.
-	vector<Tile*> neighbors = gameMap.neighborTiles(startX, startY);
+	std::vector<Tile*> neighbors = gameMap.neighborTiles(startX, startY);
 	for(unsigned int i = 0; i < neighbors.size(); i++)
 	{
 		if(neighbors[i]->floodFillColor != color)
@@ -1678,7 +1677,7 @@ void GameMap::enableFloodFill()
 	// Carry out a flood fill of the whole level to make sure everything is good.
 	// Start by setting the flood fill color for every tile on the map to -1.
 	sem_wait(&tilesLockSemaphore);
-	map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
+	std::map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
 	while(currentTile != tiles.end())
 	{
 		tempTile = currentTile->second;
@@ -1693,7 +1692,7 @@ void GameMap::enableFloodFill()
 	floodFillEnabled = true;
 	sem_wait(&tilesLockSemaphore);
 	currentTile = tiles.begin();
-	map< pair<int,int>, Tile*>::iterator endTile = tiles.end();
+	std::map< pair<int,int>, Tile*>::iterator endTile = tiles.end();
 	sem_post(&tilesLockSemaphore);
 	while(currentTile != endTile)
 	{
@@ -1705,12 +1704,12 @@ void GameMap::enableFloodFill()
 	}
 }
 
-list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability)
+std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability)
 {
 	return path(c1->positionTile()->x, c1->positionTile()->y, c2->positionTile()->x, c2->positionTile()->y, passability);
 }
 
-list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability)
+std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability)
 {
 	return path(t1->x, t1->y, t2->x, t2->y, passability);
 }
@@ -1729,7 +1728,7 @@ void GameMap::threadLockForTurn(long int turn)
 	// Lock the thread reference count map to prevent race conditions.
 	sem_wait(&threadReferenceCountLockSemaphore);
 
-	map<long int, ProtectedObject<unsigned int> >::iterator result = threadReferenceCount.find(turn);
+	std::map<long int, ProtectedObject<unsigned int> >::iterator result = threadReferenceCount.find(turn);
 	if(result != threadReferenceCount.end())
 	{
 		(*result).second.lock();
@@ -1754,7 +1753,7 @@ void GameMap::threadUnlockForTurn(long int turn)
 	// Lock the thread reference count map to prevent race conditions.
 	sem_wait(&threadReferenceCountLockSemaphore);
 
-	map<long int, ProtectedObject<unsigned int> >::iterator result = threadReferenceCount.find(turn);
+	std::map<long int, ProtectedObject<unsigned int> >::iterator result = threadReferenceCount.find(turn);
 	if(result != threadReferenceCount.end())
 	{
 		(*result).second.lock();
@@ -1784,7 +1783,7 @@ void GameMap::processDeletionQueues()
 	sem_wait(&threadReferenceCountLockSemaphore);
 
 	// Loop over the thread reference count and find the first turn number which has 0 outstanding threads holding references for that turn.
-	map<long int, ProtectedObject<unsigned int> >::iterator currentThreadReferenceCount = threadReferenceCount.begin();
+	std::map<long int, ProtectedObject<unsigned int> >::iterator currentThreadReferenceCount = threadReferenceCount.begin();
 	while(currentThreadReferenceCount != threadReferenceCount.end())
 	{
 		cout << "(" << (*currentThreadReferenceCount).first << ", " << (*currentThreadReferenceCount).second.rawGet() << ")   ";
@@ -1792,7 +1791,7 @@ void GameMap::processDeletionQueues()
 		{
 			// There are no threads which could be holding references to objects from the current turn so it is safe to retire.
 			latestTurnToBeRetired = (*currentThreadReferenceCount).first;
-			map<long int, ProtectedObject<unsigned int> >::iterator tempIterator = currentThreadReferenceCount++; 
+			std::map<long int, ProtectedObject<unsigned int> >::iterator tempIterator = currentThreadReferenceCount++; 
 			threadReferenceCount.erase(tempIterator);
 		}
 		else
@@ -1813,7 +1812,7 @@ void GameMap::processDeletionQueues()
 
 	// Loop over the creaturesToDeleteMap and delete all the creatures in any mapped vector whose
 	// key value (the turn those creatures were added) is less than the latestTurnToBeRetired.
-	map<long int, vector<Creature*> >::iterator currentTurnForCreatureRetirement = creaturesToDelete.begin();
+	std::map<long int, std::vector<Creature*> >::iterator currentTurnForCreatureRetirement = creaturesToDelete.begin();
 	while(currentTurnForCreatureRetirement != creaturesToDelete.end() && (*currentTurnForCreatureRetirement).first <= latestTurnToBeRetired)
 	{
 		long int currentTurnToRetire = (*currentTurnForCreatureRetirement).first;

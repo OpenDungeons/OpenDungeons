@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <iostream>
 #include <algorithm>
-using namespace std;
 
 #include "Socket.h"
 #include "Defines.h"
@@ -370,7 +369,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 {
 	long int currentTurnNumber;
 
-	stringstream tempSS;
+	std::stringstream tempSS;
 
 	if(mWindow->isClosed())	return false;
 
@@ -1007,7 +1006,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	unsigned int i = 0;
 	while(i < chatMessages.size())
 	{
-		deque< ChatMessage* >::iterator itr;
+		std::deque< ChatMessage* >::iterator itr;
 		itr = chatMessages.begin() + i;
 		currentMessage = *itr;
 		if(difftime(now, currentMessage->recvTime) > chatMaxTimeDisplay)
@@ -1031,7 +1030,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	for(unsigned int i = 0; i < chatMessages.size(); i++)
 	{
 		struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
-		stringstream tempSS("");
+		std::stringstream tempSS("");
 		tempSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":" << friendlyTime->tm_sec << "  " << chatMessages[i]->clientNick << ":  " << chatMessages[i]->message;
 		chatString += tempSS.str() + "\n";
 	}
@@ -1339,7 +1338,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 	{
 		// Loop over the square region surrounding current mouse location and either set the tile type of the affected tiles or create new ones.
 		Tile *currentTile;
-		vector<Tile*> affectedTiles;
+		std::vector<Tile*> affectedTiles;
 		int radiusSquared = mCurrentTileRadius*mCurrentTileRadius;
 		for(int i = -1*(mCurrentTileRadius-1); i <= (mCurrentTileRadius-1); i++)
 		{
@@ -1376,7 +1375,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
 		// Add any tiles which border the affected region to the affected tiles list
 		// as they may alo want to switch meshes to optimize polycount now too.
-		vector<Tile*> borderingTiles = gameMap.tilesBorderedByRegion(affectedTiles);
+		std::vector<Tile*> borderingTiles = gameMap.tilesBorderedByRegion(affectedTiles);
 		affectedTiles.insert(affectedTiles.end(), borderingTiles.begin(), borderingTiles.end());
 
 		// Loop over all the affected tiles and force them to examine their
@@ -1454,7 +1453,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 					{
 						// through away everything before the '_' and then copy the rest into 'array'
 						char array[255];
-						stringstream tempSS;
+						std::stringstream tempSS;
 						tempSS.str(resultName);
 						tempSS.getline(array, sizeof(array), '_');
 						tempSS.getline(array, sizeof(array));
@@ -1651,8 +1650,8 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 			// loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
 			// which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
 			// the next loop will actually create the room.
-			vector<Tile*> affectedTiles = gameMap.rectangularRegion(xPos, yPos, mLStartDragX, mLStartDragY);
-			vector<Tile*>::iterator itr = affectedTiles.begin();
+			std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(xPos, yPos, mLStartDragX, mLStartDragY);
+			std::vector<Tile*>::iterator itr = affectedTiles.begin();
 			while(itr != affectedTiles.end())
 			{
 				Tile *currentTile = *itr;
@@ -1754,7 +1753,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 
 					// Check all the tiles that border the newly created room and see if they
 					// contain rooms which can be absorbed into this newly created room.
-					vector<Tile*> borderTiles = gameMap.tilesBorderedByRegion(affectedTiles);
+					std::vector<Tile*> borderTiles = gameMap.tilesBorderedByRegion(affectedTiles);
 					for(unsigned int i = 0; i < borderTiles.size(); i++)
 					{
 						Room *borderingRoom = borderTiles[i]->getCoveringRoom();
@@ -1771,7 +1770,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 			}
 
 			// Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
-			vector<Tile*> borderTiles = gameMap.tilesBorderedByRegion(affectedTiles);
+			std::vector<Tile*> borderTiles = gameMap.tilesBorderedByRegion(affectedTiles);
 			affectedTiles.insert(affectedTiles.end(), borderTiles.begin(), borderTiles.end());
 
 			 // Loop over all the affected tiles and force them to examine their neighbors.  This allows
@@ -1808,7 +1807,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 {
 	using namespace OIS;
 	string tempString;
-	stringstream tempSS;
+	std::stringstream tempSS;
 
 	CEGUI::System *sys = CEGUI::System::getSingletonPtr();
 	sys->injectKeyDown(arg.key);
@@ -2005,7 +2004,7 @@ processHotkey:
 	}
 	else
 	{
-		stringstream tempSS2;
+		std::stringstream tempSS2;
 		// If the terminal is active
 		// Keyboard is used to command the terminal
 		switch(arg.key)
@@ -2193,7 +2192,7 @@ void ExampleFrameListener::printText(string text)
  */
 void ExampleFrameListener::executePromptCommand(string command, string arguments)
 {
-	stringstream tempSS;
+	std::stringstream tempSS;
 
 	// Begin Command Implementation
 	//
@@ -2251,7 +2250,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			{
 				if(readGameMapFromFile(tempString))
 				{
-					stringstream tempSS("");
+					std::stringstream tempSS("");
 					tempSS << "Successfully loaded file:  " << tempString << "\nNum tiles:  " << gameMap.numTiles() << "\nNum classes:  " << gameMap.numClassDescriptions() << "\nNum creatures:  " << gameMap.numCreatures();
 					commandOutput += tempSS.str();
 
@@ -2495,7 +2494,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		{
 			// Creature the creature and add it to the gameMap
 			Creature *tempCreature = new Creature;
-			stringstream tempSS(arguments);
+			std::stringstream tempSS(arguments);
 			CreatureClass *tempClass = gameMap.getClassDescription(tempCreature->className);
 			if(tempClass != NULL)
 			{
@@ -2621,28 +2620,25 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				}
 			}
 
-                        // Loop over level directory and display only level files 
-                        else if(arguments.compare("levels") == 0)      
-                        {
-                            vector<string> tempVector;
-                            size_t found;
-                            size_t found2;
-                            string suffix = ".level";
-                            string suffix2 = ".level.";
-                            tempVector = listAllFiles("./Media/levels/");
-                            for(unsigned int j = 0; j < tempVector.size(); j++)
-                            
-                            {
-                                found = tempVector[j].find(suffix);
-                                found2 = tempVector[j].find(suffix2);
-                                if(found != string::npos && (!(found2 != string::npos)))
-                                {
-                                    tempSS << tempVector[j] << endl;
-                                }
-                            }
-                            
-
-                        }
+			// Loop over level directory and display only level files 
+			else if(arguments.compare("levels") == 0)      
+			{
+				std::vector<string> tempVector;
+				size_t found;
+				size_t found2;
+				string suffix = ".level";
+				string suffix2 = ".level.";
+				tempVector = listAllFiles("./Media/levels/");
+				for(unsigned int j = 0; j < tempVector.size(); j++)
+				{
+					found = tempVector[j].find(suffix);
+					found2 = tempVector[j].find(suffix2);
+					if(found != string::npos && (!(found2 != string::npos)))
+					{
+						tempSS << tempVector[j] << endl;
+					}
+				}
+			}
 
 			else if(arguments.compare("goals") == 0)
 			{

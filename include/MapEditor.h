@@ -4,7 +4,6 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-using namespace std;
 
 #include "ExampleApplication.h"
 #include "ExampleFrameListener.h"
@@ -12,7 +11,8 @@ using namespace std;
 
 #include <CEGUI/CEGUI.h>
 #include <OIS/OIS.h>
-#include <OgreCEGUIRenderer.h>
+//#include <CEGUIRenderer.h>   // use this line if using a CEGUI version before 0.7
+#include <RendererModules/Ogre/CEGUIOgreRenderer.h>   // use this line if using a CEGUI version after 0.7
 
 class MapEditor : public ExampleApplication
 {

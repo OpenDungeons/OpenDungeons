@@ -11,7 +11,7 @@
 #include "MapLight.h"
 #include "ProtectedObject.h"
 
-typedef map< pair<int,int>, Tile*> TileMap_t;
+typedef std::map< pair<int,int>, Tile*> TileMap_t;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *
@@ -38,9 +38,9 @@ class GameMap
 		TileMap_t::iterator firstTile();
 		TileMap_t::iterator lastTile();
 		unsigned int numTiles();
-		vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);
-		vector<Tile*> circularRegion(int x, int y, double radius);
-		vector<Tile*> tilesBorderedByRegion(const vector<Tile*> &region);
+		std::vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);
+		std::vector<Tile*> circularRegion(int x, int y, double radius);
+		std::vector<Tile*> tilesBorderedByRegion(const std::vector<Tile*> &region);
 
 		void clearCreatures();
 		void addCreature(Creature *c);
@@ -69,8 +69,8 @@ class GameMap
 		void removeRoom(Room *r);
 		Room* getRoom(int index);
 		unsigned int numRooms();
-		vector<Room*> getRoomsByTypeAndColor(Room::RoomType type, int color);
-		vector<Room*> getReachableRooms(const vector<Room*> &vec, Tile *startTile, Tile::TileClearType passability);
+		std::vector<Room*> getRoomsByTypeAndColor(Room::RoomType type, int color);
+		std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec, Tile *startTile, Tile::TileClearType passability);
 
 		int getTotalGoldForColor(int color);
 		int withdrawFromTreasuries(int gold, int color);
@@ -110,12 +110,12 @@ class GameMap
 		void doTurn();
 
 		bool pathExists(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
-		list<Tile*> path(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
-		vector<Tile*> neighborTiles(int x, int y);
-		vector<Tile*> neighborTiles(Tile *t);
-		list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
-		bool pathIsClear(list<Tile*> path, Tile::TileClearType passability);
-		void cutCorners(list<Tile*> &path, Tile::TileClearType passability);
+		std::list<Tile*> path(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
+		std::vector<Tile*> neighborTiles(int x, int y);
+		std::vector<Tile*> neighborTiles(Tile *t);
+		std::list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
+		bool pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);
+		void cutCorners(std::list<Tile*> &path, Tile::TileClearType passability);
 		double crowDistance(int x1, int x2, int y1, int y2);
 		//double manhattanDistance(int x1, int x2, int y1, int y2);
 
@@ -130,10 +130,10 @@ class GameMap
 		double averageAILeftoverTime;
 
 		// Overloaded method declarations (these just make it easier to call the above functions)
-		list<Tile*> path(Creature *c1, Creature *c2, Tile::TileClearType passability);
-		list<Tile*> path(Tile *t1, Tile *t2, Tile::TileClearType passability);
+		std::list<Tile*> path(Creature *c1, Creature *c2, Tile::TileClearType passability);
+		std::list<Tile*> path(Tile *t1, Tile *t2, Tile::TileClearType passability);
 		double crowDistance(Creature *c1, Creature *c2);
-		deque<double> previousLeftoverTimes;
+		std::deque<double> previousLeftoverTimes;
 
 		void threadLockForTurn(long int turn);
 		void threadUnlockForTurn(long int turn);
@@ -144,23 +144,23 @@ class GameMap
 		bool walkablePathExists(int x1, int y1, int x2, int y2);
 
 		// Private datamembers
-		map< pair<int,int>, Tile*> tiles;
+		std::map< pair<int,int>, Tile*> tiles;
 		sem_t tilesLockSemaphore;
-		vector<CreatureClass*> classDescriptions;
-		vector<Creature*> creatures;
+		std::vector<CreatureClass*> classDescriptions;
+		std::vector<Creature*> creatures;
 		sem_t creaturesLockSemaphore;  //TODO: Most of these other vectors should also probably have semaphore locks on them.
-		vector<Player*> players;
-		vector<Room*> rooms;
-		vector<MapLight*> mapLights;
-		vector<Seat*> emptySeats;
-		vector<Seat*> filledSeats;
-		vector<Seat*> winningSeats;
-		vector<Goal*> goalsForAllSeats;
+		std::vector<Player*> players;
+		std::vector<Room*> rooms;
+		std::vector<MapLight*> mapLights;
+		std::vector<Seat*> emptySeats;
+		std::vector<Seat*> filledSeats;
+		std::vector<Seat*> winningSeats;
+		std::vector<Goal*> goalsForAllSeats;
 		int nextUniqueFloodFillColor;
 		bool floodFillEnabled;
 
-		map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
-		map<long int, vector<Creature*> > creaturesToDelete;
+		std::map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
+		std::map<long int, std::vector<Creature*> > creaturesToDelete;
 		sem_t threadReferenceCountLockSemaphore;
 
 		unsigned int numCallsTo_path;

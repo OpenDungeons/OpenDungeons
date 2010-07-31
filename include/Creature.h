@@ -4,7 +4,6 @@
 #include <Ogre.h>
 #include <string>
 #include <deque>
-using namespace std;
 
 #include <semaphore.h>
 
@@ -63,21 +62,21 @@ class Creature : public CreatureClass, public AttackableObject
 		double getHitroll(double range);
 		double getDefense();
 		void doLevelUp();
-		vector<Tile*> visibleTiles;
-		vector<AttackableObject*> visibleEnemyObjects;
-		vector<AttackableObject*> reachableEnemyObjects;
-		vector<AttackableObject*> enemyObjectsInRange;
-		vector<AttackableObject*> visibleAlliedObjects;
-		vector<AttackableObject*> reachableAlliedObjects;
+		std::vector<Tile*> visibleTiles;
+		std::vector<AttackableObject*> visibleEnemyObjects;
+		std::vector<AttackableObject*> reachableEnemyObjects;
+		std::vector<AttackableObject*> enemyObjectsInRange;
+		std::vector<AttackableObject*> visibleAlliedObjects;
+		std::vector<AttackableObject*> reachableAlliedObjects;
 		void updateVisibleTiles();
-		vector<AttackableObject*> getVisibleEnemyObjects();
-		vector<AttackableObject*> getReachableAttackableObjects(const vector<AttackableObject*> &objectsToCheck, unsigned int *minRange, AttackableObject **nearestObject);
-		vector<AttackableObject*> getEnemyObjectsInRange(const vector<AttackableObject*> &enemyObjectsToCheck);
-		vector<AttackableObject*> getVisibleAlliedObjects();
-		vector<Tile*> getVisibleMarkedTiles();
-		vector<AttackableObject*> getVisibleForce(int color, bool invert);
+		std::vector<AttackableObject*> getVisibleEnemyObjects();
+		std::vector<AttackableObject*> getReachableAttackableObjects(const std::vector<AttackableObject*> &objectsToCheck, unsigned int *minRange, AttackableObject **nearestObject);
+		std::vector<AttackableObject*> getEnemyObjectsInRange(const std::vector<AttackableObject*> &enemyObjectsToCheck);
+		std::vector<AttackableObject*> getVisibleAlliedObjects();
+		std::vector<Tile*> getVisibleMarkedTiles();
+		std::vector<AttackableObject*> getVisibleForce(int color, bool invert);
 		Tile* positionTile();
-		vector<Tile*> getCoveredTiles();
+		std::vector<Tile*> getCoveredTiles();
 		void setAnimationState(string s);
 		AnimationState* getAnimationState();
 		bool isMobile();
@@ -90,7 +89,7 @@ class Creature : public CreatureClass, public AttackableObject
 		string getName();
 
 		void addDestination(int x, int y);
-		bool setWalkPath(list<Tile*> path, unsigned int minDestinations, bool addFirstStop);
+		bool setWalkPath(std::list<Tile*> path, unsigned int minDestinations, bool addFirstStop);
 		void clearDestinations();
 		void clearActionQueue();
 		void stopWalking();
@@ -113,7 +112,7 @@ class Creature : public CreatureClass, public AttackableObject
 		AnimationState *animationState;
 		string destinationAnimationState;
 		double shortDistance;
-		deque<Ogre::Vector3> walkQueue;
+		std::deque<Ogre::Vector3> walkQueue;
 		sem_t walkQueueLockSemaphore;
 		bool walkQueueFirstEntryAdded;
 		Ogre::Vector3 walkDirection;
@@ -126,13 +125,13 @@ class Creature : public CreatureClass, public AttackableObject
 		double mana;
 		sem_t manaLockSemaphore;
 		int gold;
-		deque<CreatureAction> actionQueue;
+		std::deque<CreatureAction> actionQueue;
 		Ogre::Vector3 position;
 		sem_t positionLockSemaphore;
 		int destinationX, destinationY;
 		bool hasVisualDebuggingEntities;
 		Tile *previousPositionTile;
-		list<Tile*> visualDebugEntityTiles;
+		std::list<Tile*> visualDebugEntityTiles;
 		Field *battleField;
 		bool meshesExist;
 };

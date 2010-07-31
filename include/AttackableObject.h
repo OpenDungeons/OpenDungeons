@@ -6,7 +6,7 @@ class AttackableObject
 	public:
 		enum AttackableObjectType {creature, room, trap, door};
 
-		virtual vector<Tile*> getCoveredTiles() = 0;
+		virtual std::vector<Tile*> getCoveredTiles() = 0;
 		virtual double getHP(Tile *tile) = 0;
 		virtual double getDefense() = 0;
 		virtual void takeDamage(double damage, Tile *tileTakingDamage) = 0;
