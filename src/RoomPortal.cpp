@@ -19,6 +19,9 @@ void RoomPortal::removeCoveredTile(Tile* t)
 	recomputeCenterPosition();
 }
 
+/*! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
+ *
+ */
 void RoomPortal::doUpkeep(Room *r)
 {
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
@@ -30,6 +33,9 @@ void RoomPortal::doUpkeep(Room *r)
 		spawnCreature();
 }
 
+/*! \brief Creates a new creature whose class is probabalistic and adds it to the game map at the center of the portal.
+ *
+ */
 void RoomPortal::spawnCreature()
 {
 	CreatureClass *classToSpawn = NULL;
@@ -102,6 +108,9 @@ void RoomPortal::spawnCreature()
 	newCreature->weaponR->createMesh();
 }
 
+/*! \brief Computes a probability for each creature class in the game map based on the player's alignment and the current set of creatures in the dungeon.
+ *
+ */
 void RoomPortal::recomputeClassProbabilities()
 {
 	double probability, totalProbability = 0.0, tempDouble;
@@ -164,6 +173,9 @@ void RoomPortal::recomputeClassProbabilities()
 	}
 }
 
+/*! \brief Finds the X,Y coordinates of the center of the tiles that make up the portal.
+ *
+ */
 void RoomPortal::recomputeCenterPosition()
 {
 	xCenter = yCenter = 0.0;

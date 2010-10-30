@@ -9,6 +9,9 @@ Room::Room()
 	meshExists = false;
 }
 
+/*! \brief Creates a type specific subclass of room (quarters, treasury, etc) and returns a pointer to it.  This function
+ *  also initializes a unique default name for the room and sets up some of the room's properties.
+ */
 Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, int nColor)
 {
 	Room *tempRoom = NULL;
@@ -49,6 +52,9 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, 
 	return tempRoom;
 }
 
+/*! \brief Moves all the covered tiles from room r into this one, the rooms should be of the same subtype.
+ *  After this is called the other room should likely be removed from the game map and deleted.
+ */
 void Room::absorbRoom(Room *r)
 {
 	// Subclasses overriding this function can call this to do the generic stuff or they can reiplement it entirely.
