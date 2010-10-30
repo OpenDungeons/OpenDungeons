@@ -18,6 +18,7 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, 
 		case quarters:     tempRoom = new RoomQuarters();      break;
 		case treasury:     tempRoom = new RoomTreasury();      break;
 		case portal:       tempRoom = new RoomPortal();        break;
+		case dungeonTemple:  tempRoom = new RoomDungeonTemple();  break;
 	}
 
 	if(tempRoom == NULL)

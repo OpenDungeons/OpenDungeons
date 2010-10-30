@@ -73,6 +73,11 @@ Goal* Goal::instantiateFromStream(istream& is)
 		tempGoal = new GoalMineNGold(tempName, tempArguments);
 	}
 
+	else if(tempName.compare("ProtectDungeonTemple") == 0)
+	{
+		tempGoal = new GoalProtectDungeonTemple(tempName, tempArguments);
+	}
+
 	return tempGoal;
 }
 

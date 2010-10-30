@@ -74,6 +74,7 @@ class Room : public AttackableObject
 #include "RoomQuarters.h"
 #include "RoomTreasury.h"
 #include "RoomPortal.h"
+#include "RoomDungeonTemple.h"
 
 #endif
 

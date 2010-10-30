@@ -16,12 +16,14 @@ SET(
      GoalKillAllEnemies.cpp
      GoalMineNGold.cpp
      GoalProtectCreature.cpp
+     GoalProtectDungeonTemple.cpp
      main.cpp
      MapEditor.cpp
      MapLight.cpp
      Player.cpp
      RenderRequest.cpp
      Room.cpp
+     RoomDungeonTemple.cpp
      RoomPortal.cpp
      RoomQuarters.cpp
      RoomTreasury.cpp

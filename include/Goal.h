@@ -43,6 +43,7 @@ class Goal
 #include "GoalProtectCreature.h"
 #include "GoalClaimNTiles.h"
 #include "GoalMineNGold.h"
+#include "GoalProtectDungeonTemple.h"
 
 #endif
 

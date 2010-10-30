@@ -11,12 +11,13 @@ Media/levels/Test.level # The level to load after this level is complete.
 5	Animals	15	0	0.8	0.8	0
 
 # Goals
-4  # The number of goals to load.
+5  # The number of goals to load.
 # goalName	arguments
 KillAllEnemies	NULL
 ProtectCreature	Knight_001
 ClaimNTiles	1000
 MineNGold	2500
+ProtectDungeonTemple	NULL
 
 # Tiles
 9727  # The number of tiles to load.
@@ -2879,9 +2880,9 @@ MineNGold	2500
 -6	3	0	0
 -6	4	0	0
 -6	5	0	0
--6	6	0	0
--6	7	0	0
--6	8	0	0
+-6	6	5	0
+-6	7	5	0
+-6	8	5	0
 -6	9	5	0
 -6	10	5	0
 -6	11	5	0
@@ -3011,9 +3012,9 @@ MineNGold	2500
 -5	3	0	0
 -5	4	0	0
 -5	5	0	0
--5	6	0	0
--5	7	0	0
--5	8	0	0
+-5	6	5	0
+-5	7	5	0
+-5	8	5	0
 -5	9	5	0
 -5	10	5	0
 -5	11	5	0
@@ -3142,9 +3143,9 @@ MineNGold	2500
 -4	3	0	0
 -4	4	0	0
 -4	5	0	0
--4	6	0	0
--4	7	0	0
--4	8	0	0
+-4	6	5	0
+-4	7	5	0
+-4	8	5	0
 -4	9	5	0
 -4	10	5	0
 -4	11	5	0
@@ -9750,8 +9751,12 @@ MineNGold	2500
 61	-119	2	100
 
 # Rooms
-7  # The number of rooms to load.
+8  # The number of rooms to load.
 # meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
+DungeonTemple	1
+1
+-5	7
+
 Quarters	2
 6
 4	9
