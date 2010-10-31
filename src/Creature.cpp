@@ -512,37 +512,62 @@ void Creature::doTurn()
 						loopBack = true;
 						actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 
-						// If we are not a worker check to see if there is a nearby worker we can follow around.
+						// If we are not a worker.
 						int tempX, tempY;
-						bool workerFound;
+						bool workerFound = false;
 						if(digRate < 0.1)
 						{
-							workerFound = false;
-							for(unsigned int i = 0; i < reachableAlliedObjects.size(); i++)
+							// Checkt to see if we want to try to follow a worker around or if we want to try to explore.
+							if(randomDouble(0.0, 1.0) < 0.3)
 							{
-								// Check to see if we found a worker.
-								if(reachableAlliedObjects[i]->getAttackableObjectType() == AttackableObject::creature && \
-										((Creature*)reachableAlliedObjects[i])->digRate > 0.1)
+								// Try to find a worker to follow around.
+								for(unsigned int i = 0; i < reachableAlliedObjects.size(); i++)
 								{
-									//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
-									tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
-									tempX = tempTile->x + 3.0*gaussianRandomDouble();
-									tempY = tempTile->y + 3.0*gaussianRandomDouble();
-									workerFound = true;
+									// Check to see if we found a worker.
+									if(reachableAlliedObjects[i]->getAttackableObjectType() == AttackableObject::creature && \
+											((Creature*)reachableAlliedObjects[i])->digRate > 0.1)
+									{
+										//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+										tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
+										tempX = tempTile->x + 3.0*gaussianRandomDouble();
+										tempY = tempTile->y + 3.0*gaussianRandomDouble();
+										workerFound = true;
+									}
+
+									if(!workerFound)
+									{
+										sem_wait(&positionLockSemaphore);
+										tempX = position.x + 2.0*gaussianRandomDouble();
+										tempY = position.y + 2.0*gaussianRandomDouble();
+										sem_post(&positionLockSemaphore);
+									}
+								}
+							}
+							else
+							{
+								// Try to find an unclaimed tile to walk to we choose this by the longest path to an unclaimed tile we find in the visible tiles we examine.
+								//TODO: Make a copy of the visibleTiles and randomly choose tiles without replacement from this set to make the algorithm more balanced in the direction we walk.
+								unsigned int maxLoopCount = randomUint(5, 15), longestPathLength = 0;
+								std::list<Tile*> longestPath, tempPath;
+								myTile = positionTile();
+								for(unsigned int i = 0; visibleTiles.size() && i < maxLoopCount; i++)
+								{
+									tempPath = gameMap.path(myTile, visibleTiles[i], tilePassability);
+									if(visibleTiles[i]->getType() == Tile::dirt && visibleTiles[i]->getFullness() == 0 && tempPath.size() >= 2 && tempPath.size() > longestPath.size())
+									{
+										longestPath = tempPath;
+										longestPathLength = longestPath.size();
+									}
 								}
 
-								// Give up looking for nearby workers with a certain probability for each ally we check.
-								if(randomDouble(0.0, 1.0) < 0.20)
+								if(longestPathLength >= 2)
+								{
+									gameMap.cutCorners(longestPath, tilePassability);
+									setAnimationState("Walk");
+									setWalkPath(longestPath, 2, false);
 									break;
+								}
 							}
-						}
-
-						if(!workerFound)
-						{
-							sem_wait(&positionLockSemaphore);
-							tempX = position.x + 2.0*gaussianRandomDouble();
-							tempY = position.y + 2.0*gaussianRandomDouble();
-							sem_post(&positionLockSemaphore);
 						}
 
 						Tile *tempPositionTile = positionTile();
