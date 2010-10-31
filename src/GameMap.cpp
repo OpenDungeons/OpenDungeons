@@ -419,6 +419,25 @@ unsigned int GameMap::numCreatures()
 	return tempUnsigned;
 }
 
+/*! \brief Returns a vector containing all the creatures controlled by the given seat.
+ *
+ */
+std::vector<Creature*> GameMap::getCreaturesByColor(int color)
+{
+	std::vector<Creature*> tempVector;
+
+	// Loop over all the creatures in the GameMap and add them to the temp vector if their color matches that of the desired seat.
+	sem_wait(&creaturesLockSemaphore);
+	for(unsigned int i = 0; i < creatures.size(); i++)
+	{
+		if(creatures[i]->color == color)
+			tempVector.push_back(creatures[i]);
+	}
+	sem_post(&creaturesLockSemaphore);
+
+	return tempVector;
+}
+
 /*! \brief Returns the total number of class descriptions stored in this game map.
  *
  */

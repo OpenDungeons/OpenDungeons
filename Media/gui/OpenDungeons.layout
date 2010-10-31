@@ -29,13 +29,11 @@
                             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                             <Property Name="UnifiedAreaRect" Value="{{0.0162324,0},{0.142254,0},{0.134769,0},{0.910564,0}}" />
                         </Window>
-			<!--
                         <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/ForgeButton" >
                             <Property Name="Text" Value="Forge" />
                             <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                             <Property Name="UnifiedAreaRect" Value="{{0.158918,0},{0.153521,0},{0.277454,0},{0.921831,0}}" />
                         </Window>
-			-->
 			<!--
                         <Window Type="TaharezLook/Button" Name="Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/ShopButton" >
                             <Property Name="Text" Value="Shop" />

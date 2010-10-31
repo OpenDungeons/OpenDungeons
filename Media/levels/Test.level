@@ -9751,11 +9751,23 @@ ProtectDungeonTemple	NULL
 61	-119	2	100
 
 # Rooms
-8  # The number of rooms to load.
+9  # The number of rooms to load.
 # meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
 DungeonTemple	1
 1
 -5	7
+
+Forge	1
+9
+-10	2
+-10	3
+-10	4
+-11	2
+-11	3
+-11	4
+-12	2
+-12	3
+-12	4
 
 Quarters	2
 6

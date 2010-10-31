@@ -128,6 +128,9 @@ void MapEditor::createScene(void)
 
 		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/TreasuryButton");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&treasuryButtonPressed));
+
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/ForgeButton");
+		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&forgeButtonPressed));
 	}
 	catch (...)
 	{

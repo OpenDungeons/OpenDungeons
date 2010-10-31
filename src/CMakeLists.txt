@@ -24,6 +24,7 @@ SET(
      RenderRequest.cpp
      Room.cpp
      RoomDungeonTemple.cpp
+     RoomForge.cpp
      RoomPortal.cpp
      RoomQuarters.cpp
      RoomTreasury.cpp

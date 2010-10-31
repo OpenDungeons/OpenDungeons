@@ -49,6 +49,7 @@ class GameMap
 		Creature* getCreature(int index);
 		Creature* getCreature(string cName);
 		unsigned int numCreatures();
+		std::vector<Creature*> getCreaturesByColor(int color);
 
 		void clearClasses();
 		void addClassDescription(CreatureClass c);
