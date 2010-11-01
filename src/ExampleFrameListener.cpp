@@ -1228,7 +1228,7 @@ bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)
 RaySceneQueryResult& ExampleFrameListener::doRaySceneQuery(const OIS::MouseEvent &arg)
 {
 	// Setup the ray scene query, use CEGUI's mouse position
-	CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();
+	CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();// * mMouseScale;
 	Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x/float(arg.state.width), mousePos.d_y/float(arg.state.height));
 	mRaySceneQuery->setRay(mouseRay);
 	mRaySceneQuery->setSortByDistance(true);
@@ -2486,6 +2486,27 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		}
 	}
 
+	//Set/get the mouse movement scaling (sensitivity)
+	else if(command.compare("mousespeed") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			float speed;
+			tempSS.str(arguments);
+			tempSS >> speed;
+			CEGUI::System::getSingleton().setMouseMoveScaling(speed);
+			tempSS.str("");
+			tempSS << "Mouse speed changed to: " << speed;
+			commandOutput += "\n" + tempSS.str() + "\n";
+		}
+		else
+		{
+			commandOutput += "\nCurrent mouse speed is: " 
+				+ StringConverter::toString(static_cast<Real>(
+				CEGUI::System::getSingleton().getMouseMoveScaling())) + "\n";
+		}
+	}
+
 	// Add a new instance of a creature to the current map.  The argument is
 	// read as if it were a line in a .level file.
 	else if(command.compare("addcreature") == 0)
@@ -3150,6 +3171,11 @@ string ExampleFrameListener::getHelpText(string arg)
 		return "turnspersecond (or \"tps\" for short is a utility which displays or sets the speed at which the game is running.\n\nExample:\n" + prompt + "tps 5\n\nThe above command will set the current game speed to 5 turns per second.";
 	}
 
+	else if(arg.compare("mousespeed") == 0)
+	{
+		return "Mousespeed sets the mouse movement speed scaling factor. It takes a decimal number as argument, which the mouse movement will get multiplied by.";
+	}
+	
 	else if(arg.compare("framespersecond") == 0 || arg.compare("fps") == 0)
 	{
 		return "framespersecond (or \"fps\" for short is a utility which displays or sets the maximum framerate at which the rendering will attempt to update the screen.\n\nExample:\n" + prompt + "fps 35\n\nThe above command will set the current maximum framerate to 35 turns per second.";

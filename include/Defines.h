@@ -27,6 +27,7 @@ For information on how to use a particular command, type help followed by the co
 \n\trotatespeed - sets the camera rotation speed\
 \n\tfps - sets the maximum framerate\
 \n\tturnspersecond - sets the number of turns the AI will carry out per second\
+\n\tmousespeed - sets the mouse speed\
 \n\tambientlight - set the ambient light color\
 \n\tconnect - connect to a server\
 \n\thost - host a server\
