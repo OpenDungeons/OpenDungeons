@@ -34,6 +34,8 @@ SET(
      Socket.cpp
      TextRenderer.cpp
      Tile.cpp
+     Trap.cpp
+     TrapCannon.cpp
      Weapon.cpp
    )
 

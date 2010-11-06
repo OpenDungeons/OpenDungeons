@@ -35,12 +35,12 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, 
 	tempRoom->meshExists = false;
 	tempRoom->color = nColor;
 
-	static int uniqueNumber = -1;
-	std::stringstream tempSS;
-
 	//TODO: This should actually just call setType() but this will require a change to the >> operator.
 	tempRoom->meshName = getMeshNameFromRoomType(nType);
 	tempRoom->type = nType;
+
+	static int uniqueNumber = -1;
+	std::stringstream tempSS;
 
 	tempSS.str("");
 	tempSS << tempRoom->meshName << "_" << uniqueNumber;
