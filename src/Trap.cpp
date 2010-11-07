@@ -67,3 +67,120 @@ Trap::TrapType Trap::getTrapTypeFromMeshName(string s)
 	}
 }
 
+int Trap::costPerTile(TrapType t)
+{
+	switch(t)
+	{
+		case cannon:     return 500;     break;
+	}
+
+	return 100;
+}
+
+void Trap::doUpkeep()
+{
+	doUpkeep(this);
+}
+
+void Trap::doUpkeep(Trap *t)
+{
+}
+
+void Trap::addCoveredTile(Tile* t, double nHP)
+{
+	coveredTiles.push_back(t);
+	tileHP[t] = nHP;
+}
+
+void Trap::removeCoveredTile(Tile* t)
+{
+	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	{
+		if(t == coveredTiles[i])
+		{
+			coveredTiles.erase(coveredTiles.begin() + i);
+			tileHP.erase(t);
+			break;
+		}
+	}
+
+	/*
+	// Destroy the mesh for this tile.
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::destroyTrap;
+	request->p = this;
+	request->p2 = t;
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
+	*/
+}
+
+Tile* Trap::getCoveredTile(int index)
+{
+	return coveredTiles[index];
+}
+
+std::vector<Tile*> Trap::getCoveredTiles()
+{
+	return coveredTiles;
+}
+
+unsigned int Trap::numCoveredTiles()
+{
+	return coveredTiles.size();
+}
+
+void Trap::clearCoveredTiles()
+{
+	coveredTiles.clear();
+}
+
+double Trap::getHP(Tile *tile)
+{
+	return tileHP[tile];
+}
+
+double Trap::getDefense()
+{
+	return 0;
+}
+
+void Trap::takeDamage(double damage, Tile *tileTakingDamage)
+{
+	tileHP[tileTakingDamage] -= damage;
+}
+
+void Trap::recieveExp(double experience)
+{
+	exp += experience;
+}
+
+bool Trap::isMobile()
+{
+	return false;
+}
+
+int Trap::getLevel()
+{
+	return 1;
+}
+
+int Trap::getColor()
+{
+	if(controllingSeat != NULL)
+		return controllingSeat->color;
+	else
+		return 0;
+}
+
+string Trap::getName()
+{
+	return name;
+}
+
+AttackableObject::AttackableObjectType Trap::getAttackableObjectType()
+{
+	return trap;
+}
+

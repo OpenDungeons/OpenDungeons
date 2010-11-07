@@ -6,10 +6,11 @@
 #include <deque>
 #include <iostream>
 
+#include "ActiveObject.h"
 #include "Tile.h"
 #include "AttackableObject.h"
 
-class Room : public AttackableObject
+class Room : public AttackableObject, public ActiveObject
 {
 	public:
 		// When room types are added to this enum they also need to be added to the switch statements in Room.cpp.

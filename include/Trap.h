@@ -4,11 +4,12 @@
 #include <vector>
 #include <string>
 
+#include "ActiveObject.h"
 #include "Tile.h"
 #include "Seat.h"
 #include "AttackableObject.h"
 
-class Trap : public AttackableObject
+class Trap : public AttackableObject, public ActiveObject
 {
 	public:
 		enum TrapType {nullTrapType = 0, cannon};
@@ -32,14 +33,27 @@ class Trap : public AttackableObject
 		string name, meshName;
 
 		// Functions which can be overridden by child classes.
-		virtual void doUpkeep(Trap *r);
-		
+		virtual void doUpkeep();
+		virtual void doUpkeep(Trap *t);
+
 		virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
 		virtual void removeCoveredTile(Tile* t);
 		virtual Tile* getCoveredTile(int index);
 		std::vector<Tile*> getCoveredTiles();
 		virtual unsigned int numCoveredTiles();
 		virtual void clearCoveredTiles();
+
+		// Methods inherited from AttackableObject.
+		//TODO:  Sort these into the proper places in the rest of the file.
+		double getHP(Tile *tile);
+		double getDefense();
+		void takeDamage(double damage, Tile *tileTakingDamage);
+		void recieveExp(double experience);
+		bool isMobile();
+		int getLevel();
+		int getColor();
+		string getName();
+		AttackableObject::AttackableObjectType getAttackableObjectType();
 
 	protected:
 		const static double defaultTileHP = 10.0;
@@ -48,6 +62,7 @@ class Trap : public AttackableObject
 		std::map<Tile*,double> tileHP;
 		TrapType type;
 		bool meshExists;
+		double exp;
 };
 
 #include "TrapCannon.h"

@@ -14,6 +14,7 @@
 #include "Network.h"
 #include "Sleep.h"
 #include "Field.h"
+#include "Trap.h"
 
 using namespace Ogre;
 
@@ -394,6 +395,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		MaterialPtr tempMaterial;
 		Tile *curTile = NULL;
 		Room *curRoom = NULL;
+		Trap *curTrap = NULL;
 		Creature *curCreature = NULL;
 		MapLight *curMapLight = NULL;
 		Light *light;
@@ -521,6 +523,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				}
 				break;
 
+			case RenderRequest::createTrap:
+				break;
+
+			case RenderRequest::destroyTrap:
+				break;
+
 			case RenderRequest::createTreasuryIndicator:
 				curTile = (Tile*)curReq->p;
 				curRoom = (Room*)curReq->p2;
@@ -622,6 +630,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			case RenderRequest::deleteRoom:
 				curRoom = (Room*)curReq->p;
 				delete curRoom;
+				break;
+
+			case RenderRequest::deleteTrap:
+				curTrap = (Trap*)curReq->p;
+				delete curTrap;
 				break;
 
 			case RenderRequest::deleteTile:

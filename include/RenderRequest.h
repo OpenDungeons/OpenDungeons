@@ -22,6 +22,7 @@ class RenderRequest
 				createWeapon, destroyWeapon, deleteWeapon,
 				pickUpCreature, dropCreature, rotateCreaturesInHand,
 				createRoom, destroyRoom, deleteRoom,
+				createTrap, destroyTrap, deleteTrap,
 				createTreasuryIndicator, destroyTreasuryIndicator,
 				createBed, destroyBed,
 				createMapLight, updateMapLight, destroyMapLight, destroyMapLightVisualIndicator, deleteMapLight,
