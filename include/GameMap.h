@@ -7,6 +7,7 @@
 #include "Creature.h"
 #include "Player.h"
 #include "Room.h"
+#include "Trap.h"
 #include "Seat.h"
 #include "MapLight.h"
 #include "ProtectedObject.h"
@@ -72,6 +73,12 @@ class GameMap
 		unsigned int numRooms();
 		std::vector<Room*> getRoomsByTypeAndColor(Room::RoomType type, int color);
 		std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec, Tile *startTile, Tile::TileClearType passability);
+
+		void clearTraps();
+		void addTrap(Trap *t);
+		void removeTrap(Trap *t);
+		Trap* getTrap(int index);
+		unsigned int numTraps();
 
 		int getTotalGoldForColor(int color);
 		int withdrawFromTreasuries(int gold, int color);
@@ -152,6 +159,7 @@ class GameMap
 		sem_t creaturesLockSemaphore;  //TODO: Most of these other vectors should also probably have semaphore locks on them.
 		std::vector<Player*> players;
 		std::vector<Room*> rooms;
+		std::vector<Trap*> traps;
 		std::vector<MapLight*> mapLights;
 		std::vector<Seat*> emptySeats;
 		std::vector<Seat*> filledSeats;

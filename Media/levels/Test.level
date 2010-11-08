@@ -1,4 +1,4 @@
-OpenDungeons_Version:0.4.3  # The version of OpenDungeons which created this file (for compatability reasons).
+OpenDungeons_Version:0.4.4  # The version of OpenDungeons which created this file (for compatability reasons).
 Media/levels/Test.level # The level to load after this level is complete.
 
 # Seats
@@ -9826,6 +9826,8 @@ Portal	2
 6	14
 6	15
 
+# Traps
+0  # The number of traps to load.
 
 # Lights
 22  # The number of lights to load.

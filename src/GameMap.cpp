@@ -1353,6 +1353,45 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec, Til
 	return returnVector;
 }
 
+void GameMap::clearTraps()
+{
+	/*
+	for(unsigned int i = 0; i < numTraps(); i++)
+	{
+		getTrap(i)->deleteYourself();
+	}
+	*/
+
+	traps.clear();
+}
+
+void GameMap::addTrap(Trap *t)
+{
+	traps.push_back(t);
+}
+
+void GameMap::removeTrap(Trap *t)
+{
+	for(unsigned int i = 0; i < traps.size(); i++)
+	{
+		if(t == traps[i])
+		{
+			traps.erase(traps.begin()+i);
+			break;
+		}
+	}
+}
+
+Trap* GameMap::getTrap(int index)
+{
+	return traps[index];
+}
+
+unsigned int GameMap::numTraps()
+{
+	return traps.size();
+}
+
 int GameMap::getTotalGoldForColor(int color)
 {
 	int tempInt = 0;

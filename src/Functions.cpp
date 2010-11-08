@@ -25,6 +25,7 @@ bool readGameMapFromFile(string fileName)
 	Goal *tempGoal;
 	Tile *tempTile;
 	Room *tempRoom;
+	Trap *tempTrap;
 	MapLight *tempLight;
 	string tempString, tempString2;
 	Creature tempCreature;
@@ -117,6 +118,15 @@ bool readGameMapFromFile(string fileName)
 		tempRoom = Room::createRoomFromStream(levelFile);
 
 		gameMap.addRoom(tempRoom);
+	}
+
+	// Read in the traps
+	levelFile >> objectsToLoad;
+	for(int i = 0; i < objectsToLoad; i++)
+	{
+		tempTrap = Trap::createTrapFromStream(levelFile);
+
+		gameMap.addTrap(tempTrap);
 	}
 
 	// Read in the lights
@@ -213,6 +223,14 @@ void writeGameMapToFile(string fileName)
 	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
 	{
 		levelFile << gameMap.getRoom(i) << endl;
+	}
+
+	// Write out the traps to the file
+	levelFile << "\n# Traps\n" << gameMap.numTraps() << "  # The number of traps to load.\n";
+	levelFile << "# " << Trap::getFormat() << "\n";
+	for(unsigned int i = 0; i < gameMap.numTraps(); i++)
+	{
+		levelFile << gameMap.getTrap(i) << endl;
 	}
 
 	// Write out the lights to the file.

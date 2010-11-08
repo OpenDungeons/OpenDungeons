@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "Globals.h"
 #include "Functions.h"
 #include "Room.h"
@@ -235,6 +237,7 @@ istream& operator>>(istream& is, Room *r)
 		if(tempTile != NULL)
 		{
 			r->addCoveredTile(tempTile);
+			//FIXME: This next line will not be necessary when the the tile color is properly set by the tile load routine.
 			tempTile->color = r->color;
 			tempTile->colorDouble = 1.0;
 		}
@@ -286,7 +289,7 @@ Room::RoomType Room::getRoomTypeFromMeshName(string s)
 	else if(s.compare("Portal") == 0)
 		return portal;
 	else if(s.compare("Forge") == 0)
-		return portal;
+		return forge;
 	else
 	{
 		cerr << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";

@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "ActiveObject.h"
 #include "Tile.h"
@@ -15,8 +16,8 @@ class Trap : public AttackableObject, public ActiveObject
 		enum TrapType {nullTrapType = 0, cannon};
 
 		Trap();
-		static Trap* createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles);
-		//static Trap* createTrapFromStream(istream &is);
+		static Trap* createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles, Seat *nControllingSeat);
+		static Trap* createTrapFromStream(istream &is);
 		//virtual void absorbTrap(Trap *t);
 
 		//void createMeshes();
@@ -42,6 +43,10 @@ class Trap : public AttackableObject, public ActiveObject
 		std::vector<Tile*> getCoveredTiles();
 		virtual unsigned int numCoveredTiles();
 		virtual void clearCoveredTiles();
+
+		static string getFormat();
+		friend istream& operator>>(istream& is, Trap *t);
+		friend ostream& operator<<(ostream& os, Trap *t);
 
 		// Methods inherited from AttackableObject.
 		//TODO:  Sort these into the proper places in the rest of the file.

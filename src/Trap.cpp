@@ -1,3 +1,4 @@
+#include "Globals.h"
 #include "Trap.h"
 
 Trap::Trap()
@@ -6,7 +7,7 @@ Trap::Trap()
 	meshExists = false;
 }
 
-Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles)
+Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles, Seat *nControllingSeat)
 {
 	Trap *tempTrap = NULL;
 
@@ -21,6 +22,8 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles)
 		cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__ << "\n\n\n";
 		exit(1);
 	}
+
+	tempTrap->controllingSeat = nControllingSeat;
 
 	tempTrap->meshName = getMeshNameFromTrapType(nType);
 	tempTrap->type = nType;
@@ -37,6 +40,15 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles)
 		tempTrap->addCoveredTile(nCoveredTiles[i]);
 
 	return tempTrap;
+}
+
+Trap* Trap::createTrapFromStream(istream &is)
+{
+	Trap tempTrap;
+	is >> &tempTrap;
+
+	Trap *returnTrap = createTrap(tempTrap.type, tempTrap.coveredTiles, tempTrap.controllingSeat);
+	return returnTrap;
 }
 
 Trap::TrapType Trap::getType()
@@ -182,5 +194,55 @@ string Trap::getName()
 AttackableObject::AttackableObjectType Trap::getAttackableObjectType()
 {
 	return trap;
+}
+
+string Trap::getFormat()
+{
+        return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
+}
+
+istream& operator>>(istream& is, Trap *t)
+{
+	static int uniqueNumber = 1;
+	int tilesToLoad, tempX, tempY;
+	string tempString;
+	std::stringstream tempSS;
+
+	is >> t->meshName >> t->controllingSeat->color;
+
+	tempSS.str("");
+	tempSS << t->meshName << "_" << uniqueNumber;
+	uniqueNumber++;
+	t->name = tempSS.str();
+
+	is >> tilesToLoad;
+	for(int i = 0; i < tilesToLoad; i++)
+	{
+		is >> tempX >> tempY;
+		Tile *tempTile = gameMap.getTile(tempX, tempY);
+		if(tempTile != NULL)
+		{
+			t->addCoveredTile(tempTile);
+			//FIXME: This next line will not be necessary when the the tile color is properly set by the tile load routine.
+			tempTile->color = t->controllingSeat->color;
+			tempTile->colorDouble = 1.0;
+		}
+	}
+	
+	t->type = Trap::getTrapTypeFromMeshName(t->meshName);
+	return is;
+}
+
+ostream& operator<<(ostream& os, Trap *t)
+{
+	os << t->meshName << "\t" << t->controllingSeat->color << "\n";
+	os << t->coveredTiles.size() << "\n";
+	for(unsigned int i = 0; i < t->coveredTiles.size(); i++)
+	{
+		Tile *tempTile = t->coveredTiles[i];
+		os << tempTile->x << "\t" << tempTile->y << "\n";
+	}
+
+	return os;
 }
 
