@@ -7,6 +7,9 @@ class RoomDungeonTemple : public Room
 {
 	public:
 		RoomDungeonTemple();
+
+		void createMeshes();
+		void destroyMeshes();
 };
 
 #endif

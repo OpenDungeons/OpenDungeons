@@ -26,6 +26,7 @@ SET(
      Room.cpp
      RoomDungeonTemple.cpp
      RoomForge.cpp
+     RoomObject.cpp
      RoomPortal.cpp
      RoomQuarters.cpp
      RoomTreasury.cpp

@@ -131,6 +131,12 @@ void Room::clearCoveredTiles()
 	coveredTiles.clear();
 }
 
+Tile* Room::getCentralTile()
+{
+	//FIXME:  This function is not properly implemented yet.
+	return coveredTiles[0];
+}
+
 void Room::createMeshes()
 {
 	if(meshExists)
@@ -158,6 +164,8 @@ void Room::destroyMeshes()
 
 	meshExists = false;
 
+	destroyRoomObjectMeshes();
+
 	for(unsigned int i = 0; i < coveredTiles.size(); i++)
 	{
 		Tile *tempTile = coveredTiles[i];
@@ -168,6 +176,26 @@ void Room::destroyMeshes()
 
 		// Add the request to the queue of rendering operations to be performed before the next frame.
 		queueRenderRequest(request);
+	}
+}
+
+void Room::createRoomObjectMeshes()
+{
+	std::map<Tile*,RoomObject*>::iterator itr = roomObjects.begin();
+	while(itr != roomObjects.end())
+	{
+		itr->second->createMesh();
+		itr++;
+	}
+}
+
+void Room::destroyRoomObjectMeshes()
+{
+	std::map<Tile*,RoomObject*>::iterator itr = roomObjects.begin();
+	while(itr != roomObjects.end())
+	{
+		itr->second->destroyMesh();
+		itr++;
 	}
 }
 

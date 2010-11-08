@@ -15,6 +15,7 @@
 #include "Sleep.h"
 #include "Field.h"
 #include "Trap.h"
+#include "RoomObject.h"
 
 using namespace Ogre;
 
@@ -395,6 +396,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		MaterialPtr tempMaterial;
 		Tile *curTile = NULL;
 		Room *curRoom = NULL;
+		RoomObject *curRoomObject = NULL;
 		Trap *curTrap = NULL;
 		Creature *curCreature = NULL;
 		MapLight *curMapLight = NULL;
@@ -523,10 +525,39 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				}
 				break;
 
+			case RenderRequest::createRoomObject:
+				curRoomObject = (RoomObject*)curReq->p;
+				curRoom = (Room*)curReq->p2;
+
+				tempString = (string)"RoomObject_" + curRoomObject->getName();
+				ent = mSceneMgr->createEntity(tempString, curRoomObject->getMeshName() + ".mesh");
+				node = roomSceneNode->createChildSceneNode(tempString + "_node");
+				node->setPosition(Ogre::Vector3(curRoomObject->x, curRoomObject->y, 0.0));
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
+				roomObjectEntity->setNormaliseNormals(true);
+#endif
+
+				node->attachObject(ent);
+				break;
+
+			case RenderRequest::destroyRoomObject:
+				curRoomObject = (RoomObject*)curReq->p;
+				curRoom = (Room*)curReq->p2;
+
+				tempString = (string)"RoomObject_" + curRoomObject->getName();
+				ent = mSceneMgr->getEntity(tempString);
+				node = mSceneMgr->getSceneNode(tempString + "_node");
+				node->detachObject(ent);
+				mSceneMgr->destroySceneNode(node->getName());
+				mSceneMgr->destroyEntity(ent);
+				break;
+
 			case RenderRequest::createTrap:
+				//TODO: Fill this in.
 				break;
 
 			case RenderRequest::destroyTrap:
+				//TODO: Fill this in.
 				break;
 
 			case RenderRequest::createTreasuryIndicator:

@@ -9,6 +9,7 @@
 #include "ActiveObject.h"
 #include "Tile.h"
 #include "AttackableObject.h"
+#include "RoomObject.h"
 
 class Room : public AttackableObject, public ActiveObject
 {
@@ -26,8 +27,10 @@ class Room : public AttackableObject, public ActiveObject
 		friend ostream& operator<<(ostream& os, Room *r);
 		friend istream& operator>>(istream& is, Room *r);
 
-		void createMeshes();
-		void destroyMeshes();
+		virtual void createMeshes();
+		virtual void destroyMeshes();
+		void createRoomObjectMeshes();
+		void destroyRoomObjectMeshes();
 		void deleteYourself();
 		RoomType getType();
 
@@ -51,6 +54,8 @@ class Room : public AttackableObject, public ActiveObject
 		virtual unsigned int numCoveredTiles();
 		virtual void clearCoveredTiles();
 
+		Tile* getCentralTile();
+
 		// Methods inherited from AttackableObject.
 		//TODO:  Sort these into the proper places in the rest of the file.
 		double getHP(Tile *tile);
@@ -68,6 +73,7 @@ class Room : public AttackableObject, public ActiveObject
 
 		std::vector<Tile*> coveredTiles;
 		std::map<Tile*,double> tileHP;
+		std::map<Tile*,RoomObject*> roomObjects;
 		RoomType type;
 		bool meshExists;
 };
