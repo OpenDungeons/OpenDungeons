@@ -7,6 +7,14 @@ RoomPortal::RoomPortal()
 	return;
 }
 
+void RoomPortal::createMeshes()
+{
+	Room::createMeshes();
+
+	loadRoomObject("PortalObject");
+	createRoomObjectMeshes();
+}
+
 void RoomPortal::addCoveredTile(Tile* t, double nHP)
 {
 	Room::addCoveredTile(t, nHP);

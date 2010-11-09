@@ -133,8 +133,30 @@ void Room::clearCoveredTiles()
 
 Tile* Room::getCentralTile()
 {
-	//FIXME:  This function is not properly implemented yet.
-	return coveredTiles[0];
+	if(coveredTiles.size() == 0)
+		return NULL;
+
+	int minX, maxX, minY, maxY;
+	minX = maxX = coveredTiles[0]->x;
+	minY = maxY = coveredTiles[0]->y;
+
+	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	{
+		int tempX = coveredTiles[i]->x;
+		int tempY = coveredTiles[i]->y;
+
+		if(tempX < minX)  minX = tempX;
+		if(tempY < minY)  minY = tempY;
+		if(tempX > maxX)  maxX = tempX;
+		if(tempY > maxY)  maxY = tempY;
+	}
+
+	int centralX = (minX + maxX)/2;
+	int centralY = (minY + maxY)/2;
+	//TODO: If this central tile is NULL we should move outward until we find a valid one.
+	Tile *centralTile = gameMap.getTile(centralX, centralY);
+
+	return centralTile;
 }
 
 void Room::createMeshes()
@@ -179,8 +201,22 @@ void Room::destroyMeshes()
 	}
 }
 
+/*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile, if the tile is NULL the object appears in the room's center.
+ *
+ */
+void Room::loadRoomObject(string meshName, Tile *targetTile)
+{
+	if(targetTile == NULL)
+		targetTile = getCentralTile();
+
+	roomObjects[targetTile] = new RoomObject(this, meshName);
+	roomObjects[targetTile]->x = targetTile->x;
+	roomObjects[targetTile]->y = targetTile->y;
+}
+
 void Room::createRoomObjectMeshes()
 {
+	// Loop over all the RoomObjects that are children of this room and create each mesh individually.
 	std::map<Tile*,RoomObject*>::iterator itr = roomObjects.begin();
 	while(itr != roomObjects.end())
 	{
@@ -191,6 +227,7 @@ void Room::createRoomObjectMeshes()
 
 void Room::destroyRoomObjectMeshes()
 {
+	// Loop over all the RoomObjects that are children of this room and destroy each mesh individually.
 	std::map<Tile*,RoomObject*>::iterator itr = roomObjects.begin();
 	while(itr != roomObjects.end())
 	{

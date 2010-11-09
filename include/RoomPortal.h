@@ -10,6 +10,7 @@ class RoomPortal : public Room
 		RoomPortal();
 
 		// Functions overriding virtual functions in the Room base class.
+		void createMeshes();
 		void addCoveredTile(Tile* t, double nHP = Room::defaultTileHP);
 		void removeCoveredTile(Tile* t);
 		void doUpkeep(Room *r);

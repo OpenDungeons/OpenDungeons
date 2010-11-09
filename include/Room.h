@@ -29,6 +29,7 @@ class Room : public AttackableObject, public ActiveObject
 
 		virtual void createMeshes();
 		virtual void destroyMeshes();
+		void loadRoomObject(string meshName, Tile *targetTile = NULL);
 		void createRoomObjectMeshes();
 		void destroyRoomObjectMeshes();
 		void deleteYourself();
