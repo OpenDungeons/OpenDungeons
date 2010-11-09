@@ -151,13 +151,6 @@ bool Player::dropCreature(Tile *t)
 				)
 		  )
 		{
-			// Pause the creature AI thread
-			//TODO:  I think this is what is causing the lag when you drop a creature.
-			if(serverSocket != NULL)
-			{
-				sem_wait(&creatureAISemaphore);
-			}
-
 			// Add the creature to the map
 			Creature *c = creaturesInHand[0];
 			creaturesInHand.erase(creaturesInHand.begin());
@@ -216,12 +209,6 @@ bool Player::dropCreature(Tile *t)
 						sem_post(&clientNotificationQueueSemaphore);
 					}
 				}
-			}
-
-			// Resume the creature AI thread
-			if(serverSocket != NULL)
-			{
-				sem_post(&creatureAISemaphore);
 			}
 
 			return true;
