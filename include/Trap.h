@@ -20,9 +20,9 @@ class Trap : public AttackableObject, public ActiveObject
 		static Trap* createTrapFromStream(istream &is);
 		//virtual void absorbTrap(Trap *t);
 
-		//void createMeshes();
-		//void destroyMeshes();
-		//void deleteYourself();
+		void createMeshes();
+		void destroyMeshes();
+		void deleteYourself();
 
 		TrapType getType();
 		static string getMeshNameFromTrapType(TrapType t);
@@ -30,8 +30,10 @@ class Trap : public AttackableObject, public ActiveObject
 
 		static int costPerTile(TrapType t);
 
+		string getName();
+		string getMeshName();
+
 		Seat *controllingSeat;
-		string name, meshName;
 
 		// Functions which can be overridden by child classes.
 		virtual void doUpkeep();
@@ -57,12 +59,12 @@ class Trap : public AttackableObject, public ActiveObject
 		bool isMobile();
 		int getLevel();
 		int getColor();
-		string getName();
 		AttackableObject::AttackableObjectType getAttackableObjectType();
 
 	protected:
 		const static double defaultTileHP = 10.0;
 
+		string name, meshName;
 		std::vector<Tile*> coveredTiles;
 		std::map<Tile*,double> tileHP;
 		TrapType type;

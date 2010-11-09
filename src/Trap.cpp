@@ -1,3 +1,4 @@
+#include "Functions.h"
 #include "Globals.h"
 #include "Trap.h"
 
@@ -51,6 +52,58 @@ Trap* Trap::createTrapFromStream(istream &is)
 	return returnTrap;
 }
 
+void Trap::createMeshes()
+{
+	if(meshExists)
+		return;
+
+	meshExists = true;
+
+	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	{
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::createTrap;
+		request->p = this;
+		request->p2 = coveredTiles[i];
+
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
+	}
+}
+
+void Trap::destroyMeshes()
+{
+	if(!meshExists)
+		return;
+
+	meshExists = false;
+
+	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	{
+		RenderRequest *request = new RenderRequest;
+		request->type = RenderRequest::destroyTrap;
+		request->p = this;
+		request->p2 = coveredTiles[i];
+
+		// Add the request to the queue of rendering operations to be performed before the next frame.
+		queueRenderRequest(request);
+	}
+}
+
+void Trap::deleteYourself()
+{
+	if(meshExists)
+		destroyMeshes();
+
+	// Create a render request asking the render queue to actually do the deletion of this creature.
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::deleteTrap;
+	request->p = this;
+
+	// Add the requests to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
+}
+
 Trap::TrapType Trap::getType()
 {
 	return type;
@@ -87,6 +140,16 @@ int Trap::costPerTile(TrapType t)
 	}
 
 	return 100;
+}
+
+string Trap::getName()
+{
+	return name;
+}
+
+string Trap::getMeshName()
+{
+	return meshName;
 }
 
 void Trap::doUpkeep()
@@ -186,11 +249,6 @@ int Trap::getColor()
 		return 0;
 }
 
-string Trap::getName()
-{
-	return name;
-}
-
 AttackableObject::AttackableObjectType Trap::getAttackableObjectType()
 {
 	return trap;
@@ -204,11 +262,12 @@ string Trap::getFormat()
 istream& operator>>(istream& is, Trap *t)
 {
 	static int uniqueNumber = 1;
-	int tilesToLoad, tempX, tempY;
+	int tilesToLoad, tempX, tempY, tempInt;
 	string tempString;
 	std::stringstream tempSS;
 
-	is >> t->meshName >> t->controllingSeat->color;
+	is >> t->meshName >> tempInt;
+	t->controllingSeat = gameMap.getSeatByColor(tempInt);
 
 	tempSS.str("");
 	tempSS << t->meshName << "_" << uniqueNumber;
