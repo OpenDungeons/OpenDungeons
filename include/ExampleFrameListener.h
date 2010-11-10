@@ -36,6 +36,11 @@ keyboard and mouse movements.
 #include <OIS/OIS.h>
 #include <CEGUI/CEGUIRenderer.h>
 
+//#define
+//#include <OgreOggSoundManager.h>
+//#include <OgreOggStreamSound.h>
+#include <OgreOggSound.h>
+
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
@@ -178,6 +183,8 @@ protected:
 	bool mouseDownOnCEGUIWindow;
 
 	enum DragType {creature, mapLight, tileSelection, tileBrushSelection, addNewRoom, nullDragType};
+
+	OgreOggSound::OgreOggISound* mCurrMusic;
 
 private:
 	bool mContinue;

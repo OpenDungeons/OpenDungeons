@@ -8,6 +8,7 @@
 #include "ExampleApplication.h"
 #include "ExampleFrameListener.h"
 #include "Tile.h"
+#include "MusicPlayer.h"
 
 #include <CEGUI/CEGUI.h>
 #include <OIS/OIS.h>
@@ -27,6 +28,7 @@ class MapEditor : public ExampleApplication
 		void chooseSceneManager(void);
 		CEGUI::System *mSystem;
 		CEGUI::Renderer *mRenderer;
+		MusicPlayer mMusicPlayer;
 };
 
 #endif

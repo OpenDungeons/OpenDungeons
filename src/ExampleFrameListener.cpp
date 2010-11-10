@@ -197,6 +197,9 @@ void ExampleFrameListener::windowResized(RenderWindow* rw)
 	const OIS::MouseState &ms = mMouse->getMouseState();
 	ms.width = width;
 	ms.height = height;
+
+	//Notify CEGUI that the display size has changed.
+	CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Size(width, height));
 }
 
 /*! \brief Unattach OIS before window shutdown (very important under Linux)

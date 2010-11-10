@@ -21,6 +21,7 @@ SET(
      main.cpp
      MapEditor.cpp
      MapLight.cpp
+     MusicPlayer.cpp
      Player.cpp
      RenderRequest.cpp
      Room.cpp

@@ -137,6 +137,8 @@ void MapEditor::createScene(void)
 		cerr << "\n\nERROR:  Caught and ignored an exception in the loading of the CEGUI overlay, the game will continue to function albeit without the GUI overlay functionality.\n\n";
 	}
 
+	OgreOggSound::OgreOggSoundManager::getSingleton().init("", 100, 64, mSceneMgr);
+	mMusicPlayer.load();
 }
 
 void MapEditor::createFrameListener(void)
@@ -144,6 +146,7 @@ void MapEditor::createFrameListener(void)
 	mFrameListener = new ExampleFrameListener(mWindow, mCamera, mSceneMgr, mRenderer, true, true, false);
 	mFrameListener->showDebugOverlay(true);
 	mRoot->addFrameListener(mFrameListener);
+	mMusicPlayer.start();
 }
 
 void MapEditor::chooseSceneManager(void)
