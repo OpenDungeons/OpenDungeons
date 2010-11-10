@@ -13,5 +13,6 @@ Plugin=Plugin_PCZSceneManager_d.dll
 Plugin=Plugin_OctreeZone_d.dll
 Plugin=Plugin_OctreeSceneManager_d
 
-
+#sound
+Plugin=OgreOggSound
 
