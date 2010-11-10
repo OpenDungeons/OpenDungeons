@@ -125,6 +125,7 @@ bool readGameMapFromFile(string fileName)
 	for(int i = 0; i < objectsToLoad; i++)
 	{
 		tempTrap = Trap::createTrapFromStream(levelFile);
+		tempTrap->createMeshes();
 
 		gameMap.addTrap(tempTrap);
 	}

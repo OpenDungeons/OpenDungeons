@@ -556,11 +556,34 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				break;
 
 			case RenderRequest::createTrap:
-				//TODO: Fill this in.
+				curTrap = (Trap*)curReq->p;
+				curTile = (Tile*)curReq->p2;
+
+				tempSS.str("");
+				tempSS << "Trap_" << curTrap->getName() + "_tile_" << curTile->x << "_" << curTile->y;
+				tempString = tempSS.str();
+				ent = mSceneMgr->createEntity(tempString, curTrap->getMeshName() + ".mesh");
+				node = roomSceneNode->createChildSceneNode(tempString + "_node");
+				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.0));
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
+				roomObjectEntity->setNormaliseNormals(true);
+#endif
+
+				node->attachObject(ent);
 				break;
 
 			case RenderRequest::destroyTrap:
-				//TODO: Fill this in.
+				curTrap = (Trap*)curReq->p;
+				curTile = (Tile*)curReq->p2;
+
+				tempSS.str("");
+				tempSS << "Trap_" << curTrap->getName() + "_tile_" << curTile->x << "_" << curTile->y;
+				tempString = tempSS.str();
+				ent = mSceneMgr->getEntity(tempString);
+				node = mSceneMgr->getSceneNode(tempString + "_node");
+				node->detachObject(ent);
+				mSceneMgr->destroySceneNode(node->getName());
+				mSceneMgr->destroyEntity(ent);
 				break;
 
 			case RenderRequest::createTreasuryIndicator:

@@ -9827,7 +9827,10 @@ Portal	2
 6	15
 
 # Traps
-0  # The number of traps to load.
+1  # The number of traps to load.
+Cannon	1
+1
+-7	2
 
 # Lights
 22  # The number of lights to load.
