@@ -88,7 +88,7 @@ IF( MSVC_IDE )
   MESSAGE( STATUS "Using win pthreads" )
 ENDIF( )
 
-link_libraries(OgreOggSound)
+link_libraries(OgreOggSound boost_thread-mt)
 
 ADD_SUBDIRECTORY( src )
 
