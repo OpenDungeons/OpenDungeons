@@ -334,6 +334,14 @@ Tile::TileClearType Tile::getTilePassability()
 	return impassableTile;
 }
 
+bool Tile::permitsVision()
+{
+	TileClearType clearType = getTilePassability();
+	if(clearType == walkableTile || clearType == flyableTile)
+		return true;
+	else
+		return false;
+}
 Room* Tile::getCoveringRoom()
 {
 	return coveringRoom;

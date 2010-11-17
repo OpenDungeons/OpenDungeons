@@ -23,6 +23,7 @@ SET(
      MapLight.cpp
      MusicPlayer.cpp
      Player.cpp
+     RadialVector2.cpp
      RenderRequest.cpp
      Room.cpp
      RoomDungeonTemple.cpp

@@ -13,6 +13,15 @@ class TrapCannon : public Trap
 	public:
 		TrapCannon();
 
+		void doUpkeep();
+		Tile* positionTile();
+
+		int x, y;
+
+	private:
+		double range;
+		double minDamage, maxDamage;
+
 };
 
 #endif

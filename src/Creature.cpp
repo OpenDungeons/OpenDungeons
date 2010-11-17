@@ -550,7 +550,7 @@ void Creature::doTurn()
 								unsigned int maxLoopCount = randomUint(5, 15), longestPathLength = 0;
 								std::list<Tile*> longestPath, tempPath;
 								myTile = positionTile();
-								for(unsigned int i = 0; visibleTiles.size() && i < maxLoopCount; i++)
+								for(unsigned int i = 0; i < visibleTiles.size() && i < maxLoopCount; i++)
 								{
 									tempPath = gameMap.path(myTile, visibleTiles[i], tilePassability);
 									if(visibleTiles[i]->getType() == Tile::dirt && visibleTiles[i]->getFullness() == 0 && tempPath.size() >= 2 && tempPath.size() > longestPath.size())
@@ -1392,97 +1392,7 @@ void Creature::doLevelUp()
 */
 void Creature::updateVisibleTiles()
 {
-	//int xMin, yMin, xMax, yMax;
-	const double sightRadiusSquared = sightRadius * sightRadius;
-	Tile *tempPositionTile = positionTile();
-	Tile *currentTile;
-	int xBase = tempPositionTile->x;
-	int yBase = tempPositionTile->y;
-	int xLoc, yLoc;
-
-	visibleTiles.clear();
-
-	// Add the tile the creature is standing in
-	if(tempPositionTile != NULL)
-	{
-		visibleTiles.push_back(tempPositionTile);
-	}
-
-	// Add the 4 principle axes rays
-	for(int i = 1; i < sightRadius; i++)
-	{
-		for(int j = 0; j < 4; j++)
-		{
-			switch(j)
-			{
-				case 0:  xLoc = xBase+i;   yLoc = yBase;  break;
-				case 1:  xLoc = xBase-i;   yLoc = yBase;  break;
-				case 2:  xLoc = xBase;   yLoc = yBase+i;  break;
-				case 3:  xLoc = xBase;   yLoc = yBase-i;  break;
-			}
-
-			currentTile = gameMap.getTile(xLoc, yLoc);
-
-			if(currentTile != NULL)
-			{
-				// Check if we can actually see the tile in question
-				// or if it is blocked by terrain
-				if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, xLoc, yLoc), Tile::flyableTile))
-				{
-					visibleTiles.push_back(currentTile);
-				}
-				else
-				{
-					// If we cannot see this tile than we cannot see any tiles farther away 
-					// than this one (in this direction) so move on to the next direction.
-					continue;
-				}
-			}
-		}
-	}
-
-	// Fill in the 4 pie slice shaped sectors
-	for(int i = 1; i < sightRadius; i++)
-	{
-		for(int j = 1; j < sightRadius; j++)
-		{
-			// Check to see if the current tile is actually close enough to be visible
-			int distSQ = i*i + j*j;
-			if(distSQ < sightRadiusSquared)
-			{
-				for(int k = 0; k < 4; k++)
-				{
-					switch(k)
-					{
-						case 0:  xLoc = xBase+i;   yLoc = yBase+j;  break;
-						case 1:  xLoc = xBase+i;   yLoc = yBase-j;  break;
-						case 2:  xLoc = xBase-i;   yLoc = yBase+j;  break;
-						case 3:  xLoc = xBase-i;   yLoc = yBase-j;  break;
-					}
-
-					currentTile = gameMap.getTile(xLoc, yLoc);
-					
-					if(currentTile != NULL)
-					{
-						// Check if we can actually see the tile in question
-						// or if it is blocked by terrain
-						if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, xLoc, yLoc), Tile::flyableTile))
-						{
-							visibleTiles.push_back(currentTile);
-						}
-					}
-				}
-			}
-			else
-			{
-				// If this tile is too far away then any tile with a j value greater than this
-				// will also be too far away.
-				break;
-			}
-		}
-	}
-
-	//TODO:  Add the sector shaped region of the visible region
+	visibleTiles = gameMap.visibleTiles(positionTile(), sightRadius);
 }
 
 /*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
@@ -1536,7 +1446,7 @@ std::vector<AttackableObject*> Creature::getReachableAttackableObjects(const std
 		}
 	}
 
-	//TODO: Maybe thing of a better canary value for this.
+	//TODO: Maybe think of a better canary value for this.
 	if(!minRangeSet)
 		*minRange = 999999;
 

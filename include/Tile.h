@@ -44,6 +44,7 @@ class Tile
 		int getFullness();
 		int getFullnessMeshNumber();
 		TileClearType getTilePassability();
+		bool permitsVision();
 
 		static string tileTypeToString(TileType t);
 		static TileType nextTileType(TileType t);

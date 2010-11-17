@@ -1,6 +1,10 @@
 #ifndef GAMEMAP_H
 #define GAMEMAP_H
 
+#include <list>
+#include <vector>
+#include <utility>
+
 #include <semaphore.h>
 
 #include "Tile.h"
@@ -122,6 +126,7 @@ class GameMap
 		std::vector<Tile*> neighborTiles(int x, int y);
 		std::vector<Tile*> neighborTiles(Tile *t);
 		std::list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
+		std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
 		bool pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);
 		void cutCorners(std::list<Tile*> &path, Tile::TileClearType passability);
 		double crowDistance(int x1, int x2, int y1, int y2);
@@ -150,6 +155,7 @@ class GameMap
 		// Private functions
 		void processDeletionQueues();
 		bool walkablePathExists(int x1, int y1, int x2, int y2);
+		static bool tileRadiusComparitor(std::pair<int,Tile*> a, std::pair<int,Tile*> b);
 
 		// Private datamembers
 		std::map< pair<int,int>, Tile*> tiles;

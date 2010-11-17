@@ -12,6 +12,7 @@
 #include "Functions.h"
 #include "Defines.h"
 #include "GameMap.h"
+#include "RadialVector2.h"
 
 GameMap::GameMap()
 {
@@ -1176,18 +1177,164 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 	return path;
 }
 
+std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
+{
+	std::vector< std::pair<int,Tile*> > tileQueueVector;
+	std::list<Tile*> tileQueue;
+	std::vector<Tile*> tempVector;
+
+	//TODO: This loop can be made to list the visible region in a spiral pattern so that all of the tiles appear in the tileQueue already sorted.
+	int sightRadiusSquared = sightRadius*sightRadius;
+	int startX = startTile->x, startY = startTile->y;
+	for(int i = -1*sightRadius; i < sightRadius; i++)
+	{
+		for(int j = -1*sightRadius; j < sightRadius; j++)
+		{
+			int rSquared = i*i + j*j;
+			if(rSquared > sightRadiusSquared)
+				continue;
+
+			Tile *tempTile = gameMap.getTile(startX+i, startY+j);
+			if(tempTile != NULL)
+			{
+				//int xDist = tempTile->x - startX;
+				//int yDist = tempTile->y - startY;
+
+				tileQueueVector.push_back(std::pair<int,Tile*>(rSquared, tempTile));
+			}
+		}
+	}
+
+	// Sort the tile queue so that if we start at any point in the tile queue and iterate forward from that point, every successive tile will be as far away from, or farther away from the target tile point.
+	sort(tileQueueVector.begin(), tileQueueVector.end(), GameMap::tileRadiusComparitor);
+
+	// Now that the queue is sorted, we need to copy it into the linked list container since we will be doing a lot of deletions from the middle of the queue.  We discard the rSqared distances because we no longer need them and it makes queueAccesses simpler.
+	std::vector< std::pair<int,Tile*> >::iterator tileQueueVectorIterator = tileQueueVector.begin();
+	while(tileQueueVectorIterator != tileQueueVector.end())
+	{
+		tileQueue.push_back(tileQueueVectorIterator->second);
+		tileQueueVectorIterator++;
+	}
+
+	//TODO: Loop backwards and remove any non-see through tiles until we get to one which permits vision (this cuts down the cost of walks toward the end when an opaque block is found).
+
+	// Now loop over the queue, determining which tiles are visible and push them onto the tempVector which will be returned as the output of the function.
+	while(tileQueue.size() > 0)
+	{
+		// If the tile lets light though it it is visible and we can remove it from the queue and put it in the return list.
+		//Tile *startTile = *tileQueue.begin();
+		if((*tileQueue.begin())->permitsVision())
+		{
+			// The tile is visible.
+			tempVector.push_back((*tileQueue.begin()));
+			tileQueue.erase(tileQueue.begin());
+			continue;
+		}
+		else
+		{
+			// The tile is does not allow vision to it.  Remove it from the queue and remove any tiles obscured by this one.
+			// We add it to the return list as well since this tile is as far as we can see in this direction.  Calculate the radial vectors to the corners of this tile.
+			Tile *obstructingTile = *tileQueue.begin();
+			tempVector.push_back(obstructingTile);
+			tileQueue.erase(tileQueue.begin());
+			RadialVector2 smallAngle, largeAngle, tempAngle;
+			double dx = obstructingTile->x - startTile->x;
+			double dy = obstructingTile->y - startTile->y;
+			double dxdy = dx*dy;
+
+			// If the tile is above or below us we use the left and right corners on either the top or bottom depending on the direction.
+			if(fabs(dx) < 0.0000001)
+			{
+				if(dy > 0.0)
+				{
+					// Straight up.
+					smallAngle.fromCartesian(dx + 0.5, dy - 0.5);
+					largeAngle.fromCartesian(dx - 0.5, dy - 0.5);
+				}
+				else
+				{
+					// Straight down.
+					smallAngle.fromCartesian(dx - 0.5, dy + 0.5);
+					largeAngle.fromCartesian(dx + 0.5, dy + 0.5);
+				}
+			}
+
+			// If the tile is left or right of us we use the top and bottom corners on either the left or right side depending on the direction.
+			else if(fabs(dy) < 0.0000001)
+			{
+				if(dx > 0.0)
+				{
+					// Straight to the right.
+					smallAngle.fromCartesian(dx - 0.5, dy - 0.5);
+					largeAngle.fromCartesian(dx - 0.5, dy + 0.5);
+				}
+				else
+				{
+					// Straight to the left.
+					smallAngle.fromCartesian(dx + 0.5, dy + 0.5);
+					largeAngle.fromCartesian(dx + 0.5, dy - 0.5);
+				}
+			}
+
+			// The tile is somewhere else in the region, if it is in either the first or third quadrant we use the top-left and bottom-right corners as the points which define the obscure (the other two quadrants both use the other possible par of corners).  Note that in Q1 and Q3 dxdy is positive and in Q2 and Q4 it is negative.
+			else if(dxdy > 0.0)
+			{
+				// In Q1 or Q3 so use the top-left and bottom-right corners.
+				smallAngle.fromCartesian(dx - 0.5, dy + 0.5);
+				largeAngle.fromCartesian(dx + 0.5, dy - 0.5);
+			}
+			else
+			{
+				// In Q2 or Q4 so use the top-right and bottom-left corners.
+				smallAngle.fromCartesian(dx + 0.5, dy + 0.5);
+				largeAngle.fromCartesian(dx - 0.5, dy - 0.5);
+			}
+
+			// Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
+			std::list<Tile*>::iterator tileQueueIterator = tileQueue.begin();
+			//tileQueueIterator++;
+			while(tileQueueIterator != tileQueue.end())
+			{
+				Tile *tempTile = *tileQueueIterator;
+				tempAngle.fromCartesian(startTile->x, startTile->y, tempTile->x, tempTile->y);
+
+				// If the current tile is in the obscured region.
+				if(tempAngle.directionIsBetween(smallAngle, largeAngle))
+				{
+					// The tile is in the obscured region so remove it from the queue of possibly visible tiles.
+					tileQueueIterator = tileQueue.erase(tileQueueIterator);
+				}
+				else
+				{
+					// The tile is not obscured by the current obscuring tile so leave it in the queue for now.
+					tileQueueIterator++;
+				}
+			}
+		}
+	}
+
+	//TODO:  Add the sector shaped region of the visible region
+
+	return tempVector;
+}
+
+bool GameMap::tileRadiusComparitor(std::pair<int,Tile*> a, std::pair<int,Tile*> b)
+{
+	return a.first < b.first;
+}
+
 /*! \brief Determines whether or not you can travel along a path.
  *
  */
 bool GameMap::pathIsClear(std::list<Tile*> path, Tile::TileClearType passability)
 {
 	std::list<Tile*>::iterator itr;
-	std::list<Tile*>::iterator last;
+	//std::list<Tile*>::iterator last;
 
 	if(path.size() == 0)
 		return false;
 
-	last = --path.end();
+	//last = --path.end();
 
 	// Loop over tile in the path and check to see if it is clear
 	bool isClear = true;
