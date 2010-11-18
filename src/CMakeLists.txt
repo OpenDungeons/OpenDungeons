@@ -38,6 +38,7 @@ SET(
      Socket.cpp
      TextRenderer.cpp
      Tile.cpp
+     TileCoordinateMap.cpp
      Trap.cpp
      TrapCannon.cpp
      Weapon.cpp

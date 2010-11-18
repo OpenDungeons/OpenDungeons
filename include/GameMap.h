@@ -15,6 +15,7 @@
 #include "Seat.h"
 #include "MapLight.h"
 #include "ProtectedObject.h"
+#include "TileCoordinateMap.h"
 
 typedef std::map< pair<int,int>, Tile*> TileMap_t;
 
@@ -179,6 +180,8 @@ class GameMap
 		sem_t threadReferenceCountLockSemaphore;
 
 		unsigned int numCallsTo_path;
+
+		TileCoordinateMap *tileCoordinateMap;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.

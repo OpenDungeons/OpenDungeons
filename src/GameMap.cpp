@@ -24,6 +24,7 @@ GameMap::GameMap()
 	sem_init(&threadReferenceCountLockSemaphore, 0, 1);
 	sem_init(&creaturesLockSemaphore, 0, 1);
 	sem_init(&tilesLockSemaphore, 0, 1);
+	tileCoordinateMap = new TileCoordinateMap(100);
 }
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
@@ -1179,41 +1180,26 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 
 std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 {
-	std::vector< std::pair<int,Tile*> > tileQueueVector;
+	int startX = startTile->x;
+	int startY = startTile->y;
+	int sightRadiusSquared = sightRadius*sightRadius;
 	std::list<Tile*> tileQueue;
 	std::vector<Tile*> tempVector;
 
-	//TODO: This loop can be made to list the visible region in a spiral pattern so that all of the tiles appear in the tileQueue already sorted.
-	int sightRadiusSquared = sightRadius*sightRadius;
-	int startX = startTile->x, startY = startTile->y;
-	for(int i = -1*sightRadius; i < sightRadius; i++)
+	int tileCounter = 0;
+	while(true)
 	{
-		for(int j = -1*sightRadius; j < sightRadius; j++)
-		{
-			int rSquared = i*i + j*j;
-			if(rSquared > sightRadiusSquared)
-				continue;
+		int rSquared = tileCoordinateMap->getRadiusSquared(tileCounter);
+		if(rSquared > sightRadiusSquared)
+			break;
 
-			Tile *tempTile = gameMap.getTile(startX+i, startY+j);
-			if(tempTile != NULL)
-			{
-				//int xDist = tempTile->x - startX;
-				//int yDist = tempTile->y - startY;
+		pair<int,int> coord = tileCoordinateMap->getCoordinate(tileCounter);
 
-				tileQueueVector.push_back(std::pair<int,Tile*>(rSquared, tempTile));
-			}
-		}
-	}
+		Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
+		if(tempTile != NULL)
+			tileQueue.push_back(tempTile);
 
-	// Sort the tile queue so that if we start at any point in the tile queue and iterate forward from that point, every successive tile will be as far away from, or farther away from the target tile point.
-	sort(tileQueueVector.begin(), tileQueueVector.end(), GameMap::tileRadiusComparitor);
-
-	// Now that the queue is sorted, we need to copy it into the linked list container since we will be doing a lot of deletions from the middle of the queue.  We discard the rSqared distances because we no longer need them and it makes queueAccesses simpler.
-	std::vector< std::pair<int,Tile*> >::iterator tileQueueVectorIterator = tileQueueVector.begin();
-	while(tileQueueVectorIterator != tileQueueVector.end())
-	{
-		tileQueue.push_back(tileQueueVectorIterator->second);
-		tileQueueVectorIterator++;
+		tileCounter++;
 	}
 
 	//TODO: Loop backwards and remove any non-see through tiles until we get to one which permits vision (this cuts down the cost of walks toward the end when an opaque block is found).
