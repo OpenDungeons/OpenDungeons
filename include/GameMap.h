@@ -156,7 +156,6 @@ class GameMap
 		// Private functions
 		void processDeletionQueues();
 		bool walkablePathExists(int x1, int y1, int x2, int y2);
-		static bool tileRadiusComparitor(std::pair<int,Tile*> a, std::pair<int,Tile*> b);
 
 		// Private datamembers
 		std::map< pair<int,int>, Tile*> tiles;

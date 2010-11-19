@@ -8,6 +8,7 @@ class RadialVector2
 
 		RadialVector2();
 		RadialVector2(double x1, double y1, double x2, double y2);
+		RadialVector2(double dx, double dy);
 
 		void fromCartesian(double x1, double y1, double x2, double y2);
 		void fromCartesian(double dx, double dy);

@@ -14,6 +14,11 @@ RadialVector2::RadialVector2(double x1, double y1, double x2, double y2)
 	fromCartesian(x1, y1, x2, y2);
 }
 
+RadialVector2::RadialVector2(double dx, double dy)
+{
+	fromCartesian(dx, dy);
+}
+
 void RadialVector2::fromCartesian(double x1, double y1, double x2, double y2)
 {
 	fromCartesian(x2-x1, y2-y1);
@@ -21,20 +26,8 @@ void RadialVector2::fromCartesian(double x1, double y1, double x2, double y2)
 
 void RadialVector2::fromCartesian(double dx, double dy)
 {
-	// Handle the two 'divide by zero' special cases.
-	if(fabs(dx) < 0.0000001)
-	{
-		r = fabs(dy);
-		theta = (dy > 0.0) ? (M_PI/2.0) : (3.0*M_PI/2.0);
-		return;
-	}
-
-	// Handle the other cases.
 	r = sqrt(dx*dx + dy*dy);
 	theta = atan2(dy, dx);
-
-	if(theta < 0.0)
-		theta += 2.0*M_PI;
 }
 
 bool RadialVector2::directionIsBetween(RadialVector2 r1, RadialVector2 r2)

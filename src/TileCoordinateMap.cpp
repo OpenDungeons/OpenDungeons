@@ -22,7 +22,7 @@ void TileCoordinateMap::precomputeMap(int sightRadius)
 			if(rSquared > sightRadiusSquared)
 				continue;
 
-			data.push_back(TileCoordinateData(RadialVector2(0, 0, i, j), rSquared, std::pair<int,int>(i, j)));
+			data.push_back(TileCoordinateData(RadialVector2(i, j), rSquared, std::pair<int,int>(i, j)));
 		}
 	}
 
