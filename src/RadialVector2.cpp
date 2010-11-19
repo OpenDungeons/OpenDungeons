@@ -39,33 +39,14 @@ void RadialVector2::fromCartesian(double dx, double dy)
 
 bool RadialVector2::directionIsBetween(RadialVector2 r1, RadialVector2 r2)
 {
-	//r1.normalizeTheta();
-	//r2.normalizeTheta();
-	if(r1.theta > r2.theta)
-	{
-		RadialVector2 tempVector = r1;
-		r1 = r2;
-		r2 = tempVector;
-	}
+	double tempTheta = theta + 2.0*M_PI;
+	double tempTheta1 = r1.theta + 2.0*M_PI;
+	double tempTheta2 = r2.theta + 2.0*M_PI;
 
-	// If this vector is simply between the other two, return true, else investigate to see if the two vectors straddle the positive x-axis.
-	if(theta >= r1.theta && theta <= r2.theta)
-	{
-		return true;
-	}
+	if(tempTheta1 < tempTheta2)
+		return (tempTheta1 <= tempTheta && tempTheta <= tempTheta2);
 	else
-	{
-		// If the two vectors straddle the positive x-axis check to see if this vector lies between them.
-		if(r1.theta <= M_PI/2.0 && r2.theta >= (3.0*M_PI/2.0))
-		{
-			if(theta <= r1.theta || theta >=r2.theta)
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
+		return (tempTheta2 <= tempTheta && tempTheta <= tempTheta1);
 }
 
 void RadialVector2::normalizeTheta()
