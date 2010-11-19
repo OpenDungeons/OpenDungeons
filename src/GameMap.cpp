@@ -1180,11 +1180,15 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 
 std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 {
+	std::vector<Tile*> tempVector;
+
+	if(!startTile->permitsVision())
+		return tempVector;
+
 	int startX = startTile->x;
 	int startY = startTile->y;
 	int sightRadiusSquared = sightRadius*sightRadius;
 	std::list<Tile*> tileQueue;
-	std::vector<Tile*> tempVector;
 
 	int tileCounter = 0;
 	while(true)
