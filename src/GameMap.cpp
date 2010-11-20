@@ -1244,7 +1244,6 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 			while(tileQueueIterator != tileQueue.end())
 			{
 				tempAngle.theta = (*tileQueueIterator).second;
-				cout << tempAngle.theta << "\n";
 
 				// If the current tile is in the obscured region.
 				if(tempAngle.directionIsBetween(smallAngle, largeAngle))
