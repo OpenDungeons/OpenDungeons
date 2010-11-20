@@ -1,6 +1,7 @@
 SET(
      SRC
      ActiveObject.cpp
+     AnimatedObject.cpp
      ButtonHandlers.cpp
      ChatMessage.cpp
      Client.cpp

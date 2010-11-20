@@ -7,6 +7,7 @@ using namespace std;
 
 #include "Tile.h"
 #include "Player.h"
+#include "AnimatedObject.h"
 
 /*! \brief A data structure used to pass messages to the serverNotificationProcessor thread.
  *
@@ -23,7 +24,7 @@ class ServerNotification
 			tileFullnessChange,
 
 			creatureAddDestination,
-			creatureClearDestinations,
+			animatedObjectClearDestinations,
 			creatureSetAnimationState,
 			creaturePickUp,
 			creatureDrop
@@ -36,6 +37,7 @@ class ServerNotification
 		double doub;
 		Tile *tile;
 		Creature *cre;
+		AnimatedObject *ani;
 		Player *player;
 		long int turnNumber;
 };

@@ -15,6 +15,7 @@ class Creature;
 #include "Field.h"
 #include "CreatureClass.h"
 #include "AttackableObject.h"
+#include "AnimatedObject.h"
 
 /*! \brief Position, status, and AI state for a single game creature.
  *
@@ -25,14 +26,13 @@ class Creature;
  *  will probably be refined later but it works fine for now and the code
  *  affected by this change is relatively limited.
  */
-class Creature : public CreatureClass, public AttackableObject
+class Creature : public CreatureClass, public AttackableObject, public AnimatedObject
 {
 	public:
 		Creature();
 		//~Creature();
 
 		// Individual properties
-		string name;			// The creature's unique name
 		Weapon *weaponL, *weaponR;	// The weapons the creature is holding
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
@@ -87,13 +87,7 @@ class Creature : public CreatureClass, public AttackableObject
 		void recieveExp(double experience);
 		AttackableObject::AttackableObjectType getAttackableObjectType();
 		string getName();
-
-		void addDestination(int x, int y);
-		bool setWalkPath(std::list<Tile*> path, unsigned int minDestinations, bool addFirstStop);
-		void clearDestinations();
 		void clearActionQueue();
-		void stopWalking();
-		void faceToward(int x, int y);
 
 		Player* getControllingPlayer();
 		void computeBattlefield();
@@ -111,11 +105,6 @@ class Creature : public CreatureClass, public AttackableObject
 		// Public data members
 		AnimationState *animationState;
 		string destinationAnimationState;
-		double shortDistance;
-		std::deque<Ogre::Vector3> walkQueue;
-		sem_t walkQueueLockSemaphore;
-		bool walkQueueFirstEntryAdded;
-		Ogre::Vector3 walkDirection;
 		SceneNode *sceneNode;
 		static const int maxGoldCarriedByWorkers = 1500;
 
@@ -126,8 +115,6 @@ class Creature : public CreatureClass, public AttackableObject
 		sem_t manaLockSemaphore;
 		int gold;
 		std::deque<CreatureAction> actionQueue;
-		Ogre::Vector3 position;
-		sem_t positionLockSemaphore;
 		int destinationX, destinationY;
 		bool hasVisualDebuggingEntities;
 		Tile *previousPositionTile;

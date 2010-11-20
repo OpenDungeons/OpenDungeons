@@ -9,7 +9,7 @@
 
 #include "ActiveObject.h"
 
-class MissileObject : public ActiveObject
+class MissileObject : public ActiveObject, public AnimatedObject
 {
 	public:
 		MissileObject();

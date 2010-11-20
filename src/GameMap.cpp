@@ -1229,13 +1229,15 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 		else
 		{
 			// The tile is does not allow vision to it.  Remove it from the queue and remove any tiles obscured by this one.
-			// We add it to the return list as well since this tile is as far as we can see in this direction.  Calculate the radial vectors to the corners of this tile.
+			// We add it to the return list as well since this tile is as far as we can see in this direction.  Calculate
+			// the radial vectors to the corners of this tile.
 			Tile *obstructingTile = (*tileQueue.begin()).first;
 			tempVector.push_back(obstructingTile);
 			tileQueue.erase(tileQueue.begin());
 			RadialVector2 smallAngle, largeAngle, tempAngle;
 
-			// Calculate the obstructing tile's angular size and the direction to it.  We want to check if other tiles are within deltaTheta of the calculated direction.
+			// Calculate the obstructing tile's angular size and the direction to it.  We want to check if other tiles
+			// are within deltaTheta of the calculated direction.
 			double dx = obstructingTile->x - startTile->x;
 			double dy = obstructingTile->y - startTile->y;
 			double rsq = dx*dx + dy*dy;
