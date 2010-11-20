@@ -693,12 +693,18 @@ void GameMap::doTurn()
 	}
 	sem_post(&tilesLockSemaphore);
 	
-	// Carry out the upkeep on each of the Rooms in the gameMap.
-	//NOTE:  The auto-increment on this loop is canceled by a decrement in the if statement, changes to the loop structure will need to keep this consistent.
-	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+	// Carry out the upkeep round of all the active objects in the game.
+	for(unsigned int i = 0; i < activeObjects.size(); i++)
 	{
-		Room *tempRoom = gameMap.getRoom(i);
-		tempRoom->doUpkeep(tempRoom);
+		activeObjects[i]->doUpkeep();
+	}
+
+	// Remove empty rooms from the GameMap.
+	//NOTE:  The auto-increment on this loop is canceled by a decrement in the if statement, changes to the loop structure will need to keep this consistent.
+	for(unsigned int i = 0; i < numRooms(); i++)
+	{
+		Room *tempRoom = getRoom(i);
+		//tempRoom->doUpkeep(tempRoom);
 
 		// Check to see if the room now has 0 covered tiles, if it does we can remove it from the map.
 		if(tempRoom->numCoveredTiles() == 0)
@@ -1265,6 +1271,64 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 	return tempVector;
 }
 
+/*! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
+ *
+*/
+std::vector<AttackableObject*> GameMap::getVisibleForce(std::vector<Tile*> visibleTiles, int color, bool invert)
+{
+	//TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
+	std::vector<AttackableObject*> returnList;
+
+	// Loop over the visible tiles
+	std::vector<Tile*>::iterator itr;
+	for(itr = visibleTiles.begin(); itr != visibleTiles.end(); itr++)
+	{
+		//TODO: Implement Tile::getAttackableObject() to let you list all attackableObjects in the tile in a single list.
+		// Loop over the creatures in the given tile
+		for(unsigned int i = 0; i < (*itr)->numCreaturesInCell(); i++)
+		{
+			Creature *tempCreature = (*itr)->getCreature(i);
+			// If it is an enemy
+			if(tempCreature != NULL)
+			{
+				// The invert flag is used to determine whether we want to return a list of those creatures
+				// whose color matches the one supplied or is any color but the one supplied.
+				if( (invert && tempCreature->getColor() != color) || (!invert && tempCreature->getColor() == color) )
+				{
+					// Add the current creature
+					returnList.push_back(tempCreature);
+				}
+			}
+		}
+
+		// Check to see if the tile is covered by a Room, if it is then check to see if it should be added to the returnList.
+		Room *tempRoom = (*itr)->getCoveringRoom();
+		if(tempRoom != NULL)
+		{
+			// Check to see if the color is appropriate based on the condition of the invert flag.
+			if( (invert && tempRoom->getColor() != color) || (!invert && tempRoom->getColor() != color) )
+			{
+				// Check to see if the given room is already in the returnList.
+				bool roomFound = false;
+				for(unsigned int i = 0; i < returnList.size(); i++)
+				{
+					if(returnList[i] == tempRoom)
+					{
+						roomFound = true;
+						break;
+					}
+				}
+
+				// If the room is not in the return list already then add it.
+				if(!roomFound)
+					returnList.push_back(tempRoom);
+			}
+		}
+	}
+
+	return returnList;
+}
+
 /*! \brief Determines whether or not you can travel along a path.
  *
  */
@@ -1372,6 +1436,18 @@ void GameMap::cutCorners(std::list<Tile*> &path, Tile::TileClearType passability
 */ 
 void GameMap::clearRooms()
 {
+	for(unsigned int i = 0; i < rooms.size(); i++)
+	{
+		for(unsigned int j = 0; j < activeObjects.size(); j++)
+		{
+			if(rooms[i] == activeObjects[j])
+			{
+				activeObjects.erase(activeObjects.begin()+j);
+				break;
+			}
+		}
+	}
+
 	for(unsigned int i = 0; i < numRooms(); i++)
 	{
 		getRoom(i)->deleteYourself();
@@ -1386,10 +1462,20 @@ void GameMap::clearRooms()
 void GameMap::addRoom(Room *r)
 {
 	rooms.push_back(r);
+	activeObjects.push_back(r);
 }
 
 void GameMap::removeRoom(Room *r)
 {
+	for(unsigned int i = 0; i < activeObjects.size(); i++)
+	{
+		if(r == activeObjects[i])
+		{
+			activeObjects.erase(activeObjects.begin()+i);
+			break;
+		}
+	}
+
 	for(unsigned int i = 0; i < rooms.size(); i++)
 	{
 		if(r == rooms[i])
@@ -1444,6 +1530,18 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec, Til
 
 void GameMap::clearTraps()
 {
+	for(unsigned int i = 0; i < traps.size(); i++)
+	{
+		for(unsigned int j = 0; j < activeObjects.size(); j++)
+		{
+			if(traps[i] == activeObjects[j])
+			{
+				activeObjects.erase(activeObjects.begin()+j);
+				break;
+			}
+		}
+	}
+
 	/*
 	for(unsigned int i = 0; i < numTraps(); i++)
 	{
@@ -1457,10 +1555,20 @@ void GameMap::clearTraps()
 void GameMap::addTrap(Trap *t)
 {
 	traps.push_back(t);
+	activeObjects.push_back(t);
 }
 
 void GameMap::removeTrap(Trap *t)
 {
+	for(unsigned int i = 0; i < activeObjects.size(); i++)
+	{
+		if(t == activeObjects[i])
+		{
+			activeObjects.erase(activeObjects.begin()+i);
+			break;
+		}
+	}
+
 	for(unsigned int i = 0; i < traps.size(); i++)
 	{
 		if(t == traps[i])

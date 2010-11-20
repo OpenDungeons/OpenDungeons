@@ -128,6 +128,7 @@ class GameMap
 		std::vector<Tile*> neighborTiles(Tile *t);
 		std::list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
 		std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
+		std::vector<AttackableObject*> getVisibleForce(std::vector<Tile*> visibleTiles, int color, bool invert);
 		bool pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);
 		void cutCorners(std::list<Tile*> &path, Tile::TileClearType passability);
 		double crowDistance(int x1, int x2, int y1, int y2);
@@ -173,6 +174,7 @@ class GameMap
 		std::vector<Goal*> goalsForAllSeats;
 		int nextUniqueFloodFillColor;
 		bool floodFillEnabled;
+		std::vector<ActiveObject*> activeObjects;
 
 		std::map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
 		std::map<long int, std::vector<Creature*> > creaturesToDelete;

@@ -258,6 +258,11 @@ string Room::getFormat()
         return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
+void Room::doUpkeep()
+{
+	doUpkeep(this);
+}
+
 /** \brief Carry out per turn upkeep on the room, the parameter r should be set to 'this' if called from a subclass to determine the room type.
   *
 */

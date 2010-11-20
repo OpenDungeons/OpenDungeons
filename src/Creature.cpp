@@ -1364,7 +1364,7 @@ void Creature::doLevelUp()
 	if(digRate > 0.1)
 		digRate *= 1.0 + log((double)log((double)level+1)+1);
 
-	if(digRate >= 60)  digRate = 60;
+	if(digRate > 60)  digRate = 60;
 
 	maxHP += hpPerLevel;
 	maxMana += manaPerLevel;
@@ -1518,56 +1518,7 @@ std::vector<Tile*> Creature::getVisibleMarkedTiles()
 */
 std::vector<AttackableObject*> Creature::getVisibleForce(int color, bool invert)
 {
-	//TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
-	std::vector<AttackableObject*> returnList;
-
-	// Loop over the visible tiles
-	std::vector<Tile*>::iterator itr;
-	for(itr = visibleTiles.begin(); itr != visibleTiles.end(); itr++)
-	{
-		// Loop over the creatures in the given tile
-		for(unsigned int i = 0; i < (*itr)->numCreaturesInCell(); i++)
-		{
-			Creature *tempCreature = (*itr)->getCreature(i);
-			// If it is an enemy
-			if(tempCreature != NULL)
-			{
-				// The invert flag is used to determine whether we want to return a list of those creatures
-				// whose color matches the one supplied or is any color but the one supplied.
-				if( (invert && tempCreature->getColor() != color) || (!invert && tempCreature->getColor() == color) )
-				{
-					// Add the current creature
-					returnList.push_back(tempCreature);
-				}
-			}
-		}
-
-		// Check to see if the tile is covered by a Room, if it is then check to see if it should be added to the returnList.
-		Room *tempRoom = (*itr)->getCoveringRoom();
-		if(tempRoom != NULL)
-		{
-			// Check to see if the color is appropriate based on the condition of the invert flag.
-			if( (invert && tempRoom->getColor() != color) || (!invert && tempRoom->getColor() != color) )
-			{
-				// Check to see if the given room is already in the returnList.
-				bool roomFound = false;
-				for(unsigned int i = 0; i < returnList.size(); i++)
-				{
-					if(returnList[i] == tempRoom)
-					{
-						roomFound = true;
-						break;
-					}
-				}
-
-				// If the room is not in the return list already then add it.
-				if(!roomFound)
-					returnList.push_back(tempRoom);
-			}
-		}
-	}
-
-	return returnList;
+	return gameMap.getVisibleForce(visibleTiles, color, invert);
 }
 
 /*! \brief Displays a mesh on all of the tiles visible to the creature.

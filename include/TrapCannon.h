@@ -19,6 +19,8 @@ class TrapCannon : public Trap
 		int x, y;
 
 	private:
+		int reloadTime;
+		int reloadTimeCounter;
 		double range;
 		double minDamage, maxDamage;
 
