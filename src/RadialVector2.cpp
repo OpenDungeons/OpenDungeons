@@ -14,6 +14,11 @@ RadialVector2::RadialVector2(double x1, double y1, double x2, double y2)
 	fromCartesian(x1, y1, x2, y2);
 }
 
+RadialVector2::RadialVector2(double dx, double dy)
+{
+	fromCartesian(dx, dy);
+}
+
 void RadialVector2::fromCartesian(double x1, double y1, double x2, double y2)
 {
 	fromCartesian(x2-x1, y2-y1);

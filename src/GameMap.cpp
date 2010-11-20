@@ -1188,7 +1188,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 	int startX = startTile->x;
 	int startY = startTile->y;
 	int sightRadiusSquared = sightRadius*sightRadius;
-	std::list<Tile*> tileQueue;
+	std::list< pair<Tile*,double> > tileQueue;
 
 	int tileCounter = 0;
 	while(true)
@@ -1200,17 +1200,9 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 		pair<int,int> coord = tileCoordinateMap->getCoordinate(tileCounter);
 
 		Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
+		double tempTheta = tileCoordinateMap->getCentralTheta(tileCounter);
 		if(tempTile != NULL)
-		{
-			/*
-			int dx = tempTile->x - startTile->x;
-			int dy = tempTile->y - startTile->y;
-			int rsq = dx*dx + dy*dy;
-			cout << "\n" << tileQueue.size() << "  " << tempTile << "\t" << rsq;
-			*/
-
-			tileQueue.push_back(tempTile);
-		}
+			tileQueue.push_back(pair<Tile*,double>(tempTile, tempTheta));
 
 		tileCounter++;
 	}
@@ -1221,11 +1213,10 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 	while(tileQueue.size() > 0)
 	{
 		// If the tile lets light though it it is visible and we can remove it from the queue and put it in the return list.
-		//Tile *startTile = *tileQueue.begin();
-		if((*tileQueue.begin())->permitsVision())
+		if((*tileQueue.begin()).first->permitsVision())
 		{
 			// The tile is visible.
-			tempVector.push_back((*tileQueue.begin()));
+			tempVector.push_back((*tileQueue.begin()).first);
 			tileQueue.erase(tileQueue.begin());
 			continue;
 		}
@@ -1233,7 +1224,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 		{
 			// The tile is does not allow vision to it.  Remove it from the queue and remove any tiles obscured by this one.
 			// We add it to the return list as well since this tile is as far as we can see in this direction.  Calculate the radial vectors to the corners of this tile.
-			Tile *obstructingTile = *tileQueue.begin();
+			Tile *obstructingTile = (*tileQueue.begin()).first;
 			tempVector.push_back(obstructingTile);
 			tileQueue.erase(tileQueue.begin());
 			RadialVector2 smallAngle, largeAngle, tempAngle;
@@ -1249,12 +1240,11 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
 			// Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of
 			// the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
-			std::list<Tile*>::iterator tileQueueIterator = tileQueue.begin();
-			//tileQueueIterator++;
+			std::list< pair<Tile*,double> >::iterator tileQueueIterator = tileQueue.begin();
 			while(tileQueueIterator != tileQueue.end())
 			{
-				Tile *tempTile = *tileQueueIterator;
-				tempAngle.fromCartesian(startTile->x, startTile->y, tempTile->x, tempTile->y);
+				tempAngle.theta = (*tileQueueIterator).second;
+				cout << tempAngle.theta << "\n";
 
 				// If the current tile is in the obscured region.
 				if(tempAngle.directionIsBetween(smallAngle, largeAngle))
@@ -1274,11 +1264,6 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 	//TODO:  Add the sector shaped region of the visible region
 
 	return tempVector;
-}
-
-bool GameMap::tileRadiusComparitor(std::pair<int,Tile*> a, std::pair<int,Tile*> b)
-{
-	return a.first < b.first;
 }
 
 /*! \brief Determines whether or not you can travel along a path.
