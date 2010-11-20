@@ -1197,7 +1197,16 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
 		Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
 		if(tempTile != NULL)
+		{
+			/*
+			int dx = tempTile->x - startTile->x;
+			int dy = tempTile->y - startTile->y;
+			int rsq = dx*dx + dy*dy;
+			cout << "\n" << tileQueue.size() << "  " << tempTile << "\t" << rsq;
+			*/
+
 			tileQueue.push_back(tempTile);
+		}
 
 		tileCounter++;
 	}
@@ -1224,59 +1233,18 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 			tempVector.push_back(obstructingTile);
 			tileQueue.erase(tileQueue.begin());
 			RadialVector2 smallAngle, largeAngle, tempAngle;
+
+			// Calculate the obstructing tile's angular size and the direction to it.  We want to check if other tiles are within deltaTheta of the calculated direction.
 			double dx = obstructingTile->x - startTile->x;
 			double dy = obstructingTile->y - startTile->y;
-			double dxdy = dx*dy;
+			double rsq = dx*dx + dy*dy;
+			double deltaTheta = 0.5/sqrt(rsq);
+			tempAngle.fromCartesian(dx, dy);
+			smallAngle.theta = tempAngle.theta - deltaTheta;
+			largeAngle.theta = tempAngle.theta + deltaTheta;
 
-			// If the tile is above or below us we use the left and right corners on either the top or bottom depending on the direction.
-			if(fabs(dx) < 0.0000001)
-			{
-				if(dy > 0.0)
-				{
-					// Straight up.
-					smallAngle.fromCartesian(dx + 0.5, dy - 0.5);
-					largeAngle.fromCartesian(dx - 0.5, dy - 0.5);
-				}
-				else
-				{
-					// Straight down.
-					smallAngle.fromCartesian(dx - 0.5, dy + 0.5);
-					largeAngle.fromCartesian(dx + 0.5, dy + 0.5);
-				}
-			}
-
-			// If the tile is left or right of us we use the top and bottom corners on either the left or right side depending on the direction.
-			else if(fabs(dy) < 0.0000001)
-			{
-				if(dx > 0.0)
-				{
-					// Straight to the right.
-					smallAngle.fromCartesian(dx - 0.5, dy - 0.5);
-					largeAngle.fromCartesian(dx - 0.5, dy + 0.5);
-				}
-				else
-				{
-					// Straight to the left.
-					smallAngle.fromCartesian(dx + 0.5, dy + 0.5);
-					largeAngle.fromCartesian(dx + 0.5, dy - 0.5);
-				}
-			}
-
-			// The tile is somewhere else in the region, if it is in either the first or third quadrant we use the top-left and bottom-right corners as the points which define the obscure (the other two quadrants both use the other possible par of corners).  Note that in Q1 and Q3 dxdy is positive and in Q2 and Q4 it is negative.
-			else if(dxdy > 0.0)
-			{
-				// In Q1 or Q3 so use the top-left and bottom-right corners.
-				smallAngle.fromCartesian(dx - 0.5, dy + 0.5);
-				largeAngle.fromCartesian(dx + 0.5, dy - 0.5);
-			}
-			else
-			{
-				// In Q2 or Q4 so use the top-right and bottom-left corners.
-				smallAngle.fromCartesian(dx + 0.5, dy + 0.5);
-				largeAngle.fromCartesian(dx - 0.5, dy - 0.5);
-			}
-
-			// Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
+			// Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of
+			// the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
 			std::list<Tile*>::iterator tileQueueIterator = tileQueue.begin();
 			//tileQueueIterator++;
 			while(tileQueueIterator != tileQueue.end())

@@ -21,20 +21,8 @@ void RadialVector2::fromCartesian(double x1, double y1, double x2, double y2)
 
 void RadialVector2::fromCartesian(double dx, double dy)
 {
-	// Handle the two 'divide by zero' special cases.
-	if(fabs(dx) < 0.0000001)
-	{
-		r = fabs(dy);
-		theta = (dy > 0.0) ? (M_PI/2.0) : (3.0*M_PI/2.0);
-		return;
-	}
-
-	// Handle the other cases.
 	r = sqrt(dx*dx + dy*dy);
 	theta = atan2(dy, dx);
-
-	if(theta < 0.0)
-		theta += 2.0*M_PI;
 }
 
 bool RadialVector2::directionIsBetween(RadialVector2 r1, RadialVector2 r2)
@@ -44,9 +32,15 @@ bool RadialVector2::directionIsBetween(RadialVector2 r1, RadialVector2 r2)
 	double tempTheta2 = r2.theta + 2.0*M_PI;
 
 	if(tempTheta1 < tempTheta2)
-		return (tempTheta1 <= tempTheta && tempTheta <= tempTheta2);
+	{
+		bool tempBool = (tempTheta1 <= tempTheta && tempTheta <= tempTheta2);
+		return tempBool;
+	}
 	else
-		return (tempTheta2 <= tempTheta && tempTheta <= tempTheta1);
+	{
+		bool tempBool = (tempTheta2 <= tempTheta && tempTheta <= tempTheta1);
+		return tempBool;
+	}
 }
 
 void RadialVector2::normalizeTheta()
