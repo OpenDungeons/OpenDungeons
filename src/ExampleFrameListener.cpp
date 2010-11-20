@@ -16,6 +16,7 @@
 #include "Field.h"
 #include "Trap.h"
 #include "RoomObject.h"
+#include "MissileObject.h"
 
 using namespace Ogre;
 
@@ -402,6 +403,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		RoomObject *curRoomObject = NULL;
 		Trap *curTrap = NULL;
 		Creature *curCreature = NULL;
+		MissileObject *curMissileObject = NULL;
 		MapLight *curMapLight = NULL;
 		Light *light;
 		Weapon *curWeapon = NULL;
@@ -777,6 +779,32 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				}
 				break;
 
+			case RenderRequest::createMissileObject:
+				curMissileObject = (MissileObject*)curReq->p;
+				ent = mSceneMgr->createEntity(curMissileObject->name, curMissileObject->meshName + ".mesh");
+				//TODO:  Make a new subroot scene node for these so lookups are faster since only a few missile objects should be onscreen at once.
+				node = creatureSceneNode->createChildSceneNode(curMissileObject->name + "_node");
+				node->setPosition(curMissileObject->getPosition());
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
+				ent->setNormaliseNormals(true);
+#endif
+
+				node->attachObject(ent);
+				break;
+
+			case RenderRequest::destroyMissileObject:
+				curMissileObject = (MissileObject*)curReq->p;
+				if(mSceneMgr->hasEntity(curMissileObject->name))
+				{
+					ent = mSceneMgr->getEntity(curMissileObject->name);
+					node = mSceneMgr->getSceneNode(curMissileObject->name + "_node");
+					node->detachObject(ent);
+					creatureSceneNode->removeChild(node);
+					mSceneMgr->destroyEntity(ent);
+					mSceneMgr->destroySceneNode(curMissileObject->name + "_node");
+				}
+				break;
+
 			case RenderRequest::createMapLight:
 				curMapLight = (MapLight*)curReq->p;
 
@@ -1034,6 +1062,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			case RenderRequest::deleteWeapon:
 				curWeapon = (Weapon*)curReq->p;
 				delete curWeapon;
+				break;
+
+			case RenderRequest::deleteMissileObject:
+				curMissileObject = (MissileObject*)curReq->p;
+				delete curMissileObject;
 				break;
 
 			case RenderRequest::moveSceneNode:

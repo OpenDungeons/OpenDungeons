@@ -21,6 +21,7 @@ SET(
      main.cpp
      MapEditor.cpp
      MapLight.cpp
+     MissileObject.cpp
      MusicPlayer.cpp
      Player.cpp
      RadialVector2.cpp

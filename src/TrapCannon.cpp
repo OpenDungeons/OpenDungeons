@@ -1,6 +1,7 @@
 #include "Globals.h"
 #include "Functions.h"
 #include "TrapCannon.h"
+#include "MissileObject.h"
 
 TrapCannon::TrapCannon()
 	: Trap()
@@ -37,6 +38,11 @@ void TrapCannon::doUpkeep()
 
 		// Begin the reload countdown.
 		reloadTimeCounter = reloadTime;
+
+		// Create the cannonball to move toward the enemy creature.
+		MissileObject *tempMissileObject = new MissileObject("Cannonball", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, 1.5));
+		gameMap.addMissileObject(tempMissileObject);
+		tempMissileObject->createMesh();
 	}
 }
 

@@ -16,6 +16,7 @@
 #include "MapLight.h"
 #include "ProtectedObject.h"
 #include "TileCoordinateMap.h"
+#include "MissileObject.h"
 
 typedef std::map< pair<int,int>, Tile*> TileMap_t;
 
@@ -119,6 +120,12 @@ class GameMap
 		unsigned int numGoalsForAllSeats();
 		void clearGoalsForAllSeats();
 
+		void clearMissileObjects();
+		void addMissileObject(MissileObject *m);
+		void removeMissileObject(MissileObject *m);
+		MissileObject* getMissileObject(int index);
+		unsigned int numMissileObjects();
+
 		// AI Methods
 		void doTurn();
 
@@ -172,6 +179,7 @@ class GameMap
 		std::vector<Seat*> filledSeats;
 		std::vector<Seat*> winningSeats;
 		std::vector<Goal*> goalsForAllSeats;
+		std::vector<MissileObject*> missileObjects;
 		int nextUniqueFloodFillColor;
 		bool floodFillEnabled;
 		std::vector<ActiveObject*> activeObjects;

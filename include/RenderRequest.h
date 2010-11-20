@@ -29,6 +29,7 @@ class RenderRequest
 				createMapLight, updateMapLight, destroyMapLight, destroyMapLightVisualIndicator, deleteMapLight,
 				createField, refreshField, destroyField,
 				moveSceneNode, reorientSceneNode, scaleSceneNode,
+				createMissileObject, destroyMissileObject, deleteMissileObject, //setMissileObjectAnimationState,
 			      	noRequest};
 
 		RenderRequest();

@@ -1848,6 +1848,62 @@ void GameMap::clearGoalsForAllSeats()
 	}
 }
 
+void GameMap::clearMissileObjects()
+{
+	for(unsigned int i = 0; i < missileObjects.size(); i++)
+	{
+		for(unsigned int j = 0; j < activeObjects.size(); j++)
+		{
+			if(missileObjects[i] == activeObjects[j])
+			{
+				activeObjects.erase(activeObjects.begin()+j);
+				break;
+			}
+		}
+	}
+
+	missileObjects.clear();
+}
+
+void GameMap::addMissileObject(MissileObject *m)
+{
+	missileObjects.push_back(m);
+	activeObjects.push_back(m);
+}
+
+void GameMap::removeMissileObject(MissileObject *m)
+{
+	for(unsigned int i = 0; i < activeObjects.size(); i++)
+	{
+		if(m == activeObjects[i])
+		{
+			activeObjects.erase(activeObjects.begin()+i);
+			break;
+		}
+	}
+
+	for(unsigned int i = 0; i < missileObjects.size(); i++)
+	{
+		if(m == missileObjects[i])
+		{
+			//TODO:  Loop over the tiles and make any whose coveringRoom variable points to this room point to NULL.
+			missileObjects.erase(missileObjects.begin()+i);
+			break;
+		}
+	}
+}
+
+MissileObject* GameMap::getMissileObject(int index)
+{
+	return missileObjects[index];
+}
+
+unsigned int GameMap::numMissileObjects()
+{
+	return missileObjects.size();
+}
+
+
 double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 {
 	const double badValue = -1.0;

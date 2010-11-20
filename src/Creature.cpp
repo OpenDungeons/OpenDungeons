@@ -202,11 +202,11 @@ void Creature::createMesh()
 	if(meshesExist)
 		return;
 
+	meshesExist = true;
+
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::createCreature;
 	request->p = this;
-
-	meshesExist = true;
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
@@ -234,7 +234,7 @@ void Creature::destroyMesh()
 	queueRenderRequest(request);
 }
 
-/*! \brief Changes the creatures position to a new position.
+/*! \brief Changes the creature's position to a new position.
  *
  *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
  */
@@ -243,7 +243,7 @@ void Creature::setPosition(Ogre::Vector3 v)
 	setPosition(v.x, v.y, v.z);
 }
 
-/*! \brief Changes the creatures position to a new position.
+/*! \brief Changes the creature's position to a new position.
  *
  *  Moves the creature to a new location in 3d space.  This function is
  *  responsible for informing OGRE anything it needs to know, as well as
