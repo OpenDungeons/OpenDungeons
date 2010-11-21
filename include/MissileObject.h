@@ -24,7 +24,7 @@ class MissileObject : public ActiveObject, public AnimatedObject
 		void destroyMesh();
 		void deleteYourself();
 
-		string name, meshName;
+		string meshName;
 
 	private:
 		std::deque<Ogre::Vector3> walkQueue;

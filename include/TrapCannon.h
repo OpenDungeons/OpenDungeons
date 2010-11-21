@@ -23,6 +23,7 @@ class TrapCannon : public Trap
 		int reloadTimeCounter;
 		double range;
 		double minDamage, maxDamage;
+		double cannonHeight;
 
 };
 

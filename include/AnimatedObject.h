@@ -6,8 +6,9 @@
 #include <Ogre.h>
 
 #include "Tile.h"
+#include "NamedObject.h"
 
-class AnimatedObject
+class AnimatedObject : public NamedObject
 {
 	public:
 		AnimatedObject();
@@ -16,13 +17,14 @@ class AnimatedObject
 		virtual void setPosition(Ogre::Vector3 v);
 		virtual Ogre::Vector3 getPosition();
 
-		void addDestination(int x, int y);
+		void addDestination(double x, double y, double z = 0.0);
 		bool setWalkPath(std::list<Tile*> path, unsigned int minDestinations, bool addFirstStop);
 		void clearDestinations();
 		void stopWalking();
 		void faceToward(int x, int y);
 
 		virtual double getMoveSpeed();
+		virtual void setMoveSpeed(double s);
 
 		virtual void setAnimationState(string s);
 
@@ -41,6 +43,7 @@ class AnimatedObject
 
 	protected:
 		Ogre::Vector3 position;
+		double moveSpeed;
 };
 
 #endif

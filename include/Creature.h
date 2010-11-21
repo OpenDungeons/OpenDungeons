@@ -26,7 +26,7 @@ class Creature;
  *  will probably be refined later but it works fine for now and the code
  *  affected by this change is relatively limited.
  */
-class Creature : public CreatureClass, public AttackableObject, public AnimatedObject
+class Creature : public CreatureClass, public AttackableObject
 {
 	public:
 		Creature();

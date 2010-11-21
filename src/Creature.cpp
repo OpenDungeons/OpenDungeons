@@ -17,7 +17,6 @@
 #endif
 
 Creature::Creature()
-	: AnimatedObject()
 {
 	hasVisualDebuggingEntities = false;
 
@@ -172,7 +171,7 @@ Creature Creature::operator=(CreatureClass c2)
 	danceRate = c2.danceRate;
 	hpPerLevel = c2.hpPerLevel;
 	manaPerLevel = c2.manaPerLevel;
-	moveSpeed = c2.moveSpeed;
+	setMoveSpeed(c2.getMoveSpeed());
 	maxHP = c2.maxHP;
 	maxMana = c2.maxMana;
 	bedMeshName = c2.bedMeshName;

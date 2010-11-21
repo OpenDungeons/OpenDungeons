@@ -13,6 +13,8 @@ AnimatedObject::AnimatedObject()
 	destinationAnimationState = "Idle";
 	walkQueueFirstEntryAdded = false;
 	sem_init(&walkQueueLockSemaphore, 0, 1);
+
+	moveSpeed = 1.0;
 }
 
 void AnimatedObject::setPosition(double x, double y, double z)
@@ -44,10 +46,10 @@ Ogre::Vector3 AnimatedObject::getPosition()
  * This function also places a message in the serverNotificationQueue so that
  * relevant clients are informed about the change.
 */
-void AnimatedObject::addDestination(int x, int y)
+void AnimatedObject::addDestination(double x, double y, double z)
 {
 	//cout << "w(" << x << ", " << y << ") ";
-	Ogre::Vector3 destination(x, y, 0);
+	Ogre::Vector3 destination(x, y, z);
 
 	// if there are currently no destinations in the walk queue
 	sem_wait(&walkQueueLockSemaphore);
@@ -167,6 +169,7 @@ void AnimatedObject::faceToward(int x, int y)
 	walkDirection.normalise();
 
 	//FIXME: Having this OGRE code here is probably sub-optimal and may introduce bugs.
+	std::cout << "\n\n\nIm here.... name is: " << name << endl;
 	SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
 	Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
@@ -192,7 +195,12 @@ void AnimatedObject::faceToward(int x, int y)
 
 double AnimatedObject::getMoveSpeed()
 {
-	return 1.0;
+	return moveSpeed;
+}
+
+void AnimatedObject::setMoveSpeed(double s)
+{
+	moveSpeed = s;
 }
 
 void AnimatedObject::setAnimationState(string s)

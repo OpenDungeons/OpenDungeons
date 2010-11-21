@@ -5,9 +5,12 @@
 #include <iostream>
 using namespace std;
 
-#include "Ogre.h"
+class CreatureClass;
 
-class CreatureClass
+#include "Ogre.h"
+#include "AnimatedObject.h"
+
+class CreatureClass : public AnimatedObject
 {
 	public:
 		enum CreatureJob { basicWorker = 1, advancedWorker, scout, weakFighter, weakSpellcaster, weakBuilder,
@@ -28,7 +31,6 @@ class CreatureClass
 		double danceRate;		// How much the danced upon tile's color changes per turn of dancing
 		double hpPerLevel;
 		double manaPerLevel;
-		double moveSpeed;		// How fast the creature moves and animates
 		double maxHP, maxMana;
 
 		// Probability coefficients to determine how likely a creature is to come through the portal.

@@ -11,6 +11,7 @@ TrapCannon::TrapCannon()
 	range = 20;
 	minDamage = 4;
 	maxDamage = 20;
+	cannonHeight = 1.5;
 }
 
 void TrapCannon::doUpkeep()
@@ -40,10 +41,11 @@ void TrapCannon::doUpkeep()
 		reloadTimeCounter = reloadTime;
 
 		// Create the cannonball to move toward the enemy creature.
-		MissileObject *tempMissileObject = new MissileObject("Cannonball", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, 1.5));
+		MissileObject *tempMissileObject = new MissileObject("Cannonball", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, cannonHeight));
 		gameMap.addMissileObject(tempMissileObject);
+		tempMissileObject->setMoveSpeed(8.0);
 		tempMissileObject->createMesh();
-		//tempMissileObject->addDestination(targetEnemy->getCoveredTiles()[0]->x, targetEnemy->getCoveredTiles()[0]->y);
+		tempMissileObject->addDestination(targetEnemy->getCoveredTiles()[0]->x, targetEnemy->getCoveredTiles()[0]->y, cannonHeight);
 	}
 }
 
