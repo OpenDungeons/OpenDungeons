@@ -4,6 +4,39 @@
 
 AnimatedObject::AnimatedObject()
 {
+	sem_init(&positionLockSemaphore, 0, 1);
+	sem_wait(&positionLockSemaphore);
+	position = Ogre::Vector3(0,0,0);
+	sem_post(&positionLockSemaphore);
+
+	animationState = NULL;
+	destinationAnimationState = "Idle";
+	walkQueueFirstEntryAdded = false;
+	sem_init(&walkQueueLockSemaphore, 0, 1);
+}
+
+void AnimatedObject::setPosition(double x, double y, double z)
+{
+	setPosition(Ogre::Vector3(x, y, z));
+}
+
+void AnimatedObject::setPosition(Ogre::Vector3 v)
+{
+	sem_wait(&positionLockSemaphore);
+	position = v;
+	sem_post(&positionLockSemaphore);
+}
+
+/*! \brief A simple accessor function to get the creature's current position in 3d space.
+ *
+ */
+Ogre::Vector3 AnimatedObject::getPosition()
+{
+	sem_wait(&positionLockSemaphore);
+	Ogre::Vector3 tempVector(position);
+	sem_post(&positionLockSemaphore);
+
+	return tempVector;
 }
 
 /*! \brief Adds a position in 3d space to the creature's walk queue and, if necessary, starts it walking.
@@ -24,8 +57,8 @@ void AnimatedObject::addDestination(int x, int y)
 		walkQueue.push_back(destination);
 		sem_wait(&positionLockSemaphore);
 		shortDistance = position.distance(walkQueue.front());
-		sem_post(&positionLockSemaphore);
 		walkQueueFirstEntryAdded = true;
+		sem_post(&positionLockSemaphore);
 	}
 	else
 	{
@@ -34,6 +67,8 @@ void AnimatedObject::addDestination(int x, int y)
 	}
 	sem_post(&walkQueueLockSemaphore);
 
+	/*
+	   //FIXME: This code needs to be made generic rather than creature class specific.
 	if(serverSocket != NULL)
 	{
 		try
@@ -52,6 +87,7 @@ void AnimatedObject::addDestination(int x, int y)
 			exit(1);
 		}
 	}
+	*/
 }
 
 /*! \brief Replaces a creature's current walk queue with a new path.
@@ -152,5 +188,14 @@ void AnimatedObject::faceToward(int x, int y)
 		// Add the request to the queue of rendering operations to be performed before the next frame.
 		queueRenderRequest(request);
 	}
+}
+
+double AnimatedObject::getMoveSpeed()
+{
+	return 1.0;
+}
+
+void AnimatedObject::setAnimationState(string s)
+{
 }
 

@@ -43,6 +43,7 @@ void TrapCannon::doUpkeep()
 		MissileObject *tempMissileObject = new MissileObject("Cannonball", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, 1.5));
 		gameMap.addMissileObject(tempMissileObject);
 		tempMissileObject->createMesh();
+		//tempMissileObject->addDestination(targetEnemy->getCoveredTiles()[0]->x, targetEnemy->getCoveredTiles()[0]->y);
 	}
 }
 

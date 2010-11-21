@@ -17,13 +17,9 @@
 #endif
 
 Creature::Creature()
+	: AnimatedObject()
 {
 	hasVisualDebuggingEntities = false;
-
-	sem_init(&positionLockSemaphore, 0, 1);
-	sem_wait(&positionLockSemaphore);
-	position = Ogre::Vector3(0,0,0);
-	sem_post(&positionLockSemaphore);
 
 	scale = Ogre::Vector3(1,1,1);
 	sightRadius = 10.0;
@@ -55,11 +51,6 @@ Creature::Creature()
 
 	weaponL = NULL;
 	weaponR = NULL;
-
-	animationState = NULL;
-	destinationAnimationState = "Idle";
-	walkQueueFirstEntryAdded = false;
-	sem_init(&walkQueueLockSemaphore, 0, 1);
 
 	sceneNode = NULL;
 
@@ -291,18 +282,6 @@ void Creature::setPosition(double x, double y, double z)
 	queueRenderRequest(request);
 }
 
-/*! \brief A simple accessor function to get the creature's current position in 3d space.
- *
- */
-Ogre::Vector3 Creature::getPosition()
-{
-	sem_wait(&positionLockSemaphore);
-	Ogre::Vector3 tempVector(position);
-	sem_post(&positionLockSemaphore);
-
-	return tempVector;
-}
-
 void Creature::setHP(double nHP)
 {
 	sem_wait(&hpLockSemaphore);
@@ -335,6 +314,10 @@ double Creature::getMana()
 	return tempDouble;
 }
 
+double Creature::getMoveSpeed()
+{
+	return moveSpeed;
+}
 
 /*! \brief The main AI routine which decides what the creature will do and carries out that action.
  *

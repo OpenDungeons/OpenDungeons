@@ -1151,61 +1151,61 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	turnString += "\nTurn number:  " + StringConverter::toString(turnNumber.get());
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));
 
-	// Update the animations on any creatures who have them
-	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
+	// Update the animations on any AnimatedObjects which have them
+	for(unsigned int i = 0; i < gameMap.numAnimatedObjects(); i++)
 	{
-		Creature *currentCreature = gameMap.getCreature(i);
+		AnimatedObject *currentAnimatedObject = gameMap.getAnimatedObject(i);
 
 		// Advance the animation
-		if(currentCreature->animationState != NULL)
-			currentCreature->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame * currentCreature->moveSpeed);
+		if(currentAnimatedObject->animationState != NULL)
+			currentAnimatedObject->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame * currentAnimatedObject->getMoveSpeed());
 
 		// Move the creature
-		sem_wait(&currentCreature->walkQueueLockSemaphore);
-		if(currentCreature->walkQueue.size() > 0)
+		sem_wait(&currentAnimatedObject->walkQueueLockSemaphore);
+		if(currentAnimatedObject->walkQueue.size() > 0)
 		{
 			// If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
-			if(currentCreature->walkQueueFirstEntryAdded)
+			if(currentAnimatedObject->walkQueueFirstEntryAdded)
 			{
-				currentCreature->walkQueueFirstEntryAdded = false;
-				currentCreature->faceToward(currentCreature->walkQueue.front().x, currentCreature->walkQueue.front().y);
+				currentAnimatedObject->walkQueueFirstEntryAdded = false;
+				currentAnimatedObject->faceToward(currentAnimatedObject->walkQueue.front().x, currentAnimatedObject->walkQueue.front().y);
 			}
 
 			//FIXME: The moveDist should probably be tied to the scale of the creature as well
 			//FIXME: When the client and the server are using different frame rates, the creatures walk at different speeds
-			double moveDist = turnsPerSecond * currentCreature->moveSpeed * evt.timeSinceLastFrame;
-			currentCreature->shortDistance -= moveDist;
+			double moveDist = turnsPerSecond * currentAnimatedObject->getMoveSpeed() * evt.timeSinceLastFrame;
+			currentAnimatedObject->shortDistance -= moveDist;
 
 			// Check to see if we have walked to, or past, the first destination in the queue
-			if(currentCreature->shortDistance <= 0.0)
+			if(currentAnimatedObject->shortDistance <= 0.0)
 			{
 				// Compensate for any overshoot and place the creature at the intended destination
-				currentCreature->setPosition(currentCreature->walkQueue.front());
-				currentCreature->walkQueue.pop_front();
+				currentAnimatedObject->setPosition(currentAnimatedObject->walkQueue.front());
+				currentAnimatedObject->walkQueue.pop_front();
 
 				// If there are no more places to walk to still left in the queue
-				if(currentCreature->walkQueue.size() == 0)
+				if(currentAnimatedObject->walkQueue.size() == 0)
 				{
 					// Stop walking
-					currentCreature->stopWalking();
-					currentCreature->setAnimationState(currentCreature->destinationAnimationState);
+					currentAnimatedObject->stopWalking();
+					currentAnimatedObject->setAnimationState(currentAnimatedObject->destinationAnimationState);
 				}
 				else // There are still entries left in the queue
 				{
 					// Turn to face the next direction
-					currentCreature->faceToward(currentCreature->walkQueue.front().x, currentCreature->walkQueue.front().y);
+					currentAnimatedObject->faceToward(currentAnimatedObject->walkQueue.front().x, currentAnimatedObject->walkQueue.front().y);
 
 					// Compute the distance to the next location in the queue and store it in the shortDistance datamember.
-					Ogre::Vector3 tempVector = currentCreature->walkQueue.front() - currentCreature->getPosition();
-					currentCreature->shortDistance = tempVector.normalise();
+					Ogre::Vector3 tempVector = currentAnimatedObject->walkQueue.front() - currentAnimatedObject->getPosition();
+					currentAnimatedObject->shortDistance = tempVector.normalise();
 				}
 			}
 			else // We have not reached the destination at the front of the queue
 			{
-				currentCreature->setPosition(currentCreature->getPosition() + currentCreature->walkDirection * moveDist);
+				currentAnimatedObject->setPosition(currentAnimatedObject->getPosition() + currentAnimatedObject->walkDirection * moveDist);
 			}
 		}
-		sem_post(&currentCreature->walkQueueLockSemaphore);
+		sem_post(&currentAnimatedObject->walkQueueLockSemaphore);
 	}
 
 	// Advance the "flickering" of the lights by the amount of time that has passed since the last frame.

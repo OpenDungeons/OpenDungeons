@@ -49,13 +49,14 @@ class Creature : public CreatureClass, public AttackableObject, public AnimatedO
 
 		void setPosition(double x, double y, double z);
 		void setPosition(Ogre::Vector3 v);
-		Ogre::Vector3 getPosition();
 
 		void setHP(double nHP);
 		double getHP(Tile *tile);
 
 		void setMana(double nMana);
 		double getMana();
+
+		double getMoveSpeed();
 
 		// AI stuff
 		virtual void doTurn();

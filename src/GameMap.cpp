@@ -1920,6 +1920,15 @@ void GameMap::clearMissileObjects()
 				break;
 			}
 		}
+
+		for(unsigned int j = 0; j < animatedObjects.size(); j++)
+		{
+			if(missileObjects[i] == animatedObjects[j])
+			{
+				animatedObjects.erase(animatedObjects.begin()+j);
+				break;
+			}
+		}
 	}
 
 	missileObjects.clear();
@@ -1929,6 +1938,7 @@ void GameMap::addMissileObject(MissileObject *m)
 {
 	missileObjects.push_back(m);
 	activeObjects.push_back(m);
+	animatedObjects.push_back(m);
 }
 
 void GameMap::removeMissileObject(MissileObject *m)
@@ -1948,6 +1958,15 @@ void GameMap::removeMissileObject(MissileObject *m)
 		{
 			//TODO:  Loop over the tiles and make any whose coveringRoom variable points to this room point to NULL.
 			missileObjects.erase(missileObjects.begin()+i);
+			break;
+		}
+	}
+
+	for(unsigned int i = 0; i < animatedObjects.size(); i++)
+	{
+		if(m == animatedObjects[i])
+		{
+			animatedObjects.erase(animatedObjects.begin()+i);
 			break;
 		}
 	}
