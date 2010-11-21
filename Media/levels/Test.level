@@ -1,4 +1,4 @@
-OpenDungeons_Version:0.4.4  # The version of OpenDungeons which created this file (for compatability reasons).
+OpenDungeons_Version:0.4.5  # The version of OpenDungeons which created this file (for compatability reasons).
 Media/levels/Test.level # The level to load after this level is complete.
 
 # Seats
@@ -9838,7 +9838,7 @@ Cannon	1
 # Lights
 22  # The number of lights to load.
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
--6	-2	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
+-5	-1	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
 2	-8	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
 -7	16	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
 6	2	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
@@ -9863,25 +9863,25 @@ Cannon	1
 
 # Creature classes
 9  # The number of creature classes to load.
-# className	meshName	bedMeshName	bedDim1	bedDim2	scaleX	scaleY	scaleZ	hp/level	mana/level	sightRadius	digRate	danceRate	moveSpeed	cHumans	cCorpars	cUndead	cConstructs	cDenizens	cAltruism	cOrder	cPeace
+# className	creatureJob	meshName	bedMeshName	bedDim1	bedDim2	scaleX	scaleY	scaleZ	hp/level	mana/level	sightRadius	digRate	danceRate	moveSpeed	cHumans	cCorpars	cUndead	cConstructs	cDenizens	cAltruism	cOrder	cPeace
 
-Wyvern	Wyvern.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1.3	1	0	0	0	0	0	1	0
-Knight	Knight.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	1	0	0	0	0	1	1	1
-BigKnight	Knight.mesh	Bed.mesh	1	2	1.2	1.2	1.2	5	5	15	0	0	1.2	1	0	0	0	0	1	1	1
-Kobold	Kobold.mesh	Bed.mesh	1	2	0.1	0.1	0.1	5	5	15	20	0.35	2.5	0	0	0	0	1	0	0	0
-Dragon	Dragon.mesh	Bed.mesh	1	2	0.5	0.5	0.5	5	5	15	0	0	0.9	1	0	0	0	0	0	1	-1
-Dwarf1	Dwarf1.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
-Dwarf2	Dwarf2.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
-Orc	Orc.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	0	-1
-Kreatur	Kreatur.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	-1	0	-1
+Wyvern	WeakFighter	Wyvern.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1.3	1	0	0	0	0	0	1	0
+Knight	WeakFighter	Knight.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	1	0	0	0	0	1	1	1
+BigKnight	WeakFighter	Knight.mesh	Bed.mesh	1	2	1.2	1.2	1.2	5	5	15	0	0	1.2	1	0	0	0	0	1	1	1
+Kobold	BasicWorker	Kobold.mesh	Bed.mesh	1	2	0.1	0.1	0.1	5	5	15	20	0.35	2.5	0	0	0	0	1	0	0	0
+Dragon	WeakFighter	Dragon.mesh	Bed.mesh	1	2	0.5	0.5	0.5	5	5	15	0	0	0.9	1	0	0	0	0	0	1	-1
+Dwarf1	WeakFighter	Dwarf1.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
+Dwarf2	WeakFighter	Dwarf2.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
+Orc	WeakFighter	Orc.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	0	-1
+Kreatur	WeakFighter	Kreatur.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	-1	0	-1
 
 # Creatures
 39  # The number of creatures to load.
 # className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana
 Kobold	Kobold_010	-22	5	0	1	none	5	4	0	none	8	3	0	25	3
 Kobold	Kobold_008	28	-64	0	1	none	5	4	0	none	8	3	0	25	3
-Kobold	Kobold_012	-7	14	0	1	Roundshield	14	4	0	Longsword	14	3	0	25	3
-Kobold	Kobold_007	-5	12	0	1	none	5	4	0	none	8	3	0	25	3
+Kobold	Kobold_012	-4	9	0	1	Roundshield	14	4	0	Longsword	14	3	0	25	3
+Kobold	Kobold_007	-7	5	0	1	none	5	4	0	none	8	3	0	25	3
 Kobold	Kobold_009	-14	-115	0	1	none	5	4	0	none	8	3	0	25	3
 Kobold	Kobold_011	-7	13	0	1	none	5	4	0	none	8	3	0	25	3
 BigKnight	Knight_001	-16	-1	0	1	Roundshield	12	4	0	Sabre	0	3	7	80	10
@@ -9895,7 +9895,7 @@ Knight	Knight_002	-3	5	0	1	none	0	4	0	Longsword	14	3	0	55	2
 Dragon	Dragon_001	-42	-91	0	1	none	10	4	0	none	8	3	0	100	25
 Dragon	Dragon_002	-20	7	0	1	none	10	4	0	none	8	3	0	100	25
 Dragon	Dragon_003	-14	1	0	1	none	10	4	0	none	8	3	0	100	25
-Dragon	Dragon_004	-12	3	0	1	none	10	4	0	none	8	3	0	100	25
+Dragon	Dragon_004	-4	14	0	1	none	10	4	0	none	8	3	0	100	25
 Wyvern	Wyvern_001	-23	-110	0	1	none	8	3	0	none	6	3	0	50	5
 Wyvern	Wyvern_002	-14	-115	0	1	none	8	3	0	none	6	3	0	50	5
 Wyvern	Wyvern_003	-17	-95	0	1	none	8	3	0	none	6	3	0	50	5

@@ -13,14 +13,19 @@ class CreatureClass;
 class CreatureClass : public AnimatedObject
 {
 	public:
-		enum CreatureJob { basicWorker = 1, advancedWorker, scout, weakFighter, weakSpellcaster, weakBuilder,
+		enum CreatureJob { nullCreatureJob = 0, basicWorker = 1, advancedWorker, scout, weakFighter, weakSpellcaster, weakBuilder,
 		                   strongFighter, strongSpellcaster, strongBuilder, guard, specialCreature, summon, superCreature };
 
 		// Constructors and operators
 		CreatureClass();
 
+		static CreatureJob creatureJobFromString(string s);
+		static string creatureJobToString(CreatureJob c);
+
+
 		// Class properties
 		//NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
+		CreatureJob creatureJob;
 		string className;
 		string meshName;
 		string bedMeshName;
@@ -45,6 +50,7 @@ class CreatureClass : public AnimatedObject
 
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, CreatureClass *c);
+
 		friend istream& operator>>(istream& is, CreatureClass *c);
 };
 

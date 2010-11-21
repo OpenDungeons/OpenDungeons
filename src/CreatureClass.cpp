@@ -2,6 +2,7 @@
 
 CreatureClass::CreatureClass()
 {
+	creatureJob = nullCreatureJob;
 	sightRadius = 10.0;
 	digRate = 0.0;
 	danceRate = 0.0;
@@ -12,14 +13,56 @@ CreatureClass::CreatureClass()
 	maxMana = 10.0;
 }
 
+CreatureClass::CreatureJob CreatureClass::creatureJobFromString(string s)
+{
+	if(s.compare("BasicWorker") == 0)          return basicWorker; 
+	if(s.compare("AdvancedWorker") == 0)       return advancedWorker; 
+	if(s.compare("Scout") == 0)                return scout; 
+	if(s.compare("WeakFighter") == 0)          return weakFighter; 
+	if(s.compare("WeakSpellcaster") == 0)      return weakSpellcaster; 
+	if(s.compare("WeakBuilder") == 0)          return weakBuilder; 
+	if(s.compare("StrongFighter") == 0)        return strongFighter; 
+	if(s.compare("StrongSpellcaster") == 0)    return strongSpellcaster; 
+	if(s.compare("StrongBuilder") == 0)        return strongBuilder; 
+	if(s.compare("Guard") == 0)                return guard; 
+	if(s.compare("SpecialCreature") == 0)      return specialCreature; 
+	if(s.compare("Summon") == 0)               return summon; 
+	if(s.compare("SuperCreature") == 0)        return superCreature;
+
+	return nullCreatureJob;
+}
+
+string CreatureClass::creatureJobToString(CreatureJob c)
+{
+	switch(c)
+	{
+		case nullCreatureJob:    return "NullCreatureJob";    break;
+		case basicWorker:        return "BasicWorker";        break;
+		case advancedWorker:     return "AdvancedWorker";     break;
+		case scout:              return "Scout";              break;
+		case weakFighter:        return "WeakFighter";        break;
+		case weakSpellcaster:    return "WeakSpellcaster";    break;
+		case weakBuilder:        return "WeakBuilder";        break;
+		case strongFighter:      return "StrongFighter";      break;
+		case strongSpellcaster:  return "StrongSpellcaster";  break;
+		case strongBuilder:      return "StrongBuilder";      break;
+		case guard:              return "Guard";              break;
+		case specialCreature:    return "SpecialCreature";    break;
+		case summon:             return "Summon";             break;
+		case superCreature:      return "SuperCreature";      break;
+
+		default:                 return "NullCreatureJob";    break;
+	}
+}
+
 string CreatureClass::getFormat()
 {
-	return "# className\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\thp/level\tmana/level\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\tcHumans\tcCorpars\tcUndead\tcConstructs\tcDenizens\tcAltruism\tcOrder\tcPeace\n";
+	return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\thp/level\tmana/level\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\tcHumans\tcCorpars\tcUndead\tcConstructs\tcDenizens\tcAltruism\tcOrder\tcPeace\n";
 }
 
 ostream& operator<<(ostream& os, CreatureClass *c)
 {
-	os << c->className << "\t" << c->meshName << "\t";
+	os << c->className << "\t" << CreatureClass::creatureJobToString(c->creatureJob) << "\t" << c->meshName << "\t";
 	os << c->bedMeshName << "\t" << c->bedDim1 << "\t" << c->bedDim2 << "\t";
 	os << c->scale.x << "\t" << c->scale.y << "\t" << c->scale.z << "\t";
 	os << c->hpPerLevel << "\t" << c->manaPerLevel << "\t";
@@ -32,7 +75,10 @@ ostream& operator<<(ostream& os, CreatureClass *c)
 
 istream& operator>>(istream& is, CreatureClass *c)
 {
-	is >> c->className >> c->meshName;
+	string tempString;
+	is >> c->className >> tempString;
+	c->creatureJob = CreatureClass::creatureJobFromString(tempString);
+	is >> c->meshName;
 	is >> c->bedMeshName >> c->bedDim1 >> c->bedDim2;
 	is >> c->scale.x >> c->scale.y >> c->scale.z;
 	is >> c->hpPerLevel >> c->manaPerLevel;

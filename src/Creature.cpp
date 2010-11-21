@@ -163,6 +163,7 @@ istream& operator>>(istream& is, Creature *c)
 
 Creature Creature::operator=(CreatureClass c2)
 {
+	creatureJob = c2.creatureJob;
 	className = c2.className;
 	meshName = c2.meshName;
 	scale = c2.scale;
