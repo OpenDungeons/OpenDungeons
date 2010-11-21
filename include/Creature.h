@@ -103,9 +103,6 @@ class Creature : public CreatureClass, public AttackableObject, public AnimatedO
 		Creature operator=(CreatureClass c2);
 
 		// Public data members
-		AnimationState *animationState;
-		string destinationAnimationState;
-		SceneNode *sceneNode;
 		static const int maxGoldCarriedByWorkers = 1500;
 
 	private:

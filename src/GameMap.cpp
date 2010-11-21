@@ -23,6 +23,7 @@ GameMap::GameMap()
 	averageAILeftoverTime = 0.0;
 	sem_init(&threadReferenceCountLockSemaphore, 0, 1);
 	sem_init(&creaturesLockSemaphore, 0, 1);
+	sem_init(&animatedObjectsLockSemaphore, 0, 1);
 	sem_init(&tilesLockSemaphore, 0, 1);
 	tileCoordinateMap = new TileCoordinateMap(100);
 }
@@ -132,7 +133,10 @@ void GameMap::clearCreatures()
 {
 	sem_wait(&creaturesLockSemaphore);
 	for(unsigned int i = 0; i < creatures.size(); i++)
+	{
+		removeAnimatedObject(creatures[i]);
 		creatures[i]->deleteYourself();
+	}
 
 	creatures.clear();
 	sem_post(&creaturesLockSemaphore);
@@ -353,6 +357,8 @@ void GameMap::addCreature(Creature *c)
 	sem_post(&creaturesLockSemaphore);
 
 	c->positionTile()->addCreature(c);
+
+	addAnimatedObject(c);
 }
 
 /*! \brief Removes the creature from the game map but does not delete its data structure.
@@ -376,6 +382,8 @@ void GameMap::removeCreature(Creature *c)
 	}
 
 	sem_post(&creaturesLockSemaphore);
+
+	removeAnimatedObject(c);
 }
 
 /** \brief Adds the given creature to the queue of creatures to be deleted in a future turn
@@ -438,6 +446,56 @@ std::vector<Creature*> GameMap::getCreaturesByColor(int color)
 	sem_post(&creaturesLockSemaphore);
 
 	return tempVector;
+}
+
+void GameMap::clearAnimatedObjects()
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+	animatedObjects.clear();
+	sem_post(&animatedObjectsLockSemaphore);
+}
+
+void GameMap::addAnimatedObject(AnimatedObject *a)
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+	animatedObjects.push_back(a);
+	sem_post(&animatedObjectsLockSemaphore);
+}
+
+void GameMap::removeAnimatedObject(AnimatedObject *a)
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+
+	// Loop over the animatedObjects looking for animatedObject a
+	for(unsigned int i = 0; i < animatedObjects.size(); i++)
+	{
+		if(a == animatedObjects[i])
+		{
+			// AnimatedObject found
+			animatedObjects.erase(animatedObjects.begin()+i);
+			break;
+		}
+	}
+
+	sem_post(&animatedObjectsLockSemaphore);
+}
+
+AnimatedObject* GameMap::getAnimatedObject(int index)
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+	AnimatedObject *tempAnimatedObject = animatedObjects[index];
+	sem_post(&animatedObjectsLockSemaphore);
+
+	return tempAnimatedObject;
+}
+
+unsigned int GameMap::numAnimatedObjects()
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+	unsigned int tempUnsigned = animatedObjects.size();
+	sem_post(&animatedObjectsLockSemaphore);
+
+	return tempUnsigned;
 }
 
 /*! \brief Returns the total number of class descriptions stored in this game map.

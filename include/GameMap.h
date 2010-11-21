@@ -58,6 +58,12 @@ class GameMap
 		unsigned int numCreatures();
 		std::vector<Creature*> getCreaturesByColor(int color);
 
+		void clearAnimatedObjects();
+		void addAnimatedObject(AnimatedObject *a);
+		void removeAnimatedObject(AnimatedObject *a);
+		AnimatedObject* getAnimatedObject(int index);
+		unsigned int numAnimatedObjects();
+
 		void clearClasses();
 		void addClassDescription(CreatureClass c);
 		void addClassDescription(CreatureClass *c);
@@ -171,6 +177,8 @@ class GameMap
 		std::vector<CreatureClass*> classDescriptions;
 		std::vector<Creature*> creatures;
 		sem_t creaturesLockSemaphore;  //TODO: Most of these other vectors should also probably have semaphore locks on them.
+		std::vector<AnimatedObject*> animatedObjects;
+		sem_t animatedObjectsLockSemaphore;
 		std::vector<Player*> players;
 		std::vector<Room*> rooms;
 		std::vector<Trap*> traps;

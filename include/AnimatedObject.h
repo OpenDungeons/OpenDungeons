@@ -27,6 +27,10 @@ class AnimatedObject
 		Ogre::Vector3 walkDirection;
 		double shortDistance;
 
+		AnimationState *animationState;
+		string destinationAnimationState;
+		SceneNode *sceneNode;
+
 	protected:
 		Ogre::Vector3 position;
 };
