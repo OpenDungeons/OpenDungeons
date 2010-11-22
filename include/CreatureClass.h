@@ -22,6 +22,7 @@ class CreatureClass : public AnimatedObject
 		static CreatureJob creatureJobFromString(string s);
 		static string creatureJobToString(CreatureJob c);
 
+		bool isWorker();
 
 		// Class properties
 		//NOTE: Anything added to this class must be included in the '=' operator for the Creature class.

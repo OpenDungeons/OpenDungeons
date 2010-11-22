@@ -370,20 +370,20 @@ void Creature::doTurn()
 
 	// Heal.
 	sem_wait(&hpLockSemaphore);
-	hp += 0.25;
+	hp += 0.1;
 	if(hp > maxHP)
 		hp = maxHP;
 	sem_post(&hpLockSemaphore);
 	
 	// Regenrate mana.
 	sem_wait(&manaLockSemaphore);
-	mana += 0.75;
+	mana += 0.45;
 	if(mana > maxMana)
 		mana = maxMana;
 	sem_post(&manaLockSemaphore);
 
 	// Check to see if we have earned enough experience to level up.
-	while(exp >= 5*level + 5*powl(level/3, 2))
+	while(exp >= 5*level + 5*powl(level/3.0, 2))
 		doLevelUp();
 
 	// If we are not standing somewhere on the map, do nothing.
@@ -426,7 +426,7 @@ void Creature::doTurn()
 	}
 
 	// Check to see if we have found a "home" tile where we can sleep yet.
-	if(digRate <= 0.1 && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
+	if(!isWorker() && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
 	{
 		// Check to see if there are any quarters owned by our color that we can reach.
 		std::vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
@@ -468,29 +468,39 @@ void Creature::doTurn()
 					setAnimationState("Idle");
 					//FIXME: make this into a while loop over a vector of <action, probability> pairs
 
-					// Decide to check for clamiable tiles
-					if(diceRoll < 0.2 && danceRate > 0.1)
+					// Workers only.
+					if(isWorker())
 					{
-						loopBack = true;
-						actionQueue.push_front(CreatureAction(CreatureAction::claimTile));
+						// Decide to check for clamiable tiles
+						if(diceRoll < 0.2 && danceRate > 0.1)
+						{
+							loopBack = true;
+							actionQueue.push_front(CreatureAction(CreatureAction::claimTile));
+						}
+
+						// Decide to check for diggable tiles
+						else if(diceRoll < 0.4 && digRate > 0.1)
+						{
+							loopBack = true;
+							actionQueue.push_front(CreatureAction(CreatureAction::digTile));
+						}
+
+						// Decide to deposit the gold we are carrying into a treasury.
+						else if(diceRoll < 0.4+0.6*(gold/(double)maxGoldCarriedByWorkers) && digRate > 0.1)
+						{
+							loopBack = true;
+							actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
+						}
+					}
+					// Non-workers only
+					else
+					{
 					}
 
-					// Decide to check for diggable tiles
-					else if(diceRoll < 0.4 && digRate > 0.1)
-					{
-						loopBack = true;
-						actionQueue.push_front(CreatureAction(CreatureAction::digTile));
-					}
-
-					// Decide to deposit the gold we are carrying into a treasury.
-					else if(diceRoll < 0.4+0.6*(gold/(double)maxGoldCarriedByWorkers) && digRate > 0.1)
-					{
-						loopBack = true;
-						actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
-					}
+					// Any creature.
 
 					// Decide to "wander" a short distance
-					else if(diceRoll < 0.6)
+					if(diceRoll < 0.6)
 					{
 						loopBack = true;
 						actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
@@ -498,10 +508,12 @@ void Creature::doTurn()
 						// If we are not a worker.
 						int tempX, tempY;
 						bool workerFound = false;
-						if(digRate < 0.1)
+						if(!isWorker())
 						{
-							// Checkt to see if we want to try to follow a worker around or if we want to try to explore.
-							if(randomDouble(0.0, 1.0) < 0.3)
+							// Check to see if we want to try to follow a worker around or if we want to try to explore.
+							double r = randomDouble(0.0, 1.0);
+							if(creatureJob == weakFighter) r -= 0.5;
+							if(r < 0.3)
 							{
 								// Try to find a worker to follow around.
 								for(unsigned int i = 0; i < reachableAlliedObjects.size(); i++)
@@ -1201,6 +1213,21 @@ claimTileBreakStatement:
 				case CreatureAction::maneuver:
 					myTile = positionTile();
 
+					std::cout << "\nManeuvering " << enemyObjectsInRange.size() << " objects in range.";
+					// If there is an enemy within range, stop maneuvering and attack it.
+					if(enemyObjectsInRange.size() > 0)
+					{
+						std::cout << "\n\n\n\n\nStopping because the enemy is close.\n\n\n\n\n";
+						actionQueue.pop_front();
+						loopBack = true;
+
+						// If the next action down the stack is not an attackObject action, add it.
+						if(actionQueue.front().type != CreatureAction::attackObject)
+							actionQueue.push_front(CreatureAction(CreatureAction::attackObject));
+
+						break;
+					}
+
 					// If there are no more enemies which are reachable, stop maneuvering.
 					if(reachableEnemyObjects.size() == 0)
 					{
@@ -1229,19 +1256,6 @@ claimTileBreakStatement:
 							if(setWalkPath(tempPath, 2, false))
 								setAnimationState("Walk");
 						}
-					}
-
-					// If there is an enemy within range, stop maneuvering and attack it.
-					if(enemyObjectsInRange.size() > 0)
-					{
-						actionQueue.pop_front();
-						loopBack = true;
-
-						// If the next action down the stack is not an attackObject action, add it.
-						if(actionQueue.front().type != CreatureAction::attackObject)
-							actionQueue.push_front(CreatureAction(CreatureAction::attackObject));
-
-						break;
 					}
 
 					// There are no enemy creatures in range so we will have to maneuver towards one.
@@ -1344,18 +1358,18 @@ void Creature::doLevelUp()
 	level++;
 	cout << "\n\n" << name << " has reached level " << level << "\n\n";
 
-	if(digRate > 0.1)
-		digRate *= 1.0 + log((double)log((double)level+1)+1);
+	if(isWorker())
+		digRate += level/(level+5.0);
 
-	if(digRate > 60)  digRate = 60;
+	//if(digRate > 60)  digRate = 60;
 
 	maxHP += hpPerLevel;
 	maxMana += manaPerLevel;
 
 	// Scale up the mesh.
-	if(meshesExist && level < 100)
+	if(meshesExist && level < 100 && (level % 2) == 0)
 	{
-		double scaleFactor = 1.0 + level/200.0;
+		double scaleFactor = 1.0 + level/150.0;
 		if(scaleFactor > 1.05)  scaleFactor = 1.05;
 		RenderRequest *request = new RenderRequest;
 		request->type = RenderRequest::scaleSceneNode;

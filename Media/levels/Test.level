@@ -3527,10 +3527,10 @@ ProtectDungeonTemple	NULL
 -1	0	4	0
 -1	1	4	0
 -1	2	4	0
--1	3	4	0
+-1	3	0	0
 -1	4	0	0
 -1	5	0	0
--1	6	4	0
+-1	6	0	0
 -1	7	4	0
 -1	8	4	0
 -1	9	4	0
@@ -3657,11 +3657,11 @@ ProtectDungeonTemple	NULL
 0	0	4	0
 0	1	4	0
 0	2	4	0
-0	3	4	0
-0	4	0	100
-0	5	0	100
-0	6	0	100
-0	7	0	100
+0	3	0	0
+0	4	0	0
+0	5	0	0
+0	6	0	0
+0	7	0	0
 0	8	4	0
 0	9	4	0
 0	10	4	0
@@ -3788,8 +3788,8 @@ ProtectDungeonTemple	NULL
 1	-1	0	0
 1	0	0	0
 1	1	4	0
-1	2	4	0
-1	3	0	0
+1	2	0	0
+1	3	0	100
 1	4	0	100
 1	5	0	100
 1	6	0	100
@@ -3925,7 +3925,7 @@ ProtectDungeonTemple	NULL
 2	3	0	0
 2	4	0	0
 2	5	0	0
-2	6	0	100
+2	6	0	0
 2	7	0	100
 2	8	0	100
 2	9	0	100
@@ -4064,8 +4064,8 @@ ProtectDungeonTemple	NULL
 3	8	0	100
 3	9	5	0
 3	10	5	0
-3	11	0	0
-3	12	5	0
+3	11	0	100
+3	12	0	100
 3	13	5	0
 3	14	5	0
 3	15	5	0
@@ -4198,8 +4198,8 @@ ProtectDungeonTemple	NULL
 4	8	0	100
 4	9	5	0
 4	10	5	0
-4	11	5	0
-4	12	5	0
+4	11	0	100
+4	12	0	100
 4	13	5	0
 4	14	5	0
 4	15	5	0
@@ -9832,7 +9832,7 @@ Portal	2
 # meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY
 Cannon	1
 1
--7	2
+-14	-1
 
 
 # Lights
@@ -9842,7 +9842,7 @@ Cannon	1
 2	-8	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
 -7	16	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
 6	2	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
-3	14	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
+6	11	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
 -40	-93	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
 7	-34	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
 0	-28	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
@@ -9865,56 +9865,56 @@ Cannon	1
 9  # The number of creature classes to load.
 # className	creatureJob	meshName	bedMeshName	bedDim1	bedDim2	scaleX	scaleY	scaleZ	hp/level	mana/level	sightRadius	digRate	danceRate	moveSpeed	cHumans	cCorpars	cUndead	cConstructs	cDenizens	cAltruism	cOrder	cPeace
 
-Wyvern	WeakFighter	Wyvern.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1.3	1	0	0	0	0	0	1	0
+Wyvern	WeakFighter	Wyvern.mesh	Bed.mesh	2	2	1	1	1	5	5	15	0	0	1.3	1	0	0	0	0	0	1	0
 Knight	WeakFighter	Knight.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	1	0	0	0	0	1	1	1
-BigKnight	WeakFighter	Knight.mesh	Bed.mesh	1	2	1.2	1.2	1.2	5	5	15	0	0	1.2	1	0	0	0	0	1	1	1
+BigKnight	StrongFighter	Knight.mesh	ForgeForgeObject.mesh	3	3	1.2	1.2	1.2	5	5	15	0	0	1.2	1	0	0	0	0	1	1	1
 Kobold	BasicWorker	Kobold.mesh	Bed.mesh	1	2	0.1	0.1	0.1	5	5	15	20	0.35	2.5	0	0	0	0	1	0	0	0
-Dragon	WeakFighter	Dragon.mesh	Bed.mesh	1	2	0.5	0.5	0.5	5	5	15	0	0	0.9	1	0	0	0	0	0	1	-1
+Dragon	StrongFighter	Dragon.mesh	GoldChest.mesh	4	4	0.5	0.5	0.5	5	5	15	0	0	0.9	1	0	0	0	0	0	1	-1
 Dwarf1	WeakFighter	Dwarf1.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
 Dwarf2	WeakFighter	Dwarf2.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
-Orc	WeakFighter	Orc.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	0	-1
-Kreatur	WeakFighter	Kreatur.mesh	Bed.mesh	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	-1	0	-1
+Orc	StrongFighter	Orc.mesh	Bed.mesh	2	3	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	0	-1
+Kreatur	StrongFighter	Kreatur.mesh	Bed.mesh	4	4	1	1	1	5	5	15	0	0	1	0	1	0	0	0	-1	0	-1
 
 # Creatures
 39  # The number of creatures to load.
 # className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana
-Kobold	Kobold_010	-22	5	0	1	none	5	4	0	none	8	3	0	25	3
-Kobold	Kobold_008	28	-64	0	1	none	5	4	0	none	8	3	0	25	3
-Kobold	Kobold_012	-4	9	0	1	Roundshield	14	4	0	Longsword	14	3	0	25	3
-Kobold	Kobold_007	-7	5	0	1	none	5	4	0	none	8	3	0	25	3
-Kobold	Kobold_009	-14	-115	0	1	none	5	4	0	none	8	3	0	25	3
-Kobold	Kobold_011	-7	13	0	1	none	5	4	0	none	8	3	0	25	3
-BigKnight	Knight_001	-16	-1	0	1	Roundshield	12	4	0	Sabre	0	3	7	80	10
-Knight	Knight_005	29	-62	0	1	Roundshield	14	4	0	Longsword	14	3	0	55	2
-Knight	Knight_004	-14	-3	0	1	none	7	4	0	none	8	3	0	55	2
-Knight	Knight_006	-16	-3	0	1	none	8	4	0	Sabre	8	3	0	55	2
-Knight	Knight	-21	4	0	1	none	8	4	0	Sabre	0	3	0	55	2
-Knight	Knight_007	28	-63	0	1	none	8	4	0	Sabre	0	3	0	55	2
-Knight	Knight_003	-16	1	0	1	none	14	4	0	Longsword	8	3	0	55	2
-Knight	Knight_002	-3	5	0	1	none	0	4	0	Longsword	14	3	0	55	2
-Dragon	Dragon_001	-42	-91	0	1	none	10	4	0	none	8	3	0	100	25
-Dragon	Dragon_002	-20	7	0	1	none	10	4	0	none	8	3	0	100	25
-Dragon	Dragon_003	-14	1	0	1	none	10	4	0	none	8	3	0	100	25
-Dragon	Dragon_004	-4	14	0	1	none	10	4	0	none	8	3	0	100	25
-Wyvern	Wyvern_001	-23	-110	0	1	none	8	3	0	none	6	3	0	50	5
-Wyvern	Wyvern_002	-14	-115	0	1	none	8	3	0	none	6	3	0	50	5
-Wyvern	Wyvern_003	-17	-95	0	1	none	8	3	0	none	6	3	0	50	5
-Dwarf1	Dwarf1_001	2	-8	0	2	Roundshield	12	4	0	Sabre	8	3	0	45	7
-Dwarf1	Dwarf1_002	6	-32	0	2	none	8	4	0	none	8	3	0	45	7
-Dwarf1	Dwarf1_003	3	-7	0	2	none	8	4	0	none	8	3	0	45	7
-Dwarf1	Dwarf1_004	13	-43	0	2	none	8	4	0	none	8	3	0	45	7
-Dwarf1	Dwarf1_005	5	-29	0	2	none	8	4	0	none	8	3	0	45	7
-Dwarf1	Dwarf1_006	14	-59	0	2	none	8	4	0	none	8	3	0	45	7
-Dwarf1	Dwarf1_007	12	-57	0	2	none	8	4	0	none	8	3	0	45	7
-Dwarf2	Dwarf2_001	11	-1	0	2	none	8	4	0	none	8	3	0	45	7
-Dwarf2	Dwarf2_002	2	-9	0	2	none	14	4	0	Longsword	8	3	0	45	7
-Dwarf2	Dwarf3_001	6	-28	0	2	Roundshield	8	4	0	Longsword	0	3	4	45	7
-Orc	Orc_0001	3	-1	0	2	none	8	4	0	Longsword	8	3	0	65	10
-Orc	Orc_0002	3	4	0	2	none	8	4	0	Longsword	8	3	0	65	10
-Kreatur	Kreatur_001	-45	-90	0	2	none	12	4	0	none	14	4	0	80	10
-Kreatur	Kreatur_002	-41	-88	0	2	none	12	4	0	none	14	4	0	80	10
-Kreatur	Kreatur_003	-42	-97	0	2	none	12	4	0	none	14	4	0	80	10
-Kreatur	Kreatur_004	-44	-94	0	2	none	12	4	0	none	14	4	0	80	10
-Kreatur	Kreatur_005	7	1	0	2	none	12	4	0	none	14	4	0	80	10
-Kreatur	Kreatur_006	-37	-88	0	2	none	12	4	0	none	14	4	0	80	10
+Kobold	Kobold_010	-22	5	0	1	none	5	4	0	none	8	3	0	125	3
+Kobold	Kobold_008	28	-64	0	1	none	5	4	0	none	8	3	0	125	3
+Kobold	Kobold_012	-4	9	0	1	Roundshield	0	0	5	Longsword	14	3	0	125	3
+Kobold	Kobold_007	-7	5	0	1	none	5	4	0	none	8	3	0	125	3
+Kobold	Kobold_009	-14	-115	0	1	none	5	4	0	none	8	3	0	125	3
+Kobold	Kobold_011	-7	13	0	1	none	5	4	0	none	8	3	0	125	3
+BigKnight	King	-9	16	0	1	Roundshield	0	0	5	Sabre	10	3	7	180	10
+Knight	Knight_005	29	-62	0	1	Roundshield	0	0	5	Longsword	14	3	0	155	2
+Knight	Knight_004	-7	-4	0	1	Longsword	7	4	0	none	8	3	0	155	2
+Knight	Knight_006	-5	10	0	1	Longsword	14	4	0	Sabre	10	3	0	155	2
+Knight	Knight	-21	4	0	1	none	8	4	0	Sabre	10	3	0	155	2
+Knight	Knight_007	28	-63	0	1	none	8	4	0	Sabre	10	3	0	155	2
+Knight	Knight_003	-16	1	0	1	none	14	4	0	Longsword	14	3	0	155	2
+Knight	Knight_002	-3	5	0	1	none	0	4	0	Longsword	14	3	0	155	2
+Dragon	Dragon_001	-42	-91	0	1	none	10	4	0	none	8	3	0	200	25
+Dragon	Dragon_002	-20	7	0	1	none	10	4	0	none	8	3	0	200	25
+Dragon	Dragon_003	-5	4	0	1	none	10	4	0	none	8	3	0	200	25
+Dragon	Dragon_004	-4	14	0	1	none	10	4	0	none	8	3	0	200	25
+Wyvern	Wyvern_001	-23	-110	0	1	none	8	3	0	none	6	3	0	150	5
+Wyvern	Wyvern_002	-14	-115	0	1	none	8	3	0	none	6	3	0	150	5
+Wyvern	Wyvern_003	-17	-95	0	1	none	8	3	0	none	6	3	0	150	5
+Dwarf1	Dwarf1_001	2	-8	0	2	Roundshield	0	0	5	Sabre	10	3	0	145	7
+Dwarf1	Dwarf1_002	6	-32	0	2	none	8	4	0	none	6	3	0	145	7
+Dwarf1	Dwarf1_003	3	-7	0	2	none	8	4	0	none	6	3	0	145	7
+Dwarf1	Dwarf1_004	13	-43	0	2	none	8	4	0	none	6	3	0	145	7
+Dwarf1	Dwarf1_005	5	-29	0	2	none	8	4	0	none	6	3	0	145	7
+Dwarf1	Dwarf1_006	14	-59	0	2	none	8	4	0	none	6	3	0	145	7
+Dwarf1	Dwarf1_007	12	-57	0	2	none	8	4	0	none	6	3	0	145	7
+Dwarf2	Dwarf2_001	11	-1	0	2	none	8	4	0	none	6	3	0	145	7
+Dwarf2	Dwarf2_002	2	-9	0	2	none	6	4	0	Longsword	14	4	0	145	7
+Dwarf2	Dwarf3_001	6	-28	0	2	Roundshield	0	0	5	Longsword	14	4	4	145	7
+Orc	Orc_0001	3	-1	0	2	none	8	4	0	Longsword	14	4	0	165	10
+Orc	Orc_0002	3	4	0	2	none	8	4	0	Longsword	14	4	0	165	10
+Kreatur	Kreatur_001	-45	-90	0	2	none	12	4	0	none	6	4	0	180	10
+Kreatur	Kreatur_002	-41	-88	0	2	none	12	4	0	none	6	4	0	180	10
+Kreatur	Kreatur_003	-42	-97	0	2	none	12	4	0	none	6	4	0	180	10
+Kreatur	Kreatur_004	-44	-94	0	2	none	12	4	0	none	6	4	0	180	10
+Kreatur	Kreatur_005	7	1	0	2	none	12	4	0	none	6	4	0	180	10
+Kreatur	Kreatur_006	-37	-88	0	2	none	12	4	0	none	6	4	0	180	10
 

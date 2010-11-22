@@ -55,6 +55,11 @@ string CreatureClass::creatureJobToString(CreatureJob c)
 	}
 }
 
+bool CreatureClass::isWorker()
+{
+	return (creatureJob == basicWorker || creatureJob == advancedWorker);
+}
+
 string CreatureClass::getFormat()
 {
 	return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\thp/level\tmana/level\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\tcHumans\tcCorpars\tcUndead\tcConstructs\tcDenizens\tcAltruism\tcOrder\tcPeace\n";

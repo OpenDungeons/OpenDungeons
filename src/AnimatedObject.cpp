@@ -169,7 +169,6 @@ void AnimatedObject::faceToward(int x, int y)
 	walkDirection.normalise();
 
 	//FIXME: Having this OGRE code here is probably sub-optimal and may introduce bugs.
-	std::cout << "\n\n\nIm here.... name is: " << name << endl;
 	SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
 	Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
