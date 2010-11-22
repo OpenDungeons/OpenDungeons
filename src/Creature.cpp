@@ -67,6 +67,11 @@ Creature::Creature()
 	battleField = new Field("autoname");
 
 	meshesExist = false;
+
+	static int uniqueId = 0;
+
+	attackSound = OgreOggSound::OgreOggSoundManager::getSingletonPtr()
+			->createSound("attackSound" + Ogre::StringConverter::toString(uniqueId++), "Sword/SwordBlock01.ogg");
 }
 
 /*  This function causes a segfault in Creature::doTurn() when computeBattlefield() is called.
@@ -210,6 +215,7 @@ void Creature::createMesh()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
+
 }
 
 
@@ -280,6 +286,8 @@ void Creature::setPosition(double x, double y, double z)
 		position = Ogre::Vector3(x, y, z);
 		sem_post(&positionLockSemaphore);
 	}
+
+	attackSound->setPosition(x, y, z);
 
 	// Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
 	RenderRequest *request = new RenderRequest;
@@ -1173,6 +1181,9 @@ claimTileBreakStatement:
 						tempTile = tempAttackableObject->getCoveredTiles()[0];
 						faceToward(tempTile->x, tempTile->y);
 						setAnimationState("Attack1");
+
+						//Play attack sound
+						attackSound->play();
 
 						// Calculate how much damage we do.
 						//TODO:  This ignores the range of the creatures, fix this.

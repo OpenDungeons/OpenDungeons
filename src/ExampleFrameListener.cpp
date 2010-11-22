@@ -183,6 +183,11 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mKeyboard->setEventCallback(this);
 
 	mRaySceneQuery = mSceneMgr->createRayQuery(Ray());
+
+	//Attack the sound listener to the camera.
+	OgreOggSound::OgreOggListener* cameraPosSound =
+			OgreOggSound::OgreOggSoundManager::getSingleton().getListener();
+	mCamNode->attachObject(cameraPosSound);
 }
 
 /*! \brief Adjust mouse clipping area
@@ -1317,7 +1322,8 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 {
 	string  resultName;
 
-	CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
+	//CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
+	CEGUI::System::getSingleton().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
 
 	RaySceneQueryResult &result = doRaySceneQuery(arg);
 	RaySceneQueryResult::iterator itr = result.begin( );
