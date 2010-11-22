@@ -531,10 +531,15 @@ void Creature::doTurn()
 
 									if(!workerFound)
 									{
+										/*
 										sem_wait(&positionLockSemaphore);
 										tempX = position.x + 2.0*gaussianRandomDouble();
 										tempY = position.y + 2.0*gaussianRandomDouble();
 										sem_post(&positionLockSemaphore);
+										*/
+										tempTile = visibleTiles[randomUint(0, visibleTiles.size()-1)];
+										tempX = tempTile->x;
+										tempY = tempTile->y;
 									}
 								}
 							}
@@ -651,18 +656,18 @@ void Creature::doTurn()
 					// Randomly decide to stop claiming with a small probability
 					if(randomDouble(0.0, 1.0) < 0.1 + 0.2*markedTiles.size())
 					{
-						loopBack = true;
-						actionQueue.pop_front();
-
 						// If there are any visible tiles marked for digging start working on that.
 						if(markedTiles.size() > 0)
+						{
+							loopBack = true;
+							actionQueue.pop_front();
 							actionQueue.push_front(CreatureAction(CreatureAction::digTile));
-
-						break;
+							break;
+						}
 					}
 
 					// See if the tile we are standing on can be claimed
-					if(myTile->color != color || myTile->colorDouble < 1.0)
+					if((myTile->color != color || myTile->colorDouble < 1.0) && (myTile->getType() == Tile::dirt || myTile->getType() == Tile::claimed))
 					{
 						//cout << "\nTrying to claim the tile I am standing on.";
 						// Check to see if one of the tile's neighbors is claimed for our color
@@ -695,7 +700,7 @@ void Creature::doTurn()
 						tempInt = randomUint(0, neighbors.size()-1);
 						tempTile = neighbors[tempInt];
 						//NOTE:  I don't think the "colorDouble" check should happen here.
-						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->color != color || tempTile->colorDouble < 1.0))
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->color != color || tempTile->colorDouble < 1.0) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
 						{
 							// The neighbor tile is a potential candidate for claiming, to be an actual candidate
 							// though it must have a neighbor of its own that is already claimed for our side.
@@ -815,7 +820,7 @@ claimTileBreakStatement:
 					//cout << "dig ";
 
 					// Randomly decide to stop digging with a small probability
-					if(randomDouble(0.0, 1.0) < 0.5 - 0.2*markedTiles.size())
+					if(randomDouble(0.0, 1.0) < 0.35 - 0.2*markedTiles.size())
 					{
 						loopBack = true;
 						actionQueue.pop_front();
@@ -841,6 +846,7 @@ claimTileBreakStatement:
 							// Dig out the tile by decreasing the tile's fullness.
 							setAnimationState("Dig");
 							creatureNeighbors[i]->setFullness(max(0.0, creatureNeighbors[i]->getFullness()-digRate));
+							recieveExp(0.5*digRate/20.0);
 
 							// Force all the neighbors to recheck their meshes as we may have exposed
 							// a new side that was not visible before.
@@ -853,7 +859,7 @@ claimTileBreakStatement:
 							// If the tile has been dug out, move into that tile and idle
 							if(creatureNeighbors[i]->getFullness() == 0)
 							{
-								recieveExp(2);
+								recieveExp(0.5);
 								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
 								creatureNeighbors[i]->setType(Tile::dirt);
 								setAnimationState("Walk");
@@ -882,7 +888,7 @@ claimTileBreakStatement:
 						break;
 
 					// Randomly decide to stop digging with a larger probability
-					if(randomDouble(0.0, 1.0) < 0.3)
+					if(randomDouble(0.0, 1.0) < 0.1)
 					{
 						loopBack = true;
 						actionQueue.pop_front();
@@ -899,7 +905,6 @@ claimTileBreakStatement:
 							neighborTile = neighbors[j];
 							if(neighborTile != NULL && neighborTile->getFullness() == 0)
 								possiblePaths.push_back(gameMap.path(positionTile(), neighborTile, tilePassability));
-
 						}
 					}
 
@@ -1213,11 +1218,9 @@ claimTileBreakStatement:
 				case CreatureAction::maneuver:
 					myTile = positionTile();
 
-					std::cout << "\nManeuvering " << enemyObjectsInRange.size() << " objects in range.";
 					// If there is an enemy within range, stop maneuvering and attack it.
 					if(enemyObjectsInRange.size() > 0)
 					{
-						std::cout << "\n\n\n\n\nStopping because the enemy is close.\n\n\n\n\n";
 						actionQueue.pop_front();
 						loopBack = true;
 
@@ -1236,6 +1239,7 @@ claimTileBreakStatement:
 						break;
 					}
 
+					/*
 					// Check to see if we should try to strafe the enemy
 					if(randomDouble(0.0, 1.0) < 0.3)
 					{
@@ -1257,6 +1261,7 @@ claimTileBreakStatement:
 								setAnimationState("Walk");
 						}
 					}
+					*/
 
 					// There are no enemy creatures in range so we will have to maneuver towards one.
 					// Prepare the battlefield so we can decide where to move.
@@ -1389,7 +1394,8 @@ void Creature::doLevelUp()
 */
 void Creature::updateVisibleTiles()
 {
-	visibleTiles = gameMap.visibleTiles(positionTile(), sightRadius);
+	double effectiveRadius = min(5.0, sightRadius) + sightRadius*powl(randomDouble(0.0, 1.0), 3.0);
+	visibleTiles = gameMap.visibleTiles(positionTile(), effectiveRadius);
 }
 
 /*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.

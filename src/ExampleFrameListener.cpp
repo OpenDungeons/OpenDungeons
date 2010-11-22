@@ -1147,6 +1147,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		turnString = "On average the creature AI is finishing ";
 		turnString += StringConverter::toString((Ogre::Real)fabs(gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
 		turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
+		double maxTps = 1.0/((1.0/turnsPerSecond) - gameMap.averageAILeftoverTime);
+		turnString += "\nMax tps est. at " + StringConverter::toString((Ogre::Real)maxTps).substr(0, 4);
 	}
 	turnString += "\nTurn number:  " + StringConverter::toString(turnNumber.get());
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));

@@ -18,15 +18,12 @@ void TrapCannon::doUpkeep()
 {
 	if(reloadTimeCounter > 0)
 	{
-		std::cout << "\nCannon reloading: " << reloadTimeCounter;
 		reloadTimeCounter--;
 		return;
 	}
 		
-	std::cout << "\nCannon upkeep";
 	std::vector<Tile*> visibleTiles = gameMap.visibleTiles(coveredTiles[0], range);
 	std::vector<AttackableObject*> enemyObjects = gameMap.getVisibleForce(visibleTiles, getColor(), true);
-	std::cout << "\tCannon sees " << enemyObjects.size() << " enemies.\n";
 
 	if(enemyObjects.size() > 0)
 	{

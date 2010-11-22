@@ -601,8 +601,8 @@ void GameMap::doTurn()
 	for(tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); tempUnsigned++)
 		averageAILeftoverTime += previousLeftoverTimes[tempUnsigned];
 
-	if(tempUnsigned > 0)
-		averageAILeftoverTime /= (double)tempUnsigned;
+	if(previousLeftoverTimes.size() > 0)
+		averageAILeftoverTime /= (double)previousLeftoverTimes.size();
 
 	sem_wait(&creatureAISemaphore);
 
@@ -1299,7 +1299,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 			double dx = obstructingTile->x - startTile->x;
 			double dy = obstructingTile->y - startTile->y;
 			double rsq = dx*dx + dy*dy;
-			double deltaTheta = 0.5/sqrt(rsq);
+			double deltaTheta = 1.5/sqrt(rsq);
 			tempAngle.fromCartesian(dx, dy);
 			smallAngle.theta = tempAngle.theta - deltaTheta;
 			largeAngle.theta = tempAngle.theta + deltaTheta;
@@ -2166,7 +2166,7 @@ void GameMap::processDeletionQueues()
 {
 	long int turn = turnNumber.get();
 
-	cout << "\nProcessing deletion queues on turn " << turn << ":\n";
+	cout << "\nProcessing deletion queues on turn " << turn << ":  ";
 	long int latestTurnToBeRetired = -1;
 
 	// Lock the thread reference count map to prevent race conditions.
@@ -2194,8 +2194,6 @@ void GameMap::processDeletionQueues()
 	// Unlock the thread reference count map.
 	sem_post(&threadReferenceCountLockSemaphore);
 	
-	cout << "\nThe latest turn to be retired is " << latestTurnToBeRetired;
-
 	// If we did not find any turns which have no threads locking them we are safe to retire this turn.
 	if(latestTurnToBeRetired < 0)
 		return;
