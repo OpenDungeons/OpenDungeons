@@ -420,11 +420,6 @@ int Room::getColor()
 	return color;
 }
 
-string Room::getName()
-{
-	return name;
-}
-
 AttackableObject::AttackableObjectType Room::getAttackableObjectType()
 {
 	return AttackableObject::room;

@@ -169,7 +169,7 @@ void AnimatedObject::faceToward(int x, int y)
 	walkDirection.normalise();
 
 	//FIXME: Having this OGRE code here is probably sub-optimal and may introduce bugs.
-	SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
+	SceneNode *node = mSceneMgr->getSceneNode(getName() + "_node");
 	Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
 	// Work around 180 degree quaternion rotation quirk

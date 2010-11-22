@@ -1685,8 +1685,8 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 					CEGUI::Window *rootWindow = CEGUI::System::getSingleton().getGUISheet();
 
 					//TODO:  This is commented out because it seems to break my development system, I thik once I have upgraded it will work correctly.
-					//CEGUI::Window *statsWindow = wmgr->createWindow("TaharezLook/FrameWindow", (string)"Root/CreatureStatsWindows/" + resultName);
-					//rootWindow->addChildWindow(statsWindow);
+					CEGUI::Window *statsWindow = wmgr->createWindow("TaharezLook/FrameWindow", (string)"Root/CreatureStatsWindows/" + resultName);
+					rootWindow->addChildWindow(statsWindow);
 
 					return true;
 				}

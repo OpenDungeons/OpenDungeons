@@ -36,7 +36,7 @@ class Creature : public CreatureClass, public AttackableObject
 		Weapon *weaponL, *weaponR;	// The weapons the creature is holding
 		string meshID, nodeID;		// The unique names for the OGRE entities
 		int color;			// The color of the player who controls this creature
-		unsigned int level;
+		int level;
 		double exp;
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.  Also, it should be moved to CreatureClass.
 		Tile *homeTile;

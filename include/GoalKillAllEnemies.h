@@ -6,13 +6,13 @@
 class GoalKillAllEnemies : public Goal
 {
 	public:
-		GoalKillAllEnemies(string nName, string nArguments);
+		GoalKillAllEnemies(std::string nName, std::string nArguments);
 
 		// Inherited functions
 		bool isMet(Seat *s);
-		string getDescription();
-		string getSuccessMessage();
-		string getFailedMessage();
+		std::string getDescription();
+		std::string getSuccessMessage();
+		std::string getFailedMessage();
 };
 
 #endif

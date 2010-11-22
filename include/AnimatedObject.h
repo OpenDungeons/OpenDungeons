@@ -6,9 +6,8 @@
 #include <Ogre.h>
 
 #include "Tile.h"
-#include "NamedObject.h"
 
-class AnimatedObject : public NamedObject
+class AnimatedObject
 {
 	public:
 		AnimatedObject();
@@ -29,7 +28,6 @@ class AnimatedObject : public NamedObject
 		virtual void setAnimationState(string s);
 
 		std::deque<Ogre::Vector3> walkQueue;
-		string name;			// The creature's unique name
 
 		sem_t positionLockSemaphore;
 		sem_t walkQueueLockSemaphore;
@@ -40,6 +38,8 @@ class AnimatedObject : public NamedObject
 		AnimationState *animationState;
 		string destinationAnimationState;
 		SceneNode *sceneNode;
+
+		virtual std::string getName() = 0;
 
 	protected:
 		Ogre::Vector3 position;

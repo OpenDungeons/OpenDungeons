@@ -54,7 +54,7 @@ class GameMap
 		void removeCreature(Creature *c);
 		void queueCreatureForDeletion(Creature *c);
 		Creature* getCreature(int index);
-		Creature* getCreature(string cName);
+		Creature* getCreature(std::string cName);
 		unsigned int numCreatures();
 		std::vector<Creature*> getCreaturesByColor(int color);
 
@@ -68,13 +68,13 @@ class GameMap
 		void addClassDescription(CreatureClass c);
 		void addClassDescription(CreatureClass *c);
 		CreatureClass* getClassDescription(int index);
-		CreatureClass* getClassDescription(string query);
+		CreatureClass* getClassDescription(std::string query);
 		unsigned int numClassDescriptions();
 
 		void clearPlayers();
 		bool addPlayer(Player *p);
 		Player* getPlayer(int index);
-		Player* getPlayer(string cName);
+		Player* getPlayer(std::string cName);
 		Player* getPlayerByColour(int colour);
 		unsigned int numPlayers();
 
@@ -99,7 +99,7 @@ class GameMap
 		void clearMapLightIndicators();
 		void addMapLight(MapLight *m);
 		MapLight* getMapLight(int index);
-		MapLight* getMapLight(string name);
+		MapLight* getMapLight(std::string name);
 		unsigned int numMapLights();
 
 		void clearEmptySeats();
@@ -153,7 +153,7 @@ class GameMap
 		void enableFloodFill();
 
 		Player *me;
-		string nextLevel;
+		std::string nextLevel;
 		bool loadNextLevel;
 		double averageAILeftoverTime;
 

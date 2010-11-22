@@ -258,7 +258,7 @@ void *serverNotificationProcessor(void *p)
 
 			case ServerNotification::animatedObjectClearDestinations:
 				tempSS.str("");
-				tempSS << event->ani->name;
+				tempSS << event->ani->getName();
 				sendToAllClients(frameListener, formatCommand("creatureClearDestinations", tempSS.str()));
 				break;
 

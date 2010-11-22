@@ -361,7 +361,7 @@ void Creature::doTurn()
 	int tempInt;
 	unsigned int tempUnsigned;
 	unsigned int rangeToNearestEnemyObject, rangeToNearestAlliedObject;
-	Creature *tempCreature;
+	//Creature *tempCreature;
 	AttackableObject *tempAttackableObject;
 	AttackableObject *nearestEnemyObject, *nearestAlliedObject;
 	CreatureAction tempAction;

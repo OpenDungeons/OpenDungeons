@@ -13,7 +13,7 @@ class MissileObject : public ActiveObject, public AnimatedObject
 {
 	public:
 		MissileObject();
-		MissileObject(string nMeshName, Ogre::Vector3 nPosition);
+		MissileObject(std::string nMeshName, Ogre::Vector3 nPosition);
 		void initialize();
 
 		void setPosition(double x, double y, double z);
@@ -24,7 +24,10 @@ class MissileObject : public ActiveObject, public AnimatedObject
 		void destroyMesh();
 		void deleteYourself();
 
-		string meshName;
+		std::string meshName;
+		std::string getName() {return name;}
+		std::string name;
+
 
 	private:
 		std::deque<Ogre::Vector3> walkQueue;

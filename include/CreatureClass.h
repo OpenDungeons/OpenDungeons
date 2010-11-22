@@ -3,11 +3,10 @@
 
 #include <string>
 #include <iostream>
-using namespace std;
+#include "Ogre.h"
 
 class CreatureClass;
 
-#include "Ogre.h"
 #include "AnimatedObject.h"
 
 class CreatureClass : public AnimatedObject
@@ -19,17 +18,17 @@ class CreatureClass : public AnimatedObject
 		// Constructors and operators
 		CreatureClass();
 
-		static CreatureJob creatureJobFromString(string s);
-		static string creatureJobToString(CreatureJob c);
+		static CreatureJob creatureJobFromString(std::string s);
+		static std::string creatureJobToString(CreatureJob c);
 
 		bool isWorker();
 
 		// Class properties
 		//NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
 		CreatureJob creatureJob;
-		string className;
-		string meshName;
-		string bedMeshName;
+		std::string className;
+		std::string meshName;
+		std::string bedMeshName;
 		int bedDim1, bedDim2;
 		Ogre::Vector3 scale;
 		double sightRadius;		// The inner radius where the creature sees everything
@@ -49,7 +48,11 @@ class CreatureClass : public AnimatedObject
 		double coefficientOrder;
 		double coefficientPeace;
 
-		static string getFormat();
+		static std::string getFormat();
+
+		std::string getName() {return name;}
+		std::string name;
+
 		friend ostream& operator<<(ostream& os, CreatureClass *c);
 
 		friend istream& operator>>(istream& is, CreatureClass *c);
