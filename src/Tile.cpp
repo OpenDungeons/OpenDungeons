@@ -307,8 +307,8 @@ Tile::TileClearType Tile::getTilePassability()
 
 	//Check to see if there is a room with objects covering this tile preventing creatures from walking through it.
 	//FIXME: The second portion of this if statement throws a segfault.  Something is incorrectly setting the coveringRoom.
-	if(coveringRoom != NULL)// && !coveringRoom->tileIsPassable(this))
-		return impassableTile;
+	//if(coveringRoom != NULL)// && !coveringRoom->tileIsPassable(this))
+		//return impassableTile;
 
 	switch(type)
 	{

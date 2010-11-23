@@ -512,8 +512,8 @@ void Creature::doTurn()
 						{
 							// Check to see if we want to try to follow a worker around or if we want to try to explore.
 							double r = randomDouble(0.0, 1.0);
-							if(creatureJob == weakFighter) r -= 0.5;
-							if(r < 0.3)
+							if(creatureJob == weakFighter) r -= 0.2;
+							if(r < 0.5)
 							{
 								// Try to find a worker to follow around.
 								for(unsigned int i = 0; i < reachableAlliedObjects.size(); i++)
@@ -522,66 +522,42 @@ void Creature::doTurn()
 									if(reachableAlliedObjects[i]->getAttackableObjectType() == AttackableObject::creature && \
 											((Creature*)reachableAlliedObjects[i])->isWorker())
 									{
+										// We found a worker so find a tile near the worker to walk to.
 										tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
-										tempX = tempTile->x + 8.0*gaussianRandomDouble();
-										tempY = tempTile->y + 8.0*gaussianRandomDouble();
+										tempX = tempTile->x + 5.0*gaussianRandomDouble();
+										tempY = tempTile->y + 5.0*gaussianRandomDouble();
 										workerFound = true;
 									}
 
 									if(!workerFound)
 									{
-										/*
-										sem_wait(&positionLockSemaphore);
-										tempX = position.x + 2.0*gaussianRandomDouble();
-										tempY = position.y + 2.0*gaussianRandomDouble();
-										sem_post(&positionLockSemaphore);
-										*/
-										tempTile = visibleTiles[randomUint(0, visibleTiles.size()-1)];
-										tempX = tempTile->x;
-										tempY = tempTile->y;
+										if(visibleTiles.size() > 0)
+										{
+											tempTile = visibleTiles[randomDouble(0.3, 0.6) * (visibleTiles.size()-1)];
+											tempX = tempTile->x;
+											tempY = tempTile->y;
+										}
 									}
 								}
 							}
 							else
 							{
-								// Try to find an unclaimed tile to walk to we choose this by the longest path to an unclaimed tile we find in the visible tiles we examine.
-								//TODO: Make a copy of the visibleTiles and randomly choose tiles without replacement from this set to make the algorithm more balanced in the direction we walk.
-								unsigned int maxLoopCount = randomUint(5, 15), longestPathLength = 0;
-								std::list<Tile*> longestPath, tempPath;
-								myTile = positionTile();
-								for(unsigned int i = 0; i < visibleTiles.size() && i < maxLoopCount; i++)
+								// Randomly choose a tile near where we are standing to walk to.
+								if(visibleTiles.size() > 0)
 								{
-									tempPath = gameMap.path(myTile, visibleTiles[i], tilePassability);
-									if(visibleTiles[i]->getType() == Tile::dirt && visibleTiles[i]->getFullness() == 0 && tempPath.size() >= 2 && tempPath.size() > longestPath.size())
-									{
-										longestPath = tempPath;
-										longestPathLength = longestPath.size();
-									}
+									unsigned int tileIndex = visibleTiles.size() * randomDouble(0.1, 0.5);
+									tempPath = gameMap.path(myTile, visibleTiles[tileIndex], tilePassability);
+									setWalkPath(tempPath, 2, false);
 								}
 
-								if(longestPathLength >= 2)
-								{
-									gameMap.cutCorners(longestPath, tilePassability);
-									setAnimationState("Walk");
-									setWalkPath(longestPath, 2, false);
-									break;
-								}
 							}
 						}
 						else
 						{
-							// Workers shouldn't wander as often as other creatures so we re-roll to see if we still want to wander.
-							if(randomDouble(0.0, 1.0) < 0.1)
-							{
-								// Choose a tile far away from our current position to wander to.
-								tempTile = visibleTiles[randomUint(visibleTiles.size()/2, visibleTiles.size()-1)];
-								tempX = tempTile->x;
-								tempY = tempTile->y;
-							}
-							else
-							{
-								break;
-							}
+							// Choose a tile far away from our current position to wander to.
+							tempTile = visibleTiles[randomUint(visibleTiles.size()/2, visibleTiles.size()-1)];
+							tempX = tempTile->x;
+							tempY = tempTile->y;
 						}
 
 						Tile *tempPositionTile = positionTile();
