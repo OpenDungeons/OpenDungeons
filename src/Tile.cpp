@@ -768,10 +768,16 @@ void Tile::addNeighbor(Tile *n)
 	neighbors.push_back(n);
 }
 
-void Tile::claimForColor(int nColor, double nDanceRate)
+double Tile::claimForColor(int nColor, double nDanceRate)
 {
+	double amountClaimed;
+
+	if(!(type == dirt || type == claimed))
+		return 0.0;
+
 	if(nColor == color)
 	{
+		amountClaimed = min(nDanceRate, 1.0 - colorDouble);
 		//cout << "\t\tmyTile is My color.";
 		colorDouble += nDanceRate;
 		if(colorDouble >= 1.0)
@@ -783,14 +789,33 @@ void Tile::claimForColor(int nColor, double nDanceRate)
 	}
 	else
 	{
+		amountClaimed = min(nDanceRate, 1.0 + colorDouble);
 		colorDouble -= nDanceRate;
 		if(colorDouble <= 0.0)
 		{
 			// The tile is not yet claimed, but it is now our color.
 			colorDouble *= -1.0;
 			color = nColor;
+			
+			if(colorDouble >= 1.0)  colorDouble = 1.0;
 		}
 	}
+
+	if(amountClaimed > 0.0 && amountClaimed < nDanceRate)
+	{
+		double amountToClaim = nDanceRate - amountClaimed;
+		neighbors = gameMap.neighborTiles(this);
+		amountToClaim /= (double)neighbors.size();
+		for(unsigned int j = 0; j < neighbors.size(); j++)
+		{
+			if(neighbors[j]->getType() == dirt || neighbors[j]->getType() == claimed)
+			{
+				amountClaimed += neighbors[j]->claimForColor(color, amountToClaim);
+			}
+		}
+	}
+	
+	return amountClaimed;
 }
 
 Tile* Tile::getNeighbor(unsigned int index)

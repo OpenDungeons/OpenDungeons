@@ -679,9 +679,11 @@ void Creature::doTurn()
 							if(tempTile->color == color && tempTile->colorDouble >= 1.0)
 							{
 								//cout << "\t\tFound a neighbor that is claimed.";
-								// If we found a neighbor that is claimed for our side than we
-								// can start dancing on this tile
+								// If we found a neighbor that is claimed for our side than we can start
+								// dancing on this tile.  If there is "left over" claiming that can be done
+								// it will spill over into neighboring tiles until it is gone.
 								myTile->claimForColor(color, danceRate);
+								recieveExp(1.0*(danceRate/(0.35+0.05*level)));
 
 								// Since we danced on a tile we are done for this turn
 								goto claimTileBreakStatement;
@@ -696,7 +698,7 @@ void Creature::doTurn()
 					neighbors = gameMap.neighborTiles(myTile);
 					while(neighbors.size() > 0)
 					{
-						// If the current neigbor is claimable, walk into it and skip to the end of this turn
+						// If the current neighbor is claimable, walk into it and skip to the end of this turn
 						tempInt = randomUint(0, neighbors.size()-1);
 						tempTile = neighbors[tempInt];
 						//NOTE:  I don't think the "colorDouble" check should happen here.
@@ -727,7 +729,7 @@ void Creature::doTurn()
 					{
 						// if this tile is not fully claimed yet or the tile is of another player's color
 						tempTile = visibleTiles[i];
-						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->color != color))
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->color != color) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
 						{
 							// Check to see if one of the tile's neighbors is claimed for our color
 							neighbors = gameMap.neighborTiles(visibleTiles[i]);
@@ -1364,7 +1366,11 @@ void Creature::doLevelUp()
 	cout << "\n\n" << name << " has reached level " << level << "\n\n";
 
 	if(isWorker())
-		digRate += level/(level+5.0);
+	{
+		digRate += 4.0*level/(level+5.0);
+		danceRate += 0.12*level/(level+5.0);
+	}
+	cout << "New dig rate: " << digRate << "\tnew dance rate: " << danceRate << "\n\n";
 
 	//if(digRate > 60)  digRate = 60;
 
@@ -1745,6 +1751,9 @@ void Creature::takeDamage(double damage, Tile *tileTakingDamage)
 */
 void Creature::recieveExp(double experience)
 {
+	if(experience < 0.0)
+		return;
+
 	exp += experience;
 }
 

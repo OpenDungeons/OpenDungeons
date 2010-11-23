@@ -1679,6 +1679,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			{
 				resultName = itr->movable->getName();
 
+				/*
 				if(resultName.find("Creature_") != string::npos)
 				{
 					CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
@@ -1690,6 +1691,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 
 					return true;
 				}
+				*/
 			}
 
 			itr++;
