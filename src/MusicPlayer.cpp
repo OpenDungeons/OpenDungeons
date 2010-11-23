@@ -40,6 +40,9 @@ void MusicPlayer::load()
 				tracks.push_back(sound);
 				sound->disable3D(true); //Disable 3D sound for music files.
 				//Stereo files are not positioned anyway, but in case we have mono music... this is necessary.
+
+				//Lower volume to make it more in line with effects sounds.
+				sound->setVolume(0.25);
 			}
 
 		}

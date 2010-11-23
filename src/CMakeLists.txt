@@ -38,6 +38,7 @@ SET(
      Server.cpp
      ServerNotification.cpp
      Socket.cpp
+     SoundEffectsHelper.cpp
      TextRenderer.cpp
      Tile.cpp
      TileCoordinateMap.cpp

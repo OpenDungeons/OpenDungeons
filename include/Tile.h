@@ -17,6 +17,7 @@ class Room;
 
 #include "RenderRequest.h"
 #include "Room.h"
+#include "SoundEffectsHelper.h"
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -85,7 +86,7 @@ class Tile
 		friend istream& operator>>(istream& is, Tile *t);
 
 		// Public datamembers
-		Vector3 location;
+		//Vector3 location;
 		int x, y;
 		int color;
 		double colorDouble;

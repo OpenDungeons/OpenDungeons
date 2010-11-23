@@ -9,6 +9,7 @@
 #include "ExampleFrameListener.h"
 #include "Tile.h"
 #include "MusicPlayer.h"
+#include "SoundEffectsHelper.h"
 
 #include <CEGUI/CEGUI.h>
 #include <OIS/OIS.h>

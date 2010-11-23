@@ -12,7 +12,7 @@ Tile::Tile()
 {
 	selected = false;
 	markedForDigging = false;
-	location = Ogre::Vector3(0.0, 0.0, 0.0);
+	//location = Ogre::Vector3(0.0, 0.0, 0.0);
 	type = dirt;
 	setFullness(100);
 	rotation = 0.0;
@@ -88,7 +88,18 @@ void Tile::setFullness(int f)
 	{
 		setMarkedForDigging(false, gameMap.me);
 		fullness = 0.0;
+
+		//Play block destroy sound
+		//TODO - play this if it's marked for any player.
+		SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
 	}
+
+	/*
+	if(fullness <= 1 && gameMap.)
+	{
+		SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
+	}
+*/
 
 	// If we are a sever, the clients need to be told about the change to the tile's fullness.
 	if(serverSocket != NULL)
@@ -388,7 +399,7 @@ istream& operator>>(istream& is, Tile *t)
 	char tempCellName[255];
 
 	is >> xLocation >> yLocation;
-	t->location = Ogre::Vector3(xLocation, yLocation, 0);
+	//t->location = Ogre::Vector3(xLocation, yLocation, 0);
 	snprintf(tempCellName, sizeof(tempCellName), "Level_%3i_%3i", xLocation, yLocation);
 	t->name = tempCellName;
 	t->x = xLocation;

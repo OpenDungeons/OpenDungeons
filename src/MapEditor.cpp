@@ -41,6 +41,13 @@ void MapEditor::createCamera(void)
 
 void MapEditor::createScene(void)
 {
+	//Initialise sound
+	OgreOggSound::OgreOggSoundManager::getSingleton().init("", 100, 64, mSceneMgr);
+	//OgreOggSound::OgreOggSoundManager::getSingleton().setMasterVolume(10);
+	assert(SoundEffectsHelper::getSingletonPtr() == 0);
+	std::cout << "Creating sf helper" << std::endl;
+	new SoundEffectsHelper();
+
 	// Turn on shadows
 	//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
 	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);	// Quality 2
@@ -137,7 +144,7 @@ void MapEditor::createScene(void)
 		cerr << "\n\nERROR:  Caught and ignored an exception in the loading of the CEGUI overlay, the game will continue to function albeit without the GUI overlay functionality.\n\n";
 	}
 
-	OgreOggSound::OgreOggSoundManager::getSingleton().init("", 100, 64, mSceneMgr);
+
 	mMusicPlayer.load();
 }
 
