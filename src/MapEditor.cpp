@@ -42,9 +42,12 @@ void MapEditor::createCamera(void)
 void MapEditor::createScene(void)
 {
 	//Initialise sound
-
 	OgreOggSound::OgreOggSoundManager::getSingleton().init("", 100, 64, mSceneMgr);
-	OgreOggSound::OgreOggSoundManager::getSingleton().setMasterVolume(10);
+	//OgreOggSound::OgreOggSoundManager::getSingleton().setMasterVolume(10);
+	assert(SoundEffectsHelper::getSingletonPtr() == 0);
+	std::cout << "Creating sf helper" << std::endl;
+	//new SoundEffectsHelper();
+
 	// Turn on shadows
 	//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
 	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);	// Quality 2
