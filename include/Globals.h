@@ -32,8 +32,8 @@ extern sem_t creatureAISemaphore;
 
 extern Socket *serverSocket, *clientSocket;
 
-extern string versionString;
-extern string MOTD;
+extern std::string versionString;
+extern std::string MOTD;
 extern double MAX_FRAMES_PER_SECOND;
 extern double turnsPerSecond;
 extern ProtectedObject<long int> turnNumber;

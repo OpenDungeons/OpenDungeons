@@ -2,7 +2,7 @@
 #define DEFINES_H
 
 #define BLENDER_UNITS_PER_OGRE_UNIT       10.0
-#define VERSION       "0.4.4"
+#define VERSION       "0.4.5"
 #define PORT_NUMBER		 31222		// Both of these lines should be the same number
 #define PORT_NUMBER_STRING	"31222"		// Both of these lines should be the same number
 #define DEFAULT_FRAMES_PER_SECOND	30.0

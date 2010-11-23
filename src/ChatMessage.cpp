@@ -7,7 +7,7 @@ ChatMessage::ChatMessage()
 	sendTime = recvTime = time(NULL);
 }
 
-ChatMessage::ChatMessage(string nNick, string nMessage, time_t nRecvTime, time_t nSendTime)
+ChatMessage::ChatMessage(std::string nNick, std::string nMessage, time_t nRecvTime, time_t nSendTime)
 {
 	message = nMessage;
 	clientNick = nNick;

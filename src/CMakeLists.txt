@@ -1,6 +1,7 @@
 SET(
      SRC
      ActiveObject.cpp
+     AnimatedObject.cpp
      ButtonHandlers.cpp
      ChatMessage.cpp
      Client.cpp
@@ -21,8 +22,10 @@ SET(
      main.cpp
      MapEditor.cpp
      MapLight.cpp
+     MissileObject.cpp
      MusicPlayer.cpp
      Player.cpp
+     RadialVector2.cpp
      RenderRequest.cpp
      Room.cpp
      RoomDungeonTemple.cpp
@@ -38,6 +41,7 @@ SET(
      SoundEffectsHelper.cpp
      TextRenderer.cpp
      Tile.cpp
+     TileCoordinateMap.cpp
      Trap.cpp
      TrapCannon.cpp
      Weapon.cpp

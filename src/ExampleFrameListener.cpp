@@ -16,6 +16,7 @@
 #include "Field.h"
 #include "Trap.h"
 #include "RoomObject.h"
+#include "MissileObject.h"
 
 using namespace Ogre;
 
@@ -407,6 +408,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		RoomObject *curRoomObject = NULL;
 		Trap *curTrap = NULL;
 		Creature *curCreature = NULL;
+		MissileObject *curMissileObject = NULL;
 		MapLight *curMapLight = NULL;
 		Light *light;
 		Weapon *curWeapon = NULL;
@@ -782,6 +784,32 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				}
 				break;
 
+			case RenderRequest::createMissileObject:
+				curMissileObject = (MissileObject*)curReq->p;
+				ent = mSceneMgr->createEntity(curMissileObject->name, curMissileObject->meshName + ".mesh");
+				//TODO:  Make a new subroot scene node for these so lookups are faster since only a few missile objects should be onscreen at once.
+				node = creatureSceneNode->createChildSceneNode(curMissileObject->name + "_node");
+				node->setPosition(curMissileObject->getPosition());
+#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
+				ent->setNormaliseNormals(true);
+#endif
+
+				node->attachObject(ent);
+				break;
+
+			case RenderRequest::destroyMissileObject:
+				curMissileObject = (MissileObject*)curReq->p;
+				if(mSceneMgr->hasEntity(curMissileObject->name))
+				{
+					ent = mSceneMgr->getEntity(curMissileObject->name);
+					node = mSceneMgr->getSceneNode(curMissileObject->name + "_node");
+					node->detachObject(ent);
+					creatureSceneNode->removeChild(node);
+					mSceneMgr->destroyEntity(ent);
+					mSceneMgr->destroySceneNode(curMissileObject->name + "_node");
+				}
+				break;
+
 			case RenderRequest::createMapLight:
 				curMapLight = (MapLight*)curReq->p;
 
@@ -1041,6 +1069,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				delete curWeapon;
 				break;
 
+			case RenderRequest::deleteMissileObject:
+				curMissileObject = (MissileObject*)curReq->p;
+				delete curMissileObject;
+				break;
+
 			case RenderRequest::moveSceneNode:
 				if(mSceneMgr->hasSceneNode(curReq->str))
 				{
@@ -1119,65 +1152,67 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		turnString = "On average the creature AI is finishing ";
 		turnString += StringConverter::toString((Ogre::Real)fabs(gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
 		turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
+		double maxTps = 1.0/((1.0/turnsPerSecond) - gameMap.averageAILeftoverTime);
+		turnString += "\nMax tps est. at " + StringConverter::toString((Ogre::Real)maxTps).substr(0, 4);
 	}
 	turnString += "\nTurn number:  " + StringConverter::toString(turnNumber.get());
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));
 
-	// Update the animations on any creatures who have them
-	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
+	// Update the animations on any AnimatedObjects which have them
+	for(unsigned int i = 0; i < gameMap.numAnimatedObjects(); i++)
 	{
-		Creature *currentCreature = gameMap.getCreature(i);
+		AnimatedObject *currentAnimatedObject = gameMap.getAnimatedObject(i);
 
 		// Advance the animation
-		if(currentCreature->animationState != NULL)
-			currentCreature->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame * currentCreature->moveSpeed);
+		if(currentAnimatedObject->animationState != NULL)
+			currentAnimatedObject->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame * currentAnimatedObject->getMoveSpeed());
 
 		// Move the creature
-		sem_wait(&currentCreature->walkQueueLockSemaphore);
-		if(currentCreature->walkQueue.size() > 0)
+		sem_wait(&currentAnimatedObject->walkQueueLockSemaphore);
+		if(currentAnimatedObject->walkQueue.size() > 0)
 		{
 			// If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
-			if(currentCreature->walkQueueFirstEntryAdded)
+			if(currentAnimatedObject->walkQueueFirstEntryAdded)
 			{
-				currentCreature->walkQueueFirstEntryAdded = false;
-				currentCreature->faceToward(currentCreature->walkQueue.front().x, currentCreature->walkQueue.front().y);
+				currentAnimatedObject->walkQueueFirstEntryAdded = false;
+				currentAnimatedObject->faceToward(currentAnimatedObject->walkQueue.front().x, currentAnimatedObject->walkQueue.front().y);
 			}
 
 			//FIXME: The moveDist should probably be tied to the scale of the creature as well
 			//FIXME: When the client and the server are using different frame rates, the creatures walk at different speeds
-			double moveDist = turnsPerSecond * currentCreature->moveSpeed * evt.timeSinceLastFrame;
-			currentCreature->shortDistance -= moveDist;
+			double moveDist = turnsPerSecond * currentAnimatedObject->getMoveSpeed() * evt.timeSinceLastFrame;
+			currentAnimatedObject->shortDistance -= moveDist;
 
 			// Check to see if we have walked to, or past, the first destination in the queue
-			if(currentCreature->shortDistance <= 0.0)
+			if(currentAnimatedObject->shortDistance <= 0.0)
 			{
 				// Compensate for any overshoot and place the creature at the intended destination
-				currentCreature->setPosition(currentCreature->walkQueue.front());
-				currentCreature->walkQueue.pop_front();
+				currentAnimatedObject->setPosition(currentAnimatedObject->walkQueue.front());
+				currentAnimatedObject->walkQueue.pop_front();
 
 				// If there are no more places to walk to still left in the queue
-				if(currentCreature->walkQueue.size() == 0)
+				if(currentAnimatedObject->walkQueue.size() == 0)
 				{
 					// Stop walking
-					currentCreature->stopWalking();
-					currentCreature->setAnimationState(currentCreature->destinationAnimationState);
+					currentAnimatedObject->stopWalking();
+					currentAnimatedObject->setAnimationState(currentAnimatedObject->destinationAnimationState);
 				}
 				else // There are still entries left in the queue
 				{
 					// Turn to face the next direction
-					currentCreature->faceToward(currentCreature->walkQueue.front().x, currentCreature->walkQueue.front().y);
+					currentAnimatedObject->faceToward(currentAnimatedObject->walkQueue.front().x, currentAnimatedObject->walkQueue.front().y);
 
 					// Compute the distance to the next location in the queue and store it in the shortDistance datamember.
-					Ogre::Vector3 tempVector = currentCreature->walkQueue.front() - currentCreature->getPosition();
-					currentCreature->shortDistance = tempVector.normalise();
+					Ogre::Vector3 tempVector = currentAnimatedObject->walkQueue.front() - currentAnimatedObject->getPosition();
+					currentAnimatedObject->shortDistance = tempVector.normalise();
 				}
 			}
 			else // We have not reached the destination at the front of the queue
 			{
-				currentCreature->setPosition(currentCreature->getPosition() + currentCreature->walkDirection * moveDist);
+				currentAnimatedObject->setPosition(currentAnimatedObject->getPosition() + currentAnimatedObject->walkDirection * moveDist);
 			}
 		}
-		sem_post(&currentCreature->walkQueueLockSemaphore);
+		sem_post(&currentAnimatedObject->walkQueueLockSemaphore);
 	}
 
 	// Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
@@ -1650,17 +1685,19 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			{
 				resultName = itr->movable->getName();
 
+				/*
 				if(resultName.find("Creature_") != string::npos)
 				{
 					CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
 					CEGUI::Window *rootWindow = CEGUI::System::getSingleton().getGUISheet();
 
 					//TODO:  This is commented out because it seems to break my development system, I thik once I have upgraded it will work correctly.
-					//CEGUI::Window *statsWindow = wmgr->createWindow("TaharezLook/FrameWindow", (string)"Root/CreatureStatsWindows/" + resultName);
-					//rootWindow->addChildWindow(statsWindow);
+					CEGUI::Window *statsWindow = wmgr->createWindow("TaharezLook/FrameWindow", (string)"Root/CreatureStatsWindows/" + resultName);
+					rootWindow->addChildWindow(statsWindow);
 
 					return true;
 				}
+				*/
 			}
 
 			itr++;

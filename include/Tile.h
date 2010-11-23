@@ -45,6 +45,7 @@ class Tile
 		int getFullness();
 		int getFullnessMeshNumber();
 		TileClearType getTilePassability();
+		bool permitsVision();
 
 		static string tileTypeToString(TileType t);
 		static TileType nextTileType(TileType t);
@@ -75,7 +76,7 @@ class Tile
 		Tile* getNeighbor(unsigned int index);
 		std::vector<Tile*> getAllNeighbors();
 
-		void claimForColor(int nColor, double nDanceRate);
+		double claimForColor(int nColor, double nDanceRate);
 
 		Room* getCoveringRoom();
 		void setCoveringRoom(Room *r);

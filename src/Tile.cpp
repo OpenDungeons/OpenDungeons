@@ -312,7 +312,13 @@ int Tile::getFullnessMeshNumber()
  */
 Tile::TileClearType Tile::getTilePassability()
 {
+	// Check to see if the tile is filled in.
 	if(fullness > 0.1)
+		return impassableTile;
+
+	//Check to see if there is a room with objects covering this tile preventing creatures from walking through it.
+	//FIXME: The second portion of this if statement throws a segfault.  Something is incorrectly setting the coveringRoom.
+	if(coveringRoom != NULL)// && !coveringRoom->tileIsPassable(this))
 		return impassableTile;
 
 	switch(type)
@@ -343,6 +349,16 @@ Tile::TileClearType Tile::getTilePassability()
 	cerr << "\n\nERROR:  Control reached the end of Tile::getTilePassability, this should never actually happen.\n\n";
 	exit(1);
 	return impassableTile;
+}
+
+bool Tile::permitsVision()
+{
+	//TODO: This call to getTilePassability() is far too much work, when the rules for vision are more well established this function should be replaced with specialized code which avoids this call.
+	TileClearType clearType = getTilePassability();
+	if(clearType == walkableTile || clearType == flyableTile)
+		return true;
+	else
+		return false;
 }
 
 Room* Tile::getCoveringRoom()
@@ -771,10 +787,16 @@ void Tile::addNeighbor(Tile *n)
 	neighbors.push_back(n);
 }
 
-void Tile::claimForColor(int nColor, double nDanceRate)
+double Tile::claimForColor(int nColor, double nDanceRate)
 {
+	double amountClaimed;
+
+	if(!(type == dirt || type == claimed))
+		return 0.0;
+
 	if(nColor == color)
 	{
+		amountClaimed = min(nDanceRate, 1.0 - colorDouble);
 		//cout << "\t\tmyTile is My color.";
 		colorDouble += nDanceRate;
 		if(colorDouble >= 1.0)
@@ -786,14 +808,33 @@ void Tile::claimForColor(int nColor, double nDanceRate)
 	}
 	else
 	{
+		amountClaimed = min(nDanceRate, 1.0 + colorDouble);
 		colorDouble -= nDanceRate;
 		if(colorDouble <= 0.0)
 		{
 			// The tile is not yet claimed, but it is now our color.
 			colorDouble *= -1.0;
 			color = nColor;
+			
+			if(colorDouble >= 1.0)  colorDouble = 1.0;
 		}
 	}
+
+	if(amountClaimed > 0.0 && amountClaimed < nDanceRate)
+	{
+		double amountToClaim = nDanceRate - amountClaimed;
+		neighbors = gameMap.neighborTiles(this);
+		amountToClaim /= (double)neighbors.size();
+		for(unsigned int j = 0; j < neighbors.size(); j++)
+		{
+			if(neighbors[j]->getType() == dirt || neighbors[j]->getType() == claimed)
+			{
+				amountClaimed += neighbors[j]->claimForColor(color, amountToClaim);
+			}
+		}
+	}
+	
+	return amountClaimed;
 }
 
 Tile* Tile::getNeighbor(unsigned int index)

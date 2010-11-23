@@ -1,6 +1,10 @@
 #ifndef GAMEMAP_H
 #define GAMEMAP_H
 
+#include <list>
+#include <vector>
+#include <utility>
+
 #include <semaphore.h>
 
 #include "Tile.h"
@@ -11,6 +15,8 @@
 #include "Seat.h"
 #include "MapLight.h"
 #include "ProtectedObject.h"
+#include "TileCoordinateMap.h"
+#include "MissileObject.h"
 
 typedef std::map< pair<int,int>, Tile*> TileMap_t;
 
@@ -48,21 +54,27 @@ class GameMap
 		void removeCreature(Creature *c);
 		void queueCreatureForDeletion(Creature *c);
 		Creature* getCreature(int index);
-		Creature* getCreature(string cName);
+		Creature* getCreature(std::string cName);
 		unsigned int numCreatures();
 		std::vector<Creature*> getCreaturesByColor(int color);
+
+		void clearAnimatedObjects();
+		void addAnimatedObject(AnimatedObject *a);
+		void removeAnimatedObject(AnimatedObject *a);
+		AnimatedObject* getAnimatedObject(int index);
+		unsigned int numAnimatedObjects();
 
 		void clearClasses();
 		void addClassDescription(CreatureClass c);
 		void addClassDescription(CreatureClass *c);
 		CreatureClass* getClassDescription(int index);
-		CreatureClass* getClassDescription(string query);
+		CreatureClass* getClassDescription(std::string query);
 		unsigned int numClassDescriptions();
 
 		void clearPlayers();
 		bool addPlayer(Player *p);
 		Player* getPlayer(int index);
-		Player* getPlayer(string cName);
+		Player* getPlayer(std::string cName);
 		Player* getPlayerByColour(int colour);
 		unsigned int numPlayers();
 
@@ -87,7 +99,7 @@ class GameMap
 		void clearMapLightIndicators();
 		void addMapLight(MapLight *m);
 		MapLight* getMapLight(int index);
-		MapLight* getMapLight(string name);
+		MapLight* getMapLight(std::string name);
 		unsigned int numMapLights();
 
 		void clearEmptySeats();
@@ -114,6 +126,12 @@ class GameMap
 		unsigned int numGoalsForAllSeats();
 		void clearGoalsForAllSeats();
 
+		void clearMissileObjects();
+		void addMissileObject(MissileObject *m);
+		void removeMissileObject(MissileObject *m);
+		MissileObject* getMissileObject(int index);
+		unsigned int numMissileObjects();
+
 		// AI Methods
 		void doTurn();
 
@@ -122,6 +140,8 @@ class GameMap
 		std::vector<Tile*> neighborTiles(int x, int y);
 		std::vector<Tile*> neighborTiles(Tile *t);
 		std::list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
+		std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
+		std::vector<AttackableObject*> getVisibleForce(std::vector<Tile*> visibleTiles, int color, bool invert);
 		bool pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);
 		void cutCorners(std::list<Tile*> &path, Tile::TileClearType passability);
 		double crowDistance(int x1, int x2, int y1, int y2);
@@ -133,7 +153,7 @@ class GameMap
 		void enableFloodFill();
 
 		Player *me;
-		string nextLevel;
+		std::string nextLevel;
 		bool loadNextLevel;
 		double averageAILeftoverTime;
 
@@ -157,6 +177,8 @@ class GameMap
 		std::vector<CreatureClass*> classDescriptions;
 		std::vector<Creature*> creatures;
 		sem_t creaturesLockSemaphore;  //TODO: Most of these other vectors should also probably have semaphore locks on them.
+		std::vector<AnimatedObject*> animatedObjects;
+		sem_t animatedObjectsLockSemaphore;
 		std::vector<Player*> players;
 		std::vector<Room*> rooms;
 		std::vector<Trap*> traps;
@@ -165,14 +187,18 @@ class GameMap
 		std::vector<Seat*> filledSeats;
 		std::vector<Seat*> winningSeats;
 		std::vector<Goal*> goalsForAllSeats;
+		std::vector<MissileObject*> missileObjects;
 		int nextUniqueFloodFillColor;
 		bool floodFillEnabled;
+		std::vector<ActiveObject*> activeObjects;
 
 		std::map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
 		std::map<long int, std::vector<Creature*> > creaturesToDelete;
 		sem_t threadReferenceCountLockSemaphore;
 
 		unsigned int numCallsTo_path;
+
+		TileCoordinateMap *tileCoordinateMap;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.

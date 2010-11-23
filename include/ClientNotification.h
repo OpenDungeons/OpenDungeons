@@ -1,8 +1,6 @@
 #ifndef CLIENTNOTIFICATION_H
 #define CLIENTNOTIFICATION_H
 
-#include <string>
-using namespace std;
 #include <Ogre.h>
 
 /*! \brief A data structure used to pass messages to the clientNotificationProcessor thread.

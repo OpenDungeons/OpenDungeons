@@ -256,9 +256,9 @@ void *serverNotificationProcessor(void *p)
 				sendToAllClients(frameListener, formatCommand("creatureAddDestination", tempSS.str()));
 				break;
 
-			case ServerNotification::creatureClearDestinations:
+			case ServerNotification::animatedObjectClearDestinations:
 				tempSS.str("");
-				tempSS << event->cre->name;
+				tempSS << event->ani->getName();
 				sendToAllClients(frameListener, formatCommand("creatureClearDestinations", tempSS.str()));
 				break;
 

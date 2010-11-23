@@ -3,17 +3,16 @@
 
 #include <string>
 #include <iostream>
-#include <fstream>
+//#include <fstream>
 #include <vector>
-using namespace std;
 
 #include "Globals.h"
 #include "Tile.h"
 #include "RenderRequest.h"
 #include "ServerNotification.h"
 
-bool readGameMapFromFile(string fileName);
-void writeGameMapToFile(string fileName);
+bool readGameMapFromFile(std::string fileName);
+void writeGameMapToFile(std::string fileName);
 
 double randomDouble(double min, double max);
 int randomInt(int min, int max);
@@ -22,15 +21,15 @@ double gaussianRandomDouble();
 void seedRandomNumberGenerator();
 
 void swap(int &a, int &b);
-string stripCommentsFromLine(string line);
+std::string stripCommentsFromLine(std::string line);
 
 void colourizeEntity(Entity *ent, int colour);
-string colourizeMaterial(string materialName, int color);
+std::string colourizeMaterial(std::string materialName, int color);
 
 void queueRenderRequest(RenderRequest *r);
 void queueServerNotification(ServerNotification *n);
 
-std::vector<string> listAllFiles(string directoryName);
+std::vector<std::string> listAllFiles(std::string directoryName);
 
 void waitOnRenderQueueFlush();
 

@@ -8,18 +8,18 @@
 class GoalProtectCreature : public Goal
 {
 	public:
-		GoalProtectCreature(string nName, string nArguments);
+		GoalProtectCreature(std::string nName, std::string nArguments);
 
 		// Inherited functions
 		bool isMet(Seat *s);
 		bool isUnmet(Seat *s);
 		bool isFailed(Seat *s);
-		string getDescription();
-		string getSuccessMessage();
-		string getFailedMessage();
+		std::string getDescription();
+		std::string getSuccessMessage();
+		std::string getFailedMessage();
 
 	private:
-		string creatureName;
+		std::string creatureName;
 };
 
 #endif

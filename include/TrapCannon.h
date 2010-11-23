@@ -13,6 +13,18 @@ class TrapCannon : public Trap
 	public:
 		TrapCannon();
 
+		void doUpkeep();
+		Tile* positionTile();
+
+		int x, y;
+
+	private:
+		int reloadTime;
+		int reloadTimeCounter;
+		double range;
+		double minDamage, maxDamage;
+		double cannonHeight;
+
 };
 
 #endif

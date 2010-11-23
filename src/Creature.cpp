@@ -20,11 +20,6 @@ Creature::Creature()
 {
 	hasVisualDebuggingEntities = false;
 
-	sem_init(&positionLockSemaphore, 0, 1);
-	sem_wait(&positionLockSemaphore);
-	position = Ogre::Vector3(0,0,0);
-	sem_post(&positionLockSemaphore);
-
 	scale = Ogre::Vector3(1,1,1);
 	sightRadius = 10.0;
 	digRate = 10.0;
@@ -55,11 +50,6 @@ Creature::Creature()
 
 	weaponL = NULL;
 	weaponR = NULL;
-
-	animationState = NULL;
-	destinationAnimationState = "Idle";
-	walkQueueFirstEntryAdded = false;
-	sem_init(&walkQueueLockSemaphore, 0, 1);
 
 	sceneNode = NULL;
 
@@ -178,6 +168,7 @@ istream& operator>>(istream& is, Creature *c)
 
 Creature Creature::operator=(CreatureClass c2)
 {
+	creatureJob = c2.creatureJob;
 	className = c2.className;
 	meshName = c2.meshName;
 	scale = c2.scale;
@@ -186,7 +177,7 @@ Creature Creature::operator=(CreatureClass c2)
 	danceRate = c2.danceRate;
 	hpPerLevel = c2.hpPerLevel;
 	manaPerLevel = c2.manaPerLevel;
-	moveSpeed = c2.moveSpeed;
+	setMoveSpeed(c2.getMoveSpeed());
 	maxHP = c2.maxHP;
 	maxMana = c2.maxMana;
 	bedMeshName = c2.bedMeshName;
@@ -207,11 +198,11 @@ void Creature::createMesh()
 	if(meshesExist)
 		return;
 
+	meshesExist = true;
+
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::createCreature;
 	request->p = this;
-
-	meshesExist = true;
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
@@ -240,7 +231,7 @@ void Creature::destroyMesh()
 	queueRenderRequest(request);
 }
 
-/*! \brief Changes the creatures position to a new position.
+/*! \brief Changes the creature's position to a new position.
  *
  *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
  */
@@ -249,7 +240,7 @@ void Creature::setPosition(Ogre::Vector3 v)
 	setPosition(v.x, v.y, v.z);
 }
 
-/*! \brief Changes the creatures position to a new position.
+/*! \brief Changes the creature's position to a new position.
  *
  *  Moves the creature to a new location in 3d space.  This function is
  *  responsible for informing OGRE anything it needs to know, as well as
@@ -299,18 +290,6 @@ void Creature::setPosition(double x, double y, double z)
 	queueRenderRequest(request);
 }
 
-/*! \brief A simple accessor function to get the creature's current position in 3d space.
- *
- */
-Ogre::Vector3 Creature::getPosition()
-{
-	sem_wait(&positionLockSemaphore);
-	Ogre::Vector3 tempVector(position);
-	sem_post(&positionLockSemaphore);
-
-	return tempVector;
-}
-
 void Creature::setHP(double nHP)
 {
 	sem_wait(&hpLockSemaphore);
@@ -343,6 +322,10 @@ double Creature::getMana()
 	return tempDouble;
 }
 
+double Creature::getMoveSpeed()
+{
+	return moveSpeed;
+}
 
 /*! \brief The main AI routine which decides what the creature will do and carries out that action.
  *
@@ -386,7 +369,7 @@ void Creature::doTurn()
 	int tempInt;
 	unsigned int tempUnsigned;
 	unsigned int rangeToNearestEnemyObject, rangeToNearestAlliedObject;
-	Creature *tempCreature;
+	//Creature *tempCreature;
 	AttackableObject *tempAttackableObject;
 	AttackableObject *nearestEnemyObject, *nearestAlliedObject;
 	CreatureAction tempAction;
@@ -395,20 +378,20 @@ void Creature::doTurn()
 
 	// Heal.
 	sem_wait(&hpLockSemaphore);
-	hp += 0.25;
+	hp += 0.1;
 	if(hp > maxHP)
 		hp = maxHP;
 	sem_post(&hpLockSemaphore);
 	
 	// Regenrate mana.
 	sem_wait(&manaLockSemaphore);
-	mana += 0.75;
+	mana += 0.45;
 	if(mana > maxMana)
 		mana = maxMana;
 	sem_post(&manaLockSemaphore);
 
 	// Check to see if we have earned enough experience to level up.
-	while(exp >= 5*level + 5*powl(level/3, 2))
+	while(exp >= 5*level + 5*powl(level/3.0, 2))
 		doLevelUp();
 
 	// If we are not standing somewhere on the map, do nothing.
@@ -451,7 +434,7 @@ void Creature::doTurn()
 	}
 
 	// Check to see if we have found a "home" tile where we can sleep yet.
-	if(digRate <= 0.1 && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
+	if(!isWorker() && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
 	{
 		// Check to see if there are any quarters owned by our color that we can reach.
 		std::vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
@@ -493,29 +476,39 @@ void Creature::doTurn()
 					setAnimationState("Idle");
 					//FIXME: make this into a while loop over a vector of <action, probability> pairs
 
-					// Decide to check for clamiable tiles
-					if(diceRoll < 0.2 && danceRate > 0.1)
+					// Workers only.
+					if(isWorker())
 					{
-						loopBack = true;
-						actionQueue.push_front(CreatureAction(CreatureAction::claimTile));
+						// Decide to check for clamiable tiles
+						if(diceRoll < 0.2 && danceRate > 0.1)
+						{
+							loopBack = true;
+							actionQueue.push_front(CreatureAction(CreatureAction::claimTile));
+						}
+
+						// Decide to check for diggable tiles
+						else if(diceRoll < 0.4 && digRate > 0.1)
+						{
+							loopBack = true;
+							actionQueue.push_front(CreatureAction(CreatureAction::digTile));
+						}
+
+						// Decide to deposit the gold we are carrying into a treasury.
+						else if(diceRoll < 0.4+0.6*(gold/(double)maxGoldCarriedByWorkers) && digRate > 0.1)
+						{
+							loopBack = true;
+							actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
+						}
+					}
+					// Non-workers only
+					else
+					{
 					}
 
-					// Decide to check for diggable tiles
-					else if(diceRoll < 0.4 && digRate > 0.1)
-					{
-						loopBack = true;
-						actionQueue.push_front(CreatureAction(CreatureAction::digTile));
-					}
-
-					// Decide to deposit the gold we are carrying into a treasury.
-					else if(diceRoll < 0.4+0.6*(gold/(double)maxGoldCarriedByWorkers) && digRate > 0.1)
-					{
-						loopBack = true;
-						actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
-					}
+					// Any creature.
 
 					// Decide to "wander" a short distance
-					else if(diceRoll < 0.6)
+					if(diceRoll < 0.6)
 					{
 						loopBack = true;
 						actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
@@ -523,31 +516,37 @@ void Creature::doTurn()
 						// If we are not a worker.
 						int tempX, tempY;
 						bool workerFound = false;
-						if(digRate < 0.1)
+						if(!isWorker())
 						{
-							// Checkt to see if we want to try to follow a worker around or if we want to try to explore.
-							if(randomDouble(0.0, 1.0) < 0.3)
+							// Check to see if we want to try to follow a worker around or if we want to try to explore.
+							double r = randomDouble(0.0, 1.0);
+							if(creatureJob == weakFighter) r -= 0.5;
+							if(r < 0.3)
 							{
 								// Try to find a worker to follow around.
 								for(unsigned int i = 0; i < reachableAlliedObjects.size(); i++)
 								{
 									// Check to see if we found a worker.
 									if(reachableAlliedObjects[i]->getAttackableObjectType() == AttackableObject::creature && \
-											((Creature*)reachableAlliedObjects[i])->digRate > 0.1)
+											((Creature*)reachableAlliedObjects[i])->isWorker())
 									{
-										//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
 										tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
-										tempX = tempTile->x + 3.0*gaussianRandomDouble();
-										tempY = tempTile->y + 3.0*gaussianRandomDouble();
+										tempX = tempTile->x + 8.0*gaussianRandomDouble();
+										tempY = tempTile->y + 8.0*gaussianRandomDouble();
 										workerFound = true;
 									}
 
 									if(!workerFound)
 									{
+										/*
 										sem_wait(&positionLockSemaphore);
 										tempX = position.x + 2.0*gaussianRandomDouble();
 										tempY = position.y + 2.0*gaussianRandomDouble();
 										sem_post(&positionLockSemaphore);
+										*/
+										tempTile = visibleTiles[randomUint(0, visibleTiles.size()-1)];
+										tempX = tempTile->x;
+										tempY = tempTile->y;
 									}
 								}
 							}
@@ -558,7 +557,7 @@ void Creature::doTurn()
 								unsigned int maxLoopCount = randomUint(5, 15), longestPathLength = 0;
 								std::list<Tile*> longestPath, tempPath;
 								myTile = positionTile();
-								for(unsigned int i = 0; visibleTiles.size() && i < maxLoopCount; i++)
+								for(unsigned int i = 0; i < visibleTiles.size() && i < maxLoopCount; i++)
 								{
 									tempPath = gameMap.path(myTile, visibleTiles[i], tilePassability);
 									if(visibleTiles[i]->getType() == Tile::dirt && visibleTiles[i]->getFullness() == 0 && tempPath.size() >= 2 && tempPath.size() > longestPath.size())
@@ -577,6 +576,21 @@ void Creature::doTurn()
 								}
 							}
 						}
+						else
+						{
+							// Workers shouldn't wander as often as other creatures so we re-roll to see if we still want to wander.
+							if(randomDouble(0.0, 1.0) < 0.1)
+							{
+								// Choose a tile far away from our current position to wander to.
+								tempTile = visibleTiles[randomUint(visibleTiles.size()/2, visibleTiles.size()-1)];
+								tempX = tempTile->x;
+								tempY = tempTile->y;
+							}
+							else
+							{
+								break;
+							}
+						}
 
 						Tile *tempPositionTile = positionTile();
 						std::list<Tile*> result;
@@ -589,12 +603,6 @@ void Creature::doTurn()
 						setAnimationState("Walk");
 						setWalkPath(result, 2, false);
 					}
-					else
-					{
-						// Remain idle
-						//setAnimationState("Idle");
-					}
-
 					break;
 
 				case CreatureAction::walkToTile:
@@ -664,18 +672,18 @@ void Creature::doTurn()
 					// Randomly decide to stop claiming with a small probability
 					if(randomDouble(0.0, 1.0) < 0.1 + 0.2*markedTiles.size())
 					{
-						loopBack = true;
-						actionQueue.pop_front();
-
 						// If there are any visible tiles marked for digging start working on that.
 						if(markedTiles.size() > 0)
+						{
+							loopBack = true;
+							actionQueue.pop_front();
 							actionQueue.push_front(CreatureAction(CreatureAction::digTile));
-
-						break;
+							break;
+						}
 					}
 
 					// See if the tile we are standing on can be claimed
-					if(myTile->color != color || myTile->colorDouble < 1.0)
+					if((myTile->color != color || myTile->colorDouble < 1.0) && (myTile->getType() == Tile::dirt || myTile->getType() == Tile::claimed))
 					{
 						//cout << "\nTrying to claim the tile I am standing on.";
 						// Check to see if one of the tile's neighbors is claimed for our color
@@ -687,9 +695,11 @@ void Creature::doTurn()
 							if(tempTile->color == color && tempTile->colorDouble >= 1.0)
 							{
 								//cout << "\t\tFound a neighbor that is claimed.";
-								// If we found a neighbor that is claimed for our side than we
-								// can start dancing on this tile
+								// If we found a neighbor that is claimed for our side than we can start
+								// dancing on this tile.  If there is "left over" claiming that can be done
+								// it will spill over into neighboring tiles until it is gone.
 								myTile->claimForColor(color, danceRate);
+								recieveExp(1.0*(danceRate/(0.35+0.05*level)));
 
 								// Since we danced on a tile we are done for this turn
 								goto claimTileBreakStatement;
@@ -704,11 +714,11 @@ void Creature::doTurn()
 					neighbors = gameMap.neighborTiles(myTile);
 					while(neighbors.size() > 0)
 					{
-						// If the current neigbor is claimable, walk into it and skip to the end of this turn
+						// If the current neighbor is claimable, walk into it and skip to the end of this turn
 						tempInt = randomUint(0, neighbors.size()-1);
 						tempTile = neighbors[tempInt];
 						//NOTE:  I don't think the "colorDouble" check should happen here.
-						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->color != color || tempTile->colorDouble < 1.0))
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->color != color || tempTile->colorDouble < 1.0) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
 						{
 							// The neighbor tile is a potential candidate for claiming, to be an actual candidate
 							// though it must have a neighbor of its own that is already claimed for our side.
@@ -735,7 +745,7 @@ void Creature::doTurn()
 					{
 						// if this tile is not fully claimed yet or the tile is of another player's color
 						tempTile = visibleTiles[i];
-						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->color != color))
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->color != color) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
 						{
 							// Check to see if one of the tile's neighbors is claimed for our color
 							neighbors = gameMap.neighborTiles(visibleTiles[i]);
@@ -828,7 +838,7 @@ claimTileBreakStatement:
 					//cout << "dig ";
 
 					// Randomly decide to stop digging with a small probability
-					if(randomDouble(0.0, 1.0) < 0.5 - 0.2*markedTiles.size())
+					if(randomDouble(0.0, 1.0) < 0.35 - 0.2*markedTiles.size())
 					{
 						loopBack = true;
 						actionQueue.pop_front();
@@ -854,6 +864,7 @@ claimTileBreakStatement:
 							// Dig out the tile by decreasing the tile's fullness.
 							setAnimationState("Dig");
 							creatureNeighbors[i]->setFullness(max(0.0, creatureNeighbors[i]->getFullness()-digRate));
+							recieveExp(0.5*digRate/20.0);
 
 							// Force all the neighbors to recheck their meshes as we may have exposed
 							// a new side that was not visible before.
@@ -866,7 +877,7 @@ claimTileBreakStatement:
 							// If the tile has been dug out, move into that tile and idle
 							if(creatureNeighbors[i]->getFullness() == 0)
 							{
-								recieveExp(2);
+								recieveExp(0.5);
 								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
 								creatureNeighbors[i]->setType(Tile::dirt);
 								setAnimationState("Walk");
@@ -895,7 +906,7 @@ claimTileBreakStatement:
 						break;
 
 					// Randomly decide to stop digging with a larger probability
-					if(randomDouble(0.0, 1.0) < 0.3)
+					if(randomDouble(0.0, 1.0) < 0.1)
 					{
 						loopBack = true;
 						actionQueue.pop_front();
@@ -912,7 +923,6 @@ claimTileBreakStatement:
 							neighborTile = neighbors[j];
 							if(neighborTile != NULL && neighborTile->getFullness() == 0)
 								possiblePaths.push_back(gameMap.path(positionTile(), neighborTile, tilePassability));
-
 						}
 					}
 
@@ -1229,6 +1239,19 @@ claimTileBreakStatement:
 				case CreatureAction::maneuver:
 					myTile = positionTile();
 
+					// If there is an enemy within range, stop maneuvering and attack it.
+					if(enemyObjectsInRange.size() > 0)
+					{
+						actionQueue.pop_front();
+						loopBack = true;
+
+						// If the next action down the stack is not an attackObject action, add it.
+						if(actionQueue.front().type != CreatureAction::attackObject)
+							actionQueue.push_front(CreatureAction(CreatureAction::attackObject));
+
+						break;
+					}
+
 					// If there are no more enemies which are reachable, stop maneuvering.
 					if(reachableEnemyObjects.size() == 0)
 					{
@@ -1237,6 +1260,7 @@ claimTileBreakStatement:
 						break;
 					}
 
+					/*
 					// Check to see if we should try to strafe the enemy
 					if(randomDouble(0.0, 1.0) < 0.3)
 					{
@@ -1258,19 +1282,7 @@ claimTileBreakStatement:
 								setAnimationState("Walk");
 						}
 					}
-
-					// If there is an enemy within range, stop maneuvering and attack it.
-					if(enemyObjectsInRange.size() > 0)
-					{
-						actionQueue.pop_front();
-						loopBack = true;
-
-						// If the next action down the stack is not an attackObject action, add it.
-						if(actionQueue.front().type != CreatureAction::attackObject)
-							actionQueue.push_front(CreatureAction(CreatureAction::attackObject));
-
-						break;
-					}
+					*/
 
 					// There are no enemy creatures in range so we will have to maneuver towards one.
 					// Prepare the battlefield so we can decide where to move.
@@ -1372,18 +1384,22 @@ void Creature::doLevelUp()
 	level++;
 	cout << "\n\n" << name << " has reached level " << level << "\n\n";
 
-	if(digRate > 0.1)
-		digRate *= 1.0 + log((double)log((double)level+1)+1);
+	if(isWorker())
+	{
+		digRate += 4.0*level/(level+5.0);
+		danceRate += 0.12*level/(level+5.0);
+	}
+	cout << "New dig rate: " << digRate << "\tnew dance rate: " << danceRate << "\n\n";
 
-	if(digRate >= 60)  digRate = 60;
+	//if(digRate > 60)  digRate = 60;
 
 	maxHP += hpPerLevel;
 	maxMana += manaPerLevel;
 
 	// Scale up the mesh.
-	if(meshesExist && level < 100)
+	if(meshesExist && level < 100 && (level % 2) == 0)
 	{
-		double scaleFactor = 1.0 + level/200.0;
+		double scaleFactor = 1.0 + level/150.0;
 		if(scaleFactor > 1.05)  scaleFactor = 1.05;
 		RenderRequest *request = new RenderRequest;
 		request->type = RenderRequest::scaleSceneNode;
@@ -1403,97 +1419,9 @@ void Creature::doLevelUp()
 */
 void Creature::updateVisibleTiles()
 {
-	//int xMin, yMin, xMax, yMax;
-	const double sightRadiusSquared = sightRadius * sightRadius;
-	Tile *tempPositionTile = positionTile();
-	Tile *currentTile;
-	int xBase = tempPositionTile->x;
-	int yBase = tempPositionTile->y;
-	int xLoc, yLoc;
-
-	visibleTiles.clear();
-
-	// Add the tile the creature is standing in
-	if(tempPositionTile != NULL)
-	{
-		visibleTiles.push_back(tempPositionTile);
-	}
-
-	// Add the 4 principle axes rays
-	for(int i = 1; i < sightRadius; i++)
-	{
-		for(int j = 0; j < 4; j++)
-		{
-			switch(j)
-			{
-				case 0:  xLoc = xBase+i;   yLoc = yBase;  break;
-				case 1:  xLoc = xBase-i;   yLoc = yBase;  break;
-				case 2:  xLoc = xBase;   yLoc = yBase+i;  break;
-				case 3:  xLoc = xBase;   yLoc = yBase-i;  break;
-			}
-
-			currentTile = gameMap.getTile(xLoc, yLoc);
-
-			if(currentTile != NULL)
-			{
-				// Check if we can actually see the tile in question
-				// or if it is blocked by terrain
-				if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, xLoc, yLoc), Tile::flyableTile))
-				{
-					visibleTiles.push_back(currentTile);
-				}
-				else
-				{
-					// If we cannot see this tile than we cannot see any tiles farther away 
-					// than this one (in this direction) so move on to the next direction.
-					continue;
-				}
-			}
-		}
-	}
-
-	// Fill in the 4 pie slice shaped sectors
-	for(int i = 1; i < sightRadius; i++)
-	{
-		for(int j = 1; j < sightRadius; j++)
-		{
-			// Check to see if the current tile is actually close enough to be visible
-			int distSQ = i*i + j*j;
-			if(distSQ < sightRadiusSquared)
-			{
-				for(int k = 0; k < 4; k++)
-				{
-					switch(k)
-					{
-						case 0:  xLoc = xBase+i;   yLoc = yBase+j;  break;
-						case 1:  xLoc = xBase+i;   yLoc = yBase-j;  break;
-						case 2:  xLoc = xBase-i;   yLoc = yBase+j;  break;
-						case 3:  xLoc = xBase-i;   yLoc = yBase-j;  break;
-					}
-
-					currentTile = gameMap.getTile(xLoc, yLoc);
-					
-					if(currentTile != NULL)
-					{
-						// Check if we can actually see the tile in question
-						// or if it is blocked by terrain
-						if(tempPositionTile != NULL && gameMap.pathIsClear(gameMap.lineOfSight(tempPositionTile->x, tempPositionTile->y, xLoc, yLoc), Tile::flyableTile))
-						{
-							visibleTiles.push_back(currentTile);
-						}
-					}
-				}
-			}
-			else
-			{
-				// If this tile is too far away then any tile with a j value greater than this
-				// will also be too far away.
-				break;
-			}
-		}
-	}
-
-	//TODO:  Add the sector shaped region of the visible region
+	//double effectiveRadius = min(5.0, sightRadius) + sightRadius*powl(randomDouble(0.0, 1.0), 3.0);
+	double effectiveRadius = sightRadius;
+	visibleTiles = gameMap.visibleTiles(positionTile(), effectiveRadius);
 }
 
 /*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
@@ -1547,7 +1475,7 @@ std::vector<AttackableObject*> Creature::getReachableAttackableObjects(const std
 		}
 	}
 
-	//TODO: Maybe thing of a better canary value for this.
+	//TODO: Maybe think of a better canary value for this.
 	if(!minRangeSet)
 		*minRange = 999999;
 
@@ -1619,56 +1547,7 @@ std::vector<Tile*> Creature::getVisibleMarkedTiles()
 */
 std::vector<AttackableObject*> Creature::getVisibleForce(int color, bool invert)
 {
-	//TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
-	std::vector<AttackableObject*> returnList;
-
-	// Loop over the visible tiles
-	std::vector<Tile*>::iterator itr;
-	for(itr = visibleTiles.begin(); itr != visibleTiles.end(); itr++)
-	{
-		// Loop over the creatures in the given tile
-		for(unsigned int i = 0; i < (*itr)->numCreaturesInCell(); i++)
-		{
-			Creature *tempCreature = (*itr)->getCreature(i);
-			// If it is an enemy
-			if(tempCreature != NULL)
-			{
-				// The invert flag is used to determine whether we want to return a list of those creatures
-				// whose color matches the one supplied or is any color but the one supplied.
-				if( (invert && tempCreature->getColor() != color) || (!invert && tempCreature->getColor() == color) )
-				{
-					// Add the current creature
-					returnList.push_back(tempCreature);
-				}
-			}
-		}
-
-		// Check to see if the tile is covered by a Room, if it is then check to see if it should be added to the returnList.
-		Room *tempRoom = (*itr)->getCoveringRoom();
-		if(tempRoom != NULL)
-		{
-			// Check to see if the color is appropriate based on the condition of the invert flag.
-			if( (invert && tempRoom->getColor() != color) || (!invert && tempRoom->getColor() != color) )
-			{
-				// Check to see if the given room is already in the returnList.
-				bool roomFound = false;
-				for(unsigned int i = 0; i < returnList.size(); i++)
-				{
-					if(returnList[i] == tempRoom)
-					{
-						roomFound = true;
-						break;
-					}
-				}
-
-				// If the room is not in the return list already then add it.
-				if(!roomFound)
-					returnList.push_back(tempRoom);
-			}
-		}
-	}
-
-	return returnList;
+	return gameMap.getVisibleForce(visibleTiles, color, invert);
 }
 
 /*! \brief Displays a mesh on all of the tiles visible to the creature.
@@ -1892,155 +1771,10 @@ void Creature::takeDamage(double damage, Tile *tileTakingDamage)
 */
 void Creature::recieveExp(double experience)
 {
+	if(experience < 0.0)
+		return;
+
 	exp += experience;
-}
-
-/*! \brief Adds a position in 3d space to the creature's walk queue and, if necessary, starts it walking.
- *
- * This function also places a message in the serverNotificationQueue so that
- * relevant clients are informed about the change.
-*/
-void Creature::addDestination(int x, int y)
-{
-	//cout << "w(" << x << ", " << y << ") ";
-	Ogre::Vector3 destination(x, y, 0);
-
-	// if there are currently no destinations in the walk queue
-	sem_wait(&walkQueueLockSemaphore);
-	if(walkQueue.size() == 0)
-	{
-		// Add the destination and set the remaining distance counter
-		walkQueue.push_back(destination);
-		sem_wait(&positionLockSemaphore);
-		shortDistance = position.distance(walkQueue.front());
-		sem_post(&positionLockSemaphore);
-		walkQueueFirstEntryAdded = true;
-	}
-	else
-	{
-		// Add the destination
-		walkQueue.push_back(destination);
-	}
-	sem_post(&walkQueueLockSemaphore);
-
-	if(serverSocket != NULL)
-	{
-		try
-		{
-			// Place a message in the queue to inform the clients about the new destination
-			ServerNotification *serverNotification = new ServerNotification;
-			serverNotification->type = ServerNotification::creatureAddDestination;
-			serverNotification->str = name;
-			serverNotification->vec = destination;
-
-			queueServerNotification(serverNotification);
-		}
-		catch(bad_alloc&)
-		{
-			cerr << "\n\nERROR:  bad alloc in Creature::addDestination\n\n";
-			exit(1);
-		}
-	}
-}
-
-/*! \brief Replaces a creature's current walk queue with a new path.
- *
- * This replacement is done if, and only if, the new path is at least minDestinations
- * long; if addFirstStop is false the new path will start with the second entry in path.
-*/
-bool Creature::setWalkPath(std::list<Tile*> path, unsigned int minDestinations, bool addFirstStop)
-{
-	// Remove any existing stops from the walk queue.
-	clearDestinations();
-
-	// Verify that the given path is long enough to be considered valid.
-	if(path.size() >= minDestinations)
-	{
-		std::list<Tile*>::iterator itr = path.begin();
-
-		// If we are not supposed to add the first tile in the path to the destination queue, then we skip over it.
-		if(!addFirstStop)
-			itr++;
-
-		// Loop over the path adding each tile as a destination in the walkQueue.
-		while(itr != path.end())
-		{
-			addDestination((*itr)->x, (*itr)->y);
-			itr++;
-		}
-
-		return true;
-	}
-	else
-	{
-		//setAnimationState("Idle");
-		return false;
-	}
-
-	return true;
-}
-
-/*! \brief Clears all future destinations from the walk queue, stops the creature where it is, and sets its animation state.
- *
-*/
-void Creature::clearDestinations()
-{
-	sem_wait(&walkQueueLockSemaphore);
-	walkQueue.clear();
-	sem_post(&walkQueueLockSemaphore);
-	stopWalking();
-
-	if(serverSocket != NULL)
-	{
-		// Place a message in the queue to inform the clients about the clear
-		ServerNotification *serverNotification = new ServerNotification;
-		serverNotification->type = ServerNotification::creatureClearDestinations;
-		serverNotification->cre = this;
-
-		queueServerNotification(serverNotification);
-	}
-}
-
-/*! \brief Stops the creature where it is, and sets its animation state.
- *
-*/
-void Creature::stopWalking()
-{
-	walkDirection = Ogre::Vector3::ZERO;
-}
-
-/** Rotates the creature so that it is facing toward the given x-y location.
- *
-*/
-void Creature::faceToward(int x, int y)
-{
-	// Rotate the creature to face the direction of the destination
-	Ogre::Vector3 tempPosition = getPosition();
-	walkDirection = Ogre::Vector3(x, y, tempPosition.z) - tempPosition;
-	walkDirection.normalise();
-
-	//FIXME: Having this OGRE code here is probably sub-optimal and may introduce bugs.
-	SceneNode *node = mSceneMgr->getSceneNode(name + "_node");
-	Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
-
-	// Work around 180 degree quaternion rotation quirk
-	if ((1.0f + src.dotProduct(walkDirection)) < 0.0001f)
-	{
-		//FIXME: Having this OGRE code here is probably sub-optimal and may introduce bugs.
-		node->roll(Degree(180));
-	}
-	else
-	{
-		Quaternion quat = src.getRotationTo(walkDirection);
-
-		RenderRequest *request = new RenderRequest;
-		request->type = RenderRequest::reorientSceneNode;
-		request->p = node;
-		request->quaternion = quat;
-
-		// Add the request to the queue of rendering operations to be performed before the next frame.
-		queueRenderRequest(request);
-	}
 }
 
 /*! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.

@@ -12,6 +12,7 @@
 #include "Functions.h"
 #include "Defines.h"
 #include "GameMap.h"
+#include "RadialVector2.h"
 
 GameMap::GameMap()
 {
@@ -22,7 +23,9 @@ GameMap::GameMap()
 	averageAILeftoverTime = 0.0;
 	sem_init(&threadReferenceCountLockSemaphore, 0, 1);
 	sem_init(&creaturesLockSemaphore, 0, 1);
+	sem_init(&animatedObjectsLockSemaphore, 0, 1);
 	sem_init(&tilesLockSemaphore, 0, 1);
+	tileCoordinateMap = new TileCoordinateMap(100);
 }
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
@@ -130,7 +133,10 @@ void GameMap::clearCreatures()
 {
 	sem_wait(&creaturesLockSemaphore);
 	for(unsigned int i = 0; i < creatures.size(); i++)
+	{
+		removeAnimatedObject(creatures[i]);
 		creatures[i]->deleteYourself();
+	}
 
 	creatures.clear();
 	sem_post(&creaturesLockSemaphore);
@@ -351,6 +357,8 @@ void GameMap::addCreature(Creature *c)
 	sem_post(&creaturesLockSemaphore);
 
 	c->positionTile()->addCreature(c);
+
+	addAnimatedObject(c);
 }
 
 /*! \brief Removes the creature from the game map but does not delete its data structure.
@@ -374,6 +382,8 @@ void GameMap::removeCreature(Creature *c)
 	}
 
 	sem_post(&creaturesLockSemaphore);
+
+	removeAnimatedObject(c);
 }
 
 /** \brief Adds the given creature to the queue of creatures to be deleted in a future turn
@@ -436,6 +446,56 @@ std::vector<Creature*> GameMap::getCreaturesByColor(int color)
 	sem_post(&creaturesLockSemaphore);
 
 	return tempVector;
+}
+
+void GameMap::clearAnimatedObjects()
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+	animatedObjects.clear();
+	sem_post(&animatedObjectsLockSemaphore);
+}
+
+void GameMap::addAnimatedObject(AnimatedObject *a)
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+	animatedObjects.push_back(a);
+	sem_post(&animatedObjectsLockSemaphore);
+}
+
+void GameMap::removeAnimatedObject(AnimatedObject *a)
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+
+	// Loop over the animatedObjects looking for animatedObject a
+	for(unsigned int i = 0; i < animatedObjects.size(); i++)
+	{
+		if(a == animatedObjects[i])
+		{
+			// AnimatedObject found
+			animatedObjects.erase(animatedObjects.begin()+i);
+			break;
+		}
+	}
+
+	sem_post(&animatedObjectsLockSemaphore);
+}
+
+AnimatedObject* GameMap::getAnimatedObject(int index)
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+	AnimatedObject *tempAnimatedObject = animatedObjects[index];
+	sem_post(&animatedObjectsLockSemaphore);
+
+	return tempAnimatedObject;
+}
+
+unsigned int GameMap::numAnimatedObjects()
+{
+	sem_wait(&animatedObjectsLockSemaphore);
+	unsigned int tempUnsigned = animatedObjects.size();
+	sem_post(&animatedObjectsLockSemaphore);
+
+	return tempUnsigned;
 }
 
 /*! \brief Returns the total number of class descriptions stored in this game map.
@@ -541,8 +601,8 @@ void GameMap::doTurn()
 	for(tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); tempUnsigned++)
 		averageAILeftoverTime += previousLeftoverTimes[tempUnsigned];
 
-	if(tempUnsigned > 0)
-		averageAILeftoverTime /= (double)tempUnsigned;
+	if(previousLeftoverTimes.size() > 0)
+		averageAILeftoverTime /= (double)previousLeftoverTimes.size();
 
 	sem_wait(&creatureAISemaphore);
 
@@ -691,12 +751,18 @@ void GameMap::doTurn()
 	}
 	sem_post(&tilesLockSemaphore);
 	
-	// Carry out the upkeep on each of the Rooms in the gameMap.
-	//NOTE:  The auto-increment on this loop is canceled by a decrement in the if statement, changes to the loop structure will need to keep this consistent.
-	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+	// Carry out the upkeep round of all the active objects in the game.
+	for(unsigned int i = 0; i < activeObjects.size(); i++)
 	{
-		Room *tempRoom = gameMap.getRoom(i);
-		tempRoom->doUpkeep(tempRoom);
+		activeObjects[i]->doUpkeep();
+	}
+
+	// Remove empty rooms from the GameMap.
+	//NOTE:  The auto-increment on this loop is canceled by a decrement in the if statement, changes to the loop structure will need to keep this consistent.
+	for(unsigned int i = 0; i < numRooms(); i++)
+	{
+		Room *tempRoom = getRoom(i);
+		//tempRoom->doUpkeep(tempRoom);
 
 		// Check to see if the room now has 0 covered tiles, if it does we can remove it from the map.
 		if(tempRoom->numCoveredTiles() == 0)
@@ -1176,18 +1242,165 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 	return path;
 }
 
+std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
+{
+	std::vector<Tile*> tempVector;
+
+	if(!startTile->permitsVision())
+		return tempVector;
+
+	int startX = startTile->x;
+	int startY = startTile->y;
+	int sightRadiusSquared = sightRadius*sightRadius;
+	std::list< pair<Tile*,double> > tileQueue;
+
+	int tileCounter = 0;
+	while(true)
+	{
+		int rSquared = tileCoordinateMap->getRadiusSquared(tileCounter);
+		if(rSquared > sightRadiusSquared)
+			break;
+
+		pair<int,int> coord = tileCoordinateMap->getCoordinate(tileCounter);
+
+		Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
+		double tempTheta = tileCoordinateMap->getCentralTheta(tileCounter);
+		if(tempTile != NULL)
+			tileQueue.push_back(pair<Tile*,double>(tempTile, tempTheta));
+
+		tileCounter++;
+	}
+
+	//TODO: Loop backwards and remove any non-see through tiles until we get to one which permits vision (this cuts down the cost of walks toward the end when an opaque block is found).
+
+	// Now loop over the queue, determining which tiles are visible and push them onto the tempVector which will be returned as the output of the function.
+	while(tileQueue.size() > 0)
+	{
+		// If the tile lets light though it it is visible and we can remove it from the queue and put it in the return list.
+		if((*tileQueue.begin()).first->permitsVision())
+		{
+			// The tile is visible.
+			tempVector.push_back((*tileQueue.begin()).first);
+			tileQueue.erase(tileQueue.begin());
+			continue;
+		}
+		else
+		{
+			// The tile is does not allow vision to it.  Remove it from the queue and remove any tiles obscured by this one.
+			// We add it to the return list as well since this tile is as far as we can see in this direction.  Calculate
+			// the radial vectors to the corners of this tile.
+			Tile *obstructingTile = (*tileQueue.begin()).first;
+			tempVector.push_back(obstructingTile);
+			tileQueue.erase(tileQueue.begin());
+			RadialVector2 smallAngle, largeAngle, tempAngle;
+
+			// Calculate the obstructing tile's angular size and the direction to it.  We want to check if other tiles
+			// are within deltaTheta of the calculated direction.
+			double dx = obstructingTile->x - startTile->x;
+			double dy = obstructingTile->y - startTile->y;
+			double rsq = dx*dx + dy*dy;
+			double deltaTheta = 1.5/sqrt(rsq);
+			tempAngle.fromCartesian(dx, dy);
+			smallAngle.theta = tempAngle.theta - deltaTheta;
+			largeAngle.theta = tempAngle.theta + deltaTheta;
+
+			// Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of
+			// the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
+			std::list< pair<Tile*,double> >::iterator tileQueueIterator = tileQueue.begin();
+			while(tileQueueIterator != tileQueue.end())
+			{
+				tempAngle.theta = (*tileQueueIterator).second;
+
+				// If the current tile is in the obscured region.
+				if(tempAngle.directionIsBetween(smallAngle, largeAngle))
+				{
+					// The tile is in the obscured region so remove it from the queue of possibly visible tiles.
+					tileQueueIterator = tileQueue.erase(tileQueueIterator);
+				}
+				else
+				{
+					// The tile is not obscured by the current obscuring tile so leave it in the queue for now.
+					tileQueueIterator++;
+				}
+			}
+		}
+	}
+
+	//TODO:  Add the sector shaped region of the visible region
+
+	return tempVector;
+}
+
+/*! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
+ *
+*/
+std::vector<AttackableObject*> GameMap::getVisibleForce(std::vector<Tile*> visibleTiles, int color, bool invert)
+{
+	//TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
+	std::vector<AttackableObject*> returnList;
+
+	// Loop over the visible tiles
+	std::vector<Tile*>::iterator itr;
+	for(itr = visibleTiles.begin(); itr != visibleTiles.end(); itr++)
+	{
+		//TODO: Implement Tile::getAttackableObject() to let you list all attackableObjects in the tile in a single list.
+		// Loop over the creatures in the given tile
+		for(unsigned int i = 0; i < (*itr)->numCreaturesInCell(); i++)
+		{
+			Creature *tempCreature = (*itr)->getCreature(i);
+			// If it is an enemy
+			if(tempCreature != NULL)
+			{
+				// The invert flag is used to determine whether we want to return a list of those creatures
+				// whose color matches the one supplied or is any color but the one supplied.
+				if( (invert && tempCreature->getColor() != color) || (!invert && tempCreature->getColor() == color) )
+				{
+					// Add the current creature
+					returnList.push_back(tempCreature);
+				}
+			}
+		}
+
+		// Check to see if the tile is covered by a Room, if it is then check to see if it should be added to the returnList.
+		Room *tempRoom = (*itr)->getCoveringRoom();
+		if(tempRoom != NULL)
+		{
+			// Check to see if the color is appropriate based on the condition of the invert flag.
+			if( (invert && tempRoom->getColor() != color) || (!invert && tempRoom->getColor() != color) )
+			{
+				// Check to see if the given room is already in the returnList.
+				bool roomFound = false;
+				for(unsigned int i = 0; i < returnList.size(); i++)
+				{
+					if(returnList[i] == tempRoom)
+					{
+						roomFound = true;
+						break;
+					}
+				}
+
+				// If the room is not in the return list already then add it.
+				if(!roomFound)
+					returnList.push_back(tempRoom);
+			}
+		}
+	}
+
+	return returnList;
+}
+
 /*! \brief Determines whether or not you can travel along a path.
  *
  */
 bool GameMap::pathIsClear(std::list<Tile*> path, Tile::TileClearType passability)
 {
 	std::list<Tile*>::iterator itr;
-	std::list<Tile*>::iterator last;
+	//std::list<Tile*>::iterator last;
 
 	if(path.size() == 0)
 		return false;
 
-	last = --path.end();
+	//last = --path.end();
 
 	// Loop over tile in the path and check to see if it is clear
 	bool isClear = true;
@@ -1283,6 +1496,18 @@ void GameMap::cutCorners(std::list<Tile*> &path, Tile::TileClearType passability
 */ 
 void GameMap::clearRooms()
 {
+	for(unsigned int i = 0; i < rooms.size(); i++)
+	{
+		for(unsigned int j = 0; j < activeObjects.size(); j++)
+		{
+			if(rooms[i] == activeObjects[j])
+			{
+				activeObjects.erase(activeObjects.begin()+j);
+				break;
+			}
+		}
+	}
+
 	for(unsigned int i = 0; i < numRooms(); i++)
 	{
 		getRoom(i)->deleteYourself();
@@ -1297,10 +1522,20 @@ void GameMap::clearRooms()
 void GameMap::addRoom(Room *r)
 {
 	rooms.push_back(r);
+	activeObjects.push_back(r);
 }
 
 void GameMap::removeRoom(Room *r)
 {
+	for(unsigned int i = 0; i < activeObjects.size(); i++)
+	{
+		if(r == activeObjects[i])
+		{
+			activeObjects.erase(activeObjects.begin()+i);
+			break;
+		}
+	}
+
 	for(unsigned int i = 0; i < rooms.size(); i++)
 	{
 		if(r == rooms[i])
@@ -1355,6 +1590,18 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec, Til
 
 void GameMap::clearTraps()
 {
+	for(unsigned int i = 0; i < traps.size(); i++)
+	{
+		for(unsigned int j = 0; j < activeObjects.size(); j++)
+		{
+			if(traps[i] == activeObjects[j])
+			{
+				activeObjects.erase(activeObjects.begin()+j);
+				break;
+			}
+		}
+	}
+
 	/*
 	for(unsigned int i = 0; i < numTraps(); i++)
 	{
@@ -1368,10 +1615,20 @@ void GameMap::clearTraps()
 void GameMap::addTrap(Trap *t)
 {
 	traps.push_back(t);
+	activeObjects.push_back(t);
 }
 
 void GameMap::removeTrap(Trap *t)
 {
+	for(unsigned int i = 0; i < activeObjects.size(); i++)
+	{
+		if(t == activeObjects[i])
+		{
+			activeObjects.erase(activeObjects.begin()+i);
+			break;
+		}
+	}
+
 	for(unsigned int i = 0; i < traps.size(); i++)
 	{
 		if(t == traps[i])
@@ -1651,6 +1908,81 @@ void GameMap::clearGoalsForAllSeats()
 	}
 }
 
+void GameMap::clearMissileObjects()
+{
+	for(unsigned int i = 0; i < missileObjects.size(); i++)
+	{
+		for(unsigned int j = 0; j < activeObjects.size(); j++)
+		{
+			if(missileObjects[i] == activeObjects[j])
+			{
+				activeObjects.erase(activeObjects.begin()+j);
+				break;
+			}
+		}
+
+		for(unsigned int j = 0; j < animatedObjects.size(); j++)
+		{
+			if(missileObjects[i] == animatedObjects[j])
+			{
+				animatedObjects.erase(animatedObjects.begin()+j);
+				break;
+			}
+		}
+	}
+
+	missileObjects.clear();
+}
+
+void GameMap::addMissileObject(MissileObject *m)
+{
+	missileObjects.push_back(m);
+	activeObjects.push_back(m);
+	animatedObjects.push_back(m);
+}
+
+void GameMap::removeMissileObject(MissileObject *m)
+{
+	for(unsigned int i = 0; i < activeObjects.size(); i++)
+	{
+		if(m == activeObjects[i])
+		{
+			activeObjects.erase(activeObjects.begin()+i);
+			break;
+		}
+	}
+
+	for(unsigned int i = 0; i < missileObjects.size(); i++)
+	{
+		if(m == missileObjects[i])
+		{
+			//TODO:  Loop over the tiles and make any whose coveringRoom variable points to this room point to NULL.
+			missileObjects.erase(missileObjects.begin()+i);
+			break;
+		}
+	}
+
+	for(unsigned int i = 0; i < animatedObjects.size(); i++)
+	{
+		if(m == animatedObjects[i])
+		{
+			animatedObjects.erase(animatedObjects.begin()+i);
+			break;
+		}
+	}
+}
+
+MissileObject* GameMap::getMissileObject(int index)
+{
+	return missileObjects[index];
+}
+
+unsigned int GameMap::numMissileObjects()
+{
+	return missileObjects.size();
+}
+
+
 double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 {
 	const double badValue = -1.0;
@@ -1834,7 +2166,7 @@ void GameMap::processDeletionQueues()
 {
 	long int turn = turnNumber.get();
 
-	cout << "\nProcessing deletion queues on turn " << turn << ":\n";
+	cout << "\nProcessing deletion queues on turn " << turn << ":  ";
 	long int latestTurnToBeRetired = -1;
 
 	// Lock the thread reference count map to prevent race conditions.
@@ -1862,8 +2194,6 @@ void GameMap::processDeletionQueues()
 	// Unlock the thread reference count map.
 	sem_post(&threadReferenceCountLockSemaphore);
 	
-	cout << "\nThe latest turn to be retired is " << latestTurnToBeRetired;
-
 	// If we did not find any turns which have no threads locking them we are safe to retire this turn.
 	if(latestTurnToBeRetired < 0)
 		return;

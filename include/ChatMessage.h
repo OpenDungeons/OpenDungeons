@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <string>
 #include <time.h>
-using namespace std;
 
 /*! \brief A data structure to store a chat message and its relevant time stamps.
  *
@@ -18,8 +17,8 @@ class ChatMessage
 {
 	public:
 		ChatMessage();
-		ChatMessage(string nNick, string nMessage, time_t nRecvTime, time_t nSendTime = 0);
-		string message, clientNick;
+		ChatMessage(std::string nNick, std::string nMessage, time_t nRecvTime, time_t nSendTime = 0);
+		std::string message, clientNick;
 		time_t sendTime, recvTime;
 };
 

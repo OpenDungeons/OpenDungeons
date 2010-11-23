@@ -6,13 +6,13 @@
 class GoalMineNGold : public Goal
 {
 	public:
-		GoalMineNGold(string nName, string nArguments);
+		GoalMineNGold(std::string nName, std::string nArguments);
 
 		// Inherited functions
 		bool isMet(Seat *s);
-		string getDescription();
-		string getSuccessMessage();
-		string getFailedMessage();
+		std::string getDescription();
+		std::string getSuccessMessage();
+		std::string getFailedMessage();
 
 	private:
 		int goldToMine;

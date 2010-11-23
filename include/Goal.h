@@ -2,7 +2,6 @@
 #define GOAL_H
 
 #include <string>
-using namespace std;
 
 class Seat;
 #include "Player.h"
@@ -11,13 +10,13 @@ class Goal
 {
 	public:
 		// Constructors
-		Goal(string nName, string nArguments);
+		Goal(std::string nName, std::string nArguments);
 
 		// Functions which must be overridden by child classes
 		virtual bool isMet(Seat *s) = 0;
-		virtual string getDescription() = 0;
-		virtual string getSuccessMessage() = 0;
-		virtual string getFailedMessage() = 0;
+		virtual std::string getDescription() = 0;
+		virtual std::string getSuccessMessage() = 0;
+		virtual std::string getFailedMessage() = 0;
 
 		// Functions which can be overridden (but do not have to be) by child classes
 		virtual void doSuccessAction();
@@ -26,15 +25,15 @@ class Goal
 		virtual bool isFailed(Seat *s);
 
 		// Functions which cannot be overridden by child classes
-		string getName();
+		std::string getName();
 
-		static string getFormat();
+		static std::string getFormat();
 		friend ostream& operator<<(ostream& os, Goal *g);
 		static Goal* instantiateFromStream(istream& is);
 
 	protected:
-		string name;
-		string arguments;
+		std::string name;
+		std::string arguments;
 };
 
 #include "Seat.h"

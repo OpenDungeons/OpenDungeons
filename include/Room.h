@@ -42,10 +42,11 @@ class Room : public AttackableObject, public ActiveObject
 
 		// Public data members
 		Player *controllingPlayer;  //TODO:  This should be a controlling seat rather than a player.
-		string name, meshName;
+		string meshName;
 		int color;
 
 		// Functions which can be overridden by child classes.
+		virtual void doUpkeep();
 		virtual void doUpkeep(Room *r);
 		
 		virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
@@ -54,6 +55,7 @@ class Room : public AttackableObject, public ActiveObject
 		std::vector<Tile*> getCoveredTiles();
 		virtual unsigned int numCoveredTiles();
 		virtual void clearCoveredTiles();
+		virtual bool tileIsPassable(Tile *t);
 
 		Tile* getCentralTile();
 
@@ -66,8 +68,11 @@ class Room : public AttackableObject, public ActiveObject
 		bool isMobile();
 		int getLevel();
 		int getColor();
-		string getName();
 		AttackableObject::AttackableObjectType getAttackableObjectType();
+
+		// Public data members
+		std::string name;
+		std::string getName() {return name;}
 
 	protected:
 		const static double defaultTileHP = 10.0;
