@@ -301,7 +301,13 @@ int Tile::getFullnessMeshNumber()
  */
 Tile::TileClearType Tile::getTilePassability()
 {
+	// Check to see if the tile is filled in.
 	if(fullness > 0.1)
+		return impassableTile;
+
+	//Check to see if there is a room with objects covering this tile preventing creatures from walking through it.
+	//FIXME: The second portion of this if statement throws a segfault.  Something is incorrectly setting the coveringRoom.
+	if(coveringRoom != NULL)// && !coveringRoom->tileIsPassable(this))
 		return impassableTile;
 
 	switch(type)
@@ -336,12 +342,14 @@ Tile::TileClearType Tile::getTilePassability()
 
 bool Tile::permitsVision()
 {
+	//TODO: This call to getTilePassability() is far too much work, when the rules for vision are more well established this function should be replaced with specialized code which avoids this call.
 	TileClearType clearType = getTilePassability();
 	if(clearType == walkableTile || clearType == flyableTile)
 		return true;
 	else
 		return false;
 }
+
 Room* Tile::getCoveringRoom()
 {
 	return coveringRoom;

@@ -520,12 +520,11 @@ void Creature::doTurn()
 								{
 									// Check to see if we found a worker.
 									if(reachableAlliedObjects[i]->getAttackableObjectType() == AttackableObject::creature && \
-											((Creature*)reachableAlliedObjects[i])->digRate > 0.1)
+											((Creature*)reachableAlliedObjects[i])->isWorker())
 									{
-										//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
 										tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
-										tempX = tempTile->x + 3.0*gaussianRandomDouble();
-										tempY = tempTile->y + 3.0*gaussianRandomDouble();
+										tempX = tempTile->x + 8.0*gaussianRandomDouble();
+										tempY = tempTile->y + 8.0*gaussianRandomDouble();
 										workerFound = true;
 									}
 
@@ -569,6 +568,21 @@ void Creature::doTurn()
 								}
 							}
 						}
+						else
+						{
+							// Workers shouldn't wander as often as other creatures so we re-roll to see if we still want to wander.
+							if(randomDouble(0.0, 1.0) < 0.1)
+							{
+								// Choose a tile far away from our current position to wander to.
+								tempTile = visibleTiles[randomUint(visibleTiles.size()/2, visibleTiles.size()-1)];
+								tempX = tempTile->x;
+								tempY = tempTile->y;
+							}
+							else
+							{
+								break;
+							}
+						}
 
 						Tile *tempPositionTile = positionTile();
 						std::list<Tile*> result;
@@ -581,12 +595,6 @@ void Creature::doTurn()
 						setAnimationState("Walk");
 						setWalkPath(result, 2, false);
 					}
-					else
-					{
-						// Remain idle
-						//setAnimationState("Idle");
-					}
-
 					break;
 
 				case CreatureAction::walkToTile:
@@ -1400,7 +1408,8 @@ void Creature::doLevelUp()
 */
 void Creature::updateVisibleTiles()
 {
-	double effectiveRadius = min(5.0, sightRadius) + sightRadius*powl(randomDouble(0.0, 1.0), 3.0);
+	//double effectiveRadius = min(5.0, sightRadius) + sightRadius*powl(randomDouble(0.0, 1.0), 3.0);
+	double effectiveRadius = sightRadius;
 	visibleTiles = gameMap.visibleTiles(positionTile(), effectiveRadius);
 }
 

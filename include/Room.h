@@ -55,6 +55,7 @@ class Room : public AttackableObject, public ActiveObject
 		std::vector<Tile*> getCoveredTiles();
 		virtual unsigned int numCoveredTiles();
 		virtual void clearCoveredTiles();
+		virtual bool tileIsPassable(Tile *t);
 
 		Tile* getCentralTile();
 

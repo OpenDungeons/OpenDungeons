@@ -60,7 +60,7 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, 
  */
 void Room::absorbRoom(Room *r)
 {
-	// Subclasses overriding this function can call this to do the generic stuff or they can reiplement it entirely.
+	// Subclasses overriding this function can call this to do the generic stuff or they can reimplement it entirely.
 	while(r->numCoveredTiles() > 0)
 	{
 		Tile *tempTile = r->getCoveredTile(0);
@@ -129,6 +129,11 @@ unsigned int Room::numCoveredTiles()
 void Room::clearCoveredTiles()
 {
 	coveredTiles.clear();
+}
+
+bool Room::tileIsPassable(Tile *t)
+{
+	return true;
 }
 
 Tile* Room::getCentralTile()
@@ -307,6 +312,7 @@ istream& operator>>(istream& is, Room *r)
 		if(tempTile != NULL)
 		{
 			r->addCoveredTile(tempTile);
+
 			//FIXME: This next line will not be necessary when the the tile color is properly set by the tile load routine.
 			tempTile->color = r->color;
 			tempTile->colorDouble = 1.0;
