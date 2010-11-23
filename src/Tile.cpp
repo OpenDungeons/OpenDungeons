@@ -91,7 +91,7 @@ void Tile::setFullness(int f)
 
 		//Play block destroy sound
 		//TODO - play this if it's marked for any player.
-		//SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
+		SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
 	}
 
 	/*

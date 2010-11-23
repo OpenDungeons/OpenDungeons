@@ -46,7 +46,7 @@ void MapEditor::createScene(void)
 	//OgreOggSound::OgreOggSoundManager::getSingleton().setMasterVolume(10);
 	assert(SoundEffectsHelper::getSingletonPtr() == 0);
 	std::cout << "Creating sf helper" << std::endl;
-	//new SoundEffectsHelper();
+	new SoundEffectsHelper();
 
 	// Turn on shadows
 	//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
