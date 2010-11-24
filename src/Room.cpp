@@ -382,12 +382,12 @@ int Room::costPerTile(RoomType t)
 	switch(t)
 	{
 		case nullRoomType:      return 0;         break;
-		case dungeonTemple:     return 10000;     break; 
-		case vein:              return 25;        break; 
-		case quarters:          return 250;       break; 
-		case treasury:          return 125;       break;
+		case dungeonTemple:     return 0;         break; 
 		case portal:            return 0;         break;
-		case forge:             return 500;       break;
+		case vein:              return 25;        break; 
+		case quarters:          return 75;        break; 
+		case treasury:          return 25;        break;
+		case forge:             return 150;       break;
 	}
 
 	return 0;

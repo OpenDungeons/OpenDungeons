@@ -124,6 +124,7 @@ class Creature : public CreatureClass, public AttackableObject
 		std::list<Tile*> visualDebugEntityTiles;
 		Field *battleField;
 		bool meshesExist;
+		double awakeness;
 
 		OgreOggSound::OgreOggISound* attackSound;
 };

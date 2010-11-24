@@ -33,10 +33,12 @@ Creature::Creature()
 	sem_wait(&hpLockSemaphore);
 	hp = 10;
 	sem_post(&hpLockSemaphore);
+
 	sem_init(&manaLockSemaphore, 0, 1);
 	sem_wait(&manaLockSemaphore);
 	mana = 10;
 	sem_post(&manaLockSemaphore);
+
 	maxHP = 10;
 	maxMana = 10;
 	hpPerLevel = 0.0;
@@ -62,6 +64,8 @@ Creature::Creature()
 
 	attackSound = OgreOggSound::OgreOggSoundManager::getSingletonPtr()
 			->createSound("attackSound" + Ogre::StringConverter::toString(uniqueId++), "Sword/SwordBlock01.ogg");
+
+	awakeness = 100.0;
 }
 
 /*  This function causes a segfault in Creature::doTurn() when computeBattlefield() is called.
@@ -390,6 +394,8 @@ void Creature::doTurn()
 		mana = maxMana;
 	sem_post(&manaLockSemaphore);
 
+	awakeness -= 0.25;
+
 	// Check to see if we have earned enough experience to level up.
 	while(exp >= 5*level + 5*powl(level/3.0, 2))
 		doLevelUp();
@@ -444,6 +450,13 @@ void Creature::doTurn()
 			tempAction.type = CreatureAction::findHome;
 			actionQueue.push_front(tempAction);
 		}
+	}
+
+	// If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
+	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 1.0), 1.5) > awakeness)
+	{
+		tempAction.type = CreatureAction::sleep;
+		actionQueue.push_front(tempAction);
 	}
 
 	// The loopback variable allows creatures to begin processing a new
@@ -1163,6 +1176,31 @@ claimTileBreakStatement:
 					loopBack = true;
 					break;
 
+				case CreatureAction::sleep:
+					myTile = positionTile();
+					if(myTile != homeTile)
+					{
+						// Walk to the the home tile.
+						tempPath = gameMap.path(myTile, homeTile, tilePassability);
+						gameMap.cutCorners(tempPath, tilePassability);
+						setAnimationState("Walk");
+						setWalkPath(tempPath, 2, false);
+					}
+					else
+					{
+						// We are at the home tile so sleep.
+						setAnimationState("Sleep");
+						awakeness += 4.0;
+						if(awakeness > 100.0)
+						{
+							awakeness = 100.0;
+							actionQueue.pop_front();
+						}
+
+					}
+
+					break;
+
 				case CreatureAction::attackObject:
 					// If there are no more enemies which are reachable, stop attacking
 					if(reachableEnemyObjects.size() == 0)
@@ -1202,6 +1240,7 @@ claimTileBreakStatement:
 						tempAttackableObject->takeDamage(damageDone, tempTile);
 						double expGained;
 						expGained = 1.0 + 0.2*powl(damageDone, 1.3);
+						awakeness -= 0.5;
 
 						// Give a small amount of experince to the creature we hit.
 						tempAttackableObject->recieveExp(0.15*expGained);
@@ -1444,13 +1483,12 @@ std::vector<AttackableObject*> Creature::getReachableAttackableObjects(const std
 		// Try to find a valid path from the tile this creature is in to the nearest tile where the current target object is.
 		//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
 		objectTile = objectsToCheck[i]->getCoveredTiles()[0];
-		tempPath = gameMap.path(myTile, objectTile, tilePassability);
-
-		// If the path we found is valid, then add the creature to the ones we return.
-		if(tempPath.size() >= 2)
+		if(gameMap.pathExists(myTile->x, myTile->y, objectTile->x, objectTile->y, tilePassability))
 		{
 			tempVector.push_back(objectsToCheck[i]);
 
+			//TODO:  If this could be computed without the path call that would be better.
+			tempPath = gameMap.path(myTile, objectTile, tilePassability);
 			if(minRange != NULL)
 			{
 				if(!minRangeSet)
