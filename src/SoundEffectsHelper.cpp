@@ -29,13 +29,13 @@ SoundEffectsHelper::SoundEffectsHelper()
 {
 	// TODO Auto-generated constructor stub
 	const Ogre::String digFolder = "RocksFalling/";
-	digSounds.push_back(soundManager.createSound("dig1", digFolder + "Rocks\ Falling01.ogg"));
-	digSounds.push_back(soundManager.createSound("dig2", digFolder + "Rocks\ Falling02.ogg"));
-	digSounds.push_back(soundManager.createSound("dig3", digFolder + "Rocks\ Falling03.ogg"));
-	digSounds.push_back(soundManager.createSound("dig4", digFolder + "Rocks\ Falling04.ogg"));
-	digSounds.push_back(soundManager.createSound("dig5", digFolder + "Rocks\ Falling05.ogg"));
-	digSounds.push_back(soundManager.createSound("dig6", digFolder + "Rocks\ Falling06.ogg"));
-	digSounds.push_back(soundManager.createSound("dig7", digFolder + "Rocks\ Falling07.ogg"));
+	digSounds.push_back(soundManager.createSound("dig1", digFolder + "RocksFalling01.ogg"));
+	digSounds.push_back(soundManager.createSound("dig2", digFolder + "RocksFalling02.ogg"));
+	digSounds.push_back(soundManager.createSound("dig3", digFolder + "RocksFalling03.ogg"));
+	digSounds.push_back(soundManager.createSound("dig4", digFolder + "RocksFalling04.ogg"));
+	digSounds.push_back(soundManager.createSound("dig5", digFolder + "RocksFalling05.ogg"));
+	digSounds.push_back(soundManager.createSound("dig6", digFolder + "RocksFalling06.ogg"));
+	digSounds.push_back(soundManager.createSound("dig7", digFolder + "RocksFalling07.ogg"));
 }
 
 SoundEffectsHelper::~SoundEffectsHelper() {
