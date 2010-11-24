@@ -1258,7 +1258,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				for(unsigned int i = 0; i < gameMap.me->seat->numGoals(); i++)
 				{
 					Goal *tempGoal = gameMap.me->seat->getGoal(i);
-					tempSS << tempGoal->getName() << ":  " << tempGoal->getDescription() << "\n";
+					tempSS << tempGoal->getDescription() << "\n";
 				}
 			}
 
@@ -1269,7 +1269,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); i++)
 				{
 					Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
-					tempSS << tempGoal->getName() << ":  " << tempGoal->getSuccessMessage() << "\n";
+					tempSS << tempGoal->getSuccessMessage() << "\n";
 				}
 			}
 
@@ -1280,7 +1280,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				for(unsigned int i = 0; i < gameMap.me->seat->numFailedGoals(); i++)
 				{
 					Goal *tempGoal = gameMap.me->seat->getFailedGoal(i);
-					tempSS << tempGoal->getName() << ":  " << tempGoal->getFailedMessage() << "\n";
+					tempSS << tempGoal->getFailedMessage() << "\n";
 				}
 			}
 
