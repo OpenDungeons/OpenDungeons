@@ -847,6 +847,50 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 	return amountClaimed;
 }
 
+double Tile::digOut(double digRate)
+{
+	double amountDug = 0.0;
+
+	if(!(type == dirt || type == gold) || fullness <= 0)
+		return 0.0;
+
+	if(digRate >= fullness)
+	{
+		amountDug = fullness;
+		setFullness(0.0);
+	}
+	else
+	{
+		amountDug = digRate;
+		setFullness(fullness - digRate);
+	}
+
+	// Force all the neighbors to recheck their meshes as we may have exposed
+	// a new side that was not visible before.
+	for(unsigned int j = 0; j < neighbors.size(); j++)
+	{
+		neighbors[j]->setFullness(neighbors[j]->getFullness());
+	}
+
+	if(amountDug > 0.0 && amountDug < digRate)
+	{
+		double amountToDig = digRate - amountDug;
+		if(amountToDig < 0.05)
+			return amountDug;
+
+		amountToDig /= (double)neighbors.size();
+		for(unsigned int j = 0; j < neighbors.size(); j++)
+		{
+			if(neighbors[j]->getType() == dirt)
+				amountDug += neighbors[j]->digOut(amountToDig);
+		}
+
+	}
+	
+
+	return amountDug;
+}
+
 Tile* Tile::getNeighbor(unsigned int index)
 {
 	return neighbors[index];

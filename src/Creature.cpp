@@ -851,7 +851,9 @@ claimTileBreakStatement:
 							// If the tile is a gold tile accumulate gold for this creature.
 							if(creatureNeighbors[i]->getType() == Tile::gold)
 							{
-								gold += 25*min(digRate/2.5, (double)creatureNeighbors[i]->getFullness());
+								tempDouble = 5*min(digRate, (double)creatureNeighbors[i]->getFullness());
+								gold += tempDouble;
+								gameMap.getSeatByColor(color)->goldMined += tempDouble;
 								recieveExp(5.0*digRate/20.0);
 							}
 
@@ -860,28 +862,20 @@ claimTileBreakStatement:
 
 							// Dig out the tile by decreasing the tile's fullness.
 							setAnimationState("Dig");
-							creatureNeighbors[i]->setFullness(max(0.0, creatureNeighbors[i]->getFullness()-digRate));
+							creatureNeighbors[i]->digOut(digRate);
 							recieveExp(1.5*digRate/20.0);
 
-							// Force all the neighbors to recheck their meshes as we may have exposed
-							// a new side that was not visible before.
-							neighbors = gameMap.neighborTiles(creatureNeighbors[i]);
-							for(unsigned int j = 0; j < neighbors.size(); j++)
-							{
-								neighbors[j]->setFullness(neighbors[j]->getFullness());
-							}
-
-							// If the tile has been dug out, move into that tile and idle
+							// If the tile has been dug out, move into that tile and try to continue digging.
 							if(creatureNeighbors[i]->getFullness() == 0)
 							{
-								recieveExp(0.5);
-								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
+								recieveExp(2.5);
 								creatureNeighbors[i]->setType(Tile::dirt);
 								setAnimationState("Walk");
 
 								// Remove the dig action and replace it with
 								// walking to the newly dug out tile.
-								actionQueue.pop_front();
+								//actionQueue.pop_front();
+								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
 								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 							}
 
@@ -1188,6 +1182,7 @@ claimTileBreakStatement:
 						// Turn to face the creature we are attacking and set the animation state to Attack.
 						//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
 						tempTile = tempAttackableObject->getCoveredTiles()[0];
+						clearDestinations();
 						faceToward(tempTile->x, tempTile->y);
 						setAnimationState("Attack1");
 
@@ -1378,6 +1373,9 @@ double Creature::getDefense()
 
 void Creature::doLevelUp()
 {
+	if(level >= 100)
+		return;
+
 	level++;
 	cout << "\n\n" << name << " has reached level " << level << "\n\n";
 
@@ -1395,10 +1393,10 @@ void Creature::doLevelUp()
 	maxMana += manaPerLevel;
 
 	// Scale up the mesh.
-	if(meshesExist && level < 100 && (level % 2) == 0)
+	if( meshesExist && ((level <= 30 && level%2 == 0) || (level > 30 && level%3 == 0)) )
 	{
 		double scaleFactor = 1.0 + level/250.0;
-		if(scaleFactor > 1.04)  scaleFactor = 1.04;
+		if(scaleFactor > 1.03)  scaleFactor = 1.04;
 		RenderRequest *request = new RenderRequest;
 		request->type = RenderRequest::scaleSceneNode;
 		request->p = sceneNode;

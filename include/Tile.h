@@ -78,6 +78,7 @@ class Tile
 		std::vector<Tile*> getAllNeighbors();
 
 		double claimForColor(int nColor, double nDanceRate);
+		double digOut(double digRate);
 
 		Room* getCoveringRoom();
 		void setCoveringRoom(Room *r);

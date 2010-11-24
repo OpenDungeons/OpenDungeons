@@ -12,7 +12,7 @@ GoalMineNGold::GoalMineNGold(string nName, string nArguments)
 
 bool GoalMineNGold::isMet(Seat *s)
 {
-	if(s->gold >= goldToMine)
+	if(s->goldMined >= goldToMine)
 		return true;
 	else
 		return false;
@@ -21,7 +21,7 @@ bool GoalMineNGold::isMet(Seat *s)
 string GoalMineNGold::getDescription()
 {
 	std::stringstream tempSS;
-	tempSS << "Mined " << gameMap.me->seat->gold << " of " << goldToMine << " gold coins.";
+	tempSS << "Mined " << gameMap.me->seat->goldMined << " of " << goldToMine << " gold coins.";
 	return tempSS.str();
 }
 

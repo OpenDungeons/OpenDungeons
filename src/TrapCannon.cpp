@@ -37,6 +37,7 @@ bool TrapCannon::doUpkeep()
 		// Begin the reload countdown.
 		reloadTimeCounter = reloadTime;
 
+		/*
 		// Create the cannonball to move toward the enemy creature.
 		MissileObject *tempMissileObject = new MissileObject("Cannonball", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, cannonHeight));
 		tempMissileObject->setMoveSpeed(8.0);
@@ -44,6 +45,9 @@ bool TrapCannon::doUpkeep()
 		//TODO: Make this a pseudo newtonian mechanics solver which computes a parabola passing through the cannon and the enemy it is shooting at, add this as 10 or so destinations in the queue instead of just one.
 		tempMissileObject->addDestination(targetEnemy->getCoveredTiles()[0]->x, targetEnemy->getCoveredTiles()[0]->y, cannonHeight);
 		gameMap.addMissileObject(tempMissileObject);
+		*/
 	}
+
+	return true;
 }
 

@@ -5,7 +5,8 @@ Seat::Seat()
 	mana = 1000;
 	manaDelta = 0;
 	hp = 1000;
-	gold = 500;
+	gold = 0;
+	goldMined = 0;
 	numClaimedTiles = 0;
 	sem_init(&goalsLockSemaphore, 0, 1);
 	sem_init(&completedGoalsLockSemaphore, 0, 1);

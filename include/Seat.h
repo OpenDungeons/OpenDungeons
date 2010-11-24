@@ -41,6 +41,7 @@ class Seat
 		double manaDelta;	/**< \brief The amount of 'keeper mana' the player gains/loses per turn, updated in GameMap::doTurn(). */
 		double hp;		/**< \brief The amount of 'keeper HP' the player has. */
 		int gold;		/**< \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart. */
+		int goldMined;		/**< \brief The total amount of gold coins mined by workers under this seat's control. */
 		unsigned int numClaimedTiles;	/**< \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn(). */
 		int numCreaturesControlled;
 		double factionHumans;
