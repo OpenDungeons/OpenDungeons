@@ -64,6 +64,12 @@ class GameMap
 		AnimatedObject* getAnimatedObject(int index);
 		unsigned int numAnimatedObjects();
 
+		//void clearActiveObjects();
+		void addActiveObject(ActiveObject *a);
+		void removeActiveObject(ActiveObject *a);
+		//ActiveObject* getActiveObject(int index);
+		//unsigned int numActiveObjects();
+
 		void clearClasses();
 		void addClassDescription(CreatureClass c);
 		void addClassDescription(CreatureClass *c);
@@ -179,6 +185,7 @@ class GameMap
 		sem_t creaturesLockSemaphore;  //TODO: Most of these other vectors should also probably have semaphore locks on them.
 		std::vector<AnimatedObject*> animatedObjects;
 		sem_t animatedObjectsLockSemaphore;
+		sem_t activeObjectsLockSemaphore;
 		std::vector<Player*> players;
 		std::vector<Room*> rooms;
 		std::vector<Trap*> traps;

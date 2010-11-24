@@ -405,7 +405,7 @@ void Creature::doTurn()
 	enemyObjectsInRange = getEnemyObjectsInRange(visibleEnemyObjects);
 	visibleAlliedObjects = getVisibleAlliedObjects();
 	reachableAlliedObjects = getReachableAttackableObjects(visibleAlliedObjects, &rangeToNearestAlliedObject, &nearestAlliedObject);
-	if(digRate > 0.1)
+	if(isWorker())
 		markedTiles = getVisibleMarkedTiles();
 
 	// If the creature can see enemies that are reachable.
@@ -479,22 +479,22 @@ void Creature::doTurn()
 					// Workers only.
 					if(isWorker())
 					{
-						// Decide to check for clamiable tiles
-						if(diceRoll < 0.2 && danceRate > 0.1)
-						{
-							loopBack = true;
-							actionQueue.push_front(CreatureAction(CreatureAction::claimTile));
-						}
-
 						// Decide to check for diggable tiles
-						else if(diceRoll < 0.4 && digRate > 0.1)
+						if(diceRoll < 0.5)
 						{
 							loopBack = true;
 							actionQueue.push_front(CreatureAction(CreatureAction::digTile));
 						}
 
+						// Decide to check for clamiable tiles
+						else if(diceRoll < 0.9)
+						{
+							loopBack = true;
+							actionQueue.push_front(CreatureAction(CreatureAction::claimTile));
+						}
+
 						// Decide to deposit the gold we are carrying into a treasury.
-						else if(diceRoll < 0.4+0.6*(gold/(double)maxGoldCarriedByWorkers) && digRate > 0.1)
+						else if(diceRoll < 0.7+0.6*(gold/(double)maxGoldCarriedByWorkers))
 						{
 							loopBack = true;
 							actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
@@ -521,7 +521,7 @@ void Creature::doTurn()
 							// Check to see if we want to try to follow a worker around or if we want to try to explore.
 							double r = randomDouble(0.0, 1.0);
 							if(creatureJob == weakFighter) r -= 0.2;
-							if(r < 0.5)
+							if(r < 0.7)
 							{
 								// Try to find a worker to follow around.
 								for(unsigned int i = 0; i < reachableAlliedObjects.size(); i++)
@@ -881,6 +881,7 @@ claimTileBreakStatement:
 					if(wasANeighbor)
 						break;
 
+					/*
 					// Randomly decide to stop digging with a larger probability
 					if(randomDouble(0.0, 1.0) < 0.1)
 					{
@@ -888,6 +889,7 @@ claimTileBreakStatement:
 						actionQueue.pop_front();
 						goto claimTileBreakStatement;
 					}
+					*/
 
 					// Find paths to all of the neighbor tiles for all of the marked visible tiles.
 					possiblePaths.clear();
@@ -1264,9 +1266,7 @@ claimTileBreakStatement:
 					// Prepare the battlefield so we can decide where to move.
 					computeBattlefield();
 
-					cout << "\n\nMy name is " << name << "\tbattlefield score is " << battleField->get(myTile->x, myTile->y).first;
-
-					// Find location on the battlefield, we try to find a minumum if we are
+					// Find a location on the battlefield to move to, we try to find a minumum if we are
 					// trying to "attack" and a maximum if we are trying to "retreat".
 					if(battleField->get(myTile->x, myTile->y).first > 0.0)
 					{
@@ -1367,6 +1367,7 @@ void Creature::doLevelUp()
 	}
 	cout << "New dig rate: " << digRate << "\tnew dance rate: " << danceRate << "\n\n";
 
+	moveSpeed += 0.4/(level+2.0);
 	//if(digRate > 60)  digRate = 60;
 
 	maxHP += hpPerLevel;

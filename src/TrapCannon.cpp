@@ -14,12 +14,12 @@ TrapCannon::TrapCannon()
 	cannonHeight = 1.5;
 }
 
-void TrapCannon::doUpkeep()
+bool TrapCannon::doUpkeep()
 {
 	if(reloadTimeCounter > 0)
 	{
 		reloadTimeCounter--;
-		return;
+		return true;
 	}
 		
 	std::vector<Tile*> visibleTiles = gameMap.visibleTiles(coveredTiles[0], range);

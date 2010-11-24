@@ -55,10 +55,10 @@ void RoomQuarters::absorbRoom(Room *r)
 	}
 }
 
-void RoomQuarters::doUpkeep(Room *r)
+bool RoomQuarters::doUpkeep(Room *r)
 {
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
-	Room::doUpkeep(this);
+	return Room::doUpkeep(this);
 }
 
 void RoomQuarters::addCoveredTile(Tile* t, double nHP)

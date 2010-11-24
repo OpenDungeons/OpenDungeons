@@ -1,6 +1,7 @@
 #include "ActiveObject.h"
 
-void ActiveObject::doUpkeep()
+bool ActiveObject::doUpkeep()
 {
+	return true;
 }
 

@@ -791,7 +791,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 {
 	double amountClaimed;
 
-	if(!(type == dirt || type == claimed))
+	if(!(type == dirt || type == claimed) || fullness > 0)
 		return 0.0;
 
 	if(nColor == color)
@@ -820,9 +820,19 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 		}
 	}
 
+	if(amountClaimed > 0.0 && claimLight == NULL)
+	{
+		claimLight = new TemporaryMapLight(Ogre::Vector3(x,y,0.5), 0.2, 0.4, 0.3, 1.0, 0.1, 0.5, 0.5);
+		gameMap.addMapLight(claimLight);
+		claimLight->createOgreEntity();
+	}
+
 	if(amountClaimed > 0.0 && amountClaimed < nDanceRate)
 	{
 		double amountToClaim = nDanceRate - amountClaimed;
+		if(amountToClaim < 0.05)
+			return amountClaimed;
+
 		neighbors = gameMap.neighborTiles(this);
 		amountToClaim /= (double)neighbors.size();
 		for(unsigned int j = 0; j < neighbors.size(); j++)

@@ -24,6 +24,7 @@ GameMap::GameMap()
 	sem_init(&threadReferenceCountLockSemaphore, 0, 1);
 	sem_init(&creaturesLockSemaphore, 0, 1);
 	sem_init(&animatedObjectsLockSemaphore, 0, 1);
+	sem_init(&activeObjectsLockSemaphore, 0, 1);
 	sem_init(&tilesLockSemaphore, 0, 1);
 	tileCoordinateMap = new TileCoordinateMap(100);
 }
@@ -498,6 +499,37 @@ unsigned int GameMap::numAnimatedObjects()
 	return tempUnsigned;
 }
 
+//void GameMap::clearActiveObjects()
+
+void GameMap::addActiveObject(ActiveObject *a)
+{
+	sem_wait(&activeObjectsLockSemaphore);
+	activeObjects.push_back(a);
+	sem_post(&activeObjectsLockSemaphore);
+}
+
+void GameMap::removeActiveObject(ActiveObject *a)
+{
+	sem_wait(&activeObjectsLockSemaphore);
+
+	// Loop over the activeObjects looking for activeObject a
+	for(unsigned int i = 0; i < activeObjects.size(); i++)
+	{
+		if(a == activeObjects[i])
+		{
+			// ActiveObject found
+			activeObjects.erase(activeObjects.begin()+i);
+			break;
+		}
+	}
+
+	sem_post(&activeObjectsLockSemaphore);
+}
+
+//ActiveObject* GameMap::getActiveObject(int index)
+
+//unsigned int GameMap::numActiveObjects()
+
 /*! \brief Returns the total number of class descriptions stored in this game map.
  *
  */
@@ -752,10 +784,20 @@ void GameMap::doTurn()
 	sem_post(&tilesLockSemaphore);
 	
 	// Carry out the upkeep round of all the active objects in the game.
-	for(unsigned int i = 0; i < activeObjects.size(); i++)
+	sem_wait(&activeObjectsLockSemaphore);
+	unsigned int activeObjectCount = 0;
+	while(activeObjectCount < activeObjects.size())
 	{
-		activeObjects[i]->doUpkeep();
+		if(!activeObjects[activeObjectCount]->doUpkeep())
+		{
+			activeObjects.erase(activeObjects.begin()+activeObjectCount);
+		}
+		else
+		{
+			activeObjectCount++;
+		}
 	}
+	sem_post(&activeObjectsLockSemaphore);
 
 	// Remove empty rooms from the GameMap.
 	//NOTE:  The auto-increment on this loop is canceled by a decrement in the if statement, changes to the loop structure will need to keep this consistent.
@@ -1498,19 +1540,9 @@ void GameMap::clearRooms()
 {
 	for(unsigned int i = 0; i < rooms.size(); i++)
 	{
-		for(unsigned int j = 0; j < activeObjects.size(); j++)
-		{
-			if(rooms[i] == activeObjects[j])
-			{
-				activeObjects.erase(activeObjects.begin()+j);
-				break;
-			}
-		}
-	}
-
-	for(unsigned int i = 0; i < numRooms(); i++)
-	{
-		getRoom(i)->deleteYourself();
+		Room *tempRoom = getRoom(i);
+		removeActiveObject(tempRoom);
+		tempRoom->deleteYourself();
 	}
 
 	rooms.clear();
@@ -1522,19 +1554,12 @@ void GameMap::clearRooms()
 void GameMap::addRoom(Room *r)
 {
 	rooms.push_back(r);
-	activeObjects.push_back(r);
+	addActiveObject(r);
 }
 
 void GameMap::removeRoom(Room *r)
 {
-	for(unsigned int i = 0; i < activeObjects.size(); i++)
-	{
-		if(r == activeObjects[i])
-		{
-			activeObjects.erase(activeObjects.begin()+i);
-			break;
-		}
-	}
+	removeActiveObject(r);
 
 	for(unsigned int i = 0; i < rooms.size(); i++)
 	{
@@ -1592,14 +1617,7 @@ void GameMap::clearTraps()
 {
 	for(unsigned int i = 0; i < traps.size(); i++)
 	{
-		for(unsigned int j = 0; j < activeObjects.size(); j++)
-		{
-			if(traps[i] == activeObjects[j])
-			{
-				activeObjects.erase(activeObjects.begin()+j);
-				break;
-			}
-		}
+		removeActiveObject(traps[i]);
 	}
 
 	/*
@@ -1615,19 +1633,12 @@ void GameMap::clearTraps()
 void GameMap::addTrap(Trap *t)
 {
 	traps.push_back(t);
-	activeObjects.push_back(t);
+	addActiveObject(t);
 }
 
 void GameMap::removeTrap(Trap *t)
 {
-	for(unsigned int i = 0; i < activeObjects.size(); i++)
-	{
-		if(t == activeObjects[i])
-		{
-			activeObjects.erase(activeObjects.begin()+i);
-			break;
-		}
-	}
+	removeActiveObject(t);
 
 	for(unsigned int i = 0; i < traps.size(); i++)
 	{
@@ -1694,6 +1705,11 @@ void GameMap::clearMapLightIndicators()
 void GameMap::addMapLight(MapLight *m)
 {
 	mapLights.push_back(m);
+
+	if(!m->isPermanent())
+	{
+		addActiveObject((TemporaryMapLight*)m);
+	}
 }
 
 MapLight* GameMap::getMapLight(int index)
@@ -1912,14 +1928,7 @@ void GameMap::clearMissileObjects()
 {
 	for(unsigned int i = 0; i < missileObjects.size(); i++)
 	{
-		for(unsigned int j = 0; j < activeObjects.size(); j++)
-		{
-			if(missileObjects[i] == activeObjects[j])
-			{
-				activeObjects.erase(activeObjects.begin()+j);
-				break;
-			}
-		}
+		removeActiveObject(missileObjects[i]);
 
 		for(unsigned int j = 0; j < animatedObjects.size(); j++)
 		{
@@ -1937,20 +1946,13 @@ void GameMap::clearMissileObjects()
 void GameMap::addMissileObject(MissileObject *m)
 {
 	missileObjects.push_back(m);
-	activeObjects.push_back(m);
+	addActiveObject(m);
 	animatedObjects.push_back(m);
 }
 
 void GameMap::removeMissileObject(MissileObject *m)
 {
-	for(unsigned int i = 0; i < activeObjects.size(); i++)
-	{
-		if(m == activeObjects[i])
-		{
-			activeObjects.erase(activeObjects.begin()+i);
-			break;
-		}
-	}
+	removeActiveObject(m);
 
 	for(unsigned int i = 0; i < missileObjects.size(); i++)
 	{

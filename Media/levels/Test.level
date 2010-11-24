@@ -9901,12 +9901,12 @@ Kreatur	StrongFighter	Kreatur.mesh	Bed.mesh	4	4	1	1	1	5	5	15	0	0	1	0	1	0	0	0	-1	
 # Creatures
 39  # The number of creatures to load.
 # className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana
-Kobold	Kob	-3	2	0	1	none	5	4	0	none	8	3	0	125	3
+Kobold	Kob	-13	16	0	1	none	5	4	0	none	8	3	0	125	3
 Kobold	Kobold	-5	2	0	1	none	5	4	0	none	8	3	0	125	3
-Knight	Kobold_012	-8	7	0	1	Roundshield	0	0	5	Longsword	14	3	0	125	3
-Knight	Kobold_007	-7	5	0	1	none	5	4	0	none	8	3	0	125	3
-Knight	Kobold_009	-14	-115	0	1	none	5	4	0	none	8	3	0	125	3
-Knight	Kobold_011	-7	13	0	1	none	5	4	0	none	8	3	0	125	3
+Kobold	Kobold_012	-12	0	0	1	Roundshield	0	0	5	Longsword	14	3	0	125	3
+Kobold	Kobold_007	-7	18	0	1	none	5	4	0	none	8	3	0	125	3
+Kobold	Kobold_009	-15	4	0	1	none	5	4	0	none	8	3	0	125	3
+Kobold	Kobold_011	-7	13	0	1	none	5	4	0	none	8	3	0	125	3
 BigKnight	King	-9	16	0	1	Roundshield	0	0	5	Sabre	10	3	7	180	10
 Knight	Knight_005	29	-62	0	1	Roundshield	0	0	5	Longsword	14	3	0	155	2
 Knight	Knight_004	-7	-4	0	1	Longsword	7	4	0	none	8	3	0	155	2

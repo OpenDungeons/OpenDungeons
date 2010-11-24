@@ -46,8 +46,8 @@ class Room : public AttackableObject, public ActiveObject
 		int color;
 
 		// Functions which can be overridden by child classes.
-		virtual void doUpkeep();
-		virtual void doUpkeep(Room *r);
+		virtual bool doUpkeep();
+		virtual bool doUpkeep(Room *r);
 		
 		virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
 		virtual void removeCoveredTile(Tile* t);

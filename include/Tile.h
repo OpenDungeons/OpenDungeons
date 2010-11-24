@@ -18,6 +18,7 @@ class Room;
 #include "RenderRequest.h"
 #include "Room.h"
 #include "SoundEffectsHelper.h"
+#include "MapLight.h"
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -105,6 +106,7 @@ class Tile
 		sem_t creaturesInCellLockSemaphore;
 		std::vector<Player*> playersMarkingTile;
 		Room *coveringRoom;
+		MapLight *claimLight;
 };
 
 

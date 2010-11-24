@@ -5,7 +5,7 @@
 #define VERSION       "0.4.5"
 #define PORT_NUMBER		 31222		// Both of these lines should be the same number
 #define PORT_NUMBER_STRING	"31222"		// Both of these lines should be the same number
-#define DEFAULT_FRAMES_PER_SECOND	30.0
+#define DEFAULT_FRAMES_PER_SECOND	60.0
 
 #define HELP_MESSAGE	"\
 The console is a way of interacting with the underlying game engine directly.  \

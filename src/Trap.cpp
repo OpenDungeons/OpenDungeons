@@ -152,13 +152,14 @@ string Trap::getMeshName()
 	return meshName;
 }
 
-void Trap::doUpkeep()
+bool Trap::doUpkeep()
 {
-	doUpkeep(this);
+	return doUpkeep(this);
 }
 
-void Trap::doUpkeep(Trap *t)
+bool Trap::doUpkeep(Trap *t)
 {
+	return true;
 }
 
 void Trap::addCoveredTile(Tile* t, double nHP)

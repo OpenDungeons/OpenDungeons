@@ -10,7 +10,9 @@ using namespace std;
 class MapLight
 {
 	public:
+		void initialize();
 		MapLight();
+		MapLight(Ogre::Vector3 nPosition, double red, double green, double blue, double range, double constant, double linear, double quadratic);
 
 		void setLocation(Ogre::Vector3 nPosition);
 		void setDiffuseColor(double red, double green, double blue);
@@ -34,6 +36,8 @@ class MapLight
 		double getAttenuationQuadratic();
 
 		void advanceFlicker(double time);
+
+		virtual bool isPermanent();
 
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, MapLight *m);
@@ -60,6 +64,19 @@ class MapLight
 		int factorX;
 		int factorY;
 		int factorZ;
+};
+
+class TemporaryMapLight : public MapLight, public ActiveObject
+{
+	public:
+		TemporaryMapLight(Ogre::Vector3 nPosition, double red, double green, double blue, double range, double constant, double linear, double quadratic);
+		bool isPermanent();
+
+		bool doUpkeep();
+
+	protected:
+		int turnsUntilDestroyed;
+		int originalTurnsUntilDestroyed;
 };
 
 #endif

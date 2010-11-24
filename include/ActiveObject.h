@@ -4,7 +4,7 @@
 class ActiveObject
 {
 	public:
-		virtual void doUpkeep();
+		virtual bool doUpkeep();
 };
 
 #endif

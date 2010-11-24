@@ -5,7 +5,7 @@
 #include "MapLight.h"
 #include "RenderRequest.h"
 
-MapLight::MapLight()
+void MapLight::initialize()
 {
 	static unsigned int lightNumber = 1;
 
@@ -23,6 +23,21 @@ MapLight::MapLight()
 	factorZ = 1;
 
 	lightNumber++;
+}
+
+MapLight::MapLight()
+{
+	initialize();
+}
+
+MapLight::MapLight(Ogre::Vector3 nPosition, double red, double green, double blue, double range, double constant, double linear, double quadratic)
+{
+	initialize();
+
+	setPosition(nPosition);
+	setDiffuseColor(red, green, blue);
+	setSpecularColor(red, green, blue);
+	setAttenuation (range, constant, linear, quadratic);
 }
 
 void MapLight::setLocation(Ogre::Vector3 nPosition)
@@ -200,6 +215,11 @@ void MapLight::advanceFlicker(double time)
 	queueRenderRequest(request);
 }
 
+bool MapLight::isPermanent()
+{
+	return true;
+}
+
 string MapLight::getFormat()
 {
         return "posX\tposY\tposZ\tdiffuseR\tdiffuseG\tdiffuseB\tspecularR\tspecularG\tspecularB\tattenRange\tattenConst\tattenLin\tattenQuad";
@@ -225,5 +245,29 @@ istream& operator>>(istream& is, MapLight *m)
 	is >> m->attenuationLinear >> m->attenuationQuadratic;
 
 	return is;
+}
+
+TemporaryMapLight::TemporaryMapLight(Ogre::Vector3 nPosition, double red, double green, double blue, double range, double constant, double linear, double quadratic)
+	: MapLight(nPosition, red, green, blue, range, constant, linear, quadratic)
+{
+	turnsUntilDestroyed = turnsUntilDestroyed = 2;
+}
+
+bool TemporaryMapLight::isPermanent()
+{
+	return false;
+}
+
+bool TemporaryMapLight::doUpkeep()
+{
+	if(--turnsUntilDestroyed <= 0)
+	{
+		destroyOgreEntity();
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 

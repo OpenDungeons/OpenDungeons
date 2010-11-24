@@ -32,10 +32,10 @@ void RoomTreasury::absorbRoom(Room *r)
 	createGoldMeshes();
 }
 
-void RoomTreasury::doUpkeep(Room *r)
+bool RoomTreasury::doUpkeep(Room *r)
 {
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
-	Room::doUpkeep(this);
+	return Room::doUpkeep(this);
 }
 
 void RoomTreasury::addCoveredTile(Tile* t, double nHP)

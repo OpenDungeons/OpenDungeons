@@ -263,15 +263,15 @@ string Room::getFormat()
         return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
-void Room::doUpkeep()
+bool Room::doUpkeep()
 {
-	doUpkeep(this);
+	return doUpkeep(this);
 }
 
 /** \brief Carry out per turn upkeep on the room, the parameter r should be set to 'this' if called from a subclass to determine the room type.
   *
 */
-void Room::doUpkeep(Room *r)
+bool Room::doUpkeep(Room *r)
 {
 	// Do any generic upkeep here (i.e. any upkeep that all room types should do).  All base classes of room should call this function during their doUpkeep() routine.
 
@@ -288,6 +288,9 @@ void Room::doUpkeep(Room *r)
 				i++;
 		}
 	}
+
+	//TODO: This could return false if the whole room has been destroyed and then the activeObject processor should destroy it.
+	return true;
 }
 
 istream& operator>>(istream& is, Room *r)

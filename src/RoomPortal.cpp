@@ -30,7 +30,7 @@ void RoomPortal::removeCoveredTile(Tile* t)
 /*! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
  *
  */
-void RoomPortal::doUpkeep(Room *r)
+bool RoomPortal::doUpkeep(Room *r)
 {
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
 	Room::doUpkeep(this);
@@ -42,6 +42,8 @@ void RoomPortal::doUpkeep(Room *r)
 	double targetProbability = powl((maxCreatures - numCreatures)/maxCreatures, 1.5);
 	if(randomDouble(0.0, 1.0) <= targetProbability)
 		spawnCreature();
+
+	return true;
 }
 
 /*! \brief Creates a new creature whose class is probabalistic and adds it to the game map at the center of the portal.

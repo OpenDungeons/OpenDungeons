@@ -13,7 +13,7 @@ class RoomPortal : public Room
 		void createMeshes();
 		void addCoveredTile(Tile* t, double nHP = Room::defaultTileHP);
 		void removeCoveredTile(Tile* t);
-		void doUpkeep(Room *r);
+		bool doUpkeep(Room *r);
 
 		// Functions specific to this class.
 		void spawnCreature();

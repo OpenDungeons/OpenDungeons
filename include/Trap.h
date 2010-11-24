@@ -36,8 +36,8 @@ class Trap : public AttackableObject, public ActiveObject
 		Seat *controllingSeat;
 
 		// Functions which can be overridden by child classes.
-		virtual void doUpkeep();
-		virtual void doUpkeep(Trap *t);
+		virtual bool doUpkeep();
+		virtual bool doUpkeep(Trap *t);
 
 		virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
 		virtual void removeCoveredTile(Tile* t);

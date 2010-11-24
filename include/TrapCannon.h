@@ -13,7 +13,7 @@ class TrapCannon : public Trap
 	public:
 		TrapCannon();
 
-		void doUpkeep();
+		bool doUpkeep();
 		Tile* positionTile();
 
 		int x, y;
