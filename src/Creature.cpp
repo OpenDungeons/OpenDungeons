@@ -513,14 +513,16 @@ void Creature::doTurn()
 						loopBack = true;
 						actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 
-						// If we are not a worker.
+						// Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
 						int tempX, tempY;
 						bool workerFound = false;
 						if(!isWorker())
 						{
+							// Non-workers only.
+
 							// Check to see if we want to try to follow a worker around or if we want to try to explore.
 							double r = randomDouble(0.0, 1.0);
-							if(creatureJob == weakFighter) r -= 0.2;
+							//if(creatureJob == weakFighter) r -= 0.2;
 							if(r < 0.7)
 							{
 								// Try to find a worker to follow around.
@@ -530,18 +532,29 @@ void Creature::doTurn()
 									if(reachableAlliedObjects[i]->getAttackableObjectType() == AttackableObject::creature && \
 											((Creature*)reachableAlliedObjects[i])->isWorker())
 									{
-										// We found a worker so find a tile near the worker to walk to.
+										// We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
 										tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
-										tempX = tempTile->x + 5.0*gaussianRandomDouble();
-										tempY = tempTile->y + 5.0*gaussianRandomDouble();
+										if(((Creature*)reachableAlliedObjects[i])->actionQueue.front().type == CreatureAction::digTile)
+										{
+											// Worker is digging, get near it since it could expose enemies.
+											tempX = tempTile->x + 3.0*gaussianRandomDouble();
+											tempY = tempTile->y + 3.0*gaussianRandomDouble();
+										}
+										else
+										{
+											// Worker is not digging, wander a bit farther around the worker.
+											tempX = tempTile->x + 8.0*gaussianRandomDouble();
+											tempY = tempTile->y + 8.0*gaussianRandomDouble();
+										}
 										workerFound = true;
 									}
 
+									// If there are no workers around, choose tiles far away to "roam" the dungeon.
 									if(!workerFound)
 									{
 										if(visibleTiles.size() > 0)
 										{
-											tempTile = visibleTiles[randomDouble(0.3, 0.6) * (visibleTiles.size()-1)];
+											tempTile = visibleTiles[randomDouble(0.6, 0.8) * (visibleTiles.size()-1)];
 											tempX = tempTile->x;
 											tempY = tempTile->y;
 										}
@@ -553,7 +566,7 @@ void Creature::doTurn()
 								// Randomly choose a tile near where we are standing to walk to.
 								if(visibleTiles.size() > 0)
 								{
-									unsigned int tileIndex = visibleTiles.size() * randomDouble(0.1, 0.5);
+									unsigned int tileIndex = visibleTiles.size() * randomDouble(0.1, 0.3);
 									tempPath = gameMap.path(myTile, visibleTiles[tileIndex], tilePassability);
 									setWalkPath(tempPath, 2, false);
 								}
@@ -562,6 +575,8 @@ void Creature::doTurn()
 						}
 						else
 						{
+							// Workers only.
+
 							// Choose a tile far away from our current position to wander to.
 							tempTile = visibleTiles[randomUint(visibleTiles.size()/2, visibleTiles.size()-1)];
 							tempX = tempTile->x;
@@ -675,7 +690,7 @@ void Creature::doTurn()
 								// dancing on this tile.  If there is "left over" claiming that can be done
 								// it will spill over into neighboring tiles until it is gone.
 								myTile->claimForColor(color, danceRate);
-								recieveExp(1.0*(danceRate/(0.35+0.05*level)));
+								recieveExp(1.5*(danceRate/(0.35+0.05*level)));
 
 								// Since we danced on a tile we are done for this turn
 								goto claimTileBreakStatement;
@@ -810,7 +825,9 @@ claimTileBreakStatement:
 					break;
 
 				case CreatureAction::digTile:
-					tempPlayer = getControllingPlayer();
+					myTile = positionTile();
+					if(myTile == NULL)  break;
+
 					//cout << "dig ";
 
 					// Randomly decide to stop digging with a small probability
@@ -823,16 +840,20 @@ claimTileBreakStatement:
 
 					// See if any of the tiles is one of our neighbors
 					wasANeighbor = false;
-					sem_wait(&positionLockSemaphore);
-					creatureNeighbors = gameMap.neighborTiles(position.x, position.y);
-					sem_post(&positionLockSemaphore);
+					creatureNeighbors = gameMap.neighborTiles(myTile);
+					tempPlayer = getControllingPlayer();
 					for(unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; i++)
 					{
 						if(tempPlayer != NULL && creatureNeighbors[i]->getMarkedForDigging(tempPlayer))
 						{
+							// We found a tile marked by our controlling seat, dig out the tile.
+
 							// If the tile is a gold tile accumulate gold for this creature.
 							if(creatureNeighbors[i]->getType() == Tile::gold)
-								gold += 25*min(digRate, (double)creatureNeighbors[i]->getFullness());
+							{
+								gold += 25*min(digRate/2.5, (double)creatureNeighbors[i]->getFullness());
+								recieveExp(5.0*digRate/20.0);
+							}
 
 							// Turn so that we are facing toward the tile we are going to dig out.
 							faceToward(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
@@ -840,7 +861,7 @@ claimTileBreakStatement:
 							// Dig out the tile by decreasing the tile's fullness.
 							setAnimationState("Dig");
 							creatureNeighbors[i]->setFullness(max(0.0, creatureNeighbors[i]->getFullness()-digRate));
-							recieveExp(0.5*digRate/20.0);
+							recieveExp(1.5*digRate/20.0);
 
 							// Force all the neighbors to recheck their meshes as we may have exposed
 							// a new side that was not visible before.
@@ -873,7 +894,7 @@ claimTileBreakStatement:
 					if(gold >= maxGoldCarriedByWorkers)
 					{
 						// Remove the dig action and replace it with a depositGold action.
-						actionQueue.pop_front();
+						//actionQueue.pop_front();
 						actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
 					}
 
@@ -1376,8 +1397,8 @@ void Creature::doLevelUp()
 	// Scale up the mesh.
 	if(meshesExist && level < 100 && (level % 2) == 0)
 	{
-		double scaleFactor = 1.0 + level/150.0;
-		if(scaleFactor > 1.05)  scaleFactor = 1.05;
+		double scaleFactor = 1.0 + level/250.0;
+		if(scaleFactor > 1.04)  scaleFactor = 1.04;
 		RenderRequest *request = new RenderRequest;
 		request->type = RenderRequest::scaleSceneNode;
 		request->p = sceneNode;
