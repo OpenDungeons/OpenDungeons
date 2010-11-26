@@ -2,6 +2,8 @@
 #include "Globals.h"
 #include "Trap.h"
 
+const double Trap::defaultTileHP = 10.0;
+
 Trap::Trap()
 {
 	controllingSeat = NULL;

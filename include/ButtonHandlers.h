@@ -1,7 +1,7 @@
 #ifndef BUTTONHANDLERS_H
 #define BUTTONHANDLERS_H
 
-#include <CEGUI/CEGUI.h>
+#include <CEGUI.h>
 
 #include "Globals.h"
 #include "Room.h"

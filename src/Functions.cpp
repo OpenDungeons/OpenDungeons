@@ -472,10 +472,10 @@ string colourizeMaterial(string materialName, int colour)
 					tempTexture = tempTextureUnitState->_getTexturePtr();
 					tempPixBuf = tempTexture->getBuffer();
 					size_t bufferLen = PixelUtil::getMemorySize(tempTexture->getWidth(), tempTexture->getHeight(), tempTexture->getDepth(), tempTexture->getFormat());
-					uint8 pixelData[bufferLen];
-					uint8 *pixelDataPtr = pixelData;
+					//uint8 pixelData[bufferLen];
+					uint8 *pixelDataPtr = new uint8[bufferLen];//pixelData;
 					Image::Box imageBox(0, 0, tempTexture->getWidth(), tempTexture->getHeight());
-					PixelBox newPixelBox(tempTexture->getWidth(), tempTexture->getHeight(), tempTexture->getDepth(), tempTexture->getFormat(), pixelData);
+					PixelBox newPixelBox(tempTexture->getWidth(), tempTexture->getHeight(), tempTexture->getDepth(), tempTexture->getFormat(), pixelDataPtr);
 					tempPixBuf->blitToMemory(newPixelBox);
 
 					// Loop over the pixels themselves and change the bright pink ones to the given colour
@@ -513,6 +513,7 @@ string colourizeMaterial(string materialName, int colour)
 					}
 
 					tempPixBuf->blitFromMemory(newPixelBox);
+					delete[] pixelDataPtr;
 				}
 			}
 		}

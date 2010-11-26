@@ -4,6 +4,8 @@
 #include "Functions.h"
 #include "Room.h"
 
+const double Room::defaultTileHP = 10.0;
+
 Room::Room()
 {
 	color = 0;

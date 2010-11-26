@@ -32,9 +32,9 @@ keyboard and mouse movements.
 #include "OgreException.h"
 
 #include <deque>
-#include <CEGUI/CEGUI.h>
-#include <OIS/OIS.h>
-#include <CEGUI/CEGUIRenderer.h>
+#include <CEGUI.h>
+#include <OIS.h>
+#include <CEGUIRenderer.h>
 
 //#define
 //#include <OgreOggSoundManager.h>
@@ -44,7 +44,7 @@ keyboard and mouse movements.
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
-#include <OIS/OIS.h>
+#include <OIS.h>
 
 using namespace Ogre;
 

@@ -11,8 +11,8 @@
 #include "MusicPlayer.h"
 #include "SoundEffectsHelper.h"
 
-#include <CEGUI/CEGUI.h>
-#include <OIS/OIS.h>
+#include <CEGUI.h>
+#include <OIS.h>
 //#include <CEGUIRenderer.h>   // use this line if using a CEGUI version before 0.7
 #include <RendererModules/Ogre/CEGUIOgreRenderer.h>   // use this line if using a CEGUI version after 0.7
 

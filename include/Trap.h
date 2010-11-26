@@ -62,7 +62,7 @@ class Trap : public AttackableObject, public ActiveObject
 		AttackableObject::AttackableObjectType getAttackableObjectType();
 
 	protected:
-		const static double defaultTileHP = 10.0;
+		const static double defaultTileHP;// = 10.0;
 
 		string name, meshName;
 		std::vector<Tile*> coveredTiles;

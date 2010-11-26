@@ -75,7 +75,7 @@ class Room : public AttackableObject, public ActiveObject
 		std::string getName() {return name;}
 
 	protected:
-		const static double defaultTileHP = 10.0;
+		const static double defaultTileHP;// = 10.0;
 
 		std::vector<Tile*> coveredTiles;
 		std::map<Tile*,double> tileHP;
