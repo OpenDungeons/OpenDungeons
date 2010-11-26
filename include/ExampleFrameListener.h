@@ -182,7 +182,7 @@ protected:
 	bool digSetBool;                   // For server mode - hods whether to mark or unmark a tile for digging
 	bool mouseDownOnCEGUIWindow;
 
-	enum DragType {creature, mapLight, tileSelection, tileBrushSelection, addNewRoom, nullDragType};
+	enum DragType {creature, mapLight, tileSelection, tileBrushSelection, addNewRoom, addNewTrap, nullDragType};
 
 	OgreOggSound::OgreOggISound* mCurrMusic;
 

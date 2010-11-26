@@ -1640,6 +1640,10 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 					if(gameMap.me->newRoomType != Room::nullRoomType)
 						mDragType = ExampleFrameListener::addNewRoom;
 
+					// If we have selected a trap type to add to the map, use a addNewTrap drag type.
+					else if(gameMap.me->newTrapType != Trap::nullTrapType)
+						mDragType = ExampleFrameListener::addNewTrap;
+
 					break;
 				}
 			}
@@ -1666,9 +1670,10 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		mRStartDragX = xPos;
 		mRStartDragY = yPos;
 
-		// Stop creating rooms.
+		// Stop creating rooms, traps, etc.
 		mDragType = ExampleFrameListener::nullDragType;
 		gameMap.me->newRoomType = Room::nullRoomType;
+		gameMap.me->newTrapType = Trap::nullTrapType;
 
 		// If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
 		//TODO:  This should probably contain a check to see if we are in a game.
@@ -1757,12 +1762,14 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 		}
 
 		// Check to see if we are dragging out a selection of tiles or creating a new room
-		else if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::addNewRoom)
+		else if(mDragType == ExampleFrameListener::tileSelection || \
+				mDragType == ExampleFrameListener::addNewRoom || \
+				mDragType == ExampleFrameListener::addNewTrap)
 		{
 			// Loop over the valid tiles in the affected region.  If we are doing a tileSelection (changing the tile type and fullness) this
 			// loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
 			// which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
-			// the next loop will actually create the room.
+			// the next loop will actually create the room.  A similar pruning is done for traps.
 			std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(xPos, yPos, mLStartDragX, mLStartDragY);
 			std::vector<Tile*>::iterator itr = affectedTiles.begin();
 			while(itr != affectedTiles.end())
@@ -1804,7 +1811,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 						currentTile->setFullness( mCurrentFullness );
 					}
 				}
-				else // if(mDragType == ExampleFrameListener::addNewRoom)
+				else // if(mDragType == ExampleFrameListener::addNewRoom || mDragType == ExampleFrameListener::addNewTrap)
 				{
 					// If the tile already contains a room, prune it from the list of affected tiles.
 					if(currentTile->getCoveringRoom() != NULL)
@@ -1880,6 +1887,28 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 
 					tempRoom->createMeshes();
 				}
+			}
+
+			// If we are adding new traps the above loop will have pruned out the tiles not eligible
+			// for adding traps to.  This block then actually adds traps to the remaining tiles.
+			//TODO:  Make this check to make sure we have enough gold to create the traps.
+			if(mDragType == ExampleFrameListener::addNewTrap && affectedTiles.size() > 0)
+			{
+				// Delete everything but the last tile in the affected tiles as this is close to where we let go of the mouse.
+				std::vector<Tile*> tempVector(affectedTiles);
+				tempVector.push_back(affectedTiles[affectedTiles.size()-1]);
+				
+				Seat *mySeat = NULL;
+				if(serverSocket != NULL || clientSocket != NULL)
+				{
+					gameMap.withdrawFromTreasuries(Trap::costPerTile(Trap::cannon), gameMap.me->seat->color);
+					mySeat = gameMap.me->seat;
+				}
+
+				Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector, mySeat);
+				//FIXME: This throws an OGRE runtime error when it is commented in.
+				//tempTrap->createMeshes();
+				gameMap.addTrap(tempTrap);
 			}
 
 			// Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.

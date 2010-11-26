@@ -7,6 +7,7 @@ class Goal;
 #include "Creature.h"
 #include "Seat.h"
 #include "Room.h"
+#include "Trap.h"
 
 /*! \brief The player cleass contains information about a human, or computer, player in the game.
  *
@@ -37,6 +38,7 @@ class Player
 		// Public data members
 		Seat *seat;
 		Room::RoomType newRoomType;
+		Trap::TrapType newTrapType;
 
 	private:
 		// Private functions
