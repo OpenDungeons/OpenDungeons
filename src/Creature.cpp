@@ -49,6 +49,7 @@ Creature::Creature()
 	moveSpeed = 1.0;
 	tilePassability = Tile::walkableTile;
 	homeTile = NULL;
+	trainWait = 0;
 
 	weaponL = NULL;
 	weaponR = NULL;
@@ -453,9 +454,16 @@ void Creature::doTurn()
 	}
 
 	// If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 0.8), 2) > awakeness)
+	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 0.8), 2) > awakeness && actionQueue.front().type != CreatureAction::sleep)
 	{
 		tempAction.type = CreatureAction::sleep;
+		actionQueue.push_front(tempAction);
+	}
+
+	// Check to see if there is a Dojo we can train at.
+	if(!isWorker() && randomDouble(0.0, 1.0) < 0.01*awakeness/100.0 && actionQueue.front().type != CreatureAction::train)
+	{
+		tempAction.type = CreatureAction::train;
 		actionQueue.push_front(tempAction);
 	}
 
@@ -1201,6 +1209,80 @@ claimTileBreakStatement:
 
 					break;
 
+				case CreatureAction::train:
+					if(level > 10)
+					{
+						actionQueue.pop_front();
+						loopBack = true;
+						trainWait = 0;
+						break;
+					}
+
+					// Randomly decide to stop training, we are more likely to stop when we are tired.
+					if(100.0*powl(randomDouble(0.0, 1.0), 2) > awakeness)
+					{
+						actionQueue.pop_front();
+						trainWait = 0;
+						loopBack = true;
+						break;
+					}
+
+					if(trainWait > 0)
+					{
+						setAnimationState("Idle");
+						trainWait--;
+						break;
+					}
+
+					// See if we are in a dojo now.
+					myTile = positionTile();
+					if(myTile != NULL)
+					{
+						// Train at this dojo.
+						tempRoom = myTile->getCoveringRoom();
+						if(tempRoom != NULL && tempRoom->getType() == Room::dojo)
+						{
+							tempTile = tempRoom->getCentralTile();
+							faceToward(tempTile->x, tempTile->y);
+							setAnimationState("Attack1");
+							recieveExp(5.0);
+							awakeness -= 5.0;
+							trainWait = randomUint(2, 5);
+							break;
+						}
+					}
+					else
+					{
+						// We are not on the map, don't do anything.
+						actionQueue.pop_front();
+						break;
+					}
+
+					// Get the list of dojos controlled by our seat and make sure there is at least one.
+					tempRooms = gameMap.getRoomsByTypeAndColor(Room::dojo, color);
+					if(tempRooms.size() == 0)
+					{
+						actionQueue.pop_front();
+						loopBack = true;
+						break;
+					}
+
+					// Pick a dojo to train at and try to walk to it.
+					tempRoom = tempRooms[randomUint(0, tempRooms.size()-1)];
+					tempTile = tempRoom->getCoveredTile(randomUint(0, tempRoom->numCoveredTiles()-1));
+					tempPath = gameMap.path(myTile, tempTile, tilePassability);
+					if(setWalkPath(tempPath, 2, false))
+					{
+						setAnimationState("Walk");
+					}
+					else
+					{
+						actionQueue.pop_front();
+						loopBack = true;
+					}
+
+					break;
+
 				case CreatureAction::attackObject:
 					// If there are no more enemies which are reachable, stop attacking
 					if(reachableEnemyObjects.size() == 0)
@@ -1265,6 +1347,7 @@ claimTileBreakStatement:
 					}
 
 					// There is not an enemy within range, begin maneuvering to try to get near an enemy, or out of the combat situation.
+					actionQueue.pop_front();
 					actionQueue.push_front(CreatureAction(CreatureAction::maneuver));
 					loopBack = true;
 					break;

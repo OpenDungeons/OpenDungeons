@@ -26,6 +26,13 @@ bool forgeButtonPressed(const CEGUI::EventArgs &e)
 	return true;
 }
 
+bool dojoButtonPressed(const CEGUI::EventArgs &e)
+{
+	gameMap.me->newRoomType = Room::dojo;
+	gameMap.me->newTrapType = Trap::nullTrapType;
+	return true;
+}
+
 bool cannonButtonPressed(const CEGUI::EventArgs &e)
 {
 	gameMap.me->newRoomType = Room::nullRoomType;
