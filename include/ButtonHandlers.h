@@ -10,6 +10,7 @@ bool quitButtonPressed(const CEGUI::EventArgs &e);
 bool quartersButtonPressed(const CEGUI::EventArgs &e);
 bool treasuryButtonPressed(const CEGUI::EventArgs &e);
 bool forgeButtonPressed(const CEGUI::EventArgs &e);
+bool dojoButtonPressed(const CEGUI::EventArgs &e);
 bool cannonButtonPressed(const CEGUI::EventArgs &e);
 
 #endif

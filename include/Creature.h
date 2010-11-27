@@ -42,6 +42,7 @@ class Creature : public CreatureClass, public AttackableObject
 		double exp;
 		Tile::TileClearType tilePassability;	//FIXME:  This is not set from file yet.  Also, it should be moved to CreatureClass.
 		Tile *homeTile;
+		int trainWait;
 
 		// Object methods
 		void createMesh();

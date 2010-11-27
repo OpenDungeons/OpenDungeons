@@ -10072,12 +10072,12 @@ Dwarf1	Dwarf1_007	12	-57	0	2	none	8	4	0	none	6	3	0	145	7
 Dwarf2	Dwarf2_001	13	13	0	2	none	8	4	0	none	6	3	0	145	7
 Dwarf2	Dwarf2_002	2	-9	0	2	none	6	4	0	Longsword	14	4	0	145	7
 Dwarf2	Dwarf3_001	6	-28	0	2	Roundshield	0	0	5	Longsword	14	4	4	145	7
+Kreatur	Kre	15	16	0	2	none	12	4	0	none	6	4	0	180	10
 Orc	Orc_0001	3	-1	0	2	none	8	4	0	Longsword	14	4	0	165	10
 Orc	Orc_0002	7	12	0	2	none	8	4	0	Longsword	14	4	0	165	10
 Kreatur	Kreatur_001	-45	-90	0	3	none	12	4	0	none	6	4	0	180	10
 Kreatur	Kreatur_002	-41	-88	0	3	none	12	4	0	none	6	4	0	180	10
 Kreatur	Kreatur_003	-42	-97	0	3	none	12	4	0	none	6	4	0	180	10
 Kreatur	Kreatur_004	-44	-94	0	3	none	12	4	0	none	6	4	0	180	10
-Kreatur	Kreatur_005	15	16	0	3	none	12	4	0	none	6	4	0	180	10
 Kreatur	Kreatur_006	-37	-88	0	3	none	12	4	0	none	6	4	0	180	10
 
