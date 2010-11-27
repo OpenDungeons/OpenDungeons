@@ -28,6 +28,7 @@ SET(
      RadialVector2.cpp
      RenderRequest.cpp
      Room.cpp
+     RoomDojo.cpp
      RoomDungeonTemple.cpp
      RoomForge.cpp
      RoomObject.cpp

@@ -4,7 +4,7 @@
 RoomTreasury::RoomTreasury()
 	: Room()
 {
-	return;
+	type = treasury;
 }
 
 void RoomTreasury::absorbRoom(Room *r)

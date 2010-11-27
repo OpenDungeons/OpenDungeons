@@ -394,7 +394,7 @@ void Creature::doTurn()
 		mana = maxMana;
 	sem_post(&manaLockSemaphore);
 
-	awakeness -= 0.25;
+	awakeness -= 0.15;
 
 	// Check to see if we have earned enough experience to level up.
 	while(exp >= 5*level + 5*powl(level/3.0, 2))
@@ -453,7 +453,7 @@ void Creature::doTurn()
 	}
 
 	// If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 1.0), 1.5) > awakeness)
+	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 0.8), 2) > awakeness)
 	{
 		tempAction.type = CreatureAction::sleep;
 		actionQueue.push_front(tempAction);

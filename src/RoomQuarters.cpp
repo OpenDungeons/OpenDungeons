@@ -4,7 +4,7 @@
 RoomQuarters::RoomQuarters()
 	: Room()
 {
-	return;
+	type = quarters;
 }
 
 void RoomQuarters::absorbRoom(Room *r)

@@ -4,7 +4,7 @@
 RoomPortal::RoomPortal()
 	: Room()
 {
-	return;
+	type = portal;
 }
 
 void RoomPortal::createMeshes()

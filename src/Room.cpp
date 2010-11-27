@@ -26,7 +26,8 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, 
 		case treasury:     tempRoom = new RoomTreasury();      break;
 		case portal:       tempRoom = new RoomPortal();        break;
 		case dungeonTemple:  tempRoom = new RoomDungeonTemple();  break;
-		case forge:        tempRoom = new RoomForge();  break;
+		case forge:        tempRoom = new RoomForge();         break;
+		case dojo:         tempRoom = new RoomDojo();          break;
 	}
 
 	if(tempRoom == NULL)
@@ -352,6 +353,7 @@ string Room::getMeshNameFromRoomType(RoomType t)
 		case treasury:          return "Treasury";          break;
 		case portal:            return "Portal";            break;
 		case forge:             return "Forge";             break;
+		case dojo:              return "Dojo";              break;
 	}
 
 	return "UnknownRoomType";
@@ -371,6 +373,8 @@ Room::RoomType Room::getRoomTypeFromMeshName(string s)
 		return portal;
 	else if(s.compare("Forge") == 0)
 		return forge;
+	else if(s.compare("Dojo") == 0)
+		return dojo;
 	else
 	{
 		cerr << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";
@@ -390,6 +394,7 @@ int Room::costPerTile(RoomType t)
 		case quarters:          return 75;        break; 
 		case treasury:          return 25;        break;
 		case forge:             return 150;       break;
+		case dojo:              return 175;       break;
 	}
 
 	return 0;

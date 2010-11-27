@@ -15,7 +15,7 @@ class Room : public AttackableObject, public ActiveObject
 {
 	public:
 		// When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
-		enum RoomType {nullRoomType = 0, dungeonTemple, vein, quarters, treasury, portal, forge};
+		enum RoomType {nullRoomType = 0, dungeonTemple, vein, quarters, treasury, portal, forge, dojo};
 
 		// Constructors and operators
 		Room();
@@ -89,6 +89,7 @@ class Room : public AttackableObject, public ActiveObject
 #include "RoomPortal.h"
 #include "RoomDungeonTemple.h"
 #include "RoomForge.h"
+#include "RoomDojo.h"
 
 #endif
 

@@ -3,6 +3,7 @@
 RoomDungeonTemple::RoomDungeonTemple()
 	: Room()
 {
+	type = dungeonTemple;
 }
 
 void RoomDungeonTemple::createMeshes()

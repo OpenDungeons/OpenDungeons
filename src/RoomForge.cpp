@@ -4,6 +4,7 @@
 RoomForge::RoomForge()
 	: Room()
 {
+	type = forge;
 }
 
 void RoomForge::createMeshes()
