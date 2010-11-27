@@ -1410,6 +1410,9 @@ double Creature::getDefense()
 	return returnValue;
 }
 
+/** \brief Increases the creature's level, adds bonuses to stat points, changes the mesh, etc.
+ *
+*/
 void Creature::doLevelUp()
 {
 	if(level >= 100)
@@ -1656,7 +1659,7 @@ Tile* Creature::positionTile()
 	return gameMap.getTile((int)(tempPosition.x), (int)(tempPosition.y));
 }
 
-/** \brief Returns a vector containing the tile the creature is in, this is to conform to the AttackableObject interface.
+/** \brief Conform: AttackableObject - Returns a vector containing the tile the creature is in.
  *
 */
 std::vector<Tile*> Creature::getCoveredTiles()
@@ -1691,6 +1694,9 @@ void Creature::deleteYourself()
 	queueRenderRequest(request);
 }
 
+/*! \brief Creates a string with a unique number embedded into it so the creature's name will not be the same as any other OGRE entity name.
+ *
+*/
 string Creature::getUniqueCreatureName()
 {
 	static int uniqueNumber = 1;
@@ -1742,7 +1748,7 @@ AnimationState* Creature::getAnimationState()
 	return animationState;
 }
 
-/** \brief Returns whether or not this creature is capable of moving, this is to conform to the AttackableObject interface.
+/** \brief Conform: AttackableObject - Returns whether or not this creature is capable of moving.
  *
 */
 bool Creature::isMobile()
@@ -1750,7 +1756,7 @@ bool Creature::isMobile()
 	return true;
 }
 
-/** \brief Returns the creature's level, this is to conform to the AttackableObject interface.
+/** \brief Conform: AttackableObject - Returns the creature's level.
  *
 */
 int Creature::getLevel()
@@ -1758,7 +1764,7 @@ int Creature::getLevel()
 	return level;
 }
 
-/** \brief Returns the creature's color, this is to conform to the AttackableObject interface.
+/** \brief Conform: AttackableObject - Returns the creature's color.
  *
 */
 int Creature::getColor()
@@ -1774,7 +1780,7 @@ void Creature::setColor(int nColor)
 	color = nColor;
 }
 
-/** \brief Returns the type of AttackableObject that this is (Creature, Room, etc), this is to conform to the AttackableObject interface.
+/** \brief Conform: AttackableObject - Returns the type of AttackableObject that this is (Creature, Room, etc).
  *
 */
 AttackableObject::AttackableObjectType Creature::getAttackableObjectType()
@@ -1782,7 +1788,7 @@ AttackableObject::AttackableObjectType Creature::getAttackableObjectType()
 	return AttackableObject::creature;
 }
 
-/** \brief Returns the name of this creature, this is to conform to the AttackableObject interface.
+/** \brief Conform: AttackableObject - Returns the name of this creature.
  *
 */
 string Creature::getName()
@@ -1790,7 +1796,7 @@ string Creature::getName()
 	return name;
 }
 
-/** \brief Deducts a given amount of HP from this creature, this is to conform to the AttackableObject interface.
+/** \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
  *
 */
 void Creature::takeDamage(double damage, Tile *tileTakingDamage)
@@ -1800,7 +1806,7 @@ void Creature::takeDamage(double damage, Tile *tileTakingDamage)
 	sem_post(&hpLockSemaphore);
 }
 
-/** \brief Adds experience to this creature, this is to conform to the AttackableObject interface.
+/** \brief Conform: AttackableObject - Adds experience to this creature.
  *
 */
 void Creature::recieveExp(double experience)

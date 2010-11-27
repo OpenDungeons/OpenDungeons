@@ -8,6 +8,9 @@
 
 class TileCoordinateData;
 
+/*! \brief A data structure which computes, stores, and lets you query information on relative distance and direction information about tiles.
+ *
+ */
 class TileCoordinateMap
 {
 	public:
@@ -25,6 +28,9 @@ class TileCoordinateMap
 		static bool dataSortComparitor(TileCoordinateData t1, TileCoordinateData t2);
 };
 
+/*! \brief A helper data structure class which stores the indiviual entries in a TileCoordinateMap.
+ *
+ */
 class TileCoordinateData
 {
 	public:
