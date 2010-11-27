@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 2.6 )
+CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
 
 if( POLICY CMP0011 )
   cmake_policy( SET CMP0011 OLD ) # or even better, NEW
@@ -10,12 +10,15 @@ SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
 SET( ${PROJECT_NAME}_MINOR_VERSION 1 )
 SET( ${PROJECT_NAME}_PATCH_LEVEL 1 )
 
+#INCLUDE(OpenAL)
+
 SET( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules )
 
 SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR} )
 
+
 # Declare external dependencies
-SET( Required_Packages OIS OGRE CEGUI CEGUIOGRE )
+SET( Required_Packages OIS OGRE CEGUI CEGUIOGRE OpenAL OgreOggSound )
 
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include )
 
@@ -88,7 +91,30 @@ IF( MSVC_IDE )
   MESSAGE( STATUS "Using win pthreads" )
 ENDIF( )
 
-link_libraries(OgreOggSound boost_thread-mt)
+#Find boost
+#Needs to be updated with use of new boost release
+set(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.43.0 1.43 1.44.0 1.44 1.45.0 1.45) 
+set(Boost_USE_MULTITHREADED ON)
+set(Boost_USE_STATIC_LIBS   OFF)
+find_package( Boost COMPONENTS thread )
+if(Boost_FOUND)
+	include_directories(${Boost_INCLUDE_DIRS})
+	if ( WIN32 )
+		link_directories(${Boost_LIBRARY_DIRS}) ##Needed because VS wants to autolink
+	endif()
+	link_libraries(${Boost_LIBRARIES})
+endif()
+#if(CEGUI_FOUND)
+link_directories(${CEGUI_LIB_DIR})
+
+
+INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
+
+#link_libraries(OgreOggSound boost_thread-mt)
+#if( NOT WIN32 )
+#	message(STATUS ${OGREOGGSOUND_LIBRARY})
+#	link_libraries(${OGREOGGSOUND_LIBRARY})
+#endif ()
 
 ADD_SUBDIRECTORY( src )
 

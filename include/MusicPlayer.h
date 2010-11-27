@@ -3,7 +3,7 @@
 
 #include <OgreOggSoundManager.h>
 #include <OgreOggISound.h>
-#include <OGRE/OgreResourceGroupManager.h>
+#include <OgreResourceGroupManager.h>
 #include <vector>
 #include <iostream>
 
