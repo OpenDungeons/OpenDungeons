@@ -407,7 +407,7 @@ void GameMap::queueCreatureForDeletion(Creature *c)
 /*! \brief Returns a pointer to the first class description whose 'name' parameter matches the query string.
  *
  */
-CreatureClass* GameMap::getClassDescription(string query)
+CreatureClass* GameMap::getClassDescription(std::string query)
 {
 	for(unsigned int i = 0; i < classDescriptions.size(); i++)
 	{
@@ -600,7 +600,7 @@ void GameMap::createAllEntities()
 /*! \brief Returns a pointer to the creature whose name matches cName.
  *
  */
-Creature* GameMap::getCreature(string cName)
+Creature* GameMap::getCreature(std::string cName)
 {
 	Creature *returnValue = NULL;
 
@@ -822,7 +822,7 @@ void GameMap::doTurn()
 		tempSeat = filledSeats[i];
 
 		// Add the amount of mana this seat accrued this turn.
-		cout << "\nSeat " << i << " has " << tempSeat->numClaimedTiles << " claimed tiles.";
+		//cout << "\nSeat " << i << " has " << tempSeat->numClaimedTiles << " claimed tiles.";
 		tempSeat->manaDelta = 50 + tempSeat->numClaimedTiles;
 		tempSeat->mana += tempSeat->manaDelta;
 		if(tempSeat->mana > 250000)
@@ -837,6 +837,9 @@ void GameMap::doTurn()
 	sem_post(&creatureAISemaphore);
 }
 
+/*! \brief Returns whether or not a Creature with a given passability would be able to move between the two specified tiles.
+ *
+ */
 bool GameMap::pathExists(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
 {
 	if(passability == Tile::walkableTile)
@@ -1141,6 +1144,9 @@ Player* GameMap::getPlayer(int index)
 	return players[index];
 }
 
+/*! \brief <b>DEPRECATED</b> This function is deprecated by getSeatByColor() and calls to this should likely be replaced by that function. 
+ *
+ */
 //FIXME: This function is deprecated by getSeatByColor() and calls to this should likely be replaced by that function.
 Player* GameMap::getPlayerByColour(int colour)
 {
@@ -1158,7 +1164,7 @@ Player* GameMap::getPlayerByColour(int colour)
 /*! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
  *
  */
-Player* GameMap::getPlayer(string pName)
+Player* GameMap::getPlayer(std::string pName)
 {
 	for(unsigned int i = 0; i < numPlayers(); i++)
 	{
@@ -1201,7 +1207,8 @@ bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
 	}
 }
 
-/*! \brief Returns a list of valid tiles along a stright line from (x1, y1) to (x2, y2).
+/*! \brief Returns a list of valid tiles along a stright line from (x1, y1) to (x2, y2), NOTE: in spite of
+ * the name, you do not need to be able to see through the tiles returned by this method.
  *
  * This algorithm is from
  * http://en.wikipedia.org/w/index.php?title=Bresenham%27s_line_algorithm&oldid=295047020
@@ -1262,11 +1269,17 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 			yDraw = y;
 		}
 		
-		// if the tile exists, add it to the path
+		// If the tile exists, add it to the path.
 		Tile *currentTile = getTile(xDraw, yDraw);
 		if(currentTile != NULL)
 		{
 			path.push_back(currentTile);
+		}
+		else
+		{
+			// This should fix a bug where creatures "cut across" null sections of the map if they can see the other side.
+			path.clear();
+			return path;
 		}
 
 		// If the error has accumulated to the next tile, "increment" the y coordinate
@@ -1284,6 +1297,9 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 	return path;
 }
 
+/*! \brief Returns the tiles visible from the given start tile out to the specified sight radius.
+ *
+ */
 std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 {
 	std::vector<Tile*> tempVector;
@@ -1717,7 +1733,7 @@ MapLight* GameMap::getMapLight(int index)
 	return mapLights[index];
 }
 
-MapLight* GameMap::getMapLight(string name)
+MapLight* GameMap::getMapLight(std::string name)
 {
 	for(unsigned int i = 0; i < mapLights.size(); i++)
 	{
@@ -1985,6 +2001,9 @@ unsigned int GameMap::numMissileObjects()
 }
 
 
+/** \brief Returns the as the crow flies distance between tiles located at the two coordinates
+  * given.  If tiles do not exist at these locations the function returns -1.0.
+*/ 
 double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 {
 	const double badValue = -1.0;
@@ -1998,8 +2017,8 @@ double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 		if(t2 != NULL)
 		{
 			int xDist, yDist;
-			xDist = t2->x - t1->x;
-			yDist = t2->y - t1->y;
+			xDist = x2 - x1;
+			yDist = y2 - y1;
 			distance = xDist*xDist + yDist*yDist;
 			distance = sqrt(distance);
 			return distance;
@@ -2016,12 +2035,18 @@ double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 
 }
 
+/** \brief Returns an auto-incremented number for use in the flood fill algorithm used to determine walkability.
+  *
+*/ 
 int GameMap::uniqueFloodFillColor()
 {
 	nextUniqueFloodFillColor++;
 	return nextUniqueFloodFillColor;
 }
 
+/** \brief Starts at the tile at the given coordinates and paints outward over all the tiles whose passability matches the passability of the seed tile.
+  *
+*/ 
 unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType passability, int color)
 {
 	unsigned int tilesFlooded = 1;
@@ -2057,11 +2082,17 @@ unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType pa
 	return tilesFlooded;
 }
 
+/** \brief Temporarily disables the flood fill computations on this game map.
+  *
+*/ 
 void GameMap::disableFloodFill()
 {
 	floodFillEnabled = false;
 }
 
+/** \brief Re-enables the flood filling on the game map, also recomputes the painting on the
+  * whole map since the passabilities may have changed since the flood filling was disabled.
+*/ 
 void GameMap::enableFloodFill()
 {
 	Tile *tempTile;
@@ -2096,16 +2127,25 @@ void GameMap::enableFloodFill()
 	}
 }
 
+/** \brief <i>Convenience function, calls: path(int, int, int, int, TileClearType)</i>
+  *
+*/ 
 std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability)
 {
 	return path(c1->positionTile()->x, c1->positionTile()->y, c2->positionTile()->x, c2->positionTile()->y, passability);
 }
 
+/** \brief <i>Convenience function, calls: path(int, int, int, int, TileClearType)</i>
+  *
+*/ 
 std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability)
 {
 	return path(t1->x, t1->y, t2->x, t2->y, passability);
 }
 
+/** \brief <i>Convenience function, calls: crowDistance(Tile*, Tile*)</i>
+  *
+*/ 
 double GameMap::crowDistance(Creature *c1, Creature *c2)
 {
 	//TODO:  This is sub-optimal, improve it.
@@ -2113,6 +2153,9 @@ double GameMap::crowDistance(Creature *c1, Creature *c2)
 	return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
 }
 
+/** \brief Increments a semaphore for the given turn indicating how many outstanding references to game asssets have been copied by other functions.
+  *
+*/ 
 void GameMap::threadLockForTurn(long int turn)
 {
 	unsigned int tempUnsigned;
@@ -2138,6 +2181,10 @@ void GameMap::threadLockForTurn(long int turn)
 	sem_post(&threadReferenceCountLockSemaphore);
 }
 
+/** \brief Decrements a semaphore for the given turn indicating how many outstanding references to game asssets there are,
+  * when this reaches 0 the turn can be safely retired and assets queued for deletion then can be safely deleted.
+  *
+*/ 
 void GameMap::threadUnlockForTurn(long int turn)
 {
 	unsigned int tempUnsigned;
