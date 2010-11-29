@@ -23,8 +23,8 @@ keyboard and mouse movements.
 #ifndef __ExampleFrameListener_H__
 #define __ExampleFrameListener_H__
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <pthread.h>
 
 #include "Ogre.h"

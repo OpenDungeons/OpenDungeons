@@ -26,6 +26,7 @@ Description: Base class for all the OGRE examples
 #include "Globals.h"
 #include "ExampleFrameListener.h"
 
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -71,6 +72,22 @@ public:
 		// you must provide the full path, the helper function macBundlePath does this for us.
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 		mResourcePath = macBundlePath() + "/Contents/Resources/";
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX //Actually this can be other things than linux as well
+//Get path of data
+		char* path = std::getenv("OPENDUNGEONS_DATA_PATH");
+		if(path)
+		{
+			mResourcePath = path;
+			if(*mResourcePath.end() != '/') //Make sure we have trailing slash
+			{
+				mResourcePath.append("/");
+			}
+			//Getenv return value should not be touched/freed.
+		}
+		else
+		{
+			mResourcePath = "";
+		}
 #else
 		mResourcePath = "";
 #endif

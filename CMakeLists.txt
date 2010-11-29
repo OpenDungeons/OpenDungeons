@@ -121,17 +121,47 @@ ADD_SUBDIRECTORY( src )
 
 find_package(OGRE)
 
-#only use d3d renderer plugins if we are on windows
-if ( NOT WIN32 )
-	set(OPENDUNGEONS_COMMENT_D3D "#" )
-endif()
+#Make a copy for use in the build directory, and later one copy for installing.
+set(OPENDUNGEONS_MEDIA_DIR ${CMAKE_CURRENT_BINARY_DIR})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg)
+
+#configure settings files
+
 if ( WIN32 )
-	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ".") 
+	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ".")
+	set(OPENDUNGEONS_DATA_PATH ".")
+	
 #TODO - check if this allways will be right
 else ()
-	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ${OGRE_LIBRARY_DIR_REL}/OGRE) 
+	#only use d3d renderer plugins if we are on windows
+	set(OPENDUNGEONS_COMMENT_D3D "#" )
+	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ${OGRE_LIBRARY_DIR_REL}/OGRE)
+	set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/share/games/${PROJECT_NAME})
 endif ()
+set(OPENDUNGEONS_MEDIA_DIR ${OPENDUNGEONS_DATA_PATH})
+
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg)
+if ( UNIX )
+	set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME})
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
+endif ()
+
+set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg ${CMAKE_CURRENT_SOURCE_DIR}/media.cfg)
 
 #Installation
+if (WIN32) #TODO - test
+#install media
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Media DESTINATION ${OPENDUNGEONS_MEDIA_DIR})
+#install plugins.cfg and media.cfg
+	install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_MEDIA_DIR})
+#install resources.cfg
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_MEDIA_DIR} RENAME resources.cfg)
+else()
+	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Media DESTINATION ${OPENDUNGEONS_MEDIA_DIR})
+	install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_MEDIA_DIR})
+		install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_MEDIA_DIR} RENAME resources.cfg)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION ${CMAKE_INSTALL_PREFIX}/games PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+endif()
+

@@ -57,7 +57,7 @@ void MapEditor::createScene(void)
 	SceneNode *node;
 
 	// Read in the default game map
-	readGameMapFromFile("Media/levels/Test.level");
+	readGameMapFromFile(mResourcePath + "Media/levels/Test.level");
 
 	// Create ogre entities for the tiles, rooms, and creatures
 	gameMap.createAllEntities();
@@ -99,7 +99,18 @@ void MapEditor::createScene(void)
 	mSystem = &CEGUI::System::create(*mRenderer);
 
 	// Show the mouse cursor
-	CEGUI::SchemeManager::getSingleton().create((CEGUI::utf8*)"Media/gui/TaharezLookSkin.scheme");
+
+	CEGUI::DefaultResourceProvider* rp =
+	        static_cast<CEGUI::DefaultResourceProvider*>(
+	                CEGUI::System::getSingleton().getResourceProvider());
+	rp->setDefaultResourceGroup("default");
+	//Set resource path, remove trailing slash just in case, as cegui adds an extra one.
+	rp->setResourceGroupDirectory("default",
+	        mResourcePath.substr(0, mResourcePath.size() - 2).c_str());
+
+
+	Ogre::String schemePath("Media/gui/TaharezLookSkin.scheme");
+	CEGUI::SchemeManager::getSingleton().create(schemePath);
 	mSystem->setDefaultMouseCursor((CEGUI::utf8*)"TaharezLook", (CEGUI::utf8*)"MouseArrow");
 	mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 	CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
