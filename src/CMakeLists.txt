@@ -50,6 +50,11 @@ SET(
 
 # Create the binary file
 ADD_EXECUTABLE( ${PROJECT_BINARY_NAME} WIN32 ${SRC} )
+# Add install target
+install(TARGETS ${PROJECT_BINARY_NAME}
+	DESTINATION ${PROJECT_BINARY_NAME}
+) 
+
 
 # This foreach loads all of the packages specified as required.
 FOREACH( Package ${Required_Packages} )
@@ -60,6 +65,7 @@ FOREACH( Package ${Required_Packages} )
       TARGET_LINK_LIBRARIES( ${PROJECT_BINARY_NAME} ${${Package}_LIBRARIES} )
     ELSE( )
       LINK_DIRECTORIES( ${${Package}_LIBRARY_DIRS} )
+	#LINK_DIRECTORIES( ${${Package}_LIBRARY_DIR} )
     ENDIF( )
   ELSE( )
     MESSAGE( STATUS "${Package} not found" )
