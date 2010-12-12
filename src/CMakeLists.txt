@@ -51,9 +51,16 @@ SET(
 # Create the binary file
 ADD_EXECUTABLE( ${PROJECT_BINARY_NAME} WIN32 ${SRC} )
 # Add install target
-install(TARGETS ${PROJECT_BINARY_NAME}
-	DESTINATION ${PROJECT_BINARY_NAME}
-) 
+
+if( WIN32 )
+	install(TARGETS ${PROJECT_BINARY_NAME}
+		DESTINATION .
+	) 
+else () #Unix
+	install(TARGETS ${PROJECT_BINARY_NAME}
+		DESTINATION games
+	)
+endif() 
 
 
 # This foreach loads all of the packages specified as required.

@@ -26,6 +26,13 @@ Description: Base class for all the OGRE examples
 #include "Globals.h"
 #include "ExampleFrameListener.h"
 
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#include <shlwapi.h>
+#include <direct.h>
+//#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+//#include <sys/stat.h>
+#endif
+#include <sys/stat.h>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <CoreFoundation/CoreFoundation.h>
@@ -91,6 +98,7 @@ public:
 #else
 		mResourcePath = "";
 #endif
+		mHomePath = getHomePath();
     }
     /// Standard destructor
     virtual ~ExampleApplication()
@@ -119,6 +127,7 @@ protected:
     ExampleFrameListener* mFrameListener;
     RenderWindow* mWindow;
 	Ogre::String mResourcePath;
+	Ogre::String mHomePath;
 
     // These internal methods package up the stages in the startup process
     /** Sets up the application - returns false if the user chooses to abandon configuration. */
@@ -131,7 +140,7 @@ protected:
 		pluginsPath = mResourcePath + "plugins.cfg";
 #endif
 		
-        mRoot = new Root(pluginsPath, mResourcePath + "ogre.cfg", mResourcePath + "Ogre.log");
+        mRoot = new Root(pluginsPath, mHomePath + "ogre.cfg", mHomePath + "Ogre.log");
 
         setupResources();
 
@@ -234,7 +243,8 @@ protected:
             for (i = settings->begin(); i != settings->end(); ++i)
             {
                 typeName = i->first;
-                archName = i->second;
+                //Prefix resource path to resource locations.
+                archName = mResourcePath + i->second;
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
                 // OS X does not set the working directory relative to the app,
                 // In order to make things portable on OS X we need to provide
@@ -264,7 +274,87 @@ protected:
 
 	}
 
+	Ogre::String getHomePath()
+	{
 
+	    Ogre::String homePath;
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+	    //Currently using run dir in windows.
+/*	    TCHAR szPath[MAX_PATH];
+	    HRESULT result = SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath);
+	    if(SUCCEEDED(result))
+	    {
+	        PathAppend(szPath, _T("\\OpenDungeons"));
+
+
+	        int len = _tcslen(szPath);
+	        char* sZto = new char[len];
+	        //TODO - check what encoding to use.
+	        WideCharToMultiByte(CP_UTF8, 0, szPath, -1, sZto, len, NULL, NULL);
+
+	        homePath = sZto;
+
+	        _stat statbuf;
+	        int status = stat(homePath.c_str(), &statbuf);
+            if(status != 0)
+            {
+                int dirCreateStatus;
+                dirCreateStatus = mkdir(homePath.c_str());
+            }
+
+            delete[] sZto;
+            homePath.append("\\");
+	    }
+        else
+        {
+            homePath = ".";
+        }*/
+	    homePath = "./";
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+
+	    //If variable is not set, assume we are in a build dir and
+	    //use the current dir for config files.
+	    char* useHomeDir = std::getenv("OPENDUNGEONS_DATA_PATH");
+	    if(useHomeDir)
+	    {
+            //On linux and similar, use home dir
+            //http://linux.die.net/man/3/getpwuid
+            char* path = std::getenv("HOME");
+            if(path)
+            {
+                homePath = path;
+            }
+            else //In the unlikely event that home is not defined, use current  working dir
+            {
+                homePath = ".";
+            }
+            homePath.append("/.OpenDungeons");
+
+            //Create directory if it doesn't exist
+            struct stat statbuf;
+            int status = stat(homePath.c_str(), &statbuf);
+            if(status != 0)
+            {
+                int dirCreateStatus;
+                dirCreateStatus = mkdir(homePath.c_str(),
+                        S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+
+            }
+
+            homePath.append("/");
+	    }
+	    else
+	    {
+	        homePath = "./";
+	    }
+#else
+	    homePath = "./";
+#endif
+
+
+	    return homePath;
+	}
 
 };
 

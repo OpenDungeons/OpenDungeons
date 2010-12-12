@@ -96,7 +96,8 @@ void MapEditor::createScene(void)
 
 	// Setup CEGUI
 	mRenderer = &CEGUI::OgreRenderer::create();
-	mSystem = &CEGUI::System::create(*mRenderer);
+	mSystem = &CEGUI::System::create(*mRenderer,0, 0, 0, 0, "",
+	        mResourcePath + "CEGUI.log");
 
 	// Show the mouse cursor
 
@@ -105,6 +106,7 @@ void MapEditor::createScene(void)
 	                CEGUI::System::getSingleton().getResourceProvider());
 	rp->setDefaultResourceGroup("default");
 	//Set resource path, remove trailing slash just in case, as cegui adds an extra one.
+	//FIXME - should use ogreresourceprovider, but have to fix paths in resource files first
 	rp->setResourceGroupDirectory("default",
 	        mResourcePath.substr(0, mResourcePath.size() - 2).c_str());
 
