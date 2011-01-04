@@ -371,6 +371,17 @@ void Tile::setCoveringRoom(Room *r)
 	coveringRoom = r;
 }
 
+/*! \brief Check if tile is diggable.
+ *  Returns true if a tile is diggable.
+ *  (Can be marked for digging and dug out by kobolds)
+ */
+bool Tile::isDiggable()
+{
+    if((type == dirt || type == gold) && fullness > 0)
+        return true;
+    return false;
+}
+
 string Tile::getFormat()
 {
         return "posX\tposY\ttype\tfullness";
@@ -602,7 +613,7 @@ bool Tile::getSelected()
 void Tile::setMarkedForDigging(bool s, Player *p)
 {
 	// If we are trying to mark a tile that is not dirt or gold, ignore the request.
-	if(s && (type != dirt && type != gold))
+	if(s && !isDiggable())
 		return;
 
 	// If we are trying to mark a tile that is already dug out, ignore the request.

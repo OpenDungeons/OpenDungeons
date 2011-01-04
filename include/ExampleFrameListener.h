@@ -194,6 +194,8 @@ private:
 	DragType mDragType;
 	string draggedCreature, draggedMapLight;
 	SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode, *lightSceneNode;
+
+	SoundEffectsHelper* sfxHelper;
 };
 
 #endif

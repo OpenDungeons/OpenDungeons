@@ -100,7 +100,9 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	prompt = "-->  ";
 	terminalWordWrap = 78;
 	gameMap.me = new Player;
-	gameMap.me->nick = "";
+	//Changed to something as it was annoying to write in the nick
+	//every time, change back if it being blank is important.
+	gameMap.me->nick = "defaultNickName";
 	mDragType = ExampleFrameListener::nullDragType;
 	frameDelay = 0.0;
 	mGUIRenderer = renderer;
@@ -189,6 +191,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	OgreOggSound::OgreOggListener* cameraPosSound =
 			OgreOggSound::OgreOggSoundManager::getSingleton().getListener();
 	mCamNode->attachObject(cameraPosSound);
+
+	sfxHelper = SoundEffectsHelper::getSingletonPtr();
 }
 
 /*! \brief Adjust mouse clipping area
@@ -1573,6 +1577,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 						if(currentCreature != NULL && currentCreature->color == gameMap.me->seat->color)
 						{
 							gameMap.me->pickUpCreature(currentCreature);
+							sfxHelper->playInterfaceSound(SoundEffectsHelper::PICKUP);
 							return true;
 						}
 					}
@@ -1587,6 +1592,9 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 						mSceneMgr->getSceneNode("Hand_node")->addChild(node);
 						node->setPosition(0,0,0);
 						mDragType = ExampleFrameListener::creature;
+
+						sfxHelper->playInterfaceSound(SoundEffectsHelper::PICKUP);
+
 						return true;
 					}
 				}
@@ -1613,6 +1621,9 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 					{
 						mDragType = ExampleFrameListener::mapLight;
 						draggedMapLight = resultName.substr(((string)"MapLightIndicator_").size(), resultName.size());
+
+						sfxHelper->playInterfaceSound(SoundEffectsHelper::PICKUP);
+
 						return true;
 					}
 				}
@@ -1634,16 +1645,21 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 
 					// If we are in the map editor, use a brush selection if it has been activated.
 					if(serverSocket == NULL && clientSocket == NULL && mBrushMode)
+					{
 						mDragType = ExampleFrameListener::tileBrushSelection;
+					}
 
 					// If we have selected a room type to add to the map, use a addNewRoom drag type.
 					if(gameMap.me->newRoomType != Room::nullRoomType)
+					{
 						mDragType = ExampleFrameListener::addNewRoom;
+					}
 
 					// If we have selected a trap type to add to the map, use a addNewTrap drag type.
 					else if(gameMap.me->newTrapType != Trap::nullTrapType)
+					{
 						mDragType = ExampleFrameListener::addNewTrap;
-
+					}
 					break;
 				}
 			}
@@ -1681,6 +1697,10 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		if(curTile != NULL)
 		{
 			gameMap.me->dropCreature(curTile);
+			if(gameMap.me->numCreaturesInHand() > 0)
+			{
+			    sfxHelper->playInterfaceSound(SoundEffectsHelper::DROP);
+			}
 		}
 
 		// See if the mouse is over any creatures
@@ -1782,27 +1802,35 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 					// See if we are in a game or not
 					if(serverSocket != NULL || clientSocket != NULL)
 					{
-						if(serverSocket != NULL)
-						{
-							// On the server:  Just mark the tile for digging.
-							currentTile->setMarkedForDigging(digSetBool, gameMap.me);
-						}
-						else
-						{
-							// On the client:  Inform the server about our choice
-							ClientNotification *clientNotification = new ClientNotification;
-							clientNotification->type = ClientNotification::markTile;
-							clientNotification->p = currentTile;
-							clientNotification->flag = digSetBool;
+					    //See if the tile can be marked for digging.
+					    if(currentTile->isDiggable())
+					    {
+                            if(serverSocket != NULL)
+                            {
+                                // On the server:  Just mark the tile for digging.
+                                currentTile->setMarkedForDigging(digSetBool, gameMap.me);
+                            }
+                            else
+                            {
+                                // On the client:  Inform the server about our choice
+                                ClientNotification *clientNotification = new ClientNotification;
+                                clientNotification->type = ClientNotification::markTile;
+                                clientNotification->p = currentTile;
+                                clientNotification->flag = digSetBool;
 
-							sem_wait(&clientNotificationQueueLockSemaphore);
-							clientNotificationQueue.push_back(clientNotification);
-							sem_post(&clientNotificationQueueLockSemaphore);
+                                sem_wait(&clientNotificationQueueLockSemaphore);
+                                clientNotificationQueue.push_back(clientNotification);
+                                sem_post(&clientNotificationQueueLockSemaphore);
 
-							sem_post(&clientNotificationQueueSemaphore);
+                                sem_post(&clientNotificationQueueSemaphore);
 
-							currentTile->setMarkedForDigging(digSetBool, gameMap.me);
-						}
+                                currentTile->setMarkedForDigging(digSetBool, gameMap.me);
+
+                            }
+
+
+                            sfxHelper->playInterfaceSound(SoundEffectsHelper::DIGSELECT, false);
+					    }
 					}
 					else
 					{
@@ -1886,6 +1914,8 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 					}
 
 					tempRoom->createMeshes();
+
+					sfxHelper->playInterfaceSound(SoundEffectsHelper::BUILDROOM, false);
 				}
 			}
 
@@ -1909,6 +1939,8 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 				//FIXME: This throws an OGRE runtime error when it is commented in.
 				//tempTrap->createMeshes();
 				gameMap.addTrap(tempTrap);
+
+				sfxHelper->playInterfaceSound(SoundEffectsHelper::BUILDTRAP, false);
 			}
 
 			// Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
@@ -2117,6 +2149,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				mDebugText = "Saved: " + ss.str();
 				break;
 
+			//NOTE: Use function instead maybe? goto is scary.
 			case KC_1:  hotkeyNumber = 1;  goto processHotkey;
 			case KC_2:  hotkeyNumber = 2;  goto processHotkey;
 			case KC_3:  hotkeyNumber = 3;  goto processHotkey;
@@ -2631,22 +2664,25 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 	//Set/get the mouse movement scaling (sensitivity)
 	else if(command.compare("mousespeed") == 0)
 	{
-		if(arguments.size() > 0)
-		{
-			float speed;
-			tempSS.str(arguments);
-			tempSS >> speed;
-			CEGUI::System::getSingleton().setMouseMoveScaling(speed);
-			tempSS.str("");
-			tempSS << "Mouse speed changed to: " << speed;
-			commandOutput += "\n" + tempSS.str() + "\n";
-		}
-		else
-		{
-			commandOutput += "\nCurrent mouse speed is: " 
-				+ StringConverter::toString(static_cast<Real>(
-				CEGUI::System::getSingleton().getMouseMoveScaling())) + "\n";
-		}
+	    //Doesn't do anything at the moment, after the mouse input to cegui change.
+	    //TODO - remove or make usable.
+	    commandOutput += "The command is disabled\n";
+//		if(arguments.size() > 0)
+//		{
+//			float speed;
+//			tempSS.str(arguments);
+//			tempSS >> speed;
+//			CEGUI::System::getSingleton().setMouseMoveScaling(speed);
+//			tempSS.str("");
+//			tempSS << "Mouse speed changed to: " << speed;
+//			commandOutput += "\n" + tempSS.str() + "\n";
+//		}
+//		else
+//		{
+//			commandOutput += "\nCurrent mouse speed is: "
+//				+ StringConverter::toString(static_cast<Real>(
+//				CEGUI::System::getSingleton().getMouseMoveScaling())) + "\n";
+//		}
 	}
 
 	// Add a new instance of a creature to the current map.  The argument is

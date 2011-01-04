@@ -36,6 +36,17 @@ SoundEffectsHelper::SoundEffectsHelper()
 	digSounds.push_back(soundManager.createSound("dig5", digFolder + "RocksFalling05.ogg"));
 	digSounds.push_back(soundManager.createSound("dig6", digFolder + "RocksFalling06.ogg"));
 	digSounds.push_back(soundManager.createSound("dig7", digFolder + "RocksFalling07.ogg"));
+
+	interfaceSounds.push_back(soundManager.createSound("click1", "Click/click.ogg"));
+	interfaceSounds.back()->disable3D(true);
+	//Replacement sound for now
+	while(interfaceSounds.size() < NUM_INTERFACE_SOUNDS)
+	{
+	    interfaceSounds.push_back(soundManager.createSound(
+	            "repl" + Ogre::StringConverter::toString(interfaceSounds.size()), "Click/click.ogg"));
+	    interfaceSounds.back()->disable3D(true);
+	}
+
 }
 
 SoundEffectsHelper::~SoundEffectsHelper() {
@@ -63,4 +74,13 @@ void SoundEffectsHelper::playBlockDestroySound(int tileX, int tileY)
 	{
 		nextDigSound = 0;
 	}
+}
+
+void SoundEffectsHelper::playInterfaceSound(InterfaceSound sound, bool stopCurrent)
+{
+    if(stopCurrent)
+    {
+        interfaceSounds[sound]->stop();
+    }
+    interfaceSounds[sound]->play();
 }
