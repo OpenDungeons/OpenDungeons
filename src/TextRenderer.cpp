@@ -51,3 +51,9 @@ Ogre::OverlayElement* textBox = _overlayMgr->getOverlayElement(ID);
 textBox->setCaption(Text);
 }
 
+void TextRenderer::moveText(const std::string& ID, Ogre::Real left, Ogre::Real top)
+{
+    Ogre::OverlayElement* textBox = _panel->getChild(ID);
+    textBox->setPosition(left, top);
+}
+

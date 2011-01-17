@@ -1,6 +1,9 @@
 #ifndef DEFINES_H
 #define DEFINES_H
 
+//Various text strings and constants
+//FIXME - should use variables and not defines.
+
 #define BLENDER_UNITS_PER_OGRE_UNIT       10.0
 #define VERSION       "0.4.5"
 #define PORT_NUMBER		 31222		// Both of these lines should be the same number
@@ -38,6 +41,8 @@ For information on how to use a particular command, type help followed by the co
 \n\taddcolor - adds another player color\
 \n\tsetcolor - changes the value of one of the player's color\
 \n\tdisconnect - stops a running server or client and returns to the map editor"
+
+#define POINTER_INFO_STRING "pointerInfo"
 
 #endif
 

@@ -5,6 +5,8 @@
 
 #include "Globals.h"
 #include "Room.h"
+#include "Defines.h"
+#include "TextRenderer.h"
 
 bool quitButtonPressed(const CEGUI::EventArgs &e);
 bool quartersButtonPressed(const CEGUI::EventArgs &e);

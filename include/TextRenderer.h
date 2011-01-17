@@ -4,6 +4,7 @@
 #include <Ogre.h>
 #include <OgreSingleton.h>
 
+//http://www.ogre3d.org/tikiwiki/Simple+Text+Output&structure=Cookbook
 class TextRenderer : public Ogre::Singleton<TextRenderer>
 {
 	private:
@@ -25,6 +26,8 @@ class TextRenderer : public Ogre::Singleton<TextRenderer>
 		void removeTextBox(const std::string& ID);
 
 		void setText(const std::string& ID, const std::string& Text);
+
+		void moveText(const std::string& ID, Ogre::Real left, Ogre::Real top);
 };
 
 #endif

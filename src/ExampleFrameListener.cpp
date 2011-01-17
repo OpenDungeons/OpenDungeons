@@ -193,6 +193,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mCamNode->attachObject(cameraPosSound);
 
 	sfxHelper = SoundEffectsHelper::getSingletonPtr();
+	TextRenderer::getSingleton().addTextBox(POINTER_INFO_STRING,
+	        "", 0, 0, 200, 50, Ogre::ColourValue::White);
 }
 
 /*! \brief Adjust mouse clipping area
@@ -1367,6 +1369,15 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 	RaySceneQueryResult &result = doRaySceneQuery(arg);
 	RaySceneQueryResult::iterator itr = result.begin( );
 
+	//If we have a room or trap (or later spell) selected, show what we
+	//have selected
+	//This should be changed, or combined with an icon or something later.
+	if(gameMap.me->newRoomType || gameMap.me->newTrapType)
+	{
+	    TextRenderer::getSingleton().moveText(POINTER_INFO_STRING,
+	            arg.state.X.abs + 30,arg.state.Y.abs);
+	}
+
 	if(mDragType == ExampleFrameListener::tileSelection || mDragType == ExampleFrameListener::addNewRoom || mDragType == ExampleFrameListener::nullDragType)
 	{
 		// Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
@@ -1690,6 +1701,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		mDragType = ExampleFrameListener::nullDragType;
 		gameMap.me->newRoomType = Room::nullRoomType;
 		gameMap.me->newTrapType = Trap::nullTrapType;
+		TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "");
 
 		// If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
 		//TODO:  This should probably contain a check to see if we are in a game.
