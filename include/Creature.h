@@ -6,8 +6,8 @@
 #include <deque>
 
 #include <semaphore.h>
-#include <OgreOggSoundManager.h>
-#include <OgreOggISound.h>
+//#include <OgreOggSoundManager.h>
+//#include <OgreOggISound.h>
 
 class Creature;
 
@@ -97,7 +97,7 @@ class Creature : public CreatureClass, public AttackableObject
 		void computeBattlefield();
 
 		// Sound stuff
-		void setSounds(OgreOggSound::OgreOggISound* attackSound);
+		//void setSounds(OgreOggSound::OgreOggISound* attackSound);
 
 		// Visual debugging routines
 		void createVisualDebugEntities();
@@ -127,7 +127,7 @@ class Creature : public CreatureClass, public AttackableObject
 		bool meshesExist;
 		double awakeness;
 
-		OgreOggSound::OgreOggISound* attackSound;
+		//sf::Sound attackSound;
 };
 
 #endif

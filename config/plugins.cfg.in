@@ -19,4 +19,4 @@ Plugin=Plugin_OctreeSceneManager
 Plugin=Plugin_CgProgramManager
 
 #sound
-Plugin=OgreOggSound
+#Plugin=OgreOggSound

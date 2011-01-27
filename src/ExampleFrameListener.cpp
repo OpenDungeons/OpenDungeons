@@ -188,9 +188,9 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	mRaySceneQuery = mSceneMgr->createRayQuery(Ray());
 
 	//Attack the sound listener to the camera.
-	OgreOggSound::OgreOggListener* cameraPosSound =
-			OgreOggSound::OgreOggSoundManager::getSingleton().getListener();
-	mCamNode->attachObject(cameraPosSound);
+	//OgreOggSound::OgreOggListener* cameraPosSound =
+	//		OgreOggSound::OgreOggSoundManager::getSingleton().getListener();
+	//mCamNode->attachObject(cameraPosSound);
 
 	sfxHelper = SoundEffectsHelper::getSingletonPtr();
 	TextRenderer::getSingleton().addTextBox(POINTER_INFO_STRING,
@@ -319,6 +319,7 @@ void ExampleFrameListener::moveCamera(double frameTime)
 
 	// Move the camera to the new location
 	mCamNode->setPosition(newPosition);
+	sfxHelper->setListenerPosition(newPosition, mCamNode->getOrientation());
 }
 
 /** \brief Computes a vector whose z-component is 0 and whose x-y coordinates are the position on the floor that the camera is pointed at.

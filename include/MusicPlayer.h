@@ -1,8 +1,9 @@
 #ifndef MUSICPLAYER_H
 #define MUSICPLAYER_H
 
-#include <OgreOggSoundManager.h>
-#include <OgreOggISound.h>
+//#include <OgreOggSoundManager.h>
+//#include <OgreOggISound.h>
+#include <SFML/Audio.hpp>
 #include <OgreResourceGroupManager.h>
 #include <vector>
 #include <iostream>
@@ -10,7 +11,7 @@
 /*! \brief Class to manage playing of music.
  *
  */
-class MusicPlayer : public OgreOggSound::OgreOggISound::SoundListener {
+class MusicPlayer { // : public OgreOggSound::OgreOggISound::SoundListener {
 public:
 	MusicPlayer();
 	//virtual ~MusicPlayer();
@@ -21,9 +22,9 @@ public:
 
 private:
 	void startCurrent();
-	void soundStopped(OgreOggSound::OgreOggISound* sound);
+	//void soundStopped(OgreOggSound::OgreOggISound* sound);
 
-	std::vector<OgreOggSound::OgreOggISound*> tracks;
+	std::vector<sf::Music> tracks;
 	bool loaded;
 	unsigned currentTrack;
 };

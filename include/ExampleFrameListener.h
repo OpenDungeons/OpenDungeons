@@ -39,7 +39,7 @@ keyboard and mouse movements.
 //#define
 //#include <OgreOggSoundManager.h>
 //#include <OgreOggStreamSound.h>
-#include <OgreOggSound.h>
+//#include <OgreOggSound.h>
 
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
@@ -184,7 +184,7 @@ protected:
 
 	enum DragType {creature, mapLight, tileSelection, tileBrushSelection, addNewRoom, addNewTrap, nullDragType};
 
-	OgreOggSound::OgreOggISound* mCurrMusic;
+	//OgreOggSound::OgreOggISound* mCurrMusic;
 
 private:
 	bool mContinue;

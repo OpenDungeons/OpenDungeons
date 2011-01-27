@@ -18,7 +18,7 @@ MusicPlayer::MusicPlayer() :
 */
 void MusicPlayer::load()
 {
-	if(!loaded)
+/*	if(!loaded)
 	{
 
 		std::cout << "Loading music..." << std::endl;
@@ -59,7 +59,7 @@ void MusicPlayer::load()
 		}
 
 
-	}
+	}*/
 }
 
 /** \brief Start music playback if any music is loaded.
@@ -78,13 +78,14 @@ void MusicPlayer::start()
 */
 void MusicPlayer::startCurrent()
 {
-	tracks[currentTrack]->setListener(this);
-	tracks[currentTrack]->play();
+	//tracks[currentTrack]->setListener(this);
+	//tracks[currentTrack]->play();
 }
 
 /** \brief Callback function to start the next track.
  *
 */
+/*
 void MusicPlayer::soundStopped(OgreOggSound::OgreOggISound* sound)
 {
 	//Remove listener
@@ -102,4 +103,4 @@ void MusicPlayer::soundStopped(OgreOggSound::OgreOggISound* sound)
 	//Start
 	startCurrent();
 }
-
+*/

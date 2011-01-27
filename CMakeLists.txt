@@ -5,7 +5,13 @@ CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
 #endif( POLICY CMP0011 )
 
 PROJECT( OpenDungeons )
-SET( PROJECT_BINARY_NAME "OpenDungeons")
+if ( WIN32 )
+
+	SET( PROJECT_BINARY_NAME "OpenDungeons")
+else()
+	SET( PROJECT_BINARY_NAME "OpenDungeons.bin")
+endif()
+	
 SET( ${PROJECT_NAME}_MAJOR_VERSION 0 )
 SET( ${PROJECT_NAME}_MINOR_VERSION 4 )
 SET( ${PROJECT_NAME}_PATCH_LEVEL 5 )
@@ -18,7 +24,7 @@ SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR} )
 
 
 # Declare external dependencies
-SET( Required_Packages OIS OGRE CEGUI CEGUIOGRE OpenAL OgreOggSound )
+SET( Required_Packages OIS OGRE CEGUI CEGUIOGRE OpenAL )
 
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include )
 
@@ -94,17 +100,17 @@ ENDIF( )
 
 #Find boost and link
 #Needs to be updated with use of new boost release
-set(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.43.0 1.43 1.44.0 1.44 1.45.0 1.45) 
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_LIBS   OFF)
-find_package( Boost COMPONENTS thread )
-if(Boost_FOUND)
-	include_directories(${Boost_INCLUDE_DIRS})
-	if ( WIN32 )
-		link_directories(${Boost_LIBRARY_DIRS}) ##Needed because VS wants to autolink
-	endif()
-	link_libraries(${Boost_LIBRARIES})
-endif()
+#set(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.43.0 1.43 1.44.0 1.44 1.45.0 1.45) 
+#set(Boost_USE_MULTITHREADED ON)
+#set(Boost_USE_STATIC_LIBS   OFF)
+#find_package( Boost COMPONENTS thread )
+#if(Boost_FOUND)
+#	include_directories(${Boost_INCLUDE_DIRS})
+#	if ( WIN32 )
+#		link_directories(${Boost_LIBRARY_DIRS}) ##Needed because VS wants to autolink
+#	endif()
+#	link_libraries(${Boost_LIBRARIES})
+#endif()
 #Todo- move this to where the other link dirs are specified
 link_directories(${CEGUI_LIB_DIR})
 
@@ -116,6 +122,10 @@ INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
 #	message(STATUS ${OGREOGGSOUND_LIBRARY})
 #	link_libraries(${OGREOGGSOUND_LIBRARY})
 #endif ()
+
+find_package(SFML)
+
+link_libraries(${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG})
 
 ADD_SUBDIRECTORY( src )
 #configuration files

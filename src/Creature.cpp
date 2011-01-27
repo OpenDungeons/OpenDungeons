@@ -63,8 +63,8 @@ Creature::Creature()
 
 	static int uniqueId = 0;
 
-	attackSound = OgreOggSound::OgreOggSoundManager::getSingletonPtr()
-			->createSound("attackSound" + Ogre::StringConverter::toString(uniqueId++), "Sword/SwordBlock01.ogg");
+	//attackSound = OgreOggSound::OgreOggSoundManager::getSingletonPtr()
+	//		->createSound("attackSound" + Ogre::StringConverter::toString(uniqueId++), "Sword/SwordBlock01.ogg");
 
 	awakeness = 100.0;
 }
@@ -283,7 +283,7 @@ void Creature::setPosition(double x, double y, double z)
 		sem_post(&positionLockSemaphore);
 	}
 
-	attackSound->setPosition(x, y, z);
+	//attackSound->setPosition(x, y, z);
 
 	// Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
 	RenderRequest *request = new RenderRequest;
@@ -1307,7 +1307,7 @@ claimTileBreakStatement:
 						setAnimationState("Attack1");
 
 						//Play attack sound
-						attackSound->play();
+						//attackSound->play();
 
 						// Calculate how much damage we do.
 						//TODO:  This ignores the range of the creatures, fix this.
