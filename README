@@ -1,14 +1,13 @@
 --- Build Instructions ---
+More detailed, and usually up to date build instructions can be found at:
+http://opendungeons.sourceforge.net/index.php/Download
+
 To build the game run the following commands from the directory where this README file is:
 
 	cmake.
 	make
-	./MapEditor
+	./OpenDungeons.bin
 
-
-For keyboard controls see:
-
-http://andrewbuck.homelinux.org/wiki/Game_controls
 
 
 To build on windows you will need to link against the following libraries:
@@ -17,18 +16,13 @@ To build on windows you will need to link against the following libraries:
 *  OIS
 *  CEGUI SDK
 *  pthreads-win32
+*  SFML
 
 -----  Building under visual studio  -----
-OVisual studio project and solution files can be automatically generated using the 'cmake' program.
+Visual studio project and solution files can be automatically generated using the 'cmake' program.
 
 -----  Building under mingw  -----
-There is a makefile provided for the mingw compiler.  Since the library paths
-depend on where you install them to, you may need to edit the makefile slightly
-(start with the WINEDIR variable).  To build using mingw do the following
-
-cp Makefile.mingw Makefile
-make depend
-make
+mingw is currently untested, support will be worked on.
 
 
 
@@ -49,10 +43,3 @@ Once you have built and installed the CEGUI libraries, return to the OpenDungeon
 	cmake .
 	make
 	./MapEditor
-
-
-*  Once the game is loaded, clicking the mouse, before moving the mouse will produce a crash.
-
-*  While the game is loading you must keep the mouse inside the game window.  When
-the scene initializes if the mouse cursor is outside of the window it will
-cause a crash.
