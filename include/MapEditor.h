@@ -29,7 +29,6 @@ class MapEditor : public ExampleApplication
 		void chooseSceneManager(void);
 		CEGUI::System *mSystem;
 		CEGUI::Renderer *mRenderer;
-		MusicPlayer mMusicPlayer;
 };
 
 #endif

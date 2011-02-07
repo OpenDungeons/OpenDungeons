@@ -69,16 +69,16 @@ void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
 
     interfaceSoundBuffers.push_back(sf::SoundBuffer());
     interfaceSoundBuffers.back().LoadFromFile(soundFolderPath + "/Click/click.ogg");
-    interfaceSounds.push_back(sf::Sound(interfaceSoundBuffers.back()));
-    //These sounds are not positioned, this disables
-        //Spatialisation for the sound.
-    //interfaceSounds.back().SetAttenuation(0);
+
+
 
     //Replacement sound for now
     while(interfaceSounds.size() < NUM_INTERFACE_SOUNDS)
     {
         interfaceSounds.push_back(sf::Sound(interfaceSoundBuffers.back()));
-        //interfaceSounds.back().SetAttenuation(0);
+        //These sounds are not positioned, this disables
+        //Spatialisation for the sound.
+        interfaceSounds.back().SetAttenuation(0);
     }
 }
 

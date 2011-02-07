@@ -144,6 +144,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	cameraIsFlying = false;
 	cameraFlightSpeed = 70.0;
 
+	musicPlayer = MusicPlayer::getSingletonPtr();
+
 	for(int i = 0; i < 10; i++)
 	{
 		hotkeyLocationIsValid[i] = false;
@@ -397,6 +399,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	gameMap.threadLockForTurn(currentTurnNumber);
 
 	using namespace OIS;
+
+	musicPlayer->update();
 
 	// Process the queue of render tasks from the other threads
 	while(true)

@@ -1,5 +1,8 @@
 #include "MusicPlayer.h"
 
+template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::ms_Singleton = 0;
+
+
 /** \brief Initialise variables.
  *
 */
@@ -9,16 +12,48 @@ MusicPlayer::MusicPlayer() :
 
 }
 
-/*MusicPlayer::~MusicPlayer()
+MusicPlayer::~MusicPlayer()
 {
-}*/
+}
+
+
+MusicPlayer& MusicPlayer::getSingleton()
+{
+    return *ms_Singleton;
+}
+
+MusicPlayer* MusicPlayer::getSingletonPtr()
+{
+    assert(ms_Singleton);
+    return ms_Singleton;
+}
+
+/** \brief Check if current track is finished, and change to next track if it is.
+ *
+*/
+void MusicPlayer::update()
+{
+    if(loaded)
+    {
+        //TODO - should be a more efficient way of doing this than checking every frame
+        if(tracks[currentTrack]->GetStatus() == sf::Sound::Stopped)
+        {
+            ++currentTrack;
+            if(currentTrack >= tracks.size())
+            {
+                currentTrack = 0;
+            }
+            startCurrent();
+        }
+    }
+}
 
 /** \brief Initialise and load music files in the resource locations listed under "Music".
  *
 */
-void MusicPlayer::load()
+void MusicPlayer::load(const Ogre::String& path)
 {
-/*	if(!loaded)
+	if(!loaded)
 	{
 
 		std::cout << "Loading music..." << std::endl;
@@ -28,28 +63,36 @@ void MusicPlayer::load()
 				::getSingleton().listResourceNames("Music");
 		Ogre::StringVector::iterator it;
 		tracks.reserve(musicFiles->size());
-		OgreOggSound::OgreOggSoundManager& soundmgr = OgreOggSound::OgreOggSoundManager::getSingleton();
+
+		//OgreOggSound::OgreOggSoundManager& soundmgr = OgreOggSound::OgreOggSoundManager::getSingleton();
 		for(it = musicFiles->begin(); it != musicFiles->end(); ++it)
 		{
+		    std::cout << path << "/" << *it << std::endl;
 			//Create sound objects for all files, Sound objects should be deleted automatically
 			//by the sound manager.
 			//TODO - check what this does if something goes wrong loading the file.
-			OgreOggSound::OgreOggISound* sound = soundmgr.createSound(*it, *it, true);// false, false, null));
-			if(sound)
+			//OgreOggSound::OgreOggISound* sound = soundmgr.createSound(*it, *it, true);// false, false, null));
+		    Ogre::SharedPtr<sf::Music> track(new sf::Music());
+		    //TODO - check for text encoding issues.
+		    bool opened = track->OpenFromFile(path + "/" + *it);
+			if(opened)
 			{
-				tracks.push_back(sound);
-				sound->disable3D(true); //Disable 3D sound for music files.
+			    track->SetVolume(25);
+			    track->SetAttenuation(0);
+				tracks.push_back(track);
+				//sound->disable3D(true); //Disable 3D sound for music files.
 				//Stereo files are not positioned anyway, but in case we have mono music... this is necessary.
 
 				//Lower volume to make it more in line with effects sounds.
-				sound->setVolume(0.25);
+				//sound->setVolume(0.25);
+
 			}
 
 		}
-
-		if(musicFiles->size() == 0)
+//
+		if(tracks.size() == 0)
 		{
-			std::cerr << "No music files found... no music will be played" << std::endl;
+			std::cerr << "No music files loaded... no music will be played" << std::endl;
 		}
 		else
 		{
@@ -59,7 +102,7 @@ void MusicPlayer::load()
 		}
 
 
-	}*/
+	}
 }
 
 /** \brief Start music playback if any music is loaded.
@@ -80,6 +123,7 @@ void MusicPlayer::startCurrent()
 {
 	//tracks[currentTrack]->setListener(this);
 	//tracks[currentTrack]->play();
+    tracks[currentTrack]->Play();
 }
 
 /** \brief Callback function to start the next track.

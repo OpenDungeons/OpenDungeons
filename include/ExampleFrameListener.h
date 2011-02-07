@@ -53,6 +53,7 @@ using namespace Ogre;
 #include "Tile.h"
 #include "ChatMessage.h"
 #include "Room.h"
+#include "MusicPlayer.h"
 
 /*! \brief The main OGRE rendering class.
  *
@@ -196,6 +197,7 @@ private:
 	SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode, *lightSceneNode;
 
 	SoundEffectsHelper* sfxHelper;
+	MusicPlayer* musicPlayer;
 };
 
 #endif

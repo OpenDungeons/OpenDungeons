@@ -160,8 +160,8 @@ void MapEditor::createScene(void)
 		cerr << "\n\nERROR:  Caught and ignored an exception in the loading of the CEGUI overlay, the game will continue to function albeit without the GUI overlay functionality.\n\n";
 	}
 
-
-	mMusicPlayer.load();
+	MusicPlayer* m = new MusicPlayer();
+	m->load(mResourcePath + "Media/music/");
 }
 
 void MapEditor::createFrameListener(void)
@@ -169,7 +169,9 @@ void MapEditor::createFrameListener(void)
 	mFrameListener = new ExampleFrameListener(mWindow, mCamera, mSceneMgr, mRenderer, true, true, false);
 	mFrameListener->showDebugOverlay(true);
 	mRoot->addFrameListener(mFrameListener);
-	mMusicPlayer.start();
+	//Start music.
+	//TODO - move this to when the map is actually loaded
+	MusicPlayer::getSingleton().start();
 }
 
 void MapEditor::chooseSceneManager(void)
