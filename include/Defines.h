@@ -5,7 +5,7 @@
 //FIXME - should use variables and not defines.
 
 #define BLENDER_UNITS_PER_OGRE_UNIT       10.0
-#define VERSION       "0.4.6"
+#define VERSION       "0.4.7"
 #define PORT_NUMBER		 31222		// Both of these lines should be the same number
 #define PORT_NUMBER_STRING	"31222"		// Both of these lines should be the same number
 #define DEFAULT_FRAMES_PER_SECOND	60.0

@@ -1,4 +1,4 @@
-OpenDungeons_Version:0.4.6  # The version of OpenDungeons which created this file (for compatability reasons).
+OpenDungeons_Version:0.4.7  # The version of OpenDungeons which created this file (for compatability reasons).
 Media/levels/Test.level # The level to load after this level is complete.
 
 # Seats
@@ -15,8 +15,14 @@ Media/levels/Test.level # The level to load after this level is complete.
 # goalName	arguments
 KillAllEnemies	NULL
 ProtectCreature	King
-ClaimNTiles	1000
-MineNGold	35000
+- 1
+ClaimNTiles 1000
+ClaimNTiles	200
+MineNGold	20
++ 1
+MineNGold	5000
++ 1
+MineNGold	10000
 ProtectDungeonTemple	NULL
 
 # Tiles

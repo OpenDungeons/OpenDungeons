@@ -143,6 +143,11 @@ unsigned int Seat::checkAllGoals()
 			completedGoals.push_back(*currentGoal);
 			sem_post(&completedGoalsLockSemaphore);
 
+			// Add any subgoals upon completion to the list of outstanding goals.
+			for(unsigned int i = 0; i < (*currentGoal)->numSuccessSubGoals(); i++)
+				goals.push_back((*currentGoal)->getSuccessSubGoal(i));
+
+			//FIXME: This is probably a memory leak since the goal is created on the heap and should probably be deleted here.
 			currentGoal = goals.erase(currentGoal);
 		}
 		else
@@ -154,10 +159,16 @@ unsigned int Seat::checkAllGoals()
 				failedGoals.push_back(*currentGoal);
 				sem_post(&failedGoalsLockSemaphore);
 
+				// Add any subgoals upon completion to the list of outstanding goals.
+				for(unsigned int i = 0; i < (*currentGoal)->numFailureSubGoals(); i++)
+					goals.push_back((*currentGoal)->getFailureSubGoal(i));
+
+				//FIXME: This is probably a memory leak since the goal is created on the heap and should probably be deleted here.
 				currentGoal = goals.erase(currentGoal);
 			}
 			else
 			{
+				// The goal has not been met but has also not been definitively failed, continue on to the next goal in the list.
 				currentGoal++;
 			}
 		}

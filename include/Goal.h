@@ -27,6 +27,14 @@ class Goal
 		// Functions which cannot be overridden by child classes
 		std::string getName();
 
+		void addSuccessSubGoal(Goal *g);
+		unsigned int numSuccessSubGoals();
+		Goal* getSuccessSubGoal(int index);
+
+		void addFailureSubGoal(Goal *g);
+		unsigned int numFailureSubGoals();
+		Goal* getFailureSubGoal(int index);
+
 		static std::string getFormat();
 		friend ostream& operator<<(ostream& os, Goal *g);
 		static Goal* instantiateFromStream(istream& is);
@@ -34,6 +42,8 @@ class Goal
 	protected:
 		std::string name;
 		std::string arguments;
+		std::vector<Goal*> successSubGoals;
+		std::vector<Goal*> failureSubGoals;
 };
 
 #include "Seat.h"
