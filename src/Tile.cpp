@@ -377,9 +377,10 @@ void Tile::setCoveringRoom(Room *r)
  */
 bool Tile::isDiggable()
 {
-    if((type == dirt || type == gold) && fullness > 0)
-        return true;
-    return false;
+	if((type == dirt || type == gold || type == claimed) && fullness > 0)
+		return true;
+
+	return false;
 }
 
 string Tile::getFormat()

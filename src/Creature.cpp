@@ -461,10 +461,12 @@ void Creature::doTurn()
 	}
 
 	// Check to see if there is a Dojo we can train at.
-	if(!isWorker() && randomDouble(0.0, 1.0) < 0.01*awakeness/100.0 && actionQueue.front().type != CreatureAction::train)
+	if(!isWorker() && randomDouble(0.0, 1.0) < awakeness/100.0 && actionQueue.front().type != CreatureAction::train)
 	{
+		//TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
 		tempAction.type = CreatureAction::train;
 		actionQueue.push_front(tempAction);
+		trainWait = 0;
 	}
 
 	// The loopback variable allows creatures to begin processing a new
@@ -1210,6 +1212,8 @@ claimTileBreakStatement:
 					break;
 
 				case CreatureAction::train:
+					// Creatures can only train to level 10 at a dojo.
+					//TODO: Check to see if the dojo has been upgraded to allow training to a higher level.
 					if(level > 10)
 					{
 						actionQueue.pop_front();
@@ -1227,6 +1231,7 @@ claimTileBreakStatement:
 						break;
 					}
 
+					// Decrement a counter each turn until it reaches 0, if it reaches 0 we try to train this turn.
 					if(trainWait > 0)
 					{
 						setAnimationState("Idle");
@@ -1234,14 +1239,15 @@ claimTileBreakStatement:
 						break;
 					}
 
-					// See if we are in a dojo now.
+					// Make sure we are on the map.
 					myTile = positionTile();
 					if(myTile != NULL)
 					{
-						// Train at this dojo.
+						// See if we are in a dojo now.
 						tempRoom = myTile->getCoveringRoom();
 						if(tempRoom != NULL && tempRoom->getType() == Room::dojo)
 						{
+							// Train at this dojo.
 							tempTile = tempRoom->getCentralTile();
 							faceToward(tempTile->x, tempTile->y);
 							setAnimationState("Attack1");
@@ -1268,6 +1274,7 @@ claimTileBreakStatement:
 					}
 
 					// Pick a dojo to train at and try to walk to it.
+					//TODO: Pick a close dojo, not necessarily the closest just a somewhat closer than average one.
 					tempRoom = tempRooms[randomUint(0, tempRooms.size()-1)];
 					tempTile = tempRoom->getCoveredTile(randomUint(0, tempRoom->numCoveredTiles()-1));
 					tempPath = gameMap.path(myTile, tempTile, tilePassability);
@@ -1277,6 +1284,7 @@ claimTileBreakStatement:
 					}
 					else
 					{
+						// We could not find a dojo to train at so stop trying to find one.
 						actionQueue.pop_front();
 						loopBack = true;
 					}

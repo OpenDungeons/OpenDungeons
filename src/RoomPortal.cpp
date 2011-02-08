@@ -119,6 +119,8 @@ void RoomPortal::spawnCreature()
 	newCreature->createMesh();
 	newCreature->weaponL->createMesh();
 	newCreature->weaponR->createMesh();
+
+	//TODO: Inform the clients that this creature has been created by placing a newCreature message in the serverNotificationQueue.
 }
 
 /*! \brief Computes a probability for each creature class in the game map based on the player's alignment and the current set of creatures in the dungeon.

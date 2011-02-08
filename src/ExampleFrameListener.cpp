@@ -1206,7 +1206,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				{
 					// Stop walking
 					currentAnimatedObject->stopWalking();
-					currentAnimatedObject->setAnimationState(currentAnimatedObject->destinationAnimationState);
 				}
 				else // There are still entries left in the queue
 				{
@@ -1220,6 +1219,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			}
 			else // We have not reached the destination at the front of the queue
 			{
+				// Move the object closer to its destination by the amount it should travel this frame.
 				currentAnimatedObject->setPosition(currentAnimatedObject->getPosition() + currentAnimatedObject->walkDirection * moveDist);
 			}
 		}

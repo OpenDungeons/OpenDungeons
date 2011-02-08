@@ -4,22 +4,10 @@
 +  they are alone with an enemy, however the should either stand their ground and
 +  fight or run away, not just stand there working while they are attacked.
 
-+  When the terminal command "load" is executed if the loaded level is from a
-+  different version of OpenDungeons than the current game the game will print
-+  an error message to the terminal and quit, this should be handled more
-+  gracefully.
-+
 *  fix keyboard repeat issue (when the game crashes keyboard repeat is disabled
 *  but the OS still thinks it's on, turning it off and then back on again
 *  restores the functionality).  This seems to be a bug in OIS so there might
 *  not be anything we can do about it.
-
-*  Fix crash on loading a new map from the server, I think it has to do with
-*  getting peices of messages in a single packet.  This assumption may or may
-*  not be true, it may be that the RenderQueue is somehow processing the
-*  addDestination message before the createMesh message.  This can be fixed by
-*  adding a mutex style semaphore on the critical sections the
-*  ClientSocketProcessor, ClientNotificationProcessor, etc.
 
 *  The GameMap::cutCorners() function sometimes causes creatures to walk
 *  through walls, this could be a problem with the lineOfSight function.
@@ -46,24 +34,6 @@
 *  creatures push a walkToTile action to their actionQueue to force them to
 *  walk a ways but they could still get stuck in a "big" local minima.
 
-*  When the game exits, many items are placed into the render queue to be
-*  deleted, etc.  However, the game exits before calling
-*  ExampleFrameListener::startFrame() one last time.  Some kind of mechanism
-*  must be put in place to call frameStarted again to flush the render queue so
-*  everything is properly freed up.
-
-*  When the game exits during a match with lots of creatures who can see
-*  enemies the game will segfault in the Creature::getReachableCreatures()
-*  function because the tile that a given creature is standing on
-*  (creatureTile) gets deleted from the game map and thus when the query is
-*  done it returns NULL.
-
-*  When running a mulitplayer game the client does not get sent the MapLights
-*  or the Goals.
-
-*  When running a multiplayer game if another player in the game picks up/drops
-*  creatures you don't see the effects on your own display.
-
 +  When using the << and >> operators the 'endl' thing does a flush of the
 +  stream, this is likely unnecessary so the endl should usually be replaced by a "\n".
 
@@ -76,21 +46,10 @@
 *  re-call it wil the new computed value.  The "fps" command would likely
 *  exhibit the exact same behavior.
 
-+  Creature class descriptions don't need to include the ".mesh" on their
-+  meshName in the level file since the game engine could just add this itself
-+  like it does for rooms, etc
-+
-
 *  Convert string casts to string constructors
 
 *  Make the rest of the threads properly call threadLockForTurn() and
 *  threadUnlockForTurn() to prevent race conditions.
-
-*  When changing the tiles (fullness and type) on a large area (like when
-*  dragging out a box in the map editor), the gameMap should temporarily
-*  disable flood filling, change the tiles, then re-enable it since each tile
-*  change entails an new flood fill which gets expensive on large contiguous
-*  areas.
 
 *  Make sure that every class that has a createMesh function also has a
 *  variable called meshExists and that it updates and uses it appropriately.
@@ -115,18 +74,13 @@
 +  Overload the GameMap::path() command to allow the calculation paths between a
 +  pair of creature, a creature and a tile,  etc, do the same for other functions?
 +
-+  Add a parameter to the GameMap class to store the name of the map that was
-+  loaded and make the terminal commands load/save automatically use this name
-+  unless another level name is provided.
+
 +
 +  When a level is loaded the number of tiles, classes, and creatures loaded is
 +  displayed, make this also display the number of MapLights, etc.  Possibly
 +  make the save command do the same.
-+
-+  Add a vector of failedGoals to the Seat class similar to completedGoals.
-+
-+  Add a vector of sub goals to the Goal class which are added to the queue
-+  after the given goal is completed.
+
+
 
 *  Add tile colors to the level file and network protocols.
 
@@ -139,9 +93,6 @@
 *  implement line editing on the terminal.
 	Both of these will be fixed by moving to a better terminal, see:
 	http://www.ogre3d.org/wiki/index.php/CodeSnippits#Console
-
-*  Store creature classes and class descriptions in maps rather than vectors to
-*  allow for faster lookups.
 
 *  Add play, pause, and single turn commands to the terminal to aid in AI
 *  debugging. 
@@ -156,8 +107,7 @@
 
 *  Make use of std::set instead of std::vector where appropriate.
 
-*  Add a new tile type which automatically grows tiles next to it when a
-*  creature gets within a certain distance of it.
+
 
  ---------------
 

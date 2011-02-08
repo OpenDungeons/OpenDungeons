@@ -29,7 +29,7 @@ void AnimatedObject::setPosition(Ogre::Vector3 v)
 	sem_post(&positionLockSemaphore);
 }
 
-/*! \brief A simple accessor function to get the creature's current position in 3d space.
+/*! \brief A simple accessor function to get the object's current position in 3d space.
  *
  */
 Ogre::Vector3 AnimatedObject::getPosition()
@@ -41,7 +41,7 @@ Ogre::Vector3 AnimatedObject::getPosition()
 	return tempVector;
 }
 
-/*! \brief Adds a position in 3d space to the creature's walk queue and, if necessary, starts it walking.
+/*! \brief Adds a position in 3d space to an animated object's walk queue and, if necessary, starts it walking.
  *
  * This function also places a message in the serverNotificationQueue so that
  * relevant clients are informed about the change.
@@ -92,7 +92,7 @@ void AnimatedObject::addDestination(double x, double y, double z)
 	*/
 }
 
-/*! \brief Replaces a creature's current walk queue with a new path.
+/*! \brief Replaces a object's current walk queue with a new path.
  *
  * This replacement is done if, and only if, the new path is at least minDestinations
  * long; if addFirstStop is false the new path will start with the second entry in path.
@@ -129,7 +129,7 @@ bool AnimatedObject::setWalkPath(std::list<Tile*> path, unsigned int minDestinat
 	return true;
 }
 
-/*! \brief Clears all future destinations from the walk queue, stops the creature where it is, and sets its animation state.
+/*! \brief Clears all future destinations from the walk queue, stops the object where it is, and sets its animation state.
  *
 */
 void AnimatedObject::clearDestinations()
@@ -150,20 +150,23 @@ void AnimatedObject::clearDestinations()
 	}
 }
 
-/*! \brief Stops the creature where it is, and sets its animation state.
+/*! \brief Stops the object where it is, and sets its animation state.
  *
 */
 void AnimatedObject::stopWalking()
 {
 	walkDirection = Ogre::Vector3::ZERO;
+
+	// Set the animation state of this object to the state that was set for it to enter into after it reaches it's destination.
+	setAnimationState(destinationAnimationState);
 }
 
-/** Rotates the creature so that it is facing toward the given x-y location.
+/** Rotates the object so that it is facing toward the given x-y location.
  *
 */
 void AnimatedObject::faceToward(int x, int y)
 {
-	// Rotate the creature to face the direction of the destination
+	// Rotate the object to face the direction of the destination
 	Ogre::Vector3 tempPosition = position;
 	walkDirection = Ogre::Vector3(x, y, tempPosition.z) - tempPosition;
 	walkDirection.normalise();
