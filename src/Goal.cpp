@@ -100,6 +100,15 @@ Goal* Goal::instantiateFromStream(istream& is)
 	is >> tempName;
 	getline(is, tempArguments);
 
+	// Since getline leaves any leading whitespace we need to cut that off the beginning of the arguments string.
+	int count = 0;
+	while(tempArguments[count] == '\n' || tempArguments[count] == '\t' || tempArguments[count] == ' ')
+		count++;
+
+	if(count > 0)
+		tempArguments = tempArguments.substr(count, tempArguments.length());
+
+
 	// Since entering an empty string in the file would break the file read we represent it with NULL and then substitute it here.
 	if(tempArguments.compare("NULL") == 0)
 		tempArguments = "";

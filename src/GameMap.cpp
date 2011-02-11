@@ -602,6 +602,7 @@ void GameMap::createAllEntities()
  */
 Creature* GameMap::getCreature(std::string cName)
 {
+	//TODO: This function should look the name up in a map of creature names onto pointers, care should also be taken to minimize calls to this function.
 	Creature *returnValue = NULL;
 
 	sem_wait(&creaturesLockSemaphore);

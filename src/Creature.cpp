@@ -254,6 +254,8 @@ void Creature::setPosition(Ogre::Vector3 v)
 void Creature::setPosition(double x, double y, double z)
 {
 	// If we are on the gameMap we may need to update the tile we are in
+	//TODO: This should use a different method to check whether we are on the map or not as getCreature(string) is a lot of work.
+	// Possible methods of doing this would be to pass the 'this' pointer and check that since it would be faster, or check the list of creatures in our positionTile (also a fair amount of work).
 	if(gameMap.getCreature(name) != NULL)
 	{
 		// We are on the map
