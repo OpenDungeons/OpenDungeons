@@ -867,38 +867,39 @@ claimTileBreakStatement:
 					tempPlayer = getControllingPlayer();
 					for(unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; i++)
 					{
-						if(tempPlayer != NULL && creatureNeighbors[i]->getMarkedForDigging(tempPlayer))
+						tempTile = creatureNeighbors[i];
+
+						if(tempPlayer != NULL && tempTile->getMarkedForDigging(tempPlayer))
 						{
 							// We found a tile marked by our controlling seat, dig out the tile.
 
 							// If the tile is a gold tile accumulate gold for this creature.
-							if(creatureNeighbors[i]->getType() == Tile::gold)
+							if(tempTile->getType() == Tile::gold)
 							{
-								tempDouble = 5*min(digRate, (double)creatureNeighbors[i]->getFullness());
+								tempDouble = 5*min(digRate, (double)tempTile->getFullness());
 								gold += tempDouble;
 								gameMap.getSeatByColor(color)->goldMined += tempDouble;
 								recieveExp(5.0*digRate/20.0);
 							}
 
 							// Turn so that we are facing toward the tile we are going to dig out.
-							faceToward(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
+							faceToward(tempTile->x, tempTile->y);
 
 							// Dig out the tile by decreasing the tile's fullness.
 							setAnimationState("Dig");
-							creatureNeighbors[i]->digOut(digRate);
+							tempTile->digOut(digRate, true);
 							recieveExp(1.5*digRate/20.0);
 
 							// If the tile has been dug out, move into that tile and try to continue digging.
-							if(creatureNeighbors[i]->getFullness() == 0)
+							if(tempTile->getFullness() == 0)
 							{
 								recieveExp(2.5);
-								creatureNeighbors[i]->setType(Tile::dirt);
 								setAnimationState("Walk");
 
 								// Remove the dig action and replace it with
 								// walking to the newly dug out tile.
 								//actionQueue.pop_front();
-								addDestination(creatureNeighbors[i]->x, creatureNeighbors[i]->y);
+								addDestination(tempTile->x, tempTile->y);
 								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
 							}
 
@@ -1510,14 +1511,14 @@ void Creature::doLevelUp()
 		return;
 
 	level++;
-	cout << "\n\n" << name << " has reached level " << level << "\n\n";
+	cout << "\n\n" << name << " has reached level " << level << "\n";
 
 	if(isWorker())
 	{
 		digRate += 4.0*level/(level+5.0);
 		danceRate += 0.12*level/(level+5.0);
 	}
-	cout << "New dig rate: " << digRate << "\tnew dance rate: " << danceRate << "\n\n";
+	cout << "New dig rate: " << digRate << "\tnew dance rate: " << danceRate << "\n";
 
 	moveSpeed += 0.4/(level+2.0);
 	//if(digRate > 60)  digRate = 60;

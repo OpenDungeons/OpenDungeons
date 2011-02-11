@@ -78,7 +78,8 @@ class Tile
 		std::vector<Tile*> getAllNeighbors();
 
 		double claimForColor(int nColor, double nDanceRate);
-		double digOut(double digRate);
+		double digOut(double digRate, bool doScaleDigRate = false);
+		double scaleDigRate(double digRate);
 
 		Room* getCoveringRoom();
 		void setCoveringRoom(Room *r);
@@ -102,7 +103,7 @@ class Tile
 		// Private datamembers
 		TileType type;
 		bool selected, markedForDigging;
-		int fullness;
+		int fullness;  //FIXME: Consider making this a double, make sure it doesn't break anything first though.
 		int fullnessMeshNumber;
 		std::vector<Tile*> neighbors;
 		std::vector<Creature*> creaturesInCell;

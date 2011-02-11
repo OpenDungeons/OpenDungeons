@@ -859,17 +859,22 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 	return amountClaimed;
 }
 
-double Tile::digOut(double digRate)
+double Tile::digOut(double digRate, bool doScaleDigRate)
 {
+	if(doScaleDigRate)
+		digRate = scaleDigRate(digRate);
+
 	double amountDug = 0.0;
 
-	if(!(type == dirt || type == gold) || fullness <= 0)
+	if(!isDiggable())
 		return 0.0;
 
-	if(digRate >= fullness)
+	//FIXME: The +1 in this statement is because the fullness is an int and if you dig <1 the tile would never be fully cleared.
+	if(digRate + 1 >= fullness)
 	{
 		amountDug = fullness;
 		setFullness(0.0);
+		setType(dirt);
 	}
 	else
 	{
@@ -901,6 +906,16 @@ double Tile::digOut(double digRate)
 	
 
 	return amountDug;
+}
+
+double Tile::scaleDigRate(double digRate)
+{
+	switch(type)
+	{
+		case claimed:     return 0.2 * digRate;     break;
+	}
+
+	return digRate;
 }
 
 Tile* Tile::getNeighbor(unsigned int index)
