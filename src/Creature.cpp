@@ -820,12 +820,12 @@ void Creature::doTurn()
 						if(tempTile != NULL)
 						{
 							// If we find a valid path to the tile start walking to it and break
-							setAnimationState("Walk");
 							tempPath = gameMap.path(myTile, tempTile, tilePassability);
 							gameMap.cutCorners(tempPath, tilePassability);
 							if(setWalkPath(tempPath, 2, false))
 							{
 								//loopBack = true;
+								setAnimationState("Walk");
 								actionQueue.push_back(CreatureAction::walkToTile);
 								goto claimTileBreakStatement;
 							}
