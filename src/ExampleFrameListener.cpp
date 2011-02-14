@@ -2007,6 +2007,9 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 	std::ostringstream ss;
 	int hotkeyNumber;
 
+	CEGUI::WindowManager *wmgr;
+	CEGUI::Window *window;
+
 	if(!terminalActive)
 	{
 		// If the terminal is not active
@@ -2148,8 +2151,18 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 			// Toggle the framerate display
 			case KC_F:
+				// Toggle visibility of the framerate display.
 				mStatsOn = !mStatsOn;
 				showDebugOverlay(mStatsOn);
+
+				// Toggle visibility of the CEGUI display.
+				wmgr = CEGUI::WindowManager::getSingletonPtr();
+				window = wmgr->getWindow((CEGUI::utf8*)"Root");
+				if(mStatsOn)
+					window->hide();
+				else
+					window->show();
+
 				break;
 
 			// Quit the game

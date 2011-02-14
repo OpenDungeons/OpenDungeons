@@ -38,7 +38,8 @@ bool RoomPortal::doUpkeep(Room *r)
 	// Randomly choose to spawn a creature.
 	//TODO:  Improve this probability calculation.
 	double numCreatures = gameMap.getCreaturesByColor(getColor()).size();
-	const double maxCreatures = 15;
+	numCreatures += gameMap.me->numCreaturesInHand();
+	const double maxCreatures = 30;
 	double targetProbability = powl((maxCreatures - numCreatures)/maxCreatures, 1.5);
 	if(randomDouble(0.0, 1.0) <= targetProbability)
 		spawnCreature();
