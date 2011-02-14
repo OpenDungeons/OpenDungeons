@@ -39,6 +39,11 @@ Creature::Creature()
 	mana = 10;
 	sem_post(&manaLockSemaphore);
 
+	sem_init(&isOnMapLockSemaphore, 0, 1);
+	sem_wait(&isOnMapLockSemaphore);
+	isOnMap = false;
+	sem_post(&isOnMapLockSemaphore);
+
 	maxHP = 10;
 	maxMana = 10;
 	hpPerLevel = 0.0;
@@ -254,9 +259,10 @@ void Creature::setPosition(Ogre::Vector3 v)
 void Creature::setPosition(double x, double y, double z)
 {
 	// If we are on the gameMap we may need to update the tile we are in
-	//TODO: This should use a different method to check whether we are on the map or not as getCreature(string) is a lot of work.
-	// Possible methods of doing this would be to pass the 'this' pointer and check that since it would be faster, or check the list of creatures in our positionTile (also a fair amount of work).
-	if(gameMap.getCreature(name) != NULL)
+	sem_wait(&isOnMapLockSemaphore);
+	bool flag = isOnMap;
+	sem_post(&isOnMapLockSemaphore);
+	if(flag)
 	{
 		// We are on the map
 		// Move the creature relative to its parent scene node.  We record the

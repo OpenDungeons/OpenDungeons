@@ -111,6 +111,8 @@ class Creature : public CreatureClass, public AttackableObject
 
 		// Public data members
 		static const int maxGoldCarriedByWorkers = 1500;
+		bool isOnMap;
+		sem_t isOnMapLockSemaphore;
 
 	private:
 		double hp;

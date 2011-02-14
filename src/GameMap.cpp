@@ -360,6 +360,10 @@ void GameMap::addCreature(Creature *c)
 	c->positionTile()->addCreature(c);
 
 	addAnimatedObject(c);
+
+	sem_wait(&c->isOnMapLockSemaphore);
+	c->isOnMap = true;
+	sem_post(&c->isOnMapLockSemaphore);
 }
 
 /*! \brief Removes the creature from the game map but does not delete its data structure.
@@ -385,6 +389,10 @@ void GameMap::removeCreature(Creature *c)
 	sem_post(&creaturesLockSemaphore);
 
 	removeAnimatedObject(c);
+
+	sem_wait(&c->isOnMapLockSemaphore);
+	c->isOnMap = false;
+	sem_post(&c->isOnMapLockSemaphore);
 }
 
 /** \brief Adds the given creature to the queue of creatures to be deleted in a future turn
