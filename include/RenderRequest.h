@@ -25,7 +25,6 @@ class RenderRequest
 				createRoomObject, destroyRoomObject, deleteRoomObject,
 				createTrap, destroyTrap, deleteTrap,
 				createTreasuryIndicator, destroyTreasuryIndicator,
-				createBed, destroyBed,
 				createMapLight, updateMapLight, destroyMapLight, destroyMapLightVisualIndicator, deleteMapLight,
 				createField, refreshField, destroyField,
 				moveSceneNode, reorientSceneNode, scaleSceneNode,

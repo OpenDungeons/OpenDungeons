@@ -554,6 +554,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				ent = mSceneMgr->createEntity(tempString, curRoomObject->getMeshName() + ".mesh");
 				node = roomSceneNode->createChildSceneNode(tempString + "_node");
 				node->setPosition(Ogre::Vector3(curRoomObject->x, curRoomObject->y, 0.0));
+				node->roll(Ogre::Degree(curRoomObject->rotationAngle));
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
 				roomObjectEntity->setNormaliseNormals(true);
 #endif
@@ -642,60 +643,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					node->detachObject(ent);
 
 					//FIXME: This line is not needed once the above hack is fixed.
-					mSceneMgr->destroySceneNode(node->getName());
-
-					mSceneMgr->destroyEntity(ent);
-				}
-				break;
-
-			case RenderRequest::createBed:
-				curTile = (Tile*)curReq->p;
-				curCreature = (Creature*)curReq->p2;
-				curRoom = (Room*)curReq->p3;
-
-				tempSS.str("");
-				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
-				ent = mSceneMgr->createEntity(tempSS.str() + "_bed", curCreature->bedMeshName);
-				node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
-
-				double xOffset, yOffset, rotation;
-				if(!curReq->b)
-				{
-					xOffset = (curCreature->bedDim2)/2.0 - 0.5;
-					yOffset = (curCreature->bedDim1)/2.0 - 0.5;
-					rotation = 90.0;
-				}
-				else
-				{
-					xOffset = (curCreature->bedDim1)/2.0 - 0.5;
-					yOffset = (curCreature->bedDim2)/2.0 - 0.5;
-					rotation = 0.0;
-				}
-
-				node = node->createChildSceneNode(node->getName() + "_bed_node");
-				node->setPosition(xOffset/BLENDER_UNITS_PER_OGRE_UNIT, yOffset/BLENDER_UNITS_PER_OGRE_UNIT, 0);
-				node->roll(Ogre::Degree(rotation));
-				node->setScale(Ogre::Vector3(1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT, 1.0/BLENDER_UNITS_PER_OGRE_UNIT));
-
-#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
-				ent->setNormaliseNormals(true);
-#endif
-				node->attachObject(ent);
-				break;
-
-			case RenderRequest::destroyBed:
-				curTile = (Tile*)curReq->p;
-				curCreature = (Creature*)curReq->p2;
-				curRoom = (Room*)curReq->p3;
-
-				tempSS.str("");
-				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
-				if(mSceneMgr->hasEntity(tempSS.str() + "_bed"))
-				{
-					ent = mSceneMgr->getEntity(tempSS.str() + "_bed");
-
-					node = mSceneMgr->getSceneNode(tempSS.str() + "_node" + "_bed_node");
-					node->detachObject(ent);
 					mSceneMgr->destroySceneNode(node->getName());
 
 					mSceneMgr->destroyEntity(ent);

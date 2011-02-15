@@ -64,12 +64,16 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, 
 void Room::absorbRoom(Room *r)
 {
 	// Subclasses overriding this function can call this to do the generic stuff or they can reimplement it entirely.
+	//TODO: This should probably just use an insert statement like the RoomOnjects below.
 	while(r->numCoveredTiles() > 0)
 	{
 		Tile *tempTile = r->getCoveredTile(0);
 		r->removeCoveredTile(tempTile);
 		addCoveredTile(tempTile);
 	}
+
+	roomObjects.insert(r->roomObjects.begin(), r->roomObjects.end());
+	r->roomObjects.clear();
 }
 
 Room* Room::createRoomFromStream(istream &is)
@@ -209,17 +213,26 @@ void Room::destroyMeshes()
 	}
 }
 
-/*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile, if the tile is NULL the object appears in the room's center.
+/*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile, if the tile is NULL the object appears in the room's center, the rotation angle is given in degrees.
  *
  */
-void Room::loadRoomObject(string meshName, Tile *targetTile)
+RoomObject* Room::loadRoomObject(string meshName, Tile *targetTile, double rotationAngle)
 {
 	if(targetTile == NULL)
 		targetTile = getCentralTile();
 
-	roomObjects[targetTile] = new RoomObject(this, meshName);
-	roomObjects[targetTile]->x = targetTile->x;
-	roomObjects[targetTile]->y = targetTile->y;
+	return loadRoomObject(meshName, targetTile, targetTile->x, targetTile->y, rotationAngle);
+}
+
+RoomObject* Room::loadRoomObject(string meshName, Tile *targetTile, double x, double y, double rotationAngle)
+{
+	RoomObject *tempRoomObject = new RoomObject(this, meshName);
+	roomObjects[targetTile] = tempRoomObject;
+	tempRoomObject->x = x;
+	tempRoomObject->y = y;
+	tempRoomObject->rotationAngle = rotationAngle;
+
+	return tempRoomObject;
 }
 
 void Room::createRoomObjectMeshes()

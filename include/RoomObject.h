@@ -20,7 +20,8 @@ class RoomObject : public ActiveObject
 		friend ostream& operator<<(ostream& os, RoomObject *o);
 		friend istream& operator>>(istream& is, RoomObject *o);
 
-		int x, y;
+		double x, y;
+		double rotationAngle;
 
 	private:
 		Room *parentRoom;

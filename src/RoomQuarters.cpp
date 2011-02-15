@@ -13,6 +13,7 @@ void RoomQuarters::absorbRoom(Room *r)
 	destroyMeshes();
 	destroyBedMeshes();
 	r->destroyMeshes();
+	((RoomQuarters*)r)->destroyBedMeshes();
 
 	// Copy over the information about the creatures that are sleeping in the other quarters before we remove its rooms.
 	for(unsigned int i = 0; i < r->numCoveredTiles(); i++)
@@ -37,22 +38,7 @@ void RoomQuarters::absorbRoom(Room *r)
 	// Recreate the meshes for this new room which contains both rooms.
 	createMeshes();
 
-	// Recreate the beds which were destroyed when the meshes were cleared.
-	std::map<Tile*,bool>::iterator itr = bedOrientationForTile.begin();
-	while(itr != bedOrientationForTile.end())
-	{
-		RenderRequest *request = new RenderRequest;
-		request->type = RenderRequest::createBed;
-		request->p = itr->first;
-		request->p2 = creatureSleepingInTile[itr->first];
-		request->p3 = this;
-		request->b = itr->second;
-
-		// Add the request to the queue of rendering operations to be performed before the next frame.
-		queueRenderRequest(request);
-
-		itr++;
-	}
+	createRoomObjectMeshes();
 }
 
 bool RoomQuarters::doUpkeep(Room *r)
@@ -89,14 +75,7 @@ void RoomQuarters::removeCoveredTile(Tile* t)
 			}
 		}
 
-		RenderRequest *request = new RenderRequest;
-		request->type = RenderRequest::destroyBed;
-		request->p = t;
-		request->p2 = c;
-		request->p3 = this;
-
-		// Add the request to the queue of rendering operations to be performed before the next frame.
-		queueRenderRequest(request);
+		roomObjects[t]->destroyMesh();
 	}
 
 	creatureSleepingInTile.erase(t);
@@ -125,7 +104,7 @@ std::vector<Tile*> RoomQuarters::getOpenTiles()
 
 bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 {
-	int xDim, yDim;
+	double xDim, yDim, rotationAngle;
 
 	// Check to see if there is already a creature which has claimed this tile for sleeping.
 	if(creatureSleepingInTile[t] == NULL)
@@ -139,6 +118,7 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 			spaceIsBigEnough = true;
 			xDim = c->bedDim1;
 			yDim = c->bedDim2;
+			rotationAngle = 0.0;
 		}
 
 		if(!spaceIsBigEnough && tileCanAcceptBed(t, c->bedDim2, c->bedDim1))
@@ -147,6 +127,7 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 			spaceIsBigEnough = true;
 			xDim = c->bedDim2;
 			yDim = c->bedDim1;
+			rotationAngle = 90.0;
 		}
 
 		if(spaceIsBigEnough)
@@ -163,15 +144,7 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 
 			bedOrientationForTile[t] = normalDirection;
 
-			RenderRequest *request = new RenderRequest;
-			request->type = RenderRequest::createBed;
-			request->p = t;
-			request->p2 = c;
-			request->p3 = this;
-			request->b = normalDirection;
-
-			// Add the request to the queue of rendering operations to be performed before the next frame.
-			queueRenderRequest(request);
+			loadRoomObject(c->bedMeshName, t, t->x+xDim/2.0-0.5, t->y+yDim/2.0-0.5, rotationAngle)->createMesh();
 
 			return true;
 		}
@@ -199,14 +172,7 @@ bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
 
 		bedOrientationForTile.erase(t);
 
-		RenderRequest *request = new RenderRequest;
-		request->type = RenderRequest::destroyBed;
-		request->p = t;
-		request->p2 = c;
-		request->p3 = this;
-
-		// Add the request to the queue of rendering operations to be performed before the next frame.
-		queueRenderRequest(request);
+		roomObjects[t]->destroyMesh();
 
 		return true;
 	}
@@ -288,20 +254,6 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 
 void RoomQuarters::destroyBedMeshes()
 {
-	std::map<Tile*,bool>::iterator itr = bedOrientationForTile.begin();
-	while(itr != bedOrientationForTile.end())
-	{
-		RenderRequest *request = new RenderRequest;
-		request->type = RenderRequest::destroyBed;
-		request->p = itr->first;
-		request->p2 = creatureSleepingInTile[itr->first];
-		request->p3 = this;
-		request->b = itr->second;
-
-		// Add the request to the queue of rendering operations to be performed before the next frame.
-		queueRenderRequest(request);
-
-		itr++;
-	}
+	destroyRoomObjectMeshes();
 }
 

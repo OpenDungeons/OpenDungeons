@@ -39,7 +39,7 @@ bool RoomPortal::doUpkeep(Room *r)
 	//TODO:  Improve this probability calculation.
 	double numCreatures = gameMap.getCreaturesByColor(getColor()).size();
 	numCreatures += gameMap.me->numCreaturesInHand();
-	const double maxCreatures = 30;
+	const double maxCreatures = 15;
 	double targetProbability = powl((maxCreatures - numCreatures)/maxCreatures, 1.5);
 	if(randomDouble(0.0, 1.0) <= targetProbability)
 		spawnCreature();
