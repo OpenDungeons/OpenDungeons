@@ -143,6 +143,42 @@ bool Room::tileIsPassable(Tile *t)
 	return true;
 }
 
+void Room::addCreatureUsingRoom(Creature *c)
+{
+	//FIXME: When the room is destroyed, any creatures holding pointers to this room should be notified so they can purge them.  This is a somewhat non-trivial task.
+	creaturesUsingRoom.push_back(c);
+}
+
+void Room::removeCreatureUsingRoom(Creature *c)
+{
+	for(unsigned int i = 0; i < creaturesUsingRoom.size(); i++)
+	{
+		if(creaturesUsingRoom[i] == c)
+		{
+			creaturesUsingRoom.erase(creaturesUsingRoom.begin()+i);
+			break;
+		}
+	}
+}
+
+Creature* Room::getCreatureUsingRoom(int index)
+{
+	return creaturesUsingRoom[index];
+}
+
+unsigned int Room::numCreaturesUsingRoom()
+{
+	return creaturesUsingRoom.size();
+}
+
+/** \brief Returns how many creatures could use this room for its intended purpose: negative numbers indicate there is no limit to the number of creatures.
+  *
+*/
+int Room::numOpenCreatureSlots()
+{
+	return -1;
+}
+
 Tile* Room::getCentralTile()
 {
 	if(coveredTiles.size() == 0)

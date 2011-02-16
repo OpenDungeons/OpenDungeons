@@ -8,6 +8,7 @@ class RoomDojo : public Room
 	public:
 		RoomDojo();
 		void createMeshes();
+		int numOpenCreatureSlots();
 };
 
 #endif

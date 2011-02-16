@@ -40,6 +40,7 @@ SET(
      ServerNotification.cpp
      Socket.cpp
      SoundEffectsHelper.cpp
+     Spell.cpp
      TextRenderer.cpp
      Tile.cpp
      TileCoordinateMap.cpp

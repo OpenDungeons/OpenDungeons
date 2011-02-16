@@ -54,6 +54,7 @@ Creature::Creature()
 	moveSpeed = 1.0;
 	tilePassability = Tile::walkableTile;
 	homeTile = NULL;
+	trainingDojo = NULL;
 	trainWait = 0;
 
 	weaponL = NULL;
@@ -379,6 +380,7 @@ void Creature::doTurn()
 	std::vector< std::list<Tile*> > possiblePaths;
 	std::vector< std::list<Tile*> > shortPaths;
 	bool loopBack;
+	bool stopUsingDojo;
 	int tempInt;
 	unsigned int tempUnsigned;
 	unsigned int rangeToNearestEnemyObject, rangeToNearestAlliedObject;
@@ -469,7 +471,7 @@ void Creature::doTurn()
 	}
 
 	// Check to see if there is a Dojo we can train at.
-	if(!isWorker() && randomDouble(0.0, 1.0) < awakeness/100.0 && actionQueue.front().type != CreatureAction::train)
+	if(!isWorker() && randomDouble(0.0, 1.0) < 0.1 && randomDouble(0.5, 1.0) < awakeness/100.0 && actionQueue.front().type != CreatureAction::train)
 	{
 		//TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
 		tempAction.type = CreatureAction::train;
@@ -1223,12 +1225,14 @@ claimTileBreakStatement:
 				case CreatureAction::train:
 					// Creatures can only train to level 10 at a dojo.
 					//TODO: Check to see if the dojo has been upgraded to allow training to a higher level.
+					stopUsingDojo = false;
 					if(level > 10)
 					{
 						actionQueue.pop_front();
 						loopBack = true;
 						trainWait = 0;
-						break;
+						stopUsingDojo = true;
+						goto trainBreakStatement;
 					}
 
 					// Randomly decide to stop training, we are more likely to stop when we are tired.
@@ -1237,7 +1241,8 @@ claimTileBreakStatement:
 						actionQueue.pop_front();
 						trainWait = 0;
 						loopBack = true;
-						break;
+						stopUsingDojo = true;
+						goto trainBreakStatement;
 					}
 
 					// Decrement a counter each turn until it reaches 0, if it reaches 0 we try to train this turn.
@@ -1245,7 +1250,7 @@ claimTileBreakStatement:
 					{
 						setAnimationState("Idle");
 						trainWait--;
-						break;
+						goto trainBreakStatement;
 					}
 
 					// Make sure we are on the map.
@@ -1254,23 +1259,26 @@ claimTileBreakStatement:
 					{
 						// See if we are in a dojo now.
 						tempRoom = myTile->getCoveringRoom();
-						if(tempRoom != NULL && tempRoom->getType() == Room::dojo)
+						if(tempRoom != NULL && tempRoom->getType() == Room::dojo && tempRoom->numOpenCreatureSlots() > 0)
 						{
 							// Train at this dojo.
+							trainingDojo = (RoomDojo*)tempRoom;
+							trainingDojo->addCreatureUsingRoom(this);
 							tempTile = tempRoom->getCentralTile();
 							faceToward(tempTile->x, tempTile->y);
 							setAnimationState("Attack1");
 							recieveExp(5.0);
 							awakeness -= 5.0;
-							trainWait = randomUint(2, 5);
-							break;
+							trainWait = randomUint(3, 8);
+							goto trainBreakStatement;
 						}
 					}
 					else
 					{
 						// We are not on the map, don't do anything.
 						actionQueue.pop_front();
-						break;
+						stopUsingDojo = true;
+						goto trainBreakStatement;
 					}
 
 					// Get the list of dojos controlled by our seat and make sure there is at least one.
@@ -1279,12 +1287,28 @@ claimTileBreakStatement:
 					{
 						actionQueue.pop_front();
 						loopBack = true;
-						break;
+						stopUsingDojo = true;
+						goto trainBreakStatement;
 					}
 
 					// Pick a dojo to train at and try to walk to it.
 					//TODO: Pick a close dojo, not necessarily the closest just a somewhat closer than average one.
-					tempRoom = tempRooms[randomUint(0, tempRooms.size()-1)];
+					tempInt = 0;
+					do
+					{
+						tempRoom = tempRooms[randomUint(0, tempRooms.size()-1)];
+						tempInt++;
+					} while(tempInt < 5 && tempRoom->numOpenCreatureSlots() == 0);
+
+					if(tempRoom->numOpenCreatureSlots() == 0)
+					{
+						// The room is already being used, stop trying to train.
+						actionQueue.pop_front();
+						loopBack = true;
+						stopUsingDojo = true;
+						goto trainBreakStatement;
+					}
+
 					tempTile = tempRoom->getCoveredTile(randomUint(0, tempRoom->numCoveredTiles()-1));
 					tempPath = gameMap.path(myTile, tempTile, tilePassability);
 					if(setWalkPath(tempPath, 2, false))
@@ -1296,8 +1320,16 @@ claimTileBreakStatement:
 						// We could not find a dojo to train at so stop trying to find one.
 						actionQueue.pop_front();
 						loopBack = true;
+						stopUsingDojo = true;
+						goto trainBreakStatement;
 					}
 
+trainBreakStatement:
+					if(stopUsingDojo && trainingDojo != NULL)
+					{
+						trainingDojo->removeCreatureUsingRoom(this);
+						trainingDojo = NULL;
+					}
 					break;
 
 				case CreatureAction::attackObject:

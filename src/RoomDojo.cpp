@@ -14,3 +14,8 @@ void RoomDojo::createMeshes()
 	createRoomObjectMeshes();
 }
 
+int RoomDojo::numOpenCreatureSlots()
+{
+	return 3 - numCreaturesUsingRoom();
+}
+

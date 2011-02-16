@@ -58,6 +58,12 @@ class Room : public AttackableObject, public ActiveObject
 		virtual void clearCoveredTiles();
 		virtual bool tileIsPassable(Tile *t);
 
+		virtual void addCreatureUsingRoom(Creature *c);
+		virtual void removeCreatureUsingRoom(Creature *c);
+		virtual Creature* getCreatureUsingRoom(int index);
+		virtual unsigned int numCreaturesUsingRoom();
+		virtual int numOpenCreatureSlots();
+
 		Tile* getCentralTile();
 
 		// Methods inherited from AttackableObject.
@@ -81,6 +87,7 @@ class Room : public AttackableObject, public ActiveObject
 		std::vector<Tile*> coveredTiles;
 		std::map<Tile*,double> tileHP;
 		std::map<Tile*,RoomObject*> roomObjects;
+		std::vector<Creature*> creaturesUsingRoom;
 		RoomType type;
 		bool meshExists;
 };
