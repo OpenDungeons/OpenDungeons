@@ -446,6 +446,8 @@ void Creature::doTurn()
 			{
 				tempAction.type = CreatureAction::maneuver;
 				actionQueue.push_front(tempAction);
+				// Jump immediately to the action processor since we don't want to decide to train or something if there are enemies around.
+				goto creatureActionDoWhileLoop;
 			}
 		}
 	}
@@ -481,6 +483,7 @@ void Creature::doTurn()
 
 	// The loopback variable allows creatures to begin processing a new
 	// action immediately after some other action happens.
+creatureActionDoWhileLoop:
 	do
 	{
 		loopBack = false;

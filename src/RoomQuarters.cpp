@@ -75,7 +75,7 @@ void RoomQuarters::removeCoveredTile(Tile* t)
 			}
 		}
 
-		roomObjects[t]->destroyMesh();
+		//roomObjects[t]->destroyMesh();
 	}
 
 	creatureSleepingInTile.erase(t);
