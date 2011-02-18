@@ -2366,22 +2366,29 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 	// Write the current level out to file specified as an argument
 	else if(command.compare("save") == 0)
 	{
-		if(arguments.size() > 0)
+		if(arguments.size() == 0)
 		{
-			string tempFileName = "Media/levels/" + arguments + ".level";
-			writeGameMapToFile(tempFileName);
-			commandOutput += "\nFile saved to   " + tempFileName + "\n";
+			commandOutput += "No level name given: saving over the last loaded level: " + gameMap.levelFileName + "\n\n";
+			arguments = gameMap.levelFileName;
 		}
-		else
-		{
-			commandOutput += "\nERROR:  No level name given\n";
-		}
+
+		string tempFileName = "Media/levels/" + arguments + ".level";
+		writeGameMapToFile(tempFileName);
+		commandOutput += "\nFile saved to   " + tempFileName + "\n";
+
+		gameMap.levelFileName = arguments;
 	}
 
 	// Clear the current level and load a new one from a file
 	else if(command.compare("load") == 0)
 	{
-		if(arguments.size() > 0 && clientSocket == NULL)
+		if(arguments.size() == 0)
+		{
+			commandOutput += "No level name given: loading the last loaded level: " + gameMap.levelFileName + "\n\n";
+			arguments = gameMap.levelFileName;
+		}
+
+		if(clientSocket == NULL)
 		{
 			string tempString;
 			size_t found;
@@ -2414,13 +2421,12 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 					commandOutput += tempSS.str();
 				}
 			}
+
+			gameMap.levelFileName = arguments;
 		}
 		else
 		{
-			if(arguments.size() == 0)
-				commandOutput += "ERROR:  No level name given.";
-			else // if(clientSocket != NULL)
-				commandOutput += "ERROR:  Cannot load a level if you are a client, only the sever can load new levels.";
+			commandOutput += "ERROR:  Cannot load a level if you are a client, only the sever can load new levels.";
 		}
 	}
 

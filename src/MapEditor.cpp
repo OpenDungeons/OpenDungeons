@@ -54,6 +54,7 @@ void MapEditor::createScene(void)
 	SceneNode *node;
 
 	// Read in the default game map
+	gameMap.levelFileName = "Test";
 	readGameMapFromFile(mResourcePath + "Media/levels/Test.level");
 
 	// Create ogre entities for the tiles, rooms, and creatures

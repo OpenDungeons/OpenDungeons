@@ -172,6 +172,9 @@ class GameMap
 		void threadLockForTurn(long int turn);
 		void threadUnlockForTurn(long int turn);
 
+		// Public data members
+		string levelFileName;
+
 	private:
 		// Private functions
 		void processDeletionQueues();
