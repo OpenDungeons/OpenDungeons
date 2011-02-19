@@ -23,6 +23,9 @@ class ServerNotification
 
 			tileFullnessChange,
 
+			addMapLight,
+			removeMapLight,
+
 			creatureAddDestination,
 			animatedObjectClearDestinations,
 			creatureSetAnimationState,
@@ -32,6 +35,7 @@ class ServerNotification
 
 		//TODO:  Employ some void pointers on this to make this data structure smaller
 		ServerNotificationType type;
+		void *p;
 		string str;
 		Ogre::Vector3 vec;
 		double doub;

@@ -1735,6 +1735,37 @@ void GameMap::addMapLight(MapLight *m)
 	{
 		addActiveObject((TemporaryMapLight*)m);
 	}
+
+	/*
+	// Place a message in the queue to inform the clients about the destruction of this MapLight.
+	ServerNotification *serverNotification = new ServerNotification;
+	serverNotification->type = ServerNotification::addMapLight;
+	serverNotification->p = m;
+
+	queueServerNotification(serverNotification);
+	*/
+}
+
+void GameMap::removeMapLight(MapLight *m)
+{
+	for(unsigned int i = 0; i < mapLights.size(); i++)
+	{
+		if(mapLights[i] == m)
+		{
+			/*
+			// Place a message in the queue to inform the clients about the destruction of this MapLight.
+			ServerNotification *serverNotification = new ServerNotification;
+			serverNotification->type = ServerNotification::removeMapLight;
+			serverNotification->p = m;
+
+			queueServerNotification(serverNotification);
+			*/
+
+			mapLights.erase(mapLights.begin()+i);
+			break;
+
+		}
+	}
 }
 
 MapLight* GameMap::getMapLight(int index)

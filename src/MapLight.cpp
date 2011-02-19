@@ -262,6 +262,9 @@ bool TemporaryMapLight::doUpkeep()
 {
 	if(--turnsUntilDestroyed <= 0)
 	{
+		// Remove this light from the game map since it no longer will exist.
+		gameMap.removeMapLight(this);
+
 		destroyOgreEntity();
 		return false;
 	}

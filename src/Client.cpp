@@ -152,6 +152,22 @@ void *clientSocketProcessor(void *p)
 				}
 			}
 
+			else if(serverCommand.compare("addmaplight") == 0)
+			{
+				std::stringstream tempSS(arguments);
+				MapLight *newMapLight = new MapLight;
+				tempSS >> newMapLight;
+				gameMap.addMapLight(newMapLight);
+				newMapLight->createOgreEntity();
+			}
+
+			else if(serverCommand.compare("removeMapLight") == 0)
+			{
+				MapLight *tempMapLight = gameMap.getMapLight(arguments);
+				tempMapLight->destroyOgreEntity();
+				gameMap.removeMapLight(tempMapLight);
+			}
+
 			else if(serverCommand.compare("addroom") == 0)
 			{
 				std::stringstream tempSS(arguments);

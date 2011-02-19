@@ -221,6 +221,7 @@ void *serverNotificationProcessor(void *p)
 	std::stringstream tempSS;
 	Tile *tempTile;
 	Player *tempPlayer;
+	MapLight *tempMapLight;
 
 	while(true)
 	{
@@ -300,6 +301,18 @@ void *serverNotificationProcessor(void *p)
 				tempSS << tempTile->getFullness() << ":" << tempTile->x << ":" << tempTile->y;
 
 				sendToAllClients(frameListener, formatCommand("tileFullnessChange", tempSS.str()));
+				break;
+
+			case ServerNotification::addMapLight:
+				tempMapLight = (MapLight*)event->p;
+				tempSS.str("");
+				tempSS << tempMapLight;
+				sendToAllClients(frameListener, formatCommand("addmaplight", tempSS.str()));
+				break;
+
+			case ServerNotification::removeMapLight:
+				tempMapLight = (MapLight*)event->p;
+				sendToAllClients(frameListener, formatCommand("removeMapLight", tempMapLight->getName()));
 				break;
 
 			default:
@@ -442,6 +455,15 @@ void *clientHandlerThread(void *p)
 				itr++;
 			}
 
+			// Send over the map lights from the current game map.
+			//TODO: Only send the maplights which the client is supposed to see due to the fog of war.
+			for(unsigned int i = 0; i < gameMap.numMapLights(); i++)
+			{
+				tempSS.str("");
+				tempSS << gameMap.getMapLight(i);
+				curSock->send(formatCommand("addmaplight", tempSS.str()));
+				itr++;
+			}
 
 			// Send over the rooms in use on the current game map
 			//TODO: Only send the classes which the client is supposed to see due to fog of war.
@@ -576,6 +598,11 @@ void *clientHandlerThread(void *p)
 					tempTile->setMarkedForDigging(flag, tempPlayer);
 				}
 			}
+		}
+
+		else if(clientCommand.compare("ok") == 0)
+		{
+			cout << "\nIgnoring an ak message from a client: " << arguments;
 		}
 
 		else

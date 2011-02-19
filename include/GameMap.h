@@ -104,6 +104,7 @@ class GameMap
 		void clearMapLights();
 		void clearMapLightIndicators();
 		void addMapLight(MapLight *m);
+		void removeMapLight(MapLight *m);
 		MapLight* getMapLight(int index);
 		MapLight* getMapLight(std::string name);
 		unsigned int numMapLights();
