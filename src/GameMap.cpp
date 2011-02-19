@@ -97,17 +97,18 @@ Tile* GameMap::getTile(int x, int y)
  */
 void GameMap::clearAll()
 {
-	clearGoalsForAllSeats();
-	clearEmptySeats();
-	clearFilledSeats();
-	clearPlayers();
-
 	clearCreatures();
 	clearClasses();
+	clearTraps();
 
 	clearMapLights();
 	clearRooms();
 	clearTiles();
+
+	clearGoalsForAllSeats();
+	clearEmptySeats();
+	clearPlayers();
+	clearFilledSeats();
 }
 
 /*! \brief Clears the mesh and deletes the data structure for all the tiles in the GameMap.

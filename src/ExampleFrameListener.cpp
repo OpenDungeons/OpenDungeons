@@ -719,6 +719,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature = (Creature*)curReq->p2;
 
 				ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
+				colourizeEntity(ent, curCreature->color);
 				weaponEntity = mSceneMgr->createEntity("Weapon_" + curWeapon->handString + "_" + curCreature->name, curWeapon->meshName);
 				boneString = (string)"Weapon_" + curWeapon->handString;
 				weaponBone = ent->getSkeleton()->getBone(boneString);
