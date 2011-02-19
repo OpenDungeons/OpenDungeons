@@ -519,7 +519,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				tempSS.str("");
 				tempSS << curRoom->name << "_" << curTile->x << "_" << curTile->y;
 				ent = mSceneMgr->createEntity(tempSS.str(), curRoom->meshName + ".mesh");
-				//colourizeEntity(ent, curRoom->color);
+				colourizeEntity(ent, curRoom->color);
 				node = roomSceneNode->createChildSceneNode(tempSS.str() + "_node");
 				node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.0));
 				node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
@@ -552,6 +552,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				tempString = (string)"RoomObject_" + curRoomObject->getName();
 				ent = mSceneMgr->createEntity(tempString, curRoomObject->getMeshName() + ".mesh");
+				colourizeEntity(ent, curRoomObject->getParentRoom()->color);
 				node = roomSceneNode->createChildSceneNode(tempString + "_node");
 				node->setPosition(Ogre::Vector3(curRoomObject->x, curRoomObject->y, 0.0));
 				node->roll(Ogre::Degree(curRoomObject->rotationAngle));
@@ -669,7 +670,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 				// Load the mesh for the creature
 				ent = mSceneMgr->createEntity("Creature_" + curCreature->name, curCreature->meshName);
-				//colourizeEntity(ent, curCreature->color);
+				colourizeEntity(ent, curCreature->color);
 				node = creatureSceneNode->createChildSceneNode(curCreature->name + "_node");
 				curCreature->sceneNode = node;
 				node->setPosition(curCreature->getPosition());

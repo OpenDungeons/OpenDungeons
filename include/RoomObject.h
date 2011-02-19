@@ -12,6 +12,8 @@ class RoomObject : public ActiveObject
 		string getName();
 		string getMeshName();
 
+		Room* getParentRoom();
+
 		void createMesh();
 		void destroyMesh();
 		void deleteYourself();

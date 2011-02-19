@@ -27,6 +27,11 @@ string RoomObject::getMeshName()
 	return meshName;
 }
 
+Room* RoomObject::getParentRoom()
+{
+	return parentRoom;
+}
+
 void RoomObject::createMesh()
 {
 	if(meshExists)

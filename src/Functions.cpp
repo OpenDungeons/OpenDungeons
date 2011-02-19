@@ -460,61 +460,10 @@ string colourizeMaterial(string materialName, int colour)
 		for(unsigned int j = 0; j < newMaterial->getNumTechniques(); j++)
 		{
 			tempTechnique = newMaterial->getTechnique(j);
-			// Loop over the passes for the current technique
-			for(unsigned int k = 0; k < tempTechnique->getNumPasses(); k++)
+			if(tempTechnique->getNumPasses() > 0)
 			{
-				tempPass = tempTechnique->getPass(k);
-				// Loop over the TextureUnitStates for the current pass
-				for(unsigned int l = 0; l < tempPass->getNumTextureUnitStates(); l++)
-				{
-					// Get a pointer to the actual pixel data for this texture
-					tempTextureUnitState = tempPass->getTextureUnitState(l);
-					tempTexture = tempTextureUnitState->_getTexturePtr();
-					tempPixBuf = tempTexture->getBuffer();
-					size_t bufferLen = PixelUtil::getMemorySize(tempTexture->getWidth(), tempTexture->getHeight(), tempTexture->getDepth(), tempTexture->getFormat());
-					//uint8 pixelData[bufferLen];
-					uint8 *pixelDataPtr = new uint8[bufferLen];//pixelData;
-					Image::Box imageBox(0, 0, tempTexture->getWidth(), tempTexture->getHeight());
-					PixelBox newPixelBox(tempTexture->getWidth(), tempTexture->getHeight(), tempTexture->getDepth(), tempTexture->getFormat(), pixelDataPtr);
-					tempPixBuf->blitToMemory(newPixelBox);
-
-					// Loop over the pixels themselves and change the bright pink ones to the given colour
-					for(unsigned int x = 0; x < tempTexture->getWidth(); x++)
-					{
-						for(unsigned int y = 0; y < tempTexture->getHeight(); y++)
-						{
-							uint8 *blue = pixelDataPtr++;
-							uint8 *green = pixelDataPtr++;
-							uint8 *red = pixelDataPtr++;
-							uint8 *alpha = pixelDataPtr++;
-
-							uint8 deltaR = *red - 235, deltaG = *green - 20, deltaB = *blue - 235;
-							int totalDistance = fabs((double)deltaR) + fabs((double)deltaG) + fabs((double)deltaB);
-							int factor = 10;
-							// Check to see if the current pixel matches the target colour
-							if(totalDistance <= 65)
-							{
-								uint8 newR = tempSeat->colourValue.r*255 + factor*deltaR;
-								uint8 newG = tempSeat->colourValue.g*255 + factor*deltaG;
-								uint8 newB = tempSeat->colourValue.b*255 + factor*deltaB;
-								newR = (newR < 0) ? 0 : newR;
-								newR = (newR > 255) ? 255 : newR;
-								newG = (newG < 0) ? 0 : newG;
-								newG = (newG > 255) ? 255 : newG;
-								newB = (newB < 0) ? 0 : newB;
-								newB = (newB > 255) ? 255 : newB;
-
-								*blue = (uint8)newB;
-								*green = (uint8)newG;
-								*red = (uint8)newR;
-								*alpha = (uint8)(tempSeat->colourValue.a * 255);
-							}
-						}
-					}
-
-					tempPixBuf->blitFromMemory(newPixelBox);
-					delete[] pixelDataPtr;
-				}
+				tempPass = tempTechnique->getPass(0);
+				tempPass->setSelfIllumination(tempSeat->colourValue);
 			}
 		}
 	}
