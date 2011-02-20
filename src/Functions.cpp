@@ -15,8 +15,12 @@
 #include "Creature.h"
 #include "MapLight.h"
 
-#if defined(WIN32) || defined(_WIN32)
-double const M_PI = 2 * acos(0.0);
+//#if defined(WIN32) || defined(_WIN32)
+//double const M_PI = 2 * acos(0.0);
+//Changed this to be more consistant with the definition
+//in the gnu headers
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643
 #endif
 
 bool readGameMapFromFile(string fileName)

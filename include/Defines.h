@@ -44,5 +44,11 @@ For information on how to use a particular command, type help followed by the co
 
 #define POINTER_INFO_STRING "pointerInfo"
 
+#ifdef __MINGW32__
+	#ifndef mode_t
+	#include <sys/types.h>
+	#endif //mode_t
+#endif //mingw21
+
 #endif
 

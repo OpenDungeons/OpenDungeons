@@ -1,10 +1,12 @@
+#include "Defines.h"
+
 #include <vector>
 #include <deque>
 #include <semaphore.h>
 #include <iostream>
 using namespace std;
 
-#include "Defines.h"
+
 #include "Functions.h"
 #include "MapEditor.h"
 #include "GameMap.h"

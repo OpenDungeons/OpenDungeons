@@ -74,46 +74,55 @@ IF( NOT WIN32 )
   # Add compiler warnings
   ADD_DEFINITIONS( "-Wall -Wunused -ansi -Wno-deprecated" )
 ENDIF( )
+IF( WIN32 )
 
-IF( MSVC_IDE )
-  IF( EXISTS $ENV{OGRE_HOME} )
-    SET( OGRESDK $ENV{OGRE_HOME} )
-    STRING( REGEX REPLACE "[\\]" "/" OGRESDK "${OGRESDK}" )
-    MESSAGE( STATUS "Adding Additional Link Directories" )
-    LINK_DIRECTORIES( ${OGRESDK}/lib )
-  ENDIF( )
+        SET( PTHREADS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/pthreads/include/" )
+        INCLUDE_DIRECTORIES( ${PTHREADS_INCLUDE_DIR} )
+        SET( PTHREADS_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/pthreads/lib/" )
+        LINK_DIRECTORIES( ${PTHREADS_LIBRARY_DIRS} )
+    IF( MSVC_IDE )
+        IF( EXISTS $ENV{OGRE_HOME} )
+            SET( OGRESDK $ENV{OGRE_HOME} )
+            STRING( REGEX REPLACE "[\\]" "/" OGRESDK "${OGRESDK}" )
+            MESSAGE( STATUS "Adding Additional Link Directories" )
+            LINK_DIRECTORIES( ${OGRESDK}/lib )
+        ENDIF( )
 
-  SET( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc /SUBSYSTEM:WINDOWS /ENTRY:\"main\"" )
-  SET( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI" )
+        SET( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc /SUBSYSTEM:WINDOWS /ENTRY:\"main\"" )
+        SET( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI" )
 
-  SET( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
-  SET( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
-  SET( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
+        SET( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
+        SET( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
+        SET( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
 
-  SET( PTHREADS_INCLUDE_DIR "dep/pthreads/" )
-  INCLUDE_DIRECTORIES( ${PTHREADS_INCLUDE_DIR} )
-  SET( PTHREADS_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/pthreads/" )
-  LINK_DIRECTORIES( ${PTHREADS_LIBRARY_DIRS} )
-  LINK_LIBRARIES( "pthreadVC1.lib" )
-#link to shlwapi to get appdata path
-  LINK_LIBRARIES( "ws2_32.lib" shlwapi)
-  MESSAGE( STATUS "Using win pthreads" )
-ENDIF( )
 
-#Find boost and link
+        LINK_LIBRARIES( "pthreadVC2.lib" )
+        #link to shlwapi to get appdata path
+        LINK_LIBRARIES( "ws2_32.lib" shlwapi)
+        MESSAGE( STATUS "Using win pthreads" )
+    ENDIF()
+    IF(MINGW)
+        LINK_LIBRARIES( "libpthreadGC2.a" )
+        LINK_LIBRARIES( "ws2_32" shlwapi )
+    ENDIF( )
+ENDIF()
+#Find boost and link | not used, but ogre needs an include file from here under mingw
 #Needs to be updated with use of new boost release
-#set(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.43.0 1.43 1.44.0 1.44 1.45.0 1.45) 
-#set(Boost_USE_MULTITHREADED ON)
-#set(Boost_USE_STATIC_LIBS   OFF)
-#find_package( Boost COMPONENTS thread )
-#if(Boost_FOUND)
-#	include_directories(${Boost_INCLUDE_DIRS})
-#	if ( WIN32 )
-#		link_directories(${Boost_LIBRARY_DIRS}) ##Needed because VS wants to autolink
-#	endif()
-#	link_libraries(${Boost_LIBRARIES})
-#endif()
-#Todo- move this to where the other link dirs are specified
+if(MINGW)
+	set(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.43.0 1.43 1.44.0 1.44 1.45.0 1.45) 
+	set(Boost_USE_MULTITHREADED ON)
+	set(Boost_USE_STATIC_LIBS   OFF)
+	find_package( Boost COMPONENTS thread REQUIRED)
+	#if(Boost_FOUND)
+		include_directories(${Boost_INCLUDE_DIRS})
+	#	if ( WIN32 )
+	#		link_directories(${Boost_LIBRARY_DIRS}) ##Needed because VS wants to autolink
+	#	endif()
+	#	link_libraries(${Boost_LIBRARIES})
+	#endif()
+	#TODO - should we have some error handling here?
+	#Todo- move this to where the other link dirs are specified
+endif()
 link_directories(${CEGUI_LIB_DIR})
 
 
@@ -125,14 +134,24 @@ INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
 #	link_libraries(${OGREOGGSOUND_LIBRARY})
 #endif ()
 
-find_package(SFML)
+#Link and include sfml
+find_package(SFML REQUIRED)
 
 link_libraries(${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG})
+
+include_directories(${SFML_AUDIO_INCLUDE_DIR})
+#FIXME workaround , for some reason the include 
+#path gets chopped off at the end when generating eclipse projects
+if(MINGW)
+	set(SFMLINCLUDEFIX ${SFML_AUDIO_INCLUDE_DIR}clude)
+	include_directories(${SFMLINCLUDEFIX})
+endif()
+
 
 ADD_SUBDIRECTORY( src )
 #configuration files
 
-find_package(OGRE)
+find_package(OGRE REQUIRED)
 
 #Make a copy for use in the build directory, and later one copy for installing.
 set(OPENDUNGEONS_MEDIA_DIR ${CMAKE_CURRENT_BINARY_DIR})
@@ -143,7 +162,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRE
 if ( WIN32 )
 	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ".")
 	set(OPENDUNGEONS_DATA_PATH ".")
-	set(OPENDUNGEONS_DATA_DEST "")
+	set(OPENDUNGEONS_DATA_DEST ".")
 #TODO - check if this allways will be right
 else ()
 	#only use d3d renderer plugins if we are on windows

@@ -1,4 +1,6 @@
-#if defined(WIN32) || defined(_WIN32)
+
+//#if defined(WIN32) || defined(_WIN32)
+#ifdef _MSC_VER
 #define snprintf _snprintf
 #endif
 
@@ -8,6 +10,8 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include <stdlib.h>
+
+#include <pthread.h>
 
 #include "Functions.h"
 #include "Defines.h"
