@@ -10,6 +10,12 @@ class RoomDungeonTemple : public Room
 
 		void createMeshes();
 		void destroyMeshes();
+
+		// Functions specific to this class.
+		void produceKobold();
+
+	private:
+		int waitTurns;
 };
 
 #endif

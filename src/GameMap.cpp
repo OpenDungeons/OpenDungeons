@@ -634,8 +634,6 @@ Creature* GameMap::getCreature(std::string cName)
 void GameMap::doTurn()
 {
 	// Local variables
-	Seat *tempSeat;
-	Tile *tempTile;
 	unsigned int tempUnsigned;
 
 	// Compute the moving window average of how much extra time was left over after the previous doTurn() calls finished.
@@ -645,8 +643,6 @@ void GameMap::doTurn()
 
 	if(previousLeftoverTimes.size() > 0)
 		averageAILeftoverTime /= (double)previousLeftoverTimes.size();
-
-	sem_wait(&creatureAISemaphore);
 
 	if(loadNextLevel)
 	{
@@ -671,45 +667,22 @@ void GameMap::doTurn()
 		}
 	}
 
+	sem_wait(&creatureAISemaphore);
+
 	cout << "\nStarting creature AI for turn " << turnNumber.get();
 	unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
 	processDeletionQueues();
 
-	// Loop over all the filled seats in the game and check all the unfinished goals for each seat.
-	// Add any seats with no remaining goals to the winningSeats vector.
-	for(unsigned int i = 0; i < numFilledSeats(); i++)
-	{
-		// Check the previously completed goals to make sure they are still met.
-		filledSeats[i]->checkAllCompletedGoals();
+	//TODO: Run a stopwatch during each of these threads to see how long they take to help with the load balancing.
+	pthread_t thread1, thread2, thread3;
+	pthread_create(&thread1, NULL, GameMap::creatureDoTurnThread, NULL);
+	pthread_create(&thread2, NULL, GameMap::tileUpkeepThread, NULL);
+	pthread_create(&thread3, NULL, GameMap::miscUpkeepThread, NULL);
 
-		// Check the goals and move completed ones to the completedGoals list for the seat.
-		//NOTE: Once seats are placed on this list, they stay there even if goals are unmet.  We may want to change this.
-		if(filledSeats[i]->checkAllGoals() == 0 && filledSeats[i]->numFailedGoals() == 0)
-			addWinningSeat(filledSeats[i]);
-
-		// Set all the alignment and faction coefficients for this seat to 0, they will be
-		// filled up in the loop below which removes the dead creatures from the map.
-		filledSeats[i]->numCreaturesControlled = 0;
-		filledSeats[i]->factionHumans = 0.0;
-		filledSeats[i]->factionCorpars = 0.0;
-		filledSeats[i]->factionUndead = 0.0;
-		filledSeats[i]->factionConstructs = 0.0;
-		filledSeats[i]->factionDenizens = 0.0;
-		filledSeats[i]->alignmentAltruism = 0.0;
-		filledSeats[i]->alignmentOrder = 0.0;
-		filledSeats[i]->alignmentPeace = 0.0;
-	}
-
-	// Call the individual creature AI for each creature in this game map
-	for(unsigned int i = 0; i < numCreatures(); i++)
-	{
-		sem_wait(&creaturesLockSemaphore);
-		Creature *tempCreature = creatures[i];
-		sem_post(&creaturesLockSemaphore);
-
-		tempCreature->doTurn();
-	}
+	pthread_join(thread3, NULL);
+	pthread_join(thread2, NULL);
+	pthread_join(thread1, NULL);
 
 	// Remove dead creatures from the map and put them into the deletion queue.
 	unsigned int count = 0;
@@ -755,44 +728,111 @@ void GameMap::doTurn()
 		}
 	}
 
-	// Determine the number of tiles claimed by each seat.
-	// Begin by setting the number of claimed tiles for each seat to 0.
-	for(unsigned int i = 0; i < filledSeats.size(); i++)
-		filledSeats[i]->numClaimedTiles = 0;
+	cout << "\nDuring this turn there were " << numCallsTo_path-numCallsTo_path_atStart << " calls to GameMap::path().";
 
-	for(unsigned int i = 0; i < emptySeats.size(); i++)
-		emptySeats[i]->numClaimedTiles = 0;
+	sem_post(&creatureAISemaphore);
+}
 
-	// Now loop over all of the tiles, if the tile is claimed increment the given seats count.
-	sem_wait(&tilesLockSemaphore);
-	std::map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
-	while(currentTile != tiles.end())
+void *GameMap::miscUpkeepThread(void *p)
+{
+	gameMap.doMiscUpkeep();
+	return NULL;
+}
+
+void *GameMap::tileUpkeepThread(void *p)
+{
+	gameMap.doTileUpkeep();
+	return NULL;
+}
+
+void *GameMap::creatureDoTurnThread(void *p)
+{
+	gameMap.doCreatureTurns();
+	return NULL;
+}
+
+void GameMap::doMiscUpkeep()
+{
+	Seat *tempSeat;
+
+	// Loop over all the filled seats in the game and check all the unfinished goals for each seat.
+	// Add any seats with no remaining goals to the winningSeats vector.
+	for(unsigned int i = 0; i < numFilledSeats(); i++)
 	{
-		tempTile = currentTile->second;
+		// Check the previously completed goals to make sure they are still met.
+		filledSeats[i]->checkAllCompletedGoals();
 
-		// Check to see if the current tile is claimed by anyone.
-		if(tempTile->getType() == Tile::claimed)
-		{
-			// Increment the count of the seat who owns the tile.
-			tempSeat = getSeatByColor(tempTile->color);
-			if(tempSeat != NULL)
-			{
-				tempSeat->numClaimedTiles++;
+		// Check the goals and move completed ones to the completedGoals list for the seat.
+		//NOTE: Once seats are placed on this list, they stay there even if goals are unmet.  We may want to change this.
+		if(filledSeats[i]->checkAllGoals() == 0 && filledSeats[i]->numFailedGoals() == 0)
+			addWinningSeat(filledSeats[i]);
 
-				// Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
-				std::vector<Tile*> neighbors = neighborTiles(currentTile->second);
-				for(unsigned int i = 0; i < neighbors.size(); i++)
-				{
-					if(neighbors[i]->getType() == Tile::dirt && neighbors[i]->getFullness() < 0.1)// && neighbors[i]->colorDouble < 0.8)
-						neighbors[i]->claimForColor(tempSeat->color, 0.04);
-				}
-			}
-		}
-
-		currentTile++;
+		// Set all the alignment and faction coefficients for this seat to 0, they will be
+		// filled up in the loop below which removes the dead creatures from the map.
+		filledSeats[i]->numCreaturesControlled = 0;
+		filledSeats[i]->factionHumans = 0.0;
+		filledSeats[i]->factionCorpars = 0.0;
+		filledSeats[i]->factionUndead = 0.0;
+		filledSeats[i]->factionConstructs = 0.0;
+		filledSeats[i]->factionDenizens = 0.0;
+		filledSeats[i]->alignmentAltruism = 0.0;
+		filledSeats[i]->alignmentOrder = 0.0;
+		filledSeats[i]->alignmentPeace = 0.0;
 	}
-	sem_post(&tilesLockSemaphore);
-	
+
+	// Count how many of each color kobold there are.
+	std::map<int,int> koboldColorCounts;
+	for(unsigned int i = 0; i < numCreatures(); i++)
+	{
+		sem_wait(&creaturesLockSemaphore);
+		Creature *tempCreature = creatures[i];
+		sem_post(&creaturesLockSemaphore);
+
+		if(tempCreature->isWorker())
+		{
+			int color = tempCreature->color;
+			koboldColorCounts[color]++;
+		}
+	}
+
+	// Count how many dungeon temples each color controls.
+	std::vector<Room*> dungeonTemples = getRoomsByType(Room::dungeonTemple);
+	std::map<int,int> dungeonTempleColorCounts;
+	for(unsigned int i = 0; i < dungeonTemples.size(); i++)
+	{
+		int color = dungeonTemples[i]->color;
+		dungeonTempleColorCounts[color]++;
+	}
+
+	// Compute how many kobolds each color should have as determined by the number of dungeon temples they control.
+	std::map<int,int>::iterator colorItr = dungeonTempleColorCounts.begin();
+	std::map<int,int> koboldsNeededPerColor;
+	while(colorItr != dungeonTempleColorCounts.end())
+	{
+		int color = colorItr->first;
+		int numDungeonTemples = colorItr->second;
+		int numKobolds = koboldColorCounts[color];
+		int numKoboldsNeeded = max(4*numDungeonTemples - numKobolds, 0);
+		numKoboldsNeeded = min(numKoboldsNeeded, numDungeonTemples);
+		koboldsNeededPerColor[color] = numKoboldsNeeded;
+		cout << "\nColor " << color << " controls " << numDungeonTemples << " dungeon temple and " << numKobolds;
+		cout << " kobolds.  Will spawn " << numKoboldsNeeded << ".";
+
+		colorItr++;
+	}
+
+	// Loop back over all the dungeon temples and for each one decide if it should try to produce a kobold.
+	for(unsigned int i = 0; i < dungeonTemples.size(); i++)
+	{
+		RoomDungeonTemple *dungeonTemple = (RoomDungeonTemple*)dungeonTemples[i];
+		int color = dungeonTemple->color;
+		if(koboldsNeededPerColor[color] > 0)
+		{
+			dungeonTempleColorCounts[color]--;
+			dungeonTemple->produceKobold();
+		}
+	}
+
 	// Carry out the upkeep round of all the active objects in the game.
 	sem_wait(&activeObjectsLockSemaphore);
 	unsigned int activeObjectCount = 0;
@@ -842,9 +882,63 @@ void GameMap::doTurn()
 		tempSeat->gold = getTotalGoldForColor(tempSeat->color);
 	}
 
-	cout << "\nDuring this turn there were " << numCallsTo_path-numCallsTo_path_atStart << " calls to GameMap::path().";
+}
 
-	sem_post(&creatureAISemaphore);
+void GameMap::doTileUpkeep()
+{
+	Tile *tempTile;
+	Seat *tempSeat;
+
+	// Determine the number of tiles claimed by each seat.
+	// Begin by setting the number of claimed tiles for each seat to 0.
+	for(unsigned int i = 0; i < filledSeats.size(); i++)
+		filledSeats[i]->numClaimedTiles = 0;
+
+	for(unsigned int i = 0; i < emptySeats.size(); i++)
+		emptySeats[i]->numClaimedTiles = 0;
+
+	// Now loop over all of the tiles, if the tile is claimed increment the given seats count.
+	sem_wait(&tilesLockSemaphore);
+	std::map< pair<int,int>, Tile*>::iterator currentTile = tiles.begin();
+	while(currentTile != tiles.end())
+	{
+		tempTile = currentTile->second;
+
+		// Check to see if the current tile is claimed by anyone.
+		if(tempTile->getType() == Tile::claimed)
+		{
+			// Increment the count of the seat who owns the tile.
+			tempSeat = getSeatByColor(tempTile->color);
+			if(tempSeat != NULL)
+			{
+				tempSeat->numClaimedTiles++;
+
+				// Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
+				std::vector<Tile*> neighbors = neighborTiles(currentTile->second);
+				for(unsigned int i = 0; i < neighbors.size(); i++)
+				{
+					if(neighbors[i]->getType() == Tile::dirt && neighbors[i]->getFullness() < 0.1)// && neighbors[i]->colorDouble < 0.8)
+						neighbors[i]->claimForColor(tempSeat->color, 0.04);
+				}
+			}
+		}
+
+		currentTile++;
+	}
+	sem_post(&tilesLockSemaphore);
+}
+
+void GameMap::doCreatureTurns()
+{
+	// Call the individual creature AI for each creature in this game map.
+	for(unsigned int i = 0; i < numCreatures(); i++)
+	{
+		sem_wait(&creaturesLockSemaphore);
+		Creature *tempCreature = creatures[i];
+		sem_post(&creaturesLockSemaphore);
+
+		tempCreature->doTurn();
+	}
 }
 
 /*! \brief Returns whether or not a Creature with a given passability would be able to move between the two specified tiles.
@@ -1612,6 +1706,18 @@ Room* GameMap::getRoom(int index)
 unsigned int GameMap::numRooms()
 {
 	return rooms.size();
+}
+
+std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
+{
+	std::vector<Room*> returnList;
+	for(unsigned int i = 0; i < rooms.size(); i++)
+	{
+		if(rooms[i]->getType() == type)
+			returnList.push_back(rooms[i]);
+	}
+
+	return returnList;
 }
 
 std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)

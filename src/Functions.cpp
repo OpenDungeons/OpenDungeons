@@ -443,7 +443,7 @@ string colourizeMaterial(string materialName, int colour)
 	tempSS << "Color_" << colour << "_" << materialName;
 	MaterialPtr newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
 
-	cout << "\nCloning material:  " << tempSS.str();
+	//cout << "\nCloning material:  " << tempSS.str();
 
 	// If this texture has not been copied and colourized yet then do so
 	if(newMaterial.isNull())
@@ -453,7 +453,7 @@ string colourizeMaterial(string materialName, int colour)
 		if(tempSeat == NULL)
 			return materialName;
 
-		cout << "   Material does not exist, creating a new one.\n";
+		cout << "\nMaterial does not exist, creating a new one.";
 		newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialName))->clone(tempSS.str());
 
 		// Loop over the techniques for the new material

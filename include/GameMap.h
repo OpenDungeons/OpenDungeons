@@ -89,6 +89,7 @@ class GameMap
 		void removeRoom(Room *r);
 		Room* getRoom(int index);
 		unsigned int numRooms();
+		std::vector<Room*> getRoomsByType(Room::RoomType type);
 		std::vector<Room*> getRoomsByTypeAndColor(Room::RoomType type, int color);
 		std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec, Tile *startTile, Tile::TileClearType passability);
 
@@ -180,6 +181,15 @@ class GameMap
 		// Private functions
 		void processDeletionQueues();
 		bool walkablePathExists(int x1, int y1, int x2, int y2);
+
+		// THREAD - This function is meant to be called by pthread_create.
+		static void *miscUpkeepThread(void *p);
+		static void *tileUpkeepThread(void *p);
+		static void *creatureDoTurnThread(void *p);
+
+		void doMiscUpkeep();
+		void doTileUpkeep();
+		void doCreatureTurns();
 
 		// Private datamembers
 		std::map< pair<int,int>, Tile*> tiles;
