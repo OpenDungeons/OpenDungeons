@@ -929,19 +929,60 @@ unsigned long int GameMap::doCreatureTurns()
 {
 	Ogre::Timer stopwatch;
 	unsigned long int timeTaken;
+	int tempInt;
 
-	// Call the individual creature AI for each creature in this game map.
-	for(unsigned int i = 0; i < numCreatures(); i++)
+	// Prepare the arrays of creature pointers and parameters for the threads.
+	sem_wait(&creaturesLockSemaphore);
+	unsigned int arraySize = creatures.size();
+	Creature **creatureArray = new Creature*[arraySize];
+	for(unsigned int i = 0; i < creatures.size() && i < arraySize; i++)
+		creatureArray[i] = creatures[i];
+	sem_post(&creaturesLockSemaphore);
+
+	//FIXME: Currently this just spawns a single thread as spawning more than one causes a segfault, probably due to a race condition.
+	int numThreads = min((unsigned int)1, arraySize);
+	CDTHTStruct *threadParams = new CDTHTStruct[numThreads];
+	pthread_t *threads = new pthread_t[numThreads];
+	for(unsigned int i = 0; i < numThreads; i++)
 	{
-		sem_wait(&creaturesLockSemaphore);
-		Creature *tempCreature = creatures[i];
-		sem_post(&creaturesLockSemaphore);
+		int startCreature = i*(arraySize/numThreads);
+		int endCreature;
 
-		tempCreature->doTurn();
+		if(i+1 == numThreads)
+			endCreature = arraySize-1;
+		else
+			endCreature = (i+1)*(arraySize/numThreads)-1;
+
+		threadParams[i].numCreatures = endCreature - startCreature + 1;
+		threadParams[i].creatures = &creatureArray[startCreature];
+
+		pthread_create(&threads[i], NULL, GameMap::creatureDoTurnHelperThread, &threadParams[i]);
 	}
+
+	for(unsigned int i = 0; i < numThreads; i++)
+	{
+		pthread_join(threads[i], NULL);
+	}
+
+	delete[] creatureArray;
+	delete[] threadParams;
+	delete[] threads;
 
 	timeTaken = stopwatch.getMicroseconds();
 	return timeTaken;
+}
+
+void *GameMap::creatureDoTurnHelperThread(void *p)
+{
+	// Call the individual creature AI for each creature in this game map.
+	CDTHTStruct *params = (CDTHTStruct*)p;
+
+	for(int i = 0; i < params->numCreatures; i++)
+	{
+		params->creatures[i]->doTurn();
+	}
+
+	return NULL;
 }
 
 /*! \brief Returns whether or not a Creature with a given passability would be able to move between the two specified tiles.

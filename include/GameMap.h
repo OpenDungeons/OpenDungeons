@@ -186,6 +186,14 @@ class GameMap
 		// THREAD - This function is meant to be called by pthread_create.
 		static void *miscUpkeepThread(void *p);
 		static void *creatureDoTurnThread(void *p);
+		static void *creatureDoTurnHelperThread(void *p);
+
+		class CDTHTStruct
+		{
+			public:
+				int numCreatures;
+				Creature **creatures;
+		};
 
 		unsigned long int doMiscUpkeep();
 		unsigned long int doCreatureTurns();
