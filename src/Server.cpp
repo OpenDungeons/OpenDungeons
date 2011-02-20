@@ -187,13 +187,17 @@ void *creatureAIThread(void *p)
 		// Sleep this thread if it is necessary to keep the turns from happening too fast
 		if(1e6 * timeUntilNextTurn - timeTaken > 0)
 		{
-		       	cout << "\nCreature AI finished " << timeTakenString << "us early.\n";
+		       	cout << "\nCreature AI finished " << timeTakenString << "us early.";
 			usleep(1e6 * timeUntilNextTurn - timeTaken );
 		}
 		else
 		{
-			cout << "\nCreature AI finished " << timeTakenString << "us late.\n";
+			cout << "\nCreature AI finished " << timeTakenString << "us late.";
 		}
+
+		cout << "\nThe Creature AI thread took:  " << gameMap.creatureTurnsTime/(double)1e6;
+		cout << "\nThe misc upkeep thread took:  " << gameMap.miscUpkeepTime/(double)1e6;
+		cout << "\n";
 
 		if(gameMap.previousLeftoverTimes.size() > 10)
 			gameMap.previousLeftoverTimes.resize(10);

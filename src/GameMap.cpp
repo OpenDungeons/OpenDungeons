@@ -681,11 +681,11 @@ void GameMap::doTurn()
 	//TODO: Run a stopwatch during each of these threads to see how long they take to help with the load balancing.
 	pthread_t thread1, thread2, thread3;
 	pthread_create(&thread1, NULL, GameMap::creatureDoTurnThread, NULL);
-	pthread_create(&thread2, NULL, GameMap::tileUpkeepThread, NULL);
+	//pthread_create(&thread2, NULL, GameMap::tileUpkeepThread, NULL);
 	pthread_create(&thread3, NULL, GameMap::miscUpkeepThread, NULL);
 
 	pthread_join(thread3, NULL);
-	pthread_join(thread2, NULL);
+	//pthread_join(thread2, NULL);
 	pthread_join(thread1, NULL);
 
 	// Remove dead creatures from the map and put them into the deletion queue.
@@ -739,25 +739,22 @@ void GameMap::doTurn()
 
 void *GameMap::miscUpkeepThread(void *p)
 {
-	gameMap.doMiscUpkeep();
-	return NULL;
-}
-
-void *GameMap::tileUpkeepThread(void *p)
-{
-	gameMap.doTileUpkeep();
+	gameMap.miscUpkeepTime = gameMap.doMiscUpkeep();
 	return NULL;
 }
 
 void *GameMap::creatureDoTurnThread(void *p)
 {
-	gameMap.doCreatureTurns();
+	gameMap.creatureTurnsTime = gameMap.doCreatureTurns();
 	return NULL;
 }
 
-void GameMap::doMiscUpkeep()
+unsigned long int GameMap::doMiscUpkeep()
 {
+	Tile *tempTile;
 	Seat *tempSeat;
+	Ogre::Timer stopwatch;
+	unsigned long int timeTaken;
 
 	// Loop over all the filled seats in the game and check all the unfinished goals for each seat.
 	// Add any seats with no remaining goals to the winningSeats vector.
@@ -886,13 +883,6 @@ void GameMap::doMiscUpkeep()
 		tempSeat->gold = getTotalGoldForColor(tempSeat->color);
 	}
 
-}
-
-void GameMap::doTileUpkeep()
-{
-	Tile *tempTile;
-	Seat *tempSeat;
-
 	// Determine the number of tiles claimed by each seat.
 	// Begin by setting the number of claimed tiles for each seat to 0.
 	for(unsigned int i = 0; i < filledSeats.size(); i++)
@@ -930,10 +920,16 @@ void GameMap::doTileUpkeep()
 		currentTile++;
 	}
 	sem_post(&tilesLockSemaphore);
+
+	timeTaken = stopwatch.getMicroseconds();
+	return timeTaken;
 }
 
-void GameMap::doCreatureTurns()
+unsigned long int GameMap::doCreatureTurns()
 {
+	Ogre::Timer stopwatch;
+	unsigned long int timeTaken;
+
 	// Call the individual creature AI for each creature in this game map.
 	for(unsigned int i = 0; i < numCreatures(); i++)
 	{
@@ -943,6 +939,9 @@ void GameMap::doCreatureTurns()
 
 		tempCreature->doTurn();
 	}
+
+	timeTaken = stopwatch.getMicroseconds();
+	return timeTaken;
 }
 
 /*! \brief Returns whether or not a Creature with a given passability would be able to move between the two specified tiles.

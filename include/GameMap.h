@@ -176,6 +176,7 @@ class GameMap
 
 		// Public data members
 		string levelFileName;
+		unsigned long int miscUpkeepTime, creatureTurnsTime;
 
 	private:
 		// Private functions
@@ -184,12 +185,10 @@ class GameMap
 
 		// THREAD - This function is meant to be called by pthread_create.
 		static void *miscUpkeepThread(void *p);
-		static void *tileUpkeepThread(void *p);
 		static void *creatureDoTurnThread(void *p);
 
-		void doMiscUpkeep();
-		void doTileUpkeep();
-		void doCreatureTurns();
+		unsigned long int doMiscUpkeep();
+		unsigned long int doCreatureTurns();
 
 		// Private datamembers
 		std::map< pair<int,int>, Tile*> tiles;
