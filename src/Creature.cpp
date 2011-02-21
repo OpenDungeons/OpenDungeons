@@ -603,6 +603,7 @@ creatureActionDoWhileLoop:
 								if(visibleTiles.size() > 0)
 								{
 									unsigned int tileIndex = visibleTiles.size() * randomDouble(0.1, 0.3);
+									myTile = positionTile();
 									tempPath = gameMap.path(myTile, visibleTiles[tileIndex], tilePassability);
 									setWalkPath(tempPath, 2, false);
 								}

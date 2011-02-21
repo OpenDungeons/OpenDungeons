@@ -38,6 +38,7 @@ class Tile
 		// Public functions
 		Tile();
 		Tile(int nX, int nY, TileType nType, int nFullness);
+		void initialize();
 
 		void setType(TileType t);
 		TileType getType();
@@ -104,12 +105,14 @@ class Tile
 		TileType type;
 		bool selected, markedForDigging;
 		int fullness;  //FIXME: Consider making this a double, make sure it doesn't break anything first though.
+		sem_t fullnessLockSemaphore;
 		int fullnessMeshNumber;
 		std::vector<Tile*> neighbors;
 		std::vector<Creature*> creaturesInCell;
 		sem_t creaturesInCellLockSemaphore;
 		std::vector<Player*> playersMarkingTile;
 		Room *coveringRoom;
+		sem_t coveringRoomLockSemaphore;
 		MapLight *claimLight;
 };
 

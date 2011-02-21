@@ -8,8 +8,12 @@
 #define snprintf _snprintf
 #endif
 
-Tile::Tile()
+void Tile::initialize()
 {
+	sem_init(&creaturesInCellLockSemaphore, 0, 1);
+	sem_init(&fullnessLockSemaphore, 0, 1);
+	sem_init(&coveringRoomLockSemaphore, 0, 1);
+
 	selected = false;
 	markedForDigging = false;
 	//location = Ogre::Vector3(0.0, 0.0, 0.0);
@@ -19,23 +23,24 @@ Tile::Tile()
 	color = 0;
 	colorDouble = 0.0;
 	floodFillColor = -1;
-	sem_init(&creaturesInCellLockSemaphore, 0, 1);
+	sem_wait(&coveringRoomLockSemaphore);
 	coveringRoom = NULL;
+	sem_post(&coveringRoomLockSemaphore);
+}
+
+Tile::Tile()
+{
+	initialize();
 }
 
 Tile::Tile(int nX, int nY, TileType nType, int nFullness)
 {
-	color = 0;
-	colorDouble = 0.0;
-	floodFillColor = -1;
-	selected = false;
-	markedForDigging = false;
+	initialize();
+
 	x = nX;
 	y = nY;
 	setType(nType);
 	setFullness(nFullness);
-	sem_init(&creaturesInCellLockSemaphore, 0, 1);
-	coveringRoom = NULL;
 }
 
 /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
@@ -80,6 +85,7 @@ void Tile::setFullness(int f)
 	TileClearType oldTilePassability = getTilePassability();
 	int tempInt;
 
+	sem_wait(&fullnessLockSemaphore);
 	fullness = f;
 
 	// If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
@@ -100,6 +106,8 @@ void Tile::setFullness(int f)
 		SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
 	}
 */
+
+	sem_post(&fullnessLockSemaphore);
 
 	// If we are a sever, the clients need to be told about the change to the tile's fullness.
 	if(serverSocket != NULL)
@@ -290,7 +298,11 @@ void Tile::setFullness(int f)
  */
 int Tile::getFullness()
 {
-	 return fullness;
+	sem_wait(&fullnessLockSemaphore);
+	int tempInt = fullness;
+	sem_post(&fullnessLockSemaphore);
+
+	return tempInt;
 }
 
 /*! \brief An accessor which returns the tile's fullness mesh number.
@@ -313,11 +325,12 @@ int Tile::getFullnessMeshNumber()
 Tile::TileClearType Tile::getTilePassability()
 {
 	// Check to see if the tile is filled in.
-	if(fullness > 0.1)
+	if(getFullness() > 0.1)
 		return impassableTile;
 
 	//Check to see if there is a room with objects covering this tile preventing creatures from walking through it.
 	//FIXME: The second portion of this if statement throws a segfault.  Something is incorrectly setting the coveringRoom.
+	//NOTE: If this code is turned back on the coveringRoom variable is protected by a LockSemaphore.
 	//if(coveringRoom != NULL)// && !coveringRoom->tileIsPassable(this))
 		//return impassableTile;
 
@@ -363,12 +376,18 @@ bool Tile::permitsVision()
 
 Room* Tile::getCoveringRoom()
 {
-	return coveringRoom;
+	sem_wait(&coveringRoomLockSemaphore);
+	Room *ret = coveringRoom;
+	sem_post(&coveringRoomLockSemaphore);
+
+	return ret;
 }
 
 void Tile::setCoveringRoom(Room *r)
 {
+	sem_wait(&coveringRoomLockSemaphore);
 	coveringRoom = r;
+	sem_post(&coveringRoomLockSemaphore);
 }
 
 /*! \brief Check if tile is diggable.
@@ -377,7 +396,7 @@ void Tile::setCoveringRoom(Room *r)
  */
 bool Tile::isDiggable()
 {
-	if((type == dirt || type == gold || type == claimed) && fullness > 0)
+	if((type == dirt || type == gold || type == claimed) && getFullness() > 0)
 		return true;
 
 	return false;
@@ -803,7 +822,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 {
 	double amountClaimed;
 
-	if(!(type == dirt || type == claimed) || fullness > 0)
+	if(!(type == dirt || type == claimed) || getFullness() > 0)
 		return 0.0;
 
 	if(nColor == color)
@@ -870,14 +889,17 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 		return 0.0;
 
 	//FIXME: The +1 in this statement is because the fullness is an int and if you dig <1 the tile would never be fully cleared.
+	sem_wait(&fullnessLockSemaphore);
 	if(digRate + 1 >= fullness)
 	{
 		amountDug = fullness;
+		sem_post(&fullnessLockSemaphore);
 		setFullness(0.0);
 		setType(dirt);
 	}
 	else
 	{
+		sem_post(&fullnessLockSemaphore);
 		amountDug = digRate;
 		setFullness(fullness - digRate);
 	}
