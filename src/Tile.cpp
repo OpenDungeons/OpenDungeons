@@ -823,6 +823,7 @@ void Tile::addNeighbor(Tile *n)
 
 double Tile::claimForColor(int nColor, double nDanceRate)
 {
+	Tile *tempTile;
 	double amountClaimed;
 
 	if(!(type == dirt || type == claimed) || getFullness() > 0)
@@ -890,6 +891,8 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 
 double Tile::digOut(double digRate, bool doScaleDigRate)
 {
+	Tile *tempTile;
+
 	if(doScaleDigRate)
 		digRate = scaleDigRate(digRate);
 
