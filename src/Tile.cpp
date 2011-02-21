@@ -13,6 +13,7 @@ void Tile::initialize()
 	sem_init(&creaturesInCellLockSemaphore, 0, 1);
 	sem_init(&fullnessLockSemaphore, 0, 1);
 	sem_init(&coveringRoomLockSemaphore, 0, 1);
+	sem_init(&neighborsLockSemaphore, 0, 1);
 
 	selected = false;
 	markedForDigging = false;
@@ -815,7 +816,9 @@ Player* Tile::getPlayerMarkingTile(int index)
 
 void Tile::addNeighbor(Tile *n)
 {
+	sem_wait(&neighborsLockSemaphore);
 	neighbors.push_back(n);
+	sem_post(&neighborsLockSemaphore);
 }
 
 double Tile::claimForColor(int nColor, double nDanceRate)
@@ -864,7 +867,9 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 		if(amountToClaim < 0.05)
 			return amountClaimed;
 
-		neighbors = gameMap.neighborTiles(this);
+		//NOTE:  This line is commented out as I think it is a holdover from before the tiles kept track of their neighbors themselves.
+		//neighbors = gameMap.neighborTiles(this);
+		sem_wait(&neighborsLockSemaphore);
 		amountToClaim /= (double)neighbors.size();
 		for(unsigned int j = 0; j < neighbors.size(); j++)
 		{
@@ -873,6 +878,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 				amountClaimed += neighbors[j]->claimForColor(color, amountToClaim);
 			}
 		}
+		sem_post(&neighborsLockSemaphore);
 	}
 	
 	return amountClaimed;
@@ -906,10 +912,12 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 
 	// Force all the neighbors to recheck their meshes as we may have exposed
 	// a new side that was not visible before.
+	sem_wait(&neighborsLockSemaphore);
 	for(unsigned int j = 0; j < neighbors.size(); j++)
 	{
 		neighbors[j]->setFullness(neighbors[j]->getFullness());
 	}
+	sem_post(&neighborsLockSemaphore);
 
 	if(amountDug > 0.0 && amountDug < digRate)
 	{
@@ -917,15 +925,15 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 		if(amountToDig < 0.05)
 			return amountDug;
 
+		sem_wait(&neighborsLockSemaphore);
 		amountToDig /= (double)neighbors.size();
 		for(unsigned int j = 0; j < neighbors.size(); j++)
 		{
 			if(neighbors[j]->getType() == dirt)
 				amountDug += neighbors[j]->digOut(amountToDig);
 		}
-
+		sem_post(&neighborsLockSemaphore);
 	}
-	
 
 	return amountDug;
 }
@@ -943,11 +951,19 @@ double Tile::scaleDigRate(double digRate)
 
 Tile* Tile::getNeighbor(unsigned int index)
 {
-	return neighbors[index];
+	sem_wait(&neighborsLockSemaphore);
+	Tile *ret = neighbors[index];
+	sem_post(&neighborsLockSemaphore);
+
+	return ret;
 }
 
 std::vector<Tile*> Tile::getAllNeighbors()
 {
-	return neighbors;
+	sem_wait(&neighborsLockSemaphore);
+	std::vector<Tile*> ret = neighbors;
+	sem_post(&neighborsLockSemaphore);
+
+	return ret;
 }
 

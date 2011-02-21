@@ -7,6 +7,7 @@ template <class ObjectType>
 class ProtectedObject
 {
 	public:
+		void initialize();
 		ProtectedObject();
 		ProtectedObject(ObjectType init);
 
@@ -23,16 +24,28 @@ class ProtectedObject
 };
 
 template <class ObjectType>
+void ProtectedObject<ObjectType>::initialize()
+{
+	// Valgrind's helgrind tool complains during the lock function about a wait happening before
+	// a post, this code (rather than just initializing the semaphore to 1) should prevent that.
+	sem_init(&semaphore, 0, 0);
+	sem_post(&semaphore);
+}
+
+template <class ObjectType>
 ProtectedObject<ObjectType>::ProtectedObject()
 {
-	sem_init(&semaphore, 0, 1);
+	initialize();
 }
 
 template <class ObjectType>
 ProtectedObject<ObjectType>::ProtectedObject(ObjectType init)
 {
+	initialize();
+
+	sem_wait(&semaphore);
 	object = init;
-	sem_init(&semaphore, 0, 1);
+	sem_post(&semaphore);
 }
 
 template <class ObjectType>

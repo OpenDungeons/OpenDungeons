@@ -943,7 +943,7 @@ unsigned long int GameMap::doCreatureTurns()
 	sem_post(&creaturesLockSemaphore);
 
 	//FIXME: Currently this just spawns a single thread as spawning more than one causes a segfault, probably due to a race condition.
-	unsigned int numThreads = min((unsigned int)1, arraySize);
+	unsigned int numThreads = min((unsigned int)5, arraySize);
 	CDTHTStruct *threadParams = new CDTHTStruct[numThreads];
 	pthread_t *threads = new pthread_t[numThreads];
 	for(unsigned int i = 0; i < numThreads; i++)
