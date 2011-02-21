@@ -116,12 +116,18 @@ class Creature : public CreatureClass, public AttackableObject
 		sem_t isOnMapLockSemaphore;
 
 	private:
+		// Private functions
+		void pushAction(CreatureAction action);
+		void popAction();
+
+		// Private data members
 		double hp;
 		sem_t hpLockSemaphore;
 		double mana;
 		sem_t manaLockSemaphore;
 		int gold;
 		std::deque<CreatureAction> actionQueue;
+		sem_t actionQueueLockSemaphore;
 		int destinationX, destinationY;
 		bool hasVisualDebuggingEntities;
 		Tile *previousPositionTile;

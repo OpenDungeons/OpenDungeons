@@ -62,7 +62,11 @@ Creature::Creature()
 
 	sceneNode = NULL;
 
+	sem_init(&actionQueueLockSemaphore, 0, 1);
+	sem_wait(&actionQueueLockSemaphore);
 	actionQueue.push_back(CreatureAction(CreatureAction::idle));
+	sem_post(&actionQueueLockSemaphore);
+
 	battleField = new Field("autoname");
 
 	meshesExist = false;
@@ -381,6 +385,7 @@ void Creature::doTurn()
 	std::vector< std::list<Tile*> > shortPaths;
 	bool loopBack;
 	bool stopUsingDojo;
+	bool tempBool;
 	int tempInt;
 	unsigned int tempUnsigned;
 	unsigned int rangeToNearestEnemyObject, rangeToNearestAlliedObject;
@@ -430,6 +435,7 @@ void Creature::doTurn()
 	{
 		// Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
 		bool alreadyFighting = false;
+		sem_wait(&actionQueueLockSemaphore);
 		for(unsigned int i = 0; i < actionQueue.size(); i++)
 		{
 			if(actionQueue[i].type == CreatureAction::attackObject || actionQueue[i].type == CreatureAction::maneuver)
@@ -438,6 +444,7 @@ void Creature::doTurn()
 				break;
 			}
 		}
+		sem_post(&actionQueueLockSemaphore);
 
 		// If we are not already fighting with a creature or maneuvering then start doing so.
 		if(!alreadyFighting)
@@ -445,7 +452,7 @@ void Creature::doTurn()
 			if(randomDouble(0.0, 1.0) < (1.0/(rangeToNearestEnemyObject) - digRate/80.0))
 			{
 				tempAction.type = CreatureAction::maneuver;
-				actionQueue.push_front(tempAction);
+				pushAction(tempAction);
 				// Jump immediately to the action processor since we don't want to decide to train or something if there are enemies around.
 				goto creatureActionDoWhileLoop;
 			}
@@ -453,7 +460,11 @@ void Creature::doTurn()
 	}
 
 	// Check to see if we have found a "home" tile where we can sleep yet.
-	if(!isWorker() && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && actionQueue.front().type != CreatureAction::findHome)
+	sem_wait(&actionQueueLockSemaphore);
+	bool alreadyLookingForHome;
+	alreadyLookingForHome = (actionQueue.front().type == CreatureAction::findHome);
+	sem_post(&actionQueueLockSemaphore);
+	if(!isWorker() && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && !alreadyLookingForHome)
 	{
 		// Check to see if there are any quarters owned by our color that we can reach.
 		std::vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
@@ -461,24 +472,35 @@ void Creature::doTurn()
 		if(tempRooms.size() > 0)
 		{
 			tempAction.type = CreatureAction::findHome;
-			actionQueue.push_front(tempAction);
+			pushAction(tempAction);
+			goto creatureActionDoWhileLoop;
 		}
 	}
 
 	// If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 0.8), 2) > awakeness && actionQueue.front().type != CreatureAction::sleep)
+	sem_wait(&actionQueueLockSemaphore);
+	bool alreadyTryingToSleep;
+	alreadyTryingToSleep = (actionQueue.front().type == CreatureAction::sleep);
+	sem_post(&actionQueueLockSemaphore);
+	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 0.8), 2) > awakeness && !alreadyTryingToSleep)
 	{
 		tempAction.type = CreatureAction::sleep;
-		actionQueue.push_front(tempAction);
+		pushAction(tempAction);
+		goto creatureActionDoWhileLoop;
 	}
 
 	// Check to see if there is a Dojo we can train at.
-	if(!isWorker() && randomDouble(0.0, 1.0) < 0.1 && randomDouble(0.5, 1.0) < awakeness/100.0 && actionQueue.front().type != CreatureAction::train)
+	sem_wait(&actionQueueLockSemaphore);
+	bool alreadyTryingToTrain;
+	alreadyTryingToTrain = (actionQueue.front().type == CreatureAction::train);
+	sem_post(&actionQueueLockSemaphore);
+	if(!isWorker() && randomDouble(0.0, 1.0) < 0.1 && randomDouble(0.5, 1.0) < awakeness/100.0 && !alreadyTryingToTrain)
 	{
 		//TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
 		tempAction.type = CreatureAction::train;
-		actionQueue.push_front(tempAction);
+		pushAction(tempAction);
 		trainWait = 0;
+		goto creatureActionDoWhileLoop;
 	}
 
 	// The loopback variable allows creatures to begin processing a new
@@ -502,10 +524,16 @@ creatureActionDoWhileLoop:
 		std::vector<Room*> treasuriesOwned;
 		std::vector<Room*> tempRooms;
 
-		diceRoll = randomDouble(0.0, 1.0);
-		if(actionQueue.size() > 0)
+		sem_wait(&actionQueueLockSemaphore);
+		bool actionQueueHasEntries = (actionQueue.size() > 0);
+		sem_post(&actionQueueLockSemaphore);
+		if(actionQueueHasEntries)
 		{
-			switch(actionQueue.front().type)
+			sem_wait(&actionQueueLockSemaphore);
+			CreatureAction topActionItem = actionQueue.front();
+			sem_post(&actionQueueLockSemaphore);
+			diceRoll = randomDouble(0.0, 1.0);
+			switch(topActionItem.type)
 			{
 				case CreatureAction::idle:
 					//cout << "idle ";
@@ -519,21 +547,21 @@ creatureActionDoWhileLoop:
 						if(diceRoll < 0.5)
 						{
 							loopBack = true;
-							actionQueue.push_front(CreatureAction(CreatureAction::digTile));
+							pushAction(CreatureAction::digTile);
 						}
 
 						// Decide to check for clamiable tiles
 						else if(diceRoll < 0.9)
 						{
 							loopBack = true;
-							actionQueue.push_front(CreatureAction(CreatureAction::claimTile));
+							pushAction(CreatureAction::claimTile);
 						}
 
 						// Decide to deposit the gold we are carrying into a treasury.
 						else if(diceRoll < 0.7+0.6*(gold/(double)maxGoldCarriedByWorkers))
 						{
 							loopBack = true;
-							actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
+							pushAction(CreatureAction::depositGold);
 						}
 					}
 					// Non-workers only
@@ -547,7 +575,7 @@ creatureActionDoWhileLoop:
 					if(diceRoll < 0.6)
 					{
 						loopBack = true;
-						actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+						pushAction(CreatureAction::walkToTile);
 
 						// Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
 						int tempX, tempY;
@@ -570,7 +598,10 @@ creatureActionDoWhileLoop:
 									{
 										// We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
 										tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
-										if(((Creature*)reachableAlliedObjects[i])->actionQueue.front().type == CreatureAction::digTile)
+										sem_wait(&actionQueueLockSemaphore);
+										tempBool = (((Creature*)reachableAlliedObjects[i])->actionQueue.front().type == CreatureAction::digTile);
+										sem_post(&actionQueueLockSemaphore);
+										if(tempBool)
 										{
 											// Worker is digging, get near it since it could expose enemies.
 											tempX = tempTile->x + 3.0*gaussianRandomDouble();
@@ -637,9 +668,9 @@ creatureActionDoWhileLoop:
 					/*
 					if(reachableEnemyObjects.size() > 0 && rangeToNearestEnemyObject < 5)
 					{
-						actionQueue.pop_front();
+						popAction();
 						tempAction.type = CreatureAction::maneuver;
-						actionQueue.push_front(tempAction);
+						pushAction(tempAction);
 						clearDestinations();
 						loopBack = true;
 						break;
@@ -648,7 +679,10 @@ creatureActionDoWhileLoop:
 
 					//TODO: Peek at the item that caused us to walk
 					// If we are walking toward a tile we are trying to dig out, check to see if it is still marked for digging.
-					if(actionQueue[1].type == CreatureAction::digTile)
+					sem_wait(&actionQueueLockSemaphore);
+					tempBool = (actionQueue[1].type == CreatureAction::digTile);
+					sem_post(&actionQueueLockSemaphore);
+					if(tempBool)
 					{
 						tempPlayer = getControllingPlayer();
 
@@ -676,7 +710,7 @@ creatureActionDoWhileLoop:
 					sem_wait(&walkQueueLockSemaphore);
 					if(walkQueue.size() == 0)
 					{
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 
 						// This extra post is included here because if the break statement happens
@@ -693,7 +727,7 @@ creatureActionDoWhileLoop:
 					// it can be removed when that issue is resolved.
 					if(myTile == NULL)
 					{
-						actionQueue.pop_front();
+						popAction();
 						goto claimTileBreakStatement;
 					}
 
@@ -704,8 +738,8 @@ creatureActionDoWhileLoop:
 						if(markedTiles.size() > 0)
 						{
 							loopBack = true;
-							actionQueue.pop_front();
-							actionQueue.push_front(CreatureAction(CreatureAction::digTile));
+							popAction();
+							pushAction(CreatureAction::digTile);
 							break;
 						}
 					}
@@ -838,7 +872,7 @@ creatureActionDoWhileLoop:
 							{
 								//loopBack = true;
 								setAnimationState("Walk");
-								actionQueue.push_back(CreatureAction::walkToTile);
+								pushAction(CreatureAction::walkToTile);
 								goto claimTileBreakStatement;
 							}
 						}
@@ -857,7 +891,7 @@ creatureActionDoWhileLoop:
 					}
 
 					// We couldn't find a tile to try to claim so we stop trying
-					actionQueue.pop_front();
+					popAction();
 claimTileBreakStatement:
 					break;
 
@@ -871,7 +905,7 @@ claimTileBreakStatement:
 					if(randomDouble(0.0, 1.0) < 0.35 - 0.2*markedTiles.size())
 					{
 						loopBack = true;
-						actionQueue.pop_front();
+						popAction();
 						goto claimTileBreakStatement;
 					}
 
@@ -912,9 +946,9 @@ claimTileBreakStatement:
 
 								// Remove the dig action and replace it with
 								// walking to the newly dug out tile.
-								//actionQueue.pop_front();
+								//popAction();
 								addDestination(tempTile->x, tempTile->y);
-								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+								pushAction(CreatureAction::walkToTile);
 							}
 
 							wasANeighbor = true;
@@ -926,8 +960,8 @@ claimTileBreakStatement:
 					if(gold >= maxGoldCarriedByWorkers)
 					{
 						// Remove the dig action and replace it with a depositGold action.
-						//actionQueue.pop_front();
-						actionQueue.push_front(CreatureAction(CreatureAction::depositGold));
+						//popAction();
+						pushAction(CreatureAction::depositGold);
 					}
 
 					// If we successfully dug a tile then we are done for this turn.
@@ -939,7 +973,7 @@ claimTileBreakStatement:
 					if(randomDouble(0.0, 1.0) < 0.1)
 					{
 						loopBack = true;
-						actionQueue.pop_front();
+						popAction();
 						goto claimTileBreakStatement;
 					}
 					*/
@@ -1005,7 +1039,7 @@ claimTileBreakStatement:
 							if(setWalkPath(walkPath, 2, false))
 							{
 								setAnimationState("Walk");
-								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+								pushAction(CreatureAction::walkToTile);
 								break;
 							}
 						}
@@ -1013,9 +1047,12 @@ claimTileBreakStatement:
 
 					// If none of our neighbors are marked for digging we got here too late.
 					// Finish digging
-					if(actionQueue.front().type == CreatureAction::digTile)
+					sem_wait(&actionQueueLockSemaphore);
+					tempBool = (actionQueue.front().type == CreatureAction::digTile);
+					sem_post(&actionQueueLockSemaphore);
+					if(tempBool)
 					{
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 					}
 					break;
@@ -1035,7 +1072,7 @@ claimTileBreakStatement:
 							// looking for another treasury to put the gold into.  Roll a dice to see if we want to quit looking not.
 							if(randomDouble(1.0, maxGoldCarriedByWorkers) > gold)
 							{
-								actionQueue.pop_front();
+								popAction();
 								break;
 							}
 						}
@@ -1092,7 +1129,7 @@ claimTileBreakStatement:
 							if(setWalkPath(tempPath, 2, false))
 							{
 								setAnimationState("Walk");
-								actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+								pushAction(CreatureAction::walkToTile);
 								loopBack = true;
 								break;
 							}
@@ -1101,14 +1138,14 @@ claimTileBreakStatement:
 					else
 					{
 						// There are no treasuries available so just go back to what we were doing.
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 						break;
 					}
 
 					// If we get to here, there is either no treasuries controlled by us, or they are all
 					// unreachable, or they are all full, so quit trying to deposit gold.
-					actionQueue.pop_front();
+					popAction();
 					loopBack = true;
 					break;
 
@@ -1132,7 +1169,7 @@ claimTileBreakStatement:
 					// If we found a tile to claim as our home in the above block.
 					if(homeTile != NULL)
 					{
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 						break;
 					}
@@ -1190,14 +1227,14 @@ claimTileBreakStatement:
 						if(setWalkPath(tempPath, 2, false))
 						{
 							setAnimationState("Walk");
-							actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+							pushAction(CreatureAction::walkToTile);
 							loopBack = true;
 							break;
 						}
 					}
 
 					// If we got here there are no reachable quarters that are unclaimed so we quit trying to find one.
-					actionQueue.pop_front();
+					popAction();
 					loopBack = true;
 					break;
 
@@ -1219,7 +1256,7 @@ claimTileBreakStatement:
 						if(awakeness > 100.0)
 						{
 							awakeness = 100.0;
-							actionQueue.pop_front();
+							popAction();
 						}
 
 					}
@@ -1232,7 +1269,7 @@ claimTileBreakStatement:
 					stopUsingDojo = false;
 					if(level > 10)
 					{
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 						trainWait = 0;
 						stopUsingDojo = true;
@@ -1242,7 +1279,7 @@ claimTileBreakStatement:
 					// Randomly decide to stop training, we are more likely to stop when we are tired.
 					if(100.0*powl(randomDouble(0.0, 1.0), 2) > awakeness)
 					{
-						actionQueue.pop_front();
+						popAction();
 						trainWait = 0;
 						loopBack = true;
 						stopUsingDojo = true;
@@ -1280,7 +1317,7 @@ claimTileBreakStatement:
 					else
 					{
 						// We are not on the map, don't do anything.
-						actionQueue.pop_front();
+						popAction();
 						stopUsingDojo = true;
 						goto trainBreakStatement;
 					}
@@ -1289,7 +1326,7 @@ claimTileBreakStatement:
 					tempRooms = gameMap.getRoomsByTypeAndColor(Room::dojo, color);
 					if(tempRooms.size() == 0)
 					{
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 						stopUsingDojo = true;
 						goto trainBreakStatement;
@@ -1307,7 +1344,7 @@ claimTileBreakStatement:
 					if(tempRoom->numOpenCreatureSlots() == 0)
 					{
 						// The room is already being used, stop trying to train.
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 						stopUsingDojo = true;
 						goto trainBreakStatement;
@@ -1322,7 +1359,7 @@ claimTileBreakStatement:
 					else
 					{
 						// We could not find a dojo to train at so stop trying to find one.
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 						stopUsingDojo = true;
 						goto trainBreakStatement;
@@ -1340,7 +1377,7 @@ trainBreakStatement:
 					// If there are no more enemies which are reachable, stop attacking
 					if(reachableEnemyObjects.size() == 0)
 					{
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 						break;
 					}
@@ -1394,14 +1431,14 @@ trainBreakStatement:
 
 						// Randomly decide to start maneuvering again so we don't just stand still and fight.
 						if(randomDouble(0.0, 1.0) <= 0.6)
-							actionQueue.pop_front();
+							popAction();
 
 						break;
 					}
 
 					// There is not an enemy within range, begin maneuvering to try to get near an enemy, or out of the combat situation.
-					actionQueue.pop_front();
-					actionQueue.push_front(CreatureAction(CreatureAction::maneuver));
+					popAction();
+					pushAction(CreatureAction::maneuver);
 					loopBack = true;
 					break;
 
@@ -1411,12 +1448,15 @@ trainBreakStatement:
 					// If there is an enemy within range, stop maneuvering and attack it.
 					if(enemyObjectsInRange.size() > 0)
 					{
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 
 						// If the next action down the stack is not an attackObject action, add it.
-						if(actionQueue.front().type != CreatureAction::attackObject)
-							actionQueue.push_front(CreatureAction(CreatureAction::attackObject));
+						sem_wait(&actionQueueLockSemaphore);
+						tempBool = (actionQueue.front().type != CreatureAction::attackObject);
+						sem_post(&actionQueueLockSemaphore);
+						if(tempBool)
+							pushAction(CreatureAction::attackObject);
 
 						break;
 					}
@@ -1424,7 +1464,7 @@ trainBreakStatement:
 					// If there are no more enemies which are reachable, stop maneuvering.
 					if(reachableEnemyObjects.size() == 0)
 					{
-						actionQueue.pop_front();
+						popAction();
 						loopBack = true;
 						break;
 					}
@@ -1489,7 +1529,7 @@ trainBreakStatement:
 
 					// Push a walkToTile action into the creature's action queue to make them walk the path they have
 					// decided on without recomputing, this helps prevent them from getting stuck in local minima.
-					actionQueue.push_front(CreatureAction(CreatureAction::walkToTile));
+					pushAction(CreatureAction::walkToTile);
 
 					// This is a debugging statement, it produces a visual display of the battlefield as seen by the first creature.
 					if(battleField->name.compare("field_1") == 0)
@@ -1993,8 +2033,24 @@ Player* Creature::getControllingPlayer()
 */
 void Creature::clearActionQueue()
 {
+	sem_wait(&actionQueueLockSemaphore);
 	actionQueue.clear();
-	actionQueue.push_back(CreatureAction(CreatureAction::idle));
+	actionQueue.push_front(CreatureAction::idle);
+	sem_post(&actionQueueLockSemaphore);
+}
+
+void Creature::pushAction(CreatureAction action)
+{
+	sem_wait(&actionQueueLockSemaphore);
+	actionQueue.push_front(action);
+	sem_post(&actionQueueLockSemaphore);
+}
+
+void Creature::popAction()
+{
+	sem_wait(&actionQueueLockSemaphore);
+	actionQueue.pop_front();
+	sem_post(&actionQueueLockSemaphore);
 }
 
 /** \brief This function loops over the visible tiles and computes a score for each one indicating how

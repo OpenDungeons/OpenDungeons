@@ -875,7 +875,11 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 		{
 			if(neighbors[j]->getType() == dirt || neighbors[j]->getType() == claimed)
 			{
-				amountClaimed += neighbors[j]->claimForColor(color, amountToClaim);
+				tempTile = neighbors[j];
+				// Release and relock the semaphore since the claimForColor() routine will eventually need to lock it.
+				sem_post(&neighborsLockSemaphore);
+				amountClaimed += tempTile->claimForColor(color, amountToClaim);
+				sem_wait(&neighborsLockSemaphore);
 			}
 		}
 		sem_post(&neighborsLockSemaphore);
@@ -930,7 +934,13 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 		for(unsigned int j = 0; j < neighbors.size(); j++)
 		{
 			if(neighbors[j]->getType() == dirt)
-				amountDug += neighbors[j]->digOut(amountToDig);
+			{
+				tempTile = neighbors[j];
+				// Release and relock the semaphore since the digOut() routine will eventually need to lock it.
+				sem_post(&neighborsLockSemaphore);
+				amountDug += tempTile->digOut(amountToDig);
+				sem_wait(&neighborsLockSemaphore);
+			}
 		}
 		sem_post(&neighborsLockSemaphore);
 	}
