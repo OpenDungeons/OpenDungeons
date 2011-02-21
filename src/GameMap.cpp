@@ -679,7 +679,7 @@ void GameMap::doTurn()
 	processDeletionQueues();
 
 	//TODO: Run a stopwatch during each of these threads to see how long they take to help with the load balancing.
-	pthread_t thread1, thread2, thread3;
+	pthread_t thread1, thread3;
 	pthread_create(&thread1, NULL, GameMap::creatureDoTurnThread, NULL);
 	//pthread_create(&thread2, NULL, GameMap::tileUpkeepThread, NULL);
 	pthread_create(&thread3, NULL, GameMap::miscUpkeepThread, NULL);
@@ -874,7 +874,7 @@ unsigned long int GameMap::doMiscUpkeep()
 
 		// Add the amount of mana this seat accrued this turn.
 		//cout << "\nSeat " << i << " has " << tempSeat->numClaimedTiles << " claimed tiles.";
-		tempSeat->manaDelta = 50 + tempSeat->numClaimedTiles;
+		tempSeat->manaDelta = 50 + tempSeat->getNumClaimedTiles();
 		tempSeat->mana += tempSeat->manaDelta;
 		if(tempSeat->mana > 250000)
 			tempSeat->mana = 250000;
@@ -886,10 +886,10 @@ unsigned long int GameMap::doMiscUpkeep()
 	// Determine the number of tiles claimed by each seat.
 	// Begin by setting the number of claimed tiles for each seat to 0.
 	for(unsigned int i = 0; i < filledSeats.size(); i++)
-		filledSeats[i]->numClaimedTiles = 0;
+		filledSeats[i]->setNumClaimedTiles(0);
 
 	for(unsigned int i = 0; i < emptySeats.size(); i++)
-		emptySeats[i]->numClaimedTiles = 0;
+		emptySeats[i]->setNumClaimedTiles(0);
 
 	// Now loop over all of the tiles, if the tile is claimed increment the given seats count.
 	sem_wait(&tilesLockSemaphore);
@@ -905,7 +905,11 @@ unsigned long int GameMap::doMiscUpkeep()
 			tempSeat = getSeatByColor(tempTile->color);
 			if(tempSeat != NULL)
 			{
-				tempSeat->numClaimedTiles++;
+				sem_wait(&tempSeat->numClaimedTilesLockSemaphore);
+				unsigned int tempUInt = tempSeat->rawGetNumClaimedTiles();
+				tempUInt++;
+				tempSeat->rawSetNumClaimedTiles(tempUInt);
+				sem_post(&tempSeat->numClaimedTilesLockSemaphore);
 
 				// Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
 				std::vector<Tile*> neighbors = neighborTiles(currentTile->second);
@@ -929,7 +933,6 @@ unsigned long int GameMap::doCreatureTurns()
 {
 	Ogre::Timer stopwatch;
 	unsigned long int timeTaken;
-	int tempInt;
 
 	// Prepare the arrays of creature pointers and parameters for the threads.
 	sem_wait(&creaturesLockSemaphore);
@@ -940,7 +943,7 @@ unsigned long int GameMap::doCreatureTurns()
 	sem_post(&creaturesLockSemaphore);
 
 	//FIXME: Currently this just spawns a single thread as spawning more than one causes a segfault, probably due to a race condition.
-	int numThreads = min((unsigned int)1, arraySize);
+	unsigned int numThreads = min((unsigned int)1, arraySize);
 	CDTHTStruct *threadParams = new CDTHTStruct[numThreads];
 	pthread_t *threads = new pthread_t[numThreads];
 	for(unsigned int i = 0; i < numThreads; i++)
@@ -977,6 +980,7 @@ void *GameMap::creatureDoTurnHelperThread(void *p)
 	// Call the individual creature AI for each creature in this game map.
 	CDTHTStruct *params = (CDTHTStruct*)p;
 
+	//cout << *params->creatures;
 	for(int i = 0; i < params->numCreatures; i++)
 	{
 		params->creatures[i]->doTurn();

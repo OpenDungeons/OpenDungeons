@@ -18,6 +18,8 @@ using namespace std;
 SceneManager* mSceneMgr;
 GameMap gameMap;
 
+sem_t randomGeneratorLockSemaphore;
+
 std::deque<RenderRequest*> renderQueue;
 sem_t renderQueueSemaphore;
 sem_t renderQueueEmptySemaphore;
@@ -66,6 +68,7 @@ int main(int argc, char **argv)
 	}
 #endif
 
+	sem_init(&randomGeneratorLockSemaphore, 0, 1);
 	seedRandomNumberGenerator();
 	sem_init(&renderQueueSemaphore, 0, 1);
 	sem_init(&renderQueueEmptySemaphore, 0, 0);

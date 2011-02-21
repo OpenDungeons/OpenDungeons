@@ -67,7 +67,7 @@ Creature::Creature()
 
 	meshesExist = false;
 
-	static int uniqueId = 0;
+	//static int uniqueId = 0;
 
 	//attackSound = OgreOggSound::OgreOggSoundManager::getSingletonPtr()
 	//		->createSound("attackSound" + Ogre::StringConverter::toString(uniqueId++), "Sword/SwordBlock01.ogg");

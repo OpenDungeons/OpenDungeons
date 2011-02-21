@@ -22,7 +22,7 @@ class TileCoordinateMap
 		int getRadiusSquared(int i);
 
 	private:
-		void checkIndex(int i);
+		void checkIndex(unsigned int i);
 		int radius;
 		std::vector<TileCoordinateData> data;
 		static bool dataSortComparitor(TileCoordinateData t1, TileCoordinateData t2);

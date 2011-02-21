@@ -16,6 +16,7 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles, 
 
 	switch(nType)
 	{
+		case nullTrapType:   tempTrap = NULL;                     break;
 		case cannon:         tempTrap = new TrapCannon();         break;
 	}
 
@@ -138,7 +139,8 @@ int Trap::costPerTile(TrapType t)
 {
 	switch(t)
 	{
-		case cannon:     return 500;     break;
+		case nullTrapType:  return 0;       break;
+		case cannon:        return 500;     break;
 	}
 
 	return 100;

@@ -17,6 +17,7 @@ extern GameMap gameMap;
 extern SceneManager* mSceneMgr;
 
 extern std::deque<RenderRequest*> renderQueue;
+extern sem_t randomGeneratorLockSemaphore;
 extern sem_t renderQueueSemaphore;
 extern sem_t renderQueueEmptySemaphore;
 extern ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;

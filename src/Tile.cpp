@@ -913,6 +913,7 @@ double Tile::scaleDigRate(double digRate)
 	switch(type)
 	{
 		case claimed:     return 0.2 * digRate;     break;
+		default:          return digRate;           break;
 	}
 
 	return digRate;

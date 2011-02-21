@@ -293,8 +293,12 @@ namespace Random
 	// bugs so it was replaced with this one.
 	unsigned long randgen()
 	{
+		sem_wait(&randomGeneratorLockSemaphore);
 		myRandomSeed = myRandomSeed*1103515245 + 12345; 
-		return (unsigned int)(myRandomSeed / 65536) % 32768; 
+		unsigned long returnVal = (unsigned int)(myRandomSeed / 65536) % 32768; 
+		sem_post(&randomGeneratorLockSemaphore);
+
+		return returnVal;
 	}
 
 	// uniformly distributed number [0;1)
@@ -440,7 +444,6 @@ string colourizeMaterial(string materialName, int colour)
 	PixelBox tempPixelBox;
 	Technique *tempTechnique;
 	Pass *tempPass;
-	TextureUnitState *tempTextureUnitState;
 	TexturePtr tempTexture;
 
 	tempSS.str("");

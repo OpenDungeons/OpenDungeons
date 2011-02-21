@@ -1191,7 +1191,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		CEGUI::Window *tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/TerritoryDisplay");
 		tempSS.str("");
-		tempSS << "Territory\n" << gameMap.me->seat->numClaimedTiles;
+		tempSS << "Territory\n" << gameMap.me->seat->getNumClaimedTiles();
 		tempWindow->setText(tempSS.str());
 
 		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/GoldDisplay");

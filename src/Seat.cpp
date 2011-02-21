@@ -11,6 +11,7 @@ Seat::Seat()
 	sem_init(&goalsLockSemaphore, 0, 1);
 	sem_init(&completedGoalsLockSemaphore, 0, 1);
 	sem_init(&failedGoalsLockSemaphore, 0, 1);
+	sem_init(&numClaimedTilesLockSemaphore, 0, 1);
 
 	numCreaturesControlled = 0;
 	factionHumans = 0.0;
@@ -123,6 +124,32 @@ Goal* Seat::getFailedGoal(unsigned int index)
 	sem_post(&failedGoalsLockSemaphore);
 
 	return tempGoal;
+}
+
+unsigned int Seat::getNumClaimedTiles()
+{
+	sem_wait(&numClaimedTilesLockSemaphore);
+	unsigned int ret = numClaimedTiles;
+	sem_post(&numClaimedTilesLockSemaphore);
+
+	return ret;
+}
+
+void Seat::setNumClaimedTiles(unsigned int num)
+{
+	sem_wait(&numClaimedTilesLockSemaphore);
+	numClaimedTiles = num;
+	sem_post(&numClaimedTilesLockSemaphore);
+}
+
+unsigned int Seat::rawGetNumClaimedTiles()
+{
+	return numClaimedTiles;
+}
+
+void Seat::rawSetNumClaimedTiles(unsigned int num)
+{
+	numClaimedTiles = num;
 }
 
 /** \brief Loop over the vector of unmet goals and call the isMet() and isFailed() functions on

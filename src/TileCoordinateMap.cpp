@@ -74,7 +74,7 @@ bool TileCoordinateMap::dataSortComparitor(TileCoordinateData t1, TileCoordinate
 /*! \brief Ensures that a call to get the information for index i will succeed, this function will recompute the coordinate map to a larger radius if neccessary to make the call succeed.
  *
  */
-void TileCoordinateMap::checkIndex(int i)
+void TileCoordinateMap::checkIndex(unsigned int i)
 {
 	if(i >= data.size())
 	{

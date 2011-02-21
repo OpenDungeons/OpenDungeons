@@ -190,7 +190,8 @@ Tile* RoomQuarters::getLocationForBed(int xDim, int yDim)
 
 	// Check to see if there is even enough space available for the bed.
 	std::vector<Tile*> tempVector = getOpenTiles();
-	if(tempVector.size() < xDim*yDim)  return NULL;
+	unsigned int area = xDim*yDim;
+	if(tempVector.size() < area)  return NULL;
 
 	// Randomly shuffle the open tiles in tempVector so that the quarters are filled up in a random order.
 	std::random_shuffle(tempVector.begin(), tempVector.end());

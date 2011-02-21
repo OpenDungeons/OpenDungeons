@@ -12,7 +12,7 @@ GoalClaimNTiles::GoalClaimNTiles(string nName, string nArguments)
 
 bool GoalClaimNTiles::isMet(Seat *s)
 {
-	if(s->numClaimedTiles >= numberOfTiles)
+	if(s->getNumClaimedTiles() >= numberOfTiles)
 		return true;
 	else
 		return false;
@@ -35,7 +35,7 @@ string GoalClaimNTiles::getFailedMessage()
 string GoalClaimNTiles::getDescription()
 {
 	std::stringstream tempSS;
-	tempSS << "Claimed " << gameMap.me->seat->numClaimedTiles << " of " << numberOfTiles << " tiles.";
+	tempSS << "Claimed " << gameMap.me->seat->getNumClaimedTiles() << " of " << numberOfTiles << " tiles.";
 	return tempSS.str();
 }
 

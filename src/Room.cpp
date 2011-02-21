@@ -22,6 +22,7 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, 
 
 	switch(nType)
 	{
+		case nullRoomType: tempRoom = NULL;                    break;
 		case quarters:     tempRoom = new RoomQuarters();      break;
 		case treasury:     tempRoom = new RoomTreasury();      break;
 		case portal:       tempRoom = new RoomPortal();        break;
@@ -397,7 +398,6 @@ string Room::getMeshNameFromRoomType(RoomType t)
 	{
 		case nullRoomType:      return "NullRoomType";      break;
 		case dungeonTemple:     return "DungeonTemple";     break; 
-		case vein:              return "Vein";              break; 
 		case quarters:          return "Quarters";          break; 
 		case treasury:          return "Treasury";          break;
 		case portal:            return "Portal";            break;
@@ -412,8 +412,6 @@ Room::RoomType Room::getRoomTypeFromMeshName(string s)
 {
 	if(s.compare("DungeonTemple") == 0)
 		return dungeonTemple;
-	else if(s.compare("Vein") == 0)
-		return vein;
 	else if(s.compare("Quarters") == 0)
 		return quarters;
 	else if(s.compare("Treasury") == 0)
@@ -439,7 +437,6 @@ int Room::costPerTile(RoomType t)
 		case nullRoomType:      return 0;         break;
 		case dungeonTemple:     return 0;         break; 
 		case portal:            return 0;         break;
-		case vein:              return 25;        break; 
 		case quarters:          return 75;        break; 
 		case treasury:          return 25;        break;
 		case forge:             return 150;       break;
