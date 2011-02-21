@@ -2575,6 +2575,30 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		}
 	}
 
+	// Set the max number of threads the gameMap should spawn when it does the creature AI.
+	else if(command.compare("aithreads") == 0)
+	{
+		if(arguments.size() > 0)
+		{
+			tempSS.str(arguments);
+			int tempInt;
+			tempSS >> tempInt;
+			if(tempInt >= 1)
+			{
+				gameMap.maxAIThreads = tempInt;
+				commandOutput += "\nMaximum number of creature AI threads set to " + StringConverter::toString(gameMap.maxAIThreads) + "\n";
+			}
+			else
+			{
+				commandOutput += "\nERROR: Maximum number of threads must be >= 1.\n";
+			}
+		}
+		else
+		{
+			commandOutput += "\nCurrent maximum number of creature AI threads is " + StringConverter::toString(gameMap.maxAIThreads) + "\n";
+		}
+	}
+
 	// Set the turnsPerSecond variable to control the AI speed
 	else if(command.compare("turnspersecond") == 0 || command.compare("tps") == 0)
 	{
@@ -3250,12 +3274,12 @@ string ExampleFrameListener::getHelpText(string arg)
 
 	if(arg.compare("save") == 0)
 	{
-		return "Save the current level to a file.  The file name is given as an argument to the save command.\n\nExample:\n" + prompt + "save Test\n\nThe above command will save the level to Media/levels/Test.level.  The Test level is loaded automatically when OpenDungeons starts.";
+		return "Save the current level to a file.  The file name is given as an argument to the save command, if no file name is given the last file loaded is overwritten by the save command.\n\nExample:\n" + prompt + "save Test\n\nThe above command will save the level to Media/levels/Test.level.  The Test level is loaded automatically when OpenDungeons starts.";
 	}
 
 	else if(arg.compare("load") == 0)
 	{
-		return "Load a level from a file.  The new level replaces the current level.  The levels are stored in the Media/levels/ directory and have a .level extension on the end.  Both the directory and the .level extension are automatically applied for you.\n\nExample:\n" + prompt + "load Level1\n\nThe above command will load the file Level1.level from the Media/levels directory.";
+		return "Load a level from a file.  The new level replaces the current level.  The levels are stored in the Media/levels/ directory and have a .level extension on the end.  Both the directory and the .level extension are automatically applied for you, if no file name is given the last file loaded is reloaded.\n\nExample:\n" + prompt + "load Level1\n\nThe above command will load the file Level1.level from the Media/levels directory.";
 	}
 
 	else if(arg.compare("addclass") == 0)
@@ -3361,9 +3385,15 @@ string ExampleFrameListener::getHelpText(string arg)
 		tempString += "|| Rotate right     || Page Down        || N/A              ||\n";
 		tempString += "|| Toggle Console   || `                || F12              ||\n";
 		tempString += "|| Quit Game        || ESC              || N/A              ||\n";
+		tempString += "|| Take screenshot  || Printscreen      || N/A              ||\n";
 		tempString += "|| Toggle Framerate || f                || N/A              ||";
 
 		return tempString;
+	}
+
+	else if(arg.compare("aithreads") == 0)
+	{
+		return "Sets the maximum number of threads the gameMap will attempt to spawn during the doTurn() method.  The set value must be greater than or equal to 1.";
 	}
 
 	return "Help for command:  \"" + arguments + "\" not found.";

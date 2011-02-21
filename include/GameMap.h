@@ -177,6 +177,7 @@ class GameMap
 		// Public data members
 		string levelFileName;
 		unsigned long int miscUpkeepTime, creatureTurnsTime;
+		unsigned int maxAIThreads;
 
 	private:
 		// Private functions
