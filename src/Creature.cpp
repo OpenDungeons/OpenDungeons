@@ -16,6 +16,9 @@
 #define snprintf _snprintf
 #endif
 
+using CEGUI::UDim;
+using CEGUI::UVector2;
+
 Creature::Creature()
 {
 	hasVisualDebuggingEntities = false;
@@ -77,6 +80,7 @@ Creature::Creature()
 	//		->createSound("attackSound" + Ogre::StringConverter::toString(uniqueId++), "Sword/SwordBlock01.ogg");
 
 	awakeness = 100.0;
+	statsWindow = NULL;
 }
 
 /*  This function causes a segfault in Creature::doTurn() when computeBattlefield() is called.
@@ -244,6 +248,8 @@ void Creature::destroyMesh()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
+
+	destroyStatsWindow();
 }
 
 /*! \brief Changes the creature's position to a new position.
@@ -313,6 +319,9 @@ void Creature::setHP(double nHP)
 	sem_wait(&hpLockSemaphore);
 	hp = nHP;
 	sem_post(&hpLockSemaphore);
+
+	if(statsWindow != NULL)
+		updateStatsWindow();
 }
 
 double Creature::getHP(Tile *tile)
@@ -329,6 +338,9 @@ void Creature::setMana(double nMana)
 	sem_wait(&manaLockSemaphore);
 	mana = nMana;
 	sem_post(&manaLockSemaphore);
+
+	if(statsWindow != NULL)
+		updateStatsWindow();
 }
 
 double Creature::getMana()
@@ -1881,6 +1893,51 @@ string Creature::getUniqueCreatureName()
 	return tempString;
 }
 
+void Creature::createStatsWindow()
+{
+	CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
+	CEGUI::Window *rootWindow = CEGUI::System::getSingleton().getGUISheet();
+
+	statsWindow = wmgr->createWindow("TaharezLook/FrameWindow", (string)"Root/CreatureStatsWindows/" + getName());
+	statsWindow->setPosition(UVector2(UDim(0.7, 0), UDim(0.65, 0)));
+	statsWindow->setSize(UVector2(UDim(0.25, 0), UDim(0.3, 0)));
+
+	CEGUI::Window *textWindow = wmgr->createWindow("TaharezLook/StaticText", statsWindow->getName() + "TextDisplay");
+	textWindow->setPosition(UVector2(UDim(0.05, 0), UDim(0.15, 0)));
+	textWindow->setSize(UVector2(UDim(0.9, 0), UDim(0.8, 0)));
+	statsWindow->addChildWindow(textWindow);
+	rootWindow->addChildWindow(statsWindow);
+
+	updateStatsWindow();
+	statsWindow->show();
+}
+
+void Creature::destroyStatsWindow()
+{
+	if(statsWindow != NULL)
+	{
+		statsWindow->destroy();
+		statsWindow = NULL;
+	}
+}
+
+void Creature::updateStatsWindow()
+{
+	statsWindow->getChild(statsWindow->getName() + "TextDisplay")->setText(getStatsText());
+}
+
+std::string Creature::getStatsText()
+{
+	std::stringstream tempSS;
+	tempSS << "Creature name: " << name << "\n";
+	tempSS << "HP: " << getHP(NULL) << " / " << maxHP << "\n";
+	tempSS << "Mana: " << getMana() << " / " << maxMana << "\n";
+	sem_wait(&actionQueueLockSemaphore);
+	tempSS << "AI State: " << actionQueue.front().toString() << "\n";
+	sem_post(&actionQueueLockSemaphore);
+	return tempSS.str(); 
+}
+
 /*! \brief Sets a new animation state from the creature's library of animations.
  *
 */
@@ -2044,6 +2101,9 @@ void Creature::pushAction(CreatureAction action)
 	sem_wait(&actionQueueLockSemaphore);
 	actionQueue.push_front(action);
 	sem_post(&actionQueueLockSemaphore);
+
+	if(statsWindow != NULL)
+		updateStatsWindow();
 }
 
 void Creature::popAction()
@@ -2051,6 +2111,9 @@ void Creature::popAction()
 	sem_wait(&actionQueueLockSemaphore);
 	actionQueue.pop_front();
 	sem_post(&actionQueueLockSemaphore);
+
+	if(statsWindow != NULL)
+		updateStatsWindow();
 }
 
 /** \brief This function loops over the visible tiles and computes a score for each one indicating how

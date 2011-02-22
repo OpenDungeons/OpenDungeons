@@ -67,6 +67,7 @@ string CreatureClass::getFormat()
 
 ostream& operator<<(ostream& os, CreatureClass *c)
 {
+	//TODO: Need to include maxHP/maxMana in the file format.
 	os << c->className << "\t" << CreatureClass::creatureJobToString(c->creatureJob) << "\t" << c->meshName << "\t";
 	os << c->bedMeshName << "\t" << c->bedDim1 << "\t" << c->bedDim2 << "\t";
 	os << c->scale.x << "\t" << c->scale.y << "\t" << c->scale.z << "\t";

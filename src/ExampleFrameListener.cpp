@@ -1494,6 +1494,8 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
  */
 bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
+	Creature *tempCreature;
+
 	CEGUI::System::getSingleton().injectMouseButtonDown(convertButton(id));
 	string  resultName;
 
@@ -1668,27 +1670,26 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			    sfxHelper->playInterfaceSound(SoundEffectsHelper::DROP);
 			}
 		}
+	}
 
+	if(id == OIS::MB_Middle)
+	{
 		// See if the mouse is over any creatures
-		while (itr != result.end() )
+		while(itr != result.end())
 		{
 			if(itr->movable != NULL)
 			{
 				resultName = itr->movable->getName();
 
-				/*
 				if(resultName.find("Creature_") != string::npos)
 				{
-					CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
-					CEGUI::Window *rootWindow = CEGUI::System::getSingleton().getGUISheet();
+					tempCreature = gameMap.getCreature(resultName.substr(((string)"Creature_").size(), resultName.size()));
 
-					//TODO:  This is commented out because it seems to break my development system, I thik once I have upgraded it will work correctly.
-					CEGUI::Window *statsWindow = wmgr->createWindow("TaharezLook/FrameWindow", (string)"Root/CreatureStatsWindows/" + resultName);
-					rootWindow->addChildWindow(statsWindow);
+					if(tempCreature != NULL && tempCreature->statsWindow == NULL)
+						tempCreature->createStatsWindow();
 
 					return true;
 				}
-				*/
 			}
 
 			itr++;

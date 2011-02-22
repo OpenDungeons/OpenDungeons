@@ -51,6 +51,11 @@ class Creature : public CreatureClass, public AttackableObject
 		void deleteYourself();
 		string getUniqueCreatureName();
 
+		void createStatsWindow();
+		void destroyStatsWindow();
+		void updateStatsWindow();
+		std::string getStatsText();
+
 		void setPosition(double x, double y, double z);
 		void setPosition(Ogre::Vector3 v);
 
@@ -114,6 +119,7 @@ class Creature : public CreatureClass, public AttackableObject
 		static const int maxGoldCarriedByWorkers = 1500;
 		bool isOnMap;
 		sem_t isOnMapLockSemaphore;
+		CEGUI::Window *statsWindow;
 
 	private:
 		// Private functions

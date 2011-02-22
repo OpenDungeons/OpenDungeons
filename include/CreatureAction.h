@@ -32,6 +32,8 @@ class CreatureAction
 		ActionType type;
 		Tile *tile;
 		Creature *creature;
+
+		string toString();
 };
 
 #endif
