@@ -671,8 +671,8 @@ creatureActionDoWhileLoop:
 						}
 
 						gameMap.cutCorners(result, tilePassability);
-						setAnimationState("Walk");
 						setWalkPath(result, 2, false);
+						setAnimationState("Walk");
 					}
 					break;
 
