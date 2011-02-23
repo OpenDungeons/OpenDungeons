@@ -1013,7 +1013,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 					// Enable the animation specified in the RenderRequest object.
 					curCreature->animationState = ent->getAnimationState(curReq->str);
-					curCreature->animationState->setLoop(true);
+					curCreature->animationState->setLoop(curReq->b);
 					curCreature->animationState->setEnabled(true);
 				}
 				//TODO:  Handle the case where this entity does not have the requested animation.

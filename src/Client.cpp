@@ -19,6 +19,7 @@
 // THREAD - This function is meant to be called by pthread_create.
 void *clientSocketProcessor(void *p)
 {
+	bool tempBool;
 	string tempString;
 	string serverCommand, arguments;
 	Socket *sock = ((CSPStruct*)p)->nSocket;
@@ -316,12 +317,16 @@ void *clientSocketProcessor(void *p)
 				Creature *tempCreature = gameMap.getCreature(array);
 
 				// Parse the animation state
-				tempSS.getline(array, sizeof(array));
+				tempSS.getline(array, sizeof(array), ':');
 				tempState = array;
+
+				tempSS.getline(array, sizeof(array));
+				tempString = array;
+				tempBool = (tempString.compare("true") == 0);
 
 				if(tempCreature != NULL)
 				{
-					tempCreature->setAnimationState(tempState);
+					tempCreature->setAnimationState(tempState, tempBool);
 				}
 
 			}

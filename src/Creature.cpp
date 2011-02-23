@@ -81,6 +81,10 @@ Creature::Creature()
 
 	awakeness = 100.0;
 	statsWindow = NULL;
+	deathCounter = 10;
+
+	prevAnimationState = "";
+	prevAnimationStateLoop = true;
 }
 
 /*  This function causes a segfault in Creature::doTurn() when computeBattlefield() is called.
@@ -225,7 +229,6 @@ void Creature::createMesh()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
-
 }
 
 
@@ -1941,14 +1944,22 @@ std::string Creature::getStatsText()
 /*! \brief Sets a new animation state from the creature's library of animations.
  *
 */
-void Creature::setAnimationState(string s)
+void Creature::setAnimationState(string s, bool loop)
 {
+
+	// Ignore the command if the command is exactly the same as what we did last time, this is not only faster it prevents non-looped actions like die from being inadvertantly repeated.
+	if(s.compare(prevAnimationState) == 0 && loop == prevAnimationStateLoop)
+		return;
+
+	prevAnimationState = s;
+
 	string tempString;
 	std::stringstream tempSS;
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::setCreatureAnimationState;
 	request->p = this;
 	request->str = s;
+	request->b = loop;
 
 	if(serverSocket != NULL)
 	{
@@ -1959,6 +1970,7 @@ void Creature::setAnimationState(string s)
 			serverNotification->type = ServerNotification::creatureSetAnimationState;
 			serverNotification->str = s;
 			serverNotification->cre = this;
+			serverNotification->b = loop;
 
 			queueServerNotification(serverNotification);
 		}

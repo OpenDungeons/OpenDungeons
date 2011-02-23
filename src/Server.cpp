@@ -288,7 +288,7 @@ void *serverNotificationProcessor(void *p)
 
 			case ServerNotification::creatureSetAnimationState:
 				tempSS.str("");
-				tempSS << event->cre->name << ":" << event->str;
+				tempSS << event->cre->name << ":" << event->str << ":" << (event->b ? "true" : "false");
 				sendToAllClients(frameListener, formatCommand("creatureSetAnimationState", tempSS.str()));
 				break;
 

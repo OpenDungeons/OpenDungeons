@@ -14,6 +14,9 @@ double Spell::heal(int spellLevel, Creature *targetCreature, double hp, double m
 	double currentHP = targetCreature->getHP(NULL);
 	double maxHP = targetCreature->maxHP;
 
+	if(currentHP <= 0.0)
+		return manaCost;
+
 	double newHP = min(currentHP + maxHPHealed, maxHP);
 	double amountHealed = newHP - currentHP;
 

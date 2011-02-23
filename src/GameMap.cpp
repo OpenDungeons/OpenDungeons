@@ -694,18 +694,25 @@ void GameMap::doTurn()
 	while(count < numCreatures())
 	{
 		// Check to see if the creature has died.
-		//TODO: Add code so creatures lay stunned for a while before they actually die.
 		sem_wait(&creaturesLockSemaphore);
 		Creature *tempCreature = creatures[count];
 		sem_post(&creaturesLockSemaphore);
-		if(tempCreature->getHP(tempCreature->positionTile()) < 0.0)
+		if(tempCreature->getHP(NULL) <= 0.0)
 		{
-			// Remove the creature from the game map and into the deletion queue, it will be deleted
-			// when it is safe, i.e. all other pointers to it have been wiped from the program.
-			cout << "\nMoving creature " << tempCreature->name << " from the game map to the deletion list.";
-			cout.flush();
-			tempCreature->setAnimationState("Die");
-			queueCreatureForDeletion(tempCreature);
+			// Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
+			tempCreature->clearDestinations();
+			tempCreature->setAnimationState("Die", false);
+			if(tempCreature->deathCounter <= 0)
+			{
+				// Remove the creature from the game map and into the deletion queue, it will be deleted
+				// when it is safe, i.e. all other pointers to it have been wiped from the program.
+				queueCreatureForDeletion(tempCreature);
+			}
+			else
+			{
+				tempCreature->deathCounter--;
+				count++;
+			}
 		}
 		else
 		{
@@ -984,7 +991,8 @@ void *GameMap::creatureDoTurnHelperThread(void *p)
 	//cout << *params->creatures;
 	for(int i = 0; i < params->numCreatures; i++)
 	{
-		params->creatures[i]->doTurn();
+		if(params->creatures[i]->getHP(NULL) > 0.0)
+			params->creatures[i]->doTurn();
 	}
 
 	return NULL;

@@ -87,7 +87,7 @@ class Creature : public CreatureClass, public AttackableObject
 		std::vector<AttackableObject*> getVisibleForce(int color, bool invert);
 		Tile* positionTile();
 		std::vector<Tile*> getCoveredTiles();
-		void setAnimationState(string s);
+		void setAnimationState(string s, bool loop = true);
 		AnimationState* getAnimationState();
 		bool isMobile();
 		int getLevel();
@@ -120,6 +120,7 @@ class Creature : public CreatureClass, public AttackableObject
 		bool isOnMap;
 		sem_t isOnMapLockSemaphore;
 		CEGUI::Window *statsWindow;
+		int deathCounter;
 
 	private:
 		// Private functions
@@ -142,6 +143,8 @@ class Creature : public CreatureClass, public AttackableObject
 		bool meshesExist;
 		double awakeness;
 
+		string prevAnimationState;
+		bool prevAnimationStateLoop;
 		//sf::Sound attackSound;
 };
 
