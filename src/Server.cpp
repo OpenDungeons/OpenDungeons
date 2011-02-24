@@ -226,6 +226,7 @@ void *serverNotificationProcessor(void *p)
 	Tile *tempTile;
 	Player *tempPlayer;
 	MapLight *tempMapLight;
+	AnimatedObject *tempAnimatedObject;
 
 	while(true)
 	{
@@ -286,10 +287,11 @@ void *serverNotificationProcessor(void *p)
 				sendToAllClients(frameListener, formatCommand("creatureDrop", tempSS.str()));
 				break;
 
-			case ServerNotification::creatureSetAnimationState:
+			case ServerNotification::setObjectAnimationState:
 				tempSS.str("");
-				tempSS << event->cre->name << ":" << event->str << ":" << (event->b ? "true" : "false");
-				sendToAllClients(frameListener, formatCommand("creatureSetAnimationState", tempSS.str()));
+				tempAnimatedObject = (AnimatedObject*)event->p;
+				tempSS << tempAnimatedObject->getName() << ":" << event->str << ":" << (event->b ? "true" : "false");
+				sendToAllClients(frameListener, formatCommand("setObjectAnimationState", tempSS.str()));
 				break;
 
 			case ServerNotification::setTurnsPerSecond:

@@ -419,6 +419,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		RoomObject *curRoomObject = NULL;
 		Trap *curTrap = NULL;
 		Creature *curCreature = NULL;
+		AnimatedObject *curAnimatedObject = NULL;
 		MissileObject *curMissileObject = NULL;
 		MapLight *curMapLight = NULL;
 		Light *light;
@@ -995,9 +996,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				}
 				break;
 
-			case RenderRequest::setCreatureAnimationState:
-				curCreature = (Creature*)curReq->p;
-				ent = mSceneMgr->getEntity("Creature_" + curCreature->name);
+			case RenderRequest::setObjectAnimationState:
+				curAnimatedObject = (Creature*)curReq->p;
+				ent = mSceneMgr->getEntity(curAnimatedObject->getOgreNamePrefix() + curAnimatedObject->getName());
 
 				if(ent->hasSkeleton() && ent->getSkeleton()->hasAnimation(curReq->str))
 				{
@@ -1012,9 +1013,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					}
 
 					// Enable the animation specified in the RenderRequest object.
-					curCreature->animationState = ent->getAnimationState(curReq->str);
-					curCreature->animationState->setLoop(curReq->b);
-					curCreature->animationState->setEnabled(true);
+					curAnimatedObject->animationState = ent->getAnimationState(curReq->str);
+					curAnimatedObject->animationState->setLoop(curReq->b);
+					curAnimatedObject->animationState->setEnabled(true);
 				}
 				//TODO:  Handle the case where this entity does not have the requested animation.
 				break;

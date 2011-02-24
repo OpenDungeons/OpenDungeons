@@ -96,3 +96,11 @@ istream& operator>>(istream& is, CreatureClass *c)
 	return is;
 }
 
+/** \brief Conform: AttackableObject - Returns the prefix used in the OGRE identifier for this object.
+ *
+*/
+string CreatureClass::getOgreNamePrefix()
+{
+	return "Creature_";
+}
+

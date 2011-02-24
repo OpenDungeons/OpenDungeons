@@ -22,6 +22,7 @@ class CreatureClass : public AnimatedObject
 		static std::string creatureJobToString(CreatureJob c);
 
 		bool isWorker();
+		string getOgreNamePrefix();
 
 		// Class properties
 		//NOTE: Anything added to this class must be included in the '=' operator for the Creature class.

@@ -76,6 +76,7 @@ class Creature : public CreatureClass, public AttackableObject
 		std::vector<AttackableObject*> visibleEnemyObjects;
 		std::vector<AttackableObject*> reachableEnemyObjects;
 		std::vector<AttackableObject*> enemyObjectsInRange;
+		std::vector<AttackableObject*> livingEnemyObjectsInRange;
 		std::vector<AttackableObject*> visibleAlliedObjects;
 		std::vector<AttackableObject*> reachableAlliedObjects;
 		void updateVisibleTiles();
@@ -87,8 +88,6 @@ class Creature : public CreatureClass, public AttackableObject
 		std::vector<AttackableObject*> getVisibleForce(int color, bool invert);
 		Tile* positionTile();
 		std::vector<Tile*> getCoveredTiles();
-		void setAnimationState(string s, bool loop = true);
-		AnimationState* getAnimationState();
 		bool isMobile();
 		int getLevel();
 		int getColor();
@@ -143,8 +142,6 @@ class Creature : public CreatureClass, public AttackableObject
 		bool meshesExist;
 		double awakeness;
 
-		string prevAnimationState;
-		bool prevAnimationStateLoop;
 		//sf::Sound attackSound;
 };
 

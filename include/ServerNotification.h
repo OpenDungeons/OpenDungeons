@@ -28,7 +28,7 @@ class ServerNotification
 
 			creatureAddDestination,
 			animatedObjectClearDestinations,
-			creatureSetAnimationState,
+			setObjectAnimationState,
 			creaturePickUp,
 			creatureDrop
 		};

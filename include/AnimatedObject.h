@@ -25,7 +25,7 @@ class AnimatedObject
 		virtual double getMoveSpeed();
 		virtual void setMoveSpeed(double s);
 
-		virtual void setAnimationState(string s);
+		virtual void setAnimationState(string s, bool loop = true);
 
 		std::deque<Ogre::Vector3> walkQueue;
 
@@ -39,11 +39,14 @@ class AnimatedObject
 		string destinationAnimationState;
 		SceneNode *sceneNode;
 
+		virtual std::string getOgreNamePrefix() = 0;
 		virtual std::string getName() = 0;
 
 	protected:
 		Ogre::Vector3 position;
 		double moveSpeed;
+		string prevAnimationState;
+		bool prevAnimationStateLoop;
 };
 
 #endif

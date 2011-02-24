@@ -1,6 +1,11 @@
 #ifndef ATTACKABLEOBJECT_H
 #define ATTACKABLEOBJECT_H
 
+#include <vector>
+#include <string>
+
+class Tile;
+
 /*! \brief An abstract class representing an interface for creatures, traps, doors, etc to present to the AI subsystem for combat calculations.
  *
  * Because this class is abstract it cannot be instantiated directly.  Instead,
@@ -43,10 +48,12 @@ class AttackableObject
 		virtual int getColor() = 0;
 
 		//! \brief Returns the name of the object.
-		virtual string getName() = 0;
+		virtual std::string getName() = 0;
 
 		//! \brief Returns the type of the object, i.e. creature, room, trap, etc, for AI calculations to use in threat assessments.
 		virtual AttackableObjectType getAttackableObjectType() = 0;
+
+		static std::vector<AttackableObject*> removeDeadObjects(const std::vector<AttackableObject*> &objects);
 };
 
 #endif

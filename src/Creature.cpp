@@ -440,6 +440,7 @@ void Creature::doTurn()
 	visibleEnemyObjects = getVisibleEnemyObjects();
 	reachableEnemyObjects = getReachableAttackableObjects(visibleEnemyObjects, &rangeToNearestEnemyObject, &nearestEnemyObject);
 	enemyObjectsInRange = getEnemyObjectsInRange(visibleEnemyObjects);
+	livingEnemyObjectsInRange = AttackableObject::removeDeadObjects(enemyObjectsInRange);
 	visibleAlliedObjects = getVisibleAlliedObjects();
 	reachableAlliedObjects = getReachableAttackableObjects(visibleAlliedObjects, &rangeToNearestAlliedObject, &nearestAlliedObject);
 	if(isWorker())
@@ -1400,9 +1401,9 @@ trainBreakStatement:
 					myTile = positionTile();
 
 					// Find the first enemy close enough to hit and attack it
-					if(enemyObjectsInRange.size() > 0)
+					if(livingEnemyObjectsInRange.size() > 0)
 					{
-						tempAttackableObject = enemyObjectsInRange[0];
+						tempAttackableObject = livingEnemyObjectsInRange[0];
 
 						// Turn to face the creature we are attacking and set the animation state to Attack.
 						//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
@@ -1441,8 +1442,8 @@ trainBreakStatement:
 
 						recieveExp(expGained);
 
-						cout << "\n" << name << " did " << damageDone << " damage to " << enemyObjectsInRange[0]->getName();
-						cout << " who now has " << enemyObjectsInRange[0]->getHP(tempTile) << "hp";
+						cout << "\n" << name << " did " << damageDone << " damage to " << tempAttackableObject->getName();
+						cout << " who now has " << tempAttackableObject->getHP(tempTile) << "hp";
 
 						// Randomly decide to start maneuvering again so we don't just stand still and fight.
 						if(randomDouble(0.0, 1.0) <= 0.6)
@@ -1461,7 +1462,7 @@ trainBreakStatement:
 					myTile = positionTile();
 
 					// If there is an enemy within range, stop maneuvering and attack it.
-					if(enemyObjectsInRange.size() > 0)
+					if(livingEnemyObjectsInRange.size() > 0)
 					{
 						popAction();
 						loopBack = true;
@@ -1534,7 +1535,7 @@ trainBreakStatement:
 					tempPath = gameMap.path(positionTile()->x, positionTile()->y, minimumFieldValue.first.first + randomDouble(-1.0*tempDouble,tempDouble), minimumFieldValue.first.second + randomDouble(-1.0*tempDouble, tempDouble), tilePassability);
 
 					// Walk a maximum of N tiles before recomputing the destination since we are in combat.
-					tempUnsigned = max((double)5, rangeToNearestEnemyObject/0.4);
+					tempUnsigned = 5;
 					if(tempPath.size() >= tempUnsigned)
 						tempPath.resize(tempUnsigned);
 
@@ -1939,58 +1940,6 @@ std::string Creature::getStatsText()
 	tempSS << "AI State: " << actionQueue.front().toString() << "\n";
 	sem_post(&actionQueueLockSemaphore);
 	return tempSS.str(); 
-}
-
-/*! \brief Sets a new animation state from the creature's library of animations.
- *
-*/
-void Creature::setAnimationState(string s, bool loop)
-{
-
-	// Ignore the command if the command is exactly the same as what we did last time, this is not only faster it prevents non-looped actions like die from being inadvertantly repeated.
-	if(s.compare(prevAnimationState) == 0 && loop == prevAnimationStateLoop)
-		return;
-
-	prevAnimationState = s;
-
-	string tempString;
-	std::stringstream tempSS;
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::setCreatureAnimationState;
-	request->p = this;
-	request->str = s;
-	request->b = loop;
-
-	if(serverSocket != NULL)
-	{
-		try
-		{
-			// Place a message in the queue to inform the clients about the new animation state
-			ServerNotification *serverNotification = new ServerNotification;
-			serverNotification->type = ServerNotification::creatureSetAnimationState;
-			serverNotification->str = s;
-			serverNotification->cre = this;
-			serverNotification->b = loop;
-
-			queueServerNotification(serverNotification);
-		}
-		catch(bad_alloc&)
-		{
-			cerr << "\n\nERROR:  bad alloc in Creature::setAnimationState\n\n";
-			exit(1);
-		}
-	}
-
-	// Add the request to the queue of rendering operations to be performed before the next frame.
-	queueRenderRequest(request);
-}
-
-/*! \brief Returns the creature's currently active animation state.
- *
-*/
-AnimationState* Creature::getAnimationState()
-{
-	return animationState;
 }
 
 /** \brief Conform: AttackableObject - Returns whether or not this creature is capable of moving.

@@ -205,7 +205,43 @@ void AnimatedObject::setMoveSpeed(double s)
 	moveSpeed = s;
 }
 
-void AnimatedObject::setAnimationState(string s)
+void AnimatedObject::setAnimationState(string s, bool loop)
 {
+	// Ignore the command if the command is exactly the same as what we did last time, this is not only faster it prevents non-looped actions like die from being inadvertantly repeated.
+	if(s.compare(prevAnimationState) == 0 && loop == prevAnimationStateLoop)
+		return;
+
+	prevAnimationState = s;
+
+	string tempString;
+	std::stringstream tempSS;
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::setObjectAnimationState;
+	request->p = this;
+	request->str = s;
+	request->b = loop;
+
+	if(serverSocket != NULL)
+	{
+		try
+		{
+			// Place a message in the queue to inform the clients about the new animation state
+			ServerNotification *serverNotification = new ServerNotification;
+			serverNotification->type = ServerNotification::setObjectAnimationState;
+			serverNotification->str = s;
+			serverNotification->p = this;
+			serverNotification->b = loop;
+
+			queueServerNotification(serverNotification);
+		}
+		catch(bad_alloc&)
+		{
+			cerr << "\n\nERROR:  bad alloc in Creature::setAnimationState\n\n";
+			exit(1);
+		}
+	}
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 

@@ -25,6 +25,7 @@ class MissileObject : public ActiveObject, public AnimatedObject
 		void deleteYourself();
 
 		std::string meshName;
+		string getOgreNamePrefix() {return "";}
 		std::string getName() {return name;}
 		std::string name;
 

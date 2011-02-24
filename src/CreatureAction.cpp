@@ -29,5 +29,7 @@ string CreatureAction::toString()
 		case train:         return "train";         break;
 		case idle:          return "idle";          break;
 	}
+
+	return "unhandledAct";
 }
 

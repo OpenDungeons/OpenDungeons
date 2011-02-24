@@ -304,7 +304,7 @@ void *clientSocketProcessor(void *p)
 				}
 			}
 
-			else if(serverCommand.compare("creatureSetAnimationState") == 0)
+			else if(serverCommand.compare("setObjectAnimationState") == 0)
 			{
 
 				char array[255];
