@@ -218,7 +218,24 @@ void Trap::clearCoveredTiles()
 
 double Trap::getHP(Tile *tile)
 {
-	return tileHP[tile];
+	//NOTE: This function is the same as Room::getHP(), consider making a base class to inherit this from.
+	if(tile != NULL)
+	{
+		return tileHP[tile];
+	}
+	else
+	{
+		// If the tile give was NULL, we add the total HP of all the tiles in the room and return that.
+		double total = 0.0;
+		std::map<Tile*,double>::iterator itr = tileHP.begin();
+		while(itr != tileHP.end())
+		{
+			total += itr->second;
+			itr++;
+		}
+
+		return total;
+	}
 }
 
 double Trap::getDefense()

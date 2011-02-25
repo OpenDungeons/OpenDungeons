@@ -448,8 +448,26 @@ int Room::costPerTile(RoomType t)
 
 double Room::getHP(Tile *tile)
 {
-	return tileHP[tile];
+	//NOTE: This function is the same as Trap::getHP(), consider making a base class to inherit this from.
+	if(tile != NULL)
+	{
+		return tileHP[tile];
+	}
+	else
+	{
+		// If the tile give was NULL, we add the total HP of all the tiles in the room and return that.
+		double total = 0.0;
+		std::map<Tile*,double>::iterator itr = tileHP.begin();
+		while(itr != tileHP.end())
+		{
+			total += itr->second;
+			itr++;
+		}
+
+		return total;
+	}
 }
+
 
 double Room::getDefense()
 {

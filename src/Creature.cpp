@@ -1518,13 +1518,13 @@ trainBreakStatement:
 					if(battleField->get(myTile->x, myTile->y).first > 0.0)
 					{
 						minimumFieldValue = battleField->min();  // Attack
-						setAnimationState("Walk");
+						tempBool = true;
 						//TODO: Set this to some sort of Attack-move animation.
 					}
 					else
 					{
 						minimumFieldValue = battleField->max();  // Retreat
-						setAnimationState("Flee");
+						tempBool = false;
 					}
 
 					// Pick a destination tile near the tile we got from the battlefield.
@@ -1541,7 +1541,12 @@ trainBreakStatement:
 
 					gameMap.cutCorners(tempPath, tilePassability);
 					if(setWalkPath(tempPath, 2, false))
-						setAnimationState("Walk");
+					{
+						if(tempBool)
+							setAnimationState("Walk");
+						else
+							setAnimationState("Flee");
+					}
 
 					// Push a walkToTile action into the creature's action queue to make them walk the path they have
 					// decided on without recomputing, this helps prevent them from getting stuck in local minima.
@@ -2085,6 +2090,7 @@ void Creature::computeBattlefield()
 {
 	Tile *myTile, *tempTile;
 	int xDist, yDist;
+	AttackableObject* tempObject;
 
 	// Loop over the tiles in this creature's battleField and compute their value.
 	// The creature will then walk towards the tile with the minimum value to
@@ -2099,8 +2105,17 @@ void Creature::computeBattlefield()
 		// Enemies
 		for(unsigned int j = 0; j < reachableEnemyObjects.size(); j++)
 		{
+			// Skip over objects which will not attack us (they either do not attack at all, or they are dead).
+			tempObject = reachableEnemyObjects[j];
+			if(	!(tempObject->getAttackableObjectType() == AttackableObject::creature || \
+				  tempObject->getAttackableObjectType() == AttackableObject::trap) \
+				  || tempObject->getHP(NULL) <= 0.0)
+			{
+				continue;
+			}
+
 			//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
-			Tile *tempTile2 = reachableEnemyObjects[j]->getCoveredTiles()[0];
+			Tile *tempTile2 = tempObject->getCoveredTiles()[0];
 
 			// Compensate for how close the creature is to me
 			//rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
