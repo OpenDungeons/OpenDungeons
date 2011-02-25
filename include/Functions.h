@@ -33,5 +33,7 @@ std::vector<std::string> listAllFiles(std::string directoryName);
 
 void waitOnRenderQueueFlush();
 
+bool startServer();
+
 #endif
 

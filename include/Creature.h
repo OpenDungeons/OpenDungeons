@@ -139,6 +139,7 @@ class Creature : public CreatureClass, public AttackableObject
 		Tile *previousPositionTile;
 		std::list<Tile*> visualDebugEntityTiles;
 		Field *battleField;
+		int battleFieldAgeCounter;
 		bool meshesExist;
 		double awakeness;
 

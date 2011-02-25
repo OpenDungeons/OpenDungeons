@@ -12,6 +12,7 @@
 #include "ClientNotification.h"
 #include "Socket.h"
 #include "ProtectedObject.h"
+#include "ExampleFrameListener.h"
 
 extern GameMap gameMap;
 extern SceneManager* mSceneMgr;
@@ -40,6 +41,8 @@ extern double turnsPerSecond;
 extern ProtectedObject<long int> turnNumber;
 
 extern std::vector<ColourValue> playerColourValues;
+
+extern ExampleFrameListener *exampleFrameListener;
 
 #endif
 

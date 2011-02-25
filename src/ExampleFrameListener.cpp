@@ -3027,36 +3027,13 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			// Make sure we are not already connected to a server or hosting a game.
 			if(serverSocket == NULL && clientSocket == NULL)
 			{
-				serverSocket = new Socket;
 
-				// Start the server socket listener as well as the server socket thread
-				if(serverSocket != NULL && gameMap.numEmptySeats() > 0)
+				if(startServer())
 				{
-					//NOTE: Code added to this routine may also need to be added to GameMap::doTurn() in the "loadNextLevel" stuff.
-					// Sit down at the first available seat.
-					gameMap.me->seat = gameMap.popEmptySeat();
-
-					// Start the server thread which will listen for, and accept, connections
-					SSPStruct *ssps = new SSPStruct;
-					ssps->nSocket = serverSocket;
-					ssps->nFrameListener = this;
-					pthread_create(&serverThread, NULL, serverSocketProcessor, (void*) ssps);
-
-					// Start the thread which will watch for local events to send to the clients
-					SNPStruct *snps = new SNPStruct;
-					snps->nFrameListener = this;
-					pthread_create(&serverNotificationThread, NULL, serverNotificationProcessor, snps);
-
-					// Start the creature AI thread
-					pthread_create(&creatureThread, NULL, creatureAIThread, NULL);
-
-					// Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
-					gameMap.clearMapLightIndicators();
+					commandOutput += "\nServer started successfully.\n";
 
 					// Automatically closes the terminal
 					terminalActive = false;
-
-					commandOutput += "\nServer started successfully.\n";
 				}
 				else
 				{

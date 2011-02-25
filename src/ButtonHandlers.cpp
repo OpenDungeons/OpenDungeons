@@ -1,7 +1,10 @@
 #include "ButtonHandlers.h"
+#include "Functions.h"
 
 bool quitButtonPressed(const CEGUI::EventArgs &e)
 {
+	writeGameMapToFile( ((string)"Media/levels/Test.level" + (string)".out") );
+	exampleFrameListener->mContinue = false;
 	return true;
 }
 
@@ -44,5 +47,10 @@ bool cannonButtonPressed(const CEGUI::EventArgs &e)
 	gameMap.me->newTrapType = Trap::cannon;
 	TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "cannon");
 	return true;
+}
+
+bool serverButtonPressed(const CEGUI::EventArgs &e)
+{
+	return startServer();
 }
 

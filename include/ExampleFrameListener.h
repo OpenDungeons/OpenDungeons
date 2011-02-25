@@ -122,6 +122,8 @@ public:
 	unsigned int chatMaxMessages;
 	unsigned int chatMaxTimeDisplay;
 
+	bool mContinue;
+
 protected:
 	Camera* mCamera;
 	SceneNode *mCamNode;
@@ -188,7 +190,6 @@ protected:
 	//OgreOggSound::OgreOggISound* mCurrMusic;
 
 private:
-	bool mContinue;
 	bool terminalActive;
 	int terminalWordWrap;
 

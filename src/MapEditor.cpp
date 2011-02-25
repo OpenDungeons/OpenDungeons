@@ -155,6 +155,13 @@ void MapEditor::createScene(void)
 
 		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/CannonButton");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&cannonButtonPressed));
+
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/ServerButton");
+		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&serverButtonPressed));
+
+		//window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/LoadSaveCombobox");
+		//CEGUI::ListboxTextItem *tempListboxItem = new CEGUI::ListboxTextItem("Blah");
+		//((CEGUI::Combobox*)window)->addItem(tempListboxItem);
 	}
 	catch (...)
 	{
@@ -168,6 +175,7 @@ void MapEditor::createScene(void)
 void MapEditor::createFrameListener(void)
 {
 	mFrameListener = new ExampleFrameListener(mWindow, mCamera, mSceneMgr, mRenderer, true, true, false);
+	exampleFrameListener = mFrameListener;
 	mFrameListener->showDebugOverlay(true);
 	mRoot->addFrameListener(mFrameListener);
 	//Start music.

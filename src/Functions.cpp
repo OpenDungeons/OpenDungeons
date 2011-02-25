@@ -14,6 +14,7 @@
 #include "Functions.h"
 #include "Creature.h"
 #include "MapLight.h"
+#include "Network.h"
 
 //#if defined(WIN32) || defined(_WIN32)
 //double const M_PI = 2 * acos(0.0);
@@ -536,3 +537,44 @@ void waitOnRenderQueueFlush()
 	sem_wait(&renderQueueEmptySemaphore);
 }
 
+
+bool startServer()
+{
+	// Start the server socket listener as well as the server socket thread
+	if(serverSocket == NULL && clientSocket == NULL && gameMap.numEmptySeats() > 0)
+	{
+		//NOTE: Code added to this routine may also need to be added to GameMap::doTurn() in the "loadNextLevel" stuff.
+		// Sit down at the first available seat.
+		gameMap.me->seat = gameMap.popEmptySeat();
+
+		serverSocket = new Socket;
+
+		// Start the server thread which will listen for, and accept, connections
+		SSPStruct *ssps = new SSPStruct;
+		ssps->nSocket = serverSocket;
+		ssps->nFrameListener = exampleFrameListener;
+		pthread_create(&exampleFrameListener->serverThread, NULL, serverSocketProcessor, (void*) ssps);
+
+		// Start the thread which will watch for local events to send to the clients
+		SNPStruct *snps = new SNPStruct;
+		snps->nFrameListener = exampleFrameListener;
+		pthread_create(&exampleFrameListener->serverNotificationThread, NULL, serverNotificationProcessor, snps);
+
+		// Start the creature AI thread
+		pthread_create(&exampleFrameListener->creatureThread, NULL, creatureAIThread, NULL);
+
+		// Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
+		gameMap.clearMapLightIndicators();
+
+		// Set the active tabs on the tab selector across the bottom of the screen so
+		// the user doesn't have to click into them first to see the contents.
+		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
+		CEGUI::Window *window;
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl");
+		((CEGUI::TabControl*)window)->setSelectedTab(0);
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab");
+		((CEGUI::TabControl*)window)->setSelectedTab(0);
+	}
+
+	return true;
+}

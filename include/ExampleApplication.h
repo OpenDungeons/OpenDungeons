@@ -166,6 +166,7 @@ protected:
         return true;
 
     }
+
     /** Configures the application - returns false if the user chooses to abandon configuration. */
     virtual bool configure(void)
     {
@@ -190,6 +191,7 @@ protected:
         // Create the SceneManager, in this case a generic one
         mSceneMgr = mRoot->createSceneManager(ST_GENERIC, "SceneManager");
     }
+
     virtual void createCamera(void)
     {
         // Create the camera
@@ -202,9 +204,10 @@ protected:
         mCamera->setNearClipDistance(5);
 
     }
+
     virtual void createFrameListener(void)
     {
-        mFrameListener= new ExampleFrameListener(mWindow, mCamera, NULL, NULL, false, false, false);
+        mFrameListener = new ExampleFrameListener(mWindow, mCamera, NULL, NULL, false, false, false);
         mFrameListener->showDebugOverlay(true);
         mRoot->addFrameListener(mFrameListener);
     }

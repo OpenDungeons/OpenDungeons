@@ -14,6 +14,7 @@ bool treasuryButtonPressed(const CEGUI::EventArgs &e);
 bool forgeButtonPressed(const CEGUI::EventArgs &e);
 bool dojoButtonPressed(const CEGUI::EventArgs &e);
 bool cannonButtonPressed(const CEGUI::EventArgs &e);
+bool serverButtonPressed(const CEGUI::EventArgs &e);
 
 #endif
 

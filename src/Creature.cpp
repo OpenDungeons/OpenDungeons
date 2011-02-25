@@ -71,6 +71,7 @@ Creature::Creature()
 	sem_post(&actionQueueLockSemaphore);
 
 	battleField = new Field("autoname");
+	battleFieldAgeCounter = 0;
 
 	meshesExist = false;
 
@@ -468,6 +469,7 @@ void Creature::doTurn()
 			if(randomDouble(0.0, 1.0) < (1.0/(rangeToNearestEnemyObject) - digRate/80.0))
 			{
 				tempAction.type = CreatureAction::maneuver;
+				battleFieldAgeCounter = 0;
 				pushAction(tempAction);
 				// Jump immediately to the action processor since we don't want to decide to train or something if there are enemies around.
 				goto creatureActionDoWhileLoop;
@@ -1511,7 +1513,16 @@ trainBreakStatement:
 
 					// There are no enemy creatures in range so we will have to maneuver towards one.
 					// Prepare the battlefield so we can decide where to move.
-					computeBattlefield();
+					if(battleFieldAgeCounter == 0)
+					{
+						computeBattlefield();
+						battleFieldAgeCounter = 4;
+					}
+					else
+					{
+						battleFieldAgeCounter--;
+					}
+
 
 					// Find a location on the battlefield to move to, we try to find a minumum if we are
 					// trying to "attack" and a maximum if we are trying to "retreat".

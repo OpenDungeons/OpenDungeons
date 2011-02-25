@@ -276,7 +276,7 @@ Creatures
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                     <Property Name="UnifiedAreaRect" Value="{{0.893026,0},{0.0922346,0},{0.959192,0},{0.390777,0}}" />
                 </Window>
-                <Window Type="TaharezLook/Editbox" Name="Root/MapEditorTabControl/Tab 6/LoadSaveEditBox" >
+                <Window Type="TaharezLook/Combobox" Name="Root/MapEditorTabControl/Tab 6/LoadSaveCombobox" >
                     <Property Name="Text" Value="Test" />
                     <Property Name="MaxTextLength" Value="1073741823" />
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
