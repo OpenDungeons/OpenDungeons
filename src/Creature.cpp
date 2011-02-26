@@ -404,7 +404,6 @@ void Creature::doTurn()
 	bool tempBool;
 	int tempInt;
 	unsigned int tempUnsigned;
-	unsigned int rangeToNearestEnemyObject, rangeToNearestAlliedObject;
 	//Creature *tempCreature;
 	AttackableObject *tempAttackableObject;
 	AttackableObject *nearestEnemyObject, *nearestAlliedObject;
@@ -439,11 +438,11 @@ void Creature::doTurn()
 	// Look at the surrounding area
 	updateVisibleTiles();
 	visibleEnemyObjects = getVisibleEnemyObjects();
-	reachableEnemyObjects = getReachableAttackableObjects(visibleEnemyObjects, &rangeToNearestEnemyObject, &nearestEnemyObject);
+	reachableEnemyObjects = getReachableAttackableObjects(visibleEnemyObjects, NULL, NULL);
 	enemyObjectsInRange = getEnemyObjectsInRange(visibleEnemyObjects);
 	livingEnemyObjectsInRange = AttackableObject::removeDeadObjects(enemyObjectsInRange);
 	visibleAlliedObjects = getVisibleAlliedObjects();
-	reachableAlliedObjects = getReachableAttackableObjects(visibleAlliedObjects, &rangeToNearestAlliedObject, &nearestAlliedObject);
+	reachableAlliedObjects = getReachableAttackableObjects(visibleAlliedObjects, NULL, NULL);
 	if(isWorker())
 		markedTiles = getVisibleMarkedTiles();
 
@@ -466,7 +465,7 @@ void Creature::doTurn()
 		// If we are not already fighting with a creature or maneuvering then start doing so.
 		if(!alreadyFighting)
 		{
-			if(randomDouble(0.0, 1.0) < (1.0/(rangeToNearestEnemyObject) - digRate/80.0))
+			if(randomDouble(0.0, 1.0) < 0.8 - digRate/50.0)
 			{
 				tempAction.type = CreatureAction::maneuver;
 				battleFieldAgeCounter = 0;
@@ -1696,10 +1695,11 @@ std::vector<AttackableObject*> Creature::getReachableAttackableObjects(const std
 		{
 			tempVector.push_back(objectsToCheck[i]);
 
-			//TODO:  If this could be computed without the path call that would be better.
-			tempPath = gameMap.path(myTile, objectTile, tilePassability);
 			if(minRange != NULL)
 			{
+				//TODO:  If this could be computed without the path call that would be better.
+				tempPath = gameMap.path(myTile, objectTile, tilePassability);
+
 				if(!minRangeSet)
 				{
 					*nearestObject = objectsToCheck[i];
@@ -1719,7 +1719,7 @@ std::vector<AttackableObject*> Creature::getReachableAttackableObjects(const std
 	}
 
 	//TODO: Maybe think of a better canary value for this.
-	if(!minRangeSet)
+	if(minRange != NULL && !minRangeSet)
 		*minRange = 999999;
 
 	return tempVector;
