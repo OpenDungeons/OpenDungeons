@@ -2206,35 +2206,19 @@ unsigned int GameMap::numMissileObjects()
 /** \brief Returns the as the crow flies distance between tiles located at the two coordinates
   * given.  If tiles do not exist at these locations the function returns -1.0.
 */ 
+double GameMap::crowDistance(Tile *t1, Tile *t2)
+{
+	if(t1 != NULL && t2 != NULL)
+		return crowDistance(t1->x, t2->x, t1->y, t2->y);
+	else
+		return -1.0;
+}
+
 double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 {
-	const double badValue = -1.0;
-	double distance;
-	Tile *t1, *t2;
-
-	t1 = getTile(x1, y1);
-	if(t1 != NULL)
-	{
-		t2 = getTile(x2, y2);
-		if(t2 != NULL)
-		{
-			int xDist, yDist;
-			xDist = x2 - x1;
-			yDist = y2 - y1;
-			distance = xDist*xDist + yDist*yDist;
-			distance = sqrt(distance);
-			return distance;
-		}
-		else
-		{
-			return badValue;
-		}
-	}
-	else
-	{
-		return badValue;
-	}
-
+	int dx = x2-x1;
+	int dy = y2-y1;
+	return sqrt(dx*dx + dy*dy);
 }
 
 /** \brief Returns an auto-incremented number for use in the flood fill algorithm used to determine walkability.

@@ -406,7 +406,6 @@ void Creature::doTurn()
 	unsigned int tempUnsigned;
 	//Creature *tempCreature;
 	AttackableObject *tempAttackableObject;
-	AttackableObject *nearestEnemyObject, *nearestAlliedObject;
 	CreatureAction tempAction;
 	Ogre::Vector3 tempVector;
 	Quaternion tempQuat;
@@ -775,6 +774,7 @@ creatureActionDoWhileLoop:
 								// If we found a neighbor that is claimed for our side than we can start
 								// dancing on this tile.  If there is "left over" claiming that can be done
 								// it will spill over into neighboring tiles until it is gone.
+								setAnimationState("Claim");
 								myTile->claimForColor(color, danceRate);
 								recieveExp(1.5*(danceRate/(0.35+0.05*level)));
 
@@ -1255,6 +1255,9 @@ claimTileBreakStatement:
 
 				case CreatureAction::sleep:
 					myTile = positionTile();
+					if(homeTile == NULL)
+						break;
+
 					if(myTile != homeTile)
 					{
 						// Walk to the the home tile.
@@ -1275,7 +1278,6 @@ claimTileBreakStatement:
 						}
 
 					}
-
 					break;
 
 				case CreatureAction::train:
@@ -1350,11 +1352,18 @@ claimTileBreakStatement:
 					// Pick a dojo to train at and try to walk to it.
 					//TODO: Pick a close dojo, not necessarily the closest just a somewhat closer than average one.
 					tempInt = 0;
+					double maxTrainDistance;
+					maxTrainDistance = 40.0;
 					do
 					{
-						tempRoom = tempRooms[randomUint(0, tempRooms.size()-1)];
+						tempInt = randomUint(0, tempRooms.size()-1);
+						tempRoom = tempRooms[tempInt];
+						tempRooms.erase(tempRooms.begin()+tempInt);
+						tempDouble = 1.0/(maxTrainDistance-gameMap.crowDistance(myTile, tempRoom->getCoveredTile(0)));
+						if(randomDouble(0.0, 1.0) < tempDouble)
+							break;
 						tempInt++;
-					} while(tempInt < 5 && tempRoom->numOpenCreatureSlots() == 0);
+					} while(tempInt < 5 && tempRoom->numOpenCreatureSlots() == 0 && tempRooms.size() > 0);
 
 					if(tempRoom->numOpenCreatureSlots() == 0)
 					{
@@ -1367,7 +1376,7 @@ claimTileBreakStatement:
 
 					tempTile = tempRoom->getCoveredTile(randomUint(0, tempRoom->numCoveredTiles()-1));
 					tempPath = gameMap.path(myTile, tempTile, tilePassability);
-					if(setWalkPath(tempPath, 2, false))
+					if(tempPath.size() < maxTrainDistance && setWalkPath(tempPath, 2, false))
 					{
 						setAnimationState("Walk");
 					}

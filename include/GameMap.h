@@ -153,6 +153,7 @@ class GameMap
 		bool pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);
 		void cutCorners(std::list<Tile*> &path, Tile::TileClearType passability);
 		double crowDistance(int x1, int x2, int y1, int y2);
+		double crowDistance(Tile *t1, Tile *t2);
 		//double manhattanDistance(int x1, int x2, int y1, int y2);
 
 		int uniqueFloodFillColor();
