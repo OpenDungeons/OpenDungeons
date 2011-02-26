@@ -1514,7 +1514,7 @@ trainBreakStatement:
 					if(battleFieldAgeCounter == 0)
 					{
 						computeBattlefield();
-						battleFieldAgeCounter = 4;
+						battleFieldAgeCounter = randomUint(2, 6);
 					}
 					else
 					{
@@ -2137,7 +2137,7 @@ void Creature::computeBattlefield()
 		}
 
 		// Allies
-		for(unsigned int j = 0; j < visibleAlliedObjects.size(); j++)
+		for(unsigned int j = 0; j < reachableAlliedObjects.size(); j++)
 		{
 			//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
 			Tile *tempTile2 = visibleAlliedObjects[j]->getCoveredTiles()[0];
@@ -2148,7 +2148,7 @@ void Creature::computeBattlefield()
 
 			xDist = tempTile->x - tempTile2->x;
 			yDist = tempTile->y - tempTile2->y;
-			tileValue += 0.5 / (sqrt((double)(xDist*xDist + yDist*yDist + 1)));
+			tileValue += 1.2 / (sqrt((double)(xDist*xDist + yDist*yDist + 1)));
 		}
 
 		const double jitter = 0.00;

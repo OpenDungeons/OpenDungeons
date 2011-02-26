@@ -824,8 +824,6 @@ unsigned long int GameMap::doMiscUpkeep()
 		int numKoboldsNeeded = max(4*numDungeonTemples - numKobolds, 0);
 		numKoboldsNeeded = min(numKoboldsNeeded, numDungeonTemples);
 		koboldsNeededPerColor[color] = numKoboldsNeeded;
-		cout << "\nColor " << color << " controls " << numDungeonTemples << " dungeon temple and " << numKobolds;
-		cout << " kobolds.  Will spawn " << numKoboldsNeeded << ".";
 
 		colorItr++;
 	}
@@ -837,7 +835,7 @@ unsigned long int GameMap::doMiscUpkeep()
 		int color = dungeonTemple->color;
 		if(koboldsNeededPerColor[color] > 0)
 		{
-			dungeonTempleColorCounts[color]--;
+			koboldsNeededPerColor[color]--;
 			dungeonTemple->produceKobold();
 		}
 	}
