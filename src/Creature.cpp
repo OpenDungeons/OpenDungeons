@@ -683,17 +683,15 @@ creatureActionDoWhileLoop:
 					break;
 
 				case CreatureAction::walkToTile:
-					/*
-					if(reachableEnemyObjects.size() > 0 && rangeToNearestEnemyObject < 5)
+					if(randomDouble(0.0, 1.0) < 0.6 && enemyObjectsInRange.size() > 0)
 					{
 						popAction();
-						tempAction.type = CreatureAction::maneuver;
+						tempAction.type = CreatureAction::attackObject;
 						pushAction(tempAction);
 						clearDestinations();
 						loopBack = true;
 						break;
 					}
-					*/
 
 					//TODO: Peek at the item that caused us to walk
 					// If we are walking toward a tile we are trying to dig out, check to see if it is still marked for digging.

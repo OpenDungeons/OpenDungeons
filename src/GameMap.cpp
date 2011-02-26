@@ -1026,11 +1026,11 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 
 	//TODO:  Make the openList a priority queue sorted by the cost to improve lookup times on retrieving the next open item.
 	std::list<Tile*> returnList;
-	astarEntry *currentEntry;
+	AstarEntry *currentEntry;
 	Tile *destination;
-	std::list<astarEntry*> openList;
-	std::list<astarEntry*> closedList;
-	std::list<astarEntry*>::iterator itr;
+	std::list<AstarEntry*> openList;
+	std::list<AstarEntry*> closedList;
+	std::list<AstarEntry*>::iterator itr;
 
 	// If the start tile was not found return an empty path
 	if(getTile(x1, y1) == NULL)
@@ -1046,9 +1046,9 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 		return returnList;
 
 	//TODO:  make this a local variable, don't forget to remove the delete statement at the end of this function.
-	astarEntry *neighbor = new astarEntry;
+	AstarEntry *neighbor = new AstarEntry;
 
-	currentEntry = new astarEntry;
+	currentEntry = new AstarEntry;
 	currentEntry->tile = getTile(x1, y1);
 	currentEntry->parent = NULL;
 	currentEntry->g = 0.0;
@@ -1063,7 +1063,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 			break;
 
 		// Get the lowest fScore from the openList and move it to the closed list
-		std::list<astarEntry*>::iterator itr = openList.begin(), smallestAstar = openList.begin();
+		std::list<AstarEntry*>::iterator itr = openList.begin(), smallestAstar = openList.begin();
 		while(itr != openList.end())
 		{
 			if((*itr)->fCost() < (*smallestAstar)->fCost())
@@ -1125,7 +1125,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 				{
 					// See if the neighbor is in the closed list
 					bool neighborFound = false;
-					std::list<astarEntry*>::iterator itr = closedList.begin();
+					std::list<AstarEntry*>::iterator itr = closedList.begin();
 					while(itr != closedList.end())
 					{
 						if(neighbor->tile == (*itr)->tile)
@@ -1144,7 +1144,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 					{
 						// See if the neighbor is in the open list
 						neighborFound = false;
-						std::list<astarEntry*>::iterator itr = openList.begin();
+						std::list<AstarEntry*>::iterator itr = openList.begin();
 						while(itr != openList.end())
 						{
 							if(neighbor->tile == (*itr)->tile)
@@ -1169,7 +1169,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 							currentEntry->setHeuristic(x1, y1, neighbor->tile->x, neighbor->tile->y);
 							neighbor->parent = currentEntry;
 
-							openList.push_back(new astarEntry(*neighbor));
+							openList.push_back(new AstarEntry(*neighbor));
 						}
 						else
 						{

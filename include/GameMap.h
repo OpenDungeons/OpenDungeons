@@ -236,11 +236,11 @@ class GameMap
  * the search queue for the A-star, or A*, algorithm which is used to
  * calculate paths in the path function.
  */
-class astarEntry
+class AstarEntry
 {
 	public:
 		Tile *tile;
-		astarEntry *parent;
+		AstarEntry *parent;
 		double g, h;
 		double fCost()	{return g+h;}
 		void setHeuristic(int x1, int y1, int x2, int y2)
