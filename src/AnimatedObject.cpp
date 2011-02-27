@@ -171,28 +171,13 @@ void AnimatedObject::faceToward(int x, int y)
 	walkDirection = Ogre::Vector3(x, y, tempPosition.z) - tempPosition;
 	walkDirection.normalise();
 
-	//FIXME: Having this OGRE code here is probably sub-optimal and may introduce bugs.
-	SceneNode *node = mSceneMgr->getSceneNode(getName() + "_node");
-	Ogre::Vector3 src = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::orientSceneNodeToward;
+	request->vec = walkDirection;
+	request->str = getName() + "_node";
 
-	// Work around 180 degree quaternion rotation quirk
-	if ((1.0f + src.dotProduct(walkDirection)) < 0.0001f)
-	{
-		//FIXME: Having this OGRE code here is probably sub-optimal and may introduce bugs.
-		node->roll(Degree(180));
-	}
-	else
-	{
-		Quaternion quat = src.getRotationTo(walkDirection);
-
-		RenderRequest *request = new RenderRequest;
-		request->type = RenderRequest::reorientSceneNode;
-		request->p = node;
-		request->quaternion = quat;
-
-		// Add the request to the queue of rendering operations to be performed before the next frame.
-		queueRenderRequest(request);
-	}
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 double AnimatedObject::getMoveSpeed()

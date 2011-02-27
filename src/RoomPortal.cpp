@@ -32,6 +32,10 @@ void RoomPortal::removeCoveredTile(Tile* t)
  */
 bool RoomPortal::doUpkeep(Room *r)
 {
+	// If the game map is trying to load the next level it deletes any creatures on the map, spawning new ones prevents it from finishing.
+	if(gameMap.loadNextLevel)
+		return true;
+
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
 	Room::doUpkeep(this);
 

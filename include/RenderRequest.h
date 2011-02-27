@@ -27,7 +27,7 @@ class RenderRequest
 				createTreasuryIndicator, destroyTreasuryIndicator,
 				createMapLight, updateMapLight, destroyMapLight, destroyMapLightVisualIndicator, deleteMapLight,
 				createField, refreshField, destroyField,
-				moveSceneNode, reorientSceneNode, scaleSceneNode,
+				moveSceneNode, orientSceneNodeToward, reorientSceneNode, scaleSceneNode,
 				createMissileObject, destroyMissileObject, deleteMissileObject, //setMissileObjectAnimationState,
 			      	noRequest};
 

@@ -26,6 +26,10 @@ void RoomDungeonTemple::destroyMeshes()
  */
 void RoomDungeonTemple::produceKobold()
 {
+	// If the game map is trying to load the next level it deletes any creatures on the map, spawning new ones prevents it from finishing.
+	if(gameMap.loadNextLevel)
+		return;
+
 	if(waitTurns <= 0)
 	{
 		waitTurns = 30;

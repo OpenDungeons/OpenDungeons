@@ -673,6 +673,22 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature->sceneNode = NULL;
 				break;
 
+			case RenderRequest::orientSceneNodeToward:
+				node = mSceneMgr->getSceneNode(curReq->str);
+				tempVector = node->getOrientation() * Ogre::Vector3::NEGATIVE_UNIT_Y;
+
+				// Work around 180 degree quaternion rotation quirk
+				if ((1.0f + tempVector.dotProduct(curReq->vec)) < 0.0001f)
+				{
+					node->roll(Degree(180));
+				}
+				else
+				{
+					tempQuaternion = tempVector.getRotationTo(curReq->vec);
+					node->rotate(tempQuaternion);
+				}
+				break;
+
 			case RenderRequest::reorientSceneNode:
 				node = (SceneNode*)curReq->p;
 				tempQuaternion = curReq->quaternion;
