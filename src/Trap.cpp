@@ -305,7 +305,7 @@ istream& operator>>(istream& is, Trap *t)
 		{
 			t->addCoveredTile(tempTile);
 			//FIXME: This next line will not be necessary when the the tile color is properly set by the tile load routine.
-			tempTile->color = t->controllingSeat->color;
+			tempTile->setColor(t->controllingSeat->color);
 			tempTile->colorDouble = 1.0;
 		}
 	}

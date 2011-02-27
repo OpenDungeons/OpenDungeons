@@ -457,37 +457,13 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		// Switch based on the type of render request we are processing
 		switch(curReq->type)
 		{
-			case RenderRequest::refreshTile:
-				curTile = (Tile*)curReq->p;
-				if(mSceneMgr->hasSceneNode(curTile->name + "_node"))
-				{
-					// Unlink and delete the old mesh
-					mSceneMgr->getSceneNode(curTile->name + "_node")->detachObject(curTile->name);
-					mSceneMgr->destroyEntity(curTile->name);
-
-					// Create the new mesh
-					string tileTypeString = Tile::tileTypeToString(curTile->getType());
-					snprintf(meshName, sizeof(meshName), "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
-					ent = mSceneMgr->createEntity(curTile->name, meshName);
-
-					// Link the tile mesh back to the relevant scene node so OGRE will render it
-					node = mSceneMgr->getSceneNode(curTile->name + "_node");
-					node->attachObject(ent);
-					node->resetOrientation();
-					node->roll(Degree(curTile->rotation));
-#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
-					ent->setNormaliseNormals(true);
-#endif
-				}
-				break;
-
 			case RenderRequest::createTile:
 				curTile = (Tile*)curReq->p;
 				tileTypeString = Tile::tileTypeToString(curTile->getType());
 
 				snprintf(meshName, sizeof(meshName), "%s%i.mesh", tileTypeString.c_str(), curTile->getFullnessMeshNumber());
 				ent = mSceneMgr->createEntity(curTile->name, meshName);
-
+				colourizeEntity(ent, curTile->getColor());
 				node = mSceneMgr->getRootSceneNode()->createChildSceneNode(curTile->name + "_node");
 				//node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
 				node->attachObject(ent);
@@ -1823,7 +1799,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 						if( !(currentTile->getFullness() == 0 && \
 									currentTile->getType() == Tile::claimed && \
 									currentTile->colorDouble > 0.99 && \
-									currentTile->color == gameMap.me->seat->color))
+									currentTile->getColor() == gameMap.me->seat->color))
 						{
 							itr = affectedTiles.erase(itr);
 							continue;

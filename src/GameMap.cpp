@@ -908,7 +908,7 @@ unsigned long int GameMap::doMiscUpkeep()
 		if(tempTile->getType() == Tile::claimed)
 		{
 			// Increment the count of the seat who owns the tile.
-			tempSeat = getSeatByColor(tempTile->color);
+			tempSeat = getSeatByColor(tempTile->getColor());
 			if(tempSeat != NULL)
 			{
 				sem_wait(&tempSeat->numClaimedTilesLockSemaphore);

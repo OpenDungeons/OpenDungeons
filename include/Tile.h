@@ -91,10 +91,12 @@ class Tile
 		friend ostream& operator<<(ostream& os, Tile *t);
 		friend istream& operator>>(istream& is, Tile *t);
 
+		int getColor();
+		void setColor(int nColor);
+
 		// Public datamembers
 		//Vector3 location;
 		int x, y;
-		int color;
 		double colorDouble;
 		int floodFillColor;
 		double rotation;
@@ -115,6 +117,9 @@ class Tile
 		Room *coveringRoom;
 		sem_t coveringRoomLockSemaphore;
 		MapLight *claimLight;
+		bool meshesExist;
+
+		int color;
 };
 
 

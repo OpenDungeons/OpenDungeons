@@ -759,7 +759,7 @@ creatureActionDoWhileLoop:
 					}
 
 					// See if the tile we are standing on can be claimed
-					if((myTile->color != color || myTile->colorDouble < 1.0) && (myTile->getType() == Tile::dirt || myTile->getType() == Tile::claimed))
+					if((myTile->getColor() != color || myTile->colorDouble < 1.0) && (myTile->getType() == Tile::dirt || myTile->getType() == Tile::claimed))
 					{
 						//cout << "\nTrying to claim the tile I am standing on.";
 						// Check to see if one of the tile's neighbors is claimed for our color
@@ -768,7 +768,7 @@ creatureActionDoWhileLoop:
 						{
 							// Check to see if the current neighbor is already claimed
 							tempTile = neighbors[j];
-							if(tempTile->color == color && tempTile->colorDouble >= 1.0)
+							if(tempTile->getColor() == color && tempTile->colorDouble >= 1.0)
 							{
 								//cout << "\t\tFound a neighbor that is claimed.";
 								// If we found a neighbor that is claimed for our side than we can start
@@ -795,7 +795,7 @@ creatureActionDoWhileLoop:
 						tempInt = randomUint(0, neighbors.size()-1);
 						tempTile = neighbors[tempInt];
 						//NOTE:  I don't think the "colorDouble" check should happen here.
-						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->color != color || tempTile->colorDouble < 1.0) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->getColor() != color || tempTile->colorDouble < 1.0) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
 						{
 							// The neighbor tile is a potential candidate for claiming, to be an actual candidate
 							// though it must have a neighbor of its own that is already claimed for our side.
@@ -803,7 +803,7 @@ creatureActionDoWhileLoop:
 							for(unsigned int i = 0; i < neighbors2.size(); i++)
 							{
 								tempTile2 = neighbors2[i];
-								if(tempTile2->color == color && tempTile2->colorDouble >= 1.0)
+								if(tempTile2->getColor() == color && tempTile2->colorDouble >= 1.0)
 								{
 									clearDestinations();
 									addDestination(tempTile->x, tempTile->y);
@@ -822,14 +822,14 @@ creatureActionDoWhileLoop:
 					{
 						// if this tile is not fully claimed yet or the tile is of another player's color
 						tempTile = visibleTiles[i];
-						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->color != color) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->getColor() != color) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
 						{
 							// Check to see if one of the tile's neighbors is claimed for our color
 							neighbors = gameMap.neighborTiles(visibleTiles[i]);
 							for(unsigned int j = 0; j < neighbors.size(); j++)
 							{
 								tempTile = neighbors[j];
-								if(tempTile->color == color && tempTile->colorDouble >= 1.0)
+								if(tempTile->getColor() == color && tempTile->colorDouble >= 1.0)
 								{
 									claimableTiles.push_back(tempTile);
 								}
@@ -856,7 +856,7 @@ creatureActionDoWhileLoop:
 							numNeighborsClaimed = 0;
 							for(unsigned int i = 0; i < neighbors.size(); i++)
 							{
-								if(neighbors[i]->color == color && neighbors[i]->colorDouble >= 1.0)
+								if(neighbors[i]->getColor() == color && neighbors[i]->colorDouble >= 1.0)
 									numNeighborsClaimed++;
 							}
 

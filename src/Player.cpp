@@ -148,7 +148,7 @@ bool Player::dropCreature(Tile *t)
 		if(t->getFullness() == 0 && \
 				(
 					(tempCreature->digRate > 0.1 && t->getType() == Tile::dirt) ||
-					(t->getType() == Tile::claimed && t->color == gameMap.me->seat->color)
+					(t->getType() == Tile::claimed && t->getColor() == gameMap.me->seat->color)
 				)
 		  )
 		{

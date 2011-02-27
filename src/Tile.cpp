@@ -27,6 +27,8 @@ void Tile::initialize()
 	sem_wait(&coveringRoomLockSemaphore);
 	coveringRoom = NULL;
 	sem_post(&coveringRoomLockSemaphore);
+
+	meshesExist = false;
 }
 
 Tile::Tile()
@@ -543,12 +545,11 @@ int Tile::nextTileFullness(int f)
  */
 void Tile::refreshMesh()
 {
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::refreshTile;
-	request->p = this;
+	if(!meshesExist)
+		return;
 
-	// Add the request to the queue of rendering operations to be performed before the next frame.
-	queueRenderRequest(request);
+	destroyMesh();
+	createMesh();
 }
 
 /*! \brief This function puts a message in the renderQueue to load the mesh for this tile.
@@ -556,6 +557,11 @@ void Tile::refreshMesh()
  */
 void Tile::createMesh()
 {
+	if(meshesExist)
+		return;
+
+	meshesExist = true;
+
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::createTile;
 	request->p = this;
@@ -564,7 +570,7 @@ void Tile::createMesh()
 	queueRenderRequest(request);
 
 	//FIXME:  this refreshMesh is a test to see if it fixes the hidden tiles bug at load time.
-	refreshMesh();
+	//refreshMesh();
 }
 
 /*! \brief This function puts a message in the renderQueue to unload the mesh for this tile.
@@ -572,6 +578,11 @@ void Tile::createMesh()
  */
 void Tile::destroyMesh()
 {
+	if(!meshesExist)
+		return;
+
+	meshesExist = false;
+
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::destroyTile;
 	request->p = this;
@@ -839,6 +850,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 			// Claim the tile.
 			colorDouble = 1.0;
 			setType(Tile::claimed);
+			refreshMesh();
 		}
 	}
 	else
@@ -851,7 +863,11 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 			colorDouble *= -1.0;
 			color = nColor;
 			
-			if(colorDouble >= 1.0)  colorDouble = 1.0;
+			if(colorDouble >= 1.0)
+			{
+				colorDouble = 1.0;
+				refreshMesh();
+			}
 		}
 	}
 
@@ -978,5 +994,17 @@ std::vector<Tile*> Tile::getAllNeighbors()
 	sem_post(&neighborsLockSemaphore);
 
 	return ret;
+}
+
+int Tile::getColor()
+{
+	return color;
+}
+
+void Tile::setColor(int nColor)
+{
+	color = nColor;
+
+	refreshMesh();
 }
 

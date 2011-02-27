@@ -370,7 +370,7 @@ istream& operator>>(istream& is, Room *r)
 			r->addCoveredTile(tempTile);
 
 			//FIXME: This next line will not be necessary when the the tile color is properly set by the tile load routine.
-			tempTile->color = r->color;
+			tempTile->setColor(r->color);
 			tempTile->colorDouble = 1.0;
 		}
 	}
