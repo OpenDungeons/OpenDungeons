@@ -122,7 +122,6 @@ class Creature : public CreatureClass, public AttackableObject
 		static const int maxGoldCarriedByWorkers = 1500;
 		bool isOnMap;
 		sem_t isOnMapLockSemaphore;
-		CEGUI::Window *statsWindow;
 		int deathCounter;
 
 	private:
@@ -146,6 +145,8 @@ class Creature : public CreatureClass, public AttackableObject
 		int battleFieldAgeCounter;
 		bool meshesExist;
 		double awakeness;
+		CEGUI::Window *statsWindow;
+		sem_t statsWindowLockSemaphore;
 
 		//sf::Sound attackSound;
 

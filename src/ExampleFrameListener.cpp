@@ -1705,7 +1705,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 				{
 					tempCreature = gameMap.getCreature(resultName.substr(((string)"Creature_").size(), resultName.size()));
 
-					if(tempCreature != NULL && tempCreature->statsWindow == NULL)
+					if(tempCreature != NULL)
 						tempCreature->createStatsWindow();
 
 					return true;
