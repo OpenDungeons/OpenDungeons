@@ -80,7 +80,7 @@ Creature::Creature()
 	//static int uniqueId = 0;
 
 	//Create sound object
-	//sound = SoundEffectsHelper::getSingleton().createCreatureSound(getName());
+	sound = SoundEffectsHelper::getSingleton().createCreatureSound(getName());
 
 	awakeness = 100.0;
 	sem_init(&statsWindowLockSemaphore, 0, 1);
@@ -975,11 +975,11 @@ claimTileBreakStatement:
 							wasANeighbor = true;
 
 							//Set sound position and play dig sound.
-	                        //sem_wait(&positionLockSemaphore);
-	                        //sound->setPosition(position.x, position.y, position.z);
-	                        //sem_post(&positionLockSemaphore);
+	                        sem_wait(&positionLockSemaphore);
+	                        sound->setPosition(position.x, position.y, position.z);
+	                        sem_post(&positionLockSemaphore);
 
-	                        //sound->play(CreatureSound::DIG);
+	                        sound->play(CreatureSound::DIG);
 							break;
 						}
 					}
@@ -1435,11 +1435,11 @@ trainBreakStatement:
 
 						//Play attack sound
 						//TODO - syncronise with animation
-				        //sem_wait(&positionLockSemaphore);
-				        //sound->setPosition(position.x, position.y, position.z);
-				        //sem_post(&positionLockSemaphore);
+				        sem_wait(&positionLockSemaphore);
+				        sound->setPosition(position.x, position.y, position.z);
+				        sem_post(&positionLockSemaphore);
 
-						//sound->play(CreatureSound::ATTACK);
+						sound->play(CreatureSound::ATTACK);
 
 						// Calculate how much damage we do.
 						//TODO:  This ignores the range of the creatures, fix this.

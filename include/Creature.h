@@ -150,7 +150,7 @@ class Creature : public CreatureClass, public AttackableObject
 
 		//sf::Sound attackSound;
 
-		//Ogre::SharedPtr<CreatureSound> sound;
+		Ogre::SharedPtr<CreatureSound> sound;
 };
 
 #endif
