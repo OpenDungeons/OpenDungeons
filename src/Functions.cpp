@@ -55,8 +55,6 @@ bool readGameMapFromFile(string fileName)
 
 	baseLevelFile.close();
 
-	gameMap.clearAll();
-
 	// Read in the version number from the level file
 	levelFile >> tempString;
 	if(tempString.compare(versionString) != 0)
@@ -67,6 +65,8 @@ bool readGameMapFromFile(string fileName)
 		cerr << "\nERROR:  This version of OpenDungeons:  " << versionString << "\n\n\n";
 		exit(1);
 	}
+
+	gameMap.clearAll();
 
 	// Read in the name of the next level to load after this one is complete.
 	levelFile >> gameMap.nextLevel;

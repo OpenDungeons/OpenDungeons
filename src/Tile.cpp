@@ -548,8 +548,12 @@ void Tile::refreshMesh()
 	if(!meshesExist)
 		return;
 
-	destroyMesh();
-	createMesh();
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::refreshTile;
+	request->p = this;
+ 
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	queueRenderRequest(request);
 }
 
 /*! \brief This function puts a message in the renderQueue to load the mesh for this tile.
@@ -873,7 +877,8 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 
 	if(amountClaimed > 0.0 && claimLight == NULL)
 	{
-		claimLight = new TemporaryMapLight(Ogre::Vector3(x,y,0.5), 0.2, 0.4, 0.3, 1.0, 0.1, 0.5, 0.5);
+		Ogre::ColourValue tempColour = gameMap.getSeatByColor(nColor)->colourValue;
+		claimLight = new TemporaryMapLight(Ogre::Vector3(x,y,0.5), tempColour.r, tempColour.g, tempColour.b, 1.0, 0.1, 0.5, 0.5);
 		gameMap.addMapLight(claimLight);
 		claimLight->createOgreEntity();
 	}
