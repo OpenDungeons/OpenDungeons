@@ -519,6 +519,9 @@ void Creature::doTurn()
 		goto creatureActionDoWhileLoop;
 	}
 
+	if(battleFieldAgeCounter > 0)
+		battleFieldAgeCounter--;
+
 	// The loopback variable allows creatures to begin processing a new
 	// action immediately after some other action happens.
 creatureActionDoWhileLoop:
@@ -1263,8 +1266,8 @@ claimTileBreakStatement:
 						// Walk to the the home tile.
 						tempPath = gameMap.path(myTile, homeTile, tilePassability);
 						gameMap.cutCorners(tempPath, tilePassability);
-						setAnimationState("Walk");
 						setWalkPath(tempPath, 2, false);
+						setAnimationState("Walk");
 					}
 					else
 					{
@@ -1276,7 +1279,6 @@ claimTileBreakStatement:
 							awakeness = 100.0;
 							popAction();
 						}
-
 					}
 					break;
 
@@ -1524,11 +1526,6 @@ trainBreakStatement:
 						computeBattlefield();
 						battleFieldAgeCounter = randomUint(2, 6);
 					}
-					else
-					{
-						battleFieldAgeCounter--;
-					}
-
 
 					// Find a location on the battlefield to move to, we try to find a minumum if we are
 					// trying to "attack" and a maximum if we are trying to "retreat".
