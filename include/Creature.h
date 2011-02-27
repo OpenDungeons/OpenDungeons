@@ -10,6 +10,9 @@
 //#include <OgreOggISound.h>
 
 class Creature;
+namespace CEGUI {
+class Window;
+}
 
 #include "Tile.h"
 #include "CreatureAction.h"
@@ -18,6 +21,7 @@ class Creature;
 #include "CreatureClass.h"
 #include "AttackableObject.h"
 #include "AnimatedObject.h"
+#include "CreatureSound.h"
 
 /*! \brief Position, status, and AI state for a single game creature.
  *
@@ -57,7 +61,7 @@ class Creature : public CreatureClass, public AttackableObject
 		std::string getStatsText();
 
 		void setPosition(double x, double y, double z);
-		void setPosition(Ogre::Vector3 v);
+		void setPosition(const Ogre::Vector3& v);
 
 		void setHP(double nHP);
 		double getHP(Tile *tile);
@@ -144,6 +148,8 @@ class Creature : public CreatureClass, public AttackableObject
 		double awakeness;
 
 		//sf::Sound attackSound;
+
+		//Ogre::SharedPtr<CreatureSound> sound;
 };
 
 #endif

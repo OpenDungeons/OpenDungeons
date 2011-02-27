@@ -9,14 +9,26 @@
 #include <SFML/Audio.hpp>
 #include <vector>
 #include <iostream>
-#include <CEGUIMouseCursor.h>
+#include <OgreSharedPtr.h>
 
+//Forward declarations
+class CreatureClass;
+class CreatureSound;
+
+/*
+namespace std {
+class Map;
+}
+*/
 /*! \brief Helper class to manage sound effects.
  *
  */
 class SoundEffectsHelper : public Ogre::Singleton<SoundEffectsHelper>
 {
 public:
+
+    typedef std::vector<sf::Sound> SoundFXVector;
+
     enum InterfaceSound {
         BUTTONCLICK,
         DIGSELECT,
@@ -38,11 +50,18 @@ public:
 	void setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);//, const Ogre::Vector3& velocity = Ogre::Vector3::ZERO);
 	void playBlockDestroySound(int tileX, int tileY);
 	void playInterfaceSound(InterfaceSound sound, bool stopCurrent = true);
+
+	void registerCreatureClass(const std::string& className);
+	//TODO check if we should keep references to creature sounds here or not. Could create problems on shutdown.
+	Ogre::SharedPtr<CreatureSound> createCreatureSound(const std::string& className);
 private:
 	//OgreOggSound::OgreOggSoundManager& soundManager;
 
-	typedef std::vector<sf::Sound> SoundFXVector;
+
 	typedef std::vector<sf::SoundBuffer> SoundFXBufferVector;
+
+
+
 
 	//List of sounds for block getting dug out
 	SoundFXVector digSounds;
@@ -53,6 +72,8 @@ private:
 	//Interface sounds, such as clicks
 	SoundFXVector interfaceSounds;
 	SoundFXBufferVector interfaceSoundBuffers;
+
+	std::map<std::string, SoundFXBufferVector> creatureSoundBuffers;
 };
 
 #endif /* SOUNDEFFECTSHELPER_H */

@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include <Ogre.h>
+#include <CEGUIWindow.h>
 
 #include "Creature.h"
 #include "Defines.h"
@@ -11,6 +12,7 @@
 #include "Network.h"
 #include "Field.h"
 #include "Weapon.h"
+
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
@@ -77,8 +79,8 @@ Creature::Creature()
 
 	//static int uniqueId = 0;
 
-	//attackSound = OgreOggSound::OgreOggSoundManager::getSingletonPtr()
-	//		->createSound("attackSound" + Ogre::StringConverter::toString(uniqueId++), "Sword/SwordBlock01.ogg");
+	//Create sound object
+	//sound = SoundEffectsHelper::getSingleton().createCreatureSound(getName());
 
 	awakeness = 100.0;
 	statsWindow = NULL;
@@ -260,7 +262,7 @@ void Creature::destroyMesh()
  *
  *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
  */
-void Creature::setPosition(Ogre::Vector3 v)
+void Creature::setPosition(const Ogre::Vector3& v)
 {
 	setPosition(v.x, v.y, v.z);
 }
@@ -967,6 +969,13 @@ claimTileBreakStatement:
 							}
 
 							wasANeighbor = true;
+
+							//Set sound position and play dig sound.
+	                        //sem_wait(&positionLockSemaphore);
+	                        //sound->setPosition(position.x, position.y, position.z);
+	                        //sem_post(&positionLockSemaphore);
+
+	                        //sound->play(CreatureSound::DIG);
 							break;
 						}
 					}
@@ -1392,6 +1401,7 @@ claimTileBreakStatement:
 trainBreakStatement:
 					if(stopUsingDojo && trainingDojo != NULL)
 					{
+
 						trainingDojo->removeCreatureUsingRoom(this);
 						trainingDojo = NULL;
 					}
@@ -1421,7 +1431,12 @@ trainBreakStatement:
 						setAnimationState("Attack1");
 
 						//Play attack sound
-						//attackSound->play();
+						//TODO - syncronise with animation
+				        //sem_wait(&positionLockSemaphore);
+				        //sound->setPosition(position.x, position.y, position.z);
+				        //sem_post(&positionLockSemaphore);
+
+						//sound->play(CreatureSound::ATTACK);
 
 						// Calculate how much damage we do.
 						//TODO:  This ignores the range of the creatures, fix this.

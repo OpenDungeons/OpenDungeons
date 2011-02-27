@@ -49,6 +49,7 @@ class CreatureClass : public AnimatedObject
 		double coefficientOrder;
 		double coefficientPeace;
 
+		//std::vector<std::string> soundNames;
 		static std::string getFormat();
 
 		std::string getName() {return name;}

@@ -1,4 +1,6 @@
 #include "SoundEffectsHelper.h"
+#include <map>
+#include "CreatureSound.h"
 
 template<> SoundEffectsHelper*
 	Ogre::Singleton<SoundEffectsHelper>::ms_Singleton = 0;
@@ -80,6 +82,14 @@ void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
         //Spatialisation for the sound.
         interfaceSounds.back().SetAttenuation(0);
     }
+
+
+    creatureSoundBuffers["Default"] = SoundFXBufferVector();
+    SoundFXBufferVector& buffers = creatureSoundBuffers["Default"];
+    buffers.assign(CreatureSound::NUM_CREATURE_SOUNDS, sf::SoundBuffer());
+    buffers[CreatureSound::ATTACK].LoadFromFile(soundFolderPath + "/Sword/SwordBlock01.ogg");
+    buffers[CreatureSound::DIG].LoadFromFile(soundFolderPath + "/Digging/Digging01.ogg");
+    //buffers[CreatureSound::DROP].LoadFromFile(soundFolderPath + "/Click/click.ogg);
 }
 
 void SoundEffectsHelper::setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation)//, const Ogre::Vector3& velocity)
@@ -124,4 +134,20 @@ void SoundEffectsHelper::playInterfaceSound(InterfaceSound sound, bool stopCurre
     }
 
     interfaceSounds[sound].Play();
+}
+
+void SoundEffectsHelper::registerCreatureClass(const std::string& creatureClass)
+{
+    //creatureSoundBuffers.insert(creatureClass.)
+    //Not implemented yet
+}
+
+Ogre::SharedPtr<CreatureSound> SoundEffectsHelper::createCreatureSound(const std::string& creatureClass)
+{
+    Ogre::SharedPtr<CreatureSound> sound(new CreatureSound());
+    SoundFXVector& soundVector = sound->sounds;
+    SoundFXBufferVector& buffers = creatureSoundBuffers["Default"];
+    soundVector[CreatureSound::ATTACK].SetBuffer(buffers[CreatureSound::ATTACK]);
+    soundVector[CreatureSound::DIG].SetBuffer(buffers[CreatureSound::DIG]);
+    return sound;
 }

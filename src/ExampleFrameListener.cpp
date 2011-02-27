@@ -197,6 +197,8 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 	sfxHelper = SoundEffectsHelper::getSingletonPtr();
 	TextRenderer::getSingleton().addTextBox(POINTER_INFO_STRING,
 	        "", 0, 0, 200, 50, Ogre::ColourValue::White);
+
+	LogManager::getSingletonPtr()->logMessage("*** FrameListener initialized ***");
 }
 
 /*! \brief Adjust mouse clipping area

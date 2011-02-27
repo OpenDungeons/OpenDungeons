@@ -10,6 +10,7 @@ SET(
      CreatureAction.cpp
      CreatureClass.cpp
      Creature.cpp
+     CreatureSound.cpp
      ExampleFrameListener.cpp
      Field.cpp
      Functions.cpp
