@@ -81,7 +81,10 @@ Creature::Creature()
 	//		->createSound("attackSound" + Ogre::StringConverter::toString(uniqueId++), "Sword/SwordBlock01.ogg");
 
 	awakeness = 100.0;
+	sem_init(&statsWindowLockSemaphore, 0, 1);
+	sem_wait(&statsWindowLockSemaphore);
 	statsWindow = NULL;
+	sem_post(&statsWindowLockSemaphore);
 	deathCounter = 10;
 
 	prevAnimationState = "";
@@ -239,6 +242,8 @@ void Creature::createMesh()
  */
 void Creature::destroyMesh()
 {
+	destroyStatsWindow();
+
 	if(!meshesExist)
 		return;
 
@@ -252,8 +257,6 @@ void Creature::destroyMesh()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
-
-	destroyStatsWindow();
 }
 
 /*! \brief Changes the creature's position to a new position.
@@ -324,8 +327,7 @@ void Creature::setHP(double nHP)
 	hp = nHP;
 	sem_post(&hpLockSemaphore);
 
-	if(statsWindow != NULL)
-		updateStatsWindow();
+	updateStatsWindow();
 }
 
 double Creature::getHP(Tile *tile)
@@ -343,8 +345,7 @@ void Creature::setMana(double nMana)
 	mana = nMana;
 	sem_post(&manaLockSemaphore);
 
-	if(statsWindow != NULL)
-		updateStatsWindow();
+	updateStatsWindow();
 }
 
 double Creature::getMana()
@@ -1919,6 +1920,14 @@ string Creature::getUniqueCreatureName()
 
 void Creature::createStatsWindow()
 {
+	sem_wait(&statsWindowLockSemaphore);
+
+	if(statsWindow != NULL)
+	{
+		sem_post(&statsWindowLockSemaphore);
+		return;
+	}
+
 	CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
 	CEGUI::Window *rootWindow = CEGUI::System::getSingleton().getGUISheet();
 
@@ -1931,23 +1940,31 @@ void Creature::createStatsWindow()
 	textWindow->setSize(UVector2(UDim(0.9, 0), UDim(0.8, 0)));
 	statsWindow->addChildWindow(textWindow);
 	rootWindow->addChildWindow(statsWindow);
+	statsWindow->show();
+	sem_post(&statsWindowLockSemaphore);
 
 	updateStatsWindow();
-	statsWindow->show();
 }
 
 void Creature::destroyStatsWindow()
 {
+	sem_wait(&statsWindowLockSemaphore);
 	if(statsWindow != NULL)
 	{
 		statsWindow->destroy();
 		statsWindow = NULL;
 	}
+	sem_post(&statsWindowLockSemaphore);
 }
 
 void Creature::updateStatsWindow()
 {
-	statsWindow->getChild(statsWindow->getName() + "TextDisplay")->setText(getStatsText());
+	sem_wait(&statsWindowLockSemaphore);
+
+	if(statsWindow != NULL)
+		statsWindow->getChild(statsWindow->getName() + "TextDisplay")->setText(getStatsText());
+
+	sem_post(&statsWindowLockSemaphore);
 }
 
 std::string Creature::getStatsText()
@@ -2083,8 +2100,7 @@ void Creature::pushAction(CreatureAction action)
 	actionQueue.push_front(action);
 	sem_post(&actionQueueLockSemaphore);
 
-	if(statsWindow != NULL)
-		updateStatsWindow();
+	updateStatsWindow();
 }
 
 void Creature::popAction()
@@ -2093,8 +2109,7 @@ void Creature::popAction()
 	actionQueue.pop_front();
 	sem_post(&actionQueueLockSemaphore);
 
-	if(statsWindow != NULL)
-		updateStatsWindow();
+	updateStatsWindow();
 }
 
 /** \brief This function loops over the visible tiles and computes a score for each one indicating how
