@@ -61,7 +61,7 @@ class Creature : public CreatureClass, public AttackableObject
 		std::string getStatsText();
 
 		void setPosition(double x, double y, double z);
-		void setPosition(const Ogre::Vector3& v);
+		void setPosition(Ogre::Vector3 v);
 
 		void setHP(double nHP);
 		double getHP(Tile *tile);

@@ -265,7 +265,7 @@ void Creature::destroyMesh()
  *
  *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
  */
-void Creature::setPosition(const Ogre::Vector3& v)
+void Creature::setPosition(Ogre::Vector3 v)
 {
 	setPosition(v.x, v.y, v.z);
 }
