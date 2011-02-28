@@ -11,8 +11,11 @@ void RoomPortal::createMeshes()
 {
 	Room::createMeshes();
 
-	loadRoomObject("PortalObject");
+	RoomObject *tempRoomObject = loadRoomObject("PortalObject");
 	createRoomObjectMeshes();
+
+	//FIXME: This is a hack for now, when the portal has its animation renamed to idle this can be removed.
+	tempRoomObject->setAnimationState("Walk");
 }
 
 void RoomPortal::addCoveredTile(Tile* t, double nHP)

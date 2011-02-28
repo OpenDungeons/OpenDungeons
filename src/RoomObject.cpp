@@ -46,6 +46,8 @@ void RoomObject::createMesh()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
+
+	gameMap.addAnimatedObject(this);
 }
 
 void RoomObject::destroyMesh()
@@ -62,6 +64,8 @@ void RoomObject::destroyMesh()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
+
+	gameMap.removeAnimatedObject(this);
 }
 
 void RoomObject::deleteYourself()
@@ -76,6 +80,11 @@ void RoomObject::deleteYourself()
 
 	// Add the requests to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
+}
+
+std::string RoomObject::getOgreNamePrefix()
+{
+	return "RoomObject_";
 }
 
 string RoomObject::getFormat()

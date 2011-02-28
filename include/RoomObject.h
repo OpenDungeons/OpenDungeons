@@ -3,8 +3,9 @@
 
 #include "Room.h"
 #include "ActiveObject.h"
+#include "AnimatedObject.h"
 
-class RoomObject : public ActiveObject
+class RoomObject : public ActiveObject, public AnimatedObject
 {
 	public:
 		RoomObject(Room *nParentRoom, string nMeshName);
@@ -17,6 +18,8 @@ class RoomObject : public ActiveObject
 		void createMesh();
 		void destroyMesh();
 		void deleteYourself();
+
+		std::string getOgreNamePrefix();
 
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, RoomObject *o);

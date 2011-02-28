@@ -554,7 +554,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curRoomObject = (RoomObject*)curReq->p;
 				curRoom = (Room*)curReq->p2;
 
-				tempString = (string)"RoomObject_" + curRoomObject->getName();
+				tempString = curRoomObject->getOgreNamePrefix() + curRoomObject->getName();
 				ent = mSceneMgr->createEntity(tempString, curRoomObject->getMeshName() + ".mesh");
 				colourizeEntity(ent, curRoomObject->getParentRoom()->color);
 				node = roomSceneNode->createChildSceneNode(tempString + "_node");
@@ -571,7 +571,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curRoomObject = (RoomObject*)curReq->p;
 				curRoom = (Room*)curReq->p2;
 
-				tempString = (string)"RoomObject_" + curRoomObject->getName();
+				tempString = curRoomObject->getOgreNamePrefix() + curRoomObject->getName();
 				ent = mSceneMgr->getEntity(tempString);
 				node = mSceneMgr->getSceneNode(tempString + "_node");
 				node->detachObject(ent);

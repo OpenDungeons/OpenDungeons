@@ -22,7 +22,7 @@ class CreatureClass : public AnimatedObject
 		static std::string creatureJobToString(CreatureJob c);
 
 		bool isWorker();
-		string getOgreNamePrefix();
+		std::string getOgreNamePrefix();
 
 		// Class properties
 		//NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
@@ -55,9 +55,9 @@ class CreatureClass : public AnimatedObject
 		std::string getName() {return name;}
 		std::string name;
 
-		friend ostream& operator<<(ostream& os, CreatureClass *c);
+		friend std::ostream& operator<<(std::ostream& os, CreatureClass *c);
 
-		friend istream& operator>>(istream& is, CreatureClass *c);
+		friend std::istream& operator>>(std::istream& is, CreatureClass *c);
 };
 
 #endif

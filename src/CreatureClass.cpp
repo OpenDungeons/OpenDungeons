@@ -13,7 +13,7 @@ CreatureClass::CreatureClass()
 	maxMana = 10.0;
 }
 
-CreatureClass::CreatureJob CreatureClass::creatureJobFromString(string s)
+CreatureClass::CreatureJob CreatureClass::creatureJobFromString(std::string s)
 {
 	if(s.compare("BasicWorker") == 0)          return basicWorker; 
 	if(s.compare("AdvancedWorker") == 0)       return advancedWorker; 
@@ -32,7 +32,7 @@ CreatureClass::CreatureJob CreatureClass::creatureJobFromString(string s)
 	return nullCreatureJob;
 }
 
-string CreatureClass::creatureJobToString(CreatureJob c)
+std::string CreatureClass::creatureJobToString(CreatureJob c)
 {
 	switch(c)
 	{
@@ -60,12 +60,12 @@ bool CreatureClass::isWorker()
 	return (creatureJob == basicWorker || creatureJob == advancedWorker);
 }
 
-string CreatureClass::getFormat()
+std::string CreatureClass::getFormat()
 {
 	return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\thp/level\tmana/level\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\tcHumans\tcCorpars\tcUndead\tcConstructs\tcDenizens\tcAltruism\tcOrder\tcPeace\n";
 }
 
-ostream& operator<<(ostream& os, CreatureClass *c)
+std::ostream& operator<<(std::ostream& os, CreatureClass *c)
 {
 	//TODO: Need to include maxHP/maxMana in the file format.
 	os << c->className << "\t" << CreatureClass::creatureJobToString(c->creatureJob) << "\t" << c->meshName << "\t";
@@ -79,9 +79,9 @@ ostream& operator<<(ostream& os, CreatureClass *c)
 	return os;
 }
 
-istream& operator>>(istream& is, CreatureClass *c)
+std::istream& operator>>(std::istream& is, CreatureClass *c)
 {
-	string tempString;
+	std::string tempString;
 	is >> c->className >> tempString;
 	c->creatureJob = CreatureClass::creatureJobFromString(tempString);
 	is >> c->meshName;
@@ -99,7 +99,7 @@ istream& operator>>(istream& is, CreatureClass *c)
 /** \brief Conform: AttackableObject - Returns the prefix used in the OGRE identifier for this object.
  *
 */
-string CreatureClass::getOgreNamePrefix()
+std::string CreatureClass::getOgreNamePrefix()
 {
 	return "Creature_";
 }

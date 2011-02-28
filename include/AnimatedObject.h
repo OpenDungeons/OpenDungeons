@@ -2,10 +2,12 @@
 #define ANIMATEDOBJECT_H
 
 #include <deque>
+#include <iostream>
+#include <semaphore.h>
 
 #include <Ogre.h>
 
-#include "Tile.h"
+class Tile;
 
 class AnimatedObject
 {
@@ -25,7 +27,7 @@ class AnimatedObject
 		virtual double getMoveSpeed();
 		virtual void setMoveSpeed(double s);
 
-		virtual void setAnimationState(string s, bool loop = true);
+		virtual void setAnimationState(std::string s, bool loop = true);
 
 		virtual double getAnimationSpeedFactor();
 
@@ -37,9 +39,9 @@ class AnimatedObject
 		Ogre::Vector3 walkDirection;
 		double shortDistance;
 
-		AnimationState *animationState;
-		string destinationAnimationState;
-		SceneNode *sceneNode;
+		Ogre::AnimationState *animationState;
+		std::string destinationAnimationState;
+		Ogre::SceneNode *sceneNode;
 
 		virtual std::string getOgreNamePrefix() = 0;
 		virtual std::string getName() = 0;
@@ -47,7 +49,7 @@ class AnimatedObject
 	protected:
 		Ogre::Vector3 position;
 		double moveSpeed;
-		string prevAnimationState;
+		std::string prevAnimationState;
 		bool prevAnimationStateLoop;
 		double animationSpeedFactor;
 		sem_t animationSpeedFactorLockSemaphore;
