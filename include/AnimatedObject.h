@@ -27,6 +27,8 @@ class AnimatedObject
 
 		virtual void setAnimationState(string s, bool loop = true);
 
+		virtual double getAnimationSpeedFactor();
+
 		std::deque<Ogre::Vector3> walkQueue;
 
 		sem_t positionLockSemaphore;
@@ -47,6 +49,8 @@ class AnimatedObject
 		double moveSpeed;
 		string prevAnimationState;
 		bool prevAnimationStateLoop;
+		double animationSpeedFactor;
+		sem_t animationSpeedFactorLockSemaphore;
 };
 
 #endif

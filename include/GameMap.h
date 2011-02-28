@@ -36,6 +36,7 @@ class GameMap
 
 		void createNewMap(int xSize, int ySize);
 		void createAllEntities();
+		void destroyAllEntities();
 		void clearAll();
 
 		// Game state methods

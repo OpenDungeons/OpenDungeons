@@ -611,6 +611,42 @@ void GameMap::createAllEntities()
 	}
 }
 
+void GameMap::destroyAllEntities()
+{
+	// Destroy OGRE entities for map tiles
+	sem_wait(&tilesLockSemaphore);
+	TileMap_t::iterator itr = tiles.begin();
+	while(itr != tiles.end())
+	{
+		itr->second->destroyMesh();
+		itr++;
+	}
+	sem_post(&tilesLockSemaphore);
+
+	// Destroy OGRE entities for the creatures
+	for(unsigned int i = 0; i < numCreatures(); i++)
+	{
+		Creature *currentCreature = getCreature(i);
+		currentCreature->weaponL->destroyMesh();
+		currentCreature->weaponR->destroyMesh();
+		currentCreature->destroyMesh();
+	}
+
+	// Destroy OGRE entities for the map lights.
+	for(unsigned int i = 0; i < numMapLights(); i++)
+	{
+		MapLight *currentMapLight = getMapLight(i);
+		currentMapLight->destroyOgreEntity();
+	}
+
+	// Destroy OGRE entities for the rooms
+	for(unsigned int i = 0; i < numRooms(); i++)
+	{
+		Room *currentRoom = getRoom(i);
+		currentRoom->destroyMeshes();
+	}
+}
+
 /*! \brief Returns a pointer to the creature whose name matches cName.
  *
  */

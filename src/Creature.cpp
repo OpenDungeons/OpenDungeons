@@ -1442,8 +1442,7 @@ trainBreakStatement:
 						sound->play(CreatureSound::ATTACK);
 
 						// Calculate how much damage we do.
-						//TODO:  This ignores the range of the creatures, fix this.
-						double damageDone = getHitroll(0); // gameMap.crowDistance(this, tempCreature));
+						double damageDone = getHitroll(gameMap.crowDistance(myTile, tempTile));
 						damageDone *= randomDouble(0.0, 1.0);
 						damageDone -= powl(randomDouble(0.0, 0.4), 2.0)*tempAttackableObject->getDefense();
 

@@ -26,6 +26,7 @@ For information on how to use a particular command, type help followed by the co
 \n\taddclass - Define a creature class\
 \n\taddtiles - adds a rectangular region of tiles\
 \n\tnewmap - Creates a new rectangular map\
+\n\trefreshmesh - Reloads the meshes for all the objects in the game\
 \n\tmovespeed - sets the camera movement speed\
 \n\trotatespeed - sets the camera rotation speed\
 \n\tfps - sets the maximum framerate\

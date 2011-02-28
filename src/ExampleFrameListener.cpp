@@ -853,6 +853,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 					{
 						ent = mSceneMgr->getEntity(tempString);
 						node->detachObject(ent);
+						mSceneMgr->destroyEntity(ent);
+						//NOTE: This line throws an error complaining 'scene node not found' that should not be happening.
+						//mSceneMgr->destroySceneNode(node->getName());
 					}
 				}
 				break;
@@ -1145,7 +1148,9 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		// Advance the animation
 		if(currentAnimatedObject->animationState != NULL)
-			currentAnimatedObject->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame * currentAnimatedObject->getMoveSpeed());
+		{
+			currentAnimatedObject->animationState->addTime(turnsPerSecond * evt.timeSinceLastFrame * currentAnimatedObject->getAnimationSpeedFactor());
+		}
 
 		// Move the creature
 		sem_wait(&currentAnimatedObject->walkQueueLockSemaphore);
@@ -2921,6 +2926,14 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		}
 	}
 
+	// refreshmesh   Clear all the Ogre entities and redraw them so they reload their appearence.
+	else if(command.compare("refreshmesh") == 0)
+	{
+		gameMap.destroyAllEntities();
+		gameMap.createAllEntities();
+		commandOutput += "\nRecreating all meshes.\n";
+	}
+
 	// Set your nickname
 	else if(command.compare("nick") == 0)
 	{
@@ -3308,6 +3321,11 @@ string ExampleFrameListener::getHelpText(string arg)
 	else if(arg.compare("newmap") == 0)
 	{
 		return "Replaces the existing map with a new rectangular map.  The X and Y dimensions of the new map are given as arguments to the newmap command.\n\nExample:\n" + prompt + "newmap 10 20\n\nThe above command creates a new map 10 tiles by 20 tiles.  The new map will be filled with dirt tiles with a fullness of 100.";
+	}
+
+	else if(arg.compare("refreshmesh") == 0)
+	{
+		return "Clears every mesh in the entire game (creatures, tiles, etc) and then reloads them so they have the new look in the material files, etc.";
 	}
 
 	else if(arg.compare("movespeed") == 0)

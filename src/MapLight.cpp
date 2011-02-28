@@ -98,7 +98,6 @@ void MapLight::destroyOgreEntity()
 	queueRenderRequest(request);
 
 	ogreEntityExists = false;
-	ogreEntityVisualIndicatorExists = false;
 }
 
 void MapLight::destroyOgreEntityVisualIndicator()

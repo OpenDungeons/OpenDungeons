@@ -15,6 +15,11 @@ AnimatedObject::AnimatedObject()
 	sem_init(&walkQueueLockSemaphore, 0, 1);
 
 	moveSpeed = 1.0;
+
+	sem_init(&animationSpeedFactorLockSemaphore, 0, 1);
+	sem_wait(&animationSpeedFactorLockSemaphore);
+	animationSpeedFactor = 1.0;
+	sem_post(&animationSpeedFactorLockSemaphore);
 }
 
 void AnimatedObject::setPosition(double x, double y, double z)
@@ -198,6 +203,13 @@ void AnimatedObject::setAnimationState(string s, bool loop)
 
 	prevAnimationState = s;
 
+	sem_wait(&animationSpeedFactorLockSemaphore);
+	if(s.compare("Walk") == 0 || s.compare("Flee") == 0)
+		animationSpeedFactor = moveSpeed;
+	else
+		animationSpeedFactor = 1.0;
+	sem_post(&animationSpeedFactorLockSemaphore);
+
 	string tempString;
 	std::stringstream tempSS;
 	RenderRequest *request = new RenderRequest;
@@ -228,5 +240,14 @@ void AnimatedObject::setAnimationState(string s, bool loop)
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
+}
+
+double AnimatedObject::getAnimationSpeedFactor()
+{
+	sem_wait(&animationSpeedFactorLockSemaphore);
+	double tempDouble = animationSpeedFactor;
+	sem_post(&animationSpeedFactorLockSemaphore);
+
+	return tempDouble;
 }
 
