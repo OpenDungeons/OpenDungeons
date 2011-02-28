@@ -10864,7 +10864,7 @@ Cannon	1
 -18	29	3.75	0.9	0.9	0.9	0.6	0.6	0.6	50	0.005	0.25	0.0013
 
 # Creature classes
-9  # The number of creature classes to load.
+19  # The number of creature classes to load.
 # className	creatureJob	meshName	bedMeshName	bedDim1	bedDim2	scaleX	scaleY	scaleZ	hp/level	mana/level	sightRadius	digRate	danceRate	moveSpeed	cHumans	cCorpars	cUndead	cConstructs	cDenizens	cAltruism	cOrder	cPeace
 
 Wyvern	WeakFighter	Wyvern.mesh	Bed	2	2	1	1	1	5	5	15	0	0	1.3	1	0	0	0	0	0	1	0
@@ -10876,10 +10876,31 @@ Dwarf1	WeakFighter	Dwarf1.mesh	Bed	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
 Dwarf2	WeakFighter	Dwarf2.mesh	Bed	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
 Orc	StrongFighter	Orc.mesh	Bed	2	3	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	0	-1
 Kreatur	StrongFighter	Kreatur.mesh	Bed	4	4	1	1	1	5	5	15	0	0	1	0	1	0	0	0	-1	0	-1
+ConstructWorker	AdvancedWorker	Con_Worker.mesh	Bed	4	4	1	1	1	5	5	15	0	0	3.3	0	0	0	1	0	-1	0	-1
+Gnome	WeakFighter	Gnome.mesh	Bed	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
+Goblin	WeakFighter	Goblin.mesh	Bed	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
+PitDemon	StrongFighter	Pit_demon.mesh	Bed	4	4	1	1	1	5	5	15	0	0	1	0	1	0	0	0	-1	0	-1
+Spider	WeakFighter	Spider.mesh	Bed	1	2	1	1	1	5	5	15	0	0	1	1	0	0	0	0	1	1	1
+Wizard	WeakFighter	Wizard.mesh	Bed	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
+Tentacle1	WeakFighter	Tentacle.mesh	ForgeAnvilObject	1	1	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
+Tentacle2	WeakFighter	Tentacle2.mesh	ForgeAnvilObject	1	1	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
+Troll	StrongFighter	Troll.mesh	Bed	2	3	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	0	-1
+# Note: the scale on the mech has been changed, when the .mesh is re-exported it should be set to 1, 1, 1.
+Mech	StrongFighter	Mech.mesh	Bed	4	4	.1	.1	.1	5	5	15	0	0	1	0	1	0	0	0	-1	0	-1
 
 # Creatures
-39  # The number of creatures to load.
+50  # The number of creatures to load.
 # className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana
+ConstructWorker	ConstructWorker1	-4	30	0	1	none	1	4	3	none	8	4	0	125	3
+Gnome	Gnome2	-8	29	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	3
+Goblin	Goblin3	-17	29	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	3
+Mech	Mech4	2	37	0	4	none	1	4	3	none	8	4	0	125	3
+PitDemon	PitDemon5	10	36	0	5	none	1	4	3	none	8	4	0	125	3
+Spider	Spider6	-2	31	0	1	none	1	4	3	none	8	4	0	125	3
+Wizard	Wizard7	-10	29	0	2	Staff	7	10	3	none	1	4	0	125	3
+Tentacle1	Tentacle18	-14	29	0	3	none	1	4	3	none	8	4	0	125	3
+Tentacle2	Tentacle29	3	30	0	4	none	1	4	3	none	8	4	0	125	3
+Troll	Troll10	9	31	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	3
 Knight	Knight_c1	-2	33	0	1	Roundshield	1	4	3	Longsword	8	4	0	125	3
 Knight	Knight_c2	-8	33	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	3
 Knight	Knight_c3	-16	33	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	3
@@ -10888,8 +10909,9 @@ Knight	Knight_c5	10	33	0	5	Roundshield	1	4	3	Longsword	8	4	0	125	3
 Kobold	Kobold	-5	2	0	1	none	5	4	0	none	8	3	0	125	3
 Kobold	Kobold_012	-12	0	0	1	Roundshield	0	0	5	Longsword	14	3	0	125	3
 Kobold	Kobold_007	-7	18	0	1	none	5	4	0	none	8	3	0	125	3
-Kobold	Kobold_011	-7	13	0	1	none	5	4	0	none	8	3	0	125	3
-BigKnight	King	-9	16	0	1	Roundshield	0	0	5	Sabre	10	3	7	180	10
+Wizard	Mage	-7	13	0	1	none	7	9	0	none	8	3	0	80	50
+Wizard	Wiz	-7	13	0	1	none	7	9	0	none	8	3	0	80	50
+BigKnight	King	-9	16	0	1	Roundshield	0	0	5	Staff	10	3	7	180	10
 Knight	Knight_005	29	-62	0	1	Roundshield	0	0	5	Longsword	14	3	0	155	2
 Knight	Knight_004	-4	0	0	1	Longsword	7	4	0	none	8	3	0	155	2
 Knight	Knight_006	-1	4	0	1	Longsword	14	4	0	Sabre	10	3	0	155	2
