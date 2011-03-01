@@ -1339,23 +1339,6 @@ Player* GameMap::getPlayer(int index)
 	return players[index];
 }
 
-/*! \brief <b>DEPRECATED</b> This function is deprecated by getSeatByColor() and calls to this should likely be replaced by that function. 
- *
- */
-//FIXME: This function is deprecated by getSeatByColor() and calls to this should likely be replaced by that function.
-Player* GameMap::getPlayerByColour(int colour)
-{
-	for(unsigned int i = 0; i < players.size(); i++)
-	{
-		if(players[i]->seat->color == colour)
-		{
-			return players[i];
-		}
-	}
-
-	return NULL;
-}
-
 /*! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
  *
  */

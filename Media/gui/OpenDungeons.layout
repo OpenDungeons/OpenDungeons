@@ -225,7 +225,6 @@ Trigger</Property>
                     <Property Name="UnifiedAreaRect" Value="{{0.0226624,0},{0.105826,0},{0.272662,0},{0.355826,0}}" />
                 </Window>
                 <Window Type="TaharezLook/Editbox" Name="Root/MapEditorTabControl/Tab 4/AddCreatureEditBox" >
-                    <Property Name="MaxTextLength" Value="1073741823" />
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                     <Property Name="UnifiedAreaRect" Value="{{0.0210775,0},{0.533009,0},{0.271078,0},{0.783009,0}}" />
                 </Window>
@@ -278,7 +277,6 @@ Creatures
                 </Window>
                 <Window Type="TaharezLook/Combobox" Name="Root/MapEditorTabControl/Tab 6/LoadSaveCombobox" >
                     <Property Name="Text" Value="Test" />
-                    <Property Name="MaxTextLength" Value="1073741823" />
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                     <Property Name="UnifiedAreaRect" Value="{{0.0323295,0},{0.652427,0},{0.247463,0},{0.902426,0}}" />
                 </Window>
@@ -297,7 +295,6 @@ server</Property>
                 </Window>
                 <Window Type="TaharezLook/Editbox" Name="Root/MapEditorTabControl/Tab 6/ServerAddressEditBox" >
                     <Property Name="Text" Value="127.0.0.1" />
-                    <Property Name="MaxTextLength" Value="1073741823" />
                     <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
                     <Property Name="UnifiedAreaRect" Value="{{0.385736,0},{0.642717,0},{0.483599,0},{0.892717,0}}" />
                 </Window>

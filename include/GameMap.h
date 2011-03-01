@@ -82,7 +82,6 @@ class GameMap
 		bool addPlayer(Player *p);
 		Player* getPlayer(int index);
 		Player* getPlayer(std::string cName);
-		Player* getPlayerByColour(int colour);
 		unsigned int numPlayers();
 
 		void clearRooms();

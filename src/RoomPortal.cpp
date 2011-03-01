@@ -5,6 +5,7 @@ RoomPortal::RoomPortal()
 	: Room()
 {
 	type = portal;
+	spawnCreatureCountdown = 0;
 }
 
 void RoomPortal::createMeshes()
@@ -14,7 +15,7 @@ void RoomPortal::createMeshes()
 	RoomObject *tempRoomObject = loadRoomObject("PortalObject");
 	createRoomObjectMeshes();
 
-	//FIXME: This is a hack for now, when the portal has its animation renamed to idle this can be removed.
+	//FIXME: This is a hack for now, when the portal has its animation renamed to Idle this can be removed.
 	tempRoomObject->setAnimationState("Walk");
 }
 
@@ -42,10 +43,24 @@ bool RoomPortal::doUpkeep(Room *r)
 	// Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
 	Room::doUpkeep(this);
 
+	if(spawnCreatureCountdown > 0)
+	{
+		spawnCreatureCountdown--;
+		return true;
+	}
+
 	// Randomly choose to spawn a creature.
 	//TODO:  Improve this probability calculation.
+	// Count how many creatures are controlled by this color, count both the ones on
+	// the gameMap and the ones in all the players of that colors' hands'.
 	double numCreatures = gameMap.getCreaturesByColor(getColor()).size();
-	numCreatures += gameMap.me->numCreaturesInHand();
+	Seat *controllingSeat = gameMap.getSeatByColor(getColor());
+	for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+	{
+		Player *tempPlayer = gameMap.getPlayer(i);
+		if(tempPlayer->seat == controllingSeat)
+			numCreatures += tempPlayer->numCreaturesInHand();
+	}
 	const double maxCreatures = 15;
 	double targetProbability = powl((maxCreatures - numCreatures)/maxCreatures, 1.5);
 	if(randomDouble(0.0, 1.0) <= targetProbability)
@@ -59,15 +74,12 @@ bool RoomPortal::doUpkeep(Room *r)
  */
 void RoomPortal::spawnCreature()
 {
+	cout << "\n\n\n\n\nPortal: " << getName() << "  spawn creature...\n";
 	CreatureClass *classToSpawn = NULL;
 
 	// If the room has been destroyed, or has not yet been assigned any tiles, then we
 	// cannot determine where to place the new creature and we should just give up.
 	if(coveredTiles.size() == 0)
-		return;
-
-	// If there is not a player sitting in the seat which controls this room, do not spawn a creature.
-	if(gameMap.getPlayerByColour(color) == NULL && gameMap.me->seat->color != color)
 		return;
 
 	// Compute and normalize the probabilities based on the current composition of creatures in the dungeon.
@@ -127,6 +139,8 @@ void RoomPortal::spawnCreature()
 	newCreature->createMesh();
 	newCreature->weaponL->createMesh();
 	newCreature->weaponR->createMesh();
+
+	spawnCreatureCountdown = randomUint(15, 30);
 
 	//TODO: Inform the clients that this creature has been created by placing a newCreature message in the serverNotificationQueue.
 }
