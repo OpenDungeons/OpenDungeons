@@ -138,10 +138,15 @@ INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
 find_package(SFML REQUIRED)
 
 link_libraries(${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG})
+if( UNIX )
+#Needed for gentoo as the libraries are build with "--as-needed", possibly also other distros
+	link_libraries(${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG})
+endif()
 
 include_directories(${SFML_AUDIO_INCLUDE_DIR})
 #FIXME workaround , for some reason the include 
-#path gets chopped off at the end when generating eclipse projects
+#path got chopped off at the end when generating eclipse projects
+#not sure if i should change this back or not
 if(MINGW)
 	set(SFMLINCLUDEFIX ${SFML_AUDIO_INCLUDE_DIR}clude)
 	include_directories(${SFMLINCLUDEFIX})
