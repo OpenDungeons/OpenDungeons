@@ -26,6 +26,7 @@ Media/particle/
 plugins.cfg
 plugins_d.cfg
 resources_install.cfg
+resources.cfg
 
 .cproject
 .goutputstream-W829MV
