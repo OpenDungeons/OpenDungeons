@@ -62,6 +62,7 @@ Media/models
 Media/music
 Media/packs
 Media/sounds
+Media/gui
 Media__/
 install_manifest.txt
 ogre.cfg
@@ -69,3 +70,5 @@ ogre.cfg
 run.sh
 OpenDungeons.bin
 OpenDungeons.exe
+
+screenshot*
