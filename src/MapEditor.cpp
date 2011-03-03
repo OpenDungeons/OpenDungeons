@@ -109,9 +109,9 @@ void MapEditor::createScene(void)
 	        mResourcePath.substr(0, mResourcePath.size() - 2).c_str());
 
 
-	Ogre::String schemePath("Media/gui/TaharezLookSkin.scheme");
+	Ogre::String schemePath("Media/gui/OpenDungeonsSkin.scheme");
 	CEGUI::SchemeManager::getSingleton().create(schemePath);
-	mSystem->setDefaultMouseCursor((CEGUI::utf8*)"TaharezLook", (CEGUI::utf8*)"MouseArrow");
+	mSystem->setDefaultMouseCursor((CEGUI::utf8*)"OpenDungeons", (CEGUI::utf8*)"MouseArrow");
 	mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 	CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
 
