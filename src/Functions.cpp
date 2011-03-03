@@ -274,7 +274,7 @@ void writeGameMapToFile(string fileName)
 string forceLowercase(string s)
 {
 	string tempString;
-	
+
 	for(unsigned int i = 0; i < s.size(); i++)
 	{
 		tempString += tolower(s[i]);
@@ -295,8 +295,8 @@ namespace Random
 	unsigned long randgen()
 	{
 		sem_wait(&randomGeneratorLockSemaphore);
-		myRandomSeed = myRandomSeed*1103515245 + 12345; 
-		unsigned long returnVal = (unsigned int)(myRandomSeed / 65536) % 32768; 
+		myRandomSeed = myRandomSeed*1103515245 + 12345;
+		unsigned long returnVal = (unsigned int)(myRandomSeed / 65536) % 32768;
 		sem_post(&randomGeneratorLockSemaphore);
 
 		return returnVal;
@@ -352,8 +352,8 @@ namespace Random
 } //end namespace Random
 
 /************************************************
-*randomDouble() returns a double between the 
-*lower number entered and the higher number 
+*randomDouble() returns a double between the
+*lower number entered and the higher number
 *entered.  One or both numbers can be negative
 ************************************************/
 double randomDouble(double min, double max)
@@ -364,7 +364,7 @@ double randomDouble(double min, double max)
 		min = max;
 		max = temp;
 	}
-	
+
 	return Random::uniform(min, max);
 }
 
@@ -376,7 +376,7 @@ int randomInt(int min, int max)
 		min = max;
 		max = temp;
 	}
-	
+
 	return Random::randint(min, max);
 }
 
@@ -388,7 +388,7 @@ unsigned int randomUint(unsigned int min, unsigned int max)
 		min = max;
 		max = temp;
 	}
-	
+
 	return Random::randuint(min, max);
 }
 
@@ -403,7 +403,7 @@ double gaussianRandomDouble()
 
 	val1 = sqrt(-2.0*log(temp1)) * cos(2.0*M_PI*temp2);
 	// val2 = sqrt(-2.0*log(temp1)) * sin(2.0*M_PI*temp2);
-	
+
 	return val1;
 }
 
@@ -570,9 +570,7 @@ bool startServer()
 		// the user doesn't have to click into them first to see the contents.
 		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
 		CEGUI::Window *window;
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl");
-		((CEGUI::TabControl*)window)->setSelectedTab(0);
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab");
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl");
 		((CEGUI::TabControl*)window)->setSelectedTab(0);
 	}
 
