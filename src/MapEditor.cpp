@@ -146,7 +146,7 @@ void MapEditor::createScene(void)
 		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/Rooms/ForgeButton");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/Rooms/DojoButton ");
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/Rooms/DojoButton");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&dojoButtonPressed));
 
 		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/Traps/CannonButton");

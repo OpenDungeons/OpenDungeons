@@ -279,7 +279,7 @@ void ExampleFrameListener::moveCamera(double frameTime)
 	newPosition.z += zChange*frameTime*mZoomSpeed;
 	double horizontalSpeedFactor = (newPosition.z >= 25.0) ? 1.0 : newPosition.z/(25.0);
 	newPosition += horizontalSpeedFactor*(viewDirectionQuaternion*translateVector);
-	
+
 	// Prevent camera from moving down into the tiles.
 	if(newPosition.z <= 4.5)
 		newPosition.z = 4.5;
@@ -1006,7 +1006,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				curCreature = (Creature*)curReq->p2;
 
 				tempSS.str("");
-				tempSS << "Vision_indicator_" << curCreature->name << "_" << curTile->x << "_" << curTile->y; 
+				tempSS << "Vision_indicator_" << curCreature->name << "_" << curTile->x << "_" << curTile->y;
 				if(mSceneMgr->hasEntity(tempSS.str()))
 				{
 					ent = mSceneMgr->getEntity(tempSS.str());
@@ -1216,17 +1216,17 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		CEGUI::Window *tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/TerritoryDisplay");
 		tempSS.str("");
-		tempSS << "Territory\n" << gameMap.me->seat->getNumClaimedTiles();
+		tempSS << gameMap.me->seat->getNumClaimedTiles();
 		tempWindow->setText(tempSS.str());
 
 		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/GoldDisplay");
 		tempSS.str("");
-		tempSS << "Gold\n" << gameMap.me->seat->gold;
+		tempSS << gameMap.me->seat->gold;
 		tempWindow->setText(tempSS.str());
 
 		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/ManaDisplay");
 		tempSS.str("");
-		tempSS << "Mana\n" << mySeat->mana << "\n" << (mySeat->manaDelta >= 0 ? "+" : "-") << mySeat->manaDelta;
+		tempSS << mySeat->mana << "\n" << (mySeat->manaDelta >= 0 ? "+" : "-") << mySeat->manaDelta;
 		tempWindow->setText(tempSS.str());
 
 		// Update the goals display in the message window.
@@ -1327,7 +1327,7 @@ RaySceneQueryResult& ExampleFrameListener::doRaySceneQuery(const OIS::MouseEvent
 	Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x/float(arg.state.width), mousePos.d_y/float(arg.state.height));
 	mRaySceneQuery->setRay(mouseRay);
 	mRaySceneQuery->setSortByDistance(true);
-	
+
 	// Execute query
 	return mRaySceneQuery->execute();
 }
@@ -1720,7 +1720,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 			itr++;
 		}
 	}
-	       
+
 	return true;
 }
 
@@ -1919,7 +1919,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 				// Delete everything but the last tile in the affected tiles as this is close to where we let go of the mouse.
 				std::vector<Tile*> tempVector(affectedTiles);
 				tempVector.push_back(affectedTiles[affectedTiles.size()-1]);
-				
+
 				Seat *mySeat = NULL;
 				if(serverSocket != NULL || clientSocket != NULL)
 				{
@@ -2011,7 +2011,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 			case KC_D:
 				translateVectorAccel.x += moveSpeedAccel;	// Move camera right
 				break;
-			
+
 			// Move forward
 			case KC_UP:
 			case KC_W:
@@ -2190,7 +2190,7 @@ processHotkey:
 		switch(arg.key)
 		{
 			case KC_RETURN:
-				
+
 				// If the user just presses enter without entering a command we return to the game
 				if(promptCommand.size() == 0)
 				{
@@ -2284,7 +2284,7 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
 			case KC_RIGHT:
 				translateVectorAccel.x -= moveSpeedAccel;	// Move camera backward
 				break;
-			
+
 			// Move forward
 			case KC_UP:
 			case KC_W:
@@ -2384,7 +2384,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 	{
 		mContinue = false;
 	}
-	
+
 	// Repeat the arguments of the command back to you
 	else if(command.compare("echo") == 0)
 	{
@@ -2422,12 +2422,12 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			size_t found;
 			found = arguments.find(".level");
 
-			// If the starting point of the string found is equal to the size of the level name minus the extension (.level) 
+			// If the starting point of the string found is equal to the size of the level name minus the extension (.level)
 			if(found == (arguments.size() - 6))
 				tempString = "Media/levels/" + arguments;
 			else
 				tempString = "Media/levels/" + arguments + ".level";
-				
+
 			if(serverSocket != NULL)
 			{
 				gameMap.nextLevel = tempString;
@@ -2635,7 +2635,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 
 			// Clear the queue of early/late time counts to reset the moving window average in the AI time display.
 			gameMap.previousLeftoverTimes.clear();
-			
+
 			if(serverSocket != NULL)
 			{
 				try
@@ -2854,8 +2854,8 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				}
 			}
 
-			// Loop over level directory and display only level files 
-			else if(arguments.compare("levels") == 0)      
+			// Loop over level directory and display only level files
+			else if(arguments.compare("levels") == 0)
 			{
 				std::vector<string> tempVector;
 				size_t found;
@@ -3011,7 +3011,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 						CSPStruct *csps = new CSPStruct;
 						csps->nSocket = clientSocket;
 						csps->nFrameListener = this;
-						
+
 						// Start a thread to talk to the server
 						pthread_create(&clientThread, NULL, clientSocketProcessor, (void*) csps);
 
@@ -3106,7 +3106,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 					executePromptCommand("chat", "\n" + tempString);
 				}
 			}
-					
+
 			else
 			{
 				tempSS << "No command argument specified. See 'help' for a list of arguments.\n";
@@ -3378,7 +3378,7 @@ string ExampleFrameListener::getHelpText(string arg)
 	{
 		return "Mousespeed sets the mouse movement speed scaling factor. It takes a decimal number as argument, which the mouse movement will get multiplied by.";
 	}
-	
+
 	else if(arg.compare("framespersecond") == 0 || arg.compare("fps") == 0)
 	{
 		return "framespersecond (or \"fps\" for short is a utility which displays or sets the maximum framerate at which the rendering will attempt to update the screen.\n\nExample:\n" + prompt + "fps 35\n\nThe above command will set the current maximum framerate to 35 turns per second.";
