@@ -620,9 +620,9 @@ creatureActionDoWhileLoop:
 									{
 										// We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
 										tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
-										sem_wait(&actionQueueLockSemaphore);
+										sem_wait(&((Creature*)reachableAlliedObjects[i])->actionQueueLockSemaphore);
 										tempBool = (((Creature*)reachableAlliedObjects[i])->actionQueue.front().type == CreatureAction::digTile);
-										sem_post(&actionQueueLockSemaphore);
+										sem_post(&((Creature*)reachableAlliedObjects[i])->actionQueueLockSemaphore);
 										if(tempBool)
 										{
 											// Worker is digging, get near it since it could expose enemies.
