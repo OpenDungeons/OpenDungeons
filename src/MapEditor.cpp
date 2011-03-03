@@ -17,7 +17,7 @@ MapEditor::MapEditor()
 {
 }
 
-MapEditor::~MapEditor() 
+MapEditor::~MapEditor()
 {
 	if(mSystem)
 		//delete mSystem;   // use this line if using a CEGUI version before 0.7
@@ -108,11 +108,11 @@ void MapEditor::createScene(void)
 	rp->setResourceGroupDirectory("default",
 	        mResourcePath.substr(0, mResourcePath.size() - 2).c_str());
 
-
 	Ogre::String schemePath("Media/gui/OpenDungeonsSkin.scheme");
 	CEGUI::SchemeManager::getSingleton().create(schemePath);
 	mSystem->setDefaultMouseCursor((CEGUI::utf8*)"OpenDungeons", (CEGUI::utf8*)"MouseArrow");
-	mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
+	//default font shouldn't be needed anymore with new layout
+	//mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 	CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
 
 	// Create the singleton for the TextRenderer class
@@ -121,9 +121,10 @@ void MapEditor::createScene(void)
 	// Display some text
 	TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 10, 10, 50, 70, Ogre::ColourValue::Green);
 
+    //try-catch really needed here?
 	try
 	{
-		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"Media/gui/OpenDungeons.layout"); 
+		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"Media/gui/OpenDungeons.layout");
 		mSystem->setGUISheet(sheet);
 
 		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
@@ -132,32 +133,30 @@ void MapEditor::createScene(void)
 
 		// Set the active tabs on the tab selector across the bottom of the screen so
 		// the user doesn't have to click into them first to see the contents.
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl");
-		((CEGUI::TabControl*)window)->setSelectedTab(0);
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab");
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl");
 		((CEGUI::TabControl*)window)->setSelectedTab(0);
 
 		// Subscribe the various button handlers to the CEGUI button pressed events.
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/QuitButton");
-		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
-
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/QuartersButton");
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/Rooms/QuartersButton");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quartersButtonPressed));
 
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/TreasuryButton");
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/Rooms/TreasuryButton");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/ForgeButton");
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/Rooms/ForgeButton");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 1/DojoButton");
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/Rooms/DojoButton ");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&dojoButtonPressed));
 
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 1/RoomSubTab/Tab 2/CannonButton");
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/Traps/CannonButton");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-		window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/ServerButton");
+		window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/System/HostButton");
 		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&serverButtonPressed));
+
+        window = wmgr->getWindow((CEGUI::utf8*)"Root/MainTabControl/System/QuitButton");
+		window->subscribeEvent(CEGUI::PushButton::EventClicked, CEGUI::Event::Subscriber(&quitButtonPressed));
 
 		//window = wmgr->getWindow((CEGUI::utf8*)"Root/MapEditorTabControl/Tab 6/LoadSaveCombobox");
 		//CEGUI::ListboxTextItem *tempListboxItem = new CEGUI::ListboxTextItem("Blah");
