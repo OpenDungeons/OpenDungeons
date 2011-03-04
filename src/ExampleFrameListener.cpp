@@ -1228,7 +1228,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 		tempWindow = windowManager->getWindow((CEGUI::utf8*)"Root/ManaDisplay");
 		tempSS.str("");
-		tempSS << mySeat->mana << "\n" << (mySeat->manaDelta >= 0 ? "+" : "-") << mySeat->manaDelta;
+		tempSS << mySeat->mana << " " << (mySeat->manaDelta >= 0 ? "+" : "-") << mySeat->manaDelta;
 		tempWindow->setText(tempSS.str());
 
 		// Update the goals display in the message window.
