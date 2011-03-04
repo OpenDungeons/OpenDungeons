@@ -1945,11 +1945,11 @@ void Creature::createStatsWindow()
 	CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
 	CEGUI::Window *rootWindow = CEGUI::System::getSingleton().getGUISheet();
 
-	statsWindow = wmgr->createWindow("OpenDungeons/FrameWindow", (string)"Root/CreatureStatsWindows/" + getName());
+	statsWindow = wmgr->createWindow("OD/FrameWindow", (string)"Root/CreatureStatsWindows/" + getName());
 	statsWindow->setPosition(UVector2(UDim(0.7, 0), UDim(0.65, 0)));
 	statsWindow->setSize(UVector2(UDim(0.25, 0), UDim(0.3, 0)));
 
-	CEGUI::Window *textWindow = wmgr->createWindow("OpenDungeons/StaticText", statsWindow->getName() + "TextDisplay");
+	CEGUI::Window *textWindow = wmgr->createWindow("OD/StaticText", statsWindow->getName() + "TextDisplay");
 	textWindow->setPosition(UVector2(UDim(0.05, 0), UDim(0.15, 0)));
 	textWindow->setSize(UVector2(UDim(0.9, 0), UDim(0.8, 0)));
 	statsWindow->addChildWindow(textWindow);
