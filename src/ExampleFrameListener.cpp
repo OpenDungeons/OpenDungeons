@@ -395,6 +395,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 	if(mWindow->isClosed())	return false;
 
+	CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
+
 	// Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
 	//NOTE:  If this function exits early the corresponding unlock function must be called.
 	currentTurnNumber = turnNumber.get();
