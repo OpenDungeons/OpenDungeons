@@ -945,7 +945,7 @@ claimTileBreakStatement:
 							// If the tile is a gold tile accumulate gold for this creature.
 							if(tempTile->getType() == Tile::gold)
 							{
-								tempDouble = 5*min(digRate, (double)tempTile->getFullness());
+								tempDouble = 5*min(digRate, tempTile->getFullness());
 								gold += tempDouble;
 								gameMap.getSeatByColor(color)->goldMined += tempDouble;
 								recieveExp(5.0*digRate/20.0);
@@ -960,7 +960,7 @@ claimTileBreakStatement:
 							recieveExp(1.5*digRate/20.0);
 
 							// If the tile has been dug out, move into that tile and try to continue digging.
-							if(tempTile->getFullness() == 0)
+							if(tempTile->getFullness() < 1)
 							{
 								recieveExp(2.5);
 								setAnimationState("Walk");
@@ -1014,7 +1014,7 @@ claimTileBreakStatement:
 						for(unsigned int j = 0; j < neighbors.size(); j++)
 						{
 							neighborTile = neighbors[j];
-							if(neighborTile != NULL && neighborTile->getFullness() == 0)
+							if(neighborTile != NULL && neighborTile->getFullness() < 1)
 								possiblePaths.push_back(gameMap.path(positionTile(), neighborTile, tilePassability));
 						}
 					}

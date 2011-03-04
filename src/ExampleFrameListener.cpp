@@ -1829,8 +1829,8 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 					else
 					{
 						// In the map editor:  Fill the current tile with the new value
-						currentTile->setType( mCurrentTileType );
-						currentTile->setFullness( mCurrentFullness );
+						currentTile->setType(mCurrentTileType);
+						currentTile->setFullness(mCurrentFullness);
 					}
 				}
 				else // if(mDragType == ExampleFrameListener::addNewRoom || mDragType == ExampleFrameListener::addNewTrap)
@@ -1846,7 +1846,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 					if(serverSocket != NULL || clientSocket != NULL)
 					{
 						// If the currentTile is not empty and claimed for my color, then remove it from the affectedTiles vector.
-						if( !(currentTile->getFullness() == 0 && \
+						if( !(currentTile->getFullness() < 1 && \
 									currentTile->getType() == Tile::claimed && \
 									currentTile->colorDouble > 0.99 && \
 									currentTile->getColor() == gameMap.me->seat->color))
@@ -1858,7 +1858,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 					else // We are in the map editor
 					{
 						// If the currentTile is not empty and claimed, then remove it from the affectedTiles vector.
-						if( !(currentTile->getFullness() == 0 && \
+						if( !(currentTile->getFullness() < 1 && \
 									currentTile->getType() == Tile::claimed))
 						{
 							itr = affectedTiles.erase(itr);

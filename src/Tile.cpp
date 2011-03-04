@@ -19,7 +19,7 @@ void Tile::initialize()
 	markedForDigging = false;
 	//location = Ogre::Vector3(0.0, 0.0, 0.0);
 	type = dirt;
-	setFullness(100);
+	setFullness(100.0);
 	rotation = 0.0;
 	color = 0;
 	colorDouble = 0.0;
@@ -36,7 +36,7 @@ Tile::Tile()
 	initialize();
 }
 
-Tile::Tile(int nX, int nY, TileType nType, int nFullness)
+Tile::Tile(int nX, int nY, TileType nType, double nFullness)
 {
 	initialize();
 
@@ -82,7 +82,7 @@ Tile::TileType Tile::getType()
  * filled in tile but only two sides are drawn because it borders full tiles on
  * 2 sides.
  */
-void Tile::setFullness(int f)
+void Tile::setFullness(double f)
 {
 	int oldFullnessMeshNumber = fullnessMeshNumber;
 	TileClearType oldTilePassability = getTilePassability();
@@ -92,7 +92,7 @@ void Tile::setFullness(int f)
 	fullness = f;
 
 	// If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
-	if(fullness <= 1 && getMarkedForDigging(gameMap.me) == true)
+	if(fullness < 1 && getMarkedForDigging(gameMap.me) == true)
 	{
 		setMarkedForDiggingForAllSeats(false);
 		fullness = 0.0;
@@ -103,11 +103,11 @@ void Tile::setFullness(int f)
 	}
 
 	/*
-	if(fullness <= 1 && gameMap.)
+	if(fullness < 1 && gameMap.)
 	{
 		SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
 	}
-*/
+	*/
 
 	sem_post(&fullnessLockSemaphore);
 
@@ -298,13 +298,13 @@ void Tile::setFullness(int f)
 /*! \brief An accessor which returns the tile's fullness which should range from 0 to 100.
  *
  */
-int Tile::getFullness()
+double Tile::getFullness()
 {
 	sem_wait(&fullnessLockSemaphore);
-	int tempInt = fullness;
+	double tempDouble = fullness;
 	sem_post(&fullnessLockSemaphore);
 
-	return tempInt;
+	return tempDouble;
 }
 
 /*! \brief An accessor which returns the tile's fullness mesh number.
@@ -327,7 +327,7 @@ int Tile::getFullnessMeshNumber()
 Tile::TileClearType Tile::getTilePassability()
 {
 	// Check to see if the tile is filled in.
-	if(getFullness() > 0.1)
+	if(getFullness() >= 1)
 		return impassableTile;
 
 	//Check to see if there is a room with objects covering this tile preventing creatures from walking through it.
@@ -398,7 +398,7 @@ void Tile::setCoveringRoom(Room *r)
  */
 bool Tile::isDiggable()
 {
-	if((type == dirt || type == gold || type == claimed) && getFullness() > 0)
+	if((type == dirt || type == gold || type == claimed) && getFullness() > 1)
 		return true;
 
 	return false;
@@ -429,6 +429,7 @@ ostream& operator<<(ostream& os, Tile *t)
 istream& operator>>(istream& is, Tile *t)
 {
 	int tempInt, xLocation, yLocation;
+	double tempDouble;
 	char tempCellName[255];
 
 	is >> xLocation >> yLocation;
@@ -441,8 +442,8 @@ istream& operator>>(istream& is, Tile *t)
 	is >> tempInt;
 	t->setType( (Tile::TileType) tempInt );
 
-	is >> tempInt;
-	t->setFullness(tempInt);
+	is >> tempDouble;
+	t->setFullness(tempDouble);
 
 	return is;
 }
@@ -648,7 +649,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 		return;
 
 	// If we are trying to mark a tile that is already dug out, ignore the request.
-	if(s && (getFullness() <= 0))
+	if(s && (getFullness() < 1))
 		return;
 
 	Entity *ent;
@@ -660,7 +661,6 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 		bool thisRequestIsForMe = (p == gameMap.me);
 		if(thisRequestIsForMe)
 		{
-			//FIXME:  This code should probably only execute if it needs to for speed reasons.
 			//FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
 			snprintf(tempString, sizeof(tempString), "Level_%i_%i_selection_indicator", x, y);
 			if(mSceneMgr->hasEntity(tempString))
@@ -847,7 +847,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 	Tile *tempTile;
 	double amountClaimed;
 
-	if(!(type == dirt || type == claimed) || getFullness() > 0)
+	if(!(type == dirt || type == claimed) || getFullness() > 1)
 		return 0.0;
 
 	if(nColor == color)
@@ -928,9 +928,8 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 	if(!isDiggable())
 		return 0.0;
 
-	//FIXME: The +1 in this statement is because the fullness is an int and if you dig <1 the tile would never be fully cleared.
 	sem_wait(&fullnessLockSemaphore);
-	if(digRate + 1 >= fullness)
+	if(digRate >= fullness)
 	{
 		amountDug = fullness;
 		sem_post(&fullnessLockSemaphore);

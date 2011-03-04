@@ -148,7 +148,7 @@ bool Player::dropCreature(Tile *t)
 
 		// if the tile is a valid place to drop a creature
 		//FIXME:  This could be a race condition, if the tile state changes on the server before the client knows about it.
-		if(t->getFullness() == 0 && \
+		if(t->getFullness() < 1 && \
 				(
 					(tempCreature->digRate > 0.1 && t->getType() == Tile::dirt) ||
 					(t->getType() == Tile::claimed && t->getColor() == gameMap.me->seat->color)
