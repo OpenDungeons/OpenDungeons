@@ -62,6 +62,7 @@ class Tile
 		bool getSelected();
 
 		void setMarkedForDigging(bool s, Player *p);
+		void setMarkedForDiggingForAllSeats(bool s);
 		bool getMarkedForDigging(Player *p);
 
 		void addCreature(Creature *c);

@@ -92,10 +92,9 @@ void Tile::setFullness(int f)
 	fullness = f;
 
 	// If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
-	//FIXME:  If other players have it marked for digging, it will not be unmarked for them, we need to write a "setMarkedForDiggingForAllSeats()".
 	if(fullness <= 1 && getMarkedForDigging(gameMap.me) == true)
 	{
-		setMarkedForDigging(false, gameMap.me);
+		setMarkedForDiggingForAllSeats(false);
 		fullness = 0.0;
 
 		//Play block destroy sound
@@ -572,9 +571,6 @@ void Tile::createMesh()
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
-
-	//FIXME:  this refreshMesh is a test to see if it fixes the hidden tiles bug at load time.
-	//refreshMesh();
 }
 
 /*! \brief This function puts a message in the renderQueue to unload the mesh for this tile.
@@ -604,24 +600,23 @@ void Tile::setSelected(bool s)
 	char tempString[255];
 	char tempString2[255];
 
-	//FIXME:  This code should probably only execute if it needs to for speed reasons.
-	snprintf(tempString, sizeof(tempString), "Level_%3i_%3i_selection_indicator", x, y);
-	if(mSceneMgr->hasEntity(tempString))
-	{
-		ent = mSceneMgr->getEntity(tempString);
-	}
-	else
-	{
-		snprintf(tempString2, sizeof(tempString2), "Level_%3i_%3i_node", x, y);
-		SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
-
-		ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
-		tempNode->attachObject(ent);
-		ent->setVisible(false);
-	}
-
 	if(selected != s)
 	{
+		snprintf(tempString, sizeof(tempString), "Level_%3i_%3i_selection_indicator", x, y);
+		if(mSceneMgr->hasEntity(tempString))
+		{
+			ent = mSceneMgr->getEntity(tempString);
+		}
+		else
+		{
+			snprintf(tempString2, sizeof(tempString2), "Level_%3i_%3i_node", x, y);
+			SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
+
+			ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
+			tempNode->attachObject(ent);
+			ent->setVisible(false);
+		}
+
 		selected = s;
 
 		if(selected)
@@ -704,6 +699,17 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 			removePlayerMarkingTile(p);
 		}
 	}
+}
+
+/*! \brief This is a simple helper function which just calls setMarkedForDigging() for everyone in the game (including me).
+ *
+ */
+void Tile::setMarkedForDiggingForAllSeats(bool s)
+{
+	setMarkedForDigging(s, gameMap.me);
+
+	for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+		setMarkedForDigging(s, gameMap.getPlayer(i));
 }
 
 /*! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.

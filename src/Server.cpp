@@ -153,9 +153,6 @@ void *creatureAIThread(void *p)
 
 	while(true)
 	{
-		//FIXME:  Something should be done to make the clock sleep for a shorter time if the AI is slow.
-		//timeUntilNextTurn -= evt.timeSinceLastFrame;
-
 		// Do a turn in the game
 		stopwatch.reset();
 		turnNumber.lock();
