@@ -52,7 +52,7 @@ void GameMap::createNewMap(int xSize, int ySize)
 		{
 			tempTile = new Tile;
 			tempTile->setType(Tile::dirt);
-			tempTile->setFullness(100);
+			tempTile->setFullness(100.0);
 			tempTile->x = i;
 			tempTile->y = j;
 
@@ -957,7 +957,7 @@ unsigned long int GameMap::doMiscUpkeep()
 				std::vector<Tile*> neighbors = neighborTiles(currentTile->second);
 				for(unsigned int i = 0; i < neighbors.size(); i++)
 				{
-					if(neighbors[i]->getType() == Tile::dirt && neighbors[i]->getFullness() < 0.1)// && neighbors[i]->colorDouble < 0.8)
+					if(neighbors[i]->getType() == Tile::dirt && neighbors[i]->getFullness() < 1)// && neighbors[i]->colorDouble < 0.8)
 						neighbors[i]->claimForColor(tempSeat->color, 0.04);
 				}
 			}
