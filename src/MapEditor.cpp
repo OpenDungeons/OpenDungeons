@@ -114,6 +114,7 @@ void MapEditor::createScene(void)
 	//default font shouldn't be needed anymore with new layout
 	//mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
 	CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
+    CEGUI::System::getSingleton().setDefaultTooltip( (CEGUI::utf8*)"OD/Tooltip" );
 
 	// Create the singleton for the TextRenderer class
 	new TextRenderer();
