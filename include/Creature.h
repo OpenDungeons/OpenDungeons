@@ -128,6 +128,7 @@ class Creature : public CreatureClass, public AttackableObject
 		// Private functions
 		void pushAction(CreatureAction action);
 		void popAction();
+		CreatureAction peekAction();
 
 		// Private data members
 		double hp;

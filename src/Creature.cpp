@@ -23,6 +23,20 @@ using CEGUI::UVector2;
 
 Creature::Creature()
 {
+	sem_init(&hpLockSemaphore, 0, 1);
+	sem_init(&manaLockSemaphore, 0, 1);
+	sem_init(&isOnMapLockSemaphore, 0, 1);
+	sem_init(&actionQueueLockSemaphore, 0, 1);
+	sem_init(&statsWindowLockSemaphore, 0, 1);
+
+	sem_wait(&statsWindowLockSemaphore);
+	statsWindow = NULL;
+	sem_post(&statsWindowLockSemaphore);
+
+	sem_wait(&isOnMapLockSemaphore);
+	isOnMap = false;
+	sem_post(&isOnMapLockSemaphore);
+
 	hasVisualDebuggingEntities = false;
 
 	scale = Ogre::Vector3(1,1,1);
@@ -34,20 +48,8 @@ Creature::Creature()
 	destinationX = 0;
 	destinationY = 0;
 
-	sem_init(&hpLockSemaphore, 0, 1);
-	sem_wait(&hpLockSemaphore);
-	hp = 10;
-	sem_post(&hpLockSemaphore);
-
-	sem_init(&manaLockSemaphore, 0, 1);
-	sem_wait(&manaLockSemaphore);
-	mana = 10;
-	sem_post(&manaLockSemaphore);
-
-	sem_init(&isOnMapLockSemaphore, 0, 1);
-	sem_wait(&isOnMapLockSemaphore);
-	isOnMap = false;
-	sem_post(&isOnMapLockSemaphore);
+	setHP(10.0);
+	setMana(10.0);
 
 	maxHP = 10;
 	maxMana = 10;
@@ -67,10 +69,7 @@ Creature::Creature()
 
 	sceneNode = NULL;
 
-	sem_init(&actionQueueLockSemaphore, 0, 1);
-	sem_wait(&actionQueueLockSemaphore);
-	actionQueue.push_back(CreatureAction(CreatureAction::idle));
-	sem_post(&actionQueueLockSemaphore);
+	pushAction(CreatureAction::idle);
 
 	battleField = new Field("autoname");
 	battleFieldAgeCounter = 0;
@@ -83,10 +82,6 @@ Creature::Creature()
 	sound = SoundEffectsHelper::getSingleton().createCreatureSound(getName());
 
 	awakeness = 100.0;
-	sem_init(&statsWindowLockSemaphore, 0, 1);
-	sem_wait(&statsWindowLockSemaphore);
-	statsWindow = NULL;
-	sem_post(&statsWindowLockSemaphore);
 	deathCounter = 10;
 
 	prevAnimationState = "";
@@ -133,13 +128,9 @@ ostream& operator<<(ostream& os, Creature *c)
 	os << c->color << "\t";
 	os << c->weaponL << "\t" << c->weaponR << "\t";
 
-	sem_wait(&c->hpLockSemaphore);
-	os << c->hp << "\t";
-	sem_post(&c->hpLockSemaphore);
+	os << c->getHP(NULL) << "\t";
 
-	sem_wait(&c->manaLockSemaphore);
-	os << c->mana;
-	sem_post(&c->manaLockSemaphore);
+	os << c->getMana();
 
 	return os;
 }
@@ -150,9 +141,10 @@ ostream& operator<<(ostream& os, Creature *c)
 istream& operator>>(istream& is, Creature *c)
 {
 	double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
+	double tempDouble;
 	string tempString;
-	is >> c->className;
 
+	is >> c->className;
 	is >> tempString;
 
 	if(tempString.compare("autoname") == 0)
@@ -161,9 +153,7 @@ istream& operator>>(istream& is, Creature *c)
 	c->name = tempString;
 
 	is >> xLocation >> yLocation >> zLocation;
-	sem_wait(&c->positionLockSemaphore);
-	c->position = Ogre::Vector3(xLocation, yLocation, zLocation);
-	sem_post(&c->positionLockSemaphore);
+	c->setPosition(xLocation, yLocation, zLocation);
 
 	is >> c->color;
 
@@ -184,13 +174,11 @@ istream& operator>>(istream& is, Creature *c)
 		*c = *creatureClass;
 	}
 
-	sem_wait(&c->hpLockSemaphore);
-	is >> c->hp;
-	sem_post(&c->hpLockSemaphore);
+	is >> tempDouble;
+	c->setHP(tempDouble);
 
-	sem_wait(&c->manaLockSemaphore);
-	is >> c->mana;
-	sem_post(&c->manaLockSemaphore);
+	is >> tempDouble;
+	c->setMana(tempDouble);
 
 	return is;
 }
@@ -479,11 +467,7 @@ void Creature::doTurn()
 	}
 
 	// Check to see if we have found a "home" tile where we can sleep yet.
-	sem_wait(&actionQueueLockSemaphore);
-	bool alreadyLookingForHome;
-	alreadyLookingForHome = (actionQueue.front().type == CreatureAction::findHome);
-	sem_post(&actionQueueLockSemaphore);
-	if(!isWorker() && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && !alreadyLookingForHome)
+	if(!isWorker() && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL && peekAction().type != CreatureAction::findHome)
 	{
 		// Check to see if there are any quarters owned by our color that we can reach.
 		std::vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters, color);
@@ -497,11 +481,7 @@ void Creature::doTurn()
 	}
 
 	// If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-	sem_wait(&actionQueueLockSemaphore);
-	bool alreadyTryingToSleep;
-	alreadyTryingToSleep = (actionQueue.front().type == CreatureAction::sleep);
-	sem_post(&actionQueueLockSemaphore);
-	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 0.8), 2) > awakeness && !alreadyTryingToSleep)
+	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 0.8), 2) > awakeness && peekAction().type != CreatureAction::sleep)
 	{
 		tempAction.type = CreatureAction::sleep;
 		pushAction(tempAction);
@@ -509,11 +489,7 @@ void Creature::doTurn()
 	}
 
 	// Check to see if there is a Dojo we can train at.
-	sem_wait(&actionQueueLockSemaphore);
-	bool alreadyTryingToTrain;
-	alreadyTryingToTrain = (actionQueue.front().type == CreatureAction::train);
-	sem_post(&actionQueueLockSemaphore);
-	if(!isWorker() && randomDouble(0.0, 1.0) < 0.1 && randomDouble(0.5, 1.0) < awakeness/100.0 && !alreadyTryingToTrain)
+	if(!isWorker() && randomDouble(0.0, 1.0) < 0.1 && randomDouble(0.5, 1.0) < awakeness/100.0 && peekAction().type != CreatureAction::train)
 	{
 		//TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
 		tempAction.type = CreatureAction::train;
@@ -2124,6 +2100,15 @@ void Creature::popAction()
 	sem_post(&actionQueueLockSemaphore);
 
 	updateStatsWindow();
+}
+
+CreatureAction Creature::peekAction()
+{
+	sem_wait(&actionQueueLockSemaphore);
+	CreatureAction tempAction = actionQueue.front();
+	sem_post(&actionQueueLockSemaphore);
+
+	return tempAction;
 }
 
 /** \brief This function loops over the visible tiles and computes a score for each one indicating how
