@@ -26,7 +26,7 @@ class ServerNotification
 			addMapLight,
 			removeMapLight,
 
-			creatureAddDestination,
+			animatedObjectAddDestination,
 			animatedObjectClearDestinations,
 			setObjectAnimationState,
 			creaturePickUp,

@@ -8,13 +8,9 @@ Field::Field(string nName)
 	static int uniqueNumber = 0;
 
 	if(nName.compare("autoname") == 0)
-	{
 		name = "field_" + StringConverter::toString(uniqueNumber++);
-	}
 	else
-	{
 		name = nName;
-	}
 
 	hasMeshes = false;
 }

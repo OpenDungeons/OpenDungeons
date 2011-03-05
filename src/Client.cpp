@@ -221,7 +221,7 @@ void *clientSocketProcessor(void *p)
 				turnNumber.set(tempLongInt);
 			}
 
-			else if(serverCommand.compare("creatureAddDestination") == 0)
+			else if(serverCommand.compare("animatedObjectAddDestination") == 0)
 			{
 				char array[255];
 
@@ -230,7 +230,7 @@ void *clientSocketProcessor(void *p)
 
 				tempSS.getline(array, sizeof(array), ':');
 				//tempString = array;
-				Creature *tempCreature = gameMap.getCreature(array);
+				AnimatedObject *tempAnimatedObject = gameMap.getAnimatedObject(array);
 
 				double tempX, tempY, tempZ;
 				tempSS.getline(array, sizeof(array), ':');
@@ -242,20 +242,16 @@ void *clientSocketProcessor(void *p)
 
 				Ogre::Vector3 tempVector(tempX, tempY, tempZ);
 
-				if(tempCreature != NULL)
-				{
-					tempCreature->addDestination(tempVector.x, tempVector.y);
-				}
+				if(tempAnimatedObject != NULL)
+					tempAnimatedObject->addDestination(tempVector.x, tempVector.y);
 			}
 
-			else if(serverCommand.compare("creatureClearDestinations") == 0)
+			else if(serverCommand.compare("animatedObjectClearDestinations") == 0)
 			{
-				Creature *tempCreature = gameMap.getCreature(arguments);
+				AnimatedObject *tempAnimatedObject = gameMap.getAnimatedObject(arguments);
 
-				if(tempCreature != NULL)
-				{
-					tempCreature->clearDestinations();
-				}
+				if(tempAnimatedObject != NULL)
+					tempAnimatedObject->clearDestinations();
 			}
 
 			//NOTE:  This code is duplicated in serverSocketProcessor()

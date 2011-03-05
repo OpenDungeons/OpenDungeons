@@ -63,6 +63,7 @@ class GameMap
 		void addAnimatedObject(AnimatedObject *a);
 		void removeAnimatedObject(AnimatedObject *a);
 		AnimatedObject* getAnimatedObject(int index);
+		AnimatedObject* getAnimatedObject(string name);
 		unsigned int numAnimatedObjects();
 
 		//void clearActiveObjects();
