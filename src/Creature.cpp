@@ -736,7 +736,7 @@ creatureActionDoWhileLoop:
 					}
 
 					// See if the tile we are standing on can be claimed
-					if((myTile->getColor() != color || myTile->colorDouble < 1.0) && (myTile->getType() == Tile::dirt || myTile->getType() == Tile::claimed))
+					if((myTile->getColor() != color || myTile->colorDouble < 1.0) && myTile->isClaimable())
 					{
 						//cout << "\nTrying to claim the tile I am standing on.";
 						// Check to see if one of the tile's neighbors is claimed for our color
@@ -761,7 +761,6 @@ creatureActionDoWhileLoop:
 						}
 					}
 
-					//cout << "\nLooking at the neighbor tiles to see if I can claim a tile.";
 					// The tile we are standing on is already claimed or is not currently
 					// claimable, find candidates for claiming.
 					// Start by checking the neighbor tiles of the one we are already in
@@ -772,7 +771,7 @@ creatureActionDoWhileLoop:
 						tempInt = randomUint(0, neighbors.size()-1);
 						tempTile = neighbors[tempInt];
 						//NOTE:  I don't think the "colorDouble" check should happen here.
-						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->getColor() != color || tempTile->colorDouble < 1.0) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->getColor() != color || tempTile->colorDouble < 1.0) && tempTile->isClaimable())
 						{
 							// The neighbor tile is a potential candidate for claiming, to be an actual candidate
 							// though it must have a neighbor of its own that is already claimed for our side.
@@ -799,7 +798,7 @@ creatureActionDoWhileLoop:
 					{
 						// if this tile is not fully claimed yet or the tile is of another player's color
 						tempTile = visibleTiles[i];
-						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->getColor() != color) && (tempTile->getType() == Tile::dirt || tempTile->getType() == Tile::claimed))
+						if(tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile && (tempTile->colorDouble < 1.0 || tempTile->getColor() != color) && tempTile->isClaimable())
 						{
 							// Check to see if one of the tile's neighbors is claimed for our color
 							neighbors = gameMap.neighborTiles(visibleTiles[i]);

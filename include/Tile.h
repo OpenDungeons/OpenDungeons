@@ -87,6 +87,7 @@ class Tile
 		void setCoveringRoom(Room *r);
 
 		bool isDiggable();
+		bool isClaimable();
 
 		static string getFormat();
 		friend ostream& operator<<(ostream& os, Tile *t);

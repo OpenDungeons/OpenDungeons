@@ -409,6 +409,11 @@ bool Tile::isDiggable()
 	return false;
 }
 
+bool Tile::isClaimable()
+{
+	return ((type == dirt || type == claimed) && getFullness() < 1);
+}
+
 string Tile::getFormat()
 {
         return "posX\tposY\ttype\tfullness";
@@ -852,9 +857,10 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 	Tile *tempTile;
 	double amountClaimed;
 
-	if(!(type == dirt || type == claimed) || getFullness() > 1)
+	if(!isClaimable())
 		return 0.0;
 
+	// If the color is the same as ours we add to it, if it is an enemy color we subtract from it.
 	if(nColor == color)
 	{
 		amountClaimed = min(nDanceRate, 1.0 - colorDouble);
@@ -886,6 +892,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 		}
 	}
 
+	// If this is the first time this tile has been claimed, emit a flash of light indicating that the tile was claimed.
 	sem_wait(&claimLightLockSemaphore);
 	if(amountClaimed > 0.0 && claimLight == NULL)
 	{
@@ -896,14 +903,14 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 	}
 	sem_post(&claimLightLockSemaphore);
 
+	// If there is still some left to claim.
 	if(amountClaimed > 0.0 && amountClaimed < nDanceRate)
 	{
 		double amountToClaim = nDanceRate - amountClaimed;
 		if(amountToClaim < 0.05)
 			return amountClaimed;
 
-		//NOTE:  This line is commented out as I think it is a holdover from before the tiles kept track of their neighbors themselves.
-		//neighbors = gameMap.neighborTiles(this);
+		// Distribute the remaining amount left to claim out amongst the neighbor tiles.
 		sem_wait(&neighborsLockSemaphore);
 		amountToClaim /= (double)neighbors.size();
 		for(unsigned int j = 0; j < neighbors.size(); j++)
