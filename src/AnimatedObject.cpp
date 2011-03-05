@@ -5,9 +5,9 @@
 AnimatedObject::AnimatedObject()
 {
 	sem_init(&positionLockSemaphore, 0, 1);
-	sem_wait(&positionLockSemaphore);
-	position = Ogre::Vector3(0,0,0);
-	sem_post(&positionLockSemaphore);
+	sem_init(&animationSpeedFactorLockSemaphore, 0, 1);
+
+	setPosition(Ogre::Vector3(0,0,0));
 
 	animationState = NULL;
 	destinationAnimationState = "Idle";
@@ -16,10 +16,7 @@ AnimatedObject::AnimatedObject()
 
 	moveSpeed = 1.0;
 
-	sem_init(&animationSpeedFactorLockSemaphore, 0, 1);
-	sem_wait(&animationSpeedFactorLockSemaphore);
-	animationSpeedFactor = 1.0;
-	sem_post(&animationSpeedFactorLockSemaphore);
+	setAnimationSpeedFactor(1.0);
 }
 
 void AnimatedObject::setPosition(double x, double y, double z)
@@ -62,10 +59,8 @@ void AnimatedObject::addDestination(double x, double y, double z)
 	{
 		// Add the destination and set the remaining distance counter
 		walkQueue.push_back(destination);
-		sem_wait(&positionLockSemaphore);
-		shortDistance = position.distance(walkQueue.front());
+		shortDistance = getPosition().distance(walkQueue.front());
 		walkQueueFirstEntryAdded = true;
-		sem_post(&positionLockSemaphore);
 	}
 	else
 	{
@@ -203,12 +198,10 @@ void AnimatedObject::setAnimationState(string s, bool loop)
 
 	prevAnimationState = s;
 
-	sem_wait(&animationSpeedFactorLockSemaphore);
 	if(s.compare("Walk") == 0 || s.compare("Flee") == 0)
-		animationSpeedFactor = moveSpeed;
+		setAnimationSpeedFactor(moveSpeed);
 	else
-		animationSpeedFactor = 1.0;
-	sem_post(&animationSpeedFactorLockSemaphore);
+		setAnimationSpeedFactor(1.0);
 
 	string tempString;
 	std::stringstream tempSS;
@@ -249,5 +242,12 @@ double AnimatedObject::getAnimationSpeedFactor()
 	sem_post(&animationSpeedFactorLockSemaphore);
 
 	return tempDouble;
+}
+
+void AnimatedObject::setAnimationSpeedFactor(double f)
+{
+	sem_wait(&animationSpeedFactorLockSemaphore);
+	animationSpeedFactor = f;
+	sem_post(&animationSpeedFactorLockSemaphore);
 }
 

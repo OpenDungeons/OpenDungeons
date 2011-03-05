@@ -403,7 +403,6 @@ void *clientNotificationProcessor(void *p)
 
 		switch(event->type)
 		{
-			//NOTE: this code is duplicated in serverNotificationProcessor
 			case ClientNotification::creaturePickUp:
 				tempCreature = (Creature*)event->p;
 				tempPlayer = (Player*)event->p2;
@@ -416,7 +415,6 @@ void *clientNotificationProcessor(void *p)
 				sem_post(&clientSocket->semaphore);
 				break;
 
-			//NOTE: this code is duplicated in serverNotificationProcessor
 			case ClientNotification::creatureDrop:
 				tempPlayer = (Player*)event->p;
 				tempTile = (Tile*)event->p2;

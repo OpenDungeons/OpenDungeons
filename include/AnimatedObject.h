@@ -30,6 +30,7 @@ class AnimatedObject
 		virtual void setAnimationState(std::string s, bool loop = true);
 
 		virtual double getAnimationSpeedFactor();
+		virtual void setAnimationSpeedFactor(double f);
 
 		std::deque<Ogre::Vector3> walkQueue;
 

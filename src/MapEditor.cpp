@@ -120,7 +120,7 @@ void MapEditor::createScene(void)
 	new TextRenderer();
 
 	// Display some text
-	TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 10, 10, 50, 70, Ogre::ColourValue::Green);
+	TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140, 10, 50, 70, Ogre::ColourValue::Green);
 
     //try-catch really needed here?
 	try

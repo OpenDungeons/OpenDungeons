@@ -436,27 +436,32 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		int tempX, tempY;
 		unsigned int tempUnsigned;
 		double tempDouble, tempDouble2;
-		bool releaseRenderQueueBarrier = false;
+		bool releaseRenderQueueBarrier;
 
 		// Remove the first item from the render queue
 		sem_wait(&renderQueueSemaphore);
 
 		// Verify that the renderQueue still contains items, this can happen because the check at the top
 		// of the loop is not semaphore protected and is therefore subject to a race condition.
+		RenderRequest *curReq;
 		if(renderQueue.size() == 0)
 		{
+			// If the renderQueue now contains 0 objects we should process this object and then
+			// release any of the other threads which were waiting on a renderQueue flush.
+			//FIXME: Noting is actually being done based on this, this should be used to implement a function making it easy to allow functions to wait on this.
+			releaseRenderQueueBarrier = true;
+
 			sem_post(&renderQueueSemaphore);
 			break;
 		}
+		else
+		{
+			releaseRenderQueueBarrier = false;
 
-		RenderRequest *curReq = renderQueue.front();
-		renderQueue.pop_front();
-
-		// If the renderQueue now contains 0 objects we should process this object and then
-		// release any of the other threads which were waiting on a renderQueue flush.
-		releaseRenderQueueBarrier = (renderQueue.size() == 0);
-
-		sem_post(&renderQueueSemaphore);
+			curReq = renderQueue.front();
+			renderQueue.pop_front();
+			sem_post(&renderQueueSemaphore);
+		}
 
 		// Switch based on the type of render request we are processing
 		switch(curReq->type)

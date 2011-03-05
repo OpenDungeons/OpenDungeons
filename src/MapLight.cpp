@@ -12,7 +12,9 @@ void MapLight::initialize()
 	ogreEntityExists = false;
 
 	std::stringstream tempSS;
-	tempSS << "Map_light_ " << lightNumber;
+	sem_wait(&lightNumberLockSemaphore);
+	tempSS << "Map_light_ " << lightNumber++;
+	sem_post(&lightNumberLockSemaphore);
 	name = tempSS.str();
 
 	thetaX = 0.0;
@@ -21,8 +23,6 @@ void MapLight::initialize()
 	factorX = 1;
 	factorY = 1;
 	factorZ = 1;
-
-	lightNumber++;
 }
 
 MapLight::MapLight()
