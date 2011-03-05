@@ -37,14 +37,14 @@ class Tile
 
 		// Public functions
 		Tile();
-		Tile(int nX, int nY, TileType nType, int nFullness);
+		Tile(int nX, int nY, TileType nType, double nFullness);
 		void initialize();
 
 		void setType(TileType t);
 		TileType getType();
 
-		void setFullness(int f);
-		int getFullness();
+		void setFullness(double f);
+		double getFullness();
 		int getFullnessMeshNumber();
 		TileClearType getTilePassability();
 		bool permitsVision();
@@ -107,7 +107,7 @@ class Tile
 		// Private datamembers
 		TileType type;
 		bool selected, markedForDigging;
-		int fullness;  //FIXME: Consider making this a double, make sure it doesn't break anything first though.
+		double fullness;
 		sem_t fullnessLockSemaphore;
 		int fullnessMeshNumber;
 		std::vector<Tile*> neighbors;

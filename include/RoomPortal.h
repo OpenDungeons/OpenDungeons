@@ -26,6 +26,8 @@ class RoomPortal : public Room
 
 		std::vector< pair<CreatureClass*,double> > classProbabilities;
 		double xCenter, yCenter;
+
+		RoomObject *portalObject;
 };
 
 #endif

@@ -6,17 +6,17 @@ RoomPortal::RoomPortal()
 {
 	type = portal;
 	spawnCreatureCountdown = 0;
+	portalObject = NULL;
 }
 
 void RoomPortal::createMeshes()
 {
 	Room::createMeshes();
 
-	RoomObject *tempRoomObject = loadRoomObject("PortalObject");
+	portalObject = loadRoomObject("PortalObject");
 	createRoomObjectMeshes();
 
-	//FIXME: This is a hack for now, when the portal has its animation renamed to Idle this can be removed.
-	tempRoomObject->setAnimationState("Walk");
+	portalObject->setAnimationState("Idle");
 }
 
 void RoomPortal::addCoveredTile(Tile* t, double nHP)
@@ -76,6 +76,9 @@ void RoomPortal::spawnCreature()
 {
 	cout << "\n\n\n\n\nPortal: " << getName() << "  spawn creature...\n";
 	CreatureClass *classToSpawn = NULL;
+
+	if(portalObject != NULL)
+		portalObject->setAnimationState("Spawn", false);
 
 	// If the room has been destroyed, or has not yet been assigned any tiles, then we
 	// cannot determine where to place the new creature and we should just give up.
