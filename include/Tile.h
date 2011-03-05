@@ -118,6 +118,7 @@ class Tile
 		Room *coveringRoom;
 		sem_t coveringRoomLockSemaphore;
 		MapLight *claimLight;
+		sem_t claimLightLockSemaphore;
 		bool meshesExist;
 
 		int color;

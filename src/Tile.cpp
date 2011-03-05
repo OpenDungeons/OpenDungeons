@@ -14,6 +14,7 @@ void Tile::initialize()
 	sem_init(&fullnessLockSemaphore, 0, 1);
 	sem_init(&coveringRoomLockSemaphore, 0, 1);
 	sem_init(&neighborsLockSemaphore, 0, 1);
+	sem_init(&claimLightLockSemaphore, 0, 1);
 
 	selected = false;
 	markedForDigging = false;
@@ -27,6 +28,10 @@ void Tile::initialize()
 	sem_wait(&coveringRoomLockSemaphore);
 	coveringRoom = NULL;
 	sem_post(&coveringRoomLockSemaphore);
+
+	sem_wait(&claimLightLockSemaphore);
+	claimLight = NULL;
+	sem_post(&claimLightLockSemaphore);
 
 	meshesExist = false;
 }
@@ -881,6 +886,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 		}
 	}
 
+	sem_wait(&claimLightLockSemaphore);
 	if(amountClaimed > 0.0 && claimLight == NULL)
 	{
 		Ogre::ColourValue tempColour = gameMap.getSeatByColor(nColor)->colourValue;
@@ -888,6 +894,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 		gameMap.addMapLight(claimLight);
 		claimLight->createOgreEntity();
 	}
+	sem_post(&claimLightLockSemaphore);
 
 	if(amountClaimed > 0.0 && amountClaimed < nDanceRate)
 	{

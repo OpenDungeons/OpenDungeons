@@ -523,13 +523,11 @@ creatureActionDoWhileLoop:
 		std::vector<Room*> tempRooms;
 
 		sem_wait(&actionQueueLockSemaphore);
-		bool actionQueueHasEntries = (actionQueue.size() > 0);
-		sem_post(&actionQueueLockSemaphore);
-		if(actionQueueHasEntries)
+		if(actionQueue.size() > 0)
 		{
-			sem_wait(&actionQueueLockSemaphore);
 			CreatureAction topActionItem = actionQueue.front();
 			sem_post(&actionQueueLockSemaphore);
+
 			diceRoll = randomDouble(0.0, 1.0);
 			switch(topActionItem.type)
 			{
@@ -588,7 +586,7 @@ creatureActionDoWhileLoop:
 							if(r < 0.7)
 							{
 								// Try to find a worker to follow around.
-								for(unsigned int i = 0; i < reachableAlliedObjects.size(); i++)
+								for(unsigned int i = 0; !workerFound && i < reachableAlliedObjects.size(); i++)
 								{
 									// Check to see if we found a worker.
 									if(reachableAlliedObjects[i]->getAttackableObjectType() == AttackableObject::creature && \
@@ -596,10 +594,7 @@ creatureActionDoWhileLoop:
 									{
 										// We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
 										tempTile = reachableAlliedObjects[i]->getCoveredTiles()[0];
-										sem_wait(&((Creature*)reachableAlliedObjects[i])->actionQueueLockSemaphore);
-										tempBool = (((Creature*)reachableAlliedObjects[i])->actionQueue.front().type == CreatureAction::digTile);
-										sem_post(&((Creature*)reachableAlliedObjects[i])->actionQueueLockSemaphore);
-										if(tempBool)
+										if(((Creature*)reachableAlliedObjects[i])->peekAction().type == CreatureAction::digTile)
 										{
 											// Worker is digging, get near it since it could expose enemies.
 											tempX = tempTile->x + 3.0*gaussianRandomDouble();
@@ -1572,6 +1567,7 @@ trainBreakStatement:
 		}
 		else
 		{
+			sem_post(&actionQueueLockSemaphore);
 			cerr << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
 			exit(1);
 		}
