@@ -23,7 +23,9 @@ void MissileObject::initialize()
 {
 	static int uniqueNumber = 1;
 	std::stringstream tempSS;
+	sem_wait(&missileObjectUniqueNumberLockSemaphore);
 	tempSS << "Missile_Object_" << uniqueNumber++;
+	sem_post(&missileObjectUniqueNumberLockSemaphore);
 	name = tempSS.str();
 
 	sem_init(&positionLockSemaphore, 0, 1);

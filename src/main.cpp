@@ -20,6 +20,7 @@ GameMap gameMap;
 
 sem_t randomGeneratorLockSemaphore;
 sem_t lightNumberLockSemaphore;
+sem_t missileObjectUniqueNumberLockSemaphore;
 
 std::deque<RenderRequest*> renderQueue;
 sem_t renderQueueSemaphore;
@@ -73,6 +74,7 @@ int main(int argc, char **argv)
 
 	sem_init(&randomGeneratorLockSemaphore, 0, 1);
 	sem_init(&lightNumberLockSemaphore, 0, 1);
+	sem_init(&missileObjectUniqueNumberLockSemaphore, 0, 1);
 	seedRandomNumberGenerator();
 	sem_init(&renderQueueSemaphore, 0, 1);
 	sem_init(&renderQueueEmptySemaphore, 0, 0);

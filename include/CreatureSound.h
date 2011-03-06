@@ -32,6 +32,7 @@ class CreatureSound
 
     void play(SoundType type);
     void playDelayed(SoundType type);
+    void setPosition(Ogre::Vector3 p);
     void setPosition(float x, float y, float z);
     private:
     CreatureSound();

@@ -23,6 +23,11 @@ void CreatureSound::play(SoundType type)
     sounds[type].Play();
 }
 
+void CreatureSound::setPosition(Ogre::Vector3 p)
+{
+	setPosition(p.x, p.y, p.z);
+}
+
 /*! \brief Set the play position for the sound source.
  *
  */
@@ -35,3 +40,4 @@ void CreatureSound::setPosition(float x, float y, float z)
         it->SetPosition(x, y, z);
     }
 }
+

@@ -20,6 +20,7 @@ extern SceneManager* mSceneMgr;
 extern std::deque<RenderRequest*> renderQueue;
 extern sem_t randomGeneratorLockSemaphore;
 extern sem_t lightNumberLockSemaphore;
+extern sem_t missileObjectUniqueNumberLockSemaphore;
 extern sem_t renderQueueSemaphore;
 extern sem_t renderQueueEmptySemaphore;
 extern ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;

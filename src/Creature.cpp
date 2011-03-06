@@ -962,11 +962,8 @@ claimTileBreakStatement:
 							wasANeighbor = true;
 
 							//Set sound position and play dig sound.
-	                        sem_wait(&positionLockSemaphore);
-	                        sound->setPosition(position.x, position.y, position.z);
-	                        sem_post(&positionLockSemaphore);
-
-	                        sound->play(CreatureSound::DIG);
+							sound->setPosition(getPosition());
+							sound->play(CreatureSound::DIG);
 							break;
 						}
 					}
@@ -1431,10 +1428,7 @@ trainBreakStatement:
 
 						//Play attack sound
 						//TODO - syncronise with animation
-				        sem_wait(&positionLockSemaphore);
-				        sound->setPosition(position.x, position.y, position.z);
-				        sem_post(&positionLockSemaphore);
-
+						sound->setPosition(getPosition());
 						sound->play(CreatureSound::ATTACK);
 
 						// Calculate how much damage we do.
