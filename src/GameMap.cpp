@@ -2253,7 +2253,7 @@ double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 {
 	int dx = x2-x1;
 	int dy = y2-y1;
-	return sqrt(dx*dx + dy*dy);
+	return sqrt(static_cast<double>(dx*dx + dy*dy));
 }
 
 /** \brief Returns an auto-incremented number for use in the flood fill algorithm used to determine walkability.

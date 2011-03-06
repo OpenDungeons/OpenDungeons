@@ -106,23 +106,31 @@ IF( WIN32 )
         LINK_LIBRARIES( "ws2_32" shlwapi )
     ENDIF( )
 ENDIF()
+
+find_package(OGRE REQUIRED)
 #Find boost and link | not used, but ogre needs an include file from here under mingw
 #Needs to be updated with use of new boost release
-if(MINGW)
+#if(MINGW)
 	set(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.43.0 1.43 1.44.0 1.44 1.45.0 1.45) 
 	set(Boost_USE_MULTITHREADED ON)
 	set(Boost_USE_STATIC_LIBS   OFF)
-	find_package( Boost COMPONENTS thread REQUIRED)
+	if( WIN32 )
+		include_directories(${ENV_OGRE_HOME}/boost_1_44)
+#		set(BOOST_ROOT ${ENV_OGRE_HOME}/boost_1_44)
+		LINK_DIRECTORIES(${ENV_OGRE_HOME}/boost_1_44/lib)
+	endif()
+	find_package( Boost COMPONENTS thread)
 	#if(Boost_FOUND)
 		include_directories(${Boost_INCLUDE_DIRS})
 	#	if ( WIN32 )
 	#		link_directories(${Boost_LIBRARY_DIRS}) ##Needed because VS wants to autolink
 	#	endif()
-	#	link_libraries(${Boost_LIBRARIES})
-	#endif()
+	if(Boost_FOUND)
+		link_libraries(${Boost_LIBRARIES})
+	endif()
 	#TODO - should we have some error handling here?
 	#Todo- move this to where the other link dirs are specified
-endif()
+#endif()
 link_directories(${CEGUI_LIB_DIR})
 
 
@@ -156,7 +164,7 @@ endif()
 ADD_SUBDIRECTORY( src )
 #configuration files
 
-find_package(OGRE REQUIRED)
+
 
 #Make a copy for use in the build directory, and later one copy for installing.
 set(OPENDUNGEONS_MEDIA_DIR ${CMAKE_CURRENT_BINARY_DIR})
