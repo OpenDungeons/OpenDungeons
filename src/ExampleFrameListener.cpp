@@ -824,7 +824,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				// the base node.  This node carries the light itself.
 				node2 = node->createChildSceneNode(tempString + "_flicker_node");
 				node2->attachObject(light);
-				//TODO: Post a creation finished semaphore for the light if necessary.
 				break;
 
 			case RenderRequest::destroyMapLight:
@@ -1692,7 +1691,6 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg, OIS::MouseBu
 		TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "");
 
 		// If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
-		//TODO:  This should probably contain a check to see if we are in a game.
 		Tile *curTile = gameMap.getTile(xPos, yPos);
 		if(curTile != NULL)
 		{
@@ -1877,7 +1875,6 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 
 			// If we are adding new rooms the above loop will have pruned out the tiles not eligible
 			// for adding rooms to.  This block then actually adds rooms to the remaining tiles.
-			//TODO:  Make this check to make sure we have enough gold to create the room.
 			if(mDragType == ExampleFrameListener::addNewRoom && affectedTiles.size() > 0)
 			{
 				int newRoomColor = 0, goldRequired = 0;
@@ -1923,14 +1920,16 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 			//TODO:  Make this check to make sure we have enough gold to create the traps.
 			if(mDragType == ExampleFrameListener::addNewTrap && affectedTiles.size() > 0)
 			{
+				int goldRequired = 0;
 				// Delete everything but the last tile in the affected tiles as this is close to where we let go of the mouse.
 				std::vector<Tile*> tempVector(affectedTiles);
 				tempVector.push_back(affectedTiles[affectedTiles.size()-1]);
 
 				Seat *mySeat = NULL;
-				if(serverSocket != NULL || clientSocket != NULL)
+				if(serverSocket != NULL || clientSocket != NULL || (gameMap.getTotalGoldForColor(gameMap.me->seat->color) >= goldRequired))
 				{
-					gameMap.withdrawFromTreasuries(Trap::costPerTile(Trap::cannon), gameMap.me->seat->color);
+					goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
+					gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->seat->color);
 					mySeat = gameMap.me->seat;
 				}
 
