@@ -1463,8 +1463,24 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 		// If the error has accumulated to the next tile, "increment" the y coordinate
 		if (E > 0)
 		{
+			// Also add the tile for this y-value for the next row over so that the line of sight consists of a 4-connected
+			// path (i.e. you can traverse the path without ever having to move "diagonal" on the square grid).
+			currentTile = getTile(xDraw+1, y);
+			if(currentTile != NULL)
+			{
+				path.push_back(currentTile);
+			}
+			else
+			{
+				// This should fix a bug where creatures "cut across" null sections of the map if they can see the other side.
+				path.clear();
+				return path;
+			}
+
+			// Now increment y to the value it will be for the next x-value.
 			E += TwoDyTwoDx; //E += 2*Dy - 2*Dx;
 			y = y + ystep;
+
 		}
 		else
 		{

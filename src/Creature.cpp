@@ -395,6 +395,7 @@ void Creature::doTurn()
 	bool tempBool;
 	int tempInt;
 	unsigned int tempUnsigned;
+	double tempDouble;
 	//Creature *tempCreature;
 	AttackableObject *tempAttackableObject;
 	CreatureAction tempAction;
@@ -455,7 +456,12 @@ void Creature::doTurn()
 		// If we are not already fighting with a creature or maneuvering then start doing so.
 		if(!alreadyFighting)
 		{
-			if(randomDouble(0.0, 1.0) < 0.8 - digRate/50.0)
+			if(isWorker())
+				tempDouble = 0.35;
+			else
+				tempDouble = 0.8;
+
+			if(randomDouble(0.0, 1.0) < tempDouble)
 			{
 				tempAction.type = CreatureAction::maneuver;
 				battleFieldAgeCounter = 0;
@@ -481,7 +487,7 @@ void Creature::doTurn()
 	}
 
 	// If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-	if(homeTile != NULL && 100.0*powl(randomDouble(0.0, 0.8), 2) > awakeness && peekAction().type != CreatureAction::sleep)
+	if(!isWorker() && homeTile != NULL && 100.0*powl(randomDouble(0.0, 0.8), 2) > awakeness && peekAction().type != CreatureAction::sleep)
 	{
 		tempAction.type = CreatureAction::sleep;
 		pushAction(tempAction);
@@ -629,7 +635,13 @@ creatureActionDoWhileLoop:
 									unsigned int tileIndex = visibleTiles.size() * randomDouble(0.1, 0.3);
 									myTile = positionTile();
 									tempPath = gameMap.path(myTile, visibleTiles[tileIndex], tilePassability);
-									setWalkPath(tempPath, 2, false);
+									if(setWalkPath(tempPath, 2, false))
+									{
+										setAnimationState("Walk");
+										pushAction(CreatureAction::walkToTile);
+										//loopBack = true;
+										break;
+									}
 								}
 
 							}
@@ -652,8 +664,13 @@ creatureActionDoWhileLoop:
 						}
 
 						gameMap.cutCorners(result, tilePassability);
-						setWalkPath(result, 2, false);
-						setAnimationState("Walk");
+						if(setWalkPath(result, 2, false))
+						{
+							//loopBack = true;
+							setAnimationState("Walk");
+							pushAction(CreatureAction::walkToTile);
+							break;
+						}
 					}
 					break;
 
@@ -1036,6 +1053,7 @@ claimTileBreakStatement:
 							gameMap.cutCorners(walkPath, tilePassability);
 							if(setWalkPath(walkPath, 2, false))
 							{
+								//loopBack = true;
 								setAnimationState("Walk");
 								pushAction(CreatureAction::walkToTile);
 								break;
@@ -1128,7 +1146,7 @@ claimTileBreakStatement:
 							{
 								setAnimationState("Walk");
 								pushAction(CreatureAction::walkToTile);
-								loopBack = true;
+								//loopBack = true;
 								break;
 							}
 						}
@@ -1226,7 +1244,7 @@ claimTileBreakStatement:
 						{
 							setAnimationState("Walk");
 							pushAction(CreatureAction::walkToTile);
-							loopBack = true;
+							//loopBack = true;
 							break;
 						}
 					}
@@ -1246,8 +1264,13 @@ claimTileBreakStatement:
 						// Walk to the the home tile.
 						tempPath = gameMap.path(myTile, homeTile, tilePassability);
 						gameMap.cutCorners(tempPath, tilePassability);
-						setWalkPath(tempPath, 2, false);
-						setAnimationState("Walk");
+						if(setWalkPath(tempPath, 2, false))
+						{
+							setAnimationState("Walk");
+							pushAction(CreatureAction::walkToTile);
+							//loopBack = true;
+							break;
+						}
 					}
 					else
 					{
@@ -1361,6 +1384,9 @@ claimTileBreakStatement:
 					if(tempPath.size() < maxTrainDistance && setWalkPath(tempPath, 2, false))
 					{
 						setAnimationState("Walk");
+						//loopBack = true;
+						pushAction(CreatureAction::walkToTile);
+						goto trainBreakStatement;
 					}
 					else
 					{
