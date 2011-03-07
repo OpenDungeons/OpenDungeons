@@ -457,7 +457,7 @@ void Creature::doTurn()
 		if(!alreadyFighting)
 		{
 			if(isWorker())
-				tempDouble = 0.35;
+				tempDouble = 0.05;
 			else
 				tempDouble = 0.8;
 

@@ -30,7 +30,7 @@ textBox->setMetricsMode(Ogre::GMM_PIXELS);
 textBox->setPosition(x, y);
 textBox->setWidth(width);
 textBox->setHeight(height);
-textBox->setParameter("font_name", "MyFont");
+textBox->setParameter("font_name", "FreeMono");
 textBox->setParameter("char_height", "16");
 textBox->setColour(color);
 
