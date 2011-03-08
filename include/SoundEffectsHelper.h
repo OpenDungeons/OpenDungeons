@@ -8,7 +8,6 @@
 //#include <OgreOggISound.h>
 #include <SFML/Audio.hpp>
 #include <vector>
-#include <iostream>
 #include <OgreSharedPtr.h>
 
 //Forward declarations
@@ -58,7 +57,7 @@ private:
 	//OgreOggSound::OgreOggSoundManager& soundManager;
 
 
-	typedef std::vector<sf::SoundBuffer> SoundFXBufferVector;
+	typedef std::vector<Ogre::SharedPtr<sf::SoundBuffer> > SoundFXBufferVector;
 
 
 

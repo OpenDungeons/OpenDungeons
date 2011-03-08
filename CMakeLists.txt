@@ -24,9 +24,49 @@ SET( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR} )
 
 
 # Declare external dependencies
-SET( Required_Packages OIS OGRE CEGUI CEGUIOGRE OpenAL )
+SET( Required_Packages OIS OGRE OpenAL )
 
 INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include )
+
+IF( NOT WIN32 )
+  # Add compiler warnings
+  ADD_DEFINITIONS( "-Wall -Wunused -ansi -Wno-deprecated" )
+ENDIF( )
+IF( WIN32 )
+
+        SET( PTHREADS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/pthreads/include/" )
+        INCLUDE_DIRECTORIES( ${PTHREADS_INCLUDE_DIR} )
+        SET( PTHREADS_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/pthreads/lib/" )
+        LINK_DIRECTORIES( ${PTHREADS_LIBRARY_DIRS} )
+    IF( MSVC_IDE )
+        IF( EXISTS $ENV{OGRE_HOME} )
+            SET( OGRESDK $ENV{OGRE_HOME} )
+            STRING( REGEX REPLACE "[\\]" "/" OGRESDK "${OGRESDK}" )
+            MESSAGE( STATUS "Adding Additional Link Directories" )
+            LINK_DIRECTORIES( ${OGRESDK}/lib )
+        ENDIF( )
+
+        SET( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc /SUBSYSTEM:WINDOWS /ENTRY:\"main\"" )
+        SET( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI" )
+
+        SET( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
+        SET( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
+        SET( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
+
+
+        LINK_LIBRARIES( "pthreadVC2.lib" )
+        #link to shlwapi to get appdata path
+        LINK_LIBRARIES( "ws2_32.lib" shlwapi)
+        MESSAGE( STATUS "Using win pthreads" )
+    ENDIF()
+    IF(MINGW)
+        LINK_LIBRARIES( "libpthreadGC2.a" )
+        LINK_LIBRARIES( "ws2_32" shlwapi )
+    ENDIF( )
+ENDIF()
+
+ADD_SUBDIRECTORY( src )
+
 
 # Copy the configuration files to the binary directory
 #IF( WIN32 )
@@ -70,101 +110,14 @@ INCLUDE_DIRECTORIES( ${CMAKE_SOURCE_DIR}/include )
 
 set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE_DIR}/debian/")
 
-IF( NOT WIN32 )
-  # Add compiler warnings
-  ADD_DEFINITIONS( "-Wall -Wunused -ansi -Wno-deprecated" )
-ENDIF( )
-IF( WIN32 )
-
-        SET( PTHREADS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/pthreads/include/" )
-        INCLUDE_DIRECTORIES( ${PTHREADS_INCLUDE_DIR} )
-        SET( PTHREADS_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/pthreads/lib/" )
-        LINK_DIRECTORIES( ${PTHREADS_LIBRARY_DIRS} )
-    IF( MSVC_IDE )
-        IF( EXISTS $ENV{OGRE_HOME} )
-            SET( OGRESDK $ENV{OGRE_HOME} )
-            STRING( REGEX REPLACE "[\\]" "/" OGRESDK "${OGRESDK}" )
-            MESSAGE( STATUS "Adding Additional Link Directories" )
-            LINK_DIRECTORIES( ${OGRESDK}/lib )
-        ENDIF( )
-
-        SET( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc /SUBSYSTEM:WINDOWS /ENTRY:\"main\"" )
-        SET( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI" )
-
-        SET( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
-        SET( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
-        SET( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
 
 
-        LINK_LIBRARIES( "pthreadVC2.lib" )
-        #link to shlwapi to get appdata path
-        LINK_LIBRARIES( "ws2_32.lib" shlwapi)
-        MESSAGE( STATUS "Using win pthreads" )
-    ENDIF()
-    IF(MINGW)
-        LINK_LIBRARIES( "libpthreadGC2.a" )
-        LINK_LIBRARIES( "ws2_32" shlwapi )
-    ENDIF( )
-ENDIF()
-
-find_package(OGRE REQUIRED)
-#Find boost and link | not used, but ogre needs an include file from here under mingw
-#Needs to be updated with use of new boost release
-#if(MINGW)
-	set(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.43.0 1.43 1.44.0 1.44 1.45.0 1.45) 
-	set(Boost_USE_MULTITHREADED ON)
-	set(Boost_USE_STATIC_LIBS   OFF)
-	if( WIN32 )
-		include_directories(${ENV_OGRE_HOME}/boost_1_44)
-#		set(BOOST_ROOT ${ENV_OGRE_HOME}/boost_1_44)
-		LINK_DIRECTORIES(${ENV_OGRE_HOME}/boost_1_44/lib)
-	endif()
-	find_package( Boost COMPONENTS thread)
-	#if(Boost_FOUND)
-		include_directories(${Boost_INCLUDE_DIRS})
-	#	if ( WIN32 )
-	#		link_directories(${Boost_LIBRARY_DIRS}) ##Needed because VS wants to autolink
-	#	endif()
-	if(Boost_FOUND)
-		link_libraries(${Boost_LIBRARIES})
-	endif()
-	#TODO - should we have some error handling here?
-	#Todo- move this to where the other link dirs are specified
-#endif()
-link_directories(${CEGUI_LIB_DIR})
+#find_package(OGRE REQUIRED)
 
 
 INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
 
-#link_libraries(OgreOggSound boost_thread-mt)
-#if( NOT WIN32 )
-#	message(STATUS ${OGREOGGSOUND_LIBRARY})
-#	link_libraries(${OGREOGGSOUND_LIBRARY})
-#endif ()
-
-#Link and include sfml
-find_package(SFML REQUIRED)
-
-link_libraries(${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG})
-if( UNIX )
-#Needed for gentoo as the libraries are build with "--as-needed", possibly also other distros
-	link_libraries(${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG})
-endif()
-
-include_directories(${SFML_AUDIO_INCLUDE_DIR})
-#FIXME workaround , for some reason the include 
-#path got chopped off at the end when generating eclipse projects
-#not sure if i should change this back or not
-if(MINGW)
-	set(SFMLINCLUDEFIX ${SFML_AUDIO_INCLUDE_DIR}clude)
-	include_directories(${SFMLINCLUDEFIX})
-endif()
-
-
-ADD_SUBDIRECTORY( src )
 #configuration files
-
-
 
 #Make a copy for use in the build directory, and later one copy for installing.
 set(OPENDUNGEONS_MEDIA_DIR ${CMAKE_CURRENT_BINARY_DIR})

@@ -92,30 +92,52 @@ void MapEditor::createScene(void)
 	light->setAttenuation(20, 0.15, 0.15, 0.017);
 	node->attachObject(light);
 
+	try {
 	// Setup CEGUI
-	mRenderer = &CEGUI::OgreRenderer::create();
-	mSystem = &CEGUI::System::create(*mRenderer,0, 0, 0, 0, "",
-	        mResourcePath + "CEGUI.log");
+		mRenderer = &CEGUI::OgreRenderer::create();
+
+
+		mSystem = &CEGUI::System::create(*mRenderer,0, 0, 0, 0, "",
+				mResourcePath + "CEGUI.log");
+
 
 	// Show the mouse cursor
 
-	CEGUI::DefaultResourceProvider* rp =
-	        static_cast<CEGUI::DefaultResourceProvider*>(
-	                CEGUI::System::getSingleton().getResourceProvider());
-	rp->setDefaultResourceGroup("default");
-	//Set resource path, remove trailing slash just in case, as cegui adds an extra one.
-	//FIXME - should use ogreresourceprovider, but have to fix paths in resource files first
-	rp->setResourceGroupDirectory("default",
-	        mResourcePath.substr(0, mResourcePath.size() - 2).c_str());
-
-	Ogre::String schemePath("Media/gui/OpenDungeonsSkin.scheme");
-	CEGUI::SchemeManager::getSingleton().create(schemePath);
-	mSystem->setDefaultMouseCursor((CEGUI::utf8*)"OpenDungeons", (CEGUI::utf8*)"MouseArrow");
-	//default font shouldn't be needed anymore with new layout
-	//mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
-	CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
-    CEGUI::System::getSingleton().setDefaultTooltip( (CEGUI::utf8*)"OD/Tooltip" );
-
+		CEGUI::DefaultResourceProvider* rp =
+				static_cast<CEGUI::DefaultResourceProvider*>(
+						CEGUI::System::getSingleton().getResourceProvider());
+		rp->setDefaultResourceGroup("default");
+		//Set resource path, remove trailing slash just in case, as cegui adds an extra one.
+		//FIXME - should use ogreresourceprovider, but have to fix paths in resource files first
+		rp->setResourceGroupDirectory("default",
+				mResourcePath.substr(0, mResourcePath.size() - 2).c_str());
+		//TODO - use ogre resource manager instead of hardcoding path
+		Ogre::String schemePath("Media/gui/OpenDungeonsSkin.scheme");
+		CEGUI::SchemeManager::getSingleton().create(schemePath);
+		mSystem->setDefaultMouseCursor((CEGUI::utf8*)"OpenDungeons", (CEGUI::utf8*)"MouseArrow");
+		//default font shouldn't be needed anymore with new layout
+		//mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
+		CEGUI::MouseCursor::getSingleton().setImage(CEGUI::System::getSingleton().getDefaultMouseCursor());
+		CEGUI::System::getSingleton().setDefaultTooltip( (CEGUI::utf8*)"OD/Tooltip" );
+	}
+	catch ( CEGUI::Exception e )
+	{
+		Ogre::LogManager::getSingletonPtr()->logMessage("Error initializing CEGUI:");
+		CEGUI::String err = e.getMessage();
+		Ogre::LogManager::getSingletonPtr()->logMessage(err.c_str());
+		Ogre::LogManager::getSingletonPtr()->logMessage(e.getName().c_str());
+		Ogre::LogManager::getSingletonPtr()->logMessage(e.getFileName().c_str());
+		err = e.getLine();
+		Ogre::LogManager::getSingletonPtr()->logMessage(err.c_str());
+		
+		exit(1);
+	}
+	catch ( std::exception e )
+	{
+		Ogre::LogManager::getSingletonPtr()->logMessage("Error initializing CEGUI (STL Exception):");
+		Ogre::LogManager::getSingletonPtr()->logMessage(e.what());
+		exit(1);
+	}
 	// Create the singleton for the TextRenderer class
 	new TextRenderer();
 

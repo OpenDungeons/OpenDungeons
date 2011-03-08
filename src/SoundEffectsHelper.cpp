@@ -46,38 +46,41 @@ void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
     //OgreOggSound::OgreOggSoundManager::getSingleton().init("", 100, 64, mSceneMgr);
     //assert(SoundEffectsHelper::getSingletonPtr() == 0);
     // Hardcoded for now
-    const Ogre::String digFolder = soundFolderPath + "/RocksFalling/";
-    digSoundBuffers.push_back(sf::SoundBuffer());
-    digSoundBuffers.back().LoadFromFile(digFolder + "RocksFalling01.ogg");
-    digSoundBuffers.push_back(sf::SoundBuffer());
-    digSoundBuffers.back().LoadFromFile(digFolder + "RocksFalling02.ogg");
-    digSoundBuffers.push_back(sf::SoundBuffer());
-    digSoundBuffers.back().LoadFromFile(digFolder + "RocksFalling03.ogg");
-    digSoundBuffers.push_back(sf::SoundBuffer());
-    digSoundBuffers.back().LoadFromFile(digFolder + "RocksFalling04.ogg");
-    digSoundBuffers.push_back(sf::SoundBuffer());
-    digSoundBuffers.back().LoadFromFile(digFolder + "RocksFalling05.ogg");
-    digSoundBuffers.push_back(sf::SoundBuffer());
-    digSoundBuffers.back().LoadFromFile(digFolder + "RocksFalling06.ogg");
-    digSoundBuffers.push_back(sf::SoundBuffer());
-    digSoundBuffers.back().LoadFromFile(digFolder + "RocksFalling07.ogg");
+    Ogre::String digFolder = soundFolderPath + "/RocksFalling/";
+	sf::SoundBuffer testBuff; 
+	testBuff.LoadFromFile(digFolder + "RocksFalling01.ogg");
+	for(int i = 0; i < 7; ++i)
+	{
+		digSoundBuffers.push_back(Ogre::SharedPtr<sf::SoundBuffer>(
+			new sf::SoundBuffer()));
+	}
+	//digSoundBuffers.assign(7, sf::SoundBuffer());
+	digSoundBuffers[0]->LoadFromFile(digFolder + "RocksFalling01.ogg");
+    digSoundBuffers[1]->LoadFromFile(digFolder + "RocksFalling02.ogg");
+    digSoundBuffers[2]->LoadFromFile(digFolder + "RocksFalling03.ogg");
+    digSoundBuffers[3]->LoadFromFile(digFolder + "RocksFalling04.ogg");
+    digSoundBuffers[4]->LoadFromFile(digFolder + "RocksFalling05.ogg");
+    digSoundBuffers[5]->LoadFromFile(digFolder + "RocksFalling06.ogg");
+    digSoundBuffers[6]->LoadFromFile(digFolder + "RocksFalling07.ogg");
 
 
     for(unsigned i = 0; i < digSoundBuffers.size(); ++i)
     {
         digSounds.push_back(sf::Sound());
-        digSounds[i].SetBuffer(digSoundBuffers[i]);
+        digSounds[i].SetBuffer(*digSoundBuffers[i].get());
     }
 
-    interfaceSoundBuffers.push_back(sf::SoundBuffer());
-    interfaceSoundBuffers.back().LoadFromFile(soundFolderPath + "/Click/click.ogg");
+	interfaceSoundBuffers.push_back(
+		Ogre::SharedPtr<sf::SoundBuffer>(new sf::SoundBuffer()));
+    interfaceSoundBuffers.back()->LoadFromFile(soundFolderPath + "/Click/click.ogg");
 
 
 
     //Replacement sound for now
     while(interfaceSounds.size() < NUM_INTERFACE_SOUNDS)
     {
-        interfaceSounds.push_back(sf::Sound(interfaceSoundBuffers.back()));
+		interfaceSounds.push_back(
+			sf::Sound(*interfaceSoundBuffers.back()));
         //These sounds are not positioned, this disables
         //Spatialisation for the sound.
         interfaceSounds.back().SetAttenuation(0);
@@ -86,9 +89,13 @@ void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
 
     creatureSoundBuffers["Default"] = SoundFXBufferVector();
     SoundFXBufferVector& buffers = creatureSoundBuffers["Default"];
-    buffers.assign(CreatureSound::NUM_CREATURE_SOUNDS, sf::SoundBuffer());
-    buffers[CreatureSound::ATTACK].LoadFromFile(soundFolderPath + "/Sword/SwordBlock01.ogg");
-    buffers[CreatureSound::DIG].LoadFromFile(soundFolderPath + "/Digging/Digging01.ogg");
+	for(int i = 0; i < CreatureSound::NUM_CREATURE_SOUNDS; ++i)
+	{
+		buffers.push_back(Ogre::SharedPtr<sf::SoundBuffer>(
+			new sf::SoundBuffer()));
+	}
+    buffers[CreatureSound::ATTACK]->LoadFromFile(soundFolderPath + "/Sword/SwordBlock01.ogg");
+    buffers[CreatureSound::DIG]->LoadFromFile(soundFolderPath + "/Digging/Digging01.ogg");
     //buffers[CreatureSound::DROP].LoadFromFile(soundFolderPath + "/Click/click.ogg);
 }
 
@@ -147,7 +154,7 @@ Ogre::SharedPtr<CreatureSound> SoundEffectsHelper::createCreatureSound(const std
     Ogre::SharedPtr<CreatureSound> sound(new CreatureSound());
     SoundFXVector& soundVector = sound->sounds;
     SoundFXBufferVector& buffers = creatureSoundBuffers["Default"];
-    soundVector[CreatureSound::ATTACK].SetBuffer(buffers[CreatureSound::ATTACK]);
-    soundVector[CreatureSound::DIG].SetBuffer(buffers[CreatureSound::DIG]);
+    soundVector[CreatureSound::ATTACK].SetBuffer(*buffers[CreatureSound::ATTACK].get());
+    soundVector[CreatureSound::DIG].SetBuffer(*buffers[CreatureSound::DIG].get());
     return sound;
 }
