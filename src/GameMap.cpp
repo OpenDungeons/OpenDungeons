@@ -504,6 +504,24 @@ AnimatedObject* GameMap::getAnimatedObject(int index)
 	return tempAnimatedObject;
 }
 
+AnimatedObject* GameMap::getAnimatedObject(string name)
+{
+	AnimatedObject *tempAnimatedObject = NULL;
+
+	sem_wait(&animatedObjectsLockSemaphore);
+	for(unsigned int i = 0; i < animatedObjects.size(); i++)
+	{
+		if(animatedObjects[i]->getName().compare(name) == 0)
+		{
+			tempAnimatedObject = animatedObjects[i];
+			break;
+		}
+	}
+	sem_post(&animatedObjectsLockSemaphore);
+
+	return tempAnimatedObject;
+}
+
 unsigned int GameMap::numAnimatedObjects()
 {
 	sem_wait(&animatedObjectsLockSemaphore);

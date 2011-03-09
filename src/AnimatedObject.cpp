@@ -69,27 +69,16 @@ void AnimatedObject::addDestination(double x, double y, double z)
 	}
 	sem_post(&walkQueueLockSemaphore);
 
-	/*
-	   //FIXME: This code needs to be made generic rather than creature class specific.
 	if(serverSocket != NULL)
 	{
-		try
-		{
-			// Place a message in the queue to inform the clients about the new destination
-			ServerNotification *serverNotification = new ServerNotification;
-			serverNotification->type = ServerNotification::creatureAddDestination;
-			serverNotification->str = name;
-			serverNotification->vec = destination;
+		// Place a message in the queue to inform the clients about the new destination
+		ServerNotification *serverNotification = new ServerNotification;
+		serverNotification->type = ServerNotification::animatedObjectAddDestination;
+		serverNotification->str = getName();
+		serverNotification->vec = destination;
 
-			queueServerNotification(serverNotification);
-		}
-		catch(bad_alloc&)
-		{
-			cerr << "\n\nERROR:  bad alloc in AnimatedObject::addDestination\n\n";
-			exit(1);
-		}
+		queueServerNotification(serverNotification);
 	}
-	*/
 }
 
 /*! \brief Replaces a object's current walk queue with a new path.
