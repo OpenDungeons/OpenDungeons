@@ -80,7 +80,7 @@ if( WIN32 )
 	include_directories(${ENV_OGRE_HOME}/boost_1_44)
 #		set(BOOST_ROOT ${ENV_OGRE_HOME}/boost_1_44)
 	LINK_DIRECTORIES(${ENV_OGRE_HOME}/boost_1_44/lib)
-	MESSAGE( STATUS ${ENV_OGRE_HOME} )
+#	MESSAGE( STATUS ${ENV_OGRE_HOME} )
 endif()
 find_package( Boost COMPONENTS thread)
 #if(Boost_FOUND)
@@ -125,6 +125,12 @@ FOREACH( Package ${Required_Packages} )
     MESSAGE( STATUS "${Package} not found" )
   ENDIF( )
 ENDFOREACH( )
+
+#TODO is there a more direct way of doing this?
+IF(${OGRE_FOUND} AND UNIX)
+	SET(OPENDUNGEONS_OGRELIBDIR ${OGRE_LIBRARY_DIR_REL} PARENT_SCOPE)
+	MESSAGE(STATUS ${OPENDUNGEONS_OGRELIBDIR})
+ENDIF()
 
 #Link cegui
 target_link_libraries(${PROJECT_BINARY_NAME} ${CEGUI_LIBRARIES})

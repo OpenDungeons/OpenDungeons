@@ -112,7 +112,7 @@ set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE
 
 
 
-#find_package(OGRE REQUIRED)
+
 
 
 INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
@@ -125,15 +125,19 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRE
 
 #configure settings files
 
+
+
 if ( WIN32 )
 	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ".")
 	set(OPENDUNGEONS_DATA_PATH ".")
 	set(OPENDUNGEONS_DATA_DEST ".")
 #TODO - check if this allways will be right
 else ()
+
+
 	#only use d3d renderer plugins if we are on windows
 	set(OPENDUNGEONS_COMMENT_D3D "#" )
-	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ${OGRE_LIBRARY_DIR_REL}/OGRE)
+	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ${OPENDUNGEONS_OGRELIBDIR}/OGRE)
 	
 	set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
 	set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST})
