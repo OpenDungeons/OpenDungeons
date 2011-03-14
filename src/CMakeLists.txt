@@ -1,5 +1,9 @@
-SET(
-     SRC
+##################################
+#### Source files ################
+##################################
+
+set(
+     OD_SOURCEFILES
      ActiveObject.cpp
      AttackableObject.cpp
      AnimatedObject.cpp
@@ -32,6 +36,8 @@ SET(
      Room.cpp
      RoomDojo.cpp
      RoomDungeonTemple.cpp
+
+
      RoomForge.cpp
      RoomObject.cpp
      RoomPortal.cpp
@@ -51,120 +57,136 @@ SET(
      Weapon.cpp
    )
 
-#FIXME this should be in the find script
-find_package(CEGUI REQUIRED)
+
+
+##################################
+#### Library/include directories #
+##################################
+
+# CEGUI
+# FIXME This should be handled by the find script
+
+#Add cegui library dirs.
 link_directories(${CEGUI_LIB_DIR})
-find_package(CEGUIOGRE REQUIRED)
+
 link_directories(${CEGUIOGRE_LIB_DIR})
 include_directories(${CEGUI_INCLUDE_DIR})
 
+# Boost
+link_libraries(${Boost_LIBRARIES})
+include_directories(${Boost_INCLUDE_DIRS})
 
-#find_package(CEGUIOGRE REQUIRED)
-#if( MSVC )
-#SET( LIBSUFFIX "lib" )
-#else ()
-#SET( LIBSUFFIX "a" )
-#endif()
-#target_link_libraries(${PROJECT_BINARY_NAME} debug "${CEGUI_LIB_DIR}/CEGUIBase_d.${LIBSUFFIX}" optimized 
-#	"${CEGUI_LIB_DIR}/CEGUIBase.${LIBSUFFIX}")
-#target_link_libraries(${PROJECT_BINARY_NAME} debug "${CEGUI_LIB_DIR}/CEGUIOgreRenderer_d.${LIBSUFFIX}" optimized 
-#	"${CEGUI_LIB_DIR}/CEGUIOgreRenderer.${LIBSUFFIX}")
-#FIXME - we are doing this twice
-find_package(OGRE REQUIRED)
-   #Find boost and link 
-#Needs to be updated with use of new boost release
-set(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.43.0 1.43 1.44.0 1.44 1.45.0 1.45) 
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_LIBS   OFF)
-if( WIN32 )
-	include_directories(${ENV_OGRE_HOME}/boost_1_44)
-#		set(BOOST_ROOT ${ENV_OGRE_HOME}/boost_1_44)
-	LINK_DIRECTORIES(${ENV_OGRE_HOME}/boost_1_44/lib)
-#	MESSAGE( STATUS ${ENV_OGRE_HOME} )
-endif()
-find_package( Boost COMPONENTS thread)
-#if(Boost_FOUND)
-	include_directories(${Boost_INCLUDE_DIRS})
-#	if ( WIN32 )
-#		link_directories(${Boost_LIBRARY_DIRS}) ##Needed because VS wants to autolink
-#	endif()
-if(Boost_FOUND)
-	link_libraries(${Boost_LIBRARIES})
-endif()
+#includes only
+include_directories(${SFML_INCLUDE_DIR} ${OGRE_INCLUDE_DIRS} 
+    ${OPENAL_INCLUDE_DIR} ${OIS_INCLUDE_DIRS})
+
 #TODO - should we have some error handling here?
-#Todo- move this to where the other link dirs are specified
-   
-   
-# Create the binary file
-ADD_EXECUTABLE( ${PROJECT_BINARY_NAME} WIN32 ${SRC} )
-# Add install target
 
-if( WIN32 )
-	install(TARGETS ${PROJECT_BINARY_NAME}
-		DESTINATION .
-	) 
-else () #Unix
-	install(TARGETS ${PROJECT_BINARY_NAME}
-		DESTINATION games
-	)
-endif() 
-
-
-# This foreach loads all of the packages specified as required.
-FOREACH( Package ${Required_Packages} )
-  FIND_PACKAGE( ${Package} REQUIRED )
-  IF( ${Package}_FOUND )
-    INCLUDE_DIRECTORIES( ${${Package}_INCLUDE_DIR} )
-    IF( ${Package}_LIBRARIES )
-      TARGET_LINK_LIBRARIES( ${PROJECT_BINARY_NAME} ${${Package}_LIBRARIES} )
-    ELSE( )
-      LINK_DIRECTORIES( ${${Package}_LIBRARY_DIRS} )
-	#LINK_DIRECTORIES( ${${Package}_LIBRARY_DIR} )
-    ENDIF( )
-  ELSE( )
-    MESSAGE( STATUS "${Package} not found" )
-  ENDIF( )
-ENDFOREACH( )
-
-#TODO is there a more direct way of doing this?
-IF(${OGRE_FOUND} AND UNIX)
-	SET(OPENDUNGEONS_OGRELIBDIR ${OGRE_LIBRARY_DIR_REL} PARENT_SCOPE)
-	MESSAGE(STATUS ${OPENDUNGEONS_OGRELIBDIR})
-ENDIF()
-
-#Link cegui
-target_link_libraries(${PROJECT_BINARY_NAME} ${CEGUI_LIBRARIES})
-target_link_libraries(${PROJECT_BINARY_NAME} ${CEGUIOGRE_LIBRARIES})
-
-#Link and include sfml
-find_package(SFML REQUIRED COMPONENTS Audio System)
-
-#Use debug libraries if they exist
-if(${SFML_AUDIO_LIBRARY_SHARED_DEBUG})
-target_link_libraries(${PROJECT_BINARY_NAME} optimized ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
-	optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG} debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG} debug ${SFML_SYSTEM_LIBRARY_SHARED_DEBUG}) 
-else()
-target_link_libraries(${PROJECT_BINARY_NAME} ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
-	 ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG}) 
-endif()
-
-
-
-
-
-
-	
-include_directories(${SFML_INCLUDE_DIR})
-#FIXME workaround , for some reason the include 
-#path got chopped off at the end when generating eclipse projects
-#not sure if i should change this back or not
-#TODO - check if this is still needed
+# FIXME workaround , for some reason the include 
+# path got chopped off at the end when generating eclipse projects
+# not sure if i should change this back or not
+# TODO - check if this is still needed
 if(MINGW)
 	set(SFMLINCLUDEFIX ${SFML_AUDIO_INCLUDE_DIR}clude)
 	include_directories(${SFMLINCLUDEFIX})
 endif()
 
-if( UNIX )
-#Needed for gentoo as the libraries are build with "--as-needed", possibly also other distros
-#	link_libraries(${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG})
+#Pthreads on windows
+if(WIN32)
+    set( PTHREADS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/pthreads/include/" )
+    include_directories( ${PTHREADS_INCLUDE_DIR} )
+    set( PTHREADS_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/pthreads/lib/" )
+    include_directories( ${PTHREADS_LIBRARY_DIRS} )
 endif()
+
+##################################
+#### Binary ######################
+##################################
+   
+# Create the binary file (WIN32 makes sure there is no console window on windows.)
+add_executable( ${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES} )
+
+##################################
+#### Install targets #############
+##################################
+
+# Add install target
+if( WIN32 )
+	install(TARGETS ${PROJECT_BINARY_NAME}
+		DESTINATION .
+	) 
+else () #Linux/BSD
+	install(TARGETS ${PROJECT_BINARY_NAME}
+		DESTINATION games
+	)
+endif() 
+
+##################################
+#### Link libraries ##############
+##################################
+
+# Link libraries
+target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_LIBRARIES} 
+    ${CEGUI_LIBRARIES} ${CEGUIOGRE_LIBRARIES} ${OPENAL_LIBRARY}
+    ${OIS_LIBRARIES} ) 
+    
+# MSVC automatically links boost
+if(NOT MSVC)
+    target_link_libraries(${PROJECT_BINARY_NAME} ${Boost_LIBRARIES})
+endif()
+
+# Link sfml
+# Use debug libraries if they exist
+if(${SFML_AUDIO_LIBRARY_SHARED_DEBUG})
+target_link_libraries(${PROJECT_BINARY_NAME} 
+    optimized ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
+	optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG} 
+	debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG} 
+	debug ${SFML_SYSTEM_LIBRARY_SHARED_DEBUG}
+    ) 
+else()
+target_link_libraries(${PROJECT_BINARY_NAME} 
+    ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
+    ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG}) 
+endif()
+
+#TODO - move compiler defs
+if( NOT WIN32 )
+  # Add compiler warnings
+    add_definitions( "-Wall -Wunused -ansi -Wno-deprecated" )
+endif( )
+# Link pthreads and shlwapi if we are on windows
+if( WIN32 )
+
+
+    if( MSVC_IDE )
+    #TODO - can we remove this?
+#        IF( EXISTS $ENV{OGRE_HOME} )
+#            SET( OGRESDK $ENV{OGRE_HOME} )
+#            STRING( REGEX REPLACE "[\\]" "/" OGRESDK "${OGRESDK}" )
+#            MESSAGE( STATUS "Adding Additional Link Directories" )
+#            LINK_DIRECTORIES( ${OGRESDK}/lib )
+#        ENDIF( )
+
+        #Set some extra compiler flags
+        #TODO - investigate if these are what they should be
+        set( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc /SUBSYSTEM:WINDOWS /ENTRY:\"main\"" )
+        set( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI" )
+
+        set( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
+        set( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
+        set( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
+
+        #Link to pthreads
+        target_link_libraries(${PROJECT_BINARY_NAME} "pthreadVC2.lib" )
+        #link to shlwapi to get appdata path
+        target_link_libraries(${PROJECT_BINARY_NAME} "ws2_32.lib" shlwapi)
+        message( STATUS "Using win pthreads" )
+    endif()
+    if(MINGW)
+        target_link_libraries(${PROJECT_BINARY_NAME} "libpthreadGC2.a" )
+        target_link_libraries(${PROJECT_BINARY_NAME} "ws2_32" shlwapi )
+    endif( )
+endif()
+
+
