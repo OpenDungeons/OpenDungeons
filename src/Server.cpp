@@ -252,17 +252,17 @@ void *serverNotificationProcessor(void *p)
 				sendToAllClients(frameListener, formatCommand("newturn", tempSS.str()));
 				break;
 
-			case ServerNotification::creatureAddDestination:
+			case ServerNotification::animatedObjectAddDestination:
 				tempSS.str("");
 				tempSS << event->str << ":" << event->vec.x << ":" << event->vec.y << ":" << event->vec.z;
 
-				sendToAllClients(frameListener, formatCommand("creatureAddDestination", tempSS.str()));
+				sendToAllClients(frameListener, formatCommand("animatedObjectAddDestination", tempSS.str()));
 				break;
 
 			case ServerNotification::animatedObjectClearDestinations:
 				tempSS.str("");
 				tempSS << event->ani->getName();
-				sendToAllClients(frameListener, formatCommand("creatureClearDestinations", tempSS.str()));
+				sendToAllClients(frameListener, formatCommand("animatedObjectClearDestinations", tempSS.str()));
 				break;
 
 			//NOTE: this code is duplicated in clientNotificationProcessor

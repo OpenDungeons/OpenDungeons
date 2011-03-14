@@ -1,31 +1,24 @@
 # Resource locations to be added to the 'boostrap' path
 # This also contains the minimum you need to use the Ogre example framework
 [Bootstrap]
-Zip=@OPENDUNGEONS_MEDIA_DIR@/Media/packs/OgreCore.zip
+Zip=@OPENDUNGEONS_MEDIA_DIR@/packs/OgreCore.zip
 
 # Resource locations to be added to the default path
 [General]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/fonts
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/materials/programs
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/materials/scripts
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/materials/textures
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/models
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/overlays
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/particle
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/gui
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/DeferredShadingMedia
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/PCZAppMedia
-
-#Zip=Media/packs/cubemap.zip
-#Zip=Media/packs/cubemapsJS.zip
-#Zip=Media/packs/dragon.zip
-#Zip=Media/packs/fresneldemo.zip
-#Zip=Media/packs/ogretestmap.zip
-#Zip=Media/packs/skybox.zip
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/fonts
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/programs
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/scripts
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/textures
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/models
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/overlays
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/particle
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/DeferredShadingMedia
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/PCZAppMedia
 
 [Music]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/music
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/music
 
 [Sound]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/Media/sounds
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/sounds

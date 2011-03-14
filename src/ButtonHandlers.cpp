@@ -3,7 +3,7 @@
 
 bool quitButtonPressed(const CEGUI::EventArgs &e)
 {
-	writeGameMapToFile( ((string)"Media/levels/Test.level" + (string)".out") );
+	writeGameMapToFile( ((string)"levels/Test.level" + (string)".out") );
 	exampleFrameListener->mContinue = false;
 	return true;
 }
