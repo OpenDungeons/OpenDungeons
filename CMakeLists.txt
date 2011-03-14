@@ -186,63 +186,6 @@ endif()
 ##################################
 #### Packaging ###################
 ##################################
-set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE_DIR}/debian/")
-
-
-
-#find_package(OGRE REQUIRED)
-
-
-INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
-
-#configuration files
-
-#Make a copy for use in the build directory, and later one copy for installing.
-set(OPENDUNGEONS_MEDIA_DIR ${CMAKE_CURRENT_BINARY_DIR})
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg)
-
-#configure settings files
-
-if ( WIN32 )
-	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ".")
-	set(OPENDUNGEONS_DATA_PATH ".")
-	set(OPENDUNGEONS_DATA_DEST ".")
-#TODO - check if this allways will be right
-else ()
-	#only use d3d renderer plugins if we are on windows
-	set(OPENDUNGEONS_COMMENT_D3D "#" )
-	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ${OGRE_LIBRARY_DIR_REL}/OGRE)
-	
-	set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
-	set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST})
-endif ()
-set(OPENDUNGEONS_MEDIA_DIR ".")
-
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg)
-if ( UNIX )
-	set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME})
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
-endif ()
-
-set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg)
-
-#Installation
-if (WIN32) #TODO - test
-#install media
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION ${OPENDUNGEONS_DATA_DEST} PATTERN ".svn" EXCLUDE)
-#install plugins.cfg and media.cfg
-	install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
-#install resources.cfg
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
-else()
-#Make sure we ignore .svn files
-	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} DESTINATION ${OPENDUNGEONS_DATA_DEST} PATTERN ".svn" EXCLUDE )
-	install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION games PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-endif()
 
 #Not used at the moment, more flexible to do the deb packages manually
 #TODO - set up for making tarballs
@@ -254,3 +197,4 @@ set(CPACK_GENERATOR "DEB")
 set(CPACK_SOURCE_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.7.1), libois-1.2.0, libsfml-audio1.6, libopenal1, libogremain-1.7.2")
 include(CPack)
+
