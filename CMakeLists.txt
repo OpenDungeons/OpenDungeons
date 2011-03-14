@@ -183,11 +183,9 @@ endif()
 #  ADD_CUSTOM_TARGET( copy-media ALL DEPENDS ${PROJECT_BINARY_DIR}/Media )
 #ENDIF( )
 
-<<<<<<< HEAD
 ##################################
 #### Packaging ###################
 ##################################
-=======
 set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE_DIR}/debian/")
 
 
@@ -245,7 +243,6 @@ else()
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION games PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif()
->>>>>>> dd7703248ce7864c9cb750c8dce589c9346a206a
 
 #Not used at the moment, more flexible to do the deb packages manually
 #TODO - set up for making tarballs
