@@ -44,7 +44,7 @@ void MapEditor::createScene(void)
 	//Initialise sound
 
 	SoundEffectsHelper* sfxh = new SoundEffectsHelper();
-	sfxh->initialiseSound(mResourcePath + "Media/sounds");
+	sfxh->initialiseSound(mResourcePath + "sounds");
 	// Turn on shadows
 	//mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
 	//mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);	// Quality 2
@@ -55,7 +55,7 @@ void MapEditor::createScene(void)
 
 	// Read in the default game map
 	gameMap.levelFileName = "Test";
-	readGameMapFromFile(mResourcePath + "Media/levels/Test.level");
+	readGameMapFromFile(mResourcePath + "levels/Test.level");
 
 	// Create ogre entities for the tiles, rooms, and creatures
 	gameMap.createAllEntities();
@@ -112,7 +112,7 @@ void MapEditor::createScene(void)
 		rp->setResourceGroupDirectory("default",
 				mResourcePath.substr(0, mResourcePath.size() - 2).c_str());
 		//TODO - use ogre resource manager instead of hardcoding path
-		Ogre::String schemePath("Media/gui/OpenDungeonsSkin.scheme");
+		Ogre::String schemePath("gui/OpenDungeonsSkin.scheme");
 		CEGUI::SchemeManager::getSingleton().create(schemePath);
 		mSystem->setDefaultMouseCursor((CEGUI::utf8*)"OpenDungeons", (CEGUI::utf8*)"MouseArrow");
 		//default font shouldn't be needed anymore with new layout
@@ -129,7 +129,7 @@ void MapEditor::createScene(void)
 		Ogre::LogManager::getSingletonPtr()->logMessage(e.getFileName().c_str());
 		err = e.getLine();
 		Ogre::LogManager::getSingletonPtr()->logMessage(err.c_str());
-		
+
 		exit(1);
 	}
 	catch ( std::exception e )
@@ -147,7 +147,7 @@ void MapEditor::createScene(void)
     //try-catch really needed here?
 	try
 	{
-		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"Media/gui/OpenDungeons.layout");
+		CEGUI::Window* sheet = CEGUI::WindowManager::getSingleton().loadWindowLayout((CEGUI::utf8*)"gui/OpenDungeons.layout");
 		mSystem->setGUISheet(sheet);
 
 		CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
@@ -191,7 +191,7 @@ void MapEditor::createScene(void)
 	}
 
 	MusicPlayer* m = new MusicPlayer();
-	m->load(mResourcePath + "Media/music/");
+	m->load(mResourcePath + "music/");
 }
 
 void MapEditor::createFrameListener(void)

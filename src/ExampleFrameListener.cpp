@@ -2148,7 +2148,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
 			// Quit the game
 			case KC_ESCAPE:
-				writeGameMapToFile( ((string)"Media/levels/Test.level" + (string)".out") );
+				writeGameMapToFile( ((string)"levels/Test.level" + (string)".out") );
 				mContinue = false;
 				break;
 
@@ -2406,7 +2406,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			arguments = gameMap.levelFileName;
 		}
 
-		string tempFileName = "Media/levels/" + arguments + ".level";
+		string tempFileName = "levels/" + arguments + ".level";
 		writeGameMapToFile(tempFileName);
 		commandOutput += "\nFile saved to   " + tempFileName + "\n";
 
@@ -2430,9 +2430,9 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 
 			// If the starting point of the string found is equal to the size of the level name minus the extension (.level)
 			if(found == (arguments.size() - 6))
-				tempString = "Media/levels/" + arguments;
+				tempString = "levels/" + arguments;
 			else
-				tempString = "Media/levels/" + arguments + ".level";
+				tempString = "levels/" + arguments + ".level";
 
 			if(serverSocket != NULL)
 			{
@@ -2868,7 +2868,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				size_t found2;
 				string suffix = ".level";
 				string suffix2 = ".level.";
-				tempVector = listAllFiles("./Media/levels/");
+				tempVector = listAllFiles("./levels/");
 				for(unsigned int j = 0; j < tempVector.size(); j++)
 				{
 					found = tempVector[j].find(suffix);
@@ -3266,7 +3266,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		if(gameMap.seatIsAWinner(gameMap.me->seat))
 		{
 			gameMap.loadNextLevel = true;
-			commandOutput += (string)"\nLoading level Media/levels/" + gameMap.nextLevel + ".level\n";
+			commandOutput += (string)"\nLoading level levels/" + gameMap.nextLevel + ".level\n";
 		}
 		else
 		{
@@ -3291,12 +3291,12 @@ string ExampleFrameListener::getHelpText(string arg)
 
 	if(arg.compare("save") == 0)
 	{
-		return "Save the current level to a file.  The file name is given as an argument to the save command, if no file name is given the last file loaded is overwritten by the save command.\n\nExample:\n" + prompt + "save Test\n\nThe above command will save the level to Media/levels/Test.level.  The Test level is loaded automatically when OpenDungeons starts.";
+		return "Save the current level to a file.  The file name is given as an argument to the save command, if no file name is given the last file loaded is overwritten by the save command.\n\nExample:\n" + prompt + "save Test\n\nThe above command will save the level to levels/Test.level.  The Test level is loaded automatically when OpenDungeons starts.";
 	}
 
 	else if(arg.compare("load") == 0)
 	{
-		return "Load a level from a file.  The new level replaces the current level.  The levels are stored in the Media/levels/ directory and have a .level extension on the end.  Both the directory and the .level extension are automatically applied for you, if no file name is given the last file loaded is reloaded.\n\nExample:\n" + prompt + "load Level1\n\nThe above command will load the file Level1.level from the Media/levels directory.";
+		return "Load a level from a file.  The new level replaces the current level.  The levels are stored in the levels directory and have a .level extension on the end.  Both the directory and the .level extension are automatically applied for you, if no file name is given the last file loaded is reloaded.\n\nExample:\n" + prompt + "load Level1\n\nThe above command will load the file Level1.level from the levels directory.";
 	}
 
 	else if(arg.compare("addclass") == 0)
