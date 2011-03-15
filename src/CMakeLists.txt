@@ -72,9 +72,11 @@ link_directories(${CEGUI_LIB_DIR})
 link_directories(${CEGUIOGRE_LIB_DIR})
 include_directories(${CEGUI_INCLUDE_DIR})
 
-# Boost
-link_libraries(${Boost_LIBRARIES})
-include_directories(${Boost_INCLUDE_DIRS})
+if( WIN32 )
+    # Boost
+    link_libraries(${Boost_LIBRARIES})
+    include_directories(${Boost_INCLUDE_DIRS})
+endif()
 
 #includes only
 include_directories(${SFML_INCLUDE_DIR} ${OGRE_INCLUDE_DIRS} 

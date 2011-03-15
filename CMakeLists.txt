@@ -53,7 +53,9 @@ if(WIN32 AND ${OGRE_FOUND})
     set( CMAKE_LIBRARY_PATH ${ENV_OGRE_HOME}/boost_1_44)
     set( CMAKE_INCLUDE_PATH ${ENV_OGRE_HOME}/boost_1_44)
 endif()
-find_package( Boost COMPONENTS thread REQUIRED)
+if(WIN32)
+    find_package( Boost COMPONENTS thread REQUIRED)
+endif()
 
 
 #OpenAL
