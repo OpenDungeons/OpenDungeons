@@ -20,9 +20,9 @@ void TileCoordinateMap::precomputeMap(int sightRadius)
 
 	//TODO: This loop can be made to list the visible region in a spiral pattern so that all of the tiles appear in the tileQueue already sorted.
 	int sightRadiusSquared = sightRadius*sightRadius;
-	for(int i = -1*sightRadius; i <= sightRadius; i++)
+	for(int i = -1*sightRadius; i <= sightRadius; ++i)
 	{
-		for(int j = -1*sightRadius; j <= sightRadius; j++)
+		for(int j = -1*sightRadius; j <= sightRadius; ++j)
 		{
 			int rSquared = i*i + j*j;
 			if(rSquared > sightRadiusSquared)

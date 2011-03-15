@@ -142,9 +142,9 @@ void Tile::setFullness(double f)
 		gameMap.doFloodFill(x, y);
 	}
 
-	// 		4 0 7		    180    
-	// 		2 8 3		270  .  90 
-	// 		7 1 5		     0     
+	// 		4 0 7		    180
+	// 		2 8 3		270  .  90
+	// 		7 1 5		     0
 	//
 	bool fillStatus[9];
 	Tile *tempTile = gameMap.getTile(x, y+1);
@@ -193,7 +193,7 @@ void Tile::setFullness(double f)
 		}
 	}
 
-	else if(f > 50 && f <= 75)	
+	else if(f > 50 && f <= 75)
 	{
 		fullnessMeshNumber = 75;
 		switch(fullNeighbors)
@@ -489,7 +489,7 @@ string Tile::tileTypeToString(TileType t)
 		case lava:
 			return "Lava";
 			break;
-			
+
 		case claimed:
 			return "Claimed";
 			break;
@@ -561,7 +561,7 @@ void Tile::refreshMesh()
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::refreshTile;
 	request->p = this;
- 
+
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	queueRenderRequest(request);
 }
@@ -718,7 +718,7 @@ void Tile::setMarkedForDiggingForAllSeats(bool s)
 {
 	setMarkedForDigging(s, gameMap.me);
 
-	for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+	for(unsigned int i = 0; i < gameMap.numPlayers(); ++i)
 		setMarkedForDigging(s, gameMap.getPlayer(i));
 }
 
@@ -730,7 +730,7 @@ bool Tile::getMarkedForDigging(Player *p)
 	bool isMarkedForDigging = false;
 
 	// Loop over any players who have marked this tile and see if 'p' is one of them
-	for(unsigned int i = 0; i < playersMarkingTile.size(); i++)
+	for(unsigned int i = 0; i < playersMarkingTile.size(); ++i)
 	{
 		if(playersMarkingTile[i] == p)
 		{
@@ -825,7 +825,7 @@ void Tile::addPlayerMarkingTile(Player *p)
 
 void Tile::removePlayerMarkingTile(Player *p)
 {
-	for(unsigned int i = 0; i < playersMarkingTile.size(); i++)
+	for(unsigned int i = 0; i < playersMarkingTile.size(); ++i)
 	{
 		if(p == playersMarkingTile[i])
 		{
@@ -883,7 +883,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 			// The tile is not yet claimed, but it is now our color.
 			colorDouble *= -1.0;
 			color = nColor;
-			
+
 			if(colorDouble >= 1.0)
 			{
 				colorDouble = 1.0;
@@ -913,7 +913,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 		// Distribute the remaining amount left to claim out amongst the neighbor tiles.
 		sem_wait(&neighborsLockSemaphore);
 		amountToClaim /= (double)neighbors.size();
-		for(unsigned int j = 0; j < neighbors.size(); j++)
+		for(unsigned int j = 0; j < neighbors.size(); ++j)
 		{
 			if(neighbors[j]->getType() == dirt || neighbors[j]->getType() == claimed)
 			{
@@ -926,7 +926,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
 		}
 		sem_post(&neighborsLockSemaphore);
 	}
-	
+
 	return amountClaimed;
 }
 
@@ -960,7 +960,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 	// Force all the neighbors to recheck their meshes as we may have exposed
 	// a new side that was not visible before.
 	sem_wait(&neighborsLockSemaphore);
-	for(unsigned int j = 0; j < neighbors.size(); j++)
+	for(unsigned int j = 0; j < neighbors.size(); ++j)
 	{
 		neighbors[j]->setFullness(neighbors[j]->getFullness());
 	}
@@ -974,7 +974,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 
 		sem_wait(&neighborsLockSemaphore);
 		amountToDig /= (double)neighbors.size();
-		for(unsigned int j = 0; j < neighbors.size(); j++)
+		for(unsigned int j = 0; j < neighbors.size(); ++j)
 		{
 			if(neighbors[j]->getType() == dirt)
 			{

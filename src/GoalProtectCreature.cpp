@@ -25,10 +25,10 @@ bool GoalProtectCreature::isMet(Seat *s)
 	else
 	{
 		// The creature is not on the gameMap but it could be in one of the players hands.
-		for(unsigned i = 0; i < gameMap.numPlayers(); i++)
+		for(unsigned i = 0; i < gameMap.numPlayers(); ++i)
 		{
 			tempPlayer = gameMap.getPlayer(i);
-			for(unsigned int j = 0; j < tempPlayer->numCreaturesInHand(); j++)
+			for(unsigned int j = 0; j < tempPlayer->numCreaturesInHand(); ++j)
 			{
 				Creature *tempCreature = tempPlayer->getCreatureInHand(j);
 				if(tempCreature->name == creatureName)
@@ -38,7 +38,7 @@ bool GoalProtectCreature::isMet(Seat *s)
 
 		// The creature could be in my hand.
 		tempPlayer = gameMap.me;
-		for(unsigned int j = 0; j < tempPlayer->numCreaturesInHand(); j++)
+		for(unsigned int j = 0; j < tempPlayer->numCreaturesInHand(); ++j)
 		{
 			Creature *tempCreature = tempPlayer->getCreatureInHand(j);
 			if(tempCreature->name == creatureName)

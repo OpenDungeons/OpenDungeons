@@ -46,9 +46,9 @@ void GameMap::createNewMap(int xSize, int ySize)
 
 	clearAll();
 
-	for(int j = 0; j < ySize; j++)
+	for(int j = 0; j < ySize; ++j)
 	{
-		for(int i = 0; i < xSize; i++)
+		for(int i = 0; i < xSize; ++i)
 		{
 			tempTile = new Tile;
 			tempTile->setType(Tile::dirt);
@@ -139,7 +139,7 @@ void GameMap::clearTiles()
 void GameMap::clearCreatures()
 {
 	sem_wait(&creaturesLockSemaphore);
-	for(unsigned int i = 0; i < creatures.size(); i++)
+	for(unsigned int i = 0; i < creatures.size(); ++i)
 	{
 		removeAnimatedObject(creatures[i]);
 		creatures[i]->deleteYourself();
@@ -154,7 +154,7 @@ void GameMap::clearCreatures()
  */
 void GameMap::clearClasses()
 {
-	for(unsigned int i = 0; i < numClassDescriptions(); i++)
+	for(unsigned int i = 0; i < numClassDescriptions(); ++i)
 	{
 		delete classDescriptions[i];
 	}
@@ -167,7 +167,7 @@ void GameMap::clearClasses()
  */
 void GameMap::clearPlayers()
 {
-	for(unsigned int i = 0; i < numPlayers(); i++)
+	for(unsigned int i = 0; i < numPlayers(); ++i)
 	{
 		delete players[i];
 	}
@@ -194,7 +194,7 @@ void GameMap::addTile(Tile *t)
 {
 	// Notify the neighbor tiles already existing on the GameMap of our existance.
 	bool allNeighborsSameColor = true;
-	for(unsigned int i = 0; i < 4; i++)
+	for(unsigned int i = 0; i < 4; ++i)
 	{
 		int tempX = t->x, tempY = t->y;
 		switch(i)
@@ -238,9 +238,9 @@ std::vector<Tile*> GameMap::rectangularRegion(int x1, int y1, int x2, int y2)
 	if(x1 > x2)  swap(x1, x2);
 	if(y1 > y2)  swap(y1, y2);
 
-	for(int i = x1; i <= x2; i++)
+	for(int i = x1; i <= x2; ++i)
 	{
-		for(int j = y1; j <= y2; j++)
+		for(int j = y1; j <= y2; ++j)
 		{
 			//TODO:  This routine could be sped up by using the neighborTiles function.
 			tempTile = getTile(i, j);
@@ -265,9 +265,9 @@ std::vector<Tile*> GameMap::circularRegion(int x, int y, double radius)
 
 	if(radius < 0.0)  radius = 0.0;
 
-	for(int i = x-radius; i <= x+radius; i++)
+	for(int i = x-radius; i <= x+radius; ++i)
 	{
-		for(int j = y-radius; j <= y+radius; j++)
+		for(int j = y-radius; j <= y+radius; ++j)
 		{
 			//TODO:  This routine could be sped up by using the neighborTiles function.
 			xDist = i - x;
@@ -292,16 +292,16 @@ std::vector<Tile*> GameMap::tilesBorderedByRegion(const std::vector<Tile*> &regi
 	std::vector<Tile*> neighbors, returnList;
 
 	// Loop over all the tiles in the specified region.
-	for(unsigned int i = 0; i < region.size(); i++)
+	for(unsigned int i = 0; i < region.size(); ++i)
 	{
 		// Get the tiles bordering the current tile and loop over them.
 		neighbors = neighborTiles(region[i]);
-		for(unsigned int j = 0; j < neighbors.size(); j++)
+		for(unsigned int j = 0; j < neighbors.size(); ++j)
 		{
 			bool neighborFound = false;
 
 			// Check to see if the current neighbor is one of the tiles in the region.
-			for(unsigned int k = 0; k < region.size(); k++)
+			for(unsigned int k = 0; k < region.size(); ++k)
 			{
 				if(region[k] == neighbors[j])
 				{
@@ -380,7 +380,7 @@ void GameMap::removeCreature(Creature *c)
 	sem_wait(&creaturesLockSemaphore);
 
 	// Loop over the creatures looking for creature c
-	for(unsigned int i = 0; i < creatures.size(); i++)
+	for(unsigned int i = 0; i < creatures.size(); ++i)
 	{
 		if(c == creatures[i])
 		{
@@ -423,7 +423,7 @@ void GameMap::queueCreatureForDeletion(Creature *c)
  */
 CreatureClass* GameMap::getClassDescription(std::string query)
 {
-	for(unsigned int i = 0; i < classDescriptions.size(); i++)
+	for(unsigned int i = 0; i < classDescriptions.size(); ++i)
 	{
 		if(classDescriptions[i]->className.compare(query) == 0)
 			return classDescriptions[i];
@@ -453,7 +453,7 @@ std::vector<Creature*> GameMap::getCreaturesByColor(int color)
 
 	// Loop over all the creatures in the GameMap and add them to the temp vector if their color matches that of the desired seat.
 	sem_wait(&creaturesLockSemaphore);
-	for(unsigned int i = 0; i < creatures.size(); i++)
+	for(unsigned int i = 0; i < creatures.size(); ++i)
 	{
 		if(creatures[i]->color == color)
 			tempVector.push_back(creatures[i]);
@@ -482,7 +482,7 @@ void GameMap::removeAnimatedObject(AnimatedObject *a)
 	sem_wait(&animatedObjectsLockSemaphore);
 
 	// Loop over the animatedObjects looking for animatedObject a
-	for(unsigned int i = 0; i < animatedObjects.size(); i++)
+	for(unsigned int i = 0; i < animatedObjects.size(); ++i)
 	{
 		if(a == animatedObjects[i])
 		{
@@ -509,7 +509,7 @@ AnimatedObject* GameMap::getAnimatedObject(string name)
 	AnimatedObject *tempAnimatedObject = NULL;
 
 	sem_wait(&animatedObjectsLockSemaphore);
-	for(unsigned int i = 0; i < animatedObjects.size(); i++)
+	for(unsigned int i = 0; i < animatedObjects.size(); ++i)
 	{
 		if(animatedObjects[i]->getName().compare(name) == 0)
 		{
@@ -545,7 +545,7 @@ void GameMap::removeActiveObject(ActiveObject *a)
 	sem_wait(&activeObjectsLockSemaphore);
 
 	// Loop over the activeObjects looking for activeObject a
-	for(unsigned int i = 0; i < activeObjects.size(); i++)
+	for(unsigned int i = 0; i < activeObjects.size(); ++i)
 	{
 		if(a == activeObjects[i])
 		{
@@ -606,7 +606,7 @@ void GameMap::createAllEntities()
 	sem_post(&tilesLockSemaphore);
 
 	// Create OGRE entities for the creatures
-	for(unsigned int i = 0; i < numCreatures(); i++)
+	for(unsigned int i = 0; i < numCreatures(); ++i)
 	{
 		Creature *currentCreature = getCreature(i);
 		currentCreature->createMesh();
@@ -615,14 +615,14 @@ void GameMap::createAllEntities()
 	}
 
 	// Create OGRE entities for the map lights.
-	for(unsigned int i = 0; i < numMapLights(); i++)
+	for(unsigned int i = 0; i < numMapLights(); ++i)
 	{
 		MapLight *currentMapLight = getMapLight(i);
 		currentMapLight->createOgreEntity();
 	}
 
 	// Create OGRE entities for the rooms
-	for(unsigned int i = 0; i < numRooms(); i++)
+	for(unsigned int i = 0; i < numRooms(); ++i)
 	{
 		Room *currentRoom = getRoom(i);
 		currentRoom->createMeshes();
@@ -642,7 +642,7 @@ void GameMap::destroyAllEntities()
 	sem_post(&tilesLockSemaphore);
 
 	// Destroy OGRE entities for the creatures
-	for(unsigned int i = 0; i < numCreatures(); i++)
+	for(unsigned int i = 0; i < numCreatures(); ++i)
 	{
 		Creature *currentCreature = getCreature(i);
 		currentCreature->weaponL->destroyMesh();
@@ -651,14 +651,14 @@ void GameMap::destroyAllEntities()
 	}
 
 	// Destroy OGRE entities for the map lights.
-	for(unsigned int i = 0; i < numMapLights(); i++)
+	for(unsigned int i = 0; i < numMapLights(); ++i)
 	{
 		MapLight *currentMapLight = getMapLight(i);
 		currentMapLight->destroyOgreEntity();
 	}
 
 	// Destroy OGRE entities for the rooms
-	for(unsigned int i = 0; i < numRooms(); i++)
+	for(unsigned int i = 0; i < numRooms(); ++i)
 	{
 		Room *currentRoom = getRoom(i);
 		currentRoom->destroyMeshes();
@@ -674,12 +674,12 @@ Creature* GameMap::getCreature(std::string cName)
 	Creature *returnValue = NULL;
 
 	sem_wait(&creaturesLockSemaphore);
-	for(unsigned int i = 0; i < creatures.size(); i++)
+	for(unsigned int i = 0; i < creatures.size(); ++i)
 	{
 		if(creatures[i]->name.compare(cName) == 0)
 		{
 			returnValue = creatures[i];
-			break; 
+			break;
 		}
 	}
 	sem_post(&creaturesLockSemaphore);
@@ -697,7 +697,7 @@ void GameMap::doTurn()
 
 	// Compute the moving window average of how much extra time was left over after the previous doTurn() calls finished.
 	averageAILeftoverTime = 0.0;
-	for(tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); tempUnsigned++)
+	for(tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); ++tempUnsigned)
 		averageAILeftoverTime += previousLeftoverTimes[tempUnsigned];
 
 	if(previousLeftoverTimes.size() > 0)
@@ -820,7 +820,7 @@ unsigned long int GameMap::doMiscUpkeep()
 
 	// Loop over all the filled seats in the game and check all the unfinished goals for each seat.
 	// Add any seats with no remaining goals to the winningSeats vector.
-	for(unsigned int i = 0; i < numFilledSeats(); i++)
+	for(unsigned int i = 0; i < numFilledSeats(); ++i)
 	{
 		// Check the previously completed goals to make sure they are still met.
 		filledSeats[i]->checkAllCompletedGoals();
@@ -845,7 +845,7 @@ unsigned long int GameMap::doMiscUpkeep()
 
 	// Count how many of each color kobold there are.
 	std::map<int,int> koboldColorCounts;
-	for(unsigned int i = 0; i < numCreatures(); i++)
+	for(unsigned int i = 0; i < numCreatures(); ++i)
 	{
 		sem_wait(&creaturesLockSemaphore);
 		Creature *tempCreature = creatures[i];
@@ -861,7 +861,7 @@ unsigned long int GameMap::doMiscUpkeep()
 	// Count how many dungeon temples each color controls.
 	std::vector<Room*> dungeonTemples = getRoomsByType(Room::dungeonTemple);
 	std::map<int,int> dungeonTempleColorCounts;
-	for(unsigned int i = 0; i < dungeonTemples.size(); i++)
+	for(unsigned int i = 0; i < dungeonTemples.size(); ++i)
 	{
 		int color = dungeonTemples[i]->color;
 		dungeonTempleColorCounts[color]++;
@@ -883,7 +883,7 @@ unsigned long int GameMap::doMiscUpkeep()
 	}
 
 	// Loop back over all the dungeon temples and for each one decide if it should try to produce a kobold.
-	for(unsigned int i = 0; i < dungeonTemples.size(); i++)
+	for(unsigned int i = 0; i < dungeonTemples.size(); ++i)
 	{
 		RoomDungeonTemple *dungeonTemple = (RoomDungeonTemple*)dungeonTemples[i];
 		int color = dungeonTemple->color;
@@ -912,7 +912,7 @@ unsigned long int GameMap::doMiscUpkeep()
 
 	// Remove empty rooms from the GameMap.
 	//NOTE:  The auto-increment on this loop is canceled by a decrement in the if statement, changes to the loop structure will need to keep this consistent.
-	for(unsigned int i = 0; i < numRooms(); i++)
+	for(unsigned int i = 0; i < numRooms(); ++i)
 	{
 		Room *tempRoom = getRoom(i);
 		//tempRoom->doUpkeep(tempRoom);
@@ -928,7 +928,7 @@ unsigned long int GameMap::doMiscUpkeep()
 
 	// Carry out the upkeep round for each seat.  This means recomputing how much gold is
 	// available in their treasuries, how much mana they gain/lose during this turn, etc.
-	for(unsigned int i = 0; i < filledSeats.size(); i++)
+	for(unsigned int i = 0; i < filledSeats.size(); ++i)
 	{
 		tempSeat = filledSeats[i];
 
@@ -945,10 +945,10 @@ unsigned long int GameMap::doMiscUpkeep()
 
 	// Determine the number of tiles claimed by each seat.
 	// Begin by setting the number of claimed tiles for each seat to 0.
-	for(unsigned int i = 0; i < filledSeats.size(); i++)
+	for(unsigned int i = 0; i < filledSeats.size(); ++i)
 		filledSeats[i]->setNumClaimedTiles(0);
 
-	for(unsigned int i = 0; i < emptySeats.size(); i++)
+	for(unsigned int i = 0; i < emptySeats.size(); ++i)
 		emptySeats[i]->setNumClaimedTiles(0);
 
 	// Now loop over all of the tiles, if the tile is claimed increment the given seats count.
@@ -973,7 +973,7 @@ unsigned long int GameMap::doMiscUpkeep()
 
 				// Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
 				std::vector<Tile*> neighbors = neighborTiles(currentTile->second);
-				for(unsigned int i = 0; i < neighbors.size(); i++)
+				for(unsigned int i = 0; i < neighbors.size(); ++i)
 				{
 					if(neighbors[i]->getType() == Tile::dirt && neighbors[i]->getFullness() < 1)// && neighbors[i]->colorDouble < 0.8)
 						neighbors[i]->claimForColor(tempSeat->color, 0.04);
@@ -998,7 +998,7 @@ unsigned long int GameMap::doCreatureTurns()
 	sem_wait(&creaturesLockSemaphore);
 	unsigned int arraySize = creatures.size();
 	Creature **creatureArray = new Creature*[arraySize];
-	for(unsigned int i = 0; i < creatures.size() && i < arraySize; i++)
+	for(unsigned int i = 0; i < creatures.size() && i < arraySize; ++i)
 		creatureArray[i] = creatures[i];
 	sem_post(&creaturesLockSemaphore);
 
@@ -1006,7 +1006,7 @@ unsigned long int GameMap::doCreatureTurns()
 	unsigned int numThreads = min((unsigned int)maxAIThreads, arraySize);
 	CDTHTStruct *threadParams = new CDTHTStruct[numThreads];
 	pthread_t *threads = new pthread_t[numThreads];
-	for(unsigned int i = 0; i < numThreads; i++)
+	for(unsigned int i = 0; i < numThreads; ++i)
 	{
 		int startCreature = i*(arraySize/numThreads);
 		int endCreature;
@@ -1022,7 +1022,7 @@ unsigned long int GameMap::doCreatureTurns()
 		pthread_create(&threads[i], NULL, GameMap::creatureDoTurnHelperThread, &threadParams[i]);
 	}
 
-	for(unsigned int i = 0; i < numThreads; i++)
+	for(unsigned int i = 0; i < numThreads; ++i)
 	{
 		pthread_join(threads[i], NULL);
 	}
@@ -1041,7 +1041,7 @@ void *GameMap::creatureDoTurnHelperThread(void *p)
 	CDTHTStruct *params = (CDTHTStruct*)p;
 
 	//cout << *params->creatures;
-	for(int i = 0; i < params->numCreatures; i++)
+	for(int i = 0; i < params->numCreatures; ++i)
 	{
 		if(params->creatures[i]->getHP(NULL) > 0.0)
 			params->creatures[i]->doTurn();
@@ -1137,7 +1137,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 		// Check the tiles surrounding the current square
 		std::vector<Tile*>neighbors = neighborTiles(currentEntry->tile);
 		bool processNeighbor;
-		for(unsigned int i = 0; i < neighbors.size(); i++)
+		for(unsigned int i = 0; i < neighbors.size(); ++i)
 		{
 			neighbor->tile = neighbors[i];
 
@@ -1362,7 +1362,7 @@ Player* GameMap::getPlayer(int index)
  */
 Player* GameMap::getPlayer(std::string pName)
 {
-	for(unsigned int i = 0; i < numPlayers(); i++)
+	for(unsigned int i = 0; i < numPlayers(); ++i)
 	{
 		if(players[i]->nick.compare(pName) == 0)
 		{
@@ -1464,7 +1464,7 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 			xDraw = x;
 			yDraw = y;
 		}
-		
+
 		// If the tile exists, add it to the path.
 		Tile *currentTile = getTile(xDraw, yDraw);
 		if(currentTile != NULL)
@@ -1615,7 +1615,7 @@ std::vector<AttackableObject*> GameMap::getVisibleForce(std::vector<Tile*> visib
 	{
 		//TODO: Implement Tile::getAttackableObject() to let you list all attackableObjects in the tile in a single list.
 		// Loop over the creatures in the given tile
-		for(unsigned int i = 0; i < (*itr)->numCreaturesInCell(); i++)
+		for(unsigned int i = 0; i < (*itr)->numCreaturesInCell(); ++i)
 		{
 			Creature *tempCreature = (*itr)->getCreature(i);
 			// If it is an enemy
@@ -1640,7 +1640,7 @@ std::vector<AttackableObject*> GameMap::getVisibleForce(std::vector<Tile*> visib
 			{
 				// Check to see if the given room is already in the returnList.
 				bool roomFound = false;
-				for(unsigned int i = 0; i < returnList.size(); i++)
+				for(unsigned int i = 0; i < returnList.size(); ++i)
 				{
 					if(returnList[i] == tempRoom)
 					{
@@ -1723,7 +1723,7 @@ void GameMap::cutCorners(std::list<Tile*> &path, Tile::TileClearType passability
 	secondLast--;
 
 	// Loop t1 over all but the last tile in the path
-	while(t1 != path.end()) 
+	while(t1 != path.end())
 	{
 		// Loop t2 from t1 until the end of the path
 		t2 = t1;
@@ -1763,10 +1763,10 @@ void GameMap::cutCorners(std::list<Tile*> &path, Tile::TileClearType passability
 
 /** \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
   *
-*/ 
+*/
 void GameMap::clearRooms()
 {
-	for(unsigned int i = 0; i < rooms.size(); i++)
+	for(unsigned int i = 0; i < rooms.size(); ++i)
 	{
 		Room *tempRoom = getRoom(i);
 		removeActiveObject(tempRoom);
@@ -1778,7 +1778,7 @@ void GameMap::clearRooms()
 
 /** \brief A simple mutator method to add the given Room to the GameMap.
   *
-*/ 
+*/
 void GameMap::addRoom(Room *r)
 {
 	rooms.push_back(r);
@@ -1789,7 +1789,7 @@ void GameMap::removeRoom(Room *r)
 {
 	removeActiveObject(r);
 
-	for(unsigned int i = 0; i < rooms.size(); i++)
+	for(unsigned int i = 0; i < rooms.size(); ++i)
 	{
 		if(r == rooms[i])
 		{
@@ -1802,7 +1802,7 @@ void GameMap::removeRoom(Room *r)
 
 /** \brief A simple accessor method to return the given Room.
   *
-*/ 
+*/
 Room* GameMap::getRoom(int index)
 {
 	return rooms[index];
@@ -1810,7 +1810,7 @@ Room* GameMap::getRoom(int index)
 
 /** \brief A simple accessor method to return the number of Rooms stored in the GameMap.
   *
-*/ 
+*/
 unsigned int GameMap::numRooms()
 {
 	return rooms.size();
@@ -1819,7 +1819,7 @@ unsigned int GameMap::numRooms()
 std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
 {
 	std::vector<Room*> returnList;
-	for(unsigned int i = 0; i < rooms.size(); i++)
+	for(unsigned int i = 0; i < rooms.size(); ++i)
 	{
 		if(rooms[i]->getType() == type)
 			returnList.push_back(rooms[i]);
@@ -1831,7 +1831,7 @@ std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
 std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)
 {
 	std::vector<Room*> returnList;
-	for(unsigned int i = 0; i < rooms.size(); i++)
+	for(unsigned int i = 0; i < rooms.size(); ++i)
 	{
 		if(rooms[i]->getType() == type && rooms[i]->color == color)
 			returnList.push_back(rooms[i]);
@@ -1844,7 +1844,7 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec, Til
 {
 	std::vector<Room*> returnVector;
 
-	for(unsigned int i = 0; i < vec.size(); i++)
+	for(unsigned int i = 0; i < vec.size(); ++i)
 	{
 		if(pathExists(startTile->x, startTile->y, vec[i]->getCoveredTile(0)->x, vec[i]->getCoveredTile(0)->y, passability))
 			returnVector.push_back(vec[i]);
@@ -1855,13 +1855,13 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec, Til
 
 void GameMap::clearTraps()
 {
-	for(unsigned int i = 0; i < traps.size(); i++)
+	for(unsigned int i = 0; i < traps.size(); ++i)
 	{
 		removeActiveObject(traps[i]);
 	}
 
 	/*
-	for(unsigned int i = 0; i < numTraps(); i++)
+	for(unsigned int i = 0; i < numTraps(); ++i)
 	{
 		getTrap(i)->deleteYourself();
 	}
@@ -1880,7 +1880,7 @@ void GameMap::removeTrap(Trap *t)
 {
 	removeActiveObject(t);
 
-	for(unsigned int i = 0; i < traps.size(); i++)
+	for(unsigned int i = 0; i < traps.size(); ++i)
 	{
 		if(t == traps[i])
 		{
@@ -1904,7 +1904,7 @@ int GameMap::getTotalGoldForColor(int color)
 {
 	int tempInt = 0;
 	std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
-	for(unsigned int i = 0; i < treasuriesOwned.size(); i++)
+	for(unsigned int i = 0; i < treasuriesOwned.size(); ++i)
 		tempInt += ((RoomTreasury*)treasuriesOwned[i])->getTotalGold();
 
 	return tempInt;
@@ -1920,7 +1920,7 @@ int GameMap::withdrawFromTreasuries(int gold, int color)
 	// Loop over the treasuries withdrawing gold until the full amount has been withdrawn.
 	int goldStillNeeded = gold;
 	std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
-	for(unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; i++)
+	for(unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; ++i)
 		goldStillNeeded -= ((RoomTreasury*)treasuriesOwned[i])->withdrawGold(goldStillNeeded);
 
 	return gold;
@@ -1928,7 +1928,7 @@ int GameMap::withdrawFromTreasuries(int gold, int color)
 
 void GameMap::clearMapLights()
 {
-	for(unsigned int i = 0; i < mapLights.size(); i++)
+	for(unsigned int i = 0; i < mapLights.size(); ++i)
 	{
 		mapLights[i]->deleteYourself();
 	}
@@ -1938,7 +1938,7 @@ void GameMap::clearMapLights()
 
 void GameMap::clearMapLightIndicators()
 {
-	for(unsigned int i = 0; i < mapLights.size(); i++)
+	for(unsigned int i = 0; i < mapLights.size(); ++i)
 		mapLights[i]->destroyOgreEntityVisualIndicator();
 }
 
@@ -1963,7 +1963,7 @@ void GameMap::addMapLight(MapLight *m)
 
 void GameMap::removeMapLight(MapLight *m)
 {
-	for(unsigned int i = 0; i < mapLights.size(); i++)
+	for(unsigned int i = 0; i < mapLights.size(); ++i)
 	{
 		if(mapLights[i] == m)
 		{
@@ -1990,7 +1990,7 @@ MapLight* GameMap::getMapLight(int index)
 
 MapLight* GameMap::getMapLight(std::string name)
 {
-	for(unsigned int i = 0; i < mapLights.size(); i++)
+	for(unsigned int i = 0; i < mapLights.size(); ++i)
 	{
 		if(mapLights[i]->getName() == name)
 			return mapLights[i];
@@ -2006,10 +2006,10 @@ unsigned int GameMap::numMapLights()
 
 /** \brief A simple mutator method to clear the vector of empty Seats stored in the GameMap.
   *
-*/ 
+*/
 void GameMap::clearEmptySeats()
 {
-	for(unsigned int i = 0; i < numEmptySeats(); i++)
+	for(unsigned int i = 0; i < numEmptySeats(); ++i)
 		delete emptySeats[i];
 
 	emptySeats.clear();
@@ -2017,19 +2017,19 @@ void GameMap::clearEmptySeats()
 
 /** \brief A simple mutator method to add another empty Seat to the GameMap.
   *
-*/ 
+*/
 void GameMap::addEmptySeat(Seat *s)
 {
 	emptySeats.push_back(s);
 
 	// Add the goals for all seats to this seat.
-	for(unsigned int i = 0; i < numGoalsForAllSeats(); i++)
+	for(unsigned int i = 0; i < numGoalsForAllSeats(); ++i)
 		s->addGoal(getGoalForAllSeats(i));
 }
 
 /** \brief A simple accessor method to return the given Seat.
   *
-*/ 
+*/
 Seat* GameMap::getEmptySeat(int index)
 {
 	return emptySeats[index];
@@ -2037,7 +2037,7 @@ Seat* GameMap::getEmptySeat(int index)
 
 /** \brief Removes the first empty Seat from the GameMap and returns a pointer to it, this is used when a Player "sits down" at the GameMap.
   *
-*/ 
+*/
 Seat* GameMap::popEmptySeat()
 {
 	Seat *s = NULL;
@@ -2053,7 +2053,7 @@ Seat* GameMap::popEmptySeat()
 
 /** \brief A simple accessor method to return the number of empty Seats on the GameMap.
   *
-*/ 
+*/
 unsigned int GameMap::numEmptySeats()
 {
 	return emptySeats.size();
@@ -2061,7 +2061,7 @@ unsigned int GameMap::numEmptySeats()
 
 void GameMap::clearFilledSeats()
 {
-	for(unsigned int i = 0; i < numFilledSeats(); i++)
+	for(unsigned int i = 0; i < numFilledSeats(); ++i)
 		delete filledSeats[i];
 
 	filledSeats.clear();
@@ -2072,7 +2072,7 @@ void GameMap::addFilledSeat(Seat *s)
 	filledSeats.push_back(s);
 
 	// Add the goals for all seats to this seat.
-	for(unsigned int i = 0; i < numGoalsForAllSeats(); i++)
+	for(unsigned int i = 0; i < numGoalsForAllSeats(); ++i)
 		s->addGoal(getGoalForAllSeats(i));
 }
 
@@ -2101,13 +2101,13 @@ unsigned int GameMap::numFilledSeats()
 
 Seat* GameMap::getSeatByColor(int color)
 {
-	for(unsigned int i = 0; i < filledSeats.size(); i++)
+	for(unsigned int i = 0; i < filledSeats.size(); ++i)
 	{
 		if(filledSeats[i]->color == color)
 			return filledSeats[i];
 	}
 
-	for(unsigned int i = 0; i < emptySeats.size(); i++)
+	for(unsigned int i = 0; i < emptySeats.size(); ++i)
 	{
 		if(emptySeats[i]->color == color)
 			return emptySeats[i];
@@ -2119,7 +2119,7 @@ Seat* GameMap::getSeatByColor(int color)
 void GameMap::addWinningSeat(Seat *s)
 {
 	// Make sure the seat has not already been added.
-	for(unsigned int i = 0; i < winningSeats.size(); i++)
+	for(unsigned int i = 0; i < winningSeats.size(); ++i)
 	{
 		if(winningSeats[i] == s)
 			return;
@@ -2141,7 +2141,7 @@ unsigned int GameMap::getNumWinningSeats()
 bool GameMap::seatIsAWinner(Seat *s)
 {
 	bool isAWinner = false;
-	for(unsigned int i = 0; i < getNumWinningSeats(); i++)
+	for(unsigned int i = 0; i < getNumWinningSeats(); ++i)
 	{
 		if(getWinningSeat(i) == s)
 		{
@@ -2158,11 +2158,11 @@ void GameMap::addGoalForAllSeats(Goal *g)
 	goalsForAllSeats.push_back(g);
 
 	// Add the goal to each of the empty seats currently in the game.
-	for(unsigned int i = 0; i < numEmptySeats(); i++)
+	for(unsigned int i = 0; i < numEmptySeats(); ++i)
 		emptySeats[i]->addGoal(g);
 
 	// Add the goal to each of the filled seats currently in the game.
-	for(unsigned int i = 0; i < numFilledSeats(); i++)
+	for(unsigned int i = 0; i < numFilledSeats(); ++i)
 		filledSeats[i]->addGoal(g);
 }
 
@@ -2181,14 +2181,14 @@ void GameMap::clearGoalsForAllSeats()
 	goalsForAllSeats.clear();
 
 	// Add the goal to each of the empty seats currently in the game.
-	for(unsigned int i = 0; i < numEmptySeats(); i++)
+	for(unsigned int i = 0; i < numEmptySeats(); ++i)
 	{
 		emptySeats[i]->clearGoals();
 		emptySeats[i]->clearCompletedGoals();
 	}
 
 	// Add the goal to each of the filled seats currently in the game.
-	for(unsigned int i = 0; i < numFilledSeats(); i++)
+	for(unsigned int i = 0; i < numFilledSeats(); ++i)
 	{
 		filledSeats[i]->clearGoals();
 		filledSeats[i]->clearCompletedGoals();
@@ -2197,11 +2197,11 @@ void GameMap::clearGoalsForAllSeats()
 
 void GameMap::clearMissileObjects()
 {
-	for(unsigned int i = 0; i < missileObjects.size(); i++)
+	for(unsigned int i = 0; i < missileObjects.size(); ++i)
 	{
 		removeActiveObject(missileObjects[i]);
 
-		for(unsigned int j = 0; j < animatedObjects.size(); j++)
+		for(unsigned int j = 0; j < animatedObjects.size(); ++j)
 		{
 			if(missileObjects[i] == animatedObjects[j])
 			{
@@ -2225,7 +2225,7 @@ void GameMap::removeMissileObject(MissileObject *m)
 {
 	removeActiveObject(m);
 
-	for(unsigned int i = 0; i < missileObjects.size(); i++)
+	for(unsigned int i = 0; i < missileObjects.size(); ++i)
 	{
 		if(m == missileObjects[i])
 		{
@@ -2235,7 +2235,7 @@ void GameMap::removeMissileObject(MissileObject *m)
 		}
 	}
 
-	for(unsigned int i = 0; i < animatedObjects.size(); i++)
+	for(unsigned int i = 0; i < animatedObjects.size(); ++i)
 	{
 		if(m == animatedObjects[i])
 		{
@@ -2258,7 +2258,7 @@ unsigned int GameMap::numMissileObjects()
 
 /** \brief Returns the as the crow flies distance between tiles located at the two coordinates
   * given.  If tiles do not exist at these locations the function returns -1.0.
-*/ 
+*/
 double GameMap::crowDistance(Tile *t1, Tile *t2)
 {
 	if(t1 != NULL && t2 != NULL)
@@ -2276,7 +2276,7 @@ double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 
 /** \brief Returns an auto-incremented number for use in the flood fill algorithm used to determine walkability.
   *
-*/ 
+*/
 int GameMap::uniqueFloodFillColor()
 {
 	nextUniqueFloodFillColor++;
@@ -2285,7 +2285,7 @@ int GameMap::uniqueFloodFillColor()
 
 /** \brief Starts at the tile at the given coordinates and paints outward over all the tiles whose passability matches the passability of the seed tile.
   *
-*/ 
+*/
 unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType passability, int color)
 {
 	unsigned int tilesFlooded = 1;
@@ -2310,7 +2310,7 @@ unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType pa
 
 	// Get the current tile's neighbors, loop over each of them.
 	std::vector<Tile*> neighbors = gameMap.neighborTiles(startX, startY);
-	for(unsigned int i = 0; i < neighbors.size(); i++)
+	for(unsigned int i = 0; i < neighbors.size(); ++i)
 	{
 		if(neighbors[i]->floodFillColor != color)
 		{
@@ -2323,7 +2323,7 @@ unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType pa
 
 /** \brief Temporarily disables the flood fill computations on this game map.
   *
-*/ 
+*/
 void GameMap::disableFloodFill()
 {
 	floodFillEnabled = false;
@@ -2331,7 +2331,7 @@ void GameMap::disableFloodFill()
 
 /** \brief Re-enables the flood filling on the game map, also recomputes the painting on the
   * whole map since the passabilities may have changed since the flood filling was disabled.
-*/ 
+*/
 void GameMap::enableFloodFill()
 {
 	Tile *tempTile;
@@ -2368,7 +2368,7 @@ void GameMap::enableFloodFill()
 
 /** \brief <i>Convenience function, calls: path(int, int, int, int, TileClearType)</i>
   *
-*/ 
+*/
 std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability)
 {
 	return path(c1->positionTile()->x, c1->positionTile()->y, c2->positionTile()->x, c2->positionTile()->y, passability);
@@ -2376,7 +2376,7 @@ std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType p
 
 /** \brief <i>Convenience function, calls: path(int, int, int, int, TileClearType)</i>
   *
-*/ 
+*/
 std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability)
 {
 	return path(t1->x, t1->y, t2->x, t2->y, passability);
@@ -2384,7 +2384,7 @@ std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passabili
 
 /** \brief <i>Convenience function, calls: crowDistance(Tile*, Tile*)</i>
   *
-*/ 
+*/
 double GameMap::crowDistance(Creature *c1, Creature *c2)
 {
 	//TODO:  This is sub-optimal, improve it.
@@ -2394,7 +2394,7 @@ double GameMap::crowDistance(Creature *c1, Creature *c2)
 
 /** \brief Increments a semaphore for the given turn indicating how many outstanding references to game asssets have been copied by other functions.
   *
-*/ 
+*/
 void GameMap::threadLockForTurn(long int turn)
 {
 	unsigned int tempUnsigned;
@@ -2423,7 +2423,7 @@ void GameMap::threadLockForTurn(long int turn)
 /** \brief Decrements a semaphore for the given turn indicating how many outstanding references to game asssets there are,
   * when this reaches 0 the turn can be safely retired and assets queued for deletion then can be safely deleted.
   *
-*/ 
+*/
 void GameMap::threadUnlockForTurn(long int turn)
 {
 	unsigned int tempUnsigned;
@@ -2469,7 +2469,7 @@ void GameMap::processDeletionQueues()
 		{
 			// There are no threads which could be holding references to objects from the current turn so it is safe to retire.
 			latestTurnToBeRetired = (*currentThreadReferenceCount).first;
-			std::map<long int, ProtectedObject<unsigned int> >::iterator tempIterator = currentThreadReferenceCount++; 
+			std::map<long int, ProtectedObject<unsigned int> >::iterator tempIterator = currentThreadReferenceCount++;
 			threadReferenceCount.erase(tempIterator);
 		}
 		else
@@ -2481,7 +2481,7 @@ void GameMap::processDeletionQueues()
 
 	// Unlock the thread reference count map.
 	sem_post(&threadReferenceCountLockSemaphore);
-	
+
 	// If we did not find any turns which have no threads locking them we are safe to retire this turn.
 	if(latestTurnToBeRetired < 0)
 		return;

@@ -73,7 +73,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the seats from the level file
 	levelFile >> objectsToLoad;
-	for(int i = 0; i < objectsToLoad; i++)
+	for(int i = 0; i < objectsToLoad; ++i)
 	{
 		tempSeat = new Seat;
 		levelFile >> tempSeat;
@@ -83,7 +83,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
 	levelFile >> objectsToLoad;
-	for(int i = 0; i < objectsToLoad; i++)
+	for(int i = 0; i < objectsToLoad; ++i)
 	{
 		tempGoal = Goal::instantiateFromStream(levelFile);
 
@@ -94,7 +94,7 @@ bool readGameMapFromFile(string fileName)
 	// Read in the map tiles from disk
 	levelFile >> objectsToLoad;
 	gameMap.disableFloodFill();
-	for(int i = 0; i < objectsToLoad; i++)
+	for(int i = 0; i < objectsToLoad; ++i)
 	{
 		//NOTE: This code is duplicated in the client side method
 		//"addclass" defined in src/Client.cpp and readGameMapFromFile.
@@ -118,7 +118,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the rooms
 	levelFile >> objectsToLoad;
-	for(int i = 0; i < objectsToLoad; i++)
+	for(int i = 0; i < objectsToLoad; ++i)
 	{
 		tempRoom = Room::createRoomFromStream(levelFile);
 
@@ -127,7 +127,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the traps
 	levelFile >> objectsToLoad;
-	for(int i = 0; i < objectsToLoad; i++)
+	for(int i = 0; i < objectsToLoad; ++i)
 	{
 		tempTrap = Trap::createTrapFromStream(levelFile);
 		tempTrap->createMeshes();
@@ -137,7 +137,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the lights
 	levelFile >> objectsToLoad;
-	for(int i = 0; i < objectsToLoad; i++)
+	for(int i = 0; i < objectsToLoad; ++i)
 	{
 		tempLight = new MapLight;
 		levelFile >> tempLight;
@@ -147,7 +147,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the creature class descriptions
 	levelFile >> objectsToLoad;
-	for(int i = 0; i < objectsToLoad; i++)
+	for(int i = 0; i < objectsToLoad; ++i)
 	{
 		CreatureClass *tempClass = new CreatureClass;
 		levelFile >> tempClass;
@@ -157,7 +157,7 @@ bool readGameMapFromFile(string fileName)
 
 	// Read in the actual creatures themselves
 	levelFile >> objectsToLoad;
-	for(int i = 0; i < objectsToLoad; i++)
+	for(int i = 0; i < objectsToLoad; ++i)
 	{
 
 		//NOTE: This code is duplicated in the client side method
@@ -187,12 +187,12 @@ void writeGameMapToFile(string fileName)
 	// Write out the seats to the file
 	levelFile << "\n# Seats\n" << gameMap.numEmptySeats()+gameMap.numFilledSeats() << "  # The number of seats to load.\n";
 	levelFile << "# " << Seat::getFormat() << "\n";
-	for(unsigned int i = 0; i < gameMap.numEmptySeats(); i++)
+	for(unsigned int i = 0; i < gameMap.numEmptySeats(); ++i)
 	{
 		levelFile << gameMap.getEmptySeat(i);
 	}
 
-	for(unsigned int i = 0; i < gameMap.numFilledSeats(); i++)
+	for(unsigned int i = 0; i < gameMap.numFilledSeats(); ++i)
 	{
 		levelFile << gameMap.getFilledSeat(i);
 	}
@@ -200,7 +200,7 @@ void writeGameMapToFile(string fileName)
 	// Write out the goals shared by all players to the file.
 	levelFile << "\n# Goals\n" << gameMap.numGoalsForAllSeats() << "  # The number of goals to load.\n";
 	levelFile << "# " << Goal::getFormat() << "\n";
-	for(unsigned int i = 0; i < gameMap.numGoalsForAllSeats(); i++)
+	for(unsigned int i = 0; i < gameMap.numGoalsForAllSeats(); ++i)
 	{
 		levelFile << gameMap.getGoalForAllSeats(i);
 	}
@@ -226,7 +226,7 @@ void writeGameMapToFile(string fileName)
 	// Write out the rooms to the file
 	levelFile << "\n# Rooms\n" << gameMap.numRooms() << "  # The number of rooms to load.\n";
 	levelFile << "# " << Room::getFormat() << "\n";
-	for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+	for(unsigned int i = 0; i < gameMap.numRooms(); ++i)
 	{
 		levelFile << gameMap.getRoom(i) << endl;
 	}
@@ -234,7 +234,7 @@ void writeGameMapToFile(string fileName)
 	// Write out the traps to the file
 	levelFile << "\n# Traps\n" << gameMap.numTraps() << "  # The number of traps to load.\n";
 	levelFile << "# " << Trap::getFormat() << "\n";
-	for(unsigned int i = 0; i < gameMap.numTraps(); i++)
+	for(unsigned int i = 0; i < gameMap.numTraps(); ++i)
 	{
 		levelFile << gameMap.getTrap(i) << endl;
 	}
@@ -242,7 +242,7 @@ void writeGameMapToFile(string fileName)
 	// Write out the lights to the file.
 	levelFile << "\n# Lights\n" << gameMap.numMapLights() << "  # The number of lights to load.\n";
 	levelFile << "# " << MapLight::getFormat() << "\n";
-	for(unsigned int i = 0; i < gameMap.numMapLights(); i++)
+	for(unsigned int i = 0; i < gameMap.numMapLights(); ++i)
 	{
 		levelFile << gameMap.getMapLight(i) << endl;
 	}
@@ -250,7 +250,7 @@ void writeGameMapToFile(string fileName)
 	// Write out the creature descriptions to the file
 	levelFile << "\n# Creature classes\n" << gameMap.numClassDescriptions() << "  # The number of creature classes to load.\n";
 	levelFile << CreatureClass::getFormat() << "\n";
-	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
+	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); ++i)
 	{
 		levelFile << gameMap.getClassDescription(i) << "\n";
 	}
@@ -258,7 +258,7 @@ void writeGameMapToFile(string fileName)
 	// Write out the individual creatures to the file
 	levelFile << "\n# Creatures\n" << gameMap.numCreatures() << "  # The number of creatures to load.\n";
 	levelFile << "# " << Creature::getFormat() << "\n";
-	for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
+	for(unsigned int i = 0; i < gameMap.numCreatures(); ++i)
 	{
 		//NOTE: This code is duplicated in the client side method
 		//"addclass" defined in src/Client.cpp and readGameMapFromFile.
@@ -275,7 +275,7 @@ string forceLowercase(string s)
 {
 	string tempString;
 
-	for(unsigned int i = 0; i < s.size(); i++)
+	for(unsigned int i = 0; i < s.size(); ++i)
 	{
 		tempString += tolower(s[i]);
 	}
@@ -430,7 +430,7 @@ void colourizeEntity(Entity *ent, int colour)
 {
 	// Colorize the the textures
 	// Loop over the sub entities in the mesh
-	for(unsigned int i = 0; i < ent->getNumSubEntities(); i++)
+	for(unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
 	{
 		SubEntity *tempSubEntity = ent->getSubEntity(i);
 		tempSubEntity->setMaterialName(colourizeMaterial(tempSubEntity->getMaterialName(), colour));
@@ -465,7 +465,7 @@ string colourizeMaterial(string materialName, int colour)
 		newMaterial = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(materialName))->clone(tempSS.str());
 
 		// Loop over the techniques for the new material
-		for(unsigned int j = 0; j < newMaterial->getNumTechniques(); j++)
+		for(unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)
 		{
 			tempTechnique = newMaterial->getTechnique(j);
 			if(tempTechnique->getNumPasses() > 0)

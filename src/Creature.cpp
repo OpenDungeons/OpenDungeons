@@ -408,7 +408,7 @@ void Creature::doTurn()
 	if(hp > maxHP)
 		hp = maxHP;
 	sem_post(&hpLockSemaphore);
-	
+
 	// Regenrate mana.
 	sem_wait(&manaLockSemaphore);
 	mana += 0.45;
@@ -443,7 +443,7 @@ void Creature::doTurn()
 		// Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
 		bool alreadyFighting = false;
 		sem_wait(&actionQueueLockSemaphore);
-		for(unsigned int i = 0; i < actionQueue.size(); i++)
+		for(unsigned int i = 0; i < actionQueue.size(); ++i)
 		{
 			if(actionQueue[i].type == CreatureAction::attackObject || actionQueue[i].type == CreatureAction::maneuver)
 			{
@@ -592,7 +592,7 @@ creatureActionDoWhileLoop:
 							if(r < 0.7)
 							{
 								// Try to find a worker to follow around.
-								for(unsigned int i = 0; !workerFound && i < reachableAlliedObjects.size(); i++)
+								for(unsigned int i = 0; !workerFound && i < reachableAlliedObjects.size(); ++i)
 								{
 									// Check to see if we found a worker.
 									if(reachableAlliedObjects[i]->getAttackableObjectType() == AttackableObject::creature && \
@@ -758,7 +758,7 @@ creatureActionDoWhileLoop:
 						//cout << "\nTrying to claim the tile I am standing on.";
 						// Check to see if one of the tile's neighbors is claimed for our color
 						neighbors = gameMap.neighborTiles(myTile);
-						for(unsigned int j = 0; j < neighbors.size(); j++)
+						for(unsigned int j = 0; j < neighbors.size(); ++j)
 						{
 							// Check to see if the current neighbor is already claimed
 							tempTile = neighbors[j];
@@ -793,7 +793,7 @@ creatureActionDoWhileLoop:
 							// The neighbor tile is a potential candidate for claiming, to be an actual candidate
 							// though it must have a neighbor of its own that is already claimed for our side.
 							neighbors2 = gameMap.neighborTiles(tempTile);
-							for(unsigned int i = 0; i < neighbors2.size(); i++)
+							for(unsigned int i = 0; i < neighbors2.size(); ++i)
 							{
 								tempTile2 = neighbors2[i];
 								if(tempTile2->getColor() == color && tempTile2->colorDouble >= 1.0)
@@ -811,7 +811,7 @@ creatureActionDoWhileLoop:
 
 					//cout << "\nLooking at the visible tiles to see if I can claim a tile.";
 					// If we still haven't found a tile to claim, check the rest of the visible tiles
-					for(unsigned int i = 0; i < visibleTiles.size(); i++)
+					for(unsigned int i = 0; i < visibleTiles.size(); ++i)
 					{
 						// if this tile is not fully claimed yet or the tile is of another player's color
 						tempTile = visibleTiles[i];
@@ -819,7 +819,7 @@ creatureActionDoWhileLoop:
 						{
 							// Check to see if one of the tile's neighbors is claimed for our color
 							neighbors = gameMap.neighborTiles(visibleTiles[i]);
-							for(unsigned int j = 0; j < neighbors.size(); j++)
+							for(unsigned int j = 0; j < neighbors.size(); ++j)
 							{
 								tempTile = neighbors[j];
 								if(tempTile->getColor() == color && tempTile->colorDouble >= 1.0)
@@ -847,7 +847,7 @@ creatureActionDoWhileLoop:
 							// Count how many of the candidate tile's neighbors are already claimed.
 							neighbors = gameMap.neighborTiles(tempTile);
 							numNeighborsClaimed = 0;
-							for(unsigned int i = 0; i < neighbors.size(); i++)
+							for(unsigned int i = 0; i < neighbors.size(); ++i)
 							{
 								if(neighbors[i]->getColor() == color && neighbors[i]->colorDouble >= 1.0)
 									numNeighborsClaimed++;
@@ -888,7 +888,7 @@ creatureActionDoWhileLoop:
 						// If we got to this point, the tile we randomly picked cannot be gotten to via a
 						// valid path.  Delete it from the claimable tiles vector and repeat the outer
 						// loop to try to find another valid tile.
-						for(unsigned int i = 0; i < claimableTiles.size(); i++)
+						for(unsigned int i = 0; i < claimableTiles.size(); ++i)
 						{
 						        if(claimableTiles[i] == tempTile)
 						        {
@@ -921,7 +921,7 @@ claimTileBreakStatement:
 					wasANeighbor = false;
 					creatureNeighbors = gameMap.neighborTiles(myTile);
 					tempPlayer = getControllingPlayer();
-					for(unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; i++)
+					for(unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
 					{
 						tempTile = creatureNeighbors[i];
 
@@ -992,10 +992,10 @@ claimTileBreakStatement:
 
 					// Find paths to all of the neighbor tiles for all of the marked visible tiles.
 					possiblePaths.clear();
-					for(unsigned int i = 0; i < markedTiles.size(); i++)
+					for(unsigned int i = 0; i < markedTiles.size(); ++i)
 					{
 						neighbors = gameMap.neighborTiles(markedTiles[i]);
-						for(unsigned int j = 0; j < neighbors.size(); j++)
+						for(unsigned int j = 0; j < neighbors.size(); ++j)
 						{
 							neighborTile = neighbors[j];
 							if(neighborTile != NULL && neighborTile->getFullness() < 1)
@@ -1008,7 +1008,7 @@ claimTileBreakStatement:
 					{
 						// Find the N shortest valid paths, see if there are any valid paths shorter than this first guess
 						shortPaths.clear();
-						for(unsigned int i = 0; i < possiblePaths.size(); i++)
+						for(unsigned int i = 0; i < possiblePaths.size(); ++i)
 						{
 							// If the current path is long enough to be valid
 							unsigned int currentLength = possiblePaths[i].size();
@@ -1024,7 +1024,7 @@ claimTileBreakStatement:
 									// Kick out the longest
 									longestLength = shortPaths[0].size();
 									longestIndex = 0;
-									for(unsigned int j = 1; j < shortPaths.size(); j++)
+									for(unsigned int j = 1; j < shortPaths.size(); ++j)
 									{
 										if(shortPaths[j].size() > longestLength)
 										{
@@ -1106,7 +1106,7 @@ claimTileBreakStatement:
 						tempPath.clear();
 						tempPath2.clear();
 						// Loop over the treasuries to find the closest one.
-						for(unsigned int i = 0; i < treasuriesOwned.size(); i++)
+						for(unsigned int i = 0; i < treasuriesOwned.size(); ++i)
 						{
 							if(!validPathFound)
 							{
@@ -1134,7 +1134,7 @@ claimTileBreakStatement:
 								}
 							}
 						}
-						
+
 						if(validPathFound)
 						{
 							// Begin walking to this treasury.
@@ -1194,7 +1194,7 @@ claimTileBreakStatement:
 					bool validPathFound;  validPathFound = false;
 					tempPath.clear();
 					tempPath2.clear();
-					for(unsigned int i = 0; i < tempRooms.size(); i++)
+					for(unsigned int i = 0; i < tempRooms.size(); ++i)
 					{
 						// Get the list of open rooms at the current quarters and check to see if
 						// there is a place where we could put a bed big enough to sleep in.
@@ -1698,7 +1698,7 @@ std::vector<AttackableObject*> Creature::getReachableAttackableObjects(const std
 	bool minRangeSet = false;
 
 	// Loop over the vector of objects we are supposed to check.
-	for(unsigned int i = 0; i < objectsToCheck.size(); i++)
+	for(unsigned int i = 0; i < objectsToCheck.size(); ++i)
 	{
 		// Try to find a valid path from the tile this creature is in to the nearest tile where the current target object is.
 		//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
@@ -1754,7 +1754,7 @@ std::vector<AttackableObject*> Creature::getEnemyObjectsInRange(const std::vecto
 	weaponRangeSquared *= weaponRangeSquared;
 
 	// Loop over the enemyObjectsToCheck and add any within range to the tempVector.
-	for(unsigned int i = 0; i < enemyObjectsToCheck.size(); i++)
+	for(unsigned int i = 0; i < enemyObjectsToCheck.size(); ++i)
 	{
 		//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
 		Tile *tempTile = enemyObjectsToCheck[i]->getCoveredTiles()[0];
@@ -1787,13 +1787,13 @@ std::vector<Tile*> Creature::getVisibleMarkedTiles()
 	Player *tempPlayer = getControllingPlayer();
 
 	// Loop over all the visible tiles.
-	for(unsigned int i = 0; i < visibleTiles.size(); i++)
+	for(unsigned int i = 0; i < visibleTiles.size(); ++i)
 	{
 		// Check to see if the tile is marked for digging.
 		if(tempPlayer != NULL && visibleTiles[i]->getMarkedForDigging(tempPlayer))
 			tempVector.push_back(visibleTiles[i]);
 	}
-	
+
 	return tempVector;
 }
 
@@ -1815,7 +1815,7 @@ void Creature::createVisualDebugEntities()
 
 	Tile *currentTile = NULL;
 	updateVisibleTiles();
-	for(unsigned int i = 0; i < visibleTiles.size(); i++)
+	for(unsigned int i = 0; i < visibleTiles.size(); ++i)
 	{
 		currentTile = visibleTiles[i];
 
@@ -1981,7 +1981,7 @@ std::string Creature::getStatsText()
 	sem_wait(&actionQueueLockSemaphore);
 	tempSS << "AI State: " << actionQueue.front().toString() << "\n";
 	sem_post(&actionQueueLockSemaphore);
-	return tempSS.str(); 
+	return tempSS.str();
 }
 
 /** \brief Conform: AttackableObject - Returns whether or not this creature is capable of moving.
@@ -2075,7 +2075,7 @@ Player* Creature::getControllingPlayer()
 	}
 
 	// Try to find and return a player with color equal to this creature's
-	for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+	for(unsigned int i = 0; i < gameMap.numPlayers(); ++i)
 	{
 		tempPlayer = gameMap.getPlayer(i);
 		if(tempPlayer->seat->color == color)
@@ -2141,13 +2141,13 @@ void Creature::computeBattlefield()
 	// attack or towards the maximum value to retreat.
 	myTile = positionTile();
 	battleField->clear();
-	for(unsigned int i = 0; i < visibleTiles.size(); i++)
+	for(unsigned int i = 0; i < visibleTiles.size(); ++i)
 	{
 		tempTile = visibleTiles[i];
 		double tileValue = 0.0;// - sqrt(rSquared)/sightRadius;
 
 		// Enemies
-		for(unsigned int j = 0; j < reachableEnemyObjects.size(); j++)
+		for(unsigned int j = 0; j < reachableEnemyObjects.size(); ++j)
 		{
 			// Skip over objects which will not attack us (they either do not attack at all, or they are dead).
 			tempObject = reachableEnemyObjects[j];
@@ -2172,7 +2172,7 @@ void Creature::computeBattlefield()
 		}
 
 		// Allies
-		for(unsigned int j = 0; j < reachableAlliedObjects.size(); j++)
+		for(unsigned int j = 0; j < reachableAlliedObjects.size(); ++j)
 		{
 			//TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
 			Tile *tempTile2 = visibleAlliedObjects[j]->getCoveredTiles()[0];

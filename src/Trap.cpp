@@ -40,7 +40,7 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles, 
 	uniqueNumber--;
 	tempTrap->name = tempSS.str();
 
-	for(unsigned int i = 0; i < nCoveredTiles.size(); i++)
+	for(unsigned int i = 0; i < nCoveredTiles.size(); ++i)
 		tempTrap->addCoveredTile(nCoveredTiles[i]);
 
 	return tempTrap;
@@ -62,7 +62,7 @@ void Trap::createMeshes()
 
 	meshExists = true;
 
-	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < coveredTiles.size(); ++i)
 	{
 		RenderRequest *request = new RenderRequest;
 		request->type = RenderRequest::createTrap;
@@ -81,7 +81,7 @@ void Trap::destroyMeshes()
 
 	meshExists = false;
 
-	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < coveredTiles.size(); ++i)
 	{
 		RenderRequest *request = new RenderRequest;
 		request->type = RenderRequest::destroyTrap;
@@ -174,7 +174,7 @@ void Trap::addCoveredTile(Tile* t, double nHP)
 
 void Trap::removeCoveredTile(Tile* t)
 {
-	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < coveredTiles.size(); ++i)
 	{
 		if(t == coveredTiles[i])
 		{
@@ -297,7 +297,7 @@ istream& operator>>(istream& is, Trap *t)
 	t->name = tempSS.str();
 
 	is >> tilesToLoad;
-	for(int i = 0; i < tilesToLoad; i++)
+	for(int i = 0; i < tilesToLoad; ++i)
 	{
 		is >> tempX >> tempY;
 		Tile *tempTile = gameMap.getTile(tempX, tempY);
@@ -309,7 +309,7 @@ istream& operator>>(istream& is, Trap *t)
 			tempTile->colorDouble = 1.0;
 		}
 	}
-	
+
 	t->type = Trap::getTrapTypeFromMeshName(t->meshName);
 	return is;
 }
@@ -318,7 +318,7 @@ ostream& operator<<(ostream& os, Trap *t)
 {
 	os << t->meshName << "\t" << t->controllingSeat->color << "\n";
 	os << t->coveredTiles.size() << "\n";
-	for(unsigned int i = 0; i < t->coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < t->coveredTiles.size(); ++i)
 	{
 		Tile *tempTile = t->coveredTiles[i];
 		os << tempTile->x << "\t" << tempTile->y << "\n";

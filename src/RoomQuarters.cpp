@@ -16,7 +16,7 @@ void RoomQuarters::absorbRoom(Room *r)
 	((RoomQuarters*)r)->destroyBedMeshes();
 
 	// Copy over the information about the creatures that are sleeping in the other quarters before we remove its rooms.
-	for(unsigned int i = 0; i < r->numCoveredTiles(); i++)
+	for(unsigned int i = 0; i < r->numCoveredTiles(); ++i)
 	{
 		Tile *tempTile = r->getCoveredTile(i);
 
@@ -133,9 +133,9 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 		if(spaceIsBigEnough)
 		{
 			// Mark all of the affected tiles as having this creature sleeping in them.
-			for(int i = 0; i < xDim; i++)
+			for(int i = 0; i < xDim; ++i)
 			{
-				for(int j = 0; j < yDim; j++)
+				for(int j = 0; j < yDim; ++j)
 				{
 					Tile *tempTile = gameMap.getTile(t->x + i, t->y + j);
 					creatureSleepingInTile[tempTile] = c;
@@ -196,8 +196,8 @@ Tile* RoomQuarters::getLocationForBed(int xDim, int yDim)
 	// Randomly shuffle the open tiles in tempVector so that the quarters are filled up in a random order.
 	std::random_shuffle(tempVector.begin(), tempVector.end());
 
-	// Loop over each of the open tiles in tempVector and for each one, check to see if it 
-	for(unsigned int i = 0; i < tempVector.size(); i++)
+	// Loop over each of the open tiles in tempVector and for each one, check to see if it
+	for(unsigned int i = 0; i < tempVector.size(); ++i)
 	{
 		if(tileCanAcceptBed(tempVector[i], xDim, yDim))
 			return tempVector[i];
@@ -223,7 +223,7 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 
 	// Create a 2 dimensional array of booleans initially all set to false.
 	std::vector< std::vector<bool> > tileOpen(xDim);
-	for(int i = 0; i < xDim; i++)
+	for(int i = 0; i < xDim; ++i)
 	{
 		tileOpen[i].resize(yDim, false);
 	}
@@ -231,7 +231,7 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 	// Now loop over the list of all the open tiles in this quarters.  For each tile, if it falls within
 	// the xDim by yDim area from the starting tile we set the corresponding tileOpen entry to true.
 	std::vector<Tile*> tempTiles = getOpenTiles();
-	for(unsigned int i = 0; i < tempTiles.size(); i++)
+	for(unsigned int i = 0; i < tempTiles.size(); ++i)
 	{
 		int xDist = tempTiles[i]->x - tile->x;
 		int yDist = tempTiles[i]->y - tile->y;
@@ -242,9 +242,9 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 	// Loop over the tileOpen array and check to see if every value has been set to true, if it has then
 	// we can place the a bed of the specified dimensions with its corner at the specified starting tile.
 	bool returnValue = true;
-	for(int i = 0; i < xDim; i++)
+	for(int i = 0; i < xDim; ++i)
 	{
-		for(int j = 0; j < yDim; j++)
+		for(int j = 0; j < yDim; ++j)
 		{
 			returnValue = returnValue && tileOpen[i][j];
 		}

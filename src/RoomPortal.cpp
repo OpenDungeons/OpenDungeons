@@ -55,7 +55,7 @@ bool RoomPortal::doUpkeep(Room *r)
 	// the gameMap and the ones in all the players of that colors' hands'.
 	double numCreatures = gameMap.getCreaturesByColor(getColor()).size();
 	Seat *controllingSeat = gameMap.getSeatByColor(getColor());
-	for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+	for(unsigned int i = 0; i < gameMap.numPlayers(); ++i)
 	{
 		Player *tempPlayer = gameMap.getPlayer(i);
 		if(tempPlayer->seat == controllingSeat)
@@ -90,10 +90,10 @@ void RoomPortal::spawnCreature()
 
 	// Determine which class the creature we spawn will be.
 	double randomValue = randomDouble(0.0, 1.0);
-	for(unsigned int i = 0; i < classProbabilities.size(); i++)
+	for(unsigned int i = 0; i < classProbabilities.size(); ++i)
 	{
 		randomValue -= classProbabilities[i].second;
-		
+
 		// When the randomValue drops below 0 it is because the cumulative probability values so far have
 		// exceeded it and the one that finally made it negative is the one we choose.  This makes it more
 		// likely that classes with large probability will be chosen since they are likely to be the
@@ -179,7 +179,7 @@ void RoomPortal::recomputeClassProbabilities()
 	// Loop over the CreatureClasses in the gameMap and for each one, compute
 	// the probability that a creature of that type will be selected.
 	classProbabilities.clear();
-	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
+	for(unsigned int i = 0; i < gameMap.numClassDescriptions(); ++i)
 	{
 		CreatureClass *tempClass = gameMap.getClassDescription(i);
 
@@ -205,7 +205,7 @@ void RoomPortal::recomputeClassProbabilities()
 	// Loop over the stored probabilities and renormalise them (i.e. divide each by the total so the sum is 1.0).
 	if(fabs(totalProbability) > 0.000001)
 	{
-		for(unsigned int i = 0; i < classProbabilities.size(); i++)
+		for(unsigned int i = 0; i < classProbabilities.size(); ++i)
 		{
 			probability = classProbabilities[i].second / totalProbability;
 			classProbabilities[i].second = probability;
@@ -225,7 +225,7 @@ void RoomPortal::recomputeCenterPosition()
 		return;
 
 	// Loop over the covered tiles and compute the average location (i.e. the center) of the portal.
-	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < coveredTiles.size(); ++i)
 	{
 		Tile *tempTile = coveredTiles[i];
 		xCenter += tempTile->x;

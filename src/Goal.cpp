@@ -76,7 +76,7 @@ ostream& operator<<(ostream& os, Goal *g)
 	if(subGoals > 0)
 	{
 		os << "+ " << subGoals << "\n";
-		for(unsigned int i = 0; i < subGoals; i++)
+		for(unsigned int i = 0; i < subGoals; ++i)
 			os << g->getSuccessSubGoal(i);
 	}
 
@@ -84,7 +84,7 @@ ostream& operator<<(ostream& os, Goal *g)
 	if(subGoals > 0)
 	{
 		os << "- " << subGoals << "\n";
-		for(unsigned int i = 0; i < subGoals; i++)
+		for(unsigned int i = 0; i < subGoals; ++i)
 			os << g->getFailureSubGoal(i);
 	}
 
@@ -148,7 +148,7 @@ Goal* Goal::instantiateFromStream(istream& is)
 		// There is a subgoal which should be added on success.
 		is.ignore(1);
 		is >> numSubgoals;
-		for(int i = 0; i < numSubgoals; i++)
+		for(int i = 0; i < numSubgoals; ++i)
 			tempGoal->addSuccessSubGoal(instantiateFromStream(is));
 	}
 	else if(c == '-')
@@ -156,7 +156,7 @@ Goal* Goal::instantiateFromStream(istream& is)
 		// There is a subgoal which should be added on failure.
 		is.ignore(1);
 		is >> numSubgoals;
-		for(int i = 0; i < numSubgoals; i++)
+		for(int i = 0; i < numSubgoals; ++i)
 			tempGoal->addFailureSubGoal(instantiateFromStream(is));
 	}
 

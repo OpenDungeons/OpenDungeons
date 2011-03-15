@@ -13,7 +13,7 @@ Player::Player()
 
 /** \brief A simple accessor function to return the number of creatures this player is holding in their hand.
  *
-*/ 
+*/
 unsigned int Player::numCreaturesInHand()
 {
 	return creaturesInHand.size();
@@ -21,7 +21,7 @@ unsigned int Player::numCreaturesInHand()
 
 /** \brief A simple accessor function to return a pointer to the i'th creature in the players hand.
  *
-*/ 
+*/
 Creature* Player::getCreatureInHand(int i)
 {
 	return creaturesInHand[i];
@@ -29,7 +29,7 @@ Creature* Player::getCreatureInHand(int i)
 
 /** \brief A simple mutator function to put the given creature into the player's hand, note this should NOT be called directly for creatures on the map, for that you should use pickUpCreature() instead.
  *
-*/ 
+*/
 void Player::addCreatureToHand(Creature *c)
 {
 	if(creaturesInHand.size() == 0)
@@ -128,7 +128,7 @@ void Player::pickUpCreature(Creature *c)
 
 /** \brief A simple mutator function to remove a creature from the player's hand, note this should NOT be called directly for creatures on the map, for that you should use dropCreature() instead.
  *
-*/ 
+*/
 void Player::removeCreatureFromHand(int i)
 {
 	creaturesInHand.erase(creaturesInHand.begin()+i);
@@ -229,7 +229,7 @@ void Player::rotateCreaturesInHand(int n)
 	if(creaturesInHand.size() < 2)
 		return;
 
-	for(unsigned int i = 0; i < (unsigned int)fabs((double)n); i++)
+	for(unsigned int i = 0; i < (unsigned int)fabs((double)n); ++i)
 	{
 		if(n > 0)
 		{

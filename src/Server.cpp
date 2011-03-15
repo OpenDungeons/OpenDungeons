@@ -427,7 +427,7 @@ void *clientHandlerThread(void *p)
 
 			// Send over the information about the players in the game
 			curSock->send(formatCommand("addplayer", gameMap.me->nick));
-			for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+			for(unsigned int i = 0; i < gameMap.numPlayers(); ++i)
 			{
 				// Don't tell the client about its own player structure
 				Player *tempPlayer = gameMap.getPlayer(i);
@@ -460,7 +460,7 @@ void *clientHandlerThread(void *p)
 
 			// Send over the map lights from the current game map.
 			//TODO: Only send the maplights which the client is supposed to see due to the fog of war.
-			for(unsigned int i = 0; i < gameMap.numMapLights(); i++)
+			for(unsigned int i = 0; i < gameMap.numMapLights(); ++i)
 			{
 				tempSS.str("");
 				tempSS << gameMap.getMapLight(i);
@@ -470,7 +470,7 @@ void *clientHandlerThread(void *p)
 
 			// Send over the rooms in use on the current game map
 			//TODO: Only send the classes which the client is supposed to see due to fog of war.
-			for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+			for(unsigned int i = 0; i < gameMap.numRooms(); ++i)
 			{
 				tempSS.str("");
 				tempSS << gameMap.getRoom(i);
@@ -481,7 +481,7 @@ void *clientHandlerThread(void *p)
 
 			// Send over the class descriptions in use on the current game map
 			//TODO: Only send the classes which the client is supposed to see due to fog of war.
-			for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
+			for(unsigned int i = 0; i < gameMap.numClassDescriptions(); ++i)
 			{
 				//NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
 				// Changes to this code should be reflected in that code as well
@@ -499,7 +499,7 @@ void *clientHandlerThread(void *p)
 
 			// Send over the actual creatures in use on the current game map
 			//TODO: Only send the creatures which the client is supposed to see due to fog of war.
-			for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
+			for(unsigned int i = 0; i < gameMap.numCreatures(); ++i)
 			{
 				Creature *tempCreature = gameMap.getCreature(i);
 
@@ -520,7 +520,7 @@ void *clientHandlerThread(void *p)
 			ChatMessage *newMessage = processChatMessage(arguments);
 
 			// Send the message to all the connected clients
-			for(unsigned int i = 0; i < frameListener->clientSockets.size(); i++)
+			for(unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
 			{
 				sem_wait(&frameListener->clientSockets[i]->semaphore);
 				frameListener->clientSockets[i]->send(formatCommand("chat", newMessage->clientNick + ":" + newMessage->message));
@@ -622,7 +622,7 @@ void *clientHandlerThread(void *p)
 
 void sendToAllClients(ExampleFrameListener *frameListener, String str)
 {
-	for(unsigned int i = 0; i < frameListener->clientSockets.size(); i++)
+	for(unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
 	{
 		sem_wait(&frameListener->clientSockets[i]->semaphore);
 		frameListener->clientSockets[i]->send(str);

@@ -53,7 +53,7 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, 
 	uniqueNumber--;
 	tempRoom->name = tempSS.str();
 
-	for(unsigned int i = 0; i < nCoveredTiles.size(); i++)
+	for(unsigned int i = 0; i < nCoveredTiles.size(); ++i)
 		tempRoom->addCoveredTile(nCoveredTiles[i]);
 
 	return tempRoom;
@@ -95,7 +95,7 @@ void Room::addCoveredTile(Tile* t, double nHP)
 
 void Room::removeCoveredTile(Tile* t)
 {
-	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < coveredTiles.size(); ++i)
 	{
 		if(t == coveredTiles[i])
 		{
@@ -152,7 +152,7 @@ void Room::addCreatureUsingRoom(Creature *c)
 
 void Room::removeCreatureUsingRoom(Creature *c)
 {
-	for(unsigned int i = 0; i < creaturesUsingRoom.size(); i++)
+	for(unsigned int i = 0; i < creaturesUsingRoom.size(); ++i)
 	{
 		if(creaturesUsingRoom[i] == c)
 		{
@@ -189,7 +189,7 @@ Tile* Room::getCentralTile()
 	minX = maxX = coveredTiles[0]->x;
 	minY = maxY = coveredTiles[0]->y;
 
-	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < coveredTiles.size(); ++i)
 	{
 		int tempX = coveredTiles[i]->x;
 		int tempY = coveredTiles[i]->y;
@@ -215,7 +215,7 @@ void Room::createMeshes()
 
 	meshExists = true;
 
-	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < coveredTiles.size(); ++i)
 	{
 		Tile *tempTile = coveredTiles[i];
 		RenderRequest *request = new RenderRequest;
@@ -237,7 +237,7 @@ void Room::destroyMeshes()
 
 	destroyRoomObjectMeshes();
 
-	for(unsigned int i = 0; i < coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < coveredTiles.size(); ++i)
 	{
 		Tile *tempTile = coveredTiles[i];
 		RenderRequest *request = new RenderRequest;
@@ -361,7 +361,7 @@ istream& operator>>(istream& is, Room *r)
 	r->name = tempSS.str();
 
 	is >> tilesToLoad;
-	for(int i = 0; i < tilesToLoad; i++)
+	for(int i = 0; i < tilesToLoad; ++i)
 	{
 		is >> tempX >> tempY;
 		Tile *tempTile = gameMap.getTile(tempX, tempY);
@@ -374,7 +374,7 @@ istream& operator>>(istream& is, Room *r)
 			tempTile->colorDouble = 1.0;
 		}
 	}
-	
+
 	r->type = Room::getRoomTypeFromMeshName(r->meshName);
 	return is;
 }
@@ -383,7 +383,7 @@ ostream& operator<<(ostream& os, Room *r)
 {
 	os << r->meshName << "\t" << r->color << "\n";
 	os << r->coveredTiles.size() << "\n";
-	for(unsigned int i = 0; i < r->coveredTiles.size(); i++)
+	for(unsigned int i = 0; i < r->coveredTiles.size(); ++i)
 	{
 		Tile *tempTile = r->coveredTiles[i];
 		os << tempTile->x << "\t" << tempTile->y << "\n";
@@ -397,8 +397,8 @@ string Room::getMeshNameFromRoomType(RoomType t)
 	switch(t)
 	{
 		case nullRoomType:      return "NullRoomType";      break;
-		case dungeonTemple:     return "DungeonTemple";     break; 
-		case quarters:          return "Quarters";          break; 
+		case dungeonTemple:     return "DungeonTemple";     break;
+		case quarters:          return "Quarters";          break;
 		case treasury:          return "Treasury";          break;
 		case portal:            return "Portal";            break;
 		case forge:             return "Forge";             break;
@@ -435,9 +435,9 @@ int Room::costPerTile(RoomType t)
 	switch(t)
 	{
 		case nullRoomType:      return 0;         break;
-		case dungeonTemple:     return 0;         break; 
+		case dungeonTemple:     return 0;         break;
 		case portal:            return 0;         break;
-		case quarters:          return 75;        break; 
+		case quarters:          return 75;        break;
 		case treasury:          return 25;        break;
 		case forge:             return 150;       break;
 		case dojo:              return 175;       break;

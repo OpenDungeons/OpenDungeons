@@ -15,7 +15,7 @@ void RoomTreasury::absorbRoom(Room *r)
 	r->destroyMeshes();
 
 	// Copy over the information about the gold that is stored in the other treasury before we remove its rooms.
-	for(unsigned int i = 0; i < r->numCoveredTiles(); i++)
+	for(unsigned int i = 0; i < r->numCoveredTiles(); ++i)
 	{
 		Tile *tempTile = r->getCoveredTile(i);
 		goldInTile[tempTile] = ((RoomTreasury*)r)->goldInTile[tempTile];
@@ -214,13 +214,13 @@ void RoomTreasury::destroyMeshesForTile(Tile *t)
 
 void RoomTreasury::createGoldMeshes()
 {
-	for(unsigned int i = 0; i < numCoveredTiles(); i++)
+	for(unsigned int i = 0; i < numCoveredTiles(); ++i)
 		createMeshesForTile(getCoveredTile(i));
 }
 
 void RoomTreasury::destroyGoldMeshes()
 {
-	for(unsigned int i = 0; i < numCoveredTiles(); i++)
+	for(unsigned int i = 0; i < numCoveredTiles(); ++i)
 		destroyMeshesForTile(getCoveredTile(i));
 }
 

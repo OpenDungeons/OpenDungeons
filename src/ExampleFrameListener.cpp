@@ -146,7 +146,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam, Scene
 
 	musicPlayer = MusicPlayer::getSingletonPtr();
 
-	for(int i = 0; i < 10; i++)
+	for(int i = 0; i < 10; ++i)
 	{
 		hotkeyLocationIsValid[i] = false;
 		hotkeyLocation[i] = Ogre::Vector3::ZERO;
@@ -948,7 +948,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->scale(0.333, 0.333, 0.333);
 
 				// Move the other creatures in the player's hand to make room for the one just picked up.
-				for(unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); i++)
+				for(unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); ++i)
 				{
 					curCreature = gameMap.me->getCreatureInHand(i);
 					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
@@ -969,7 +969,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 				node->scale(3.0, 3.0, 3.0);
 
 				// Move the other creatures in the player's hand to replace the dropped one
-				for(unsigned int i = 0; i < curPlayer->numCreaturesInHand(); i++)
+				for(unsigned int i = 0; i < curPlayer->numCreaturesInHand(); ++i)
 				{
 					curCreature = curPlayer->getCreatureInHand(i);
 					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
@@ -979,7 +979,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
 			case RenderRequest::rotateCreaturesInHand:
 				// Loop over the creatures in our hand and redraw each of them in their new location.
-				for(unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); i++)
+				for(unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); ++i)
 				{
 					curCreature = gameMap.me->getCreatureInHand(i);
 					node = mSceneMgr->getSceneNode(curCreature->name + "_node");
@@ -1088,7 +1088,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 		// If we have finished processing the last renderRequest that was in the queue we
 		// can release all of the threads that were waiting for the queue to be flushed.
 		tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.get();
-		for(unsigned int i = 0; i < tempUnsigned; i++)
+		for(unsigned int i = 0; i < tempUnsigned; ++i)
 			sem_post(&renderQueueEmptySemaphore);
 	}
 
@@ -1124,7 +1124,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// Fill up the chat window with the arrival time and contents of all the chat messages left in the queue.
-	for(unsigned int i = 0; i < chatMessages.size(); i++)
+	for(unsigned int i = 0; i < chatMessages.size(); ++i)
 	{
 		struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
 		std::stringstream tempSS("");
@@ -1148,7 +1148,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	printText((string)MOTD + "\n" + (terminalActive?(commandOutput + "\n"):nullString) + (terminalActive?prompt:nullString) + (terminalActive?promptCommand:nullString) + "\n" + turnString + "\n" + (chatMessages.size()>0?chatString:nullString));
 
 	// Update the animations on any AnimatedObjects which have them
-	for(unsigned int i = 0; i < gameMap.numAnimatedObjects(); i++)
+	for(unsigned int i = 0; i < gameMap.numAnimatedObjects(); ++i)
 	{
 		AnimatedObject *currentAnimatedObject = gameMap.getAnimatedObject(i);
 
@@ -1207,7 +1207,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 	}
 
 	// Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
-	for(unsigned int i = 0; i < gameMap.numMapLights(); i++)
+	for(unsigned int i = 0; i < gameMap.numMapLights(); ++i)
 	{
 	        MapLight *tempMapLight = gameMap.getMapLight(i);
 	        tempMapLight->advanceFlicker(evt.timeSinceLastFrame);
@@ -1246,7 +1246,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			{
 				// Loop over the list of unmet goals for the seat we are sitting in an print them.
 				tempSS << "Unfinished Goals:\n---------------------\n";
-				for(unsigned int i = 0; i < gameMap.me->seat->numGoals(); i++)
+				for(unsigned int i = 0; i < gameMap.me->seat->numGoals(); ++i)
 				{
 					Goal *tempGoal = gameMap.me->seat->getGoal(i);
 					tempSS << tempGoal->getDescription() << "\n";
@@ -1257,7 +1257,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			{
 				// Loop over the list of completed goals for the seat we are sitting in an print them.
 				tempSS << "\n\nCompleted Goals:\n---------------------\n";
-				for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); i++)
+				for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); ++i)
 				{
 					Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
 					tempSS << tempGoal->getSuccessMessage() << "\n";
@@ -1268,7 +1268,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 			{
 				// Loop over the list of completed goals for the seat we are sitting in an print them.
 				tempSS << "\n\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
-				for(unsigned int i = 0; i < gameMap.me->seat->numFailedGoals(); i++)
+				for(unsigned int i = 0; i < gameMap.me->seat->numFailedGoals(); ++i)
 				{
 					Goal *tempGoal = gameMap.me->seat->getFailedGoal(i);
 					tempSS << tempGoal->getFailedMessage() << "\n";
@@ -1451,9 +1451,9 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 		Tile *currentTile;
 		std::vector<Tile*> affectedTiles;
 		int radiusSquared = mCurrentTileRadius*mCurrentTileRadius;
-		for(int i = -1*(mCurrentTileRadius-1); i <= (mCurrentTileRadius-1); i++)
+		for(int i = -1*(mCurrentTileRadius-1); i <= (mCurrentTileRadius-1); ++i)
 		{
-			for(int j = -1*(mCurrentTileRadius-1); j <= (mCurrentTileRadius-1); j++)
+			for(int j = -1*(mCurrentTileRadius-1); j <= (mCurrentTileRadius-1); ++j)
 			{
 				// Check to see if the current location falls inside a circle with a radius of mCurrentTileRadius.
 				int distSquared = i*i + j*j;
@@ -1492,7 +1492,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 		// Loop over all the affected tiles and force them to examine their
 		// neighbors.  This allows them to switch to a mesh with fewer
 		// polygons if some are hidden by the neighbors.
-		for(unsigned int i = 0; i < affectedTiles.size(); i++)
+		for(unsigned int i = 0; i < affectedTiles.size(); ++i)
 			affectedTiles[i]->setFullness(affectedTiles[i]->getFullness());
 	}
 
@@ -1742,7 +1742,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 		return true;
 
 	// Unselect all tiles
-	//for(int i = 0; i < gameMap.numTiles(); i++)
+	//for(int i = 0; i < gameMap.numTiles(); ++i)
 	TileMap_t::iterator itr = gameMap.firstTile();
 	while(itr != gameMap.lastTile())
 	{
@@ -1898,7 +1898,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 					// Check all the tiles that border the newly created room and see if they
 					// contain rooms which can be absorbed into this newly created room.
 					std::vector<Tile*> borderTiles = gameMap.tilesBorderedByRegion(affectedTiles);
-					for(unsigned int i = 0; i < borderTiles.size(); i++)
+					for(unsigned int i = 0; i < borderTiles.size(); ++i)
 					{
 						Room *borderingRoom = borderTiles[i]->getCoveringRoom();
 						if(borderingRoom != NULL && borderingRoom->getType() == tempRoom->getType() && borderingRoom != tempRoom)
@@ -2219,7 +2219,7 @@ processHotkey:
 					arguments = arguments.substr(1, arguments.size()-1);
 
 				// Force command to lower case
-				for(unsigned int i = 0; i < command.size(); i++)
+				for(unsigned int i = 0; i < command.size(); ++i)
 				{
 					command[i] = tolower(command[i]);
 				}
@@ -2350,7 +2350,7 @@ void ExampleFrameListener::printText(string text)
 {
 	string tempString;
 	int lineLength = 0;
-	for(unsigned int i = 0; i < text.size(); i++)
+	for(unsigned int i = 0; i < text.size(); ++i)
 	{
 		if(text[i] == '\n')
 		{
@@ -2508,7 +2508,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 
 		// Print the "tens" place line at the top
 		int maxWidth = terminalWordWrap;
-		for(int i = 0; i < maxWidth/10; i++)
+		for(int i = 0; i < maxWidth/10; ++i)
 		{
 			commandOutput += "         " + StringConverter::toString(i+1);
 		}
@@ -2516,7 +2516,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		commandOutput += "\n";
 
 		// Print the "ones" place
-		for(int i = 0; i < maxWidth-1; i++)
+		for(int i = 0; i < maxWidth-1; ++i)
 		{
 			string tempString = "1234567890";
 			commandOutput += tempString.substr(i%10, 1);
@@ -2537,9 +2537,9 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		yMin = min(y1,y2);
 		yMax = max(y1, y2);
 
-		for(int j = yMin; j < yMax; j++)
+		for(int j = yMin; j < yMax; ++j)
 		{
-			for(int i = xMin; i < xMax; i++)
+			for(int i = xMin; i < xMax; ++i)
 			{
 				if(gameMap.getTile(i, j) == NULL)
 				{
@@ -2787,7 +2787,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			if(arguments.compare("creatures") == 0)
 			{
 				tempSS << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
-				for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
+				for(unsigned int i = 0; i < gameMap.numCreatures(); ++i)
 				{
 					tempSS << gameMap.getCreature(i) << endl;
 				}
@@ -2796,7 +2796,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			else if(arguments.compare("classes") == 0)
 			{
 				tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
-				for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
+				for(unsigned int i = 0; i < gameMap.numClassDescriptions(); ++i)
 				{
 					CreatureClass *currentClassDesc = gameMap.getClassDescription(i);
 					tempSS << currentClassDesc << "\n";
@@ -2810,7 +2810,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				{
 					tempSS << "Player:\tNick:\tColor:\n\n";
 					tempSS << "me\t\t" << gameMap.me->nick << "\t" << gameMap.me->seat->color << "\n\n";
-					for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
+					for(unsigned int i = 0; i < gameMap.numPlayers(); ++i)
 					{
 						Player *currentPlayer = gameMap.getPlayer(i);
 						tempSS << i << "\t\t" << currentPlayer->nick << "\t" << currentPlayer->seat->color << "\n";
@@ -2843,7 +2843,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			else if(arguments.compare("rooms") == 0)
 			{
 				tempSS << "Name:\tColor:\tNum tiles:\n\n";
-				for(unsigned int i = 0; i < gameMap.numRooms(); i++)
+				for(unsigned int i = 0; i < gameMap.numRooms(); ++i)
 				{
 					Room *currentRoom;
 					currentRoom = gameMap.getRoom(i);
@@ -2854,7 +2854,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 			else if(arguments.compare("colors") == 0 || arguments.compare("colours") == 0)
 			{
 				tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
-				for(unsigned int i = 0; i < playerColourValues.size(); i++)
+				for(unsigned int i = 0; i < playerColourValues.size(); ++i)
 				{
 					tempSS << "\n" << i << "\t\t" << playerColourValues[i].r << "\t\t" << playerColourValues[i].g << "\t\t" << playerColourValues[i].b;
 				}
@@ -2869,7 +2869,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				string suffix = ".level";
 				string suffix2 = ".level.";
 				tempVector = listAllFiles("./levels/");
-				for(unsigned int j = 0; j < tempVector.size(); j++)
+				for(unsigned int j = 0; j < tempVector.size(); ++j)
 				{
 					found = tempVector[j].find(suffix);
 					found2 = tempVector[j].find(suffix2);
@@ -2886,7 +2886,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 				{
 					// Loop over the list of unmet goals for the seat we are sitting in an print them.
 					tempSS << "Unfinished Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
-					for(unsigned int i = 0; i < gameMap.me->seat->numGoals(); i++)
+					for(unsigned int i = 0; i < gameMap.me->seat->numGoals(); ++i)
 					{
 						Goal *tempGoal = gameMap.me->seat->getGoal(i);
 						tempSS << tempGoal->getName() << ":\t" << tempGoal->getDescription() << "\n";
@@ -2894,7 +2894,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 
 					// Loop over the list of completed goals for the seat we are sitting in an print them.
 					tempSS << "\n\nCompleted Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
-					for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); i++)
+					for(unsigned int i = 0; i < gameMap.me->seat->numCompletedGoals(); ++i)
 					{
 						Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
 						tempSS << tempGoal->getName() << ":\t" << tempGoal->getSuccessMessage() << "\n";
@@ -3139,7 +3139,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
 		else if(serverSocket != NULL)
 		{
 			// Send the chat to all the connected clients
-			for(unsigned int i = 0; i < clientSockets.size(); i++)
+			for(unsigned int i = 0; i < clientSockets.size(); ++i)
 			{
 				sem_wait(&clientSockets[i]->semaphore);
 				clientSockets[i]->send(formatCommand("chat", gameMap.me->nick + ":" + arguments));
@@ -3284,7 +3284,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
  */
 string ExampleFrameListener::getHelpText(string arg)
 {
-	for(unsigned int i = 0; i < arg.size(); i++)
+	for(unsigned int i = 0; i < arg.size(); ++i)
 	{
 		arg[i] = tolower(arg[i]);
 	}
