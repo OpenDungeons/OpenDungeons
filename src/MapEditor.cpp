@@ -54,8 +54,20 @@ void MapEditor::createScene(void)
 	SceneNode *node;
 
 	// Read in the default game map
+
+
+	std::string levelPath = mResourcePath + "levels_git/Test.level";
+	{
+	    //Check if the level from git exists. If not, use the standard one.
+	    std::ifstream file(levelPath.c_str(), std::ios_base::in);
+	    if (!file.is_open())
+	    {
+	        levelPath = mResourcePath + "levels/Test.level";
+	    }
+	}
+
 	gameMap.levelFileName = "Test";
-	readGameMapFromFile(mResourcePath + "levels/Test.level");
+	readGameMapFromFile(levelPath);
 
 	// Create ogre entities for the tiles, rooms, and creatures
 	gameMap.createAllEntities();
