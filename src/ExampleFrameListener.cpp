@@ -2219,10 +2219,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 					arguments = arguments.substr(1, arguments.size()-1);
 
 				// Force command to lower case
-				for(unsigned int i = 0; i < command.size(); ++i)
-				{
-					command[i] = tolower(command[i]);
-				}
+				command = forceLowercase(command);
 
 				// Clear any old command output and execute the new command with the given arguments string.
 				commandOutput = "";
@@ -3284,10 +3281,7 @@ void ExampleFrameListener::executePromptCommand(string command, string arguments
  */
 string ExampleFrameListener::getHelpText(string arg)
 {
-	for(unsigned int i = 0; i < arg.size(); ++i)
-	{
-		arg[i] = tolower(arg[i]);
-	}
+    arg = forceLowercase(arg);
 
 	if(arg.compare("save") == 0)
 	{

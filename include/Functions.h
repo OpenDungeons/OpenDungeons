@@ -31,6 +31,8 @@ void queueServerNotification(ServerNotification *n);
 
 std::vector<std::string> listAllFiles(std::string directoryName);
 
+std::string forceLowercase(string s);
+
 void waitOnRenderQueueFlush();
 
 bool startServer();
