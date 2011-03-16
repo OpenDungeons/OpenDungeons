@@ -68,7 +68,7 @@ void RoomQuarters::removeCoveredTile(Tile* t)
 			c->homeTile = NULL;
 
 			// Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
-			for(std::map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
+			for(std::map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); ++itr)
 			{
 				if(itr->second == c)
 					itr->second = NULL;
@@ -93,7 +93,7 @@ std::vector<Tile*> RoomQuarters::getOpenTiles()
 {
 	std::vector<Tile*> returnVector;
 
-	for(std::map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
+	for(std::map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); ++itr)
 	{
 		if(itr->second == NULL)
 			returnVector.push_back(itr->first);
@@ -164,7 +164,7 @@ bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
 	if(creatureSleepingInTile[t] != NULL)
 	{
 		// Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
-		for(std::map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); itr++)
+		for(std::map<Tile*,Creature*>::iterator itr = creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); ++itr)
 		{
 			if(itr->second == c)
 				itr->second = NULL;

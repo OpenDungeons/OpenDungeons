@@ -70,7 +70,7 @@ int RoomTreasury::getTotalGold()
 {
 	int tempInt = 0;
 
-	for(std::map<Tile*,int>::iterator itr = goldInTile.begin(); itr != goldInTile.end(); itr++)
+	for(std::map<Tile*,int>::iterator itr = goldInTile.begin(); itr != goldInTile.end(); ++itr)
 		tempInt += (*itr).second;
 
 	return tempInt;
@@ -93,7 +93,7 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
 	updateMeshesForTile(tile);
 
 	// If there is still gold left to deposit after the first tile, loop over all of the tiles and see if we can put the gold in another tile.
-	for(std::map<Tile*,int>::iterator itr = goldInTile.begin(); itr != goldInTile.end() && goldToDeposit > 0; itr++)
+	for(std::map<Tile*,int>::iterator itr = goldInTile.begin(); itr != goldInTile.end() && goldToDeposit > 0; ++itr)
 	{
 		// Store as much gold as we can in this tile.
 		emptySpace = maxGoldWhichCanBeStoredInAChest - itr->second;
@@ -110,7 +110,7 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
 int RoomTreasury::withdrawGold(int gold)
 {
 	int withdrawlAmount = 0;
-	for(std::map<Tile*,int>::iterator itr = goldInTile.begin(); itr != goldInTile.end(); itr++)
+	for(std::map<Tile*,int>::iterator itr = goldInTile.begin(); itr != goldInTile.end(); ++itr)
 	{
 		// Check to see if the current room tile has enough gold in it to fill the amount we still need to pick up.
 		int goldStillNeeded = gold - withdrawlAmount;

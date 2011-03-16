@@ -8,7 +8,7 @@ Field::Field(string nName)
 	static int uniqueNumber = 0;
 
 	if(nName.compare("autoname") == 0)
-		name = "field_" + StringConverter::toString(uniqueNumber++);
+		name = "field_" + StringConverter::toString(++uniqueNumber);
 	else
 		name = nName;
 
@@ -24,7 +24,7 @@ pair<double,bool> Field::get(int x, int y)
 	FieldType::iterator itr;
 	itr = theField.find(location);
 	bool found = (itr != theField.end());
-	
+
 	return pair<double,bool>( found?(*itr).second:0.0, found );
 }
 
@@ -54,7 +54,7 @@ void Field::set(int x, int y, double f)
 void Field::setAll(double f)
 {
 	FieldType::iterator itr;
-	for(itr = theField.begin(); itr != theField.end(); itr++)
+	for(itr = theField.begin(); itr != theField.end(); ++itr)
 	{
 		(*itr).second = f;
 	}
@@ -68,7 +68,7 @@ void Field::setAll(double f)
 void Field::addField(Field *f, double scale=1.0)
 {
 	FieldType::iterator itr, thisOne;
-	for(itr = f->theField.begin(); itr != f->theField.end(); itr++)
+	for(itr = f->theField.begin(); itr != f->theField.end(); ++itr)
 	{
 		double fValue = (*itr).second;
 		int fX = (*itr).first.first;

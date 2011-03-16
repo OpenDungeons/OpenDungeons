@@ -1846,7 +1846,7 @@ void Creature::destroyVisualDebugEntities()
 	Tile *currentTile = NULL;
 	updateVisibleTiles();
 	std::list<Tile*>::iterator itr;
-	for(itr = visualDebugEntityTiles.begin(); itr != visualDebugEntityTiles.end(); itr++)
+	for(itr = visualDebugEntityTiles.begin(); itr != visualDebugEntityTiles.end(); ++itr)
 	{
 		currentTile = *itr;
 
