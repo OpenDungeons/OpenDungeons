@@ -96,12 +96,13 @@ public:
 	bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
 	bool keyPressed(const OIS::KeyEvent &arg);
 	bool keyReleased(const OIS::KeyEvent &arg);
+	void handleHotkeys(int hotkeyNumber);
 
 	// Console functions
 	void printText(string text);
 	void executePromptCommand(string command, string arguments);
 	string getHelpText(string arg);
-	
+
 	// Console variables
 	string command, arguments, commandOutput, prompt;
 	//deque< pair<time_t, string> > chatMessages;

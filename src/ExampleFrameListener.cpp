@@ -1967,6 +1967,23 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 	return true;
 }
 
+void ExampleFrameListener::handleHotkeys(int hotkeyNumber)
+{
+    // If the shift key is pressed we store this hotkey location, otherwise we fly the camera to a stored position.
+    if(mKeyboard->isModifierDown(OIS::Keyboard::Shift))
+    {
+        // Store the camera position into the array.
+        hotkeyLocationIsValid[hotkeyNumber] = true;
+        hotkeyLocation[hotkeyNumber] = getCameraViewTarget();
+    }
+    else
+    {
+        // If there has already been a location set for this hotkey then fly there, otherwise ignore this command.
+        if(hotkeyLocationIsValid[hotkeyNumber])
+            flyTo(hotkeyLocation[hotkeyNumber]);
+    }
+}
+
 /*! \brief Handle the keyboard input.
  *
  * The operation of this function is largely determined by whether or not the
@@ -1986,7 +2003,6 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 	sys->injectChar(arg.text);
 
 	std::ostringstream ss;
-	int hotkeyNumber;
 
 	CEGUI::WindowManager *wmgr;
 	CEGUI::Window *window;
@@ -2160,32 +2176,16 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 				mDebugText = "Saved: " + ss.str();
 				break;
 
-			//NOTE: Use function instead maybe? goto is scary.
-			case KC_1:  hotkeyNumber = 1;  goto processHotkey;
-			case KC_2:  hotkeyNumber = 2;  goto processHotkey;
-			case KC_3:  hotkeyNumber = 3;  goto processHotkey;
-			case KC_4:  hotkeyNumber = 4;  goto processHotkey;
-			case KC_5:  hotkeyNumber = 5;  goto processHotkey;
-			case KC_6:  hotkeyNumber = 6;  goto processHotkey;
-			case KC_7:  hotkeyNumber = 7;  goto processHotkey;
-			case KC_8:  hotkeyNumber = 8;  goto processHotkey;
-			case KC_9:  hotkeyNumber = 9;  goto processHotkey;
-			case KC_0:  hotkeyNumber = 0;  goto processHotkey;
-processHotkey:
-				// If the shift key is pressed we store this hotkey location, otherwise we fly the camera to a stored position.
-				if(mKeyboard->isModifierDown(OIS::Keyboard::Shift))
-				{
-					// Store the camera position into the array.
-					hotkeyLocationIsValid[hotkeyNumber] = true;
-					hotkeyLocation[hotkeyNumber] = getCameraViewTarget();
-				}
-				else
-				{
-					// If there has already been a location set for this hotkey then fly there, otherwise ignore this command.
-					if(hotkeyLocationIsValid[hotkeyNumber])
-						flyTo(hotkeyLocation[hotkeyNumber]);
-				}
-				break;
+			case KC_1:  handleHotkeys(1); break;
+			case KC_2:  handleHotkeys(2); break;
+			case KC_3:  handleHotkeys(3); break;
+			case KC_4:  handleHotkeys(4); break;
+			case KC_5:  handleHotkeys(5); break;
+			case KC_6:  handleHotkeys(6); break;
+			case KC_7:  handleHotkeys(7); break;
+			case KC_8:  handleHotkeys(8); break;
+			case KC_9:  handleHotkeys(9); break;
+			case KC_0:  handleHotkeys(0); break;
 		}
 	}
 	else
