@@ -67,9 +67,6 @@ set(
 # FIXME This should be handled by the find script
 
 #Add cegui library dirs.
-link_directories(${CEGUI_LIB_DIR})
-
-link_directories(${CEGUIOGRE_LIB_DIR})
 include_directories(${CEGUI_INCLUDE_DIR})
 
 if( WIN32 )
@@ -129,8 +126,8 @@ endif()
 
 # Link libraries
 target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_LIBRARIES} 
-    ${CEGUI_LIBRARIES} ${CEGUIOGRE_LIBRARIES} ${OPENAL_LIBRARY}
-    ${OIS_LIBRARIES} ) 
+    ${OPENAL_LIBRARY} ${OIS_LIBRARIES}) 
+target_link_libraries(${PROJECT_BINARY_NAME} ${CEGUI_LIBRARIES})
     
 # MSVC automatically links boost
 if(NOT MSVC)

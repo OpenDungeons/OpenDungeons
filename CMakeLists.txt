@@ -37,7 +37,7 @@ set( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR} )
 find_package(OIS REQUIRED)
 find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
-find_package(CEGUIOGRE REQUIRED)
+#find_package(CEGUIOGRE REQUIRED)
 find_package(SFML REQUIRED COMPONENTS Audio System)
 
 
