@@ -313,7 +313,7 @@ std::vector<Tile*> GameMap::tilesBorderedByRegion(const std::vector<Tile*> &regi
 			if(!neighborFound)
 			{
 				// Check to see if the current neighbor is already in the returnList.
-				for(unsigned int k = 0; k < returnList.size(); k++)
+				for(unsigned int k = 0; k < returnList.size(); ++k)
 				{
 					if(returnList[k] == neighbors[j])
 					{
@@ -1611,7 +1611,7 @@ std::vector<AttackableObject*> GameMap::getVisibleForce(std::vector<Tile*> visib
 
 	// Loop over the visible tiles
 	std::vector<Tile*>::iterator itr;
-	for(itr = visibleTiles.begin(); itr != visibleTiles.end(); itr++)
+	for(itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
 	{
 		//TODO: Implement Tile::getAttackableObject() to let you list all attackableObjects in the tile in a single list.
 		// Loop over the creatures in the given tile
@@ -1674,7 +1674,7 @@ bool GameMap::pathIsClear(std::list<Tile*> path, Tile::TileClearType passability
 
 	// Loop over tile in the path and check to see if it is clear
 	bool isClear = true;
-	for(itr = path.begin(); itr != path.end() && isClear; itr++)
+	for(itr = path.begin(); itr != path.end() && isClear; ++itr)
 	{
 	 	//TODO:  This code is duplicated in GameMap::path, it should be moved into a function.
 		// See if the path tile in question is passable

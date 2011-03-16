@@ -778,7 +778,7 @@ void Tile::removeCreature(Creature *c)
 
 	// Check to see if the given crature is actually in this tile
 	std::vector<Creature*>::iterator itr;
-	for(itr = creaturesInCell.begin(); itr != creaturesInCell.end(); itr++)
+	for(itr = creaturesInCell.begin(); itr != creaturesInCell.end(); ++itr)
 	{
 		if((*itr) == c)
 		{
