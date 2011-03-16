@@ -1,9 +1,9 @@
 #ifndef CHATMESSAGE_H
 #define CHATMESSAGE_H
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
-#include <time.h>
+#include <ctime>
 
 /*! \brief A data structure to store a chat message and its relevant time stamps.
  *

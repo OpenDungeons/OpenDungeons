@@ -3,7 +3,7 @@
 
 #include <string>
 #include <iostream>
-#include "Ogre.h"
+#include <Ogre.h>
 
 class CreatureClass;
 

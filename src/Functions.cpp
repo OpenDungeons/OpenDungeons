@@ -1,13 +1,12 @@
 #include <sstream>
-#include <stdio.h>
+#include <cstdio>
+#include <cctype>
 
 #if defined(WIN32) || defined(_WIN32)
 	//TODO: Add the proper windows include file for this (handling directory listings).
 #else
 	#include <dirent.h>
 #endif
-
-#include <ctype.h>
 
 #include "Globals.h"
 #include "Defines.h"

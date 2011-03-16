@@ -1,6 +1,6 @@
-#include <stdio.h>
+#include <cstdio>
 #include <string>
-#include <time.h>
+#include <ctime>
 
 #include "Defines.h"
 #include "Socket.h"

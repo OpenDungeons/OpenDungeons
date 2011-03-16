@@ -9,7 +9,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <pthread.h>
 

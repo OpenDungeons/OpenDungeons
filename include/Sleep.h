@@ -15,7 +15,7 @@
 
 #ifdef _WIN32
 # if defined(_NEED_SLEEP_ONLY) && (defined(_MSC_VER) || defined(__MINGW32__))
-#  include <stdlib.h>
+#  include <cstdlib>
 #  define sleep(t) _sleep((t) * 1000)
 # else
 #  include <windows.h>

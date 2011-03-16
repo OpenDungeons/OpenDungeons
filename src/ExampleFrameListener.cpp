@@ -1,5 +1,5 @@
 // THREAD - This class contains the rendering code which runs as in the initial thread created by the executable.
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
 #include <algorithm>
 
