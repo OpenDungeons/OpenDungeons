@@ -65,6 +65,7 @@ sounds
 gui
 install_manifest.txt
 ogre.cfg
+build
 
 run.sh
 OpenDungeons.bin

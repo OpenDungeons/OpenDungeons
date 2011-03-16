@@ -140,50 +140,14 @@ else()
 endif()
 
 ##################################
-#### Copy config to binary dir ###
+#### Copy files to binary dir ####
 ##################################
 
-##TODO - fix this
-
-# Copy the configuration files to the binary directory
-#IF( WIN32 )
-#  ADD_CUSTOM_COMMAND(
-#    OUTPUT ${PROJECT_BINARY_DIR}/plugins.cfg
-#    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/plugins.cfg.windows ${PROJECT_BINARY_DIR}/#plugins.cfg
-#    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/plugins.cfg.windows
-#    )
-#ELSE( )
-#  ADD_CUSTOM_COMMAND(
-#    OUTPUT ${PROJECT_BINARY_DIR}/plugins.cfg
-#    COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/plugins.cfg.linux ${PROJECT_BINARY_DIR}/#plugins.cfg
-#    MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/plugins.cfg.linux
-#    )
-#ENDIF( )
-#ADD_CUSTOM_COMMAND(
-#  OUTPUT ${PROJECT_BINARY_DIR}/resources.cfg
-#  COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/resources.cfg ${PROJECT_BINARY_DIR}
-#  MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/resources.cfg
-#  )
-#ADD_CUSTOM_COMMAND(
-#  OUTPUT ${PROJECT_BINARY_DIR}/media.cfg
-#  COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/media.cfg ${PROJECT_BINARY_DIR}
-#  MAIN_DEPENDENCY ${PROJECT_SOURCE_DIR}/media.cfg
-#  )
-#ADD_CUSTOM_TARGET(
-#  copy-config ALL
-#  DEPENDS ${PROJECT_BINARY_DIR}/plugins.cfg ${PROJECT_BINARY_DIR}/resources.cfg ${PROJECT_BINARY_DIR}/#media.cfg
-#  )
-
-## Copy the media files to the binary directory
-#IF( WIN32 )
-#  FILE( COPY ${PROJECT_SOURCE_DIR}/Media DESTINATION ${PROJECT_BINARY_DIR} )
-#ELSE( )
-#  ADD_CUSTOM_COMMAND(
-#    OUTPUT ${PROJECT_BINARY_DIR}/Media
-#    COMMAND ${CMAKE_COMMAND} -E create_symlink ${PROJECT_SOURCE_DIR}/Media ${PROJECT_BINARY_DIR}/Media
-#    )
-#  ADD_CUSTOM_TARGET( copy-media ALL DEPENDS ${PROJECT_BINARY_DIR}/Media )
-#ENDIF( )
+# Copy level dir from git to build dir if this is not an in-source build
+if( NOT ${CMAKE_CURRENT_SOURCE_DIR} EQUAL ${CMAKE_CURRENT_BINARY_DIR})
+    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/levels_git/Test.level 
+    ${CMAKE_CURRENT_BINARY_DIR}/levels_git/Test.level)
+endif()
 
 ##################################
 #### Packaging ###################
