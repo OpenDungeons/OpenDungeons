@@ -3,19 +3,19 @@
 
 #include "Room.h"
 
-class RoomDungeonTemple : public Room
+class RoomDungeonTemple: public Room
 {
-	public:
-		RoomDungeonTemple();
+    public:
+        RoomDungeonTemple();
 
-		void createMeshes();
-		void destroyMeshes();
+        void createMeshes();
+        void destroyMeshes();
 
-		// Functions specific to this class.
-		void produceKobold();
+        // Functions specific to this class.
+        void produceKobold();
 
-	private:
-		int waitTurns;
+    private:
+        int waitTurns;
 };
 
 #endif

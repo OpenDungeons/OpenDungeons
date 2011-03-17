@@ -15,11 +15,12 @@
  */
 class ChatMessage
 {
-	public:
-		ChatMessage();
-		ChatMessage(std::string nNick, std::string nMessage, time_t nRecvTime, time_t nSendTime = 0);
-		std::string message, clientNick;
-		time_t sendTime, recvTime;
+    public:
+        ChatMessage();
+        ChatMessage(std::string nNick, std::string nMessage, time_t nRecvTime,
+                time_t nSendTime = 0);
+        std::string message, clientNick;
+        time_t sendTime, recvTime;
 };
 
 #endif

@@ -2,6 +2,6 @@
 
 bool ActiveObject::doUpkeep()
 {
-	return true;
+    return true;
 }
 

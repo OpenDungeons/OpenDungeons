@@ -3,19 +3,19 @@
 
 #include "Goal.h"
 
-class GoalClaimNTiles : public Goal
+class GoalClaimNTiles: public Goal
 {
-	public:
-		GoalClaimNTiles(string nName, string nArguments);
+    public:
+        GoalClaimNTiles(string nName, string nArguments);
 
-		// Inherited functions
-		bool isMet(Seat *s);
-		string getDescription();
-		string getSuccessMessage();
-		string getFailedMessage();
+        // Inherited functions
+        bool isMet(Seat *s);
+        string getDescription();
+        string getSuccessMessage();
+        string getFailedMessage();
 
-	private:
-		unsigned int numberOfTiles;
+    private:
+        unsigned int numberOfTiles;
 };
 
 #endif

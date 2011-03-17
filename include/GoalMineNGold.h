@@ -3,19 +3,19 @@
 
 #include "Goal.h"
 
-class GoalMineNGold : public Goal
+class GoalMineNGold: public Goal
 {
-	public:
-		GoalMineNGold(std::string nName, std::string nArguments);
+    public:
+        GoalMineNGold(std::string nName, std::string nArguments);
 
-		// Inherited functions
-		bool isMet(Seat *s);
-		std::string getDescription();
-		std::string getSuccessMessage();
-		std::string getFailedMessage();
+        // Inherited functions
+        bool isMet(Seat *s);
+        std::string getDescription();
+        std::string getSuccessMessage();
+        std::string getFailedMessage();
 
-	private:
-		int goldToMine;
+    private:
+        int goldToMine;
 };
 
 #endif

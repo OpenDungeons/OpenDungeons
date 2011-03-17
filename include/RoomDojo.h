@@ -3,12 +3,12 @@
 
 #include "Room.h"
 
-class RoomDojo : public Room
+class RoomDojo: public Room
 {
-	public:
-		RoomDojo();
-		void createMeshes();
-		int numOpenCreatureSlots();
+    public:
+        RoomDojo();
+        void createMeshes();
+        int numOpenCreatureSlots();
 };
 
 #endif

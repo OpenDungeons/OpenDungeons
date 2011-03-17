@@ -29,102 +29,113 @@ class Room;
  */
 class Tile
 {
-	public:
-		//TODO:  These should be renumbered to put 0 as the nullTileType, however this will mean converting all the dirt tiles in the level files.
-		enum TileType {dirt=0, gold=1, rock=2, water=3, lava=4, claimed=5, nullTileType};
-		// Changes to this enum must be reflected in Tile::getTilePassability() as well as in GameMap::path()
-		enum TileClearType { impassableTile=0, walkableTile=1, flyableTile=2 };
+    public:
+        //TODO:  These should be renumbered to put 0 as the nullTileType, however this will mean converting all the dirt tiles in the level files.
+        enum TileType
+        {
+            dirt = 0,
+            gold = 1,
+            rock = 2,
+            water = 3,
+            lava = 4,
+            claimed = 5,
+            nullTileType
+        };
+        // Changes to this enum must be reflected in Tile::getTilePassability() as well as in GameMap::path()
+        enum TileClearType
+        {
+            impassableTile = 0, walkableTile = 1, flyableTile = 2
+        };
 
-		// Public functions
-		Tile();
-		Tile(int nX, int nY, TileType nType, double nFullness);
-		void initialize();
+        // Public functions
+        Tile();
+        Tile(int nX, int nY, TileType nType, double nFullness);
+        void initialize();
 
-		void setType(TileType t);
-		TileType getType();
+        void setType(TileType t);
+        TileType getType();
 
-		void setFullness(double f);
-		double getFullness();
-		int getFullnessMeshNumber();
-		TileClearType getTilePassability();
-		bool permitsVision();
+        void setFullness(double f);
+        double getFullness();
+        int getFullnessMeshNumber();
+        TileClearType getTilePassability();
+        bool permitsVision();
 
-		static string tileTypeToString(TileType t);
-		static TileType nextTileType(TileType t);
-		static int nextTileFullness(int f);
+        static string tileTypeToString(TileType t);
+        static TileType nextTileType(TileType t);
+        static int nextTileFullness(int f);
 
-		void refreshMesh();
-		void createMesh();
-		void destroyMesh();
-		void deleteYourself();
+        void refreshMesh();
+        void createMesh();
+        void destroyMesh();
+        void deleteYourself();
 
-		void setSelected(bool s);
-		bool getSelected();
+        void setSelected(bool s);
+        bool getSelected();
 
-		void setMarkedForDigging(bool s, Player *p);
-		void setMarkedForDiggingForAllSeats(bool s);
-		bool getMarkedForDigging(Player *p);
+        void setMarkedForDigging(bool s, Player *p);
+        void setMarkedForDiggingForAllSeats(bool s);
+        bool getMarkedForDigging(Player *p);
 
-		void addCreature(Creature *c);
-		void removeCreature(Creature *c);
-		unsigned int numCreaturesInCell();
-		Creature* getCreature(int index);
+        void addCreature(Creature *c);
+        void removeCreature(Creature *c);
+        unsigned int numCreaturesInCell();
+        Creature* getCreature(int index);
 
-		void addPlayerMarkingTile(Player *p);
-		void removePlayerMarkingTile(Player *p);
-		unsigned int numPlayersMarkingTile();
-		Player* getPlayerMarkingTile(int index);
+        void addPlayerMarkingTile(Player *p);
+        void removePlayerMarkingTile(Player *p);
+        unsigned int numPlayersMarkingTile();
+        Player* getPlayerMarkingTile(int index);
 
-		void addNeighbor(Tile *n);
-		Tile* getNeighbor(unsigned int index);
-		std::vector<Tile*> getAllNeighbors();
+        void addNeighbor(Tile *n);
+        Tile* getNeighbor(unsigned int index);
+        std::vector<Tile*> getAllNeighbors();
 
-		double claimForColor(int nColor, double nDanceRate);
-		double digOut(double digRate, bool doScaleDigRate = false);
-		double scaleDigRate(double digRate);
+        double claimForColor(int nColor, double nDanceRate);
+        double digOut(double digRate, bool doScaleDigRate = false);
+        double scaleDigRate(double digRate);
 
-		Room* getCoveringRoom();
-		void setCoveringRoom(Room *r);
+        Room* getCoveringRoom();
+        void setCoveringRoom(Room *r);
 
-		bool isDiggable();
-		bool isClaimable();
+        bool isDiggable();
+        bool isClaimable();
 
-		static string getFormat();
-		friend ostream& operator<<(ostream& os, Tile *t);
-		friend istream& operator>>(istream& is, Tile *t);
+        static string getFormat();
+        friend ostream& operator<<(ostream& os, Tile *t);
+        friend istream& operator>>(istream& is, Tile *t);
 
-		int getColor();
-		void setColor(int nColor);
+        int getColor();
+        void setColor(int nColor);
 
-		// Public datamembers
-		//Vector3 location;
-		int x, y;
-		double colorDouble;
-		int floodFillColor;
-		double rotation;
-		string name;
+        // Public datamembers
+        //Vector3 location;
+        int x, y;
+        double colorDouble;
+        int floodFillColor;
+        double rotation;
+        string name;
 
-	private:
-		// Private datamembers
-		TileType type;
-		bool selected, markedForDigging;
-		double fullness;
-		sem_t fullnessLockSemaphore;
-		int fullnessMeshNumber;
-		std::vector<Tile*> neighbors;
-		sem_t neighborsLockSemaphore;
-		std::vector<Creature*> creaturesInCell;
-		sem_t creaturesInCellLockSemaphore;
-		std::vector<Player*> playersMarkingTile;
-		Room *coveringRoom;
-		sem_t coveringRoomLockSemaphore;
-		MapLight *claimLight;
-		sem_t claimLightLockSemaphore;
-		bool meshesExist;
+    private:
+        // Private datamembers
+        TileType type;
+        bool selected, markedForDigging;
+        double fullness;
+        sem_t fullnessLockSemaphore;
+        int fullnessMeshNumber;
+        std::vector<Tile*> neighbors;
+        sem_t neighborsLockSemaphore;
+        std::vector<Creature*> creaturesInCell;
+        sem_t creaturesInCellLockSemaphore;
+        std::vector<Player*> playersMarkingTile;
+        Room *coveringRoom;
+        sem_t coveringRoomLockSemaphore;
+        MapLight *claimLight;
+        sem_t claimLightLockSemaphore;
+        bool meshesExist;
 
-		int color;
+        int color;
 };
-
 
 #endif
 

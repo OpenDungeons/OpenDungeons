@@ -5,8 +5,9 @@
 
 class Spell
 {
-	public:
-		static double heal(int spellLevel, Creature *targetCreature, double hp, double maxMana);
+    public:
+        static double heal(int spellLevel, Creature *targetCreature, double hp,
+                double maxMana);
 
 };
 

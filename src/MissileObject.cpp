@@ -6,34 +6,34 @@
 
 MissileObject::MissileObject()
 {
-	initialize();
+    initialize();
 }
 
 MissileObject::MissileObject(string nMeshName, Ogre::Vector3 nPosition)
 {
-	initialize();
+    initialize();
 
-	meshName = nMeshName;
-	sem_wait(&positionLockSemaphore);
-	position = nPosition;
-	sem_post(&positionLockSemaphore);
+    meshName = nMeshName;
+    sem_wait(&positionLockSemaphore);
+    position = nPosition;
+    sem_post(&positionLockSemaphore);
 }
 
 void MissileObject::initialize()
 {
-	static int uniqueNumber = 1;
-	std::stringstream tempSS;
-	sem_wait(&missileObjectUniqueNumberLockSemaphore);
-	tempSS << "Missile_Object_" << uniqueNumber++;
-	sem_post(&missileObjectUniqueNumberLockSemaphore);
-	name = tempSS.str();
+    static int uniqueNumber = 1;
+    std::stringstream tempSS;
+    sem_wait(&missileObjectUniqueNumberLockSemaphore);
+    tempSS << "Missile_Object_" << uniqueNumber++;
+    sem_post(&missileObjectUniqueNumberLockSemaphore);
+    name = tempSS.str();
 
-	sem_init(&positionLockSemaphore, 0, 1);
-	sem_wait(&positionLockSemaphore);
-	position = Ogre::Vector3(0,0,0);
-	sem_post(&positionLockSemaphore);
+    sem_init(&positionLockSemaphore, 0, 1);
+    sem_wait(&positionLockSemaphore);
+    position = Ogre::Vector3(0, 0, 0);
+    sem_post(&positionLockSemaphore);
 
-	meshesExist = false;
+    meshesExist = false;
 }
 
 /*! \brief Changes the missile's position to a new position.
@@ -42,18 +42,18 @@ void MissileObject::initialize()
  */
 void MissileObject::setPosition(Ogre::Vector3 v)
 {
-	sem_wait(&positionLockSemaphore);
-	position = v;
-	sem_post(&positionLockSemaphore);
+    sem_wait(&positionLockSemaphore);
+    position = v;
+    sem_post(&positionLockSemaphore);
 
-	// Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::moveSceneNode;
-	request->str = name + "_node";
-	request->vec = position;
+    // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::moveSceneNode;
+    request->str = name + "_node";
+    request->vec = position;
 
-	// Add the request to the queue of rendering operations to be performed before the next frame.
-	queueRenderRequest(request);
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    queueRenderRequest(request);
 }
 
 /*! \brief Changes the missile's position to a new position.
@@ -64,7 +64,7 @@ void MissileObject::setPosition(Ogre::Vector3 v)
  */
 void MissileObject::setPosition(double x, double y, double z)
 {
-	setPosition(Ogre::Vector3(x, y, z));
+    setPosition(Ogre::Vector3(x, y, z));
 }
 
 /*! \brief A simple accessor function to get the creature's current position in 3d space.
@@ -72,55 +72,55 @@ void MissileObject::setPosition(double x, double y, double z)
  */
 Ogre::Vector3 MissileObject::getPosition()
 {
-	sem_wait(&positionLockSemaphore);
-	Ogre::Vector3 tempVector(position);
-	sem_post(&positionLockSemaphore);
+    sem_wait(&positionLockSemaphore);
+    Ogre::Vector3 tempVector(position);
+    sem_post(&positionLockSemaphore);
 
-	return tempVector;
+    return tempVector;
 }
 
 void MissileObject::createMesh()
 {
-	std::cout << "\nCalling createMesh()";
-	if(meshesExist)
-		return;
+    std::cout << "\nCalling createMesh()";
+    if (meshesExist)
+        return;
 
-	meshesExist = true;
+    meshesExist = true;
 
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::createMissileObject;
-	request->p = this;
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::createMissileObject;
+    request->p = this;
 
-	// Add the request to the queue of rendering operations to be performed before the next frame.
-	queueRenderRequest(request);
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    queueRenderRequest(request);
 }
 
 void MissileObject::destroyMesh()
 {
-	if(!meshesExist)
-		return;
+    if (!meshesExist)
+        return;
 
-	meshesExist = false;
+    meshesExist = false;
 
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::destroyMissileObject;
-	request->p = this;
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::destroyMissileObject;
+    request->p = this;
 
-	// Add the request to the queue of rendering operations to be performed before the next frame.
-	queueRenderRequest(request);
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    queueRenderRequest(request);
 }
 
 void MissileObject::deleteYourself()
 {
-	if(meshesExist)
-		destroyMesh();
+    if (meshesExist)
+        destroyMesh();
 
-	// Create a render request asking the render queue to actually do the deletion of this creature.
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::deleteMissileObject;
-	request->p = this;
+    // Create a render request asking the render queue to actually do the deletion of this creature.
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::deleteMissileObject;
+    request->p = this;
 
-	// Add the requests to the queue of rendering operations to be performed before the next frame.
-	queueRenderRequest(request);
+    // Add the requests to the queue of rendering operations to be performed before the next frame.
+    queueRenderRequest(request);
 }
 

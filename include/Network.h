@@ -29,9 +29,9 @@ void sendToAllClients(ExampleFrameListener *frameListener, String str);
  */
 class SSPStruct
 {
-	public:
-		Socket *nSocket;
-		ExampleFrameListener *nFrameListener;
+    public:
+        Socket *nSocket;
+        ExampleFrameListener *nFrameListener;
 };
 
 /*! \brief Client Socket Processor Structure
@@ -40,9 +40,9 @@ class SSPStruct
  */
 class CSPStruct
 {
-	public:
-		Socket *nSocket;
-		ExampleFrameListener *nFrameListener;
+    public:
+        Socket *nSocket;
+        ExampleFrameListener *nFrameListener;
 };
 
 /*! \brief Client Handler Thread Structure
@@ -51,9 +51,9 @@ class CSPStruct
  */
 class CHTStruct
 {
-	public:
-		Socket *nSocket;
-		ExampleFrameListener *nFrameListener;
+    public:
+        Socket *nSocket;
+        ExampleFrameListener *nFrameListener;
 };
 
 /*! \brief Server Notification Processor Structure
@@ -62,8 +62,8 @@ class CHTStruct
  */
 class SNPStruct
 {
-	public:
-		ExampleFrameListener *nFrameListener;
+    public:
+        ExampleFrameListener *nFrameListener;
 };
 
 /*! \brief Client Notification Processor Structure
@@ -72,8 +72,8 @@ class SNPStruct
  */
 class CNPStruct
 {
-	public:
-		ExampleFrameListener *nFrameListener;
+    public:
+        ExampleFrameListener *nFrameListener;
 };
 
 #endif

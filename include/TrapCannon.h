@@ -8,22 +8,22 @@
 #include "Tile.h"
 #include "AttackableObject.h"
 
-class TrapCannon : public Trap
+class TrapCannon: public Trap
 {
-	public:
-		TrapCannon();
+    public:
+        TrapCannon();
 
-		bool doUpkeep();
-		Tile* positionTile();
+        bool doUpkeep();
+        Tile* positionTile();
 
-		int x, y;
+        int x, y;
 
-	private:
-		int reloadTime;
-		int reloadTimeCounter;
-		double range;
-		double minDamage, maxDamage;
-		double cannonHeight;
+    private:
+        int reloadTime;
+        int reloadTimeCounter;
+        double range;
+        double minDamage, maxDamage;
+        double cannonHeight;
 
 };
 

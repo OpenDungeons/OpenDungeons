@@ -5,33 +5,33 @@
 #include "ActiveObject.h"
 #include "AnimatedObject.h"
 
-class RoomObject : public ActiveObject, public AnimatedObject
+class RoomObject: public ActiveObject, public AnimatedObject
 {
-	public:
-		RoomObject(Room *nParentRoom, string nMeshName);
+    public:
+        RoomObject(Room *nParentRoom, string nMeshName);
 
-		string getName();
-		string getMeshName();
+        string getName();
+        string getMeshName();
 
-		Room* getParentRoom();
+        Room* getParentRoom();
 
-		void createMesh();
-		void destroyMesh();
-		void deleteYourself();
+        void createMesh();
+        void destroyMesh();
+        void deleteYourself();
 
-		std::string getOgreNamePrefix();
+        std::string getOgreNamePrefix();
 
-		static string getFormat();
-		friend ostream& operator<<(ostream& os, RoomObject *o);
-		friend istream& operator>>(istream& is, RoomObject *o);
+        static string getFormat();
+        friend ostream& operator<<(ostream& os, RoomObject *o);
+        friend istream& operator>>(istream& is, RoomObject *o);
 
-		double x, y;
-		double rotationAngle;
+        double x, y;
+        double rotationAngle;
 
-	private:
-		Room *parentRoom;
-		bool meshExists;
-		string name, meshName;
+    private:
+        Room *parentRoom;
+        bool meshExists;
+        string name, meshName;
 };
 
 #endif
