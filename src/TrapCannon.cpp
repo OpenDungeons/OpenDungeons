@@ -18,7 +18,7 @@ bool TrapCannon::doUpkeep()
 {
     if (reloadTimeCounter > 0)
     {
-        reloadTimeCounter--;
+        --reloadTimeCounter;
         return true;
     }
 

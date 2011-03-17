@@ -104,7 +104,7 @@ Goal* Goal::instantiateFromStream(istream& is)
     int count = 0;
     while (tempArguments[count] == '\n' || tempArguments[count] == '\t'
             || tempArguments[count] == ' ')
-        count++;
+        ++count;
 
     if (count > 0)
         tempArguments = tempArguments.substr(count, tempArguments.length());

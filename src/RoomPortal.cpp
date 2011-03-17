@@ -45,7 +45,7 @@ bool RoomPortal::doUpkeep(Room *r)
 
     if (spawnCreatureCountdown > 0)
     {
-        spawnCreatureCountdown--;
+        --spawnCreatureCountdown;
         return true;
     }
 

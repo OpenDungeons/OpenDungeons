@@ -41,7 +41,7 @@ void Player::addCreatureToHand(Creature *c)
         //creaturesInHand.push_front(c);
         // Since vectors have no push_front method we need to move all of the elements in the vector back one and then add this one to the beginning.
         creaturesInHand.push_back(NULL);
-        for (unsigned int j = creaturesInHand.size() - 1; j > 0; j--)
+        for (unsigned int j = creaturesInHand.size() - 1; j > 0; --j)
             creaturesInHand[j] = creaturesInHand[j - 1];
 
         creaturesInHand[0] = c;
@@ -237,7 +237,7 @@ void Player::rotateCreaturesInHand(int n)
 
             //creaturesInHand.push_front(tempCreature);
             // Since vectors have no push_front method we need to move all of the elements in the vector back one and then add this one to the beginning.
-            for (unsigned int j = creaturesInHand.size() - 1; j > 0; j--)
+            for (unsigned int j = creaturesInHand.size() - 1; j > 0; --j)
                 creaturesInHand[j] = creaturesInHand[j - 1];
 
             creaturesInHand[0] = tempCreature;

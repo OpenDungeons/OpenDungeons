@@ -483,7 +483,7 @@ void *clientHandlerThread(void *p)
                 curSock->send(formatCommand("addtile", tempSS.str()));
                 // Throw away the ok response
                 curSock->recv(tempString);
-                itr++;
+                ++itr;
             }
 
             // Send over the map lights from the current game map.
@@ -493,7 +493,7 @@ void *clientHandlerThread(void *p)
                 tempSS.str("");
                 tempSS << gameMap.getMapLight(i);
                 curSock->send(formatCommand("addmaplight", tempSS.str()));
-                itr++;
+                ++itr;
             }
 
             // Send over the rooms in use on the current game map

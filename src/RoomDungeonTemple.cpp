@@ -72,7 +72,7 @@ void RoomDungeonTemple::produceKobold()
     }
     else
     {
-        waitTurns--;
+        --waitTurns;
     }
 }
 
