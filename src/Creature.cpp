@@ -513,7 +513,7 @@ void Creature::doTurn()
     }
 
     if (battleFieldAgeCounter > 0)
-        battleFieldAgeCounter--;
+        --battleFieldAgeCounter;
 
     // The loopback variable allows creatures to begin processing a new
     // action immediately after some other action happens.
@@ -896,7 +896,7 @@ void Creature::doTurn()
                             {
                                 if (neighbors[i]->getColor() == color
                                         && neighbors[i]->colorDouble >= 1.0)
-                                    numNeighborsClaimed++;
+                                    ++numNeighborsClaimed;
                             }
 
                             // Pick a random number in [0:1], if this number is high enough, than use this tile to claim.  The
@@ -917,7 +917,7 @@ void Creature::doTurn()
                                 break;
 
                             // Increment the counter indicating how many candidate tiles we have rejected so far.
-                            tempUnsigned++;
+                            ++tempUnsigned;
                         } while (true);
 
                         if (tempTile != NULL)
@@ -1402,7 +1402,7 @@ void Creature::doTurn()
                     if (trainWait > 0)
                     {
                         setAnimationState("Idle");
-                        trainWait--;
+                        --trainWait;
                         goto trainBreakStatement;
                     }
 
@@ -1462,7 +1462,7 @@ void Creature::doTurn()
                                         tempRoom->getCoveredTile(0)));
                         if (randomDouble(0.0, 1.0) < tempDouble)
                             break;
-                        tempInt++;
+                        ++tempInt;
                     } while (tempInt < 5 && tempRoom->numOpenCreatureSlots()
                             == 0 && tempRooms.size() > 0);
 
@@ -1757,7 +1757,7 @@ void Creature::doLevelUp()
     if (level >= 100)
         return;
 
-    level++;
+    ++level;
     cout << "\n\n" << name << " has reached level " << level << "\n";
 
     if (isWorker())
@@ -2052,7 +2052,7 @@ string Creature::getUniqueCreatureName()
     static int uniqueNumber = 1;
     string tempString = className + Ogre::StringConverter::toString(
             uniqueNumber);
-    uniqueNumber++;
+    ++uniqueNumber;
     return tempString;
 }
 

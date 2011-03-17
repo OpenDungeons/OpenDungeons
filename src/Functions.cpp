@@ -114,7 +114,7 @@ bool readGameMapFromFile(const std::string& fileName)
     while (itr != gameMap.lastTile())
     {
         itr->second->setFullness(itr->second->getFullness());
-        itr++;
+        ++itr;
     }
 
     // Read in the rooms
@@ -226,7 +226,7 @@ void writeGameMapToFile(const std::string& fileName)
 
         levelFile << endl;
 
-        itr++;
+        ++itr;
     }
 
     // Write out the rooms to the file
@@ -545,7 +545,7 @@ void waitOnRenderQueueFlush()
 {
     numThreadsWaitingOnRenderQueueEmpty.lock();
     unsigned int tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.rawGet();
-    tempUnsigned++;
+    ++tempUnsigned;
     numThreadsWaitingOnRenderQueueEmpty.rawSet(tempUnsigned);
     numThreadsWaitingOnRenderQueueEmpty.unlock();
 

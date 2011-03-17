@@ -67,7 +67,7 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles,
 
     tempSS.str("");
     tempSS << tempRoom->meshName << "_" << uniqueNumber;
-    uniqueNumber--;
+    --uniqueNumber;
     tempRoom->name = tempSS.str();
 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
@@ -304,7 +304,7 @@ void Room::createRoomObjectMeshes()
     while (itr != roomObjects.end())
     {
         itr->second->createMesh();
-        itr++;
+        ++itr;
     }
 }
 
@@ -315,7 +315,7 @@ void Room::destroyRoomObjectMeshes()
     while (itr != roomObjects.end())
     {
         itr->second->destroyMesh();
-        itr++;
+        ++itr;
     }
 }
 
@@ -363,7 +363,7 @@ bool Room::doUpkeep(Room *r)
             if (r->tileHP[r->coveredTiles[i]] <= 0.0)
                 r->removeCoveredTile(r->coveredTiles[i]);
             else
-                i++;
+                ++i;
         }
     }
 
@@ -516,7 +516,7 @@ double Room::getHP(Tile *tile)
         while (itr != tileHP.end())
         {
             total += itr->second;
-            itr++;
+            ++itr;
         }
 
         return total;

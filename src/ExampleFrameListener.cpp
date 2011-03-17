@@ -994,7 +994,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 #endif
                     node->attachObject(ent);
 
-                    fieldItr++;
+                    ++fieldItr;
                 }
                 break;
 
@@ -1031,7 +1031,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
                     }
 
                     node->setPosition(tempX, tempY, tempDouble + tempDouble2);
-                    fieldItr++;
+                    ++fieldItr;
                 }
 
                 //TODO:  This is not done yet.
@@ -1228,7 +1228,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
         }
         else
         {
-            i++;
+            ++i;
         }
     }
 
@@ -1559,7 +1559,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
                                 tempTile->setSelected(false);
                             }
 
-                            itr++;
+                            ++itr;
                         }
                     }
 
@@ -1571,7 +1571,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
                 }
             }
 
-            itr++;
+            ++itr;
         }
     }
 
@@ -1598,7 +1598,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
                 }
             }
 
-            itr++;
+            ++itr;
         }
     }
 
@@ -1774,7 +1774,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
 
             }
 
-            itr++;
+            ++itr;
         }
 
         // If no creatures are under the  mouse run through the list again to check for lights
@@ -1804,7 +1804,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
                     }
                 }
 
-                itr++;
+                ++itr;
             }
         }
 
@@ -1841,7 +1841,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
                 }
             }
 
-            itr++;
+            ++itr;
         }
 
         // If we are in a game we store the opposite of whether this tile is marked for diggin or not, this allows us to mark tiles
@@ -1902,7 +1902,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
                 }
             }
 
-            itr++;
+            ++itr;
         }
     }
 
@@ -1929,7 +1929,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
     {
         itr->second->setSelected(false);
 
-        itr++;
+        ++itr;
     }
 
     // Left mouse button up
@@ -2060,7 +2060,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                     }
                 }
 
-                itr++;
+                ++itr;
             }
 
             // If we are adding new rooms the above loop will have pruned out the tiles not eligible
@@ -2159,7 +2159,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
             while (itr != affectedTiles.end())
             {
                 (*itr)->setFullness((*itr)->getFullness());
-                itr++;
+                ++itr;
             }
         }
 
@@ -2304,7 +2304,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 {
                     if (mCurrentTileRadius > 1)
                     {
-                        mCurrentTileRadius--;
+                        --mCurrentTileRadius;
                     }
 
                     MOTD = "Brush size:  " + StringConverter::toString(
@@ -2318,7 +2318,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 {
                     if (mCurrentTileRadius < 10)
                     {
-                        mCurrentTileRadius++;
+                        ++mCurrentTileRadius;
                     }
 
                     MOTD = "Brush size:  " + StringConverter::toString(
@@ -2592,7 +2592,7 @@ void ExampleFrameListener::printText(string text)
 
         if (lineLength < terminalWordWrap)
         {
-            lineLength++;
+            ++lineLength;
         }
         else
         {

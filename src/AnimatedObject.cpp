@@ -104,13 +104,14 @@ bool AnimatedObject::setWalkPath(std::list<Tile*> path,
 
         // If we are not supposed to add the first tile in the path to the destination queue, then we skip over it.
         if (!addFirstStop)
-            itr++;
+            ++itr;
 
         // Loop over the path adding each tile as a destination in the walkQueue.
         while (itr != path.end())
         {
             addDestination((*itr)->x, (*itr)->y);
-            itr++;
+            ++itr
+            ;
         }
 
         return true;

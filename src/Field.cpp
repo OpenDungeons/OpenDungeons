@@ -112,7 +112,7 @@ pair<LocationType, double> Field::min()
             minimum = itr;
         }
 
-        itr++;
+        ++itr;
     }
 
     return *minimum;
@@ -136,7 +136,7 @@ pair<LocationType, double> Field::max()
             maximum = itr;
         }
 
-        itr++;
+        ++itr;
     }
 
     return *maximum;

@@ -197,7 +197,7 @@ unsigned int Seat::checkAllGoals()
             else
             {
                 // The goal has not been met but has also not been definitively failed, continue on to the next goal in the list.
-                currentGoal++;
+                ++currentGoal;
             }
         }
     }
@@ -238,7 +238,7 @@ unsigned int Seat::checkAllCompletedGoals()
             }
             else
             {
-                currentGoal++;
+                ++currentGoal;
             }
         }
     }

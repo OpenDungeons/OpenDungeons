@@ -72,7 +72,7 @@ void GameMap::createNewMap(int xSize, int ySize)
     while (itr != gameMap.lastTile())
     {
         itr->second->setFullness(itr->second->getFullness());
-        itr++;
+        ++itr;
     }
 }
 
@@ -126,7 +126,7 @@ void GameMap::clearTiles()
     while (itr != tiles.end())
     {
         itr->second->deleteYourself();
-        itr++;
+        ++itr;
     }
 
     tiles.clear();
@@ -201,16 +201,16 @@ void GameMap::addTile(Tile *t)
         {
             break;
         case 0:
-            tempX++;
+            ++tempX;
             break;
         case 1:
-            tempY++;
+            ++tempY;
             break;
         case 2:
-            tempX--;
+            --tempX;
             break;
         case 3:
-            tempY--;
+            --tempY;
             break;
 
         default:
@@ -615,7 +615,7 @@ void GameMap::createAllEntities()
     while (itr != tiles.end())
     {
         itr->second->createMesh();
-        itr++;
+        ++itr;
     }
     sem_post(&tilesLockSemaphore);
 
@@ -651,7 +651,7 @@ void GameMap::destroyAllEntities()
     while (itr != tiles.end())
     {
         itr->second->destroyMesh();
-        itr++;
+        ++itr;
     }
     sem_post(&tilesLockSemaphore);
 
@@ -779,7 +779,7 @@ void GameMap::doTurn()
             else
             {
                 tempCreature->deathCounter--;
-                count++;
+                ++count;
             }
         }
         else
@@ -806,7 +806,7 @@ void GameMap::doTurn()
                 tempSeat->alignmentPeace += tempCreature->coefficientPeace;
             }
 
-            count++;
+            ++count;
         }
     }
 
@@ -872,7 +872,7 @@ unsigned long int GameMap::doMiscUpkeep()
         if (tempCreature->isWorker())
         {
             int color = tempCreature->color;
-            koboldColorCounts[color]++;
+            ++koboldColorCounts[color];
         }
     }
 
@@ -882,7 +882,7 @@ unsigned long int GameMap::doMiscUpkeep()
     for (unsigned int i = 0; i < dungeonTemples.size(); ++i)
     {
         int color = dungeonTemples[i]->color;
-        dungeonTempleColorCounts[color]++;
+        ++dungeonTempleColorCounts[color];
     }
 
     // Compute how many kobolds each color should have as determined by the number of dungeon temples they control.
@@ -897,7 +897,7 @@ unsigned long int GameMap::doMiscUpkeep()
         numKoboldsNeeded = min(numKoboldsNeeded, numDungeonTemples);
         koboldsNeededPerColor[color] = numKoboldsNeeded;
 
-        colorItr++;
+        ++colorItr;
     }
 
     // Loop back over all the dungeon temples and for each one decide if it should try to produce a kobold.
@@ -924,7 +924,7 @@ unsigned long int GameMap::doMiscUpkeep()
         }
         else
         {
-            activeObjectCount++;
+            ++activeObjectCount;
         }
     }
     sem_post(&activeObjectsLockSemaphore);
@@ -941,7 +941,7 @@ unsigned long int GameMap::doMiscUpkeep()
         {
             removeRoom(tempRoom);
             tempRoom->deleteYourself();
-            i--; //NOTE:  This decrement is to cancel out the increment that will happen on the next loop iteration.
+            --i; //NOTE:  This decrement is to cancel out the increment that will happen on the next loop iteration.
         }
     }
 
@@ -986,7 +986,7 @@ unsigned long int GameMap::doMiscUpkeep()
             {
                 sem_wait(&tempSeat->numClaimedTilesLockSemaphore);
                 unsigned int tempUInt = tempSeat->rawGetNumClaimedTiles();
-                tempUInt++;
+                ++tempUInt;
                 tempSeat->rawSetNumClaimedTiles(tempUInt);
                 sem_post(&tempSeat->numClaimedTilesLockSemaphore);
 
@@ -1002,7 +1002,7 @@ unsigned long int GameMap::doMiscUpkeep()
             }
         }
 
-        currentTile++;
+        ++currentTile;
     }
     sem_post(&tilesLockSemaphore);
 
@@ -1098,7 +1098,7 @@ bool GameMap::pathExists(int x1, int y1, int x2, int y2,
 std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
         Tile::TileClearType passability)
 {
-    numCallsTo_path++;
+    ++numCallsTo_path;
 
     //TODO:  Make the openList a priority queue sorted by the cost to improve lookup times on retrieving the next open item.
     std::list<Tile*> returnList;
@@ -1146,7 +1146,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
         {
             if ((*itr)->fCost() < (*smallestAstar)->fCost())
                 smallestAstar = itr;
-            itr++;
+            ++itr;
         }
 
         currentEntry = *smallestAstar;
@@ -1219,7 +1219,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
                         }
                         else
                         {
-                            itr++;
+                            ++itr;
                         }
                     }
 
@@ -1238,7 +1238,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
                             }
                             else
                             {
-                                itr++;
+                                ++itr;
                             }
                         }
 
@@ -1286,7 +1286,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
             if ((*itr)->tile == destination)
                 break;
             else
-                itr++;
+                ++itr;
         }
 
         // Follow the parent chain back the the starting tile
@@ -1307,14 +1307,14 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
     while (itr != openList.end())
     {
         delete *itr;
-        itr++;
+        ++itr;
     }
 
     itr = closedList.begin();
     while (itr != closedList.end())
     {
         delete *itr;
-        itr++;
+        ++itr;
     }
 
     delete neighbor;
@@ -1571,7 +1571,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
         if (tempTile != NULL)
             tileQueue.push_back(pair<Tile*, double> (tempTile, tempTheta));
 
-        tileCounter++;
+        ++tileCounter;
     }
 
     //TODO: Loop backwards and remove any non-see through tiles until we get to one which permits vision (this cuts down the cost of walks toward the end when an opaque block is found).
@@ -1624,7 +1624,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
                 else
                 {
                     // The tile is not obscured by the current obscuring tile so leave it in the queue for now.
-                    tileQueueIterator++;
+                    ++tileQueueIterator;
                 }
             }
         }
@@ -1759,18 +1759,18 @@ void GameMap::cutCorners(std::list<Tile*> &path,
 
     std::list<Tile*>::iterator t1 = path.begin();
     std::list<Tile*>::iterator t2 = t1;
-    t2++;
+    ++t2;
     std::list<Tile*>::iterator t3;
     std::list<Tile*>::iterator t4;
     std::list<Tile*>::iterator secondLast = path.end();
-    secondLast--;
+    --secondLast;
 
     // Loop t1 over all but the last tile in the path
     while (t1 != path.end())
     {
         // Loop t2 from t1 until the end of the path
         t2 = t1;
-        t2++;
+        ++t2;
 
         while (t2 != path.end())
         {
@@ -1780,18 +1780,18 @@ void GameMap::cutCorners(std::list<Tile*> &path,
                     (*t2)->x, (*t2)->y);
 
             if (pathIsClear(lineOfSightPath, passability))
-                t2++;
+                ++t2;
             else
                 break;
         }
 
         // Delete the tiles 'strictly between' t1 and t2
         t3 = t1;
-        t3++;
+        ++t3;
         if (t3 != t2)
         {
             t4 = t2;
-            t4--;
+            --t4;
             if (t3 != t4)
             {
                 path.erase(t3, t4);
@@ -1801,7 +1801,7 @@ void GameMap::cutCorners(std::list<Tile*> &path,
         t1 = t2;
 
         secondLast = path.end();
-        secondLast--;
+        --secondLast;
     }
 }
 
@@ -2329,7 +2329,7 @@ double GameMap::crowDistance(int x1, int x2, int y1, int y2)
  */
 int GameMap::uniqueFloodFillColor()
 {
-    nextUniqueFloodFillColor++;
+    ++nextUniqueFloodFillColor;
     return nextUniqueFloodFillColor;
 }
 
@@ -2396,7 +2396,7 @@ void GameMap::enableFloodFill()
     {
         tempTile = currentTile->second;
         tempTile->floodFillColor = -1;
-        currentTile++;
+        ++currentTile;
     }
     sem_post(&tilesLockSemaphore);
 
@@ -2414,7 +2414,7 @@ void GameMap::enableFloodFill()
         if (tempTile->floodFillColor == -1)
             doFloodFill(tempTile->x, tempTile->y);
 
-        currentTile++;
+        ++currentTile;
     }
 }
 
@@ -2463,7 +2463,7 @@ void GameMap::threadLockForTurn(long int turn)
     {
         (*result).second.lock();
         tempUnsigned = (*result).second.rawGet();
-        tempUnsigned++;
+        ++tempUnsigned;
         (*result).second.rawSet(tempUnsigned);
         (*result).second.unlock();
     }
@@ -2493,7 +2493,7 @@ void GameMap::threadUnlockForTurn(long int turn)
     {
         (*result).second.lock();
         tempUnsigned = (*result).second.rawGet();
-        tempUnsigned--;
+        --tempUnsigned;
         (*result).second.rawSet(tempUnsigned);
         (*result).second.unlock();
     }
@@ -2570,7 +2570,7 @@ void GameMap::processDeletionQueues()
                     creaturesToDelete[currentTurnToRetire].begin());
         }
 
-        currentTurnForCreatureRetirement++;
+        ++currentTurnForCreatureRetirement;
     }
 }
 

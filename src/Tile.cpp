@@ -158,13 +158,13 @@ void Tile::setFullness(double f)
 
     int fullNeighbors = 0;
     if (fillStatus[0])
-        fullNeighbors++;
+        ++fullNeighbors;
     if (fillStatus[1])
-        fullNeighbors++;
+        ++fullNeighbors;
     if (fillStatus[2])
-        fullNeighbors++;
+        ++fullNeighbors;
     if (fillStatus[3])
-        fullNeighbors++;
+        ++fullNeighbors;
 
     //FIXME:  This needs to be updated to reflect the allowable fill states for each tile type
     // This is also where the logic for checking neighboring fullness should go
@@ -609,7 +609,7 @@ string Tile::tileTypeToString(TileType t)
 Tile::TileType Tile::nextTileType(TileType t)
 {
     int currentType = (int) t;
-    currentType++;
+    ++currentType;
     currentType %= (int) (nullTileType);
 
     return (TileType) currentType;

@@ -44,7 +44,7 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
 
     tempSS.str("");
     tempSS << tempTrap->meshName << "_" << uniqueNumber;
-    uniqueNumber--;
+    --uniqueNumber;
     tempTrap->name = tempSS.str();
 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
@@ -249,7 +249,7 @@ double Trap::getHP(Tile *tile)
         while (itr != tileHP.end())
         {
             total += itr->second;
-            itr++;
+            ++itr;
         }
 
         return total;
@@ -311,7 +311,7 @@ istream& operator>>(istream& is, Trap *t)
 
     tempSS.str("");
     tempSS << t->meshName << "_" << uniqueNumber;
-    uniqueNumber++;
+    ++uniqueNumber;
     t->name = tempSS.str();
 
     is >> tilesToLoad;
