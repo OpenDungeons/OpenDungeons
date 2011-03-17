@@ -5,8 +5,7 @@
 #include <string>
 
 #include "Trap.h"
-#include "Tile.h"
-#include "AttackableObject.h"
+class Tile;
 
 class TrapCannon: public Trap
 {

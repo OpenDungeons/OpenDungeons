@@ -1,6 +1,12 @@
+#include "Functions.h"
+
 #include <sstream>
 #include <cstdio>
 #include <cctype>
+#include <OgreTechnique.h>
+#include <OgrePass.h>
+#include <OgreTexture.h>
+#include <OgreMaterial.h>
 
 #if defined(WIN32) || defined(_WIN32)
 //TODO: Add the proper windows include file for this (handling directory listings).
@@ -10,10 +16,21 @@
 
 #include "Globals.h"
 #include "Defines.h"
-#include "Functions.h"
 #include "Creature.h"
 #include "MapLight.h"
 #include "Network.h"
+#include "Goal.h"
+#include "Seat.h"
+#include "Trap.h"
+#include "GameMap.h"
+#include "RenderRequest.h"
+#include "ServerNotification.h"
+#include "ProtectedObject.h"
+#include "Player.h"
+#include "CreatureAction.h"
+#include "CreatureSound.h"
+
+
 
 //#if defined(WIN32) || defined(_WIN32)
 //double const M_PI = 2 * acos(0.0);
@@ -437,31 +454,31 @@ string stripCommentsFromLine(string line)
     return line.substr(0, index);
 }
 
-void colourizeEntity(Entity *ent, int colour)
+void colourizeEntity(Ogre::Entity *ent, int colour)
 {
     // Colorize the the textures
     // Loop over the sub entities in the mesh
     for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
     {
-        SubEntity *tempSubEntity = ent->getSubEntity(i);
+        Ogre::SubEntity *tempSubEntity = ent->getSubEntity(i);
         tempSubEntity->setMaterialName(colourizeMaterial(
                 tempSubEntity->getMaterialName(), colour));
     }
 }
 
-string colourizeMaterial(string materialName, int colour)
+std::string colourizeMaterial(const std::string& materialName, int colour)
 {
-    string tempString;
+    std::string tempString;
     std::stringstream tempSS;
-    HardwarePixelBufferSharedPtr tempPixBuf;
-    PixelBox tempPixelBox;
-    Technique *tempTechnique;
-    Pass *tempPass;
-    TexturePtr tempTexture;
+    Ogre::HardwarePixelBufferSharedPtr tempPixBuf;
+    Ogre::PixelBox tempPixelBox;
+    Ogre::Technique *tempTechnique;
+    Ogre::Pass *tempPass;
+    Ogre::TexturePtr tempTexture;
 
     tempSS.str("");
     tempSS << "Color_" << colour << "_" << materialName;
-    MaterialPtr newMaterial = MaterialPtr(
+    Ogre::MaterialPtr newMaterial = Ogre::MaterialPtr(
             Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
 
     //cout << "\nCloning material:  " << tempSS.str();
@@ -474,9 +491,9 @@ string colourizeMaterial(string materialName, int colour)
         if (tempSeat == NULL)
             return materialName;
 
-        cout << "\nMaterial does not exist, creating a new one.";
+        std::cout << "\nMaterial does not exist, creating a new one.";
         newMaterial
-                = MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(
+                = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(
                         materialName))->clone(tempSS.str());
 
         // Loop over the techniques for the new material
@@ -517,9 +534,9 @@ void queueServerNotification(ServerNotification *n)
     sem_post(&serverNotificationQueueSemaphore);
 }
 
-std::vector<string> listAllFiles(string directoryName)
+std::vector<std::string> listAllFiles(const std::string& directoryName)
 {
-    std::vector<string> tempVector;
+    std::vector<std::string> tempVector;
 
 #if defined(WIN32) || defined(_WIN32)
     //TODO: Add the proper code to do this under windows.

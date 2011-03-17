@@ -5,11 +5,13 @@
 #include <vector>
 #include <istream>
 #include <ostream>
+#include <map>
 
 class Tile;
-class ActiveObject;
-class AttackableObject;
 class Seat;
+
+#include "AttackableObject.h"
+#include "ActiveObject.h"
 
 class Trap: public AttackableObject, public ActiveObject
 {

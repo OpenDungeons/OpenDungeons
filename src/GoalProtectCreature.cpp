@@ -1,5 +1,8 @@
 #include "Globals.h"
 #include "GoalProtectCreature.h"
+#include "Player.h"
+#include "GameMap.h"
+#include "Creature.h"
 
 GoalProtectCreature::GoalProtectCreature(const std::string& nName,
         const std::string& nArguments) :
@@ -7,7 +10,7 @@ GoalProtectCreature::GoalProtectCreature(const std::string& nName,
 {
     creatureName = nArguments;
 
-    cout << "\nAdding goal " << getName() << "\tCreature name: "
+    std::cout << "\nAdding goal " << getName() << "\tCreature name: "
             << creatureName;
 }
 
@@ -61,18 +64,18 @@ bool GoalProtectCreature::isFailed(Seat *s)
     return !isMet(s);
 }
 
-string GoalProtectCreature::getSuccessMessage()
+std::string GoalProtectCreature::getSuccessMessage()
 {
     return creatureName + " is still alive";
 }
 
-string GoalProtectCreature::getFailedMessage()
+std::string GoalProtectCreature::getFailedMessage()
 {
     return creatureName + " is not alive";
 }
 
-string GoalProtectCreature::getDescription()
+std::string GoalProtectCreature::getDescription()
 {
-    return (string) "Protect the creature named " + creatureName + ".";
+    return std::string("Protect the creature named ") + creatureName + ".";
 }
 

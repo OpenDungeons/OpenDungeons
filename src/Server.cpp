@@ -9,6 +9,14 @@
 #include "ChatMessage.h"
 #include "Functions.h"
 #include "Sleep.h"
+#include "Globals.h"
+#include "ServerNotification.h"
+#include "Player.h"
+#include "Tile.h"
+#include "MapLight.h"
+#include "GameMap.h"
+#include "ProtectedObject.h"
+#include "Creature.h"
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
@@ -79,7 +87,7 @@ void *serverSocketProcessor(void *p)
  * the encoding from the actual program code so changes in the wire protocol
  * are confined to this function and its sister function, parseCommand.
  */
-string formatCommand(string command, string arguments)
+std::string formatCommand(std::string command, std::string arguments)
 {
     //FIXME:  Need to protect the ":" symbol with an escape sequence.
     return "<" + command + ":" + arguments + ">";
@@ -92,9 +100,9 @@ string formatCommand(string command, string arguments)
  * changes in the wire protocol are confined to this function and its sister
  * function, formatCommand.
  */
-bool parseCommand(string &command, string &commandName, string &arguments)
+bool parseCommand(std::string &command, std::string &commandName, std::string &arguments)
 {
-    string tempString;
+    std::string tempString;
     //FIXME:  Need to protect the ":" symbol with an escape sequence.
     int index, index2;
     index = command.find("<");
@@ -119,11 +127,11 @@ bool parseCommand(string &command, string &commandName, string &arguments)
  * parseCommand, this function then takes the argument of that message and
  * further unpacks a username and a chat message.
  */
-ChatMessage *processChatMessage(string arguments)
+ChatMessage *processChatMessage(std::string arguments)
 {
     int index = arguments.find(":");
-    string messageNick = arguments.substr(0, index);
-    string message = arguments.substr(index + 1, arguments.size() - index - 1);
+    std::string messageNick = arguments.substr(0, index);
+    std::string message = arguments.substr(index + 1, arguments.size() - index - 1);
 
     return new ChatMessage(messageNick, message, time(NULL));
 }
@@ -183,7 +191,7 @@ void *creatureAIThread(void *p)
         timeTaken = stopwatch.getMicroseconds();
         gameMap.previousLeftoverTimes.push_front((1e6 * timeUntilNextTurn
                 - timeTaken) / (double) 1e6);
-        string timeTakenString = StringConverter::toString((int) (1e6
+        std::string timeTakenString = Ogre::StringConverter::toString((int) (1e6
                 * timeUntilNextTurn - timeTaken), 9);
 
         // Sleep this thread if it is necessary to keep the turns from happening too fast
@@ -225,7 +233,7 @@ void *serverNotificationProcessor(void *p)
     delete (SNPStruct*) p;
     p = NULL;
 
-    string tempString;
+    std::string tempString;
     std::stringstream tempSS;
     Tile *tempTile;
     Player *tempPlayer;
@@ -379,9 +387,9 @@ void *clientHandlerThread(void *p)
     delete (CHTStruct*) p;
     p = NULL;
 
-    string clientNick = "UNSET_CLIENT_NICKNAME";
-    string clientCommand, arguments;
-    string tempString, tempString2;
+    std::string clientNick = "UNSET_CLIENT_NICKNAME";
+    std::string clientCommand, arguments;
+    std::string tempString, tempString2;
 
     while (true)
     {
@@ -401,7 +409,7 @@ void *clientHandlerThread(void *p)
         // command and an argument then don't process it.  Send
         // the client an error message and move on to the next packet.
         unsigned int index = tempString.find(":");
-        if (index == string::npos)
+        if (index == std::string::npos)
         {
             // Going back to the beginning of the loop effectively disregards this
             // message from the client.  This may cause problems if the command is
@@ -569,9 +577,9 @@ void *clientHandlerThread(void *p)
             tempSS.str(arguments);
 
             tempSS.getline(array, sizeof(array), ':');
-            string playerNick = array;
+            std::string playerNick = array;
             tempSS.getline(array, sizeof(array));
-            string creatureName = array;
+            std::string creatureName = array;
 
             Player *tempPlayer = gameMap.getPlayer(playerNick);
             Creature *tempCreature = gameMap.getCreature(creatureName);
@@ -591,7 +599,7 @@ void *clientHandlerThread(void *p)
             tempSS.str(arguments);
 
             tempSS.getline(array, sizeof(array), ':');
-            string playerNick = array;
+            std::string playerNick = array;
             tempSS.getline(array, sizeof(array), ':');
             int tempX = atoi(array);
             tempSS.getline(array, sizeof(array));
@@ -617,7 +625,7 @@ void *clientHandlerThread(void *p)
             tempSS.getline(array, sizeof(array), ':');
             int tempY = atoi(array);
             tempSS.getline(array, sizeof(array));
-            string flagName = array;
+            std::string flagName = array;
 
             Tile *tempTile = gameMap.getTile(tempX, tempY);
             if (tempTile != NULL)
@@ -650,7 +658,7 @@ void *clientHandlerThread(void *p)
     return NULL;
 }
 
-void sendToAllClients(ExampleFrameListener *frameListener, String str)
+void sendToAllClients(ExampleFrameListener *frameListener, std::string str)
 {
     for (unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
     {

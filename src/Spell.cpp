@@ -1,6 +1,8 @@
 #include <algorithm>
+#include <cmath>
 
 #include "Spell.h"
+#include "Creature.h"
 
 double Spell::heal(int spellLevel, Creature *targetCreature, double hp,
         double maxMana)
@@ -8,8 +10,8 @@ double Spell::heal(int spellLevel, Creature *targetCreature, double hp,
     const double manaPerHPHealed = 0.1;
     double manaCost = 5;
     double maxHPHealed = (maxMana - manaCost) / manaPerHPHealed;
-    maxHPHealed = min(maxHPHealed, 10.0 * spellLevel);
-    maxHPHealed = min(maxHPHealed, hp);
+    maxHPHealed = std::min(maxHPHealed, 10.0 * spellLevel);
+    maxHPHealed = std::min(maxHPHealed, hp);
 
     //TODO: Should lock the HP to prevent race conditions.
     double currentHP = targetCreature->getHP(NULL);
@@ -18,7 +20,7 @@ double Spell::heal(int spellLevel, Creature *targetCreature, double hp,
     if (currentHP <= 0.0)
         return manaCost;
 
-    double newHP = min(currentHP + maxHPHealed, maxHP);
+    double newHP = std::min(currentHP + maxHPHealed, maxHP);
     double amountHealed = newHP - currentHP;
 
     // Prevent lowering the HP if the creature has more than full HP due to some other effect.

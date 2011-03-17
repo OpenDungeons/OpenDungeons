@@ -1,5 +1,10 @@
 #include "RoomQuarters.h"
 #include "Functions.h"
+#include "Tile.h"
+#include "Globals.h"
+#include "GameMap.h"
+#include "RoomObject.h"
+#include "Creature.h"
 
 RoomQuarters::RoomQuarters() :
     Room()
@@ -13,7 +18,11 @@ void RoomQuarters::absorbRoom(Room *r)
     destroyMeshes();
     destroyBedMeshes();
     r->destroyMeshes();
-    ((RoomQuarters*) r)->destroyBedMeshes();
+    //Added a check here - didn't look safe - oln 17/03/2011
+    if(r->getType() == quarters)
+    {
+        ((RoomQuarters*) r)->destroyBedMeshes();
+    }
 
     // Copy over the information about the creatures that are sleeping in the other quarters before we remove its rooms.
     for (unsigned int i = 0; i < r->numCoveredTiles(); ++i)
@@ -21,12 +30,12 @@ void RoomQuarters::absorbRoom(Room *r)
         Tile *tempTile = r->getCoveredTile(i);
 
         if (((RoomQuarters*) r)->creatureSleepingInTile[tempTile] != NULL)
-            cout << "\nCreature sleeping in tile " << tempTile << "\n"
+            std::cout << "\nCreature sleeping in tile " << tempTile << "\n"
                     << ((RoomQuarters*) r)->creatureSleepingInTile[tempTile];
         else
-            cout << "\nCreature sleeping in tile " << tempTile << "\nNULL";
+            std::cout << "\nCreature sleeping in tile " << tempTile << "\nNULL";
 
-        cout << "\n";
+        std::cout << "\n";
         creatureSleepingInTile[tempTile]
                 = ((RoomQuarters*) r)->creatureSleepingInTile[tempTile];
 

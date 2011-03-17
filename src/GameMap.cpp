@@ -16,6 +16,17 @@
 #include "Defines.h"
 #include "GameMap.h"
 #include "RadialVector2.h"
+#include "Tile.h"
+#include "Creature.h"
+#include "Player.h"
+#include "Trap.h"
+#include "Seat.h"
+#include "MapLight.h"
+#include "ProtectedObject.h"
+#include "TileCoordinateMap.h"
+#include "MissileObject.h"
+#include "Globals.h"
+#include "Weapon.h"
 
 GameMap::GameMap()
 {
@@ -59,7 +70,7 @@ void GameMap::createNewMap(int xSize, int ySize)
             tempTile->name = array;
             tempTile->createMesh();
             sem_wait(&tilesLockSemaphore);
-            tiles.insert(pair<pair<int, int> , Tile*> (pair<int, int> (i, j),
+            tiles.insert(std::pair<std::pair<int, int> , Tile*> (std::pair<int, int> (i, j),
                     tempTile));
             sem_post(&tilesLockSemaphore);
         }
@@ -84,7 +95,7 @@ void GameMap::createNewMap(int xSize, int ySize)
 Tile* GameMap::getTile(int x, int y)
 {
     Tile *returnValue = NULL;
-    pair<int, int> location(x, y);
+    std::pair<int, int> location(x, y);
 
     sem_wait(&tilesLockSemaphore);
     TileMap_t::iterator itr = tiles.find(location);
@@ -214,7 +225,7 @@ void GameMap::addTile(Tile *t)
             break;
 
         default:
-            cerr << "\n\n\nERROR:  Unknown neighbor index.\n\n\n";
+            std::cerr << "\n\n\nERROR:  Unknown neighbor index.\n\n\n";
             exit(1);
         }
 
@@ -232,7 +243,7 @@ void GameMap::addTile(Tile *t)
     }
 
     sem_wait(&tilesLockSemaphore);
-    tiles.insert(pair<pair<int, int> , Tile*> (pair<int, int> (t->x, t->y), t));
+    tiles.insert(std::pair<std::pair<int, int> , Tile*> (std::pair<int, int> (t->x, t->y), t));
     sem_post(&tilesLockSemaphore);
 }
 
@@ -518,7 +529,7 @@ AnimatedObject* GameMap::getAnimatedObject(int index)
     return tempAnimatedObject;
 }
 
-AnimatedObject* GameMap::getAnimatedObject(string name)
+AnimatedObject* GameMap::getAnimatedObject(std::string name)
 {
     AnimatedObject *tempAnimatedObject = NULL;
 
@@ -742,7 +753,7 @@ void GameMap::doTurn()
 
     sem_wait(&creatureAISemaphore);
 
-    cout << "\nStarting creature AI for turn " << turnNumber.get();
+    std::cout << "\nStarting creature AI for turn " << turnNumber.get();
     unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
     processDeletionQueues();
@@ -810,7 +821,7 @@ void GameMap::doTurn()
         }
     }
 
-    cout << "\nDuring this turn there were " << numCallsTo_path
+    std::cout << "\nDuring this turn there were " << numCallsTo_path
             - numCallsTo_path_atStart << " calls to GameMap::path().";
 
     sem_post(&creatureAISemaphore);
@@ -893,8 +904,8 @@ unsigned long int GameMap::doMiscUpkeep()
         int color = colorItr->first;
         int numDungeonTemples = colorItr->second;
         int numKobolds = koboldColorCounts[color];
-        int numKoboldsNeeded = max(4 * numDungeonTemples - numKobolds, 0);
-        numKoboldsNeeded = min(numKoboldsNeeded, numDungeonTemples);
+        int numKoboldsNeeded = std::max(4 * numDungeonTemples - numKobolds, 0);
+        numKoboldsNeeded = std::min(numKoboldsNeeded, numDungeonTemples);
         koboldsNeededPerColor[color] = numKoboldsNeeded;
 
         ++colorItr;
@@ -972,7 +983,7 @@ unsigned long int GameMap::doMiscUpkeep()
 
     // Now loop over all of the tiles, if the tile is claimed increment the given seats count.
     sem_wait(&tilesLockSemaphore);
-    std::map<pair<int, int> , Tile*>::iterator currentTile = tiles.begin();
+    std::map<std::pair<int, int> , Tile*>::iterator currentTile = tiles.begin();
     while (currentTile != tiles.end())
     {
         tempTile = currentTile->second;
@@ -1024,7 +1035,7 @@ unsigned long int GameMap::doCreatureTurns()
     sem_post(&creaturesLockSemaphore);
 
     //FIXME: Currently this just spawns a single thread as spawning more than one causes a segfault, probably due to a race condition.
-    unsigned int numThreads = min((unsigned int) maxAIThreads, arraySize);
+    unsigned int numThreads = std::min(maxAIThreads, arraySize);
     CDTHTStruct *threadParams = new CDTHTStruct[numThreads];
     pthread_t *threads = new pthread_t[numThreads];
     for (unsigned int i = 0; i < numThreads; ++i)
@@ -1193,13 +1204,13 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
                         break;
 
                     case Tile::impassableTile:
-                        cerr
+                        std::cerr
                                 << "\n\nERROR:  Trying to find a path through impassable tiles in GameMap::path()\n\n";
                         exit(1);
                         break;
 
                     default:
-                        cerr
+                        std::cerr
                                 << "\n\nERROR:  Unhandled tile type in GameMap::path()\n\n";
                         exit(1);
                         break;
@@ -1555,7 +1566,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
     int startX = startTile->x;
     int startY = startTile->y;
     int sightRadiusSquared = sightRadius * sightRadius;
-    std::list<pair<Tile*, double> > tileQueue;
+    std::list<std::pair<Tile*, double> > tileQueue;
 
     int tileCounter = 0;
     while (true)
@@ -1564,12 +1575,12 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
         if (rSquared > sightRadiusSquared)
             break;
 
-        pair<int, int> coord = tileCoordinateMap->getCoordinate(tileCounter);
+        std::pair<int, int> coord = tileCoordinateMap->getCoordinate(tileCounter);
 
         Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
         double tempTheta = tileCoordinateMap->getCentralTheta(tileCounter);
         if (tempTile != NULL)
-            tileQueue.push_back(pair<Tile*, double> (tempTile, tempTheta));
+            tileQueue.push_back(std::pair<Tile*, double> (tempTile, tempTheta));
 
         ++tileCounter;
     }
@@ -1609,7 +1620,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
             // Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of
             // the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
-            std::list<pair<Tile*, double> >::iterator tileQueueIterator =
+            std::list<std::pair<Tile*, double> >::iterator tileQueueIterator =
                     tileQueue.begin();
             while (tileQueueIterator != tileQueue.end())
             {
@@ -1737,7 +1748,7 @@ bool GameMap::pathIsClear(std::list<Tile*> path,
                 break;
 
             default:
-                cerr
+                std::cerr
                         << "\n\nERROR:  Unhandled tile type in GameMap::pathIsClear()\n\n";
                 exit(1);
                 break;
@@ -2391,7 +2402,7 @@ void GameMap::enableFloodFill()
     // Carry out a flood fill of the whole level to make sure everything is good.
     // Start by setting the flood fill color for every tile on the map to -1.
     sem_wait(&tilesLockSemaphore);
-    std::map<pair<int, int> , Tile*>::iterator currentTile = tiles.begin();
+    std::map<std::pair<int, int> , Tile*>::iterator currentTile = tiles.begin();
     while (currentTile != tiles.end())
     {
         tempTile = currentTile->second;
@@ -2406,7 +2417,7 @@ void GameMap::enableFloodFill()
     floodFillEnabled = true;
     sem_wait(&tilesLockSemaphore);
     currentTile = tiles.begin();
-    std::map<pair<int, int> , Tile*>::iterator endTile = tiles.end();
+    std::map<std::pair<int, int> , Tile*>::iterator endTile = tiles.end();
     sem_post(&tilesLockSemaphore);
     while (currentTile != endTile)
     {
@@ -2499,7 +2510,7 @@ void GameMap::threadUnlockForTurn(long int turn)
     }
     else
     {
-        cout
+        std::cout
                 << "\n\n\nERROR:  Calling threadUnlockForTurn on a turn number which does not have any current locks, bailing out.\n\n\n";
         exit(1);
     }
@@ -2512,7 +2523,7 @@ void GameMap::processDeletionQueues()
 {
     long int turn = turnNumber.get();
 
-    cout << "\nProcessing deletion queues on turn " << turn << ":  ";
+    std::cout << "\nProcessing deletion queues on turn " << turn << ":  ";
     long int latestTurnToBeRetired = -1;
 
     // Lock the thread reference count map to prevent race conditions.
@@ -2523,7 +2534,7 @@ void GameMap::processDeletionQueues()
             currentThreadReferenceCount = threadReferenceCount.begin();
     while (currentThreadReferenceCount != threadReferenceCount.end())
     {
-        cout << "(" << (*currentThreadReferenceCount).first << ", "
+        std::cout << "(" << (*currentThreadReferenceCount).first << ", "
                 << (*currentThreadReferenceCount).second.rawGet() << ")   ";
         if ((*currentThreadReferenceCount).second.get() == 0)
         {
@@ -2561,9 +2572,9 @@ void GameMap::processDeletionQueues()
         // Check to see if any creatures can be deleted.
         while (creaturesToDelete[currentTurnToRetire].size() > 0)
         {
-            cout << "\nSending message to delete creature "
+            std::cout << "\nSending message to delete creature "
                     << (*creaturesToDelete[currentTurnToRetire].begin())->name;
-            cout.flush();
+            std::cout.flush();
 
             (*creaturesToDelete[currentTurnToRetire].begin())->deleteYourself();
             creaturesToDelete[currentTurnToRetire].erase(

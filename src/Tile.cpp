@@ -3,6 +3,11 @@
 #include "Tile.h"
 #include "Globals.h"
 #include "Creature.h"
+#include "GameMap.h"
+#include "ServerNotification.h"
+#include "RenderRequest.h"
+#include "MapLight.h"
+#include "Seat.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
@@ -128,9 +133,9 @@ void Tile::setFullness(double f)
 
             queueServerNotification(serverNotification);
         }
-        catch (bad_alloc&)
+        catch (std::bad_alloc&)
         {
-            cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
+            std::cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
             exit(1);
         }
     }
@@ -347,7 +352,7 @@ void Tile::setFullness(double f)
                         break;
 
                     default:
-                        cerr
+                        std::cerr
                                 << "\n\nERROR:  Unhandled case statement in Tile::setFullness(), exiting.  tempInt = "
                                 << tempInt << "\n\n";
                         exit(1);
@@ -385,7 +390,7 @@ void Tile::setFullness(double f)
                 break;
 
             default:
-                cerr
+                std::cerr
                         << "\n\nERROR:  fullNeighbors != 0 or 1 or 2 or 3 or 4.  This is impossible, exiting program.\n\n";
                 exit(1);
                 break;
@@ -459,7 +464,7 @@ Tile::TileClearType Tile::getTilePassability()
             break;
 
         default:
-            cerr
+            std::cerr
                     << "\n\nERROR:  Unhandled tile type in Tile::getTilePassability()\n\n";
             exit(1);
             break;
@@ -467,7 +472,7 @@ Tile::TileClearType Tile::getTilePassability()
 
     // Return something to make the compiler happy.
     // Control should really never reach here because of the exit(1) call in the default switch case above
-    cerr
+    std::cerr
             << "\n\nERROR:  Control reached the end of Tile::getTilePassability, this should never actually happen.\n\n";
     exit(1);
     return impassableTile;
@@ -516,7 +521,7 @@ bool Tile::isClaimable()
     return ((type == dirt || type == claimed) && getFullness() < 1);
 }
 
-string Tile::getFormat()
+std::string Tile::getFormat()
 {
     return "posX\tposY\ttype\tfullness";
 }
@@ -526,7 +531,7 @@ string Tile::getFormat()
  * This operator is used in conjunction with the >> operator to standardize
  * tile format in the level files, as well as sending tiles over the network.
  */
-ostream& operator<<(ostream& os, Tile *t)
+std::ostream& operator<<(std::ostream& os, Tile *t)
 {
     os << t->x << "\t" << t->y << "\t" << t->getType() << "\t"
             << t->getFullness();
@@ -539,7 +544,7 @@ ostream& operator<<(ostream& os, Tile *t)
  * This operator is used in conjunction with the << operator to standardize
  * tile format in the level files, as well as sending tiles over the network.
  */
-istream& operator>>(istream& is, Tile *t)
+std::istream& operator>>(std::istream& is, Tile *t)
 {
     int tempInt, xLocation, yLocation;
     double tempDouble;
@@ -569,7 +574,7 @@ istream& operator>>(istream& is, Tile *t)
  * concatenated with a fullnessMeshNumber to form the filename, e.g.
  * Dirt104.mesh is a 4 sided dirt mesh with 100% fullness.
  */
-string Tile::tileTypeToString(TileType t)
+std::string Tile::tileTypeToString(TileType t)
 {
     switch (t)
     {
@@ -711,7 +716,7 @@ void Tile::destroyMesh()
  */
 void Tile::setSelected(bool s)
 {
-    Entity *ent;
+    Ogre::Entity *ent;
     char tempString[255];
     char tempString2[255];
 
@@ -727,7 +732,7 @@ void Tile::setSelected(bool s)
         {
             snprintf(tempString2, sizeof(tempString2), "Level_%3i_%3i_node", x,
                     y);
-            SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
+            Ogre::SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
 
             ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
             tempNode->attachObject(ent);
@@ -768,7 +773,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
     if (s && (getFullness() < 1))
         return;
 
-    Entity *ent;
+    Ogre::Entity *ent;
     char tempString[255];
     char tempString2[255];
 
@@ -788,7 +793,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
             {
                 snprintf(tempString2, sizeof(tempString2),
                         "Level_%3i_%3i_node", x, y);
-                SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
+                Ogre::SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
 
                 ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
@@ -971,7 +976,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
     // If the color is the same as ours we add to it, if it is an enemy color we subtract from it.
     if (nColor == color)
     {
-        amountClaimed = min(nDanceRate, 1.0 - colorDouble);
+        amountClaimed = std::min(nDanceRate, 1.0 - colorDouble);
         //cout << "\t\tmyTile is My color.";
         colorDouble += nDanceRate;
         if (colorDouble >= 1.0)
@@ -984,7 +989,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
     }
     else
     {
-        amountClaimed = min(nDanceRate, 1.0 + colorDouble);
+        amountClaimed = std::min(nDanceRate, 1.0 + colorDouble);
         colorDouble -= nDanceRate;
         if (colorDouble <= 0.0)
         {

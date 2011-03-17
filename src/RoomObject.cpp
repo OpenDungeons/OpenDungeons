@@ -2,8 +2,12 @@
 
 #include "Functions.h"
 #include "RoomObject.h"
+#include "RenderRequest.h"
+#include "Room.h"
+#include "GameMap.h"
+#include "Globals.h"
 
-RoomObject::RoomObject(Room *nParentRoom, string nMeshName)
+RoomObject::RoomObject(Room *nParentRoom, std::string nMeshName)
 {
     parentRoom = nParentRoom;
     meshExists = false;
@@ -17,12 +21,12 @@ RoomObject::RoomObject(Room *nParentRoom, string nMeshName)
     meshName = nMeshName;
 }
 
-string RoomObject::getName()
+std::string RoomObject::getName()
 {
     return name;
 }
 
-string RoomObject::getMeshName()
+std::string RoomObject::getMeshName()
 {
     return meshName;
 }
@@ -87,17 +91,17 @@ std::string RoomObject::getOgreNamePrefix()
     return "RoomObject_";
 }
 
-string RoomObject::getFormat()
+std::string RoomObject::getFormat()
 {
     return "name\tmeshName";
 }
 
-ostream& operator<<(ostream& os, RoomObject *o)
+std::ostream& operator<<(std::ostream& os, RoomObject *o)
 {
     return os;
 }
 
-istream& operator>>(istream& is, RoomObject *o)
+std::istream& operator>>(std::istream& is, RoomObject *o)
 {
     return is;
 }

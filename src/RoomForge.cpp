@@ -1,5 +1,8 @@
 #include "Globals.h"
 #include "RoomForge.h"
+#include "Tile.h"
+#include "GameMap.h"
+#include "RoomObject.h"
 
 RoomForge::RoomForge() :
     Room()

@@ -1,12 +1,13 @@
 #ifndef ROOMOBJECT_H
 #define ROOMOBJECT_H
 
-#include "Room.h"
 #include "ActiveObject.h"
 #include "AnimatedObject.h"
 #include <string>
 #include <istream>
 #include <ostream>
+
+class Room;
 
 class RoomObject: public ActiveObject, public AnimatedObject
 {

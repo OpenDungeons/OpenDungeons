@@ -1,13 +1,16 @@
 #include <vector>
+#include <iostream>
 
 #include "Globals.h"
 #include "GoalProtectDungeonTemple.h"
+#include "GameMap.h"
+#include "Room.h"
 
 GoalProtectDungeonTemple::GoalProtectDungeonTemple(const std::string& nName,
         const std::string& nArguments) :
     Goal(nName, nArguments)
 {
-    cout << "\nAdding goal " << getName();
+    std::cout << "\nAdding goal " << getName();
 }
 
 bool GoalProtectDungeonTemple::isMet(Seat *s)
@@ -30,17 +33,17 @@ bool GoalProtectDungeonTemple::isFailed(Seat *s)
     return !isMet(s);
 }
 
-string GoalProtectDungeonTemple::getDescription()
+std::string GoalProtectDungeonTemple::getDescription()
 {
     return "Protect your dungeon temple.";
 }
 
-string GoalProtectDungeonTemple::getSuccessMessage()
+std::string GoalProtectDungeonTemple::getSuccessMessage()
 {
     return "Your dungeon temple is intact";
 }
 
-string GoalProtectDungeonTemple::getFailedMessage()
+std::string GoalProtectDungeonTemple::getFailedMessage()
 {
     return "Your dungeon temple has been destroyed";
 }

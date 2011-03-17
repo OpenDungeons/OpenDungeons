@@ -9,28 +9,17 @@ class Tile;
 class TileCoordinateMap;
 class Creature;
 class Player;
-class Room;
 class Trap;
 class Seat;
 class Goal;
 class MapLight;
 template<typename T> class ProtectedObject;
 class MissileObject;
+class AnimatedObject;
 
-/*
- #include "Tile.h"
- #include "Creature.h"
- #include "Player.h"
- #include "Room.h"
- #include "Trap.h"
- #include "Seat.h"
- #include "MapLight.h"
- #include "ProtectedObject.h"
- #include "TileCoordinateMap.h"
- #include "MissileObject.h"
- */
+#include "Room.h"
 
-typedef std::map<pair<int, int> , Tile*> TileMap_t;
+typedef std::map<std::pair<int, int> , Tile*> TileMap_t;
 
 /*! \brief The class which stores the entire game state on the server and a subset of this on each client.
  *
@@ -76,7 +65,7 @@ class GameMap
         void addAnimatedObject(AnimatedObject *a);
         void removeAnimatedObject(AnimatedObject *a);
         AnimatedObject* getAnimatedObject(int index);
-        AnimatedObject* getAnimatedObject(string name);
+        AnimatedObject* getAnimatedObject(std::string name);
         unsigned int numAnimatedObjects();
 
         //void clearActiveObjects();
@@ -201,7 +190,7 @@ class GameMap
         void threadUnlockForTurn(long int turn);
 
         // Public data members
-        string levelFileName;
+        std::string levelFileName;
         unsigned long int miscUpkeepTime, creatureTurnsTime;
         unsigned int maxAIThreads;
 
@@ -226,7 +215,7 @@ class GameMap
         unsigned long int doCreatureTurns();
 
         // Private datamembers
-        std::map<pair<int, int> , Tile*> tiles;
+        std::map<std::pair<int, int> , Tile*> tiles;
         sem_t tilesLockSemaphore;
         std::vector<CreatureClass*> classDescriptions;
         std::vector<Creature*> creatures;

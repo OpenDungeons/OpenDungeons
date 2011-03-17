@@ -1,13 +1,16 @@
 #include <sstream>
+#include <iostream>
 
 #include "Globals.h"
 #include "GoalMineNGold.h"
+#include "GameMap.h"
+#include "Player.h"
 
 GoalMineNGold::GoalMineNGold(const std::string& nName,
         const std::string& nArguments) :
     Goal(nName, nArguments)
 {
-    cout << "\nAdding goal " << getName();
+    std::cout << "\nAdding goal " << getName();
     goldToMine = atoi(nArguments.c_str());
 }
 
@@ -19,7 +22,7 @@ bool GoalMineNGold::isMet(Seat *s)
         return false;
 }
 
-string GoalMineNGold::getDescription()
+std::string GoalMineNGold::getDescription()
 {
     std::stringstream tempSS;
     tempSS << "Mined " << gameMap.me->seat->goldMined << " of " << goldToMine
@@ -27,14 +30,14 @@ string GoalMineNGold::getDescription()
     return tempSS.str();
 }
 
-string GoalMineNGold::getSuccessMessage()
+std::string GoalMineNGold::getSuccessMessage()
 {
     std::stringstream tempSS;
     tempSS << "You have mined more than " << goldToMine << " gold coins.";
     return tempSS.str();
 }
 
-string GoalMineNGold::getFailedMessage()
+std::string GoalMineNGold::getFailedMessage()
 {
     std::stringstream tempSS;
     tempSS << "You have failed to mine more than " << goldToMine

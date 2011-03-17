@@ -1,5 +1,16 @@
+#include <cmath>
+
 #include "Functions.h"
 #include "RoomPortal.h"
+#include "Seat.h"
+#include "Player.h"
+#include "Creature.h"
+#include "Tile.h"
+#include "RoomObject.h"
+#include "Globals.h"
+#include "GameMap.h"
+#include "Weapon.h"
+#include "CreatureAction.h"
 
 RoomPortal::RoomPortal() :
     Room()
@@ -75,7 +86,7 @@ bool RoomPortal::doUpkeep(Room *r)
  */
 void RoomPortal::spawnCreature()
 {
-    cout << "\n\n\n\n\nPortal: " << getName() << "  spawn creature...\n";
+    std::cout << "\n\n\n\n\nPortal: " << getName() << "  spawn creature...\n";
     CreatureClass *classToSpawn = NULL;
 
     if (portalObject != NULL)
@@ -106,7 +117,7 @@ void RoomPortal::spawnCreature()
         }
     }
 
-    cout << "\n\n\nSpawning a creature of class " << classToSpawn->className
+    std::cout << "\n\n\nSpawning a creature of class " << classToSpawn->className
             << "\n\n\n";
 
     // Create a new creature and copy over the class-based creature parameters.
@@ -163,7 +174,7 @@ void RoomPortal::recomputeClassProbabilities()
             + controllingSeat->factionCorpars + controllingSeat->factionUndead
             + controllingSeat->factionConstructs
             + controllingSeat->factionDenizens;
-    if (fabs(tempDouble) > 0.000001)
+    if (std::fabs(tempDouble) > 0.000001)
     {
         controllingSeat->factionHumans /= tempDouble;
         controllingSeat->factionCorpars /= tempDouble;
@@ -174,7 +185,7 @@ void RoomPortal::recomputeClassProbabilities()
 
     tempDouble = controllingSeat->alignmentAltruism
             + controllingSeat->alignmentOrder + controllingSeat->alignmentPeace;
-    if (fabs(tempDouble) > 0.000001)
+    if (std::fabs(tempDouble) > 0.000001)
     {
         controllingSeat->alignmentAltruism /= tempDouble;
         controllingSeat->alignmentOrder /= tempDouble;
@@ -211,13 +222,13 @@ void RoomPortal::recomputeClassProbabilities()
                 * tempClass->coefficientPeace;
 
         // Store the computed probability and compute the sum of the probabilities to be used for renormalization.
-        classProbabilities.push_back(pair<CreatureClass*, double> (tempClass,
+        classProbabilities.push_back(std::pair<CreatureClass*, double> (tempClass,
                 probability));
         totalProbability += probability;
     }
 
     // Loop over the stored probabilities and renormalise them (i.e. divide each by the total so the sum is 1.0).
-    if (fabs(totalProbability) > 0.000001)
+    if (std::fabs(totalProbability) > 0.000001)
     {
         for (unsigned int i = 0; i < classProbabilities.size(); ++i)
         {
@@ -246,7 +257,7 @@ void RoomPortal::recomputeCenterPosition()
         yCenter += tempTile->y;
     }
 
-    xCenter /= (double) coveredTiles.size();
-    yCenter /= (double) coveredTiles.size();
+    xCenter /= static_cast<double>(coveredTiles.size());
+    yCenter /= static_cast<double>(coveredTiles.size());
 }
 

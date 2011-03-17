@@ -1,8 +1,10 @@
 #include <cmath>
 #include <algorithm>
 
-#include <Ogre.h>
+
 #include <CEGUIWindow.h>
+#include <OgreQuaternion.h>
+#include <OgreVector3.h>
 
 #include "Creature.h"
 #include "Defines.h"
@@ -12,6 +14,12 @@
 #include "Network.h"
 #include "Field.h"
 #include "Weapon.h"
+#include "GameMap.h"
+#include "RenderRequest.h"
+#include "SoundEffectsHelper.h"
+#include "CreatureSound.h"
+#include "Player.h"
+#include "Seat.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
@@ -101,7 +109,7 @@ Creature::Creature()
 /** \brief A function which returns a string describing the IO format of the << and >> operators.
  *
  */
-string Creature::getFormat()
+std::string Creature::getFormat()
 {
     //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.
     string tempString = "className\tname\tposX\tposY\tposZ\tcolor\tweaponL";
@@ -116,7 +124,7 @@ string Creature::getFormat()
 /*! \brief A matched function to transport creatures between files and over the network.
  *
  */
-ostream& operator<<(ostream& os, Creature *c)
+std::ostream& operator<<(std::ostream& os, Creature *c)
 {
     os << c->className << "\t" << c->name << "\t";
 
@@ -138,11 +146,11 @@ ostream& operator<<(ostream& os, Creature *c)
 /*! \brief A matched function to transport creatures between files and over the network.
  *
  */
-istream& operator>>(istream& is, Creature *c)
+std::istream& operator>>(std::istream& is, Creature *c)
 {
     double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
     double tempDouble;
-    string tempString;
+    std::string tempString;
 
     is >> c->className;
     is >> tempString;
@@ -399,7 +407,7 @@ void Creature::doTurn()
     AttackableObject *tempAttackableObject;
     CreatureAction tempAction;
     Ogre::Vector3 tempVector;
-    Quaternion tempQuat;
+    Ogre::Quaternion tempQuat;
 
     // Heal.
     sem_wait(&hpLockSemaphore);
@@ -2047,10 +2055,10 @@ void Creature::deleteYourself()
 /*! \brief Creates a string with a unique number embedded into it so the creature's name will not be the same as any other OGRE entity name.
  *
  */
-string Creature::getUniqueCreatureName()
+std::string Creature::getUniqueCreatureName()
 {
     static int uniqueNumber = 1;
-    string tempString = className + Ogre::StringConverter::toString(
+    std::string tempString = className + Ogre::StringConverter::toString(
             uniqueNumber);
     ++uniqueNumber;
     return tempString;
@@ -2070,7 +2078,7 @@ void Creature::createStatsWindow()
     CEGUI::Window *rootWindow = CEGUI::System::getSingleton().getGUISheet();
 
     statsWindow = wmgr->createWindow("OD/FrameWindow",
-            (string) "Root/CreatureStatsWindows/" + getName());
+            std::string("Root/CreatureStatsWindows/") + getName());
     statsWindow->setPosition(UVector2(UDim(0.7, 0), UDim(0.65, 0)));
     statsWindow->setSize(UVector2(UDim(0.25, 0), UDim(0.3, 0)));
 

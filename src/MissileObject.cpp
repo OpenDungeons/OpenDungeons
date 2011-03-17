@@ -1,15 +1,18 @@
 #include <iostream>
 #include <sstream>
 
-#include "Functions.h"
 #include "MissileObject.h"
+#include "Functions.h"
+#include "RenderRequest.h"
+#include "Globals.h"
+
 
 MissileObject::MissileObject()
 {
     initialize();
 }
 
-MissileObject::MissileObject(string nMeshName, Ogre::Vector3 nPosition)
+MissileObject::MissileObject(std::string nMeshName, Ogre::Vector3 nPosition)
 {
     initialize();
 

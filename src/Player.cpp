@@ -1,6 +1,13 @@
+#include "Player.h"
 #include "Globals.h"
 #include "Functions.h"
-#include "Player.h"
+#include "ServerNotification.h"
+#include "Creature.h"
+#include "GameMap.h"
+#include "Seat.h"
+#include "Weapon.h"
+#include "ClientNotification.h"
+#include "RenderRequest.h"
 
 Player::Player()
 {

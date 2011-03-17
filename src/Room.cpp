@@ -3,6 +3,12 @@
 #include "Globals.h"
 #include "Functions.h"
 #include "Room.h"
+#include "Player.h"
+#include "Tile.h"
+#include "Creature.h"
+#include "RenderRequest.h"
+#include "GameMap.h"
+#include "RoomObject.h"
 
 const double Room::defaultTileHP = 10.0;
 
@@ -48,9 +54,9 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles,
 
     if (tempRoom == NULL)
     {
-        cerr
+        std::cerr
                 << "\n\n\nERROR: Trying to create a room of unknown type, bailing out.\n";
-        cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
+        std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
                 << "\n\n\n";
         exit(1);
     }
@@ -94,7 +100,7 @@ void Room::absorbRoom(Room *r)
     r->roomObjects.clear();
 }
 
-Room* Room::createRoomFromStream(istream &is)
+Room* Room::createRoomFromStream(std::istream &is)
 {
     Room tempRoom;
     is >> &tempRoom;
@@ -275,7 +281,7 @@ void Room::destroyMeshes()
 /*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile, if the tile is NULL the object appears in the room's center, the rotation angle is given in degrees.
  *
  */
-RoomObject* Room::loadRoomObject(string meshName, Tile *targetTile,
+RoomObject* Room::loadRoomObject(std::string meshName, Tile *targetTile,
         double rotationAngle)
 {
     if (targetTile == NULL)
@@ -285,7 +291,7 @@ RoomObject* Room::loadRoomObject(string meshName, Tile *targetTile,
             rotationAngle);
 }
 
-RoomObject* Room::loadRoomObject(string meshName, Tile *targetTile, double x,
+RoomObject* Room::loadRoomObject(std::string meshName, Tile *targetTile, double x,
         double y, double rotationAngle)
 {
     RoomObject *tempRoomObject = new RoomObject(this, meshName);
@@ -336,7 +342,7 @@ Room::RoomType Room::getType()
     return type;
 }
 
-string Room::getFormat()
+std::string Room::getFormat()
 {
     return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
@@ -371,11 +377,11 @@ bool Room::doUpkeep(Room *r)
     return true;
 }
 
-istream& operator>>(istream& is, Room *r)
+std::istream& operator>>(std::istream& is, Room *r)
 {
     static int uniqueNumber = 1;
     int tilesToLoad, tempX, tempY;
-    string tempString;
+    std::string tempString;
     std::stringstream tempSS;
 
     is >> r->meshName >> r->color;
@@ -404,7 +410,7 @@ istream& operator>>(istream& is, Room *r)
     return is;
 }
 
-ostream& operator<<(ostream& os, Room *r)
+std::ostream& operator<<(std::ostream& os, Room *r)
 {
     os << r->meshName << "\t" << r->color << "\n";
     os << r->coveredTiles.size() << "\n";
@@ -417,7 +423,7 @@ ostream& operator<<(ostream& os, Room *r)
     return os;
 }
 
-string Room::getMeshNameFromRoomType(RoomType t)
+std::string Room::getMeshNameFromRoomType(RoomType t)
 {
     switch (t)
     {
@@ -447,7 +453,7 @@ string Room::getMeshNameFromRoomType(RoomType t)
     return "UnknownRoomType";
 }
 
-Room::RoomType Room::getRoomTypeFromMeshName(string s)
+Room::RoomType Room::getRoomTypeFromMeshName(std::string s)
 {
     if (s.compare("DungeonTemple") == 0)
         return dungeonTemple;
@@ -463,9 +469,9 @@ Room::RoomType Room::getRoomTypeFromMeshName(string s)
         return dojo;
     else
     {
-        cerr
+        std::cerr
                 << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";
-        cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
+        std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
                 << "\n\n\n";
         exit(1);
     }

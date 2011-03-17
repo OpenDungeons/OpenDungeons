@@ -10,19 +10,21 @@
 //#include <OgreOggISound.h>
 
 class Creature;
+class RoomDojo;
+class CreatureAction;
+class Weapon;
+class Player;
+class Field;
 namespace CEGUI
 {
 class Window;
 }
 
+#include "CreatureSound.h"
 #include "Tile.h"
-#include "CreatureAction.h"
-#include "Weapon.h"
-#include "Field.h"
 #include "CreatureClass.h"
 #include "AttackableObject.h"
-#include "AnimatedObject.h"
-#include "CreatureSound.h"
+
 
 /*! \brief Position, status, and AI state for a single game creature.
  *
@@ -41,7 +43,7 @@ class Creature: public CreatureClass, public AttackableObject
 
         // Individual properties
         Weapon *weaponL, *weaponR; // The weapons the creature is holding
-        string meshID, nodeID; // The unique names for the OGRE entities
+        std::string meshID, nodeID; // The unique names for the OGRE entities
         int color; // The color of the player who controls this creature
         int level;
         double exp;
@@ -54,7 +56,7 @@ class Creature: public CreatureClass, public AttackableObject
         void createMesh();
         void destroyMesh();
         void deleteYourself();
-        string getUniqueCreatureName();
+        std::string getUniqueCreatureName();
 
         void createStatsWindow();
         void destroyStatsWindow();
@@ -103,7 +105,7 @@ class Creature: public CreatureClass, public AttackableObject
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
         AttackableObject::AttackableObjectType getAttackableObjectType();
-        string getName();
+        std::string getName();
         void clearActionQueue();
 
         Player* getControllingPlayer();
@@ -117,9 +119,9 @@ class Creature: public CreatureClass, public AttackableObject
         void destroyVisualDebugEntities();
         bool getHasVisualDebuggingEntities();
 
-        static string getFormat();
-        friend ostream& operator<<(ostream& os, Creature *c);
-        friend istream& operator>>(istream& is, Creature *c);
+        static std::string getFormat();
+        friend std::ostream& operator<<(std::ostream& os, Creature *c);
+        friend std::istream& operator>>(std::istream& is, Creature *c);
         Creature operator=(CreatureClass c2);
 
         // Public data members

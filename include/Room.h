@@ -9,7 +9,10 @@
 #include "ActiveObject.h"
 #include "Tile.h"
 #include "AttackableObject.h"
-#include "RoomObject.h"
+//#include "RoomObject.h"
+
+class Player;
+class RoomObject;
 
 class Room: public AttackableObject, public ActiveObject
 {

@@ -1,5 +1,7 @@
 #include "RoomTreasury.h"
 #include "Functions.h"
+#include "RenderRequest.h"
+#include "Tile.h"
 
 RoomTreasury::RoomTreasury() :
     Room()
@@ -89,7 +91,7 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
 
     // Start by trying to deposit the gold in the requested tile.
     emptySpace = maxGoldWhichCanBeStoredInAChest - goldInTile[tile];
-    goldDeposited = min(emptySpace, goldToDeposit);
+    goldDeposited = std::min(emptySpace, goldToDeposit);
     goldInTile[tile] += goldDeposited;
     goldToDeposit -= goldDeposited;
     updateMeshesForTile(tile);
@@ -100,7 +102,7 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     {
         // Store as much gold as we can in this tile.
         emptySpace = maxGoldWhichCanBeStoredInAChest - itr->second;
-        goldDeposited = min(emptySpace, goldToDeposit);
+        goldDeposited = std::min(emptySpace, goldToDeposit);
         itr->second += goldDeposited;
         goldToDeposit -= goldDeposited;
         updateMeshesForTile(itr->first);
@@ -153,7 +155,7 @@ RoomTreasury::TreasuryTileFullness RoomTreasury::getTreasuryTileFullness(
     return overfull;
 }
 
-string RoomTreasury::getMeshNameForTreasuryTileFullness(
+std::string RoomTreasury::getMeshNameForTreasuryTileFullness(
         TreasuryTileFullness fullness)
 {
     switch (fullness)
@@ -196,7 +198,7 @@ void RoomTreasury::createMeshesForTile(Tile *t)
     if (fullnessOfTile[t] == empty)
         return;
 
-    string indicatorMeshName = getMeshNameForTreasuryTileFullness(
+    std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(
             fullnessOfTile[t]);
 
     RenderRequest *request = new RenderRequest;
@@ -215,7 +217,7 @@ void RoomTreasury::destroyMeshesForTile(Tile *t)
     if (fullnessOfTile[t] == empty)
         return;
 
-    string indicatorMeshName = getMeshNameForTreasuryTileFullness(
+    std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(
             fullnessOfTile[t]);
 
     RenderRequest *request = new RenderRequest;

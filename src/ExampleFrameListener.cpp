@@ -17,6 +17,18 @@
 #include "Trap.h"
 #include "RoomObject.h"
 #include "MissileObject.h"
+#include "GameMap.h"
+#include "Player.h"
+#include "SoundEffectsHelper.h"
+#include "RenderRequest.h"
+#include "Weapon.h"
+#include "MapLight.h"
+#include "ProtectedObject.h"
+#include "Goal.h"
+#include "ClientNotification.h"
+#include "CreatureAction.h"
+#include "CreatureSound.h"
+#include "ServerNotification.h"
 
 using namespace Ogre;
 

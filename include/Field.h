@@ -1,11 +1,9 @@
 #ifndef FIELD_H
 #define FIELD_H
 
-#include <iostream>
-#include <utility>
 #include <map>
 
-typedef pair<int, int> LocationType;
+typedef std::pair<int, int> LocationType;
 typedef std::map<LocationType, double> FieldType;
 
 class Field
@@ -16,11 +14,11 @@ class Field
             opUnion, opIntersection, opSymmetricDifference
         };
 
-        Field(string nName);
+        Field(const std::string& nName);
 
-        string name;
+        std::string name;
 
-        pair<double, bool> get(int x, int y);
+        std::pair<double, bool> get(int x, int y);
         FieldType::iterator begin();
         FieldType::iterator end();
         void set(int x, int y, double f);
@@ -29,8 +27,8 @@ class Field
         void addField(Field *f, double scale);
         void subtractField(Field *f, double scale);
         void clear();
-        pair<LocationType, double> min();
-        pair<LocationType, double> max();
+        std::pair<LocationType, double> min();
+        std::pair<LocationType, double> max();
 
         void refreshMeshes(double offset);
         void createMeshes(double offset);

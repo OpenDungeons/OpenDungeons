@@ -1,9 +1,10 @@
 #include <sstream>
 
+#include "MapLight.h"
 #include "Globals.h"
 #include "Functions.h"
-#include "MapLight.h"
 #include "RenderRequest.h"
+#include "GameMap.h"
 
 void MapLight::initialize()
 {
@@ -130,7 +131,7 @@ void MapLight::deleteYourself()
     queueRenderRequest(request);
 }
 
-string MapLight::getName()
+std::string MapLight::getName()
 {
     return name;
 }
@@ -148,7 +149,7 @@ void MapLight::setPosition(Ogre::Vector3 nPosition)
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
-    request->str = (string) "MapLight_" + name + "_node";
+    request->str = std::string("MapLight_") + name + "_node";
     request->vec = position;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
@@ -213,7 +214,7 @@ void MapLight::advanceFlicker(double time)
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
-    request->str = (string) "MapLight_" + name + "_flicker_node";
+    request->str = std::string("MapLight_") + name + "_flicker_node";
     request->vec = flickerPosition;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
@@ -225,12 +226,12 @@ bool MapLight::isPermanent()
     return true;
 }
 
-string MapLight::getFormat()
+std::string MapLight::getFormat()
 {
     return "posX\tposY\tposZ\tdiffuseR\tdiffuseG\tdiffuseB\tspecularR\tspecularG\tspecularB\tattenRange\tattenConst\tattenLin\tattenQuad";
 }
 
-ostream& operator<<(ostream& os, MapLight *m)
+std::ostream& operator<<(std::ostream& os, MapLight *m)
 {
     os << m->position.x << "\t" << m->position.y << "\t" << m->position.z
             << "\t";
@@ -244,7 +245,7 @@ ostream& operator<<(ostream& os, MapLight *m)
     return os;
 }
 
-istream& operator>>(istream& is, MapLight *m)
+std::istream& operator>>(std::istream& is, MapLight *m)
 {
     is >> m->position.x >> m->position.y >> m->position.z;
     is >> m->diffuseColor.r >> m->diffuseColor.g >> m->diffuseColor.b;

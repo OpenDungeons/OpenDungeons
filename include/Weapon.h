@@ -2,26 +2,28 @@
 #define WEAPON_H
 
 #include <string>
-#include <iostream>
-using namespace std;
+#include <istream>
+#include <ostream>
+
+class Creature;
 
 class Weapon
 {
     public:
         Weapon();
 
-        string name, meshName;
+        std::string name, meshName;
         double damage, range, defense;
         Creature *parentCreature;
-        string handString;
+        std::string handString;
 
         void createMesh();
         void destroyMesh();
         void deleteYourself();
 
-        static string getFormat();
-        friend ostream& operator<<(ostream& os, Weapon *w);
-        friend istream& operator>>(istream& is, Weapon *w);
+        static std::string getFormat();
+        friend std::ostream& operator<<(std::ostream& os, Weapon *w);
+        friend std::istream& operator>>(std::istream& is, Weapon *w);
 
     private:
         bool meshExists;

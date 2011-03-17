@@ -3,9 +3,9 @@
 
 #include <iostream>
 #include <string>
-using namespace std;
-
 #include <Ogre.h>
+
+#include "ActiveObject.h"
 
 class MapLight
 {
@@ -27,7 +27,7 @@ class MapLight
         void destroyOgreEntityVisualIndicator();
         void deleteYourself();
 
-        string getName();
+        std::string getName();
         void setPosition(double nX, double nY, double nZ);
         void setPosition(Ogre::Vector3 nPosition);
         Ogre::Vector3 getPosition();
@@ -42,9 +42,9 @@ class MapLight
 
         virtual bool isPermanent();
 
-        static string getFormat();
-        friend ostream& operator<<(ostream& os, MapLight *m);
-        friend istream& operator>>(istream& is, MapLight *m);
+        static std::string getFormat();
+        friend std::ostream& operator<<(std::ostream& os, MapLight *m);
+        friend std::istream& operator>>(std::istream& is, MapLight *m);
 
     private:
         Ogre::Vector3 position;
@@ -56,7 +56,7 @@ class MapLight
         double attenuationLinear;
         double attenuationQuadratic;
 
-        string name;
+        std::string name;
         bool ogreEntityExists;
         bool ogreEntityVisualIndicatorExists;
 

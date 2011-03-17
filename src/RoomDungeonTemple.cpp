@@ -1,5 +1,11 @@
 #include "Globals.h"
 #include "RoomDungeonTemple.h"
+#include "GameMap.h"
+#include "Creature.h"
+#include "Weapon.h"
+#include "CreatureAction.h"
+#include "CreatureSound.h"
+#include "RoomObject.h"
 
 RoomDungeonTemple::RoomDungeonTemple() :
     Room()

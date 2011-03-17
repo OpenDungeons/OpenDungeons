@@ -3,12 +3,15 @@
 #include "Field.h"
 #include "RenderRequest.h"
 
-Field::Field(string nName)
+#include <iostream>
+#include <OgreStringConverter.h>
+
+Field::Field(const std::string& nName)
 {
     static int uniqueNumber = 0;
 
     if (nName.compare("autoname") == 0)
-        name = "field_" + StringConverter::toString(++uniqueNumber);
+        name = "field_" + Ogre::StringConverter::toString(++uniqueNumber);
     else
         name = nName;
 
@@ -18,14 +21,14 @@ Field::Field(string nName)
 /*! \brief Returns the stored value at a position (or 0) and a boolean indicating whether the value was actually found.
  *
  */
-pair<double, bool> Field::get(int x, int y)
+std::pair<double, bool> Field::get(int x, int y)
 {
     LocationType location(x, y);
     FieldType::iterator itr;
     itr = theField.find(location);
     bool found = (itr != theField.end());
 
-    return pair<double, bool> (found ? (*itr).second : 0.0, found);
+    return std::pair<double, bool> (found ? (*itr).second : 0.0, found);
 }
 
 FieldType::iterator Field::begin()
@@ -94,11 +97,11 @@ void Field::clear()
     theField.clear();
 }
 
-pair<LocationType, double> Field::min()
+std::pair<LocationType, double> Field::min()
 {
     if (theField.size() == 0)
     {
-        cerr
+        std::cerr
                 << "\n\nERROR:  Trying to find the minumum value on a field of 0 elements.\n\n";
         exit(1);
     }
@@ -118,11 +121,11 @@ pair<LocationType, double> Field::min()
     return *minimum;
 }
 
-pair<LocationType, double> Field::max()
+std::pair<LocationType, double> Field::max()
 {
     if (theField.size() == 0)
     {
-        cerr
+        std::cerr
                 << "\n\nERROR:  Trying to find the minumum value on a field of 0 elements.\n\n";
         exit(1);
     }

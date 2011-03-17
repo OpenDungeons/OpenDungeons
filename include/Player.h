@@ -6,10 +6,9 @@
 
 
 #include "Trap.h" //Class has enum, so has to include this.
-class Goal;
+#include "Room.h"
 class Seat;
 class Creature;
-class Room;
 
 /*! \brief The player cleass contains information about a human, or computer, player in the game.
  *

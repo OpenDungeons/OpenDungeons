@@ -21,12 +21,12 @@ void swap(int &a, int &b);
 std::string stripCommentsFromLine(std::string line);
 
 void colourizeEntity(Ogre::Entity *ent, int colour);
-std::string colourizeMaterial(std::string materialName, int color);
+std::string colourizeMaterial(const std::string& materialName, int color);
 
 void queueRenderRequest(RenderRequest *r);
 void queueServerNotification(ServerNotification *n);
 
-std::vector<std::string> listAllFiles(std::string directoryName);
+std::vector<std::string> listAllFiles(const std::string& directoryName);
 
 std::string forceLowercase(std::string s);
 

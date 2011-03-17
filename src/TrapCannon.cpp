@@ -2,6 +2,9 @@
 #include "Functions.h"
 #include "TrapCannon.h"
 #include "MissileObject.h"
+#include "GameMap.h"
+#include "AttackableObject.h"
+#include "Tile.h"
 
 TrapCannon::TrapCannon() :
     Trap()

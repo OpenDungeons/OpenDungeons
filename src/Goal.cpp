@@ -1,10 +1,5 @@
 #include "Goal.h"
 
-#include <string>
-#include <ostream>
-#include <istream>
-#include <vector>
-
 Goal::Goal(const std::string& nName, const std::string& nArguments)
 {
     name = nName;
@@ -30,7 +25,7 @@ bool Goal::isFailed(Seat *s)
     return false;
 }
 
-string Goal::getName()
+std::string Goal::getName()
 {
     return name;
 }
@@ -65,7 +60,7 @@ Goal* Goal::getFailureSubGoal(int index)
     return failureSubGoals[index];
 }
 
-string Goal::getFormat()
+std::string Goal::getFormat()
 {
     return "goalName\targuments";
 }
@@ -98,7 +93,7 @@ std::ostream& operator<<(std::ostream& os, Goal *g)
 
 Goal* Goal::instantiateFromStream(std::istream& is)
 {
-    string tempName, tempArguments;
+    std::string tempName, tempArguments;
     Goal *tempGoal = NULL;
 
     // Store the name and arguments of the goal so we can instantiate a specific goal subclass below.

@@ -11,6 +11,7 @@
 #include "Tile.h"
 #include "Network.h"
 #include "ButtonHandlers.h"
+#include "GameMap.h"
 
 MapEditor::MapEditor() :
     mSystem(0), mRenderer(0)
@@ -20,8 +21,7 @@ MapEditor::MapEditor() :
 MapEditor::~MapEditor()
 {
     if (mSystem)
-        //delete mSystem;   // use this line if using a CEGUI version before 0.7
-        mSystem->destroy(); // use this line if using a CEGUI version after 0.7
+        mSystem->destroy();
 
     if (mRenderer)
         delete mRenderer;
@@ -139,7 +139,7 @@ void MapEditor::createScene(void)
         CEGUI::System::getSingleton().setDefaultTooltip(
                 (CEGUI::utf8*) "OD/Tooltip");
     }
-    catch (CEGUI::Exception e)
+    catch (CEGUI::Exception& e)
     {
         Ogre::LogManager::getSingletonPtr()->logMessage(
                 "Error initializing CEGUI:");
@@ -152,7 +152,7 @@ void MapEditor::createScene(void)
 
         exit(1);
     }
-    catch (std::exception e)
+    catch (std::exception& e)
     {
         Ogre::LogManager::getSingletonPtr()->logMessage(
                 "Error initializing CEGUI (STL Exception):");

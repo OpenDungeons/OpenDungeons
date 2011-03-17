@@ -1,6 +1,9 @@
 #include "Functions.h"
 #include "Globals.h"
 #include "Trap.h"
+#include "RenderRequest.h"
+#include "Seat.h"
+#include "GameMap.h"
 
 const double Trap::defaultTileHP = 10.0;
 
@@ -27,9 +30,9 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
 
     if (tempTrap == NULL)
     {
-        cerr
+        std::cerr
                 << "\n\n\nERROR: Trying to create a trap of unknown type, bailing out.\n";
-        cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
+        std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
                 << "\n\n\n";
         exit(1);
     }
@@ -53,7 +56,7 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     return tempTrap;
 }
 
-Trap* Trap::createTrapFromStream(istream &is)
+Trap* Trap::createTrapFromStream(std::istream &is)
 {
     Trap tempTrap;
     is >> &tempTrap;
@@ -120,7 +123,7 @@ Trap::TrapType Trap::getType()
     return type;
 }
 
-string Trap::getMeshNameFromTrapType(TrapType t)
+std::string Trap::getMeshNameFromTrapType(TrapType t)
 {
     switch (t)
     {
@@ -135,15 +138,15 @@ string Trap::getMeshNameFromTrapType(TrapType t)
     return "UnknownTrapType";
 }
 
-Trap::TrapType Trap::getTrapTypeFromMeshName(string s)
+Trap::TrapType Trap::getTrapTypeFromMeshName(std::string s)
 {
     if (s.compare("Cannon") == 0)
         return cannon;
     else
     {
-        cerr
+        std::cerr
                 << "\n\n\nERROR:  Trying to get trap type from unknown mesh name, bailing out.\n";
-        cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
+        std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
                 << "\n\n\n";
         exit(1);
     }
@@ -164,12 +167,12 @@ int Trap::costPerTile(TrapType t)
     return 100;
 }
 
-string Trap::getName()
+std::string Trap::getName()
 {
     return name;
 }
 
-string Trap::getMeshName()
+std::string Trap::getMeshName()
 {
     return meshName;
 }
@@ -294,16 +297,16 @@ AttackableObject::AttackableObjectType Trap::getAttackableObjectType()
     return trap;
 }
 
-string Trap::getFormat()
+std::string Trap::getFormat()
 {
     return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
-istream& operator>>(istream& is, Trap *t)
+std::istream& operator>>(std::istream& is, Trap *t)
 {
     static int uniqueNumber = 1;
     int tilesToLoad, tempX, tempY, tempInt;
-    string tempString;
+    std::string tempString;
     std::stringstream tempSS;
 
     is >> t->meshName >> tempInt;
@@ -332,7 +335,7 @@ istream& operator>>(istream& is, Trap *t)
     return is;
 }
 
-ostream& operator<<(ostream& os, Trap *t)
+std::ostream& operator<<(std::ostream& os, Trap *t)
 {
     os << t->meshName << "\t" << t->controllingSeat->color << "\n";
     os << t->coveredTiles.size() << "\n";

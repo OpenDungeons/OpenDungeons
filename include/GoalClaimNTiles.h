@@ -11,9 +11,9 @@ class GoalClaimNTiles: public Goal
 
         // Inherited functions
         bool isMet(Seat *s);
-        string getDescription();
-        string getSuccessMessage();
-        string getFailedMessage();
+        std::string getDescription();
+        std::string getSuccessMessage();
+        std::string getFailedMessage();
 
     private:
         unsigned int numberOfTiles;

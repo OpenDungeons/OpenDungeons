@@ -14,9 +14,9 @@ class GoalProtectDungeonTemple: public Goal
         bool isMet(Seat *s);
         bool isUnmet(Seat *s);
         bool isFailed(Seat *s);
-        string getDescription();
-        string getSuccessMessage();
-        string getFailedMessage();
+        std::string getDescription();
+        std::string getSuccessMessage();
+        std::string getFailedMessage();
 };
 
 #endif

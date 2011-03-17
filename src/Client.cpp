@@ -14,6 +14,7 @@
 #include "Creature.h"
 #include "ClientNotification.h"
 #include "ProtectedObject.h"
+#include "Weapon.h"
 
 /*! \brief A thread function which runs on the client to handle communications with the server.
  *

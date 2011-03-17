@@ -1,11 +1,15 @@
 #include "Globals.h"
+#include "GameMap.h"
+#include "Creature.h"
 #include "GoalKillAllEnemies.h"
+
+#include <iostream>
 
 GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName,
         const std::string& nArguments) :
     Goal(nName, nArguments)
 {
-    cout << "\nAdding goal " << getName();
+    std::cout << "\nAdding goal " << getName();
 }
 
 bool GoalKillAllEnemies::isMet(Seat *s)
@@ -25,17 +29,17 @@ bool GoalKillAllEnemies::isMet(Seat *s)
     return !enemiesFound;
 }
 
-string GoalKillAllEnemies::getSuccessMessage()
+std::string GoalKillAllEnemies::getSuccessMessage()
 {
     return "You have killed all the enemy creatures.";
 }
 
-string GoalKillAllEnemies::getFailedMessage()
+std::string GoalKillAllEnemies::getFailedMessage()
 {
     return "You have failed to kill all the enemy creatures.";
 }
 
-string GoalKillAllEnemies::getDescription()
+std::string GoalKillAllEnemies::getDescription()
 {
     return "Kill all enemy creatures.";
 }

@@ -8,6 +8,7 @@
 #include <semaphore.h>
 
 #include "ActiveObject.h"
+#include "AnimatedObject.h"
 
 class MissileObject: public ActiveObject, public AnimatedObject
 {
@@ -25,7 +26,7 @@ class MissileObject: public ActiveObject, public AnimatedObject
         void deleteYourself();
 
         std::string meshName;
-        string getOgreNamePrefix()
+        std::string getOgreNamePrefix()
         {
             return "";
         }

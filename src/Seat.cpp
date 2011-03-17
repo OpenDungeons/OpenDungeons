@@ -1,4 +1,5 @@
 #include "Seat.h"
+#include "Goal.h"
 
 Seat::Seat()
 {
@@ -247,12 +248,12 @@ unsigned int Seat::checkAllCompletedGoals()
     return numCompletedGoals();
 }
 
-string Seat::getFormat()
+std::string Seat::getFormat()
 {
     return "color\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB";
 }
 
-ostream& operator<<(ostream& os, Seat *s)
+std::ostream& operator<<(std::ostream& os, Seat *s)
 {
     os << s->color << "\t" << s->faction << "\t" << s->startingX << "\t"
             << s->startingY << "\t";
@@ -262,7 +263,7 @@ ostream& operator<<(ostream& os, Seat *s)
     return os;
 }
 
-istream& operator>>(istream& is, Seat *s)
+std::istream& operator>>(std::istream& is, Seat *s)
 {
     is >> s->color >> s->faction >> s->startingX >> s->startingY;
     is >> s->colourValue.r >> s->colourValue.g >> s->colourValue.b;
