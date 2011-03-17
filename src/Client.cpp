@@ -7,6 +7,13 @@
 #include "ExampleFrameListener.h"
 #include "Network.h"
 #include "ChatMessage.h"
+#include "GameMap.h"
+#include "Seat.h"
+#include "Player.h"
+#include "MapLight.h"
+#include "Creature.h"
+#include "ClientNotification.h"
+#include "ProtectedObject.h"
 
 /*! \brief A thread function which runs on the client to handle communications with the server.
  *
@@ -20,8 +27,8 @@
 void *clientSocketProcessor(void *p)
 {
     bool tempBool;
-    string tempString;
-    string serverCommand, arguments;
+    std::string tempString;
+    std::string serverCommand, arguments;
     Socket *sock = ((CSPStruct*) p)->nSocket;
     ExampleFrameListener *frameListener = ((CSPStruct*) p)->nFrameListener;
     delete (CSPStruct*) p;
@@ -29,11 +36,11 @@ void *clientSocketProcessor(void *p)
 
     // Send a hello request to start the conversation with the server
     sem_wait(&sock->semaphore);
-    sock->send(formatCommand("hello", (string) "OpenDungeons V " + VERSION));
+    sock->send(formatCommand("hello", std::string("OpenDungeons V ") + VERSION));
     sem_post(&sock->semaphore);
     while (sock->is_valid())
     {
-        string commandFromServer = "";
+        std::string commandFromServer = "";
         bool packetComplete;
 
         // Loop until we get to a place that ends in a '>' symbol
@@ -271,9 +278,9 @@ void *clientSocketProcessor(void *p)
                 tempSS.str(arguments);
 
                 tempSS.getline(array, sizeof(array), ':');
-                string playerNick = array;
+                std::string playerNick = array;
                 tempSS.getline(array, sizeof(array));
-                string creatureName = array;
+                std::string creatureName = array;
 
                 Player *tempPlayer = gameMap.getPlayer(playerNick);
                 Creature *tempCreature = gameMap.getCreature(creatureName);
@@ -293,7 +300,7 @@ void *clientSocketProcessor(void *p)
                 tempSS.str(arguments);
 
                 tempSS.getline(array, sizeof(array), ':');
-                string playerNick = array;
+                std::string playerNick = array;
                 tempSS.getline(array, sizeof(array), ':');
                 int tempX = atoi(array);
                 tempSS.getline(array, sizeof(array));
@@ -312,7 +319,7 @@ void *clientSocketProcessor(void *p)
             {
 
                 char array[255];
-                string tempState;
+                std::string tempState;
                 std::stringstream tempSS;
                 tempSS.str(arguments);
 
@@ -389,7 +396,7 @@ void *clientSocketProcessor(void *p)
 void *clientNotificationProcessor(void *p)
 {
     //ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
-    string tempString;
+    std::string tempString;
     std::stringstream tempSS;
     Tile *tempTile;
     Creature *tempCreature;

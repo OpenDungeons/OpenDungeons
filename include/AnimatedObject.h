@@ -2,11 +2,15 @@
 #define ANIMATEDOBJECT_H
 
 #include <deque>
-#include <iostream>
+#include <list>
+#include <vector>
 #include <semaphore.h>
 
-#include <Ogre.h>
+#include <OgreVector3.h>
+#include <OgreAnimationState.h>
+#include <OgreSceneNode.h>
 
+//Forward declaration
 class Tile;
 
 class AnimatedObject

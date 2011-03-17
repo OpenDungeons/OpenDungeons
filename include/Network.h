@@ -2,7 +2,11 @@
 #define NETWORK_H
 
 #include <deque>
+#include <string>
 #include <utility>
+
+class ExampleFrameListener;
+class Socket;
 
 #include "ExampleFrameListener.h"
 #include "ChatMessage.h"
@@ -18,10 +22,10 @@ void *clientSocketProcessor(void *p);
 void *clientNotificationProcessor(void *p);
 
 // Other functions  (these are defined in src/Server.cpp)
-string formatCommand(string command, string arguments);
-bool parseCommand(string &command, string &commandName, string &arguments);
-ChatMessage *processChatMessage(string arguments);
-void sendToAllClients(ExampleFrameListener *frameListener, String str);
+std::string formatCommand(std::string command, std::string arguments);
+bool parseCommand(std::string &command, std::string &commandName, std::string &arguments);
+ChatMessage *processChatMessage(std::string arguments);
+void sendToAllClients(ExampleFrameListener *frameListener, std::string str);
 
 /*! \brief Server Socket Processor Structure
  *

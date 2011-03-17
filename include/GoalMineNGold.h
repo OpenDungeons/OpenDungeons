@@ -6,7 +6,7 @@
 class GoalMineNGold: public Goal
 {
     public:
-        GoalMineNGold(std::string nName, std::string nArguments);
+        GoalMineNGold(const std::string& nName, const std::string& nArguments);
 
         // Inherited functions
         bool isMet(Seat *s);

@@ -1,9 +1,15 @@
-#include "ButtonHandlers.h"
 #include "Functions.h"
+#include "Globals.h"
+#include "ExampleFrameListener.h"
+#include "GameMap.h"
+#include "Player.h"
+#include "Trap.h"
+
+#include "ButtonHandlers.h"
 
 bool quitButtonPressed(const CEGUI::EventArgs &e)
 {
-    writeGameMapToFile(((string) "levels/Test.level" + (string) ".out"));
+    writeGameMapToFile(std::string("levels/Test.level") + std::string(".out"));
     exampleFrameListener->mContinue = false;
     return true;
 }

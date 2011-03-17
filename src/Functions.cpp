@@ -23,7 +23,7 @@
 #define M_PI 3.141592653589793238462643
 #endif
 
-bool readGameMapFromFile(string fileName)
+bool readGameMapFromFile(const std::string& fileName)
 {
     Seat *tempSeat;
     Goal *tempGoal;
@@ -31,7 +31,7 @@ bool readGameMapFromFile(string fileName)
     Room *tempRoom;
     Trap *tempTrap;
     MapLight *tempLight;
-    string tempString, tempString2;
+    std::string tempString, tempString2;
     Creature tempCreature;
     int objectsToLoad;
 
@@ -174,7 +174,7 @@ bool readGameMapFromFile(string fileName)
     return true;
 }
 
-void writeGameMapToFile(string fileName)
+void writeGameMapToFile(const std::string& fileName)
 {
     ofstream levelFile(fileName.c_str(), ifstream::out);
     Tile *tempTile;

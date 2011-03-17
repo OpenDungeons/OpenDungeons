@@ -3,8 +3,8 @@
 #include "Globals.h"
 #include "GoalProtectDungeonTemple.h"
 
-GoalProtectDungeonTemple::GoalProtectDungeonTemple(string nName,
-        string nArguments) :
+GoalProtectDungeonTemple::GoalProtectDungeonTemple(const std::string& nName,
+        const std::string& nArguments) :
     Goal(nName, nArguments)
 {
     cout << "\nAdding goal " << getName();

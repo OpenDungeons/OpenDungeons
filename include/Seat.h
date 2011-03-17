@@ -1,13 +1,14 @@
 #ifndef SEAT_H
 #define SEAT_H
 
-#include <iostream>
-#include <vector>
-
-#include <Ogre.h>
+#include <OgreColourValue.h>
 #include <semaphore.h>
+#include <string>
+#include <vector>
+#include <ostream>
+#include <istream>
 
-#include "Goal.h"
+class Goal;
 
 class Seat
 {
@@ -38,7 +39,7 @@ class Seat
 
         // Public data members
         int color; /**< \brief The color index of the players sitting in this seat. */
-        string faction; /**< \brief The name of the faction that this seat is playing as. */
+        std::string faction; /**< \brief The name of the faction that this seat is playing as. */
         int startingX; /**< \brief The starting camera location (in tile coordinates) of this seat. */
         int startingY; /**< \brief The starting camera location (in tile coordinates) of this seat. */
         Ogre::ColourValue colourValue; /**< \brief The actual color that this color index translates into. */
@@ -60,8 +61,8 @@ class Seat
         sem_t numClaimedTilesLockSemaphore;
 
         static string getFormat();
-        friend ostream& operator<<(ostream& os, Seat *s);
-        friend istream& operator>>(istream& is, Seat *s);
+        friend std::ostream& operator<<(std::ostream& os, Seat *s);
+        friend std::istream& operator>>(std::istream& is, Seat *s);
 
     private:
         std::vector<Goal*> goals; /**< \brief The currently unmet goals for this seat, the first Seat to empty this wins. */

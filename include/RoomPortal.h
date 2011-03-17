@@ -3,6 +3,8 @@
 
 #include "Room.h"
 #include "CreatureClass.h"
+#include <vector>
+#include <map> //For pair
 
 class RoomPortal: public Room
 {
@@ -24,7 +26,7 @@ class RoomPortal: public Room
 
         int spawnCreatureCountdown;
 
-        std::vector<pair<CreatureClass*, double> > classProbabilities;
+        std::vector<std::pair<CreatureClass*, double> > classProbabilities;
         double xCenter, yCenter;
 
         RoomObject *portalObject;

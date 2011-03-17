@@ -7,7 +7,8 @@ class GoalProtectDungeonTemple: public Goal
 {
     public:
         // Constructors
-        GoalProtectDungeonTemple(string nName, string nArguments);
+        GoalProtectDungeonTemple(const std::string& nName,
+                const std::string& nArguments);
 
         // Inherited functions
         bool isMet(Seat *s);

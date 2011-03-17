@@ -2,15 +2,22 @@
 #define GOAL_H
 
 #include <string>
+#include <vector>
+#include <ostream>
+#include <istream>
 
+//Forward declarations
 class Seat;
-#include "Player.h"
+//#include "Player.h"
+
+
+
 
 class Goal
 {
     public:
         // Constructors
-        Goal(std::string nName, std::string nArguments);
+        Goal(const std::string& nName, const std::string& nArguments);
 
         // Functions which must be overridden by child classes
         virtual bool isMet(Seat *s) = 0;
@@ -28,16 +35,16 @@ class Goal
         std::string getName();
 
         void addSuccessSubGoal(Goal *g);
-        unsigned int numSuccessSubGoals();
+        unsigned numSuccessSubGoals();
         Goal* getSuccessSubGoal(int index);
 
         void addFailureSubGoal(Goal *g);
-        unsigned int numFailureSubGoals();
+        unsigned numFailureSubGoals();
         Goal* getFailureSubGoal(int index);
 
         static std::string getFormat();
-        friend ostream& operator<<(ostream& os, Goal *g);
-        static Goal* instantiateFromStream(istream& is);
+        friend std::ostream& operator<<(std::ostream& os, Goal *g);
+        static Goal* instantiateFromStream(std::istream& is);
 
     protected:
         std::string name;

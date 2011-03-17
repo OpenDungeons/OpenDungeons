@@ -1,7 +1,8 @@
 #include "Globals.h"
 #include "GoalKillAllEnemies.h"
 
-GoalKillAllEnemies::GoalKillAllEnemies(string nName, string nArguments) :
+GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName,
+        const std::string& nArguments) :
     Goal(nName, nArguments)
 {
     cout << "\nAdding goal " << getName();

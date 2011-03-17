@@ -3,7 +3,8 @@
 #include "Globals.h"
 #include "GoalClaimNTiles.h"
 
-GoalClaimNTiles::GoalClaimNTiles(string nName, string nArguments) :
+GoalClaimNTiles::GoalClaimNTiles(const std::string& nName,
+        const std::string& nArguments) :
     Goal(nName, nArguments)
 {
     cout << "\nAdding goal " << getName();

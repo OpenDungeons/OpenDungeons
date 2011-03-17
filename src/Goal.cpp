@@ -1,6 +1,11 @@
 #include "Goal.h"
 
-Goal::Goal(string nName, string nArguments)
+#include <string>
+#include <ostream>
+#include <istream>
+#include <vector>
+
+Goal::Goal(const std::string& nName, const std::string& nArguments)
 {
     name = nName;
     arguments = nArguments;
@@ -65,7 +70,7 @@ string Goal::getFormat()
     return "goalName\targuments";
 }
 
-ostream& operator<<(ostream& os, Goal *g)
+std::ostream& operator<<(std::ostream& os, Goal *g)
 {
     unsigned int subGoals;
 
@@ -91,7 +96,7 @@ ostream& operator<<(ostream& os, Goal *g)
     return os;
 }
 
-Goal* Goal::instantiateFromStream(istream& is)
+Goal* Goal::instantiateFromStream(std::istream& is)
 {
     string tempName, tempArguments;
     Goal *tempGoal = NULL;

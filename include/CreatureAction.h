@@ -2,6 +2,7 @@
 #define CREATUREACTION_H
 
 #include "Tile.h"
+#include <string>
 //class CreatureAction;
 //#include "Creature.h"
 
@@ -35,7 +36,7 @@ class CreatureAction
         Tile *tile;
         Creature *creature;
 
-        string toString();
+        std::string toString();
 };
 
 #endif

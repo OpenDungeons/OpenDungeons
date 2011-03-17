@@ -1,5 +1,9 @@
 #include "Globals.h"
 #include "Functions.h"
+#include "ServerNotification.h"
+#include "Tile.h"
+#include "Socket.h"
+#include "RenderRequest.h"
 #include "AnimatedObject.h"
 
 AnimatedObject::AnimatedObject()
@@ -182,7 +186,7 @@ void AnimatedObject::setMoveSpeed(double s)
     moveSpeed = s;
 }
 
-void AnimatedObject::setAnimationState(string s, bool loop)
+void AnimatedObject::setAnimationState(std::string s, bool loop)
 {
     // Ignore the command if the command is exactly the same as what we did last time, this is not only faster it prevents non-looped actions like die from being inadvertantly repeated.
     if (s.compare(prevAnimationState) == 0 && loop == prevAnimationStateLoop)

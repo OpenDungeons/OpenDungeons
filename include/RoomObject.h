@@ -4,14 +4,17 @@
 #include "Room.h"
 #include "ActiveObject.h"
 #include "AnimatedObject.h"
+#include <string>
+#include <istream>
+#include <ostream>
 
 class RoomObject: public ActiveObject, public AnimatedObject
 {
     public:
-        RoomObject(Room *nParentRoom, string nMeshName);
+        RoomObject(Room *nParentRoom, std::string nMeshName);
 
-        string getName();
-        string getMeshName();
+        std::string getName();
+        std::string getMeshName();
 
         Room* getParentRoom();
 
@@ -21,9 +24,9 @@ class RoomObject: public ActiveObject, public AnimatedObject
 
         std::string getOgreNamePrefix();
 
-        static string getFormat();
-        friend ostream& operator<<(ostream& os, RoomObject *o);
-        friend istream& operator>>(istream& is, RoomObject *o);
+        static std::string getFormat();
+        friend std::ostream& operator<<(std::ostream& os, RoomObject *o);
+        friend std::istream& operator>>(std::istream& is, RoomObject *o);
 
         double x, y;
         double rotationAngle;
@@ -31,7 +34,7 @@ class RoomObject: public ActiveObject, public AnimatedObject
     private:
         Room *parentRoom;
         bool meshExists;
-        string name, meshName;
+        std::string name, meshName;
 };
 
 #endif

@@ -3,7 +3,8 @@
 #include "Globals.h"
 #include "GoalMineNGold.h"
 
-GoalMineNGold::GoalMineNGold(string nName, string nArguments) :
+GoalMineNGold::GoalMineNGold(const std::string& nName,
+        const std::string& nArguments) :
     Goal(nName, nArguments)
 {
     cout << "\nAdding goal " << getName();

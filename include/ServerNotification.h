@@ -2,12 +2,12 @@
 #define SERVERNOTIFICATION_H
 
 #include <string>
-using namespace std;
-#include <Ogre.h>
+#include <OgreVector3.h>
 
-#include "Tile.h"
-#include "Player.h"
-#include "AnimatedObject.h"
+class Tile;
+class Creature;
+class AnimatedObject;
+class Player;
 
 /*! \brief A data structure used to pass messages to the serverNotificationProcessor thread.
  *
@@ -37,7 +37,7 @@ class ServerNotification
         ServerNotificationType type;
         void *p;
         bool b;
-        string str;
+        std::string str;
         Ogre::Vector3 vec;
         double doub;
         Tile *tile;

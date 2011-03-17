@@ -1,7 +1,8 @@
 #include "Globals.h"
 #include "GoalProtectCreature.h"
 
-GoalProtectCreature::GoalProtectCreature(string nName, string nArguments) :
+GoalProtectCreature::GoalProtectCreature(const std::string& nName,
+        const std::string& nArguments) :
     Goal(nName, nArguments)
 {
     creatureName = nArguments;

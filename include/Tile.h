@@ -1,24 +1,21 @@
 #ifndef TILE_H
 #define TILE_H
 
-#include <iostream>
-#include <Ogre.h>
-#include <OgreIteratorWrappers.h>
-using namespace Ogre;
-
+#include <string>
+#include <vector>
+#include <ostream>
+#include <istream>
+#include <OgreSceneManager.h>
 #include <semaphore.h>
 
+
 //FIXME:  this extern is probably not needed once the rendering code is all in one thread.
-extern SceneManager* mSceneMgr;
+extern Ogre::SceneManager* mSceneMgr;
 class Tile;
 class Creature;
 class Player;
 class Room;
-
-#include "RenderRequest.h"
-#include "Room.h"
-#include "SoundEffectsHelper.h"
-#include "MapLight.h"
+class MapLight;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -61,7 +58,7 @@ class Tile
         TileClearType getTilePassability();
         bool permitsVision();
 
-        static string tileTypeToString(TileType t);
+        static std::string tileTypeToString(TileType t);
         static TileType nextTileType(TileType t);
         static int nextTileFullness(int f);
 
@@ -79,16 +76,15 @@ class Tile
 
         void addCreature(Creature *c);
         void removeCreature(Creature *c);
-        unsigned int numCreaturesInCell();
+        unsigned numCreaturesInCell();
         Creature* getCreature(int index);
 
         void addPlayerMarkingTile(Player *p);
         void removePlayerMarkingTile(Player *p);
-        unsigned int numPlayersMarkingTile();
+        unsigned numPlayersMarkingTile();
         Player* getPlayerMarkingTile(int index);
 
-        void addNeighbor(Tile *n);
-        Tile* getNeighbor(unsigned int index);
+        void addNeighbor(Tile *n);Tile* getNeighbor(unsigned index);
         std::vector<Tile*> getAllNeighbors();
 
         double claimForColor(int nColor, double nDanceRate);
@@ -101,9 +97,9 @@ class Tile
         bool isDiggable();
         bool isClaimable();
 
-        static string getFormat();
-        friend ostream& operator<<(ostream& os, Tile *t);
-        friend istream& operator>>(istream& is, Tile *t);
+        static std::string getFormat();
+        friend std::ostream& operator<<(std::ostream& os, Tile *t);
+        friend std::istream& operator>>(std::istream& is, Tile *t);
 
         int getColor();
         void setColor(int nColor);
@@ -114,7 +110,7 @@ class Tile
         double colorDouble;
         int floodFillColor;
         double rotation;
-        string name;
+        std::string name;
 
     private:
         // Private datamembers

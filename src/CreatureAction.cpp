@@ -1,4 +1,5 @@
 #include "CreatureAction.h"
+#include "Creature.h"
 
 CreatureAction::CreatureAction()
 {
@@ -15,7 +16,7 @@ CreatureAction::CreatureAction(ActionType nType, Tile *nTile,
     creature = nCreature;
 }
 
-string CreatureAction::toString()
+std::string CreatureAction::toString()
 {
     switch (type)
     {

@@ -6,7 +6,8 @@
 class GoalClaimNTiles: public Goal
 {
     public:
-        GoalClaimNTiles(string nName, string nArguments);
+                GoalClaimNTiles(const std::string& nName,
+                        const std::string& nArguments);
 
         // Inherited functions
         bool isMet(Seat *s);

@@ -6,7 +6,8 @@
 class GoalKillAllEnemies: public Goal
 {
     public:
-        GoalKillAllEnemies(std::string nName, std::string nArguments);
+        GoalKillAllEnemies(const std::string& nName,
+                const std::string& nArguments);
 
         // Inherited functions
         bool isMet(Seat *s);

@@ -30,32 +30,32 @@ class Room: public AttackableObject, public ActiveObject
         Room();
         static Room* createRoom(RoomType nType,
                 const std::vector<Tile*> &nCoveredTiles, int nColor);
-        static Room* createRoomFromStream(istream &is);
+        static Room* createRoomFromStream(std::istream &is);
         virtual void absorbRoom(Room *r);
 
-        static string getFormat();
-        friend ostream& operator<<(ostream& os, Room *r);
-        friend istream& operator>>(istream& is, Room *r);
+        static std::string getFormat();
+        friend std::ostream& operator<<(std::ostream& os, Room *r);
+        friend std::istream& operator>>(std::istream& is, Room *r);
 
         virtual void createMeshes();
         virtual void destroyMeshes();
-        RoomObject* loadRoomObject(string meshName, Tile *targetTile = NULL,
-                double rotationAngle = 0.0);
-        RoomObject* loadRoomObject(string meshName, Tile *targetTile, double x,
-                double y, double rotationAngle);
+        RoomObject* loadRoomObject(std::string meshName, Tile *targetTile =
+                NULL, double rotationAngle = 0.0);
+        RoomObject* loadRoomObject(std::string meshName, Tile *targetTile,
+                double x, double y, double rotationAngle);
         void createRoomObjectMeshes();
         void destroyRoomObjectMeshes();
         void deleteYourself();
         RoomType getType();
 
-        static string getMeshNameFromRoomType(RoomType t);
-        static RoomType getRoomTypeFromMeshName(string s);
+        static std::string getMeshNameFromRoomType(RoomType t);
+        static RoomType getRoomTypeFromMeshName(std::string s);
 
         static int costPerTile(RoomType t);
 
         // Public data members
         Player *controllingPlayer; //TODO:  This should be a controlling seat rather than a player.
-        string meshName;
+        std::string meshName;
         int color;
 
         // Functions which can be overridden by child classes.

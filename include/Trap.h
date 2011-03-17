@@ -1,14 +1,15 @@
 #ifndef TRAP_H
 #define TRAP_H
 
-#include <vector>
 #include <string>
-#include <iostream>
+#include <vector>
+#include <istream>
+#include <ostream>
 
-#include "ActiveObject.h"
-#include "Tile.h"
-#include "Seat.h"
-#include "AttackableObject.h"
+class Tile;
+class ActiveObject;
+class AttackableObject;
+class Seat;
 
 class Trap: public AttackableObject, public ActiveObject
 {
@@ -20,10 +21,9 @@ class Trap: public AttackableObject, public ActiveObject
 
         Trap();
         static Trap
-                * createTrap(TrapType nType,
-                        const std::vector<Tile*> &nCoveredTiles,
-                        Seat *nControllingSeat);
-        static Trap* createTrapFromStream(istream &is);
+        * createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
+                Seat *nControllingSeat);
+        static Trap* createTrapFromStream(std::istream &is);
         //virtual void absorbTrap(Trap *t);
 
         void createMeshes();
@@ -31,13 +31,13 @@ class Trap: public AttackableObject, public ActiveObject
         void deleteYourself();
 
         TrapType getType();
-        static string getMeshNameFromTrapType(TrapType t);
-        static TrapType getTrapTypeFromMeshName(string s);
+        static std::string getMeshNameFromTrapType(TrapType t);
+        static TrapType getTrapTypeFromMeshName(std::string s);
 
         static int costPerTile(TrapType t);
 
-        string getName();
-        string getMeshName();
+        std::string getName();
+        std::string getMeshName();
 
         Seat *controllingSeat;
 
@@ -48,13 +48,12 @@ class Trap: public AttackableObject, public ActiveObject
         virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
         virtual void removeCoveredTile(Tile* t);
         virtual Tile* getCoveredTile(int index);
-        std::vector<Tile*> getCoveredTiles();
-        virtual unsigned int numCoveredTiles();
+        std::vector<Tile*> getCoveredTiles();virtual unsigned int numCoveredTiles();
         virtual void clearCoveredTiles();
 
-        static string getFormat();
-        friend istream& operator>>(istream& is, Trap *t);
-        friend ostream& operator<<(ostream& os, Trap *t);
+        static std::string getFormat();
+        friend std::istream& operator>>(std::istream& is, Trap *t);
+        friend std::ostream& operator<<(std::ostream& os, Trap *t);
 
         // Methods inherited from AttackableObject.
         //TODO:  Sort these into the proper places in the rest of the file.
@@ -70,7 +69,7 @@ class Trap: public AttackableObject, public ActiveObject
     protected:
         const static double defaultTileHP;// = 10.0;
 
-        string name, meshName;
+        std::string name, meshName;
         std::vector<Tile*> coveredTiles;
         std::map<Tile*, double> tileHP;
         TrapType type;

@@ -2,12 +2,14 @@
 #define PLAYER_H
 
 #include <string>
+#include <vector>
 
+
+#include "Trap.h" //Class has enum, so has to include this.
 class Goal;
-#include "Creature.h"
-#include "Seat.h"
-#include "Room.h"
-#include "Trap.h"
+class Seat;
+class Creature;
+class Room;
 
 /*! \brief The player cleass contains information about a human, or computer, player in the game.
  *
@@ -22,7 +24,7 @@ class Player
 {
     public:
         Player();
-        string nick; /**< The nickname used un chat, etc. */
+        std::string nick; /**< The nickname used un chat, etc. */
         bool humanPlayer; /**< True: player is human.    False: player is a computer. */
         //int goldInTreasury();
         //int oreInRefinery();

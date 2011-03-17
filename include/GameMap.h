@@ -1,22 +1,34 @@
 #ifndef GAMEMAP_H
 #define GAMEMAP_H
 
-#include <list>
-#include <vector>
-#include <utility>
-
 #include <semaphore.h>
+#include <map>
+#include <string>
 
-#include "Tile.h"
-#include "Creature.h"
-#include "Player.h"
-#include "Room.h"
-#include "Trap.h"
-#include "Seat.h"
-#include "MapLight.h"
-#include "ProtectedObject.h"
-#include "TileCoordinateMap.h"
-#include "MissileObject.h"
+class Tile;
+class TileCoordinateMap;
+class Creature;
+class Player;
+class Room;
+class Trap;
+class Seat;
+class Goal;
+class MapLight;
+template<typename T> class ProtectedObject;
+class MissileObject;
+
+/*
+ #include "Tile.h"
+ #include "Creature.h"
+ #include "Player.h"
+ #include "Room.h"
+ #include "Trap.h"
+ #include "Seat.h"
+ #include "MapLight.h"
+ #include "ProtectedObject.h"
+ #include "TileCoordinateMap.h"
+ #include "MissileObject.h"
+ */
 
 typedef std::map<pair<int, int> , Tile*> TileMap_t;
 
@@ -158,11 +170,9 @@ class GameMap
         std::vector<AttackableObject*> getVisibleForce(
                 std::vector<Tile*> visibleTiles, int color, bool invert);
         bool
-                pathIsClear(std::list<Tile*> path,
-                        Tile::TileClearType passability);
+        pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);
         void
-                cutCorners(std::list<Tile*> &path,
-                        Tile::TileClearType passability);
+        cutCorners(std::list<Tile*> &path, Tile::TileClearType passability);
         double crowDistance(int x1, int x2, int y1, int y2);
         double crowDistance(Tile *t1, Tile *t2);
         //double manhattanDistance(int x1, int x2, int y1, int y2);

@@ -4,7 +4,7 @@
 #include <deque>
 #include <semaphore.h>
 #include <iostream>
-using namespace std;
+//using namespace std;
 
 #include "Functions.h"
 #include "MapEditor.h"
@@ -37,8 +37,8 @@ sem_t creatureAISemaphore;
 
 Socket *serverSocket = NULL, *clientSocket = NULL;
 
-string versionString = (string) "OpenDungeons_Version:" + VERSION;
-string MOTD = (string) "Welcome to Open Dungeons\tVersion:  " + VERSION;
+std::string versionString = (string) "OpenDungeons_Version:" + VERSION;
+std::string MOTD = (string) "Welcome to Open Dungeons\tVersion:  " + VERSION;
 double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double turnsPerSecond = 1.4;
 ProtectedObject<long int> turnNumber(1);

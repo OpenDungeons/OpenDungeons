@@ -1,21 +1,25 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <sys/types.h>
-#include <semaphore.h>
+//#include <sys/types.h>
+#include <string>
+#include <vector>
+#include <deque>
 
-#include "Tile.h"
-#include "Player.h"
-#include "GameMap.h"
-#include "RenderRequest.h"
-#include "ServerNotification.h"
-#include "ClientNotification.h"
-#include "Socket.h"
-#include "ProtectedObject.h"
-#include "ExampleFrameListener.h"
+#include <semaphore.h>
+#include <OgreColourValue.h>
+#include <OgreSceneManager.h>
+
+class RenderRequest;
+class ServerNotification;
+class ClientNotification;
+class Socket;
+class GameMap;
+template<typename T> class ProtectedObject;
+class ExampleFrameListener;
 
 extern GameMap gameMap;
-extern SceneManager* mSceneMgr;
+extern Ogre::SceneManager* mSceneMgr;
 
 extern std::deque<RenderRequest*> renderQueue;
 extern sem_t randomGeneratorLockSemaphore;
@@ -23,7 +27,7 @@ extern sem_t lightNumberLockSemaphore;
 extern sem_t missileObjectUniqueNumberLockSemaphore;
 extern sem_t renderQueueSemaphore;
 extern sem_t renderQueueEmptySemaphore;
-extern ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;
+extern ProtectedObject<unsigned> numThreadsWaitingOnRenderQueueEmpty;
 
 extern std::deque<ServerNotification*> serverNotificationQueue;
 extern std::deque<ClientNotification*> clientNotificationQueue;
@@ -40,9 +44,9 @@ extern std::string versionString;
 extern std::string MOTD;
 extern double MAX_FRAMES_PER_SECOND;
 extern double turnsPerSecond;
-extern ProtectedObject<long int> turnNumber;
+extern ProtectedObject<long> turnNumber;
 
-extern std::vector<ColourValue> playerColourValues;
+extern std::vector<Ogre::ColourValue> playerColourValues;
 
 extern ExampleFrameListener *exampleFrameListener;
 

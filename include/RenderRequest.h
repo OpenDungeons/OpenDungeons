@@ -1,11 +1,9 @@
 #ifndef RENDERREQUEST_H
 #define RENDERREQUEST_H
 
-#include <iostream>
-#include <semaphore.h>
-using namespace std;
-
-#include <Ogre.h>
+#include <string>
+#include <OgreVector3.h>
+#include <OgreQuaternion.h>
 
 /*! \brief A data structure to be used for requesting that the OGRE rendering thread perform certain tasks.
  *
@@ -70,7 +68,7 @@ class RenderRequest
         void *p;
         void *p2;
         void *p3;
-        string str;
+        std::string str;
         Ogre::Vector3 vec;
         Ogre::Quaternion quaternion;
         bool b;

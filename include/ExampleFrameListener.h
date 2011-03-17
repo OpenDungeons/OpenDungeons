@@ -27,7 +27,7 @@
 #include <cstdlib>
 #include <pthread.h>
 
-#include "Ogre.h"
+#include "OgreFrameListener.h"
 #include "OgreStringConverter.h"
 #include "OgreException.h"
 
@@ -36,17 +36,10 @@
 #include <OIS.h>
 #include <CEGUIRenderer.h>
 
-//#define
-//#include <OgreOggSoundManager.h>
-//#include <OgreOggStreamSound.h>
-//#include <OgreOggSound.h>
-
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
 #include <OIS.h>
-
-using namespace Ogre;
 
 #include "TextRenderer.h"
 #include "Socket.h"
@@ -55,6 +48,8 @@ using namespace Ogre;
 #include "Room.h"
 #include "MusicPlayer.h"
 
+class SoundEffectsHelper;
+
 /*! \brief The main OGRE rendering class.
  *
  * This class provides the rendering framework for the OGRE subsystem, as well
@@ -62,8 +57,8 @@ using namespace Ogre;
  * initializes the meshes for creatures and tiles, moves the camera, and
  * displays the terminal and chat messages on the game screen.
  */
-class ExampleFrameListener: public FrameListener,
-        public WindowEventListener,
+class ExampleFrameListener: public Ogre::FrameListener,
+        public Ogre::WindowEventListener,
         public OIS::MouseListener,
         public OIS::KeyListener
 {
@@ -72,15 +67,15 @@ class ExampleFrameListener: public FrameListener,
 
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
-        ExampleFrameListener(RenderWindow* win, Camera* cam,
-                SceneManager *sceneManager, CEGUI::Renderer *renderer,
+        ExampleFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
+                Ogre::SceneManager *sceneManager, CEGUI::Renderer *renderer,
                 bool bufferedKeys, bool bufferedMouse, bool bufferedJoy);
 
         //Adjust mouse clipping area
-        virtual void windowResized(RenderWindow* rw);
+        virtual void windowResized(Ogre::RenderWindow* rw);
 
         //Unattach OIS before window shutdown (very important under Linux)
-        virtual void windowClosed(RenderWindow* rw);
+        virtual void windowClosed(Ogre::RenderWindow* rw);
         virtual ~ExampleFrameListener();
 
         void moveCamera(double frameTime);
@@ -90,13 +85,13 @@ class ExampleFrameListener: public FrameListener,
         void showDebugOverlay(bool show);
 
         // Override frameStarted event to process that (don't care about frameEnded)
-        bool frameStarted(const FrameEvent& evt);
-        bool frameEnded(const FrameEvent& evt);
+        bool frameStarted(const Ogre::FrameEvent& evt);
+        bool frameEnded(const Ogre::FrameEvent& evt);
 
         //CEGUI Functions
         bool quit(const CEGUI::EventArgs &e);
         bool mouseMoved(const OIS::MouseEvent &arg);
-        RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
+        Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
         bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
         bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
         bool keyPressed(const OIS::KeyEvent &arg);
@@ -130,8 +125,8 @@ class ExampleFrameListener: public FrameListener,
         bool mContinue;
 
     protected:
-        Camera* mCamera;
-        SceneNode *mCamNode;
+        Ogre::Camera* mCamera;
+        Ogre::SceneNode *mCamNode;
 
         Ogre::Vector3 translateVector;
         Ogre::Vector3 translateVectorAccel;
@@ -140,12 +135,12 @@ class ExampleFrameListener: public FrameListener,
         Ogre::Vector3 mRotateLocalVector;
         double zChange;
         //Ogre::Vector3 mRotateWorldVector;
-        RenderWindow* mWindow;
+        Ogre::RenderWindow* mWindow;
         bool cameraIsFlying;
-        Real moveSpeed;
-        Real moveSpeedAccel;
-        Degree mRotateSpeed;
-        Degree swivelDegrees;
+        Ogre::Real moveSpeed;
+        Ogre::Real moveSpeedAccel;
+        Ogre::Degree mRotateSpeed;
+        Ogre::Degree swivelDegrees;
         double cameraFlightSpeed;
         bool hotkeyLocationIsValid[10];
         Ogre::Vector3 hotkeyLocation[10];
@@ -156,11 +151,11 @@ class ExampleFrameListener: public FrameListener,
         unsigned int mNumScreenShots;
         float mMoveScale;
         float mZoomSpeed;
-        Degree mRotScale;
+        Ogre::Degree mRotScale;
         // just to stop toggles flipping too fast
-        Real mTimeUntilNextToggle;
-        Radian mRotX, mRotY, mRotZ;
-        TextureFilterOptions mFiltering;
+        Ogre::Real mTimeUntilNextToggle;
+        Ogre::Radian mRotX, mRotY, mRotZ;
+        Ogre::TextureFilterOptions mFiltering;
         int mAniso;
         Tile::TileType mCurrentTileType;
         int mCurrentFullness, mCurrentTileRadius;
@@ -169,7 +164,7 @@ class ExampleFrameListener: public FrameListener,
         double frameDelay;
 
         int mSceneDetailIndex;
-        Overlay* mDebugOverlay;
+        Ogre::Overlay* mDebugOverlay;
 
         //OIS Input devices
         OIS::InputManager* mInputManager;
@@ -178,13 +173,13 @@ class ExampleFrameListener: public FrameListener,
         OIS::JoyStick* mJoy;
 
         // Mouse query stuff
-        RaySceneQuery *mRaySceneQuery; // The ray scene query pointer
+        Ogre::RaySceneQuery *mRaySceneQuery; // The ray scene query pointer
         bool mLMouseDown, mRMouseDown; // True if the mouse buttons are down
         int mLStartDragX, mLStartDragY; // The start tile coordinates for a left drag
         int mRStartDragX, mRStartDragY; // The start tile coordinates for a left drag
         int mCount; // The number of robots on the screen
-        SceneManager *mSceneMgr; // A pointer to the scene manager
-        SceneNode *mCurrentObject; // The newly created object
+        Ogre::SceneManager *mSceneMgr; // A pointer to the scene manager
+        Ogre::SceneNode *mCurrentObject; // The newly created object
         CEGUI::Renderer *mGUIRenderer; // CEGUI renderer
         int xPos, yPos;
         bool digSetBool; // For server mode - hods whether to mark or unmark a tile for digging
@@ -209,7 +204,7 @@ class ExampleFrameListener: public FrameListener,
 
         DragType mDragType;
         string draggedCreature, draggedMapLight;
-        SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode,
+        Ogre::SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode,
                 *lightSceneNode;
 
         SoundEffectsHelper* sfxHelper;
