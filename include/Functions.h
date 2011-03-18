@@ -2,34 +2,33 @@
 #define FUNCTIONS_H
 
 #include <string>
-#include <iostream>
-//#include <fstream>
 #include <vector>
+#include <OgreEntity.h>
 
-#include "Globals.h"
-#include "Tile.h"
-#include "RenderRequest.h"
-#include "ServerNotification.h"
+class RenderRequest;
+class ServerNotification;
 
-bool readGameMapFromFile(std::string fileName);
-void writeGameMapToFile(std::string fileName);
+bool readGameMapFromFile(const std::string& fileName);
+void writeGameMapToFile(const std::string& fileName);
 
 double randomDouble(double min, double max);
 int randomInt(int min, int max);
-unsigned int randomUint(unsigned int min, unsigned int max);
+unsigned randomUint(unsigned min, unsigned max);
 double gaussianRandomDouble();
 void seedRandomNumberGenerator();
 
 void swap(int &a, int &b);
 std::string stripCommentsFromLine(std::string line);
 
-void colourizeEntity(Entity *ent, int colour);
-std::string colourizeMaterial(std::string materialName, int color);
+void colourizeEntity(Ogre::Entity *ent, int colour);
+std::string colourizeMaterial(const std::string& materialName, int color);
 
 void queueRenderRequest(RenderRequest *r);
 void queueServerNotification(ServerNotification *n);
 
-std::vector<std::string> listAllFiles(std::string directoryName);
+std::vector<std::string> listAllFiles(const std::string& directoryName);
+
+std::string forceLowercase(std::string s);
 
 void waitOnRenderQueueFlush();
 

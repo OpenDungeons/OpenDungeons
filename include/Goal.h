@@ -2,48 +2,55 @@
 #define GOAL_H
 
 #include <string>
+#include <vector>
+#include <ostream>
+#include <istream>
 
+//Forward declarations
 class Seat;
-#include "Player.h"
+//#include "Player.h"
+
+
+
 
 class Goal
 {
-	public:
-		// Constructors
-		Goal(std::string nName, std::string nArguments);
+    public:
+        // Constructors
+        Goal(const std::string& nName, const std::string& nArguments);
 
-		// Functions which must be overridden by child classes
-		virtual bool isMet(Seat *s) = 0;
-		virtual std::string getDescription() = 0;
-		virtual std::string getSuccessMessage() = 0;
-		virtual std::string getFailedMessage() = 0;
+        // Functions which must be overridden by child classes
+        virtual bool isMet(Seat *s) = 0;
+        virtual std::string getDescription() = 0;
+        virtual std::string getSuccessMessage() = 0;
+        virtual std::string getFailedMessage() = 0;
 
-		// Functions which can be overridden (but do not have to be) by child classes
-		virtual void doSuccessAction();
-		virtual bool isVisible();
-		virtual bool isUnmet(Seat *s);
-		virtual bool isFailed(Seat *s);
+        // Functions which can be overridden (but do not have to be) by child classes
+        virtual void doSuccessAction();
+        virtual bool isVisible();
+        virtual bool isUnmet(Seat *s);
+        virtual bool isFailed(Seat *s);
 
-		// Functions which cannot be overridden by child classes
-		std::string getName();
+        // Functions which cannot be overridden by child classes
+        std::string getName();
 
-		void addSuccessSubGoal(Goal *g);
-		unsigned int numSuccessSubGoals();
-		Goal* getSuccessSubGoal(int index);
+        void addSuccessSubGoal(Goal *g);
+        unsigned numSuccessSubGoals();
+        Goal* getSuccessSubGoal(int index);
 
-		void addFailureSubGoal(Goal *g);
-		unsigned int numFailureSubGoals();
-		Goal* getFailureSubGoal(int index);
+        void addFailureSubGoal(Goal *g);
+        unsigned numFailureSubGoals();
+        Goal* getFailureSubGoal(int index);
 
-		static std::string getFormat();
-		friend ostream& operator<<(ostream& os, Goal *g);
-		static Goal* instantiateFromStream(istream& is);
+        static std::string getFormat();
+        friend std::ostream& operator<<(std::ostream& os, Goal *g);
+        static Goal* instantiateFromStream(std::istream& is);
 
-	protected:
-		std::string name;
-		std::string arguments;
-		std::vector<Goal*> successSubGoals;
-		std::vector<Goal*> failureSubGoals;
+    protected:
+        std::string name;
+        std::string arguments;
+        std::vector<Goal*> successSubGoals;
+        std::vector<Goal*> failureSubGoals;
 };
 
 #include "Seat.h"

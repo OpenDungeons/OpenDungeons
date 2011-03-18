@@ -1,6 +1,6 @@
-#include <stdio.h>
+#include <cstdio>
 #include <string>
-#include <time.h>
+#include <ctime>
 
 #include "Defines.h"
 #include "Socket.h"
@@ -9,6 +9,14 @@
 #include "ChatMessage.h"
 #include "Functions.h"
 #include "Sleep.h"
+#include "Globals.h"
+#include "ServerNotification.h"
+#include "Player.h"
+#include "Tile.h"
+#include "MapLight.h"
+#include "GameMap.h"
+#include "ProtectedObject.h"
+#include "Creature.h"
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
@@ -22,52 +30,54 @@
 // THREAD - This function is meant to be called by pthread_create.
 void *serverSocketProcessor(void *p)
 {
-	Socket *sock = ((SSPStruct*)p)->nSocket;
-	Socket *curSock;
-	ExampleFrameListener *frameListener = ((SSPStruct*)p)->nFrameListener;
-	delete (SSPStruct*)p;
-	p = NULL;
+    Socket *sock = ((SSPStruct*) p)->nSocket;
+    Socket *curSock;
+    ExampleFrameListener *frameListener = ((SSPStruct*) p)->nFrameListener;
+    delete (SSPStruct*) p;
+    p = NULL;
 
-	// Set up the socket to listen on the specified port
-	if(!sock->create())
-	{
-		frameListener->commandOutput = "ERROR:  Server could not create server socket!";
-		return NULL;
-	}
+    // Set up the socket to listen on the specified port
+    if (!sock->create())
+    {
+        frameListener->commandOutput
+                = "ERROR:  Server could not create server socket!";
+        return NULL;
+    }
 
-	int port = PORT_NUMBER;
-	if(!sock->bind(port))
-	{
-		frameListener->commandOutput += "ERROR:  Server could not bind to port!";
-		return NULL;
-	}
+    int port = PORT_NUMBER;
+    if (!sock->bind(port))
+    {
+        frameListener->commandOutput
+                += "ERROR:  Server could not bind to port!";
+        return NULL;
+    }
 
-	// Listen for connectections and spawn a new socket+thread to handle them
-	while(true)
-	{
-		//FIXME:  This function leaks memory as none of these structures are deleted.
+    // Listen for connectections and spawn a new socket+thread to handle them
+    while (true)
+    {
+        //FIXME:  This function leaks memory as none of these structures are deleted.
 
-		// Wait until a client connects
-		if(!sock->listen())
-		{
-			frameListener->commandOutput += "ERROR:  Server could not listen!";
-			return NULL;
-		}
+        // Wait until a client connects
+        if (!sock->listen())
+        {
+            frameListener->commandOutput += "ERROR:  Server could not listen!";
+            return NULL;
+        }
 
-		// create a new socket to handle the connection with this client
-		curSock = new Socket;
-		sock->accept(*curSock);
+        // create a new socket to handle the connection with this client
+        curSock = new Socket;
+        sock->accept(*curSock);
 
-		//FIXME:  Also need to remove this pointer from the vector when the connection closes.
-		frameListener->clientSockets.push_back(curSock);
+        //FIXME:  Also need to remove this pointer from the vector when the connection closes.
+        frameListener->clientSockets.push_back(curSock);
 
-		pthread_t *clientThread = new pthread_t;
-		CHTStruct *params = new CHTStruct;
-		params->nSocket = curSock;
-		params->nFrameListener = frameListener;
-		pthread_create(clientThread, NULL, clientHandlerThread, (void*)params);
-		frameListener->clientHandlerThreads.push_back(clientThread);
-	}
+        pthread_t *clientThread = new pthread_t;
+        CHTStruct *params = new CHTStruct;
+        params->nSocket = curSock;
+        params->nFrameListener = frameListener;
+        pthread_create(clientThread, NULL, clientHandlerThread, (void*) params);
+        frameListener->clientHandlerThreads.push_back(clientThread);
+    }
 }
 
 /*! \brief A helper function to pack a message into a packet to send over the network.
@@ -77,10 +87,10 @@ void *serverSocketProcessor(void *p)
  * the encoding from the actual program code so changes in the wire protocol
  * are confined to this function and its sister function, parseCommand.
  */
-string formatCommand(string command, string arguments)
+std::string formatCommand(std::string command, std::string arguments)
 {
-	//FIXME:  Need to protect the ":" symbol with an escape sequence.
-	return "<" + command + ":" + arguments + ">";
+    //FIXME:  Need to protect the ":" symbol with an escape sequence.
+    return "<" + command + ":" + arguments + ">";
 }
 
 /*! \brief A helper function to unpack a message from a packet received over the network.
@@ -90,25 +100,25 @@ string formatCommand(string command, string arguments)
  * changes in the wire protocol are confined to this function and its sister
  * function, formatCommand.
  */
-bool parseCommand(string &command, string &commandName, string &arguments)
+bool parseCommand(std::string &command, std::string &commandName, std::string &arguments)
 {
-	string tempString;
-	//FIXME:  Need to protect the ":" symbol with an escape sequence.
-	int index, index2;
-	index = command.find("<");
-	index2 = command.find(":");
-	commandName = command.substr(index+1, index2-1);
-	index = index2;
-	index2 = command.find(">");
-	arguments = command.substr(index+1, index2-index-1);
-	tempString = command.substr(index2+1, command.length()-index2+1);
-	command = tempString;
-	//cout << "\n\n\nParse command:  " << command << "\n" << commandName << "\n" << arguments << "\n\n";
+    std::string tempString;
+    //FIXME:  Need to protect the ":" symbol with an escape sequence.
+    int index, index2;
+    index = command.find("<");
+    index2 = command.find(":");
+    commandName = command.substr(index + 1, index2 - 1);
+    index = index2;
+    index2 = command.find(">");
+    arguments = command.substr(index + 1, index2 - index - 1);
+    tempString = command.substr(index2 + 1, command.length() - index2 + 1);
+    command = tempString;
+    //cout << "\n\n\nParse command:  " << command << "\n" << commandName << "\n" << arguments << "\n\n";
 
-	if(tempString.length() > 0)
-		return true;
-	else
-		return false;
+    if (tempString.length() > 0)
+        return true;
+    else
+        return false;
 }
 
 /*! \brief A helper function to unpack the argument of a chat command into a ChatMessage structure.
@@ -117,13 +127,13 @@ bool parseCommand(string &command, string &commandName, string &arguments)
  * parseCommand, this function then takes the argument of that message and
  * further unpacks a username and a chat message.
  */
-ChatMessage *processChatMessage(string arguments)
+ChatMessage *processChatMessage(std::string arguments)
 {
-	int index = arguments.find(":");
-	string messageNick = arguments.substr(0, index);
-	string message = arguments.substr(index+1, arguments.size()-index-1);
+    int index = arguments.find(":");
+    std::string messageNick = arguments.substr(0, index);
+    std::string message = arguments.substr(index + 1, arguments.size() - index - 1);
 
-	return new ChatMessage(messageNick,message,time(NULL));
+    return new ChatMessage(messageNick, message, time(NULL));
 }
 
 /*! \brief The thread which decides what creatures will do and carries out their actions.
@@ -147,61 +157,66 @@ ChatMessage *processChatMessage(string arguments)
 // THREAD - This function is meant to be called by pthread_create.
 void *creatureAIThread(void *p)
 {
-	double timeUntilNextTurn = 1.0/turnsPerSecond;
-	Ogre::Timer stopwatch;
-	unsigned long int timeTaken;
+    double timeUntilNextTurn = 1.0 / turnsPerSecond;
+    Ogre::Timer stopwatch;
+    unsigned long int timeTaken;
 
-	while(true)
-	{
-		// Do a turn in the game
-		stopwatch.reset();
-		turnNumber.lock();
-		turnNumber.rawSet(turnNumber.rawGet() + 1);
-		turnNumber.unlock();
+    while (true)
+    {
+        // Do a turn in the game
+        stopwatch.reset();
+        turnNumber.lock();
+        turnNumber.rawSet(turnNumber.rawGet() + 1);
+        turnNumber.unlock();
 
-		// Place a message in the queue to inform the clients that a new turn has started
-		try
-		{
-			ServerNotification *serverNotification = new ServerNotification;
-			serverNotification->type = ServerNotification::turnStarted;
+        // Place a message in the queue to inform the clients that a new turn has started
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification;
+            serverNotification->type = ServerNotification::turnStarted;
 
-			queueServerNotification(serverNotification);
-		}
-		catch(bad_alloc&)
-		{
-			cerr << "\n\nERROR:  bad alloc in creatureAIThread at turnStarted\n\n";
-			exit(1);
-		}
+            queueServerNotification(serverNotification);
+        }
+        catch (bad_alloc&)
+        {
+            cerr
+                    << "\n\nERROR:  bad alloc in creatureAIThread at turnStarted\n\n";
+            exit(1);
+        }
 
-		// Go to each creature and call their individual doTurn methods
-		gameMap.doTurn();
-		timeUntilNextTurn = 1.0/turnsPerSecond;
+        // Go to each creature and call their individual doTurn methods
+        gameMap.doTurn();
+        timeUntilNextTurn = 1.0 / turnsPerSecond;
 
-		timeTaken = stopwatch.getMicroseconds();
-		gameMap.previousLeftoverTimes.push_front((1e6*timeUntilNextTurn-timeTaken)/(double)1e6);
-		string timeTakenString = StringConverter::toString((int)(1e6*timeUntilNextTurn - timeTaken), 9);
+        timeTaken = stopwatch.getMicroseconds();
+        gameMap.previousLeftoverTimes.push_front((1e6 * timeUntilNextTurn
+                - timeTaken) / (double) 1e6);
+        std::string timeTakenString = Ogre::StringConverter::toString((int) (1e6
+                * timeUntilNextTurn - timeTaken), 9);
 
-		// Sleep this thread if it is necessary to keep the turns from happening too fast
-		if(1e6 * timeUntilNextTurn - timeTaken > 0)
-		{
-		       	cout << "\nCreature AI finished " << timeTakenString << "us early.";
-			usleep(1e6 * timeUntilNextTurn - timeTaken );
-		}
-		else
-		{
-			cout << "\nCreature AI finished " << timeTakenString << "us late.";
-		}
+        // Sleep this thread if it is necessary to keep the turns from happening too fast
+        if (1e6 * timeUntilNextTurn - timeTaken > 0)
+        {
+            cout << "\nCreature AI finished " << timeTakenString << "us early.";
+            usleep(1e6 * timeUntilNextTurn - timeTaken);
+        }
+        else
+        {
+            cout << "\nCreature AI finished " << timeTakenString << "us late.";
+        }
 
-		cout << "\nThe Creature AI thread took:  " << gameMap.creatureTurnsTime/(double)1e6;
-		cout << "\nThe misc upkeep thread took:  " << gameMap.miscUpkeepTime/(double)1e6;
-		cout << "\n";
+        cout << "\nThe Creature AI thread took:  " << gameMap.creatureTurnsTime
+                / (double) 1e6;
+        cout << "\nThe misc upkeep thread took:  " << gameMap.miscUpkeepTime
+                / (double) 1e6;
+        cout << "\n";
 
-		if(gameMap.previousLeftoverTimes.size() > 10)
-			gameMap.previousLeftoverTimes.resize(10);
-	}
+        if (gameMap.previousLeftoverTimes.size() > 10)
+            gameMap.previousLeftoverTimes.resize(10);
+    }
 
-	// Return something to make the compiler happy
-	return NULL;
+    // Return something to make the compiler happy
+    return NULL;
 }
 
 /*! \brief The thread which monitors the serverNotificationQueue for new events and informs the clients about them.
@@ -214,130 +229,145 @@ void *creatureAIThread(void *p)
 // THREAD - This function is meant to be called by pthread_create.
 void *serverNotificationProcessor(void *p)
 {
-	ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
-	delete (SNPStruct*)p;
-	p = NULL;
+    ExampleFrameListener *frameListener = ((SNPStruct*) p)->nFrameListener;
+    delete (SNPStruct*) p;
+    p = NULL;
 
-	string tempString;
-	std::stringstream tempSS;
-	Tile *tempTile;
-	Player *tempPlayer;
-	MapLight *tempMapLight;
-	AnimatedObject *tempAnimatedObject;
+    std::string tempString;
+    std::stringstream tempSS;
+    Tile *tempTile;
+    Player *tempPlayer;
+    MapLight *tempMapLight;
+    AnimatedObject *tempAnimatedObject;
 
-	while(true)
-	{
-		// Wait until a message is put into the serverNotificationQueue
-		sem_wait(&serverNotificationQueueSemaphore);
+    while (true)
+    {
+        // Wait until a message is put into the serverNotificationQueue
+        sem_wait(&serverNotificationQueueSemaphore);
 
-		// Take a message out of the front of the notification queue
-		sem_wait(&serverNotificationQueueLockSemaphore);
-		ServerNotification *event = serverNotificationQueue.front();
-		serverNotificationQueue.pop_front();
-		sem_post(&serverNotificationQueueLockSemaphore);
+        // Take a message out of the front of the notification queue
+        sem_wait(&serverNotificationQueueLockSemaphore);
+        ServerNotification *event = serverNotificationQueue.front();
+        serverNotificationQueue.pop_front();
+        sem_post(&serverNotificationQueueLockSemaphore);
 
-		//FIXME:  This really should never happen but the queue does occasionally pop a NULL.
-		//This is probably a bug somewhere else where a NULL is being place in the queue.
-		if(event == NULL)
-		{
-			continue;
-		}
+        //FIXME:  This really should never happen but the queue does occasionally pop a NULL.
+        //This is probably a bug somewhere else where a NULL is being place in the queue.
+        if (event == NULL)
+        {
+            continue;
+        }
 
-		switch(event->type)
-		{
-			case ServerNotification::turnStarted:
-				tempSS.str("");
-				tempSS << turnNumber.get();
+        switch (event->type)
+        {
+            case ServerNotification::turnStarted:
+                tempSS.str("");
+                tempSS << turnNumber.get();
 
-				sendToAllClients(frameListener, formatCommand("newturn", tempSS.str()));
-				break;
+                sendToAllClients(frameListener, formatCommand("newturn",
+                        tempSS.str()));
+                break;
 
-			case ServerNotification::creatureAddDestination:
-				tempSS.str("");
-				tempSS << event->str << ":" << event->vec.x << ":" << event->vec.y << ":" << event->vec.z;
+            case ServerNotification::animatedObjectAddDestination:
+                tempSS.str("");
+                tempSS << event->str << ":" << event->vec.x << ":"
+                        << event->vec.y << ":" << event->vec.z;
 
-				sendToAllClients(frameListener, formatCommand("creatureAddDestination", tempSS.str()));
-				break;
+                sendToAllClients(frameListener, formatCommand(
+                        "animatedObjectAddDestination", tempSS.str()));
+                break;
 
-			case ServerNotification::animatedObjectClearDestinations:
-				tempSS.str("");
-				tempSS << event->ani->getName();
-				sendToAllClients(frameListener, formatCommand("creatureClearDestinations", tempSS.str()));
-				break;
+            case ServerNotification::animatedObjectClearDestinations:
+                tempSS.str("");
+                tempSS << event->ani->getName();
+                sendToAllClients(frameListener, formatCommand(
+                        "animatedObjectClearDestinations", tempSS.str()));
+                break;
 
-			//NOTE: this code is duplicated in clientNotificationProcessor
-			case ServerNotification::creaturePickUp:
-				tempSS.str("");
-				tempSS << event->player->nick << ":" << event->cre->name;
+                //NOTE: this code is duplicated in clientNotificationProcessor
+            case ServerNotification::creaturePickUp:
+                tempSS.str("");
+                tempSS << event->player->nick << ":" << event->cre->name;
 
-				sendToAllClients(frameListener, formatCommand("creaturePickUp", tempSS.str()));
-				break;
+                sendToAllClients(frameListener, formatCommand("creaturePickUp",
+                        tempSS.str()));
+                break;
 
-			//NOTE: this code is duplicated in clientNotificationProcessor
-			case ServerNotification::creatureDrop:
-				tempPlayer = event->player;
-				tempTile = event->tile;
+                //NOTE: this code is duplicated in clientNotificationProcessor
+            case ServerNotification::creatureDrop:
+                tempPlayer = event->player;
+                tempTile = event->tile;
 
-				tempSS.str("");
-				tempSS << tempPlayer->nick << ":" << tempTile->x << ":" << tempTile->y;
+                tempSS.str("");
+                tempSS << tempPlayer->nick << ":" << tempTile->x << ":"
+                        << tempTile->y;
 
-				sendToAllClients(frameListener, formatCommand("creatureDrop", tempSS.str()));
-				break;
+                sendToAllClients(frameListener, formatCommand("creatureDrop",
+                        tempSS.str()));
+                break;
 
-			case ServerNotification::setObjectAnimationState:
-				tempSS.str("");
-				tempAnimatedObject = (AnimatedObject*)event->p;
-				tempSS << tempAnimatedObject->getName() << ":" << event->str << ":" << (event->b ? "true" : "false");
-				sendToAllClients(frameListener, formatCommand("setObjectAnimationState", tempSS.str()));
-				break;
+            case ServerNotification::setObjectAnimationState:
+                tempSS.str("");
+                tempAnimatedObject = (AnimatedObject*) event->p;
+                tempSS << tempAnimatedObject->getName() << ":" << event->str
+                        << ":" << (event->b ? "true" : "false");
+                sendToAllClients(frameListener, formatCommand(
+                        "setObjectAnimationState", tempSS.str()));
+                break;
 
-			case ServerNotification::setTurnsPerSecond:
-				tempSS.str("");
-				tempSS << turnsPerSecond;
+            case ServerNotification::setTurnsPerSecond:
+                tempSS.str("");
+                tempSS << turnsPerSecond;
 
-				sendToAllClients(frameListener, formatCommand("turnsPerSecond", tempSS.str()));
-				break;
+                sendToAllClients(frameListener, formatCommand("turnsPerSecond",
+                        tempSS.str()));
+                break;
 
-			case ServerNotification::tileFullnessChange:
-				tempSS.str("");
-				tempTile = event->tile;
-				tempSS << tempTile->getFullness() << ":" << tempTile->x << ":" << tempTile->y;
+            case ServerNotification::tileFullnessChange:
+                tempSS.str("");
+                tempTile = event->tile;
+                tempSS << tempTile->getFullness() << ":" << tempTile->x << ":"
+                        << tempTile->y;
 
-				sendToAllClients(frameListener, formatCommand("tileFullnessChange", tempSS.str()));
-				break;
+                sendToAllClients(frameListener, formatCommand(
+                        "tileFullnessChange", tempSS.str()));
+                break;
 
-			case ServerNotification::addMapLight:
-				tempMapLight = (MapLight*)event->p;
-				tempSS.str("");
-				tempSS << tempMapLight;
-				sendToAllClients(frameListener, formatCommand("addmaplight", tempSS.str()));
-				break;
+            case ServerNotification::addMapLight:
+                tempMapLight = (MapLight*) event->p;
+                tempSS.str("");
+                tempSS << tempMapLight;
+                sendToAllClients(frameListener, formatCommand("addmaplight",
+                        tempSS.str()));
+                break;
 
-			case ServerNotification::removeMapLight:
-				tempMapLight = (MapLight*)event->p;
-				sendToAllClients(frameListener, formatCommand("removeMapLight", tempMapLight->getName()));
-				break;
+            case ServerNotification::removeMapLight:
+                tempMapLight = (MapLight*) event->p;
+                sendToAllClients(frameListener, formatCommand("removeMapLight",
+                        tempMapLight->getName()));
+                break;
 
-			default:
-				cerr << "\n\nERROR:  Unhandled ServerNotification type encoutered!\n\n";
+            default:
+                cerr
+                        << "\n\nERROR:  Unhandled ServerNotification type encoutered!\n\n";
 
-				//TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
-				Creature * throwAsegfault = NULL;
-				throwAsegfault->getPosition();
+                //TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
+                Creature * throwAsegfault = NULL;
+                throwAsegfault->getPosition();
 
-				exit(1);
-				break;
-		}
+                exit(1);
+                break;
+        }
 
-		// Decrement the number of outstanding references to things from the turn number the event was queued on.
-		gameMap.threadUnlockForTurn(event->turnNumber);
+        // Decrement the number of outstanding references to things from the turn number the event was queued on.
+        gameMap.threadUnlockForTurn(event->turnNumber);
 
-		delete event;
-		event = NULL;
-	}
+        delete event;
+        event = NULL;
+    }
 
-	// Return something to make the compiler happy
-	return NULL;
+    // Return something to make the compiler happy
+    return NULL;
 }
 
 /*! \brief The thread running  on the server which listens for messages from an individual, already connected, client.
@@ -351,282 +381,290 @@ void *serverNotificationProcessor(void *p)
 // THREAD - This function is meant to be called by pthread_create.
 void *clientHandlerThread(void *p)
 {
-	Socket *curSock = ((CHTStruct*)p)->nSocket;
-	ExampleFrameListener *frameListener = ((CHTStruct*)p)->nFrameListener;
-	Player *curPlayer = NULL;
-	delete (CHTStruct*)p;
-	p = NULL;
+    Socket *curSock = ((CHTStruct*) p)->nSocket;
+    ExampleFrameListener *frameListener = ((CHTStruct*) p)->nFrameListener;
+    Player *curPlayer = NULL;
+    delete (CHTStruct*) p;
+    p = NULL;
 
-	string clientNick = "UNSET_CLIENT_NICKNAME";
-	string clientCommand, arguments;
-	string tempString, tempString2;
+    std::string clientNick = "UNSET_CLIENT_NICKNAME";
+    std::string clientCommand, arguments;
+    std::string tempString, tempString2;
 
-	while(true)
-	{
-		// Recieve a request from the client and store it in tempString
-		int charsRead = curSock->recv(tempString);
+    while (true)
+    {
+        // Recieve a request from the client and store it in tempString
+        int charsRead = curSock->recv(tempString);
 
-		// If the client closed the connection
-		if(charsRead <= 0)
-		{
-			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION: ", "Client disconnect: " + clientNick, time(NULL)));
-			break;
-		}
+        // If the client closed the connection
+        if (charsRead <= 0)
+        {
+            frameListener->chatMessages.push_back(new ChatMessage(
+                    "SERVER_INFORMATION: ", "Client disconnect: " + clientNick,
+                    time(NULL)));
+            break;
+        }
 
-		// If this command is not seperated by a colon into a
-		// command and an argument then don't process it.  Send
-		// the client an error message and move on to the next packet.
-		unsigned int index = tempString.find(":");
-		if(index == string::npos)
-		{
-			// Going back to the beginning of the loop effectively disregards this
-			// message from the client.  This may cause problems if the command is
-			// split up into many packets since the ":" might not be in the first packet.
-			continue;
-		}
+        // If this command is not seperated by a colon into a
+        // command and an argument then don't process it.  Send
+        // the client an error message and move on to the next packet.
+        unsigned int index = tempString.find(":");
+        if (index == std::string::npos)
+        {
+            // Going back to the beginning of the loop effectively disregards this
+            // message from the client.  This may cause problems if the command is
+            // split up into many packets since the ":" might not be in the first packet.
+            continue;
+        }
 
-		// Split the packet into a command and an argument
-		parseCommand(tempString, clientCommand, arguments);
-		//clientCommand = tempString.substr(1, index-1);
-		//arguments = tempString.substr(index+1, tempString.size()-index-3);
-		//cout << "\n\n\n" << clientCommand << "\n" << arguments;
-		//cout.flush();
+        // Split the packet into a command and an argument
+        parseCommand(tempString, clientCommand, arguments);
+        //clientCommand = tempString.substr(1, index-1);
+        //arguments = tempString.substr(index+1, tempString.size()-index-3);
+        //cout << "\n\n\n" << clientCommand << "\n" << arguments;
+        //cout.flush();
 
-		if(clientCommand.compare("hello") == 0)
-		{
-			std::stringstream tempSS;
-			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION: ", "Client connect with version: " + arguments, time(NULL)));
+        if (clientCommand.compare("hello") == 0)
+        {
+            std::stringstream tempSS;
+            frameListener->chatMessages.push_back(new ChatMessage(
+                    "SERVER_INFORMATION: ", "Client connect with version: "
+                            + arguments, time(NULL)));
 
-			// Tell the client to give us their nickname and to clear their map
-			sem_wait(&curSock->semaphore);
-			curSock->send(formatCommand("picknick", ""));
+            // Tell the client to give us their nickname and to clear their map
+            sem_wait(&curSock->semaphore);
+            curSock->send(formatCommand("picknick", ""));
 
-			// Set the nickname that the client sends back, tempString2 is just used
-			// to discard the command portion of the respone which should be "setnick"
-			//TODO:  verify that this really is true
-			curSock->recv(tempString);
-			parseCommand(tempString, tempString2, clientNick);
-			frameListener->chatMessages.push_back(new ChatMessage("SERVER_INFORMATION: ", "Client nick is: " + clientNick, time(NULL)));
+            // Set the nickname that the client sends back, tempString2 is just used
+            // to discard the command portion of the respone which should be "setnick"
+            //TODO:  verify that this really is true
+            curSock->recv(tempString);
+            parseCommand(tempString, tempString2, clientNick);
+            frameListener->chatMessages.push_back(new ChatMessage(
+                    "SERVER_INFORMATION: ", "Client nick is: " + clientNick,
+                    time(NULL)));
 
-			// Create a player structure for the client
-			//TODO:  negotiate and set a color
-			curPlayer = new Player;
-			curPlayer->nick = clientNick;
-			gameMap.addPlayer(curPlayer);
+            // Create a player structure for the client
+            //TODO:  negotiate and set a color
+            curPlayer = new Player;
+            curPlayer->nick = clientNick;
+            gameMap.addPlayer(curPlayer);
 
-			curSock->send(formatCommand("newmap", ""));
+            curSock->send(formatCommand("newmap", ""));
 
-			// Tell the player which seat it has
-			tempSS.str("");
-			tempSS << curPlayer->seat;
-			curSock->send(formatCommand("addseat", tempSS.str()));
+            // Tell the player which seat it has
+            tempSS.str("");
+            tempSS << curPlayer->seat;
+            curSock->send(formatCommand("addseat", tempSS.str()));
 
-			tempSS.str("");
-			tempSS << turnsPerSecond;
-			curSock->send(formatCommand("turnsPerSecond", tempSS.str()));
+            tempSS.str("");
+            tempSS << turnsPerSecond;
+            curSock->send(formatCommand("turnsPerSecond", tempSS.str()));
 
-			// Send over the information about the players in the game
-			curSock->send(formatCommand("addplayer", gameMap.me->nick));
-			for(unsigned int i = 0; i < gameMap.numPlayers(); i++)
-			{
-				// Don't tell the client about its own player structure
-				Player *tempPlayer = gameMap.getPlayer(i);
-				if(curPlayer != tempPlayer && tempPlayer != NULL)
-				{
-					tempSS.str("");
-					tempSS << tempPlayer->seat;
-					curSock->send(formatCommand("addseat", tempSS.str()));
-					// Throw away the ok response
-					curSock->recv(tempString);
+            // Send over the information about the players in the game
+            curSock->send(formatCommand("addplayer", gameMap.me->nick));
+            for (unsigned int i = 0; i < gameMap.numPlayers(); ++i)
+            {
+                // Don't tell the client about its own player structure
+                Player *tempPlayer = gameMap.getPlayer(i);
+                if (curPlayer != tempPlayer && tempPlayer != NULL)
+                {
+                    tempSS.str("");
+                    tempSS << tempPlayer->seat;
+                    curSock->send(formatCommand("addseat", tempSS.str()));
+                    // Throw away the ok response
+                    curSock->recv(tempString);
 
-					curSock->send(formatCommand("addplayer", tempPlayer->nick));
-					// Throw away the ok response
-					curSock->recv(tempString);
-				}
-			}
+                    curSock->send(formatCommand("addplayer", tempPlayer->nick));
+                    // Throw away the ok response
+                    curSock->recv(tempString);
+                }
+            }
 
-			// Send over the map tiles from the current game map.
-			//TODO: Only send the tiles which the client is supposed to see due to fog of war.
-			TileMap_t::iterator itr = gameMap.firstTile();
-			while(itr != gameMap.lastTile())
-			{
-				tempSS.str("");
-				tempSS << itr->second;
-				curSock->send(formatCommand("addtile", tempSS.str()));
-				// Throw away the ok response
-				curSock->recv(tempString);
-				itr++;
-			}
+            // Send over the map tiles from the current game map.
+            //TODO: Only send the tiles which the client is supposed to see due to fog of war.
+            TileMap_t::iterator itr = gameMap.firstTile();
+            while (itr != gameMap.lastTile())
+            {
+                tempSS.str("");
+                tempSS << itr->second;
+                curSock->send(formatCommand("addtile", tempSS.str()));
+                // Throw away the ok response
+                curSock->recv(tempString);
+                ++itr;
+            }
 
-			// Send over the map lights from the current game map.
-			//TODO: Only send the maplights which the client is supposed to see due to the fog of war.
-			for(unsigned int i = 0; i < gameMap.numMapLights(); i++)
-			{
-				tempSS.str("");
-				tempSS << gameMap.getMapLight(i);
-				curSock->send(formatCommand("addmaplight", tempSS.str()));
-				itr++;
-			}
+            // Send over the map lights from the current game map.
+            //TODO: Only send the maplights which the client is supposed to see due to the fog of war.
+            for (unsigned int i = 0; i < gameMap.numMapLights(); ++i)
+            {
+                tempSS.str("");
+                tempSS << gameMap.getMapLight(i);
+                curSock->send(formatCommand("addmaplight", tempSS.str()));
+                ++itr;
+            }
 
-			// Send over the rooms in use on the current game map
-			//TODO: Only send the classes which the client is supposed to see due to fog of war.
-			for(unsigned int i = 0; i < gameMap.numRooms(); i++)
-			{
-				tempSS.str("");
-				tempSS << gameMap.getRoom(i);
-				curSock->send(formatCommand("addroom", tempSS.str()));
-				// Throw away the ok response
-				curSock->recv(tempString);
-			}
+            // Send over the rooms in use on the current game map
+            //TODO: Only send the classes which the client is supposed to see due to fog of war.
+            for (unsigned int i = 0; i < gameMap.numRooms(); ++i)
+            {
+                tempSS.str("");
+                tempSS << gameMap.getRoom(i);
+                curSock->send(formatCommand("addroom", tempSS.str()));
+                // Throw away the ok response
+                curSock->recv(tempString);
+            }
 
-			// Send over the class descriptions in use on the current game map
-			//TODO: Only send the classes which the client is supposed to see due to fog of war.
-			for(unsigned int i = 0; i < gameMap.numClassDescriptions(); i++)
-			{
-				//NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
-				// Changes to this code should be reflected in that code as well
-				CreatureClass *tempClass = gameMap.getClassDescription(i);
+            // Send over the class descriptions in use on the current game map
+            //TODO: Only send the classes which the client is supposed to see due to fog of war.
+            for (unsigned int i = 0; i < gameMap.numClassDescriptions(); ++i)
+            {
+                //NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
+                // Changes to this code should be reflected in that code as well
+                CreatureClass *tempClass = gameMap.getClassDescription(i);
 
-				tempSS.str("");
+                tempSS.str("");
 
-				tempSS << tempClass;
+                tempSS << tempClass;
 
-				curSock->send(formatCommand("addclass", tempSS.str()));
-				// Throw away the ok response
-				//TODO:  Actually check this.
-				curSock->recv(tempString);
-			}
+                curSock->send(formatCommand("addclass", tempSS.str()));
+                // Throw away the ok response
+                //TODO:  Actually check this.
+                curSock->recv(tempString);
+            }
 
-			// Send over the actual creatures in use on the current game map
-			//TODO: Only send the creatures which the client is supposed to see due to fog of war.
-			for(unsigned int i = 0; i < gameMap.numCreatures(); i++)
-			{
-				Creature *tempCreature = gameMap.getCreature(i);
+            // Send over the actual creatures in use on the current game map
+            //TODO: Only send the creatures which the client is supposed to see due to fog of war.
+            for (unsigned int i = 0; i < gameMap.numCreatures(); ++i)
+            {
+                Creature *tempCreature = gameMap.getCreature(i);
 
-				tempSS.str("");
+                tempSS.str("");
 
-				tempSS << tempCreature;
+                tempSS << tempCreature;
 
-				curSock->send(formatCommand("addcreature", tempSS.str()));
-				// Throw away the ok response
-				curSock->recv(tempString);
-			}
+                curSock->send(formatCommand("addcreature", tempSS.str()));
+                // Throw away the ok response
+                curSock->recv(tempString);
+            }
 
-			sem_post(&curSock->semaphore);
-		}
+            sem_post(&curSock->semaphore);
+        }
 
-		else if(clientCommand.compare("chat") == 0)
-		{
-			ChatMessage *newMessage = processChatMessage(arguments);
+        else if (clientCommand.compare("chat") == 0)
+        {
+            ChatMessage *newMessage = processChatMessage(arguments);
 
-			// Send the message to all the connected clients
-			for(unsigned int i = 0; i < frameListener->clientSockets.size(); i++)
-			{
-				sem_wait(&frameListener->clientSockets[i]->semaphore);
-				frameListener->clientSockets[i]->send(formatCommand("chat", newMessage->clientNick + ":" + newMessage->message));
-				sem_post(&frameListener->clientSockets[i]->semaphore);
-			}
+            // Send the message to all the connected clients
+            for (unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
+            {
+                sem_wait(&frameListener->clientSockets[i]->semaphore);
+                frameListener->clientSockets[i]->send(formatCommand("chat",
+                        newMessage->clientNick + ":" + newMessage->message));
+                sem_post(&frameListener->clientSockets[i]->semaphore);
+            }
 
-			// Put the message in our own queue
-			frameListener->chatMessages.push_back(newMessage);
-		}
+            // Put the message in our own queue
+            frameListener->chatMessages.push_back(newMessage);
+        }
 
-		//NOTE:  This code is duplicated in clientSocketProcessor()
-		else if(clientCommand.compare("creaturePickUp") == 0)
-		{
-			char array[255];
+        //NOTE:  This code is duplicated in clientSocketProcessor()
+        else if (clientCommand.compare("creaturePickUp") == 0)
+        {
+            char array[255];
 
-			std::stringstream tempSS;
-			tempSS.str(arguments);
+            std::stringstream tempSS;
+            tempSS.str(arguments);
 
-			tempSS.getline(array, sizeof(array), ':');
-			string playerNick = array;
-			tempSS.getline(array, sizeof(array));
-			string creatureName = array;
+            tempSS.getline(array, sizeof(array), ':');
+            std::string playerNick = array;
+            tempSS.getline(array, sizeof(array));
+            std::string creatureName = array;
 
-			Player *tempPlayer = gameMap.getPlayer(playerNick);
-			Creature *tempCreature = gameMap.getCreature(creatureName);
+            Player *tempPlayer = gameMap.getPlayer(playerNick);
+            Creature *tempCreature = gameMap.getCreature(creatureName);
 
-			if(tempPlayer != NULL && tempCreature != NULL)
-			{
-				tempPlayer->pickUpCreature(tempCreature);
-			}
-		}
+            if (tempPlayer != NULL && tempCreature != NULL)
+            {
+                tempPlayer->pickUpCreature(tempCreature);
+            }
+        }
 
-		//NOTE:  This code is duplicated in clientSocketProcessor()
-		else if(clientCommand.compare("creatureDrop") == 0)
-		{
-			char array[255];
+        //NOTE:  This code is duplicated in clientSocketProcessor()
+        else if (clientCommand.compare("creatureDrop") == 0)
+        {
+            char array[255];
 
-			std::stringstream tempSS;
-			tempSS.str(arguments);
+            std::stringstream tempSS;
+            tempSS.str(arguments);
 
-			tempSS.getline(array, sizeof(array), ':');
-			string playerNick = array;
-			tempSS.getline(array, sizeof(array), ':');
-			int tempX = atoi(array);
-			tempSS.getline(array, sizeof(array));
-			int tempY = atoi(array);
+            tempSS.getline(array, sizeof(array), ':');
+            std::string playerNick = array;
+            tempSS.getline(array, sizeof(array), ':');
+            int tempX = atoi(array);
+            tempSS.getline(array, sizeof(array));
+            int tempY = atoi(array);
 
-			Player *tempPlayer = gameMap.getPlayer(playerNick);
-			Tile *tempTile = gameMap.getTile(tempX, tempY);
+            Player *tempPlayer = gameMap.getPlayer(playerNick);
+            Tile *tempTile = gameMap.getTile(tempX, tempY);
 
-			if(tempPlayer != NULL && tempTile != NULL)
-			{
-				tempPlayer->dropCreature(tempTile);
-			}
-		}
+            if (tempPlayer != NULL && tempTile != NULL)
+            {
+                tempPlayer->dropCreature(tempTile);
+            }
+        }
 
-		else if(clientCommand.compare("markTile") == 0)
-		{
-			char array[255];
-			std::stringstream tempSS;
-			tempSS.str(arguments);
+        else if (clientCommand.compare("markTile") == 0)
+        {
+            char array[255];
+            std::stringstream tempSS;
+            tempSS.str(arguments);
 
-			tempSS.getline(array, sizeof(array), ':');
-			int tempX = atoi(array);
-			tempSS.getline(array, sizeof(array), ':');
-			int tempY = atoi(array);
-			tempSS.getline(array, sizeof(array));
-			string flagName = array;
+            tempSS.getline(array, sizeof(array), ':');
+            int tempX = atoi(array);
+            tempSS.getline(array, sizeof(array), ':');
+            int tempY = atoi(array);
+            tempSS.getline(array, sizeof(array));
+            std::string flagName = array;
 
-			Tile *tempTile = gameMap.getTile(tempX, tempY);
-			if(tempTile != NULL)
-			{
-				Player *tempPlayer = gameMap.getPlayer(clientNick);
-				if(tempPlayer != NULL)
-				{
-					bool flag;
-					flagName.compare("true") == 0 ? flag = true : flag = false;
-					tempTile->setMarkedForDigging(flag, tempPlayer);
-				}
-			}
-		}
+            Tile *tempTile = gameMap.getTile(tempX, tempY);
+            if (tempTile != NULL)
+            {
+                Player *tempPlayer = gameMap.getPlayer(clientNick);
+                if (tempPlayer != NULL)
+                {
+                    bool flag;
+                    flagName.compare("true") == 0 ? flag = true : flag = false;
+                    tempTile->setMarkedForDigging(flag, tempPlayer);
+                }
+            }
+        }
 
-		else if(clientCommand.compare("ok") == 0)
-		{
-			cout << "\nIgnoring an ak message from a client: " << arguments;
-		}
+        else if (clientCommand.compare("ok") == 0)
+        {
+            cout << "\nIgnoring an ak message from a client: " << arguments;
+        }
 
-		else
-		{
-			cerr << "\n\nERROR:  Unhandled command recieved from client:\nCommand:  ";
-			cerr << clientCommand << "\nArguments:  " << arguments << "\n\n";
-			exit(1);
-		}
-	}
+        else
+        {
+            cerr
+                    << "\n\nERROR:  Unhandled command recieved from client:\nCommand:  ";
+            cerr << clientCommand << "\nArguments:  " << arguments << "\n\n";
+            exit(1);
+        }
+    }
 
-	// Return something to make the compiler happy
-	return NULL;
+    // Return something to make the compiler happy
+    return NULL;
 }
 
-void sendToAllClients(ExampleFrameListener *frameListener, String str)
+void sendToAllClients(ExampleFrameListener *frameListener, std::string str)
 {
-	for(unsigned int i = 0; i < frameListener->clientSockets.size(); i++)
-	{
-		sem_wait(&frameListener->clientSockets[i]->semaphore);
-		frameListener->clientSockets[i]->send(str);
-		sem_post(&frameListener->clientSockets[i]->semaphore);
-	}
+    for (unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
+    {
+        sem_wait(&frameListener->clientSockets[i]->semaphore);
+        frameListener->clientSockets[i]->send(str);
+        sem_post(&frameListener->clientSockets[i]->semaphore);
+    }
 }
 

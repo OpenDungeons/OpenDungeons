@@ -2,103 +2,107 @@
 
 #include "Functions.h"
 #include "RoomObject.h"
+#include "RenderRequest.h"
+#include "Room.h"
+#include "GameMap.h"
+#include "Globals.h"
 
-RoomObject::RoomObject(Room *nParentRoom, string nMeshName)
+RoomObject::RoomObject(Room *nParentRoom, std::string nMeshName)
 {
-	parentRoom = nParentRoom;
-	meshExists = false;
+    parentRoom = nParentRoom;
+    meshExists = false;
 
-	// Set a unique name for the room.
-	static int uniqueNumber = 1;
-	std::stringstream tempSS;
-	tempSS << "Room_" << parentRoom->getName() << "_Object_" << uniqueNumber++;
-	name = tempSS.str();
+    // Set a unique name for the room.
+    static int uniqueNumber = 1;
+    std::stringstream tempSS;
+    tempSS << "Room_" << parentRoom->getName() << "_Object_" << uniqueNumber++;
+    name = tempSS.str();
 
-	meshName = nMeshName;
+    meshName = nMeshName;
 }
 
-string RoomObject::getName()
+std::string RoomObject::getName()
 {
-	return name;
+    return name;
 }
 
-string RoomObject::getMeshName()
+std::string RoomObject::getMeshName()
 {
-	return meshName;
+    return meshName;
 }
 
 Room* RoomObject::getParentRoom()
 {
-	return parentRoom;
+    return parentRoom;
 }
 
 void RoomObject::createMesh()
 {
-	if(meshExists)
-		return;
+    if (meshExists)
+        return;
 
-	meshExists = true;
+    meshExists = true;
 
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::createRoomObject;
-	request->p = this;
-	request->p2 = parentRoom;
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::createRoomObject;
+    request->p = this;
+    request->p2 = parentRoom;
 
-	// Add the request to the queue of rendering operations to be performed before the next frame.
-	queueRenderRequest(request);
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    queueRenderRequest(request);
 
-	gameMap.addAnimatedObject(this);
+    gameMap.addAnimatedObject(this);
 }
 
 void RoomObject::destroyMesh()
 {
-	if(!meshExists)
-		return;
+    if (!meshExists)
+        return;
 
-	meshExists = false;
+    meshExists = false;
 
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::destroyRoomObject;
-	request->p = this;
-	request->p2 = parentRoom;
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::destroyRoomObject;
+    request->p = this;
+    request->p2 = parentRoom;
 
-	// Add the request to the queue of rendering operations to be performed before the next frame.
-	queueRenderRequest(request);
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    queueRenderRequest(request);
 
-	gameMap.removeAnimatedObject(this);
+    gameMap.removeAnimatedObject(this);
 }
 
 void RoomObject::deleteYourself()
 {
-	if(meshExists)
-		destroyMesh();
+    if (meshExists)
+        destroyMesh();
 
-	// Create a render request asking the render queue to actually do the deletion of this creature.
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::deleteRoomObject;
-	request->p = this;
+    // Create a render request asking the render queue to actually do the deletion of this creature.
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::deleteRoomObject;
+    request->p = this;
 
-	// Add the requests to the queue of rendering operations to be performed before the next frame.
-	queueRenderRequest(request);
+    // Add the requests to the queue of rendering operations to be performed before the next frame.
+    queueRenderRequest(request);
 }
 
 std::string RoomObject::getOgreNamePrefix()
 {
-	return "RoomObject_";
+    return "RoomObject_";
 }
 
-string RoomObject::getFormat()
+std::string RoomObject::getFormat()
 {
-	return "name\tmeshName";
+    return "name\tmeshName";
 }
 
-ostream& operator<<(ostream& os, RoomObject *o)
+std::ostream& operator<<(std::ostream& os, RoomObject *o)
 {
-	return os;
+    return os;
 }
 
-istream& operator>>(istream& is, RoomObject *o)
+std::istream& operator>>(std::istream& is, RoomObject *o)
 {
-	return is;
+    return is;
 }
 

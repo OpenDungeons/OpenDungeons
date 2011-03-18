@@ -1,37 +1,41 @@
 #ifndef ROOMOBJECT_H
 #define ROOMOBJECT_H
 
-#include "Room.h"
 #include "ActiveObject.h"
 #include "AnimatedObject.h"
+#include <string>
+#include <istream>
+#include <ostream>
 
-class RoomObject : public ActiveObject, public AnimatedObject
+class Room;
+
+class RoomObject: public ActiveObject, public AnimatedObject
 {
-	public:
-		RoomObject(Room *nParentRoom, string nMeshName);
+    public:
+        RoomObject(Room *nParentRoom, std::string nMeshName);
 
-		string getName();
-		string getMeshName();
+        std::string getName();
+        std::string getMeshName();
 
-		Room* getParentRoom();
+        Room* getParentRoom();
 
-		void createMesh();
-		void destroyMesh();
-		void deleteYourself();
+        void createMesh();
+        void destroyMesh();
+        void deleteYourself();
 
-		std::string getOgreNamePrefix();
+        std::string getOgreNamePrefix();
 
-		static string getFormat();
-		friend ostream& operator<<(ostream& os, RoomObject *o);
-		friend istream& operator>>(istream& is, RoomObject *o);
+        static std::string getFormat();
+        friend std::ostream& operator<<(std::ostream& os, RoomObject *o);
+        friend std::istream& operator>>(std::istream& is, RoomObject *o);
 
-		double x, y;
-		double rotationAngle;
+        double x, y;
+        double rotationAngle;
 
-	private:
-		Room *parentRoom;
-		bool meshExists;
-		string name, meshName;
+    private:
+        Room *parentRoom;
+        bool meshExists;
+        std::string name, meshName;
 };
 
 #endif

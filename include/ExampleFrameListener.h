@@ -1,24 +1,24 @@
 /*
------------------------------------------------------------------------------
-This source file is part of OGRE
-    (Object-oriented Graphics Rendering Engine)
-For the latest info, see http://www.ogre3d.org/
+ -----------------------------------------------------------------------------
+ This source file is part of OGRE
+ (Object-oriented Graphics Rendering Engine)
+ For the latest info, see http://www.ogre3d.org/
 
-Copyright (c) 2000-2006 Torus Knot Software Ltd
-Also see acknowledgements in Readme.html
+ Copyright (c) 2000-2006 Torus Knot Software Ltd
+ Also see acknowledgements in Readme.html
 
-You may use this sample code for anything you like, it is not covered by the
-LGPL like the rest of the engine.
------------------------------------------------------------------------------
-*/
+ You may use this sample code for anything you like, it is not covered by the
+ LGPL like the rest of the engine.
+ -----------------------------------------------------------------------------
+ */
 /*
------------------------------------------------------------------------------
-Filename:    ExampleFrameListener.h
-Description: Defines an example frame listener which responds to frame events.
-This frame listener just moves a specified camera around based on
-keyboard and mouse movements.
------------------------------------------------------------------------------
-*/
+ -----------------------------------------------------------------------------
+ Filename:    ExampleFrameListener.h
+ Description: Defines an example frame listener which responds to frame events.
+ This frame listener just moves a specified camera around based on
+ keyboard and mouse movements.
+ -----------------------------------------------------------------------------
+ */
 
 #ifndef __ExampleFrameListener_H__
 #define __ExampleFrameListener_H__
@@ -27,7 +27,7 @@ keyboard and mouse movements.
 #include <cstdlib>
 #include <pthread.h>
 
-#include "Ogre.h"
+#include "OgreFrameListener.h"
 #include "OgreStringConverter.h"
 #include "OgreException.h"
 
@@ -36,17 +36,10 @@ keyboard and mouse movements.
 #include <OIS.h>
 #include <CEGUIRenderer.h>
 
-//#define
-//#include <OgreOggSoundManager.h>
-//#include <OgreOggStreamSound.h>
-//#include <OgreOggSound.h>
-
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
 #include <OIS.h>
-
-using namespace Ogre;
 
 #include "TextRenderer.h"
 #include "Socket.h"
@@ -55,6 +48,8 @@ using namespace Ogre;
 #include "Room.h"
 #include "MusicPlayer.h"
 
+class SoundEffectsHelper;
+
 /*! \brief The main OGRE rendering class.
  *
  * This class provides the rendering framework for the OGRE subsystem, as well
@@ -62,143 +57,158 @@ using namespace Ogre;
  * initializes the meshes for creatures and tiles, moves the camera, and
  * displays the terminal and chat messages on the game screen.
  */
-class ExampleFrameListener: public FrameListener, public WindowEventListener, public OIS::MouseListener, public OIS::KeyListener
+class ExampleFrameListener: public Ogre::FrameListener,
+        public Ogre::WindowEventListener,
+        public OIS::MouseListener,
+        public OIS::KeyListener
 {
-protected:
-	void updateStats(void);
+    protected:
+        void updateStats(void);
 
-public:
-	// Constructor takes a RenderWindow because it uses that to determine input context
-	ExampleFrameListener(RenderWindow* win, Camera* cam, SceneManager *sceneManager, CEGUI::Renderer *renderer, bool bufferedKeys, bool bufferedMouse, bool bufferedJoy);
+    public:
+        // Constructor takes a RenderWindow because it uses that to determine input context
+        ExampleFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
+                Ogre::SceneManager *sceneManager, CEGUI::Renderer *renderer,
+                bool bufferedKeys, bool bufferedMouse, bool bufferedJoy);
 
-	//Adjust mouse clipping area
-	virtual void windowResized(RenderWindow* rw);
+        //Adjust mouse clipping area
+        virtual void windowResized(Ogre::RenderWindow* rw);
 
-	//Unattach OIS before window shutdown (very important under Linux)
-	virtual void windowClosed(RenderWindow* rw);
-	virtual ~ExampleFrameListener();
+        //Unattach OIS before window shutdown (very important under Linux)
+        virtual void windowClosed(Ogre::RenderWindow* rw);
+        virtual ~ExampleFrameListener();
 
-	void moveCamera(double frameTime);
-	Ogre::Vector3 getCameraViewTarget();
-	void flyTo(Ogre::Vector3 destination);
+        void moveCamera(double frameTime);
+        Ogre::Vector3 getCameraViewTarget();
+        void flyTo(Ogre::Vector3 destination);
 
-	void showDebugOverlay(bool show);
+        void showDebugOverlay(bool show);
 
-	// Override frameStarted event to process that (don't care about frameEnded)
-	bool frameStarted(const FrameEvent& evt);
-	bool frameEnded(const FrameEvent& evt);
+        // Override frameStarted event to process that (don't care about frameEnded)
+        bool frameStarted(const Ogre::FrameEvent& evt);
+        bool frameEnded(const Ogre::FrameEvent& evt);
 
-	//CEGUI Functions
-	bool quit(const CEGUI::EventArgs &e);
-	bool mouseMoved(const OIS::MouseEvent &arg);
-	RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
-	bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-	bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-	bool keyPressed(const OIS::KeyEvent &arg);
-	bool keyReleased(const OIS::KeyEvent &arg);
+        //CEGUI Functions
+        bool quit(const CEGUI::EventArgs &e);
+        bool mouseMoved(const OIS::MouseEvent &arg);
+        Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
+        bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+        bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+        bool keyPressed(const OIS::KeyEvent &arg);
+        bool keyReleased(const OIS::KeyEvent &arg);
+        void handleHotkeys(int hotkeyNumber);
 
-	// Console functions
-	void printText(string text);
-	void executePromptCommand(string command, string arguments);
-	string getHelpText(string arg);
-	
-	// Console variables
-	string command, arguments, commandOutput, prompt;
-	//deque< pair<time_t, string> > chatMessages;
-	std::deque< ChatMessage* > chatMessages;
-	string consoleBuffer, promptCommand, chatString;
+        // Console functions
+        void printText(string text);
+        void executePromptCommand(string command, string arguments);
+        string getHelpText(string arg);
 
+        // Console variables
+        string command, arguments, commandOutput, prompt;
+        //deque< pair<time_t, string> > chatMessages;
+        std::deque<ChatMessage*> chatMessages;
+        string consoleBuffer, promptCommand, chatString;
 
-	// Multiplayer stuff
-	std::vector<Socket*> clientSockets;
-	pthread_t clientThread;
-	pthread_t serverThread;
-	pthread_t serverNotificationThread;
-	pthread_t clientNotificationThread;
-	std::vector<pthread_t*> clientHandlerThreads;
-	pthread_t creatureThread;
+        // Multiplayer stuff
+        std::vector<Socket*> clientSockets;
+        pthread_t clientThread;
+        pthread_t serverThread;
+        pthread_t serverNotificationThread;
+        pthread_t clientNotificationThread;
+        std::vector<pthread_t*> clientHandlerThreads;
+        pthread_t creatureThread;
 
-	// Variables for chat messages
-	unsigned int chatMaxMessages;
-	unsigned int chatMaxTimeDisplay;
+        // Variables for chat messages
+        unsigned int chatMaxMessages;
+        unsigned int chatMaxTimeDisplay;
 
-	bool mContinue;
+        bool mContinue;
 
-protected:
-	Camera* mCamera;
-	SceneNode *mCamNode;
+    protected:
+        Ogre::Camera* mCamera;
+        Ogre::SceneNode *mCamNode;
 
-	Ogre::Vector3 translateVector;
-	Ogre::Vector3 translateVectorAccel;
-	Ogre::Vector3 mMouseTranslateVector;
-	Ogre::Vector3 cameraFlightDestination;
-	Ogre::Vector3 mRotateLocalVector;
-	double zChange;
-	//Ogre::Vector3 mRotateWorldVector;
-	RenderWindow* mWindow;
-	bool cameraIsFlying;
-	Real moveSpeed;
-	Real moveSpeedAccel;
-	Degree mRotateSpeed;
-	Degree swivelDegrees;
-	double cameraFlightSpeed;
-	bool hotkeyLocationIsValid[10];
-	Ogre::Vector3 hotkeyLocation[10];
+        Ogre::Vector3 translateVector;
+        Ogre::Vector3 translateVectorAccel;
+        Ogre::Vector3 mMouseTranslateVector;
+        Ogre::Vector3 cameraFlightDestination;
+        Ogre::Vector3 mRotateLocalVector;
+        double zChange;
+        //Ogre::Vector3 mRotateWorldVector;
+        Ogre::RenderWindow* mWindow;
+        bool cameraIsFlying;
+        Ogre::Real moveSpeed;
+        Ogre::Real moveSpeedAccel;
+        Ogre::Degree mRotateSpeed;
+        Ogre::Degree swivelDegrees;
+        double cameraFlightSpeed;
+        bool hotkeyLocationIsValid[10];
+        Ogre::Vector3 hotkeyLocation[10];
 
-	std::string mDebugText;
-	bool mStatsOn;
+        std::string mDebugText;
+        bool mStatsOn;
 
-	unsigned int mNumScreenShots;
-	float mMoveScale;
-	float mZoomSpeed;
-	Degree mRotScale;
-	// just to stop toggles flipping too fast
-	Real mTimeUntilNextToggle ;
-	Radian mRotX, mRotY, mRotZ;
-	TextureFilterOptions mFiltering;
-	int mAniso;
-	Tile::TileType mCurrentTileType;
-	int mCurrentFullness, mCurrentTileRadius;
-	bool mBrushMode;
-	bool addRoomsMode;
-	double frameDelay;
+        unsigned int mNumScreenShots;
+        float mMoveScale;
+        float mZoomSpeed;
+        Ogre::Degree mRotScale;
+        // just to stop toggles flipping too fast
+        Ogre::Real mTimeUntilNextToggle;
+        Ogre::Radian mRotX, mRotY, mRotZ;
+        Ogre::TextureFilterOptions mFiltering;
+        int mAniso;
+        Tile::TileType mCurrentTileType;
+        int mCurrentFullness, mCurrentTileRadius;
+        bool mBrushMode;
+        bool addRoomsMode;
+        double frameDelay;
 
-	int mSceneDetailIndex ;
-	Overlay* mDebugOverlay;
+        int mSceneDetailIndex;
+        Ogre::Overlay* mDebugOverlay;
 
-	//OIS Input devices
-	OIS::InputManager* mInputManager;
-	OIS::Mouse*    mMouse;
-	OIS::Keyboard* mKeyboard;
-	OIS::JoyStick* mJoy;
+        //OIS Input devices
+        OIS::InputManager* mInputManager;
+        OIS::Mouse* mMouse;
+        OIS::Keyboard* mKeyboard;
+        OIS::JoyStick* mJoy;
 
-	// Mouse query stuff
-	RaySceneQuery *mRaySceneQuery;     // The ray scene query pointer
-	bool mLMouseDown, mRMouseDown;     // True if the mouse buttons are down
-	int mLStartDragX, mLStartDragY;    // The start tile coordinates for a left drag
-	int mRStartDragX, mRStartDragY;    // The start tile coordinates for a left drag
-	int mCount;                        // The number of robots on the screen
-	SceneManager *mSceneMgr;           // A pointer to the scene manager
-	SceneNode *mCurrentObject;         // The newly created object
-	CEGUI::Renderer *mGUIRenderer;     // CEGUI renderer
-	int xPos, yPos;
-	bool digSetBool;                   // For server mode - hods whether to mark or unmark a tile for digging
-	bool mouseDownOnCEGUIWindow;
+        // Mouse query stuff
+        Ogre::RaySceneQuery *mRaySceneQuery; // The ray scene query pointer
+        bool mLMouseDown, mRMouseDown; // True if the mouse buttons are down
+        int mLStartDragX, mLStartDragY; // The start tile coordinates for a left drag
+        int mRStartDragX, mRStartDragY; // The start tile coordinates for a left drag
+        int mCount; // The number of robots on the screen
+        Ogre::SceneManager *mSceneMgr; // A pointer to the scene manager
+        Ogre::SceneNode *mCurrentObject; // The newly created object
+        CEGUI::Renderer *mGUIRenderer; // CEGUI renderer
+        int xPos, yPos;
+        bool digSetBool; // For server mode - hods whether to mark or unmark a tile for digging
+        bool mouseDownOnCEGUIWindow;
 
-	enum DragType {creature, mapLight, tileSelection, tileBrushSelection, addNewRoom, addNewTrap, nullDragType};
+        enum DragType
+        {
+            creature,
+            mapLight,
+            tileSelection,
+            tileBrushSelection,
+            addNewRoom,
+            addNewTrap,
+            nullDragType
+        };
 
-	//OgreOggSound::OgreOggISound* mCurrMusic;
+        //OgreOggSound::OgreOggISound* mCurrMusic;
 
-private:
-	bool terminalActive;
-	int terminalWordWrap;
+    private:
+        bool terminalActive;
+        int terminalWordWrap;
 
-	DragType mDragType;
-	string draggedCreature, draggedMapLight;
-	SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode, *lightSceneNode;
+        DragType mDragType;
+        string draggedCreature, draggedMapLight;
+        Ogre::SceneNode *creatureSceneNode, *roomSceneNode, *fieldSceneNode,
+                *lightSceneNode;
 
-	SoundEffectsHelper* sfxHelper;
-	MusicPlayer* musicPlayer;
+        SoundEffectsHelper* sfxHelper;
+        MusicPlayer* musicPlayer;
 };
 
 #endif

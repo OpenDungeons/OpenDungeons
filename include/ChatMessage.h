@@ -1,9 +1,9 @@
 #ifndef CHATMESSAGE_H
 #define CHATMESSAGE_H
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
-#include <time.h>
+#include <ctime>
 
 /*! \brief A data structure to store a chat message and its relevant time stamps.
  *
@@ -15,11 +15,12 @@
  */
 class ChatMessage
 {
-	public:
-		ChatMessage();
-		ChatMessage(std::string nNick, std::string nMessage, time_t nRecvTime, time_t nSendTime = 0);
-		std::string message, clientNick;
-		time_t sendTime, recvTime;
+    public:
+        ChatMessage();
+        ChatMessage(std::string nNick, std::string nMessage, time_t nRecvTime,
+                time_t nSendTime = 0);
+        std::string message, clientNick;
+        time_t sendTime, recvTime;
 };
 
 #endif

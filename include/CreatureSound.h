@@ -15,33 +15,33 @@
 class CreatureSound
 {
 
-    friend class SoundEffectsHelper;
+        friend class SoundEffectsHelper;
     public:
 
-    //The various sound types used.
-    //Extend as needed.
-    enum SoundType {
-        ATTACK,
-        //ISHIT,
-        DIG,
-        //DROP,
-        //IDLE1,
-        NUM_CREATURE_SOUNDS
-    };
+        //The various sound types used.
+        //Extend as needed.
+        enum SoundType
+        {
+            ATTACK,
+            //ISHIT,
+            DIG,
+            //DROP,
+            //IDLE1,
+            NUM_CREATURE_SOUNDS
+        };
 
-
-    void play(SoundType type);
-    void playDelayed(SoundType type);
-    void setPosition(Ogre::Vector3 p);
-    void setPosition(float x, float y, float z);
+        void play(SoundType type);
+        void playDelayed(SoundType type);
+        void setPosition(Ogre::Vector3 p);
+        void setPosition(float x, float y, float z);
     private:
-    CreatureSound();
-    CreatureSound(const CreatureSound&);
-    CreatureSound& operator=(const CreatureSound&);
+        CreatureSound();
+        CreatureSound(const CreatureSound&);
+        CreatureSound& operator=(const CreatureSound&);
 
-    SoundEffectsHelper* sfHelper;
-    //TODO - should we use a vector of pointers instead?
-    SoundEffectsHelper::SoundFXVector sounds;
+        SoundEffectsHelper* sfHelper;
+        //TODO - should we use a vector of pointers instead?
+        SoundEffectsHelper::SoundFXVector sounds;
 };
 
 #endif /* CREATURESOUND_H_ */

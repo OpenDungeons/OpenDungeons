@@ -2,12 +2,13 @@
 #define PLAYER_H
 
 #include <string>
+#include <vector>
 
-class Goal;
-#include "Creature.h"
-#include "Seat.h"
+
+#include "Trap.h" //Class has enum, so has to include this.
 #include "Room.h"
-#include "Trap.h"
+class Seat;
+class Creature;
 
 /*! \brief The player cleass contains information about a human, or computer, player in the game.
  *
@@ -20,33 +21,33 @@ class Goal;
  */
 class Player
 {
-	public:
-		Player();
-		string nick;		/**< The nickname used un chat, etc. */
-		bool humanPlayer;	/**< True: player is human.    False: player is a computer. */
-		//int goldInTreasury();
-		//int oreInRefinery();
-		//int ironInRefinery();
+    public:
+        Player();
+        std::string nick; /**< The nickname used un chat, etc. */
+        bool humanPlayer; /**< True: player is human.    False: player is a computer. */
+        //int goldInTreasury();
+        //int oreInRefinery();
+        //int ironInRefinery();
 
-		// Public functions
-		unsigned int numCreaturesInHand();
-		Creature *getCreatureInHand(int i);
-		void pickUpCreature(Creature *c);
-		bool dropCreature(Tile *t);
-		void rotateCreaturesInHand(int n);
+        // Public functions
+        unsigned int numCreaturesInHand();
+        Creature *getCreatureInHand(int i);
+        void pickUpCreature(Creature *c);
+        bool dropCreature(Tile *t);
+        void rotateCreaturesInHand(int n);
 
-		// Public data members
-		Seat *seat;
-		Room::RoomType newRoomType;
-		Trap::TrapType newTrapType;
+        // Public data members
+        Seat *seat;
+        Room::RoomType newRoomType;
+        Trap::TrapType newTrapType;
 
-	private:
-		// Private functions
-		void addCreatureToHand(Creature *c);	// Private, for other classes use pickUpCreature() instead.
-		void removeCreatureFromHand(int i);	// Private, for other classes use dropCreature() instead.
+    private:
+        // Private functions
+        void addCreatureToHand(Creature *c); // Private, for other classes use pickUpCreature() instead.
+        void removeCreatureFromHand(int i); // Private, for other classes use dropCreature() instead.
 
-		// Private datamembers
-		std::vector<Creature*> creaturesInHand;
+        // Private datamembers
+        std::vector<Creature*> creaturesInHand;
 };
 
 #endif

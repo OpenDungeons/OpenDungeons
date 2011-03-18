@@ -3,31 +3,33 @@
 
 #include "Room.h"
 #include "CreatureClass.h"
+#include <vector>
+#include <map> //For pair
 
-class RoomPortal : public Room
+class RoomPortal: public Room
 {
-	public:
-		RoomPortal();
+    public:
+        RoomPortal();
 
-		// Functions overriding virtual functions in the Room base class.
-		void createMeshes();
-		void addCoveredTile(Tile* t, double nHP = Room::defaultTileHP);
-		void removeCoveredTile(Tile* t);
-		bool doUpkeep(Room *r);
+        // Functions overriding virtual functions in the Room base class.
+        void createMeshes();
+        void addCoveredTile(Tile* t, double nHP = Room::defaultTileHP);
+        void removeCoveredTile(Tile* t);
+        bool doUpkeep(Room *r);
 
-		// Functions specific to this class.
-		void spawnCreature();
+        // Functions specific to this class.
+        void spawnCreature();
 
-	private:
-		void recomputeClassProbabilities();
-		void recomputeCenterPosition();
+    private:
+        void recomputeClassProbabilities();
+        void recomputeCenterPosition();
 
-		int spawnCreatureCountdown;
+        int spawnCreatureCountdown;
 
-		std::vector< pair<CreatureClass*,double> > classProbabilities;
-		double xCenter, yCenter;
+        std::vector<std::pair<CreatureClass*, double> > classProbabilities;
+        double xCenter, yCenter;
 
-		RoomObject *portalObject;
+        RoomObject *portalObject;
 };
 
 #endif
