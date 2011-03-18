@@ -95,7 +95,7 @@ if(WIN32)
     set( PTHREADS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/pthreads/include/" )
     include_directories( ${PTHREADS_INCLUDE_DIR} )
     set( PTHREADS_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/pthreads/lib/" )
-    include_directories( ${PTHREADS_LIBRARY_DIRS} )
+    link_directories( ${PTHREADS_LIBRARY_DIRS} )
 endif()
 
 ##################################

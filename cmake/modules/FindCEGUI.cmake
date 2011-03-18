@@ -15,7 +15,7 @@ message(STATUS "looking for headers")
 find_path(CEGUI_INCLUDE_DIR CEGUI.h
     HINTS $ENV{CEGUIDIR}
         ${PC_CEGUI_INCLUDEDIR}
-    PATH_SUFFIXES include/CEGUI CEGUI include
+    PATH_SUFFIXES include/CEGUI CEGUI include cegui/include
     PATHS
     ~/Library/Frameworks
     /Library/Frameworks

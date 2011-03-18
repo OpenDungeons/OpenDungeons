@@ -62,7 +62,9 @@ endif()
 #If we are on windows we can also look for OpenAL where SFML is
 if(WIN32 AND ${SFML_FOUND})
     set( CMAKE_LIBRARY_PATH ${SFMLDIR}/extlibs/libs-vc2005)
+	set( CMAKE_LIBRARY_PATH ${SFMLDIR}/extlibs/libs-mingw)
     set( CMAKE_INCLUDE_PATH ${SFMLDIR}/extlibs/headers)
+	set( CMAKE_INCLUDE_PATH ${SFMLDIR}/extlibs/headers/AL)
 endif()
 find_package(OpenAL REQUIRED)
 
