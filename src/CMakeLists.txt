@@ -69,10 +69,16 @@ set(
 #Add cegui library dirs.
 include_directories(${CEGUI_INCLUDE_DIR})
 
-if( WIN32 )
+if( MINGW )
     # Boost
     link_libraries(${Boost_LIBRARIES})
     include_directories(${Boost_INCLUDE_DIRS})
+endif()
+if( MSVC )
+    message( STATUS "MSVC: " ${OD_BOOST_INCLUDE_DIR})
+    message( STATUS "MSVC: " ${OD_BOOST_LIB_DIR})
+    include_directories(${OD_BOOST_INCLUDE_DIR})
+    link_directories(${OD_BOOST_LIB_DIR})
 endif()
 
 #includes only

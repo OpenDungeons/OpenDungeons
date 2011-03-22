@@ -4,6 +4,12 @@
 #define _USE_MATH_DEFINES
 #endif
 #include <cmath>
+ 
+//TODO - should we maybe allways use this number, even if it exists for
+//consistency?
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643		
+#endif
 
 #include "RadialVector2.h"
 
