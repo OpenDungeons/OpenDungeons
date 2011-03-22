@@ -23,7 +23,7 @@ AnimatedObject::AnimatedObject()
     setAnimationSpeedFactor(1.0);
 }
 
-void AnimatedObject::setPosition(double x, double y, double z)
+void AnimatedObject::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     setPosition(Ogre::Vector3(x, y, z));
 }
@@ -52,7 +52,7 @@ Ogre::Vector3 AnimatedObject::getPosition()
  * This function also places a message in the serverNotificationQueue so that
  * relevant clients are informed about the change.
  */
-void AnimatedObject::addDestination(double x, double y, double z)
+void AnimatedObject::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     //cout << "w(" << x << ", " << y << ") ";
     Ogre::Vector3 destination(x, y, z);
@@ -165,7 +165,10 @@ void AnimatedObject::faceToward(int x, int y)
 {
     // Rotate the object to face the direction of the destination
     Ogre::Vector3 tempPosition = position;
-    walkDirection = Ogre::Vector3(x, y, tempPosition.z) - tempPosition;
+	walkDirection = Ogre::Vector3(
+		static_cast<Ogre::Real>(x),
+		static_cast<Ogre::Real>(y),
+		tempPosition.z) - tempPosition;
     walkDirection.normalise();
 
     RenderRequest *request = new RenderRequest;

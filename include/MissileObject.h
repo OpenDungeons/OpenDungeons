@@ -17,7 +17,7 @@ class MissileObject: public ActiveObject, public AnimatedObject
         MissileObject(std::string nMeshName, Ogre::Vector3 nPosition);
         void initialize();
 
-        void setPosition(double x, double y, double z);
+        void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
         void setPosition(Ogre::Vector3 v);
         Ogre::Vector3 getPosition();
 

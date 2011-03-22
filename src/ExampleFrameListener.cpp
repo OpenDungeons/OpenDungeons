@@ -3,12 +3,13 @@
 #include <iostream>
 #include <algorithm>
 
+#include "ExampleFrameListener.h"
+
 #include "Socket.h"
 #include "Defines.h"
 #include "Tile.h"
 #include "Globals.h"
 #include "Functions.h"
-#include "ExampleFrameListener.h"
 #include "Creature.h"
 #include "ChatMessage.h"
 #include "Network.h"
@@ -162,7 +163,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
     mAniso = 1;
     mSceneDetailIndex = 0;
     moveSpeed = 2.0;
-    moveSpeedAccel = 2.0 * moveSpeed; // if this is changed, also change it in the terminal command 'movespeed'.
+	moveSpeedAccel = static_cast<Ogre::Real>(2.0) * moveSpeed; // if this is changed, also change it in the terminal command 'movespeed'.
     mRotateSpeed = 90;
     swivelDegrees = 0.0;
     mZoomSpeed = 7;
@@ -259,8 +260,10 @@ void ExampleFrameListener::windowResized(RenderWindow* rw)
     ms.height = height;
 
     //Notify CEGUI that the display size has changed.
-    CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Size(width,
-            height));
+    CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Size(
+			static_cast<float>(width),
+            static_cast<float>(height)
+			));
 }
 
 /*! \brief Unattach OIS before window shutdown (very important under Linux)
@@ -296,13 +299,17 @@ ExampleFrameListener::~ExampleFrameListener()
 /*! \brief Sets the camera to a new location while still satisfying the constraints placed on its movement
  *
  */
-void ExampleFrameListener::moveCamera(double frameTime)
+void ExampleFrameListener::moveCamera(Ogre::Real frameTime)
 {
     // Carry out the acceleration/deceleration calculations on the camera translation.
-    double speed = translateVector.normalise();
+	Ogre::Real speed = translateVector.normalise();
     translateVector *= max(0.0, speed - (0.75 + (speed / moveSpeed))
-            * moveSpeedAccel * frameTime);
-    translateVector += translateVectorAccel * (frameTime * 2.0);
+            * moveSpeedAccel * 
+			frameTime
+			);
+    translateVector += translateVectorAccel * (
+		frameTime
+		* 2.0);
 
     // If we have sped up to more than the maximum moveSpeed then rescale the vector to that length.
     // We use the squaredLength() in this calculation since squaring the RHS is faster than sqrt'ing the LHS.
@@ -324,7 +331,7 @@ void ExampleFrameListener::moveCamera(double frameTime)
 
     // Adjust the newPosition vector to account for the translation due to the movement keys on the keyboard (the arrow keys and/or WASD).
     newPosition.z += zChange * frameTime * mZoomSpeed;
-    double horizontalSpeedFactor = (newPosition.z >= 25.0) ? 1.0
+	Ogre::Real horizontalSpeedFactor = (newPosition.z >= 25.0) ? 1.0
             : newPosition.z / (25.0);
     newPosition += horizontalSpeedFactor * (viewDirectionQuaternion
             * translateVector);
@@ -342,10 +349,10 @@ void ExampleFrameListener::moveCamera(double frameTime)
             * frameTime), Node::TS_LOCAL);
 
     // Swivel the camera to the left or right, while maintaining the same view target location on the ground.
-    double deltaX = newPosition.x - viewTarget.x;
-    double deltaY = newPosition.y - viewTarget.y;
-    double radius = sqrt(deltaX * deltaX + deltaY * deltaY);
-    double theta = atan2(deltaY, deltaX);
+    Ogre::Real deltaX = newPosition.x - viewTarget.x;
+    Ogre::Real deltaY = newPosition.y - viewTarget.y;
+    Ogre::Real radius = sqrt(deltaX * deltaX + deltaY * deltaY);
+    Ogre::Real theta = atan2(deltaY, deltaX);
     theta += swivelDegrees.valueRadians() * frameTime;
     newPosition.x = viewTarget.x + radius * cos(theta);
     newPosition.y = viewTarget.y + radius * sin(theta);

@@ -78,7 +78,7 @@ class ExampleFrameListener: public Ogre::FrameListener,
         virtual void windowClosed(Ogre::RenderWindow* rw);
         virtual ~ExampleFrameListener();
 
-        void moveCamera(double frameTime);
+		void moveCamera(Ogre::Real frameTime);
         Ogre::Vector3 getCameraViewTarget();
         void flyTo(Ogre::Vector3 destination);
 
@@ -141,7 +141,7 @@ class ExampleFrameListener: public Ogre::FrameListener,
         Ogre::Real moveSpeedAccel;
         Ogre::Degree mRotateSpeed;
         Ogre::Degree swivelDegrees;
-        double cameraFlightSpeed;
+		Ogre::Real cameraFlightSpeed;
         bool hotkeyLocationIsValid[10];
         Ogre::Vector3 hotkeyLocation[10];
 

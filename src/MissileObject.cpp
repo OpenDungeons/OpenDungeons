@@ -40,8 +40,9 @@ void MissileObject::initialize()
 }
 
 /*! \brief Changes the missile's position to a new position.
- *
- *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
+ *  Moves the creature to a new location in 3d space.  This function is
+ *  responsible for informing OGRE anything it needs to know, as well as
+ *  maintaining the list of creatures in the individual tiles.
  */
 void MissileObject::setPosition(Ogre::Vector3 v)
 {
@@ -65,7 +66,7 @@ void MissileObject::setPosition(Ogre::Vector3 v)
  *  responsible for informing OGRE anything it needs to know, as well as
  *  maintaining the list of creatures in the individual tiles.
  */
-void MissileObject::setPosition(double x, double y, double z)
+void MissileObject::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     setPosition(Ogre::Vector3(x, y, z));
 }

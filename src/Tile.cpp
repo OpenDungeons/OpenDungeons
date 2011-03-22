@@ -1,6 +1,7 @@
+#include "Tile.h"
+
 #include "Defines.h"
 #include "Functions.h"
-#include "Tile.h"
 #include "Globals.h"
 #include "Creature.h"
 #include "GameMap.h"

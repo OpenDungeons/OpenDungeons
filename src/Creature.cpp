@@ -271,7 +271,7 @@ void Creature::setPosition(Ogre::Vector3 v)
  *  responsible for informing OGRE anything it needs to know, as well as
  *  maintaining the list of creatures in the individual tiles.
  */
-void Creature::setPosition(double x, double y, double z)
+void Creature::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     // If we are on the gameMap we may need to update the tile we are in
     sem_wait(&isOnMapLockSemaphore);
@@ -624,17 +624,17 @@ void Creature::doTurn()
                                                 == CreatureAction::digTile)
                                         {
                                             // Worker is digging, get near it since it could expose enemies.
-                                            tempX = tempTile->x + 3.0
+                                            tempX = static_cast<double>(tempTile->x) + 3.0
                                                     * gaussianRandomDouble();
-                                            tempY = tempTile->y + 3.0
+                                            tempY = static_cast<double>(tempTile->y) + 3.0
                                                     * gaussianRandomDouble();
                                         }
                                         else
                                         {
                                             // Worker is not digging, wander a bit farther around the worker.
-                                            tempX = tempTile->x + 8.0
+                                            tempX = static_cast<double>(tempTile->x) + 8.0
                                                     * gaussianRandomDouble();
-                                            tempY = tempTile->y + 8.0
+                                            tempY = static_cast<double>(tempTile->y) + 8.0
                                                     * gaussianRandomDouble();
                                         }
                                         workerFound = true;
@@ -646,10 +646,11 @@ void Creature::doTurn()
                                         if (visibleTiles.size() > 0)
                                         {
                                             tempTile
-                                                    = visibleTiles[randomDouble(
-                                                            0.6, 0.8)
-                                                            * (visibleTiles.size()
-                                                                    - 1)];
+                                                    = visibleTiles[static_cast<unsigned int>(
+														randomDouble(0.6, 0.8)
+                                                        * (visibleTiles.size()
+                                                        - 1)
+														)];
                                             tempX = tempTile->x;
                                             tempY = tempTile->y;
                                         }
@@ -661,9 +662,10 @@ void Creature::doTurn()
                                 // Randomly choose a tile near where we are standing to walk to.
                                 if (visibleTiles.size() > 0)
                                 {
-                                    unsigned int tileIndex =
+                                    unsigned int tileIndex = static_cast<unsigned int>(
                                             visibleTiles.size() * randomDouble(
-                                                    0.1, 0.3);
+                                                    0.1, 0.3)
+													);
                                     myTile = positionTile();
                                     tempPath = gameMap.path(myTile,
                                             visibleTiles[tileIndex],
@@ -1786,7 +1788,7 @@ void Creature::doLevelUp()
     if (meshesExist && ((level <= 30 && level % 2 == 0) || (level > 30 && level
             % 3 == 0)))
     {
-        double scaleFactor = 1.0 + level / 250.0;
+		Ogre::Real scaleFactor = 1.0 + static_cast<double>(level) / 250.0;
         if (scaleFactor > 1.03)
             scaleFactor = 1.04;
         RenderRequest *request = new RenderRequest;

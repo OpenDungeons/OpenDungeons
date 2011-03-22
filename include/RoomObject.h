@@ -29,8 +29,8 @@ class RoomObject: public ActiveObject, public AnimatedObject
         friend std::ostream& operator<<(std::ostream& os, RoomObject *o);
         friend std::istream& operator>>(std::istream& is, RoomObject *o);
 
-        double x, y;
-        double rotationAngle;
+		Ogre::Real x, y;
+        Ogre::Real rotationAngle;
 
     private:
         Room *parentRoom;

@@ -18,11 +18,11 @@ class AnimatedObject
     public:
         AnimatedObject();
 
-        virtual void setPosition(double x, double y, double z);
+        virtual void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
         virtual void setPosition(Ogre::Vector3 v);
         virtual Ogre::Vector3 getPosition();
 
-        void addDestination(double x, double y, double z = 0.0);
+        void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0);
         bool setWalkPath(std::list<Tile*> path, unsigned int minDestinations,
                 bool addFirstStop);
         void clearDestinations();

@@ -6,12 +6,9 @@
 #include <deque>
 
 #include <semaphore.h>
-//#include <OgreOggSoundManager.h>
-//#include <OgreOggISound.h>
 
 class Creature;
 class RoomDojo;
-class CreatureAction;
 class Weapon;
 class Player;
 class Field;
@@ -24,6 +21,7 @@ class Window;
 #include "Tile.h"
 #include "CreatureClass.h"
 #include "AttackableObject.h"
+#include "CreatureAction.h"
 
 
 /*! \brief Position, status, and AI state for a single game creature.
@@ -63,7 +61,7 @@ class Creature: public CreatureClass, public AttackableObject
         void updateStatsWindow();
         std::string getStatsText();
 
-        void setPosition(double x, double y, double z);
+        void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
         void setPosition(Ogre::Vector3 v);
 
         void setHP(double nHP);

@@ -109,7 +109,7 @@ class Tile
         int x, y;
         double colorDouble;
         int floodFillColor;
-        double rotation;
+        Ogre::Real rotation;
         std::string name;
 
     private:

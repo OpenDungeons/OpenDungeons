@@ -31,9 +31,9 @@ MapLight::MapLight()
     initialize();
 }
 
-MapLight::MapLight(Ogre::Vector3 nPosition, double red, double green,
-        double blue, double range, double constant, double linear,
-        double quadratic)
+MapLight::MapLight(Ogre::Vector3 nPosition, Ogre::Real red, Ogre::Real green,
+        Ogre::Real blue, Ogre::Real range, Ogre::Real constant, Ogre::Real linear,
+        Ogre::Real quadratic)
 {
     initialize();
 
@@ -49,20 +49,20 @@ void MapLight::setLocation(Ogre::Vector3 nPosition)
     position = nPosition;
 }
 
-void MapLight::setDiffuseColor(double red, double green, double blue)
+void MapLight::setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue)
 {
     diffuseColor = Ogre::ColourValue(red, green, blue);
     //TODO: Call refresh of the OGRE entity.
 }
 
-void MapLight::setSpecularColor(double red, double green, double blue)
+void MapLight::setSpecularColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue)
 {
     specularColor = Ogre::ColourValue(red, green, blue);
     //TODO: Call refresh of the OGRE entity.
 }
 
-void MapLight::setAttenuation(double range, double constant, double linear,
-        double quadratic)
+void MapLight::setAttenuation(Ogre::Real range, Ogre::Real constant, Ogre::Real linear,
+        Ogre::Real quadratic)
 {
     attenuationRange = range;
     attenuationConstant = constant;
@@ -136,7 +136,7 @@ std::string MapLight::getName()
     return name;
 }
 
-void MapLight::setPosition(double nX, double nY, double nZ)
+void MapLight::setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ)
 {
     Ogre::Vector3 tempPosition(nX, nY, nZ);
     setPosition(tempPosition);
@@ -171,22 +171,22 @@ Ogre::ColourValue MapLight::getSpecularColor()
     return specularColor;
 }
 
-double MapLight::getAttenuationRange()
+Ogre::Real MapLight::getAttenuationRange()
 {
     return attenuationRange;
 }
 
-double MapLight::getAttenuationConstant()
+Ogre::Real MapLight::getAttenuationConstant()
 {
     return attenuationConstant;
 }
 
-double MapLight::getAttenuationLinear()
+Ogre::Real MapLight::getAttenuationLinear()
 {
     return attenuationLinear;
 }
 
-double MapLight::getAttenuationQuadratic()
+Ogre::Real MapLight::getAttenuationQuadratic()
 {
     return attenuationQuadratic;
 }
@@ -195,7 +195,7 @@ double MapLight::getAttenuationQuadratic()
  * variable indicates how much time has elapsed since the last update.
  *
  */
-void MapLight::advanceFlicker(double time)
+void MapLight::advanceFlicker(Ogre::Real time)
 {
 
     thetaX += factorX * 3.14 * time;
@@ -256,9 +256,9 @@ std::istream& operator>>(std::istream& is, MapLight *m)
     return is;
 }
 
-TemporaryMapLight::TemporaryMapLight(Ogre::Vector3 nPosition, double red,
-        double green, double blue, double range, double constant,
-        double linear, double quadratic) :
+TemporaryMapLight::TemporaryMapLight(Ogre::Vector3 nPosition, Ogre::Real red,
+        Ogre::Real green, Ogre::Real blue, Ogre::Real range, Ogre::Real constant,
+        Ogre::Real linear, Ogre::Real quadratic) :
     MapLight(nPosition, red, green, blue, range, constant, linear, quadratic)
 {
     turnsUntilDestroyed = turnsUntilDestroyed = 2;
