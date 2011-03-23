@@ -62,7 +62,7 @@ class Creature: public CreatureClass, public AttackableObject
         std::string getStatsText();
 
         void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
-        void setPosition(Ogre::Vector3 v);
+        void setPosition(const Ogre::Vector3& v);
 
         void setHP(double nHP);
         double getHP(Tile *tile);
@@ -75,7 +75,7 @@ class Creature: public CreatureClass, public AttackableObject
         // AI stuff
         virtual void doTurn();
         double getHitroll(double range);
-        double getDefense();
+        double getDefense() const;
         void doLevelUp();
         std::vector<Tile*> visibleTiles;
         std::vector<AttackableObject*> visibleEnemyObjects;
@@ -96,14 +96,14 @@ class Creature: public CreatureClass, public AttackableObject
         std::vector<AttackableObject*> getVisibleForce(int color, bool invert);
         Tile* positionTile();
         std::vector<Tile*> getCoveredTiles();
-        bool isMobile();
-        int getLevel();
-        int getColor();
+        bool isMobile() const;
+        int getLevel() const;
+        int getColor() const;
         void setColor(int nColor);
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
-        AttackableObject::AttackableObjectType getAttackableObjectType();
-        std::string getName();
+        AttackableObject::AttackableObjectType getAttackableObjectType() const;
+        const std::string& getName() const;
         void clearActionQueue();
 
         Player* getControllingPlayer();

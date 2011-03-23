@@ -19,7 +19,7 @@ class AnimatedObject
         AnimatedObject();
 
         virtual void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
-        virtual void setPosition(Ogre::Vector3 v);
+        virtual void setPosition(const Ogre::Vector3& v);
         virtual Ogre::Vector3 getPosition();
 
         void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0);
@@ -32,7 +32,7 @@ class AnimatedObject
         virtual double getMoveSpeed();
         virtual void setMoveSpeed(double s);
 
-        virtual void setAnimationState(std::string s, bool loop = true);
+        virtual void setAnimationState(const std::string& s, bool loop = true);
 
         virtual double getAnimationSpeedFactor();
         virtual void setAnimationSpeedFactor(double f);

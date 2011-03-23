@@ -31,9 +31,9 @@ MapLight::MapLight()
     initialize();
 }
 
-MapLight::MapLight(Ogre::Vector3 nPosition, Ogre::Real red, Ogre::Real green,
-        Ogre::Real blue, Ogre::Real range, Ogre::Real constant, Ogre::Real linear,
-        Ogre::Real quadratic)
+MapLight::MapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
+        Ogre::Real green, Ogre::Real blue, Ogre::Real range,
+        Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic)
 {
     initialize();
 
@@ -43,26 +43,28 @@ MapLight::MapLight(Ogre::Vector3 nPosition, Ogre::Real red, Ogre::Real green,
     setAttenuation(range, constant, linear, quadratic);
 }
 
-void MapLight::setLocation(Ogre::Vector3 nPosition)
+void MapLight::setLocation(const Ogre::Vector3& nPosition)
 {
     //TODO: This needs to make a renderRequest to actually move the light.
     position = nPosition;
 }
 
-void MapLight::setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue)
+void MapLight::setDiffuseColor(Ogre::Real red, Ogre::Real green,
+        Ogre::Real blue)
 {
     diffuseColor = Ogre::ColourValue(red, green, blue);
     //TODO: Call refresh of the OGRE entity.
 }
 
-void MapLight::setSpecularColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue)
+void MapLight::setSpecularColor(Ogre::Real red, Ogre::Real green,
+        Ogre::Real blue)
 {
     specularColor = Ogre::ColourValue(red, green, blue);
     //TODO: Call refresh of the OGRE entity.
 }
 
-void MapLight::setAttenuation(Ogre::Real range, Ogre::Real constant, Ogre::Real linear,
-        Ogre::Real quadratic)
+void MapLight::setAttenuation(Ogre::Real range, Ogre::Real constant,
+        Ogre::Real linear, Ogre::Real quadratic)
 {
     attenuationRange = range;
     attenuationConstant = constant;
@@ -131,7 +133,7 @@ void MapLight::deleteYourself()
     queueRenderRequest(request);
 }
 
-std::string MapLight::getName()
+const std::string& MapLight::getName() const
 {
     return name;
 }
@@ -142,7 +144,7 @@ void MapLight::setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ)
     setPosition(tempPosition);
 }
 
-void MapLight::setPosition(Ogre::Vector3 nPosition)
+void MapLight::setPosition(const Ogre::Vector3& nPosition)
 {
     position = nPosition;
 
@@ -156,37 +158,37 @@ void MapLight::setPosition(Ogre::Vector3 nPosition)
     queueRenderRequest(request);
 }
 
-Ogre::Vector3 MapLight::getPosition()
+const Ogre::Vector3& MapLight::getPosition() const
 {
     return position;
 }
 
-Ogre::ColourValue MapLight::getDiffuseColor()
+const Ogre::ColourValue& MapLight::getDiffuseColor() const
 {
     return diffuseColor;
 }
 
-Ogre::ColourValue MapLight::getSpecularColor()
+const Ogre::ColourValue& MapLight::getSpecularColor() const
 {
     return specularColor;
 }
 
-Ogre::Real MapLight::getAttenuationRange()
+Ogre::Real MapLight::getAttenuationRange() const
 {
     return attenuationRange;
 }
 
-Ogre::Real MapLight::getAttenuationConstant()
+Ogre::Real MapLight::getAttenuationConstant() const
 {
     return attenuationConstant;
 }
 
-Ogre::Real MapLight::getAttenuationLinear()
+Ogre::Real MapLight::getAttenuationLinear() const
 {
     return attenuationLinear;
 }
 
-Ogre::Real MapLight::getAttenuationQuadratic()
+Ogre::Real MapLight::getAttenuationQuadratic() const
 {
     return attenuationQuadratic;
 }
@@ -221,7 +223,7 @@ void MapLight::advanceFlicker(Ogre::Real time)
     queueRenderRequest(request);
 }
 
-bool MapLight::isPermanent()
+bool MapLight::isPermanent() const
 {
     return true;
 }
@@ -256,15 +258,15 @@ std::istream& operator>>(std::istream& is, MapLight *m)
     return is;
 }
 
-TemporaryMapLight::TemporaryMapLight(Ogre::Vector3 nPosition, Ogre::Real red,
-        Ogre::Real green, Ogre::Real blue, Ogre::Real range, Ogre::Real constant,
-        Ogre::Real linear, Ogre::Real quadratic) :
+TemporaryMapLight::TemporaryMapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
+        Ogre::Real green, Ogre::Real blue, Ogre::Real range,
+        Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic) :
     MapLight(nPosition, red, green, blue, range, constant, linear, quadratic)
 {
-    turnsUntilDestroyed = turnsUntilDestroyed = 2;
+    turnsUntilDestroyed = 2;
 }
 
-bool TemporaryMapLight::isPermanent()
+bool TemporaryMapLight::isPermanent() const
 {
     return false;
 }

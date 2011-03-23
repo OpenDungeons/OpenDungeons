@@ -44,7 +44,7 @@ void MissileObject::initialize()
  *  responsible for informing OGRE anything it needs to know, as well as
  *  maintaining the list of creatures in the individual tiles.
  */
-void MissileObject::setPosition(Ogre::Vector3 v)
+void MissileObject::setPosition(const Ogre::Vector3& v)
 {
     sem_wait(&positionLockSemaphore);
     position = v;

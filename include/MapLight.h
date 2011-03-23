@@ -12,35 +12,37 @@ class MapLight
     public:
         void initialize();
         MapLight();
-        MapLight(Ogre::Vector3 nPosition, Ogre::Real red, Ogre::Real green,
-                Ogre::Real blue, Ogre::Real range, Ogre::Real constant, Ogre::Real linear,
-                Ogre::Real quadratic);
+        MapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
+                Ogre::Real green, Ogre::Real blue, Ogre::Real range,
+                Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic);
 
-        void setLocation(Ogre::Vector3 nPosition);
+        void setLocation(const Ogre::Vector3& nPosition);
         void setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
-        void setSpecularColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
-        void setAttenuation(Ogre::Real range, Ogre::Real constant, Ogre::Real linear,
-                Ogre::Real quadratic);
+        void
+                setSpecularColor(Ogre::Real red, Ogre::Real green,
+                        Ogre::Real blue);
+        void setAttenuation(Ogre::Real range, Ogre::Real constant,
+                Ogre::Real linear, Ogre::Real quadratic);
 
         void createOgreEntity();
         void destroyOgreEntity();
         void destroyOgreEntityVisualIndicator();
         void deleteYourself();
 
-        std::string getName();
+        const std::string& getName() const;
         void setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ);
-        void setPosition(Ogre::Vector3 nPosition);
-        Ogre::Vector3 getPosition();
-        Ogre::ColourValue getDiffuseColor();
-        Ogre::ColourValue getSpecularColor();
-        Ogre::Real getAttenuationRange();
-        Ogre::Real getAttenuationConstant();
-        Ogre::Real getAttenuationLinear();
-        Ogre::Real getAttenuationQuadratic();
+        void setPosition(const Ogre::Vector3& nPosition);
+        const Ogre::Vector3& getPosition() const;
+        const Ogre::ColourValue& getDiffuseColor() const;
+        const Ogre::ColourValue& getSpecularColor() const;
+        Ogre::Real getAttenuationRange() const;
+        Ogre::Real getAttenuationConstant() const;
+        Ogre::Real getAttenuationLinear() const;
+        Ogre::Real getAttenuationQuadratic() const;
 
         void advanceFlicker(Ogre::Real time);
 
-        virtual bool isPermanent();
+        virtual bool isPermanent() const;
 
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, MapLight *m);
@@ -72,16 +74,16 @@ class MapLight
 class TemporaryMapLight: public MapLight, public ActiveObject
 {
     public:
-        TemporaryMapLight(Ogre::Vector3 nPosition, Ogre::Real red, Ogre::Real green,
-                Ogre::Real blue, Ogre::Real range, Ogre::Real constant, Ogre::Real linear,
-                Ogre::Real quadratic);
-        bool isPermanent();
+        TemporaryMapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
+                Ogre::Real green, Ogre::Real blue, Ogre::Real range,
+                Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic);
+        bool isPermanent() const;
 
         bool doUpkeep();
 
     protected:
         int turnsUntilDestroyed;
-        int originalTurnsUntilDestroyed;
+        //int originalTurnsUntilDestroyed;
 };
 
 #endif

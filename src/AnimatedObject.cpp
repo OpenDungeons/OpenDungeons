@@ -28,7 +28,7 @@ void AnimatedObject::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     setPosition(Ogre::Vector3(x, y, z));
 }
 
-void AnimatedObject::setPosition(Ogre::Vector3 v)
+void AnimatedObject::setPosition(const Ogre::Vector3& v)
 {
     sem_wait(&positionLockSemaphore);
     position = v;
@@ -190,7 +190,7 @@ void AnimatedObject::setMoveSpeed(double s)
     moveSpeed = s;
 }
 
-void AnimatedObject::setAnimationState(std::string s, bool loop)
+void AnimatedObject::setAnimationState(const std::string& s, bool loop)
 {
     // Ignore the command if the command is exactly the same as what we did last time, this is not only faster it prevents non-looped actions like die from being inadvertantly repeated.
     if (s.compare(prevAnimationState) == 0 && loop == prevAnimationStateLoop)

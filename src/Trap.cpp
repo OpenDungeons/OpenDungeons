@@ -167,7 +167,7 @@ int Trap::costPerTile(TrapType t)
     return 100;
 }
 
-std::string Trap::getName()
+const std::string& Trap::getName() const
 {
     return name;
 }
@@ -259,7 +259,7 @@ double Trap::getHP(Tile *tile)
     }
 }
 
-double Trap::getDefense()
+double Trap::getDefense() const
 {
     return 0;
 }
@@ -274,17 +274,17 @@ void Trap::recieveExp(double experience)
     exp += experience;
 }
 
-bool Trap::isMobile()
+bool Trap::isMobile() const
 {
     return false;
 }
 
-int Trap::getLevel()
+int Trap::getLevel() const
 {
     return 1;
 }
 
-int Trap::getColor()
+int Trap::getColor() const
 {
     if (controllingSeat != NULL)
         return controllingSeat->color;
@@ -292,7 +292,7 @@ int Trap::getColor()
         return 0;
 }
 
-AttackableObject::AttackableObjectType Trap::getAttackableObjectType()
+AttackableObject::AttackableObjectType Trap::getAttackableObjectType() const
 {
     return trap;
 }

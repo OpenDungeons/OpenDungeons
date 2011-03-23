@@ -9,6 +9,7 @@
 #include "RenderRequest.h"
 #include "MapLight.h"
 #include "Seat.h"
+#include "SoundEffectsHelper.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
@@ -794,7 +795,8 @@ void Tile::setMarkedForDigging(bool s, Player *p)
             {
                 snprintf(tempString2, sizeof(tempString2),
                         "Level_%3i_%3i_node", x, y);
-                Ogre::SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
+                Ogre::SceneNode *tempNode =
+                        mSceneMgr->getSceneNode(tempString2);
 
                 ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
@@ -1016,6 +1018,8 @@ double Tile::claimForColor(int nColor, double nDanceRate)
                 tempColour.r, tempColour.g, tempColour.b, 1.0, 0.1, 0.5, 0.5);
         gameMap.addMapLight(claimLight);
         claimLight->createOgreEntity();
+        SoundEffectsHelper::getSingleton().playInterfaceSound(
+                SoundEffectsHelper::CLAIM, this->x, this->y);
     }
     sem_post(&claimLightLockSemaphore);
 

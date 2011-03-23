@@ -14,11 +14,6 @@
 class CreatureClass;
 class CreatureSound;
 
-/*
- namespace std {
- class Map;
- }
- */
 /*! \brief Helper class to manage sound effects.
  *
  */
@@ -36,6 +31,7 @@ class SoundEffectsHelper: public Ogre::Singleton<SoundEffectsHelper>
             DROP,
             BUILDROOM,
             BUILDTRAP,
+            CLAIM,
             NUM_INTERFACE_SOUNDS
         };
 
@@ -49,14 +45,16 @@ class SoundEffectsHelper: public Ogre::Singleton<SoundEffectsHelper>
                 const Ogre::Quaternion& orientation);//, const Ogre::Vector3& velocity = Ogre::Vector3::ZERO);
         void playBlockDestroySound(int tileX, int tileY);
         void playInterfaceSound(InterfaceSound sound, bool stopCurrent = true);
+        void playInterfaceSound(InterfaceSound sound,
+                const Ogre::Vector3 position, bool stopCurrent = true);
+        void playInterfaceSound(InterfaceSound sound, int tileX, int tileY,
+                bool stopCurrent = true);
 
         void registerCreatureClass(const std::string& className);
         //TODO check if we should keep references to creature sounds here or not. Could create problems on shutdown.
         Ogre::SharedPtr<CreatureSound> createCreatureSound(
                 const std::string& className);
     private:
-        //OgreOggSound::OgreOggSoundManager& soundManager;
-
 
         typedef std::vector<Ogre::SharedPtr<sf::SoundBuffer> >
                 SoundFXBufferVector;

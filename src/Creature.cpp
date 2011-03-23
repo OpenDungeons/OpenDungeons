@@ -260,7 +260,7 @@ void Creature::destroyMesh()
  *
  *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
  */
-void Creature::setPosition(Ogre::Vector3 v)
+void Creature::setPosition(const Ogre::Vector3& v)
 {
     setPosition(v.x, v.y, v.z);
 }
@@ -1748,7 +1748,7 @@ double Creature::getHitroll(double range)
     return tempHitroll;
 }
 
-double Creature::getDefense()
+double Creature::getDefense() const
 {
     double returnValue = 3.0;
     if (weaponL != NULL)
@@ -2133,7 +2133,7 @@ std::string Creature::getStatsText()
 /** \brief Conform: AttackableObject - Returns whether or not this creature is capable of moving.
  *
  */
-bool Creature::isMobile()
+bool Creature::isMobile() const
 {
     return true;
 }
@@ -2141,7 +2141,7 @@ bool Creature::isMobile()
 /** \brief Conform: AttackableObject - Returns the creature's level.
  *
  */
-int Creature::getLevel()
+int Creature::getLevel() const
 {
     return level;
 }
@@ -2149,7 +2149,7 @@ int Creature::getLevel()
 /** \brief Conform: AttackableObject - Returns the creature's color.
  *
  */
-int Creature::getColor()
+int Creature::getColor() const
 {
     return color;
 }
@@ -2165,7 +2165,7 @@ void Creature::setColor(int nColor)
 /** \brief Conform: AttackableObject - Returns the type of AttackableObject that this is (Creature, Room, etc).
  *
  */
-AttackableObject::AttackableObjectType Creature::getAttackableObjectType()
+AttackableObject::AttackableObjectType Creature::getAttackableObjectType() const
 {
     return AttackableObject::creature;
 }
@@ -2173,7 +2173,7 @@ AttackableObject::AttackableObjectType Creature::getAttackableObjectType()
 /** \brief Conform: AttackableObject - Returns the name of this creature.
  *
  */
-string Creature::getName()
+const std::string& Creature::getName() const
 {
     return name;
 }

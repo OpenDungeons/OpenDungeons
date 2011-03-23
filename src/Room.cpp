@@ -529,7 +529,7 @@ double Room::getHP(Tile *tile)
     }
 }
 
-double Room::getDefense()
+double Room::getDefense() const
 {
     return 0.0;
 }
@@ -544,23 +544,23 @@ void Room::recieveExp(double experience)
     // Do nothing since Rooms do not have exp.
 }
 
-bool Room::isMobile()
+bool Room::isMobile() const
 {
     return false;
 }
 
-int Room::getLevel()
+int Room::getLevel() const
 {
     // Since rooms do not have exp or level we just consider them level 1 for compatibility with the AttackableObject interface.
     return 1;
 }
 
-int Room::getColor()
+int Room::getColor() const
 {
     return color;
 }
 
-AttackableObject::AttackableObjectType Room::getAttackableObjectType()
+AttackableObject::AttackableObjectType Room::getAttackableObjectType() const
 {
     return AttackableObject::room;
 }

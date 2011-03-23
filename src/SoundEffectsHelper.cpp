@@ -2,6 +2,9 @@
 #include <map>
 #include "CreatureSound.h"
 
+//Z value to use for tile positioned sounds
+const float TILE_ZPOS = 1.5;
+
 template<> SoundEffectsHelper
         * Ogre::Singleton<SoundEffectsHelper>::ms_Singleton = 0;
 
@@ -68,19 +71,40 @@ void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
         digSounds[i].SetBuffer(*digSoundBuffers[i].get());
     }
 
-    interfaceSoundBuffers.push_back(Ogre::SharedPtr<sf::SoundBuffer>(
-            new sf::SoundBuffer()));
-    interfaceSoundBuffers.back()->LoadFromFile(soundFolderPath
+    for (int i = 0; i < NUM_INTERFACE_SOUNDS; ++i)
+    {
+        interfaceSoundBuffers.push_back(Ogre::SharedPtr<sf::SoundBuffer>(
+                new sf::SoundBuffer()));
+    }
+
+    interfaceSoundBuffers[SoundEffectsHelper::BUTTONCLICK]->LoadFromFile(
+            soundFolderPath + "/Click/click.ogg");
+    interfaceSoundBuffers[SoundEffectsHelper::DIGSELECT]->LoadFromFile(
+            soundFolderPath + "/Click/click.ogg");
+    interfaceSoundBuffers[SoundEffectsHelper::PICKUP]->LoadFromFile(soundFolderPath
             + "/Click/click.ogg");
+    interfaceSoundBuffers[SoundEffectsHelper::DROP]->LoadFromFile(soundFolderPath
+            + "/Click/click.ogg");
+    interfaceSoundBuffers[SoundEffectsHelper::BUILDROOM]->LoadFromFile(
+            soundFolderPath + "/RoomBuild/bump.ogg");
+    interfaceSoundBuffers[SoundEffectsHelper::BUILDTRAP]->LoadFromFile(
+            soundFolderPath + "/RoomBuild/bump.ogg");
+    interfaceSoundBuffers[SoundEffectsHelper::CLAIM]->LoadFromFile(soundFolderPath
+            + "/ClaimTile/Claim01.ogg");
 
     //Replacement sound for now
-    while (interfaceSounds.size() < NUM_INTERFACE_SOUNDS)
+    for (int i = 0; i < NUM_INTERFACE_SOUNDS; ++i)
     {
-        interfaceSounds.push_back(sf::Sound(*interfaceSoundBuffers.back()));
-        //These sounds are not positioned, this disables
-        //Spatialisation for the sound.
-        interfaceSounds.back().SetAttenuation(0);
+        interfaceSounds.push_back(sf::Sound(*interfaceSoundBuffers[i]));
     }
+    //Disable spatialisation
+    //TODO - some of these should be positioned
+    interfaceSounds[SoundEffectsHelper::BUTTONCLICK].SetAttenuation(0);
+    interfaceSounds[SoundEffectsHelper::DIGSELECT].SetAttenuation(0);
+    interfaceSounds[SoundEffectsHelper::PICKUP].SetAttenuation(0);
+    interfaceSounds[SoundEffectsHelper::DROP].SetAttenuation(0);
+    interfaceSounds[SoundEffectsHelper::BUILDROOM].SetAttenuation(0);
+    interfaceSounds[SoundEffectsHelper::BUILDTRAP].SetAttenuation(0);
 
     creatureSoundBuffers["Default"] = SoundFXBufferVector();
     SoundFXBufferVector& buffers = creatureSoundBuffers["Default"];
@@ -112,7 +136,7 @@ void SoundEffectsHelper::setListenerPosition(const Ogre::Vector3& position,
  */
 void SoundEffectsHelper::playBlockDestroySound(int tileX, int tileY)
 {
-    const float zPos = 1.5; //tile is from -0.25 to 3.0, floor is z0, so using the middle.
+    //tile is from -0.25 to 3.0, floor is z0, so using the middle.
     //std::cout << "\n=========================================Playing rock fall sound at: " << tileX << " , " << tileY << std::endl;
 
     assert(digSounds.size() > 0);
@@ -121,7 +145,7 @@ void SoundEffectsHelper::playBlockDestroySound(int tileX, int tileY)
         digSounds[nextDigSound].Stop();
 
     }
-    digSounds[nextDigSound].SetPosition(tileX, tileY, zPos);
+    digSounds[nextDigSound].SetPosition(tileX, tileY, TILE_ZPOS);
     digSounds[nextDigSound].Play();
     ++nextDigSound;
     if (nextDigSound >= digSounds.size())
@@ -139,6 +163,22 @@ void SoundEffectsHelper::playInterfaceSound(InterfaceSound sound,
     }
 
     interfaceSounds[sound].Play();
+}
+
+void SoundEffectsHelper::playInterfaceSound(InterfaceSound sound,
+        const Ogre::Vector3 position, bool stopCurrent)
+{
+    interfaceSounds[sound].SetPosition(static_cast<float> (position.x),
+            static_cast<float> (position.y), static_cast<float> (position.z));
+    playInterfaceSound(sound, stopCurrent);
+}
+
+void SoundEffectsHelper::playInterfaceSound(InterfaceSound sound, int tileX,
+        int tileY, bool stopCurrent)
+{
+    interfaceSounds[sound].SetPosition(static_cast<float> (tileX),
+            static_cast<float> (tileY), TILE_ZPOS);
+    playInterfaceSound(sound, stopCurrent);
 }
 
 void SoundEffectsHelper::registerCreatureClass(const std::string& creatureClass)

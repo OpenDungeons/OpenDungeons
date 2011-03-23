@@ -32,7 +32,7 @@ class AttackableObject
         virtual double getHP(Tile *tile) = 0;
 
         //! \brief Returns defense rating for the object, i.e. how much less than inflicted damage should it recieve.
-        virtual double getDefense() = 0;
+        virtual double getDefense() const = 0;
 
         //! \brief Subtracts the given number of hitpoints from the object, the tile specifies where
         //! the enemy inflicted the damage and the object can use this accordingly.
@@ -42,19 +42,19 @@ class AttackableObject
         virtual void recieveExp(double experience) = 0;
 
         //! \brief Returns whether or not the object is capable of moving including.  AI calculations can use this to optimize pathfinding, etc.
-        virtual bool isMobile() = 0;
+        virtual bool isMobile() const = 0;
 
         //! \brief Returns the current level that the object has attained based on its accumulated experience points, mostly used for creatures/traps.
-        virtual int getLevel() = 0;
+        virtual int getLevel() const = 0;
 
         //! \brief Returns the color of the seat which controls the given object, used for determining whether a unit is an ally or enemy.
-        virtual int getColor() = 0;
+        virtual int getColor() const = 0;
 
         //! \brief Returns the name of the object.
-        virtual std::string getName() = 0;
+        virtual const std::string& getName() const = 0;
 
         //! \brief Returns the type of the object, i.e. creature, room, trap, etc, for AI calculations to use in threat assessments.
-        virtual AttackableObjectType getAttackableObjectType() = 0;
+        virtual AttackableObjectType getAttackableObjectType() const = 0;
 
         static std::vector<AttackableObject*> removeDeadObjects(
                 const std::vector<AttackableObject*> &objects);

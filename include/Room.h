@@ -84,22 +84,23 @@ class Room: public AttackableObject, public ActiveObject
         // Methods inherited from AttackableObject.
         //TODO:  Sort these into the proper places in the rest of the file.
         double getHP(Tile *tile);
-        double getDefense();
+        double getDefense() const;
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
-        bool isMobile();
-        int getLevel();
-        int getColor();
-        AttackableObject::AttackableObjectType getAttackableObjectType();
+        bool isMobile() const;
+        int getLevel() const;
+        int getColor() const;
+        AttackableObject::AttackableObjectType getAttackableObjectType() const;
 
         // Public data members
-        std::string name;
-        std::string getName()
+
+        const std::string& getName() const
         {
             return name;
         }
 
     protected:
+        std::string name;
         const static double defaultTileHP;// = 10.0;
 
         std::vector<Tile*> coveredTiles;
