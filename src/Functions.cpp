@@ -1,8 +1,5 @@
 #include "Functions.h"
 
-#include <sstream>
-#include <cstdio>
-#include <cctype>
 #include <OgreTechnique.h>
 #include <OgrePass.h>
 #include <OgreTexture.h>
@@ -29,8 +26,6 @@
 #include "Player.h"
 #include "CreatureAction.h"
 #include "CreatureSound.h"
-
-
 
 //#if defined(WIN32) || defined(_WIN32)
 //double const M_PI = 2 * acos(0.0);
@@ -297,18 +292,6 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile << endl;
 
     levelFile.close();
-}
-
-string forceLowercase(string s)
-{
-    string tempString;
-
-    for (unsigned int i = 0; i < s.size(); ++i)
-    {
-        tempString += tolower(s[i]);
-    }
-
-    return tempString;
 }
 
 namespace Random

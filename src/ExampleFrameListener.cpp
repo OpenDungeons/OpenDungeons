@@ -2461,14 +2461,14 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 tempSS2.getline(array2, sizeof(array2));
                 arguments = array2;
 
-                // Strip any leading spaces off the arguments string.
+                /* Strip any leading spaces off the arguments string. */
                 while (arguments.size() > 0 && arguments[0] == ' ')
                     arguments = arguments.substr(1, arguments.size() - 1);
 
-                // Force command to lower case
-                command = forceLowercase(command);
+                /* Force command to lower case */
+                std::transform(command.begin(), command.end(), command.begin(), ::tolower);
 
-                // Clear any old command output and execute the new command with the given arguments string.
+                /* Clear any old command output and execute the new command with the given arguments string. */
                 commandOutput = "";
                 executePromptCommand(command, arguments);
                 break;
@@ -3642,7 +3642,7 @@ void ExampleFrameListener::executePromptCommand(string command,
  */
 string ExampleFrameListener::getHelpText(string arg)
 {
-    arg = forceLowercase(arg);
+    std::transform(arg.begin(), arg.end(), arg.begin(), ::tolower);
 
     if (arg.compare("save") == 0)
     {

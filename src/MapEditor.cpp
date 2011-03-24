@@ -12,6 +12,7 @@
 #include "Network.h"
 #include "ButtonHandlers.h"
 #include "GameMap.h"
+#include "MainMenu.h"
 
 MapEditor::MapEditor() :
     mSystem(0), mRenderer(0)
@@ -132,8 +133,6 @@ void MapEditor::createScene(void)
         CEGUI::SchemeManager::getSingleton().create(schemePath);
         mSystem->setDefaultMouseCursor((CEGUI::utf8*) "OpenDungeons",
                 (CEGUI::utf8*) "MouseArrow");
-        //default font shouldn't be needed anymore with new layout
-        //mSystem->setDefaultFont((CEGUI::utf8*)"BlueHighway-12");
         CEGUI::MouseCursor::getSingleton().setImage(
                 CEGUI::System::getSingleton().getDefaultMouseCursor());
         CEGUI::System::getSingleton().setDefaultTooltip(
@@ -166,7 +165,9 @@ void MapEditor::createScene(void)
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
             10, 50, 70, Ogre::ColourValue::Green);
 
-    //try-catch really needed here?
+    /* TODO: load main menu. Here? Refactor first? */
+
+    /* FIXME: try-catch really needed here? */
     try
     {
         CEGUI::Window* sheet =

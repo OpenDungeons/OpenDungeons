@@ -26,6 +26,7 @@ set(
      GoalProtectCreature.cpp
      GoalProtectDungeonTemple.cpp
      main.cpp
+     MainMenu.cpp
      MapEditor.cpp
      MapLight.cpp
      MissileObject.cpp
@@ -36,8 +37,6 @@ set(
      Room.cpp
      RoomDojo.cpp
      RoomDungeonTemple.cpp
-
-
      RoomForge.cpp
      RoomObject.cpp
      RoomPortal.cpp
