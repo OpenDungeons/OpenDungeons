@@ -23,7 +23,6 @@
 #ifndef __ExampleFrameListener_H__
 #define __ExampleFrameListener_H__
 
-#include <cstdio>
 #include <cstdlib>
 #include <pthread.h>
 

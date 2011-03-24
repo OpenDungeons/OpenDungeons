@@ -1,7 +1,6 @@
 #ifndef CHATMESSAGE_H
 #define CHATMESSAGE_H
 
-#include <cstdio>
 #include <string>
 #include <ctime>
 
