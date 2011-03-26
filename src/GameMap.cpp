@@ -204,7 +204,6 @@ unsigned int GameMap::numTiles()
 void GameMap::addTile(Tile *t)
 {
     // Notify the neighbor tiles already existing on the GameMap of our existance.
-    bool allNeighborsSameColor = true;
     for (unsigned int i = 0; i < 4; ++i)
     {
         int tempX = t->x, tempY = t->y;
@@ -236,9 +235,6 @@ void GameMap::addTile(Tile *t)
         {
             tempTile->addNeighbor(t);
             t->addNeighbor(tempTile);
-
-            allNeighborsSameColor = allNeighborsSameColor
-                    && (tempTile->floodFillColor == t->floodFillColor);
         }
     }
 
@@ -2463,8 +2459,6 @@ double GameMap::crowDistance(Creature *c1, Creature *c2)
  */
 void GameMap::threadLockForTurn(long int turn)
 {
-    unsigned int tempUnsigned;
-
     // Lock the thread reference count map to prevent race conditions.
     sem_wait(&threadReferenceCountLockSemaphore);
 
@@ -2473,9 +2467,7 @@ void GameMap::threadLockForTurn(long int turn)
     if (result != threadReferenceCount.end())
     {
         (*result).second.lock();
-        tempUnsigned = (*result).second.rawGet();
-        ++tempUnsigned;
-        (*result).second.rawSet(tempUnsigned);
+        (*result).second.rawSet((*result).second.rawGet() + 1);
         (*result).second.unlock();
     }
     else
@@ -2493,8 +2485,6 @@ void GameMap::threadLockForTurn(long int turn)
  */
 void GameMap::threadUnlockForTurn(long int turn)
 {
-    unsigned int tempUnsigned;
-
     // Lock the thread reference count map to prevent race conditions.
     sem_wait(&threadReferenceCountLockSemaphore);
 
@@ -2503,9 +2493,7 @@ void GameMap::threadUnlockForTurn(long int turn)
     if (result != threadReferenceCount.end())
     {
         (*result).second.lock();
-        tempUnsigned = (*result).second.rawGet();
-        --tempUnsigned;
-        (*result).second.rawSet(tempUnsigned);
+        (*result).second.rawSet((*result).second.rawGet() - 1);
         (*result).second.unlock();
     }
     else

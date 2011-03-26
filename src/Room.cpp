@@ -337,11 +337,6 @@ void Room::deleteYourself()
     queueRenderRequest(request);
 }
 
-Room::RoomType Room::getType()
-{
-    return type;
-}
-
 std::string Room::getFormat()
 {
     return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";

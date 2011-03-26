@@ -136,21 +136,11 @@ unsigned int Seat::getNumClaimedTiles()
     return ret;
 }
 
-void Seat::setNumClaimedTiles(unsigned int num)
+void Seat::setNumClaimedTiles(const unsigned int& num)
 {
     sem_wait(&numClaimedTilesLockSemaphore);
     numClaimedTiles = num;
     sem_post(&numClaimedTilesLockSemaphore);
-}
-
-unsigned int Seat::rawGetNumClaimedTiles()
-{
-    return numClaimedTiles;
-}
-
-void Seat::rawSetNumClaimedTiles(unsigned int num)
-{
-    numClaimedTiles = num;
 }
 
 /** \brief Loop over the vector of unmet goals and call the isMet() and isFailed() functions on

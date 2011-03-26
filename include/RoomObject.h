@@ -14,8 +14,8 @@ class RoomObject: public ActiveObject, public AnimatedObject
     public:
         RoomObject(Room *nParentRoom, std::string nMeshName);
 
-        std::string getName();
-        std::string getMeshName();
+        std::string getName(){return name;}
+        std::string getMeshName(){return meshName;}
 
         Room* getParentRoom();
 

@@ -530,8 +530,6 @@ void Creature::doTurn()
         loopBack = false;
 
         // Carry out the current task
-        double diceRoll;
-        double tempDouble;
         Tile *neighborTile;
         std::vector<Tile*> neighbors, neighbors2, creatureNeighbors,
                 claimableTiles;
@@ -550,7 +548,8 @@ void Creature::doTurn()
             CreatureAction topActionItem = actionQueue.front();
             sem_post(&actionQueueLockSemaphore);
 
-            diceRoll = randomDouble(0.0, 1.0);
+            double diceRoll = randomDouble(0.0, 1.0);
+            double tempDouble;
             switch (topActionItem.type)
             {
                 case CreatureAction::idle:
@@ -2278,14 +2277,13 @@ CreatureAction Creature::peekAction()
  */
 void Creature::computeBattlefield()
 {
-    Tile *myTile, *tempTile;
+    Tile *tempTile;
     int xDist, yDist;
     AttackableObject* tempObject;
 
     // Loop over the tiles in this creature's battleField and compute their value.
     // The creature will then walk towards the tile with the minimum value to
     // attack or towards the maximum value to retreat.
-    myTile = positionTile();
     battleField->clear();
     for (unsigned int i = 0; i < visibleTiles.size(); ++i)
     {

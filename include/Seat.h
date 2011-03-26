@@ -33,9 +33,9 @@ class Seat
         Goal* getFailedGoal(unsigned int index);
 
         unsigned int getNumClaimedTiles();
-        void setNumClaimedTiles(unsigned int num);
-        unsigned int rawGetNumClaimedTiles();
-        void rawSetNumClaimedTiles(unsigned int num);
+        void setNumClaimedTiles(const unsigned int& num);
+        inline const unsigned int& rawGetNumClaimedTiles() const{return numClaimedTiles;}
+        void rawSetNumClaimedTiles(const unsigned int& num){numClaimedTiles = num;}
 
         // Public data members
         int color; /**< \brief The color index of the players sitting in this seat. */

@@ -118,11 +118,6 @@ void Trap::deleteYourself()
     queueRenderRequest(request);
 }
 
-Trap::TrapType Trap::getType()
-{
-    return type;
-}
-
 std::string Trap::getMeshNameFromTrapType(TrapType t)
 {
     switch (t)
@@ -165,16 +160,6 @@ int Trap::costPerTile(TrapType t)
     }
 
     return 100;
-}
-
-const std::string& Trap::getName() const
-{
-    return name;
-}
-
-std::string Trap::getMeshName()
-{
-    return meshName;
 }
 
 bool Trap::doUpkeep()

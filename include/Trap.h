@@ -32,14 +32,14 @@ class Trap: public AttackableObject, public ActiveObject
         void destroyMeshes();
         void deleteYourself();
 
-        TrapType getType();
+        inline const TrapType& getType() const{return type;}
         static std::string getMeshNameFromTrapType(TrapType t);
         static TrapType getTrapTypeFromMeshName(std::string s);
 
         static int costPerTile(TrapType t);
 
-        const std::string& getName() const;
-        std::string getMeshName();
+        inline const std::string& getName() const{return name;}
+        inline const std::string& getMeshName() const{return meshName;}
 
         Seat *controllingSeat;
 

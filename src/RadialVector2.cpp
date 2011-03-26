@@ -4,11 +4,11 @@
 #define _USE_MATH_DEFINES
 #endif
 #include <cmath>
- 
+
 //TODO - should we maybe allways use this number, even if it exists for
 //consistency?
 #ifndef M_PI
-#define M_PI 3.141592653589793238462643		
+#define M_PI 3.141592653589793238462643
 #endif
 
 #include "RadialVector2.h"
@@ -40,7 +40,7 @@ void RadialVector2::fromCartesian(double dx, double dy)
     theta = atan2(dy, dx);
 }
 
-bool RadialVector2::directionIsBetween(RadialVector2 r1, RadialVector2 r2)
+bool RadialVector2::directionIsBetween(RadialVector2 r1, RadialVector2 r2) const
 {
     double tempTheta = theta + 2.0 * M_PI;
     double tempTheta1 = r1.theta + 2.0 * M_PI;

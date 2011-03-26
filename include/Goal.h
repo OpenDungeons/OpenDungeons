@@ -32,7 +32,7 @@ class Goal
         virtual bool isFailed(Seat *s);
 
         // Functions which cannot be overridden by child classes
-        std::string getName();
+        const std::string& getName() const{return name;}
 
         void addSuccessSubGoal(Goal *g);
         unsigned numSuccessSubGoals();

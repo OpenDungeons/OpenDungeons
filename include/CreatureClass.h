@@ -36,7 +36,7 @@ class CreatureClass: public AnimatedObject
         static CreatureJob creatureJobFromString(std::string s);
         static std::string creatureJobToString(CreatureJob c);
 
-        bool isWorker();
+        bool isWorker() const{return (creatureJob == basicWorker || creatureJob == advancedWorker);}
         std::string getOgreNamePrefix();
 
         // Class properties

@@ -25,11 +25,6 @@ bool Goal::isFailed(Seat *s)
     return false;
 }
 
-std::string Goal::getName()
-{
-    return name;
-}
-
 void Goal::addSuccessSubGoal(Goal *g)
 {
     successSubGoals.push_back(g);

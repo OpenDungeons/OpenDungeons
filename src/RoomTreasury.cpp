@@ -140,8 +140,8 @@ int RoomTreasury::withdrawGold(int gold)
     return withdrawlAmount;
 }
 
-RoomTreasury::TreasuryTileFullness RoomTreasury::getTreasuryTileFullness(
-        int gold)
+const RoomTreasury::TreasuryTileFullness& RoomTreasury::getTreasuryTileFullness(
+        const int& gold) const
 {
     if (gold <= 0)
         return empty;

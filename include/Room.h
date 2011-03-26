@@ -49,7 +49,7 @@ class Room: public AttackableObject, public ActiveObject
         void createRoomObjectMeshes();
         void destroyRoomObjectMeshes();
         void deleteYourself();
-        RoomType getType();
+        const RoomType& getType() const{return type;}
 
         static std::string getMeshNameFromRoomType(RoomType t);
         static RoomType getRoomTypeFromMeshName(std::string s);

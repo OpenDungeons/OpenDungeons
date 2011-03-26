@@ -12,7 +12,7 @@ class RadialVector2
 
         void fromCartesian(double x1, double y1, double x2, double y2);
         void fromCartesian(double dx, double dy);
-        bool directionIsBetween(RadialVector2 r1, RadialVector2 r2);
+        bool directionIsBetween(RadialVector2 r1, RadialVector2 r2) const;
 
         void normalizeTheta();
 };

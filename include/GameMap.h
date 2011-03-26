@@ -257,7 +257,7 @@ class AstarEntry
         Tile *tile;
         AstarEntry *parent;
         double g, h;
-        double fCost()
+        double fCost() const
         {
             return g + h;
         }

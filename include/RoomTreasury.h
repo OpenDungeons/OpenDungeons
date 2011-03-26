@@ -27,9 +27,8 @@ class RoomTreasury: public Room
         {
             empty, bag, chest, overfull
         };
-        TreasuryTileFullness getTreasuryTileFullness(int gold);
-        std::string
-        getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
+        const TreasuryTileFullness& getTreasuryTileFullness(const int& gold) const;
+        std::string getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
 
         void updateMeshesForTile(Tile *t);
         void createMeshesForTile(Tile *t);

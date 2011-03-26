@@ -21,16 +21,6 @@ RoomObject::RoomObject(Room *nParentRoom, std::string nMeshName)
     meshName = nMeshName;
 }
 
-std::string RoomObject::getName()
-{
-    return name;
-}
-
-std::string RoomObject::getMeshName()
-{
-    return meshName;
-}
-
 Room* RoomObject::getParentRoom()
 {
     return parentRoom;

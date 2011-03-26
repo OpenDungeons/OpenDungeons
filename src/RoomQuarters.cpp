@@ -120,11 +120,10 @@ std::vector<Tile*> RoomQuarters::getOpenTiles()
 
 bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 {
-    double xDim, yDim, rotationAngle;
-
     // Check to see if there is already a creature which has claimed this tile for sleeping.
     if (creatureSleepingInTile[t] == NULL)
     {
+        double xDim, yDim, rotationAngle;
         bool normalDirection, spaceIsBigEnough = false;
 
         // Check to see whether the bed should be situated x-by-y or y-by-x tiles.

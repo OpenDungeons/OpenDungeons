@@ -98,7 +98,6 @@ void Tile::setFullness(double f)
 {
     int oldFullnessMeshNumber = fullnessMeshNumber;
     TileClearType oldTilePassability = getTilePassability();
-    int tempInt;
 
     sem_wait(&fullnessLockSemaphore);
     fullness = f;
@@ -281,6 +280,7 @@ void Tile::setFullness(double f)
         switch (fullNeighbors)
         {
             //TODO:  Determine the rotation for each of these case statements
+            int tempInt;
             case 0:
                 fullnessMeshNumber = 104;
                 rotation = 0;

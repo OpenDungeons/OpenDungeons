@@ -491,7 +491,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
         int tempX, tempY;
         unsigned int tempUnsigned;
         double tempDouble, tempDouble2;
-        bool releaseRenderQueueBarrier;
 
         // Remove the first item from the render queue
         sem_wait(&renderQueueSemaphore);
@@ -504,15 +503,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
             // If the renderQueue now contains 0 objects we should process this object and then
             // release any of the other threads which were waiting on a renderQueue flush.
             //FIXME: Noting is actually being done based on this, this should be used to implement a function making it easy to allow functions to wait on this.
-            releaseRenderQueueBarrier = true;
 
             sem_post(&renderQueueSemaphore);
             break;
         }
         else
         {
-            releaseRenderQueueBarrier = false;
-
             curReq = renderQueue.front();
             renderQueue.pop_front();
             sem_post(&renderQueueSemaphore);
@@ -2723,10 +2719,9 @@ void ExampleFrameListener::executePromptCommand(string command,
     // Set the ambient light color
     else if (command.compare("ambientlight") == 0)
     {
-        double tempR, tempG, tempB;
-
         if (arguments.size() > 0)
         {
+            double tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
             mSceneMgr->setAmbientLight(ColourValue(tempR, tempG, tempB));

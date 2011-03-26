@@ -99,7 +99,7 @@ bool Socket::accept(Socket& new_socket) const
         return true;
 }
 
-bool Socket::send(const std::string s) const
+bool Socket::send(const std::string& s) const
 {
     int status = ::send(m_sock, s.c_str(), s.size(), MSG_NOSIGNAL);
     if (status == -1)
@@ -139,7 +139,7 @@ int Socket::recv(std::string& s) const
     }
 }
 
-bool Socket::connect(const std::string host, const int port)
+bool Socket::connect(const std::string& host, const int port)
 {
     if (!is_valid())
         return false;
