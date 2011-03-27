@@ -1,4 +1,7 @@
 #include "RoomTreasury.h"
+
+#include <string>
+
 #include "Functions.h"
 #include "RenderRequest.h"
 #include "Tile.h"
@@ -140,8 +143,8 @@ int RoomTreasury::withdrawGold(int gold)
     return withdrawlAmount;
 }
 
-const RoomTreasury::TreasuryTileFullness& RoomTreasury::getTreasuryTileFullness(
-        const int& gold) const
+RoomTreasury::TreasuryTileFullness RoomTreasury::getTreasuryTileFullness(
+        int gold)
 {
     if (gold <= 0)
         return empty;
@@ -155,7 +158,7 @@ const RoomTreasury::TreasuryTileFullness& RoomTreasury::getTreasuryTileFullness(
     return overfull;
 }
 
-std::string RoomTreasury::getMeshNameForTreasuryTileFullness(
+const char* RoomTreasury::getMeshNameForTreasuryTileFullness(
         TreasuryTileFullness fullness)
 {
     switch (fullness)

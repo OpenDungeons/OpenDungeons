@@ -668,11 +668,11 @@ int Tile::nextTileFullness(int f)
 /*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
  *
  */
-static std::string Tile::meshNameFromFullness(TileType t, float fullnessMeshNumber)
+std::string Tile::meshNameFromFullness(TileType t, float fullnessMeshNumber)
 {
     std::stringstream ss;
     //FIXME - define postfix somewhere
-    ss << tileTypeToString(t) << fullness << ".mesh";
+    ss << tileTypeToString(t) << fullnessMeshNumber << ".mesh";
     return ss.str();
 }
 

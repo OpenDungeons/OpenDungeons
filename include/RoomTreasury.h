@@ -2,7 +2,6 @@
 #define ROOMTREASURY_H
 
 #include "Room.h"
-#include <string>
 
 class RoomTreasury: public Room
 {
@@ -27,8 +26,8 @@ class RoomTreasury: public Room
         {
             empty, bag, chest, overfull
         };
-        const TreasuryTileFullness& getTreasuryTileFullness(const int& gold) const;
-        std::string getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
+        static TreasuryTileFullness getTreasuryTileFullness(int gold);
+        const char* getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
 
         void updateMeshesForTile(Tile *t);
         void createMeshesForTile(Tile *t);
