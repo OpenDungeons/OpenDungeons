@@ -9,8 +9,7 @@
 #include <semaphore.h>
 
 
-//FIXME:  this extern is probably not needed once the rendering code is all in one thread.
-extern Ogre::SceneManager* mSceneMgr;
+
 class Tile;
 class Creature;
 class Player;
@@ -58,9 +57,10 @@ class Tile
         TileClearType getTilePassability();
         bool permitsVision();
 
-        static std::string tileTypeToString(TileType t);
+        static const char* tileTypeToString(TileType t);
         static TileType nextTileType(TileType t);
         static int nextTileFullness(int f);
+        static std::string meshNameFromFullness(TileType t, float fullnessMeshNumber);
 
         void refreshMesh();
         void createMesh();

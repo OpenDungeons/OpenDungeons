@@ -65,6 +65,7 @@ class RenderRequest
 
         long int turnNumber;
         RequestType type;
+        //TODO - can we use a union here instead?
         void *p;
         void *p2;
         void *p3;

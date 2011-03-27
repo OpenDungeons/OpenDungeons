@@ -15,6 +15,10 @@
 #define snprintf _snprintf
 #endif
 
+//FIXME:  this extern is probably not needed once the rendering code is all in one thread.
+//FIXME: This should not be here. Use parameters for whatever needs the scenemanager instead.
+extern Ogre::SceneManager* mSceneMgr;
+
 void Tile::initialize()
 {
     sem_init(&creaturesInCellLockSemaphore, 0, 1);
@@ -576,7 +580,7 @@ std::istream& operator>>(std::istream& is, Tile *t)
  * concatenated with a fullnessMeshNumber to form the filename, e.g.
  * Dirt104.mesh is a 4 sided dirt mesh with 100% fullness.
  */
-std::string Tile::tileTypeToString(TileType t)
+const char* Tile::tileTypeToString(TileType t)
 {
     switch (t)
     {
@@ -659,6 +663,17 @@ int Tile::nextTileFullness(int f)
             return 0;
             break;
     }
+}
+
+/*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
+ *
+ */
+static std::string Tile::meshNameFromFullness(TileType t, float fullnessMeshNumber)
+{
+    std::stringstream ss;
+    //FIXME - define postfix somewhere
+    ss << tileTypeToString(t) << fullness << ".mesh";
+    return ss.str();
 }
 
 /*! \brief This function puts a message in the renderQueue to change the mesh for this tile.
