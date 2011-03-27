@@ -58,12 +58,13 @@ bool RadialVector2::directionIsBetween(RadialVector2 r1, RadialVector2 r2) const
     }
 }
 
+/*! \brief Make sure that theta is always within 0 and 2 Pi */
 void RadialVector2::normalizeTheta()
 {
-    //TODO: Optimize this.
-    while (theta < 0.0)
+    theta = fmod(theta, 2.0 * M_PI);
+    if (theta < 0.0)
+    {
         theta += 2.0 * M_PI;
-    while (theta >= 2.0 * M_PI)
-        theta -= 2.0 * M_PI;
+    }
 }
 
