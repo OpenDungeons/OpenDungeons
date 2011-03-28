@@ -105,9 +105,7 @@ Room* Room::createRoomFromStream(std::istream &is)
     Room tempRoom;
     is >> &tempRoom;
 
-    Room *returnRoom = createRoom(tempRoom.type, tempRoom.coveredTiles,
-            tempRoom.color);
-    return returnRoom;
+    return createRoom(tempRoom.type, tempRoom.coveredTiles, tempRoom.color);
 }
 
 void Room::addCoveredTile(Tile* t, double nHP)
@@ -243,9 +241,10 @@ void Room::createMeshes()
 
     meshExists = true;
 
-    for (unsigned int i = 0; i < coveredTiles.size(); ++i)
+    Tile *tempTile;
+    for (unsigned int i = 0, size = coveredTiles.size(); i < size; ++i)
     {
-        Tile *tempTile = coveredTiles[i];
+        tempTile = coveredTiles[i];
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::createRoom;
         request->p = this;
@@ -513,11 +512,11 @@ double Room::getHP(Tile *tile)
     {
         // If the tile give was NULL, we add the total HP of all the tiles in the room and return that.
         double total = 0.0;
-        std::map<Tile*, double>::iterator itr = tileHP.begin();
-        while (itr != tileHP.end())
+
+        for(std::map<Tile*, double>::iterator itr = tileHP.begin(), end = tileHP.end();
+                itr != end; ++itr)
         {
             total += itr->second;
-            ++itr;
         }
 
         return total;

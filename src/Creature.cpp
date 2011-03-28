@@ -112,13 +112,8 @@ Creature::Creature()
 std::string Creature::getFormat()
 {
     //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.
-    string tempString = "className\tname\tposX\tposY\tposZ\tcolor\tweaponL";
-    tempString += Weapon::getFormat();
-    tempString += "\tweaponR";
-    tempString += Weapon::getFormat();
-    tempString += "\tHP\tmana";
-
-    return tempString;
+    return "className\tname\tposX\tposY\tposZ\tcolor\tweaponL"
+        + Weapon::getFormat() + "\tweaponR" + Weapon::getFormat() + "\tHP\tmana";
 }
 
 /*! \brief A matched function to transport creatures between files and over the network.
@@ -403,11 +398,8 @@ void Creature::doTurn()
     int tempInt;
     unsigned int tempUnsigned;
     double tempDouble;
-    //Creature *tempCreature;
     AttackableObject *tempAttackableObject;
     CreatureAction tempAction;
-    Ogre::Vector3 tempVector;
-    Ogre::Quaternion tempQuat;
 
     // Heal.
     sem_wait(&hpLockSemaphore);

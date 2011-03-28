@@ -48,13 +48,11 @@ bool RadialVector2::directionIsBetween(RadialVector2 r1, RadialVector2 r2) const
 
     if (tempTheta1 < tempTheta2)
     {
-        bool tempBool = (tempTheta1 <= tempTheta && tempTheta <= tempTheta2);
-        return tempBool;
+        return (tempTheta1 <= tempTheta && tempTheta <= tempTheta2);
     }
     else
     {
-        bool tempBool = (tempTheta2 <= tempTheta && tempTheta <= tempTheta1);
-        return tempBool;
+        return (tempTheta2 <= tempTheta && tempTheta <= tempTheta1);
     }
 }
 

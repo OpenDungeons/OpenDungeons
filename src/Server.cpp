@@ -101,7 +101,6 @@ std::string formatCommand(std::string command, std::string arguments)
  */
 bool parseCommand(std::string &command, std::string &commandName, std::string &arguments)
 {
-    std::string tempString;
     //FIXME:  Need to protect the ":" symbol with an escape sequence.
     int index, index2;
     index = command.find("<");
@@ -110,11 +109,10 @@ bool parseCommand(std::string &command, std::string &commandName, std::string &a
     index = index2;
     index2 = command.find(">");
     arguments = command.substr(index + 1, index2 - index - 1);
-    tempString = command.substr(index2 + 1, command.length() - index2 + 1);
-    command = tempString;
+    command = command.substr(index2 + 1, command.length() - index2 + 1);
     //cout << "\n\n\nParse command:  " << command << "\n" << commandName << "\n" << arguments << "\n\n";
 
-    if (tempString.length() > 0)
+    if (command.length() > 0)
         return true;
     else
         return false;

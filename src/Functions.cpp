@@ -43,8 +43,7 @@ bool readGameMapFromFile(const std::string& fileName)
     Room *tempRoom;
     Trap *tempTrap;
     MapLight *tempLight;
-    std::string tempString, tempString2;
-    Creature tempCreature;
+    std::string tempString;
     int objectsToLoad;
 
     // Try to open the input file for reading and throw an error if we can't.
@@ -451,13 +450,9 @@ void colourizeEntity(Ogre::Entity *ent, int colour)
 
 std::string colourizeMaterial(const std::string& materialName, int colour)
 {
-    std::string tempString;
     std::stringstream tempSS;
-    Ogre::HardwarePixelBufferSharedPtr tempPixBuf;
-    Ogre::PixelBox tempPixelBox;
     Ogre::Technique *tempTechnique;
     Ogre::Pass *tempPass;
-    Ogre::TexturePtr tempTexture;
 
     tempSS.str("");
     tempSS << "Color_" << colour << "_" << materialName;
