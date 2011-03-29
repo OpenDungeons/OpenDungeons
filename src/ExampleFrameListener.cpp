@@ -472,7 +472,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
         Ogre::Matrix3 boneRot;
         Ogre::Vector3 tempVector;
         Quaternion tempQuaternion;
-        MaterialPtr tempMaterial;
         Tile *curTile = NULL;
         Room *curRoom = NULL;
         RoomObject *curRoomObject = NULL;
@@ -489,7 +488,6 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
         Field *curField = NULL;
         FieldType::iterator fieldItr;
         int tempX, tempY;
-        unsigned int tempUnsigned;
         double tempDouble, tempDouble2;
 
         // Remove the first item from the render queue
@@ -1144,7 +1142,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
                 break;
 
             case RenderRequest::setObjectAnimationState:
-                curAnimatedObject = (Creature*) curReq->p;
+                curAnimatedObject = (AnimatedObject*) curReq->p;
                 ent = mSceneMgr->getEntity(
                         curAnimatedObject->getOgreNamePrefix()
                                 + curAnimatedObject->getName());
@@ -1210,11 +1208,13 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
         delete curReq;
         curReq = NULL;
 
-        // If we have finished processing the last renderRequest that was in the queue we
-        // can release all of the threads that were waiting for the queue to be flushed.
-        tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.get();
-        for (unsigned int i = 0; i < tempUnsigned; ++i)
+        /* If we have finished processing the last renderRequest that was in the queue we
+           can release all of the threads that were waiting for the queue to be flushed. */
+        for (unsigned int i = 0, numThreads = numThreadsWaitingOnRenderQueueEmpty.get();
+                i < numThreads; ++i)
+        {
             sem_post(&renderQueueEmptySemaphore);
+        }
     }
 
     string chatBaseString = "\n---------- Chat ----------\n";

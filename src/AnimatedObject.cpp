@@ -203,8 +203,6 @@ void AnimatedObject::setAnimationState(const std::string& s, bool loop)
     else
         setAnimationSpeedFactor(1.0);
 
-    string tempString;
-    std::stringstream tempSS;
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::setObjectAnimationState;
     request->p = this;

@@ -146,12 +146,10 @@ void Player::removeCreatureFromHand(int i)
  */
 bool Player::dropCreature(Tile *t)
 {
-
-    Creature *tempCreature;
     // if we have a creature to drop
     if (creaturesInHand.size() > 0)
     {
-        tempCreature = creaturesInHand[0];
+        Creature *tempCreature = creaturesInHand[0];
 
         // if the tile is a valid place to drop a creature
         //FIXME:  This could be a race condition, if the tile state changes on the server before the client knows about it.
