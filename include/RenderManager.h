@@ -32,7 +32,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
                 std::deque<RenderRequest*>* renderQueue,
                 Ogre::SceneManager* sceneManager,
                 Ogre::SceneNode* roomSceneNode,
-                Ogre::SceneNode* creatureSceneNode, GameMap* gameMap)
+                Ogre::SceneNode* creatureSceneNode, GameMap* gameMap);
 
         bool processRenderRequests();
         bool handleRenderRequest(const RenderRequest& renderRequest);
@@ -79,9 +79,11 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         std::deque<RenderRequest*>* renderQueue;
         Ogre::SceneManager* sceneManager;
         //TODO - these should probably be defined in here instead of in the frame listener
+        //NOTE - may want to rename these to make the functionality clearer
         Ogre::SceneNode* roomSceneNode;
         Ogre::SceneNode* creatureSceneNode;
         Ogre::SceneNode* lightSceneNode;
+        Ogre::SceneNode* fieldSceneNode;
         GameMap* gameMap;
 
         bool initialized;

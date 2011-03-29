@@ -67,7 +67,7 @@ class CreatureClass: public AnimatedObject
         //std::vector<std::string> soundNames;
         static std::string getFormat();
 
-        std::string getName()
+        const std::string& getName() const
         {
             return name;
         }

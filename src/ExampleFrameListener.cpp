@@ -1015,6 +1015,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
                 fieldItr = curField->begin();
                 while (fieldItr != curField->end())
                 {
+                    //FIXME: Are we supposed to use tempx and tempy before setting them?
                     tempSS.str("");
                     tempSS << "Field_" << curField->name << "_" << tempX << "_"
                             << tempY;
