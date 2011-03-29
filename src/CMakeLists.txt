@@ -33,6 +33,7 @@ set(
      MusicPlayer.cpp
      Player.cpp
      RadialVector2.cpp
+     RenderManager.cpp
      RenderRequest.cpp
      Room.cpp
      RoomDojo.cpp

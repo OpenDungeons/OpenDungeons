@@ -50,7 +50,7 @@ class AnimatedObject
         Ogre::SceneNode *sceneNode;
 
         virtual std::string getOgreNamePrefix() = 0;
-        virtual std::string getName() = 0;
+        virtual const std::string& getName() const = 0;
 
     protected:
         Ogre::Vector3 position;

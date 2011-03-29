@@ -46,6 +46,8 @@
 #include "ChatMessage.h"
 #include "Room.h"
 #include "MusicPlayer.h"
+#include "RenderManager.h"
+
 
 class SoundEffectsHelper;
 
@@ -196,6 +198,8 @@ class ExampleFrameListener: public Ogre::FrameListener,
         };
 
         //OgreOggSound::OgreOggISound* mCurrMusic;
+
+        RenderManager* renderManager;
 
     private:
         bool terminalActive;

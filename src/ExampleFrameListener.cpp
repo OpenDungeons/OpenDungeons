@@ -243,6 +243,12 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
 
     LogManager::getSingletonPtr()->logMessage(
             "*** FrameListener initialized ***");
+
+    renderManager = new RenderManager();
+    renderManager->initialize(mSceneMgr, &gameMap);
+    renderManager->temp_setVariables(&renderQueueSemaphore, &renderQueue,
+                                     roomSceneNode, creatureSceneNode,
+                                     lightSceneNode, fieldSceneNode);
 }
 
 /*! \brief Adjust mouse clipping area
@@ -461,6 +467,10 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
     musicPlayer->update();
 
+    renderManager->processRenderRequests();
+    
+#ifdef ASLKFEAGFJEALKGJESLKGJLESKGJLKESJG
+#error 
     // Process the queue of render tasks from the other threads
     while (true)
     {
@@ -1216,6 +1226,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
             sem_post(&renderQueueEmptySemaphore);
         }
     }
+#endif
 
     string chatBaseString = "\n---------- Chat ----------\n";
     chatString = chatBaseString;

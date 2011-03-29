@@ -7,7 +7,6 @@
 
 #include "RenderManager.h"
 
-#include <semaphore.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
@@ -17,6 +16,15 @@
 #include "Defines.h"
 #include "Room.h"
 #include "RoomObject.h"
+#include "MapLight.h"
+#include "Creature.h"
+#include "Weapon.h"
+#include "MissileObject.h"
+#include "Trap.h"
+#include "ProtectedObject.h"
+#include "Field.h"
+#include "Player.h"
+
 
 #include "Globals.h"
 
@@ -41,10 +49,10 @@ RenderManager* RenderManager::getSingletonPtr()
 }
 
 RenderManager::RenderManager() :
-        initialized ( false ),
         roomSceneNode(NULL),
         creatureSceneNode(NULL),
-        lightSceneNode(NULL)
+        lightSceneNode(NULL),
+        initialized ( false )
 {
     // TODO Auto-generated constructor stub
 
@@ -55,203 +63,226 @@ RenderManager::~RenderManager()
     // TODO Auto-generated destructor stub
 }
 
-bool RenderManager::initialize ( sem_t* renderQueueSemaphore, std::deque <
-                                 RenderRequest* > * renderQueue, Ogre::SceneManager* sceneManager,
-                                 Ogre::SceneNode roomSceneNode, Ogre::SceneNode creatureSceneNode,
+bool RenderManager::initialize ( Ogre::SceneManager* sceneManager,
                                  GameMap* gameMap )
 {
-    this->renderQueueSemaphore = renderQueueSemaphore;
-    this->renderQueue = renderQueue;
+
     this->sceneManager = sceneManager;
-    this->roomSceneNode = roomSceneNode;
-    this->creatureSceneNode = creatureSceneNode;
     this->gameMap = gameMap;
 
     initialized = false;
     return false;
 }
 
+void RenderManager::temp_setVariables(sem_t* renderQueueSemaphore,
+                                      std::deque<RenderRequest*>* renderQueue,Ogre::SceneNode* roomSceneNode,
+                                      Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode )
+{
+    this->roomSceneNode = roomSceneNode;
+    this->creatureSceneNode = creatureSceneNode;
+    this->renderQueueSemaphore = renderQueueSemaphore;
+    this->renderQueue = renderQueue;
+    this->lightSceneNode = lightSceneNode;
+    this->fieldSceneNode = fieldSceneNode;
+}
+
 bool RenderManager::handleRenderRequest ( const RenderRequest& renderRequest )
 {
     switch ( renderRequest.type )
     {
-        case RenderRequest::refreshTile:
-                rrRefreshTile(renderRequest);
-                break;
+    case RenderRequest::refreshTile:
+        rrRefreshTile(renderRequest);
+        break;
 
-            case RenderRequest::createTile:
-                rrCreateTile(renderRequest);
-                break;
+    case RenderRequest::createTile:
+        rrCreateTile(renderRequest);
+        break;
 
-            case RenderRequest::destroyTile:
-                rrDestroyTile(renderRequest);
-                break;
+    case RenderRequest::destroyTile:
+        rrDestroyTile(renderRequest);
+        break;
 
-            case RenderRequest::createRoom:
-                rrCreateRoom(renderRequest);
-                break;
+    case RenderRequest::createRoom:
+        rrCreateRoom(renderRequest);
+        break;
 
-            case RenderRequest::destroyRoom:
-                rrDestroyRoom(renderRequest);
-                break;
+    case RenderRequest::destroyRoom:
+        rrDestroyRoom(renderRequest);
+        break;
 
-            case RenderRequest::createRoomObject:
-                rrCreateRoomObject(renderRequest);
-                break;
+    case RenderRequest::createRoomObject:
+        rrCreateRoomObject(renderRequest);
+        break;
 
-            case RenderRequest::destroyRoomObject:
-                rrDestroyRoomObject(renderRequest);
-                break;
+    case RenderRequest::destroyRoomObject:
+        rrDestroyRoomObject(renderRequest);
+        break;
 
-            case RenderRequest::createTrap:
-                rrCreateTrap(renderRequest);
-                break;
+    case RenderRequest::createTrap:
+        rrCreateTrap(renderRequest);
+        break;
 
-            case RenderRequest::destroyTrap:
-                rrDestroyTrap(renderRequest);
-                break;
+    case RenderRequest::destroyTrap:
+        rrDestroyTrap(renderRequest);
+        break;
 
-            case RenderRequest::createTreasuryIndicator:
-                rrCreateTreasuryIndicator(renderRequest);
-                break;
+    case RenderRequest::createTreasuryIndicator:
+        rrCreateTreasuryIndicator(renderRequest);
+        break;
 
-            case RenderRequest::destroyTreasuryIndicator:
-                rrDestroyTreasuryIndicator(renderRequest);
-                break;
+    case RenderRequest::destroyTreasuryIndicator:
+        rrDestroyTreasuryIndicator(renderRequest);
+        break;
 
-            case RenderRequest::deleteRoom:
-                Room* curRoom = static_cast<Room*> (renderRequest.p);
-                delete curRoom;
-                break;
-
-            case RenderRequest::deleteTrap:
-                Trap* curTrap = static_cast<Trap*> (renderRequest.p);
-                delete curTrap;
-                break;
-
-            case RenderRequest::deleteTile:
-                Tile* curTile = static_cast<Tile*> (renderRequest.p);
-                delete curTile;
-                break;
-
-            case RenderRequest::createCreature:
-                rrCreateCreature(renderRequest);
-                break;
-
-            case RenderRequest::destroyCreature:
-                rrDestroyCreature(renderRequest);
-                break;
-
-            case RenderRequest::orientSceneNodeToward:
-                rrOrientSceneNodeToward(renderRequest);
-                break;
-
-            case RenderRequest::reorientSceneNode:
-                rrReorientSceneNode(renderRequest);
-                break;
-
-            case RenderRequest::scaleSceneNode:
-                rrScaleSceneNode(renderRequest);
-                break;
-
-            case RenderRequest::createWeapon:
-                rrCreateWeapon(renderRequest);
-                break;
-
-            case RenderRequest::destroyWeapon:
-                rrDestroyWeapon(renderRequest);
-                break;
-
-            case RenderRequest::createMissileObject:
-                rrCreateMissileObject(renderRequest);
-                break;
-
-            case RenderRequest::destroyMissileObject:
-                rrDestroyMissileObject(renderRequest);
-                break;
-
-            case RenderRequest::createMapLight:
-                rrCreateMapLight(renderRequest);
-                break;
-
-            case RenderRequest::destroyMapLight:
-                rrDestroyMapLight(renderRequest);
-                break;
-
-            case RenderRequest::destroyMapLightVisualIndicator:
-                rrDestroyMapLightVisualIndicator(renderRequest);
-                break;
-
-            case RenderRequest::deleteMapLight:
-                MapLight* curMapLight = static_cast<MapLight*> (renderRequest.p);
-                delete curMapLight;
-                break;
-
-            case RenderRequest::createField:
-                rrCreateField(renderRequest);
-                break;
-
-            case RenderRequest::refreshField:
-                rrRefreshField(renderRequest);
-                break;
-
-            case RenderRequest::destroyField:
-                //FIXME: should there be something here?
-                break;
-
-            case RenderRequest::pickUpCreature:
-                rrPickUpCreature(renderRequest);
-                break;
-
-            case RenderRequest::dropCreature:
-                rrDropCreature(renderRequest);
-                break;
-
-            case RenderRequest::rotateCreaturesInHand:
-                rrRotateCreaturesInHand(renderRequest);
-                break;
-
-            case RenderRequest::createCreatureVisualDebug:
-                rrCreateCreatureVisualDebug(renderRequest);
-                break;
-
-            case RenderRequest::destroyCreatureVisualDebug:
-                rrDestroyCreatureVisualDebug(renderRequest);
-                break;
-
-            case RenderRequest::setObjectAnimationState:
-                rrSetObjectAnimationState(renderRequest);
-                break;
-
-            case RenderRequest::deleteCreature:
-                Creature* curCreature = static_cast<Creature*>(renderRequest.p);
-                delete curCreature;
-                break;
-
-            case RenderRequest::deleteWeapon:
-                Weapon* curWeapon = static_cast<Weapon*>(renderRequest.p);
-                delete curWeapon;
-                break;
-
-            case RenderRequest::deleteMissileObject:
-                MissileObject* curMissileObject = static_cast<MissileObject*>(renderRequest.p);
-                delete curMissileObject;
-                break;
-
-            case RenderRequest::moveSceneNode:
-                rrMoveSceneNode(renderRequest);
-                break;
-
-            case RenderRequest::noRequest:
-                break;
-
-            default:
-                cerr << "\n\n\nERROR: Unhandled render request!\n\n\n";
-                break;
+    case RenderRequest::deleteRoom:
+    {
+        Room* curRoom = static_cast<Room*> (renderRequest.p);
+        delete curRoom;
+        break;
     }
+
+    case RenderRequest::deleteTrap:
+    {
+        Trap* curTrap = static_cast<Trap*> (renderRequest.p);
+        delete curTrap;
+        break;
+    }
+
+    case RenderRequest::deleteTile:
+    {
+        Tile* curTile = static_cast<Tile*> (renderRequest.p);
+        delete curTile;
+        break;
+    }
+
+    case RenderRequest::createCreature:
+        rrCreateCreature(renderRequest);
+        break;
+
+    case RenderRequest::destroyCreature:
+        rrDestroyCreature(renderRequest);
+        break;
+
+    case RenderRequest::orientSceneNodeToward:
+        rrOrientSceneNodeToward(renderRequest);
+        break;
+
+    case RenderRequest::reorientSceneNode:
+        rrReorientSceneNode(renderRequest);
+        break;
+
+    case RenderRequest::scaleSceneNode:
+        rrScaleSceneNode(renderRequest);
+        break;
+
+    case RenderRequest::createWeapon:
+        rrCreateWeapon(renderRequest);
+        break;
+
+    case RenderRequest::destroyWeapon:
+        rrDestroyWeapon(renderRequest);
+        break;
+
+    case RenderRequest::createMissileObject:
+        rrCreateMissileObject(renderRequest);
+        break;
+
+    case RenderRequest::destroyMissileObject:
+        rrDestroyMissileObject(renderRequest);
+        break;
+
+    case RenderRequest::createMapLight:
+        rrCreateMapLight(renderRequest);
+        break;
+
+    case RenderRequest::destroyMapLight:
+        rrDestroyMapLight(renderRequest);
+        break;
+
+    case RenderRequest::destroyMapLightVisualIndicator:
+        rrDestroyMapLightVisualIndicator(renderRequest);
+        break;
+
+    case RenderRequest::deleteMapLight:
+    {
+        MapLight* curMapLight = static_cast<MapLight*> (renderRequest.p);
+        delete curMapLight;
+        break;
+    }
+
+    case RenderRequest::createField:
+        rrCreateField(renderRequest);
+        break;
+
+    case RenderRequest::refreshField:
+        rrRefreshField(renderRequest);
+        break;
+
+    case RenderRequest::destroyField:
+        //FIXME: should there be something here?
+        break;
+
+    case RenderRequest::pickUpCreature:
+        rrPickUpCreature(renderRequest);
+        break;
+
+    case RenderRequest::dropCreature:
+        rrDropCreature(renderRequest);
+        break;
+
+    case RenderRequest::rotateCreaturesInHand:
+        rrRotateCreaturesInHand(renderRequest);
+        break;
+
+    case RenderRequest::createCreatureVisualDebug:
+        rrCreateCreatureVisualDebug(renderRequest);
+        break;
+
+    case RenderRequest::destroyCreatureVisualDebug:
+        rrDestroyCreatureVisualDebug(renderRequest);
+        break;
+
+    case RenderRequest::setObjectAnimationState:
+        rrSetObjectAnimationState(renderRequest);
+        break;
+
+    case RenderRequest::deleteCreature:
+    {
+        Creature* curCreature = static_cast<Creature*>(renderRequest.p);
+        delete curCreature;
+        break;
+    }
+
+    case RenderRequest::deleteWeapon:
+    {
+        Weapon* curWeapon = static_cast<Weapon*>(renderRequest.p);
+        delete curWeapon;
+        break;
+    }
+
+    case RenderRequest::deleteMissileObject:
+    {
+        MissileObject* curMissileObject = static_cast<MissileObject*>(renderRequest.p);
+        delete curMissileObject;
+        break;
+    }
+
+    case RenderRequest::moveSceneNode:
+        rrMoveSceneNode(renderRequest);
+        break;
+
+    case RenderRequest::noRequest:
+        break;
+
+    default:
+        std::cerr << "\n\n\nERROR: Unhandled render request!\n\n\n";
+        break;
+        return false;
+    }
+    return true;
 }
 
-bool RenderManager::processRenderRequests()
+void RenderManager::processRenderRequests()
 {
     while ( true )
     {
@@ -262,7 +293,7 @@ bool RenderManager::processRenderRequests()
         // of the loop is not semaphore protected and is therefore subject to a race condition.
         RenderRequest *curReq = NULL;
 
-        if ( renderQueue.size() == 0 )
+        if ( renderQueue->empty() )
         {
             // If the renderQueue now contains 0 objects we should process this object and then
             // release any of the other threads which were waiting on a renderQueue flush.
@@ -273,8 +304,8 @@ bool RenderManager::processRenderRequests()
         }
         else
         {
-            curReq = renderQueue.front();
-            renderQueue.pop_front();
+            curReq = renderQueue->front();
+            renderQueue->pop_front();
             sem_post ( renderQueueSemaphore );
         }
 
@@ -282,7 +313,7 @@ bool RenderManager::processRenderRequests()
         handleRenderRequest ( *curReq );
 
         // Decrement the number of outstanding references to things from the turn number the event was queued on.
-        gameMap.threadUnlockForTurn ( curReq->turnNumber );
+        gameMap->threadUnlockForTurn ( curReq->turnNumber );
 
         delete curReq;
 
@@ -295,9 +326,10 @@ bool RenderManager::processRenderRequests()
 
         for ( unsigned int i = 0; i < numThreadsWaiting; ++i )
         {
-            sem_post ( renderQueueEmptySemaphore );
+            sem_post ( &renderQueueEmptySemaphore );
         }
     }
+
 }
 
 void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
@@ -351,7 +383,7 @@ void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
 
     if ( sceneManager->hasEntity ( curTile->name ) )
     {
-        Ogre::Entity ent = sceneManager->getEntity ( curTile->name );
+        Ogre::Entity* ent = sceneManager->getEntity ( curTile->name );
         Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->name + "_node" );
         node->detachAllObjects();
         sceneManager->destroySceneNode ( curTile->name + "_node" );
@@ -367,7 +399,7 @@ void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
     std::stringstream tempSS;
     tempSS << curRoom->getName() << "_" << curTile->x << "_"
     << curTile->y;
-    Ogre::Entity ent = sceneManager->createEntity ( tempSS.str(), curRoom->meshName
+    Ogre::Entity* ent = sceneManager->createEntity ( tempSS.str(), curRoom->meshName
                        + ".mesh" );
     colourizeEntity ( ent, curRoom->color );
     Ogre::SceneNode* node = roomSceneNode->createChildSceneNode ( tempSS.str()
@@ -388,7 +420,7 @@ void RenderManager::rrDestroyRoom ( const RenderRequest& renderRequest )
     << curTile->y;
     if (sceneManager->hasEntity(tempSS.str()))
     {
-        Ogre::Entity ent = sceneManager->getEntity(tempSS.str());
+        Ogre::Entity* ent = sceneManager->getEntity(tempSS.str());
         Ogre::SceneNode* node = sceneManager->getSceneNode(tempSS.str() + "_node");
         node->detachObject(ent);
         roomSceneNode->removeChild(node);
@@ -400,7 +432,8 @@ void RenderManager::rrDestroyRoom ( const RenderRequest& renderRequest )
 void RenderManager::rrCreateRoomObject ( const RenderRequest& renderRequest )
 {
     RoomObject* curRoomObject = static_cast<RoomObject*> (renderRequest.p);
-    Room* curRoom = static_cast<Room*> ( renderRequest.p2 );
+    //TODO - find out why this was here
+    //Room* curRoom = static_cast<Room*> ( renderRequest.p2 );
 
     std::string tempString = curRoomObject->getOgreNamePrefix()
                              + curRoomObject->getName();
@@ -420,7 +453,7 @@ void RenderManager::rrCreateRoomObject ( const RenderRequest& renderRequest )
 void RenderManager::rrDestroyRoomObject ( const RenderRequest& renderRequest )
 {
     RoomObject* curRoomObject = static_cast<RoomObject*> (renderRequest.p);
-    Room* curRoom = static_cast<Room*> ( renderRequest.p2 );
+    //Room* curRoom = static_cast<Room*> ( renderRequest.p2 );
 
     std::string tempString = curRoomObject->getOgreNamePrefix()
                              + curRoomObject->getName();
@@ -506,7 +539,7 @@ void RenderManager::rrDestroyTreasuryIndicator ( const RenderRequest& renderRequ
                                 + "_hack_node");
 
         /*  The proper code once the above hack is fixed.
-         node = mSceneMgr->getSceneNode(tempSS.str() + "_node");
+         node = sceneManager->getSceneNode(tempSS.str() + "_node");
          */
         node->detachObject(ent);
 
@@ -540,7 +573,7 @@ void RenderManager::rrDestroyCreature ( const RenderRequest& renderRequest )
     if (sceneManager->hasEntity("Creature_" + curCreature->name))
     {
         Ogre::Entity* ent = sceneManager->getEntity("Creature_" + curCreature->name);
-        Ogre::SceneNode node = sceneManager->getSceneNode(curCreature->name + "_node");
+        Ogre::SceneNode* node = sceneManager->getSceneNode(curCreature->name + "_node");
         node->detachObject(ent);
         creatureSceneNode->removeChild(node);
         sceneManager->destroyEntity(ent);
@@ -551,14 +584,14 @@ void RenderManager::rrDestroyCreature ( const RenderRequest& renderRequest )
 
 void RenderManager::rrOrientSceneNodeToward ( const RenderRequest& renderRequest )
 {
-    Ogre::SceneNode node = sceneManager->getSceneNode(renderRequest.str);
+    Ogre::SceneNode* node = sceneManager->getSceneNode(renderRequest.str);
     Ogre::Vector3 tempVector = node->getOrientation()
                                * Ogre::Vector3::NEGATIVE_UNIT_Y;
 
     // Work around 180 degree quaternion rotation quirk
     if ((1.0f + tempVector.dotProduct(renderRequest.vec)) < 0.0001f)
     {
-        node->roll(Degree(180));
+        node->roll(Ogre::Degree(180));
     }
     else
     {
@@ -582,7 +615,7 @@ void RenderManager::rrScaleSceneNode( const RenderRequest& renderRequest )
 
     if (node != NULL)
     {
-        node->scale(renderRequest.p);
+        node->scale(renderRequest.vec);
     }
 }
 
@@ -596,12 +629,12 @@ void RenderManager::rrCreateWeapon ( const RenderRequest& renderRequest )
     Ogre::Entity* weaponEntity = sceneManager->createEntity("Weapon_"
                                  + curWeapon->handString + "_" + curCreature->name,
                                  curWeapon->meshName);
-    Ogre::Bone weaponBone = ent->getSkeleton()->getBone(
+    Ogre::Bone* weaponBone = ent->getSkeleton()->getBone(
                                 "Weapon_" + curWeapon->handString);
 
     // Rotate by -90 degrees around the x-axis from the bone's rotation.
     Ogre::Quaternion rotationQuaternion;
-    rotationQuaternion.FromAngleAxis(Degree(-90.0), Ogre::Vector3(1.0,
+    rotationQuaternion.FromAngleAxis(Ogre::Degree(-90.0), Ogre::Vector3(1.0,
                                      0.0, 0.0));
 
     ent->attachObjectToBone(weaponBone->getName(), weaponEntity,
@@ -624,10 +657,10 @@ void RenderManager::rrDestroyWeapon ( const RenderRequest& renderRequest )
 void RenderManager::rrCreateMissileObject ( const RenderRequest& renderRequest )
 {
     MissileObject* curMissileObject = static_cast<MissileObject*>(renderRequest.p);
-    Ogre::Entity ent = sceneManager->createEntity(curMissileObject->name,
+    Ogre::Entity* ent = sceneManager->createEntity(curMissileObject->name,
                        curMissileObject->meshName + ".mesh");
     //TODO:  Make a new subroot scene node for these so lookups are faster since only a few missile objects should be onscreen at once.
-    Ogre::SceneNode node = creatureSceneNode->createChildSceneNode(
+    Ogre::SceneNode* node = creatureSceneNode->createChildSceneNode(
                                curMissileObject->name + "_node");
     node->setPosition(curMissileObject->getPosition());
     node->attachObject(ent);
@@ -638,8 +671,8 @@ void RenderManager::rrDestroyMissileObject ( const RenderRequest& renderRequest 
     MissileObject* curMissileObject = static_cast<MissileObject*>(renderRequest.p);
     if (sceneManager->hasEntity(curMissileObject->name))
     {
-        Ogre::Entity ent = sceneManager->getEntity(curMissileObject->name);
-        Ogre::SceneNode node = sceneManager->getSceneNode(curMissileObject->name
+        Ogre::Entity* ent = sceneManager->getEntity(curMissileObject->name);
+        Ogre::SceneNode* node = sceneManager->getSceneNode(curMissileObject->name
                                + "_node");
         node->detachObject(ent);
         creatureSceneNode->removeChild(node);
@@ -689,24 +722,24 @@ void RenderManager::rrDestroyMapLight ( const RenderRequest& renderRequest )
 {
     MapLight* curMapLight = static_cast<MapLight*> (renderRequest.p);
     std::string mapLightName = "MapLight_" + curMapLight->getName();
-    if (mSceneMgr->hasLight(mapLightName))
+    if (sceneManager->hasLight(mapLightName))
     {
-        Ogre::Light* light = mSceneMgr->getLight(mapLightName);
-        Ogre::SceneNode* lightNode = mSceneMgr->getSceneNode(mapLightName + "_node");
-        Ogre::SceneNode* lightFlickerNode = mSceneMgr->getSceneNode(mapLightName
+        Ogre::Light* light = sceneManager->getLight(mapLightName);
+        Ogre::SceneNode* lightNode = sceneManager->getSceneNode(mapLightName + "_node");
+        Ogre::SceneNode* lightFlickerNode = sceneManager->getSceneNode(mapLightName
                                             + "_flicker_node");
         lightFlickerNode->detachObject(light);
         lightSceneNode->removeChild(lightNode);
-        mSceneMgr->destroyLight(light);
+        sceneManager->destroyLight(light);
 
-        if (mSceneMgr->hasEntity(mapLightName))
+        if (sceneManager->hasEntity(mapLightName))
         {
-            Ogre::Entity* mapLightIndicatorEntity = mSceneMgr->getEntity("MapLightIndicator_"
+            Ogre::Entity* mapLightIndicatorEntity = sceneManager->getEntity("MapLightIndicator_"
                                                     + curMapLight->getName());
             lightNode->detachObject(mapLightIndicatorEntity);
         }
-        mSceneMgr->destroySceneNode(lightFlickerNode->getName());
-        mSceneMgr->destroySceneNode(lightNode->getName());
+        sceneManager->destroySceneNode(lightFlickerNode->getName());
+        sceneManager->destroySceneNode(lightNode->getName());
     }
 }
 
@@ -714,9 +747,9 @@ void RenderManager::rrDestroyMapLightVisualIndicator ( const RenderRequest& rend
 {
     MapLight* curMapLight = static_cast<MapLight*> (renderRequest.p);
     std::string mapLightName = "MapLight_" + curMapLight->getName();
-    if (mSceneMgr->hasLight(mapLightName))
+    if (sceneManager->hasLight(mapLightName))
     {
-        Ogre::SceneNode mapLightNode = sceneManager->getSceneNode(mapLightName + "_node");
+        Ogre::SceneNode* mapLightNode = sceneManager->getSceneNode(mapLightName + "_node");
         std::string mapLightIndicatorName = "MapLightIndicator_"
                                             + curMapLight->getName();
         if (sceneManager->hasEntity(mapLightIndicatorName))
@@ -725,7 +758,7 @@ void RenderManager::rrDestroyMapLightVisualIndicator ( const RenderRequest& rend
             mapLightNode->detachObject(mapLightIndicatorEntity);
             sceneManager->destroyEntity(mapLightIndicatorEntity);
             //NOTE: This line throws an error complaining 'scene node not found' that should not be happening.
-            //mSceneMgr->destroySceneNode(node->getName());
+            //sceneManager->destroySceneNode(node->getName());
         }
     }
 }
@@ -738,7 +771,7 @@ void RenderManager::rrCreateField ( const RenderRequest& renderRequest )
     double tempDouble = *tempDoublePtr;
     delete tempDoublePtr;
 
-    std::map <LocationType, double >::iterator fieldItr = curField->begin();
+    FieldType::iterator fieldItr = curField->begin();
     while (fieldItr != curField->end())
     {
         int x = fieldItr->first.first;
@@ -750,7 +783,7 @@ void RenderManager::rrCreateField ( const RenderRequest& renderRequest )
         << y;
         Ogre::Entity* fieldIndicatorEntity = sceneManager->createEntity(tempSS.str(),
                                              "Field_indicator.mesh");
-        Ogre::SceneNode fieldIndicatorNode = fieldSceneNode->createChildSceneNode(tempSS.str()
+        Ogre::SceneNode* fieldIndicatorNode = fieldSceneNode->createChildSceneNode(tempSS.str()
                                              + "_node");
         fieldIndicatorNode->setPosition(x, y, tempDouble + tempDouble2);
         fieldIndicatorNode->attachObject(fieldIndicatorEntity);
@@ -768,7 +801,7 @@ void RenderManager::rrRefreshField ( const RenderRequest& renderRequest )
     delete tempDoublePtr;
 
     // Update existing meshes and create any new ones needed.
-    std::map <LocationType, double >::iterator fieldItr = curField->begin();
+    FieldType::iterator fieldItr = curField->begin();
     while (fieldItr != curField->end())
     {
 
@@ -820,9 +853,9 @@ void RenderManager::rrPickUpCreature ( const RenderRequest& renderRequest )
     creatureNode->scale(0.333, 0.333, 0.333);
 
     // Move the other creatures in the player's hand to make room for the one just picked up.
-    for (unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); ++i)
+    for (unsigned int i = 0; i < gameMap->me->numCreaturesInHand(); ++i)
     {
-        curCreature = gameMap.me->getCreatureInHand(i);
+        curCreature = gameMap->me->getCreatureInHand(i);
         creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
         creatureNode->setPosition(i % 6 + 1, (i / (int) 6), 0.0);
     }
@@ -833,7 +866,7 @@ void RenderManager::rrDropCreature ( const RenderRequest& renderRequest )
     Creature* curCreature = static_cast<Creature*>(renderRequest.p);
     Player* curPlayer = static_cast<Player*> (renderRequest.p2);
     // Detach the creature from the "hand" scene node
-    Ogre::SceneNode creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
+    Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
     sceneManager->getSceneNode("Hand_node")->removeChild(creatureNode);
 
     // Attach the creature from the creature scene node
@@ -853,10 +886,10 @@ void RenderManager::rrDropCreature ( const RenderRequest& renderRequest )
 void RenderManager::rrRotateCreaturesInHand ( const RenderRequest& )
 {
     // Loop over the creatures in our hand and redraw each of them in their new location.
-    for (unsigned int i = 0; i < gameMap.me->numCreaturesInHand(); ++i)
+    for (unsigned int i = 0; i < gameMap->me->numCreaturesInHand(); ++i)
     {
-        Creature* curCreature = gameMap.me->getCreatureInHand(i);
-        Ogre::SceneNode creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
+        Creature* curCreature = gameMap->me->getCreatureInHand(i);
+        Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
         creatureNode->setPosition(i % 6 + 1, (i / (int) 6), 0.0);
     }
 }
@@ -906,7 +939,7 @@ void RenderManager::rrDestroyCreatureVisualDebug ( const RenderRequest& renderRe
 void RenderManager::rrSetObjectAnimationState ( const RenderRequest& renderRequest )
 {
     Creature* curAnimatedObject = static_cast<Creature*>( renderRequest.p);
-    Ogre::Entity objectEntity = sceneManager->getEntity(
+    Ogre::Entity* objectEntity = sceneManager->getEntity(
                                     curAnimatedObject->getOgreNamePrefix()
                                     + curAnimatedObject->getName());
 
@@ -938,7 +971,7 @@ void RenderManager::rrMoveSceneNode ( const RenderRequest& renderRequest )
 {
     if (sceneManager->hasSceneNode(renderRequest.str))
     {
-        Ogre::SceneNode node = mSceneMgr->getSceneNode(renderRequest.str);
+        Ogre::SceneNode* node = sceneManager->getSceneNode(renderRequest.str);
         node->setPosition(renderRequest.vec);
     }
 }
