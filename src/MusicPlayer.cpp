@@ -31,18 +31,14 @@ MusicPlayer* MusicPlayer::getSingletonPtr()
  */
 void MusicPlayer::update()
 {
-    if (loaded)
+    /* TODO: after upgrading to SFML 2.0, we can use sf::Music::OnGetData()
+     * to achieve this instead of calling upgrade() on every frame
+     * (in 1.6 it's private, but in 2.O it's protected, so we then can
+     * override it)
+     */
+    if(loaded && (tracks[currentTrack]->GetStatus() == sf::Sound::Stopped))
     {
-        //TODO - should be a more efficient way of doing this than checking every frame
-        if (tracks[currentTrack]->GetStatus() == sf::Sound::Stopped)
-        {
-            ++currentTrack;
-            if (currentTrack >= tracks.size())
-            {
-                currentTrack = 0;
-            }
-            startCurrent();
-        }
+        next();
     }
 }
 
@@ -53,28 +49,23 @@ void MusicPlayer::load(const Ogre::String& path)
 {
     if (!loaded)
     {
-
         std::cout << "Loading music..." << std::endl;
 
         //Get list of files in the resource.
         Ogre::StringVectorPtr musicFiles =
-                Ogre::ResourceGroupManager::getSingleton().listResourceNames(
-                        "Music");
-        Ogre::StringVector::iterator it;
+                Ogre::ResourceGroupManager::getSingleton().listResourceNames("Music");
         tracks.reserve(musicFiles->size());
 
-        //OgreOggSound::OgreOggSoundManager& soundmgr = OgreOggSound::OgreOggSoundManager::getSingleton();
-        for (it = musicFiles->begin(); it != musicFiles->end(); ++it)
+        for(Ogre::StringVector::iterator it = musicFiles->begin(), end = musicFiles->end();
+             it != end; ++it)
         {
             std::cout << path << "/" << *it << std::endl;
             //Create sound objects for all files, Sound objects should be deleted automatically
             //by the sound manager.
             //TODO - check what this does if something goes wrong loading the file.
-            //OgreOggSound::OgreOggISound* sound = soundmgr.createSound(*it, *it, true);// false, false, null));
             Ogre::SharedPtr<sf::Music> track(new sf::Music());
             //TODO - check for text encoding issues.
-            bool opened = track->OpenFromFile(path + "/" + *it);
-            if (opened)
+            if(track->OpenFromFile(path + "/" + *it))
             {
                 track->SetVolume(25);
                 track->SetAttenuation(0);
@@ -84,15 +75,14 @@ void MusicPlayer::load(const Ogre::String& path)
 
                 //Lower volume to make it more in line with effects sounds.
                 //sound->setVolume(0.25);
-
             }
 
         }
-        //
-        if (tracks.size() == 0)
+
+        if(tracks.size() == 0)
         {
             std::cerr << "No music files loaded... no music will be played"
-                    << std::endl;
+                << std::endl;
         }
         else
         {
@@ -100,50 +90,30 @@ void MusicPlayer::load(const Ogre::String& path)
             std::cout << "Loaded music" << std::endl;
             loaded = true;
         }
-
     }
 }
 
-/** \brief Start music playback if any music is loaded.
+/** \brief Start music playback with the currentTrack if any music is loaded.
  *
  */
 void MusicPlayer::start()
 {
-    if (loaded)
+    if(loaded)
     {
-        startCurrent();
+        tracks[currentTrack]->Play();
     }
 }
 
-/** \brief Start music playback of current track.
+/** \brief Skip to the next track
  *
  */
-void MusicPlayer::startCurrent()
+void MusicPlayer::next()
 {
-    //tracks[currentTrack]->setListener(this);
-    //tracks[currentTrack]->play();
-    tracks[currentTrack]->Play();
+    if(++currentTrack >= tracks.size())
+    {
+        currentTrack = 0;
+    }
+    start();
 }
 
-/** \brief Callback function to start the next track.
- *
- */
-/*
- void MusicPlayer::soundStopped(OgreOggSound::OgreOggISound* sound)
- {
- //Remove listener
- tracks[currentTrack]->setListener(static_cast<
- OgreOggSound::OgreOggISound::SoundListener*>(NULL));
-
- //Increment track number.
- ++currentTrack;
- if(currentTrack >= tracks.size())
- {
- currentTrack = 0;
- }
-
- std::cout << "Starting next track" << std::endl;
- //Start
- startCurrent();
- }
- */
+//TODO: add random track selecting
