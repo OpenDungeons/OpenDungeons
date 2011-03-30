@@ -72,3 +72,7 @@ OpenDungeons.bin
 OpenDungeons.exe
 
 screenshot*
+.kdev4/
+opendungeons.kdev4
+*~*
+include/.kdev_include_paths

@@ -10,6 +10,7 @@
 #include "MapLight.h"
 #include "Seat.h"
 #include "SoundEffectsHelper.h"
+#include "RenderManager.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
@@ -686,10 +687,10 @@ void Tile::refreshMesh()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::refreshTile;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 /*! \brief This function puts a message in the renderQueue to load the mesh for this tile.
@@ -704,10 +705,10 @@ void Tile::createMesh()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createTile;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 /*! \brief This function puts a message in the renderQueue to unload the mesh for this tile.
@@ -722,10 +723,10 @@ void Tile::destroyMesh()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyTile;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 /*! \brief This function marks the tile as being selected through a mouse click or drag.
@@ -879,15 +880,15 @@ void Tile::deleteYourself()
 {
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyTile;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     RenderRequest *request2 = new RenderRequest;
     request2->type = RenderRequest::deleteTile;
-    request2->p = this;
+    request2->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
-    queueRenderRequest(request2);
+    RenderManager::queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request2);
 }
 
 /*! \brief This function adds a creature to the list of creatures in this tile.

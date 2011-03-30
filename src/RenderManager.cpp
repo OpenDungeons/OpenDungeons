@@ -66,7 +66,9 @@ RenderManager::~RenderManager()
 bool RenderManager::initialize ( Ogre::SceneManager* sceneManager,
                                  GameMap* gameMap )
 {
-
+    sem_init(&renderQueueSemaphore, 0, 1);
+    sem_init(&renderQueueEmptySemaphore, 0, 0);
+    
     this->sceneManager = sceneManager;
     this->gameMap = gameMap;
 
@@ -74,14 +76,12 @@ bool RenderManager::initialize ( Ogre::SceneManager* sceneManager,
     return false;
 }
 
-void RenderManager::temp_setVariables(sem_t* renderQueueSemaphore,
-                                      std::deque<RenderRequest*>* renderQueue,Ogre::SceneNode* roomSceneNode,
+void RenderManager::setSceneNodes(Ogre::SceneNode* roomSceneNode,
                                       Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode )
 {
     this->roomSceneNode = roomSceneNode;
     this->creatureSceneNode = creatureSceneNode;
-    this->renderQueueSemaphore = renderQueueSemaphore;
-    this->renderQueue = renderQueue;
+
     this->lightSceneNode = lightSceneNode;
     this->fieldSceneNode = fieldSceneNode;
 }
@@ -288,21 +288,22 @@ void RenderManager::processRenderRequests()
      * FIXME: Noting is actually being done based on this, this should be used to implement
      * a function making it easy to allow functions to wait on this.
      */
-    while(!renderQueue->empty())
+    sem_wait ( &renderQueueSemaphore );
+    while(!renderQueue.empty())
     {
         // Remove the first item from the render queue
-        sem_wait ( renderQueueSemaphore );
+        
 
-        // Verify that the renderQueue still contains items, this can happen because the check at the top
-        // of the loop is not semaphore protected and is therefore subject to a race condition.
-        RenderRequest *curReq = renderQueue->front();
-        renderQueue->pop_front();
-        sem_post ( renderQueueSemaphore );
+        RenderRequest *curReq = renderQueue.front();
+        renderQueue.pop_front();
+        sem_post ( &renderQueueSemaphore );
 
         // Handle the request
         handleRenderRequest ( *curReq );
 
-        // Decrement the number of outstanding references to things from the turn number the event was queued on.
+        /* Decrement the number of outstanding references to things from the turn number the event was queued on.
+         * (Locked in queueRenderRequest)
+         */
         gameMap->threadUnlockForTurn ( curReq->turnNumber );
 
         delete curReq;
@@ -311,13 +312,40 @@ void RenderManager::processRenderRequests()
         /* If we have finished processing the last renderRequest that was in the queue we
          * can release all of the threads that were waiting for the queue to be flushed.
          */
+        // FIXME - should this be here, or outside the while loop?
         for(unsigned int i = 0, numThreadsWaiting = numThreadsWaitingOnRenderQueueEmpty.get();
                 i < numThreadsWaiting; ++i)
         {
             sem_post(&renderQueueEmptySemaphore);
         }
+        
+        sem_wait ( &renderQueueSemaphore );
     }
+    sem_post ( &renderQueueSemaphore );
 
+}
+
+void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
+{
+    renderRequest->turnNumber = turnNumber.get();
+    //Unlocked in processRenderRequests
+    gameMap->threadLockForTurn(renderRequest->turnNumber);
+
+    sem_wait(&renderQueueSemaphore);
+    renderQueue.push_back(renderRequest);
+    sem_post(&renderQueueSemaphore);
+}
+
+//NOTE: This function has not yet been tested.
+void RenderManager::waitOnRenderQueueFlush()
+{
+    numThreadsWaitingOnRenderQueueEmpty.lock();
+    unsigned int tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.rawGet();
+    ++tempUnsigned;
+    numThreadsWaitingOnRenderQueueEmpty.rawSet(tempUnsigned);
+    numThreadsWaitingOnRenderQueueEmpty.unlock();
+
+    sem_wait(&renderQueueEmptySemaphore);
 }
 
 void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )

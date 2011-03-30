@@ -1,10 +1,10 @@
-#include "RoomTreasury.h"
-
 #include <string>
 
-#include "Functions.h"
+#include "RoomTreasury.h"
+
 #include "RenderRequest.h"
 #include "Tile.h"
+#include "RenderManager.h"
 
 RoomTreasury::RoomTreasury() :
     Room()
@@ -211,7 +211,7 @@ void RoomTreasury::createMeshesForTile(Tile *t)
     request->str = indicatorMeshName;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 void RoomTreasury::destroyMeshesForTile(Tile *t)
@@ -230,7 +230,7 @@ void RoomTreasury::destroyMeshesForTile(Tile *t)
     request->str = indicatorMeshName;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 void RoomTreasury::createGoldMeshes()

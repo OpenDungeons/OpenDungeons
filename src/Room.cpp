@@ -1,7 +1,7 @@
 #include <sstream>
 
 #include "Globals.h"
-#include "Functions.h"
+//#include "Functions.h"
 #include "Room.h"
 #include "Player.h"
 #include "Tile.h"
@@ -9,6 +9,7 @@
 #include "RenderRequest.h"
 #include "GameMap.h"
 #include "RoomObject.h"
+#include "RenderManager.h"
 
 const double Room::defaultTileHP = 10.0;
 
@@ -135,7 +136,7 @@ void Room::removeCoveredTile(Tile* t)
     request->p2 = t;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 Tile* Room::getCoveredTile(int index)
@@ -251,7 +252,7 @@ void Room::createMeshes()
         request->p2 = tempTile;
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
-        queueRenderRequest(request);
+        RenderManager::queueRenderRequest(request);
     }
 }
 
@@ -273,7 +274,7 @@ void Room::destroyMeshes()
         request->p2 = tempTile;
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
-        queueRenderRequest(request);
+        RenderManager::queueRenderRequest(request);
     }
 }
 
@@ -333,7 +334,7 @@ void Room::deleteYourself()
     request->p = this;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 std::string Room::getFormat()
@@ -417,7 +418,7 @@ std::ostream& operator<<(std::ostream& os, Room *r)
     return os;
 }
 
-std::string Room::getMeshNameFromRoomType(RoomType t)
+const char* Room::getMeshNameFromRoomType(RoomType t)
 {
     switch (t)
     {
@@ -447,7 +448,7 @@ std::string Room::getMeshNameFromRoomType(RoomType t)
     return "UnknownRoomType";
 }
 
-Room::RoomType Room::getRoomTypeFromMeshName(std::string s)
+Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
 {
     if (s.compare("DungeonTemple") == 0)
         return dungeonTemple;

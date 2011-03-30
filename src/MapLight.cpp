@@ -1,8 +1,10 @@
 #include <sstream>
 
 #include "MapLight.h"
+
 #include "Globals.h"
 #include "Functions.h"
+#include "RenderManager.h"
 #include "RenderRequest.h"
 #include "GameMap.h"
 
@@ -45,7 +47,7 @@ MapLight::MapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
 
 void MapLight::setLocation(const Ogre::Vector3& nPosition)
 {
-    //TODO: This needs to make a renderRequest to actually move the light.
+    //TODO: This needs to make a RenderRequest to actually move the light.
     position = nPosition;
 }
 
@@ -83,7 +85,7 @@ void MapLight::createOgreEntity()
     request->p = this;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 
     ogreEntityExists = true;
     ogreEntityVisualIndicatorExists = true;
@@ -101,7 +103,7 @@ void MapLight::destroyOgreEntity()
     request->p = this;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 
     ogreEntityExists = false;
 }
@@ -116,7 +118,7 @@ void MapLight::destroyOgreEntityVisualIndicator()
     request->p = this;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 
     ogreEntityVisualIndicatorExists = false;
 }
@@ -130,7 +132,7 @@ void MapLight::deleteYourself()
     request->p = this;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 const std::string& MapLight::getName() const
@@ -155,7 +157,7 @@ void MapLight::setPosition(const Ogre::Vector3& nPosition)
     request->vec = position;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 const Ogre::Vector3& MapLight::getPosition() const
@@ -220,7 +222,7 @@ void MapLight::advanceFlicker(Ogre::Real time)
     request->vec = flickerPosition;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 bool MapLight::isPermanent() const
