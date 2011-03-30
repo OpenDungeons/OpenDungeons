@@ -1,8 +1,9 @@
-#include "Globals.h"
-#include "Functions.h"
+//#include "Globals.h"
+//#include "Functions.h"
 #include "Weapon.h"
 #include "RenderRequest.h"
 #include "Creature.h"
+#include "RenderManager.h"
 
 Weapon::Weapon()
 {
@@ -28,7 +29,7 @@ void Weapon::createMesh()
     request->p3 = &handString;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 void Weapon::destroyMesh()
@@ -44,7 +45,7 @@ void Weapon::destroyMesh()
     request->p2 = parentCreature;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 void Weapon::deleteYourself()
@@ -58,7 +59,7 @@ void Weapon::deleteYourself()
     request->p = this;
 
     // Add the requests to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 std::string Weapon::getFormat()

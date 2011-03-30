@@ -31,16 +31,19 @@ public:
     bool initialize(
         Ogre::SceneManager* sceneManager,
         GameMap* gameMap);
-    void temp_setVariables(sem_t* renderQueueSemaphore,
-                                std::deque<RenderRequest*>* renderQueue,Ogre::SceneNode* roomSceneNode,
+    void setSceneNodes(Ogre::SceneNode* roomSceneNode,
                                 Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode );
 
     void processRenderRequests();
-    bool handleRenderRequest(const RenderRequest& renderRequest);
     void updateAnimations();
-    void queueRenderRequest(RenderRequest* r);
+    
     void waitOnRenderQueueFlush();
+    static void queueRenderRequest(RenderRequest* renderRequest)
+    {
+        ms_Singleton->queueRenderRequest_priv(renderRequest);
+    }
 protected:
+    void queueRenderRequest_priv(RenderRequest* renderRequest);
     //Render request functions
 
     //TODO - could some of these be merged?
@@ -76,10 +79,13 @@ protected:
     void rrDestroyCreatureVisualDebug(const RenderRequest& renderRequest);
     void rrSetObjectAnimationState(const RenderRequest& renderRequest);
     void rrMoveSceneNode(const RenderRequest& renderRequest);
+
+    bool handleRenderRequest(const RenderRequest& renderRequest);
 private:
     //TODO -should we maybe encapsulate the semaphores somewhere?
-    sem_t* renderQueueSemaphore;
-    std::deque<RenderRequest*>* renderQueue;
+    sem_t renderQueueSemaphore;
+    sem_t renderQueueEmptySemaphore;
+    std::deque<RenderRequest*> renderQueue;
     Ogre::SceneManager* sceneManager;
     //TODO - these should probably be defined in here instead of in the frame listener
     //NOTE - may want to rename these to make the functionality clearer

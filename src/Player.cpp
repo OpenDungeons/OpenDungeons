@@ -8,6 +8,7 @@
 #include "Weapon.h"
 #include "ClientNotification.h"
 #include "RenderRequest.h"
+#include "RenderManager.h"
 
 Player::Player()
 {
@@ -107,7 +108,7 @@ void Player::pickUpCreature(Creature *c)
             request->p = c;
 
             // Add the request to the queue of rendering operations to be performed before the next frame.
-            queueRenderRequest(request);
+            RenderManager::queueRenderRequest(request);
 
             if (clientSocket != NULL)
             {
@@ -180,7 +181,7 @@ bool Player::dropCreature(Tile *t)
                 request->p2 = this;
 
                 // Add the request to the queue of rendering operations to be performed before the next frame.
-                queueRenderRequest(request);
+                RenderManager::queueRenderRequest(request);
             }
 
             c->setPosition(t->x, t->y, 0.0);
@@ -261,6 +262,6 @@ void Player::rotateCreaturesInHand(int n)
     request->type = RenderRequest::rotateCreaturesInHand;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 

@@ -1,9 +1,9 @@
-#include "Functions.h"
 #include "Globals.h"
 #include "Trap.h"
 #include "RenderRequest.h"
 #include "Seat.h"
 #include "GameMap.h"
+#include "RenderManager.h"
 
 const double Trap::defaultTileHP = 10.0;
 
@@ -77,11 +77,11 @@ void Trap::createMeshes()
     {
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::createTrap;
-        request->p = this;
+        request->p = static_cast<void*>(this);
         request->p2 = coveredTiles[i];
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
-        queueRenderRequest(request);
+        RenderManager::queueRenderRequest(request);
     }
 }
 
@@ -96,11 +96,11 @@ void Trap::destroyMeshes()
     {
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::destroyTrap;
-        request->p = this;
+        request->p = static_cast<void*>(this);
         request->p2 = coveredTiles[i];
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
-        queueRenderRequest(request);
+        RenderManager::queueRenderRequest(request);
     }
 }
 
@@ -112,10 +112,10 @@ void Trap::deleteYourself()
     // Create a render request asking the render queue to actually do the deletion of this creature.
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::deleteTrap;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the requests to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 std::string Trap::getMeshNameFromTrapType(TrapType t)
@@ -194,11 +194,11 @@ void Trap::removeCoveredTile(Tile* t)
      // Destroy the mesh for this tile.
      RenderRequest *request = new RenderRequest;
      request->type = RenderRequest::destroyTrap;
-     request->p = this;
+     request->p = static_cast<void*>(this);
      request->p2 = t;
 
      // Add the request to the queue of rendering operations to be performed before the next frame.
-     queueRenderRequest(request);
+     RenderManager::queueRenderRequest(request);
      */
 }
 

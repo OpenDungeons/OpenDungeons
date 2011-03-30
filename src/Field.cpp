@@ -1,10 +1,12 @@
+#include <iostream>
+
+#include <OgreStringConverter.h>
+
 #include "Globals.h"
-#include "Functions.h"
+//#include "Functions.h"
 #include "Field.h"
 #include "RenderRequest.h"
-
-#include <iostream>
-#include <OgreStringConverter.h>
+#include "RenderManager.h"
 
 Field::Field(const std::string& nName)
 {
@@ -161,11 +163,11 @@ void Field::refreshMeshes(double offset = 0.0)
 
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::refreshField;
-        request->p = this;
+        request->p = static_cast<void*>(this);
         request->p2 = new double(offset); //FIXME: This leaks memory, it should either be deleted in the request handler or passed via a different method.
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
-        queueRenderRequest(request);
+        RenderManager::queueRenderRequest(request);
     }
 }
 
@@ -184,11 +186,11 @@ void Field::createMeshes(double offset = 0.0)
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createField;
-    request->p = this;
+    request->p = static_cast<void*>(this);
     request->p2 = new double(offset);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 void Field::destroyMeshes()
@@ -201,9 +203,9 @@ void Field::destroyMeshes()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyField;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 

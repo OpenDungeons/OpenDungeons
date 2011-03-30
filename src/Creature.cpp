@@ -20,6 +20,7 @@
 #include "CreatureSound.h"
 #include "Player.h"
 #include "Seat.h"
+#include "RenderManager.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
@@ -222,10 +223,10 @@ void Creature::createMesh()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createCreature;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 /*! \brief Free the mesh and inform the OGRE system that the mesh has been destroyed.
@@ -245,10 +246,10 @@ void Creature::destroyMesh()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyCreature;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 /*! \brief Changes the creature's position to a new position.
@@ -310,7 +311,7 @@ void Creature::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     request->vec = position;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 void Creature::setHP(double nHP)
@@ -1788,7 +1789,7 @@ void Creature::doLevelUp()
         request->vec = Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor);
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
-        queueRenderRequest(request);
+        RenderManager::queueRenderRequest(request);
     }
 }
 
@@ -1957,10 +1958,10 @@ void Creature::createVisualDebugEntities()
             RenderRequest *request = new RenderRequest;
             request->type = RenderRequest::createCreatureVisualDebug;
             request->p = currentTile;
-            request->p2 = this;
+            request->p2 = static_cast<void*>(this);
 
             // Add the request to the queue of rendering operations to be performed before the next frame.
-            queueRenderRequest(request);
+            RenderManager::queueRenderRequest(request);
 
             visualDebugEntityTiles.push_back(currentTile);
 
@@ -1989,10 +1990,10 @@ void Creature::destroyVisualDebugEntities()
             RenderRequest *request = new RenderRequest;
             request->type = RenderRequest::destroyCreatureVisualDebug;
             request->p = currentTile;
-            request->p2 = this;
+            request->p2 = static_cast<void*>(this);
 
             // Add the request to the queue of rendering operations to be performed before the next frame.
-            queueRenderRequest(request);
+            RenderManager::queueRenderRequest(request);
         }
     }
 
@@ -2039,10 +2040,10 @@ void Creature::deleteYourself()
     // Create a render request asking the render queue to actually do the deletion of this creature.
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::deleteCreature;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the requests to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 /*! \brief Creates a string with a unique number embedded into it so the creature's name will not be the same as any other OGRE entity name.

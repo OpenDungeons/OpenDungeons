@@ -490,6 +490,7 @@ std::string colourizeMaterial(const std::string& materialName, int colour)
 
 }
 
+/*
 void queueRenderRequest(RenderRequest *r)
 {
     r->turnNumber = turnNumber.get();
@@ -499,6 +500,7 @@ void queueRenderRequest(RenderRequest *r)
     renderQueue.push_back(r);
     sem_post(&renderQueueSemaphore);
 }
+*/
 
 void queueServerNotification(ServerNotification *n)
 {
@@ -536,6 +538,7 @@ std::vector<std::string> listAllFiles(const std::string& directoryName)
 }
 
 //NOTE: This function has not yet been tested.
+/*
 void waitOnRenderQueueFlush()
 {
     numThreadsWaitingOnRenderQueueEmpty.lock();
@@ -546,6 +549,7 @@ void waitOnRenderQueueFlush()
 
     sem_wait(&renderQueueEmptySemaphore);
 }
+*/
 
 bool startServer()
 {

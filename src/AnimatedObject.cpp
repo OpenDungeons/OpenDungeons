@@ -1,10 +1,12 @@
+#include "AnimatedObject.h"
 #include "Globals.h"
 #include "Functions.h"
+#include "RenderManager.h"
 #include "ServerNotification.h"
 #include "Tile.h"
 #include "Socket.h"
 #include "RenderRequest.h"
-#include "AnimatedObject.h"
+
 
 AnimatedObject::AnimatedObject()
 {
@@ -177,7 +179,7 @@ void AnimatedObject::faceToward(int x, int y)
     request->str = getName() + "_node";
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 double AnimatedObject::getMoveSpeed()
@@ -205,7 +207,7 @@ void AnimatedObject::setAnimationState(const std::string& s, bool loop)
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::setObjectAnimationState;
-    request->p = this;
+    request->p = static_cast<void*>(this);
     request->str = s;
     request->b = loop;
 
@@ -218,7 +220,7 @@ void AnimatedObject::setAnimationState(const std::string& s, bool loop)
             serverNotification->type
                     = ServerNotification::setObjectAnimationState;
             serverNotification->str = s;
-            serverNotification->p = this;
+            serverNotification->p = static_cast<void*>(this);
             serverNotification->b = loop;
 
             queueServerNotification(serverNotification);
@@ -231,7 +233,7 @@ void AnimatedObject::setAnimationState(const std::string& s, bool loop)
     }
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 double AnimatedObject::getAnimationSpeedFactor()

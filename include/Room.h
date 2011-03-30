@@ -51,8 +51,8 @@ class Room: public AttackableObject, public ActiveObject
         void deleteYourself();
         const RoomType& getType() const{return type;}
 
-        static std::string getMeshNameFromRoomType(RoomType t);
-        static RoomType getRoomTypeFromMeshName(std::string s);
+        static const char* getMeshNameFromRoomType(RoomType t);
+        static RoomType getRoomTypeFromMeshName(const std::string& s);
 
         static int costPerTile(RoomType t);
 

@@ -2,9 +2,10 @@
 #include <sstream>
 
 #include "MissileObject.h"
-#include "Functions.h"
+//#include "Functions.h"
 #include "RenderRequest.h"
 #include "Globals.h"
+#include "RenderManager.h"
 
 
 MissileObject::MissileObject()
@@ -57,7 +58,7 @@ void MissileObject::setPosition(const Ogre::Vector3& v)
     request->vec = position;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 /*! \brief Changes the missile's position to a new position.
@@ -93,10 +94,10 @@ void MissileObject::createMesh()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createMissileObject;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 void MissileObject::destroyMesh()
@@ -108,10 +109,10 @@ void MissileObject::destroyMesh()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyMissileObject;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 
 void MissileObject::deleteYourself()
@@ -122,9 +123,9 @@ void MissileObject::deleteYourself()
     // Create a render request asking the render queue to actually do the deletion of this creature.
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::deleteMissileObject;
-    request->p = this;
+    request->p = static_cast<void*>(this);
 
     // Add the requests to the queue of rendering operations to be performed before the next frame.
-    queueRenderRequest(request);
+    RenderManager::queueRenderRequest(request);
 }
 

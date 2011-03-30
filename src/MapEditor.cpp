@@ -13,6 +13,7 @@
 #include "ButtonHandlers.h"
 #include "GameMap.h"
 #include "MainMenu.h"
+#include "RenderManager.h"
 
 MapEditor::MapEditor() :
     mSystem(0), mRenderer(0)
@@ -54,9 +55,11 @@ void MapEditor::createScene(void)
     Entity *ent;
     SceneNode *node;
 
+    //Initialise render manager
+    RenderManager* renderManager = new RenderManager();
+    renderManager->initialize(mSceneMgr, &gameMap);
+    
     // Read in the default game map
-
-
     std::string levelPath = mResourcePath + "levels_git/Test.level";
     {
         //Check if the level from git exists. If not, use the standard one.
@@ -232,6 +235,8 @@ void MapEditor::createScene(void)
 
     MusicPlayer* m = new MusicPlayer();
     m->load(mResourcePath + "music/");
+
+    
 }
 
 void MapEditor::createFrameListener(void)

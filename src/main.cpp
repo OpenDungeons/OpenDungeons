@@ -22,8 +22,8 @@ sem_t lightNumberLockSemaphore;
 sem_t missileObjectUniqueNumberLockSemaphore;
 
 std::deque<RenderRequest*> renderQueue;
-sem_t renderQueueSemaphore;
-sem_t renderQueueEmptySemaphore;
+//sem_t renderQueueSemaphore;
+//sem_t renderQueueEmptySemaphore;
 ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty(0);
 
 std::deque<ServerNotification*> serverNotificationQueue;
@@ -75,8 +75,8 @@ int main(int argc, char **argv)
     sem_init(&lightNumberLockSemaphore, 0, 1);
     sem_init(&missileObjectUniqueNumberLockSemaphore, 0, 1);
     seedRandomNumberGenerator();
-    sem_init(&renderQueueSemaphore, 0, 1);
-    sem_init(&renderQueueEmptySemaphore, 0, 0);
+    //sem_init(&renderQueueSemaphore, 0, 1);
+    //sem_init(&renderQueueEmptySemaphore, 0, 0);
     sem_init(&serverNotificationQueueSemaphore, 0, 0);
     sem_init(&clientNotificationQueueSemaphore, 0, 0);
     sem_init(&serverNotificationQueueLockSemaphore, 0, 1);
