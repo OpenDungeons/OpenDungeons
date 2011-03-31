@@ -3,13 +3,12 @@
 
 #include "Room.h"
 
-class RoomForge : public Room
+class RoomForge: public Room
 {
-	public:
-		RoomForge();
-		void createMeshes();
+    public:
+        RoomForge();
+        void createMeshes();
 };
-
 
 #endif
 

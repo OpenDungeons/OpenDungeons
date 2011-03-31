@@ -25,7 +25,7 @@ void CreatureSound::play(SoundType type)
 
 void CreatureSound::setPosition(Ogre::Vector3 p)
 {
-	setPosition(p.x, p.y, p.z);
+    setPosition(p.x, p.y, p.z);
 }
 
 /*! \brief Set the play position for the sound source.
@@ -35,7 +35,7 @@ void CreatureSound::setPosition(float x, float y, float z)
 {
     //TODO - can this be optimised?
     SoundEffectsHelper::SoundFXVector::iterator it;
-    for(it = sounds.begin(); it != sounds.end(); ++it)
+    for (it = sounds.begin(); it != sounds.end(); ++it)
     {
         it->SetPosition(x, y, z);
     }

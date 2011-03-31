@@ -1,21 +1,21 @@
 #include "RoomDojo.h"
 
-RoomDojo::RoomDojo()
-	: Room()
+RoomDojo::RoomDojo() :
+    Room()
 {
-	type = dojo;
+    type = dojo;
 }
 
 void RoomDojo::createMeshes()
 {
-	Room::createMeshes();
+    Room::createMeshes();
 
-	loadRoomObject("DojoRockObject");
-	createRoomObjectMeshes();
+    loadRoomObject("DojoRockObject");
+    createRoomObjectMeshes();
 }
 
 int RoomDojo::numOpenCreatureSlots()
 {
-	return 3 - numCreaturesUsingRoom();
+    return 3 - numCreaturesUsingRoom();
 }
 

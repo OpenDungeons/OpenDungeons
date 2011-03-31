@@ -22,24 +22,5 @@ To build on windows you will need to link against the following libraries:
 Visual studio project and solution files can be automatically generated using the 'cmake' program.
 
 -----  Building under mingw  -----
-mingw is currently untested, support will be worked on.
+Cmake can generate makefiles for mingw
 
-
-
---- Bugs: ---
-
-You may need to custom build a version of CEGUI for your system which uses a different XML parsing engine than the one some prebuilt binaries use.  This is known to be a problem on Debian and Ubuntu systems.  When you build CEGUI use these instructions (run from the directory where you unpacked the CEGUI source code):
-
-
-	./configure --with-default-xml-parser=TinyXMLParser
-	make
-	sudo make install
-
-
-Once you have built and installed the CEGUI libraries, return to the OpenDungeons directory and run the following commands.
-
-
-	make clean
-	cmake .
-	make
-	./MapEditor

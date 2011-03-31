@@ -8,33 +8,39 @@
 #include <semaphore.h>
 
 #include "ActiveObject.h"
+#include "AnimatedObject.h"
 
-class MissileObject : public ActiveObject, public AnimatedObject
+class MissileObject: public ActiveObject, public AnimatedObject
 {
-	public:
-		MissileObject();
-		MissileObject(std::string nMeshName, Ogre::Vector3 nPosition);
-		void initialize();
+    public:
+        MissileObject();
+        MissileObject(std::string nMeshName, Ogre::Vector3 nPosition);
+        void initialize();
 
-		void setPosition(double x, double y, double z);
-		void setPosition(Ogre::Vector3 v);
-		Ogre::Vector3 getPosition();
+        void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
+        void setPosition(const Ogre::Vector3& v);
+        Ogre::Vector3 getPosition();
 
-		void createMesh();
-		void destroyMesh();
-		void deleteYourself();
+        void createMesh();
+        void destroyMesh();
+        void deleteYourself();
 
-		std::string meshName;
-		string getOgreNamePrefix() {return "";}
-		std::string getName() {return name;}
-		std::string name;
+        std::string meshName;
+        std::string getOgreNamePrefix()
+        {
+            return "";
+        }
+        std::string getName()
+        {
+            return name;
+        }
+        std::string name;
 
-
-	private:
-		std::deque<Ogre::Vector3> walkQueue;
-		Ogre::Vector3 position;
-		sem_t positionLockSemaphore;
-		bool meshesExist;
+    private:
+        std::deque<Ogre::Vector3> walkQueue;
+        Ogre::Vector3 position;
+        sem_t positionLockSemaphore;
+        bool meshesExist;
 };
 
 #endif

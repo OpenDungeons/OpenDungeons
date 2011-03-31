@@ -1,71 +1,72 @@
-# - Find CEGUI includes and library
+# - Try to find CEGUI
+# Once done, this will define
 #
-# This module defines
-#  CEGUI_INCLUDE_DIR
-#  CEGUI_LIBRARIES, the libraries to link against to use CEGUI.
-#  CEGUI_LIB_DIR, the location of the libraries
-#  CEGUI_FOUND, If false, do not try to use CEGUI
-#
-# Copyright © 2007, Matt Williams
-#
-# Redistribution and use is allowed according to the terms of the BSD license.
-# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
+#  CEGUI_FOUND - system has CEGUI
+#  CEGUI_INCLUDE_DIRS - the CEGUI include directories 
+#  CEGUI_LIBRARIES - link these to use CEGUI
 
-if(POLICY CMP0011)
-       cmake_policy(SET CMP0011 OLD) # or even better, NEW
-       endif(POLICY CMP0011)
+find_package(PkgConfig)
+#pkg_check_modules(PC_CEGUI CEGUI)
+#pkg_check_modules(PC_CEGUIOGRE CEGUI-OGRE)
 
-IF (CEGUI_LIBRARIES AND CEGUI_INCLUDE_DIR)
-	SET(CEGUI_FIND_QUIETLY TRUE)
-ENDIF (CEGUI_LIBRARIES AND CEGUI_INCLUDE_DIR)
+message(STATUS "looking for headers")
+#TODO - check for ogre renderer
+#Look for headers
+find_path(CEGUI_INCLUDE_DIR CEGUI.h
+    HINTS $ENV{CEGUIDIR}
+        ${PC_CEGUI_INCLUDEDIR}
+    PATH_SUFFIXES include/CEGUI CEGUI include cegui/include
+    PATHS
+    ~/Library/Frameworks
+    /Library/Frameworks
+    /usr/local/include/
+    /usr/include/
+    /sw # Fink
+    /opt/local # DarwinPorts
+    /opt/csw # Blastwave
+    /opt
+    )
+    
+#Look for libs
+find_library(CEGUI_LIBRARY
+  CEGUIBase
+  HINTS
+  $ENV{CEGUIDIR}
+  ${PC_CEGUI_LIBDIR}
+  PATH_SUFFIXES lib64 lib
+  PATHS
+  /sw
+  /opt/local
+  /opt/csw
+  /opt
+  /usr
+  /usr/local
 
-IF (WIN32) #Windows
-	# MESSAGE(STATUS "Looking for CEGUI")
-	# SET(OGRESDK $ENV{OGRE_HOME})
-	# SET(OGRESOURCE $ENV{OGRE_SRC})
-	# IF (OGRESDK)
-		# MESSAGE(STATUS "Using CEGUI in OGRE SDK")
-		# SET(OGRESDK $ENV{OGRE_HOME})
-		# STRING(REGEX REPLACE "[\\]" "/" OGRESDK "${OGRESDK}" )
-		# SET(CEGUI_INCLUDE_DIR ${OGRESDK}/include/CEGUI)
-		# SET(CEGUI_LIB_DIR ${OGRESDK}/lib)
-		# SET(CEGUI_LIBRARIES debug CEGUIBase_d optimized CEGUIBase)
-	# ENDIF (OGRESDK)
-	# IF (OGRESOURCE)
-		# MESSAGE(STATUS "Using CEGUI in OGRE dependencies")
-		# SET(CEGUI_INCLUDE_DIR C:/ogre/Dependencies/include C:/ogre/Dependencies/include/CEGUI)
-		# SET(CEGUI_LIB_DIR C:/ogre/Dependencies/lib/Release C:/ogre/Dependencies/lib/Debug)
-		# SET(CEGUI_LIBRARIES debug CEGUIBase_d optimized CEGUIBase)
-	# ENDIF (OGRESOURCE)
-	SET(CEGUI_LIBRARIES debug CEGUIBase_d optimized CEGUIBase)
-ELSE (WIN32) #Unix
-	CMAKE_MINIMUM_REQUIRED(VERSION 2.4.7 FATAL_ERROR)
-	FIND_PACKAGE(PkgConfig)
-	PKG_SEARCH_MODULE(CEGUI CEGUI)
-	SET(CEGUI_INCLUDE_DIR ${CEGUI_INCLUDE_DIRS})
-	SET(CEGUI_LIB_DIR ${CEGUI_LIBDIR})
-	SET(CEGUI_LIBRARIES ${CEGUI_LIBRARIES} CACHE STRING "")
-ENDIF (WIN32)
+)
 
-#Do some preparation
-SEPARATE_ARGUMENTS(CEGUI_INCLUDE_DIR)
-SEPARATE_ARGUMENTS(CEGUI_LIBRARIES)
+find_library(CEGUIOGRE_LIBRARY
+ CEGUIOgreRenderer
+  HINTS
+  $ENV{CEGUIDIR}
+  ${PC_CEGUI_LIBDIR}
+  PATH_SUFFIXES lib64 lib
+  PATHS
+  /sw
+  /opt/local
+  /opt/csw
+  /opt
+  /usr
+  /usr/local
 
-SET(CEGUI_INCLUDE_DIR ${CEGUI_INCLUDE_DIR} CACHE PATH "")
-SET(CEGUI_LIBRARIES ${CEGUI_LIBRARIES} CACHE STRING "")
-SET(CEGUI_LIB_DIR ${CEGUI_LIB_DIR} CACHE PATH "")
+)
 
-IF (CEGUI_INCLUDE_DIR AND CEGUI_LIBRARIES)
-	SET(CEGUI_FOUND TRUE)
-ENDIF (CEGUI_INCLUDE_DIR AND CEGUI_LIBRARIES)
+set(CEGUI_LIBRARIES ${CEGUI_LIBRARY} ${CEGUIOGRE_LIBRARY})
+set(CEGUI_INCLUDE_DIRS ${CEGUI_INCLUDE_DIR})
 
-IF (CEGUI_FOUND)
-	IF (NOT CEGUI_FIND_QUIETLY)
-		MESSAGE(STATUS "  libraries : ${CEGUI_LIBRARIES} from ${CEGUI_LIB_DIR}")
-		MESSAGE(STATUS "  includes  : ${CEGUI_INCLUDE_DIR}")
-	ENDIF (NOT CEGUI_FIND_QUIETLY)
-ELSE (CEGUI_FOUND)
-	IF (CEGUI_FIND_REQUIRED)
-		MESSAGE(FATAL_ERROR "Could not find CEGUI")
-	ENDIF (CEGUI_FIND_REQUIRED)
-ENDIF (CEGUI_FOUND)
+include(FindPackageHandleStandardArgs)
+#Set vars
+find_package_handle_standard_args(CEGUI DEFAULT_MSG
+                                    CEGUI_LIBRARY CEGUIOGRE_LIBRARY CEGUI_INCLUDE_DIR)
+                                    
+message(STATUS ${CEGUI_LIBRARIES})
+

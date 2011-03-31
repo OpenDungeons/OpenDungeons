@@ -3,8 +3,8 @@
 
 class ActiveObject
 {
-	public:
-		virtual bool doUpkeep();
+    public:
+        virtual bool doUpkeep();
 };
 
 #endif

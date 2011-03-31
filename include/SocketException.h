@@ -8,15 +8,25 @@
 
 class SocketException
 {
- public:
-  SocketException ( std::string s ) : m_s ( s ) {};
-  ~SocketException (){};
+    public:
+        SocketException(std::string s) :
+            m_s(s)
+        {
+        }
+        ;
+        ~SocketException()
+        {
+        }
+        ;
 
-  std::string description() { return m_s; }
+        std::string description()
+        {
+            return m_s;
+        }
 
- private:
+    private:
 
-  std::string m_s;
+        std::string m_s;
 
 };
 

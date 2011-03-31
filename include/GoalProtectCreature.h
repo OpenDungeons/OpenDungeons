@@ -5,23 +5,23 @@
 
 #include "Goal.h"
 
-class GoalProtectCreature : public Goal
+class GoalProtectCreature: public Goal
 {
-	public:
-		GoalProtectCreature(std::string nName, std::string nArguments);
+    public:
+        GoalProtectCreature(const std::string& nName,
+                const std::string& nArguments);
 
-		// Inherited functions
-		bool isMet(Seat *s);
-		bool isUnmet(Seat *s);
-		bool isFailed(Seat *s);
-		std::string getDescription();
-		std::string getSuccessMessage();
-		std::string getFailedMessage();
+        // Inherited functions
+        bool isMet(Seat *s);
+        bool isUnmet(Seat *s);
+        bool isFailed(Seat *s);
+        std::string getDescription();
+        std::string getSuccessMessage();
+        std::string getFailedMessage();
 
-	private:
-		std::string creatureName;
+    private:
+        std::string creatureName;
 };
 
 #endif
-
 
