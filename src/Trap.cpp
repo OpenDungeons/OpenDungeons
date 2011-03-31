@@ -78,7 +78,7 @@ void Trap::createMeshes()
     {
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::createTrap;
-        request->p = static_cast<void*>(this);
+        request->p = this;
         request->p2 = coveredTiles[i];
 
         // Add the request to the queue of rendering operations to be performed before the next frame.

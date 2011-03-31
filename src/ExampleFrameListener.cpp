@@ -1383,7 +1383,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 int goldRequired = 0;
                 // Delete everything but the last tile in the affected tiles as this is close to where we let go of the mouse.
                 std::vector<Tile*> tempVector(affectedTiles);
-                tempVector.push_back(affectedTiles[affectedTiles.size() - 1]);
+                //~ tempVector.push_back(affectedTiles[affectedTiles.size() - 1]);
 
                 Seat *mySeat = NULL;
                 if (serverSocket != NULL || clientSocket != NULL
@@ -1399,7 +1399,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector,
                         mySeat);
                 //FIXME: This throws an OGRE runtime error when it is commented in.
-                //tempTrap->createMeshes();
+                tempTrap->createMeshes();
                 gameMap.addTrap(tempTrap);
 
                 sfxHelper->playInterfaceSound(SoundEffectsHelper::BUILDTRAP,

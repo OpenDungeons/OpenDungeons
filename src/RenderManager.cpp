@@ -490,11 +490,8 @@ void RenderManager::rrCreateTrap ( const RenderRequest& renderRequest )
     tempSS << "Trap_" << curTrap->getName() + "_tile_"
     << curTile->x << "_" << curTile->y;
     std::string tempString = tempSS.str();
-    Ogre::Entity* ent = sceneManager->createEntity(tempString,
-                        curTrap->getMeshName() + ".mesh");
-    Ogre::SceneNode* node
-    = roomSceneNode->createChildSceneNode(tempString
-                                          + "_node");
+    Ogre::Entity* ent = sceneManager->createEntity(tempString, curTrap->getMeshName() + ".mesh");
+    Ogre::SceneNode* node = roomSceneNode->createChildSceneNode(tempString + "_node");
     node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.0));
     node->attachObject(ent);
 }
