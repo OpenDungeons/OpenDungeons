@@ -30,7 +30,7 @@ class MissileObject: public ActiveObject, public AnimatedObject
         {
             return "";
         }
-        std::string getName()
+        const std::string& getName() const
         {
             return name;
         }

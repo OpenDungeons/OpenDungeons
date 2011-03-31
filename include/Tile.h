@@ -93,9 +93,12 @@ class Tile
 
         Room* getCoveringRoom();
         void setCoveringRoom(Room *r);
+		bool getCoveringTrap();
+		void setCoveringTrap(bool t);
 
         bool isDiggable();
         bool isClaimable();
+        bool isBuildableUpon();
 
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Tile *t);
@@ -126,6 +129,7 @@ class Tile
         std::vector<Player*> playersMarkingTile;
         Room *coveringRoom;
         sem_t coveringRoomLockSemaphore;
+        bool coveringTrap;
         MapLight *claimLight;
         sem_t claimLightLockSemaphore;
         bool meshesExist;

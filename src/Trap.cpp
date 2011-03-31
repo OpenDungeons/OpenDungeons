@@ -177,6 +177,7 @@ void Trap::addCoveredTile(Tile* t, double nHP)
 {
     coveredTiles.push_back(t);
     tileHP[t] = nHP;
+    t->setCoveringTrap(true);
 }
 
 void Trap::removeCoveredTile(Tile* t)
@@ -186,12 +187,13 @@ void Trap::removeCoveredTile(Tile* t)
         if (t == coveredTiles[i])
         {
             coveredTiles.erase(coveredTiles.begin() + i);
+            t->setCoveringTrap(false);
             tileHP.erase(t);
             break;
         }
     }
 
-    /*
+    
      // Destroy the mesh for this tile.
      RenderRequest *request = new RenderRequest;
      request->type = RenderRequest::destroyTrap;
@@ -200,7 +202,7 @@ void Trap::removeCoveredTile(Tile* t)
 
      // Add the request to the queue of rendering operations to be performed before the next frame.
      RenderManager::queueRenderRequest(request);
-     */
+     
 }
 
 Tile* Trap::getCoveredTile(int index)
@@ -333,4 +335,5 @@ std::ostream& operator<<(std::ostream& os, Trap *t)
 
     return os;
 }
+
 
