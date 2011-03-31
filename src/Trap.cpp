@@ -1,6 +1,10 @@
 #include "Globals.h"
 #include "Trap.h"
 #include "TrapCannon.h"
+#include "RenderRequest.h"
+#include "Seat.h"
+#include "GameMap.h"
+#include "RenderManager.h"
 
 const double Trap::defaultTileHP = 10.0;
 
