@@ -1395,8 +1395,9 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                                 gameMap.me->seat->color) >= goldRequired))
                 {
                     goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
-                    gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->seat->color);
-                        mySeat = gameMap.me->seat;
+                    if (serverSocket != NULL || clientSocket != NULL)
+                        gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->seat->color);
+                    mySeat = gameMap.me->seat;
 
                     Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector,
                             mySeat);
