@@ -1935,7 +1935,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseB
 
 				Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector, mySeat);
 				//FIXME: This throws an OGRE runtime error when it is commented in.
-				//tempTrap->createMeshes();
+				tempTrap->createMeshes();
 				gameMap.addTrap(tempTrap);
 
 				sfxHelper->playInterfaceSound(SoundEffectsHelper::BUILDTRAP, false);
