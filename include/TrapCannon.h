@@ -7,7 +7,7 @@ class TrapCannon : public ProximityTrap
 {
 	public:
 		TrapCannon();
-
+        bool doUpkeep();
 	private:
 		double cannonHeight;
 
