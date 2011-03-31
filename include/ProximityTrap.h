@@ -22,4 +22,3 @@ class ProximityTrap : public Trap
 };
 
 #endif
-	

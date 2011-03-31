@@ -15,6 +15,7 @@ set(
      CreatureClass.cpp
      Creature.cpp
      CreatureSound.cpp
+     DirectionalTrap.cpp
      ExampleFrameListener.cpp
      Field.cpp
      Functions.cpp

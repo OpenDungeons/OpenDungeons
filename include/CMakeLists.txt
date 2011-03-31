@@ -1,6 +1,6 @@
 SET(
-     SRC_H
-     ActiveObject.h
+    SRC_H
+    ActiveObject.h
     AnimatedObject.h
     AttackableObject.h
     ButtonHandlers.h
@@ -11,6 +11,7 @@ SET(
     Creature.h
     CreatureSound.h
     Defines.h
+    DirectionalTrap.h
     ExampleApplication.h
     ExampleFrameListener.h
     Field.h
@@ -29,7 +30,6 @@ SET(
     MusicPlayer.h
     Network.h
     Player.h
-    PoximityTrap.h
     ProtectedObject.h
     ProximityTrap.h
     RadialVector2.h
