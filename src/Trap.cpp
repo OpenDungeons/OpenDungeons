@@ -1,6 +1,7 @@
 #include "Functions.h"
 #include "Globals.h"
 #include "Trap.h"
+#include "TrapCannon.h"
 
 const double Trap::defaultTileHP = 10.0;
 
