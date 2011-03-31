@@ -228,6 +228,7 @@ void Trap::addCoveredTile(Tile* t, double nHP)
 {
     coveredTiles.push_back(t);
     tileHP[t] = nHP;
+    t->setCoveringTrap(true);
 }
 
 void Trap::removeCoveredTile(Tile* t)
@@ -237,11 +238,11 @@ void Trap::removeCoveredTile(Tile* t)
         if (t == coveredTiles[i])
         {
             coveredTiles.erase(coveredTiles.begin() + i);
+            t->setCoveringTrap(false);
             tileHP.erase(t);
             break;
         }
     }
-    
     /*
      *     // Destroy the mesh for this tile.
      *     RenderRequest *request = new RenderRequest;
@@ -384,4 +385,5 @@ std::ostream& operator<<(std::ostream& os, Trap *t)
     
     return os;
 }
+
 

@@ -40,6 +40,7 @@ void Tile::initialize()
     sem_wait(&coveringRoomLockSemaphore);
     coveringRoom = NULL;
     sem_post(&coveringRoomLockSemaphore);
+    coveringTrap = false;
 
     sem_wait(&claimLightLockSemaphore);
     claimLight = NULL;
@@ -493,6 +494,26 @@ bool Tile::permitsVision()
         return true;
     else
         return false;
+}
+
+/* Checks if the place is buildable at the moment */
+bool Tile::isBuildableUpon()
+{
+    sem_wait(&coveringRoomLockSemaphore);
+    Room *ret = coveringRoom;
+    sem_post(&coveringRoomLockSemaphore);
+
+    return (ret==NULL && coveringTrap==false);
+}
+
+bool Tile::getCoveringTrap()
+{
+    return coveringTrap;
+}
+
+void Tile::setCoveringTrap(bool t)
+{
+    coveringTrap = t;
 }
 
 Room* Tile::getCoveringRoom()

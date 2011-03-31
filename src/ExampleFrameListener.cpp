@@ -1287,7 +1287,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 else // if(mDragType == ExampleFrameListener::addNewRoom || mDragType == ExampleFrameListener::addNewTrap)
                 {
                     // If the tile already contains a room, prune it from the list of affected tiles.
-                    if (currentTile->getCoveringRoom() != NULL)
+                    if (!currentTile->isBuildableUpon())
                     {
                         itr = affectedTiles.erase(itr);
                         continue;
