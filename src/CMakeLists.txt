@@ -55,6 +55,7 @@ set(
      Tile.cpp
      TileCoordinateMap.cpp
      Trap.cpp
+     TrapBoulder.cpp
      TrapCannon.cpp
      Weapon.cpp
    )

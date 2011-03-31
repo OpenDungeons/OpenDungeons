@@ -1,10 +1,13 @@
 #include "Globals.h"
-#include "Trap.h"
-#include "TrapCannon.h"
+#include "Functions.h"
+#include "Tile.h"
 #include "RenderRequest.h"
+#include "RenderManager.h"
 #include "Seat.h"
 #include "GameMap.h"
-#include "RenderManager.h"
+#include "Trap.h"
+#include "TrapCannon.h"
+#include "TrapBoulder.h"
 
 const double Trap::defaultTileHP = 10.0;
 
@@ -15,10 +18,10 @@ Trap::Trap()
 }
 
 Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-        Seat *nControllingSeat)
+                       Seat *nControllingSeat, void* params)
 {
     Trap *tempTrap = NULL;
-
+    
     switch (nType)
     {
         case nullTrapType:
@@ -27,33 +30,39 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
         case cannon:
             tempTrap = new TrapCannon();
             break;
+        case boulder:
+            if(params != NULL) {
+                int* p = (int*)params;
+                tempTrap = new TrapBoulder(p[0], p[1]);
+            }
+            break;
     }
-
+    
     if (tempTrap == NULL)
     {
         std::cerr
-                << "\n\n\nERROR: Trying to create a trap of unknown type, bailing out.\n";
+        << "\n\n\nERROR: Trying to create a trap of unknown type, bailing out.\n";
         std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
-                << "\n\n\n";
+        << "\n\n\n";
         exit(1);
     }
-
+    
     tempTrap->controllingSeat = nControllingSeat;
-
+    
     tempTrap->meshName = getMeshNameFromTrapType(nType);
     tempTrap->type = nType;
-
+    
     static int uniqueNumber = -1;
     std::stringstream tempSS;
-
+    
     tempSS.str("");
     tempSS << tempTrap->meshName << "_" << uniqueNumber;
     --uniqueNumber;
     tempTrap->name = tempSS.str();
-
+    
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
         tempTrap->addCoveredTile(nCoveredTiles[i]);
-
+    
     return tempTrap;
 }
 
@@ -61,9 +70,9 @@ Trap* Trap::createTrapFromStream(std::istream &is)
 {
     Trap tempTrap;
     is >> &tempTrap;
-
+    
     Trap *returnTrap = createTrap(tempTrap.type, tempTrap.coveredTiles,
-            tempTrap.controllingSeat);
+                                  tempTrap.controllingSeat);
     return returnTrap;
 }
 
@@ -71,16 +80,16 @@ void Trap::createMeshes()
 {
     if (meshExists)
         return;
-
+    
     meshExists = true;
-
+    
     for (unsigned int i = 0; i < coveredTiles.size(); ++i)
     {
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::createTrap;
-        request->p = this;
+        request->p = static_cast<void*>(this);
         request->p2 = coveredTiles[i];
-
+        
         // Add the request to the queue of rendering operations to be performed before the next frame.
         RenderManager::queueRenderRequest(request);
     }
@@ -90,16 +99,16 @@ void Trap::destroyMeshes()
 {
     if (!meshExists)
         return;
-
+    
     meshExists = false;
-
+    
     for (unsigned int i = 0; i < coveredTiles.size(); ++i)
     {
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::destroyTrap;
         request->p = static_cast<void*>(this);
         request->p2 = coveredTiles[i];
-
+        
         // Add the request to the queue of rendering operations to be performed before the next frame.
         RenderManager::queueRenderRequest(request);
     }
@@ -109,14 +118,14 @@ void Trap::deleteYourself()
 {
     if (meshExists)
         destroyMeshes();
-
+    
     // Create a render request asking the render queue to actually do the deletion of this creature.
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::deleteTrap;
-    request->p = static_cast<void*>(this);
-
-    // Add the requests to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
+        RenderRequest *request = new RenderRequest;
+        request->type = RenderRequest::deleteTrap;
+        request->p = static_cast<void*>(this);
+        
+        // Add the requests to the queue of rendering operations to be performed before the next frame.
+        RenderManager::queueRenderRequest(request);
 }
 
 std::string Trap::getMeshNameFromTrapType(TrapType t)
@@ -129,8 +138,11 @@ std::string Trap::getMeshNameFromTrapType(TrapType t)
         case cannon:
             return "Cannon";
             break;
+        case boulder:
+            return "Boulder";
+            break;
     }
-
+    
     return "UnknownTrapType";
 }
 
@@ -138,12 +150,16 @@ Trap::TrapType Trap::getTrapTypeFromMeshName(std::string s)
 {
     if (s.compare("Cannon") == 0)
         return cannon;
+    else if (s.compare("Boulder") == 0)
+        return boulder;
+    else if (s.compare("NullTrapType") == 0)
+        return nullTrapType;
     else
     {
         std::cerr
-                << "\n\n\nERROR:  Trying to get trap type from unknown mesh name, bailing out.\n";
+        << "\n\n\nERROR:  Trying to get trap type from unknown mesh name, bailing out.\n";
         std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
-                << "\n\n\n";
+        << "\n\n\n";
         exit(1);
     }
 }
@@ -158,19 +174,54 @@ int Trap::costPerTile(TrapType t)
         case cannon:
             return 500;
             break;
+        case boulder:
+            return 500;
+            break;
     }
-
+    
     return 100;
 }
 
 bool Trap::doUpkeep()
 {
-    return doUpkeep(this);
+    if(reloadTimeCounter > 0)
+    {
+        reloadTimeCounter--;
+        return true;
+    }
+    
+    std::vector<AttackableObject*> enemyAttacked = aimEnemy();
+    
+    damage(enemyAttacked);
+    
+    if(enemyAttacked.size() > 0)
+    {
+        if(reloadTime >= 0) {
+            // Begin the reload countdown.
+            reloadTimeCounter = reloadTime;
+        }
+        else {
+            return false;
+        }
+    }
+    return true;
 }
 
-bool Trap::doUpkeep(Trap *t)
+bool Trap::doUpkeep(Trap* t)
 {
-    return true;
+    return t->doUpkeep();
+}
+
+void Trap::damage(std::vector<AttackableObject*> enemyAttacked) 
+{
+    for(unsigned i=0;i<enemyAttacked.size();++i) 
+    {
+        enemyAttacked[i]->takeDamage(randomDouble(minDamage, maxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
+    }
+}
+
+std::vector<AttackableObject*> Trap::aimEnemy() {
+    return std::vector<AttackableObject*>();
 }
 
 void Trap::addCoveredTile(Tile* t, double nHP)
@@ -190,16 +241,16 @@ void Trap::removeCoveredTile(Tile* t)
             break;
         }
     }
-
+    
     /*
-     // Destroy the mesh for this tile.
-     RenderRequest *request = new RenderRequest;
-     request->type = RenderRequest::destroyTrap;
-     request->p = static_cast<void*>(this);
-     request->p2 = t;
-
-     // Add the request to the queue of rendering operations to be performed before the next frame.
-     RenderManager::queueRenderRequest(request);
+     *     // Destroy the mesh for this tile.
+     *     RenderRequest *request = new RenderRequest;
+     *     request->type = RenderRequest::destroyTrap;
+     *     request->p = static_cast<void*>(this);
+     *     request->p2 = t;
+     * 
+     *     // Add the request to the queue of rendering operations to be performed before the next frame.
+     *     RenderManager::queueRenderRequest(request);
      */
 }
 
@@ -240,7 +291,7 @@ double Trap::getHP(Tile *tile)
             total += itr->second;
             ++itr;
         }
-
+        
         return total;
     }
 }
@@ -294,15 +345,15 @@ std::istream& operator>>(std::istream& is, Trap *t)
     int tilesToLoad, tempX, tempY, tempInt;
     std::string tempString;
     std::stringstream tempSS;
-
+    
     is >> t->meshName >> tempInt;
     t->controllingSeat = gameMap.getSeatByColor(tempInt);
-
+    
     tempSS.str("");
     tempSS << t->meshName << "_" << uniqueNumber;
     ++uniqueNumber;
     t->name = tempSS.str();
-
+    
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
     {
@@ -316,7 +367,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
             tempTile->colorDouble = 1.0;
         }
     }
-
+    
     t->type = Trap::getTrapTypeFromMeshName(t->meshName);
     return is;
 }
@@ -330,7 +381,7 @@ std::ostream& operator<<(std::ostream& os, Trap *t)
         Tile *tempTile = t->coveredTiles[i];
         os << tempTile->x << "\t" << tempTile->y << "\n";
     }
-
+    
     return os;
 }
 

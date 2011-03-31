@@ -52,7 +52,8 @@ SET(
     TextRenderer.h
     TileCoordinateMap.h
     Tile.h
-    TrapCannon.h
     Trap.h
+    TrapBoulder.h
+    TrapCannon.h
     Weapon.h
    )

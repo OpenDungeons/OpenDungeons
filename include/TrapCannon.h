@@ -5,12 +5,11 @@
 
 class TrapCannon : public ProximityTrap
 {
-	public:
-		TrapCannon();
-        //~ bool doUpkeep();
-	private:
-		double cannonHeight;
-
+    public:
+        TrapCannon();
+        std::vector<AttackableObject*> aimEnemy();
+    private:
+        double cannonHeight;
 };
 
 #endif
