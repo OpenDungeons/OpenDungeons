@@ -72,7 +72,5 @@ class Trap : public AttackableObject, public ActiveObject
 		double exp;
 };
 
-#include "TrapCannon.h"
-
 #endif
 
