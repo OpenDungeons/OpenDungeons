@@ -1,3 +1,12 @@
+/*!
+* \file   MusicPlayer.cpp
+* \author oln, StefanP.MUC
+* \date   November 10 2010
+* \brief  Class "MusicPlayer" containing everything to play music tracks.
+*/
+
+#include "Functions.h"
+
 #include "MusicPlayer.h"
 
 template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::ms_Singleton = 0;
@@ -6,7 +15,7 @@ template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::ms_Singleton = 0;
  *
  */
 MusicPlayer::MusicPlayer() :
-    loaded(false), currentTrack(0)
+    loaded(false), currentTrack(0), randomized(0)
 {
 
 }
@@ -32,7 +41,7 @@ MusicPlayer* MusicPlayer::getSingletonPtr()
 void MusicPlayer::update()
 {
     /* TODO: after upgrading to SFML 2.0, we can use sf::Music::OnGetData()
-     * to achieve this instead of calling upgrade() on every frame
+     * to achieve this instead of calling update() on every frame
      * (in 1.6 it's private, but in 2.O it's protected, so we then can
      * override it)
      */
@@ -93,13 +102,15 @@ void MusicPlayer::load(const Ogre::String& path)
     }
 }
 
-/** \brief Start music playback with the currentTrack if any music is loaded.
+/** \brief Start music playback with trackNumber if any music is loaded.
  *
  */
-void MusicPlayer::start()
+void MusicPlayer::start(const unsigned int& trackNumber)
 {
     if(loaded)
     {
+        tracks[currentTrack]->Stop();
+        currentTrack = trackNumber;
         tracks[currentTrack]->Play();
     }
 }
@@ -109,11 +120,20 @@ void MusicPlayer::start()
  */
 void MusicPlayer::next()
 {
-    if(++currentTrack >= tracks.size())
-    {
-        currentTrack = 0;
-    }
-    start();
-}
+    int newTrack = 0;
 
-//TODO: add random track selecting
+    if(randomized)
+    {
+       newTrack = randomUint(0, tracks.size() - 1);
+    }
+    else
+    {
+        newTrack = currentTrack + 1;
+        if(newTrack >= tracks.size())
+        {
+            newTrack = 0;
+        }
+    }
+
+    start(newTrack);
+}

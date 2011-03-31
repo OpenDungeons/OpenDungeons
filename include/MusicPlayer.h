@@ -1,3 +1,11 @@
+/*!
+* \file   MusicPlayer.h
+* \author oln, StefanP.MUC
+* \date   November 10 2010
+* \brief  Header of class "MusicPlayer" containing everything to play
+*         music tracks.
+*/
+
 #ifndef MUSICPLAYER_H
 #define MUSICPLAYER_H
 
@@ -18,9 +26,11 @@ class MusicPlayer: public Ogre::Singleton<MusicPlayer>
         virtual ~MusicPlayer();
         void load(const Ogre::String& path);
         void update();
-        void start();
-        void stop();
+        void start(const unsigned int& trackNumber);
         void next();
+
+        inline const bool& isRandomized() const{return randomized;}
+        inline void setRandomize(const bool& randomize){randomized = randomize;}
 
         static MusicPlayer& getSingleton();
         static MusicPlayer* getSingletonPtr();
@@ -28,7 +38,8 @@ class MusicPlayer: public Ogre::Singleton<MusicPlayer>
     private:
         std::vector<Ogre::SharedPtr<sf::Music> > tracks;
         bool loaded;
-        unsigned currentTrack;
+        bool randomized;
+        unsigned int currentTrack;
 };
 
 #endif /* MUSICPLAYER_H */
