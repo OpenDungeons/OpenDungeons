@@ -161,6 +161,7 @@ if(MINGW)
 endif()
 
 
+ADD_SUBDIRECTORY( include )
 ADD_SUBDIRECTORY( src )
 #configuration files
 

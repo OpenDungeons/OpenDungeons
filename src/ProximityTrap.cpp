@@ -1,5 +1,5 @@
-//~ #include "Globals.h"
-//~ #include "Functions.h"
+#include "Globals.h"
+#include "Functions.h"
 #include "ProximityTrap.h"
 //~ #include "MissileObject.h"
 
@@ -17,24 +17,24 @@ std::vector<AttackableObject*> ProximityTrap::aimEnemy()
 {
 	std::vector<Tile*> visibleTiles = gameMap.visibleTiles(coveredTiles[0], range);
 	std::vector<AttackableObject*> enemyObjects = gameMap.getVisibleForce(visibleTiles, getColor(), true);
-	if(enemyAttacked.size() <= 0)
+	if(enemyObjects.size() <= 0)
         return std::vector<AttackableObject*>();
     // Select an enemy to shoot at.
     AttackableObject* targetEnemy = enemyObjects[randomUint(0, enemyObjects.size()-1)];
     
-    std::vector<AttackableObject*> enemies = vector<AttackableObject*>();
-    enemies.append(targetEnemy);
+    std::vector<AttackableObject*> enemies = std::vector<AttackableObject*>();
+    enemies.push_back(targetEnemy);
     return enemies;
 }
 
 void ProximityTrap::damage(std::vector<AttackableObject*> enemyAttacked) 
 {
-    for(int i=0;i<enemyAttacked.size();++i) 
+    for(unsigned i=0;i<enemyAttacked.size();++i) 
     {
-		std::cout << "\nCannon firing. Doing damage to enemy: " << targetEnemy->getName();
+		std::cout << "\nCannon firing. Doing damage to enemy: " << enemyAttacked[i]->getName();
 
 		// Shoot the targeted enemy.
-		enemyAttacked[i]->takeDamage(randomDouble(minDamage, maxDamage), targetEnemy->getCoveredTiles()[0]);
+		enemyAttacked[i]->takeDamage(randomDouble(minDamage, maxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
     }
 }
 

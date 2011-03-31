@@ -1,5 +1,6 @@
 SET(
      SRC
+     ${SRC_H}
      ActiveObject.cpp
      AttackableObject.cpp
      AnimatedObject.cpp
@@ -27,6 +28,7 @@ SET(
      MissileObject.cpp
      MusicPlayer.cpp
      Player.cpp
+     ProximityTrap.cpp
      RadialVector2.cpp
      RenderRequest.cpp
      Room.cpp
