@@ -58,7 +58,7 @@ void MapEditor::createScene(void)
     //Initialise render manager
     RenderManager* renderManager = new RenderManager();
     renderManager->initialize(mSceneMgr, &gameMap);
-    
+
     // Read in the default game map
     std::string levelPath = mResourcePath + "levels_git/Test.level";
     {
@@ -236,7 +236,7 @@ void MapEditor::createScene(void)
     MusicPlayer* m = new MusicPlayer();
     m->load(mResourcePath + "music/");
 
-    
+
 }
 
 void MapEditor::createFrameListener(void)
@@ -248,7 +248,7 @@ void MapEditor::createFrameListener(void)
     mRoot->addFrameListener(mFrameListener);
     //Start music.
     //TODO - move this to when the map is actually loaded
-    MusicPlayer::getSingleton().start();
+    MusicPlayer::getSingleton().start(0);
 }
 
 void MapEditor::chooseSceneManager(void)

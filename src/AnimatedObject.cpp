@@ -1,12 +1,12 @@
-#include "AnimatedObject.h"
 #include "Globals.h"
 #include "Functions.h"
-#include "RenderManager.h"
 #include "ServerNotification.h"
 #include "Tile.h"
 #include "Socket.h"
 #include "RenderRequest.h"
+#include "RenderManager.h"
 
+#include "AnimatedObject.h"
 
 AnimatedObject::AnimatedObject()
 {
