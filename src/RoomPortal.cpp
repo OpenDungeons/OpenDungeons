@@ -66,7 +66,8 @@ bool RoomPortal::doUpkeep(Room *r)
     // the gameMap and the ones in all the players of that colors' hands'.
     double numCreatures = gameMap.getCreaturesByColor(getColor()).size();
     Seat *controllingSeat = gameMap.getSeatByColor(getColor());
-    for (unsigned int i = 0; i < gameMap.numPlayers(); ++i)
+    for(unsigned int i = 0, numPlayers = gameMap.numPlayers();
+    		i < numPlayers; ++i)
     {
         Player *tempPlayer = gameMap.getPlayer(i);
         if (tempPlayer->seat == controllingSeat)

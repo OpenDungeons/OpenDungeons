@@ -456,13 +456,10 @@ void RenderManager::rrCreateRoomObject ( const RenderRequest& renderRequest )
     Ogre::Entity* ent = sceneManager->createEntity(tempString,
                         curRoomObject->getMeshName() + ".mesh");
     colourizeEntity(ent, curRoomObject->getParentRoom()->color);
-    Ogre::SceneNode* node
-    = roomSceneNode->createChildSceneNode(tempString
-                                          + "_node");
-    node->setPosition(Ogre::Vector3(curRoomObject->x,
-                                    curRoomObject->y, 0.0));
+    Ogre::SceneNode* node = roomSceneNode->createChildSceneNode(tempString
+            + "_node");
+    node->setPosition(Ogre::Vector3(curRoomObject->x, curRoomObject->y, 0.0));
     node->roll(Ogre::Degree(curRoomObject->rotationAngle));
-
     node->attachObject(ent);
 }
 
@@ -492,9 +489,8 @@ void RenderManager::rrCreateTrap ( const RenderRequest& renderRequest )
     std::string tempString = tempSS.str();
     Ogre::Entity* ent = sceneManager->createEntity(tempString,
                         curTrap->getMeshName() + ".mesh");
-    Ogre::SceneNode* node
-    = roomSceneNode->createChildSceneNode(tempString
-                                          + "_node");
+    Ogre::SceneNode* node = roomSceneNode->createChildSceneNode(tempString
+                                                                + "_node");
     node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.0));
     node->attachObject(ent);
 }
@@ -505,8 +501,8 @@ void RenderManager::rrDestroyTrap ( const RenderRequest& renderRequest )
     Tile* curTile = static_cast<Tile*> ( renderRequest.p2 );
 
     std::stringstream tempSS;
-    tempSS << "Trap_" << curTrap->getName() + "_tile_"
-    << curTile->x << "_" << curTile->y;
+    tempSS << "Trap_" << curTrap->getName() + "_tile_" << curTile->x << "_"
+            << curTile->y;
     std::string tempString = tempSS.str();
     Ogre::Entity* ent = sceneManager->getEntity(tempString);
     Ogre::SceneNode* node = sceneManager->getSceneNode(tempString + "_node");
@@ -522,7 +518,7 @@ void RenderManager::rrCreateTreasuryIndicator ( const RenderRequest& renderReque
     std::stringstream tempSS;
 
     tempSS << curRoom->getName() << "_" << curTile->x << "_"
-    << curTile->y;
+            << curTile->y;
     Ogre::Entity* ent = sceneManager->createEntity(tempSS.str()
                         + "_treasury_indicator", renderRequest.str + ".mesh");
     Ogre::SceneNode* node = sceneManager->getSceneNode(tempSS.str() + "_node");
@@ -544,7 +540,7 @@ void RenderManager::rrDestroyTreasuryIndicator ( const RenderRequest& renderRequ
 
     std::stringstream tempSS;
     tempSS << curRoom->getName() << "_" << curTile->x << "_"
-    << curTile->y;
+            << curTile->y;
     if (sceneManager->hasEntity(tempSS.str() + "_treasury_indicator"))
     {
         Ogre::Entity* ent = sceneManager->getEntity(tempSS.str()
@@ -579,7 +575,6 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
     curCreature->sceneNode = node;
     node->setPosition(curCreature->getPosition());
     node->setScale(curCreature->scale);
-
     node->attachObject(ent);
 }
 
@@ -959,19 +954,15 @@ void RenderManager::rrSetObjectAnimationState ( const RenderRequest& renderReque
                                     curAnimatedObject->getOgreNamePrefix()
                                     + curAnimatedObject->getName());
 
-    if (objectEntity->hasSkeleton() && objectEntity->getSkeleton()->hasAnimation(
-                renderRequest.str))
+    if (objectEntity->hasSkeleton()
+            && objectEntity->getSkeleton()->hasAnimation(renderRequest.str))
     {
         // Disable the animation for all of the animations on this entity.
-        Ogre::AnimationStateSet *animationStateSet;
-        animationStateSet = objectEntity->getAllAnimationStates();
         Ogre::AnimationStateIterator animationStateIterator(
-            animationStateSet->getAnimationStateIterator());
-        while (animationStateIterator.hasMoreElements())
+        		objectEntity->getAllAnimationStates()->getAnimationStateIterator());
+        while(animationStateIterator.hasMoreElements())
         {
-            Ogre::AnimationState *tempState =
-                animationStateIterator.getNext();
-            tempState->setEnabled(false);
+        	animationStateIterator.getNext()->setEnabled(false);
         }
 
         // Enable the animation specified in the RenderRequest object.

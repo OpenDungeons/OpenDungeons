@@ -229,10 +229,9 @@ Tile* Room::getCentralTile()
 
     int centralX = (minX + maxX) / 2;
     int centralY = (minY + maxY) / 2;
-    //TODO: If this central tile is NULL we should move outward until we find a valid one.
-    Tile *centralTile = gameMap.getTile(centralX, centralY);
 
-    return centralTile;
+    //TODO: If this tile is NULL we should move outward until we find a valid one.
+    return gameMap.getTile(centralX, centralY);
 }
 
 void Room::createMeshes()
