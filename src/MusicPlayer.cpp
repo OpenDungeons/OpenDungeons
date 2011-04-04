@@ -11,11 +11,11 @@
 
 template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::ms_Singleton = 0;
 
-/** \brief Initialise variables.
+/** \brief Initialize variables.
  *
  */
 MusicPlayer::MusicPlayer() :
-    loaded(false), currentTrack(0), randomized(0)
+    loaded(false), currentTrack(0), randomized(false)
 {
 
 }
@@ -51,7 +51,7 @@ void MusicPlayer::update()
     }
 }
 
-/** \brief Initialise and load music files in the resource locations listed under "Music".
+/** \brief Initialize and load music files in the resource locations listed under "Music".
  *
  */
 void MusicPlayer::load(const Ogre::String& path)
@@ -120,15 +120,25 @@ void MusicPlayer::start(const unsigned int& trackNumber)
  */
 void MusicPlayer::next()
 {
-    int newTrack = 0;
+    int newTrack = currentTrack;
 
     if(randomized)
     {
-       newTrack = randomUint(0, tracks.size() - 1);
+        newTrack = randomUint(0, tracks.size() - 1);
+        /* TODO: After we have more than one track make sure that the same
+         * track isn't loaded twice
+         *
+         * Code for this:
+         * TODO: Don't forget to remove the line above then
+        while(newTrack == currentTrack)
+        {
+        	newTrack = randomUint(0, tracks.size() - 1);
+        }
+         */
     }
     else
     {
-        newTrack = currentTrack + 1;
+        ++newTrack;
         if(newTrack >= tracks.size())
         {
             newTrack = 0;
