@@ -548,6 +548,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
         sem_wait(&currentAnimatedObject->walkQueueLockSemaphore);
         if (currentAnimatedObject->walkQueue.size() > 0)
         {
+            if(currentAnimatedObject->getName().compare(0,15,"Missile_Object_")==0)
+                std::cout << "Moving " << currentAnimatedObject->getName() << std::endl;
             // If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
             if (currentAnimatedObject->walkQueueFirstEntryAdded)
             {
@@ -1287,7 +1289,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 else // if(mDragType == ExampleFrameListener::addNewRoom || mDragType == ExampleFrameListener::addNewTrap)
                 {
                     // If the tile already contains a room, prune it from the list of affected tiles.
-                    if (currentTile->getCoveringRoom() != NULL)
+                    if (!currentTile->isBuildableUpon())
                     {
                         itr = affectedTiles.erase(itr);
                         continue;
@@ -1381,29 +1383,33 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                     && affectedTiles.size() > 0)
             {
                 int goldRequired = 0;
+                if (serverSocket != NULL || clientSocket != NULL)
+                {
+                    goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
+                }
                 // Delete everything but the last tile in the affected tiles as this is close to where we let go of the mouse.
                 std::vector<Tile*> tempVector(affectedTiles);
-                tempVector.push_back(affectedTiles[affectedTiles.size() - 1]);
+                //~ tempVector.push_back(affectedTiles[affectedTiles.size() - 1]);
 
                 Seat *mySeat = NULL;
-                if (serverSocket != NULL || clientSocket != NULL
+                if ((serverSocket == NULL && clientSocket == NULL)
                         || (gameMap.getTotalGoldForColor(
                                 gameMap.me->seat->color) >= goldRequired))
                 {
                     goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
-                    gameMap.withdrawFromTreasuries(goldRequired,
-                            gameMap.me->seat->color);
+                    if (serverSocket != NULL || clientSocket != NULL)
+                        gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->seat->color);
                     mySeat = gameMap.me->seat;
+
+                    Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector,
+                            mySeat);
+                    //FIXME: This throws an OGRE runtime error when it is commented in.
+                    tempTrap->createMeshes();
+                    gameMap.addTrap(tempTrap);
+
+                    sfxHelper->playInterfaceSound(SoundEffectsHelper::BUILDTRAP,
+                            false);
                 }
-
-                Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector,
-                        mySeat);
-                //FIXME: This throws an OGRE runtime error when it is commented in.
-                //tempTrap->createMeshes();
-                gameMap.addTrap(tempTrap);
-
-                sfxHelper->playInterfaceSound(SoundEffectsHelper::BUILDTRAP,
-                        false);
             }
 
             // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.

@@ -15,6 +15,7 @@ set(
      CreatureClass.cpp
      Creature.cpp
      CreatureSound.cpp
+     DirectionalTrap.cpp
      ExampleFrameListener.cpp
      Field.cpp
      Functions.cpp
@@ -32,6 +33,7 @@ set(
      MissileObject.cpp
      MusicPlayer.cpp
      Player.cpp
+     ProximityTrap.cpp
      RadialVector2.cpp
      RenderManager.cpp
      RenderRequest.cpp
@@ -53,6 +55,7 @@ set(
      Tile.cpp
      TileCoordinateMap.cpp
      Trap.cpp
+     TrapBoulder.cpp
      TrapCannon.cpp
      Weapon.cpp
    )

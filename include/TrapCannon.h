@@ -1,29 +1,16 @@
 #ifndef TRAPCANNON_H
 #define TRAPCANNON_H
 
-#include <vector>
-#include <string>
+#include "ProximityTrap.h"
 
-#include "Trap.h"
-class Tile;
-
-class TrapCannon: public Trap
+class TrapCannon : public ProximityTrap
 {
     public:
         TrapCannon();
-
-        bool doUpkeep();
-        Tile* positionTile();
-
-        int x, y;
-
+        std::vector<AttackableObject*> aimEnemy();
+		void damage(std::vector<AttackableObject*>);
     private:
-        int reloadTime;
-        int reloadTimeCounter;
-        double range;
-        double minDamage, maxDamage;
         double cannonHeight;
-
 };
 
 #endif
