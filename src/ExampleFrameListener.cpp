@@ -548,6 +548,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
         sem_wait(&currentAnimatedObject->walkQueueLockSemaphore);
         if (currentAnimatedObject->walkQueue.size() > 0)
         {
+            if(currentAnimatedObject->getName().compare(0,15,"Missile_Object_")==0)
+                std::cout << "Moving " << currentAnimatedObject->getName() << std::endl;
             // If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
             if (currentAnimatedObject->walkQueueFirstEntryAdded)
             {

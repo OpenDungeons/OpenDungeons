@@ -8,6 +8,7 @@ class TrapCannon : public ProximityTrap
     public:
         TrapCannon();
         std::vector<AttackableObject*> aimEnemy();
+		void damage(std::vector<AttackableObject*>);
     private:
         double cannonHeight;
 };
