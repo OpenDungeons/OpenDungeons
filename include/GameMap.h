@@ -144,6 +144,9 @@ class GameMap
         void removeMissileObject(MissileObject *m);
         MissileObject* getMissileObject(int index);
         unsigned int numMissileObjects();
+        
+        int maxX() { return width - 1; }
+        int maxY() { return length - 1; }
 
         // AI Methods
         void doTurn();
@@ -243,6 +246,8 @@ class GameMap
         unsigned int numCallsTo_path;
 
         TileCoordinateMap *tileCoordinateMap;
+        
+        int length, width;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.

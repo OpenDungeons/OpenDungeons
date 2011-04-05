@@ -85,6 +85,8 @@ void GameMap::createNewMap(int xSize, int ySize)
         itr->second->setFullness(itr->second->getFullness());
         ++itr;
     }
+    length = ySize;
+    width = xSize;
 }
 
 /*! \brief Returns a pointer to the tile at location (x, y).
@@ -1443,7 +1445,7 @@ bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
     }
 }
 
-/*! \brief Returns a list of valid tiles along a stright line from (x1, y1) to (x2, y2), NOTE: in spite of
+/*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2), NOTE: in spite of
  * the name, you do not need to be able to see through the tiles returned by this method.
  *
  * This algorithm is from

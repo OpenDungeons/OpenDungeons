@@ -18,13 +18,13 @@ class Trap: public AttackableObject, public ActiveObject
     public:
         enum TrapType
         {
-            nullTrapType = 0, cannon
+            nullTrapType = 0, cannon, boulder
         };
 
         Trap();
         static Trap
         * createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-                Seat *nControllingSeat);
+                Seat *nControllingSeat, void* params = NULL);
         static Trap* createTrapFromStream(std::istream &is);
         //virtual void absorbTrap(Trap *t);
 
@@ -46,6 +46,9 @@ class Trap: public AttackableObject, public ActiveObject
         // Functions which can be overridden by child classes.
         virtual bool doUpkeep();
         virtual bool doUpkeep(Trap *t);
+        
+        virtual std::vector<AttackableObject*> aimEnemy();
+        virtual void damage(std::vector<AttackableObject*>);
 
         virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
         virtual void removeCoveredTile(Tile* t);
@@ -69,6 +72,9 @@ class Trap: public AttackableObject, public ActiveObject
         AttackableObject::AttackableObjectType getAttackableObjectType() const;
 
     protected:
+        int reloadTime;
+        int reloadTimeCounter;
+        double minDamage, maxDamage;
         const static double defaultTileHP;// = 10.0;
 
         std::string name, meshName;
@@ -78,8 +84,6 @@ class Trap: public AttackableObject, public ActiveObject
         bool meshExists;
         double exp;
 };
-
-#include "TrapCannon.h"
 
 #endif
 
