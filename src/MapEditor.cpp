@@ -180,11 +180,10 @@ void MapEditor::createScene(void)
 
         CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
 
-        CEGUI::Window *window;
-
         // Set the active tabs on the tab selector across the bottom of the screen so
         // the user doesn't have to click into them first to see the contents.
-        window = wmgr->getWindow((CEGUI::utf8*) "Root/MainTabControl");
+        CEGUI::Window *window = wmgr->getWindow(
+                (CEGUI::utf8*) "Root/MainTabControl");
         ((CEGUI::TabControl*) window)->setSelectedTab(0);
 
         // Subscribe the various button handlers to the CEGUI button pressed events.

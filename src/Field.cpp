@@ -12,10 +12,8 @@ Field::Field(const std::string& nName)
 {
     static int uniqueNumber = 0;
 
-    if (nName.compare("autoname") == 0)
-        name = "field_" + Ogre::StringConverter::toString(++uniqueNumber);
-    else
-        name = nName;
+    name = (nName.compare("autoname") == 0)
+            ? "field_" + Ogre::StringConverter::toString(++uniqueNumber) : nName;
 
     hasMeshes = false;
 }
@@ -57,8 +55,8 @@ void Field::set(int x, int y, double f)
  */
 void Field::setAll(double f)
 {
-    FieldType::iterator itr;
-    for (itr = theField.begin(); itr != theField.end(); ++itr)
+    for (FieldType::iterator itr = theField.begin(), end = theField.end();
+            itr != end; ++itr)
     {
         (*itr).second = f;
     }
@@ -71,13 +69,13 @@ void Field::setAll(double f)
  */
 void Field::addField(Field *f, double scale = 1.0)
 {
-    FieldType::iterator itr, thisOne;
-    for (itr = f->theField.begin(); itr != f->theField.end(); ++itr)
+    FieldType::iterator thisOne;
+    for (FieldType::iterator itr = f->theField.begin(), end = f->theField.end();
+            itr != end; ++itr)
     {
         double fValue = (*itr).second;
-        int fX = (*itr).first.first;
-        int fY = (*itr).first.second;
-        thisOne = theField.find(LocationType(fX, fY));
+        thisOne = theField.find(
+                LocationType((*itr).first.first, (*itr).first.second));
         if (thisOne != theField.end())
         {
             (*thisOne).second += scale * fValue;

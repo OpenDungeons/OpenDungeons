@@ -489,10 +489,8 @@ bool Tile::permitsVision()
 {
     //TODO: This call to getTilePassability() is far too much work, when the rules for vision are more well established this function should be replaced with specialized code which avoids this call.
     TileClearType clearType = getTilePassability();
-    if (clearType == walkableTile || clearType == flyableTile)
-        return true;
-    else
-        return false;
+    return (clearType == walkableTile || clearType == flyableTile)
+            ? true : false;
 }
 
 Room* Tile::getCoveringRoom()
@@ -517,10 +515,8 @@ void Tile::setCoveringRoom(Room *r)
  */
 bool Tile::isDiggable()
 {
-    if ((type == dirt || type == gold || type == claimed) && getFullness() > 1)
-        return true;
-
-    return false;
+    return ((type == dirt || type == gold || type == claimed) && getFullness() > 1)
+                ? true : false;
 }
 
 bool Tile::isClaimable()
@@ -620,11 +616,8 @@ const char* Tile::tileTypeToString(TileType t)
  */
 Tile::TileType Tile::nextTileType(TileType t)
 {
-    int currentType = (int) t;
-    ++currentType;
-    currentType %= (int) (nullTileType);
-
-    return (TileType) currentType;
+    return static_cast<TileType>((static_cast<int>(t) + 1)
+            % static_cast<int>(nullTileType));
 }
 
 /*! \brief This is a helper function to scroll through the list of available fullness levels.
@@ -758,15 +751,7 @@ void Tile::setSelected(bool s)
         }
 
         selected = s;
-
-        if (selected)
-        {
-            ent->setVisible(true);
-        }
-        else
-        {
-            ent->setVisible(false);
-        }
+        ent->setVisible(selected);
     }
 }
 
@@ -783,12 +768,10 @@ bool Tile::getSelected()
  */
 void Tile::setMarkedForDigging(bool s, Player *p)
 {
-    // If we are trying to mark a tile that is not dirt or gold, ignore the request.
-    if (s && !isDiggable())
-        return;
-
-    // If we are trying to mark a tile that is already dug out, ignore the request.
-    if (s && (getFullness() < 1))
+    /* If we are trying to mark a tile that is not dirt or gold
+     * or is already dug out, ignore the request.
+     */
+    if (s && (!isDiggable() || (getFullness() < 1)))
         return;
 
     Ogre::Entity *ent;
@@ -850,7 +833,7 @@ void Tile::setMarkedForDiggingForAllSeats(bool s)
 {
     setMarkedForDigging(s, gameMap.me);
 
-    for (unsigned int i = 0; i < gameMap.numPlayers(); ++i)
+    for (unsigned int i = 0, num = gameMap.numPlayers(); i < num; ++i)
         setMarkedForDigging(s, gameMap.getPlayer(i));
 }
 
@@ -859,10 +842,8 @@ void Tile::setMarkedForDiggingForAllSeats(bool s)
  */
 bool Tile::getMarkedForDigging(Player *p)
 {
-    bool isMarkedForDigging = false;
-
     // Loop over any players who have marked this tile and see if 'p' is one of them
-    for (unsigned int i = 0; i < playersMarkingTile.size(); ++i)
+    for (unsigned int i = 0, size = playersMarkingTile.size(); i < size; ++i)
     {
         if (playersMarkingTile[i] == p)
         {
@@ -870,7 +851,7 @@ bool Tile::getMarkedForDigging(Player *p)
         }
     }
 
-    return isMarkedForDigging;
+    return false;
 }
 
 /*! \brief This function places a message in the render queue to unload the mesh and delete the tile structure.

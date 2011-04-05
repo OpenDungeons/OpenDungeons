@@ -1,12 +1,10 @@
 #include <cmath>
 #include <algorithm>
 
-
 #include <CEGUIWindow.h>
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>
 
-#include "Creature.h"
 #include "Defines.h"
 #include "Globals.h"
 #include "Functions.h"
@@ -21,6 +19,8 @@
 #include "Player.h"
 #include "Seat.h"
 #include "RenderManager.h"
+
+#include "Creature.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
@@ -131,9 +131,7 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
 
     os << c->color << "\t";
     os << c->weaponL << "\t" << c->weaponR << "\t";
-
     os << c->getHP(NULL) << "\t";
-
     os << c->getMana();
 
     return os;
@@ -419,7 +417,7 @@ void Creature::doTurn()
     awakeness -= 0.15;
 
     // Check to see if we have earned enough experience to level up.
-    while (exp >= 5 * level + 5 * powl(level / 3.0, 2))
+    while (exp >= 5 * (level + powl(level / 3.0, 2)))
         doLevelUp();
 
     // If we are not standing somewhere on the map, do nothing.
@@ -446,7 +444,7 @@ void Creature::doTurn()
         // Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
         bool alreadyFighting = false;
         sem_wait(&actionQueueLockSemaphore);
-        for (unsigned int i = 0; i < actionQueue.size(); ++i)
+        for (unsigned int i = 0, size = actionQueue.size(); i < size; ++i)
         {
             if (actionQueue[i].type == CreatureAction::attackObject
                     || actionQueue[i].type == CreatureAction::maneuver)
@@ -1802,8 +1800,9 @@ void Creature::doLevelUp()
 void Creature::updateVisibleTiles()
 {
     //double effectiveRadius = min(5.0, sightRadius) + sightRadius*powl(randomDouble(0.0, 1.0), 3.0);
-    double effectiveRadius = sightRadius;
-    visibleTiles = gameMap.visibleTiles(positionTile(), effectiveRadius);
+    //double effectiveRadius = sightRadius;
+    //visibleTiles = gameMap.visibleTiles(positionTile(), effectiveRadius);
+    visibleTiles = gameMap.visibleTiles(positionTile(), sightRadius);
 }
 
 /*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
@@ -1919,7 +1918,7 @@ std::vector<Tile*> Creature::getVisibleMarkedTiles()
     Player *tempPlayer = getControllingPlayer();
 
     // Loop over all the visible tiles.
-    for (unsigned int i = 0; i < visibleTiles.size(); ++i)
+    for (unsigned int i = 0, size = visibleTiles.size(); i < size; ++i)
     {
         // Check to see if the tile is marked for digging.
         if (tempPlayer != NULL && visibleTiles[i]->getMarkedForDigging(
@@ -2213,7 +2212,8 @@ Player* Creature::getControllingPlayer()
     }
 
     // Try to find and return a player with color equal to this creature's
-    for (unsigned int i = 0; i < gameMap.numPlayers(); ++i)
+    for (unsigned int i = 0, numPlayers = gameMap.numPlayers();
+            i < numPlayers; ++i)
     {
         tempPlayer = gameMap.getPlayer(i);
         if (tempPlayer->seat->color == color)

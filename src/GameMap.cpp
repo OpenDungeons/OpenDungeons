@@ -79,11 +79,10 @@ void GameMap::createNewMap(int xSize, int ySize)
     // Loop over all the tiles and force them to examine their
     // neighbors.  This allows them to switch to a mesh with fewer
     // polygons if some are hidden by the neighbors.
-    TileMap_t::iterator itr = gameMap.firstTile();
-    while (itr != gameMap.lastTile())
+    for(TileMap_t::iterator itr = gameMap.firstTile(), last = gameMap.lastTile();
+            itr != last; ++itr)
     {
         itr->second->setFullness(itr->second->getFullness());
-        ++itr;
     }
 }
 
@@ -99,10 +98,7 @@ Tile* GameMap::getTile(int x, int y)
 
     sem_wait(&tilesLockSemaphore);
     TileMap_t::iterator itr = tiles.find(location);
-    if (itr != tiles.end())
-        returnValue = itr->second;
-    else
-        returnValue = NULL;
+    returnValue = (itr != tiles.end()) ? itr->second : NULL;
     sem_post(&tilesLockSemaphore);
 
     return returnValue;
@@ -133,11 +129,10 @@ void GameMap::clearAll()
 void GameMap::clearTiles()
 {
     sem_wait(&tilesLockSemaphore);
-    TileMap_t::iterator itr = tiles.begin();
-    while (itr != tiles.end())
+    for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
+            itr != end; ++itr)
     {
         itr->second->deleteYourself();
-        ++itr;
     }
 
     tiles.clear();
@@ -886,10 +881,10 @@ unsigned long int GameMap::doMiscUpkeep()
     // Count how many dungeon temples each color controls.
     std::vector<Room*> dungeonTemples = getRoomsByType(Room::dungeonTemple);
     std::map<int, int> dungeonTempleColorCounts;
-    for (unsigned int i = 0; i < dungeonTemples.size(); ++i)
+    for(unsigned int i = 0, size = dungeonTemples.size();
+            i < size; ++i)
     {
-        int color = dungeonTemples[i]->color;
-        ++dungeonTempleColorCounts[color];
+        ++dungeonTempleColorCounts[dungeonTemples[i]->color];
     }
 
     // Compute how many kobolds each color should have as determined by the number of dungeon temples they control.
@@ -1039,10 +1034,9 @@ unsigned long int GameMap::doCreatureTurns()
         int startCreature = i * (arraySize / numThreads);
         int endCreature;
 
-        if (i + 1 == numThreads)
-            endCreature = arraySize - 1;
-        else
-            endCreature = (i + 1) * (arraySize / numThreads) - 1;
+        endCreature = (i + 1 == numThreads)
+                ? arraySize - 1
+                : (i + 1) * (arraySize / numThreads) - 1;
 
         threadParams[i].numCreatures = endCreature - startCreature + 1;
         threadParams[i].creatures = &creatureArray[startCreature];
@@ -1060,8 +1054,7 @@ unsigned long int GameMap::doCreatureTurns()
     delete[] threadParams;
     delete[] threads;
 
-    timeTaken = stopwatch.getMicroseconds();
-    return timeTaken;
+    return stopwatch.getMicroseconds();
 }
 
 void *GameMap::creatureDoTurnHelperThread(void *p)
@@ -1085,10 +1078,9 @@ void *GameMap::creatureDoTurnHelperThread(void *p)
 bool GameMap::pathExists(int x1, int y1, int x2, int y2,
         Tile::TileClearType passability)
 {
-    if (passability == Tile::walkableTile)
-        return walkablePathExists(x1, y1, x2, y2);
-    else
-        return path(x1, y1, x2, y2, passability).size() >= 2;
+    return (passability == Tile::walkableTile)
+            ? walkablePathExists(x1, y1, x2, y2)
+            : path(x1, y1, x2, y2, passability).size() >= 2;
 }
 
 /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
@@ -1652,8 +1644,8 @@ std::vector<AttackableObject*> GameMap::getVisibleForce(
     std::vector<AttackableObject*> returnList;
 
     // Loop over the visible tiles
-    std::vector<Tile*>::iterator itr;
-    for (itr = visibleTiles.begin(); itr != visibleTiles.end(); ++itr)
+    for (std::vector<Tile*>::iterator itr = visibleTiles.begin(), end = visibleTiles.end();
+            itr != end; ++itr)
     {
         //TODO: Implement Tile::getAttackableObject() to let you list all attackableObjects in the tile in a single list.
         // Loop over the creatures in the given tile
@@ -2216,11 +2208,11 @@ void GameMap::addGoalForAllSeats(Goal *g)
     goalsForAllSeats.push_back(g);
 
     // Add the goal to each of the empty seats currently in the game.
-    for (unsigned int i = 0; i < numEmptySeats(); ++i)
+    for (unsigned int i = 0, num = numEmptySeats(); i < num; ++i)
         emptySeats[i]->addGoal(g);
 
     // Add the goal to each of the filled seats currently in the game.
-    for (unsigned int i = 0; i < numFilledSeats(); ++i)
+    for (unsigned int i = 0, num = numFilledSeats(); i < num; ++i)
         filledSeats[i]->addGoal(g);
 }
 
@@ -2326,9 +2318,7 @@ double GameMap::crowDistance(Tile *t1, Tile *t2)
 
 double GameMap::crowDistance(int x1, int x2, int y1, int y2)
 {
-    int dx = x2 - x1;
-    int dy = y2 - y1;
-    return sqrt(static_cast<double> (dx * dx + dy * dy));
+    return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 }
 
 /** \brief Returns an auto-incremented number for use in the flood fill algorithm used to determine walkability.
@@ -2336,8 +2326,7 @@ double GameMap::crowDistance(int x1, int x2, int y1, int y2)
  */
 int GameMap::uniqueFloodFillColor()
 {
-    ++nextUniqueFloodFillColor;
-    return nextUniqueFloodFillColor;
+    return ++nextUniqueFloodFillColor;
 }
 
 /** \brief Starts at the tile at the given coordinates and paints outward over all the tiles whose passability matches the passability of the seed tile.
@@ -2398,12 +2387,11 @@ void GameMap::enableFloodFill()
     // Carry out a flood fill of the whole level to make sure everything is good.
     // Start by setting the flood fill color for every tile on the map to -1.
     sem_wait(&tilesLockSemaphore);
-    std::map<std::pair<int, int> , Tile*>::iterator currentTile = tiles.begin();
-    while (currentTile != tiles.end())
+    for(std::map<std::pair<int, int>, Tile*>::iterator currentTile = tiles.begin(),
+            end = tiles.end(); currentTile != end; ++currentTile)
     {
         tempTile = currentTile->second;
         tempTile->floodFillColor = -1;
-        ++currentTile;
     }
     sem_post(&tilesLockSemaphore);
 
@@ -2412,16 +2400,14 @@ void GameMap::enableFloodFill()
     //TODO:  The looping construct here has a potential race condition in that the endTile could change between the time when it is initialized and the end of this loop.  If this happens the loop could continue infinitely.
     floodFillEnabled = true;
     sem_wait(&tilesLockSemaphore);
-    currentTile = tiles.begin();
     std::map<std::pair<int, int> , Tile*>::iterator endTile = tiles.end();
     sem_post(&tilesLockSemaphore);
-    while (currentTile != endTile)
+    for(std::map<std::pair<int, int>, Tile*>::iterator currentTile = tiles.begin();
+                currentTile != endTile; ++currentTile)
     {
         tempTile = currentTile->second;
         if (tempTile->floodFillColor == -1)
             doFloodFill(tempTile->x, tempTile->y);
-
-        ++currentTile;
     }
 }
 

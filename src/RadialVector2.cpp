@@ -46,14 +46,9 @@ bool RadialVector2::directionIsBetween(RadialVector2 r1, RadialVector2 r2) const
     double tempTheta1 = r1.theta + 2.0 * M_PI;
     double tempTheta2 = r2.theta + 2.0 * M_PI;
 
-    if (tempTheta1 < tempTheta2)
-    {
-        return (tempTheta1 <= tempTheta && tempTheta <= tempTheta2);
-    }
-    else
-    {
-        return (tempTheta2 <= tempTheta && tempTheta <= tempTheta1);
-    }
+    return (tempTheta1 < tempTheta2)
+            ? (tempTheta1 <= tempTheta && tempTheta <= tempTheta2)
+            : (tempTheta2 <= tempTheta && tempTheta <= tempTheta1);
 }
 
 /*! \brief Make sure that theta is always within 0 and 2 Pi */

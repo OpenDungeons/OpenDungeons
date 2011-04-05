@@ -216,7 +216,7 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile << "\n# Goals\n" << gameMap.numGoalsForAllSeats()
             << "  # The number of goals to load.\n";
     levelFile << "# " << Goal::getFormat() << "\n";
-    for (unsigned int i = 0; i < gameMap.numGoalsForAllSeats(); ++i)
+    for (unsigned int i = 0, num = gameMap.numGoalsForAllSeats(); i < num; ++i)
     {
         levelFile << gameMap.getGoalForAllSeats(i);
     }
@@ -244,7 +244,7 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile << "\n# Rooms\n" << gameMap.numRooms()
             << "  # The number of rooms to load.\n";
     levelFile << "# " << Room::getFormat() << "\n";
-    for (unsigned int i = 0; i < gameMap.numRooms(); ++i)
+    for (unsigned int i = 0, num = gameMap.numRooms(); i < num; ++i)
     {
         levelFile << gameMap.getRoom(i) << endl;
     }
@@ -262,7 +262,7 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile << "\n# Lights\n" << gameMap.numMapLights()
             << "  # The number of lights to load.\n";
     levelFile << "# " << MapLight::getFormat() << "\n";
-    for (unsigned int i = 0; i < gameMap.numMapLights(); ++i)
+    for (unsigned int i = 0, num = gameMap.numMapLights(); i < num; ++i)
     {
         levelFile << gameMap.getMapLight(i) << endl;
     }
@@ -280,7 +280,7 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile << "\n# Creatures\n" << gameMap.numCreatures()
             << "  # The number of creatures to load.\n";
     levelFile << "# " << Creature::getFormat() << "\n";
-    for (unsigned int i = 0; i < gameMap.numCreatures(); ++i)
+    for (unsigned int i = 0, num = gameMap.numCreatures(); i < num; ++i)
     {
         //NOTE: This code is duplicated in the client side method
         //"addclass" defined in src/Client.cpp and readGameMapFromFile.

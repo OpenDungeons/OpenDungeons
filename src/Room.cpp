@@ -1,8 +1,6 @@
 #include <sstream>
 
 #include "Globals.h"
-//#include "Functions.h"
-#include "Room.h"
 #include "Player.h"
 #include "Tile.h"
 #include "Creature.h"
@@ -10,6 +8,8 @@
 #include "GameMap.h"
 #include "RoomObject.h"
 #include "RenderManager.h"
+
+#include "Room.h"
 
 const double Room::defaultTileHP = 10.0;
 
@@ -206,13 +206,15 @@ int Room::numOpenCreatureSlots()
 Tile* Room::getCentralTile()
 {
     if (coveredTiles.size() == 0)
+    {
         return NULL;
+    }
 
     int minX, maxX, minY, maxY;
     minX = maxX = coveredTiles[0]->x;
     minY = maxY = coveredTiles[0]->y;
 
-    for (unsigned int i = 0; i < coveredTiles.size(); ++i)
+    for(unsigned int i = 0, size = coveredTiles.size(); i < size; ++i)
     {
         int tempX = coveredTiles[i]->x;
         int tempY = coveredTiles[i]->y;
@@ -227,11 +229,8 @@ Tile* Room::getCentralTile()
             maxY = tempY;
     }
 
-    int centralX = (minX + maxX) / 2;
-    int centralY = (minY + maxY) / 2;
-
     //TODO: If this tile is NULL we should move outward until we find a valid one.
-    return gameMap.getTile(centralX, centralY);
+    return gameMap.getTile((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
 void Room::createMeshes()

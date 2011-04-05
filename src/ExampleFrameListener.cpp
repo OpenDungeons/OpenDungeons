@@ -1921,15 +1921,14 @@ void ExampleFrameListener::executePromptCommand(string command,
 
         if (clientSocket == NULL)
         {
-            string tempString;
-            size_t found;
-            found = arguments.find(".level");
-
-            // If the starting point of the string found is equal to the size of the level name minus the extension (.level)
-            if (found == (arguments.size() - 6))
-                tempString = "levels/" + arguments;
-            else
-                tempString = "levels/" + arguments + ".level";
+            /* If the starting point of the string found is equal to the size
+             * of the level name minus the extension (.level)
+             */
+            string tempString = "levels/" + arguments;
+            if(arguments.find(".level") != (arguments.size() - 6))
+            {
+                tempString += ".level";
+            }
 
             if (serverSocket != NULL)
             {
@@ -1940,6 +1939,9 @@ void ExampleFrameListener::executePromptCommand(string command,
             {
                 if (readGameMapFromFile(tempString))
                 {
+                    /* FIXME: tempSS already exists a scope higher,
+                     * is it correct that it is recreated in this scope?
+                     */
                     std::stringstream tempSS("");
                     tempSS << "Successfully loaded file:  " << tempString
                             << "\nNum tiles:  " << gameMap.numTiles()
@@ -2164,8 +2166,8 @@ void ExampleFrameListener::executePromptCommand(string command,
     }
 
     // Set the turnsPerSecond variable to control the AI speed
-    else if (command.compare("turnspersecond") == 0 || command.compare("tps")
-            == 0)
+    else if(command.compare("turnspersecond") == 0
+            || command.compare("tps") == 0)
     {
         if (arguments.size() > 0)
         {

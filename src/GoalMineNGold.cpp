@@ -16,10 +16,7 @@ GoalMineNGold::GoalMineNGold(const std::string& nName,
 
 bool GoalMineNGold::isMet(Seat *s)
 {
-    if (s->goldMined >= goldToMine)
-        return true;
-    else
-        return false;
+    return (s->goldMined >= goldToMine) ? true : false;
 }
 
 std::string GoalMineNGold::getDescription()

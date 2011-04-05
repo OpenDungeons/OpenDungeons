@@ -112,8 +112,7 @@ bool AnimatedObject::setWalkPath(std::list<Tile*> path,
         while (itr != path.end())
         {
             addDestination((*itr)->x, (*itr)->y);
-            ++itr
-            ;
+            ++itr;
         }
 
         return true;
