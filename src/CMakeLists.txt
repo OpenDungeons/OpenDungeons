@@ -7,7 +7,6 @@ set(
      ActiveObject.cpp
      AttackableObject.cpp
      AnimatedObject.cpp
-     ButtonHandlers.cpp
      ChatMessage.cpp
      Client.cpp
      ClientNotification.cpp
@@ -26,8 +25,8 @@ set(
      GoalMineNGold.cpp
      GoalProtectCreature.cpp
      GoalProtectDungeonTemple.cpp
+     Gui.cpp
      main.cpp
-     MainMenu.cpp
      MapEditor.cpp
      MapLight.cpp
      MissileObject.cpp

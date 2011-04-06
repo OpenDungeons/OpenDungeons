@@ -119,8 +119,8 @@ void ExampleFrameListener::updateStats(void)
  * up the OGRE system.
  */
 ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
-        SceneManager *sceneManager, CEGUI::Renderer *renderer,
-        bool bufferedKeys, bool bufferedMouse, bool bufferedJoy) :
+        SceneManager *sceneManager, bool bufferedKeys, bool bufferedMouse,
+        bool bufferedJoy) :
     mCamera(cam), mWindow(win)
 {
     chatMaxMessages = 10;
@@ -139,7 +139,6 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
     gameMap.me->nick = "defaultNickName";
     mDragType = ExampleFrameListener::nullDragType;
     frameDelay = 0.0;
-    mGUIRenderer = renderer;
     zChange = 0.0;
     mCurrentTileRadius = 1;
     mBrushMode = false;
