@@ -37,15 +37,6 @@ Gui::Gui()
     CEGUI::SchemeManager::getSingleton().create("OpenDungeonsSkin.scheme");
     CEGUI::System::getSingleton().setDefaultMouseCursor("OpenDungeons", "MouseArrow");
     CEGUI::System::getSingleton().setDefaultTooltip("OD/Tooltip");
-
-    /*TODO: move this to an extra function and make switch over an enum to
-     * decide what menu to display
-     */
-    CEGUI::Window* sheet
-            = CEGUI::WindowManager::getSingleton().loadWindowLayout(
-                        "OpenDungeons.layout");
-    assignEventHandlers();
-    CEGUI::System::getSingleton().setGUISheet(sheet);
 }
 
 Gui::~Gui()
@@ -53,40 +44,83 @@ Gui::~Gui()
     CEGUI::OgreRenderer::destroySystem();
 }
 
-/* \brief assigns all event handler to the GUI elements
+/* \brief loads the soecified gui sheet
  *
  */
-void Gui::assignEventHandlers()
+void Gui::loadGuiSheet(const guiSheet& newSheet)
+{
+    CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
+    CEGUI::Window* sheet;
+
+    switch(newSheet)
+    {
+        case ingameMenu:
+            sheet = wmgr->loadWindowLayout("OpenDungeons.layout");
+            break;
+
+        case mainMenu:
+            sheet = wmgr->loadWindowLayout("OpenDungeonsMainMenu.layout");
+            break;
+
+        case optionsMenu:
+            sheet = wmgr->loadWindowLayout("OpenDungeonsOptionsMenu.layout");
+            break;
+
+        default:
+            sheet = wmgr->loadWindowLayout("OpenDungeons.layout");
+            break;
+    }
+
+    CEGUI::System::getSingletonPtr()->setGUISheet(sheet);
+    assignEventHandlers(newSheet);
+}
+
+/* \brief Assigns all event handler to the GUI elements
+ *
+ */
+void Gui::assignEventHandlers(const guiSheet& sheet)
 {
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
 
-    wmgr->getWindow(BUTTON_QUARTERS)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&quartersButtonPressed));
+    switch(sheet)
+    {
+        default:
+        case ingameMenu:
+            wmgr->getWindow(BUTTON_QUARTERS)->subscribeEvent(
+                    CEGUI::PushButton::EventClicked,
+                    CEGUI::Event::Subscriber(&quartersButtonPressed));
 
-    wmgr->getWindow(BUTTON_TREASURY)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&treasuryButtonPressed));
+            wmgr->getWindow(BUTTON_TREASURY)->subscribeEvent(
+                    CEGUI::PushButton::EventClicked,
+                    CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-    wmgr->getWindow(BUTTON_FORGE)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&forgeButtonPressed));
+            wmgr->getWindow(BUTTON_FORGE)->subscribeEvent(
+                    CEGUI::PushButton::EventClicked,
+                    CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-    wmgr->getWindow(BUTTON_DOJO)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&dojoButtonPressed));
+            wmgr->getWindow(BUTTON_DOJO)->subscribeEvent(
+                    CEGUI::PushButton::EventClicked,
+                    CEGUI::Event::Subscriber(&dojoButtonPressed));
 
-    wmgr->getWindow(BUTTON_CANNON)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&cannonButtonPressed));
+            wmgr->getWindow(BUTTON_CANNON)->subscribeEvent(
+                    CEGUI::PushButton::EventClicked,
+                    CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-    wmgr->getWindow(BUTTON_HOST)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&serverButtonPressed));
+            wmgr->getWindow(BUTTON_HOST)->subscribeEvent(
+                    CEGUI::PushButton::EventClicked,
+                    CEGUI::Event::Subscriber(&serverButtonPressed));
 
-    wmgr->getWindow(BUTTON_QUIT)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&quitButtonPressed));
+            wmgr->getWindow(BUTTON_QUIT)->subscribeEvent(
+                    CEGUI::PushButton::EventClicked,
+                    CEGUI::Event::Subscriber(&quitButtonPressed));
+            break; //ingameMenu, default
+
+        case mainMenu:
+            break; //mainMenu
+
+        case optionsMenu:
+            break; //optionsMenu
+    }
 }
 
 bool Gui::quitButtonPressed(const CEGUI::EventArgs& e)
@@ -165,9 +199,6 @@ bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
 {
     return true;
 }
-
-//Path to the GUI files
-const std::string Gui::GUI_PATH = "../gui/";
 
 /*
  * These constants are used to access the GUI element

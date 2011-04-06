@@ -21,18 +21,24 @@
 class Gui : public Ogre::Singleton<Gui>
 {
     public:
+        enum guiSheet
+        {
+            mainMenu,
+            optionsMenu,
+            ingameMenu
+        };
+
         Gui();
         static Gui& getSingleton();
         static Gui* getSingletonPtr();
 
-        void passTranslationToGui();
+        void loadGuiSheet(const guiSheet& newSheet);
 
     private:
         Gui(const Gui&);
         ~Gui();
 
-        //function for initializing the gui
-        void assignEventHandlers();
+        void assignEventHandlers(const guiSheet& sheet);
 
         //Button handlers game UI
         static bool quitButtonPressed(const CEGUI::EventArgs& e);
@@ -48,8 +54,6 @@ class Gui : public Ogre::Singleton<Gui>
         static bool mMLoadButtonPressed(const CEGUI::EventArgs& e);
         static bool mMOptionsButtonPressed(const CEGUI::EventArgs& e);
         static bool mMQuitButtonPressed(const CEGUI::EventArgs& e);
-
-        static const std::string GUI_PATH;
 
         //Access names of the GUI elements
         static const std::string ROOT;

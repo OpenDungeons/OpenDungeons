@@ -107,6 +107,8 @@ void MapEditor::createScene(void)
     /* TODO: load main menu. Where? */
 
     new Gui();
+    Gui::getSingletonPtr()->loadGuiSheet(Gui::ingameMenu);
+
     new TextRenderer();
 
     // Display some text
