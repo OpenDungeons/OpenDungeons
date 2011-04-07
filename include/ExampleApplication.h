@@ -210,7 +210,7 @@ class ExampleApplication
         virtual void createFrameListener(void)
         {
             mFrameListener = new ExampleFrameListener(mWindow, mCamera, NULL,
-                    NULL, false, false, false);
+                    false, false, false);
             mFrameListener->showDebugOverlay(true);
             mRoot->addFrameListener(mFrameListener);
         }

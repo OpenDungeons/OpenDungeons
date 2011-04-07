@@ -22,31 +22,27 @@ bool GoalProtectCreature::isMet(Seat *s)
     Creature *tempCreature = gameMap.getCreature(creatureName);
     if (tempCreature != NULL)
     {
-        if (tempCreature->getHP(NULL) > 0.0)
-            return true;
-        else
-            return false;
+        return (tempCreature->getHP(NULL) > 0.0) ? true : false;
     }
     else
     {
         // The creature is not on the gameMap but it could be in one of the players hands.
-        for (unsigned i = 0; i < gameMap.numPlayers(); ++i)
+        for (unsigned int i = 0, numP = gameMap.numPlayers(); i < numP; ++i)
         {
             tempPlayer = gameMap.getPlayer(i);
-            for (unsigned int j = 0; j < tempPlayer->numCreaturesInHand(); ++j)
+            for (unsigned int j = 0, numC = tempPlayer->numCreaturesInHand();
+                    j < numC; ++j)
             {
-                Creature *tempCreature = tempPlayer->getCreatureInHand(j);
-                if (tempCreature->name == creatureName)
+                if (tempPlayer->getCreatureInHand(j)->getName() == creatureName)
                     return true;
             }
         }
 
         // The creature could be in my hand.
         tempPlayer = gameMap.me;
-        for (unsigned int j = 0; j < tempPlayer->numCreaturesInHand(); ++j)
+        for (unsigned int j = 0, numC = tempPlayer->numCreaturesInHand(); j < numC; ++j)
         {
-            Creature *tempCreature = tempPlayer->getCreatureInHand(j);
-            if (tempCreature->name == creatureName)
+            if (tempPlayer->getCreatureInHand(j)->getName() == creatureName)
                 return true;
         }
 
@@ -76,6 +72,6 @@ std::string GoalProtectCreature::getFailedMessage()
 
 std::string GoalProtectCreature::getDescription()
 {
-    return std::string("Protect the creature named ") + creatureName + ".";
+    return "Protect the creature named " + creatureName + ".";
 }
 

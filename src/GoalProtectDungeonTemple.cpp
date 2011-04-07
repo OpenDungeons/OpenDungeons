@@ -15,12 +15,8 @@ GoalProtectDungeonTemple::GoalProtectDungeonTemple(const std::string& nName,
 
 bool GoalProtectDungeonTemple::isMet(Seat *s)
 {
-    std::vector<Room*> aliveDungeonTemples = gameMap.getRoomsByTypeAndColor(
-            Room::dungeonTemple, s->color);
-    if (aliveDungeonTemples.size() > 0)
-        return true;
-    else
-        return false;
+    return (gameMap.getRoomsByTypeAndColor(Room::dungeonTemple, s->color).size() > 0)
+            ? true : false;
 }
 
 bool GoalProtectDungeonTemple::isUnmet(Seat *s)

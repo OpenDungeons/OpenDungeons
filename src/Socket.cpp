@@ -44,20 +44,11 @@ bool Socket::create()
 
 bool Socket::bind(const int port)
 {
-
-    if (!is_valid())
-    {
-        return false;
-    }
-
     m_addr.sin_family = AF_INET;
     m_addr.sin_addr.s_addr = INADDR_ANY;
     m_addr.sin_port = htons(port);
 
-    int bind_return = ::bind(m_sock, (struct sockaddr *) &m_addr,
-            sizeof(m_addr));
-
-    if (bind_return == -1)
+    if (!is_valid() || ::bind(m_sock, (struct sockaddr *) &m_addr, sizeof(m_addr)) == -1)
     {
         return false;
     }
@@ -67,14 +58,7 @@ bool Socket::bind(const int port)
 
 bool Socket::listen() const
 {
-    if (!is_valid())
-    {
-        return false;
-    }
-
-    int listen_return = ::listen(m_sock, MAXCONNECTIONS);
-
-    if (listen_return == -1)
+    if (!is_valid() || ::listen(m_sock, MAXCONNECTIONS) == -1)
     {
         return false;
     }
@@ -93,23 +77,13 @@ bool Socket::accept(Socket& new_socket) const
             (socklen_t *) &addr_length);
 #endif
 
-    if (new_socket.m_sock <= 0)
-        return false;
-    else
-        return true;
+    return (new_socket.m_sock <= 0) ? false : true;
 }
 
 bool Socket::send(const std::string& s) const
 {
     int status = ::send(m_sock, s.c_str(), s.size(), MSG_NOSIGNAL);
-    if (status == -1)
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return (status == -1) ? false : true;
 }
 
 int Socket::recv(std::string& s) const
@@ -162,11 +136,7 @@ bool Socket::connect(const std::string& host, const int port)
 #endif
 
     status = ::connect(m_sock, (sockaddr *) &m_addr, sizeof(m_addr));
-
-    if (status == 0)
-        return true;
-    else
-        return false;
+    return (status == 0) ? true : false;
 }
 
 /*

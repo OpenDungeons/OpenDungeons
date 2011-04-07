@@ -455,8 +455,7 @@ void *clientNotificationProcessor(void *p)
                 break;
 
             default:
-                cerr
-                        << "\n\nERROR:  Unhandled ClientNotification type encoutered!\n\n";
+                cerr << "\n\nERROR:  Unhandled ClientNotification type encoutered!\n\n";
 
                 //TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
                 Creature * throwAsegfault = NULL;
@@ -467,4 +466,3 @@ void *clientNotificationProcessor(void *p)
         }
     }
 }
-

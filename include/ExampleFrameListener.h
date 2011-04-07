@@ -69,8 +69,8 @@ class ExampleFrameListener: public Ogre::FrameListener,
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
         ExampleFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
-                Ogre::SceneManager *sceneManager, CEGUI::Renderer *renderer,
-                bool bufferedKeys, bool bufferedMouse, bool bufferedJoy);
+                Ogre::SceneManager *sceneManager, bool bufferedKeys,
+                bool bufferedMouse, bool bufferedJoy);
 
         //Adjust mouse clipping area
         virtual void windowResized(Ogre::RenderWindow* rw);

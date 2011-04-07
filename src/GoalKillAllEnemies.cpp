@@ -17,7 +17,7 @@ bool GoalKillAllEnemies::isMet(Seat *s)
     bool enemiesFound = false;
 
     // Loop over all the creatures in the game map and check to see if any of them are of a different color than our seat.
-    for (unsigned int i = 0; i < gameMap.numCreatures(); ++i)
+    for (unsigned int i = 0, num = gameMap.numCreatures(); i < num; ++i)
     {
         if (gameMap.getCreature(i)->color != s->color)
         {

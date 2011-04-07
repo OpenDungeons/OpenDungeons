@@ -5,29 +5,25 @@
 #include <sstream>
 #include <fstream>
 
+#include <OIS.h>
+
 #include "ExampleApplication.h"
 #include "ExampleFrameListener.h"
 #include "Tile.h"
 #include "MusicPlayer.h"
 #include "SoundEffectsHelper.h"
 
-#include <CEGUI.h>
-#include <OIS.h>
-//#include <CEGUIRenderer.h>   // use this line if using a CEGUI version before 0.7
-#include <RendererModules/Ogre/CEGUIOgreRenderer.h>   // use this line if using a CEGUI version after 0.7
 class MapEditor: public ExampleApplication
 {
     public:
         MapEditor();
-        ~MapEditor();
+        virtual ~MapEditor();
         void createCamera(void);
         void createScene(void);
         void createFrameListener(void);
 
     protected:
         void chooseSceneManager(void);
-        CEGUI::System *mSystem;
-        CEGUI::Renderer *mRenderer;
 };
 
 #endif

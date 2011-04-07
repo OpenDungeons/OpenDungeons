@@ -16,10 +16,7 @@ GoalClaimNTiles::GoalClaimNTiles(const std::string& nName,
 
 bool GoalClaimNTiles::isMet(Seat *s)
 {
-    if (s->getNumClaimedTiles() >= numberOfTiles)
-        return true;
-    else
-        return false;
+    return (s->getNumClaimedTiles() >= numberOfTiles) ? true: false;
 }
 
 std::string GoalClaimNTiles::getSuccessMessage()
