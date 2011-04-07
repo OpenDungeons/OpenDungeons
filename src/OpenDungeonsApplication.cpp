@@ -1,32 +1,46 @@
+/*! \file   OpenDungeonsApplication.cpp
+ *  \author Ogre team, andrewbuck, oln, StefanP.MUC
+ *  \date   07 April 2011
+ *  \brief  Class OpenDungeonsApplication containing everything to start the game
+ */
+
 #include <string>
 #include <sstream>
 #include <fstream>
 
-#include <CEGUI.h>
+#include <OgreConfigFile.h>
+#include <sys/stat.h>
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+#include <shlwapi.h>
+#include <direct.h>
+#endif
 
 #include "Globals.h"
 #include "Functions.h"
 #include "ExampleFrameListener.h"
-#include "Tile.h"
-#include "Network.h"
 #include "GameMap.h"
 #include "TextRenderer.h"
 #include "RenderManager.h"
+#include "MusicPlayer.h"
+#include "SoundEffectsHelper.h"
 #include "Gui.h"
 
 #include "OpenDungeonsApplication.h"
 
-OpenDungeonsApplication::OpenDungeonsApplication()
+OpenDungeonsApplication::OpenDungeonsApplication() :
+        mFrameListener(0), mRoot(0)
 {
-    mFrameListener = 0;
-    mRoot = 0;
-    // Provide a nice cross platform solution for locating the configuration files
-    // On windows files are searched for in the current working directory, on OS X however
-    // you must provide the full path, the helper function macBundlePath does this for us.
+    /* Provide a nice cross platform solution for locating the configuration
+     * files. On windows files are searched for in the current working
+     * directory, on OS X however you must provide the full path, the helper
+     * function macBundlePath does this for us.
+     */
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     mResourcePath = macBundlePath() + "/Contents/Resources/";
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX //Actually this can be other things than linux as well
-    //Get path of data
+//Actually this can be other things than linux as well
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+    // Get path of data
+    // getenv return value should not be touched/freed.
     char* path = std::getenv("OPENDUNGEONS_DATA_PATH");
     if (path)
     {
@@ -35,7 +49,6 @@ OpenDungeonsApplication::OpenDungeonsApplication()
         {
             mResourcePath.append("/");
         }
-        //Getenv return value should not be touched/freed.
     }
     else
     {
@@ -55,21 +68,23 @@ OpenDungeonsApplication::~OpenDungeonsApplication()
         delete mRoot;
 }
 
-void OpenDungeonsApplication::go(void)
+/*! \brief Starts the program
+ *
+ */
+void OpenDungeonsApplication::go()
 {
     if (!setup())
         return;
 
     mRoot->startRendering();
-    //destroyScene();
 }
 
 /*! \brief Sets up the application - returns false if the user chooses to abandon
  *  configuration.
  */
-bool OpenDungeonsApplication::setup(void)
+bool OpenDungeonsApplication::setup()
 {
-    Ogre::String pluginsPath;
+    Ogre::String pluginsPath = "";
     // only use plugins.cfg if not static
 #ifndef OGRE_STATIC_LIB
     pluginsPath = mResourcePath + "plugins.cfg";
@@ -80,11 +95,16 @@ bool OpenDungeonsApplication::setup(void)
 
     setupResources();
 
-    bool carryOn = configure();
-    if (!carryOn)
+    /* Show the configuration dialog and initialise the system
+     * You can skip this and use root.restoreConfig() to load configuration
+     * settings if you were sure there are valid ones saved in ogre.cfg
+     */
+    if(!mRoot->showConfigDialog())
         return false;
 
-    chooseSceneManager();
+    mWindow = mRoot->initialise(true);
+    mSceneMgr = mRoot->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
+
     createCamera();
     createViewports();
 
@@ -92,40 +112,35 @@ bool OpenDungeonsApplication::setup(void)
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
     // Load resources
-    loadResources();
+    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+
+    //instanciate all singleton helper classes
+    new SoundEffectsHelper();
+    new RenderManager();
+    new Gui();
+    new TextRenderer();
+    new MusicPlayer();
+
+    SoundEffectsHelper::getSingletonPtr()->initialiseSound(mResourcePath + "sounds/");
+    RenderManager::getSingletonPtr()->initialize(mSceneMgr, &gameMap);
+    //TODO: load main menu first, only start game if user clicks on new game
+    Gui::getSingletonPtr()->loadGuiSheet(Gui::ingameMenu);
+    MusicPlayer::getSingletonPtr()->load(mResourcePath + "music/");
+    TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
+            10, 50, 70, Ogre::ColourValue::Green);
+    //TODO - move this to when the map is actually loaded
+    MusicPlayer::getSingleton().start(0);
 
     createScene();
-
     createFrameListener();
 
     return true;
-
 }
 
-/*! Configures the application - returns false if the user chooses to abandon
- *  configuration.
+/*! \brief Sets up the main camera
  */
-bool OpenDungeonsApplication::configure(void)
+void OpenDungeonsApplication::createCamera()
 {
-    // Show the configuration dialog and initialise the system
-    // You can skip this and use root.restoreConfig() to load configuration
-    // settings if you were sure there are valid ones saved in ogre.cfg
-    if (mRoot->showConfigDialog())
-    {
-        // If returned true, user clicked OK so initialise
-        // Here we choose to let the system create a default rendering window by passing 'true'
-        mWindow = mRoot->initialise(true);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-void OpenDungeonsApplication::createCamera(void)
-{
-    // Set up the main camera
     mCamera = mSceneMgr->createCamera("PlayerCam");
     mCamera->setNearClipDistance(.05);
     mCamera->setFarClipDistance(300.0);
@@ -134,31 +149,17 @@ void OpenDungeonsApplication::createCamera(void)
             Ogre::Vector3(0, 0, 0));
 }
 
-void OpenDungeonsApplication::createScene(void)
+void OpenDungeonsApplication::createScene()
 {
     // Turn on shadows
     //mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
     //mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);	// Quality 2
     //mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);	// Quality 3
 
-    // TODO: replace mResourcePath by using ogre resource manager
-    // TODO: load main menu after the below task is done. Where?
-    /* TODO: These: Gui, TextRenderer, MusicPlayer, RenderManager,
-     *       SoundEffectsHelper should be instanciated earlier
+    /* TODO: move level loading to a better place
+     *       (own class to exclude from global skope?)
+     *       and generalize it for the future when we have more levels
      */
-    new SoundEffectsHelper();
-    new RenderManager();
-    new Gui();
-    new TextRenderer();
-    new MusicPlayer();
-
-    SoundEffectsHelper::getSingletonPtr()->initialiseSound(mResourcePath + "sounds");
-    RenderManager::getSingletonPtr()->initialize(mSceneMgr, &gameMap);
-    Gui::getSingletonPtr()->loadGuiSheet(Gui::ingameMenu);
-    MusicPlayer::getSingletonPtr()->load(mResourcePath + "music/");
-    TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
-            10, 50, 70, Ogre::ColourValue::Green);
-
     // Read in the default game map
     std::string levelPath = mResourcePath + "levels_git/Test.level";
     {
@@ -213,25 +214,19 @@ void OpenDungeonsApplication::createScene(void)
     node->attachObject(light);
 }
 
-void OpenDungeonsApplication::createFrameListener(void)
+void OpenDungeonsApplication::createFrameListener()
 {
     mFrameListener = new ExampleFrameListener(mWindow, mCamera, mSceneMgr,
             true, true, false);
     exampleFrameListener = mFrameListener;
     mFrameListener->showDebugOverlay(true);
     mRoot->addFrameListener(mFrameListener);
-    //Start music.
-    //TODO - move this to when the map is actually loaded
-    MusicPlayer::getSingleton().start(0);
 }
 
-void OpenDungeonsApplication::chooseSceneManager(void)
-{
-    // Use the terrain scene manager.
-    mSceneMgr = mRoot->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
-}
-
-void OpenDungeonsApplication::createViewports(void)
+/*! \brief setup the viewports
+ *
+ */
+void OpenDungeonsApplication::createViewports()
 {
     // Create one viewport, entire window
     Ogre::Viewport* vp = mWindow->addViewport(mCamera);
@@ -245,7 +240,7 @@ void OpenDungeonsApplication::createViewports(void)
 /*  \brief Method which will define the source of resources
  * (other than current folder)
  */
-void OpenDungeonsApplication::setupResources(void)
+void OpenDungeonsApplication::setupResources()
 {
     // Load resource paths from config file
     Ogre::ConfigFile cf;
@@ -263,7 +258,6 @@ void OpenDungeonsApplication::setupResources(void)
         for (i = settings->begin(); i != settings->end(); ++i)
         {
             typeName = i->first;
-            //Prefix resource path to resource locations.
             archName = mResourcePath + i->second;
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             // OS X does not set the working directory relative to the app,
@@ -279,53 +273,17 @@ void OpenDungeonsApplication::setupResources(void)
     }
 }
 
-/// Must at least do ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-void OpenDungeonsApplication::loadResources(void)
+std::string OpenDungeonsApplication::getHomePath()
 {
-    // Initialise, parse scripts etc
-    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
-}
-
-Ogre::String OpenDungeonsApplication::getHomePath()
-{
-    Ogre::String homePath;
+    std::string homePath;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    //Currently using run dir in windows.
-    /*      TCHAR szPath[MAX_PATH];
-     HRESULT result = SHGetFolderPath(NULL, CSIDL_APPDATA, NULL, 0, szPath);
-     if(SUCCEEDED(result))
-     {
-     PathAppend(szPath, _T("\\OpenDungeons"));
-
-
-     int len = _tcslen(szPath);
-     char* sZto = new char[len];
-     //TODO - check what encoding to use.
-     WideCharToMultiByte(CP_UTF8, 0, szPath, -1, sZto, len, NULL, NULL);
-
-     homePath = sZto;
-
-     _stat statbuf;
-     int status = stat(homePath.c_str(), &statbuf);
-     if(status != 0)
-     {
-     int dirCreateStatus;
-     dirCreateStatus = mkdir(homePath.c_str());
-     }
-
-     delete[] sZto;
-     homePath.append("\\");
-     }
-     else
-     {
-     homePath = ".";
-     }*/
     homePath = "./";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 
-    //If variable is not set, assume we are in a build dir and
-    //use the current dir for config files.
+    /* If variable is not set, assume we are in a build dir and
+     * use the current dir for config files.
+     */
     char* useHomeDir = std::getenv("OPENDUNGEONS_DATA_PATH");
     if (useHomeDir)
     {
@@ -365,3 +323,30 @@ Ogre::String OpenDungeonsApplication::getHomePath()
 
     return homePath;
 }
+
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#include <CoreFoundation/CoreFoundation.h>
+
+// This function will locate the path to our application on OS X,
+// unlike windows you can not rely on the curent working directory
+// for locating your configuration files and resources.
+std::string OpenDungeonsApplication::macBundlePath()
+{
+    char path[1024];
+    CFBundleRef mainBundle = CFBundleGetMainBundle();
+    assert(mainBundle);
+
+    CFURLRef mainBundleURL = CFBundleCopyBundleURL(mainBundle);
+    assert(mainBundleURL);
+
+    CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
+    assert(cfStringRef);
+
+    CFStringGetCString(cfStringRef, path, 1024, kCFStringEncodingASCII);
+
+    CFRelease(mainBundleURL);
+    CFRelease(cfStringRef);
+
+    return std::string(path);
+}
+#endif
