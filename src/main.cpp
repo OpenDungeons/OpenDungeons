@@ -6,14 +6,14 @@
 #include <iostream>
 
 #include "Functions.h"
-#include "MapEditor.h"
+#include "OpenDungeonsApplication.h"
 #include "GameMap.h"
 #include "Player.h"
 #include "RenderRequest.h"
 #include "Socket.h"
 #include "ProtectedObject.h"
 
-SceneManager* mSceneMgr;
+Ogre::SceneManager* mSceneMgr;
 GameMap gameMap;
 
 sem_t randomGeneratorLockSemaphore;
@@ -42,7 +42,7 @@ double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double turnsPerSecond = 1.4;
 ProtectedObject<long int> turnNumber(1);
 
-std::vector<ColourValue> playerColourValues;
+std::vector<Ogre::ColourValue> playerColourValues;
 
 ExampleFrameListener *exampleFrameListener;
 
@@ -82,23 +82,23 @@ int main(int argc, char **argv)
     sem_init(&clientNotificationQueueLockSemaphore, 0, 1);
     sem_init(&creatureAISemaphore, 0, 1);
 
-    playerColourValues.push_back(ColourValue(0.8, 0.8, 0.8, 1.0));
-    playerColourValues.push_back(ColourValue(0.8, 0.0, 0.0, 1.0));
-    playerColourValues.push_back(ColourValue(0.0, 0.8, 0.0, 1.0));
-    playerColourValues.push_back(ColourValue(0.0, 0.0, 0.8, 1.0));
-    playerColourValues.push_back(ColourValue(0.4, 0.4, 0.4, 1.0));
-    playerColourValues.push_back(ColourValue(0.4, 0.0, 0.0, 1.0));
-    playerColourValues.push_back(ColourValue(0.0, 0.4, 0.0, 1.0));
-    playerColourValues.push_back(ColourValue(0.0, 0.0, 0.4, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.8, 0.8, 0.8, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.8, 0.0, 0.0, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.8, 0.0, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.8, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.4, 0.4, 0.4, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.4, 0.0, 0.0, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.4, 0.0, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.4, 1.0));
 
     // Create application object
-    MapEditor app;
+    OpenDungeonsApplication app;
 
     try
     {
         app.go();
     }
-    catch (Exception& e)
+    catch (Ogre::Exception& e)
     {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 
         MessageBox( NULL, e.what(), "An exception has occurred!", MB_OK | MB_ICONERROR | MB_TASKMODAL);

@@ -27,10 +27,10 @@ set(
      GoalProtectDungeonTemple.cpp
      Gui.cpp
      main.cpp
-     MapEditor.cpp
      MapLight.cpp
      MissileObject.cpp
      MusicPlayer.cpp
+     OpenDungeonsApplication.cpp
      Player.cpp
      ProximityTrap.cpp
      RadialVector2.cpp
