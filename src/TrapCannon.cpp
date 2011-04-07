@@ -10,8 +10,8 @@ TrapCannon::TrapCannon() : ProximityTrap()
     reloadTime = 5;
     reloadTimeCounter = reloadTime;
     range = 12;
-    minDamage = 4;
-    maxDamage = 20;
+    minDamage = 104;
+    maxDamage = 120;
     cannonHeight = 1.5;
 }
 

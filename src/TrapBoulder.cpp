@@ -3,7 +3,7 @@
 #include "Tile.h"
 #include "GameMap.h"
 #include "TrapBoulder.h"
-//~ #include "MissileObject.h"
+#include "MissileObject.h"
 
 TrapBoulder::TrapBoulder(int x, int y) : DirectionalTrap(x, y)
 {
@@ -25,9 +25,26 @@ std::vector<AttackableObject*> TrapBoulder::aimEnemy()
     }
     //By defaut, you damage every attackable object in the line.
     std::vector<AttackableObject*> v1 = gameMap.getVisibleForce(visibleTiles, getColor(), true);
-    std::vector<AttackableObject*> v2 = gameMap.getVisibleForce(visibleTiles, getColor(), false);
+    std::vector<AttackableObject*> v2 = gameMap.getVisibleForce(visibleTiles, getColor(), false); // we also attack our creatures
     for(std::vector<AttackableObject*>::const_iterator it = v2.begin(); it != v2.end(); it++) {
         v1.push_back(*it);
     }
     return v1;
+}
+
+void TrapBoulder::damage(std::vector<AttackableObject*> enemyAttacked) // we launch a boulder AND damage creatures, in the futur, the missileobject will be in charge of damaging
+{
+	DirectionalTrap::damage(enemyAttacked);
+	
+	if(enemyAttacked.empty())
+		return;
+	
+    // when a Boulder.mesh file exists, do this:
+	//~ std::cout << "\nAdding boudler from " << coveredTiles[0]->x << "," << coveredTiles[0]->y << " to " << enemyAttacked.back()->getCoveredTiles()[0]->x << "," << enemyAttacked.back()->getCoveredTiles()[0]->y << std::endl;
+	//~ // Create the cannonball to move toward the enemy creature.
+	//~ MissileObject *tempMissileObject = new MissileObject("Boulder", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, 1));
+	//~ tempMissileObject->setMoveSpeed(1.0);
+	//~ tempMissileObject->createMesh();
+	//~ tempMissileObject->addDestination(enemyAttacked.back()->getCoveredTiles()[0]->x, enemyAttacked.back()->getCoveredTiles()[0]->y, 1);
+	//~ gameMap.addMissileObject(tempMissileObject);
 }

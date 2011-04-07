@@ -379,6 +379,8 @@ void ExampleFrameListener::moveCamera(Ogre::Real frameTime)
     // Move the camera to the new location
     mCamNode->setPosition(newPosition);
     sfxHelper->setListenerPosition(newPosition, mCamNode->getOrientation());
+    OIS::MouseEvent event(NULL,mMouse->getMouseState());
+    mouseMoved(event);
 }
 
 /** \brief Computes a vector whose z-component is 0 and whose x-y coordinates are the position on the floor that the camera is pointed at.

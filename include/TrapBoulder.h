@@ -8,6 +8,7 @@ class TrapBoulder : public DirectionalTrap
     public:
         TrapBoulder(int, int);
         std::vector<AttackableObject*> aimEnemy();
+        virtual void damage(std::vector<AttackableObject*>);
 };
 
 #endif
