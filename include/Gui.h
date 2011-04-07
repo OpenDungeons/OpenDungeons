@@ -13,7 +13,6 @@
 #include <map>
 
 #include <CEGUI.h>
-#include <RendererModules/Ogre/CEGUIOgreRenderer.h>
 
 /*! \brief This class holds all GUI related functions
  */

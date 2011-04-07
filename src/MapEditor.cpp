@@ -38,18 +38,28 @@ void MapEditor::createCamera(void)
 
 void MapEditor::createScene(void)
 {
-    //Initialise sounds
-    SoundEffectsHelper* sfxh = new SoundEffectsHelper();
-    sfxh->initialiseSound(mResourcePath + "sounds");
-
     // Turn on shadows
     //mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
     //mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);	// Quality 2
     //mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);	// Quality 3
 
-    //Initialise render manager
-    RenderManager* renderManager = new RenderManager();
-    renderManager->initialize(mSceneMgr, &gameMap);
+    // TODO: replace mResourcePath by using ogre resource manager
+    // TODO: load main menu after the below task is done. Where?
+    /* TODO: These: Gui, TextRenderer, MusicPlayer, RenderManager,
+     *       SoundEffectsHelper should be instanciated earlier
+     */
+    new SoundEffectsHelper();
+    new RenderManager();
+    new Gui();
+    new TextRenderer();
+    new MusicPlayer();
+
+    SoundEffectsHelper::getSingletonPtr()->initialiseSound(mResourcePath + "sounds");
+    RenderManager::getSingletonPtr()->initialize(mSceneMgr, &gameMap);
+    Gui::getSingletonPtr()->loadGuiSheet(Gui::ingameMenu);
+    MusicPlayer::getSingletonPtr()->load(mResourcePath + "music/");
+    TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
+            10, 50, 70, Ogre::ColourValue::Green);
 
     // Read in the default game map
     std::string levelPath = mResourcePath + "levels_git/Test.level";
@@ -103,20 +113,6 @@ void MapEditor::createScene(void)
     light->setPosition(0, 0, 5);
     light->setAttenuation(20, 0.15, 0.15, 0.017);
     node->attachObject(light);
-
-    /* TODO: load main menu. Where? */
-
-    new Gui();
-    Gui::getSingletonPtr()->loadGuiSheet(Gui::ingameMenu);
-
-    new TextRenderer();
-
-    // Display some text
-    TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
-            10, 50, 70, Ogre::ColourValue::Green);
-
-    MusicPlayer* m = new MusicPlayer();
-    m->load(mResourcePath + "music/");
 }
 
 void MapEditor::createFrameListener(void)

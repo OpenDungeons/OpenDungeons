@@ -5,6 +5,8 @@
  * \brief  Class Gui containing all the stuff for the GUI, including translation.
  */
 
+#include <RendererModules/Ogre/CEGUIOgreRenderer.h>
+
 #include "Globals.h"
 #include "Defines.h"
 #include "Functions.h"
