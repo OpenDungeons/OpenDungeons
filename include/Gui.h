@@ -1,4 +1,4 @@
-/*
+/*!
  * \file   Gui.cpp
  * \date   05 April 2011
  * \author StefanP.MUC
@@ -15,8 +15,7 @@
 #include <CEGUI.h>
 #include <RendererModules/Ogre/CEGUIOgreRenderer.h>
 
-/* \brief This class holds all GUI related functions
- *
+/*! \brief This class holds all GUI related functions
  */
 class Gui : public Ogre::Singleton<Gui>
 {
@@ -38,7 +37,9 @@ class Gui : public Ogre::Singleton<Gui>
         Gui(const Gui&);
         ~Gui();
 
-        void assignEventHandlers(const guiSheet& sheet);
+        void assignEventHandlers();
+
+        std::map<guiSheet, CEGUI::Window*> sheets;
 
         //Button handlers game UI
         static bool quitButtonPressed(const CEGUI::EventArgs& e);
