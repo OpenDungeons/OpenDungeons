@@ -16,14 +16,11 @@
 #include <OgreSceneManager.h>
 
 //Various text strings and constants
+const unsigned int PORT_NUMBER = 31222;
 const double BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 const double DEFAULT_FRAMES_PER_SECOND = 60.0;
 const std::string VERSION = "0.4.7";
 const std::string POINTER_INFO_STRING = "pointerInfo";
-//NOTE: Both of these lines should be the same number
-//TODO: Can't one of them be removed?
-const unsigned int PORT_NUMBER = 31222;
-const std::string PORT_NUMBER_STRING = "31222";
 const std::string HELP_MESSAGE = "\
 The console is a way of interacting with the underlying game engine directly.\
 Commands given to the the console are made up of two parts: a \'command name\' and one or more \'arguments\'.\

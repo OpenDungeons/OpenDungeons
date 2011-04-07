@@ -1941,10 +1941,6 @@ void ExampleFrameListener::executePromptCommand(string command,
             {
                 if (readGameMapFromFile(tempString))
                 {
-                    /* FIXME: tempSS already exists a scope higher,
-                     * is it correct that it is recreated in this scope?
-                     */
-                    std::stringstream tempSS("");
                     tempSS << "Successfully loaded file:  " << tempString
                             << "\nNum tiles:  " << gameMap.numTiles()
                             << "\nNum classes:  "
@@ -2515,18 +2511,17 @@ void ExampleFrameListener::executePromptCommand(string command,
     // Set your nickname
     else if (command.compare("nick") == 0)
     {
-        //string tempString; // FIXME Needed?
         if (arguments.size() > 0)
         {
             gameMap.me->nick = arguments;
-
-            commandOutput += "\nNickname set to:  " + gameMap.me->nick + "\n";
+            commandOutput += "\nNickname set to:  ";
         }
         else
         {
-            commandOutput += "\nCurrent nickname is:  " + gameMap.me->nick
-                    + "\n";
+            commandOutput += "\nCurrent nickname is:  ";
         }
+
+        commandOutput += gameMap.me->nick + "\n";
     }
 
     // Set chat message variables
@@ -2846,22 +2841,11 @@ void ExampleFrameListener::executePromptCommand(string command,
     //FIXME:  This function is not yet implemented.
     else if (command.compare("disconnect") == 0)
     {
-        if (serverSocket != NULL)
-        {
-            commandOutput += "\nStopping server.\n";
-        }
-        else
-        {
-            if (clientSocket != NULL)
-            {
-                commandOutput += "\nDisconnecting from server.\n";
-            }
-            else
-            {
-                commandOutput
-                        += "\nYou are not connected to a server and you are not hosting a server.";
-            }
-        }
+        commandOutput += (serverSocket != NULL)
+            ? "\nStopping server.\n"
+            : (clientSocket != NULL)
+                ? "\nDisconnecting from server.\n"
+                : "\nYou are not connected to a server and you are not hosting a server.";
     }
 
     // Load the next level.
@@ -2975,8 +2959,9 @@ string ExampleFrameListener::getHelpText(string arg)
 
     else if (arg.compare("host") == 0)
     {
-        //FIXME:  add some code to automatically include the default port number in this help file.
-        return "Starts a server thread running on this machine.  This utility takes a port number as an argument.  The port number is the port to listen on for a connection.  The default (if no argument is given) is to use 31222 for the port number.";
+        std::stringstream s;
+        s << PORT_NUMBER;
+        return "Starts a server thread running on this machine.  This utility takes a port number as an argument.  The port number is the port to listen on for a connection.  The default (if no argument is given) is to use" + s.str() + "for the port number.";
     }
 
     else if (arg.compare("connnect") == 0)
