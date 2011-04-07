@@ -39,6 +39,7 @@ GameMap::GameMap()
     sem_init(&creaturesLockSemaphore, 0, 1);
     sem_init(&animatedObjectsLockSemaphore, 0, 1);
     sem_init(&activeObjectsLockSemaphore, 0, 1);
+    sem_init(&newActiveObjectsLockSemaphore, 0, 1);
     sem_init(&tilesLockSemaphore, 0, 1);
     tileCoordinateMap = new TileCoordinateMap(100);
     maxAIThreads = 2;
@@ -516,7 +517,7 @@ void GameMap::removeAnimatedObject(AnimatedObject *a)
 AnimatedObject* GameMap::getAnimatedObject(int index)
 {
     sem_wait(&animatedObjectsLockSemaphore);
-    AnimatedObject *tempAnimatedObject = animatedObjects[index];
+    AnimatedObject* tempAnimatedObject = animatedObjects[index];
     sem_post(&animatedObjectsLockSemaphore);
 
     return tempAnimatedObject;
@@ -524,7 +525,7 @@ AnimatedObject* GameMap::getAnimatedObject(int index)
 
 AnimatedObject* GameMap::getAnimatedObject(std::string name)
 {
-    AnimatedObject *tempAnimatedObject = NULL;
+    AnimatedObject* tempAnimatedObject = NULL;
 
     sem_wait(&animatedObjectsLockSemaphore);
     for (unsigned int i = 0; i < animatedObjects.size(); ++i)
@@ -931,6 +932,13 @@ unsigned long int GameMap::doMiscUpkeep()
             ++activeObjectCount;
         }
     }
+    sem_wait(&newActiveObjectsLockSemaphore);
+    while (!newActiveObjects.empty()) // we create new active objects queued by active objects, such as cannon balls
+	{
+		activeObjects.push_back(newActiveObjects.front());
+		newActiveObjects.pop();
+	}
+    sem_post(&newActiveObjectsLockSemaphore);
     sem_post(&activeObjectsLockSemaphore);
 
     // Remove empty rooms from the GameMap.
@@ -2269,8 +2277,12 @@ void GameMap::clearMissileObjects()
 void GameMap::addMissileObject(MissileObject *m)
 {
     missileObjects.push_back(m);
-    addActiveObject(m);
+    sem_wait(&newActiveObjectsLockSemaphore);
+    newActiveObjects.push(m);
+    sem_post(&newActiveObjectsLockSemaphore);
+    sem_wait(&animatedObjectsLockSemaphore);
     animatedObjects.push_back(m);
+    sem_post(&animatedObjectsLockSemaphore);
 }
 
 void GameMap::removeMissileObject(MissileObject *m)
@@ -2287,14 +2299,7 @@ void GameMap::removeMissileObject(MissileObject *m)
         }
     }
 
-    for (unsigned int i = 0; i < animatedObjects.size(); ++i)
-    {
-        if (m == animatedObjects[i])
-        {
-            animatedObjects.erase(animatedObjects.begin() + i);
-            break;
-        }
-    }
+    removeAnimatedObject(m);
 }
 
 MissileObject* GameMap::getMissileObject(int index)

@@ -226,6 +226,7 @@ class GameMap
         std::vector<AnimatedObject*> animatedObjects;
         sem_t animatedObjectsLockSemaphore;
         sem_t activeObjectsLockSemaphore;
+        sem_t newActiveObjectsLockSemaphore;
         std::vector<Player*> players;
         std::vector<Room*> rooms;
         std::vector<Trap*> traps;
@@ -238,6 +239,7 @@ class GameMap
         int nextUniqueFloodFillColor;
         bool floodFillEnabled;
         std::vector<ActiveObject*> activeObjects;
+        std::queue<ActiveObject*> newActiveObjects; // active objects that are created by other active object, i.e. : cannon balls
 
         std::map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
         std::map<long int, std::vector<Creature*> > creaturesToDelete;

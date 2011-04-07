@@ -6,6 +6,7 @@
 #include "RenderRequest.h"
 #include "Globals.h"
 #include "RenderManager.h"
+#include "GameMap.h"
 
 
 MissileObject::MissileObject()
@@ -38,6 +39,23 @@ void MissileObject::initialize()
     sem_post(&positionLockSemaphore);
 
     meshesExist = false;
+}
+
+bool MissileObject::doUpkeep()
+{
+	// check if we collide with a creature, if yes, do some damage and delete ourselves
+    return true;
+}
+
+
+/*! \brief The missile reach the end of the travel, it's destroyed
+ *
+ */
+void MissileObject::stopWalking()
+{
+	AnimatedObject::stopWalking();
+	gameMap.removeMissileObject(this);
+	deleteYourself();
 }
 
 /*! \brief Changes the missile's position to a new position.
