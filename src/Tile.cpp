@@ -1,8 +1,5 @@
-#include "Tile.h"
-
-#include "Defines.h"
-#include "Functions.h"
 #include "Globals.h"
+#include "Functions.h"
 #include "Creature.h"
 #include "GameMap.h"
 #include "ServerNotification.h"
@@ -11,6 +8,8 @@
 #include "Seat.h"
 #include "SoundEffectsHelper.h"
 #include "RenderManager.h"
+
+#include "Tile.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf

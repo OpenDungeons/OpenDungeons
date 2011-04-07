@@ -1,10 +1,9 @@
-#include "Defines.h"
+#include "Globals.h"
 
 #include <vector>
 #include <deque>
 #include <semaphore.h>
 #include <iostream>
-//using namespace std;
 
 #include "Functions.h"
 #include "MapEditor.h"

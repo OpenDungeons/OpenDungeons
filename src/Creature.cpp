@@ -5,7 +5,6 @@
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>
 
-#include "Defines.h"
 #include "Globals.h"
 #include "Functions.h"
 #include "CreatureAction.h"

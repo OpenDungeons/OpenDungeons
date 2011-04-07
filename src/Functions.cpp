@@ -12,7 +12,6 @@
 #endif
 
 #include "Globals.h"
-#include "Defines.h"
 #include "Creature.h"
 #include "MapLight.h"
 #include "Network.h"

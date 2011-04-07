@@ -5,15 +5,13 @@
  *      Author: oln
  */
 
-#include "RenderManager.h"
-
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
 
+#include "Globals.h"
 #include "GameMap.h"
 #include "RenderRequest.h"
 #include "Functions.h"
-#include "Defines.h"
 #include "Room.h"
 #include "RoomObject.h"
 #include "MapLight.h"
@@ -25,11 +23,9 @@
 #include "Field.h"
 #include "Player.h"
 
+#include "RenderManager.h"
 
-#include "Globals.h"
-
-
-template<> RenderManager * Ogre::Singleton<RenderManager>::ms_Singleton = 0;
+template<> RenderManager* Ogre::Singleton<RenderManager>::ms_Singleton = 0;
 
 /*! \brief Returns a reference to the singleton object of SoundEffectsHelper.
  *

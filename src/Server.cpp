@@ -1,14 +1,13 @@
 #include <string>
 #include <ctime>
 
-#include "Defines.h"
+#include "Globals.h"
 #include "Socket.h"
 #include "ExampleFrameListener.h"
 #include "Network.h"
 #include "ChatMessage.h"
 #include "Functions.h"
 #include "Sleep.h"
-#include "Globals.h"
 #include "ServerNotification.h"
 #include "Player.h"
 #include "Tile.h"

@@ -4,7 +4,6 @@
 
 #include <CEGUI.h>
 
-#include "Defines.h"
 #include "Globals.h"
 #include "Functions.h"
 #include "ExampleApplication.h"

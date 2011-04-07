@@ -12,8 +12,8 @@
 
 #include <pthread.h>
 
+#include "Globals.h"
 #include "Functions.h"
-#include "Defines.h"
 #include "GameMap.h"
 #include "RadialVector2.h"
 #include "Tile.h"
@@ -25,7 +25,6 @@
 #include "ProtectedObject.h"
 #include "TileCoordinateMap.h"
 #include "MissileObject.h"
-#include "Globals.h"
 #include "Weapon.h"
 
 GameMap::GameMap()

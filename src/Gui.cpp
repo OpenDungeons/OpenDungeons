@@ -8,7 +8,6 @@
 #include <RendererModules/Ogre/CEGUIOgreRenderer.h>
 
 #include "Globals.h"
-#include "Defines.h"
 #include "Functions.h"
 #include "ExampleFrameListener.h"
 #include "GameMap.h"

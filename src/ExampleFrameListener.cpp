@@ -4,10 +4,9 @@
 
 #include "ExampleFrameListener.h"
 
-#include "Socket.h"
-#include "Defines.h"
-#include "Tile.h"
 #include "Globals.h"
+#include "Socket.h"
+#include "Tile.h"
 #include "Functions.h"
 #include "Creature.h"
 #include "ChatMessage.h"

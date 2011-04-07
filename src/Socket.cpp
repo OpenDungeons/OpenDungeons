@@ -5,8 +5,9 @@
 #include <cerrno>
 #include <fcntl.h>
 
+#include "Globals.h"
+
 #include "Socket.h"
-#include "Defines.h"
 
 Socket::Socket() :
     m_sock(-1)
