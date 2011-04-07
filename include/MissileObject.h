@@ -35,6 +35,9 @@ class MissileObject: public ActiveObject, public AnimatedObject
             return name;
         }
         std::string name;
+        
+        virtual bool doUpkeep();
+        virtual void stopWalking();
 
     private:
         std::deque<Ogre::Vector3> walkQueue;

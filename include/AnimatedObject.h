@@ -26,7 +26,7 @@ class AnimatedObject
         bool setWalkPath(std::list<Tile*> path, unsigned int minDestinations,
                 bool addFirstStop);
         void clearDestinations();
-        void stopWalking();
+        virtual void stopWalking();
         void faceToward(int x, int y);
 
         virtual double getMoveSpeed();
