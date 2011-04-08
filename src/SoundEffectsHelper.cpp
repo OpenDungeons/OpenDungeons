@@ -1,12 +1,14 @@
-#include "SoundEffectsHelper.h"
 #include <map>
+
 #include "CreatureSound.h"
+
+#include "SoundEffectsHelper.h"
 
 //Z value to use for tile positioned sounds
 const float TILE_ZPOS = 1.5;
 
-template<> SoundEffectsHelper
-        * Ogre::Singleton<SoundEffectsHelper>::ms_Singleton = 0;
+template<> SoundEffectsHelper*
+        Ogre::Singleton<SoundEffectsHelper>::ms_Singleton = 0;
 
 /*! \brief Returns a reference to the singleton object of SoundEffectsHelper.
  *
@@ -28,8 +30,8 @@ SoundEffectsHelper* SoundEffectsHelper::getSingletonPtr()
 /*! \brief Loads sounds
  *
  */
-SoundEffectsHelper::SoundEffectsHelper() : //soundManager(OgreOggSound::OgreOggSoundManager::getSingleton())
-    nextDigSound(0)
+SoundEffectsHelper::SoundEffectsHelper() :
+        nextDigSound(0)
 {
 
 }
@@ -44,13 +46,9 @@ SoundEffectsHelper::~SoundEffectsHelper()
  */
 void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
 {
-    //std::cout << "Initialising sound system" << std::endl;
-    //OgreOggSound::OgreOggSoundManager::getSingleton().init("", 100, 64, mSceneMgr);
-    //assert(SoundEffectsHelper::getSingletonPtr() == 0);
     // Hardcoded for now
     Ogre::String digFolder = soundFolderPath + "/RocksFalling/";
-    sf::SoundBuffer testBuff;
-    testBuff.LoadFromFile(digFolder + "RocksFalling01.ogg");
+
     for (int i = 0; i < 7; ++i)
     {
         digSoundBuffers.push_back(Ogre::SharedPtr<sf::SoundBuffer>(
@@ -121,7 +119,7 @@ void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
 }
 
 void SoundEffectsHelper::setListenerPosition(const Ogre::Vector3& position,
-        const Ogre::Quaternion& orientation)//, const Ogre::Vector3& velocity)
+        const Ogre::Quaternion& orientation)
 {
     sf::Listener::SetPosition(static_cast<float> (position.x),
             static_cast<float> (position.y), static_cast<float> (position.z));
@@ -147,8 +145,8 @@ void SoundEffectsHelper::playBlockDestroySound(int tileX, int tileY)
     }
     digSounds[nextDigSound].SetPosition(tileX, tileY, TILE_ZPOS);
     digSounds[nextDigSound].Play();
-    ++nextDigSound;
-    if (nextDigSound >= digSounds.size())
+
+    if(++nextDigSound >= digSounds.size())
     {
         nextDigSound = 0;
     }

@@ -528,7 +528,7 @@ void Creature::doTurn()
         Tile *tempTile, *tempTile2, *myTile;
         Room *tempRoom;
         std::list<Tile*> tempPath, tempPath2;
-        pair<LocationType, double> minimumFieldValue;
+        std::pair<LocationType, double> minimumFieldValue;
         std::vector<Room*> treasuriesOwned;
         std::vector<Room*> tempRooms;
 
@@ -984,7 +984,7 @@ void Creature::doTurn()
                             // If the tile is a gold tile accumulate gold for this creature.
                             if (tempTile->getType() == Tile::gold)
                             {
-                                tempDouble = 5 * min(digRate,
+                                tempDouble = 5 * std::min(digRate,
                                         tempTile->getFullness());
                                 gold += tempDouble;
                                 gameMap.getSeatByColor(color)->goldMined
@@ -1563,10 +1563,10 @@ void Creature::doTurn()
 
                         recieveExp(expGained);
 
-                        cout << "\n" << name << " did " << damageDone
+                        std::cout << "\n" << name << " did " << damageDone
                                 << " damage to "
                                 << tempAttackableObject->getName();
-                        cout << " who now has " << tempAttackableObject->getHP(
+                        std::cout << " who now has " << tempAttackableObject->getHP(
                                 tempTile) << "hp";
 
                         // Randomly decide to start maneuvering again so we don't just stand still and fight.
@@ -1658,7 +1658,7 @@ void Creature::doTurn()
 
                     // Pick a destination tile near the tile we got from the battlefield.
                     clearDestinations();
-                    tempDouble = max(weaponL->range, weaponR->range); // Pick a true destination randomly within the max range of our weapons.
+                    tempDouble = std::max(weaponL->range, weaponR->range); // Pick a true destination randomly within the max range of our weapons.
                     tempDouble = sqrt(tempDouble);
                     //FIXME:  This should find a path to a tile we can walk to, it does not always do this the way it is right now.
                     tempPath = gameMap.path(positionTile()->x,
@@ -1694,7 +1694,7 @@ void Creature::doTurn()
                     break;
 
                 default:
-                    cerr
+                    std::cerr
                             << "\n\nERROR:  Unhandled action type in Creature::doTurn().\n\n";
                     exit(1);
                     break;
@@ -1703,7 +1703,7 @@ void Creature::doTurn()
         else
         {
             sem_post(&actionQueueLockSemaphore);
-            cerr
+            std::cerr
                     << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
             exit(1);
         }
@@ -1757,14 +1757,14 @@ void Creature::doLevelUp()
         return;
 
     ++level;
-    cout << "\n\n" << name << " has reached level " << level << "\n";
+    std::cout << "\n\n" << name << " has reached level " << level << "\n";
 
     if (isWorker())
     {
         digRate += 4.0 * level / (level + 5.0);
         danceRate += 0.12 * level / (level + 5.0);
     }
-    cout << "New dig rate: " << digRate << "\tnew dance rate: " << danceRate
+    std::cout << "New dig rate: " << digRate << "\tnew dance rate: " << danceRate
             << "\n";
 
     moveSpeed += 0.4 / (level + 2.0);
@@ -1879,7 +1879,7 @@ std::vector<AttackableObject*> Creature::getEnemyObjectsInRange(
 
     // Find our location and calculate the square of the max weapon range we have.
     Tile *myTile = positionTile();
-    double weaponRangeSquared = max(weaponL->range, weaponR->range);
+    double weaponRangeSquared = std::max(weaponL->range, weaponR->range);
     weaponRangeSquared *= weaponRangeSquared;
 
     // Loop over the enemyObjectsToCheck and add any within range to the tempVector.

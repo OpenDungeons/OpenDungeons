@@ -1,17 +1,16 @@
-#include "Functions.h"
-
-#include <OgreTechnique.h>
-#include <OgrePass.h>
-#include <OgreTexture.h>
-#include <OgreMaterial.h>
-
 #if defined(WIN32) || defined(_WIN32)
 //TODO: Add the proper windows include file for this (handling directory listings).
 #else
 #include <dirent.h>
 #endif
 
+#include <OgreTechnique.h>
+#include <OgrePass.h>
+#include <OgreTexture.h>
+#include <OgreMaterial.h>
+
 #include "Globals.h"
+#include "Socket.h"
 #include "Creature.h"
 #include "MapLight.h"
 #include "Network.h"
@@ -25,6 +24,8 @@
 #include "Player.h"
 #include "CreatureAction.h"
 #include "CreatureSound.h"
+
+#include "Functions.h"
 
 //#if defined(WIN32) || defined(_WIN32)
 //double const M_PI = 2 * acos(0.0);
@@ -46,10 +47,10 @@ bool readGameMapFromFile(const std::string& fileName)
     int objectsToLoad;
 
     // Try to open the input file for reading and throw an error if we can't.
-    ifstream baseLevelFile(fileName.c_str(), ifstream::in);
+    std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
     if (!baseLevelFile.good())
     {
-        cerr << "ERROR: File not found:  " << fileName << "\n\n\n";
+        std::cerr << "ERROR: File not found:  " << fileName << "\n\n\n";
         return false;
     }
 
@@ -68,11 +69,11 @@ bool readGameMapFromFile(const std::string& fileName)
     levelFile >> tempString;
     if (tempString.compare(versionString) != 0)
     {
-        cerr
-                << "\n\n\nERROR:  Attempting to load a file produced by a different version of OpenDungeons.\n";
-        cerr << "ERROR:  Filename:  " << fileName;
-        cerr << "\nERROR:  The file is for OpenDungeons:  " << tempString;
-        cerr << "\nERROR:  This version of OpenDungeons:  " << versionString
+        std::cerr
+                << "\n\n\nERROR:  Attempting to load a file produced by a different version of OpenDungeons.\n"
+                << "ERROR:  Filename:  " << fileName
+                << "\nERROR:  The file is for OpenDungeons:  " << tempString
+                << "\nERROR:  This version of OpenDungeons:  " << versionString
                 << "\n\n\n";
         exit(1);
     }
@@ -186,7 +187,7 @@ bool readGameMapFromFile(const std::string& fileName)
 
 void writeGameMapToFile(const std::string& fileName)
 {
-    ofstream levelFile(fileName.c_str(), ifstream::out);
+    std::ofstream levelFile(fileName.c_str(), std::ifstream::out);
     Tile *tempTile;
 
     // Write the identifier string and the version number
@@ -234,7 +235,7 @@ void writeGameMapToFile(const std::string& fileName)
         levelFile << tempTile->x << "\t" << tempTile->y << "\t";
         levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
 
-        levelFile << endl;
+        levelFile << std::endl;
 
         ++itr;
     }
@@ -245,7 +246,7 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile << "# " << Room::getFormat() << "\n";
     for (unsigned int i = 0, num = gameMap.numRooms(); i < num; ++i)
     {
-        levelFile << gameMap.getRoom(i) << endl;
+        levelFile << gameMap.getRoom(i) << std::endl;
     }
 
     // Write out the traps to the file
@@ -254,7 +255,7 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile << "# " << Trap::getFormat() << "\n";
     for (unsigned int i = 0; i < gameMap.numTraps(); ++i)
     {
-        levelFile << gameMap.getTrap(i) << endl;
+        levelFile << gameMap.getTrap(i) << std::endl;
     }
 
     // Write out the lights to the file.
@@ -263,7 +264,7 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile << "# " << MapLight::getFormat() << "\n";
     for (unsigned int i = 0, num = gameMap.numMapLights(); i < num; ++i)
     {
-        levelFile << gameMap.getMapLight(i) << endl;
+        levelFile << gameMap.getMapLight(i) << std::endl;
     }
 
     // Write out the creature descriptions to the file
@@ -284,10 +285,10 @@ void writeGameMapToFile(const std::string& fileName)
         //NOTE: This code is duplicated in the client side method
         //"addclass" defined in src/Client.cpp and readGameMapFromFile.
         //Changes to this code should be reflected in that code as well
-        levelFile << gameMap.getCreature(i) << endl;
+        levelFile << gameMap.getCreature(i) << std::endl;
     }
 
-    levelFile << endl;
+    levelFile << std::endl;
 
     levelFile.close();
 }
@@ -428,7 +429,7 @@ void swap(int &a, int &b)
     b = temp;
 }
 
-string stripCommentsFromLine(string line)
+std::string stripCommentsFromLine(std::string line)
 {
     // Find the first occurrence of the comment symbol on the line and return everything before that character.
     size_t index = line.find('#');

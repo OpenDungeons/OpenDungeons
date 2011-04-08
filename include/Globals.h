@@ -83,7 +83,8 @@ extern sem_t clientNotificationQueueLockSemaphore;
 
 extern sem_t creatureAISemaphore;
 
-extern Socket *serverSocket, *clientSocket;
+extern Socket* serverSocket;
+extern Socket* clientSocket;
 
 extern std::string versionString;
 extern std::string MOTD;
@@ -93,6 +94,6 @@ extern ProtectedObject<long> turnNumber;
 
 extern std::vector<Ogre::ColourValue> playerColourValues;
 
-extern ExampleFrameListener *exampleFrameListener;
+extern ExampleFrameListener* exampleFrameListener;
 
 #endif

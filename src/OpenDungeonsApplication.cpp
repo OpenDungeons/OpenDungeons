@@ -119,13 +119,12 @@ bool OpenDungeonsApplication::setup()
     new RenderManager();
     new Gui();
     new TextRenderer();
-    new MusicPlayer();
+    new MusicPlayer(mResourcePath + "music/");
 
     SoundEffectsHelper::getSingletonPtr()->initialiseSound(mResourcePath + "sounds/");
     RenderManager::getSingletonPtr()->initialize(mSceneMgr, &gameMap);
     //TODO: load main menu first, only start game if user clicks on new game
     Gui::getSingletonPtr()->loadGuiSheet(Gui::ingameMenu);
-    MusicPlayer::getSingletonPtr()->load(mResourcePath + "music/");
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
             10, 50, 70, Ogre::ColourValue::Green);
     //TODO - move this to when the map is actually loaded
@@ -264,10 +263,10 @@ void OpenDungeonsApplication::setupResources()
             // In order to make things portable on OS X we need to provide
             // the loading with it's own bundle path location
             ResourceGroupManager::getSingleton().addResourceLocation(
-                    String(macBundlePath() + "/" + archName), typeName, secName);
+                    String(macBundlePath() + "/" + archName), typeName, secName, true);
 #else
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                    archName, typeName, secName);
+                    archName, typeName, secName, true);
 #endif
         }
     }

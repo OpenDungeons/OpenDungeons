@@ -13,6 +13,7 @@
 #include "GameMap.h"
 #include "Player.h"
 #include "Trap.h"
+#include "TextRenderer.h"
 
 #include "Gui.h"
 

@@ -2,11 +2,8 @@
 #include <iostream>
 #include <algorithm>
 
-#include "ExampleFrameListener.h"
-
 #include "Globals.h"
 #include "Socket.h"
-#include "Tile.h"
 #include "Functions.h"
 #include "Creature.h"
 #include "ChatMessage.h"
@@ -28,6 +25,11 @@
 #include "CreatureAction.h"
 #include "CreatureSound.h"
 #include "ServerNotification.h"
+#include "TextRenderer.h"
+#include "MusicPlayer.h"
+#include "RenderManager.h"
+
+#include "ExampleFrameListener.h"
 
 using namespace Ogre;
 
@@ -124,8 +126,6 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
 {
     chatMaxMessages = 10;
     chatMaxTimeDisplay = 20;
-    mCount = 0;
-    mCurrentObject = NULL;
     mLMouseDown = false;
     mRMouseDown = false;
     mSceneMgr = sceneManager;
@@ -141,7 +141,6 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
     zChange = 0.0;
     mCurrentTileRadius = 1;
     mBrushMode = false;
-    addRoomsMode = false;
     creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Creature_scene_node");
     roomSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
@@ -153,12 +152,6 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
 
     mStatsOn = false;
     mNumScreenShots = 0;
-    mMoveScale = 0.0f;
-    mRotScale = 0.0f;
-    mTimeUntilNextToggle = 0;
-    mFiltering = TFO_BILINEAR;
-    mAniso = 1;
-    mSceneDetailIndex = 0;
     moveSpeed = 2.0;
     moveSpeedAccel = static_cast<Ogre::Real> (2.0) * moveSpeed; // if this is changed, also change it in the terminal command 'movespeed'.
     mRotateSpeed = 90;
@@ -174,13 +167,10 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
 
     translateVector = Ogre::Vector3(0.0, 0.0, 0.0);
     translateVectorAccel = Ogre::Vector3(0.0, 0.0, 0.0);
-    mMouseTranslateVector = Ogre::Vector3(0.0, 0.0, 0.0);
     mRotateLocalVector = Ogre::Vector3(0.0, 0.0, 0.0);
 
     cameraIsFlying = false;
     cameraFlightSpeed = 70.0;
-
-    musicPlayer = MusicPlayer::getSingletonPtr();
 
     for (int i = 0; i < 10; ++i)
     {
@@ -462,8 +452,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
     using namespace OIS;
 
-    musicPlayer->update();
-
+    MusicPlayer::getSingletonPtr()->update();
     renderManager->processRenderRequests();
 
     string chatBaseString = "\n---------- Chat ----------\n";
@@ -1648,7 +1637,6 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
             case KC_SYSRQ:
                 ss << "screenshot_" << ++mNumScreenShots << ".png";
                 mWindow->writeContentsToFile(ss.str());
-                mTimeUntilNextToggle = 0.5;
                 mDebugText = "Saved: " + ss.str();
                 break;
 

@@ -9,12 +9,11 @@
 #ifndef MUSICPLAYER_H
 #define MUSICPLAYER_H
 
+#include <vector>
+
 #include <SFML/Audio.hpp>
-#include <OgreResourceGroupManager.h>
 #include <OgreSingleton.h>
 #include <OgreSharedPtr.h>
-#include <vector>
-#include <iostream>
 
 /*! \brief Class to manage playing of music.
  *
@@ -22,9 +21,8 @@
 class MusicPlayer: public Ogre::Singleton<MusicPlayer>
 {
     public:
-        MusicPlayer();
+        MusicPlayer(const Ogre::String& path);
         virtual ~MusicPlayer();
-        void load(const Ogre::String& path);
         void update();
         void start(const unsigned int& trackNumber);
         void next();
