@@ -374,7 +374,6 @@ std::istream& operator>>(std::istream& is, Room *r)
 {
     static int uniqueNumber = 1;
     int tilesToLoad, tempX, tempY;
-    std::string tempString;
     std::stringstream tempSS;
 
     is >> r->meshName >> r->color;
@@ -422,28 +421,28 @@ const char* Room::getMeshNameFromRoomType(RoomType t)
     {
         case nullRoomType:
             return "NullRoomType";
-            break;
+
         case dungeonTemple:
             return "DungeonTemple";
-            break;
+
         case quarters:
             return "Quarters";
-            break;
+
         case treasury:
             return "Treasury";
-            break;
+
         case portal:
             return "Portal";
-            break;
+
         case forge:
             return "Forge";
-            break;
+
         case dojo:
             return "Dojo";
-            break;
-    }
 
-    return "UnknownRoomType";
+        default:
+            return "UnknownRoomType";
+    }
 }
 
 Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
@@ -476,28 +475,28 @@ int Room::costPerTile(RoomType t)
     {
         case nullRoomType:
             return 0;
-            break;
+
         case dungeonTemple:
             return 0;
-            break;
+
         case portal:
             return 0;
-            break;
+
         case quarters:
             return 75;
-            break;
+
         case treasury:
             return 25;
-            break;
+
         case forge:
             return 150;
-            break;
+
         case dojo:
             return 175;
-            break;
-    }
 
-    return 0;
+        default:
+            return 0;
+    }
 }
 
 double Room::getHP(Tile *tile)

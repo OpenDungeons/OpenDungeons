@@ -117,13 +117,9 @@ bool AnimatedObject::setWalkPath(std::list<Tile*> path,
 
         return true;
     }
-    else
-    {
-        //setAnimationState("Idle");
-        return false;
-    }
 
-    return true;
+    //setAnimationState("Idle");
+    return false;
 }
 
 /*! \brief Clears all future destinations from the walk queue, stops the object where it is, and sets its animation state.

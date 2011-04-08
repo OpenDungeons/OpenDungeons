@@ -166,19 +166,19 @@ const char* RoomTreasury::getMeshNameForTreasuryTileFullness(
         // The empty case should really never happen since we shouldn't be creating meshes for an empty tile anyway.
         case empty:
             return "TreasuryTileEmptyError";
-            break;
+
         case bag:
             return "GoldBag";
-            break;
+
         case chest:
             return "GoldChest";
-            break;
+
         case overfull:
             return "TreasuryTileOverfullError";
-            break;
-    }
 
-    return "TreasuryTileFullnessMeshError";
+        default:
+            return "TreasuryTileFullnessMeshError";
+    }
 }
 
 void RoomTreasury::updateMeshesForTile(Tile *t)

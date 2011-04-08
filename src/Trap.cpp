@@ -134,16 +134,16 @@ std::string Trap::getMeshNameFromTrapType(TrapType t)
     {
         case nullTrapType:
             return "NullTrapType";
-            break;
+
         case cannon:
             return "Cannon";
-            break;
+
         case boulder:
             return "Boulder";
-            break;
+
+        default:
+            return "UnknownTrapType";
     }
-    
-    return "UnknownTrapType";
 }
 
 Trap::TrapType Trap::getTrapTypeFromMeshName(std::string s)
@@ -170,16 +170,16 @@ int Trap::costPerTile(TrapType t)
     {
         case nullTrapType:
             return 0;
-            break;
+
         case cannon:
             return 500;
-            break;
+
         case boulder:
             return 500;
-            break;
+
+        default:
+            return 100;
     }
-    
-    return 100;
 }
 
 bool Trap::doUpkeep()
@@ -344,7 +344,6 @@ std::istream& operator>>(std::istream& is, Trap *t)
 {
     static int uniqueNumber = 1;
     int tilesToLoad, tempX, tempY, tempInt;
-    std::string tempString;
     std::stringstream tempSS;
     
     is >> t->meshName >> tempInt;

@@ -1454,7 +1454,6 @@ void ExampleFrameListener::handleHotkeys(int hotkeyNumber)
 bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
 {
     using namespace OIS;
-    string tempString;
     std::stringstream tempSS;
 
     CEGUI::System *sys = CEGUI::System::getSingletonPtr();
@@ -2777,8 +2776,6 @@ void ExampleFrameListener::executePromptCommand(string command,
 
     else if (command.compare("addcolor") == 0)
     {
-        string tempString;
-
         if (arguments.size() > 0)
         {
             double tempR, tempG, tempB;
@@ -2798,8 +2795,6 @@ void ExampleFrameListener::executePromptCommand(string command,
 
     else if (command.compare("setcolor") == 0)
     {
-        string tempString;
-
         if (arguments.size() > 0)
         {
             unsigned int index;

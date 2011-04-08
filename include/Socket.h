@@ -33,7 +33,6 @@
 #include <iostream>
 using namespace std;
 
-const int MAXHOSTNAME = 200;
 const int MAXCONNECTIONS = 16;
 const int MAXRECV = 2048;
 

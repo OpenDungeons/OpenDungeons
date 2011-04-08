@@ -6,12 +6,7 @@
 #include <ostream>
 #include <istream>
 
-//Forward declarations
 class Seat;
-//#include "Player.h"
-
-
-
 
 class Goal
 {

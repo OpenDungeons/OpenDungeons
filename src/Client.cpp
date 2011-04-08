@@ -394,8 +394,6 @@ void *clientSocketProcessor(void *p)
 // THREAD - This function is meant to be called by pthread_create.
 void *clientNotificationProcessor(void *p)
 {
-    //ExampleFrameListener *frameListener = ((SNPStruct*)p)->nFrameListener;
-    std::string tempString;
     std::stringstream tempSS;
     Tile *tempTile;
     Creature *tempCreature;
@@ -409,7 +407,7 @@ void *clientNotificationProcessor(void *p)
 
         // Take a message out of the front of the notification queue
         sem_wait(&clientNotificationQueueLockSemaphore);
-        ClientNotification *event = clientNotificationQueue.front();
+        ClientNotification* event = clientNotificationQueue.front();
         clientNotificationQueue.pop_front();
         sem_post(&clientNotificationQueueLockSemaphore);
 

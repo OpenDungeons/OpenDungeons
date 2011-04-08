@@ -1024,7 +1024,6 @@ unsigned long int GameMap::doMiscUpkeep()
 unsigned long int GameMap::doCreatureTurns()
 {
     Ogre::Timer stopwatch;
-    unsigned long int timeTaken;
 
     // Prepare the arrays of creature pointers and parameters for the threads.
     sem_wait(&creaturesLockSemaphore);

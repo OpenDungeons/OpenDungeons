@@ -226,7 +226,6 @@ void *serverNotificationProcessor(void *p)
     delete (SNPStruct*) p;
     p = NULL;
 
-    std::string tempString;
     std::stringstream tempSS;
     Tile *tempTile;
     Player *tempPlayer;

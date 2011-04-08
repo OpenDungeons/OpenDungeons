@@ -99,7 +99,7 @@ class ExampleFrameListener :
         std::string command, arguments, commandOutput, prompt;
         //deque< pair<time_t, string> > chatMessages;
         std::deque<ChatMessage*> chatMessages;
-        std::string consoleBuffer, promptCommand, chatString;
+        std::string promptCommand, chatString;
 
         // Multiplayer stuff
         std::vector<Socket*> clientSockets;
@@ -140,7 +140,6 @@ class ExampleFrameListener :
 
         unsigned int mNumScreenShots;
         float mZoomSpeed;
-        Ogre::Radian mRotX, mRotY, mRotZ;
         Tile::TileType mCurrentTileType;
         int mCurrentFullness, mCurrentTileRadius;
         bool mBrushMode;

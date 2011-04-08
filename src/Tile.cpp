@@ -604,27 +604,21 @@ const char* Tile::tileTypeToString(TileType t)
         default:
         case dirt:
             return "Dirt";
-            break;
 
         case rock:
             return "Rock";
-            break;
 
         case gold:
             return "Gold";
-            break;
 
         case water:
             return "Water";
-            break;
 
         case lava:
             return "Lava";
-            break;
 
         case claimed:
             return "Claimed";
-            break;
     }
 }
 
@@ -655,27 +649,21 @@ int Tile::nextTileFullness(int f)
     {
         case 0:
             return 25;
-            break;
 
         case 25:
             return 50;
-            break;
 
         case 50:
             return 75;
-            break;
 
         case 75:
             return 100;
-            break;
 
         case 100:
             return 0;
-            break;
 
         default:
             return 0;
-            break;
     }
 }
 
@@ -1135,13 +1123,10 @@ double Tile::scaleDigRate(double digRate)
     {
         case claimed:
             return 0.2 * digRate;
-            break;
+
         default:
             return digRate;
-            break;
     }
-
-    return digRate;
 }
 
 Tile* Tile::getNeighbor(unsigned int index)

@@ -39,7 +39,6 @@ class CreatureSound
         CreatureSound(const CreatureSound&);
         CreatureSound& operator=(const CreatureSound&);
 
-        SoundEffectsHelper* sfHelper;
         //TODO - should we use a vector of pointers instead?
         SoundEffectsHelper::SoundFXVector sounds;
 };

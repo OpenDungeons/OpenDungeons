@@ -22,36 +22,36 @@ std::string CreatureAction::toString()
     {
         case walkToTile:
             return "walkToTile";
-            break;
+
         case maneuver:
             return "maneuver";
-            break;
+
         case digTile:
             return "digTile";
-            break;
+
         case claimTile:
             return "claimTile";
-            break;
+
         case depositGold:
             return "depositGold";
-            break;
+
         case attackObject:
             return "attackObject";
-            break;
+
         case findHome:
             return "findHome";
-            break;
+
         case sleep:
             return "sleep";
-            break;
+
         case train:
             return "train";
-            break;
+
         case idle:
             return "idle";
-            break;
-    }
 
-    return "unhandledAct";
+        default:
+            return "unhandledAct";
+    }
 }
 

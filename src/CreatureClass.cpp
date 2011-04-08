@@ -51,50 +51,48 @@ std::string CreatureClass::creatureJobToString(CreatureJob c)
     {
         case nullCreatureJob:
             return "NullCreatureJob";
-            break;
+
         case basicWorker:
             return "BasicWorker";
-            break;
+
         case advancedWorker:
             return "AdvancedWorker";
-            break;
+
         case scout:
             return "Scout";
-            break;
+
         case weakFighter:
             return "WeakFighter";
-            break;
+
         case weakSpellcaster:
             return "WeakSpellcaster";
-            break;
+
         case weakBuilder:
             return "WeakBuilder";
-            break;
+
         case strongFighter:
             return "StrongFighter";
-            break;
+
         case strongSpellcaster:
             return "StrongSpellcaster";
-            break;
+
         case strongBuilder:
             return "StrongBuilder";
-            break;
+
         case guard:
             return "Guard";
-            break;
+
         case specialCreature:
             return "SpecialCreature";
-            break;
+
         case summon:
             return "Summon";
-            break;
+
         case superCreature:
             return "SuperCreature";
-            break;
 
         default:
             return "NullCreatureJob";
-            break;
     }
 }
 

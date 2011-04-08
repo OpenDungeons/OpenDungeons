@@ -41,7 +41,6 @@ class Creature: public CreatureClass, public AttackableObject
 
         // Individual properties
         Weapon *weaponL, *weaponR; // The weapons the creature is holding
-        std::string meshID, nodeID; // The unique names for the OGRE entities
         int color; // The color of the player who controls this creature
         int level;
         double exp;

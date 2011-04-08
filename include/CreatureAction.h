@@ -1,10 +1,10 @@
 #ifndef CREATUREACTION_H
 #define CREATUREACTION_H
 
-#include "Tile.h"
 #include <string>
-//class CreatureAction;
-//#include "Creature.h"
+
+class Tile;
+class Creature;
 
 /*! \brief A data structure to be used in the creature AI calculations.
  *
@@ -29,12 +29,12 @@ class CreatureAction
         };
 
         CreatureAction();
-        CreatureAction(ActionType nType, Tile *nTile = NULL,
-                Creature *nCreature = NULL);
+        CreatureAction(ActionType nType, Tile* nTile = NULL,
+                Creature* nCreature = NULL);
 
         ActionType type;
-        Tile *tile;
-        Creature *creature;
+        Tile* tile;
+        Creature* creature;
 
         std::string toString();
 };
