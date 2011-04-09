@@ -2067,8 +2067,8 @@ void Creature::createStatsWindow()
         return;
     }
 
-    CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
-    CEGUI::Window *rootWindow = CEGUI::System::getSingleton().getGUISheet();
+    CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
+    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getGUISheet();
 
     statsWindow = wmgr->createWindow("OD/FrameWindow",
             std::string("Root/CreatureStatsWindows/") + getName());

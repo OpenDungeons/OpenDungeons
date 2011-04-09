@@ -725,31 +725,28 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(
  */
 bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 {
-    string resultName;
-
-    //CEGUI::System::getSingleton().injectMouseMove(arg.state.X.rel, arg.state.Y.rel);
     CEGUI::System::getSingleton().injectMousePosition(arg.state.X.abs,
             arg.state.Y.abs);
 
-    Ogre::RaySceneQueryResult& result = doRaySceneQuery(arg);
-    Ogre::RaySceneQueryResult::iterator itr = result.begin();
-
     //If we have a room or trap (or later spell) selected, show what we
     //have selected
-    //This should be changed, or combined with an icon or something later.
+    //TODO: This should be changed, or combined with an icon or something later.
     if (gameMap.me->newRoomType || gameMap.me->newTrapType)
     {
         TextRenderer::getSingleton().moveText(POINTER_INFO_STRING,
                 arg.state.X.abs + 30, arg.state.Y.abs);
     }
 
+    Ogre::RaySceneQueryResult& result = doRaySceneQuery(arg);
+    Ogre::RaySceneQueryResult::iterator itr = result.begin();
+    Ogre::RaySceneQueryResult::iterator end = result.end();
+    string resultName = "";
     if (mDragType == ODFrameListener::tileSelection || mDragType
             == ODFrameListener::addNewRoom || mDragType
             == ODFrameListener::nullDragType)
     {
         // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
-        itr = result.begin();
-        while (itr != result.end())
+        for(; itr != end; ++itr)
         {
             if (itr->movable != NULL)
             {
@@ -769,23 +766,19 @@ bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
                     {
                         // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
                         //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords rather than the reverse that it is doing now.
-                        TileMap_t::iterator itr = gameMap.firstTile();
-                        while (itr != gameMap.lastTile())
+                        std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(xPos,
+                                            yPos, mLStartDragX, mLStartDragY);
+                        for(TileMap_t::iterator itr = gameMap.firstTile(), last = gameMap.lastTile();
+                                                        itr != last; ++itr)
                         {
-                            Tile *tempTile = itr->second;
-                            if (tempTile->x >= min(xPos, mLStartDragX)
-                                    && tempTile->x <= max(xPos, mLStartDragX)
-                                    && tempTile->y >= min(yPos, mLStartDragY)
-                                    && tempTile->y <= max(yPos, mLStartDragY))
+                            if(std::find(affectedTiles.begin(), affectedTiles.end(), itr->second) != affectedTiles.end())
                             {
-                                tempTile->setSelected(true);
+                                itr->second->setSelected(true);
                             }
                             else
                             {
-                                tempTile->setSelected(false);
+                                itr->second->setSelected(false);
                             }
-
-                            ++itr;
                         }
                     }
 
@@ -796,17 +789,14 @@ bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
                     break;
                 }
             }
-
-            ++itr;
         }
     }
 
-    else //if(mDragType == ExampleFrameListener::creature)
+    else
     {
         // We are dragging a creature but we want to loop over the result set to find the first tile entry,
         // we do this to get the current x-y location of where the "square selector" should be drawn.
-        itr = result.begin();
-        while (itr != result.end())
+        for(; itr != end; ++itr)
         {
             if (itr->movable != NULL)
             {
@@ -823,8 +813,6 @@ bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
                             xPos, yPos, 0);
                 }
             }
-
-            ++itr;
         }
     }
 
@@ -891,7 +879,7 @@ bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
     if (mLMouseDown && mDragType == ODFrameListener::mapLight
             && serverSocket == NULL && clientSocket == NULL)
     {
-        MapLight *tempMapLight = gameMap.getMapLight(draggedMapLight);
+        MapLight* tempMapLight = gameMap.getMapLight(draggedMapLight);
         if (tempMapLight != NULL)
             tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
     }
@@ -1011,9 +999,6 @@ bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
             itr = result.begin();
             while (itr != result.end())
             {
-                if (itr == result.end())
-                    break;
-
                 if (itr->movable != NULL)
                 {
                     resultName = itr->movable->getName();
@@ -1151,13 +1136,10 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
         return true;
 
     // Unselect all tiles
-    //for(int i = 0; i < gameMap.numTiles(); ++i)
-    TileMap_t::iterator itr = gameMap.firstTile();
-    while (itr != gameMap.lastTile())
+    for(TileMap_t::iterator itr = gameMap.firstTile(), last = gameMap.lastTile();
+            itr != last; ++itr)
     {
         itr->second->setSelected(false);
-
-        ++itr;
     }
 
     // Left mouse button up
@@ -1434,91 +1416,83 @@ void ODFrameListener::handleHotkeys(int hotkeyNumber)
  */
 bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
 {
-    using namespace OIS;
-    std::stringstream tempSS;
-
-    CEGUI::System *sys = CEGUI::System::getSingletonPtr();
-    sys->injectKeyDown(arg.key);
-    sys->injectChar(arg.text);
-
-    std::ostringstream ss;
-
-    CEGUI::WindowManager *wmgr;
-    CEGUI::Window *window;
-
     if (!terminalActive)
     {
+        std::stringstream tempSS;
+        std::ostringstream ss;
+
+        CEGUI::System* sys = CEGUI::System::getSingletonPtr();
+        sys->injectKeyDown(arg.key);
+        sys->injectChar(arg.text);
+
         // If the terminal is not active
         // Keyboard is used to move around and play game
         switch (arg.key)
         {
-            default:
-                break;
-
             case OIS::KC_GRAVE:
             case OIS::KC_F12:
                 terminalActive = true;
-                mKeyboard->setTextTranslation(Keyboard::Ascii);
+                mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
                 break;
 
                 // Move left
-            case KC_LEFT:
-            case KC_A:
+            case OIS::KC_LEFT:
+            case OIS::KC_A:
                 translateVectorAccel.x += -moveSpeedAccel; // Move camera left
                 break;
 
                 // Move right
-            case KC_RIGHT:
-            case KC_D:
+            case OIS::KC_RIGHT:
+            case OIS::KC_D:
                 translateVectorAccel.x += moveSpeedAccel; // Move camera right
                 break;
 
                 // Move forward
-            case KC_UP:
-            case KC_W:
+            case OIS::KC_UP:
+            case OIS::KC_W:
                 translateVectorAccel.y += moveSpeedAccel; // Move camera forward
                 break;
 
                 // Move backward
-            case KC_DOWN:
-            case KC_S:
+            case OIS::KC_DOWN:
+            case OIS::KC_S:
                 translateVectorAccel.y += -moveSpeedAccel; // Move camera backward
                 break;
 
                 // Move down
-            case KC_PGUP:
-            case KC_E:
+            case OIS::KC_PGUP:
+            case OIS::KC_E:
                 zChange += -moveSpeed; // Move straight down
                 break;
 
                 // Move up
-            case KC_INSERT:
-            case KC_Q:
+            case OIS::KC_INSERT:
+            case OIS::KC_Q:
                 zChange += moveSpeed; // Move straight up
                 break;
 
                 // Tilt up
-            case KC_HOME:
+            case OIS::KC_HOME:
                 mRotateLocalVector.x += mRotateSpeed.valueDegrees();
                 break;
 
                 // Tilt down
-            case KC_END:
+            case OIS::KC_END:
                 mRotateLocalVector.x += -mRotateSpeed.valueDegrees();
                 break;
 
                 // Turn left
-            case KC_DELETE:
+            case OIS::KC_DELETE:
                 swivelDegrees += 1.3 * mRotateSpeed;
                 break;
 
                 // Turn right
-            case KC_PGDOWN:
+            case OIS::KC_PGDOWN:
                 swivelDegrees += -1.3 * mRotateSpeed;
                 break;
 
                 //Toggle mCurrentTileType
-            case KC_R:
+            case OIS::KC_R:
                 if (serverSocket == NULL && clientSocket == NULL)
                 {
                     mCurrentTileType = Tile::nextTileType(mCurrentTileType);
@@ -1530,7 +1504,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 break;
 
                 //Decrease brush radius
-            case KC_COMMA:
+            case OIS::KC_COMMA:
                 if (serverSocket == NULL && clientSocket == NULL)
                 {
                     if (mCurrentTileRadius > 1)
@@ -1544,7 +1518,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 break;
 
                 //Increase brush radius
-            case KC_PERIOD:
+            case OIS::KC_PERIOD:
                 if (serverSocket == NULL && clientSocket == NULL)
                 {
                     if (mCurrentTileRadius < 10)
@@ -1558,7 +1532,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 break;
 
                 //Toggle mBrushMode
-            case KC_B:
+            case OIS::KC_B:
                 if (serverSocket == NULL && clientSocket == NULL)
                 {
                     mBrushMode = !mBrushMode;
@@ -1569,7 +1543,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 break;
 
                 //Toggle mCurrentFullness
-            case KC_T:
+            case OIS::KC_T:
                 // If we are not in a game.
                 if (serverSocket == NULL && clientSocket == NULL)
                 {
@@ -1579,71 +1553,76 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 }
                 else // If we are in a game.
                 {
-                    Seat *tempSeat = gameMap.me->seat;
+                    Seat* tempSeat = gameMap.me->seat;
                     flyTo(Ogre::Vector3(tempSeat->startingX,
                             tempSeat->startingY, 0.0));
                 }
                 break;
 
                 // Toggle the framerate display
-            case KC_F:
+            case OIS::KC_F:
+            {
                 // Toggle visibility of the framerate display.
                 mStatsOn = !mStatsOn;
                 showDebugOverlay(mStatsOn);
 
                 // Toggle visibility of the CEGUI display.
-                wmgr = CEGUI::WindowManager::getSingletonPtr();
-                window = wmgr->getWindow((CEGUI::utf8*) "Root");
+                CEGUI::Window* window
+                        = CEGUI::WindowManager::getSingletonPtr()->
+                                getWindow((CEGUI::utf8*) "Root");
                 if (mStatsOn)
                     window->hide();
                 else
                     window->show();
 
                 break;
-
+            }
                 // Quit the game
-            case KC_ESCAPE:
+            case OIS::KC_ESCAPE:
                 writeGameMapToFile(((string) "levels/Test.level"
                         + (string) ".out"));
                 mContinue = false;
                 break;
 
                 // Print a screenshot
-            case KC_SYSRQ:
+            case OIS::KC_SYSRQ:
                 ss << "screenshot_" << ++mNumScreenShots << ".png";
                 mWindow->writeContentsToFile(ss.str());
                 mDebugText = "Saved: " + ss.str();
                 break;
 
-            case KC_1:
+            case OIS::KC_1:
                 handleHotkeys(1);
                 break;
-            case KC_2:
+            case OIS::KC_2:
                 handleHotkeys(2);
                 break;
-            case KC_3:
+            case OIS::KC_3:
                 handleHotkeys(3);
                 break;
-            case KC_4:
+            case OIS::KC_4:
                 handleHotkeys(4);
                 break;
-            case KC_5:
+            case OIS::KC_5:
                 handleHotkeys(5);
                 break;
-            case KC_6:
+            case OIS::KC_6:
                 handleHotkeys(6);
                 break;
-            case KC_7:
+            case OIS::KC_7:
                 handleHotkeys(7);
                 break;
-            case KC_8:
+            case OIS::KC_8:
                 handleHotkeys(8);
                 break;
-            case KC_9:
+            case OIS::KC_9:
                 handleHotkeys(9);
                 break;
-            case KC_0:
+            case OIS::KC_0:
                 handleHotkeys(0);
+                break;
+
+            default:
                 break;
         }
     }
@@ -1654,7 +1633,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
         // Keyboard is used to command the terminal
         switch (arg.key)
         {
-            case KC_RETURN:
+            case OIS::KC_RETURN:
 
                 // If the user just presses enter without entering a command we return to the game
                 if (promptCommand.size() == 0)
@@ -1685,9 +1664,9 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 executePromptCommand(command, arguments);
                 break;
 
-            case KC_GRAVE:
+            case OIS::KC_GRAVE:
             case OIS::KC_F12:
-            case KC_ESCAPE:
+            case OIS::KC_ESCAPE:
                 terminalActive = false;
                 break;
 
@@ -1704,7 +1683,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 {
                     switch (arg.key)
                     {
-                        case KC_BACK:
+                        case OIS::KC_BACK:
                             promptCommand = promptCommand.substr(0,
                                     promptCommand.size() - 1);
                             break;
@@ -1727,7 +1706,6 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
  */
 bool ODFrameListener::keyReleased(const OIS::KeyEvent &arg)
 {
-    using namespace OIS;
     CEGUI::System::getSingleton().injectKeyUp(arg.key);
 
     if (!terminalActive)
@@ -1735,59 +1713,59 @@ bool ODFrameListener::keyReleased(const OIS::KeyEvent &arg)
         switch (arg.key)
         {
                 // Move left
-            case KC_LEFT:
-            case KC_A:
-                translateVectorAccel.x -= -moveSpeedAccel; // Move camera forward
+            case OIS::KC_LEFT:
+            case OIS::KC_A:
+                translateVectorAccel.x += moveSpeedAccel; // Move camera forward
                 break;
 
                 // Move right
-            case KC_D:
-            case KC_RIGHT:
+            case OIS::KC_D:
+            case OIS::KC_RIGHT:
                 translateVectorAccel.x -= moveSpeedAccel; // Move camera backward
                 break;
 
                 // Move forward
-            case KC_UP:
-            case KC_W:
+            case OIS::KC_UP:
+            case OIS::KC_W:
                 translateVectorAccel.y -= moveSpeedAccel; // Move camera forward
                 break;
 
                 // Move backward
-            case KC_DOWN:
-            case KC_S:
-                translateVectorAccel.y -= -moveSpeedAccel; // Move camera backward
+            case OIS::KC_DOWN:
+            case OIS::KC_S:
+                translateVectorAccel.y += moveSpeedAccel; // Move camera backward
                 break;
 
                 // Move down
-            case KC_PGUP:
-            case KC_E:
-                zChange -= -moveSpeed; // Move straight down
+            case OIS::KC_PGUP:
+            case OIS::KC_E:
+                zChange += moveSpeed; // Move straight down
                 break;
 
                 // Move up
-            case KC_INSERT:
-            case KC_Q:
+            case OIS::KC_INSERT:
+            case OIS::KC_Q:
                 zChange -= moveSpeed; // Move straight up
                 break;
 
                 // Tilt up
-            case KC_HOME:
+            case OIS::KC_HOME:
                 mRotateLocalVector.x -= mRotateSpeed.valueDegrees();
                 break;
 
                 // Tilt down
-            case KC_END:
-                mRotateLocalVector.x -= -mRotateSpeed.valueDegrees();
+            case OIS::KC_END:
+                mRotateLocalVector.x += mRotateSpeed.valueDegrees();
                 break;
 
                 // Turn left
-            case KC_DELETE:
+            case OIS::KC_DELETE:
                 swivelDegrees -= 1.3 * mRotateSpeed;
                 break;
 
                 // Turn right
-            case KC_PGDOWN:
-                swivelDegrees -= -1.3 * mRotateSpeed;
+            case OIS::KC_PGDOWN:
+                swivelDegrees += 1.3 * mRotateSpeed;
                 break;
 
             default:
@@ -1805,7 +1783,7 @@ bool ODFrameListener::keyReleased(const OIS::KeyEvent &arg)
  */
 void ODFrameListener::printText(string text)
 {
-    string tempString;
+    string tempString = "";
     int lineLength = 0;
     for (unsigned int i = 0; i < text.size(); ++i)
     {
@@ -2336,8 +2314,7 @@ void ODFrameListener::executePromptCommand(string command,
                 }
                 else
                 {
-                    tempSS
-                            << "You must either host or join a game before you can list the players in the game.\n";
+                    tempSS << "You must either host or join a game before you can list the players in the game.\n";
                 }
             }
 
@@ -2823,8 +2800,10 @@ void ODFrameListener::executePromptCommand(string command,
     }
 
     else
+    {
         commandOutput
                 += "\nCommand not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.\n";
+    }
 
     promptCommand = "";
 }

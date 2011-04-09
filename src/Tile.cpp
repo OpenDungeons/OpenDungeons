@@ -735,12 +735,11 @@ void Tile::destroyMesh()
  */
 void Tile::setSelected(bool s)
 {
-    Ogre::Entity *ent;
-    char tempString[255];
-    char tempString2[255];
-
     if (selected != s)
     {
+        Ogre::Entity* ent;
+        char tempString[255];
+
         snprintf(tempString, sizeof(tempString),
                 "Level_%3i_%3i_selection_indicator", x, y);
         if (mSceneMgr->hasEntity(tempString))
@@ -749,13 +748,10 @@ void Tile::setSelected(bool s)
         }
         else
         {
-            snprintf(tempString2, sizeof(tempString2), "Level_%3i_%3i_node", x,
-                    y);
-            Ogre::SceneNode *tempNode = mSceneMgr->getSceneNode(tempString2);
-
+            char tempString2[255];
+            snprintf(tempString2, sizeof(tempString2), "Level_%3i_%3i_node", x, y);
             ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
-            tempNode->attachObject(ent);
-            ent->setVisible(false);
+            mSceneMgr->getSceneNode(tempString2)->attachObject(ent);
         }
 
         selected = s;
