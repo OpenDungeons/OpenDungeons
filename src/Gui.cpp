@@ -9,7 +9,7 @@
 
 #include "Globals.h"
 #include "Functions.h"
-#include "ExampleFrameListener.h"
+#include "ODFrameListener.h"
 #include "GameMap.h"
 #include "Player.h"
 #include "Trap.h"
@@ -131,7 +131,7 @@ void Gui::assignEventHandlers()
 bool Gui::quitButtonPressed(const CEGUI::EventArgs& e)
 {
     writeGameMapToFile(std::string("levels/Test.level") + std::string(".out"));
-    ExampleFrameListener::getSingletonPtr()->mContinue = false;
+    ODFrameListener::getSingletonPtr()->mContinue = false;
     return true;
 }
 

@@ -1,4 +1,10 @@
-// THREAD - This class contains the rendering code which runs as in the initial thread created by the executable.
+/*!
+ * \file   ODFrameListener.cpp
+ * \date   09 April 2011
+ * \author Ogre team, andrewbuck, oln, StefanP.MUC
+ * \brief  Handles the input and rendering request
+ */
+
 #include <iostream>
 #include <algorithm>
 
@@ -30,16 +36,16 @@
 #include "RenderManager.h"
 #include "Gui.h"
 
-#include "ExampleFrameListener.h"
+#include "ODFrameListener.h"
 
-template<> ExampleFrameListener*
-        Ogre::Singleton<ExampleFrameListener>::ms_Singleton = 0;
+template<> ODFrameListener*
+        Ogre::Singleton<ODFrameListener>::ms_Singleton = 0;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
 #endif
 
-void ExampleFrameListener::updateStats(void)
+void ODFrameListener::updateStats(void)
 {
     static Ogre::String currFps = "Current FPS: ";
     static Ogre::String avgFps = "Average FPS: ";
@@ -93,7 +99,7 @@ void ExampleFrameListener::updateStats(void)
 
 /*! \brief Returns access to the singleton instance of Gui
  */
-ExampleFrameListener& ExampleFrameListener::getSingleton()
+ODFrameListener& ODFrameListener::getSingleton()
 {
     assert(ms_Singleton);
     return(*ms_Singleton);
@@ -101,7 +107,7 @@ ExampleFrameListener& ExampleFrameListener::getSingleton()
 
 /*! \brief Returns access to the pointer to the singleton instance of Gui
  */
-ExampleFrameListener* ExampleFrameListener::getSingletonPtr()
+ODFrameListener* ODFrameListener::getSingletonPtr()
 {
     return ms_Singleton;
 }
@@ -111,7 +117,7 @@ ExampleFrameListener* ExampleFrameListener::getSingletonPtr()
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ExampleFrameListener::ExampleFrameListener(Ogre::RenderWindow* win,
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* win,
         Ogre::Camera* cam, Ogre::SceneManager* sceneManager, bool bufferedKeys,
         bool bufferedMouse, bool bufferedJoy) :
     mCamera(cam), mWindow(win)
@@ -128,7 +134,7 @@ ExampleFrameListener::ExampleFrameListener(Ogre::RenderWindow* win,
     //Changed to something as it was annoying to write in the nick
     //every time, change back if it being blank is important.
     gameMap.me->nick = "defaultNickName";
-    mDragType = ExampleFrameListener::nullDragType;
+    mDragType = ODFrameListener::nullDragType;
     frameDelay = 0.0;
     zChange = 0.0;
     mCurrentTileRadius = 1;
@@ -153,7 +159,6 @@ ExampleFrameListener::ExampleFrameListener(Ogre::RenderWindow* win,
     mInputManager = 0;
     mMouse = 0;
     mKeyboard = 0;
-    mJoy = 0;
     mCurrentTileType = Tile::dirt;
     mCurrentFullness = 100;
 
@@ -170,10 +175,8 @@ ExampleFrameListener::ExampleFrameListener(Ogre::RenderWindow* win,
         hotkeyLocation[i] = Ogre::Vector3::ZERO;
     }
 
-    using namespace OIS;
-
     Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
-    ParamList pl;
+    OIS::ParamList pl;
     size_t windowHnd = 0;
     std::ostringstream windowHndStr;
 
@@ -181,22 +184,13 @@ ExampleFrameListener::ExampleFrameListener(Ogre::RenderWindow* win,
     windowHndStr << windowHnd;
     pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
 
-    mInputManager = InputManager::createInputSystem(pl);
+    mInputManager = OIS::InputManager::createInputSystem(pl);
 
     //Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
-    mKeyboard = static_cast<Keyboard*> (mInputManager->createInputObject(
-            OISKeyboard, bufferedKeys));
-    mMouse = static_cast<Mouse*> (mInputManager->createInputObject(OISMouse,
+    mKeyboard = static_cast<OIS::Keyboard*> (mInputManager->createInputObject(
+            OIS::OISKeyboard, bufferedKeys));
+    mMouse = static_cast<OIS::Mouse*> (mInputManager->createInputObject(OIS::OISMouse,
             bufferedMouse));
-    try
-    {
-        mJoy = static_cast<JoyStick*> (mInputManager->createInputObject(
-                OISJoyStick, bufferedJoy));
-    }
-    catch (...)
-    {
-        mJoy = 0;
-    }
 
     //Set initial mouse clipping size
     windowResized(mWindow);
@@ -232,7 +226,7 @@ ExampleFrameListener::ExampleFrameListener(Ogre::RenderWindow* win,
 /*! \brief Adjust mouse clipping area
  *
  */
-void ExampleFrameListener::windowResized(Ogre::RenderWindow* rw)
+void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
 {
     unsigned int width, height, depth;
     int left, top;
@@ -250,16 +244,15 @@ void ExampleFrameListener::windowResized(Ogre::RenderWindow* rw)
 /*! \brief Unattach OIS before window shutdown (very important under Linux)
  *
  */
-void ExampleFrameListener::windowClosed(Ogre::RenderWindow* rw)
+void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
 {
     //Only close for window that created OIS (the main window in these demos)
-    if (rw == mWindow)
+    if(rw == mWindow)
     {
-        if (mInputManager)
+        if(mInputManager)
         {
             mInputManager->destroyInputObject(mMouse);
             mInputManager->destroyInputObject(mKeyboard);
-            mInputManager->destroyInputObject(mJoy);
 
             OIS::InputManager::destroyInputSystem(mInputManager);
             mInputManager = 0;
@@ -267,7 +260,7 @@ void ExampleFrameListener::windowClosed(Ogre::RenderWindow* rw)
     }
 }
 
-ExampleFrameListener::~ExampleFrameListener()
+ODFrameListener::~ODFrameListener()
 {
     gameMap.clearAll();
     mSceneMgr->destroyQuery(mRaySceneQuery);
@@ -280,7 +273,7 @@ ExampleFrameListener::~ExampleFrameListener()
 /*! \brief Sets the camera to a new location while still satisfying the constraints placed on its movement
  *
  */
-void ExampleFrameListener::moveCamera(Ogre::Real frameTime)
+void ODFrameListener::moveCamera(Ogre::Real frameTime)
 {
     // Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Real speed = translateVector.normalise();
@@ -367,7 +360,7 @@ void ExampleFrameListener::moveCamera(Ogre::Real frameTime)
 /** \brief Computes a vector whose z-component is 0 and whose x-y coordinates are the position on the floor that the camera is pointed at.
  *
  */
-Ogre::Vector3 ExampleFrameListener::getCameraViewTarget()
+Ogre::Vector3 ODFrameListener::getCameraViewTarget()
 {
     Ogre::Vector3 target, position, viewDirection, offset;
 
@@ -393,14 +386,14 @@ Ogre::Vector3 ExampleFrameListener::getCameraViewTarget()
 /** \brief Starts the camera moving towards a destination position, it will stop moving when it gets there.
  *
  */
-void ExampleFrameListener::flyTo(Ogre::Vector3 destination)
+void ODFrameListener::flyTo(Ogre::Vector3 destination)
 {
     cameraFlightDestination = destination;
     cameraFlightDestination.z = 0.0;
     cameraIsFlying = true;
 }
 
-void ExampleFrameListener::showDebugOverlay(bool show)
+void ODFrameListener::showDebugOverlay(bool show)
 {
     if (mDebugOverlay)
     {
@@ -426,7 +419,7 @@ void ExampleFrameListener::showDebugOverlay(bool show)
  * operations performed by this function is the processing of a request queue
  * full of RenderRequest structures.
  */
-bool ExampleFrameListener::frameStarted(const Ogre::FrameEvent& evt)
+bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 {
     if (mWindow->isClosed())
         return false;
@@ -695,7 +688,7 @@ bool ExampleFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     return mContinue;
 }
 
-bool ExampleFrameListener::frameEnded(const Ogre::FrameEvent& evt)
+bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
     updateStats();
     return true;
@@ -704,13 +697,13 @@ bool ExampleFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 /*! \brief Exit the game.
  *
  */
-bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)
+bool ODFrameListener::quit(const CEGUI::EventArgs &e)
 {
     mContinue = false;
     return true;
 }
 
-Ogre::RaySceneQueryResult& ExampleFrameListener::doRaySceneQuery(
+Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(
         const OIS::MouseEvent &arg)
 {
     // Setup the ray scene query, use CEGUI's mouse position
@@ -730,7 +723,7 @@ Ogre::RaySceneQueryResult& ExampleFrameListener::doRaySceneQuery(
  * to handle things like dragging out selections of tiles and selecting
  * creatures.
  */
-bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
+bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 {
     string resultName;
 
@@ -750,9 +743,9 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
                 arg.state.X.abs + 30, arg.state.Y.abs);
     }
 
-    if (mDragType == ExampleFrameListener::tileSelection || mDragType
-            == ExampleFrameListener::addNewRoom || mDragType
-            == ExampleFrameListener::nullDragType)
+    if (mDragType == ODFrameListener::tileSelection || mDragType
+            == ODFrameListener::addNewRoom || mDragType
+            == ODFrameListener::nullDragType)
     {
         // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
         itr = result.begin();
@@ -836,7 +829,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
     }
 
     // If we are drawing with the brush in the map editor.
-    if (mLMouseDown && mDragType == ExampleFrameListener::tileBrushSelection
+    if (mLMouseDown && mDragType == ODFrameListener::tileBrushSelection
             && serverSocket == NULL && clientSocket == NULL)
     {
         // Loop over the square region surrounding current mouse location and either set the tile type of the affected tiles or create new ones.
@@ -895,7 +888,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
     }
 
     // If we are dragging a map light we need to update its position to the current x-y location.
-    if (mLMouseDown && mDragType == ExampleFrameListener::mapLight
+    if (mLMouseDown && mDragType == ODFrameListener::mapLight
             && serverSocket == NULL && clientSocket == NULL)
     {
         MapLight *tempMapLight = gameMap.getMapLight(draggedMapLight);
@@ -922,7 +915,7 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
  * This function does a ray scene query to determine what is under the mouse
  * and determines whether a creature or a selection of tiles, is being dragged.
  */
-bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
+bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
         OIS::MouseButtonID id)
 {
     Creature *tempCreature;
@@ -997,7 +990,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
                         creatureSceneNode->removeChild(node);
                         mSceneMgr->getSceneNode("Hand_node")->addChild(node);
                         node->setPosition(0, 0, 0);
-                        mDragType = ExampleFrameListener::creature;
+                        mDragType = ODFrameListener::creature;
 
                         sfxHelper->playInterfaceSound(
                                 SoundEffectsHelper::PICKUP);
@@ -1026,7 +1019,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
                     resultName = itr->movable->getName();
                     if (resultName.find("MapLightIndicator_") != string::npos)
                     {
-                        mDragType = ExampleFrameListener::mapLight;
+                        mDragType = ODFrameListener::mapLight;
                         draggedMapLight = resultName.substr(
                                 ((string) "MapLightIndicator_").size(),
                                 resultName.size());
@@ -1051,25 +1044,25 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
                 if (resultName.find("Level_") != string::npos)
                 {
                     // Start by assuming this is a tileSelection drag.
-                    mDragType = ExampleFrameListener::tileSelection;
+                    mDragType = ODFrameListener::tileSelection;
 
                     // If we are in the map editor, use a brush selection if it has been activated.
                     if (serverSocket == NULL && clientSocket == NULL
                             && mBrushMode)
                     {
-                        mDragType = ExampleFrameListener::tileBrushSelection;
+                        mDragType = ODFrameListener::tileBrushSelection;
                     }
 
                     // If we have selected a room type to add to the map, use a addNewRoom drag type.
                     if (gameMap.me->newRoomType != Room::nullRoomType)
                     {
-                        mDragType = ExampleFrameListener::addNewRoom;
+                        mDragType = ODFrameListener::addNewRoom;
                     }
 
                     // If we have selected a trap type to add to the map, use a addNewTrap drag type.
                     else if (gameMap.me->newTrapType != Trap::nullTrapType)
                     {
-                        mDragType = ExampleFrameListener::addNewTrap;
+                        mDragType = ODFrameListener::addNewTrap;
                     }
                     break;
                 }
@@ -1098,7 +1091,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
         mRStartDragY = yPos;
 
         // Stop creating rooms, traps, etc.
-        mDragType = ExampleFrameListener::nullDragType;
+        mDragType = ODFrameListener::nullDragType;
         gameMap.me->newRoomType = Room::nullRoomType;
         gameMap.me->newTrapType = Trap::nullTrapType;
         TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "");
@@ -1147,7 +1140,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
  *
  * Finalize the selection of tiles or drop a creature when the user releases the mouse button.
  */
-bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
+bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
         OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().injectMouseButtonUp(
@@ -1171,7 +1164,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
     if (id == OIS::MB_Left)
     {
         // Check to see if we are moving a creature
-        if (mDragType == ExampleFrameListener::creature)
+        if (mDragType == ODFrameListener::creature)
         {
             if (serverSocket == NULL && clientSocket == NULL)
             {
@@ -1179,13 +1172,13 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                         + "_node");
                 mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
                 creatureSceneNode->addChild(node);
-                mDragType = ExampleFrameListener::nullDragType;
+                mDragType = ODFrameListener::nullDragType;
                 gameMap.getCreature(draggedCreature)->setPosition(xPos, yPos, 0);
             }
         }
 
         // Check to see if we are dragging a map light.
-        else if (mDragType == ExampleFrameListener::mapLight)
+        else if (mDragType == ODFrameListener::mapLight)
         {
             if (serverSocket == NULL && clientSocket == NULL)
             {
@@ -1197,9 +1190,9 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
         }
 
         // Check to see if we are dragging out a selection of tiles or creating a new room
-        else if (mDragType == ExampleFrameListener::tileSelection || mDragType
-                == ExampleFrameListener::addNewRoom || mDragType
-                == ExampleFrameListener::addNewTrap)
+        else if (mDragType == ODFrameListener::tileSelection || mDragType
+                == ODFrameListener::addNewRoom || mDragType
+                == ODFrameListener::addNewTrap)
         {
             // Loop over the valid tiles in the affected region.  If we are doing a tileSelection (changing the tile type and fullness) this
             // loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
@@ -1213,7 +1206,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 Tile *currentTile = *itr;
 
                 // If we are dragging out tiles.
-                if (mDragType == ExampleFrameListener::tileSelection)
+                if (mDragType == ODFrameListener::tileSelection)
                 {
                     // See if we are in a game or not
                     if (serverSocket != NULL || clientSocket != NULL)
@@ -1300,7 +1293,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
 
             // If we are adding new rooms the above loop will have pruned out the tiles not eligible
             // for adding rooms to.  This block then actually adds rooms to the remaining tiles.
-            if (mDragType == ExampleFrameListener::addNewRoom
+            if (mDragType == ODFrameListener::addNewRoom
                     && affectedTiles.size() > 0)
             {
                 int newRoomColor = 0, goldRequired = 0;
@@ -1353,7 +1346,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
             // If we are adding new traps the above loop will have pruned out the tiles not eligible
             // for adding traps to.  This block then actually adds traps to the remaining tiles.
             //TODO:  Make this check to make sure we have enough gold to create the traps.
-            if (mDragType == ExampleFrameListener::addNewTrap
+            if (mDragType == ODFrameListener::addNewTrap
                     && affectedTiles.size() > 0)
             {
                 int goldRequired = 0;
@@ -1414,7 +1407,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
     return true;
 }
 
-void ExampleFrameListener::handleHotkeys(int hotkeyNumber)
+void ODFrameListener::handleHotkeys(int hotkeyNumber)
 {
     // If the shift key is pressed we store this hotkey location, otherwise we fly the camera to a stored position.
     if (mKeyboard->isModifierDown(OIS::Keyboard::Shift))
@@ -1439,7 +1432,7 @@ void ExampleFrameListener::handleHotkeys(int hotkeyNumber)
  * is not active the keyboard is used to move the camera and control the game
  * through hotkeys.
  */
-bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
+bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
 {
     using namespace OIS;
     std::stringstream tempSS;
@@ -1732,7 +1725,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
  *
  * When a key is released during normal gamplay the camera movement may need to be stopped.
  */
-bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
+bool ODFrameListener::keyReleased(const OIS::KeyEvent &arg)
 {
     using namespace OIS;
     CEGUI::System::getSingleton().injectKeyUp(arg.key);
@@ -1810,7 +1803,7 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
  * Displays the given text on the screen starting in the upper-left corner.
  * This is the function which displays the text on the in game console.
  */
-void ExampleFrameListener::printText(string text)
+void ODFrameListener::printText(string text)
 {
     string tempString;
     int lineLength = 0;
@@ -1840,7 +1833,7 @@ void ExampleFrameListener::printText(string text)
 /*! \brief Process the commandline from the terminal and carry out the actions specified in by the user.
  *
  */
-void ExampleFrameListener::executePromptCommand(string command,
+void ODFrameListener::executePromptCommand(string command,
         string arguments)
 {
     std::stringstream tempSS;
@@ -2839,7 +2832,7 @@ void ExampleFrameListener::executePromptCommand(string command,
 /*! \brief A helper function to return a help text string for a given termianl command.
  *
  */
-string ExampleFrameListener::getHelpText(string arg)
+string ODFrameListener::getHelpText(string arg)
 {
     std::transform(arg.begin(), arg.end(), arg.begin(), ::tolower);
 

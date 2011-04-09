@@ -1,23 +1,8 @@
-/*
- -----------------------------------------------------------------------------
- This source file is part of OGRE
- (Object-oriented Graphics Rendering Engine)
- For the latest info, see http://www.ogre3d.org/
-
- Copyright (c) 2000-2006 Torus Knot Software Ltd
- Also see acknowledgements in Readme.html
-
- You may use this sample code for anything you like, it is not covered by the
- LGPL like the rest of the engine.
- -----------------------------------------------------------------------------
- */
-/*
- -----------------------------------------------------------------------------
- Filename:    ExampleFrameListener.h
- Description: Defines an example frame listener which responds to frame events.
- This frame listener just moves a specified camera around based on
- keyboard and mouse movements.
- -----------------------------------------------------------------------------
+/*!
+ * \file   ODFrameListener.h
+ * \date   09 April 2011
+ * \author Ogre team, andrewbuck, oln, StefanP.MUC
+ * \brief  Handles the input and rendering request
  */
 
 #ifndef __ExampleFrameListener_H__
@@ -37,6 +22,7 @@
 
 #include "Tile.h"
 
+class Socket;
 class RenderManager;
 class SoundEffectsHelper;
 class ChatMessage;
@@ -48,8 +34,8 @@ class ChatMessage;
  * initializes the meshes for creatures and tiles, moves the camera, and
  * displays the terminal and chat messages on the game screen.
  */
-class ExampleFrameListener :
-        public Ogre::Singleton<ExampleFrameListener>,
+class ODFrameListener :
+        public Ogre::Singleton<ODFrameListener>,
         public Ogre::FrameListener,
         public Ogre::WindowEventListener,
         public OIS::MouseListener,
@@ -60,13 +46,13 @@ class ExampleFrameListener :
 
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
-        ExampleFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
+        ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
                 Ogre::SceneManager *sceneManager, bool bufferedKeys,
                 bool bufferedMouse, bool bufferedJoy);
-        virtual ~ExampleFrameListener();
+        virtual ~ODFrameListener();
 
-        static ExampleFrameListener& getSingleton();
-        static ExampleFrameListener* getSingletonPtr();
+        static ODFrameListener& getSingleton();
+        static ODFrameListener* getSingletonPtr();
 
         //Adjust mouse clipping area
         virtual void windowResized(Ogre::RenderWindow* rw);
@@ -154,7 +140,6 @@ class ExampleFrameListener :
         OIS::InputManager* mInputManager;
         OIS::Mouse* mMouse;
         OIS::Keyboard* mKeyboard;
-        OIS::JoyStick* mJoy;
 
         // Mouse query stuff
         Ogre::RaySceneQuery* mRaySceneQuery; // The ray scene query pointer
@@ -180,7 +165,7 @@ class ExampleFrameListener :
         RenderManager* renderManager;
 
     private:
-        ExampleFrameListener(const ExampleFrameListener&);
+        ODFrameListener(const ODFrameListener&);
 
         bool terminalActive;
         int terminalWordWrap;

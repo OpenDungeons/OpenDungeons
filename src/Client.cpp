@@ -2,7 +2,7 @@
 
 #include "Globals.h"
 #include "Socket.h"
-#include "ExampleFrameListener.h"
+#include "ODFrameListener.h"
 #include "Network.h"
 #include "ChatMessage.h"
 #include "GameMap.h"
@@ -29,7 +29,7 @@ void *clientSocketProcessor(void *p)
     std::string tempString;
     std::string serverCommand, arguments;
     Socket *sock = ((CSPStruct*) p)->nSocket;
-    ExampleFrameListener *frameListener = ((CSPStruct*) p)->nFrameListener;
+    ODFrameListener *frameListener = ((CSPStruct*) p)->nFrameListener;
     delete (CSPStruct*) p;
     p = NULL;
 

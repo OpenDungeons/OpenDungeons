@@ -3,7 +3,7 @@
 
 #include "Globals.h"
 #include "Socket.h"
-#include "ExampleFrameListener.h"
+#include "ODFrameListener.h"
 #include "Network.h"
 #include "ChatMessage.h"
 #include "Functions.h"
@@ -30,7 +30,7 @@ void *serverSocketProcessor(void *p)
 {
     Socket *sock = ((SSPStruct*) p)->nSocket;
     Socket *curSock;
-    ExampleFrameListener *frameListener = ((SSPStruct*) p)->nFrameListener;
+    ODFrameListener *frameListener = ((SSPStruct*) p)->nFrameListener;
     delete (SSPStruct*) p;
     p = NULL;
 
@@ -222,7 +222,7 @@ void *creatureAIThread(void *p)
 // THREAD - This function is meant to be called by pthread_create.
 void *serverNotificationProcessor(void *p)
 {
-    ExampleFrameListener *frameListener = ((SNPStruct*) p)->nFrameListener;
+    ODFrameListener *frameListener = ((SNPStruct*) p)->nFrameListener;
     delete (SNPStruct*) p;
     p = NULL;
 
@@ -374,7 +374,7 @@ void *serverNotificationProcessor(void *p)
 void *clientHandlerThread(void *p)
 {
     Socket *curSock = ((CHTStruct*) p)->nSocket;
-    ExampleFrameListener *frameListener = ((CHTStruct*) p)->nFrameListener;
+    ODFrameListener *frameListener = ((CHTStruct*) p)->nFrameListener;
     Player *curPlayer = NULL;
     delete (CHTStruct*) p;
     p = NULL;
@@ -650,7 +650,7 @@ void *clientHandlerThread(void *p)
     return NULL;
 }
 
-void sendToAllClients(ExampleFrameListener *frameListener, std::string str)
+void sendToAllClients(ODFrameListener *frameListener, std::string str)
 {
     for (unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
     {

@@ -5,10 +5,9 @@
 #include <string>
 #include <utility>
 
-class ExampleFrameListener;
+class ODFrameListener;
 class Socket;
 
-#include "ExampleFrameListener.h"
 #include "ChatMessage.h"
 
 // Functions called by pthread_create which run on the server
@@ -25,7 +24,7 @@ void *clientNotificationProcessor(void *p);
 std::string formatCommand(std::string command, std::string arguments);
 bool parseCommand(std::string &command, std::string &commandName, std::string &arguments);
 ChatMessage *processChatMessage(std::string arguments);
-void sendToAllClients(ExampleFrameListener *frameListener, std::string str);
+void sendToAllClients(ODFrameListener *frameListener, std::string str);
 
 /*! \brief Server Socket Processor Structure
  *
@@ -35,7 +34,7 @@ class SSPStruct
 {
     public:
         Socket *nSocket;
-        ExampleFrameListener *nFrameListener;
+        ODFrameListener *nFrameListener;
 };
 
 /*! \brief Client Socket Processor Structure
@@ -46,7 +45,7 @@ class CSPStruct
 {
     public:
         Socket *nSocket;
-        ExampleFrameListener *nFrameListener;
+        ODFrameListener *nFrameListener;
 };
 
 /*! \brief Client Handler Thread Structure
@@ -57,7 +56,7 @@ class CHTStruct
 {
     public:
         Socket *nSocket;
-        ExampleFrameListener *nFrameListener;
+        ODFrameListener *nFrameListener;
 };
 
 /*! \brief Server Notification Processor Structure
@@ -67,7 +66,7 @@ class CHTStruct
 class SNPStruct
 {
     public:
-        ExampleFrameListener *nFrameListener;
+        ODFrameListener *nFrameListener;
 };
 
 /*! \brief Client Notification Processor Structure
@@ -77,7 +76,7 @@ class SNPStruct
 class CNPStruct
 {
     public:
-        ExampleFrameListener *nFrameListener;
+        ODFrameListener *nFrameListener;
 };
 
 #endif

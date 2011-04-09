@@ -3,17 +3,15 @@ SET(
     ActiveObject.h
     AnimatedObject.h
     AttackableObject.h
-    ButtonHandlers.h
     ChatMessage.h
     ClientNotification.h
     CreatureAction.h
     CreatureClass.h
     Creature.h
     CreatureSound.h
-    Defines.h
     DirectionalTrap.h
-    ExampleApplication.h
-    ExampleFrameListener.h
+    ODFrameListener.h
+    OpenDungeonsApplication.h
     Field.h
     Functions.h
     GameMap.h

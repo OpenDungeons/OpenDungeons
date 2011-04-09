@@ -1,6 +1,7 @@
 #include <cmath>
 #include <algorithm>
 
+#include <CEGUI.h>
 #include <CEGUIWindow.h>
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>

@@ -8,7 +8,9 @@
 #include <OgrePass.h>
 #include <OgreTexture.h>
 #include <OgreMaterial.h>
+#include <CEGUIWIndowManager.h>
 
+#include "ODFrameListener.h"
 #include "Globals.h"
 #include "Socket.h"
 #include "Creature.h"
@@ -566,18 +568,18 @@ bool startServer()
         // Start the server thread which will listen for, and accept, connections
         SSPStruct* ssps = new SSPStruct;
         ssps->nSocket = serverSocket;
-        ssps->nFrameListener = ExampleFrameListener::getSingletonPtr();
-        pthread_create(&ExampleFrameListener::getSingletonPtr()->serverThread,
+        ssps->nFrameListener = ODFrameListener::getSingletonPtr();
+        pthread_create(&ODFrameListener::getSingletonPtr()->serverThread,
                 NULL, serverSocketProcessor, (void*) ssps);
 
         // Start the thread which will watch for local events to send to the clients
         SNPStruct* snps = new SNPStruct;
-        snps->nFrameListener = ExampleFrameListener::getSingletonPtr();
-        pthread_create(&ExampleFrameListener::getSingletonPtr()->serverNotificationThread,
+        snps->nFrameListener = ODFrameListener::getSingletonPtr();
+        pthread_create(&ODFrameListener::getSingletonPtr()->serverNotificationThread,
                 NULL, serverNotificationProcessor, snps);
 
         // Start the creature AI thread
-        pthread_create(&ExampleFrameListener::getSingletonPtr()->creatureThread,
+        pthread_create(&ODFrameListener::getSingletonPtr()->creatureThread,
                 NULL, creatureAIThread, NULL);
 
         // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.

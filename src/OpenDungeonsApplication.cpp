@@ -17,7 +17,7 @@
 
 #include "Globals.h"
 #include "Functions.h"
-#include "ExampleFrameListener.h"
+#include "ODFrameListener.h"
 #include "GameMap.h"
 #include "TextRenderer.h"
 #include "RenderManager.h"
@@ -133,9 +133,9 @@ bool OpenDungeonsApplication::setup()
     createScene();
 
     //create the framelistener
-    new ExampleFrameListener(mWindow, mCamera, mSceneMgr, true, true, false);
-    ExampleFrameListener::getSingletonPtr()->showDebugOverlay(true);
-    mRoot->addFrameListener(ExampleFrameListener::getSingletonPtr());
+    new ODFrameListener(mWindow, mCamera, mSceneMgr, true, true, false);
+    ODFrameListener::getSingletonPtr()->showDebugOverlay(true);
+    mRoot->addFrameListener(ODFrameListener::getSingletonPtr());
 
     return true;
 }

@@ -15,7 +15,6 @@ set(
      Creature.cpp
      CreatureSound.cpp
      DirectionalTrap.cpp
-     ExampleFrameListener.cpp
      Field.cpp
      Functions.cpp
      GameMap.cpp
@@ -30,6 +29,7 @@ set(
      MapLight.cpp
      MissileObject.cpp
      MusicPlayer.cpp
+     ODFrameListener.cpp
      OpenDungeonsApplication.cpp
      Player.cpp
      ProximityTrap.cpp

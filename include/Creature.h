@@ -1,11 +1,11 @@
 #ifndef CREATURE_H
 #define CREATURE_H
 
-#include <Ogre.h>
 #include <string>
 #include <deque>
 
 #include <semaphore.h>
+#include <Ogre.h>
 
 class Creature;
 class RoomDojo;
