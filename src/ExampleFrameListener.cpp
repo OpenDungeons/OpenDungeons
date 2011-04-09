@@ -35,60 +35,54 @@
 template<> ExampleFrameListener*
         Ogre::Singleton<ExampleFrameListener>::ms_Singleton = 0;
 
-using namespace Ogre;
-
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
 #endif
 
 void ExampleFrameListener::updateStats(void)
 {
-    static String currFps = "Current FPS: ";
-    static String avgFps = "Average FPS: ";
-    static String bestFps = "Best FPS: ";
-    static String worstFps = "Worst FPS: ";
-    static String tris = "Triangle Count: ";
-    static String batches = "Batch Count: ";
+    static Ogre::String currFps = "Current FPS: ";
+    static Ogre::String avgFps = "Average FPS: ";
+    static Ogre::String bestFps = "Best FPS: ";
+    static Ogre::String worstFps = "Worst FPS: ";
+    static Ogre::String tris = "Triangle Count: ";
+    static Ogre::String batches = "Batch Count: ";
 
     // update stats when necessary
     try
     {
-        OverlayElement* guiAvg =
-                OverlayManager::getSingleton().getOverlayElement(
-                        "Core/AverageFps");
-        OverlayElement
-                * guiCurr = OverlayManager::getSingleton().getOverlayElement(
-                        "Core/CurrFps");
-        OverlayElement
-                * guiBest = OverlayManager::getSingleton().getOverlayElement(
-                        "Core/BestFps");
-        OverlayElement* guiWorst =
-                OverlayManager::getSingleton().getOverlayElement(
-                        "Core/WorstFps");
+        Ogre::OverlayElement* guiAvg =
+                Ogre::OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
+        Ogre::OverlayElement* guiCurr =
+                Ogre::OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
+        Ogre::OverlayElement* guiBest =
+                Ogre::OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
+        Ogre::OverlayElement* guiWorst =
+                Ogre::OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
 
-        const RenderTarget::FrameStats& stats = mWindow->getStatistics();
-        guiAvg->setCaption(avgFps + StringConverter::toString(stats.avgFPS));
-        guiCurr->setCaption(currFps + StringConverter::toString(stats.lastFPS));
-        guiBest->setCaption(bestFps + StringConverter::toString(stats.bestFPS)
-                + " " + StringConverter::toString(stats.bestFrameTime) + " ms");
-        guiWorst->setCaption(worstFps + StringConverter::toString(
-                stats.worstFPS) + " " + StringConverter::toString(
+        const Ogre::RenderTarget::FrameStats& stats = mWindow->getStatistics();
+        guiAvg->setCaption(avgFps + Ogre::StringConverter::toString(stats.avgFPS));
+        guiCurr->setCaption(currFps + Ogre::StringConverter::toString(stats.lastFPS));
+        guiBest->setCaption(bestFps + Ogre::StringConverter::toString(stats.bestFPS)
+                + " " + Ogre::StringConverter::toString(stats.bestFrameTime) + " ms");
+        guiWorst->setCaption(worstFps + Ogre::StringConverter::toString(
+                stats.worstFPS) + " " + Ogre::StringConverter::toString(
                 stats.worstFrameTime) + " ms");
 
-        OverlayElement
-                * guiTris = OverlayManager::getSingleton().getOverlayElement(
+        Ogre::OverlayElement* guiTris =
+                Ogre::OverlayManager::getSingleton().getOverlayElement(
                         "Core/NumTris");
-        guiTris->setCaption(tris + StringConverter::toString(
-                stats.triangleCount));
+        guiTris->setCaption(
+                tris + Ogre::StringConverter::toString(stats.triangleCount));
 
-        OverlayElement* guiBatches =
-                OverlayManager::getSingleton().getOverlayElement(
+        Ogre::OverlayElement* guiBatches =
+                Ogre::OverlayManager::getSingleton().getOverlayElement(
                         "Core/NumBatches");
-        guiBatches->setCaption(batches + StringConverter::toString(
-                stats.batchCount));
+        guiBatches->setCaption(
+                batches + Ogre::StringConverter::toString(stats.batchCount));
 
-        OverlayElement* guiDbg =
-                OverlayManager::getSingleton().getOverlayElement(
+        Ogre::OverlayElement* guiDbg =
+                Ogre::OverlayManager::getSingleton().getOverlayElement(
                         "Core/DebugText");
         guiDbg->setCaption(mDebugText);
     }
@@ -117,9 +111,9 @@ ExampleFrameListener* ExampleFrameListener::getSingletonPtr()
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
-        SceneManager* sceneManager, bool bufferedKeys, bool bufferedMouse,
-        bool bufferedJoy) :
+ExampleFrameListener::ExampleFrameListener(Ogre::RenderWindow* win,
+        Ogre::Camera* cam, Ogre::SceneManager* sceneManager, bool bufferedKeys,
+        bool bufferedMouse, bool bufferedJoy) :
     mCamera(cam), mWindow(win)
 {
     chatMaxMessages = 10;
@@ -178,7 +172,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
 
     using namespace OIS;
 
-    LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
+    Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
     ParamList pl;
     size_t windowHnd = 0;
     std::ostringstream windowHndStr;
@@ -208,7 +202,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
     windowResized(mWindow);
 
     //Register as a Window listener
-    WindowEventUtilities::addWindowEventListener(mWindow, this);
+    Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
     mCamNode = cam->getParentSceneNode();
 
@@ -216,7 +210,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
     mMouse->setEventCallback(this);
     mKeyboard->setEventCallback(this);
 
-    mRaySceneQuery = mSceneMgr->createRayQuery(Ray());
+    mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
     //Attack the sound listener to the camera.
     //OgreOggSound::OgreOggListener* cameraPosSound =
@@ -227,7 +221,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
     TextRenderer::getSingleton().addTextBox(POINTER_INFO_STRING, "", 0, 0, 200,
             50, Ogre::ColourValue::White);
 
-    LogManager::getSingletonPtr()->logMessage(
+    Ogre::LogManager::getSingletonPtr()->logMessage(
             "*** FrameListener initialized ***");
 
     renderManager = RenderManager::getSingletonPtr();
@@ -238,7 +232,7 @@ ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
 /*! \brief Adjust mouse clipping area
  *
  */
-void ExampleFrameListener::windowResized(RenderWindow* rw)
+void ExampleFrameListener::windowResized(Ogre::RenderWindow* rw)
 {
     unsigned int width, height, depth;
     int left, top;
@@ -256,7 +250,7 @@ void ExampleFrameListener::windowResized(RenderWindow* rw)
 /*! \brief Unattach OIS before window shutdown (very important under Linux)
  *
  */
-void ExampleFrameListener::windowClosed(RenderWindow* rw)
+void ExampleFrameListener::windowClosed(Ogre::RenderWindow* rw)
 {
     //Only close for window that created OIS (the main window in these demos)
     if (rw == mWindow)
@@ -279,7 +273,7 @@ ExampleFrameListener::~ExampleFrameListener()
     mSceneMgr->destroyQuery(mRaySceneQuery);
 
     //Remove ourself as a Window listener
-    WindowEventUtilities::removeWindowEventListener(mWindow, this);
+    Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
     windowClosed(mWindow);
 }
 
@@ -309,7 +303,7 @@ void ExampleFrameListener::moveCamera(Ogre::Real frameTime)
     Ogre::Vector3 viewTarget = getCameraViewTarget();
     Ogre::Vector3 viewDirection = viewTarget - newPosition;
     viewDirection.z = 0.0;
-    Quaternion viewDirectionQuaternion = Ogre::Vector3::UNIT_Y.getRotationTo(
+    Ogre::Quaternion viewDirectionQuaternion = Ogre::Vector3::UNIT_Y.getRotationTo(
             viewDirection);
 
     // Adjust the newPosition vector to account for the translation due to the movement keys on the keyboard (the arrow keys and/or WASD).
@@ -324,12 +318,12 @@ void ExampleFrameListener::moveCamera(Ogre::Real frameTime)
         newPosition.z = 4.5;
 
     // Tilt the camera up or down.
-    mCamNode->rotate(Ogre::Vector3::UNIT_X, Degree(mRotateLocalVector.x
-            * frameTime), Node::TS_LOCAL);
-    mCamNode->rotate(Ogre::Vector3::UNIT_Y, Degree(mRotateLocalVector.y
-            * frameTime), Node::TS_LOCAL);
-    mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(mRotateLocalVector.z
-            * frameTime), Node::TS_LOCAL);
+    mCamNode->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(mRotateLocalVector.x
+            * frameTime), Ogre::Node::TS_LOCAL);
+    mCamNode->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(mRotateLocalVector.y
+            * frameTime), Ogre::Node::TS_LOCAL);
+    mCamNode->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(mRotateLocalVector.z
+            * frameTime), Ogre::Node::TS_LOCAL);
 
     // Swivel the camera to the left or right, while maintaining the same view target location on the ground.
     Ogre::Real deltaX = newPosition.x - viewTarget.x;
@@ -339,8 +333,8 @@ void ExampleFrameListener::moveCamera(Ogre::Real frameTime)
     theta += swivelDegrees.valueRadians() * frameTime;
     newPosition.x = viewTarget.x + radius * cos(theta);
     newPosition.y = viewTarget.y + radius * sin(theta);
-    mCamNode->rotate(Ogre::Vector3::UNIT_Z, Degree(swivelDegrees * frameTime),
-            Node::TS_WORLD);
+    mCamNode->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(swivelDegrees * frameTime),
+            Ogre::Node::TS_WORLD);
 
     // If the camera is trying to fly toward a destination, move it in that direction.
     if (cameraIsFlying)
@@ -419,7 +413,7 @@ void ExampleFrameListener::showDebugOverlay(bool show)
     {
         if (show)
         {
-            mDebugOverlay = OverlayManager::getSingleton().getByName(
+            mDebugOverlay = Ogre::OverlayManager::getSingleton().getByName(
                     "Core/DebugOverlay");
         }
     }
@@ -432,12 +426,8 @@ void ExampleFrameListener::showDebugOverlay(bool show)
  * operations performed by this function is the processing of a request queue
  * full of RenderRequest structures.
  */
-bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
+bool ExampleFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 {
-    long int currentTurnNumber;
-
-    std::stringstream tempSS;
-
     if (mWindow->isClosed())
         return false;
 
@@ -445,10 +435,8 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
 
     // Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     //NOTE:  If this function exits early the corresponding unlock function must be called.
-    currentTurnNumber = turnNumber.get();
+    long int currentTurnNumber = turnNumber.get();
     gameMap.threadLockForTurn(currentTurnNumber);
-
-    using namespace OIS;
 
     MusicPlayer::getSingletonPtr()->update();
     renderManager->processRenderRequests();
@@ -460,12 +448,11 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
     //TODO:  Lock this queue before doing this stuff
     time_t now;
     time(&now);
-    ChatMessage *currentMessage;
+    ChatMessage* currentMessage;
     unsigned int i = 0;
     while (i < chatMessages.size())
     {
-        std::deque<ChatMessage*>::iterator itr;
-        itr = chatMessages.begin() + i;
+        std::deque<ChatMessage*>::iterator itr = chatMessages.begin() + i;
         currentMessage = *itr;
         if (difftime(now, currentMessage->recvTime) > chatMaxTimeDisplay)
         {
@@ -487,12 +474,12 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
     // Fill up the chat window with the arrival time and contents of all the chat messages left in the queue.
     for (unsigned int i = 0; i < chatMessages.size(); ++i)
     {
+        std::stringstream chatSS("");
         struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
-        std::stringstream tempSS("");
-        tempSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":"
+        chatSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":"
                 << friendlyTime->tm_sec << "  " << chatMessages[i]->clientNick
                 << ":  " << chatMessages[i]->message;
-        chatString += tempSS.str() + "\n";
+        chatString += chatSS.str() + "\n";
     }
 
     // Display the terminal, the current turn number, and the
@@ -502,15 +489,15 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
     if (serverSocket != NULL)
     {
         turnString = "On average the creature AI is finishing ";
-        turnString += StringConverter::toString((Ogre::Real) fabs(
+        turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
                 gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
         turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
         double maxTps = 1.0 / ((1.0 / turnsPerSecond)
                 - gameMap.averageAILeftoverTime);
-        turnString += "\nMax tps est. at " + StringConverter::toString(
+        turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
                 (Ogre::Real) maxTps).substr(0, 4);
     }
-    turnString += "\nTurn number:  " + StringConverter::toString(
+    turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
             turnNumber.get());
     printText((string) MOTD + "\n" + (terminalActive ? (commandOutput + "\n")
             : nullString) + (terminalActive ? prompt : nullString)
@@ -598,6 +585,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
         tempMapLight->advanceFlicker(evt.timeSinceLastFrame);
     }
 
+    std::stringstream tempSS("");
     // Update the CEGUI displays of gold, mana, etc.
     if (serverSocket != NULL || clientSocket != NULL)
     {
@@ -707,7 +695,7 @@ bool ExampleFrameListener::frameStarted(const FrameEvent& evt)
     return mContinue;
 }
 
-bool ExampleFrameListener::frameEnded(const FrameEvent& evt)
+bool ExampleFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
     updateStats();
     return true;
@@ -722,12 +710,12 @@ bool ExampleFrameListener::quit(const CEGUI::EventArgs &e)
     return true;
 }
 
-RaySceneQueryResult& ExampleFrameListener::doRaySceneQuery(
+Ogre::RaySceneQueryResult& ExampleFrameListener::doRaySceneQuery(
         const OIS::MouseEvent &arg)
 {
     // Setup the ray scene query, use CEGUI's mouse position
     CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();// * mMouseScale;
-    Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x / float(
+    Ogre::Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
     mRaySceneQuery->setRay(mouseRay);
     mRaySceneQuery->setSortByDistance(true);
@@ -750,8 +738,8 @@ bool ExampleFrameListener::mouseMoved(const OIS::MouseEvent &arg)
     CEGUI::System::getSingleton().injectMousePosition(arg.state.X.abs,
             arg.state.Y.abs);
 
-    RaySceneQueryResult &result = doRaySceneQuery(arg);
-    RaySceneQueryResult::iterator itr = result.begin();
+    Ogre::RaySceneQueryResult& result = doRaySceneQuery(arg);
+    Ogre::RaySceneQueryResult::iterator itr = result.begin();
 
     //If we have a room or trap (or later spell) selected, show what we
     //have selected
@@ -956,8 +944,8 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
         mouseDownOnCEGUIWindow = false;
     }
 
-    RaySceneQueryResult &result = doRaySceneQuery(arg);
-    RaySceneQueryResult::iterator itr = result.begin();
+    Ogre::RaySceneQueryResult &result = doRaySceneQuery(arg);
+    Ogre::RaySceneQueryResult::iterator itr = result.begin();
 
     // Left mouse button down
     if (id == OIS::MB_Left)
@@ -1004,7 +992,7 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
                         draggedCreature = resultName.substr(
                                 ((string) "Creature_").size(),
                                 resultName.size());
-                        SceneNode *node = mSceneMgr->getSceneNode(
+                        Ogre::SceneNode *node = mSceneMgr->getSceneNode(
                                 draggedCreature + "_node");
                         creatureSceneNode->removeChild(node);
                         mSceneMgr->getSceneNode("Hand_node")->addChild(node);
@@ -1187,7 +1175,7 @@ bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
         {
             if (serverSocket == NULL && clientSocket == NULL)
             {
-                SceneNode *node = mSceneMgr->getSceneNode(draggedCreature
+                Ogre::SceneNode *node = mSceneMgr->getSceneNode(draggedCreature
                         + "_node");
                 mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
                 creatureSceneNode->addChild(node);
@@ -1557,7 +1545,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
                         --mCurrentTileRadius;
                     }
 
-                    MOTD = "Brush size:  " + StringConverter::toString(
+                    MOTD = "Brush size:  " + Ogre::StringConverter::toString(
                             mCurrentTileRadius);
                 }
                 break;
@@ -1571,7 +1559,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
                         ++mCurrentTileRadius;
                     }
 
-                    MOTD = "Brush size:  " + StringConverter::toString(
+                    MOTD = "Brush size:  " + Ogre::StringConverter::toString(
                             mCurrentTileRadius);
                 }
                 break;
@@ -1581,14 +1569,9 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 if (serverSocket == NULL && clientSocket == NULL)
                 {
                     mBrushMode = !mBrushMode;
-                    if (mBrushMode)
-                    {
-                        MOTD = "Brush mode turned on";
-                    }
-                    else
-                    {
-                        MOTD = "Brush mode turned off";
-                    }
+                    MOTD = (mBrushMode)
+                            ? "Brush mode turned on"
+                            : "Brush mode turned off";
                 }
                 break;
 
@@ -1598,7 +1581,7 @@ bool ExampleFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 if (serverSocket == NULL && clientSocket == NULL)
                 {
                     mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
-                    MOTD = "Tile fullness:  " + StringConverter::toString(
+                    MOTD = "Tile fullness:  " + Ogre::StringConverter::toString(
                             mCurrentFullness);
                 }
                 else // If we are in a game.
@@ -1758,9 +1741,6 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
     {
         switch (arg.key)
         {
-            default:
-                break;
-
                 // Move left
             case KC_LEFT:
             case KC_A:
@@ -1817,6 +1797,8 @@ bool ExampleFrameListener::keyReleased(const OIS::KeyEvent &arg)
                 swivelDegrees -= -1.3 * mRotateSpeed;
                 break;
 
+            default:
+                break;
         }
     }
 
@@ -1963,21 +1945,21 @@ void ExampleFrameListener::executePromptCommand(string command,
             double tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
-            mSceneMgr->setAmbientLight(ColourValue(tempR, tempG, tempB));
+            mSceneMgr->setAmbientLight(Ogre::ColourValue(tempR, tempG, tempB));
             commandOutput += "\nAmbient light set to:\nRed:  "
-                    + StringConverter::toString((Real) tempR) + "    Green:  "
-                    + StringConverter::toString((Real) tempG) + "    Blue:  "
-                    + StringConverter::toString((Real) tempB) + "\n";
+                    + Ogre::StringConverter::toString((Ogre::Real) tempR) + "    Green:  "
+                    + Ogre::StringConverter::toString((Ogre::Real) tempG) + "    Blue:  "
+                    + Ogre::StringConverter::toString((Ogre::Real) tempB) + "\n";
 
         }
         else
         {
-            ColourValue curLight = mSceneMgr->getAmbientLight();
+            Ogre::ColourValue curLight = mSceneMgr->getAmbientLight();
             commandOutput += "\nCurrent ambient light is:\nRed:  "
-                    + StringConverter::toString((Real) curLight.r)
-                    + "    Green:  " + StringConverter::toString(
-                    (Real) curLight.g) + "    Blue:  "
-                    + StringConverter::toString((Real) curLight.b) + "\n";
+                    + Ogre::StringConverter::toString((Ogre::Real) curLight.r)
+                    + "    Green:  " + Ogre::StringConverter::toString(
+                    (Ogre::Real) curLight.g) + "    Blue:  "
+                    + Ogre::StringConverter::toString((Ogre::Real) curLight.b) + "\n";
         }
     }
 
@@ -2008,7 +1990,7 @@ void ExampleFrameListener::executePromptCommand(string command,
         int maxWidth = terminalWordWrap;
         for (int i = 0; i < maxWidth / 10; ++i)
         {
-            commandOutput += "         " + StringConverter::toString(i + 1);
+            commandOutput += "         " + Ogre::StringConverter::toString(i + 1);
         }
 
         commandOutput += "\n";
@@ -2054,10 +2036,10 @@ void ExampleFrameListener::executePromptCommand(string command,
         }
 
         commandOutput += "\nCreating tiles for region:\n\n\t("
-                + StringConverter::toString(xMin) + ", "
-                + StringConverter::toString(yMin) + ")\tto\t("
-                + StringConverter::toString(xMax) + ", "
-                + StringConverter::toString(yMax) + ")\n";
+                + Ogre::StringConverter::toString(xMin) + ", "
+                + Ogre::StringConverter::toString(yMin) + ")\tto\t("
+                + Ogre::StringConverter::toString(xMax) + ", "
+                + Ogre::StringConverter::toString(yMax) + ")\n";
     }
 
     // A utility to set the camera movement speed
@@ -2068,13 +2050,13 @@ void ExampleFrameListener::executePromptCommand(string command,
             tempSS.str(arguments);
             tempSS >> moveSpeed;
             moveSpeedAccel = 2.0 * moveSpeed; // if this is changed, also change it in the ExampleFrameListener constructor.
-            commandOutput += "\nmovespeed set to " + StringConverter::toString(
+            commandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
                     moveSpeed) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent movespeed is "
-                    + StringConverter::toString(moveSpeed) + "\n";
+                    + Ogre::StringConverter::toString(moveSpeed) + "\n";
         }
     }
 
@@ -2088,14 +2070,14 @@ void ExampleFrameListener::executePromptCommand(string command,
             tempSS >> tempDouble;
             mRotateSpeed = Ogre::Degree(tempDouble);
             commandOutput += "\nrotatespeed set to "
-                    + StringConverter::toString(
-                            (Real) mRotateSpeed.valueDegrees()) + "\n";
+                    + Ogre::StringConverter::toString(
+                            (Ogre::Real) mRotateSpeed.valueDegrees()) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent rotatespeed is "
-                    + StringConverter::toString(
-                            (Real) mRotateSpeed.valueDegrees()) + "\n";
+                    + Ogre::StringConverter::toString(
+                            (Ogre::Real) mRotateSpeed.valueDegrees()) + "\n";
         }
     }
 
@@ -2109,13 +2091,13 @@ void ExampleFrameListener::executePromptCommand(string command,
             tempSS >> tempDouble;
             MAX_FRAMES_PER_SECOND = tempDouble;
             commandOutput += "\nMaximum framerate set to "
-                    + StringConverter::toString((Real) MAX_FRAMES_PER_SECOND)
+                    + Ogre::StringConverter::toString((Ogre::Real) MAX_FRAMES_PER_SECOND)
                     + "\n";
         }
         else
         {
             commandOutput += "\nCurrent maximum framerate is "
-                    + StringConverter::toString((Real) MAX_FRAMES_PER_SECOND)
+                    + Ogre::StringConverter::toString((Ogre::Real) MAX_FRAMES_PER_SECOND)
                     + "\n";
         }
     }
@@ -2133,7 +2115,7 @@ void ExampleFrameListener::executePromptCommand(string command,
                 gameMap.maxAIThreads = tempInt;
                 commandOutput
                         += "\nMaximum number of creature AI threads set to "
-                                + StringConverter::toString(
+                                + Ogre::StringConverter::toString(
                                         gameMap.maxAIThreads) + "\n";
             }
             else
@@ -2146,7 +2128,7 @@ void ExampleFrameListener::executePromptCommand(string command,
         {
             commandOutput
                     += "\nCurrent maximum number of creature AI threads is "
-                            + StringConverter::toString(gameMap.maxAIThreads)
+                            + Ogre::StringConverter::toString(gameMap.maxAIThreads)
                             + "\n";
         }
     }
@@ -2185,12 +2167,12 @@ void ExampleFrameListener::executePromptCommand(string command,
             }
 
             commandOutput += "\nMaximum turns per second set to "
-                    + StringConverter::toString((Real) turnsPerSecond) + "\n";
+                    + Ogre::StringConverter::toString((Ogre::Real) turnsPerSecond) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent maximum turns per second is "
-                    + StringConverter::toString((Real) turnsPerSecond) + "\n";
+                    + Ogre::StringConverter::toString((Ogre::Real) turnsPerSecond) + "\n";
         }
     }
 
@@ -2204,14 +2186,14 @@ void ExampleFrameListener::executePromptCommand(string command,
             tempSS >> tempDouble;
             mCamera->setNearClipDistance(tempDouble);
             commandOutput += "\nNear clip distance set to "
-                    + StringConverter::toString(
-                            (Real) mCamera->getNearClipDistance()) + "\n";
+                    + Ogre::StringConverter::toString(
+                            (Ogre::Real) mCamera->getNearClipDistance()) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent near clip distance is "
-                    + StringConverter::toString(
-                            (Real) mCamera->getNearClipDistance()) + "\n";
+                    + Ogre::StringConverter::toString(
+                            (Ogre::Real) mCamera->getNearClipDistance()) + "\n";
         }
     }
 
@@ -2225,14 +2207,14 @@ void ExampleFrameListener::executePromptCommand(string command,
             tempSS >> tempDouble;
             mCamera->setFarClipDistance(tempDouble);
             commandOutput += "\nFar clip distance set to "
-                    + StringConverter::toString(
-                            (Real) mCamera->getFarClipDistance()) + "\n";
+                    + Ogre::StringConverter::toString(
+                            (Ogre::Real) mCamera->getFarClipDistance()) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent far clip distance is "
-                    + StringConverter::toString(
-                            (Real) mCamera->getFarClipDistance()) + "\n";
+                    + Ogre::StringConverter::toString(
+                            (Ogre::Real) mCamera->getFarClipDistance()) + "\n";
         }
     }
 
@@ -2279,9 +2261,9 @@ void ExampleFrameListener::executePromptCommand(string command,
                 gameMap.addCreature(tempCreature);
 
                 // Create the mesh and SceneNode for the new creature
-                Entity *ent = mSceneMgr->createEntity("Creature_"
+                Ogre::Entity *ent = mSceneMgr->createEntity("Creature_"
                         + tempCreature->name, tempCreature->meshName);
-                SceneNode *node = creatureSceneNode->createChildSceneNode(
+                Ogre::SceneNode *node = creatureSceneNode->createChildSceneNode(
                         tempCreature->name + "_node");
                 //node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
                 node->setPosition(tempCreature->getPosition());
@@ -2781,7 +2763,7 @@ void ExampleFrameListener::executePromptCommand(string command,
             double tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
-            playerColourValues.push_back(ColourValue(tempR, tempG, tempB));
+            playerColourValues.push_back(Ogre::ColourValue(tempR, tempG, tempB));
             tempSS.str("");
             tempSS << "Color number " << playerColourValues.size() << " added.";
             commandOutput += "\n" + tempSS.str() + "\n";
@@ -2803,7 +2785,7 @@ void ExampleFrameListener::executePromptCommand(string command,
             tempSS >> index >> tempR >> tempG >> tempB;
             if (index < playerColourValues.size())
             {
-                playerColourValues[index] = ColourValue(tempR, tempG, tempB);
+                playerColourValues[index] = Ogre::ColourValue(tempR, tempG, tempB);
                 tempSS.str("");
                 tempSS << "Color number " << index << " changed to " << tempR
                         << "\t" << tempG << "\t" << tempB;
