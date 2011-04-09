@@ -37,9 +37,9 @@ sem_t creatureAISemaphore;
 Socket* serverSocket = NULL;
 Socket* clientSocket = NULL;
 
-std::string versionString = (string) "OpenDungeons_Version:" + VERSION;
-std::string MOTD = (string) "Welcome to Open Dungeons\tVersion:  " + VERSION;
-double MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
+std::string versionString = (string) "OpenDungeons_Version:" + OpenDungeonsApplication::VERSION;
+std::string MOTD = (string) "Welcome to Open Dungeons\tVersion:  " + OpenDungeonsApplication::VERSION;
+double MAX_FRAMES_PER_SECOND = OpenDungeonsApplication::DEFAULT_FRAMES_PER_SECOND;
 double turnsPerSecond = 1.4;
 ProtectedObject<long int> turnNumber(1);
 
@@ -90,12 +90,9 @@ int main(int argc, char **argv)
     playerColourValues.push_back(Ogre::ColourValue(0.0, 0.4, 0.0, 1.0));
     playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.4, 1.0));
 
-    // Create application object
-    OpenDungeonsApplication app;
-
     try
     {
-        app.go();
+        new OpenDungeonsApplication;
     }
     catch (Ogre::Exception& e)
     {

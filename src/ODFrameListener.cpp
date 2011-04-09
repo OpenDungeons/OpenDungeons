@@ -35,6 +35,7 @@
 #include "MusicPlayer.h"
 #include "RenderManager.h"
 #include "Gui.h"
+#include "OpenDungeonsApplication.h"
 
 #include "ODFrameListener.h"
 
@@ -212,7 +213,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win,
     //mCamNode->attachObject(cameraPosSound);
 
     sfxHelper = SoundEffectsHelper::getSingletonPtr();
-    TextRenderer::getSingleton().addTextBox(POINTER_INFO_STRING, "", 0, 0, 200,
+    TextRenderer::getSingleton().addTextBox(OpenDungeonsApplication::POINTER_INFO_STRING, "", 0, 0, 200,
             50, Ogre::ColourValue::White);
 
     Ogre::LogManager::getSingletonPtr()->logMessage(
@@ -733,7 +734,7 @@ bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
     //TODO: This should be changed, or combined with an icon or something later.
     if (gameMap.me->newRoomType || gameMap.me->newTrapType)
     {
-        TextRenderer::getSingleton().moveText(POINTER_INFO_STRING,
+        TextRenderer::getSingleton().moveText(OpenDungeonsApplication::POINTER_INFO_STRING,
                 arg.state.X.abs + 30, arg.state.Y.abs);
     }
 
@@ -1079,7 +1080,7 @@ bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
         mDragType = ODFrameListener::nullDragType;
         gameMap.me->newRoomType = Room::nullRoomType;
         gameMap.me->newTrapType = Trap::nullTrapType;
-        TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "");
+        TextRenderer::getSingleton().setText(OpenDungeonsApplication::POINTER_INFO_STRING, "");
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
         Tile *curTile = gameMap.getTile(xPos, yPos);
@@ -1944,7 +1945,7 @@ void ODFrameListener::executePromptCommand(string command,
         }
         else
         {
-            commandOutput += "\n" + (string) HELP_MESSAGE + "\n";
+            commandOutput += "\n" + (string) OpenDungeonsApplication::HELP_MESSAGE + "\n";
         }
     }
 
@@ -2522,7 +2523,7 @@ void ODFrameListener::executePromptCommand(string command,
                         goto ConnectEndLabel;
                     }
 
-                    if (clientSocket->connect(arguments, PORT_NUMBER))
+                    if (clientSocket->connect(arguments, OpenDungeonsApplication::PORT_NUMBER))
                     {
                         commandOutput += "\nConnection successful.\n";
 
@@ -2898,7 +2899,7 @@ string ODFrameListener::getHelpText(string arg)
     else if (arg.compare("host") == 0)
     {
         std::stringstream s;
-        s << PORT_NUMBER;
+        s << OpenDungeonsApplication::PORT_NUMBER;
         return "Starts a server thread running on this machine.  This utility takes a port number as an argument.  The port number is the port to listen on for a connection.  The default (if no argument is given) is to use" + s.str() + "for the port number.";
     }
 

@@ -13,6 +13,7 @@
 #include "ClientNotification.h"
 #include "ProtectedObject.h"
 #include "Weapon.h"
+#include "OpenDungeonsApplication.h"
 
 /*! \brief A thread function which runs on the client to handle communications with the server.
  *
@@ -35,7 +36,7 @@ void *clientSocketProcessor(void *p)
 
     // Send a hello request to start the conversation with the server
     sem_wait(&sock->semaphore);
-    sock->send(formatCommand("hello", std::string("OpenDungeons V ") + VERSION));
+    sock->send(formatCommand("hello", std::string("OpenDungeons V ") + OpenDungeonsApplication::VERSION));
     sem_post(&sock->semaphore);
     while (sock->is_valid())
     {

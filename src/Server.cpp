@@ -15,6 +15,7 @@
 #include "GameMap.h"
 #include "ProtectedObject.h"
 #include "Creature.h"
+#include "OpenDungeonsApplication.h"
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
@@ -42,7 +43,7 @@ void *serverSocketProcessor(void *p)
         return NULL;
     }
 
-    int port = PORT_NUMBER;
+    int port = OpenDungeonsApplication::PORT_NUMBER;
     if (!sock->bind(port))
     {
         frameListener->commandOutput

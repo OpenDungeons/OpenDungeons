@@ -14,6 +14,7 @@
 #include "Player.h"
 #include "Trap.h"
 #include "TextRenderer.h"
+#include "OpenDungeonsApplication.h"
 
 #include "Gui.h"
 
@@ -139,7 +140,7 @@ bool Gui::quartersButtonPressed(const CEGUI::EventArgs& e)
 {
     gameMap.me->newRoomType = Room::quarters;
     gameMap.me->newTrapType = Trap::nullTrapType;
-    TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "quarters");
+    TextRenderer::getSingleton().setText(OpenDungeonsApplication::POINTER_INFO_STRING, "quarters");
     return true;
 }
 
@@ -147,7 +148,7 @@ bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
 {
     gameMap.me->newRoomType = Room::treasury;
     gameMap.me->newTrapType = Trap::nullTrapType;
-    TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "treasury");
+    TextRenderer::getSingleton().setText(OpenDungeonsApplication::POINTER_INFO_STRING, "treasury");
     return true;
 }
 
@@ -155,7 +156,7 @@ bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
 {
     gameMap.me->newRoomType = Room::forge;
     gameMap.me->newTrapType = Trap::nullTrapType;
-    TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "forge");
+    TextRenderer::getSingleton().setText(OpenDungeonsApplication::POINTER_INFO_STRING, "forge");
     return true;
 }
 
@@ -163,7 +164,7 @@ bool Gui::dojoButtonPressed(const CEGUI::EventArgs& e)
 {
     gameMap.me->newRoomType = Room::dojo;
     gameMap.me->newTrapType = Trap::nullTrapType;
-    TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "dojo");
+    TextRenderer::getSingleton().setText(OpenDungeonsApplication::POINTER_INFO_STRING, "dojo");
     return true;
 }
 
@@ -171,7 +172,7 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 {
     gameMap.me->newRoomType = Room::nullRoomType;
     gameMap.me->newTrapType = Trap::cannon;
-    TextRenderer::getSingleton().setText(POINTER_INFO_STRING, "cannon");
+    TextRenderer::getSingleton().setText(OpenDungeonsApplication::POINTER_INFO_STRING, "cannon");
     return true;
 }
 

@@ -27,7 +27,25 @@
 
 #include "OpenDungeonsApplication.h"
 
-//TODO: the app should be a singleton
+template<> OpenDungeonsApplication*
+        Ogre::Singleton<OpenDungeonsApplication>::ms_Singleton = 0;
+
+/*! \brief Returns a reference to the singleton object
+ *
+ */
+OpenDungeonsApplication& OpenDungeonsApplication::getSingleton()
+{
+    assert (ms_Singleton);
+    return (*ms_Singleton);
+}
+
+/*! \brief Returns a pointer to the singleton object
+ *
+ */
+OpenDungeonsApplication* OpenDungeonsApplication::getSingletonPtr()
+{
+    return ms_Singleton;
+}
 
 OpenDungeonsApplication::OpenDungeonsApplication() :
         mRoot(0)
@@ -60,23 +78,19 @@ OpenDungeonsApplication::OpenDungeonsApplication() :
     mResourcePath = "";
 #endif
     mHomePath = getHomePath();
+
+    if (!setup())
+    {
+        return;
+    }
+
+    mRoot->startRendering();
 }
 
 OpenDungeonsApplication::~OpenDungeonsApplication()
 {
     if(mRoot)
         delete mRoot;
-}
-
-/*! \brief Starts the program
- *
- */
-void OpenDungeonsApplication::go()
-{
-    if (!setup())
-        return;
-
-    mRoot->startRendering();
 }
 
 /*! \brief Sets up the application - returns false if the user chooses to abandon
@@ -344,3 +358,42 @@ std::string OpenDungeonsApplication::macBundlePath()
     return std::string(path);
 }
 #endif
+
+const unsigned int OpenDungeonsApplication::PORT_NUMBER = 31222;
+const double OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
+const double OpenDungeonsApplication::DEFAULT_FRAMES_PER_SECOND = 60.0;
+const std::string OpenDungeonsApplication::VERSION = "0.4.7";
+const std::string OpenDungeonsApplication::POINTER_INFO_STRING = "pointerInfo";
+const std::string OpenDungeonsApplication::HELP_MESSAGE = "\
+The console is a way of interacting with the underlying game engine directly.\
+Commands given to the the console are made up of two parts: a \'command name\' and one or more \'arguments\'.\
+For information on how to use a particular command, type help followed by the command name.\
+\n\nThe following commands are avaliable:\
+\n\thelp keys - shows the keyboard controls\
+\n\tlist - print out lists of creatures, classes, etc\n\thelp - displays this help screen\n\tsave - saves the current level to a file\
+\n\tload - loads a level from a file\
+\n\tquit - exit the program\
+\n\tmaxmessages - Sets or displays the max number of chat messages to display\
+\n\tmaxtime - Sets or displays the max time for chat messages to be displayed\
+\n\ttermwidth - set the terminal width\
+\n\taddcreature - load a creature into the file.\
+\n\taddclass - Define a creature class\
+\n\taddtiles - adds a rectangular region of tiles\
+\n\tnewmap - Creates a new rectangular map\
+\n\trefreshmesh - Reloads the meshes for all the objects in the game\
+\n\tmovespeed - sets the camera movement speed\
+\n\trotatespeed - sets the camera rotation speed\
+\n\tfps - sets the maximum framerate\
+\n\tturnspersecond - sets the number of turns the AI will carry out per second\
+\n\tmousespeed - sets the mouse speed\
+\n\tambientlight - set the ambient light color\
+\n\tconnect - connect to a server\
+\n\thost - host a server\
+\n\tchat - send a message to other people in the game\
+\n\tnearclip - sets the near clipping distance\
+\n\tfarclip - sets the far clipping distance\
+\n\tvisdebug - turns on visual debugging for a creature\
+\n\taddcolor - adds another player color\
+\n\tsetcolor - changes the value of one of the player's color\
+\n\tdisconnect - stops a running server or client and returns to the map editor\
+\n\taithreads - sets the maximum number of creature AI threads on the server";

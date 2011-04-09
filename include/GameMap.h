@@ -198,7 +198,6 @@ class GameMap
         unsigned int maxAIThreads;
 
     private:
-        // Private functions
         void processDeletionQueues();
         bool walkablePathExists(int x1, int y1, int x2, int y2);
 

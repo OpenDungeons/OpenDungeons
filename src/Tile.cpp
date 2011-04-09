@@ -15,10 +15,6 @@
 #define snprintf _snprintf
 #endif
 
-//FIXME:  this extern is probably not needed once the rendering code is all in one thread.
-//FIXME: This should not be here. Use parameters for whatever needs the scenemanager instead.
-extern Ogre::SceneManager* mSceneMgr;
-
 void Tile::initialize()
 {
     sem_init(&creaturesInCellLockSemaphore, 0, 1);
