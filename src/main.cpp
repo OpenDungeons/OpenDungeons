@@ -34,7 +34,8 @@ sem_t clientNotificationQueueLockSemaphore;
 
 sem_t creatureAISemaphore;
 
-Socket *serverSocket = NULL, *clientSocket = NULL;
+Socket* serverSocket = NULL;
+Socket* clientSocket = NULL;
 
 std::string versionString = (string) "OpenDungeons_Version:" + VERSION;
 std::string MOTD = (string) "Welcome to Open Dungeons\tVersion:  " + VERSION;
@@ -43,8 +44,6 @@ double turnsPerSecond = 1.4;
 ProtectedObject<long int> turnNumber(1);
 
 std::vector<Ogre::ColourValue> playerColourValues;
-
-ExampleFrameListener *exampleFrameListener;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN

@@ -13,6 +13,7 @@
 #include <map>
 
 #include <CEGUI.h>
+#include <OIS.h>
 
 /*! \brief This class holds all GUI related functions
  */
@@ -31,6 +32,7 @@ class Gui : public Ogre::Singleton<Gui>
         static Gui* getSingletonPtr();
 
         void loadGuiSheet(const guiSheet& newSheet);
+        CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID);
 
     private:
         Gui(const Gui&);

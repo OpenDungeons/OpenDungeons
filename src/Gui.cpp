@@ -57,6 +57,27 @@ Gui::~Gui()
     CEGUI::OgreRenderer::destroySystem();
 }
 
+/*! \brief A required function to pass input to the OIS system.
+ *
+ */
+CEGUI::MouseButton Gui::convertButton(OIS::MouseButtonID buttonID)
+{
+    switch (buttonID)
+    {
+        case OIS::MB_Left:
+            return CEGUI::LeftButton;
+
+        case OIS::MB_Right:
+            return CEGUI::RightButton;
+
+        case OIS::MB_Middle:
+            return CEGUI::MiddleButton;
+
+        default:
+            return CEGUI::LeftButton;
+    }
+}
+
 /*! \brief loads the specified gui sheet
  */
 void Gui::loadGuiSheet(const guiSheet& newSheet)
@@ -110,7 +131,7 @@ void Gui::assignEventHandlers()
 bool Gui::quitButtonPressed(const CEGUI::EventArgs& e)
 {
     writeGameMapToFile(std::string("levels/Test.level") + std::string(".out"));
-    exampleFrameListener->mContinue = false;
+    ExampleFrameListener::getSingletonPtr()->mContinue = false;
     return true;
 }
 

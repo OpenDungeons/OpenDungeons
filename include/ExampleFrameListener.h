@@ -49,6 +49,7 @@ class ChatMessage;
  * displays the terminal and chat messages on the game screen.
  */
 class ExampleFrameListener :
+        public Ogre::Singleton<ExampleFrameListener>,
         public Ogre::FrameListener,
         public Ogre::WindowEventListener,
         public OIS::MouseListener,
@@ -62,13 +63,16 @@ class ExampleFrameListener :
         ExampleFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
                 Ogre::SceneManager *sceneManager, bool bufferedKeys,
                 bool bufferedMouse, bool bufferedJoy);
+        virtual ~ExampleFrameListener();
+
+        static ExampleFrameListener& getSingleton();
+        static ExampleFrameListener* getSingletonPtr();
 
         //Adjust mouse clipping area
         virtual void windowResized(Ogre::RenderWindow* rw);
 
         //Unattach OIS before window shutdown (very important under Linux)
         virtual void windowClosed(Ogre::RenderWindow* rw);
-        virtual ~ExampleFrameListener();
 
         void moveCamera(Ogre::Real frameTime);
         Ogre::Vector3 getCameraViewTarget();
@@ -97,7 +101,6 @@ class ExampleFrameListener :
 
         // Console variables
         std::string command, arguments, commandOutput, prompt;
-        //deque< pair<time_t, string> > chatMessages;
         std::deque<ChatMessage*> chatMessages;
         std::string promptCommand, chatString;
 
@@ -177,6 +180,8 @@ class ExampleFrameListener :
         RenderManager* renderManager;
 
     private:
+        ExampleFrameListener(const ExampleFrameListener&);
+
         bool terminalActive;
         int terminalWordWrap;
 

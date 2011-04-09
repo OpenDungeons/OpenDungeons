@@ -564,31 +564,29 @@ bool startServer()
         serverSocket = new Socket;
 
         // Start the server thread which will listen for, and accept, connections
-        SSPStruct *ssps = new SSPStruct;
+        SSPStruct* ssps = new SSPStruct;
         ssps->nSocket = serverSocket;
-        ssps->nFrameListener = exampleFrameListener;
-        pthread_create(&exampleFrameListener->serverThread, NULL,
-                serverSocketProcessor, (void*) ssps);
+        ssps->nFrameListener = ExampleFrameListener::getSingletonPtr();
+        pthread_create(&ExampleFrameListener::getSingletonPtr()->serverThread,
+                NULL, serverSocketProcessor, (void*) ssps);
 
         // Start the thread which will watch for local events to send to the clients
-        SNPStruct *snps = new SNPStruct;
-        snps->nFrameListener = exampleFrameListener;
-        pthread_create(&exampleFrameListener->serverNotificationThread, NULL,
-                serverNotificationProcessor, snps);
+        SNPStruct* snps = new SNPStruct;
+        snps->nFrameListener = ExampleFrameListener::getSingletonPtr();
+        pthread_create(&ExampleFrameListener::getSingletonPtr()->serverNotificationThread,
+                NULL, serverNotificationProcessor, snps);
 
         // Start the creature AI thread
-        pthread_create(&exampleFrameListener->creatureThread, NULL,
-                creatureAIThread, NULL);
+        pthread_create(&ExampleFrameListener::getSingletonPtr()->creatureThread,
+                NULL, creatureAIThread, NULL);
 
         // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
         gameMap.clearMapLightIndicators();
 
         // Set the active tabs on the tab selector across the bottom of the screen so
         // the user doesn't have to click into them first to see the contents.
-        CEGUI::WindowManager *wmgr = CEGUI::WindowManager::getSingletonPtr();
-        CEGUI::Window *window;
-        window = wmgr->getWindow((CEGUI::utf8*) "Root/MainTabControl");
-        ((CEGUI::TabControl*) window)->setSelectedTab(0);
+        static_cast<CEGUI::TabControl*>(CEGUI::WindowManager::getSingletonPtr()->
+                getWindow("Root/MainTabControl"))->setSelectedTab(0);
     }
 
     return true;

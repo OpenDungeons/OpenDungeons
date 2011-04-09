@@ -27,8 +27,10 @@
 
 #include "OpenDungeonsApplication.h"
 
+//TODO: the app should be a singleton
+
 OpenDungeonsApplication::OpenDungeonsApplication() :
-        mFrameListener(0), mRoot(0)
+        mRoot(0)
 {
     /* Provide a nice cross platform solution for locating the configuration
      * files. On windows files are searched for in the current working
@@ -62,9 +64,7 @@ OpenDungeonsApplication::OpenDungeonsApplication() :
 
 OpenDungeonsApplication::~OpenDungeonsApplication()
 {
-    if (mFrameListener)
-        delete mFrameListener;
-    if (mRoot)
+    if(mRoot)
         delete mRoot;
 }
 
@@ -131,7 +131,11 @@ bool OpenDungeonsApplication::setup()
     MusicPlayer::getSingleton().start(0);
 
     createScene();
-    createFrameListener();
+
+    //create the framelistener
+    new ExampleFrameListener(mWindow, mCamera, mSceneMgr, true, true, false);
+    ExampleFrameListener::getSingletonPtr()->showDebugOverlay(true);
+    mRoot->addFrameListener(ExampleFrameListener::getSingletonPtr());
 
     return true;
 }
@@ -211,15 +215,6 @@ void OpenDungeonsApplication::createScene()
     light->setPosition(0, 0, 5);
     light->setAttenuation(20, 0.15, 0.15, 0.017);
     node->attachObject(light);
-}
-
-void OpenDungeonsApplication::createFrameListener()
-{
-    mFrameListener = new ExampleFrameListener(mWindow, mCamera, mSceneMgr,
-            true, true, false);
-    exampleFrameListener = mFrameListener;
-    mFrameListener->showDebugOverlay(true);
-    mRoot->addFrameListener(mFrameListener);
 }
 
 /*! \brief setup the viewports

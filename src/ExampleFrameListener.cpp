@@ -28,35 +28,18 @@
 #include "TextRenderer.h"
 #include "MusicPlayer.h"
 #include "RenderManager.h"
+#include "Gui.h"
 
 #include "ExampleFrameListener.h"
+
+template<> ExampleFrameListener*
+        Ogre::Singleton<ExampleFrameListener>::ms_Singleton = 0;
 
 using namespace Ogre;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
 #endif
-
-/*! \brief A required function to pass input to the OIS system.
- *
- */
-CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID)
-{
-    switch (buttonID)
-    {
-        case OIS::MB_Left:
-            return CEGUI::LeftButton;
-
-        case OIS::MB_Right:
-            return CEGUI::RightButton;
-
-        case OIS::MB_Middle:
-            return CEGUI::MiddleButton;
-
-        default:
-            return CEGUI::LeftButton;
-    }
-}
 
 void ExampleFrameListener::updateStats(void)
 {
@@ -114,13 +97,28 @@ void ExampleFrameListener::updateStats(void)
     }
 }
 
+/*! \brief Returns access to the singleton instance of Gui
+ */
+ExampleFrameListener& ExampleFrameListener::getSingleton()
+{
+    assert(ms_Singleton);
+    return(*ms_Singleton);
+}
+
+/*! \brief Returns access to the pointer to the singleton instance of Gui
+ */
+ExampleFrameListener* ExampleFrameListener::getSingletonPtr()
+{
+    return ms_Singleton;
+}
+
 /*! \brief This constructor is where the OGRE system is initialized and started.
  *
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
 ExampleFrameListener::ExampleFrameListener(RenderWindow* win, Camera* cam,
-        SceneManager *sceneManager, bool bufferedKeys, bool bufferedMouse,
+        SceneManager* sceneManager, bool bufferedKeys, bool bufferedMouse,
         bool bufferedJoy) :
     mCamera(cam), mWindow(win)
 {
@@ -941,7 +939,8 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
 {
     Creature *tempCreature;
 
-    CEGUI::System::getSingleton().injectMouseButtonDown(convertButton(id));
+    CEGUI::System::getSingleton().injectMouseButtonDown(
+            Gui::getSingletonPtr()->convertButton(id));
     string resultName;
 
     // If the mouse press is on a CEGUI window ignore it
@@ -1163,7 +1162,8 @@ bool ExampleFrameListener::mousePressed(const OIS::MouseEvent &arg,
 bool ExampleFrameListener::mouseReleased(const OIS::MouseEvent &arg,
         OIS::MouseButtonID id)
 {
-    CEGUI::System::getSingleton().injectMouseButtonUp(convertButton(id));
+    CEGUI::System::getSingleton().injectMouseButtonUp(
+            Gui::getSingletonPtr()->convertButton(id));
 
     // If the mouse press was on a CEGUI window ignore it
     if (mouseDownOnCEGUIWindow)

@@ -5,8 +5,6 @@
 
 #include <Ogre.h>
 
-class ExampleFrameListener;
-
 /*! Base class which manages the startup of OpenDungeons.
  */
 class OpenDungeonsApplication
@@ -19,7 +17,6 @@ class OpenDungeonsApplication
     private:
         Ogre::Root* mRoot;
         Ogre::Camera* mCamera;
-        ExampleFrameListener* mFrameListener;
         Ogre::RenderWindow* mWindow;
         std::string mHomePath;
         std::string mResourcePath;
@@ -29,7 +26,6 @@ class OpenDungeonsApplication
         void setupResources();
         void createCamera();
         void createScene();
-        void createFrameListener();
         std::string getHomePath();
         std::string macBundlePath();
 };

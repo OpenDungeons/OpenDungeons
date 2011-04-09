@@ -15,6 +15,8 @@
 #include <OgreColourValue.h>
 #include <OgreSceneManager.h>
 
+//FIXME: variable initialisation should never be in a header
+//       instead use statics somewhere (in OpenDungeonsApplication, e.g.)
 //Various text strings and constants
 const unsigned int PORT_NUMBER = 31222;
 const double BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
@@ -61,8 +63,8 @@ class ClientNotification;
 class Socket;
 class GameMap;
 template<typename T> class ProtectedObject;
-class ExampleFrameListener;
 
+//FIXME: externals are bad in C++, use singletons if possible, for example
 extern GameMap gameMap;
 extern Ogre::SceneManager* mSceneMgr;
 
@@ -93,7 +95,5 @@ extern double turnsPerSecond;
 extern ProtectedObject<long> turnNumber;
 
 extern std::vector<Ogre::ColourValue> playerColourValues;
-
-extern ExampleFrameListener* exampleFrameListener;
 
 #endif
