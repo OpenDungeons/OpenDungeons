@@ -6,8 +6,7 @@
 #include "RoomObject.h"
 #include "Creature.h"
 
-RoomQuarters::RoomQuarters() :
-    Room()
+RoomQuarters::RoomQuarters()
 {
     type = quarters;
 }

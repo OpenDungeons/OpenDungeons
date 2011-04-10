@@ -8,10 +8,9 @@
 #include "RoomObject.h"
 
 RoomDungeonTemple::RoomDungeonTemple() :
-    Room()
+        waitTurns(0)
 {
     type = dungeonTemple;
-    waitTurns = 0;
 }
 
 void RoomDungeonTemple::createMeshes()

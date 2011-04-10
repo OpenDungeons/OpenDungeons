@@ -8,15 +8,15 @@
 
 GoalMineNGold::GoalMineNGold(const std::string& nName,
         const std::string& nArguments) :
-    Goal(nName, nArguments)
+        Goal(nName, nArguments),
+        goldToMine(atoi(nArguments.c_str()))
 {
     std::cout << "\nAdding goal " << getName();
-    goldToMine = atoi(nArguments.c_str());
 }
 
 bool GoalMineNGold::isMet(Seat *s)
 {
-    return (s->goldMined >= goldToMine) ? true : false;
+    return (s->goldMined >= goldToMine);
 }
 
 std::string GoalMineNGold::getDescription()

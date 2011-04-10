@@ -5,9 +5,9 @@
 /*! \brief Creates and initializes the map out to the specified radius.
  *
  */
-TileCoordinateMap::TileCoordinateMap(int nRadius)
+TileCoordinateMap::TileCoordinateMap(int nRadius) :
+        radius(nRadius)
 {
-    radius = nRadius;
     precomputeMap(nRadius);
 }
 

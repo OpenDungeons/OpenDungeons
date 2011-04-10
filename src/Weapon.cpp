@@ -5,9 +5,13 @@
 #include "Creature.h"
 #include "RenderManager.h"
 
-Weapon::Weapon()
+Weapon::Weapon() :
+        meshExists(false),
+        damage(0.0),
+        range(0.0),
+        defense(0.0),
+        parentCreature(NULL)
 {
-    meshExists = false;
 }
 
 void Weapon::createMesh()

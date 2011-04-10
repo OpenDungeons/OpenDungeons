@@ -8,14 +8,14 @@
 #include "RenderRequest.h"
 #include "RenderManager.h"
 
-Field::Field(const std::string& nName)
+Field::Field(const std::string& nName) :
+        hasMeshes(false)
 {
     static int uniqueNumber = 0;
 
     name = (nName.compare("autoname") == 0)
-            ? "field_" + Ogre::StringConverter::toString(++uniqueNumber) : nName;
-
-    hasMeshes = false;
+            ? "field_" + Ogre::StringConverter::toString(++uniqueNumber)
+            : nName;
 }
 
 /*! \brief Returns the stored value at a position (or 0) and a boolean indicating whether the value was actually found.

@@ -1,9 +1,9 @@
 #include "Goal.h"
 
-Goal::Goal(const std::string& nName, const std::string& nArguments)
+Goal::Goal(const std::string& nName, const std::string& nArguments) :
+        name(nName),
+        arguments(nArguments)
 {
-    name = nName;
-    arguments = nArguments;
 }
 
 void Goal::doSuccessAction()

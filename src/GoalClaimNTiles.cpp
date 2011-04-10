@@ -8,15 +8,15 @@
 
 GoalClaimNTiles::GoalClaimNTiles(const std::string& nName,
         const std::string& nArguments) :
-    Goal(nName, nArguments)
+        Goal(nName, nArguments),
+        numberOfTiles(atoi(nArguments.c_str()))
 {
     std::cout << "\nAdding goal " << getName();
-    numberOfTiles = atoi(nArguments.c_str());
 }
 
 bool GoalClaimNTiles::isMet(Seat *s)
 {
-    return (s->getNumClaimedTiles() >= numberOfTiles) ? true: false;
+    return (s->getNumClaimedTiles() >= numberOfTiles);
 }
 
 std::string GoalClaimNTiles::getSuccessMessage()

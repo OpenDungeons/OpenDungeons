@@ -4,6 +4,7 @@
 #include "GameMap.h"
 //~ #include "MissileObject.h"
 
-ProximityTrap::ProximityTrap() : Trap()
+ProximityTrap::ProximityTrap() :
+        range(0.0)
 {
 }

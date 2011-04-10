@@ -5,7 +5,7 @@
 #include "GameMap.h"
 //~ #include "MissileObject.h"
 
-DirectionalTrap::DirectionalTrap(int xdir, int ydir) : Trap()
+DirectionalTrap::DirectionalTrap(int xdir, int ydir)
 {
 }
 

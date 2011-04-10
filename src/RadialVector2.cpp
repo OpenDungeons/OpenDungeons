@@ -13,10 +13,10 @@
 
 #include "RadialVector2.h"
 
-RadialVector2::RadialVector2()
+RadialVector2::RadialVector2() :
+        r(0.0),
+        theta(0.0)
 {
-    r = 0.0;
-    theta = 0.0;
 }
 
 RadialVector2::RadialVector2(double x1, double y1, double x2, double y2)

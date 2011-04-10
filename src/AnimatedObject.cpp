@@ -8,19 +8,21 @@
 
 #include "AnimatedObject.h"
 
-AnimatedObject::AnimatedObject()
+AnimatedObject::AnimatedObject() :
+        moveSpeed(1.0),
+        animationState(NULL),
+        destinationAnimationState("Idle"),
+        walkQueueFirstEntryAdded(false),
+        prevAnimationState(""),
+        prevAnimationStateLoop(true),
+        sceneNode(NULL)
 {
     sem_init(&positionLockSemaphore, 0, 1);
     sem_init(&animationSpeedFactorLockSemaphore, 0, 1);
 
     setPosition(Ogre::Vector3(0, 0, 0));
 
-    animationState = NULL;
-    destinationAnimationState = "Idle";
-    walkQueueFirstEntryAdded = false;
     sem_init(&walkQueueLockSemaphore, 0, 1);
-
-    moveSpeed = 1.0;
 
     setAnimationSpeedFactor(1.0);
 }

@@ -49,7 +49,9 @@ RenderManager::RenderManager(GameMap* gameMap) :
         roomSceneNode(NULL),
         creatureSceneNode(NULL),
         lightSceneNode(NULL),
-        initialized ( false )
+        initialized(false),
+        sceneManager(NULL),
+        fieldSceneNode(NULL)
 {
     sem_init(&renderQueueSemaphore, 0, 1);
     sem_init(&renderQueueEmptySemaphore, 0, 0);

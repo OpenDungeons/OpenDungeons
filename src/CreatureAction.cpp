@@ -1,19 +1,19 @@
 #include "CreatureAction.h"
 #include "Creature.h"
 
-CreatureAction::CreatureAction()
+CreatureAction::CreatureAction() :
+        type(idle),
+        tile(NULL),
+        creature(NULL)
 {
-    type = idle;
-    tile = NULL;
-    creature = NULL;
 }
 
 CreatureAction::CreatureAction(ActionType nType, Tile *nTile,
-        Creature *nCreature)
+        Creature *nCreature) :
+            type(nType),
+            tile(nTile),
+            creature(nCreature)
 {
-    type = nType;
-    tile = nTile;
-    creature = nCreature;
 }
 
 std::string CreatureAction::toString()

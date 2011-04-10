@@ -29,7 +29,27 @@
 using CEGUI::UDim;
 using CEGUI::UVector2;
 
-Creature::Creature()
+Creature::Creature() :
+        hasVisualDebuggingEntities(false),
+        exp(0.0),
+        level(1),
+        destinationX(0),
+        destinationY(0),
+        gold(0),
+        tilePassability(Tile::walkableTile),
+        homeTile(NULL),
+        trainingDojo(NULL),
+        trainWait(0),
+        weaponL(NULL),
+        weaponR(NULL),
+        battleField(new Field("autoname")),
+        battleFieldAgeCounter(0),
+        meshesExist(false),
+        sound(SoundEffectsHelper::getSingleton().createCreatureSound(getName())),
+        awakeness(100.0),
+        deathCounter(10),
+        color(0),
+        previousPositionTile(NULL)
 {
     sem_init(&hpLockSemaphore, 0, 1);
     sem_init(&manaLockSemaphore, 0, 1);
@@ -45,55 +65,10 @@ Creature::Creature()
     isOnMap = false;
     sem_post(&isOnMapLockSemaphore);
 
-    hasVisualDebuggingEntities = false;
-
-    scale = Ogre::Vector3(1, 1, 1);
-    sightRadius = 10.0;
-    digRate = 10.0;
-    exp = 0.0;
-    level = 1;
-    danceRate = 0.35;
-    destinationX = 0;
-    destinationY = 0;
-
     setHP(10.0);
     setMana(10.0);
 
-    maxHP = 10;
-    maxMana = 10;
-    hpPerLevel = 0.0;
-    manaPerLevel = 0.0;
-    gold = 0;
-    sightRadius = 10;
-    digRate = 10;
-    moveSpeed = 1.0;
-    tilePassability = Tile::walkableTile;
-    homeTile = NULL;
-    trainingDojo = NULL;
-    trainWait = 0;
-
-    weaponL = NULL;
-    weaponR = NULL;
-
-    sceneNode = NULL;
-
     pushAction(CreatureAction::idle);
-
-    battleField = new Field("autoname");
-    battleFieldAgeCounter = 0;
-
-    meshesExist = false;
-
-    //static int uniqueId = 0;
-
-    //Create sound object
-    sound = SoundEffectsHelper::getSingleton().createCreatureSound(getName());
-
-    awakeness = 100.0;
-    deathCounter = 10;
-
-    prevAnimationState = "";
-    prevAnimationStateLoop = true;
 }
 
 /*  This function causes a segfault in Creature::doTurn() when computeBattlefield() is called.
