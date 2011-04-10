@@ -8,7 +8,7 @@
 #include <OgrePass.h>
 #include <OgreTexture.h>
 #include <OgreMaterial.h>
-#include <CEGUIWIndowManager.h>
+#include <CEGUIWindowManager.h>
 
 #include "ODFrameListener.h"
 #include "Globals.h"
@@ -517,6 +517,7 @@ void queueServerNotification(ServerNotification *n)
     sem_post(&serverNotificationQueueSemaphore);
 }
 
+
 std::vector<std::string> listAllFiles(const std::string& directoryName)
 {
     std::vector<std::string> tempVector;
@@ -539,6 +540,7 @@ std::vector<std::string> listAllFiles(const std::string& directoryName)
 #endif
     return tempVector;
 }
+
 
 //NOTE: This function has not yet been tested.
 /*

@@ -19,9 +19,6 @@ sem_t randomGeneratorLockSemaphore;
 sem_t lightNumberLockSemaphore;
 sem_t missileObjectUniqueNumberLockSemaphore;
 
-std::deque<RenderRequest*> renderQueue;
-//sem_t renderQueueSemaphore;
-//sem_t renderQueueEmptySemaphore;
 ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty(0);
 
 std::deque<ServerNotification*> serverNotificationQueue;
@@ -37,8 +34,6 @@ Socket* serverSocket = NULL;
 Socket* clientSocket = NULL;
 
 ProtectedObject<long int> turnNumber(1);
-
-std::vector<Ogre::ColourValue> playerColourValues;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -75,15 +70,6 @@ int main(int argc, char **argv)
     sem_init(&serverNotificationQueueLockSemaphore, 0, 1);
     sem_init(&clientNotificationQueueLockSemaphore, 0, 1);
     sem_init(&creatureAISemaphore, 0, 1);
-
-    playerColourValues.push_back(Ogre::ColourValue(0.8, 0.8, 0.8, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.8, 0.0, 0.0, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.8, 0.0, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.8, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.4, 0.4, 0.4, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.4, 0.0, 0.0, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.4, 0.0, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.4, 1.0));
 
     try
     {

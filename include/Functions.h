@@ -23,7 +23,6 @@ std::string stripCommentsFromLine(std::string line);
 void colourizeEntity(Ogre::Entity *ent, int colour);
 std::string colourizeMaterial(const std::string& materialName, int color);
 
-//void queueRenderRequest(RenderRequest *r);
 void queueServerNotification(ServerNotification *n);
 
 std::vector<std::string> listAllFiles(const std::string& directoryName);

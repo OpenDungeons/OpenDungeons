@@ -9,6 +9,7 @@
 #define __ExampleFrameListener_H__
 
 #include <deque>
+#include <vector>
 
 #include <pthread.h>
 #include <OgreFrameListener.h>
@@ -42,7 +43,7 @@ class ODFrameListener :
         public OIS::KeyListener
 {
     protected:
-        void updateStats(void);
+        void updateStats();
 
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
@@ -174,6 +175,8 @@ class ODFrameListener :
         Ogre::SceneNode* roomSceneNode;
         Ogre::SceneNode* fieldSceneNode;
         Ogre::SceneNode* lightSceneNode;
+
+        std::vector<Ogre::ColourValue> playerColourValues;
 
         SoundEffectsHelper* sfxHelper;
 };

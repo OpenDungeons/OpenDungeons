@@ -17,12 +17,9 @@
 #include "Sleep.h"
 #include "Field.h"
 #include "Trap.h"
-#include "RoomObject.h"
-#include "MissileObject.h"
 #include "GameMap.h"
 #include "Player.h"
 #include "SoundEffectsHelper.h"
-#include "RenderRequest.h"
 #include "Weapon.h"
 #include "MapLight.h"
 #include "ProtectedObject.h"
@@ -46,7 +43,7 @@ template<> ODFrameListener*
 #define snprintf _snprintf
 #endif
 
-void ODFrameListener::updateStats(void)
+void ODFrameListener::updateStats()
 {
     static Ogre::String currFps = "Current FPS: ";
     static Ogre::String avgFps = "Average FPS: ";
@@ -94,7 +91,7 @@ void ODFrameListener::updateStats(void)
         guiDbg->setCaption(mDebugText);
     }
     catch (...)
-    { /* ignore */
+    { //FIXME should not ignore exceptions unless there is a really good reason.
     }
 }
 
@@ -221,6 +218,15 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
     renderManager = RenderManager::getSingletonPtr();
     renderManager->setSceneNodes(roomSceneNode, creatureSceneNode,
                                      lightSceneNode, fieldSceneNode);
+
+    playerColourValues.push_back(Ogre::ColourValue(0.8, 0.8, 0.8, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.8, 0.0, 0.0, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.8, 0.0, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.8, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.4, 0.4, 0.4, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.4, 0.0, 0.0, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.4, 0.0, 1.0));
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.4, 1.0));
 }
 
 /*! \brief Adjust mouse clipping area

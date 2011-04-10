@@ -25,7 +25,6 @@ template<typename T> class ProtectedObject;
 
 extern GameMap gameMap;
 
-extern std::deque<RenderRequest*> renderQueue;
 extern sem_t randomGeneratorLockSemaphore;
 extern sem_t lightNumberLockSemaphore;
 extern sem_t missileObjectUniqueNumberLockSemaphore;
@@ -47,6 +46,6 @@ extern Socket* clientSocket;
 
 extern ProtectedObject<long> turnNumber;
 
-extern std::vector<Ogre::ColourValue> playerColourValues;
+//extern std::vector<Ogre::ColourValue> playerColourValues;
 
 #endif

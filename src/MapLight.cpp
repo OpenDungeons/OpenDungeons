@@ -142,7 +142,7 @@ const std::string& MapLight::getName() const
 
 void MapLight::setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ)
 {
-    setPosition(static_cast<Ogre::Vector3>(nX, nY, nZ));
+    setPosition(Ogre::Vector3(nX, nY, nZ));
 }
 
 void MapLight::setPosition(const Ogre::Vector3& nPosition)

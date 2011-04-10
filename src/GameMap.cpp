@@ -2274,13 +2274,12 @@ void GameMap::clearMissileObjects()
 
 void GameMap::addMissileObject(MissileObject *m)
 {
+    //TODO - should we have a semaphore here?
     missileObjects.push_back(m);
     sem_wait(&newActiveObjectsLockSemaphore);
     newActiveObjects.push(m);
     sem_post(&newActiveObjectsLockSemaphore);
-    sem_wait(&animatedObjectsLockSemaphore);
-    animatedObjects.push_back(m);
-    sem_post(&animatedObjectsLockSemaphore);
+    addAnimatedObject(m);
 }
 
 void GameMap::removeMissileObject(MissileObject *m)
