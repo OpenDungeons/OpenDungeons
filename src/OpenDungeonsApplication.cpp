@@ -148,7 +148,7 @@ bool OpenDungeonsApplication::setup()
     createScene();
 
     //create the framelistener
-    new ODFrameListener(mWindow, mCamera, RenderManager::getSingletonPtr()->sceneManager, true, true, false);
+    new ODFrameListener(mWindow, mCamera, true, true, false);
     ODFrameListener::getSingletonPtr()->showDebugOverlay(true);
     mRoot->addFrameListener(ODFrameListener::getSingletonPtr());
 

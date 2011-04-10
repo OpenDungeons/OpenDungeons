@@ -13,7 +13,6 @@
 #include "Socket.h"
 #include "ProtectedObject.h"
 
-Ogre::SceneManager* mSceneMgr;
 GameMap gameMap;
 
 sem_t randomGeneratorLockSemaphore;

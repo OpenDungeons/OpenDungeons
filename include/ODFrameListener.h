@@ -47,8 +47,7 @@ class ODFrameListener :
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
         ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
-                Ogre::SceneManager *sceneManager, bool bufferedKeys,
-                bool bufferedMouse, bool bufferedJoy);
+                bool bufferedKeys, bool bufferedMouse, bool bufferedJoy);
         virtual ~ODFrameListener();
 
         static ODFrameListener& getSingleton();
@@ -146,7 +145,6 @@ class ODFrameListener :
         bool mLMouseDown, mRMouseDown; // True if the mouse buttons are down
         int mLStartDragX, mLStartDragY; // The start tile coordinates for a left drag
         int mRStartDragX, mRStartDragY; // The start tile coordinates for a left drag
-        Ogre::SceneManager* mSceneMgr; // A pointer to the scene manager
         int xPos, yPos;
         bool digSetBool; // For server mode - hods whether to mark or unmark a tile for digging
         bool mouseDownOnCEGUIWindow;
