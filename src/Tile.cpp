@@ -733,6 +733,7 @@ void Tile::setSelected(bool s)
 {
     if (selected != s)
     {
+        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
         Ogre::Entity* ent;
         char tempString[255];
 
@@ -783,6 +784,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
         bool thisRequestIsForMe = (p == gameMap.me);
         if (thisRequestIsForMe)
         {
+            Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
             //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
             snprintf(tempString, sizeof(tempString),
                     "Level_%i_%i_selection_indicator", x, y);

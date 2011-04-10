@@ -13,7 +13,6 @@
 
 #include <semaphore.h>
 #include <OgreColourValue.h>
-#include <OgreSceneManager.h>
 
 class RenderRequest;
 class ServerNotification;
@@ -24,8 +23,6 @@ template<typename T> class ProtectedObject;
 
 //FIXME: externals are bad in C++, use singletons if possible
 //       or pass as parameters for example
-//TODO: make this part of OpenDungeonsApplication or something
-extern Ogre::SceneManager* mSceneMgr;
 extern GameMap gameMap;
 
 extern std::deque<RenderRequest*> renderQueue;

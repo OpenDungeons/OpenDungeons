@@ -117,7 +117,10 @@ bool OpenDungeonsApplication::setup()
         return false;
 
     mWindow = mRoot->initialise(true);
-    mSceneMgr = mRoot->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
+
+    new RenderManager(&gameMap);
+    RenderManager::getSingletonPtr()->sceneManager
+            = mRoot->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
 
     createCamera();
     createViewports();
@@ -130,13 +133,11 @@ bool OpenDungeonsApplication::setup()
 
     //instanciate all singleton helper classes
     new SoundEffectsHelper();
-    new RenderManager();
     new Gui();
     new TextRenderer();
     new MusicPlayer(mResourcePath + "music/");
 
     SoundEffectsHelper::getSingletonPtr()->initialiseSound(mResourcePath + "sounds/");
-    RenderManager::getSingletonPtr()->initialize(mSceneMgr, &gameMap);
     //TODO: load main menu first, only start game if user clicks on new game
     Gui::getSingletonPtr()->loadGuiSheet(Gui::ingameMenu);
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
@@ -147,7 +148,7 @@ bool OpenDungeonsApplication::setup()
     createScene();
 
     //create the framelistener
-    new ODFrameListener(mWindow, mCamera, mSceneMgr, true, true, false);
+    new ODFrameListener(mWindow, mCamera, RenderManager::getSingletonPtr()->sceneManager, true, true, false);
     ODFrameListener::getSingletonPtr()->showDebugOverlay(true);
     mRoot->addFrameListener(ODFrameListener::getSingletonPtr());
 
@@ -158,12 +159,12 @@ bool OpenDungeonsApplication::setup()
  */
 void OpenDungeonsApplication::createCamera()
 {
+    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
     mCamera = mSceneMgr->createCamera("PlayerCam");
     mCamera->setNearClipDistance(.05);
     mCamera->setFarClipDistance(300.0);
-    mCamera->setAutoTracking(false,
-            mSceneMgr->getRootSceneNode()->createChildSceneNode("CameraTarget"),
-            Ogre::Vector3(0, 0, 0));
+    mCamera->setAutoTracking(false, mSceneMgr->getRootSceneNode()
+            ->createChildSceneNode("CameraTarget"), Ogre::Vector3(0, 0, 0));
 }
 
 void OpenDungeonsApplication::createScene()
@@ -194,6 +195,7 @@ void OpenDungeonsApplication::createScene()
     // Create ogre entities for the tiles, rooms, and creatures
     gameMap.createAllEntities();
 
+    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
     // Create the main scene lights
     mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.36, 0.28));
 

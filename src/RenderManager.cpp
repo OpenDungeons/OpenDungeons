@@ -1,8 +1,8 @@
-/*
- * RenderManager.cpp
- *
- *  Created on: 26. mars 2011
- *      Author: oln
+/*!
+ *  \file   RenderManager.cpp
+ *  \date   26 March 2001
+ *  \author oln
+ *  \brief  handles the render requests
  */
 
 #include <OgreSceneManager.h>
@@ -45,32 +45,20 @@ RenderManager* RenderManager::getSingletonPtr()
     return ms_Singleton;
 }
 
-RenderManager::RenderManager() :
+RenderManager::RenderManager(GameMap* gameMap) :
         roomSceneNode(NULL),
         creatureSceneNode(NULL),
         lightSceneNode(NULL),
         initialized ( false )
 {
-    // TODO Auto-generated constructor stub
+    sem_init(&renderQueueSemaphore, 0, 1);
+    sem_init(&renderQueueEmptySemaphore, 0, 0);
 
+    this->gameMap = gameMap;
 }
 
 RenderManager::~RenderManager()
 {
-    // TODO Auto-generated destructor stub
-}
-
-bool RenderManager::initialize ( Ogre::SceneManager* sceneManager,
-                                 GameMap* gameMap )
-{
-    sem_init(&renderQueueSemaphore, 0, 1);
-    sem_init(&renderQueueEmptySemaphore, 0, 0);
-    
-    this->sceneManager = sceneManager;
-    this->gameMap = gameMap;
-
-    initialized = false;
-    return false;
 }
 
 void RenderManager::setSceneNodes(Ogre::SceneNode* roomSceneNode,
