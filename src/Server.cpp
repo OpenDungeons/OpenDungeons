@@ -15,7 +15,7 @@
 #include "GameMap.h"
 #include "ProtectedObject.h"
 #include "Creature.h"
-#include "OpenDungeonsApplication.h"
+#include "ODApplication.h"
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
@@ -43,7 +43,7 @@ void *serverSocketProcessor(void *p)
         return NULL;
     }
 
-    int port = OpenDungeonsApplication::PORT_NUMBER;
+    int port = ODApplication::PORT_NUMBER;
     if (!sock->bind(port))
     {
         frameListener->commandOutput
@@ -151,7 +151,7 @@ ChatMessage *processChatMessage(std::string arguments)
 // THREAD - This function is meant to be called by pthread_create.
 void *creatureAIThread(void *p)
 {
-    double timeUntilNextTurn = 1.0 / turnsPerSecond;
+    double timeUntilNextTurn = 1.0 / ODApplication::turnsPerSecond;
     Ogre::Timer stopwatch;
     unsigned long int timeTaken;
 
@@ -180,7 +180,7 @@ void *creatureAIThread(void *p)
 
         // Go to each creature and call their individual doTurn methods
         gameMap.doTurn();
-        timeUntilNextTurn = 1.0 / turnsPerSecond;
+        timeUntilNextTurn = 1.0 / ODApplication::turnsPerSecond;
 
         timeTaken = stopwatch.getMicroseconds();
         gameMap.previousLeftoverTimes.push_front((1e6 * timeUntilNextTurn
@@ -310,7 +310,7 @@ void *serverNotificationProcessor(void *p)
 
             case ServerNotification::setTurnsPerSecond:
                 tempSS.str("");
-                tempSS << turnsPerSecond;
+                tempSS << ODApplication::turnsPerSecond;
 
                 sendToAllClients(frameListener, formatCommand("turnsPerSecond",
                         tempSS.str()));
@@ -451,7 +451,7 @@ void *clientHandlerThread(void *p)
             curSock->send(formatCommand("addseat", tempSS.str()));
 
             tempSS.str("");
-            tempSS << turnsPerSecond;
+            tempSS << ODApplication::turnsPerSecond;
             curSock->send(formatCommand("turnsPerSecond", tempSS.str()));
 
             // Send over the information about the players in the game

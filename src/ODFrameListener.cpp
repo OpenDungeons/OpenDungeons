@@ -35,7 +35,7 @@
 #include "MusicPlayer.h"
 #include "RenderManager.h"
 #include "Gui.h"
-#include "OpenDungeonsApplication.h"
+#include "ODApplication.h"
 
 #include "ODFrameListener.h"
 
@@ -212,7 +212,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
     //mCamNode->attachObject(cameraPosSound);
 
     sfxHelper = SoundEffectsHelper::getSingletonPtr();
-    TextRenderer::getSingleton().addTextBox(OpenDungeonsApplication::POINTER_INFO_STRING, "", 0, 0, 200,
+    TextRenderer::getSingleton().addTextBox(ODApplication::POINTER_INFO_STRING, "", 0, 0, 200,
             50, Ogre::ColourValue::White);
 
     Ogre::LogManager::getSingletonPtr()->logMessage(
@@ -485,14 +485,14 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
                 gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
         turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
-        double maxTps = 1.0 / ((1.0 / turnsPerSecond)
+        double maxTps = 1.0 / ((1.0 / ODApplication::turnsPerSecond)
                 - gameMap.averageAILeftoverTime);
         turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
                 (Ogre::Real) maxTps).substr(0, 4);
     }
     turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
             turnNumber.get());
-    printText((string) MOTD + "\n" + (terminalActive ? (commandOutput + "\n")
+    printText((string) ODApplication::MOTD + "\n" + (terminalActive ? (commandOutput + "\n")
             : nullString) + (terminalActive ? prompt : nullString)
             + (terminalActive ? promptCommand : nullString) + "\n" + turnString
             + "\n" + (chatMessages.size() > 0 ? chatString : nullString));
@@ -505,7 +505,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         // Advance the animation
         if (currentAnimatedObject->animationState != NULL)
         {
-            currentAnimatedObject->animationState->addTime(turnsPerSecond
+            currentAnimatedObject->animationState->addTime(ODApplication::turnsPerSecond
                     * evt.timeSinceLastFrame
                     * currentAnimatedObject->getAnimationSpeedFactor());
         }
@@ -525,7 +525,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
             //FIXME: The moveDist should probably be tied to the scale of the creature as well
             //FIXME: When the client and the server are using different frame rates, the creatures walk at different speeds
-            double moveDist = turnsPerSecond
+            double moveDist = ODApplication::turnsPerSecond
                     * currentAnimatedObject->getMoveSpeed()
                     * evt.timeSinceLastFrame;
             currentAnimatedObject->shortDistance -= moveDist;
@@ -682,7 +682,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     {
         //FIXME: I think this 2.0 should be a 1.0 but this gives the
         // correct result.  This probably indicates a bug.
-        frameDelay += 2.0 / (double) MAX_FRAMES_PER_SECOND;
+        frameDelay += 2.0 / ODApplication::MAX_FRAMES_PER_SECOND;
     }
 
     return mContinue;
@@ -733,7 +733,7 @@ bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
     //TODO: This should be changed, or combined with an icon or something later.
     if (gameMap.me->newRoomType || gameMap.me->newTrapType)
     {
-        TextRenderer::getSingleton().moveText(OpenDungeonsApplication::POINTER_INFO_STRING,
+        TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
                 arg.state.X.abs + 30, arg.state.Y.abs);
     }
 
@@ -1080,7 +1080,7 @@ bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
         mDragType = ODFrameListener::nullDragType;
         gameMap.me->newRoomType = Room::nullRoomType;
         gameMap.me->newTrapType = Trap::nullTrapType;
-        TextRenderer::getSingleton().setText(OpenDungeonsApplication::POINTER_INFO_STRING, "");
+        TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
         Tile *curTile = gameMap.getTile(xPos, yPos);
@@ -1501,7 +1501,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                     tempSS.str("");
                     tempSS << "Tile type:  " << Tile::tileTypeToString(
                             mCurrentTileType);
-                    MOTD = tempSS.str();
+                    ODApplication::MOTD = tempSS.str();
                 }
                 break;
 
@@ -1514,7 +1514,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                         --mCurrentTileRadius;
                     }
 
-                    MOTD = "Brush size:  " + Ogre::StringConverter::toString(
+                    ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
                             mCurrentTileRadius);
                 }
                 break;
@@ -1528,7 +1528,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                         ++mCurrentTileRadius;
                     }
 
-                    MOTD = "Brush size:  " + Ogre::StringConverter::toString(
+                    ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
                             mCurrentTileRadius);
                 }
                 break;
@@ -1538,7 +1538,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 if (serverSocket == NULL && clientSocket == NULL)
                 {
                     mBrushMode = !mBrushMode;
-                    MOTD = (mBrushMode)
+                    ODApplication::MOTD = (mBrushMode)
                             ? "Brush mode turned on"
                             : "Brush mode turned off";
                 }
@@ -1550,7 +1550,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 if (serverSocket == NULL && clientSocket == NULL)
                 {
                     mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
-                    MOTD = "Tile fullness:  " + Ogre::StringConverter::toString(
+                    ODApplication::MOTD = "Tile fullness:  " + Ogre::StringConverter::toString(
                             mCurrentFullness);
                 }
                 else // If we are in a game.
@@ -1947,7 +1947,7 @@ void ODFrameListener::executePromptCommand(string command,
         }
         else
         {
-            commandOutput += "\n" + (string) OpenDungeonsApplication::HELP_MESSAGE + "\n";
+            commandOutput += "\n" + (string) ODApplication::HELP_MESSAGE + "\n";
         }
     }
 
@@ -2063,15 +2063,15 @@ void ODFrameListener::executePromptCommand(string command,
             double tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            MAX_FRAMES_PER_SECOND = tempDouble;
+            ODApplication::MAX_FRAMES_PER_SECOND = tempDouble;
             commandOutput += "\nMaximum framerate set to "
-                    + Ogre::StringConverter::toString((Ogre::Real) MAX_FRAMES_PER_SECOND)
+                    + Ogre::StringConverter::toString((Ogre::Real) ODApplication::MAX_FRAMES_PER_SECOND)
                     + "\n";
         }
         else
         {
             commandOutput += "\nCurrent maximum framerate is "
-                    + Ogre::StringConverter::toString((Ogre::Real) MAX_FRAMES_PER_SECOND)
+                    + Ogre::StringConverter::toString((Ogre::Real) ODApplication::MAX_FRAMES_PER_SECOND)
                     + "\n";
         }
     }
@@ -2114,7 +2114,7 @@ void ODFrameListener::executePromptCommand(string command,
         if (arguments.size() > 0)
         {
             tempSS.str(arguments);
-            tempSS >> turnsPerSecond;
+            tempSS >> ODApplication::turnsPerSecond;
 
             // Clear the queue of early/late time counts to reset the moving window average in the AI time display.
             gameMap.previousLeftoverTimes.clear();
@@ -2128,7 +2128,7 @@ void ODFrameListener::executePromptCommand(string command,
                             new ServerNotification;
                     serverNotification->type
                             = ServerNotification::setTurnsPerSecond;
-                    serverNotification->doub = turnsPerSecond;
+                    serverNotification->doub = ODApplication::turnsPerSecond;
 
                     queueServerNotification(serverNotification);
                 }
@@ -2141,12 +2141,12 @@ void ODFrameListener::executePromptCommand(string command,
             }
 
             commandOutput += "\nMaximum turns per second set to "
-                    + Ogre::StringConverter::toString((Ogre::Real) turnsPerSecond) + "\n";
+                    + Ogre::StringConverter::toString((Ogre::Real) ODApplication::turnsPerSecond) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent maximum turns per second is "
-                    + Ogre::StringConverter::toString((Ogre::Real) turnsPerSecond) + "\n";
+                    + Ogre::StringConverter::toString((Ogre::Real) ODApplication::turnsPerSecond) + "\n";
         }
     }
 
@@ -2525,7 +2525,7 @@ void ODFrameListener::executePromptCommand(string command,
                         goto ConnectEndLabel;
                     }
 
-                    if (clientSocket->connect(arguments, OpenDungeonsApplication::PORT_NUMBER))
+                    if (clientSocket->connect(arguments, ODApplication::PORT_NUMBER))
                     {
                         commandOutput += "\nConnection successful.\n";
 
@@ -2901,7 +2901,7 @@ string ODFrameListener::getHelpText(string arg)
     else if (arg.compare("host") == 0)
     {
         std::stringstream s;
-        s << OpenDungeonsApplication::PORT_NUMBER;
+        s << ODApplication::PORT_NUMBER;
         return "Starts a server thread running on this machine.  This utility takes a port number as an argument.  The port number is the port to listen on for a connection.  The default (if no argument is given) is to use" + s.str() + "for the port number.";
     }
 

@@ -6,7 +6,7 @@
 #include <iostream>
 
 #include "Functions.h"
-#include "OpenDungeonsApplication.h"
+#include "ODApplication.h"
 #include "GameMap.h"
 #include "Player.h"
 #include "RenderRequest.h"
@@ -36,10 +36,6 @@ sem_t creatureAISemaphore;
 Socket* serverSocket = NULL;
 Socket* clientSocket = NULL;
 
-std::string versionString = (string) "OpenDungeons_Version:" + OpenDungeonsApplication::VERSION;
-std::string MOTD = (string) "Welcome to Open Dungeons\tVersion:  " + OpenDungeonsApplication::VERSION;
-double MAX_FRAMES_PER_SECOND = OpenDungeonsApplication::DEFAULT_FRAMES_PER_SECOND;
-double turnsPerSecond = 1.4;
 ProtectedObject<long int> turnNumber(1);
 
 std::vector<Ogre::ColourValue> playerColourValues;
@@ -91,7 +87,7 @@ int main(int argc, char **argv)
 
     try
     {
-        new OpenDungeonsApplication;
+        new ODApplication;
     }
     catch (Ogre::Exception& e)
     {

@@ -1,3 +1,5 @@
+//TODO: get rid of this whole file. globals/externals are bad.
+//      put everything in good (singleton) classes or pass as parameter
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
@@ -21,8 +23,6 @@ class Socket;
 class GameMap;
 template<typename T> class ProtectedObject;
 
-//FIXME: externals are bad in C++, use singletons if possible
-//       or pass as parameters for example
 extern GameMap gameMap;
 
 extern std::deque<RenderRequest*> renderQueue;
@@ -45,10 +45,6 @@ extern sem_t creatureAISemaphore;
 extern Socket* serverSocket;
 extern Socket* clientSocket;
 
-extern std::string versionString;
-extern std::string MOTD;
-extern double MAX_FRAMES_PER_SECOND;
-extern double turnsPerSecond;
 extern ProtectedObject<long> turnNumber;
 
 extern std::vector<Ogre::ColourValue> playerColourValues;

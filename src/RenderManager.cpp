@@ -22,7 +22,7 @@
 #include "ProtectedObject.h"
 #include "Field.h"
 #include "Player.h"
-#include "OpenDungeonsApplication.h"
+#include "ODApplication.h"
 
 #include "RenderManager.h"
 
@@ -371,9 +371,9 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     //node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
     node->attachObject ( ent );
     node->setPosition ( Ogre::Vector3 ( curTile->x, curTile->y, 0 ) );
-    node->setScale ( Ogre::Vector3 ( OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                     OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                     OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT ) );
+    node->setScale ( Ogre::Vector3 ( ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
+                                     ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
+                                     ODApplication::BLENDER_UNITS_PER_OGRE_UNIT ) );
     node->resetOrientation();
     node->roll ( Ogre::Degree ( curTile->rotation ) );
 }
@@ -406,9 +406,9 @@ void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
     Ogre::SceneNode* node = roomSceneNode->createChildSceneNode ( tempSS.str()
                             + "_node" );
     node->setPosition ( Ogre::Vector3 ( curTile->x, curTile->y, 0.0 ) );
-    node->setScale ( Ogre::Vector3 ( OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                     OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                     OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT ) );
+    node->setScale ( Ogre::Vector3 ( ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
+                                     ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
+                                     ODApplication::BLENDER_UNITS_PER_OGRE_UNIT ) );
     node->attachObject ( ent );
 }
 
@@ -511,9 +511,9 @@ void RenderManager::rrCreateTreasuryIndicator ( const RenderRequest& renderReque
     //FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
     node = node->createChildSceneNode(node->getName()
                                       + "_hack_node");
-    node->setScale(Ogre::Vector3(1.0 / OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                 1.0 / OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT, 1.0
-                                 / OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT));
+    node->setScale(Ogre::Vector3(1.0 / ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
+                                 1.0 / ODApplication::BLENDER_UNITS_PER_OGRE_UNIT, 1.0
+                                 / ODApplication::BLENDER_UNITS_PER_OGRE_UNIT));
 
     node->attachObject(ent);
 }
@@ -907,9 +907,9 @@ void RenderManager::rrCreateCreatureVisualDebug ( const RenderRequest& renderReq
                                             + "_node");
         visIndicatorNode->attachObject(visIndicatorEntity);
         visIndicatorNode->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
-        visIndicatorNode->setScale(Ogre::Vector3(OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT));
+        visIndicatorNode->setScale(Ogre::Vector3(ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
+                ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
+                ODApplication::BLENDER_UNITS_PER_OGRE_UNIT));
     }
 }
 

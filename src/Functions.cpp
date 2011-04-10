@@ -26,6 +26,7 @@
 #include "Player.h"
 #include "CreatureAction.h"
 #include "CreatureSound.h"
+#include "ODApplication.h"
 
 #include "Functions.h"
 
@@ -69,13 +70,13 @@ bool readGameMapFromFile(const std::string& fileName)
 
     // Read in the version number from the level file
     levelFile >> tempString;
-    if (tempString.compare(versionString) != 0)
+    if (tempString.compare(ODApplication::VERSIONSTRING) != 0)
     {
         std::cerr
                 << "\n\n\nERROR:  Attempting to load a file produced by a different version of OpenDungeons.\n"
                 << "ERROR:  Filename:  " << fileName
                 << "\nERROR:  The file is for OpenDungeons:  " << tempString
-                << "\nERROR:  This version of OpenDungeons:  " << versionString
+                << "\nERROR:  This version of OpenDungeons:  " << ODApplication::VERSION
                 << "\n\n\n";
         exit(1);
     }
@@ -193,7 +194,7 @@ void writeGameMapToFile(const std::string& fileName)
     Tile *tempTile;
 
     // Write the identifier string and the version number
-    levelFile << versionString
+    levelFile << ODApplication::VERSIONSTRING
             << "  # The version of OpenDungeons which created this file (for compatability reasons).\n";
 
     // write out the name of the next level to load after this one is complete.

@@ -29,8 +29,8 @@ set(
      MapLight.cpp
      MissileObject.cpp
      MusicPlayer.cpp
+     ODApplication.cpp
      ODFrameListener.cpp
-     OpenDungeonsApplication.cpp
      Player.cpp
      ProximityTrap.cpp
      RadialVector2.cpp

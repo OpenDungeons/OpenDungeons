@@ -1,7 +1,7 @@
-/*! \file   OpenDungeonsApplication.cpp
+/*! \file   ODApplication.cpp
  *  \author Ogre team, andrewbuck, oln, StefanP.MUC
  *  \date   07 April 2011
- *  \brief  Class OpenDungeonsApplication containing everything to start the game
+ *  \brief  Class ODApplication containing everything to start the game
  */
 
 #include <string>
@@ -25,15 +25,15 @@
 #include "SoundEffectsHelper.h"
 #include "Gui.h"
 
-#include "OpenDungeonsApplication.h"
+#include "ODApplication.h"
 
-template<> OpenDungeonsApplication*
-        Ogre::Singleton<OpenDungeonsApplication>::ms_Singleton = 0;
+template<> ODApplication*
+        Ogre::Singleton<ODApplication>::ms_Singleton = 0;
 
 /*! \brief Returns a reference to the singleton object
  *
  */
-OpenDungeonsApplication& OpenDungeonsApplication::getSingleton()
+ODApplication& ODApplication::getSingleton()
 {
     assert (ms_Singleton);
     return (*ms_Singleton);
@@ -42,12 +42,12 @@ OpenDungeonsApplication& OpenDungeonsApplication::getSingleton()
 /*! \brief Returns a pointer to the singleton object
  *
  */
-OpenDungeonsApplication* OpenDungeonsApplication::getSingletonPtr()
+ODApplication* ODApplication::getSingletonPtr()
 {
     return ms_Singleton;
 }
 
-OpenDungeonsApplication::OpenDungeonsApplication() :
+ODApplication::ODApplication() :
         mRoot(0)
 {
     /* Provide a nice cross platform solution for locating the configuration
@@ -87,7 +87,7 @@ OpenDungeonsApplication::OpenDungeonsApplication() :
     mRoot->startRendering();
 }
 
-OpenDungeonsApplication::~OpenDungeonsApplication()
+ODApplication::~ODApplication()
 {
     if(mRoot)
         delete mRoot;
@@ -96,7 +96,7 @@ OpenDungeonsApplication::~OpenDungeonsApplication()
 /*! \brief Sets up the application - returns false if the user chooses to abandon
  *  configuration.
  */
-bool OpenDungeonsApplication::setup()
+bool ODApplication::setup()
 {
     Ogre::String pluginsPath = "";
     // only use plugins.cfg if not static
@@ -157,7 +157,7 @@ bool OpenDungeonsApplication::setup()
 
 /*! \brief Sets up the main camera
  */
-void OpenDungeonsApplication::createCamera()
+void ODApplication::createCamera()
 {
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
     mCamera = mSceneMgr->createCamera("PlayerCam");
@@ -167,7 +167,7 @@ void OpenDungeonsApplication::createCamera()
             ->createChildSceneNode("CameraTarget"), Ogre::Vector3(0, 0, 0));
 }
 
-void OpenDungeonsApplication::createScene()
+void ODApplication::createScene()
 {
     // Turn on shadows
     //mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
@@ -236,7 +236,7 @@ void OpenDungeonsApplication::createScene()
 /*! \brief setup the viewports
  *
  */
-void OpenDungeonsApplication::createViewports()
+void ODApplication::createViewports()
 {
     // Create one viewport, entire window
     Ogre::Viewport* vp = mWindow->addViewport(mCamera);
@@ -250,7 +250,7 @@ void OpenDungeonsApplication::createViewports()
 /*  \brief Method which will define the source of resources
  * (other than current folder)
  */
-void OpenDungeonsApplication::setupResources()
+void ODApplication::setupResources()
 {
     // Load resource paths from config file
     Ogre::ConfigFile cf;
@@ -283,7 +283,7 @@ void OpenDungeonsApplication::setupResources()
     }
 }
 
-std::string OpenDungeonsApplication::getHomePath()
+std::string ODApplication::getHomePath()
 {
     std::string homePath;
 
@@ -340,7 +340,7 @@ std::string OpenDungeonsApplication::getHomePath()
 // This function will locate the path to our application on OS X,
 // unlike windows you can not rely on the curent working directory
 // for locating your configuration files and resources.
-std::string OpenDungeonsApplication::macBundlePath()
+std::string ODApplication::macBundlePath()
 {
     char path[1024];
     CFBundleRef mainBundle = CFBundleGetMainBundle();
@@ -361,14 +361,18 @@ std::string OpenDungeonsApplication::macBundlePath()
 }
 #endif
 
-const unsigned int OpenDungeonsApplication::PORT_NUMBER = 31222;
-const double OpenDungeonsApplication::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
-const double OpenDungeonsApplication::DEFAULT_FRAMES_PER_SECOND = 60.0;
-const std::string OpenDungeonsApplication::VERSION = "0.4.7";
-const std::string OpenDungeonsApplication::POINTER_INFO_STRING = "pointerInfo";
-const std::string OpenDungeonsApplication::HELP_MESSAGE = "\
+const unsigned int ODApplication::PORT_NUMBER = 31222;
+const double ODApplication::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
+const double ODApplication::DEFAULT_FRAMES_PER_SECOND = 60.0;
+double ODApplication::MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
+double ODApplication::turnsPerSecond = 1.4;
+const std::string ODApplication::VERSION = "0.4.7";
+const std::string ODApplication::VERSIONSTRING = "OpenDungeons_Version:" + VERSION;
+std::string ODApplication::MOTD = "Welcome to Open Dungeons\tVersion:  " + VERSION;
+const std::string ODApplication::POINTER_INFO_STRING = "pointerInfo";
+const std::string ODApplication::HELP_MESSAGE = "\
 The console is a way of interacting with the underlying game engine directly.\
-Commands given to the the console are made up of two parts: a \'command name\' and one or more \'arguments\'.\
+Commands given to the the are made up of two parts: a \'command name\' and one or more \'arguments\'.\
 For information on how to use a particular command, type help followed by the command name.\
 \n\nThe following commands are avaliable:\
 \n\thelp keys - shows the keyboard controls\

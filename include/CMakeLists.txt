@@ -10,8 +10,6 @@ SET(
     Creature.h
     CreatureSound.h
     DirectionalTrap.h
-    ODFrameListener.h
-    OpenDungeonsApplication.h
     Field.h
     Functions.h
     GameMap.h
@@ -27,6 +25,8 @@ SET(
     MissileObject.h
     MusicPlayer.h
     Network.h
+    ODApplication.h
+    ODFrameListener.h
     Player.h
     ProtectedObject.h
     ProximityTrap.h
