@@ -71,8 +71,11 @@ void RenderManager::setSceneNodes(Ogre::SceneNode* roomSceneNode,
     this->fieldSceneNode = fieldSceneNode;
 }
 
+/*! \brief Handle the renderRequest requested
+ */
 bool RenderManager::handleRenderRequest ( const RenderRequest& renderRequest )
 {
+    //TODO - could we improve this somehow? Maybe an array of function pointers?
     switch ( renderRequest.type )
     {
     case RenderRequest::refreshTile:
@@ -266,6 +269,8 @@ bool RenderManager::handleRenderRequest ( const RenderRequest& renderRequest )
     return true;
 }
 
+/*! \brief Loop through the render requests in the queue and process them
+ */
 void RenderManager::processRenderRequests()
 {
     /* If the renderQueue now contains 0 objects we should process this object and then
@@ -310,6 +315,8 @@ void RenderManager::processRenderRequests()
 
 }
 
+/*! \brief Put a render request in the queue (implementation)
+ */
 void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
 {
     renderRequest->turnNumber = turnNumber.get();
@@ -698,7 +705,7 @@ void RenderManager::rrCreateMapLight ( const RenderRequest& renderRequest )
     mapLightNode->setPosition(curMapLight->getPosition());
 
     //TODO - put this in request so we don't have to include the globals here.
-    if (serverSocket == NULL && clientSocket == NULL)
+    if (renderRequest.b)
     {
         // Create the MapLightIndicator mesh so the light can be drug around in the map editor.
         Ogre::Entity* lightEntity = sceneManager->createEntity("MapLightIndicator_"

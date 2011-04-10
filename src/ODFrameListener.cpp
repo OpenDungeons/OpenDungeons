@@ -485,6 +485,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // visible chat messages at the top of the screen
     string nullString = "";
     string turnString = "";
+    turnString.reserve(100);
     if (serverSocket != NULL)
     {
         turnString = "On average the creature AI is finishing ";
@@ -494,11 +495,11 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         double maxTps = 1.0 / ((1.0 / ODApplication::turnsPerSecond)
                 - gameMap.averageAILeftoverTime);
         turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
-                (Ogre::Real) maxTps).substr(0, 4);
+                static_cast<Ogre::Real>(maxTps)).substr(0, 4);
     }
     turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
             turnNumber.get());
-    printText((string) ODApplication::MOTD + "\n" + (terminalActive ? (commandOutput + "\n")
+    printText(ODApplication::MOTD + "\n" + (terminalActive ? (commandOutput + "\n")
             : nullString) + (terminalActive ? prompt : nullString)
             + (terminalActive ? promptCommand : nullString) + "\n" + turnString
             + "\n" + (chatMessages.size() > 0 ? chatString : nullString));
@@ -1789,9 +1790,10 @@ bool ODFrameListener::keyReleased(const OIS::KeyEvent &arg)
  * Displays the given text on the screen starting in the upper-left corner.
  * This is the function which displays the text on the in game console.
  */
-void ODFrameListener::printText(string text)
+void ODFrameListener::printText(const std::string& text)
 {
-    string tempString = "";
+    std::string tempString;
+    tempString.reserve(text.size());
     int lineLength = 0;
     for (unsigned int i = 0; i < text.size(); ++i)
     {
@@ -1819,8 +1821,8 @@ void ODFrameListener::printText(string text)
 /*! \brief Process the commandline from the terminal and carry out the actions specified in by the user.
  *
  */
-void ODFrameListener::executePromptCommand(string command,
-        string arguments)
+void ODFrameListener::executePromptCommand(const std::string& command,
+        std::string arguments)
 {
     std::stringstream tempSS;
 
@@ -2820,7 +2822,7 @@ void ODFrameListener::executePromptCommand(string command,
 /*! \brief A helper function to return a help text string for a given termianl command.
  *
  */
-string ODFrameListener::getHelpText(string arg)
+string ODFrameListener::getHelpText(std::string arg)
 {
     std::transform(arg.begin(), arg.end(), arg.begin(), ::tolower);
 

@@ -82,7 +82,9 @@ void MapLight::createOgreEntity()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createMapLight;
-    request->p = this;
+    //TODO - this check should be put somewhere else
+    request->p = static_cast<void*>(this);
+    request->b = (serverSocket == NULL && clientSocket == NULL);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
@@ -101,6 +103,10 @@ void MapLight::destroyOgreEntity()
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyMapLight;
     request->p = this;
+    /*Check if we are in editor mode
+     * TODO this check should be elsewhere
+    */
+    request->b = (serverSocket == NULL && clientSocket == NULL);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);

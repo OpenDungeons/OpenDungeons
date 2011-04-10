@@ -81,8 +81,8 @@ class ODFrameListener :
         void handleHotkeys(int hotkeyNumber);
 
         // Console functions
-        void printText(std::string text);
-        void executePromptCommand(std::string command, std::string arguments);
+        void printText(const std::string& text);
+        void executePromptCommand(const std::string& command, std::string arguments);
         std::string getHelpText(std::string arg);
 
         // Console variables

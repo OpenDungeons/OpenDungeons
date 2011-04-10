@@ -34,6 +34,8 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void updateAnimations();
 
         void waitOnRenderQueueFlush();
+        /*! \brief Put a render request in the queue (helper function to avoid having to fetch the singleton)
+        */
         static void queueRenderRequest(RenderRequest* renderRequest)
         {
             ms_Singleton->queueRenderRequest_priv(renderRequest);
