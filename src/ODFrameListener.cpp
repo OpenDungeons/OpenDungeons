@@ -117,24 +117,46 @@ ODFrameListener* ODFrameListener::getSingletonPtr()
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
         bool bufferedKeys, bool bufferedMouse, bool bufferedJoy) :
-        mCamera(cam), mWindow(win)
+        mCamera(cam),
+        mWindow(win),
+        chatMaxMessages(10),
+        chatMaxTimeDisplay(20),
+        mLMouseDown(false),
+        mRMouseDown(false),
+        terminalActive(false),
+        prompt("-->  "),
+        terminalWordWrap(78),
+        mDragType(ODFrameListener::nullDragType),
+        frameDelay(0.0),
+        zChange(0.0),
+        mCurrentTileRadius(1),
+        mBrushMode(false),
+        mStatsOn(false),
+        mNumScreenShots(0),
+        moveSpeed(2.0),
+        //NOTE: when changing, also change it in the terminal command 'movespeed'.
+        moveSpeedAccel(static_cast<Ogre::Real> (2.0) * moveSpeed),
+        mRotateSpeed(90),
+        swivelDegrees(0.0),
+        mZoomSpeed(7),
+        mDebugOverlay(0),
+        mInputManager(0),
+        mMouse(0),
+        mKeyboard(0),
+        mCurrentTileType(Tile::dirt),
+        mCurrentFullness(100),
+        translateVector(Ogre::Vector3(0.0, 0.0, 0.0)),
+        translateVectorAccel(Ogre::Vector3(0.0, 0.0, 0.0)),
+        mRotateLocalVector(Ogre::Vector3(0.0, 0.0, 0.0)),
+        cameraIsFlying(false),
+        cameraFlightSpeed(70.0),
+        mCamNode(cam->getParentSceneNode()),
+        mContinue(true),
+        sfxHelper(SoundEffectsHelper::getSingletonPtr()),
+        renderManager(RenderManager::getSingletonPtr())
 {
-    chatMaxMessages = 10;
-    chatMaxTimeDisplay = 20;
-    mLMouseDown = false;
-    mRMouseDown = false;
-    terminalActive = false;
-    prompt = "-->  ";
-    terminalWordWrap = 78;
     gameMap.me = new Player;
-    //Changed to something as it was annoying to write in the nick
-    //every time, change back if it being blank is important.
     gameMap.me->nick = "defaultNickName";
-    mDragType = ODFrameListener::nullDragType;
-    frameDelay = 0.0;
-    zChange = 0.0;
-    mCurrentTileRadius = 1;
-    mBrushMode = false;
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
     creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Creature_scene_node");
@@ -144,27 +166,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
             "Field_scene_node");
     lightSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Light_scene_node");
-
-    mStatsOn = false;
-    mNumScreenShots = 0;
-    moveSpeed = 2.0;
-    moveSpeedAccel = static_cast<Ogre::Real> (2.0) * moveSpeed; // if this is changed, also change it in the terminal command 'movespeed'.
-    mRotateSpeed = 90;
-    swivelDegrees = 0.0;
-    mZoomSpeed = 7;
-    mDebugOverlay = 0;
-    mInputManager = 0;
-    mMouse = 0;
-    mKeyboard = 0;
-    mCurrentTileType = Tile::dirt;
-    mCurrentFullness = 100;
-
-    translateVector = Ogre::Vector3(0.0, 0.0, 0.0);
-    translateVectorAccel = Ogre::Vector3(0.0, 0.0, 0.0);
-    mRotateLocalVector = Ogre::Vector3(0.0, 0.0, 0.0);
-
-    cameraIsFlying = false;
-    cameraFlightSpeed = 70.0;
+    mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
     for (int i = 0; i < 10; ++i)
     {
@@ -173,12 +175,14 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
     }
 
     Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
-    OIS::ParamList pl;
-    size_t windowHnd = 0;
-    std::ostringstream windowHndStr;
 
+    size_t windowHnd = 0;
     win->getCustomAttribute("WINDOW", &windowHnd);
+
+    std::ostringstream windowHndStr;
     windowHndStr << windowHnd;
+
+    OIS::ParamList pl;
     pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
 
     mInputManager = OIS::InputManager::createInputSystem(pl);
@@ -195,25 +199,11 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
-    mCamNode = cam->getParentSceneNode();
-
-    mContinue = true;
     mMouse->setEventCallback(this);
     mKeyboard->setEventCallback(this);
 
-    mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
-
-    //Attack the sound listener to the camera.
-    //OgreOggSound::OgreOggListener* cameraPosSound =
-    //		OgreOggSound::OgreOggSoundManager::getSingleton().getListener();
-    //mCamNode->attachObject(cameraPosSound);
-
-    sfxHelper = SoundEffectsHelper::getSingletonPtr();
     TextRenderer::getSingleton().addTextBox(ODApplication::POINTER_INFO_STRING, "", 0, 0, 200,
             50, Ogre::ColourValue::White);
-
-    Ogre::LogManager::getSingletonPtr()->logMessage(
-            "*** FrameListener initialized ***");
 
     renderManager = RenderManager::getSingletonPtr();
     renderManager->setSceneNodes(roomSceneNode, creatureSceneNode,
@@ -227,6 +217,9 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
     playerColourValues.push_back(Ogre::ColourValue(0.4, 0.0, 0.0, 1.0));
     playerColourValues.push_back(Ogre::ColourValue(0.0, 0.4, 0.0, 1.0));
     playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.4, 1.0));
+    
+    Ogre::LogManager::getSingletonPtr()->logMessage(
+            "*** FrameListener initialized ***");
 }
 
 /*! \brief Adjust mouse clipping area

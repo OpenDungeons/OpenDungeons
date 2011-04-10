@@ -8,18 +8,16 @@
 #include "Globals.h"
 #include "RenderManager.h"
 
-RoomObject::RoomObject(Room *nParentRoom, std::string nMeshName)
+RoomObject::RoomObject(Room *nParentRoom, std::string nMeshName) :
+        parentRoom(nParentRoom),
+        meshExists(false),
+        meshName(nMeshName)
 {
-    parentRoom = nParentRoom;
-    meshExists = false;
-
     // Set a unique name for the room.
-    static int uniqueNumber = 1;
+    static int uniqueNumber = 0;
     std::stringstream tempSS;
-    tempSS << "Room_" << parentRoom->getName() << "_Object_" << uniqueNumber++;
+    tempSS << "Room_" << parentRoom->getName() << "_Object_" << ++uniqueNumber;
     name = tempSS.str();
-
-    meshName = nMeshName;
 }
 
 Room* RoomObject::getParentRoom()

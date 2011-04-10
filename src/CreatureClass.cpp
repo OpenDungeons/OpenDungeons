@@ -1,16 +1,26 @@
 #include "CreatureClass.h"
 
-CreatureClass::CreatureClass()
+CreatureClass::CreatureClass() :
+        creatureJob(nullCreatureJob),
+        sightRadius(10.0),
+        digRate(10.0),
+        danceRate(0.35),
+        hpPerLevel(0.0),
+        manaPerLevel(0.0),
+        maxHP(10.0),
+        maxMana(10.0),
+        bedDim1(0),
+        bedDim2(0),
+        scale(Ogre::Vector3(1, 1, 1)),
+        coefficientHumans(0.0),
+        coefficientCorpars(0.0),
+        coefficientUndead(0.0),
+        coefficientConstructs(0.0),
+        coefficientDenizens(0.0),
+        coefficientAltruism(0.0),
+        coefficientOrder(0.0),
+        coefficientPeace(0.0)
 {
-    creatureJob = nullCreatureJob;
-    sightRadius = 10.0;
-    digRate = 0.0;
-    danceRate = 0.0;
-    hpPerLevel = 0.0;
-    manaPerLevel = 0.0;
-    moveSpeed = 1.0;
-    maxHP = 10.0;
-    maxMana = 10.0;
 }
 
 CreatureClass::CreatureJob CreatureClass::creatureJobFromString(std::string s)

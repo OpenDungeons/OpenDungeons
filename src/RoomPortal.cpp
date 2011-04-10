@@ -13,11 +13,12 @@
 #include "CreatureAction.h"
 
 RoomPortal::RoomPortal() :
-    Room()
+        spawnCreatureCountdown(0),
+        portalObject(NULL),
+        xCenter(0),
+        yCenter(0)
 {
     type = portal;
-    spawnCreatureCountdown = 0;
-    portalObject = NULL;
 }
 
 void RoomPortal::createMeshes()

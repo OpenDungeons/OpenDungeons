@@ -13,11 +13,12 @@
 
 const double Room::defaultTileHP = 10.0;
 
-Room::Room()
+Room::Room() :
+        color(0),
+        controllingPlayer(NULL),
+        meshExists(false),
+        type(nullRoomType)
 {
-    color = 0;
-    controllingPlayer = NULL;
-    meshExists = false;
 }
 
 /*! \brief Creates a type specific subclass of room (quarters, treasury, etc) and returns a pointer to it.  This function

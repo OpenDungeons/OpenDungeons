@@ -5,14 +5,14 @@
 #include "TrapCannon.h"
 #include "MissileObject.h"
 
-TrapCannon::TrapCannon() : ProximityTrap()
+TrapCannon::TrapCannon() :
+        cannonHeight(1.5)
 {
     reloadTime = 5;
     reloadTimeCounter = reloadTime;
     range = 12;
     minDamage = 104;
     maxDamage = 120;
-    cannonHeight = 1.5;
 }
 
 std::vector<AttackableObject*> TrapCannon::aimEnemy() 

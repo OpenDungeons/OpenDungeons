@@ -13,6 +13,7 @@ void MapLight::initialize()
     static unsigned int lightNumber = 1;
 
     ogreEntityExists = false;
+    ogreEntityVisualIndicatorExists = false;
 
     std::stringstream tempSS;
     sem_wait(&lightNumberLockSemaphore);

@@ -2,19 +2,16 @@
 
 template<> TextRenderer* Ogre::Singleton<TextRenderer>::ms_Singleton = 0;
 
-TextRenderer::TextRenderer()
+TextRenderer::TextRenderer() :
+        _overlayMgr(Ogre::OverlayManager::getSingletonPtr()),
+        _overlay(_overlayMgr->create("overlay1")),
+        _panel(static_cast<Ogre::OverlayContainer*> (_overlayMgr->createOverlayElement(
+                "Panel", "container1")))
 {
-    _overlayMgr = Ogre::OverlayManager::getSingletonPtr();
-
-    _overlay = _overlayMgr->create("overlay1");
-    _panel
-            = static_cast<Ogre::OverlayContainer*> (_overlayMgr->createOverlayElement(
-                    "Panel", "container1"));
     _panel->setDimensions(1, 1);
     _panel->setPosition(0, 0);
 
     _overlay->add2D(_panel);
-
     _overlay->show();
 }
 

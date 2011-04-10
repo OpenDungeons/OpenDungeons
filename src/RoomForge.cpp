@@ -4,8 +4,7 @@
 #include "GameMap.h"
 #include "RoomObject.h"
 
-RoomForge::RoomForge() :
-    Room()
+RoomForge::RoomForge()
 {
     type = forge;
 }

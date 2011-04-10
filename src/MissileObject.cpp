@@ -14,11 +14,11 @@ MissileObject::MissileObject()
     initialize();
 }
 
-MissileObject::MissileObject(std::string nMeshName, Ogre::Vector3 nPosition)
+MissileObject::MissileObject(std::string nMeshName, Ogre::Vector3 nPosition) :
+        meshName(nMeshName)
 {
     initialize();
 
-    meshName = nMeshName;
     sem_wait(&positionLockSemaphore);
     position = nPosition;
     sem_post(&positionLockSemaphore);

@@ -11,10 +11,16 @@
 
 const double Trap::defaultTileHP = 10.0;
 
-Trap::Trap()
+Trap::Trap() :
+        controllingSeat(NULL),
+        meshExists(false),
+        reloadTime(0),
+        reloadTimeCounter(0),
+        minDamage(0.0),
+        maxDamage(0.0),
+        type(nullTrapType),
+        exp(0.0)
 {
-    controllingSeat = NULL;
-    meshExists = false;
 }
 
 Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,

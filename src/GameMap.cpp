@@ -27,21 +27,26 @@
 #include "MissileObject.h"
 #include "Weapon.h"
 
-GameMap::GameMap()
+GameMap::GameMap() :
+        nextUniqueFloodFillColor(1),
+        loadNextLevel(false),
+        floodFillEnabled(false),
+        numCallsTo_path(0),
+        averageAILeftoverTime(0.0),
+        tileCoordinateMap(new TileCoordinateMap(100)),
+        maxAIThreads(2),
+        me(NULL),
+        miscUpkeepTime(0),
+        creatureTurnsTime(0),
+        length(0),
+        width(0)
 {
-    nextUniqueFloodFillColor = 1;
-    loadNextLevel = false;
-    floodFillEnabled = false;
-    numCallsTo_path = 0;
-    averageAILeftoverTime = 0.0;
     sem_init(&threadReferenceCountLockSemaphore, 0, 1);
     sem_init(&creaturesLockSemaphore, 0, 1);
     sem_init(&animatedObjectsLockSemaphore, 0, 1);
     sem_init(&activeObjectsLockSemaphore, 0, 1);
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
     sem_init(&tilesLockSemaphore, 0, 1);
-    tileCoordinateMap = new TileCoordinateMap(100);
-    maxAIThreads = 2;
 }
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
@@ -615,16 +620,15 @@ void GameMap::createAllEntities()
 {
     // Create OGRE entities for map tiles
     sem_wait(&tilesLockSemaphore);
-    TileMap_t::iterator itr = tiles.begin();
-    while (itr != tiles.end())
+    for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
+            itr != end; ++itr)
     {
         itr->second->createMesh();
-        ++itr;
     }
     sem_post(&tilesLockSemaphore);
 
     // Create OGRE entities for the creatures
-    for (unsigned int i = 0; i < numCreatures(); ++i)
+    for (unsigned int i = 0, num = numCreatures(); i < num; ++i)
     {
         Creature *currentCreature = getCreature(i);
         currentCreature->createMesh();
@@ -633,17 +637,15 @@ void GameMap::createAllEntities()
     }
 
     // Create OGRE entities for the map lights.
-    for (unsigned int i = 0; i < numMapLights(); ++i)
+    for (unsigned int i = 0, num = numMapLights(); i < num; ++i)
     {
-        MapLight *currentMapLight = getMapLight(i);
-        currentMapLight->createOgreEntity();
+        getMapLight(i)->createOgreEntity();
     }
 
     // Create OGRE entities for the rooms
-    for (unsigned int i = 0; i < numRooms(); ++i)
+    for (unsigned int i = 0, num = numRooms(); i < num; ++i)
     {
-        Room *currentRoom = getRoom(i);
-        currentRoom->createMeshes();
+        getRoom(i)->createMeshes();
     }
 }
 

@@ -6,8 +6,7 @@
 #include "Tile.h"
 #include "RenderManager.h"
 
-RoomTreasury::RoomTreasury() :
-    Room()
+RoomTreasury::RoomTreasury()
 {
     type = treasury;
 }

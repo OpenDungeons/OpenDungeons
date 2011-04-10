@@ -1,7 +1,6 @@
 #include "RoomDojo.h"
 
-RoomDojo::RoomDojo() :
-    Room()
+RoomDojo::RoomDojo()
 {
     type = dojo;
 }

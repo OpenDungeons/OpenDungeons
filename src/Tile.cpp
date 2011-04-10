@@ -49,12 +49,12 @@ Tile::Tile()
     initialize();
 }
 
-Tile::Tile(int nX, int nY, TileType nType, double nFullness)
+Tile::Tile(int nX, int nY, TileType nType, double nFullness) :
+        x(nX),
+        y(nY)
 {
     initialize();
 
-    x = nX;
-    y = nY;
     setType(nType);
     setFullness(nFullness);
 }

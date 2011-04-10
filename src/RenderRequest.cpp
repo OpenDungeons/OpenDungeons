@@ -1,12 +1,13 @@
 #include "RenderRequest.h"
 
-RenderRequest::RenderRequest()
+RenderRequest::RenderRequest() :
+        type(noRequest),
+        p(NULL),
+        p2(NULL),
+        p3(NULL),
+        str(""),
+        vec(Ogre::Vector3(0.0, 0.0, 0.0)),
+        turnNumber(0),
+        b(false)
 {
-	type = noRequest;
-	p = NULL;
-	p2 = NULL;
-	p3 = NULL;
-	str = "";
-	vec.x = 0.0;  vec.y = 0.0;  vec.z = 0.0;
 }
-

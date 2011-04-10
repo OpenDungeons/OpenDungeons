@@ -6,10 +6,9 @@
 
 GoalProtectCreature::GoalProtectCreature(const std::string& nName,
         const std::string& nArguments) :
-    Goal(nName, nArguments)
+    Goal(nName, nArguments),
+    creatureName(nArguments)
 {
-    creatureName = nArguments;
-
     std::cout << "\nAdding goal " << getName() << "\tCreature name: "
             << creatureName;
 }
