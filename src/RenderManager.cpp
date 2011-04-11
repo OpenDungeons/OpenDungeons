@@ -563,7 +563,16 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
     // Load the mesh for the creature
     Ogre::Entity* ent = sceneManager->createEntity("Creature_" + curCreature->name,
                         curCreature->meshName);
-    colourizeEntity(ent, curCreature->color);
+    Ogre::MeshPtr meshPtr = ent->getMesh();
+
+    unsigned short src, dest;
+    if(!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+    {
+        meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
+    }
+    
+    //Disabled temporarily for normal-mapping
+    //colourizeEntity(ent, curCreature->color);
     Ogre::SceneNode* node = creatureSceneNode->createChildSceneNode(
                                 curCreature->name + "_node");
     curCreature->sceneNode = node;
@@ -630,7 +639,7 @@ void RenderManager::rrCreateWeapon ( const RenderRequest& renderRequest )
     Creature* curCreature = static_cast<Creature*>(renderRequest.p2);
 
     Ogre::Entity* ent = sceneManager->getEntity("Creature_" + curCreature->name);
-    colourizeEntity(ent, curCreature->color);
+    //colourizeEntity(ent, curCreature->color);
     Ogre::Entity* weaponEntity = sceneManager->createEntity("Weapon_"
                                  + curWeapon->handString + "_" + curCreature->name,
                                  curWeapon->meshName);

@@ -441,6 +441,8 @@ std::string stripCommentsFromLine(std::string line)
 
 void colourizeEntity(Ogre::Entity *ent, int colour)
 {
+    //Disabled for normal mapping. This has to be implemented in some other way.
+    /*
     // Colorize the the textures
     // Loop over the sub entities in the mesh
     for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
@@ -449,6 +451,7 @@ void colourizeEntity(Ogre::Entity *ent, int colour)
         tempSubEntity->setMaterialName(colourizeMaterial(
                 tempSubEntity->getMaterialName(), colour));
     }
+    */
 }
 
 std::string colourizeMaterial(const std::string& materialName, int colour)
