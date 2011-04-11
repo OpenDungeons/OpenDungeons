@@ -124,6 +124,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
 
+    wmgr->getWindow(MM_BUTTON_MAPEDITOR)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&mMMapEditorButtonPressed));
+
     wmgr->getWindow(MM_BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMQuitButtonPressed));
@@ -181,10 +185,16 @@ bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
     return startServer();
 }
 
-//TODO: after the main menu loading is done, give some code to these handlers
 //! \brief What happens after a click on New Game in the main menu
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
+    Gui::getSingletonPtr()->loadGuiSheet(ingameMenu);
+    return startServer();
+}
+
+bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
+{
+    Gui::getSingletonPtr()->loadGuiSheet(ingameMenu);
     return true;
 }
 
@@ -203,6 +213,7 @@ bool Gui::mMOptionsButtonPressed(const CEGUI::EventArgs& e)
 //! \brief What happens after a click on Quit in the main menu
 bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
 {
+    ODFrameListener::getSingletonPtr()->mContinue = false;
     return true;
 }
 
@@ -232,4 +243,5 @@ const std::string Gui::BUTTON_QUIT = "Root/MainTabControl/System/QuitButton";
 const std::string Gui::MM = "MainMenu";
 const std::string Gui::MM_WELCOME_MESSAGE = "MainMenu/WelcomeMessage";
 const std::string Gui::MM_BUTTON_START_NEW_GAME = "MainMenu/StartNewGameButton";
+const std::string Gui::MM_BUTTON_MAPEDITOR = "MainMenu/MapEditorButton";
 const std::string Gui::MM_BUTTON_QUIT = "MainMenu/QuitButton";

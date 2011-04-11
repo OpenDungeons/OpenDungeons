@@ -138,8 +138,11 @@ bool ODApplication::setup()
     new MusicPlayer(mResourcePath + "music/");
 
     SoundEffectsHelper::getSingletonPtr()->initialiseSound(mResourcePath + "sounds/");
-    //TODO: load main menu first, only start game if user clicks on new game
-    Gui::getSingletonPtr()->loadGuiSheet(Gui::ingameMenu);
+
+    //TODO: Main menu should without having the map loaded, but
+    //      this needs refactoring at some other places, too
+    Gui::getSingletonPtr()->loadGuiSheet(Gui::mainMenu);
+
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
             10, 50, 70, Ogre::ColourValue::Green);
     //TODO - move this to when the map is actually loaded

@@ -53,6 +53,7 @@ class Gui : public Ogre::Singleton<Gui>
 
         //Button handlers main menu
         static bool mMNewGameButtonPressed(const CEGUI::EventArgs& e);
+        static bool mMMapEditorButtonPressed(const CEGUI::EventArgs& e);
         static bool mMLoadButtonPressed(const CEGUI::EventArgs& e);
         static bool mMOptionsButtonPressed(const CEGUI::EventArgs& e);
         static bool mMQuitButtonPressed(const CEGUI::EventArgs& e);
@@ -81,6 +82,7 @@ class Gui : public Ogre::Singleton<Gui>
         static const std::string MM;
         static const std::string MM_WELCOME_MESSAGE;
         static const std::string MM_BUTTON_START_NEW_GAME;
+        static const std::string MM_BUTTON_MAPEDITOR;
         static const std::string MM_BUTTON_QUIT;
 };
 
