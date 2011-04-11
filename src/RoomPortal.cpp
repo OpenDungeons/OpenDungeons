@@ -14,9 +14,9 @@
 
 RoomPortal::RoomPortal() :
         spawnCreatureCountdown(0),
-        portalObject(NULL),
         xCenter(0),
-        yCenter(0)
+        yCenter(0),
+        portalObject(NULL)
 {
     type = portal;
 }

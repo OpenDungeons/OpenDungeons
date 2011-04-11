@@ -10,7 +10,6 @@ Seat::Seat() :
         hp(1000),
         gold(0),
         goldMined(0),
-        numClaimedTiles(0),
         numCreaturesControlled(0),
         factionHumans(0.0),
         factionCorpars(0.0),
@@ -19,7 +18,8 @@ Seat::Seat() :
         factionDenizens(0.0),
         alignmentAltruism(0.0),
         alignmentOrder(0.0),
-        alignmentPeace(0.0)
+        alignmentPeace(0.0),
+        numClaimedTiles(0)
 {
     sem_init(&goalsLockSemaphore, 0, 1);
     sem_init(&completedGoalsLockSemaphore, 0, 1);

@@ -6,11 +6,11 @@
 #include "RenderManager.h"
 
 Weapon::Weapon() :
-        meshExists(false),
         damage(0.0),
         range(0.0),
         defense(0.0),
-        parentCreature(NULL)
+        parentCreature(NULL),
+        meshExists(false)
 {
 }
 

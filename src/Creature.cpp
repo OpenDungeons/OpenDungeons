@@ -30,26 +30,26 @@ using CEGUI::UDim;
 using CEGUI::UVector2;
 
 Creature::Creature() :
-        hasVisualDebuggingEntities(false),
-        exp(0.0),
+        weaponL(NULL),
+        weaponR(NULL),
+        color(0),
         level(1),
-        destinationX(0),
-        destinationY(0),
-        gold(0),
+        exp(0.0),
         tilePassability(Tile::walkableTile),
         homeTile(NULL),
         trainingDojo(NULL),
         trainWait(0),
-        weaponL(NULL),
-        weaponR(NULL),
+        deathCounter(10),
+        gold(0),
+        destinationX(0),
+        destinationY(0),
+        hasVisualDebuggingEntities(false),
+        previousPositionTile(NULL),
         battleField(new Field("autoname")),
         battleFieldAgeCounter(0),
         meshesExist(false),
-        sound(SoundEffectsHelper::getSingleton().createCreatureSound(getName())),
         awakeness(100.0),
-        deathCounter(10),
-        color(0),
-        previousPositionTile(NULL)
+        sound(SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
     sem_init(&hpLockSemaphore, 0, 1);
     sem_init(&manaLockSemaphore, 0, 1);

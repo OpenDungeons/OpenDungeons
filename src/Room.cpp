@@ -14,10 +14,10 @@
 const double Room::defaultTileHP = 10.0;
 
 Room::Room() :
-        color(0),
         controllingPlayer(NULL),
-        meshExists(false),
-        type(nullRoomType)
+        color(0),
+        type(nullRoomType),
+        meshExists(false)
 {
 }
 

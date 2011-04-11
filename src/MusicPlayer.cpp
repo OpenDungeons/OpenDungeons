@@ -19,7 +19,7 @@ template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::ms_Singleton = 0;
  *  locations listed under "Music".
  */
 MusicPlayer::MusicPlayer(const Ogre::String& path) :
-            loaded(false), currentTrack(0), randomized(false)
+            loaded(false), randomized(false), currentTrack(0)
 {
     /* TODO: this should be changed somehow. Storing only tracknumbers
      *       doesn't allow us to play a specific music in a special situation,
@@ -111,7 +111,7 @@ void MusicPlayer::start(const unsigned int& trackNumber)
  */
 void MusicPlayer::next()
 {
-    int newTrack = currentTrack;
+    unsigned int newTrack = currentTrack;
 
     if(randomized)
     {

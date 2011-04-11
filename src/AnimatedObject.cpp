@@ -9,13 +9,13 @@
 #include "AnimatedObject.h"
 
 AnimatedObject::AnimatedObject() :
-        moveSpeed(1.0),
+        walkQueueFirstEntryAdded(false),
         animationState(NULL),
         destinationAnimationState("Idle"),
-        walkQueueFirstEntryAdded(false),
+        sceneNode(NULL),
+        moveSpeed(1.0),
         prevAnimationState(""),
-        prevAnimationStateLoop(true),
-        sceneNode(NULL)
+        prevAnimationStateLoop(true)
 {
     sem_init(&positionLockSemaphore, 0, 1);
     sem_init(&animationSpeedFactorLockSemaphore, 0, 1);

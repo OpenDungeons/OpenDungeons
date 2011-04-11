@@ -2,6 +2,9 @@
 
 CreatureClass::CreatureClass() :
         creatureJob(nullCreatureJob),
+        bedDim1(0),
+        bedDim2(0),
+        scale(Ogre::Vector3(1, 1, 1)),
         sightRadius(10.0),
         digRate(10.0),
         danceRate(0.35),
@@ -9,9 +12,6 @@ CreatureClass::CreatureClass() :
         manaPerLevel(0.0),
         maxHP(10.0),
         maxMana(10.0),
-        bedDim1(0),
-        bedDim2(0),
-        scale(Ogre::Vector3(1, 1, 1)),
         coefficientHumans(0.0),
         coefficientCorpars(0.0),
         coefficientUndead(0.0),

@@ -28,16 +28,16 @@
 #include "Weapon.h"
 
 GameMap::GameMap() :
-        nextUniqueFloodFillColor(1),
-        loadNextLevel(false),
-        floodFillEnabled(false),
-        numCallsTo_path(0),
-        averageAILeftoverTime(0.0),
-        tileCoordinateMap(new TileCoordinateMap(100)),
-        maxAIThreads(2),
         me(NULL),
+        loadNextLevel(false),
+        averageAILeftoverTime(0.0),
         miscUpkeepTime(0),
         creatureTurnsTime(0),
+        maxAIThreads(2),
+        nextUniqueFloodFillColor(1),
+        floodFillEnabled(false),
+        numCallsTo_path(0),
+        tileCoordinateMap(new TileCoordinateMap(100)),
         length(0),
         width(0)
 {

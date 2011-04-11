@@ -72,6 +72,7 @@ class Trap: public AttackableObject, public ActiveObject
         AttackableObject::AttackableObjectType getAttackableObjectType() const;
 
     protected:
+        bool meshExists;
         int reloadTime;
         int reloadTimeCounter;
         double minDamage, maxDamage;
@@ -81,7 +82,6 @@ class Trap: public AttackableObject, public ActiveObject
         std::vector<Tile*> coveredTiles;
         std::map<Tile*, double> tileHP;
         TrapType type;
-        bool meshExists;
         double exp;
 };
 

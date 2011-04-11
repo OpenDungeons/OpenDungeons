@@ -46,12 +46,12 @@ RenderManager* RenderManager::getSingletonPtr()
 }
 
 RenderManager::RenderManager(GameMap* gameMap) :
+        sceneManager(NULL),
         roomSceneNode(NULL),
         creatureSceneNode(NULL),
         lightSceneNode(NULL),
-        initialized(false),
-        sceneManager(NULL),
-        fieldSceneNode(NULL)
+        fieldSceneNode(NULL),
+        initialized(false)
 {
     sem_init(&renderQueueSemaphore, 0, 1);
     sem_init(&renderQueueEmptySemaphore, 0, 0);
