@@ -57,8 +57,8 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles,
     if (tempRoom == NULL)
     {
         std::cerr
-                << "\n\n\nERROR: Trying to create a room of unknown type, bailing out.\n";
-        std::cerr << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
+                << "\n\n\nERROR: Trying to create a room of unknown type, bailing out.\n"
+                << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
                 << "\n\n\n";
         exit(1);
     }
@@ -70,12 +70,11 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles,
     tempRoom->meshName = getMeshNameFromRoomType(nType);
     tempRoom->type = nType;
 
-    static int uniqueNumber = -1;
+    static int uniqueNumber = 0;
     std::stringstream tempSS;
 
     tempSS.str("");
-    tempSS << tempRoom->meshName << "_" << uniqueNumber;
-    --uniqueNumber;
+    tempSS << tempRoom->meshName << "_" << --uniqueNumber;
     tempRoom->name = tempSS.str();
 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
@@ -241,14 +240,12 @@ void Room::createMeshes()
 
     meshExists = true;
 
-    Tile *tempTile;
     for (unsigned int i = 0, size = coveredTiles.size(); i < size; ++i)
     {
-        tempTile = coveredTiles[i];
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::createRoom;
         request->p = this;
-        request->p2 = tempTile;
+        request->p2 = coveredTiles[i];
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
         RenderManager::queueRenderRequest(request);
@@ -266,11 +263,10 @@ void Room::destroyMeshes()
 
     for (unsigned int i = 0; i < coveredTiles.size(); ++i)
     {
-        Tile *tempTile = coveredTiles[i];
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::destroyRoom;
         request->p = this;
-        request->p2 = tempTile;
+        request->p2 = coveredTiles[i];
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
         RenderManager::queueRenderRequest(request);

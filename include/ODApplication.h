@@ -37,16 +37,11 @@ class ODApplication : public Ogre::Singleton<ODApplication>
         Ogre::Root* mRoot;
         Ogre::Camera* mCamera;
         Ogre::RenderWindow* mWindow;
-        std::string mHomePath;
-        std::string mResourcePath;
 
         bool setup();
         void createViewports();
-        void setupResources();
         void createCamera();
         void createScene();
-        std::string getHomePath();
-        std::string macBundlePath();
 };
 
 #endif

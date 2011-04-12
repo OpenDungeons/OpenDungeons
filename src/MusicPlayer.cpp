@@ -10,6 +10,7 @@
 #include <OgreResourceGroupManager.h>
 
 #include "Functions.h"
+#include "ResourceManager.h"
 
 #include "MusicPlayer.h"
 
@@ -18,8 +19,10 @@ template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::ms_Singleton = 0;
 /*! \brief Initialize variables and load music files in the resource
  *  locations listed under "Music".
  */
-MusicPlayer::MusicPlayer(const Ogre::String& path) :
-            loaded(false), randomized(false), currentTrack(0)
+MusicPlayer::MusicPlayer() :
+            loaded(false),
+            randomized(false),
+            currentTrack(0)
 {
     /* TODO: this should be changed somehow. Storing only tracknumbers
      *       doesn't allow us to play a specific music in a special situation,
@@ -33,6 +36,7 @@ MusicPlayer::MusicPlayer(const Ogre::String& path) :
             Ogre::ResourceGroupManager::getSingleton().listResourceNames("Music");
     tracks.reserve(musicFiles->size());
 
+    std::string path = ResourceManager::getSingletonPtr()->getMusicPath();
     /* Create sound objects for all files, Sound objects should be deleted
      * automatically by the sound manager.
      */

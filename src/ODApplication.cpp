@@ -8,7 +8,6 @@
 #include <sstream>
 #include <fstream>
 
-#include <OgreConfigFile.h>
 #include <sys/stat.h>
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #include <shlwapi.h>
@@ -24,11 +23,28 @@
 #include "MusicPlayer.h"
 #include "SoundEffectsHelper.h"
 #include "Gui.h"
+#include "ResourceManager.h"
 
 #include "ODApplication.h"
 
 template<> ODApplication*
         Ogre::Singleton<ODApplication>::ms_Singleton = 0;
+
+/*! Initializes the Application along with the ResourceManager
+ *
+ */
+ODApplication::ODApplication() :
+        mRoot(0)
+{
+    new ResourceManager;
+
+    if (!setup())
+    {
+        return;
+    }
+
+    mRoot->startRendering();
+}
 
 /*! \brief Returns a reference to the singleton object
  *
@@ -47,46 +63,6 @@ ODApplication* ODApplication::getSingletonPtr()
     return ms_Singleton;
 }
 
-ODApplication::ODApplication() :
-        mRoot(0)
-{
-    /* Provide a nice cross platform solution for locating the configuration
-     * files. On windows files are searched for in the current working
-     * directory, on OS X however you must provide the full path, the helper
-     * function macBundlePath does this for us.
-     */
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-    mResourcePath = macBundlePath() + "/Contents/Resources/";
-//Actually this can be other things than linux as well
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-    // Get path of data
-    // getenv return value should not be touched/freed.
-    char* path = std::getenv("OPENDUNGEONS_DATA_PATH");
-    if (path)
-    {
-        mResourcePath = path;
-        if (*mResourcePath.end() != '/') //Make sure we have trailing slash
-        {
-            mResourcePath.append("/");
-        }
-    }
-    else
-    {
-        mResourcePath = "";
-    }
-#else
-    mResourcePath = "";
-#endif
-    mHomePath = getHomePath();
-
-    if (!setup())
-    {
-        return;
-    }
-
-    mRoot->startRendering();
-}
-
 ODApplication::~ODApplication()
 {
     if(mRoot)
@@ -98,20 +74,20 @@ ODApplication::~ODApplication()
  */
 bool ODApplication::setup()
 {
-    Ogre::String pluginsPath = "";
-    // only use plugins.cfg if not static
-#ifndef OGRE_STATIC_LIB
-    pluginsPath = mResourcePath + "plugins.cfg";
-#endif
+    ResourceManager* resMgr = ResourceManager::getSingletonPtr();
+    mRoot = new Ogre::Root(
+            resMgr->getPluginsPath(),
+            resMgr->getHomePath() + "ogre.cfg",
+            resMgr->getHomePath() + "ogre.log");
 
-    mRoot = new Ogre::Root(pluginsPath, mHomePath + "ogre.cfg", mHomePath
-            + "Ogre.log");
-
-    setupResources();
+    resMgr->setupResources();
 
     /* Show the configuration dialog and initialise the system
-     * You can skip this and use root.restoreConfig() to load configuration
-     * settings if you were sure there are valid ones saved in ogre.cfg
+     * TODO: Skip this and use root.restoreConfig()
+     * to load configuration settings if we are sure there are valid ones
+     * saved in ogre.cfg
+     * We should use this later (when we have an own setup options screen)
+     * to avoid having the setup dialog started on every run
      */
     if(!mRoot->showConfigDialog())
         return false;
@@ -129,15 +105,16 @@ bool ODApplication::setup()
     Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
 
     // Load resources
+    //TODO: Put ALL resource handling into a new helper class ResourceManager
     Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
 
     //instanciate all singleton helper classes
     new SoundEffectsHelper();
     new Gui();
     new TextRenderer();
-    new MusicPlayer(mResourcePath + "music/");
+    new MusicPlayer();
 
-    SoundEffectsHelper::getSingletonPtr()->initialiseSound(mResourcePath + "sounds/");
+    SoundEffectsHelper::getSingletonPtr()->initialiseSound(resMgr->getResourcePath() + "sounds/");
 
     //TODO: Main menu should without having the map loaded, but
     //      this needs refactoring at some other places, too
@@ -182,13 +159,15 @@ void ODApplication::createScene()
      *       and generalize it for the future when we have more levels
      */
     // Read in the default game map
-    std::string levelPath = mResourcePath + "levels_git/Test.level";
+    std::string levelPath = ResourceManager::getSingletonPtr()
+            ->getResourcePath() + "levels_git/Test.level";
     {
         //Check if the level from git exists. If not, use the standard one.
         std::ifstream file(levelPath.c_str(), std::ios_base::in);
         if (!file.is_open())
         {
-            levelPath = mResourcePath + "levels/Test.level";
+            levelPath = ResourceManager::getSingletonPtr()->getResourcePath()
+                    + "levels/Test.level";
         }
     }
 
@@ -249,120 +228,6 @@ void ODApplication::createViewports()
     mCamera->setAspectRatio(Ogre::Real(vp->getActualWidth()) / Ogre::Real(
             vp->getActualHeight()));
 }
-
-/*  \brief Method which will define the source of resources
- * (other than current folder)
- */
-void ODApplication::setupResources()
-{
-    // Load resource paths from config file
-    Ogre::ConfigFile cf;
-    cf.load(mResourcePath + "resources.cfg");
-
-    // Go through all sections & settings in the file
-    Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
-
-    Ogre::String secName, typeName, archName;
-    while (seci.hasMoreElements())
-    {
-        secName = seci.peekNextKey();
-        Ogre::ConfigFile::SettingsMultiMap *settings = seci.getNext();
-        Ogre::ConfigFile::SettingsMultiMap::iterator i;
-        for (i = settings->begin(); i != settings->end(); ++i)
-        {
-            typeName = i->first;
-            archName = mResourcePath + i->second;
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-            // OS X does not set the working directory relative to the app,
-            // In order to make things portable on OS X we need to provide
-            // the loading with it's own bundle path location
-            ResourceGroupManager::getSingleton().addResourceLocation(
-                    String(macBundlePath() + "/" + archName), typeName, secName, true);
-#else
-            Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                    archName, typeName, secName, true);
-#endif
-        }
-    }
-}
-
-std::string ODApplication::getHomePath()
-{
-    std::string homePath;
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    homePath = "./";
-#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
-
-    /* If variable is not set, assume we are in a build dir and
-     * use the current dir for config files.
-     */
-    char* useHomeDir = std::getenv("OPENDUNGEONS_DATA_PATH");
-    if (useHomeDir)
-    {
-        //On linux and similar, use home dir
-        //http://linux.die.net/man/3/getpwuid
-        char* path = std::getenv("HOME");
-        if (path)
-        {
-            homePath = path;
-        }
-        else //In the unlikely event that home is not defined, use current  working dir
-        {
-            homePath = ".";
-        }
-        homePath.append("/.OpenDungeons");
-
-        //Create directory if it doesn't exist
-        struct stat statbuf;
-        int status = stat(homePath.c_str(), &statbuf);
-        if (status != 0)
-        {
-            int dirCreateStatus;
-            dirCreateStatus = mkdir(homePath.c_str(), S_IRWXU | S_IRWXG
-                    | S_IROTH | S_IXOTH);
-
-        }
-
-        homePath.append("/");
-    }
-    else
-    {
-        homePath = "./";
-    }
-#else
-    homePath = "./";
-#endif
-
-    return homePath;
-}
-
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
-#include <CoreFoundation/CoreFoundation.h>
-
-// This function will locate the path to our application on OS X,
-// unlike windows you can not rely on the curent working directory
-// for locating your configuration files and resources.
-std::string ODApplication::macBundlePath()
-{
-    char path[1024];
-    CFBundleRef mainBundle = CFBundleGetMainBundle();
-    assert(mainBundle);
-
-    CFURLRef mainBundleURL = CFBundleCopyBundleURL(mainBundle);
-    assert(mainBundleURL);
-
-    CFStringRef cfStringRef = CFURLCopyFileSystemPath( mainBundleURL, kCFURLPOSIXPathStyle);
-    assert(cfStringRef);
-
-    CFStringGetCString(cfStringRef, path, 1024, kCFStringEncodingASCII);
-
-    CFRelease(mainBundleURL);
-    CFRelease(cfStringRef);
-
-    return std::string(path);
-}
-#endif
 
 const unsigned int ODApplication::PORT_NUMBER = 31222;
 const double ODApplication::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;

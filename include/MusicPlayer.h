@@ -12,7 +12,6 @@
 #include <vector>
 
 #include <SFML/Audio.hpp>
-#include <OgreSingleton.h>
 #include <OgreSharedPtr.h>
 
 /*! \brief Class to manage playing of music.
@@ -21,7 +20,7 @@
 class MusicPlayer: public Ogre::Singleton<MusicPlayer>
 {
     public:
-        MusicPlayer(const Ogre::String& path);
+        MusicPlayer();
         virtual ~MusicPlayer();
         void update();
         void start(const unsigned int& trackNumber);

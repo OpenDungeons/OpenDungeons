@@ -32,6 +32,7 @@ SET(
     ProximityTrap.h
     RadialVector2.h
     RenderRequest.h
+    ResourceManager.h
     RoomDojo.h
     RoomDungeonTemple.h
     RoomForge.h

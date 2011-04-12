@@ -36,6 +36,7 @@ set(
      RadialVector2.cpp
      RenderManager.cpp
      RenderRequest.cpp
+     ResourceManager.cpp
      Room.cpp
      RoomDojo.cpp
      RoomDungeonTemple.cpp

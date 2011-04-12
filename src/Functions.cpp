@@ -435,8 +435,7 @@ void swap(int &a, int &b)
 std::string stripCommentsFromLine(std::string line)
 {
     // Find the first occurrence of the comment symbol on the line and return everything before that character.
-    size_t index = line.find('#');
-    return line.substr(0, index);
+    return line.substr(0, line.find('#'));
 }
 
 void colourizeEntity(Ogre::Entity *ent, int colour)
@@ -471,13 +470,13 @@ std::string colourizeMaterial(const std::string& materialName, int colour)
     if (newMaterial.isNull())
     {
         // Check to see if we find a seat with the requested color, if not then just use the original, uncolored material.
-        Seat *tempSeat = gameMap.getSeatByColor(colour);
+        Seat* tempSeat = gameMap.getSeatByColor(colour);
         if (tempSeat == NULL)
             return materialName;
 
         std::cout << "\nMaterial does not exist, creating a new one.";
-        newMaterial
-                = Ogre::MaterialPtr(Ogre::MaterialManager::getSingleton().getByName(
+        newMaterial = Ogre::MaterialPtr(
+                Ogre::MaterialManager::getSingleton().getByName(
                         materialName))->clone(tempSS.str());
 
         // Loop over the techniques for the new material
@@ -550,8 +549,7 @@ std::vector<std::string> listAllFiles(const std::string& directoryName)
 void waitOnRenderQueueFlush()
 {
     numThreadsWaitingOnRenderQueueEmpty.lock();
-    unsigned int tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.rawGet();
-    ++tempUnsigned;
+    unsigned int tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.rawGet() + 1;
     numThreadsWaitingOnRenderQueueEmpty.rawSet(tempUnsigned);
     numThreadsWaitingOnRenderQueueEmpty.unlock();
 
