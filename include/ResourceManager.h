@@ -26,6 +26,8 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         inline const std::string& getPluginsPath() const{return pluginsPath;}
         inline const std::string& getMusicPath() const{return musicPath;}
         inline const std::string& getSoundPath() const{return soundPath;}
+        inline const std::string& getCfgFile() const{return ogreCfgFile;}
+        inline const std::string& getLogFile() const{return ogreLogFile;}
 
     private:
         ResourceManager(const ResourceManager&);
@@ -37,11 +39,15 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         std::string musicPath;
         std::string soundPath;
         std::string macBundlePath;
+        std::string ogreCfgFile;
+        std::string ogreLogFile;
 
         static const std::string PLUGINSCFG;
         static const std::string RESOURCECFG;
         static const std::string MUSICSUBPATH;
         static const std::string SOUNDSUBPATH;
+        static const std::string CONFIGFILENAME;
+        static const std::string LOGFILENAME;
 };
 
 #endif /* RESOURCEMANAGER_H_ */

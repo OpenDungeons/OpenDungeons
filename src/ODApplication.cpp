@@ -77,8 +77,8 @@ bool ODApplication::setup()
     ResourceManager* resMgr = ResourceManager::getSingletonPtr();
     mRoot = new Ogre::Root(
             resMgr->getPluginsPath(),
-            resMgr->getHomePath() + "ogre.cfg",
-            resMgr->getHomePath() + "ogre.log");
+            resMgr->getCfgFile(),
+            resMgr->getLogFile());
 
     resMgr->setupResources();
 
@@ -92,7 +92,7 @@ bool ODApplication::setup()
     if(!mRoot->showConfigDialog())
         return false;
 
-    mWindow = mRoot->initialise(true);
+    mWindow = mRoot->initialise(true, "OpenDungeons " + VERSION);
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
 
     //instanciate all singleton helper classes
