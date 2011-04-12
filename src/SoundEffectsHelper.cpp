@@ -1,6 +1,7 @@
 #include <map>
 
 #include "CreatureSound.h"
+#include "ResourceManager.h"
 
 #include "SoundEffectsHelper.h"
 
@@ -33,21 +34,9 @@ SoundEffectsHelper* SoundEffectsHelper::getSingletonPtr()
 SoundEffectsHelper::SoundEffectsHelper() :
         nextDigSound(0)
 {
-
-}
-
-SoundEffectsHelper::~SoundEffectsHelper()
-{
-    // TODO Auto-generated destructor stub
-}
-
-/*! \brief Initialise the sound system used.
- *
- */
-void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
-{
+    Ogre::String soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
     // Hardcoded for now
-    Ogre::String digFolder = soundFolderPath + "/RocksFalling/";
+    Ogre::String digFolder = soundFolderPath + "RocksFalling/";
 
     for (int i = 0; i < 7; ++i)
     {
@@ -76,19 +65,19 @@ void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
     }
 
     interfaceSoundBuffers[SoundEffectsHelper::BUTTONCLICK]->LoadFromFile(
-            soundFolderPath + "/Click/click.ogg");
+            soundFolderPath + "Click/click.ogg");
     interfaceSoundBuffers[SoundEffectsHelper::DIGSELECT]->LoadFromFile(
-            soundFolderPath + "/Click/click.ogg");
+            soundFolderPath + "Click/click.ogg");
     interfaceSoundBuffers[SoundEffectsHelper::PICKUP]->LoadFromFile(soundFolderPath
-            + "/Click/click.ogg");
+            + "Click/click.ogg");
     interfaceSoundBuffers[SoundEffectsHelper::DROP]->LoadFromFile(soundFolderPath
-            + "/Click/click.ogg");
+            + "Click/click.ogg");
     interfaceSoundBuffers[SoundEffectsHelper::BUILDROOM]->LoadFromFile(
-            soundFolderPath + "/RoomBuild/bump.ogg");
+            soundFolderPath + "RoomBuild/bump.ogg");
     interfaceSoundBuffers[SoundEffectsHelper::BUILDTRAP]->LoadFromFile(
-            soundFolderPath + "/RoomBuild/bump.ogg");
+            soundFolderPath + "RoomBuild/bump.ogg");
     interfaceSoundBuffers[SoundEffectsHelper::CLAIM]->LoadFromFile(soundFolderPath
-            + "/ClaimTile/Claim01.ogg");
+            + "ClaimTile/Claim01.ogg");
 
     //Replacement sound for now
     for (int i = 0; i < NUM_INTERFACE_SOUNDS; ++i)
@@ -112,10 +101,15 @@ void SoundEffectsHelper::initialiseSound(Ogre::String soundFolderPath)
                 new sf::SoundBuffer()));
     }
     buffers[CreatureSound::ATTACK]->LoadFromFile(soundFolderPath
-            + "/Sword/SwordBlock01.ogg");
+            + "Sword/SwordBlock01.ogg");
     buffers[CreatureSound::DIG]->LoadFromFile(soundFolderPath
-            + "/Digging/Digging01.ogg");
+            + "Digging/Digging01.ogg");
     //buffers[CreatureSound::DROP].LoadFromFile(soundFolderPath + "/Click/click.ogg);
+}
+
+SoundEffectsHelper::~SoundEffectsHelper()
+{
+    // TODO Auto-generated destructor stub
 }
 
 void SoundEffectsHelper::setListenerPosition(const Ogre::Vector3& position,

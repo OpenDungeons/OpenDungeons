@@ -93,41 +93,30 @@ bool ODApplication::setup()
         return false;
 
     mWindow = mRoot->initialise(true);
-
-    new RenderManager(&gameMap);
-    RenderManager::getSingletonPtr()->sceneManager
-            = mRoot->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
-
-    createCamera();
-    createViewports();
-
-    // Set default mipmap level (NB some APIs ignore this)
-    Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
-
-    // Load resources
-    //TODO: Put ALL resource handling into a new helper class ResourceManager
-    Ogre::ResourceGroupManager::getSingleton().initialiseAllResourceGroups();
+    Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
 
     //instanciate all singleton helper classes
+    new RenderManager(&gameMap);
     new SoundEffectsHelper();
     new Gui();
     new TextRenderer();
     new MusicPlayer();
-
-    SoundEffectsHelper::getSingletonPtr()->initialiseSound(resMgr->getResourcePath() + "sounds/");
-
-    //TODO: Main menu should without having the map loaded, but
+    RenderManager::getSingletonPtr()->sceneManager
+            = mRoot->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
+    //TODO: Main menu should display without having the map loaded, but
     //      this needs refactoring at some other places, too
     Gui::getSingletonPtr()->loadGuiSheet(Gui::mainMenu);
-
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
-            10, 50, 70, Ogre::ColourValue::Green);
+                10, 50, 70, Ogre::ColourValue::Green);
     //TODO - move this to when the map is actually loaded
     MusicPlayer::getSingleton().start(0);
 
+    Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
+
+    createCamera();
+    createViewports();
     createScene();
 
-    //create the framelistener
     new ODFrameListener(mWindow, mCamera, true, true, false);
     ODFrameListener::getSingletonPtr()->showDebugOverlay(true);
     mRoot->addFrameListener(ODFrameListener::getSingletonPtr());
