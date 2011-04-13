@@ -20,6 +20,8 @@ class ODApplication : public Ogre::Singleton<ODApplication>
         static ODApplication& getSingleton();
         static ODApplication* getSingletonPtr();
 
+        inline Ogre::Camera* getCamera()const {return mCamera;}
+
         static const unsigned int PORT_NUMBER;
         static const double BLENDER_UNITS_PER_OGRE_UNIT;
         static const double DEFAULT_FRAMES_PER_SECOND;

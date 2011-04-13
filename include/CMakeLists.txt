@@ -22,6 +22,7 @@ SET(
     GoalProtectDungeonTemple.h
     MapEditor.h
     MapLight.h
+    MiniMap.h
     MissileObject.h
     MusicPlayer.h
     Network.h
