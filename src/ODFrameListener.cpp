@@ -52,46 +52,52 @@ void ODFrameListener::updateStats()
     static Ogre::String tris = "Triangle Count: ";
     static Ogre::String batches = "Batch Count: ";
 
-    // update stats when necessary
-    try
+    //Don't update the stats too often.
+    if(statsDisplayTimer.getMilliseconds() > static_cast<unsigned long>(250))
     {
-        Ogre::OverlayElement* guiAvg =
-                Ogre::OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
-        Ogre::OverlayElement* guiCurr =
-                Ogre::OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
-        Ogre::OverlayElement* guiBest =
-                Ogre::OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
-        Ogre::OverlayElement* guiWorst =
-                Ogre::OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
+        statsDisplayTimer.reset();
 
-        const Ogre::RenderTarget::FrameStats& stats = mWindow->getStatistics();
-        guiAvg->setCaption(avgFps + Ogre::StringConverter::toString(stats.avgFPS));
-        guiCurr->setCaption(currFps + Ogre::StringConverter::toString(stats.lastFPS));
-        guiBest->setCaption(bestFps + Ogre::StringConverter::toString(stats.bestFPS)
-                + " " + Ogre::StringConverter::toString(stats.bestFrameTime) + " ms");
-        guiWorst->setCaption(worstFps + Ogre::StringConverter::toString(
-                stats.worstFPS) + " " + Ogre::StringConverter::toString(
-                stats.worstFrameTime) + " ms");
+        // update stats when necessary
+        try
+        {
+            Ogre::OverlayElement* guiAvg =
+                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
+            Ogre::OverlayElement* guiCurr =
+                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
+            Ogre::OverlayElement* guiBest =
+                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
+            Ogre::OverlayElement* guiWorst =
+                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
 
-        Ogre::OverlayElement* guiTris =
-                Ogre::OverlayManager::getSingleton().getOverlayElement(
-                        "Core/NumTris");
-        guiTris->setCaption(
-                tris + Ogre::StringConverter::toString(stats.triangleCount));
+            const Ogre::RenderTarget::FrameStats& stats = mWindow->getStatistics();
+            guiAvg->setCaption(avgFps + Ogre::StringConverter::toString(stats.avgFPS));
+            guiCurr->setCaption(currFps + Ogre::StringConverter::toString(stats.lastFPS));
+            guiBest->setCaption(bestFps + Ogre::StringConverter::toString(stats.bestFPS)
+                    + " " + Ogre::StringConverter::toString(stats.bestFrameTime) + " ms");
+            guiWorst->setCaption(worstFps + Ogre::StringConverter::toString(
+                    stats.worstFPS) + " " + Ogre::StringConverter::toString(
+                    stats.worstFrameTime) + " ms");
 
-        Ogre::OverlayElement* guiBatches =
-                Ogre::OverlayManager::getSingleton().getOverlayElement(
-                        "Core/NumBatches");
-        guiBatches->setCaption(
-                batches + Ogre::StringConverter::toString(stats.batchCount));
+            Ogre::OverlayElement* guiTris =
+                    Ogre::OverlayManager::getSingleton().getOverlayElement(
+                            "Core/NumTris");
+            guiTris->setCaption(
+                    tris + Ogre::StringConverter::toString(stats.triangleCount));
 
-        Ogre::OverlayElement* guiDbg =
-                Ogre::OverlayManager::getSingleton().getOverlayElement(
-                        "Core/DebugText");
-        guiDbg->setCaption(mDebugText);
-    }
-    catch (...)
-    { //FIXME should not ignore exceptions unless there is a really good reason.
+            Ogre::OverlayElement* guiBatches =
+                    Ogre::OverlayManager::getSingleton().getOverlayElement(
+                            "Core/NumBatches");
+            guiBatches->setCaption(
+                    batches + Ogre::StringConverter::toString(stats.batchCount));
+
+            Ogre::OverlayElement* guiDbg =
+                    Ogre::OverlayManager::getSingleton().getOverlayElement(
+                            "Core/DebugText");
+            guiDbg->setCaption(mDebugText);
+        }
+        catch (...)
+        { //FIXME should not ignore exceptions unless there is a really good reason.
+        }
     }
 }
 
@@ -153,7 +159,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
         terminalActive(false),
         terminalWordWrap(78),
         mDragType(ODFrameListener::nullDragType),
-        sfxHelper(SoundEffectsHelper::getSingletonPtr())
+        sfxHelper(SoundEffectsHelper::getSingletonPtr()),
+        lastTurnDisplayUpdated(-1)
 {
     gameMap.me = new Player;
     gameMap.me->nick = "defaultNickName";
@@ -492,6 +499,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     }
     turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
             turnNumber.get());
+    //TODO - we shouldn't have to reprint this every frame.
     printText(ODApplication::MOTD + "\n" + (terminalActive ? (commandOutput + "\n")
             : nullString) + (terminalActive ? prompt : nullString)
             + (terminalActive ? promptCommand : nullString) + "\n" + turnString
@@ -582,86 +590,93 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // Update the CEGUI displays of gold, mana, etc.
     if (isInGame())
     {
-        Seat *mySeat = gameMap.me->seat;
-
-        CEGUI::WindowManager *windowManager =
-                CEGUI::WindowManager::getSingletonPtr();
-
-        CEGUI::Window *tempWindow = windowManager->getWindow(
-                (CEGUI::utf8*) "Root/TerritoryDisplay");
-        tempSS.str("");
-        tempSS << gameMap.me->seat->getNumClaimedTiles();
-        tempWindow->setText(tempSS.str());
-
-        tempWindow
-                = windowManager->getWindow((CEGUI::utf8*) "Root/GoldDisplay");
-        tempSS.str("");
-        tempSS << gameMap.me->seat->gold;
-        tempWindow->setText(tempSS.str());
-
-        tempWindow
-                = windowManager->getWindow((CEGUI::utf8*) "Root/ManaDisplay");
-        tempSS.str("");
-        tempSS << mySeat->mana << " " << (mySeat->manaDelta >= 0 ? "+" : "-")
-                << mySeat->manaDelta;
-        tempWindow->setText(tempSS.str());
-
-        /*Only update if there are any changes
-         *TODO - do this for the other stats as well.
+        //
+        /*We only need to recreate the info windows when each turn when
+        *the text updates.
+        *TODO Update these only when needed.
         */
-        if (isInGame() && gameMap.me->seat->getHasGoalsChanged())
+        if(lastTurnDisplayUpdated < currentTurnNumber)
         {
-            gameMap.me->seat->resetGoalsChanged();
-            // Update the goals display in the message window.
-            tempWindow = windowManager->getWindow(
-                    (CEGUI::utf8*) "Root/MessagesDisplayWindow");
+            lastTurnDisplayUpdated = currentTurnNumber;
+            Seat *mySeat = gameMap.me->seat;
+
+            CEGUI::WindowManager *windowManager =
+                    CEGUI::WindowManager::getSingletonPtr();
+
+            CEGUI::Window *tempWindow = windowManager->getWindow(
+                    (CEGUI::utf8*) "Root/TerritoryDisplay");
             tempSS.str("");
-            bool iAmAWinner = gameMap.seatIsAWinner(gameMap.me->seat);
-
-            if (gameMap.me->seat->numGoals() > 0)
-            {
-                // Loop over the list of unmet goals for the seat we are sitting in an print them.
-                tempSS << "Unfinished Goals:\n---------------------\n";
-                for (unsigned int i = 0; i < gameMap.me->seat->numGoals(); ++i)
-                {
-                    Goal *tempGoal = gameMap.me->seat->getGoal(i);
-                    tempSS << tempGoal->getDescription() << "\n";
-                }
-            }
-
-            if (gameMap.me->seat->numCompletedGoals() > 0)
-            {
-                // Loop over the list of completed goals for the seat we are sitting in an print them.
-                tempSS << "\n\nCompleted Goals:\n---------------------\n";
-                for (unsigned int i = 0; i
-                        < gameMap.me->seat->numCompletedGoals(); ++i)
-                {
-                    Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
-                    tempSS << tempGoal->getSuccessMessage() << "\n";
-                }
-            }
-
-            if (gameMap.me->seat->numFailedGoals() > 0)
-            {
-                // Loop over the list of completed goals for the seat we are sitting in an print them.
-                tempSS
-                        << "\n\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
-                for (unsigned int i = 0; i < gameMap.me->seat->numFailedGoals(); ++i)
-                {
-                    Goal *tempGoal = gameMap.me->seat->getFailedGoal(i);
-                    tempSS << tempGoal->getFailedMessage() << "\n";
-                }
-            }
-
-            if (iAmAWinner)
-            {
-                tempSS
-                        << "\nCongratulations, you have completed this level.\nOpen the terminal and run the \'next\'\n";
-                tempSS
-                        << "command to move on to move on to the next level.\n\nThe next level is:  "
-                        << gameMap.nextLevel;
-            }
+            tempSS << gameMap.me->seat->getNumClaimedTiles();
             tempWindow->setText(tempSS.str());
+
+            tempWindow
+                    = windowManager->getWindow((CEGUI::utf8*) "Root/GoldDisplay");
+            tempSS.str("");
+            tempSS << gameMap.me->seat->gold;
+            tempWindow->setText(tempSS.str());
+
+            tempWindow
+                    = windowManager->getWindow((CEGUI::utf8*) "Root/ManaDisplay");
+            tempSS.str("");
+            tempSS << mySeat->mana << " " << (mySeat->manaDelta >= 0 ? "+" : "-")
+                    << mySeat->manaDelta;
+            tempWindow->setText(tempSS.str());
+
+
+            if (isInGame())// && gameMap.me->seat->getHasGoalsChanged())
+            {
+                gameMap.me->seat->resetGoalsChanged();
+                // Update the goals display in the message window.
+                tempWindow = windowManager->getWindow(
+                        (CEGUI::utf8*) "Root/MessagesDisplayWindow");
+                tempSS.str("");
+                bool iAmAWinner = gameMap.seatIsAWinner(gameMap.me->seat);
+
+                if (gameMap.me->seat->numGoals() > 0)
+                {
+                    // Loop over the list of unmet goals for the seat we are sitting in an print them.
+                    tempSS << "Unfinished Goals:\n---------------------\n";
+                    for (unsigned int i = 0; i < gameMap.me->seat->numGoals(); ++i)
+                    {
+                        Goal *tempGoal = gameMap.me->seat->getGoal(i);
+                        tempSS << tempGoal->getDescription() << "\n";
+                    }
+                }
+
+                if (gameMap.me->seat->numCompletedGoals() > 0)
+                {
+                    // Loop over the list of completed goals for the seat we are sitting in an print them.
+                    tempSS << "\n\nCompleted Goals:\n---------------------\n";
+                    for (unsigned int i = 0; i
+                            < gameMap.me->seat->numCompletedGoals(); ++i)
+                    {
+                        Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
+                        tempSS << tempGoal->getSuccessMessage() << "\n";
+                    }
+                }
+
+                if (gameMap.me->seat->numFailedGoals() > 0)
+                {
+                    // Loop over the list of completed goals for the seat we are sitting in an print them.
+                    tempSS
+                            << "\n\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
+                    for (unsigned int i = 0; i < gameMap.me->seat->numFailedGoals(); ++i)
+                    {
+                        Goal *tempGoal = gameMap.me->seat->getFailedGoal(i);
+                        tempSS << tempGoal->getFailedMessage() << "\n";
+                    }
+                }
+
+                if (iAmAWinner)
+                {
+                    tempSS
+                            << "\nCongratulations, you have completed this level.\nOpen the terminal and run the \'next\'\n";
+                    tempSS
+                            << "command to move on to move on to the next level.\n\nThe next level is:  "
+                            << gameMap.nextLevel;
+                }
+                tempWindow->setText(tempSS.str());
+            }
         }
         
 
@@ -2391,7 +2406,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
 
             else if (arguments.compare("goals") == 0)
             {
-                if (!isEditorMode())
+                if (isInGame())
                 {
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS

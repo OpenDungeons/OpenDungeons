@@ -180,6 +180,9 @@ class ODFrameListener :
         std::vector<Ogre::ColourValue> playerColourValues;
 
         SoundEffectsHelper* sfxHelper;
+
+        Ogre::Timer statsDisplayTimer;
+        long int lastTurnDisplayUpdated;
 };
 
 #endif

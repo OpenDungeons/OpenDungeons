@@ -255,17 +255,17 @@ bool Seat::getHasGoalsChanged()
 {
     bool ret;
     //TODO - find out if we need to lock this or not.
-    sem_wait(goalsLockSemaphore);
+    sem_wait(&goalsLockSemaphore);
     ret = hasGoalsChanged;
-    sem_post(goalsLockSemaphore);
+    sem_post(&goalsLockSemaphore);
     return ret;
 }
 
 void Seat::resetGoalsChanged()
 {
-    sem_wait(goalsLockSemaphore);
+    sem_wait(&goalsLockSemaphore);
     hasGoalsChanged = false;
-    sem_post(goalsLockSemaphore);
+    sem_post(&goalsLockSemaphore);
 }
 
 void Seat::goalsHasChanged()
