@@ -36,6 +36,9 @@ class Seat
         void setNumClaimedTiles(const unsigned int& num);
         inline const unsigned int& rawGetNumClaimedTiles() const{return numClaimedTiles;}
         void rawSetNumClaimedTiles(const unsigned int& num){numClaimedTiles = num;}
+        bool getHasGoalsChanged();
+        void resetGoalsChanged();
+        
 
         // Public data members
         int color; /**< \brief The color index of the players sitting in this seat. */
@@ -65,6 +68,8 @@ class Seat
         friend std::istream& operator>>(std::istream& is, Seat *s);
 
     private:
+        void goalsHasChanged();
+        
         std::vector<Goal*> goals; /**< \brief The currently unmet goals for this seat, the first Seat to empty this wins. */
         sem_t goalsLockSemaphore;
 
@@ -75,6 +80,8 @@ class Seat
         sem_t failedGoalsLockSemaphore;
 
         unsigned int numClaimedTiles; /**< \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn(). */
+
+        bool hasGoalsChanged;
 };
 
 #endif

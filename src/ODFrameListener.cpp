@@ -580,7 +580,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     std::stringstream tempSS("");
     // Update the CEGUI displays of gold, mana, etc.
-    if (serverSocket != NULL || clientSocket != NULL)
+    if (isInGame())
     {
         Seat *mySeat = gameMap.me->seat;
 
@@ -606,12 +606,16 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 << mySeat->manaDelta;
         tempWindow->setText(tempSS.str());
 
-        // Update the goals display in the message window.
-        tempWindow = windowManager->getWindow(
-                (CEGUI::utf8*) "Root/MessagesDisplayWindow");
-        tempSS.str("");
-        if (serverSocket != NULL || clientSocket != NULL)
+        /*Only update if there are any changes
+         *TODO - do this for the other stats as well.
+        */
+        if (isInGame() && gameMap.me->seat->getHasGoalsChanged())
         {
+            gameMap.me->seat->resetGoalsChanged();
+            // Update the goals display in the message window.
+            tempWindow = windowManager->getWindow(
+                    (CEGUI::utf8*) "Root/MessagesDisplayWindow");
+            tempSS.str("");
             bool iAmAWinner = gameMap.seatIsAWinner(gameMap.me->seat);
 
             if (gameMap.me->seat->numGoals() > 0)
@@ -657,8 +661,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                         << "command to move on to move on to the next level.\n\nThe next level is:  "
                         << gameMap.nextLevel;
             }
+            tempWindow->setText(tempSS.str());
         }
-        tempWindow->setText(tempSS.str());
+        
 
     }
 
@@ -819,7 +824,7 @@ bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
     // If we are drawing with the brush in the map editor.
     if (mLMouseDown && mDragType == ODFrameListener::tileBrushSelection
-            && serverSocket == NULL && clientSocket == NULL)
+            && !isInGame())
     {
         // Loop over the square region surrounding current mouse location and either set the tile type of the affected tiles or create new ones.
         Tile *currentTile;
@@ -878,7 +883,7 @@ bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
 
     // If we are dragging a map light we need to update its position to the current x-y location.
     if (mLMouseDown && mDragType == ODFrameListener::mapLight
-            && serverSocket == NULL && clientSocket == NULL)
+            && !isInGame())
     {
         MapLight* tempMapLight = gameMap.getMapLight(draggedMapLight);
         if (tempMapLight != NULL)
@@ -946,7 +951,7 @@ bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
                 if (resultName.find("Creature_") != string::npos)
                 {
                     // if in a game:  Pick the creature up and put it in our hand
-                    if (serverSocket != NULL || clientSocket != NULL)
+                    if (isInGame())
                     {
                         // through away everything before the '_' and then copy the rest into 'array'
                         char array[255];
@@ -994,7 +999,7 @@ bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
         }
 
         // If no creatures are under the  mouse run through the list again to check for lights
-        if (serverSocket == NULL && clientSocket == NULL)
+        if (!isInGame())
         {
             //FIXME: These other code blocks that loop over the result list should probably use this same loop structure.
             itr = result.begin();
@@ -1033,7 +1038,7 @@ bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
                     mDragType = ODFrameListener::tileSelection;
 
                     // If we are in the map editor, use a brush selection if it has been activated.
-                    if (serverSocket == NULL && clientSocket == NULL
+                    if (!isInGame()
                             && mBrushMode)
                     {
                         mDragType = ODFrameListener::tileBrushSelection;
@@ -1059,7 +1064,7 @@ bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
 
         // If we are in a game we store the opposite of whether this tile is marked for diggin or not, this allows us to mark tiles
         // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
-        if (serverSocket != NULL || clientSocket != NULL)
+        if (isInGame())
         {
             Tile *tempTile = gameMap.getTile(xPos, yPos);
             if (tempTile != NULL)
@@ -1149,7 +1154,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
         // Check to see if we are moving a creature
         if (mDragType == ODFrameListener::creature)
         {
-            if (serverSocket == NULL && clientSocket == NULL)
+            if (!isInGame())
             {
                 Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
                 Ogre::SceneNode *node = mSceneMgr->getSceneNode(draggedCreature
@@ -1164,7 +1169,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
         // Check to see if we are dragging a map light.
         else if (mDragType == ODFrameListener::mapLight)
         {
-            if (serverSocket == NULL && clientSocket == NULL)
+            if (!isInGame())
             {
                 MapLight *tempMapLight = gameMap.getMapLight(draggedMapLight);
                 if (tempMapLight != NULL)
@@ -1193,7 +1198,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 if (mDragType == ODFrameListener::tileSelection)
                 {
                     // See if we are in a game or not
-                    if (serverSocket != NULL || clientSocket != NULL)
+                    if (isInGame())
                     {
                         //See if the tile can be marked for digging.
                         if (currentTile->isDiggable())
@@ -1247,7 +1252,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                     }
 
                     // If we are in a game.
-                    if (serverSocket != NULL || clientSocket != NULL)
+                    if (isInGame())
                     {
                         // If the currentTile is not empty and claimed for my color, then remove it from the affectedTiles vector.
                         if (!(currentTile->getFullness() < 1
@@ -1281,7 +1286,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                     && affectedTiles.size() > 0)
             {
                 int newRoomColor = 0, goldRequired = 0;
-                if (serverSocket != NULL || clientSocket != NULL)
+                if (isInGame())
                 {
                     newRoomColor = gameMap.me->seat->color;
                     goldRequired = affectedTiles.size() * Room::costPerTile(
@@ -1289,7 +1294,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 }
 
                 // Check to see if we are in the map editor OR if we are in a game, check to see if we have enough gold to create the room.
-                if ((serverSocket == NULL && clientSocket == NULL)
+                if (!isInGame()
                         || (gameMap.getTotalGoldForColor(
                                 gameMap.me->seat->color) >= goldRequired))
                 {
@@ -1334,7 +1339,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                     && affectedTiles.size() > 0)
             {
                 int goldRequired = 0;
-                if (serverSocket != NULL || clientSocket != NULL)
+                if (isInGame())
                 {
                     goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
                 }
@@ -1343,12 +1348,12 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 //~ tempVector.push_back(affectedTiles[affectedTiles.size() - 1]);
 
                 Seat *mySeat = NULL;
-                if ((serverSocket == NULL && clientSocket == NULL)
+                if (!isInGame()
                         || (gameMap.getTotalGoldForColor(
                                 gameMap.me->seat->color) >= goldRequired))
                 {
                     goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
-                    if (serverSocket != NULL || clientSocket != NULL)
+                    if (isInGame())
                         gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->seat->color);
                     mySeat = gameMap.me->seat;
 
@@ -1495,7 +1500,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
                 //Toggle mCurrentTileType
             case OIS::KC_R:
-                if (serverSocket == NULL && clientSocket == NULL)
+                if (!isInGame())
                 {
                     mCurrentTileType = Tile::nextTileType(mCurrentTileType);
                     tempSS.str("");
@@ -1507,7 +1512,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
                 //Decrease brush radius
             case OIS::KC_COMMA:
-                if (serverSocket == NULL && clientSocket == NULL)
+                if (!isInGame())
                 {
                     if (mCurrentTileRadius > 1)
                     {
@@ -1521,7 +1526,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
                 //Increase brush radius
             case OIS::KC_PERIOD:
-                if (serverSocket == NULL && clientSocket == NULL)
+                if (!isInGame())
                 {
                     if (mCurrentTileRadius < 10)
                     {
@@ -1535,7 +1540,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
 
                 //Toggle mBrushMode
             case OIS::KC_B:
-                if (serverSocket == NULL && clientSocket == NULL)
+                if (!isInGame())
                 {
                     mBrushMode = !mBrushMode;
                     ODApplication::MOTD = (mBrushMode)
@@ -1547,7 +1552,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 //Toggle mCurrentFullness
             case OIS::KC_T:
                 // If we are not in a game.
-                if (serverSocket == NULL && clientSocket == NULL)
+                if (!isInGame())
                 {
                     mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
                     ODApplication::MOTD = "Tile fullness:  " + Ogre::StringConverter::toString(
@@ -1581,8 +1586,8 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
             }
                 // Quit the game
             case OIS::KC_ESCAPE:
-                writeGameMapToFile(((string) "levels/Test.level"
-                        + (string) ".out"));
+                writeGameMapToFile(std::string("levels/Test.level")
+                        + ".out");
                 mContinue = false;
                 break;
 
@@ -1676,7 +1681,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 // If the key translates to a valid character
                 // for the commandline we add it to the current
                 // promptCommand
-                if (((string) "abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
+                if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
                         arg.text) != string::npos)
                 {
                     promptCommand += arg.text;
@@ -2304,7 +2309,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
             else if (arguments.compare("players") == 0)
             {
                 // There are only players if we are in a game.
-                if (serverSocket != NULL || clientSocket != NULL)
+                if (isInGame())
                 {
                     tempSS << "Player:\tNick:\tColor:\n\n";
                     tempSS << "me\t\t" << gameMap.me->nick << "\t"
@@ -2334,7 +2339,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                     tempSS << "You are currently acting as a server.";
                 }
 
-                if (clientSocket == NULL && serverSocket == NULL)
+                if (!isInGame())
                 {
                     tempSS << "You are currently in the map editor.";
                 }
@@ -2386,7 +2391,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
 
             else if (arguments.compare("goals") == 0)
             {
-                if (serverSocket != NULL || clientSocket != NULL)
+                if (!isEditorMode())
                 {
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS
@@ -2511,7 +2516,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         if (gameMap.me->nick.size() > 0)
         {
             // Make sure we are not already connected to a server or hosting a game.
-            if (serverSocket == NULL && clientSocket == NULL)
+            if (!isInGame())
             {
                 // Make sure an IP address to connect to was provided
                 if (arguments.size() > 0)
@@ -2583,7 +2588,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         if (gameMap.me->nick.size() > 0)
         {
             // Make sure we are not already connected to a server or hosting a game.
-            if (serverSocket == NULL && clientSocket == NULL)
+            if (!isInGame())
             {
 
                 if (startServer())
@@ -2616,7 +2621,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Send help command information to all players
     else if (command.compare("chathelp") == 0)
     {
-        if (serverSocket != NULL || clientSocket != NULL)
+        if (isInGame())
         {
 
             if (arguments.size() > 0)
@@ -2996,3 +3001,11 @@ string ODFrameListener::getHelpText(std::string arg)
     return "Help for command:  \"" + arguments + "\" not found.";
 }
 
+/*! \brief Check if we are in editor mode
+ *
+ */
+bool ODFrameListener::isInGame()
+{
+    //TODO - we should use a bool or something, not the sockets for this.
+    return (serverSocket != NULL || clientSocket != NULL);
+}

@@ -19,7 +19,8 @@ Seat::Seat() :
         alignmentAltruism(0.0),
         alignmentOrder(0.0),
         alignmentPeace(0.0),
-        numClaimedTiles(0)
+        numClaimedTiles(0),
+        hasGoalsChanged(true)
 {
     sem_init(&goalsLockSemaphore, 0, 1);
     sem_init(&completedGoalsLockSemaphore, 0, 1);
@@ -169,6 +170,7 @@ unsigned int Seat::checkAllGoals()
 
             //FIXME: This is probably a memory leak since the goal is created on the heap and should probably be deleted here.
             currentGoal = goals.erase(currentGoal);
+            
         }
         else
         {
@@ -217,6 +219,9 @@ unsigned int Seat::checkAllCompletedGoals()
             sem_post(&goalsLockSemaphore);
 
             currentGoal = completedGoals.erase(currentGoal);
+
+            //Signal that the list of goals has changed.
+            goalsHasChanged();
         }
         else
         {
@@ -228,6 +233,9 @@ unsigned int Seat::checkAllCompletedGoals()
                 sem_post(&failedGoalsLockSemaphore);
 
                 currentGoal = completedGoals.erase(currentGoal);
+
+                //Signal that the list of goals has changed.
+                goalsHasChanged();
             }
             else
             {
@@ -238,6 +246,32 @@ unsigned int Seat::checkAllCompletedGoals()
     sem_post(&completedGoalsLockSemaphore);
 
     return numCompletedGoals();
+}
+
+/** \brief See if the goals has changed since we last checked.
+ *  For use with the goal window, to avoid having to update it on every frame.
+ */
+bool Seat::getHasGoalsChanged()
+{
+    bool ret;
+    //TODO - find out if we need to lock this or not.
+    sem_wait(goalsLockSemaphore);
+    ret = hasGoalsChanged;
+    sem_post(goalsLockSemaphore);
+    return ret;
+}
+
+void Seat::resetGoalsChanged()
+{
+    sem_wait(goalsLockSemaphore);
+    hasGoalsChanged = false;
+    sem_post(goalsLockSemaphore);
+}
+
+void Seat::goalsHasChanged()
+{
+    //Not locking here as this is supposed to be called from a function that already locks.
+    hasGoalsChanged = true;
 }
 
 std::string Seat::getFormat()

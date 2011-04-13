@@ -165,6 +165,7 @@ class ODFrameListener :
 
     private:
         ODFrameListener(const ODFrameListener&);
+        bool isInGame();
 
         bool terminalActive;
         int terminalWordWrap;
