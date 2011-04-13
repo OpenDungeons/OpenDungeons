@@ -40,7 +40,7 @@ Creature* Player::getCreatureInHand(int i)
  */
 void Player::addCreatureToHand(Creature *c)
 {
-    if (creaturesInHand.size() == 0)
+    if (creaturesInHand.empty())
     {
         creaturesInHand.push_back(c);
     }
@@ -148,7 +148,7 @@ void Player::removeCreatureFromHand(int i)
 bool Player::dropCreature(Tile *t)
 {
     // if we have a creature to drop
-    if (creaturesInHand.size() > 0)
+    if (!creaturesInHand.empty())
     {
         Creature *tempCreature = creaturesInHand[0];
 

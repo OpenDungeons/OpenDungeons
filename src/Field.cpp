@@ -99,7 +99,7 @@ void Field::clear()
 
 std::pair<LocationType, double> Field::min()
 {
-    if (theField.size() == 0)
+    if (theField.empty())
     {
         std::cerr
                 << "\n\nERROR:  Trying to find the minumum value on a field of 0 elements.\n\n";
@@ -123,7 +123,7 @@ std::pair<LocationType, double> Field::min()
 
 std::pair<LocationType, double> Field::max()
 {
-    if (theField.size() == 0)
+    if (theField.empty())
     {
         std::cerr
                 << "\n\nERROR:  Trying to find the minumum value on a field of 0 elements.\n\n";
@@ -146,7 +146,7 @@ std::pair<LocationType, double> Field::max()
 }
 void Field::refreshMeshes(double offset = 0.0)
 {
-    if (theField.size() == 0 && !hasMeshes)
+    if (theField.empty() && !hasMeshes)
     {
         return;
     }
@@ -171,15 +171,11 @@ void Field::refreshMeshes(double offset = 0.0)
 
 void Field::createMeshes(double offset = 0.0)
 {
-    if (theField.size() == 0)
+    if (theField.empty() || hasMeshes)
     {
         return;
     }
 
-    if (hasMeshes)
-    {
-        return;
-    }
     hasMeshes = true;
 
     RenderRequest *request = new RenderRequest;

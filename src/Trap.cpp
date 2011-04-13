@@ -200,7 +200,7 @@ bool Trap::doUpkeep()
     
     damage(enemyAttacked);
     
-    if(enemyAttacked.size() > 0)
+    if(!enemyAttacked.empty())
     {
         if(reloadTime >= 0) {
             // Begin the reload countdown.

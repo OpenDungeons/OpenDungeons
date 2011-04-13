@@ -720,7 +720,7 @@ void GameMap::doTurn()
     for (tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); ++tempUnsigned)
         averageAILeftoverTime += previousLeftoverTimes[tempUnsigned];
 
-    if (previousLeftoverTimes.size() > 0)
+    if (!previousLeftoverTimes.empty())
         averageAILeftoverTime /= (double) previousLeftoverTimes.size();
 
     if (loadNextLevel)
@@ -1379,16 +1379,14 @@ std::vector<Tile*> GameMap::neighborTiles(Tile *t)
  */
 bool GameMap::addPlayer(Player *p)
 {
-    if (emptySeats.size() > 0)
+    if (!emptySeats.empty())
     {
         p->seat = popEmptySeat();
         players.push_back(p);
         return true;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 /*! \brief Returns a pointer to the i'th player structure stored by this GameMap.
@@ -1586,7 +1584,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
     //TODO: Loop backwards and remove any non-see through tiles until we get to one which permits vision (this cuts down the cost of walks toward the end when an opaque block is found).
 
     // Now loop over the queue, determining which tiles are visible and push them onto the tempVector which will be returned as the output of the function.
-    while (tileQueue.size() > 0)
+    while (!tileQueue.empty())
     {
         // If the tile lets light though it it is visible and we can remove it from the queue and put it in the return list.
         if ((*tileQueue.begin()).first->permitsVision())
@@ -1711,13 +1709,10 @@ std::vector<AttackableObject*> GameMap::getVisibleForce(
 bool GameMap::pathIsClear(std::list<Tile*> path,
         Tile::TileClearType passability)
 {
-    std::list<Tile*>::iterator itr;
-    //std::list<Tile*>::iterator last;
-
-    if (path.size() == 0)
+    if (path.empty())
         return false;
 
-    //last = --path.end();
+    std::list<Tile*>::iterator itr;
 
     // Loop over tile in the path and check to see if it is clear
     bool isClear = true;
@@ -2101,7 +2096,7 @@ Seat* GameMap::getEmptySeat(int index)
 Seat* GameMap::popEmptySeat()
 {
     Seat *s = NULL;
-    if (emptySeats.size() > 0)
+    if (!emptySeats.empty())
     {
         s = emptySeats[0];
         emptySeats.erase(emptySeats.begin());
@@ -2144,7 +2139,7 @@ Seat* GameMap::getFilledSeat(int index)
 Seat* GameMap::popFilledSeat()
 {
     Seat *s = NULL;
-    if (filledSeats.size() > 0)
+    if (!filledSeats.empty())
     {
         s = filledSeats[0];
         filledSeats.erase(filledSeats.begin());

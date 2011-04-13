@@ -63,7 +63,7 @@ void AnimatedObject::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 
     // if there are currently no destinations in the walk queue
     sem_wait(&walkQueueLockSemaphore);
-    if (walkQueue.size() == 0)
+    if (walkQueue.empty())
     {
         // Add the destination and set the remaining distance counter
         walkQueue.push_back(destination);

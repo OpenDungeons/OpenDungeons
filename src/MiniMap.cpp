@@ -30,13 +30,12 @@ MiniMap::MiniMap() :
      * to change cameras from outside (for example to recalculate it after a
      * new level was loaded)
      */
-    miniMapOgreTexture = Ogre::TextureManager::getSingletonPtr()
-            ->createManual(
-                    "miniMapOgreTexture",
-                    Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
-                    Ogre::TEX_TYPE_2D,
-                    512, 512, 0, Ogre::PF_R8G8B8,
-                    Ogre::TU_RENDERTARGET);
+    miniMapOgreTexture = Ogre::TextureManager::getSingletonPtr()->createManual(
+            "miniMapOgreTexture",
+            Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
+            Ogre::TEX_TYPE_2D,
+            512, 512, 0, Ogre::PF_R8G8B8,
+            Ogre::TU_RENDERTARGET);
 
     miniMapRenderer = miniMapOgreTexture->getBuffer()->getRenderTarget();
 
