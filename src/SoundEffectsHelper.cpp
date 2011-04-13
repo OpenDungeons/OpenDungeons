@@ -131,7 +131,7 @@ void SoundEffectsHelper::playBlockDestroySound(int tileX, int tileY)
     //tile is from -0.25 to 3.0, floor is z0, so using the middle.
     //std::cout << "\n=========================================Playing rock fall sound at: " << tileX << " , " << tileY << std::endl;
 
-    assert(digSounds.size() > 0);
+    assert(!digSounds.empty());
     if (digSounds[nextDigSound].Playing)
     {
         digSounds[nextDigSound].Stop();

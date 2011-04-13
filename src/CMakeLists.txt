@@ -27,6 +27,7 @@ set(
      Gui.cpp
      main.cpp
      MapLight.cpp
+     MiniMap.cpp
      MissileObject.cpp
      MusicPlayer.cpp
      ODApplication.cpp

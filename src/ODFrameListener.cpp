@@ -495,7 +495,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     printText(ODApplication::MOTD + "\n" + (terminalActive ? (commandOutput + "\n")
             : nullString) + (terminalActive ? prompt : nullString)
             + (terminalActive ? promptCommand : nullString) + "\n" + turnString
-            + "\n" + (chatMessages.size() > 0 ? chatString : nullString));
+            + "\n" + (!chatMessages.empty() ? chatString : nullString));
 
     // Update the animations on any AnimatedObjects which have them
     for (unsigned int i = 0; i < gameMap.numAnimatedObjects(); ++i)
@@ -512,7 +512,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
         // Move the creature
         sem_wait(&currentAnimatedObject->walkQueueLockSemaphore);
-        if (currentAnimatedObject->walkQueue.size() > 0)
+        if (!currentAnimatedObject->walkQueue.empty())
         {
             // If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
             if (currentAnimatedObject->walkQueueFirstEntryAdded)
@@ -539,7 +539,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 currentAnimatedObject->walkQueue.pop_front();
 
                 // If there are no more places to walk to still left in the queue
-                if (currentAnimatedObject->walkQueue.size() == 0)
+                if (currentAnimatedObject->walkQueue.empty())
                 {
                     // Stop walking
                     currentAnimatedObject->stopWalking();
@@ -1283,7 +1283,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
             // If we are adding new rooms the above loop will have pruned out the tiles not eligible
             // for adding rooms to.  This block then actually adds rooms to the remaining tiles.
             if (mDragType == ODFrameListener::addNewRoom
-                    && affectedTiles.size() > 0)
+                    && !affectedTiles.empty())
             {
                 int newRoomColor = 0, goldRequired = 0;
                 if (isInGame())
@@ -1336,7 +1336,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
             // for adding traps to.  This block then actually adds traps to the remaining tiles.
             //TODO:  Make this check to make sure we have enough gold to create the traps.
             if (mDragType == ODFrameListener::addNewTrap
-                    && affectedTiles.size() > 0)
+                    && !affectedTiles.empty())
             {
                 int goldRequired = 0;
                 if (isInGame())

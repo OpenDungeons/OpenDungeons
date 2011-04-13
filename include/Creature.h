@@ -119,7 +119,7 @@ class Creature: public CreatureClass, public AttackableObject
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Creature *c);
         friend std::istream& operator>>(std::istream& is, Creature *c);
-        Creature operator=(CreatureClass c2);
+        Creature& operator=(CreatureClass c2);
 
         // Public data members
         static const int maxGoldCarriedByWorkers = 1500;

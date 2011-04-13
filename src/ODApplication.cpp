@@ -24,6 +24,7 @@
 #include "SoundEffectsHelper.h"
 #include "Gui.h"
 #include "ResourceManager.h"
+#include "MiniMap.h"
 
 #include "ODApplication.h"
 
@@ -121,6 +122,9 @@ bool ODApplication::setup()
     ODFrameListener::getSingletonPtr()->showDebugOverlay(true);
     mRoot->addFrameListener(ODFrameListener::getSingletonPtr());
 
+    //FIXME: This should be at a better place
+    new MiniMap;
+
     return true;
 }
 
@@ -184,6 +188,10 @@ void ODApplication::createScene()
     node->translate(Ogre::Vector3(0, 0, 0));
     node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
             BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
+/*FIXME: can we remove this #if?
+ * We should force using always the latest stable and compatible versions
+ * of the used libs
+ */
 #if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
     ent->setNormaliseNormals(true);
 #endif

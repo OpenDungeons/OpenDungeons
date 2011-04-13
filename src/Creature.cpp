@@ -160,7 +160,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     return is;
 }
 
-Creature Creature::operator=(CreatureClass c2)
+Creature& Creature::operator=(CreatureClass c2)
 {
     creatureJob = c2.creatureJob;
     className = c2.className;
@@ -414,7 +414,7 @@ void Creature::doTurn()
         markedTiles = getVisibleMarkedTiles();
 
     // If the creature can see enemies that are reachable.
-    if (reachableEnemyObjects.size() > 0)
+    if (!reachableEnemyObjects.empty())
     {
         // Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
         bool alreadyFighting = false;
@@ -458,7 +458,7 @@ void Creature::doTurn()
                 Room::quarters, color);
         tempRooms = gameMap.getReachableRooms(tempRooms, positionTile(),
                 tilePassability);
-        if (tempRooms.size() > 0)
+        if (!tempRooms.empty())
         {
             tempAction.type = CreatureAction::findHome;
             pushAction(tempAction);
@@ -509,7 +509,7 @@ void Creature::doTurn()
         std::vector<Room*> tempRooms;
 
         sem_wait(&actionQueueLockSemaphore);
-        if (actionQueue.size() > 0)
+        if (!actionQueue.empty())
         {
             CreatureAction topActionItem = actionQueue.front();
             sem_post(&actionQueueLockSemaphore);
@@ -608,7 +608,7 @@ void Creature::doTurn()
                                     // If there are no workers around, choose tiles far away to "roam" the dungeon.
                                     if (!workerFound)
                                     {
-                                        if (visibleTiles.size() > 0)
+                                        if (!visibleTiles.empty())
                                         {
                                             tempTile
                                                     = visibleTiles[static_cast<unsigned int>(
@@ -625,7 +625,7 @@ void Creature::doTurn()
                             else
                             {
                                 // Randomly choose a tile near where we are standing to walk to.
-                                if (visibleTiles.size() > 0)
+                                if (!visibleTiles.empty())
                                 {
                                     unsigned int tileIndex = static_cast<unsigned int>(
                                             visibleTiles.size() * randomDouble(
@@ -680,7 +680,7 @@ void Creature::doTurn()
 
                 case CreatureAction::walkToTile:
                     if (randomDouble(0.0, 1.0) < 0.6
-                            && enemyObjectsInRange.size() > 0)
+                            && !enemyObjectsInRange.empty())
                     {
                         popAction();
                         tempAction.type = CreatureAction::attackObject;
@@ -724,7 +724,7 @@ void Creature::doTurn()
 
                     //cout << "walkToTile ";
                     sem_wait(&walkQueueLockSemaphore);
-                    if (walkQueue.size() == 0)
+                    if (walkQueue.empty())
                     {
                         popAction();
                         loopBack = true;
@@ -751,7 +751,7 @@ void Creature::doTurn()
                     if (randomDouble(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
                     {
                         // If there are any visible tiles marked for digging start working on that.
-                        if (markedTiles.size() > 0)
+                        if (!markedTiles.empty())
                         {
                             loopBack = true;
                             popAction();
@@ -793,7 +793,7 @@ void Creature::doTurn()
                     // claimable, find candidates for claiming.
                     // Start by checking the neighbor tiles of the one we are already in
                     neighbors = gameMap.neighborTiles(myTile);
-                    while (neighbors.size() > 0)
+                    while (!neighbors.empty())
                     {
                         // If the current neighbor is claimable, walk into it and skip to the end of this turn
                         tempInt = randomUint(0, neighbors.size() - 1);
@@ -851,7 +851,7 @@ void Creature::doTurn()
 
                     //cout << "  I see " << claimableTiles.size() << " tiles I can claim.";
                     // Randomly pick a claimable tile, plot a path to it and walk to it
-                    while (claimableTiles.size() > 0)
+                    while (!claimableTiles.empty())
                     {
                         // Randomly find a "good" tile to claim.  A good tile is one that has many neighbors
                         // already claimed, this makes the claimed are more "round" and less jagged.
@@ -1037,7 +1037,7 @@ void Creature::doTurn()
                     }
 
                     // Find the shortest path and start walking toward the tile to be dug out
-                    if (possiblePaths.size() > 0)
+                    if (!possiblePaths.empty())
                     {
                         // Find the N shortest valid paths, see if there are any valid paths shorter than this first guess
                         shortPaths.clear();
@@ -1140,7 +1140,7 @@ void Creature::doTurn()
                     // Check to see if our seat controls any treasuries.
                     treasuriesOwned = gameMap.getRoomsByTypeAndColor(
                             Room::treasury, color);
-                    if (treasuriesOwned.size() > 0)
+                    if (!treasuriesOwned.empty())
                     {
                         Tile *nearestTreasuryTile;
                         nearestTreasuryTile = NULL;
@@ -1414,7 +1414,7 @@ void Creature::doTurn()
                     // Get the list of dojos controlled by our seat and make sure there is at least one.
                     tempRooms = gameMap.getRoomsByTypeAndColor(Room::dojo,
                             color);
-                    if (tempRooms.size() == 0)
+                    if (tempRooms.empty())
                     {
                         popAction();
                         loopBack = true;
@@ -1439,7 +1439,7 @@ void Creature::doTurn()
                             break;
                         ++tempInt;
                     } while (tempInt < 5 && tempRoom->numOpenCreatureSlots()
-                            == 0 && tempRooms.size() > 0);
+                            == 0 && !tempRooms.empty());
 
                     if (tempRoom->numOpenCreatureSlots() == 0)
                     {
@@ -1481,7 +1481,7 @@ void Creature::doTurn()
 
                 case CreatureAction::attackObject:
                     // If there are no more enemies which are reachable, stop attacking
-                    if (reachableEnemyObjects.size() == 0)
+                    if (reachableEnemyObjects.empty())
                     {
                         popAction();
                         loopBack = true;
@@ -1491,7 +1491,7 @@ void Creature::doTurn()
                     myTile = positionTile();
 
                     // Find the first enemy close enough to hit and attack it
-                    if (livingEnemyObjectsInRange.size() > 0)
+                    if (!livingEnemyObjectsInRange.empty())
                     {
                         tempAttackableObject = livingEnemyObjectsInRange[0];
 
@@ -1562,7 +1562,7 @@ void Creature::doTurn()
                     myTile = positionTile();
 
                     // If there is an enemy within range, stop maneuvering and attack it.
-                    if (livingEnemyObjectsInRange.size() > 0)
+                    if (!livingEnemyObjectsInRange.empty())
                     {
                         popAction();
                         loopBack = true;
@@ -1579,7 +1579,7 @@ void Creature::doTurn()
                     }
 
                     // If there are no more enemies which are reachable, stop maneuvering.
-                    if (reachableEnemyObjects.size() == 0)
+                    if (reachableEnemyObjects.empty())
                     {
                         popAction();
                         loopBack = true;
@@ -1850,7 +1850,7 @@ std::vector<AttackableObject*> Creature::getEnemyObjectsInRange(
     std::vector<AttackableObject*> tempVector;
 
     // If there are no enemies to check we are done.
-    if (enemyObjectsToCheck.size() == 0)
+    if (enemyObjectsToCheck.empty())
         return tempVector;
 
     // Find our location and calculate the square of the max weapon range we have.

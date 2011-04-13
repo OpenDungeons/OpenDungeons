@@ -205,7 +205,7 @@ int Room::numOpenCreatureSlots()
 
 Tile* Room::getCentralTile()
 {
-    if (coveredTiles.size() == 0)
+    if (coveredTiles.empty())
     {
         return NULL;
     }
