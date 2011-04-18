@@ -21,7 +21,6 @@ class MiniMap : public Ogre::Singleton<MiniMap>
     private:
         MiniMap(const MiniMap&);
 
-        Ogre::Camera* miniMapCamera;
         Ogre::TexturePtr miniMapOgreTexture;
         Ogre::RenderTexture* miniMapRenderer;
 };

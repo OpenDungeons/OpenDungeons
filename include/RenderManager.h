@@ -31,8 +31,14 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void setSceneNodes(Ogre::SceneNode* roomSceneNode,
                                     Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode );
 
+        inline Ogre::Camera* getCamera()const {return mainCamera;}
+        inline Ogre::SceneManager* getSceneManager()const {return sceneManager;}
+
         void processRenderRequests();
         void updateAnimations();
+        void createCamera();
+        void createViewports();
+        void createScene();
 
         void waitOnRenderQueueFlush();
         /*! \brief Put a render request in the queue (helper function to avoid having to fetch the singleton)
@@ -41,7 +47,8 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         {
             ms_Singleton->queueRenderRequest_priv(renderRequest);
         }
-        Ogre::SceneManager* sceneManager;
+
+        static const double BLENDER_UNITS_PER_OGRE_UNIT;
 
     protected:
         void queueRenderRequest_priv(RenderRequest* renderRequest);
@@ -94,10 +101,10 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         Ogre::SceneNode* creatureSceneNode;
         Ogre::SceneNode* lightSceneNode;
         Ogre::SceneNode* fieldSceneNode;
-    
-        bool initialized;
-
         GameMap* gameMap;
+        Ogre::Camera* mainCamera;
+        Ogre::SceneManager* sceneManager;
+        bool initialized;
 };
 
 #endif /* RENDERMANAGER_H_ */

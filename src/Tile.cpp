@@ -485,8 +485,7 @@ bool Tile::permitsVision()
 {
     //TODO: This call to getTilePassability() is far too much work, when the rules for vision are more well established this function should be replaced with specialized code which avoids this call.
     TileClearType clearType = getTilePassability();
-    return (clearType == walkableTile || clearType == flyableTile)
-            ? true : false;
+    return (clearType == walkableTile || clearType == flyableTile);
 }
 
 /* Checks if the place is buildable at the moment */
@@ -733,7 +732,7 @@ void Tile::setSelected(bool s)
 {
     if (selected != s)
     {
-        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
+        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         Ogre::Entity* ent;
         char tempString[255];
 
@@ -784,7 +783,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
         bool thisRequestIsForMe = (p == gameMap.me);
         if (thisRequestIsForMe)
         {
-            Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
+            Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
             //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
             snprintf(tempString, sizeof(tempString),
                     "Level_%i_%i_selection_indicator", x, y);

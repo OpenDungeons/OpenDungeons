@@ -36,16 +36,59 @@ template<> ODApplication*
  *
  */
 ODApplication::ODApplication() :
-        mRoot(0)
+        root(0),
+        window(0)
 {
-    new ResourceManager;
+    ResourceManager* resMgr = new ResourceManager;//ResourceManager::getSingletonPtr();
+    root = new Ogre::Root(
+            resMgr->getPluginsPath(),
+            resMgr->getCfgFile(),
+            resMgr->getLogFile());
 
-    if (!setup())
+    resMgr->setupResources();
+
+    /* TODO: Skip this and use root.restoreConfig()
+     * to load configuration settings if we are sure there are valid ones
+     * saved in ogre.cfg
+     * We should use this later (when we have an own setup options screen)
+     * to avoid having the setup dialog started on every run
+     */
+    /* TODO: create our own options menu and define good default values
+     *       (drop smaller than 800x600, AA, shadow quality, mipmaps, etc)
+     */
+    if (!root->showConfigDialog())
     {
         return;
     }
 
-    mRoot->startRendering();
+    window = root->initialise(true, "OpenDungeons " + VERSION);
+    Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
+    RenderManager* renderMgr = new RenderManager(&gameMap);
+    new SoundEffectsHelper();
+    new Gui();
+    new TextRenderer();
+    new MusicPlayer();
+    //TODO: Main menu should display without having the map loaded, but
+    //      this needs refactoring at some other places, too
+    Gui::getSingletonPtr()->loadGuiSheet(Gui::mainMenu);
+    TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
+                10, 50, 70, Ogre::ColourValue::Green);
+    //TODO - move this to when the map is actually loaded
+    MusicPlayer::getSingleton().start(0);
+
+    //FIXME: do this only if a level loads after the main menu
+    renderMgr->createCamera();
+    renderMgr->createViewports();
+    renderMgr->createScene();
+
+    ODFrameListener* frameListener = new ODFrameListener(window, renderMgr->getCamera(), true, true, false);
+    frameListener->showDebugOverlay(true);
+    root->addFrameListener(frameListener);
+
+    //FIXME: This should be at a better place
+    new MiniMap;
+
+    root->startRendering();
     cleanUp();
 }
 
@@ -68,66 +111,10 @@ ODApplication* ODApplication::getSingletonPtr()
 
 ODApplication::~ODApplication()
 {
-    if(mRoot)
-        delete mRoot;
-}
-
-/*! \brief Sets up the application - returns false if the user chooses to abandon
- *  configuration.
- */
-bool ODApplication::setup()
-{
-    ResourceManager* resMgr = ResourceManager::getSingletonPtr();
-    mRoot = new Ogre::Root(
-            resMgr->getPluginsPath(),
-            resMgr->getCfgFile(),
-            resMgr->getLogFile());
-
-    resMgr->setupResources();
-
-    /* Show the configuration dialog and initialise the system
-     * TODO: Skip this and use root.restoreConfig()
-     * to load configuration settings if we are sure there are valid ones
-     * saved in ogre.cfg
-     * We should use this later (when we have an own setup options screen)
-     * to avoid having the setup dialog started on every run
-     */
-    if(!mRoot->showConfigDialog())
-        return false;
-
-    mWindow = mRoot->initialise(true, "OpenDungeons " + VERSION);
-    Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
-
-    //instanciate all singleton helper classes
-    new RenderManager(&gameMap);
-    new SoundEffectsHelper();
-    new Gui();
-    new TextRenderer();
-    new MusicPlayer();
-    RenderManager::getSingletonPtr()->sceneManager
-            = mRoot->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
-    //TODO: Main menu should display without having the map loaded, but
-    //      this needs refactoring at some other places, too
-    Gui::getSingletonPtr()->loadGuiSheet(Gui::mainMenu);
-    TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
-                10, 50, 70, Ogre::ColourValue::Green);
-    //TODO - move this to when the map is actually loaded
-    MusicPlayer::getSingleton().start(0);
-
-    Ogre::TextureManager::getSingleton().setDefaultNumMipmaps(5);
-
-    createCamera();
-    createViewports();
-    createScene();
-
-    new ODFrameListener(mWindow, mCamera, true, true, false);
-    ODFrameListener::getSingletonPtr()->showDebugOverlay(true);
-    mRoot->addFrameListener(ODFrameListener::getSingletonPtr());
-
-    //FIXME: This should be at a better place
-    new MiniMap;
-
-    return true;
+    if(root)
+    {
+        delete root;
+    }
 }
 
 void ODApplication::cleanUp()
@@ -135,7 +122,7 @@ void ODApplication::cleanUp()
     //Delete the various singleton objects.
     delete MiniMap::getSingletonPtr();
     
-    mRoot->removeFrameListener(ODFrameListener::getSingletonPtr());
+    root->removeFrameListener(ODFrameListener::getSingletonPtr());
     delete ODFrameListener::getSingletonPtr();
     
     delete MusicPlayer::getSingletonPtr();
@@ -145,106 +132,8 @@ void ODApplication::cleanUp()
     delete RenderManager::getSingletonPtr();
 }
 
-/*! \brief Sets up the main camera
- */
-void ODApplication::createCamera()
-{
-    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
-    mCamera = mSceneMgr->createCamera("PlayerCam");
-    mCamera->setNearClipDistance(.05);
-    mCamera->setFarClipDistance(300.0);
-    mCamera->setAutoTracking(false, mSceneMgr->getRootSceneNode()
-            ->createChildSceneNode("CameraTarget"), Ogre::Vector3(0, 0, 0));
-}
-
-void ODApplication::createScene()
-{
-    // Turn on shadows
-    //mSceneMgr->setShadowTechnique(SHADOWTYPE_TEXTURE_MODULATIVE);	// Quality 1
-    //mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_MODULATIVE);	// Quality 2
-    //mSceneMgr->setShadowTechnique(SHADOWTYPE_STENCIL_ADDITIVE);	// Quality 3
-
-    /* TODO: move level loading to a better place
-     *       (own class to exclude from global skope?)
-     *       and generalize it for the future when we have more levels
-     */
-    // Read in the default game map
-    std::string levelPath = ResourceManager::getSingletonPtr()
-            ->getResourcePath() + "levels_git/Test.level";
-    {
-        //Check if the level from git exists. If not, use the standard one.
-        std::ifstream file(levelPath.c_str(), std::ios_base::in);
-        if (!file.is_open())
-        {
-            levelPath = ResourceManager::getSingletonPtr()->getResourcePath()
-                    + "levels/Test.level";
-        }
-    }
-
-    gameMap.levelFileName = "Test";
-    readGameMapFromFile(levelPath);
-
-    // Create ogre entities for the tiles, rooms, and creatures
-    gameMap.createAllEntities();
-
-    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
-    // Create the main scene lights
-    mSceneMgr->setAmbientLight(Ogre::ColourValue(0.3, 0.36, 0.28));
-
-    // Create the scene node that the camera attaches to
-    Ogre::SceneNode* node = mSceneMgr->getRootSceneNode()
-            ->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 16));
-    node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
-    node->roll(Ogre::Degree(30), Ogre::Node::TS_WORLD);
-    node->attachObject(mCamera);
-
-    // Create the single tile selection mesh
-    Ogre::Entity* ent = mSceneMgr->createEntity("SquareSelector", "SquareSelector.mesh");
-    node = mSceneMgr->getRootSceneNode()->createChildSceneNode(
-            "SquareSelectorNode");
-    node->translate(Ogre::Vector3(0, 0, 0));
-    node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
-            BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
-/*FIXME: can we remove this #if?
- * We should force using always the latest stable and compatible versions
- * of the used libs
- */
-#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
-    ent->setNormaliseNormals(true);
-#endif
-    node->attachObject(ent);
-    Ogre::SceneNode *node2 = node->createChildSceneNode("Hand_node");
-    node2->setPosition(0.0 / BLENDER_UNITS_PER_OGRE_UNIT, 0.0
-            / BLENDER_UNITS_PER_OGRE_UNIT, 3.0 / BLENDER_UNITS_PER_OGRE_UNIT);
-    node2->scale(Ogre::Vector3(1.0 / BLENDER_UNITS_PER_OGRE_UNIT, 1.0
-            / BLENDER_UNITS_PER_OGRE_UNIT, 1.0 / BLENDER_UNITS_PER_OGRE_UNIT));
-
-    // Create the light which follows the single tile selection mesh
-    Ogre::Light* light = mSceneMgr->createLight("MouseLight");
-    light->setType(Ogre::Light::LT_POINT);
-    light->setDiffuseColour(Ogre::ColourValue(.5, .7, .6));
-    light->setSpecularColour(Ogre::ColourValue(.5, .4, .4));
-    light->setPosition(0, 0, 5);
-    light->setAttenuation(20, 0.15, 0.15, 0.017);
-    node->attachObject(light);
-}
-
-/*! \brief setup the viewports
- *
- */
-void ODApplication::createViewports()
-{
-    // Create one viewport, entire window
-    Ogre::Viewport* vp = mWindow->addViewport(mCamera);
-    vp->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
-
-    // Alter the camera aspect ratio to match the viewport
-    mCamera->setAspectRatio(Ogre::Real(vp->getActualWidth()) / Ogre::Real(
-            vp->getActualHeight()));
-}
-
+//TODO: find some better places for some of these
 const unsigned int ODApplication::PORT_NUMBER = 31222;
-const double ODApplication::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 const double ODApplication::DEFAULT_FRAMES_PER_SECOND = 60.0;
 double ODApplication::MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
 double ODApplication::turnsPerSecond = 1.4;

@@ -22,7 +22,6 @@ template<> MiniMap* Ogre::Singleton<MiniMap>::ms_Singleton = 0;
  *
  */
 MiniMap::MiniMap() :
-        miniMapCamera(0),
         miniMapOgreTexture(0),
         miniMapRenderer(0)
 {
@@ -34,25 +33,15 @@ MiniMap::MiniMap() :
             "miniMapOgreTexture",
             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             Ogre::TEX_TYPE_2D,
-            512, 512, 0, Ogre::PF_R8G8B8,
+            200, 200, 1, Ogre::PF_R8G8B8,
             Ogre::TU_RENDERTARGET);
 
+    Ogre::HardwarePixelBufferSharedPtr texturePixelBuffer
+            = miniMapOgreTexture->getBuffer();
+    texturePixelBuffer->lock(Ogre::HardwareBuffer::HBL_NORMAL); // for best performance use HBL_DISCARD!
+    const Ogre::PixelBox& texturePixelBox = texturePixelBuffer->getCurrentLock();
+
     miniMapRenderer = miniMapOgreTexture->getBuffer()->getRenderTarget();
-
-    miniMapCamera = RenderManager::getSingletonPtr()
-            ->sceneManager->createCamera("miniMapCamera");
-    Ogre::Camera* mCamera = ODApplication::getSingletonPtr()->getCamera();
-    miniMapCamera->setNearClipDistance(mCamera->getNearClipDistance());
-    miniMapCamera->setFarClipDistance(mCamera->getFarClipDistance());
-    miniMapCamera->setAspectRatio(1);
-    //TODO: autocalculate position and lookAt
-    miniMapCamera->setPosition(mCamera->getRealPosition());
-    miniMapCamera->lookAt(mCamera->getRealDirection());
-
-    Ogre::Viewport* vp = miniMapRenderer->addViewport(miniMapCamera, 1);
-    vp->setClearEveryFrame(true);
-    vp->setOverlaysEnabled(false);
-    vp->setBackgroundColour(Ogre::ColourValue::Black);
 
     CEGUI::Texture& miniMapTextureGui
             = static_cast<CEGUI::OgreRenderer*>(CEGUI::System::getSingletonPtr()
@@ -66,7 +55,8 @@ MiniMap::MiniMap() :
                     miniMapTextureGui.getSize().d_height),
             CEGUI::Point(0.0f,0.0f));
 
-    //retrieve the CEGUI StaticImage(window) used to render the minimap
+    CEGUI::Image bla = imageset.getImage("MiniMapImage");
+
     CEGUI::WindowManager::getSingleton().getWindow(Gui::MINIMAP)->setProperty(
             "Image", CEGUI::PropertyHelper::imageToString(
                     &imageset.getImage("MiniMapImage")));

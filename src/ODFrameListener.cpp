@@ -163,7 +163,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
 {
     gameMap.me = new Player;
     gameMap.me->nick = "defaultNickName";
-    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
+    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Creature_scene_node");
     roomSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
@@ -316,7 +316,7 @@ void ODFrameListener::exitApplication()
     pthread_cancel(serverThread);
     Ogre::LogManager::getSingleton().logMessage("Clearing game map..", Ogre::LML_NORMAL);
     gameMap.clearAll();
-    RenderManager::getSingletonPtr()->sceneManager->destroyQuery(mRaySceneQuery);
+    RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
 
     //Remove ourself as a Window listener
     Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
@@ -830,7 +830,7 @@ bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
     Ogre::RaySceneQueryResult& result = doRaySceneQuery(arg);
     Ogre::RaySceneQueryResult::iterator itr = result.begin();
     Ogre::RaySceneQueryResult::iterator end = result.end();
-    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
+    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     string resultName = "";
     if (mDragType == ODFrameListener::tileSelection || mDragType
             == ODFrameListener::addNewRoom || mDragType
@@ -1057,7 +1057,7 @@ bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
                     }
                     else // if in the Map Editor:  Begin dragging the creature
                     {
-                        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
+                        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
                         mSceneMgr->getEntity("SquareSelector")->setVisible(
                                 false);
 
@@ -1241,7 +1241,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
         {
             if (!isInGame())
             {
-                Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
+                Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
                 Ogre::SceneNode *node = mSceneMgr->getSceneNode(draggedCreature
                         + "_node");
                 mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
@@ -2004,7 +2004,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Set the ambient light color
     else if (command.compare("ambientlight") == 0)
     {
-        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->sceneManager;
+        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         if (arguments.size() > 0)
         {
             double tempR, tempG, tempB;
@@ -2325,7 +2325,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                 gameMap.addCreature(tempCreature);
 
                 // Create the mesh and SceneNode for the new creature
-                Ogre::Entity *ent = RenderManager::getSingletonPtr()->sceneManager->createEntity("Creature_"
+                Ogre::Entity *ent = RenderManager::getSingletonPtr()->getSceneManager()->createEntity("Creature_"
                         + tempCreature->name, tempCreature->meshName);
                 Ogre::SceneNode *node = creatureSceneNode->createChildSceneNode(
                         tempCreature->name + "_node");
