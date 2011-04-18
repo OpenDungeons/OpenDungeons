@@ -226,7 +226,8 @@ void Trap::damage(std::vector<AttackableObject*> enemyAttacked)
     }
 }
 
-std::vector<AttackableObject*> Trap::aimEnemy() {
+std::vector<AttackableObject*> Trap::aimEnemy()
+{
     return std::vector<AttackableObject*>();
 }
 

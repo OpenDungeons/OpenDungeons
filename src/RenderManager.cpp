@@ -23,10 +23,13 @@
 #include "Field.h"
 #include "Player.h"
 #include "ODApplication.h"
+#include "ResourceManager.h"
 
 #include "RenderManager.h"
 
 template<> RenderManager* Ogre::Singleton<RenderManager>::ms_Singleton = 0;
+
+const double RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 
 /*! \brief Returns a reference to the singleton object
  *
@@ -46,12 +49,13 @@ RenderManager* RenderManager::getSingletonPtr()
 }
 
 RenderManager::RenderManager(GameMap* gameMap) :
-        sceneManager(NULL),
-        roomSceneNode(NULL),
-        creatureSceneNode(NULL),
-        lightSceneNode(NULL),
-        fieldSceneNode(NULL),
-        initialized(false)
+        roomSceneNode(0),
+        creatureSceneNode(0),
+        lightSceneNode(0),
+        fieldSceneNode(0),
+        initialized(false),
+        mainCamera(0),
+        sceneManager(ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE))
 {
     sem_init(&renderQueueSemaphore, 0, 1);
     sem_init(&renderQueueEmptySemaphore, 0, 0);
@@ -61,6 +65,91 @@ RenderManager::RenderManager(GameMap* gameMap) :
 
 RenderManager::~RenderManager()
 {
+}
+
+/*! \brief Sets up the main camera
+ *
+ */
+void RenderManager::createCamera()
+{
+    mainCamera = sceneManager->createCamera("PlayerCam");
+    mainCamera->setNearClipDistance(.05);
+    mainCamera->setFarClipDistance(300.0);
+    mainCamera->setAutoTracking(false, sceneManager->getRootSceneNode()
+            ->createChildSceneNode("CameraTarget"), Ogre::Vector3(0, 0, 0));
+}
+
+/*! \brief setup the viewports
+ *
+ */
+void RenderManager::createViewports()
+{
+    Ogre::Viewport* vp = ODApplication::getSingleton().getWindow()->
+            addViewport(mainCamera);
+    vp->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
+    mainCamera->setAspectRatio(Ogre::Real(vp->getActualWidth()) / Ogre::Real(
+            vp->getActualHeight()));
+}
+
+/*! \brief setup the scene
+ *
+ */
+void RenderManager::createScene()
+{
+    /* TODO: move level loading to a better place
+     *       (own class to exclude from global skope?)
+     *       and generalize it for the future when we have more levels
+     */
+    // Read in the default game map
+    std::string levelPath = ResourceManager::getSingletonPtr()->
+            getResourcePath() + "levels_git/Test.level";
+    {
+        //Check if the level from git exists. If not, use the standard one.
+        std::ifstream file(levelPath.c_str(), std::ios_base::in);
+        if (!file.is_open())
+        {
+            levelPath = ResourceManager::getSingletonPtr()->getResourcePath()
+                    + "levels/Test.level";
+        }
+    }
+
+    gameMap->levelFileName = "Test";
+    readGameMapFromFile(levelPath);
+
+    // Create ogre entities for the tiles, rooms, and creatures
+    gameMap->createAllEntities();
+
+    sceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.36, 0.28));
+
+    // Create the scene node that the camera attaches to
+    Ogre::SceneNode* node = sceneManager->getRootSceneNode()
+            ->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 16));
+    node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
+    node->roll(Ogre::Degree(30), Ogre::Node::TS_WORLD);
+    node->attachObject(mainCamera);
+
+    // Create the single tile selection mesh
+    Ogre::Entity* ent = sceneManager->createEntity("SquareSelector", "SquareSelector.mesh");
+    node = sceneManager->getRootSceneNode()->createChildSceneNode(
+            "SquareSelectorNode");
+    node->translate(Ogre::Vector3(0, 0, 0));
+    node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
+            BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
+    node->attachObject(ent);
+    Ogre::SceneNode *node2 = node->createChildSceneNode("Hand_node");
+    node2->setPosition(0.0 / BLENDER_UNITS_PER_OGRE_UNIT, 0.0
+            / BLENDER_UNITS_PER_OGRE_UNIT, 3.0 / BLENDER_UNITS_PER_OGRE_UNIT);
+    node2->scale(Ogre::Vector3(1.0 / BLENDER_UNITS_PER_OGRE_UNIT, 1.0
+            / BLENDER_UNITS_PER_OGRE_UNIT, 1.0 / BLENDER_UNITS_PER_OGRE_UNIT));
+
+    // Create the light which follows the single tile selection mesh
+    Ogre::Light* light = sceneManager->createLight("MouseLight");
+    light->setType(Ogre::Light::LT_POINT);
+    light->setDiffuseColour(Ogre::ColourValue(.5, .7, .6));
+    light->setSpecularColour(Ogre::ColourValue(.5, .4, .4));
+    light->setPosition(0, 0, 5);
+    light->setAttenuation(20, 0.15, 0.15, 0.017);
+    node->attachObject(light);
 }
 
 void RenderManager::setSceneNodes(Ogre::SceneNode* roomSceneNode,
@@ -380,9 +469,9 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     //node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
     node->attachObject ( ent );
     node->setPosition ( Ogre::Vector3 ( curTile->x, curTile->y, 0 ) );
-    node->setScale ( Ogre::Vector3 ( ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                     ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                     ODApplication::BLENDER_UNITS_PER_OGRE_UNIT ) );
+    node->setScale ( Ogre::Vector3 ( BLENDER_UNITS_PER_OGRE_UNIT,
+                                     BLENDER_UNITS_PER_OGRE_UNIT,
+                                     BLENDER_UNITS_PER_OGRE_UNIT ) );
     node->resetOrientation();
     node->roll ( Ogre::Degree ( curTile->rotation ) );
 }
@@ -415,9 +504,9 @@ void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
     Ogre::SceneNode* node = roomSceneNode->createChildSceneNode ( tempSS.str()
                             + "_node" );
     node->setPosition ( Ogre::Vector3 ( curTile->x, curTile->y, 0.0 ) );
-    node->setScale ( Ogre::Vector3 ( ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                     ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                     ODApplication::BLENDER_UNITS_PER_OGRE_UNIT ) );
+    node->setScale ( Ogre::Vector3 ( BLENDER_UNITS_PER_OGRE_UNIT,
+                                     BLENDER_UNITS_PER_OGRE_UNIT,
+                                     BLENDER_UNITS_PER_OGRE_UNIT ) );
     node->attachObject ( ent );
 }
 
@@ -520,9 +609,9 @@ void RenderManager::rrCreateTreasuryIndicator ( const RenderRequest& renderReque
     //FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
     node = node->createChildSceneNode(node->getName()
                                       + "_hack_node");
-    node->setScale(Ogre::Vector3(1.0 / ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                                 1.0 / ODApplication::BLENDER_UNITS_PER_OGRE_UNIT, 1.0
-                                 / ODApplication::BLENDER_UNITS_PER_OGRE_UNIT));
+    node->setScale(Ogre::Vector3(1.0 / BLENDER_UNITS_PER_OGRE_UNIT,
+                                 1.0 / BLENDER_UNITS_PER_OGRE_UNIT, 1.0
+                                 / BLENDER_UNITS_PER_OGRE_UNIT));
 
     node->attachObject(ent);
 }
@@ -925,9 +1014,9 @@ void RenderManager::rrCreateCreatureVisualDebug ( const RenderRequest& renderReq
                                             + "_node");
         visIndicatorNode->attachObject(visIndicatorEntity);
         visIndicatorNode->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
-        visIndicatorNode->setScale(Ogre::Vector3(ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                ODApplication::BLENDER_UNITS_PER_OGRE_UNIT,
-                ODApplication::BLENDER_UNITS_PER_OGRE_UNIT));
+        visIndicatorNode->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
+                BLENDER_UNITS_PER_OGRE_UNIT,
+                BLENDER_UNITS_PER_OGRE_UNIT));
     }
 }
 
