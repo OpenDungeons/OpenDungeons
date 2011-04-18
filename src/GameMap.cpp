@@ -1108,22 +1108,10 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
         Tile::TileClearType passability)
 {
     ++numCallsTo_path;
-
-    //TODO:  Make the openList a priority queue sorted by the cost to improve lookup times on retrieving the next open item.
     std::list<Tile*> returnList;
-    AstarEntry *currentEntry;
-    Tile *destination;
-    std::list<AstarEntry*> openList;
-    std::list<AstarEntry*> closedList;
-    std::list<AstarEntry*>::iterator itr;
 
     // If the start tile was not found return an empty path
     if (getTile(x1, y1) == NULL)
-        return returnList;
-
-    // If the end tile was not found return an empty path
-    destination = getTile(x2, y2);
-    if (destination == NULL)
         return returnList;
 
     // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are colored differently.
@@ -1131,16 +1119,29 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
             && !walkablePathExists(x1, y1, x2, y2))
         return returnList;
 
-    //TODO:  make this a local variable, don't forget to remove the delete statement at the end of this function.
-    AstarEntry *neighbor = new AstarEntry;
+    // If the end tile was not found return an empty path
+    Tile* destination = getTile(x2, y2);
+    if (destination == NULL)
+        return returnList;
 
-    currentEntry = new AstarEntry;
+    AstarEntry *currentEntry = new AstarEntry;
     currentEntry->tile = getTile(x1, y1);
     currentEntry->parent = NULL;
     currentEntry->g = 0.0;
     currentEntry->setHeuristic(x1, y1, x2, y2);
+
+    /* TODO:  Make the openList a priority queue sorted by the
+     *        cost to improve lookup times on retrieving the next open item.
+     */
+    std::list<AstarEntry*> openList;
     openList.push_back(currentEntry);
 
+    /* TODO: make this a local variable don't forget to remove the
+     *       delete statement at the end of this function.
+     */
+    AstarEntry* neighbor = new AstarEntry;
+    std::list<AstarEntry*> closedList;
+    std::list<AstarEntry*>::iterator itr;
     bool pathFound = false;
     while (true)
     {
@@ -1423,24 +1424,16 @@ unsigned int GameMap::numPlayers()
 
 bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
 {
-    Tile *tempTile1, *tempTile2;
-    tempTile1 = getTile(x1, y1);
+    Tile* tempTile1 = getTile(x1, y1);
     if (tempTile1)
     {
-        tempTile2 = getTile(x2, y2);
-        if (tempTile2)
-        {
-            return (tempTile1->floodFillColor == tempTile2->floodFillColor);
-        }
-        else
-        {
-            return false;
-        }
+        Tile* tempTile2 = getTile(x2, y2);
+        return (tempTile2)
+                ? (tempTile1->floodFillColor == tempTile2->floodFillColor)
+                : false;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2), NOTE: in spite of
