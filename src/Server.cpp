@@ -19,7 +19,7 @@
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
- * A single instance of this thread is spawned by runniing the "host" command
+ * A single instance of this thread is spawned by running the "host" command
  * from the in-game console.  The thread then binds annd listens on the
  * specified port and when clients connect a new socket, and a
  * clientHandlerThread are spawned to handle communications with that client.
@@ -77,6 +77,7 @@ void *serverSocketProcessor(void *p)
         pthread_create(clientThread, NULL, clientHandlerThread, (void*) params);
         frameListener->clientHandlerThreads.push_back(clientThread);
     }
+    return NULL;
 }
 
 /*! \brief A helper function to pack a message into a packet to send over the network.
@@ -207,6 +208,12 @@ void *creatureAIThread(void *p)
 
         if (gameMap.previousLeftoverTimes.size() > 10)
             gameMap.previousLeftoverTimes.resize(10);
+        //If requested, we finish the thread.
+        if(ODFrameListener::getSingleton().getThreadStopRequested())
+        {
+            //Ogre::LogManager::getSingleton().logMessage("Stopped creature AI thread.", Ogre::LML_NORMAL);
+            break;
+        }
     }
 
     // Return something to make the compiler happy
@@ -232,8 +239,9 @@ void *serverNotificationProcessor(void *p)
     Player *tempPlayer;
     MapLight *tempMapLight;
     AnimatedObject *tempAnimatedObject;
+    bool running = true;
 
-    while (true)
+    while (running)
     {
         // Wait until a message is put into the serverNotificationQueue
         sem_wait(&serverNotificationQueueSemaphore);
@@ -339,6 +347,13 @@ void *serverNotificationProcessor(void *p)
                 sendToAllClients(frameListener, formatCommand("removeMapLight",
                         tempMapLight->getName()));
                 break;
+
+            case ServerNotification::exit:
+            {
+                running = false;
+                //Ogre::LogManager::getSingleton().logMessage("Stopped server thread.", Ogre::LML_NORMAL);
+                break;
+            }
 
             default:
                 cerr
@@ -644,6 +659,12 @@ void *clientHandlerThread(void *p)
                     << "\n\nERROR:  Unhandled command recieved from client:\nCommand:  ";
             cerr << clientCommand << "\nArguments:  " << arguments << "\n\n";
             exit(1);
+        }
+
+        if(frameListener->getThreadStopRequested())
+        {
+            //TODO - log
+            break;
         }
     }
 

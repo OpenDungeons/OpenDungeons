@@ -28,6 +28,7 @@ class Gui : public Ogre::Singleton<Gui>
         };
 
         Gui();
+        ~Gui();
         static Gui& getSingleton();
         static Gui* getSingletonPtr();
 
@@ -63,7 +64,6 @@ class Gui : public Ogre::Singleton<Gui>
 
     private:
         Gui(const Gui&);
-        ~Gui();
 
         void assignEventHandlers();
 

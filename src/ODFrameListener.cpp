@@ -22,7 +22,6 @@
 #include "SoundEffectsHelper.h"
 #include "Weapon.h"
 #include "MapLight.h"
-#include "ProtectedObject.h"
 #include "Goal.h"
 #include "ClientNotification.h"
 #include "CreatureAction.h"
@@ -191,6 +190,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
 
     OIS::ParamList pl;
     pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+    //Not sure if this should be enabled or not.
+    //pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
 
     mInputManager = OIS::InputManager::createInputSystem(pl);
 
@@ -224,6 +225,9 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
     playerColourValues.push_back(Ogre::ColourValue(0.4, 0.0, 0.0, 1.0));
     playerColourValues.push_back(Ogre::ColourValue(0.0, 0.4, 0.0, 1.0));
     playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.4, 1.0));
+
+    threadStopRequested.set(false);
+    exitRequested.set(false);
     
     Ogre::LogManager::getSingletonPtr()->logMessage(
             "*** FrameListener initialized ***");
@@ -257,9 +261,10 @@ void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
     {
         if(mInputManager)
         {
+            Ogre::LogManager::getSingleton().logMessage("Destroying input objects.");
             mInputManager->destroyInputObject(mMouse);
             mInputManager->destroyInputObject(mKeyboard);
-
+            
             OIS::InputManager::destroyInputSystem(mInputManager);
             mInputManager = 0;
         }
@@ -268,12 +273,69 @@ void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
 
 ODFrameListener::~ODFrameListener()
 {
+
+}
+
+void ODFrameListener::requestExit()
+{
+    exitRequested.set(true);
+}
+
+void ODFrameListener::exitApplication()
+{
+
+    Ogre::LogManager::getSingleton().logMessage("Closing down.");
+    //Mark that we want the threads to stop.
+    requestStopThreads();
+    ServerNotification* exitServerNotification = new ServerNotification();
+    exitServerNotification->type = ServerNotification::exit;
+    queueServerNotification(exitServerNotification);
+    //Wait for threads to exit
+    //TODO: Add a timeout here.
+    Ogre::LogManager::getSingleton().logMessage("Trying to close server notification thread..", Ogre::LML_NORMAL);
+    pthread_join(serverNotificationThread, NULL);
+    Ogre::LogManager::getSingleton().logMessage("Trying to close client notification thread..", Ogre::LML_NORMAL);
+    pthread_join(clientNotificationThread, NULL);
+    Ogre::LogManager::getSingleton().logMessage("Trying to close creature thread..", Ogre::LML_NORMAL);
+    pthread_join(creatureThread, NULL);
+    /* Cancel the rest of the threads.
+     * NOTE:Threads should ideally not be cancelled, but told to exit instead.
+     * However, these threads are blocking while waiting for network data.
+     * This could be changed if we want a different behaviour later.
+     */
+    Ogre::LogManager::getSingleton().logMessage("Trying to cancel client thread..", Ogre::LML_NORMAL);
+    pthread_cancel(clientThread);
+    Ogre::LogManager::getSingleton().logMessage("Trying to cancel client handler threads..", Ogre::LML_NORMAL);
+    //FIXME: Does the thread handles here actually need to be pointers?
+    for(std::vector<pthread_t*>::iterator it = clientHandlerThreads.begin();
+        it != clientHandlerThreads.end(); ++it)
+    {
+        pthread_cancel(*(*it));
+    }
+    Ogre::LogManager::getSingleton().logMessage("Trying to cancel server thread..", Ogre::LML_NORMAL);
+    pthread_cancel(serverThread);
+    Ogre::LogManager::getSingleton().logMessage("Clearing game map..", Ogre::LML_NORMAL);
     gameMap.clearAll();
     RenderManager::getSingletonPtr()->sceneManager->destroyQuery(mRaySceneQuery);
 
     //Remove ourself as a Window listener
     Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
     windowClosed(mWindow);
+}
+
+bool ODFrameListener::getThreadStopRequested()
+{
+    return threadStopRequested.get();
+}
+
+void ODFrameListener::setThreadStopRequested(bool value)
+{
+    threadStopRequested.set(value);
+}
+
+void ODFrameListener::requestStopThreads()
+{
+    threadStopRequested.set(true);
 }
 
 /*! \brief Sets the camera to a new location while still satisfying the constraints placed on its movement
@@ -705,11 +767,19 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         frameDelay += 2.0 / ODApplication::MAX_FRAMES_PER_SECOND;
     }
 
+    //If an exit has been requested, start cleaning up.
+    if(exitRequested.get() || mContinue == false)
+    {
+        exitApplication();
+        mContinue = false;
+    }
+
     return mContinue;
 }
 
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
+
     updateStats();
     return true;
 }
@@ -719,7 +789,7 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
  */
 bool ODFrameListener::quit(const CEGUI::EventArgs &e)
 {
-    mContinue = false;
+    requestExit();
     return true;
 }
 
@@ -1603,7 +1673,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
             case OIS::KC_ESCAPE:
                 writeGameMapToFile(std::string("levels/Test.level")
                         + ".out");
-                mContinue = false;
+                requestExit();
                 break;
 
                 // Print a screenshot
@@ -1719,7 +1789,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
         }
     }
 
-    return mContinue;
+    return true;
 }
 
 /*! \brief Process the key up event.
@@ -1847,7 +1917,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Exit the program
     if (command.compare("quit") == 0 || command.compare("exit") == 0)
     {
-        mContinue = false;
+        requestExit();
     }
 
     // Repeat the arguments of the command back to you
@@ -2155,9 +2225,8 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                 }
                 catch (bad_alloc&)
                 {
-                    cerr
-                            << "\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n";
-                    exit(1);
+                    Ogre::LogManager::getSingleton().logMessage("\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n", Ogre::LML_CRITICAL);
+                    requestExit();
                 }
             }
 

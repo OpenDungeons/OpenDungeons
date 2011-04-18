@@ -136,7 +136,7 @@ void Gui::assignEventHandlers()
 bool Gui::quitButtonPressed(const CEGUI::EventArgs& e)
 {
     writeGameMapToFile(std::string("levels/Test.level") + std::string(".out"));
-    ODFrameListener::getSingletonPtr()->mContinue = false;
+    ODFrameListener::getSingletonPtr()->requestExit();
     return true;
 }
 
@@ -213,7 +213,7 @@ bool Gui::mMOptionsButtonPressed(const CEGUI::EventArgs& e)
 //! \brief What happens after a click on Quit in the main menu
 bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
 {
-    ODFrameListener::getSingletonPtr()->mContinue = false;
+    ODFrameListener::getSingletonPtr()->requestExit();
     return true;
 }
 

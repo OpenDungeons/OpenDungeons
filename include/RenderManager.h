@@ -25,6 +25,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
 {
     public:
         RenderManager(GameMap* gameMap);
+        ~RenderManager();
         static RenderManager& getSingleton();
         static RenderManager* getSingletonPtr();
         void setSceneNodes(Ogre::SceneNode* roomSceneNode,
@@ -83,7 +84,6 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         bool handleRenderRequest(const RenderRequest& renderRequest);
     private:
         RenderManager(const RenderManager&);
-        ~RenderManager();
         //TODO -should we maybe encapsulate the semaphores somewhere?
         sem_t renderQueueSemaphore;
         sem_t renderQueueEmptySemaphore;
@@ -94,9 +94,10 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         Ogre::SceneNode* creatureSceneNode;
         Ogre::SceneNode* lightSceneNode;
         Ogre::SceneNode* fieldSceneNode;
-        GameMap* gameMap;
     
         bool initialized;
+
+        GameMap* gameMap;
 };
 
 #endif /* RENDERMANAGER_H_ */

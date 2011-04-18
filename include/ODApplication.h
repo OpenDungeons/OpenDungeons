@@ -41,6 +41,7 @@ class ODApplication : public Ogre::Singleton<ODApplication>
         Ogre::RenderWindow* mWindow;
 
         bool setup();
+        void cleanUp();
         void createViewports();
         void createCamera();
         void createScene();

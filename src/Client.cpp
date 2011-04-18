@@ -400,8 +400,9 @@ void *clientNotificationProcessor(void *p)
     Creature *tempCreature;
     Player *tempPlayer;
     bool flag;
+    bool running = true;
 
-    while (true)
+    while (running)
     {
         // Wait until a message is place in the queue
         sem_wait(&clientNotificationQueueSemaphore);
@@ -452,6 +453,10 @@ void *clientNotificationProcessor(void *p)
                 sem_post(&clientSocket->semaphore);
                 break;
 
+            case ClientNotification::exit:
+                running = false;
+                break;
+
             default:
                 cerr << "\n\nERROR:  Unhandled ClientNotification type encoutered!\n\n";
 
@@ -463,4 +468,5 @@ void *clientNotificationProcessor(void *p)
                 break;
         }
     }
+    return NULL;
 }

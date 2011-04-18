@@ -72,6 +72,11 @@ MiniMap::MiniMap() :
                     &imageset.getImage("MiniMapImage")));
 }
 
+MiniMap::~MiniMap()
+{
+    
+}
+
 /*! \brief Returns a reference to the singleton object
  *
  */

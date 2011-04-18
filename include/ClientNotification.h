@@ -12,7 +12,7 @@ class ClientNotification
     public:
         enum ClientNotificationType
         {
-            creaturePickUp, creatureDrop, markTile
+            creaturePickUp, creatureDrop, markTile, exit
         };
 
         ClientNotificationType type;

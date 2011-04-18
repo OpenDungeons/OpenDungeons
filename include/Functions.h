@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <OgreEntity.h>
+#include <OgreLogManager.h>
 
 class RenderRequest;
 class ServerNotification;

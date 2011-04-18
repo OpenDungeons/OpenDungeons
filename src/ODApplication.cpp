@@ -46,6 +46,7 @@ ODApplication::ODApplication() :
     }
 
     mRoot->startRendering();
+    cleanUp();
 }
 
 /*! \brief Returns a reference to the singleton object
@@ -127,6 +128,21 @@ bool ODApplication::setup()
     new MiniMap;
 
     return true;
+}
+
+void ODApplication::cleanUp()
+{
+    //Delete the various singleton objects.
+    delete MiniMap::getSingletonPtr();
+    
+    mRoot->removeFrameListener(ODFrameListener::getSingletonPtr());
+    delete ODFrameListener::getSingletonPtr();
+    
+    delete MusicPlayer::getSingletonPtr();
+    delete TextRenderer::getSingletonPtr();
+    delete Gui::getSingletonPtr();
+    delete SoundEffectsHelper::getSingletonPtr();
+    delete RenderManager::getSingletonPtr();
 }
 
 /*! \brief Sets up the main camera

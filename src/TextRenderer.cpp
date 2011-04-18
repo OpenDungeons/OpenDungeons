@@ -15,6 +15,12 @@ TextRenderer::TextRenderer() :
     _overlay->show();
 }
 
+TextRenderer::~TextRenderer()
+{
+    _overlayMgr->destroyOverlayElement(_panel);
+    _overlayMgr->destroy(_overlay);
+}
+
 void TextRenderer::addTextBox(const std::string& ID, const std::string& text,
         Ogre::Real x, Ogre::Real y, Ogre::Real width, Ogre::Real height,
         const Ogre::ColourValue& color)

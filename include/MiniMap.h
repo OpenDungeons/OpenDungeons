@@ -16,10 +16,10 @@ class MiniMap : public Ogre::Singleton<MiniMap>
         MiniMap();
         static MiniMap& getSingleton();
         static MiniMap* getSingletonPtr();
-
+        ~MiniMap();
+        
     private:
         MiniMap(const MiniMap&);
-        ~MiniMap();
 
         Ogre::Camera* miniMapCamera;
         Ogre::TexturePtr miniMapOgreTexture;

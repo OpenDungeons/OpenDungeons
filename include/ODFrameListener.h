@@ -22,11 +22,13 @@
 #include <OIS.h>
 
 #include "Tile.h"
+#include "ProtectedObject.h"
 
 class Socket;
 class RenderManager;
 class SoundEffectsHelper;
 class ChatMessage;
+class GameMap;
 
 /*! \brief The main OGRE rendering class.
  *
@@ -50,6 +52,10 @@ class ODFrameListener :
         ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
                 bool bufferedKeys, bool bufferedMouse, bool bufferedJoy);
         virtual ~ODFrameListener();
+        void requestExit();
+        bool getThreadStopRequested();
+        void setThreadStopRequested(bool value);
+        void requestStopThreads();
 
         static ODFrameListener& getSingleton();
         static ODFrameListener* getSingletonPtr();
@@ -103,7 +109,7 @@ class ODFrameListener :
         unsigned int chatMaxMessages;
         unsigned int chatMaxTimeDisplay;
 
-        bool mContinue;
+        
 
     protected:
         Ogre::Camera* mCamera;
@@ -163,6 +169,8 @@ class ODFrameListener :
 
         RenderManager* renderManager;
 
+        void exitApplication();
+
     private:
         ODFrameListener(const ODFrameListener&);
         bool isInGame();
@@ -183,6 +191,12 @@ class ODFrameListener :
 
         Ogre::Timer statsDisplayTimer;
         long int lastTurnDisplayUpdated;
+
+        bool mContinue;
+        
+        //To see if the frameListener wants to exit
+        ProtectedObject<bool> threadStopRequested;
+        ProtectedObject<bool> exitRequested;
 };
 
 #endif
