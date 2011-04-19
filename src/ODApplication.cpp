@@ -86,7 +86,7 @@ ODApplication::ODApplication() :
     root->addFrameListener(frameListener);
 
     //FIXME: This should be at a better place
-    new MiniMap;
+    //new MiniMap;
 
     root->startRendering();
     cleanUp();
