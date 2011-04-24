@@ -312,8 +312,7 @@ void ODFrameListener::exitApplication()
     }
     clientNotificationQueue.push_back(exitClientNotification);
     sem_post(&clientNotificationQueueLockSemaphore);
-    //Let threads do some work.
-    pthread_yield();
+
     //Wait for threads to exit
     //TODO: Add a timeout here.
     Ogre::LogManager::getSingleton().logMessage("Trying to close server notification thread..", Ogre::LML_NORMAL);
