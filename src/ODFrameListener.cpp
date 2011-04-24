@@ -284,18 +284,46 @@ void ODFrameListener::requestExit()
 void ODFrameListener::exitApplication()
 {
 
-    Ogre::LogManager::getSingleton().logMessage("Closing down.");
+    Ogre::LogManager::getSingleton().logMessage("\nClosing down.");
     //Mark that we want the threads to stop.
     requestStopThreads();
+
+    pthread_yield();
+    
     ServerNotification* exitServerNotification = new ServerNotification();
     exitServerNotification->type = ServerNotification::exit;
+    sem_wait(&serverNotificationQueueLockSemaphore);
+    while(!serverNotificationQueue.empty())
+    {
+        delete serverNotificationQueue.front();
+        serverNotificationQueue.pop_front();
+    }
+    //serverNotificationQueue.push_back(exitServerNotification);
+    sem_post(&serverNotificationQueueLockSemaphore);
     queueServerNotification(exitServerNotification);
+    
+    ClientNotification* exitClientNotification = new ClientNotification();
+    exitClientNotification->type = ClientNotification::exit;
+    //TODO: There should be a function to do this.
+    sem_wait(&clientNotificationQueueLockSemaphore);
+    //Empty the queue so we don't get any crashes here.
+    while(!clientNotificationQueue.empty())
+    {
+        delete clientNotificationQueue.front();
+        clientNotificationQueue.pop_front();
+    }
+    clientNotificationQueue.push_back(exitClientNotification);
+    sem_post(&clientNotificationQueueLockSemaphore);
+    //Let threads do some work.
+    pthread_yield();
     //Wait for threads to exit
     //TODO: Add a timeout here.
     Ogre::LogManager::getSingleton().logMessage("Trying to close server notification thread..", Ogre::LML_NORMAL);
     pthread_join(serverNotificationThread, NULL);
     Ogre::LogManager::getSingleton().logMessage("Trying to close client notification thread..", Ogre::LML_NORMAL);
-    pthread_join(clientNotificationThread, NULL);
+    //pthread_join(clientNotificationThread, NULL);
+    //TODO - change this back to join when we know what causes this to lock up sometimes.
+    pthread_cancel(clientNotificationThread);
     Ogre::LogManager::getSingleton().logMessage("Trying to close creature thread..", Ogre::LML_NORMAL);
     pthread_join(creatureThread, NULL);
     /* Cancel the rest of the threads.

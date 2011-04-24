@@ -6,7 +6,7 @@
 #include "SoundEffectsHelper.h"
 
 //Z value to use for tile positioned sounds
-const float TILE_ZPOS = 1.5;
+const float TILE_ZPOS = 2.5;
 
 template<> SoundEffectsHelper*
         Ogre::Singleton<SoundEffectsHelper>::ms_Singleton = 0;
@@ -92,6 +92,13 @@ SoundEffectsHelper::SoundEffectsHelper() :
     interfaceSounds[SoundEffectsHelper::DROP].SetAttenuation(0);
     interfaceSounds[SoundEffectsHelper::BUILDROOM].SetAttenuation(0);
     interfaceSounds[SoundEffectsHelper::BUILDTRAP].SetAttenuation(0);
+
+    interfaceSounds[SoundEffectsHelper::BUTTONCLICK].SetVolume(25.0f);
+    interfaceSounds[SoundEffectsHelper::DIGSELECT].SetVolume(25.0f);
+    interfaceSounds[SoundEffectsHelper::PICKUP].SetVolume(25.0f);
+    interfaceSounds[SoundEffectsHelper::DROP].SetVolume(25.0f);
+    interfaceSounds[SoundEffectsHelper::BUILDROOM].SetVolume(25.0f);
+    interfaceSounds[SoundEffectsHelper::BUILDTRAP].SetVolume(25.0f);
 
     creatureSoundBuffers["Default"] = SoundFXBufferVector();
     SoundFXBufferVector& buffers = creatureSoundBuffers["Default"];

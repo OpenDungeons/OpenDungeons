@@ -48,7 +48,7 @@ MusicPlayer::MusicPlayer() :
         //TODO - check for text encoding issues.
         if(track->OpenFromFile(path + "/" + *it))
         {
-            track->SetVolume(25);
+            track->SetVolume(25.0f);
             track->SetAttenuation(0);
             tracks.push_back(track);
         }

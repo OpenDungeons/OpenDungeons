@@ -661,11 +661,11 @@ void *clientHandlerThread(void *p)
             exit(1);
         }
 
-        if(frameListener->getThreadStopRequested())
+        /*if(frameListener->getThreadStopRequested())
         {
             //TODO - log
             break;
-        }
+        }*/
     }
 
     // Return something to make the compiler happy

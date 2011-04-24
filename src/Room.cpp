@@ -279,6 +279,7 @@ void Room::destroyMeshes()
 RoomObject* Room::loadRoomObject(std::string meshName, Tile *targetTile,
         double rotationAngle)
 {
+    // TODO - proper random distrubition of room objects
     if (targetTile == NULL)
         targetTile = getCentralTile();
 
