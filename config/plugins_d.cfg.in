@@ -10,13 +10,9 @@ PluginFolder=@OPENDUNGEONS_OGRE_PLUGIN_DIR@
 Plugin=RenderSystem_GL_d
 Plugin=Plugin_ParticleFX_d
 Plugin=Plugin_BSPSceneManager_d
-Plugin=Plugin_CgProgramManager_d
 Plugin=Plugin_PCZSceneManager_d
 Plugin=Plugin_OctreeZone_d
 Plugin=Plugin_OctreeSceneManager_d
 
 #This is a card specific library, installed on some systems but not on others
 Plugin=Plugin_CgProgramManager_d
-
-#sound
-Plugin=OgreOggSound_d

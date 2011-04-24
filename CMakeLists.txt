@@ -92,7 +92,8 @@ ADD_SUBDIRECTORY( src )
 
 #Make a copy for use in the build directory, and later one copy for installing.
 #NOTE - this var is only used in the config file
-set(OPENDUNGEONS_MEDIA_DIR ${CMAKE_CURRENT_BINARY_DIR})
+#set(OPENDUNGEONS_MEDIA_DIR ${CMAKE_CURRENT_BINARY_DIR})
+set(OPENDUNGEONS_MEDIA_DIR ".")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg)
 
 if ( WIN32 )
@@ -113,7 +114,6 @@ else ()
 	set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
 	set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST})
 endif ()
-set(OPENDUNGEONS_MEDIA_DIR ".")
 
 #Do the configuration
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
