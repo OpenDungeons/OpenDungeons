@@ -287,8 +287,6 @@ void ODFrameListener::exitApplication()
     Ogre::LogManager::getSingleton().logMessage("\nClosing down.");
     //Mark that we want the threads to stop.
     requestStopThreads();
-
-    pthread_yield();
     
     ServerNotification* exitServerNotification = new ServerNotification();
     exitServerNotification->type = ServerNotification::exit;
