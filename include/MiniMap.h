@@ -22,7 +22,7 @@ class MiniMap : public Ogre::Singleton<MiniMap>
         MiniMap(const MiniMap&);
 
         Ogre::TexturePtr miniMapOgreTexture;
-        Ogre::RenderTexture* miniMapRenderer;
+        int width, height;
 };
 
 #endif /* MINIMAP_H_ */

@@ -2,8 +2,10 @@
 #include "Functions.h"
 #include "Tile.h"
 #include "GameMap.h"
-#include "TrapCannon.h"
 #include "MissileObject.h"
+#include "Random.h"
+
+#include "TrapCannon.h"
 
 TrapCannon::TrapCannon() :
         cannonHeight(1.5)
@@ -23,7 +25,7 @@ std::vector<AttackableObject*> TrapCannon::aimEnemy()
         return std::vector<AttackableObject*>();
     }
     // Select an enemy to shoot at.
-    AttackableObject* targetEnemy = enemyObjects[randomUint(0, enemyObjects.size()-1)];
+    AttackableObject* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
     
     std::vector<AttackableObject*> enemies = std::vector<AttackableObject*>();
     enemies.push_back(targetEnemy);

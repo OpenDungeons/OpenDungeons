@@ -35,6 +35,7 @@ set(
      Player.cpp
      ProximityTrap.cpp
      RadialVector2.cpp
+     Random.cpp
      RenderManager.cpp
      RenderRequest.cpp
      ResourceManager.cpp

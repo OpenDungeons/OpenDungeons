@@ -5,9 +5,11 @@
 #include "RenderManager.h"
 #include "Seat.h"
 #include "GameMap.h"
-#include "Trap.h"
 #include "TrapCannon.h"
 #include "TrapBoulder.h"
+#include "Random.h"
+
+#include "Trap.h"
 
 const double Trap::defaultTileHP = 10.0;
 
@@ -222,7 +224,7 @@ void Trap::damage(std::vector<AttackableObject*> enemyAttacked)
 {
     for(unsigned i=0;i<enemyAttacked.size();++i) 
     {
-        enemyAttacked[i]->takeDamage(randomDouble(minDamage, maxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
+        enemyAttacked[i]->takeDamage(Random::Double(minDamage, maxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
     }
 }
 

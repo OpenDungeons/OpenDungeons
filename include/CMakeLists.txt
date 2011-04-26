@@ -32,6 +32,7 @@ SET(
     ProtectedObject.h
     ProximityTrap.h
     RadialVector2.h
+    Random.h
     RenderRequest.h
     ResourceManager.h
     RoomDojo.h

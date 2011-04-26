@@ -19,6 +19,7 @@
 #include "Player.h"
 #include "Seat.h"
 #include "RenderManager.h"
+#include "Random.h"
 
 #include "Creature.h"
 
@@ -433,12 +434,11 @@ void Creature::doTurn()
         // If we are not already fighting with a creature or maneuvering then start doing so.
         if (!alreadyFighting)
         {
-            if (isWorker())
-                tempDouble = 0.05;
-            else
-                tempDouble = 0.8;
+            tempDouble = isWorker()
+                    ? 0.05
+                    : 0.8;
 
-            if (randomDouble(0.0, 1.0) < tempDouble)
+            if (Random::Double(0.0, 1.0) < tempDouble)
             {
                 tempAction.type = CreatureAction::maneuver;
                 battleFieldAgeCounter = 0;
@@ -450,7 +450,7 @@ void Creature::doTurn()
     }
 
     // Check to see if we have found a "home" tile where we can sleep yet.
-    if (!isWorker() && randomDouble(0.0, 1.0) < 0.03 && homeTile == NULL
+    if (!isWorker() && Random::Double(0.0, 1.0) < 0.03 && homeTile == NULL
             && peekAction().type != CreatureAction::findHome)
     {
         // Check to see if there are any quarters owned by our color that we can reach.
@@ -467,7 +467,7 @@ void Creature::doTurn()
     }
 
     // If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-    if (!isWorker() && homeTile != NULL && 100.0 * powl(randomDouble(0.0, 0.8),
+    if (!isWorker() && homeTile != NULL && 100.0 * powl(Random::Double(0.0, 0.8),
             2) > awakeness && peekAction().type != CreatureAction::sleep)
     {
         tempAction.type = CreatureAction::sleep;
@@ -476,7 +476,7 @@ void Creature::doTurn()
     }
 
     // Check to see if there is a Dojo we can train at.
-    if (!isWorker() && randomDouble(0.0, 1.0) < 0.1 && randomDouble(0.5, 1.0)
+    if (!isWorker() && Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0)
             < awakeness / 100.0 && peekAction().type != CreatureAction::train)
     {
         //TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
@@ -514,7 +514,7 @@ void Creature::doTurn()
             CreatureAction topActionItem = actionQueue.front();
             sem_post(&actionQueueLockSemaphore);
 
-            double diceRoll = randomDouble(0.0, 1.0);
+            double diceRoll = Random::Double(0.0, 1.0);
             double tempDouble;
             switch (topActionItem.type)
             {
@@ -569,7 +569,7 @@ void Creature::doTurn()
                             // Non-workers only.
 
                             // Check to see if we want to try to follow a worker around or if we want to try to explore.
-                            double r = randomDouble(0.0, 1.0);
+                            double r = Random::Double(0.0, 1.0);
                             //if(creatureJob == weakFighter) r -= 0.2;
                             if (r < 0.7)
                             {
@@ -590,17 +590,17 @@ void Creature::doTurn()
                                         {
                                             // Worker is digging, get near it since it could expose enemies.
                                             tempX = static_cast<double>(tempTile->x) + 3.0
-                                                    * gaussianRandomDouble();
+                                                    * Random::gaussianRandomDouble();
                                             tempY = static_cast<double>(tempTile->y) + 3.0
-                                                    * gaussianRandomDouble();
+                                                    * Random::gaussianRandomDouble();
                                         }
                                         else
                                         {
                                             // Worker is not digging, wander a bit farther around the worker.
                                             tempX = static_cast<double>(tempTile->x) + 8.0
-                                                    * gaussianRandomDouble();
+                                                    * Random::gaussianRandomDouble();
                                             tempY = static_cast<double>(tempTile->y) + 8.0
-                                                    * gaussianRandomDouble();
+                                                    * Random::gaussianRandomDouble();
                                         }
                                         workerFound = true;
                                     }
@@ -612,7 +612,7 @@ void Creature::doTurn()
                                         {
                                             tempTile
                                                     = visibleTiles[static_cast<unsigned int>(
-														randomDouble(0.6, 0.8)
+                                                            Random::Double(0.6, 0.8)
                                                         * (visibleTiles.size()
                                                         - 1)
 														)];
@@ -628,7 +628,7 @@ void Creature::doTurn()
                                 if (!visibleTiles.empty())
                                 {
                                     unsigned int tileIndex = static_cast<unsigned int>(
-                                            visibleTiles.size() * randomDouble(
+                                            visibleTiles.size() * Random::Double(
                                                     0.1, 0.3)
 													);
                                     myTile = positionTile();
@@ -651,7 +651,7 @@ void Creature::doTurn()
                             // Workers only.
 
                             // Choose a tile far away from our current position to wander to.
-                            tempTile = visibleTiles[randomUint(
+                            tempTile = visibleTiles[Random::Uint(
                                     visibleTiles.size() / 2,
                                     visibleTiles.size() - 1)];
                             tempX = tempTile->x;
@@ -679,7 +679,7 @@ void Creature::doTurn()
                     break;
 
                 case CreatureAction::walkToTile:
-                    if (randomDouble(0.0, 1.0) < 0.6
+                    if (Random::Double(0.0, 1.0) < 0.6
                             && !enemyObjectsInRange.empty())
                     {
                         popAction();
@@ -748,7 +748,7 @@ void Creature::doTurn()
                     }
 
                     // Randomly decide to stop claiming with a small probability
-                    if (randomDouble(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
+                    if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
                     {
                         // If there are any visible tiles marked for digging start working on that.
                         if (!markedTiles.empty())
@@ -796,7 +796,7 @@ void Creature::doTurn()
                     while (!neighbors.empty())
                     {
                         // If the current neighbor is claimable, walk into it and skip to the end of this turn
-                        tempInt = randomUint(0, neighbors.size() - 1);
+                        tempInt = Random::Uint(0, neighbors.size() - 1);
                         tempTile = neighbors[tempInt];
                         //NOTE:  I don't think the "colorDouble" check should happen here.
                         if (tempTile != NULL && tempTile->getTilePassability()
@@ -861,7 +861,7 @@ void Creature::doTurn()
                             int numNeighborsClaimed;
 
                             // Start by randomly picking a candidate tile.
-                            tempTile = claimableTiles[randomUint(0,
+                            tempTile = claimableTiles[Random::Uint(0,
                                     claimableTiles.size() - 1)];
 
                             // Count how many of the candidate tile's neighbors are already claimed.
@@ -884,7 +884,7 @@ void Creature::doTurn()
                                     - (tempUnsigned
                                             / (double) (claimableTiles.size()
                                                     - 1));
-                            if (randomDouble(0.0, 1.0) >= bar)
+                            if (Random::Double(0.0, 1.0) >= bar)
                                 break;
 
                             // Safety catch to prevent infinite loop in case the bar for success is too high and is never met.
@@ -935,7 +935,7 @@ void Creature::doTurn()
                     //cout << "dig ";
 
                     // Randomly decide to stop digging with a small probability
-                    if (randomDouble(0.0, 1.0) < 0.35 - 0.2
+                    if (Random::Double(0.0, 1.0) < 0.35 - 0.2
                             * markedTiles.size())
                     {
                         loopBack = true;
@@ -1080,7 +1080,7 @@ void Creature::doTurn()
                         if (numShortPaths > 0)
                         {
                             unsigned int shortestIndex;
-                            shortestIndex = randomUint(0, numShortPaths - 1);
+                            shortestIndex = Random::Uint(0, numShortPaths - 1);
                             walkPath = shortPaths[shortestIndex];
 
                             // If the path is a legitimate path, walk down it to the tile to be dug out
@@ -1123,7 +1123,7 @@ void Creature::doTurn()
 
                             // Depending on how much gold we have left (what did not fit in this treasury) we may want to continue
                             // looking for another treasury to put the gold into.  Roll a dice to see if we want to quit looking not.
-                            if (randomDouble(1.0, maxGoldCarriedByWorkers)
+                            if (Random::Double(1.0, maxGoldCarriedByWorkers)
                                     > gold)
                             {
                                 popAction();
@@ -1155,7 +1155,7 @@ void Creature::doTurn()
                             if (!validPathFound)
                             {
                                 // We have not yet found a valid path to a treasury, check to see if we can get to this treasury.
-                                tempUnsigned = randomUint(0,
+                                tempUnsigned = Random::Uint(0,
                                         treasuriesOwned[i]->numCoveredTiles()
                                                 - 1);
                                 nearestTreasuryTile
@@ -1174,7 +1174,7 @@ void Creature::doTurn()
                             else
                             {
                                 // We have already found at least one valid path to a treasury, see if this one is closer.
-                                tempUnsigned = randomUint(0,
+                                tempUnsigned = Random::Uint(0,
                                         treasuriesOwned[i]->numCoveredTiles()
                                                 - 1);
                                 tempTile = treasuriesOwned[i]->getCoveredTile(
@@ -1364,7 +1364,7 @@ void Creature::doTurn()
                     }
 
                     // Randomly decide to stop training, we are more likely to stop when we are tired.
-                    if (100.0 * powl(randomDouble(0.0, 1.0), 2) > awakeness)
+                    if (100.0 * powl(Random::Double(0.0, 1.0), 2) > awakeness)
                     {
                         popAction();
                         trainWait = 0;
@@ -1399,7 +1399,7 @@ void Creature::doTurn()
                             setAnimationState("Attack1");
                             recieveExp(5.0);
                             awakeness -= 5.0;
-                            trainWait = randomUint(3, 8);
+                            trainWait = Random::Uint(3, 8);
                             goto trainBreakStatement;
                         }
                     }
@@ -1429,13 +1429,13 @@ void Creature::doTurn()
                     maxTrainDistance = 40.0;
                     do
                     {
-                        tempInt = randomUint(0, tempRooms.size() - 1);
+                        tempInt = Random::Uint(0, tempRooms.size() - 1);
                         tempRoom = tempRooms[tempInt];
                         tempRooms.erase(tempRooms.begin() + tempInt);
                         tempDouble = 1.0 / (maxTrainDistance
                                 - gameMap.crowDistance(myTile,
                                         tempRoom->getCoveredTile(0)));
-                        if (randomDouble(0.0, 1.0) < tempDouble)
+                        if (Random::Double(0.0, 1.0) < tempDouble)
                             break;
                         ++tempInt;
                     } while (tempInt < 5 && tempRoom->numOpenCreatureSlots()
@@ -1450,7 +1450,7 @@ void Creature::doTurn()
                         goto trainBreakStatement;
                     }
 
-                    tempTile = tempRoom->getCoveredTile(randomUint(0,
+                    tempTile = tempRoom->getCoveredTile(Random::Uint(0,
                             tempRoom->numCoveredTiles() - 1));
                     tempPath = gameMap.path(myTile, tempTile, tilePassability);
                     if (tempPath.size() < maxTrainDistance && setWalkPath(
@@ -1510,8 +1510,8 @@ void Creature::doTurn()
                         // Calculate how much damage we do.
                         double damageDone = getHitroll(gameMap.crowDistance(
                                 myTile, tempTile));
-                        damageDone *= randomDouble(0.0, 1.0);
-                        damageDone -= powl(randomDouble(0.0, 0.4), 2.0)
+                        damageDone *= Random::Double(0.0, 1.0);
+                        damageDone -= powl(Random::Double(0.0, 0.4), 2.0)
                                 * tempAttackableObject->getDefense();
 
                         // Make sure the damage is positive.
@@ -1546,7 +1546,7 @@ void Creature::doTurn()
                                 tempTile) << "hp";
 
                         // Randomly decide to start maneuvering again so we don't just stand still and fight.
-                        if (randomDouble(0.0, 1.0) <= 0.6)
+                        if (Random::Double(0.0, 1.0) <= 0.6)
                             popAction();
 
                         break;
@@ -1615,7 +1615,7 @@ void Creature::doTurn()
                     if (battleFieldAgeCounter == 0)
                     {
                         computeBattlefield();
-                        battleFieldAgeCounter = randomUint(2, 6);
+                        battleFieldAgeCounter = Random::Uint(2, 6);
                     }
 
                     // Find a location on the battlefield to move to, we try to find a minumum if we are
@@ -1639,9 +1639,9 @@ void Creature::doTurn()
                     //FIXME:  This should find a path to a tile we can walk to, it does not always do this the way it is right now.
                     tempPath = gameMap.path(positionTile()->x,
                             positionTile()->y, minimumFieldValue.first.first
-                                    + randomDouble(-1.0 * tempDouble,
+                                    + Random::Double(-1.0 * tempDouble,
                                             tempDouble),
-                            minimumFieldValue.first.second + randomDouble(-1.0
+                            minimumFieldValue.first.second + Random::Double(-1.0
                                     * tempDouble, tempDouble), tilePassability);
 
                     // Walk a maximum of N tiles before recomputing the destination since we are in combat.
@@ -2304,7 +2304,7 @@ void Creature::computeBattlefield()
 
         const double jitter = 0.00;
         const double tileScaleFactor = 0.5;
-        battleField->set(tempTile->x, tempTile->y, (tileValue + randomDouble(
+        battleField->set(tempTile->x, tempTile->y, (tileValue + Random::Double(
                 -1.0 * jitter, jitter)) * tileScaleFactor);
     }
 }

@@ -23,25 +23,46 @@ template<> MiniMap* Ogre::Singleton<MiniMap>::ms_Singleton = 0;
  */
 MiniMap::MiniMap() :
         miniMapOgreTexture(0),
-        miniMapRenderer(0)
+        width(120),
+        height(88)
 {
     /* TODO: separate some of this code in own functions to make it possible
      * to change cameras from outside (for example to recalculate it after a
      * new level was loaded)
      */
+
     miniMapOgreTexture = Ogre::TextureManager::getSingletonPtr()->createManual(
             "miniMapOgreTexture",
             Ogre::ResourceGroupManager::DEFAULT_RESOURCE_GROUP_NAME,
             Ogre::TEX_TYPE_2D,
-            200, 200, 1, Ogre::PF_R8G8B8,
-            Ogre::TU_RENDERTARGET);
+            width, height, 0, Ogre::PF_R8G8B8,
+            Ogre::TU_DYNAMIC_WRITE_ONLY);
 
-    Ogre::HardwarePixelBufferSharedPtr texturePixelBuffer
-            = miniMapOgreTexture->getBuffer();
-    texturePixelBuffer->lock(Ogre::HardwareBuffer::HBL_NORMAL); // for best performance use HBL_DISCARD!
-    const Ogre::PixelBox& texturePixelBox = texturePixelBuffer->getCurrentLock();
+    //Ogre::Image::Box pixelBox(0, 0, width, height);
+    Ogre::PixelBox pixelBox(width, height, 0, Ogre::PF_R8G8B8);
+    Ogre::HardwarePixelBufferSharedPtr pixelBuffer = miniMapOgreTexture->getBuffer();
+    pixelBuffer->lock(pixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
 
-    miniMapRenderer = miniMapOgreTexture->getBuffer()->getRenderTarget();
+    Ogre::uint8* pDest = static_cast<Ogre::uint8*>(
+            pixelBuffer->getCurrentLock().data) - 1;
+
+    for(size_t i = 0; i < width; ++i)
+    {
+        for(size_t j = 0; j < height; ++j)
+        {
+            /*FIXME: even if we use a THREE byte pixel format (PF_R8G8B8),
+             * for some reason it only works if we have FOUR increments
+             * (the empty one is the unused alpha channel)
+             * this is not how it is intended/expected
+             */
+            ++pDest; //A, unused, shouldn't be here
+            *(++pDest) = 255;  //R
+            *(++pDest) = 255;  //G
+            *(++pDest) = 255;  //B
+        }
+    }
+    pixelBuffer->unlock();
+    miniMapOgreTexture->load();
 
     CEGUI::Texture& miniMapTextureGui
             = static_cast<CEGUI::OgreRenderer*>(CEGUI::System::getSingletonPtr()
@@ -51,11 +72,8 @@ MiniMap::MiniMap() :
             ->create("MiniMapImageset", miniMapTextureGui);
     imageset.defineImage("MiniMapImage",
             CEGUI::Point(0.0f, 0.0f),
-            CEGUI::Size(miniMapTextureGui.getSize().d_width,
-                    miniMapTextureGui.getSize().d_height),
-            CEGUI::Point(0.0f,0.0f));
-
-    CEGUI::Image bla = imageset.getImage("MiniMapImage");
+            CEGUI::Size(width, height),
+            CEGUI::Point(0.0f, 0.0f));
 
     CEGUI::WindowManager::getSingleton().getWindow(Gui::MINIMAP)->setProperty(
             "Image", CEGUI::PropertyHelper::imageToString(
@@ -64,7 +82,6 @@ MiniMap::MiniMap() :
 
 MiniMap::~MiniMap()
 {
-    
 }
 
 /*! \brief Returns a reference to the singleton object

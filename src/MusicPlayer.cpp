@@ -11,6 +11,7 @@
 
 #include "Functions.h"
 #include "ResourceManager.h"
+#include "Random.h"
 
 #include "MusicPlayer.h"
 
@@ -119,7 +120,7 @@ void MusicPlayer::next()
 
     if(randomized)
     {
-        newTrack = randomUint(0, tracks.size() - 1);
+        newTrack = Random::Uint(0, tracks.size() - 1);
         /* TODO: After we have more than one track make sure that the same
          * track isn't loaded twice
          *

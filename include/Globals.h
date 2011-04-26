@@ -1,5 +1,7 @@
 //TODO: get rid of this whole file. globals/externals are bad.
 //      put everything in good (singleton) classes or pass as parameter
+//      or at least use good namespaces (encapsulate privates by using
+//      unnamed namespaced)
 #ifndef GLOBALS_H
 #define GLOBALS_H
 

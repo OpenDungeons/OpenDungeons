@@ -1,7 +1,6 @@
 #include <cmath>
 
 #include "Functions.h"
-#include "RoomPortal.h"
 #include "Seat.h"
 #include "Player.h"
 #include "Creature.h"
@@ -11,6 +10,9 @@
 #include "GameMap.h"
 #include "Weapon.h"
 #include "CreatureAction.h"
+#include "Random.h"
+
+#include "RoomPortal.h"
 
 RoomPortal::RoomPortal() :
         spawnCreatureCountdown(0),
@@ -77,7 +79,7 @@ bool RoomPortal::doUpkeep(Room *r)
     const double maxCreatures = 15;
     double targetProbability = powl((maxCreatures - numCreatures)
             / maxCreatures, 1.5);
-    if (randomDouble(0.0, 1.0) <= targetProbability)
+    if (Random::Double(0.0, 1.0) <= targetProbability)
         spawnCreature();
 
     return true;
@@ -103,7 +105,7 @@ void RoomPortal::spawnCreature()
     recomputeClassProbabilities();
 
     // Determine which class the creature we spawn will be.
-    double randomValue = randomDouble(0.0, 1.0);
+    double randomValue = Random::Double(0.0, 1.0);
     for (unsigned int i = 0; i < classProbabilities.size(); ++i)
     {
         randomValue -= classProbabilities[i].second;
@@ -158,7 +160,7 @@ void RoomPortal::spawnCreature()
     newCreature->weaponL->createMesh();
     newCreature->weaponR->createMesh();
 
-    spawnCreatureCountdown = randomUint(15, 30);
+    spawnCreatureCountdown = Random::Uint(15, 30);
 
     //TODO: Inform the clients that this creature has been created by placing a newCreature message in the serverNotificationQueue.
 }

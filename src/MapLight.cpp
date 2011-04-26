@@ -1,12 +1,13 @@
 #include <sstream>
 
-#include "MapLight.h"
-
 #include "Globals.h"
 #include "Functions.h"
 #include "RenderManager.h"
 #include "RenderRequest.h"
 #include "GameMap.h"
+#include "Random.h"
+
+#include "MapLight.h"
 
 void MapLight::initialize()
 {
@@ -212,11 +213,11 @@ void MapLight::advanceFlicker(Ogre::Real time)
     thetaY += factorY * 3.14 * time;
     thetaZ += factorZ * 3.14 * time;
 
-    if (randomDouble(0.0, 1.0) < 0.1)
+    if (Random::Double(0.0, 1.0) < 0.1)
         factorX *= -1;
-    if (randomDouble(0.0, 1.0) < 0.1)
+    if (Random::Double(0.0, 1.0) < 0.1)
         factorY *= -1;
-    if (randomDouble(0.0, 1.0) < 0.1)
+    if (Random::Double(0.0, 1.0) < 0.1)
         factorZ *= -1;
 
     flickerPosition = Ogre::Vector3(sin(thetaX), sin(thetaY), sin(thetaZ));
