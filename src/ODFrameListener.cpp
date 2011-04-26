@@ -122,6 +122,9 @@ ODFrameListener* ODFrameListener::getSingletonPtr()
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
         bool bufferedKeys, bool bufferedMouse, bool bufferedJoy) :
+        command(""),
+        arguments(""),
+        commandOutput(""),
         prompt("-->  "),
         chatMaxMessages(10),
         chatMaxTimeDisplay(20),
@@ -1753,7 +1756,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
             case OIS::KC_RETURN:
 
                 // If the user just presses enter without entering a command we return to the game
-                if (promptCommand.size() == 0)
+                if (promptCommand.empty())
                 {
                     promptCommand = "";
                     terminalActive = false;
@@ -1770,7 +1773,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 arguments = array2;
 
                 /* Strip any leading spaces off the arguments string. */
-                while (arguments.size() > 0 && arguments[0] == ' ')
+                while (!arguments.empty() && arguments[0] == ' ')
                     arguments = arguments.substr(1, arguments.size() - 1);
 
                 /* Force command to lower case */
@@ -1954,7 +1957,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Write the current level out to file specified as an argument
     else if (command.compare("save") == 0)
     {
-        if (arguments.size() == 0)
+        if (arguments.empty())
         {
             commandOutput
                     += "No level name given: saving over the last loaded level: "
@@ -1972,7 +1975,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Clear the current level and load a new one from a file
     else if (command.compare("load") == 0)
     {
-        if (arguments.size() == 0)
+        if (arguments.empty())
         {
             commandOutput
                     += "No level name given: loading the last loaded level: "
@@ -2030,7 +2033,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     else if (command.compare("ambientlight") == 0)
     {
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             double tempR, tempG, tempB;
             tempSS.str(arguments);
@@ -2056,29 +2059,22 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Print the help message
     else if (command.compare("help") == 0)
     {
-        if (arguments.size() > 0)
-        {
-            commandOutput += "\nHelp for command:  " + arguments + "\n\n"
-                    + getHelpText(arguments) + "\n";
-        }
-        else
-        {
-            commandOutput += "\n" + (string) ODApplication::HELP_MESSAGE + "\n";
-        }
+        commandOutput += (!arguments.empty())
+                ? "\nHelp for command:  " + arguments + "\n\n" + getHelpText(arguments) + "\n"
+                : "\n" + ODApplication::HELP_MESSAGE + "\n";
     }
 
     // A utility to set the wordrap on the terminal to a specific value
     else if (command.compare("termwidth") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             tempSS.str(arguments);
             tempSS >> terminalWordWrap;
         }
 
         // Print the "tens" place line at the top
-        int maxWidth = terminalWordWrap;
-        for (int i = 0; i < maxWidth / 10; ++i)
+        for (int i = 0; i < terminalWordWrap / 10; ++i)
         {
             commandOutput += "         " + Ogre::StringConverter::toString(i + 1);
         }
@@ -2086,9 +2082,9 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         commandOutput += "\n";
 
         // Print the "ones" place
-        for (int i = 0; i < maxWidth - 1; ++i)
+        const std::string tempString = "1234567890";
+        for (int i = 0; i < terminalWordWrap - 1; ++i)
         {
-            string tempString = "1234567890";
             commandOutput += tempString.substr(i % 10, 1);
         }
 
@@ -2135,7 +2131,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // A utility to set the camera movement speed
     else if (command.compare("movespeed") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             tempSS.str(arguments);
             tempSS >> moveSpeed;
@@ -2153,7 +2149,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // A utility to set the camera rotation speed.
     else if (command.compare("rotatespeed") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             double tempDouble;
             tempSS.str(arguments);
@@ -2174,7 +2170,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Set max frames per second
     else if (command.compare("fps") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             double tempDouble;
             tempSS.str(arguments);
@@ -2195,7 +2191,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Set the max number of threads the gameMap should spawn when it does the creature AI.
     else if (command.compare("aithreads") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             tempSS.str(arguments);
             int tempInt;
@@ -2227,7 +2223,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     else if(command.compare("turnspersecond") == 0
             || command.compare("tps") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             tempSS.str(arguments);
             tempSS >> ODApplication::turnsPerSecond;
@@ -2268,7 +2264,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Set near clip distance
     else if (command.compare("nearclip") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             double tempDouble;
             tempSS.str(arguments);
@@ -2289,7 +2285,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Set far clip distance
     else if (command.compare("farclip") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             double tempDouble;
             tempSS.str(arguments);
@@ -2313,7 +2309,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         //Doesn't do anything at the moment, after the mouse input to cegui change.
         //TODO - remove or make usable.
         commandOutput += "The command is disabled\n";
-        //		if(arguments.size() > 0)
+        //		if(!arguments.empty())
         //		{
         //			float speed;
         //			tempSS.str(arguments);
@@ -2335,7 +2331,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // read as if it were a line in a .level file.
     else if (command.compare("addcreature") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             // Creature the creature and add it to the gameMap
             Creature *tempCreature = new Creature;
@@ -2357,9 +2353,6 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                 //node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
                 node->setPosition(tempCreature->getPosition());
                 node->setScale(tempCreature->scale);
-#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
-                ent->setNormaliseNormals(true);
-#endif
                 node->attachObject(ent);
                 commandOutput += "\nCreature added successfully\n";
             }
@@ -2374,7 +2367,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Adds the basic information about a type of creature (mesh name, scaling, etc)
     else if (command.compare("addclass") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             CreatureClass *tempClass = new CreatureClass;
             tempSS.str(arguments);
@@ -2389,14 +2382,13 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // scene, the levels available for loading, etc
     else if (command.compare("list") == 0 || command.compare("ls") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             tempSS.str("");
 
             if (arguments.compare("creatures") == 0)
             {
-                tempSS
-                        << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
+                tempSS << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
                 for (unsigned int i = 0; i < gameMap.numCreatures(); ++i)
                 {
                     tempSS << gameMap.getCreature(i) << endl;
@@ -2405,8 +2397,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
 
             else if (arguments.compare("classes") == 0)
             {
-                tempSS
-                        << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
+                tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
                 for (unsigned int i = 0; i < gameMap.numClassDescriptions(); ++i)
                 {
                     CreatureClass *currentClassDesc =
@@ -2525,15 +2516,13 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                 }
                 else
                 {
-                    tempSS
-                            << "\n\nERROR: You do not have any goals to meet until you host or join a game.\n\n";
+                    tempSS << "\n\nERROR: You do not have any goals to meet until you host or join a game.\n\n";
                 }
             }
 
             else
             {
-                tempSS
-                        << "ERROR:  Unrecognized list.  Type \"list\" with no arguments to see available lists.";
+                tempSS << "ERROR:  Unrecognized list.  Type \"list\" with no arguments to see available lists.";
             }
 
             commandOutput += "+\n" + tempSS.str() + "\n";
@@ -2548,7 +2537,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // clearmap   Erase all of the tiles leaving an empty map
     else if (command.compare("newmap") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             int tempX, tempY;
 
@@ -2569,7 +2558,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Set your nickname
     else if (command.compare("nick") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             gameMap.me->nick = arguments;
             commandOutput += "\nNickname set to:  ";
@@ -2585,7 +2574,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Set chat message variables
     else if (command.compare("maxtime") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             chatMaxTimeDisplay = atoi(arguments.c_str());
             tempSS << "Max display time for chat messages was changed to: "
@@ -2603,13 +2592,12 @@ void ODFrameListener::executePromptCommand(const std::string& command,
 
     else if (command.compare("maxmessages") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             chatMaxMessages = atoi(arguments.c_str());
             tempSS << "Max chat messages to display has been set to: "
                     << arguments;
         }
-
         else
         {
             tempSS << "Max chat messages to display is: " << chatMaxMessages;
@@ -2622,13 +2610,13 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     else if (command.compare("connect") == 0)
     {
         // Make sure we have set a nickname.
-        if (gameMap.me->nick.size() > 0)
+        if (!gameMap.me->nick.empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
             if (!isInGame())
             {
                 // Make sure an IP address to connect to was provided
-                if (arguments.size() > 0)
+                if (!arguments.empty())
                 {
                     clientSocket = new Socket;
 
@@ -2694,7 +2682,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     else if (command.compare("host") == 0)
     {
         // Make sure we have set a nickname.
-        if (gameMap.me->nick.size() > 0)
+        if (!gameMap.me->nick.empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
             if (!isInGame())
@@ -2733,7 +2721,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         if (isInGame())
         {
 
-            if (arguments.size() > 0)
+            if (!arguments.empty())
             {
                 // call getHelpText()
                 string tempString;
@@ -2752,15 +2740,13 @@ void ODFrameListener::executePromptCommand(const std::string& command,
 
             else
             {
-                tempSS
-                        << "No command argument specified. See 'help' for a list of arguments.\n";
+                tempSS << "No command argument specified. See 'help' for a list of arguments.\n";
             }
         }
 
         else
         {
-            tempSS
-                    << "Please host or connect to a game before running chathelp.\n";
+            tempSS << "Please host or connect to a game before running chathelp.\n";
         }
 
         commandOutput += "\n " + tempSS.str() + "\n";
@@ -2846,7 +2832,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
 
     else if (command.compare("addcolor") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             double tempR, tempG, tempB;
             tempSS.str(arguments);
@@ -2865,7 +2851,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
 
     else if (command.compare("setcolor") == 0)
     {
-        if (arguments.size() > 0)
+        if (!arguments.empty())
         {
             unsigned int index;
             double tempR, tempG, tempB;
@@ -2884,8 +2870,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         else
         {
             tempSS.str("");
-            tempSS
-                    << "ERROR:  You need to specify a color index between 0 and "
+            tempSS  << "ERROR:  You need to specify a color index between 0 and "
                     << playerColourValues.size()
                     << " and an RGB triplet with values in (0.0, 1.0)";
             commandOutput += "\n" + tempSS.str() + "\n";
@@ -2922,8 +2907,6 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         commandOutput
                 += "\nCommand not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.\n";
     }
-
-    promptCommand = "";
 }
 
 /*! \brief A helper function to return a help text string for a given termianl command.
@@ -3065,49 +3048,32 @@ string ODFrameListener::getHelpText(std::string arg)
 
     else if (arg.compare("keys") == 0)
     {
-        string tempString = "";
-        tempString
-                += "|| Action           || Keyboard 1       || Keyboard 2       ||\n";
-        tempString
-                += "==============================================================\n";
-        tempString
-                += "|| Zoom In          || Page Up          || e                ||\n";
-        tempString
-                += "|| Zoom Out         || Insert           || q                ||\n";
-        tempString
-                += "|| Pan Left         || Left             || a                ||\n";
-        tempString
-                += "|| Pan Right        || Right            || d                ||\n";
-        tempString
-                += "|| Pan Forward      || Up               || w                ||\n";
-        tempString
-                += "|| Pan Backward     || Down             || s                ||\n";
-        tempString
-                += "|| Tilt Up          || Home             || N/A              ||\n";
-        tempString
-                += "|| Tilt Down        || End              || N/A              ||\n";
-        tempString
-                += "|| Rotate Left      || Delete           || N/A              ||\n";
-        tempString
-                += "|| Rotate right     || Page Down        || N/A              ||\n";
-        tempString
-                += "|| Toggle Console   || `                || F12              ||\n";
-        tempString
-                += "|| Quit Game        || ESC              || N/A              ||\n";
-        tempString
-                += "|| Take screenshot  || Printscreen      || N/A              ||\n";
-        tempString
-                += "|| Toggle Framerate || f                || N/A              ||";
-
-        return tempString;
+        return "|| Action           || Keyboard 1       || Keyboard 2       ||\n\
+                ==============================================================\n\
+                || Zoom In          || Page Up          || e                ||\n\
+                || Zoom Out         || Insert           || q                ||\n\
+                || Pan Left         || Left             || a                ||\n\
+                || Pan Right        || Right            || d                ||\n\
+                || Pan Forward      || Up               || w                ||\n\
+                || Pan Backward     || Down             || s                ||\n\
+                || Pan Backward     || Down             || s                ||\n\
+                || Tilt Up          || Home             || N/A              ||\n\
+                || Tilt Down        || End              || N/A              ||\n\
+                || Rotate Left      || Delete           || N/A              ||\n\
+                || Rotate right     || Page Down        || N/A              ||\n\
+                || Toggle Console   || `                || F12              ||\n\
+                || Quit Game        || ESC              || N/A              ||\n\
+                || Take screenshot  || Printscreen      || N/A              ||\n\
+                || Toggle Framerate || f                || N/A              ||";
     }
-
     else if (arg.compare("aithreads") == 0)
     {
         return "Sets the maximum number of threads the gameMap will attempt to spawn during the doTurn() method.  The set value must be greater than or equal to 1.";
     }
-
-    return "Help for command:  \"" + arguments + "\" not found.";
+    else
+    {
+        return "Help for command:  \"" + arguments + "\" not found.";
+    }
 }
 
 /*! \brief Check if we are in editor mode
