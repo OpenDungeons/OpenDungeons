@@ -33,13 +33,15 @@ void ProtectedObject<ObjectType>::initialize()
 }
 
 template<class ObjectType>
-ProtectedObject<ObjectType>::ProtectedObject()
+ProtectedObject<ObjectType>::ProtectedObject() :
+        object(0)
 {
     initialize();
 }
 
 template<class ObjectType>
-ProtectedObject<ObjectType>::ProtectedObject(ObjectType init)
+ProtectedObject<ObjectType>::ProtectedObject(ObjectType init) :
+        object(0)
 {
     initialize();
 
