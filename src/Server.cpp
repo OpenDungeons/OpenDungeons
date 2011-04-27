@@ -16,6 +16,7 @@
 #include "ProtectedObject.h"
 #include "Creature.h"
 #include "ODApplication.h"
+#include "LogManager.h"
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
@@ -155,6 +156,7 @@ void *creatureAIThread(void *p)
     double timeUntilNextTurn = 1.0 / ODApplication::turnsPerSecond;
     Ogre::Timer stopwatch;
     unsigned long int timeTaken;
+    LogManager* logManager = LogManager::getSingletonPtr();
 
     while (true)
     {
@@ -174,8 +176,7 @@ void *creatureAIThread(void *p)
         }
         catch (bad_alloc&)
         {
-            cerr
-                    << "\n\nERROR:  bad alloc in creatureAIThread at turnStarted\n\n";
+            logManager->logMessage("ERROR:  bad alloc in creatureAIThread at turnStarted", Ogre::LML_CRITICAL);
             exit(1);
         }
 
@@ -186,25 +187,38 @@ void *creatureAIThread(void *p)
         timeTaken = stopwatch.getMicroseconds();
         gameMap.previousLeftoverTimes.push_front((1e6 * timeUntilNextTurn
                 - timeTaken) / (double) 1e6);
-        std::string timeTakenString = Ogre::StringConverter::toString((int) (1e6
-                * timeUntilNextTurn - timeTaken), 9);
+
 
         // Sleep this thread if it is necessary to keep the turns from happening too fast
         if (1e6 * timeUntilNextTurn - timeTaken > 0)
         {
-            cout << "\nCreature AI finished " << timeTakenString << "us early.";
+            if(logManager->getLogDetail() == Ogre::LL_BOREME)
+            {
+                logManager->logMessage("\nCreature AI finished " + Ogre::StringConverter::toString((int) (1e6
+                    * timeUntilNextTurn - timeTaken), 9) + "us early.", Ogre::LML_TRIVIAL);
+            }
             usleep(1e6 * timeUntilNextTurn - timeTaken);
         }
         else
         {
-            cout << "\nCreature AI finished " << timeTakenString << "us late.";
+            if(logManager->getLogDetail() == Ogre::LL_BOREME)
+            {
+                logManager->logMessage("\nCreature AI finished " + Ogre::StringConverter::toString((int) (1e6
+                    * timeUntilNextTurn - timeTaken), 9) + "us late.", Ogre::LML_TRIVIAL);
+            }
         }
 
-        cout << "\nThe Creature AI thread took:  " << gameMap.creatureTurnsTime
+        if(logManager->getLogDetail() == Ogre::LL_BOREME)
+        {
+            std::stringstream ss;
+            ss << "\nThe Creature AI thread took:  " << gameMap.creatureTurnsTime
                 / (double) 1e6;
-        cout << "\nThe misc upkeep thread took:  " << gameMap.miscUpkeepTime
-                / (double) 1e6;
-        cout << "\n";
+            ss << "\nThe misc upkeep thread took:  " << gameMap.miscUpkeepTime
+                    / (double) 1e6;
+            ss << "\n";
+            logManager->logMessage(ss.str());
+        }
+
 
         if (gameMap.previousLeftoverTimes.size() > 10)
             gameMap.previousLeftoverTimes.resize(10);

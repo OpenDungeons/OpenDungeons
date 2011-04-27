@@ -25,6 +25,7 @@ set(
      GoalProtectCreature.cpp
      GoalProtectDungeonTemple.cpp
      Gui.cpp
+     LogManager.cpp
      main.cpp
      MapLight.cpp
      MiniMap.cpp
