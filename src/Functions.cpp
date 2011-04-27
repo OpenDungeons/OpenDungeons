@@ -1,9 +1,3 @@
-#if defined(WIN32) || defined(_WIN32)
-//TODO: Add the proper windows include file for this (handling directory listings).
-#else
-#include <dirent.h>
-#endif
-
 #include <CEGUI.h>
 
 #include "Globals.h"

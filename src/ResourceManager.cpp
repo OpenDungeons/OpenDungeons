@@ -6,6 +6,12 @@
  *         sound and graphics facilities.
  */
 
+#if defined(WIN32) || defined(_WIN32)
+//TODO: Add the proper windows include file for this (handling directory listings).
+#else
+#include <dirent.h>
+#endif
+
 #include <OgreConfigFile.h>
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <CoreFoundation/CoreFoundation.h>
