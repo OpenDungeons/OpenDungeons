@@ -20,7 +20,7 @@
 #include <string>
 
 #ifdef HAVE_SDL
-#  include "SDL.h"
+#  include <SDL.h>
 
 #  define tinygettext_ICONV_CONST const
 #  define tinygettext_iconv_t     SDL_iconv_t

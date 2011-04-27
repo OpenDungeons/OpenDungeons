@@ -30,12 +30,11 @@
 
 namespace tinygettext {
 
-static bool has_suffix(const std::string& lhs, const std::string rhs)
+static bool has_suffix(const std::string& lhs, const std::string& rhs)
 {
-  if (lhs.length() < rhs.length())
-    return false;
-  else
-    return lhs.compare(lhs.length() - rhs.length(), rhs.length(), rhs) == 0;
+    return (lhs.length() < rhs.length())
+            ? false
+            : lhs.compare(lhs.length() - rhs.length(), rhs.length(), rhs) == 0;
 }
 
 DictionaryManager::DictionaryManager(const std::string& charset_) :
@@ -117,7 +116,7 @@ DictionaryManager::get_dictionary(const Language& language)
       std::string best_filename;
       int best_score = 0;
 
-      for(std::vector<std::string>::iterator filename = files.begin(); filename != files.end(); filename++)
+      for(std::vector<std::string>::iterator filename = files.begin(); filename != files.end(); ++filename)
       {
         // check if filename matches requested language
         if (has_suffix(*filename, ".po"))

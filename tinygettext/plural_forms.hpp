@@ -46,8 +46,8 @@ public:
   unsigned int get_nplural() const { return nplural; }
   unsigned int get_plural(int n) const { if (plural) return plural(n); else return 0; }
 
-  bool operator==(const PluralForms& other) { return nplural == other.nplural && plural == other.plural; }
-  bool operator!=(const PluralForms& other) { return !(*this == other); }
+  bool operator==(const PluralForms& other) const{ return nplural == other.nplural && plural == other.plural; }
+  bool operator!=(const PluralForms& other) const{ return !(*this == other); }
 
   operator bool() const {
     return plural;
