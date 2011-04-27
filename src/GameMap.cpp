@@ -254,9 +254,9 @@ std::vector<Tile*> GameMap::rectangularRegion(int x1, int y1, int x2, int y2)
     Tile *tempTile;
 
     if (x1 > x2)
-        swap(x1, x2);
+        std::swap(x1, x2);
     if (y1 > y2)
-        swap(y1, y2);
+        std::swap(y1, y2);
 
     for (int i = x1; i <= x2; ++i)
     {
@@ -1455,8 +1455,8 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
     int steep = (abs(Dy) >= abs(Dx));
     if (steep)
     {
-        swap(x0, y0);
-        swap(x1, y1);
+        std::swap(x0, y0);
+        std::swap(x1, y1);
         // recompute Dx, Dy after swap
         Dx = x1 - x0;
         Dy = y1 - y0;

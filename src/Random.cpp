@@ -10,6 +10,7 @@
 #include <sys/types.h>
 #endif //mode_t
 #endif //mingw32
+#include <algorithm>
 #include <cmath>
 #include <ctime>
 #include <semaphore.h>
@@ -122,9 +123,7 @@ double Double(double min, double max)
 {
     if (min > max)
     {
-        double temp = min;
-        min = max;
-        max = temp;
+        std::swap(min, max);
     }
 
     return uniform(min, max);
@@ -141,9 +140,7 @@ int Int(int min, int max)
 {
     if (min > max)
     {
-        int temp = min;
-        min = max;
-        max = temp;
+        std::swap(min, max);
     }
 
     return randint(min, max);
@@ -160,9 +157,7 @@ unsigned int Uint(unsigned int min, unsigned int max)
 {
     if (min > max)
     {
-        unsigned int temp = min;
-        min = max;
-        max = temp;
+        std::swap(min, max);
     }
 
     return randuint(min, max);

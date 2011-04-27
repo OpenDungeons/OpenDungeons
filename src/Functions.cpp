@@ -4,51 +4,30 @@
 #include <dirent.h>
 #endif
 
-#include <OgreTechnique.h>
-#include <OgrePass.h>
-#include <OgreTexture.h>
-#include <OgreMaterial.h>
-#include <CEGUIWindowManager.h>
+#include <CEGUI.h>
 
-#include "ODFrameListener.h"
 #include "Globals.h"
-#include "Socket.h"
-#include "Creature.h"
-#include "MapLight.h"
 #include "Network.h"
+#include "Socket.h"
+#include "ServerNotification.h"
+#include "Creature.h"
+#include "GameMap.h"
+#include "MapLight.h"
 #include "Goal.h"
 #include "Seat.h"
 #include "Trap.h"
-#include "GameMap.h"
-#include "RenderRequest.h"
-#include "ServerNotification.h"
-#include "ProtectedObject.h"
 #include "Player.h"
-#include "CreatureAction.h"
-#include "CreatureSound.h"
 #include "ODApplication.h"
+#include "ODFrameListener.h"
 
 #include "Functions.h"
 
-//#if defined(WIN32) || defined(_WIN32)
-//double const M_PI = 2 * acos(0.0);
-//Changed this to be more consistant with the definition
-//in the gnu headers
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643
 #endif
 
 bool readGameMapFromFile(const std::string& fileName)
 {
-    Seat *tempSeat;
-    Goal *tempGoal;
-    Tile *tempTile;
-    Room *tempRoom;
-    Trap *tempTrap;
-    MapLight *tempLight;
-    std::string tempString;
-    int objectsToLoad;
-
     // Try to open the input file for reading and throw an error if we can't.
     std::ifstream baseLevelFile(fileName.c_str(), std::ifstream::in);
     if (!baseLevelFile.good())
@@ -60,10 +39,14 @@ bool readGameMapFromFile(const std::string& fileName)
     // Read in the whole baseLevelFile, strip it of comments and feed it into
     // the stringstream levelFile, to be read by the rest of the function.
     std::stringstream levelFile;
+    std::string tempString;
     while (baseLevelFile.good())
     {
         getline(baseLevelFile, tempString);
-        levelFile << stripCommentsFromLine(tempString) << "\n";
+        /* Find the first occurrence of the comment symbol on the
+         * line and return everything before that character.
+         */
+        levelFile << tempString.substr(0, tempString.find('#')) << "\n";
     }
 
     baseLevelFile.close();
@@ -86,7 +69,10 @@ bool readGameMapFromFile(const std::string& fileName)
     // Read in the name of the next level to load after this one is complete.
     levelFile >> gameMap.nextLevel;
 
+    int objectsToLoad = 0;
+
     // Read in the seats from the level file
+    Seat* tempSeat;
     levelFile >> objectsToLoad;
     for (int i = 0; i < objectsToLoad; ++i)
     {
@@ -98,6 +84,7 @@ bool readGameMapFromFile(const std::string& fileName)
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
     levelFile >> objectsToLoad;
+    Goal* tempGoal;
     for (int i = 0; i < objectsToLoad; ++i)
     {
         tempGoal = Goal::instantiateFromStream(levelFile);
@@ -107,6 +94,7 @@ bool readGameMapFromFile(const std::string& fileName)
     }
 
     // Read in the map tiles from disk
+    Tile* tempTile;
     levelFile >> objectsToLoad;
     gameMap.disableFloodFill();
     for (int i = 0; i < objectsToLoad; ++i)
@@ -124,14 +112,14 @@ bool readGameMapFromFile(const std::string& fileName)
     // Loop over all the tiles and force them to examine their
     // neighbors.  This allows them to switch to a mesh with fewer
     // polygons if some are hidden by the neighbors.
-    TileMap_t::iterator itr = gameMap.firstTile();
-    while (itr != gameMap.lastTile())
+    for(TileMap_t::iterator itr = gameMap.firstTile(), last = gameMap.lastTile();
+            itr != last; ++itr)
     {
         itr->second->setFullness(itr->second->getFullness());
-        ++itr;
     }
 
     // Read in the rooms
+    Room* tempRoom;
     levelFile >> objectsToLoad;
     for (int i = 0; i < objectsToLoad; ++i)
     {
@@ -141,6 +129,7 @@ bool readGameMapFromFile(const std::string& fileName)
     }
 
     // Read in the traps
+    Trap* tempTrap;
     levelFile >> objectsToLoad;
     for (int i = 0; i < objectsToLoad; ++i)
     {
@@ -151,6 +140,7 @@ bool readGameMapFromFile(const std::string& fileName)
     }
 
     // Read in the lights
+    MapLight* tempLight;
     levelFile >> objectsToLoad;
     for (int i = 0; i < objectsToLoad; ++i)
     {
@@ -161,16 +151,18 @@ bool readGameMapFromFile(const std::string& fileName)
     }
 
     // Read in the creature class descriptions
+    CreatureClass* tempClass;
     levelFile >> objectsToLoad;
     for (int i = 0; i < objectsToLoad; ++i)
     {
-        CreatureClass *tempClass = new CreatureClass;
+        tempClass = new CreatureClass;
         levelFile >> tempClass;
 
         gameMap.addClassDescription(tempClass);
     }
 
     // Read in the actual creatures themselves
+    Creature* tempCreature;
     levelFile >> objectsToLoad;
     for (int i = 0; i < objectsToLoad; ++i)
     {
@@ -178,11 +170,10 @@ bool readGameMapFromFile(const std::string& fileName)
         //NOTE: This code is duplicated in the client side method
         //"addclass" defined in src/Client.cpp and writeGameMapToFile.
         //Changes to this code should be reflected in that code as well
-        Creature *newCreature = new Creature;
+        tempCreature = new Creature;
+        levelFile >> tempCreature;
 
-        levelFile >> newCreature;
-
-        gameMap.addCreature(newCreature);
+        gameMap.addCreature(tempCreature);
     }
 
     return true;
@@ -296,19 +287,6 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile.close();
 }
 
-void swap(int &a, int &b)
-{
-    int temp = a;
-    a = b;
-    b = temp;
-}
-
-std::string stripCommentsFromLine(std::string line)
-{
-    // Find the first occurrence of the comment symbol on the line and return everything before that character.
-    return line.substr(0, line.find('#'));
-}
-
 void colourizeEntity(Ogre::Entity *ent, int colour)
 {
     //Disabled for normal mapping. This has to be implemented in some other way.
@@ -366,18 +344,6 @@ std::string colourizeMaterial(const std::string& materialName, int colour)
 
 }
 
-/*
-void queueRenderRequest(RenderRequest *r)
-{
-    r->turnNumber = turnNumber.get();
-    gameMap.threadLockForTurn(r->turnNumber);
-
-    sem_wait(&renderQueueSemaphore);
-    renderQueue.push_back(r);
-    sem_post(&renderQueueSemaphore);
-}
-*/
-
 void queueServerNotification(ServerNotification *n)
 {
     n->turnNumber = turnNumber.get();
@@ -389,44 +355,6 @@ void queueServerNotification(ServerNotification *n)
 
     sem_post(&serverNotificationQueueSemaphore);
 }
-
-
-std::vector<std::string> listAllFiles(const std::string& directoryName)
-{
-    std::vector<std::string> tempVector;
-
-#if defined(WIN32) || defined(_WIN32)
-    //TODO: Add the proper code to do this under windows.
-#else
-    DIR *d;
-    struct dirent *dir;
-    d = opendir(directoryName.c_str());
-    if (d)
-    {
-        while ((dir = readdir(d)) != NULL)
-        {
-            tempVector.push_back(dir->d_name);
-        }
-
-        closedir(d);
-    }
-#endif
-    return tempVector;
-}
-
-
-//NOTE: This function has not yet been tested.
-/*
-void waitOnRenderQueueFlush()
-{
-    numThreadsWaitingOnRenderQueueEmpty.lock();
-    unsigned int tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.rawGet() + 1;
-    numThreadsWaitingOnRenderQueueEmpty.rawSet(tempUnsigned);
-    numThreadsWaitingOnRenderQueueEmpty.unlock();
-
-    sem_wait(&renderQueueEmptySemaphore);
-}
-*/
 
 bool startServer()
 {

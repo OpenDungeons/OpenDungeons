@@ -161,3 +161,25 @@ void ResourceManager::setupResources()
         }
     }
 }
+
+std::vector<std::string> ResourceManager::listAllFiles(const std::string& directoryName)
+{
+    std::vector<std::string> tempVector;
+
+#if defined(WIN32) || defined(_WIN32)
+    //TODO: Add the proper code to do this under windows.
+#else
+    struct dirent* dir;
+    DIR* d = opendir(directoryName.c_str());
+    if (d)
+    {
+        while ((dir = readdir(d)) != NULL)
+        {
+            tempVector.push_back(dir->d_name);
+        }
+
+        closedir(d);
+    }
+#endif
+    return tempVector;
+}

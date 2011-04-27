@@ -20,6 +20,7 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         static ResourceManager* getSingletonPtr();
 
         void setupResources();
+        std::vector<std::string> listAllFiles(const std::string& directoryName);
 
         inline const std::string& getResourcePath() const{return resourcePath;}
         inline const std::string& getHomePath() const{return homePath;}

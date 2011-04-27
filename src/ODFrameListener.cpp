@@ -30,6 +30,7 @@
 #include "TextRenderer.h"
 #include "MusicPlayer.h"
 #include "RenderManager.h"
+#include "ResourceManager.h"
 #include "Gui.h"
 #include "ODApplication.h"
 
@@ -2477,7 +2478,8 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                 size_t found2;
                 string suffix = ".level";
                 string suffix2 = ".level.";
-                tempVector = listAllFiles("./levels/");
+                tempVector = ResourceManager::getSingletonPtr()->
+                        listAllFiles("./levels/");
                 for (unsigned int j = 0; j < tempVector.size(); ++j)
                 {
                     found = tempVector[j].find(suffix);
