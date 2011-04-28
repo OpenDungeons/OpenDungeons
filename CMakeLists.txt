@@ -11,7 +11,6 @@ PROJECT( OpenDungeons )
 
 #postfix bin if we are on linux as we want to launch with a script
 if ( WIN32 )
-
 	set( PROJECT_BINARY_NAME "OpenDungeons")
 else()
 	set( PROJECT_BINARY_NAME "OpenDungeons.bin")
@@ -20,11 +19,9 @@ endif()
 # Project version
 set( ${PROJECT_NAME}_MAJOR_VERSION 0 )
 set( ${PROJECT_NAME}_MINOR_VERSION 4 )
-set( ${PROJECT_NAME}_PATCH_LEVEL 7 )
+set( ${PROJECT_NAME}_PATCH_LEVEL 8 )
 
-#INCLUDE(OpenAL)
-
-# Where to look fdor modules
+# Where to look for modules
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules )
 
 # Where we want the binary
@@ -37,9 +34,7 @@ set( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR} )
 find_package(OIS REQUIRED)
 find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
-#find_package(CEGUIOGRE REQUIRED)
 find_package(SFML REQUIRED COMPONENTS Audio System)
-
 
 
 # boost uses some extra settings
@@ -82,6 +77,7 @@ find_package(OpenAL REQUIRED)
 ##################################
 
 include_directories( ${CMAKE_SOURCE_DIR}/include )
+include_directories( ${CMAKE_SOURCE_DIR}/include/tinygettext )
 
 #Linking is set up in src/CMakeLists.txt
 ADD_SUBDIRECTORY( src )
@@ -173,4 +169,3 @@ set(CPACK_GENERATOR "DEB")
 set(CPACK_SOURCE_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.7.1), libois-1.2.0, libsfml-audio1.6, libopenal1, libogremain-1.7.2")
 include(CPack)
-

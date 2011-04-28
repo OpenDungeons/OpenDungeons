@@ -4,6 +4,14 @@
 
 set(
      OD_SOURCEFILES
+     tinygettext/dictionary_manager.cpp
+     tinygettext/dictionary.cpp
+     tinygettext/language.cpp
+     tinygettext/log.cpp
+     tinygettext/plural_forms.cpp
+     tinygettext/po_parser.cpp
+     tinygettext/tinygettext.cpp
+     tinygettext/unix_file_system.cpp
      ActiveObject.cpp
      AttackableObject.cpp
      AnimatedObject.cpp
@@ -56,6 +64,7 @@ set(
      TextRenderer.cpp
      Tile.cpp
      TileCoordinateMap.cpp
+     Translation.cpp
      Trap.cpp
      TrapBoulder.cpp
      TrapCannon.cpp
@@ -74,6 +83,8 @@ set(
 #Add cegui library dirs.
 include_directories(${CEGUI_INCLUDE_DIR})
 
+#link_libraries(${ICONV_LIBRARIES})
+
 if( MINGW )
     # Boost
     link_libraries(${Boost_LIBRARIES})
@@ -91,15 +102,6 @@ include_directories(${SFML_INCLUDE_DIR} ${OGRE_INCLUDE_DIRS}
     ${OPENAL_INCLUDE_DIR} ${OIS_INCLUDE_DIRS})
 
 #TODO - should we have some error handling here?
-
-# FIXME workaround , for some reason the include 
-# path got chopped off at the end when generating eclipse projects
-# not sure if i should change this back or not
-# TODO - check if this is still needed
-if(MINGW)
-	set(SFMLINCLUDEFIX ${SFML_AUDIO_INCLUDE_DIR}clude)
-	include_directories(${SFMLINCLUDEFIX})
-endif()
 
 #Pthreads on windows
 if(WIN32)

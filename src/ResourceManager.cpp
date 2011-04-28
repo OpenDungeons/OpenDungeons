@@ -25,6 +25,7 @@ const std::string ResourceManager::PLUGINSCFG = "plugins.cfg";
 const std::string ResourceManager::RESOURCECFG = "resources.cfg";
 const std::string ResourceManager::MUSICSUBPATH = "music/";
 const std::string ResourceManager::SOUNDSUBPATH = "sounds/";
+const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
 const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
 const std::string ResourceManager::LOGFILENAME = "ogre.log";
 
@@ -45,6 +46,7 @@ ResourceManager::ResourceManager() :
         pluginsPath(""),
         musicPath(""),
         soundPath(""),
+        languagePath(""),
         macBundlePath(""),
         ogreCfgFile(""),
         ogreLogFile("")
@@ -112,8 +114,9 @@ ResourceManager::ResourceManager() :
 
     ogreCfgFile = homePath + CONFIGFILENAME;
     ogreLogFile = homePath + LOGFILENAME;
-    soundPath = resourcePath + ResourceManager::SOUNDSUBPATH;
-    musicPath = resourcePath + ResourceManager::MUSICSUBPATH;
+    soundPath = resourcePath + SOUNDSUBPATH;
+    musicPath = resourcePath + MUSICSUBPATH;
+    languagePath = resourcePath + LANGUAGESUBPATH;
 }
 
 /*! \brief Returns access to the singleton instance

@@ -236,6 +236,32 @@ DictionaryManager::set_filesystem(std::auto_ptr<FileSystem> filesystem_)
   filesystem = filesystem_;
 }
 
+std::string DictionaryManager::convertFilenameToLanguage(const std::string &s_in) const
+{
+    std::string s = (s_in.substr(s_in.size()-3, 3)==".po")
+            ? s_in.substr(0, s_in.size()-3)
+            : s_in;
+
+    bool underscore_found = false;
+    for(unsigned int i = 0; i < s.size(); ++i)
+    {
+        if(underscore_found)
+        {
+            // If we get a non-alphanumerical character/
+            // we are done (en_GB.UTF-8) - only convert
+            // the 'gb' part ... if we ever get this kind
+            // of filename.
+            if(!::isalpha(s[i]))
+                break;
+            s[i] = ::toupper(s[i]);
+        }
+        else
+            underscore_found = s[i]=='_';
+    }
+
+    return s;
+}
+
 } // namespace tinygettext
 
 /* EOF */

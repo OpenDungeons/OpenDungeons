@@ -1,5 +1,15 @@
 SET(
     SRC_H
+    tinygettext/dictionary_manager.hpp
+    tinygettext/dictionary.hpp
+    tinygettext/file_system.hpp
+    tinygettext/language.hpp
+    tinygettext/log_stream.hpp
+    tinygettext/log.hpp
+    tinygettext/plural_forms.hpp
+    tinygettext/po_parser.hpp
+    tinygettext/tinygettext.hpp
+    tinygettext/unix_file_system.hpp
     ActiveObject.h
     AnimatedObject.h
     AttackableObject.h
@@ -53,6 +63,7 @@ SET(
     TextRenderer.h
     TileCoordinateMap.h
     Tile.h
+    Translation.h
     Trap.h
     TrapBoulder.h
     TrapCannon.h

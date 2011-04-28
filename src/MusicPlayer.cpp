@@ -128,7 +128,7 @@ void MusicPlayer::next()
          * TODO: Don't forget to remove the line above then
         while(newTrack == currentTrack)
         {
-        	newTrack = randomUint(0, tracks.size() - 1);
+        	newTrack = Random::Uint(0, tracks.size() - 1);
         }
          */
     }
