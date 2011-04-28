@@ -27,7 +27,7 @@ const std::string ResourceManager::MUSICSUBPATH = "music/";
 const std::string ResourceManager::SOUNDSUBPATH = "sounds/";
 const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
 const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
-const std::string ResourceManager::LOGFILENAME = "ogre.log";
+const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
 
 /* TODO: insert some general easy-access functions that do all the
  * OgreResourceMenager calls (e.g. returning all sound and music names/files)
@@ -41,7 +41,7 @@ const std::string ResourceManager::LOGFILENAME = "ogre.log";
  *  function macBundlePath does this for us.
  */
 ResourceManager::ResourceManager() :
-        resourcePath(""),
+        resourcePath("./"),
         homePath("./"),
         pluginsPath(""),
         musicPath(""),

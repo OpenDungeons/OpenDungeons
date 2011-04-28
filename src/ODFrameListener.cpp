@@ -1708,7 +1708,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 // Print a screenshot
             case OIS::KC_SYSRQ:
                 ss << "screenshot_" << ++mNumScreenShots << ".png";
-                mWindow->writeContentsToFile(ss.str());
+                mWindow->writeContentsToFile(ResourceManager::getSingleton().getHomePath() + ss.str());
                 mDebugText = "Saved: " + ss.str();
                 break;
 

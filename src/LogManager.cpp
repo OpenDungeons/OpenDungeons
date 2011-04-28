@@ -18,6 +18,8 @@
 
 #include <OgreLogManager.h>
 
+#include "ResourceManager.h"
+
 #include "LogManager.h"
 
 template<> LogManager*
@@ -42,9 +44,15 @@ LogManager* LogManager::getSingletonPtr()
 
 LogManager::LogManager()
 {
-    gameLog = Ogre::LogManager::getSingleton().createLog(GAMELOG_NAME);
 #ifdef LOGMANAGER_USE_LOCKS
+/*Using a separate log if ogre doesn't have thread support as
+ *as log writes from ogre itself won't be thread-safe in this case.
+ */
+    gameLog = Ogre::LogManager::getSingleton().createLog(
+        ResourceManager::getSingleton().getHomePath() + GAMELOG_NAME);
     sem_init(&logLockSemaphore, 0, 1);
+#else
+    gameLog = Ogre::LogManager::getSingleton().getDefaultLog();
 #endif
 }
 
