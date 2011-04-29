@@ -19,6 +19,8 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         static ResourceManager& getSingleton();
         static ResourceManager* getSingletonPtr();
 
+        static bool hasFileEnding(const std::string& filename, const std::string& ending);
+
         void setupResources();
         std::vector<std::string> listAllFiles(const std::string& directoryName);
 

@@ -11,6 +11,9 @@
 
 template<> Translation* Ogre::Singleton<Translation>::ms_Singleton = 0;
 
+/*! \brief Initializes tinygettext (loading available languages)
+ *
+ */
 Translation::Translation()
 {
 #if defined(WIN32) && !defined(__CYGWIN__)
@@ -22,23 +25,38 @@ Translation::Translation()
     ResourceManager* resMgr = ResourceManager::getSingletonPtr();
 
     std::string languagePath = resMgr->getLanguagePath();
-
     std::vector<std::string> fileList = resMgr->
             listAllFiles(languagePath);
 
-    languageList.push_back("en");
+    //tell the dictionary manager where to find the .po files
+    dictMgr.add_directory(languagePath);
 
+    //we have no .po file for en (default, hardcoded) so we add it manually
+    languageList.push_back("en");
+    languageNiceNames.push_back(tinygettext::Language::from_name("en") + " (en)");
+
+    /* check what .po files are available and put them into a list
+     * and initializes the nice names list in the style of:
+     * English (en)
+     * French (fr)
+     * German (de)
+     */
+    std::string currentLang;
     for(std::vector<std::string>::iterator itr = fileList.begin(),
             end = fileList.end(); itr != end; ++itr)
     {
-        if((*itr).substr((*itr).size() - 3, 3) == ".po")
+        //only load .po files
+        if(ResourceManager::hasFileEnding(*itr, ".po"))
         {
-            languageList.push_back(dictMgr.convertFilenameToLanguage(*itr));
+            currentLang = dictMgr.convertFilenameToLanguage(*itr);
+            languageList.push_back(currentLang);
+            languageNiceNames.push_back(
+                            tinygettext::Language::from_name(currentLang) +
+                            " (" + currentLang + ")");
         }
     }
 
-    dictMgr.add_directory(languagePath);
-
+    //try to set the users system language
     const char* lang = getenv("LANG");
     const char* language = getenv("LANGUAGE");
 

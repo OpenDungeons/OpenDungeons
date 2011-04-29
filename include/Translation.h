@@ -23,6 +23,7 @@ class Translation : public Ogre::Singleton<Translation>
         static Translation* getSingletonPtr();
 
         inline const std::vector<std::string>* getLanguageList() const{return &languageList;}
+        inline const std::vector<std::string>* getLanguageNiceNames() const{return &languageNiceNames;}
         inline std::string translate(const std::string& original) {return dictionary.translate(original);}
 
     private:
@@ -32,6 +33,7 @@ class Translation : public Ogre::Singleton<Translation>
         std::vector<std::string> languageList;
         tinygettext::DictionaryManager dictMgr;
         tinygettext::Dictionary dictionary;
+        std::vector<std::string> languageNiceNames;
 };
 
 #endif /* TRANSLATION_H_ */

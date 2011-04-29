@@ -238,7 +238,7 @@ DictionaryManager::set_filesystem(std::auto_ptr<FileSystem> filesystem_)
 
 std::string DictionaryManager::convertFilenameToLanguage(const std::string &s_in) const
 {
-    std::string s = (s_in.substr(s_in.size()-3, 3)==".po")
+    std::string s = has_suffix(s_in, ".po")
             ? s_in.substr(0, s_in.size()-3)
             : s_in;
 

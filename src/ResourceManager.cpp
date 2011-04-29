@@ -29,6 +29,14 @@ const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
 const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
 const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
 
+bool ResourceManager::hasFileEnding(const std::string& filename, const std::string& ending)
+{
+    return (filename.length() < ending.length())
+            ? false
+            : filename.compare(filename.length() - ending.length(),
+                    ending.length(), ending) == 0;
+}
+
 /* TODO: insert some general easy-access functions that do all the
  * OgreResourceMenager calls (e.g. returning all sound and music names/files)
  */
