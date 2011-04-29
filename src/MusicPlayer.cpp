@@ -9,7 +9,7 @@
 
 #include <OgreResourceGroupManager.h>
 
-#include "Functions.h"
+#include "LogManager.h"
 #include "ResourceManager.h"
 #include "Random.h"
 
@@ -30,21 +30,22 @@ MusicPlayer::MusicPlayer() :
      *       because we won't know which number it has.
      */
 
-    std::cout << "Loading music..." << std::endl;
+    LogManager& logMgr = LogManager::getSingleton();
+    logMgr.logMessage("Loading music...");
 
     //Get list of files in the resource.
-    Ogre::StringVectorPtr musicFiles =
-            Ogre::ResourceGroupManager::getSingleton().listResourceNames("Music");
+    Ogre::StringVectorPtr musicFiles = ResourceManager::getSingleton().
+            listAllMusicFiles();
     tracks.reserve(musicFiles->size());
 
     std::string path = ResourceManager::getSingletonPtr()->getMusicPath();
     /* Create sound objects for all files, Sound objects should be deleted
      * automatically by the sound manager.
      */
-    for(Ogre::StringVector::iterator it = musicFiles->begin(), end = musicFiles->end();
-         it != end; ++it)
+    for(Ogre::StringVector::iterator it = musicFiles->begin(),
+            end = musicFiles->end(); it != end; ++it)
     {
-        std::cout << path << "/" << *it << std::endl;
+        logMgr.logMessage(path + "/" + *it);
         Ogre::SharedPtr<sf::Music> track(new sf::Music());
         //TODO - check for text encoding issues.
         if(track->OpenFromFile(path + "/" + *it))
@@ -55,14 +56,14 @@ MusicPlayer::MusicPlayer() :
         }
     }
 
-    if(tracks.size() == 0)
+    if(tracks.empty())
     {
-        std::cerr << "No music files loaded... no music will be played"
-            << std::endl;
+        logMgr.logMessage("No music files loaded... no music will be played",
+                Ogre::LML_CRITICAL);
     }
     else
     {
-        std::cout << "Music loading done" << std::endl;
+        logMgr.logMessage("Music loading done");
         loaded = true;
     }
 }
@@ -111,7 +112,7 @@ void MusicPlayer::start(const unsigned int& trackNumber)
     }
 }
 
-/** \brief Skip to the next track
+/** \brief Skip to the next track or a new random track
  *
  */
 void MusicPlayer::next()

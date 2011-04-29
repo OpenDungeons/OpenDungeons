@@ -19,6 +19,7 @@ class Translation : public Ogre::Singleton<Translation>
 {
     public:
         Translation();
+        ~Translation();
         static Translation& getSingleton();
         static Translation* getSingletonPtr();
 
@@ -27,7 +28,6 @@ class Translation : public Ogre::Singleton<Translation>
         inline std::string translate(const std::string& original) {return dictionary.translate(original);}
 
     private:
-        ~Translation();
         Translation(const Translation&);
 
         std::vector<std::string> languageList;

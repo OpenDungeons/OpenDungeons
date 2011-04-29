@@ -34,8 +34,8 @@ SoundEffectsHelper* SoundEffectsHelper::getSingletonPtr()
 SoundEffectsHelper::SoundEffectsHelper() :
         nextDigSound(0)
 {
+    //TODO: put all hardcoded stuff in a general place, like ResourceManager
     Ogre::String soundFolderPath = ResourceManager::getSingletonPtr()->getSoundPath();
-    // Hardcoded for now
     Ogre::String digFolder = soundFolderPath + "RocksFalling/";
 
     for (int i = 0; i < 7; ++i)
