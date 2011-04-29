@@ -93,8 +93,6 @@ DictionaryManager::get_dictionary()
 Dictionary&
 DictionaryManager::get_dictionary(const Language& language)
 {
-    //log_debug << "Dictionary for language \"" << spec << "\" requested" << std::endl;
-    //log_debug << "...normalized as \"" << lang << "\"" << std::endl;
     assert(language);
 
     Dictionaries::iterator i = dictionaries.find(language);
@@ -104,7 +102,6 @@ DictionaryManager::get_dictionary(const Language& language)
     }
     else // Dictionary for languages lang isn't loaded, so we load it
     {
-        //log_debug << "get_dictionary: " << lang << std::endl;
         Dictionary* dict = new Dictionary(charset);
 
         dictionaries[language] = dict;
@@ -243,7 +240,7 @@ std::string DictionaryManager::convertFilenameToLanguage(const std::string &s_in
                     : s_in;
 
     bool underscore_found = false;
-    for(unsigned int i = 0; i < s.size(); ++i)
+    for(unsigned int i = 0, size = s.size(); i < size; ++i)
     {
         if(underscore_found)
         {

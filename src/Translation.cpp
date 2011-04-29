@@ -56,7 +56,7 @@ Translation::Translation()
         }
     }
 
-    //TODO: after we have a uder cfg file, load his language at game start
+    //TODO: after we have a user cfg file, load his language at game start
     dictionary = dictMgr.get_dictionary();
 
     /* this is how STK does it but I think we won't need to hack

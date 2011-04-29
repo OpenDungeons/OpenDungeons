@@ -27,7 +27,6 @@
 
 #include "language.hpp"
 #include "log_stream.hpp"
-//#include "iconv.hpp"
 #include "dictionary.hpp"
 #include "plural_forms.hpp"
 
@@ -35,8 +34,7 @@ namespace tinygettext {
 
 bool POParser::pedantic = true;
 
-void
-POParser::parse(const std::string& filename, std::istream& in, Dictionary& dict)
+void POParser::parse(const std::string& filename, std::istream& in, Dictionary& dict)
 {
     POParser parser(filename, in, dict);
     parser.parse();
@@ -103,9 +101,8 @@ POParser::get_string_line(std::ostringstream& out,unsigned int skip)
         if (big5 && static_cast<unsigned char>(current_line[i]) >= 0x81 && static_cast<unsigned char>(current_line[i]) <= 0xfe)
         {
             out << current_line[i];
-            ++i;
 
-            if (i >= current_line.size())
+            if (++i >= current_line.size())
                 error("invalid big5 encoding");
 
             out << current_line[i];
@@ -116,9 +113,7 @@ POParser::get_string_line(std::ostringstream& out,unsigned int skip)
         }
         else if (current_line[i] == '\\')
         {
-            ++i;
-
-            if (i >= current_line.size())
+            if (++i >= current_line.size())
                 error("unexpected end of string in handling '\\'");
 
             switch (current_line[i])
@@ -301,10 +296,9 @@ POParser::is_empty_line()
     }
     else if (current_line[0] == '#')
     { // handle comments as empty lines
-        if (current_line.size() == 1 || (current_line.size() >= 2 && isspace(current_line[1])))
-            return true;
-        else
-            return false;
+        return (current_line.size() == 1
+                || (current_line.size() >= 2
+                && isspace(current_line[1])));
     }
     else
     {
