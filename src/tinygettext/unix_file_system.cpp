@@ -33,31 +33,31 @@ UnixFileSystem::UnixFileSystem()
 std::vector<std::string>
 UnixFileSystem::open_directory(const std::string& pathname)
 {
-  DIR* dir = opendir(pathname.c_str());
-  if (!dir)
-  {
-    // FIXME: error handling
-    return std::vector<std::string>();
-  }
-  else
-  {
-    std::vector<std::string> files;
-
-    struct dirent* dp;
-    while((dp = readdir(dir)) != 0)
+    DIR* dir = opendir(pathname.c_str());
+    if (!dir)
     {
-      files.push_back(dp->d_name);
+        // FIXME: error handling
+        return std::vector<std::string>();
     }
-    closedir(dir);
+    else
+    {
+        std::vector<std::string> files;
 
-    return files;
-  }
+        struct dirent* dp;
+        while((dp = readdir(dir)) != 0)
+        {
+            files.push_back(dp->d_name);
+        }
+        closedir(dir);
+
+        return files;
+    }
 }
-  
+
 std::auto_ptr<std::istream>
 UnixFileSystem::open_file(const std::string& filename)
 {
-  return std::auto_ptr<std::istream>(new std::ifstream(filename.c_str()));
+    return std::auto_ptr<std::istream>(new std::ifstream(filename.c_str()));
 }
 
 } // namespace tinygettext

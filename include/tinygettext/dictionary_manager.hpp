@@ -36,61 +36,61 @@ class FileSystem;
     on demand depending on which language was set. */
 class DictionaryManager
 {
-private:
-  typedef std::map<Language, Dictionary*> Dictionaries;
-  Dictionaries dictionaries;
+    private:
+        typedef std::map<Language, Dictionary*> Dictionaries;
+        Dictionaries dictionaries;
 
-  typedef std::vector<std::string> SearchPath;
-  SearchPath search_path;
+        typedef std::vector<std::string> SearchPath;
+        SearchPath search_path;
 
-  std::string charset;
-  bool        use_fuzzy;
-  
-  Language    current_language;
-  Dictionary* current_dict;
+        std::string charset;
+        bool        use_fuzzy;
 
-  Dictionary  empty_dict;
+        Language    current_language;
+        Dictionary* current_dict;
 
-  std::auto_ptr<FileSystem> filesystem;
+        Dictionary  empty_dict;
 
-  void clear_cache();
+        std::auto_ptr<FileSystem> filesystem;
 
-public:
-  DictionaryManager(const std::string& charset_ = "UTF-8");
-  ~DictionaryManager();
+        void clear_cache();
 
-  /** Return the currently active dictionary, if none is set, an empty
-      dictionary is returned. */
-  Dictionary& get_dictionary();
+    public:
+        DictionaryManager(const std::string& charset_ = "UTF-8");
+        ~DictionaryManager();
 
-  /** Get dictionary for language */
-  Dictionary& get_dictionary(const Language& language);
+        /** Return the currently active dictionary, if none is set, an empty
+          dictionary is returned. */
+        Dictionary& get_dictionary();
 
-  /** Set a language based on a four? letter country code */
-  void set_language(const Language& language);
+        /** Get dictionary for language */
+        Dictionary& get_dictionary(const Language& language);
 
-  /** returns the (normalized) country code of the currently used language */
-  Language get_language() const;
+        /** Set a language based on a four? letter country code */
+        void set_language(const Language& language);
 
-  void set_use_fuzzy(bool t);
-  bool get_use_fuzzy() const;
+        /** returns the (normalized) country code of the currently used language */
+        Language get_language() const;
 
-  /** Set a charset that will be set on the returned dictionaries */
-  void set_charset(const std::string& charset);
+        void set_use_fuzzy(bool t);
+        bool get_use_fuzzy() const;
 
-  /** Add a directory to the search path for dictionaries, earlier
-      added directories have higher priority then later added ones */
-  void add_directory(const std::string& pathname);
+        /** Set a charset that will be set on the returned dictionaries */
+        void set_charset(const std::string& charset);
 
-  /** Return a set of the available languages in their country code */
-  std::set<Language> get_languages();
+        /** Add a directory to the search path for dictionaries, earlier
+          added directories have higher priority then later added ones */
+        void add_directory(const std::string& pathname);
 
-  void set_filesystem(std::auto_ptr<FileSystem> filesystem);
-  std::string convertFilenameToLanguage(const std::string &s_in) const;
+        /** Return a set of the available languages in their country code */
+        std::set<Language> get_languages();
 
-private:
-  DictionaryManager (const DictionaryManager&);
-  DictionaryManager& operator= (const DictionaryManager&);
+        void set_filesystem(std::auto_ptr<FileSystem> filesystem);
+        std::string convertFilenameToLanguage(const std::string &s_in) const;
+
+    private:
+        DictionaryManager (const DictionaryManager&);
+        DictionaryManager& operator= (const DictionaryManager&);
 };
 
 } // namespace tinygettext
