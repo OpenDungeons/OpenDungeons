@@ -239,6 +239,7 @@ ResourceManager::ResourceManager() :
 	
 	//Set line endings to unix-style for consistency.
 	std::replace(homePath.begin(), homePath.end(), '\\', '/');
+	homePath += "/";
 
 #endif
 
