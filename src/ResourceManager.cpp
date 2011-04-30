@@ -5,16 +5,16 @@
  * \brief  This class handles all the resources (pathes, files) needed by the
  *         sound and graphics facilities.
  */
+
+#include <dirent.h>
+
 #include <OgrePlatform.h>
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-//TODO: Add the proper windows include file for this (handling directory listings).
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <userenv.h>
 #include <direct.h>
 #include <errno.h>
-#else
-#include <dirent.h>
 #endif
 
 #include <sys/stat.h>
@@ -313,24 +313,20 @@ void ResourceManager::setupResources()
  */
 std::vector<std::string> ResourceManager::listAllFiles(const std::string& directoryName)
 {
-    std::vector<std::string> tempVector;
+    std::vector<std::string> files;
 
-#if defined(WIN32) || defined(_WIN32)
-    //TODO: Add the proper code to do this under windows.
-#else
-    struct dirent* dir;
-    DIR* d = opendir(directoryName.c_str());
-    if (d)
+    DIR* dir = opendir(directoryName.c_str());
+    if(dir)
     {
-        while ((dir = readdir(d)) != NULL)
+        struct dirent* dp;
+        while((dp = readdir(dir)) != 0)
         {
-            tempVector.push_back(dir->d_name);
+            files.push_back(dp->d_name);
         }
-
-        closedir(d);
+        closedir(dir);
     }
-#endif
-    return tempVector;
+
+    return files;
 }
 
 /*! \brief returns all music files that Ogre knows of

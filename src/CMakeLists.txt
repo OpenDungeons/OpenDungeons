@@ -10,7 +10,6 @@ set(
      tinygettext/plural_forms.cpp
      tinygettext/po_parser.cpp
      tinygettext/tinygettext.cpp
-     tinygettext/unix_file_system.cpp
      ActiveObject.cpp
      AttackableObject.cpp
      AnimatedObject.cpp

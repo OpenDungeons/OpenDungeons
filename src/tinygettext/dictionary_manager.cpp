@@ -16,7 +16,6 @@
 //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "po_parser.hpp"
-#include "unix_file_system.hpp"
 #include "ResourceManager.h"
 #include "LogManager.h"
 
@@ -31,8 +30,7 @@ DictionaryManager::DictionaryManager(const std::string& charset_) :
           use_fuzzy(true),
           current_language(),
           current_dict(0),
-          empty_dict(),
-          filesystem(new UnixFileSystem)
+          empty_dict()
 {
 }
 
@@ -91,9 +89,10 @@ Dictionary& DictionaryManager::get_dictionary(const Language& language)
 
         dictionaries[language] = dict;
 
+        ResourceManager& resMgr = ResourceManager::getSingleton();
         for (SearchPath::reverse_iterator p = search_path.rbegin(); p != search_path.rend(); ++p)
         {
-            std::vector<std::string> files = filesystem->open_directory(*p);
+            std::vector<std::string> files = resMgr.listAllFiles(*p);
 
             std::string best_filename;
             int best_score = 0;
@@ -127,7 +126,7 @@ Dictionary& DictionaryManager::get_dictionary(const Language& language)
                 std::string pofile = *p + "/" + best_filename;
                 try
                 {
-                    std::auto_ptr<std::istream> in = filesystem->open_file(pofile);
+                    std::auto_ptr<std::istream> in = std::auto_ptr<std::istream>(new std::ifstream(pofile.c_str()));
                     if (!in.get())
                     {
                         logMgr.logMessage("error: failure opening: " + pofile, Ogre::LML_CRITICAL);
@@ -155,7 +154,8 @@ std::set<Language> DictionaryManager::get_languages()
 
     for (SearchPath::iterator p = search_path.begin(); p != search_path.end(); ++p)
     {
-        std::vector<std::string> files = filesystem->open_directory(*p);
+        std::vector<std::string> files = ResourceManager::getSingleton().
+                listAllFiles(*p);
 
         for(std::vector<std::string>::iterator file = files.begin(); file != files.end(); ++file)
         {
@@ -205,10 +205,11 @@ void DictionaryManager::add_directory(const std::string& pathname)
     search_path.push_back(pathname);
 }
 
+/*
 void DictionaryManager::set_filesystem(std::auto_ptr<FileSystem> filesystem_)
 {
     filesystem = filesystem_;
-}
+}*/
 
 std::string DictionaryManager::convertFilenameToLanguage(const std::string &s_in) const
 {
