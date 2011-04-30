@@ -138,6 +138,7 @@ ResourceManager::ResourceManager() :
 *Based on homePath in Qt (http://qt.gitorious.org/qt/qt/blobs/4.7/src/corelib/io/qfsfileengine_win.cpp) 
 *FIXME: This might not work properly if the path contains non-ansi characters.
 */
+	std::cout << "Trying to find home dir" << std::endl;
 	std::string homeDirectoryString;
 	//Get process handle
 	HANDLE procHandle = ::GetCurrentProcess();
@@ -168,6 +169,7 @@ ResourceManager::ResourceManager() :
 				}
 			}
 		}
+		std::cout << "Found using getuserprofiledirectory: " << homeDirectoryString << std::endl;
 		
 	}
 	if(homeDirectoryString.empty())
@@ -187,17 +189,19 @@ ResourceManager::ResourceManager() :
 	}
 	homePath = homeDirectoryString + "\\.OpenDungeons";
 	
+	std::cout << "Home path is: " << homePath << std::endl;
+
     struct stat statBuf;
     int result;
 
-    result = stat(homeDirectoryString.c_str(), &statBuf);
+    result = stat(homePath.c_str(), &statBuf);
     if(result == 0)
     {
         //exists
-		if(statBuf.st_mode != _S_IFDIR)
+		if(statBuf.st_mode & _S_IFREG)
 		{
 			//.OpenDungeons is a file and not a directory, bail out.
-			std::cerr << "Error: \"" << homeDirectoryString << "\" is a file" << std::endl;
+			std::cerr << "Error: \"" << homePath << "\" is a file" << std::endl;
 			exit(1);
 		}
 	}
