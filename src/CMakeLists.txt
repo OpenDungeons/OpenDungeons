@@ -167,7 +167,7 @@ if( NOT WIN32 )
   # Add compiler warnings
     add_definitions( "-Wall -Wunused -ansi -Wno-deprecated" )
 endif( )
-# Link pthreads and shlwapi if we are on windows
+# Link pthreads and userenv if we are on windows
 if( WIN32 )
 
 

@@ -21,6 +21,8 @@
 #include "dictionary.hpp"
 #include "language.hpp"
 
+#include <memory>
+
 namespace tinygettext {
 
 class FileSystem;

@@ -78,6 +78,12 @@ find_package(OpenAL REQUIRED)
 include_directories( ${CMAKE_SOURCE_DIR}/include )
 include_directories( ${CMAKE_SOURCE_DIR}/include/tinygettext )
 
+#Provide dirent.h if visual studio is used
+if(MSVC)
+    include_directories( ${CMAKE_SOURCE_DIR}/include/dirent )
+endif()
+
+
 #Linking is set up in src/CMakeLists.txt
 ADD_SUBDIRECTORY( src )
 
