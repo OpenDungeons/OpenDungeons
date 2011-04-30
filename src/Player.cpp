@@ -184,7 +184,8 @@ bool Player::dropCreature(Tile *t)
                 RenderManager::queueRenderRequest(request);
             }
 
-            c->setPosition(t->x, t->y, 0.0);
+			c->setPosition(static_cast<Ogre::Real>(t->x), 
+				static_cast<Ogre::Real>(t->y), 0.0);
 
             if (this == gameMap.me)
             {

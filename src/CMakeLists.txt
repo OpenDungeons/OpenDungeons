@@ -92,10 +92,10 @@ if( MINGW )
     include_directories(${Boost_INCLUDE_DIRS})
 endif()
 if( MSVC )
-    message( STATUS "MSVC: " ${OD_BOOST_INCLUDE_DIR})
-    message( STATUS "MSVC: " ${OD_BOOST_LIB_DIR})
-    include_directories(${OD_BOOST_INCLUDE_DIR})
-    link_directories(${OD_BOOST_LIB_DIR})
+    message( STATUS "MSVC: " ${OD_BOOST_INCLUDE_DIRS})
+    message( STATUS "MSVC: " ${OD_BOOST_LIB_DIRS})
+    include_directories(${OD_BOOST_INCLUDE_DIRS})
+    link_directories(${OD_BOOST_LIB_DIRS})
 endif()
 
 #includes only
@@ -192,13 +192,13 @@ if( WIN32 )
 
         #Link to pthreads
         target_link_libraries(${PROJECT_BINARY_NAME} "pthreadVC2.lib" )
-        #link to shlwapi to get appdata path
-        target_link_libraries(${PROJECT_BINARY_NAME} "ws2_32.lib" shlwapi)
+        #link to userenv to get home folder
+        target_link_libraries(${PROJECT_BINARY_NAME} "ws2_32.lib" Userenv)
         message( STATUS "Using win pthreads" )
     endif()
     if(MINGW)
         target_link_libraries(${PROJECT_BINARY_NAME} "libpthreadGC2.a" )
-        target_link_libraries(${PROJECT_BINARY_NAME} "ws2_32" shlwapi )
+        target_link_libraries(${PROJECT_BINARY_NAME} "ws2_32" Userenv)
     endif( )
 endif()
 

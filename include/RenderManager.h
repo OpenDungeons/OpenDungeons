@@ -48,7 +48,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
             ms_Singleton->queueRenderRequest_priv(renderRequest);
         }
 
-        static const double BLENDER_UNITS_PER_OGRE_UNIT;
+		static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
 
     protected:
         void queueRenderRequest_priv(RenderRequest* renderRequest);

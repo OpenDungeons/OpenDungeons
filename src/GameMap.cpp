@@ -2302,17 +2302,18 @@ unsigned int GameMap::numMissileObjects()
 /** \brief Returns the as the crow flies distance between tiles located at the two coordinates
  * given.  If tiles do not exist at these locations the function returns -1.0.
  */
-double GameMap::crowDistance(Tile *t1, Tile *t2)
+Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)
 {
     if (t1 != NULL && t2 != NULL)
         return crowDistance(t1->x, t2->x, t1->y, t2->y);
     else
-        return -1.0;
+        return -1.0f;
 }
 
-double GameMap::crowDistance(int x1, int x2, int y1, int y2)
+Ogre::Real GameMap::crowDistance(int x1, int x2, int y1, int y2)
 {
-    return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+    return sqrt(pow(static_cast<Ogre::Real>(x2 - x1), 2.0f) + pow(
+		static_cast<Ogre::Real>(y2 - y1), 2.0f));
 }
 
 /** \brief Returns an auto-incremented number for use in the flood fill algorithm used to determine walkability.
@@ -2427,7 +2428,7 @@ std::list<Tile*> GameMap::path(Tile *t1, Tile *t2,
 /** \brief <i>Convenience function, calls: crowDistance(Tile*, Tile*)</i>
  *
  */
-double GameMap::crowDistance(Creature *c1, Creature *c2)
+Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
 {
     //TODO:  This is sub-optimal, improve it.
     Tile *tempTile1 = c1->positionTile(), *tempTile2 = c2->positionTile();

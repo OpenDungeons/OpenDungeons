@@ -17,8 +17,13 @@
 
 #include "Random.h"
 
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643
+#endif
+
 namespace Random
 {
+
     namespace
     {
     sem_t randomGeneratorLockSemaphore;
@@ -109,7 +114,7 @@ namespace Random
 void initialize()
 {
     sem_init(&randomGeneratorLockSemaphore, 0, 1);
-    myRandomSeed = time(0);
+    myRandomSeed = static_cast<unsigned long>(time(0));
 }
 
 /*! \brief generate a random double

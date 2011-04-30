@@ -60,7 +60,7 @@ class Tile
         static const char* tileTypeToString(TileType t);
         static TileType nextTileType(TileType t);
         static int nextTileFullness(int f);
-        static std::string meshNameFromFullness(TileType t, float fullnessMeshNumber);
+        static std::string meshNameFromFullness(TileType t, int fullnessMeshNumber);
 
         void refreshMesh();
         void createMesh();

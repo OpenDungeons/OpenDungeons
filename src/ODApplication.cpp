@@ -8,13 +8,6 @@
 #include <sstream>
 #include <fstream>
 
-#include <sys/stat.h>
-#include <OgrePlatform.h>
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#include <shlwapi.h>
-#include <direct.h>
-#endif
-
 #include "Globals.h"
 #include "Functions.h"
 #include "ODFrameListener.h"

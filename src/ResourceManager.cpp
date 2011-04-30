@@ -5,9 +5,13 @@
  * \brief  This class handles all the resources (pathes, files) needed by the
  *         sound and graphics facilities.
  */
-
-#if defined(WIN32) || defined(_WIN32)
+#include <OgrePlatform.h>
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 //TODO: Add the proper windows include file for this (handling directory listings).
+#include <Userenv.h>
+#include <Windows.h>
+#include <direct.h>
+#include <errno.h>
 #else
 #include <dirent.h>
 #endif
@@ -58,7 +62,8 @@ ResourceManager::ResourceManager() :
         macBundlePath(""),
         ogreCfgFile(""),
         ogreLogFile("")
-{
+{ 
+//FIXME - we should check that there is no _file_ with the same name as the dir we want to use.
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     char applePath[1024];
     CFBundleRef mainBundle = CFBundleGetMainBundle();
@@ -114,6 +119,76 @@ ResourceManager::ResourceManager() :
 
         homePath.append("/");
     }
+#elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+
+/*
+*Based on homePath in Qt (http://qt.gitorious.org/qt/qt/blobs/4.7/src/corelib/io/qfsfileengine_win.cpp) 
+*FIXME: This might not work properly if the path contains non-ansi characters.
+*/
+	std::string homeDirectoryString;
+	//Get process handle
+	HANDLE procHandle = ::GetCurrentProcess();
+	HANDLE token = 0;
+	//Get process token
+	BOOL ok = ::OpenProcessToken(procHandle, TOKEN_QUERY, &token);
+	if(ok)
+	{
+		DWORD wBufferSize = 0;
+		//Get buffer size needed for pathname
+		ok = ::GetUserProfileDirectoryW(token, NULL, &wBufferSize);
+		if(!ok && wBufferSize)
+		{
+			LPWSTR homeDirWBuffer = new WCHAR[wBufferSize];
+			ok = ::GetUserProfileDirectoryW(token, homeDirWBuffer, &wBufferSize);
+			if(ok)
+			{
+				
+				int bufferSize = ::WideCharToMultiByte(CP_UTF8, NULL,
+					homeDirWBuffer, wBufferSize, NULL, 0, NULL, NULL);
+				LPSTR homeDirBuffer = new CHAR[bufferSize + 1];
+				int convOk = ::WideCharToMultiByte(CP_UTF8, NULL,
+					homeDirWBuffer, wBufferSize, homeDirBuffer, bufferSize, NULL, NULL);
+				homeDirBuffer[bufferSize] = '\0'; //Append null terminator.
+				if(convOk)
+				{
+					homeDirectoryString.append(homeDirBuffer);
+				}
+			}
+		}
+		
+	}
+	if(homeDirectoryString.empty())
+	{
+		//char* envString = 0;
+		//homeDirectoryString = std::string(std::getenv("USERPROFILE"));
+		/*if(homeDirectoryString.empty)
+		{
+			homeDirectoryString = std::string(std::getenv("HOMEDRIVE")) + std::getenv("HOMEPATH");
+			if(homeDirectoryString.empty)
+			{
+				homeDirectoryString = std::getenv("HOME");
+			}
+		}*/
+		//If all this fails we use the current dir.
+		homeDirectoryString = ".";
+	}
+	homePath = homeDirectoryString + "\\.OpenDungeons";
+	
+
+	int dirCreated = ::_mkdir(homePath.c_str());
+	int errNo = 0;
+	::_get_errno(&errNo);
+	if(dirCreated == 0 || errNo != EEXIST)
+	{
+		//Set line endings to unix-style for consistency.
+		std::replace(homePath.begin(), homePath.end(), '\\', '/');
+	}
+	else
+	{
+		//FIXME: Handle this properly.
+		std::cerr << "Failed to write to home directory!" << std::endl;
+		exit(1);
+	}
 #endif
 
 #ifndef OGRE_STATIC_LIB

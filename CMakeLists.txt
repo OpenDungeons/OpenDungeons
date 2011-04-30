@@ -45,18 +45,17 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_LIBS   OFF)
 if(WIN32 AND ${OGRE_FOUND})
 	#On windows we can try to use boost from the Ogre SDK instead
-    set( CMAKE_LIBRARY_PATH ${ENV_OGRE_HOME}/boost_1_44/lib)
-    set( CMAKE_INCLUDE_PATH ${ENV_OGRE_HOME}/boost_1_44)
     #the 2010 package has a different boost version for some reason
-    set( CMAKE_LIBRARY_PATH ${ENV_OGRE_HOME}/boost_1_42/lib)
-    set( CMAKE_INCLUDE_PATH ${ENV_OGRE_HOME}/boost_1_42)
+    set( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${ENV_OGRE_HOME}/boost_1_42/lib 
+                ${ENV_OGRE_HOME}/boost_1_44/lib)
+    set( CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${ENV_OGRE_HOME}/boost_1_42 
+                ${ENV_OGRE_HOME}/boost_1_44)
     #We set these instead of searching if using MSVC
     #This is because the libs in the ogre dir has a lib prefix
     #making findboost not find them
-	set( OD_BOOST_LIB_DIR  ${ENV_OGRE_HOME}/boost_1_44/lib)
-	set( OD_BOOST_INCLUDE_DIR ${ENV_OGRE_HOME}/boost_1_44)
-	set( OD_BOOST_LIB_DIR  ${ENV_OGRE_HOME}/boost_1_42/lib)
-	set( OD_BOOST_INCLUDE_DIR ${ENV_OGRE_HOME}/boost_1_42)
+	set( OD_BOOST_LIB_DIRS  ${ENV_OGRE_HOME}/boost_1_44/lib ${ENV_OGRE_HOME}/boost_1_42/lib)
+	set( OD_BOOST_INCLUDE_DIRS ${ENV_OGRE_HOME}/boost_1_44 ${ENV_OGRE_HOME}/boost_1_42)
+
 endif()
 if(MINGW)
     find_package( Boost COMPONENTS thread REQUIRED)

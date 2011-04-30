@@ -165,8 +165,8 @@ class GameMap
         pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);
         void
         cutCorners(std::list<Tile*> &path, Tile::TileClearType passability);
-        double crowDistance(int x1, int x2, int y1, int y2);
-        double crowDistance(Tile *t1, Tile *t2);
+        Ogre::Real crowDistance(int x1, int x2, int y1, int y2);
+        Ogre::Real crowDistance(Tile *t1, Tile *t2);
         //double manhattanDistance(int x1, int x2, int y1, int y2);
 
         int uniqueFloodFillColor();
@@ -186,7 +186,7 @@ class GameMap
                 Tile::TileClearType passability);
         std::list<Tile*> path(Tile *t1, Tile *t2,
                 Tile::TileClearType passability);
-        double crowDistance(Creature *c1, Creature *c2);
+        Ogre::Real crowDistance(Creature *c1, Creature *c2);
         std::deque<double> previousLeftoverTimes;
 
         void threadLockForTurn(long int turn);

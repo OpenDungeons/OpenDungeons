@@ -140,7 +140,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
         cameraIsFlying(false),
         moveSpeed(2.0),
         //NOTE: when changing, also change it in the terminal command 'movespeed'.
-        moveSpeedAccel(static_cast<Ogre::Real> (2.0) * moveSpeed),
+        moveSpeedAccel(static_cast<Ogre::Real> (2.0f) * moveSpeed),
         mRotateSpeed(90),
         swivelDegrees(0.0),
         cameraFlightSpeed(70.0),
@@ -2036,7 +2036,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         if (!arguments.empty())
         {
-            double tempR, tempG, tempB;
+            Ogre::Real tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
             mSceneMgr->setAmbientLight(Ogre::ColourValue(tempR, tempG, tempB));
@@ -2152,7 +2152,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     {
         if (!arguments.empty())
         {
-            double tempDouble;
+			Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
             mRotateSpeed = Ogre::Degree(tempDouble);
@@ -2173,18 +2173,18 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     {
         if (!arguments.empty())
         {
-            double tempDouble;
+            Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
             ODApplication::MAX_FRAMES_PER_SECOND = tempDouble;
             commandOutput += "\nMaximum framerate set to "
-                    + Ogre::StringConverter::toString((Ogre::Real) ODApplication::MAX_FRAMES_PER_SECOND)
+                    + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::MAX_FRAMES_PER_SECOND))
                     + "\n";
         }
         else
         {
             commandOutput += "\nCurrent maximum framerate is "
-                    + Ogre::StringConverter::toString((Ogre::Real) ODApplication::MAX_FRAMES_PER_SECOND)
+                    + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::MAX_FRAMES_PER_SECOND))
                     + "\n";
         }
     }
@@ -2253,12 +2253,12 @@ void ODFrameListener::executePromptCommand(const std::string& command,
             }
 
             commandOutput += "\nMaximum turns per second set to "
-                    + Ogre::StringConverter::toString((Ogre::Real) ODApplication::turnsPerSecond) + "\n";
+                    + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::turnsPerSecond)) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent maximum turns per second is "
-                    + Ogre::StringConverter::toString((Ogre::Real) ODApplication::turnsPerSecond) + "\n";
+                    + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::turnsPerSecond)) + "\n";
         }
     }
 
@@ -2267,19 +2267,19 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     {
         if (!arguments.empty())
         {
-            double tempDouble;
+            Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
             mCamera->setNearClipDistance(tempDouble);
             commandOutput += "\nNear clip distance set to "
                     + Ogre::StringConverter::toString(
-                            (Ogre::Real) mCamera->getNearClipDistance()) + "\n";
+                             mCamera->getNearClipDistance()) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent near clip distance is "
                     + Ogre::StringConverter::toString(
-                            (Ogre::Real) mCamera->getNearClipDistance()) + "\n";
+                            mCamera->getNearClipDistance()) + "\n";
         }
     }
 
@@ -2288,19 +2288,19 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     {
         if (!arguments.empty())
         {
-            double tempDouble;
+            Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
             mCamera->setFarClipDistance(tempDouble);
             commandOutput += "\nFar clip distance set to "
                     + Ogre::StringConverter::toString(
-                            (Ogre::Real) mCamera->getFarClipDistance()) + "\n";
+                            mCamera->getFarClipDistance()) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent far clip distance is "
                     + Ogre::StringConverter::toString(
-                            (Ogre::Real) mCamera->getFarClipDistance()) + "\n";
+                            mCamera->getFarClipDistance()) + "\n";
         }
     }
 
@@ -2836,7 +2836,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     {
         if (!arguments.empty())
         {
-            double tempR, tempG, tempB;
+            Ogre::Real tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
             playerColourValues.push_back(Ogre::ColourValue(tempR, tempG, tempB));
@@ -2856,7 +2856,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         if (!arguments.empty())
         {
             unsigned int index;
-            double tempR, tempG, tempB;
+            Ogre::Real tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> index >> tempR >> tempG >> tempB;
             if (index < playerColourValues.size())

@@ -29,7 +29,7 @@
 
 template<> RenderManager* Ogre::Singleton<RenderManager>::ms_Singleton = 0;
 
-const double RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
+const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 
 /*! \brief Returns a reference to the singleton object
  *
@@ -468,7 +468,9 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
                                 curTile->name + "_node" );
     //node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
     node->attachObject ( ent );
-    node->setPosition ( Ogre::Vector3 ( curTile->x, curTile->y, 0 ) );
+	node->setPosition ( static_cast<Ogre::Real>(curTile->x)
+						, static_cast<Ogre::Real>(curTile->y),
+						0);
     node->setScale ( Ogre::Vector3 ( BLENDER_UNITS_PER_OGRE_UNIT,
                                      BLENDER_UNITS_PER_OGRE_UNIT,
                                      BLENDER_UNITS_PER_OGRE_UNIT ) );
@@ -503,7 +505,9 @@ void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
     colourizeEntity ( ent, curRoom->color );
     Ogre::SceneNode* node = roomSceneNode->createChildSceneNode ( tempSS.str()
                             + "_node" );
-    node->setPosition ( Ogre::Vector3 ( curTile->x, curTile->y, 0.0 ) );
+    node->setPosition ( static_cast<Ogre::Real>(curTile->x), 
+						static_cast<Ogre::Real>(curTile->y),
+						static_cast<Ogre::Real>(0.0f));
     node->setScale ( Ogre::Vector3 ( BLENDER_UNITS_PER_OGRE_UNIT,
                                      BLENDER_UNITS_PER_OGRE_UNIT,
                                      BLENDER_UNITS_PER_OGRE_UNIT ) );
@@ -574,7 +578,9 @@ void RenderManager::rrCreateTrap ( const RenderRequest& renderRequest )
                         curTrap->getMeshName() + ".mesh");
     Ogre::SceneNode* node = roomSceneNode->createChildSceneNode(tempString
                                                                 + "_node");
-    node->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0.0));
+    node->setPosition(static_cast<Ogre::Real>(curTile->x), 
+					static_cast<Ogre::Real>(curTile->y),
+					0.0f);
     node->attachObject(ent);
 }
 
@@ -871,7 +877,7 @@ void RenderManager::rrCreateField ( const RenderRequest& renderRequest )
     Field* curField = static_cast<Field*> (renderRequest.p);
     //FIXME these vars should have proper names
     double* tempDoublePtr = static_cast<double*>(renderRequest.p2);
-    double tempDouble = *tempDoublePtr;
+	Ogre::Real tempDouble = static_cast<Ogre::Real>(*tempDoublePtr);
     delete tempDoublePtr;
 
     FieldType::iterator fieldItr = curField->begin();
@@ -879,7 +885,7 @@ void RenderManager::rrCreateField ( const RenderRequest& renderRequest )
     {
         int x = fieldItr->first.first;
         int y = fieldItr->first.second;
-        double tempDouble2 = fieldItr->second;
+		Ogre::Real tempDouble2 = static_cast<Ogre::Real>(fieldItr->second);
         //cout << "\ncreating field tile:  " << tempX << "\t" << tempY << "\t" << tempDouble;
         std::stringstream tempSS;
         tempSS << "Field_" << curField->name << "_" << x << "_"
@@ -888,7 +894,9 @@ void RenderManager::rrCreateField ( const RenderRequest& renderRequest )
                                              "Field_indicator.mesh");
         Ogre::SceneNode* fieldIndicatorNode = fieldSceneNode->createChildSceneNode(tempSS.str()
                                              + "_node");
-        fieldIndicatorNode->setPosition(x, y, tempDouble + tempDouble2);
+        fieldIndicatorNode->setPosition(static_cast<Ogre::Real>(x)
+			, static_cast<Ogre::Real>(y)
+			, tempDouble + tempDouble2);
         fieldIndicatorNode->attachObject(fieldIndicatorEntity);
 
         ++fieldItr;
