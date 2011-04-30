@@ -21,6 +21,7 @@
 #include <map>
 #include <vector>
 #include <string>
+
 #include "plural_forms.hpp"
 
 namespace tinygettext {

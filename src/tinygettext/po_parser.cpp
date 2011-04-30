@@ -15,20 +15,12 @@
 //  along with this program; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#include "po_parser.hpp"
-
-#include <iostream>
-#include <ctype.h>
-#include <string>
-#include <istream>
-#include <string.h>
-#include <map>
-#include <stdlib.h>
-
 #include "language.hpp"
-#include "log_stream.hpp"
 #include "dictionary.hpp"
 #include "plural_forms.hpp"
+#include "LogManager.h"
+
+#include "po_parser.hpp"
 
 namespace tinygettext {
 
@@ -59,16 +51,18 @@ POParser::~POParser()
 {
 }
 
-void
-POParser::warning(const std::string& msg)
+void POParser::warning(const std::string& msg)
 {
-    log_warning << filename << ":" << line_number << ": warning: " << msg << ": " << current_line << std::endl;
+    std::ostringstream s;
+    s << filename << ":" << line_number << ": warning: " << msg << ": " << current_line;
+    LogManager::getSingleton().logMessage(s.str());
 }
 
-void
-POParser::error(const std::string& msg)
+void POParser::error(const std::string& msg)
 {
-    log_error << filename << ":" << line_number << ": error: " << msg  << ": " << current_line << std::endl;
+    std::ostringstream s;
+    s << filename << ":" << line_number << ": error: " << msg  << ": " << current_line;
+    LogManager::getSingleton().logMessage(s.str());
 
     // Try to recover from an error by searching for start of another entry
     do
@@ -78,16 +72,14 @@ POParser::error(const std::string& msg)
     throw POParserError();
 }
 
-void
-POParser::next_line()
+void POParser::next_line()
 {
     ++line_number;
     if (!std::getline(in, current_line))
         eof = true;
 }
 
-void
-POParser::get_string_line(std::ostringstream& out,unsigned int skip)
+void POParser::get_string_line(std::ostringstream& out,unsigned int skip)
 {
     if (skip+1 >= static_cast<unsigned int>(current_line.size()))
         error("unexpected end of line");
@@ -221,8 +213,7 @@ static bool has_prefix(const std::string& lhs, const std::string& rhs)
             : lhs.compare(0, rhs.length(), rhs) == 0;
 }
 
-void
-POParser::parse_header(const std::string& header)
+void POParser::parse_header(const std::string& header)
 {
     std::string from_charset;
     std::string::size_type start = 0;
@@ -287,8 +278,7 @@ POParser::parse_header(const std::string& header)
     //conv.set_charsets(from_charset, dict.get_charset());
 }
 
-bool
-POParser::is_empty_line()
+bool POParser::is_empty_line()
 {
     if (current_line.empty())
     {
@@ -311,14 +301,12 @@ POParser::is_empty_line()
     return true;
 }
 
-bool
-POParser::prefix(const char* prefix_str)
+bool POParser::prefix(const char* prefix_str)
 {
     return current_line.compare(0, strlen(prefix_str), prefix_str) == 0;
 }
 
-void
-POParser::parse()
+void POParser::parse()
 {
     next_line();
 

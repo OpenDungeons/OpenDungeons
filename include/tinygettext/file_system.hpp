@@ -20,7 +20,6 @@
 
 #include <vector>
 #include <memory>
-#include <iosfwd>
 #include <string>
 
 namespace tinygettext {
