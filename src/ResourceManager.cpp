@@ -8,13 +8,16 @@
 #include <OgrePlatform.h>
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 //TODO: Add the proper windows include file for this (handling directory listings).
-#include <Userenv.h>
-#include <Windows.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <userenv.h>
 #include <direct.h>
 #include <errno.h>
 #else
 #include <dirent.h>
 #endif
+
+#include <sys/stat.h>
 
 #include <OgreConfigFile.h>
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
@@ -153,10 +156,10 @@ ResourceManager::ResourceManager() :
 			if(ok)
 			{
 				
-				int bufferSize = ::WideCharToMultiByte(CP_UTF8, NULL,
+				int bufferSize = ::WideCharToMultiByte(CP_UTF8, 0,
 					homeDirWBuffer, wBufferSize, NULL, 0, NULL, NULL);
 				LPSTR homeDirBuffer = new CHAR[bufferSize + 1];
-				int convOk = ::WideCharToMultiByte(CP_UTF8, NULL,
+				int convOk = ::WideCharToMultiByte(CP_UTF8, 0,
 					homeDirWBuffer, wBufferSize, homeDirBuffer, bufferSize, NULL, NULL);
 				homeDirBuffer[bufferSize] = '\0'; //Append null terminator.
 				if(convOk)
@@ -184,21 +187,55 @@ ResourceManager::ResourceManager() :
 	}
 	homePath = homeDirectoryString + "\\.OpenDungeons";
 	
+    struct stat statBuf;
+    int result;
 
-	int dirCreated = ::_mkdir(homePath.c_str());
-	int errNo = 0;
-	::_get_errno(&errNo);
-	if(dirCreated == 0 || errNo != EEXIST)
-	{
-		//Set line endings to unix-style for consistency.
-		std::replace(homePath.begin(), homePath.end(), '\\', '/');
+    result = stat(homeDirectoryString.c_str(), &statBuf);
+    if(result == 0)
+    {
+        //exists
+		if(statBuf.st_mode != _S_IFDIR)
+		{
+			//.OpenDungeons is a file and not a directory, bail out.
+			std::cerr << "Error: \"" << homeDirectoryString << "\" is a file" << std::endl;
+			exit(1);
+		}
 	}
 	else
 	{
-		//FIXME: Handle this properly.
-		std::cerr << "Failed to write to home directory!" << std::endl;
-		exit(1);
+		//does not exist or inaccessible
+		switch(errno)
+		{
+		case ENOENT:
+			{
+				int dirCreated = ::_mkdir(homePath.c_str());
+				if(dirCreated != 0)
+				{
+					//FIXME: Handle this properly.
+					std::cerr << "Failed create subdirectory in home directory (" << homeDirectoryString << ") !" << std::endl;
+					exit(1);
+				}
+				break;
+			}
+		case EINVAL:
+			{
+				std::cerr << "Invalid parameter to stat()!" << std::endl;
+				exit(1);
+				break;
+			}
+		default:
+			{
+				std::cerr << "Unexpected error in stat()!" << std::endl;
+				exit(1);
+				break;
+			}
+		}
 	}
+    
+	
+	//Set line endings to unix-style for consistency.
+	std::replace(homePath.begin(), homePath.end(), '\\', '/');
+
 #endif
 
 #ifndef OGRE_STATIC_LIB
