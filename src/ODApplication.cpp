@@ -20,6 +20,7 @@
 #include "ResourceManager.h"
 #include "MiniMap.h"
 #include "LogManager.h"
+#include "Translation.h"
 
 #include "ODApplication.h"
 
@@ -33,7 +34,7 @@ ODApplication::ODApplication() :
         root(0),
         window(0)
 {
-    ResourceManager* resMgr = new ResourceManager;//ResourceManager::getSingletonPtr();
+    ResourceManager* resMgr = new ResourceManager;
     root = new Ogre::Root(
             resMgr->getPluginsPath(),
             resMgr->getCfgFile(),
@@ -57,6 +58,7 @@ ODApplication::ODApplication() :
 
     window = root->initialise(true, "OpenDungeons " + VERSION);
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
+    new Translation();
     new LogManager();
     RenderManager* renderMgr = new RenderManager(&gameMap);
     new SoundEffectsHelper();
@@ -112,20 +114,23 @@ ODApplication::~ODApplication()
     }
 }
 
+/*! \brief Delete the various singleton objects and clean up other stuff
+ *
+ */
 void ODApplication::cleanUp()
 {
-    //Delete the various singleton objects.
     delete MiniMap::getSingletonPtr();
-    
+
     root->removeFrameListener(ODFrameListener::getSingletonPtr());
     delete ODFrameListener::getSingletonPtr();
-    
+
     delete MusicPlayer::getSingletonPtr();
     delete TextRenderer::getSingletonPtr();
     delete Gui::getSingletonPtr();
     delete SoundEffectsHelper::getSingletonPtr();
     delete RenderManager::getSingletonPtr();
     delete LogManager::getSingletonPtr();
+    delete Translation::getSingletonPtr();
 }
 
 //TODO: find some better places for some of these

@@ -33,6 +33,16 @@ const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
 const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
 const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
 
+const std::string ResourceManager::RESOURCEGROUPMUSIC = "Music";
+const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
+
+/*! \brief check if a filename has a specific extension
+ *
+ *  \param filename The filename, like "filename.ext"
+ *  \param ending   The extension, like ".ext"
+ *
+ *  \return true or false depending if the filename has the extension or not
+ */
 bool ResourceManager::hasFileEnding(const std::string& filename, const std::string& ending)
 {
     return (filename.length() < ending.length())
@@ -42,7 +52,7 @@ bool ResourceManager::hasFileEnding(const std::string& filename, const std::stri
 }
 
 /* TODO: insert some general easy-access functions that do all the
- * OgreResourceMenager calls (e.g. returning all sound and music names/files)
+ * OgreResourceManager calls (e.g. returning all sound and music names/files)
  */
 
 /*! \brief Initializes all paths and reads the ogre config file.
@@ -254,6 +264,12 @@ void ResourceManager::setupResources()
     }
 }
 
+/*! \brief gets all files within a directory
+ *
+ *  \param diretoryName the directory to scan for files
+ *
+ *  \return a vector with all file names
+ */
 std::vector<std::string> ResourceManager::listAllFiles(const std::string& directoryName)
 {
     std::vector<std::string> tempVector;
@@ -274,4 +290,14 @@ std::vector<std::string> ResourceManager::listAllFiles(const std::string& direct
     }
 #endif
     return tempVector;
+}
+
+/*! \brief returns all music files that Ogre knows of
+ *
+ *  \return a vector with all file names
+ */
+Ogre::StringVectorPtr ResourceManager::listAllMusicFiles()
+{
+    return Ogre::ResourceGroupManager::getSingleton().
+            listResourceNames(RESOURCEGROUPMUSIC);
 }

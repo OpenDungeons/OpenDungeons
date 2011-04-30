@@ -15,27 +15,14 @@
 //  along with this program; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#include "dictionary_manager.hpp"
-
-#include <memory>
-#include <assert.h>
-#include <stdlib.h>
-#include <string.h>
-#include <fstream>
-#include <algorithm>
-
-#include "log_stream.hpp"
 #include "po_parser.hpp"
 #include "unix_file_system.hpp"
+#include "ResourceManager.h"
+#include "LogManager.h"
+
+#include "dictionary_manager.hpp"
 
 namespace tinygettext {
-
-static bool has_suffix(const std::string& lhs, const std::string& rhs)
-{
-    return (lhs.length() < rhs.length())
-            ? false
-            : lhs.compare(lhs.length() - rhs.length(), rhs.length(), rhs) == 0;
-}
 
 DictionaryManager::DictionaryManager(const std::string& charset_) :
           dictionaries(),
@@ -57,8 +44,7 @@ DictionaryManager::~DictionaryManager()
     }
 }
 
-void
-DictionaryManager::clear_cache()
+void DictionaryManager::clear_cache()
 {
     for(Dictionaries::iterator i = dictionaries.begin(); i != dictionaries.end(); ++i)
     {
@@ -69,8 +55,7 @@ DictionaryManager::clear_cache()
     current_dict = 0;
 }
 
-Dictionary&
-DictionaryManager::get_dictionary()
+Dictionary& DictionaryManager::get_dictionary()
 {
     if (current_dict)
     {
@@ -90,11 +75,8 @@ DictionaryManager::get_dictionary()
     }
 }
 
-Dictionary&
-DictionaryManager::get_dictionary(const Language& language)
+Dictionary& DictionaryManager::get_dictionary(const Language& language)
 {
-    //log_debug << "Dictionary for language \"" << spec << "\" requested" << std::endl;
-    //log_debug << "...normalized as \"" << lang << "\"" << std::endl;
     assert(language);
 
     Dictionaries::iterator i = dictionaries.find(language);
@@ -104,8 +86,8 @@ DictionaryManager::get_dictionary(const Language& language)
     }
     else // Dictionary for languages lang isn't loaded, so we load it
     {
-        //log_debug << "get_dictionary: " << lang << std::endl;
         Dictionary* dict = new Dictionary(charset);
+        LogManager& logMgr = LogManager::getSingleton();
 
         dictionaries[language] = dict;
 
@@ -119,13 +101,13 @@ DictionaryManager::get_dictionary(const Language& language)
             for(std::vector<std::string>::iterator filename = files.begin(); filename != files.end(); ++filename)
             {
                 // check if filename matches requested language
-                if (has_suffix(*filename, ".po"))
+                if (ResourceManager::hasFileEnding(*filename, ".po"))
                 { // ignore anything that isn't a .po file
                     Language po_language = Language::from_env(filename->substr(0, filename->size()-3));
 
                     if (!po_language)
                     {
-                        log_warning << *filename << ": warning: ignoring, unknown language" << std::endl;
+                        logMgr.logMessage(*filename + ": warning: ignoring, unknown language");
                     }
                     else
                     {
@@ -148,7 +130,7 @@ DictionaryManager::get_dictionary(const Language& language)
                     std::auto_ptr<std::istream> in = filesystem->open_file(pofile);
                     if (!in.get())
                     {
-                        log_error << "error: failure opening: " << pofile << std::endl;
+                        logMgr.logMessage("error: failure opening: " + pofile, Ogre::LML_CRITICAL);
                     }
                     else
                     {
@@ -157,8 +139,8 @@ DictionaryManager::get_dictionary(const Language& language)
                 }
                 catch(std::exception& e)
                 {
-                    log_error << "error: failure parsing: " << pofile << std::endl;
-                    log_error << e.what() << "" << std::endl;
+                    logMgr.logMessage("error: failure parsing: "
+                            + pofile + "\n" + e.what(), Ogre::LML_CRITICAL);
                 }
             }
         }
@@ -167,8 +149,7 @@ DictionaryManager::get_dictionary(const Language& language)
     }
 }
 
-std::set<Language>
-DictionaryManager::get_languages()
+std::set<Language> DictionaryManager::get_languages()
 {
     std::set<Language> languages;
 
@@ -178,7 +159,7 @@ DictionaryManager::get_languages()
 
         for(std::vector<std::string>::iterator file = files.begin(); file != files.end(); ++file)
         {
-            if (has_suffix(*file, ".po"))
+            if (ResourceManager::hasFileEnding(*file, ".po"))
             {
                 languages.insert(Language::from_env(file->substr(0, file->size()-3)));
             }
@@ -187,8 +168,7 @@ DictionaryManager::get_languages()
     return languages;
 }
 
-void
-DictionaryManager::set_language(const Language& language)
+void DictionaryManager::set_language(const Language& language)
 {
     if (current_language != language)
     {
@@ -197,53 +177,47 @@ DictionaryManager::set_language(const Language& language)
     }
 }
 
-Language
-DictionaryManager::get_language() const
+Language DictionaryManager::get_language() const
 {
     return current_language;
 }
 
-void
-DictionaryManager::set_charset(const std::string& charset_)
+void DictionaryManager::set_charset(const std::string& charset_)
 {
     clear_cache(); // changing charset invalidates cache
     charset = charset_;
 }
 
-void
-DictionaryManager::set_use_fuzzy(bool t)
+void DictionaryManager::set_use_fuzzy(bool t)
 {
     clear_cache();
     use_fuzzy = t;
 }
 
-bool
-DictionaryManager::get_use_fuzzy() const
+bool DictionaryManager::get_use_fuzzy() const
 {
     return use_fuzzy;
 }
 
-void
-DictionaryManager::add_directory(const std::string& pathname)
+void DictionaryManager::add_directory(const std::string& pathname)
 {
     clear_cache(); // adding directories invalidates cache
     search_path.push_back(pathname);
 }
 
-void
-DictionaryManager::set_filesystem(std::auto_ptr<FileSystem> filesystem_)
+void DictionaryManager::set_filesystem(std::auto_ptr<FileSystem> filesystem_)
 {
     filesystem = filesystem_;
 }
 
 std::string DictionaryManager::convertFilenameToLanguage(const std::string &s_in) const
 {
-    std::string s = has_suffix(s_in, ".po")
+    std::string s = ResourceManager::hasFileEnding(s_in, ".po")
                     ? s_in.substr(0, s_in.size()-3)
                     : s_in;
 
     bool underscore_found = false;
-    for(unsigned int i = 0; i < s.size(); ++i)
+    for(unsigned int i = 0, size = s.size(); i < size; ++i)
     {
         if(underscore_found)
         {

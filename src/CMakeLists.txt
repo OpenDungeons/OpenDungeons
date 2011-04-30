@@ -7,7 +7,6 @@ set(
      tinygettext/dictionary_manager.cpp
      tinygettext/dictionary.cpp
      tinygettext/language.cpp
-     tinygettext/log.cpp
      tinygettext/plural_forms.cpp
      tinygettext/po_parser.cpp
      tinygettext/tinygettext.cpp

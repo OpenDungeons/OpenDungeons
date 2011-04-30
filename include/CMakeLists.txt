@@ -4,8 +4,6 @@ SET(
     tinygettext/dictionary.hpp
     tinygettext/file_system.hpp
     tinygettext/language.hpp
-    tinygettext/log_stream.hpp
-    tinygettext/log.hpp
     tinygettext/plural_forms.hpp
     tinygettext/po_parser.hpp
     tinygettext/tinygettext.hpp

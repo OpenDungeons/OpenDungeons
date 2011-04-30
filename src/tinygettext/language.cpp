@@ -15,11 +15,12 @@
 //  along with this program; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-#include "language.hpp"
-
 #include <map>
-#include <assert.h>
 #include <vector>
+#include <assert.h>
+#include <algorithm>
+
+#include "language.hpp"
 
 namespace tinygettext {
 
@@ -281,8 +282,7 @@ LanguageSpec languages[] = {
 };
 //*}
 
-std::string
-resolve_language_alias(const std::string& name)
+std::string resolve_language_alias(const std::string& name)
 {
     typedef std::map<std::string, std::string> Aliases;
     static Aliases language_aliases;
@@ -343,24 +343,16 @@ resolve_language_alias(const std::string& name)
         language_aliases["turkish"]          = "tr_TR.ISO-8859-9";
     }
 
-    std::string name_lowercase;
-    name_lowercase.resize(name.size());
-    for(std::string::size_type i = 0; i < name.size(); ++i)
-        name_lowercase[i] = static_cast<char>(tolower(name[i]));
+    std::string name_lowercase = name;
+    std::transform(name_lowercase.begin(), name_lowercase.end(), name_lowercase.begin(), ::tolower);
 
     Aliases::iterator i = language_aliases.find(name_lowercase);
-    if (i != language_aliases.end())
-    {
-        return i->second;
-    }
-    else
-    {
-        return name;
-    }
+    return (i != language_aliases.end())
+            ? i->second
+            : name;
 }
 
-Language
-Language::from_spec(const std::string& language, const std::string& country, const std::string& modifier)
+Language Language::from_spec(const std::string& language, const std::string& country, const std::string& modifier)
 {
     static std::map<std::string, std::vector<LanguageSpec*> > language_map;
 
@@ -402,14 +394,12 @@ Language::from_spec(const std::string& language, const std::string& country, con
     }
 }
 
-Language
-Language::from_name(const std::string& spec_str)
+Language Language::from_name(const std::string& spec_str)
 {
     return from_env(resolve_language_alias(spec_str));
 }
 
-Language
-Language::from_env(const std::string& env)
+Language Language::from_env(const std::string& env)
 {
     // Split LANGUAGE_COUNTRY.CODESET@MODIFIER into parts
     std::string::size_type ln = env.find('_');
@@ -421,18 +411,20 @@ Language::from_env(const std::string& env)
     std::string codeset;
     std::string modifier;
 
-    //std::cout << ln << " " << dt << " " << at << std::endl;
-
     language = env.substr(0, std::min(std::min(ln, dt), at));
 
     if (ln != std::string::npos && ln+1 < env.size()) // _
     {
-        country = env.substr(ln+1, (std::min(dt, at) == std::string::npos) ? std::string::npos : std::min(dt, at) - (ln+1));
+        country = env.substr(ln+1, (std::min(dt, at) == std::string::npos)
+                ? std::string::npos
+                : std::min(dt, at) - (ln+1));
     }
 
     if (dt != std::string::npos && dt+1 < env.size()) // .
     {
-        codeset = env.substr(dt+1, (at == std::string::npos) ? std::string::npos : (at - (dt+1)));
+        codeset = env.substr(dt+1, (at == std::string::npos)
+                ? std::string::npos
+                : (at - (dt+1)));
     }
 
     if (at != std::string::npos && at+1 < env.size()) // @
@@ -453,8 +445,7 @@ Language::Language()
 {
 }
 
-int
-Language::match(const Language& lhs, const Language& rhs)
+int Language::match(const Language& lhs, const Language& rhs)
 {
     if (lhs.get_language() != rhs.get_language())
     {
@@ -469,21 +460,17 @@ Language::match(const Language& lhs, const Language& rhs)
                 { 4, 2, 1 }, // country miss
         };
 
-        int c = 0;
-        if (lhs.get_country() == rhs.get_country())
-            c = 0;
-        else if (lhs.get_country().empty() || rhs.get_country().empty())
-            c = 1;
-        else
-            c = 2;
+        int c = (lhs.get_country() == rhs.get_country())
+                ? 0
+                : (lhs.get_country().empty() || rhs.get_country().empty())
+                        ? 1
+                        : 2;
 
-        int m = 0;
-        if (lhs.get_modifier() == rhs.get_modifier())
-            m = 0;
-        else if (lhs.get_modifier().empty() || rhs.get_modifier().empty())
-            m = 1;
-        else
-            m = 2;
+        int m = (lhs.get_modifier() == rhs.get_modifier())
+                ? 0
+                : (lhs.get_modifier().empty() || rhs.get_modifier().empty())
+                        ? 1
+                        : 2;
 
         return match_tbl[c][m];
     }
@@ -521,13 +508,12 @@ Language::get_name()  const
             : "";
 }
 
-std::string
-Language::str() const
+std::string Language::str() const
 {
     if (language_spec)
     {
-        std::string var;
-        var += language_spec->language;
+        std::string var = language_spec->language;
+
         if (language_spec->country)
         {
             var += "_";

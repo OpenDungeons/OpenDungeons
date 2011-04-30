@@ -18,12 +18,6 @@
 #ifndef HEADER_TINYGETTEXT_DICTIONARY_MANAGER_HPP
 #define HEADER_TINYGETTEXT_DICTIONARY_MANAGER_HPP
 
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
-#include <memory>
-
 #include "dictionary.hpp"
 #include "language.hpp"
 

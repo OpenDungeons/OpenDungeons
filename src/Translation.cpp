@@ -56,22 +56,16 @@ Translation::Translation()
         }
     }
 
-    //try to set the users system language
-    const char* lang = getenv("LANG");
-    const char* language = getenv("LANGUAGE");
+    //TODO: after we have a user cfg file, load his language at game start
+    dictionary = dictMgr.get_dictionary();
 
-    if (language != NULL && strlen(language) > 0)
-    {
-        dictionary = dictMgr.get_dictionary(tinygettext::Language::from_env(language));
-    }
-    else if (lang != NULL && strlen(lang) > 0)
-    {
-        dictionary = dictMgr.get_dictionary(tinygettext::Language::from_env(lang));
-    }
-    else
-    {
-        dictionary = dictMgr.get_dictionary();
-    }
+    /* this is how STK does it but I think we won't need to hack
+     * us through env vars after we have a config file
+    const char* language = getenv("LANGUAGE");
+    dictionary = (language != NULL && strlen(language) > 0)
+            ? dictMgr.get_dictionary(tinygettext::Language::from_env(language))
+            : dictMgr.get_dictionary();
+     */
 }
 
 Translation::~Translation()

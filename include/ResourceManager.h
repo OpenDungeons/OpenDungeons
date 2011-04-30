@@ -23,6 +23,7 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
 
         void setupResources();
         std::vector<std::string> listAllFiles(const std::string& directoryName);
+        Ogre::StringVectorPtr listAllMusicFiles();
 
         inline const std::string& getResourcePath() const{return resourcePath;}
         inline const std::string& getHomePath() const{return homePath;}
@@ -54,6 +55,9 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         static const std::string LANGUAGESUBPATH;
         static const std::string CONFIGFILENAME;
         static const std::string LOGFILENAME;
+
+        static const std::string RESOURCEGROUPMUSIC;
+        static const std::string RESOURCEGROUPSOUND;
 };
 
 #endif /* RESOURCEMANAGER_H_ */
