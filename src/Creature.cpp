@@ -2181,7 +2181,7 @@ Player* Creature::getControllingPlayer()
 {
     Player *tempPlayer;
 
-    if (gameMap.me->seat->color == color)
+    if (gameMap.me->getSeat()->color == color)
     {
         return gameMap.me;
     }
@@ -2191,7 +2191,7 @@ Player* Creature::getControllingPlayer()
             i < numPlayers; ++i)
     {
         tempPlayer = gameMap.getPlayer(i);
-        if (tempPlayer->seat->color == color)
+        if (tempPlayer->getSeat()->color == color)
         {
             return tempPlayer;
         }

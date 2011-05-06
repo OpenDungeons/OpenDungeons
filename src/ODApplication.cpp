@@ -21,6 +21,7 @@
 #include "MiniMap.h"
 #include "LogManager.h"
 #include "Translation.h"
+#include "GameState.h"
 
 #include "ODApplication.h"
 
@@ -58,8 +59,9 @@ ODApplication::ODApplication() :
 
     window = root->initialise(true, "OpenDungeons " + VERSION);
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
-    new Translation();
     new LogManager();
+    new Translation();
+    new GameState();
     RenderManager* renderMgr = new RenderManager(&gameMap);
     new SoundEffectsHelper();
     new Gui();
@@ -129,8 +131,9 @@ void ODApplication::cleanUp()
     delete Gui::getSingletonPtr();
     delete SoundEffectsHelper::getSingletonPtr();
     delete RenderManager::getSingletonPtr();
-    delete LogManager::getSingletonPtr();
+    delete GameState::getSingletonPtr();
     delete Translation::getSingletonPtr();
+    delete LogManager::getSingletonPtr();
 }
 
 //TODO: find some better places for some of these

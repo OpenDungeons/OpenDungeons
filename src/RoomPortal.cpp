@@ -73,7 +73,7 @@ bool RoomPortal::doUpkeep(Room *r)
     		i < numPlayers; ++i)
     {
         Player *tempPlayer = gameMap.getPlayer(i);
-        if (tempPlayer->seat == controllingSeat)
+        if (tempPlayer->getSeat() == controllingSeat)
             numCreatures += tempPlayer->numCreaturesInHand();
     }
     const double maxCreatures = 15;

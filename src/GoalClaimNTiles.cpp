@@ -37,7 +37,7 @@ std::string GoalClaimNTiles::getFailedMessage()
 std::string GoalClaimNTiles::getDescription()
 {
     std::stringstream tempSS;
-    tempSS << "Claimed " << gameMap.me->seat->getNumClaimedTiles() << " of "
+    tempSS << "Claimed " << gameMap.me->getSeat()->getNumClaimedTiles() << " of "
             << numberOfTiles << " tiles.";
     return tempSS.str();
 }

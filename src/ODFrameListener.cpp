@@ -33,6 +33,7 @@
 #include "ResourceManager.h"
 #include "Gui.h"
 #include "ODApplication.h"
+#include "GameState.h"
 
 #include "ODFrameListener.h"
 
@@ -166,7 +167,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
         lastTurnDisplayUpdated(-1)
 {
     gameMap.me = new Player;
-    gameMap.me->nick = "defaultNickName";
+    gameMap.me->setNick("defaultNickName");
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Creature_scene_node");
@@ -689,7 +690,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         if(lastTurnDisplayUpdated < currentTurnNumber)
         {
             lastTurnDisplayUpdated = currentTurnNumber;
-            Seat *mySeat = gameMap.me->seat;
+            Seat *mySeat = gameMap.me->getSeat();
 
             CEGUI::WindowManager *windowManager =
                     CEGUI::WindowManager::getSingletonPtr();
@@ -697,13 +698,13 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             CEGUI::Window *tempWindow = windowManager->getWindow(
                     (CEGUI::utf8*) "Root/TerritoryDisplay");
             tempSS.str("");
-            tempSS << gameMap.me->seat->getNumClaimedTiles();
+            tempSS << gameMap.me->getSeat()->getNumClaimedTiles();
             tempWindow->setText(tempSS.str());
 
             tempWindow
                     = windowManager->getWindow((CEGUI::utf8*) "Root/GoldDisplay");
             tempSS.str("");
-            tempSS << gameMap.me->seat->gold;
+            tempSS << gameMap.me->getSeat()->gold;
             tempWindow->setText(tempSS.str());
 
             tempWindow
@@ -716,44 +717,44 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
             if (isInGame())// && gameMap.me->seat->getHasGoalsChanged())
             {
-                gameMap.me->seat->resetGoalsChanged();
+                gameMap.me->getSeat()->resetGoalsChanged();
                 // Update the goals display in the message window.
                 tempWindow = windowManager->getWindow(
                         (CEGUI::utf8*) "Root/MessagesDisplayWindow");
                 tempSS.str("");
-                bool iAmAWinner = gameMap.seatIsAWinner(gameMap.me->seat);
+                bool iAmAWinner = gameMap.seatIsAWinner(gameMap.me->getSeat());
 
-                if (gameMap.me->seat->numGoals() > 0)
+                if (gameMap.me->getSeat()->numGoals() > 0)
                 {
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS << "Unfinished Goals:\n---------------------\n";
-                    for (unsigned int i = 0; i < gameMap.me->seat->numGoals(); ++i)
+                    for (unsigned int i = 0; i < gameMap.me->getSeat()->numGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->seat->getGoal(i);
+                        Goal *tempGoal = gameMap.me->getSeat()->getGoal(i);
                         tempSS << tempGoal->getDescription() << "\n";
                     }
                 }
 
-                if (gameMap.me->seat->numCompletedGoals() > 0)
+                if (gameMap.me->getSeat()->numCompletedGoals() > 0)
                 {
                     // Loop over the list of completed goals for the seat we are sitting in an print them.
                     tempSS << "\n\nCompleted Goals:\n---------------------\n";
                     for (unsigned int i = 0; i
-                            < gameMap.me->seat->numCompletedGoals(); ++i)
+                            < gameMap.me->getSeat()->numCompletedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
+                        Goal *tempGoal = gameMap.me->getSeat()->getCompletedGoal(i);
                         tempSS << tempGoal->getSuccessMessage() << "\n";
                     }
                 }
 
-                if (gameMap.me->seat->numFailedGoals() > 0)
+                if (gameMap.me->getSeat()->numFailedGoals() > 0)
                 {
                     // Loop over the list of completed goals for the seat we are sitting in an print them.
                     tempSS
                             << "\n\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
-                    for (unsigned int i = 0; i < gameMap.me->seat->numFailedGoals(); ++i)
+                    for (unsigned int i = 0; i < gameMap.me->getSeat()->numFailedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->seat->getFailedGoal(i);
+                        Goal *tempGoal = gameMap.me->getSeat()->getFailedGoal(i);
                         tempSS << tempGoal->getFailedMessage() << "\n";
                     }
                 }
@@ -1076,7 +1077,7 @@ bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
 
                         Creature *currentCreature = gameMap.getCreature(array);
                         if (currentCreature != NULL && currentCreature->color
-                                == gameMap.me->seat->color)
+                                == gameMap.me->getSeat()->color)
                         {
                             gameMap.me->pickUpCreature(currentCreature);
                             sfxHelper->playInterfaceSound(
@@ -1373,7 +1374,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                                 && currentTile->getType() == Tile::claimed
                                 && currentTile->colorDouble > 0.99
                                 && currentTile->getColor()
-                                        == gameMap.me->seat->color))
+                                        == gameMap.me->getSeat()->color))
                         {
                             itr = affectedTiles.erase(itr);
                             continue;
@@ -1402,7 +1403,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 int newRoomColor = 0, goldRequired = 0;
                 if (isInGame())
                 {
-                    newRoomColor = gameMap.me->seat->color;
+                    newRoomColor = gameMap.me->getSeat()->color;
                     goldRequired = affectedTiles.size() * Room::costPerTile(
                             gameMap.me->newRoomType);
                 }
@@ -1410,7 +1411,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 // Check to see if we are in the map editor OR if we are in a game, check to see if we have enough gold to create the room.
                 if (!isInGame()
                         || (gameMap.getTotalGoldForColor(
-                                gameMap.me->seat->color) >= goldRequired))
+                                gameMap.me->getSeat()->color) >= goldRequired))
                 {
                     // Create the room
                     Room *tempRoom = Room::createRoom(gameMap.me->newRoomType,
@@ -1420,7 +1421,7 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                     // If we are in a game, withdraw the gold required for the room from the players treasuries.
                     if (serverSocket != NULL || clientSocket != NULL)
                         gameMap.withdrawFromTreasuries(goldRequired,
-                                gameMap.me->seat->color);
+                                gameMap.me->getSeat()->color);
 
                     // Check all the tiles that border the newly created room and see if they
                     // contain rooms which can be absorbed into this newly created room.
@@ -1464,12 +1465,12 @@ bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
                 Seat *mySeat = NULL;
                 if (!isInGame()
                         || (gameMap.getTotalGoldForColor(
-                                gameMap.me->seat->color) >= goldRequired))
+                                gameMap.me->getSeat()->color) >= goldRequired))
                 {
                     goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
                     if (isInGame())
-                        gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->seat->color);
-                    mySeat = gameMap.me->seat;
+                        gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->getSeat()->color);
+                    mySeat = gameMap.me->getSeat();
 
                     Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector,
                             mySeat);
@@ -1674,7 +1675,7 @@ bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
                 }
                 else // If we are in a game.
                 {
-                    Seat* tempSeat = gameMap.me->seat;
+                    Seat* tempSeat = gameMap.me->getSeat();
                     flyTo(Ogre::Vector3(tempSeat->startingX,
                             tempSeat->startingY, 0.0));
                 }
@@ -2413,13 +2414,13 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                 if (isInGame())
                 {
                     tempSS << "Player:\tNick:\tColor:\n\n";
-                    tempSS << "me\t\t" << gameMap.me->nick << "\t"
-                            << gameMap.me->seat->color << "\n\n";
+                    tempSS << "me\t\t" << gameMap.me->getNick() << "\t"
+                            << gameMap.me->getSeat()->color << "\n\n";
                     for (unsigned int i = 0; i < gameMap.numPlayers(); ++i)
                     {
                         Player *currentPlayer = gameMap.getPlayer(i);
-                        tempSS << i << "\t\t" << currentPlayer->nick << "\t"
-                                << currentPlayer->seat->color << "\n";
+                        tempSS << i << "\t\t" << currentPlayer->getNick() << "\t"
+                                << currentPlayer->getSeat()->color << "\n";
                     }
                 }
                 else
@@ -2498,9 +2499,9 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS
                             << "Unfinished Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
-                    for (unsigned int i = 0; i < gameMap.me->seat->numGoals(); ++i)
+                    for (unsigned int i = 0; i < gameMap.me->getSeat()->numGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->seat->getGoal(i);
+                        Goal *tempGoal = gameMap.me->getSeat()->getGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
                                 << tempGoal->getDescription() << "\n";
                     }
@@ -2509,9 +2510,9 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                     tempSS
                             << "\n\nCompleted Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
                     for (unsigned int i = 0; i
-                            < gameMap.me->seat->numCompletedGoals(); ++i)
+                            < gameMap.me->getSeat()->numCompletedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->seat->getCompletedGoal(i);
+                        Goal *tempGoal = gameMap.me->getSeat()->getCompletedGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
                                 << tempGoal->getSuccessMessage() << "\n";
                     }
@@ -2562,7 +2563,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     {
         if (!arguments.empty())
         {
-            gameMap.me->nick = arguments;
+            gameMap.me->setNick(arguments);
             commandOutput += "\nNickname set to:  ";
         }
         else
@@ -2570,7 +2571,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
             commandOutput += "\nCurrent nickname is:  ";
         }
 
-        commandOutput += gameMap.me->nick + "\n";
+        commandOutput += gameMap.me->getNick() + "\n";
     }
 
     // Set chat message variables
@@ -2612,7 +2613,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     else if (command.compare("connect") == 0)
     {
         // Make sure we have set a nickname.
-        if (!gameMap.me->nick.empty())
+        if (!gameMap.me->getNick().empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
             if (!isInGame())
@@ -2684,7 +2685,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     else if (command.compare("host") == 0)
     {
         // Make sure we have set a nickname.
-        if (!gameMap.me->nick.empty())
+        if (!gameMap.me->getNick().empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
             if (!isInGame())
@@ -2760,7 +2761,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         if (clientSocket != NULL)
         {
             sem_wait(&clientSocket->semaphore);
-            clientSocket->send(formatCommand("chat", gameMap.me->nick + ":"
+            clientSocket->send(formatCommand("chat", gameMap.me->getNick() + ":"
                     + arguments));
             sem_post(&clientSocket->semaphore);
         }
@@ -2770,13 +2771,13 @@ void ODFrameListener::executePromptCommand(const std::string& command,
             for (unsigned int i = 0; i < clientSockets.size(); ++i)
             {
                 sem_wait(&clientSockets[i]->semaphore);
-                clientSockets[i]->send(formatCommand("chat", gameMap.me->nick
+                clientSockets[i]->send(formatCommand("chat", gameMap.me->getNick()
                         + ":" + arguments));
                 sem_post(&clientSockets[i]->semaphore);
             }
 
             // Display the chat message in our own message queue
-            chatMessages.push_back(new ChatMessage(gameMap.me->nick, arguments,
+            chatMessages.push_back(new ChatMessage(gameMap.me->getNick(), arguments,
                     time(NULL), time(NULL)));
         }
         else
@@ -2892,7 +2893,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // Load the next level.
     else if (command.compare("next") == 0)
     {
-        if (gameMap.seatIsAWinner(gameMap.me->seat))
+        if (gameMap.seatIsAWinner(gameMap.me->getSeat()))
         {
             gameMap.loadNextLevel = true;
             commandOutput += (string) "\nLoading level levels/"
@@ -3085,4 +3086,5 @@ bool ODFrameListener::isInGame()
 {
     //TODO - we should use a bool or something, not the sockets for this.
     return (serverSocket != NULL || clientSocket != NULL);
+    //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
 }

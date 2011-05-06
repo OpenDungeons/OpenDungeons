@@ -83,7 +83,7 @@ void *clientSocketProcessor(void *p)
             if (serverCommand.compare("picknick") == 0)
             {
                 sem_wait(&sock->semaphore);
-                sock->send(formatCommand("setnick", gameMap.me->nick));
+                sock->send(formatCommand("setnick", gameMap.me->getNick()));
                 sem_post(&sock->semaphore);
             }
 
@@ -106,9 +106,9 @@ void *clientSocketProcessor(void *p)
                 Seat *tempSeat = new Seat;
                 tempSS >> tempSeat;
                 gameMap.addEmptySeat(tempSeat);
-                if (gameMap.me->seat == NULL)
+                if (gameMap.me->getSeat() == NULL)
                 {
-                    gameMap.me->seat = gameMap.popEmptySeat();
+                    gameMap.me->setSeat(gameMap.popEmptySeat());
                 }
 
                 sem_wait(&sock->semaphore);
@@ -119,7 +119,7 @@ void *clientSocketProcessor(void *p)
             else if (serverCommand.compare("addplayer") == 0)
             {
                 Player *tempPlayer = new Player;
-                tempPlayer->nick = arguments;
+                tempPlayer->setNick(arguments);
                 gameMap.addPlayer(tempPlayer);
 
                 sem_wait(&sock->semaphore);
@@ -420,7 +420,7 @@ void *clientNotificationProcessor(void *p)
                 tempPlayer = (Player*) event->p2;
 
                 tempSS.str("");
-                tempSS << tempPlayer->nick << ":" << tempCreature->name;
+                tempSS << tempPlayer->getNick() << ":" << tempCreature->name;
 
                 sem_wait(&clientSocket->semaphore);
                 clientSocket->send(
@@ -433,7 +433,7 @@ void *clientNotificationProcessor(void *p)
                 tempTile = (Tile*) event->p2;
 
                 tempSS.str("");
-                tempSS << tempPlayer->nick << ":" << tempTile->x << ":"
+                tempSS << tempPlayer->getNick() << ":" << tempTile->x << ":"
                         << tempTile->y;
 
                 sem_wait(&clientSocket->semaphore);

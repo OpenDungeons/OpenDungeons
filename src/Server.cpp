@@ -302,7 +302,7 @@ void *serverNotificationProcessor(void *p)
                 //NOTE: this code is duplicated in clientNotificationProcessor
             case ServerNotification::creaturePickUp:
                 tempSS.str("");
-                tempSS << event->player->nick << ":" << event->cre->name;
+                tempSS << event->player->getNick() << ":" << event->cre->name;
 
                 sendToAllClients(frameListener, formatCommand("creaturePickUp",
                         tempSS.str()));
@@ -314,7 +314,7 @@ void *serverNotificationProcessor(void *p)
                 tempTile = event->tile;
 
                 tempSS.str("");
-                tempSS << tempPlayer->nick << ":" << tempTile->x << ":"
+                tempSS << tempPlayer->getNick() << ":" << tempTile->x << ":"
                         << tempTile->y;
 
                 sendToAllClients(frameListener, formatCommand("creatureDrop",
@@ -469,14 +469,14 @@ void *clientHandlerThread(void *p)
             // Create a player structure for the client
             //TODO:  negotiate and set a color
             curPlayer = new Player;
-            curPlayer->nick = clientNick;
+            curPlayer->setNick(clientNick);
             gameMap.addPlayer(curPlayer);
 
             curSock->send(formatCommand("newmap", ""));
 
             // Tell the player which seat it has
             tempSS.str("");
-            tempSS << curPlayer->seat;
+            tempSS << curPlayer->getSeat();
             curSock->send(formatCommand("addseat", tempSS.str()));
 
             tempSS.str("");
@@ -484,7 +484,7 @@ void *clientHandlerThread(void *p)
             curSock->send(formatCommand("turnsPerSecond", tempSS.str()));
 
             // Send over the information about the players in the game
-            curSock->send(formatCommand("addplayer", gameMap.me->nick));
+            curSock->send(formatCommand("addplayer", gameMap.me->getNick()));
             for (unsigned int i = 0; i < gameMap.numPlayers(); ++i)
             {
                 // Don't tell the client about its own player structure
@@ -492,12 +492,12 @@ void *clientHandlerThread(void *p)
                 if (curPlayer != tempPlayer && tempPlayer != NULL)
                 {
                     tempSS.str("");
-                    tempSS << tempPlayer->seat;
+                    tempSS << tempPlayer->getSeat();
                     curSock->send(formatCommand("addseat", tempSS.str()));
                     // Throw away the ok response
                     curSock->recv(tempString);
 
-                    curSock->send(formatCommand("addplayer", tempPlayer->nick));
+                    curSock->send(formatCommand("addplayer", tempPlayer->getNick()));
                     // Throw away the ok response
                     curSock->recv(tempString);
                 }

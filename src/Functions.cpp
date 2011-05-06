@@ -358,7 +358,7 @@ bool startServer()
     {
         //NOTE: Code added to this routine may also need to be added to GameMap::doTurn() in the "loadNextLevel" stuff.
         // Sit down at the first available seat.
-        gameMap.me->seat = gameMap.popEmptySeat();
+        gameMap.me->setSeat(gameMap.popEmptySeat());
 
         serverSocket = new Socket;
 

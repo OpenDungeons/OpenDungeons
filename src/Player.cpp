@@ -11,9 +11,6 @@
 #include "RenderManager.h"
 
 Player::Player() :
-        nick(""),
-        humanPlayer(true),
-        seat(NULL),
         newRoomType(Room::nullRoomType),
         newTrapType(Trap::nullTrapType)
 {

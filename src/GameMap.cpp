@@ -742,7 +742,7 @@ void GameMap::doTurn()
             //TODO: The return value from the level load should be checked to make sure it loaded properly.
             readGameMapFromFile(nextLevel);
             createAllEntities();
-            me->seat = popEmptySeat();
+            me->setSeat(popEmptySeat());
         }
     }
 
@@ -795,7 +795,7 @@ void GameMap::doTurn()
             Player *tempPlayer = tempCreature->getControllingPlayer();
             if (tempPlayer != NULL)
             {
-                Seat *tempSeat = tempPlayer->seat;
+                Seat *tempSeat = tempPlayer->getSeat();
 
                 tempSeat->numCreaturesControlled++;
 
@@ -1382,7 +1382,7 @@ bool GameMap::addPlayer(Player *p)
 {
     if (!emptySeats.empty())
     {
-        p->seat = popEmptySeat();
+        p->setSeat(popEmptySeat());
         players.push_back(p);
         return true;
     }
@@ -1401,11 +1401,11 @@ Player* GameMap::getPlayer(int index)
 /*! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
  *
  */
-Player* GameMap::getPlayer(std::string pName)
+Player* GameMap::getPlayer(const std::string& pName)
 {
     for (unsigned int i = 0; i < numPlayers(); ++i)
     {
-        if (players[i]->nick.compare(pName) == 0)
+        if (players[i]->getNick().compare(pName) == 0)
         {
             return players[i];
         }
