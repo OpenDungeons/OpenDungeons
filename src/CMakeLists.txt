@@ -41,7 +41,6 @@ set(
      ODApplication.cpp
      ODFrameListener.cpp
      Player.cpp
-     PlayerBase.cpp
      ProximityTrap.cpp
      RadialVector2.cpp
      Random.cpp
