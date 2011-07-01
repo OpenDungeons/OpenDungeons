@@ -1042,9 +1042,7 @@ unsigned long int GameMap::doCreatureTurns()
     for (unsigned int i = 0; i < numThreads; ++i)
     {
         int startCreature = i * (arraySize / numThreads);
-        int endCreature;
-
-        endCreature = (i + 1 == numThreads)
+        int endCreature = (i + 1 == numThreads)
                 ? arraySize - 1
                 : (i + 1) * (arraySize / numThreads) - 1;
 
