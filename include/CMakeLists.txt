@@ -9,6 +9,7 @@ SET(
     ActiveObject.h
     AnimatedObject.h
     AttackableObject.h
+    CameraManager.h
     ChatMessage.h
     ClientNotification.h
     CreatureAction.h
@@ -26,6 +27,7 @@ SET(
     GoalMineNGold.h
     GoalProtectCreature.h
     GoalProtectDungeonTemple.h
+    InputManager.h
     MapEditor.h
     MapLight.h
     MiniMap.h

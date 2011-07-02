@@ -16,7 +16,7 @@ class ProtectedObject
         void lock();
         void unlock();
         void rawSet(ObjectType o);
-        ObjectType rawGet();
+        ObjectType rawGet() const;
 
     private:
         ObjectType object;
@@ -89,7 +89,7 @@ void ProtectedObject<ObjectType>::rawSet(ObjectType o)
 }
 
 template<class ObjectType>
-ObjectType ProtectedObject<ObjectType>::rawGet()
+ObjectType ProtectedObject<ObjectType>::rawGet() const
 {
     return object;
 }

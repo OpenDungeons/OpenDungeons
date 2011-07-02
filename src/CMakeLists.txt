@@ -13,6 +13,7 @@ set(
      ActiveObject.cpp
      AttackableObject.cpp
      AnimatedObject.cpp
+     CameraManager.cpp
      ChatMessage.cpp
      Client.cpp
      ClientNotification.cpp
@@ -32,6 +33,7 @@ set(
      GoalProtectCreature.cpp
      GoalProtectDungeonTemple.cpp
      Gui.cpp
+     InputManager.cpp
      LogManager.cpp
      main.cpp
      MapLight.cpp

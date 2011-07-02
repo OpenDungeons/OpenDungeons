@@ -22,10 +22,12 @@
 #include <OIS.h>
 
 #include "Tile.h"
+#include "CameraManager.h"
 #include "ProtectedObject.h"
 
 class Socket;
 class RenderManager;
+class InputManager;
 class SoundEffectsHelper;
 class ChatMessage;
 class GameMap;
@@ -40,22 +42,24 @@ class GameMap;
 class ODFrameListener :
         public Ogre::Singleton<ODFrameListener>,
         public Ogre::FrameListener,
-        public Ogre::WindowEventListener,
-        public OIS::MouseListener,
-        public OIS::KeyListener
+        public Ogre::WindowEventListener
 {
     protected:
         void updateStats();
 
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
-        ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
-                bool bufferedKeys, bool bufferedMouse, bool bufferedJoy);
+        ODFrameListener(Ogre::RenderWindow* win);
         virtual ~ODFrameListener();
         void requestExit();
         bool getThreadStopRequested();
         void setThreadStopRequested(bool value);
         void requestStopThreads();
+
+        inline const bool& isTerminalActive() const{return terminalActive;}
+        inline void setTerminalActive(const bool& active){terminalActive = active;}
+
+        inline Ogre::SceneNode* getCreatureSceneNode() const{return creatureSceneNode;};
 
         static ODFrameListener& getSingleton();
         static ODFrameListener* getSingletonPtr();
@@ -66,10 +70,6 @@ class ODFrameListener :
         //Unattach OIS before window shutdown (very important under Linux)
         virtual void windowClosed(Ogre::RenderWindow* rw);
 
-        void moveCamera(Ogre::Real frameTime);
-        Ogre::Vector3 getCameraViewTarget();
-        void flyTo(Ogre::Vector3 destination);
-
         void showDebugOverlay(bool show);
 
         // Override frameStarted event to process that (don't care about frameEnded)
@@ -78,13 +78,7 @@ class ODFrameListener :
 
         //CEGUI Functions
         bool quit(const CEGUI::EventArgs &e);
-        bool mouseMoved(const OIS::MouseEvent &arg);
         Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
-        bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-        bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
-        bool keyPressed(const OIS::KeyEvent &arg);
-        bool keyReleased(const OIS::KeyEvent &arg);
-        void handleHotkeys(int hotkeyNumber);
 
         // Console functions
         void printText(const std::string& text);
@@ -109,65 +103,22 @@ class ODFrameListener :
         unsigned int chatMaxMessages;
         unsigned int chatMaxTimeDisplay;
 
-        
-
     protected:
-        Ogre::Camera* mCamera;
-        Ogre::SceneNode* mCamNode;
-
-        Ogre::Vector3 translateVector;
-        Ogre::Vector3 translateVectorAccel;
-        Ogre::Vector3 cameraFlightDestination;
-        Ogre::Vector3 mRotateLocalVector;
-        double zChange;
         Ogre::RenderWindow* mWindow;
-        bool cameraIsFlying;
-        Ogre::Real moveSpeed;
-        Ogre::Real moveSpeedAccel;
-        Ogre::Degree mRotateSpeed;
-        Ogre::Degree swivelDegrees;
-        Ogre::Real cameraFlightSpeed;
-        bool hotkeyLocationIsValid[10];
-        Ogre::Vector3 hotkeyLocation[10];
 
         std::string mDebugText;
-        bool mStatsOn;
 
         unsigned int mNumScreenShots;
-        float mZoomSpeed;
-        Tile::TileType mCurrentTileType;
-        int mCurrentFullness, mCurrentTileRadius;
-        bool mBrushMode;
         double frameDelay;
 
         Ogre::Overlay* mDebugOverlay;
 
-        //OIS Input devices
-        OIS::InputManager* mInputManager;
-        OIS::Mouse* mMouse;
-        OIS::Keyboard* mKeyboard;
-
         // Mouse query stuff
         Ogre::RaySceneQuery* mRaySceneQuery; // The ray scene query pointer
-        bool mLMouseDown, mRMouseDown; // True if the mouse buttons are down
-        int mLStartDragX, mLStartDragY; // The start tile coordinates for a left drag
-        int mRStartDragX, mRStartDragY; // The start tile coordinates for a left drag
-        int xPos, yPos;
-        bool digSetBool; // For server mode - hods whether to mark or unmark a tile for digging
-        bool mouseDownOnCEGUIWindow;
-
-        enum DragType
-        {
-            creature,
-            mapLight,
-            tileSelection,
-            tileBrushSelection,
-            addNewRoom,
-            addNewTrap,
-            nullDragType
-        };
 
         RenderManager* renderManager;
+        CameraManager* cameraManager;
+        InputManager* inputManager;
 
         void exitApplication();
 
@@ -178,8 +129,6 @@ class ODFrameListener :
         bool terminalActive;
         int terminalWordWrap;
 
-        DragType mDragType;
-        std::string draggedCreature, draggedMapLight;
         Ogre::SceneNode* creatureSceneNode;
         Ogre::SceneNode* roomSceneNode;
         Ogre::SceneNode* fieldSceneNode;

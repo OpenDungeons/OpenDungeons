@@ -80,7 +80,9 @@ ODApplication::ODApplication() :
     renderMgr->createViewports();
     renderMgr->createScene();
 
-    ODFrameListener* frameListener = new ODFrameListener(window, renderMgr->getCamera(), true, true, false);
+    new CameraManager(renderMgr->getCamera());
+
+    ODFrameListener* frameListener = new ODFrameListener(window);
     frameListener->showDebugOverlay(true);
     root->addFrameListener(frameListener);
 
