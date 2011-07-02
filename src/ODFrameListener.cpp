@@ -216,12 +216,6 @@ void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
         if(inputManager)
         {
             delete inputManager;
-            /*
-            mInputManager->destroyInputObject(mMouse);
-            mInputManager->destroyInputObject(mKeyboard);
-
-            OIS::InputManager::destroyInputSystem(mInputManager);
-            mInputManager = 0;*/
         }
     }
 }
@@ -239,7 +233,7 @@ void ODFrameListener::requestExit()
 void ODFrameListener::exitApplication()
 {
 
-    Ogre::LogManager::getSingleton().logMessage("\nClosing down.");
+    LogManager::getSingleton().logMessage("\nClosing down.");
     //Mark that we want the threads to stop.
     requestStopThreads();
     

@@ -136,6 +136,7 @@ void ODApplication::cleanUp()
     delete GameState::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
+    delete CameraManager::getSingletonPtr();
 }
 
 //TODO: find some better places for some of these

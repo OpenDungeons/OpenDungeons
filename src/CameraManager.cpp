@@ -45,8 +45,8 @@ CameraManager::CameraManager(Ogre::Camera* cam) :
 {
 }
 
-/*! \brief Sets the camera to a new location while still satisfying the constraints placed on its movement
- *
+/*! \brief Sets the camera to a new location while still satisfying the
+ * constraints placed on its movement
  */
 void CameraManager::moveCamera(Ogre::Real frameTime)
 {
@@ -56,8 +56,9 @@ void CameraManager::moveCamera(Ogre::Real frameTime)
             * moveSpeedAccel * frameTime);
     translateVector += translateVectorAccel * (frameTime * 2.0);
 
-    // If we have sped up to more than the maximum moveSpeed then rescale the vector to that length.
-    // We use the squaredLength() in this calculation since squaring the RHS is faster than sqrt'ing the LHS.
+    // If we have sped up to more than the maximum moveSpeed then rescale the
+    // vector to that length. We use the squaredLength() in this calculation
+    // since squaring the RHS is faster than sqrt'ing the LHS.
     if (translateVector.squaredLength() > moveSpeed * moveSpeed)
     {
         speed = translateVector.length();
@@ -227,4 +228,21 @@ void CameraManager::move(Direction direction)
         default:
             break;
     }
+}
+
+/*! \brief forces the camera to stop it's x-y movement
+ *
+ */
+void CameraManager::stopMoving()
+{
+    translateVectorAccel.x = 0;
+    translateVectorAccel.y = 0;
+}
+
+/*! \brief forces the camera to stop it's z movement
+ *
+ */
+void CameraManager::stopZooming()
+{
+    zChange = 0;
 }

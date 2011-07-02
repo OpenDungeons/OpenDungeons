@@ -12,7 +12,6 @@
 #include <algorithm>
 #include <vector>
 #include <string>
-#include <cassert>
 
 #include "Functions.h"
 #include "Globals.h"
@@ -269,15 +268,31 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
             tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
     }
 
-    // Check the scroll wheel.
-    if (arg.state.Z.rel > 0)
+    if(arg.state.Z.rel > 0)
     {
-        gameMap.me->rotateCreaturesInHand(1);
+        if(mKeyboard->isModifierDown(OIS::Keyboard::Shift))
+        {
+            CameraManager::getSingleton().move(CameraManager::moveUp);
+        }
+        else
+        {
+            gameMap.me->rotateCreaturesInHand(1);
+        }
     }
-
-    if (arg.state.Z.rel < 0)
+    else if(arg.state.Z.rel < 0)
     {
-        gameMap.me->rotateCreaturesInHand(-1);
+        if(mKeyboard->isModifierDown(OIS::Keyboard::Shift))
+        {
+            CameraManager::getSingleton().move(CameraManager::moveDown);
+        }
+        else
+        {
+            gameMap.me->rotateCreaturesInHand(-1);
+        }
+    }
+    else
+    {
+        CameraManager::getSingleton().stopZooming();
     }
 
     return true;
@@ -291,16 +306,14 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
 bool InputManager::mousePressed(const OIS::MouseEvent &arg,
         OIS::MouseButtonID id)
 {
-    Creature *tempCreature;
-
     CEGUI::System::getSingleton().injectMouseButtonDown(
             Gui::getSingletonPtr()->convertButton(id));
-    std::string resultName;
 
     // If the mouse press is on a CEGUI window ignore it
     CEGUI::Window *tempWindow =
             CEGUI::System::getSingleton().getWindowContainingMouse();
-    if (tempWindow != NULL && tempWindow->getName().compare("Root") != 0)
+
+    if (tempWindow != 0 && tempWindow->getName().compare("Root") != 0)
     {
         mouseDownOnCEGUIWindow = true;
         return true;
@@ -312,6 +325,8 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
 
     Ogre::RaySceneQueryResult &result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
     Ogre::RaySceneQueryResult::iterator itr = result.begin();
+
+    std::string resultName;
 
     // Left mouse button down
     if (id == OIS::MB_Left)
@@ -340,7 +355,7 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
                         tempSS.getline(array, sizeof(array));
 
                         Creature *currentCreature = gameMap.getCreature(array);
-                        if (currentCreature != NULL && currentCreature->color
+                        if (currentCreature != 0 && currentCreature->color
                                 == gameMap.me->getSeat()->color)
                         {
                             gameMap.me->pickUpCreature(currentCreature);
@@ -488,11 +503,13 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
 
                 if (resultName.find("Creature_") != std::string::npos)
                 {
-                    tempCreature = gameMap.getCreature(resultName.substr(
+                    Creature* tempCreature = gameMap.getCreature(resultName.substr(
                             ((std::string) "Creature_").size(), resultName.size()));
 
                     if (tempCreature != NULL)
+                    {
                         tempCreature->createStatsWindow();
+                    }
 
                     return true;
                 }
@@ -535,8 +552,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
             if (!isInGame())
             {
                 Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-                Ogre::SceneNode *node = mSceneMgr->getSceneNode(draggedCreature
-                        + "_node");
+                Ogre::SceneNode *node = mSceneMgr->getSceneNode(draggedCreature + "_node");
                 mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
                 ODFrameListener::getSingleton().getCreatureSceneNode()->addChild(node);
                 mDragType = nullDragType;
@@ -551,8 +567,9 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
             {
                 MapLight *tempMapLight = gameMap.getMapLight(draggedMapLight);
                 if (tempMapLight != NULL)
-                    tempMapLight->setPosition(xPos, yPos,
-                            tempMapLight->getPosition().z);
+                {
+                    tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
+                }
             }
         }
 
@@ -1060,63 +1077,7 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
 bool InputManager::keyReleased(const OIS::KeyEvent &arg)
 {
     CEGUI::System::getSingleton().injectKeyUp(arg.key);
-
-    if (!frameListener->isTerminalActive())
-    {
-        CameraManager& camMgr = CameraManager::getSingleton();
-        switch (arg.key)
-        {
-            case OIS::KC_LEFT:
-            case OIS::KC_A:
-                camMgr.move(camMgr.moveRight); // Move left
-                break;
-
-            case OIS::KC_D:
-            case OIS::KC_RIGHT:
-                camMgr.move(camMgr.moveLeft); // Move right
-                break;
-
-            case OIS::KC_UP:
-            case OIS::KC_W:
-                camMgr.move(camMgr.moveBackward); // Move forward
-                break;
-
-            case OIS::KC_DOWN:
-            case OIS::KC_S:
-                camMgr.move(camMgr.moveForward); // Move backward
-                break;
-
-            case OIS::KC_PGUP:
-            case OIS::KC_E:
-                camMgr.move(camMgr.moveUp); // Move down
-                break;
-
-            case OIS::KC_INSERT:
-            case OIS::KC_Q:
-                camMgr.move(camMgr.moveDown); // Move up
-                break;
-
-            case OIS::KC_HOME:
-                camMgr.move(camMgr.rotateDown); // Tilt up
-                break;
-
-            case OIS::KC_END:
-                camMgr.move(camMgr.rotateUp); // Tilt dow
-                break;
-
-            case OIS::KC_DELETE:
-                camMgr.move(camMgr.rotateRight); // Turn left
-                break;
-
-            case OIS::KC_PGDOWN:
-                camMgr.move(camMgr.rotateLeft); // Turn right
-                break;
-
-            default:
-                break;
-        }
-    }
-
+    CameraManager::getSingleton().stopMoving();
     return true;
 }
 
