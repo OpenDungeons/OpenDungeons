@@ -108,7 +108,6 @@ class ODFrameListener :
 
         std::string mDebugText;
 
-        unsigned int mNumScreenShots;
         double frameDelay;
 
         Ogre::Overlay* mDebugOverlay;

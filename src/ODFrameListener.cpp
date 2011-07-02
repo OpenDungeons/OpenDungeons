@@ -129,7 +129,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         chatMaxTimeDisplay(20),
         mContinue(true),
         mWindow(win),
-        mNumScreenShots(0),
         frameDelay(0.0),
         mDebugOverlay(0),
         renderManager(RenderManager::getSingletonPtr()),
