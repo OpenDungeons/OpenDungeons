@@ -22,6 +22,7 @@
 #include "LogManager.h"
 #include "Translation.h"
 #include "GameState.h"
+#include "CameraManager.h"
 
 #include "ODApplication.h"
 
@@ -81,12 +82,9 @@ ODApplication::ODApplication() :
     renderMgr->createScene();
 
     new CameraManager(renderMgr->getCamera());
+    root->addFrameListener(new ODFrameListener(window));
 
-    ODFrameListener* frameListener = new ODFrameListener(window);
-    frameListener->showDebugOverlay(true);
-    root->addFrameListener(frameListener);
-
-    //FIXME: This should be at a better place
+    //FIXME: This should be at a better place (when level loads for the first time)
     //new MiniMap;
 
     root->startRendering();

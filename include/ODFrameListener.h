@@ -22,12 +22,12 @@
 #include <OIS.h>
 
 #include "Tile.h"
-#include "CameraManager.h"
 #include "ProtectedObject.h"
 
 class Socket;
 class RenderManager;
 class InputManager;
+class CameraManager;
 class SoundEffectsHelper;
 class ChatMessage;
 class GameMap;
@@ -44,9 +44,6 @@ class ODFrameListener :
         public Ogre::FrameListener,
         public Ogre::WindowEventListener
 {
-    protected:
-        void updateStats();
-
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
         ODFrameListener(Ogre::RenderWindow* win);
@@ -69,8 +66,6 @@ class ODFrameListener :
 
         //Unattach OIS before window shutdown (very important under Linux)
         virtual void windowClosed(Ogre::RenderWindow* rw);
-
-        void showDebugOverlay(bool show);
 
         // Override frameStarted event to process that (don't care about frameEnded)
         bool frameStarted(const Ogre::FrameEvent& evt);
@@ -106,11 +101,7 @@ class ODFrameListener :
     protected:
         Ogre::RenderWindow* mWindow;
 
-        std::string mDebugText;
-
         double frameDelay;
-
-        Ogre::Overlay* mDebugOverlay;
 
         // Mouse query stuff
         Ogre::RaySceneQuery* mRaySceneQuery; // The ray scene query pointer

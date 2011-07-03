@@ -36,6 +36,7 @@
 #include "GameState.h"
 #include "LogManager.h"
 #include "InputManager.h"
+#include "CameraManager.h"
 
 #include "ODFrameListener.h"
 
@@ -45,64 +46,6 @@ template<> ODFrameListener*
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
 #endif
-
-void ODFrameListener::updateStats()
-{
-    static Ogre::String currFps = "Current FPS: ";
-    static Ogre::String avgFps = "Average FPS: ";
-    static Ogre::String bestFps = "Best FPS: ";
-    static Ogre::String worstFps = "Worst FPS: ";
-    static Ogre::String tris = "Triangle Count: ";
-    static Ogre::String batches = "Batch Count: ";
-
-    //Don't update the stats too often.
-    if(statsDisplayTimer.getMilliseconds() > static_cast<unsigned long>(250))
-    {
-        statsDisplayTimer.reset();
-
-        // update stats when necessary
-        try
-        {
-            Ogre::OverlayElement* guiAvg =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
-            Ogre::OverlayElement* guiCurr =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
-            Ogre::OverlayElement* guiBest =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
-            Ogre::OverlayElement* guiWorst =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
-
-            const Ogre::RenderTarget::FrameStats& stats = mWindow->getStatistics();
-            guiAvg->setCaption(avgFps + Ogre::StringConverter::toString(stats.avgFPS));
-            guiCurr->setCaption(currFps + Ogre::StringConverter::toString(stats.lastFPS));
-            guiBest->setCaption(bestFps + Ogre::StringConverter::toString(stats.bestFPS)
-                    + " " + Ogre::StringConverter::toString(stats.bestFrameTime) + " ms");
-            guiWorst->setCaption(worstFps + Ogre::StringConverter::toString(
-                    stats.worstFPS) + " " + Ogre::StringConverter::toString(
-                    stats.worstFrameTime) + " ms");
-
-            Ogre::OverlayElement* guiTris =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement(
-                            "Core/NumTris");
-            guiTris->setCaption(
-                    tris + Ogre::StringConverter::toString(stats.triangleCount));
-
-            Ogre::OverlayElement* guiBatches =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement(
-                            "Core/NumBatches");
-            guiBatches->setCaption(
-                    batches + Ogre::StringConverter::toString(stats.batchCount));
-
-            Ogre::OverlayElement* guiDbg =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement(
-                            "Core/DebugText");
-            guiDbg->setCaption(mDebugText);
-        }
-        catch (...)
-        { //FIXME should not ignore exceptions unless there is a really good reason.
-        }
-    }
-}
 
 /*! \brief Returns access to the singleton instance of Gui
  */
@@ -130,7 +73,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         mContinue(true),
         mWindow(win),
         frameDelay(0.0),
-        mDebugOverlay(0),
         renderManager(RenderManager::getSingletonPtr()),
         terminalActive(false),
         terminalWordWrap(78),
@@ -158,8 +100,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
-    TextRenderer::getSingleton().addTextBox(ODApplication::POINTER_INFO_STRING, "", 0, 0, 200,
-            50, Ogre::ColourValue::White);
+    TextRenderer::getSingleton().addTextBox(ODApplication::POINTER_INFO_STRING, "",
+            0, 0, 200, 50, Ogre::ColourValue::White);
 
     renderManager = RenderManager::getSingletonPtr();
     renderManager->setSceneNodes(roomSceneNode, creatureSceneNode,
@@ -304,25 +246,6 @@ void ODFrameListener::requestStopThreads()
     threadStopRequested.set(true);
 }
 
-void ODFrameListener::showDebugOverlay(bool show)
-{
-    if (mDebugOverlay)
-    {
-        if (show)
-            mDebugOverlay->show();
-        else
-            mDebugOverlay->hide();
-    }
-    else
-    {
-        if (show)
-        {
-            mDebugOverlay = Ogre::OverlayManager::getSingleton().getByName(
-                    "Core/DebugOverlay");
-        }
-    }
-}
-
 /*! \brief The main rendering function for the OGRE 3d environment.
  *
  * This function is the one which actually carries out all of the rendering in
@@ -401,6 +324,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 - gameMap.averageAILeftoverTime);
         turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
                 static_cast<Ogre::Real>(maxTps)).substr(0, 4);
+        turnString += "\nFPS: " + Ogre::StringConverter::toString(
+                mWindow->getStatistics().lastFPS);
     }
     turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
             turnNumber.get());
@@ -619,8 +544,6 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
-
-    updateStats();
     return true;
 }
 

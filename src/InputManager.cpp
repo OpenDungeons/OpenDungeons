@@ -31,6 +31,7 @@
 #include "Trap.h"
 #include "Player.h"
 #include "RenderManager.h"
+#include "CameraManager.h"
 
 #include "InputManager.h"
 
@@ -952,24 +953,6 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
                 }
                 break;
 
-                // Toggle the framerate display
-            case OIS::KC_F:
-            {
-                // Toggle visibility of the framerate display.
-                mStatsOn = !mStatsOn;
-                frameListener->showDebugOverlay(mStatsOn);
-
-                // Toggle visibility of the CEGUI display.
-                CEGUI::Window* window
-                        = CEGUI::WindowManager::getSingletonPtr()->
-                                getWindow((CEGUI::utf8*) "Root");
-                if (mStatsOn)
-                    window->hide();
-                else
-                    window->show();
-
-                break;
-            }
                 // Quit the game
             case OIS::KC_ESCAPE:
                 writeGameMapToFile(std::string("levels/Test.level")+ ".out");
