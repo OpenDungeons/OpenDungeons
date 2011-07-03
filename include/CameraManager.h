@@ -45,7 +45,7 @@ class CameraManager : public Ogre::Singleton<CameraManager>
         //get camera
         inline Ogre::Camera* getCamera() const{return mCamera;}
 
-        inline const bool& isCamMovingAtAll() const{return cameraIsMovingAtAll;}
+        bool isCamMovingAtAll();
 
         void moveCamera(Ogre::Real frameTime);
         Ogre::Vector3 getCameraViewTarget();
@@ -57,12 +57,9 @@ class CameraManager : public Ogre::Singleton<CameraManager>
     private:
         CameraManager(const CameraManager&);
 
-        bool checkIfCamMovesAtAll();
-
         Ogre::Camera* mCamera;
         Ogre::SceneNode* mCamNode;
 
-        bool cameraIsMovingAtAll;
         bool cameraIsFlying;
         Ogre::Real moveSpeed;
         Ogre::Real moveSpeedAccel;

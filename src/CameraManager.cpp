@@ -51,7 +51,7 @@ CameraManager::CameraManager(Ogre::Camera* cam) :
 void CameraManager::moveCamera(Ogre::Real frameTime)
 {
     //before doing all the lengthy calculations we check if it is really needed
-    if(checkIfCamMovesAtAll())
+    if(isCamMovingAtAll())
     {
         // Carry out the acceleration/deceleration calculations on the camera translation.
         Ogre::Real speed = translateVector.normalise();
@@ -248,18 +248,14 @@ void CameraManager::move(Direction direction)
 }
 
 /*! \brief Checks if the camera is moving at all by evaluating all momentums
- *
- *  Sets the variable that is accessible through a public getter method to the
- *  result but also returns the result in one go
  */
-bool CameraManager::checkIfCamMovesAtAll()
+bool CameraManager::isCamMovingAtAll()
 {
-    return (cameraIsMovingAtAll = (
-            translateVectorAccel.x != 0 ||
+    return (translateVectorAccel.x != 0 ||
             translateVectorAccel.y != 0 ||
             zChange != 0 ||
             swivelDegrees.valueDegrees() != 0 ||
             mRotateLocalVector.x != 0 ||
             cameraIsFlying
-            ));
+            );
 }
