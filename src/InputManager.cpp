@@ -60,7 +60,7 @@ InputManager::~InputManager()
     mInputManager = 0;
 }
 
-InputManager::InputManager(std::string windowHndString) :
+InputManager::InputManager() :
             frameListener(ODFrameListener::getSingletonPtr()),
             mLMouseDown(false),
             mRMouseDown(false),
@@ -78,19 +78,41 @@ InputManager::InputManager(std::string windowHndString) :
             mDragType(nullDragType),
             mCurrentTileType(Tile::dirt)
 {
+    LogManager::getSingleton().logMessage("*** Initializing OIS ***");
+
     for (int i = 0; i < 10; ++i)
     {
         hotkeyLocationIsValid[i] = false;
         hotkeyLocation[i] = Ogre::Vector3::ZERO;
     }
 
-    OIS::ParamList pl;
-    pl.insert(std::make_pair(std::string("WINDOW"), windowHndString));
-    //FIXME: Not sure if this should be enabled or not.
-    //pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
+    size_t windowHnd = 0;
+    ODApplication::getSingleton().getWindow()->getCustomAttribute("WINDOW", &windowHnd);
+
+    std::ostringstream windowHndStr;
+    windowHndStr << windowHnd;
+
+    //setup parameter list for OIS
+    OIS::ParamList paramList;
+    paramList.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
+#if defined OIS_WIN32_PLATFORM
+    /* TODO: find out what is the best here (mouse/keyboard exclusiveness to OD or not)
+    paramList.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
+    paramList.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
+    paramList.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
+    paramList.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_NONEXCLUSIVE")));
+    */
+#elif defined OIS_LINUX_PLATFORM
+    /*
+    paramList.insert(std::make_pair(std::string("x11_mouse_grab"), std::string("false")));
+    paramList.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
+    paramList.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("false")));
+    */
+    paramList.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
+#endif
 
     //setup InputManager
-    mInputManager = OIS::InputManager::createInputSystem(pl);
+    mInputManager = OIS::InputManager::createInputSystem(paramList);
 
     //setup Keyboard
     mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject(
@@ -270,9 +292,9 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
 
     if(arg.state.Z.rel > 0)
     {
-        if(mKeyboard->isModifierDown(OIS::Keyboard::Shift))
+        if(mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            CameraManager::getSingleton().move(CameraManager::moveUp);
+            CameraManager::getSingleton().move(CameraManager::moveDown);
         }
         else
         {
@@ -281,9 +303,9 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
     }
     else if(arg.state.Z.rel < 0)
     {
-        if(mKeyboard->isModifierDown(OIS::Keyboard::Shift))
+        if(mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
         {
-            CameraManager::getSingleton().move(CameraManager::moveDown);
+            CameraManager::getSingleton().move(CameraManager::moveUp);
         }
         else
         {
@@ -800,7 +822,6 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
     if (!frameListener->isTerminalActive())
     {
         std::stringstream tempSS;
-//        std::ostringstream ss;
 
         CEGUI::System* sys = CEGUI::System::getSingletonPtr();
         sys->injectKeyDown(arg.key);
@@ -961,34 +982,16 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
                 break;
 
             case OIS::KC_1:
-                handleHotkeys(1);
-                break;
             case OIS::KC_2:
-                handleHotkeys(2);
-                break;
             case OIS::KC_3:
-                handleHotkeys(3);
-                break;
             case OIS::KC_4:
-                handleHotkeys(4);
-                break;
             case OIS::KC_5:
-                handleHotkeys(5);
-                break;
             case OIS::KC_6:
-                handleHotkeys(6);
-                break;
             case OIS::KC_7:
-                handleHotkeys(7);
-                break;
             case OIS::KC_8:
-                handleHotkeys(8);
-                break;
             case OIS::KC_9:
-                handleHotkeys(9);
-                break;
             case OIS::KC_0:
-                handleHotkeys(0);
+                handleHotkeys(arg.key);
                 break;
 
             default:
@@ -1087,18 +1090,21 @@ bool InputManager::keyReleased(const OIS::KeyEvent &arg)
  * If the shift key is pressed we store this hotkey location
  * otherwise we fly the camera to a stored position.
  */
-void InputManager::handleHotkeys(int hotkeyNumber)
+void InputManager::handleHotkeys(OIS::KeyCode keycode)
 {
+    //keycode minus two because the codes are shifted by two against the actual number
+    unsigned int keynumber = keycode - 2;
+
     if (mKeyboard->isModifierDown(OIS::Keyboard::Shift))
     {
-        hotkeyLocationIsValid[hotkeyNumber] = true;
-        hotkeyLocation[hotkeyNumber] = CameraManager::getSingleton().getCameraViewTarget();
+        hotkeyLocationIsValid[keynumber] = true;
+        hotkeyLocation[keynumber] = CameraManager::getSingleton().getCameraViewTarget();
     }
     else
     {
-        if (hotkeyLocationIsValid[hotkeyNumber])
+        if (hotkeyLocationIsValid[keynumber])
         {
-            CameraManager::getSingleton().flyTo(hotkeyLocation[hotkeyNumber]);
+            CameraManager::getSingleton().flyTo(hotkeyLocation[keynumber]);
         }
     }
 }

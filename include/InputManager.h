@@ -21,7 +21,7 @@ class InputManager :
         public OIS::KeyListener
 {
     public:
-        InputManager(std::string windowHndString);
+        InputManager();
         virtual ~InputManager();
 
         static InputManager& getSingleton();
@@ -32,7 +32,7 @@ class InputManager :
         bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
         bool keyPressed(const OIS::KeyEvent &arg);
         bool keyReleased(const OIS::KeyEvent &arg);
-        void handleHotkeys(int hotkeyNumber);
+        void handleHotkeys(OIS::KeyCode keycode);
 
         inline OIS::Mouse* getMouse() const{return mMouse;}
         inline OIS::Keyboard* getKeyboard() const{return mKeyboard;}

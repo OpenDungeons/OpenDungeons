@@ -150,15 +150,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
             "Light_scene_node");
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
-    LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
-
-    size_t windowHnd = 0;
-    win->getCustomAttribute("WINDOW", &windowHnd);
-
-    std::ostringstream windowHndStr;
-    windowHndStr << windowHnd;
-
-    inputManager = new InputManager(windowHndStr.str());
+    inputManager = new InputManager();
 
     //Set initial mouse clipping size
     windowResized(mWindow);
