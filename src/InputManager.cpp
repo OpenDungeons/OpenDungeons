@@ -312,6 +312,10 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
             gameMap.me->rotateCreaturesInHand(-1);
         }
     }
+    else
+    {
+        CameraManager::getSingleton().stopZooming();
+    }
 
     return true;
 }

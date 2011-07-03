@@ -52,6 +52,7 @@ class CameraManager : public Ogre::Singleton<CameraManager>
         void flyTo(Ogre::Vector3 destination);
 
         void move(Direction direction);
+        inline void stopZooming() {zChange = 0;}
 
     private:
         CameraManager(const CameraManager&);
