@@ -14,7 +14,12 @@ class CameraManager : public Ogre::Singleton<CameraManager>
         enum Direction
         {
             moveLeft, moveRight, moveForward, moveBackward, moveUp, moveDown,
-            rotateLeft, rotateRight, rotateUp, rotateDown
+            rotateLeft, rotateRight, rotateUp, rotateDown,
+
+            stopLeft, stopRight, stopForward, stopBackward, stopUp, stopDown,
+            stopRotLeft, stopRotRight, stopRotUp, stopRotDown,
+
+            fullStop
         };
 
         CameraManager(Ogre::Camera* cam);
@@ -40,20 +45,23 @@ class CameraManager : public Ogre::Singleton<CameraManager>
         //get camera
         inline Ogre::Camera* getCamera() const{return mCamera;}
 
+        inline const bool& isCamMovingAtAll() const{return cameraIsMovingAtAll;}
+
         void moveCamera(Ogre::Real frameTime);
         Ogre::Vector3 getCameraViewTarget();
         void flyTo(Ogre::Vector3 destination);
 
         void move(Direction direction);
-        void stopMoving();
-        void stopZooming();
 
     private:
         CameraManager(const CameraManager&);
 
+        bool checkIfCamMovesAtAll();
+
         Ogre::Camera* mCamera;
         Ogre::SceneNode* mCamNode;
 
+        bool cameraIsMovingAtAll;
         bool cameraIsFlying;
         Ogre::Real moveSpeed;
         Ogre::Real moveSpeedAccel;

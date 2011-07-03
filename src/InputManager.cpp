@@ -312,10 +312,6 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
             gameMap.me->rotateCreaturesInHand(-1);
         }
     }
-    else
-    {
-        CameraManager::getSingleton().stopZooming();
-    }
 
     return true;
 }
@@ -1080,7 +1076,63 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
 bool InputManager::keyReleased(const OIS::KeyEvent &arg)
 {
     CEGUI::System::getSingleton().injectKeyUp(arg.key);
-    CameraManager::getSingleton().stopMoving();
+
+    if(!frameListener->isTerminalActive())
+    {
+        CameraManager& camMgr = CameraManager::getSingleton();
+        switch (arg.key)
+        {
+            case OIS::KC_LEFT:
+            case OIS::KC_A:
+                camMgr.move(camMgr.stopLeft);
+                break;
+
+            case OIS::KC_RIGHT:
+            case OIS::KC_D:
+                camMgr.move(camMgr.stopRight);
+                break;
+
+            case OIS::KC_UP:
+            case OIS::KC_W:
+                camMgr.move(camMgr.stopForward);
+                break;
+
+            case OIS::KC_DOWN:
+            case OIS::KC_S:
+                camMgr.move(camMgr.stopBackward);
+                break;
+
+            case OIS::KC_PGUP:
+            case OIS::KC_E:
+                camMgr.move(camMgr.stopDown);
+                break;
+
+            case OIS::KC_INSERT:
+            case OIS::KC_Q:
+                camMgr.move(camMgr.stopUp);
+                break;
+
+            case OIS::KC_HOME:
+                camMgr.move(camMgr.stopRotUp);
+                break;
+
+            case OIS::KC_END:
+                camMgr.move(camMgr.stopRotDown);
+                break;
+
+            case OIS::KC_DELETE:
+                camMgr.move(camMgr.stopRotLeft);
+                break;
+
+            case OIS::KC_PGDOWN:
+                camMgr.move(camMgr.stopRotRight);
+                break;
+
+            default:
+                break;
+        }
+    }
+
     return true;
 }
 
