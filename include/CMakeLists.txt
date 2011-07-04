@@ -12,6 +12,7 @@ SET(
     CameraManager.h
     ChatMessage.h
     ClientNotification.h
+    Console.h
     CreatureAction.h
     CreatureClass.h
     Creature.h

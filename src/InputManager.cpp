@@ -32,6 +32,7 @@
 #include "Player.h"
 #include "RenderManager.h"
 #include "CameraManager.h"
+#include "Console.h"
 
 #include "InputManager.h"
 
@@ -820,6 +821,11 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
  */
 bool InputManager::keyPressed(const OIS::KeyEvent &arg)
 {
+    //inject key to console (it'll only react if it is turned on)
+    Console::getSingleton().onKeyPressed(arg);
+
+    //TODO: This "if" should be handled by GameState and Console classes
+    //so that we don't need define several if-else or switches-cases for the same key
     if (!frameListener->isTerminalActive())
     {
         std::stringstream tempSS;
@@ -833,6 +839,9 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
         // Keyboard is used to move around and play game
         switch (arg.key)
         {
+            case OIS::KC_F11:
+                Console::getSingleton().toggleVisibility();
+                break;
             case OIS::KC_GRAVE:
             case OIS::KC_F12:
                 frameListener->setTerminalActive(true);

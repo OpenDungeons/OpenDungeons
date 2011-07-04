@@ -23,6 +23,7 @@
 #include "Translation.h"
 #include "GameState.h"
 #include "CameraManager.h"
+#include "Console.h"
 
 #include "ODApplication.h"
 
@@ -87,6 +88,9 @@ ODApplication::ODApplication() :
     //FIXME: This should be at a better place (when level loads for the first time)
     //new MiniMap;
 
+    //FIXME: Is this the best place for instanciating it?
+    new Console();
+
     root->startRendering();
     cleanUp();
 }
@@ -135,6 +139,8 @@ void ODApplication::cleanUp()
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
     delete CameraManager::getSingletonPtr();
+    //TODO: when the console works
+    delete Console::getSingletonPtr();
 }
 
 //TODO: find some better places for some of these

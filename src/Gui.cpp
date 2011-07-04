@@ -39,7 +39,8 @@ Gui* Gui::getSingletonPtr()
  *  including renderer, system, resource provider, setting defaults,
  *  loading all sheets, assigning all event handler
  */
-Gui::Gui()
+Gui::Gui() :
+        activeSheet(hideGui)
 {
     CEGUI::OgreRenderer::bootstrapSystem();
     CEGUI::SchemeManager::getSingleton().create("OpenDungeonsSkin.scheme");
@@ -47,6 +48,7 @@ Gui::Gui()
     CEGUI::System::getSingleton().setDefaultTooltip("OD/Tooltip");
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
+    sheets[hideGui] = 0;
     sheets[ingameMenu] = wmgr->loadWindowLayout("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadWindowLayout("OpenDungeonsMainMenu.layout");
 
@@ -83,6 +85,7 @@ CEGUI::MouseButton Gui::convertButton(OIS::MouseButtonID buttonID)
  */
 void Gui::loadGuiSheet(const guiSheet& newSheet)
 {
+    activeSheet = newSheet;
     CEGUI::System::getSingletonPtr()->setGUISheet(sheets[newSheet]);
 }
 
@@ -215,6 +218,36 @@ bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
 {
     ODFrameListener::getSingletonPtr()->requestExit();
     return true;
+}
+
+/*! \brief shows/hides the GUI if it is hidden/visible
+ *
+ */
+void Gui::toggleGui()
+{
+    if(activeSheet != hideGui)
+    {
+        loadGuiSheet(hideGui);
+    }
+    else
+    {
+        loadGuiSheet(ingameMenu);
+    }
+}
+
+/*! \brief shows (true) or hides (false) the GUI
+ *
+ */
+void Gui::setVisible(const bool& visible)
+{
+    if(visible)
+    {
+        loadGuiSheet(ingameMenu);
+    }
+    else
+    {
+        loadGuiSheet(hideGui);
+    }
 }
 
 /* These constants are used to access the GUI element

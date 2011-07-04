@@ -17,6 +17,7 @@ set(
      ChatMessage.cpp
      Client.cpp
      ClientNotification.cpp
+     Console.cpp
      CreatureAction.cpp
      CreatureClass.cpp
      Creature.cpp
