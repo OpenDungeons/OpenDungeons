@@ -20,21 +20,6 @@
 
 template<> Gui* Ogre::Singleton<Gui>::ms_Singleton = 0;
 
-/*! \brief Returns access to the singleton instance of Gui
- */
-Gui& Gui::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns access to the pointer to the singleton instance of Gui
- */
-Gui* Gui::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 /*! \brief Constructor that initializes the whole CEGUI system
  *  including renderer, system, resource provider, setting defaults,
  *  loading all sheets, assigning all event handler

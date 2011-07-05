@@ -95,23 +95,6 @@ ODApplication::ODApplication() :
     cleanUp();
 }
 
-/*! \brief Returns a reference to the singleton object
- *
- */
-ODApplication& ODApplication::getSingleton()
-{
-    assert (ms_Singleton);
-    return (*ms_Singleton);
-}
-
-/*! \brief Returns a pointer to the singleton object
- *
- */
-ODApplication* ODApplication::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 ODApplication::~ODApplication()
 {
     if(root)

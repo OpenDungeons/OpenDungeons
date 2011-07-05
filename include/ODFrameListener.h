@@ -58,9 +58,6 @@ class ODFrameListener :
 
         inline Ogre::SceneNode* getCreatureSceneNode() const{return creatureSceneNode;};
 
-        static ODFrameListener& getSingleton();
-        static ODFrameListener* getSingletonPtr();
-
         //Adjust mouse clipping area
         virtual void windowResized(Ogre::RenderWindow* rw);
 

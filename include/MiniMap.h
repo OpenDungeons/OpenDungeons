@@ -15,8 +15,6 @@ class MiniMap : public Ogre::Singleton<MiniMap>
     public:
         MiniMap();
         ~MiniMap();
-        static MiniMap& getSingleton();
-        static MiniMap* getSingletonPtr();
         
     private:
         MiniMap(const MiniMap&);

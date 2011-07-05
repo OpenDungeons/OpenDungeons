@@ -83,20 +83,3 @@ MiniMap::MiniMap() :
 MiniMap::~MiniMap()
 {
 }
-
-/*! \brief Returns a reference to the singleton object
- *
- */
-MiniMap& MiniMap::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns a pointer to the singleton object
- *
- */
-MiniMap* MiniMap::getSingletonPtr()
-{
-    return ms_Singleton;
-}

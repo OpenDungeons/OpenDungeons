@@ -47,21 +47,6 @@ template<> ODFrameListener*
 #define snprintf _snprintf
 #endif
 
-/*! \brief Returns access to the singleton instance of Gui
- */
-ODFrameListener& ODFrameListener::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns access to the pointer to the singleton instance of Gui
- */
-ODFrameListener* ODFrameListener::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 /*! \brief This constructor is where the OGRE system is initialized and started.
  *
  * The primary function of this routine is to initialize variables, and start

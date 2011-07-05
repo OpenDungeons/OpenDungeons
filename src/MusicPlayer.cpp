@@ -68,21 +68,6 @@ MusicPlayer::MusicPlayer() :
     }
 }
 
-MusicPlayer::~MusicPlayer()
-{
-}
-
-MusicPlayer& MusicPlayer::getSingleton()
-{
-    return *ms_Singleton;
-}
-
-MusicPlayer* MusicPlayer::getSingletonPtr()
-{
-    assert(ms_Singleton);
-    return ms_Singleton;
-}
-
 /** \brief Check if current track is finished, and change to next track if it is.
  *
  */
@@ -142,4 +127,8 @@ void MusicPlayer::next()
     }
 
     start(newTrack);
+}
+
+MusicPlayer::~MusicPlayer()
+{
 }

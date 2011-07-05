@@ -25,23 +25,6 @@
 template<> LogManager*
         Ogre::Singleton<LogManager>::ms_Singleton = 0;
 
-/*! \brief Returns a reference to the singleton object of LogManager.
- *
- */
-LogManager& LogManager::getSingleton()
-{
-    assert(ms_Singleton);
-    return (*ms_Singleton);
-}
-
-/*! \brief Returns a pointer to the singleton object of LogManager.
- *
- */
-LogManager* LogManager::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 LogManager::LogManager()
 {
 #ifdef LOGMANAGER_USE_LOCKS

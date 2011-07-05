@@ -24,9 +24,6 @@ class CameraManager : public Ogre::Singleton<CameraManager>
 
         CameraManager(Ogre::Camera* cam);
 
-        static CameraManager& getSingleton();
-        static CameraManager* getSingletonPtr();
-
         //get/set moveSpeed
         inline const Ogre::Real& getMoveSpeed() const{return moveSpeed;}
         inline void setMoveSpeed(const Ogre::Real& newMoveSpeed){moveSpeed = newMoveSpeed;}

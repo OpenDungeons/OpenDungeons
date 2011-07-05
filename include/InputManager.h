@@ -24,9 +24,6 @@ class InputManager :
         InputManager();
         virtual ~InputManager();
 
-        static InputManager& getSingleton();
-        static InputManager* getSingletonPtr();
-
         bool mouseMoved(const OIS::MouseEvent &arg);
         bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
         bool mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id);

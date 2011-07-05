@@ -38,21 +38,6 @@
 
 template<> InputManager* Ogre::Singleton<InputManager>::ms_Singleton = 0;
 
-/*! \brief Returns access to the singleton instance of InputManager
- */
-InputManager& InputManager::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns access to the pointer to the singleton instance of Gui
- */
-InputManager* InputManager::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 InputManager::~InputManager()
 {
     LogManager::getSingleton().logMessage("Destroying input objects.");

@@ -257,21 +257,6 @@ ResourceManager::ResourceManager() :
     languagePath = resourcePath + LANGUAGESUBPATH;
 }
 
-/*! \brief Returns access to the singleton instance
- */
-ResourceManager& ResourceManager::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns access to the pointer to the singleton instance
- */
-ResourceManager* ResourceManager::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 void ResourceManager::setupResources()
 {
     Ogre::ConfigFile cf;

@@ -42,8 +42,6 @@ class LogManager : public Ogre::Singleton<LogManager>
 {
 
 public:
-    static LogManager& getSingleton();
-    static LogManager* getSingletonPtr();
     LogManager();
     ~LogManager();
 

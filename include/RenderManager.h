@@ -26,8 +26,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
     public:
         RenderManager(GameMap* gameMap);
         ~RenderManager();
-        static RenderManager& getSingleton();
-        static RenderManager* getSingletonPtr();
+
         void setSceneNodes(Ogre::SceneNode* roomSceneNode,
                                     Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode );
 

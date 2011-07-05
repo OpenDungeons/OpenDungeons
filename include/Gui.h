@@ -30,8 +30,6 @@ class Gui : public Ogre::Singleton<Gui>
 
         Gui();
         ~Gui();
-        static Gui& getSingleton();
-        static Gui* getSingletonPtr();
 
         void loadGuiSheet(const guiSheet& newSheet);
         CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID);

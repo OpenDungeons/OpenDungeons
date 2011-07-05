@@ -12,21 +12,6 @@
 
 template<> CameraManager* Ogre::Singleton<CameraManager>::ms_Singleton = 0;
 
-/*! \brief Returns access to the singleton instance of InputManager
- */
-CameraManager& CameraManager::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns access to the pointer to the singleton instance of Gui
- */
-CameraManager* CameraManager::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 CameraManager::CameraManager(Ogre::Camera* cam) :
         mCamera(cam),
         mCamNode(cam->getParentSceneNode()),

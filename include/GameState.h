@@ -42,8 +42,7 @@ public:
     //add game-modes etc. here
     
     GameState();
-    static GameState& getSingleton();
-    static GameState* getSingletonPtr();
+
     ApplicationState getApplicationState(){return applicationState;}
     void setApplicationState(ApplicationState applicationState){this->applicationState = applicationState;}
     bool getIsServer(){return isServer;}

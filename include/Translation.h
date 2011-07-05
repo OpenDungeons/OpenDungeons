@@ -20,8 +20,6 @@ class Translation : public Ogre::Singleton<Translation>
     public:
         Translation();
         ~Translation();
-        static Translation& getSingleton();
-        static Translation* getSingletonPtr();
 
         inline const std::vector<std::string>* getLanguageList() const{return &languageList;}
         inline const std::vector<std::string>* getLanguageNiceNames() const{return &languageNiceNames;}
