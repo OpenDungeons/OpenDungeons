@@ -13,46 +13,47 @@ template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
 
 Console::Console() :
         visible(false),
+        updateOverlay(true),
         startLine(0),
-        height(1),
-        rect(new Ogre::Rectangle2D(true)),
         //these two define how much text goes into the console
         consoleLineLength(85),
         consoleLineCount(15)
 {
     ODApplication::getSingleton().getRoot()->addFrameListener(this);
 
-    // Create background rectangle covering the whole screen
-    rect->setCorners(-1, 1, 1, 1 - height);
-    rect->setMaterial("console/background");
-    rect->setRenderQueueGroup(Ogre::RENDER_QUEUE_OVERLAY);
-    rect->setBoundingBox(
-            Ogre::AxisAlignedBox(-100000.0 * Ogre::Vector3::UNIT_SCALE,
-                    100000.0 * Ogre::Vector3::UNIT_SCALE));
-    node = ODApplication::getSingleton().getRoot()
-            ->getSceneManagerIterator().getNext()->getRootSceneNode()
-                    ->createChildSceneNode("#Console");
-    node->attachObject(rect);
+    Ogre::OverlayManager& olMgr = Ogre::OverlayManager::getSingleton();
 
-    textbox = Ogre::OverlayManager::getSingleton().createOverlayElement(
-            "TextArea", "ConsoleText");
-    //textbox->setDimensions(1, 0.1);
+    // Create a panel
+    panel = static_cast<Ogre::OverlayContainer*>(
+        olMgr.createOverlayElement("Panel", "ConsolePanel"));
+    panel->setPosition(0, 0);
+    panel->setDimensions(1, 0.5);
+    panel->setMaterialName("console/background");
+
+    // Create a text area
+    textbox = olMgr.createOverlayElement("TextArea", "ConsoleText");
+    textbox->setMetricsMode(Ogre::GMM_PIXELS);
     textbox->setPosition(0, 0);
+    textbox->setDimensions(1, 1);
     textbox->setParameter("font_name", "FreeMono");
-    textbox->setParameter("char_height", "16");
-    textbox->setColour(Ogre::ColourValue(1,1,1,1));
-    textbox->setCaption("hello");
+    textbox->setParameter("char_height", "14");
 
-    overlay = Ogre::OverlayManager::getSingleton().create("Console");
-    overlay->add2D(static_cast<Ogre::OverlayContainer*>(textbox));
+    // Create an overlay, and add the panel
+    overlay = olMgr.create("Console");
+    overlay->add2D(panel);
+
+    // Add the text area to the panel
+    panel->addChild(textbox);
+
+    // Show the overlay
     overlay->show();
-    //LogManager::getSingleton().getDefaultLog()->addListener(this);
+
+   // Ogre::LogManager::getSingleton().getDefaultLog()->addListener(this);
 }
 
 Console::~Console()
 {
-    delete rect;
-    delete node;
+    delete panel;
     delete textbox;
     delete overlay;
 }
@@ -151,27 +152,14 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
 }
 bool Console::frameStarted(const Ogre::FrameEvent &evt)
 {
-    if (visible && height < 1)
+    if(visible)
     {
-        height += evt.timeSinceLastFrame * 2;
-        textbox->show();
-        if (height >= 1)
-        {
-            height = 1;
-        }
+        overlay->show();
     }
-    else if (!visible && height > 0)
+    else
     {
-        height -= evt.timeSinceLastFrame * 2;
-        if (height <= 0)
-        {
-            height = 0;
-            textbox->hide();
-        }
+        overlay->hide();
     }
-
-    textbox->setPosition(0, (height - 1) * 0.5);
-    rect->setCorners(-1, 1 + height, 1, 1 - height);
 
     if(updateOverlay)
     {

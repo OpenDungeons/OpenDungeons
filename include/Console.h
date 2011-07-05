@@ -20,6 +20,7 @@
 class Console :
         public Ogre::Singleton<Console>,
         public Ogre::FrameListener
+        //public Ogre::LogListener
 {
     public:
         Console();
@@ -39,17 +40,17 @@ class Console :
         void addCommand(const Ogre::String &command, void (*)(std::vector<Ogre::String>&));
         void removeCommand(const Ogre::String &command);
 
+        //void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName) {print(logName + ": " + message);}
+
     private:
         unsigned int consoleLineLength;
         unsigned int consoleLineCount;
         bool visible;
-        bool initialized;
-        Ogre::Rectangle2D* rect;
-        Ogre::SceneNode* node;
-        Ogre::OverlayElement* textbox;
-        Ogre::Overlay* overlay;
 
-        float height;
+        Ogre::OverlayContainer* panel;
+        Ogre::OverlayElement*   textbox;
+        Ogre::Overlay*          overlay;
+
         bool updateOverlay;
         int startLine;
         std::list<Ogre::String> lines;
