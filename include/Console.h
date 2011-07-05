@@ -26,9 +26,9 @@ class Console :
         Console();
         ~Console();
 
-        inline void setVisible(const bool& newState){visible = newState; Gui::getSingleton().setVisible(!visible);};
         inline const bool& isVisible() const{return visible;}
-        inline void toggleVisibility(){visible = !visible; Gui::getSingleton().setVisible(!visible);}
+        void setVisible(const bool& newState);
+        void toggleVisibility();
 
         void print(const Ogre::String &text);
 
@@ -56,6 +56,8 @@ class Console :
         std::list<Ogre::String> lines;
         Ogre::String prompt;
         std::map<Ogre::String, void(*)(std::vector<Ogre::String>&)> commands;
+
+        void checkVisibility();
 };
 
 #endif /* CONSOLE_H_ */

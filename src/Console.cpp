@@ -45,9 +45,6 @@ Console::Console() :
     // Add the text area to the panel
     panel->addChild(textbox);
 
-    // Show the overlay
-    overlay->show();
-
    // Ogre::LogManager::getSingleton().getDefaultLog()->addListener(this);
 }
 
@@ -58,6 +55,9 @@ Console::~Console()
     delete overlay;
 }
 
+/*! \brief handles the key input
+ *
+ */
 void Console::onKeyPressed(const OIS::KeyEvent &arg)
 {
     if (!visible)
@@ -150,17 +150,12 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
 
     updateOverlay = true;
 }
+
+/*! \brief what happens per frame
+ *
+ */
 bool Console::frameStarted(const Ogre::FrameEvent &evt)
 {
-    if(visible)
-    {
-        overlay->show();
-    }
-    else
-    {
-        overlay->hide();
-    }
-
     if(updateOverlay)
     {
         Ogre::String text;
@@ -203,6 +198,9 @@ bool Console::frameStarted(const Ogre::FrameEvent &evt)
     return true;
 }
 
+/*! \brief print text to the console
+ *
+ */
 void Console::print(const Ogre::String &text)
 {
     //subdivide it into lines
@@ -233,18 +231,62 @@ void Console::print(const Ogre::String &text)
     updateOverlay = true;
 }
 
+/*! \brief what happens after frame
+ *
+ */
 bool Console::frameEnded(const Ogre::FrameEvent &evt)
 {
     return true;
 }
 
+/*! \brief add a command
+ *
+ */
 void Console::addCommand(const Ogre::String &command,
         void(*func)(std::vector<Ogre::String>&))
 {
     commands[command] = func;
 }
 
+/*! \brief remove a command
+ *
+ */
 void Console::removeCommand(const Ogre::String &command)
 {
     commands.erase(commands.find(command));
+}
+
+/*! \brief show or hide the console manually
+ *
+ */
+void Console::setVisible(const bool& newState)
+{
+    visible = newState;
+    Gui::getSingleton().setVisible(!visible);
+    checkVisibility();
+}
+
+/*! \brief enables or disables the console, depending on what state it has
+ *
+ */
+void Console::toggleVisibility()
+{
+    visible = !visible;
+    Gui::getSingleton().setVisible(!visible);
+    checkVisibility();
+}
+
+/*! \brief Does the actual showing/hiding depending on bool visible
+ *
+ */
+void Console::checkVisibility()
+{
+    if(visible)
+    {
+        overlay->show();
+    }
+    else
+    {
+        overlay->hide();
+    }
 }
