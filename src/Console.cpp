@@ -12,6 +12,7 @@
  */
 
 #include "ODApplication.h"
+#include "ODFrameListener.h"
 
 #include "Console.h"
 
@@ -32,8 +33,8 @@ Console::Console() :
     // Create a panel
     panel = static_cast<Ogre::OverlayContainer*>(
         olMgr.createOverlayElement("Panel", "ConsolePanel"));
-    panel->setPosition(0, 0);
-    panel->setDimensions(1, 0.5);
+    panel->setPosition(0, 0.7);
+    panel->setDimensions(1, 0.3);
     panel->setMaterialName("console/background");
 
     // Create a text area
@@ -43,6 +44,7 @@ Console::Console() :
     textbox->setDimensions(1, 1);
     textbox->setParameter("font_name", "FreeMono");
     textbox->setParameter("char_height", "14");
+    //textbox->setParameter("vert_align", "center");
 
     // Create an overlay, and add the panel
     overlay = olMgr.create("Console");
@@ -75,34 +77,28 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
     {
         case OIS::KC_RETURN:
         {
-            //TODO: convert this to STL string functions
-            //split the parameter list
-            const char *str = prompt.c_str();
-            std::vector<Ogre::String> params;
-            Ogre::String param = "";
+            //split the input into it's space-separated "words"
+            std::vector<Ogre::String> params = split(prompt, ' ');
 
-            for (int c = 0; c < prompt.length(); ++c)
+            //TODO: this won't be needed after we have a good command handling
+            //then we only should need something like executeCommand(params);
+            //where params[0] is the command and all other elements are arguments
+            Ogre::String command = params[0];
+            Ogre::String arguments = "";
+            for(size_t i = 1; i< params.size(); ++i)
             {
-                if (str[c] == ' ')
-                {
-                    if (param.length())
-                    {
-                        params.push_back(param);
-                    }
-
-                    param = "";
-                }
-                else
-                {
-                    param += str[c];
-                }
-            }
-            if (param.length())
-            {
-                params.push_back(param);
+                arguments += params[i] + ' ';
             }
 
+            // Force command to lower case
+            //TODO: later do this only for params[0]
+            std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+
+            ODFrameListener::getSingleton().executePromptCommand(command, arguments);
+
+            // this is the old code for the function pointers from the example
             //try to execute the command
+            /*
             for (std::map<Ogre::String, void(*)(std::vector<Ogre::String>&)>::iterator i = commands.begin();
                     i != commands.end(); ++i)
             {
@@ -114,7 +110,7 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
                     }
                     break;
                 }
-            }
+            }*/
 
             print(prompt);
             prompt = "";
@@ -204,16 +200,13 @@ bool Console::frameStarted(const Ogre::FrameEvent &evt)
  *
  * This function automatically checks if there are linebreaks in the text
  * and separates the text into separate strings
+ *
+ * \param text The text to be added to the console
  */
 void Console::print(const Ogre::String &text)
 {
-    size_t lastBreak = 0;
-    size_t pos = text.find('\n');
-    do
-    {
-        lines.push_back(text.substr(lastBreak, pos));
-        lastBreak = pos + 1; //+1: next time start AFTER the last line break
-    }while(pos != std::string::npos);
+    std::vector<Ogre::String> newLines = split(text, '\n');
+    lines.insert(lines.end(), newLines.begin(), newLines.end());
 
     startLine = (lines.size() > consoleLineCount)
             ? lines.size() - consoleLineCount
@@ -280,4 +273,25 @@ void Console::checkVisibility()
     {
         overlay->hide();
     }
+}
+
+/*! \brief Splits a string on every occurance of splitChar
+ *
+ *  \return A vector of all splitted sub strings
+ *
+ *  \param str The str to be splitted
+ *  \param splitChar The character that defines the split positions
+ */
+std::vector<Ogre::String> Console::split(const Ogre::String& str, const char& splitChar)
+{
+    std::vector<Ogre::String> splittedStrings;
+    size_t lastPos = 0, pos = 0;
+    do
+    {
+        pos = str.find(splitChar, lastPos);
+        splittedStrings.push_back(str.substr(lastPos, pos - lastPos));
+        lastPos = pos + 1; //next time start AFTER the last space
+    }while(pos != std::string::npos);
+
+    return splittedStrings;
 }

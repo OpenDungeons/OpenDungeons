@@ -58,6 +58,7 @@ class Console :
         std::map<Ogre::String, void(*)(std::vector<Ogre::String>&)> commands;
 
         void checkVisibility();
+        std::vector<Ogre::String> split(const Ogre::String& str, const char& splitChar);
 };
 
 #endif /* CONSOLE_H_ */

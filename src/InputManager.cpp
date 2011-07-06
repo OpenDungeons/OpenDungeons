@@ -806,10 +806,6 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
  */
 bool InputManager::keyPressed(const OIS::KeyEvent &arg)
 {
-    //inject key to console (it'll only react if it is turned on)
-    //TODO: later only insert if the console is open
-    Console::getSingleton().onKeyPressed(arg);
-
     //TODO: This "if" should be handled by GameState and Console classes
     //so that we don't need define several if-else or switches-cases for the same key
     if (!frameListener->isTerminalActive())
@@ -825,14 +821,11 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
         // Keyboard is used to move around and play game
         switch (arg.key)
         {
-            case OIS::KC_F11:
-                Console::getSingleton().toggleVisibility();
-                mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
-                break;
             case OIS::KC_GRAVE:
             case OIS::KC_F12:
                 frameListener->setTerminalActive(true);
                 mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
+                Console::getSingleton().setVisible(true);
                 break;
 
             case OIS::KC_LEFT:
@@ -979,6 +972,9 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
     }
     else
     {
+        //inject key to console (it'll only react if it is turned on)
+        Console::getSingleton().onKeyPressed(arg);
+
         std::stringstream tempSS2;
         // If the terminal is active
         // Keyboard is used to command the terminal
@@ -986,6 +982,7 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
         {
             case OIS::KC_RETURN:
 
+                /*
                 // If the user just presses enter without entering a command we return to the game
                 if (frameListener->promptCommand.empty())
                 {
@@ -993,8 +990,8 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
                     frameListener->setTerminalActive(false);
 
                     break;
-                }
-
+                } */
+/*
                 // Split the prompt command into a command and arguments at the first space symbol.
                 char array2[255];
                 tempSS2.str(frameListener->promptCommand);
@@ -1004,25 +1001,29 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
                 frameListener->arguments = array2;
 
                 /* Strip any leading spaces off the arguments string. */
-                while (!frameListener->arguments.empty() && frameListener->arguments[0] == ' ')
+                /* while (!frameListener->arguments.empty() && frameListener->arguments[0] == ' ')
                 {
                     frameListener->arguments = frameListener->arguments.substr(1, frameListener->arguments.size() - 1);
                 }
                 /* Force command to lower case */
-                std::transform(frameListener->command.begin(), frameListener->command.end(), frameListener->command.begin(), ::tolower);
+                /* std::transform(frameListener->command.begin(), frameListener->command.end(), frameListener->command.begin(), ::tolower);
 
                 /* Clear any old command output and execute the new command with the given arguments string. */
+                /*
                 frameListener->commandOutput = "";
                 frameListener->executePromptCommand(frameListener->command, frameListener->arguments);
+                */
                 break;
 
             case OIS::KC_GRAVE:
             case OIS::KC_F12:
             case OIS::KC_ESCAPE:
+                Console::getSingleton().setVisible(false);
                 frameListener->setTerminalActive(false);
                 break;
 
             default:
+                /*
                 // If the key translates to a valid character
                 // for the commandline we add it to the current
                 // promptCommand
@@ -1043,7 +1044,7 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
                         default:
                             break;
                     }
-                }
+                } */
 
                 break;
         }
