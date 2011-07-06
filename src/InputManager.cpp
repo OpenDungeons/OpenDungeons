@@ -807,6 +807,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
 bool InputManager::keyPressed(const OIS::KeyEvent &arg)
 {
     //inject key to console (it'll only react if it is turned on)
+    //TODO: later only insert if the console is open
     Console::getSingleton().onKeyPressed(arg);
 
     //TODO: This "if" should be handled by GameState and Console classes
@@ -826,6 +827,7 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
         {
             case OIS::KC_F11:
                 Console::getSingleton().toggleVisibility();
+                mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
                 break;
             case OIS::KC_GRAVE:
             case OIS::KC_F12:

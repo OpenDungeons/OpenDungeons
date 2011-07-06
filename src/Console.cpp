@@ -5,6 +5,12 @@
  * \brief  Ingame console
  */
 
+/* TODO: decide and implement command handling (functors?)
+ * TODO: decide and adjust the layout and prompt (size, position, color)
+ * TODO: do intense testing that everything works
+ * TODO: switch from TextRenderer to Console
+ */
+
 #include "ODApplication.h"
 
 #include "Console.h"
@@ -69,6 +75,7 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
     {
         case OIS::KC_RETURN:
         {
+            //TODO: convert this to STL string functions
             //split the parameter list
             const char *str = prompt.c_str();
             std::vector<Ogre::String> params;
@@ -133,26 +140,21 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
             break;
 
         default:
-        {
-            char legalchars[] =
-                    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890+!\"#%&/()=?[]\\*-_.:,; ";
-            for (int c = 0; c < sizeof(legalchars) - 1; ++c)
+            if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
+                    arg.text) != std::string::npos)
             {
-                if (legalchars[c] == arg.text)
-                {
-                    prompt += arg.text;
-                    break;
-                }
+                prompt += arg.text;
             }
             break;
-        }
     }
 
     updateOverlay = true;
 }
 
-/*! \brief what happens per frame
+/*! \brief Defines the action on starting the current frame
  *
+ *  The Console listener checks if it needs updating and if it does it will
+ *  redraw itself with the new text
  */
 bool Console::frameStarted(const Ogre::FrameEvent &evt)
 {
@@ -200,29 +202,18 @@ bool Console::frameStarted(const Ogre::FrameEvent &evt)
 
 /*! \brief print text to the console
  *
+ * This function automatically checks if there are linebreaks in the text
+ * and separates the text into separate strings
  */
 void Console::print(const Ogre::String &text)
 {
-    //subdivide it into lines
-    const char *str = text.c_str();
-    int start = 0, count = 0;
-    int len = text.length();
-    Ogre::String line;
-    for (int c = 0; c < len; ++c)
+    size_t lastBreak = 0;
+    size_t pos = text.find('\n');
+    do
     {
-        if (str[c] == '\n' || line.length() >= consoleLineLength)
-        {
-            lines.push_back(line);
-            line = "";
-        }
-
-        if (str[c] != '\n')
-        {
-            line += str[c];
-        }
-    }
-
-    lines.push_back(line);
+        lines.push_back(text.substr(lastBreak, pos));
+        lastBreak = pos + 1; //+1: next time start AFTER the last line break
+    }while(pos != std::string::npos);
 
     startLine = (lines.size() > consoleLineCount)
             ? lines.size() - consoleLineCount

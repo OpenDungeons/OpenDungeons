@@ -588,6 +588,9 @@ void ODFrameListener::printText(const std::string& text)
     TextRenderer::getSingleton().setText("DebugMessages", tempString);
 }
 
+//TODO: bind this to the new console!
+//TODO: convert the default commands to something better (functors?)
+//TODO: make own commands scriptable
 /*! \brief Process the commandline from the terminal and carry out the actions specified in by the user.
  *
  */
