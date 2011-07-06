@@ -13,6 +13,7 @@
 
 #include "ODApplication.h"
 #include "ODFrameListener.h"
+#include "InputManager.h"
 
 #include "Console.h"
 
@@ -22,6 +23,7 @@ Console::Console() :
         visible(false),
         updateOverlay(true),
         startLine(0),
+        curHistPos(0),
         //these two define how much text goes into the console
         consoleLineLength(85),
         consoleLineCount(15)
@@ -75,45 +77,62 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
 
     switch(arg.key)
     {
+        case OIS::KC_GRAVE:
+        case OIS::KC_F12:
+            Console::getSingleton().setVisible(false);
+            ODFrameListener::getSingleton().setTerminalActive(false);
+            InputManager::getSingleton().getKeyboard()->setTextTranslation(OIS::Keyboard::Off);
+            break;
+
         case OIS::KC_RETURN:
         {
-            //split the input into it's space-separated "words"
-            std::vector<Ogre::String> params = split(prompt, ' ');
+            //only do this for non-empty input
+            if(!prompt.empty()){
+                //split the input into it's space-separated "words"
+                std::vector<Ogre::String> params = split(prompt, ' ');
 
-            //TODO: this won't be needed after we have a good command handling
-            //then we only should need something like executeCommand(params);
-            //where params[0] is the command and all other elements are arguments
-            Ogre::String command = params[0];
-            Ogre::String arguments = "";
-            for(size_t i = 1; i< params.size(); ++i)
-            {
-                arguments += params[i] + ' ';
-            }
-
-            // Force command to lower case
-            //TODO: later do this only for params[0]
-            std::transform(command.begin(), command.end(), command.begin(), ::tolower);
-
-            ODFrameListener::getSingleton().executePromptCommand(command, arguments);
-
-            // this is the old code for the function pointers from the example
-            //try to execute the command
-            /*
-            for (std::map<Ogre::String, void(*)(std::vector<Ogre::String>&)>::iterator i = commands.begin();
-                    i != commands.end(); ++i)
-            {
-                if ((*i).first == params[0])
+                //TODO: this won't be needed after we have a good command handling
+                //then we only should need something like executeCommand(params);
+                //where params[0] is the command and all other elements are arguments
+                Ogre::String command = params[0];
+                Ogre::String arguments = "";
+                for(size_t i = 1; i< params.size(); ++i)
                 {
-                    if ((*i).second)
-                    {
-                        (*i).second(params);
-                    }
-                    break;
+                    arguments += params[i] + ' ';
                 }
-            }*/
 
-            print(prompt);
-            prompt = "";
+                // Force command to lower case
+                //TODO: later do this only for params[0]
+                std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+
+                ODFrameListener::getSingleton().executePromptCommand(command, arguments);
+
+                // this is the old code for the function pointers from the example
+                //try to execute the command
+                /*
+                for (std::map<Ogre::String, void(*)(std::vector<Ogre::String>&)>::iterator i = commands.begin();
+                        i != commands.end(); ++i)
+                {
+                    if ((*i).first == params[0])
+                    {
+                        if ((*i).second)
+                        {
+                            (*i).second(params);
+                        }
+                        break;
+                    }
+                }*/
+
+                history.push_back(prompt);
+                ++curHistPos;
+                print(prompt);
+                prompt = "";
+            }
+            else
+            {
+                //set history position back to last entry
+                curHistPos = history.size();
+            }
             break;
         }
 
@@ -133,6 +152,16 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
             {
                 ++startLine;
             }
+            break;
+
+        case OIS::KC_UP:
+            scrollHistory(true);
+            prompt = history[curHistPos];
+            break;
+
+        case OIS::KC_DOWN:
+            scrollHistory(false);
+            prompt = history[curHistPos];
             break;
 
         default:
@@ -294,4 +323,33 @@ std::vector<Ogre::String> Console::split(const Ogre::String& str, const char& sp
     }while(pos != std::string::npos);
 
     return splittedStrings;
+}
+
+/*! \brief Scrolls through the history of user entered commands
+ *
+ *  \param direction true means going up (old), false means going down (new)
+ */
+void Console::scrollHistory(const bool& direction)
+{
+    if(direction)
+    {
+        //don't go unter 0, it's an unsigned int and the minimum index!
+        if(curHistPos == 0)
+        {
+            return;
+        }
+        else
+        {
+            --curHistPos;
+        }
+    }
+    else
+    {
+        //don't go over maximum index!
+        if(++curHistPos > history.size() - 1)
+        {
+            curHistPos = history.size() - 1;
+        }
+
+    }
 }

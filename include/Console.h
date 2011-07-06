@@ -43,22 +43,30 @@ class Console :
         //void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName) {print(logName + ": " + message);}
 
     private:
+        //state variables
         unsigned int consoleLineLength;
         unsigned int consoleLineCount;
         bool visible;
+        bool updateOverlay;
 
+        //basic conatiner objects
         Ogre::OverlayContainer* panel;
         Ogre::OverlayElement*   textbox;
         Ogre::Overlay*          overlay;
 
-        bool updateOverlay;
+        //input/output storage variakes
         int startLine;
         std::list<Ogre::String> lines;
         Ogre::String prompt;
         std::map<Ogre::String, void(*)(std::vector<Ogre::String>&)> commands;
 
+        //history variables
+        std::vector<Ogre::String> history;
+        unsigned int curHistPos;
+
         void checkVisibility();
         std::vector<Ogre::String> split(const Ogre::String& str, const char& splitChar);
+        void scrollHistory(const bool& direction);
 };
 
 #endif /* CONSOLE_H_ */

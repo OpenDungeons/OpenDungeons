@@ -7,6 +7,7 @@
 
 /* TODO: a lot of the stuff happening in these function should be moved
  * into better places and only be called from here
+ * TODO: Make input user-definable
  */
 
 #include <algorithm>
@@ -798,34 +799,30 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
 
 /*! \brief Handle the keyboard input.
  *
- * The operation of this function is largely determined by whether or not the
- * terminal is active or not.  When the terminal is active the keypresses are
- * treated as line editing on the terminal's command prompt.  When the terminal
- * is not active the keyboard is used to move the camera and control the game
- * through hotkeys.
  */
 bool InputManager::keyPressed(const OIS::KeyEvent &arg)
 {
-    //TODO: This "if" should be handled by GameState and Console classes
-    //so that we don't need define several if-else or switches-cases for the same key
-    if (!frameListener->isTerminalActive())
+    //TODO: do this (and the others isInGame() in here) by GameState
+    if(frameListener->isTerminalActive())
     {
-        std::stringstream tempSS;
-
+        Console::getSingleton().onKeyPressed(arg);
+    }
+    else
+    {
+        //inject key to Gui
         CEGUI::System* sys = CEGUI::System::getSingletonPtr();
         sys->injectKeyDown(arg.key);
         sys->injectChar(arg.text);
 
         CameraManager& camMgr = CameraManager::getSingleton();
-        // If the terminal is not active
-        // Keyboard is used to move around and play game
+
         switch (arg.key)
         {
             case OIS::KC_GRAVE:
             case OIS::KC_F12:
                 frameListener->setTerminalActive(true);
-                mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
                 Console::getSingleton().setVisible(true);
+                mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
                 break;
 
             case OIS::KC_LEFT:
@@ -879,7 +876,7 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
                 if (!isInGame())
                 {
                     mCurrentTileType = Tile::nextTileType(mCurrentTileType);
-                    tempSS.str("");
+                    std::stringstream tempSS("");
                     tempSS << "Tile type:  " << Tile::tileTypeToString(
                             mCurrentTileType);
                     ODApplication::MOTD = tempSS.str();
@@ -970,86 +967,6 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
                 break;
         }
     }
-    else
-    {
-        //inject key to console (it'll only react if it is turned on)
-        Console::getSingleton().onKeyPressed(arg);
-
-        std::stringstream tempSS2;
-        // If the terminal is active
-        // Keyboard is used to command the terminal
-        switch (arg.key)
-        {
-            case OIS::KC_RETURN:
-
-                /*
-                // If the user just presses enter without entering a command we return to the game
-                if (frameListener->promptCommand.empty())
-                {
-                    frameListener->promptCommand = "";
-                    frameListener->setTerminalActive(false);
-
-                    break;
-                } */
-/*
-                // Split the prompt command into a command and arguments at the first space symbol.
-                char array2[255];
-                tempSS2.str(frameListener->promptCommand);
-                tempSS2.getline(array2, sizeof(array2), ' ');
-                frameListener->command = array2;
-                tempSS2.getline(array2, sizeof(array2));
-                frameListener->arguments = array2;
-
-                /* Strip any leading spaces off the arguments string. */
-                /* while (!frameListener->arguments.empty() && frameListener->arguments[0] == ' ')
-                {
-                    frameListener->arguments = frameListener->arguments.substr(1, frameListener->arguments.size() - 1);
-                }
-                /* Force command to lower case */
-                /* std::transform(frameListener->command.begin(), frameListener->command.end(), frameListener->command.begin(), ::tolower);
-
-                /* Clear any old command output and execute the new command with the given arguments string. */
-                /*
-                frameListener->commandOutput = "";
-                frameListener->executePromptCommand(frameListener->command, frameListener->arguments);
-                */
-                break;
-
-            case OIS::KC_GRAVE:
-            case OIS::KC_F12:
-            case OIS::KC_ESCAPE:
-                Console::getSingleton().setVisible(false);
-                frameListener->setTerminalActive(false);
-                break;
-
-            default:
-                /*
-                // If the key translates to a valid character
-                // for the commandline we add it to the current
-                // promptCommand
-                if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
-                        arg.text) != std::string::npos)
-                {
-                    frameListener->promptCommand += arg.text;
-                }
-                else
-                {
-                    switch (arg.key)
-                    {
-                        case OIS::KC_BACK:
-                            frameListener->promptCommand = frameListener->promptCommand.substr(0,
-                                    frameListener->promptCommand.size() - 1);
-                            break;
-
-                        default:
-                            break;
-                    }
-                } */
-
-                break;
-        }
-    }
-
     return true;
 }
 
