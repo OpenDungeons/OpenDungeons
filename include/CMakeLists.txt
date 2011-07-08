@@ -1,5 +1,28 @@
 SET(
     SRC_H
+    lua/lapi.h
+	lua/lauxlib.h
+	lua/lcode.h
+    lua/ldebug.h
+    lua/ldo.h
+    lua/lfunc.h
+    lua/lgc.h
+    lua/llex.h
+    lua/llimits.h
+    lua/lmem.h
+    lua/lobject.h
+    lua/lopcodes.h
+    lua/lparser.h
+    lua/lstate.h
+    lua/lstring.h
+    lua/ltable.h
+    lua/ltm.h
+    lua/lua.h
+    lua/luaconf.h
+    lua/lualib.h
+    lua/lundump.h
+    lua/lvm.h
+    lua/lzio.h
     tinygettext/dictionary_manager.hpp
     tinygettext/dictionary.hpp
     tinygettext/language.hpp
@@ -29,6 +52,7 @@ SET(
     GoalProtectCreature.h
     GoalProtectDungeonTemple.h
     InputManager.h
+    LuaWrapper.h
     MapEditor.h
     MapLight.h
     MiniMap.h

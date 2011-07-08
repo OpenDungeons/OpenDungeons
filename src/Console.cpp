@@ -25,8 +25,8 @@ Console::Console() :
         startLine(0),
         curHistPos(0),
         //these two define how much text goes into the console
-        consoleLineLength(85),
-        consoleLineCount(15)
+        consoleLineLength(100),
+        consoleLineCount(10)
 {
     ODApplication::getSingleton().getRoot()->addFrameListener(this);
 
@@ -41,12 +41,9 @@ Console::Console() :
 
     // Create a text area
     textbox = olMgr.createOverlayElement("TextArea", "ConsoleText");
-    textbox->setMetricsMode(Ogre::GMM_PIXELS);
     textbox->setPosition(0, 0);
-    textbox->setDimensions(1, 1);
     textbox->setParameter("font_name", "FreeMono");
-    textbox->setParameter("char_height", "14");
-    //textbox->setParameter("vert_align", "center");
+    textbox->setParameter("char_height", "0.02");
 
     // Create an overlay, and add the panel
     overlay = olMgr.create("Console");

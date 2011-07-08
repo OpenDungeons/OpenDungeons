@@ -76,6 +76,7 @@ find_package(OpenAL REQUIRED)
 ##################################
 
 include_directories( ${CMAKE_SOURCE_DIR}/include )
+include_directories( ${CMAKE_SOURCE_DIR}/include/lua )
 include_directories( ${CMAKE_SOURCE_DIR}/include/tinygettext )
 
 #Provide dirent.h if visual studio is used
