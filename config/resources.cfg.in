@@ -1,8 +1,3 @@
-# Resource locations to be added to the 'boostrap' path
-# This also contains the minimum you need to use the Ogre example framework
-[Bootstrap]
-Zip=@OPENDUNGEONS_MEDIA_DIR@/packs/OgreCore.zip
-
 # Resource locations to be added to the default path
 [General]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@
