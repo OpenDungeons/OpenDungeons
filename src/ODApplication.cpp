@@ -23,7 +23,7 @@
 #include "Translation.h"
 #include "GameState.h"
 #include "CameraManager.h"
-#include "LuaWrapper.h"
+#include "ASWrapper.h"
 #include "Console.h"
 
 #include "ODApplication.h"
@@ -90,7 +90,7 @@ ODApplication::ODApplication() :
     //new MiniMap;
 
     //FIXME: Is this the best place for instanciating these two?
-    new LuaWrapper();
+    new ASWrapper();
     new Console();
 
     root->startRendering();
@@ -125,7 +125,7 @@ void ODApplication::cleanUp()
     delete LogManager::getSingletonPtr();
     delete CameraManager::getSingletonPtr();
     delete Console::getSingletonPtr();
-    delete LuaWrapper::getSingletonPtr();
+    delete ASWrapper::getSingletonPtr();
 }
 
 //TODO: find some better places for some of these

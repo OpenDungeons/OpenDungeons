@@ -4,36 +4,43 @@
 
 set(
      OD_SOURCEFILES
-     lua/lapi.c
-     lua/lauxlib.c
-     lua/lbaselib.c
-     lua/lcode.c
-     lua/ldblib.c
-     lua/ldebug.c
-     lua/ldo.c
-     lua/ldump.c
-     lua/lfunc.c
-     lua/lgc.c
-     lua/linit.c
-     lua/liolib.c
-     lua/llex.c
-     lua/lmathlib.c
-     lua/lmem.c
-     lua/loadlib.c
-     lua/lobject.c
-     lua/lopcodes.c
-     lua/loslib.c
-     lua/lparser.c
-     lua/lstate.c
-     lua/lstring.c
-     lua/lstrlib.c
-     lua/ltable.c
-     lua/ltablib.c
-     lua/ltm.c
-     lua/lundump.c
-     lua/lvm.c
-     lua/lzio.c
-     lua/print.c
+	 angelscript/as_atomic.cpp
+     angelscript/as_builder.cpp
+     angelscript/as_bytecode.cpp
+     angelscript/as_callfunc.cpp
+     angelscript/as_callfunc_arm.cpp
+     angelscript/as_callfunc_mips.cpp
+     angelscript/as_callfunc_ppc.cpp
+     angelscript/as_callfunc_ppc_64.cpp
+     angelscript/as_callfunc_sh4.cpp
+     angelscript/as_callfunc_x64_gcc.cpp
+     angelscript/as_callfunc_x64_msvc.cpp
+     angelscript/as_callfunc_x86.cpp
+     angelscript/as_callfunc_xenon.cpp
+     angelscript/as_compiler.cpp
+     angelscript/as_configgroup.cpp
+     angelscript/as_context.cpp
+     angelscript/as_datatype.cpp
+     angelscript/as_gc.cpp
+     angelscript/as_generic.cpp
+     angelscript/as_globalproperty.cpp
+     angelscript/as_memory.cpp
+     angelscript/as_module.cpp
+     angelscript/as_objecttype.cpp
+     angelscript/as_outputbuffer.cpp
+     angelscript/as_parser.cpp
+     angelscript/as_restore.cpp
+     angelscript/as_scriptcode.cpp
+     angelscript/as_scriptengine.cpp
+     angelscript/as_scriptfunction.cpp
+     angelscript/as_scriptnode.cpp
+     angelscript/as_scriptobject.cpp
+     angelscript/as_string.cpp
+     angelscript/as_string_util.cpp
+     angelscript/as_thread.cpp
+     angelscript/as_tokenizer.cpp
+     angelscript/as_typeinfo.cpp
+     angelscript/as_variablescope.cpp
      tinygettext/dictionary_manager.cpp
      tinygettext/dictionary.cpp
      tinygettext/language.cpp
@@ -43,6 +50,7 @@ set(
      ActiveObject.cpp
      AttackableObject.cpp
      AnimatedObject.cpp
+     ASWrapper.cpp
      CameraManager.cpp
      ChatMessage.cpp
      Client.cpp
@@ -66,7 +74,6 @@ set(
      Gui.cpp
      InputManager.cpp
      LogManager.cpp
-     LuaWrapper.cpp
      main.cpp
      MapLight.cpp
      MiniMap.cpp

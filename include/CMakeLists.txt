@@ -1,28 +1,27 @@
 SET(
     SRC_H
-    lua/lapi.h
-	lua/lauxlib.h
-	lua/lcode.h
-    lua/ldebug.h
-    lua/ldo.h
-    lua/lfunc.h
-    lua/lgc.h
-    lua/llex.h
-    lua/llimits.h
-    lua/lmem.h
-    lua/lobject.h
-    lua/lopcodes.h
-    lua/lparser.h
-    lua/lstate.h
-    lua/lstring.h
-    lua/ltable.h
-    lua/ltm.h
-    lua/lua.h
-    lua/luaconf.h
-    lua/lualib.h
-    lua/lundump.h
-    lua/lvm.h
-    lua/lzio.h
+    angelscript/as_generic.h
+    angelscript/as_map.h
+    angelscript/as_memory.h
+    angelscript/as_module.h
+    angelscript/as_objecttype.h
+    angelscript/as_outputbuffer.h
+    angelscript/as_parser.h
+    angelscript/as_property.h
+    angelscript/as_restore.h
+    angelscript/as_scriptcode.h
+    angelscript/as_scriptengine.h
+    angelscript/as_scriptfunction.h
+    angelscript/as_scriptnode.h
+    angelscript/as_scriptobject.h
+    angelscript/as_string.h
+    angelscript/as_string_util.h
+    angelscript/as_texts.h
+    angelscript/as_thread.h
+    angelscript/as_tokendef.h
+    angelscript/as_tokenizer.h
+    angelscript/as_typeinfo.h
+    angelscript/as_variablescope.h
     tinygettext/dictionary_manager.hpp
     tinygettext/dictionary.hpp
     tinygettext/language.hpp
@@ -30,7 +29,9 @@ SET(
     tinygettext/po_parser.hpp
     tinygettext/tinygettext.hpp
     ActiveObject.h
+    angelscript.h
     AnimatedObject.h
+    ASWrapper.h
     AttackableObject.h
     CameraManager.h
     ChatMessage.h
@@ -52,7 +53,6 @@ SET(
     GoalProtectCreature.h
     GoalProtectDungeonTemple.h
     InputManager.h
-    LuaWrapper.h
     MapEditor.h
     MapLight.h
     MiniMap.h
