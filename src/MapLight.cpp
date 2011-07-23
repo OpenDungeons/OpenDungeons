@@ -25,9 +25,9 @@ void MapLight::initialize()
     thetaX = 0.0;
     thetaY = 0.0;
     thetaZ = 0.0;
-    factorX = 1;
-    factorY = 1;
-    factorZ = 1;
+    factorX = 0.1;
+    factorY = 0.1;
+    factorZ = 0.1;
 }
 
 MapLight::MapLight()

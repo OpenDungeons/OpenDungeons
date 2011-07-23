@@ -119,7 +119,7 @@ void RenderManager::createScene()
     // Create ogre entities for the tiles, rooms, and creatures
     gameMap->createAllEntities();
 
-    sceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.36, 0.28));
+    sceneManager->setAmbientLight(Ogre::ColourValue(0.05, 0.05, 0.05));
 
     // Create the scene node that the camera attaches to
     Ogre::SceneNode* node = sceneManager->getRootSceneNode()
@@ -145,10 +145,10 @@ void RenderManager::createScene()
     // Create the light which follows the single tile selection mesh
     Ogre::Light* light = sceneManager->createLight("MouseLight");
     light->setType(Ogre::Light::LT_POINT);
-    light->setDiffuseColour(Ogre::ColourValue(.5, .7, .6));
-    light->setSpecularColour(Ogre::ColourValue(.5, .4, .4));
-    light->setPosition(0, 0, 5);
-    light->setAttenuation(20, 0.15, 0.15, 0.017);
+    light->setDiffuseColour(Ogre::ColourValue(.25, .25, .25));
+    light->setSpecularColour(Ogre::ColourValue(.25, .25, .25));
+    light->setPosition(0, 0, 3);
+    light->setAttenuation(15, 1.0, 0.7, 0.17);
     node->attachObject(light);
 }
 
