@@ -32,8 +32,8 @@ public:
     virtual ~AIWrapper();
     int getGoldInTreasury();
     //Do we need more than a true/false here?
-    boolean buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2);
-    boolean dropCreature(int x, int y, int index);
+    bool buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2);
+    bool dropCreature(int x, int y, int index);
     const std::vector<const Creature*> getCreaturesInHand();
     
     //Should remove these when we have the needed functions

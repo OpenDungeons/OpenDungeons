@@ -1,5 +1,27 @@
 SET(
     SRC_H
+    angelscript/as_generic.h
+    angelscript/as_map.h
+    angelscript/as_memory.h
+    angelscript/as_module.h
+    angelscript/as_objecttype.h
+    angelscript/as_outputbuffer.h
+    angelscript/as_parser.h
+    angelscript/as_property.h
+    angelscript/as_restore.h
+    angelscript/as_scriptcode.h
+    angelscript/as_scriptengine.h
+    angelscript/as_scriptfunction.h
+    angelscript/as_scriptnode.h
+    angelscript/as_scriptobject.h
+    angelscript/as_string.h
+    angelscript/as_string_util.h
+    angelscript/as_texts.h
+    angelscript/as_thread.h
+    angelscript/as_tokendef.h
+    angelscript/as_tokenizer.h
+    angelscript/as_typeinfo.h
+    angelscript/as_variablescope.h
     tinygettext/dictionary_manager.hpp
     tinygettext/dictionary.hpp
     tinygettext/language.hpp
@@ -7,10 +29,14 @@ SET(
     tinygettext/po_parser.hpp
     tinygettext/tinygettext.hpp
     ActiveObject.h
+    angelscript.h
     AnimatedObject.h
+    ASWrapper.h
     AttackableObject.h
+    CameraManager.h
     ChatMessage.h
     ClientNotification.h
+    Console.h
     CreatureAction.h
     CreatureClass.h
     Creature.h
@@ -26,6 +52,7 @@ SET(
     GoalMineNGold.h
     GoalProtectCreature.h
     GoalProtectDungeonTemple.h
+    InputManager.h
     MapEditor.h
     MapLight.h
     MiniMap.h

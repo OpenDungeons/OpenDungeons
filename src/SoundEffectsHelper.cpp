@@ -11,23 +11,6 @@ const float TILE_ZPOS = 2.5;
 template<> SoundEffectsHelper*
         Ogre::Singleton<SoundEffectsHelper>::ms_Singleton = 0;
 
-/*! \brief Returns a reference to the singleton object of SoundEffectsHelper.
- *
- */
-SoundEffectsHelper& SoundEffectsHelper::getSingleton()
-{
-    assert(ms_Singleton);
-    return (*ms_Singleton);
-}
-
-/*! \brief Returns a pointer to the singleton object of SoundEffectsHelper.
- *
- */
-SoundEffectsHelper* SoundEffectsHelper::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 /*! \brief Loads sounds
  *
  */

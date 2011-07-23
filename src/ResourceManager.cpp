@@ -24,6 +24,8 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#include "ODApplication.h"
+
 #include "ResourceManager.h"
 
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::ms_Singleton = 0;
@@ -66,6 +68,7 @@ bool ResourceManager::hasFileEnding(const std::string& filename, const std::stri
  *  function macBundlePath does this for us.
  */
 ResourceManager::ResourceManager() :
+        screenshotCounter(0),
         resourcePath("./"),
         homePath("./"),
         pluginsPath(""),
@@ -254,21 +257,6 @@ ResourceManager::ResourceManager() :
     languagePath = resourcePath + LANGUAGESUBPATH;
 }
 
-/*! \brief Returns access to the singleton instance
- */
-ResourceManager& ResourceManager::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns access to the pointer to the singleton instance
- */
-ResourceManager* ResourceManager::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 void ResourceManager::setupResources()
 {
     Ogre::ConfigFile cf;
@@ -338,4 +326,15 @@ Ogre::StringVectorPtr ResourceManager::listAllMusicFiles()
 {
     return Ogre::ResourceGroupManager::getSingleton().
             listResourceNames(RESOURCEGROUPMUSIC);
+}
+
+/*! \brief saves a screenshot
+ *
+ */
+void ResourceManager::takeScreenshot()
+{
+    //FIXME: the counter is reset after each start, this overwrites existing pictures
+    std::ostringstream ss;
+    ss << "ODscreenshot_" << ++screenshotCounter << ".png";
+    ODApplication::getSingleton().getWindow()->writeContentsToFile(getHomePath() + ss.str());
 }

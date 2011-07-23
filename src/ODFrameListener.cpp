@@ -34,6 +34,9 @@
 #include "Gui.h"
 #include "ODApplication.h"
 #include "GameState.h"
+#include "LogManager.h"
+#include "InputManager.h"
+#include "CameraManager.h"
 
 #include "ODFrameListener.h"
 
@@ -44,125 +47,20 @@ template<> ODFrameListener*
 #define snprintf _snprintf
 #endif
 
-void ODFrameListener::updateStats()
-{
-    static Ogre::String currFps = "Current FPS: ";
-    static Ogre::String avgFps = "Average FPS: ";
-    static Ogre::String bestFps = "Best FPS: ";
-    static Ogre::String worstFps = "Worst FPS: ";
-    static Ogre::String tris = "Triangle Count: ";
-    static Ogre::String batches = "Batch Count: ";
-
-    //Don't update the stats too often.
-    if(statsDisplayTimer.getMilliseconds() > static_cast<unsigned long>(250))
-    {
-        statsDisplayTimer.reset();
-
-        // update stats when necessary
-        try
-        {
-            Ogre::OverlayElement* guiAvg =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/AverageFps");
-            Ogre::OverlayElement* guiCurr =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/CurrFps");
-            Ogre::OverlayElement* guiBest =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/BestFps");
-            Ogre::OverlayElement* guiWorst =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement("Core/WorstFps");
-
-            const Ogre::RenderTarget::FrameStats& stats = mWindow->getStatistics();
-            guiAvg->setCaption(avgFps + Ogre::StringConverter::toString(stats.avgFPS));
-            guiCurr->setCaption(currFps + Ogre::StringConverter::toString(stats.lastFPS));
-            guiBest->setCaption(bestFps + Ogre::StringConverter::toString(stats.bestFPS)
-                    + " " + Ogre::StringConverter::toString(stats.bestFrameTime) + " ms");
-            guiWorst->setCaption(worstFps + Ogre::StringConverter::toString(
-                    stats.worstFPS) + " " + Ogre::StringConverter::toString(
-                    stats.worstFrameTime) + " ms");
-
-            Ogre::OverlayElement* guiTris =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement(
-                            "Core/NumTris");
-            guiTris->setCaption(
-                    tris + Ogre::StringConverter::toString(stats.triangleCount));
-
-            Ogre::OverlayElement* guiBatches =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement(
-                            "Core/NumBatches");
-            guiBatches->setCaption(
-                    batches + Ogre::StringConverter::toString(stats.batchCount));
-
-            Ogre::OverlayElement* guiDbg =
-                    Ogre::OverlayManager::getSingleton().getOverlayElement(
-                            "Core/DebugText");
-            guiDbg->setCaption(mDebugText);
-        }
-        catch (...)
-        { //FIXME should not ignore exceptions unless there is a really good reason.
-        }
-    }
-}
-
-/*! \brief Returns access to the singleton instance of Gui
- */
-ODFrameListener& ODFrameListener::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns access to the pointer to the singleton instance of Gui
- */
-ODFrameListener* ODFrameListener::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 /*! \brief This constructor is where the OGRE system is initialized and started.
  *
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
-        bool bufferedKeys, bool bufferedMouse, bool bufferedJoy) :
-        command(""),
-        arguments(""),
-        commandOutput(""),
-        prompt("-->  "),
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         chatMaxMessages(10),
         chatMaxTimeDisplay(20),
         mContinue(true),
-        mCamera(cam),
-        mCamNode(cam->getParentSceneNode()),
-        translateVector(Ogre::Vector3(0.0, 0.0, 0.0)),
-        translateVectorAccel(Ogre::Vector3(0.0, 0.0, 0.0)),
-        mRotateLocalVector(Ogre::Vector3(0.0, 0.0, 0.0)),
-        zChange(0.0),
         mWindow(win),
-        cameraIsFlying(false),
-        moveSpeed(2.0),
-        //NOTE: when changing, also change it in the terminal command 'movespeed'.
-        moveSpeedAccel(static_cast<Ogre::Real> (2.0f) * moveSpeed),
-        mRotateSpeed(90),
-        swivelDegrees(0.0),
-        cameraFlightSpeed(70.0),
-        mStatsOn(false),
-        mNumScreenShots(0),
-        mZoomSpeed(7),
-        mCurrentTileType(Tile::dirt),
-        mCurrentFullness(100),
-        mCurrentTileRadius(1),
-        mBrushMode(false),
         frameDelay(0.0),
-        mDebugOverlay(0),
-        mInputManager(0),
-        mMouse(0),
-        mKeyboard(0),
-        mLMouseDown(false),
-        mRMouseDown(false),
         renderManager(RenderManager::getSingletonPtr()),
         terminalActive(false),
         terminalWordWrap(78),
-        mDragType(ODFrameListener::nullDragType),
         sfxHelper(SoundEffectsHelper::getSingletonPtr()),
         lastTurnDisplayUpdated(-1)
 {
@@ -179,32 +77,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
             "Light_scene_node");
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
-    for (int i = 0; i < 10; ++i)
-    {
-        hotkeyLocationIsValid[i] = false;
-        hotkeyLocation[i] = Ogre::Vector3::ZERO;
-    }
-
-    Ogre::LogManager::getSingletonPtr()->logMessage("*** Initializing OIS ***");
-
-    size_t windowHnd = 0;
-    win->getCustomAttribute("WINDOW", &windowHnd);
-
-    std::ostringstream windowHndStr;
-    windowHndStr << windowHnd;
-
-    OIS::ParamList pl;
-    pl.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
-    //Not sure if this should be enabled or not.
-    //pl.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
-
-    mInputManager = OIS::InputManager::createInputSystem(pl);
-
-    //Create all devices (We only catch joystick exceptions here, as, most people have Key/Mouse)
-    mKeyboard = static_cast<OIS::Keyboard*> (mInputManager->createInputObject(
-            OIS::OISKeyboard, bufferedKeys));
-    mMouse = static_cast<OIS::Mouse*> (mInputManager->createInputObject(OIS::OISMouse,
-            bufferedMouse));
+    inputManager = new InputManager();
 
     //Set initial mouse clipping size
     windowResized(mWindow);
@@ -212,11 +85,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
-    mMouse->setEventCallback(this);
-    mKeyboard->setEventCallback(this);
-
-    TextRenderer::getSingleton().addTextBox(ODApplication::POINTER_INFO_STRING, "", 0, 0, 200,
-            50, Ogre::ColourValue::White);
+    TextRenderer::getSingleton().addTextBox(ODApplication::POINTER_INFO_STRING, "",
+            0, 0, 200, 50, Ogre::ColourValue::White);
 
     renderManager = RenderManager::getSingletonPtr();
     renderManager->setSceneNodes(roomSceneNode, creatureSceneNode,
@@ -234,8 +104,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::Camera* cam,
     threadStopRequested.set(false);
     exitRequested.set(false);
     
-    Ogre::LogManager::getSingletonPtr()->logMessage(
-            "*** FrameListener initialized ***");
+    LogManager::getSingletonPtr()->logMessage("*** FrameListener initialized ***");
 }
 
 /*! \brief Adjust mouse clipping area
@@ -247,7 +116,7 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = mMouse->getMouseState();
+    const OIS::MouseState &ms = inputManager->getMouse()->getMouseState();
     ms.width = width;
     ms.height = height;
 
@@ -261,17 +130,11 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
  */
 void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
 {
-    //Only close for window that created OIS (the main window in these demos)
     if(rw == mWindow)
     {
-        if(mInputManager)
+        if(inputManager)
         {
-            Ogre::LogManager::getSingleton().logMessage("Destroying input objects.");
-            mInputManager->destroyInputObject(mMouse);
-            mInputManager->destroyInputObject(mKeyboard);
-            
-            OIS::InputManager::destroyInputSystem(mInputManager);
-            mInputManager = 0;
+            delete inputManager;
         }
     }
 }
@@ -289,7 +152,7 @@ void ODFrameListener::requestExit()
 void ODFrameListener::exitApplication()
 {
 
-    Ogre::LogManager::getSingleton().logMessage("\nClosing down.");
+    LogManager::getSingleton().logMessage("\nClosing down.");
     //Mark that we want the threads to stop.
     requestStopThreads();
     
@@ -366,148 +229,6 @@ void ODFrameListener::setThreadStopRequested(bool value)
 void ODFrameListener::requestStopThreads()
 {
     threadStopRequested.set(true);
-}
-
-/*! \brief Sets the camera to a new location while still satisfying the constraints placed on its movement
- *
- */
-void ODFrameListener::moveCamera(Ogre::Real frameTime)
-{
-    // Carry out the acceleration/deceleration calculations on the camera translation.
-    Ogre::Real speed = translateVector.normalise();
-    translateVector *= max(0.0, speed - (0.75 + (speed / moveSpeed))
-            * moveSpeedAccel * frameTime);
-    translateVector += translateVectorAccel * (frameTime * 2.0);
-
-    // If we have sped up to more than the maximum moveSpeed then rescale the vector to that length.
-    // We use the squaredLength() in this calculation since squaring the RHS is faster than sqrt'ing the LHS.
-    if (translateVector.squaredLength() > moveSpeed * moveSpeed)
-    {
-        speed = translateVector.length();
-        translateVector *= moveSpeed / speed;
-    }
-
-    // Get the camera's current position.
-    Ogre::Vector3 newPosition = mCamNode->getPosition();
-
-    // Get a quaternion which will rotate the "camera relative" x-y values for the translateVector into the global x-y used to position the camera.
-    Ogre::Vector3 viewTarget = getCameraViewTarget();
-    Ogre::Vector3 viewDirection = viewTarget - newPosition;
-    viewDirection.z = 0.0;
-    Ogre::Quaternion viewDirectionQuaternion = Ogre::Vector3::UNIT_Y.getRotationTo(
-            viewDirection);
-
-    // Adjust the newPosition vector to account for the translation due to the movement keys on the keyboard (the arrow keys and/or WASD).
-    newPosition.z += zChange * frameTime * mZoomSpeed;
-    Ogre::Real horizontalSpeedFactor = (newPosition.z >= 25.0) ? 1.0
-            : newPosition.z / (25.0);
-    newPosition += horizontalSpeedFactor * (viewDirectionQuaternion
-            * translateVector);
-
-    // Prevent camera from moving down into the tiles.
-    if (newPosition.z <= 4.5)
-        newPosition.z = 4.5;
-
-    // Tilt the camera up or down.
-    mCamNode->rotate(Ogre::Vector3::UNIT_X, Ogre::Degree(mRotateLocalVector.x
-            * frameTime), Ogre::Node::TS_LOCAL);
-    mCamNode->rotate(Ogre::Vector3::UNIT_Y, Ogre::Degree(mRotateLocalVector.y
-            * frameTime), Ogre::Node::TS_LOCAL);
-    mCamNode->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(mRotateLocalVector.z
-            * frameTime), Ogre::Node::TS_LOCAL);
-
-    // Swivel the camera to the left or right, while maintaining the same view target location on the ground.
-    Ogre::Real deltaX = newPosition.x - viewTarget.x;
-    Ogre::Real deltaY = newPosition.y - viewTarget.y;
-    Ogre::Real radius = sqrt(deltaX * deltaX + deltaY * deltaY);
-    Ogre::Real theta = atan2(deltaY, deltaX);
-    theta += swivelDegrees.valueRadians() * frameTime;
-    newPosition.x = viewTarget.x + radius * cos(theta);
-    newPosition.y = viewTarget.y + radius * sin(theta);
-    mCamNode->rotate(Ogre::Vector3::UNIT_Z, Ogre::Degree(swivelDegrees * frameTime),
-            Ogre::Node::TS_WORLD);
-
-    // If the camera is trying to fly toward a destination, move it in that direction.
-    if (cameraIsFlying)
-    {
-        // Compute the direction and distance the camera needs to move to get to its intended destination.
-        Ogre::Vector3 flightDirection = cameraFlightDestination - viewTarget;
-        radius = flightDirection.normalise();
-
-        // If we are withing the stopping distance of the target, then quit flying.  Otherwise we move towards the destination.
-        if (radius <= 0.25)
-        {
-            // We are withing the stopping distance of the target destination so stop flying towards it.
-            cameraIsFlying = false;
-        }
-        else
-        {
-            // Scale the flight direction to move towards at the given speed (the min function prevents
-            // overshooting the target) then add this offset vector to the camera position.
-            flightDirection *= min(cameraFlightSpeed * frameTime, radius);
-            newPosition += flightDirection;
-        }
-    }
-
-    // Move the camera to the new location
-    mCamNode->setPosition(newPosition);
-    sfxHelper->setListenerPosition(newPosition, mCamNode->getOrientation());
-    mouseMoved(OIS::MouseEvent(NULL, mMouse->getMouseState()));
-}
-
-/** \brief Computes a vector whose z-component is 0 and whose x-y coordinates are the position on the floor that the camera is pointed at.
- *
- */
-Ogre::Vector3 ODFrameListener::getCameraViewTarget()
-{
-    Ogre::Vector3 target, position, viewDirection, offset;
-
-    // Get the position of the camera and direction that the camera is facing.
-    position = mCamera->getRealPosition();
-    viewDirection = mCamera->getDerivedDirection();
-
-    // Compute the offset, this is how far you would move in the x-y plane if
-    // you follow along the view direction vector until you get to z = 0.
-    viewDirection.normalise();
-    viewDirection /= fabs(viewDirection.z);
-    offset = position.z * viewDirection;
-    offset.z = 0.0;
-
-    // The location we are looking at is then simply the camera's positon plus the view
-    // offset computed above.  We zero the z-value on the target for consistency.
-    target = position + offset;
-    target.z = 0.0;
-
-    return target;
-}
-
-/** \brief Starts the camera moving towards a destination position, it will stop moving when it gets there.
- *
- */
-void ODFrameListener::flyTo(Ogre::Vector3 destination)
-{
-    cameraFlightDestination = destination;
-    cameraFlightDestination.z = 0.0;
-    cameraIsFlying = true;
-}
-
-void ODFrameListener::showDebugOverlay(bool show)
-{
-    if (mDebugOverlay)
-    {
-        if (show)
-            mDebugOverlay->show();
-        else
-            mDebugOverlay->hide();
-    }
-    else
-    {
-        if (show)
-        {
-            mDebugOverlay = Ogre::OverlayManager::getSingleton().getByName(
-                    "Core/DebugOverlay");
-        }
-    }
 }
 
 /*! \brief The main rendering function for the OGRE 3d environment.
@@ -588,6 +309,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 - gameMap.averageAILeftoverTime);
         turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
                 static_cast<Ogre::Real>(maxTps)).substr(0, 4);
+        turnString += "\nFPS: " + Ogre::StringConverter::toString(
+                mWindow->getStatistics().lastFPS);
     }
     turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
             turnNumber.get());
@@ -770,19 +493,16 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 tempWindow->setText(tempSS.str());
             }
         }
-        
-
     }
 
     // Decrement the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     gameMap.threadUnlockForTurn(currentTurnNumber);
 
     //Need to capture/update each device
-    mKeyboard->capture();
-    mMouse->capture();
-    //if( mJoy ) mJoy->capture();
+    inputManager->getKeyboard()->capture();
+    inputManager->getMouse()->capture();
 
-    moveCamera(evt.timeSinceLastFrame);
+    CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
 
     // Sleep to limit the framerate to the max value
     frameDelay -= evt.timeSinceLastFrame;
@@ -809,8 +529,6 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
-
-    updateStats();
     return true;
 }
 
@@ -828,1074 +546,13 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(
 {
     // Setup the ray scene query, use CEGUI's mouse position
     CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();// * mMouseScale;
-    Ogre::Ray mouseRay = mCamera->getCameraToViewportRay(mousePos.d_x / float(
+    Ogre::Ray mouseRay = CameraManager::getSingleton().getCamera()->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
     mRaySceneQuery->setRay(mouseRay);
     mRaySceneQuery->setSortByDistance(true);
 
     // Execute query
     return mRaySceneQuery->execute();
-}
-
-/*! \brief Process the mouse movement event.
- *
- * The function does a raySceneQuery to determine what object the mouse is over
- * to handle things like dragging out selections of tiles and selecting
- * creatures.
- */
-bool ODFrameListener::mouseMoved(const OIS::MouseEvent &arg)
-{
-    CEGUI::System::getSingleton().injectMousePosition(arg.state.X.abs,
-            arg.state.Y.abs);
-
-    //If we have a room or trap (or later spell) selected, show what we
-    //have selected
-    //TODO: This should be changed, or combined with an icon or something later.
-    if (gameMap.me->newRoomType || gameMap.me->newTrapType)
-    {
-        TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-                arg.state.X.abs + 30, arg.state.Y.abs);
-    }
-
-    Ogre::RaySceneQueryResult& result = doRaySceneQuery(arg);
-    Ogre::RaySceneQueryResult::iterator itr = result.begin();
-    Ogre::RaySceneQueryResult::iterator end = result.end();
-    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-    string resultName = "";
-    if (mDragType == ODFrameListener::tileSelection || mDragType
-            == ODFrameListener::addNewRoom || mDragType
-            == ODFrameListener::nullDragType)
-    {
-        // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
-        for(; itr != end; ++itr)
-        {
-            if (itr->movable != NULL)
-            {
-                // Check to see if the current query result is a tile.
-                resultName = itr->movable->getName();
-                if (resultName.find("Level_") != string::npos)
-                {
-                    // Get the x-y coordinates of the tile.
-                    sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
-
-                    // Make sure the "square selector" mesh is visible and position it over the current tile.
-                    mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-                    mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(
-                            xPos, yPos, 0);
-
-                    if (mLMouseDown)
-                    {
-                        // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-                        //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords rather than the reverse that it is doing now.
-                        std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(xPos,
-                                            yPos, mLStartDragX, mLStartDragY);
-                        for(TileMap_t::iterator itr = gameMap.firstTile(), last = gameMap.lastTile();
-                                                        itr != last; ++itr)
-                        {
-                            if(std::find(affectedTiles.begin(), affectedTiles.end(), itr->second) != affectedTiles.end())
-                            {
-                                itr->second->setSelected(true);
-                            }
-                            else
-                            {
-                                itr->second->setSelected(false);
-                            }
-                        }
-                    }
-
-                    if (mRMouseDown)
-                    {
-                    }
-
-                    break;
-                }
-            }
-        }
-    }
-
-    else
-    {
-        // We are dragging a creature but we want to loop over the result set to find the first tile entry,
-        // we do this to get the current x-y location of where the "square selector" should be drawn.
-        for(; itr != end; ++itr)
-        {
-            if (itr->movable != NULL)
-            {
-                // Check to see if the current query result is a tile.
-                resultName = itr->movable->getName();
-                if (resultName.find("Level_") != string::npos)
-                {
-                    // Get the x-y coordinates of the tile.
-                    sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
-
-                    // Make sure the "square selector" mesh is visible and position it over the current tile.
-                    mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-                    mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(
-                            xPos, yPos, 0);
-                }
-            }
-        }
-    }
-
-    // If we are drawing with the brush in the map editor.
-    if (mLMouseDown && mDragType == ODFrameListener::tileBrushSelection
-            && !isInGame())
-    {
-        // Loop over the square region surrounding current mouse location and either set the tile type of the affected tiles or create new ones.
-        Tile *currentTile;
-        std::vector<Tile*> affectedTiles;
-        int radiusSquared = mCurrentTileRadius * mCurrentTileRadius;
-        for (int i = -1 * (mCurrentTileRadius - 1); i <= (mCurrentTileRadius
-                - 1); ++i)
-        {
-            for (int j = -1 * (mCurrentTileRadius - 1); j
-                    <= (mCurrentTileRadius - 1); ++j)
-            {
-                // Check to see if the current location falls inside a circle with a radius of mCurrentTileRadius.
-                int distSquared = i * i + j * j;
-                if (distSquared > radiusSquared)
-                    continue;
-
-                currentTile = gameMap.getTile(xPos + i, yPos + j);
-
-                // Check to see if the current tile already exists.
-                if (currentTile != NULL)
-                {
-                    // It does exist so set its type and fullness.
-                    affectedTiles.push_back(currentTile);
-                    currentTile->setType(mCurrentTileType);
-                    currentTile->setFullness(mCurrentFullness);
-                }
-                else
-                {
-                    // The current tile does not exist so we need to create it.
-                    //currentTile = new Tile;
-                    char tempArray[255];
-                    snprintf(tempArray, sizeof(tempArray), "Level_%3i_%3i",
-                            xPos + i, yPos + j);
-                    currentTile = new Tile(xPos + i, yPos + j,
-                            mCurrentTileType, mCurrentFullness);
-                    currentTile->name = tempArray;
-                    gameMap.addTile(currentTile);
-                    currentTile->createMesh();
-                }
-            }
-        }
-
-        // Add any tiles which border the affected region to the affected tiles list
-        // as they may alo want to switch meshes to optimize polycount now too.
-        std::vector<Tile*> borderingTiles = gameMap.tilesBorderedByRegion(
-                affectedTiles);
-        affectedTiles.insert(affectedTiles.end(), borderingTiles.begin(),
-                borderingTiles.end());
-
-        // Loop over all the affected tiles and force them to examine their
-        // neighbors.  This allows them to switch to a mesh with fewer
-        // polygons if some are hidden by the neighbors.
-        for (unsigned int i = 0; i < affectedTiles.size(); ++i)
-            affectedTiles[i]->setFullness(affectedTiles[i]->getFullness());
-    }
-
-    // If we are dragging a map light we need to update its position to the current x-y location.
-    if (mLMouseDown && mDragType == ODFrameListener::mapLight
-            && !isInGame())
-    {
-        MapLight* tempMapLight = gameMap.getMapLight(draggedMapLight);
-        if (tempMapLight != NULL)
-            tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
-    }
-
-    // Check the scroll wheel.
-    if (arg.state.Z.rel > 0)
-    {
-        gameMap.me->rotateCreaturesInHand(1);
-    }
-
-    if (arg.state.Z.rel < 0)
-    {
-        gameMap.me->rotateCreaturesInHand(-1);
-    }
-
-    return true;
-}
-
-/*! \brief Handle mouse clicks.
- *
- * This function does a ray scene query to determine what is under the mouse
- * and determines whether a creature or a selection of tiles, is being dragged.
- */
-bool ODFrameListener::mousePressed(const OIS::MouseEvent &arg,
-        OIS::MouseButtonID id)
-{
-    Creature *tempCreature;
-
-    CEGUI::System::getSingleton().injectMouseButtonDown(
-            Gui::getSingletonPtr()->convertButton(id));
-    string resultName;
-
-    // If the mouse press is on a CEGUI window ignore it
-    CEGUI::Window *tempWindow =
-            CEGUI::System::getSingleton().getWindowContainingMouse();
-    if (tempWindow != NULL && tempWindow->getName().compare("Root") != 0)
-    {
-        mouseDownOnCEGUIWindow = true;
-        return true;
-    }
-    else
-    {
-        mouseDownOnCEGUIWindow = false;
-    }
-
-    Ogre::RaySceneQueryResult &result = doRaySceneQuery(arg);
-    Ogre::RaySceneQueryResult::iterator itr = result.begin();
-
-    // Left mouse button down
-    if (id == OIS::MB_Left)
-    {
-        mLMouseDown = true;
-        mLStartDragX = xPos;
-        mLStartDragY = yPos;
-
-        // See if the mouse is over any creatures
-        while (itr != result.end())
-        {
-            if (itr->movable != NULL)
-            {
-                resultName = itr->movable->getName();
-
-                if (resultName.find("Creature_") != string::npos)
-                {
-                    // if in a game:  Pick the creature up and put it in our hand
-                    if (isInGame())
-                    {
-                        // through away everything before the '_' and then copy the rest into 'array'
-                        char array[255];
-                        std::stringstream tempSS;
-                        tempSS.str(resultName);
-                        tempSS.getline(array, sizeof(array), '_');
-                        tempSS.getline(array, sizeof(array));
-
-                        Creature *currentCreature = gameMap.getCreature(array);
-                        if (currentCreature != NULL && currentCreature->color
-                                == gameMap.me->getSeat()->color)
-                        {
-                            gameMap.me->pickUpCreature(currentCreature);
-                            sfxHelper->playInterfaceSound(
-                                    SoundEffectsHelper::PICKUP);
-                            return true;
-                        }
-                    }
-                    else // if in the Map Editor:  Begin dragging the creature
-                    {
-                        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-                        mSceneMgr->getEntity("SquareSelector")->setVisible(
-                                false);
-
-                        draggedCreature = resultName.substr(
-                                ((string) "Creature_").size(),
-                                resultName.size());
-                        Ogre::SceneNode *node = mSceneMgr->getSceneNode(
-                                draggedCreature + "_node");
-                        creatureSceneNode->removeChild(node);
-                        mSceneMgr->getSceneNode("Hand_node")->addChild(node);
-                        node->setPosition(0, 0, 0);
-                        mDragType = ODFrameListener::creature;
-
-                        sfxHelper->playInterfaceSound(
-                                SoundEffectsHelper::PICKUP);
-
-                        return true;
-                    }
-                }
-
-            }
-
-            ++itr;
-        }
-
-        // If no creatures are under the  mouse run through the list again to check for lights
-        if (!isInGame())
-        {
-            //FIXME: These other code blocks that loop over the result list should probably use this same loop structure.
-            itr = result.begin();
-            while (itr != result.end())
-            {
-                if (itr->movable != NULL)
-                {
-                    resultName = itr->movable->getName();
-                    if (resultName.find("MapLightIndicator_") != string::npos)
-                    {
-                        mDragType = ODFrameListener::mapLight;
-                        draggedMapLight = resultName.substr(
-                                ((string) "MapLightIndicator_").size(),
-                                resultName.size());
-
-                        sfxHelper->playInterfaceSound(
-                                SoundEffectsHelper::PICKUP);
-
-                        return true;
-                    }
-                }
-
-                ++itr;
-            }
-        }
-
-        // If no creatures or lights are under the  mouse run through the list again to check for tiles
-        itr = result.begin();
-        while (itr != result.end())
-        {
-            if (itr->movable != NULL)
-            {
-                if (resultName.find("Level_") != string::npos)
-                {
-                    // Start by assuming this is a tileSelection drag.
-                    mDragType = ODFrameListener::tileSelection;
-
-                    // If we are in the map editor, use a brush selection if it has been activated.
-                    if (!isInGame()
-                            && mBrushMode)
-                    {
-                        mDragType = ODFrameListener::tileBrushSelection;
-                    }
-
-                    // If we have selected a room type to add to the map, use a addNewRoom drag type.
-                    if (gameMap.me->newRoomType != Room::nullRoomType)
-                    {
-                        mDragType = ODFrameListener::addNewRoom;
-                    }
-
-                    // If we have selected a trap type to add to the map, use a addNewTrap drag type.
-                    else if (gameMap.me->newTrapType != Trap::nullTrapType)
-                    {
-                        mDragType = ODFrameListener::addNewTrap;
-                    }
-                    break;
-                }
-            }
-
-            ++itr;
-        }
-
-        // If we are in a game we store the opposite of whether this tile is marked for diggin or not, this allows us to mark tiles
-        // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
-        if (isInGame())
-        {
-            Tile *tempTile = gameMap.getTile(xPos, yPos);
-            if (tempTile != NULL)
-            {
-                digSetBool = !(tempTile->getMarkedForDigging(gameMap.me));
-            }
-        }
-    }
-
-    // Right mouse button down
-    if (id == OIS::MB_Right)
-    {
-        mRMouseDown = true;
-        mRStartDragX = xPos;
-        mRStartDragY = yPos;
-
-        // Stop creating rooms, traps, etc.
-        mDragType = ODFrameListener::nullDragType;
-        gameMap.me->newRoomType = Room::nullRoomType;
-        gameMap.me->newTrapType = Trap::nullTrapType;
-        TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
-
-        // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
-        Tile *curTile = gameMap.getTile(xPos, yPos);
-        if (curTile != NULL)
-        {
-            gameMap.me->dropCreature(curTile);
-            if (gameMap.me->numCreaturesInHand() > 0)
-            {
-                sfxHelper->playInterfaceSound(SoundEffectsHelper::DROP);
-            }
-        }
-    }
-
-    if (id == OIS::MB_Middle)
-    {
-        // See if the mouse is over any creatures
-        while (itr != result.end())
-        {
-            if (itr->movable != NULL)
-            {
-                resultName = itr->movable->getName();
-
-                if (resultName.find("Creature_") != string::npos)
-                {
-                    tempCreature = gameMap.getCreature(resultName.substr(
-                            ((string) "Creature_").size(), resultName.size()));
-
-                    if (tempCreature != NULL)
-                        tempCreature->createStatsWindow();
-
-                    return true;
-                }
-            }
-
-            ++itr;
-        }
-    }
-
-    return true;
-}
-
-/*! \brief Handle mouse button releases.
- *
- * Finalize the selection of tiles or drop a creature when the user releases the mouse button.
- */
-bool ODFrameListener::mouseReleased(const OIS::MouseEvent &arg,
-        OIS::MouseButtonID id)
-{
-    CEGUI::System::getSingleton().injectMouseButtonUp(
-            Gui::getSingletonPtr()->convertButton(id));
-
-    // If the mouse press was on a CEGUI window ignore it
-    if (mouseDownOnCEGUIWindow)
-        return true;
-
-    // Unselect all tiles
-    for(TileMap_t::iterator itr = gameMap.firstTile(), last = gameMap.lastTile();
-            itr != last; ++itr)
-    {
-        itr->second->setSelected(false);
-    }
-
-    // Left mouse button up
-    if (id == OIS::MB_Left)
-    {
-        // Check to see if we are moving a creature
-        if (mDragType == ODFrameListener::creature)
-        {
-            if (!isInGame())
-            {
-                Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-                Ogre::SceneNode *node = mSceneMgr->getSceneNode(draggedCreature
-                        + "_node");
-                mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
-                creatureSceneNode->addChild(node);
-                mDragType = ODFrameListener::nullDragType;
-                gameMap.getCreature(draggedCreature)->setPosition(xPos, yPos, 0);
-            }
-        }
-
-        // Check to see if we are dragging a map light.
-        else if (mDragType == ODFrameListener::mapLight)
-        {
-            if (!isInGame())
-            {
-                MapLight *tempMapLight = gameMap.getMapLight(draggedMapLight);
-                if (tempMapLight != NULL)
-                    tempMapLight->setPosition(xPos, yPos,
-                            tempMapLight->getPosition().z);
-            }
-        }
-
-        // Check to see if we are dragging out a selection of tiles or creating a new room
-        else if (mDragType == ODFrameListener::tileSelection || mDragType
-                == ODFrameListener::addNewRoom || mDragType
-                == ODFrameListener::addNewTrap)
-        {
-            // Loop over the valid tiles in the affected region.  If we are doing a tileSelection (changing the tile type and fullness) this
-            // loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
-            // which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
-            // the next loop will actually create the room.  A similar pruning is done for traps.
-            std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(xPos,
-                    yPos, mLStartDragX, mLStartDragY);
-            std::vector<Tile*>::iterator itr = affectedTiles.begin();
-            while (itr != affectedTiles.end())
-            {
-                Tile *currentTile = *itr;
-
-                // If we are dragging out tiles.
-                if (mDragType == ODFrameListener::tileSelection)
-                {
-                    // See if we are in a game or not
-                    if (isInGame())
-                    {
-                        //See if the tile can be marked for digging.
-                        if (currentTile->isDiggable())
-                        {
-                            if (serverSocket != NULL)
-                            {
-                                // On the server:  Just mark the tile for digging.
-                                currentTile->setMarkedForDigging(digSetBool,
-                                        gameMap.me);
-                            }
-                            else
-                            {
-                                // On the client:  Inform the server about our choice
-                                ClientNotification *clientNotification =
-                                        new ClientNotification;
-                                clientNotification->type
-                                        = ClientNotification::markTile;
-                                clientNotification->p = currentTile;
-                                clientNotification->flag = digSetBool;
-
-                                sem_wait(&clientNotificationQueueLockSemaphore);
-                                clientNotificationQueue.push_back(
-                                        clientNotification);
-                                sem_post(&clientNotificationQueueLockSemaphore);
-
-                                sem_post(&clientNotificationQueueSemaphore);
-
-                                currentTile->setMarkedForDigging(digSetBool,
-                                        gameMap.me);
-
-                            }
-
-                            sfxHelper->playInterfaceSound(
-                                    SoundEffectsHelper::DIGSELECT, false);
-                        }
-                    }
-                    else
-                    {
-                        // In the map editor:  Fill the current tile with the new value
-                        currentTile->setType(mCurrentTileType);
-                        currentTile->setFullness(mCurrentFullness);
-                    }
-                }
-                else // if(mDragType == ExampleFrameListener::addNewRoom || mDragType == ExampleFrameListener::addNewTrap)
-                {
-                    // If the tile already contains a room, prune it from the list of affected tiles.
-                    if (!currentTile->isBuildableUpon())
-                    {
-                        itr = affectedTiles.erase(itr);
-                        continue;
-                    }
-
-                    // If we are in a game.
-                    if (isInGame())
-                    {
-                        // If the currentTile is not empty and claimed for my color, then remove it from the affectedTiles vector.
-                        if (!(currentTile->getFullness() < 1
-                                && currentTile->getType() == Tile::claimed
-                                && currentTile->colorDouble > 0.99
-                                && currentTile->getColor()
-                                        == gameMap.me->getSeat()->color))
-                        {
-                            itr = affectedTiles.erase(itr);
-                            continue;
-                        }
-                    }
-                    else // We are in the map editor
-                    {
-                        // If the currentTile is not empty and claimed, then remove it from the affectedTiles vector.
-                        if (!(currentTile->getFullness() < 1
-                                && currentTile->getType() == Tile::claimed))
-                        {
-                            itr = affectedTiles.erase(itr);
-                            continue;
-                        }
-                    }
-                }
-
-                ++itr;
-            }
-
-            // If we are adding new rooms the above loop will have pruned out the tiles not eligible
-            // for adding rooms to.  This block then actually adds rooms to the remaining tiles.
-            if (mDragType == ODFrameListener::addNewRoom
-                    && !affectedTiles.empty())
-            {
-                int newRoomColor = 0, goldRequired = 0;
-                if (isInGame())
-                {
-                    newRoomColor = gameMap.me->getSeat()->color;
-                    goldRequired = affectedTiles.size() * Room::costPerTile(
-                            gameMap.me->newRoomType);
-                }
-
-                // Check to see if we are in the map editor OR if we are in a game, check to see if we have enough gold to create the room.
-                if (!isInGame()
-                        || (gameMap.getTotalGoldForColor(
-                                gameMap.me->getSeat()->color) >= goldRequired))
-                {
-                    // Create the room
-                    Room *tempRoom = Room::createRoom(gameMap.me->newRoomType,
-                            affectedTiles, newRoomColor);
-                    gameMap.addRoom(tempRoom);
-
-                    // If we are in a game, withdraw the gold required for the room from the players treasuries.
-                    if (serverSocket != NULL || clientSocket != NULL)
-                        gameMap.withdrawFromTreasuries(goldRequired,
-                                gameMap.me->getSeat()->color);
-
-                    // Check all the tiles that border the newly created room and see if they
-                    // contain rooms which can be absorbed into this newly created room.
-                    std::vector<Tile*> borderTiles =
-                            gameMap.tilesBorderedByRegion(affectedTiles);
-                    for (unsigned int i = 0; i < borderTiles.size(); ++i)
-                    {
-                        Room *borderingRoom = borderTiles[i]->getCoveringRoom();
-                        if (borderingRoom != NULL && borderingRoom->getType()
-                                == tempRoom->getType() && borderingRoom
-                                != tempRoom)
-                        {
-                            tempRoom->absorbRoom(borderingRoom);
-                            gameMap.removeRoom(borderingRoom);
-                            //FIXME:  Need to delete the bordering room to avoid a memory leak, the deletion should be done in a safe way though as there will still be outstanding RenderRequests.
-                        }
-                    }
-
-                    tempRoom->createMeshes();
-
-                    sfxHelper->playInterfaceSound(
-                            SoundEffectsHelper::BUILDROOM, false);
-                }
-            }
-
-            // If we are adding new traps the above loop will have pruned out the tiles not eligible
-            // for adding traps to.  This block then actually adds traps to the remaining tiles.
-            //TODO:  Make this check to make sure we have enough gold to create the traps.
-            if (mDragType == ODFrameListener::addNewTrap
-                    && !affectedTiles.empty())
-            {
-                int goldRequired = 0;
-                if (isInGame())
-                {
-                    goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
-                }
-                // Delete everything but the last tile in the affected tiles as this is close to where we let go of the mouse.
-                std::vector<Tile*> tempVector(affectedTiles);
-                //~ tempVector.push_back(affectedTiles[affectedTiles.size() - 1]);
-
-                Seat *mySeat = NULL;
-                if (!isInGame()
-                        || (gameMap.getTotalGoldForColor(
-                                gameMap.me->getSeat()->color) >= goldRequired))
-                {
-                    goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
-                    if (isInGame())
-                        gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->getSeat()->color);
-                    mySeat = gameMap.me->getSeat();
-
-                    Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector,
-                            mySeat);
-                    //FIXME: This throws an OGRE runtime error when it is commented in.
-                    tempTrap->createMeshes();
-                    gameMap.addTrap(tempTrap);
-
-                    sfxHelper->playInterfaceSound(SoundEffectsHelper::BUILDTRAP,
-                            false);
-                }
-            }
-
-            // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
-            std::vector<Tile*> borderTiles = gameMap.tilesBorderedByRegion(
-                    affectedTiles);
-            affectedTiles.insert(affectedTiles.end(), borderTiles.begin(),
-                    borderTiles.end());
-
-            // Loop over all the affected tiles and force them to examine their neighbors.  This allows
-            // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
-            itr = affectedTiles.begin();
-            while (itr != affectedTiles.end())
-            {
-                (*itr)->setFullness((*itr)->getFullness());
-                ++itr;
-            }
-        }
-
-        mLMouseDown = false;
-    }
-
-    // Right mouse button up
-    if (id == OIS::MB_Right)
-    {
-        mRMouseDown = false;
-    }
-
-    return true;
-}
-
-void ODFrameListener::handleHotkeys(int hotkeyNumber)
-{
-    // If the shift key is pressed we store this hotkey location, otherwise we fly the camera to a stored position.
-    if (mKeyboard->isModifierDown(OIS::Keyboard::Shift))
-    {
-        // Store the camera position into the array.
-        hotkeyLocationIsValid[hotkeyNumber] = true;
-        hotkeyLocation[hotkeyNumber] = getCameraViewTarget();
-    }
-    else
-    {
-        // If there has already been a location set for this hotkey then fly there, otherwise ignore this command.
-        if (hotkeyLocationIsValid[hotkeyNumber])
-            flyTo(hotkeyLocation[hotkeyNumber]);
-    }
-}
-
-/*! \brief Handle the keyboard input.
- *
- * The operation of this function is largely determined by whether or not the
- * terminal is active or not.  When the terminal is active the keypresses are
- * treated as line editing on the terminal's command prompt.  When the terminal
- * is not active the keyboard is used to move the camera and control the game
- * through hotkeys.
- */
-bool ODFrameListener::keyPressed(const OIS::KeyEvent &arg)
-{
-    if (!terminalActive)
-    {
-        std::stringstream tempSS;
-        std::ostringstream ss;
-
-        CEGUI::System* sys = CEGUI::System::getSingletonPtr();
-        sys->injectKeyDown(arg.key);
-        sys->injectChar(arg.text);
-
-        // If the terminal is not active
-        // Keyboard is used to move around and play game
-        switch (arg.key)
-        {
-            case OIS::KC_GRAVE:
-            case OIS::KC_F12:
-                terminalActive = true;
-                mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
-                break;
-
-                // Move left
-            case OIS::KC_LEFT:
-            case OIS::KC_A:
-                translateVectorAccel.x += -moveSpeedAccel; // Move camera left
-                break;
-
-                // Move right
-            case OIS::KC_RIGHT:
-            case OIS::KC_D:
-                translateVectorAccel.x += moveSpeedAccel; // Move camera right
-                break;
-
-                // Move forward
-            case OIS::KC_UP:
-            case OIS::KC_W:
-                translateVectorAccel.y += moveSpeedAccel; // Move camera forward
-                break;
-
-                // Move backward
-            case OIS::KC_DOWN:
-            case OIS::KC_S:
-                translateVectorAccel.y += -moveSpeedAccel; // Move camera backward
-                break;
-
-                // Move down
-            case OIS::KC_PGUP:
-            case OIS::KC_E:
-                zChange += -moveSpeed; // Move straight down
-                break;
-
-                // Move up
-            case OIS::KC_INSERT:
-            case OIS::KC_Q:
-                zChange += moveSpeed; // Move straight up
-                break;
-
-                // Tilt up
-            case OIS::KC_HOME:
-                mRotateLocalVector.x += mRotateSpeed.valueDegrees();
-                break;
-
-                // Tilt down
-            case OIS::KC_END:
-                mRotateLocalVector.x += -mRotateSpeed.valueDegrees();
-                break;
-
-                // Turn left
-            case OIS::KC_DELETE:
-                swivelDegrees += 1.3 * mRotateSpeed;
-                break;
-
-                // Turn right
-            case OIS::KC_PGDOWN:
-                swivelDegrees += -1.3 * mRotateSpeed;
-                break;
-
-                //Toggle mCurrentTileType
-            case OIS::KC_R:
-                if (!isInGame())
-                {
-                    mCurrentTileType = Tile::nextTileType(mCurrentTileType);
-                    tempSS.str("");
-                    tempSS << "Tile type:  " << Tile::tileTypeToString(
-                            mCurrentTileType);
-                    ODApplication::MOTD = tempSS.str();
-                }
-                break;
-
-                //Decrease brush radius
-            case OIS::KC_COMMA:
-                if (!isInGame())
-                {
-                    if (mCurrentTileRadius > 1)
-                    {
-                        --mCurrentTileRadius;
-                    }
-
-                    ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
-                            mCurrentTileRadius);
-                }
-                break;
-
-                //Increase brush radius
-            case OIS::KC_PERIOD:
-                if (!isInGame())
-                {
-                    if (mCurrentTileRadius < 10)
-                    {
-                        ++mCurrentTileRadius;
-                    }
-
-                    ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
-                            mCurrentTileRadius);
-                }
-                break;
-
-                //Toggle mBrushMode
-            case OIS::KC_B:
-                if (!isInGame())
-                {
-                    mBrushMode = !mBrushMode;
-                    ODApplication::MOTD = (mBrushMode)
-                            ? "Brush mode turned on"
-                            : "Brush mode turned off";
-                }
-                break;
-
-                //Toggle mCurrentFullness
-            case OIS::KC_T:
-                // If we are not in a game.
-                if (!isInGame())
-                {
-                    mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
-                    ODApplication::MOTD = "Tile fullness:  " + Ogre::StringConverter::toString(
-                            mCurrentFullness);
-                }
-                else // If we are in a game.
-                {
-                    Seat* tempSeat = gameMap.me->getSeat();
-                    flyTo(Ogre::Vector3(tempSeat->startingX,
-                            tempSeat->startingY, 0.0));
-                }
-                break;
-
-                // Toggle the framerate display
-            case OIS::KC_F:
-            {
-                // Toggle visibility of the framerate display.
-                mStatsOn = !mStatsOn;
-                showDebugOverlay(mStatsOn);
-
-                // Toggle visibility of the CEGUI display.
-                CEGUI::Window* window
-                        = CEGUI::WindowManager::getSingletonPtr()->
-                                getWindow((CEGUI::utf8*) "Root");
-                if (mStatsOn)
-                    window->hide();
-                else
-                    window->show();
-
-                break;
-            }
-                // Quit the game
-            case OIS::KC_ESCAPE:
-                writeGameMapToFile(std::string("levels/Test.level")
-                        + ".out");
-                requestExit();
-                break;
-
-                // Print a screenshot
-            case OIS::KC_SYSRQ:
-                ss << "screenshot_" << ++mNumScreenShots << ".png";
-                mWindow->writeContentsToFile(ResourceManager::getSingleton().getHomePath() + ss.str());
-                mDebugText = "Saved: " + ss.str();
-                break;
-
-            case OIS::KC_1:
-                handleHotkeys(1);
-                break;
-            case OIS::KC_2:
-                handleHotkeys(2);
-                break;
-            case OIS::KC_3:
-                handleHotkeys(3);
-                break;
-            case OIS::KC_4:
-                handleHotkeys(4);
-                break;
-            case OIS::KC_5:
-                handleHotkeys(5);
-                break;
-            case OIS::KC_6:
-                handleHotkeys(6);
-                break;
-            case OIS::KC_7:
-                handleHotkeys(7);
-                break;
-            case OIS::KC_8:
-                handleHotkeys(8);
-                break;
-            case OIS::KC_9:
-                handleHotkeys(9);
-                break;
-            case OIS::KC_0:
-                handleHotkeys(0);
-                break;
-
-            default:
-                break;
-        }
-    }
-    else
-    {
-        std::stringstream tempSS2;
-        // If the terminal is active
-        // Keyboard is used to command the terminal
-        switch (arg.key)
-        {
-            case OIS::KC_RETURN:
-
-                // If the user just presses enter without entering a command we return to the game
-                if (promptCommand.empty())
-                {
-                    promptCommand = "";
-                    terminalActive = false;
-
-                    break;
-                }
-
-                // Split the prompt command into a command and arguments at the first space symbol.
-                char array2[255];
-                tempSS2.str(promptCommand);
-                tempSS2.getline(array2, sizeof(array2), ' ');
-                command = array2;
-                tempSS2.getline(array2, sizeof(array2));
-                arguments = array2;
-
-                /* Strip any leading spaces off the arguments string. */
-                while (!arguments.empty() && arguments[0] == ' ')
-                    arguments = arguments.substr(1, arguments.size() - 1);
-
-                /* Force command to lower case */
-                std::transform(command.begin(), command.end(), command.begin(), ::tolower);
-
-                /* Clear any old command output and execute the new command with the given arguments string. */
-                commandOutput = "";
-                executePromptCommand(command, arguments);
-                break;
-
-            case OIS::KC_GRAVE:
-            case OIS::KC_F12:
-            case OIS::KC_ESCAPE:
-                terminalActive = false;
-                break;
-
-            default:
-                // If the key translates to a valid character
-                // for the commandline we add it to the current
-                // promptCommand
-                if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
-                        arg.text) != string::npos)
-                {
-                    promptCommand += arg.text;
-                }
-                else
-                {
-                    switch (arg.key)
-                    {
-                        case OIS::KC_BACK:
-                            promptCommand = promptCommand.substr(0,
-                                    promptCommand.size() - 1);
-                            break;
-
-                        default:
-                            break;
-                    }
-                }
-
-                break;
-        }
-    }
-
-    return true;
-}
-
-/*! \brief Process the key up event.
- *
- * When a key is released during normal gamplay the camera movement may need to be stopped.
- */
-bool ODFrameListener::keyReleased(const OIS::KeyEvent &arg)
-{
-    CEGUI::System::getSingleton().injectKeyUp(arg.key);
-
-    if (!terminalActive)
-    {
-        switch (arg.key)
-        {
-                // Move left
-            case OIS::KC_LEFT:
-            case OIS::KC_A:
-                translateVectorAccel.x += moveSpeedAccel; // Move camera forward
-                break;
-
-                // Move right
-            case OIS::KC_D:
-            case OIS::KC_RIGHT:
-                translateVectorAccel.x -= moveSpeedAccel; // Move camera backward
-                break;
-
-                // Move forward
-            case OIS::KC_UP:
-            case OIS::KC_W:
-                translateVectorAccel.y -= moveSpeedAccel; // Move camera forward
-                break;
-
-                // Move backward
-            case OIS::KC_DOWN:
-            case OIS::KC_S:
-                translateVectorAccel.y += moveSpeedAccel; // Move camera backward
-                break;
-
-                // Move down
-            case OIS::KC_PGUP:
-            case OIS::KC_E:
-                zChange += moveSpeed; // Move straight down
-                break;
-
-                // Move up
-            case OIS::KC_INSERT:
-            case OIS::KC_Q:
-                zChange -= moveSpeed; // Move straight up
-                break;
-
-                // Tilt up
-            case OIS::KC_HOME:
-                mRotateLocalVector.x -= mRotateSpeed.valueDegrees();
-                break;
-
-                // Tilt down
-            case OIS::KC_END:
-                mRotateLocalVector.x += mRotateSpeed.valueDegrees();
-                break;
-
-                // Turn left
-            case OIS::KC_DELETE:
-                swivelDegrees -= 1.3 * mRotateSpeed;
-                break;
-
-                // Turn right
-            case OIS::KC_PGDOWN:
-                swivelDegrees += 1.3 * mRotateSpeed;
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    return true;
 }
 
 /*! \brief Print a string in the upper left corner of the screen.
@@ -1931,6 +588,9 @@ void ODFrameListener::printText(const std::string& text)
     TextRenderer::getSingleton().setText("DebugMessages", tempString);
 }
 
+//TODO: bind this to the new console!
+//TODO: convert the default commands to something better (functors?)
+//TODO: make own commands scriptable
 /*! \brief Process the commandline from the terminal and carry out the actions specified in by the user.
  *
  */
@@ -2135,16 +795,19 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     {
         if (!arguments.empty())
         {
+            Ogre::Real tempDouble;
             tempSS.str(arguments);
-            tempSS >> moveSpeed;
-            moveSpeedAccel = 2.0 * moveSpeed; // if this is changed, also change it in the ExampleFrameListener constructor.
+            tempSS >> tempDouble;
+            CameraManager::getSingleton().setMoveSpeedAccel(2.0 * tempDouble);
             commandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
-                    moveSpeed) + "\n";
+                    tempDouble) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent movespeed is "
-                    + Ogre::StringConverter::toString(moveSpeed) + "\n";
+                    + Ogre::StringConverter::toString(
+                            CameraManager::getSingleton().getMoveSpeed())
+                    + "\n";
         }
     }
 
@@ -2156,16 +819,20 @@ void ODFrameListener::executePromptCommand(const std::string& command,
 			Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            mRotateSpeed = Ogre::Degree(tempDouble);
+            CameraManager::getSingleton().setRotateSpeed(Ogre::Degree(tempDouble));
             commandOutput += "\nrotatespeed set to "
                     + Ogre::StringConverter::toString(
-                            (Ogre::Real) mRotateSpeed.valueDegrees()) + "\n";
+                            static_cast<Ogre::Real>(
+                                    CameraManager::getSingleton().getRotateSpeed().valueDegrees()))
+                    + "\n";
         }
         else
         {
             commandOutput += "\nCurrent rotatespeed is "
                     + Ogre::StringConverter::toString(
-                            (Ogre::Real) mRotateSpeed.valueDegrees()) + "\n";
+                            static_cast<Ogre::Real>(
+                                    CameraManager::getSingleton().getRotateSpeed().valueDegrees()))
+                    + "\n";
         }
     }
 
@@ -2271,16 +938,18 @@ void ODFrameListener::executePromptCommand(const std::string& command,
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            mCamera->setNearClipDistance(tempDouble);
+            CameraManager::getSingleton().getCamera()->setNearClipDistance(tempDouble);
             commandOutput += "\nNear clip distance set to "
                     + Ogre::StringConverter::toString(
-                             mCamera->getNearClipDistance()) + "\n";
+                            CameraManager::getSingleton().getCamera()->getNearClipDistance())
+                    + "\n";
         }
         else
         {
             commandOutput += "\nCurrent near clip distance is "
                     + Ogre::StringConverter::toString(
-                            mCamera->getNearClipDistance()) + "\n";
+                            CameraManager::getSingleton().getCamera()->getNearClipDistance())
+                    + "\n";
         }
     }
 
@@ -2292,16 +961,16 @@ void ODFrameListener::executePromptCommand(const std::string& command,
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            mCamera->setFarClipDistance(tempDouble);
+            CameraManager::getSingleton().getCamera()->setFarClipDistance(tempDouble);
             commandOutput += "\nFar clip distance set to "
                     + Ogre::StringConverter::toString(
-                            mCamera->getFarClipDistance()) + "\n";
+                            CameraManager::getSingleton().getCamera()->getFarClipDistance()) + "\n";
         }
         else
         {
             commandOutput += "\nCurrent far clip distance is "
                     + Ogre::StringConverter::toString(
-                            mCamera->getFarClipDistance()) + "\n";
+                            CameraManager::getSingleton().getCamera()->getFarClipDistance()) + "\n";
         }
     }
 
@@ -3084,6 +1753,7 @@ string ODFrameListener::getHelpText(std::string arg)
  */
 bool ODFrameListener::isInGame()
 {
+    //TODO: this exact function is also in InputManager, replace it too after GameState works
     //TODO - we should use a bool or something, not the sockets for this.
     return (serverSocket != NULL || clientSocket != NULL);
     //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;

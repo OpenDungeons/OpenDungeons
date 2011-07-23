@@ -22,6 +22,9 @@
 #include "LogManager.h"
 #include "Translation.h"
 #include "GameState.h"
+#include "CameraManager.h"
+#include "ASWrapper.h"
+#include "Console.h"
 
 #include "ODApplication.h"
 
@@ -80,32 +83,18 @@ ODApplication::ODApplication() :
     renderMgr->createViewports();
     renderMgr->createScene();
 
-    ODFrameListener* frameListener = new ODFrameListener(window, renderMgr->getCamera(), true, true, false);
-    frameListener->showDebugOverlay(true);
-    root->addFrameListener(frameListener);
+    new CameraManager(renderMgr->getCamera());
+    root->addFrameListener(new ODFrameListener(window));
 
-    //FIXME: This should be at a better place
+    //FIXME: This should be at a better place (when level loads for the first time)
     //new MiniMap;
+
+    //FIXME: Is this the best place for instanciating these two?
+    new ASWrapper();
+    new Console();
 
     root->startRendering();
     cleanUp();
-}
-
-/*! \brief Returns a reference to the singleton object
- *
- */
-ODApplication& ODApplication::getSingleton()
-{
-    assert (ms_Singleton);
-    return (*ms_Singleton);
-}
-
-/*! \brief Returns a pointer to the singleton object
- *
- */
-ODApplication* ODApplication::getSingletonPtr()
-{
-    return ms_Singleton;
 }
 
 ODApplication::~ODApplication()
@@ -134,6 +123,9 @@ void ODApplication::cleanUp()
     delete GameState::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
+    delete CameraManager::getSingletonPtr();
+    delete Console::getSingletonPtr();
+    delete ASWrapper::getSingletonPtr();
 }
 
 //TODO: find some better places for some of these

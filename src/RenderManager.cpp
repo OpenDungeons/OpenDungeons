@@ -31,23 +31,6 @@ template<> RenderManager* Ogre::Singleton<RenderManager>::ms_Singleton = 0;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 
-/*! \brief Returns a reference to the singleton object
- *
- */
-RenderManager& RenderManager::getSingleton()
-{
-    assert ( ms_Singleton );
-    return ( *ms_Singleton );
-}
-
-/*! \brief Returns a pointer to the singleton object
- *
- */
-RenderManager* RenderManager::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 RenderManager::RenderManager(GameMap* gameMap) :
         roomSceneNode(0),
         creatureSceneNode(0),

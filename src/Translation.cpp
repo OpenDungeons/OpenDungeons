@@ -71,20 +71,3 @@ Translation::Translation()
 Translation::~Translation()
 {
 }
-
-/*! \brief Returns a reference to the singleton object
- *
- */
-Translation& Translation::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns a pointer to the singleton object
- *
- */
-Translation* Translation::getSingletonPtr()
-{
-    return ms_Singleton;
-}

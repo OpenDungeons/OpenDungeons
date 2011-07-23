@@ -22,6 +22,7 @@ class Gui : public Ogre::Singleton<Gui>
     public:
         enum guiSheet
         {
+            hideGui,
             mainMenu,
             optionsMenu,
             ingameMenu
@@ -29,11 +30,11 @@ class Gui : public Ogre::Singleton<Gui>
 
         Gui();
         ~Gui();
-        static Gui& getSingleton();
-        static Gui* getSingletonPtr();
 
         void loadGuiSheet(const guiSheet& newSheet);
         CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID);
+        void setVisible(const bool& visible);
+        void toggleGui();
 
         //Access names of the GUI elements
         static const std::string ROOT;
@@ -68,6 +69,8 @@ class Gui : public Ogre::Singleton<Gui>
         void assignEventHandlers();
 
         std::map<guiSheet, CEGUI::Window*> sheets;
+
+        guiSheet activeSheet;
 
         //Button handlers game UI
         static bool quitButtonPressed(const CEGUI::EventArgs& e);

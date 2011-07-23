@@ -17,8 +17,6 @@ class ODApplication : public Ogre::Singleton<ODApplication>
 {
     public:
         ODApplication();
-        static ODApplication& getSingleton();
-        static ODApplication* getSingletonPtr();
 
         inline Ogre::Root* getRoot()const {return root;}
         inline Ogre::RenderWindow* getWindow()const {return window;}

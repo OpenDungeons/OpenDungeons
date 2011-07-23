@@ -16,14 +16,13 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
 {
     public:
         ResourceManager();
-        static ResourceManager& getSingleton();
-        static ResourceManager* getSingletonPtr();
 
         static bool hasFileEnding(const std::string& filename, const std::string& ending);
 
         void setupResources();
         std::vector<std::string> listAllFiles(const std::string& directoryName);
         Ogre::StringVectorPtr listAllMusicFiles();
+        void takeScreenshot();
 
         inline const std::string& getResourcePath() const{return resourcePath;}
         inline const std::string& getHomePath() const{return homePath;}
@@ -38,6 +37,7 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         ResourceManager(const ResourceManager&);
         ~ResourceManager();
 
+        unsigned int screenshotCounter;
         std::string resourcePath;
         std::string homePath;
         std::string pluginsPath;

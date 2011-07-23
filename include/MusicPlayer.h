@@ -29,9 +29,6 @@ class MusicPlayer: public Ogre::Singleton<MusicPlayer>
         inline const bool& isRandomized() const{return randomized;}
         inline void setRandomize(const bool& randomize){randomized = randomize;}
 
-        static MusicPlayer& getSingleton();
-        static MusicPlayer* getSingletonPtr();
-
     private:
         std::vector<Ogre::SharedPtr<sf::Music> > tracks;
         bool loaded;

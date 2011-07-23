@@ -27,21 +27,6 @@
 
 template<> GameState* Ogre::Singleton<GameState>::ms_Singleton = 0;
 
-/*! \brief Returns access to the singleton instance of GameState
- */
-GameState& GameState::getSingleton()
-{
-    assert(ms_Singleton);
-    return(*ms_Singleton);
-}
-
-/*! \brief Returns access to the pointer to the singleton instance of GameState
- */
-GameState* GameState::getSingletonPtr()
-{
-    return ms_Singleton;
-}
-
 GameState::GameState()
 :
     isServer(false),

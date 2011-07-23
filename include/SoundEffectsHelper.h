@@ -35,8 +35,6 @@ class SoundEffectsHelper: public Ogre::Singleton<SoundEffectsHelper>
 
         SoundEffectsHelper();
         virtual ~SoundEffectsHelper();
-        static SoundEffectsHelper& getSingleton();
-        static SoundEffectsHelper* getSingletonPtr();
 
         void initialiseSound(Ogre::String soundFolderPath);
         void setListenerPosition(const Ogre::Vector3& position,
