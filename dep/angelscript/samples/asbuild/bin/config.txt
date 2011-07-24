@@ -1,0 +1,71 @@
+// Enums
+enum myEnum
+enumval myEnum value1 1
+enumval myEnum value2 2
+
+// Types
+objtype "array<T>" 69
+objtype "string" 2
+intf MyIntf
+typedef myFloat "float"
+funcdef "void Callback(int, int)"
+
+// Type members
+objbeh "array<T>" 2 "array<T>@ _beh_2_(int&in)"
+objbeh "array<T>" 2 "array<T>@ _beh_2_(int&in, uint)"
+objbeh "array<T>" 2 "array<T>@ _beh_2_(int&in, uint, const T&in)"
+objbeh "array<T>" 4 "void _beh_4_()"
+objbeh "array<T>" 5 "void _beh_5_()"
+objbeh "array<T>" 11 "int _beh_11_()"
+objbeh "array<T>" 12 "void _beh_12_()"
+objbeh "array<T>" 13 "bool _beh_13_()"
+objbeh "array<T>" 14 "void _beh_14_(int&in)"
+objbeh "array<T>" 15 "void _beh_15_(int&in)"
+objbeh "array<T>" 10 "bool _beh_10_(int&in)"
+objbeh "array<T>" 3 "array<T>@ _beh_3_(int&in, uint)"
+objmthd "array<T>" "T& opIndex(uint)"
+objmthd "array<T>" "const T& opIndex(uint) const"
+objmthd "array<T>" "array<T>& opAssign(const array<T>&in)"
+objmthd "array<T>" "uint length() const"
+objmthd "array<T>" "void resize(uint)"
+objbeh "string" 1 "void _beh_1_()"
+objbeh "string" 0 "void _beh_0_()"
+objmthd "string" "string& opAssign(const string&in)"
+objmthd "string" "string& opAddAssign(const string&in)"
+objmthd "string" "bool opEquals(const string&in) const"
+objmthd "string" "int opCmp(const string&in) const"
+objmthd "string" "string opAdd(const string&in) const"
+objmthd "string" "uint length() const"
+objmthd "string" "void resize(uint)"
+objmthd "string" "uint8& opIndex(uint)"
+objmthd "string" "const uint8& opIndex(uint) const"
+objmthd "string" "string& opAssign(double)"
+objmthd "string" "string& opAddAssign(double)"
+objmthd "string" "string opAdd(double) const"
+objmthd "string" "string opAdd_r(double) const"
+objmthd "string" "string& opAssign(int)"
+objmthd "string" "string& opAddAssign(int)"
+objmthd "string" "string opAdd(int) const"
+objmthd "string" "string opAdd_r(int) const"
+objmthd "string" "string& opAssign(uint)"
+objmthd "string" "string& opAddAssign(uint)"
+objmthd "string" "string opAdd(uint) const"
+objmthd "string" "string opAdd_r(uint) const"
+objmthd "string" "string& opAssign(bool)"
+objmthd "string" "string& opAddAssign(bool)"
+objmthd "string" "string opAdd(bool) const"
+objmthd "string" "string opAdd_r(bool) const"
+intfmthd MyIntf "void func() const"
+
+// Functions
+func "void Print(const string &in)"
+
+// Properties
+prop "float f"
+prop "const float myConst"
+
+// String factory
+strfactory "string"
+
+// Default array type
+defarray "array<T>"

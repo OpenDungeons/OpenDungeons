@@ -90,8 +90,9 @@ ODApplication::ODApplication() :
     //new MiniMap;
 
     //FIXME: Is this the best place for instanciating these two?
-    new ASWrapper();
+    //Console needs to exist BEFORE ASWrapper because it needs it for callback
     new Console();
+    new ASWrapper();
 
     root->startRendering();
     cleanUp();
