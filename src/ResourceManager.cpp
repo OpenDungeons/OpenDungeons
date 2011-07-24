@@ -34,6 +34,7 @@ const std::string ResourceManager::PLUGINSCFG = "plugins.cfg";
 const std::string ResourceManager::RESOURCECFG = "resources.cfg";
 const std::string ResourceManager::MUSICSUBPATH = "music/";
 const std::string ResourceManager::SOUNDSUBPATH = "sounds/";
+const std::string ResourceManager::SCRIPTSUBPATH = "scripts/";
 const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
 const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
 const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
@@ -74,6 +75,7 @@ ResourceManager::ResourceManager() :
         pluginsPath(""),
         musicPath(""),
         soundPath(""),
+        scriptPath(""),
         languagePath(""),
         macBundlePath(""),
         ogreCfgFile(""),
@@ -252,6 +254,7 @@ ResourceManager::ResourceManager() :
 
     ogreCfgFile = homePath + CONFIGFILENAME;
     ogreLogFile = homePath + LOGFILENAME;
+    scriptPath = resourcePath + SCRIPTSUBPATH;
     soundPath = resourcePath + SOUNDSUBPATH;
     musicPath = resourcePath + MUSICSUBPATH;
     languagePath = resourcePath + LANGUAGESUBPATH;

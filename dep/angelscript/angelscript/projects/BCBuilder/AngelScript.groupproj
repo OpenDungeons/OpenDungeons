@@ -1,0 +1,60 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{03055FC6-676A-44BB-8CFA-12023CE9BDF3}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="AngelScriptBCC_Static.cbproj">
+				<Dependencies/>
+			</Projects>
+			<Projects Include="..\..\..\tests\test_feature\projects\BCBuilder\test_feature.cbproj">
+				<Dependencies>AngelScriptBCC_Static.cbproj</Dependencies>
+			</Projects>
+			<Projects Include="AngelScriptBCC.cbproj">
+				<Dependencies>AngelScriptBCC_Static.cbproj</Dependencies>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="AngelScriptBCC_Static">
+			<MSBuild Projects="AngelScriptBCC_Static.cbproj"/>
+		</Target>
+		<Target Name="AngelScriptBCC_Static:Clean">
+			<MSBuild Targets="Clean" Projects="AngelScriptBCC_Static.cbproj"/>
+		</Target>
+		<Target Name="AngelScriptBCC_Static:Make">
+			<MSBuild Targets="Make" Projects="AngelScriptBCC_Static.cbproj"/>
+		</Target>
+		<Target DependsOnTargets="AngelScriptBCC_Static" Name="test_feature">
+			<MSBuild Projects="..\..\..\tests\test_feature\projects\BCBuilder\test_feature.cbproj"/>
+		</Target>
+		<Target DependsOnTargets="AngelScriptBCC_Static:Clean" Name="test_feature:Clean">
+			<MSBuild Targets="Clean" Projects="..\..\..\tests\test_feature\projects\BCBuilder\test_feature.cbproj"/>
+		</Target>
+		<Target DependsOnTargets="AngelScriptBCC_Static:Make" Name="test_feature:Make">
+			<MSBuild Targets="Make" Projects="..\..\..\tests\test_feature\projects\BCBuilder\test_feature.cbproj"/>
+		</Target>
+		<Target DependsOnTargets="AngelScriptBCC_Static" Name="AngelScriptBCC">
+			<MSBuild Projects="AngelScriptBCC.cbproj"/>
+		</Target>
+		<Target DependsOnTargets="AngelScriptBCC_Static:Clean" Name="AngelScriptBCC:Clean">
+			<MSBuild Targets="Clean" Projects="AngelScriptBCC.cbproj"/>
+		</Target>
+		<Target DependsOnTargets="AngelScriptBCC_Static:Make" Name="AngelScriptBCC:Make">
+			<MSBuild Targets="Make" Projects="AngelScriptBCC.cbproj"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="AngelScriptBCC_Static;test_feature;AngelScriptBCC"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="AngelScriptBCC_Static:Clean;test_feature:Clean;AngelScriptBCC:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="AngelScriptBCC_Static:Make;test_feature:Make;AngelScriptBCC:Make"/>
+		</Target>
+		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+	</Project>
