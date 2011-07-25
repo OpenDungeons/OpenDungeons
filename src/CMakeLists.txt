@@ -107,12 +107,17 @@ include_directories(${SFML_INCLUDE_DIR} ${OGRE_INCLUDE_DIRS}
 
 #TODO - should we have some error handling here?
 
-#Pthreads on windows
+#Pthreads and AngelScript on windows
 if(WIN32)
     set( PTHREADS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/pthreads/include/" )
     include_directories( ${PTHREADS_INCLUDE_DIR} )
     set( PTHREADS_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/pthreads/lib/" )
     link_directories( ${PTHREADS_LIBRARY_DIRS} )
+    
+    set( ANGELSCRIPT_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript/angelscript/include/" )
+    include_directories( ${ANGELSCRIPT_INCLUDE_DIR} )
+    set( ANGELSCRIPT_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/angelscript/angelscript/lib/" )
+    link_directories( ${ANGELSCRIPT_LIBRARY_DIRS} )
 endif()
 
 ##################################
@@ -201,6 +206,7 @@ if( WIN32 )
     endif()
     if(MINGW)
         target_link_libraries(${PROJECT_BINARY_NAME} "libpthreadGC2.a" )
+        target_link_libraries(${PROJECT_BINARY_NAME} "libangelscript.a" )
         target_link_libraries(${PROJECT_BINARY_NAME} "ws2_32" Userenv)
     endif( )
 endif()
