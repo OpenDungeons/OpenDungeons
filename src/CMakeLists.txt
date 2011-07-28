@@ -4,6 +4,43 @@
 
 set(
      OD_SOURCEFILES
+     ../dep/angelscript/angelscript/source/as_atomic.cpp
+     ../dep/angelscript/angelscript/source/as_builder.cpp
+     ../dep/angelscript/angelscript/source/as_bytecode.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_arm.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_mips.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_ppc.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_ppc_64.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_sh4.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_x64_gcc.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_x64_msvc.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_x86.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_xenon.cpp
+     ../dep/angelscript/angelscript/source/as_compiler.cpp
+     ../dep/angelscript/angelscript/source/as_configgroup.cpp
+     ../dep/angelscript/angelscript/source/as_context.cpp
+     ../dep/angelscript/angelscript/source/as_datatype.cpp
+     ../dep/angelscript/angelscript/source/as_gc.cpp
+     ../dep/angelscript/angelscript/source/as_generic.cpp
+     ../dep/angelscript/angelscript/source/as_globalproperty.cpp
+     ../dep/angelscript/angelscript/source/as_memory.cpp
+     ../dep/angelscript/angelscript/source/as_module.cpp
+     ../dep/angelscript/angelscript/source/as_objecttype.cpp
+     ../dep/angelscript/angelscript/source/as_outputbuffer.cpp
+     ../dep/angelscript/angelscript/source/as_parser.cpp
+     ../dep/angelscript/angelscript/source/as_restore.cpp
+     ../dep/angelscript/angelscript/source/as_scriptcode.cpp
+     ../dep/angelscript/angelscript/source/as_scriptengine.cpp
+     ../dep/angelscript/angelscript/source/as_scriptfunction.cpp
+     ../dep/angelscript/angelscript/source/as_scriptnode.cpp
+     ../dep/angelscript/angelscript/source/as_scriptobject.cpp
+     ../dep/angelscript/angelscript/source/as_string.cpp
+     ../dep/angelscript/angelscript/source/as_string_util.cpp
+     ../dep/angelscript/angelscript/source/as_thread.cpp
+     ../dep/angelscript/angelscript/source/as_tokenizer.cpp
+     ../dep/angelscript/angelscript/source/as_typeinfo.cpp
+     ../dep/angelscript/angelscript/source/as_variablescope.cpp
      tinygettext/dictionary_manager.cpp
      tinygettext/dictionary.cpp
      tinygettext/language.cpp
@@ -87,6 +124,9 @@ set(
 #Add cegui library dirs.
 include_directories(${CEGUI_INCLUDE_DIR})
 
+set( ANGELSCRIPT_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript/angelscript/include/" )
+include_directories( ${ANGELSCRIPT_INCLUDE_DIR} )
+
 #link_libraries(${ICONV_LIBRARIES})
 
 if( MINGW )
@@ -107,17 +147,12 @@ include_directories(${SFML_INCLUDE_DIR} ${OGRE_INCLUDE_DIRS}
 
 #TODO - should we have some error handling here?
 
-#Pthreads and AngelScript on windows
+#Pthreads on windows
 if(WIN32)
     set( PTHREADS_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/pthreads/include/" )
     include_directories( ${PTHREADS_INCLUDE_DIR} )
     set( PTHREADS_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/pthreads/lib/" )
     link_directories( ${PTHREADS_LIBRARY_DIRS} )
-    
-    set( ANGELSCRIPT_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript/angelscript/include/" )
-    include_directories( ${ANGELSCRIPT_INCLUDE_DIR} )
-    set( ANGELSCRIPT_LIBRARY_DIRS "${CMAKE_SOURCE_DIR}/dep/angelscript/angelscript/lib/" )
-    link_directories( ${ANGELSCRIPT_LIBRARY_DIRS} )
 endif()
 
 ##################################
@@ -206,7 +241,6 @@ if( WIN32 )
     endif()
     if(MINGW)
         target_link_libraries(${PROJECT_BINARY_NAME} "libpthreadGC2.a" )
-        target_link_libraries(${PROJECT_BINARY_NAME} "libangelscript.a" )
         target_link_libraries(${PROJECT_BINARY_NAME} "ws2_32" Userenv)
     endif( )
 endif()
