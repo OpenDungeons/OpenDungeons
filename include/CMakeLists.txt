@@ -42,7 +42,6 @@ SET(
     tinygettext/po_parser.hpp
     tinygettext/tinygettext.hpp
     ActiveObject.h
-    angelscript.h
     AnimatedObject.h
     ASWrapper.h
     AttackableObject.h

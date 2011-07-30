@@ -20,6 +20,7 @@
 #include <iostream>
 
 #include "angelscript.h"
+#include "scriptstdstring.h"
 
 #include "Console.h"
 #include "ResourceManager.h"
@@ -148,6 +149,8 @@ void ASWrapper::messageCallback(const asSMessageInfo* msg, void* param)
  */
 void ASWrapper::registerEverything()
 {
+    RegisterStdString(engine);
+
     /* Names of the classes to register. Centrally defined because we need
      * them often, so it will be easier if there's a change in the future.
      * These are the names that AS will use to access the classes. Technically
