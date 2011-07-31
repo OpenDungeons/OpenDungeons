@@ -1,5 +1,40 @@
 SET(
     SRC_H
+    ../dep/angelscript/angelscript/source/as_array.h
+    ../dep/angelscript/angelscript/source/as_atomic.h
+    ../dep/angelscript/angelscript/source/as_builder.h
+    ../dep/angelscript/angelscript/source/as_bytecode.h
+    ../dep/angelscript/angelscript/source/as_callfunc.h
+    ../dep/angelscript/angelscript/source/as_compiler.h
+    ../dep/angelscript/angelscript/source/as_config.h
+    ../dep/angelscript/angelscript/source/as_configgroup.h
+    ../dep/angelscript/angelscript/source/as_context.h
+    ../dep/angelscript/angelscript/source/as_criticalsection.h
+    ../dep/angelscript/angelscript/source/as_datatype.h
+    ../dep/angelscript/angelscript/source/as_debug.h
+    ../dep/angelscript/angelscript/source/as_gc.h
+    ../dep/angelscript/angelscript/source/as_generic.h
+    ../dep/angelscript/angelscript/source/as_map.h
+    ../dep/angelscript/angelscript/source/as_memory.h
+    ../dep/angelscript/angelscript/source/as_module.h
+    ../dep/angelscript/angelscript/source/as_objecttype.h
+    ../dep/angelscript/angelscript/source/as_outputbuffer.h
+    ../dep/angelscript/angelscript/source/as_parser.h
+    ../dep/angelscript/angelscript/source/as_property.h
+    ../dep/angelscript/angelscript/source/as_restore.h
+    ../dep/angelscript/angelscript/source/as_scriptcode.h
+    ../dep/angelscript/angelscript/source/as_scriptengine.h
+    ../dep/angelscript/angelscript/source/as_scriptfunction.h
+    ../dep/angelscript/angelscript/source/as_scriptnode.h
+    ../dep/angelscript/angelscript/source/as_scriptobject.h
+    ../dep/angelscript/angelscript/source/as_string.h
+    ../dep/angelscript/angelscript/source/as_string_util.h
+    ../dep/angelscript/angelscript/source/as_texts.h
+    ../dep/angelscript/angelscript/source/as_thread.h
+    ../dep/angelscript/angelscript/source/as_tokendef.h
+    ../dep/angelscript/angelscript/source/as_tokenizer.h
+    ../dep/angelscript/angelscript/source/as_typeinfo.h
+    ../dep/angelscript/angelscript/source/as_variablescope.h
     tinygettext/dictionary_manager.hpp
     tinygettext/dictionary.hpp
     tinygettext/language.hpp
@@ -7,7 +42,6 @@ SET(
     tinygettext/po_parser.hpp
     tinygettext/tinygettext.hpp
     ActiveObject.h
-    angelscript.h
     AnimatedObject.h
     ASWrapper.h
     AttackableObject.h

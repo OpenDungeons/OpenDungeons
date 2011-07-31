@@ -4,12 +4,57 @@
 
 set(
      OD_SOURCEFILES
+     #AngelScript sources
+     ../dep/angelscript/angelscript/source/as_atomic.cpp
+     ../dep/angelscript/angelscript/source/as_builder.cpp
+     ../dep/angelscript/angelscript/source/as_bytecode.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_arm.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_mips.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_ppc.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_ppc_64.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_sh4.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_x64_gcc.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_x64_msvc.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_x86.cpp
+     ../dep/angelscript/angelscript/source/as_callfunc_xenon.cpp
+     ../dep/angelscript/angelscript/source/as_compiler.cpp
+     ../dep/angelscript/angelscript/source/as_configgroup.cpp
+     ../dep/angelscript/angelscript/source/as_context.cpp
+     ../dep/angelscript/angelscript/source/as_datatype.cpp
+     ../dep/angelscript/angelscript/source/as_gc.cpp
+     ../dep/angelscript/angelscript/source/as_generic.cpp
+     ../dep/angelscript/angelscript/source/as_globalproperty.cpp
+     ../dep/angelscript/angelscript/source/as_memory.cpp
+     ../dep/angelscript/angelscript/source/as_module.cpp
+     ../dep/angelscript/angelscript/source/as_objecttype.cpp
+     ../dep/angelscript/angelscript/source/as_outputbuffer.cpp
+     ../dep/angelscript/angelscript/source/as_parser.cpp
+     ../dep/angelscript/angelscript/source/as_restore.cpp
+     ../dep/angelscript/angelscript/source/as_scriptcode.cpp
+     ../dep/angelscript/angelscript/source/as_scriptengine.cpp
+     ../dep/angelscript/angelscript/source/as_scriptfunction.cpp
+     ../dep/angelscript/angelscript/source/as_scriptnode.cpp
+     ../dep/angelscript/angelscript/source/as_scriptobject.cpp
+     ../dep/angelscript/angelscript/source/as_string.cpp
+     ../dep/angelscript/angelscript/source/as_string_util.cpp
+     ../dep/angelscript/angelscript/source/as_thread.cpp
+     ../dep/angelscript/angelscript/source/as_tokenizer.cpp
+     ../dep/angelscript/angelscript/source/as_typeinfo.cpp
+     ../dep/angelscript/angelscript/source/as_variablescope.cpp
+     
+     #AngelScript Addon sources
+     ../dep/angelscript/add_on/scriptstdstring/scriptstdstring.cpp
+     
+     #Tinygettext sources
      tinygettext/dictionary_manager.cpp
      tinygettext/dictionary.cpp
      tinygettext/language.cpp
      tinygettext/plural_forms.cpp
      tinygettext/po_parser.cpp
      tinygettext/tinygettext.cpp
+     
+     #OpenDungeons sources
      ActiveObject.cpp
      AttackableObject.cpp
      AnimatedObject.cpp
@@ -81,14 +126,6 @@ set(
 #### Library/include directories #
 ##################################
 
-# CEGUI
-# FIXME This should be handled by the find script
-
-#Add cegui library dirs.
-include_directories(${CEGUI_INCLUDE_DIR})
-
-#link_libraries(${ICONV_LIBRARIES})
-
 if( MINGW )
     # Boost
     link_libraries(${Boost_LIBRARIES})
@@ -100,10 +137,6 @@ if( MSVC )
     include_directories(${OD_BOOST_INCLUDE_DIRS})
     link_directories(${OD_BOOST_LIB_DIRS})
 endif()
-
-#includes only
-include_directories(${SFML_INCLUDE_DIR} ${OGRE_INCLUDE_DIRS} 
-    ${OPENAL_INCLUDE_DIR} ${OIS_INCLUDE_DIRS})
 
 #TODO - should we have some error handling here?
 
@@ -142,9 +175,16 @@ endif()
 ##################################
 
 # Link libraries
-target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_LIBRARIES} 
-    ${OPENAL_LIBRARY} ${OIS_LIBRARIES}) 
-target_link_libraries(${PROJECT_BINARY_NAME} ${CEGUI_LIBRARIES})
+target_link_libraries(
+    #target
+    ${PROJECT_BINARY_NAME}
+
+    #libraries
+    ${OGRE_LIBRARIES} 
+    ${OPENAL_LIBRARY}
+    ${OIS_LIBRARIES}
+    ${CEGUI_LIBRARIES}
+)
     
 # MSVC automatically links boost
 if(NOT MSVC)
@@ -154,16 +194,16 @@ endif()
 # Link sfml
 # Use debug libraries if they exist
 if(${SFML_AUDIO_LIBRARY_SHARED_DEBUG})
-target_link_libraries(${PROJECT_BINARY_NAME} 
-    optimized ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
-	optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG} 
-	debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG} 
-	debug ${SFML_SYSTEM_LIBRARY_SHARED_DEBUG}
-    ) 
+    target_link_libraries(${PROJECT_BINARY_NAME} 
+        optimized ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
+    	optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG} 
+    	debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG} 
+    	debug ${SFML_SYSTEM_LIBRARY_SHARED_DEBUG}
+        ) 
 else()
-target_link_libraries(${PROJECT_BINARY_NAME} 
-    ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
-    ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG}) 
+    target_link_libraries(${PROJECT_BINARY_NAME} 
+        ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
+        ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG}) 
 endif()
 
 #TODO - move compiler defs

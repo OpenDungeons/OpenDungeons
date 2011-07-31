@@ -1,13 +1,10 @@
-CMAKE_MINIMUM_REQUIRED( VERSION 2.8 )
-
-#if( POLICY CMP0011 )
-#  cmake_policy( SET CMP0011 OLD ) # or even better, NEW
-#endif( POLICY CMP0011 )
+cmake_minimum_required(VERSION 2.8)
 
 ##################################
 #### Project settings ############
 ##################################
-PROJECT( OpenDungeons )
+
+project(OpenDungeons)
 
 #postfix bin if we are on linux as we want to launch with a script
 if ( WIN32 )
@@ -36,7 +33,6 @@ find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
 find_package(SFML REQUIRED COMPONENTS Audio System)
 
-
 # boost uses some extra settings
 #NOTE: Versions var has to be updated with use of new boost release 
 # to find the boost release.
@@ -61,8 +57,6 @@ if(MINGW)
     find_package( Boost COMPONENTS thread REQUIRED)
 endif()
 
-
-
 #OpenAL
 #If we are on windows we can also look for OpenAL where SFML is
 if(WIN32 AND ${SFML_FOUND})
@@ -75,17 +69,49 @@ find_package(OpenAL REQUIRED)
 #### Headers and linking #########
 ##################################
 
-include_directories( ${CMAKE_SOURCE_DIR}/include )
-include_directories( ${CMAKE_SOURCE_DIR}/include/tinygettext )
+set(ANGELSCRIPT_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript")
+
+include_directories(
+    #OpenDungeons includes
+    ${CMAKE_SOURCE_DIR}/include
+
+    #tinygettext includes
+    ${CMAKE_SOURCE_DIR}/include/tinygettext
+
+    #Angelscript includes    
+    ${ANGELSCRIPT_DIR}/angelscript/include/
+
+    #AngelScript Addons, in-comment only the ones we actually use
+#    ${ANGELSCRIPT_DIR}/add_on/autowrapper
+#    ${ANGELSCRIPT_DIR}/add_on/clib
+#    ${ANGELSCRIPT_DIR}/add_on/contextmgr
+#    ${ANGELSCRIPT_DIR}/add_on/debugger
+#    ${ANGELSCRIPT_DIR}/add_on/scriptany
+#    ${ANGELSCRIPT_DIR}/add_on/scriptarray
+#    ${ANGELSCRIPT_DIR}/add_on/scriptbuilder
+#    ${ANGELSCRIPT_DIR}/add_on/scriptdictionary
+#    ${ANGELSCRIPT_DIR}/add_on/scriptfile
+#    ${ANGELSCRIPT_DIR}/add_on/scripthelper
+#    ${ANGELSCRIPT_DIR}/add_on/scriptmath
+#    ${ANGELSCRIPT_DIR}/add_on/scriptmath3d
+    ${ANGELSCRIPT_DIR}/add_on/scriptstdstring
+
+    # FIXME This should be handled by the find script
+    #external packages includes
+    ${CEGUI_INCLUDE_DIR}
+    ${SFML_INCLUDE_DIR}
+    ${OGRE_INCLUDE_DIRS}
+    ${OPENAL_INCLUDE_DIR}
+    ${OIS_INCLUDE_DIRS}
+)
 
 #Provide dirent.h if visual studio is used
 if(MSVC)
     include_directories( ${CMAKE_SOURCE_DIR}/include/dirent )
 endif()
 
-
 #Linking is set up in src/CMakeLists.txt
-ADD_SUBDIRECTORY( src )
+add_subdirectory(src)
 
 ##################################
 #### Configure settings files ####
@@ -136,15 +162,10 @@ endif ()
 set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg ${CMAKE_CURRENT_SOURCE_DIR}/media.cfg)
 
 if (WIN32) #NOTE - not really used on windows
-#install media, Make sure we ignore .svn files
-#	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Media DESTINATION ${OPENDUNGEONS_DATA_DEST} PATTERN ".svn" EXCLUDE)
-#install plugins.cfg and media.cfg
-	install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
-#install resources.cfg
+	install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})	
+    #install resources.cfg
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
 else()
-
-#	install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Media DESTINATION ${OPENDUNGEONS_DATA_DEST} PATTERN ".svn" EXCLUDE )
 	install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION games PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
