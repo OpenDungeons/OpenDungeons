@@ -11,7 +11,7 @@
 /* TODO list:
  * - decide how many modules (don't forget to adjust loadScript() then)
  * - find out if addref/release methods are useful or even needed by us
- * - possible improvements to compilation of scripts (store the state)?
+ * - possible improvements to compilation of scripts? (AS has an addon)
  * - bind all needed classes
  * - write a function to pass console input directly to AS
  * - find out if we really need all the asserts (binary size, start up time).
@@ -37,9 +37,6 @@ ASWrapper::ASWrapper() :
         //create engine
         engine(asCreateScriptEngine(ANGELSCRIPT_VERSION)),
         //create modules
-        //TODO: perhaps its better to have more module for different kinds
-        //of tasks, like one for AI, one for console, one for gui, etc.
-        //Then we'd put them in a map<name, module>
         module(engine->GetModule("asModule", asGM_ALWAYS_CREATE)),
         //create context that runs the script functions
         context(engine->CreateContext())
@@ -60,9 +57,7 @@ ASWrapper::ASWrapper() :
         }
     }
 
-    //TODO: Can the compiled scripts be saved so that we only need the
-    //compilation if something has changed since last start?
-    //compile the scripts for faster execution
+    //compile AS code
     module->Build();
 
     //bind all objects, functions, etc to AngelScript
@@ -163,9 +158,15 @@ void ASWrapper::registerEverything()
      * game won't start at all and give the exact code location of the error.
      *
      * for EACH class the registration goes:
-     *    engine->RegisterObjectType(name, 0, asOBJ_REF)
+     *    engine->RegisterObjectType(name, 0, asOBJ_REF);
      * OR for Singletons (prevents failing instantiation by AS):
-     *    engine->RegisterObjectType(name, 0, asOBJ_REF | asOBJ_NOHANDLE)
+     *    engine->RegisterObjectType(name, 0, asOBJ_REF | asOBJ_NOHANDLE);
+     * The singleton reference should then be stored as a global property.
+     * We could also register the getSingleton() method, but registering the
+     * reference to the object itself makes it easier for script authors
+     * because the object already exists globally instead of heaving to get the
+     * handle all the time.
+     *    engine->RegisterGlobalProperty("Type varname", Type::GetSingleton());
      *
      * Then only for NON-SIngletons we need a constructor, reference counter
      * (telling AS how many references to the object exist) and a dereferencer
@@ -173,10 +174,6 @@ void ASWrapper::registerEverything()
      * Constructor (static method in ASWrapper):
      *    engine->RegisterObjectBehaviour(name, asBEHAVE_FACTORY, "name@ f()",
      *        asMETHOD(createInstance<ClassName>), asCALL_CDECL);
-     *
-     * //TODO: currently we only have a dummy function to get AS working, but
-     * maybe, maybe not, we later need reference counting: If we need it:
-     * find out how to templatize it
      *
      * Reference counter:
      *    engine->RegisterObjectBehaviour(name, asBEHAVE_ADDREF, "void f()",
@@ -191,5 +188,18 @@ void ASWrapper::registerEverything()
      * be calling a property directly, just like we do in our C++ code. So if
      * we want to have access to the properties from AS we simply have to
      * register the getters and setters.
+     *
      */
+
+    int r = 0;
+
+    //Console with print function
+    r = engine->RegisterObjectType("Console", 0, asOBJ_REF | asOBJ_NOHANDLE);
+    assert(r >= 0);
+    r = engine->RegisterGlobalProperty("Console console",
+            Console::getSingletonPtr());
+    assert(r >= 0);
+    r = engine->RegisterObjectMethod("Console", "void print(string)",
+            asMETHOD(Console, print), asCALL_THISCALL);
+    assert(r >= 0);
 }

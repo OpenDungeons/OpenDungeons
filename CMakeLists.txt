@@ -9,49 +9,17 @@ set(ANGELSCRIPT_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript")
 set(TINYGETTEXT_DIR "${SRC}/tinygettext")
 
 ##################################
+#### add external cmake projects #
+##################################
+
+#Build AngelScript from its own CMakeLists.txt
+add_subdirectory(${ANGELSCRIPT_DIR}/angelscript/projects/cmake)
+
+##################################
 #### Source files (.cpp) #########
 ##################################
 
 set(OD_SOURCEFILES
-     #AngelScript sources
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_atomic.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_builder.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_bytecode.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_arm.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_mips.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_ppc.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_ppc_64.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_sh4.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_x64_gcc.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_x64_msvc.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_x86.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_xenon.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_compiler.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_configgroup.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_context.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_datatype.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_gc.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_generic.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_globalproperty.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_memory.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_module.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_objecttype.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_outputbuffer.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_parser.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_restore.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptcode.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptengine.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptfunction.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptnode.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptobject.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_string.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_string_util.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_thread.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_tokenizer.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_typeinfo.cpp
-     ${ANGELSCRIPT_DIR}/angelscript/source/as_variablescope.cpp
-     
      #AngelScript Addon sources
      ${ANGELSCRIPT_DIR}/add_on/scripthelper/scripthelper.cpp
      ${ANGELSCRIPT_DIR}/add_on/scriptstdstring/scriptstdstring.cpp
@@ -293,6 +261,7 @@ target_link_libraries(
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES}
+    Angelscript
 )
     
 # MSVC automatically links boost
