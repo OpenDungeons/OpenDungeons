@@ -13,13 +13,14 @@
  * - find out if addref/release methods are useful or even needed by us
  * - possible improvements to compilation of scripts (store the state)?
  * - bind all needed classes
- * - find out if executeFunction() is really needed by us (if yes: finish it)
+ * - write a function to pass console input directly to AS
  * - find out if we really need all the asserts (binary size, start up time).
  */
 
 #include <iostream>
 
 #include "angelscript.h"
+#include "scripthelper.h"
 #include "scriptstdstring.h"
 
 #include "Console.h"
@@ -96,20 +97,13 @@ void ASWrapper::loadScript(std::string fileName)
     module->AddScriptSection(fileName.c_str(), script.c_str());
 }
 
-/*! \brief executes a script function
+/*! \brief passes code to the script engine and tries to execute it
  *
- *  \param function The name of the function
+ *  \param code The AngelScript code that should be executed
  */
-void ASWrapper::executeFunction(std::string function)
+void ASWrapper::executeScriptCode(const std::string& code)
 {
-    //tell the engine what function to load
-    context->Prepare(engine->GetModule("console")->GetFunctionIdByDecl(
-            function.c_str()));
-
-    //TODO: evaluate possible parameters
-
-    //execute the function
-    context->Execute();
+    ExecuteString(engine, code.c_str(), module, context);
 }
 
 /*! \brief Send AngelScript errors, warnings and information to our console
@@ -149,6 +143,8 @@ void ASWrapper::messageCallback(const asSMessageInfo* msg, void* param)
  */
 void ASWrapper::registerEverything()
 {
+    /* Register some standard types and features, they are official AS addons
+     */
     RegisterStdString(engine);
 
     /* Names of the classes to register. Centrally defined because we need

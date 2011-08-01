@@ -53,6 +53,7 @@ set(OD_SOURCEFILES
      ${ANGELSCRIPT_DIR}/angelscript/source/as_variablescope.cpp
      
      #AngelScript Addon sources
+     ${ANGELSCRIPT_DIR}/add_on/scripthelper/scripthelper.cpp
      ${ANGELSCRIPT_DIR}/add_on/scriptstdstring/scriptstdstring.cpp
      
      #Tinygettext sources
@@ -220,7 +221,7 @@ include_directories(
 #    ${ANGELSCRIPT_DIR}/add_on/scriptbuilder
 #    ${ANGELSCRIPT_DIR}/add_on/scriptdictionary
 #    ${ANGELSCRIPT_DIR}/add_on/scriptfile
-#    ${ANGELSCRIPT_DIR}/add_on/scripthelper
+    ${ANGELSCRIPT_DIR}/add_on/scripthelper
 #    ${ANGELSCRIPT_DIR}/add_on/scriptmath
 #    ${ANGELSCRIPT_DIR}/add_on/scriptmath3d
     ${ANGELSCRIPT_DIR}/add_on/scriptstdstring
