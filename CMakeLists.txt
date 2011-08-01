@@ -1,28 +1,157 @@
 cmake_minimum_required(VERSION 2.8)
 
 ##################################
+#### Useful variables ############
+##################################
+
+set(SRC "${CMAKE_SOURCE_DIR}/src")
+set(ANGELSCRIPT_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript")
+set(TINYGETTEXT_DIR "${SRC}/tinygettext")
+
+##################################
+#### Source files (.cpp) #########
+##################################
+
+set(OD_SOURCEFILES
+     #AngelScript sources
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_atomic.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_builder.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_bytecode.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_arm.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_mips.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_ppc.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_ppc_64.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_sh4.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_x64_gcc.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_x64_msvc.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_x86.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_callfunc_xenon.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_compiler.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_configgroup.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_context.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_datatype.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_gc.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_generic.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_globalproperty.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_memory.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_module.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_objecttype.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_outputbuffer.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_parser.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_restore.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptcode.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptengine.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptfunction.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptnode.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_scriptobject.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_string.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_string_util.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_thread.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_tokenizer.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_typeinfo.cpp
+     ${ANGELSCRIPT_DIR}/angelscript/source/as_variablescope.cpp
+     
+     #AngelScript Addon sources
+     ${ANGELSCRIPT_DIR}/add_on/scriptstdstring/scriptstdstring.cpp
+     
+     #Tinygettext sources
+     ${TINYGETTEXT_DIR}/dictionary_manager.cpp
+     ${TINYGETTEXT_DIR}/dictionary.cpp
+     ${TINYGETTEXT_DIR}/language.cpp
+     ${TINYGETTEXT_DIR}/plural_forms.cpp
+     ${TINYGETTEXT_DIR}/po_parser.cpp
+     ${TINYGETTEXT_DIR}/tinygettext.cpp
+     
+     #OpenDungeons sources
+     ${SRC}/ActiveObject.cpp
+     ${SRC}/AttackableObject.cpp
+     ${SRC}/AnimatedObject.cpp
+     ${SRC}/ASWrapper.cpp
+     ${SRC}/CameraManager.cpp
+     ${SRC}/ChatMessage.cpp
+     ${SRC}/Client.cpp
+     ${SRC}/ClientNotification.cpp
+     ${SRC}/Console.cpp
+     ${SRC}/CreatureAction.cpp
+     ${SRC}/CreatureClass.cpp
+     ${SRC}/Creature.cpp
+     ${SRC}/CreatureSound.cpp
+     ${SRC}/DirectionalTrap.cpp
+     ${SRC}/Field.cpp
+     ${SRC}/Functions.cpp
+     ${SRC}/GameMap.cpp
+     ${SRC}/GameState.cpp
+     ${SRC}/GoalClaimNTiles.cpp
+     ${SRC}/Goal.cpp
+     ${SRC}/GoalKillAllEnemies.cpp
+     ${SRC}/GoalMineNGold.cpp
+     ${SRC}/GoalProtectCreature.cpp
+     ${SRC}/GoalProtectDungeonTemple.cpp
+     ${SRC}/Gui.cpp
+     ${SRC}/InputManager.cpp
+     ${SRC}/LogManager.cpp
+     ${SRC}/main.cpp
+     ${SRC}/MapLight.cpp
+     ${SRC}/MiniMap.cpp
+     ${SRC}/MissileObject.cpp
+     ${SRC}/MusicPlayer.cpp
+     ${SRC}/ODApplication.cpp
+     ${SRC}/ODFrameListener.cpp
+     ${SRC}/Player.cpp
+     ${SRC}/ProximityTrap.cpp
+     ${SRC}/RadialVector2.cpp
+     ${SRC}/Random.cpp
+     ${SRC}/RenderManager.cpp
+     ${SRC}/RenderRequest.cpp
+     ${SRC}/ResourceManager.cpp
+     ${SRC}/Room.cpp
+     ${SRC}/RoomDojo.cpp
+     ${SRC}/RoomDungeonTemple.cpp
+     ${SRC}/RoomForge.cpp
+     ${SRC}/RoomObject.cpp
+     ${SRC}/RoomPortal.cpp
+     ${SRC}/RoomQuarters.cpp
+     ${SRC}/RoomTreasury.cpp
+     ${SRC}/Seat.cpp
+     ${SRC}/Server.cpp
+     ${SRC}/ServerNotification.cpp
+     ${SRC}/Socket.cpp
+     ${SRC}/SoundEffectsHelper.cpp
+     ${SRC}/Spell.cpp
+     ${SRC}/TextRenderer.cpp
+     ${SRC}/Tile.cpp
+     ${SRC}/TileCoordinateMap.cpp
+     ${SRC}/Translation.cpp
+     ${SRC}/Trap.cpp
+     ${SRC}/TrapBoulder.cpp
+     ${SRC}/TrapCannon.cpp
+     ${SRC}/Weapon.cpp
+)
+
+##################################
 #### Project settings ############
 ##################################
 
 project(OpenDungeons)
 
 #postfix bin if we are on linux as we want to launch with a script
-if ( WIN32 )
+if(WIN32)
 	set( PROJECT_BINARY_NAME "OpenDungeons")
 else()
 	set( PROJECT_BINARY_NAME "OpenDungeons.bin")
 endif()
 	
 # Project version
-set( ${PROJECT_NAME}_MAJOR_VERSION 0 )
-set( ${PROJECT_NAME}_MINOR_VERSION 4 )
-set( ${PROJECT_NAME}_PATCH_LEVEL 8 )
+set(${PROJECT_NAME}_MAJOR_VERSION 0)
+set(${PROJECT_NAME}_MINOR_VERSION 4)
+set(${PROJECT_NAME}_PATCH_LEVEL   8)
 
 # Where to look for modules
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules )
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
 
 # Where we want the binary
-set( EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR} )
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 ##################################
 #### Find packages ###############
@@ -51,10 +180,10 @@ if(WIN32 AND ${OGRE_FOUND})
     #making findboost not find them
 	set( OD_BOOST_LIB_DIRS  ${ENV_OGRE_HOME}/boost_1_44/lib ${ENV_OGRE_HOME}/boost_1_42/lib)
 	set( OD_BOOST_INCLUDE_DIRS ${ENV_OGRE_HOME}/boost_1_44 ${ENV_OGRE_HOME}/boost_1_42)
-
 endif()
+
 if(MINGW)
-    find_package( Boost COMPONENTS thread REQUIRED)
+    find_package(Boost COMPONENTS thread REQUIRED)
 endif()
 
 #OpenAL
@@ -63,14 +192,14 @@ if(WIN32 AND ${SFML_FOUND})
     set( CMAKE_LIBRARY_PATH ${SFMLDIR}/extlibs/libs-vc2005 ${SFMLDIR}/extlibs/libs-mingw)
     set( CMAKE_INCLUDE_PATH ${SFMLDIR}/extlibs/headers ${SFMLDIR}/extlibs/headers/AL)
 endif()
+
 find_package(OpenAL REQUIRED)
 
 ##################################
 #### Headers and linking #########
 ##################################
 
-set(ANGELSCRIPT_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript")
-
+#add all project specific include directorieS
 include_directories(
     #OpenDungeons includes
     ${CMAKE_SOURCE_DIR}/include
@@ -105,34 +234,144 @@ include_directories(
     ${OIS_INCLUDE_DIRS}
 )
 
-#Provide dirent.h if visual studio is used
-if(MSVC)
-    include_directories( ${CMAKE_SOURCE_DIR}/include/dirent )
+if(WIN32)
+    if(MINGW)
+        # Boost
+        link_libraries(${Boost_LIBRARIES})
+        include_directories(${Boost_INCLUDE_DIRS})
+    endif()
+    
+    if(MSVC)
+        #Provide dirent.h if visual studio is used
+        include_directories( ${CMAKE_SOURCE_DIR}/include/dirent )
+    
+        message(STATUS "MSVC: " ${OD_BOOST_INCLUDE_DIRS})
+        message(STATUS "MSVC: " ${OD_BOOST_LIB_DIRS})
+        include_directories(${OD_BOOST_INCLUDE_DIRS})
+        link_directories(${OD_BOOST_LIB_DIRS})
+    endif()
+
+    #Pthreads on windows
+    include_directories(${CMAKE_SOURCE_DIR}/dep/pthreads/include/)
+    link_directories(${CMAKE_SOURCE_DIR}/dep/pthreads/lib/)
 endif()
 
-#Linking is set up in src/CMakeLists.txt
-add_subdirectory(src)
+##################################
+#### Binary ######################
+##################################
+
+# Create the binary file (WIN32 makes sure there is no console window on windows.)
+add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
+
+##################################
+#### Install targets #############
+##################################
+
+# Add install target
+if(WIN32)
+    install(TARGETS ${PROJECT_BINARY_NAME}
+        DESTINATION .
+    ) 
+else ()
+    install(TARGETS ${PROJECT_BINARY_NAME}
+        DESTINATION games
+    )
+endif() 
+
+##################################
+#### Link libraries ##############
+##################################
+
+# Link libraries
+target_link_libraries(
+    #target
+    ${PROJECT_BINARY_NAME}
+
+    #libraries
+    ${OGRE_LIBRARIES} 
+    ${OPENAL_LIBRARY}
+    ${OIS_LIBRARIES}
+    ${CEGUI_LIBRARIES}
+)
+    
+# MSVC automatically links boost
+if(NOT MSVC)
+    target_link_libraries(${PROJECT_BINARY_NAME} ${Boost_LIBRARIES})
+endif()
+
+# Link sfml
+# Use debug libraries if they exist
+if(${SFML_AUDIO_LIBRARY_SHARED_DEBUG})
+    target_link_libraries(
+        ${PROJECT_BINARY_NAME}
+
+        optimized ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
+        optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG} 
+        debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG} 
+        debug ${SFML_SYSTEM_LIBRARY_SHARED_DEBUG}
+    ) 
+else()
+    target_link_libraries(${PROJECT_BINARY_NAME} 
+        ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
+        ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG})
+endif()
+
+# Link pthreads and userenv if we are on windows
+if(WIN32)
+    if(MSVC_IDE)
+        #Set some extra compiler flags
+        #TODO - investigate if these are what they should be
+        set( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc /SUBSYSTEM:WINDOWS /ENTRY:\"main\"" )
+        set( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI" )
+
+        set( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
+        set( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
+        set( CMAKE_CXX_FLAGS_DEBUG "${PLATFORM_C_FLAGS_DEBUG}" )
+
+        #Link to pthreads
+        target_link_libraries(
+            ${PROJECT_BINARY_NAME}
+
+            "pthreadVC2.lib"
+            "ws2_32.lib"
+            Userenv
+        )
+        message( STATUS "Using win pthreads" )
+    endif()
+
+    if(MINGW)
+        target_link_libraries(
+            ${PROJECT_BINARY_NAME}
+
+            "libpthreadGC2.a"
+            "ws2_32"
+            Userenv
+        )
+    endif()
+else()
+    #TODO - move compiler defs
+    #Add compiler warnings
+    add_definitions( "-Wall -Wunused -ansi -Wno-deprecated" )
+endif()
 
 ##################################
 #### Configure settings files ####
 ##################################
 
 #Make a copy for use in the build directory, and later one copy for installing.
-#NOTE - this var is only used in the config file
-#set(OPENDUNGEONS_MEDIA_DIR ${CMAKE_CURRENT_BINARY_DIR})
-set(OPENDUNGEONS_MEDIA_DIR ".")
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg)
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in
+    ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg
+)
 
-if ( WIN32 )
-#On windows, use current directory for plugins and data for now
+if(WIN32)
+    #On windows, use current directory for plugins and data for now
 	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ".")
 	set(OPENDUNGEONS_DATA_PATH ".")
 	set(OPENDUNGEONS_DATA_DEST ".")
-
-else ()
-
+else()
 	#only use d3d renderer plugins if we are on windows
-	set(OPENDUNGEONS_COMMENT_D3D "#" )
+	set(OPENDUNGEONS_COMMENT_D3D "#")
 	
 	#On linux, we should look in the standard paths for plugins
 	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ${OGRE_LIBRARY_DIR_REL}/OGRE)
@@ -140,24 +379,22 @@ else ()
 	#Set data location to where we install if we want to use the installer
 	set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
 	set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST})
-endif ()
+endif()
 
 #Do the configuration
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg)
-if ( UNIX )
+if(UNIX)
     #On linux, set up the launcher script
     #TODO - add key repeat thing
 	set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME})
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
-endif ()
+endif()
 
 ##################################
 #### Installation ################
 ##################################
-
-#TODO - fix this with the new media paths
 
 set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg ${CMAKE_CURRENT_SOURCE_DIR}/media.cfg)
 
