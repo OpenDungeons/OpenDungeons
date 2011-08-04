@@ -23,7 +23,7 @@ class ASWrapper :
         ~ASWrapper();
 
         void loadScript(std::string fileName);
-        void executeFunction(std::string function);
+        void executeScriptCode(const std::string& code);
 
         // \brief helper function for registering the AS factories
         template<class T>
