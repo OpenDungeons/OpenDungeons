@@ -31,8 +31,12 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         inline const std::string& getScriptPath() const{return scriptPath;}
         inline const std::string& getSoundPath() const{return soundPath;}
         inline const std::string& getLanguagePath() const{return languagePath;}
+        inline const std::string& getShaderCachePath() const{return shaderCachePath;}
         inline const std::string& getCfgFile() const{return ogreCfgFile;}
         inline const std::string& getLogFile() const{return ogreLogFile;}
+
+    protected:
+        static bool createFolderIfNotExists(const std::string& folderName);
 
     private:
         ResourceManager(const ResourceManager&);
@@ -47,6 +51,7 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         std::string scriptPath;
         std::string languagePath;
         std::string macBundlePath;
+        std::string shaderCachePath;
         std::string ogreCfgFile;
         std::string ogreLogFile;
 
@@ -56,6 +61,7 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         static const std::string SOUNDSUBPATH;
         static const std::string SCRIPTSUBPATH;
         static const std::string LANGUAGESUBPATH;
+        static const std::string SHADERCACHESUBPATH;
         static const std::string CONFIGFILENAME;
         static const std::string LOGFILENAME;
 

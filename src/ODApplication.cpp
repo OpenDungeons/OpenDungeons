@@ -61,11 +61,13 @@ ODApplication::ODApplication() :
     }
 
     window = root->initialise(true, "OpenDungeons " + VERSION);
-    Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
-    new LogManager();
+
+    LogManager* logManager = new LogManager();
+    logManager->setLogDetail(Ogre::LL_BOREME);
     new Translation();
     new GameState();
     RenderManager* renderMgr = new RenderManager(&gameMap);
+    Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
     new Gui();
     new TextRenderer();
@@ -79,11 +81,28 @@ ODApplication::ODApplication() :
     MusicPlayer::getSingleton().start(0);
 
     //FIXME: do this only if a level loads after the main menu
-    renderMgr->createCamera();
-    renderMgr->createViewports();
-    renderMgr->createScene();
+    //Try to create the camera, viewport and scene. 
+    try {
+        logManager->logMessage("Creating camera...", Ogre::LML_NORMAL);
+        renderMgr->createCamera();
+        logManager->logMessage("Creating viewpoerts...", Ogre::LML_NORMAL);
+        renderMgr->createViewports();
+        logManager->logMessage("Creating scene...", Ogre::LML_NORMAL);
+        renderMgr->createScene();
+    } catch (Ogre::Exception e) {
+        logManager->logMessage("Ogre exception when ininialising the render manager:\n"
+            + e.getFullDescription(), Ogre::LML_CRITICAL);
+        cleanUp();
+        return;
+    } catch (std::exception e) {
+        logManager->logMessage("Exception when ininialising the render manager:\n"
+            + std::string(e.what()), Ogre::LML_CRITICAL);
+        cleanUp();
+        return;
+    }
 
     new CameraManager(renderMgr->getCamera());
+    logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
     root->addFrameListener(new ODFrameListener(window));
 
     //FIXME: This should be at a better place (when level loads for the first time)
@@ -93,8 +112,21 @@ ODApplication::ODApplication() :
     //Console needs to exist BEFORE ASWrapper because it needs it for callback
     new Console();
     new ASWrapper();
-
-    root->startRendering();
+    try {
+        root->startRendering();
+    } catch (Ogre::Exception e) {
+        logManager->logMessage("Ogre exception:\n"
+            + e.getFullDescription(), Ogre::LML_CRITICAL);
+        cleanUp();
+        return;
+    } catch (std::exception e) {
+        logManager->logMessage("Exception:\n"
+            + std::string(e.what()), Ogre::LML_CRITICAL);
+        cleanUp();
+        return;
+    }
+    //Moved out from cleanup, as we only want to remove it if it exists.
+    root->removeFrameListener(ODFrameListener::getSingletonPtr());
     cleanUp();
 }
 
@@ -113,9 +145,7 @@ void ODApplication::cleanUp()
 {
     delete MiniMap::getSingletonPtr();
 
-    root->removeFrameListener(ODFrameListener::getSingletonPtr());
     delete ODFrameListener::getSingletonPtr();
-
     delete MusicPlayer::getSingletonPtr();
     delete TextRenderer::getSingletonPtr();
     delete Gui::getSingletonPtr();

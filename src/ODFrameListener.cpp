@@ -252,7 +252,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     MusicPlayer::getSingletonPtr()->update();
     renderManager->processRenderRequests();
-
+    
     string chatBaseString = "\n---------- Chat ----------\n";
     chatString = chatBaseString;
 

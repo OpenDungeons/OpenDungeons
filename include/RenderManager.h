@@ -11,6 +11,7 @@
 #include <deque>
 
 #include <OgreSingleton.h>
+#include <RTShaderSystem/OgreShaderGenerator.h>
 #include <semaphore.h>
 
 class RenderRequest;
@@ -19,7 +20,10 @@ namespace Ogre
 {
 class SceneManager;
 class SceneNode;
-}
+/*namespace RTShader {
+    class ShaderGenerator;
+}*/
+} //End namespace Ogre
 
 class RenderManager: public Ogre::Singleton<RenderManager>
 {
@@ -46,6 +50,8 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         {
             ms_Singleton->queueRenderRequest_priv(renderRequest);
         }
+
+        void rtssTest(); 
 
 		static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
 
@@ -103,6 +109,8 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         GameMap* gameMap;
         Ogre::Camera* mainCamera;
         Ogre::SceneManager* sceneManager;
+        Ogre::Viewport* viewport;
+        Ogre::RTShader::ShaderGenerator* shaderGenerator;
         bool initialized;
 };
 

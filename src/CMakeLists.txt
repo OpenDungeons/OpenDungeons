@@ -180,7 +180,8 @@ target_link_libraries(
     ${PROJECT_BINARY_NAME}
 
     #libraries
-    ${OGRE_LIBRARIES} 
+    ${OGRE_LIBRARIES}
+    ${OGRE_RTShaderSystem_LIBRARIES}
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES}

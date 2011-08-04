@@ -6,7 +6,11 @@
  *         sound and graphics facilities.
  */
 
+#include <cstdlib>
+
 #include <dirent.h>
+#include <sys/stat.h>
+#include <OgreConfigFile.h>
 
 #include <OgrePlatform.h>
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -15,13 +19,14 @@
 #include <userenv.h>
 #include <direct.h>
 #include <errno.h>
-#endif
 
-#include <sys/stat.h>
-
-#include <OgreConfigFile.h>
-#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+#elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <CoreFoundation/CoreFoundation.h>
+
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+#include <cerrno>
+#include <cstring>
+#include <cstdlib>
 #endif
 
 #include "ODApplication.h"
@@ -36,6 +41,7 @@ const std::string ResourceManager::MUSICSUBPATH = "music/";
 const std::string ResourceManager::SOUNDSUBPATH = "sounds/";
 const std::string ResourceManager::SCRIPTSUBPATH = "scripts/";
 const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
+const std::string ResourceManager::SHADERCACHESUBPATH = "shaderCache/";
 const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
 const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
 
@@ -80,7 +86,8 @@ ResourceManager::ResourceManager() :
         macBundlePath(""),
         ogreCfgFile(""),
         ogreLogFile("")
-{ 
+{
+    bool success = false;
 //FIXME - we should check that there is no _file_ with the same name as the dir we want to use.
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
     char applePath[1024];
@@ -102,6 +109,7 @@ ResourceManager::ResourceManager() :
 
     resourcePath = macBundlePath + "Contents/Resources/";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+
     // getenv return value should not be touched/freed.
     char* path = std::getenv("OPENDUNGEONS_DATA_PATH");
     if(path != 0)
@@ -128,15 +136,18 @@ ResourceManager::ResourceManager() :
 
         homePath.append("/.OpenDungeons");
 
-        //Create directory if it doesn't exist
-        struct stat statbuf;
-        if (stat(homePath.c_str(), &statbuf) != 0)
+        success = createFolderIfNotExists(homePath);
+        if(!success)
         {
-            mkdir(homePath.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+            std::cerr << "Fatal error in folder setup, exiting" << std::endl;
+            exit(1);
         }
 
         homePath.append("/");
+
+        
     }
+
 #elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 
 /*
@@ -196,57 +207,25 @@ ResourceManager::ResourceManager() :
 	
 	std::cout << "Home path is: " << homePath << std::endl;
 
-    struct stat statBuf;
-    int result;
-
-    result = stat(homePath.c_str(), &statBuf);
-    if(result == 0)
+    success = createFolderIfNotExists(homePath);
+    if(!success)
     {
-        //exists
-		if(statBuf.st_mode & _S_IFREG)
-		{
-			//.OpenDungeons is a file and not a directory, bail out.
-			std::cerr << "Error: \"" << homePath << "\" is a file" << std::endl;
-			exit(1);
-		}
-	}
-	else
-	{
-		//does not exist or inaccessible
-		switch(errno)
-		{
-		case ENOENT:
-			{
-				int dirCreated = ::_mkdir(homePath.c_str());
-				if(dirCreated != 0)
-				{
-					//FIXME: Handle this properly.
-					std::cerr << "Failed create subdirectory in home directory (" << homeDirectoryString << ") !" << std::endl;
-					exit(1);
-				}
-				break;
-			}
-		case EINVAL:
-			{
-				std::cerr << "Invalid parameter to stat()!" << std::endl;
-				exit(1);
-				break;
-			}
-		default:
-			{
-				std::cerr << "Unexpected error in stat()!" << std::endl;
-				exit(1);
-				break;
-			}
-		}
-	}
-    
+        std::cerr << "Fatal error in folder setup, exiting" << std::endl;
+    }
 	
 	//Set line endings to unix-style for consistency.
 	std::replace(homePath.begin(), homePath.end(), '\\', '/');
 	homePath += "/";
 
 #endif
+
+    //Create shader cache folder.
+    success = createFolderIfNotExists(homePath.c_str() + SHADERCACHESUBPATH);
+    if(!success)
+    {
+        std::cerr << "Fatal error in folder setup, exiting" << std::endl;
+        exit(1);
+    }
 
 #ifndef OGRE_STATIC_LIB
     pluginsPath = resourcePath + PLUGINSCFG;
@@ -258,6 +237,10 @@ ResourceManager::ResourceManager() :
     soundPath = resourcePath + SOUNDSUBPATH;
     musicPath = resourcePath + MUSICSUBPATH;
     languagePath = resourcePath + LANGUAGESUBPATH;
+    shaderCachePath = homePath + SHADERCACHESUBPATH;
+
+    //Make shader cache folder if it does not exist.
+    
 }
 
 void ResourceManager::setupResources()
@@ -340,4 +323,76 @@ void ResourceManager::takeScreenshot()
     std::ostringstream ss;
     ss << "ODscreenshot_" << ++screenshotCounter << ".png";
     ODApplication::getSingleton().getWindow()->writeContentsToFile(getHomePath() + ss.str());
+}
+
+/*! \brief Creates a folder if it doesn't already exist.
+ *
+ */
+bool ResourceManager::createFolderIfNotExists(const std::string& name)
+{
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+//Not implemented. Can probably use the same code as linux.
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+    struct stat statbuf;
+    if (stat(name.c_str(), &statbuf) != 0)
+    {
+        if(errno == ENOENT)
+        {
+            mkdir(name.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+            return true;
+        }
+        else
+        {
+            std::cerr << "Error reading directory: " << strerror(errno) << std::endl;
+            return false;
+        }
+    }
+    //Directory exists.
+    return true;
+#elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+    struct stat statBuf;
+    int result;
+
+    result = stat(name.c_str(), &statBuf);
+    if(result == 0)
+    {
+        //exists
+        if(statBuf.st_mode & _S_IFREG)
+        {
+            //.OpenDungeons is a file and not a directory, bail out.
+            std::cerr << "Error: \"" << name << "\" is a file" << std::endl;
+            return false;
+        }
+    }
+    else
+    {
+        //does not exist or inaccessible
+        switch(errno)
+        {
+        case ENOENT:
+            {
+                int dirCreated = ::_mkdir(name.c_str());
+                if(dirCreated != 0)
+                {
+                    //FIXME: Handle this properly.
+                    std::cerr << "Failed create subdirectory in home directory (" << name << ") !" << std::endl;
+                    return false;
+                }
+
+                break;
+            }
+        case EINVAL:
+            {
+                std::cerr << "Invalid parameter to stat()!" << std::endl;
+                return false;
+            }
+        default:
+            {
+                std::cerr << "Unexpected error in stat()!" << std::endl;
+                return false;
+            }
+        }
+    }
+    return true;
+#endif //OGRE_PLATFORM
 }

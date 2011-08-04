@@ -16,6 +16,8 @@
 #include "InputManager.h"
 
 #include "Console.h"
+#include <RenderManager.h>
+#include <LogManager.h>
 
 template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
 
@@ -160,6 +162,13 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
             scrollHistory(false);
             prompt = history[curHistPos];
             break;
+
+        case OIS::KC_F10:
+        {
+            LogManager::getSingleton().logMessage("RTSS test----------");
+            RenderManager::getSingleton().rtssTest();
+            break;
+        }
 
         default:
             if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(

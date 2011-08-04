@@ -148,7 +148,7 @@ void SoundEffectsHelper::playInterfaceSound(InterfaceSound sound,
 }
 
 void SoundEffectsHelper::playInterfaceSound(InterfaceSound sound,
-        const Ogre::Vector3 position, bool stopCurrent)
+        const Ogre::Vector3& position, bool stopCurrent)
 {
     interfaceSounds[sound].SetPosition(static_cast<float> (position.x),
             static_cast<float> (position.y), static_cast<float> (position.z));

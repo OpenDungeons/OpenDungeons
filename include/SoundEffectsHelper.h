@@ -42,7 +42,7 @@ class SoundEffectsHelper: public Ogre::Singleton<SoundEffectsHelper>
         void playBlockDestroySound(int tileX, int tileY);
         void playInterfaceSound(InterfaceSound sound, bool stopCurrent = true);
         void playInterfaceSound(InterfaceSound sound,
-                const Ogre::Vector3 position, bool stopCurrent = true);
+                const Ogre::Vector3& position, bool stopCurrent = true);
         void playInterfaceSound(InterfaceSound sound, int tileX, int tileY,
                 bool stopCurrent = true);
 

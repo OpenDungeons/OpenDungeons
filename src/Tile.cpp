@@ -1010,12 +1010,15 @@ double Tile::claimForColor(int nColor, double nDanceRate)
     sem_wait(&claimLightLockSemaphore);
     if (amountClaimed > 0.0 && claimLight == NULL)
     {
-        Ogre::ColourValue tempColour =
+        //Disabled claim lights for now, as they make things look rather ugly
+        //and hamper performance.
+        /*Ogre::ColourValue tempColour =
                 gameMap.getSeatByColor(nColor)->colourValue;
+         
         claimLight = new TemporaryMapLight(Ogre::Vector3(x, y, 0.5),
                 tempColour.r, tempColour.g, tempColour.b, 1.0, 0.1, 0.5, 0.5);
         gameMap.addMapLight(claimLight);
-        claimLight->createOgreEntity();
+        claimLight->createOgreEntity();*/
         SoundEffectsHelper::getSingleton().playInterfaceSound(
                 SoundEffectsHelper::CLAIM, this->x, this->y);
     }
