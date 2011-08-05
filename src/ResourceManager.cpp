@@ -19,7 +19,6 @@
 #include <userenv.h>
 #include <direct.h>
 #include <errno.h>
-#include <shlobj.h>
 
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <CoreFoundation/CoreFoundation.h>
@@ -346,16 +345,20 @@ return ".";
     path = std::getenv("HOME");
 
 #elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    HRESULT ok = SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path);
-    if(!ok)
+    path = std::getenv("USERPROFILE");
+    if(path == 0)
     {
-        path = 0;
+        path = std::getenv("HOMEDRIVE") + path = std::getenv("HOMEPATH");
+        if(path == 0)
+        {
+            path = std::getenv("HOME");
+        }
     }
 #else
 #error("Unknown platform!")
 #endif
     homeFolderPath = (path != 0)
             ? path
-            : ".";
+            : "./";
     return homeFolderPath;
 }
