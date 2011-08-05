@@ -343,7 +343,9 @@ return ".";
 //On linux and similar, use home dir
     //http://linux.die.net/man/3/getpwuid
     path = std::getenv("HOME");
-    
+    homeFolderPath = (path != 0)
+                ? path
+                : "./";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     path = std::getenv("USERPROFILE");
     if(path = 0)
