@@ -29,6 +29,8 @@
 #include <cstdlib>
 #endif
 
+#include <OgreString.h>
+
 #include "ODApplication.h"
 
 #include "ResourceManager.h"
@@ -92,8 +94,8 @@ ResourceManager::ResourceManager() :
         ogreLogFile("")
 {
     bool success = false;
-//FIXME - we should check that there is no _file_ with the same name as the dir we want to use.
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+    //TODO - osx support
     char applePath[1024];
     CFBundleRef mainBundle = CFBundleGetMainBundle();
     assert(mainBundle);
@@ -124,110 +126,39 @@ ResourceManager::ResourceManager() :
             resourcePath.append("/");
         }
     }
+#endif
 
     /* If variable is not set, assume we are in a build dir and
      * use the current dir for config files.
      */
+#if (OGRE_PLATFORM == OGRE_PLATFORM_LINUX)
     char* useHomeDir = std::getenv("OPENDUNGEONS_DATA_PATH");
     if (useHomeDir != 0)
     {
-        //On linux and similar, use home dir
-        //http://linux.die.net/man/3/getpwuid
-        char* path = std::getenv("HOME");
-        homePath = (path != 0)
-                ? path
-                : ".";
-
-        homePath.append("/.OpenDungeons");
+        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + ".OpenDungeons";
+#else
+        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + "OpenDungeons";
+#endif
+        
 
         success = createFolderIfNotExists(homePath);
         if(!success)
         {
-            std::cerr << "Fatal error in folder setup, exiting" << std::endl;
+            //TODO - Exit gracefully
+            std::cerr << "Fatal error creating game storage folder" << std::endl;
             exit(1);
         }
-
-        homePath.append("/");
-
-        
+#if OGRE_PLATFORM == OGRE_PLATFORM_LINUX
     }
-
-#elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-
-/*
-*Based on homePath in Qt (http://qt.gitorious.org/qt/qt/blobs/4.7/src/corelib/io/qfsfileengine_win.cpp) 
-*FIXME: This might not work properly if the path contains non-ansi characters.
-*/
-	std::cout << "Trying to find home dir" << std::endl;
-	std::string homeDirectoryString;
-	//Get process handle
-	HANDLE procHandle = ::GetCurrentProcess();
-	HANDLE token = 0;
-	//Get process token
-	BOOL ok = ::OpenProcessToken(procHandle, TOKEN_QUERY, &token);
-	if(ok)
-	{
-		DWORD wBufferSize = 0;
-		//Get buffer size needed for pathname
-		ok = ::GetUserProfileDirectoryW(token, NULL, &wBufferSize);
-		if(!ok && wBufferSize)
-		{
-			LPWSTR homeDirWBuffer = new WCHAR[wBufferSize];
-			ok = ::GetUserProfileDirectoryW(token, homeDirWBuffer, &wBufferSize);
-			if(ok)
-			{
-				
-				int bufferSize = ::WideCharToMultiByte(CP_UTF8, 0,
-					homeDirWBuffer, wBufferSize, NULL, 0, NULL, NULL);
-				LPSTR homeDirBuffer = new CHAR[bufferSize + 1];
-				int convOk = ::WideCharToMultiByte(CP_UTF8, 0,
-					homeDirWBuffer, wBufferSize, homeDirBuffer, bufferSize, NULL, NULL);
-				homeDirBuffer[bufferSize] = '\0'; //Append null terminator.
-				if(convOk)
-				{
-					homeDirectoryString.append(homeDirBuffer);
-				}
-			}
-		}
-		std::cout << "Found using getuserprofiledirectory: " << homeDirectoryString << std::endl;
-		
-	}
-	if(homeDirectoryString.empty())
-	{
-		//char* envString = 0;
-		//homeDirectoryString = std::string(std::getenv("USERPROFILE"));
-		/*if(homeDirectoryString.empty)
-		{
-			homeDirectoryString = std::string(std::getenv("HOMEDRIVE")) + std::getenv("HOMEPATH");
-			if(homeDirectoryString.empty)
-			{
-				homeDirectoryString = std::getenv("HOME");
-			}
-		}*/
-		//If all this fails we use the current dir.
-		homeDirectoryString = ".";
-	}
-	homePath = homeDirectoryString + "\\.OpenDungeons";
-	
-	std::cout << "Home path is: " << homePath << std::endl;
-
-    success = createFolderIfNotExists(homePath);
-    if(!success)
-    {
-        std::cerr << "Fatal error in folder setup, exiting" << std::endl;
-    }
-	
-	//Set line endings to unix-style for consistency.
-	std::replace(homePath.begin(), homePath.end(), '\\', '/');
-	homePath += "/";
-
 #endif
+
+    std::cout << "Home path is: " << homePath << std::endl;
 
     //Create shader cache folder.
     success = createFolderIfNotExists(homePath.c_str() + SHADERCACHESUBPATH);
     if(!success)
     {
-        std::cerr << "Fatal error in folder setup, exiting" << std::endl;
+        std::cerr << "Fatal error creating shader cache folder" << std::endl;
         exit(1);
     }
 
@@ -399,4 +330,31 @@ bool ResourceManager::createFolderIfNotExists(const std::string& name)
     }
     return true;
 #endif //OGRE_PLATFORM
+}
+
+std::string ResourceManager::locateHomeFolder()
+{
+    std::string homeFolderPath;
+    char* path = 0;
+#if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
+//Not implemented. Can probably use the same code as linux.
+return ".";
+#elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
+//On linux and similar, use home dir
+    //http://linux.die.net/man/3/getpwuid
+    path = std::getenv("HOME");
+    
+#elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+    HRESULT ok = SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, path);
+    if(!ok)
+    {
+        path = 0;
+    }
+#else
+#error("Unknown platform!")
+#endif
+    homeFolderPath = (path != 0)
+            ? path
+            : ".";
+    return homeFolderPath;
 }

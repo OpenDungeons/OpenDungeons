@@ -37,7 +37,7 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
 
     protected:
         static bool createFolderIfNotExists(const std::string& folderName);
-
+        static std::string locateHomeFolder();
     private:
         ResourceManager(const ResourceManager&);
         ~ResourceManager();
