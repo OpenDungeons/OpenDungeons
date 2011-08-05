@@ -7,6 +7,10 @@ cmake_minimum_required(VERSION 2.8)
 set(SRC "${CMAKE_SOURCE_DIR}/src")
 set(ANGELSCRIPT_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript")
 set(TINYGETTEXT_DIR "${SRC}/tinygettext")
+if(NOT CMAKE_BUILD_TYPE)
+    message(STATUS "CMake build type is not set, defaulting to 'Release'")
+    set(CMAKE_BUILD_TYPE "Release")
+endif()
 
 ##################################
 #### add external cmake projects #

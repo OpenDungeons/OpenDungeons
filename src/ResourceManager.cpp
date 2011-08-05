@@ -19,6 +19,7 @@
 #include <userenv.h>
 #include <direct.h>
 #include <errno.h>
+#include <shlobj.h>
 
 #elif OGRE_PLATFORM == OGRE_PLATFORM_APPLE
 #include <CoreFoundation/CoreFoundation.h>
@@ -139,7 +140,7 @@ ResourceManager::ResourceManager() :
 #else
         homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + "OpenDungeons";
 #endif
-        
+
 
         success = createFolderIfNotExists(homePath);
         if(!success)
@@ -175,7 +176,7 @@ ResourceManager::ResourceManager() :
     shaderCachePath = homePath + SHADERCACHESUBPATH;
 
     //Make shader cache folder if it does not exist.
-    
+
 }
 
 void ResourceManager::setupResources()
@@ -343,9 +344,9 @@ return ".";
 //On linux and similar, use home dir
     //http://linux.die.net/man/3/getpwuid
     path = std::getenv("HOME");
-    
+
 #elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-    HRESULT ok = SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, SHGFP_TYPE_CURRENT, path);
+    HRESULT ok = SHGetFolderPathA(NULL, CSIDL_PERSONAL, NULL, 0, path);
     if(!ok)
     {
         path = 0;
