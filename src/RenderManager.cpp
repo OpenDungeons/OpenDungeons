@@ -91,22 +91,25 @@ void RenderManager::createScene()
 {
 
 
-
+    //Set up the shader generator
     shaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
-    shaderGenerator->setTargetLanguage("cg");
+    //shaderGenerator->setTargetLanguage("glsl");
     //Ogre::ResourceGroupManager::getSingleton().addResourceLocation(); //this might be needed
     shaderGenerator->setShaderCachePath(ResourceManager::getSingleton().getShaderCachePath());
     shaderGenerator->addSceneManager(sceneManager);
     
     viewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 
-    bool ok = shaderGenerator->createShaderBasedTechnique("Claimed", Ogre::MaterialManager::DEFAULT_SCHEME_NAME,
+    //NOTE testing stuff, remove later
+    bool ok = shaderGenerator->createShaderBasedTechnique("RTSS/NormalMapping_SinglePass", Ogre::MaterialManager::DEFAULT_SCHEME_NAME,
                                                 Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-    shaderGenerator->invalidateMaterial(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, "Claimed");
-    if(!ok) {
-        LogManager::getSingletonPtr()->logMessage("blah", Ogre::LML_CRITICAL);
-        exit(1);
+    shaderGenerator->invalidateMaterial(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, "RTSS/NormalMapping_SinglePass");
+    if(!ok)
+    {
+        LogManager::getSingletonPtr()->logMessage("Failed to create shader based technique for: RTSS/NormalMapping_SinglePass", Ogre::LML_CRITICAL);
+//            exit(1);
     }
+    
    
     /* TODO: move level loading to a better place
     *       (own class to exclude from global skope?)
