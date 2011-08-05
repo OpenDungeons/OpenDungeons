@@ -343,22 +343,28 @@ return ".";
 //On linux and similar, use home dir
     //http://linux.die.net/man/3/getpwuid
     path = std::getenv("HOME");
-
+    
 #elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     path = std::getenv("USERPROFILE");
-    if(path == 0)
+    if(path = 0)
     {
-        path = std::getenv("HOMEDRIVE") + path = std::getenv("HOMEPATH");
-        if(path == 0)
+        path = std::getenv("HOMEDRIVE");
+        char* pathb = std::getenv("HOMEPATH");
+        if(path == 0 || pathb == 0)
         {
             path = std::getenv("HOME");
+            homeFolderPath = (path != 0)
+                ? path
+                : "./";
+        }
+        else
+        {
+            homeFolderPath = std::string(path) + pathb;
         }
     }
 #else
 #error("Unknown platform!")
 #endif
-    homeFolderPath = (path != 0)
-            ? path
-            : "./";
+    
     return homeFolderPath;
 }
