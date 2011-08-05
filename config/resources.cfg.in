@@ -1,18 +1,25 @@
 # Resource locations to be added to the default path
 [General]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@
+
+[Fonts]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/fonts
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/programs
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/scripts
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/textures
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/materials
+
+[Models]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/models
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/overlays
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/particle
+
+[GUI]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/DeferredShadingMedia
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/PCZAppMedia
+
+[Materials]
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/scripts
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/materials
+
+[Textures]
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/textures
+
+[RTShaderLib]
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib
 
 [Music]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/music

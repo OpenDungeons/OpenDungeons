@@ -345,7 +345,7 @@ else()
 	set(OPENDUNGEONS_COMMENT_D3D "#")
 	
 	#On linux, we should look in the standard paths for plugins
-	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ${OGRE_LIBRARY_DIR_REL}/OGRE)
+	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ${OGRE_PLUGIN_DIR_REL})
 	
 	#Set data location to where we install if we want to use the installer
 	set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
