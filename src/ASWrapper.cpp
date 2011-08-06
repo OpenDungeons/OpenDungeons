@@ -46,22 +46,23 @@ ASWrapper::ASWrapper() :
             asCALL_THISCALL);
 
     //load all .as files from /scripts folder so we can access them
+    const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
     std::vector<std::string> files = ResourceManager::getSingleton().
-            listAllFiles(ResourceManager::getSingleton().getScriptPath());
+            listAllFiles(scriptpath);
     for(std::vector<std::string>::iterator i = files.begin(), end = files.end();
             i < end; ++i)
     {
         if(ResourceManager::hasFileEnding(*i, ".as"))
         {
-            loadScript(*i);
+            loadScript(scriptpath + "/" + *i);
         }
     }
 
-    //compile AS code
-    module->Build();
-
     //bind all objects, functions, etc to AngelScript
     registerEverything();
+
+    //compile AS code
+    module->Build();
 }
 
 /*! \brief closes AngelScript
