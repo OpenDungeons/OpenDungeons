@@ -348,7 +348,7 @@ return ".";
                 : "./";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_WIN32
     path = std::getenv("USERPROFILE");
-    if(path = 0)
+    if(path == 0)
     {
         path = std::getenv("HOMEDRIVE");
         char* pathb = std::getenv("HOMEPATH");
