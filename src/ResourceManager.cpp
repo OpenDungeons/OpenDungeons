@@ -26,7 +26,6 @@
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 #include <cerrno>
 #include <cstring>
-#include <cstdlib>
 #endif
 
 #include <OgreString.h>
@@ -135,9 +134,9 @@ ResourceManager::ResourceManager() :
     char* useHomeDir = std::getenv("OPENDUNGEONS_DATA_PATH");
     if (useHomeDir != 0)
     {
-        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + ".OpenDungeons/";
+        homePath = locateHomeFolder() + "/.OpenDungeons/";
 #else
-        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + "/OpenDungeons/";
+        homePath = locateHomeFolder() + "\\OpenDungeons\\";
 #endif
 
 
@@ -307,7 +306,7 @@ bool ResourceManager::createFolderIfNotExists(const std::string& name)
         case ENOENT:
             {
                 int dirCreated = ::_mkdir(name.c_str());
-                if(dirCreated != 0)
+                if(dirCreated != 0 && errno != EEXIST)
                 {
                     //FIXME: Handle this properly.
                     std::cerr << "Failed create subdirectory in home directory (" << name << ") !" << std::endl;
@@ -371,6 +370,6 @@ return ".";
 #else
 #error("Unknown platform!")
 #endif
-    
+
     return homeFolderPath;
 }
