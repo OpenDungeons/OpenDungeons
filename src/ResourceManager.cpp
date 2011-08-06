@@ -137,7 +137,7 @@ ResourceManager::ResourceManager() :
     {
         homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + ".OpenDungeons";
 #else
-        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + "OpenDungeons";
+        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + "/OpenDungeons";
 #endif
 
 
@@ -363,6 +363,10 @@ return ".";
         {
             homeFolderPath = std::string(path) + pathb;
         }
+    }
+    else
+    {
+        homeFolderPath = path;
     }
 #else
 #error("Unknown platform!")
