@@ -135,9 +135,9 @@ ResourceManager::ResourceManager() :
     char* useHomeDir = std::getenv("OPENDUNGEONS_DATA_PATH");
     if (useHomeDir != 0)
     {
-        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + ".OpenDungeons";
+        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + ".OpenDungeons/";
 #else
-        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + "/OpenDungeons";
+        homePath = Ogre::StringUtil::standardisePath(locateHomeFolder()) + "/OpenDungeons/";
 #endif
 
 
