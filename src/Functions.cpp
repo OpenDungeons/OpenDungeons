@@ -290,16 +290,17 @@ void writeGameMapToFile(const std::string& fileName)
 void colourizeEntity(Ogre::Entity *ent, int colour)
 {
     //Disabled for normal mapping. This has to be implemented in some other way.
-    /*
+    
     // Colorize the the textures
     // Loop over the sub entities in the mesh
+    
     for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
     {
         Ogre::SubEntity *tempSubEntity = ent->getSubEntity(i);
         tempSubEntity->setMaterialName(colourizeMaterial(
                 tempSubEntity->getMaterialName(), colour));
     }
-    */
+    
 }
 
 std::string colourizeMaterial(const std::string& materialName, int colour)

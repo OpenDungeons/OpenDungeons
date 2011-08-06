@@ -341,19 +341,32 @@ configure_file(
 
 if(WIN32)
     #On windows, use current directory for plugins and data for now
-	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ".")
-	set(OPENDUNGEONS_DATA_PATH ".")
-	set(OPENDUNGEONS_DATA_DEST ".")
+    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ".")
+    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ".")
+    set(OPENDUNGEONS_DATA_PATH ".")
+    set(OPENDUNGEONS_DATA_DEST ".")
 else()
-	#only use d3d renderer plugins if we are on windows
-	set(OPENDUNGEONS_COMMENT_D3D "#")
-	
-	#On linux, we should look in the standard paths for plugins
-	set(OPENDUNGEONS_OGRE_PLUGIN_DIR ${OGRE_PLUGIN_DIR_REL})
-	
-	#Set data location to where we install if we want to use the installer
-	set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
-	set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST})
+    #only use d3d renderer plugins if we are on windows
+    set(OPENDUNGEONS_COMMENT_D3D "#")
+    #On linux, we should look in the standard paths for plugins
+    if(${OGRE_PLUGIN_DIR_REL} STREQUAL NOTFOUND)
+        #Ugly workaround for plugin dir not being set properly by the ogre find script.
+        get_filename_component(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OGRE_RenderSystem_GL_LIBRARY_REL} PATH)
+    else()
+        set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
+    endif()
+    if(${OGRE_PLUGIN_DIR_DBG} STREQUAL NOTFOUND)
+        get_filename_component(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ${OGRE_RenderSystem_GL_LIBRARY_DBG} PATH)
+    else()
+        set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
+    endif()
+
+    message(STATUS "Plugin path rel: " ${OPENDUNGEONS_OGRE_PLUGIN_DIR_REL})
+    message(STATUS "Plugin path dbg: " ${OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG})
+
+    #Set data location to where we install if we want to use the installer
+    set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
+    set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST})
 endif()
 
 #Do the configuration

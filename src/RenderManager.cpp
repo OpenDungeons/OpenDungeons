@@ -160,11 +160,11 @@ void RenderManager::createScene()
     // Create the light which follows the single tile selection mesh
     Ogre::Light* light = sceneManager->createLight("MouseLight");
     light->setType(Ogre::Light::LT_POINT);
-    light->setDiffuseColour(Ogre::ColourValue(.25, .25, .25));
-    light->setSpecularColour(Ogre::ColourValue(.25, .25, .25));
+    light->setDiffuseColour(Ogre::ColourValue(0.45, 0.45, 0.25));
+    light->setSpecularColour(Ogre::ColourValue(0.45, 0.45, 0.25));
     light->setPosition(0, 0, 3);
     light->setAttenuation(15, 1.0, 0.7, 0.17);
-    node->attachObject(light);
+    //node->attachObject(light);
 
 }
 
@@ -480,9 +480,20 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     Ogre::Entity* ent = sceneManager->createEntity ( curTile->name,
                         Tile::meshNameFromFullness(curTile->getType(),
                                                    curTile->getFullnessMeshNumber()) );
+    if(curTile->getType() == Tile::claimed)
+    {
     colourizeEntity ( ent, curTile->getColor() );
+    }
     Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode (
                                 curTile->name + "_node" );
+
+    Ogre::MeshPtr meshPtr = ent->getMesh();
+    unsigned short src, dest;
+    if(!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+    {
+        meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
+    }
+    
     //node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
     node->attachObject ( ent );
     node->setPosition ( static_cast<Ogre::Real>(curTile->x)
@@ -519,7 +530,6 @@ void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
     << curTile->y;
     Ogre::Entity* ent = sceneManager->createEntity ( tempSS.str(), curRoom->meshName
                         + ".mesh" );
-    colourizeEntity ( ent, curRoom->color );
     Ogre::SceneNode* node = roomSceneNode->createChildSceneNode ( tempSS.str()
                             + "_node" );
     node->setPosition ( static_cast<Ogre::Real>(curTile->x),
@@ -559,7 +569,6 @@ void RenderManager::rrCreateRoomObject ( const RenderRequest& renderRequest )
                              + curRoomObject->getName();
     Ogre::Entity* ent = sceneManager->createEntity(tempString,
                         curRoomObject->getMeshName() + ".mesh");
-    colourizeEntity(ent, curRoomObject->getParentRoom()->color);
     Ogre::SceneNode* node = roomSceneNode->createChildSceneNode(tempString
                             + "_node");
     node->setPosition(Ogre::Vector3(curRoomObject->x, curRoomObject->y, 0.0));

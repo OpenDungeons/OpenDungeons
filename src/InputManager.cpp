@@ -139,6 +139,8 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
     Ogre::RaySceneQueryResult::iterator end = result.end();
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     std::string resultName = "";
+
+    
     if (mDragType == tileSelection || mDragType == addNewRoom || mDragType == nullDragType)
     {
         // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
@@ -150,6 +152,13 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                 resultName = itr->movable->getName();
                 if (resultName.find("Level_") != std::string::npos)
                 {
+                    //Make the mouse light follow the mouse
+                    //TODO - we should make a pointer to the light or something.
+                    Ogre::RaySceneQuery* rq = frameListener->getRaySceneQuery();
+                    Ogre::Real dist = itr->distance;
+                    Ogre::Vector3 point = rq->getRay().getPoint(dist);
+                    mSceneMgr->getLight("MouseLight")->setPosition(point.x, point.y, 2.0);
+                    
                     // Get the x-y coordinates of the tile.
                     sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
 
@@ -157,6 +166,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                     mSceneMgr->getEntity("SquareSelector")->setVisible(true);
                     mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(
                             xPos, yPos, 0);
+                    //mSceneMgr->getLight("MouseLight")->setPosition(xPos, yPos, 2.0);
 
                     if (mLMouseDown)
                     {

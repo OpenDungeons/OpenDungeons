@@ -57,6 +57,7 @@ class ODFrameListener :
         inline void setTerminalActive(const bool& active){terminalActive = active;}
 
         inline Ogre::SceneNode* getCreatureSceneNode() const{return creatureSceneNode;};
+        inline Ogre::RaySceneQuery* getRaySceneQuery() {return mRaySceneQuery;};
 
         //Adjust mouse clipping area
         virtual void windowResized(Ogre::RenderWindow* rw);
