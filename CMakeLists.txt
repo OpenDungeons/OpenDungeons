@@ -17,7 +17,7 @@ endif()
 ##################################
 
 #Build AngelScript from its own CMakeLists.txt
-add_subdirectory(${ANGELSCRIPT_DIR}/angelscript/projects/cmake)
+#add_subdirectory(${ANGELSCRIPT_DIR}/angelscript/projects/cmake)
 
 ##################################
 #### Source files (.cpp) #########
@@ -206,6 +206,8 @@ include_directories(
     ${OPENAL_INCLUDE_DIR}
     ${OIS_INCLUDE_DIRS}
 )
+
+link_directories(${ANGELSCRIPT_DIR}/angelscript/lib)
 
 if(WIN32)
     if(MINGW)
