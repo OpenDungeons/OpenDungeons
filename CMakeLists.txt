@@ -6,100 +6,134 @@ cmake_minimum_required(VERSION 2.8)
 
 set(SRC "${CMAKE_SOURCE_DIR}/src")
 set(ANGELSCRIPT_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript")
+set(ANGELSCRIPT_SRC_DIR "${ANGELSCRIPT_DIR}/angelscript/source")
 set(TINYGETTEXT_DIR "${SRC}/tinygettext")
+
 if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMake build type is not set, defaulting to 'Release'")
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
 ##################################
-#### add external cmake projects #
-##################################
-
-#Build AngelScript from its own CMakeLists.txt
-#add_subdirectory(${ANGELSCRIPT_DIR}/angelscript/projects/cmake)
-
-##################################
 #### Source files (.cpp) #########
 ##################################
 
 set(OD_SOURCEFILES
-     #AngelScript Addon sources
-     ${ANGELSCRIPT_DIR}/add_on/scripthelper/scripthelper.cpp
-     ${ANGELSCRIPT_DIR}/add_on/scriptstdstring/scriptstdstring.cpp
+    #AngelScript sources
+	${ANGELSCRIPT_SRC_DIR}/as_atomic.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_builder.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_bytecode.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_arm.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_mips.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_ppc_64.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_sh4.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_gcc.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_msvc.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x86.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_xenon.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_compiler.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_configgroup.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_context.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_datatype.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_gc.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_generic.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_globalproperty.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_memory.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_module.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_objecttype.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_outputbuffer.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_parser.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_restore.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_scriptcode.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_scriptengine.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_scriptfunction.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_scriptnode.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_scriptobject.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_string.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_string_util.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_thread.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_tokenizer.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_typeinfo.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_variablescope.cpp
+
+    #AngelScript Addon sources
+    ${ANGELSCRIPT_DIR}/add_on/scripthelper/scripthelper.cpp
+    ${ANGELSCRIPT_DIR}/add_on/scriptstdstring/scriptstdstring.cpp
+    
+    #Tinygettext sources
+    ${TINYGETTEXT_DIR}/dictionary_manager.cpp
+    ${TINYGETTEXT_DIR}/dictionary.cpp
+    ${TINYGETTEXT_DIR}/language.cpp
+    ${TINYGETTEXT_DIR}/plural_forms.cpp
+    ${TINYGETTEXT_DIR}/po_parser.cpp
+    ${TINYGETTEXT_DIR}/tinygettext.cpp
      
-     #Tinygettext sources
-     ${TINYGETTEXT_DIR}/dictionary_manager.cpp
-     ${TINYGETTEXT_DIR}/dictionary.cpp
-     ${TINYGETTEXT_DIR}/language.cpp
-     ${TINYGETTEXT_DIR}/plural_forms.cpp
-     ${TINYGETTEXT_DIR}/po_parser.cpp
-     ${TINYGETTEXT_DIR}/tinygettext.cpp
-     
-     #OpenDungeons sources
-     ${SRC}/ActiveObject.cpp
-     ${SRC}/AttackableObject.cpp
-     ${SRC}/AnimatedObject.cpp
-     ${SRC}/ASWrapper.cpp
-     ${SRC}/CameraManager.cpp
-     ${SRC}/ChatMessage.cpp
-     ${SRC}/Client.cpp
-     ${SRC}/ClientNotification.cpp
-     ${SRC}/Console.cpp
-     ${SRC}/CreatureAction.cpp
-     ${SRC}/CreatureClass.cpp
-     ${SRC}/Creature.cpp
-     ${SRC}/CreatureSound.cpp
-     ${SRC}/DirectionalTrap.cpp
-     ${SRC}/Field.cpp
-     ${SRC}/Functions.cpp
-     ${SRC}/GameMap.cpp
-     ${SRC}/GameState.cpp
-     ${SRC}/GoalClaimNTiles.cpp
-     ${SRC}/Goal.cpp
-     ${SRC}/GoalKillAllEnemies.cpp
-     ${SRC}/GoalMineNGold.cpp
-     ${SRC}/GoalProtectCreature.cpp
-     ${SRC}/GoalProtectDungeonTemple.cpp
-     ${SRC}/Gui.cpp
-     ${SRC}/InputManager.cpp
-     ${SRC}/LogManager.cpp
-     ${SRC}/main.cpp
-     ${SRC}/MapLight.cpp
-     ${SRC}/MiniMap.cpp
-     ${SRC}/MissileObject.cpp
-     ${SRC}/MusicPlayer.cpp
-     ${SRC}/ODApplication.cpp
-     ${SRC}/ODFrameListener.cpp
-     ${SRC}/Player.cpp
-     ${SRC}/ProximityTrap.cpp
-     ${SRC}/RadialVector2.cpp
-     ${SRC}/Random.cpp
-     ${SRC}/RenderManager.cpp
-     ${SRC}/RenderRequest.cpp
-     ${SRC}/ResourceManager.cpp
-     ${SRC}/Room.cpp
-     ${SRC}/RoomDojo.cpp
-     ${SRC}/RoomDungeonTemple.cpp
-     ${SRC}/RoomForge.cpp
-     ${SRC}/RoomObject.cpp
-     ${SRC}/RoomPortal.cpp
-     ${SRC}/RoomQuarters.cpp
-     ${SRC}/RoomTreasury.cpp
-     ${SRC}/Seat.cpp
-     ${SRC}/Server.cpp
-     ${SRC}/ServerNotification.cpp
-     ${SRC}/Socket.cpp
-     ${SRC}/SoundEffectsHelper.cpp
-     ${SRC}/Spell.cpp
-     ${SRC}/TextRenderer.cpp
-     ${SRC}/Tile.cpp
-     ${SRC}/TileCoordinateMap.cpp
-     ${SRC}/Translation.cpp
-     ${SRC}/Trap.cpp
-     ${SRC}/TrapBoulder.cpp
-     ${SRC}/TrapCannon.cpp
-     ${SRC}/Weapon.cpp
+    #OpenDungeons sources
+    ${SRC}/ActiveObject.cpp
+    ${SRC}/AttackableObject.cpp
+    ${SRC}/AnimatedObject.cpp
+    ${SRC}/ASWrapper.cpp
+    ${SRC}/CameraManager.cpp
+    ${SRC}/ChatMessage.cpp
+    ${SRC}/Client.cpp
+    ${SRC}/ClientNotification.cpp
+    ${SRC}/Console.cpp
+    ${SRC}/CreatureAction.cpp
+    ${SRC}/CreatureClass.cpp
+    ${SRC}/Creature.cpp
+    ${SRC}/CreatureSound.cpp
+    ${SRC}/DirectionalTrap.cpp
+    ${SRC}/Field.cpp
+    ${SRC}/Functions.cpp
+    ${SRC}/GameMap.cpp
+    ${SRC}/GameState.cpp
+    ${SRC}/GoalClaimNTiles.cpp
+    ${SRC}/Goal.cpp
+    ${SRC}/GoalKillAllEnemies.cpp
+    ${SRC}/GoalMineNGold.cpp
+    ${SRC}/GoalProtectCreature.cpp
+    ${SRC}/GoalProtectDungeonTemple.cpp
+    ${SRC}/Gui.cpp
+    ${SRC}/InputManager.cpp
+    ${SRC}/LogManager.cpp
+    ${SRC}/main.cpp
+    ${SRC}/MapLight.cpp
+    ${SRC}/MiniMap.cpp
+    ${SRC}/MissileObject.cpp
+    ${SRC}/MusicPlayer.cpp
+    ${SRC}/ODApplication.cpp
+    ${SRC}/ODFrameListener.cpp
+    ${SRC}/Player.cpp
+    ${SRC}/ProximityTrap.cpp
+    ${SRC}/RadialVector2.cpp
+    ${SRC}/Random.cpp
+    ${SRC}/RenderManager.cpp
+    ${SRC}/RenderRequest.cpp
+    ${SRC}/ResourceManager.cpp
+    ${SRC}/Room.cpp
+    ${SRC}/RoomDojo.cpp
+    ${SRC}/RoomDungeonTemple.cpp
+    ${SRC}/RoomForge.cpp
+    ${SRC}/RoomObject.cpp
+    ${SRC}/RoomPortal.cpp
+    ${SRC}/RoomQuarters.cpp
+    ${SRC}/RoomTreasury.cpp
+    ${SRC}/Seat.cpp
+    ${SRC}/Server.cpp
+    ${SRC}/ServerNotification.cpp
+    ${SRC}/Socket.cpp
+    ${SRC}/SoundEffectsHelper.cpp
+    ${SRC}/Spell.cpp
+    ${SRC}/TextRenderer.cpp
+    ${SRC}/Tile.cpp
+    ${SRC}/TileCoordinateMap.cpp
+    ${SRC}/Translation.cpp
+    ${SRC}/Trap.cpp
+    ${SRC}/TrapBoulder.cpp
+    ${SRC}/TrapCannon.cpp
+    ${SRC}/Weapon.cpp
 )
 
 ##################################
@@ -182,6 +216,7 @@ include_directories(
 
     #Angelscript includes    
     ${ANGELSCRIPT_DIR}/angelscript/include/
+	${ANGELSCRIPT_SRC_DIR}
 
     #AngelScript Addons, in-comment only the ones we actually use
 #    ${ANGELSCRIPT_DIR}/add_on/autowrapper
@@ -206,8 +241,6 @@ include_directories(
     ${OPENAL_INCLUDE_DIR}
     ${OIS_INCLUDE_DIRS}
 )
-
-link_directories(${ANGELSCRIPT_DIR}/angelscript/lib)
 
 if(WIN32)
     if(MINGW)
@@ -268,7 +301,6 @@ target_link_libraries(
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES}
-    Angelscript
 )
     
 # MSVC automatically links boost
