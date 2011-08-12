@@ -57,4 +57,3 @@ macro(set_preprocessor_entry VARIABLE KEYWORD ENABLE)
   )
   set(${VARIABLE} ${${VARIABLE}_TEMP})  
 endmacro()
-  
