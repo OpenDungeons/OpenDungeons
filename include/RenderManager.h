@@ -94,6 +94,13 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void rrMoveSceneNode(const RenderRequest& renderRequest);
 
         bool handleRenderRequest(const RenderRequest& renderRequest);
+        bool generateRTSSShadersForMaterial(const std::string& materialName,
+                                            const std::string& normalMapTextureName = "");
+        Ogre::Entity* createEntity(const std::string& entityName, const std::string& meshName,
+                          const std::string& normalMapTextureName = "");
+
+        void colourizeEntity(Ogre::Entity *ent, int colour);
+        std::string colourizeMaterial(const std::string& materialName, int color);
     private:
         RenderManager(const RenderManager&);
         //TODO -should we maybe encapsulate the semaphores somewhere?

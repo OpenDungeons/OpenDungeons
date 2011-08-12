@@ -91,15 +91,23 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     renderManager = RenderManager::getSingletonPtr();
     renderManager->setSceneNodes(roomSceneNode, creatureSceneNode,
                                      lightSceneNode, fieldSceneNode);
-
-    playerColourValues.push_back(Ogre::ColourValue(0.8, 0.8, 0.8, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.8, 0.0, 0.0, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.8, 0.0, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.8, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.4, 0.4, 0.4, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.4, 0.0, 0.0, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.4, 0.0, 1.0));
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 0.4, 1.0));
+    //Available team colours
+    //red
+    playerColourValues.push_back(Ogre::ColourValue(1.0, 0.0, 0.0, 1.0));
+    //yellow
+    playerColourValues.push_back(Ogre::ColourValue(1.0, 1.0, 0.0, 1.0));
+    //green
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 1.0, 0.0, 1.0));
+    //cyan
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 1.0, 1.0, 1.0));
+    //blue
+    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 1.0, 1.0));
+    //violet
+    playerColourValues.push_back(Ogre::ColourValue(1.0, 0.0, 1.0, 1.0));
+    //white
+    playerColourValues.push_back(Ogre::ColourValue(1.0, 1.0, 1.0, 1.0));
+    //black
+    playerColourValues.push_back(Ogre::ColourValue(0.5, 0.5, 0.5, 1.0));
 
     threadStopRequested.set(false);
     exitRequested.set(false);

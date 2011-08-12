@@ -287,63 +287,6 @@ void writeGameMapToFile(const std::string& fileName)
     levelFile.close();
 }
 
-void colourizeEntity(Ogre::Entity *ent, int colour)
-{
-    //Disabled for normal mapping. This has to be implemented in some other way.
-    
-    // Colorize the the textures
-    // Loop over the sub entities in the mesh
-    
-    for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
-    {
-        Ogre::SubEntity *tempSubEntity = ent->getSubEntity(i);
-        tempSubEntity->setMaterialName(colourizeMaterial(
-                tempSubEntity->getMaterialName(), colour));
-    }
-    
-}
-
-std::string colourizeMaterial(const std::string& materialName, int colour)
-{
-    std::stringstream tempSS;
-    Ogre::Technique *tempTechnique;
-    Ogre::Pass *tempPass;
-
-    tempSS.str("");
-    tempSS << "Color_" << colour << "_" << materialName;
-    Ogre::MaterialPtr newMaterial = Ogre::MaterialPtr(
-            Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
-
-    //cout << "\nCloning material:  " << tempSS.str();
-
-    // If this texture has not been copied and colourized yet then do so
-    if (newMaterial.isNull())
-    {
-        // Check to see if we find a seat with the requested color, if not then just use the original, uncolored material.
-        Seat* tempSeat = gameMap.getSeatByColor(colour);
-        if (tempSeat == NULL)
-            return materialName;
-
-        std::cout << "\nMaterial does not exist, creating a new one.";
-        newMaterial = Ogre::MaterialPtr(
-                Ogre::MaterialManager::getSingleton().getByName(
-                        materialName))->clone(tempSS.str());
-
-        // Loop over the techniques for the new material
-        for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)
-        {
-            tempTechnique = newMaterial->getTechnique(j);
-            if (tempTechnique->getNumPasses() > 0)
-            {
-                tempPass = tempTechnique->getPass(0);
-                tempPass->setSelfIllumination(tempSeat->colourValue);
-            }
-        }
-    }
-
-    return tempSS.str();
-
-}
 
 void queueServerNotification(ServerNotification *n)
 {
