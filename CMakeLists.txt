@@ -331,7 +331,7 @@ if(WIN32)
         #Set some extra compiler flags
         #TODO - investigate if these are what they should be
         set( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc /SUBSYSTEM:WINDOWS /ENTRY:\"main\"" )
-        set( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI" )
+        set( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI /DOD_DEBUG" )
 
         set( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
         set( CMAKE_CXX_FLAGS_RELEASE "${PLATFORM_C_FLAGS}" )
@@ -346,9 +346,7 @@ if(WIN32)
             Userenv
         )
         message( STATUS "Using win pthreads" )
-    endif()
-
-    if(MINGW)
+    elseif(MINGW)
         target_link_libraries(
             ${PROJECT_BINARY_NAME}
 
@@ -356,11 +354,18 @@ if(WIN32)
             "ws2_32"
             Userenv
         )
+        
     endif()
-else()
+endif()
+if(CMAKE_COMPILER_IS_GNUCXX)
     #TODO - move compiler defs
     #Add compiler warnings
-    add_definitions( "-Wall -Wunused -ansi -Wno-deprecated" )
+    #FIXME -ansi breaks angelscript, report this so it can be readded
+    add_definitions( "-Wall -Wunused -Wno-deprecated" )
+endif()
+
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions("-DOD_DEBUG")
 endif()
 
 ##################################

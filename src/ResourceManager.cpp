@@ -35,11 +35,11 @@
 #include "ResourceManager.h"
 
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::ms_Singleton = 0;
-#ifdef NDEBUG
-const std::string ResourceManager::PLUGINSCFG = "plugins.cfg";
-#else
+#ifdef OD_DEBUG
 //If the application is compiled in debug mode, use the plugins with debug prefix.
 const std::string ResourceManager::PLUGINSCFG = "plugins_d.cfg";
+#else
+const std::string ResourceManager::PLUGINSCFG = "plugins.cfg";
 #endif
 const std::string ResourceManager::RESOURCECFG = "resources.cfg";
 const std::string ResourceManager::MUSICSUBPATH = "music/";

@@ -25,6 +25,7 @@
 
 #include "Console.h"
 #include "ResourceManager.h"
+#include "LogManager.h"
 
 #include "ASWrapper.h"
 
@@ -130,6 +131,7 @@ void ASWrapper::messageCallback(const asSMessageInfo* msg, void* param)
     output << "ANGELSCRIPT: " << msg->section << "(" << msg->row << ", "
             << msg->col << ") : " << type << " : " << msg->message;
     Console::getSingleton().print(output.str());
+    LogManager::getSingleton().logMessage(output.str());
 }
 
 /*! \brief Bind all types, functions etc. to the AngelScript engine
