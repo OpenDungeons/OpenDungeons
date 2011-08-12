@@ -4,10 +4,17 @@ cmake_minimum_required(VERSION 2.8)
 #### Useful variables ############
 ##################################
 
-set(SRC "${CMAKE_SOURCE_DIR}/src")
-set(ANGELSCRIPT_DIR "${CMAKE_SOURCE_DIR}/dep/angelscript")
+#project paths
+set(SRC "${CMAKE_SOURCE_DIR}/source")
+set(DEPENDENCIES_DIR "${CMAKE_SOURCE_DIR}/dependencies")
+set(ANGELSCRIPT_DIR "${DEPENDENCIES_DIR}/angelscript")
 set(ANGELSCRIPT_SRC_DIR "${ANGELSCRIPT_DIR}/angelscript/source")
-set(TINYGETTEXT_DIR "${SRC}/tinygettext")
+set(ANGELSCRIPT_ADDON_DIR "${ANGELSCRIPT_DIR}/add_on")
+set(TINYGETTEXT_DIR "${DEPENDENCIES_DIR}/tinygettext")
+
+#cmake paths
+set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
 
 if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMake build type is not set, defaulting to 'Release'")
@@ -17,6 +24,8 @@ endif()
 ##################################
 #### Source files (.cpp) #########
 ##################################
+
+#Add new .cpp files here so that they get compiled
 
 set(OD_SOURCEFILES
     #AngelScript sources
@@ -59,8 +68,8 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_SRC_DIR}/as_variablescope.cpp
 
     #AngelScript Addon sources
-    ${ANGELSCRIPT_DIR}/add_on/scripthelper/scripthelper.cpp
-    ${ANGELSCRIPT_DIR}/add_on/scriptstdstring/scriptstdstring.cpp
+    ${ANGELSCRIPT_ADDON_DIR}/scripthelper/scripthelper.cpp
+    ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
     
     #Tinygettext sources
     ${TINYGETTEXT_DIR}/dictionary_manager.cpp
@@ -154,9 +163,6 @@ set(${PROJECT_NAME}_MAJOR_VERSION 0)
 set(${PROJECT_NAME}_MINOR_VERSION 4)
 set(${PROJECT_NAME}_PATCH_LEVEL   8)
 
-# Where to look for modules
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${PROJECT_SOURCE_DIR}/cmake/modules)
-
 # Where we want the binary
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
@@ -209,31 +215,30 @@ find_package(OpenAL REQUIRED)
 #add all project specific include directorieS
 include_directories(
     #OpenDungeons includes
-    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/source
 
     #tinygettext includes
-    ${CMAKE_SOURCE_DIR}/include/tinygettext
+    ${TINYGETTEXT_DIR}
 
     #Angelscript includes    
     ${ANGELSCRIPT_DIR}/angelscript/include/
 	${ANGELSCRIPT_SRC_DIR}
 
     #AngelScript Addons, in-comment only the ones we actually use
-#    ${ANGELSCRIPT_DIR}/add_on/autowrapper
-#    ${ANGELSCRIPT_DIR}/add_on/clib
-#    ${ANGELSCRIPT_DIR}/add_on/contextmgr
-#    ${ANGELSCRIPT_DIR}/add_on/debugger
-#    ${ANGELSCRIPT_DIR}/add_on/scriptany
-#    ${ANGELSCRIPT_DIR}/add_on/scriptarray
-#    ${ANGELSCRIPT_DIR}/add_on/scriptbuilder
-#    ${ANGELSCRIPT_DIR}/add_on/scriptdictionary
-#    ${ANGELSCRIPT_DIR}/add_on/scriptfile
-    ${ANGELSCRIPT_DIR}/add_on/scripthelper
-#    ${ANGELSCRIPT_DIR}/add_on/scriptmath
-#    ${ANGELSCRIPT_DIR}/add_on/scriptmath3d
-    ${ANGELSCRIPT_DIR}/add_on/scriptstdstring
+#    ${ANGELSCRIPT_ADDON_DIR}/autowrapper
+#    ${ANGELSCRIPT_ADDON_DIR}/clib
+#    ${ANGELSCRIPT_ADDON_DIR}/contextmgr
+#    ${ANGELSCRIPT_ADDON_DIR}/debugger
+#    ${ANGELSCRIPT_ADDON_DIR}/scriptany
+#    ${ANGELSCRIPT_ADDON_DIR}/scriptarray
+#    ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder
+#    ${ANGELSCRIPT_ADDON_DIR}/scriptdictionary
+#    ${ANGELSCRIPT_ADDON_DIR}/scriptfile
+    ${ANGELSCRIPT_ADDON_DIR}/scripthelper
+#    ${ANGELSCRIPT_ADDON_DIR}/scriptmath
+#    ${ANGELSCRIPT_ADDON_DIR}/scriptmath3d
+    ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring
 
-    # FIXME This should be handled by the find script
     #external packages includes
     ${CEGUI_INCLUDE_DIR}
     ${SFML_INCLUDE_DIR}
@@ -251,7 +256,7 @@ if(WIN32)
     
     if(MSVC)
         #Provide dirent.h if visual studio is used
-        include_directories( ${CMAKE_SOURCE_DIR}/include/dirent )
+        include_directories(${DEPENDENCIES_DIR})
     
         message(STATUS "MSVC: " ${OD_BOOST_INCLUDE_DIRS})
         message(STATUS "MSVC: " ${OD_BOOST_LIB_DIRS})
@@ -260,8 +265,8 @@ if(WIN32)
     endif()
 
     #Pthreads on windows
-    include_directories(${CMAKE_SOURCE_DIR}/dep/pthreads/include/)
-    link_directories(${CMAKE_SOURCE_DIR}/dep/pthreads/lib/)
+    include_directories(${DEPENDENCIES_DIR}/pthreads/include/)
+    link_directories(${DEPENDENCIES_DIR}/pthreads/lib/)
 endif()
 
 ##################################
@@ -374,7 +379,7 @@ endif()
 
 #Make a copy for use in the build directory, and later one copy for installing.
 configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in
+    ${CMAKE_CONFIG_DIR}/resources.cfg.in
     ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg
 )
 
@@ -409,14 +414,14 @@ else()
 endif()
 
 #Do the configuration
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg)
 if(UNIX)
     #On linux, set up the launcher script
     #TODO - add key repeat thing
 	set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME})
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/config/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
+	configure_file(${CMAKE_CONFIG_DIR}/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
 endif()
 
 ##################################
@@ -441,8 +446,7 @@ endif()
 
 # Copy level dir from git to build dir if this is not an in-source build
 if( NOT ${CMAKE_CURRENT_SOURCE_DIR} EQUAL ${CMAKE_CURRENT_BINARY_DIR})
-    configure_file(${CMAKE_CURRENT_SOURCE_DIR}/levels_git/Test.level 
-    ${CMAKE_CURRENT_BINARY_DIR}/levels_git/Test.level)
+    configure_file(levels_git/Test.level ${CMAKE_CURRENT_BINARY_DIR}/levels_git/Test.level)
 endif()
 
 ##################################

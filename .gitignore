@@ -8,7 +8,6 @@ core*
 .*.swp
 Changelog.txt
 levels/Test.level.out
-Documentation/
 
 cmake_install.cmake
 
