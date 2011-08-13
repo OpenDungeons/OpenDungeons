@@ -2,24 +2,14 @@
 [General]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@
 
-[Fonts]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/fonts
-
-[Models]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/models
+[Graphics]
+Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/materials.zip
+Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/models.zip
+Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/shader.zip
+Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/textures.zip
 
 [GUI]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui
-
-[Materials]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/scripts
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/materials
-
-[Textures]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/textures
-
-[RTShaderLib]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib
 
 [Music]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/music
