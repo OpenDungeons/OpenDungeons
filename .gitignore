@@ -8,7 +8,7 @@ levels
 materials
 models
 music
-sound
+sounds
 
 *.bin
 *.dll
