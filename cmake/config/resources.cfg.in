@@ -1,12 +1,9 @@
-# Resource locations to be added to the default path
-[General]
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@
-
 [Graphics]
-Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/materials.zip
-Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/models.zip
-Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/shader.zip
-Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/textures.zip
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/materials
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/scripts
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/textures
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/models
 
 [GUI]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui
