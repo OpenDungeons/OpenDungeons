@@ -8,6 +8,7 @@ levels
 materials
 models
 music
+plugins
 sounds
 
 *.bin
@@ -15,6 +16,7 @@ sounds
 *.exe
 *.log
 *.sh
+*.zip
 
 *.o
 *~*
