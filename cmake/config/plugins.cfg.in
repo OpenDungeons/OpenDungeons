@@ -5,14 +5,8 @@ PluginFolder=@OPENDUNGEONS_OGRE_PLUGIN_DIR_REL@
 
 # Define plugins
 @OPENDUNGEONS_COMMENT_D3D@ Plugin=RenderSystem_Direct3D9
-#Plugin=RenderSystem_Direct3D10
-#Plugin=RenderSystem_Direct3D11
 Plugin=RenderSystem_GL
 #Plugin=Plugin_ParticleFX
-#Plugin=Plugin_BSPSceneManager
-#Plugin=Plugin_PCZSceneManager
-#Plugin=Plugin_OctreeZone
-#Plugin=Plugin_OctreeSceneManager
 
 #This is a card specific library, installed on some systems but not on others
 Plugin=Plugin_CgProgramManager

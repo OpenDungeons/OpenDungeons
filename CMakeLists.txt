@@ -385,8 +385,8 @@ configure_file(
 
 if(WIN32)
     #On windows, use current directory for plugins and data for now
-    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ".")
-    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ".")
+    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL "plugins")
+    set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG "plugins")
     set(OPENDUNGEONS_DATA_PATH ".")
     set(OPENDUNGEONS_DATA_DEST ".")
 else()
@@ -428,15 +428,12 @@ endif()
 #### Installation ################
 ##################################
 
-set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg ${CMAKE_CURRENT_SOURCE_DIR}/media.cfg)
+set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg)
 
-if (WIN32) #NOTE - not really used on windows
-	install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})	
-    #install resources.cfg
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
-else()
-	install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
+install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
+
+if(NOT WIN32)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION games PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif()
 
@@ -458,7 +455,7 @@ endif()
 set(CPACK_SOURCE_IGNORE_FILES "~$" "${CMAKE_SOURCE_DIR}.*/.svn/" "${CMAKE_SOURCE_DIR}/debian/")
 set(CPACK_PACKAGE_NAME opendungeons)
 set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MINOR_VERSION}.${${PROJECT_NAME}_PATCH_LEVEL})
-set(CPACK_PACKAGE_CONTACT opendungeons team)
+set(CPACK_PACKAGE_CONTACT OpenDungeons Team)
 set(CPACK_GENERATOR "DEB")
 set(CPACK_SOURCE_GENERATOR "DEB")
 set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.7.1), libois-1.2.0, libsfml-audio1.6, libopenal1, libogremain-1.7.2")
