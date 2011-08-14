@@ -2,6 +2,7 @@
 build
 CMakeFiles
 fonts
+graphics
 gui
 lang
 levels
@@ -15,10 +16,10 @@ sounds
 *.dll
 *.exe
 *.log
+*.o
 *.sh
 *.zip
 
-*.o
 *~*
 .*.swp
 .cproject

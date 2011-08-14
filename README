@@ -1,26 +1,40 @@
+This readme files gives a short overview of the structure of the OpenDungeons
+repository and how to use it.
+
+--- Folder sturcture ---
+cmake/           - Helper files for CMake
+ |- config/      - contains variable input files for the CMake script
+ |- modules/     - contains addon scripts for CMake to find dependencies
+dependencies/    - all external projects
+ |- dirent.h     - Directory access on Windows
+ |- angelscript/ - AngelSript SDK, our scripting language
+ |- pthreads/    - thread support for Windows
+ |- tinygettext/ - Gettext alternative for multilang support
+documentation/   - Contains misc. files (incl. a Doxyfile and sketches)
+levels_git/      - contains test levels for the game (not shipped)
+sources/         - contains all .cpp and .h files of teh game
+.gitignore       - The files and folder that are ignored by git locally
+CMakeLists.txt   - CMake script for generatin the Makefile and IDE projects
+od.cppcheck      - Project file for Cppcheck (cppcheck.sourceforge.net)
+README           - The file you are reading
+
 --- Build Instructions ---
 More detailed, and usually up to date build instructions can be found at:
 http://opendungeons.sourceforge.net/index.php/Download
 
-To build the game run the following commands from the directory where this README file is:
+To build the game run the following commands from the directory where this
+README file is. You will need CMake for this (http://cmake.org/).
 
 	cmake.
 	make
 	./OpenDungeons.bin
 
-
-
 To build on windows you will need to link against the following libraries:
-*  DirectX SDK
 *  OGRE SDK
 *  OIS
 *  CEGUI SDK
 *  pthreads-win32
 *  SFML
 
------  Building under visual studio  -----
-Visual studio project and solution files can be automatically generated using the 'cmake' program.
-
------  Building under mingw  -----
-Cmake can generate makefiles for mingw
-
+CMake also can generate project files for your preferred IDE (Visual Studio,
+Eclipse, ...)
