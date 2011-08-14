@@ -1,0 +1,14 @@
+[Graphics]
+Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/materials.zip
+Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/models.zip
+Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/shaders.zip
+Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/textures.zip
+
+[GUI]
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui
+
+[Music]
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/music
+
+[Sound]
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/sounds

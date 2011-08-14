@@ -383,6 +383,11 @@ configure_file(
     ${CMAKE_CURRENT_BINARY_DIR}/resources.cfg
 )
 
+configure_file(
+    ${CMAKE_CONFIG_DIR}/resources.zip.cfg.in
+    ${CMAKE_CURRENT_BINARY_DIR}/resources.zip.cfg
+)
+
 if(WIN32)
     #On windows, use current directory for plugins and data for now
     set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL "plugins")
@@ -417,6 +422,7 @@ endif()
 configure_file(${CMAKE_CONFIG_DIR}/plugins.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/plugins_d.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/plugins_d.cfg)
 configure_file(${CMAKE_CONFIG_DIR}/resources.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg)
+configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg)
 if(UNIX)
     #On linux, set up the launcher script
     #TODO - add key repeat thing
@@ -432,6 +438,7 @@ set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg)
 
 install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.cfg)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.zip.cfg)
 
 if(NOT WIN32)
 	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION games PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
