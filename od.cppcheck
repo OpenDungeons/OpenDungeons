@@ -3,8 +3,10 @@
     <root name="."/>
     <includedir>
         <dir name="source/"/>
+		<dir name="dependencies/tinygettext"/>
     </includedir>
     <paths>
         <dir name="source/"/>
+		<dir name="dependencies/tinygettext"/>
     </paths>
 </project>

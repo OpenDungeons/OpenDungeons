@@ -200,7 +200,6 @@ bool Console::frameStarted(const Ogre::FrameEvent &evt)
             startLine = lines.size();
         }
 
-        int lcount = 0;
         start = lines.begin();
         for (int c = 0; c < startLine; ++c)
         {

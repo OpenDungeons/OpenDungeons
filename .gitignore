@@ -13,6 +13,7 @@ plugins
 sounds
 
 *.bin
+*.cfg
 *.dll
 *.exe
 *.log
