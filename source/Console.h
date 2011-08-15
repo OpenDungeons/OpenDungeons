@@ -64,6 +64,9 @@ class Console :
         std::vector<Ogre::String> history;
         unsigned int curHistPos;
 
+        //AS storage
+        std::string currentCommand;
+
         void checkVisibility();
         std::vector<Ogre::String> split(const Ogre::String& str, const char& splitChar);
         void scrollHistory(const bool& direction);

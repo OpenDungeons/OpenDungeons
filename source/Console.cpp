@@ -5,19 +5,18 @@
  * \brief  Ingame console
  */
 
-/* TODO: decide and implement command handling (functors?)
- * TODO: decide and adjust the layout and prompt (size, position, color)
+/* TODO: decide and adjust the layout and prompt (size, position, color)
  * TODO: do intense testing that everything works
  * TODO: switch from TextRenderer to Console
  */
 
+#include "ASWrapper.h"
+#include "Console.h"
+#include "InputManager.h"
+#include "LogManager.h"
 #include "ODApplication.h"
 #include "ODFrameListener.h"
-#include "InputManager.h"
-
-#include "Console.h"
-#include <RenderManager.h>
-#include <LogManager.h>
+#include "RenderManager.h"
 
 template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
 
@@ -25,10 +24,10 @@ Console::Console() :
         visible(false),
         updateOverlay(true),
         startLine(0),
-        curHistPos(0),
         //these two define how much text goes into the console
         consoleLineLength(100),
-        consoleLineCount(10)
+        consoleLineCount(10),
+        curHistPos(0)
 {
     ODApplication::getSingleton().getRoot()->addFrameListener(this);
 
@@ -86,7 +85,12 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
         case OIS::KC_RETURN:
         {
             //only do this for non-empty input
-            if(!prompt.empty()){
+            if(!prompt.empty())
+            {
+            	print(prompt);
+            	history.push_back(prompt);
+            	++curHistPos;
+
                 //split the input into it's space-separated "words"
                 std::vector<Ogre::String> params = split(prompt, ' ');
 
@@ -94,6 +98,7 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
                 //then we only should need something like executeCommand(params);
                 //where params[0] is the command and all other elements are arguments
                 Ogre::String command = params[0];
+
                 Ogre::String arguments = "";
                 for(size_t i = 1; i< params.size(); ++i)
                 {
@@ -106,25 +111,10 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
 
                 ODFrameListener::getSingleton().executePromptCommand(command, arguments);
 
-                // this is the old code for the function pointers from the example
-                //try to execute the command
-                /*
-                for (std::map<Ogre::String, void(*)(std::vector<Ogre::String>&)>::iterator i = commands.begin();
-                        i != commands.end(); ++i)
-                {
-                    if ((*i).first == params[0])
-                    {
-                        if ((*i).second)
-                        {
-                            (*i).second(params);
-                        }
-                        break;
-                    }
-                }*/
+                //TODO: this works already, only the script is missing
+                //      -> convert executePromptCommand() to AS
+                //ASWrapper::getSingleton().executeConsoleCommand(params);
 
-                history.push_back(prompt);
-                ++curHistPos;
-                print(prompt);
                 prompt = "";
             }
             else

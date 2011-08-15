@@ -10,9 +10,10 @@
 
 #include <Ogre.h>
 
+class asIObjectType;
+class asIScriptContext;
 class asIScriptEngine;
 class asIScriptModule;
-class asIScriptContext;
 class asSMessageInfo;
 
 class ASWrapper :
@@ -24,6 +25,7 @@ class ASWrapper :
 
         void loadScript(std::string fileName);
         void executeScriptCode(const std::string& code);
+        void executeConsoleCommand(const std::vector<std::string>& command);
 
         // \brief helper function for registering the AS factories
         template<class T>
@@ -36,6 +38,8 @@ class ASWrapper :
         asIScriptEngine* engine;
         asIScriptModule* module;
         asIScriptContext* context;
+
+        asIObjectType* stringArray;
 
         void messageCallback(const asSMessageInfo* msg, void* param);
         void registerEverything();

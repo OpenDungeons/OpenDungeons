@@ -20,6 +20,7 @@
 #include <iostream>
 
 #include "angelscript.h"
+#include "scriptarray.h"
 #include "scripthelper.h"
 #include "scriptstdstring.h"
 
@@ -61,6 +62,10 @@ ASWrapper::ASWrapper() :
 
     //bind all objects, functions, etc to AngelScript
     registerEverything();
+
+    //save the string[] type because it's often used for console interaction
+    stringArray = engine->GetObjectTypeById(engine->GetTypeIdByDecl(
+    		"string[]"));
 
     //compile AS code
     module->Build();
@@ -144,14 +149,7 @@ void ASWrapper::registerEverything()
     /* Register some standard types and features, they are official AS addons
      */
     RegisterStdString(engine);
-
-    /* Names of the classes to register. Centrally defined because we need
-     * them often, so it will be easier if there's a change in the future.
-     * These are the names that AS will use to access the classes. Technically
-     * they can have different names than thay have in the C++ code. But we
-     * should try to stay as genuine as possible.
-     */
-    static const char* CONSOLE = "Console";
+    RegisterScriptArray(engine, true);
 
     /* OVERVIEW of what happens in the following lines
      *
@@ -205,4 +203,23 @@ void ASWrapper::registerEverything()
     r = engine->RegisterObjectMethod("Console", "void print(string)",
             asMETHOD(Console, print), asCALL_THISCALL);
     assert(r >= 0);
+}
+
+/*! \brief Passes the console input to the script that holds all the functions
+ *
+ *  \param command The vector holding on [0] the command and in [1..n-1] the
+ *  arguments
+ */
+void ASWrapper::executeConsoleCommand(const std::vector<std::string>& command)
+{
+    CScriptArray* commands = new CScriptArray(command.size(), stringArray);
+    for(asUINT i = 0, size = commands->GetSize(); i < size; ++i)
+    {
+    	*(static_cast<std::string*>(commands->At(i))) = command[i];
+    }
+
+    context->Prepare(module->GetFunctionIdByDecl(
+    		"void executeConsoleCommand(string[])"));
+    context->SetArgObject(0, commands);
+    context->Execute();
 }
