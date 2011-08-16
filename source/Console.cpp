@@ -56,7 +56,7 @@ Console::Console() :
     // Add the text area to the panel
     panel->addChild(textbox);
 
-    // Ogre::LogManager::getSingleton().getDefaultLog()->addListener(this);
+    Ogre::LogManager::getSingleton().getDefaultLog()->addListener(this);
 }
 
 Console::~Console()
@@ -236,7 +236,7 @@ void Console::print(const Ogre::String &text)
 
     startLine = (lines.size() > consoleLineCount)
                             ? lines.size() - consoleLineCount
-                                    : 0;
+                            : 0;
 
     updateOverlay = true;
 }
