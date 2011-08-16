@@ -3,20 +3,21 @@ repository and how to use it.
 
 --- Folder sturcture ---
 cmake/           - Helper files for CMake
- |- config/      - contains variable input files for the CMake script
- |- modules/     - contains addon scripts for CMake to find dependencies
-dependencies/    - all external projects
+ |- config/      - Variable input files for the CMake script
+ |- modules/     - Addon scripts for CMake to find dependencies
+dependencies/    - All external projects
  |- dirent.h     - Directory access on Windows
- |- angelscript/ - AngelSript SDK, our scripting language
- |- pthreads/    - thread support for Windows
+ |- angelscript/ - AngelScript SDK, our scripting language
+ |- pthreads/    - Thread support for Windows
  |- tinygettext/ - Gettext alternative for multilang support
-documentation/   - Contains misc. files (incl. a Doxyfile and sketches)
-levels_git/      - contains test levels for the game (not shipped)
-sources/         - contains all .cpp and .h files of teh game
+documentation/   - Misc. files (incl. a Doxyfile and sketches)
+levels_git/      - Test levels for the game (not shipped)
+scripts/         - Our AngelScript code files
+sources/         - All our own .cpp and .h files of the game
 .gitignore       - The files and folder that are ignored by git locally
 CMakeLists.txt   - CMake script for generatin the Makefile and IDE projects
 od.cppcheck      - Project file for Cppcheck (cppcheck.sourceforge.net)
-README           - The file you are reading
+README           - The file you are currently reading
 
 --- Build Instructions ---
 More detailed, and usually up to date build instructions can be found at:
