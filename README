@@ -19,6 +19,13 @@ CMakeLists.txt   - CMake script for generatin the Makefile and IDE projects
 od.cppcheck      - Project file for Cppcheck (cppcheck.sourceforge.net)
 README           - The file you are currently reading
 
+-- Coding Guideline ---
+Before you start coding you should take a glimpse at our guideline over at the
+wiki:
+  http://opendungeons.sourceforge.net/index.php/Code_Style_Guidelines
+It contains a rather deep introduction on how we name, indent, structure and
+extend our code. It also has some performance optimisation tips.
+
 --- Build Instructions ---
 More detailed, and usually up to date build instructions can be found at:
 http://opendungeons.sourceforge.net/index.php/Download

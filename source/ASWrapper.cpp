@@ -13,7 +13,6 @@
  * - find out if addref/release methods are useful or even needed by us
  * - possible improvements to compilation of scripts? (AS has an addon)
  * - bind all needed classes
- * - write a function to pass console input directly to AS
  * - find out if we really need all the asserts (binary size, start up time).
  */
 

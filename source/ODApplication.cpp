@@ -82,19 +82,24 @@ ODApplication::ODApplication() :
 
     //FIXME: do this only if a level loads after the main menu
     //Try to create the camera, viewport and scene. 
-    try {
+    try
+    {
         logManager->logMessage("Creating camera...", Ogre::LML_NORMAL);
         renderMgr->createCamera();
         logManager->logMessage("Creating viewpoerts...", Ogre::LML_NORMAL);
         renderMgr->createViewports();
         logManager->logMessage("Creating scene...", Ogre::LML_NORMAL);
         renderMgr->createScene();
-    } catch (Ogre::Exception e) {
+    }
+    catch(Ogre::Exception& e)
+    {
         logManager->logMessage("Ogre exception when ininialising the render manager:\n"
             + e.getFullDescription(), Ogre::LML_CRITICAL);
         cleanUp();
         return;
-    } catch (std::exception e) {
+    }
+    catch (std::exception& e)
+    {
         logManager->logMessage("Exception when ininialising the render manager:\n"
             + std::string(e.what()), Ogre::LML_CRITICAL);
         cleanUp();
@@ -112,14 +117,19 @@ ODApplication::ODApplication() :
     //Console needs to exist BEFORE ASWrapper because it needs it for callback
     new Console();
     new ASWrapper();
-    try {
+    try
+    {
         root->startRendering();
-    } catch (Ogre::Exception e) {
+    }
+    catch(Ogre::Exception& e)
+    {
         logManager->logMessage("Ogre exception:\n"
             + e.getFullDescription(), Ogre::LML_CRITICAL);
         cleanUp();
         return;
-    } catch (std::exception e) {
+    }
+    catch(std::exception& e)
+    {
         logManager->logMessage("Exception:\n"
             + std::string(e.what()), Ogre::LML_CRITICAL);
         cleanUp();

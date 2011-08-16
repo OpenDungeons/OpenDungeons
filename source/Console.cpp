@@ -21,12 +21,15 @@
 template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
 
 Console::Console() :
-        visible(false),
-        updateOverlay(true),
-        startLine(0),
         //these two define how much text goes into the console
         consoleLineLength(100),
         consoleLineCount(10),
+        visible(false),
+        updateOverlay(true),
+        allowTrivial(false),
+        allowNormal(false),
+        allowCritical(true),
+        startLine(0),
         curHistPos(0)
 {
     ODApplication::getSingleton().getRoot()->addFrameListener(this);
@@ -35,7 +38,7 @@ Console::Console() :
 
     // Create a panel
     panel = static_cast<Ogre::OverlayContainer*>(
-        olMgr.createOverlayElement("Panel", "ConsolePanel"));
+            olMgr.createOverlayElement("Panel", "ConsolePanel"));
     panel->setPosition(0, 0.7);
     panel->setDimensions(1, 0.3);
     panel->setMaterialName("console/background");
@@ -53,7 +56,7 @@ Console::Console() :
     // Add the text area to the panel
     panel->addChild(textbox);
 
-   // Ogre::LogManager::getSingleton().getDefaultLog()->addListener(this);
+    // Ogre::LogManager::getSingleton().getDefaultLog()->addListener(this);
 }
 
 Console::~Console()
@@ -87,9 +90,9 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
             //only do this for non-empty input
             if(!prompt.empty())
             {
-            	print(prompt);
-            	history.push_back(prompt);
-            	++curHistPos;
+                print(prompt);
+                history.push_back(prompt);
+                ++curHistPos;
 
                 //split the input into it's space-separated "words"
                 std::vector<Ogre::String> params = split(prompt, ' ');
@@ -98,7 +101,6 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
                 //then we only should need something like executeCommand(params);
                 //where params[0] is the command and all other elements are arguments
                 Ogre::String command = params[0];
-
                 Ogre::String arguments = "";
                 for(size_t i = 1; i< params.size(); ++i)
                 {
@@ -134,7 +136,7 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
             {
                 --startLine;
             }
-        break;
+            break;
 
         case OIS::KC_PGDOWN:
             if (startLine < lines.size())
@@ -185,19 +187,19 @@ bool Console::frameStarted(const Ogre::FrameEvent &evt)
         std::list<Ogre::String>::iterator i, start, end;
 
         //make sure is in range
-        if (startLine > lines.size())
+        if(startLine > lines.size())
         {
             startLine = lines.size();
         }
 
         start = lines.begin();
-        for (int c = 0; c < startLine; ++c)
+        for (unsigned int c = 0; c < startLine; ++c)
         {
             ++start;
         }
 
         end = start;
-        for (int c = 0; c < consoleLineCount; ++c)
+        for (unsigned int c = 0; c < consoleLineCount; ++c)
         {
             if (end == lines.end())
             {
@@ -233,8 +235,8 @@ void Console::print(const Ogre::String &text)
     lines.insert(lines.end(), newLines.begin(), newLines.end());
 
     startLine = (lines.size() > consoleLineCount)
-            ? lines.size() - consoleLineCount
-            : 0;
+                            ? lines.size() - consoleLineCount
+                                    : 0;
 
     updateOverlay = true;
 }
@@ -245,23 +247,6 @@ void Console::print(const Ogre::String &text)
 bool Console::frameEnded(const Ogre::FrameEvent &evt)
 {
     return true;
-}
-
-/*! \brief add a command
- *
- */
-void Console::addCommand(const Ogre::String &command,
-        void(*func)(std::vector<Ogre::String>&))
-{
-    commands[command] = func;
-}
-
-/*! \brief remove a command
- *
- */
-void Console::removeCommand(const Ogre::String &command)
-{
-    commands.erase(commands.find(command));
 }
 
 /*! \brief show or hide the console manually
@@ -318,6 +303,36 @@ std::vector<Ogre::String> Console::split(const Ogre::String& str, const char& sp
     }while(pos != std::string::npos);
 
     return splittedStrings;
+}
+
+/*! \brief Send logged messages also to the Console
+ *
+ * We only allow critical messages to the console. Non-critical messages would
+ * pollute the console window and make it hardly readable.
+ */
+void Console::messageLogged(const Ogre::String & message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String & logName)
+{
+    //test if the logLevel is allowed, if not then return
+    switch(lml)
+    {
+        case Ogre::LML_CRITICAL:
+            if(!allowCritical){return;}
+            break;
+
+        case Ogre::LML_TRIVIAL:
+            if(!allowTrivial){return;}
+            break;
+
+        case Ogre::LML_NORMAL:
+            if(!allowNormal){return;}
+            break;
+
+        default:
+            return;
+    }
+
+    //if it was allowed then print the message
+    print(logName + ": " + message);
 }
 
 /*! \brief Scrolls through the history of user entered commands

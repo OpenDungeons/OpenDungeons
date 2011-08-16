@@ -19,8 +19,8 @@
 
 class Console :
         public Ogre::Singleton<Console>,
-        public Ogre::FrameListener
-        //public Ogre::LogListener
+        public Ogre::FrameListener,
+        public Ogre::LogListener
 {
     public:
         Console();
@@ -30,6 +30,15 @@ class Console :
         void setVisible(const bool& newState);
         void toggleVisibility();
 
+        inline const bool& getAllowTrivial() const{return allowTrivial;}
+        inline void setAllowTrivial(const bool& newState){allowTrivial = newState;}
+
+        inline const bool& getAllowNormal() const{return allowNormal;}
+        inline void setAllowNormal(const bool& newState){allowNormal = newState;}
+
+        inline const bool& getAllowCritical() const{return allowCritical;}
+        inline void setAllowCritical(const bool& newState){allowCritical = newState;}
+
         void print(const Ogre::String &text);
 
         virtual bool frameStarted(const Ogre::FrameEvent &evt);
@@ -37,10 +46,7 @@ class Console :
 
         void onKeyPressed(const OIS::KeyEvent &arg);
 
-        void addCommand(const Ogre::String &command, void (*)(std::vector<Ogre::String>&));
-        void removeCommand(const Ogre::String &command);
-
-        //void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName) {print(logName + ": " + message);}
+        void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName);
 
     private:
         //state variables
@@ -49,23 +55,23 @@ class Console :
         bool visible;
         bool updateOverlay;
 
+        bool allowTrivial;
+        bool allowNormal;
+        bool allowCritical;
+
         //basic conatiner objects
         Ogre::OverlayContainer* panel;
         Ogre::OverlayElement*   textbox;
         Ogre::Overlay*          overlay;
 
         //input/output storage variakes
-        int startLine;
+        unsigned int startLine;
         std::list<Ogre::String> lines;
         Ogre::String prompt;
-        std::map<Ogre::String, void(*)(std::vector<Ogre::String>&)> commands;
 
         //history variables
         std::vector<Ogre::String> history;
         unsigned int curHistPos;
-
-        //AS storage
-        std::string currentCommand;
 
         void checkVisibility();
         std::vector<Ogre::String> split(const Ogre::String& str, const char& splitChar);
