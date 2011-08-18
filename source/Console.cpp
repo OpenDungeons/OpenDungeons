@@ -90,6 +90,7 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
             //only do this for non-empty input
             if(!prompt.empty())
             {
+                //print our input and push it to the history
                 print(prompt);
                 history.push_back(prompt);
                 ++curHistPos;
@@ -97,24 +98,22 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
                 //split the input into it's space-separated "words"
                 std::vector<Ogre::String> params = split(prompt, ' ');
 
-                //TODO: this won't be needed after we have a good command handling
-                //then we only should need something like executeCommand(params);
-                //where params[0] is the command and all other elements are arguments
+                //TODO: remove this until AS console handler is ready
                 Ogre::String command = params[0];
                 Ogre::String arguments = "";
                 for(size_t i = 1; i< params.size(); ++i)
                 {
                     arguments += params[i] + ' ';
                 }
+                //remove until this point
 
                 // Force command to lower case
                 //TODO: later do this only for params[0]
                 std::transform(command.begin(), command.end(), command.begin(), ::tolower);
 
+                //TODO: remove executePromptCommand after it is converted and
+                //and activate executeConsoleCommand from AS
                 ODFrameListener::getSingleton().executePromptCommand(command, arguments);
-
-                //TODO: this works already, only the script is missing
-                //      -> convert executePromptCommand() to AS
                 //ASWrapper::getSingleton().executeConsoleCommand(params);
 
                 prompt = "";
@@ -288,7 +287,7 @@ void Console::checkVisibility()
  *
  *  \return A vector of all splitted sub strings
  *
- *  \param str The str to be splitted
+ *  \param str The string to be splitted
  *  \param splitChar The character that defines the split positions
  */
 std::vector<Ogre::String> Console::split(const Ogre::String& str, const char& splitChar)
@@ -300,7 +299,8 @@ std::vector<Ogre::String> Console::split(const Ogre::String& str, const char& sp
         pos = str.find(splitChar, lastPos);
         splittedStrings.push_back(str.substr(lastPos, pos - lastPos));
         lastPos = pos + 1; //next time start AFTER the last space
-    }while(pos != std::string::npos);
+    }
+    while(pos != std::string::npos);
 
     return splittedStrings;
 }

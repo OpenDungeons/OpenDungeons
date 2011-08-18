@@ -10,18 +10,17 @@
  *  \param commands This string array contains on [0] the command and from
  *                  [1] to [length-1] the optional arguments for the command
  */
-void executeConsoleCommand(string[] commands)
+void executeConsoleCommand(string &in com, string[] &in arguments)
 {
     //TODO: convert c++ code to as code and put it here
 
-    if(commands.length() == 0)
+    if(com.length() == 0)
     {
         console.print("ERROR: Tried to execute an empty command");
         return;
     }
 
-    string com = commands[0];
-    const uint argCount = commands.length() - 1;
+    const uint argCount = arguments.length();
 
     if(com == "exit" || com == "quit")
     {
@@ -29,11 +28,6 @@ void executeConsoleCommand(string[] commands)
     }
 
     else if(com == "help" || com == "?")
-    {
-        //TODO: code
-    }
-
-    else if(com == "echo")
     {
         //TODO: code
     }
@@ -172,4 +166,21 @@ void executeConsoleCommand(string[] commands)
     {
         //TODO: code
     }
+    
+    else
+    {
+        console.print("Command not found. Try help to get an overview.");
+    }
+}
+
+bool checkArgCount(uint &in actualCount, uint &in expectedCount)
+{
+    if(actualCount != expectedCount)
+    {
+        console.print("ERROR: Wrong number of arguments (" + actualCount + "), expected " + expectedCount);
+           
+        return false;
+    }
+    
+    return true;
 }

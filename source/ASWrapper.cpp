@@ -110,8 +110,9 @@ void ASWrapper::executeScriptCode(const std::string& code)
 /*! \brief Send AngelScript errors, warnings and information to our console
  *
  * Generates a string in the form of
- *   "ANGELSCRIPT: [section] ([row], [col]) : [type] : [message]"
- * and passes it to our Console
+ *   AS: [section] ([row], [col]) : [type] :
+ *     [message]
+ * and passes it to our Console and the LogManager
  */
 void ASWrapper::messageCallback(const asSMessageInfo* msg, void* param)
 {
@@ -132,8 +133,8 @@ void ASWrapper::messageCallback(const asSMessageInfo* msg, void* param)
     }
 
     std::ostringstream output;
-    output << "ANGELSCRIPT: " << msg->section << "(" << msg->row << ", "
-            << msg->col << ") : " << type << " : " << msg->message;
+    output << "AS: " << msg->section << "(" << msg->row << ", "
+            << msg->col << ") : " << type << " : \n  " << msg->message;
     Console::getSingleton().print(output.str());
     LogManager::getSingleton().logMessage(output.str());
 }
@@ -209,16 +210,18 @@ void ASWrapper::registerEverything()
  *  \param command The vector holding on [0] the command and in [1..n-1] the
  *  arguments
  */
-void ASWrapper::executeConsoleCommand(const std::vector<std::string>& command)
+void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullCommand)
 {
-    CScriptArray* commands = new CScriptArray(command.size(), stringArray);
-    for(asUINT i = 0, size = commands->GetSize(); i < size; ++i)
+    //std::string& command = fullCommand[0];
+    CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1, stringArray);
+    for(asUINT i = 0, size = arguments->GetSize(); i < size; ++i)
     {
-    	*(static_cast<std::string*>(commands->At(i))) = command[i];
+    	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];
     }
 
     context->Prepare(module->GetFunctionIdByDecl(
-    		"void executeConsoleCommand(string[])"));
-    context->SetArgObject(0, commands);
+    		"void executeConsoleCommand(string &in, string[] &in)"));
+    context->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
+    context->SetArgObject(1, arguments);
     context->Execute();
 }
