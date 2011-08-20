@@ -43,6 +43,10 @@ class ASWrapper :
 
         void messageCallback(const asSMessageInfo* msg, void* param);
         void registerEverything();
+
+        //script helper functions
+        static int stringToInt(const std::string& str);
+        static float stringToFloat(const std::string& str);
 };
 
 

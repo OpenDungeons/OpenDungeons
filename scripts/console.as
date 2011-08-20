@@ -7,10 +7,14 @@
 
 /*! \brief Evaluate the comand and its params and call the according function
  *
- *  \param commands This string array contains on [0] the command and from
- *                  [1] to [length-1] the optional arguments for the command
+ *  \param com The command to be executed
+ *  \param args This array conatins all arguments to the function
+ *
+ *  Complex operations should be put in separate functions. Easy tasks like
+ *  getting or setting variables or printing a string can be stored directly
+ *  in here.
  */
-void executeConsoleCommand(string &in com, string[] &in arguments)
+void executeConsoleCommand(string &in com, string[] &in args)
 {
     //TODO: convert c++ code to as code and put it here
 
@@ -20,11 +24,14 @@ void executeConsoleCommand(string &in com, string[] &in arguments)
         return;
     }
 
-    const uint argCount = arguments.length();
+    const uint argCount = args.length();
 
     if(com == "exit" || com == "quit")
     {
-        //TODO: code
+        if(checkArgCount(argCount, 0))
+        {
+            frameListener.requestExit();
+        }
     }
 
     else if(com == "help" || com == "?")
@@ -59,13 +66,37 @@ void executeConsoleCommand(string &in com, string[] &in arguments)
 
     else if(com == "movespeed")
     {
-        //TODO: code
+        if(argCount == 0)
+        {
+            console.print("Current movespeed: " + cameraManager.getMoveSpeed());
+        }
+        else
+        {
+            if(checkArgCount(argCount, 1))
+            {
+                cameraManager.setMoveSpeedAccel(2.0 * stringToDouble(args[0]));
+                console.print("movespeed set to: " + cameraManager.getMoveSpeed());
+            }
+        }
     }
 
+    /*
+    //TODO: need to register Ogre::Degree first
     else if(com == "rotatespeed")
     {
-        //TODO: code
-    }
+        if(argCount == 0)
+        {
+            console.print("Current rotatespeed: " + cameraManager.getRotateSpeed());
+        }
+        else
+        {
+            if(checkArgCount(argCount, 1))
+            {
+                //cameraManager.setRotateSpeed(args[0]);
+                console.print("rotatespeed set to: " + cameraManager.getRotateSpeed());
+            }
+        }
+    }*/
 
     else if(com == "fps")
     {

@@ -17,15 +17,19 @@
  */
 
 #include <iostream>
+#include <sstream>
+#include <string>
 
 #include "angelscript.h"
 #include "scriptarray.h"
 #include "scripthelper.h"
 #include "scriptstdstring.h"
 
+#include "CameraManager.h"
 #include "Console.h"
-#include "ResourceManager.h"
 #include "LogManager.h"
+#include "ODFrameListener.h"
+#include "ResourceManager.h"
 
 #include "ASWrapper.h"
 
@@ -42,16 +46,20 @@ ASWrapper::ASWrapper() :
         //create context that runs the script functions
         context(engine->CreateContext())
 {
+    LogManager::getSingleton().logMessage(
+            "*** Initialising script engine AngelScript ***");
+
     //register function that gives out standard runtime information
     engine->SetMessageCallback(asMETHOD(ASWrapper, messageCallback), this,
             asCALL_THISCALL);
 
     //load all .as files from /scripts folder so we can access them
-    const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
+    const std::string& scriptpath = ResourceManager::getSingleton().
+            getScriptPath();
     std::vector<std::string> files = ResourceManager::getSingleton().
             listAllFiles(scriptpath);
-    for(std::vector<std::string>::iterator i = files.begin(), end = files.end();
-            i < end; ++i)
+    for(std::vector<std::string>::iterator i = files.begin(),
+            end = files.end(); i < end; ++i)
     {
         if(ResourceManager::hasFileEnding(*i, ".as"))
         {
@@ -66,7 +74,7 @@ ASWrapper::ASWrapper() :
     stringArray = engine->GetObjectTypeById(engine->GetTypeIdByDecl(
     		"string[]"));
 
-    //compile AS code
+    //Compile AS code, syntax errors will be printed to our Console
     module->Build();
 }
 
@@ -194,26 +202,44 @@ void ASWrapper::registerEverything()
 
     int r = 0;
 
-    //Console with print function
-    r = engine->RegisterObjectType("Console", 0, asOBJ_REF | asOBJ_NOHANDLE);
-    assert(r >= 0);
-    r = engine->RegisterGlobalProperty("Console console",
-            Console::getSingletonPtr());
-    assert(r >= 0);
-    r = engine->RegisterObjectMethod("Console", "void print(string)",
-            asMETHOD(Console, print), asCALL_THISCALL);
-    assert(r >= 0);
+    //helper functions
+    r = engine->RegisterGlobalFunction("int stringToInt(string &in)", asFunctionPtr(ASWrapper::stringToInt), asCALL_CDECL); assert(r >= 0);
+    r = engine->RegisterGlobalFunction("double stringToDouble(string &in)", asFunctionPtr(ASWrapper::stringToFloat), asCALL_CDECL); assert(r >= 0);
+
+    //Console
+    r = engine->RegisterObjectType("Console", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
+    r = engine->RegisterGlobalProperty("Console console", Console::getSingletonPtr()); assert(r >= 0);
+    r = engine->RegisterObjectMethod("Console", "void print(string)", asMETHOD(Console, print), asCALL_THISCALL); assert(r >= 0);
+
+    //LogManager
+    r = engine->RegisterObjectType("LogManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
+    r = engine->RegisterGlobalProperty("LogManager logManager", LogManager::getSingletonPtr()); assert(r >= 0);
+    r = engine->RegisterObjectMethod("LogManager", "void logMessage(string)", asMETHOD(LogManager, logMessage), asCALL_THISCALL); assert(r >= 0);
+
+    //ODFrameListener
+    r = engine->RegisterObjectType("ODFrameListener", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
+    r = engine->RegisterGlobalProperty("ODFrameListener frameListener", ODFrameListener::getSingletonPtr()); assert(r >= 0);
+    r = engine->RegisterObjectMethod("ODFrameListener", "void requestExit()", asMETHOD(ODFrameListener, requestExit), asCALL_THISCALL); assert(r >= 0);
+
+    //CameraManager
+    r = engine->RegisterObjectType("CameraManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
+    r = engine->RegisterGlobalProperty("CameraManager cameraManager", CameraManager::getSingletonPtr()); assert(r >= 0);
+    r = engine->RegisterObjectMethod("CameraManager", "void setMoveSpeedAccel(float &in)", asMETHOD(CameraManager, setMoveSpeedAccel), asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod("CameraManager", "float& getMoveSpeed()", asMETHOD(CameraManager, getMoveSpeed), asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod("CameraManager", "void setRotateSpeed(float &in)", asMETHOD(CameraManager, setRotateSpeed), asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod("CameraManager", "float getRotateSpeed()", asMETHOD(CameraManager, getRotateSpeed), asCALL_THISCALL); assert(r >= 0);
 }
 
 /*! \brief Passes the console input to the script that holds all the functions
  *
  *  \param command The vector holding on [0] the command and in [1..n-1] the
- *  arguments
+ *                 arguments
  */
-void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullCommand)
+void ASWrapper::executeConsoleCommand(
+        const std::vector<std::string>& fullCommand)
 {
-    //std::string& command = fullCommand[0];
-    CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1, stringArray);
+    CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1,
+            stringArray);
     for(asUINT i = 0, size = arguments->GetSize(); i < size; ++i)
     {
     	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];
@@ -224,4 +250,31 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     context->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
     context->SetArgObject(1, arguments);
     context->Execute();
+    delete arguments;
+}
+
+/* \brief Script helper function, converts a string to an int
+ *
+ * \param str The string to be converted
+ * \return The converted number
+ */
+int ASWrapper::stringToInt(const std::string& str)
+{
+    std::stringstream stream(str);
+    int i = 0;
+    stream >> i;
+    return i;
+}
+
+/* \brief Script helper function, converts a string to a float
+ *
+ * \param str The string to be converted
+ * \return The converted number
+ */
+float ASWrapper::stringToFloat(const std::string& str)
+{
+    std::stringstream stream(str);
+    float f = 0;
+    stream >> f;
+    return f;
 }

@@ -602,7 +602,7 @@ void ODFrameListener::printText(const std::string& text)
 /*! \brief Process the commandline from the terminal and carry out the actions specified in by the user.
  *
  */
-void ODFrameListener::executePromptCommand(const std::string& command,
+bool ODFrameListener::executePromptCommand(const std::string& command,
         std::string arguments)
 {
     std::stringstream tempSS;
@@ -612,20 +612,23 @@ void ODFrameListener::executePromptCommand(const std::string& command,
     // All the code from here to the rest of the function is the implementation code
     // for specific commands which are handled by the terminal.
 
+    /*
     // Exit the program
     if (command.compare("quit") == 0 || command.compare("exit") == 0)
     {
+        //NOTE: converted to AS
         requestExit();
     }
 
     // Repeat the arguments of the command back to you
     else if (command.compare("echo") == 0)
     {
+        //NOTE: dropped in AS (was this any useful?)
         commandOutput += "\n" + arguments + "\n";
-    }
+    } */
 
     // Write the current level out to file specified as an argument
-    else if (command.compare("save") == 0)
+    if (command.compare("save") == 0)
     {
         if (arguments.empty())
         {
@@ -798,9 +801,10 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                 + Ogre::StringConverter::toString(yMax) + ")\n";
     }
 
-    // A utility to set the camera movement speed
+    /*// A utility to set the camera movement speed
     else if (command.compare("movespeed") == 0)
     {
+        //NOTE: converted to AS
         if (!arguments.empty())
         {
             Ogre::Real tempDouble;
@@ -817,7 +821,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
                             CameraManager::getSingleton().getMoveSpeed())
                     + "\n";
         }
-    }
+    } */
 
     // A utility to set the camera rotation speed.
     else if (command.compare("rotatespeed") == 0)
@@ -982,9 +986,11 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         }
     }
 
+    /*
     //Set/get the mouse movement scaling (sensitivity)
     else if (command.compare("mousespeed") == 0)
     {
+        //NOTE: dropped in AS
         //Doesn't do anything at the moment, after the mouse input to cegui change.
         //TODO - remove or make usable.
         commandOutput += "The command is disabled\n";
@@ -1004,7 +1010,7 @@ void ODFrameListener::executePromptCommand(const std::string& command,
         //				+ StringConverter::toString(static_cast<Real>(
         //				CEGUI::System::getSingleton().getMouseMoveScaling())) + "\n";
         //		}
-    }
+    } */
 
     // Add a new instance of a creature to the current map.  The argument is
     // read as if it were a line in a .level file.
@@ -1584,9 +1590,13 @@ void ODFrameListener::executePromptCommand(const std::string& command,
 
     else
     {
-        commandOutput
-                += "\nCommand not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.\n";
+        //try AngelScript interpreter
+        return false;
+        //commandOutput
+        //        += "\nCommand not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.\n";
     }
+
+    return true;
 }
 
 /*! \brief A helper function to return a help text string for a given termianl command.

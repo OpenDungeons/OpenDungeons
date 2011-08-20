@@ -75,7 +75,7 @@ class ODFrameListener :
 
         // Console functions
         void printText(const std::string& text);
-        void executePromptCommand(const std::string& command, std::string arguments);
+        bool executePromptCommand(const std::string& command, std::string arguments);
         std::string getHelpText(std::string arg);
 
         // Console variables

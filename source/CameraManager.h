@@ -8,6 +8,8 @@
 #ifndef CAMERAMANAGER_H_
 #define CAMERAMANAGER_H_
 
+#include <Ogre.h>
+
 class CameraManager : public Ogre::Singleton<CameraManager>
 {
     public:
