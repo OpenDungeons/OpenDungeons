@@ -848,9 +848,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         }
     }
 
+    /*
     // Set max frames per second
     else if (command.compare("fps") == 0)
     {
+        //NOTE: converted to AS
         if (!arguments.empty())
         {
             Ogre::Real tempDouble;
@@ -867,7 +869,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::MAX_FRAMES_PER_SECOND))
                     + "\n";
         }
-    }
+    }*/
 
     // Set the max number of threads the gameMap should spawn when it does the creature AI.
     else if (command.compare("aithreads") == 0)

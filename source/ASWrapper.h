@@ -47,6 +47,8 @@ class ASWrapper :
         //script helper functions
         static int stringToInt(const std::string& str);
         static float stringToFloat(const std::string& str);
+        static bool checkIfInt(const std::string& str);
+        static bool checkIfFloat(const std::string& str);
 };
 
 
