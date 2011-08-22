@@ -27,7 +27,7 @@ Things to think about with a multithreaded environment</a></h2>
 Fibers</a></h2>
 AngelScript can be used with fibers as well. However, as fibers are not real threads you need to be careful if multiple fibers need to execute scripts. AngelScript keeps track of active contexts by pushing and popping the context pointers on a stack. With fibers you can easily corrupt this stack if you do not pay attention to where and when script executions are performed.<p>
 Try to avoid switching fibers when a script is executing, instead you should <a class="el" href="classas_i_script_context.html#d4ac8be3586c46069b5870e40c86544a">suspend</a> the current script execution and only switch to the other fiber when the context's <a class="el" href="classas_i_script_context.html#8e52894432737acac2e1a422e496bf84">Execute()</a> method returns. If you really must switch fibers while executing a script, then make sure the second fiber initiates and concludes its own script execution before switching back to the original fiber. </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Jul 3 18:09:37 2011 for AngelScript by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Aug 21 13:13:47 2011 for AngelScript by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

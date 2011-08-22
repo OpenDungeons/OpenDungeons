@@ -5,7 +5,9 @@
  * \brief  Initializes AngelScript and provides access to its functions
  *
  * AngelScript documentation can be found at:
- * www.angelcode.com/angelscript/sdk/docs/manual/index.html
+ *  www.angelcode.com/angelscript/sdk/docs/manual/index.html
+ * The Ogre-Angelscript binding project is something to keep an eye on:
+ *  code.google.com/p/ogre-angelscript/
  */
 
 /* TODO list:
@@ -40,12 +42,9 @@ template<> ASWrapper* Ogre::Singleton<ASWrapper>::ms_Singleton = 0;
  *
  */
 ASWrapper::ASWrapper() :
-        //create engine
-        engine(asCreateScriptEngine(ANGELSCRIPT_VERSION)),
-        //create modules
-        module(engine->GetModule("asModule", asGM_ALWAYS_CREATE)),
-        //create context that runs the script functions
-        context(engine->CreateContext())
+        engine  (asCreateScriptEngine(ANGELSCRIPT_VERSION)),
+        module  (engine->GetModule("asModule", asGM_ALWAYS_CREATE)),
+        context (engine->CreateContext())
 {
     LogManager::getSingleton().logMessage(
             "*** Initialising script engine AngelScript ***");
@@ -314,10 +313,10 @@ void ASWrapper::executeConsoleCommand(
     delete arguments;
 }
 
-/* \brief Script helper function, converts a string to an int
+/*! \brief Script helper function, converts a string to an int
  *
- * \param str The string to be converted
- * \return The converted number
+ *  \param str The string to be converted
+ *  \return The converted number
  */
 int ASWrapper::stringToInt(const std::string& str)
 {
@@ -327,10 +326,10 @@ int ASWrapper::stringToInt(const std::string& str)
     return i;
 }
 
-/* \brief Script helper function, converts a string to a float
+/*! \brief Script helper function, converts a string to a float
  *
- * \param str The string to be converted
- * \return The converted number
+ *  \param str The string to be converted
+ *  \return The converted number
  */
 float ASWrapper::stringToFloat(const std::string& str)
 {
@@ -340,10 +339,10 @@ float ASWrapper::stringToFloat(const std::string& str)
     return f;
 }
 
-/* \brief Script helper function, checks if a string contains an int
+/*! \brief Script helper function, checks if a string contains an int
  *
- * \param str The string to be checked
- * \return true if string contains an int, else false
+ *  \param str The string to be checked
+ *  \return true if string contains an int, else false
  */
 bool ASWrapper::checkIfInt(const std::string& str)
 {
@@ -352,10 +351,10 @@ bool ASWrapper::checkIfInt(const std::string& str)
     return (stream >> a);
 }
 
-/* \brief Script helper function, checks if a string contains a float
+/*! \brief Script helper function, checks if a string contains a float
  *
- * \param str The string to be checked
- * \return true if string contains a float, else false
+ *  \param str The string to be checked
+ *  \return true if string contains a float, else false
  */
 bool ASWrapper::checkIfFloat(const std::string& str)
 {

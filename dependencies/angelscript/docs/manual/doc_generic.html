@@ -24,7 +24,7 @@ Note that the <a class="el" href="classas_i_script_generic.html" title="The inte
 Returning values</a></h2>
 To return a value from the function one of the SetReturn methods can be called to pass the value to the generic interface. Returning primitive values is straight forward, but care must be taken when returning object types, either by value, reference, or as object handle. Depending on the type and the function used it may be necessary to increment the reference count, or even make a copy of the object first. Carefully read the instructions for <a class="el" href="classas_i_script_generic.html#fd8ead96f17d6e77f3a26c70c3a1d80c">SetReturnAddress</a> and <a class="el" href="classas_i_script_generic.html#94c9ca32722cb44b09211e51fa906e6e">SetReturnObject</a> to determine what needs to be done to get the expected result.<p>
 It is also possible to use the <a class="el" href="classas_i_script_generic.html#103a91f081ec894a116cd3db06b0d8d1">GetAddressOfReturnLocation</a> method to obtain the address of the memory where the return value will be stored. The memory is not initialized, so you should use the placement new operator to initialize this memory with a call to the constructor. This also works for primitive types, which makes this ideal for template implementations, such as that in the <a class="el" href="doc_addon_autowrap.html">automatic wrapper functions</a>. </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Jul 3 18:09:37 2011 for AngelScript by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Aug 21 13:13:47 2011 for AngelScript by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

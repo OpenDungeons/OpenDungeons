@@ -35,20 +35,19 @@ class ASWrapper :
         static void dummyRef(){}
 
     private:
-        asIScriptEngine* engine;
-        asIScriptModule* module;
-        asIScriptContext* context;
-
-        asIObjectType* stringArray;
+        asIScriptEngine*    engine;
+        asIScriptModule*    module;
+        asIScriptContext*   context;
+        asIObjectType*      stringArray;
 
         void messageCallback(const asSMessageInfo* msg, void* param);
         void registerEverything();
 
         //script helper functions
-        static int stringToInt(const std::string& str);
-        static float stringToFloat(const std::string& str);
-        static bool checkIfInt(const std::string& str);
-        static bool checkIfFloat(const std::string& str);
+        static int      stringToInt(const std::string& str);
+        static float    stringToFloat(const std::string& str);
+        static bool     checkIfInt(const std::string& str);
+        static bool     checkIfFloat(const std::string& str);
 };
 
 

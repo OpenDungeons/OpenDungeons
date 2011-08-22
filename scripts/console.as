@@ -54,11 +54,6 @@ void executeConsoleCommand(string &in com, string[] &in args)
         //TODO: code
     }
 
-    else if(com == "termwidth")
-    {
-        //TODO: code
-    }
-
     else if(com == "addtiles")
     {
         //TODO: code
@@ -128,10 +123,25 @@ void executeConsoleCommand(string &in com, string[] &in args)
         }
     }
 
+    /*
+    TODO: prepare gameMap
     else if(com == "aithreads")
     {
-        //TODO: code
-    }
+        if(argCount == 0)
+        {
+            console.print("Current maximum number of creature AI threads: " + gameMap.getMaxAiThreads());
+        }
+        else
+        {
+            if(checkArgCount(argCount, 1))
+            {
+                if(checkIfInt(args[0]))
+                {
+                    gameMap.setMaxAIThreads(convertToInt(args[0]));
+                }
+            }
+        }
+    }*/
 
     else if(com == "turnspersecond")
     {
