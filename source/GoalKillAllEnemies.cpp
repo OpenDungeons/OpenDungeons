@@ -2,12 +2,13 @@
 #include "GameMap.h"
 #include "Creature.h"
 #include "GoalKillAllEnemies.h"
+#include "Seat.h"
 
 #include <iostream>
 
 GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName,
-        const std::string& nArguments) :
-    Goal(nName, nArguments)
+        const std::string& nArguments, const GameMap& gameMap) :
+    Goal(nName, nArguments, gameMap)
 {
     std::cout << "\nAdding goal " << getName();
 }

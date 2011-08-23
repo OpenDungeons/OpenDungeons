@@ -25,7 +25,7 @@ class Socket;
 class GameMap;
 template<typename T> class ProtectedObject;
 
-extern GameMap gameMap;
+//extern GameMap gameMap;
 
 extern sem_t randomGeneratorLockSemaphore;
 extern sem_t lightNumberLockSemaphore;

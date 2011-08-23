@@ -2,20 +2,21 @@
 #include <sstream>
 
 #include "MissileObject.h"
-//#include "Functions.h"
 #include "RenderRequest.h"
 #include "Globals.h"
 #include "RenderManager.h"
 #include "GameMap.h"
 
 
-MissileObject::MissileObject()
+MissileObject::MissileObject(GameMap& gameMap) :
+    gameMap(gameMap)
 {
     initialize();
 }
 
-MissileObject::MissileObject(std::string nMeshName, Ogre::Vector3 nPosition) :
-        meshName(nMeshName)
+MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap& gameMap) :
+        meshName(nMeshName),
+        gameMap(gameMap)
 {
     initialize();
 

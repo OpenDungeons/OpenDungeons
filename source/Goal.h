@@ -7,12 +7,13 @@
 #include <istream>
 
 class Seat;
+class GameMap;
 
 class Goal
 {
     public:
         // Constructors
-        Goal(const std::string& nName, const std::string& nArguments);
+        Goal(const std::string& nName, const std::string& nArguments, const GameMap& gameMap);
 
         // Functions which must be overridden by child classes
         virtual bool isMet(Seat *s) = 0;
@@ -39,15 +40,16 @@ class Goal
 
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Goal *g);
-        static Goal* instantiateFromStream(std::istream& is);
+        static Goal* instantiateFromStream(std::istream& is, const GameMap& gameMap);
 
     protected:
+        const GameMap& gameMap;
         std::string name;
         std::string arguments;
         std::vector<Goal*> successSubGoals;
         std::vector<Goal*> failureSubGoals;
 };
-
+/*
 #include "Seat.h"
 
 #include "GoalKillAllEnemies.h"
@@ -55,6 +57,7 @@ class Goal
 #include "GoalClaimNTiles.h"
 #include "GoalMineNGold.h"
 #include "GoalProtectDungeonTemple.h"
+*/
 
 #endif
 

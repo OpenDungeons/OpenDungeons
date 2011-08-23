@@ -14,6 +14,9 @@
 
 #include <CEGUI.h>
 #include <OIS.h>
+#include <OgreSingleton.h>
+
+class GameMap;
 
 /*! \brief This class holds all GUI related functions
  */

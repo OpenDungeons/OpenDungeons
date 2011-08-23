@@ -26,6 +26,7 @@
 #include "TileCoordinateMap.h"
 #include "MissileObject.h"
 #include "Weapon.h"
+#include "MapLoader.h"
 
 GameMap::GameMap() :
         me(NULL),
@@ -84,7 +85,7 @@ void GameMap::createNewMap(int xSize, int ySize)
     // Loop over all the tiles and force them to examine their
     // neighbors.  This allows them to switch to a mesh with fewer
     // polygons if some are hidden by the neighbors.
-    for(TileMap_t::iterator itr = gameMap.firstTile(), last = gameMap.lastTile();
+    for(TileMap_t::iterator itr = firstTile(), last = lastTile();
             itr != last; ++itr)
     {
         itr->second->setFullness(itr->second->getFullness());
@@ -243,6 +244,7 @@ void GameMap::addTile(Tile *t)
     sem_wait(&tilesLockSemaphore);
     tiles.insert(std::pair<std::pair<int, int> , Tile*> (std::pair<int, int> (t->x, t->y), t));
     sem_post(&tilesLockSemaphore);
+    t->setGameMap(this);
 }
 
 /** \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
@@ -391,6 +393,7 @@ void GameMap::addCreature(Creature *c)
 
     sem_wait(&c->isOnMapLockSemaphore);
     c->isOnMap = true;
+    //c->setGameMap(this); - should be done in the constructor.
     sem_post(&c->isOnMapLockSemaphore);
 }
 
@@ -458,7 +461,7 @@ CreatureClass* GameMap::getClassDescription(std::string query)
 /*! \brief Returns the total number of creatures stored in this game map.
  *
  */
-unsigned int GameMap::numCreatures()
+unsigned int GameMap::numCreatures() const
 {
     sem_wait(&creaturesLockSemaphore);
     unsigned int tempUnsigned = creatures.size();
@@ -605,6 +608,18 @@ Creature* GameMap::getCreature(int index)
     return tempCreature;
 }
 
+/*! \brief Gets the i'th creature in this GameMap. (const version)
+ *
+ */
+const Creature* GameMap::getCreature(int index) const
+{
+    sem_wait(&creaturesLockSemaphore);
+    const Creature *tempCreature = creatures[index];
+    sem_post(&creaturesLockSemaphore);
+
+    return tempCreature;
+}
+
 /*! \brief Gets the i'th class description in this GameMap.
  *
  */
@@ -707,6 +722,28 @@ Creature* GameMap::getCreature(std::string cName)
     return returnValue;
 }
 
+/*! \brief Returns a pointer to the creature whose name matches cName. (const version)
+ *
+ */
+const Creature* GameMap::getCreature(std::string cName) const
+{
+    //TODO: This function should look the name up in a map of creature names onto pointers, care should also be taken to minimize calls to this function.
+    Creature *returnValue = NULL;
+
+    sem_wait(&creaturesLockSemaphore);
+    for (unsigned int i = 0; i < creatures.size(); ++i)
+    {
+        if (creatures[i]->getName().compare(cName) == 0)
+        {
+            returnValue = creatures[i];
+            break;
+        }
+    }
+    sem_post(&creaturesLockSemaphore);
+
+    return returnValue;
+}
+
 /*! \brief Loops over all the creatures and calls their individual doTurn methods, also check goals and do the upkeep.
  *
  */
@@ -740,7 +777,8 @@ void GameMap::doTurn()
         {
             loadNextLevel = false;
             //TODO: The return value from the level load should be checked to make sure it loaded properly.
-            readGameMapFromFile(nextLevel);
+            //TODO: Move this out of the gameMap object
+            MapLoader::readGameMapFromFile(nextLevel, *this);
             createAllEntities();
             me->setSeat(popEmptySeat());
         }
@@ -755,9 +793,9 @@ void GameMap::doTurn()
 
     //TODO: Run a stopwatch during each of these threads to see how long they take to help with the load balancing.
     pthread_t thread1, thread3;
-    pthread_create(&thread1, NULL, GameMap::creatureDoTurnThread, NULL);
+    pthread_create(&thread1, NULL, GameMap::creatureDoTurnThread, static_cast<void*>(this));
     //pthread_create(&thread2, NULL, GameMap::tileUpkeepThread, NULL);
-    pthread_create(&thread3, NULL, GameMap::miscUpkeepThread, NULL);
+    pthread_create(&thread3, NULL, GameMap::miscUpkeepThread, static_cast<void*>(this));
 
     pthread_join(thread3, NULL);
     //pthread_join(thread2, NULL);
@@ -824,13 +862,15 @@ void GameMap::doTurn()
 
 void *GameMap::miscUpkeepThread(void *p)
 {
-    gameMap.miscUpkeepTime = gameMap.doMiscUpkeep();
+    GameMap* gameMap = static_cast<GameMap*>(p);
+    gameMap->miscUpkeepTime = gameMap->doMiscUpkeep();
     return NULL;
 }
 
 void *GameMap::creatureDoTurnThread(void *p)
 {
-    gameMap.creatureTurnsTime = gameMap.doCreatureTurns();
+    GameMap* gameMap = static_cast<GameMap*>(p);
+    gameMap->creatureTurnsTime = gameMap->doCreatureTurns();
     return NULL;
 }
 
@@ -1381,6 +1421,7 @@ bool GameMap::addPlayer(Player *p)
     if (!emptySeats.empty())
     {
         p->setSeat(popEmptySeat());
+        p->setGameMap(this);
         players.push_back(p);
         return true;
     }
@@ -1392,6 +1433,14 @@ bool GameMap::addPlayer(Player *p)
  *
  */
 Player* GameMap::getPlayer(int index)
+{
+    return players[index];
+}
+
+/*! \brief Returns a pointer to the i'th player structure stored by this GameMap. (const version)
+ *
+ */
+const Player* GameMap::getPlayer(int index) const
 {
     return players[index];
 }
@@ -1412,10 +1461,26 @@ Player* GameMap::getPlayer(const std::string& pName)
     return NULL;
 }
 
+/*! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
+ *
+ */
+const Player* GameMap::getPlayer(const std::string& pName) const
+{
+    for (unsigned int i = 0; i < numPlayers(); ++i)
+    {
+        if (players[i]->getNick().compare(pName) == 0)
+        {
+            return players[i];
+        }
+    }
+
+    return NULL;
+}
+
 /*! \brief Returns the number of player structures stored in this GameMap.
  *
  */
-unsigned int GameMap::numPlayers()
+unsigned int GameMap::numPlayers() const
 {
     return players.size();
 }
@@ -1821,6 +1886,7 @@ void GameMap::clearRooms()
 void GameMap::addRoom(Room *r)
 {
     rooms.push_back(r);
+    r->setGameMap(this);
     addActiveObject(r);
 }
 
@@ -1880,6 +1946,19 @@ std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type,
     return returnList;
 }
 
+unsigned int GameMap::numRoomsByTypeAndColor(Room::RoomType type,
+        int color) const
+{
+    unsigned int count = 0;;
+    std::vector<Room*>::const_iterator it;
+    for (it = rooms.begin(); it != rooms.end(); ++it)
+    {
+        if ((*it)->getType() == type && (*it)->color == color)
+            ++count;
+    }
+    return count;
+}
+
 std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec,
         Tile *startTile, Tile::TileClearType passability)
 {
@@ -1916,6 +1995,7 @@ void GameMap::clearTraps()
 void GameMap::addTrap(Trap *t)
 {
     traps.push_back(t);
+    t->setGameMap(this);
     addActiveObject(t);
 }
 
@@ -1927,7 +2007,9 @@ void GameMap::removeTrap(Trap *t)
     {
         if (t == traps[i])
         {
+            t->setGameMap(NULL);
             traps.erase(traps.begin() + i);
+            //TODO: Are the traps actually being deleted?
             break;
         }
     }
@@ -2081,6 +2163,14 @@ Seat* GameMap::getEmptySeat(int index)
     return emptySeats[index];
 }
 
+/** \brief A simple accessor method to return the given Seat. (const version)
+ *
+ */
+const Seat* GameMap::getEmptySeat(int index) const
+{
+    return emptySeats[index];
+}
+
 /** \brief Removes the first empty Seat from the GameMap and returns a pointer to it, this is used when a Player "sits down" at the GameMap.
  *
  */
@@ -2100,7 +2190,7 @@ Seat* GameMap::popEmptySeat()
 /** \brief A simple accessor method to return the number of empty Seats on the GameMap.
  *
  */
-unsigned int GameMap::numEmptySeats()
+unsigned int GameMap::numEmptySeats() const
 {
     return emptySeats.size();
 }
@@ -2122,7 +2212,18 @@ void GameMap::addFilledSeat(Seat *s)
         s->addGoal(getGoalForAllSeats(i));
 }
 
+/** \brief A simple accessor method to return the given filled Seat.
+ *
+ */
 Seat* GameMap::getFilledSeat(int index)
+{
+    return filledSeats[index];
+}
+
+/** \brief A simple accessor method to return the given filled Seat. (const version)
+ *
+ */
+const Seat* GameMap::getFilledSeat(int index) const
 {
     return filledSeats[index];
 }
@@ -2140,7 +2241,7 @@ Seat* GameMap::popFilledSeat()
     return s;
 }
 
-unsigned int GameMap::numFilledSeats()
+unsigned int GameMap::numFilledSeats() const
 {
     return filledSeats.size();
 }
@@ -2217,7 +2318,12 @@ Goal* GameMap::getGoalForAllSeats(unsigned int i)
     return goalsForAllSeats[i];
 }
 
-unsigned int GameMap::numGoalsForAllSeats()
+const Goal* GameMap::getGoalForAllSeats(unsigned int i) const
+{
+    return goalsForAllSeats[i];
+}
+
+unsigned int GameMap::numGoalsForAllSeats() const
 {
     return goalsForAllSeats.size();
 }
@@ -2337,7 +2443,7 @@ unsigned int GameMap::doFloodFill(int startX, int startY,
         color = uniqueFloodFillColor();
 
     // Check to see if we should color the current tile.
-    Tile *tempTile = gameMap.getTile(startX, startY);
+    Tile *tempTile = getTile(startX, startY);
     if (tempTile != NULL)
     {
         // If the tile is walkable, color it.
@@ -2349,7 +2455,7 @@ unsigned int GameMap::doFloodFill(int startX, int startY,
     }
 
     // Get the current tile's neighbors, loop over each of them.
-    std::vector<Tile*> neighbors = gameMap.neighborTiles(startX, startY);
+    std::vector<Tile*> neighbors = neighborTiles(startX, startY);
     for (unsigned int i = 0; i < neighbors.size(); ++i)
     {
         if (neighbors[i]->floodFillColor != color)

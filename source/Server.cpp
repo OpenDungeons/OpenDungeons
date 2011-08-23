@@ -17,6 +17,7 @@
 #include "Creature.h"
 #include "ODApplication.h"
 #include "LogManager.h"
+#include "Seat.h"
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
@@ -153,6 +154,7 @@ ChatMessage *processChatMessage(std::string arguments)
 // THREAD - This function is meant to be called by pthread_create.
 void *creatureAIThread(void *p)
 {
+    GameMap* gameMap = static_cast<GameMap*>(p);
     double timeUntilNextTurn = 1.0 / ODApplication::turnsPerSecond;
     Ogre::Timer stopwatch;
     unsigned long int timeTaken;
@@ -181,11 +183,11 @@ void *creatureAIThread(void *p)
         }
 
         // Go to each creature and call their individual doTurn methods
-        gameMap.doTurn();
+        gameMap->doTurn();
         timeUntilNextTurn = 1.0 / ODApplication::turnsPerSecond;
 
         timeTaken = stopwatch.getMicroseconds();
-        gameMap.previousLeftoverTimes.push_front((1e6 * timeUntilNextTurn
+        gameMap->previousLeftoverTimes.push_front((1e6 * timeUntilNextTurn
                 - timeTaken) / (double) 1e6);
 
 
@@ -211,17 +213,17 @@ void *creatureAIThread(void *p)
         if(logManager->getLogDetail() == Ogre::LL_BOREME)
         {
             std::stringstream ss;
-            ss << "\nThe Creature AI thread took:  " << gameMap.creatureTurnsTime
+            ss << "\nThe Creature AI thread took:  " << gameMap->creatureTurnsTime
                 / (double) 1e6;
-            ss << "\nThe misc upkeep thread took:  " << gameMap.miscUpkeepTime
+            ss << "\nThe misc upkeep thread took:  " << gameMap->miscUpkeepTime
                     / (double) 1e6;
             ss << "\n";
             logManager->logMessage(ss.str());
         }
 
 
-        if (gameMap.previousLeftoverTimes.size() > 10)
-            gameMap.previousLeftoverTimes.resize(10);
+        if (gameMap->previousLeftoverTimes.size() > 10)
+            gameMap->previousLeftoverTimes.resize(10);
         //If requested, we finish the thread.
         if(ODFrameListener::getSingleton().getThreadStopRequested())
         {
@@ -245,6 +247,7 @@ void *creatureAIThread(void *p)
 void *serverNotificationProcessor(void *p)
 {
     ODFrameListener *frameListener = ((SNPStruct*) p)->nFrameListener;
+    GameMap* gameMap = frameListener->getGameMap();
     delete (SNPStruct*) p;
     p = NULL;
 
@@ -382,7 +385,7 @@ void *serverNotificationProcessor(void *p)
         }
 
         // Decrement the number of outstanding references to things from the turn number the event was queued on.
-        gameMap.threadUnlockForTurn(event->turnNumber);
+        gameMap->threadUnlockForTurn(event->turnNumber);
 
         delete event;
         event = NULL;
@@ -409,6 +412,7 @@ void *clientHandlerThread(void *p)
     delete (CHTStruct*) p;
     p = NULL;
 
+    GameMap* gameMap = frameListener->getGameMap();
     std::string clientNick = "UNSET_CLIENT_NICKNAME";
     std::string clientCommand, arguments;
     std::string tempString, tempString2;
@@ -470,7 +474,7 @@ void *clientHandlerThread(void *p)
             //TODO:  negotiate and set a color
             curPlayer = new Player;
             curPlayer->setNick(clientNick);
-            gameMap.addPlayer(curPlayer);
+            gameMap->addPlayer(curPlayer);
 
             curSock->send(formatCommand("newmap", ""));
 
@@ -484,11 +488,11 @@ void *clientHandlerThread(void *p)
             curSock->send(formatCommand("turnsPerSecond", tempSS.str()));
 
             // Send over the information about the players in the game
-            curSock->send(formatCommand("addplayer", gameMap.me->getNick()));
-            for (unsigned int i = 0; i < gameMap.numPlayers(); ++i)
+            curSock->send(formatCommand("addplayer", gameMap->getLocalPlayer()->getNick()));
+            for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
             {
                 // Don't tell the client about its own player structure
-                Player *tempPlayer = gameMap.getPlayer(i);
+                Player *tempPlayer = gameMap->getPlayer(i);
                 if (curPlayer != tempPlayer && tempPlayer != NULL)
                 {
                     tempSS.str("");
@@ -505,8 +509,8 @@ void *clientHandlerThread(void *p)
 
             // Send over the map tiles from the current game map.
             //TODO: Only send the tiles which the client is supposed to see due to fog of war.
-            TileMap_t::iterator itr = gameMap.firstTile();
-            while (itr != gameMap.lastTile())
+            TileMap_t::iterator itr = gameMap->firstTile();
+            while (itr != gameMap->lastTile())
             {
                 tempSS.str("");
                 tempSS << itr->second;
@@ -518,20 +522,20 @@ void *clientHandlerThread(void *p)
 
             // Send over the map lights from the current game map.
             //TODO: Only send the maplights which the client is supposed to see due to the fog of war.
-            for (unsigned int i = 0; i < gameMap.numMapLights(); ++i)
+            for (unsigned int i = 0; i < gameMap->numMapLights(); ++i)
             {
                 tempSS.str("");
-                tempSS << gameMap.getMapLight(i);
+                tempSS << gameMap->getMapLight(i);
                 curSock->send(formatCommand("addmaplight", tempSS.str()));
                 ++itr;
             }
 
             // Send over the rooms in use on the current game map
             //TODO: Only send the classes which the client is supposed to see due to fog of war.
-            for (unsigned int i = 0; i < gameMap.numRooms(); ++i)
+            for (unsigned int i = 0; i < gameMap->numRooms(); ++i)
             {
                 tempSS.str("");
-                tempSS << gameMap.getRoom(i);
+                tempSS << gameMap->getRoom(i);
                 curSock->send(formatCommand("addroom", tempSS.str()));
                 // Throw away the ok response
                 curSock->recv(tempString);
@@ -539,11 +543,11 @@ void *clientHandlerThread(void *p)
 
             // Send over the class descriptions in use on the current game map
             //TODO: Only send the classes which the client is supposed to see due to fog of war.
-            for (unsigned int i = 0; i < gameMap.numClassDescriptions(); ++i)
+            for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
             {
                 //NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
                 // Changes to this code should be reflected in that code as well
-                CreatureClass *tempClass = gameMap.getClassDescription(i);
+                CreatureClass *tempClass = gameMap->getClassDescription(i);
 
                 tempSS.str("");
 
@@ -557,9 +561,9 @@ void *clientHandlerThread(void *p)
 
             // Send over the actual creatures in use on the current game map
             //TODO: Only send the creatures which the client is supposed to see due to fog of war.
-            for (unsigned int i = 0; i < gameMap.numCreatures(); ++i)
+            for (unsigned int i = 0; i < gameMap->numCreatures(); ++i)
             {
-                Creature *tempCreature = gameMap.getCreature(i);
+                Creature *tempCreature = gameMap->getCreature(i);
 
                 tempSS.str("");
 
@@ -603,8 +607,8 @@ void *clientHandlerThread(void *p)
             tempSS.getline(array, sizeof(array));
             std::string creatureName = array;
 
-            Player *tempPlayer = gameMap.getPlayer(playerNick);
-            Creature *tempCreature = gameMap.getCreature(creatureName);
+            Player *tempPlayer = gameMap->getPlayer(playerNick);
+            Creature *tempCreature = gameMap->getCreature(creatureName);
 
             if (tempPlayer != NULL && tempCreature != NULL)
             {
@@ -627,8 +631,8 @@ void *clientHandlerThread(void *p)
             tempSS.getline(array, sizeof(array));
             int tempY = atoi(array);
 
-            Player *tempPlayer = gameMap.getPlayer(playerNick);
-            Tile *tempTile = gameMap.getTile(tempX, tempY);
+            Player *tempPlayer = gameMap->getPlayer(playerNick);
+            Tile *tempTile = gameMap->getTile(tempX, tempY);
 
             if (tempPlayer != NULL && tempTile != NULL)
             {
@@ -649,10 +653,10 @@ void *clientHandlerThread(void *p)
             tempSS.getline(array, sizeof(array));
             std::string flagName = array;
 
-            Tile *tempTile = gameMap.getTile(tempX, tempY);
+            Tile *tempTile = gameMap->getTile(tempX, tempY);
             if (tempTile != NULL)
             {
-                Player *tempPlayer = gameMap.getPlayer(clientNick);
+                Player *tempPlayer = gameMap->getPlayer(clientNick);
                 if (tempPlayer != NULL)
                 {
                     bool flag;

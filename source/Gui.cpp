@@ -8,13 +8,14 @@
 #include <RendererModules/Ogre/CEGUIOgreRenderer.h>
 
 #include "Globals.h"
-#include "Functions.h"
+#include "MapLoader.h"
 #include "ODFrameListener.h"
 #include "GameMap.h"
 #include "Player.h"
 #include "Trap.h"
 #include "TextRenderer.h"
 #include "ODApplication.h"
+#include "Functions.h"
 
 #include "Gui.h"
 
@@ -123,61 +124,69 @@ void Gui::assignEventHandlers()
 
 bool Gui::quitButtonPressed(const CEGUI::EventArgs& e)
 {
-    writeGameMapToFile(std::string("levels/Test.level") + std::string(".out"));
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    MapLoader::writeGameMapToFile(std::string("levels/Test.level") + std::string(".out"), *gameMap);
     ODFrameListener::getSingletonPtr()->requestExit();
     return true;
 }
 
 bool Gui::quartersButtonPressed(const CEGUI::EventArgs& e)
 {
-    gameMap.me->newRoomType = Room::quarters;
-    gameMap.me->newTrapType = Trap::nullTrapType;
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    gameMap->getLocalPlayer()->newRoomType = Room::quarters;
+    gameMap->getLocalPlayer()->newTrapType = Trap::nullTrapType;
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "quarters");
     return true;
 }
 
 bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
 {
-    gameMap.me->newRoomType = Room::treasury;
-    gameMap.me->newTrapType = Trap::nullTrapType;
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    gameMap->getLocalPlayer()->newRoomType = Room::treasury;
+    gameMap->getLocalPlayer()->newTrapType = Trap::nullTrapType;
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "treasury");
     return true;
 }
 
 bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
 {
-    gameMap.me->newRoomType = Room::forge;
-    gameMap.me->newTrapType = Trap::nullTrapType;
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    gameMap->getLocalPlayer()->newRoomType = Room::forge;
+    gameMap->getLocalPlayer()->newTrapType = Trap::nullTrapType;
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "forge");
     return true;
 }
 
 bool Gui::dojoButtonPressed(const CEGUI::EventArgs& e)
 {
-    gameMap.me->newRoomType = Room::dojo;
-    gameMap.me->newTrapType = Trap::nullTrapType;
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    gameMap->getLocalPlayer()->newRoomType = Room::dojo;
+    gameMap->getLocalPlayer()->newTrapType = Trap::nullTrapType;
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "dojo");
     return true;
 }
 
 bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 {
-    gameMap.me->newRoomType = Room::nullRoomType;
-    gameMap.me->newTrapType = Trap::cannon;
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    gameMap->getLocalPlayer()->newRoomType = Room::nullRoomType;
+    gameMap->getLocalPlayer()->newTrapType = Trap::cannon;
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "cannon");
     return true;
 }
 
 bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 {
-    return startServer();
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    return startServer(*gameMap);
 }
 
 //! \brief What happens after a click on New Game in the main menu
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     Gui::getSingletonPtr()->loadGuiSheet(ingameMenu);
-    return startServer();
+    return startServer(*gameMap);
 }
 
 bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)

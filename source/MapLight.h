@@ -76,13 +76,14 @@ class TemporaryMapLight: public MapLight, public ActiveObject
     public:
         TemporaryMapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
                 Ogre::Real green, Ogre::Real blue, Ogre::Real range,
-                Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic);
+                Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic, GameMap& gameMap);
         bool isPermanent() const;
 
         bool doUpkeep();
 
     protected:
         int turnsUntilDestroyed;
+        GameMap& gameMap;
         //int originalTurnsUntilDestroyed;
 };
 

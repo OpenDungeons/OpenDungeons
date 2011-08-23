@@ -11,6 +11,8 @@
 
 #include <Ogre.h>
 
+class GameMap;
+
 /*! Base class which manages the startup of OpenDungeons.
  */
 class ODApplication : public Ogre::Singleton<ODApplication>
@@ -20,6 +22,8 @@ class ODApplication : public Ogre::Singleton<ODApplication>
 
         inline Ogre::Root* getRoot()const {return root;}
         inline Ogre::RenderWindow* getWindow()const {return window;}
+
+        static void displayErrorMessage(const std::string& message, bool log = true);
 
         static const unsigned int PORT_NUMBER;
         static const double DEFAULT_FRAMES_PER_SECOND;
@@ -36,6 +40,9 @@ class ODApplication : public Ogre::Singleton<ODApplication>
         ~ODApplication();
         Ogre::Root* root;
         Ogre::RenderWindow* window;
+
+        //TODO: this should not be created here.
+        GameMap* gameMap;
 
         void cleanUp();
 };

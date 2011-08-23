@@ -8,14 +8,15 @@
 #include <ostream>
 
 class Room;
+class GameMap;
 
 class RoomObject: public ActiveObject, public AnimatedObject
 {
     public:
-        RoomObject(Room *nParentRoom, std::string nMeshName);
+        RoomObject(Room* nParentRoom, const std::string& nMeshName);
 
         const std::string& getName() const {return name;}
-        std::string getMeshName(){return meshName;}
+        const std::string& getMeshName(){return meshName;}
 
         Room* getParentRoom();
 
@@ -25,7 +26,7 @@ class RoomObject: public ActiveObject, public AnimatedObject
 
         std::string getOgreNamePrefix();
 
-        static std::string getFormat();
+        static const char* getFormat();
         friend std::ostream& operator<<(std::ostream& os, RoomObject *o);
         friend std::istream& operator>>(std::istream& is, RoomObject *o);
 

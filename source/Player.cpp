@@ -11,18 +11,18 @@
 #include "RenderManager.h"
 
 Player::Player() :
-        nick(""),
         humanPlayer(true),
-        seat(NULL),
         newRoomType(Room::nullRoomType),
-        newTrapType(Trap::nullTrapType)
+        newTrapType(Trap::nullTrapType),
+        seat(NULL),
+        nick("")
 {
 }
 
 /** \brief A simple accessor function to return the number of creatures this player is holding in their hand.
  *
  */
-unsigned int Player::numCreaturesInHand()
+unsigned int Player::numCreaturesInHand() const
 {
     return creaturesInHand.size();
 }
@@ -31,6 +31,14 @@ unsigned int Player::numCreaturesInHand()
  *
  */
 Creature* Player::getCreatureInHand(int i)
+{
+    return creaturesInHand[i];
+}
+
+/** \brief A simple accessor function to return a pointer to the i'th creature in the players hand. (const version)
+ *
+ */
+const Creature* Player::getCreatureInHand(int i) const
 {
     return creaturesInHand[i];
 }
@@ -71,7 +79,7 @@ void Player::pickUpCreature(Creature *c)
         return;
 
     // Stop the creature walking and take it off the gameMap to prevent the AI from running on it.
-    gameMap.removeCreature(c);
+    gameMap->removeCreature(c);
     c->clearDestinations();
     c->clearActionQueue();
 
@@ -100,7 +108,7 @@ void Player::pickUpCreature(Creature *c)
 
         // If it is actually the user picking up a creature we move the scene node and inform
         // the server, otherwise we just hide the creature from the map.
-        if (this == gameMap.me)
+        if (this == gameMap->getLocalPlayer())
         {
             // Send a render request to move the crature into the "hand"
             RenderRequest *request = new RenderRequest;
@@ -156,17 +164,17 @@ bool Player::dropCreature(Tile *t)
         //FIXME:  This could be a race condition, if the tile state changes on the server before the client knows about it.
         if (t->getFullness() < 1 && ((tempCreature->digRate > 0.1
                 && t->getType() == Tile::dirt) || (t->getType()
-                == Tile::claimed && t->getColor() == gameMap.me->seat->color)))
+                == Tile::claimed && t->getColor() == gameMap->getLocalPlayer()->getSeat()->getColor())))
         {
             // Add the creature to the map
             Creature *c = creaturesInHand[0];
             creaturesInHand.erase(creaturesInHand.begin());
-            gameMap.addCreature(c);
+            gameMap->addCreature(c);
 
             // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
-            //cout << "\nthis:  " << this << "\nme:  " << gameMap.me << endl;
+            //cout << "\nthis:  " << this << "\nme:  " << gameMap->getLocalPlayer() << endl;
             //cout.flush();
-            if (this != gameMap.me)
+            if (this != gameMap->getLocalPlayer())
             {
                 c->createMesh();
                 c->weaponL->createMesh();
@@ -187,7 +195,7 @@ bool Player::dropCreature(Tile *t)
 			c->setPosition(static_cast<Ogre::Real>(t->x), 
 				static_cast<Ogre::Real>(t->y), 0.0);
 
-            if (this == gameMap.me)
+            if (this == gameMap->getLocalPlayer())
             {
                 if (serverSocket != NULL)
                 {
@@ -202,7 +210,7 @@ bool Player::dropCreature(Tile *t)
                 }
                 else
                 {
-                    if (clientSocket != NULL && this == gameMap.me)
+                    if (clientSocket != NULL && this == gameMap->getLocalPlayer())
                     {
                         // Send a message to the server telling it we dropped this creature
                         ClientNotification *clientNotification =

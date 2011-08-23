@@ -7,6 +7,7 @@
 #include <semaphore.h>
 #include <Ogre.h>
 
+class GameMap;
 class Creature;
 class RoomDojo;
 class Weapon;
@@ -36,7 +37,7 @@ class Window;
 class Creature: public CreatureClass, public AttackableObject
 {
     public:
-        Creature();
+        Creature(GameMap* gameMap);
         //~Creature();
 
         // Individual properties
@@ -64,12 +65,14 @@ class Creature: public CreatureClass, public AttackableObject
         void setPosition(const Ogre::Vector3& v);
 
         void setHP(double nHP);
+        //FIXME: Why is tile a parameter here? It's not used.
         double getHP(Tile *tile);
+        double getHP() const;
 
         void setMana(double nMana);
-        double getMana();
+        double getMana() const;
 
-        double getMoveSpeed();
+        double getMoveSpeed() const;
 
         // AI stuff
         virtual void doTurn();
@@ -128,6 +131,8 @@ class Creature: public CreatureClass, public AttackableObject
         int deathCounter;
 
     private:
+        
+        
         // Private functions
         void pushAction(CreatureAction action);
         void popAction();
@@ -135,9 +140,9 @@ class Creature: public CreatureClass, public AttackableObject
 
         // Private data members
         double hp;
-        sem_t hpLockSemaphore;
+        mutable sem_t hpLockSemaphore;
         double mana;
-        sem_t manaLockSemaphore;
+        mutable sem_t manaLockSemaphore;
         int gold;
         std::deque<CreatureAction> actionQueue;
         sem_t actionQueueLockSemaphore;

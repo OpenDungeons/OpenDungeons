@@ -8,7 +8,8 @@
 #ifndef MINIMAP_H_
 #define MINIMAP_H_
 
-#include <Ogre.h>
+#include <OgreTexture.h>
+#include <OgreSingleton.h>
 
 class MiniMap : public Ogre::Singleton<MiniMap>
 {
@@ -20,7 +21,7 @@ class MiniMap : public Ogre::Singleton<MiniMap>
         MiniMap(const MiniMap&);
 
         Ogre::TexturePtr miniMapOgreTexture;
-        int width, height;
+        Ogre::uint width, height;
 };
 
 #endif /* MINIMAP_H_ */

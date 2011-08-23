@@ -28,7 +28,7 @@ class SceneNode;
 class RenderManager: public Ogre::Singleton<RenderManager>
 {
     public:
-        RenderManager(GameMap* gameMap);
+        RenderManager();
         ~RenderManager();
 
         void setSceneNodes(Ogre::SceneNode* roomSceneNode,
@@ -36,6 +36,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
 
         inline Ogre::Camera* getCamera()const {return mainCamera;}
         inline Ogre::SceneManager* getSceneManager()const {return sceneManager;}
+        inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;}
 
         void processRenderRequests();
         void updateAnimations();

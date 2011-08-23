@@ -10,11 +10,13 @@
 #include "ActiveObject.h"
 #include "AnimatedObject.h"
 
+class GameMap;
+
 class MissileObject: public ActiveObject, public AnimatedObject
 {
     public:
-        MissileObject();
-        MissileObject(std::string nMeshName, Ogre::Vector3 nPosition);
+        MissileObject(GameMap& gameMap);
+        MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap& gameMap);
         void initialize();
 
         void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
@@ -40,6 +42,7 @@ class MissileObject: public ActiveObject, public AnimatedObject
         virtual void stopWalking();
 
     private:
+        GameMap& gameMap;
         std::deque<Ogre::Vector3> walkQueue;
         Ogre::Vector3 position;
         sem_t positionLockSemaphore;

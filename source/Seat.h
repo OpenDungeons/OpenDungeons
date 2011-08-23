@@ -38,6 +38,7 @@ class Seat
         void rawSetNumClaimedTiles(const unsigned int& num){numClaimedTiles = num;}
         bool getHasGoalsChanged();
         void resetGoalsChanged();
+        inline int getColor() const {return color;}
         
 
         // Public data members

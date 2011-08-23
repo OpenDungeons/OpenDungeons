@@ -5,10 +5,11 @@
 #include "GoalClaimNTiles.h"
 #include "GameMap.h"
 #include "Player.h"
+#include "Seat.h"
 
 GoalClaimNTiles::GoalClaimNTiles(const std::string& nName,
-        const std::string& nArguments) :
-        Goal(nName, nArguments),
+        const std::string& nArguments, const GameMap& gameMap) :
+        Goal(nName, nArguments, gameMap),
         numberOfTiles(atoi(nArguments.c_str()))
 {
     std::cout << "\nAdding goal " << getName();

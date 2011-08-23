@@ -28,6 +28,7 @@
 #include "ODApplication.h"
 #include "ResourceManager.h"
 #include "Seat.h"
+#include "MapLoader.h"
 
 #include "RenderManager.h"
 #include "LogManager.h"
@@ -36,7 +37,7 @@ template<> RenderManager* Ogre::Singleton<RenderManager>::ms_Singleton = 0;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 
-RenderManager::RenderManager(GameMap* gameMap) :
+RenderManager::RenderManager() :
         roomSceneNode(0),
         creatureSceneNode(0),
         lightSceneNode(0),
@@ -47,8 +48,6 @@ RenderManager::RenderManager(GameMap* gameMap) :
 {
     sem_init(&renderQueueSemaphore, 0, 1);
     sem_init(&renderQueueEmptySemaphore, 0, 0);
-
-    this->gameMap = gameMap;
 
     //Initialise RTshader system
     if (!Ogre::RTShader::ShaderGenerator::initialize()) {
@@ -97,8 +96,16 @@ void RenderManager::createScene()
     //Set up the shader generator
     shaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
     //shaderGenerator->setTargetLanguage("glsl");
-    //Ogre::ResourceGroupManager::getSingleton().addResourceLocation(); //this might be needed
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+        ResourceManager::getSingleton().getShaderCachePath(), "FileSystem", "Graphics");
+
+    //FIXME - this is a workaround for an issue where the shader cache files are not found.
+    //Haven't found out why this started happening. Think it worked in 3faa1aa285df504350f9704bdf20eb851fc5be3d
+    //atleast.
+    Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
+        ResourceManager::getSingleton().getShaderCachePath() + "../", "FileSystem", "Graphics");
     shaderGenerator->setShaderCachePath(ResourceManager::getSingleton().getShaderCachePath());
+    
     shaderGenerator->addSceneManager(sceneManager);
 
     viewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
@@ -124,7 +131,7 @@ void RenderManager::createScene()
     }
 
     gameMap->levelFileName = "Test";
-    readGameMapFromFile(levelPath);
+    MapLoader::readGameMapFromFile(levelPath, *gameMap);
 
     rtssTest();
 

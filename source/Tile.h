@@ -5,9 +5,8 @@
 #include <vector>
 #include <ostream>
 #include <istream>
-#include <OgreSceneManager.h>
 #include <semaphore.h>
-
+#include <OgrePrerequisites.h>
 
 
 class Tile;
@@ -15,6 +14,7 @@ class Creature;
 class Player;
 class Room;
 class MapLight;
+class GameMap;
 
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
@@ -49,13 +49,13 @@ class Tile
         void initialize();
 
         void setType(TileType t);
-        TileType getType();
+        TileType getType() const;
 
         void setFullness(double f);
-        double getFullness();
-        int getFullnessMeshNumber();
-        TileClearType getTilePassability();
-        bool permitsVision();
+        double getFullness() const;
+        int getFullnessMeshNumber() const;
+        TileClearType getTilePassability() const;
+        bool permitsVision() const;
 
         static const char* tileTypeToString(TileType t);
         static TileType nextTileType(TileType t);
@@ -68,7 +68,7 @@ class Tile
         void deleteYourself();
 
         void setSelected(bool s);
-        bool getSelected();
+        bool getSelected() const;
 
         void setMarkedForDigging(bool s, Player *p);
         void setMarkedForDiggingForAllSeats(bool s);
@@ -76,12 +76,12 @@ class Tile
 
         void addCreature(Creature *c);
         void removeCreature(Creature *c);
-        unsigned numCreaturesInCell();
+        unsigned numCreaturesInCell() const;
         Creature* getCreature(int index);
 
         void addPlayerMarkingTile(Player *p);
         void removePlayerMarkingTile(Player *p);
-        unsigned numPlayersMarkingTile();
+        unsigned numPlayersMarkingTile() const;
         Player* getPlayerMarkingTile(int index);
 
         void addNeighbor(Tile *n);Tile* getNeighbor(unsigned index);
@@ -93,19 +93,21 @@ class Tile
 
         Room* getCoveringRoom();
         void setCoveringRoom(Room *r);
-		bool getCoveringTrap();
+		bool getCoveringTrap() const;
 		void setCoveringTrap(bool t);
 
-        bool isDiggable();
-        bool isClaimable();
-        bool isBuildableUpon();
+        bool isDiggable() const;
+        bool isClaimable() const;
+        bool isBuildableUpon() const;
 
-        static std::string getFormat();
+        static const char* getFormat();
         friend std::ostream& operator<<(std::ostream& os, Tile *t);
         friend std::istream& operator>>(std::istream& is, Tile *t);
 
-        int getColor();
+        int getColor() const;
         void setColor(int nColor);
+
+        void setGameMap(GameMap* gameMap);
 
         // Public datamembers
         //Vector3 location;
@@ -116,23 +118,29 @@ class Tile
         std::string name;
 
     private:
+        void setFullnessValue(double f);
         // Private datamembers
         TileType type;
         bool selected, markedForDigging;
+        
         double fullness;
-        sem_t fullnessLockSemaphore;
         int fullnessMeshNumber;
+        bool meshesExist;
+        
         std::vector<Tile*> neighbors;
-        sem_t neighborsLockSemaphore;
         std::vector<Creature*> creaturesInCell;
-        sem_t creaturesInCellLockSemaphore;
         std::vector<Player*> playersMarkingTile;
         Room *coveringRoom;
-        sem_t coveringRoomLockSemaphore;
         bool coveringTrap;
         MapLight *claimLight;
+        
+        mutable sem_t fullnessLockSemaphore;
+        mutable sem_t creaturesInCellLockSemaphore;
+        mutable sem_t coveringRoomLockSemaphore;
         sem_t claimLightLockSemaphore;
-        bool meshesExist;
+        sem_t neighborsLockSemaphore;
+        
+        GameMap* gameMap;
 
         int color;
 };

@@ -8,6 +8,8 @@
 #include <iostream>
 #include <algorithm>
 
+#include <CEGUI.h>
+
 #include "Globals.h"
 #include "Socket.h"
 #include "Functions.h"
@@ -22,7 +24,7 @@
 #include "SoundEffectsHelper.h"
 #include "Weapon.h"
 #include "MapLight.h"
-#include "Goal.h"
+#include "AllGoals.h"
 #include "ClientNotification.h"
 #include "CreatureAction.h"
 #include "CreatureSound.h"
@@ -31,12 +33,13 @@
 #include "MusicPlayer.h"
 #include "RenderManager.h"
 #include "ResourceManager.h"
-#include "Gui.h"
 #include "ODApplication.h"
 #include "GameState.h"
 #include "LogManager.h"
 #include "InputManager.h"
 #include "CameraManager.h"
+#include "MapLoader.h"
+#include "Seat.h"
 
 #include "ODFrameListener.h"
 
@@ -52,7 +55,7 @@ template<> ODFrameListener*
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
         chatMaxMessages(10),
         chatMaxTimeDisplay(20),
         mContinue(true),
@@ -62,10 +65,15 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         terminalActive(false),
         terminalWordWrap(78),
         sfxHelper(SoundEffectsHelper::getSingletonPtr()),
-        lastTurnDisplayUpdated(-1)
+        lastTurnDisplayUpdated(-1),
+        gameMap(gameMap)
 {
-    gameMap.me = new Player;
-    gameMap.me->setNick("defaultNickName");
+
+    //FIXME: this should be changed to a function or something.
+    gameMap->me = new Player();
+    gameMap->me->setGameMap(gameMap);
+    gameMap->me->setNick("defaultNickName");
+    
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Creature_scene_node");
@@ -77,7 +85,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
             "Light_scene_node");
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
-    inputManager = new InputManager();
+    inputManager = new InputManager(gameMap);
 
     //Set initial mouse clipping size
     windowResized(mWindow);
@@ -216,7 +224,7 @@ void ODFrameListener::exitApplication()
     Ogre::LogManager::getSingleton().logMessage("Trying to cancel server thread..", Ogre::LML_NORMAL);
     pthread_cancel(serverThread);
     Ogre::LogManager::getSingleton().logMessage("Clearing game map..", Ogre::LML_NORMAL);
-    gameMap.clearAll();
+    gameMap->clearAll();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
 
     //Remove ourself as a Window listener
@@ -256,7 +264,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     //NOTE:  If this function exits early the corresponding unlock function must be called.
     long int currentTurnNumber = turnNumber.get();
-    gameMap.threadLockForTurn(currentTurnNumber);
+    gameMap->threadLockForTurn(currentTurnNumber);
 
     MusicPlayer::getSingletonPtr()->update();
     renderManager->processRenderRequests();
@@ -311,10 +319,10 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     {
         turnString = "On average the creature AI is finishing ";
         turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
-                gameMap.averageAILeftoverTime)).substr(0, 4) + " s ";
-        turnString += (gameMap.averageAILeftoverTime >= 0.0 ? "early" : "late");
+                gameMap->averageAILeftoverTime)).substr(0, 4) + " s ";
+        turnString += (gameMap->averageAILeftoverTime >= 0.0 ? "early" : "late");
         double maxTps = 1.0 / ((1.0 / ODApplication::turnsPerSecond)
-                - gameMap.averageAILeftoverTime);
+                - gameMap->averageAILeftoverTime);
         turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
                 static_cast<Ogre::Real>(maxTps)).substr(0, 4);
         turnString += "\nFPS: " + Ogre::StringConverter::toString(
@@ -329,9 +337,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             + "\n" + (!chatMessages.empty() ? chatString : nullString));
 
     // Update the animations on any AnimatedObjects which have them
-    for (unsigned int i = 0; i < gameMap.numAnimatedObjects(); ++i)
+    for (unsigned int i = 0; i < gameMap->numAnimatedObjects(); ++i)
     {
-        AnimatedObject *currentAnimatedObject = gameMap.getAnimatedObject(i);
+        AnimatedObject *currentAnimatedObject = gameMap->getAnimatedObject(i);
 
         // Advance the animation
         if (currentAnimatedObject->animationState != NULL)
@@ -403,9 +411,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     }
 
     // Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
-    for (unsigned int i = 0; i < gameMap.numMapLights(); ++i)
+    for (unsigned int i = 0; i < gameMap->numMapLights(); ++i)
     {
-        MapLight *tempMapLight = gameMap.getMapLight(i);
+        MapLight *tempMapLight = gameMap->getMapLight(i);
         tempMapLight->advanceFlicker(evt.timeSinceLastFrame);
     }
 
@@ -421,7 +429,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         if(lastTurnDisplayUpdated < currentTurnNumber)
         {
             lastTurnDisplayUpdated = currentTurnNumber;
-            Seat *mySeat = gameMap.me->getSeat();
+            Seat *mySeat = gameMap->me->getSeat();
 
             CEGUI::WindowManager *windowManager =
                     CEGUI::WindowManager::getSingletonPtr();
@@ -429,13 +437,13 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             CEGUI::Window *tempWindow = windowManager->getWindow(
                     (CEGUI::utf8*) "Root/TerritoryDisplay");
             tempSS.str("");
-            tempSS << gameMap.me->getSeat()->getNumClaimedTiles();
+            tempSS << gameMap->me->getSeat()->getNumClaimedTiles();
             tempWindow->setText(tempSS.str());
 
             tempWindow
                     = windowManager->getWindow((CEGUI::utf8*) "Root/GoldDisplay");
             tempSS.str("");
-            tempSS << gameMap.me->getSeat()->gold;
+            tempSS << gameMap->me->getSeat()->gold;
             tempWindow->setText(tempSS.str());
 
             tempWindow
@@ -446,46 +454,46 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             tempWindow->setText(tempSS.str());
 
 
-            if (isInGame())// && gameMap.me->seat->getHasGoalsChanged())
+            if (isInGame())// && gameMap->me->seat->getHasGoalsChanged())
             {
-                gameMap.me->getSeat()->resetGoalsChanged();
+                gameMap->me->getSeat()->resetGoalsChanged();
                 // Update the goals display in the message window.
                 tempWindow = windowManager->getWindow(
                         (CEGUI::utf8*) "Root/MessagesDisplayWindow");
                 tempSS.str("");
-                bool iAmAWinner = gameMap.seatIsAWinner(gameMap.me->getSeat());
+                bool iAmAWinner = gameMap->seatIsAWinner(gameMap->me->getSeat());
 
-                if (gameMap.me->getSeat()->numGoals() > 0)
+                if (gameMap->me->getSeat()->numGoals() > 0)
                 {
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS << "Unfinished Goals:\n---------------------\n";
-                    for (unsigned int i = 0; i < gameMap.me->getSeat()->numGoals(); ++i)
+                    for (unsigned int i = 0; i < gameMap->me->getSeat()->numGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->getSeat()->getGoal(i);
+                        Goal *tempGoal = gameMap->me->getSeat()->getGoal(i);
                         tempSS << tempGoal->getDescription() << "\n";
                     }
                 }
 
-                if (gameMap.me->getSeat()->numCompletedGoals() > 0)
+                if (gameMap->me->getSeat()->numCompletedGoals() > 0)
                 {
                     // Loop over the list of completed goals for the seat we are sitting in an print them.
                     tempSS << "\n\nCompleted Goals:\n---------------------\n";
                     for (unsigned int i = 0; i
-                            < gameMap.me->getSeat()->numCompletedGoals(); ++i)
+                            < gameMap->me->getSeat()->numCompletedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->getSeat()->getCompletedGoal(i);
+                        Goal *tempGoal = gameMap->me->getSeat()->getCompletedGoal(i);
                         tempSS << tempGoal->getSuccessMessage() << "\n";
                     }
                 }
 
-                if (gameMap.me->getSeat()->numFailedGoals() > 0)
+                if (gameMap->me->getSeat()->numFailedGoals() > 0)
                 {
                     // Loop over the list of completed goals for the seat we are sitting in an print them.
                     tempSS
                             << "\n\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
-                    for (unsigned int i = 0; i < gameMap.me->getSeat()->numFailedGoals(); ++i)
+                    for (unsigned int i = 0; i < gameMap->me->getSeat()->numFailedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->getSeat()->getFailedGoal(i);
+                        Goal *tempGoal = gameMap->me->getSeat()->getFailedGoal(i);
                         tempSS << tempGoal->getFailedMessage() << "\n";
                     }
                 }
@@ -496,7 +504,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                             << "\nCongratulations, you have completed this level.\nOpen the terminal and run the \'next\'\n";
                     tempSS
                             << "command to move on to move on to the next level.\n\nThe next level is:  "
-                            << gameMap.nextLevel;
+                            << gameMap->nextLevel;
                 }
                 tempWindow->setText(tempSS.str());
             }
@@ -504,7 +512,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     }
 
     // Decrement the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
-    gameMap.threadUnlockForTurn(currentTurnNumber);
+    gameMap->threadUnlockForTurn(currentTurnNumber);
 
     //Need to capture/update each device
     inputManager->getKeyboard()->capture();
@@ -634,15 +642,15 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         {
             commandOutput
                     += "No level name given: saving over the last loaded level: "
-                            + gameMap.levelFileName + "\n\n";
-            arguments = gameMap.levelFileName;
+                            + gameMap->levelFileName + "\n\n";
+            arguments = gameMap->levelFileName;
         }
 
         string tempFileName = "levels/" + arguments + ".level";
-        writeGameMapToFile(tempFileName);
+        MapLoader::writeGameMapToFile(tempFileName, *gameMap);
         commandOutput += "\nFile saved to   " + tempFileName + "\n";
 
-        gameMap.levelFileName = arguments;
+        gameMap->levelFileName = arguments;
     }
 
     // Clear the current level and load a new one from a file
@@ -652,8 +660,8 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         {
             commandOutput
                     += "No level name given: loading the last loaded level: "
-                            + gameMap.levelFileName + "\n\n";
-            arguments = gameMap.levelFileName;
+                            + gameMap->levelFileName + "\n\n";
+            arguments = gameMap->levelFileName;
         }
 
         if (clientSocket == NULL)
@@ -669,21 +677,21 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
 
             if (serverSocket != NULL)
             {
-                gameMap.nextLevel = tempString;
-                gameMap.loadNextLevel = true;
+                gameMap->nextLevel = tempString;
+                gameMap->loadNextLevel = true;
             }
             else
             {
-                if (readGameMapFromFile(tempString))
+                if (MapLoader::readGameMapFromFile(tempString, *gameMap))
                 {
                     tempSS << "Successfully loaded file:  " << tempString
-                            << "\nNum tiles:  " << gameMap.numTiles()
+                            << "\nNum tiles:  " << gameMap->numTiles()
                             << "\nNum classes:  "
-                            << gameMap.numClassDescriptions()
-                            << "\nNum creatures:  " << gameMap.numCreatures();
+                            << gameMap->numClassDescriptions()
+                            << "\nNum creatures:  " << gameMap->numCreatures();
                     commandOutput += tempSS.str();
 
-                    gameMap.createAllEntities();
+                    gameMap->createAllEntities();
                 }
                 else
                 {
@@ -693,7 +701,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                 }
             }
 
-            gameMap.levelFileName = arguments;
+            gameMap->levelFileName = arguments;
         }
         else
         {
@@ -780,7 +788,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         {
             for (int i = xMin; i < xMax; ++i)
             {
-                if (gameMap.getTile(i, j) == NULL)
+                if (gameMap->getTile(i, j) == NULL)
                 {
 
                     char tempArray[255];
@@ -788,7 +796,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                             j);
                     Tile *t = new Tile(i, j, Tile::dirt, 100);
                     t->name = tempArray;
-                    gameMap.addTile(t);
+                    gameMap->addTile(t);
                     t->createMesh();
                 }
             }
@@ -879,11 +887,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             tempSS >> tempInt;
             if (tempInt >= 1)
             {
-                gameMap.maxAIThreads = tempInt;
+                gameMap->maxAIThreads = tempInt;
                 commandOutput
                         += "\nMaximum number of creature AI threads set to "
                                 + Ogre::StringConverter::toString(
-                                        gameMap.maxAIThreads) + "\n";
+                                        gameMap->maxAIThreads) + "\n";
             }
             else
             {
@@ -895,7 +903,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         {
             commandOutput
                     += "\nCurrent maximum number of creature AI threads is "
-                            + Ogre::StringConverter::toString(gameMap.maxAIThreads)
+                            + Ogre::StringConverter::toString(gameMap->maxAIThreads)
                             + "\n";
         }
     }
@@ -910,7 +918,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             tempSS >> ODApplication::turnsPerSecond;
 
             // Clear the queue of early/late time counts to reset the moving window average in the AI time display.
-            gameMap.previousLeftoverTimes.clear();
+            gameMap->previousLeftoverTimes.clear();
 
             if (serverSocket != NULL)
             {
@@ -1019,16 +1027,16 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         if (!arguments.empty())
         {
             // Creature the creature and add it to the gameMap
-            Creature *tempCreature = new Creature;
+            Creature *tempCreature = new Creature(gameMap);
             std::stringstream tempSS(arguments);
-            CreatureClass *tempClass = gameMap.getClassDescription(
+            CreatureClass *tempClass = gameMap->getClassDescription(
                     tempCreature->className);
             if (tempClass != NULL)
             {
                 *tempCreature = *tempClass;
                 tempSS >> tempCreature;
 
-                gameMap.addCreature(tempCreature);
+                gameMap->addCreature(tempCreature);
 
                 // Create the mesh and SceneNode for the new creature
                 Ogre::Entity *ent = RenderManager::getSingletonPtr()->getSceneManager()->createEntity("Creature_"
@@ -1058,7 +1066,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             tempSS.str(arguments);
             tempSS >> tempClass;
 
-            gameMap.addClassDescription(tempClass);
+            gameMap->addClassDescription(tempClass);
         }
 
     }
@@ -1074,19 +1082,19 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             if (arguments.compare("creatures") == 0)
             {
                 tempSS << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
-                for (unsigned int i = 0; i < gameMap.numCreatures(); ++i)
+                for (unsigned int i = 0; i < gameMap->numCreatures(); ++i)
                 {
-                    tempSS << gameMap.getCreature(i) << endl;
+                    tempSS << gameMap->getCreature(i) << endl;
                 }
             }
 
             else if (arguments.compare("classes") == 0)
             {
                 tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
-                for (unsigned int i = 0; i < gameMap.numClassDescriptions(); ++i)
+                for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
                 {
                     CreatureClass *currentClassDesc =
-                            gameMap.getClassDescription(i);
+                            gameMap->getClassDescription(i);
                     tempSS << currentClassDesc << "\n";
                 }
             }
@@ -1097,11 +1105,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                 if (isInGame())
                 {
                     tempSS << "Player:\tNick:\tColor:\n\n";
-                    tempSS << "me\t\t" << gameMap.me->getNick() << "\t"
-                            << gameMap.me->getSeat()->color << "\n\n";
-                    for (unsigned int i = 0; i < gameMap.numPlayers(); ++i)
+                    tempSS << "me\t\t" << gameMap->me->getNick() << "\t"
+                            << gameMap->me->getSeat()->color << "\n\n";
+                    for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
                     {
-                        Player *currentPlayer = gameMap.getPlayer(i);
+                        Player *currentPlayer = gameMap->getPlayer(i);
                         tempSS << i << "\t\t" << currentPlayer->getNick() << "\t"
                                 << currentPlayer->getSeat()->color << "\n";
                     }
@@ -1133,10 +1141,10 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             else if (arguments.compare("rooms") == 0)
             {
                 tempSS << "Name:\tColor:\tNum tiles:\n\n";
-                for (unsigned int i = 0; i < gameMap.numRooms(); ++i)
+                for (unsigned int i = 0; i < gameMap->numRooms(); ++i)
                 {
                     Room *currentRoom;
-                    currentRoom = gameMap.getRoom(i);
+                    currentRoom = gameMap->getRoom(i);
                     tempSS << currentRoom->getName() << "\t" << currentRoom->color
                             << "\t" << currentRoom->numCoveredTiles() << "\n";
                 }
@@ -1182,9 +1190,9 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS
                             << "Unfinished Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
-                    for (unsigned int i = 0; i < gameMap.me->getSeat()->numGoals(); ++i)
+                    for (unsigned int i = 0; i < gameMap->me->getSeat()->numGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->getSeat()->getGoal(i);
+                        Goal *tempGoal = gameMap->me->getSeat()->getGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
                                 << tempGoal->getDescription() << "\n";
                     }
@@ -1193,9 +1201,9 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                     tempSS
                             << "\n\nCompleted Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
                     for (unsigned int i = 0; i
-                            < gameMap.me->getSeat()->numCompletedGoals(); ++i)
+                            < gameMap->me->getSeat()->numCompletedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap.me->getSeat()->getCompletedGoal(i);
+                        Goal *tempGoal = gameMap->me->getSeat()->getCompletedGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
                                 << tempGoal->getSuccessMessage() << "\n";
                     }
@@ -1229,15 +1237,15 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
 
             tempSS.str(arguments);
             tempSS >> tempX >> tempY;
-            gameMap.createNewMap(tempX, tempY);
+            gameMap->createNewMap(tempX, tempY);
         }
     }
 
     // refreshmesh   Clear all the Ogre entities and redraw them so they reload their appearence.
     else if (command.compare("refreshmesh") == 0)
     {
-        gameMap.destroyAllEntities();
-        gameMap.createAllEntities();
+        gameMap->destroyAllEntities();
+        gameMap->createAllEntities();
         commandOutput += "\nRecreating all meshes.\n";
     }
 
@@ -1246,7 +1254,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
     {
         if (!arguments.empty())
         {
-            gameMap.me->setNick(arguments);
+            gameMap->me->setNick(arguments);
             commandOutput += "\nNickname set to:  ";
         }
         else
@@ -1254,7 +1262,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             commandOutput += "\nCurrent nickname is:  ";
         }
 
-        commandOutput += gameMap.me->getNick() + "\n";
+        commandOutput += gameMap->me->getNick() + "\n";
     }
 
     // Set chat message variables
@@ -1296,7 +1304,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
     else if (command.compare("connect") == 0)
     {
         // Make sure we have set a nickname.
-        if (!gameMap.me->getNick().empty())
+        if (!gameMap->me->getNick().empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
             if (!isInGame())
@@ -1333,7 +1341,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                                 clientNotificationProcessor, cnps);
 
                         // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
-                        gameMap.clearMapLightIndicators();
+                        gameMap->clearMapLightIndicators();
                     }
                     else
                     {
@@ -1368,13 +1376,13 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
     else if (command.compare("host") == 0)
     {
         // Make sure we have set a nickname.
-        if (!gameMap.me->getNick().empty())
+        if (!gameMap->getLocalPlayer()->getNick().empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
             if (!isInGame())
             {
 
-                if (startServer())
+                if (startServer(*gameMap))
                 {
                     commandOutput += "\nServer started successfully.\n";
 
@@ -1444,7 +1452,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         if (clientSocket != NULL)
         {
             sem_wait(&clientSocket->semaphore);
-            clientSocket->send(formatCommand("chat", gameMap.me->getNick() + ":"
+            clientSocket->send(formatCommand("chat", gameMap->me->getNick() + ":"
                     + arguments));
             sem_post(&clientSocket->semaphore);
         }
@@ -1454,13 +1462,13 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             for (unsigned int i = 0; i < clientSockets.size(); ++i)
             {
                 sem_wait(&clientSockets[i]->semaphore);
-                clientSockets[i]->send(formatCommand("chat", gameMap.me->getNick()
+                clientSockets[i]->send(formatCommand("chat", gameMap->me->getNick()
                         + ":" + arguments));
                 sem_post(&clientSockets[i]->semaphore);
             }
 
             // Display the chat message in our own message queue
-            chatMessages.push_back(new ChatMessage(gameMap.me->getNick(), arguments,
+            chatMessages.push_back(new ChatMessage(gameMap->me->getNick(), arguments,
                     time(NULL), time(NULL)));
         }
         else
@@ -1478,7 +1486,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             if (arguments.length() > 0)
             {
                 // Activate visual debugging
-                Creature *tempCreature = gameMap.getCreature(arguments);
+                Creature *tempCreature = gameMap->getCreature(arguments);
                 if (tempCreature != NULL)
                 {
                     if (!tempCreature->getHasVisualDebuggingEntities())
@@ -1576,11 +1584,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
     // Load the next level.
     else if (command.compare("next") == 0)
     {
-        if (gameMap.seatIsAWinner(gameMap.me->getSeat()))
+        if (gameMap->seatIsAWinner(gameMap->me->getSeat()))
         {
-            gameMap.loadNextLevel = true;
+            gameMap->loadNextLevel = true;
             commandOutput += (string) "\nLoading level levels/"
-                    + gameMap.nextLevel + ".level\n";
+                    + gameMap->nextLevel + ".level\n";
         }
         else
         {

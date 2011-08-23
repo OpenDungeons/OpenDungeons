@@ -31,6 +31,7 @@ void *clientSocketProcessor(void *p)
     std::string serverCommand, arguments;
     Socket *sock = ((CSPStruct*) p)->nSocket;
     ODFrameListener *frameListener = ((CSPStruct*) p)->nFrameListener;
+    GameMap& gameMap = *(frameListener->getGameMap());
     delete (CSPStruct*) p;
     p = NULL;
 
@@ -118,7 +119,7 @@ void *clientSocketProcessor(void *p)
 
             else if (serverCommand.compare("addplayer") == 0)
             {
-                Player *tempPlayer = new Player;
+                Player *tempPlayer = new Player();
                 tempPlayer->setNick(arguments);
                 gameMap.addPlayer(tempPlayer);
 
@@ -182,7 +183,7 @@ void *clientSocketProcessor(void *p)
             else if (serverCommand.compare("addroom") == 0)
             {
                 std::stringstream tempSS(arguments);
-                Room *newRoom = Room::createRoomFromStream(tempSS);
+                Room *newRoom = Room::createRoomFromStream(tempSS, &gameMap);
                 gameMap.addRoom(newRoom);
                 newRoom->createMeshes();
                 sem_wait(&sock->semaphore);
@@ -208,7 +209,7 @@ void *clientSocketProcessor(void *p)
             {
                 //NOTE: This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
                 // Changes to this code should be reflected in that code as well
-                Creature *newCreature = new Creature;
+                Creature *newCreature = new Creature(&gameMap);
 
                 std::stringstream tempSS;
                 tempSS.str(arguments);
@@ -458,7 +459,7 @@ void *clientNotificationProcessor(void *p)
                 break;
 
             default:
-                cerr << "\n\nERROR:  Unhandled ClientNotification type encoutered!\n\n";
+                ODApplication::displayErrorMessage("Unhandled ClientNotification type encoutered!");
 
                 //TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
                 Creature * throwAsegfault = NULL;

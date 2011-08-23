@@ -1,8 +1,11 @@
 #include "Goal.h"
+#include "AllGoals.h"
 
-Goal::Goal(const std::string& nName, const std::string& nArguments) :
+Goal::Goal(const std::string& nName, const std::string& nArguments, const GameMap& gameMap) :
+        gameMap(gameMap),
         name(nName),
         arguments(nArguments)
+        
 {
 }
 
@@ -86,7 +89,7 @@ std::ostream& operator<<(std::ostream& os, Goal *g)
     return os;
 }
 
-Goal* Goal::instantiateFromStream(std::istream& is)
+Goal* Goal::instantiateFromStream(std::istream& is, const GameMap& gameMap)
 {
     std::string tempName, tempArguments;
     Goal *tempGoal = NULL;
@@ -111,27 +114,27 @@ Goal* Goal::instantiateFromStream(std::istream& is)
     // Parse the goal type name to find out what subclass of goal tempGoal should be instantiated as.
     if (tempName.compare("KillAllEnemies") == 0)
     {
-        tempGoal = new GoalKillAllEnemies(tempName, tempArguments);
+        tempGoal = new GoalKillAllEnemies(tempName, tempArguments, gameMap);
     }
 
     else if (tempName.compare("ProtectCreature") == 0)
     {
-        tempGoal = new GoalProtectCreature(tempName, tempArguments);
+        tempGoal = new GoalProtectCreature(tempName, tempArguments, gameMap);
     }
 
     else if (tempName.compare("ClaimNTiles") == 0)
     {
-        tempGoal = new GoalClaimNTiles(tempName, tempArguments);
+        tempGoal = new GoalClaimNTiles(tempName, tempArguments, gameMap);
     }
 
     else if (tempName.compare("MineNGold") == 0)
     {
-        tempGoal = new GoalMineNGold(tempName, tempArguments);
+        tempGoal = new GoalMineNGold(tempName, tempArguments, gameMap);
     }
 
     else if (tempName.compare("ProtectDungeonTemple") == 0)
     {
-        tempGoal = new GoalProtectDungeonTemple(tempName, tempArguments);
+        tempGoal = new GoalProtectDungeonTemple(tempName, tempArguments, gameMap);
     }
 
     // Now that the goal has been properly instantiated we check to see if there are subgoals to read in.
@@ -144,7 +147,7 @@ Goal* Goal::instantiateFromStream(std::istream& is)
         is.ignore(1);
         is >> numSubgoals;
         for (int i = 0; i < numSubgoals; ++i)
-            tempGoal->addSuccessSubGoal(instantiateFromStream(is));
+            tempGoal->addSuccessSubGoal(instantiateFromStream(is, gameMap));
     }
     else if (c == '-')
     {
@@ -152,7 +155,7 @@ Goal* Goal::instantiateFromStream(std::istream& is)
         is.ignore(1);
         is >> numSubgoals;
         for (int i = 0; i < numSubgoals; ++i)
-            tempGoal->addFailureSubGoal(instantiateFromStream(is));
+            tempGoal->addFailureSubGoal(instantiateFromStream(is, gameMap));
     }
 
     return tempGoal;

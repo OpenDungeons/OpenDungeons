@@ -1,6 +1,5 @@
 #include <sstream>
 
-#include "Globals.h"
 #include "Player.h"
 #include "Tile.h"
 #include "Creature.h"
@@ -101,9 +100,10 @@ void Room::absorbRoom(Room *r)
     r->roomObjects.clear();
 }
 
-Room* Room::createRoomFromStream(std::istream &is)
+Room* Room::createRoomFromStream(std::istream &is, GameMap* gameMap)
 {
     Room tempRoom;
+    tempRoom.setGameMap(gameMap);
     is >> &tempRoom;
 
     return createRoom(tempRoom.type, tempRoom.coveredTiles, tempRoom.color);
@@ -230,7 +230,7 @@ Tile* Room::getCentralTile()
     }
 
     //TODO: If this tile is NULL we should move outward until we find a valid one.
-    return gameMap.getTile((minX + maxX) / 2, (minY + maxY) / 2);
+    return gameMap->getTile((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
 void Room::createMeshes()
@@ -385,7 +385,7 @@ std::istream& operator>>(std::istream& is, Room *r)
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
-        Tile *tempTile = gameMap.getTile(tempX, tempY);
+        Tile *tempTile = r->gameMap->getTile(tempX, tempY);
         if (tempTile != NULL)
         {
             r->addCoveredTile(tempTile);

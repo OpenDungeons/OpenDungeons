@@ -13,6 +13,7 @@
 
 #include <SFML/Audio.hpp>
 #include <OgreSharedPtr.h>
+#include <OgreSingleton.h>
 
 /*! \brief Class to manage playing of music.
  *

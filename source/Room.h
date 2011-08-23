@@ -12,6 +12,7 @@
 
 class Player;
 class RoomObject;
+class GameMap;
 
 class Room: public AttackableObject, public ActiveObject
 {
@@ -32,7 +33,7 @@ class Room: public AttackableObject, public ActiveObject
         Room();
         static Room* createRoom(RoomType nType,
                 const std::vector<Tile*> &nCoveredTiles, int nColor);
-        static Room* createRoomFromStream(std::istream &is);
+        static Room* createRoomFromStream(std::istream &is, GameMap* gameMap);
         virtual void absorbRoom(Room *r);
 
         static std::string getFormat();
@@ -91,6 +92,8 @@ class Room: public AttackableObject, public ActiveObject
         int getColor() const;
         AttackableObject::AttackableObjectType getAttackableObjectType() const;
 
+        GameMap* getGameMap(){return gameMap;}
+        
         // Public data members
 
         const std::string& getName() const

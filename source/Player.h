@@ -31,15 +31,18 @@ public:
 
     const std::string& getNick() {return nick;}
     Seat* getSeat() {return seat;}
+    const Seat* getSeat() const {return seat;}
     void setNick (const std::string& nick) {this->nick = nick;}
     void setSeat(Seat* seat) {this->seat = seat;}
 
     // Public functions
-    unsigned int numCreaturesInHand();
+    unsigned int numCreaturesInHand() const;
     Creature *getCreatureInHand(int i);
+    const Creature* getCreatureInHand(int i) const;
     void pickUpCreature(Creature *c);
     bool dropCreature(Tile *t);
     void rotateCreaturesInHand(int n);
+    inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;};
 
     // Public data members
     
@@ -47,6 +50,7 @@ public:
     Trap::TrapType newTrapType;
 
 private:
+    GameMap* gameMap;
     Seat *seat;
     std::string nick; /**< The nickname used un chat, etc. */
     // Private functions

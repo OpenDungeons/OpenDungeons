@@ -74,9 +74,10 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     return tempTrap;
 }
 
-Trap* Trap::createTrapFromStream(std::istream &is)
+Trap* Trap::createTrapFromStream(std::istream &is, GameMap* gameMap)
 {
     Trap tempTrap;
+    tempTrap.setGameMap(gameMap);
     is >> &tempTrap;
     
     Trap *returnTrap = createTrap(tempTrap.type, tempTrap.coveredTiles,
@@ -356,7 +357,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
     std::stringstream tempSS;
     
     is >> t->meshName >> tempInt;
-    t->controllingSeat = gameMap.getSeatByColor(tempInt);
+    t->controllingSeat = t->gameMap->getSeatByColor(tempInt);
     
     tempSS.str("");
     tempSS << t->meshName << "_" << uniqueNumber;
@@ -367,7 +368,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
-        Tile *tempTile = gameMap.getTile(tempX, tempY);
+        Tile *tempTile = t->gameMap->getTile(tempX, tempY);
         if (tempTile != NULL)
         {
             t->addCoveredTile(tempTile);

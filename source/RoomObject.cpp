@@ -5,10 +5,9 @@
 #include "RenderRequest.h"
 #include "Room.h"
 #include "GameMap.h"
-#include "Globals.h"
 #include "RenderManager.h"
 
-RoomObject::RoomObject(Room *nParentRoom, std::string nMeshName) :
+RoomObject::RoomObject(Room* nParentRoom, const std::string& nMeshName) :
         parentRoom(nParentRoom),
         meshExists(false),
         meshName(nMeshName)
@@ -40,7 +39,7 @@ void RoomObject::createMesh()
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 
-    gameMap.addAnimatedObject(this);
+    parentRoom->getGameMap()->addAnimatedObject(this);
 }
 
 void RoomObject::destroyMesh()
@@ -58,7 +57,7 @@ void RoomObject::destroyMesh()
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 
-    gameMap.removeAnimatedObject(this);
+    parentRoom->getGameMap()->removeAnimatedObject(this);
 }
 
 void RoomObject::deleteYourself()
@@ -80,7 +79,7 @@ std::string RoomObject::getOgreNamePrefix()
     return "RoomObject_";
 }
 
-std::string RoomObject::getFormat()
+const char* RoomObject::getFormat()
 {
     return "name\tmeshName";
 }

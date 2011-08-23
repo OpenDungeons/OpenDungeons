@@ -1,4 +1,3 @@
-#include "Globals.h"
 #include "RoomDungeonTemple.h"
 #include "GameMap.h"
 #include "Creature.h"
@@ -32,7 +31,7 @@ void RoomDungeonTemple::destroyMeshes()
 void RoomDungeonTemple::produceKobold()
 {
     // If the game map is trying to load the next level it deletes any creatures on the map, spawning new ones prevents it from finishing.
-    if (gameMap.loadNextLevel)
+    if (gameMap->loadNextLevel)
         return;
 
     if (waitTurns <= 0)
@@ -45,10 +44,10 @@ void RoomDungeonTemple::produceKobold()
             return;
 
         // Create a new creature and copy over the class-based creature parameters.
-        CreatureClass *classToSpawn = gameMap.getClassDescription("Kobold");
+        CreatureClass *classToSpawn = gameMap->getClassDescription("Kobold");
         if (classToSpawn != NULL)
         {
-            Creature *newCreature = new Creature;
+            Creature *newCreature = new Creature(gameMap);
             *newCreature = *classToSpawn;
             newCreature->name = newCreature->getUniqueCreatureName();
             newCreature->setPosition(coveredTiles[0]->x, coveredTiles[0]->y, 0);
@@ -72,7 +71,7 @@ void RoomDungeonTemple::produceKobold()
             newCreature->weaponR->handString = "R";
 
             newCreature->createMesh();
-            gameMap.addCreature(newCreature);
+            gameMap->addCreature(newCreature);
         }
     }
     else

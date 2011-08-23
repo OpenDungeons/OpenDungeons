@@ -1,7 +1,6 @@
 #include "RoomDojo.h"
 
 #include "Tile.h"
-#include "Globals.h"
 #include "GameMap.h"
 
 RoomDojo::RoomDojo()
@@ -17,7 +16,7 @@ void RoomDojo::createMeshes()
 
     Tile *centralTile = getCentralTile();
     //TODO - will this crash if it is outside the map?
-    Tile *bottomLeftTile = gameMap.getTile(centralTile->x - 1, centralTile->y
+    Tile *bottomLeftTile = gameMap->getTile(centralTile->x - 1, centralTile->y
             - 1);
     //Load another object if this tile is in the same room and available.
     if(bottomLeftTile->getCoveringRoom()->getType()

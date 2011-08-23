@@ -14,8 +14,8 @@
 #include <vector>
 #include <string>
 
-#include "Functions.h"
 #include "Globals.h"
+#include "MapLoader.h"
 #include "GameMap.h"
 #include "Socket.h"
 #include "Network.h"
@@ -48,7 +48,7 @@ InputManager::~InputManager()
     mInputManager = 0;
 }
 
-InputManager::InputManager() :
+InputManager::InputManager(GameMap* gameMap) :
             frameListener(ODFrameListener::getSingletonPtr()),
             mLMouseDown(false),
             mRMouseDown(false),
@@ -63,8 +63,9 @@ InputManager::InputManager() :
             mLStartDragY(0),
             mRStartDragX(0),
             mRStartDragY(0),
+            mCurrentTileType(Tile::dirt),
             mDragType(nullDragType),
-            mCurrentTileType(Tile::dirt)
+            gameMap(gameMap)
 {
     LogManager::getSingleton().logMessage("*** Initializing OIS ***");
 
@@ -128,7 +129,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
     //If we have a room or trap (or later spell) selected, show what we
     //have selected
     //TODO: This should be changed, or combined with an icon or something later.
-    if (gameMap.me->newRoomType || gameMap.me->newTrapType)
+    if (gameMap->getLocalPlayer()->newRoomType || gameMap->getLocalPlayer()->newTrapType)
     {
         TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
                 arg.state.X.abs + 30, arg.state.Y.abs);
@@ -172,9 +173,9 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                     {
                         // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
                         //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords rather than the reverse that it is doing now.
-                        std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(xPos,
+                        std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(xPos,
                                             yPos, mLStartDragX, mLStartDragY);
-                        for(TileMap_t::iterator itr = gameMap.firstTile(), last = gameMap.lastTile();
+                        for(TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
                                                         itr != last; ++itr)
                         {
                             if(std::find(affectedTiles.begin(), affectedTiles.end(), itr->second) != affectedTiles.end())
@@ -240,7 +241,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                 if (distSquared > radiusSquared)
                     continue;
 
-                currentTile = gameMap.getTile(xPos + i, yPos + j);
+                currentTile = gameMap->getTile(xPos + i, yPos + j);
 
                 // Check to see if the current tile already exists.
                 if (currentTile != NULL)
@@ -260,7 +261,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                     currentTile = new Tile(xPos + i, yPos + j,
                             mCurrentTileType, mCurrentFullness);
                     currentTile->name = tempArray;
-                    gameMap.addTile(currentTile);
+                    gameMap->addTile(currentTile);
                     currentTile->createMesh();
                 }
             }
@@ -268,7 +269,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
 
         // Add any tiles which border the affected region to the affected tiles list
         // as they may alo want to switch meshes to optimize polycount now too.
-        std::vector<Tile*> borderingTiles = gameMap.tilesBorderedByRegion(
+        std::vector<Tile*> borderingTiles = gameMap->tilesBorderedByRegion(
                 affectedTiles);
         affectedTiles.insert(affectedTiles.end(), borderingTiles.begin(),
                 borderingTiles.end());
@@ -283,7 +284,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
     // If we are dragging a map light we need to update its position to the current x-y location.
     if (mLMouseDown && mDragType == mapLight && !isInGame())
     {
-        MapLight* tempMapLight = gameMap.getMapLight(draggedMapLight);
+        MapLight* tempMapLight = gameMap->getMapLight(draggedMapLight);
         if (tempMapLight != NULL)
             tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
     }
@@ -296,7 +297,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
         }
         else
         {
-            gameMap.me->rotateCreaturesInHand(1);
+            gameMap->getLocalPlayer()->rotateCreaturesInHand(1);
         }
     }
     else if(arg.state.Z.rel < 0)
@@ -307,7 +308,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
         }
         else
         {
-            gameMap.me->rotateCreaturesInHand(-1);
+            gameMap->getLocalPlayer()->rotateCreaturesInHand(-1);
         }
     }
     else
@@ -374,11 +375,11 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
                         tempSS.getline(array, sizeof(array), '_');
                         tempSS.getline(array, sizeof(array));
 
-                        Creature *currentCreature = gameMap.getCreature(array);
+                        Creature *currentCreature = gameMap->getCreature(array);
                         if (currentCreature != 0 && currentCreature->color
-                                == gameMap.me->getSeat()->color)
+                                == gameMap->getLocalPlayer()->getSeat()->color)
                         {
-                            gameMap.me->pickUpCreature(currentCreature);
+                            gameMap->getLocalPlayer()->pickUpCreature(currentCreature);
                             SoundEffectsHelper::getSingleton().playInterfaceSound(
                                     SoundEffectsHelper::PICKUP);
                             return true;
@@ -458,13 +459,13 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
                     }
 
                     // If we have selected a room type to add to the map, use a addNewRoom drag type.
-                    if (gameMap.me->newRoomType != Room::nullRoomType)
+                    if (gameMap->getLocalPlayer()->newRoomType != Room::nullRoomType)
                     {
                         mDragType = addNewRoom;
                     }
 
                     // If we have selected a trap type to add to the map, use a addNewTrap drag type.
-                    else if (gameMap.me->newTrapType != Trap::nullTrapType)
+                    else if (gameMap->getLocalPlayer()->newTrapType != Trap::nullTrapType)
                     {
                         mDragType = addNewTrap;
                     }
@@ -479,10 +480,10 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
         // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
         if (isInGame())
         {
-            Tile *tempTile = gameMap.getTile(xPos, yPos);
+            Tile *tempTile = gameMap->getTile(xPos, yPos);
             if (tempTile != NULL)
             {
-                digSetBool = !(tempTile->getMarkedForDigging(gameMap.me));
+                digSetBool = !(tempTile->getMarkedForDigging(gameMap->getLocalPlayer()));
             }
         }
     }
@@ -496,16 +497,16 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
 
         // Stop creating rooms, traps, etc.
         mDragType = nullDragType;
-        gameMap.me->newRoomType = Room::nullRoomType;
-        gameMap.me->newTrapType = Trap::nullTrapType;
+        gameMap->getLocalPlayer()->newRoomType = Room::nullRoomType;
+        gameMap->getLocalPlayer()->newTrapType = Trap::nullTrapType;
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
-        Tile *curTile = gameMap.getTile(xPos, yPos);
+        Tile *curTile = gameMap->getTile(xPos, yPos);
         if (curTile != NULL)
         {
-            gameMap.me->dropCreature(curTile);
-            if (gameMap.me->numCreaturesInHand() > 0)
+            gameMap->getLocalPlayer()->dropCreature(curTile);
+            if (gameMap->getLocalPlayer()->numCreaturesInHand() > 0)
             {
                 SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
             }
@@ -523,7 +524,7 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
 
                 if (resultName.find("Creature_") != std::string::npos)
                 {
-                    Creature* tempCreature = gameMap.getCreature(resultName.substr(
+                    Creature* tempCreature = gameMap->getCreature(resultName.substr(
                             ((std::string) "Creature_").size(), resultName.size()));
 
                     if (tempCreature != NULL)
@@ -557,7 +558,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
         return true;
 
     // Unselect all tiles
-    for(TileMap_t::iterator itr = gameMap.firstTile(), last = gameMap.lastTile();
+    for(TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
             itr != last; ++itr)
     {
         itr->second->setSelected(false);
@@ -576,7 +577,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                 mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
                 ODFrameListener::getSingleton().getCreatureSceneNode()->addChild(node);
                 mDragType = nullDragType;
-                gameMap.getCreature(draggedCreature)->setPosition(xPos, yPos, 0);
+                gameMap->getCreature(draggedCreature)->setPosition(xPos, yPos, 0);
             }
         }
 
@@ -585,7 +586,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
         {
             if (!isInGame())
             {
-                MapLight *tempMapLight = gameMap.getMapLight(draggedMapLight);
+                MapLight *tempMapLight = gameMap->getMapLight(draggedMapLight);
                 if (tempMapLight != NULL)
                 {
                     tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
@@ -601,7 +602,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
             // loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
             // which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
             // the next loop will actually create the room.  A similar pruning is done for traps.
-            std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(xPos,
+            std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(xPos,
                     yPos, mLStartDragX, mLStartDragY);
             std::vector<Tile*>::iterator itr = affectedTiles.begin();
             while (itr != affectedTiles.end())
@@ -621,7 +622,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                             {
                                 // On the server:  Just mark the tile for digging.
                                 currentTile->setMarkedForDigging(digSetBool,
-                                        gameMap.me);
+                                        gameMap->getLocalPlayer());
                             }
                             else
                             {
@@ -641,7 +642,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                                 sem_post(&clientNotificationQueueSemaphore);
 
                                 currentTile->setMarkedForDigging(digSetBool,
-                                        gameMap.me);
+                                        gameMap->getLocalPlayer());
 
                             }
 
@@ -673,7 +674,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                                 && currentTile->getType() == Tile::claimed
                                 && currentTile->colorDouble > 0.99
                                 && currentTile->getColor()
-                                        == gameMap.me->getSeat()->color))
+                                        == gameMap->getLocalPlayer()->getSeat()->color))
                         {
                             itr = affectedTiles.erase(itr);
                             continue;
@@ -701,30 +702,30 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                 int newRoomColor = 0, goldRequired = 0;
                 if (isInGame())
                 {
-                    newRoomColor = gameMap.me->getSeat()->color;
+                    newRoomColor = gameMap->getLocalPlayer()->getSeat()->color;
                     goldRequired = affectedTiles.size() * Room::costPerTile(
-                            gameMap.me->newRoomType);
+                            gameMap->getLocalPlayer()->newRoomType);
                 }
 
                 // Check to see if we are in the map editor OR if we are in a game, check to see if we have enough gold to create the room.
                 if (!isInGame()
-                        || (gameMap.getTotalGoldForColor(
-                                gameMap.me->getSeat()->color) >= goldRequired))
+                        || (gameMap->getTotalGoldForColor(
+                                gameMap->getLocalPlayer()->getSeat()->color) >= goldRequired))
                 {
                     // Create the room
-                    Room *tempRoom = Room::createRoom(gameMap.me->newRoomType,
+                    Room *tempRoom = Room::createRoom(gameMap->getLocalPlayer()->newRoomType,
                             affectedTiles, newRoomColor);
-                    gameMap.addRoom(tempRoom);
+                    gameMap->addRoom(tempRoom);
 
                     // If we are in a game, withdraw the gold required for the room from the players treasuries.
                     if (serverSocket != NULL || clientSocket != NULL)
-                        gameMap.withdrawFromTreasuries(goldRequired,
-                                gameMap.me->getSeat()->color);
+                        gameMap->withdrawFromTreasuries(goldRequired,
+                                gameMap->getLocalPlayer()->getSeat()->color);
 
                     // Check all the tiles that border the newly created room and see if they
                     // contain rooms which can be absorbed into this newly created room.
                     std::vector<Tile*> borderTiles =
-                            gameMap.tilesBorderedByRegion(affectedTiles);
+                            gameMap->tilesBorderedByRegion(affectedTiles);
                     for (unsigned int i = 0; i < borderTiles.size(); ++i)
                     {
                         Room *borderingRoom = borderTiles[i]->getCoveringRoom();
@@ -733,7 +734,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                                 != tempRoom)
                         {
                             tempRoom->absorbRoom(borderingRoom);
-                            gameMap.removeRoom(borderingRoom);
+                            gameMap->removeRoom(borderingRoom);
                             //FIXME:  Need to delete the bordering room to avoid a memory leak, the deletion should be done in a safe way though as there will still be outstanding RenderRequests.
                         }
                     }
@@ -753,26 +754,26 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                 int goldRequired = 0;
                 if (isInGame())
                 {
-                    goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
+                    goldRequired = Trap::costPerTile(gameMap->getLocalPlayer()->newTrapType);
                 }
                 // Delete everything but the last tile in the affected tiles as this is close to where we let go of the mouse.
                 std::vector<Tile*> tempVector(affectedTiles);
                 //~ tempVector.push_back(affectedTiles[affectedTiles.size() - 1]);
 
                 Seat *mySeat = NULL;
-                if (!isInGame() || (gameMap.getTotalGoldForColor(
-                        gameMap.me->getSeat()->color) >= goldRequired))
+                if (!isInGame() || (gameMap->getTotalGoldForColor(
+                        gameMap->getLocalPlayer()->getSeat()->color) >= goldRequired))
                 {
-                    goldRequired = Trap::costPerTile(gameMap.me->newTrapType);
+                    goldRequired = Trap::costPerTile(gameMap->getLocalPlayer()->newTrapType);
                     if (isInGame())
-                        gameMap.withdrawFromTreasuries(goldRequired, gameMap.me->getSeat()->color);
-                    mySeat = gameMap.me->getSeat();
+                        gameMap->withdrawFromTreasuries(goldRequired, gameMap->getLocalPlayer()->getSeat()->color);
+                    mySeat = gameMap->getLocalPlayer()->getSeat();
 
                     Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector,
                             mySeat);
                     //FIXME: This throws an OGRE runtime error when it is commented in.
                     tempTrap->createMeshes();
-                    gameMap.addTrap(tempTrap);
+                    gameMap->addTrap(tempTrap);
 
                     SoundEffectsHelper::getSingleton().playInterfaceSound(
                             SoundEffectsHelper::BUILDTRAP, false);
@@ -780,7 +781,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
             }
 
             // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
-            std::vector<Tile*> borderTiles = gameMap.tilesBorderedByRegion(
+            std::vector<Tile*> borderTiles = gameMap->tilesBorderedByRegion(
                     affectedTiles);
             affectedTiles.insert(affectedTiles.end(), borderTiles.begin(),
                     borderTiles.end());
@@ -943,7 +944,7 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
                 }
                 else // If we are in a game.
                 {
-                    Seat* tempSeat = gameMap.me->getSeat();
+                    Seat* tempSeat = gameMap->getLocalPlayer()->getSeat();
                     CameraManager::getSingleton().flyTo(Ogre::Vector3(
                             tempSeat->startingX, tempSeat->startingY, 0.0));
                 }
@@ -951,7 +952,7 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
 
                 // Quit the game
             case OIS::KC_ESCAPE:
-                writeGameMapToFile(std::string("levels/Test.level")+ ".out");
+                MapLoader::writeGameMapToFile(std::string("levels/Test.level")+ ".out", *gameMap);
                 frameListener->requestExit();
                 break;
 

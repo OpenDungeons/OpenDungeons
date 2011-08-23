@@ -1,5 +1,11 @@
 #include "AttackableObject.h"
 
+AttackableObject::AttackableObject() :
+    gameMap(NULL)
+{
+
+}
+
 std::vector<AttackableObject*> AttackableObject::removeDeadObjects(
         const std::vector<AttackableObject*> &objects)
 {

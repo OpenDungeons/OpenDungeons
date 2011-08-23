@@ -30,7 +30,7 @@
 using CEGUI::UDim;
 using CEGUI::UVector2;
 
-Creature::Creature() :
+Creature::Creature(GameMap* gameMap) :
         weaponL(NULL),
         weaponR(NULL),
         color(0),
@@ -52,6 +52,8 @@ Creature::Creature() :
         awakeness(100.0),
         sound(SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
+    this->gameMap = gameMap;
+    assert(gameMap != NULL);
     sem_init(&hpLockSemaphore, 0, 1);
     sem_init(&manaLockSemaphore, 0, 1);
     sem_init(&isOnMapLockSemaphore, 0, 1);
@@ -146,7 +148,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->weaponR->handString = "R";
 
     // Copy the class based items
-    CreatureClass *creatureClass = gameMap.getClassDescription(c->className);
+    CreatureClass *creatureClass = c->gameMap->getClassDescription(c->className);
     if (creatureClass != NULL)
     {
         *c = *creatureClass;
@@ -306,6 +308,15 @@ double Creature::getHP(Tile *tile)
     return tempDouble;
 }
 
+double Creature::getHP() const
+{
+    sem_wait(&hpLockSemaphore);
+    double tempDouble = hp;
+    sem_post(&hpLockSemaphore);
+    return tempDouble;
+}
+
+
 void Creature::setMana(double nMana)
 {
     sem_wait(&manaLockSemaphore);
@@ -315,7 +326,7 @@ void Creature::setMana(double nMana)
     updateStatsWindow();
 }
 
-double Creature::getMana()
+double Creature::getMana() const
 {
     sem_wait(&manaLockSemaphore);
     double tempDouble = mana;
@@ -324,7 +335,7 @@ double Creature::getMana()
     return tempDouble;
 }
 
-double Creature::getMoveSpeed()
+double Creature::getMoveSpeed() const
 {
     return moveSpeed;
 }
@@ -454,9 +465,9 @@ void Creature::doTurn()
             && peekAction().type != CreatureAction::findHome)
     {
         // Check to see if there are any quarters owned by our color that we can reach.
-        std::vector<Room*> tempRooms = gameMap.getRoomsByTypeAndColor(
+        std::vector<Room*> tempRooms = gameMap->getRoomsByTypeAndColor(
                 Room::quarters, color);
-        tempRooms = gameMap.getReachableRooms(tempRooms, positionTile(),
+        tempRooms = gameMap->getReachableRooms(tempRooms, positionTile(),
                 tilePassability);
         if (!tempRooms.empty())
         {
@@ -632,7 +643,7 @@ void Creature::doTurn()
                                                     0.1, 0.3)
 													);
                                     myTile = positionTile();
-                                    tempPath = gameMap.path(myTile,
+                                    tempPath = gameMap->path(myTile,
                                             visibleTiles[tileIndex],
                                             tilePassability);
                                     if (setWalkPath(tempPath, 2, false))
@@ -662,12 +673,12 @@ void Creature::doTurn()
                         std::list<Tile*> result;
                         if (tempPositionTile != NULL)
                         {
-                            result = gameMap.path(tempPositionTile->x,
+                            result = gameMap->path(tempPositionTile->x,
                                     tempPositionTile->y, tempX, tempY,
                                     tilePassability);
                         }
 
-                        gameMap.cutCorners(result, tilePassability);
+                        gameMap->cutCorners(result, tilePassability);
                         if (setWalkPath(result, 2, false))
                         {
                             //loopBack = true;
@@ -704,7 +715,7 @@ void Creature::doTurn()
                         unsigned int index = walkQueue.size();
                         Tile *currentTile = NULL;
                         if (index > 0)
-                            currentTile = gameMap.getTile((int) walkQueue[index
+                            currentTile = gameMap->getTile((int) walkQueue[index
                                     - 1].x, (int) walkQueue[index - 1].y);
 
                         sem_post(&walkQueueLockSemaphore);
@@ -766,7 +777,7 @@ void Creature::doTurn()
                     {
                         //cout << "\nTrying to claim the tile I am standing on.";
                         // Check to see if one of the tile's neighbors is claimed for our color
-                        neighbors = gameMap.neighborTiles(myTile);
+                        neighbors = gameMap->neighborTiles(myTile);
                         for (unsigned int j = 0; j < neighbors.size(); ++j)
                         {
                             // Check to see if the current neighbor is already claimed
@@ -792,7 +803,7 @@ void Creature::doTurn()
                     // The tile we are standing on is already claimed or is not currently
                     // claimable, find candidates for claiming.
                     // Start by checking the neighbor tiles of the one we are already in
-                    neighbors = gameMap.neighborTiles(myTile);
+                    neighbors = gameMap->neighborTiles(myTile);
                     while (!neighbors.empty())
                     {
                         // If the current neighbor is claimable, walk into it and skip to the end of this turn
@@ -806,7 +817,7 @@ void Creature::doTurn()
                         {
                             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
                             // though it must have a neighbor of its own that is already claimed for our side.
-                            neighbors2 = gameMap.neighborTiles(tempTile);
+                            neighbors2 = gameMap->neighborTiles(tempTile);
                             for (unsigned int i = 0; i < neighbors2.size(); ++i)
                             {
                                 tempTile2 = neighbors2[i];
@@ -836,7 +847,7 @@ void Creature::doTurn()
                                 && tempTile->isClaimable())
                         {
                             // Check to see if one of the tile's neighbors is claimed for our color
-                            neighbors = gameMap.neighborTiles(visibleTiles[i]);
+                            neighbors = gameMap->neighborTiles(visibleTiles[i]);
                             for (unsigned int j = 0; j < neighbors.size(); ++j)
                             {
                                 tempTile = neighbors[j];
@@ -865,7 +876,7 @@ void Creature::doTurn()
                                     claimableTiles.size() - 1)];
 
                             // Count how many of the candidate tile's neighbors are already claimed.
-                            neighbors = gameMap.neighborTiles(tempTile);
+                            neighbors = gameMap->neighborTiles(tempTile);
                             numNeighborsClaimed = 0;
                             for (unsigned int i = 0; i < neighbors.size(); ++i)
                             {
@@ -898,9 +909,9 @@ void Creature::doTurn()
                         if (tempTile != NULL)
                         {
                             // If we find a valid path to the tile start walking to it and break
-                            tempPath = gameMap.path(myTile, tempTile,
+                            tempPath = gameMap->path(myTile, tempTile,
                                     tilePassability);
-                            gameMap.cutCorners(tempPath, tilePassability);
+                            gameMap->cutCorners(tempPath, tilePassability);
                             if (setWalkPath(tempPath, 2, false))
                             {
                                 //loopBack = true;
@@ -945,7 +956,7 @@ void Creature::doTurn()
 
                     // See if any of the tiles is one of our neighbors
                     wasANeighbor = false;
-                    creatureNeighbors = gameMap.neighborTiles(myTile);
+                    creatureNeighbors = gameMap->neighborTiles(myTile);
                     tempPlayer = getControllingPlayer();
                     for (unsigned int i = 0; i < creatureNeighbors.size()
                             && !wasANeighbor; ++i)
@@ -963,7 +974,7 @@ void Creature::doTurn()
                                 tempDouble = 5 * std::min(digRate,
                                         tempTile->getFullness());
                                 gold += tempDouble;
-                                gameMap.getSeatByColor(color)->goldMined
+                                gameMap->getSeatByColor(color)->goldMined
                                         += tempDouble;
                                 recieveExp(5.0 * digRate / 20.0);
                             }
@@ -1024,13 +1035,13 @@ void Creature::doTurn()
                     possiblePaths.clear();
                     for (unsigned int i = 0; i < markedTiles.size(); ++i)
                     {
-                        neighbors = gameMap.neighborTiles(markedTiles[i]);
+                        neighbors = gameMap->neighborTiles(markedTiles[i]);
                         for (unsigned int j = 0; j < neighbors.size(); ++j)
                         {
                             neighborTile = neighbors[j];
                             if (neighborTile != NULL
                                     && neighborTile->getFullness() < 1)
-                                possiblePaths.push_back(gameMap.path(
+                                possiblePaths.push_back(gameMap->path(
                                         positionTile(), neighborTile,
                                         tilePassability));
                         }
@@ -1084,7 +1095,7 @@ void Creature::doTurn()
                             walkPath = shortPaths[shortestIndex];
 
                             // If the path is a legitimate path, walk down it to the tile to be dug out
-                            gameMap.cutCorners(walkPath, tilePassability);
+                            gameMap->cutCorners(walkPath, tilePassability);
                             if (setWalkPath(walkPath, 2, false))
                             {
                                 //loopBack = true;
@@ -1138,7 +1149,7 @@ void Creature::doTurn()
 
                     // We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
                     // Check to see if our seat controls any treasuries.
-                    treasuriesOwned = gameMap.getRoomsByTypeAndColor(
+                    treasuriesOwned = gameMap->getRoomsByTypeAndColor(
                             Room::treasury, color);
                     if (!treasuriesOwned.empty())
                     {
@@ -1161,7 +1172,7 @@ void Creature::doTurn()
                                 nearestTreasuryTile
                                         = treasuriesOwned[i]->getCoveredTile(
                                                 tempUnsigned);
-                                tempPath = gameMap.path(myTile,
+                                tempPath = gameMap->path(myTile,
                                         nearestTreasuryTile, tilePassability);
                                 if (tempPath.size() >= 2
                                         && ((RoomTreasury*) treasuriesOwned[i])->emptyStorageSpace()
@@ -1179,7 +1190,7 @@ void Creature::doTurn()
                                                 - 1);
                                 tempTile = treasuriesOwned[i]->getCoveredTile(
                                         tempUnsigned);
-                                tempPath2 = gameMap.path(myTile, tempTile,
+                                tempPath2 = gameMap->path(myTile, tempTile,
                                         tilePassability);
                                 if (tempPath2.size() >= 2 && tempPath2.size()
                                         < nearestTreasuryDistance
@@ -1195,7 +1206,7 @@ void Creature::doTurn()
                         if (validPathFound)
                         {
                             // Begin walking to this treasury.
-                            gameMap.cutCorners(tempPath, tilePassability);
+                            gameMap->cutCorners(tempPath, tilePassability);
                             if (setWalkPath(tempPath, 2, false))
                             {
                                 setAnimationState("Walk");
@@ -1247,7 +1258,7 @@ void Creature::doTurn()
                     }
 
                     // Check to see if we can walk to a quarters that does have an open tile.
-                    tempRooms = gameMap.getRoomsByTypeAndColor(Room::quarters,
+                    tempRooms = gameMap->getRoomsByTypeAndColor(Room::quarters,
                             color);
                     std::random_shuffle(tempRooms.begin(), tempRooms.end());
                     unsigned int nearestQuartersDistance;
@@ -1272,7 +1283,7 @@ void Creature::doTurn()
                         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
                         if (tempTile != NULL)
                         {
-                            tempPath2 = gameMap.path(myTile, tempTile,
+                            tempPath2 = gameMap->path(myTile, tempTile,
                                     tilePassability);
 
                             // Find out the minimum valid path length of the paths determined in the above block.
@@ -1303,7 +1314,7 @@ void Creature::doTurn()
                     // If we found a valid path to an open room in a quarters, then start walking along it.
                     if (validPathFound)
                     {
-                        gameMap.cutCorners(tempPath, tilePassability);
+                        gameMap->cutCorners(tempPath, tilePassability);
                         if (setWalkPath(tempPath, 2, false))
                         {
                             setAnimationState("Walk");
@@ -1326,9 +1337,9 @@ void Creature::doTurn()
                     if (myTile != homeTile)
                     {
                         // Walk to the the home tile.
-                        tempPath = gameMap.path(myTile, homeTile,
+                        tempPath = gameMap->path(myTile, homeTile,
                                 tilePassability);
-                        gameMap.cutCorners(tempPath, tilePassability);
+                        gameMap->cutCorners(tempPath, tilePassability);
                         if (setWalkPath(tempPath, 2, false))
                         {
                             setAnimationState("Walk");
@@ -1412,7 +1423,7 @@ void Creature::doTurn()
                     }
 
                     // Get the list of dojos controlled by our seat and make sure there is at least one.
-                    tempRooms = gameMap.getRoomsByTypeAndColor(Room::dojo,
+                    tempRooms = gameMap->getRoomsByTypeAndColor(Room::dojo,
                             color);
                     if (tempRooms.empty())
                     {
@@ -1433,7 +1444,7 @@ void Creature::doTurn()
                         tempRoom = tempRooms[tempInt];
                         tempRooms.erase(tempRooms.begin() + tempInt);
                         tempDouble = 1.0 / (maxTrainDistance
-                                - gameMap.crowDistance(myTile,
+                                - gameMap->crowDistance(myTile,
                                         tempRoom->getCoveredTile(0)));
                         if (Random::Double(0.0, 1.0) < tempDouble)
                             break;
@@ -1452,7 +1463,7 @@ void Creature::doTurn()
 
                     tempTile = tempRoom->getCoveredTile(Random::Uint(0,
                             tempRoom->numCoveredTiles() - 1));
-                    tempPath = gameMap.path(myTile, tempTile, tilePassability);
+                    tempPath = gameMap->path(myTile, tempTile, tilePassability);
                     if (tempPath.size() < maxTrainDistance && setWalkPath(
                             tempPath, 2, false))
                     {
@@ -1508,7 +1519,7 @@ void Creature::doTurn()
                         sound->play(CreatureSound::ATTACK);
 
                         // Calculate how much damage we do.
-                        double damageDone = getHitroll(gameMap.crowDistance(
+                        double damageDone = getHitroll(gameMap->crowDistance(
                                 myTile, tempTile));
                         damageDone *= Random::Double(0.0, 1.0);
                         damageDone -= powl(Random::Double(0.0, 0.4), 2.0)
@@ -1599,10 +1610,10 @@ void Creature::doTurn()
                      tempVector.normalise();
                      tempVector *= randomDouble(0.0, 3.0);
                      tempQuat.FromAngleAxis(Ogre::Degree((randomDouble(0.0, 1.0) < 0.5 ? 90 : 270)), Ogre::Vector3::UNIT_Z);
-                     tempTile = gameMap.getTile(positionTile()->x + tempVector.x, positionTile()->y + tempVector.y);
+                     tempTile = gameMap->getTile(positionTile()->x + tempVector.x, positionTile()->y + tempVector.y);
                      if(tempTile != NULL)
                      {
-                     tempPath = gameMap.path(positionTile(), tempTile, tilePassability);
+                     tempPath = gameMap->path(positionTile(), tempTile, tilePassability);
 
                      if(setWalkPath(tempPath, 2, false))
                      setAnimationState("Walk");
@@ -1637,7 +1648,7 @@ void Creature::doTurn()
                     tempDouble = std::max(weaponL->range, weaponR->range); // Pick a true destination randomly within the max range of our weapons.
                     tempDouble = sqrt(tempDouble);
                     //FIXME:  This should find a path to a tile we can walk to, it does not always do this the way it is right now.
-                    tempPath = gameMap.path(positionTile()->x,
+                    tempPath = gameMap->path(positionTile()->x,
                             positionTile()->y, minimumFieldValue.first.first
                                     + Random::Double(-1.0 * tempDouble,
                                             tempDouble),
@@ -1649,7 +1660,7 @@ void Creature::doTurn()
                     if (tempPath.size() >= tempUnsigned)
                         tempPath.resize(tempUnsigned);
 
-                    gameMap.cutCorners(tempPath, tilePassability);
+                    gameMap->cutCorners(tempPath, tilePassability);
                     if (setWalkPath(tempPath, 2, false))
                     {
                         if (tempBool)
@@ -1776,8 +1787,8 @@ void Creature::updateVisibleTiles()
 {
     //double effectiveRadius = min(5.0, sightRadius) + sightRadius*powl(randomDouble(0.0, 1.0), 3.0);
     //double effectiveRadius = sightRadius;
-    //visibleTiles = gameMap.visibleTiles(positionTile(), effectiveRadius);
-    visibleTiles = gameMap.visibleTiles(positionTile(), sightRadius);
+    //visibleTiles = gameMap->visibleTiles(positionTile(), effectiveRadius);
+    visibleTiles = gameMap->visibleTiles(positionTile(), sightRadius);
 }
 
 /*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
@@ -1806,7 +1817,7 @@ std::vector<AttackableObject*> Creature::getReachableAttackableObjects(
         // Try to find a valid path from the tile this creature is in to the nearest tile where the current target object is.
         //TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
         objectTile = objectsToCheck[i]->getCoveredTiles()[0];
-        if (gameMap.pathExists(myTile->x, myTile->y, objectTile->x,
+        if (gameMap->pathExists(myTile->x, myTile->y, objectTile->x,
                 objectTile->y, tilePassability))
         {
             tempVector.push_back(objectsToCheck[i]);
@@ -1814,7 +1825,7 @@ std::vector<AttackableObject*> Creature::getReachableAttackableObjects(
             if (minRange != NULL)
             {
                 //TODO:  If this could be computed without the path call that would be better.
-                tempPath = gameMap.path(myTile, objectTile, tilePassability);
+                tempPath = gameMap->path(myTile, objectTile, tilePassability);
 
                 if (!minRangeSet)
                 {
@@ -1909,7 +1920,7 @@ std::vector<Tile*> Creature::getVisibleMarkedTiles()
  */
 std::vector<AttackableObject*> Creature::getVisibleForce(int color, bool invert)
 {
-    return gameMap.getVisibleForce(visibleTiles, color, invert);
+    return gameMap->getVisibleForce(visibleTiles, color, invert);
 }
 
 /*! \brief Displays a mesh on all of the tiles visible to the creature.
@@ -1982,7 +1993,7 @@ Tile* Creature::positionTile()
     Ogre::Vector3 tempPosition(position);
     sem_post(&positionLockSemaphore);
 
-    return gameMap.getTile((int) (tempPosition.x), (int) (tempPosition.y));
+    return gameMap->getTile((int) (tempPosition.x), (int) (tempPosition.y));
 }
 
 /** \brief Conform: AttackableObject - Returns a vector containing the tile the creature is in.
@@ -2181,16 +2192,16 @@ Player* Creature::getControllingPlayer()
 {
     Player *tempPlayer;
 
-    if (gameMap.me->getSeat()->color == color)
+    if (gameMap->me->getSeat()->color == color)
     {
-        return gameMap.me;
+        return gameMap->me;
     }
 
     // Try to find and return a player with color equal to this creature's
-    for (unsigned int i = 0, numPlayers = gameMap.numPlayers();
+    for (unsigned int i = 0, numPlayers = gameMap->numPlayers();
             i < numPlayers; ++i)
     {
-        tempPlayer = gameMap.getPlayer(i);
+        tempPlayer = gameMap->getPlayer(i);
         if (tempPlayer->getSeat()->color == color)
         {
             return tempPlayer;

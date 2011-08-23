@@ -8,8 +8,8 @@
 #include <sstream>
 #include <fstream>
 
-#include "Globals.h"
-#include "Functions.h"
+#include <OgreErrorDialog.h>
+
 #include "ODFrameListener.h"
 #include "GameMap.h"
 #include "TextRenderer.h"
@@ -25,6 +25,7 @@
 #include "CameraManager.h"
 #include "ASWrapper.h"
 #include "Console.h"
+#include "GameMap.h"
 
 #include "ODApplication.h"
 
@@ -66,7 +67,7 @@ ODApplication::ODApplication() :
     logManager->setLogDetail(Ogre::LL_BOREME);
     new Translation();
     new GameState();
-    RenderManager* renderMgr = new RenderManager(&gameMap);
+    RenderManager* renderMgr = new RenderManager();
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
     new Gui();
@@ -79,6 +80,10 @@ ODApplication::ODApplication() :
                 10, 50, 70, Ogre::ColourValue::Green);
     //TODO - move this to when the map is actually loaded
     MusicPlayer::getSingleton().start(0);
+
+    //TODO: this should not be created here.
+    gameMap = new GameMap;
+    renderMgr->setGameMap(gameMap);
 
     //FIXME: do this only if a level loads after the main menu
     //Try to create the camera, viewport and scene. 
@@ -93,22 +98,24 @@ ODApplication::ODApplication() :
     }
     catch(Ogre::Exception& e)
     {
-        logManager->logMessage("Ogre exception when ininialising the render manager:\n"
-            + e.getFullDescription(), Ogre::LML_CRITICAL);
+        displayErrorMessage("Ogre exception when ininialising the render manager:\n"
+            + e.getFullDescription(), false);
         cleanUp();
         return;
     }
     catch (std::exception& e)
     {
-        logManager->logMessage("Exception when ininialising the render manager:\n"
-            + std::string(e.what()), Ogre::LML_CRITICAL);
+        displayErrorMessage("Exception when ininialising the render manager:\n"
+            + std::string(e.what()), false);
         cleanUp();
         return;
     }
 
     new CameraManager(renderMgr->getCamera());
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
-    root->addFrameListener(new ODFrameListener(window));
+    root->addFrameListener(new ODFrameListener(window, gameMap));
+    //TODO: This should be moved once we have separated level loading from startup.
+    
 
     //FIXME: This should be at a better place (when level loads for the first time)
     //new MiniMap;
@@ -123,15 +130,15 @@ ODApplication::ODApplication() :
     }
     catch(Ogre::Exception& e)
     {
-        logManager->logMessage("Ogre exception:\n"
-            + e.getFullDescription(), Ogre::LML_CRITICAL);
+        displayErrorMessage("Ogre exception:\n"
+            + e.getFullDescription());
         cleanUp();
         return;
     }
     catch(std::exception& e)
     {
-        logManager->logMessage("Exception:\n"
-            + std::string(e.what()), Ogre::LML_CRITICAL);
+        displayErrorMessage("Exception:\n"
+            + std::string(e.what()));
         cleanUp();
         return;
     }
@@ -147,6 +154,20 @@ ODApplication::~ODApplication()
         delete root;
     }
 }
+
+/*! \brief Display a GUI error message
+ *
+ */
+void ODApplication::displayErrorMessage(const std::string& message, bool log)
+{
+    if(log)
+    {
+        LogManager::getSingleton().logMessage(message, Ogre::LML_CRITICAL);
+    }
+    Ogre::ErrorDialog e;
+    e.display(message, LogManager::GAMELOG_NAME);
+}
+
 
 /*! \brief Delete the various singleton objects and clean up other stuff
  *
@@ -167,6 +188,7 @@ void ODApplication::cleanUp()
     delete CameraManager::getSingletonPtr();
     delete Console::getSingletonPtr();
     delete ASWrapper::getSingletonPtr();
+    delete gameMap;
 }
 
 //TODO: find some better places for some of these

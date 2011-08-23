@@ -110,6 +110,7 @@ set(OD_SOURCEFILES
     ${SRC}/LogManager.cpp
     ${SRC}/main.cpp
     ${SRC}/MapLight.cpp
+    ${SRC}/MapLoader.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
     ${SRC}/MusicPlayer.cpp

@@ -57,8 +57,11 @@ class GameMap
         void removeCreature(Creature *c);
         void queueCreatureForDeletion(Creature *c);
         Creature* getCreature(int index);
+        const Creature* getCreature(int index) const;
         Creature* getCreature(std::string cName);
-        unsigned int numCreatures();
+        const Creature* getCreature(std::string cName) const;
+        
+        unsigned int numCreatures() const;
         std::vector<Creature*> getCreaturesByColor(int color);
 
         void clearAnimatedObjects();
@@ -84,8 +87,10 @@ class GameMap
         void clearPlayers();
         bool addPlayer(Player *p);
         Player* getPlayer(int index);
+        const Player* getPlayer(int index) const;
         Player* getPlayer(const std::string& cName);
-        unsigned int numPlayers();
+        const Player* getPlayer(const std::string& cName) const;
+        unsigned int numPlayers() const;
 
         void clearRooms();
         void addRoom(Room *r);
@@ -95,6 +100,8 @@ class GameMap
         std::vector<Room*> getRoomsByType(Room::RoomType type);
         std::vector<Room*> getRoomsByTypeAndColor(Room::RoomType type,
                 int color);
+        unsigned int numRoomsByTypeAndColor(Room::RoomType type,
+                int color) const;
         std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                 Tile *startTile, Tile::TileClearType passability);
 
@@ -118,14 +125,16 @@ class GameMap
         void clearEmptySeats();
         void addEmptySeat(Seat *s);
         Seat* getEmptySeat(int index);
+        const Seat* getEmptySeat(int index) const;
         Seat* popEmptySeat();
-        unsigned int numEmptySeats();
+        unsigned int numEmptySeats() const;
 
         void clearFilledSeats();
         void addFilledSeat(Seat *s);
         Seat* getFilledSeat(int index);
+        const Seat* getFilledSeat(int index) const;
         Seat* popFilledSeat();
-        unsigned int numFilledSeats();
+        unsigned int numFilledSeats() const;
 
         Seat* getSeatByColor(int color);
 
@@ -136,7 +145,8 @@ class GameMap
 
         void addGoalForAllSeats(Goal *g);
         Goal* getGoalForAllSeats(unsigned int i);
-        unsigned int numGoalsForAllSeats();
+        const Goal* getGoalForAllSeats(unsigned int i) const;
+        unsigned int numGoalsForAllSeats() const;
         void clearGoalsForAllSeats();
 
         void clearMissileObjects();
@@ -175,6 +185,9 @@ class GameMap
                 int color = -1);
         void disableFloodFill();
         void enableFloodFill();
+
+        inline Player* getLocalPlayer() {return me;}
+        inline const Player* getLocalPlayer() const {return me;}
 
         Player *me;
         std::string nextLevel;
@@ -221,7 +234,8 @@ class GameMap
         sem_t tilesLockSemaphore;
         std::vector<CreatureClass*> classDescriptions;
         std::vector<Creature*> creatures;
-        sem_t creaturesLockSemaphore; //TODO: Most of these other vectors should also probably have semaphore locks on them.
+        //Mutable to allow locking in const functions.
+        mutable sem_t creaturesLockSemaphore; //TODO: Most of these other vectors should also probably have semaphore locks on them.
         std::vector<AnimatedObject*> animatedObjects;
         sem_t animatedObjectsLockSemaphore;
         sem_t activeObjectsLockSemaphore;

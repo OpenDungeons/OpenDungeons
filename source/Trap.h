@@ -9,6 +9,7 @@
 
 class Tile;
 class Seat;
+class GameMap;
 
 #include "AttackableObject.h"
 #include "ActiveObject.h"
@@ -25,7 +26,7 @@ class Trap: public AttackableObject, public ActiveObject
         static Trap
         * createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
                 Seat *nControllingSeat, void* params = NULL);
-        static Trap* createTrapFromStream(std::istream &is);
+        static Trap* createTrapFromStream(std::istream &is, GameMap* gameMap);
         //virtual void absorbTrap(Trap *t);
 
         void createMeshes();

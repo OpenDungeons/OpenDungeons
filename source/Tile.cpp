@@ -1,3 +1,5 @@
+#include <cstddef>
+
 #include "Globals.h"
 #include "Functions.h"
 #include "Creature.h"
@@ -27,7 +29,9 @@ void Tile::initialize()
     markedForDigging = false;
     //location = Ogre::Vector3(0.0, 0.0, 0.0);
     type = dirt;
-    setFullness(100.0);
+    //setFullness(100.0);
+    setFullnessValue(100.0);
+    fullnessMeshNumber = -1;
     rotation = 0.0;
     color = 0;
     colorDouble = 0.0;
@@ -45,6 +49,7 @@ void Tile::initialize()
 }
 
 Tile::Tile()
+    : gameMap(NULL)
 {
     initialize();
 }
@@ -56,7 +61,7 @@ Tile::Tile(int nX, int nY, TileType nType, double nFullness) :
     initialize();
 
     setType(nType);
-    setFullness(nFullness);
+    setFullnessValue(nFullness);
 }
 
 /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
@@ -78,7 +83,7 @@ void Tile::setType(TileType t)
 /*! \brief An accessor which returns the tile type (rock, claimed, etc.).
  *
  */
-Tile::TileType Tile::getType()
+Tile::TileType Tile::getType() const
 {
     return type;
 }
@@ -104,7 +109,7 @@ void Tile::setFullness(double f)
     fullness = f;
 
     // If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
-    if (fullness < 1 && getMarkedForDigging(gameMap.me) == true)
+    if (fullness < 1 && getMarkedForDigging(gameMap->getLocalPlayer()) == true)
     {
         setMarkedForDiggingForAllSeats(false);
         fullness = 0.0;
@@ -146,7 +151,7 @@ void Tile::setFullness(double f)
     if (oldTilePassability != getTilePassability())
     {
         // Do a flood fill to update the contiguous region touching the tile.
-        gameMap.doFloodFill(x, y);
+        gameMap->doFloodFill(x, y);
     }
 
     // 		4 0 7		    180
@@ -154,13 +159,13 @@ void Tile::setFullness(double f)
     // 		7 1 5		     0
     //
     bool fillStatus[9];
-    Tile *tempTile = gameMap.getTile(x, y + 1);
+    Tile *tempTile = gameMap->getTile(x, y + 1);
     fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
-    tempTile = gameMap.getTile(x, y - 1);
+    tempTile = gameMap->getTile(x, y - 1);
     fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
-    tempTile = gameMap.getTile(x - 1, y);
+    tempTile = gameMap->getTile(x - 1, y);
     fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
-    tempTile = gameMap.getTile(x + 1, y);
+    tempTile = gameMap->getTile(x + 1, y);
     fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
 
     int fullNeighbors = 0;
@@ -408,10 +413,21 @@ void Tile::setFullness(double f)
     }
 }
 
+/*! \brief Set the fullness value for the tile.
+ *  This only sets the fullness variable. This function is here to change the value
+ *  before a map object has been set. setFullness is called once a map is assigned. 
+ */
+void Tile::setFullnessValue(double f)
+{
+    sem_wait(&fullnessLockSemaphore);
+    fullness = f;
+    sem_post(&fullnessLockSemaphore);
+}
+
 /*! \brief An accessor which returns the tile's fullness which should range from 0 to 100.
  *
  */
-double Tile::getFullness()
+double Tile::getFullness() const
 {
     sem_wait(&fullnessLockSemaphore);
     double tempDouble = fullness;
@@ -425,7 +441,7 @@ double Tile::getFullness()
  * The fullness mesh number is concatenated to the tile's type to determine the
  * mesh to load to display a given tile type.
  */
-int Tile::getFullnessMeshNumber()
+int Tile::getFullnessMeshNumber() const
 {
     return fullnessMeshNumber;
 }
@@ -437,7 +453,7 @@ int Tile::getFullnessMeshNumber()
  * like Dirt100 and only flying creatures may move into a 'flyableTile' like
  * Lava0.
  */
-Tile::TileClearType Tile::getTilePassability()
+Tile::TileClearType Tile::getTilePassability() const
 {
     // Check to see if the tile is filled in.
     if (getFullness() >= 1)
@@ -481,7 +497,7 @@ Tile::TileClearType Tile::getTilePassability()
     return impassableTile;
 }
 
-bool Tile::permitsVision()
+bool Tile::permitsVision() const
 {
     //TODO: This call to getTilePassability() is far too much work, when the rules for vision are more well established this function should be replaced with specialized code which avoids this call.
     TileClearType clearType = getTilePassability();
@@ -489,7 +505,7 @@ bool Tile::permitsVision()
 }
 
 /* Checks if the place is buildable at the moment */
-bool Tile::isBuildableUpon()
+bool Tile::isBuildableUpon() const
 {
     sem_wait(&coveringRoomLockSemaphore);
     Room *ret = coveringRoom;
@@ -498,7 +514,7 @@ bool Tile::isBuildableUpon()
     return (ret==NULL && coveringTrap==false);
 }
 
-bool Tile::getCoveringTrap()
+bool Tile::getCoveringTrap() const
 {
     return coveringTrap;
 }
@@ -528,18 +544,18 @@ void Tile::setCoveringRoom(Room *r)
  *  Returns true if a tile is diggable.
  *  (Can be marked for digging and dug out by kobolds)
  */
-bool Tile::isDiggable()
+bool Tile::isDiggable() const
 {
     return ((type == dirt || type == gold || type == claimed) && getFullness() > 1)
                 ? true : false;
 }
 
-bool Tile::isClaimable()
+bool Tile::isClaimable() const
 {
     return ((type == dirt || type == claimed) && getFullness() < 1);
 }
 
-std::string Tile::getFormat()
+const char* Tile::getFormat()
 {
     return "posX\tposY\ttype\tfullness";
 }
@@ -580,8 +596,8 @@ std::istream& operator>>(std::istream& is, Tile *t)
     t->setType((Tile::TileType) tempInt);
 
     is >> tempDouble;
-    t->setFullness(tempDouble);
-
+    t->setFullnessValue(tempDouble);
+    
     return is;
 }
 
@@ -758,7 +774,7 @@ void Tile::setSelected(bool s)
 /*! \brief This accessor function returns whether or not the tile has been selected.
  *
  */
-bool Tile::getSelected()
+bool Tile::getSelected() const
 {
     return selected;
 }
@@ -780,7 +796,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 
     if (getMarkedForDigging(p) != s)
     {
-        bool thisRequestIsForMe = (p == gameMap.me);
+        bool thisRequestIsForMe = (p == gameMap->getLocalPlayer());
         if (thisRequestIsForMe)
         {
             Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
@@ -832,10 +848,10 @@ void Tile::setMarkedForDigging(bool s, Player *p)
  */
 void Tile::setMarkedForDiggingForAllSeats(bool s)
 {
-    setMarkedForDigging(s, gameMap.me);
+    setMarkedForDigging(s, gameMap->getLocalPlayer());
 
-    for (unsigned int i = 0, num = gameMap.numPlayers(); i < num; ++i)
-        setMarkedForDigging(s, gameMap.getPlayer(i));
+    for (unsigned int i = 0, num = gameMap->numPlayers(); i < num; ++i)
+        setMarkedForDigging(s, gameMap->getPlayer(i));
 }
 
 /*! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.
@@ -908,7 +924,7 @@ void Tile::removeCreature(Creature *c)
 /*! \brief This function returns the count of the number of creatures in the tile.
  *
  */
-unsigned int Tile::numCreaturesInCell()
+unsigned int Tile::numCreaturesInCell() const
 {
     sem_wait(&creaturesInCellLockSemaphore);
     unsigned int tempUnsigned = creaturesInCell.size();
@@ -949,7 +965,7 @@ void Tile::removePlayerMarkingTile(Player *p)
     }
 }
 
-unsigned int Tile::numPlayersMarkingTile()
+unsigned int Tile::numPlayersMarkingTile() const
 {
     return playersMarkingTile.size();
 }
@@ -1013,11 +1029,11 @@ double Tile::claimForColor(int nColor, double nDanceRate)
         //Disabled claim lights for now, as they make things look rather ugly
         //and hamper performance.
         /*Ogre::ColourValue tempColour =
-                gameMap.getSeatByColor(nColor)->colourValue;
+                gameMap->getSeatByColor(nColor)->colourValue;
          
         claimLight = new TemporaryMapLight(Ogre::Vector3(x, y, 0.5),
                 tempColour.r, tempColour.g, tempColour.b, 1.0, 0.1, 0.5, 0.5);
-        gameMap.addMapLight(claimLight);
+        gameMap->addMapLight(claimLight);
         claimLight->createOgreEntity();*/
         SoundEffectsHelper::getSingleton().playInterfaceSound(
                 SoundEffectsHelper::CLAIM, this->x, this->y);
@@ -1143,7 +1159,7 @@ std::vector<Tile*> Tile::getAllNeighbors()
     return ret;
 }
 
-int Tile::getColor()
+int Tile::getColor() const
 {
     return color;
 }
@@ -1153,5 +1169,14 @@ void Tile::setColor(int nColor)
     color = nColor;
 
     refreshMesh();
+}
+
+/**
+ * \brief Sets the gameMap and resets the tile fullness.
+ */
+void Tile::setGameMap(GameMap* gameMap)
+{
+    this->gameMap = gameMap;
+    setFullness(fullness);
 }
 

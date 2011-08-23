@@ -14,14 +14,16 @@
 #include <pthread.h>
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
-#include <CEGUI.h>
+#include <OgreSingleton.h>
+#include <OgreSceneQuery.h>
+#include <OgreTimer.h>
+#include <CEGUIEventArgs.h>
 
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
-#include <OIS.h>
+#include <OISMouse.h>
 
-#include "Tile.h"
 #include "ProtectedObject.h"
 
 class Socket;
@@ -46,7 +48,7 @@ class ODFrameListener :
 {
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
-        ODFrameListener(Ogre::RenderWindow* win);
+        ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap);
         virtual ~ODFrameListener();
         void requestExit();
         bool getThreadStopRequested();
@@ -77,6 +79,11 @@ class ODFrameListener :
         void printText(const std::string& text);
         bool executePromptCommand(const std::string& command, std::string arguments);
         std::string getHelpText(std::string arg);
+
+        //NOTE - we should generally avoid using this function
+        inline GameMap* getGameMap() {return gameMap;}
+        
+        inline const GameMap* getGameMap() const {return gameMap;}
 
         // Console variables
         std::string command, arguments, commandOutput, prompt;
@@ -109,10 +116,10 @@ class ODFrameListener :
         InputManager* inputManager;
 
         void exitApplication();
+        bool isInGame();
 
     private:
         ODFrameListener(const ODFrameListener&);
-        bool isInGame();
 
         bool terminalActive;
         int terminalWordWrap;
@@ -134,6 +141,8 @@ class ODFrameListener :
         //To see if the frameListener wants to exit
         ProtectedObject<bool> threadStopRequested;
         ProtectedObject<bool> exitRequested;
+
+        GameMap* gameMap;
 };
 
 #endif

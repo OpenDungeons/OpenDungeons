@@ -9,7 +9,7 @@ class GoalProtectCreature: public Goal
 {
     public:
         GoalProtectCreature(const std::string& nName,
-                const std::string& nArguments);
+                const std::string& nArguments, const GameMap& gameMap);
 
         // Inherited functions
         bool isMet(Seat *s);

@@ -269,8 +269,9 @@ std::istream& operator>>(std::istream& is, MapLight *m)
 
 TemporaryMapLight::TemporaryMapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
         Ogre::Real green, Ogre::Real blue, Ogre::Real range,
-        Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic) :
-    MapLight(nPosition, red, green, blue, range, constant, linear, quadratic)
+        Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic, GameMap& gameMap) :
+    MapLight(nPosition, red, green, blue, range, constant, linear, quadratic),
+    gameMap(gameMap)
 {
     turnsUntilDestroyed = 2;
 }

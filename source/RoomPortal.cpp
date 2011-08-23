@@ -6,7 +6,6 @@
 #include "Creature.h"
 #include "Tile.h"
 #include "RoomObject.h"
-#include "Globals.h"
 #include "GameMap.h"
 #include "Weapon.h"
 #include "CreatureAction.h"
@@ -51,7 +50,7 @@ void RoomPortal::removeCoveredTile(Tile* t)
 bool RoomPortal::doUpkeep(Room *r)
 {
     // If the game map is trying to load the next level it deletes any creatures on the map, spawning new ones prevents it from finishing.
-    if (gameMap.loadNextLevel)
+    if (gameMap->loadNextLevel)
         return true;
 
     // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
@@ -67,12 +66,12 @@ bool RoomPortal::doUpkeep(Room *r)
     //TODO:  Improve this probability calculation.
     // Count how many creatures are controlled by this color, count both the ones on
     // the gameMap and the ones in all the players of that colors' hands'.
-    double numCreatures = gameMap.getCreaturesByColor(getColor()).size();
-    Seat *controllingSeat = gameMap.getSeatByColor(getColor());
-    for(unsigned int i = 0, numPlayers = gameMap.numPlayers();
+    double numCreatures = gameMap->getCreaturesByColor(getColor()).size();
+    Seat *controllingSeat = gameMap->getSeatByColor(getColor());
+    for(unsigned int i = 0, numPlayers = gameMap->numPlayers();
     		i < numPlayers; ++i)
     {
-        Player *tempPlayer = gameMap.getPlayer(i);
+        Player *tempPlayer = gameMap->getPlayer(i);
         if (tempPlayer->getSeat() == controllingSeat)
             numCreatures += tempPlayer->numCreaturesInHand();
     }
@@ -125,7 +124,7 @@ void RoomPortal::spawnCreature()
             << "\n\n\n";
 
     // Create a new creature and copy over the class-based creature parameters.
-    Creature *newCreature = new Creature;
+    Creature *newCreature = new Creature(gameMap);
     *newCreature = *classToSpawn;
 
     // Set the creature specific parameters.
@@ -155,7 +154,7 @@ void RoomPortal::spawnCreature()
     newCreature->setMana(classToSpawn->maxMana);
 
     // Add the creature to the gameMap and create meshes so it is visible.
-    gameMap.addCreature(newCreature);
+    gameMap->addCreature(newCreature);
     newCreature->createMesh();
     newCreature->weaponL->createMesh();
     newCreature->weaponR->createMesh();
@@ -171,7 +170,7 @@ void RoomPortal::spawnCreature()
 void RoomPortal::recomputeClassProbabilities()
 {
     double probability, totalProbability = 0.0, tempDouble;
-    Seat *controllingSeat = gameMap.getSeatByColor(color);
+    Seat *controllingSeat = gameMap->getSeatByColor(color);
 
     // Normalize the faction and alignment coefficients.
     tempDouble = controllingSeat->factionHumans
@@ -199,13 +198,13 @@ void RoomPortal::recomputeClassProbabilities()
     // Loop over the CreatureClasses in the gameMap and for each one, compute
     // the probability that a creature of that type will be selected.
     classProbabilities.clear();
-    for (unsigned int i = 0; i < gameMap.numClassDescriptions(); ++i)
+    for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
     {
-        CreatureClass *tempClass = gameMap.getClassDescription(i);
+        CreatureClass *tempClass = gameMap->getClassDescription(i);
 
         // Compute the probability that a creature of the current class will be chosen.
         //TODO:  Actually implement this probability calculation.
-        probability = 1.0 / gameMap.numClassDescriptions();
+        probability = 1.0 / gameMap->numClassDescriptions();
 
         probability += controllingSeat->factionHumans
                 * tempClass->coefficientHumans;

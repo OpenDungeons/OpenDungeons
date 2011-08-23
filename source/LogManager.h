@@ -49,11 +49,11 @@ public:
                     bool maskDebug = false);
     void setLogDetail(Ogre::LoggingLevel ll);
     Ogre::LoggingLevel getLogDetail();
+    static const std::string GAMELOG_NAME;
 private:
     LogManager(const LogManager& other);
     LogManager& operator=(const LogManager& other);
     Ogre::Log* gameLog;
-    static const std::string GAMELOG_NAME;
 #ifdef LOGMANAGER_USE_LOCKS
     sem_t logLockSemaphore;
 #endif

@@ -3,7 +3,9 @@
 
 #include <vector>
 #include <string>
+#include <cassert>
 
+class GameMap;
 class Tile;
 
 /*! \brief An abstract class representing an interface for creatures, traps, doors, etc to present to the AI subsystem for combat calculations.
@@ -23,6 +25,14 @@ class AttackableObject
         {
             creature, room, trap, door
         };
+
+        AttackableObject();
+
+        inline virtual void setGameMap(GameMap* gameMap)
+        {
+            this->gameMap = gameMap;
+            assert(gameMap != NULL);
+        }
 
         //! \brief Returns a list of the tiles that this object is in/covering.  For creatures and other small objects
         //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
@@ -58,6 +68,9 @@ class AttackableObject
 
         static std::vector<AttackableObject*> removeDeadObjects(
                 const std::vector<AttackableObject*> &objects);
+    protected:
+        //TODO: We should change this to be set by the constructor.
+        GameMap* gameMap;
 };
 
 #endif

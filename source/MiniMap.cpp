@@ -46,9 +46,9 @@ MiniMap::MiniMap() :
     Ogre::uint8* pDest = static_cast<Ogre::uint8*>(
             pixelBuffer->getCurrentLock().data) - 1;
 
-    for(size_t i = 0; i < width; ++i)
+    for(Ogre::uint i = 0; i < width; ++i)
     {
-        for(size_t j = 0; j < height; ++j)
+        for(Ogre::uint j = 0; j < height; ++j)
         {
             /*FIXME: even if we use a THREE byte pixel format (PF_R8G8B8),
              * for some reason it only works if we have FOUR increments

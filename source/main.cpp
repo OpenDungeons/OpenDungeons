@@ -14,7 +14,7 @@
 #include "ProtectedObject.h"
 #include "Random.h"
 
-GameMap gameMap;
+//GameMap gameMap;
 
 sem_t lightNumberLockSemaphore;
 sem_t missileObjectUniqueNumberLockSemaphore;
