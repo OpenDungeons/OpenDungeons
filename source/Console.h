@@ -30,14 +30,17 @@ class Console :
         void setVisible(const bool& newState);
         void toggleVisibility();
 
-        inline const bool& getAllowTrivial() const{return allowTrivial;}
-        inline void setAllowTrivial(const bool& newState){allowTrivial = newState;}
+        inline const bool&  getAllowTrivial() const                 { return allowTrivial; }
+        inline void         setAllowTrivial(const bool& newState)   { allowTrivial = newState; }
 
-        inline const bool& getAllowNormal() const{return allowNormal;}
-        inline void setAllowNormal(const bool& newState){allowNormal = newState;}
+        inline const bool&  getAllowNormal() const                  { return allowNormal; }
+        inline void         setAllowNormal(const bool& newState)    { allowNormal = newState; }
 
-        inline const bool& getAllowCritical() const{return allowCritical;}
-        inline void setAllowCritical(const bool& newState){allowCritical = newState;}
+        inline const bool&  getAllowCritical() const                { return allowCritical; }
+        inline void         setAllowCritical(const bool& newState)  { allowCritical = newState; }
+
+        inline const bool&  getChatMode() const                     { return chatMode; }
+        inline void         setChatMode(const bool& newState)       { chatMode = newState; }
 
         void print(const Ogre::String &text);
 
@@ -45,19 +48,20 @@ class Console :
         virtual bool frameEnded(const Ogre::FrameEvent &evt);
 
         void onKeyPressed(const OIS::KeyEvent &arg);
-
-        void messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName);
+        void messageLogged(const Ogre::String& message,
+                Ogre::LogMessageLevel lml, bool maskDebug,
+                const Ogre::String &logName);
 
     private:
         //state variables
-        unsigned int consoleLineLength;
-        unsigned int consoleLineCount;
-        bool visible;
-        bool updateOverlay;
-
-        bool allowTrivial;
-        bool allowNormal;
-        bool allowCritical;
+        unsigned int    consoleLineLength;
+        unsigned int    consoleLineCount;
+        bool            visible;
+        bool            updateOverlay;
+        bool            allowTrivial;
+        bool            allowNormal;
+        bool            allowCritical;
+        bool            chatMode;
 
         //basic conatiner objects
         Ogre::OverlayContainer* panel;
@@ -65,17 +69,18 @@ class Console :
         Ogre::Overlay*          overlay;
 
         //input/output storage variakes
-        unsigned int startLine;
+        unsigned int            startLine;
         std::list<Ogre::String> lines;
-        Ogre::String prompt;
+        Ogre::String            prompt;
 
         //history variables
-        std::vector<Ogre::String> history;
-        unsigned int curHistPos;
+        std::vector<Ogre::String>   history;
+        unsigned int                curHistPos;
 
-        void checkVisibility();
-        std::vector<Ogre::String> split(const Ogre::String& str, const char& splitChar);
-        void scrollHistory(const bool& direction);
+        void                        checkVisibility();
+        std::vector<Ogre::String>   split(const Ogre::String& str,
+                const char& splitChar);
+        void                        scrollHistory(const bool& direction);
 };
 
 #endif /* CONSOLE_H_ */

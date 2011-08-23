@@ -5,7 +5,9 @@
  * \brief  Initializes AngelScript and provides access to its functions
  *
  * AngelScript documentation can be found at:
- * www.angelcode.com/angelscript/sdk/docs/manual/index.html
+ *  www.angelcode.com/angelscript/sdk/docs/manual/index.html
+ * The Ogre-Angelscript binding project is something to keep an eye on:
+ *  code.google.com/p/ogre-angelscript/
  */
 
 /* TODO list:
@@ -28,6 +30,7 @@
 #include "CameraManager.h"
 #include "Console.h"
 #include "LogManager.h"
+#include "ODApplication.h"
 #include "ODFrameListener.h"
 #include "ResourceManager.h"
 
@@ -39,12 +42,9 @@ template<> ASWrapper* Ogre::Singleton<ASWrapper>::ms_Singleton = 0;
  *
  */
 ASWrapper::ASWrapper() :
-        //create engine
-        engine(asCreateScriptEngine(ANGELSCRIPT_VERSION)),
-        //create modules
-        module(engine->GetModule("asModule", asGM_ALWAYS_CREATE)),
-        //create context that runs the script functions
-        context(engine->CreateContext())
+        engine  (asCreateScriptEngine(ANGELSCRIPT_VERSION)),
+        module  (engine->GetModule("asModule", asGM_ALWAYS_CREATE)),
+        context (engine->CreateContext())
 {
     LogManager::getSingleton().logMessage(
             "*** Initialising script engine AngelScript ***");
@@ -200,34 +200,94 @@ void ASWrapper::registerEverything()
      *
      */
 
+    //return value of engine for assert check
     int r = 0;
 
     //helper functions
-    r = engine->RegisterGlobalFunction("int stringToInt(string &in)", asFunctionPtr(ASWrapper::stringToInt), asCALL_CDECL); assert(r >= 0);
-    r = engine->RegisterGlobalFunction("double stringToDouble(string &in)", asFunctionPtr(ASWrapper::stringToFloat), asCALL_CDECL); assert(r >= 0);
+    r = engine->RegisterGlobalFunction(
+            "int stringToInt(string &in)",
+            asFunctionPtr(ASWrapper::stringToInt),
+            asCALL_CDECL); assert(r >= 0);
+    r = engine->RegisterGlobalFunction(
+            "double stringToFloat(string &in)",
+            asFunctionPtr(ASWrapper::stringToFloat),
+            asCALL_CDECL); assert(r >= 0);
+    r = engine->RegisterGlobalFunction(
+            "bool checkIfInt(string &in)",
+            asFunctionPtr(ASWrapper::checkIfInt),
+            asCALL_CDECL); assert(r >= 0);
+    r = engine->RegisterGlobalFunction(
+            "bool checkIfFloat(string &in)",
+            asFunctionPtr(ASWrapper::checkIfFloat),
+            asCALL_CDECL); assert(r >= 0);
+
+    //some variabless
+    r = engine->RegisterGlobalProperty(
+            "double MAXFPS",
+            &ODApplication::MAX_FRAMES_PER_SECOND); assert(r >= 0);
 
     //Console
-    r = engine->RegisterObjectType("Console", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    r = engine->RegisterGlobalProperty("Console console", Console::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod("Console", "void print(string)", asMETHOD(Console, print), asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectType(
+            "Console", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
+    r = engine->RegisterGlobalProperty(
+            "Console console",
+            Console::getSingletonPtr()); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "Console",
+            "void print(string)",
+            asMETHOD(Console, print),
+            asCALL_THISCALL); assert(r >= 0);
 
     //LogManager
-    r = engine->RegisterObjectType("LogManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    r = engine->RegisterGlobalProperty("LogManager logManager", LogManager::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod("LogManager", "void logMessage(string)", asMETHOD(LogManager, logMessage), asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectType(
+            "LogManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
+    r = engine->RegisterGlobalProperty(
+            "LogManager logManager",
+            LogManager::getSingletonPtr()); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "LogManager",
+            "void logMessage(string)",
+            asMETHOD(LogManager, logMessage),
+            asCALL_THISCALL); assert(r >= 0);
 
     //ODFrameListener
-    r = engine->RegisterObjectType("ODFrameListener", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    r = engine->RegisterGlobalProperty("ODFrameListener frameListener", ODFrameListener::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod("ODFrameListener", "void requestExit()", asMETHOD(ODFrameListener, requestExit), asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectType(
+            "ODFrameListener", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
+    r = engine->RegisterGlobalProperty(
+            "ODFrameListener frameListener",
+            ODFrameListener::getSingletonPtr()); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "ODFrameListener",
+            "void requestExit()",
+            asMETHOD(ODFrameListener, requestExit),
+            asCALL_THISCALL); assert(r >= 0);
 
     //CameraManager
-    r = engine->RegisterObjectType("CameraManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    r = engine->RegisterGlobalProperty("CameraManager cameraManager", CameraManager::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod("CameraManager", "void setMoveSpeedAccel(float &in)", asMETHOD(CameraManager, setMoveSpeedAccel), asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("CameraManager", "float& getMoveSpeed()", asMETHOD(CameraManager, getMoveSpeed), asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("CameraManager", "void setRotateSpeed(float &in)", asMETHOD(CameraManager, setRotateSpeed), asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("CameraManager", "float getRotateSpeed()", asMETHOD(CameraManager, getRotateSpeed), asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectType(
+            "CameraManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
+    r = engine->RegisterGlobalProperty(
+            "CameraManager cameraManager",
+            CameraManager::getSingletonPtr()); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "CameraManager",
+            "void setMoveSpeedAccel(float &in)",
+            asMETHOD(CameraManager, setMoveSpeedAccel),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "CameraManager",
+            "float& getMoveSpeed()",
+            asMETHOD(CameraManager, getMoveSpeed),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "CameraManager",
+            "void setRotateSpeed(float &in)",
+            asMETHOD(CameraManager, setRotateSpeed),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "CameraManager",
+            "float getRotateSpeed()",
+            asMETHOD(CameraManager, getRotateSpeed),
+            asCALL_THISCALL); assert(r >= 0);
 }
 
 /*! \brief Passes the console input to the script that holds all the functions
@@ -253,10 +313,10 @@ void ASWrapper::executeConsoleCommand(
     delete arguments;
 }
 
-/* \brief Script helper function, converts a string to an int
+/*! \brief Script helper function, converts a string to an int
  *
- * \param str The string to be converted
- * \return The converted number
+ *  \param str The string to be converted
+ *  \return The converted number
  */
 int ASWrapper::stringToInt(const std::string& str)
 {
@@ -266,10 +326,10 @@ int ASWrapper::stringToInt(const std::string& str)
     return i;
 }
 
-/* \brief Script helper function, converts a string to a float
+/*! \brief Script helper function, converts a string to a float
  *
- * \param str The string to be converted
- * \return The converted number
+ *  \param str The string to be converted
+ *  \return The converted number
  */
 float ASWrapper::stringToFloat(const std::string& str)
 {
@@ -277,4 +337,28 @@ float ASWrapper::stringToFloat(const std::string& str)
     float f = 0;
     stream >> f;
     return f;
+}
+
+/*! \brief Script helper function, checks if a string contains an int
+ *
+ *  \param str The string to be checked
+ *  \return true if string contains an int, else false
+ */
+bool ASWrapper::checkIfInt(const std::string& str)
+{
+    std::istringstream stream(str);
+    int a;
+    return (stream >> a);
+}
+
+/*! \brief Script helper function, checks if a string contains a float
+ *
+ *  \param str The string to be checked
+ *  \return true if string contains a float, else false
+ */
+bool ASWrapper::checkIfFloat(const std::string& str)
+{
+    std::istringstream stream(str);
+    float f;
+    return (stream >> f);
 }

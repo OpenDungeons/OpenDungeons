@@ -10,6 +10,7 @@ ifdef SHARED
 	DEVLIB = libangelscript.so
 else
 	LIB = libangelscript.a
+	DEVLIB = libangelscript.a
 endif
 INC = angelscript.h
 
@@ -60,6 +61,7 @@ SRCNAMES = \
   as_callfunc_sh4.cpp \
   as_callfunc_x86.cpp \
   as_callfunc_x64_gcc.cpp \
+  as_callfunc_x64_mingw.cpp \
   as_compiler.cpp \
   as_context.cpp \
   as_configgroup.cpp \

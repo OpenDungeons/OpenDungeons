@@ -15,6 +15,39 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
+<h2>Version 2.21.1 - 2011/08/21</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed crash when doing a value assignment to a handle obtained from a property accessor (Thanks _orm_)
+<li>Compiler will now give error when assigning to property of an object that is returned by value from a function
+<li>Fixed bug in the std::string add-on in the boolean operators that concatenates a bool type to the string (Thanks Altren)
+<li>Fixed bug when pass null to output parameter and the compiler didn't properly clean up the stack
+<li>Fixed bug with ternary condition operator when the first option was null (Thanks TheAtom)
+<li>Fixed bug with instanciating templates with subtypes of the same name as the internal template subtype (Thanks TheAtom)
+<li>Fixed bug in debugger add-on when printing the value of an uint8 (Thanks Friggle)
+<li>Fixed bug with handle assignment with set_opIndex (Thanks Lasse &Ouml;&ouml;rni)
+</ul>
+<li>Library
+<ul>
+<li>Added the asOBJ_ASHANDLE type flag. This will be used together with asOBJ_VALUE to allow application to register a container type that can store any handle type
+<li>Implemented support for asBEHAVE_REF_CAST with the signature 'void f(?&amp;out)' which allow a cast to any handle type, evaluated at runtime
+<li>asIScriptContext::Unprepare no longer free's the stack memory, so there is no performance penalty for that
+<li>Added support for native calling conventions on Win64 with MinGW64 (Thanks _Vicious_)
+</ul>
+<li>Script language
+<ul>
+<li>The compiler will no longer warn if passing null to a function argument that is declared as an output handle
+</ul>
+<li>Add-ons
+<ul>
+<li>Added the CScriptHandle add-on which provides a default implementation of the new asOBJ_ASHANDLE type
+<li>Updated the clib add-on to the latest interface (Thanks lexa-skripa)
+<li>Added the CSerializer add-on which allow the application to backup values of variables in a module and then restore them (Thanks FDsagizi)
+</ul>
+</ul>
+
 <h2>Version 2.21.0 - 2011/07/03</h2>
 
 <ul>

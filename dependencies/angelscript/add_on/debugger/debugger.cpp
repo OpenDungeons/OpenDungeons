@@ -22,9 +22,9 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 	else if( typeId == asTYPEID_BOOL )
 		return *(bool*)value ? "true" : "false";
 	else if( typeId == asTYPEID_INT8 )
-		s << *(signed char*)value;
+		s << (int)*(signed char*)value;
 	else if( typeId == asTYPEID_INT16 )
-		s << *(signed short*)value;
+		s << (int)*(signed short*)value;
 	else if( typeId == asTYPEID_INT32 )
 		s << *(signed int*)value;
 	else if( typeId == asTYPEID_INT64 )
@@ -34,9 +34,9 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 		s << *(asINT64*)value;
 #endif
 	else if( typeId == asTYPEID_UINT8 )
-		s << *(unsigned char*)value;
+		s << (unsigned int)*(unsigned char*)value;
 	else if( typeId == asTYPEID_UINT16 )
-		s << *(unsigned short*)value;
+		s << (unsigned int)*(unsigned short*)value;
 	else if( typeId == asTYPEID_UINT32 )
 		s << *(unsigned int*)value;
 	else if( typeId == asTYPEID_UINT64 )

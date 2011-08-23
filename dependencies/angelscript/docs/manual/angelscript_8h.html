@@ -52,7 +52,7 @@
 
 <tr><td class="mdescLeft">&nbsp;</td><td class="mdescRight">Information on a bytecode instruction.  <a href="structas_s_b_c_info.html#_details">More...</a><br></td></tr>
 <tr><td colspan="2"><br><h2>Defines</h2></td></tr>
-<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#99c6b8b0882e45e5d0b2ed19f6f7a157">ANGELSCRIPT_VERSION</a>&nbsp;&nbsp;&nbsp;22100</td></tr>
+<tr><td class="memItemLeft" nowrap align="right" valign="top">#define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#99c6b8b0882e45e5d0b2ed19f6f7a157">ANGELSCRIPT_VERSION</a>&nbsp;&nbsp;&nbsp;22101</td></tr>
 
 <tr><td class="memItemLeft" nowrap align="right" valign="top"><a class="anchor" name="78f8f2c7f1c88b12e74a5ac47b4184ae"></a><!-- doxytag: member="angelscript.h::asFUNCTION" ref="78f8f2c7f1c88b12e74a5ac47b4184ae" args="(f)" -->
 #define&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#78f8f2c7f1c88b12e74a5ac47b4184ae">asFUNCTION</a>(f)&nbsp;&nbsp;&nbsp;asFunctionPtr(f)</td></tr>
@@ -233,6 +233,8 @@ typedef void(*&nbsp;</td><td class="memItemRight" valign="bottom"><a class="el" 
 &nbsp;&nbsp;<a class="el" href="angelscript_8h.html#855d86fa9ee15b9f75e553ee376b5c7aaae92b24e278976320f19d9dc75fe6db">asOBJ_SCOPED</a> =  0x20, 
 <br>
 &nbsp;&nbsp;<a class="el" href="angelscript_8h.html#855d86fa9ee15b9f75e553ee376b5c7ae8de459b4106475aa8766edb5b088aac">asOBJ_TEMPLATE</a> =  0x40, 
+<br>
+&nbsp;&nbsp;<a class="el" href="angelscript_8h.html#855d86fa9ee15b9f75e553ee376b5c7adf3d1f30658e593f48c5c5f542ac4845">asOBJ_ASHANDLE</a> =  0x80, 
 <br>
 &nbsp;&nbsp;<a class="el" href="angelscript_8h.html#855d86fa9ee15b9f75e553ee376b5c7a103297ed88696a3c30ec12e533d902c3">asOBJ_APP_CLASS</a> =  0x100, 
 <br>
@@ -976,14 +978,14 @@ This header file describes the complete application programming interface for An
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define ANGELSCRIPT_VERSION&nbsp;&nbsp;&nbsp;22100          </td>
+          <td class="memname">#define ANGELSCRIPT_VERSION&nbsp;&nbsp;&nbsp;22101          </td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 
 <p>
-Version 2.21.0 
+Version 2.21.1 
 </div>
 </div><p>
 <hr><h2>Typedef Documentation</h2>
@@ -1785,6 +1787,8 @@ This reference type doesn't allow handles to be held. Only valid for reference t
 The life time of objects of this type are controlled by the scope of the variable. Only valid for reference types. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="855d86fa9ee15b9f75e553ee376b5c7ae8de459b4106475aa8766edb5b088aac"></a><!-- doxytag: member="asOBJ_TEMPLATE" ref="855d86fa9ee15b9f75e553ee376b5c7ae8de459b4106475aa8766edb5b088aac" args="" -->asOBJ_TEMPLATE</em>&nbsp;</td><td>
 A template type. </td></tr>
+<tr><td valign="top"><em><a class="anchor" name="855d86fa9ee15b9f75e553ee376b5c7adf3d1f30658e593f48c5c5f542ac4845"></a><!-- doxytag: member="asOBJ_ASHANDLE" ref="855d86fa9ee15b9f75e553ee376b5c7adf3d1f30658e593f48c5c5f542ac4845" args="" -->asOBJ_ASHANDLE</em>&nbsp;</td><td>
+The value type should be treated as a handle. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="855d86fa9ee15b9f75e553ee376b5c7a103297ed88696a3c30ec12e533d902c3"></a><!-- doxytag: member="asOBJ_APP_CLASS" ref="855d86fa9ee15b9f75e553ee376b5c7a103297ed88696a3c30ec12e533d902c3" args="" -->asOBJ_APP_CLASS</em>&nbsp;</td><td>
 The C++ type is a class type. Only valid for value types. </td></tr>
 <tr><td valign="top"><em><a class="anchor" name="855d86fa9ee15b9f75e553ee376b5c7afd799c0705cee720a12ceb2838796024"></a><!-- doxytag: member="asOBJ_APP_CLASS_CONSTRUCTOR" ref="855d86fa9ee15b9f75e553ee376b5c7afd799c0705cee720a12ceb2838796024" args="" -->asOBJ_APP_CLASS_CONSTRUCTOR</em>&nbsp;</td><td>
@@ -2197,7 +2201,7 @@ It's not necessary to call this if only a single thread accesses the engine.
 </div>
 </div><p>
 </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Jul 3 18:09:36 2011 for AngelScript by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Aug 21 13:13:47 2011 for AngelScript by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

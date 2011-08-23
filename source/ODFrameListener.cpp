@@ -604,21 +604,14 @@ void ODFrameListener::printText(const std::string& text)
     TextRenderer::getSingleton().setText("DebugMessages", tempString);
 }
 
-//TODO: bind this to the new console!
-//TODO: convert the default commands to something better (functors?)
-//TODO: make own commands scriptable
-/*! \brief Process the commandline from the terminal and carry out the actions specified in by the user.
- *
+//TODO: make rest of commands scriptable
+/*! \brief Process the commandline from the terminal and carry out the actions
+ *  specified in by the user.
  */
 bool ODFrameListener::executePromptCommand(const std::string& command,
         std::string arguments)
 {
     std::stringstream tempSS;
-
-    // Begin Command Implementation
-    //
-    // All the code from here to the rest of the function is the implementation code
-    // for specific commands which are handled by the terminal.
 
     /*
     // Exit the program
@@ -745,9 +738,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                 : "\n" + ODApplication::HELP_MESSAGE + "\n";
     }
 
+    /*
     // A utility to set the wordrap on the terminal to a specific value
     else if (command.compare("termwidth") == 0)
     {
+        //NOTE: dropped in AS (this done by the console)
         if (!arguments.empty())
         {
             tempSS.str(arguments);
@@ -769,7 +764,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             commandOutput += tempString.substr(i % 10, 1);
         }
 
-    }
+    } */
 
     // A utility which adds a new section of the map given as the
     // rectangular region between two pairs of coordinates
@@ -856,9 +851,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         }
     }
 
+    /*
     // Set max frames per second
     else if (command.compare("fps") == 0)
     {
+        //NOTE: converted to AS
         if (!arguments.empty())
         {
             Ogre::Real tempDouble;
@@ -875,11 +872,12 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::MAX_FRAMES_PER_SECOND))
                     + "\n";
         }
-    }
+    }*/
 
     // Set the max number of threads the gameMap should spawn when it does the creature AI.
     else if (command.compare("aithreads") == 0)
     {
+        //NOTE: converted to AS, but gameMap needs to be prepared
         if (!arguments.empty())
         {
             tempSS.str(arguments);

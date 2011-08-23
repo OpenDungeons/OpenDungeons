@@ -54,11 +54,6 @@ void executeConsoleCommand(string &in com, string[] &in args)
         //TODO: code
     }
 
-    else if(com == "termwidth")
-    {
-        //TODO: code
-    }
-
     else if(com == "addtiles")
     {
         //TODO: code
@@ -74,8 +69,15 @@ void executeConsoleCommand(string &in com, string[] &in args)
         {
             if(checkArgCount(argCount, 1))
             {
-                cameraManager.setMoveSpeedAccel(2.0 * stringToDouble(args[0]));
-                console.print("movespeed set to: " + cameraManager.getMoveSpeed());
+                if(checkIfFloat(args[0]))
+                {
+                    cameraManager.setMoveSpeedAccel(2.0 * stringToFloat(args[0]));
+                    console.print("movespeed set to: " + cameraManager.getMoveSpeed());
+                }
+                else
+                {
+                    console.print("ERROR: Expected a floating point number in first argument.");
+                }
             }
         }
     }
@@ -100,13 +102,46 @@ void executeConsoleCommand(string &in com, string[] &in args)
 
     else if(com == "fps")
     {
-        //TODO: code
+        if(argCount == 0)
+        {
+            console.print("Current maximum fps count: " + MAXFPS);
+        }
+        else
+        {
+            if(checkArgCount(argCount, 1))
+            {
+                if(checkIfFloat(args[0]))
+                {
+                    MAXFPS = stringToFloat(args[0]);
+                    console.print("set maximum fps count to: " + MAXFPS);
+                }
+                else
+                {
+                    console.print("ERROR: Expected a floating point number in first argument.");
+                }
+            }
+        }
     }
 
+    /*
+    TODO: prepare gameMap
     else if(com == "aithreads")
     {
-        //TODO: code
-    }
+        if(argCount == 0)
+        {
+            console.print("Current maximum number of creature AI threads: " + gameMap.getMaxAiThreads());
+        }
+        else
+        {
+            if(checkArgCount(argCount, 1))
+            {
+                if(checkIfInt(args[0]))
+                {
+                    gameMap.setMaxAIThreads(convertToInt(args[0]));
+                }
+            }
+        }
+    }*/
 
     else if(com == "turnspersecond")
     {
@@ -197,10 +232,10 @@ void executeConsoleCommand(string &in com, string[] &in args)
     {
         //TODO: code
     }
-    
+
     else
     {
-        console.print("Command not found. Try help to get an overview.");
+        console.print("ERROR: Command not found. Try help to get an overview.");
     }
 }
 
@@ -209,9 +244,8 @@ bool checkArgCount(uint &in actualCount, uint &in expectedCount)
     if(actualCount != expectedCount)
     {
         console.print("ERROR: Wrong number of arguments (" + actualCount + "), expected " + expectedCount);
-           
         return false;
     }
-    
+
     return true;
 }

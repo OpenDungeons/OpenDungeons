@@ -108,7 +108,7 @@ Here is an example for how the variables may be printed:<p>
 The above code is only an example to give an idea of how it can be done. It is not complete and only recognizes a few types. To make it useful it would have to be expanded to recognize all types, and perhaps add some generic way of converting an object to human readable string for printing.<p>
 For script objects that conversion can be done by enumerating the members of an object through the <a class="el" href="classas_i_script_object.html">asIScriptObject</a> interface.<p>
 The debugger may also need to be able to inspect the global variables that the functions access. As the global variables are stored in the module, there is the place to look for them. The <a class="el" href="classas_i_script_module.html">asIScriptModule</a> interface can be obtained by querying the module name from the function, and then getting the module pointer from the engine. Once the module is determined the global variables are enumerated much the same way as in the example above, except that the appropriate methods on the <a class="el" href="classas_i_script_module.html" title="The interface to the script modules.">asIScriptModule</a> interface are used instead. </div>
-<hr size="1"><address style="text-align: right;"><small>Generated on Sun Jul 3 18:09:37 2011 for AngelScript by&nbsp;
+<hr size="1"><address style="text-align: right;"><small>Generated on Sun Aug 21 13:13:47 2011 for AngelScript by&nbsp;
 <a href="http://www.doxygen.org/index.html">
 <img src="doxygen.png" alt="doxygen" align="middle" border="0"></a> 1.5.9 </small></address>
 </body>

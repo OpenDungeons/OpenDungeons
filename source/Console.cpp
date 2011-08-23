@@ -22,15 +22,15 @@ template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
 
 Console::Console() :
         //these two define how much text goes into the console
-        consoleLineLength(100),
-        consoleLineCount(10),
-        visible(false),
-        updateOverlay(true),
-        allowTrivial(false),
-        allowNormal(false),
-        allowCritical(true),
-        startLine(0),
-        curHistPos(0)
+        consoleLineLength   (100),
+        consoleLineCount    (10),
+        visible             (false),
+        updateOverlay       (true),
+        allowTrivial        (false),
+        allowNormal         (false),
+        allowCritical       (true),
+        startLine           (0),
+        curHistPos          (0)
 {
     ODApplication::getSingleton().getRoot()->addFrameListener(this);
 
