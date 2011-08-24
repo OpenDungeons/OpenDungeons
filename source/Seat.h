@@ -39,6 +39,7 @@ class Seat
         bool getHasGoalsChanged();
         void resetGoalsChanged();
         inline int getColor() const {return color;}
+        inline int getGold() const {return gold;}
         
 
         // Public data members

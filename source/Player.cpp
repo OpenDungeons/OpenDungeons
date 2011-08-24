@@ -10,12 +10,12 @@
 #include "RenderRequest.h"
 #include "RenderManager.h"
 
-Player::Player() :
-        humanPlayer(true),
+Player::Player(bool isHuman) :
         newRoomType(Room::nullRoomType),
         newTrapType(Trap::nullTrapType),
         seat(NULL),
-        nick("")
+        nick(""),
+        isHuman(isHuman)
 {
 }
 
@@ -153,12 +153,12 @@ void Player::removeCreatureFromHand(int i)
 /*! \brief Check to see the first creatureInHand can be dropped on Tile t and do so if possible.
  *
  */
-bool Player::dropCreature(Tile *t)
+bool Player::dropCreature(Tile* t, unsigned int index)
 {
     // if we have a creature to drop
     if (!creaturesInHand.empty())
     {
-        Creature *tempCreature = creaturesInHand[0];
+        Creature *tempCreature = creaturesInHand[index];
 
         // if the tile is a valid place to drop a creature
         //FIXME:  This could be a race condition, if the tile state changes on the server before the client knows about it.
@@ -167,8 +167,8 @@ bool Player::dropCreature(Tile *t)
                 == Tile::claimed && t->getColor() == gameMap->getLocalPlayer()->getSeat()->getColor())))
         {
             // Add the creature to the map
-            Creature *c = creaturesInHand[0];
-            creaturesInHand.erase(creaturesInHand.begin());
+            Creature *c = creaturesInHand[index];
+            creaturesInHand.erase(creaturesInHand.begin() + index);
             gameMap->addCreature(c);
 
             // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
@@ -195,7 +195,7 @@ bool Player::dropCreature(Tile *t)
 			c->setPosition(static_cast<Ogre::Real>(t->x), 
 				static_cast<Ogre::Real>(t->y), 0.0);
 
-            if (this == gameMap->getLocalPlayer())
+            if (this == gameMap->getLocalPlayer() || isHuman == false)
             {
                 if (serverSocket != NULL)
                 {

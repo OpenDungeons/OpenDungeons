@@ -18,8 +18,12 @@
 
 
 #include "AIWrapper.h"
+#include "Seat.h"
+#include "Player.h"
+#include "GameMap.h"
 
-AIWrapper::AIWrapper()
+AIWrapper::AIWrapper(GameMap* gameMap, Player* player, Seat* seat)
+    : player(player), gameMap(gameMap), seat(seat)
 {
 
 }
@@ -32,6 +36,44 @@ AIWrapper::AIWrapper(const AIWrapper& other)
 AIWrapper::~AIWrapper()
 {
 
+}
+
+bool AIWrapper::buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2)
+{
+    std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+    std::vector<Tile*>::iterator it = affectedTiles.begin();
+    while(it != affectedTiles.end())
+    {
+        if(it->getColor() != player->getSeat()->getColor() || !it->isBuildableUpon()) {
+            it = affectedTiles.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    Room* room = Room::buildRoom(gameMap, newRoomType, affectedTiles, player);
+    return room != NULL;
+}
+
+bool AIWrapper::dropCreature(int x, int y, int index)
+{
+    return player->dropCreature(gameMap->getTile(x, y), index);
+}
+
+bool AIWrapper::pickUpCreature(Creature* creature)
+{
+    return player->pickUpCreature(creature);
+}
+
+const std::vector< Creature* >& AIWrapper::getCreaturesInHand()
+{
+    return player->getCreaturesInHand();
+}
+
+int AIWrapper::getGoldInTreasury() const
+{
+    return seat->getGold();
 }
 
 AIWrapper& AIWrapper::operator=(const AIWrapper& other)

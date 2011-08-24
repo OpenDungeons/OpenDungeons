@@ -34,6 +34,8 @@ class Room: public AttackableObject, public ActiveObject
         static Room* createRoom(RoomType nType,
                 const std::vector<Tile*> &nCoveredTiles, int nColor);
         static Room* createRoomFromStream(std::istream &is, GameMap* gameMap);
+        static Room* buildRoom(GameMap* gameMap, RoomType nType,
+                const std::vector<Tile*> &coveredTiles, Player* player, bool inEditor = false);
         virtual void absorbRoom(Room *r);
 
         static std::string getFormat();

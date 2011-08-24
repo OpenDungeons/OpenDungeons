@@ -507,11 +507,15 @@ bool Tile::permitsVision() const
 /* Checks if the place is buildable at the moment */
 bool Tile::isBuildableUpon() const
 {
+    if(type != claimed || getFullness() > 0.01 || coveringTrap==true)
+    {
+        return false;
+    }
     sem_wait(&coveringRoomLockSemaphore);
     Room *ret = coveringRoom;
     sem_post(&coveringRoomLockSemaphore);
 
-    return (ret==NULL && coveringTrap==false);
+    return ret==NULL;
 }
 
 bool Tile::getCoveringTrap() const

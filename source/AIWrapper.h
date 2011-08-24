@@ -20,20 +20,25 @@
 #ifndef AIWRAPPER_H
 #define AIWRAPPER_H
 
+#include <vector>
+
 class Player;
 class Seat;
 class GameMap;
+class Creature;
+class Room;
 
 class AIWrapper
 {
 
 public:
-    AIWrapper();
+    AIWrapper(GameMap* gameMap, Player* player, Seat* seat);
     virtual ~AIWrapper();
-    int getGoldInTreasury();
+    int getGoldInTreasury() const;
     //Do we need more than a true/false here?
     bool buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2);
     bool dropCreature(int x, int y, int index);
+    bool pickUpCreature(Creature* creature);
     const std::vector<const Creature*> getCreaturesInHand();
     
     //Should remove these when we have the needed functions
@@ -44,9 +49,9 @@ private:
     AIWrapper(const AIWrapper& other);
     virtual AIWrapper& operator=(const AIWrapper& other);
     //virtual bool operator==(const AIWrapper& other) const;
+    GameMap* gameMap;
     Player* player;
     Seat* seat;
-    GameMap* gameMap;
 };
 
 #endif // AIWRAPPER_H

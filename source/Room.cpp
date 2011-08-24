@@ -9,6 +9,7 @@
 #include "RenderManager.h"
 
 #include "Room.h"
+#include "Seat.h"
 
 const double Room::defaultTileHP = 10.0;
 
@@ -80,6 +81,45 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles,
         tempRoom->addCoveredTile(nCoveredTiles[i]);
 
     return tempRoom;
+}
+
+Room* Room::buildRoom(GameMap* gameMap, Room::RoomType nType, const std::vector< Tile* >& coveredTiles, Player* player, bool inEditor)
+{
+    int goldRequired = coveredTiles.size() * Room::costPerTile(
+                            gameMap->getLocalPlayer()->getNewRoomType());
+    Room* newRoom = NULL;
+    if(player->getSeat()->getGold() > goldRequired || inEditor)
+    {
+        newRoom = createRoom(nType, coveredTiles, player->getSeat()->getColor());
+            gameMap->addRoom(newRoom);
+        if(!inEditor)
+        {
+            gameMap->withdrawFromTreasuries(goldRequired, player->getSeat()->getColor());
+        }
+
+        // Check all the tiles that border the newly created room and see if they
+        // contain rooms which can be absorbed into this newly created room.
+        std::vector<Tile*> borderTiles =
+                gameMap->tilesBorderedByRegion(coveredTiles);
+        for (unsigned int i = 0; i < borderTiles.size(); ++i)
+        {
+            Room *borderingRoom = borderTiles[i]->getCoveringRoom();
+            if (borderingRoom != NULL && borderingRoom->getType()
+                    == newRoom->getType() && borderingRoom
+                    != newRoom)
+            {
+                newRoom->absorbRoom(borderingRoom);
+                gameMap->removeRoom(borderingRoom);
+                //FIXME:  Need to delete the bordering room to avoid a memory leak, the deletion should be done in a safe way though as there will still be outstanding RenderRequests.
+            }
+        }
+
+        newRoom->createMeshes();
+
+        SoundEffectsHelper::getSingleton().playInterfaceSound(
+                SoundEffectsHelper::BUILDROOM, false);
+    }
+    return newRoom;
 }
 
 /*! \brief Moves all the covered tiles from room r into this one, the rooms should be of the same subtype.

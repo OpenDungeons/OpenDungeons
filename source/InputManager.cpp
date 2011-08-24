@@ -129,7 +129,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
     //If we have a room or trap (or later spell) selected, show what we
     //have selected
     //TODO: This should be changed, or combined with an icon or something later.
-    if (gameMap->getLocalPlayer()->newRoomType || gameMap->getLocalPlayer()->newTrapType)
+    if (gameMap->getLocalPlayer()->getNewRoomType() || gameMap->getLocalPlayer()->getNewTrapType())
     {
         TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
                 arg.state.X.abs + 30, arg.state.Y.abs);
@@ -459,13 +459,13 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
                     }
 
                     // If we have selected a room type to add to the map, use a addNewRoom drag type.
-                    if (gameMap->getLocalPlayer()->newRoomType != Room::nullRoomType)
+                    if (gameMap->getLocalPlayer()->getNewRoomType() != Room::nullRoomType)
                     {
                         mDragType = addNewRoom;
                     }
 
                     // If we have selected a trap type to add to the map, use a addNewTrap drag type.
-                    else if (gameMap->getLocalPlayer()->newTrapType != Trap::nullTrapType)
+                    else if (gameMap->getLocalPlayer()->getNewTrapType() != Trap::nullTrapType)
                     {
                         mDragType = addNewTrap;
                     }
@@ -497,8 +497,8 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
 
         // Stop creating rooms, traps, etc.
         mDragType = nullDragType;
-        gameMap->getLocalPlayer()->newRoomType = Room::nullRoomType;
-        gameMap->getLocalPlayer()->newTrapType = Trap::nullTrapType;
+        gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
+        gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
@@ -699,6 +699,15 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
             // for adding rooms to.  This block then actually adds rooms to the remaining tiles.
             if (mDragType == addNewRoom && !affectedTiles.empty())
             {
+                Room* newRoom = Room::buildRoom(gameMap, gameMap->getLocalPlayer()->getNewRoomType(),
+                    affectedTiles, gameMap->getLocalPlayer(), !isInGame());
+
+                if(newRoom == NULL)
+                {
+                    //Not enough money
+                    //TODO:  play sound or something.
+                }
+                /*
                 int newRoomColor = 0, goldRequired = 0;
                 if (isInGame())
                 {
@@ -710,7 +719,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                 // Check to see if we are in the map editor OR if we are in a game, check to see if we have enough gold to create the room.
                 if (!isInGame()
                         || (gameMap->getTotalGoldForColor(
-                                gameMap->getLocalPlayer()->getSeat()->color) >= goldRequired))
+                                gameMap->getLocalPlayer()->getSeat()->getColor()) >= goldRequired))
                 {
                     // Create the room
                     Room *tempRoom = Room::createRoom(gameMap->getLocalPlayer()->newRoomType,
@@ -743,7 +752,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
 
                     SoundEffectsHelper::getSingleton().playInterfaceSound(
                             SoundEffectsHelper::BUILDROOM, false);
-                }
+                }*/
             }
 
             // If we are adding new traps the above loop will have pruned out the tiles not eligible
@@ -751,10 +760,11 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
             //TODO:  Make this check to make sure we have enough gold to create the traps.
             if (mDragType == addNewTrap && !affectedTiles.empty())
             {
+                //TODO - make a function of this like the function for building rooms.
                 int goldRequired = 0;
                 if (isInGame())
                 {
-                    goldRequired = Trap::costPerTile(gameMap->getLocalPlayer()->newTrapType);
+                    goldRequired = Trap::costPerTile(gameMap->getLocalPlayer()->getNewTrapType());
                 }
                 // Delete everything but the last tile in the affected tiles as this is close to where we let go of the mouse.
                 std::vector<Tile*> tempVector(affectedTiles);
@@ -764,7 +774,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                 if (!isInGame() || (gameMap->getTotalGoldForColor(
                         gameMap->getLocalPlayer()->getSeat()->color) >= goldRequired))
                 {
-                    goldRequired = Trap::costPerTile(gameMap->getLocalPlayer()->newTrapType);
+                    goldRequired = Trap::costPerTile(gameMap->getLocalPlayer()->getNewTrapType());
                     if (isInGame())
                         gameMap->withdrawFromTreasuries(goldRequired, gameMap->getLocalPlayer()->getSeat()->color);
                     mySeat = gameMap->getLocalPlayer()->getSeat();

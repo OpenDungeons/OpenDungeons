@@ -22,14 +22,14 @@ class Creature;
 class Player
 {
 public:
-    Player();
+    Player(bool isHuman = true);
     
-    bool humanPlayer; /**< True: player is human.    False: player is a computer. */
+    
     //int goldInTreasury();
     //int oreInRefinery();
     //int ironInRefinery();
 
-    const std::string& getNick() {return nick;}
+    const std::string& getNick() const {return nick;}
     Seat* getSeat() {return seat;}
     const Seat* getSeat() const {return seat;}
     void setNick (const std::string& nick) {this->nick = nick;}
@@ -40,16 +40,20 @@ public:
     Creature *getCreatureInHand(int i);
     const Creature* getCreatureInHand(int i) const;
     void pickUpCreature(Creature *c);
-    bool dropCreature(Tile *t);
+    bool dropCreature(Tile *t, unsigned int index = 0);
     void rotateCreaturesInHand(int n);
     inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;};
-
-    // Public data members
-    
-    Room::RoomType newRoomType;
-    Trap::TrapType newTrapType;
+    inline bool getIsHuman() const {return isHuman;};
+    inline const std::vector<Creature*>& getCreaturesInHand();
+    inline const Room::RoomType getNewRoomType() { return newRoomType;}
+    inline void setNewRoomType(Room::RoomType newRoomType) {this->newRoomType = newRoomType;}
+    inline const Trap::TrapType getNewTrapType() { return newTrapType;}
+    inline void setNewTrapType(Trap::TrapType newTrapType) {this->newTrapType = newTrapType;}
 
 private:
+    Room::RoomType newRoomType;
+    Trap::TrapType newTrapType;
+    
     GameMap* gameMap;
     Seat *seat;
     std::string nick; /**< The nickname used un chat, etc. */
@@ -59,6 +63,8 @@ private:
 
     // Private datamembers
     std::vector<Creature*> creaturesInHand;
+
+    bool isHuman; /**< True: player is human.    False: player is a computer. */
 };
 
 #endif
