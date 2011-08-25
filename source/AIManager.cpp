@@ -36,12 +36,12 @@ bool AIManager::assignAI(Player& player, AIManager::AIType aiType, const std::st
     {
         case(nullAI):
         {
-            ai = OGRE_NEW NullAI(gameMap, player, aiType, params);
+            ai = new NullAI(gameMap, player, aiType, params);
             break;
         }
         case(testAI):
         {
-            ai = OGRE_NEW NullAI(gameMap, player, aiType, params);
+            ai = new NullAI(gameMap, player, aiType, params);
             break;
         }
         default:
@@ -55,7 +55,7 @@ bool AIManager::assignAI(Player& player, AIManager::AIType aiType, const std::st
     }
     else
     {
-        aiList.push_back(Ogre::SharedPtr<BaseAI>(ai));
+        aiList.push_back(ai);
         return true;
     }
 }
@@ -71,6 +71,10 @@ bool AIManager::doTurn(double frameTime)
 
 void AIManager::clearAIList()
 {
+    for(unsigned int i = 0; i < aiList.size(); ++i)
+    {
+        delete aiList[i];
+    }
     aiList.clear();
 }
 

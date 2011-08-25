@@ -36,7 +36,7 @@ public:
         nullAI,
         testAI
     };
-    typedef std::list<Ogre::SharedPtr<BaseAI> > AIList;
+    typedef std::list<BaseAI*> AIList;
     
     AIManager(GameMap& gameMap);
     virtual ~AIManager();
