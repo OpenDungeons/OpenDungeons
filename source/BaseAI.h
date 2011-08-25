@@ -21,18 +21,31 @@
 #define BASEAI_H
 
 #include <OgreSharedPtr.h>
+#include <string>
+
+#include "AIWrapper.h"
+#include "AIManager.h"
 
 class BaseAI
 {
 public:
+    BaseAI(GameMap& gameMap, Player& player, AIManager::AIType aiType, const std::string& parameters = "");
+     /** \brief This is the function that will be called each turn for the ai.
+     *  This is the function that will be called each turn for the ai.
+     *  For custom AI's this should be overridden and return true on a
+     *  successful call.
+     */
     virtual bool doTurn(double frameTime) = 0;
-protected:
-    Ogre::SharedPtr<AIWrapper> aiWrapper;
-private:
-    BaseAI(Ogre::SharedPtr<AIWrapper> aiWrapper);
-    BaseAI(const BaseAI& other);
+    virtual inline AIManager::AIType getType() const {return aiType;}
     virtual ~BaseAI();
-    virtual BaseAI& operator=(const BaseAI& other);
+protected:
+    AIWrapper aiWrapper;
+    virtual bool initialize(const std::string& parameters);
+private:
+    BaseAI(const BaseAI& other);
+    
+    //virtual BaseAI& operator=(const BaseAI& other);
+    AIManager::AIType aiType;
 };
 
 #endif // BASEAI_H

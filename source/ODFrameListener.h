@@ -134,7 +134,7 @@ class ODFrameListener :
         SoundEffectsHelper* sfxHelper;
 
         Ogre::Timer statsDisplayTimer;
-        long int lastTurnDisplayUpdated;
+        long int previousTurn;
 
         bool mContinue;
         

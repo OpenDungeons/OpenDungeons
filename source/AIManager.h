@@ -17,34 +17,38 @@
 */
 
 
-#include "BaseAI.h"
+#ifndef AIMANAGER_H
+#define AIMANAGER_H
+#include <map>
+#include <list>
 
-BaseAI::BaseAI(GameMap& gameMap, Player& player,AIManager::AIType aiType, const std::string& parameters)
-    : aiWrapper(gameMap, player),
-      aiType(aiType)
-{
-    initialize(parameters);
-}
+#include <OgreSharedPtr.h>
 
-bool BaseAI::initialize(const std::string& parameters)
-{
-    return true;
-}
+class BaseAI;
+class GameMap;
 
-/*
-BaseAI::BaseAI(const BaseAI& other)
+class AIManager
 {
 
-}*/
+public:
+    enum AIType
+    {
+        nullAI,
+        testAI
+    };
+    typedef std::list<Ogre::SharedPtr<BaseAI> > AIList;
+    
+    AIManager(GameMap& gameMap);
+    virtual ~AIManager();
+    bool assignAI(Player& player, AIType aiType, const std::string& params = "");
+    bool doTurn(double frameTime);
+    void clearAIList();
+private:
+    
+    AIManager(const AIManager& other);
+    virtual AIManager& operator=(const AIManager& other);
+    GameMap& gameMap;
+    AIList aiList;
+};
 
-BaseAI::~BaseAI()
-{
-
-}
-
-/*
-BaseAI& BaseAI::operator=(const BaseAI& other)
-{
-    return *this;
-}*/
-
+#endif // AIMANAGER_H

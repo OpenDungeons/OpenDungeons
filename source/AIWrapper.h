@@ -22,36 +22,37 @@
 
 #include <vector>
 
+#include "Room.h"
+
 class Player;
 class Seat;
 class GameMap;
 class Creature;
-class Room;
 
 class AIWrapper
 {
 
 public:
-    AIWrapper(GameMap* gameMap, Player* player, Seat* seat);
+    AIWrapper(GameMap& gameMap, Player& player);
     virtual ~AIWrapper();
     int getGoldInTreasury() const;
     //Do we need more than a true/false here?
     bool buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2);
     bool dropCreature(int x, int y, int index);
     bool pickUpCreature(Creature* creature);
-    const std::vector<const Creature*> getCreaturesInHand();
+    const std::vector<Creature*>& getCreaturesInHand();
     
     //Should remove these when we have the needed functions
-    const GameMap& getGameMap() {return *gameMap;}
-    const Player& getPlayer() {return *player;}
+    const GameMap& getGameMap() {return gameMap;}
+    const Player& getPlayer() {return player;}
     
 private:
     AIWrapper(const AIWrapper& other);
     virtual AIWrapper& operator=(const AIWrapper& other);
     //virtual bool operator==(const AIWrapper& other) const;
-    GameMap* gameMap;
-    Player* player;
-    Seat* seat;
+    GameMap& gameMap;
+    Player& player;
+    Seat& seat;
 };
 
 #endif // AIWRAPPER_H

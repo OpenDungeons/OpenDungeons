@@ -17,6 +17,7 @@ template<typename T> class ProtectedObject;
 class MissileObject;
 class AnimatedObject;
 
+#include "AIManager.h"
 #include "Room.h"
 
 typedef std::map<std::pair<int, int> , Tile*> TileMap_t;
@@ -160,6 +161,7 @@ class GameMap
 
         // AI Methods
         void doTurn();
+        void doPlayerAITurn(double frameTime);
 
         bool pathExists(int x1, int y1, int x2, int y2,
                 Tile::TileClearType passability);
@@ -263,6 +265,8 @@ class GameMap
         TileCoordinateMap *tileCoordinateMap;
         
         int length, width;
+
+        AIManager aiManager;
 };
 
 /*! \brief A helper class for the A* search in the GameMap::path function.

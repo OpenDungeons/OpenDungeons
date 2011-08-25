@@ -146,6 +146,16 @@ void Seat::setNumClaimedTiles(const unsigned int& num)
     sem_post(&numClaimedTilesLockSemaphore);
 }
 
+/** \brief Increment the number of claimed tiles by 1
+ *
+ */
+void Seat::incrementNumClaimedTiles()
+{
+    sem_wait(&numClaimedTilesLockSemaphore);
+    ++numClaimedTiles;
+    sem_post(&numClaimedTilesLockSemaphore);
+}
+
 /** \brief Loop over the vector of unmet goals and call the isMet() and isFailed() functions on
  * each one, if it is met move it to the completedGoals vector.
  *

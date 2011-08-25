@@ -84,7 +84,10 @@ set(OD_SOURCEFILES
     ${SRC}/ActiveObject.cpp
     ${SRC}/AttackableObject.cpp
     ${SRC}/AnimatedObject.cpp
+    ${SRC}/AIManager.cpp
+    ${SRC}/AIWrapper.cpp
     ${SRC}/ASWrapper.cpp
+    ${SRC}/BaseAI.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
     ${SRC}/Client.cpp
@@ -114,6 +117,7 @@ set(OD_SOURCEFILES
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
     ${SRC}/MusicPlayer.cpp
+    ${SRC}/NullAI.cpp
     ${SRC}/ODApplication.cpp
     ${SRC}/ODFrameListener.cpp
     ${SRC}/Player.cpp

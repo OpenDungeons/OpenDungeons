@@ -36,10 +36,13 @@ class Seat
         void setNumClaimedTiles(const unsigned int& num);
         inline const unsigned int& rawGetNumClaimedTiles() const{return numClaimedTiles;}
         void rawSetNumClaimedTiles(const unsigned int& num){numClaimedTiles = num;}
+        void incrementNumClaimedTiles();
         bool getHasGoalsChanged();
         void resetGoalsChanged();
         inline int getColor() const {return color;}
         inline int getGold() const {return gold;}
+        inline int getMana() const {return mana;}
+        inline int getManaDelta() const {return manaDelta;}
         
 
         // Public data members
@@ -63,7 +66,7 @@ class Seat
         double alignmentOrder;
         double alignmentPeace;
 
-        sem_t numClaimedTilesLockSemaphore;
+        
 
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Seat *s);
@@ -84,6 +87,8 @@ class Seat
         unsigned int numClaimedTiles; /**< \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn(). */
 
         bool hasGoalsChanged;
+
+        mutable sem_t numClaimedTilesLockSemaphore;
 };
 
 #endif

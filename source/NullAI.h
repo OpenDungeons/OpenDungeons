@@ -17,34 +17,21 @@
 */
 
 
-#include "BaseAI.h"
+#ifndef NULLAI_H
+#define NULLAI_H
 
-BaseAI::BaseAI(GameMap& gameMap, Player& player,AIManager::AIType aiType, const std::string& parameters)
-    : aiWrapper(gameMap, player),
-      aiType(aiType)
-{
-    initialize(parameters);
-}
+#include <BaseAI.h>
 
-bool BaseAI::initialize(const std::string& parameters)
-{
-    return true;
-}
-
-/*
-BaseAI::BaseAI(const BaseAI& other)
+/** \brief An AI that does nothing
+ *
+ */
+class NullAI : public BaseAI
 {
 
-}*/
+public:
+    NullAI(GameMap& gameMap, Player& player, AIManager::AIType aiType, const std::string& parameters = "");
+    virtual bool doTurn(double frameTime);
+private:
+};
 
-BaseAI::~BaseAI()
-{
-
-}
-
-/*
-BaseAI& BaseAI::operator=(const BaseAI& other)
-{
-    return *this;
-}*/
-
+#endif // NULLAI_H

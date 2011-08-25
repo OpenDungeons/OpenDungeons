@@ -17,34 +17,17 @@
 */
 
 
-#include "BaseAI.h"
+#include "NullAI.h"
 
-BaseAI::BaseAI(GameMap& gameMap, Player& player,AIManager::AIType aiType, const std::string& parameters)
-    : aiWrapper(gameMap, player),
-      aiType(aiType)
+NullAI::NullAI(GameMap& gameMap, Player& player, AIManager::AIType aiType, const std::string& parameters)
+    : BaseAI(gameMap, player, aiType, parameters)
 {
-    initialize(parameters);
+
 }
 
-bool BaseAI::initialize(const std::string& parameters)
+
+bool NullAI::doTurn(double frameTime)
 {
     return true;
 }
-
-/*
-BaseAI::BaseAI(const BaseAI& other)
-{
-
-}*/
-
-BaseAI::~BaseAI()
-{
-
-}
-
-/*
-BaseAI& BaseAI::operator=(const BaseAI& other)
-{
-    return *this;
-}*/
 

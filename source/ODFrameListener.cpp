@@ -65,7 +65,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
         terminalActive(false),
         terminalWordWrap(78),
         sfxHelper(SoundEffectsHelper::getSingletonPtr()),
-        lastTurnDisplayUpdated(-1),
+        previousTurn(-1),
         gameMap(gameMap)
 {
 
@@ -426,10 +426,17 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         *the text updates.
         *TODO Update these only when needed.
         */
-        if(lastTurnDisplayUpdated < currentTurnNumber)
+        if(previousTurn < currentTurnNumber)
         {
-            lastTurnDisplayUpdated = currentTurnNumber;
-            Seat *mySeat = gameMap->me->getSeat();
+            previousTurn = currentTurnNumber;
+
+            /*NOTE: currently running this in the main thread
+            *Once per turn. We could put this in it's own thread
+            *if proper locking is done.
+            */
+            gameMap->doPlayerAITurn(evt.timeSinceLastFrame);
+            
+            Seat *mySeat = gameMap->getLocalPlayer()->getSeat();
 
             CEGUI::WindowManager *windowManager =
                     CEGUI::WindowManager::getSingletonPtr();
@@ -437,63 +444,63 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             CEGUI::Window *tempWindow = windowManager->getWindow(
                     (CEGUI::utf8*) "Root/TerritoryDisplay");
             tempSS.str("");
-            tempSS << gameMap->me->getSeat()->getNumClaimedTiles();
+            tempSS << mySeat->getNumClaimedTiles();
             tempWindow->setText(tempSS.str());
 
             tempWindow
                     = windowManager->getWindow((CEGUI::utf8*) "Root/GoldDisplay");
             tempSS.str("");
-            tempSS << gameMap->me->getSeat()->gold;
+            tempSS << mySeat->getGold();
             tempWindow->setText(tempSS.str());
 
             tempWindow
                     = windowManager->getWindow((CEGUI::utf8*) "Root/ManaDisplay");
             tempSS.str("");
-            tempSS << mySeat->mana << " " << (mySeat->manaDelta >= 0 ? "+" : "-")
-                    << mySeat->manaDelta;
+            tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
+                    << mySeat->getManaDelta();
             tempWindow->setText(tempSS.str());
 
 
             if (isInGame())// && gameMap->me->seat->getHasGoalsChanged())
             {
-                gameMap->me->getSeat()->resetGoalsChanged();
+                mySeat->resetGoalsChanged();
                 // Update the goals display in the message window.
                 tempWindow = windowManager->getWindow(
                         (CEGUI::utf8*) "Root/MessagesDisplayWindow");
                 tempSS.str("");
-                bool iAmAWinner = gameMap->seatIsAWinner(gameMap->me->getSeat());
+                bool iAmAWinner = gameMap->seatIsAWinner(mySeat);
 
-                if (gameMap->me->getSeat()->numGoals() > 0)
+                if (mySeat->numGoals() > 0)
                 {
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS << "Unfinished Goals:\n---------------------\n";
-                    for (unsigned int i = 0; i < gameMap->me->getSeat()->numGoals(); ++i)
+                    for (unsigned int i = 0; i < mySeat->numGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap->me->getSeat()->getGoal(i);
+                        Goal *tempGoal = mySeat->getGoal(i);
                         tempSS << tempGoal->getDescription() << "\n";
                     }
                 }
 
-                if (gameMap->me->getSeat()->numCompletedGoals() > 0)
+                if (mySeat->numCompletedGoals() > 0)
                 {
                     // Loop over the list of completed goals for the seat we are sitting in an print them.
                     tempSS << "\n\nCompleted Goals:\n---------------------\n";
                     for (unsigned int i = 0; i
-                            < gameMap->me->getSeat()->numCompletedGoals(); ++i)
+                            < mySeat->numCompletedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap->me->getSeat()->getCompletedGoal(i);
+                        Goal *tempGoal = mySeat->getCompletedGoal(i);
                         tempSS << tempGoal->getSuccessMessage() << "\n";
                     }
                 }
 
-                if (gameMap->me->getSeat()->numFailedGoals() > 0)
+                if (mySeat->numFailedGoals() > 0)
                 {
                     // Loop over the list of completed goals for the seat we are sitting in an print them.
                     tempSS
                             << "\n\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
-                    for (unsigned int i = 0; i < gameMap->me->getSeat()->numFailedGoals(); ++i)
+                    for (unsigned int i = 0; i < mySeat->numFailedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap->me->getSeat()->getFailedGoal(i);
+                        Goal *tempGoal = mySeat->getFailedGoal(i);
                         tempSS << tempGoal->getFailedMessage() << "\n";
                     }
                 }
@@ -1103,13 +1110,13 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                 if (isInGame())
                 {
                     tempSS << "Player:\tNick:\tColor:\n\n";
-                    tempSS << "me\t\t" << gameMap->me->getNick() << "\t"
-                            << gameMap->me->getSeat()->color << "\n\n";
+                    tempSS << "me\t\t" << gameMap->getLocalPlayer()->getNick() << "\t"
+                            << gameMap->getLocalPlayer()->getSeat()->getColor() << "\n\n";
                     for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
                     {
-                        Player *currentPlayer = gameMap->getPlayer(i);
+                        const Player *currentPlayer = gameMap->getPlayer(i);
                         tempSS << i << "\t\t" << currentPlayer->getNick() << "\t"
-                                << currentPlayer->getSeat()->color << "\n";
+                                << currentPlayer->getSeat()->getColor() << "\n";
                     }
                 }
                 else
@@ -1764,7 +1771,7 @@ string ODFrameListener::getHelpText(std::string arg)
     }
     else if (arg.compare("aithreads") == 0)
     {
-        return "Sets the maximum number of threads the gameMap will attempt to spawn during the doTurn() method.  The set value must be greater than or equal to 1.";
+        return "Sets the maximum number of threads the gameMap will attempt to spawn during the f() method.  The set value must be greater than or equal to 1.";
     }
     else
     {

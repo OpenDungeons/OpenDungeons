@@ -22,16 +22,17 @@
 #include "Player.h"
 #include "GameMap.h"
 
-AIWrapper::AIWrapper(GameMap* gameMap, Player* player, Seat* seat)
-    : player(player), gameMap(gameMap), seat(seat)
+AIWrapper::AIWrapper(GameMap& gameMap, Player& player)
+    : gameMap(gameMap), player(player), seat(*player.getSeat())
 {
 
 }
 
+/*
 AIWrapper::AIWrapper(const AIWrapper& other)
 {
 
-}
+}*/
 
 AIWrapper::~AIWrapper()
 {
@@ -40,11 +41,11 @@ AIWrapper::~AIWrapper()
 
 bool AIWrapper::buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2)
 {
-    std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(x1, y1, x2, y2);
+    std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(x1, y1, x2, y2);
     std::vector<Tile*>::iterator it = affectedTiles.begin();
     while(it != affectedTiles.end())
     {
-        if(it->getColor() != player->getSeat()->getColor() || !it->isBuildableUpon()) {
+        if((*it)->getColor() != seat.getColor() || !(*it)->isBuildableUpon()) {
             it = affectedTiles.erase(it);
         }
         else
@@ -52,28 +53,29 @@ bool AIWrapper::buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, in
             ++it;
         }
     }
-    Room* room = Room::buildRoom(gameMap, newRoomType, affectedTiles, player);
+    Room* room = Room::buildRoom(&gameMap, newRoomType, affectedTiles, &player);
     return room != NULL;
 }
 
 bool AIWrapper::dropCreature(int x, int y, int index)
 {
-    return player->dropCreature(gameMap->getTile(x, y), index);
+    return player.dropCreature(gameMap.getTile(x, y), index);
 }
 
 bool AIWrapper::pickUpCreature(Creature* creature)
 {
-    return player->pickUpCreature(creature);
+    player.pickUpCreature(creature);
+    return true;
 }
 
 const std::vector< Creature* >& AIWrapper::getCreaturesInHand()
 {
-    return player->getCreaturesInHand();
+    return player.getCreaturesInHand();
 }
 
 int AIWrapper::getGoldInTreasury() const
 {
-    return seat->getGold();
+    return seat.getGold();
 }
 
 AIWrapper& AIWrapper::operator=(const AIWrapper& other)

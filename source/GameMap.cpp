@@ -40,7 +40,8 @@ GameMap::GameMap() :
         numCallsTo_path(0),
         tileCoordinateMap(new TileCoordinateMap(100)),
         length(0),
-        width(0)
+        width(0),
+        aiManager(*this)
 {
     sem_init(&threadReferenceCountLockSemaphore, 0, 1);
     sem_init(&creaturesLockSemaphore, 0, 1);
@@ -181,6 +182,7 @@ void GameMap::clearClasses()
  */
 void GameMap::clearPlayers()
 {
+    
     for (unsigned int i = 0; i < numPlayers(); ++i)
     {
         delete players[i];
@@ -860,6 +862,11 @@ void GameMap::doTurn()
     sem_post(&creatureAISemaphore);
 }
 
+void GameMap::doPlayerAITurn(double frameTime)
+{
+    aiManager.doTurn(frameTime);
+}
+
 void *GameMap::miscUpkeepThread(void *p)
 {
     GameMap* gameMap = static_cast<GameMap*>(p);
@@ -1037,11 +1044,7 @@ unsigned long int GameMap::doMiscUpkeep()
             tempSeat = getSeatByColor(tempTile->getColor());
             if (tempSeat != NULL)
             {
-                sem_wait(&tempSeat->numClaimedTilesLockSemaphore);
-                unsigned int tempUInt = tempSeat->rawGetNumClaimedTiles();
-                ++tempUInt;
-                tempSeat->rawSetNumClaimedTiles(tempUInt);
-                sem_post(&tempSeat->numClaimedTilesLockSemaphore);
+                tempSeat->incrementNumClaimedTiles();
 
                 // Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
                 std::vector<Tile*> neighbors = neighborTiles(

@@ -44,7 +44,7 @@ public:
     void rotateCreaturesInHand(int n);
     inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;};
     inline bool getIsHuman() const {return isHuman;};
-    inline const std::vector<Creature*>& getCreaturesInHand();
+    inline const std::vector<Creature*>& getCreaturesInHand() {return creaturesInHand;};
     inline const Room::RoomType getNewRoomType() { return newRoomType;}
     inline void setNewRoomType(Room::RoomType newRoomType) {this->newRoomType = newRoomType;}
     inline const Trap::TrapType getNewTrapType() { return newTrapType;}
