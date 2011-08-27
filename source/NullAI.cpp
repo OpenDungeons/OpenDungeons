@@ -19,8 +19,10 @@
 
 #include "NullAI.h"
 
-NullAI::NullAI(GameMap& gameMap, Player& player, AIManager::AIType aiType, const std::string& parameters)
-    : BaseAI(gameMap, player, aiType, parameters)
+AIFactoryRegister<NullAI> NullAI::reg("nullai");
+
+NullAI::NullAI(GameMap& gameMap, Player& player, const std::string& parameters)
+    : BaseAI(gameMap, player, parameters)
 {
 
 }

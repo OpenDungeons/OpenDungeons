@@ -84,6 +84,7 @@ set(OD_SOURCEFILES
     ${SRC}/ActiveObject.cpp
     ${SRC}/AttackableObject.cpp
     ${SRC}/AnimatedObject.cpp
+    ${SRC}/AIFactory.cpp
     ${SRC}/AIManager.cpp
     ${SRC}/AIWrapper.cpp
     ${SRC}/ASWrapper.cpp

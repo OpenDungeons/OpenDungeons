@@ -22,8 +22,6 @@
 #include <map>
 #include <list>
 
-#include <OgreSharedPtr.h>
-
 class BaseAI;
 class GameMap;
 
@@ -40,7 +38,7 @@ public:
     
     AIManager(GameMap& gameMap);
     virtual ~AIManager();
-    bool assignAI(Player& player, AIType aiType, const std::string& params = "");
+    bool assignAI(Player& player, const std::string& type, const std::string& params = "");
     bool doTurn(double frameTime);
     void clearAIList();
 private:

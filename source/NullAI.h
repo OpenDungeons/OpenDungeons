@@ -20,7 +20,8 @@
 #ifndef NULLAI_H
 #define NULLAI_H
 
-#include <BaseAI.h>
+#include "AIFactory.h"
+#include "BaseAI.h"
 
 /** \brief An AI that does nothing
  *
@@ -29,9 +30,10 @@ class NullAI : public BaseAI
 {
 
 public:
-    NullAI(GameMap& gameMap, Player& player, AIManager::AIType aiType, const std::string& parameters = "");
+    NullAI(GameMap& gameMap, Player& player, const std::string& parameters = "");
     virtual bool doTurn(double frameTime);
 private:
+    static AIFactoryRegister<NullAI> reg;
 };
 
 #endif // NULLAI_H

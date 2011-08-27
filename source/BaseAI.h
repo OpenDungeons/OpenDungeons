@@ -29,7 +29,7 @@
 class BaseAI
 {
 public:
-    BaseAI(GameMap& gameMap, Player& player, AIManager::AIType aiType, const std::string& parameters = "");
+    BaseAI(GameMap& gameMap, Player& player, const std::string& parameters = "");
      /** \brief This is the function that will be called each turn for the ai.
      *  This is the function that will be called each turn for the ai.
      *  For custom AI's this should be overridden and return true on a

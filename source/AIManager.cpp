@@ -28,27 +28,11 @@ AIManager::AIManager(GameMap& gameMap)
 
 }
 
-bool AIManager::assignAI(Player& player, AIManager::AIType aiType, const std::string& params)
+bool AIManager::assignAI(Player& player, const std::string& type, const std::string& params)
 {
     //NOTE: These factory functions could probably be done in a more elegang manner
-    BaseAI* ai = NULL;
-    switch(aiType)
-    {
-        case(nullAI):
-        {
-            ai = new NullAI(gameMap, player, aiType, params);
-            break;
-        }
-        case(testAI):
-        {
-            ai = new NullAI(gameMap, player, aiType, params);
-            break;
-        }
-        default:
-        {
-            break;
-        }
-    }
+    BaseAI* ai = AIFactory::createInstance(type, gameMap, player, params);
+
     if(ai == NULL)
     {
         return false;
@@ -64,16 +48,16 @@ bool AIManager::doTurn(double frameTime)
 {
     for(AIList::iterator it = aiList.begin(); it != aiList.end(); ++it)
     {
-        it->get()->doTurn(frameTime);
+        (*it)->doTurn(frameTime);
     }
     return true;
 }
 
 void AIManager::clearAIList()
 {
-    for(unsigned int i = 0; i < aiList.size(); ++i)
+    for(AIList::iterator it = aiList.begin(); it != aiList.end(); ++it)
     {
-        delete aiList[i];
+        delete *it;
     }
     aiList.clear();
 }
