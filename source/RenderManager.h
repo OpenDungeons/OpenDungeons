@@ -12,6 +12,7 @@
 
 #include <OgreSingleton.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
+#include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 #include <semaphore.h>
 
 class RenderRequest;
@@ -96,7 +97,8 @@ class RenderManager: public Ogre::Singleton<RenderManager>
 
         bool handleRenderRequest(const RenderRequest& renderRequest);
         bool generateRTSSShadersForMaterial(const std::string& materialName,
-                                            const std::string& normalMapTextureName = "");
+                                            const std::string& normalMapTextureName = "",
+                                            Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace = Ogre::RTShader::NormalMapLighting::NMS_TANGENT);
         Ogre::Entity* createEntity(const std::string& entityName, const std::string& meshName,
                           const std::string& normalMapTextureName = "");
 

@@ -1119,7 +1119,8 @@ void RenderManager::rrMoveSceneNode ( const RenderRequest& renderRequest )
 }
 
 bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialName,
-                                                   const std::string& normalMapTextureName)
+                                                   const std::string& normalMapTextureName,
+                                                   Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace)
 {
 
     bool success = shaderGenerator->createShaderBasedTechnique(materialName, Ogre::MaterialManager::DEFAULT_SCHEME_NAME,
@@ -1157,7 +1158,7 @@ bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialNa
             Ogre::RTShader::NormalMapLighting::Type);
         Ogre::RTShader::NormalMapLighting* normalMapSRS =
             static_cast<Ogre::RTShader::NormalMapLighting*>(subRenderState);
-        normalMapSRS->setNormalMapSpace(Ogre::RTShader::NormalMapLighting::NMS_TANGENT);
+        normalMapSRS->setNormalMapSpace(nmSpace);
         normalMapSRS->setNormalMapTextureName(normalMapTextureName);
 
         renderState->addTemplateSubRenderState(normalMapSRS);
@@ -1177,7 +1178,9 @@ void RenderManager::rtssTest()
     generateRTSSShadersForMaterial("Dirt", "Dirt_dark_nor3.png");
     generateRTSSShadersForMaterial("Quarters", "Dirt_dark_nor3.png");
     //TODO - fix this model so it doesn't use the material name 'material'
-    generateRTSSShadersForMaterial("Material", "Forge_normalmap.png");
+    generateRTSSShadersForMaterial("Material", "Forge_normalmap.png",
+        Ogre::RTShader::NormalMapLighting::NMS_OBJECT
+    );
     generateRTSSShadersForMaterial("Troll2", "Troll2_nor2.png");
     generateRTSSShadersForMaterial("Kobold_skin/TEXFACE/kobold_skin6.png");
     generateRTSSShadersForMaterial("Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png");
