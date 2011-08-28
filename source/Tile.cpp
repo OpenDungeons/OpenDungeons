@@ -794,7 +794,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
     if (s && (!isDiggable() || (getFullness() < 1)))
         return;
 
-    Ogre::Entity *ent;
+    Ogre::Entity *ent = NULL;
     char tempString[255];
     char tempString2[255];
 
@@ -829,7 +829,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
         if (s)
         {
             //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
-            if (thisRequestIsForMe)
+            if (thisRequestIsForMe&&(ent!=NULL))
             {
                 ent->setVisible(true);
             }
@@ -838,7 +838,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
         else
         {
             //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
-            if (thisRequestIsForMe)
+            if (thisRequestIsForMe&&(ent!=NULL))
             {
                 ent->setVisible(false);
             }

@@ -1156,6 +1156,7 @@ void Creature::doTurn()
                         Tile *nearestTreasuryTile;
                         nearestTreasuryTile = NULL;
                         unsigned int nearestTreasuryDistance;
+                        nearestTreasuryDistance = 0; // to avoid a compilation warning
                         bool validPathFound;
                         validPathFound = false;
                         tempPath.clear();
@@ -1262,6 +1263,7 @@ void Creature::doTurn()
                             color);
                     std::random_shuffle(tempRooms.begin(), tempRooms.end());
                     unsigned int nearestQuartersDistance;
+                    nearestQuartersDistance = 0; // to avoid a compilation warning
                     bool validPathFound;
                     validPathFound = false;
                     tempPath.clear();
