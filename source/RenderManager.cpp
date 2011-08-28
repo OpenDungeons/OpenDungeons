@@ -43,8 +43,8 @@ RenderManager::RenderManager() :
         lightSceneNode(0),
         fieldSceneNode(0),
         mainCamera(0),
-        initialized(false),
-        sceneManager(ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE))
+        sceneManager(ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE)),
+        initialized(false)
 {
     sem_init(&renderQueueSemaphore, 0, 1);
     sem_init(&renderQueueEmptySemaphore, 0, 0);

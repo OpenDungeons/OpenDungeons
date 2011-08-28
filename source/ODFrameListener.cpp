@@ -58,7 +58,6 @@ template<> ODFrameListener*
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
         chatMaxMessages(10),
         chatMaxTimeDisplay(20),
-        mContinue(true),
         mWindow(win),
         frameDelay(0.0),
         renderManager(RenderManager::getSingletonPtr()),
@@ -66,6 +65,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
         terminalWordWrap(78),
         sfxHelper(SoundEffectsHelper::getSingletonPtr()),
         previousTurn(-1),
+        mContinue(true),
         gameMap(gameMap)
 {
 
