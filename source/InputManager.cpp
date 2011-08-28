@@ -158,7 +158,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                     Ogre::RaySceneQuery* rq = frameListener->getRaySceneQuery();
                     Ogre::Real dist = itr->distance;
                     Ogre::Vector3 point = rq->getRay().getPoint(dist);
-                    mSceneMgr->getLight("MouseLight")->setPosition(point.x, point.y, 2.0);
+                    mSceneMgr->getLight("MouseLight")->setPosition(point.x, point.y, 4.0);
                     
                     // Get the x-y coordinates of the tile.
                     sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);

@@ -164,10 +164,10 @@ void RenderManager::createScene()
     // Create the light which follows the single tile selection mesh
     Ogre::Light* light = sceneManager->createLight("MouseLight");
     light->setType(Ogre::Light::LT_POINT);
-    light->setDiffuseColour(Ogre::ColourValue(0.45, 0.45, 0.25));
-    light->setSpecularColour(Ogre::ColourValue(0.45, 0.45, 0.25));
-    light->setPosition(0, 0, 3);
-    light->setAttenuation(15, 1.0, 0.7, 0.17);
+    light->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+    light->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
+    light->setPosition(0, 0, 6);
+    light->setAttenuation(30, 0.6, 0.7, 0.17);
     //node->attachObject(light);
 
 }
@@ -1179,6 +1179,16 @@ void RenderManager::rtssTest()
     //TODO - fix this model so it doesn't use the material name 'material'
     generateRTSSShadersForMaterial("Material", "Forge_normalmap.png");
     generateRTSSShadersForMaterial("Troll2", "Troll2_nor2.png");
+    generateRTSSShadersForMaterial("Kobold_skin/TEXFACE/kobold_skin6.png");
+    generateRTSSShadersForMaterial("Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png");
+    generateRTSSShadersForMaterial("Wizard/TWOSIDE", "Wizard_nor.png");
+    generateRTSSShadersForMaterial("Wizard", "Wizard_nor.png");
+    generateRTSSShadersForMaterial("TrainingDummmy", "leatherdummy2-nm.png");
+    generateRTSSShadersForMaterial("TrainingPole", "trainingpole-tex-nm.png");
+    generateRTSSShadersForMaterial("Kreatur", "Kreatur_nor2.png");
+    generateRTSSShadersForMaterial("Wyvern", "Wyvern_red_normalmap.png");
+    generateRTSSShadersForMaterial("Roundshield");
+    generateRTSSShadersForMaterial("Staff");
     
     shaderGenerator->invalidateScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
     

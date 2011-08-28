@@ -10840,7 +10840,7 @@ Cannon	1
 # Lights
 1  # The number of lights to load.
 # posX	posY	posZ	diffuseR	diffuseG	diffuseB	specularR	specularG	specularB	attenRange	attenConst	attenLin	attenQuad
-17	15	3.75	0.9	0.8	0.6	0.1	0.1	0.1	50	0.012	0.32	0.0018
+-7	5	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 
 # Creature classes
 18  # The number of creature classes to load.
