@@ -1178,9 +1178,7 @@ void RenderManager::rtssTest()
     generateRTSSShadersForMaterial("Dirt", "Dirt_dark_nor3.png");
     generateRTSSShadersForMaterial("Quarters", "Dirt_dark_nor3.png");
     //TODO - fix this model so it doesn't use the material name 'material'
-    generateRTSSShadersForMaterial("Material", "Forge_normalmap.png",
-        Ogre::RTShader::NormalMapLighting::NMS_OBJECT
-    );
+    generateRTSSShadersForMaterial("Material", "Forge_normalmap.png");
     generateRTSSShadersForMaterial("Troll2", "Troll2_nor2.png");
     generateRTSSShadersForMaterial("Kobold_skin/TEXFACE/kobold_skin6.png");
     generateRTSSShadersForMaterial("Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png");
@@ -1190,6 +1188,7 @@ void RenderManager::rtssTest()
     generateRTSSShadersForMaterial("TrainingPole", "trainingpole-tex-nm.png");
     generateRTSSShadersForMaterial("Kreatur", "Kreatur_nor2.png");
     generateRTSSShadersForMaterial("Wyvern", "Wyvern_red_normalmap.png");
+    generateRTSSShadersForMaterial("Gold", "Dirt_dark_nor3.png");
     generateRTSSShadersForMaterial("Roundshield");
     generateRTSSShadersForMaterial("Staff");
     
