@@ -10,12 +10,19 @@
 class Tile;
 class Seat;
 class GameMap;
+class Player;
 
 #include "AttackableObject.h"
 #include "ActiveObject.h"
 
+/** \brief Defines a trap
+ *  
+ */
 class Trap: public AttackableObject, public ActiveObject
 {
+ /* NOTE: Trap and room share a lot of things, so we might want to make a shared
+ *  base-class, like "buildable" or something.
+ */
     public:
         enum TrapType
         {
@@ -26,6 +33,9 @@ class Trap: public AttackableObject, public ActiveObject
         static Trap
         * createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
                 Seat *nControllingSeat, void* params = NULL);
+        static Trap* buildTrap(GameMap* gameMap, Trap::TrapType nType,
+                               const std::vector< Tile* >& coveredTiles,
+                               Player* player, bool inEditor = false, void* params = NULL);
         static Trap* createTrapFromStream(std::istream &is, GameMap* gameMap);
         //virtual void absorbTrap(Trap *t);
 

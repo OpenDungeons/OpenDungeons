@@ -598,6 +598,8 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
         else if (mDragType == tileSelection || mDragType == addNewRoom ||
                 mDragType == addNewTrap)
         {
+            //TODO: move to own function.
+            
             // Loop over the valid tiles in the affected region.  If we are doing a tileSelection (changing the tile type and fullness) this
             // loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
             // which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
@@ -707,86 +709,17 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                     //Not enough money
                     //TODO:  play sound or something.
                 }
-                /*
-                int newRoomColor = 0, goldRequired = 0;
-                if (isInGame())
-                {
-                    newRoomColor = gameMap->getLocalPlayer()->getSeat()->color;
-                    goldRequired = affectedTiles.size() * Room::costPerTile(
-                            gameMap->getLocalPlayer()->newRoomType);
-                }
-
-                // Check to see if we are in the map editor OR if we are in a game, check to see if we have enough gold to create the room.
-                if (!isInGame()
-                        || (gameMap->getTotalGoldForColor(
-                                gameMap->getLocalPlayer()->getSeat()->getColor()) >= goldRequired))
-                {
-                    // Create the room
-                    Room *tempRoom = Room::createRoom(gameMap->getLocalPlayer()->newRoomType,
-                            affectedTiles, newRoomColor);
-                    gameMap->addRoom(tempRoom);
-
-                    // If we are in a game, withdraw the gold required for the room from the players treasuries.
-                    if (serverSocket != NULL || clientSocket != NULL)
-                        gameMap->withdrawFromTreasuries(goldRequired,
-                                gameMap->getLocalPlayer()->getSeat()->color);
-
-                    // Check all the tiles that border the newly created room and see if they
-                    // contain rooms which can be absorbed into this newly created room.
-                    std::vector<Tile*> borderTiles =
-                            gameMap->tilesBorderedByRegion(affectedTiles);
-                    for (unsigned int i = 0; i < borderTiles.size(); ++i)
-                    {
-                        Room *borderingRoom = borderTiles[i]->getCoveringRoom();
-                        if (borderingRoom != NULL && borderingRoom->getType()
-                                == tempRoom->getType() && borderingRoom
-                                != tempRoom)
-                        {
-                            tempRoom->absorbRoom(borderingRoom);
-                            gameMap->removeRoom(borderingRoom);
-                            //FIXME:  Need to delete the bordering room to avoid a memory leak, the deletion should be done in a safe way though as there will still be outstanding RenderRequests.
-                        }
-                    }
-
-                    tempRoom->createMeshes();
-
-                    SoundEffectsHelper::getSingleton().playInterfaceSound(
-                            SoundEffectsHelper::BUILDROOM, false);
-                }*/
             }
-
             // If we are adding new traps the above loop will have pruned out the tiles not eligible
             // for adding traps to.  This block then actually adds traps to the remaining tiles.
-            //TODO:  Make this check to make sure we have enough gold to create the traps.
-            if (mDragType == addNewTrap && !affectedTiles.empty())
+            else if (mDragType == addNewTrap && !affectedTiles.empty())
             {
-                //TODO - make a function of this like the function for building rooms.
-                int goldRequired = 0;
-                if (isInGame())
+                Trap* newTrap = Trap::buildTrap(gameMap, gameMap->getLocalPlayer()->getNewTrapType(),
+                    affectedTiles, gameMap->getLocalPlayer(), !isInGame());
+                if(newTrap == NULL)
                 {
-                    goldRequired = Trap::costPerTile(gameMap->getLocalPlayer()->getNewTrapType());
-                }
-                // Delete everything but the last tile in the affected tiles as this is close to where we let go of the mouse.
-                std::vector<Tile*> tempVector(affectedTiles);
-                //~ tempVector.push_back(affectedTiles[affectedTiles.size() - 1]);
-
-                Seat *mySeat = NULL;
-                if (!isInGame() || (gameMap->getTotalGoldForColor(
-                        gameMap->getLocalPlayer()->getSeat()->color) >= goldRequired))
-                {
-                    goldRequired = Trap::costPerTile(gameMap->getLocalPlayer()->getNewTrapType());
-                    if (isInGame())
-                        gameMap->withdrawFromTreasuries(goldRequired, gameMap->getLocalPlayer()->getSeat()->color);
-                    mySeat = gameMap->getLocalPlayer()->getSeat();
-
-                    Trap *tempTrap = Trap::createTrap(Trap::cannon, tempVector,
-                            mySeat);
-                    //FIXME: This throws an OGRE runtime error when it is commented in.
-                    tempTrap->createMeshes();
-                    gameMap->addTrap(tempTrap);
-
-                    SoundEffectsHelper::getSingleton().playInterfaceSound(
-                            SoundEffectsHelper::BUILDTRAP, false);
+                    //Not enough money
+                    //TODO:  play sound or something.
                 }
             }
 

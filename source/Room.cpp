@@ -83,10 +83,15 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles,
     return tempRoom;
 }
 
+/** \brief Builds a room for the current player.
+ *  Builds a room for the current player. Checks if the player has enough gold,
+ *  if not, NULL is returned.
+ *  \return The room built, or NULL if the player does not have enough gold.
+ */
 Room* Room::buildRoom(GameMap* gameMap, Room::RoomType nType, const std::vector< Tile* >& coveredTiles, Player* player, bool inEditor)
 {
     int goldRequired = coveredTiles.size() * Room::costPerTile(
-                            gameMap->getLocalPlayer()->getNewRoomType());
+                            nType);
     Room* newRoom = NULL;
     if(player->getSeat()->getGold() > goldRequired || inEditor)
     {

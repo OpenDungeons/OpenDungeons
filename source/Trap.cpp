@@ -1,4 +1,3 @@
-#include "Globals.h"
 #include "Functions.h"
 #include "Tile.h"
 #include "RenderRequest.h"
@@ -8,6 +7,8 @@
 #include "TrapCannon.h"
 #include "TrapBoulder.h"
 #include "Random.h"
+#include "SoundEffectsHelper.h"
+#include "Player.h"
 
 #include "Trap.h"
 
@@ -72,6 +73,35 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
         tempTrap->addCoveredTile(nCoveredTiles[i]);
     
     return tempTrap;
+}
+
+/** \brief Builds a trap for the current player.
+ *  Builds a trap for the current player. Checks if the player has enough gold,
+ *  if not, NULL is returned.
+ *  \return The trap built, or NULL if the player does not have enough gold.
+ */
+Trap* Trap::buildTrap(GameMap* gameMap, Trap::TrapType nType, const std::vector< Tile* >& coveredTiles, Player* player, bool inEditor, void* params)
+{
+    //TODO: Use something better than a void pointer for this.
+    int goldRequired = coveredTiles.size() * Trap::costPerTile(
+                            nType);
+    Trap* newTrap = NULL;
+    if(player->getSeat()->getGold() > goldRequired || inEditor)
+    {
+        newTrap = createTrap(nType, coveredTiles, player->getSeat(), params);
+        gameMap->addTrap(newTrap);
+        if(!inEditor)
+        {
+            gameMap->withdrawFromTreasuries(goldRequired, player->getSeat()->getColor());
+        }
+
+
+        newTrap->createMeshes();
+
+        SoundEffectsHelper::getSingleton().playInterfaceSound(
+                SoundEffectsHelper::BUILDTRAP, false);
+    }
+    return newTrap;
 }
 
 Trap* Trap::createTrapFromStream(std::istream &is, GameMap* gameMap)

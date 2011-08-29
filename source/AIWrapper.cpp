@@ -41,20 +41,14 @@ AIWrapper::~AIWrapper()
 
 bool AIWrapper::buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2)
 {
-    std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(x1, y1, x2, y2);
-    std::vector<Tile*>::iterator it = affectedTiles.begin();
-    while(it != affectedTiles.end())
-    {
-        if((*it)->getColor() != seat.getColor() || !(*it)->isBuildableUpon()) {
-            it = affectedTiles.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-    Room* room = Room::buildRoom(&gameMap, newRoomType, affectedTiles, &player);
+    Room* room = Room::buildRoom(&gameMap, newRoomType, getAffectedTiles(x1, y1, x2, y2), &player);
     return room != NULL;
+}
+
+bool AIWrapper::buildTrap(Trap::TrapType newRoomType, int x1, int y1, int x2, int y2)
+{
+    Trap* trap = Trap::buildTrap(&gameMap, newRoomType, getAffectedTiles(x1, y1, x2, y2), &player);
+    return trap != NULL;
 }
 
 bool AIWrapper::dropCreature(int x, int y, int index)
@@ -77,6 +71,24 @@ int AIWrapper::getGoldInTreasury() const
 {
     return seat.getGold();
 }
+
+std::vector< Tile* > AIWrapper::getAffectedTiles(int x1, int y1, int x2, int y2)
+{
+    std::vector<Tile*> affectedTiles = gameMap.rectangularRegion(x1, y1, x2, y2);
+    std::vector<Tile*>::iterator it = affectedTiles.begin();
+    while(it != affectedTiles.end())
+    {
+        if((*it)->getColor() != seat.getColor() || !(*it)->isBuildableUpon()) {
+            it = affectedTiles.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+    return affectedTiles;
+}
+
 
 AIWrapper& AIWrapper::operator=(const AIWrapper& other)
 {

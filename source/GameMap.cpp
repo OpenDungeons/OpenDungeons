@@ -2004,6 +2004,8 @@ void GameMap::addTrap(Trap *t)
 
 void GameMap::removeTrap(Trap *t)
 {
+    //FIXME: The objects are probably not deleted. This might
+    //be the case for missileobjects as well.
     removeActiveObject(t);
 
     for (unsigned int i = 0; i < traps.size(); ++i)

@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "Room.h"
+#include "Trap.h"
 
 class Player;
 class Seat;
@@ -38,6 +39,7 @@ public:
     int getGoldInTreasury() const;
     //Do we need more than a true/false here?
     bool buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, int y2);
+    bool buildTrap(Trap::TrapType newRoomType, int x1, int y1, int x2, int y2);
     bool dropCreature(int x, int y, int index);
     bool pickUpCreature(Creature* creature);
     const std::vector<Creature*>& getCreaturesInHand();
@@ -49,6 +51,7 @@ public:
 private:
     AIWrapper(const AIWrapper& other);
     virtual AIWrapper& operator=(const AIWrapper& other);
+    std::vector<Tile*> getAffectedTiles(int x1, int y1, int x2, int y2);
     //virtual bool operator==(const AIWrapper& other) const;
     GameMap& gameMap;
     Player& player;
