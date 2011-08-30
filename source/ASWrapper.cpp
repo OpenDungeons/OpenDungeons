@@ -12,10 +12,10 @@
 
 /* TODO list:
  * - decide how many modules (don't forget to adjust loadScript() then)
- * - find out if addref/release methods are useful or even needed by us
  * - possible improvements to compilation of scripts? (AS has an addon)
  * - bind all needed classes
  * - find out if we really need all the asserts (binary size, start up time).
+ * - should the helper function get their own file? Maybe useful for other stuff, too
  */
 
 #include <iostream>
@@ -29,7 +29,9 @@
 
 #include "CameraManager.h"
 #include "Console.h"
+#include "GameMap.h"
 #include "LogManager.h"
+#include "MapLoader.h"
 #include "ODApplication.h"
 #include "ODFrameListener.h"
 #include "ResourceManager.h"
@@ -46,20 +48,15 @@ ASWrapper::ASWrapper() :
         module  (engine->GetModule("asModule", asGM_ALWAYS_CREATE)),
         context (engine->CreateContext())
 {
-    LogManager::getSingleton().logMessage(
-            "*** Initialising script engine AngelScript ***");
+    LogManager::getSingleton().logMessage("*** Initialising script engine AngelScript ***");
 
     //register function that gives out standard runtime information
-    engine->SetMessageCallback(asMETHOD(ASWrapper, messageCallback), this,
-            asCALL_THISCALL);
+    engine->SetMessageCallback(asMETHOD(ASWrapper, messageCallback), this, asCALL_THISCALL);
 
     //load all .as files from /scripts folder so we can access them
-    const std::string& scriptpath = ResourceManager::getSingleton().
-            getScriptPath();
-    std::vector<std::string> files = ResourceManager::getSingleton().
-            listAllFiles(scriptpath);
-    for(std::vector<std::string>::iterator i = files.begin(),
-            end = files.end(); i < end; ++i)
+    const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
+    std::vector<std::string> files = ResourceManager::getSingleton().listAllFiles(scriptpath);
+    for(std::vector<std::string>::iterator i = files.begin(), end = files.end(); i < end; ++i)
     {
         if(ResourceManager::hasFileEnding(*i, ".as"))
         {
@@ -71,8 +68,7 @@ ASWrapper::ASWrapper() :
     registerEverything();
 
     //save the string[] type because it's often used for console interaction
-    stringArray = engine->GetObjectTypeById(engine->GetTypeIdByDecl(
-    		"string[]"));
+    stringArray = engine->GetObjectTypeById(engine->GetTypeIdByDecl("string[]"));
 
     //Compile AS code, syntax errors will be printed to our Console
     module->Build();
@@ -91,19 +87,20 @@ ASWrapper::~ASWrapper()
  *
  *  \param fileName The name of the script file, like "script.as"
  */
-void ASWrapper::loadScript(std::string fileName)
+void ASWrapper::loadScript(const std::string& fileName)
 {
-    std::ifstream scriptFile(fileName.c_str());
-    std::string script;
+    const char* fileNameCStr = fileName.c_str();
+
+    std::ifstream   scriptFile(fileNameCStr);
+    std::string     script;
 
     scriptFile.seekg(0, std::ios::end);
     script.reserve(scriptFile.tellg());
     scriptFile.seekg(0, std::ios::beg);
 
-    script.assign((std::istreambuf_iterator<char>(scriptFile)),
-            std::istreambuf_iterator<char>());
+    script.assign(std::istreambuf_iterator<char>(scriptFile), std::istreambuf_iterator<char>());
 
-    module->AddScriptSection(fileName.c_str(), script.c_str());
+    module->AddScriptSection(fileNameCStr, script.c_str());
 }
 
 /*! \brief passes code to the script engine and tries to execute it
@@ -163,18 +160,17 @@ void ASWrapper::registerEverything()
      *
      * Optionally all calls can be followed by an
      *    assert(r >= 0);
-     * with int r being the error code of AS. If something goes wrong then the
-     * game won't start at all and give the exact code location of the error.
+     * with int r being the error code of AS. If something goes wrong then the game won't start at
+     * all and give the exact code location of the error.
      *
      * for EACH class the registration goes:
      *    engine->RegisterObjectType(name, 0, asOBJ_REF);
      * OR for Singletons (prevents failing instantiation by AS):
      *    engine->RegisterObjectType(name, 0, asOBJ_REF | asOBJ_NOHANDLE);
-     * The singleton reference should then be stored as a global property.
-     * We could also register the getSingleton() method, but registering the
-     * reference to the object itself makes it easier for script authors
-     * because the object already exists globally instead of heaving to get the
-     * handle all the time.
+     * The singleton reference should then be stored as a global property. We could also register
+     * the getSingleton() method, but registering the reference to the object itself makes it
+     * easier for script authors because the object already exists globally instead of heaving to
+     * get the handle all the time.
      *    engine->RegisterGlobalProperty("Type varname", Type::GetSingleton());
      *
      * Then only for NON-SIngletons we need a constructor, reference counter
@@ -182,22 +178,23 @@ void ASWrapper::registerEverything()
      *
      * Constructor (static method in ASWrapper):
      *    engine->RegisterObjectBehaviour(name, asBEHAVE_FACTORY, "name@ f()",
-     *        asMETHOD(createInstance<ClassName>), asCALL_CDECL);
+     *        asMETHOD(ASRef::createInstance<ClassName>), asCALL_CDECL);
      *
      * Reference counter:
      *    engine->RegisterObjectBehaviour(name, asBEHAVE_ADDREF, "void f()",
-     *        asFUNCTION(ASWrapper::dummyRef), asCALL_CDECL);
+     *        asMETHOD(ASRef<ClassName>, addref), asCALL_THISCALL);
      *
      * Dereferencer (Release Reference):
      *    engine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()",
-     *        asFUNCTION(ASWrapper::dummyRef), asCALL_CDECL);
+     *        asMETHOD(ASRef<ClassName>, release), asCALL_THISCALL);
      *
-     * Now the class is set up and we can add the methods and theoretically
-     * also properties. But since we use getters and setters we should never
-     * be calling a property directly, just like we do in our C++ code. So if
-     * we want to have access to the properties from AS we simply have to
-     * register the getters and setters.
-     *
+     * Now the class is set up and we can add the methods and theoretically also properties. But
+     * since we use getters and setters we should never be calling a property directly, just like
+     * we do in our C++ code. So if we want to have access to the properties from AS we simply have
+     * to register the getters and setters. The AS names for getters and setter should be:
+     *   get_Variable, set_Variable
+     * With an underscore! This way AS can internally do some optimisations because it knows that
+     * the functions are getters ans setter.
      */
 
     //return value of engine for assert check
@@ -206,20 +203,39 @@ void ASWrapper::registerEverything()
     //helper functions
     r = engine->RegisterGlobalFunction(
             "int stringToInt(string &in)",
-            asFunctionPtr(ASWrapper::stringToInt),
+            asFunctionPtr(stringToInt),
+            asCALL_CDECL); assert(r >= 0);
+    r = engine->RegisterGlobalFunction(
+            "uint stringToUInt(string &in)",
+            asFunctionPtr(stringToUInt),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "double stringToFloat(string &in)",
-            asFunctionPtr(ASWrapper::stringToFloat),
+            asFunctionPtr(stringToFloat),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "bool checkIfInt(string &in)",
-            asFunctionPtr(ASWrapper::checkIfInt),
+            asFunctionPtr(checkIfInt),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "bool checkIfFloat(string &in)",
-            asFunctionPtr(ASWrapper::checkIfFloat),
+            asFunctionPtr(checkIfFloat),
             asCALL_CDECL); assert(r >= 0);
+
+    /* TODO: find out why this isn't working. These should allow implicit conversion
+     *       from string to int/double in the scripts, but when trying it, AS reports
+     *       that there's no conversion registered
+    r = engine->RegisterObjectBehaviour(
+            "string",
+            asBEHAVE_VALUE_CAST,
+            "int f() const", asFUNCTION(stringToInt),
+            asCALL_CDECL_OBJLAST); assert( r >= 0 );
+    r = engine->RegisterObjectBehaviour(
+            "string",
+            asBEHAVE_VALUE_CAST,
+            "double f() const", asFUNCTION(stringToFloat),
+            asCALL_CDECL_OBJLAST); assert( r >= 0 );
+    */
 
     //some variabless
     r = engine->RegisterGlobalProperty(
@@ -250,6 +266,56 @@ void ASWrapper::registerEverything()
             asMETHOD(LogManager, logMessage),
             asCALL_THISCALL); assert(r >= 0);
 
+    //GameMap
+    r = engine->RegisterObjectType("GameMap", 0, asOBJ_REF); assert(r >= 0);
+    r = engine->RegisterObjectBehaviour(
+            "GameMap",
+            asBEHAVE_ADDREF,
+            "void f()",
+            asFUNCTION(ASWrapper::dummy),
+            asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = engine->RegisterObjectBehaviour(
+            "GameMap",
+            asBEHAVE_RELEASE,
+            "void f()",
+            asFUNCTION(ASWrapper::dummy),
+            asCALL_CDECL_OBJLAST); assert( r >= 0 );
+    r = engine->RegisterObjectMethod(
+            "GameMap",
+            "void createNewMap(int, int)",
+            asMETHOD(GameMap, createNewMap),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "GameMap",
+            "void destroyAllEntities()",
+            asMETHOD(GameMap, destroyAllEntities),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "GameMap",
+            "void createAllEntities()",
+            asMETHOD(GameMap, createAllEntities),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "GameMap",
+            "uint& get_MaxAIThreads()",
+            asMETHOD(GameMap, getMaxAIThreads),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "GameMap",
+            "void set_MaxAIThreads(uint &in maxThreads)",
+            asMETHOD(GameMap, setMaxAIThreads),
+            asCALL_THISCALL); assert(r >= 0);
+
+    //GameMap helper functions
+    r = engine->RegisterGlobalFunction(
+            "void writeGameMapToFile(string &in, GameMap &in)",
+            asFUNCTION(MapLoader::writeGameMapToFile),
+            asCALL_CDECL);
+    r = engine->RegisterGlobalFunction(
+            "void readGameMapFromFile(string &in, GameMap &in)",
+            asFUNCTION(MapLoader::readGameMapFromFile),
+            asCALL_CDECL);
+
     //ODFrameListener
     r = engine->RegisterObjectType(
             "ODFrameListener", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
@@ -261,6 +327,11 @@ void ASWrapper::registerEverything()
             "void requestExit()",
             asMETHOD(ODFrameListener, requestExit),
             asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "ODFrameListener",
+            "GameMap@ get_GameMap()",
+            asMETHODPR(ODFrameListener, getGameMap, (), GameMap*),
+            asCALL_THISCALL); assert(r >= 0);
 
     //CameraManager
     r = engine->RegisterObjectType(
@@ -270,22 +341,22 @@ void ASWrapper::registerEverything()
             CameraManager::getSingletonPtr()); assert(r >= 0);
     r = engine->RegisterObjectMethod(
             "CameraManager",
-            "void setMoveSpeedAccel(float &in)",
+            "void set_MoveSpeedAccel(float &in)",
             asMETHOD(CameraManager, setMoveSpeedAccel),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod(
             "CameraManager",
-            "float& getMoveSpeed()",
+            "float& get_MoveSpeed()",
             asMETHOD(CameraManager, getMoveSpeed),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod(
             "CameraManager",
-            "void setRotateSpeed(float &in)",
+            "void set_RotateSpeed(float &in)",
             asMETHOD(CameraManager, setRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod(
             "CameraManager",
-            "float getRotateSpeed()",
+            "float get_RotateSpeed()",
             asMETHOD(CameraManager, getRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);
 }
@@ -295,18 +366,16 @@ void ASWrapper::registerEverything()
  *  \param command The vector holding on [0] the command and in [1..n-1] the
  *                 arguments
  */
-void ASWrapper::executeConsoleCommand(
-        const std::vector<std::string>& fullCommand)
+void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullCommand)
 {
-    CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1,
-            stringArray);
+    CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1, stringArray);
     for(asUINT i = 0, size = arguments->GetSize(); i < size; ++i)
     {
     	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];
     }
 
     context->Prepare(module->GetFunctionIdByDecl(
-    		"void executeConsoleCommand(string &in, string[] &in)"));
+            "void executeConsoleCommand(string &in, string[] &in)"));
     context->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
     context->SetArgObject(1, arguments);
     context->Execute();
@@ -326,6 +395,18 @@ int ASWrapper::stringToInt(const std::string& str)
     return i;
 }
 
+/*! \brief Script helper function, converts a string to an int
+ *
+ *  \param str The string to be converted
+ *  \return The converted number
+ */
+unsigned int ASWrapper::stringToUInt(const std::string& str)
+{
+    std::stringstream stream(str);
+    unsigned int i = 0;
+    stream >> i;
+    return i;
+}
 /*! \brief Script helper function, converts a string to a float
  *
  *  \param str The string to be converted

@@ -63,7 +63,7 @@ void executeConsoleCommand(string &in com, string[] &in args)
     {
         if(argCount == 0)
         {
-            console.print("Current movespeed: " + cameraManager.getMoveSpeed());
+            console.print("Current movespeed: " + cameraManager.get_MoveSpeed());
         }
         else
         {
@@ -71,8 +71,10 @@ void executeConsoleCommand(string &in com, string[] &in args)
             {
                 if(checkIfFloat(args[0]))
                 {
-                    cameraManager.setMoveSpeedAccel(2.0 * stringToFloat(args[0]));
-                    console.print("movespeed set to: " + cameraManager.getMoveSpeed());
+                    cameraManager.set_MoveSpeedAccel(2.0 * stringToFloat(args[0]));
+                    //TODO: find out how to make implicit conversions possible
+                    //cameraManager.set_MoveSpeedAccel(2.0 * args[0]);
+                    console.print("movespeed set to: " + cameraManager.get_MoveSpeed());
                 }
                 else
                 {
@@ -88,14 +90,14 @@ void executeConsoleCommand(string &in com, string[] &in args)
     {
         if(argCount == 0)
         {
-            console.print("Current rotatespeed: " + cameraManager.getRotateSpeed());
+            console.print("Current rotatespeed: " + cameraManager.get_RotateSpeed());
         }
         else
         {
             if(checkArgCount(argCount, 1))
             {
-                //cameraManager.setRotateSpeed(args[0]);
-                console.print("rotatespeed set to: " + cameraManager.getRotateSpeed());
+                //cameraManager.set_RotateSpeed(args[0]);
+                console.print("rotatespeed set to: " + cameraManager.get_RotateSpeed());
             }
         }
     }*/
@@ -123,13 +125,11 @@ void executeConsoleCommand(string &in com, string[] &in args)
         }
     }
 
-    /*
-    TODO: prepare gameMap
     else if(com == "aithreads")
     {
         if(argCount == 0)
         {
-            console.print("Current maximum number of creature AI threads: " + gameMap.getMaxAiThreads());
+            console.print("Current maximum number of creature AI threads: " + frameListener.get_GameMap().get_MaxAIThreads());
         }
         else
         {
@@ -137,11 +137,20 @@ void executeConsoleCommand(string &in com, string[] &in args)
             {
                 if(checkIfInt(args[0]))
                 {
-                    gameMap.setMaxAIThreads(convertToInt(args[0]));
+                    const uint maxThreads = stringToUInt(args[0]);
+                    if(maxThreads > 0)
+                    {
+                        frameListener.get_GameMap().set_MaxAIThreads(maxThreads);
+                        console.print("Maximum number of creature AI threads set to: " + frameListener.get_GameMap().get_MaxAIThreads());
+                    }
+                    else
+                    {
+                        console.print("ERROR: Maximum number of threads must be greater zero.");
+                    }
                 }
             }
         }
-    }*/
+    }
 
     else if(com == "turnspersecond")
     {

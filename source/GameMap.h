@@ -159,6 +159,9 @@ class GameMap
         int maxX() { return width - 1; }
         int maxY() { return length - 1; }
 
+        const unsigned int& getMaxAIThreads() const {return maxAIThreads;}
+        void setMaxAIThreads(const unsigned int& maxThreads) {maxAIThreads = maxThreads;}
+
         // AI Methods
         void doTurn();
         void doPlayerAITurn(double frameTime);
@@ -210,7 +213,6 @@ class GameMap
         // Public data members
         std::string levelFileName;
         unsigned long int miscUpkeepTime, creatureTurnsTime;
-        unsigned int maxAIThreads;
 
     private:
         void processDeletionQueues();
@@ -261,6 +263,7 @@ class GameMap
         sem_t threadReferenceCountLockSemaphore;
 
         unsigned int numCallsTo_path;
+        unsigned int maxAIThreads;
 
         TileCoordinateMap *tileCoordinateMap;
         

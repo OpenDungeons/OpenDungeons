@@ -1,8 +1,5 @@
 //TODO: get rid of this whole file.
-//      - The Gamemap/load/saving related stuff should go into GameMap or
-//        ResourceManager or a new "Savegame" handler class.
 //      - The server stuff should go into some of the network classes.
-//      - The coloring stuff should go into rendering or player related classes
 
 #include <CEGUI.h>
 

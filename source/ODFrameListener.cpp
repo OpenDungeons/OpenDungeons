@@ -615,8 +615,7 @@ void ODFrameListener::printText(const std::string& text)
 /*! \brief Process the commandline from the terminal and carry out the actions
  *  specified in by the user.
  */
-bool ODFrameListener::executePromptCommand(const std::string& command,
-        std::string arguments)
+bool ODFrameListener::executePromptCommand(const std::string& command, std::string arguments)
 {
     std::stringstream tempSS;
 
@@ -881,6 +880,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         }
     }*/
 
+    /*
     // Set the max number of threads the gameMap should spawn when it does the creature AI.
     else if (command.compare("aithreads") == 0)
     {
@@ -888,15 +888,15 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         if (!arguments.empty())
         {
             tempSS.str(arguments);
-            int tempInt;
+            unsigned int tempInt;
             tempSS >> tempInt;
             if (tempInt >= 1)
             {
-                gameMap->maxAIThreads = tempInt;
+                gameMap->setMaxAIThreads(tempInt);
                 commandOutput
                         += "\nMaximum number of creature AI threads set to "
                                 + Ogre::StringConverter::toString(
-                                        gameMap->maxAIThreads) + "\n";
+                                        gameMap->getMaxAIThreads()) + "\n";
             }
             else
             {
@@ -911,7 +911,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                             + Ogre::StringConverter::toString(gameMap->maxAIThreads)
                             + "\n";
         }
-    }
+    } */
 
     // Set the turnsPerSecond variable to control the AI speed
     else if(command.compare("turnspersecond") == 0
