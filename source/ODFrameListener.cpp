@@ -56,16 +56,16 @@ template<> ODFrameListener*
  * up the OGRE system.
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
-        chatMaxMessages(10),
-        chatMaxTimeDisplay(20),
         mWindow(win),
-        frameDelay(0.0),
         renderManager(RenderManager::getSingletonPtr()),
+        sfxHelper(SoundEffectsHelper::getSingletonPtr()),
+        mContinue(true),
         terminalActive(false),
         terminalWordWrap(78),
-        sfxHelper(SoundEffectsHelper::getSingletonPtr()),
+        chatMaxMessages(10),
+        chatMaxTimeDisplay(20),
+        frameDelay(0.0),
         previousTurn(-1),
-        mContinue(true),
         gameMap(gameMap)
 {
 
@@ -1233,9 +1233,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
         }
     }
 
+    /*
     // clearmap   Erase all of the tiles leaving an empty map
     else if (command.compare("newmap") == 0)
     {
+        //NOTE: Converted to AS
         if (!arguments.empty())
         {
             int tempX, tempY;
@@ -1244,15 +1246,17 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
             tempSS >> tempX >> tempY;
             gameMap->createNewMap(tempX, tempY);
         }
-    }
+    }*/
 
+    /*
     // refreshmesh   Clear all the Ogre entities and redraw them so they reload their appearence.
     else if (command.compare("refreshmesh") == 0)
     {
+        //NOTE: Converted to AS
         gameMap->destroyAllEntities();
         gameMap->createAllEntities();
         commandOutput += "\nRecreating all meshes.\n";
-    }
+    }*/
 
     // Set your nickname
     else if (command.compare("nick") == 0)
@@ -1270,9 +1274,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
         commandOutput += gameMap->me->getNick() + "\n";
     }
 
+    /*
     // Set chat message variables
     else if (command.compare("maxtime") == 0)
     {
+        //NOTE: Converted to AS
         if (!arguments.empty())
         {
             chatMaxTimeDisplay = atoi(arguments.c_str());
@@ -1287,7 +1293,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
         }
 
         commandOutput += "\n " + tempSS.str() + "\n";
-    }
+    } */
 
     else if (command.compare("maxmessages") == 0)
     {

@@ -29,6 +29,7 @@
 
 #include "CameraManager.h"
 #include "Console.h"
+#include "Creature.h"
 #include "GameMap.h"
 #include "LogManager.h"
 #include "MapLoader.h"
@@ -266,6 +267,28 @@ void ASWrapper::registerEverything()
             asMETHOD(LogManager, logMessage),
             asCALL_THISCALL); assert(r >= 0);
 
+    //Creature
+    r = engine->RegisterObjectType("Creature", 0, asOBJ_REF); assert(r >= 0);
+    r = engine->RegisterObjectBehaviour(
+            "Creature",
+            asBEHAVE_ADDREF,
+            "void f()",
+            asMETHOD(ASRef<Creature>, addref),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectBehaviour(
+            "Creature",
+            asBEHAVE_RELEASE,
+            "void f()",
+            asMETHOD(ASRef<Creature>, release),
+            asCALL_THISCALL); assert( r >= 0 );
+    //FIXME: This doesn't work because Creature doesn't have a default constructor
+    /* r = engine->RegisterObjectBehaviour(
+            "Creature",
+            asBEHAVE_FACTORY,
+            "Creature@ f()",
+            asFUNCTION(createInstance<Creature>),
+            asCALL_CDECL); assert( r >= 0 ); */
+
     //GameMap
     r = engine->RegisterObjectType("GameMap", 0, asOBJ_REF); assert(r >= 0);
     r = engine->RegisterObjectBehaviour(
@@ -302,8 +325,13 @@ void ASWrapper::registerEverything()
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod(
             "GameMap",
-            "void set_MaxAIThreads(uint &in maxThreads)",
+            "void set_MaxAIThreads(uint &in)",
             asMETHOD(GameMap, setMaxAIThreads),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "GameMap",
+            "void addCreature(Creature@)",
+            asMETHOD(GameMap, addCreature),
             asCALL_THISCALL); assert(r >= 0);
 
     //GameMap helper functions
@@ -331,6 +359,16 @@ void ASWrapper::registerEverything()
             "ODFrameListener",
             "GameMap@ get_GameMap()",
             asMETHODPR(ODFrameListener, getGameMap, (), GameMap*),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "ODFrameListener",
+            "uint& get_ChatMaxTimeDisplay()",
+            asMETHOD(ODFrameListener, getChatMaxTimeDisplay),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod(
+            "ODFrameListener",
+            "void set_ChatMaxTimeDisplay(uint &in)",
+            asMETHOD(ODFrameListener, setChatMaxTimeDisplay),
             asCALL_THISCALL); assert(r >= 0);
 
     //CameraManager

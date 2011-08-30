@@ -159,8 +159,8 @@ class GameMap
         int maxX() { return width - 1; }
         int maxY() { return length - 1; }
 
-        const unsigned int& getMaxAIThreads() const {return maxAIThreads;}
-        void setMaxAIThreads(const unsigned int& maxThreads) {maxAIThreads = maxThreads;}
+        inline const unsigned int& getMaxAIThreads() const {return maxAIThreads;}
+        inline void setMaxAIThreads(const unsigned int& maxThreads) {maxAIThreads = maxThreads;}
 
         // AI Methods
         void doTurn();

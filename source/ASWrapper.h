@@ -42,6 +42,10 @@ class ASWrapper : public Ogre::Singleton<ASWrapper>
         //! \brief Empty dummy ref function for objects that are not new/delete by the script
         static void dummy(void*) {}
 
+        //! \brief Tenplated factory function
+        template<class T>
+        static T* createInstance(){return new T();}
+
         //script helper functions
         static int          stringToInt     (const std::string& str);
         static unsigned int stringToUInt    (const std::string& str);
@@ -51,15 +55,10 @@ class ASWrapper : public Ogre::Singleton<ASWrapper>
 
         /*! \brief templated wrapper class providing factory, addref, release functions for AS.
          */
-        template<typename T>
+        template<class T>
         class ASRef : public T
         {
             public:
-                ASRef();
-
-                //! \brief Factory function
-                static T* createInstance(){return new T();}
-
                 //! \brief Increase the reference counter
                 void addref(){++refCount;}
 

@@ -184,12 +184,25 @@ void executeConsoleCommand(string &in com, string[] &in args)
 
     else if(com == "newmap")
     {
-        //TODO: code
+
+        if(checkArgCount(argCount, 2))
+        {
+            if(checkIfInt(args[0]) && checkIfInt(args[1]))
+            {
+                frameListener.get_GameMap().createNewMap(stringToInt(args[0]), stringToInt(args[1]));
+            }
+            else
+            {
+                console.print("ERROR: Both arguments need to be integers greater 0.");
+            }
+        }
     }
 
     else if(com == "refreshmesh")
     {
-        //TODO: code
+        console.print("Recreating all meshes.");
+        frameListener.get_GameMap().destroyAllEntities();
+        frameListener.get_GameMap().createAllEntities();
     }
 
     else if(com == "nick")
@@ -199,7 +212,25 @@ void executeConsoleCommand(string &in com, string[] &in args)
 
     else if(com == "maxtime")
     {
-        //TODO: code
+        if(argCount == 0)
+        {
+            console.print("Max display time for chat messages is: " + frameListener.get_ChatMaxTimeDisplay());
+        }
+        else
+        {
+            if(checkArgCount(argCount, 1))
+            {
+                if(checkIfInt(args[0]))
+                {
+                    frameListener.set_ChatMaxTimeDisplay(stringToInt(args[0]));
+                    console.print("Max display time for chat messages was changed to: " + frameListener.get_ChatMaxTimeDisplay());
+                }
+                else
+                {
+                    console.print("ERROR: Expected an integer greater or equal to 0 in first argument.");
+                }
+            }
+        }
     }
 
     else if(com == "maxmessages")

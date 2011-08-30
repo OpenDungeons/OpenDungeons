@@ -55,11 +55,15 @@ class ODFrameListener :
         void setThreadStopRequested(bool value);
         void requestStopThreads();
 
-        inline const bool& isTerminalActive() const{return terminalActive;}
-        inline void setTerminalActive(const bool& active){terminalActive = active;}
+        inline const bool& isTerminalActive () const                {return terminalActive;}
+        inline void        setTerminalActive(const bool& active)    {terminalActive = active;}
 
-        inline Ogre::SceneNode* getCreatureSceneNode() const{return creatureSceneNode;};
-        inline Ogre::RaySceneQuery* getRaySceneQuery() {return mRaySceneQuery;};
+        inline const unsigned int&  getChatMaxTimeDisplay() const   {return chatMaxTimeDisplay;}
+        inline void                 setChatMaxTimeDisplay(
+                const unsigned int& newValue)                       {chatMaxTimeDisplay = newValue;}
+
+        inline Ogre::SceneNode*     getCreatureSceneNode() const    {return creatureSceneNode;}
+        inline Ogre::RaySceneQuery* getRaySceneQuery    ()          {return mRaySceneQuery;}
 
         //Adjust mouse clipping area
         virtual void windowResized(Ogre::RenderWindow* rw);
@@ -68,8 +72,8 @@ class ODFrameListener :
         virtual void windowClosed(Ogre::RenderWindow* rw);
 
         // Override frameStarted event to process that (don't care about frameEnded)
-        bool frameStarted(const Ogre::FrameEvent& evt);
-        bool frameEnded(const Ogre::FrameEvent& evt);
+        bool frameStarted   (const Ogre::FrameEvent& evt);
+        bool frameEnded     (const Ogre::FrameEvent& evt);
 
         //CEGUI Functions
         bool quit(const CEGUI::EventArgs &e);
@@ -99,50 +103,37 @@ class ODFrameListener :
         std::vector<pthread_t*> clientHandlerThreads;
         pthread_t creatureThread;
 
-        // Variables for chat messages
-        unsigned int chatMaxMessages;
-        unsigned int chatMaxTimeDisplay;
-
-    protected:
-        Ogre::RenderWindow* mWindow;
-
-        double frameDelay;
-
-        // Mouse query stuff
-        Ogre::RaySceneQuery* mRaySceneQuery; // The ray scene query pointer
-
-        RenderManager* renderManager;
-        CameraManager* cameraManager;
-        InputManager* inputManager;
-
-        void exitApplication();
-        bool isInGame();
-
     private:
         ODFrameListener(const ODFrameListener&);
 
-        bool terminalActive;
-        int terminalWordWrap;
-
-        Ogre::SceneNode* creatureSceneNode;
-        Ogre::SceneNode* roomSceneNode;
-        Ogre::SceneNode* fieldSceneNode;
-        Ogre::SceneNode* lightSceneNode;
+        Ogre::RenderWindow*     mWindow;
+        Ogre::RaySceneQuery*    mRaySceneQuery;
+        RenderManager*          renderManager;
+        CameraManager*          cameraManager;
+        InputManager*           inputManager;
+        SoundEffectsHelper*     sfxHelper;
+        bool                    mContinue;
+        bool                    terminalActive;
+        int                     terminalWordWrap;
+        unsigned int            chatMaxMessages;
+        unsigned int            chatMaxTimeDisplay;
+        double                  frameDelay;
+        long int                previousTurn;
+        Ogre::SceneNode*        creatureSceneNode;
+        Ogre::SceneNode*        roomSceneNode;
+        Ogre::SceneNode*        fieldSceneNode;
+        Ogre::SceneNode*        lightSceneNode;
+        Ogre::Timer             statsDisplayTimer;
+        GameMap*                gameMap;
 
         std::vector<Ogre::ColourValue> playerColourValues;
 
-        SoundEffectsHelper* sfxHelper;
-
-        Ogre::Timer statsDisplayTimer;
-        long int previousTurn;
-
-        bool mContinue;
-        
         //To see if the frameListener wants to exit
-        ProtectedObject<bool> threadStopRequested;
-        ProtectedObject<bool> exitRequested;
-
-        GameMap* gameMap;
+        ProtectedObject<bool>   threadStopRequested;
+        ProtectedObject<bool>   exitRequested;
+        
+        void exitApplication();
+        bool isInGame       ();
 };
 
 #endif
