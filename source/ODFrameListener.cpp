@@ -634,33 +634,35 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
         commandOutput += "\n" + arguments + "\n";
     } */
 
+    /*
     // Write the current level out to file specified as an argument
     if (command.compare("save") == 0)
     {
+        //NOTE: convetred to AS
         if (arguments.empty())
         {
             commandOutput
                     += "No level name given: saving over the last loaded level: "
-                            + gameMap->levelFileName + "\n\n";
-            arguments = gameMap->levelFileName;
+                            + gameMap->getLevelFileName() + "\n\n";
+            arguments = gameMap->getLevelFileName();
         }
 
         string tempFileName = "levels/" + arguments + ".level";
         MapLoader::writeGameMapToFile(tempFileName, *gameMap);
         commandOutput += "\nFile saved to   " + tempFileName + "\n";
 
-        gameMap->levelFileName = arguments;
-    }
+        gameMap->setLevelFileName(arguments);
+    }*/
 
     // Clear the current level and load a new one from a file
-    else if (command.compare("load") == 0)
+    if (command.compare("load") == 0)
     {
         if (arguments.empty())
         {
             commandOutput
                     += "No level name given: loading the last loaded level: "
-                            + gameMap->levelFileName + "\n\n";
-            arguments = gameMap->levelFileName;
+                            + gameMap->getLevelFileName() + "\n\n";
+            arguments = gameMap->getLevelFileName();
         }
 
         if (clientSocket == NULL)
@@ -700,7 +702,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
                 }
             }
 
-            gameMap->levelFileName = arguments;
+            gameMap->setLevelFileName(arguments);
         }
         else
         {
@@ -1295,8 +1297,10 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
         commandOutput += "\n " + tempSS.str() + "\n";
     } */
 
+    /*
     else if (command.compare("maxmessages") == 0)
     {
+        //NOTE: converted to as
         if (!arguments.empty())
         {
             chatMaxMessages = atoi(arguments.c_str());
@@ -1309,7 +1313,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
         }
 
         commandOutput += "\n" + tempSS.str() + "\n";
-    }
+    } */
 
     // Connect to a server
     else if (command.compare("connect") == 0)

@@ -249,8 +249,7 @@ void ASWrapper::registerEverything()
     r = engine->RegisterGlobalProperty(
             "Console console",
             Console::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "Console",
+    r = engine->RegisterObjectMethod("Console",
             "void print(string)",
             asMETHOD(Console, print),
             asCALL_THISCALL); assert(r >= 0);
@@ -261,24 +260,19 @@ void ASWrapper::registerEverything()
     r = engine->RegisterGlobalProperty(
             "LogManager logManager",
             LogManager::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "LogManager",
+    r = engine->RegisterObjectMethod("LogManager",
             "void logMessage(string)",
             asMETHOD(LogManager, logMessage),
             asCALL_THISCALL); assert(r >= 0);
 
     //Creature
     r = engine->RegisterObjectType("Creature", 0, asOBJ_REF); assert(r >= 0);
-    r = engine->RegisterObjectBehaviour(
-            "Creature",
-            asBEHAVE_ADDREF,
-            "void f()",
+    r = engine->RegisterObjectBehaviour("Creature",
+            asBEHAVE_ADDREF, "void f()",
             asMETHOD(ASRef<Creature>, addref),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectBehaviour(
-            "Creature",
-            asBEHAVE_RELEASE,
-            "void f()",
+    r = engine->RegisterObjectBehaviour("Creature",
+            asBEHAVE_RELEASE, "void f()",
             asMETHOD(ASRef<Creature>, release),
             asCALL_THISCALL); assert( r >= 0 );
     //FIXME: This doesn't work because Creature doesn't have a default constructor
@@ -291,45 +285,43 @@ void ASWrapper::registerEverything()
 
     //GameMap
     r = engine->RegisterObjectType("GameMap", 0, asOBJ_REF); assert(r >= 0);
-    r = engine->RegisterObjectBehaviour(
-            "GameMap",
-            asBEHAVE_ADDREF,
-            "void f()",
+    r = engine->RegisterObjectBehaviour("GameMap",
+            asBEHAVE_ADDREF, "void f()",
             asFUNCTION(ASWrapper::dummy),
             asCALL_CDECL_OBJLAST); assert(r >= 0);
-    r = engine->RegisterObjectBehaviour(
-            "GameMap",
-            asBEHAVE_RELEASE,
-            "void f()",
+    r = engine->RegisterObjectBehaviour("GameMap",
+            asBEHAVE_RELEASE, "void f()",
             asFUNCTION(ASWrapper::dummy),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
-    r = engine->RegisterObjectMethod(
-            "GameMap",
+    r = engine->RegisterObjectMethod("GameMap",
             "void createNewMap(int, int)",
             asMETHOD(GameMap, createNewMap),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "GameMap",
+    r = engine->RegisterObjectMethod("GameMap",
             "void destroyAllEntities()",
             asMETHOD(GameMap, destroyAllEntities),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "GameMap",
+    r = engine->RegisterObjectMethod("GameMap",
             "void createAllEntities()",
             asMETHOD(GameMap, createAllEntities),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "GameMap",
+    r = engine->RegisterObjectMethod("GameMap",
             "uint& get_MaxAIThreads()",
             asMETHOD(GameMap, getMaxAIThreads),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "GameMap",
+    r = engine->RegisterObjectMethod("GameMap",
             "void set_MaxAIThreads(uint &in)",
             asMETHOD(GameMap, setMaxAIThreads),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "GameMap",
+    r = engine->RegisterObjectMethod("GameMap",
+            "string& get_LevelFileName()",
+            asMETHOD(GameMap, getLevelFileName),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod("GameMap",
+            "void set_LevelFileName(string &in)",
+            asMETHOD(GameMap, setLevelFileName),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod("GameMap",
             "void addCreature(Creature@)",
             asMETHOD(GameMap, addCreature),
             asCALL_THISCALL); assert(r >= 0);
@@ -350,25 +342,29 @@ void ASWrapper::registerEverything()
     r = engine->RegisterGlobalProperty(
             "ODFrameListener frameListener",
             ODFrameListener::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "ODFrameListener",
+    r = engine->RegisterObjectMethod("ODFrameListener",
             "void requestExit()",
             asMETHOD(ODFrameListener, requestExit),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "ODFrameListener",
+    r = engine->RegisterObjectMethod("ODFrameListener",
             "GameMap@ get_GameMap()",
             asMETHODPR(ODFrameListener, getGameMap, (), GameMap*),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "ODFrameListener",
+    r = engine->RegisterObjectMethod("ODFrameListener",
             "uint& get_ChatMaxTimeDisplay()",
             asMETHOD(ODFrameListener, getChatMaxTimeDisplay),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "ODFrameListener",
+    r = engine->RegisterObjectMethod("ODFrameListener",
             "void set_ChatMaxTimeDisplay(uint &in)",
             asMETHOD(ODFrameListener, setChatMaxTimeDisplay),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod("ODFrameListener",
+            "uint& get_ChatMaxMessages()",
+            asMETHOD(ODFrameListener, getChatMaxMessages),
+            asCALL_THISCALL); assert(r >= 0);
+    r = engine->RegisterObjectMethod("ODFrameListener",
+            "void set_ChatMaxMessages(uint &in)",
+            asMETHOD(ODFrameListener, setChatMaxMessages),
             asCALL_THISCALL); assert(r >= 0);
 
     //CameraManager
@@ -377,23 +373,19 @@ void ASWrapper::registerEverything()
     r = engine->RegisterGlobalProperty(
             "CameraManager cameraManager",
             CameraManager::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "CameraManager",
+    r = engine->RegisterObjectMethod("CameraManager",
             "void set_MoveSpeedAccel(float &in)",
             asMETHOD(CameraManager, setMoveSpeedAccel),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "CameraManager",
+    r = engine->RegisterObjectMethod("CameraManager",
             "float& get_MoveSpeed()",
             asMETHOD(CameraManager, getMoveSpeed),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "CameraManager",
+    r = engine->RegisterObjectMethod("CameraManager",
             "void set_RotateSpeed(float &in)",
             asMETHOD(CameraManager, setRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod(
-            "CameraManager",
+    r = engine->RegisterObjectMethod("CameraManager",
             "float get_RotateSpeed()",
             asMETHOD(CameraManager, getRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);

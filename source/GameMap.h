@@ -162,6 +162,9 @@ class GameMap
         inline const unsigned int& getMaxAIThreads() const {return maxAIThreads;}
         inline void setMaxAIThreads(const unsigned int& maxThreads) {maxAIThreads = maxThreads;}
 
+        inline const std::string& getLevelFileName() const {return levelFileName;}
+        inline void setLevelFileName(const std::string& maxThreads) {levelFileName = maxThreads;}
+
         // AI Methods
         void doTurn();
         void doPlayerAITurn(double frameTime);
@@ -211,7 +214,6 @@ class GameMap
         void threadUnlockForTurn(long int turn);
 
         // Public data members
-        std::string levelFileName;
         unsigned long int miscUpkeepTime, creatureTurnsTime;
 
     private:
@@ -234,6 +236,7 @@ class GameMap
         unsigned long int doCreatureTurns();
 
         // Private datamembers
+        std::string levelFileName;
         std::map<std::pair<int, int> , Tile*> tiles;
         sem_t tilesLockSemaphore;
         std::vector<CreatureClass*> classDescriptions;

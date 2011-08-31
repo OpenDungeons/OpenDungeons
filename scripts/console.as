@@ -41,7 +41,22 @@ void executeConsoleCommand(string &in com, string[] &in args)
 
     else if(com == "save")
     {
-        //TODO: code
+        string filename = "";
+        if(checkArgCount(argCount, 0))
+        {
+            console.print("No level name given: saving over the last loaded level: " + frameListener.get_GameMap().get_LevelFileName());
+            filename = frameListener.get_GameMap().get_LevelFileName();
+        }
+        else
+        {
+            filename = args[0];
+        }
+
+        string outputFile = "levels/" + filename + ".level";
+        writeGameMapToFile(outputFile, frameListener.get_GameMap());
+        console.print("File saved to: " + outputFile);
+
+        frameListener.get_GameMap().set_LevelFileName(filename);
     }
 
     else if(com == "load")
@@ -235,7 +250,25 @@ void executeConsoleCommand(string &in com, string[] &in args)
 
     else if(com == "maxmessages")
     {
-        //TODO: code
+        if(argCount == 0)
+        {
+            console.print("Max chat messages to display is: " + frameListener.get_ChatMaxMessages());
+        }
+        else
+        {
+            if(checkArgCount(argCount, 1))
+            {
+                if(checkIfInt(args[0]))
+                {
+                    frameListener.set_ChatMaxTimeDisplay(stringToInt(args[0]));
+                    console.print("Max chat messages to display has been set to: " + frameListener.get_ChatMaxMessages());
+                }
+                else
+                {
+                    console.print("ERROR: Expected an integer greater or equal to 0 in first argument.");
+                }
+            }
+        }
     }
 
     else if(com == "connect")

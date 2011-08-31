@@ -58,6 +58,10 @@ class ODFrameListener :
         inline const bool& isTerminalActive () const                {return terminalActive;}
         inline void        setTerminalActive(const bool& active)    {terminalActive = active;}
 
+        inline const unsigned int&  getChatMaxMessages() const      {return chatMaxMessages;}
+        inline void                 setChatMaxMessages(
+                const unsigned int& newValue)                       {chatMaxMessages = newValue;}
+
         inline const unsigned int&  getChatMaxTimeDisplay() const   {return chatMaxTimeDisplay;}
         inline void                 setChatMaxTimeDisplay(
                 const unsigned int& newValue)                       {chatMaxTimeDisplay = newValue;}
