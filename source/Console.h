@@ -47,7 +47,8 @@ class Console :
         virtual bool frameStarted(const Ogre::FrameEvent &evt);
         virtual bool frameEnded(const Ogre::FrameEvent &evt);
 
-        void onKeyPressed(const OIS::KeyEvent &arg);
+        void onMouseMoved(const OIS::MouseEvent& arg);
+        void onKeyPressed(const OIS::KeyEvent& arg);
         void messageLogged(const Ogre::String& message,
                 Ogre::LogMessageLevel lml, bool maskDebug,
                 const Ogre::String &logName);
@@ -81,6 +82,7 @@ class Console :
         std::vector<Ogre::String>   split(const Ogre::String& str,
                 const char& splitChar);
         void                        scrollHistory(const bool& direction);
+        void                        scrollText(const bool& direction);
 };
 
 #endif /* CONSOLE_H_ */

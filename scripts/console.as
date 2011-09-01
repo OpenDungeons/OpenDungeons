@@ -85,10 +85,8 @@ void executeConsoleCommand(string &in com, string[] &in args)
             if(checkArgCount(argCount, 1))
             {
                 if(checkIfFloat(args[0]))
-                {
-                    cameraManager.set_MoveSpeedAccel(2.0 * stringToFloat(args[0]));
-                    //TODO: find out how to make implicit conversions possible
-                    //cameraManager.set_MoveSpeedAccel(2.0 * args[0]);
+                {                    
+                    cameraManager.set_MoveSpeedAccel(2.0 * args[0]);
                     console.print("movespeed set to: " + cameraManager.get_MoveSpeed());
                 }
                 else

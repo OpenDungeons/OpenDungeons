@@ -66,10 +66,32 @@ Console::~Console()
     delete overlay;
 }
 
-/*! \brief handles the key input
+/*! \brief Handles the mouse movement on the Console
  *
  */
-void Console::onKeyPressed(const OIS::KeyEvent &arg)
+void Console::onMouseMoved(const OIS::MouseEvent& arg)
+{
+    if (!visible || arg.state.Z.rel == 0)
+    {
+        return;
+    }
+
+    if(arg.state.Z.rel > 0)
+    {
+        scrollText(true);
+    }
+    else if(arg.state.Z.rel < 0)
+    {
+        scrollText(false);
+    }
+
+    updateOverlay = true;
+}
+
+/*! \brief Handles the key input on the Console
+ *
+ */
+void Console::onKeyPressed(const OIS::KeyEvent& arg)
 {
     if (!visible)
     {
@@ -134,17 +156,11 @@ void Console::onKeyPressed(const OIS::KeyEvent &arg)
             break;
 
         case OIS::KC_PGUP:
-            if (startLine > 0)
-            {
-                --startLine;
-            }
+            scrollText(true);
             break;
 
         case OIS::KC_PGDOWN:
-            if (startLine < lines.size())
-            {
-                ++startLine;
-            }
+            scrollText(false);
             break;
 
         case OIS::KC_UP:
@@ -364,5 +380,27 @@ void Console::scrollHistory(const bool& direction)
             curHistPos = history.size() - 1;
         }
 
+    }
+}
+
+/*! \brief Scrolls through the text output in the console
+ *
+ *  \param direction true means going up (old), false means going down (new)
+ */
+void Console::scrollText(const bool& direction)
+{
+    if(direction)
+    {
+        if (startLine > 0)
+        {
+            --startLine;
+        }
+    }
+    else
+    {
+        if (startLine < lines.size())
+        {
+            ++startLine;
+        }
     }
 }

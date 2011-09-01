@@ -54,6 +54,12 @@ ASWrapper::ASWrapper() :
     //register function that gives out standard runtime information
     engine->SetMessageCallback(asMETHOD(ASWrapper, messageCallback), this, asCALL_THISCALL);
 
+    //bind all objects, functions, etc to AngelScript
+    registerEverything();
+
+    //save the string[] type because it's often used for console interaction
+    stringArray = engine->GetObjectTypeById(engine->GetTypeIdByDecl("string[]"));
+
     //load all .as files from /scripts folder so we can access them
     const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
     std::vector<std::string> files = ResourceManager::getSingleton().listAllFiles(scriptpath);
@@ -61,15 +67,9 @@ ASWrapper::ASWrapper() :
     {
         if(ResourceManager::hasFileEnding(*i, ".as"))
         {
-            loadScript(scriptpath + "/" + *i);
+            loadScript(scriptpath + *i);
         }
     }
-
-    //bind all objects, functions, etc to AngelScript
-    registerEverything();
-
-    //save the string[] type because it's often used for console interaction
-    stringArray = engine->GetObjectTypeById(engine->GetTypeIdByDecl("string[]"));
 
     //Compile AS code, syntax errors will be printed to our Console
     module->Build();
@@ -223,20 +223,17 @@ void ASWrapper::registerEverything()
             asFunctionPtr(checkIfFloat),
             asCALL_CDECL); assert(r >= 0);
 
-    /* TODO: find out why this isn't working. These should allow implicit conversion
-     *       from string to int/double in the scripts, but when trying it, AS reports
-     *       that there's no conversion registered
+    //implicit conversions
     r = engine->RegisterObjectBehaviour(
             "string",
-            asBEHAVE_VALUE_CAST,
+            asBEHAVE_IMPLICIT_VALUE_CAST,
             "int f() const", asFUNCTION(stringToInt),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
     r = engine->RegisterObjectBehaviour(
             "string",
-            asBEHAVE_VALUE_CAST,
+            asBEHAVE_IMPLICIT_VALUE_CAST,
             "double f() const", asFUNCTION(stringToFloat),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
-    */
 
     //some variabless
     r = engine->RegisterGlobalProperty(
