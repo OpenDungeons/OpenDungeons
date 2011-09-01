@@ -23,17 +23,21 @@ template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
 Console::Console() :
         //these two define how much text goes into the console
         consoleLineLength   (100),
-        consoleLineCount    (10),
+        consoleLineCount    (14),
+        blinkSpeed          (0.5),
+        timeSinceLastBlink  (0.0),
         visible             (false),
         updateOverlay       (true),
         allowTrivial        (false),
         allowNormal         (false),
         allowCritical       (true),
+        chatMode            (false),
+        cursorVisible       (true),
         startLine           (0),
         curHistPos          (0)
 {
+    LogManager::getSingleton().logMessage("*** Initiliasing Console ***");
     ODApplication::getSingleton().getRoot()->addFrameListener(this);
-
     Ogre::OverlayManager& olMgr = Ogre::OverlayManager::getSingleton();
 
     // Create a panel
@@ -69,20 +73,34 @@ Console::~Console()
 /*! \brief Handles the mouse movement on the Console
  *
  */
-void Console::onMouseMoved(const OIS::MouseEvent& arg)
+void Console::onMouseMoved(const OIS::MouseEvent& arg, const bool& isCtrlDown)
 {
-    if (!visible || arg.state.Z.rel == 0)
+    if(arg.state.Z.rel == 0 || !visible)
     {
         return;
     }
 
     if(arg.state.Z.rel > 0)
     {
-        scrollText(true);
+        if(isCtrlDown)
+        {
+            scrollHistory(true);
+        }
+        else
+        {
+            scrollText(true);
+        }
     }
     else if(arg.state.Z.rel < 0)
     {
-        scrollText(false);
+        if(isCtrlDown)
+        {
+            scrollHistory(false);
+        }
+        else
+        {
+            scrollText(false);
+        }
     }
 
     updateOverlay = true;
@@ -165,12 +183,10 @@ void Console::onKeyPressed(const OIS::KeyEvent& arg)
 
         case OIS::KC_UP:
             scrollHistory(true);
-            prompt = history[curHistPos];
             break;
 
         case OIS::KC_DOWN:
             scrollHistory(false);
-            prompt = history[curHistPos];
             break;
 
         case OIS::KC_F10:
@@ -199,6 +215,18 @@ void Console::onKeyPressed(const OIS::KeyEvent& arg)
  */
 bool Console::frameStarted(const Ogre::FrameEvent &evt)
 {
+    if(visible)
+    {
+        timeSinceLastBlink += evt.timeSinceLastFrame;
+
+        if(timeSinceLastBlink >= blinkSpeed)
+        {
+            timeSinceLastBlink -= blinkSpeed;
+            cursorVisible = !cursorVisible;
+            updateOverlay = true;
+        }
+    }
+
     if(updateOverlay)
     {
         Ogre::String text;
@@ -226,17 +254,32 @@ bool Console::frameStarted(const Ogre::FrameEvent &evt)
             ++end;
         }
 
+        unsigned int counter = 0;
         for (i = start; i != end; ++i)
         {
             text += (*i) + "\n";
+            ++counter;
         }
 
+        for(; counter < consoleLineCount; ++counter)
+        {
+            text += "\n";
+        }
         //add the prompt
-        text += "] " + prompt;
+        text += ">>> " + prompt + (cursorVisible ? "_" : "");
 
         textbox->setCaption(text);
         updateOverlay = false;
     }
+
+    return true;
+}
+
+/*! \brief what happens after frame
+ *
+ */
+bool Console::frameEnded(const Ogre::FrameEvent &evt)
+{
     return true;
 }
 
@@ -257,14 +300,6 @@ void Console::print(const Ogre::String &text)
                             : 0;
 
     updateOverlay = true;
-}
-
-/*! \brief what happens after frame
- *
- */
-bool Console::frameEnded(const Ogre::FrameEvent &evt)
-{
-    return true;
 }
 
 /*! \brief show or hide the console manually
@@ -374,13 +409,17 @@ void Console::scrollHistory(const bool& direction)
     }
     else
     {
-        //don't go over maximum index!
-        if(++curHistPos > history.size() - 1)
+        //don't go over maximum index and clear the prompt when trying.
+        if(++curHistPos >= history.size())
         {
-            curHistPos = history.size() - 1;
+            curHistPos = history.size();
+            prompt = "";
+            return;
         }
 
     }
+
+    prompt = history[curHistPos];
 }
 
 /*! \brief Scrolls through the text output in the console
@@ -391,14 +430,14 @@ void Console::scrollText(const bool& direction)
 {
     if(direction)
     {
-        if (startLine > 0)
+        if(startLine > 0)
         {
             --startLine;
         }
     }
     else
     {
-        if (startLine < lines.size())
+        if(startLine < lines.size() && lines.size() - startLine > consoleLineCount)
         {
             ++startLine;
         }

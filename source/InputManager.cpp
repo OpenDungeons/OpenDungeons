@@ -41,7 +41,7 @@ template<> InputManager* Ogre::Singleton<InputManager>::ms_Singleton = 0;
 
 InputManager::~InputManager()
 {
-    LogManager::getSingleton().logMessage("Destroying input objects.");
+    LogManager::getSingleton().logMessage("*** Destroying InputManager ***");
     mInputManager->destroyInputObject(mMouse);
     mInputManager->destroyInputObject(mKeyboard);
     OIS::InputManager::destroyInputSystem(mInputManager);
@@ -54,7 +54,6 @@ InputManager::InputManager(GameMap* gameMap) :
             mRMouseDown(false),
             mBrushMode(false),
             digSetBool(false),
-            mStatsOn(false),
             mCurrentFullness(100),
             mCurrentTileRadius(1),
             xPos(0),
@@ -109,8 +108,7 @@ InputManager::InputManager(GameMap* gameMap) :
     mKeyboard->setEventCallback(this);
 
     //setup Mouse
-    mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject(
-            OIS::OISMouse, true));
+    mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject(OIS::OISMouse, true));
     mMouse->setEventCallback(this);
 }
 
@@ -127,7 +125,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
     //TODO: do this (and the others isInGame() in here) by GameState
     if(frameListener->isTerminalActive())
     {
-        Console::getSingleton().onMouseMoved(arg);
+        Console::getSingleton().onMouseMoved(arg, mKeyboard->isModifierDown(OIS::Keyboard::Ctrl));
     }
     else
     {
