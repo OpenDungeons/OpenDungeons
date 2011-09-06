@@ -1165,14 +1165,13 @@ bool GameMap::pathExists(int x1, int y1, int x2, int y2,
  * returned path to shorten the number of steps on the path, as well as the
  * actual walking distance along the path.
  */
-std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
-        Tile::TileClearType passability)
+std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
 {
     ++numCallsTo_path;
     std::list<Tile*> returnList;
 
     // If the start tile was not found return an empty path
-    if (getTile(x1, y1) == NULL)
+    if (getTile(x1, y1) == 0)
         return returnList;
 
     // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are colored differently.
@@ -1185,11 +1184,11 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
     if (destination == NULL)
         return returnList;
 
-    AstarEntry *currentEntry = new AstarEntry;
-    currentEntry->tile = getTile(x1, y1);
-    currentEntry->parent = NULL;
-    currentEntry->g = 0.0;
-    currentEntry->setHeuristic(x1, y1, x2, y2);
+    AstarEntry *currentEntry = new AstarEntry(getTile(x1, y1), x1, y1, x2, y2);
+    //currentEntry->tile = getTile(x1, y1);
+    //currentEntry->parent = NULL;
+    //currentEntry->g = 0.0;
+    //currentEntry->setHeuristic(x1, y1, x2, y2);
 
     /* TODO:  Make the openList a priority queue sorted by the
      *        cost to improve lookup times on retrieving the next open item.
@@ -1225,38 +1224,37 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
         closedList.push_back(currentEntry);
 
         // We found the path, break out of the search loop
-        if (currentEntry->tile == destination)
+        if (currentEntry->getTile() == destination)
         {
             pathFound = true;
             break;
         }
 
         // Check the tiles surrounding the current square
-        std::vector<Tile*> neighbors = neighborTiles(currentEntry->tile);
+        std::vector<Tile*> neighbors = neighborTiles(currentEntry->getTile());
         bool processNeighbor;
         for (unsigned int i = 0; i < neighbors.size(); ++i)
         {
-            neighbor->tile = neighbors[i];
+            neighbor->setTile(neighbors[i]);
 
             processNeighbor = true;
-            if (neighbor->tile != NULL)
+            if (neighbor->getTile() != 0)
             {
                 //TODO:  This code is duplicated in GameMap::pathIsClear, it should be moved into a function.
                 // See if the neighbor tile in question is passable
                 switch (passability)
                 {
                     case Tile::walkableTile:
-                        if (!(neighbor->tile->getTilePassability()
-                                == Tile::walkableTile))
+                        if (!(neighbor->getTile()->getTilePassability() == Tile::walkableTile))
                         {
                             processNeighbor = false; // skip this tile and go on to the next neighbor tile
                         }
                         break;
 
                     case Tile::flyableTile:
-                        if (!(neighbor->tile->getTilePassability()
+                        if (!(neighbor->getTile()->getTilePassability()
                                 == Tile::walkableTile
-                                || neighbor->tile->getTilePassability()
+                                || neighbor->getTile()->getTilePassability()
                                         == Tile::flyableTile))
                         {
                             processNeighbor = false; // skip this tile and go on to the next neighbor tile
@@ -1283,7 +1281,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
                     std::list<AstarEntry*>::iterator itr = closedList.begin();
                     while (itr != closedList.end())
                     {
-                        if (neighbor->tile == (*itr)->tile)
+                        if (neighbor->getTile() == (*itr)->getTile())
                         {
                             neighborFound = true;
                             break;
@@ -1302,7 +1300,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
                         std::list<AstarEntry*>::iterator itr = openList.begin();
                         while (itr != openList.end())
                         {
-                            if (neighbor->tile == (*itr)->tile)
+                            if (neighbor->getTile() == (*itr)->getTile())
                             {
                                 neighborFound = true;
                                 break;
@@ -1318,12 +1316,11 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
                         {
                             // NOTE: This +1 weights all steps the same, diagonal steps
                             // should get a greater wieght iis they are included in the future
-                            neighbor->g = currentEntry->g + 1;
+                            neighbor->setG(currentEntry->getG() + 1);
 
                             // Use the manhattan distance for the heuristic
-                            currentEntry->setHeuristic(x1, y1,
-                                    neighbor->tile->x, neighbor->tile->y);
-                            neighbor->parent = currentEntry;
+                            currentEntry->setHeuristic(x1, y1, neighbor->getTile()->x, neighbor->getTile()->y);
+                            neighbor->setParent(currentEntry);
 
                             openList.push_back(new AstarEntry(*neighbor));
                         }
@@ -1333,12 +1330,12 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
                             // one already given, make this the new parent.
                             // NOTE: This +1 weights all steps the same, diagonal steps
                             // should get a greater wieght iis they are included in the future
-                            if (currentEntry->g + 1 < (*itr)->g)
+                            if (currentEntry->getG() + 1 < (*itr)->getG())
                             {
                                 // NOTE: This +1 weights all steps the same, diagonal steps
                                 // should get a greater wieght iis they are included in the future
-                                (*itr)->g = currentEntry->g + 1;
-                                (*itr)->parent = currentEntry;
+                                (*itr)->setG(currentEntry->getG() + 1);
+                                (*itr)->setParent(currentEntry);
                             }
                         }
                     }
@@ -1354,7 +1351,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
         itr = closedList.begin();
         while (itr != closedList.end())
         {
-            if ((*itr)->tile == destination)
+            if ((*itr)->getTile() == destination)
                 break;
             else
                 ++itr;
@@ -1364,10 +1361,10 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2,
         currentEntry = (*itr);
         do
         {
-            if (currentEntry->tile != NULL)
+            if (currentEntry->getTile() != 0)
             {
-                returnList.push_front(currentEntry->tile);
-                currentEntry = currentEntry->parent;
+                returnList.push_front(currentEntry->getTile());
+                currentEntry = currentEntry->getParent();
             }
 
         } while (currentEntry != NULL);

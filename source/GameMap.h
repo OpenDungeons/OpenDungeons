@@ -1,6 +1,12 @@
 #ifndef GAMEMAP_H
 #define GAMEMAP_H
 
+#ifdef __MINGW32__
+#ifndef mode_t
+#include <sys/types.h>
+#endif //mode_t
+#endif //mingw32
+
 #include <semaphore.h>
 #include <map>
 #include <string>
@@ -277,28 +283,55 @@ class GameMap
         int length, width;
 
         AIManager aiManager;
-};
 
-/*! \brief A helper class for the A* search in the GameMap::path function.
- *
- * This class stores the requesite information about a tile which is placed in
- * the search queue for the A-star, or A*, algorithm which is used to
- * calculate paths in the path function.
- */
-class AstarEntry
-{
-    public:
-        Tile *tile;
-        AstarEntry *parent;
-        double g, h;
-        double fCost() const
+        /*! \brief A helper class for the A* search in the GameMap::path function.
+         *
+         * This class stores the requesite information about a tile which is placed in
+         * the search queue for the A-star, or A*, algorithm which is used to
+         * calculate paths in the path function.
+         */
+        class AstarEntry
         {
-            return g + h;
-        }
-        void setHeuristic(int x1, int y1, int x2, int y2)
-        {
-            h = fabs((double) (x2 - x1)) + fabs((double) (y2 - y1));
-        }
+            public:
+                AstarEntry() :
+                        tile    (0),
+                        parent  (0),
+                        g       (0),
+                        h       (0)
+                {}
+
+                AstarEntry(Tile* tile, int x1, int y1, int x2, int y2) :
+                        tile    (tile),
+                        parent  (0),
+                        g       (0),
+                        h       (0)
+                {
+                    setHeuristic(x1, y1, x2, y2);
+                }
+
+                void setHeuristic(const int& x1, const int& y1, const int& x2, const int& y2)
+                {
+                    h = fabs(static_cast<double>(x2 - x1)) + fabs(static_cast<double>(y2 - y1));
+                }
+
+                inline const double&    fCost       () const                {return g + h;}
+
+                inline Tile*            getTile     () const                {return tile;}
+                inline void             setTile     (Tile* newTile)         {tile = newTile;}
+
+                inline AstarEntry*      getParent   () const                {return parent;}
+                inline void             setParent   (AstarEntry* newParent) {parent = newParent;}
+
+                inline const double&    getG        () const                {return g;}
+                inline void             setG        (const double& newG)    {g = newG;}
+
+            private:
+                Tile*       tile;
+                AstarEntry* parent;
+                double      g;
+                double      h;
+
+        };
 };
 
 #endif
