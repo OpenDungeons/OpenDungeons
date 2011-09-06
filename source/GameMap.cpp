@@ -1181,14 +1181,10 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 
     // If the end tile was not found return an empty path
     Tile* destination = getTile(x2, y2);
-    if (destination == NULL)
+    if (destination == 0)
         return returnList;
 
     AstarEntry *currentEntry = new AstarEntry(getTile(x1, y1), x1, y1, x2, y2);
-    //currentEntry->tile = getTile(x1, y1);
-    //currentEntry->parent = NULL;
-    //currentEntry->g = 0.0;
-    //currentEntry->setHeuristic(x1, y1, x2, y2);
 
     /* TODO:  Make the openList a priority queue sorted by the
      *        cost to improve lookup times on retrieving the next open item.

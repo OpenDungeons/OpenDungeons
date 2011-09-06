@@ -314,7 +314,7 @@ class GameMap
                     h = fabs(static_cast<double>(x2 - x1)) + fabs(static_cast<double>(y2 - y1));
                 }
 
-                inline const double&    fCost       () const                {return g + h;}
+                inline double           fCost       () const                {return g + h;}
 
                 inline Tile*            getTile     () const                {return tile;}
                 inline void             setTile     (Tile* newTile)         {tile = newTile;}

@@ -591,7 +591,7 @@ void Creature::doTurn()
                         pushAction(CreatureAction::walkToTile);
 
                         // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
-                        int tempX, tempY;
+                        int tempX = 0, tempY = 0;
                         bool workerFound = false;
                         if (!isWorker())
                         {
