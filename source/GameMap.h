@@ -156,8 +156,8 @@ class GameMap
         MissileObject* getMissileObject(int index);
         unsigned int numMissileObjects();
         
-        int maxX() { return width - 1; }
-        int maxY() { return length - 1; }
+        inline const int& maxX() const {return width - 1;}
+        inline const int& maxY() const {return length - 1;}
 
         inline const unsigned int& getMaxAIThreads() const {return maxAIThreads;}
         inline void setMaxAIThreads(const unsigned int& maxThreads) {maxAIThreads = maxThreads;}

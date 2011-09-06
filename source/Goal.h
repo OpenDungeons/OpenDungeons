@@ -31,11 +31,11 @@ class Goal
         const std::string& getName() const{return name;}
 
         void addSuccessSubGoal(Goal *g);
-        unsigned numSuccessSubGoals();
+        unsigned numSuccessSubGoals() const;
         Goal* getSuccessSubGoal(int index);
 
         void addFailureSubGoal(Goal *g);
-        unsigned numFailureSubGoals();
+        unsigned numFailureSubGoals() const;
         Goal* getFailureSubGoal(int index);
 
         static std::string getFormat();

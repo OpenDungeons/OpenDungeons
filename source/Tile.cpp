@@ -48,8 +48,10 @@ void Tile::initialize()
     meshesExist = false;
 }
 
-Tile::Tile()
-    : gameMap(NULL)
+Tile::Tile() :
+        x(0),
+        y(0),
+        gameMap(0)
 {
     initialize();
 }

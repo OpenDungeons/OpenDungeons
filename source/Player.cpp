@@ -13,8 +13,8 @@
 Player::Player(bool isHuman) :
         newRoomType(Room::nullRoomType),
         newTrapType(Trap::nullTrapType),
-        seat(NULL),
-        nick(""),
+        gameMap(0),
+        seat(0),
         isHuman(isHuman)
 {
 }

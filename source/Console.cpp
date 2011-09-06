@@ -5,8 +5,7 @@
  * \brief  Ingame console
  */
 
-/* TODO: decide and adjust the layout and prompt (size, position, color)
- * TODO: do intense testing that everything works
+/* TODO: do intense testing that everything works
  * TODO: switch from TextRenderer to Console
  */
 

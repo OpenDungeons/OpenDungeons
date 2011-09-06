@@ -33,7 +33,7 @@ void Goal::addSuccessSubGoal(Goal *g)
     successSubGoals.push_back(g);
 }
 
-unsigned int Goal::numSuccessSubGoals()
+unsigned int Goal::numSuccessSubGoals() const
 {
     return successSubGoals.size();
 }
@@ -48,7 +48,7 @@ void Goal::addFailureSubGoal(Goal *g)
     failureSubGoals.push_back(g);
 }
 
-unsigned int Goal::numFailureSubGoals()
+unsigned int Goal::numFailureSubGoals() const
 {
     return failureSubGoals.size();
 }

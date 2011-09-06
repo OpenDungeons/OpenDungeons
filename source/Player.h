@@ -42,12 +42,12 @@ public:
     void pickUpCreature(Creature *c);
     bool dropCreature(Tile *t, unsigned int index = 0);
     void rotateCreaturesInHand(int n);
-    inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;};
+    inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;}
     inline bool getIsHuman() const {return isHuman;};
-    inline const std::vector<Creature*>& getCreaturesInHand() {return creaturesInHand;};
-    inline const Room::RoomType getNewRoomType() { return newRoomType;}
+    inline const std::vector<Creature*>& getCreaturesInHand() const {return creaturesInHand;}
+    inline const Room::RoomType getNewRoomType() const {return newRoomType;}
     inline void setNewRoomType(Room::RoomType newRoomType) {this->newRoomType = newRoomType;}
-    inline const Trap::TrapType getNewTrapType() { return newTrapType;}
+    inline const Trap::TrapType getNewTrapType() const {return newTrapType;}
     inline void setNewTrapType(Trap::TrapType newTrapType) {this->newTrapType = newTrapType;}
 
 private:

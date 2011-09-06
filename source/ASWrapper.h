@@ -59,6 +59,9 @@ class ASWrapper : public Ogre::Singleton<ASWrapper>
         class ASRef : public T
         {
             public:
+                //! \brief Set refCount to 0
+                ASRef() : refCount(0) {}
+
                 //! \brief Increase the reference counter
                 void addref(){++refCount;}
 
