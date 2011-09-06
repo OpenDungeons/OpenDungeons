@@ -82,6 +82,7 @@ class Room: public AttackableObject, public ActiveObject
         virtual int numOpenCreatureSlots();
 
         Tile* getCentralTile();
+        const Tile* getCentralTile() const;
 
         // Methods inherited from AttackableObject.
         //TODO:  Sort these into the proper places in the rest of the file.

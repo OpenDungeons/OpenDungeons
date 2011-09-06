@@ -45,6 +45,7 @@ class GameMap
         void clearTiles();
         void addTile(Tile *t);
         Tile* getTile(int x, int y);
+        const Tile* getTile(int x, int y) const;
         TileMap_t::iterator firstTile();
         TileMap_t::iterator lastTile();
         unsigned int numTiles();
@@ -87,6 +88,7 @@ class GameMap
 
         void clearPlayers();
         bool addPlayer(Player *p);
+        bool assignAI(Player& player, const std::string& aiType, const std::string& parameters = "");
         Player* getPlayer(int index);
         const Player* getPlayer(int index) const;
         Player* getPlayer(const std::string& cName);
@@ -101,6 +103,8 @@ class GameMap
         std::vector<Room*> getRoomsByType(Room::RoomType type);
         std::vector<Room*> getRoomsByTypeAndColor(Room::RoomType type,
                 int color);
+        std::vector<const Room*> getRoomsByTypeAndColor(Room::RoomType type,
+                int color) const;
         unsigned int numRoomsByTypeAndColor(Room::RoomType type,
                 int color) const;
         std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
@@ -156,8 +160,8 @@ class GameMap
         MissileObject* getMissileObject(int index);
         unsigned int numMissileObjects();
         
-        int maxX() { return width - 1; }
-        int maxY() { return length - 1; }
+        int maxX() const { return width - 1; }
+        int maxY() const { return length - 1; }
 
         // AI Methods
         void doTurn();
@@ -233,7 +237,7 @@ class GameMap
 
         // Private datamembers
         std::map<std::pair<int, int> , Tile*> tiles;
-        sem_t tilesLockSemaphore;
+        mutable sem_t tilesLockSemaphore;
         std::vector<CreatureClass*> classDescriptions;
         std::vector<Creature*> creatures;
         //Mutable to allow locking in const functions.

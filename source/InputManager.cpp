@@ -158,6 +158,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                     Ogre::RaySceneQuery* rq = frameListener->getRaySceneQuery();
                     Ogre::Real dist = itr->distance;
                     Ogre::Vector3 point = rq->getRay().getPoint(dist);
+                    //FIXME: Do this properly, intersect with a plane.
                     mSceneMgr->getLight("MouseLight")->setPosition(point.x, point.y, 4.0);
                     
                     // Get the x-y coordinates of the tile.
@@ -376,13 +377,17 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
                         tempSS.getline(array, sizeof(array));
 
                         Creature *currentCreature = gameMap->getCreature(array);
-                        if (currentCreature != 0 && currentCreature->color
-                                == gameMap->getLocalPlayer()->getSeat()->color)
+                        if (currentCreature != 0 && currentCreature->getColor()
+                                == gameMap->getLocalPlayer()->getSeat()->getColor())
                         {
                             gameMap->getLocalPlayer()->pickUpCreature(currentCreature);
                             SoundEffectsHelper::getSingleton().playInterfaceSound(
                                     SoundEffectsHelper::PICKUP);
                             return true;
+                        }
+                        else
+                        {
+                            LogManager::getSingleton().logMessage("Tried to pick up another players creature, or creature was 0");
                         }
                     }
                     else // if in the Map Editor:  Begin dragging the creature

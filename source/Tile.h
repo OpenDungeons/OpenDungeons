@@ -73,6 +73,7 @@ class Tile
         void setMarkedForDigging(bool s, Player *p);
         void setMarkedForDiggingForAllSeats(bool s);
         bool getMarkedForDigging(Player *p);
+        bool isMarkedForDiggingByAnySeat();
 
         void addCreature(Creature *c);
         void removeCreature(Creature *c);
@@ -109,6 +110,9 @@ class Tile
 
         void setGameMap(GameMap* gameMap);
 
+        int getX() const {return x;}
+        int getY() const {return y;}
+
         // Public datamembers
         //Vector3 location;
         int x, y;
@@ -121,7 +125,7 @@ class Tile
         void setFullnessValue(double f);
         // Private datamembers
         TileType type;
-        bool selected, markedForDigging;
+        bool selected;
         
         double fullness;
         int fullnessMeshNumber;

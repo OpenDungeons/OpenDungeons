@@ -26,7 +26,6 @@ void Tile::initialize()
     sem_init(&claimLightLockSemaphore, 0, 1);
 
     selected = false;
-    markedForDigging = false;
     //location = Ogre::Vector3(0.0, 0.0, 0.0);
     type = dirt;
     //setFullness(100.0);
@@ -109,7 +108,7 @@ void Tile::setFullness(double f)
     fullness = f;
 
     // If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
-    if (fullness < 1 && getMarkedForDigging(gameMap->getLocalPlayer()) == true)
+    if (fullness < 1 && isMarkedForDiggingByAnySeat() == true)
     {
         setMarkedForDiggingForAllSeats(false);
         fullness = 0.0;
@@ -819,9 +818,6 @@ void Tile::setMarkedForDigging(bool s, Player *p)
                         mSceneMgr->getSceneNode(tempString2);
 
                 ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
-#if OGRE_VERSION < ((1 << 16) | (6 << 8) | 0)
-                ent->setNormaliseNormals(true);
-#endif
                 tempNode->attachObject(ent);
             }
         }
@@ -873,6 +869,11 @@ bool Tile::getMarkedForDigging(Player *p)
     }
 
     return false;
+}
+
+bool Tile::isMarkedForDiggingByAnySeat()
+{
+    return !playersMarkingTile.empty();
 }
 
 /*! \brief This function places a message in the render queue to unload the mesh and delete the tile structure.

@@ -27,6 +27,7 @@
 #include "MissileObject.h"
 #include "Weapon.h"
 #include "MapLoader.h"
+#include "LogManager.h"
 
 GameMap::GameMap() :
         me(NULL),
@@ -107,6 +108,25 @@ Tile* GameMap::getTile(int x, int y)
 
     sem_wait(&tilesLockSemaphore);
     TileMap_t::iterator itr = tiles.find(location);
+    returnValue = (itr != tiles.end()) ? itr->second : NULL;
+    sem_post(&tilesLockSemaphore);
+
+    return returnValue;
+}
+
+/*! \brief Returns a pointer to the tile at location (x, y) (const version).
+ *
+ * The tile pointers are stored internally in a map so calls to this function
+ * have a complexity O(log(N)) where N is the number of tiles in the map.
+ */
+const Tile* GameMap::getTile(int x, int y) const
+{
+    Tile *returnValue = NULL;
+    std::pair<int, int> location(x, y);
+
+    sem_wait(&tilesLockSemaphore);
+    const TileMap_t& constTiles = tiles;
+    TileMap_t::const_iterator itr = constTiles.find(location);
     returnValue = (itr != tiles.end()) ? itr->second : NULL;
     sem_post(&tilesLockSemaphore);
 
@@ -1426,10 +1446,24 @@ bool GameMap::addPlayer(Player *p)
         p->setSeat(popEmptySeat());
         p->setGameMap(this);
         players.push_back(p);
+        LogManager::getSingleton().logMessage("Added player: " + p->getNick());
         return true;
     }
 
     return false;
+}
+
+/*! \brief Assigns an ai to the chosen player
+ *
+ */
+bool GameMap::assignAI(Player& player, const std::string& aiType, const std::string& parameters)
+{
+    bool success = aiManager.assignAI(player, aiType, parameters);
+    if(success)
+    {
+        player.setHasAi(true);
+    }
+    return success;
 }
 
 /*! \brief Returns a pointer to the i'th player structure stored by this GameMap.
@@ -1940,6 +1974,18 @@ std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type,
         int color)
 {
     std::vector<Room*> returnList;
+    for (unsigned int i = 0; i < rooms.size(); ++i)
+    {
+        if (rooms[i]->getType() == type && rooms[i]->color == color)
+            returnList.push_back(rooms[i]);
+    }
+
+    return returnList;
+}
+
+std::vector<const Room* > GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color) const
+{
+    std::vector<const Room*> returnList;
     for (unsigned int i = 0; i < rooms.size(); ++i)
     {
         if (rooms[i]->getType() == type && rooms[i]->color == color)

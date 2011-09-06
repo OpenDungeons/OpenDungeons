@@ -71,8 +71,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
 
     //FIXME: this should be changed to a function or something.
     gameMap->me = new Player();
-    gameMap->me->setGameMap(gameMap);
     gameMap->me->setNick("defaultNickName");
+    gameMap->me->setGameMap(gameMap);
     
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(

@@ -142,6 +142,7 @@ set(OD_SOURCEFILES
     ${SRC}/Socket.cpp
     ${SRC}/SoundEffectsHelper.cpp
     ${SRC}/Spell.cpp
+    ${SRC}/TestAI.cpp
     ${SRC}/TextRenderer.cpp
     ${SRC}/Tile.cpp
     ${SRC}/TileCoordinateMap.cpp

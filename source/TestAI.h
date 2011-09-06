@@ -17,24 +17,22 @@
 */
 
 
-#ifndef NULLAI_H
-#define NULLAI_H
+#ifndef TESTAI_H
+#define TESTAI_H
 
-#include "AIFactory.h"
 #include "BaseAI.h"
+#include "AIFactory.h"
 
-/** \brief An AI that does nothing
- *
- */
-class NullAI : public BaseAI
+class TestAI : public BaseAI
 {
 
 public:
-    NullAI(GameMap& gameMap, Player& player, const std::string& parameters = "");
     virtual bool doTurn(double frameTime);
+    TestAI(GameMap& gameMap, Player& player, const std::string& parameters = "");
+protected:
+    void lookForGold();
 private:
-    //TODO: add macro that registers and implements a getname function.
-    static AIFactoryRegister<NullAI> reg;
+    static AIFactoryRegister<TestAI> reg;
 };
 
-#endif // NULLAI_H
+#endif // TESTAI_H

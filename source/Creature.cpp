@@ -22,6 +22,7 @@
 #include "Random.h"
 
 #include "Creature.h"
+#include "LogManager.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
@@ -29,6 +30,9 @@
 
 using CEGUI::UDim;
 using CEGUI::UVector2;
+
+//SHould probably make this changeable somewhere.
+static const int MAX_LEVEL = 100;
 
 Creature::Creature(GameMap* gameMap) :
         weaponL(NULL),
@@ -386,6 +390,7 @@ void Creature::doTurn()
     double tempDouble;
     AttackableObject *tempAttackableObject;
     CreatureAction tempAction;
+    int loops = 0;
 
     // Heal.
     sem_wait(&hpLockSemaphore);
@@ -404,7 +409,7 @@ void Creature::doTurn()
     awakeness -= 0.15;
 
     // Check to see if we have earned enough experience to level up.
-    while (exp >= 5 * (level + powl(level / 3.0, 2)))
+    while (exp >= 5 * (level + powl(level / 3.0, 2)) && level < 100)
         doLevelUp();
 
     // If we are not standing somewhere on the map, do nothing.
@@ -500,10 +505,19 @@ void Creature::doTurn()
     if (battleFieldAgeCounter > 0)
         --battleFieldAgeCounter;
 
+    
+    
     // The loopback variable allows creatures to begin processing a new
     // action immediately after some other action happens.
     creatureActionDoWhileLoop: do
     {
+        if(loops > 20)
+        {
+            LogManager::getSingleton().logMessage("> 20 loops in Creature::doTurn name:" + getName() + " colour: "
+                + Ogre::StringConverter::toString(getColor()) + ". Breaking out..");
+            break;
+        }
+        ++loops;
         loopBack = false;
 
         // Carry out the current task
@@ -533,12 +547,13 @@ void Creature::doTurn()
                     //cout << "idle ";
                     setAnimationState("Idle");
                     //FIXME: make this into a while loop over a vector of <action, probability> pairs
-
+                    //TODO: This should mainly be decided based on whether there are any
+                    //marked and/or unclaimed tiles nearby, not a random value.
                     // Workers only.
                     if (isWorker())
                     {
                         // Decide to check for diggable tiles
-                        if (diceRoll < 0.5)
+                        if (diceRoll < 0.7)
                         {
                             loopBack = true;
                             pushAction(CreatureAction::digTile);
@@ -552,9 +567,12 @@ void Creature::doTurn()
                         }
 
                         // Decide to deposit the gold we are carrying into a treasury.
-                        else if (diceRoll < 0.7 + 0.6 * (gold
-                                / (double) maxGoldCarriedByWorkers))
+                        /*else if (diceRoll < 0.7 + 0.6 * (gold
+                                / (double) maxGoldCarriedByWorkers))*/
+                        else if(gold != 0)
                         {
+                            //TODO: We need a flag to see if we have tried to do this
+                            // so the creature won't get confused if we are out of space.
                             loopBack = true;
                             pushAction(CreatureAction::depositGold);
                         }
@@ -690,6 +708,8 @@ void Creature::doTurn()
                     break;
 
                 case CreatureAction::walkToTile:
+                    //TODO: This should be decided based on some aggressiveness
+                    //parameter.
                     if (Random::Double(0.0, 1.0) < 0.6
                             && !enemyObjectsInRange.empty())
                     {
@@ -946,13 +966,14 @@ void Creature::doTurn()
                     //cout << "dig ";
 
                     // Randomly decide to stop digging with a small probability
+                    /*
                     if (Random::Double(0.0, 1.0) < 0.35 - 0.2
                             * markedTiles.size())
                     {
                         loopBack = true;
                         popAction();
                         goto claimTileBreakStatement;
-                    }
+                    }*/
 
                     // See if any of the tiles is one of our neighbors
                     wasANeighbor = false;
@@ -971,6 +992,7 @@ void Creature::doTurn()
                             // If the tile is a gold tile accumulate gold for this creature.
                             if (tempTile->getType() == Tile::gold)
                             {
+                                //FIXME: Make sure we can't dig gold if the creature has max gold.
                                 tempDouble = 5 * std::min(digRate,
                                         tempTile->getFullness());
                                 gold += tempDouble;
@@ -984,27 +1006,37 @@ void Creature::doTurn()
 
                             // Dig out the tile by decreasing the tile's fullness.
                             setAnimationState("Dig");
-                            tempTile->digOut(digRate, true);
-                            recieveExp(1.5 * digRate / 20.0);
-
-                            // If the tile has been dug out, move into that tile and try to continue digging.
-                            if (tempTile->getFullness() < 1)
+                            double amountDug = tempTile->digOut(digRate, true);
+                            if(amountDug > 0.0)
                             {
-                                recieveExp(2.5);
-                                setAnimationState("Walk");
+                                recieveExp(1.5 * digRate / 20.0);
 
-                                // Remove the dig action and replace it with
-                                // walking to the newly dug out tile.
-                                //popAction();
-                                addDestination(tempTile->x, tempTile->y);
-                                pushAction(CreatureAction::walkToTile);
+                                // If the tile has been dug out, move into that tile and try to continue digging.
+                                if (tempTile->getFullness() < 1)
+                                {
+                                    recieveExp(2.5);
+                                    setAnimationState("Walk");
+
+                                    // Remove the dig action and replace it with
+                                    // walking to the newly dug out tile.
+                                    //popAction();
+                                    addDestination(tempTile->x, tempTile->y);
+                                    pushAction(CreatureAction::walkToTile);
+                                }
+                                sound->setPosition(getPosition());
+                                sound->play(CreatureSound::DIG);
+                            }
+                            else
+                            {
+                                //We tried to dig a tile we are not able to
+                                //Completely bail out if this happens.
+                                clearActionQueue();
                             }
 
                             wasANeighbor = true;
 
                             //Set sound position and play dig sound.
-                            sound->setPosition(getPosition());
-                            sound->play(CreatureSound::DIG);
+                            
                             break;
                         }
                     }
@@ -1222,6 +1254,8 @@ void Creature::doTurn()
                         // There are no treasuries available so just go back to what we were doing.
                         popAction();
                         loopBack = true;
+                        LogManager::getSingleton().logMessage("No space to put gold for creature for player "
+                            + Ogre::StringConverter::toString(color));
                         break;
                     }
 
@@ -1229,6 +1263,8 @@ void Creature::doTurn()
                     // unreachable, or they are all full, so quit trying to deposit gold.
                     popAction();
                     loopBack = true;
+                    LogManager::getSingleton().logMessage("No space to put gold for creature for player "
+                        + Ogre::StringConverter::toString(color));
                     break;
 
                 case CreatureAction::findHome:
@@ -1742,7 +1778,7 @@ double Creature::getDefense() const
  */
 void Creature::doLevelUp()
 {
-    if (level >= 100)
+    if (level >= MAX_LEVEL)
         return;
 
     ++level;
@@ -2194,9 +2230,9 @@ Player* Creature::getControllingPlayer()
 {
     Player *tempPlayer;
 
-    if (gameMap->me->getSeat()->color == color)
+    if (gameMap->getLocalPlayer()->getSeat()->getColor() == color)
     {
-        return gameMap->me;
+        return gameMap->getLocalPlayer();
     }
 
     // Try to find and return a player with color equal to this creature's
@@ -2204,7 +2240,7 @@ Player* Creature::getControllingPlayer()
             i < numPlayers; ++i)
     {
         tempPlayer = gameMap->getPlayer(i);
-        if (tempPlayer->getSeat()->color == color)
+        if (tempPlayer->getSeat()->getColor() == color)
         {
             return tempPlayer;
         }

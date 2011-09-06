@@ -19,6 +19,7 @@
 #include "Player.h"
 #include "ODApplication.h"
 #include "ODFrameListener.h"
+#include "LogManager.h"
 
 #include "Functions.h"
 
@@ -46,9 +47,32 @@ bool startServer(GameMap& gameMap)
     if (serverSocket == NULL && clientSocket == NULL && gameMap.numEmptySeats()
             > 0)
     {
+        LogManager& logManager = LogManager::getSingleton();
         //NOTE: Code added to this routine may also need to be added to GameMap::doTurn() in the "loadNextLevel" stuff.
         // Sit down at the first available seat.
         gameMap.me->setSeat(gameMap.popEmptySeat());
+
+        //NOTE - temporary code to test ai
+        Player* aiPlayer = new Player();
+        aiPlayer->setNick("test ai player");
+        bool success = gameMap.addPlayer(aiPlayer);
+        if(!success)
+        {
+            logManager.logMessage("Failed to add player");
+        }
+        else
+        {
+            success = gameMap.assignAI(*aiPlayer, "testai");
+            if(!success)
+            {
+                logManager.logMessage("Failed to assign ai to player");
+            }
+        }
+
+        logManager.logMessage("Player has colour:" +
+            Ogre::StringConverter::toString(gameMap.getLocalPlayer()->getSeat()->getColor()));
+        logManager.logMessage("ai has colour:" +
+            Ogre::StringConverter::toString(aiPlayer->getSeat()->getColor()));
 
         serverSocket = new Socket;
 

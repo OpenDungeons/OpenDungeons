@@ -10,12 +10,13 @@
 #include "RenderRequest.h"
 #include "RenderManager.h"
 
-Player::Player(bool isHuman) :
+Player::Player() :
         newRoomType(Room::nullRoomType),
         newTrapType(Trap::nullTrapType),
+        gameMap(NULL),
         seat(NULL),
         nick(""),
-        isHuman(isHuman)
+        hasAI(false)
 {
 }
 
@@ -75,6 +76,7 @@ void Player::addCreatureToHand(Creature *c)
  */
 void Player::pickUpCreature(Creature *c)
 {
+    assert(gameMap != NULL);
     if (c->getHP(NULL) <= 0.0)
         return;
 
@@ -195,7 +197,7 @@ bool Player::dropCreature(Tile* t, unsigned int index)
 			c->setPosition(static_cast<Ogre::Real>(t->x), 
 				static_cast<Ogre::Real>(t->y), 0.0);
 
-            if (this == gameMap->getLocalPlayer() || isHuman == false)
+            if (this == gameMap->getLocalPlayer() || hasAI)
             {
                 if (serverSocket != NULL)
                 {

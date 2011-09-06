@@ -21,11 +21,11 @@
 #include "Seat.h"
 #include "Player.h"
 #include "GameMap.h"
+#include "LogManager.h"
 
 AIWrapper::AIWrapper(GameMap& gameMap, Player& player)
-    : gameMap(gameMap), player(player), seat(*player.getSeat())
+    : gameMap(gameMap), player(player), seat(*player.getSeat()), dungeonTemple(NULL)
 {
-
 }
 
 /*
@@ -65,6 +65,45 @@ bool AIWrapper::pickUpCreature(Creature* creature)
 const std::vector< Creature* >& AIWrapper::getCreaturesInHand()
 {
     return player.getCreaturesInHand();
+}
+
+std::vector< const Room* > AIWrapper::getOwnedRoomsByType(Room::RoomType type)
+{
+    const GameMap& gm = gameMap;
+    return gm.getRoomsByTypeAndColor(type, seat.getColor());
+}
+
+const Room* AIWrapper::getDungeonTemple()
+{
+    if(dungeonTemple == NULL)
+    {
+        std::vector<Room*> dt = gameMap.getRoomsByTypeAndColor(Room::dungeonTemple, seat.getColor());
+        if(dt.size() > 0)
+        {
+            dungeonTemple = dt.front();
+        }
+        else
+        {
+            LogManager::getSingleton().logMessage("Warning: AI wants dungeon temple, but it doesn't exist!");
+            dungeonTemple = NULL;
+        }
+    }
+    return dungeonTemple;
+}
+
+void AIWrapper::markTileForDigging(Tile* tile)
+{
+    tile->setMarkedForDigging(true, &player);
+}
+
+std::vector< Tile* > AIWrapper::rectangularRegion(int x1, int y1, int x2, int y2)
+{
+    return gameMap.rectangularRegion(x1, y1, x2, y2);
+}
+
+std::vector< Tile* > AIWrapper::circularRegion(int x, int y, double radius)
+{
+    return gameMap.circularRegion(x, y, radius);
 }
 
 int AIWrapper::getGoldInTreasury() const

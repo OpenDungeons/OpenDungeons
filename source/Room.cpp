@@ -256,6 +256,36 @@ Tile* Room::getCentralTile()
     }
 
     int minX, maxX, minY, maxY;
+    minX = maxX = coveredTiles[0]->getX();
+    minY = maxY = coveredTiles[0]->getY();
+
+    for(unsigned int i = 0, size = coveredTiles.size(); i < size; ++i)
+    {
+        int tempX = coveredTiles[i]->getX();
+        int tempY = coveredTiles[i]->getY();
+
+        if (tempX < minX)
+            minX = tempX;
+        if (tempY < minY)
+            minY = tempY;
+        if (tempX > maxX)
+            maxX = tempX;
+        if (tempY > maxY)
+            maxY = tempY;
+    }
+
+    //TODO: If this tile is NULL we should move outward until we find a valid one.
+    return gameMap->getTile((minX + maxX) / 2, (minY + maxY) / 2);
+}
+
+const Tile* Room::getCentralTile() const
+{
+    if (coveredTiles.empty())
+    {
+        return NULL;
+    }
+
+    int minX, maxX, minY, maxY;
     minX = maxX = coveredTiles[0]->x;
     minY = maxY = coveredTiles[0]->y;
 

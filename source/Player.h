@@ -22,7 +22,7 @@ class Creature;
 class Player
 {
 public:
-    Player(bool isHuman = true);
+    Player();
     
     
     //int goldInTreasury();
@@ -43,7 +43,8 @@ public:
     bool dropCreature(Tile *t, unsigned int index = 0);
     void rotateCreaturesInHand(int n);
     inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;};
-    inline bool getIsHuman() const {return isHuman;};
+    inline bool getHasAi() const {return hasAI;};
+    inline void setHasAi(bool hasAi) {this->hasAI = hasAi;} 
     inline const std::vector<Creature*>& getCreaturesInHand() {return creaturesInHand;};
     inline const Room::RoomType getNewRoomType() { return newRoomType;}
     inline void setNewRoomType(Room::RoomType newRoomType) {this->newRoomType = newRoomType;}
@@ -64,7 +65,7 @@ private:
     // Private datamembers
     std::vector<Creature*> creaturesInHand;
 
-    bool isHuman; /**< True: player is human.    False: player is a computer. */
+    bool hasAI; /**< True: player is human.    False: player is a computer. */
 };
 
 #endif
