@@ -48,7 +48,7 @@ public:
     inline const std::vector<Creature*>& getCreaturesInHand() {return creaturesInHand;};
     inline const Room::RoomType getNewRoomType() { return newRoomType;}
     inline void setNewRoomType(Room::RoomType newRoomType) {this->newRoomType = newRoomType;}
-    inline const Trap::TrapType getNewTrapType() { return newTrapType;}
+    inline const Trap::TrapType getNewTrapType() const {return newTrapType;}
     inline void setNewTrapType(Trap::TrapType newTrapType) {this->newTrapType = newTrapType;}
 
 private:

@@ -41,7 +41,22 @@ void executeConsoleCommand(string &in com, string[] &in args)
 
     else if(com == "save")
     {
-        //TODO: code
+        string filename = "";
+        if(checkArgCount(argCount, 0))
+        {
+            console.print("No level name given: saving over the last loaded level: " + frameListener.get_GameMap().get_LevelFileName());
+            filename = frameListener.get_GameMap().get_LevelFileName();
+        }
+        else
+        {
+            filename = args[0];
+        }
+
+        string outputFile = "levels/" + filename + ".level";
+        writeGameMapToFile(outputFile, frameListener.get_GameMap());
+        console.print("File saved to: " + outputFile);
+
+        frameListener.get_GameMap().set_LevelFileName(filename);
     }
 
     else if(com == "load")
@@ -63,16 +78,16 @@ void executeConsoleCommand(string &in com, string[] &in args)
     {
         if(argCount == 0)
         {
-            console.print("Current movespeed: " + cameraManager.getMoveSpeed());
+            console.print("Current movespeed: " + cameraManager.get_MoveSpeed());
         }
         else
         {
             if(checkArgCount(argCount, 1))
             {
                 if(checkIfFloat(args[0]))
-                {
-                    cameraManager.setMoveSpeedAccel(2.0 * stringToFloat(args[0]));
-                    console.print("movespeed set to: " + cameraManager.getMoveSpeed());
+                {                    
+                    cameraManager.set_MoveSpeedAccel(2.0 * args[0]);
+                    console.print("movespeed set to: " + cameraManager.get_MoveSpeed());
                 }
                 else
                 {
@@ -88,14 +103,14 @@ void executeConsoleCommand(string &in com, string[] &in args)
     {
         if(argCount == 0)
         {
-            console.print("Current rotatespeed: " + cameraManager.getRotateSpeed());
+            console.print("Current rotatespeed: " + cameraManager.get_RotateSpeed());
         }
         else
         {
             if(checkArgCount(argCount, 1))
             {
-                //cameraManager.setRotateSpeed(args[0]);
-                console.print("rotatespeed set to: " + cameraManager.getRotateSpeed());
+                //cameraManager.set_RotateSpeed(args[0]);
+                console.print("rotatespeed set to: " + cameraManager.get_RotateSpeed());
             }
         }
     }*/
@@ -123,13 +138,11 @@ void executeConsoleCommand(string &in com, string[] &in args)
         }
     }
 
-    /*
-    TODO: prepare gameMap
     else if(com == "aithreads")
     {
         if(argCount == 0)
         {
-            console.print("Current maximum number of creature AI threads: " + gameMap.getMaxAiThreads());
+            console.print("Current maximum number of creature AI threads: " + frameListener.get_GameMap().get_MaxAIThreads());
         }
         else
         {
@@ -137,11 +150,20 @@ void executeConsoleCommand(string &in com, string[] &in args)
             {
                 if(checkIfInt(args[0]))
                 {
-                    gameMap.setMaxAIThreads(convertToInt(args[0]));
+                    const uint maxThreads = stringToUInt(args[0]);
+                    if(maxThreads > 0)
+                    {
+                        frameListener.get_GameMap().set_MaxAIThreads(maxThreads);
+                        console.print("Maximum number of creature AI threads set to: " + frameListener.get_GameMap().get_MaxAIThreads());
+                    }
+                    else
+                    {
+                        console.print("ERROR: Maximum number of threads must be greater zero.");
+                    }
                 }
             }
         }
-    }*/
+    }
 
     else if(com == "turnspersecond")
     {
@@ -175,12 +197,25 @@ void executeConsoleCommand(string &in com, string[] &in args)
 
     else if(com == "newmap")
     {
-        //TODO: code
+
+        if(checkArgCount(argCount, 2))
+        {
+            if(checkIfInt(args[0]) && checkIfInt(args[1]))
+            {
+                frameListener.get_GameMap().createNewMap(stringToInt(args[0]), stringToInt(args[1]));
+            }
+            else
+            {
+                console.print("ERROR: Both arguments need to be integers greater 0.");
+            }
+        }
     }
 
     else if(com == "refreshmesh")
     {
-        //TODO: code
+        console.print("Recreating all meshes.");
+        frameListener.get_GameMap().destroyAllEntities();
+        frameListener.get_GameMap().createAllEntities();
     }
 
     else if(com == "nick")
@@ -190,12 +225,48 @@ void executeConsoleCommand(string &in com, string[] &in args)
 
     else if(com == "maxtime")
     {
-        //TODO: code
+        if(argCount == 0)
+        {
+            console.print("Max display time for chat messages is: " + frameListener.get_ChatMaxTimeDisplay());
+        }
+        else
+        {
+            if(checkArgCount(argCount, 1))
+            {
+                if(checkIfInt(args[0]))
+                {
+                    frameListener.set_ChatMaxTimeDisplay(stringToInt(args[0]));
+                    console.print("Max display time for chat messages was changed to: " + frameListener.get_ChatMaxTimeDisplay());
+                }
+                else
+                {
+                    console.print("ERROR: Expected an integer greater or equal to 0 in first argument.");
+                }
+            }
+        }
     }
 
     else if(com == "maxmessages")
     {
-        //TODO: code
+        if(argCount == 0)
+        {
+            console.print("Max chat messages to display is: " + frameListener.get_ChatMaxMessages());
+        }
+        else
+        {
+            if(checkArgCount(argCount, 1))
+            {
+                if(checkIfInt(args[0]))
+                {
+                    frameListener.set_ChatMaxTimeDisplay(stringToInt(args[0]));
+                    console.print("Max chat messages to display has been set to: " + frameListener.get_ChatMaxMessages());
+                }
+                else
+                {
+                    console.print("ERROR: Expected an integer greater or equal to 0 in first argument.");
+                }
+            }
+        }
     }
 
     else if(com == "connect")

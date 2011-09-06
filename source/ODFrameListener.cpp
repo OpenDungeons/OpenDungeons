@@ -56,16 +56,16 @@ template<> ODFrameListener*
  * up the OGRE system.
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
-        chatMaxMessages(10),
-        chatMaxTimeDisplay(20),
         mWindow(win),
-        frameDelay(0.0),
         renderManager(RenderManager::getSingletonPtr()),
+        sfxHelper(SoundEffectsHelper::getSingletonPtr()),
+        mContinue(true),
         terminalActive(false),
         terminalWordWrap(78),
-        sfxHelper(SoundEffectsHelper::getSingletonPtr()),
+        chatMaxMessages(10),
+        chatMaxTimeDisplay(20),
+        frameDelay(0.0),
         previousTurn(-1),
-        mContinue(true),
         gameMap(gameMap)
 {
 
@@ -615,8 +615,7 @@ void ODFrameListener::printText(const std::string& text)
 /*! \brief Process the commandline from the terminal and carry out the actions
  *  specified in by the user.
  */
-bool ODFrameListener::executePromptCommand(const std::string& command,
-        std::string arguments)
+bool ODFrameListener::executePromptCommand(const std::string& command, std::string arguments)
 {
     std::stringstream tempSS;
 
@@ -635,33 +634,35 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         commandOutput += "\n" + arguments + "\n";
     } */
 
+    /*
     // Write the current level out to file specified as an argument
     if (command.compare("save") == 0)
     {
+        //NOTE: convetred to AS
         if (arguments.empty())
         {
             commandOutput
                     += "No level name given: saving over the last loaded level: "
-                            + gameMap->levelFileName + "\n\n";
-            arguments = gameMap->levelFileName;
+                            + gameMap->getLevelFileName() + "\n\n";
+            arguments = gameMap->getLevelFileName();
         }
 
         string tempFileName = "levels/" + arguments + ".level";
         MapLoader::writeGameMapToFile(tempFileName, *gameMap);
         commandOutput += "\nFile saved to   " + tempFileName + "\n";
 
-        gameMap->levelFileName = arguments;
-    }
+        gameMap->setLevelFileName(arguments);
+    }*/
 
     // Clear the current level and load a new one from a file
-    else if (command.compare("load") == 0)
+    if (command.compare("load") == 0)
     {
         if (arguments.empty())
         {
             commandOutput
                     += "No level name given: loading the last loaded level: "
-                            + gameMap->levelFileName + "\n\n";
-            arguments = gameMap->levelFileName;
+                            + gameMap->getLevelFileName() + "\n\n";
+            arguments = gameMap->getLevelFileName();
         }
 
         if (clientSocket == NULL)
@@ -701,7 +702,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                 }
             }
 
-            gameMap->levelFileName = arguments;
+            gameMap->setLevelFileName(arguments);
         }
         else
         {
@@ -881,6 +882,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         }
     }*/
 
+    /*
     // Set the max number of threads the gameMap should spawn when it does the creature AI.
     else if (command.compare("aithreads") == 0)
     {
@@ -888,15 +890,15 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         if (!arguments.empty())
         {
             tempSS.str(arguments);
-            int tempInt;
+            unsigned int tempInt;
             tempSS >> tempInt;
             if (tempInt >= 1)
             {
-                gameMap->maxAIThreads = tempInt;
+                gameMap->setMaxAIThreads(tempInt);
                 commandOutput
                         += "\nMaximum number of creature AI threads set to "
                                 + Ogre::StringConverter::toString(
-                                        gameMap->maxAIThreads) + "\n";
+                                        gameMap->getMaxAIThreads()) + "\n";
             }
             else
             {
@@ -911,7 +913,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
                             + Ogre::StringConverter::toString(gameMap->maxAIThreads)
                             + "\n";
         }
-    }
+    } */
 
     // Set the turnsPerSecond variable to control the AI speed
     else if(command.compare("turnspersecond") == 0
@@ -1233,9 +1235,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         }
     }
 
+    /*
     // clearmap   Erase all of the tiles leaving an empty map
     else if (command.compare("newmap") == 0)
     {
+        //NOTE: Converted to AS
         if (!arguments.empty())
         {
             int tempX, tempY;
@@ -1244,15 +1248,17 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
             tempSS >> tempX >> tempY;
             gameMap->createNewMap(tempX, tempY);
         }
-    }
+    }*/
 
+    /*
     // refreshmesh   Clear all the Ogre entities and redraw them so they reload their appearence.
     else if (command.compare("refreshmesh") == 0)
     {
+        //NOTE: Converted to AS
         gameMap->destroyAllEntities();
         gameMap->createAllEntities();
         commandOutput += "\nRecreating all meshes.\n";
-    }
+    }*/
 
     // Set your nickname
     else if (command.compare("nick") == 0)
@@ -1270,9 +1276,11 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         commandOutput += gameMap->me->getNick() + "\n";
     }
 
+    /*
     // Set chat message variables
     else if (command.compare("maxtime") == 0)
     {
+        //NOTE: Converted to AS
         if (!arguments.empty())
         {
             chatMaxTimeDisplay = atoi(arguments.c_str());
@@ -1287,10 +1295,12 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         }
 
         commandOutput += "\n " + tempSS.str() + "\n";
-    }
+    } */
 
+    /*
     else if (command.compare("maxmessages") == 0)
     {
+        //NOTE: converted to as
         if (!arguments.empty())
         {
             chatMaxMessages = atoi(arguments.c_str());
@@ -1303,7 +1313,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command,
         }
 
         commandOutput += "\n" + tempSS.str() + "\n";
-    }
+    } */
 
     // Connect to a server
     else if (command.compare("connect") == 0)

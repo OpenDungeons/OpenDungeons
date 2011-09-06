@@ -48,6 +48,7 @@ public:
     void logMessage(const std::string& message, Ogre::LogMessageLevel lml = Ogre::LML_NORMAL,
                     bool maskDebug = false);
     void setLogDetail(Ogre::LoggingLevel ll);
+    Ogre::Log& getLog() { return *gameLog;}
     Ogre::LoggingLevel getLogDetail();
     static const std::string GAMELOG_NAME;
 private:

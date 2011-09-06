@@ -130,7 +130,7 @@ void RenderManager::createScene()
         }
     }
 
-    gameMap->levelFileName = "Test";
+    gameMap->setLevelFileName("Test");
     MapLoader::readGameMapFromFile(levelPath, *gameMap);
 
     rtssTest();
