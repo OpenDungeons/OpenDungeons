@@ -1,11 +1,13 @@
 #include <algorithm>
 
+#include "RadialVector2.h"
+
 #include "TileCoordinateMap.h"
 
 /*! \brief Creates and initializes the map out to the specified radius.
  *
  */
-TileCoordinateMap::TileCoordinateMap(int nRadius) :
+TileCoordinateMap::TileCoordinateMap(const int& nRadius) :
         radius(nRadius)
 {
     precomputeMap(nRadius);
@@ -14,7 +16,7 @@ TileCoordinateMap::TileCoordinateMap(int nRadius) :
 /*! \brief Computes the distance and direction information of all the ordered pairs x,y which lie within a circle of the given radius and centered on the origin, the list is then sorted by the distance to the tile.
  *
  */
-void TileCoordinateMap::precomputeMap(int sightRadius)
+void TileCoordinateMap::precomputeMap(const int& sightRadius)
 {
     data.clear();
 
@@ -40,37 +42,36 @@ void TileCoordinateMap::precomputeMap(int sightRadius)
 /*! \brief Returns the x,y of the ith ordered pair in the sequence of coordinates in order of increasing distance from the origin.
  *
  */
-std::pair<int, int> TileCoordinateMap::getCoordinate(int i)
+std::pair<int, int> TileCoordinateMap::getCoordinate(const int& i)
 {
     checkIndex(i);
-    return data[i].coord;
+    return data[i].getCoord();
 }
 
 /*! \brief Returns the angle (in radians) to the center of the ith tile, i.e. the the value of the function atan2(yi, xi).
  *
  */
-double TileCoordinateMap::getCentralTheta(int i)
+double TileCoordinateMap::getCentralTheta(const int& i)
 {
     checkIndex(i);
-    return data[i].vec.theta;
+    return data[i].getVec().theta;
 }
 
 /*! \brief Returns the square of the radius of the ith ordered pair from the origin, i.e. the value r^2 = xi^2 + yi^2.
  *
  */
-int TileCoordinateMap::getRadiusSquared(int i)
+int TileCoordinateMap::getRadiusSquared(const int& i)
 {
     checkIndex(i);
-    return data[i].radiusSquared;
+    return data[i].getRadiusSquared();
 }
 
 /*! \brief A helper for sorting the list of ordered pairs, the list will be sorted in order of increasing radiusSquared for the ordered pairs in the list.
  *
  */
-bool TileCoordinateMap::dataSortComparitor(TileCoordinateData t1,
-        TileCoordinateData t2)
+bool TileCoordinateMap::dataSortComparitor(TileCoordinateData t1, TileCoordinateData t2)
 {
-    return t1.radiusSquared < t2.radiusSquared;
+    return t1.getRadiusSquared() < t2.getRadiusSquared();
 }
 
 /*! \brief Ensures that a call to get the information for index i will succeed, this function will recompute the coordinate map to a larger radius if neccessary to make the call succeed.
@@ -85,19 +86,3 @@ void TileCoordinateMap::checkIndex(unsigned int i)
         radius = newRadius;
     }
 }
-
-/////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////
-
-/*! \brief A simple initialization constructor.
- *
- */
-TileCoordinateData::TileCoordinateData(RadialVector2 nvec, int nradiusSquared,
-        std::pair<int, int> ncoord)
-{
-    vec = nvec;
-    radiusSquared = nradiusSquared;
-    coord = ncoord;
-}
-

@@ -21,9 +21,11 @@ class Translation : public Ogre::Singleton<Translation>
         Translation();
         ~Translation();
 
-        inline const std::vector<std::string>* getLanguageList() const{return &languageList;}
-        inline const std::vector<std::string>* getLanguageNiceNames() const{return &languageNiceNames;}
-        inline std::string translate(const std::string& original) {return dictionary.translate(original);}
+        inline const std::vector<std::string>& getLanguageList() const{return languageList;}
+        inline const std::vector<std::string>& getLanguageNiceNames() const{
+                return languageNiceNames;}
+        inline std::string translate(const std::string& original) {
+                return dictionary.translate(original);}
 
     private:
         Translation(const Translation&);
