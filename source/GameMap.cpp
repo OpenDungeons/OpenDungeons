@@ -1697,8 +1697,8 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
             double rsq = dx * dx + dy * dy;
             double deltaTheta = 1.5 / sqrt(rsq);
             tempAngle.fromCartesian(dx, dy);
-            smallAngle.theta = tempAngle.theta - deltaTheta;
-            largeAngle.theta = tempAngle.theta + deltaTheta;
+            smallAngle.setTheta(tempAngle.getTheta() - deltaTheta);
+            largeAngle.setTheta(tempAngle.getTheta() + deltaTheta);
 
             // Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of
             // the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
@@ -1706,7 +1706,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
                     tileQueue.begin();
             while (tileQueueIterator != tileQueue.end())
             {
-                tempAngle.theta = (*tileQueueIterator).second;
+                tempAngle.setTheta((*tileQueueIterator).second);
 
                 // If the current tile is in the obscured region.
                 if (tempAngle.directionIsBetween(smallAngle, largeAngle))

@@ -54,7 +54,7 @@ std::pair<int, int> TileCoordinateMap::getCoordinate(const int& i)
 double TileCoordinateMap::getCentralTheta(const int& i)
 {
     checkIndex(i);
-    return data[i].getVec().theta;
+    return data[i].getVec().getTheta();
 }
 
 /*! \brief Returns the square of the radius of the ith ordered pair from the origin, i.e. the value r^2 = xi^2 + yi^2.
