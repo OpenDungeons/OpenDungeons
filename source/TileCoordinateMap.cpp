@@ -36,7 +36,7 @@ void TileCoordinateMap::precomputeMap(const int& sightRadius)
     }
 
     // Sort the tile queue so that if we start at any point in the tile queue and iterate forward from that point, every successive tile will be as far away from, or farther away from the target tile point.
-    sort(data.begin(), data.end(), TileCoordinateMap::dataSortComparitor);
+    std::sort(data.begin(), data.end(), TileCoordinateMap::dataSortComparitor);
 }
 
 /*! \brief Returns the x,y of the ith ordered pair in the sequence of coordinates in order of increasing distance from the origin.
