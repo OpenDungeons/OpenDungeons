@@ -6,11 +6,23 @@
 #include "RenderManager.h"
 
 Weapon::Weapon() :
-        damage(0.0),
-        range(0.0),
-        defense(0.0),
-        parentCreature(NULL),
-        meshExists(false)
+        damage          (0.0),
+        range           (0.0),
+        defense         (0.0),
+        parentCreature  (0),
+        meshExists      (false)
+{
+}
+
+Weapon::Weapon(const std::string & name, const double & damage, const double & range,
+        const double & defense, Creature *parent, const std::string & handString) :
+        name            (name),
+        handString      (handString),
+        damage          (damage),
+        range           (range),
+        defense         (defense),
+        parentCreature  (parent),
+        meshExists      (false)
 {
 }
 
@@ -87,4 +99,3 @@ std::istream& operator>>(std::istream& is, Weapon *w)
 
     return is;
 }
-

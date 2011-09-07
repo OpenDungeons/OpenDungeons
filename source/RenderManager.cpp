@@ -770,10 +770,10 @@ void RenderManager::rrCreateWeapon ( const RenderRequest& renderRequest )
     Ogre::Entity* ent = sceneManager->getEntity("Creature_" + curCreature->name);
     //colourizeEntity(ent, curCreature->color);
     Ogre::Entity* weaponEntity = sceneManager->createEntity("Weapon_"
-                                 + curWeapon->handString + "_" + curCreature->name,
-                                 curWeapon->meshName);
+                                 + curWeapon->getHandString() + "_" + curCreature->name,
+                                 curWeapon->getMeshName());
     Ogre::Bone* weaponBone = ent->getSkeleton()->getBone(
-                                 "Weapon_" + curWeapon->handString);
+                                 "Weapon_" + curWeapon->getHandString());
 
     // Rotate by -90 degrees around the x-axis from the bone's rotation.
     Ogre::Quaternion rotationQuaternion;
@@ -789,10 +789,10 @@ void RenderManager::rrDestroyWeapon ( const RenderRequest& renderRequest )
     Weapon* curWeapon = static_cast<Weapon*>( renderRequest.p);
     Creature* curCreature = static_cast<Creature*>(renderRequest.p2);
 
-    if (curWeapon->name.compare("none") != 0)
+    if (curWeapon->getName().compare("none") != 0)
     {
         Ogre::Entity* ent = sceneManager->getEntity("Weapon_"
-                            + curWeapon->handString + "_" + curCreature->name);
+                            + curWeapon->getHandString() + "_" + curCreature->getName());
         sceneManager->destroyEntity(ent);
     }
 }

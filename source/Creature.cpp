@@ -143,13 +143,13 @@ std::istream& operator>>(std::istream& is, Creature *c)
 
     c->weaponL = new Weapon;
     is >> c->weaponL;
-    c->weaponL->parentCreature = c;
-    c->weaponL->handString = "L";
+    c->weaponL->setParentCreature(c);
+    c->weaponL->setHandString("L");
 
     c->weaponR = new Weapon;
     is >> c->weaponR;
-    c->weaponR->parentCreature = c;
-    c->weaponR->handString = "R";
+    c->weaponR->setParentCreature(c);
+    c->weaponR->setHandString("R");
 
     // Copy the class based items
     CreatureClass *creatureClass = c->gameMap->getClassDescription(c->className);
@@ -1683,7 +1683,7 @@ void Creature::doTurn()
 
                     // Pick a destination tile near the tile we got from the battlefield.
                     clearDestinations();
-                    tempDouble = std::max(weaponL->range, weaponR->range); // Pick a true destination randomly within the max range of our weapons.
+                    tempDouble = std::max(weaponL->getRange(), weaponR->getRange()); // Pick a true destination randomly within the max range of our weapons.
                     tempDouble = sqrt(tempDouble);
                     //FIXME:  This should find a path to a tile we can walk to, it does not always do this the way it is right now.
                     tempPath = gameMap->path(positionTile()->x,
@@ -1753,10 +1753,10 @@ double Creature::getHitroll(double range)
 {
     double tempHitroll = 1.0;
 
-    if (weaponL != NULL && weaponL->range >= range)
-        tempHitroll += weaponL->damage;
-    if (weaponR != NULL && weaponR->range >= range)
-        tempHitroll += weaponR->damage;
+    if (weaponL != 0 && weaponL->getRange() >= range)
+        tempHitroll += weaponL->getDamage();
+    if (weaponR != 0 && weaponR->getRange() >= range)
+        tempHitroll += weaponR->getDamage();
     tempHitroll *= log((double) log((double) level + 1) + 1);
 
     return tempHitroll;
@@ -1766,9 +1766,9 @@ double Creature::getDefense() const
 {
     double returnValue = 3.0;
     if (weaponL != NULL)
-        returnValue += weaponL->defense;
+        returnValue += weaponL->getDefense();
     if (weaponR != NULL)
-        returnValue += weaponR->defense;
+        returnValue += weaponR->getDefense();
 
     return returnValue;
 }
@@ -1904,7 +1904,7 @@ std::vector<AttackableObject*> Creature::getEnemyObjectsInRange(
 
     // Find our location and calculate the square of the max weapon range we have.
     Tile *myTile = positionTile();
-    double weaponRangeSquared = std::max(weaponL->range, weaponR->range);
+    double weaponRangeSquared = std::max(weaponL->getRange(), weaponR->getRange());
     weaponRangeSquared *= weaponRangeSquared;
 
     // Loop over the enemyObjectsToCheck and add any within range to the tempVector.
