@@ -49,7 +49,7 @@ Gui::~Gui()
 /*! \brief A required function to pass input to the OIS system.
  *
  */
-CEGUI::MouseButton Gui::convertButton(OIS::MouseButtonID buttonID)
+CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
 {
     switch (buttonID)
     {

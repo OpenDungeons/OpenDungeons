@@ -34,10 +34,10 @@ class Gui : public Ogre::Singleton<Gui>
         Gui();
         ~Gui();
 
-        void loadGuiSheet(const guiSheet& newSheet);
-        CEGUI::MouseButton convertButton(OIS::MouseButtonID buttonID);
-        void setVisible(const bool& visible);
-        void toggleGui();
+        void                loadGuiSheet    (const guiSheet& newSheet);
+        CEGUI::MouseButton  convertButton   (const OIS::MouseButtonID& buttonID);
+        void                setVisible      (const bool& visible);
+        void                toggleGui       ();
 
         //Access names of the GUI elements
         static const std::string ROOT;
@@ -76,20 +76,20 @@ class Gui : public Ogre::Singleton<Gui>
         guiSheet activeSheet;
 
         //Button handlers game UI
-        static bool quitButtonPressed(const CEGUI::EventArgs& e);
-        static bool quartersButtonPressed(const CEGUI::EventArgs& e);
-        static bool treasuryButtonPressed(const CEGUI::EventArgs& e);
-        static bool forgeButtonPressed(const CEGUI::EventArgs& e);
-        static bool dojoButtonPressed(const CEGUI::EventArgs& e);
-        static bool cannonButtonPressed(const CEGUI::EventArgs& e);
-        static bool serverButtonPressed(const CEGUI::EventArgs& e);
+        static bool quitButtonPressed       (const CEGUI::EventArgs& e);
+        static bool quartersButtonPressed   (const CEGUI::EventArgs& e);
+        static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);
+        static bool forgeButtonPressed      (const CEGUI::EventArgs& e);
+        static bool dojoButtonPressed       (const CEGUI::EventArgs& e);
+        static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
+        static bool serverButtonPressed     (const CEGUI::EventArgs& e);
 
         //Button handlers main menu
-        static bool mMNewGameButtonPressed(const CEGUI::EventArgs& e);
+        static bool mMNewGameButtonPressed  (const CEGUI::EventArgs& e);
         static bool mMMapEditorButtonPressed(const CEGUI::EventArgs& e);
-        static bool mMLoadButtonPressed(const CEGUI::EventArgs& e);
-        static bool mMOptionsButtonPressed(const CEGUI::EventArgs& e);
-        static bool mMQuitButtonPressed(const CEGUI::EventArgs& e);
+        static bool mMLoadButtonPressed     (const CEGUI::EventArgs& e);
+        static bool mMOptionsButtonPressed  (const CEGUI::EventArgs& e);
+        static bool mMQuitButtonPressed     (const CEGUI::EventArgs& e);
 };
 
 #endif /* GUI_H_ */

@@ -1,22 +1,22 @@
-#include "CreatureAction.h"
 #include "Creature.h"
 
+#include "CreatureAction.h"
+
 CreatureAction::CreatureAction() :
-        type(idle),
-        tile(NULL),
-        creature(NULL)
+        type    (idle),
+        tile    (0),
+        creature(0)
 {
 }
 
-CreatureAction::CreatureAction(ActionType nType, Tile *nTile,
-        Creature *nCreature) :
-            type(nType),
-            tile(nTile),
-            creature(nCreature)
+CreatureAction::CreatureAction(const ActionType& nType, Tile *nTile, Creature *nCreature) :
+        type    (nType),
+        tile    (nTile),
+        creature(nCreature)
 {
 }
 
-std::string CreatureAction::toString()
+std::string CreatureAction::toString() const
 {
     switch (type)
     {

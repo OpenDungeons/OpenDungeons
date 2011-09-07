@@ -438,8 +438,8 @@ void Creature::doTurn()
         sem_wait(&actionQueueLockSemaphore);
         for (unsigned int i = 0, size = actionQueue.size(); i < size; ++i)
         {
-            if (actionQueue[i].type == CreatureAction::attackObject
-                    || actionQueue[i].type == CreatureAction::maneuver)
+            if (actionQueue[i].getType() == CreatureAction::attackObject
+                    || actionQueue[i].getType() == CreatureAction::maneuver)
             {
                 alreadyFighting = true;
                 break;
@@ -456,7 +456,7 @@ void Creature::doTurn()
 
             if (Random::Double(0.0, 1.0) < tempDouble)
             {
-                tempAction.type = CreatureAction::maneuver;
+                tempAction.setType(CreatureAction::maneuver);
                 battleFieldAgeCounter = 0;
                 pushAction(tempAction);
                 // Jump immediately to the action processor since we don't want to decide to train or something if there are enemies around.
@@ -466,8 +466,8 @@ void Creature::doTurn()
     }
 
     // Check to see if we have found a "home" tile where we can sleep yet.
-    if (!isWorker() && Random::Double(0.0, 1.0) < 0.03 && homeTile == NULL
-            && peekAction().type != CreatureAction::findHome)
+    if (!isWorker() && Random::Double(0.0, 1.0) < 0.03 && homeTile == 0
+            && peekAction().getType() != CreatureAction::findHome)
     {
         // Check to see if there are any quarters owned by our color that we can reach.
         std::vector<Room*> tempRooms = gameMap->getRoomsByTypeAndColor(
@@ -476,7 +476,7 @@ void Creature::doTurn()
                 tilePassability);
         if (!tempRooms.empty())
         {
-            tempAction.type = CreatureAction::findHome;
+            tempAction.setType(CreatureAction::findHome);
             pushAction(tempAction);
             goto creatureActionDoWhileLoop;
         }
@@ -484,19 +484,19 @@ void Creature::doTurn()
 
     // If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
     if (!isWorker() && homeTile != NULL && 100.0 * powl(Random::Double(0.0, 0.8),
-            2) > awakeness && peekAction().type != CreatureAction::sleep)
+            2) > awakeness && peekAction().getType() != CreatureAction::sleep)
     {
-        tempAction.type = CreatureAction::sleep;
+        tempAction.setType(CreatureAction::sleep);
         pushAction(tempAction);
         goto creatureActionDoWhileLoop;
     }
 
     // Check to see if there is a Dojo we can train at.
     if (!isWorker() && Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0)
-            < awakeness / 100.0 && peekAction().type != CreatureAction::train)
+            < awakeness / 100.0 && peekAction().getType() != CreatureAction::train)
     {
         //TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
-        tempAction.type = CreatureAction::train;
+        tempAction.setType(CreatureAction::train);
         pushAction(tempAction);
         trainWait = 0;
         goto creatureActionDoWhileLoop;
@@ -541,7 +541,7 @@ void Creature::doTurn()
 
             double diceRoll = Random::Double(0.0, 1.0);
             double tempDouble;
-            switch (topActionItem.type)
+            switch (topActionItem.getType())
             {
                 case CreatureAction::idle:
                     //cout << "idle ";
@@ -614,7 +614,7 @@ void Creature::doTurn()
                                         // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
                                         tempTile
                                                 = reachableAlliedObjects[i]->getCoveredTiles()[0];
-                                        if (((Creature*) reachableAlliedObjects[i])->peekAction().type
+                                        if (((Creature*) reachableAlliedObjects[i])->peekAction().getType()
                                                 == CreatureAction::digTile)
                                         {
                                             // Worker is digging, get near it since it could expose enemies.
@@ -714,7 +714,7 @@ void Creature::doTurn()
                             && !enemyObjectsInRange.empty())
                     {
                         popAction();
-                        tempAction.type = CreatureAction::attackObject;
+                        tempAction.setType(CreatureAction::attackObject);
                         pushAction(tempAction);
                         clearDestinations();
                         loopBack = true;
@@ -724,7 +724,7 @@ void Creature::doTurn()
                     //TODO: Peek at the item that caused us to walk
                     // If we are walking toward a tile we are trying to dig out, check to see if it is still marked for digging.
                     sem_wait(&actionQueueLockSemaphore);
-                    tempBool = (actionQueue[1].type == CreatureAction::digTile);
+                    tempBool = (actionQueue[1].getType() == CreatureAction::digTile);
                     sem_post(&actionQueueLockSemaphore);
                     if (tempBool)
                     {
@@ -1141,8 +1141,7 @@ void Creature::doTurn()
                     // If none of our neighbors are marked for digging we got here too late.
                     // Finish digging
                     sem_wait(&actionQueueLockSemaphore);
-                    tempBool = (actionQueue.front().type
-                            == CreatureAction::digTile);
+                    tempBool = (actionQueue.front().getType() == CreatureAction::digTile);
                     sem_post(&actionQueueLockSemaphore);
                     if (tempBool)
                     {
@@ -1154,7 +1153,7 @@ void Creature::doTurn()
                 case CreatureAction::depositGold:
                     // Check to see if we are standing in a treasury.
                     myTile = positionTile();
-                    if (myTile != NULL)
+                    if (myTile != 0)
                     {
                         tempRoom = myTile->getCoveringRoom();
                         if (tempRoom != NULL && tempRoom->getType()
@@ -1618,8 +1617,7 @@ void Creature::doTurn()
 
                         // If the next action down the stack is not an attackObject action, add it.
                         sem_wait(&actionQueueLockSemaphore);
-                        tempBool = (actionQueue.front().type
-                                != CreatureAction::attackObject);
+                        tempBool = (actionQueue.front().getType() != CreatureAction::attackObject);
                         sem_post(&actionQueueLockSemaphore);
                         if (tempBool)
                             pushAction(CreatureAction::attackObject);

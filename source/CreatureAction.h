@@ -29,14 +29,18 @@ class CreatureAction
         };
 
         CreatureAction();
-        CreatureAction(ActionType nType, Tile* nTile = NULL,
-                Creature* nCreature = NULL);
+        CreatureAction(const ActionType& nType, Tile* nTile = 0, Creature* nCreature = 0);
 
-        ActionType type;
-        Tile* tile;
-        Creature* creature;
+        inline void                 setType(const ActionType& nType)    { type = nType; }
+        inline const ActionType&    getType() const                     { return type; }
 
-        std::string toString();
+        std::string toString() const;
+
+    private:
+        ActionType  type;
+        Tile*       tile;
+        Creature*   creature;
+
 };
 
 #endif
