@@ -33,7 +33,7 @@ CameraManager::CameraManager(Ogre::Camera* cam) :
 /*! \brief Sets the camera to a new location while still satisfying the
  * constraints placed on its movement
  */
-void CameraManager::moveCamera(Ogre::Real frameTime)
+void CameraManager::moveCamera(const Ogre::Real frameTime)
 {
 	// Carry out the acceleration/deceleration calculations on the camera translation.
 	Ogre::Real speed = translateVector.normalise();
@@ -156,7 +156,7 @@ Ogre::Vector3 CameraManager::getCameraViewTarget()
 /** \brief Starts the camera moving towards a destination position,
  *         it will stop moving when it gets there.
  */
-void CameraManager::flyTo(Ogre::Vector3 destination)
+void CameraManager::flyTo(const Ogre::Vector3& destination)
 {
     cameraIsFlying = true;
     cameraFlightDestination = destination;
@@ -169,7 +169,7 @@ void CameraManager::flyTo(Ogre::Vector3 destination)
  *  one direction means either moving there (if resting before) or stoping the
  *  movement (if moving in oppsite direction before)
  */
-void CameraManager::move(Direction direction)
+void CameraManager::move(const Direction direction)
 {
     switch(direction)
     {
@@ -234,7 +234,7 @@ void CameraManager::move(Direction direction)
 //the lengthy calculations from being executed if there's no movement at all)
 /*! \brief Checks if the camera is moving at all by evaluating all momentums
  */
-bool CameraManager::isCamMovingAtAll()
+bool CameraManager::isCamMovingAtAll() const
 {
     return (translateVectorAccel.x != 0 ||
             translateVectorAccel.y != 0 ||

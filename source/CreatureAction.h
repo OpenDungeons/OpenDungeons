@@ -24,15 +24,14 @@ class CreatureAction
             findHome, // Try to find a "home" tile in a quarters somewhere where the creature can sleep.
             sleep, // Try to go to its home tile to and sleep when it gets there.
             train, // Check to see if our seat controls a dojo, and if so go there to train.
-            idle
-        // Stand around doing nothing.
+            idle // Stand around doing nothing.
         };
 
         CreatureAction();
-        CreatureAction(const ActionType& nType, Tile* nTile = 0, Creature* nCreature = 0);
+        CreatureAction(const ActionType nType, Tile* nTile = 0, Creature* nCreature = 0);
 
-        inline void                 setType(const ActionType& nType)    { type = nType; }
-        inline const ActionType&    getType() const                     { return type; }
+        inline void                 setType(const ActionType nType) { type = nType; }
+        inline const ActionType     getType() const                 { return type; }
 
         std::string toString() const;
 

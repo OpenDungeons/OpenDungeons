@@ -13,17 +13,17 @@ class RadialVector2;
 class TileCoordinateMap
 {
     public:
-        TileCoordinateMap(const int& nRadius);
+        TileCoordinateMap(const int nRadius);
 
-        void                precomputeMap   (const int& sightRadius);
-        std::pair<int, int> getCoordinate   (const int& i);
-        double              getCentralTheta (const int& i);
-        int                 getRadiusSquared(const int& i);
+        void                precomputeMap   (const int sightRadius);
+        std::pair<int, int> getCoordinate   (const int i);
+        double              getCentralTheta (const int i);
+        int                 getRadiusSquared(const int i);
 
     private:
         static bool dataSortComparitor(TileCoordinateData t1, TileCoordinateData t2);
 
-        void checkIndex(unsigned int i);
+        void checkIndex(const unsigned int i);
 
         int                             radius;
         std::vector<TileCoordinateData> data;
@@ -43,7 +43,7 @@ class TileCoordinateData
         {}
 
         inline const RadialVector2&         getVec          () const { return vec; }
-        inline const int&                   getRadiusSquared() const { return radiusSquared; }
+        inline const int                    getRadiusSquared() const { return radiusSquared; }
         inline const std::pair<int, int>&   getCoord        () const { return coord; }
 
     private:

@@ -9,7 +9,7 @@ CreatureAction::CreatureAction() :
 {
 }
 
-CreatureAction::CreatureAction(const ActionType& nType, Tile *nTile, Creature *nCreature) :
+CreatureAction::CreatureAction(const ActionType nType, Tile *nTile, Creature *nCreature) :
         type    (nType),
         tile    (nTile),
         creature(nCreature)

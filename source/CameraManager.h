@@ -42,35 +42,35 @@ class CameraManager : public Ogre::Singleton<CameraManager>
         inline const Ogre::Vector3& getTranslateVectorAccel() const{return translateVectorAccel;}
 
         //get camera
-        inline Ogre::Camera* getCamera() const{return mCamera;}
+        inline Ogre::Camera* getCamera() const {return mCamera; }
 
-        bool isCamMovingAtAll();
+        bool isCamMovingAtAll() const;
 
-        void moveCamera(Ogre::Real frameTime);
-        Ogre::Vector3 getCameraViewTarget();
-        void flyTo(Ogre::Vector3 destination);
+        void            moveCamera          (const Ogre::Real frameTime);
+        Ogre::Vector3   getCameraViewTarget ();
+        void            flyTo               (const Ogre::Vector3& destination);
 
-        void move(Direction direction);
-        inline void stopZooming() {zChange = 0;}
+        void        move        (const Direction direction);
+        inline void stopZooming () { zChange = 0; }
 
     private:
         CameraManager(const CameraManager&);
 
-        Ogre::Camera* mCamera;
-        Ogre::SceneNode* mCamNode;
+        Ogre::Camera*       mCamera;
+        Ogre::SceneNode*    mCamNode;
 
-        bool cameraIsFlying;
-        Ogre::Real moveSpeed;
-        Ogre::Real moveSpeedAccel;
-        Ogre::Real cameraFlightSpeed;
-        Ogre::Degree rotateSpeed;
-        Ogre::Degree swivelDegrees;
-        Ogre::Vector3 translateVector;
-        Ogre::Vector3 translateVectorAccel;
-        Ogre::Vector3 cameraFlightDestination;
-        Ogre::Vector3 mRotateLocalVector;
-        double zChange;
-        float mZoomSpeed;
+        bool            cameraIsFlying;
+        Ogre::Real      moveSpeed;
+        Ogre::Real      moveSpeedAccel;
+        Ogre::Real      cameraFlightSpeed;
+        Ogre::Degree    rotateSpeed;
+        Ogre::Degree    swivelDegrees;
+        Ogre::Vector3   translateVector;
+        Ogre::Vector3   translateVectorAccel;
+        Ogre::Vector3   cameraFlightDestination;
+        Ogre::Vector3   mRotateLocalVector;
+        double          zChange;
+        float           mZoomSpeed;
 };
 
 #endif /* CAMERAMANAGER_H_ */

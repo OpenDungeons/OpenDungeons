@@ -19,24 +19,24 @@ RadialVector2::RadialVector2() :
 {
 }
 
-RadialVector2::RadialVector2(const double& x1, const double& y1, const double& x2,
-        const double& y2)
+RadialVector2::RadialVector2(const double x1, const double y1, const double x2,
+        const double y2)
 {
     fromCartesian(x1, y1, x2, y2);
 }
 
-RadialVector2::RadialVector2(const double& dx, const double& dy)
+RadialVector2::RadialVector2(const double dx, const double dy)
 {
     fromCartesian(dx, dy);
 }
 
-void RadialVector2::fromCartesian(const double& x1, const double& y1, const double& x2,
-        const double& y2)
+void RadialVector2::fromCartesian(const double x1, const double y1, const double x2,
+        const double y2)
 {
     fromCartesian(x2 - x1, y2 - y1);
 }
 
-void RadialVector2::fromCartesian(const double& dx, const double& dy)
+void RadialVector2::fromCartesian(const double dx, const double dy)
 {
     r = sqrt(dx * dx + dy * dy);
     theta = atan2(dy, dx);

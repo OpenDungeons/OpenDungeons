@@ -14,8 +14,8 @@ Weapon::Weapon() :
 {
 }
 
-Weapon::Weapon(const std::string & name, const double & damage, const double & range,
-        const double & defense, Creature *parent, const std::string & handString) :
+Weapon::Weapon(const std::string& name, const double damage, const double range,
+        const double defense, Creature *parent, const std::string& handString) :
         name            (name),
         handString      (handString),
         damage          (damage),
