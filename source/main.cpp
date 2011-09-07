@@ -1,39 +1,30 @@
-#include "Globals.h"
-
-#include <vector>
 #include <deque>
-#include <semaphore.h>
-#include <iostream>
 
-#include "Functions.h"
+#include "Globals.h"
 #include "ODApplication.h"
-#include "GameMap.h"
-#include "Player.h"
 #include "RenderRequest.h"
 #include "Socket.h"
 #include "ProtectedObject.h"
 #include "Random.h"
 
-//GameMap gameMap;
-
-sem_t lightNumberLockSemaphore;
-sem_t missileObjectUniqueNumberLockSemaphore;
+//TODO: remove all these globals and put them into better places
 
 ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty(0);
+ProtectedObject<long int> turnNumber(1);
 
 std::deque<ServerNotification*> serverNotificationQueue;
 std::deque<ClientNotification*> clientNotificationQueue;
+
+sem_t lightNumberLockSemaphore;
+sem_t missileObjectUniqueNumberLockSemaphore;
 sem_t serverNotificationQueueSemaphore;
 sem_t clientNotificationQueueSemaphore;
 sem_t serverNotificationQueueLockSemaphore;
 sem_t clientNotificationQueueLockSemaphore;
-
 sem_t creatureAISemaphore;
 
-Socket* serverSocket = NULL;
-Socket* clientSocket = NULL;
-
-ProtectedObject<long int> turnNumber(1);
+Socket* serverSocket = 0;
+Socket* clientSocket = 0;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -71,7 +62,7 @@ int main(int argc, char **argv)
     catch (Ogre::Exception& e)
     {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 
-        MessageBox( NULL, e.what(), "An exception has occurred!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
+        MessageBox(0, e.what(), "An exception has occurred!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
         fprintf(stderr, "An exception has occurred: %s\n", e.what());
 #endif
