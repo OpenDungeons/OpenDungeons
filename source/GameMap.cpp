@@ -133,6 +133,25 @@ const Tile* GameMap::getTile(int x, int y) const
     return returnValue;
 }
 
+/*! \brief Returns a pointer to the tile at location (x, y) (does not lock the tile semaphore)
+ *
+ * The tile pointers are stored internally in a map so calls to this function
+ * have a complexity O(log(N)) where N is the number of tiles in the map.
+ * NOTE: This function does not lock and is to be used in the visibleTiles function.
+ * NOTE: Lock before calling.
+ */
+Tile* GameMap::getTileNoLock(int x, int y)
+{
+    Tile *returnValue = NULL;
+    std::pair<int, int> location(x, y);
+
+    TileMap_t::iterator itr = tiles.find(location);
+    returnValue = (itr != tiles.end()) ? itr->second : NULL;
+
+    return returnValue;
+}
+
+
 /*! \brief Clears the mesh and deletes the data structure for all the tiles, creatures, classes, and players in the GameMap.
  *
  */
@@ -1651,6 +1670,8 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
     std::list<std::pair<Tile*, double> > tileQueue;
 
     int tileCounter = 0;
+
+    sem_wait(&tilesLockSemaphore);
     while (true)
     {
         int rSquared = tileCoordinateMap->getRadiusSquared(tileCounter);
@@ -1659,13 +1680,14 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
         std::pair<int, int> coord = tileCoordinateMap->getCoordinate(tileCounter);
 
-        Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
+        Tile *tempTile = getTileNoLock(startX + coord.first, startY + coord.second);
         double tempTheta = tileCoordinateMap->getCentralTheta(tileCounter);
         if (tempTile != NULL)
             tileQueue.push_back(std::pair<Tile*, double> (tempTile, tempTheta));
 
         ++tileCounter;
     }
+    sem_post(&tilesLockSemaphore);
 
     //TODO: Loop backwards and remove any non-see through tiles until we get to one which permits vision (this cuts down the cost of walks toward the end when an opaque block is found).
 

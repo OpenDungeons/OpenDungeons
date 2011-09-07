@@ -235,6 +235,8 @@ class GameMap
         static void *creatureDoTurnThread(void *p);
         static void *creatureDoTurnHelperThread(void *p);
 
+        Tile* getTileNoLock(int x, int y);
+
         class CDTHTStruct
         {
             public:
