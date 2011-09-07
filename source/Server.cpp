@@ -586,7 +586,7 @@ void *clientHandlerThread(void *p)
             {
                 sem_wait(&frameListener->clientSockets[i]->semaphore);
                 frameListener->clientSockets[i]->send(formatCommand("chat",
-                        newMessage->clientNick + ":" + newMessage->message));
+                        newMessage->getClientNick() + ":" + newMessage->getMessage()));
                 sem_post(&frameListener->clientSockets[i]->semaphore);
             }
 

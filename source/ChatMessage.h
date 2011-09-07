@@ -16,10 +16,18 @@ class ChatMessage
 {
     public:
         ChatMessage();
-        ChatMessage(std::string nNick, std::string nMessage, time_t nRecvTime,
+        ChatMessage(const std::string& nNick, const std::string& nMessage, const time_t& nRecvTime,
                 time_t nSendTime = 0);
-        std::string message, clientNick;
-        time_t sendTime, recvTime;
+
+        inline const std::string&   getMessage      () const { return message; }
+        inline const std::string&   getClientNick   () const { return clientNick; }
+        inline const time_t&        getRecvTime     () const { return recvTime; }
+
+    private:
+        std::string message;
+        std::string clientNick;
+        time_t      sendTime;
+        time_t      recvTime;
 };
 
 #endif

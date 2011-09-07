@@ -282,7 +282,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     {
         std::deque<ChatMessage*>::iterator itr = chatMessages.begin() + i;
         currentMessage = *itr;
-        if (difftime(now, currentMessage->recvTime) > chatMaxTimeDisplay)
+        if (difftime(now, currentMessage->getRecvTime()) > chatMaxTimeDisplay)
         {
             chatMessages.erase(itr);
         }
@@ -303,10 +303,10 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     for (unsigned int i = 0; i < chatMessages.size(); ++i)
     {
         std::stringstream chatSS("");
-        struct tm *friendlyTime = localtime(&chatMessages[i]->recvTime);
+        struct tm *friendlyTime = localtime(&chatMessages[i]->getRecvTime());
         chatSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":"
-                << friendlyTime->tm_sec << "  " << chatMessages[i]->clientNick
-                << ":  " << chatMessages[i]->message;
+                << friendlyTime->tm_sec << "  " << chatMessages[i]->getClientNick()
+                << ":  " << chatMessages[i]->getMessage();
         chatString += chatSS.str() + "\n";
     }
 
@@ -315,7 +315,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     string nullString = "";
     string turnString = "";
     turnString.reserve(100);
-    if (serverSocket != NULL)
+    if (serverSocket != 0)
     {
         turnString = "On average the creature AI is finishing ";
         turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
