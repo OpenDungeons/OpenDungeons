@@ -27,30 +27,30 @@ class Console :
         ~Console();
 
         inline const bool& isVisible() const{return visible;}
-        void setVisible(const bool& newState);
+        void setVisible(const bool newState);
         void toggleVisibility();
 
         inline const bool&  getAllowTrivial() const                 { return allowTrivial; }
         inline void         setAllowTrivial(const bool& newState)   { allowTrivial = newState; }
 
         inline const bool&  getAllowNormal() const                  { return allowNormal; }
-        inline void         setAllowNormal(const bool& newState)    { allowNormal = newState; }
+        inline void         setAllowNormal(const bool newState)     { allowNormal = newState; }
 
         inline const bool&  getAllowCritical() const                { return allowCritical; }
-        inline void         setAllowCritical(const bool& newState)  { allowCritical = newState; }
+        inline void         setAllowCritical(const bool newState)   { allowCritical = newState; }
 
         inline const bool&  getChatMode() const                     { return chatMode; }
-        inline void         setChatMode(const bool& newState)       { chatMode = newState; }
+        inline void         setChatMode(const bool newState)        { chatMode = newState; }
 
         void print(const Ogre::String &text);
 
-        virtual bool frameStarted   (const Ogre::FrameEvent &evt);
-        virtual bool frameEnded     (const Ogre::FrameEvent &evt);
+        virtual bool frameStarted   (const Ogre::FrameEvent& evt);
+        virtual bool frameEnded     (const Ogre::FrameEvent& evt);
 
-        void onMouseMoved   (const OIS::MouseEvent& arg, const bool& isCtrlDown = false);
+        void onMouseMoved   (const OIS::MouseEvent& arg, const bool isCtrlDown = false);
         void onKeyPressed   (const OIS::KeyEvent& arg);
-        void messageLogged  (const Ogre::String& message,
-                Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String &logName);
+        void messageLogged  (const Ogre::String& message, Ogre::LogMessageLevel lml,
+                bool maskDebug, const Ogre::String& logName);
 
     private:
         //state variables
@@ -75,6 +75,7 @@ class Console :
         unsigned int            startLine;
         std::list<Ogre::String> lines;
         Ogre::String            prompt;
+        Ogre::String            cursorChar;
 
         //history variables
         std::vector<Ogre::String>   history;
@@ -82,9 +83,9 @@ class Console :
 
         void                        checkVisibility ();
         std::vector<Ogre::String>   split           (const Ogre::String& str,
-                const char& splitChar);
-        void                        scrollHistory   (const bool& direction);
-        void                        scrollText      (const bool& direction);
+                const char splitChar);
+        void                        scrollHistory   (const bool direction);
+        void                        scrollText      (const bool direction);
 };
 
 #endif /* CONSOLE_H_ */

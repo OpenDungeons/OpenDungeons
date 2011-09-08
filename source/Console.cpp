@@ -33,6 +33,7 @@ Console::Console() :
         chatMode            (false),
         cursorVisible       (true),
         startLine           (0),
+        cursorChar          ("_"),
         curHistPos          (0)
 {
     LogManager::getSingleton().logMessage("*** Initiliasing Console ***");
@@ -72,34 +73,20 @@ Console::~Console()
 /*! \brief Handles the mouse movement on the Console
  *
  */
-void Console::onMouseMoved(const OIS::MouseEvent& arg, const bool& isCtrlDown)
+void Console::onMouseMoved(const OIS::MouseEvent& arg, const bool isCtrlDown)
 {
     if(arg.state.Z.rel == 0 || !visible)
     {
         return;
     }
 
-    if(arg.state.Z.rel > 0)
+    if(isCtrlDown)
     {
-        if(isCtrlDown)
-        {
-            scrollHistory(true);
-        }
-        else
-        {
-            scrollText(true);
-        }
+        scrollHistory(arg.state.Z.rel > 0);
     }
-    else if(arg.state.Z.rel < 0)
+    else
     {
-        if(isCtrlDown)
-        {
-            scrollHistory(false);
-        }
-        else
-        {
-            scrollText(false);
-        }
+        scrollText(arg.state.Z.rel > 0);
     }
 
     updateOverlay = true;
@@ -212,7 +199,7 @@ void Console::onKeyPressed(const OIS::KeyEvent& arg)
  *  The Console listener checks if it needs updating and if it does it will
  *  redraw itself with the new text
  */
-bool Console::frameStarted(const Ogre::FrameEvent &evt)
+bool Console::frameStarted(const Ogre::FrameEvent& evt)
 {
     if(visible)
     {
@@ -265,7 +252,7 @@ bool Console::frameStarted(const Ogre::FrameEvent &evt)
             text += "\n";
         }
         //add the prompt
-        text += ">>> " + prompt + (cursorVisible ? "_" : "");
+        text += ">>> " + prompt + (cursorVisible ? cursorChar : "");
 
         textbox->setCaption(text);
         updateOverlay = false;
@@ -277,7 +264,7 @@ bool Console::frameStarted(const Ogre::FrameEvent &evt)
 /*! \brief what happens after frame
  *
  */
-bool Console::frameEnded(const Ogre::FrameEvent &evt)
+bool Console::frameEnded(const Ogre::FrameEvent& evt)
 {
     return true;
 }
@@ -289,7 +276,7 @@ bool Console::frameEnded(const Ogre::FrameEvent &evt)
  *
  * \param text The text to be added to the console
  */
-void Console::print(const Ogre::String &text)
+void Console::print(const Ogre::String& text)
 {
     std::vector<Ogre::String> newLines = split(text, '\n');
     lines.insert(lines.end(), newLines.begin(), newLines.end());
@@ -304,7 +291,7 @@ void Console::print(const Ogre::String &text)
 /*! \brief show or hide the console manually
  *
  */
-void Console::setVisible(const bool& newState)
+void Console::setVisible(const bool newState)
 {
     visible = newState;
     Gui::getSingleton().setVisible(!visible);
@@ -343,7 +330,7 @@ void Console::checkVisibility()
  *  \param str The string to be splitted
  *  \param splitChar The character that defines the split positions
  */
-std::vector<Ogre::String> Console::split(const Ogre::String& str, const char& splitChar)
+std::vector<Ogre::String> Console::split(const Ogre::String& str, const char splitChar)
 {
     std::vector<Ogre::String> splittedStrings;
     size_t lastPos = 0, pos = 0;
@@ -392,7 +379,7 @@ void Console::messageLogged(const Ogre::String & message, Ogre::LogMessageLevel 
  *
  *  \param direction true means going up (old), false means going down (new)
  */
-void Console::scrollHistory(const bool& direction)
+void Console::scrollHistory(const bool direction)
 {
     if(direction)
     {
@@ -425,7 +412,7 @@ void Console::scrollHistory(const bool& direction)
  *
  *  \param direction true means going up (old), false means going down (new)
  */
-void Console::scrollText(const bool& direction)
+void Console::scrollText(const bool direction)
 {
     if(direction)
     {

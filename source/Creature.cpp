@@ -376,21 +376,7 @@ double Creature::getMoveSpeed() const
  */
 void Creature::doTurn()
 {
-    std::vector<Tile*> markedTiles;
-    std::list<Tile*> walkPath;
-    std::list<Tile*> basePath;
-    std::list<Tile*>::iterator tileListItr;
-    std::vector<std::list<Tile*> > possiblePaths;
-    std::vector<std::list<Tile*> > shortPaths;
-    bool loopBack;
-    bool stopUsingDojo;
-    bool tempBool;
-    int tempInt;
-    unsigned int tempUnsigned;
-    double tempDouble;
-    AttackableObject *tempAttackableObject;
-    CreatureAction tempAction;
-    int loops = 0;
+    //TODO: get rid of all these goto label stuff in here
 
     // Heal.
     sem_wait(&hpLockSemaphore);
@@ -413,23 +399,23 @@ void Creature::doTurn()
         doLevelUp();
 
     // If we are not standing somewhere on the map, do nothing.
-    if (positionTile() == NULL)
+    if (positionTile() == 0)
         return;
 
     // Look at the surrounding area
     updateVisibleTiles();
-    visibleEnemyObjects = getVisibleEnemyObjects();
-    reachableEnemyObjects = getReachableAttackableObjects(visibleEnemyObjects,
-            NULL, NULL);
-    enemyObjectsInRange = getEnemyObjectsInRange(visibleEnemyObjects);
-    livingEnemyObjectsInRange = AttackableObject::removeDeadObjects(
-            enemyObjectsInRange);
-    visibleAlliedObjects = getVisibleAlliedObjects();
-    reachableAlliedObjects = getReachableAttackableObjects(
-            visibleAlliedObjects, NULL, NULL);
+    visibleEnemyObjects         = getVisibleEnemyObjects();
+    reachableEnemyObjects       = getReachableAttackableObjects(visibleEnemyObjects, 0, 0);
+    enemyObjectsInRange         = getEnemyObjectsInRange(visibleEnemyObjects);
+    livingEnemyObjectsInRange   = AttackableObject::removeDeadObjects(enemyObjectsInRange);
+    visibleAlliedObjects        = getVisibleAlliedObjects();
+    reachableAlliedObjects      = getReachableAttackableObjects(visibleAlliedObjects, 0, 0);
+
+    std::vector<Tile*> markedTiles;
     if (isWorker())
         markedTiles = getVisibleMarkedTiles();
 
+    CreatureAction tempAction;
     // If the creature can see enemies that are reachable.
     if (!reachableEnemyObjects.empty())
     {
@@ -450,11 +436,7 @@ void Creature::doTurn()
         // If we are not already fighting with a creature or maneuvering then start doing so.
         if (!alreadyFighting)
         {
-            tempDouble = isWorker()
-                    ? 0.05
-                    : 0.8;
-
-            if (Random::Double(0.0, 1.0) < tempDouble)
+            if (Random::Double(0.0, 1.0) < (isWorker() ? 0.05 : 0.8))
             {
                 tempAction.setType(CreatureAction::maneuver);
                 battleFieldAgeCounter = 0;
@@ -505,11 +487,21 @@ void Creature::doTurn()
     if (battleFieldAgeCounter > 0)
         --battleFieldAgeCounter;
 
-    
-    
+    creatureActionDoWhileLoop:
+
+    bool            loopBack        = false;
+    bool            tempBool        = false;
+    bool            stopUsingDojo   = false;
+    int             tempInt         = 0;
+    unsigned int    tempUnsigned    = 0;
+    unsigned int    loops           = 0;
+    double          tempDouble      = 0.0;
+
+    AttackableObject* tempAttackableObject;
+
     // The loopback variable allows creatures to begin processing a new
     // action immediately after some other action happens.
-    creatureActionDoWhileLoop: do
+    do
     {
         if(loops > 20)
         {
@@ -518,20 +510,18 @@ void Creature::doTurn()
             break;
         }
         ++loops;
-        loopBack = false;
 
         // Carry out the current task
-        Tile *neighborTile;
-        std::vector<Tile*> neighbors, neighbors2, creatureNeighbors,
-                claimableTiles;
-        bool wasANeighbor = false;
-        Player *tempPlayer;
-        Tile *tempTile, *tempTile2, *myTile;
-        Room *tempRoom;
-        std::list<Tile*> tempPath, tempPath2;
+        Player* tempPlayer;
+        Tile*   tempTile;
+        Tile*   myTile;
+        Room*   tempRoom;
+        std::list<Tile*>    tempPath;
+        std::list<Tile*>    tempPath2;
+        std::vector<Room*>  tempRooms;
+        std::vector<Tile*>  neighbors;
+        std::vector<Tile*>  claimableTiles;
         std::pair<LocationType, double> minimumFieldValue;
-        std::vector<Room*> treasuriesOwned;
-        std::vector<Room*> tempRooms;
 
         sem_wait(&actionQueueLockSemaphore);
         if (!actionQueue.empty())
@@ -540,7 +530,6 @@ void Creature::doTurn()
             sem_post(&actionQueueLockSemaphore);
 
             double diceRoll = Random::Double(0.0, 1.0);
-            double tempDouble;
             switch (topActionItem.getType())
             {
                 case CreatureAction::idle:
@@ -743,9 +732,7 @@ void Creature::doTurn()
                         if (currentTile != NULL)
                         {
                             // If it is not marked
-                            if (tempPlayer != NULL
-                                    && !currentTile->getMarkedForDigging(
-                                            tempPlayer))
+                            if (tempPlayer != 0 && !currentTile->getMarkedForDigging(tempPlayer))
                             {
                                 // Clear the walk queue
                                 clearDestinations();
@@ -837,7 +824,8 @@ void Creature::doTurn()
                         {
                             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
                             // though it must have a neighbor of its own that is already claimed for our side.
-                            neighbors2 = gameMap->neighborTiles(tempTile);
+                            Tile* tempTile2;
+                            std::vector<Tile*> neighbors2 = gameMap->neighborTiles(tempTile);
                             for (unsigned int i = 0; i < neighbors2.size(); ++i)
                             {
                                 tempTile2 = neighbors2[i];
@@ -886,7 +874,6 @@ void Creature::doTurn()
                     {
                         // Randomly find a "good" tile to claim.  A good tile is one that has many neighbors
                         // already claimed, this makes the claimed are more "round" and less jagged.
-                        tempUnsigned = 0;
                         do
                         {
                             int numNeighborsClaimed;
@@ -959,6 +946,7 @@ void Creature::doTurn()
                     claimTileBreakStatement: break;
 
                 case CreatureAction::digTile:
+                {
                     myTile = positionTile();
                     if (myTile == NULL)
                         break;
@@ -976,11 +964,10 @@ void Creature::doTurn()
                     }*/
 
                     // See if any of the tiles is one of our neighbors
-                    wasANeighbor = false;
-                    creatureNeighbors = gameMap->neighborTiles(myTile);
+                    bool wasANeighbor = false;
+                    std::vector<Tile*> creatureNeighbors = gameMap->neighborTiles(myTile);
                     tempPlayer = getControllingPlayer();
-                    for (unsigned int i = 0; i < creatureNeighbors.size()
-                            && !wasANeighbor; ++i)
+                    for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
                     {
                         tempTile = creatureNeighbors[i];
 
@@ -1064,18 +1051,17 @@ void Creature::doTurn()
                      */
 
                     // Find paths to all of the neighbor tiles for all of the marked visible tiles.
-                    possiblePaths.clear();
+                    std::vector<std::list<Tile*> > possiblePaths;
+                    Tile* neighborTile;
                     for (unsigned int i = 0; i < markedTiles.size(); ++i)
                     {
                         neighbors = gameMap->neighborTiles(markedTiles[i]);
                         for (unsigned int j = 0; j < neighbors.size(); ++j)
                         {
                             neighborTile = neighbors[j];
-                            if (neighborTile != NULL
-                                    && neighborTile->getFullness() < 1)
+                            if (neighborTile != 0 && neighborTile->getFullness() < 1)
                                 possiblePaths.push_back(gameMap->path(
-                                        positionTile(), neighborTile,
-                                        tilePassability));
+                                        positionTile(), neighborTile, tilePassability));
                         }
                     }
 
@@ -1083,7 +1069,8 @@ void Creature::doTurn()
                     if (!possiblePaths.empty())
                     {
                         // Find the N shortest valid paths, see if there are any valid paths shorter than this first guess
-                        shortPaths.clear();
+                        std::vector<std::list<Tile*> > shortPaths;
+                        //shortPaths.clear();
                         for (unsigned int i = 0; i < possiblePaths.size(); ++i)
                         {
                             // If the current path is long enough to be valid
@@ -1124,7 +1111,7 @@ void Creature::doTurn()
                         {
                             unsigned int shortestIndex;
                             shortestIndex = Random::Uint(0, numShortPaths - 1);
-                            walkPath = shortPaths[shortestIndex];
+                            std::list<Tile*> walkPath = shortPaths[shortestIndex];
 
                             // If the path is a legitimate path, walk down it to the tile to be dug out
                             gameMap->cutCorners(walkPath, tilePassability);
@@ -1149,8 +1136,10 @@ void Creature::doTurn()
                         loopBack = true;
                     }
                     break;
+                }
 
                 case CreatureAction::depositGold:
+                {
                     // Check to see if we are standing in a treasury.
                     myTile = positionTile();
                     if (myTile != 0)
@@ -1180,7 +1169,7 @@ void Creature::doTurn()
 
                     // We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
                     // Check to see if our seat controls any treasuries.
-                    treasuriesOwned = gameMap->getRoomsByTypeAndColor(
+                    std::vector<Room*> treasuriesOwned = gameMap->getRoomsByTypeAndColor(
                             Room::treasury, color);
                     if (!treasuriesOwned.empty())
                     {
@@ -1265,6 +1254,7 @@ void Creature::doTurn()
                     LogManager::getSingleton().logMessage("No space to put gold for creature for player "
                         + Ogre::StringConverter::toString(color));
                     break;
+                }
 
                 case CreatureAction::findHome:
                     // Check to see if we are standing in an open quarters tile that we can claim as our home.
@@ -1399,6 +1389,7 @@ void Creature::doTurn()
                     break;
 
                 case CreatureAction::train:
+                {
                     // Creatures can only train to level 10 at a dojo.
                     //TODO: Check to see if the dojo has been upgraded to allow training to a higher level.
                     stopUsingDojo = false;
@@ -1526,6 +1517,7 @@ void Creature::doTurn()
                         trainingDojo = NULL;
                     }
                     break;
+                }
 
                 case CreatureAction::attackObject:
                     // If there are no more enemies which are reachable, stop attacking
@@ -1578,12 +1570,9 @@ void Creature::doTurn()
                         // Add a bonus modifier based on the level of the creature we hit
                         // to expGained and give ourselves that much experience.
                         if (tempAttackableObject->getLevel() >= level)
-                            expGained
-                                    *= 1.0 + (tempAttackableObject->getLevel()
-                                            - level) / 10.0;
+                            expGained *= 1.0 + (tempAttackableObject->getLevel() - level) / 10.0;
                         else
-                            expGained /= 1.0 + (level
-                                    - tempAttackableObject->getLevel()) / 10.0;
+                            expGained /= 1.0 + (level - tempAttackableObject->getLevel()) / 10.0;
 
                         recieveExp(expGained);
 
@@ -1683,7 +1672,8 @@ void Creature::doTurn()
                     clearDestinations();
                     tempDouble = std::max(weaponL->getRange(), weaponR->getRange()); // Pick a true destination randomly within the max range of our weapons.
                     tempDouble = sqrt(tempDouble);
-                    //FIXME:  This should find a path to a tile we can walk to, it does not always do this the way it is right now.
+                    //FIXME:  This should find a path to a tile we can walk to, it does not always
+                    //do this the way it is right now. Because minimumFieldValue is never initialisesed...
                     tempPath = gameMap->path(positionTile()->x,
                             positionTile()->y, minimumFieldValue.first.first
                                     + Random::Double(-1.0 * tempDouble,
@@ -1699,10 +1689,7 @@ void Creature::doTurn()
                     gameMap->cutCorners(tempPath, tilePassability);
                     if (setWalkPath(tempPath, 2, false))
                     {
-                        if (tempBool)
-                            setAnimationState("Walk");
-                        else
-                            setAnimationState("Flee");
+                        setAnimationState(tempBool ? "Walk" : "Flee");
                     }
 
                     // Push a walkToTile action into the creature's action queue to make them walk the path they have
@@ -1710,15 +1697,15 @@ void Creature::doTurn()
                     pushAction(CreatureAction::walkToTile);
 
                     // This is a debugging statement, it produces a visual display of the battlefield as seen by the first creature.
+                    /*
                     if (battleField->name.compare("field_1") == 0)
                     {
-                        //battleField->refreshMeshes(1.0);
-                    }
+                        battleField->refreshMeshes(1.0);
+                    }*/
                     break;
 
                 default:
-                    std::cerr
-                            << "\n\nERROR:  Unhandled action type in Creature::doTurn().\n\n";
+                    std::cerr << "\n\nERROR:  Unhandled action type in Creature::doTurn().\n\n";
                     exit(1);
                     break;
             }
@@ -1726,8 +1713,7 @@ void Creature::doTurn()
         else
         {
             sem_post(&actionQueueLockSemaphore);
-            std::cerr
-                    << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
+            std::cerr << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
             exit(1);
         }
 
