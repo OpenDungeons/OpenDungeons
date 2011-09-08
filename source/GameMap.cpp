@@ -429,13 +429,8 @@ void GameMap::addCreature(Creature *c)
     sem_post(&creaturesLockSemaphore);
 
     c->positionTile()->addCreature(c);
-
     addAnimatedObject(c);
-
-    sem_wait(&c->isOnMapLockSemaphore);
-    c->isOnMap = true;
-    //c->setGameMap(this); - should be done in the constructor.
-    sem_post(&c->isOnMapLockSemaphore);
+    c->setIsOnMap(true);
 }
 
 /*! \brief Removes the creature from the game map but does not delete its data structure.
@@ -457,14 +452,10 @@ void GameMap::removeCreature(Creature *c)
             break;
         }
     }
-
     sem_post(&creaturesLockSemaphore);
 
     removeAnimatedObject(c);
-
-    sem_wait(&c->isOnMapLockSemaphore);
-    c->isOnMap = false;
-    sem_post(&c->isOnMapLockSemaphore);
+    c->setIsOnMap(false);
 }
 
 /** \brief Adds the given creature to the queue of creatures to be deleted in a future turn
@@ -850,12 +841,12 @@ void GameMap::doTurn()
         sem_wait(&creaturesLockSemaphore);
         Creature *tempCreature = creatures[count];
         sem_post(&creaturesLockSemaphore);
-        if (tempCreature->getHP(NULL) <= 0.0)
+        if (tempCreature->getHP() <= 0.0)
         {
             // Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
             tempCreature->clearDestinations();
             tempCreature->setAnimationState("Die", false);
-            if (tempCreature->deathCounter <= 0)
+            if (tempCreature->getDeathCounter() <= 0)
             {
                 // Remove the creature from the game map and into the deletion queue, it will be deleted
                 // when it is safe, i.e. all other pointers to it have been wiped from the program.
@@ -863,7 +854,7 @@ void GameMap::doTurn()
             }
             else
             {
-                tempCreature->deathCounter--;
+                tempCreature->setDeathCounter(tempCreature->getDeathCounter() - 1);
                 ++count;
             }
         }
@@ -1155,7 +1146,7 @@ void *GameMap::creatureDoTurnHelperThread(void *p)
     //cout << *params->creatures;
     for (int i = 0; i < params->numCreatures; ++i)
     {
-        if (params->creatures[i]->getHP(NULL) > 0.0)
+        if (params->creatures[i]->getHP() > 0.0)
             params->creatures[i]->doTurn();
     }
 

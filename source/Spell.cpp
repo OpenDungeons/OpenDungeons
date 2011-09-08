@@ -14,7 +14,7 @@ double Spell::heal(int spellLevel, Creature *targetCreature, double hp,
     maxHPHealed = std::min(maxHPHealed, hp);
 
     //TODO: Should lock the HP to prevent race conditions.
-    double currentHP = targetCreature->getHP(NULL);
+    double currentHP = targetCreature->getHP();
     double maxHP = targetCreature->maxHP;
 
     if (currentHP <= 0.0)

@@ -35,26 +35,24 @@ using CEGUI::UVector2;
 static const int MAX_LEVEL = 100;
 
 Creature::Creature(GameMap* gameMap) :
-        weaponL(NULL),
-        weaponR(NULL),
-        color(0),
-        level(1),
-        exp(0.0),
-        tilePassability(Tile::walkableTile),
-        homeTile(NULL),
-        trainingDojo(NULL),
-        trainWait(0),
-        deathCounter(10),
-        gold(0),
-        destinationX(0),
-        destinationY(0),
-        hasVisualDebuggingEntities(false),
-        previousPositionTile(NULL),
-        battleField(new Field("autoname")),
-        battleFieldAgeCounter(0),
-        meshesExist(false),
-        awakeness(100.0),
-        sound(SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
+        weaponL                 (0),
+        weaponR                 (0),
+        color                   (0),
+        level                   (1),
+        exp                     (0.0),
+        tilePassability         (Tile::walkableTile),
+        homeTile                (0),
+        trainingDojo            (0),
+        trainWait               (0),
+        hasVisualDebuggingEntities  (false),
+        meshesExist             (false),
+        awakeness               (100.0),
+        deathCounter            (10),
+        gold                    (0),
+        battleFieldAgeCounter   (0),
+        previousPositionTile    (0),
+        battleField             (new Field("autoname")),
+        sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
     this->gameMap = gameMap;
     assert(gameMap != NULL);
@@ -68,9 +66,7 @@ Creature::Creature(GameMap* gameMap) :
     statsWindow = NULL;
     sem_post(&statsWindowLockSemaphore);
 
-    sem_wait(&isOnMapLockSemaphore);
-    isOnMap = false;
-    sem_post(&isOnMapLockSemaphore);
+    setIsOnMap(false);
 
     setHP(10.0);
     setMana(10.0);
@@ -113,7 +109,7 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
 
     os << c->color << "\t";
     os << c->weaponL << "\t" << c->weaponR << "\t";
-    os << c->getHP(NULL) << "\t";
+    os << c->getHP() << "\t";
     os << c->getMana();
 
     return os;
@@ -250,10 +246,7 @@ void Creature::setPosition(const Ogre::Vector3& v)
 void Creature::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     // If we are on the gameMap we may need to update the tile we are in
-    sem_wait(&isOnMapLockSemaphore);
-    bool flag = isOnMap;
-    sem_post(&isOnMapLockSemaphore);
-    if (flag)
+    if (getIsOnMap())
     {
         // We are on the map
         // Move the creature relative to its parent scene node.  We record the
@@ -303,15 +296,6 @@ void Creature::setHP(double nHP)
     updateStatsWindow();
 }
 
-double Creature::getHP(Tile *tile)
-{
-    sem_wait(&hpLockSemaphore);
-    double tempDouble = hp;
-    sem_post(&hpLockSemaphore);
-
-    return tempDouble;
-}
-
 double Creature::getHP() const
 {
     sem_wait(&hpLockSemaphore);
@@ -339,9 +323,20 @@ double Creature::getMana() const
     return tempDouble;
 }
 
-double Creature::getMoveSpeed() const
+void Creature::setIsOnMap(bool nIsOnMap)
 {
-    return moveSpeed;
+    sem_wait(&isOnMapLockSemaphore);
+    isOnMap = nIsOnMap;
+    sem_post(&isOnMapLockSemaphore);
+}
+
+bool Creature::getIsOnMap() const
+{
+    sem_wait(&isOnMapLockSemaphore);
+    bool tempBool = isOnMap;
+    sem_post(&isOnMapLockSemaphore);
+
+    return tempBool;
 }
 
 /*! \brief The main AI routine which decides what the creature will do and carries out that action.
@@ -697,10 +692,8 @@ void Creature::doTurn()
                     break;
 
                 case CreatureAction::walkToTile:
-                    //TODO: This should be decided based on some aggressiveness
-                    //parameter.
-                    if (Random::Double(0.0, 1.0) < 0.6
-                            && !enemyObjectsInRange.empty())
+                    //TODO: This should be decided based on some aggressiveness parameter.
+                    if (Random::Double(0.0, 1.0) < 0.6 && !enemyObjectsInRange.empty())
                     {
                         popAction();
                         tempAction.setType(CreatureAction::attackObject);
@@ -724,8 +717,8 @@ void Creature::doTurn()
                         unsigned int index = walkQueue.size();
                         Tile *currentTile = NULL;
                         if (index > 0)
-                            currentTile = gameMap->getTile((int) walkQueue[index
-                                    - 1].x, (int) walkQueue[index - 1].y);
+                            currentTile = gameMap->getTile((int) walkQueue[index - 1].x,
+                                    (int) walkQueue[index - 1].y);
 
                         sem_post(&walkQueueLockSemaphore);
 
@@ -759,10 +752,10 @@ void Creature::doTurn()
                     myTile = positionTile();
                     //NOTE:  This is a workaround for the problem with the positionTile() function,
                     // it can be removed when that issue is resolved.
-                    if (myTile == NULL)
+                    if (myTile == 0)
                     {
                         popAction();
-                        goto claimTileBreakStatement;
+                        break;
                     }
 
                     // Randomly decide to stop claiming with a small probability
@@ -943,7 +936,8 @@ void Creature::doTurn()
 
                     // We couldn't find a tile to try to claim so we stop trying
                     popAction();
-                    claimTileBreakStatement: break;
+                    claimTileBreakStatement:
+                    break;
 
                 case CreatureAction::digTile:
                 {
@@ -1716,20 +1710,16 @@ void Creature::doTurn()
             std::cerr << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
             exit(1);
         }
-
     } while (loopBack);
 
     // Update the visual debugging entities
-    if (hasVisualDebuggingEntities)
+    //if we are standing in a different tile than we were last turn
+    if (hasVisualDebuggingEntities && positionTile() != previousPositionTile)
     {
-        // if we are standing in a different tile than we were last turn
-        Tile *currentPositionTile = positionTile();
-        if (currentPositionTile != previousPositionTile)
-        {
-            //TODO:  This destroy and re-create is kind of a hack as its likely only a few tiles will actually change.
-            destroyVisualDebugEntities();
-            createVisualDebugEntities();
-        }
+        //TODO: This destroy and re-create is kind of a hack as its likely only a few
+        //tiles will actually change.
+        destroyVisualDebugEntities();
+        createVisualDebugEntities();
     }
 }
 
@@ -2121,7 +2111,7 @@ std::string Creature::getStatsText()
 {
     std::stringstream tempSS;
     tempSS << "Creature name: " << name << "\n";
-    tempSS << "HP: " << getHP(NULL) << " / " << maxHP << "\n";
+    tempSS << "HP: " << getHP() << " / " << maxHP << "\n";
     tempSS << "Mana: " << getMana() << " / " << maxMana << "\n";
     sem_wait(&actionQueueLockSemaphore);
     tempSS << "AI State: " << actionQueue.front().toString() << "\n";
@@ -2341,4 +2331,3 @@ void Creature::computeBattlefield()
                 -1.0 * jitter, jitter)) * tileScaleFactor);
     }
 }
-

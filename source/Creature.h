@@ -66,13 +66,19 @@ class Creature: public CreatureClass, public AttackableObject
 
         void setHP(double nHP);
         //FIXME: Why is tile a parameter here? It's not used.
-        double getHP(Tile *tile);
+        double getHP(Tile *tile) { return getHP(); };
         double getHP() const;
+
+        bool getIsOnMap() const;
+        void setIsOnMap(bool nIsOnMap);
 
         void setMana(double nMana);
         double getMana() const;
 
-        double getMoveSpeed() const;
+        int     getDeathCounter() const     { return deathCounter; }
+        void    setDeathCounter(int nCount) { deathCounter = nCount; }
+
+        double  getMoveSpeed() const        { return moveSpeed; }
 
         // AI stuff
         virtual void doTurn();
@@ -111,9 +117,6 @@ class Creature: public CreatureClass, public AttackableObject
         Player* getControllingPlayer();
         void computeBattlefield();
 
-        // Sound stuff
-        //void setSounds(OgreOggSound::OgreOggISound* attackSound);
-
         // Visual debugging routines
         void createVisualDebugEntities();
         void destroyVisualDebugEntities();
@@ -124,43 +127,35 @@ class Creature: public CreatureClass, public AttackableObject
         friend std::istream& operator>>(std::istream& is, Creature *c);
         Creature& operator=(CreatureClass c2);
 
-        // Public data members
         static const int maxGoldCarriedByWorkers = 1500;
-        bool isOnMap;
-        sem_t isOnMapLockSemaphore;
-        int deathCounter;
 
     private:
-        
-        
-        // Private functions
         void pushAction(CreatureAction action);
         void popAction();
         CreatureAction peekAction();
 
-        // Private data members
-        double hp;
-        mutable sem_t hpLockSemaphore;
-        double mana;
-        mutable sem_t manaLockSemaphore;
-        int gold;
-        std::deque<CreatureAction> actionQueue;
-        sem_t actionQueueLockSemaphore;
-        int destinationX, destinationY;
-        bool hasVisualDebuggingEntities;
-        Tile *previousPositionTile;
-        std::list<Tile*> visualDebugEntityTiles;
-        Field *battleField;
-        int battleFieldAgeCounter;
-        bool meshesExist;
-        double awakeness;
-        CEGUI::Window *statsWindow;
-        sem_t statsWindowLockSemaphore;
+        mutable sem_t   hpLockSemaphore;
+        mutable sem_t   manaLockSemaphore;
+        mutable sem_t   isOnMapLockSemaphore;
+        sem_t           actionQueueLockSemaphore;
+        sem_t           statsWindowLockSemaphore;
 
-        //sf::Sound attackSound;
+        bool            isOnMap;
+        bool            hasVisualDebuggingEntities;
+        bool            meshesExist;
+        double          awakeness;
+        double          hp;
+        double          mana;
+        int             deathCounter;
+        int             gold;
+        int             battleFieldAgeCounter;
+        Tile*           previousPositionTile;
+        Field*          battleField;
+        CEGUI::Window*  statsWindow;
 
-        Ogre::SharedPtr<CreatureSound> sound;
+        std::deque<CreatureAction>      actionQueue;
+        std::list<Tile*>                visualDebugEntityTiles;
+        Ogre::SharedPtr<CreatureSound>  sound;
 };
 
 #endif
-
