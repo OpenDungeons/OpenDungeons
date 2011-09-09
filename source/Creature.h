@@ -43,12 +43,7 @@ class Creature: public CreatureClass, public AttackableObject
         // Individual properties
         Weapon *weaponL, *weaponR; // The weapons the creature is holding
         int color; // The color of the player who controls this creature
-        int level;
-        double exp;
-        Tile::TileClearType tilePassability; //FIXME:  This is not set from file yet.  Also, it should be moved to CreatureClass.
         Tile *homeTile;
-        RoomDojo *trainingDojo;
-        int trainWait;
 
         // Object methods
         void createMesh();
@@ -85,13 +80,6 @@ class Creature: public CreatureClass, public AttackableObject
         double getHitroll(double range);
         double getDefense() const;
         void doLevelUp();
-        std::vector<Tile*> visibleTiles;
-        std::vector<AttackableObject*> visibleEnemyObjects;
-        std::vector<AttackableObject*> reachableEnemyObjects;
-        std::vector<AttackableObject*> enemyObjectsInRange;
-        std::vector<AttackableObject*> livingEnemyObjectsInRange;
-        std::vector<AttackableObject*> visibleAlliedObjects;
-        std::vector<AttackableObject*> reachableAlliedObjects;
         void updateVisibleTiles();
         std::vector<AttackableObject*> getVisibleEnemyObjects();
         std::vector<AttackableObject*> getReachableAttackableObjects(
@@ -140,19 +128,33 @@ class Creature: public CreatureClass, public AttackableObject
         sem_t           actionQueueLockSemaphore;
         sem_t           statsWindowLockSemaphore;
 
+        //FIXME:  This is not set from file yet.  Also, it should be moved to CreatureClass.
+        Tile::TileClearType tilePassability;
+
         bool            isOnMap;
         bool            hasVisualDebuggingEntities;
         bool            meshesExist;
         double          awakeness;
         double          hp;
         double          mana;
+        double          exp;
+        int             level;
         int             deathCounter;
         int             gold;
         int             battleFieldAgeCounter;
+        int             trainWait;
         Tile*           previousPositionTile;
         Field*          battleField;
+        RoomDojo*       trainingDojo;
         CEGUI::Window*  statsWindow;
 
+        std::vector<Tile*>              visibleTiles;
+        std::vector<AttackableObject*>  visibleEnemyObjects;
+        std::vector<AttackableObject*>  reachableEnemyObjects;
+        std::vector<AttackableObject*>  enemyObjectsInRange;
+        std::vector<AttackableObject*>  livingEnemyObjectsInRange;
+        std::vector<AttackableObject*>  visibleAlliedObjects;
+        std::vector<AttackableObject*>  reachableAlliedObjects;
         std::deque<CreatureAction>      actionQueue;
         std::list<Tile*>                visualDebugEntityTiles;
         Ogre::SharedPtr<CreatureSound>  sound;

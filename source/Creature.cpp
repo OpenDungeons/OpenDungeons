@@ -373,6 +373,18 @@ void Creature::doTurn()
 {
     //TODO: get rid of all these goto label stuff in here
 
+    // If we are not standing somewhere on the map, do nothing.
+    if (positionTile() == 0)
+    {
+        return;
+    }
+
+    // Check to see if we have earned enough experience to level up.
+    while (exp >= 5 * (level + powl(level / 3.0, 2)) && level < 100)
+    {
+        doLevelUp();
+    }
+
     // Heal.
     sem_wait(&hpLockSemaphore);
     hp += 0.1;
@@ -389,14 +401,6 @@ void Creature::doTurn()
 
     awakeness -= 0.15;
 
-    // Check to see if we have earned enough experience to level up.
-    while (exp >= 5 * (level + powl(level / 3.0, 2)) && level < 100)
-        doLevelUp();
-
-    // If we are not standing somewhere on the map, do nothing.
-    if (positionTile() == 0)
-        return;
-
     // Look at the surrounding area
     updateVisibleTiles();
     visibleEnemyObjects         = getVisibleEnemyObjects();
@@ -407,8 +411,6 @@ void Creature::doTurn()
     reachableAlliedObjects      = getReachableAttackableObjects(visibleAlliedObjects, 0, 0);
 
     std::vector<Tile*> markedTiles;
-    if (isWorker())
-        markedTiles = getVisibleMarkedTiles();
 
     CreatureAction tempAction;
     // If the creature can see enemies that are reachable.
@@ -442,45 +444,49 @@ void Creature::doTurn()
         }
     }
 
-    // Check to see if we have found a "home" tile where we can sleep yet.
-    if (!isWorker() && Random::Double(0.0, 1.0) < 0.03 && homeTile == 0
-            && peekAction().getType() != CreatureAction::findHome)
+    if (battleFieldAgeCounter > 0)
     {
-        // Check to see if there are any quarters owned by our color that we can reach.
-        std::vector<Room*> tempRooms = gameMap->getRoomsByTypeAndColor(
-                Room::quarters, color);
-        tempRooms = gameMap->getReachableRooms(tempRooms, positionTile(),
-                tilePassability);
-        if (!tempRooms.empty())
+        --battleFieldAgeCounter;
+    }
+
+    if (isWorker())
+    {
+        markedTiles = getVisibleMarkedTiles();
+    }
+    else
+    {
+        // Check to see if we have found a "home" tile where we can sleep yet.
+        if (Random::Double(0.0, 1.0) < 0.03 && homeTile == 0 && peekAction().getType() != CreatureAction::findHome)
         {
-            tempAction.setType(CreatureAction::findHome);
+            // Check to see if there are any quarters owned by our color that we can reach.
+            std::vector<Room*> tempRooms = gameMap->getRoomsByTypeAndColor(Room::quarters, color);
+            tempRooms = gameMap->getReachableRooms(tempRooms, positionTile(), tilePassability);
+            if (!tempRooms.empty())
+            {
+                tempAction.setType(CreatureAction::findHome);
+                pushAction(tempAction);
+                goto creatureActionDoWhileLoop;
+            }
+        }
+
+        // If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
+        if (homeTile != 0 && 100.0 * powl(Random::Double(0.0, 0.8), 2) > awakeness && peekAction().getType() != CreatureAction::sleep)
+        {
+            tempAction.setType(CreatureAction::sleep);
             pushAction(tempAction);
             goto creatureActionDoWhileLoop;
         }
-    }
 
-    // If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-    if (!isWorker() && homeTile != NULL && 100.0 * powl(Random::Double(0.0, 0.8),
-            2) > awakeness && peekAction().getType() != CreatureAction::sleep)
-    {
-        tempAction.setType(CreatureAction::sleep);
-        pushAction(tempAction);
-        goto creatureActionDoWhileLoop;
+        // Check to see if there is a Dojo we can train at.
+        if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0) < awakeness / 100.0 && peekAction().getType() != CreatureAction::train)
+        {
+            //TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
+            tempAction.setType(CreatureAction::train);
+            pushAction(tempAction);
+            trainWait = 0;
+            goto creatureActionDoWhileLoop;
+        }
     }
-
-    // Check to see if there is a Dojo we can train at.
-    if (!isWorker() && Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0)
-            < awakeness / 100.0 && peekAction().getType() != CreatureAction::train)
-    {
-        //TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
-        tempAction.setType(CreatureAction::train);
-        pushAction(tempAction);
-        trainWait = 0;
-        goto creatureActionDoWhileLoop;
-    }
-
-    if (battleFieldAgeCounter > 0)
-        --battleFieldAgeCounter;
 
     creatureActionDoWhileLoop:
 
@@ -494,16 +500,18 @@ void Creature::doTurn()
 
     AttackableObject* tempAttackableObject;
 
+    std::list<Tile*>    tempPath;
+    std::list<Tile*>    tempPath2;
+    std::vector<Room*>  tempRooms;
+    std::vector<Tile*>  neighbors;
+    std::vector<Tile*>  claimableTiles;
+
+    std::pair<LocationType, double> minimumFieldValue;
+
     // The loopback variable allows creatures to begin processing a new
     // action immediately after some other action happens.
     do
     {
-        if(loops > 20)
-        {
-            LogManager::getSingleton().logMessage("> 20 loops in Creature::doTurn name:" + getName() + " colour: "
-                + Ogre::StringConverter::toString(getColor()) + ". Breaking out..");
-            break;
-        }
         ++loops;
 
         // Carry out the current task
@@ -511,12 +519,12 @@ void Creature::doTurn()
         Tile*   tempTile;
         Tile*   myTile;
         Room*   tempRoom;
-        std::list<Tile*>    tempPath;
-        std::list<Tile*>    tempPath2;
-        std::vector<Room*>  tempRooms;
-        std::vector<Tile*>  neighbors;
-        std::vector<Tile*>  claimableTiles;
-        std::pair<LocationType, double> minimumFieldValue;
+
+        tempPath.clear();
+        tempPath2.clear();
+        tempRooms.clear();
+        neighbors.clear();
+        claimableTiles.clear();
 
         sem_wait(&actionQueueLockSemaphore);
         if (!actionQueue.empty())
@@ -1710,7 +1718,13 @@ void Creature::doTurn()
             std::cerr << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
             exit(1);
         }
-    } while (loopBack);
+    } while (loopBack && loops < 20);
+
+    if(loops >= 20)
+    {
+        LogManager::getSingleton().logMessage("> 20 loops in Creature::doTurn name:" + getName() +
+                " colour: " + Ogre::StringConverter::toString(getColor()) + ". Breaking out..");
+    }
 
     // Update the visual debugging entities
     //if we are standing in a different tile than we were last turn
