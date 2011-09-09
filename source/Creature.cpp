@@ -7,9 +7,7 @@
 #include <OgreVector3.h>
 
 #include "Globals.h"
-#include "Functions.h"
 #include "CreatureAction.h"
-#include "Network.h"
 #include "Field.h"
 #include "Weapon.h"
 #include "GameMap.h"
@@ -20,16 +18,13 @@
 #include "Seat.h"
 #include "RenderManager.h"
 #include "Random.h"
+#include "LogManager.h"
 
 #include "Creature.h"
-#include "LogManager.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf _snprintf
 #endif
-
-using CEGUI::UDim;
-using CEGUI::UVector2;
 
 //SHould probably make this changeable somewhere.
 static const int MAX_LEVEL = 100;
@@ -38,24 +33,24 @@ Creature::Creature(GameMap* gameMap) :
         weaponL                 (0),
         weaponR                 (0),
         color                   (0),
-        level                   (1),
-        exp                     (0.0),
-        tilePassability         (Tile::walkableTile),
         homeTile                (0),
-        trainingDojo            (0),
-        trainWait               (0),
+        tilePassability         (Tile::walkableTile),
         hasVisualDebuggingEntities  (false),
         meshesExist             (false),
         awakeness               (100.0),
+        exp                     (0.0),
+        level                   (1),
         deathCounter            (10),
         gold                    (0),
         battleFieldAgeCounter   (0),
+        trainWait               (0),
         previousPositionTile    (0),
         battleField             (new Field("autoname")),
+        trainingDojo            (0),
         sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
     this->gameMap = gameMap;
-    assert(gameMap != NULL);
+    assert(gameMap != 0);
     sem_init(&hpLockSemaphore, 0, 1);
     sem_init(&manaLockSemaphore, 0, 1);
     sem_init(&isOnMapLockSemaphore, 0, 1);
@@ -63,7 +58,7 @@ Creature::Creature(GameMap* gameMap) :
     sem_init(&statsWindowLockSemaphore, 0, 1);
 
     sem_wait(&statsWindowLockSemaphore);
-    statsWindow = NULL;
+    statsWindow = 0;
     sem_post(&statsWindowLockSemaphore);
 
     setIsOnMap(false);
@@ -438,7 +433,8 @@ void Creature::doTurn()
                 tempAction.setType(CreatureAction::maneuver);
                 battleFieldAgeCounter = 0;
                 pushAction(tempAction);
-                // Jump immediately to the action processor since we don't want to decide to train or something if there are enemies around.
+                // Jump immediately to the action processor since we don't want to decide to
+                //train or something if there are enemies around.
                 goto creatureActionDoWhileLoop;
             }
         }
@@ -474,22 +470,21 @@ void Creature::doTurn()
         {
             tempAction.setType(CreatureAction::sleep);
             pushAction(tempAction);
-            goto creatureActionDoWhileLoop;
         }
-
-        // Check to see if there is a Dojo we can train at.
-        if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0) < awakeness / 100.0 && peekAction().getType() != CreatureAction::train)
+        else if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0) < awakeness / 100.0 && peekAction().getType() != CreatureAction::train)
         {
+            // Check to see if there is a Dojo we can train at.
             //TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
             tempAction.setType(CreatureAction::train);
             pushAction(tempAction);
             trainWait = 0;
-            goto creatureActionDoWhileLoop;
         }
     }
 
     creatureActionDoWhileLoop:
 
+    // The loopback variable allows creatures to begin processing a new
+    // action immediately after some other action happens.
     bool            loopBack        = false;
     bool            tempBool        = false;
     bool            stopUsingDojo   = false;
@@ -506,10 +501,9 @@ void Creature::doTurn()
     std::vector<Tile*>  neighbors;
     std::vector<Tile*>  claimableTiles;
 
+    //FIXME: This is never initialised with some values (see the other comment addressing this)
     std::pair<LocationType, double> minimumFieldValue;
 
-    // The loopback variable allows creatures to begin processing a new
-    // action immediately after some other action happens.
     do
     {
         ++loops;
@@ -2084,13 +2078,13 @@ void Creature::createStatsWindow()
 
     statsWindow = wmgr->createWindow("OD/FrameWindow",
             std::string("Root/CreatureStatsWindows/") + getName());
-    statsWindow->setPosition(UVector2(UDim(0.7, 0), UDim(0.65, 0)));
-    statsWindow->setSize(UVector2(UDim(0.25, 0), UDim(0.3, 0)));
+    statsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.65, 0)));
+    statsWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
 
     CEGUI::Window *textWindow = wmgr->createWindow("OD/StaticText",
             statsWindow->getName() + "TextDisplay");
-    textWindow->setPosition(UVector2(UDim(0.05, 0), UDim(0.15, 0)));
-    textWindow->setSize(UVector2(UDim(0.9, 0), UDim(0.8, 0)));
+    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
+    textWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
     statsWindow->addChildWindow(textWindow);
     rootWindow->addChildWindow(statsWindow);
     statsWindow->show();
