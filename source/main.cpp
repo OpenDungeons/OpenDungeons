@@ -5,7 +5,6 @@
 #include "RenderRequest.h"
 #include "Socket.h"
 #include "ProtectedObject.h"
-#include "Random.h"
 
 //TODO: remove all these globals and put them into better places
 
@@ -54,7 +53,6 @@ int main(int argc, char **argv)
     sem_init(&clientNotificationQueueLockSemaphore, 0, 1);
     sem_init(&creatureAISemaphore, 0, 1);
 
-    Random::initialize();
     try
     {
         new ODApplication;

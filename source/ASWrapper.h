@@ -46,13 +46,6 @@ class ASWrapper : public Ogre::Singleton<ASWrapper>
         template<class T>
         static T* createInstance(){return new T();}
 
-        //script helper functions
-        static int          stringToInt     (const std::string& str);
-        static unsigned int stringToUInt    (const std::string& str);
-        static float        stringToFloat   (const std::string& str);
-        static bool         checkIfInt      (const std::string& str);
-        static bool         checkIfFloat    (const std::string& str);
-
         /*! \brief templated wrapper class providing factory, addref, release functions for AS.
          */
         template<class T>

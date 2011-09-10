@@ -15,11 +15,9 @@
 #include <ctime>
 #include <semaphore.h>
 
-#include "Random.h"
+#include "Helper.h"
 
-#ifndef M_PI
-#define M_PI 3.141592653589793238462643
-#endif
+#include "Random.h"
 
 namespace Random
 {
@@ -69,9 +67,7 @@ namespace Random
      */
     int randint()
     {
-        return uniform() > 0.5
-                ? 1
-                : 0;
+        return uniform() > 0.5 ? 1 : 0;
     }
 
     /*! \brief random integer [0;hi]
@@ -174,8 +170,7 @@ unsigned int Uint(unsigned int min, unsigned int max)
  */
 double gaussianRandomDouble()
 {
-    return sqrt(-2.0 * log(Double(0.0, 1.0)))
-            * cos(2.0 * M_PI * Double(0.0, 1.0));
+    return sqrt(-2.0 * log(Double(0.0, 1.0))) * cos(2.0 * PI * Double(0.0, 1.0));
 }
 
 } /* NAMESPACE RANDOM*/

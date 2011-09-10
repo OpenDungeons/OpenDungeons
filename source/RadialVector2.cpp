@@ -1,15 +1,7 @@
 #include <iostream>
-//Needed for M_PI in MSVC
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#define _USE_MATH_DEFINES
-#endif
 #include <cmath>
 
-//TODO - should we maybe allways use this number, even if it exists for
-//consistency?
-#ifndef M_PI
-#define M_PI 3.141592653589793238462643
-#endif
+#include "Helper.h"
 
 #include "RadialVector2.h"
 
@@ -44,9 +36,9 @@ void RadialVector2::fromCartesian(const double dx, const double dy)
 
 bool RadialVector2::directionIsBetween(const RadialVector2& r1, const RadialVector2& r2) const
 {
-    double tempTheta = theta + 2.0 * M_PI;
-    double tempTheta1 = r1.theta + 2.0 * M_PI;
-    double tempTheta2 = r2.theta + 2.0 * M_PI;
+    double tempTheta = theta + 2.0 * PI;
+    double tempTheta1 = r1.theta + 2.0 * PI;
+    double tempTheta2 = r2.theta + 2.0 * PI;
 
     return (tempTheta1 < tempTheta2)
             ? (tempTheta1 <= tempTheta && tempTheta <= tempTheta2)
@@ -56,10 +48,10 @@ bool RadialVector2::directionIsBetween(const RadialVector2& r1, const RadialVect
 //! \brief Make sure that theta is always within 0 and 2 Pi
 void RadialVector2::normalizeTheta()
 {
-    theta = fmod(theta, 2.0 * M_PI);
+    theta = fmod(theta, 2.0 * PI);
     if (theta < 0.0)
     {
-        theta += 2.0 * M_PI;
+        theta += 2.0 * PI;
     }
 }
 

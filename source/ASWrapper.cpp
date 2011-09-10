@@ -18,8 +18,6 @@
  * - should the helper function get their own file? Maybe useful for other stuff, too
  */
 
-#include <iostream>
-#include <sstream>
 #include <string>
 
 #include "angelscript.h"
@@ -31,6 +29,7 @@
 #include "Console.h"
 #include "Creature.h"
 #include "GameMap.h"
+#include "Helper.h"
 #include "LogManager.h"
 #include "MapLoader.h"
 #include "ODApplication.h"
@@ -204,35 +203,35 @@ void ASWrapper::registerEverything()
     //helper functions
     r = engine->RegisterGlobalFunction(
             "int stringToInt(string &in)",
-            asFunctionPtr(stringToInt),
+            asFunctionPtr(Helper::stringToInt),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "uint stringToUInt(string &in)",
-            asFunctionPtr(stringToUInt),
+            asFunctionPtr(Helper::stringToUInt),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "double stringToFloat(string &in)",
-            asFunctionPtr(stringToFloat),
+            asFunctionPtr(Helper::stringToFloat),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "bool checkIfInt(string &in)",
-            asFunctionPtr(checkIfInt),
+            asFunctionPtr(Helper::checkIfInt),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "bool checkIfFloat(string &in)",
-            asFunctionPtr(checkIfFloat),
+            asFunctionPtr(Helper::checkIfFloat),
             asCALL_CDECL); assert(r >= 0);
 
     //implicit conversions
     r = engine->RegisterObjectBehaviour(
             "string",
             asBEHAVE_IMPLICIT_VALUE_CAST,
-            "int f() const", asFUNCTION(stringToInt),
+            "int f() const", asFUNCTION(Helper::stringToInt),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
     r = engine->RegisterObjectBehaviour(
             "string",
             asBEHAVE_IMPLICIT_VALUE_CAST,
-            "double f() const", asFUNCTION(stringToFloat),
+            "double f() const", asFUNCTION(Helper::stringToFloat),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
 
     //some variabless
@@ -407,66 +406,4 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     context->SetArgObject(1, arguments);
     context->Execute();
     delete arguments;
-}
-
-/*! \brief Script helper function, converts a string to an int
- *
- *  \param str The string to be converted
- *  \return The converted number
- */
-int ASWrapper::stringToInt(const std::string& str)
-{
-    std::stringstream stream(str);
-    int i = 0;
-    stream >> i;
-    return i;
-}
-
-/*! \brief Script helper function, converts a string to an int
- *
- *  \param str The string to be converted
- *  \return The converted number
- */
-unsigned int ASWrapper::stringToUInt(const std::string& str)
-{
-    std::stringstream stream(str);
-    unsigned int i = 0;
-    stream >> i;
-    return i;
-}
-/*! \brief Script helper function, converts a string to a float
- *
- *  \param str The string to be converted
- *  \return The converted number
- */
-float ASWrapper::stringToFloat(const std::string& str)
-{
-    std::stringstream stream(str);
-    float f = 0;
-    stream >> f;
-    return f;
-}
-
-/*! \brief Script helper function, checks if a string contains an int
- *
- *  \param str The string to be checked
- *  \return true if string contains an int, else false
- */
-bool ASWrapper::checkIfInt(const std::string& str)
-{
-    std::istringstream stream(str);
-    int a;
-    return (stream >> a);
-}
-
-/*! \brief Script helper function, checks if a string contains a float
- *
- *  \param str The string to be checked
- *  \return true if string contains a float, else false
- */
-bool ASWrapper::checkIfFloat(const std::string& str)
-{
-    std::istringstream stream(str);
-    float f;
-    return (stream >> f);
 }

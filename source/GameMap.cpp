@@ -1,4 +1,10 @@
-//#if defined(WIN32) || defined(_WIN32)
+/*!
+ * \file   Helper.cpp
+ * \date
+ * \author OD team
+ * \brief  The central object holding everything that is on the map
+ */
+
 #ifdef _MSC_VER
 #define snprintf _snprintf
 #endif
@@ -6,7 +12,6 @@
 #include <iostream>
 #include <algorithm>
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <cstdlib>
 

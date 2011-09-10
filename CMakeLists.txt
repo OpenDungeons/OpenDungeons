@@ -110,6 +110,7 @@ set(OD_SOURCEFILES
     ${SRC}/GoalProtectCreature.cpp
     ${SRC}/GoalProtectDungeonTemple.cpp
     ${SRC}/Gui.cpp
+    ${SRC}/Helper.cpp
     ${SRC}/InputManager.cpp
     ${SRC}/LogManager.cpp
     ${SRC}/main.cpp
@@ -225,11 +226,14 @@ include_directories(
     #OpenDungeons includes
     ${CMAKE_SOURCE_DIR}/source
 
+    #General external includes
+    ${DEPENDENCIES_DIR}
+
     #tinygettext includes
     ${TINYGETTEXT_DIR}
 
     #Angelscript includes    
-    ${ANGELSCRIPT_DIR}/angelscript/include/
+    ${ANGELSCRIPT_DIR}/angelscript/include
 	${ANGELSCRIPT_SRC_DIR}
 
     #AngelScript Addons, in-comment only the ones we actually use

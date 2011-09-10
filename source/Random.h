@@ -12,10 +12,10 @@ namespace Random
 {
     void initialize();
 
-    double Double(double min, double max);
-    int Int(int min, int max);
-    unsigned int Uint(unsigned int min, unsigned int max);
-    double gaussianRandomDouble();
+    double          Double  (double min, double max);
+    int             Int     (int min, int max);
+    unsigned int    Uint    (unsigned int min, unsigned int max);
+    double          gaussianRandomDouble();
 }
 
 #endif /* RANDOM_H_ */

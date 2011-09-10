@@ -26,6 +26,7 @@
 #include "ASWrapper.h"
 #include "Console.h"
 #include "GameMap.h"
+#include "Random.h"
 
 #include "ODApplication.h"
 
@@ -39,6 +40,8 @@ ODApplication::ODApplication() :
         root(0),
         window(0)
 {
+    Random::initialize();
+
     ResourceManager* resMgr = new ResourceManager;
     root = new Ogre::Root(
             resMgr->getPluginsPath(),
