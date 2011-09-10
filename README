@@ -1,5 +1,6 @@
 This readme files gives a short overview of the structure of the OpenDungeons
-repository and how to use it.
+code repository and how to use it. If you were looking for the media files, please
+have a look in our SVN repository.
 
 --- Folder sturcture ---
 cmake/           - Helper files for CMake
