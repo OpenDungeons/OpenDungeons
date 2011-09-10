@@ -1,4 +1,3 @@
-#include "Globals.h"
 #include "Functions.h"
 #include "ServerNotification.h"
 #include "Tile.h"
@@ -77,7 +76,7 @@ void AnimatedObject::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     }
     sem_post(&walkQueueLockSemaphore);
 
-    if (serverSocket != NULL)
+    if (Socket::serverSocket != NULL)
     {
         // Place a message in the queue to inform the clients about the new destination
         ServerNotification *serverNotification = new ServerNotification;
@@ -134,7 +133,7 @@ void AnimatedObject::clearDestinations()
     sem_post(&walkQueueLockSemaphore);
     stopWalking();
 
-    if (serverSocket != NULL)
+    if (Socket::serverSocket != NULL)
     {
         // Place a message in the queue to inform the clients about the clear
         ServerNotification *serverNotification = new ServerNotification;
@@ -208,7 +207,7 @@ void AnimatedObject::setAnimationState(const std::string& s, bool loop)
     request->str = s;
     request->b = loop;
 
-    if (serverSocket != NULL)
+    if (Socket::serverSocket != NULL)
     {
         try
         {

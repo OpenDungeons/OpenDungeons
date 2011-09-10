@@ -6,7 +6,6 @@
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>
 
-#include "Globals.h"
 #include "CreatureAction.h"
 #include "Field.h"
 #include "Weapon.h"

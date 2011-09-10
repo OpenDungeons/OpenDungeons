@@ -3,18 +3,13 @@
 
 #include <CEGUI.h>
 
-#include "Globals.h"
 #include "Network.h"
 #include "Socket.h"
 #include "ServerNotification.h"
-#include "Creature.h"
 #include "GameMap.h"
 #include "MapLight.h"
-#include "Goal.h"
 #include "Seat.h"
-#include "Trap.h"
 #include "Player.h"
-#include "ODApplication.h"
 #include "ODFrameListener.h"
 #include "LogManager.h"
 
@@ -24,20 +19,20 @@ void queueServerNotification(ServerNotification *n)
 {
     //TODO: Make a server class.
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    n->turnNumber = turnNumber.get();
+    n->turnNumber = GameMap::turnNumber.get();
     gameMap->threadLockForTurn(n->turnNumber);
 
-    sem_wait(&serverNotificationQueueLockSemaphore);
-    serverNotificationQueue.push_back(n);
-    sem_post(&serverNotificationQueueLockSemaphore);
+    sem_wait(&ServerNotification::serverNotificationQueueLockSemaphore);
+    ServerNotification::serverNotificationQueue.push_back(n);
+    sem_post(&ServerNotification::serverNotificationQueueLockSemaphore);
 
-    sem_post(&serverNotificationQueueSemaphore);
+    sem_post(&ServerNotification::serverNotificationQueueSemaphore);
 }
 
 bool startServer(GameMap& gameMap)
 {
     // Start the server socket listener as well as the server socket thread
-    if (serverSocket == NULL && clientSocket == NULL && gameMap.numEmptySeats()
+    if (Socket::serverSocket == NULL && Socket::clientSocket == NULL && gameMap.numEmptySeats()
             > 0)
     {
         LogManager& logManager = LogManager::getSingleton();
@@ -67,11 +62,11 @@ bool startServer(GameMap& gameMap)
         logManager.logMessage("ai has colour:" +
             Ogre::StringConverter::toString(aiPlayer->getSeat()->getColor()));
 
-        serverSocket = new Socket;
+        Socket::serverSocket = new Socket;
 
         // Start the server thread which will listen for, and accept, connections
         SSPStruct* ssps = new SSPStruct;
-        ssps->nSocket = serverSocket;
+        ssps->nSocket = Socket::serverSocket;
         ssps->nFrameListener = ODFrameListener::getSingletonPtr();
         pthread_create(&ODFrameListener::getSingletonPtr()->serverThread,
                 NULL, serverSocketProcessor, (void*) ssps);

@@ -14,7 +14,6 @@
 #include <vector>
 #include <string>
 
-#include "Globals.h"
 #include "MapLoader.h"
 #include "GameMap.h"
 #include "Socket.h"
@@ -628,7 +627,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                         //See if the tile can be marked for digging.
                         if (currentTile->isDiggable())
                         {
-                            if (serverSocket != NULL)
+                            if (Socket::serverSocket != NULL)
                             {
                                 // On the server:  Just mark the tile for digging.
                                 currentTile->setMarkedForDigging(digSetBool,
@@ -644,15 +643,14 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                                 clientNotification->p = currentTile;
                                 clientNotification->flag = digSetBool;
 
-                                sem_wait(&clientNotificationQueueLockSemaphore);
-                                clientNotificationQueue.push_back(
+                                sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
+                                ClientNotification::clientNotificationQueue.push_back(
                                         clientNotification);
-                                sem_post(&clientNotificationQueueLockSemaphore);
+                                sem_post(&ClientNotification::clientNotificationQueueLockSemaphore);
 
-                                sem_post(&clientNotificationQueueSemaphore);
+                                sem_post(&ClientNotification::clientNotificationQueueSemaphore);
 
-                                currentTile->setMarkedForDigging(digSetBool,
-                                        gameMap->getLocalPlayer());
+                                currentTile->setMarkedForDigging(digSetBool, gameMap->getLocalPlayer());
 
                             }
 
@@ -1031,6 +1029,6 @@ bool InputManager::isInGame()
 {
     //TODO: this exact function is also in ODFrameListener, replace it too after GameState works
     //TODO - we should use a bool or something, not the sockets for this.
-    return (serverSocket != NULL || clientSocket != NULL);
+    return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
     //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
 }

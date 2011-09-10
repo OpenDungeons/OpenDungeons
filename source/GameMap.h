@@ -226,6 +226,9 @@ class GameMap
         // Public data members
         unsigned long int miscUpkeepTime, creatureTurnsTime;
 
+        static sem_t creatureAISemaphore;
+        static ProtectedObject<long int> turnNumber;
+
     private:
         void processDeletionQueues();
         bool walkablePathExists(int x1, int y1, int x2, int y2);

@@ -27,6 +27,10 @@
 #include "Console.h"
 #include "GameMap.h"
 #include "Random.h"
+#include "MapLight.h"
+#include "MissileObject.h"
+#include "ServerNotification.h"
+#include "ClientNotification.h"
 
 #include "ODApplication.h"
 
@@ -40,6 +44,14 @@ ODApplication::ODApplication() :
         root(0),
         window(0)
 {
+    sem_init(&MapLight::lightNumberLockSemaphore, 0, 1);
+    sem_init(&MissileObject::missileObjectUniqueNumberLockSemaphore, 0, 1);
+    sem_init(&ServerNotification::serverNotificationQueueSemaphore, 0, 0);
+    sem_init(&ClientNotification::clientNotificationQueueSemaphore, 0, 0);
+    sem_init(&ServerNotification::serverNotificationQueueLockSemaphore, 0, 1);
+    sem_init(&ClientNotification::clientNotificationQueueLockSemaphore, 0, 1);
+    sem_init(&GameMap::creatureAISemaphore, 0, 1);
+
     Random::initialize();
 
     ResourceManager* resMgr = new ResourceManager;

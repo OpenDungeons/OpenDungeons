@@ -1,24 +1,26 @@
 #include <sstream>
 
-#include "Globals.h"
 #include "Functions.h"
 #include "RenderManager.h"
 #include "RenderRequest.h"
 #include "GameMap.h"
 #include "Random.h"
+#include "Socket.h"
 
 #include "MapLight.h"
 
+sem_t MapLight::lightNumberLockSemaphore;
+
 void MapLight::initialize()
 {
-    static unsigned int lightNumber = 1;
+    static unsigned int lightNumber = 0;
 
     ogreEntityExists = false;
     ogreEntityVisualIndicatorExists = false;
 
     std::stringstream tempSS;
     sem_wait(&lightNumberLockSemaphore);
-    tempSS << "Map_light_ " << lightNumber++;
+    tempSS << "Map_light_ " << ++lightNumber;
     sem_post(&lightNumberLockSemaphore);
     name = tempSS.str();
 
@@ -86,7 +88,7 @@ void MapLight::createOgreEntity()
     request->type = RenderRequest::createMapLight;
     //TODO - this check should be put somewhere else
     request->p = static_cast<void*>(this);
-    request->b = (serverSocket == NULL && clientSocket == NULL);
+    request->b = (Socket::serverSocket == NULL && Socket::clientSocket == NULL);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
@@ -108,7 +110,7 @@ void MapLight::destroyOgreEntity()
     /*Check if we are in editor mode
      * TODO this check should be elsewhere
     */
-    request->b = (serverSocket == NULL && clientSocket == NULL);
+    request->b = (Socket::serverSocket == NULL && Socket::clientSocket == NULL);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);

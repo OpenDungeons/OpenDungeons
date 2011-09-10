@@ -5,9 +5,10 @@
 #include <cerrno>
 #include <fcntl.h>
 
-#include "Globals.h"
-
 #include "Socket.h"
+
+Socket* Socket::serverSocket = 0;
+Socket* Socket::clientSocket = 0;
 
 Socket::Socket() :
     m_sock(-1)

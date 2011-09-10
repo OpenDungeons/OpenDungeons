@@ -1,29 +1,7 @@
-#include <deque>
+#include <iostream>
 
-#include "Globals.h"
 #include "ODApplication.h"
-#include "RenderRequest.h"
 #include "Socket.h"
-#include "ProtectedObject.h"
-
-//TODO: remove all these globals and put them into better places
-
-ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty(0);
-ProtectedObject<long int> turnNumber(1);
-
-std::deque<ServerNotification*> serverNotificationQueue;
-std::deque<ClientNotification*> clientNotificationQueue;
-
-sem_t lightNumberLockSemaphore;
-sem_t missileObjectUniqueNumberLockSemaphore;
-sem_t serverNotificationQueueSemaphore;
-sem_t clientNotificationQueueSemaphore;
-sem_t serverNotificationQueueLockSemaphore;
-sem_t clientNotificationQueueLockSemaphore;
-sem_t creatureAISemaphore;
-
-Socket* serverSocket = 0;
-Socket* clientSocket = 0;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -44,15 +22,6 @@ int main(int argc, char **argv)
         exit(1);
     }
 #endif
-
-    sem_init(&lightNumberLockSemaphore, 0, 1);
-    sem_init(&missileObjectUniqueNumberLockSemaphore, 0, 1);
-    sem_init(&serverNotificationQueueSemaphore, 0, 0);
-    sem_init(&clientNotificationQueueSemaphore, 0, 0);
-    sem_init(&serverNotificationQueueLockSemaphore, 0, 1);
-    sem_init(&clientNotificationQueueLockSemaphore, 0, 1);
-    sem_init(&creatureAISemaphore, 0, 1);
-
     try
     {
         new ODApplication;
@@ -72,4 +41,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-

@@ -1,6 +1,5 @@
 #include <string>
 
-#include "Globals.h"
 #include "Socket.h"
 #include "ODFrameListener.h"
 #include "Network.h"
@@ -230,7 +229,7 @@ void *clientSocketProcessor(void *p)
                 tempSS.str(arguments);
                 long int tempLongInt;
                 tempSS >> tempLongInt;
-                turnNumber.set(tempLongInt);
+                GameMap::turnNumber.set(tempLongInt);
             }
 
             else if (serverCommand.compare("animatedObjectAddDestination") == 0)
@@ -406,13 +405,13 @@ void *clientNotificationProcessor(void *p)
     while (running)
     {
         // Wait until a message is place in the queue
-        sem_wait(&clientNotificationQueueSemaphore);
+        sem_wait(&ClientNotification::clientNotificationQueueSemaphore);
 
         // Take a message out of the front of the notification queue
-        sem_wait(&clientNotificationQueueLockSemaphore);
-        ClientNotification* event = clientNotificationQueue.front();
-        clientNotificationQueue.pop_front();
-        sem_post(&clientNotificationQueueLockSemaphore);
+        sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
+        ClientNotification* event = ClientNotification::clientNotificationQueue.front();
+        ClientNotification::clientNotificationQueue.pop_front();
+        sem_post(&ClientNotification::clientNotificationQueueLockSemaphore);
 
         switch (event->type)
         {
@@ -423,10 +422,9 @@ void *clientNotificationProcessor(void *p)
                 tempSS.str("");
                 tempSS << tempPlayer->getNick() << ":" << tempCreature->name;
 
-                sem_wait(&clientSocket->semaphore);
-                clientSocket->send(
-                        formatCommand("creaturePickUp", tempSS.str()));
-                sem_post(&clientSocket->semaphore);
+                sem_wait(&Socket::clientSocket->semaphore);
+                Socket::clientSocket->send(formatCommand("creaturePickUp", tempSS.str()));
+                sem_post(&Socket::clientSocket->semaphore);
                 break;
 
             case ClientNotification::creatureDrop:
@@ -437,9 +435,9 @@ void *clientNotificationProcessor(void *p)
                 tempSS << tempPlayer->getNick() << ":" << tempTile->x << ":"
                         << tempTile->y;
 
-                sem_wait(&clientSocket->semaphore);
-                clientSocket->send(formatCommand("creatureDrop", tempSS.str()));
-                sem_post(&clientSocket->semaphore);
+                sem_wait(&Socket::clientSocket->semaphore);
+                Socket::clientSocket->send(formatCommand("creatureDrop", tempSS.str()));
+                sem_post(&Socket::clientSocket->semaphore);
                 break;
 
             case ClientNotification::markTile:
@@ -449,9 +447,9 @@ void *clientNotificationProcessor(void *p)
                 tempSS << tempTile->x << ":" << tempTile->y << ":"
                         << (flag ? "true" : "false");
 
-                sem_wait(&clientSocket->semaphore);
-                clientSocket->send(formatCommand("markTile", tempSS.str()));
-                sem_post(&clientSocket->semaphore);
+                sem_wait(&Socket::clientSocket->semaphore);
+                Socket::clientSocket->send(formatCommand("markTile", tempSS.str()));
+                sem_post(&Socket::clientSocket->semaphore);
                 break;
 
             case ClientNotification::exit:

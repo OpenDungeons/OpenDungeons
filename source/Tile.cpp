@@ -1,6 +1,5 @@
 #include <cstddef>
 
-#include "Globals.h"
 #include "Functions.h"
 #include "Creature.h"
 #include "GameMap.h"
@@ -10,6 +9,7 @@
 #include "Seat.h"
 #include "SoundEffectsHelper.h"
 #include "RenderManager.h"
+#include "Socket.h"
 
 #include "Tile.h"
 
@@ -130,7 +130,7 @@ void Tile::setFullness(double f)
     sem_post(&fullnessLockSemaphore);
 
     // If we are a sever, the clients need to be told about the change to the tile's fullness.
-    if (serverSocket != NULL)
+    if (Socket::serverSocket != NULL)
     {
         try
         {

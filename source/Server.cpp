@@ -1,7 +1,6 @@
 #include <string>
 #include <ctime>
 
-#include "Globals.h"
 #include "Socket.h"
 #include "ODFrameListener.h"
 #include "Network.h"
@@ -164,9 +163,9 @@ void *creatureAIThread(void *p)
     {
         // Do a turn in the game
         stopwatch.reset();
-        turnNumber.lock();
-        turnNumber.rawSet(turnNumber.rawGet() + 1);
-        turnNumber.unlock();
+        GameMap::turnNumber.lock();
+        GameMap::turnNumber.rawSet(GameMap::turnNumber.rawGet() + 1);
+        GameMap::turnNumber.unlock();
 
         // Place a message in the queue to inform the clients that a new turn has started
         try
@@ -261,13 +260,13 @@ void *serverNotificationProcessor(void *p)
     while (running)
     {
         // Wait until a message is put into the serverNotificationQueue
-        sem_wait(&serverNotificationQueueSemaphore);
+        sem_wait(&ServerNotification::serverNotificationQueueSemaphore);
 
         // Take a message out of the front of the notification queue
-        sem_wait(&serverNotificationQueueLockSemaphore);
-        ServerNotification *event = serverNotificationQueue.front();
-        serverNotificationQueue.pop_front();
-        sem_post(&serverNotificationQueueLockSemaphore);
+        sem_wait(&ServerNotification::serverNotificationQueueLockSemaphore);
+        ServerNotification *event = ServerNotification::serverNotificationQueue.front();
+        ServerNotification::serverNotificationQueue.pop_front();
+        sem_post(&ServerNotification::serverNotificationQueueLockSemaphore);
 
         //FIXME:  This really should never happen but the queue does occasionally pop a NULL.
         //This is probably a bug somewhere else where a NULL is being place in the queue.
@@ -280,10 +279,9 @@ void *serverNotificationProcessor(void *p)
         {
             case ServerNotification::turnStarted:
                 tempSS.str("");
-                tempSS << turnNumber.get();
+                tempSS << GameMap::turnNumber.get();
 
-                sendToAllClients(frameListener, formatCommand("newturn",
-                        tempSS.str()));
+                sendToAllClients(frameListener, formatCommand("newturn", tempSS.str()));
                 break;
 
             case ServerNotification::animatedObjectAddDestination:

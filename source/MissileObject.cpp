@@ -3,10 +3,10 @@
 
 #include "MissileObject.h"
 #include "RenderRequest.h"
-#include "Globals.h"
 #include "RenderManager.h"
 #include "GameMap.h"
 
+sem_t MissileObject::missileObjectUniqueNumberLockSemaphore;
 
 MissileObject::MissileObject(GameMap& gameMap) :
     gameMap(gameMap)

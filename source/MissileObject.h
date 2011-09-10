@@ -41,6 +41,8 @@ class MissileObject: public ActiveObject, public AnimatedObject
         virtual bool doUpkeep();
         virtual void stopWalking();
 
+        static sem_t missileObjectUniqueNumberLockSemaphore;
+
     private:
         GameMap& gameMap;
         std::deque<Ogre::Vector3> walkQueue;

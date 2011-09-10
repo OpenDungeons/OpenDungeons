@@ -1,7 +1,6 @@
 #include <sstream>
 #include <iostream>
 
-#include "Globals.h"
 #include "GoalMineNGold.h"
 #include "GameMap.h"
 #include "Player.h"

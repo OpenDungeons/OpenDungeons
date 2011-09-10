@@ -1,6 +1,6 @@
 /*!
  *  \file   RenderManager.h
- *  \date   26 March 2001
+ *  \date   26 March 2011
  *  \author oln
  *  \brief  handles the render requests
  */
@@ -15,6 +15,7 @@
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 #include <semaphore.h>
 
+template<typename T> class ProtectedObject;
 class RenderRequest;
 class GameMap;
 namespace Ogre
@@ -122,6 +123,8 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         Ogre::Viewport* viewport;
         Ogre::RTShader::ShaderGenerator* shaderGenerator;
         bool initialized;
+
+        static ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;
 };
 
 #endif /* RENDERMANAGER_H_ */

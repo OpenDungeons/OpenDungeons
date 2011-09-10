@@ -63,6 +63,9 @@ class Socket
         }
         sem_t semaphore;
 
+        static Socket* serverSocket;
+        static Socket* clientSocket;
+
     private:
         int m_sock;
         sockaddr_in m_addr;

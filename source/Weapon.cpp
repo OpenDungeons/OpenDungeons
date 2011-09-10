@@ -1,5 +1,3 @@
-//#include "Globals.h"
-//#include "Functions.h"
 #include "Weapon.h"
 #include "RenderRequest.h"
 #include "Creature.h"

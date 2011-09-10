@@ -18,11 +18,9 @@ class MapLight
 
         void setLocation(const Ogre::Vector3& nPosition);
         void setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
-        void
-                setSpecularColor(Ogre::Real red, Ogre::Real green,
-                        Ogre::Real blue);
-        void setAttenuation(Ogre::Real range, Ogre::Real constant,
-                Ogre::Real linear, Ogre::Real quadratic);
+        void setSpecularColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
+        void setAttenuation(Ogre::Real range, Ogre::Real constant, Ogre::Real linear,
+                Ogre::Real quadratic);
 
         void createOgreEntity();
         void destroyOgreEntity();
@@ -47,6 +45,8 @@ class MapLight
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, MapLight *m);
         friend std::istream& operator>>(std::istream& is, MapLight *m);
+
+        static sem_t lightNumberLockSemaphore;
 
     private:
         Ogre::Vector3 position;

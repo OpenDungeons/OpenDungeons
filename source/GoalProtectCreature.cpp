@@ -1,4 +1,3 @@
-#include "Globals.h"
 #include "GoalProtectCreature.h"
 #include "Player.h"
 #include "GameMap.h"

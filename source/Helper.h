@@ -2,7 +2,7 @@
  * \file   Helper.h
  * \date   10 September 2011
  * \author StefanP.MUC
- * \brief  Provides helper functions, constats and defines
+ * \brief  Provides helper functions, constants and defines
  */
 
 #ifndef HELPER_H_

@@ -1,5 +1,4 @@
 #include "Player.h"
-#include "Globals.h"
 #include "Functions.h"
 #include "ServerNotification.h"
 #include "Creature.h"
@@ -9,6 +8,7 @@
 #include "ClientNotification.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
+#include "Socket.h"
 
 Player::Player() :
         newRoomType(Room::nullRoomType),
@@ -94,10 +94,10 @@ void Player::pickUpCreature(Creature *c)
         c->destroyVisualDebugEntities();
     }
 
-    if (serverSocket != NULL || clientSocket != NULL)
+    if (Socket::serverSocket != NULL || Socket::clientSocket != NULL)
     {
         // Inform the clients
-        if (serverSocket != NULL)
+        if (Socket::serverSocket != NULL)
         {
             // Place a message in the queue to inform the clients that we picked up this creature
             ServerNotification *serverNotification = new ServerNotification;
@@ -120,7 +120,7 @@ void Player::pickUpCreature(Creature *c)
             // Add the request to the queue of rendering operations to be performed before the next frame.
             RenderManager::queueRenderRequest(request);
 
-            if (clientSocket != NULL)
+            if (Socket::clientSocket != NULL)
             {
                 // Send a message to the server telling it we picked up this creature
                 ClientNotification *clientNotification = new ClientNotification;
@@ -128,11 +128,11 @@ void Player::pickUpCreature(Creature *c)
                 clientNotification->p = c;
                 clientNotification->p2 = this;
 
-                sem_wait(&clientNotificationQueueLockSemaphore);
-                clientNotificationQueue.push_back(clientNotification);
-                sem_post(&clientNotificationQueueLockSemaphore);
+                sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
+                ClientNotification::clientNotificationQueue.push_back(clientNotification);
+                sem_post(&ClientNotification::clientNotificationQueueLockSemaphore);
 
-                sem_post(&clientNotificationQueueSemaphore);
+                sem_post(&ClientNotification::clientNotificationQueueSemaphore);
             }
         }
         else // it is just a message indicating another player has picked up a creature
@@ -199,7 +199,7 @@ bool Player::dropCreature(Tile* t, unsigned int index)
 
             if (this == gameMap->getLocalPlayer() || hasAI)
             {
-                if (serverSocket != NULL)
+                if (Socket::serverSocket != NULL)
                 {
                     // Place a message in the queue to inform the clients that we dropped this creature
                     ServerNotification *serverNotification =
@@ -212,21 +212,19 @@ bool Player::dropCreature(Tile* t, unsigned int index)
                 }
                 else
                 {
-                    if (clientSocket != NULL && this == gameMap->getLocalPlayer())
+                    if (Socket::clientSocket != NULL && this == gameMap->getLocalPlayer())
                     {
                         // Send a message to the server telling it we dropped this creature
-                        ClientNotification *clientNotification =
-                                new ClientNotification;
-                        clientNotification->type
-                                = ClientNotification::creatureDrop;
+                        ClientNotification *clientNotification = new ClientNotification;
+                        clientNotification->type = ClientNotification::creatureDrop;
                         clientNotification->p = this;
                         clientNotification->p2 = t;
 
-                        sem_wait(&clientNotificationQueueLockSemaphore);
-                        clientNotificationQueue.push_back(clientNotification);
-                        sem_post(&clientNotificationQueueLockSemaphore);
+                        sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
+                        ClientNotification::clientNotificationQueue.push_back(clientNotification);
+                        sem_post(&ClientNotification::clientNotificationQueueLockSemaphore);
 
-                        sem_post(&clientNotificationQueueSemaphore);
+                        sem_post(&ClientNotification::clientNotificationQueueSemaphore);
                     }
                 }
             }

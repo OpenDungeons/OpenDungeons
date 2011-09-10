@@ -1,7 +1,6 @@
 #include <vector>
 #include <iostream>
 
-#include "Globals.h"
 #include "GoalProtectDungeonTemple.h"
 #include "GameMap.h"
 #include "Room.h"

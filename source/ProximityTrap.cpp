@@ -1,4 +1,3 @@
-#include "Globals.h"
 #include "Functions.h"
 #include "ProximityTrap.h"
 #include "GameMap.h"

@@ -11,7 +11,6 @@
 #include <RTShaderSystem/OgreShaderExPerPixelLighting.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 
-#include "Globals.h"
 #include "GameMap.h"
 #include "RenderRequest.h"
 #include "Functions.h"
@@ -36,6 +35,7 @@
 template<> RenderManager* Ogre::Singleton<RenderManager>::ms_Singleton = 0;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
+ProtectedObject<unsigned int> RenderManager::numThreadsWaitingOnRenderQueueEmpty(0);
 
 RenderManager::RenderManager() :
         roomSceneNode(0),
@@ -431,7 +431,7 @@ void RenderManager::processRenderRequests()
 */
 void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
 {
-    renderRequest->turnNumber = turnNumber.get();
+    renderRequest->turnNumber = GameMap::turnNumber.get();
     //Unlocked in processRenderRequests
     gameMap->threadLockForTurn(renderRequest->turnNumber);
 

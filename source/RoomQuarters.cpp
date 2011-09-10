@@ -1,7 +1,6 @@
 #include "RoomQuarters.h"
 #include "Functions.h"
 #include "Tile.h"
-#include "Globals.h"
 #include "GameMap.h"
 #include "RoomObject.h"
 #include "Creature.h"

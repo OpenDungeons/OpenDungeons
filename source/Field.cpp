@@ -2,8 +2,6 @@
 
 #include <OgreStringConverter.h>
 
-#include "Globals.h"
-//#include "Functions.h"
 #include "Field.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"

@@ -1,8 +1,16 @@
 #ifndef SERVERNOTIFICATION_H
 #define SERVERNOTIFICATION_H
 
+#include <deque>
 #include <string>
 #include <OgreVector3.h>
+
+#ifdef __MINGW32__
+#ifndef mode_t
+#include <sys/types.h>
+#endif //mode_t
+#endif //mingw32
+#include <semaphore.h>
 
 class Tile;
 class Creature;
@@ -47,6 +55,10 @@ class ServerNotification
         AnimatedObject *ani;
         Player *player;
         long int turnNumber;
+
+        static std::deque<ServerNotification*> serverNotificationQueue;
+        static sem_t serverNotificationQueueSemaphore;
+        static sem_t serverNotificationQueueLockSemaphore;
 };
 
 #endif

@@ -1,5 +1,3 @@
-#include "Globals.h"
-#include "Functions.h"
 #include "Tile.h"
 #include "GameMap.h"
 #include "MissileObject.h"

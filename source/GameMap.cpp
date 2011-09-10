@@ -17,7 +17,6 @@
 
 #include <pthread.h>
 
-#include "Globals.h"
 #include "Functions.h"
 #include "GameMap.h"
 #include "RadialVector2.h"
@@ -33,6 +32,10 @@
 #include "Weapon.h"
 #include "MapLoader.h"
 #include "LogManager.h"
+
+//TODO: find some better place for this
+ProtectedObject<long int> GameMap::turnNumber(1);
+sem_t GameMap::creatureAISemaphore;
 
 GameMap::GameMap() :
         me(NULL),

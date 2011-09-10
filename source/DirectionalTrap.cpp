@@ -1,7 +1,6 @@
 #include "DirectionalTrap.h"
 #include "Tile.h"
 #include "GameMap.h"
-//~ #include "MissileObject.h"
 
 DirectionalTrap::DirectionalTrap(int xdir, int ydir)
 {

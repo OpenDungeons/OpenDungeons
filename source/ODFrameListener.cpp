@@ -10,7 +10,6 @@
 
 #include <CEGUI.h>
 
-#include "Globals.h"
 #include "Socket.h"
 #include "Functions.h"
 #include "Creature.h"
@@ -174,28 +173,28 @@ void ODFrameListener::exitApplication()
     
     ServerNotification* exitServerNotification = new ServerNotification();
     exitServerNotification->type = ServerNotification::exit;
-    sem_wait(&serverNotificationQueueLockSemaphore);
-    while(!serverNotificationQueue.empty())
+    sem_wait(&ServerNotification::serverNotificationQueueLockSemaphore);
+    while(!ServerNotification::serverNotificationQueue.empty())
     {
-        delete serverNotificationQueue.front();
-        serverNotificationQueue.pop_front();
+        delete ServerNotification::serverNotificationQueue.front();
+        ServerNotification::serverNotificationQueue.pop_front();
     }
     //serverNotificationQueue.push_back(exitServerNotification);
-    sem_post(&serverNotificationQueueLockSemaphore);
+    sem_post(&ServerNotification::serverNotificationQueueLockSemaphore);
     queueServerNotification(exitServerNotification);
     
     ClientNotification* exitClientNotification = new ClientNotification();
     exitClientNotification->type = ClientNotification::exit;
     //TODO: There should be a function to do this.
-    sem_wait(&clientNotificationQueueLockSemaphore);
+    sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
     //Empty the queue so we don't get any crashes here.
-    while(!clientNotificationQueue.empty())
+    while(!ClientNotification::clientNotificationQueue.empty())
     {
-        delete clientNotificationQueue.front();
-        clientNotificationQueue.pop_front();
+        delete ClientNotification::clientNotificationQueue.front();
+        ClientNotification::clientNotificationQueue.pop_front();
     }
-    clientNotificationQueue.push_back(exitClientNotification);
-    sem_post(&clientNotificationQueueLockSemaphore);
+    ClientNotification::clientNotificationQueue.push_back(exitClientNotification);
+    sem_post(&ClientNotification::clientNotificationQueueLockSemaphore);
 
     //Wait for threads to exit
     //TODO: Add a timeout here.
@@ -263,7 +262,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     // Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     //NOTE:  If this function exits early the corresponding unlock function must be called.
-    long int currentTurnNumber = turnNumber.get();
+    long int currentTurnNumber = GameMap::turnNumber.get();
     gameMap->threadLockForTurn(currentTurnNumber);
 
     MusicPlayer::getSingletonPtr()->update();
@@ -315,7 +314,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     string nullString = "";
     string turnString = "";
     turnString.reserve(100);
-    if (serverSocket != 0)
+    if (Socket::serverSocket != 0)
     {
         turnString = "On average the creature AI is finishing ";
         turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
@@ -329,7 +328,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 mWindow->getStatistics().lastFPS);
     }
     turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
-            turnNumber.get());
+            GameMap::turnNumber.get());
     //TODO - we shouldn't have to reprint this every frame.
     printText(ODApplication::MOTD + "\n" + (terminalActive ? (commandOutput + "\n")
             : nullString) + (terminalActive ? prompt : nullString)
@@ -665,7 +664,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
             arguments = gameMap->getLevelFileName();
         }
 
-        if (clientSocket == NULL)
+        if (Socket::clientSocket == NULL)
         {
             /* If the starting point of the string found is equal to the size
              * of the level name minus the extension (.level)
@@ -676,7 +675,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
                 tempString += ".level";
             }
 
-            if (serverSocket != NULL)
+            if (Socket::serverSocket != NULL)
             {
                 gameMap->nextLevel = tempString;
                 gameMap->loadNextLevel = true;
@@ -927,7 +926,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
             // Clear the queue of early/late time counts to reset the moving window average in the AI time display.
             gameMap->previousLeftoverTimes.clear();
 
-            if (serverSocket != NULL)
+            if (Socket::serverSocket != NULL)
             {
                 try
                 {
@@ -1129,12 +1128,12 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
 
             else if (arguments.compare("network") == 0)
             {
-                if (clientSocket != NULL)
+                if (Socket::clientSocket != NULL)
                 {
                     tempSS << "You are currently connected to a server.";
                 }
 
-                if (serverSocket != NULL)
+                if (Socket::serverSocket != NULL)
                 {
                     tempSS << "You are currently acting as a server.";
                 }
@@ -1327,22 +1326,22 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
                 // Make sure an IP address to connect to was provided
                 if (!arguments.empty())
                 {
-                    clientSocket = new Socket;
+                    Socket::clientSocket = new Socket;
 
-                    if (!clientSocket->create())
+                    if (!Socket::clientSocket->create())
                     {
-                        clientSocket = NULL;
+                        Socket::clientSocket = NULL;
                         commandOutput
                                 += "\nERROR:  Could not create client socket!\n";
                         goto ConnectEndLabel;
                     }
 
-                    if (clientSocket->connect(arguments, ODApplication::PORT_NUMBER))
+                    if (Socket::clientSocket->connect(arguments, ODApplication::PORT_NUMBER))
                     {
                         commandOutput += "\nConnection successful.\n";
 
                         CSPStruct *csps = new CSPStruct;
-                        csps->nSocket = clientSocket;
+                        csps->nSocket = Socket::clientSocket;
                         csps->nFrameListener = this;
 
                         // Start a thread to talk to the server
@@ -1360,7 +1359,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
                     }
                     else
                     {
-                        clientSocket = NULL;
+                        Socket::clientSocket = NULL;
                         commandOutput += "\nConnection failed!\n";
                     }
                 }
@@ -1464,14 +1463,14 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
     // Send a chat message
     else if (command.compare("chat") == 0 || command.compare("c") == 0)
     {
-        if (clientSocket != NULL)
+        if (Socket::clientSocket != NULL)
         {
-            sem_wait(&clientSocket->semaphore);
-            clientSocket->send(formatCommand("chat", gameMap->me->getNick() + ":"
+            sem_wait(&Socket::clientSocket->semaphore);
+            Socket::clientSocket->send(formatCommand("chat", gameMap->me->getNick() + ":"
                     + arguments));
-            sem_post(&clientSocket->semaphore);
+            sem_post(&Socket::clientSocket->semaphore);
         }
-        else if (serverSocket != NULL)
+        else if (Socket::serverSocket != NULL)
         {
             // Send the chat to all the connected clients
             for (unsigned int i = 0; i < clientSockets.size(); ++i)
@@ -1496,7 +1495,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
     // Start the visual debugging indicators for a given creature
     else if (command.compare("visdebug") == 0)
     {
-        if (serverSocket != NULL)
+        if (Socket::serverSocket != NULL)
         {
             if (arguments.length() > 0)
             {
@@ -1589,9 +1588,9 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
     //FIXME:  This function is not yet implemented.
     else if (command.compare("disconnect") == 0)
     {
-        commandOutput += (serverSocket != NULL)
+        commandOutput += (Socket::serverSocket != NULL)
             ? "\nStopping server.\n"
-            : (clientSocket != NULL)
+            : (Socket::clientSocket != NULL)
                 ? "\nDisconnecting from server.\n"
                 : "\nYou are not connected to a server and you are not hosting a server.";
     }
@@ -1796,6 +1795,6 @@ bool ODFrameListener::isInGame()
 {
     //TODO: this exact function is also in InputManager, replace it too after GameState works
     //TODO - we should use a bool or something, not the sockets for this.
-    return (serverSocket != NULL || clientSocket != NULL);
+    return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
     //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
 }
