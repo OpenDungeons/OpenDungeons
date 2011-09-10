@@ -44,8 +44,8 @@ void executeConsoleCommand(string &in com, string[] &in args)
         string filename = "";
         if(checkArgCount(argCount, 0))
         {
-            console.print("No level name given: saving over the last loaded level: " + frameListener.get_GameMap().get_LevelFileName());
-            filename = frameListener.get_GameMap().get_LevelFileName();
+            console.print("No level name given: saving over the last loaded level: " + frameListener.GameMap.LevelFileName);
+            filename = frameListener.GameMap.LevelFileName;
         }
         else
         {
@@ -53,10 +53,10 @@ void executeConsoleCommand(string &in com, string[] &in args)
         }
 
         string outputFile = "levels/" + filename + ".level";
-        writeGameMapToFile(outputFile, frameListener.get_GameMap());
+        writeGameMapToFile(outputFile, frameListener.GameMap);
         console.print("File saved to: " + outputFile);
 
-        frameListener.get_GameMap().set_LevelFileName(filename);
+        frameListener.GameMap.LevelFileName = filename;
     }
 
     else if(com == "load")
@@ -78,7 +78,7 @@ void executeConsoleCommand(string &in com, string[] &in args)
     {
         if(argCount == 0)
         {
-            console.print("Current movespeed: " + cameraManager.get_MoveSpeed());
+            console.print("Current movespeed: " + cameraManager.MoveSpeed);
         }
         else
         {
@@ -86,8 +86,8 @@ void executeConsoleCommand(string &in com, string[] &in args)
             {
                 if(checkIfFloat(args[0]))
                 {                    
-                    cameraManager.set_MoveSpeedAccel(2.0 * args[0]);
-                    console.print("movespeed set to: " + cameraManager.get_MoveSpeed());
+                    cameraManager.MoveSpeedAccel = 2.0 * args[0];
+                    console.print("movespeed set to: " + cameraManager.MoveSpeed);
                 }
                 else
                 {
@@ -103,14 +103,14 @@ void executeConsoleCommand(string &in com, string[] &in args)
     {
         if(argCount == 0)
         {
-            console.print("Current rotatespeed: " + cameraManager.get_RotateSpeed());
+            console.print("Current rotatespeed: " + cameraManager.RotateSpeed);
         }
         else
         {
             if(checkArgCount(argCount, 1))
             {
                 //cameraManager.set_RotateSpeed(args[0]);
-                console.print("rotatespeed set to: " + cameraManager.get_RotateSpeed());
+                console.print("rotatespeed set to: " + cameraManager.RotateSpeed);
             }
         }
     }*/
@@ -127,7 +127,7 @@ void executeConsoleCommand(string &in com, string[] &in args)
             {
                 if(checkIfFloat(args[0]))
                 {
-                    MAXFPS = stringToFloat(args[0]);
+                    MAXFPS = stringToDouble(args[0]);
                     console.print("set maximum fps count to: " + MAXFPS);
                 }
                 else
@@ -142,7 +142,7 @@ void executeConsoleCommand(string &in com, string[] &in args)
     {
         if(argCount == 0)
         {
-            console.print("Current maximum number of creature AI threads: " + frameListener.get_GameMap().get_MaxAIThreads());
+            console.print("Current maximum number of creature AI threads: " + frameListener.GameMap.MaxAIThreads);
         }
         else
         {
@@ -150,11 +150,11 @@ void executeConsoleCommand(string &in com, string[] &in args)
             {
                 if(checkIfInt(args[0]))
                 {
-                    const uint maxThreads = stringToUInt(args[0]);
+                    const uint maxThreads = args[0];
                     if(maxThreads > 0)
                     {
-                        frameListener.get_GameMap().set_MaxAIThreads(maxThreads);
-                        console.print("Maximum number of creature AI threads set to: " + frameListener.get_GameMap().get_MaxAIThreads());
+                        frameListener.GameMap.MaxAIThreads = maxThreads;
+                        console.print("Maximum number of creature AI threads set to: " + frameListener.GameMap.MaxAIThreads);
                     }
                     else
                     {
@@ -202,7 +202,7 @@ void executeConsoleCommand(string &in com, string[] &in args)
         {
             if(checkIfInt(args[0]) && checkIfInt(args[1]))
             {
-                frameListener.get_GameMap().createNewMap(stringToInt(args[0]), stringToInt(args[1]));
+                frameListener.GameMap.createNewMap(args[0], args[1]);
             }
             else
             {
@@ -214,8 +214,8 @@ void executeConsoleCommand(string &in com, string[] &in args)
     else if(com == "refreshmesh")
     {
         console.print("Recreating all meshes.");
-        frameListener.get_GameMap().destroyAllEntities();
-        frameListener.get_GameMap().createAllEntities();
+        frameListener.GameMap.destroyAllEntities();
+        frameListener.GameMap.createAllEntities();
     }
 
     else if(com == "nick")
@@ -235,7 +235,7 @@ void executeConsoleCommand(string &in com, string[] &in args)
             {
                 if(checkIfInt(args[0]))
                 {
-                    frameListener.set_ChatMaxTimeDisplay(stringToInt(args[0]));
+                    frameListener.ChatMaxTimeDisplay = args[0];
                     console.print("Max display time for chat messages was changed to: " + frameListener.get_ChatMaxTimeDisplay());
                 }
                 else
@@ -250,7 +250,7 @@ void executeConsoleCommand(string &in com, string[] &in args)
     {
         if(argCount == 0)
         {
-            console.print("Max chat messages to display is: " + frameListener.get_ChatMaxMessages());
+            console.print("Max chat messages to display is: " + frameListener.ChatMaxMessages);
         }
         else
         {
@@ -258,8 +258,8 @@ void executeConsoleCommand(string &in com, string[] &in args)
             {
                 if(checkIfInt(args[0]))
                 {
-                    frameListener.set_ChatMaxTimeDisplay(stringToInt(args[0]));
-                    console.print("Max chat messages to display has been set to: " + frameListener.get_ChatMaxMessages());
+                    frameListener.ChatMaxMessages = args[0];
+                    console.print("Max chat messages to display has been set to: " + frameListener.ChatMaxMessages);
                 }
                 else
                 {

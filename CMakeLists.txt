@@ -110,7 +110,6 @@ set(OD_SOURCEFILES
     ${SRC}/GoalProtectCreature.cpp
     ${SRC}/GoalProtectDungeonTemple.cpp
     ${SRC}/Gui.cpp
-    ${SRC}/Helper.cpp
     ${SRC}/InputManager.cpp
     ${SRC}/LogManager.cpp
     ${SRC}/main.cpp

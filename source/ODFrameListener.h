@@ -55,16 +55,14 @@ class ODFrameListener :
         void setThreadStopRequested(bool value);
         void requestStopThreads();
 
-        inline const bool& isTerminalActive () const                {return terminalActive;}
-        inline void        setTerminalActive(const bool& active)    {terminalActive = active;}
+        inline bool         isTerminalActive () const               {return terminalActive;}
+        inline void         setTerminalActive(bool active)          {terminalActive = active;}
 
-        inline const unsigned int&  getChatMaxMessages() const      {return chatMaxMessages;}
-        inline void                 setChatMaxMessages(
-                const unsigned int& newValue)                       {chatMaxMessages = newValue;}
+        inline unsigned int getChatMaxMessages() const              {return chatMaxMessages;}
+        inline void         setChatMaxMessages(unsigned int nM)     {chatMaxMessages = nM;}
 
-        inline const unsigned int&  getChatMaxTimeDisplay() const   {return chatMaxTimeDisplay;}
-        inline void                 setChatMaxTimeDisplay(
-                const unsigned int& newValue)                       {chatMaxTimeDisplay = newValue;}
+        inline unsigned int getChatMaxTimeDisplay() const           {return chatMaxTimeDisplay;}
+        inline void         setChatMaxTimeDisplay(unsigned int nT)  {chatMaxTimeDisplay = nT;}
 
         inline Ogre::SceneNode*     getCreatureSceneNode() const    {return creatureSceneNode;}
         inline Ogre::RaySceneQuery* getRaySceneQuery    ()          {return mRaySceneQuery;}

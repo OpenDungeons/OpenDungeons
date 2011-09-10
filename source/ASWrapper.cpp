@@ -203,35 +203,49 @@ void ASWrapper::registerEverything()
     //helper functions
     r = engine->RegisterGlobalFunction(
             "int stringToInt(string &in)",
-            asFunctionPtr(Helper::stringToInt),
+            asFUNCTION(Helper::stringToT<int>),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "uint stringToUInt(string &in)",
-            asFunctionPtr(Helper::stringToUInt),
+            asFUNCTION(Helper::stringToT<unsigned int>),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
-            "double stringToFloat(string &in)",
-            asFunctionPtr(Helper::stringToFloat),
+            "float stringToFloat(string &in)",
+            asFUNCTION(Helper::stringToT<float>),
+            asCALL_CDECL); assert(r >= 0);
+    r = engine->RegisterGlobalFunction(
+            "double stringToDouble(string &in)",
+            asFUNCTION(Helper::stringToT<double>),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "bool checkIfInt(string &in)",
-            asFunctionPtr(Helper::checkIfInt),
+            asFUNCTION(Helper::checkIfT<int>),
             asCALL_CDECL); assert(r >= 0);
     r = engine->RegisterGlobalFunction(
             "bool checkIfFloat(string &in)",
-            asFunctionPtr(Helper::checkIfFloat),
+            asFUNCTION(Helper::checkIfT<float>),
             asCALL_CDECL); assert(r >= 0);
 
     //implicit conversions
     r = engine->RegisterObjectBehaviour(
             "string",
             asBEHAVE_IMPLICIT_VALUE_CAST,
-            "int f() const", asFUNCTION(Helper::stringToInt),
+            "int f() const", asFUNCTION(Helper::stringToT<int>),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
     r = engine->RegisterObjectBehaviour(
             "string",
             asBEHAVE_IMPLICIT_VALUE_CAST,
-            "double f() const", asFUNCTION(Helper::stringToFloat),
+            "float f() const", asFUNCTION(Helper::stringToT<float>),
+            asCALL_CDECL_OBJLAST); assert( r >= 0 );
+    r = engine->RegisterObjectBehaviour(
+            "string",
+            asBEHAVE_IMPLICIT_VALUE_CAST,
+            "double f() const", asFUNCTION(Helper::stringToT<double>),
+            asCALL_CDECL_OBJLAST); assert( r >= 0 );
+    r = engine->RegisterObjectBehaviour(
+            "string",
+            asBEHAVE_IMPLICIT_VALUE_CAST,
+            "uint f() const", asFUNCTION(Helper::stringToT<unsigned int>),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
 
     //some variabless
@@ -347,19 +361,19 @@ void ASWrapper::registerEverything()
             asMETHODPR(ODFrameListener, getGameMap, (), GameMap*),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("ODFrameListener",
-            "uint& get_ChatMaxTimeDisplay()",
+            "uint get_ChatMaxTimeDisplay()",
             asMETHOD(ODFrameListener, getChatMaxTimeDisplay),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("ODFrameListener",
-            "void set_ChatMaxTimeDisplay(uint &in)",
+            "void set_ChatMaxTimeDisplay(uint)",
             asMETHOD(ODFrameListener, setChatMaxTimeDisplay),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("ODFrameListener",
-            "uint& get_ChatMaxMessages()",
+            "uint get_ChatMaxMessages()",
             asMETHOD(ODFrameListener, getChatMaxMessages),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("ODFrameListener",
-            "void set_ChatMaxMessages(uint &in)",
+            "void set_ChatMaxMessages(uint)",
             asMETHOD(ODFrameListener, setChatMaxMessages),
             asCALL_THISCALL); assert(r >= 0);
 
