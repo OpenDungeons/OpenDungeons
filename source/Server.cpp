@@ -114,7 +114,7 @@ bool parseCommand(std::string &command, std::string &commandName, std::string &a
     command = command.substr(index2 + 1, command.length() - index2 + 1);
     //cout << "\n\n\nParse command:  " << command << "\n" << commandName << "\n" << arguments << "\n\n";
 
-    return (command.length() > 0) ? true : false;
+    return (command.length() > 0);
 }
 
 /*! \brief A helper function to unpack the argument of a chat command into a ChatMessage structure.

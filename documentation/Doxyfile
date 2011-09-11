@@ -1,4 +1,4 @@
-# Doxyfile 1.7.4
+# Doxyfile 1.7.5.1
 
 # This file describes the settings to be used by the documentation system
 # doxygen (www.doxygen.org) for a project
@@ -22,8 +22,9 @@
 
 DOXYFILE_ENCODING      = UTF-8
 
-# The PROJECT_NAME tag is a single word (or a sequence of words surrounded 
-# by quotes) that should identify the project.
+# The PROJECT_NAME tag is a single word (or sequence of words) that should 
+# identify the project. Note that if you do not use Doxywizard you need 
+# to put quotes around the project name if it contains spaces.
 
 PROJECT_NAME           = OpenDungeons
 
@@ -282,6 +283,15 @@ SUBGROUPING            = YES
 # section (for LaTeX and RTF).
 
 INLINE_GROUPED_CLASSES = NO
+
+# When the INLINE_SIMPLE_STRUCTS tag is set to YES, structs, classes, and 
+# unions with only public data fields will be shown inline in the documentation 
+# of the scope in which they are defined (i.e. file, namespace, or group 
+# documentation), provided this scope is documented. If set to NO (the default), 
+# structs, classes, and unions are shown on a separate page (for HTML and Man 
+# pages) or section (for LaTeX and RTF).
+
+INLINE_SIMPLE_STRUCTS  = NO
 
 # When TYPEDEF_HIDES_STRUCT is enabled, a typedef of a struct, union, or enum 
 # is documented as struct, union, or enum with the name of the typedef. So 
@@ -549,6 +559,15 @@ FILE_VERSION_FILTER    =
 
 LAYOUT_FILE            = 
 
+# The CITE_BIB_FILES tag can be used to specify one or more bib files 
+# containing the references data. This must be a list of .bib files. The 
+# .bib extension is automatically appended if omitted. Using this command 
+# requires the bibtex tool to be installed. See also 
+# http://en.wikipedia.org/wiki/BibTeX for more info. For LaTeX the style 
+# of the bibliography can be controlled using LATEX_BIB_STYLE.
+
+CITE_BIB_FILES         = 
+
 #---------------------------------------------------------------------------
 # configuration options related to warning and progress messages
 #---------------------------------------------------------------------------
@@ -637,7 +656,8 @@ RECURSIVE              = YES
 
 # The EXCLUDE tag can be used to specify files and/or directories that should 
 # excluded from the INPUT source files. This way you can easily exclude a 
-# subdirectory from a directory tree whose root is specified with the INPUT tag.
+# subdirectory from a directory tree whose root is specified with the INPUT tag. 
+# Note that relative paths are relative to directory from which doxygen is run.
 
 EXCLUDE                = 
 
@@ -823,13 +843,13 @@ HTML_FILE_EXTENSION    = .html
 
 # The HTML_HEADER tag can be used to specify a personal HTML header for 
 # each generated HTML page. If it is left blank doxygen will generate a 
-# standard header. Note that when using a custom header you are responsible 
+# standard header. Note that when using a custom header you are responsible  
 # for the proper inclusion of any scripts and style sheets that doxygen 
 # needs, which is dependent on the configuration options used. 
 # It is adviced to generate a default header using "doxygen -w html 
 # header.html footer.html stylesheet.css YourConfigFile" and then modify 
 # that header. Note that the header is subject to change so you typically 
-# have to redo this when upgrading to a newer version of doxygen or when
+# have to redo this when upgrading to a newer version of doxygen or when 
 # changing the value of configuration settings such as GENERATE_TREEVIEW!
 
 HTML_HEADER            = 
@@ -1129,6 +1149,11 @@ USE_MATHJAX            = NO
 
 MATHJAX_RELPATH        = http://www.mathjax.org/mathjax
 
+# The MATHJAX_EXTENSIONS tag can be used to specify one or MathJax extension 
+# names that should be enabled during MathJax rendering.
+
+MATHJAX_EXTENSIONS     = 
+
 # When the SEARCHENGINE tag is enabled doxygen will generate a search box 
 # for the HTML output. The underlying search engine uses javascript 
 # and DHTML and should work on any modern browser. Note that when using 
@@ -1241,6 +1266,12 @@ LATEX_HIDE_INDICES     = NO
 # such as SOURCE_BROWSER.
 
 LATEX_SOURCE_CODE      = NO
+
+# The LATEX_BIB_STYLE tag can be used to specify the style to use for the 
+# bibliography, e.g. plainnat, or ieeetr. The default style is "plain". See 
+# http://en.wikipedia.org/wiki/BibTeX for more info.
+
+LATEX_BIB_STYLE        = plain
 
 #---------------------------------------------------------------------------
 # configuration options related to the RTF output
@@ -1533,7 +1564,7 @@ HIDE_UNDOC_RELATIONS   = YES
 # toolkit from AT&T and Lucent Bell Labs. The other options in this section 
 # have no effect if this option is set to NO (the default)
 
-HAVE_DOT               = YES
+HAVE_DOT               = NO
 
 # The DOT_NUM_THREADS specifies the number of dot invocations doxygen is 
 # allowed to run in parallel. When set to 0 (the default) doxygen will 
@@ -1543,13 +1574,12 @@ HAVE_DOT               = YES
 
 DOT_NUM_THREADS        = 0
 
-# By default doxygen will write a font called Helvetica to the output 
-# directory and reference it in all dot files that doxygen generates. 
-# When you want a differently looking font you can specify the font name 
-# using DOT_FONTNAME. You need to make sure dot is able to find the font, 
-# which can be done by putting it in a standard location or by setting the 
-# DOTFONTPATH environment variable or by setting DOT_FONTPATH to the directory 
-# containing the font.
+# By default doxygen will use the Helvetica font for all dot files that 
+# doxygen generates. When you want a differently looking font you can specify 
+# the font name using DOT_FONTNAME. You need to make sure dot is able to find 
+# the font, which can be done by putting it in a standard location or by setting 
+# the DOTFONTPATH environment variable or by setting DOT_FONTPATH to the 
+# directory containing the font.
 
 DOT_FONTNAME           = FreeSans
 
@@ -1558,10 +1588,9 @@ DOT_FONTNAME           = FreeSans
 
 DOT_FONTSIZE           = 10
 
-# By default doxygen will tell dot to use the output directory to look for the 
-# FreeSans.ttf font (which doxygen will put there itself). If you specify a 
-# different font using DOT_FONTNAME you can set the path where dot 
-# can find it using this tag.
+# By default doxygen will tell dot to use the Helvetica font. 
+# If you specify a different font using DOT_FONTNAME you can use DOT_FONTPATH to 
+# set the path where dot can find it.
 
 DOT_FONTPATH           = 
 
@@ -1639,9 +1668,20 @@ DIRECTORY_GRAPH        = YES
 
 # The DOT_IMAGE_FORMAT tag can be used to set the image format of the images 
 # generated by dot. Possible values are svg, png, jpg, or gif. 
-# If left blank png will be used.
+# If left blank png will be used. If you choose svg you need to set 
+# HTML_FILE_EXTENSION to xhtml in order to make the SVG files 
+# visible in IE 9+ (other browsers do not have this requirement).
 
 DOT_IMAGE_FORMAT       = svg
+
+# If DOT_IMAGE_FORMAT is set to svg, then this option can be set to YES to 
+# enable generation of interactive SVG images that allow zooming and panning. 
+# Note that this requires a modern browser other than Internet Explorer. 
+# Tested and working are Firefox, Chrome, Safari, and Opera. For IE 9+ you 
+# need to set HTML_FILE_EXTENSION to xhtml in order to make the SVG files 
+# visible. Older versions of IE do not have SVG support.
+
+INTERACTIVE_SVG        = NO
 
 # The tag DOT_PATH can be used to specify the path where the dot tool can be 
 # found. If left blank, it is assumed the dot tool can be found in the path.

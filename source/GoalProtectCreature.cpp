@@ -20,7 +20,7 @@ bool GoalProtectCreature::isMet(Seat *s)
     const Creature *tempCreature = gameMap.getCreature(creatureName);
     if (tempCreature != NULL)
     {
-        return (tempCreature->getHP() > 0.0) ? true : false;
+        return (tempCreature->getHP() > 0.0);
     }
     else
     {

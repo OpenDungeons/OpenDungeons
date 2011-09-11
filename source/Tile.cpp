@@ -551,8 +551,7 @@ void Tile::setCoveringRoom(Room *r)
  */
 bool Tile::isDiggable() const
 {
-    return ((type == dirt || type == gold || type == claimed) && getFullness() > 1)
-                ? true : false;
+    return ((type == dirt || type == gold || type == claimed) && getFullness() > 1);
 }
 
 bool Tile::isClaimable() const

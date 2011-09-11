@@ -235,11 +235,13 @@ bool Trap::doUpkeep()
     
     if(!enemyAttacked.empty())
     {
-        if(reloadTime >= 0) {
+        if(reloadTime >= 0)
+        {
             // Begin the reload countdown.
             reloadTimeCounter = reloadTime;
         }
-        else {
+        else
+        {
             return false;
         }
     }
@@ -364,10 +366,7 @@ int Trap::getLevel() const
 
 int Trap::getColor() const
 {
-    if (controllingSeat != NULL)
-        return controllingSeat->color;
-    else
-        return 0;
+    return (controllingSeat != 0) ? controllingSeat->color : 0;
 }
 
 AttackableObject::AttackableObjectType Trap::getAttackableObjectType() const
@@ -424,5 +423,3 @@ std::ostream& operator<<(std::ostream& os, Trap *t)
     
     return os;
 }
-
-

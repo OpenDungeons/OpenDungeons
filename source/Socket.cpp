@@ -37,11 +37,7 @@ bool Socket::create()
 
     // TIME_WAIT - argh
     int on = 1;
-    if (setsockopt(m_sock, SOL_SOCKET, SO_REUSEADDR, (const char*) &on,
-            sizeof(on)) == -1)
-        return false;
-
-    return true;
+    return (setsockopt(m_sock, SOL_SOCKET, SO_REUSEADDR, (const char*) &on, sizeof(on)) != -1);
 }
 
 bool Socket::bind(const int port)
@@ -50,22 +46,12 @@ bool Socket::bind(const int port)
     m_addr.sin_addr.s_addr = INADDR_ANY;
     m_addr.sin_port = htons(port);
 
-    if (!is_valid() || ::bind(m_sock, (struct sockaddr *) &m_addr, sizeof(m_addr)) == -1)
-    {
-        return false;
-    }
-
-    return true;
+    return (is_valid() && ::bind(m_sock, (struct sockaddr *) &m_addr, sizeof(m_addr)) != -1);
 }
 
 bool Socket::listen() const
 {
-    if (!is_valid() || ::listen(m_sock, MAXCONNECTIONS) == -1)
-    {
-        return false;
-    }
-
-    return true;
+    return (is_valid() && ::listen(m_sock, MAXCONNECTIONS) != -1);
 }
 
 bool Socket::accept(Socket& new_socket) const
@@ -75,43 +61,36 @@ bool Socket::accept(Socket& new_socket) const
 #if defined(WIN32) || defined(_WIN32)
     new_socket.m_sock = ::accept ( m_sock, ( sockaddr * ) &m_addr, ( int * ) &addr_length );
 #else
-    new_socket.m_sock = ::accept(m_sock, (sockaddr *) &m_addr,
-            (socklen_t *) &addr_length);
+    new_socket.m_sock = ::accept(m_sock, (sockaddr *) &m_addr, (socklen_t *) &addr_length);
 #endif
 
-    return (new_socket.m_sock <= 0) ? false : true;
+    return (new_socket.m_sock > 0);
 }
 
 bool Socket::send(const std::string& s) const
 {
-    int status = ::send(m_sock, s.c_str(), s.size(), MSG_NOSIGNAL);
-    return (status == -1) ? false : true;
+    return (::send(m_sock, s.c_str(), s.size(), MSG_NOSIGNAL) != -1);
 }
 
 int Socket::recv(std::string& s) const
 {
     char buf[MAXRECV + 1];
-
     s = "";
-
     memset(buf, 0, MAXRECV + 1);
-
     int status = ::recv(m_sock, buf, MAXRECV, 0);
 
-    if (status == -1)
+    switch(status)
     {
-        std::cerr << "\n\nERROR:  status == -1   errno == " << errno
-                << "  in Socket::recv\n";
-        return 0;
-    }
-    else if (status == 0)
-    {
-        return 0;
-    }
-    else
-    {
-        s = buf;
-        return status;
+        case -1:
+            std::cerr << "\n\nERROR:  status == -1   errno == " << errno << "  in Socket::recv\n";
+            return 0;
+
+        case 0:
+            return 0;
+
+        default:
+            s = buf;
+            return status;
     }
 }
 
@@ -138,7 +117,7 @@ bool Socket::connect(const std::string& host, const int port)
 #endif
 
     status = ::connect(m_sock, (sockaddr *) &m_addr, sizeof(m_addr));
-    return (status == 0) ? true : false;
+    return (status == 0);
 }
 
 /*

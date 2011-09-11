@@ -162,15 +162,9 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 
             return true;
         }
-        else
-        {
-            return false;
-        }
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
