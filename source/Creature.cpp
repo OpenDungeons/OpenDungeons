@@ -506,6 +506,8 @@ void Creature::doTurn()
     do
     {
         ++loops;
+        
+        loopBack = false;
 
         // Carry out the current task
         Player* tempPlayer;
