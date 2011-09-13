@@ -8,8 +8,9 @@
 class GoalProtectCreature: public Goal
 {
     public:
-        GoalProtectCreature(const std::string& nName,
-                const std::string& nArguments, const GameMap& gameMap);
+        GoalProtectCreature(const std::string& nName, const std::string& nArguments,
+                const GameMap& gameMap);
+        virtual ~GoalProtectCreature() {}
 
         // Inherited functions
         bool isMet(Seat *s);

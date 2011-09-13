@@ -17,6 +17,7 @@ class AnimatedObject
 {
     public:
         AnimatedObject();
+        virtual ~AnimatedObject() {};
 
         virtual void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
         virtual void setPosition(const Ogre::Vector3& v);

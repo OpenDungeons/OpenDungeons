@@ -14,6 +14,7 @@ class Goal
     public:
         // Constructors
         Goal(const std::string& nName, const std::string& nArguments, const GameMap& gameMap);
+        virtual ~Goal() {}
 
         // Functions which must be overridden by child classes
         virtual bool isMet(Seat *s) = 0;

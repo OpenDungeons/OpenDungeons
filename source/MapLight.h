@@ -15,6 +15,7 @@ class MapLight
         MapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
                 Ogre::Real green, Ogre::Real blue, Ogre::Real range,
                 Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic);
+        virtual ~MapLight() {}
 
         void setLocation(const Ogre::Vector3& nPosition);
         void setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);

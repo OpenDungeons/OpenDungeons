@@ -30,6 +30,8 @@ class Trap: public AttackableObject, public ActiveObject
         };
 
         Trap();
+        virtual ~Trap() {}
+
         static Trap
         * createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
                 Seat *nControllingSeat, void* params = NULL);

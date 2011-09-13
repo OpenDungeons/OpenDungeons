@@ -31,6 +31,8 @@ class Room: public AttackableObject, public ActiveObject
 
         // Constructors and operators
         Room();
+        virtual ~Room() {}
+
         static Room* createRoom(RoomType nType,
                 const std::vector<Tile*> &nCoveredTiles, int nColor);
         static Room* createRoomFromStream(std::istream &is, GameMap* gameMap);

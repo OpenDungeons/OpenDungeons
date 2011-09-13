@@ -4,6 +4,8 @@
 class ActiveObject
 {
     public:
+        virtual ~ActiveObject() {}
+
         virtual bool doUpkeep();
 };
 
