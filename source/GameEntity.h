@@ -16,8 +16,11 @@
 class GameEntity
 {
     public:
-        //! \brief Default constructur
-        GameEntity(std::string nName = "", std::string nMeshName = "", int nColor = 0) :
+        //! \brief Default constructor with default values
+        GameEntity( std::string nName       = "",
+                    std::string nMeshName   = "",
+                    int         nColor      = 0
+                  ) :
             name        (nName),
             meshName    (nMeshName),
             color       (nColor)
@@ -31,6 +34,12 @@ class GameEntity
 
         //! \brief Get the id of the color that the objects belongs to
         int                 getColor    () const    { return color; }
+
+        //! \brief Pure virtual function that implments the mesh creation
+        virtual void createMesh() = 0;
+
+        //! \brief Pure virtual function that implments the mesh deletion
+        virtual void deleteMesh() = 0;
 
         //! \brief Pure virtual function that implements code for the removal from the map
         virtual void deleteYourself() = 0;
