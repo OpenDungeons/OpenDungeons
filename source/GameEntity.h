@@ -27,22 +27,25 @@ class GameEntity
         {}
 
         //! \brief  Get the name of the object
-        const std::string&  getName     () const    { return name; }
+        inline const std::string&   getName         () const    { return name; }
 
         //! \brief  Get the mesh name of the object
-        const std::string&  getMeshName () const    { return meshName; }
+        inline const std::string&   getMeshName     () const    { return meshName; }
 
         //! \brief Get the id of the color that the objects belongs to
-        int                 getColor    () const    { return color; }
+        inline int                  getColor        () const    { return color; }
+
+        //! \brief Get if the mesh is already existing
+        inline bool                 isMeshExisting  () const    { return meshExists; }
 
         //! \brief Pure virtual function that implments the mesh creation
-        virtual void createMesh() = 0;
+        virtual void                createMesh      () = 0;
 
         //! \brief Pure virtual function that implments the mesh deletion
-        virtual void deleteMesh() = 0;
+        virtual void                deleteMesh      () = 0;
 
         //! \brief Pure virtual function that implements code for the removal from the map
-        virtual void deleteYourself() = 0;
+        virtual void                deleteYourself  () = 0;
 
     private:
         //! brief The name of the entity
@@ -53,6 +56,10 @@ class GameEntity
 
         //! \brief The id of the color that the objcts belongs to
         int         color;
+
+        //! \brief Stores the existence state of the mesh
+        bool        meshExists;
+
 };
 
 #endif /* GAMEENTITY_H_ */
