@@ -28,6 +28,7 @@
 #include "ResourceManager.h"
 #include "Seat.h"
 #include "MapLoader.h"
+#include "MovableGameEntity.h"
 
 #include "RenderManager.h"
 #include "LogManager.h"
@@ -1081,7 +1082,7 @@ void RenderManager::rrDestroyCreatureVisualDebug ( const RenderRequest& renderRe
 
 void RenderManager::rrSetObjectAnimationState ( const RenderRequest& renderRequest )
 {
-    Creature* curAnimatedObject = static_cast<Creature*>( renderRequest.p);
+    MovableGameEntity* curAnimatedObject = static_cast<MovableGameEntity*>( renderRequest.p);
     Ogre::Entity* objectEntity = sceneManager->getEntity(
                                      curAnimatedObject->getOgreNamePrefix()
                                      + curAnimatedObject->getName());

@@ -9,14 +9,14 @@
 
 RoomObject::RoomObject(Room* nParentRoom, const std::string& nMeshName) :
         parentRoom(nParentRoom),
-        meshExists(false),
-        meshName(nMeshName)
+        meshExists(false)
 {
+    setMeshName(nMeshName);
     // Set a unique name for the room.
     static int uniqueNumber = 0;
     std::stringstream tempSS;
     tempSS << "Room_" << parentRoom->getName() << "_Object_" << ++uniqueNumber;
-    name = tempSS.str();
+    setName(tempSS.str());
 }
 
 Room* RoomObject::getParentRoom()
