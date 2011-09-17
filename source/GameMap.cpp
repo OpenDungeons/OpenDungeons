@@ -216,11 +216,6 @@ void GameMap::clearCreatures()
  */
 void GameMap::clearClasses()
 {
-/*    for (unsigned int i = 0; i < numClassDescriptions(); ++i)
-    {
-        delete classDescriptions[i];
-    }*/
-
     classDescriptions.clear();
 }
 
@@ -416,7 +411,8 @@ std::vector<Tile*> GameMap::tilesBorderedByRegion(
  */
 void GameMap::addClassDescription(CreatureDefinition *c)
 {
-    classDescriptions.push_back(boost::shared_ptr<CreatureDefinition>(c));
+    boost::shared_ptr<CreatureDefinition> ptr(c);
+    classDescriptions.push_back(ptr);
 }
 
 /*! \brief Copies the creature class structure into a newly created structure and stores the address of the new structure in this GameMap.
@@ -424,8 +420,8 @@ void GameMap::addClassDescription(CreatureDefinition *c)
  */
 void GameMap::addClassDescription(CreatureDefinition c)
 {
-    classDescriptions.push_back(boost::shared_ptr<CreatureDefinition>(
-        new CreatureDefinition(c)));
+    boost::shared_ptr<CreatureDefinition> ptr(new CreatureDefinition(c));
+    classDescriptions.push_back(ptr);
 }
 
 /*! \brief Adds the address of a new creature to be stored in this GameMap.
