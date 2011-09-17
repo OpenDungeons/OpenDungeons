@@ -6,12 +6,12 @@
 #include <ostream>
 
 #include "ActiveEntity.h"
-#include "MovableEntity.h"
+#include "MovableGameEntity.h"
 
 class Room;
 class GameMap;
 
-class RoomObject: public ActiveEntity, public MovableEntity
+class RoomObject: public ActiveEntity, public MovableGameEntity
 {
     public:
         RoomObject(Room* nParentRoom, const std::string& nMeshName);

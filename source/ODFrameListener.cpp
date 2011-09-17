@@ -338,7 +338,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // Update the animations on any AnimatedObjects which have them
     for (unsigned int i = 0; i < gameMap->numAnimatedObjects(); ++i)
     {
-        MovableEntity *currentAnimatedObject = gameMap->getAnimatedObject(i);
+        MovableGameEntity *currentAnimatedObject = gameMap->getAnimatedObject(i);
 
         // Advance the animation
         if (currentAnimatedObject->animationState != NULL)
@@ -1036,7 +1036,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
             Creature *tempCreature = new Creature(gameMap);
             std::stringstream tempSS(arguments);
             CreatureDefinition *tempClass = gameMap->getClassDescription(
-                    tempCreature->className);
+                    tempCreature->getDefinition()->getClassName());
             if (tempClass != NULL)
             {
                 *tempCreature = *tempClass;
@@ -1046,12 +1046,12 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
 
                 // Create the mesh and SceneNode for the new creature
                 Ogre::Entity *ent = RenderManager::getSingletonPtr()->getSceneManager()->createEntity("Creature_"
-                        + tempCreature->name, tempCreature->meshName);
+                        + tempCreature->getName(), tempCreature->getDefinition()->getMeshName());
                 Ogre::SceneNode *node = creatureSceneNode->createChildSceneNode(
-                        tempCreature->name + "_node");
+                        tempCreature->getName() + "_node");
                 //node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
                 node->setPosition(tempCreature->getPosition());
-                node->setScale(tempCreature->scale);
+                node->setScale(tempCreature->getDefinition()->getScale());
                 node->attachObject(ent);
                 commandOutput += "\nCreature added successfully\n";
             }

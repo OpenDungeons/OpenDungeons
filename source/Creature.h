@@ -34,10 +34,10 @@ class Window;
  *  will probably be refined later but it works fine for now and the code
  *  affected by this change is relatively limited.
  */
-class Creature: public CreatureDefinition, public AttackableEntity
+class Creature: public MovableGameEntity, public AttackableEntity
 {
     public:
-        Creature(GameMap* gameMap);
+        Creature(GameMap* gameMap = 0, const std::string& name = "");
         //~Creature();
 
         // Individual properties
@@ -50,6 +50,9 @@ class Creature: public CreatureDefinition, public AttackableEntity
         void destroyMesh();
         void deleteYourself();
         std::string getUniqueCreatureName();
+
+        //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
+        std::string getOgreNamePrefix() { return "Creature_"; }
 
         void createStatsWindow();
         void destroyStatsWindow();
@@ -64,6 +67,8 @@ class Creature: public CreatureDefinition, public AttackableEntity
         double getHP(Tile *tile) { return getHP(); };
         double getHP() const;
 
+        double getMaxHp() const { return maxHP; }
+
         bool getIsOnMap() const;
         void setIsOnMap(bool nIsOnMap);
 
@@ -74,6 +79,10 @@ class Creature: public CreatureDefinition, public AttackableEntity
         void    setDeathCounter(int nCount) { deathCounter = nCount; }
 
         double  getMoveSpeed() const        { return moveSpeed; }
+
+        double  getDigRate() const          { return digRate; }
+
+        CreatureDefinition* getDefinition() { return definition; }
 
         // AI stuff
         virtual void doTurn();
@@ -99,7 +108,7 @@ class Creature: public CreatureDefinition, public AttackableEntity
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
         AttackableEntity::AttackableObjectType getAttackableObjectType() const;
-        const std::string& getName() const;
+        //const std::string& getName() const;
         void clearActionQueue();
 
         Player* getControllingPlayer();
@@ -122,6 +131,9 @@ class Creature: public CreatureDefinition, public AttackableEntity
         void popAction();
         CreatureAction peekAction();
 
+        //\ brief Pointer to the struct holding the general type of the creature with its values
+        CreatureDefinition* definition;
+
         mutable sem_t   hpLockSemaphore;
         mutable sem_t   manaLockSemaphore;
         mutable sem_t   isOnMapLockSemaphore;
@@ -131,13 +143,18 @@ class Creature: public CreatureDefinition, public AttackableEntity
         //FIXME:  This is not set from file yet.  Also, it should be moved to CreatureClass.
         Tile::TileClearType tilePassability;
 
+//        std::string     name;
         bool            isOnMap;
         bool            hasVisualDebuggingEntities;
         bool            meshesExist;
         double          awakeness;
+        double          maxHP;
+        double          maxMana;
         double          hp;
         double          mana;
         double          exp;
+        double          digRate;
+        double          danceRate;
         int             level;
         int             deathCounter;
         int             gold;
@@ -147,6 +164,8 @@ class Creature: public CreatureDefinition, public AttackableEntity
         Field*          battleField;
         RoomDojo*       trainingDojo;
         CEGUI::Window*  statsWindow;
+
+        std::string     className;
 
         std::vector<Tile*>              visibleTiles;
         std::vector<AttackableEntity*>  visibleEnemyObjects;

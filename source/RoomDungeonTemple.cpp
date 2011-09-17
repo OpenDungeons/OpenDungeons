@@ -47,9 +47,10 @@ void RoomDungeonTemple::produceKobold()
         CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
         if (classToSpawn != NULL)
         {
-            Creature *newCreature = new Creature(gameMap);
+            //TODO: proper assignemt of creature definition through constrcutor
+            Creature* newCreature = new Creature(gameMap);
             *newCreature = *classToSpawn;
-            newCreature->name = newCreature->getUniqueCreatureName();
+            newCreature->setName(newCreature->getUniqueCreatureName());
             newCreature->setPosition(coveredTiles[0]->x, coveredTiles[0]->y, 0);
             newCreature->setColor(color);
 

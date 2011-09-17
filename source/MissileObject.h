@@ -8,11 +8,11 @@
 #include <semaphore.h>
 
 #include "ActiveEntity.h"
-#include "MovableEntity.h"
+#include "MovableGameEntity.h"
 
 class GameMap;
 
-class MissileObject: public ActiveEntity, public MovableEntity
+class MissileObject: public ActiveEntity, public MovableGameEntity
 {
     public:
         MissileObject(GameMap& gameMap);

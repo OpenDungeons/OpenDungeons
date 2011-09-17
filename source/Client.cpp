@@ -241,7 +241,7 @@ void *clientSocketProcessor(void *p)
 
                 tempSS.getline(array, sizeof(array), ':');
                 //tempString = array;
-                MovableEntity *tempAnimatedObject = gameMap.getAnimatedObject(
+                MovableGameEntity *tempAnimatedObject = gameMap.getAnimatedObject(
                         array);
 
                 double tempX, tempY, tempZ;
@@ -262,7 +262,7 @@ void *clientSocketProcessor(void *p)
             else if (serverCommand.compare("animatedObjectClearDestinations")
                     == 0)
             {
-                MovableEntity *tempAnimatedObject = gameMap.getAnimatedObject(
+                MovableGameEntity *tempAnimatedObject = gameMap.getAnimatedObject(
                         arguments);
 
                 if (tempAnimatedObject != NULL)
@@ -420,7 +420,7 @@ void *clientNotificationProcessor(void *p)
                 tempPlayer = (Player*) event->p2;
 
                 tempSS.str("");
-                tempSS << tempPlayer->getNick() << ":" << tempCreature->name;
+                tempSS << tempPlayer->getNick() << ":" << tempCreature->getName();
 
                 sem_wait(&Socket::clientSocket->semaphore);
                 Socket::clientSocket->send(formatCommand("creaturePickUp", tempSS.str()));

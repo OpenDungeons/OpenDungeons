@@ -1,5 +1,5 @@
-#ifndef MOVABLEENTITY_H
-#define MOVABLEENTITY_H
+#ifndef MOVABLEGAMEENTITY_H
+#define MOVABLEGAMEENTITY_H
 
 #include <deque>
 #include <list>
@@ -10,14 +10,15 @@
 #include <OgreAnimationState.h>
 #include <OgreSceneNode.h>
 
-//Forward declaration
+#include "GameEntity.h"
+
 class Tile;
 
-class MovableEntity
+class MovableGameEntity : public GameEntity
 {
     public:
-        MovableEntity();
-        virtual ~MovableEntity() {};
+        MovableGameEntity();
+        virtual ~MovableGameEntity() {};
 
         virtual void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
         virtual void setPosition(const Ogre::Vector3& v);
@@ -51,7 +52,6 @@ class MovableEntity
         Ogre::SceneNode *sceneNode;
 
         virtual std::string getOgreNamePrefix() = 0;
-        virtual const std::string& getName() const = 0;
 
     protected:
         Ogre::Vector3 position;

@@ -110,9 +110,6 @@ void RenderManager::createScene()
 
     viewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 
-    
-
-
     /* TODO: move level loading to a better place
     *       (own class to exclude from global skope?)
     *       and generalize it for the future when we have more levels
@@ -137,7 +134,7 @@ void RenderManager::createScene()
 
     // Create ogre entities for the tiles, rooms, and creatures
     gameMap->createAllEntities();
-
+    LogManager::getSingleton().logMessage("entities created");
     sceneManager->setAmbientLight(Ogre::ColourValue(0.05, 0.05, 0.05));
 
     // Create the scene node that the camera attaches to
@@ -690,8 +687,8 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
     Creature* curCreature = static_cast<Creature*>(renderRequest.p);
 
     // Load the mesh for the creature
-    Ogre::Entity* ent = sceneManager->createEntity("Creature_" + curCreature->name,
-                        curCreature->meshName);
+    Ogre::Entity* ent = sceneManager->createEntity("Creature_" + curCreature->getName(),
+                        curCreature->getDefinition()->getMeshName());
     Ogre::MeshPtr meshPtr = ent->getMesh();
 
     unsigned short src, dest;
@@ -703,24 +700,24 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
     //Disabled temporarily for normal-mapping
     //colourizeEntity(ent, curCreature->color);
     Ogre::SceneNode* node = creatureSceneNode->createChildSceneNode(
-                                curCreature->name + "_node");
+                                curCreature->getName() + "_node");
     curCreature->sceneNode = node;
     node->setPosition(curCreature->getPosition());
-    node->setScale(curCreature->scale);
+    node->setScale(curCreature->getDefinition()->getScale());
     node->attachObject(ent);
 }
 
 void RenderManager::rrDestroyCreature ( const RenderRequest& renderRequest )
 {
     Creature* curCreature = static_cast<Creature*>(renderRequest.p);
-    if (sceneManager->hasEntity("Creature_" + curCreature->name))
+    if (sceneManager->hasEntity("Creature_" + curCreature->getName()))
     {
-        Ogre::Entity* ent = sceneManager->getEntity("Creature_" + curCreature->name);
-        Ogre::SceneNode* node = sceneManager->getSceneNode(curCreature->name + "_node");
+        Ogre::Entity* ent = sceneManager->getEntity("Creature_" + curCreature->getName());
+        Ogre::SceneNode* node = sceneManager->getSceneNode(curCreature->getName() + "_node");
         node->detachObject(ent);
         creatureSceneNode->removeChild(node);
         sceneManager->destroyEntity(ent);
-        sceneManager->destroySceneNode(curCreature->name + "_node");
+        sceneManager->destroySceneNode(curCreature->getName() + "_node");
     }
     curCreature->sceneNode = NULL;
 }
@@ -767,10 +764,10 @@ void RenderManager::rrCreateWeapon ( const RenderRequest& renderRequest )
     Weapon* curWeapon = static_cast<Weapon*>( renderRequest.p);
     Creature* curCreature = static_cast<Creature*>(renderRequest.p2);
 
-    Ogre::Entity* ent = sceneManager->getEntity("Creature_" + curCreature->name);
+    Ogre::Entity* ent = sceneManager->getEntity("Creature_" + curCreature->getName());
     //colourizeEntity(ent, curCreature->color);
     Ogre::Entity* weaponEntity = sceneManager->createEntity("Weapon_"
-                                 + curWeapon->getHandString() + "_" + curCreature->name,
+                                 + curWeapon->getHandString() + "_" + curCreature->getName(),
                                  curWeapon->getMeshName());
     Ogre::Bone* weaponBone = ent->getSkeleton()->getBone(
                                  "Weapon_" + curWeapon->getHandString());
@@ -989,7 +986,7 @@ void RenderManager::rrPickUpCreature ( const RenderRequest& renderRequest )
 {
     Creature* curCreature = static_cast<Creature*>(renderRequest.p);
     // Detach the creature from the creature scene node
-    Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
+    Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
     //FIXME this variable name is a bit misleading
     creatureSceneNode->removeChild(creatureNode);
 
@@ -1002,7 +999,7 @@ void RenderManager::rrPickUpCreature ( const RenderRequest& renderRequest )
     for (unsigned int i = 0; i < gameMap->me->numCreaturesInHand(); ++i)
     {
         curCreature = gameMap->me->getCreatureInHand(i);
-        creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
+        creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
         creatureNode->setPosition(i % 6 + 1, (i / (int) 6), 0.0);
     }
 }
@@ -1012,7 +1009,7 @@ void RenderManager::rrDropCreature ( const RenderRequest& renderRequest )
     Creature* curCreature = static_cast<Creature*>(renderRequest.p);
     Player* curPlayer = static_cast<Player*> (renderRequest.p2);
     // Detach the creature from the "hand" scene node
-    Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
+    Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
     sceneManager->getSceneNode("Hand_node")->removeChild(creatureNode);
 
     // Attach the creature from the creature scene node
@@ -1024,7 +1021,7 @@ void RenderManager::rrDropCreature ( const RenderRequest& renderRequest )
     for (unsigned int i = 0; i < curPlayer->numCreaturesInHand(); ++i)
     {
         curCreature = curPlayer->getCreatureInHand(i);
-        creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
+        creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
         creatureNode->setPosition(i % 6 + 1, (i / (int) 6), 0.0);
     }
 }
@@ -1035,7 +1032,7 @@ void RenderManager::rrRotateCreaturesInHand ( const RenderRequest& )
     for (unsigned int i = 0; i < gameMap->me->numCreaturesInHand(); ++i)
     {
         Creature* curCreature = gameMap->me->getCreatureInHand(i);
-        Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->name + "_node");
+        Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
         creatureNode->setPosition(i % 6 + 1, (i / (int) 6), 0.0);
     }
 }
@@ -1069,7 +1066,7 @@ void RenderManager::rrDestroyCreatureVisualDebug ( const RenderRequest& renderRe
     Creature* curCreature = static_cast<Creature*>( renderRequest.p2);
 
     std::stringstream tempSS;
-    tempSS << "Vision_indicator_" << curCreature->name << "_"
+    tempSS << "Vision_indicator_" << curCreature->getName() << "_"
     << curTile->x << "_" << curTile->y;
     if (sceneManager->hasEntity(tempSS.str()))
     {

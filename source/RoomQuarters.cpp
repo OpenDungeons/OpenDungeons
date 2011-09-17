@@ -125,21 +125,21 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
         bool normalDirection, spaceIsBigEnough = false;
 
         // Check to see whether the bed should be situated x-by-y or y-by-x tiles.
-        if (tileCanAcceptBed(t, c->bedDim1, c->bedDim2))
+        if (tileCanAcceptBed(t, c->getDefinition()->getBedDim1(), c->getDefinition()->getBedDim2()))
         {
             normalDirection = true;
             spaceIsBigEnough = true;
-            xDim = c->bedDim1;
-            yDim = c->bedDim2;
+            xDim = c->getDefinition()->getBedDim1();
+            yDim = c->getDefinition()->getBedDim2();
             rotationAngle = 0.0;
         }
 
-        if (!spaceIsBigEnough && tileCanAcceptBed(t, c->bedDim2, c->bedDim1))
+        if (!spaceIsBigEnough && tileCanAcceptBed(t, c->getDefinition()->getBedDim2(), c->getDefinition()->getBedDim1()))
         {
             normalDirection = false;
             spaceIsBigEnough = true;
-            xDim = c->bedDim2;
-            yDim = c->bedDim1;
+            xDim = c->getDefinition()->getBedDim2();
+            yDim = c->getDefinition()->getBedDim1();
             rotationAngle = 90.0;
         }
 
@@ -157,7 +157,7 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 
             bedOrientationForTile[t] = normalDirection;
 
-            loadRoomObject(c->bedMeshName, t, t->x + xDim / 2.0 - 0.5, t->y
+            loadRoomObject(c->getDefinition()->getBedMeshName(), t, t->x + xDim / 2.0 - 0.5, t->y
                     + yDim / 2.0 - 0.5, rotationAngle)->createMesh();
 
             return true;

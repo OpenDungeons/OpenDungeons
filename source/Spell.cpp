@@ -15,7 +15,7 @@ double Spell::heal(int spellLevel, Creature *targetCreature, double hp,
 
     //TODO: Should lock the HP to prevent race conditions.
     double currentHP = targetCreature->getHP();
-    double maxHP = targetCreature->maxHP;
+    double maxHP = targetCreature->getMaxHp();
 
     if (currentHP <= 0.0)
         return manaCost;

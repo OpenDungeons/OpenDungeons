@@ -254,7 +254,7 @@ void *serverNotificationProcessor(void *p)
     Tile *tempTile;
     Player *tempPlayer;
     MapLight *tempMapLight;
-    MovableEntity *tempAnimatedObject;
+    MovableGameEntity *tempAnimatedObject;
     bool running = true;
 
     while (running)
@@ -303,7 +303,7 @@ void *serverNotificationProcessor(void *p)
                 //NOTE: this code is duplicated in clientNotificationProcessor
             case ServerNotification::creaturePickUp:
                 tempSS.str("");
-                tempSS << event->player->getNick() << ":" << event->cre->name;
+                tempSS << event->player->getNick() << ":" << event->cre->getName();
 
                 sendToAllClients(frameListener, formatCommand("creaturePickUp",
                         tempSS.str()));
@@ -324,7 +324,7 @@ void *serverNotificationProcessor(void *p)
 
             case ServerNotification::setObjectAnimationState:
                 tempSS.str("");
-                tempAnimatedObject = (MovableEntity*) event->p;
+                tempAnimatedObject = (MovableGameEntity*) event->p;
                 tempSS << tempAnimatedObject->getName() << ":" << event->str
                         << ":" << (event->b ? "true" : "false");
                 sendToAllClients(frameListener, formatCommand(

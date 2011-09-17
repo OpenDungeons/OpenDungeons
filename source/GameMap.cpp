@@ -491,7 +491,7 @@ CreatureDefinition* GameMap::getClassDescription(std::string query)
 {
     for (unsigned int i = 0; i < classDescriptions.size(); ++i)
     {
-        if (classDescriptions[i]->className.compare(query) == 0)
+        if (classDescriptions[i]->getClassName().compare(query) == 0)
             return classDescriptions[i];
     }
 
@@ -536,14 +536,14 @@ void GameMap::clearAnimatedObjects()
     sem_post(&animatedObjectsLockSemaphore);
 }
 
-void GameMap::addAnimatedObject(MovableEntity *a)
+void GameMap::addAnimatedObject(MovableGameEntity *a)
 {
     sem_wait(&animatedObjectsLockSemaphore);
     animatedObjects.push_back(a);
     sem_post(&animatedObjectsLockSemaphore);
 }
 
-void GameMap::removeAnimatedObject(MovableEntity *a)
+void GameMap::removeAnimatedObject(MovableGameEntity *a)
 {
     sem_wait(&animatedObjectsLockSemaphore);
 
@@ -561,18 +561,18 @@ void GameMap::removeAnimatedObject(MovableEntity *a)
     sem_post(&animatedObjectsLockSemaphore);
 }
 
-MovableEntity* GameMap::getAnimatedObject(int index)
+MovableGameEntity* GameMap::getAnimatedObject(int index)
 {
     sem_wait(&animatedObjectsLockSemaphore);
-    MovableEntity* tempAnimatedObject = animatedObjects[index];
+    MovableGameEntity* tempAnimatedObject = animatedObjects[index];
     sem_post(&animatedObjectsLockSemaphore);
 
     return tempAnimatedObject;
 }
 
-MovableEntity* GameMap::getAnimatedObject(std::string name)
+MovableGameEntity* GameMap::getAnimatedObject(std::string name)
 {
-    MovableEntity* tempAnimatedObject = NULL;
+    MovableGameEntity* tempAnimatedObject = NULL;
 
     sem_wait(&animatedObjectsLockSemaphore);
     for (unsigned int i = 0; i < animatedObjects.size(); ++i)
@@ -751,7 +751,7 @@ Creature* GameMap::getCreature(std::string cName)
     sem_wait(&creaturesLockSemaphore);
     for (unsigned int i = 0; i < creatures.size(); ++i)
     {
-        if (creatures[i]->name.compare(cName) == 0)
+        if (creatures[i]->getName().compare(cName) == 0)
         {
             returnValue = creatures[i];
             break;
@@ -875,19 +875,19 @@ void GameMap::doTurn()
             {
                 Seat *tempSeat = tempPlayer->getSeat();
 
-                tempSeat->numCreaturesControlled++;
+                ++(tempSeat->numCreaturesControlled);
 
-                tempSeat->factionHumans += tempCreature->coefficientHumans;
-                tempSeat->factionCorpars += tempCreature->coefficientCorpars;
-                tempSeat->factionUndead += tempCreature->coefficientUndead;
+                tempSeat->factionHumans += tempCreature->getDefinition()->getCoefficientHumans();
+                tempSeat->factionCorpars += tempCreature->getDefinition()->getCoefficientCorpars();
+                tempSeat->factionUndead += tempCreature->getDefinition()->getCoefficientUndead();
                 tempSeat->factionConstructs
-                        += tempCreature->coefficientConstructs;
-                tempSeat->factionDenizens += tempCreature->coefficientDenizens;
+                        += tempCreature->getDefinition()->getCoefficientConstructs();
+                tempSeat->factionDenizens += tempCreature->getDefinition()->getCoefficientDenizens();
 
                 tempSeat->alignmentAltruism
-                        += tempCreature->coefficientAltruism;
-                tempSeat->alignmentOrder += tempCreature->coefficientOrder;
-                tempSeat->alignmentPeace += tempCreature->coefficientPeace;
+                        += tempCreature->getDefinition()->getCoefficientAltruism();
+                tempSeat->alignmentOrder += tempCreature->getDefinition()->getCoefficientOrder();
+                tempSeat->alignmentPeace += tempCreature->getDefinition()->getCoefficientPeace();
             }
 
             ++count;
@@ -960,7 +960,7 @@ unsigned long int GameMap::doMiscUpkeep()
         Creature *tempCreature = creatures[i];
         sem_post(&creaturesLockSemaphore);
 
-        if (tempCreature->isWorker())
+        if (tempCreature->getDefinition()->isWorker())
         {
             int color = tempCreature->color;
             ++koboldColorCounts[color];
@@ -2711,7 +2711,7 @@ void GameMap::processDeletionQueues()
         while (creaturesToDelete[currentTurnToRetire].size() > 0)
         {
             std::cout << "\nSending message to delete creature "
-                    << (*creaturesToDelete[currentTurnToRetire].begin())->name;
+                    << (*creaturesToDelete[currentTurnToRetire].begin())->getName();
             std::cout.flush();
 
             (*creaturesToDelete[currentTurnToRetire].begin())->deleteYourself();

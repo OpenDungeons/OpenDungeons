@@ -120,8 +120,7 @@ void RoomPortal::spawnCreature()
         }
     }
 
-    std::cout << "\n\n\nSpawning a creature of class " << classToSpawn->className
-            << "\n\n\n";
+    std::cout << "\n\n\nSpawning a creature of class " << classToSpawn->getClassName() << "\n\n\n";
 
     // Create a new creature and copy over the class-based creature parameters.
     Creature *newCreature = new Creature(gameMap);
@@ -129,7 +128,7 @@ void RoomPortal::spawnCreature()
 
     // Set the creature specific parameters.
     //NOTE:  This needs to be modified manually when the level file creature format changes.
-    newCreature->name = newCreature->getUniqueCreatureName();
+    newCreature->setName(newCreature->getUniqueCreatureName());
     newCreature->setPosition(xCenter, yCenter, 0.0);
     newCreature->setColor(color);
 
@@ -137,8 +136,8 @@ void RoomPortal::spawnCreature()
     newCreature->weaponL = new Weapon("none", 5, 4, 0, newCreature, "L");
     newCreature->weaponR = new Weapon("none", 5, 4, 0, newCreature, "R");
 
-    newCreature->setHP(classToSpawn->maxHP);
-    newCreature->setMana(classToSpawn->maxMana);
+    newCreature->setHP(classToSpawn->getMaxHp());
+    newCreature->setMana(classToSpawn->getMaxMana());
 
     // Add the creature to the gameMap and create meshes so it is visible.
     gameMap->addCreature(newCreature);
@@ -194,22 +193,21 @@ void RoomPortal::recomputeClassProbabilities()
         probability = 1.0 / gameMap->numClassDescriptions();
 
         probability += controllingSeat->factionHumans
-                * tempClass->coefficientHumans;
+                * tempClass->getCoefficientHumans();
         probability += controllingSeat->factionCorpars
-                * tempClass->coefficientCorpars;
+                * tempClass->getCoefficientCorpars();
         probability += controllingSeat->factionUndead
-                * tempClass->coefficientUndead;
+                * tempClass->getCoefficientUndead();
         probability += controllingSeat->factionConstructs
-                * tempClass->coefficientConstructs;
+                * tempClass->getCoefficientConstructs();
         probability += controllingSeat->factionDenizens
-                * tempClass->coefficientDenizens;
-
+                * tempClass->getCoefficientDenizens();
         probability += controllingSeat->alignmentAltruism
-                * tempClass->coefficientAltruism;
+                * tempClass->getCoefficientAltruism();
         probability += controllingSeat->alignmentOrder
-                * tempClass->coefficientOrder;
+                * tempClass->getCoefficientOrder();
         probability += controllingSeat->alignmentPeace
-                * tempClass->coefficientPeace;
+                * tempClass->getCoefficientPeace();
 
         // Store the computed probability and compute the sum of the probabilities to be used for renormalization.
         classProbabilities.push_back(std::pair<CreatureDefinition*, double> (tempClass,

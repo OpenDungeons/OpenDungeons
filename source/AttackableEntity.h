@@ -61,7 +61,7 @@ class AttackableEntity
         virtual int getColor() const = 0;
 
         //! \brief Returns the name of the object.
-        virtual const std::string& getName() const = 0;
+        //virtual const std::string& getName() const = 0;
 
         //! \brief Returns the type of the object, i.e. creature, room, trap, etc, for AI calculations to use in threat assessments.
         virtual AttackableObjectType getAttackableObjectType() const = 0;

@@ -5,9 +5,10 @@
 #include <iostream>
 #include <Ogre.h>
 
-#include "MovableEntity.h"
+#include "MovableGameEntity.h"
 
-class CreatureDefinition: public MovableEntity
+//TODO remove dependency from MovableGameEntity and make it a clas holding only the Creature definitons
+class CreatureDefinition
 {
     public:
         enum CreatureJob
@@ -28,31 +29,120 @@ class CreatureDefinition: public MovableEntity
             superCreature
         };
 
-        // Constructors and operators
-        CreatureDefinition();
+        CreatureDefinition(
+                CreatureJob             job         = nullCreatureJob,
+                const std::string&      className   = "",
+                const std::string&      meshName    = "",
+                const std::string&      bedMeshName = "",
+                int                     bedDim1     = 0,
+                int                     bedDim2     = 0,
+                const Ogre::Vector3&    scale       = Ogre::Vector3(1, 1, 1),
+                double                  sightRadius = 0.0,
+                double                  digRate     = 10.0,
+                double                  danceRate   = 0.35,
+                double                  hpPerLevel  = 0.0,
+                double                  manaPerLevel= 0.0,
+                double                  maxHP       = 10.0,
+                double                  maxMana     = 10.0,
+                double                  moveSpeed   = 0.0,
+
+                double coefficientHumans    = 0.0,
+                double coefficientCorpars   = 0.0,
+                double coefficientUndead    = 0.0,
+                double coefficientConstructs= 0.0,
+                double coefficientDenizens  = 0.0,
+                double coefficientAltruism  = 0.0,
+                double coefficientOrder     = 0.0,
+                double coefficientPeace     = 0.0
+        ) :
+            creatureJob (job),
+            className   (className),
+            meshName    (meshName),
+            bedMeshName (bedMeshName),
+            bedDim1     (bedDim1),
+            bedDim2     (bedDim2),
+            scale       (scale),
+            sightRadius (sightRadius),
+            digRate     (digRate),
+            danceRate   (danceRate),
+            hpPerLevel  (hpPerLevel),
+            manaPerLevel(manaPerLevel),
+            maxHP       (maxHP),
+            maxMana     (maxMana),
+            moveSpeed   (moveSpeed),
+            coefficientHumans       (coefficientHumans),
+            coefficientCorpars      (coefficientCorpars),
+            coefficientUndead       (coefficientUndead),
+            coefficientConstructs   (coefficientConstructs),
+            coefficientDenizens     (coefficientDenizens),
+            coefficientAltruism     (coefficientAltruism),
+            coefficientOrder        (coefficientOrder),
+            coefficientPeace        (coefficientPeace)
+        {}
 
         static CreatureJob creatureJobFromString(std::string s);
         static std::string creatureJobToString(CreatureJob c);
 
-        bool isWorker() const{return (creatureJob == basicWorker || creatureJob == advancedWorker);}
-        std::string getOgreNamePrefix();
+        inline bool isWorker() const{return (creatureJob == basicWorker || creatureJob == advancedWorker);}
 
+        inline static std::string getFormat()
+        {
+            return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\thp/level\tmana/level\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\tcHumans\tcCorpars\tcUndead\tcConstructs\tcDenizens\tcAltruism\tcOrder\tcPeace\n";
+        }
+
+        friend std::ostream & operator <<(std::ostream & os, CreatureDefinition *c);
+        friend std::istream & operator >>(std::istream & is, CreatureDefinition *c);
+
+        inline CreatureJob          getCreatureJob  () const    { return creatureJob; }
+        inline int                  getBedDim1      () const    { return bedDim1; }
+        inline int                  getBedDim2      () const    { return bedDim2; }
+        inline const std::string&   getBedMeshName  () const    { return bedMeshName; }
+        inline const std::string&   getClassName    () const    { return className; }
+        inline double               getDanceRate    () const    { return danceRate; }
+        inline double               getDigRate      () const    { return digRate; }
+        inline double               getHpPerLevel   () const    { return hpPerLevel; }
+        inline double               getManaPerLevel () const    { return manaPerLevel; }
+        inline double               getMaxHp        () const    { return maxHP; }
+        inline double               getMaxMana      () const    { return maxMana; }
+        inline const std::string&   getMeshName     () const    { return meshName; }
+        inline const Ogre::Vector3& getScale        () const    { return scale; }
+        inline double               getSightRadius  () const    { return sightRadius; }
+
+        inline double getCoefficientAltruism    () const    { return coefficientAltruism; }
+        inline double getCoefficientConstructs  () const    { return coefficientConstructs; }
+        inline double getCoefficientCorpars     () const    { return coefficientCorpars; }
+        inline double getCoefficientDenizens    () const    { return coefficientDenizens; }
+        inline double getCoefficientHumans      () const    { return coefficientHumans; }
+        inline double getCoefficientOrder       () const    { return coefficientOrder; }
+        inline double getCoefficientPeace       () const    { return coefficientPeace; }
+        inline double getCoefficientUndead      () const    { return coefficientUndead; }
+
+    private:
         // Class properties
         //NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
         CreatureJob creatureJob;
         std::string className;
         std::string meshName;
         std::string bedMeshName;
-        int bedDim1, bedDim2;
+        int bedDim1;
+        int bedDim2;
         Ogre::Vector3 scale;
-        double sightRadius; // The inner radius where the creature sees everything
-        double digRate; // Fullness removed per turn of digging
-        double danceRate; // How much the danced upon tile's color changes per turn of dancing
+
+        //! \brief The inner radius where the creature sees everything
+        double sightRadius;
+
+        //! \brief Fullness removed per turn of digging
+        double digRate;
+
+        //! \brief How much the danced upon tile's color changes per turn of dancing
+        double danceRate;
         double hpPerLevel;
         double manaPerLevel;
-        double maxHP, maxMana;
+        double maxHP;
+        double maxMana;
+        double moveSpeed;
 
-        // Probability coefficients to determine how likely a creature is to come through the portal.
+        //! \brief Probability coefficients to determine how likely a creature is to come through the portal.
         double coefficientHumans;
         double coefficientCorpars;
         double coefficientUndead;
@@ -61,19 +151,6 @@ class CreatureDefinition: public MovableEntity
         double coefficientAltruism;
         double coefficientOrder;
         double coefficientPeace;
-
-        //std::vector<std::string> soundNames;
-        static std::string getFormat();
-
-        const std::string& getName() const
-        {
-            return name;
-        }
-        std::string name;
-
-        friend std::ostream& operator<<(std::ostream& os, CreatureDefinition *c);
-
-        friend std::istream& operator>>(std::istream& is, CreatureDefinition *c);
 };
 
 #endif

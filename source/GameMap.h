@@ -21,7 +21,7 @@ class Goal;
 class MapLight;
 template<typename T> class ProtectedObject;
 class MissileObject;
-class MovableEntity;
+class MovableGameEntity;
 
 #include "AIManager.h"
 #include "Room.h"
@@ -73,10 +73,10 @@ class GameMap
         std::vector<Creature*> getCreaturesByColor(int color);
 
         void clearAnimatedObjects();
-        void addAnimatedObject(MovableEntity *a);
-        void removeAnimatedObject(MovableEntity *a);
-        MovableEntity* getAnimatedObject(int index);
-        MovableEntity* getAnimatedObject(std::string name);
+        void addAnimatedObject(MovableGameEntity *a);
+        void removeAnimatedObject(MovableGameEntity *a);
+        MovableGameEntity* getAnimatedObject(int index);
+        MovableGameEntity* getAnimatedObject(std::string name);
         unsigned int numAnimatedObjects();
 
         //void clearActiveObjects();
@@ -258,7 +258,7 @@ class GameMap
         std::vector<Creature*> creatures;
         //Mutable to allow locking in const functions.
         mutable sem_t creaturesLockSemaphore; //TODO: Most of these other vectors should also probably have semaphore locks on them.
-        std::vector<MovableEntity*> animatedObjects;
+        std::vector<MovableGameEntity*> animatedObjects;
         sem_t animatedObjectsLockSemaphore;
         sem_t activeObjectsLockSemaphore;
         sem_t newActiveObjectsLockSemaphore;

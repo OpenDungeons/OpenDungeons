@@ -25,10 +25,12 @@
 #define snprintf _snprintf
 #endif
 
-//SHould probably make this changeable somewhere.
+//TODO: make this read from file
 static const int MAX_LEVEL = 100;
 
-Creature::Creature(GameMap* gameMap) :
+Creature::Creature( GameMap*            gameMap,
+                    const std::string&  name
+                    ) :
         weaponL                 (0),
         weaponR                 (0),
         color                   (0),
@@ -55,6 +57,8 @@ Creature::Creature(GameMap* gameMap) :
     sem_init(&isOnMapLockSemaphore, 0, 1);
     sem_init(&actionQueueLockSemaphore, 0, 1);
     sem_init(&statsWindowLockSemaphore, 0, 1);
+
+    setName(name);
 
     sem_wait(&statsWindowLockSemaphore);
     statsWindow = 0;
@@ -94,7 +98,7 @@ std::string Creature::getFormat()
  */
 std::ostream& operator<<(std::ostream& os, Creature *c)
 {
-    os << c->className << "\t" << c->name << "\t";
+    os << c->definition->getClassName() << "\t" << c->getName() << "\t";
 
     sem_wait(&c->positionLockSemaphore);
     os << c->position.x << "\t" << c->position.y << "\t" << c->position.z
@@ -124,7 +128,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     if (tempString.compare("autoname") == 0)
         tempString = c->getUniqueCreatureName();
 
-    c->name = tempString;
+    c->setName(tempString);
 
     is >> xLocation >> yLocation >> zLocation;
     c->setPosition(xLocation, yLocation, zLocation);
@@ -143,14 +147,14 @@ std::istream& operator>>(std::istream& is, Creature *c)
 
     // Copy the class based items
     CreatureDefinition *creatureClass = c->gameMap->getClassDescription(c->className);
-    if (creatureClass != NULL)
+    if (creatureClass != 0)
     {
-        *c = *creatureClass;
+        //*c = *creatureClass;
+        c->definition = creatureClass;
     }
 
     is >> tempDouble;
     c->setHP(tempDouble);
-
     is >> tempDouble;
     c->setMana(tempDouble);
 
@@ -159,6 +163,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
 
 Creature& Creature::operator=(CreatureDefinition c2)
 {
+    /*
     creatureJob = c2.creatureJob;
     className = c2.className;
     meshName = c2.meshName;
@@ -173,8 +178,9 @@ Creature& Creature::operator=(CreatureDefinition c2)
     maxMana = c2.maxMana;
     bedMeshName = c2.bedMeshName;
     bedDim1 = c2.bedDim1;
-    bedDim2 = c2.bedDim2;
+    bedDim2 = c2.bedDim2;*/
 
+    definition = &c2;
     return *this;
 }
 
@@ -274,7 +280,7 @@ void Creature::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
-    request->str = name + "_node";
+    request->str = getName() + "_node";
     request->vec = position;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
@@ -382,15 +388,15 @@ void Creature::doTurn()
     // Heal.
     sem_wait(&hpLockSemaphore);
     hp += 0.1;
-    if (hp > maxHP)
-        hp = maxHP;
+    if (hp > definition->getMaxHp())
+        hp = definition->getMaxHp();
     sem_post(&hpLockSemaphore);
 
     // Regenrate mana.
     sem_wait(&manaLockSemaphore);
     mana += 0.45;
-    if (mana > maxMana)
-        mana = maxMana;
+    if (mana > definition->getMaxMana())
+        mana = definition->getMaxMana();
     sem_post(&manaLockSemaphore);
 
     awakeness -= 0.15;
@@ -427,7 +433,7 @@ void Creature::doTurn()
         // If we are not already fighting with a creature or maneuvering then start doing so.
         if (!alreadyFighting)
         {
-            if (Random::Double(0.0, 1.0) < (isWorker() ? 0.05 : 0.8))
+            if (Random::Double(0.0, 1.0) < (definition->isWorker() ? 0.05 : 0.8))
             {
                 tempAction.setType(CreatureAction::maneuver);
                 battleFieldAgeCounter = 0;
@@ -444,7 +450,7 @@ void Creature::doTurn()
         --battleFieldAgeCounter;
     }
 
-    if (isWorker())
+    if (definition->isWorker())
     {
         markedTiles = getVisibleMarkedTiles();
     }
@@ -537,7 +543,7 @@ void Creature::doTurn()
                     //TODO: This should mainly be decided based on whether there are any
                     //marked and/or unclaimed tiles nearby, not a random value.
                     // Workers only.
-                    if (isWorker())
+                    if (definition->isWorker())
                     {
                         // Decide to check for diggable tiles
                         if (diceRoll < 0.7)
@@ -580,7 +586,7 @@ void Creature::doTurn()
                         // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
                         int tempX = 0, tempY = 0;
                         bool workerFound = false;
-                        if (!isWorker())
+                        if (!definition->isWorker())
                         {
                             // Non-workers only.
 
@@ -596,7 +602,7 @@ void Creature::doTurn()
                                     // Check to see if we found a worker.
                                     if (reachableAlliedObjects[i]->getAttackableObjectType()
                                             == AttackableEntity::creature
-                                            && ((Creature*) reachableAlliedObjects[i])->isWorker())
+                                            && ((Creature*) reachableAlliedObjects[i])->definition->isWorker())
                                     {
                                         // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
                                         tempTile
@@ -793,8 +799,8 @@ void Creature::doTurn()
                                 // dancing on this tile.  If there is "left over" claiming that can be done
                                 // it will spill over into neighboring tiles until it is gone.
                                 setAnimationState("Claim");
-                                myTile->claimForColor(color, danceRate);
-                                recieveExp(1.5 * (danceRate / (0.35 + 0.05
+                                myTile->claimForColor(color, definition->getDanceRate());
+                                recieveExp(1.5 * (definition->getDanceRate() / (0.35 + 0.05
                                         * level)));
 
                                 // Since we danced on a tile we are done for this turn
@@ -977,12 +983,12 @@ void Creature::doTurn()
                             if (tempTile->getType() == Tile::gold)
                             {
                                 //FIXME: Make sure we can't dig gold if the creature has max gold.
-                                tempDouble = 5 * std::min(digRate,
+                                tempDouble = 5 * std::min(definition->getDigRate(),
                                         tempTile->getFullness());
                                 gold += tempDouble;
                                 gameMap->getSeatByColor(color)->goldMined
                                         += tempDouble;
-                                recieveExp(5.0 * digRate / 20.0);
+                                recieveExp(5.0 * definition->getDigRate() / 20.0);
                             }
 
                             // Turn so that we are facing toward the tile we are going to dig out.
@@ -990,10 +996,10 @@ void Creature::doTurn()
 
                             // Dig out the tile by decreasing the tile's fullness.
                             setAnimationState("Dig");
-                            double amountDug = tempTile->digOut(digRate, true);
+                            double amountDug = tempTile->digOut(definition->getDigRate(), true);
                             if(amountDug > 0.0)
                             {
-                                recieveExp(1.5 * digRate / 20.0);
+                                recieveExp(1.5 * definition->getDigRate() / 20.0);
 
                                 // If the tile has been dug out, move into that tile and try to continue digging.
                                 if (tempTile->getFullness() < 1)
@@ -1296,13 +1302,13 @@ void Creature::doTurn()
                         // there is a place where we could put a bed big enough to sleep in.
                         tempTile
                                 = ((RoomQuarters*) tempRooms[i])->getLocationForBed(
-                                        bedDim1, bedDim2);
+                                        definition->getBedDim1(), definition->getBedDim2());
 
                         // If the previous attempt to place the bed in this quarters failed, try again with the bed the other way.
                         if (tempTile == NULL)
                             tempTile
                                     = ((RoomQuarters*) tempRooms[i])->getLocationForBed(
-                                            bedDim2, bedDim1);
+                                            definition->getBedDim2(), definition->getBedDim1());
 
                         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
                         if (tempTile != NULL)
@@ -1573,9 +1579,11 @@ void Creature::doTurn()
 
                         recieveExp(expGained);
 
-                        std::cout << "\n" << name << " did " << damageDone
+                        std::cout << "\n" << getName() << " did " << damageDone
                                 << " damage to "
-                                << tempAttackableObject->getName();
+                                //FIXME: Attackabe object needs a name...
+                                << "";
+                                //<< tempAttackableObject->getName();
                         std::cout << " who now has " << tempAttackableObject->getHP(
                                 tempTile) << "hp";
 
@@ -1765,21 +1773,20 @@ void Creature::doLevelUp()
         return;
 
     ++level;
-    std::cout << "\n\n" << name << " has reached level " << level << "\n";
+    std::cout << "\n\n" << getName() << " has reached level " << level << "\n";
 
-    if (isWorker())
+    if (definition->isWorker())
     {
         digRate += 4.0 * level / (level + 5.0);
         danceRate += 0.12 * level / (level + 5.0);
     }
-    std::cout << "New dig rate: " << digRate << "\tnew dance rate: " << danceRate
-            << "\n";
+    std::cout << "New dig rate: " << digRate << "\tnew dance rate: " << danceRate << "\n";
 
     moveSpeed += 0.4 / (level + 2.0);
     //if(digRate > 60)  digRate = 60;
 
-    maxHP += hpPerLevel;
-    maxMana += manaPerLevel;
+    maxHP += definition->getHpPerLevel();
+    maxMana += definition->getManaPerLevel();
 
     // Scale up the mesh.
     if (meshesExist && ((level <= 30 && level % 2 == 0) || (level > 30 && level
@@ -1809,7 +1816,7 @@ void Creature::updateVisibleTiles()
     //double effectiveRadius = min(5.0, sightRadius) + sightRadius*powl(randomDouble(0.0, 1.0), 3.0);
     //double effectiveRadius = sightRadius;
     //visibleTiles = gameMap->visibleTiles(positionTile(), effectiveRadius);
-    visibleTiles = gameMap->visibleTiles(positionTile(), sightRadius);
+    visibleTiles = gameMap->visibleTiles(positionTile(), definition->getSightRadius());
 }
 
 /*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
@@ -2058,7 +2065,7 @@ void Creature::deleteYourself()
 std::string Creature::getUniqueCreatureName()
 {
     static int uniqueNumber = 1;
-    std::string tempString = className + Ogre::StringConverter::toString(
+    std::string tempString = definition->getClassName() + Ogre::StringConverter::toString(
             uniqueNumber);
     ++uniqueNumber;
     return tempString;
@@ -2119,7 +2126,7 @@ void Creature::updateStatsWindow()
 std::string Creature::getStatsText()
 {
     std::stringstream tempSS;
-    tempSS << "Creature name: " << name << "\n";
+    tempSS << "Creature name: " << getName() << "\n";
     tempSS << "HP: " << getHP() << " / " << maxHP << "\n";
     tempSS << "Mana: " << getMana() << " / " << maxMana << "\n";
     sem_wait(&actionQueueLockSemaphore);
@@ -2166,14 +2173,6 @@ void Creature::setColor(int nColor)
 AttackableEntity::AttackableObjectType Creature::getAttackableObjectType() const
 {
     return AttackableEntity::creature;
-}
-
-/** \brief Conform: AttackableObject - Returns the name of this creature.
- *
- */
-const std::string& Creature::getName() const
-{
-    return name;
 }
 
 /** \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.

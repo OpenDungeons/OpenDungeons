@@ -27,6 +27,7 @@
 #include "Trap.h"
 #include "Seat.h"
 #include "MapLight.h"
+#include "LogManager.h"
 
 #include "MapLoader.h"
 
@@ -180,6 +181,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
         levelFile >> tempCreature;
 
         gameMap_b.addCreature(tempCreature);
+
+
     }
 
     return true;
