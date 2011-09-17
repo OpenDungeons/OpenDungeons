@@ -194,7 +194,7 @@ void *clientSocketProcessor(void *p)
             {
                 std::stringstream tempSS(arguments);
                 ;
-                CreatureClass *tempClass = new CreatureClass;
+                CreatureDefinition *tempClass = new CreatureDefinition;
 
                 tempSS >> tempClass;
 
@@ -241,7 +241,7 @@ void *clientSocketProcessor(void *p)
 
                 tempSS.getline(array, sizeof(array), ':');
                 //tempString = array;
-                AnimatedObject *tempAnimatedObject = gameMap.getAnimatedObject(
+                MovableEntity *tempAnimatedObject = gameMap.getAnimatedObject(
                         array);
 
                 double tempX, tempY, tempZ;
@@ -262,7 +262,7 @@ void *clientSocketProcessor(void *p)
             else if (serverCommand.compare("animatedObjectClearDestinations")
                     == 0)
             {
-                AnimatedObject *tempAnimatedObject = gameMap.getAnimatedObject(
+                MovableEntity *tempAnimatedObject = gameMap.getAnimatedObject(
                         arguments);
 
                 if (tempAnimatedObject != NULL)

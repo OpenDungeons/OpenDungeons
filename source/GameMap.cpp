@@ -414,7 +414,7 @@ std::vector<Tile*> GameMap::tilesBorderedByRegion(
  * members of that class.  Creature specific things like location, etc. are
  * then filled out for the individual creature.
  */
-void GameMap::addClassDescription(CreatureClass *c)
+void GameMap::addClassDescription(CreatureDefinition *c)
 {
     classDescriptions.push_back(c);
 }
@@ -422,9 +422,9 @@ void GameMap::addClassDescription(CreatureClass *c)
 /*! \brief Copies the creature class structure into a newly created structure and stores the address of the new structure in this GameMap.
  *
  */
-void GameMap::addClassDescription(CreatureClass c)
+void GameMap::addClassDescription(CreatureDefinition c)
 {
-    classDescriptions.push_back(new CreatureClass(c));
+    classDescriptions.push_back(new CreatureDefinition(c));
 }
 
 /*! \brief Adds the address of a new creature to be stored in this GameMap.
@@ -487,7 +487,7 @@ void GameMap::queueCreatureForDeletion(Creature *c)
 /*! \brief Returns a pointer to the first class description whose 'name' parameter matches the query string.
  *
  */
-CreatureClass* GameMap::getClassDescription(std::string query)
+CreatureDefinition* GameMap::getClassDescription(std::string query)
 {
     for (unsigned int i = 0; i < classDescriptions.size(); ++i)
     {
@@ -536,14 +536,14 @@ void GameMap::clearAnimatedObjects()
     sem_post(&animatedObjectsLockSemaphore);
 }
 
-void GameMap::addAnimatedObject(AnimatedObject *a)
+void GameMap::addAnimatedObject(MovableEntity *a)
 {
     sem_wait(&animatedObjectsLockSemaphore);
     animatedObjects.push_back(a);
     sem_post(&animatedObjectsLockSemaphore);
 }
 
-void GameMap::removeAnimatedObject(AnimatedObject *a)
+void GameMap::removeAnimatedObject(MovableEntity *a)
 {
     sem_wait(&animatedObjectsLockSemaphore);
 
@@ -561,18 +561,18 @@ void GameMap::removeAnimatedObject(AnimatedObject *a)
     sem_post(&animatedObjectsLockSemaphore);
 }
 
-AnimatedObject* GameMap::getAnimatedObject(int index)
+MovableEntity* GameMap::getAnimatedObject(int index)
 {
     sem_wait(&animatedObjectsLockSemaphore);
-    AnimatedObject* tempAnimatedObject = animatedObjects[index];
+    MovableEntity* tempAnimatedObject = animatedObjects[index];
     sem_post(&animatedObjectsLockSemaphore);
 
     return tempAnimatedObject;
 }
 
-AnimatedObject* GameMap::getAnimatedObject(std::string name)
+MovableEntity* GameMap::getAnimatedObject(std::string name)
 {
-    AnimatedObject* tempAnimatedObject = NULL;
+    MovableEntity* tempAnimatedObject = NULL;
 
     sem_wait(&animatedObjectsLockSemaphore);
     for (unsigned int i = 0; i < animatedObjects.size(); ++i)
@@ -599,14 +599,14 @@ unsigned int GameMap::numAnimatedObjects()
 
 //void GameMap::clearActiveObjects()
 
-void GameMap::addActiveObject(ActiveObject *a)
+void GameMap::addActiveObject(ActiveEntity *a)
 {
     sem_wait(&activeObjectsLockSemaphore);
     activeObjects.push_back(a);
     sem_post(&activeObjectsLockSemaphore);
 }
 
-void GameMap::removeActiveObject(ActiveObject *a)
+void GameMap::removeActiveObject(ActiveEntity *a)
 {
     sem_wait(&activeObjectsLockSemaphore);
 
@@ -663,7 +663,7 @@ const Creature* GameMap::getCreature(int index) const
 /*! \brief Gets the i'th class description in this GameMap.
  *
  */
-CreatureClass* GameMap::getClassDescription(int index)
+CreatureDefinition* GameMap::getClassDescription(int index)
 {
     return classDescriptions[index];
 }
@@ -1752,11 +1752,11 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 /*! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
  *
  */
-std::vector<AttackableObject*> GameMap::getVisibleForce(
+std::vector<AttackableEntity*> GameMap::getVisibleForce(
         std::vector<Tile*> visibleTiles, int color, bool invert)
 {
     //TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
-    std::vector<AttackableObject*> returnList;
+    std::vector<AttackableEntity*> returnList;
 
     // Loop over the visible tiles
     for (std::vector<Tile*>::iterator itr = visibleTiles.begin(), end = visibleTiles.end();

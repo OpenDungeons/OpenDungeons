@@ -1,10 +1,11 @@
 #ifndef ROOMPORTAL_H
 #define ROOMPORTAL_H
 
-#include "Room.h"
-#include "CreatureClass.h"
 #include <vector>
 #include <map> //For pair
+
+#include "CreatureDefinition.h"
+#include "Room.h"
 
 class RoomPortal: public Room
 {
@@ -26,7 +27,7 @@ class RoomPortal: public Room
 
         int spawnCreatureCountdown;
 
-        std::vector<std::pair<CreatureClass*, double> > classProbabilities;
+        std::vector<std::pair<CreatureDefinition*, double> > classProbabilities;
         double xCenter, yCenter;
 
         RoomObject *portalObject;

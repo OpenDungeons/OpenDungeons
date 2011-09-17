@@ -1,6 +1,6 @@
-#include "CreatureClass.h"
+#include "CreatureDefinition.h"
 
-CreatureClass::CreatureClass() :
+CreatureDefinition::CreatureDefinition() :
         creatureJob(nullCreatureJob),
         bedDim1(0),
         bedDim2(0),
@@ -23,7 +23,7 @@ CreatureClass::CreatureClass() :
 {
 }
 
-CreatureClass::CreatureJob CreatureClass::creatureJobFromString(std::string s)
+CreatureDefinition::CreatureJob CreatureDefinition::creatureJobFromString(std::string s)
 {
     if (s.compare("BasicWorker") == 0)
         return basicWorker;
@@ -55,7 +55,7 @@ CreatureClass::CreatureJob CreatureClass::creatureJobFromString(std::string s)
     return nullCreatureJob;
 }
 
-std::string CreatureClass::creatureJobToString(CreatureJob c)
+std::string CreatureDefinition::creatureJobToString(CreatureJob c)
 {
     switch (c)
     {
@@ -106,15 +106,15 @@ std::string CreatureClass::creatureJobToString(CreatureJob c)
     }
 }
 
-std::string CreatureClass::getFormat()
+std::string CreatureDefinition::getFormat()
 {
     return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\thp/level\tmana/level\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\tcHumans\tcCorpars\tcUndead\tcConstructs\tcDenizens\tcAltruism\tcOrder\tcPeace\n";
 }
 
-std::ostream& operator<<(std::ostream& os, CreatureClass *c)
+std::ostream& operator<<(std::ostream& os, CreatureDefinition *c)
 {
     //TODO: Need to include maxHP/maxMana in the file format.
-    os << c->className << "\t" << CreatureClass::creatureJobToString(
+    os << c->className << "\t" << CreatureDefinition::creatureJobToString(
             c->creatureJob) << "\t" << c->meshName << "\t";
     os << c->bedMeshName << "\t" << c->bedDim1 << "\t" << c->bedDim2 << "\t";
     os << c->scale.x << "\t" << c->scale.y << "\t" << c->scale.z << "\t";
@@ -129,11 +129,11 @@ std::ostream& operator<<(std::ostream& os, CreatureClass *c)
     return os;
 }
 
-std::istream& operator>>(std::istream& is, CreatureClass *c)
+std::istream& operator>>(std::istream& is, CreatureDefinition *c)
 {
     std::string tempString;
     is >> c->className >> tempString;
-    c->creatureJob = CreatureClass::creatureJobFromString(tempString);
+    c->creatureJob = CreatureDefinition::creatureJobFromString(tempString);
     is >> c->meshName;
     is >> c->bedMeshName >> c->bedDim1 >> c->bedDim2;
     is >> c->scale.x >> c->scale.y >> c->scale.z;
@@ -149,7 +149,7 @@ std::istream& operator>>(std::istream& is, CreatureClass *c)
 /** \brief Conform: AttackableObject - Returns the prefix used in the OGRE identifier for this object.
  *
  */
-std::string CreatureClass::getOgreNamePrefix()
+std::string CreatureDefinition::getOgreNamePrefix()
 {
     return "Creature_";
 }

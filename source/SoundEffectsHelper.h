@@ -9,7 +9,7 @@
 #include <OgreSharedPtr.h>
 
 //Forward declarations
-class CreatureClass;
+class CreatureDefinition;
 class CreatureSound;
 
 /*! \brief Helper class to manage sound effects.

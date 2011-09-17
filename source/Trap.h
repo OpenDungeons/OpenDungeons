@@ -12,13 +12,13 @@ class Seat;
 class GameMap;
 class Player;
 
-#include "AttackableObject.h"
-#include "ActiveObject.h"
+#include "ActiveEntity.h"
+#include "AttackableEntity.h"
 
 /** \brief Defines a trap
  *  
  */
-class Trap: public AttackableObject, public ActiveObject
+class Trap: public AttackableEntity, public ActiveEntity
 {
  /* NOTE: Trap and room share a lot of things, so we might want to make a shared
  *  base-class, like "buildable" or something.
@@ -60,8 +60,8 @@ class Trap: public AttackableObject, public ActiveObject
         virtual bool doUpkeep();
         virtual bool doUpkeep(Trap *t);
         
-        virtual std::vector<AttackableObject*> aimEnemy();
-        virtual void damage(std::vector<AttackableObject*>);
+        virtual std::vector<AttackableEntity*> aimEnemy();
+        virtual void damage(std::vector<AttackableEntity*>);
 
         virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
         virtual void removeCoveredTile(Tile* t);
@@ -82,7 +82,7 @@ class Trap: public AttackableObject, public ActiveObject
         bool isMobile() const;
         int getLevel() const;
         int getColor() const;
-        AttackableObject::AttackableObjectType getAttackableObjectType() const;
+        AttackableEntity::AttackableObjectType getAttackableObjectType() const;
 
     protected:
         bool meshExists;

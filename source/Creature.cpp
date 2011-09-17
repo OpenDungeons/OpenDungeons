@@ -142,7 +142,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->weaponR->setHandString("R");
 
     // Copy the class based items
-    CreatureClass *creatureClass = c->gameMap->getClassDescription(c->className);
+    CreatureDefinition *creatureClass = c->gameMap->getClassDescription(c->className);
     if (creatureClass != NULL)
     {
         *c = *creatureClass;
@@ -157,7 +157,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     return is;
 }
 
-Creature& Creature::operator=(CreatureClass c2)
+Creature& Creature::operator=(CreatureDefinition c2)
 {
     creatureJob = c2.creatureJob;
     className = c2.className;
@@ -400,7 +400,7 @@ void Creature::doTurn()
     visibleEnemyObjects         = getVisibleEnemyObjects();
     reachableEnemyObjects       = getReachableAttackableObjects(visibleEnemyObjects, 0, 0);
     enemyObjectsInRange         = getEnemyObjectsInRange(visibleEnemyObjects);
-    livingEnemyObjectsInRange   = AttackableObject::removeDeadObjects(enemyObjectsInRange);
+    livingEnemyObjectsInRange   = AttackableEntity::removeDeadObjects(enemyObjectsInRange);
     visibleAlliedObjects        = getVisibleAlliedObjects();
     reachableAlliedObjects      = getReachableAttackableObjects(visibleAlliedObjects, 0, 0);
 
@@ -492,7 +492,7 @@ void Creature::doTurn()
     unsigned int    loops           = 0;
     double          tempDouble      = 0.0;
 
-    AttackableObject* tempAttackableObject;
+    AttackableEntity* tempAttackableObject;
 
     std::list<Tile*>    tempPath;
     std::list<Tile*>    tempPath2;
@@ -595,7 +595,7 @@ void Creature::doTurn()
                                 {
                                     // Check to see if we found a worker.
                                     if (reachableAlliedObjects[i]->getAttackableObjectType()
-                                            == AttackableObject::creature
+                                            == AttackableEntity::creature
                                             && ((Creature*) reachableAlliedObjects[i])->isWorker())
                                     {
                                         // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
@@ -1815,7 +1815,7 @@ void Creature::updateVisibleTiles()
 /*! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
  *
  */
-std::vector<AttackableObject*> Creature::getVisibleEnemyObjects()
+std::vector<AttackableEntity*> Creature::getVisibleEnemyObjects()
 {
     return getVisibleForce(color, true);
 }
@@ -1823,11 +1823,11 @@ std::vector<AttackableObject*> Creature::getVisibleEnemyObjects()
 /*! \brief Loops over objectsToCheck and returns a vector containing all the ones which can be reached via a valid path.
  *
  */
-std::vector<AttackableObject*> Creature::getReachableAttackableObjects(
-        const std::vector<AttackableObject*> &objectsToCheck,
-        unsigned int *minRange, AttackableObject **nearestObject)
+std::vector<AttackableEntity*> Creature::getReachableAttackableObjects(
+        const std::vector<AttackableEntity*> &objectsToCheck,
+        unsigned int *minRange, AttackableEntity **nearestObject)
 {
-    std::vector<AttackableObject*> tempVector;
+    std::vector<AttackableEntity*> tempVector;
     Tile *myTile = positionTile(), *objectTile;
     std::list<Tile*> tempPath;
     bool minRangeSet = false;
@@ -1876,10 +1876,10 @@ std::vector<AttackableObject*> Creature::getReachableAttackableObjects(
 /*! \brief Loops over the enemyObjectsToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
  *
  */
-std::vector<AttackableObject*> Creature::getEnemyObjectsInRange(
-        const std::vector<AttackableObject*> &enemyObjectsToCheck)
+std::vector<AttackableEntity*> Creature::getEnemyObjectsInRange(
+        const std::vector<AttackableEntity*> &enemyObjectsToCheck)
 {
-    std::vector<AttackableObject*> tempVector;
+    std::vector<AttackableEntity*> tempVector;
 
     // If there are no enemies to check we are done.
     if (enemyObjectsToCheck.empty())
@@ -1911,7 +1911,7 @@ std::vector<AttackableObject*> Creature::getEnemyObjectsInRange(
 /*! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
  *
  */
-std::vector<AttackableObject*> Creature::getVisibleAlliedObjects()
+std::vector<AttackableEntity*> Creature::getVisibleAlliedObjects()
 {
     return getVisibleForce(color, false);
 }
@@ -1939,7 +1939,7 @@ std::vector<Tile*> Creature::getVisibleMarkedTiles()
 /*! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
  *
  */
-std::vector<AttackableObject*> Creature::getVisibleForce(int color, bool invert)
+std::vector<AttackableEntity*> Creature::getVisibleForce(int color, bool invert)
 {
     return gameMap->getVisibleForce(visibleTiles, color, invert);
 }
@@ -2163,9 +2163,9 @@ void Creature::setColor(int nColor)
 /** \brief Conform: AttackableObject - Returns the type of AttackableObject that this is (Creature, Room, etc).
  *
  */
-AttackableObject::AttackableObjectType Creature::getAttackableObjectType() const
+AttackableEntity::AttackableObjectType Creature::getAttackableObjectType() const
 {
-    return AttackableObject::creature;
+    return AttackableEntity::creature;
 }
 
 /** \brief Conform: AttackableObject - Returns the name of this creature.
@@ -2279,7 +2279,7 @@ void Creature::computeBattlefield()
 {
     Tile *tempTile;
     int xDist, yDist;
-    AttackableObject* tempObject;
+    AttackableEntity* tempObject;
 
     // Loop over the tiles in this creature's battleField and compute their value.
     // The creature will then walk towards the tile with the minimum value to
@@ -2296,9 +2296,9 @@ void Creature::computeBattlefield()
             // Skip over objects which will not attack us (they either do not attack at all, or they are dead).
             tempObject = reachableEnemyObjects[j];
             if (!(tempObject->getAttackableObjectType()
-                    == AttackableObject::creature
+                    == AttackableEntity::creature
                     || tempObject->getAttackableObjectType()
-                            == AttackableObject::trap) || tempObject->getHP(
+                            == AttackableEntity::trap) || tempObject->getHP(
                     NULL) <= 0.0)
             {
                 continue;

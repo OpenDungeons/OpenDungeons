@@ -5,7 +5,7 @@
 #include <string>
 #include <Ogre.h>
 
-#include "ActiveObject.h"
+#include "ActiveEntity.h"
 
 class MapLight
 {
@@ -72,7 +72,7 @@ class MapLight
         int factorZ;
 };
 
-class TemporaryMapLight: public MapLight, public ActiveObject
+class TemporaryMapLight: public MapLight, public ActiveEntity
 {
     public:
         TemporaryMapLight(const Ogre::Vector3& nPosition, Ogre::Real red,

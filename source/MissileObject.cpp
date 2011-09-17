@@ -54,7 +54,7 @@ bool MissileObject::doUpkeep()
  */
 void MissileObject::stopWalking()
 {
-	AnimatedObject::stopWalking();
+	MovableEntity::stopWalking();
 	gameMap.removeMissileObject(this);
 	deleteYourself();
 }

@@ -21,7 +21,7 @@ class Goal;
 class MapLight;
 template<typename T> class ProtectedObject;
 class MissileObject;
-class AnimatedObject;
+class MovableEntity;
 
 #include "AIManager.h"
 #include "Room.h"
@@ -73,23 +73,23 @@ class GameMap
         std::vector<Creature*> getCreaturesByColor(int color);
 
         void clearAnimatedObjects();
-        void addAnimatedObject(AnimatedObject *a);
-        void removeAnimatedObject(AnimatedObject *a);
-        AnimatedObject* getAnimatedObject(int index);
-        AnimatedObject* getAnimatedObject(std::string name);
+        void addAnimatedObject(MovableEntity *a);
+        void removeAnimatedObject(MovableEntity *a);
+        MovableEntity* getAnimatedObject(int index);
+        MovableEntity* getAnimatedObject(std::string name);
         unsigned int numAnimatedObjects();
 
         //void clearActiveObjects();
-        void addActiveObject(ActiveObject *a);
-        void removeActiveObject(ActiveObject *a);
+        void addActiveObject(ActiveEntity *a);
+        void removeActiveObject(ActiveEntity *a);
         //ActiveObject* getActiveObject(int index);
         //unsigned int numActiveObjects();
 
         void clearClasses();
-        void addClassDescription(CreatureClass c);
-        void addClassDescription(CreatureClass *c);
-        CreatureClass* getClassDescription(int index);
-        CreatureClass* getClassDescription(std::string query);
+        void addClassDescription(CreatureDefinition c);
+        void addClassDescription(CreatureDefinition *c);
+        CreatureDefinition* getClassDescription(int index);
+        CreatureDefinition* getClassDescription(std::string query);
         unsigned int numClassDescriptions();
 
         void clearPlayers();
@@ -187,7 +187,7 @@ class GameMap
         std::vector<Tile*> neighborTiles(Tile *t);
         std::list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
         std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
-        std::vector<AttackableObject*> getVisibleForce(
+        std::vector<AttackableEntity*> getVisibleForce(
                 std::vector<Tile*> visibleTiles, int color, bool invert);
         bool
         pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);
@@ -254,11 +254,11 @@ class GameMap
         std::string levelFileName;
         std::map<std::pair<int, int> , Tile*> tiles;
         mutable sem_t tilesLockSemaphore;
-        std::vector<CreatureClass*> classDescriptions;
+        std::vector<CreatureDefinition*> classDescriptions;
         std::vector<Creature*> creatures;
         //Mutable to allow locking in const functions.
         mutable sem_t creaturesLockSemaphore; //TODO: Most of these other vectors should also probably have semaphore locks on them.
-        std::vector<AnimatedObject*> animatedObjects;
+        std::vector<MovableEntity*> animatedObjects;
         sem_t animatedObjectsLockSemaphore;
         sem_t activeObjectsLockSemaphore;
         sem_t newActiveObjectsLockSemaphore;
@@ -273,8 +273,8 @@ class GameMap
         std::vector<MissileObject*> missileObjects;
         int nextUniqueFloodFillColor;
         bool floodFillEnabled;
-        std::vector<ActiveObject*> activeObjects;
-        std::queue<ActiveObject*> newActiveObjects; // active objects that are created by other active object, i.e. : cannon balls
+        std::vector<ActiveEntity*> activeObjects;
+        std::queue<ActiveEntity*> newActiveObjects; // active objects that are created by other active object, i.e. : cannon balls
 
         std::map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
         std::map<long int, std::vector<Creature*> > creaturesToDelete;

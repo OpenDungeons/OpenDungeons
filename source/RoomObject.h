@@ -1,16 +1,17 @@
 #ifndef ROOMOBJECT_H
 #define ROOMOBJECT_H
 
-#include "ActiveObject.h"
-#include "AnimatedObject.h"
 #include <string>
 #include <istream>
 #include <ostream>
 
+#include "ActiveEntity.h"
+#include "MovableEntity.h"
+
 class Room;
 class GameMap;
 
-class RoomObject: public ActiveObject, public AnimatedObject
+class RoomObject: public ActiveEntity, public MovableEntity
 {
     public:
         RoomObject(Room* nParentRoom, const std::string& nMeshName);

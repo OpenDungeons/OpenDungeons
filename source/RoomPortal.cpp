@@ -90,7 +90,7 @@ bool RoomPortal::doUpkeep(Room *r)
 void RoomPortal::spawnCreature()
 {
     std::cout << "\n\n\n\n\nPortal: " << getName() << "  spawn creature...\n";
-    CreatureClass *classToSpawn = NULL;
+    CreatureDefinition *classToSpawn = NULL;
 
     if (portalObject != NULL)
         portalObject->setAnimationState("Spawn", false);
@@ -187,7 +187,7 @@ void RoomPortal::recomputeClassProbabilities()
     classProbabilities.clear();
     for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
     {
-        CreatureClass *tempClass = gameMap->getClassDescription(i);
+        CreatureDefinition *tempClass = gameMap->getClassDescription(i);
 
         // Compute the probability that a creature of the current class will be chosen.
         //TODO:  Actually implement this probability calculation.
@@ -212,7 +212,7 @@ void RoomPortal::recomputeClassProbabilities()
                 * tempClass->coefficientPeace;
 
         // Store the computed probability and compute the sum of the probabilities to be used for renormalization.
-        classProbabilities.push_back(std::pair<CreatureClass*, double> (tempClass,
+        classProbabilities.push_back(std::pair<CreatureDefinition*, double> (tempClass,
                 probability));
         totalProbability += probability;
     }

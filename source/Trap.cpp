@@ -229,7 +229,7 @@ bool Trap::doUpkeep()
         return true;
     }
     
-    std::vector<AttackableObject*> enemyAttacked = aimEnemy();
+    std::vector<AttackableEntity*> enemyAttacked = aimEnemy();
     
     damage(enemyAttacked);
     
@@ -253,7 +253,7 @@ bool Trap::doUpkeep(Trap* t)
     return t->doUpkeep();
 }
 
-void Trap::damage(std::vector<AttackableObject*> enemyAttacked) 
+void Trap::damage(std::vector<AttackableEntity*> enemyAttacked) 
 {
     for(unsigned i=0;i<enemyAttacked.size();++i) 
     {
@@ -261,9 +261,9 @@ void Trap::damage(std::vector<AttackableObject*> enemyAttacked)
     }
 }
 
-std::vector<AttackableObject*> Trap::aimEnemy()
+std::vector<AttackableEntity*> Trap::aimEnemy()
 {
-    return std::vector<AttackableObject*>();
+    return std::vector<AttackableEntity*>();
 }
 
 void Trap::addCoveredTile(Tile* t, double nHP)
@@ -369,7 +369,7 @@ int Trap::getColor() const
     return (controllingSeat != 0) ? controllingSeat->color : 0;
 }
 
-AttackableObject::AttackableObjectType Trap::getAttackableObjectType() const
+AttackableEntity::AttackableObjectType Trap::getAttackableObjectType() const
 {
     return trap;
 }

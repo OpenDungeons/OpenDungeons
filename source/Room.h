@@ -6,15 +6,15 @@
 #include <deque>
 #include <iostream>
 
-#include "ActiveObject.h"
+#include "ActiveEntity.h"
+#include "AttackableEntity.h"
 #include "Tile.h"
-#include "AttackableObject.h"
 
 class Player;
 class RoomObject;
 class GameMap;
 
-class Room: public AttackableObject, public ActiveObject
+class Room: public AttackableEntity, public ActiveEntity
 {
     public:
         // When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
@@ -95,7 +95,7 @@ class Room: public AttackableObject, public ActiveObject
         bool isMobile() const;
         int getLevel() const;
         int getColor() const;
-        AttackableObject::AttackableObjectType getAttackableObjectType() const;
+        AttackableEntity::AttackableObjectType getAttackableObjectType() const;
 
         GameMap* getGameMap(){return gameMap;}
         

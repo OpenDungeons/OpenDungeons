@@ -625,8 +625,8 @@ int Room::getColor() const
     return color;
 }
 
-AttackableObject::AttackableObjectType Room::getAttackableObjectType() const
+AttackableEntity::AttackableObjectType Room::getAttackableObjectType() const
 {
-    return AttackableObject::room;
+    return AttackableEntity::room;
 }
 

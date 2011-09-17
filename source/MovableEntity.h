@@ -1,5 +1,5 @@
-#ifndef ANIMATEDOBJECT_H
-#define ANIMATEDOBJECT_H
+#ifndef MOVABLEENTITY_H
+#define MOVABLEENTITY_H
 
 #include <deque>
 #include <list>
@@ -13,11 +13,11 @@
 //Forward declaration
 class Tile;
 
-class AnimatedObject
+class MovableEntity
 {
     public:
-        AnimatedObject();
-        virtual ~AnimatedObject() {};
+        MovableEntity();
+        virtual ~MovableEntity() {};
 
         virtual void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
         virtual void setPosition(const Ogre::Vector3& v);

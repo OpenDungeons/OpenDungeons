@@ -81,22 +81,21 @@ set(OD_SOURCEFILES
     ${TINYGETTEXT_DIR}/tinygettext.cpp
      
     #OpenDungeons sources
-    ${SRC}/ActiveObject.cpp
-    ${SRC}/AttackableObject.cpp
-    ${SRC}/AnimatedObject.cpp
+    ${SRC}/ActiveEntity.cpp
     ${SRC}/AIFactory.cpp
     ${SRC}/AIManager.cpp
     ${SRC}/AIWrapper.cpp
     ${SRC}/ASWrapper.cpp
+    ${SRC}/AttackableEntity.cpp
     ${SRC}/BaseAI.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
     ${SRC}/Client.cpp
     ${SRC}/ClientNotification.cpp
     ${SRC}/Console.cpp
-    ${SRC}/CreatureAction.cpp
-    ${SRC}/CreatureClass.cpp
     ${SRC}/Creature.cpp
+    ${SRC}/CreatureAction.cpp
+    ${SRC}/CreatureDefinition.cpp
     ${SRC}/CreatureSound.cpp
     ${SRC}/DirectionalTrap.cpp
     ${SRC}/Field.cpp
@@ -117,6 +116,7 @@ set(OD_SOURCEFILES
     ${SRC}/MapLoader.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
+    ${SRC}/MovableEntity.cpp
     ${SRC}/MusicPlayer.cpp
     ${SRC}/NullAI.cpp
     ${SRC}/ODApplication.cpp

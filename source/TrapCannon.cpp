@@ -15,22 +15,22 @@ TrapCannon::TrapCannon() :
     maxDamage = 120;
 }
 
-std::vector<AttackableObject*> TrapCannon::aimEnemy() 
+std::vector<AttackableEntity*> TrapCannon::aimEnemy() 
 {
     std::vector<Tile*> visibleTiles = gameMap->visibleTiles(coveredTiles[0], range);
-    std::vector<AttackableObject*> enemyObjects = gameMap->getVisibleForce(visibleTiles, getColor(), true);
+    std::vector<AttackableEntity*> enemyObjects = gameMap->getVisibleForce(visibleTiles, getColor(), true);
     if(enemyObjects.size() <= 0) {
-        return std::vector<AttackableObject*>();
+        return std::vector<AttackableEntity*>();
     }
     // Select an enemy to shoot at.
-    AttackableObject* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
+    AttackableEntity* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
     
-    std::vector<AttackableObject*> enemies = std::vector<AttackableObject*>();
+    std::vector<AttackableEntity*> enemies = std::vector<AttackableEntity*>();
     enemies.push_back(targetEnemy);
     return enemies;
 }
 
-void TrapCannon::damage(std::vector<AttackableObject*> enemyAttacked) 
+void TrapCannon::damage(std::vector<AttackableEntity*> enemyAttacked) 
 {
 	ProximityTrap::damage(enemyAttacked);
 	

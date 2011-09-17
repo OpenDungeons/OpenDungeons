@@ -5,9 +5,9 @@
 #include "RenderRequest.h"
 #include "RenderManager.h"
 
-#include "AnimatedObject.h"
+#include "MovableEntity.h"
 
-AnimatedObject::AnimatedObject() :
+MovableEntity::MovableEntity() :
         walkQueueFirstEntryAdded(false),
         animationState(NULL),
         destinationAnimationState("Idle"),
@@ -26,12 +26,12 @@ AnimatedObject::AnimatedObject() :
     setAnimationSpeedFactor(1.0);
 }
 
-void AnimatedObject::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
+void MovableEntity::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     setPosition(Ogre::Vector3(x, y, z));
 }
 
-void AnimatedObject::setPosition(const Ogre::Vector3& v)
+void MovableEntity::setPosition(const Ogre::Vector3& v)
 {
     sem_wait(&positionLockSemaphore);
     position = v;
@@ -41,7 +41,7 @@ void AnimatedObject::setPosition(const Ogre::Vector3& v)
 /*! \brief A simple accessor function to get the object's current position in 3d space.
  *
  */
-Ogre::Vector3 AnimatedObject::getPosition()
+Ogre::Vector3 MovableEntity::getPosition()
 {
     sem_wait(&positionLockSemaphore);
     Ogre::Vector3 tempVector(position);
@@ -55,7 +55,7 @@ Ogre::Vector3 AnimatedObject::getPosition()
  * This function also places a message in the serverNotificationQueue so that
  * relevant clients are informed about the change.
  */
-void AnimatedObject::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
+void MovableEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     //cout << "w(" << x << ", " << y << ") ";
     Ogre::Vector3 destination(x, y, z);
@@ -94,7 +94,7 @@ void AnimatedObject::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
  * This replacement is done if, and only if, the new path is at least minDestinations
  * long; if addFirstStop is false the new path will start with the second entry in path.
  */
-bool AnimatedObject::setWalkPath(std::list<Tile*> path,
+bool MovableEntity::setWalkPath(std::list<Tile*> path,
         unsigned int minDestinations, bool addFirstStop)
 {
     // Remove any existing stops from the walk queue.
@@ -126,7 +126,7 @@ bool AnimatedObject::setWalkPath(std::list<Tile*> path,
 /*! \brief Clears all future destinations from the walk queue, stops the object where it is, and sets its animation state.
  *
  */
-void AnimatedObject::clearDestinations()
+void MovableEntity::clearDestinations()
 {
     sem_wait(&walkQueueLockSemaphore);
     walkQueue.clear();
@@ -148,7 +148,7 @@ void AnimatedObject::clearDestinations()
 /*! \brief Stops the object where it is, and sets its animation state.
  *
  */
-void AnimatedObject::stopWalking()
+void MovableEntity::stopWalking()
 {
     walkDirection = Ogre::Vector3::ZERO;
 
@@ -159,7 +159,7 @@ void AnimatedObject::stopWalking()
 /** Rotates the object so that it is facing toward the given x-y location.
  *
  */
-void AnimatedObject::faceToward(int x, int y)
+void MovableEntity::faceToward(int x, int y)
 {
     // Rotate the object to face the direction of the destination
     Ogre::Vector3 tempPosition = position;
@@ -178,17 +178,17 @@ void AnimatedObject::faceToward(int x, int y)
     RenderManager::queueRenderRequest(request);
 }
 
-double AnimatedObject::getMoveSpeed()
+double MovableEntity::getMoveSpeed()
 {
     return moveSpeed;
 }
 
-void AnimatedObject::setMoveSpeed(double s)
+void MovableEntity::setMoveSpeed(double s)
 {
     moveSpeed = s;
 }
 
-void AnimatedObject::setAnimationState(const std::string& s, bool loop)
+void MovableEntity::setAnimationState(const std::string& s, bool loop)
 {
     // Ignore the command if the command is exactly the same as what we did last time, this is not only faster it prevents non-looped actions like die from being inadvertantly repeated.
     if (s.compare(prevAnimationState) == 0 && loop == prevAnimationStateLoop)
@@ -232,7 +232,7 @@ void AnimatedObject::setAnimationState(const std::string& s, bool loop)
     RenderManager::queueRenderRequest(request);
 }
 
-double AnimatedObject::getAnimationSpeedFactor()
+double MovableEntity::getAnimationSpeedFactor()
 {
     sem_wait(&animationSpeedFactorLockSemaphore);
     double tempDouble = animationSpeedFactor;
@@ -241,7 +241,7 @@ double AnimatedObject::getAnimationSpeedFactor()
     return tempDouble;
 }
 
-void AnimatedObject::setAnimationSpeedFactor(double f)
+void MovableEntity::setAnimationSpeedFactor(double f)
 {
     sem_wait(&animationSpeedFactorLockSemaphore);
     animationSpeedFactor = f;

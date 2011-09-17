@@ -20,8 +20,8 @@ class Window;
 
 #include "CreatureSound.h"
 #include "Tile.h"
-#include "CreatureClass.h"
-#include "AttackableObject.h"
+#include "CreatureDefinition.h"
+#include "AttackableEntity.h"
 #include "CreatureAction.h"
 
 
@@ -34,7 +34,7 @@ class Window;
  *  will probably be refined later but it works fine for now and the code
  *  affected by this change is relatively limited.
  */
-class Creature: public CreatureClass, public AttackableObject
+class Creature: public CreatureDefinition, public AttackableEntity
 {
     public:
         Creature(GameMap* gameMap);
@@ -81,15 +81,15 @@ class Creature: public CreatureClass, public AttackableObject
         double getDefense() const;
         void doLevelUp();
         void updateVisibleTiles();
-        std::vector<AttackableObject*> getVisibleEnemyObjects();
-        std::vector<AttackableObject*> getReachableAttackableObjects(
-                const std::vector<AttackableObject*> &objectsToCheck,
-                unsigned int *minRange, AttackableObject **nearestObject);
-        std::vector<AttackableObject*> getEnemyObjectsInRange(
-                const std::vector<AttackableObject*> &enemyObjectsToCheck);
-        std::vector<AttackableObject*> getVisibleAlliedObjects();
+        std::vector<AttackableEntity*> getVisibleEnemyObjects();
+        std::vector<AttackableEntity*> getReachableAttackableObjects(
+                const std::vector<AttackableEntity*> &objectsToCheck,
+                unsigned int *minRange, AttackableEntity **nearestObject);
+        std::vector<AttackableEntity*> getEnemyObjectsInRange(
+                const std::vector<AttackableEntity*> &enemyObjectsToCheck);
+        std::vector<AttackableEntity*> getVisibleAlliedObjects();
         std::vector<Tile*> getVisibleMarkedTiles();
-        std::vector<AttackableObject*> getVisibleForce(int color, bool invert);
+        std::vector<AttackableEntity*> getVisibleForce(int color, bool invert);
         Tile* positionTile();
         std::vector<Tile*> getCoveredTiles();
         bool isMobile() const;
@@ -98,7 +98,7 @@ class Creature: public CreatureClass, public AttackableObject
         void setColor(int nColor);
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
-        AttackableObject::AttackableObjectType getAttackableObjectType() const;
+        AttackableEntity::AttackableObjectType getAttackableObjectType() const;
         const std::string& getName() const;
         void clearActionQueue();
 
@@ -113,7 +113,7 @@ class Creature: public CreatureClass, public AttackableObject
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Creature *c);
         friend std::istream& operator>>(std::istream& is, Creature *c);
-        Creature& operator=(CreatureClass c2);
+        Creature& operator=(CreatureDefinition c2);
 
         static const int maxGoldCarriedByWorkers = 1500;
 
@@ -149,12 +149,12 @@ class Creature: public CreatureClass, public AttackableObject
         CEGUI::Window*  statsWindow;
 
         std::vector<Tile*>              visibleTiles;
-        std::vector<AttackableObject*>  visibleEnemyObjects;
-        std::vector<AttackableObject*>  reachableEnemyObjects;
-        std::vector<AttackableObject*>  enemyObjectsInRange;
-        std::vector<AttackableObject*>  livingEnemyObjectsInRange;
-        std::vector<AttackableObject*>  visibleAlliedObjects;
-        std::vector<AttackableObject*>  reachableAlliedObjects;
+        std::vector<AttackableEntity*>  visibleEnemyObjects;
+        std::vector<AttackableEntity*>  reachableEnemyObjects;
+        std::vector<AttackableEntity*>  enemyObjectsInRange;
+        std::vector<AttackableEntity*>  livingEnemyObjectsInRange;
+        std::vector<AttackableEntity*>  visibleAlliedObjects;
+        std::vector<AttackableEntity*>  reachableAlliedObjects;
         std::deque<CreatureAction>      actionQueue;
         std::list<Tile*>                visualDebugEntityTiles;
         Ogre::SharedPtr<CreatureSound>  sound;

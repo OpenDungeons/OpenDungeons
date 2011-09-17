@@ -7,12 +7,12 @@
 #include <Ogre.h>
 #include <semaphore.h>
 
-#include "ActiveObject.h"
-#include "AnimatedObject.h"
+#include "ActiveEntity.h"
+#include "MovableEntity.h"
 
 class GameMap;
 
-class MissileObject: public ActiveObject, public AnimatedObject
+class MissileObject: public ActiveEntity, public MovableEntity
 {
     public:
         MissileObject(GameMap& gameMap);

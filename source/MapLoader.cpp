@@ -23,7 +23,7 @@
 #include "ODApplication.h"
 #include "Goal.h"
 #include "Creature.h"
-#include "CreatureClass.h"
+#include "CreatureDefinition.h"
 #include "Trap.h"
 #include "Seat.h"
 #include "MapLight.h"
@@ -157,11 +157,11 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
     }
 
     // Read in the creature class descriptions
-    CreatureClass* tempClass;
+    CreatureDefinition* tempClass;
     levelFile >> objectsToLoad;
     for (int i = 0; i < objectsToLoad; ++i)
     {
-        tempClass = new CreatureClass;
+        tempClass = new CreatureDefinition;
         levelFile >> tempClass;
 
         gameMap_b.addClassDescription(tempClass);
@@ -270,7 +270,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap_b)
     // Write out the creature descriptions to the file
     levelFile << "\n# Creature classes\n" << gameMap_b.numClassDescriptions()
             << "  # The number of creature classes to load.\n";
-    levelFile << CreatureClass::getFormat() << "\n";
+    levelFile << CreatureDefinition::getFormat() << "\n";
     for (unsigned int i = 0; i < gameMap_b.numClassDescriptions(); ++i)
     {
         levelFile << gameMap_b.getClassDescription(i) << "\n";
@@ -293,10 +293,10 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap_b)
     levelFile.close();
 }
 
-Ogre::SharedPtr<CreatureClass> loadCreatureDefinition(const std::string& fileName)
+Ogre::SharedPtr<CreatureDefinition> loadCreatureDefinition(const std::string& fileName)
 {
     //STUB
-    Ogre::SharedPtr<CreatureClass> p;
+    Ogre::SharedPtr<CreatureDefinition> p;
     return p;
 }
 

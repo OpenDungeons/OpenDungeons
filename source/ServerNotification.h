@@ -14,7 +14,7 @@
 
 class Tile;
 class Creature;
-class AnimatedObject;
+class MovableEntity;
 class Player;
 
 /*! \brief A data structure used to pass messages to the serverNotificationProcessor thread.
@@ -52,7 +52,7 @@ class ServerNotification
         double doub;
         Tile *tile;
         Creature *cre;
-        AnimatedObject *ani;
+        MovableEntity *ani;
         Player *player;
         long int turnNumber;
 

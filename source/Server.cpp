@@ -254,7 +254,7 @@ void *serverNotificationProcessor(void *p)
     Tile *tempTile;
     Player *tempPlayer;
     MapLight *tempMapLight;
-    AnimatedObject *tempAnimatedObject;
+    MovableEntity *tempAnimatedObject;
     bool running = true;
 
     while (running)
@@ -324,7 +324,7 @@ void *serverNotificationProcessor(void *p)
 
             case ServerNotification::setObjectAnimationState:
                 tempSS.str("");
-                tempAnimatedObject = (AnimatedObject*) event->p;
+                tempAnimatedObject = (MovableEntity*) event->p;
                 tempSS << tempAnimatedObject->getName() << ":" << event->str
                         << ":" << (event->b ? "true" : "false");
                 sendToAllClients(frameListener, formatCommand(
@@ -545,7 +545,7 @@ void *clientHandlerThread(void *p)
             {
                 //NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
                 // Changes to this code should be reflected in that code as well
-                CreatureClass *tempClass = gameMap->getClassDescription(i);
+                CreatureDefinition *tempClass = gameMap->getClassDescription(i);
 
                 tempSS.str("");
 

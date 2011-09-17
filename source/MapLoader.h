@@ -24,9 +24,9 @@
 #include <OgreSharedPtr.h>
 #include <string>
 
-#include "CreatureClass.h"
-class GameMap;
+#include "CreatureDefinition.h"
 
+class GameMap;
 
 namespace MapLoader
 {
@@ -34,7 +34,7 @@ namespace MapLoader
     bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b);
     //TODO: make gameMap_b const
     void writeGameMapToFile(const std::string& fileName, GameMap& gameMap_b);
-    Ogre::SharedPtr<CreatureClass> loadCreatureDefinition(std::string& filename);
+    Ogre::SharedPtr<CreatureDefinition> loadCreatureDefinition(std::string& filename);
 };
 
 #endif // MAPLOADER_H

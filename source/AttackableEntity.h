@@ -1,5 +1,5 @@
-#ifndef ATTACKABLEOBJECT_H
-#define ATTACKABLEOBJECT_H
+#ifndef ATTACKABLEENTITY_H
+#define ATTACKABLEENTITY_H
 
 #include <vector>
 #include <string>
@@ -18,7 +18,7 @@ class Tile;
  * handle multiple types of objects in combat (i.e. creatures attacking rooms
  * and traps attacking creatures).
  */
-class AttackableObject
+class AttackableEntity
 {
     public:
         enum AttackableObjectType
@@ -26,7 +26,7 @@ class AttackableObject
             creature, room, trap, door
         };
 
-        AttackableObject();
+        AttackableEntity();
 
         inline virtual void setGameMap(GameMap* gameMap)
         {
@@ -66,8 +66,8 @@ class AttackableObject
         //! \brief Returns the type of the object, i.e. creature, room, trap, etc, for AI calculations to use in threat assessments.
         virtual AttackableObjectType getAttackableObjectType() const = 0;
 
-        static std::vector<AttackableObject*> removeDeadObjects(
-                const std::vector<AttackableObject*> &objects);
+        static std::vector<AttackableEntity*> removeDeadObjects(
+                const std::vector<AttackableEntity*> &objects);
     protected:
         //TODO: We should change this to be set by the constructor.
         GameMap* gameMap;

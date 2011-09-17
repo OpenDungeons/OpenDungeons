@@ -44,7 +44,7 @@ void RoomDungeonTemple::produceKobold()
             return;
 
         // Create a new creature and copy over the class-based creature parameters.
-        CreatureClass *classToSpawn = gameMap->getClassDescription("Kobold");
+        CreatureDefinition *classToSpawn = gameMap->getClassDescription("Kobold");
         if (classToSpawn != NULL)
         {
             Creature *newCreature = new Creature(gameMap);

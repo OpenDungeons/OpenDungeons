@@ -5,11 +5,9 @@
 #include <iostream>
 #include <Ogre.h>
 
-class CreatureClass;
+#include "MovableEntity.h"
 
-#include "AnimatedObject.h"
-
-class CreatureClass: public AnimatedObject
+class CreatureDefinition: public MovableEntity
 {
     public:
         enum CreatureJob
@@ -31,7 +29,7 @@ class CreatureClass: public AnimatedObject
         };
 
         // Constructors and operators
-        CreatureClass();
+        CreatureDefinition();
 
         static CreatureJob creatureJobFromString(std::string s);
         static std::string creatureJobToString(CreatureJob c);
@@ -73,9 +71,9 @@ class CreatureClass: public AnimatedObject
         }
         std::string name;
 
-        friend std::ostream& operator<<(std::ostream& os, CreatureClass *c);
+        friend std::ostream& operator<<(std::ostream& os, CreatureDefinition *c);
 
-        friend std::istream& operator>>(std::istream& is, CreatureClass *c);
+        friend std::istream& operator>>(std::istream& is, CreatureDefinition *c);
 };
 
 #endif

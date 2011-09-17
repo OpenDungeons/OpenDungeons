@@ -338,7 +338,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // Update the animations on any AnimatedObjects which have them
     for (unsigned int i = 0; i < gameMap->numAnimatedObjects(); ++i)
     {
-        AnimatedObject *currentAnimatedObject = gameMap->getAnimatedObject(i);
+        MovableEntity *currentAnimatedObject = gameMap->getAnimatedObject(i);
 
         // Advance the animation
         if (currentAnimatedObject->animationState != NULL)
@@ -1035,7 +1035,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
             // Creature the creature and add it to the gameMap
             Creature *tempCreature = new Creature(gameMap);
             std::stringstream tempSS(arguments);
-            CreatureClass *tempClass = gameMap->getClassDescription(
+            CreatureDefinition *tempClass = gameMap->getClassDescription(
                     tempCreature->className);
             if (tempClass != NULL)
             {
@@ -1068,7 +1068,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
     {
         if (!arguments.empty())
         {
-            CreatureClass *tempClass = new CreatureClass;
+            CreatureDefinition *tempClass = new CreatureDefinition;
             tempSS.str(arguments);
             tempSS >> tempClass;
 
@@ -1099,7 +1099,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
                 tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
                 for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
                 {
-                    CreatureClass *currentClassDesc =
+                    CreatureDefinition *currentClassDesc =
                             gameMap->getClassDescription(i);
                     tempSS << currentClassDesc << "\n";
                 }

@@ -12,7 +12,7 @@ TrapBoulder::TrapBoulder(int x, int y) :
     maxDamage = 40;
 }
 
-std::vector<AttackableObject*> TrapBoulder::aimEnemy() 
+std::vector<AttackableEntity*> TrapBoulder::aimEnemy() 
 {
     std::list<Tile*> tmp = gameMap->lineOfSight(coveredTiles[0]->x,
             coveredTiles[0]->y, dir.first, dir.second);
@@ -26,11 +26,11 @@ std::vector<AttackableObject*> TrapBoulder::aimEnemy()
         visibleTiles.push_back(*it);
     }
     //By defaut, you damage every attackable object in the line.
-    std::vector<AttackableObject*> v1 = gameMap->getVisibleForce(visibleTiles,
+    std::vector<AttackableEntity*> v1 = gameMap->getVisibleForce(visibleTiles,
             getColor(), true);
-    std::vector<AttackableObject*> v2 = gameMap->getVisibleForce(visibleTiles,
+    std::vector<AttackableEntity*> v2 = gameMap->getVisibleForce(visibleTiles,
             getColor(), false); // we also attack our creatures
-    for(std::vector<AttackableObject*>::const_iterator it = v2.begin();
+    for(std::vector<AttackableEntity*>::const_iterator it = v2.begin();
             it != v2.end(); ++it)
     {
         v1.push_back(*it);
@@ -38,7 +38,7 @@ std::vector<AttackableObject*> TrapBoulder::aimEnemy()
     return v1;
 }
 
-void TrapBoulder::damage(std::vector<AttackableObject*> enemyAttacked) // we launch a boulder AND damage creatures, in the futur, the missileobject will be in charge of damaging
+void TrapBoulder::damage(std::vector<AttackableEntity*> enemyAttacked) // we launch a boulder AND damage creatures, in the futur, the missileobject will be in charge of damaging
 {
 	DirectionalTrap::damage(enemyAttacked);
 	
