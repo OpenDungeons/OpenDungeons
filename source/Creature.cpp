@@ -35,6 +35,7 @@ Creature::Creature( GameMap*            gameMap,
         weaponR                 (0),
         color                   (0),
         homeTile                (0),
+        definition              (0),
         tilePassability         (Tile::walkableTile),
         hasVisualDebuggingEntities  (false),
         meshesExist             (false),
@@ -199,6 +200,7 @@ void Creature::createMesh()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createCreature;
+    request->str = getDefinition()->getMeshName();
     request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.

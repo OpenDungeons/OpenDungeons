@@ -216,10 +216,10 @@ void GameMap::clearCreatures()
  */
 void GameMap::clearClasses()
 {
-    for (unsigned int i = 0; i < numClassDescriptions(); ++i)
+/*    for (unsigned int i = 0; i < numClassDescriptions(); ++i)
     {
         delete classDescriptions[i];
-    }
+    }*/
 
     classDescriptions.clear();
 }
@@ -416,7 +416,7 @@ std::vector<Tile*> GameMap::tilesBorderedByRegion(
  */
 void GameMap::addClassDescription(CreatureDefinition *c)
 {
-    classDescriptions.push_back(c);
+    classDescriptions.push_back(boost::shared_ptr<CreatureDefinition>(c));
 }
 
 /*! \brief Copies the creature class structure into a newly created structure and stores the address of the new structure in this GameMap.
@@ -424,7 +424,8 @@ void GameMap::addClassDescription(CreatureDefinition *c)
  */
 void GameMap::addClassDescription(CreatureDefinition c)
 {
-    classDescriptions.push_back(new CreatureDefinition(c));
+    classDescriptions.push_back(boost::shared_ptr<CreatureDefinition>(
+        new CreatureDefinition(c)));
 }
 
 /*! \brief Adds the address of a new creature to be stored in this GameMap.
@@ -492,7 +493,7 @@ CreatureDefinition* GameMap::getClassDescription(std::string query)
     for (unsigned int i = 0; i < classDescriptions.size(); ++i)
     {
         if (classDescriptions[i]->getClassName().compare(query) == 0)
-            return classDescriptions[i];
+            return classDescriptions[i].get();
     }
 
     return NULL;
@@ -665,7 +666,7 @@ const Creature* GameMap::getCreature(int index) const
  */
 CreatureDefinition* GameMap::getClassDescription(int index)
 {
-    return classDescriptions[index];
+    return classDescriptions[index].get();
 }
 
 /*! \brief Creates meshes for all the tiles and creatures stored in this GameMap.

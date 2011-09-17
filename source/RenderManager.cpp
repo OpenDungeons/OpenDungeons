@@ -686,10 +686,14 @@ void RenderManager::rrDestroyTreasuryIndicator ( const RenderRequest& renderRequ
 void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
 {
     Creature* curCreature = static_cast<Creature*>(renderRequest.p);
+    std::string meshName = renderRequest.str;
 
+    assert(curCreature != 0);
+    assert(curCreature->getDefinition() != 0);
+    
     // Load the mesh for the creature
     Ogre::Entity* ent = sceneManager->createEntity("Creature_" + curCreature->getName(),
-                        curCreature->getDefinition()->getMeshName());
+                        meshName);
     Ogre::MeshPtr meshPtr = ent->getMesh();
 
     unsigned short src, dest;

@@ -7,6 +7,8 @@
 #endif //mode_t
 #endif //mingw32
 
+#include <boost/shared_ptr.hpp>
+
 #include <semaphore.h>
 #include <map>
 #include <string>
@@ -254,7 +256,7 @@ class GameMap
         std::string levelFileName;
         std::map<std::pair<int, int> , Tile*> tiles;
         mutable sem_t tilesLockSemaphore;
-        std::vector<CreatureDefinition*> classDescriptions;
+        std::vector<boost::shared_ptr<CreatureDefinition> > classDescriptions;
         std::vector<Creature*> creatures;
         //Mutable to allow locking in const functions.
         mutable sem_t creaturesLockSemaphore; //TODO: Most of these other vectors should also probably have semaphore locks on them.

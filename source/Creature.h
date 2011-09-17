@@ -82,7 +82,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
 
         double  getDigRate() const          { return digRate; }
 
-        CreatureDefinition* getDefinition() { return definition; }
+        const CreatureDefinition* getDefinition() { return definition; }
 
         // AI stuff
         virtual void doTurn();
@@ -132,7 +132,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
         CreatureAction peekAction();
 
         //\ brief Pointer to the struct holding the general type of the creature with its values
-        CreatureDefinition* definition;
+        const CreatureDefinition* definition;
 
         mutable sem_t   hpLockSemaphore;
         mutable sem_t   manaLockSemaphore;
