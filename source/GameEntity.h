@@ -10,8 +10,12 @@
 
 #include <string>
 
-/*! \brief This class holds elements that are common to every object placed in the game
+/*! \class GameEntity GameEntity.h
+ *  \brief This class holds elements that are common to every object placed in the game
  *
+ * Functions and properties that are common to every object should be placed into this class
+ * and initialised with a good default value in the default constructor.
+ * Member variables are private and only accessed through getters and setters.
  */
 class GameEntity
 {
@@ -23,13 +27,15 @@ class GameEntity
                   ) :
             name        (nName),
             meshName    (nMeshName),
+            meshExists  (false),
             color       (nColor)
         {}
 
-        //! \brief  Get the name of the object
+        // ===== GETTERS =====
+        //! \brief Get the name of the object
         inline const std::string&   getName         () const    { return name; }
 
-        //! \brief  Get the mesh name of the object
+        //! \brief Get the mesh name of the object
         inline const std::string&   getMeshName     () const    { return meshName; }
 
         //! \brief Get the id of the color that the objects belongs to
@@ -38,11 +44,22 @@ class GameEntity
         //! \brief Get if the mesh is already existing
         inline bool                 isMeshExisting  () const    { return meshExists; }
 
-        //! \brief Pure virtual function that implments the mesh creation
+        // ===== SETTERS =====
+        //! \brief Set the name of the mesh file
+        inline void setName         (const std::string& nName)      { name = nName; }
+
+        //! \brief Set the name of the mesh file
+        inline void setMeshName     (const std::string& nMeshName)  { meshName = nMeshName; }
+
+        //! \brief Set if the mesh exists
+        inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
+
+        // ===== METHODS =====
+        //! \brief Pure virtual function that implements the mesh creation
         virtual void                createMesh      () = 0;
 
-        //! \brief Pure virtual function that implments the mesh deletion
-        virtual void                deleteMesh      () = 0;
+        //! \brief Pure virtual function that implements the mesh deletion
+        virtual void                destroyMesh      () = 0;
 
         //! \brief Pure virtual function that implements code for the removal from the map
         virtual void                deleteYourself  () = 0;
@@ -54,12 +71,12 @@ class GameEntity
         //! \brief The name of the mesh
         std::string meshName;
 
-        //! \brief The id of the color that the objcts belongs to
-        int         color;
-
         //! \brief Stores the existence state of the mesh
         bool        meshExists;
 
+        //! \brief The id of the color that the objcts belongs to
+        int         color;
 };
 
 #endif /* GAMEENTITY_H_ */
+

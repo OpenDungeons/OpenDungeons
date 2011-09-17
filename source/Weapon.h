@@ -5,14 +5,29 @@
 #include <istream>
 #include <ostream>
 
+#include "GameEntity.h"
+
 class Creature;
 
-class Weapon
+class Weapon : public GameEntity
 {
     public:
-        Weapon();
-        Weapon(const std::string& name, const double damage, const double range,
-                const double defense, Creature* parent, const std::string& handString);
+        Weapon( const std::string&  name        = "",
+                double              damage      = 0.0,
+                double              range       = 0.0,
+                double              defense     = 0.0,
+                Creature*           parent      = 0,
+                const std::string&  handString  = ""
+               ) :
+            GameEntity      (name, "", 0),
+            handString      (handString),
+            damage          (damage),
+            range           (range),
+            defense         (defense),
+            parentCreature  (parent)
+        {}
+
+        virtual ~Weapon() {};
 
         void createMesh();
         void destroyMesh();
@@ -28,16 +43,9 @@ class Weapon
         inline const double    getDefense() const                  { return defense; }
         inline void            setDefense(const double nDefense)   { defense = nDefense; }
 
-        inline const std::string&  getName() const                 { return name; }
-        inline void                setName(const std::string& nName)      { name = nName; }
-
         inline const std::string&  getHandString() const           { return handString; }
         inline void                setHandString(const std::string& nHandString)
                                                                    { handString = nHandString; }
-
-        inline const std::string&  getMeshName() const             { return meshName; }
-        inline void                setMeshName(const std::string& nMeshName)
-                                                                   { meshName = nMeshName; }
 
         inline Creature*       getParentCreature() const           { return parentCreature; }
         inline void            setParentCreature(Creature* nParent){ parentCreature = nParent; }
@@ -46,14 +54,11 @@ class Weapon
         inline void            setRange(const double nRange)       { range = nRange; }
 
     private:
-        std::string name;
-        std::string meshName;
         std::string handString;
         double      damage;
         double      range;
         double      defense;
         Creature*   parentCreature;
-        bool        meshExists;
 };
 
 #endif

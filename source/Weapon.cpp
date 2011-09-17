@@ -3,35 +3,16 @@
 #include "Creature.h"
 #include "RenderManager.h"
 
-Weapon::Weapon() :
-        damage          (0.0),
-        range           (0.0),
-        defense         (0.0),
-        parentCreature  (0),
-        meshExists      (false)
-{
-}
-
-Weapon::Weapon(const std::string& name, const double damage, const double range,
-        const double defense, Creature *parent, const std::string& handString) :
-        name            (name),
-        handString      (handString),
-        damage          (damage),
-        range           (range),
-        defense         (defense),
-        parentCreature  (parent),
-        meshExists      (false)
-{
-}
-
 void Weapon::createMesh()
 {
-    if (meshExists)
+    if (isMeshExisting())
+    {
         return;
+    }
 
-    meshExists = true;
+    setMeshExisting(true);
 
-    if (name.compare("none") == 0)
+    if (getName().compare("none") == 0)
     {
         return;
     }
@@ -48,10 +29,12 @@ void Weapon::createMesh()
 
 void Weapon::destroyMesh()
 {
-    if (!meshExists)
+    if (!isMeshExisting())
+    {
         return;
+    }
 
-    meshExists = false;
+    setMeshExisting(false);
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyWeapon;
@@ -64,8 +47,10 @@ void Weapon::destroyMesh()
 
 void Weapon::deleteYourself()
 {
-    if (meshExists)
+    if (isMeshExisting())
+    {
         destroyMesh();
+    }
 
     // Create a render request asking the render queue to actually do the deletion of this creature.
     RenderRequest *request = new RenderRequest;
@@ -84,16 +69,16 @@ std::string Weapon::getFormat()
 
 std::ostream& operator<<(std::ostream& os, Weapon *w)
 {
-    os << w->name << "\t" << w->damage << "\t" << w->range << "\t"
-            << w->defense;
-
+    os << w->getName() << "\t" << w->damage << "\t" << w->range << "\t" << w->defense;
     return os;
 }
 
 std::istream& operator>>(std::istream& is, Weapon *w)
 {
-    is >> w->name >> w->damage >> w->range >> w->defense;
-    w->meshName = w->name + ".mesh";
+    std::string name;
+    is >> name >> w->damage >> w->range >> w->defense;
+    w->setName(name);
+    w->setMeshName(name + ".mesh");
 
     return is;
 }
