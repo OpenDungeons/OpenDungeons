@@ -183,24 +183,21 @@ find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
 find_package(SFML REQUIRED COMPONENTS Audio System)
 
-# boost uses some extra settings
-#NOTE: Versions var has to be updated with use of new boost release 
-# to find the boost release.
-set(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.43.0 1.43 1.44.0 1.44 1.45.0 1.45)
-set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_LIBS   OFF)
+#This has to cover the versions not already known by CMake
+set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1)
+
 if(WIN32 AND ${OGRE_FOUND})
-	#On windows we can try to use boost from the Ogre SDK instead
-    #the 2010 package has a different boost version for some reason
-    set( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${ENV_OGRE_HOME}/boost_1_42/lib 
-                ${ENV_OGRE_HOME}/boost_1_44/lib)
-    set( CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${ENV_OGRE_HOME}/boost_1_42 
-                ${ENV_OGRE_HOME}/boost_1_44)
-    #We set these instead of searching if using MSVC
-    #This is because the libs in the ogre dir has a lib prefix
-    #making findboost not find them
-	set( OD_BOOST_LIB_DIRS  ${ENV_OGRE_HOME}/boost_1_44/lib ${ENV_OGRE_HOME}/boost_1_42/lib)
-	set( OD_BOOST_INCLUDE_DIRS ${ENV_OGRE_HOME}/boost_1_44 ${ENV_OGRE_HOME}/boost_1_42)
+    # We need to specify the compiler here that Ogre used to compile boost
+    set(Boost_COMPILER -mgw45)
+    
+	# On windows we can try to use boost from the Ogre SDK instead
+    set( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${ENV_OGRE_HOME}/boost_1_44/lib)
+    set( CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${ENV_OGRE_HOME}/boost_1_44)
+
+    # We set these instead of searching if using MSVC
+    # This is because the libs in the ogre dir has a lib prefix making findboost not find them
+	set( OD_BOOST_LIB_DIRS  ${ENV_OGRE_HOME}/boost_1_44/lib)
+	set( OD_BOOST_INCLUDE_DIRS ${ENV_OGRE_HOME}/boost_1_44)
 endif()
 
 if(MINGW)
