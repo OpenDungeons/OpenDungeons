@@ -33,7 +33,6 @@ Creature::Creature( GameMap*            gameMap,
                     ) :
         weaponL                 (0),
         weaponR                 (0),
-        color                   (0),
         homeTile                (0),
         definition              (0),
         tilePassability         (Tile::walkableTile),
@@ -106,7 +105,7 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
             << "\t";
     sem_post(&c->positionLockSemaphore);
 
-    os << c->color << "\t";
+    os << c->getColor() << "\t";
     os << c->weaponL << "\t" << c->weaponR << "\t";
     os << c->getHP() << "\t";
     os << c->getMana();
@@ -134,7 +133,9 @@ std::istream& operator>>(std::istream& is, Creature *c)
     is >> xLocation >> yLocation >> zLocation;
     c->setPosition(xLocation, yLocation, zLocation);
 
-    is >> c->color;
+    int color = 0;
+    is >> color;
+    c->setColor(color);
 
     c->weaponL = new Weapon;
     is >> c->weaponL;
@@ -462,7 +463,7 @@ void Creature::doTurn()
         if (Random::Double(0.0, 1.0) < 0.03 && homeTile == 0 && peekAction().getType() != CreatureAction::findHome)
         {
             // Check to see if there are any quarters owned by our color that we can reach.
-            std::vector<Room*> tempRooms = gameMap->getRoomsByTypeAndColor(Room::quarters, color);
+            std::vector<Room*> tempRooms = gameMap->getRoomsByTypeAndColor(Room::quarters, getColor());
             tempRooms = gameMap->getReachableRooms(tempRooms, positionTile(), tilePassability);
             if (!tempRooms.empty())
             {
@@ -783,7 +784,7 @@ void Creature::doTurn()
                     }
 
                     // See if the tile we are standing on can be claimed
-                    if ((myTile->getColor() != color || myTile->colorDouble
+                    if ((myTile->getColor() != getColor() || myTile->colorDouble
                             < 1.0) && myTile->isClaimable())
                     {
                         //cout << "\nTrying to claim the tile I am standing on.";
@@ -793,7 +794,7 @@ void Creature::doTurn()
                         {
                             // Check to see if the current neighbor is already claimed
                             tempTile = neighbors[j];
-                            if (tempTile->getColor() == color
+                            if (tempTile->getColor() == getColor()
                                     && tempTile->colorDouble >= 1.0)
                             {
                                 //cout << "\t\tFound a neighbor that is claimed.";
@@ -801,7 +802,7 @@ void Creature::doTurn()
                                 // dancing on this tile.  If there is "left over" claiming that can be done
                                 // it will spill over into neighboring tiles until it is gone.
                                 setAnimationState("Claim");
-                                myTile->claimForColor(color, definition->getDanceRate());
+                                myTile->claimForColor(getColor(), definition->getDanceRate());
                                 recieveExp(1.5 * (definition->getDanceRate() / (0.35 + 0.05
                                         * level)));
 
@@ -823,7 +824,7 @@ void Creature::doTurn()
                         //NOTE:  I don't think the "colorDouble" check should happen here.
                         if (tempTile != NULL && tempTile->getTilePassability()
                                 == Tile::walkableTile && (tempTile->getColor()
-                                != color || tempTile->colorDouble < 1.0)
+                                != getColor() || tempTile->colorDouble < 1.0)
                                 && tempTile->isClaimable())
                         {
                             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
@@ -833,7 +834,7 @@ void Creature::doTurn()
                             for (unsigned int i = 0; i < neighbors2.size(); ++i)
                             {
                                 tempTile2 = neighbors2[i];
-                                if (tempTile2->getColor() == color
+                                if (tempTile2->getColor() == getColor()
                                         && tempTile2->colorDouble >= 1.0)
                                 {
                                     clearDestinations();
@@ -855,7 +856,7 @@ void Creature::doTurn()
                         tempTile = visibleTiles[i];
                         if (tempTile != NULL && tempTile->getTilePassability()
                                 == Tile::walkableTile && (tempTile->colorDouble
-                                < 1.0 || tempTile->getColor() != color)
+                                < 1.0 || tempTile->getColor() != getColor())
                                 && tempTile->isClaimable())
                         {
                             // Check to see if one of the tile's neighbors is claimed for our color
@@ -863,7 +864,7 @@ void Creature::doTurn()
                             for (unsigned int j = 0; j < neighbors.size(); ++j)
                             {
                                 tempTile = neighbors[j];
-                                if (tempTile->getColor() == color
+                                if (tempTile->getColor() == getColor()
                                         && tempTile->colorDouble >= 1.0)
                                 {
                                     claimableTiles.push_back(tempTile);
@@ -891,7 +892,7 @@ void Creature::doTurn()
                             numNeighborsClaimed = 0;
                             for (unsigned int i = 0; i < neighbors.size(); ++i)
                             {
-                                if (neighbors[i]->getColor() == color
+                                if (neighbors[i]->getColor() == getColor()
                                         && neighbors[i]->colorDouble >= 1.0)
                                     ++numNeighborsClaimed;
                             }
@@ -988,7 +989,7 @@ void Creature::doTurn()
                                 tempDouble = 5 * std::min(definition->getDigRate(),
                                         tempTile->getFullness());
                                 gold += tempDouble;
-                                gameMap->getSeatByColor(color)->goldMined
+                                gameMap->getSeatByColor(getColor())->goldMined
                                         += tempDouble;
                                 recieveExp(5.0 * definition->getDigRate() / 20.0);
                             }
@@ -1175,7 +1176,7 @@ void Creature::doTurn()
                     // We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
                     // Check to see if our seat controls any treasuries.
                     std::vector<Room*> treasuriesOwned = gameMap->getRoomsByTypeAndColor(
-                            Room::treasury, color);
+                            Room::treasury, getColor());
                     if (!treasuriesOwned.empty())
                     {
                         Tile *nearestTreasuryTile;
@@ -1248,7 +1249,7 @@ void Creature::doTurn()
                         popAction();
                         loopBack = true;
                         LogManager::getSingleton().logMessage("No space to put gold for creature for player "
-                            + Ogre::StringConverter::toString(color));
+                            + Ogre::StringConverter::toString(getColor()));
                         break;
                     }
 
@@ -1257,7 +1258,7 @@ void Creature::doTurn()
                     popAction();
                     loopBack = true;
                     LogManager::getSingleton().logMessage("No space to put gold for creature for player "
-                        + Ogre::StringConverter::toString(color));
+                        + Ogre::StringConverter::toString(getColor()));
                     break;
                 }
 
@@ -1289,8 +1290,7 @@ void Creature::doTurn()
                     }
 
                     // Check to see if we can walk to a quarters that does have an open tile.
-                    tempRooms = gameMap->getRoomsByTypeAndColor(Room::quarters,
-                            color);
+                    tempRooms = gameMap->getRoomsByTypeAndColor(Room::quarters, getColor());
                     std::random_shuffle(tempRooms.begin(), tempRooms.end());
                     unsigned int nearestQuartersDistance;
                     nearestQuartersDistance = 0; // to avoid a compilation warning
@@ -1456,8 +1456,8 @@ void Creature::doTurn()
                     }
 
                     // Get the list of dojos controlled by our seat and make sure there is at least one.
-                    tempRooms = gameMap->getRoomsByTypeAndColor(Room::dojo,
-                            color);
+                    tempRooms = gameMap->getRoomsByTypeAndColor(Room::dojo, getColor());
+
                     if (tempRooms.empty())
                     {
                         popAction();
@@ -1826,7 +1826,7 @@ void Creature::updateVisibleTiles()
  */
 std::vector<AttackableEntity*> Creature::getVisibleEnemyObjects()
 {
-    return getVisibleForce(color, true);
+    return getVisibleForce(getColor(), true);
 }
 
 /*! \brief Loops over objectsToCheck and returns a vector containing all the ones which can be reached via a valid path.
@@ -1922,7 +1922,7 @@ std::vector<AttackableEntity*> Creature::getEnemyObjectsInRange(
  */
 std::vector<AttackableEntity*> Creature::getVisibleAlliedObjects()
 {
-    return getVisibleForce(color, false);
+    return getVisibleForce(getColor(), false);
 }
 
 /*! \brief Loops over the visibleTiles and adds any which are marked for digging to a vector which it returns.
@@ -2153,22 +2153,6 @@ int Creature::getLevel() const
     return level;
 }
 
-/** \brief Conform: AttackableObject - Returns the creature's color.
- *
- */
-int Creature::getColor() const
-{
-    return color;
-}
-
-/** \brief Sets the creature's color.
- *
- */
-void Creature::setColor(int nColor)
-{
-    color = nColor;
-}
-
 /** \brief Conform: AttackableObject - Returns the type of AttackableObject that this is (Creature, Room, etc).
  *
  */
@@ -2214,7 +2198,7 @@ Player* Creature::getControllingPlayer()
 {
     Player *tempPlayer;
 
-    if (gameMap->getLocalPlayer()->getSeat()->getColor() == color)
+    if (gameMap->getLocalPlayer()->getSeat()->getColor() == getColor())
     {
         return gameMap->getLocalPlayer();
     }
@@ -2224,7 +2208,7 @@ Player* Creature::getControllingPlayer()
             i < numPlayers; ++i)
     {
         tempPlayer = gameMap->getPlayer(i);
-        if (tempPlayer->getSeat()->getColor() == color)
+        if (tempPlayer->getSeat()->getColor() == getColor())
         {
             return tempPlayer;
         }

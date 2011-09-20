@@ -21,14 +21,16 @@ class GameEntity
 {
     public:
         //! \brief Default constructor with default values
-        GameEntity( std::string nName       = "",
-                    std::string nMeshName   = "",
-                    int         nColor      = 0
+        GameEntity( std::string     nName       = "",
+                    std::string     nMeshName   = "",
+                    int             nColor      = 0,
+                    unsigned int    nLevel      = 1
                   ) :
             name        (nName),
             meshName    (nMeshName),
             meshExists  (false),
-            color       (nColor)
+            color       (nColor),
+            level       (nLevel)
         {}
 
         // ===== GETTERS =====
@@ -41,6 +43,9 @@ class GameEntity
         //! \brief Get the id of the color that the objects belongs to
         inline int                  getColor        () const    { return color; }
 
+        //! \brief Get the level of the object
+        //inline unsigned int         getLevel        () const    { return level; }
+
         //! \brief Get if the mesh is already existing
         inline bool                 isMeshExisting  () const    { return meshExists; }
 
@@ -50,6 +55,12 @@ class GameEntity
 
         //! \brief Set the name of the mesh file
         inline void setMeshName     (const std::string& nMeshName)  { meshName = nMeshName; }
+
+        //! \brief Set if the mesh exists
+        inline void setColor        (int nColor)                    { color = nColor; }
+
+        //! \brief Set if the mesh exists
+        //inline void setLevel        (unsigned int nLevel)           { level = nLevel; }
 
         //! \brief Set if the mesh exists
         inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
@@ -66,16 +77,19 @@ class GameEntity
 
     private:
         //! brief The name of the entity
-        std::string name;
+        std::string     name;
 
         //! \brief The name of the mesh
-        std::string meshName;
+        std::string     meshName;
 
         //! \brief Stores the existence state of the mesh
-        bool        meshExists;
+        bool            meshExists;
 
         //! \brief The id of the color that the objcts belongs to
-        int         color;
+        int             color;
+
+        //! \brief The level of the object
+        unsigned int    level;
 };
 
 #endif /* GAMEENTITY_H_ */

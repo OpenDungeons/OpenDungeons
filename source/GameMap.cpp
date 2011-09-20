@@ -518,7 +518,7 @@ std::vector<Creature*> GameMap::getCreaturesByColor(int color)
     sem_wait(&creaturesLockSemaphore);
     for (unsigned int i = 0; i < creatures.size(); ++i)
     {
-        if (creatures[i]->color == color)
+        if (creatures[i]->getColor() == color)
             tempVector.push_back(creatures[i]);
     }
     sem_post(&creaturesLockSemaphore);
@@ -959,7 +959,7 @@ unsigned long int GameMap::doMiscUpkeep()
 
         if (tempCreature->getDefinition()->isWorker())
         {
-            int color = tempCreature->color;
+            int color = tempCreature->getColor();
             ++koboldColorCounts[color];
         }
     }

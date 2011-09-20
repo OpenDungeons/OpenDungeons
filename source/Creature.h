@@ -37,12 +37,13 @@ class Window;
 class Creature: public MovableGameEntity, public AttackableEntity
 {
     public:
+        //TODO: write a good default constructir with default arguments
         Creature(GameMap* gameMap = 0, const std::string& name = "");
         //~Creature();
 
+        //TODO: make these private
         // Individual properties
         Weapon *weaponL, *weaponR; // The weapons the creature is holding
-        int color; // The color of the player who controls this creature
         Tile *homeTile;
 
         // Object methods
@@ -63,7 +64,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
         void setPosition(const Ogre::Vector3& v);
 
         void setHP(double nHP);
-        //FIXME: Why is tile a parameter here? It's not used.
+        //FIXME: Why is tile a parameter here? It's not used. TODO: remove this
         double getHP(Tile *tile) { return getHP(); };
         double getHP() const;
 
@@ -103,8 +104,8 @@ class Creature: public MovableGameEntity, public AttackableEntity
         std::vector<Tile*> getCoveredTiles();
         bool isMobile() const;
         int getLevel() const;
-        int getColor() const;
-        void setColor(int nColor);
+        //int getColor() const;
+        //void setColor(int nColor);
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
         AttackableEntity::AttackableObjectType getAttackableObjectType() const;

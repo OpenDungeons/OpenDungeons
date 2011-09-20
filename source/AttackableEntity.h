@@ -57,9 +57,6 @@ class AttackableEntity
         //! \brief Returns the current level that the object has attained based on its accumulated experience points, mostly used for creatures/traps.
         virtual int getLevel() const = 0;
 
-        //! \brief Returns the color of the seat which controls the given object, used for determining whether a unit is an ally or enemy.
-        virtual int getColor() const = 0;
-
         //! \brief Returns the name of the object.
         //virtual const std::string& getName() const = 0;
 
