@@ -188,9 +188,6 @@ find_package(SFML REQUIRED COMPONENTS Audio System)
 set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1)
 
 if(WIN32 AND ${OGRE_FOUND})
-    # We need to specify the compiler here that Ogre used to compile boost
-    set(Boost_COMPILER -mgw45)
-    
 	# On windows we can try to use boost from the Ogre SDK instead
     set( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${ENV_OGRE_HOME}/boost_1_44/lib)
     set( CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${ENV_OGRE_HOME}/boost_1_44)
@@ -202,6 +199,8 @@ if(WIN32 AND ${OGRE_FOUND})
 endif()
 
 if(MINGW)
+    # We need to specify the compiler here that Ogre used to compile boost
+    set(Boost_COMPILER -mgw45)
     find_package(Boost COMPONENTS thread REQUIRED)
 endif()
 
