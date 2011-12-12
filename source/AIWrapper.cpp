@@ -78,7 +78,7 @@ const Room* AIWrapper::getDungeonTemple()
     if(dungeonTemple == NULL)
     {
         std::vector<Room*> dt = gameMap.getRoomsByTypeAndColor(Room::dungeonTemple, seat.getColor());
-        if(dt.size() > 0)
+        if(!dt.empty())
         {
             dungeonTemple = dt.front();
         }

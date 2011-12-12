@@ -338,7 +338,7 @@ void ListFunctions(asIScriptEngine *engine)
 	for( n = 0; n < (asUINT)engine->GetGlobalFunctionCount(); n++ )
 	{
 		int id = engine->GetGlobalFunctionIdByIndex(n);
-		asIScriptFunction *func = engine->GetFunctionDescriptorById(id);
+		asIScriptFunction *func = engine->GetFunctionById(id);
 
 		// Skip the functions that start with _ as these are not meant to be called explicitly by the user
 		if( func->GetName()[0] != '_' )
@@ -353,7 +353,7 @@ void ListFunctions(asIScriptEngine *engine)
 		cout << "User functions:" << endl;
 		for( n = 0; n < (asUINT)mod->GetFunctionCount(); n++ )
 		{
-			asIScriptFunction *func = mod->GetFunctionDescriptorByIndex(n);
+			asIScriptFunction *func = mod->GetFunctionByIndex(n);
 			cout << " " << func->GetDeclaration() << endl;
 		}
 	}

@@ -28,10 +28,10 @@ void *clientSocketProcessor(void *p)
     bool tempBool;
     std::string tempString;
     std::string serverCommand, arguments;
-    Socket *sock = ((CSPStruct*) p)->nSocket;
-    ODFrameListener *frameListener = ((CSPStruct*) p)->nFrameListener;
+    Socket *sock = static_cast<CSPStruct*>(p)->nSocket;
+    ODFrameListener *frameListener = static_cast<CSPStruct*>(p)->nFrameListener;
     GameMap& gameMap = *(frameListener->getGameMap());
-    delete (CSPStruct*) p;
+    delete static_cast<CSPStruct*>(p);
     p = NULL;
 
     // Send a hello request to start the conversation with the server
@@ -416,8 +416,8 @@ void *clientNotificationProcessor(void *p)
         switch (event->type)
         {
             case ClientNotification::creaturePickUp:
-                tempCreature = (Creature*) event->p;
-                tempPlayer = (Player*) event->p2;
+                tempCreature = static_cast<Creature*>(event->p);
+                tempPlayer = static_cast<Player*>(event->p2);
 
                 tempSS.str("");
                 tempSS << tempPlayer->getNick() << ":" << tempCreature->getName();
@@ -428,8 +428,8 @@ void *clientNotificationProcessor(void *p)
                 break;
 
             case ClientNotification::creatureDrop:
-                tempPlayer = (Player*) event->p;
-                tempTile = (Tile*) event->p2;
+                tempPlayer = static_cast<Player*>(event->p);
+                tempTile = static_cast<Tile*>(event->p2);
 
                 tempSS.str("");
                 tempSS << tempPlayer->getNick() << ":" << tempTile->x << ":"
@@ -441,7 +441,7 @@ void *clientNotificationProcessor(void *p)
                 break;
 
             case ClientNotification::markTile:
-                tempTile = (Tile*) event->p;
+                tempTile = static_cast<Tile*>(event->p);
                 flag = event->flag;
                 tempSS.str("");
                 tempSS << tempTile->x << ":" << tempTile->y << ":"

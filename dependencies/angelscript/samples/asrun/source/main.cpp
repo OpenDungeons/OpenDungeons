@@ -217,7 +217,7 @@ int ExecuteScript(asIScriptEngine *engine, const char *scriptFile, bool debug)
 	else
 	{
 		// Get the return value from the script
-		asIScriptFunction *func = engine->GetFunctionDescriptorById(funcId);
+		asIScriptFunction *func = engine->GetFunctionById(funcId);
 		if( func->GetReturnTypeId() == asTYPEID_INT32 )
 		{
 			r = *(int*)ctx->GetAddressOfReturnValue();

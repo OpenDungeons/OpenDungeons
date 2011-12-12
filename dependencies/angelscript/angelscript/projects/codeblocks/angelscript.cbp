@@ -27,6 +27,10 @@
 		<VirtualTargets>
 			<Add alias="All" targets="MinGW RELEASE;" />
 		</VirtualTargets>
+		<Compiler>
+			<Add option="-fexpensive-optimizations" />
+			<Add option="-O3" />
+		</Compiler>
 		<Unit filename="..\..\include\angelscript.h" />
 		<Unit filename="..\..\source\as_array.h" />
 		<Unit filename="..\..\source\as_atomic.cpp" />
@@ -35,7 +39,6 @@
 		<Unit filename="..\..\source\as_builder.h" />
 		<Unit filename="..\..\source\as_bytecode.cpp" />
 		<Unit filename="..\..\source\as_bytecode.h" />
-		<Unit filename="..\..\source\as_bytecodedef.h" />
 		<Unit filename="..\..\source\as_callfunc.cpp" />
 		<Unit filename="..\..\source\as_callfunc.h" />
 		<Unit filename="..\..\source\as_callfunc_arm.cpp" />
@@ -92,7 +95,6 @@
 		<Unit filename="..\..\source\as_string.h" />
 		<Unit filename="..\..\source\as_string_util.cpp" />
 		<Unit filename="..\..\source\as_string_util.h" />
-		<Unit filename="..\..\source\as_structs.h" />
 		<Unit filename="..\..\source\as_texts.h" />
 		<Unit filename="..\..\source\as_thread.cpp" />
 		<Unit filename="..\..\source\as_thread.h" />

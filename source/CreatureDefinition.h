@@ -5,9 +5,6 @@
 #include <iostream>
 #include <Ogre.h>
 
-#include "MovableGameEntity.h"
-
-//TODO remove dependency from MovableGameEntity and make it a clas holding only the Creature definitons
 class CreatureDefinition
 {
     public:

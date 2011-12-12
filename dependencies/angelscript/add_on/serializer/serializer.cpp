@@ -84,10 +84,12 @@ int CSerializer::Restore(asIScriptModule *mod)
 	for( asUINT i = 0; i < varCount; i++ )
 	{
 		const char *name;
-		mod->GetGlobalVar(i, &name);
+		int typeId;
+		mod->GetGlobalVar(i, &name, &typeId);
 
 		CSerializedValue *v = m_root.FindByName(name);
-		v->Restore(mod->GetAddressOfGlobalVar(i));
+		if( v )
+			v->Restore(mod->GetAddressOfGlobalVar(i), typeId);
 	}
 
 	// The handles that were restored needs to be 
@@ -276,13 +278,22 @@ void CSerializedValue::Store(void *ref, int typeId)
 	}
 }
 
-void CSerializedValue::Restore(void *ref)
+void CSerializedValue::Restore(void *ref, int typeId)
 {
 	if( !this || !m_isInit || !ref )
 		return;
 
-	m_restorePtr = ref;
+	// Verify that the stored type matched the new type of the value being restored
+	if( typeId <= asTYPEID_DOUBLE && typeId != m_typeId ) return; // TODO: We may try to do a type conversion for primitives
+	if( (typeId & ~asTYPEID_MASK_SEQNBR) ^ (m_typeId & ~asTYPEID_MASK_SEQNBR) ) return;
+	asIObjectType *type = m_serializer->m_engine->GetObjectTypeById(typeId);
+	if( type && m_typeName != type->GetName() ) return;
 
+	// Set the new pointer and type
+	m_restorePtr = ref;
+	SetType(typeId);
+
+	// Restore the value
 	if( m_typeId & asTYPEID_OBJHANDLE )
 	{
 		// if need create objects
@@ -292,7 +303,7 @@ void CSerializedValue::Restore(void *ref)
 
 			void *newObject = m_serializer->m_engine->CreateScriptObject(type->GetTypeId());
 
-			m_children[0]->Restore(newObject);	
+			m_children[0]->Restore(newObject, type->GetTypeId());	
 		}
 	}
 	else if( m_typeId & asTYPEID_SCRIPTOBJECT )
@@ -304,11 +315,12 @@ void CSerializedValue::Restore(void *ref)
 		for( asUINT i = 0; i < type->GetPropertyCount() ; i++ )
 		{	
 			const char *nameProperty;
-			type->GetProperty(i, &nameProperty);
+			int typeId;
+			type->GetProperty(i, &nameProperty, &typeId);
 			
 			CSerializedValue *var = FindByName(nameProperty);
 			if( var )
-				var->Restore(obj->GetAddressOfProperty(i));		
+				var->Restore(obj->GetAddressOfProperty(i), typeId);
 		}
 	}
 	else

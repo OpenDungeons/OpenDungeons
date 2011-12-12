@@ -30,10 +30,10 @@
 // THREAD - This function is meant to be called by pthread_create.
 void *serverSocketProcessor(void *p)
 {
-    Socket *sock = ((SSPStruct*) p)->nSocket;
+    Socket *sock = static_cast<SSPStruct*>(p)->nSocket;
     Socket *curSock;
-    ODFrameListener *frameListener = ((SSPStruct*) p)->nFrameListener;
-    delete (SSPStruct*) p;
+    ODFrameListener *frameListener = static_cast<SSPStruct*>(p)->nFrameListener;
+    delete static_cast<SSPStruct*>(p);
     p = NULL;
 
     // Set up the socket to listen on the specified port
@@ -245,9 +245,9 @@ void *creatureAIThread(void *p)
 // THREAD - This function is meant to be called by pthread_create.
 void *serverNotificationProcessor(void *p)
 {
-    ODFrameListener *frameListener = ((SNPStruct*) p)->nFrameListener;
+    ODFrameListener *frameListener = static_cast<SNPStruct*>(p)->nFrameListener;
     GameMap* gameMap = frameListener->getGameMap();
-    delete (SNPStruct*) p;
+    delete static_cast<SNPStruct*>(p);
     p = NULL;
 
     std::stringstream tempSS;
@@ -324,7 +324,7 @@ void *serverNotificationProcessor(void *p)
 
             case ServerNotification::setObjectAnimationState:
                 tempSS.str("");
-                tempAnimatedObject = (MovableGameEntity*) event->p;
+                tempAnimatedObject = static_cast<MovableGameEntity*>(event->p);
                 tempSS << tempAnimatedObject->getName() << ":" << event->str
                         << ":" << (event->b ? "true" : "false");
                 sendToAllClients(frameListener, formatCommand(
@@ -350,7 +350,7 @@ void *serverNotificationProcessor(void *p)
                 break;
 
             case ServerNotification::addMapLight:
-                tempMapLight = (MapLight*) event->p;
+                tempMapLight = static_cast<MapLight*>(event->p);
                 tempSS.str("");
                 tempSS << tempMapLight;
                 sendToAllClients(frameListener, formatCommand("addmaplight",
@@ -358,7 +358,7 @@ void *serverNotificationProcessor(void *p)
                 break;
 
             case ServerNotification::removeMapLight:
-                tempMapLight = (MapLight*) event->p;
+                tempMapLight = static_cast<MapLight*>(event->p);
                 sendToAllClients(frameListener, formatCommand("removeMapLight",
                         tempMapLight->getName()));
                 break;
@@ -404,10 +404,10 @@ void *serverNotificationProcessor(void *p)
 // THREAD - This function is meant to be called by pthread_create.
 void *clientHandlerThread(void *p)
 {
-    Socket *curSock = ((CHTStruct*) p)->nSocket;
-    ODFrameListener *frameListener = ((CHTStruct*) p)->nFrameListener;
+    Socket *curSock = static_cast<CHTStruct*>(p)->nSocket;
+    ODFrameListener *frameListener = static_cast<CHTStruct*>(p)->nFrameListener;
     Player *curPlayer = NULL;
-    delete (CHTStruct*) p;
+    delete static_cast<CHTStruct*>(p);
     p = NULL;
 
     GameMap* gameMap = frameListener->getGameMap();

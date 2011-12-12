@@ -590,8 +590,7 @@ std::istream& operator>>(std::istream& is, Tile *t)
 
     is >> xLocation >> yLocation;
     //t->location = Ogre::Vector3(xLocation, yLocation, 0);
-    snprintf(tempCellName, sizeof(tempCellName), "Level_%3i_%3i", xLocation,
-            yLocation);
+    snprintf(tempCellName, sizeof(tempCellName), "Level_%3i_%3i", xLocation, yLocation);
     t->name = tempCellName;
     t->x = xLocation;
     t->y = yLocation;

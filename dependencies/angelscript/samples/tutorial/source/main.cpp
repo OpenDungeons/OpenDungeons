@@ -182,7 +182,7 @@ int RunApplication()
 
 			// Write some information about the script exception
 			int funcID = ctx->GetExceptionFunction();
-			asIScriptFunction *func = engine->GetFunctionDescriptorById(funcID);
+			asIScriptFunction *func = engine->GetFunctionById(funcID);
 			cout << "func: " << func->GetDeclaration() << endl;
 			cout << "modl: " << func->GetModuleName() << endl;
 			cout << "sect: " << func->GetScriptSectionName() << endl;

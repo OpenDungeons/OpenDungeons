@@ -44,8 +44,8 @@
 #ifndef ANGELSCRIPT_C_H
 #define ANGELSCRIPT_C_H
 
-#define ANGELSCRIPT_VERSION        22101
-#define ANGELSCRIPT_VERSION_STRING "2.21.1"
+#define ANGELSCRIPT_VERSION        22102
+#define ANGELSCRIPT_VERSION_STRING "2.21.2"
 
 #ifdef AS_USE_NAMESPACE
  #define BEGIN_AS_NAMESPACE namespace AngelScript {
@@ -144,8 +144,10 @@ typedef enum
 	asOBJ_APP_CLASS_K                = (asOBJ_APP_CLASS + asOBJ_APP_CLASS_COPY_CONSTRUCTOR),
 	asOBJ_APP_PRIMITIVE              = 0x2000,
 	asOBJ_APP_FLOAT                  = 0x4000,
-	asOBJ_MASK_VALID_FLAGS           = 0x7FFF,
-	asOBJ_SCRIPT_OBJECT              = 0x10000
+	asOBJ_APP_CLASS_ALLINTS          = 0x8000,
+	asOBJ_APP_CLASS_ALLFLOATS        = 0x10000,
+	asOBJ_MASK_VALID_FLAGS           = 0x1FFFF,
+	asOBJ_SCRIPT_OBJECT              = 0x80000
 } asEObjTypeFlags;
 
 // Behaviours

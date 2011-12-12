@@ -19,7 +19,7 @@ void RoomQuarters::absorbRoom(Room *r)
     //Added a check here - didn't look safe - oln 17/03/2011
     if(r->getType() == quarters)
     {
-        ((RoomQuarters*) r)->destroyBedMeshes();
+        static_cast<RoomQuarters*>(r)->destroyBedMeshes();
     }
 
     // Copy over the information about the creatures that are sleeping in the other quarters before we remove its rooms.
@@ -27,20 +27,19 @@ void RoomQuarters::absorbRoom(Room *r)
     {
         Tile *tempTile = r->getCoveredTile(i);
 
-        if (((RoomQuarters*) r)->creatureSleepingInTile[tempTile] != NULL)
+        if (static_cast<RoomQuarters*>(r)->creatureSleepingInTile[tempTile] != NULL)
             std::cout << "\nCreature sleeping in tile " << tempTile << "\n"
-                    << ((RoomQuarters*) r)->creatureSleepingInTile[tempTile];
+                    << static_cast<RoomQuarters*>(r)->creatureSleepingInTile[tempTile];
         else
             std::cout << "\nCreature sleeping in tile " << tempTile << "\nNULL";
 
         std::cout << "\n";
-        creatureSleepingInTile[tempTile]
-                = ((RoomQuarters*) r)->creatureSleepingInTile[tempTile];
+        creatureSleepingInTile[tempTile] = static_cast<RoomQuarters*>(r)->creatureSleepingInTile[tempTile];
 
-        if (((RoomQuarters*) r)->bedOrientationForTile.find(tempTile)
-                != ((RoomQuarters*) r)->bedOrientationForTile.end())
+        if (static_cast<RoomQuarters*>(r)->bedOrientationForTile.find(tempTile)
+                != static_cast<RoomQuarters*>(r)->bedOrientationForTile.end())
             bedOrientationForTile[tempTile]
-                    = ((RoomQuarters*) r)->bedOrientationForTile[tempTile];
+                    = static_cast<RoomQuarters*>(r)->bedOrientationForTile[tempTile];
     }
 
     // Use the superclass function to copy over the covered tiles to this room and get rid of them in the other room.

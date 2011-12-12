@@ -15,6 +15,91 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
+<h2>Version 2.22.0 - 2011/11/06</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed bug where compiler would incorrectly reuse a temporary variable when preparing arguments for a function call (Thanks Philip Bennefall)
+<li>Fixed bug in CSerializer add-on that wasn't properly handling the fact that typeIds change for each compilation
+<li>Fixed bug with indexed property accessor where only set accessor was available (Thanks virious)
+<li>Fixed bug where default args for registered functions were not recognized (Thanks Takashi Yamamoto)
+<li>Fixed problems when compiling the library with optimizations on 64bit GNUC (Thanks Jameson)
+<li>Fixed assert failure in VM when using JIT compiled functions (Thanks Andrew Ackermann)
+<li>Fixed a null pointer exception in the compiler when compiling an assignment and the left hand expression was invalid (Thanks TheAtom)
+<li>Fixed bug with value cast operator that returned an object by value (Thanks pifor106)
+<li>Fixed crash when compiling scripts that import global property accessors from other modules (Thanks Andrew Ackermann)
+</ul>
+<li>Library interface
+<ul>
+<li>Added user data to the asIObjectType and asIScriptModule interfaces, and corresponding cleanup callbacks to the asIScriptEngine interface
+<li>Changed some return types from int to asUINT where the methods couldn't return a negative value
+<li>Added a Prepare method to the context that takes the asIScriptFunction pointer instead of the function id
+<li>Added GetGlobalFunctionByIndex and Decl to asIScriptEngine
+<li>Deprecated GetFunctionDescriptorById in asIScriptEngine and asIScriptModule and replaced it with asIScriptEngine::GetFunctionById
+<li>Added GetFunctionByName and Decl to asIScriptModule
+<li>Deprecated asIScriptModule::GetFunctionDescriptorByIndex and replaced it with GetFunctionByIndex
+<li>Deprecated asIScriptGeneric::GetFunctionDescriptor and replaced it with GetFunction
+<li>Added GetFactoryByIndex and Decl to asIObjectType
+<li>Added GetMethodByName and Decl to asIObjectType
+<li>Deprecated asIObjectType::GetMethodDescriptorByIndex and replaced it with GetMethodByIndex
+<li>Added asIScriptEngine::SetDefaultAccessMask and asIScriptModule::SetAccessMask, which deprecates SetConfigGroupModuleAccess
+<li>The asJITFunction now takes a asPWORD as the second argument incase the compiler wants to store a pointer as the argument (Thanks Andrew Ackermann)
+<li>Added Implements, DerivesFrom, and GetSubType to the asIObjectType interface
+<li>Added overloads for AddRefScriptObject and ReleaseScriptObject that take a pointer to asIObjectType which makes them more efficient than the previous version
+<li>Created the macro asOFFSET that does the same thing as offsetof, except that GNUC doesn't complain about using it
+</ul>
+<li>Library
+<ul>
+<li>The module's access to types, functions, properties, and even class members can now be set individually for each object through an access mask and is no longer tied to the configuration group
+<li>Improved library against registered types that can form circular references but don't register the GC behaviours (Thanks Quittouff)
+<li>Added engine property asEP_DISALLOW_GLOBAL_VARS
+<li>Classes can now be shared between modules if they are compiled with the 'shared' keyword
+<li>Added object type flag asOBJ_SHARED that identifies script classes that are shared between modules
+</ul>
+<li>Virtual Machine
+<ul>
+<li>Added the context pointer to the asSVMRegisters so the JIT function can immediately access this without calling asGetActiveContext (Thanks Andrew Ackermann)
+<li>The JitEntry instruction will now invoke the JIT function without decreasing 1 from the argument set by the JIT compiler
+<li>The JitEntry instruction can also immediately return from the execution in case the context has been suspended, aborted, or an exception has been set
+</ul>
+<li>Script language
+<ul>
+<li>Added the keyword 'shared' that can be used with classes and interfaces that should be shared between modules
+</ul>
+<li>Add-ons &amp; Samples
+<ul>
+<li>Improved the game sample to take advantage of the object type user data
+<li>Improved the game sample to take advantage of the shared classes in the messaging between script objects
+<li>Improved the game sample to report the compilation errors, instead of just continuing the execution without 
+<li>The #include directives in the CScriptBuilder add-on now accept strings within single-quotes too
+<li>Added GetModule to the CScriptBuilder add-on
+</ul>
+</ul>
+
+<h2>Version 2.21.2 - 2011/09/25</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed a bug when passing value from property accessor to function inout reference parameter (Thanks scypior)
+<li>Fixed a bug with function overloading and default args (Thanks cvet)
+<li>Minor change to fix compiler error with CLang (Thanks Jeremy Harmon)
+<li>The library was not detecting return of simple value type on Linux 64bit. It should give error as this is not supported due to the use of different registers based on type of class members. (Thanks toukkapoukka)
+</ul>
+<li>Library
+<ul>
+<li>Value types returned by value are now returned on the stack to reduce dynamic memory allocations
+<li>Added the flag asOBJ_APP_CLASS_ALLINTS to inform that a registered type should be treated like all members are integers
+<li>Added the flag asOBJ_APP_CLASS_ALLFLOATS to inform that a registered type should be treated like all members are float or doubles
+</ul>
+<li>Add-ons &amp; samples
+<ul>
+<li>The CScriptBuilder now supports metadata for class properties too (Thanks Thomas "Hardguy" Grip)
+<li>Created a sample game that shows one way of integrating the script engine for game management
+</ul>
+</ul>
+
 <h2>Version 2.21.1 - 2011/08/21</h2>
 
 <ul>

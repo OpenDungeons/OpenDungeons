@@ -41,7 +41,7 @@ public:
 	void Store(void *ref, int refTypeId);
 
 	// Restore the object and its children
-	void Restore(void *ref);
+	void Restore(void *ref, int refTypeId);
 
 	// Set type of this var
 	void SetType(int typeId);

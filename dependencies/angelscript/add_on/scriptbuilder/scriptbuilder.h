@@ -34,13 +34,6 @@
 
 BEGIN_AS_NAMESPACE
 
-// TODO: Need a callback routine for resolving include directives
-//       When the builder encounters an include directive, it should call the callback with the current section name and the include directive.
-//       The application should respond by calling AddScriptFromFile or AddScriptFromMemory (or give an error if the include is invalid).
-//       The AddScriptFromFile/Memory should put the scripts on the queue to be built
-
-// TODO: Should process metadata for class/interface members as well
-
 class CScriptBuilder;
 
 // This callback will be called for each #include directive encountered by the
@@ -69,6 +62,9 @@ public:
 	// Build the added script sections
 	int BuildModule();
 
+	// Returns the current module
+	asIScriptModule *GetModule();
+
 	// Register the callback for resolving include directive
 	void SetIncludeCallback(INCLUDECALLBACK_t callback, void *userParam);
 
@@ -84,6 +80,9 @@ public:
 
 	// Get metadata declared for global variables
 	const char *GetMetadataStringForVar(int varIdx);
+
+	// Get metadata declared for class variables
+	const char *GetMetadataStringForTypeProperty(int typeId, int varIdx);
 #endif
 
 protected:
@@ -108,21 +107,34 @@ protected:
 #if AS_PROCESS_METADATA == 1
 	int  ExtractMetadataString(int pos, std::string &outMetadata);
 	int  ExtractDeclaration(int pos, std::string &outDeclaration, int &outType);
+	bool CompareVarDecl(const char* apA, const char* apB);
 
 	// Temporary structure for storing metadata and declaration
 	struct SMetadataDecl
 	{
-		SMetadataDecl(std::string m, std::string d, int t) : metadata(m), declaration(d), type(t) {}
+		SMetadataDecl(std::string m, std::string d, int t, std::string c) : metadata(m), declaration(d), type(t), parentClass(c) {}
 		std::string metadata;
 		std::string declaration;
 		int         type;
+		std::string parentClass;
 	};
+
+	struct SClassMetadata
+	{
+		SClassMetadata(const std::string& aName) : className(aName) {}
+		std::string className;
+		std::map<int, std::string> funcMetadataMap;
+		std::map<int, std::string> varMetadataMap;
+	};
+
+	std::string currentClass;
 
 	std::vector<SMetadataDecl> foundDeclarations;
 
 	std::map<int, std::string> typeMetadataMap;
 	std::map<int, std::string> funcMetadataMap;
 	std::map<int, std::string> varMetadataMap;
+	std::map<int, SClassMetadata> classMetadataMap;
 #endif
 
 	std::set<std::string>      includedScripts;

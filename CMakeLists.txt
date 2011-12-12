@@ -40,6 +40,7 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_sh4.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_gcc.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_msvc.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x64_mingw.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_x86.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc_xenon.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_compiler.cpp

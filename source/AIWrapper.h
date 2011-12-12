@@ -50,8 +50,8 @@ public:
     std::vector<Tile*> circularRegion(int x, int y, double radius);
     
     //Should remove these when we have the needed functions
-    const GameMap& getGameMap() {return gameMap;}
-    const Player& getPlayer() {return player;}
+    const GameMap& getGameMap() const {return gameMap;}
+    const Player& getPlayer() const {return player;}
     
 private:
     AIWrapper(const AIWrapper& other);

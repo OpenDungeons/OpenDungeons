@@ -43,8 +43,11 @@ RenderManager::RenderManager() :
         creatureSceneNode(0),
         lightSceneNode(0),
         fieldSceneNode(0),
+        gameMap(0),
         mainCamera(0),
         sceneManager(ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE)),
+        viewport(0),
+        shaderGenerator(0),
         initialized(false)
 {
     sem_init(&renderQueueSemaphore, 0, 1);

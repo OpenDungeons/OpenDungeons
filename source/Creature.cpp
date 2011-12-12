@@ -39,7 +39,11 @@ Creature::Creature( GameMap*            gameMap,
         hasVisualDebuggingEntities  (false),
         meshesExist             (false),
         awakeness               (100.0),
+        maxHP                   (100.0),
+        maxMana                 (100.0),
         exp                     (0.0),
+        digRate                 (1.0),
+        danceRate               (1.0),
         level                   (1),
         deathCounter            (10),
         gold                    (0),
@@ -201,7 +205,7 @@ void Creature::createMesh()
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createCreature;
-    request->str = getDefinition()->getMeshName();
+    request->str = definition->getMeshName();
     request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
@@ -605,12 +609,12 @@ void Creature::doTurn()
                                     // Check to see if we found a worker.
                                     if (reachableAlliedObjects[i]->getAttackableObjectType()
                                             == AttackableEntity::creature
-                                            && ((Creature*) reachableAlliedObjects[i])->definition->isWorker())
+                                            && static_cast<Creature*>(reachableAlliedObjects[i])->definition->isWorker())
                                     {
                                         // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
                                         tempTile
                                                 = reachableAlliedObjects[i]->getCoveredTiles()[0];
-                                        if (((Creature*) reachableAlliedObjects[i])->peekAction().getType()
+                                        if (static_cast<Creature*>(reachableAlliedObjects[i])->peekAction().getType()
                                                 == CreatureAction::digTile)
                                         {
                                             // Worker is digging, get near it since it could expose enemies.
@@ -1151,17 +1155,14 @@ void Creature::doTurn()
                     if (myTile != 0)
                     {
                         tempRoom = myTile->getCoveringRoom();
-                        if (tempRoom != NULL && tempRoom->getType()
-                                == Room::treasury)
+                        if (tempRoom != NULL && tempRoom->getType() == Room::treasury)
                         {
                             // Deposit as much of the gold we are carrying as we can into this treasury.
-                            gold -= ((RoomTreasury*) tempRoom)->depositGold(
-                                    gold, myTile);
+                            gold -= static_cast<RoomTreasury*>(tempRoom)->depositGold(gold, myTile);
 
                             // Depending on how much gold we have left (what did not fit in this treasury) we may want to continue
                             // looking for another treasury to put the gold into.  Roll a dice to see if we want to quit looking not.
-                            if (Random::Double(1.0, maxGoldCarriedByWorkers)
-                                    > gold)
+                            if (Random::Double(1.0, maxGoldCarriedByWorkers) > gold)
                             {
                                 popAction();
                                 break;
@@ -1202,8 +1203,7 @@ void Creature::doTurn()
                                 tempPath = gameMap->path(myTile,
                                         nearestTreasuryTile, tilePassability);
                                 if (tempPath.size() >= 2
-                                        && ((RoomTreasury*) treasuriesOwned[i])->emptyStorageSpace()
-                                                > 0)
+                                        && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
                                 {
                                     validPathFound = true;
                                     nearestTreasuryDistance = tempPath.size();
@@ -1221,8 +1221,7 @@ void Creature::doTurn()
                                         tilePassability);
                                 if (tempPath2.size() >= 2 && tempPath2.size()
                                         < nearestTreasuryDistance
-                                        && ((RoomTreasury*) treasuriesOwned[i])->emptyStorageSpace()
-                                                > 0)
+                                        && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
                                 {
                                     tempPath = tempPath2;
                                     nearestTreasuryDistance = tempPath.size();
@@ -1268,11 +1267,9 @@ void Creature::doTurn()
                     if (myTile != NULL)
                     {
                         tempRoom = myTile->getCoveringRoom();
-                        if (tempRoom != NULL && tempRoom->getType()
-                                == Room::quarters)
+                        if (tempRoom != NULL && tempRoom->getType() == Room::quarters)
                         {
-                            if (((RoomQuarters*) tempRoom)->claimTileForSleeping(
-                                    myTile, this))
+                            if (static_cast<RoomQuarters*>(tempRoom)->claimTileForSleeping(myTile, this))
                                 homeTile = myTile;
                         }
                     }
@@ -1302,14 +1299,13 @@ void Creature::doTurn()
                     {
                         // Get the list of open rooms at the current quarters and check to see if
                         // there is a place where we could put a bed big enough to sleep in.
-                        tempTile
-                                = ((RoomQuarters*) tempRooms[i])->getLocationForBed(
+                        tempTile = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
                                         definition->getBedDim1(), definition->getBedDim2());
 
                         // If the previous attempt to place the bed in this quarters failed, try again with the bed the other way.
                         if (tempTile == NULL)
                             tempTile
-                                    = ((RoomQuarters*) tempRooms[i])->getLocationForBed(
+                                    = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
                                             definition->getBedDim2(), definition->getBedDim1());
 
                         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
@@ -1431,12 +1427,11 @@ void Creature::doTurn()
                     {
                         // See if we are in a dojo now.
                         tempRoom = myTile->getCoveringRoom();
-                        if (tempRoom != NULL && tempRoom->getType()
-                                == Room::dojo
+                        if (tempRoom != 0 && tempRoom->getType() == Room::dojo
                                 && tempRoom->numOpenCreatureSlots() > 0)
                         {
                             // Train at this dojo.
-                            trainingDojo = (RoomDojo*) tempRoom;
+                            trainingDojo = static_cast<RoomDojo*>(tempRoom);
                             trainingDojo->addCreatureUsingRoom(this);
                             tempTile = tempRoom->getCentralTile();
                             faceToward(tempTile->x, tempTile->y);

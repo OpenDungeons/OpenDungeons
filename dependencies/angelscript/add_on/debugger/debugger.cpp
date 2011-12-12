@@ -79,7 +79,7 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 		if( obj && expandMembers )
 		{
 			asIObjectType *type = obj->GetObjectType();
-			for( int n = 0; n < obj->GetPropertyCount(); n++ )
+			for( asUINT n = 0; n < obj->GetPropertyCount(); n++ )
 			{
 				s << endl << "  " << type->GetPropertyDeclaration(n) << " = " << ToString(obj->GetAddressOfProperty(n), obj->GetPropertyTypeId(n), false, engine);
 			}
