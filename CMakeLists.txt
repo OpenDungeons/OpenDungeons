@@ -214,6 +214,10 @@ endif()
 
 find_package(OpenAL REQUIRED)
 
+if(UNIX)
+    find_package(Threads REQUIRED)
+endif()
+
 ##################################
 #### Headers and linking #########
 ##################################
@@ -336,7 +340,7 @@ else()
         ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG})
 endif()
 
-# Link pthreads and userenv if we are on windows
+# Link pthreads. (And also userenv if we are on windows.)
 if(WIN32)
     if(MSVC_IDE)
         #Set some extra compiler flags
@@ -367,11 +371,13 @@ if(WIN32)
         )
         
     endif()
+else()
+    target_link_libraries (${PROJECT_BINARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
 endif()
+
 if(CMAKE_COMPILER_IS_GNUCXX)
     #TODO - move compiler defs
     #Add compiler warnings
-    #FIXME -ansi breaks angelscript, report this so it can be readded
     add_definitions( "-Wall -Wunused -Wno-deprecated" )
 endif()
 
