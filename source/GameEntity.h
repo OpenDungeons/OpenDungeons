@@ -10,6 +10,8 @@
 
 #include <string>
 
+#include <semaphore.h>
+
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
  *
@@ -31,11 +33,16 @@ class GameEntity
             meshExists  (false),
             color       (nColor),
             level       (nLevel)
-        {}
+        {
+            //TODO: find out why this crashes, or replace whole thread system with boost thread
+            //sem_init(&nameLockSemaphore, 1, 1);
+        }
+        virtual ~GameEntity(){}
 
         // ===== GETTERS =====
         //! \brief Get the name of the object
         inline const std::string&   getName         () const    { return name; }
+        //inline const std::string&   getName         () const    { sem_wait(&nameLockSemaphore); const std::string& tempName = name; sem_post(&nameLockSemaphore); return tempName; }
 
         //! \brief Get the mesh name of the object
         inline const std::string&   getMeshName     () const    { return meshName; }
@@ -50,8 +57,9 @@ class GameEntity
         inline bool                 isMeshExisting  () const    { return meshExists; }
 
         // ===== SETTERS =====
-        //! \brief Set the name of the mesh file
+        //! \brief Set the name of the entity
         inline void setName         (const std::string& nName)      { name = nName; }
+        //inline void setName         (const std::string& nName)      { sem_wait(&nameLockSemaphore); name = nName; sem_post(&nameLockSemaphore); }
 
         //! \brief Set the name of the mesh file
         inline void setMeshName     (const std::string& nMeshName)  { meshName = nMeshName; }
@@ -67,13 +75,13 @@ class GameEntity
 
         // ===== METHODS =====
         //! \brief Pure virtual function that implements the mesh creation
-        virtual void                createMesh      () = 0;
+        virtual void    createMesh      () = 0;
 
         //! \brief Pure virtual function that implements the mesh deletion
-        virtual void                destroyMesh      () = 0;
+        virtual void    destroyMesh     () = 0;
 
         //! \brief Pure virtual function that implements code for the removal from the map
-        virtual void                deleteYourself  () = 0;
+        virtual void    deleteYourself  () = 0;
 
     private:
         //! brief The name of the entity
@@ -90,6 +98,8 @@ class GameEntity
 
         //! \brief The level of the object
         unsigned int    level;
+
+        //mutable sem_t   nameLockSemaphore;
 };
 
 #endif /* GAMEENTITY_H_ */

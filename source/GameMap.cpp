@@ -470,9 +470,8 @@ void GameMap::removeCreature(Creature *c)
 void GameMap::queueCreatureForDeletion(Creature *c)
 {
     // If the creature has a homeTile where they sleep, their bed needs to be destroyed.
-    if (c->homeTile != NULL)
-        ((RoomQuarters*) c->homeTile->getCoveringRoom())->releaseTileForSleeping(
-                c->homeTile, c);
+    if (c->homeTile != 0)
+        static_cast<RoomQuarters*>(c->homeTile->getCoveringRoom())->releaseTileForSleeping(c->homeTile, c);
 
     // Remove the creature from the GameMap in case the caller forgot to do so.
     removeCreature(c);
@@ -991,12 +990,11 @@ unsigned long int GameMap::doMiscUpkeep()
     // Loop back over all the dungeon temples and for each one decide if it should try to produce a kobold.
     for (unsigned int i = 0; i < dungeonTemples.size(); ++i)
     {
-        RoomDungeonTemple *dungeonTemple =
-                (RoomDungeonTemple*) dungeonTemples[i];
+        RoomDungeonTemple *dungeonTemple = static_cast<RoomDungeonTemple*>(dungeonTemples[i]);
         int color = dungeonTemple->color;
         if (koboldsNeededPerColor[color] > 0)
         {
-            koboldsNeededPerColor[color]--;
+            --koboldsNeededPerColor[color];
             dungeonTemple->produceKobold();
         }
     }
@@ -1146,7 +1144,7 @@ unsigned long int GameMap::doCreatureTurns()
 void *GameMap::creatureDoTurnHelperThread(void *p)
 {
     // Call the individual creature AI for each creature in this game map.
-    CDTHTStruct *params = (CDTHTStruct*) p;
+    CDTHTStruct *params = static_cast<CDTHTStruct*>(p);
 
     //cout << *params->creatures;
     for (int i = 0; i < params->numCreatures; ++i)
@@ -2090,10 +2088,11 @@ unsigned int GameMap::numTraps()
 int GameMap::getTotalGoldForColor(int color)
 {
     int tempInt = 0;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury,
-            color);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
     for (unsigned int i = 0; i < treasuriesOwned.size(); ++i)
-        tempInt += ((RoomTreasury*) treasuriesOwned[i])->getTotalGold();
+    {
+        tempInt += static_cast<RoomTreasury*>(treasuriesOwned[i])->getTotalGold();
+    }
 
     return tempInt;
 }
@@ -2107,11 +2106,11 @@ int GameMap::withdrawFromTreasuries(int gold, int color)
 
     // Loop over the treasuries withdrawing gold until the full amount has been withdrawn.
     int goldStillNeeded = gold;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury,
-            color);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
     for (unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; ++i)
-        goldStillNeeded -= ((RoomTreasury*) treasuriesOwned[i])->withdrawGold(
-                goldStillNeeded);
+    {
+        goldStillNeeded -= static_cast<RoomTreasury*>(treasuriesOwned[i])->withdrawGold(goldStillNeeded);
+    }
 
     return gold;
 }
@@ -2138,7 +2137,7 @@ void GameMap::addMapLight(MapLight *m)
 
     if (!m->isPermanent())
     {
-        addActiveObject((TemporaryMapLight*) m);
+        addActiveObject(static_cast<TemporaryMapLight*>(m));
     }
 
     /*

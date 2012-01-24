@@ -23,7 +23,7 @@ class Window;
 #include "CreatureDefinition.h"
 #include "AttackableEntity.h"
 #include "CreatureAction.h"
-
+#include "MovableGameEntity.h"
 
 /*! \brief Position, status, and AI state for a single game creature.
  *
@@ -37,7 +37,7 @@ class Window;
 class Creature: public MovableGameEntity, public AttackableEntity
 {
     public:
-        //TODO: write a good default constructir with default arguments
+        //TODO: write a good default constructor with default arguments
         Creature(GameMap* gameMap = 0, const std::string& name = "");
         //~Creature();
 
@@ -64,7 +64,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
         void setPosition(const Ogre::Vector3& v);
 
         void setHP(double nHP);
-        //FIXME: Why is tile a parameter here? It's not used. TODO: remove this
+
         double getHP(Tile *tile) { return getHP(); };
         double getHP() const;
 
@@ -83,7 +83,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
 
         double  getDigRate() const          { return digRate; }
 
-        const CreatureDefinition* getDefinition() { return definition; }
+        const CreatureDefinition* getDefinition() const { return definition; }
 
         // AI stuff
         virtual void doTurn();
@@ -132,7 +132,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
         void popAction();
         CreatureAction peekAction();
 
-        //\ brief Pointer to the struct holding the general type of the creature with its values
+        //! \brief Pointer to the struct holding the general type of the creature with its values
         const CreatureDefinition* definition;
 
         mutable sem_t   hpLockSemaphore;

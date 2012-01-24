@@ -198,7 +198,7 @@ void RegisterScriptFile_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("file", "int setPos(int)", asMETHOD(CScriptFile,SetPos), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "int movePos(int)", asMETHOD(CScriptFile,MovePos), asCALL_THISCALL); assert( r >= 0 );
 
-	r = engine->RegisterObjectProperty("file", "bool mostSignificantByteFirst", offsetof(CScriptFile, mostSignificantByteFirst)); assert( r >= 0 );
+	r = engine->RegisterObjectProperty("file", "bool mostSignificantByteFirst", asOFFSET(CScriptFile, mostSignificantByteFirst)); assert( r >= 0 );
 }
 
 void RegisterScriptFile_Generic(asIScriptEngine *engine)
@@ -231,7 +231,7 @@ void RegisterScriptFile_Generic(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("file", "int setPos(int)", asFUNCTION(ScriptFile_SetPos_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("file", "int movePos(int)", asFUNCTION(ScriptFile_MovePos_Generic), asCALL_GENERIC); assert( r >= 0 );
 
-	r = engine->RegisterObjectProperty("file", "bool mostSignificantByteFirst", offsetof(CScriptFile, mostSignificantByteFirst)); assert( r >= 0 );
+	r = engine->RegisterObjectProperty("file", "bool mostSignificantByteFirst", asOFFSET(CScriptFile, mostSignificantByteFirst)); assert( r >= 0 );
 }
 
 void RegisterScriptFile(asIScriptEngine *engine)

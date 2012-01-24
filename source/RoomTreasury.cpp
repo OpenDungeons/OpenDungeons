@@ -22,9 +22,8 @@ void RoomTreasury::absorbRoom(Room *r)
     for (unsigned int i = 0; i < r->numCoveredTiles(); ++i)
     {
         Tile *tempTile = r->getCoveredTile(i);
-        goldInTile[tempTile] = ((RoomTreasury*) r)->goldInTile[tempTile];
-        fullnessOfTile[tempTile]
-                = ((RoomTreasury*) r)->fullnessOfTile[tempTile];
+        goldInTile[tempTile] = static_cast<RoomTreasury*>(r)->goldInTile[tempTile];
+        fullnessOfTile[tempTile] = static_cast<RoomTreasury*>(r)->fullnessOfTile[tempTile];
     }
 
     // Use the superclass function to copy over the covered tiles to this room and get rid of them in the other room.
