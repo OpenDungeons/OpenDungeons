@@ -145,6 +145,7 @@ set(OD_SOURCEFILES
     ${SRC}/TestAI.cpp
     ${SRC}/TextRenderer.cpp
     ${SRC}/Tile.cpp
+#    ${SRC}/TileMap.cpp
     ${SRC}/TileCoordinateMap.cpp
     ${SRC}/Translation.cpp
     ${SRC}/Trap.cpp
