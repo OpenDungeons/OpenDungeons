@@ -7,6 +7,7 @@ FileSystem=@OPENDUNGEONS_MEDIA_DIR@/models
 
 [GUI]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui/schemas
 
 [Music]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/music

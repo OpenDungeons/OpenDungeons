@@ -6,6 +6,7 @@ Zip=@OPENDUNGEONS_MEDIA_DIR@/graphics/textures.zip
 
 [GUI]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/gui/schemas
 
 [Music]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/music
