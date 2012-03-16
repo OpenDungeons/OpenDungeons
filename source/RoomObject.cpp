@@ -35,6 +35,8 @@ void RoomObject::createMesh()
     request->type = RenderRequest::createRoomObject;
     request->p = this;
     request->p2 = parentRoom;
+    request->str = getName();
+    request->p3 = new std::string(getMeshName());
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);

@@ -60,6 +60,7 @@ class InputManager :
         bool                mouseDownOnCEGUIWindow;
         bool                mBrushMode;
         bool                digSetBool;
+        bool                directionKeyPressed;
         int                 mCurrentFullness, mCurrentTileRadius;
         int                 xPos, yPos;
         int                 mLStartDragX, mLStartDragY;

@@ -10,6 +10,7 @@
 //#include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExPerPixelLighting.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
+#include <boost/scoped_ptr.hpp>
 
 #include "GameMap.h"
 #include "RenderRequest.h"
@@ -571,13 +572,15 @@ void RenderManager::rrDestroyRoom ( const RenderRequest& renderRequest )
 void RenderManager::rrCreateRoomObject ( const RenderRequest& renderRequest )
 {
     RoomObject* curRoomObject = static_cast<RoomObject*> (renderRequest.p);
+    std::string name = renderRequest.str;
+    boost::scoped_ptr<std::string> meshName(static_cast<std::string*>(renderRequest.p3));
     //TODO - find out why this was here
     //Room* curRoom = static_cast<Room*> ( renderRequest.p2 );
 
     std::string tempString = curRoomObject->getOgreNamePrefix()
-                             + curRoomObject->getName();
+                             + name;
     Ogre::Entity* ent = sceneManager->createEntity(tempString,
-                        curRoomObject->getMeshName() + ".mesh");
+                        *meshName.get() + ".mesh");
     Ogre::SceneNode* node = roomSceneNode->createChildSceneNode(tempString
                             + "_node");
     node->setPosition(Ogre::Vector3(curRoomObject->x, curRoomObject->y, 0.0));
@@ -690,9 +693,10 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
 {
     Creature* curCreature = static_cast<Creature*>(renderRequest.p);
     std::string meshName = renderRequest.str;
+    Ogre::Vector3 scale = renderRequest.vec;
 
     assert(curCreature != 0);
-    assert(curCreature->getDefinition() != 0);
+    //assert(curCreature->getDefinition() != 0);
     
     // Load the mesh for the creature
     Ogre::Entity* ent = sceneManager->createEntity("Creature_" + curCreature->getName(),
@@ -711,7 +715,7 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
                                 curCreature->getName() + "_node");
     curCreature->sceneNode = node;
     node->setPosition(curCreature->getPosition());
-    node->setScale(curCreature->getDefinition()->getScale());
+    node->setScale(scale);
     node->attachObject(ent);
 }
 

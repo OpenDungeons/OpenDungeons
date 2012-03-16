@@ -206,6 +206,7 @@ void Creature::createMesh()
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createCreature;
     request->str = definition->getMeshName();
+    request->vec = definition->getScale();
     request->p = static_cast<void*>(this);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
