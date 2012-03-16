@@ -158,6 +158,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
         //*c = *creatureClass;
         c->definition = creatureClass;
     }
+    assert(c->definition);
 
     is >> tempDouble;
     c->setHP(tempDouble);
@@ -167,7 +168,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     return is;
 }
 
-Creature& Creature::operator=(CreatureDefinition c2)
+Creature& Creature::operator=(const CreatureDefinition* c2)
 {
     /*
     creatureJob = c2.creatureJob;
@@ -186,7 +187,7 @@ Creature& Creature::operator=(CreatureDefinition c2)
     bedDim1 = c2.bedDim1;
     bedDim2 = c2.bedDim2;*/
 
-    definition = &c2;
+    setCreatureDefinition(c2);
     return *this;
 }
 
@@ -2131,6 +2132,14 @@ std::string Creature::getStatsText()
     tempSS << "AI State: " << actionQueue.front().toString() << "\n";
     sem_post(&actionQueueLockSemaphore);
     return tempSS.str();
+}
+
+/** \brief Sets the creature definition for this creature
+ * 
+ */
+void Creature::setCreatureDefinition(const CreatureDefinition* def)
+{
+    definition = def;
 }
 
 /** \brief Conform: AttackableObject - Returns whether or not this creature is capable of moving.

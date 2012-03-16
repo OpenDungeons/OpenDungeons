@@ -124,7 +124,7 @@ void RoomPortal::spawnCreature()
 
     // Create a new creature and copy over the class-based creature parameters.
     Creature *newCreature = new Creature(gameMap);
-    *newCreature = *classToSpawn;
+    newCreature->setCreatureDefinition(classToSpawn);
 
     // Set the creature specific parameters.
     //NOTE:  This needs to be modified manually when the level file creature format changes.

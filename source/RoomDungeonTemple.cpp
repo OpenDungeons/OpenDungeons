@@ -49,7 +49,7 @@ void RoomDungeonTemple::produceKobold()
         {
             //TODO: proper assignemt of creature definition through constrcutor
             Creature* newCreature = new Creature(gameMap);
-            *newCreature = *classToSpawn;
+            newCreature->setCreatureDefinition(classToSpawn);
             newCreature->setName(newCreature->getUniqueCreatureName());
             newCreature->setPosition(coveredTiles[0]->x, coveredTiles[0]->y, 0);
             newCreature->setColor(color);

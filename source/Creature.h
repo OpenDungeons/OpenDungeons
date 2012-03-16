@@ -59,6 +59,8 @@ class Creature: public MovableGameEntity, public AttackableEntity
         void destroyStatsWindow();
         void updateStatsWindow();
         std::string getStatsText();
+        
+        void setCreatureDefinition(const CreatureDefinition* def); 
 
         void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
         void setPosition(const Ogre::Vector3& v);
@@ -123,7 +125,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Creature *c);
         friend std::istream& operator>>(std::istream& is, Creature *c);
-        Creature& operator=(CreatureDefinition c2);
+        Creature& operator=(const CreatureDefinition* c2);
 
         static const int maxGoldCarriedByWorkers = 1500;
 

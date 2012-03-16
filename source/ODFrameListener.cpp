@@ -1039,7 +1039,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
                     tempCreature->getDefinition()->getClassName());
             if (tempClass != NULL)
             {
-                *tempCreature = *tempClass;
+                *tempCreature = tempClass;
                 tempSS >> tempCreature;
 
                 gameMap->addCreature(tempCreature);

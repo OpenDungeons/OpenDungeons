@@ -155,8 +155,11 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
             }
 
             bedOrientationForTile[t] = normalDirection;
+            
+            const CreatureDefinition* def = c->getDefinition();
+            assert(def);
 
-            loadRoomObject(c->getDefinition()->getBedMeshName(), t, t->x + xDim / 2.0 - 0.5, t->y
+            loadRoomObject(def->getBedMeshName(), t, t->x + xDim / 2.0 - 0.5, t->y
                     + yDim / 2.0 - 0.5, rotationAngle)->createMesh();
 
             return true;
