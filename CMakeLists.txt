@@ -70,6 +70,7 @@ set(OD_SOURCEFILES
 
     #AngelScript Addon sources
     ${ANGELSCRIPT_ADDON_DIR}/scriptarray/scriptarray.cpp
+    ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder/scriptbuilder.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scripthelper/scripthelper.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
     
@@ -244,7 +245,7 @@ include_directories(
 #    ${ANGELSCRIPT_ADDON_DIR}/debugger
 #    ${ANGELSCRIPT_ADDON_DIR}/scriptany
     ${ANGELSCRIPT_ADDON_DIR}/scriptarray
-#    ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder
+    ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder
 #    ${ANGELSCRIPT_ADDON_DIR}/scriptdictionary
 #    ${ANGELSCRIPT_ADDON_DIR}/scriptfile
     ${ANGELSCRIPT_ADDON_DIR}/scripthelper

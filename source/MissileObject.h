@@ -15,9 +15,7 @@ class GameMap;
 class MissileObject: public ActiveEntity, public MovableGameEntity
 {
     public:
-        MissileObject(GameMap& gameMap);
         MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap& gameMap);
-        void initialize();
 
         void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
         void setPosition(const Ogre::Vector3& v);
@@ -27,16 +25,10 @@ class MissileObject: public ActiveEntity, public MovableGameEntity
         void destroyMesh();
         void deleteYourself();
 
-        std::string meshName;
         std::string getOgreNamePrefix()
         {
             return "";
         }
-        const std::string& getName() const
-        {
-            return name;
-        }
-        std::string name;
         
         virtual bool doUpkeep();
         virtual void stopWalking();
@@ -48,7 +40,6 @@ class MissileObject: public ActiveEntity, public MovableGameEntity
         std::deque<Ogre::Vector3> walkQueue;
         Ogre::Vector3 position;
         sem_t positionLockSemaphore;
-        bool meshesExist;
 };
 
 #endif

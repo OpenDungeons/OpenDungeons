@@ -36,7 +36,7 @@ class Gui : public Ogre::Singleton<Gui>
 
         void                loadGuiSheet    (const guiSheet& newSheet);
         CEGUI::MouseButton  convertButton   (const OIS::MouseButtonID& buttonID);
-        void                setVisible      (const bool& visible);
+        void                setVisible      (bool visible);
         void                toggleGui       ();
 
         //Access names of the GUI elements

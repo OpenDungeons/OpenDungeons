@@ -809,11 +809,11 @@ void RenderManager::rrDestroyWeapon ( const RenderRequest& renderRequest )
 void RenderManager::rrCreateMissileObject ( const RenderRequest& renderRequest )
 {
     MissileObject* curMissileObject = static_cast<MissileObject*>(renderRequest.p);
-    Ogre::Entity* ent = sceneManager->createEntity(curMissileObject->name,
-                        curMissileObject->meshName + ".mesh");
+    Ogre::Entity* ent = sceneManager->createEntity(curMissileObject->getName(),
+                        curMissileObject->getMeshName() + ".mesh");
     //TODO:  Make a new subroot scene node for these so lookups are faster since only a few missile objects should be onscreen at once.
     Ogre::SceneNode* node = creatureSceneNode->createChildSceneNode(
-                                curMissileObject->name + "_node");
+                                curMissileObject->getName() + "_node");
     node->setPosition(curMissileObject->getPosition());
     node->attachObject(ent);
 }
@@ -821,16 +821,14 @@ void RenderManager::rrCreateMissileObject ( const RenderRequest& renderRequest )
 void RenderManager::rrDestroyMissileObject ( const RenderRequest& renderRequest )
 {
     MissileObject* curMissileObject = static_cast<MissileObject*>(renderRequest.p);
-    if (sceneManager->hasEntity(curMissileObject->name))
+    if (sceneManager->hasEntity(curMissileObject->getName()))
     {
-        Ogre::Entity* ent = sceneManager->getEntity(curMissileObject->name);
-        Ogre::SceneNode* node = sceneManager->getSceneNode(curMissileObject->name
-                                + "_node");
+        Ogre::Entity* ent = sceneManager->getEntity(curMissileObject->getName());
+        Ogre::SceneNode* node = sceneManager->getSceneNode(curMissileObject->getName()  + "_node");
         node->detachObject(ent);
         creatureSceneNode->removeChild(node);
         sceneManager->destroyEntity(ent);
-        sceneManager->destroySceneNode(curMissileObject->name
-                                       + "_node");
+        sceneManager->destroySceneNode(curMissileObject->getName() + "_node");
     }
 }
 

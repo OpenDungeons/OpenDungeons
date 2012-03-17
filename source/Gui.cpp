@@ -5,6 +5,10 @@
  * \brief  Class Gui containing all the stuff for the GUI, including translation.
  */
 
+//TODO: The event handlers should be call functions to AS instead of hardcoded so that we can
+//      script the GUI actions. Maybe even register CEGUI to AS to make it fully scripted?
+//      Then we could easily adjust the GUI without recompiling.
+
 #include <RendererModules/Ogre/CEGUIOgreRenderer.h>
 
 #include "MapLoader.h"
@@ -218,34 +222,21 @@ bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
  */
 void Gui::toggleGui()
 {
-    if(activeSheet != hideGui)
-    {
-        loadGuiSheet(hideGui);
-    }
-    else
-    {
-        loadGuiSheet(ingameMenu);
-    }
+    loadGuiSheet(activeSheet != hideGui ? hideGui : ingameMenu);
 }
 
 /*! \brief shows (true) or hides (false) the GUI
  *
  */
-void Gui::setVisible(const bool& visible)
+void Gui::setVisible(bool visible)
 {
-    if(visible)
-    {
-        loadGuiSheet(ingameMenu);
-    }
-    else
-    {
-        loadGuiSheet(hideGui);
-    }
+    loadGuiSheet(visible ? ingameMenu : hideGui);
 }
 
 /* These constants are used to access the GUI element
  * NOTE: when add/remove/rename a GUI element, don't forget to change it here
  */
+//TODO: Probably these should be read from a file? Script file?
 const std::string Gui::ROOT = "Root";
 const std::string Gui::DISPLAY_GOLD = "Root/GoldDisplay";
 const std::string Gui::DISPLAY_MANA = "Root/ManaDisplay";

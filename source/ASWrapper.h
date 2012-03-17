@@ -15,6 +15,7 @@ class asIScriptContext;
 class asIScriptEngine;
 class asIScriptModule;
 class asSMessageInfo;
+class CScriptBuilder;
 
 /*! \brief This singleton initialises AngelScript and provides all neccessary functions to
  *         execute script code, including registering our own classes, templated reference
@@ -31,13 +32,12 @@ class ASWrapper : public Ogre::Singleton<ASWrapper>
 
     private:
         asIScriptEngine*    engine;
-        asIScriptModule*    module;
+        CScriptBuilder*     builder;
         asIScriptContext*   context;
         asIObjectType*      stringArray;
 
         void messageCallback    (const asSMessageInfo* msg, void* param);
         void registerEverything ();
-        void loadScript         (const std::string& fileName);
 
         //! \brief Empty dummy ref function for objects that are not new/delete by the script
         static void dummy(void*) {}

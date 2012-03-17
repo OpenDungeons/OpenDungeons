@@ -24,6 +24,7 @@
 #include "scriptarray.h"
 #include "scripthelper.h"
 #include "scriptstdstring.h"
+#include "scriptbuilder.h"
 
 #include "CameraManager.h"
 #include "Console.h"
@@ -45,7 +46,7 @@ template<> ASWrapper* Ogre::Singleton<ASWrapper>::ms_Singleton = 0;
  */
 ASWrapper::ASWrapper() :
         engine  (asCreateScriptEngine(ANGELSCRIPT_VERSION)),
-        module  (engine->GetModule("asModule", asGM_ALWAYS_CREATE)),
+        builder (new CScriptBuilder()),
         context (engine->CreateContext())
 {
     LogManager::getSingleton().logMessage("*** Initialising script engine AngelScript ***");
@@ -59,19 +60,20 @@ ASWrapper::ASWrapper() :
     //save the string[] type because it's often used for console interaction
     stringArray = engine->GetObjectTypeById(engine->GetTypeIdByDecl("string[]"));
 
-    //load all .as files from /scripts folder so we can access them
+    //load all .as files from /scripts folder using the ScriptBuilder addond so we can access them
+    builder->StartNewModule(engine, "asModule");
     const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
     std::vector<std::string> files = ResourceManager::getSingleton().listAllFiles(scriptpath);
     for(std::vector<std::string>::iterator i = files.begin(), end = files.end(); i < end; ++i)
     {
         if(ResourceManager::hasFileEnding(*i, ".as"))
         {
-            loadScript(scriptpath + *i);
+            builder->AddSectionFromFile((scriptpath + *i).c_str());
         }
     }
 
     //Compile AS code, syntax errors will be printed to our Console
-    module->Build();
+    builder->BuildModule();
 }
 
 /*! \brief closes AngelScript
@@ -79,28 +81,9 @@ ASWrapper::ASWrapper() :
  */
 ASWrapper::~ASWrapper()
 {
+    delete builder;
     context->Release();
     engine->Release();
-}
-
-/*! \brief loads an AngelScript file and adds it to the module
- *
- *  \param fileName The name of the script file, like "script.as"
- */
-void ASWrapper::loadScript(const std::string& fileName)
-{
-    const char* fileNameCStr = fileName.c_str();
-
-    std::ifstream   scriptFile(fileNameCStr);
-    std::string     script;
-
-    scriptFile.seekg(0, std::ios::end);
-    script.reserve(scriptFile.tellg());
-    scriptFile.seekg(0, std::ios::beg);
-
-    script.assign(std::istreambuf_iterator<char>(scriptFile), std::istreambuf_iterator<char>());
-
-    module->AddScriptSection(fileNameCStr, script.c_str());
 }
 
 /*! \brief passes code to the script engine and tries to execute it
@@ -109,7 +92,7 @@ void ASWrapper::loadScript(const std::string& fileName)
  */
 void ASWrapper::executeScriptCode(const std::string& code)
 {
-    ExecuteString(engine, code.c_str(), module, context);
+    ExecuteString(engine, code.c_str(), builder->GetModule(), context);
 }
 
 /*! \brief Send AngelScript errors, warnings and information to our console
@@ -414,7 +397,7 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];
     }
 
-    context->Prepare(module->GetFunctionIdByDecl(
+    context->Prepare(builder->GetModule()->GetFunctionIdByDecl(
             "void executeConsoleCommand(string &in, string[] &in)"));
     context->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
     context->SetArgObject(1, arguments);

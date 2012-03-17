@@ -5,41 +5,30 @@
 #include "RenderRequest.h"
 #include "RenderManager.h"
 #include "GameMap.h"
+#include "LogManager.h"
 
 sem_t MissileObject::missileObjectUniqueNumberLockSemaphore;
 
-MissileObject::MissileObject(GameMap& gameMap) :
-    gameMap(gameMap)
-{
-    initialize();
-}
-
 MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap& gameMap) :
-        meshName(nMeshName),
         gameMap(gameMap)
 {
-    initialize();
+    static int uniqueNumber = 0;
+LogManager::getSingleton().logMessage("ONE");
+    sem_init(&positionLockSemaphore, 0, 1);
+
+    std::stringstream tempSS;
+    sem_wait(&missileObjectUniqueNumberLockSemaphore);
+    tempSS << "Missile_Object_" << ++uniqueNumber;
+    sem_post(&missileObjectUniqueNumberLockSemaphore);
+    setName(tempSS.str());
+    LogManager::getSingleton().logMessage("TWO");
+    setMeshName(nMeshName);
+    setMeshExisting(false);
 
     sem_wait(&positionLockSemaphore);
     position = nPosition;
     sem_post(&positionLockSemaphore);
-}
-
-void MissileObject::initialize()
-{
-    static int uniqueNumber = 1;
-    std::stringstream tempSS;
-    sem_wait(&missileObjectUniqueNumberLockSemaphore);
-    tempSS << "Missile_Object_" << uniqueNumber++;
-    sem_post(&missileObjectUniqueNumberLockSemaphore);
-    name = tempSS.str();
-
-    sem_init(&positionLockSemaphore, 0, 1);
-    sem_wait(&positionLockSemaphore);
-    position = Ogre::Vector3(0, 0, 0);
-    sem_post(&positionLockSemaphore);
-
-    meshesExist = false;
+    LogManager::getSingleton().logMessage("THREE");
 }
 
 bool MissileObject::doUpkeep()
@@ -73,7 +62,7 @@ void MissileObject::setPosition(const Ogre::Vector3& v)
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
-    request->str = name + "_node";
+    request->str = getName() + "_node";
     request->vec = position;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
@@ -106,10 +95,10 @@ Ogre::Vector3 MissileObject::getPosition()
 void MissileObject::createMesh()
 {
     std::cout << "\nCalling createMesh()";
-    if (meshesExist)
+    if (isMeshExisting())
         return;
 
-    meshesExist = true;
+    setMeshExisting(true);
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createMissileObject;
@@ -121,10 +110,10 @@ void MissileObject::createMesh()
 
 void MissileObject::destroyMesh()
 {
-    if (!meshesExist)
+    if (!isMeshExisting())
         return;
 
-    meshesExist = false;
+    setMeshExisting(false);
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyMissileObject;
@@ -136,7 +125,7 @@ void MissileObject::destroyMesh()
 
 void MissileObject::deleteYourself()
 {
-    if (meshesExist)
+    if (isMeshExisting())
         destroyMesh();
 
     // Create a render request asking the render queue to actually do the deletion of this creature.
