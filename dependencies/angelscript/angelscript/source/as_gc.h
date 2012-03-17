@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2011 Andreas Jonsson
+   Copyright (c) 2003-2012 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -60,7 +60,7 @@ public:
 	void GCEnumCallback(void *reference);
 	void AddScriptObjectToGC(void *obj, asCObjectType *objType);
 
-	void ReportUndestroyedObjects();
+	int ReportAndReleaseUndestroyedObjects();
 
 	asCScriptEngine *engine;
 
@@ -127,8 +127,8 @@ protected:
 	asSMapNode<void*, asSIntTypePair> *gcMapCursor;
 
 	// Critical section for multithreaded access
-	DECLARECRITICALSECTION(gcCritical);   // Used for adding/removing objects
-	DECLARECRITICALSECTION(gcCollecting); // Used for processing
+	DECLARECRITICALSECTION(gcCritical)   // Used for adding/removing objects
+	DECLARECRITICALSECTION(gcCollecting) // Used for processing
 };
 
 END_AS_NAMESPACE

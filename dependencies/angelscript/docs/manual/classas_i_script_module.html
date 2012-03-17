@@ -88,6 +88,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Compile a single global variable and add it to the scope of the module.  <a href="#a34850e152dcdcb58c53a2b6929cebf77"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a76733de5a86875c4a0f021f7f92a6d12">SetAccessMask</a> (<a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> accessMask)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the access mask that should be used during the compilation.  <a href="#a76733de5a86875c4a0f021f7f92a6d12"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#ab8629af79cee8212d0d244314d36f42a">SetDefaultNamespace</a> (const char *nameSpace)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the default namespace that should be used in the following calls.  <a href="#ab8629af79cee8212d0d244314d36f42a"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Functions</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a373d102f109ae0fa20584f243ead4035">GetFunctionCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of global functions in the module.  <a href="#a373d102f109ae0fa20584f243ead4035"></a><br/></td></tr>
@@ -103,10 +105,10 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function by its declaration.  <a href="#ab4754d55d8667aefbed135b4794d461b"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a81d727c9677b683942b6087df4ce95ad">GetFunctionByName</a> (const char *name) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function by its name.  <a href="#a81d727c9677b683942b6087df4ce95ad"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a7c1030fdb2e0b5dac3ed3f2d27cd3119">GetFunctionDescriptorByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#ad09b8ddf16d45154b1f12a5847a57db6">GetFunctionDescriptorById</a> (int funcId) const =0</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a62c6783491b197e9eb29639e7997e1df">RemoveFunction</a> (int funcId)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a single function from the scope of the module.  <a href="#a62c6783491b197e9eb29639e7997e1df"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a54b6f8e09787ad20880f73bc97a8ef10">RemoveFunction</a> (<a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *func)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a single function from the scope of the module.  <a href="#a54b6f8e09787ad20880f73bc97a8ef10"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Global variables</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a7b084b6693a05616097d7059e54d983b">ResetGlobalVars</a> (<a class="el" href="classas_i_script_context.html">asIScriptContext</a> *ctx=0)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Reset the global variables of the module.  <a href="#a7b084b6693a05616097d7059e54d983b"></a><br/></td></tr>
@@ -116,10 +118,10 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the global variable index by name.  <a href="#a00cff95b43c256cc6b9062e135a473a2"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#ac3d5dafe8ca92bf618f438dc79ef2906">GetGlobalVarIndexByDecl</a> (const char *decl) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the global variable index by declaration.  <a href="#ac3d5dafe8ca92bf618f438dc79ef2906"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a343d8cab801cc6edf0e2d80cee0ee538">GetGlobalVarDeclaration</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the global variable declaration.  <a href="#a343d8cab801cc6edf0e2d80cee0ee538"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a00b36a31c91756a34f66c37283ea5235">GetGlobalVar</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, const char **name, int *typeId=0, bool *isConst=0) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the global variable properties.  <a href="#a00b36a31c91756a34f66c37283ea5235"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#aebe27735e0ce4c06bf79b2b4282192cd">GetGlobalVarDeclaration</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, bool includeNamespace=false) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the global variable declaration.  <a href="#aebe27735e0ce4c06bf79b2b4282192cd"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a939e6caf004c6fdae78fe89bb244d962">GetGlobalVar</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, const char **name, const char **nameSpace=0, int *typeId=0, bool *isConst=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the global variable properties.  <a href="#a939e6caf004c6fdae78fe89bb244d962"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a0998d375ca1de02bc72f4544806da58c">GetAddressOfGlobalVar</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the pointer to the global variable.  <a href="#a0998d375ca1de02bc72f4544806da58c"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#aac10878c3d16f18ace4db881f7a1bb11">RemoveGlobalVar</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index)=0</td></tr>
@@ -134,8 +136,8 @@ Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Enums</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a1a241b3dfd47f7ab5bb475c757e38df9">GetEnumCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of enum types declared in the module.  <a href="#a1a241b3dfd47f7ab5bb475c757e38df9"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#acdce6b9ca9f8ce694751c133f27a7313">GetEnumByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *enumTypeId) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the enum type.  <a href="#acdce6b9ca9f8ce694751c133f27a7313"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a0d857ff9bb2fd6c4632c3af5dc28488a">GetEnumByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *enumTypeId, const char **nameSpace=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the enum type.  <a href="#a0d857ff9bb2fd6c4632c3af5dc28488a"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a1d3ec83b6130a66abb4c8f1cebb963c8">GetEnumValueCount</a> (int enumTypeId) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of values defined for the enum type.  <a href="#a1d3ec83b6130a66abb4c8f1cebb963c8"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a9911c25c61315bc4109c11872ce69445">GetEnumValueByIndex</a> (int enumTypeId, <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *outValue) const =0</td></tr>
@@ -143,8 +145,8 @@ Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Typedefs</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#ad30b22539655df3135f29ce28b89c820">GetTypedefCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of typedefs in the module.  <a href="#ad30b22539655df3135f29ce28b89c820"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#af3fbbbdf2864b0e46fbc25063df0c36a">GetTypedefByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *typeId) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the typedef.  <a href="#af3fbbbdf2864b0e46fbc25063df0c36a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a120442b78bbea4af45a1045a4beaf435">GetTypedefByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *typeId, const char **nameSpace=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the typedef.  <a href="#a120442b78bbea4af45a1045a4beaf435"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Dynamic binding between modules</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a12273a6a6dd9bd39ca9675bcd84b0cc7">GetImportedFunctionCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of functions declared for import.  <a href="#a12273a6a6dd9bd39ca9675bcd84b0cc7"></a><br/></td></tr>
@@ -228,7 +230,8 @@ Public Member Functions</h2></td></tr>
 <dl><dt><b>Return values:</b></dt><dd>
   <table class="retval">
     <tr><td class="paramname">asMODULE_IS_IN_USE</td><td>The module is currently in use. </td></tr>
-    <tr><td class="paramname">asINVALID_ARG</td><td>The <em>code</em> argument is null.</td></tr>
+    <tr><td class="paramname">asINVALID_ARG</td><td>The <em>code</em> argument is null. </td></tr>
+    <tr><td class="paramname">asNOT_SUPPORTED</td><td>Compiler support is disabled in the engine.</td></tr>
   </table>
   </dd>
 </dl>
@@ -324,7 +327,8 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">asINVALID_CONFIGURATION</td><td>The engine configuration is invalid. </td></tr>
     <tr><td class="paramname">asERROR</td><td>The script failed to build. </td></tr>
     <tr><td class="paramname">asBUILD_IN_PROGRESS</td><td>Another thread is currently building. </td></tr>
-    <tr><td class="paramname">asINIT_GLOBAL_VARS_FAILED</td><td>It was not possible to initialize at least one of the global variables.</td></tr>
+    <tr><td class="paramname">asINIT_GLOBAL_VARS_FAILED</td><td>It was not possible to initialize at least one of the global variables. </td></tr>
+    <tr><td class="paramname">asNOT_SUPPORTED</td><td>Compiler support is disabled in the engine.</td></tr>
   </table>
   </dd>
 </dl>
@@ -392,7 +396,8 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">asINVALID_ARG</td><td>One or more arguments have invalid values. </td></tr>
     <tr><td class="paramname">asINVALID_CONFIGURATION</td><td>The engine configuration is invalid. </td></tr>
     <tr><td class="paramname">asBUILD_IN_PROGRESS</td><td>Another build is in progress. </td></tr>
-    <tr><td class="paramname">asERROR</td><td>The compilation failed.</td></tr>
+    <tr><td class="paramname">asERROR</td><td>The compilation failed. </td></tr>
+    <tr><td class="paramname">asNOT_SUPPORTED</td><td>Compiler support is disabled in the engine.</td></tr>
   </table>
   </dd>
 </dl>
@@ -445,7 +450,8 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">asINVALID_ARG</td><td>One or more arguments have invalid values. </td></tr>
     <tr><td class="paramname">asINVALID_CONFIGURATION</td><td>The engine configuration is invalid. </td></tr>
     <tr><td class="paramname">asBUILD_IN_PROGRESS</td><td>Another build is in progress. </td></tr>
-    <tr><td class="paramname">asERROR</td><td>The compilation failed.</td></tr>
+    <tr><td class="paramname">asERROR</td><td>The compilation failed. </td></tr>
+    <tr><td class="paramname">asNOT_SUPPORTED</td><td>Compiler support is disabled in the engine.</td></tr>
   </table>
   </dd>
 </dl>
@@ -496,7 +502,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="acdce6b9ca9f8ce694751c133f27a7313"></a><!-- doxytag: member="asIScriptModule::GetEnumByIndex" ref="acdce6b9ca9f8ce694751c133f27a7313" args="(asUINT index, int *enumTypeId) const =0" -->
+<a class="anchor" id="a0d857ff9bb2fd6c4632c3af5dc28488a"></a><!-- doxytag: member="asIScriptModule::GetEnumByIndex" ref="a0d857ff9bb2fd6c4632c3af5dc28488a" args="(asUINT index, int *enumTypeId, const char **nameSpace=0) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -510,7 +516,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>enumTypeId</em>&#160;</td>
+          <td class="paramname"><em>enumTypeId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char **&#160;</td>
+          <td class="paramname"><em>nameSpace</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -524,6 +536,7 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the enum type. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">enumTypeId</td><td>Receives the type id of the enum type. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">nameSpace</td><td>Receives the namespace of the enum. </td></tr>
   </table>
   </dd>
 </dl>
@@ -710,44 +723,6 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ad09b8ddf16d45154b1f12a5847a57db6"></a><!-- doxytag: member="asIScriptModule::GetFunctionDescriptorById" ref="ad09b8ddf16d45154b1f12a5847a57db6" args="(int funcId) const =0" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a>* asIScriptModule::GetFunctionDescriptorById </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>funcId</em></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd></dd></dl>
-<dl class="since"><dt><b>Since:</b></dt><dd>2011-10-03. Use <a class="el" href="classas_i_script_engine.html#aaf67dc0b1f26be437ccbcc0ac5f330c9">asIScriptEngine::GetFunctionById</a> </dd></dl>
-
-</div>
-</div>
-<a class="anchor" id="a7c1030fdb2e0b5dac3ed3f2d27cd3119"></a><!-- doxytag: member="asIScriptModule::GetFunctionDescriptorByIndex" ref="a7c1030fdb2e0b5dac3ed3f2d27cd3119" args="(asUINT index) const =0" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a>* asIScriptModule::GetFunctionDescriptorByIndex </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td>
-          <td class="paramname"><em>index</em></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000003">Deprecated:</a></b></dt><dd></dd></dl>
-<dl class="since"><dt><b>Since:</b></dt><dd>2011-10-03. Use <a class="el" href="classas_i_script_module.html#afd4d9951ee006caa8ec1bab3d3d206fc">asIScriptModule::GetFunctionByIndex</a> instead </dd></dl>
-
-</div>
-</div>
 <a class="anchor" id="a3c9cc47d3e0efc4aaf22d92492735438"></a><!-- doxytag: member="asIScriptModule::GetFunctionIdByDecl" ref="a3c9cc47d3e0efc4aaf22d92492735438" args="(const char *decl) const =0" -->
 <div class="memitem">
 <div class="memproto">
@@ -847,7 +822,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a00b36a31c91756a34f66c37283ea5235"></a><!-- doxytag: member="asIScriptModule::GetGlobalVar" ref="a00b36a31c91756a34f66c37283ea5235" args="(asUINT index, const char **name, int *typeId=0, bool *isConst=0) const =0" -->
+<a class="anchor" id="a939e6caf004c6fdae78fe89bb244d962"></a><!-- doxytag: member="asIScriptModule::GetGlobalVar" ref="a939e6caf004c6fdae78fe89bb244d962" args="(asUINT index, const char **name, const char **nameSpace=0, int *typeId=0, bool *isConst=0) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -862,6 +837,12 @@ Public Member Functions</h2></td></tr>
           <td></td>
           <td class="paramtype">const char **&#160;</td>
           <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char **&#160;</td>
+          <td class="paramname"><em>nameSpace</em> = <code>0</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -887,6 +868,7 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the global variable. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">name</td><td>The name of the variable. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">nameSpace</td><td>The namespace of the variable. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">typeId</td><td>The type of the variable. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">isConst</td><td>Whether or not the variable is const. </td></tr>
   </table>
@@ -919,7 +901,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a343d8cab801cc6edf0e2d80cee0ee538"></a><!-- doxytag: member="asIScriptModule::GetGlobalVarDeclaration" ref="a343d8cab801cc6edf0e2d80cee0ee538" args="(asUINT index) const =0" -->
+<a class="anchor" id="aebe27735e0ce4c06bf79b2b4282192cd"></a><!-- doxytag: member="asIScriptModule::GetGlobalVarDeclaration" ref="aebe27735e0ce4c06bf79b2b4282192cd" args="(asUINT index, bool includeNamespace=false) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -927,8 +909,18 @@ Public Member Functions</h2></td></tr>
           <td class="memname">virtual const char* asIScriptModule::GetGlobalVarDeclaration </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td>
-          <td class="paramname"><em>index</em></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
+          <td class="paramname"><em>index</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>includeNamespace</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
@@ -936,6 +928,7 @@ Public Member Functions</h2></td></tr>
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the global variable. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">includeNamespace</td><td>Set to true if the namespace should be included in the declaration. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1169,7 +1162,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="af3fbbbdf2864b0e46fbc25063df0c36a"></a><!-- doxytag: member="asIScriptModule::GetTypedefByIndex" ref="af3fbbbdf2864b0e46fbc25063df0c36a" args="(asUINT index, int *typeId) const =0" -->
+<a class="anchor" id="a120442b78bbea4af45a1045a4beaf435"></a><!-- doxytag: member="asIScriptModule::GetTypedefByIndex" ref="a120442b78bbea4af45a1045a4beaf435" args="(asUINT index, int *typeId, const char **nameSpace=0) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1183,7 +1176,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">int *&#160;</td>
-          <td class="paramname"><em>typeId</em>&#160;</td>
+          <td class="paramname"><em>typeId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char **&#160;</td>
+          <td class="paramname"><em>nameSpace</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1197,6 +1196,7 @@ Public Member Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the typedef. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">typeId</td><td>The type that the typedef aliases. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">nameSpace</td><td>Receives the namespace of the typedef. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1335,6 +1335,37 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a54b6f8e09787ad20880f73bc97a8ef10"></a><!-- doxytag: member="asIScriptModule::RemoveFunction" ref="a54b6f8e09787ad20880f73bc97a8ef10" args="(asIScriptFunction *func)=0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int asIScriptModule::RemoveFunction </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td>
+          <td class="paramname"><em>func</em></td><td>)</td>
+          <td><code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">func</td><td>The pointer to the function that should be removed. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error. </dd></dl>
+<dl><dt><b>Return values:</b></dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">asNO_FUNCTION</td><td>The function is not part of the scope.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>This method allows the application to remove a single function from the scope of the module. The function is not destroyed immediately though, only when no more references point to it. </p>
+
+</div>
+</div>
 <a class="anchor" id="aac10878c3d16f18ace4db881f7a1bb11"></a><!-- doxytag: member="asIScriptModule::RemoveGlobalVar" ref="aac10878c3d16f18ace4db881f7a1bb11" args="(asUINT index)=0" -->
 <div class="memitem">
 <div class="memproto">
@@ -1421,7 +1452,8 @@ Public Member Functions</h2></td></tr>
 <dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error. </dd></dl>
 <dl><dt><b>Return values:</b></dt><dd>
   <table class="retval">
-    <tr><td class="paramname">asINVALID_ARG</td><td>The stream object wasn't specified.</td></tr>
+    <tr><td class="paramname">asINVALID_ARG</td><td>The stream object wasn't specified. </td></tr>
+    <tr><td class="paramname">asNOT_SUPPORTED</td><td>Compiler support is disabled in the engine.</td></tr>
   </table>
   </dd>
 </dl>
@@ -1454,6 +1486,38 @@ Public Member Functions</h2></td></tr>
 <p>The module's access mask with be bitwise and-ed with the registered entity's access mask in order to determine if the module is allowed to access the entity. If the result is zero then the script in the module will not be able to use the entity.</p>
 <p>This can be used to provide different interfaces to scripts that serve different purposes in the application.</p>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_adv_access_mask.html">Access masks and exposing different interfaces</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ab8629af79cee8212d0d244314d36f42a"></a><!-- doxytag: member="asIScriptModule::SetDefaultNamespace" ref="ab8629af79cee8212d0d244314d36f42a" args="(const char *nameSpace)=0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int asIScriptModule::SetDefaultNamespace </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>nameSpace</em></td><td>)</td>
+          <td><code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">nameSpace</td><td>The namespace that should be used. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error. </dd></dl>
+<dl><dt><b>Return values:</b></dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">asINVALID_ARG</td><td>The namespace is null. </td></tr>
+    <tr><td class="paramname">asINVALID_DECLARATION</td><td>The namespace is invalid.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Set the default namespace that should be used in the following calls for searching for declared entities, or when compiling new individual entities. </p>
 
 </div>
 </div>
@@ -1565,7 +1629,7 @@ Public Member Functions</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_module.html">asIScriptModule</a>      </li>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:11 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

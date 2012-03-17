@@ -308,7 +308,7 @@ void ListVariables(asIScriptEngine *engine)
 		const char *name;
 		int typeId;
 		bool isConst;
-		engine->GetGlobalPropertyByIndex(n, &name, &typeId, &isConst);
+		engine->GetGlobalPropertyByIndex(n, &name, 0, &typeId, &isConst);
 		string decl = isConst ? " const " : " ";
 		decl += engine->GetTypeDeclaration(typeId);
 		decl += " ";

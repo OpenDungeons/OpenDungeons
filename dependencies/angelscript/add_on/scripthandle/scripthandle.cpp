@@ -42,7 +42,7 @@ void CScriptHandle::ReleaseHandle()
 	if( m_ref && m_type )
 	{
 		asIScriptEngine *engine = m_type->GetEngine();
-		engine->ReleaseScriptObject(m_ref, m_type->GetTypeId());
+		engine->ReleaseScriptObject(m_ref, m_type);
 
 		m_ref  = 0;
 		m_type = 0;
@@ -54,7 +54,7 @@ void CScriptHandle::AddRefHandle()
 	if( m_ref && m_type )
 	{
 		asIScriptEngine *engine = m_type->GetEngine();
-		engine->AddRefScriptObject(m_ref, m_type->GetTypeId());
+		engine->AddRefScriptObject(m_ref, m_type);
 	}
 }
 
@@ -162,27 +162,6 @@ void CScriptHandle::opCast(void **outRef, int typeId)
 	AddRefHandle();
 	*outRef = m_ref;
 }
-
-/*
-bool CScriptAny::Retrieve(void *ref, int refTypeId) const
-{
-	if( refTypeId & asTYPEID_OBJHANDLE )
-	{
-		// Is the handle type compatible with the stored value?
-
-		// A handle can be retrieved if the stored type is a handle of same or compatible type
-		// or if the stored type is an object that implements the interface that the handle refer to.
-		if( (value.typeId & asTYPEID_MASK_OBJECT) && 
-			engine->IsHandleCompatibleWithObject(value.valueObj, value.typeId, refTypeId) )
-		{
-			engine->AddRefScriptObject(value.valueObj, value.typeId);
-			*(void**)ref = value.valueObj;
-
-			return true;
-		}
-	}
-}
-*/
 
 void RegisterScriptHandle_Native(asIScriptEngine *engine)
 {

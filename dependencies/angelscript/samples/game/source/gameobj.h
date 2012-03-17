@@ -3,66 +3,40 @@
 
 #include <string>
 #include <angelscript.h>
-
-class CGameObjLink;
+#include "../../../add_on/scripthandle/scripthandle.h"
 
 class CGameObj
 {
 public:
 	CGameObj(char dispChar, int x, int y);
-	~CGameObj();
+	int AddRef();
+	int Release();
+
+	// This method is used by the application 
+	// when the object should be destroyed
+	void DestroyAndRelease();
 
 	// This event handler is called by the game manager each frame
 	void OnThink();
 
 	bool Move(int dx, int dy);
-	void Send(asIScriptObject *msg, CGameObjLink *other);
+	void Send(CScriptHandle msg, CGameObj *other);
+	void Kill();
+
+	// The script shouldn't be allowed to update the position directly 
+	// so we won't provide direct access to the position
+	int GetX() const;
+	int GetY() const;
 
 	std::string name;
-	CGameObjLink *link;
-	int x, y;
 	char displayCharacter;
 	bool isDead;
 	asIScriptObject *controller;
+	int x, y;
 
 protected:
-};
-
-// The CGameObjLink is a thin wrapper on the game object
-// that provides a weak link that can be severed at any
-// time by the application without having to worry about
-// who might be holding a reference to the object
-class CGameObjLink
-{
-public:
-	CGameObjLink(CGameObj *obj) { this->obj = obj; refCount = 1; }
-	int AddRef() 
-	{ 
-		return ++refCount; 
-	}
-	int Release() 
-	{ 
-		if( --refCount == 0 ) 
-		{ 
-			delete this; 
-			return 0; 
-		} 
-		return refCount; 
-	}
-
-	int GetX() { if( obj ) return obj->x; return 0; }
-	int GetY() { if( obj ) return obj->y; return 0; }
-	bool Move(int dx, int dy) { if( obj ) return obj->Move(dx,dy); return false; }
-	void Kill() { if( obj ) obj->isDead = true; }
-	void Send(asIScriptObject *msg, CGameObjLink *other) { if( obj ) obj->Send(msg, other); }
-
-protected:
-	friend class CGameObj;
-
-	~CGameObjLink() {}
-	CGameObj *obj;
+	~CGameObj();
 	int refCount;
 };
-
 
 #endif

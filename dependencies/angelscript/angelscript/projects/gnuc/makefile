@@ -20,8 +20,14 @@ ifeq ($(TARGETPLATFORM), iphone)
 	IPHONEBIN =  /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin
 	OBJDIR = obj-iphone
 	LIBDIR = ../../lib-iphone
-	CXX = $(IPHONEBIN)/arm-apple-darwin9-g++-4.0.1 
-	CXXFLAGS += -g -Wall -fPIC  -isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS2.2.sdk
+	CXX = $(IPHONEBIN)/clang++
+	CXXFLAGS += -O2 -Wall -fPIC -arch armv7 -isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk -miphoneos-version-min=3.0
+else ifeq ($(TARGETPLATFORM), iphonesimulator)
+	IPHONEBIN =  /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin
+	OBJDIR = obj-iphone
+	LIBDIR = ../../lib-iphone
+	CXX = $(IPHONEBIN)/clang++
+	CXXFLAGS += -O2 -Wall -fPIC -arch i386 -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.0.sdk -miphoneos-version-min=3.0
 else ifeq ($(TARGETPLATFORM), android)
 	ANDROIDNDKROOT = /cygdrive/c/android/android-ndk-1.6_r1
 	ANDROIDBIN = $(ANDROIDNDKROOT)/build/prebuilt/windows/arm-eabi-4.2.1/bin

@@ -80,6 +80,8 @@
 <a class="el" href="doc_global.html#doc_global_typedef">Typedefs</a> </li>
 <li>
 <a class="el" href="doc_global.html#doc_global_funcdef">Funcdefs</a> </li>
+<li>
+<a class="el" href="doc_global.html#doc_global_namespace">Namespaces</a> </li>
 </ul>
 <h2><a class="anchor" id="doc_global_function"></a>
 Functions</h2>
@@ -97,7 +99,7 @@ Functions</h2>
   {
     return a + b;
   }
-</pre><dl class="todo"><dt><b><a class="el" href="todo.html#_todo000007">Todo:</a></b></dt><dd>Promote to individual article, that should explain function overloading, default args, and parameter references</dd></dl>
+</pre><dl class="todo"><dt><b><a class="el" href="todo.html#_todo000008">Todo:</a></b></dt><dd>Promote to individual article, that should explain function overloading, default args, and parameter references</dd></dl>
 <h2><a class="anchor" id="doc_global_variable"></a>
 Variables</h2>
 <p>Global variables may be declared in the scripts, which will then be shared between all contexts accessing the script module.</p>
@@ -161,13 +163,30 @@ Funcdefs</h2>
 <pre>
   // Define a function signature for the function pointer
   funcdef bool CALLBACK(int, int);
-</pre><dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_datatypes_funcptr.html">Function pointers</a> for more information on how to use this </dd></dl>
-</div></div>
+</pre><dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_datatypes_funcptr.html">Function pointers</a> for more information on how to use this</dd></dl>
+<h2><a class="anchor" id="doc_global_namespace"></a>
+Namespaces</h2>
+<p>Namespaces can be used to organize large projects in logical units that may be easier to remember. When using namespaces it is also not necessary to worry about using names for entities that may exist in a different part of the project under a different namespace.</p>
+<pre>
+  namespace A
+  {
+    // Entities in a namespace see each other normally.
+    void function() { variable++; }
+    int variable;
+  }</pre><pre>  namespace B
+  {
+    // Entities in different namespaces don't immediately see each other and 
+    // can reuse the same name without causing name conflicts. By using the 
+    // scoping operator the entity from the desired namespace can be explicitly
+    // informed.
+    void function() { A::function(); }
+  }
+</pre> </div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

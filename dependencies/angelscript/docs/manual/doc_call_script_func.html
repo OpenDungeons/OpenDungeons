@@ -109,21 +109,26 @@ Passing and returning primitives</h2>
 <span class="keywordtype">int</span> SetArgQWord(<span class="keywordtype">int</span> arg, <a class="code" href="angelscript_8h.html#a10aea5de212e440ffd6ec8fc0b17563d" title="64 bit unsigned integer">asQWORD</a> value);
 <span class="keywordtype">int</span> SetArgFloat(<span class="keywordtype">int</span> arg, <span class="keywordtype">float</span> value);
 <span class="keywordtype">int</span> SetArgDouble(<span class="keywordtype">int</span> arg, <span class="keywordtype">double</span> value);
+<span class="keywordtype">int</span> SetArgByte(<span class="keywordtype">int</span> arg, <a class="code" href="angelscript_8h.html#a48b3da7121b3abb56bff63b3beb0df63" title="8 bit unsigned integer">asBYTE</a> value);
+<span class="keywordtype">int</span> SetArgWord(<span class="keywordtype">int</span> arg, <a class="code" href="angelscript_8h.html#a340da175136fbe283932fa3c3442cea0" title="16 bit unsigned integer">asWORD</a> value);
 </pre></div><p><code>arg</code> is the argument number, where the first argument is on 0, the second on 1, and so on. <code>value</code> is the value of the argument. What method to use is determined by the type of the parameter. For primitive types you can use any of these. If the parameter type is a reference to a primitive type it is recommended to use the SetArgDWord() method and pass the pointer as the value. For non-primitive types the method SetArgObject() should be used, which will be described in the next section.</p>
 <div class="fragment"><pre class="fragment"><span class="comment">// The context has been prepared for a script </span>
 <span class="comment">// function with the following signature:</span>
-<span class="comment">// int function(int, double, int&amp;in)</span>
+<span class="comment">// int function(int, double, bool, int &amp;out)</span>
 
 <span class="comment">// Put the arguments on the context stack, starting with the first one</span>
 ctx-&gt;<a class="code" href="classas_i_script_context.html#a14cac831c1b419f552ca62a239dfcf45" title="Sets a 32-bit integer argument value.">SetArgDWord</a>(0, 1);
 ctx-&gt;<a class="code" href="classas_i_script_context.html#acbdddda3b80c37b70b8fd35c8e7383b9" title="Sets a double argument value.">SetArgDouble</a>(1, 3.141592);
+ctx-&gt;<a class="code" href="classas_i_script_context.html#ac5ac8ce5bb209f43d4da620db5d271da" title="Sets an 8-bit argument value.">SetArgByte</a>(2, <span class="keyword">true</span>);
 <span class="keywordtype">int</span> val;
-ctx-&gt;<a class="code" href="classas_i_script_context.html#a14cac831c1b419f552ca62a239dfcf45" title="Sets a 32-bit integer argument value.">SetArgDWord</a>(2, (<a class="code" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc" title="32 bit unsigned integer">asDWORD</a>)&amp;val);
+ctx-&gt;<a class="code" href="classas_i_script_context.html#aa8de8f21dfbb2cdf0becbabaa3e883ed" title="Sets the address of a reference or handle argument.">SetArgAddress</a>(3, &amp;val);
 </pre></div><p>Once the script function has been executed the return value is retrieved in a similar way using the group of GetReturn methods:</p>
 <div class="fragment"><pre class="fragment"><a class="code" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc" title="32 bit unsigned integer">asDWORD</a> GetReturnDWord();
 <a class="code" href="angelscript_8h.html#a10aea5de212e440ffd6ec8fc0b17563d" title="64 bit unsigned integer">asQWORD</a> GetReturnQWord();
 <span class="keywordtype">float</span>   GetReturnFloat();
 <span class="keywordtype">double</span>  GetReturnDouble();
+<a class="code" href="angelscript_8h.html#a48b3da7121b3abb56bff63b3beb0df63" title="8 bit unsigned integer">asBYTE</a>  GetReturnByte();
+<a class="code" href="angelscript_8h.html#a340da175136fbe283932fa3c3442cea0" title="16 bit unsigned integer">asWORD</a>  GetReturnWord();
 </pre></div><p>Note that you must make sure the returned value is in fact valid, for example if the script function was interrupted by a script exception the value would not be valid. You do this by verifying the return code from Execute() or GetState(), where the return code should be asEXECUTION_FINISHED.</p>
 <h2><a class="anchor" id="doc_call_script_3"></a>
 Passing and returning objects</h2>
@@ -162,12 +167,11 @@ Exception handling</h2>
   printf(<span class="stringliteral">&quot;desc: %s\n&quot;</span>, ctx-&gt;<a class="code" href="classas_i_script_context.html#a46e2411bc84e99f57e7d9fe2374bb479" title="Returns the exception string text.">GetExceptionString</a>());
 
   <span class="comment">// Determine the function where the exception occurred</span>
-  <span class="keywordtype">int</span> funcId = ctx-&gt;<a class="code" href="classas_i_script_context.html#a27b6936ce1173d818141e2297f551b07" title="Returns the function id of the function where the exception occurred.">GetExceptionFunction</a>();
-  <span class="keyword">const</span> <a class="code" href="classas_i_script_function.html" title="The interface for a script function description.">asIScriptFunction</a> *<span class="keyword">function</span> = engine-&gt;<a class="code" href="classas_i_script_engine.html#ab7b9ce9df4fc3e8ffaf1184325b9b01c">GetFunctionDescriptorById</a>(funcId);
+  <span class="keyword">const</span> <a class="code" href="classas_i_script_function.html" title="The interface for a script function description.">asIScriptFunction</a> *<span class="keyword">function</span> = ctx-&gt;<a class="code" href="classas_i_script_context.html#a8e59aceec42080d29e08b44460ceb8b3" title="Returns the function where the exception occurred.">GetExceptionFunction</a>();
   printf(<span class="stringliteral">&quot;func: %s\n&quot;</span>, function-&gt;GetDeclaration());
   printf(<span class="stringliteral">&quot;modl: %s\n&quot;</span>, function-&gt;GetModuleName());
   printf(<span class="stringliteral">&quot;sect: %s\n&quot;</span>, function-&gt;GetScriptSectionName());
-  
+
   <span class="comment">// Determine the line number where the exception occurred</span>
   printf(<span class="stringliteral">&quot;line: %d\n&quot;</span>, ctx-&gt;<a class="code" href="classas_i_script_context.html#a22e3c351fe6b13ba0a62010dfc305080" title="Returns the line number where the exception occurred.">GetExceptionLineNumber</a>());
 }
@@ -178,7 +182,7 @@ Exception handling</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

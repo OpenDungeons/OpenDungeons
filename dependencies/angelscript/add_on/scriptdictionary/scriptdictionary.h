@@ -17,6 +17,8 @@
 
 BEGIN_AS_NAMESPACE
 
+class CScriptArray;
+
 class CScriptDictionary
 {
 public:
@@ -48,6 +50,9 @@ public:
     // Deletes all keys
     void DeleteAll();
 
+	// Get an array of all keys
+	CScriptArray *GetKeys() const;
+
 	// Garbage collections behaviours
 	int GetRefCount();
 	void SetGCFlag();
@@ -77,6 +82,8 @@ protected:
 	// Our properties
     asIScriptEngine *engine;
     mutable int refCount;
+
+	// TODO: optimize: Use C++11 std::unordered_map instead
     std::map<std::string, valueStruct> dict;
 };
 

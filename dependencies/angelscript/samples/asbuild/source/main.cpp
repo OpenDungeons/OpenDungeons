@@ -135,7 +135,26 @@ int ConfigureEngine(asIScriptEngine *engine, const char *configFile)
 		string token;
 		// TODO: The position where the initial token is found should be stored for error messages
 		GetToken(engine, token, config, pos);
-		if( token == "objtype" )
+		if( token == "namespace" )
+		{
+			string ns;
+			GetToken(engine, ns, config, pos);
+
+			r = engine->SetDefaultNamespace(ns.c_str());
+			if( r < 0 )
+			{
+				engine->WriteMessage(configFile, GetLineNumber(config, pos), 0, asMSGTYPE_ERROR, "Failed to set namespace");
+				return -1;
+			}
+		}
+		else if( token == "access" )
+		{
+			string maskStr;
+			GetToken(engine, maskStr, config, pos);
+			asDWORD mask = strtol(maskStr.c_str(), 0, 16);
+			engine->SetDefaultAccessMask(mask);
+		}
+		else if( token == "objtype" )
 		{
 			string name, flags;
 			GetToken(engine, name, config, pos);
@@ -199,8 +218,6 @@ int ConfigureEngine(asIScriptEngine *engine, const char *configFile)
 			GetToken(engine, decl, config, pos);
 			decl = decl.substr(1, decl.length() - 2);
 
-			// All properties must have different offsets in order to make them 
-			// distinct, so we simply register them with an incremental offset
 			asIObjectType *type = engine->GetObjectTypeById(engine->GetTypeIdByDecl(name.c_str()));
 			if( type == 0 )
 			{
@@ -208,6 +225,8 @@ int ConfigureEngine(asIScriptEngine *engine, const char *configFile)
 				return -1;
 			}
 
+			// All properties must have different offsets in order to make them 
+			// distinct, so we simply register them with an incremental offset
 			r = engine->RegisterObjectProperty(name.c_str(), decl.c_str(), type->GetPropertyCount());
 			if( r < 0 )
 			{
@@ -260,7 +279,10 @@ int ConfigureEngine(asIScriptEngine *engine, const char *configFile)
 			GetToken(engine, decl, config, pos);
 			decl = decl.substr(1, decl.length() - 2);
 
-			r = engine->RegisterGlobalProperty(decl.c_str(), 0);
+			// All properties must have different offsets in order to make them 
+			// distinct, so we simply register them with an incremental offset.
+			// The pointer must also be non-null so we add 1 to have a value.
+			r = engine->RegisterGlobalProperty(decl.c_str(), (void*)(engine->GetGlobalPropertyCount()+1));
 			if( r < 0 )
 			{
 				engine->WriteMessage(configFile, GetLineNumber(config, pos), 0, asMSGTYPE_ERROR, "Failed to register global property");

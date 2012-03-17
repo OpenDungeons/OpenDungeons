@@ -15,7 +15,7 @@ CGameMgr::CGameMgr()
 CGameMgr::~CGameMgr()
 {
 	for( unsigned int n = 0; n < gameObjects.size(); n++ )
-		delete gameObjects[n];
+		gameObjects[n]->DestroyAndRelease();
 }
 
 int CGameMgr::StartGame()
@@ -56,7 +56,7 @@ CGameObj *CGameMgr::SpawnObject(const std::string &type, char dispChar, int x, i
 	gameObjects.push_back(obj);
 
 	// Set the controller based on type
-	obj->controller = scriptMgr->CreateController(type, obj->link);
+	obj->controller = scriptMgr->CreateController(type, obj);
 
 	return obj;
 }
@@ -81,7 +81,11 @@ void CGameMgr::Run()
 		{
 			if( gameObjects[n]->isDead )
 			{
-				delete gameObjects[n];
+				// We won't actually delete the memory here, as we do not know 
+				// exactly who might still be referencing the object, but we
+				// make sure to destroy the internals in order to avoid
+				// circular references. 
+				gameObjects[n]->DestroyAndRelease();
 				gameObjects.erase(gameObjects.begin()+n);
 				n--;
 			}
@@ -174,16 +178,12 @@ CGameObj *CGameMgr::GetGameObjAt(int x, int y)
 	return 0;
 }
 
-CGameObjLink *CGameMgr::FindGameObjLinkByName(const string &name)
+CGameObj *CGameMgr::FindGameObjByName(const string &name)
 {
 	for( unsigned int n = 0; n < gameObjects.size(); n++ )
 	{
 		if( gameObjects[n]->name == name )
-		{
-			// Increase the ref count for the link
-			gameObjects[n]->link->AddRef();
-			return gameObjects[n]->link;
-		}
+			return gameObjects[n];
 	}
 
 	return 0;

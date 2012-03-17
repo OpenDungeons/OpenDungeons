@@ -412,7 +412,8 @@ int CScriptFile::ReadLine(std::string &str)
 		buf[255] = 1;
 
 		// Read the line (or first 255 characters, which ever comes first)
-		fgets(buf, 256, file);
+		char *r = fgets(buf, 256, file);
+		if( r == 0 ) break;
 		
 		// Get the position after the read
 		int end = ftell(file);
@@ -434,7 +435,8 @@ asINT64 CScriptFile::ReadInt(asUINT bytes)
 	if( bytes == 0 ) return 0;
 
 	unsigned char buf[8];
-	fread(buf, bytes, 1, file);
+	size_t r = fread(buf, bytes, 1, file);
+	if( r == 0 ) return 0;
 
 	asINT64 val = 0;
 	if( mostSignificantByteFirst )
@@ -468,7 +470,8 @@ asQWORD CScriptFile::ReadUInt(asUINT bytes)
 	if( bytes == 0 ) return 0;
 
 	unsigned char buf[8];
-	fread(buf, bytes, 1, file);
+	size_t r = fread(buf, bytes, 1, file);
+	if( r == 0 ) return 0;
 
 	asQWORD val = 0;
 	if( mostSignificantByteFirst )
@@ -493,7 +496,8 @@ float CScriptFile::ReadFloat()
 		return 0;
 
 	unsigned char buf[4];
-	fread(buf, 4, 1, file);
+	size_t r = fread(buf, 4, 1, file);
+	if( r == 0 ) return 0;
 
 	asUINT val = 0;
 	if( mostSignificantByteFirst )
@@ -518,7 +522,8 @@ double CScriptFile::ReadDouble()
 		return 0;
 
 	unsigned char buf[8];
-	fread(buf, 8, 1, file);
+	size_t r = fread(buf, 8, 1, file);
+	if( r == 0 ) return 0;
 
 	asQWORD val = 0;
 	if( mostSignificantByteFirst )

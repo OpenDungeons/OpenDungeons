@@ -75,17 +75,17 @@ Primitives</h2>
 <tr>
 <td>int16 </td><td>signed short </td><td>16  </td></tr>
 <tr>
-<td>int </td><td>signed long (*) </td><td>32  </td></tr>
+<td>int </td><td>signed int (*) </td><td>32  </td></tr>
 <tr>
-<td>int64 </td><td>signed long long </td><td>64  </td></tr>
+<td>int64 </td><td>signed int64_t </td><td>64  </td></tr>
 <tr>
 <td>uint8 </td><td>unsigned char </td><td>8  </td></tr>
 <tr>
 <td>uint16</td><td>unsigned short </td><td>16  </td></tr>
 <tr>
-<td>uint </td><td>unsigned long (*) </td><td>32  </td></tr>
+<td>uint </td><td>unsigned int (*) </td><td>32  </td></tr>
 <tr>
-<td>uint64</td><td>unsigned long long</td><td>64  </td></tr>
+<td>uint64</td><td>unsigned uint64_t </td><td>64  </td></tr>
 <tr>
 <td>float </td><td>float </td><td>32  </td></tr>
 <tr>
@@ -93,8 +93,8 @@ Primitives</h2>
 <tr>
 <td>bool </td><td>bool </td><td>8 (**) </td></tr>
 </table>
-<p>%*) If the target CPU is 32 bit, the C++ type long is 32 bit, but on 64 bit CPUs it is commonly 64 bit, but in AngelScript an int is always 32 bits.</p>
-<p>%**) On 32 bit PowerPC platforms the bool type commonly have the size of 32 bit, when compiled on such platforms AngelScript also uses 32 bits for the bool type</p>
+<p>(*) An int can actually be of varying size on different platforms in C++, but most commonly it is 32 bits long. AngelScript will always assume 32 bits though.</p>
+<p>(**) On 32 bit PowerPC platforms the bool type commonly have the size of 32 bit, when compiled on such platforms AngelScript also uses 32 bits for the bool type</p>
 <h2><a class="anchor" id="doc_as_vs_cpp_types_5"></a>
 Strings</h2>
 <p>AngelScript expects the application to register its own <a class="el" href="doc_strings.html">string type</a>, so the string types should match perfectly.</p>
@@ -144,7 +144,7 @@ Parameter references</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

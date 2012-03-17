@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2010 Andreas Jonsson
+   Copyright (c) 2003-2012 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -57,7 +57,9 @@ public:
 	asCDataType(const asCDataType &);
 	~asCDataType();
 
-	asCString Format() const;
+	bool IsValid() const;
+
+	asCString Format(bool includeNamespace = false) const;
 
 	static asCDataType CreatePrimitive(eTokenType tt, bool isConst);
 	static asCDataType CreateObject(asCObjectType *ot, bool isConst);

@@ -64,12 +64,29 @@
 <div class="contents">
 <div class="textblock"><p><b>Path:</b> /sdk/add_on/autowrapper/aswrappedcall.h</p>
 <p>This header file declares some macros and template functions that will let the application developer automatically generate wrapper functions using the <a class="el" href="doc_generic.html">generic calling convention</a> with a simple call to a preprocessor macro. This is useful for those platforms where the native calling conventions are not yet supported.</p>
-<p>The macros are defined as</p>
-<div class="fragment"><pre class="fragment"><span class="preprocessor">#define asDECLARE_FUNCTION_WRAPPER(wrapper_name,func)</span>
-<span class="preprocessor"></span><span class="preprocessor">#define asDECLARE_FUNCTION_WRAPPERPR(wrapper_name,func,params,rettype)</span>
-<span class="preprocessor"></span><span class="preprocessor">#define asDECLARE_METHOD_WRAPPER(wrapper_name,cl,func)</span>
-<span class="preprocessor">#define asDECLARE_METHOD_WRAPPERPR(wrapper_name,cl,func,params,rettype)</span>
-</pre></div><p>where wrapper_name is the name of the function that you want to generate, and func is a function pointer to the function you want to wrap, cl is the class name, params is the parameter list, and rettype is the return type.</p>
+<p>The macros are defined as:</p>
+<div class="fragment"><pre class="fragment"><span class="comment">// Wrap a global function with implicit or explicit signature</span>
+<span class="preprocessor">#define WRAP_FN(name)</span>
+<span class="preprocessor"></span><span class="preprocessor">#define WRAP_FN_PR(name, Parameters, ReturnType)</span>
+<span class="preprocessor"></span>
+<span class="comment">// Wrap a class method with implicit or explicit signature</span>
+<span class="preprocessor">#define WRAP_MFN(ClassType, name)</span>
+<span class="preprocessor"></span><span class="preprocessor">#define WRAP_MFN_PR(ClassType, name, Parameters, ReturnType)</span>
+<span class="preprocessor"></span>
+<span class="comment">// Wrap a global function that will emulate a class method and receives the &#39;this&#39; pointer as the first argument</span>
+<span class="preprocessor">#define WRAP_OBJ_FIRST(name)</span>
+<span class="preprocessor"></span><span class="preprocessor">#define WRAP_OBJ_FIRST_PR(name, Parameters, ReturnType)</span>
+<span class="preprocessor"></span>
+<span class="comment">// Wrap a global function that will emulate a class method and receives the &#39;this&#39; pointer as the last argument</span>
+<span class="preprocessor">#define WRAP_OBJ_LAST(name)</span>
+<span class="preprocessor"></span><span class="preprocessor">#define WRAP_OBJ_LAST_PR(name, Parameters, ReturnType)</span>
+<span class="preprocessor"></span>
+<span class="comment">// Wrap a constructor with an explicit signature</span>
+<span class="preprocessor">#define WRAP_CON(ClassType, Parameters)</span>
+<span class="preprocessor"></span>
+<span class="comment">// Wrap a destructor</span>
+<span class="preprocessor">#define WRAP_DES(ClassType)</span>
+</pre></div><p>As you can see they are very similar to the <a class="el" href="doc_register_func.html#doc_register_func_1">asFUNCTION</a> and <a class="el" href="doc_register_func.html#doc_register_func_1">asMETHOD</a> macros, and are used the same way.</p>
 <p>Unfortunately the template functions needed to perform this generation are quite complex and older compilers may not be able to handle them. One such example is Microsoft Visual C++ 6, though luckily it has no need for them as AngelScript already supports native calling conventions for it.</p>
 <h2><a class="anchor" id="doc_addon_autowrap_1"></a>
 Example usage</h2>
@@ -78,22 +95,25 @@ Example usage</h2>
 <span class="comment">// The application function that we want to register</span>
 <span class="keywordtype">void</span> DoSomething(std::string param1, <span class="keywordtype">int</span> param2);
 
-<span class="comment">// Generate the wrapper for the function</span>
-asDECLARE_FUNCTION_WRAPPER(DoSomething_Generic, DoSomething);
-
 <span class="comment">// Registering the wrapper with AngelScript</span>
 <span class="keywordtype">void</span> RegisterWrapper(<a class="code" href="classas_i_script_engine.html" title="The engine interface.">asIScriptEngine</a> *engine)
 {
   <span class="keywordtype">int</span> r;
 
-  r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a754fafd069d8e0c19baff2dc222893b0" title="Registers a global function.">RegisterGlobalFunction</a>(<span class="stringliteral">&quot;void DoSomething(string, int)&quot;</span>, <a class="code" href="angelscript_8h.html#a78f8f2c7f1c88b12e74a5ac47b4184ae" title="Returns an asSFuncPtr representing the function specified by the name.">asFUNCTION</a>(DoSomething_Generic), <a class="code" href="angelscript_8h.html#a3ec92ea3c4762e44c2df788ceccdd1e4a750c26b6a6e0c9ccbb93078f532ef8ce" title="A function using the generic calling convention.">asCALL_GENERIC</a>); assert( r &gt;= 0 );
+  <span class="comment">// The WRAP_FN macro automatically implements and returns the function pointer of the generic wrapper</span>
+  <span class="comment">// function. Observe, that the calling convention should be set as asCALL_GENERIC in this case.</span>
+  r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a754fafd069d8e0c19baff2dc222893b0" title="Registers a global function.">RegisterGlobalFunction</a>(<span class="stringliteral">&quot;void DoSomething(string, int)&quot;</span>, WRAP_FN(DoSomething), <a class="code" href="angelscript_8h.html#a3ec92ea3c4762e44c2df788ceccdd1e4a750c26b6a6e0c9ccbb93078f532ef8ce" title="A function using the generic calling convention.">asCALL_GENERIC</a>); assert( r &gt;= 0 );
 }
-</pre></div> </div></div>
+</pre></div><h2><a class="anchor" id="doc_addon_autowrap_2"></a>
+Adding support for more parameters</h2>
+<p>The aswrappedcall.h header file is by default prepared to support functions with up to 4 arguments. If you have a need for more arguments then you can use the generator that you find in the sub-directory to prepare a new header file.</p>
+<p>Open the generateheader.cpp in an editor and set the max_args variable to the number of arguments you need and then compile and run the code. It will print the new header file to the standard output so you just need to direct this to a file. </p>
+</div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:30 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

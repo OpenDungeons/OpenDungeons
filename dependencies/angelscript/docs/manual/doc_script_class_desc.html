@@ -83,7 +83,7 @@
 </pre><p>A class can implement specific methods to <a class="el" href="doc_script_class_ops.html">overload operators</a>. This can simplify how the object instances are used in expressions, so that it is not necessary to explicitly name each function, e.g. the opAdd method translates to the + operator.</p>
 <p>Another useful feature is the ability to implement <a class="el" href="doc_script_class_prop.html">property accessors</a>, which can be used either to provide virtual properties, i.e. that look like properties but really aren't, or to implement specific routines that must be executed everytime a property is accessed.</p>
 <p>A script class can also <a class="el" href="doc_script_class_inheritance.html">inherit</a> from other classes, and implement <a class="el" href="doc_global.html#doc_global_interface">interfaces</a>.</p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000005">Todo:</a></b></dt><dd>Explain const methods</dd></dl>
+<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000006">Todo:</a></b></dt><dd>Explain const methods</dd></dl>
 <h2><a class="anchor" id="doc_script_class_construct"></a>
 Class constructors</h2>
 <p>Class constructors are specific methods that will be used to create new instances of the class. It is not required for a class to declare constructors, but doing so may make it easier to use the class as it will not be necessary to first instanciate the class and then manually set the properties.</p>
@@ -104,6 +104,7 @@ Class constructors</h2>
   }
 </pre><p>The copy constructor is a specific constructor that the compiler can use to build more performatic code when copies of an object must be made. Without the copy constructor the compiler will be forced to first instanciate the copy using the default constructor, and then copy the attributes with the <a class="el" href="doc_script_class_prop.html">opAssign</a> method.</p>
 <p>One constructor cannot call another constructor. If you wish to share implementations in the constructors you should use a specific method for that.</p>
+<p>If a class isn't explicitly declared with any constructor, the compiler will automatically provide a default constructor for the class. This automatically generated constructor will simply call the default constructor for all object members, and set all handles to null. If a member cannot be initialized with a default constructor, then a compiler error will be emitted.</p>
 <h2><a class="anchor" id="doc_script_class_destruct"></a>
 Class destructor</h2>
 <p>It is normally not necessary to implement the class destructor as AngelScript will by default free up any resources the objects holds when it is destroyed. However, there may be situations where a more explicit cleanup routine must be done as part of the destruction of the object.</p>
@@ -124,7 +125,7 @@ Class destructor</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

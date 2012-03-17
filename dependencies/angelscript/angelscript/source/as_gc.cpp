@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2011 Andreas Jonsson
+   Copyright (c) 2003-2012 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -123,19 +123,18 @@ int asCGarbageCollector::GarbageCollect(asDWORD flags)
 				destroyOldState = destroyGarbage_init;
 			}
 
-			int r = 1;
 			unsigned int count = (unsigned int)(gcNewObjects.GetLength() + gcOldObjects.GetLength());
 			for(;;)
 			{
 				// Detect all garbage with cyclic references
 				if( doDetect )
-					while( (r = IdentifyGarbageWithCyclicRefs()) == 1 );
+					while( IdentifyGarbageWithCyclicRefs() == 1 ) {}
 
 				// Now destroy all known garbage
 				if( doDestroy )
 				{
-					while( (r = DestroyNewGarbage()) == 1 );
-					while( (r = DestroyOldGarbage()) == 1 );
+					while( DestroyNewGarbage() == 1 ) {}
+					while( DestroyOldGarbage() == 1 ) {}
 				}
 
 				// Run another iteration if any garbage was destroyed
@@ -366,16 +365,25 @@ int asCGarbageCollector::DestroyNewGarbage()
 	UNREACHABLE_RETURN;
 }
 
-void asCGarbageCollector::ReportUndestroyedObjects()
+int asCGarbageCollector::ReportAndReleaseUndestroyedObjects()
 {
+	int items = 0;
 	for( asUINT n = 0; n < gcOldObjects.GetLength(); n++ )
 	{
 		asSObjTypePair gcObj = GetOldObjectAtIdx(n);
 
+		// Report the object as not being properly destroyed
 		asCString msg;
 		msg.Format(TXT_GC_CANNOT_FREE_OBJ_OF_TYPE_s, gcObj.type->name.AddressOf());
 		engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, msg.AddressOf());
+
+		// Release the reference that the GC holds if the release functions is still available
+		if( gcObj.type->beh.release && engine->scriptFunctions[gcObj.type->beh.release] )
+			engine->CallObjectMethod(gcObj.obj, gcObj.type->beh.release);
+
+		items++;
 	}
+	return items;
 }
 
 int asCGarbageCollector::DestroyOldGarbage()
@@ -761,7 +769,6 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 				}
 			}
 		}
-		break;
 		} // switch
 	}
 

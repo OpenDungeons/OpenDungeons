@@ -32,7 +32,7 @@ class CPlayer : IController
 		}
 	}
 	
-	void OnMessage(IMessage @m, const CGameObj @sender)
+	void OnMessage(ref @m, const CGameObj @sender)
 	{
 		CMessage @msg = cast<CMessage>(m);
 		if( msg !is null && msg.txt == 'Attack' )

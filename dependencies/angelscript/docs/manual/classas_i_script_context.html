@@ -138,8 +138,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets an exception, which aborts the execution.  <a href="#a4ed608208cafdebe5676df079e27d392"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a22e3c351fe6b13ba0a62010dfc305080">GetExceptionLineNumber</a> (int *column=0, const char **sectionName=0)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the line number where the exception occurred.  <a href="#a22e3c351fe6b13ba0a62010dfc305080"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a27b6936ce1173d818141e2297f551b07">GetExceptionFunction</a> ()=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function id of the function where the exception occurred.  <a href="#a27b6936ce1173d818141e2297f551b07"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a8e59aceec42080d29e08b44460ceb8b3">GetExceptionFunction</a> ()=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function where the exception occurred.  <a href="#a8e59aceec42080d29e08b44460ceb8b3"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a46e2411bc84e99f57e7d9fe2374bb479">GetExceptionString</a> ()=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the exception string text.  <a href="#a46e2411bc84e99f57e7d9fe2374bb479"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a4d1f481473df3f7aefccc5bb6904e405">SetExceptionCallback</a> (<a class="el" href="structas_s_func_ptr.html">asSFuncPtr</a> callback, void *obj, int callConv)=0</td></tr>
@@ -175,6 +175,8 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the type id of the object, if a class method is being executed.  <a href="#a404681f8950c1ebd9382d30ef1ed3b89"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a4f6761a7a0c872dda681d8e180830ff9">GetThisPointer</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> stackLevel=0)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the object, if a class method is being executed.  <a href="#a4f6761a7a0c872dda681d8e180830ff9"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a214cc16c4dd889072c1c24c089223a6a">GetSystemFunction</a> ()=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the registered function that is currently being called by the context.  <a href="#a214cc16c4dd889072c1c24c089223a6a"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">User data</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a78e92b53c248534cd278a1498b88680d">SetUserData</a> (void *data)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Register the memory address of some user data.  <a href="#a78e92b53c248534cd278a1498b88680d"></a><br/></td></tr>
@@ -255,7 +257,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 </dl>
 <p>Executes the prepared function until the script returns. If the execution was previously suspended the function resumes where it left of.</p>
 <p>Note that if the script freezes, e.g. if trapped in a never ending loop, you may call <a class="el" href="classas_i_script_context.html#a374befd21b8c14de81ef0ed9d2dea334">Abort</a> from another thread to stop execution.</p>
-<p>If the function returns asEXECUTION_EXCEPTION, use the <a class="el" href="classas_i_script_context.html#a46e2411bc84e99f57e7d9fe2374bb479">GetExceptionString</a>, <a class="el" href="classas_i_script_context.html#a27b6936ce1173d818141e2297f551b07">GetExceptionFunction</a>, and <a class="el" href="classas_i_script_context.html#a22e3c351fe6b13ba0a62010dfc305080">GetExceptionLineNumber</a> to obtain more information on the exception and where it occurred.</p>
+<p>If the function returns asEXECUTION_EXCEPTION, use the <a class="el" href="classas_i_script_context.html#a46e2411bc84e99f57e7d9fe2374bb479">GetExceptionString</a>, <a class="el" href="classas_i_script_context.html#a8e59aceec42080d29e08b44460ceb8b3">GetExceptionFunction</a>, and <a class="el" href="classas_i_script_context.html#a22e3c351fe6b13ba0a62010dfc305080">GetExceptionLineNumber</a> to obtain more information on the exception and where it occurred.</p>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_call_script_func.html">Calling a script function</a> </dd></dl>
 
 </div>
@@ -374,12 +376,12 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 
 </div>
 </div>
-<a class="anchor" id="a27b6936ce1173d818141e2297f551b07"></a><!-- doxytag: member="asIScriptContext::GetExceptionFunction" ref="a27b6936ce1173d818141e2297f551b07" args="()=0" -->
+<a class="anchor" id="a8e59aceec42080d29e08b44460ceb8b3"></a><!-- doxytag: member="asIScriptContext::GetExceptionFunction" ref="a8e59aceec42080d29e08b44460ceb8b3" args="()=0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual int asIScriptContext::GetExceptionFunction </td>
+          <td class="memname">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a>* asIScriptContext::GetExceptionFunction </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
           <td><code> [pure virtual]</code></td>
@@ -387,7 +389,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
       </table>
 </div>
 <div class="memdoc">
-<dl class="return"><dt><b>Returns:</b></dt><dd>The function id where the exception occurred. </dd></dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The function where the exception occurred. </dd></dl>
 
 </div>
 </div>
@@ -663,6 +665,23 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 </div>
 <div class="memdoc">
 <dl class="return"><dt><b>Returns:</b></dt><dd>The current state of the context. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a214cc16c4dd889072c1c24c089223a6a"></a><!-- doxytag: member="asIScriptContext::GetSystemFunction" ref="a214cc16c4dd889072c1c24c089223a6a" args="()=0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a>* asIScriptContext::GetSystemFunction </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl class="return"><dt><b>Returns:</b></dt><dd>Returns the registered function that is currently being called, or null if no registered function is being called at the moment. </dd></dl>
 
 </div>
 </div>
@@ -1595,7 +1614,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_context.html">asIScriptContext</a>      </li>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:11 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

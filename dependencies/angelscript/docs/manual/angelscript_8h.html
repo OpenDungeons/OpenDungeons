@@ -103,7 +103,7 @@ Classes</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Information on a bytecode instruction.  <a href="structas_s_b_c_info.html#details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="define-members"></a>
 Defines</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a99c6b8b0882e45e5d0b2ed19f6f7a157">ANGELSCRIPT_VERSION</a>&#160;&#160;&#160;22200</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a99c6b8b0882e45e5d0b2ed19f6f7a157">ANGELSCRIPT_VERSION</a>&#160;&#160;&#160;22300</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a717eccea17214bc1eb64bb9789c4915a"></a><!-- doxytag: member="angelscript.h::asOFFSET" ref="a717eccea17214bc1eb64bb9789c4915a" args="(s, m)" -->
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a717eccea17214bc1eb64bb9789c4915a">asOFFSET</a>(s, m)&#160;&#160;&#160;((size_t)(&amp;reinterpret_cast&lt;s*&gt;(100000)-&gt;m)-100000)</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the offset of an attribute in a struct. <br/></td></tr>
@@ -135,7 +135,7 @@ Defines</h2></td></tr>
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a0183edd413564ff4897eb4a2473d01f6">asBC_FLOATARG</a>(x)&#160;&#160;&#160;(*(float*)(x+1))</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Macro to access the first float argument in the bytecode instruction. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="aac9eb586274fc44bb1b838d833963996"></a><!-- doxytag: member="angelscript.h::asBC_PTRARG" ref="aac9eb586274fc44bb1b838d833963996" args="(x)" -->
-#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#aac9eb586274fc44bb1b838d833963996">asBC_PTRARG</a>(x)&#160;&#160;&#160;(*(asPTRWORD*)(x+1))</td></tr>
+#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#aac9eb586274fc44bb1b838d833963996">asBC_PTRARG</a>(x)&#160;&#160;&#160;(*(<a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a>*)(x+1))</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Macro to access the first pointer argument in the bytecode instruction. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a942798ec89a8ac96550523d80570c703"></a><!-- doxytag: member="angelscript.h::asBC_WORDARG0" ref="a942798ec89a8ac96550523d80570c703" args="(x)" -->
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a942798ec89a8ac96550523d80570c703">asBC_WORDARG0</a>(x)&#160;&#160;&#160;(*(((<a class="el" href="angelscript_8h.html#a340da175136fbe283932fa3c3442cea0">asWORD</a>*)x)+1))</td></tr>
@@ -164,7 +164,7 @@ typedef unsigned short&#160;</td><td class="memItemRight" valign="bottom"><a cla
 typedef unsigned int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">32 bit unsigned integer <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a76fc6994aba7ff6c685a62c273c057e3"></a><!-- doxytag: member="angelscript.h::asPWORD" ref="a76fc6994aba7ff6c685a62c273c057e3" args="" -->
-typedef size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a></td></tr>
+typedef uintptr_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Unsigned integer with the size of a pointer. <br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a5428f0c940201e5f3bbb28304aeb81bc"></a><!-- doxytag: member="angelscript.h::asDWORD" ref="a5428f0c940201e5f3bbb28304aeb81bc" args="" -->
 typedef unsigned long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a></td></tr>
@@ -233,7 +233,9 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#a53c2e8a74ade77c928316396394ebe0fa9b5d1d8ff5143a6a77dfd18143d87c7d">asEP_AUTO_GARBAGE_COLLECT</a> =  16, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#a53c2e8a74ade77c928316396394ebe0fab81c81f4fdeb616dd6487da48a0c3456">asEP_DISALLOW_GLOBAL_VARS</a> =  17
+&#160;&#160;<a class="el" href="angelscript_8h.html#a53c2e8a74ade77c928316396394ebe0fab81c81f4fdeb616dd6487da48a0c3456">asEP_DISALLOW_GLOBAL_VARS</a> =  17, 
+<br/>
+&#160;&#160;<a class="el" href="angelscript_8h.html#a53c2e8a74ade77c928316396394ebe0fa6d80b60995ad046918b2376d7d79f2af">asEP_ALWAYS_IMPL_DEFAULT_CONSTRUCT</a> =  18
 <br/>
  }</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Engine properties.  <a href="angelscript_8h.html#a53c2e8a74ade77c928316396394ebe0f">More...</a><br/></td></tr>
@@ -315,11 +317,15 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa5b8de58c5be3145aaa3e54008fb2edeb">asOBJ_APP_CLASS_ALLINTS</a> =  0x8000, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa12afb6a0fa4ac874ce89815d3611823d">asOBJ_APP_CLASS_ALLFLOATS</a> =  0x10000
+&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa12afb6a0fa4ac874ce89815d3611823d">asOBJ_APP_CLASS_ALLFLOATS</a> =  0x10000, 
+<br/>
+&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aad8b12da6bf9cd48990d48c2ddf13584d">asOBJ_NOCOUNT</a> =  0x20000
 , <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aaa82f3ef517372e0db029f7dcfe7f88eb">asOBJ_SCRIPT_OBJECT</a> =  0x80000, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa92354ace56201eb543c818b6c0852baf">asOBJ_SHARED</a> =  0x100000
+&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa92354ace56201eb543c818b6c0852baf">asOBJ_SHARED</a> =  0x100000, 
+<br/>
+&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa770f4012f052a1190edbac8931140091">asOBJ_NOINHERIT</a> =  0x200000
 <br/>
  }</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Object type flags.  <a href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7a">More...</a><br/></td></tr>
@@ -559,7 +565,7 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a1c42ff5ba726e656b989e3408fe9648f">asBC_PSF</a> =  4, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a934eb600b6d7e1408472565abc5f63b3">asBC_SWAP4</a> =  5, 
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ac23d851c5aaffca166d6494bec9bcf24">asBC_SwapPtr</a> =  5, 
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a13a6093971474018818db5a76f012f26">asBC_NOT</a> =  6, 
 <br/>
@@ -645,9 +651,9 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ac987a5f48ff66860142d01ed51670d91">asBC_PshC8</a> =  47, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a77a4cb5d483841448126985703c6a6a4">asBC_RDS8</a> =  48, 
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a15f565f207bdaab4d5b72867cdd25007">asBC_PshVPtr</a> =  48, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a68c16f2ab48ee32f175c199a36ae8bf3">asBC_SWAP8</a> =  49, 
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a2628264804fd19af3ce94e0336b3eeeb">asBC_RDSPtr</a> =  49, 
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ad72b54941de6dccfbea9c6ccb5d915df">asBC_CMPd</a> =  50, 
 <br/>
@@ -695,9 +701,9 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6ad13f895f055f69384efb4a67941369">asBC_GETREF</a> =  72, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a17ae2f60d9b127d1d2e65d8d8f36ce98">asBC_SWAP48</a> =  73, 
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a9343148f733f970e3463f37fac57f998">asBC_PshNull</a> =  73, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6a4f95f43427917280f0bfd0320e9804">asBC_SWAP84</a> =  74, 
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a8b5cd32b4b5bc6aaafb0456d931dc11e">asBC_ClrVPtr</a> =  74, 
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a0dcad2ccee9332253501c3cef2200fad">asBC_OBJTYPE</a> =  75, 
 <br/>
@@ -747,7 +753,7 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0adc83ae72a402eb4c8d8248ef2ef75d9c">asBC_PGA</a> =  98, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ad23eb2717fe22c63f233cc7ef1fd2a00">asBC_RDS4</a> =  99, 
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a17c0368321613c9e38e438f96b80bdd7">asBC_CmpPtr</a> =  99, 
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0adb056673fe9802b5d8351835d0c4cea9">asBC_VAR</a> =  100, 
 <br/>
@@ -997,12 +1003,12 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define ANGELSCRIPT_VERSION&#160;&#160;&#160;22200</td>
+          <td class="memname">#define ANGELSCRIPT_VERSION&#160;&#160;&#160;22300</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Version 2.22.0 </p>
+<p>Version 2.23.0 </p>
 
 </div>
 </div>
@@ -1057,8 +1063,8 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a1c42ff5ba726e656b989e3408fe9648f"></a><!-- doxytag: member="asBC_PSF" ref="ab3692c4e5d47fc93f8c9646d1783aef0a1c42ff5ba726e656b989e3408fe9648f" args="" -->asBC_PSF</em>&nbsp;</td><td>
 <p>Push the address of the stack frame onto the stack. </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a934eb600b6d7e1408472565abc5f63b3"></a><!-- doxytag: member="asBC_SWAP4" ref="ab3692c4e5d47fc93f8c9646d1783aef0a934eb600b6d7e1408472565abc5f63b3" args="" -->asBC_SWAP4</em>&nbsp;</td><td>
-<p>Swap the top two DWORDs on the stack. </p>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0ac23d851c5aaffca166d6494bec9bcf24"></a><!-- doxytag: member="asBC_SwapPtr" ref="ab3692c4e5d47fc93f8c9646d1783aef0ac23d851c5aaffca166d6494bec9bcf24" args="" -->asBC_SwapPtr</em>&nbsp;</td><td>
+<p>Swap the top two pointers on the stack. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a13a6093971474018818db5a76f012f26"></a><!-- doxytag: member="asBC_NOT" ref="ab3692c4e5d47fc93f8c9646d1783aef0a13a6093971474018818db5a76f012f26" args="" -->asBC_NOT</em>&nbsp;</td><td>
 <p>Perform a boolean not on the value in a variable. </p>
@@ -1186,11 +1192,11 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0ac987a5f48ff66860142d01ed51670d91"></a><!-- doxytag: member="asBC_PshC8" ref="ab3692c4e5d47fc93f8c9646d1783aef0ac987a5f48ff66860142d01ed51670d91" args="" -->asBC_PshC8</em>&nbsp;</td><td>
 <p>Push a 64bit value on the stack. </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a77a4cb5d483841448126985703c6a6a4"></a><!-- doxytag: member="asBC_RDS8" ref="ab3692c4e5d47fc93f8c9646d1783aef0a77a4cb5d483841448126985703c6a6a4" args="" -->asBC_RDS8</em>&nbsp;</td><td>
-<p>Pop an address from the stack, then read a 64bit value from that address and push it on the stack. </p>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a15f565f207bdaab4d5b72867cdd25007"></a><!-- doxytag: member="asBC_PshVPtr" ref="ab3692c4e5d47fc93f8c9646d1783aef0a15f565f207bdaab4d5b72867cdd25007" args="" -->asBC_PshVPtr</em>&nbsp;</td><td>
+<p>Push a pointer from the variable on the stack. </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a68c16f2ab48ee32f175c199a36ae8bf3"></a><!-- doxytag: member="asBC_SWAP8" ref="ab3692c4e5d47fc93f8c9646d1783aef0a68c16f2ab48ee32f175c199a36ae8bf3" args="" -->asBC_SWAP8</em>&nbsp;</td><td>
-<p>Swap the top two QWORDs on the stack. </p>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a2628264804fd19af3ce94e0336b3eeeb"></a><!-- doxytag: member="asBC_RDSPtr" ref="ab3692c4e5d47fc93f8c9646d1783aef0a2628264804fd19af3ce94e0336b3eeeb" args="" -->asBC_RDSPtr</em>&nbsp;</td><td>
+<p>Pop top address, read a pointer from it, and push the pointer onto the stack. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0ad72b54941de6dccfbea9c6ccb5d915df"></a><!-- doxytag: member="asBC_CMPd" ref="ab3692c4e5d47fc93f8c9646d1783aef0ad72b54941de6dccfbea9c6ccb5d915df" args="" -->asBC_CMPd</em>&nbsp;</td><td>
 <p>Compare two double variables and store the result in the value register. </p>
@@ -1261,11 +1267,11 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a6ad13f895f055f69384efb4a67941369"></a><!-- doxytag: member="asBC_GETREF" ref="ab3692c4e5d47fc93f8c9646d1783aef0a6ad13f895f055f69384efb4a67941369" args="" -->asBC_GETREF</em>&nbsp;</td><td>
 <p>Replace a variable index on the stack with the address of the variable. </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a17ae2f60d9b127d1d2e65d8d8f36ce98"></a><!-- doxytag: member="asBC_SWAP48" ref="ab3692c4e5d47fc93f8c9646d1783aef0a17ae2f60d9b127d1d2e65d8d8f36ce98" args="" -->asBC_SWAP48</em>&nbsp;</td><td>
-<p>Swap the top DWORD with the QWORD below it. </p>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a9343148f733f970e3463f37fac57f998"></a><!-- doxytag: member="asBC_PshNull" ref="ab3692c4e5d47fc93f8c9646d1783aef0a9343148f733f970e3463f37fac57f998" args="" -->asBC_PshNull</em>&nbsp;</td><td>
+<p>Push a null pointer on the stack. </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a6a4f95f43427917280f0bfd0320e9804"></a><!-- doxytag: member="asBC_SWAP84" ref="ab3692c4e5d47fc93f8c9646d1783aef0a6a4f95f43427917280f0bfd0320e9804" args="" -->asBC_SWAP84</em>&nbsp;</td><td>
-<p>Swap the top QWORD with the DWORD below it. </p>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a8b5cd32b4b5bc6aaafb0456d931dc11e"></a><!-- doxytag: member="asBC_ClrVPtr" ref="ab3692c4e5d47fc93f8c9646d1783aef0a8b5cd32b4b5bc6aaafb0456d931dc11e" args="" -->asBC_ClrVPtr</em>&nbsp;</td><td>
+<p>Clear pointer in a variable. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a0dcad2ccee9332253501c3cef2200fad"></a><!-- doxytag: member="asBC_OBJTYPE" ref="ab3692c4e5d47fc93f8c9646d1783aef0a0dcad2ccee9332253501c3cef2200fad" args="" -->asBC_OBJTYPE</em>&nbsp;</td><td>
 <p>Push the pointer argument onto the stack. The pointer is a pointer to an object type structure. </p>
@@ -1339,8 +1345,8 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0adc83ae72a402eb4c8d8248ef2ef75d9c"></a><!-- doxytag: member="asBC_PGA" ref="ab3692c4e5d47fc93f8c9646d1783aef0adc83ae72a402eb4c8d8248ef2ef75d9c" args="" -->asBC_PGA</em>&nbsp;</td><td>
 <p>Push the address of a global variable on the stack. </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0ad23eb2717fe22c63f233cc7ef1fd2a00"></a><!-- doxytag: member="asBC_RDS4" ref="ab3692c4e5d47fc93f8c9646d1783aef0ad23eb2717fe22c63f233cc7ef1fd2a00" args="" -->asBC_RDS4</em>&nbsp;</td><td>
-<p>Pop an address from the stack. Read a DWORD from the address, and push it on the stack. </p>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a17c0368321613c9e38e438f96b80bdd7"></a><!-- doxytag: member="asBC_CmpPtr" ref="ab3692c4e5d47fc93f8c9646d1783aef0a17c0368321613c9e38e438f96b80bdd7" args="" -->asBC_CmpPtr</em>&nbsp;</td><td>
+<p>Compare two pointers. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0adb056673fe9802b5d8351835d0c4cea9"></a><!-- doxytag: member="asBC_VAR" ref="ab3692c4e5d47fc93f8c9646d1783aef0adb056673fe9802b5d8351835d0c4cea9" args="" -->asBC_VAR</em>&nbsp;</td><td>
 <p>Push the index of the variable on the stack, with the size of a pointer. </p>
@@ -1903,6 +1909,9 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <tr><td valign="top"><em><a class="anchor" id="a53c2e8a74ade77c928316396394ebe0fab81c81f4fdeb616dd6487da48a0c3456"></a><!-- doxytag: member="asEP_DISALLOW_GLOBAL_VARS" ref="a53c2e8a74ade77c928316396394ebe0fab81c81f4fdeb616dd6487da48a0c3456" args="" -->asEP_DISALLOW_GLOBAL_VARS</em>&nbsp;</td><td>
 <p>Disallow the use of global variables in the script. Default: false. </p>
 </td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a53c2e8a74ade77c928316396394ebe0fa6d80b60995ad046918b2376d7d79f2af"></a><!-- doxytag: member="asEP_ALWAYS_IMPL_DEFAULT_CONSTRUCT" ref="a53c2e8a74ade77c928316396394ebe0fa6d80b60995ad046918b2376d7d79f2af" args="" -->asEP_ALWAYS_IMPL_DEFAULT_CONSTRUCT</em>&nbsp;</td><td>
+<p>When true, the compiler will always provide a default constructor for script classes. Default: false. </p>
+</td></tr>
 </table>
 </dd>
 </dl>
@@ -2132,11 +2141,17 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aa12afb6a0fa4ac874ce89815d3611823d"></a><!-- doxytag: member="asOBJ_APP_CLASS_ALLFLOATS" ref="a855d86fa9ee15b9f75e553ee376b5c7aa12afb6a0fa4ac874ce89815d3611823d" args="" -->asOBJ_APP_CLASS_ALLFLOATS</em>&nbsp;</td><td>
 <p>The C++ class can be treated as if all its members are floats or doubles. </p>
 </td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aad8b12da6bf9cd48990d48c2ddf13584d"></a><!-- doxytag: member="asOBJ_NOCOUNT" ref="a855d86fa9ee15b9f75e553ee376b5c7aad8b12da6bf9cd48990d48c2ddf13584d" args="" -->asOBJ_NOCOUNT</em>&nbsp;</td><td>
+<p>The type doesn't use reference counting. Only valid for reference types. </p>
+</td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aaa82f3ef517372e0db029f7dcfe7f88eb"></a><!-- doxytag: member="asOBJ_SCRIPT_OBJECT" ref="a855d86fa9ee15b9f75e553ee376b5c7aaa82f3ef517372e0db029f7dcfe7f88eb" args="" -->asOBJ_SCRIPT_OBJECT</em>&nbsp;</td><td>
 <p>The object is a script class or an interface. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aa92354ace56201eb543c818b6c0852baf"></a><!-- doxytag: member="asOBJ_SHARED" ref="a855d86fa9ee15b9f75e553ee376b5c7aa92354ace56201eb543c818b6c0852baf" args="" -->asOBJ_SHARED</em>&nbsp;</td><td>
 <p>Type object type is shared between modules. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aa770f4012f052a1190edbac8931140091"></a><!-- doxytag: member="asOBJ_NOINHERIT" ref="a855d86fa9ee15b9f75e553ee376b5c7aa770f4012f052a1190edbac8931140091" args="" -->asOBJ_NOINHERIT</em>&nbsp;</td><td>
+<p>The object type is marked as final and cannot be inherited. </p>
 </td></tr>
 </table>
 </dd>
@@ -2548,7 +2563,7 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
     <ul>
       <li class="navelem"><a class="el" href="angelscript_8h.html">angelscript.h</a>      </li>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:30 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

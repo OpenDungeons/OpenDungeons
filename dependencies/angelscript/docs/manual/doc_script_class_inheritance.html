@@ -81,13 +81,40 @@
       b = a;
     }</pre><pre>    int b;
   }
-</pre><dl class="todo"><dt><b><a class="el" href="todo.html#_todo000006">Todo:</a></b></dt><dd>Show how the polymorphism is used with cast behaviours</dd></dl>
-</div></div>
+</pre><dl class="todo"><dt><b><a class="el" href="todo.html#_todo000007">Todo:</a></b></dt><dd>Show how the polymorphism is used with cast behaviours</dd></dl>
+<h2><a class="anchor" id="doc_script_class_inheritance_2"></a>
+Extra control with final and override</h2>
+<p>A class can be marked as 'final' to prevent the inheritance of it. This is an optional feature and mostly used in larger projects where there are many classes and it may be difficult to manually control the correct use of all classes. It is also possible to mark individual class methods of a class as 'final', in which case it is still possible to inherit from the class, but the finalled method cannot be overridden.</p>
+<pre>
+  // A final class that cannot be inherited from
+  final class MyFinal
+  {
+    MyFinal() {}
+    void Method() {}
+  }</pre><pre>  // A class with individual methods finalled
+  class MyPartiallyFinal
+  {
+    // A final method that cannot be overridden
+    void Method1() final {}</pre><pre>    // Normal method that can still be overridden by derived class
+    void Method2() {}
+  }
+</pre><p>When deriving a class it is possible to tell the compiler that a method is meant to override a method in the inherited base class. When this is done and there is no matching method in the base class the compiler will emit an error, as it knows that something wasn't implemented quite the way it was meant. This is especially useful to catch errors in large projects where a base class might be modified, but the derived classes was forgotten.</p>
+<pre>
+  class MyBase
+  {
+    void Method() {}
+    void Method(int) {}
+  }</pre><pre>  class MyDerived : MyBase
+  {
+    void Method() override {}      // OK. The method is overriding a method in the base class
+    void Method(float) override {} // Not OK. The method isn't overriding a method in base class
+  }
+</pre> </div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

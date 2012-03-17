@@ -26,9 +26,11 @@ public:
 	asUINT GetSize() const;
 
 	// Get a pointer to an element. Returns 0 if out of bounds
-	void  *At(asUINT index);
+	void       *At(asUINT index);
+	const void *At(asUINT index) const;
 
 	CScriptArray &operator=(const CScriptArray&);
+	bool operator==(const CScriptArray &) const;
 
 	void InsertAt(asUINT index, void *value);
 	void RemoveAt(asUINT index);
@@ -40,8 +42,8 @@ public:
 	void SortDesc(asUINT index, asUINT count);
 	void Sort(asUINT index, asUINT count, bool asc);
 	void Reverse();
-	int  Find(void *value);
-	int  Find(asUINT index, void *value);
+	int  Find(void *value) const;
+	int  Find(asUINT index, void *value) const;
 
 	// GC methods
 	int  GetRefCount();
@@ -73,7 +75,7 @@ protected:
 	void  CopyBuffer(SArrayBuffer *dst, SArrayBuffer *src);
 	void  Construct(SArrayBuffer *buf, asUINT start, asUINT end);
 	void  Destruct(SArrayBuffer *buf, asUINT start, asUINT end);
-	bool  Equals(const void *a, const void *b, asIScriptContext *ctx);
+	bool  Equals(const void *a, const void *b, asIScriptContext *ctx) const;
 };
 
 void RegisterScriptArray(asIScriptEngine *engine, bool defaultArray);

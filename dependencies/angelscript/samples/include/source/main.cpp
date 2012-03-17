@@ -184,8 +184,7 @@ int RunApplication()
 			cout << "The script ended with an exception." << endl;
 
 			// Write some information about the script exception
-			int funcID = ctx->GetExceptionFunction();
-			asIScriptFunction *func = engine->GetFunctionById(funcID);
+			asIScriptFunction *func = ctx->GetExceptionFunction();
 			cout << "func: " << func->GetDeclaration() << endl;
 			cout << "modl: " << func->GetModuleName() << endl;
 			cout << "sect: " << func->GetScriptSectionName() << endl;

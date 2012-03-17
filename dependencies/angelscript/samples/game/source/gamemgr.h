@@ -4,7 +4,6 @@
 #include <vector>
 
 class CGameObj;
-class CGameObjLink;
 
 class CGameMgr
 {
@@ -19,7 +18,8 @@ public:
 	CGameObj *GetGameObjAt(int x, int y);
 
 	bool GetActionState(int action);
-	CGameObjLink *FindGameObjLinkByName(const std::string &name);
+
+	CGameObj *FindGameObjByName(const std::string &name);
 
 protected:
 	void Render();

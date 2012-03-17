@@ -75,7 +75,7 @@ Instanciating the script class</h2>
 <a class="code" href="classas_i_object_type.html" title="The interface for an object type.">asIObjectType</a> *type = engine-&gt;<a class="code" href="classas_i_script_engine.html#a52f3e08240c9fc493793036721cbd5ce" title="Returns the object type interface for type.">GetObjectTypeById</a>(module-&gt;<a class="code" href="classas_i_script_module.html#a7fbc2bd888b248d2c2ee2d953b49eefc" title="Returns a type id by declaration.">GetTypeIdByDecl</a>(<span class="stringliteral">&quot;MyClass&quot;</span>));
 
 <span class="comment">// Get the factory function from the object type</span>
-<a class="code" href="classas_i_script_function.html" title="The interface for a script function description.">asIScriptFunction</a> *factory = type-&gt;<a class="code" href="classas_i_object_type.html#a53c799db82ab17dd3f3ee8471b53370b" title="Returns the factory function by the declaration.">GetFactoryByDecl</a>(<span class="stringliteral">&quot;MyClass @MyClass()&quot;</span>);
+asIScriptFunction *factory = type-&gt;<a class="code" href="classas_i_object_type.html#a53c799db82ab17dd3f3ee8471b53370b" title="Returns the factory function by the declaration.">GetFactoryByDecl</a>(<span class="stringliteral">&quot;MyClass @MyClass()&quot;</span>);
 
 <span class="comment">// Prepare the context to call the factory function</span>
 ctx-&gt;<a class="code" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a" title="Prepares the context for execution of the function.">Prepare</a>(factory);
@@ -94,7 +94,7 @@ obj-&gt;<a class="code" href="classas_i_script_object.html#a3e08890e31163e4d33c0
 Calling a method on the script class</h2>
 <p>Calling the methods of the script classes are similar to <a class="el" href="doc_call_script_func.html">calling global functions</a> except that you obtain the function id from the <a class="el" href="classas_i_object_type.html">asIObjectType</a>, and you must set the object pointer along with the rest of the function arguments.</p>
 <div class="fragment"><pre class="fragment"><span class="comment">// Obtain the function object that represents the class method</span>
-<a class="code" href="classas_i_script_function.html" title="The interface for a script function description.">asIScriptFunction</a> *func = type-&gt;<a class="code" href="classas_i_object_type.html#a3b3bdbd8c4290724cc396cede83fa089" title="Returns the method by declaration.">GetMethodByDecl</a>(<span class="stringliteral">&quot;void method()&quot;</span>);
+asIScriptFunction *func = type-&gt;<a class="code" href="classas_i_object_type.html#a3b3bdbd8c4290724cc396cede83fa089" title="Returns the method by declaration.">GetMethodByDecl</a>(<span class="stringliteral">&quot;void method()&quot;</span>);
 
 <span class="comment">// Prepare the context for calling the method</span>
 ctx-&gt;<a class="code" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a" title="Prepares the context for execution of the function.">Prepare</a>(func);
@@ -140,7 +140,7 @@ engine-&gt;<a class="code" href="classas_i_script_engine.html#a754fafd069d8e0c19
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

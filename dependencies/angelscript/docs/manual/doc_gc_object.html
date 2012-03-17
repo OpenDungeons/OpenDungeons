@@ -121,8 +121,8 @@ Factory for garbage collection</h2>
 {
     <span class="comment">// Create the object and then notify the GC of its existence</span>
     CGCRef *obj = <span class="keyword">new</span> CGCRef();
-    <span class="keywordtype">int</span> typeId = engine-&gt;<a class="code" href="classas_i_script_engine.html#ad1f6fecb0f53fd7966736b01f65c3dcb" title="Returns a type id by declaration.">GetTypeIdByDecl</a>(<span class="stringliteral">&quot;gc&quot;</span>);
-    engine-&gt;<a class="code" href="classas_i_script_engine.html#a8ea9a6f3ed9f69a5c4e07c87281117c0" title="Notify the garbage collector of a new object that needs to be managed.">NotifyGarbageCollectorOfNewObject</a>(obj, typeId);
+    <a class="code" href="classas_i_object_type.html" title="The interface for an object type.">asIObjectType</a> *type = engine-&gt;<a class="code" href="classas_i_script_engine.html#a4c44c6cc32407c92d0bb4dfb871ee943" title="Returns a matching object type by name.">GetObjectTypeByName</a>(<span class="stringliteral">&quot;gc&quot;</span>);
+    engine-&gt;<a class="code" href="classas_i_script_engine.html#abad64f5d62458c49acba7c0d9baf1279" title="Notify the garbage collector of a new object that needs to be managed.">NotifyGarbageCollectorOfNewObject</a>(obj, type);
     <span class="keywordflow">return</span> obj;
 }
 </pre></div><p>You may want to consider caching the typeId, so that it doesn't have to be looked up through the relatively expensive call to GetTypeIdByDecl every time an object of this type is created.</p>
@@ -152,7 +152,7 @@ r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a7ea3c93dea338
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

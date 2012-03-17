@@ -73,13 +73,17 @@ r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a754fafd069d8e
 <h2><a class="anchor" id="doc_usemsgcallbck"></a>
 Use the message callback to receive detailed error messages</h2>
 <p>The return code from the register functions, <a class="el" href="classas_i_script_module.html#a8acf107194c5f079d7f7507309ebe613">Build</a>, and <a class="el" href="classas_i_script_module.html#a1258d7cfeed965f36ba312beeb49e81c">CompileFunction</a>, can only tell you that something was wrong, not what it was. To help identify the exact problem the message callback should be used. The script library will then send messages explaining the error or warning in clear text.</p>
-<p>See <a class="el" href="doc_compile_script.html#doc_compile_script_msg">Message callback</a> for more information on the message callback. </p>
+<p>See <a class="el" href="doc_compile_script.html#doc_compile_script_msg">Message callback</a> for more information on the message callback.</p>
+<h2><a class="anchor" id="doc_checkexceptions"></a>
+Always verify return value after executing script function</h2>
+<p>The VM can provide detailed information on any exception that occur in the script, for example in which function and line of code the problem occurred. It is also possible to enumerate the callstack and even the local variables.</p>
+<p>See <a class="el" href="doc_call_script_func.html#doc_call_script_4">Exception handling</a> </p>
 </div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

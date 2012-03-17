@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2011 Andreas Jonsson
+   Copyright (c) 2003-2012 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -97,7 +97,8 @@ static void ObjectType_ReleaseAllHandles_Generic(asIScriptGeneric *gen)
 void RegisterObjectTypeGCBehaviours(asCScriptEngine *engine)
 {
 	// Register the gc behaviours for the object types
-	int r;
+	int r = 0;
+	UNUSED_VAR(r); // It is only used in debug mode
 	engine->objectTypeBehaviours.engine = engine;
 	engine->objectTypeBehaviours.flags = asOBJ_REF | asOBJ_GC;
 	engine->objectTypeBehaviours.name = "_builtin_objecttype_";
@@ -270,6 +271,12 @@ bool asCObjectType::IsShared() const
 const char *asCObjectType::GetName() const
 {
 	return name.AddressOf();
+}
+
+// interface
+const char *asCObjectType::GetNamespace() const
+{
+	return nameSpace.AddressOf();
 }
 
 // interface
@@ -453,19 +460,16 @@ asIScriptFunction *asCObjectType::GetMethodByName(const char *name, bool getVirt
 // interface
 int asCObjectType::GetMethodIdByDecl(const char *decl, bool getVirtual) const
 {
-	// Get the module from one of the methods
 	if( methods.GetLength() == 0 )
 		return asNO_FUNCTION;
 
+	// Get the module from one of the methods, but it will only be
+	// used to allow the parsing of types not already known by the object.
+	// It is possible for object types to be orphaned, e.g. by discarding 
+	// the module that created it. In this case it is still possible to 
+	// find the methods, but any type not known by the object will result in
+	// an invalid declaration.
 	asCModule *mod = engine->scriptFunctions[methods[0]]->module;
-	if( mod == 0 )
-	{
-		if( engine->scriptFunctions[methods[0]]->funcType == asFUNC_INTERFACE )
-			return engine->GetMethodIdByDecl(this, decl, 0);
-
-		return asNO_MODULE;
-	}
-
 	int id = engine->GetMethodIdByDecl(this, decl, mod);
 	if( !getVirtual && id >= 0 )
 	{
@@ -483,25 +487,6 @@ asIScriptFunction *asCObjectType::GetMethodByDecl(const char *decl, bool getVirt
 	return engine->GetFunctionById(GetMethodIdByDecl(decl, getVirtual));
 }
 
-#ifdef AS_DEPRECATED
-// deprecated since 2011-10-03
-// interface
-asIScriptFunction *asCObjectType::GetMethodDescriptorByIndex(asUINT index, bool getVirtual) const
-{
-	if( index >= methods.GetLength() ) 
-		return 0;
-
-	if( !getVirtual )
-	{
-		asCScriptFunction *func = engine->scriptFunctions[methods[index]];
-		if( func && func->funcType == asFUNC_VIRTUAL )
-			return virtualFunctionTable[func->vfTableIdx];
-	}
-
-	return engine->scriptFunctions[methods[index]];
-}
-#endif
-
 // interface
 asUINT asCObjectType::GetPropertyCount() const
 {
@@ -509,7 +494,7 @@ asUINT asCObjectType::GetPropertyCount() const
 }
 
 // interface
-int asCObjectType::GetProperty(asUINT index, const char **name, int *typeId, bool *isPrivate, int *offset, bool *isReference) const
+int asCObjectType::GetProperty(asUINT index, const char **name, int *typeId, bool *isPrivate, int *offset, bool *isReference, asDWORD *accessMask) const
 {
 	if( index >= properties.GetLength() )
 		return asINVALID_ARG;
@@ -524,6 +509,8 @@ int asCObjectType::GetProperty(asUINT index, const char **name, int *typeId, boo
 		*offset = properties[index]->byteOffset;
 	if( isReference )
 		*isReference = properties[index]->type.IsReference();
+	if( accessMask )
+		*accessMask = properties[index]->accessMask;
 
 	return 0;
 }
@@ -670,6 +657,12 @@ const char *asCObjectType::GetConfigGroup() const
 		return 0;
 
 	return group->groupName.AddressOf();
+}
+
+// interface
+asDWORD asCObjectType::GetAccessMask() const
+{
+	return accessMask;
 }
 
 // internal

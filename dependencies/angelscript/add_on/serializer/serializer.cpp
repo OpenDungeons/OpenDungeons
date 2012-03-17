@@ -55,10 +55,10 @@ int CSerializer::Store(asIScriptModule *mod)
 	// First store global variables
 	for( asUINT i = 0; i < mod->GetGlobalVarCount(); i++ )
 	{
-		const char *name;
+		const char *name, *nameSpace;
 		int typeId;
-		mod->GetGlobalVar(i, &name, &typeId);
-		m_root.m_children.push_back(new CSerializedValue(&m_root, name, mod->GetAddressOfGlobalVar(i), typeId));
+		mod->GetGlobalVar(i, &name, &nameSpace, &typeId);
+		m_root.m_children.push_back(new CSerializedValue(&m_root, name, nameSpace, mod->GetAddressOfGlobalVar(i), typeId));
 	}
 
 	// For the handles that were stored, we need to substitute the stored pointer
@@ -83,11 +83,11 @@ int CSerializer::Restore(asIScriptModule *mod)
 	asUINT varCount = mod->GetGlobalVarCount();
 	for( asUINT i = 0; i < varCount; i++ )
 	{
-		const char *name;
+		const char *name, *nameSpace;
 		int typeId;
-		mod->GetGlobalVar(i, &name, &typeId);
+		mod->GetGlobalVar(i, &name, &nameSpace, &typeId);
 
-		CSerializedValue *v = m_root.FindByName(name);
+		CSerializedValue *v = m_root.FindByName(name, nameSpace);
 		if( v )
 			v->Restore(mod->GetAddressOfGlobalVar(i), typeId);
 	}
@@ -106,11 +106,12 @@ CSerializedValue::CSerializedValue()
 	Init();
 }
 
-CSerializedValue::CSerializedValue(CSerializedValue *parent, const std::string &name, void *ref, int typeId) 
+CSerializedValue::CSerializedValue(CSerializedValue *parent, const std::string &name, const std::string &nameSpace, void *ref, int typeId) 
 {
 	Init();
 
 	m_name       = name;
+	m_nameSpace  = nameSpace;
 	m_serializer = parent->m_serializer;
 	Store(ref, typeId);
 }
@@ -123,6 +124,7 @@ void CSerializedValue::Init()
 	m_isInit     = false;
 	m_serializer = 0;
 	m_userData   = 0;
+	m_ptr        = 0;
 }
 
 void CSerializedValue::Uninit()
@@ -159,10 +161,11 @@ CSerializedValue::~CSerializedValue()
 	Uninit();
 }
 
-CSerializedValue *CSerializedValue::FindByName(const std::string &name)
+CSerializedValue *CSerializedValue::FindByName(const std::string &name, const std::string &nameSpace)
 {
 	for( size_t i = 0; i < m_children.size(); i++ )
-		if( m_children[i]->m_name == name )
+		if( m_children[i]->m_name      == name &&
+			m_children[i]->m_nameSpace == nameSpace )
 			return m_children[i];
 
 	return 0;
@@ -252,7 +255,7 @@ void CSerializedValue::Store(void *ref, int typeId)
 			const char *childName;
 			type->GetProperty(i, &childName, &childId);
 
-			m_children.push_back(new CSerializedValue(this, childName, obj->GetAddressOfProperty(i), childId));
+			m_children.push_back(new CSerializedValue(this, childName, "", obj->GetAddressOfProperty(i), childId));
 		}	
 	}
 	else
@@ -318,7 +321,7 @@ void CSerializedValue::Restore(void *ref, int typeId)
 			int typeId;
 			type->GetProperty(i, &nameProperty, &typeId);
 			
-			CSerializedValue *var = FindByName(nameProperty);
+			CSerializedValue *var = FindByName(nameProperty, "");
 			if( var )
 				var->Restore(obj->GetAddressOfProperty(i), typeId);
 		}
@@ -366,7 +369,7 @@ void CSerializedValue::ReplaceHandles()
 		{
 			// Store the object now
 			asIObjectType *type = GetType();
-			CSerializedValue *need_create = new CSerializedValue(this, m_name, m_handlePtr, type->GetTypeId()); 
+			CSerializedValue *need_create = new CSerializedValue(this, m_name, m_nameSpace, m_handlePtr, type->GetTypeId()); 
 
 			// Make sure all other handles that point to the same object 
 			// are updated, so we don't end up creating duplicates 

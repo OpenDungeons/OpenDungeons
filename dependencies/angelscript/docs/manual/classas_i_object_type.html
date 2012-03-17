@@ -75,6 +75,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the script engine.  <a href="#a7322b9244acd1210a32d93da9aead718"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#aa923386cd3e98312f0049e82927af5f6">GetConfigGroup</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the config group in which the type was registered.  <a href="#aa923386cd3e98312f0049e82927af5f6"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a961ab154684dc53240e1e28716d0646d">GetAccessMask</a> () const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the access mask for this type.  <a href="#a961ab154684dc53240e1e28716d0646d"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Memory management</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#aaf11085b174893774dd96fa44650402f">AddRef</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Increases the reference counter.  <a href="#aaf11085b174893774dd96fa44650402f"></a><br/></td></tr>
@@ -83,6 +85,8 @@ Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Type info</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a2075998cce987c3643d52de7abd99868">GetName</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a temporary pointer to the name of the datatype.  <a href="#a2075998cce987c3643d52de7abd99868"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a74fb1a08cb5907aeb8bece981fb48c12">GetNamespace</a> () const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the namespace of the object type.  <a href="#a74fb1a08cb5907aeb8bece981fb48c12"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_object_type.html">asIObjectType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a9bff7795a416c42cc78b12bc0b711819">GetBaseType</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the object type that this type derives from.  <a href="#a9bff7795a416c42cc78b12bc0b711819"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a421170cf83894a9f3fb084eaa852356e">DerivesFrom</a> (const <a class="el" href="classas_i_object_type.html">asIObjectType</a> *objType) const =0</td></tr>
@@ -130,12 +134,11 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the method by name.  <a href="#ad05df0392fb1628cb7b17783917da0b8"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a3b3bdbd8c4290724cc396cede83fa089">GetMethodByDecl</a> (const char *decl, bool getVirtual=true) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the method by declaration.  <a href="#a3b3bdbd8c4290724cc396cede83fa089"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#ae844dd84a1f17be41c19cb5c27765ca6">GetMethodDescriptorByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, bool getVirtual=true) const =0</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Properties</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a18ccd38257957182b18750313ae7b411">GetPropertyCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of properties that the object contains.  <a href="#a18ccd38257957182b18750313ae7b411"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#af2a6796b4a3adc74ebc4b6cebe0cd00d">GetProperty</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, const char **name, int *typeId=0, bool *isPrivate=0, int *offset=0, bool *isReference=0) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the attributes of the property.  <a href="#af2a6796b4a3adc74ebc4b6cebe0cd00d"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a50aab8b32f1bd77996474125bf1c57ce">GetProperty</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, const char **name, int *typeId=0, bool *isPrivate=0, int *offset=0, bool *isReference=0, <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> *accessMask=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the attributes of the property.  <a href="#a50aab8b32f1bd77996474125bf1c57ce"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a31cc1d27bbb906e2b0a506de7e1077a3">GetPropertyDeclaration</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the declaration of the property.  <a href="#a31cc1d27bbb906e2b0a506de7e1077a3"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Behaviours</div></td></tr>
@@ -189,6 +192,23 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>True if the type inherits directly or indirectly from the informed type. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a961ab154684dc53240e1e28716d0646d"></a><!-- doxytag: member="asIObjectType::GetAccessMask" ref="a961ab154684dc53240e1e28716d0646d" args="() const =0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> asIObjectType::GetAccessMask </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl class="return"><dt><b>Returns:</b></dt><dd>The access mask for this type. </dd></dl>
 
 </div>
 </div>
@@ -619,35 +639,6 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="ae844dd84a1f17be41c19cb5c27765ca6"></a><!-- doxytag: member="asIObjectType::GetMethodDescriptorByIndex" ref="ae844dd84a1f17be41c19cb5c27765ca6" args="(asUINT index, bool getVirtual=true) const =0" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a>* asIObjectType::GetMethodDescriptorByIndex </td>
-          <td>(</td>
-          <td class="paramtype"><a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td>
-          <td class="paramname"><em>index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>getVirtual</em> = <code>true</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td> const<code> [pure virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000006">Deprecated:</a></b></dt><dd></dd></dl>
-<dl class="since"><dt><b>Since:</b></dt><dd>2011-10-03. Use <a class="el" href="classas_i_object_type.html#a373a46ab316a5030ca43f0780dd5039f" title="Returns the method by index.">asIObjectType::GetMethodByIndex</a> instead </dd></dl>
-
-</div>
-</div>
 <a class="anchor" id="a20699d68d56dc614c3105506b68ffed9"></a><!-- doxytag: member="asIObjectType::GetMethodIdByDecl" ref="a20699d68d56dc614c3105506b68ffed9" args="(const char *decl, bool getVirtual=true) const =0" -->
 <div class="memitem">
 <div class="memproto">
@@ -797,7 +788,24 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="af2a6796b4a3adc74ebc4b6cebe0cd00d"></a><!-- doxytag: member="asIObjectType::GetProperty" ref="af2a6796b4a3adc74ebc4b6cebe0cd00d" args="(asUINT index, const char **name, int *typeId=0, bool *isPrivate=0, int *offset=0, bool *isReference=0) const =0" -->
+<a class="anchor" id="a74fb1a08cb5907aeb8bece981fb48c12"></a><!-- doxytag: member="asIObjectType::GetNamespace" ref="a74fb1a08cb5907aeb8bece981fb48c12" args="() const =0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual const char* asIObjectType::GetNamespace </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl class="return"><dt><b>Returns:</b></dt><dd>The namespace of the object type. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a50aab8b32f1bd77996474125bf1c57ce"></a><!-- doxytag: member="asIObjectType::GetProperty" ref="a50aab8b32f1bd77996474125bf1c57ce" args="(asUINT index, const char **name, int *typeId=0, bool *isPrivate=0, int *offset=0, bool *isReference=0, asDWORD *accessMask=0) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -835,7 +843,13 @@ Public Member Functions</h2></td></tr>
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">bool *&#160;</td>
-          <td class="paramname"><em>isReference</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>isReference</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> *&#160;</td>
+          <td class="paramname"><em>accessMask</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -853,6 +867,7 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">isPrivate</td><td>Whether the property is private or not </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">offset</td><td>The offset into the object where the property is stored </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">isReference</td><td>True is the property is not stored inline </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">accessMask</td><td>The access mask of the property. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1076,7 +1091,7 @@ Public Member Functions</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="classas_i_object_type.html">asIObjectType</a>      </li>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

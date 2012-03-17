@@ -91,10 +91,14 @@ Public C++ interface</h2>
   <span class="keywordtype">void</span>   Resize(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> numElements);
   
   <span class="comment">// Get a pointer to an element. Returns 0 if out of bounds</span>
-  <span class="keywordtype">void</span>  *At(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index);
+  <span class="keywordtype">void</span>       *At(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index);
+  <span class="keyword">const</span> <span class="keywordtype">void</span> *At(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index) <span class="keyword">const</span>;
 
   <span class="comment">// Copy the contents of one array to another (only if the types are the same)</span>
   CScriptArray &amp;operator=(<span class="keyword">const</span> CScriptArray&amp;);
+
+  <span class="comment">// Compare two arrays</span>
+  <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> CScriptArray &amp;) <span class="keyword">const</span>;
 
   <span class="comment">// Array manipulation</span>
   <span class="keywordtype">void</span> InsertAt(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index, <span class="keywordtype">void</span> *value);
@@ -105,9 +109,9 @@ Public C++ interface</h2>
   <span class="keywordtype">void</span> SortAsc(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index, <a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> count);
   <span class="keywordtype">void</span> SortDesc();
   <span class="keywordtype">void</span> SortDesc(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index, <a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> count);
-  <span class="keywordtype">void</span> reverse();
-  <span class="keywordtype">int</span>  find(<span class="keywordtype">void</span> *value);
-  <span class="keywordtype">int</span>  find(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index, <span class="keywordtype">void</span> *value);
+  <span class="keywordtype">void</span> Reverse();
+  <span class="keywordtype">int</span>  Find(<span class="keywordtype">void</span> *value) <span class="keyword">const</span>;
+  <span class="keywordtype">int</span>  Find(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index, <span class="keywordtype">void</span> *value) <span class="keyword">const</span>;
 };
 </pre></div><h2><a class="anchor" id="doc_addon_array_2"></a>
 Public script interface</h2>
@@ -117,7 +121,8 @@ Public script interface</h2>
     array();
     array(uint length);
     array(uint length, const T &amp;in defaultValue);</pre><pre>    T       &amp;opIndex(uint);
-    const T &amp;opIndex(uint) const;</pre><pre>    array&lt;T&gt; opAssign(const array&lt;T&gt; &amp; in);</pre><pre>    void insertAt(uint index, const T&amp; in);
+    const T &amp;opIndex(uint) const;</pre><pre>    array&lt;T&gt; opAssign(const array&lt;T&gt; &amp;in);
+    bool     opEquals(const array&lt;T&gt; &amp;in) const;</pre><pre>    uint length { get const; set; }</pre><pre>    void insertAt(uint index, const T &amp;in);
     void removeAt(uint index);
     void insertLast(const T&amp; in);
     void removeLast();
@@ -128,8 +133,8 @@ Public script interface</h2>
     void sortDesc();
     void sortDesc(uint index, uint count);
     void reverse();
-    int  find(const T&amp; in);
-    int  find(uint index, const T&amp; in);
+    int  find(const T&amp; in) const;
+    int  find(uint index, const T&amp; in) const;
   }
 </pre><h2><a class="anchor" id="doc_addon_array_3"></a>
 Script example</h2>
@@ -137,7 +142,7 @@ Script example</h2>
   int main()
   {
     array&lt;int&gt; arr = {1,2,3};</pre><pre>    int sum = 0;
-    for( uint n = 0; n &lt; arr.length(); n++ )
+    for( uint n = 0; n &lt; arr.length; n++ )
       sum += arr[n];</pre><pre>    return sum;
   }
 </pre><h2><a class="anchor" id="doc_addon_array_4"></a>
@@ -173,7 +178,7 @@ C++ example</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:30 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

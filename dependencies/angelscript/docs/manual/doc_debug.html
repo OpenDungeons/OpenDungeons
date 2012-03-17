@@ -74,7 +74,7 @@ Setting line breaks</h2>
   <span class="comment">// Determine if we have reached a break point</span>
   <span class="keyword">const</span> <span class="keywordtype">char</span> *scriptSection;
   <span class="keywordtype">int</span> line = ctx-&gt;<a class="code" href="classas_i_script_context.html#adf82981def59c6ec5dd9f74f034be2af" title="Returns the line number at the specified callstack level.">GetLineNumber</a>(0, 0, &amp;scriptSection);
-  <a class="code" href="classas_i_script_function.html" title="The interface for a script function description.">asIScriptFunction</a> *<span class="keyword">function</span> = ctx-&gt;<a class="code" href="classas_i_script_context.html#a1c101300447f2909e5d188409a7180f6" title="Returns the function at the specified callstack level.">GetFunction</a>();
+  asIScriptFunction *<span class="keyword">function</span> = ctx-&gt;<a class="code" href="classas_i_script_context.html#a1c101300447f2909e5d188409a7180f6" title="Returns the function at the specified callstack level.">GetFunction</a>();
 
   <span class="comment">// Now let the debugger check if a breakpoint has been set here</span>
   <span class="keywordflow">if</span>( dbg-&gt;IsBreakpoint(scriptSection, line, <span class="keyword">function</span>) )
@@ -97,13 +97,13 @@ Viewing the call stack</h2>
   <span class="comment">// Show the call stack</span>
   <span class="keywordflow">for</span>( <a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> n = 0; n &lt; ctx-&gt;<a class="code" href="classas_i_script_context.html#a88ea15c717f4051cbaffc9623bf01e4b" title="Returns the size of the callstack, i.e. the number of functions that have yet to complete.">GetCallstackSize</a>(); n++ )
   {
-    <a class="code" href="classas_i_script_function.html" title="The interface for a script function description.">asIScriptFunction</a> *func;
+    asIScriptFunction *func;
     <span class="keyword">const</span> <span class="keywordtype">char</span> *scriptSection;
     <span class="keywordtype">int</span> line, column;
     func = ctx-&gt;<a class="code" href="classas_i_script_context.html#a1c101300447f2909e5d188409a7180f6" title="Returns the function at the specified callstack level.">GetFunction</a>(n);
     line = ctx-&gt;<a class="code" href="classas_i_script_context.html#adf82981def59c6ec5dd9f74f034be2af" title="Returns the line number at the specified callstack level.">GetLineNumber</a>(n, &amp;column, &amp;scriptSection);
     printf(<span class="stringliteral">&quot;%s:%s:%d,%d\n&quot;</span>, scriptSection,
-                            func-&gt;<a class="code" href="classas_i_script_function.html#a1bb2d5860e1ea3d07a55ba13e6fb26a8" title="Returns the function declaration.">GetDeclaration</a>(),
+                            func-&gt;<a class="code" href="classas_i_script_function.html#a863e61c60b5274adab2e38af28c08de5" title="Returns the function declaration.">GetDeclaration</a>(),
                             line, column);
   }
 }
@@ -167,7 +167,7 @@ Inspecting variables</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

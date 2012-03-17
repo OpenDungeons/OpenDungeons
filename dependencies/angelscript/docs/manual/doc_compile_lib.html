@@ -64,6 +64,7 @@
 <div class="contents">
 <div class="textblock"><p>In the sdk/angelscript/projects directory you'll find project files for many of the popular compilers. However, these project files are not always up to date with the latest version of the library. If you get any compiler or linker errors please make sure the project file include all the files in the sdk/angelscript/source directory, and that the project settings are set according to this article.</p>
 <p>If you don't find a project file for your compiler, you can easily create your own project by adding all the files in the sdk/angelscript/source directory, and configuring the project apropriately. If you have a new compiler/target that hasn't been used with AngelScript before, you may need to edit the as_config.h file to make sure the library is compiled properly.</p>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_compile_lib.html#doc_compile_platforms">Considerations for specific platforms</a></dd></dl>
 <h2><a class="anchor" id="doc_compile_lib_1"></a>
 Set compile time options</h2>
 <p>The code tries to contain compiler differences in as few places as possible. The header as_config.h was created for that purpose. There you will find some #defines that allow different compilers to work. You'll probably not have to change this file, but if you're using a compiler not previously used and you're getting compiler errors it might be worth it to take a look at this file.</p>
@@ -118,12 +119,34 @@ asCreateScriptEngine = (t_asCreateScriptEngine*)GetProcAddress(dll, <span class=
 <span class="comment">// ... Bind the other functions</span>
 
 <span class="comment">// ... Start using the library</span>
-</pre></div> </div></div>
+</pre></div><h2><a class="anchor" id="doc_compile_platforms"></a>
+Considerations for specific platforms</h2>
+<p>As mentioned before, for most platforms the compilation of the library is as easy as including all source files and compiling them. However, on some platforms specific actions needs to be performed to compile the library correctly.</p>
+<h3><a class="anchor" id="doc_compile_win64"></a>
+Windows 64bit</h3>
+<p>The MSVC compiler doesn't support inline assembler for the x86 64bit CPU family. To support this platform a separate assembler file has been created: as_callfunc_x64_msvc_asm.asm.</p>
+<p>To compile this file it is necessary to configure a custom build command with the following:</p>
+<div class="fragment"><pre class="fragment">ml64.exe /c  /nologo /Fo$(OutDir)\as_callfunc_x64_msvc_asm.obj /W3 /Zi /Ta $(InputDir)\$(InputFileName)
+</pre></div><h3><a class="anchor" id="doc_compile_gnuc"></a>
+GNUC based compilers</h3>
+<p>In order to properly intergrate with C++ without the need for wrappers AngelScript uses a lot of pointer casts. Unfortunately it is not possible to always guarantee strict aliasing because of this, so on GNUC based compilers it is necessary to disable compiler optimizations that assume strict aliasing.</p>
+<p>Use the following compiler argument to disable this:</p>
+<div class="fragment"><pre class="fragment">-fno-strict-aliasing
+</pre></div><h3><a class="anchor" id="doc_compile_pocketpc"></a>
+Pocket PC with ARM CPU</h3>
+<p>The MSVC compiler doesn't support inline assembler for the ARM CPU, so a separate assembler file has been written with this code: as_callfunc_arm_msvc.asm.</p>
+<p>In order to compile this file properly it is necessary to configure a custom build command with the following:</p>
+<div class="fragment"><pre class="fragment">armasm -g $(InputPath)
+</pre></div><h3><a class="anchor" id="doc_compile_marmalade"></a>
+Marmalade</h3>
+<p>Marmalade is a cross platform SDK created with mobile devices in mind. It functions by abstracting the underlying OS with its own C runtime library even though it uses the common C++ compilers, e.g. MSVC on Windows, and GNUC on Linux and Mac.</p>
+<p>Unfortunately Marmalade doesn't provide a specific pre-processor define that can be used to automatically detect that the library is being compiled for use with Marmalade. So in this case it is necessary to manually define the word MARMALADE in the project settings or makefile to allow AngelScript to detect this. </p>
+</div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

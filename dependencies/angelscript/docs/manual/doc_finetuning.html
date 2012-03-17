@@ -98,7 +98,8 @@ Reuse the context object</h2>
 </pre></div><h2><a class="anchor" id="doc_finetuning_3"></a>
 Compile scripts without line cues</h2>
 <p>The line cues are normally placed in the bytecode between each script statement. These are where the VM will allow the execution to be suspended, and also where the line callback is invoked.</p>
-<p>If you do not use the line callback then you may get a little more performance out of the script by compiling without the line cues.</p>
+<p>If you do not need to receive a callback for every statement executed in a script then you may get a little more performance out of the script by compiling without the line cues.</p>
+<p>The line callback will still work and is guaranteed to be invoked at least once per loop in the script to allow the application to interrupt infinite loops.</p>
 <div class="fragment"><pre class="fragment">engine-&gt;<a class="code" href="classas_i_script_engine.html#a1bce4e5f573a2ca0ff55163e28f761dd" title="Dynamically change some engine properties.">SetEngineProperty</a>(<a class="code" href="angelscript_8h.html#a53c2e8a74ade77c928316396394ebe0fa73b396e4ea6376f0962d19add962bd91" title="Remove SUSPEND instructions between each statement. Default: false.">asEP_BUILD_WITHOUT_LINE_CUES</a>);
 </pre></div><h2><a class="anchor" id="doc_finetuning_4"></a>
 Disable thread safety</h2>
@@ -109,7 +110,7 @@ Disable thread safety</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

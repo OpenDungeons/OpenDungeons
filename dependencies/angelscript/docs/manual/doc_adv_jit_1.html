@@ -220,6 +220,7 @@ Comparisons</h2>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ad72b54941de6dccfbea9c6ccb5d915df">asBC_CMPd</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0aa2c75f0562b433b18406a939bcd62e95">asBC_CMPi64</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0af521b982839cdc97e9b2413ac085b09f">asBC_CMPu64</a></li>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a17c0368321613c9e38e438f96b80bdd7">asBC_CmpPtr</a></li>
 </ul>
 <p>Compare the value of a variable with a constant and store the result in the value register.</p>
 <ul>
@@ -349,6 +350,7 @@ Stack and data management</h2>
 <ul>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a53fa213a7d3fed6add6d37dfe073e1cb">asBC_PshC4</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ac987a5f48ff66860142d01ed51670d91">asBC_PshC8</a></li>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a9343148f733f970e3463f37fac57f998">asBC_PshNull</a></li>
 </ul>
 <p>Push the stack frame pointer on the stack.</p>
 <ul>
@@ -356,15 +358,11 @@ Stack and data management</h2>
 </ul>
 <p>Swap the top values on the stack.</p>
 <ul>
-<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a934eb600b6d7e1408472565abc5f63b3">asBC_SWAP4</a></li>
-<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a68c16f2ab48ee32f175c199a36ae8bf3">asBC_SWAP8</a></li>
-<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a17ae2f60d9b127d1d2e65d8d8f36ce98">asBC_SWAP48</a></li>
-<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6a4f95f43427917280f0bfd0320e9804">asBC_SWAP84</a></li>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ac23d851c5aaffca166d6494bec9bcf24">asBC_SwapPtr</a></li>
 </ul>
 <p>Pop an address from the stack, read a value from the address and push it on the stack.</p>
 <ul>
-<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ad23eb2717fe22c63f233cc7ef1fd2a00">asBC_RDS4</a></li>
-<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a77a4cb5d483841448126985703c6a6a4">asBC_RDS8</a></li>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a2628264804fd19af3ce94e0336b3eeeb">asBC_RDSPtr</a></li>
 </ul>
 <p>Add an offset to the top address on the stack.</p>
 <ul>
@@ -374,6 +372,7 @@ Stack and data management</h2>
 <ul>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ab858dd8ba0b9fed72638c549f40f60ba">asBC_PshV4</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ae2923dbf7fc9bb70c0c3cbbf8673467c">asBC_PshV8</a></li>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a15f565f207bdaab4d5b72867cdd25007">asBC_PshVPtr</a></li>
 </ul>
 <p>Initialize the value of a variable with a constant.</p>
 <ul>
@@ -381,6 +380,7 @@ Stack and data management</h2>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a709cec30c38c5dc89dfcd92341dafd61">asBC_SetV2</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a95d9223bb76b2abcbc590318007aed93">asBC_SetV4</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ade5e3b21c7d1b9348ac12fc4cd1cbf8a">asBC_SetV8</a></li>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a8b5cd32b4b5bc6aaafb0456d931dc11e">asBC_ClrVPtr</a></li>
 </ul>
 <p>Copy the value of one variable to another.</p>
 <ul>
@@ -470,7 +470,7 @@ Global variables</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:30 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

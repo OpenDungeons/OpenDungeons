@@ -6,25 +6,49 @@ using namespace std;
 
 CGameObj::CGameObj(char dispChar, int x, int y)
 {
+	// The first reference is already counted when the object is created
+	refCount         = 1;
+
 	isDead           = false;
 	displayCharacter = dispChar;
 	this->x          = x;
 	this->y          = y;
-	link             = new CGameObjLink(this);
 	controller       = 0;
 }
 
 CGameObj::~CGameObj()
 {
-	if( link )
-	{
-		// Sever the link
-		link->obj = 0;
-		link->Release();
-	}
-
 	if( controller )
 		controller->Release();
+}
+
+int CGameObj::AddRef()
+{
+	return ++refCount;
+}
+
+int CGameObj::Release()
+{
+	if( --refCount == 0 )
+	{
+		delete this;
+		return 0;
+	}
+	return refCount;
+}
+
+void CGameObj::DestroyAndRelease()
+{
+	// Since there might be other object's still referencing this one, we
+	// cannot just delete it. Here we will release all other references that
+	// this object holds, so it doesn't end up holding circular references.
+	if( controller )
+	{
+		controller->Release();
+		controller = 0;
+	}
+
+	Release();
 }
 
 void CGameObj::OnThink()
@@ -54,8 +78,25 @@ bool CGameObj::Move(int dx, int dy)
 	return true;
 }
 
-void CGameObj::Send(asIScriptObject *msg, CGameObjLink *other)
+void CGameObj::Send(CScriptHandle msg, CGameObj *other)
 {
-	if( other && other->obj && other->obj->controller )
-		scriptMgr->CallOnMessage(other->obj->controller, msg, link);
+	if( other && other->controller )
+		scriptMgr->CallOnMessage(other->controller, msg, this);
+}
+
+void CGameObj::Kill()
+{
+	// Just flag the object as dead. The game manager will 
+	// do the actual destroying at the end of the frame
+	isDead = true;
+}
+
+int CGameObj::GetX() const
+{
+	return x;
+}
+
+int CGameObj::GetY() const
+{
+	return y;
 }

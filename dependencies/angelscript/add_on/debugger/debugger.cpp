@@ -409,6 +409,7 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 	asETokenClass t = engine->ParseToken(expr.c_str(), 0, &len);
 
 	// TODO: If the expression starts with :: we should only look for global variables
+	// TODO: If the expression starts with identifier followed by ::, then use that as namespace
 	if( t == asTC_IDENTIFIER )
 	{
 		string name(expr.c_str(), len);
@@ -466,8 +467,9 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 			{
 				for( asUINT n = 0; n < mod->GetGlobalVarCount(); n++ )
 				{
-					const char *varName = 0;
-					mod->GetGlobalVar(n, &varName, &typeId);
+					// TODO: Handle namespace too
+					const char *varName = 0, *nameSpace = 0;
+					mod->GetGlobalVar(n, &varName, &nameSpace, &typeId);
 					if( name == varName )
 					{
 						ptr = mod->GetAddressOfGlobalVar(n);
@@ -542,7 +544,7 @@ void CDebugger::ListGlobalVariables(asIScriptContext *ctx)
 	for( asUINT n = 0; n < mod->GetGlobalVarCount(); n++ )
 	{
 		int typeId;
-		mod->GetGlobalVar(n, 0, &typeId);
+		mod->GetGlobalVar(n, 0, 0, &typeId);
 		s << mod->GetGlobalVarDeclaration(n) << " = " << ToString(mod->GetAddressOfGlobalVar(n), typeId, false, ctx->GetEngine()) << endl;
 	}
 	Output(s.str());

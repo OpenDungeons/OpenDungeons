@@ -245,7 +245,7 @@ CScriptAny::CScriptAny(asIScriptEngine *engine)
 	value.valueInt = 0;
 
 	// Notify the garbage collector of this object
-	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeIdByDecl("any"));		
+	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetObjectTypeByName("any"));		
 }
 
 CScriptAny::CScriptAny(void *ref, int refTypeId, asIScriptEngine *engine)
@@ -257,7 +257,7 @@ CScriptAny::CScriptAny(void *ref, int refTypeId, asIScriptEngine *engine)
 	value.valueInt = 0;
 
 	// Notify the garbage collector of this object
-	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeIdByDecl("any"));		
+	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetObjectTypeByName("any"));		
 
 	Store(ref, refTypeId);
 }

@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <string.h>
 #include "scriptdictionary.h"
+#include "../scriptarray/scriptarray.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -21,7 +22,7 @@ CScriptDictionary::CScriptDictionary(asIScriptEngine *engine)
 
 	// Notify the garbage collector of this object
 	// TODO: The type id should be cached
-	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetTypeIdByDecl("dictionary"));
+	engine->NotifyGarbageCollectorOfNewObject(this, engine->GetObjectTypeByName("dictionary"));
 }
 
 CScriptDictionary::~CScriptDictionary()
@@ -279,6 +280,29 @@ void CScriptDictionary::FreeValue(valueStruct &value)
     // For primitives, there's nothing to do
 }
 
+CScriptArray* CScriptDictionary::GetKeys() const
+{
+	// TODO: optimize: The string array type should only be determined once. 
+	//                 It should be recomputed when registering the dictionary class.
+	//                 Only problem is if multiple engines are used, as they may not
+	//                 share the same type id. Alternatively it can be stored in the 
+	//                 user data for the dictionary type.
+	int stringArrayType = engine->GetTypeIdByDecl("array<string>");
+	asIObjectType *ot = engine->GetObjectTypeById(stringArrayType);
+
+	// Create the array object
+	CScriptArray *array = new CScriptArray(dict.size(), ot);
+	long current = -1;
+	std::map<string, valueStruct>::const_iterator it;
+	for( it = dict.begin(); it != dict.end(); it++ )
+	{
+		current++;
+		*(string*)array->At(current) = it->first;
+	}
+
+	return array;
+}
+
 //--------------------------------------------------------------------------
 // Generic wrappers
 
@@ -410,6 +434,12 @@ static void ScriptDictionaryReleaseAllReferences_Generic(asIScriptGeneric *gen)
 	self->ReleaseAllReferences(engine);
 }
 
+static void CScriptDictionaryGetKeys_Generic(asIScriptGeneric *gen)
+{
+	CScriptDictionary *self = (CScriptDictionary*)gen->GetObject();
+	*(CScriptArray**)gen->GetAddressOfReturnLocation() = self->GetKeys();
+}
+
 //--------------------------------------------------------------------------
 // Register the type
 
@@ -446,6 +476,8 @@ void RegisterScriptDictionary_Native(asIScriptEngine *engine)
     r = engine->RegisterObjectMethod("dictionary", "void delete(const string &in)", asMETHOD(CScriptDictionary,Delete), asCALL_THISCALL); assert( r >= 0 );
     r = engine->RegisterObjectMethod("dictionary", "void deleteAll()", asMETHOD(CScriptDictionary,DeleteAll), asCALL_THISCALL); assert( r >= 0 );
 
+    r = engine->RegisterObjectMethod("dictionary", "array<string> @getKeys() const", asMETHOD(CScriptDictionary,GetKeys), asCALL_THISCALL); assert( r >= 0 );
+
 	// Register GC behaviours
 	r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_GETREFCOUNT, "int f()", asMETHOD(CScriptDictionary,GetRefCount), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_SETGCFLAG, "void f()", asMETHOD(CScriptDictionary,SetGCFlag), asCALL_THISCALL); assert( r >= 0 );
@@ -477,6 +509,8 @@ void RegisterScriptDictionary_Generic(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("dictionary", "bool exists(const string &in) const", asFUNCTION(ScriptDictionaryExists_Generic), asCALL_GENERIC); assert( r >= 0 );
     r = engine->RegisterObjectMethod("dictionary", "void delete(const string &in)", asFUNCTION(ScriptDictionaryDelete_Generic), asCALL_GENERIC); assert( r >= 0 );
     r = engine->RegisterObjectMethod("dictionary", "void deleteAll()", asFUNCTION(ScriptDictionaryDeleteAll_Generic), asCALL_GENERIC); assert( r >= 0 );
+
+    r = engine->RegisterObjectMethod("dictionary", "array<string> @getKeys() const", asFUNCTION(CScriptDictionaryGetKeys_Generic), asCALL_GENERIC); assert( r >= 0 );
 
 	// Register GC behaviours
 	r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_GETREFCOUNT, "int f()", asFUNCTION(ScriptDictionaryGetRefCount_Generic), asCALL_GENERIC); assert( r >= 0 );

@@ -52,6 +52,7 @@ var NAVTREE =
           [ "Pre-compiled byte code", "doc_adv_precompile.html", null ],
           [ "Fine tuning", "doc_finetuning.html", null ],
           [ "Access masks and exposing different interfaces", "doc_adv_access_mask.html", null ],
+          [ "Using namespaces", "doc_adv_namespace.html", null ],
           [ "Dynamic configurations", "doc_adv_dynamic_config.html", null ],
           [ "JIT compilation", "doc_adv_jit_topic.html", [
             [ "How to build a JIT compiler", "doc_adv_jit.html", null ],
@@ -105,8 +106,7 @@ var NAVTREE =
           [ "Debugger", "doc_addon_debugger.html", null ],
           [ "Serializer", "doc_addon_serializer.html", null ],
           [ "Helper functions", "doc_addon_helpers.html", null ],
-          [ "Automatic wrapper functions", "doc_addon_autowrap.html", null ],
-          [ "ANSI C library interface", "doc_addon_clib.html", null ]
+          [ "Automatic wrapper functions", "doc_addon_autowrap.html", null ]
         ] ],
         [ "Script extensions", "doc_addon_script.html", [
           [ "string object", "doc_addon_std_string.html", null ],
@@ -115,14 +115,12 @@ var NAVTREE =
           [ "ref object", "doc_addon_handle.html", null ],
           [ "dictionary object", "doc_addon_dict.html", null ],
           [ "file object", "doc_addon_file.html", null ],
-          [ "math functions", "doc_addon_math.html", null ],
-          [ "3D math functions", "doc_addon_math3d.html", null ]
+          [ "math functions", "doc_addon_math.html", null ]
         ] ]
       ] ]
     ] ],
     [ "Related Pages", "pages.html", [
-      [ "Todo List", "todo.html", null ],
-      [ "Deprecated List", "deprecated.html", null ]
+      [ "Todo List", "todo.html", null ]
     ] ],
     [ "Class List", "annotated.html", [
       [ "asIBinaryStream", "classas_i_binary_stream.html", null ],

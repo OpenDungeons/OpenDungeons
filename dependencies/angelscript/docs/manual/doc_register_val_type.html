@@ -69,7 +69,7 @@ r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a29c6c087c8c5b
 
 <span class="comment">// Register a class that must be properly initialized and uninitialized</span>
 r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a29c6c087c8c5b5cdb6271cfd161cc5a6" title="Registers a new object type.">RegisterObjectType</a>(<span class="stringliteral">&quot;val&quot;</span>, <span class="keyword">sizeof</span>(val), <a class="code" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa9fc16a8ac0f30f9ff9c6568e0b7be91d" title="A value type.">asOBJ_VALUE</a>); assert( r &gt;= 0 );
-</pre></div><dl class="see"><dt><b>See also:</b></dt><dd>The <a class="el" href="doc_addon_std_string.html">string object</a> or <a class="el" href="doc_addon_math3d.html">vector3</a> add-on for examples of value types </dd>
+</pre></div><dl class="see"><dt><b>See also:</b></dt><dd>The <a class="el" href="doc_addon_std_string.html">string object</a> or the <a class="el" href="doc_addon_math.html">complex type in the math add-on</a> for examples of value types </dd>
 <dd>
 <a class="el" href="doc_adv_generic_handle.html">Registering a generic handle type</a> for a more specific example of a value type</dd></dl>
 <h2><a class="anchor" id="doc_reg_val_1"></a>
@@ -116,7 +116,7 @@ Value types and native calling conventions</h2>
 <p>For class types there is also a shorter form of the flags for each combination of the 5 flags. They are of the form <a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa12d358962300537f2b0da20106eb270c">asOBJ_APP_CLASS_CDAK</a>, where the existance of the last letters determine if the constructor, destructor, and/or assignment behaviour are available. For example <a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa12d358962300537f2b0da20106eb270c">asOBJ_APP_CLASS_CDAK</a> is defined as <a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa103297ed88696a3c30ec12e533d902c3">asOBJ_APP_CLASS</a> | <a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aafd799c0705cee720a12ceb2838796024">asOBJ_APP_CLASS_CONSTRUCTOR</a> | <a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa18d80c6d92e4bc104955da393c966917">asOBJ_APP_CLASS_DESTRUCTOR</a> | <a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa6bf9b7bead31a40e7983538d8cecc3a4">asOBJ_APP_CLASS_ASSIGNMENT</a> | <a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa925febfd30b150d97a84b7c6ee6a8677">asOBJ_APP_CLASS_COPY_CONSTRUCTOR</a>.</p>
 <div class="fragment"><pre class="fragment"><span class="comment">// Register a complex type that will be passed by value to the application</span>
 r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a29c6c087c8c5b5cdb6271cfd161cc5a6" title="Registers a new object type.">RegisterObjectType</a>(<span class="stringliteral">&quot;complex&quot;</span>, <span class="keyword">sizeof</span>(complex), <a class="code" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa9fc16a8ac0f30f9ff9c6568e0b7be91d" title="A value type.">asOBJ_VALUE</a> | <a class="code" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa12d358962300537f2b0da20106eb270c" title="The C++ type is a class with a constructor, destructor, assignment operator, and copy constructor...">asOBJ_APP_CLASS_CDAK</a>); assert( r &gt;= 0 );
-</pre></div><p>Make sure you inform these flags correctly, because if you do not you may get various errors when executing the scripts. Common problems are stack corruptions, and invalid memory accesses. In some cases you may face more silent errors that may be difficult to detect, e.g. the function is not returning the expected values.</p>
+</pre></div><p>Make sure you inform these flags correctly, because if you do not you may get various errors when executing the scripts. Common problems are stack corruptions and invalid memory accesses. In some cases you may face more silent errors that may be difficult to detect, e.g. the function is not returning the expected values.</p>
 <p>On some platforms the native calling convention may require further knowledge about the class members in order to work properly; most notable are the Linux 64bit and Mac OSX 64bit systems with the GNUC compiler. On these systems small classes that do not have a destructor or a copy constructor will have different behaviours depending on the type of their members.</p>
 <p>AngelScript lets the application inform the two most common variants, i.e. the class should be treated as if all members are integers, or it should be treated as if all members are floats.</p>
 <table  border="0" cellspacing="0" cellpadding="0">
@@ -131,7 +131,7 @@ r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a29c6c087c8c5b
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

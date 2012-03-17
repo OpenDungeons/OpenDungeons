@@ -76,8 +76,10 @@ Public script interface</h2>
   {
     // Constructors
     string();
-    string(const string &amp;in);</pre><pre>    // Returns the length of the string
-    uint length() const;</pre><pre>    // Assignment and concatenation
+    string(const string &amp;in);</pre><pre>    // Property accessor for getting and setting the length
+    uint length { get const; set; }</pre><pre>    // Methods for getting and setting the length
+    uint length() const;
+    void resize(uint);</pre><pre>    // Assignment and concatenation
     string &amp;opAssign(const string &amp;in other);
     string &amp;opAddAssign(const string &amp;in other);
     string  opAdd(const string &amp;in right) const;</pre><pre>    // Access individual characters
@@ -103,13 +105,25 @@ Public script interface</h2>
     string  opAdd(bool val) const;
     string  opAdd_r(bool val) const;
   }</pre><pre>  // Takes an array of strings and joins them into one string separated by the specified delimiter
-  string join(const array&lt;string&gt; &amp;in arr, const string &amp;in delimiter);
-</pre> </div></div>
+  string join(const array&lt;string&gt; &amp;in arr, const string &amp;in delimiter);</pre><pre>  // Formatting numbers into strings
+  // The options should be informed as characters in a string
+  //  l = left justify
+  //  0 = pad with zeroes
+  //  + = always include the sign, even if positive
+  //    = add a space in case of positive number
+  //  h = hexadecimal integer small letters
+  //  H = hexadecimal integer capital letters
+  //  e = exponent character with small e
+  //  E = exponent character with capital E
+  string formatInt(int64 val, const string &amp;in options, uint width = 0);
+  string formatFloat(double val, const string &amp;in options, uint width = 0, uint precision = 0);</pre><pre>  // Parsing numbers from strings
+  int64  parseInt(const string &amp;in, uint base = 10, uint &amp;out byteCount = 0);
+  double parseFloat(const string &amp;in, uint &amp;out byteCount = 0);</pre><pre></pre> </div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:30 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

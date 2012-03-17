@@ -34,7 +34,7 @@ class CSerializedValue
 {
 public:
 	CSerializedValue();
-	CSerializedValue(CSerializedValue *parent, const std::string &name, void *ref, int typeId);
+	CSerializedValue(CSerializedValue *parent, const std::string &name, const std::string &nameSpace, void *ref, int typeId);
 	~CSerializedValue();
 
 	// Save the object and its children
@@ -50,7 +50,7 @@ public:
 	asIObjectType *GetType();
 
 	// Get child by name variable
-	CSerializedValue *FindByName(const std::string &name);
+	CSerializedValue *FindByName(const std::string &name, const std::string &nameSpace);
 
 	// Find variable by ptr
 	CSerializedValue *FindByPtr(void *ptr);
@@ -113,6 +113,7 @@ protected:
 	
 	// Name of variable or property
 	std::string m_name;
+	std::string m_nameSpace;
 
 	// Is initialized
 	bool m_isInit;
@@ -162,9 +163,9 @@ public:
 protected:
 	friend class CSerializedValue;
 
-	CSerializedValue   m_root;
-	asIScriptEngine *m_engine;
-	asIScriptModule *m_mod;
+	CSerializedValue  m_root;
+	asIScriptEngine  *m_engine;
+	asIScriptModule  *m_mod;
 
 	std::map<std::string, CUserType*> m_userTypes;
 };

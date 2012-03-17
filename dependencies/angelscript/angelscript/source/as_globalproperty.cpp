@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2011 Andreas Jonsson
+   Copyright (c) 2003-2012 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -39,11 +39,11 @@ BEGIN_AS_NAMESPACE
 
 asCGlobalProperty::asCGlobalProperty() 
 { 
-	memory = 0; 
+	memory          = &storage; 
 	memoryAllocated = false; 
-	realAddress = 0; 
-	initFunc = 0;
-	accessMask = 0xFFFFFFFF;
+	realAddress     = 0; 
+	initFunc        = 0;
+	accessMask      = 0xFFFFFFFF;
 
 	refCount.set(1);
 }
@@ -81,7 +81,7 @@ void asCGlobalProperty::Release()
 
 void *asCGlobalProperty::GetAddressOfValue()
 { 
-	return (memoryAllocated || realAddress) ? memory : &storage; 
+	return memory;
 }
 
 // The global property structure is responsible for allocating the storage
@@ -215,7 +215,8 @@ static void GlobalProperty_ReleaseAllHandles_Generic(asIScriptGeneric *gen)
 void asCGlobalProperty::RegisterGCBehaviours(asCScriptEngine *engine)
 {
 	// Register the gc behaviours for the global properties
-	int r;
+	int r = 0;
+	UNUSED_VAR(r); // It is only used in debug mode
 	engine->globalPropertyBehaviours.engine = engine;
 	engine->globalPropertyBehaviours.flags = asOBJ_REF | asOBJ_GC;
 	engine->globalPropertyBehaviours.name = "_builtin_globalprop_";

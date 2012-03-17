@@ -110,8 +110,12 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a global property.  <a href="#aacd32f32b2922b8ffaed204812013169"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#aa69f6b37f9c7bdf9b52b9c1692daf048">GetGlobalPropertyCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of registered global properties.  <a href="#aa69f6b37f9c7bdf9b52b9c1692daf048"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#abe2bbaac916cc2d70882ed8eb2c44d84">GetGlobalPropertyByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, const char **name, int *typeId=0, bool *isConst=0, const char **configGroup=0, void **pointer=0) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the detail on the registered global property.  <a href="#abe2bbaac916cc2d70882ed8eb2c44d84"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a93bd686853a48647d2136792e27380fb">GetGlobalPropertyByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, const char **name, const char **nameSpace=0, int *typeId=0, bool *isConst=0, const char **configGroup=0, void **pointer=0, <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> *accessMask=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the detail on the registered global property.  <a href="#a93bd686853a48647d2136792e27380fb"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a07e85878869e4d0597c1177d767dc717">GetGlobalPropertyIndexByName</a> (const char *name) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the index of the property.  <a href="#a07e85878869e4d0597c1177d767dc717"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a91a4cc8af51ca439ca82b9b6630439b3">GetGlobalPropertyIndexByDecl</a> (const char *decl) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the index of the property.  <a href="#a91a4cc8af51ca439ca82b9b6630439b3"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Object types</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a29c6c087c8c5b5cdb6271cfd161cc5a6">RegisterObjectType</a> (const char *obj, int byteSize, <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> flags)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a new object type.  <a href="#a29c6c087c8c5b5cdb6271cfd161cc5a6"></a><br/></td></tr>
@@ -129,6 +133,8 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of registered object types.  <a href="#ac2667fbe30dd00ed14bc14e6ef7fc725"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_object_type.html">asIObjectType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#ac0a40a93ca9df41b7e56dd846a98cd92">GetObjectTypeByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the object type interface by index.  <a href="#ac0a40a93ca9df41b7e56dd846a98cd92"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_object_type.html">asIObjectType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a4c44c6cc32407c92d0bb4dfb871ee943">GetObjectTypeByName</a> (const char *name) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a matching object type by name.  <a href="#a4c44c6cc32407c92d0bb4dfb871ee943"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">String factory</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a95ad30812d89dee425240b49675017a4">RegisterStringFactory</a> (const char *datatype, const <a class="el" href="structas_s_func_ptr.html">asSFuncPtr</a> &amp;factoryFunc, <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> callConv)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers the string factory.  <a href="#a95ad30812d89dee425240b49675017a4"></a><br/></td></tr>
@@ -146,8 +152,8 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers an enum value.  <a href="#a4d331153596dd39838f3bed2a861af18"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a4b4307dab64061be43db84ffb97e3782">GetEnumCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of registered enum types.  <a href="#a4b4307dab64061be43db84ffb97e3782"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#ae00909c267231faed5d13417239a8b6e">GetEnumByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *enumTypeId, const char **configGroup=0) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the registered enum type.  <a href="#ae00909c267231faed5d13417239a8b6e"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a6c382e818034e25ba75a7683ccd7ef23">GetEnumByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *enumTypeId, const char **nameSpace=0, const char **configGroup=0, <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> *accessMask=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the registered enum type.  <a href="#a6c382e818034e25ba75a7683ccd7ef23"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#afe82935052b582efbfd536ebda352e98">GetEnumValueCount</a> (int enumTypeId) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of enum values for the enum type.  <a href="#afe82935052b582efbfd536ebda352e98"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#acc50d55c389409e3ff699a5e4d6e4ba5">GetEnumValueByIndex</a> (int enumTypeId, <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *outValue) const =0</td></tr>
@@ -157,15 +163,15 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a function definition.  <a href="#a03c1a2cc23ae4b742c927f3472a1a4f7"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a48aceb1556f88ce3bec3e0f84abe127f">GetFuncdefCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of registered function definitions.  <a href="#a48aceb1556f88ce3bec3e0f84abe127f"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a78f526563eb438aaa719dc4510e71fe8">GetFuncdefByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, const char **configGroup=0) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a registered function definition.  <a href="#a78f526563eb438aaa719dc4510e71fe8"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a62dc5e5ba69722ea177a8e7c509d13b3">GetFuncdefByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a registered function definition.  <a href="#a62dc5e5ba69722ea177a8e7c509d13b3"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Typedefs</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#addb24466769dc52be96c7e37d5305245">RegisterTypedef</a> (const char *type, const char *decl)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Registers a typedef.  <a href="#addb24466769dc52be96c7e37d5305245"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a0ebbbb86ea0e314cc2695f6276ebe507">GetTypedefCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of registered typedefs.  <a href="#a0ebbbb86ea0e314cc2695f6276ebe507"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a4012a89ae60035a41560e61efe498f72">GetTypedefByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *typeId, const char **configGroup=0) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a registered typedef.  <a href="#a4012a89ae60035a41560e61efe498f72"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a5ac7f06ad290ac619d48baaccedac7e4">GetTypedefByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, int *typeId, const char **nameSpace=0, const char **configGroup=0, <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> *accessMask=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a registered typedef.  <a href="#a5ac7f06ad290ac619d48baaccedac7e4"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Configuration groups</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#ac81014e50dd7efc1920adcb3fd2d1e5d">BeginConfigGroup</a> (const char *groupName)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Starts a new dynamic configuration group.  <a href="#ac81014e50dd7efc1920adcb3fd2d1e5d"></a><br/></td></tr>
@@ -175,7 +181,8 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a previously registered configuration group.  <a href="#ab607be7fe727cdcce502d2beedbf4c0a"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a570df3e676f2d9e03e87d97b8cede1c7">SetDefaultAccessMask</a> (<a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> defaultMask)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the access mask that should be used for subsequent registered entities.  <a href="#a570df3e676f2d9e03e87d97b8cede1c7"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a704a7cc1f7455e52a8d2760b110fdb4f">SetConfigGroupModuleAccess</a> (const char *groupName, const char *module, bool hasAccess)=0</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a605f114814f1f64804c04391816d948b">SetDefaultNamespace</a> (const char *nameSpace)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the current default namespace for registrations and searches.  <a href="#a605f114814f1f64804c04391816d948b"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Script modules</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_module.html">asIScriptModule</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a9f7cdc52b59034e6e55eb8a56b427aa4">GetModule</a> (const char *module, <a class="el" href="angelscript_8h.html#ae4cf50de5273eb8c03c6e91e6e014f0c">asEGMFlags</a> flag=asGM_ONLY_IF_EXISTS)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Return an interface pointer to the module.  <a href="#a9f7cdc52b59034e6e55eb8a56b427aa4"></a><br/></td></tr>
@@ -184,14 +191,13 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td colspan="2"><div class="groupHeader">Script functions</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#aaf67dc0b1f26be437ccbcc0ac5f330c9">GetFunctionById</a> (int funcId) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function by its id.  <a href="#aaf67dc0b1f26be437ccbcc0ac5f330c9"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#ab7b9ce9df4fc3e8ffaf1184325b9b01c">GetFunctionDescriptorById</a> (int funcId) const =0</td></tr>
 <tr><td colspan="2"><div class="groupHeader">Type identification</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_object_type.html">asIObjectType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a52f3e08240c9fc493793036721cbd5ce">GetObjectTypeById</a> (int typeId) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the object type interface for type.  <a href="#a52f3e08240c9fc493793036721cbd5ce"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#ad1f6fecb0f53fd7966736b01f65c3dcb">GetTypeIdByDecl</a> (const char *decl) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a type id by declaration.  <a href="#ad1f6fecb0f53fd7966736b01f65c3dcb"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a150137f1732c21291c701f40540b312a">GetTypeDeclaration</a> (int typeId) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a type declaration.  <a href="#a150137f1732c21291c701f40540b312a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a3ae23fcde6af0d816ff97097cd443281">GetTypeDeclaration</a> (int typeId, bool includeNamespace=false) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a type declaration.  <a href="#a3ae23fcde6af0d816ff97097cd443281"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a39b7207a6c4c55a5cbf10eab2ccfb8e6">GetSizeOfPrimitiveType</a> (int typeId) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of a primitive type.  <a href="#a39b7207a6c4c55a5cbf10eab2ccfb8e6"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Script execution</div></td></tr>
@@ -221,8 +227,8 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Perform garbage collection.  <a href="#a4beff0f3d176199019c60d282e87c8d1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a166e6cdd0cb35bcfd942824d8e882783">GetGCStatistics</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> *currentSize, <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> *totalDestroyed=0, <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> *totalDetected=0, <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> *newObjects=0, <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> *totalNewDestroyed=0) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Obtain statistics from the garbage collector.  <a href="#a166e6cdd0cb35bcfd942824d8e882783"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a8ea9a6f3ed9f69a5c4e07c87281117c0">NotifyGarbageCollectorOfNewObject</a> (void *obj, int typeId)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Notify the garbage collector of a new object that needs to be managed.  <a href="#a8ea9a6f3ed9f69a5c4e07c87281117c0"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#abad64f5d62458c49acba7c0d9baf1279">NotifyGarbageCollectorOfNewObject</a> (void *obj, <a class="el" href="classas_i_object_type.html">asIObjectType</a> *type)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Notify the garbage collector of a new object that needs to be managed.  <a href="#abad64f5d62458c49acba7c0d9baf1279"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a58ceeafd780dea3543e0ede4106199fd">GCEnumCallback</a> (void *reference)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Used by the garbage collector to enumerate all references held by an object.  <a href="#a58ceeafd780dea3543e0ede4106199fd"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">User data</div></td></tr>
@@ -665,7 +671,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="ae00909c267231faed5d13417239a8b6e"></a><!-- doxytag: member="asIScriptEngine::GetEnumByIndex" ref="ae00909c267231faed5d13417239a8b6e" args="(asUINT index, int *enumTypeId, const char **configGroup=0) const =0" -->
+<a class="anchor" id="a6c382e818034e25ba75a7683ccd7ef23"></a><!-- doxytag: member="asIScriptEngine::GetEnumByIndex" ref="a6c382e818034e25ba75a7683ccd7ef23" args="(asUINT index, int *enumTypeId, const char **nameSpace=0, const char **configGroup=0, asDWORD *accessMask=0) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -685,7 +691,19 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const char **&#160;</td>
-          <td class="paramname"><em>configGroup</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>nameSpace</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char **&#160;</td>
+          <td class="paramname"><em>configGroup</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> *&#160;</td>
+          <td class="paramname"><em>accessMask</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -699,7 +717,9 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the enum type. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">enumTypeId</td><td>Receives the type if of the enum type. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">nameSpace</td><td>Receives the namespace of the enum. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">configGroup</td><td>Receives the config group in which the enum was registered. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">accessMask</td><td>Receives the access mask of the enum. </td></tr>
   </table>
   </dd>
 </dl>
@@ -790,7 +810,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="a78f526563eb438aaa719dc4510e71fe8"></a><!-- doxytag: member="asIScriptEngine::GetFuncdefByIndex" ref="a78f526563eb438aaa719dc4510e71fe8" args="(asUINT index, const char **configGroup=0) const =0" -->
+<a class="anchor" id="a62dc5e5ba69722ea177a8e7c509d13b3"></a><!-- doxytag: member="asIScriptEngine::GetFuncdefByIndex" ref="a62dc5e5ba69722ea177a8e7c509d13b3" args="(asUINT index) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -798,18 +818,8 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
           <td class="memname">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a>* asIScriptEngine::GetFuncdefByIndex </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td>
-          <td class="paramname"><em>index</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char **&#160;</td>
-          <td class="paramname"><em>configGroup</em> = <code>0</code>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td> const<code> [pure virtual]</code></td>
+          <td class="paramname"><em>index</em></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
@@ -817,7 +827,6 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the funcdef. </td></tr>
-    <tr><td class="paramdir">[out]</td><td class="paramname">configGroup</td><td>The config group in which the funcdef was registered. </td></tr>
   </table>
   </dd>
 </dl>
@@ -865,25 +874,6 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>A pointer to the function description interface, or null if not found.</dd></dl>
 <p>This does not increment the reference count of the returned function interface. </p>
-
-</div>
-</div>
-<a class="anchor" id="ab7b9ce9df4fc3e8ffaf1184325b9b01c"></a><!-- doxytag: member="asIScriptEngine::GetFunctionDescriptorById" ref="ab7b9ce9df4fc3e8ffaf1184325b9b01c" args="(int funcId) const =0" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a>* asIScriptEngine::GetFunctionDescriptorById </td>
-          <td>(</td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>funcId</em></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd></dd></dl>
-<dl class="since"><dt><b>Since:</b></dt><dd>2011-10-03. Use <a class="el" href="classas_i_script_engine.html#aaf67dc0b1f26be437ccbcc0ac5f330c9">asIScriptEngine::GetFunctionById</a> instead </dd></dl>
 
 </div>
 </div>
@@ -1039,7 +1029,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="abe2bbaac916cc2d70882ed8eb2c44d84"></a><!-- doxytag: member="asIScriptEngine::GetGlobalPropertyByIndex" ref="abe2bbaac916cc2d70882ed8eb2c44d84" args="(asUINT index, const char **name, int *typeId=0, bool *isConst=0, const char **configGroup=0, void **pointer=0) const =0" -->
+<a class="anchor" id="a93bd686853a48647d2136792e27380fb"></a><!-- doxytag: member="asIScriptEngine::GetGlobalPropertyByIndex" ref="a93bd686853a48647d2136792e27380fb" args="(asUINT index, const char **name, const char **nameSpace=0, int *typeId=0, bool *isConst=0, const char **configGroup=0, void **pointer=0, asDWORD *accessMask=0) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1054,6 +1044,12 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
           <td></td>
           <td class="paramtype">const char **&#160;</td>
           <td class="paramname"><em>name</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char **&#160;</td>
+          <td class="paramname"><em>nameSpace</em> = <code>0</code>, </td>
         </tr>
         <tr>
           <td class="paramkey"></td>
@@ -1077,7 +1073,13 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">void **&#160;</td>
-          <td class="paramname"><em>pointer</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>pointer</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> *&#160;</td>
+          <td class="paramname"><em>accessMask</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1091,10 +1093,12 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the global variable. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">name</td><td>Receives the name of the property. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">nameSpace</td><td>Receives the namespace of the property. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">typeId</td><td>Receives the typeId of the property. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">isConst</td><td>Receives the constness indicator of the property. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">configGroup</td><td>Receives the config group in which the property was registered. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">pointer</td><td>Receives the pointer of the property. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">accessMask</td><td>Receives the access mask of the property. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1122,6 +1126,66 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 </div>
 <div class="memdoc">
 <dl class="return"><dt><b>Returns:</b></dt><dd>The number of registered global properties. </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a91a4cc8af51ca439ca82b9b6630439b3"></a><!-- doxytag: member="asIScriptEngine::GetGlobalPropertyIndexByDecl" ref="a91a4cc8af51ca439ca82b9b6630439b3" args="(const char *decl) const =0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int asIScriptEngine::GetGlobalPropertyIndexByDecl </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>decl</em></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">decl</td><td>The declaration of the property to search for. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The index of the matching property or negative on error. </dd></dl>
+<dl><dt><b>Return values:</b></dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">asNO_GLOBAL_VAR</td><td>No matching property was found. </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a class="anchor" id="a07e85878869e4d0597c1177d767dc717"></a><!-- doxytag: member="asIScriptEngine::GetGlobalPropertyIndexByName" ref="a07e85878869e4d0597c1177d767dc717" args="(const char *name) const =0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int asIScriptEngine::GetGlobalPropertyIndexByName </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The name of the property. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The index of the matching property or negative on error. </dd></dl>
+<dl><dt><b>Return values:</b></dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">asNO_GLOBAL_VAR</td><td>No matching property was found. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1211,6 +1275,30 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
+<a class="anchor" id="a4c44c6cc32407c92d0bb4dfb871ee943"></a><!-- doxytag: member="asIScriptEngine::GetObjectTypeByName" ref="a4c44c6cc32407c92d0bb4dfb871ee943" args="(const char *name) const =0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="classas_i_object_type.html">asIObjectType</a>* asIScriptEngine::GetObjectTypeByName </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The name of the type. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The object type or null if no match is found. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="ac2667fbe30dd00ed14bc14e6ef7fc725"></a><!-- doxytag: member="asIScriptEngine::GetObjectTypeCount" ref="ac2667fbe30dd00ed14bc14e6ef7fc725" args="() const =0" -->
 <div class="memitem">
 <div class="memproto">
@@ -1275,7 +1363,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="a150137f1732c21291c701f40540b312a"></a><!-- doxytag: member="asIScriptEngine::GetTypeDeclaration" ref="a150137f1732c21291c701f40540b312a" args="(int typeId) const =0" -->
+<a class="anchor" id="a3ae23fcde6af0d816ff97097cd443281"></a><!-- doxytag: member="asIScriptEngine::GetTypeDeclaration" ref="a3ae23fcde6af0d816ff97097cd443281" args="(int typeId, bool includeNamespace=false) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1283,8 +1371,18 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
           <td class="memname">virtual const char* asIScriptEngine::GetTypeDeclaration </td>
           <td>(</td>
           <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>typeId</em></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
+          <td class="paramname"><em>typeId</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>includeNamespace</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
@@ -1292,6 +1390,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">typeId</td><td>The type id of the type. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">includeNamespace</td><td>Set to true if the namespace should be included in the formatted declaration. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1299,7 +1398,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="a4012a89ae60035a41560e61efe498f72"></a><!-- doxytag: member="asIScriptEngine::GetTypedefByIndex" ref="a4012a89ae60035a41560e61efe498f72" args="(asUINT index, int *typeId, const char **configGroup=0) const =0" -->
+<a class="anchor" id="a5ac7f06ad290ac619d48baaccedac7e4"></a><!-- doxytag: member="asIScriptEngine::GetTypedefByIndex" ref="a5ac7f06ad290ac619d48baaccedac7e4" args="(asUINT index, int *typeId, const char **nameSpace=0, const char **configGroup=0, asDWORD *accessMask=0) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1319,7 +1418,19 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
           <td class="paramkey"></td>
           <td></td>
           <td class="paramtype">const char **&#160;</td>
-          <td class="paramname"><em>configGroup</em> = <code>0</code>&#160;</td>
+          <td class="paramname"><em>nameSpace</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char **&#160;</td>
+          <td class="paramname"><em>configGroup</em> = <code>0</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> *&#160;</td>
+          <td class="paramname"><em>accessMask</em> = <code>0</code>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1333,7 +1444,9 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the typedef. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">typeId</td><td>The type that the typedef aliases. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">nameSpace</td><td>The namespace in which the typedef was registered. </td></tr>
     <tr><td class="paramdir">[out]</td><td class="paramname">configGroup</td><td>Receives the config group in which the type def was registered. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">accessMask</td><td>The access mask for the typedef. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1452,7 +1565,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="a8ea9a6f3ed9f69a5c4e07c87281117c0"></a><!-- doxytag: member="asIScriptEngine::NotifyGarbageCollectorOfNewObject" ref="a8ea9a6f3ed9f69a5c4e07c87281117c0" args="(void *obj, int typeId)=0" -->
+<a class="anchor" id="abad64f5d62458c49acba7c0d9baf1279"></a><!-- doxytag: member="asIScriptEngine::NotifyGarbageCollectorOfNewObject" ref="abad64f5d62458c49acba7c0d9baf1279" args="(void *obj, asIObjectType *type)=0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1465,8 +1578,8 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>typeId</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="classas_i_object_type.html">asIObjectType</a> *&#160;</td>
+          <td class="paramname"><em>type</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -1479,7 +1592,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">obj</td><td>A pointer to the newly created object. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">typeId</td><td>The type id of the object.</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>The type of the object.</td></tr>
   </table>
   </dd>
 </dl>
@@ -1769,6 +1882,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
   <table class="retval">
     <tr><td class="paramname">asINVALID_DECLARATION</td><td>The declaration has invalid syntax. </td></tr>
     <tr><td class="paramname">asINVALID_TYPE</td><td>The declaration is a reference. </td></tr>
+    <tr><td class="paramname">asINVALID_ARG</td><td>The pointer is null. </td></tr>
     <tr><td class="paramname">asNAME_TAKEN</td><td>The name is already taken.</td></tr>
   </table>
   </dd>
@@ -2222,7 +2336,8 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 </div>
 <div class="memdoc">
 <dl class="return"><dt><b>Returns:</b></dt><dd>The number of references to this object.</dd></dl>
-<p>Call this method when you will no longer use the references that you own. </p>
+<p>Call this method when you will no longer use the references that you own.</p>
+<p>The application is responsible for releasing references to all other script objects before releasing its last reference to the engine. If this is not done, it is possible that memory leaks occur as the engine cannot free objects kept alive by the application. </p>
 
 </div>
 </div>
@@ -2330,41 +2445,6 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="a704a7cc1f7455e52a8d2760b110fdb4f"></a><!-- doxytag: member="asIScriptEngine::SetConfigGroupModuleAccess" ref="a704a7cc1f7455e52a8d2760b110fdb4f" args="(const char *groupName, const char *module, bool hasAccess)=0" -->
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">virtual int asIScriptEngine::SetConfigGroupModuleAccess </td>
-          <td>(</td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>groupName</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">const char *&#160;</td>
-          <td class="paramname"><em>module</em>, </td>
-        </tr>
-        <tr>
-          <td class="paramkey"></td>
-          <td></td>
-          <td class="paramtype">bool&#160;</td>
-          <td class="paramname"><em>hasAccess</em>&#160;</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td>)</td>
-          <td></td><td><code> [pure virtual]</code></td>
-        </tr>
-      </table>
-</div>
-<div class="memdoc">
-<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000001">Deprecated:</a></b></dt><dd></dd></dl>
-<dl class="since"><dt><b>Since:</b></dt><dd>2011-10-03. Use <a class="el" href="classas_i_script_module.html#a76733de5a86875c4a0f021f7f92a6d12">asIScriptModule::SetAccessMask</a> instead </dd></dl>
-
-</div>
-</div>
 <a class="anchor" id="aafa5ed8214fc2029a6b5228e5cf60d6e"></a><!-- doxytag: member="asIScriptEngine::SetContextUserDataCleanupCallback" ref="aafa5ed8214fc2029a6b5228e5cf60d6e" args="(asCLEANCONTEXTFUNC_t callback)=0" -->
 <div class="memitem">
 <div class="memproto">
@@ -2412,6 +2492,38 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>The previous default mask.</dd></dl>
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_adv_access_mask.html">Access masks and exposing different interfaces</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a605f114814f1f64804c04391816d948b"></a><!-- doxytag: member="asIScriptEngine::SetDefaultNamespace" ref="a605f114814f1f64804c04391816d948b" args="(const char *nameSpace)=0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int asIScriptEngine::SetDefaultNamespace </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>nameSpace</em></td><td>)</td>
+          <td><code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">nameSpace</td><td>The namespace that should be used. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error </dd></dl>
+<dl><dt><b>Return values:</b></dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">asINVALID_ARG</td><td>The namespace is invalid</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>Call this method to set the default namespace for which the following calls should assume. This applies to registration of the application interface and also to the functions that searches for registered entities.</p>
+<p>Nested namespaces can be informed by separating them with the scope token, i.e. :: </p>
 
 </div>
 </div>
@@ -2711,7 +2823,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_engine.html">asIScriptEngine</a>      </li>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:11 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

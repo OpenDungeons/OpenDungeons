@@ -15,6 +15,164 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
+<h2>Version 2.23.0 - 2012/03/11</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Returning floats and doubles with native calling conventions wasn't working on Mac OSX Lion x64 with LLVM and -O0 (Thanks Jason Filsinger)
+<li>The string factory can now be registered to return a reference to the string object (Thanks Philip Bennefall)
+<li>The condition operator didn't accept when the two results differed in type with the only difference being const (Thanks Philip Bennefall)
+<li>The information on local variables is now saved with the bytecode 
+<li>Fixed crash on Mac OS X 32bit with GCC 4.2 when compiling the library with optimizations (Thanks Matt Bush)
+</ul>
+<li>Library
+<ul>
+<li>By defining AS_NO_COMPILER the library can now be compiled without the script compiler for reducing the executable size (Thanks Philip Bennefall)
+<li>The compiler will no longer share interface type ids unless the interfaces are explicitly marked as shared. Previous behaviour is still temporarily available with AS_DEPRECATED
+<li>Improved some compiler messages
+<li>Added configuration to allow the compilation for the Marmalade SDK (Thanks Kite and robt)
+<li>Removed several compiler warnings for different compilers and target platforms (Thanks Richard Viney)
+<li>Added asOBJ_NOCOUNT to support ref types that are not reference counted (Thanks virious)
+<li>The saved bytecode is now independent of the platform's pointer size
+</ul>
+<li>Library interface
+<ul>
+<li>Added asIScriptContext::GetSystemFunction() that returns the registered function that is currently being called (Thanks rviney)
+<li>Added asIScriptEngine::SetDefaultNamespace() permitting the application to register the interface in different namespaces
+<li>Removed previously deprecated functions
+<li>Added asIScriptEngine::GetGlobalPropertyIndexByName() and ByDecl()
+<li>asIScriptContext::GetExceptionFunction() now returns a asIScriptFunction* instead of the function id
+<li>Changed NotifyGarbageCollectorOfNewObject() to take asIObjectType* instead of type id
+<li>Added asIScriptEngine::GetObjectTypeByName()
+<li>Added accessMask argument in GetGlobalPropertyByIndex(), GetEnumByIndex(), GetTypedefByIndex(), and GetProperty()
+<li>Removed configGroup argument in GetFuncDefByIndex() as this is already available in the asIScriptFunction interface
+<li>Added GetAccessMask() to asIObjectType and asIScriptFunction
+<li>Added asIScriptModule::RemoveFunction() that takes a pointer to asIScriptFunction
+<li>Added asIScriptModule::GetObjectTypeByName()
+<li>Added IsFinal(), IsOverride(), IsShared(), and GetNamespace() to asIScriptFunction
+<li>Added includeNamespace argument to asIScriptFunction::GetDeclaration(), asIScriptModule::GetGlobalVarDeclaration(), and asIScriptEngine::GetTypeDeclaration()
+<li>Added GetNamespace() to asIObjectType
+<li>Added namespace argument to GetGlobalPropertyByIndex(), GetEnumByIndex(), GetTypedefByIndex(), and GetGlobalVar()
+</ul>
+<li>Script language
+<ul>
+<li>Enums can now be declared as shared across modules too
+</ul>
+<li>Add-ons &amp; Samples
+<ul>
+<li>Placed the CDebugger in the AngelScript namespace (Thanks Thomas Fischer)
+<li>Fixed compilation problem in CScriptBuilder on XBox360 with regards to missing getcwd (Thanks virious)
+<li>Updated CSerializer to support namespaces
+<li>Updated WriteConfigToFile() to write the access mask and namespace
+<li>Updated asbuild sample to support access mask and namespace
+<li>Removed the C lib as standard add-on
+<li>Implemented memory pool for string literals in the string add-on which will improve performance for scripts that uses a lot of string literals
+<li>New implementation for the auto wrapper that eliminates the need to declare the wrappers before they can be registered (Thanks SiCrane)
+<li>Added opEquals to the script array
+<li>Added getKeys to the script dictionary (Thanks Philip Bennefall)
+<li>Fixed script arrays with enums (Thanks Philip Bennefall)
+<li>Fixed the script arrays so it can accepts opEquals and opCmp that take the other value by handle (Thanks Philip Bennefall)
+<li>Sort, Find, and opEquals now works for arrays of handles too (Thanks Philip Bennefall)
+</ul>
+<li>Project
+<ul>
+<li>Renamed as_callfunc_arm_xcode.s to as_callfunc_arm_xcode.S to fix problem with scons on Mac (Thanks Richard Viney)
+</ul>
+</ul>
+
+<h2>Version 2.22.2 - 2012/01/29</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Arrays of interfaces weren't properly handled when resolving equal interfaces in different modules (Thanks cvet)
+<li>Shared code couldn't call template factories (Thanks TheAtom)
+<li>Classes that contained shared classes as members would fail in the second module that declared the shared class (Thanks TheAtom)
+<li>RegisterGlobalProperty was accepting null pointers (Thanks Quillraven)
+<li>In some situations the value assign of a class member to an object would recieve the wrong reference (Thanks Philip Bennefall)
+<li>Fixed segfault when compiling with -O2 on x86 32bit gnuc 4.6.1 (Thanks gdmarkou)
+<li>Fixed problem with shared classes when the were orphaned (Thanks Thomas Grip)
+<li>GetGlobalFunctionByDecl would return the wrong function (Thanks _Vicious_)
+<li>Context failed when calling a system function through a function pointer (Thanks _Vicious_)
+<li>Fixed problem when releasing engine while still holding a reference to a script function (Thanks _Vicious_)
+</ul>
+<li>Virtual machine
+<ul>
+<li>Created the instruction SwapPtr and removed the SWAP4, SWAP8, SWAP48, and SWAP84 instructions that were no longer used
+<li>Created the instruction RDSPtr and removed the RDS4 and RDS8 instructions that won't be used anymore
+<li>Created the instructions PshVPtr, PshNull that will be used for pointers instead of PshV4/8 and PshC4/8
+<li>Created the instruction ClrVPtr that will be used for pointers instead of SetV4/8
+<li>Created the instruction CmpPtr that will be used for pointers instead of CMPi or CMPi64
+</ul>
+<li>Library
+<ul>
+<li>Separated the bytecode loader and saver in two different classes
+<li>Some code can be left out to create a smaller library if only pre-compiled bytecode is going to be used
+<li>Replaced internal use of strtod() with my own implementation to improve portability
+</ul>
+<li>Script language
+<ul>
+<li>Global functions can now be marked as 'shared' too
+<li>Added keyword 'namespace'
+<li>It is now possible to declare entities in namespaces to avoid name conflicts
+<li>The scope operator :: is used to explicitly specify in which namespace to look for symbols
+</ul>
+<li>Add-ons &amp; Samples
+<ul>
+<li>Made the script array more robust against out-of-memory conditions (Thanks Philip Bennefall)
+<li>CScriptBuilder now properly extracts metadata for class methods and virtual properties (Thanks Ciaran Davies)
+</ul>
+</ul>
+
+<h2>Version 2.22.1 - 2011/12/28</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed bug where passing inout ref to handle to a function didn't work properly with unsafe references turned on (Thanks TheAtom)
+<li>Fixed bug with returning reference from temporary value type on stack (Thanks AgentC)
+<li>Fixed assert failure on compilation error involving get_opIndex (Thanks Philip Bennefall)
+<li>Fixed bug where a temporary variable was improperly reused under certain situations (Thanks Philip Bennefall)
+<li>Fixed bug in native calling conventions for 64bit gnuc that was causing crashes on Mac OS X (Thanks dutt)
+<li>Fixed bug with GetTypeIdByDecl when the declaration was a handle (Thanks scypior)
+<li>Fixed problem where the compiler wasn't detecting that a class property didn't have a default constructor (Thanks pifor106)
+</ul>
+<li>Library
+<ul>
+<li>Added asOBJ_NOINHERIT that can be used to identify the script classes declared as final (Thanks InvalidPointer)
+<li>Improved compiler performance when scripts have a lot of literal string contants (Thanks vroad)
+<li>Optimized the algorithm for tokenizing the script, which will provide a significant performance improvement when compiling large scripts (Thanks m4ttbush)
+<li>Added asEP_ALWAYS_IMPL_DEFAULT_CONSTRUCT to allow application to force the automatic implementation of default constructor and opAssign
+<li>The compiler now avoids creating unecessary temporary copies of objects when calling opAssign or copy constructor for the same type
+<li>Engine writes more verbose errors for application interface configuration errors
+<li>Added support for passing objects by value on 64bit GNUC when used with asOBJ_APP_CLASS_ALLINTS or asOBJ_APP_CLASS_ALLFLOATS
+</ul>
+<li>Script language
+<ul>
+<li>Added 'final' and 'override' keywords for improved control on how inheritance is implemented (Thanks InvalidPointer)
+<li>Implemented an alternative shorter version for declaring get and set property accessors (Thanks InvalidPointer)
+<li>Default constructor and opAssign is no longer implemented automatically if the script class has a non-default constructor
+<li>The compiler no longer warns if 0 is passed to an output parameter, as it then assumes the result is meant to be ignored
+<li>The compiler performs implicit conversions to objects registered as ASHANDLE by calling the available constructor
+</ul>
+<li>Add-ons &amp; Samples
+<ul>
+<li>Added GetMetadataStringForTypeMethod to CScriptBuilder (Thanks InvalidPointer)
+<li>Added property accessors for length on the CScriptArray (Thanks InvalidPointer)
+<li>Added scriptmathcomplex.cpp that implements a value type for mathematics with complex numbers
+<li>Improved performance of script compilations with CScriptBuilder (Thanks m4ttbush)
+<li>Fixed compilation error in CScriptBuilder when turning off metadata (Thanks Philip Bennefall)
+<li>Removed scriptmath3d.cpp as a standard add-on
+<li>Fixed some compiler warnings in CScriptFile add-on
+<li>Implemented formatInt(), formatFloat(), parseInt(), and parseFloat() as string utilities
+<li>Added property accessors for length on the string registration
+<li>Removed the use of CGameObjLink in the game sample and registered the CGameObj directly with the script engine
+<li>The game sample is now using the CScriptHandle to pass the message data between game objects
+<li>Fixed a problem where the CScriptBuilder didn't find the metadata for class properties of non-primitive types (Thanks Carrot)
+</ul>
+</ul>
+
 <h2>Version 2.22.0 - 2011/11/06</h2>
 
 <ul>

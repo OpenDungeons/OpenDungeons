@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2011 Andreas Jonsson
+   Copyright (c) 2003-2012 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -72,24 +72,24 @@ BEGIN_AS_NAMESPACE
 #define _S(x) _TOSTRING(x)
 #define _TOSTRING(x) #x
 
-typedef asQWORD (*t_CallCDeclQW)(const asDWORD *, int, size_t);
-typedef asQWORD (*t_CallCDeclQWObj)(void *obj, const asDWORD *, int, size_t);
-typedef asDWORD (*t_CallCDeclRetByRef)(const asDWORD *, int, size_t, void *);
-typedef asDWORD (*t_CallCDeclObjRetByRef)(void *obj, const asDWORD *, int, size_t, void *);
-typedef asQWORD (*t_CallSTDCallQW)(const asDWORD *, int, size_t);
-typedef asQWORD (*t_CallThisCallQW)(const void *, const asDWORD *, int, size_t);
-typedef asDWORD (*t_CallThisCallRetByRef)(const void *, const asDWORD *, int, size_t, void *);
+typedef asQWORD (*t_CallCDeclQW)(const asDWORD *, int, asFUNCTION_t);
+typedef asQWORD (*t_CallCDeclQWObj)(void *obj, const asDWORD *, int, asFUNCTION_t);
+typedef asDWORD (*t_CallCDeclRetByRef)(const asDWORD *, int, asFUNCTION_t, void *);
+typedef asDWORD (*t_CallCDeclObjRetByRef)(void *obj, const asDWORD *, int, asFUNCTION_t, void *);
+typedef asQWORD (*t_CallSTDCallQW)(const asDWORD *, int, asFUNCTION_t);
+typedef asQWORD (*t_CallThisCallQW)(const void *, const asDWORD *, int, asFUNCTION_t);
+typedef asDWORD (*t_CallThisCallRetByRef)(const void *, const asDWORD *, int, asFUNCTION_t, void *);
 
 // Prototypes
-void CallCDeclFunction(const asDWORD *args, int paramSize, size_t func);
-void CallCDeclFunctionObjLast(const void *obj, const asDWORD *args, int paramSize, size_t func);
-void CallCDeclFunctionObjFirst(const void *obj, const asDWORD *args, int paramSize, size_t func);
-void CallCDeclFunctionRetByRef_impl(const asDWORD *args, int paramSize, size_t func, void *retPtr);
-void CallCDeclFunctionRetByRefObjLast_impl(const void *obj, const asDWORD *args, int paramSize, size_t func, void *retPtr);
-void CallCDeclFunctionRetByRefObjFirst_impl(const void *obj, const asDWORD *args, int paramSize, size_t func, void *retPtr);
-void CallSTDCallFunction(const asDWORD *args, int paramSize, size_t func);
-void CallThisCallFunction(const void *obj, const asDWORD *args, int paramSize, size_t func);
-void CallThisCallFunctionRetByRef_impl(const void *, const asDWORD *, int, size_t, void *retPtr);
+void CallCDeclFunction(const asDWORD *args, int paramSize, asFUNCTION_t func);
+void CallCDeclFunctionObjLast(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func);
+void CallCDeclFunctionObjFirst(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func);
+void CallCDeclFunctionRetByRef_impl(const asDWORD *args, int paramSize, asFUNCTION_t func, void *retPtr);
+void CallCDeclFunctionRetByRefObjLast_impl(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func, void *retPtr);
+void CallCDeclFunctionRetByRefObjFirst_impl(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func, void *retPtr);
+void CallSTDCallFunction(const asDWORD *args, int paramSize, asFUNCTION_t func);
+void CallThisCallFunction(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func);
+void CallThisCallFunctionRetByRef_impl(const void *, const asDWORD *, int, asFUNCTION_t, void *retPtr);
 
 // Initialize function pointers
 const t_CallCDeclQW CallCDeclFunctionQWord = (t_CallCDeclQW)CallCDeclFunction;
@@ -110,7 +110,10 @@ asQWORD CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, 
 	asCScriptEngine            *engine    = context->engine;
 	asSSystemFunctionInterface *sysFunc   = descr->sysFuncIntf;
 
-	asQWORD retQW;
+	// This needs to be volatile, as GCC 4.2 is optimizing 
+	// away the assignment of the return code on Mac OS X. 
+	// ref: http://www.gamedev.net/topic/621357-porting-dustforce-to-os-x/
+	volatile asQWORD retQW = 0;
 
 	// Prepare the parameters
 	int paramSize = sysFunc->paramSize;
@@ -157,81 +160,80 @@ asQWORD CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, 
 	}
 
 	// Make the actual call
-	void *func = (void*)sysFunc->func;
+	asFUNCTION_t func = sysFunc->func;
 	int callConv = sysFunc->callConv;
 	if( sysFunc->hostReturnInMemory )
 		callConv++;
 
-	asDWORD *vftable;
-	context->isCallingSystemFunction = true;
 	switch( callConv )
 	{
 	case ICC_CDECL:
-		retQW = CallCDeclFunctionQWord(args, paramSize<<2, (size_t)func);
+		retQW = CallCDeclFunctionQWord(args, paramSize<<2, func);
 		break;
 
 	case ICC_CDECL_RETURNINMEM:
-		retQW = CallCDeclFunctionRetByRef(args, paramSize<<2, (size_t)func, retPointer);
+		retQW = CallCDeclFunctionRetByRef(args, paramSize<<2, func, retPointer);
 		break;
 
 	case ICC_STDCALL:
-		retQW = CallSTDCallFunctionQWord(args, paramSize<<2, (size_t)func);
+		retQW = CallSTDCallFunctionQWord(args, paramSize<<2, func);
 		break;
 
 	case ICC_STDCALL_RETURNINMEM:
 		// Push the return pointer on the stack
 		paramSize++;
 		args--;
-		*(size_t*)args = (size_t)retPointer;
+		*(asPWORD*)args = (size_t)retPointer;
 
-		retQW = CallSTDCallFunctionQWord(args, paramSize<<2, (size_t)func);
+		retQW = CallSTDCallFunctionQWord(args, paramSize<<2, func);
 		break;
 
 	case ICC_THISCALL:
-		retQW = CallThisCallFunctionQWord(obj, args, paramSize<<2, (size_t)func);
+		retQW = CallThisCallFunctionQWord(obj, args, paramSize<<2, func);
 		break;
 
 	case ICC_THISCALL_RETURNINMEM:
-		retQW = CallThisCallFunctionRetByRef(obj, args, paramSize<<2, (size_t)func, retPointer);
+		retQW = CallThisCallFunctionRetByRef(obj, args, paramSize<<2, func, retPointer);
 		break;
 
 	case ICC_VIRTUAL_THISCALL:
-		// Get virtual function table from the object pointer
-		vftable = *(asDWORD**)obj;
-
-		retQW = CallThisCallFunctionQWord(obj, args, paramSize<<2, vftable[size_t(func)>>2]);
+		{
+			// Get virtual function table from the object pointer
+			asFUNCTION_t *vftable = *(asFUNCTION_t**)obj;
+			retQW = CallThisCallFunctionQWord(obj, args, paramSize<<2, vftable[FuncPtrToUInt(func)>>2]);
+		}
 		break;
 
 	case ICC_VIRTUAL_THISCALL_RETURNINMEM:
-		// Get virtual function table from the object pointer
-		vftable = *(asDWORD**)obj;
-
-		retQW = CallThisCallFunctionRetByRef(obj, args, paramSize<<2, vftable[size_t(func)>>2], retPointer);
+		{
+			// Get virtual function table from the object pointer
+			asFUNCTION_t *vftable = *(asFUNCTION_t**)obj;
+			retQW = CallThisCallFunctionRetByRef(obj, args, paramSize<<2, vftable[FuncPtrToUInt(func)>>2], retPointer);
+		}
 		break;
 
 	case ICC_CDECL_OBJLAST:
-		retQW = CallCDeclFunctionQWordObjLast(obj, args, paramSize<<2, (size_t)func);
+		retQW = CallCDeclFunctionQWordObjLast(obj, args, paramSize<<2, func);
 		break;
 
 	case ICC_CDECL_OBJLAST_RETURNINMEM:
 		// Call the system object method as a cdecl with the obj ref as the last parameter
-		retQW = CallCDeclFunctionRetByRefObjLast(obj, args, paramSize<<2, (size_t)func, retPointer);
+		retQW = CallCDeclFunctionRetByRefObjLast(obj, args, paramSize<<2, func, retPointer);
 		break;
 
 	case ICC_CDECL_OBJFIRST:
 		// Call the system object method as a cdecl with the obj ref as the first parameter
-		retQW = CallCDeclFunctionQWordObjFirst(obj, args, paramSize<<2, (size_t)func);
+		retQW = CallCDeclFunctionQWordObjFirst(obj, args, paramSize<<2, func);
 		break;
 
 	case ICC_CDECL_OBJFIRST_RETURNINMEM:
 		// Call the system object method as a cdecl with the obj ref as the first parameter
-		retQW = CallCDeclFunctionRetByRefObjFirst(obj, args, paramSize<<2, (size_t)func, retPointer);
+		retQW = CallCDeclFunctionRetByRefObjFirst(obj, args, paramSize<<2, func, retPointer);
 		break;
 
 	default:
 		context->SetInternalException(TXT_INVALID_CALLING_CONVENTION);
 	}
-	context->isCallingSystemFunction = false;
 
 	// If the return is a float value we need to get the value from the FP register
 	if( sysFunc->hostReturnFloat )
@@ -255,7 +257,7 @@ asQWORD CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, 
 #endif
 
 
-void NOINLINE CallCDeclFunction(const asDWORD *args, int paramSize, size_t func)
+void NOINLINE CallCDeclFunction(const asDWORD *args, int paramSize, asFUNCTION_t func)
 {
 #if defined ASM_INTEL
 
@@ -301,44 +303,55 @@ endcopy:
 	UNUSED_VAR(paramSize);
 	UNUSED_VAR(func);
 
-	asm("pushl %ecx           \n"
+	// GNUC 4.6.1 seems to have a bug when compiling with -O2. This wasn't a problem in earlier versions.
+	// Even though the clobber list is specifically listing the esp register, it still doesn't understand
+	// that it cannot rely on esp for getting the function arguments. So in order to work around this
+	// I'm passing the address of the first arg in edx to the inline assembly, and then copy it to ebx
+	// where it is guaranteed to be maintained over the function call.
+
+	asm __volatile__(
 		_S(CLEAR_FPU_STACK)  "\n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"	
 
 		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
 		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
 		// to calculate how much we will put on the stack during this call.
-		"movl  12(%ebp), %eax \n" // paramSize
-		"addl  $4, %eax       \n" // counting esp that we will push on the stack
-		"movl  %esp, %ecx     \n"
-		"subl  %eax, %ecx     \n"
-		"andl  $15, %ecx      \n"
-		"movl  %esp, %eax     \n"
-		"subl  %ecx, %esp     \n"
-		"pushl %eax           \n" // Store the original stack pointer
+		"movl  4(%%ebx), %%eax  \n" // paramSize
+		"addl  $4, %%eax        \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx     \n"
+		"subl  %%eax, %%ecx     \n"
+		"andl  $15, %%ecx       \n"
+		"movl  %%esp, %%eax     \n"
+		"subl  %%ecx, %%esp     \n"
+		"pushl %%eax            \n" // Store the original stack pointer
 
-		"movl  12(%ebp), %ecx \n" // paramSize
-		"movl  8(%ebp), %eax  \n" // args
-		"addl  %ecx, %eax     \n" // push arguments on the stack
-		"cmp   $0, %ecx       \n"
-		"je    endcopy        \n"
-		"copyloop:            \n"
-		"subl  $4, %eax       \n"
-		"pushl (%eax)         \n"
-		"subl  $4, %ecx       \n"
-		"jne   copyloop       \n"
-		"endcopy:             \n"
-		"call  *16(%ebp)      \n"
-		"addl  12(%ebp), %esp \n" // pop arguments
-
+		"movl  4(%%ebx), %%ecx  \n" // paramSize
+		"movl  0(%%ebx), %%eax  \n" // args
+		"addl  %%ecx, %%eax     \n" // push arguments on the stack
+		"cmp   $0, %%ecx        \n"
+		"je    endcopy          \n"
+		"copyloop:              \n"
+		"subl  $4, %%eax        \n"
+		"pushl (%%eax)          \n"
+		"subl  $4, %%ecx        \n"
+		"jne   copyloop         \n"
+		"endcopy:               \n"
+		"call  *8(%%ebx)        \n"
+		"addl  4(%%ebx), %%esp  \n" // pop arguments
+		
 		// Pop the alignment bytes
-		"popl  %esp           \n"
-
-		"popl  %ecx           \n");
+		"popl  %%esp            \n"
+		"popl  %%ebx            \n" 
+		:                          // output
+		: "d"(&args)               // input - pass pointer of args in edx
+		: "%eax", "%ecx", "%esp"   // clobber
+		);
 
 #endif
 }
 
-void NOINLINE CallCDeclFunctionObjLast(const void *obj, const asDWORD *args, int paramSize, size_t func)
+void NOINLINE CallCDeclFunctionObjLast(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func)
 {
 #if defined ASM_INTEL
 
@@ -389,46 +402,51 @@ endcopy:
 	UNUSED_VAR(paramSize);
 	UNUSED_VAR(func);
 
-	asm("pushl %ecx           \n"
+	asm __volatile__ (
 		_S(CLEAR_FPU_STACK)  "\n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"	
 
 		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
 		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
 		// to calculate how much we will put on the stack during this call.
-		"movl  16(%ebp), %eax \n" // paramSize
-		"addl  $8, %eax       \n" // counting esp that we will push on the stack
-		"movl  %esp, %ecx     \n"
-		"subl  %eax, %ecx     \n"
-		"andl  $15, %ecx      \n"
-		"movl  %esp, %eax     \n"
-		"subl  %ecx, %esp     \n"
-		"pushl %eax           \n" // Store the original stack pointer
+		"movl  8(%%ebx), %%eax  \n" // paramSize
+		"addl  $8, %%eax        \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx     \n"
+		"subl  %%eax, %%ecx     \n"
+		"andl  $15, %%ecx       \n"
+		"movl  %%esp, %%eax     \n"
+		"subl  %%ecx, %%esp     \n"
+		"pushl %%eax            \n" // Store the original stack pointer
 
-		"pushl 8(%ebp)        \n"
-		"movl  16(%ebp), %ecx \n" // paramSize
-		"movl  12(%ebp), %eax \n" // args
-		"addl  %ecx, %eax     \n" // push arguments on the stack
-		"cmp   $0, %ecx       \n"
-		"je    endcopy8       \n"
-		"copyloop8:           \n"
-		"subl  $4, %eax       \n"
-		"pushl (%eax)         \n"
-		"subl  $4, %ecx       \n"
-		"jne   copyloop8      \n"
-		"endcopy8:            \n"
-		"call  *20(%ebp)      \n"
-		"addl  16(%ebp), %esp \n" // pop arguments
-		"addl  $4, %esp       \n"
+		"pushl 0(%%ebx)         \n" // obj
+		"movl  8(%%ebx), %%ecx  \n" // paramSize
+		"movl  4(%%ebx), %%eax  \n" // args
+		"addl  %%ecx, %%eax     \n" // push arguments on the stack
+		"cmp   $0, %%ecx        \n"
+		"je    endcopy8         \n"
+		"copyloop8:             \n"
+		"subl  $4, %%eax        \n"
+		"pushl (%%eax)          \n"
+		"subl  $4, %%ecx        \n"
+		"jne   copyloop8        \n"
+		"endcopy8:              \n"
+		"call  *12(%%ebx)       \n"
+		"addl  8(%%ebx), %%esp  \n" // pop arguments
+		"addl  $4, %%esp        \n" // pop obj
 
 		// Pop the alignment bytes
-		"popl  %esp           \n"
-
-		"popl  %ecx           \n");
+		"popl  %%esp            \n"
+		"popl  %%ebx            \n" 
+		:                          // output
+		: "d"(&obj)                // input - pass pointer of obj in edx
+		: "%eax", "%ecx", "%esp"   // clobber 
+		);
 
 #endif
 }
 
-void NOINLINE CallCDeclFunctionObjFirst(const void *obj, const asDWORD *args, int paramSize, size_t func)
+void NOINLINE CallCDeclFunctionObjFirst(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func)
 {
 #if defined ASM_INTEL
 
@@ -479,46 +497,51 @@ endcopy:
 	UNUSED_VAR(paramSize);
 	UNUSED_VAR(func);
 
-	asm("pushl %ecx           \n"
+	asm __volatile__ (
 		_S(CLEAR_FPU_STACK)  "\n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"	
 
 		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
 		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
 		// to calculate how much we will put on the stack during this call.
-		"movl  16(%ebp), %eax \n" // paramSize
-		"addl  $8, %eax       \n" // counting esp that we will push on the stack
-		"movl  %esp, %ecx     \n"
-		"subl  %eax, %ecx     \n"
-		"andl  $15, %ecx      \n"
-		"movl  %esp, %eax     \n"
-		"subl  %ecx, %esp     \n"
-		"pushl %eax           \n" // Store the original stack pointer
+		"movl  8(%%ebx), %%eax  \n" // paramSize
+		"addl  $8, %%eax        \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx     \n"
+		"subl  %%eax, %%ecx     \n"
+		"andl  $15, %%ecx       \n"
+		"movl  %%esp, %%eax     \n"
+		"subl  %%ecx, %%esp     \n"
+		"pushl %%eax            \n" // Store the original stack pointer
 
-		"movl  16(%ebp), %ecx \n" // paramSize
-		"movl  12(%ebp), %eax \n" // args
-		"addl  %ecx, %eax     \n" // push arguments on the stack
-		"cmp   $0, %ecx       \n"
-		"je    endcopy6       \n"
-		"copyloop6:           \n"
-		"subl  $4, %eax       \n"
-		"pushl (%eax)         \n"
-		"subl  $4, %ecx       \n"
-		"jne   copyloop6      \n"
-		"endcopy6:            \n"
-		"pushl 8(%ebp)        \n" // push obj
-		"call  *20(%ebp)      \n"
-		"addl  16(%ebp), %esp \n" // pop arguments
-		"addl  $4, %esp       \n"
+		"movl  8(%%ebx), %%ecx  \n" // paramSize
+		"movl  4(%%ebx), %%eax  \n" // args
+		"addl  %%ecx, %%eax     \n" // push arguments on the stack
+		"cmp   $0, %%ecx        \n"
+		"je    endcopy6         \n"
+		"copyloop6:             \n"
+		"subl  $4, %%eax        \n"
+		"pushl (%%eax)          \n"
+		"subl  $4, %%ecx        \n"
+		"jne   copyloop6        \n"
+		"endcopy6:              \n"
+		"pushl 0(%%ebx)         \n" // push obj
+		"call  *12(%%ebx)       \n"
+		"addl  8(%%ebx), %%esp  \n" // pop arguments
+		"addl  $4, %%esp        \n" // pop obj
 
 		// Pop the alignment bytes
-		"popl  %esp           \n"
-
-		"popl  %ecx           \n");
+		"popl  %%esp            \n"
+		"popl  %%ebx            \n" 
+		:                          // output
+		: "d"(&obj)                // input - pass pointer of obj in edx
+		: "%eax", "%ecx", "%esp"   // clobber 
+		);
 
 #endif
 }
 
-void NOINLINE CallCDeclFunctionRetByRefObjFirst_impl(const void *obj, const asDWORD *args, int paramSize, size_t func, void *retPtr)
+void NOINLINE CallCDeclFunctionRetByRefObjFirst_impl(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func, void *retPtr)
 {
 #if defined ASM_INTEL
 
@@ -578,50 +601,54 @@ endcopy:
 	UNUSED_VAR(func);
 	UNUSED_VAR(retPtr);
 
-	asm("pushl %ecx           \n"
+	asm __volatile__ (
 		_S(CLEAR_FPU_STACK)  "\n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"	
 
 		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
 		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
 		// to calculate how much we will put on the stack during this call.
-		"movl  16(%ebp), %eax \n" // paramSize
-		"addl  $12, %eax      \n" // counting esp that we will push on the stack
-		"movl  %esp, %ecx     \n"
-		"subl  %eax, %ecx     \n"
-		"andl  $15, %ecx      \n"
-		"movl  %esp, %eax     \n"
-		"subl  %ecx, %esp     \n"
-		"pushl %eax           \n" // Store the original stack pointer
+		"movl  8(%%ebx), %%eax  \n" // paramSize
+		"addl  $12, %%eax       \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx     \n"
+		"subl  %%eax, %%ecx     \n"
+		"andl  $15, %%ecx       \n"
+		"movl  %%esp, %%eax     \n"
+		"subl  %%ecx, %%esp     \n"
+		"pushl %%eax            \n" // Store the original stack pointer
 
-		"movl  16(%ebp), %ecx \n" // paramSize
-		"movl  12(%ebp), %eax \n" // args
-		"addl  %ecx, %eax     \n" // push arguments on the stack
-		"cmp   $0, %ecx       \n"
-		"je    endcopy5       \n"
-		"copyloop5:           \n"
-		"subl  $4, %eax       \n"
-		"pushl (%eax)         \n"
-		"subl  $4, %ecx       \n"
-		"jne   copyloop5      \n"
-		"endcopy5:            \n"
-		"pushl 8(%ebp)        \n" // push object first
-		"pushl 24(%ebp)       \n" // retPtr
-		"call  *20(%ebp)      \n" // func
-		"addl  16(%ebp), %esp \n" // pop arguments
+		"movl  8(%%ebx), %%ecx  \n" // paramSize
+		"movl  4(%%ebx), %%eax  \n" // args
+		"addl  %%ecx, %%eax     \n" // push arguments on the stack
+		"cmp   $0, %%ecx        \n"
+		"je    endcopy5         \n"
+		"copyloop5:             \n"
+		"subl  $4, %%eax        \n"
+		"pushl (%%eax)          \n"
+		"subl  $4, %%ecx        \n"
+		"jne   copyloop5        \n"
+		"endcopy5:              \n"
+		"pushl 0(%%ebx)         \n" // push object first
+		"pushl 16(%%ebx)        \n" // retPtr
+		"call  *12(%%ebx)       \n" // func
+		"addl  8(%%ebx), %%esp  \n" // pop arguments
 #ifndef CALLEE_POPS_HIDDEN_RETURN_POINTER
-		"addl  $8, %esp       \n" // Pop the return pointer and object pointer
+		"addl  $8, %%esp        \n" // Pop the return pointer and object pointer
 #else
-		"addl  $4, %esp       \n" // Pop the object pointer
+		"addl  $4, %%esp        \n" // Pop the object pointer
 #endif
 		// Pop the alignment bytes
-		"popl  %esp           \n"
-
-		"popl  %ecx           \n");
-
+		"popl  %%esp            \n"
+		"popl  %%ebx            \n" 
+		:                          // output
+		: "d"(&obj)                // input - pass pointer of obj in edx
+		: "%eax", "%ecx", "%esp"   // clobber 
+		);
 #endif
 }
 
-void NOINLINE CallCDeclFunctionRetByRef_impl(const asDWORD *args, int paramSize, size_t func, void *retPtr)
+void NOINLINE CallCDeclFunctionRetByRef_impl(const asDWORD *args, int paramSize, asFUNCTION_t func, void *retPtr)
 {
 #if defined ASM_INTEL
 
@@ -675,47 +702,52 @@ endcopy:
 	UNUSED_VAR(func);
 	UNUSED_VAR(retPtr);
 
-	asm("pushl %ecx           \n"
+	asm __volatile__ (
 		_S(CLEAR_FPU_STACK)  "\n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"	
 
 		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
 		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
 		// to calculate how much we will put on the stack during this call.
-		"movl  12(%ebp), %eax \n" // paramSize
-		"addl  $8, %eax       \n" // counting esp that we will push on the stack
-		"movl  %esp, %ecx     \n"
-		"subl  %eax, %ecx     \n"
-		"andl  $15, %ecx      \n"
-		"movl  %esp, %eax     \n"
-		"subl  %ecx, %esp     \n"
-		"pushl %eax           \n" // Store the original stack pointer
+		"movl  4(%%ebx), %%eax  \n" // paramSize
+		"addl  $8, %%eax        \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx     \n"
+		"subl  %%eax, %%ecx     \n"
+		"andl  $15, %%ecx       \n"
+		"movl  %%esp, %%eax     \n"
+		"subl  %%ecx, %%esp     \n"
+		"pushl %%eax            \n" // Store the original stack pointer
 
-		"movl  12(%ebp), %ecx \n" // paramSize
-		"movl  8(%ebp), %eax  \n" // args
-		"addl  %ecx, %eax     \n" // push arguments on the stack
-		"cmp   $0, %ecx       \n"
-		"je    endcopy7       \n"
-		"copyloop7:           \n"
-		"subl  $4, %eax       \n"
-		"pushl (%eax)         \n"
-		"subl  $4, %ecx       \n"
-		"jne   copyloop7      \n"
-		"endcopy7:            \n"
-		"pushl 20(%ebp)       \n" // retPtr
-		"call  *16(%ebp)      \n" // func
-		"addl  12(%ebp), %esp \n" // pop arguments
+		"movl  4(%%ebx), %%ecx  \n" // paramSize
+		"movl  0(%%ebx), %%eax  \n" // args
+		"addl  %%ecx, %%eax     \n" // push arguments on the stack
+		"cmp   $0, %%ecx        \n"
+		"je    endcopy7         \n"
+		"copyloop7:             \n"
+		"subl  $4, %%eax        \n"
+		"pushl (%%eax)          \n"
+		"subl  $4, %%ecx        \n"
+		"jne   copyloop7        \n"
+		"endcopy7:              \n"
+		"pushl 12(%%ebx)        \n" // retPtr
+		"call  *8(%%ebx)        \n" // func
+		"addl  4(%%ebx), %%esp  \n" // pop arguments
 #ifndef CALLEE_POPS_HIDDEN_RETURN_POINTER
-		"addl  $4, %esp       \n" // Pop the return pointer
+		"addl  $4, %%esp        \n" // Pop the return pointer
 #endif
 		// Pop the alignment bytes
-		"popl  %esp           \n"
-
-		"popl  %ecx           \n");
+		"popl  %%esp            \n"
+		"popl  %%ebx            \n" 
+		:                          // output
+		: "d"(&args)               // input - pass pointer of args in edx
+		: "%eax", "%ecx", "%esp"   // clobber 
+		);
 
 #endif
 }
 
-void NOINLINE CallCDeclFunctionRetByRefObjLast_impl(const void *obj, const asDWORD *args, int paramSize, size_t func, void *retPtr)
+void NOINLINE CallCDeclFunctionRetByRefObjLast_impl(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func, void *retPtr)
 {
 #if defined ASM_INTEL
 
@@ -773,50 +805,55 @@ endcopy:
 	UNUSED_VAR(func);
 	UNUSED_VAR(retPtr);
 
-	asm("pushl %ecx           \n"
+	asm __volatile__ (
 		_S(CLEAR_FPU_STACK)  "\n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"	
 
 		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
 		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
 		// to calculate how much we will put on the stack during this call.
-		"movl  16(%ebp), %eax \n" // paramSize
-		"addl  $12, %eax      \n" // counting esp that we will push on the stack
-		"movl  %esp, %ecx     \n"
-		"subl  %eax, %ecx     \n"
-		"andl  $15, %ecx      \n"
-		"movl  %esp, %eax     \n"
-		"subl  %ecx, %esp     \n"
-		"pushl %eax           \n" // Store the original stack pointer
+		"movl  8(%%ebx), %%eax  \n" // paramSize
+		"addl  $12, %%eax       \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx     \n"
+		"subl  %%eax, %%ecx     \n"
+		"andl  $15, %%ecx       \n"
+		"movl  %%esp, %%eax     \n"
+		"subl  %%ecx, %%esp     \n"
+		"pushl %%eax            \n" // Store the original stack pointer
 
-		"pushl 8(%ebp)        \n"
-		"movl  16(%ebp), %ecx \n" // paramSize
-		"movl  12(%ebp), %eax \n" // args
-		"addl  %ecx, %eax     \n" // push arguments on the stack
-		"cmp   $0, %ecx       \n"
-		"je    endcopy4       \n"
-		"copyloop4:           \n"
-		"subl  $4, %eax       \n"
-		"pushl (%eax)         \n"
-		"subl  $4, %ecx       \n"
-		"jne   copyloop4      \n"
-		"endcopy4:            \n"
-		"pushl 24(%ebp)       \n" // retPtr
-		"call  *20(%ebp)      \n" // func
-		"addl  16(%ebp), %esp \n" // pop arguments
+		"pushl 0(%%ebx)         \n" // obj
+		"movl  8(%%ebx), %%ecx  \n" // paramSize
+		"movl  4(%%ebx), %%eax  \n" // args
+		"addl  %%ecx, %%eax     \n" // push arguments on the stack
+		"cmp   $0, %%ecx        \n"
+		"je    endcopy4         \n"
+		"copyloop4:             \n"
+		"subl  $4, %%eax        \n"
+		"pushl (%%eax)          \n"
+		"subl  $4, %%ecx        \n"
+		"jne   copyloop4        \n"
+		"endcopy4:              \n"
+		"pushl 16(%%ebx)        \n" // retPtr
+		"call  *12(%%ebx)       \n" // func
+		"addl  8(%%ebx), %%esp  \n" // pop arguments
 #ifndef CALLEE_POPS_HIDDEN_RETURN_POINTER
-		"addl  $8, %esp       \n" // Pop the return pointer
+		"addl  $8, %%esp        \n" // Pop the return pointer and object pointer
 #else
-		"addl  $4, %esp       \n" // Pop the return pointer
+		"addl  $4, %%esp        \n" // Pop the object pointer
 #endif
 		// Pop the alignment bytes
-		"popl  %esp           \n"
-
-		"popl  %ecx           \n");
+		"popl  %%esp            \n"
+		"popl  %%ebx            \n" 
+		:                          // output
+		: "d"(&obj)                // input - pass pointer of obj in edx
+		: "%eax", "%ecx", "%esp"   // clobber 
+		);
 
 #endif
 }
 
-void NOINLINE CallSTDCallFunction(const asDWORD *args, int paramSize, size_t func)
+void NOINLINE CallSTDCallFunction(const asDWORD *args, int paramSize, asFUNCTION_t func)
 {
 #if defined ASM_INTEL
 
@@ -861,44 +898,49 @@ endcopy:
 	UNUSED_VAR(paramSize);
 	UNUSED_VAR(func);
 
-	asm("pushl %ecx           \n"
+	asm __volatile__ (
 		_S(CLEAR_FPU_STACK)  "\n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"	
 
 		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
 		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
 		// to calculate how much we will put on the stack during this call.
-		"movl  12(%ebp), %eax \n" // paramSize
-		"addl  $4, %eax       \n" // counting esp that we will push on the stack
-		"movl  %esp, %ecx     \n"
-		"subl  %eax, %ecx     \n"
-		"andl  $15, %ecx      \n"
-		"movl  %esp, %eax     \n"
-		"subl  %ecx, %esp     \n"
-		"pushl %eax           \n" // Store the original stack pointer
+		"movl  4(%%ebx), %%eax  \n" // paramSize
+		"addl  $4, %%eax        \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx     \n"
+		"subl  %%eax, %%ecx     \n"
+		"andl  $15, %%ecx       \n"
+		"movl  %%esp, %%eax     \n"
+		"subl  %%ecx, %%esp     \n"
+		"pushl %%eax            \n" // Store the original stack pointer
 
-		"movl  12(%ebp), %ecx \n" // paramSize
-		"movl  8(%ebp), %eax  \n" // args
-		"addl  %ecx, %eax     \n" // push arguments on the stack
-		"cmp   $0, %ecx       \n"
-		"je    endcopy2       \n"
-		"copyloop2:           \n"
-		"subl  $4, %eax       \n"
-		"pushl (%eax)         \n"
-		"subl  $4, %ecx       \n"
-		"jne   copyloop2      \n"
-		"endcopy2:            \n"
-		"call  *16(%ebp)      \n" // callee pops the arguments
+		"movl  4(%%ebx), %%ecx  \n" // paramSize
+		"movl  0(%%ebx), %%eax  \n" // args
+		"addl  %%ecx, %%eax     \n" // push arguments on the stack
+		"cmp   $0, %%ecx        \n"
+		"je    endcopy2         \n"
+		"copyloop2:             \n"
+		"subl  $4, %%eax        \n"
+		"pushl (%%eax)          \n"
+		"subl  $4, %%ecx        \n"
+		"jne   copyloop2        \n"
+		"endcopy2:              \n"
+		"call  *8(%%ebx)        \n" // callee pops the arguments
 
 		// Pop the alignment bytes
-		"popl  %esp           \n"
-
-		"popl  %ecx           \n");
+		"popl  %%esp            \n"
+		"popl  %%ebx            \n" 
+		:                          // output
+		: "d"(&args)               // input - pass pointer of args in edx
+		: "%eax", "%ecx", "%esp"   // clobber 
+		);
 
 #endif
 }
 
 
-void NOINLINE CallThisCallFunction(const void *obj, const asDWORD *args, int paramSize, size_t func)
+void NOINLINE CallThisCallFunction(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func)
 {
 #if defined ASM_INTEL
 
@@ -959,47 +1001,52 @@ endcopy:
 	UNUSED_VAR(paramSize);
 	UNUSED_VAR(func);
 
-	asm("pushl %ecx           \n"
+	asm __volatile__ (
 		_S(CLEAR_FPU_STACK)  "\n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"	
 
 		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
 		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
 		// to calculate how much we will put on the stack during this call.
-		"movl  16(%ebp), %eax \n" // paramSize
-		"addl  $8, %eax       \n" // counting esp that we will push on the stack
-		"movl  %esp, %ecx     \n"
-		"subl  %eax, %ecx     \n"
-		"andl  $15, %ecx      \n"
-		"movl  %esp, %eax     \n"
-		"subl  %ecx, %esp     \n"
-		"pushl %eax           \n" // Store the original stack pointer
+		"movl  8(%%ebx), %%eax  \n" // paramSize
+		"addl  $8, %%eax        \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx     \n"
+		"subl  %%eax, %%ecx     \n"
+		"andl  $15, %%ecx       \n"
+		"movl  %%esp, %%eax     \n"
+		"subl  %%ecx, %%esp     \n"
+		"pushl %%eax            \n" // Store the original stack pointer
 
-		"movl  16(%ebp), %ecx \n" // paramSize
-		"movl  12(%ebp), %eax \n" // args
-		"addl  %ecx, %eax     \n" // push all arguments on the stack
-		"cmp   $0, %ecx       \n"
-		"je    endcopy1       \n"
-		"copyloop1:           \n"
-		"subl  $4, %eax       \n"
-		"pushl (%eax)         \n"
-		"subl  $4, %ecx       \n"
-		"jne   copyloop1      \n"
-		"endcopy1:            \n"
-		"movl  8(%ebp), %ecx  \n" // move obj into ECX
-		"pushl 8(%ebp)        \n" // push obj on the stack
-		"call  *20(%ebp)      \n"
-		"addl  16(%ebp), %esp \n" // pop arguments
-		"addl  $4, %esp       \n" // pop obj
+		"movl  8(%%ebx), %%ecx  \n" // paramSize
+		"movl  4(%%ebx), %%eax  \n" // args
+		"addl  %%ecx, %%eax     \n" // push all arguments on the stack
+		"cmp   $0, %%ecx        \n"
+		"je    endcopy1         \n"
+		"copyloop1:             \n"
+		"subl  $4, %%eax        \n"
+		"pushl (%%eax)          \n"
+		"subl  $4, %%ecx        \n"
+		"jne   copyloop1        \n"
+		"endcopy1:              \n"
+		"movl  0(%%ebx), %%ecx  \n" // move obj into ECX
+		"pushl %%ecx            \n" // push obj on the stack
+		"call  *12(%%ebx)       \n"
+		"addl  8(%%ebx), %%esp  \n" // pop arguments
+		"addl  $4, %%esp        \n" // pop obj
 
 		// Pop the alignment bytes
-		"popl  %esp           \n"
-
-		"popl  %ecx           \n");
+		"popl  %%esp            \n"
+		"popl  %%ebx            \n" 
+		:                          // output
+		: "d"(&obj)                // input - pass pointer of obj in edx
+		: "%eax", "%ecx", "%esp"   // clobber 
+		);
 
 #endif
 }
 
-void NOINLINE CallThisCallFunctionRetByRef_impl(const void *obj, const asDWORD *args, int paramSize, size_t func, void *retPtr)
+void NOINLINE CallThisCallFunctionRetByRef_impl(const void *obj, const asDWORD *args, int paramSize, asFUNCTION_t func, void *retPtr)
 {
 #if defined ASM_INTEL
 
@@ -1069,46 +1116,51 @@ endcopy:
 	UNUSED_VAR(func);
 	UNUSED_VAR(retPtr);
 
-	asm("pushl %ecx           \n"
+	asm __volatile__ (
 		_S(CLEAR_FPU_STACK)  "\n"
+		"pushl %%ebx            \n"
+		"movl  %%edx, %%ebx     \n"	
 
 		// Need to align the stack pointer so that it is aligned to 16 bytes when making the function call.
 		// It is assumed that when entering this function, the stack pointer is already aligned, so we need
 		// to calculate how much we will put on the stack during this call.
-		"movl  16(%ebp), %eax \n" // paramSize
-		"addl  $12, %eax      \n" // counting esp that we will push on the stack
-		"movl  %esp, %ecx     \n"
-		"subl  %eax, %ecx     \n"
-		"andl  $15, %ecx      \n"
-		"movl  %esp, %eax     \n"
-		"subl  %ecx, %esp     \n"
-		"pushl %eax           \n" // Store the original stack pointer
+		"movl  8(%%ebx), %%eax \n" // paramSize
+		"addl  $12, %%eax      \n" // counting esp that we will push on the stack
+		"movl  %%esp, %%ecx    \n"
+		"subl  %%eax, %%ecx    \n"
+		"andl  $15, %%ecx      \n"
+		"movl  %%esp, %%eax    \n"
+		"subl  %%ecx, %%esp    \n"
+		"pushl %%eax           \n" // Store the original stack pointer
 
-		"movl  16(%ebp), %ecx \n" // paramSize
-		"movl  12(%ebp), %eax \n" // args
-		"addl  %ecx, %eax     \n" // push all arguments to the stack
-		"cmp   $0, %ecx       \n"
-		"je    endcopy3       \n"
-		"copyloop3:           \n"
-		"subl  $4, %eax       \n"
-		"pushl (%eax)         \n"
-		"subl  $4, %ecx       \n"
-		"jne   copyloop3      \n"
-		"endcopy3:            \n"
-		"movl  8(%ebp), %ecx  \n" // move obj into ECX
-		"pushl 8(%ebp)        \n" // push obj on the stack
-		"pushl 24(%ebp)       \n" // push retPtr on the stack
-		"call  *20(%ebp)      \n"
+		"movl  8(%%ebx), %%ecx \n" // paramSize
+		"movl  4(%%ebx), %%eax \n" // args
+		"addl  %%ecx, %%eax    \n" // push all arguments to the stack
+		"cmp   $0, %%ecx       \n"
+		"je    endcopy3        \n"
+		"copyloop3:            \n"
+		"subl  $4, %%eax       \n"
+		"pushl (%%eax)         \n"
+		"subl  $4, %%ecx       \n"
+		"jne   copyloop3       \n"
+		"endcopy3:             \n"
+		"movl  0(%%ebx), %%ecx \n" // move obj into ECX
+		"pushl %%ecx           \n" // push obj on the stack
+		"pushl 16(%%ebx)       \n" // push retPtr on the stack
+		"call  *12(%%ebx)      \n"
 #ifndef THISCALL_CALLEE_POPS_HIDDEN_RETURN_POINTER
-		"addl  $4, %esp       \n" // pop return pointer
+		"addl  $4, %%esp       \n" // pop return pointer
 #endif
-		"addl  16(%ebp), %esp \n" // pop arguments
-		"addl  $4, %esp       \n" // pop the object pointer
-		                          // the return pointer was popped by the callee
+		"addl  8(%%ebx), %%esp \n" // pop arguments
+		"addl  $4, %%esp       \n" // pop the object pointer
+		                           // the return pointer was popped by the callee
 		// Pop the alignment bytes
-		"popl  %esp           \n"
-
-		"popl  %ecx           \n");
+		"popl  %%esp           \n"
+		"popl  %%ebx            \n" 
+		:                          // output
+		: "d"(&obj)                // input - pass pointer of obj in edx
+		: "%eax", "%ecx", "%esp"   // clobber 
+		);
 
 #endif
 }

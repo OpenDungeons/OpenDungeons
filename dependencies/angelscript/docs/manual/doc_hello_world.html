@@ -128,7 +128,7 @@ r = builder.BuildModule();
 </pre></div><p>The last step is to identify the function that is to be called, and set up a context for executing it.</p>
 <div class="fragment"><pre class="fragment"><span class="comment">// Find the function that is to be called. </span>
 <a class="code" href="classas_i_script_module.html" title="The interface to the script modules.">asIScriptModule</a> *mod = engine-&gt;<a class="code" href="classas_i_script_engine.html#a9f7cdc52b59034e6e55eb8a56b427aa4" title="Return an interface pointer to the module.">GetModule</a>(<span class="stringliteral">&quot;MyModule&quot;</span>);
-<a class="code" href="classas_i_script_function.html" title="The interface for a script function description.">asIScriptFunction</a> *func = mod-&gt;<a class="code" href="classas_i_script_module.html#ab4754d55d8667aefbed135b4794d461b" title="Returns the function by its declaration.">GetFunctionByDecl</a>(<span class="stringliteral">&quot;void main()&quot;</span>);
+asIScriptFunction *func = mod-&gt;<a class="code" href="classas_i_script_module.html#ab4754d55d8667aefbed135b4794d461b" title="Returns the function by its declaration.">GetFunctionByDecl</a>(<span class="stringliteral">&quot;void main()&quot;</span>);
 <span class="keywordflow">if</span>( func == 0 )
 {
   <span class="comment">// The function couldn&#39;t be found. Instruct the script writer</span>
@@ -169,7 +169,7 @@ Helper functions</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>
