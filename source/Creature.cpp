@@ -35,7 +35,6 @@ Creature::Creature( GameMap*            gameMap,
         weaponR                 (0),
         homeTile                (0),
         definition              (0),
-        tilePassability         (Tile::walkableTile),
         hasVisualDebuggingEntities  (false),
         meshesExist             (false),
         awakeness               (100.0),
@@ -470,7 +469,7 @@ void Creature::doTurn()
         {
             // Check to see if there are any quarters owned by our color that we can reach.
             std::vector<Room*> tempRooms = gameMap->getRoomsByTypeAndColor(Room::quarters, getColor());
-            tempRooms = gameMap->getReachableRooms(tempRooms, positionTile(), tilePassability);
+            tempRooms = gameMap->getReachableRooms(tempRooms, positionTile(), definition->getTilePassability());
             if (!tempRooms.empty())
             {
                 tempAction.setType(CreatureAction::findHome);
@@ -665,7 +664,7 @@ void Creature::doTurn()
                                     myTile = positionTile();
                                     tempPath = gameMap->path(myTile,
                                             visibleTiles[tileIndex],
-                                            tilePassability);
+                                            definition->getTilePassability());
                                     if (setWalkPath(tempPath, 2, false))
                                     {
                                         setAnimationState("Walk");
@@ -694,11 +693,10 @@ void Creature::doTurn()
                         if (tempPositionTile != NULL)
                         {
                             result = gameMap->path(tempPositionTile->x,
-                                    tempPositionTile->y, tempX, tempY,
-                                    tilePassability);
+                                    tempPositionTile->y, tempX, tempY, definition->getTilePassability());
                         }
 
-                        gameMap->cutCorners(result, tilePassability);
+                        gameMap->cutCorners(result, definition->getTilePassability());
                         if (setWalkPath(result, 2, false))
                         {
                             //loopBack = true;
@@ -927,9 +925,8 @@ void Creature::doTurn()
                         if (tempTile != NULL)
                         {
                             // If we find a valid path to the tile start walking to it and break
-                            tempPath = gameMap->path(myTile, tempTile,
-                                    tilePassability);
-                            gameMap->cutCorners(tempPath, tilePassability);
+                            tempPath = gameMap->path(myTile, tempTile, definition->getTilePassability());
+                            gameMap->cutCorners(tempPath, definition->getTilePassability());
                             if (setWalkPath(tempPath, 2, false))
                             {
                                 //loopBack = true;
@@ -1073,7 +1070,7 @@ void Creature::doTurn()
                             neighborTile = neighbors[j];
                             if (neighborTile != 0 && neighborTile->getFullness() < 1)
                                 possiblePaths.push_back(gameMap->path(
-                                        positionTile(), neighborTile, tilePassability));
+                                        positionTile(), neighborTile, definition->getTilePassability()));
                         }
                     }
 
@@ -1126,7 +1123,7 @@ void Creature::doTurn()
                             std::list<Tile*> walkPath = shortPaths[shortestIndex];
 
                             // If the path is a legitimate path, walk down it to the tile to be dug out
-                            gameMap->cutCorners(walkPath, tilePassability);
+                            gameMap->cutCorners(walkPath, definition->getTilePassability());
                             if (setWalkPath(walkPath, 2, false))
                             {
                                 //loopBack = true;
@@ -1203,7 +1200,7 @@ void Creature::doTurn()
                                         = treasuriesOwned[i]->getCoveredTile(
                                                 tempUnsigned);
                                 tempPath = gameMap->path(myTile,
-                                        nearestTreasuryTile, tilePassability);
+                                        nearestTreasuryTile, definition->getTilePassability());
                                 if (tempPath.size() >= 2
                                         && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
                                 {
@@ -1220,7 +1217,7 @@ void Creature::doTurn()
                                 tempTile = treasuriesOwned[i]->getCoveredTile(
                                         tempUnsigned);
                                 tempPath2 = gameMap->path(myTile, tempTile,
-                                        tilePassability);
+                                        definition->getTilePassability());
                                 if (tempPath2.size() >= 2 && tempPath2.size()
                                         < nearestTreasuryDistance
                                         && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
@@ -1234,7 +1231,7 @@ void Creature::doTurn()
                         if (validPathFound)
                         {
                             // Begin walking to this treasury.
-                            gameMap->cutCorners(tempPath, tilePassability);
+                            gameMap->cutCorners(tempPath, definition->getTilePassability());
                             if (setWalkPath(tempPath, 2, false))
                             {
                                 setAnimationState("Walk");
@@ -1314,7 +1311,7 @@ void Creature::doTurn()
                         if (tempTile != NULL)
                         {
                             tempPath2 = gameMap->path(myTile, tempTile,
-                                    tilePassability);
+                                    definition->getTilePassability());
 
                             // Find out the minimum valid path length of the paths determined in the above block.
                             if (!validPathFound)
@@ -1344,7 +1341,7 @@ void Creature::doTurn()
                     // If we found a valid path to an open room in a quarters, then start walking along it.
                     if (validPathFound)
                     {
-                        gameMap->cutCorners(tempPath, tilePassability);
+                        gameMap->cutCorners(tempPath, definition->getTilePassability());
                         if (setWalkPath(tempPath, 2, false))
                         {
                             setAnimationState("Walk");
@@ -1368,8 +1365,8 @@ void Creature::doTurn()
                     {
                         // Walk to the the home tile.
                         tempPath = gameMap->path(myTile, homeTile,
-                                tilePassability);
-                        gameMap->cutCorners(tempPath, tilePassability);
+                                definition->getTilePassability());
+                        gameMap->cutCorners(tempPath, definition->getTilePassability());
                         if (setWalkPath(tempPath, 2, false))
                         {
                             setAnimationState("Walk");
@@ -1493,7 +1490,7 @@ void Creature::doTurn()
 
                     tempTile = tempRoom->getCoveredTile(Random::Uint(0,
                             tempRoom->numCoveredTiles() - 1));
-                    tempPath = gameMap->path(myTile, tempTile, tilePassability);
+                    tempPath = gameMap->path(myTile, tempTile, definition->getTilePassability());
                     if (tempPath.size() < maxTrainDistance && setWalkPath(
                             tempPath, 2, false))
                     {
@@ -1683,14 +1680,14 @@ void Creature::doTurn()
                                     + Random::Double(-1.0 * tempDouble,
                                             tempDouble),
                             minimumFieldValue.first.second + Random::Double(-1.0
-                                    * tempDouble, tempDouble), tilePassability);
+                                    * tempDouble, tempDouble), definition->getTilePassability());
 
                     // Walk a maximum of N tiles before recomputing the destination since we are in combat.
                     tempUnsigned = 5;
                     if (tempPath.size() >= tempUnsigned)
                         tempPath.resize(tempUnsigned);
 
-                    gameMap->cutCorners(tempPath, tilePassability);
+                    gameMap->cutCorners(tempPath, definition->getTilePassability());
                     if (setWalkPath(tempPath, 2, false))
                     {
                         setAnimationState(tempBool ? "Walk" : "Flee");
@@ -1845,14 +1842,14 @@ std::vector<AttackableEntity*> Creature::getReachableAttackableObjects(
         //TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
         objectTile = objectsToCheck[i]->getCoveredTiles()[0];
         if (gameMap->pathExists(myTile->x, myTile->y, objectTile->x,
-                objectTile->y, tilePassability))
+                objectTile->y, definition->getTilePassability()))
         {
             tempVector.push_back(objectsToCheck[i]);
 
             if (minRange != NULL)
             {
                 //TODO:  If this could be computed without the path call that would be better.
-                tempPath = gameMap->path(myTile, objectTile, tilePassability);
+                tempPath = gameMap->path(myTile, objectTile, definition->getTilePassability());
 
                 if (!minRangeSet)
                 {

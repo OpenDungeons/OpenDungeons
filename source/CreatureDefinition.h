@@ -5,6 +5,8 @@
 #include <iostream>
 #include <Ogre.h>
 
+#include "Tile.h"
+
 class CreatureDefinition
 {
     public:
@@ -43,6 +45,8 @@ class CreatureDefinition
                 double                  maxMana     = 10.0,
                 double                  moveSpeed   = 0.0,
 
+                Tile::TileClearType     tilePassability = Tile::walkableTile,
+
                 double coefficientHumans    = 0.0,
                 double coefficientCorpars   = 0.0,
                 double coefficientUndead    = 0.0,
@@ -67,6 +71,9 @@ class CreatureDefinition
             maxHP       (maxHP),
             maxMana     (maxMana),
             moveSpeed   (moveSpeed),
+
+            tilePassability         (tilePassability),
+
             coefficientHumans       (coefficientHumans),
             coefficientCorpars      (coefficientCorpars),
             coefficientUndead       (coefficientUndead),
@@ -105,6 +112,8 @@ class CreatureDefinition
         inline const Ogre::Vector3& getScale        () const    { return scale; }
         inline double               getSightRadius  () const    { return sightRadius; }
 
+        inline Tile::TileClearType  getTilePassability () const { return tilePassability; }
+
         inline double getCoefficientAltruism    () const    { return coefficientAltruism; }
         inline double getCoefficientConstructs  () const    { return coefficientConstructs; }
         inline double getCoefficientCorpars     () const    { return coefficientCorpars; }
@@ -115,14 +124,26 @@ class CreatureDefinition
         inline double getCoefficientUndead      () const    { return coefficientUndead; }
 
     private:
-        // Class properties
         //NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
+
+        //! \brief The job of the creature (e.g. worker, fighter, ...)
         CreatureJob creatureJob;
+
+        //! \brief The name of the creatures class
         std::string className;
+
+        //! \brief The name of the model file
         std::string meshName;
+
+        //! \brief The name of the bed model file
         std::string bedMeshName;
+
+        //! \brief size of the bed (x)
         int bedDim1;
+
+        //! \brief size of the bed (y)
         int bedDim2;
+
         Ogre::Vector3 scale;
 
         //! \brief The inner radius where the creature sees everything
@@ -133,11 +154,24 @@ class CreatureDefinition
 
         //! \brief How much the danced upon tile's color changes per turn of dancing
         double danceRate;
+
+        //! \brief How much HP the creature gets per level up
         double hpPerLevel;
+
+        //! \brief How much mana the creature gets per level up
         double manaPerLevel;
+
+        //! \brief The maximum HP the creature can ever have
         double maxHP;
+
+        //! \brief The maximum mana the creature can ever have
         double maxMana;
+
+        //! \brief How fast the creature moves
         double moveSpeed;
+
+        //FIXME:  This is not set from file yet.
+        Tile::TileClearType tilePassability;
 
         //! \brief Probability coefficients to determine how likely a creature is to come through the portal.
         double coefficientHumans;

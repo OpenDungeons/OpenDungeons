@@ -7,6 +7,12 @@
 #include <semaphore.h>
 #include <Ogre.h>
 
+#include "CreatureSound.h"
+#include "CreatureDefinition.h"
+#include "AttackableEntity.h"
+#include "CreatureAction.h"
+#include "MovableGameEntity.h"
+
 class GameMap;
 class Creature;
 class RoomDojo;
@@ -17,13 +23,6 @@ namespace CEGUI
 {
 class Window;
 }
-
-#include "CreatureSound.h"
-#include "Tile.h"
-#include "CreatureDefinition.h"
-#include "AttackableEntity.h"
-#include "CreatureAction.h"
-#include "MovableGameEntity.h"
 
 /*! \brief Position, status, and AI state for a single game creature.
  *
@@ -143,10 +142,6 @@ class Creature: public MovableGameEntity, public AttackableEntity
         sem_t           actionQueueLockSemaphore;
         sem_t           statsWindowLockSemaphore;
 
-        //FIXME:  This is not set from file yet.  Also, it should be moved to CreatureClass.
-        Tile::TileClearType tilePassability;
-
-//        std::string     name;
         bool            isOnMap;
         bool            hasVisualDebuggingEntities;
         bool            meshesExist;

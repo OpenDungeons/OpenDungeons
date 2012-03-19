@@ -83,7 +83,6 @@ set(OD_SOURCEFILES
     ${TINYGETTEXT_DIR}/tinygettext.cpp
      
     #OpenDungeons sources
-    ${SRC}/ActiveEntity.cpp
     ${SRC}/AIFactory.cpp
     ${SRC}/AIManager.cpp
     ${SRC}/AIWrapper.cpp
