@@ -36,7 +36,6 @@ Creature::Creature( GameMap*            gameMap,
         homeTile                (0),
         definition              (0),
         hasVisualDebuggingEntities  (false),
-        meshesExist             (false),
         awakeness               (100.0),
         maxHP                   (100.0),
         maxMana                 (100.0),
@@ -169,23 +168,6 @@ std::istream& operator>>(std::istream& is, Creature *c)
 
 Creature& Creature::operator=(const CreatureDefinition* c2)
 {
-    /*
-    creatureJob = c2.creatureJob;
-    className = c2.className;
-    meshName = c2.meshName;
-    scale = c2.scale;
-    sightRadius = c2.sightRadius;
-    digRate = c2.digRate;
-    danceRate = c2.danceRate;
-    hpPerLevel = c2.hpPerLevel;
-    manaPerLevel = c2.manaPerLevel;
-    setMoveSpeed(c2.getMoveSpeed());
-    maxHP = c2.maxHP;
-    maxMana = c2.maxMana;
-    bedMeshName = c2.bedMeshName;
-    bedDim1 = c2.bedDim1;
-    bedDim2 = c2.bedDim2;*/
-
     setCreatureDefinition(c2);
     return *this;
 }
@@ -198,10 +180,10 @@ Creature& Creature::operator=(const CreatureDefinition* c2)
  */
 void Creature::createMesh()
 {
-    if (meshesExist)
+    if (isMeshExisting())
         return;
 
-    meshesExist = true;
+    setMeshExisting(true);
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createCreature;
@@ -221,10 +203,10 @@ void Creature::destroyMesh()
 {
     destroyStatsWindow();
 
-    if (!meshesExist)
+    if (!isMeshExisting())
         return;
 
-    meshesExist = false;
+    setMeshExisting(false);
     weaponL->destroyMesh();
     weaponR->destroyMesh();
 
@@ -1785,7 +1767,7 @@ void Creature::doLevelUp()
     maxMana += definition->getManaPerLevel();
 
     // Scale up the mesh.
-    if (meshesExist && ((level <= 30 && level % 2 == 0) || (level > 30 && level
+    if (isMeshExisting() && ((level <= 30 && level % 2 == 0) || (level > 30 && level
             % 3 == 0)))
     {
 		Ogre::Real scaleFactor = 1.0 + static_cast<double>(level) / 250.0;
@@ -2043,7 +2025,7 @@ void Creature::deleteYourself()
     if (positionTile() != NULL)
         positionTile()->removeCreature(this);
 
-    if (meshesExist)
+    if (isMeshExisting())
         destroyMesh();
 
     // Create a render request asking the render queue to actually do the deletion of this creature.
@@ -2178,7 +2160,7 @@ void Creature::takeDamage(double damage, Tile *tileTakingDamage)
  */
 void Creature::recieveExp(double experience)
 {
-    if (experience < 0.0)
+    if (experience < 0)
         return;
 
     exp += experience;

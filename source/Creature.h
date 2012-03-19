@@ -1,3 +1,17 @@
+/*!
+ * \file   Creature.h
+ * \date
+ * \author
+ * \brief  Creature class
+ */
+
+/*TODO list:
+ * - write a good default constructor with default arguments
+ * - make hp, mana and exp unsigned int
+ * - replace hardcoded calculations by scripts and/or read the numbers from XML defintion files
+ * - the doTurn() functions needs a major rewrite, splitup and script support
+ */
+
 #ifndef CREATURE_H
 #define CREATURE_H
 
@@ -24,7 +38,8 @@ namespace CEGUI
 class Window;
 }
 
-/*! \brief Position, status, and AI state for a single game creature.
+/*! \class Creature Creature.h
+ *  \brief Position, status, and AI state for a single game creature.
  *
  *  The creature class is the place where an individual creature's state is
  *  stored and manipulated.  The creature class is also used to store creature
@@ -36,11 +51,9 @@ class Window;
 class Creature: public MovableGameEntity, public AttackableEntity
 {
     public:
-        //TODO: write a good default constructor with default arguments
         Creature(GameMap* gameMap = 0, const std::string& name = "");
         //~Creature();
 
-        // Object methods
         void createMesh();
         void destroyMesh();
         void deleteYourself();
@@ -56,42 +69,53 @@ class Creature: public MovableGameEntity, public AttackableEntity
         
         void setCreatureDefinition(const CreatureDefinition* def); 
 
-        void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
-        void setPosition(const Ogre::Vector3& v);
+        // ----- GETTERS -----
+        double  getHP           (Tile *tile)            { return getHP(); }
+        double  getHP           ()              const;
 
-        void setHP(double nHP);
+        //! \brief Gets the maximum HP the creature can have currently
+        double  getMaxHp        ()              const   { return maxHP; }
 
-        double getHP(Tile *tile) { return getHP(); };
-        double getHP() const;
+        //! \brief True if the creature is on the map, false if not (e.g. when in hand)
+        bool    getIsOnMap      ()              const;
 
-        double getMaxHp() const { return maxHP; }
+        //! \brief Gets the current mana
+        double  getMana         ()              const;
 
-        bool getIsOnMap() const;
-        void setIsOnMap(bool nIsOnMap);
+        //! \brief Gets the current move speed
+        double  getMoveSpeed    ()              const   { return moveSpeed; }
 
-        void setMana(double nMana);
-        double getMana() const;
+        //! \brief Gets the current dig rate
+        double  getDigRate      ()              const   { return digRate; }
 
-        int     getDeathCounter()           const   { return deathCounter; }
-        void    setDeathCounter(int nCount)         { deathCounter = nCount; }
+        //! \brief Gets the death counter
+        int     getDeathCounter ()              const   { return deathCounter; }
 
-        double  getMoveSpeed()              const   { return moveSpeed; }
+        //! \brief Gets pointer to the Weapon in left hand
+        Weapon* getWeaponL      ()              const   { return weaponL; }
 
-        double  getDigRate()                const   { return digRate; }
+        //! \brief Gets pointer to the Weapon in right hand
+        Weapon* getWeaponR      ()              const   { return weaponR; }
 
-        Weapon* getWeaponL()                const   { return weaponL; }
-        void    setWeaponL(Weapon* wL)              { weaponL = wL; }
+        //! \brief Pointer to the creatures home tile, where its bed is located
+        Tile*   getHomeTile     ()              const   { return homeTile; }
 
-        Weapon* getWeaponR()                const   { return weaponR; }
-        void    setWeaponR(Weapon* wR)              { weaponR = wR; }
-
-        Tile*   getHomeTile()               const   { return homeTile; }
-        void    setHomeTile(Tile* ht)               { homeTile = ht; }
-
+        //! \brief Pointer to the creature type specification
         const CreatureDefinition* getDefinition() const { return definition; }
 
+        // ----- SETTERS -----
+        void setPosition        (Ogre::Real x, Ogre::Real y, Ogre::Real z);
+        void setPosition        (const Ogre::Vector3& v);
+        void setHP              (double nHP);
+        void setIsOnMap         (bool nIsOnMap);
+        void setMana            (double nMana);
+        void setDeathCounter    (int nCount)        { deathCounter = nCount; }
+        void setWeaponL         (Weapon* wL)        { weaponL = wL; }
+        void setWeaponR         (Weapon* wR)        { weaponR = wR; }
+        void setHomeTile        (Tile* ht)          { homeTile = ht; }
+
         // AI stuff
-        virtual void doTurn();
+        void doTurn();
         double getHitroll(double range);
         double getDefense() const;
         void doLevelUp();
@@ -109,12 +133,9 @@ class Creature: public MovableGameEntity, public AttackableEntity
         std::vector<Tile*> getCoveredTiles();
         bool isMobile() const;
         int getLevel() const;
-        //int getColor() const;
-        //void setColor(int nColor);
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
         AttackableEntity::AttackableObjectType getAttackableObjectType() const;
-        //const std::string& getName() const;
         void clearActionQueue();
 
         Player* getControllingPlayer();
@@ -130,6 +151,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
         friend std::istream& operator>>(std::istream& is, Creature *c);
         Creature& operator=(const CreatureDefinition* c2);
 
+        //TODO: make this read from definition file
         static const int maxGoldCarriedByWorkers = 1500;
 
     private:
@@ -157,7 +179,6 @@ class Creature: public MovableGameEntity, public AttackableEntity
 
         bool            isOnMap;
         bool            hasVisualDebuggingEntities;
-        bool            meshesExist;
         double          awakeness;
         double          maxHP;
         double          maxMana;
@@ -176,6 +197,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
         RoomDojo*       trainingDojo;
         CEGUI::Window*  statsWindow;
 
+        //TODO? isn't this something for CreatureDefintion?
         std::string     className;
 
         std::vector<Tile*>              visibleTiles;
