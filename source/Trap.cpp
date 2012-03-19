@@ -16,7 +16,6 @@ const double Trap::defaultTileHP = 10.0;
 
 Trap::Trap() :
         controllingSeat(NULL),
-        meshExists(false),
         reloadTime(0),
         reloadTimeCounter(0),
         minDamage(0.0),
@@ -65,9 +64,9 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     std::stringstream tempSS;
     
     tempSS.str("");
-    tempSS << tempTrap->meshName << "_" << uniqueNumber;
+    tempSS << tempTrap->getMeshName() << "_" << uniqueNumber;
     --uniqueNumber;
-    tempTrap->name = tempSS.str();
+    tempTrap->setName(tempSS.str());
     
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
         tempTrap->addCoveredTile(nCoveredTiles[i]);
@@ -96,7 +95,7 @@ Trap* Trap::buildTrap(GameMap* gameMap, Trap::TrapType nType, const std::vector<
         }
 
 
-        newTrap->createMeshes();
+        newTrap->createMesh();
 
         SoundEffectsHelper::getSingleton().playInterfaceSound(
                 SoundEffectsHelper::BUILDTRAP, false);
@@ -115,12 +114,12 @@ Trap* Trap::createTrapFromStream(std::istream &is, GameMap* gameMap)
     return returnTrap;
 }
 
-void Trap::createMeshes()
+void Trap::createMesh()
 {
-    if (meshExists)
+    if (isMeshExisting())
         return;
     
-    meshExists = true;
+    setMeshExisting(true);
     
     for (unsigned int i = 0; i < coveredTiles.size(); ++i)
     {
@@ -134,12 +133,12 @@ void Trap::createMeshes()
     }
 }
 
-void Trap::destroyMeshes()
+void Trap::destroyMesh()
 {
-    if (!meshExists)
+    if (!isMeshExisting())
         return;
     
-    meshExists = false;
+    setMeshExisting(false);
     
     for (unsigned int i = 0; i < coveredTiles.size(); ++i)
     {
@@ -155,8 +154,8 @@ void Trap::destroyMeshes()
 
 void Trap::deleteYourself()
 {
-    if (meshExists)
-        destroyMeshes();
+    if (isMeshExisting())
+        destroyMesh();
     
     // Create a render request asking the render queue to actually do the deletion of this creature.
         RenderRequest *request = new RenderRequest;
@@ -364,11 +363,6 @@ int Trap::getLevel() const
     return 1;
 }
 
-int Trap::getColor() const
-{
-    return (controllingSeat != 0) ? controllingSeat->color : 0;
-}
-
 AttackableEntity::AttackableObjectType Trap::getAttackableObjectType() const
 {
     return trap;
@@ -391,7 +385,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
     tempSS.str("");
     tempSS << t->meshName << "_" << uniqueNumber;
     ++uniqueNumber;
-    t->name = tempSS.str();
+    t->setName(tempSS.str());
     
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)

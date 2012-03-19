@@ -14,14 +14,15 @@ class Player;
 
 #include "ActiveEntity.h"
 #include "AttackableEntity.h"
+#include "GameEntity.h"
 
 /** \brief Defines a trap
  *  
  */
-class Trap: public AttackableEntity, public ActiveEntity
+class Trap: public GameEntity, public AttackableEntity, public ActiveEntity
 {
- /* NOTE: Trap and room share a lot of things, so we might want to make a shared
- *  base-class, like "buildable" or something.
+ /* TODO: Trap and room share a lot of things, so we might want to make a shared
+ *  base-class, like "Building" or something.
  */
     public:
         enum TrapType
@@ -41,8 +42,8 @@ class Trap: public AttackableEntity, public ActiveEntity
         static Trap* createTrapFromStream(std::istream &is, GameMap* gameMap);
         //virtual void absorbTrap(Trap *t);
 
-        void createMeshes();
-        void destroyMeshes();
+        void createMesh();
+        void destroyMesh();
         void deleteYourself();
 
         inline const TrapType& getType() const{return type;}
@@ -51,7 +52,6 @@ class Trap: public AttackableEntity, public ActiveEntity
 
         static int costPerTile(TrapType t);
 
-        inline const std::string& getName() const{return name;}
         inline const std::string& getMeshName() const{return meshName;}
 
         Seat *controllingSeat;
@@ -81,17 +81,15 @@ class Trap: public AttackableEntity, public ActiveEntity
         void recieveExp(double experience);
         bool isMobile() const;
         int getLevel() const;
-        int getColor() const;
         AttackableEntity::AttackableObjectType getAttackableObjectType() const;
 
     protected:
-        bool meshExists;
         int reloadTime;
         int reloadTimeCounter;
         double minDamage, maxDamage;
         const static double defaultTileHP;// = 10.0;
 
-        std::string name, meshName;
+        std::string meshName;
         std::vector<Tile*> coveredTiles;
         std::map<Tile*, double> tileHP;
         TrapType type;

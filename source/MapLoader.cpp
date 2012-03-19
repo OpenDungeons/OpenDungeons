@@ -141,7 +141,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
     for (int i = 0; i < objectsToLoad; ++i)
     {
         tempTrap = Trap::createTrapFromStream(levelFile, &gameMap_b);
-        tempTrap->createMeshes();
+        tempTrap->createMesh();
 
         gameMap_b.addTrap(tempTrap);
     }
