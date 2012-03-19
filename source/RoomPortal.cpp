@@ -133,8 +133,8 @@ void RoomPortal::spawnCreature()
     newCreature->setColor(color);
 
     //NOTE:  This needs to be modified manually when the level file weapon format changes.
-    newCreature->weaponL = new Weapon("none", 5, 4, 0, newCreature, "L");
-    newCreature->weaponR = new Weapon("none", 5, 4, 0, newCreature, "R");
+    newCreature->setWeaponL(new Weapon("none", 5, 4, 0, newCreature, "L"));
+    newCreature->setWeaponR(new Weapon("none", 5, 4, 0, newCreature, "R"));
 
     newCreature->setHP(classToSpawn->getMaxHp());
     newCreature->setMana(classToSpawn->getMaxMana());
@@ -142,8 +142,8 @@ void RoomPortal::spawnCreature()
     // Add the creature to the gameMap and create meshes so it is visible.
     gameMap->addCreature(newCreature);
     newCreature->createMesh();
-    newCreature->weaponL->createMesh();
-    newCreature->weaponR->createMesh();
+    newCreature->getWeaponL()->createMesh();
+    newCreature->getWeaponR()->createMesh();
 
     spawnCreatureCountdown = Random::Uint(15, 30);
 

@@ -40,11 +40,6 @@ class Creature: public MovableGameEntity, public AttackableEntity
         Creature(GameMap* gameMap = 0, const std::string& name = "");
         //~Creature();
 
-        //TODO: make these private
-        // Individual properties
-        Weapon *weaponL, *weaponR; // The weapons the creature is holding
-        Tile *homeTile;
-
         // Object methods
         void createMesh();
         void destroyMesh();
@@ -77,12 +72,21 @@ class Creature: public MovableGameEntity, public AttackableEntity
         void setMana(double nMana);
         double getMana() const;
 
-        int     getDeathCounter() const     { return deathCounter; }
-        void    setDeathCounter(int nCount) { deathCounter = nCount; }
+        int     getDeathCounter()           const   { return deathCounter; }
+        void    setDeathCounter(int nCount)         { deathCounter = nCount; }
 
-        double  getMoveSpeed() const        { return moveSpeed; }
+        double  getMoveSpeed()              const   { return moveSpeed; }
 
-        double  getDigRate() const          { return digRate; }
+        double  getDigRate()                const   { return digRate; }
+
+        Weapon* getWeaponL()                const   { return weaponL; }
+        void    setWeaponL(Weapon* wL)              { weaponL = wL; }
+
+        Weapon* getWeaponR()                const   { return weaponR; }
+        void    setWeaponR(Weapon* wR)              { weaponR = wR; }
+
+        Tile*   getHomeTile()               const   { return homeTile; }
+        void    setHomeTile(Tile* ht)               { homeTile = ht; }
 
         const CreatureDefinition* getDefinition() const { return definition; }
 
@@ -132,6 +136,15 @@ class Creature: public MovableGameEntity, public AttackableEntity
         void pushAction(CreatureAction action);
         void popAction();
         CreatureAction peekAction();
+
+        //! \brief The weapon the creature is holding in its left hand
+        Weapon* weaponL;
+
+        //! \brief The weapon the creature is holding in its right hand
+        Weapon* weaponR;
+
+        //! \brief The creatures home tile (where its bed is located)
+        Tile *homeTile;
 
         //! \brief Pointer to the struct holding the general type of the creature with its values
         const CreatureDefinition* definition;

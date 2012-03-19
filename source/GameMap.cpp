@@ -470,8 +470,8 @@ void GameMap::removeCreature(Creature *c)
 void GameMap::queueCreatureForDeletion(Creature *c)
 {
     // If the creature has a homeTile where they sleep, their bed needs to be destroyed.
-    if (c->homeTile != 0)
-        static_cast<RoomQuarters*>(c->homeTile->getCoveringRoom())->releaseTileForSleeping(c->homeTile, c);
+    if (c->getHomeTile() != 0)
+        static_cast<RoomQuarters*>(c->getHomeTile()->getCoveringRoom())->releaseTileForSleeping(c->getHomeTile(), c);
 
     // Remove the creature from the GameMap in case the caller forgot to do so.
     removeCreature(c);
@@ -683,8 +683,8 @@ void GameMap::createAllEntities()
     {
         Creature *currentCreature = getCreature(i);
         currentCreature->createMesh();
-        currentCreature->weaponL->createMesh();
-        currentCreature->weaponR->createMesh();
+        currentCreature->getWeaponL()->createMesh();
+        currentCreature->getWeaponR()->createMesh();
     }
 
     // Create OGRE entities for the map lights.
@@ -716,8 +716,8 @@ void GameMap::destroyAllEntities()
     for (unsigned int i = 0; i < numCreatures(); ++i)
     {
         Creature *currentCreature = getCreature(i);
-        currentCreature->weaponL->destroyMesh();
-        currentCreature->weaponR->destroyMesh();
+        currentCreature->getWeaponL()->destroyMesh();
+        currentCreature->getWeaponR()->destroyMesh();
         currentCreature->destroyMesh();
     }
 

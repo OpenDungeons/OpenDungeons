@@ -1,3 +1,11 @@
+//TODO: ideally we shouldn't need this file. Reasons:
+// - The stream operators should be replaced by a proper XML reader class that creates
+// the Definition objects through its ctor (that's what ctors are for).
+// - The name strings should ideally be read from a file, too (XML? Script? but not hardcoded,
+// who knows what creature types will there be in the future - shouldn't need recompiling
+// for plain content additions/adjustments or translations).
+// - CreatureDefintion is ... a plain Defintion. That's what header files are for.
+
 #include "CreatureDefinition.h"
 
 CreatureDefinition::CreatureJob CreatureDefinition::creatureJobFromString(std::string s)

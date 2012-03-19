@@ -55,8 +55,8 @@ void RoomDungeonTemple::produceKobold()
             newCreature->setColor(color);
 
             //NOTE:  This needs to be modified manually when the level file weapon format changes.
-            newCreature->weaponL = new Weapon("none", 5, 4, 0, newCreature, "L");
-            newCreature->weaponR = new Weapon("none", 5, 4, 0, newCreature, "R");
+            newCreature->setWeaponL(new Weapon("none", 5, 4, 0, newCreature, "L"));
+            newCreature->setWeaponR(new Weapon("none", 5, 4, 0, newCreature, "R"));
 
             newCreature->createMesh();
             gameMap->addCreature(newCreature);

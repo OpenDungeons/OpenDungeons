@@ -179,8 +179,8 @@ bool Player::dropCreature(Tile* t, unsigned int index)
             if (this != gameMap->getLocalPlayer())
             {
                 c->createMesh();
-                c->weaponL->createMesh();
-                c->weaponR->createMesh();
+                c->getWeaponL()->createMesh();
+                c->getWeaponR()->createMesh();
             }
             else // This is the reult of the player on the local computer dropping the creature
             {
