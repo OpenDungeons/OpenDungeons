@@ -79,7 +79,6 @@ class Trap: public GameEntity, public AttackableEntity, public ActiveEntity
         double getDefense() const;
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
-        bool isMobile() const;
         int getLevel() const;
         AttackableEntity::AttackableObjectType getAttackableObjectType() const;
 

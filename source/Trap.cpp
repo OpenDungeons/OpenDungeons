@@ -353,11 +353,6 @@ void Trap::recieveExp(double experience)
     exp += experience;
 }
 
-bool Trap::isMobile() const
-{
-    return false;
-}
-
 int Trap::getLevel() const
 {
     return 1;

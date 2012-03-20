@@ -131,7 +131,6 @@ class Creature: public MovableGameEntity, public AttackableEntity
         std::vector<AttackableEntity*> getVisibleForce(int color, bool invert);
         Tile* positionTile();
         std::vector<Tile*> getCoveredTiles();
-        bool isMobile() const;
         int getLevel() const;
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);

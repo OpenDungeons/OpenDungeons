@@ -612,11 +612,6 @@ void Room::recieveExp(double experience)
     // Do nothing since Rooms do not have exp.
 }
 
-bool Room::isMobile() const
-{
-    return false;
-}
-
 int Room::getLevel() const
 {
     // Since rooms do not have exp or level we just consider them level 1 for compatibility with the AttackableObject interface.

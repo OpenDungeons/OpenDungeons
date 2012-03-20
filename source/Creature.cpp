@@ -2121,14 +2121,6 @@ void Creature::setCreatureDefinition(const CreatureDefinition* def)
     definition = def;
 }
 
-/** \brief Conform: AttackableObject - Returns whether or not this creature is capable of moving.
- *
- */
-bool Creature::isMobile() const
-{
-    return true;
-}
-
 /** \brief Conform: AttackableObject - Returns the creature's level.
  *
  */

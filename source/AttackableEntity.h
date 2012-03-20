@@ -51,14 +51,8 @@ class AttackableEntity
         //! \brief Adds the given number experience points to the object, does not necessarily check to see if the object's level should be increased.
         virtual void recieveExp(double experience) = 0;
 
-        //! \brief Returns whether or not the object is capable of moving including.  AI calculations can use this to optimize pathfinding, etc.
-        virtual bool isMobile() const = 0;
-
         //! \brief Returns the current level that the object has attained based on its accumulated experience points, mostly used for creatures/traps.
         virtual int getLevel() const = 0;
-
-        //! \brief Returns the name of the object.
-        //virtual const std::string& getName() const = 0;
 
         //! \brief Returns the type of the object, i.e. creature, room, trap, etc, for AI calculations to use in threat assessments.
         virtual AttackableObjectType getAttackableObjectType() const = 0;
