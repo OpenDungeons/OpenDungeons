@@ -538,8 +538,7 @@ void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
     std::stringstream tempSS;
     tempSS << curRoom->getName() << "_" << curTile->x << "_"
     << curTile->y;
-    Ogre::Entity* ent = sceneManager->createEntity ( tempSS.str(), curRoom->meshName
-                        + ".mesh" );
+    Ogre::Entity* ent = sceneManager->createEntity ( tempSS.str(), curRoom->getMeshName() + ".mesh" );
     Ogre::SceneNode* node = roomSceneNode->createChildSceneNode ( tempSS.str()
                             + "_node" );
     node->setPosition ( static_cast<Ogre::Real>(curTile->x),

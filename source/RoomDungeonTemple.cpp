@@ -12,17 +12,17 @@ RoomDungeonTemple::RoomDungeonTemple() :
     type = dungeonTemple;
 }
 
-void RoomDungeonTemple::createMeshes()
+void RoomDungeonTemple::createMesh()
 {
-    Room::createMeshes();
+    Room::createMesh();
 
     loadRoomObject("DungeonTempleObject");
     createRoomObjectMeshes();
 }
 
-void RoomDungeonTemple::destroyMeshes()
+void RoomDungeonTemple::destroyMesh()
 {
-    Room::destroyMeshes();
+    Room::destroyMesh();
 }
 
 /*! \brief Counts down a timer until it reaches 0, then it spawns a kobold of the color of this dungeon temple at the center of the dungeon temple, and resets the timer.
@@ -52,7 +52,7 @@ void RoomDungeonTemple::produceKobold()
             newCreature->setCreatureDefinition(classToSpawn);
             newCreature->setName(newCreature->getUniqueCreatureName());
             newCreature->setPosition(coveredTiles[0]->x, coveredTiles[0]->y, 0);
-            newCreature->setColor(color);
+            newCreature->setColor(getColor());
 
             //NOTE:  This needs to be modified manually when the level file weapon format changes.
             newCreature->setWeaponL(new Weapon("none", 5, 4, 0, newCreature, "L"));

@@ -14,9 +14,9 @@ RoomTreasury::RoomTreasury()
 void RoomTreasury::absorbRoom(Room *r)
 {
     // Start by deleting the Ogre meshes associated with both rooms.
-    destroyMeshes();
+    destroyMesh();
     destroyGoldMeshes();
-    r->destroyMeshes();
+    r->destroyMesh();
 
     // Copy over the information about the gold that is stored in the other treasury before we remove its rooms.
     for (unsigned int i = 0; i < r->numCoveredTiles(); ++i)
@@ -30,7 +30,7 @@ void RoomTreasury::absorbRoom(Room *r)
     Room::absorbRoom(r);
 
     // Recreate the meshes for this new room which contains both rooms.
-    createMeshes();
+    createMesh();
 
     // Recreate the gold indicators which were destroyed when the meshes were cleared.
     createGoldMeshes();

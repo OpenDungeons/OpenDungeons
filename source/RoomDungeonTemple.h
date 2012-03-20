@@ -8,8 +8,8 @@ class RoomDungeonTemple: public Room
     public:
         RoomDungeonTemple();
 
-        void createMeshes();
-        void destroyMeshes();
+        void createMesh();
+        void destroyMesh();
 
         // Functions specific to this class.
         void produceKobold();

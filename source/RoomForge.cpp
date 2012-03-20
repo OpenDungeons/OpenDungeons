@@ -8,9 +8,9 @@ RoomForge::RoomForge()
     type = forge;
 }
 
-void RoomForge::createMeshes()
+void RoomForge::createMesh()
 {
-    Room::createMeshes();
+    Room::createMesh();
 
     Tile *centralTile = getCentralTile();
     Tile *topCenterTile = gameMap->getTile(centralTile->x, centralTile->y + 1);

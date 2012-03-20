@@ -16,9 +16,6 @@ class RoomObject: public MovableGameEntity
     public:
         RoomObject(Room* nParentRoom, const std::string& nMeshName);
 
-        /*const std::string& getName      () const {return name;}
-        const std::string& getMeshName  () const {return meshName;}
-*/
         Room* getParentRoom();
 
         void createMesh();
@@ -36,8 +33,6 @@ class RoomObject: public MovableGameEntity
 
     private:
         Room *parentRoom;
-        bool meshExists;
-        //std::string name, meshName;
 };
 
 #endif

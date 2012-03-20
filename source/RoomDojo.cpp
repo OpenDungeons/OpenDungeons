@@ -8,9 +8,9 @@ RoomDojo::RoomDojo()
     type = dojo;
 }
 
-void RoomDojo::createMeshes()
+void RoomDojo::createMesh()
 {
-    Room::createMeshes();
+    Room::createMesh();
 
     loadRoomObject("TrainingDummy");
 

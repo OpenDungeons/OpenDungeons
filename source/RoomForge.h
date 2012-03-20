@@ -7,7 +7,7 @@ class RoomForge: public Room
 {
     public:
         RoomForge();
-        void createMeshes();
+        void createMesh();
 };
 
 #endif

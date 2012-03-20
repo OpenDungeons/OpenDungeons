@@ -14,10 +14,8 @@
 const double Room::defaultTileHP = 10.0;
 
 Room::Room() :
-        controllingPlayer(NULL),
-        color(0),
-        type(nullRoomType),
-        meshExists(false)
+        controllingPlayer   (0),
+        type                (nullRoomType)
 {
 }
 
@@ -63,19 +61,19 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles,
         exit(1);
     }
 
-    tempRoom->meshExists = false;
-    tempRoom->color = nColor;
+    tempRoom->setMeshExisting(false);
+    tempRoom->setColor(nColor);
 
     //TODO: This should actually just call setType() but this will require a change to the >> operator.
-    tempRoom->meshName = getMeshNameFromRoomType(nType);
+    tempRoom->setMeshName(getMeshNameFromRoomType(nType));
     tempRoom->type = nType;
 
     static int uniqueNumber = 0;
     std::stringstream tempSS;
 
     tempSS.str("");
-    tempSS << tempRoom->meshName << "_" << --uniqueNumber;
-    tempRoom->name = tempSS.str();
+    tempSS << tempRoom->getMeshName() << "_" << --uniqueNumber;
+    tempRoom->setName(tempSS.str());
 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
         tempRoom->addCoveredTile(nCoveredTiles[i]);
@@ -119,7 +117,7 @@ Room* Room::buildRoom(GameMap* gameMap, Room::RoomType nType, const std::vector<
             }
         }
 
-        newRoom->createMeshes();
+        newRoom->createMesh();
 
         SoundEffectsHelper::getSingleton().playInterfaceSound(
                 SoundEffectsHelper::BUILDROOM, false);
@@ -151,7 +149,7 @@ Room* Room::createRoomFromStream(std::istream &is, GameMap* gameMap)
     tempRoom.setGameMap(gameMap);
     is >> &tempRoom;
 
-    return createRoom(tempRoom.type, tempRoom.coveredTiles, tempRoom.color);
+    return createRoom(tempRoom.type, tempRoom.coveredTiles, tempRoom.getColor());
 }
 
 void Room::addCoveredTile(Tile* t, double nHP)
@@ -308,12 +306,12 @@ const Tile* Room::getCentralTile() const
     return gameMap->getTile((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
-void Room::createMeshes()
+void Room::createMesh()
 {
-    if (meshExists)
+    if (isMeshExisting())
         return;
 
-    meshExists = true;
+    setMeshExisting(true);
 
     for (unsigned int i = 0, size = coveredTiles.size(); i < size; ++i)
     {
@@ -327,12 +325,12 @@ void Room::createMeshes()
     }
 }
 
-void Room::destroyMeshes()
+void Room::destroyMesh()
 {
-    if (!meshExists)
+    if (!isMeshExisting())
         return;
 
-    meshExists = false;
+    setMeshExisting(false);
 
     destroyRoomObjectMeshes();
 
@@ -398,7 +396,7 @@ void Room::destroyRoomObjectMeshes()
 
 void Room::deleteYourself()
 {
-    destroyMeshes();
+    destroyMesh();
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::deleteRoom;
@@ -445,16 +443,21 @@ bool Room::doUpkeep(Room *r)
 
 std::istream& operator>>(std::istream& is, Room *r)
 {
-    static int uniqueNumber = 1;
+    static int uniqueNumber = 0;
     int tilesToLoad, tempX, tempY;
     std::stringstream tempSS;
 
-    is >> r->meshName >> r->color;
+    std::string tempString;
+    is >> tempString;
+    r->setMeshName(tempString);
+
+    int tempInt = 0;
+    is >> tempInt;
+    r->setColor(tempInt);
 
     tempSS.str("");
-    tempSS << r->meshName << "_" << uniqueNumber;
-    uniqueNumber++;
-    r->name = tempSS.str();
+    tempSS << r->getMeshName() << "_" << ++uniqueNumber;
+    r->setName(tempSS.str());
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
@@ -466,18 +469,18 @@ std::istream& operator>>(std::istream& is, Room *r)
             r->addCoveredTile(tempTile);
 
             //FIXME: This next line will not be necessary when the the tile color is properly set by the tile load routine.
-            tempTile->setColor(r->color);
+            tempTile->setColor(r->getColor());
             tempTile->colorDouble = 1.0;
         }
     }
 
-    r->type = Room::getRoomTypeFromMeshName(r->meshName);
+    r->type = Room::getRoomTypeFromMeshName(r->getMeshName());
     return is;
 }
 
 std::ostream& operator<<(std::ostream& os, Room *r)
 {
-    os << r->meshName << "\t" << r->color << "\n";
+    os << r->getMeshName() << "\t" << r->getColor() << "\n";
     os << r->coveredTiles.size() << "\n";
     for (unsigned int i = 0; i < r->coveredTiles.size(); ++i)
     {
@@ -618,11 +621,6 @@ int Room::getLevel() const
 {
     // Since rooms do not have exp or level we just consider them level 1 for compatibility with the AttackableObject interface.
     return 1;
-}
-
-int Room::getColor() const
-{
-    return color;
 }
 
 AttackableEntity::AttackableObjectType Room::getAttackableObjectType() const

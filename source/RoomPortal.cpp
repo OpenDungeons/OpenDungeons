@@ -22,9 +22,9 @@ RoomPortal::RoomPortal() :
     type = portal;
 }
 
-void RoomPortal::createMeshes()
+void RoomPortal::createMesh()
 {
-    Room::createMeshes();
+    Room::createMesh();
 
     portalObject = loadRoomObject("PortalObject");
     createRoomObjectMeshes();
@@ -130,7 +130,7 @@ void RoomPortal::spawnCreature()
     //NOTE:  This needs to be modified manually when the level file creature format changes.
     newCreature->setName(newCreature->getUniqueCreatureName());
     newCreature->setPosition(xCenter, yCenter, 0.0);
-    newCreature->setColor(color);
+    newCreature->setColor(getColor());
 
     //NOTE:  This needs to be modified manually when the level file weapon format changes.
     newCreature->setWeaponL(new Weapon("none", 5, 4, 0, newCreature, "L"));
@@ -156,7 +156,7 @@ void RoomPortal::spawnCreature()
 void RoomPortal::recomputeClassProbabilities()
 {
     double probability, totalProbability = 0.0, tempDouble;
-    Seat *controllingSeat = gameMap->getSeatByColor(color);
+    Seat *controllingSeat = gameMap->getSeatByColor(getColor());
 
     // Normalize the faction and alignment coefficients.
     tempDouble = controllingSeat->factionHumans

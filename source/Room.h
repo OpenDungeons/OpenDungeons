@@ -8,13 +8,14 @@
 
 #include "ActiveEntity.h"
 #include "AttackableEntity.h"
+#include "GameEntity.h"
 #include "Tile.h"
 
 class Player;
 class RoomObject;
 class GameMap;
 
-class Room: public AttackableEntity, public ActiveEntity
+class Room: public GameEntity, public AttackableEntity, public ActiveEntity
 {
     public:
         // When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
@@ -44,8 +45,8 @@ class Room: public AttackableEntity, public ActiveEntity
         friend std::ostream& operator<<(std::ostream& os, Room *r);
         friend std::istream& operator>>(std::istream& is, Room *r);
 
-        virtual void createMeshes();
-        virtual void destroyMeshes();
+        virtual void createMesh();
+        virtual void destroyMesh();
         RoomObject* loadRoomObject(std::string meshName, Tile *targetTile =
                 NULL, double rotationAngle = 0.0);
         RoomObject* loadRoomObject(std::string meshName, Tile *targetTile,
@@ -62,8 +63,6 @@ class Room: public AttackableEntity, public ActiveEntity
 
         // Public data members
         Player *controllingPlayer; //TODO:  This should be a controlling seat rather than a player.
-        std::string meshName;
-        int color;
 
         // Functions which can be overridden by child classes.
         virtual bool doUpkeep();
@@ -94,20 +93,11 @@ class Room: public AttackableEntity, public ActiveEntity
         void recieveExp(double experience);
         bool isMobile() const;
         int getLevel() const;
-        int getColor() const;
         AttackableEntity::AttackableObjectType getAttackableObjectType() const;
 
         GameMap* getGameMap(){return gameMap;}
-        
-        // Public data members
-
-        const std::string& getName() const
-        {
-            return name;
-        }
 
     protected:
-        std::string name;
         const static double defaultTileHP;// = 10.0;
 
         std::vector<Tile*> coveredTiles;
@@ -115,7 +105,6 @@ class Room: public AttackableEntity, public ActiveEntity
         std::map<Tile*, RoomObject*> roomObjects;
         std::vector<Creature*> creaturesUsingRoom;
         RoomType type;
-        bool meshExists;
 };
 
 #include "RoomQuarters.h"

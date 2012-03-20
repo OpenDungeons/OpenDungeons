@@ -696,7 +696,7 @@ void GameMap::createAllEntities()
     // Create OGRE entities for the rooms
     for (unsigned int i = 0, num = numRooms(); i < num; ++i)
     {
-        getRoom(i)->createMeshes();
+        getRoom(i)->createMesh();
     }
 }
 
@@ -732,7 +732,7 @@ void GameMap::destroyAllEntities()
     for (unsigned int i = 0; i < numRooms(); ++i)
     {
         Room *currentRoom = getRoom(i);
-        currentRoom->destroyMeshes();
+        currentRoom->destroyMesh();
     }
 }
 
@@ -969,7 +969,7 @@ unsigned long int GameMap::doMiscUpkeep()
     for(unsigned int i = 0, size = dungeonTemples.size();
             i < size; ++i)
     {
-        ++dungeonTempleColorCounts[dungeonTemples[i]->color];
+        ++dungeonTempleColorCounts[dungeonTemples[i]->getColor()];
     }
 
     // Compute how many kobolds each color should have as determined by the number of dungeon temples they control.
@@ -991,7 +991,7 @@ unsigned long int GameMap::doMiscUpkeep()
     for (unsigned int i = 0; i < dungeonTemples.size(); ++i)
     {
         RoomDungeonTemple *dungeonTemple = static_cast<RoomDungeonTemple*>(dungeonTemples[i]);
-        int color = dungeonTemple->color;
+        int color = dungeonTemple->getColor();
         if (koboldsNeededPerColor[color] > 0)
         {
             --koboldsNeededPerColor[color];
@@ -1985,7 +1985,7 @@ std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type,
     std::vector<Room*> returnList;
     for (unsigned int i = 0; i < rooms.size(); ++i)
     {
-        if (rooms[i]->getType() == type && rooms[i]->color == color)
+        if (rooms[i]->getType() == type && rooms[i]->getColor() == color)
             returnList.push_back(rooms[i]);
     }
 
@@ -1997,7 +1997,7 @@ std::vector<const Room* > GameMap::getRoomsByTypeAndColor(Room::RoomType type, i
     std::vector<const Room*> returnList;
     for (unsigned int i = 0; i < rooms.size(); ++i)
     {
-        if (rooms[i]->getType() == type && rooms[i]->color == color)
+        if (rooms[i]->getType() == type && rooms[i]->getColor() == color)
             returnList.push_back(rooms[i]);
     }
 
@@ -2011,7 +2011,7 @@ unsigned int GameMap::numRoomsByTypeAndColor(Room::RoomType type,
     std::vector<Room*>::const_iterator it;
     for (it = rooms.begin(); it != rooms.end(); ++it)
     {
-        if ((*it)->getType() == type && (*it)->color == color)
+        if ((*it)->getType() == type && (*it)->getColor() == color)
             ++count;
     }
     return count;

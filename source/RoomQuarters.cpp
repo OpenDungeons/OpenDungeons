@@ -13,9 +13,9 @@ RoomQuarters::RoomQuarters()
 void RoomQuarters::absorbRoom(Room *r)
 {
     // Start by deleting the Ogre meshes associated with both rooms.
-    destroyMeshes();
+    destroyMesh();
     destroyBedMeshes();
-    r->destroyMeshes();
+    r->destroyMesh();
     //Added a check here - didn't look safe - oln 17/03/2011
     if(r->getType() == quarters)
     {
@@ -46,7 +46,7 @@ void RoomQuarters::absorbRoom(Room *r)
     Room::absorbRoom(r);
 
     // Recreate the meshes for this new room which contains both rooms.
-    createMeshes();
+    createMesh();
 
     createRoomObjectMeshes();
 }

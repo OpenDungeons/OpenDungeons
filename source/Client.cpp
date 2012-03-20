@@ -184,7 +184,7 @@ void *clientSocketProcessor(void *p)
                 std::stringstream tempSS(arguments);
                 Room *newRoom = Room::createRoomFromStream(tempSS, &gameMap);
                 gameMap.addRoom(newRoom);
-                newRoom->createMeshes();
+                newRoom->createMesh();
                 sem_wait(&sock->semaphore);
                 sock->send(formatCommand("ok", "addroom"));
                 sem_post(&sock->semaphore);

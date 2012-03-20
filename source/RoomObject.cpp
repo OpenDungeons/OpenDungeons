@@ -8,8 +8,7 @@
 #include "RenderManager.h"
 
 RoomObject::RoomObject(Room* nParentRoom, const std::string& nMeshName) :
-        parentRoom(nParentRoom),
-        meshExists(false)
+        parentRoom(nParentRoom)
 {
     setMeshName(nMeshName);
     // Set a unique name for the room.
@@ -26,10 +25,10 @@ Room* RoomObject::getParentRoom()
 
 void RoomObject::createMesh()
 {
-    if (meshExists)
+    if (isMeshExisting())
         return;
 
-    meshExists = true;
+    setMeshExisting(true);
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createRoomObject;
@@ -46,10 +45,10 @@ void RoomObject::createMesh()
 
 void RoomObject::destroyMesh()
 {
-    if (!meshExists)
+    if (!isMeshExisting())
         return;
 
-    meshExists = false;
+    setMeshExisting(false);
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyRoomObject;
@@ -64,7 +63,7 @@ void RoomObject::destroyMesh()
 
 void RoomObject::deleteYourself()
 {
-    if (meshExists)
+    if (isMeshExisting())
         destroyMesh();
 
     // Create a render request asking the render queue to actually do the deletion of this creature.

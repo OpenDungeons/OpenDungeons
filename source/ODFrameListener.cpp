@@ -1151,7 +1151,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
                 {
                     Room *currentRoom;
                     currentRoom = gameMap->getRoom(i);
-                    tempSS << currentRoom->getName() << "\t" << currentRoom->color
+                    tempSS << currentRoom->getName() << "\t" << currentRoom->getColor()
                             << "\t" << currentRoom->numCoveredTiles() << "\n";
                 }
             }
