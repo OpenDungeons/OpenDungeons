@@ -1,6 +1,5 @@
 #include <sstream>
 
-#include "Functions.h"
 #include "RenderManager.h"
 #include "RenderRequest.h"
 #include "GameMap.h"
