@@ -17,54 +17,6 @@
 #define snprintf _snprintf
 #endif
 
-void Tile::initialize()
-{
-    sem_init(&creaturesInCellLockSemaphore, 0, 1);
-    sem_init(&fullnessLockSemaphore, 0, 1);
-    sem_init(&coveringRoomLockSemaphore, 0, 1);
-    sem_init(&neighborsLockSemaphore, 0, 1);
-    sem_init(&claimLightLockSemaphore, 0, 1);
-
-    selected = false;
-    //location = Ogre::Vector3(0.0, 0.0, 0.0);
-    type = dirt;
-    //setFullness(100.0);
-    setFullnessValue(100.0);
-    fullnessMeshNumber = -1;
-    rotation = 0.0;
-    color = 0;
-    colorDouble = 0.0;
-    floodFillColor = -1;
-    sem_wait(&coveringRoomLockSemaphore);
-    coveringRoom = NULL;
-    sem_post(&coveringRoomLockSemaphore);
-    coveringTrap = false;
-
-    sem_wait(&claimLightLockSemaphore);
-    claimLight = NULL;
-    sem_post(&claimLightLockSemaphore);
-
-    meshesExist = false;
-}
-
-Tile::Tile() :
-        x(0),
-        y(0),
-        gameMap(0)
-{
-    initialize();
-}
-
-Tile::Tile(int nX, int nY, TileType nType, double nFullness) :
-        x(nX),
-        y(nY)
-{
-    initialize();
-
-    setType(nType);
-    setFullnessValue(nFullness);
-}
-
 /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
  *
  * In addition to setting the tile type this function also reloads the new mesh
@@ -591,7 +543,7 @@ std::istream& operator>>(std::istream& is, Tile *t)
     is >> xLocation >> yLocation;
     //t->location = Ogre::Vector3(xLocation, yLocation, 0);
     snprintf(tempCellName, sizeof(tempCellName), "Level_%3i_%3i", xLocation, yLocation);
-    t->name = tempCellName;
+    t->setName(tempCellName);
     t->x = xLocation;
     t->y = yLocation;
 
@@ -697,7 +649,7 @@ std::string Tile::meshNameFromFullness(TileType t, int fullnessMeshNumber)
  */
 void Tile::refreshMesh()
 {
-    if (!meshesExist)
+    if (!isMeshExisting())
         return;
 
     RenderRequest *request = new RenderRequest;
@@ -713,10 +665,10 @@ void Tile::refreshMesh()
  */
 void Tile::createMesh()
 {
-    if (meshesExist)
+    if (isMeshExisting())
         return;
 
-    meshesExist = true;
+    setMeshExisting(true);
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createTile;
@@ -731,10 +683,10 @@ void Tile::createMesh()
  */
 void Tile::destroyMesh()
 {
-    if (!meshesExist)
+    if (!isMeshExisting())
         return;
 
-    meshesExist = false;
+    setMeshExisting(false);
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyTile;
@@ -996,7 +948,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
         return 0.0;
 
     // If the color is the same as ours we add to it, if it is an enemy color we subtract from it.
-    if (nColor == color)
+    if (nColor == getColor())
     {
         amountClaimed = std::min(nDanceRate, 1.0 - colorDouble);
         //cout << "\t\tmyTile is My color.";
@@ -1017,7 +969,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
         {
             // The tile is not yet claimed, but it is now our color.
             colorDouble *= -1.0;
-            color = nColor;
+            setColor(nColor);
 
             if (colorDouble >= 1.0)
             {
@@ -1063,7 +1015,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
                 tempTile = neighbors[j];
                 // Release and relock the semaphore since the claimForColor() routine will eventually need to lock it.
                 sem_post(&neighborsLockSemaphore);
-                amountClaimed += tempTile->claimForColor(color, amountToClaim);
+                amountClaimed += tempTile->claimForColor(getColor(), amountToClaim);
                 sem_wait(&neighborsLockSemaphore);
             }
         }
@@ -1162,18 +1114,6 @@ std::vector<Tile*> Tile::getAllNeighbors()
     sem_post(&neighborsLockSemaphore);
 
     return ret;
-}
-
-int Tile::getColor() const
-{
-    return color;
-}
-
-void Tile::setColor(int nColor)
-{
-    color = nColor;
-
-    refreshMesh();
 }
 
 /**

@@ -458,15 +458,15 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
 {
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
 
-    if ( sceneManager->hasSceneNode ( curTile->name + "_node" ) )
+    if ( sceneManager->hasSceneNode ( curTile->getName() + "_node" ) )
     {
 
         // Unlink and delete the old mesh
-        sceneManager->getSceneNode ( curTile->name + "_node" )->detachObject (
-            curTile->name );
-        sceneManager->destroyEntity ( curTile->name );
+        sceneManager->getSceneNode ( curTile->getName() + "_node" )->detachObject (
+            curTile->getName() );
+        sceneManager->destroyEntity ( curTile->getName() );
 
-        Ogre::Entity* ent = sceneManager->createEntity ( curTile->name,
+        Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
                             Tile::meshNameFromFullness(curTile->getType(),
                                                        curTile->getFullnessMeshNumber()) );
 /*        Ogre::Entity* ent = createEntity(curTile->name,
@@ -476,7 +476,7 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
         colourizeEntity ( ent, curTile->getColor() );
 
         // Link the tile mesh back to the relevant scene node so OGRE will render it
-        Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->name + "_node" );
+        Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
         node->attachObject ( ent );
         node->resetOrientation();
         node->roll ( Ogre::Degree ( curTile->rotation ) );
@@ -487,7 +487,7 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 {
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
 
-    Ogre::Entity* ent = sceneManager->createEntity( curTile->name,
+    Ogre::Entity* ent = sceneManager->createEntity( curTile->getName(),
                         Tile::meshNameFromFullness(curTile->getType(),
                                                    curTile->getFullnessMeshNumber()));
     if (curTile->getType() == Tile::claimed)
@@ -495,7 +495,7 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
         colourizeEntity ( ent, curTile->getColor() );
     }
     Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode (
-                                curTile->name + "_node" );
+                                curTile->getName() + "_node" );
 
     Ogre::MeshPtr meshPtr = ent->getMesh();
     unsigned short src, dest;
@@ -520,12 +520,12 @@ void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
 {
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
 
-    if ( sceneManager->hasEntity ( curTile->name ) )
+    if ( sceneManager->hasEntity ( curTile->getName() ) )
     {
-        Ogre::Entity* ent = sceneManager->getEntity ( curTile->name );
-        Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->name + "_node" );
+        Ogre::Entity* ent = sceneManager->getEntity ( curTile->getName() );
+        Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
         node->detachAllObjects();
-        sceneManager->destroySceneNode ( curTile->name + "_node" );
+        sceneManager->destroySceneNode ( curTile->getName() + "_node" );
         sceneManager->destroyEntity ( ent );
     }
 }

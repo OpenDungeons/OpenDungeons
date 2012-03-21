@@ -271,7 +271,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                                  xPos + i, yPos + j);
                         currentTile = new Tile(xPos + i, yPos + j,
                                                mCurrentTileType, mCurrentFullness);
-                        currentTile->name = tempArray;
+                        currentTile->setName(tempArray);
                         gameMap->addTile(currentTile);
                         currentTile->createMesh();
                     }

@@ -5,9 +5,11 @@
 #include <vector>
 #include <ostream>
 #include <istream>
+
 #include <semaphore.h>
 #include <OgrePrerequisites.h>
 
+#include "GameEntity.h"
 
 class Tile;
 class Creature;
@@ -23,7 +25,7 @@ class GameMap;
  * the tile has been dug out.  Additionally the tile contains lists of the
  * entities located within it to aid in AI calculations.
  */
-class Tile
+class Tile : public GameEntity
 {
     public:
         //TODO:  These should be renumbered to put 0 as the nullTileType, however this will mean converting all the dirt tiles in the level files.
@@ -43,10 +45,33 @@ class Tile
             impassableTile = 0, walkableTile = 1, flyableTile = 2
         };
 
-        // Public functions
-        Tile();
-        Tile(int nX, int nY, TileType nType, double nFullness);
-        void initialize();
+        Tile( int         nX          = 0,
+              int         nY          = 0,
+              TileType    nType       = dirt,
+              double      nFullness   = 100.0
+            ) :
+                x                   (nX),
+                y                   (nY),
+                colorDouble         (0.0),
+                floodFillColor      (-1),
+                rotation            (0.0),
+                type                (nType),
+                selected            (false),
+                fullness            (nFullness),
+                fullnessMeshNumber  (-1),
+                coveringRoom        (0),
+                coveringTrap        (false),
+                claimLight          (0),
+                gameMap             (0)
+        {
+            sem_init(&creaturesInCellLockSemaphore, 0, 1);
+            sem_init(&fullnessLockSemaphore, 0, 1);
+            sem_init(&coveringRoomLockSemaphore, 0, 1);
+            sem_init(&neighborsLockSemaphore, 0, 1);
+            sem_init(&claimLightLockSemaphore, 0, 1);
+
+            setColor(0);
+        }
 
         void setType(TileType t);
         TileType getType() const;
@@ -105,21 +130,15 @@ class Tile
         friend std::ostream& operator<<(std::ostream& os, Tile *t);
         friend std::istream& operator>>(std::istream& is, Tile *t);
 
-        int getColor() const;
-        void setColor(int nColor);
-
         void setGameMap(GameMap* gameMap);
 
         int getX() const {return x;}
         int getY() const {return y;}
 
-        // Public datamembers
-        //Vector3 location;
         int x, y;
         double colorDouble;
         int floodFillColor;
         Ogre::Real rotation;
-        std::string name;
 
     private:
         void setFullnessValue(double f);
@@ -129,7 +148,6 @@ class Tile
         
         double fullness;
         int fullnessMeshNumber;
-        bool meshesExist;
         
         std::vector<Tile*> neighbors;
         std::vector<Creature*> creaturesInCell;
@@ -145,8 +163,6 @@ class Tile
         sem_t neighborsLockSemaphore;
         
         GameMap* gameMap;
-
-        int color;
 };
 
 #endif

@@ -83,7 +83,7 @@ void GameMap::createNewMap(int xSize, int ySize)
             tempTile->y = j;
 
             snprintf(array, sizeof(array), "Level_%3i_%3i", i, j);
-            tempTile->name = array;
+            tempTile->setName(array);
             tempTile->createMesh();
             sem_wait(&tilesLockSemaphore);
             tiles.insert(std::pair<std::pair<int, int> , Tile*> (std::pair<int, int> (i, j),

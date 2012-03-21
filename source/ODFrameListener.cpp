@@ -797,7 +797,7 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
                     snprintf(tempArray, sizeof(tempArray), "Level_%3i_%3i", i,
                             j);
                     Tile *t = new Tile(i, j, Tile::dirt, 100);
-                    t->name = tempArray;
+                    t->setName(tempArray);
                     gameMap->addTile(t);
                     t->createMesh();
                 }
