@@ -2135,11 +2135,6 @@ void GameMap::addMapLight(MapLight *m)
 {
     mapLights.push_back(m);
 
-    if (!m->isPermanent())
-    {
-        addActiveObject(static_cast<TemporaryMapLight*>(m));
-    }
-
     /*
      // Place a message in the queue to inform the clients about the destruction of this MapLight.
      ServerNotification *serverNotification = new ServerNotification;

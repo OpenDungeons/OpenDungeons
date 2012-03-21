@@ -10,11 +10,38 @@
 class MapLight
 {
     public:
-        void initialize();
-        MapLight();
-        MapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
-                Ogre::Real green, Ogre::Real blue, Ogre::Real range,
-                Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic);
+        MapLight( const Ogre::Vector3&  nPosition   = Ogre::Vector3(0, 0, 0),
+                  Ogre::Real            red         = 0,
+                  Ogre::Real            green       = 0,
+                  Ogre::Real            blue        = 0,
+                  Ogre::Real            range       = 0,
+                  Ogre::Real            constant    = 0,
+                  Ogre::Real            linear      = 0,
+                  Ogre::Real            quadratic   = 0
+                ) :
+            ogreEntityExists                (false),
+            ogreEntityVisualIndicatorExists (false),
+            thetaX                          (0.0),
+            thetaY                          (0.0),
+            thetaZ                          (0.0),
+            factorX                         (0.1),
+            factorY                         (0.1),
+            factorZ                         (0.1)
+        {
+            static unsigned int lightNumber = 0;
+
+            std::stringstream tempSS;
+            sem_wait(&lightNumberLockSemaphore);
+            tempSS << "Map_light_ " << ++lightNumber;
+            sem_post(&lightNumberLockSemaphore);
+            name = tempSS.str();
+
+            setPosition(nPosition);
+            setDiffuseColor(red, green, blue);
+            setSpecularColor(red, green, blue);
+            setAttenuation(range, constant, linear, quadratic);
+        }
+
         virtual ~MapLight() {}
 
         void setLocation(const Ogre::Vector3& nPosition);
@@ -40,8 +67,6 @@ class MapLight
         Ogre::Real getAttenuationQuadratic() const;
 
         void advanceFlicker(Ogre::Real time);
-
-        virtual bool isPermanent() const;
 
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, MapLight *m);
@@ -70,22 +95,6 @@ class MapLight
         int factorX;
         int factorY;
         int factorZ;
-};
-
-class TemporaryMapLight: public MapLight, public ActiveEntity
-{
-    public:
-        TemporaryMapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
-                Ogre::Real green, Ogre::Real blue, Ogre::Real range,
-                Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic, GameMap& gameMap);
-        bool isPermanent() const;
-
-        bool doUpkeep();
-
-    protected:
-        int turnsUntilDestroyed;
-        GameMap& gameMap;
-        //int originalTurnsUntilDestroyed;
 };
 
 #endif

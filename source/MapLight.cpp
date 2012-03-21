@@ -11,44 +11,6 @@
 
 sem_t MapLight::lightNumberLockSemaphore;
 
-void MapLight::initialize()
-{
-    static unsigned int lightNumber = 0;
-
-    ogreEntityExists = false;
-    ogreEntityVisualIndicatorExists = false;
-
-    std::stringstream tempSS;
-    sem_wait(&lightNumberLockSemaphore);
-    tempSS << "Map_light_ " << ++lightNumber;
-    sem_post(&lightNumberLockSemaphore);
-    name = tempSS.str();
-
-    thetaX = 0.0;
-    thetaY = 0.0;
-    thetaZ = 0.0;
-    factorX = 0.1;
-    factorY = 0.1;
-    factorZ = 0.1;
-}
-
-MapLight::MapLight()
-{
-    initialize();
-}
-
-MapLight::MapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
-        Ogre::Real green, Ogre::Real blue, Ogre::Real range,
-        Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic)
-{
-    initialize();
-
-    setPosition(nPosition);
-    setDiffuseColor(red, green, blue);
-    setSpecularColor(red, green, blue);
-    setAttenuation(range, constant, linear, quadratic);
-}
-
 void MapLight::setLocation(const Ogre::Vector3& nPosition)
 {
     //TODO: This needs to make a RenderRequest to actually move the light.
@@ -234,11 +196,6 @@ void MapLight::advanceFlicker(Ogre::Real time)
     RenderManager::queueRenderRequest(request);
 }
 
-bool MapLight::isPermanent() const
-{
-    return true;
-}
-
 std::string MapLight::getFormat()
 {
     return "posX\tposY\tposZ\tdiffuseR\tdiffuseG\tdiffuseB\tspecularR\tspecularG\tspecularB\tattenRange\tattenConst\tattenLin\tattenQuad";
@@ -267,34 +224,4 @@ std::istream& operator>>(std::istream& is, MapLight *m)
     is >> m->attenuationLinear >> m->attenuationQuadratic;
 
     return is;
-}
-
-TemporaryMapLight::TemporaryMapLight(const Ogre::Vector3& nPosition, Ogre::Real red,
-        Ogre::Real green, Ogre::Real blue, Ogre::Real range,
-        Ogre::Real constant, Ogre::Real linear, Ogre::Real quadratic, GameMap& gameMap) :
-    MapLight(nPosition, red, green, blue, range, constant, linear, quadratic),
-    gameMap(gameMap)
-{
-    turnsUntilDestroyed = 2;
-}
-
-bool TemporaryMapLight::isPermanent() const
-{
-    return false;
-}
-
-bool TemporaryMapLight::doUpkeep()
-{
-    if (--turnsUntilDestroyed <= 0)
-    {
-        // Remove this light from the game map since it no longer will exist.
-        gameMap.removeMapLight(this);
-
-        destroyOgreEntity();
-        return false;
-    }
-    else
-    {
-        return true;
-    }
 }
