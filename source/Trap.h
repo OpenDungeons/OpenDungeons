@@ -52,8 +52,6 @@ class Trap: public GameEntity, public AttackableEntity, public ActiveEntity
 
         static int costPerTile(TrapType t);
 
-        inline const std::string& getMeshName() const{return meshName;}
-
         Seat *controllingSeat;
 
         // Functions which can be overridden by child classes.
@@ -88,7 +86,6 @@ class Trap: public GameEntity, public AttackableEntity, public ActiveEntity
         double minDamage, maxDamage;
         const static double defaultTileHP;// = 10.0;
 
-        std::string meshName;
         std::vector<Tile*> coveredTiles;
         std::map<Tile*, double> tileHP;
         TrapType type;

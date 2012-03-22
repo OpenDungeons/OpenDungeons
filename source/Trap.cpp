@@ -57,7 +57,7 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     
     tempTrap->controllingSeat = nControllingSeat;
     
-    tempTrap->meshName = getMeshNameFromTrapType(nType);
+    tempTrap->setMeshName(getMeshNameFromTrapType(nType));
     tempTrap->type = nType;
     
     static int uniqueNumber = -1;
@@ -370,16 +370,20 @@ std::string Trap::getFormat()
 
 std::istream& operator>>(std::istream& is, Trap *t)
 {
-    static int uniqueNumber = 1;
+    static int uniqueNumber = 0;
     int tilesToLoad, tempX, tempY, tempInt;
     std::stringstream tempSS;
     
-    is >> t->meshName >> tempInt;
+    std::string tempMeshName;
+    is >> tempMeshName;
+    t->setMeshName(tempMeshName);
+
+    is >> tempInt;
     t->controllingSeat = t->gameMap->getSeatByColor(tempInt);
     
     tempSS.str("");
-    tempSS << t->meshName << "_" << uniqueNumber;
-    ++uniqueNumber;
+    tempSS << t->getMeshName() << "_" << ++uniqueNumber;
+
     t->setName(tempSS.str());
     
     is >> tilesToLoad;
@@ -396,13 +400,13 @@ std::istream& operator>>(std::istream& is, Trap *t)
         }
     }
     
-    t->type = Trap::getTrapTypeFromMeshName(t->meshName);
+    t->type = Trap::getTrapTypeFromMeshName(t->getMeshName());
     return is;
 }
 
 std::ostream& operator<<(std::ostream& os, Trap *t)
 {
-    os << t->meshName << "\t" << t->controllingSeat->color << "\n";
+    os << t->getMeshName() << "\t" << t->controllingSeat->color << "\n";
     os << t->coveredTiles.size() << "\n";
     for (unsigned int i = 0; i < t->coveredTiles.size(); ++i)
     {
