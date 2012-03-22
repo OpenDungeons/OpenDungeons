@@ -11,7 +11,7 @@
 #include "GameEntity.h"
 #include "Tile.h"
 
-class Player;
+class Seat;
 class RoomObject;
 class GameMap;
 
@@ -61,8 +61,7 @@ class Room: public GameEntity, public AttackableEntity, public ActiveEntity
 
         static int costPerTile(RoomType t);
 
-        // Public data members
-        Player *controllingPlayer; //TODO:  This should be a controlling seat rather than a player.
+        Seat* controllingSeat;
 
         // Functions which can be overridden by child classes.
         virtual bool doUpkeep();
