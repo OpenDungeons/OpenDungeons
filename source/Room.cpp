@@ -14,8 +14,7 @@
 const double Room::defaultTileHP = 10.0;
 
 Room::Room() :
-        controllingSeat (0),
-        type            (nullRoomType)
+        type    (nullRoomType)
 {
 }
 

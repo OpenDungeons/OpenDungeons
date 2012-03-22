@@ -7,19 +7,18 @@
 #include <ostream>
 #include <map>
 
-class Tile;
-class Seat;
 class GameMap;
 class Player;
+class Seat;
+class Tile;
 
-#include "ActiveEntity.h"
-#include "AttackableEntity.h"
-#include "GameEntity.h"
+#include "Building.h"
 
-/** \brief Defines a trap
+/*! \class Trap Trap.h
+ *  \brief Defines a trap
  *  
  */
-class Trap: public GameEntity, public AttackableEntity, public ActiveEntity
+class Trap : public Building
 {
  /* TODO: Trap and room share a lot of things, so we might want to make a shared
  *  base-class, like "Building" or something.
@@ -51,8 +50,6 @@ class Trap: public GameEntity, public AttackableEntity, public ActiveEntity
         static TrapType getTrapTypeFromMeshName(std::string s);
 
         static int costPerTile(TrapType t);
-
-        Seat *controllingSeat;
 
         // Functions which can be overridden by child classes.
         virtual bool doUpkeep();

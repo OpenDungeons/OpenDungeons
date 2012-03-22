@@ -6,16 +6,14 @@
 #include <deque>
 #include <iostream>
 
-#include "ActiveEntity.h"
-#include "AttackableEntity.h"
-#include "GameEntity.h"
+#include "Building.h"
 #include "Tile.h"
 
 class Seat;
 class RoomObject;
 class GameMap;
 
-class Room: public GameEntity, public AttackableEntity, public ActiveEntity
+class Room: public Building
 {
     public:
         // When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
@@ -60,8 +58,6 @@ class Room: public GameEntity, public AttackableEntity, public ActiveEntity
         static RoomType getRoomTypeFromMeshName(const std::string& s);
 
         static int costPerTile(RoomType t);
-
-        Seat* controllingSeat;
 
         // Functions which can be overridden by child classes.
         virtual bool doUpkeep();

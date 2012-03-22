@@ -15,7 +15,6 @@
 const double Trap::defaultTileHP = 10.0;
 
 Trap::Trap() :
-        controllingSeat(NULL),
         reloadTime(0),
         reloadTimeCounter(0),
         minDamage(0.0),
@@ -55,7 +54,7 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
         exit(1);
     }
     
-    tempTrap->controllingSeat = nControllingSeat;
+    tempTrap->setControllingSeat(nControllingSeat);
     
     tempTrap->setMeshName(getMeshNameFromTrapType(nType));
     tempTrap->type = nType;
@@ -110,7 +109,7 @@ Trap* Trap::createTrapFromStream(std::istream &is, GameMap* gameMap)
     is >> &tempTrap;
     
     Trap *returnTrap = createTrap(tempTrap.type, tempTrap.coveredTiles,
-                                  tempTrap.controllingSeat);
+                                  tempTrap.getControllingSeat());
     return returnTrap;
 }
 
@@ -379,7 +378,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
     t->setMeshName(tempMeshName);
 
     is >> tempInt;
-    t->controllingSeat = t->gameMap->getSeatByColor(tempInt);
+    t->setControllingSeat(t->gameMap->getSeatByColor(tempInt));
     
     tempSS.str("");
     tempSS << t->getMeshName() << "_" << ++uniqueNumber;
@@ -395,7 +394,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
         {
             t->addCoveredTile(tempTile);
             //FIXME: This next line will not be necessary when the the tile color is properly set by the tile load routine.
-            tempTile->setColor(t->controllingSeat->color);
+            tempTile->setColor(t->getControllingSeat()->color);
             tempTile->colorDouble = 1.0;
         }
     }
@@ -406,7 +405,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
 
 std::ostream& operator<<(std::ostream& os, Trap *t)
 {
-    os << t->getMeshName() << "\t" << t->controllingSeat->color << "\n";
+    os << t->getMeshName() << "\t" << t->getControllingSeat()->color << "\n";
     os << t->coveredTiles.size() << "\n";
     for (unsigned int i = 0; i < t->coveredTiles.size(); ++i)
     {
