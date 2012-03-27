@@ -55,8 +55,8 @@ class Trap : public Building
         virtual bool doUpkeep();
         virtual bool doUpkeep(Trap *t);
         
-        virtual std::vector<AttackableEntity*> aimEnemy();
-        virtual void damage(std::vector<AttackableEntity*>);
+        virtual std::vector<GameEntity*> aimEnemy();
+        virtual void damage(std::vector<GameEntity*>);
 
         virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
         virtual void removeCoveredTile(Tile* t);
@@ -74,8 +74,6 @@ class Trap : public Building
         double getDefense() const;
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
-        int getLevel() const;
-        AttackableEntity::AttackableObjectType getAttackableObjectType() const;
 
     protected:
         int reloadTime;

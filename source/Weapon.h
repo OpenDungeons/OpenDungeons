@@ -37,23 +37,28 @@ class Weapon : public GameEntity
         friend std::ostream& operator<<(std::ostream& os, Weapon *w);
         friend std::istream& operator>>(std::istream& is, Weapon *w);
 
-        inline const double    getDamage() const                   { return damage; }
-        inline void            setDamage(const double nDamage)     { damage = nDamage; }
+        inline double           getDamage() const                   { return damage; }
+        inline void             setDamage(const double nDamage)     { damage = nDamage; }
 
-        inline const double    getDefense() const                  { return defense; }
-        inline void            setDefense(const double nDefense)   { defense = nDefense; }
+        inline double           getDefense() const                  { return defense; }
+        inline void             setDefense(const double nDefense)   { defense = nDefense; }
 
         inline const std::string&  getHandString() const           { return handString; }
         inline void                setHandString(const std::string& nHandString)
                                                                    { handString = nHandString; }
 
-        inline Creature*       getParentCreature() const           { return parentCreature; }
-        inline void            setParentCreature(Creature* nParent){ parentCreature = nParent; }
+        inline Creature*        getParentCreature() const           { return parentCreature; }
+        inline void             setParentCreature(Creature* nParent){ parentCreature = nParent; }
 
-        inline const double    getRange() const                    { return range; }
-        inline void            setRange(const double nRange)       { range = nRange; }
+        inline double           getRange() const                    { return range; }
+        inline void             setRange(const double nRange)       { range = nRange; }
 
+        //TODO: implment these in a good way
         bool doUpkeep(){ return true; }
+        void recieveExp(double experience){}
+        void takeDamage(double damage, Tile *tileTakingDamage) {}
+        double getHP(Tile *tile) {return 0;}
+        std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
 
     private:
         std::string handString;

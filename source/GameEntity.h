@@ -5,10 +5,22 @@
  * \brief  Provides the GameEntity class, the base class for all ingame objects
  */
 
+/* TODO list:
+ * - GameMap pointer should not be part of every object, since there is only one GameMap, at least let it set by ctor
+ * - complete the constructor
+ * - add semaphores if/where needed
+ * - default mesh handle code instead of pure virtuals that do almost the same in every subclass
+ */
+
 #ifndef GAMEENTITY_H_
 #define GAMEENTITY_H_
 
+#include <cassert>
 #include <string>
+#include <vector>
+
+class GameMap;
+class Tile;
 
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
@@ -20,6 +32,11 @@
 class GameEntity
 {
     public:
+        enum ObjectType
+        {
+            unknown, creature, room, trap, weapon, roomobject
+        };
+
         //! \brief Default constructor with default values
         GameEntity( std::string     nName       = "",
                     std::string     nMeshName   = "",
@@ -31,7 +48,10 @@ class GameEntity
             meshExists  (false),
             color       (nColor),
             level       (nLevel),
-            active      (true)
+            active      (true),
+            attackable  (true),
+            type        (unknown),
+            gameMap     (0)
         { }
         virtual ~GameEntity(){}
 
@@ -46,13 +66,22 @@ class GameEntity
         inline int                  getColor        () const    { return color; }
 
         //! \brief Get the level of the object
-        //inline unsigned int         getLevel        () const    { return level; }
+        inline unsigned int         getLevel        () const    { return level; }
 
         //! \brief Get if the mesh is already existing
         inline bool                 isMeshExisting  () const    { return meshExists; }
 
         //! \brief Get if the object is active (doing sth. on its own) or not
         inline bool                 isActive        () const    { return active; }
+
+        //! \brief Get if the object can be attacked or not
+        inline bool                 isAttackable    () const    { return attackable; }
+
+        //! \brief Get the type of this object
+        inline ObjectType           getType         () const    { return type; }
+
+        //! \brief Pointer to the GameMap
+        inline GameMap*             getGameMap      () const    { return gameMap; }
 
         // ===== SETTERS =====
         //! \brief Set the name of the entity
@@ -65,10 +94,20 @@ class GameEntity
         inline void setColor        (int nColor)                    { color = nColor; }
 
         //! \brief Set if the mesh exists
-        //inline void setLevel        (unsigned int nLevel)           { level = nLevel; }
+        inline void setLevel        (unsigned int nLevel)           { level = nLevel; }
 
         //! \brief Set if the mesh exists
         inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
+
+        //! \brief Set the type of the object. Should be done in all final derived constructors
+        inline void setType         (ObjectType nType)              { type = nType; }
+
+        //! \brief set a pointer the MameMap
+        inline virtual void         setGameMap                      (GameMap* gameMap)
+        {
+            this->gameMap = gameMap;
+            assert(gameMap != 0);
+        }
 
         // ===== METHODS =====
         //! \brief Pure virtual function that implements the mesh creation
@@ -82,6 +121,42 @@ class GameEntity
 
         //! \brief defines what happens on each turn with this object
         virtual bool    doUpkeep        () = 0;
+
+
+
+        //! \brief Returns a list of the tiles that this object is in/covering.  For creatures and other small objects
+        //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
+        virtual std::vector<Tile*> getCoveredTiles() = 0;
+
+        //! \brief Returns the HP associated with the given tile of the object, it is up to the object how they want to treat the tile/HP relationship.
+        virtual double getHP(Tile *tile) = 0;
+
+        //! \brief Returns defense rating for the object, i.e. how much less than inflicted damage should it recieve.
+        virtual double getDefense() const = 0;
+
+        //! \brief Subtracts the given number of hitpoints from the object, the tile specifies where
+        //! the enemy inflicted the damage and the object can use this accordingly.
+        virtual void takeDamage(double damage, Tile *tileTakingDamage) = 0;
+
+        //! \brief Adds the given number experience points to the object, does not necessarily check to see if the object's level should be increased.
+        virtual void recieveExp(double experience) = 0;
+
+
+
+
+        static std::vector<GameEntity*> removeDeadObjects(const std::vector<GameEntity*> &objects)
+        {
+            std::vector<GameEntity*> ret;
+            for(unsigned int i = 0, size = objects.size(); i < size; ++i)
+            {
+                if (objects[i]->getHP(NULL) > 0.0)
+                    ret.push_back(objects[i]);
+            }
+
+            return ret;
+        }
+
+
 
     private:
         //! brief The name of the entity
@@ -101,6 +176,15 @@ class GameEntity
 
         //! \brief A flag saying whether the object is active (doing something on its own) or not
         bool            active;
+
+        //! \brief A flag saying whether the object can be attacked or not
+        bool            attackable;
+
+        //! \brief What kind of object is it
+        ObjectType      type;
+
+        //! \brief Pointer to the GameMap object.
+        GameMap*        gameMap;
 };
 
 #endif /* GAMEENTITY_H_ */

@@ -21,7 +21,13 @@ class RoomObject: public MovableGameEntity
         void destroyMesh();
         void deleteYourself();
 
+        //TODO: implment these in a good way
         bool doUpkeep() {return true;}
+        void recieveExp(double experience){}
+        void takeDamage(double damage, Tile *tileTakingDamage) {}
+        double getDefense() const {return 0.0;}
+        double getHP(Tile *tile) {return 0;}
+        std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
 
         std::string getOgreNamePrefix();
 

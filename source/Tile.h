@@ -140,7 +140,13 @@ class Tile : public GameEntity
         int floodFillColor;
         Ogre::Real rotation;
 
+        //TODO properly implement these
         bool doUpkeep(){ return true; }
+        void recieveExp(double experience){}
+        double getDefense() const  { return 0; }
+        void takeDamage(double damage, Tile *tileTakingDamage) {}
+        double getHP(Tile *tile) {return 0;}
+        std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
 
     private:
         void setFullnessValue(double f);

@@ -272,7 +272,7 @@ Tile* Room::getCentralTile()
     }
 
     //TODO: If this tile is NULL we should move outward until we find a valid one.
-    return gameMap->getTile((minX + maxX) / 2, (minY + maxY) / 2);
+    return getGameMap()->getTile((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
 const Tile* Room::getCentralTile() const
@@ -302,7 +302,7 @@ const Tile* Room::getCentralTile() const
     }
 
     //TODO: If this tile is NULL we should move outward until we find a valid one.
-    return gameMap->getTile((minX + maxX) / 2, (minY + maxY) / 2);
+    return getGameMap()->getTile((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
 void Room::createMesh()
@@ -462,7 +462,7 @@ std::istream& operator>>(std::istream& is, Room *r)
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
-        Tile *tempTile = r->gameMap->getTile(tempX, tempY);
+        Tile *tempTile = r->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
         {
             r->addCoveredTile(tempTile);
@@ -610,15 +610,3 @@ void Room::recieveExp(double experience)
 {
     // Do nothing since Rooms do not have exp.
 }
-
-int Room::getLevel() const
-{
-    // Since rooms do not have exp or level we just consider them level 1 for compatibility with the AttackableObject interface.
-    return 1;
-}
-
-AttackableEntity::AttackableObjectType Room::getAttackableObjectType() const
-{
-    return AttackableEntity::room;
-}
-

@@ -23,7 +23,7 @@
 
 #include "CreatureSound.h"
 #include "CreatureDefinition.h"
-#include "AttackableEntity.h"
+//#include "AttackableEntity.h"
 #include "CreatureAction.h"
 #include "MovableGameEntity.h"
 
@@ -48,7 +48,7 @@ class Window;
  *  will probably be refined later but it works fine for now and the code
  *  affected by this change is relatively limited.
  */
-class Creature: public MovableGameEntity, public AttackableEntity
+class Creature: public MovableGameEntity//, public AttackableEntity
 {
     public:
         Creature(GameMap* gameMap = 0, const std::string& name = "");
@@ -122,21 +122,21 @@ class Creature: public MovableGameEntity, public AttackableEntity
         double getDefense() const;
         void doLevelUp();
         void updateVisibleTiles();
-        std::vector<AttackableEntity*> getVisibleEnemyObjects();
-        std::vector<AttackableEntity*> getReachableAttackableObjects(
-                const std::vector<AttackableEntity*> &objectsToCheck,
-                unsigned int *minRange, AttackableEntity **nearestObject);
-        std::vector<AttackableEntity*> getEnemyObjectsInRange(
-                const std::vector<AttackableEntity*> &enemyObjectsToCheck);
-        std::vector<AttackableEntity*> getVisibleAlliedObjects();
+        std::vector<GameEntity*> getVisibleEnemyObjects();
+        std::vector<GameEntity*> getReachableAttackableObjects(
+                const std::vector<GameEntity*> &objectsToCheck,
+                unsigned int *minRange, GameEntity **nearestObject);
+        std::vector<GameEntity*> getEnemyObjectsInRange(
+                const std::vector<GameEntity*> &enemyObjectsToCheck);
+        std::vector<GameEntity*> getVisibleAlliedObjects();
         std::vector<Tile*> getVisibleMarkedTiles();
-        std::vector<AttackableEntity*> getVisibleForce(int color, bool invert);
+        std::vector<GameEntity*> getVisibleForce(int color, bool invert);
         Tile* positionTile();
         std::vector<Tile*> getCoveredTiles();
-        int getLevel() const;
+        //int getLevel() const;
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
-        AttackableEntity::AttackableObjectType getAttackableObjectType() const;
+        //AttackableEntity::AttackableObjectType getAttackableObjectType() const;
         void clearActionQueue();
 
         Player* getControllingPlayer();
@@ -188,7 +188,7 @@ class Creature: public MovableGameEntity, public AttackableEntity
         double          exp;
         double          digRate;
         double          danceRate;
-        int             level;
+        //int             level;
         int             deathCounter;
         int             gold;
         int             battleFieldAgeCounter;
@@ -199,15 +199,15 @@ class Creature: public MovableGameEntity, public AttackableEntity
         CEGUI::Window*  statsWindow;
 
         //TODO? isn't this something for CreatureDefintion?
-        std::string     className;
+        std::string                     className;
 
         std::vector<Tile*>              visibleTiles;
-        std::vector<AttackableEntity*>  visibleEnemyObjects;
-        std::vector<AttackableEntity*>  reachableEnemyObjects;
-        std::vector<AttackableEntity*>  enemyObjectsInRange;
-        std::vector<AttackableEntity*>  livingEnemyObjectsInRange;
-        std::vector<AttackableEntity*>  visibleAlliedObjects;
-        std::vector<AttackableEntity*>  reachableAlliedObjects;
+        std::vector<GameEntity*>        visibleEnemyObjects;
+        std::vector<GameEntity*>        reachableEnemyObjects;
+        std::vector<GameEntity*>        enemyObjectsInRange;
+        std::vector<GameEntity*>        livingEnemyObjectsInRange;
+        std::vector<GameEntity*>        visibleAlliedObjects;
+        std::vector<GameEntity*>        reachableAlliedObjects;
         std::deque<CreatureAction>      actionQueue;
         std::list<Tile*>                visualDebugEntityTiles;
         Ogre::SharedPtr<CreatureSound>  sound;

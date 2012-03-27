@@ -13,10 +13,10 @@ void RoomForge::createMesh()
     Room::createMesh();
 
     Tile *centralTile = getCentralTile();
-    Tile *topCenterTile = gameMap->getTile(centralTile->x, centralTile->y + 1);
-    Tile *bottomLeftTile = gameMap->getTile(centralTile->x - 1, centralTile->y
+    Tile *topCenterTile = getGameMap()->getTile(centralTile->x, centralTile->y + 1);
+    Tile *bottomLeftTile = getGameMap()->getTile(centralTile->x - 1, centralTile->y
             - 1);
-    Tile *bottomRightTile = gameMap->getTile(centralTile->x + 1, centralTile->y
+    Tile *bottomRightTile = getGameMap()->getTile(centralTile->x + 1, centralTile->y
             - 1);
 
     loadRoomObject("ForgeForgeObject", topCenterTile);

@@ -32,6 +32,13 @@ class MissileObject: public MovableGameEntity
         virtual bool doUpkeep();
         virtual void stopWalking();
 
+        //TODO: implment these in a good way
+        void recieveExp(double experience){}
+        void takeDamage(double damage, Tile *tileTakingDamage) {}
+        double getDefense() const {return 0.0;}
+        double getHP(Tile *tile) {return 0;}
+        std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
+
         static sem_t missileObjectUniqueNumberLockSemaphore;
 
     private:

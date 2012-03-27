@@ -186,7 +186,7 @@ class GameMap
         std::vector<Tile*> neighborTiles(Tile *t);
         std::list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
         std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
-        std::vector<AttackableEntity*> getVisibleForce(
+        std::vector<GameEntity*> getVisibleForce(
                 std::vector<Tile*> visibleTiles, int color, bool invert);
         bool
         pathIsClear(std::list<Tile*> path, Tile::TileClearType passability);

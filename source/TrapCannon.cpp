@@ -15,22 +15,22 @@ TrapCannon::TrapCannon() :
     maxDamage = 120;
 }
 
-std::vector<AttackableEntity*> TrapCannon::aimEnemy() 
+std::vector<GameEntity*> TrapCannon::aimEnemy()
 {
-    std::vector<Tile*> visibleTiles = gameMap->visibleTiles(coveredTiles[0], range);
-    std::vector<AttackableEntity*> enemyObjects = gameMap->getVisibleForce(visibleTiles, getColor(), true);
+    std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(coveredTiles[0], range);
+    std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleForce(visibleTiles, getColor(), true);
     if(enemyObjects.size() <= 0) {
-        return std::vector<AttackableEntity*>();
+        return std::vector<GameEntity*>();
     }
     // Select an enemy to shoot at.
-    AttackableEntity* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
+    GameEntity* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
     
-    std::vector<AttackableEntity*> enemies = std::vector<AttackableEntity*>();
+    std::vector<GameEntity*> enemies = std::vector<GameEntity*>();
     enemies.push_back(targetEnemy);
     return enemies;
 }
 
-void TrapCannon::damage(std::vector<AttackableEntity*> enemyAttacked) 
+void TrapCannon::damage(std::vector<GameEntity*> enemyAttacked)
 {
 	ProximityTrap::damage(enemyAttacked);
 	
@@ -40,11 +40,11 @@ void TrapCannon::damage(std::vector<AttackableEntity*> enemyAttacked)
 	std::cout << "\nAdding cannonball from " << coveredTiles[0]->x << "," << coveredTiles[0]->y << " to " << enemyAttacked[0]->getCoveredTiles()[0]->x << "," << enemyAttacked[0]->getCoveredTiles()[0]->y << std::endl;
 	// Create the cannonball to move toward the enemy creature.
 	MissileObject *tempMissileObject = new MissileObject(
-        "Cannonball", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, cannonHeight), *gameMap);
+        "Cannonball", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, cannonHeight), *getGameMap());
 	tempMissileObject->setMoveSpeed(8.0);
 	tempMissileObject->createMesh();
 	//TODO: Make this a pseudo newtonian mechanics solver which computes a parabola passing through the cannon
 	// and the enemy it is shooting at, add this as 10 or so destinations in the queue instead of just one.
 	tempMissileObject->addDestination(enemyAttacked[0]->getCoveredTiles()[0]->x, enemyAttacked[0]->getCoveredTiles()[0]->y, cannonHeight);
-	gameMap->addMissileObject(tempMissileObject);
+	getGameMap()->addMissileObject(tempMissileObject);
 }

@@ -149,7 +149,7 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
             {
                 for (int j = 0; j < yDim; ++j)
                 {
-                    Tile *tempTile = gameMap->getTile(t->x + i, t->y + j);
+                    Tile *tempTile = getGameMap()->getTile(t->x + i, t->y + j);
                     creatureSleepingInTile[tempTile] = c;
                 }
             }

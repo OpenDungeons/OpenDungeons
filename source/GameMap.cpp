@@ -1747,11 +1747,11 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 /*! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
  *
  */
-std::vector<AttackableEntity*> GameMap::getVisibleForce(
+std::vector<GameEntity*> GameMap::getVisibleForce(
         std::vector<Tile*> visibleTiles, int color, bool invert)
 {
     //TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
-    std::vector<AttackableEntity*> returnList;
+    std::vector<GameEntity*> returnList;
 
     // Loop over the visible tiles
     for (std::vector<Tile*>::iterator itr = visibleTiles.begin(), end = visibleTiles.end();

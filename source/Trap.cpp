@@ -227,7 +227,7 @@ bool Trap::doUpkeep()
         return true;
     }
     
-    std::vector<AttackableEntity*> enemyAttacked = aimEnemy();
+    std::vector<GameEntity*> enemyAttacked = aimEnemy();
     
     damage(enemyAttacked);
     
@@ -251,7 +251,7 @@ bool Trap::doUpkeep(Trap* t)
     return t->doUpkeep();
 }
 
-void Trap::damage(std::vector<AttackableEntity*> enemyAttacked) 
+void Trap::damage(std::vector<GameEntity*> enemyAttacked)
 {
     for(unsigned i=0;i<enemyAttacked.size();++i) 
     {
@@ -259,9 +259,9 @@ void Trap::damage(std::vector<AttackableEntity*> enemyAttacked)
     }
 }
 
-std::vector<AttackableEntity*> Trap::aimEnemy()
+std::vector<GameEntity*> Trap::aimEnemy()
 {
-    return std::vector<AttackableEntity*>();
+    return std::vector<GameEntity*>();
 }
 
 void Trap::addCoveredTile(Tile* t, double nHP)
@@ -352,16 +352,6 @@ void Trap::recieveExp(double experience)
     exp += experience;
 }
 
-int Trap::getLevel() const
-{
-    return 1;
-}
-
-AttackableEntity::AttackableObjectType Trap::getAttackableObjectType() const
-{
-    return trap;
-}
-
 std::string Trap::getFormat()
 {
     return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
@@ -378,7 +368,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
     t->setMeshName(tempMeshName);
 
     is >> tempInt;
-    t->setControllingSeat(t->gameMap->getSeatByColor(tempInt));
+    t->setControllingSeat(t->getGameMap()->getSeatByColor(tempInt));
     
     tempSS.str("");
     tempSS << t->getMeshName() << "_" << ++uniqueNumber;
@@ -389,7 +379,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
-        Tile *tempTile = t->gameMap->getTile(tempX, tempY);
+        Tile *tempTile = t->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
         {
             t->addCoveredTile(tempTile);

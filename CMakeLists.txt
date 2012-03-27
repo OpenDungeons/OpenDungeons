@@ -86,8 +86,7 @@ set(OD_SOURCEFILES
     ${SRC}/AIFactory.cpp
     ${SRC}/AIManager.cpp
     ${SRC}/AIWrapper.cpp
-    ${SRC}/ASWrapper.cpp
-    ${SRC}/AttackableEntity.cpp
+    ${SRC}/ASWrapper.cpp    
     ${SRC}/BaseAI.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
