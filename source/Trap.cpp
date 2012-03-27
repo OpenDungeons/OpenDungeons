@@ -19,8 +19,7 @@ Trap::Trap() :
         reloadTimeCounter(0),
         minDamage(0.0),
         maxDamage(0.0),
-        type(nullTrapType),
-        exp(0.0)
+        type(nullTrapType)
 {
     setObjectType(GameEntity::trap);
 }
@@ -346,11 +345,6 @@ double Trap::getDefense() const
 void Trap::takeDamage(double damage, Tile *tileTakingDamage)
 {
     tileHP[tileTakingDamage] -= damage;
-}
-
-void Trap::recieveExp(double experience)
-{
-    exp += experience;
 }
 
 std::string Trap::getFormat()

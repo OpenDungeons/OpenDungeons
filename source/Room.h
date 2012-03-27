@@ -86,10 +86,6 @@ class Room : public Building
         double getDefense() const;
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
-        //int getLevel() const;
-        //AttackableEntity::AttackableObjectType getAttackableObjectType() const;
-
-        //GameMap* getGameMap(){return gameMap;}
 
     protected:
         const static double defaultTileHP;// = 10.0;

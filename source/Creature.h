@@ -69,6 +69,9 @@ class Creature: public MovableGameEntity
         void setCreatureDefinition(const CreatureDefinition* def); 
 
         // ----- GETTERS -----
+        //! \brief Get the level of the object
+        inline unsigned int         getLevel        () const    { return level; }
+
         double  getHP           (Tile *tile)            { return getHP(); }
         double  getHP           ()              const;
 
@@ -80,9 +83,6 @@ class Creature: public MovableGameEntity
 
         //! \brief Gets the current mana
         double  getMana         ()              const;
-
-        //! \brief Gets the current move speed
-        double  getMoveSpeed    ()              const   { return moveSpeed; }
 
         //! \brief Gets the current dig rate
         double  getDigRate      ()              const   { return digRate; }
@@ -108,10 +108,13 @@ class Creature: public MovableGameEntity
         void setHP              (double nHP);
         void setIsOnMap         (bool nIsOnMap);
         void setMana            (double nMana);
-        void setDeathCounter    (int nCount)        { deathCounter = nCount; }
-        void setWeaponL         (Weapon* wL)        { weaponL = wL; }
-        void setWeaponR         (Weapon* wR)        { weaponR = wR; }
-        void setHomeTile        (Tile* ht)          { homeTile = ht; }
+        inline void setDeathCounter     (unsigned int nC)    { deathCounter = nC; }
+        inline void setWeaponL          (Weapon* wL)         { weaponL = wL; }
+        inline void setWeaponR          (Weapon* wR)         { weaponR = wR; }
+        inline void setHomeTile         (Tile* ht)           { homeTile = ht; }
+
+        //! \brief Set the level of the creature
+        inline void setLevel            (unsigned int nL)    { level = nL; }
 
         // AI stuff
         void doTurn();
@@ -180,15 +183,20 @@ class Creature: public MovableGameEntity
         double          awakeness;
         double          maxHP;
         double          maxMana;
+
+        //! \brief The level of the creature
+        unsigned int    level;
+
         double          hp;
         double          mana;
         double          exp;
         double          digRate;
         double          danceRate;
-        int             deathCounter;
+        unsigned int    deathCounter;
         int             gold;
         int             battleFieldAgeCounter;
         int             trainWait;
+
         Tile*           previousPositionTile;
         Field*          battleField;
         RoomDojo*       trainingDojo;

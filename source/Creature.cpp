@@ -39,6 +39,7 @@ Creature::Creature( GameMap*            gameMap,
         awakeness               (100.0),
         maxHP                   (100.0),
         maxMana                 (100.0),
+        level                   (1),
         exp                     (0.0),
         digRate                 (1.0),
         danceRate               (1.0),
@@ -1545,15 +1546,18 @@ void Creature::doTurn()
                         awakeness -= 0.5;
 
                         // Give a small amount of experince to the creature we hit.
-                        tempAttackableObject->recieveExp(0.15 * expGained);
+                        if(tempAttackableObject->getObjectType() == GameEntity::creature)
+                        {
+                            Creature* tempCreature = static_cast<Creature*>(tempAttackableObject);
+                            tempCreature->recieveExp(0.15 * expGained);
 
-                        // Add a bonus modifier based on the level of the creature we hit
-                        // to expGained and give ourselves that much experience.
-                        if (tempAttackableObject->getLevel() >= getLevel())
-                            expGained *= 1.0 + (tempAttackableObject->getLevel() - getLevel()) / 10.0;
-                        else
-                            expGained /= 1.0 + (getLevel() - tempAttackableObject->getLevel()) / 10.0;
-
+                            // Add a bonus modifier based on the level of the creature we hit
+                            // to expGained and give ourselves that much experience.
+                            if (tempCreature->getLevel() >= getLevel())
+                                expGained *= 1.0 + (tempCreature->getLevel() - getLevel()) / 10.0;
+                            else
+                                expGained /= 1.0 + (getLevel() - tempCreature->getLevel()) / 10.0;
+                        }
                         recieveExp(expGained);
 
                         std::cout << "\n" << getName() << " did " << damageDone

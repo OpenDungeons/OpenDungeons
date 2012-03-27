@@ -39,7 +39,6 @@ class Trap : public Building
                                const std::vector< Tile* >& coveredTiles,
                                Player* player, bool inEditor = false, void* params = NULL);
         static Trap* createTrapFromStream(std::istream &is, GameMap* gameMap);
-        //virtual void absorbTrap(Trap *t);
 
         void createMesh();
         void destroyMesh();
@@ -84,7 +83,6 @@ class Trap : public Building
         std::vector<Tile*> coveredTiles;
         std::map<Tile*, double> tileHP;
         TrapType type;
-        double exp;
 };
 
 #endif

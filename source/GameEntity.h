@@ -40,14 +40,12 @@ class GameEntity
         //! \brief Default constructor with default values
         GameEntity( std::string     nName       = "",
                     std::string     nMeshName   = "",
-                    int             nColor      = 0,
-                    unsigned int    nLevel      = 1
+                    int             nColor      = 0
                   ) :
             name        (nName),
             meshName    (nMeshName),
             meshExists  (false),
             color       (nColor),
-            level       (nLevel),
             active      (true),
             attackable  (true),
             objectType  (unknown),
@@ -64,9 +62,6 @@ class GameEntity
 
         //! \brief Get the id of the color that the objects belongs to
         inline int                  getColor        () const    { return color; }
-
-        //! \brief Get the level of the object
-        inline unsigned int         getLevel        () const    { return level; }
 
         //! \brief Get if the mesh is already existing
         inline bool                 isMeshExisting  () const    { return meshExists; }
@@ -92,9 +87,6 @@ class GameEntity
 
         //! \brief Set if the mesh exists
         inline void setColor        (int nColor)                    { color = nColor; }
-
-        //! \brief Set if the mesh exists
-        inline void setLevel        (unsigned int nLevel)           { level = nLevel; }
 
         //! \brief Set if the mesh exists
         inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
@@ -138,12 +130,6 @@ class GameEntity
         //! the enemy inflicted the damage and the object can use this accordingly.
         virtual void takeDamage(double damage, Tile *tileTakingDamage) = 0;
 
-        //! \brief Adds the given number experience points to the object, does not necessarily check to see if the object's level should be increased.
-        virtual void recieveExp(double experience) = 0;
-
-
-
-
         static std::vector<GameEntity*> removeDeadObjects(const std::vector<GameEntity*> &objects)
         {
             std::vector<GameEntity*> ret;
@@ -170,9 +156,6 @@ class GameEntity
 
         //! \brief The id of the color that the objcts belongs to
         int             color;
-
-        //! \brief The level of the object
-        unsigned int    level;
 
         //! \brief A flag saying whether the object is active (doing something on its own) or not
         bool            active;
