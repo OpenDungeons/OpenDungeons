@@ -16,6 +16,7 @@ const double Room::defaultTileHP = 10.0;
 Room::Room() :
         type    (nullRoomType)
 {
+    setObjectType(GameEntity::room);
 }
 
 /*! \brief Creates a type specific subclass of room (quarters, treasury, etc) and returns a pointer to it.  This function

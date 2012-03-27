@@ -69,7 +69,7 @@ Creature::Creature( GameMap*            gameMap,
     setHP(10.0);
     setMana(10.0);
 
-    setType(GameEntity::creature);
+    setObjectType(GameEntity::creature);
 
     pushAction(CreatureAction::idle);
 }
@@ -590,7 +590,7 @@ void Creature::doTurn()
                                         < reachableAlliedObjects.size(); ++i)
                                 {
                                     // Check to see if we found a worker.
-                                    if (reachableAlliedObjects[i]->getType() == GameEntity::creature
+                                    if (reachableAlliedObjects[i]->getObjectType() == GameEntity::creature
                                             && static_cast<Creature*>(reachableAlliedObjects[i])->definition->isWorker())
                                     {
                                         // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
@@ -2239,8 +2239,8 @@ void Creature::computeBattlefield()
         {
             // Skip over objects which will not attack us (they either do not attack at all, or they are dead).
             tempObject = reachableEnemyObjects[j];
-            if ( ! (    tempObject->getType() == GameEntity::creature
-                     || tempObject->getType() == GameEntity::trap)
+            if ( ! (    tempObject->getObjectType() == GameEntity::creature
+                     || tempObject->getObjectType() == GameEntity::trap)
                      || tempObject->getHP(0) <= 0.0)
             {
                 continue;

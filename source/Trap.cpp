@@ -22,6 +22,7 @@ Trap::Trap() :
         type(nullTrapType),
         exp(0.0)
 {
+    setObjectType(GameEntity::trap);
 }
 
 Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,

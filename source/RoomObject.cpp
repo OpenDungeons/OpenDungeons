@@ -10,6 +10,7 @@
 RoomObject::RoomObject(Room* nParentRoom, const std::string& nMeshName) :
         parentRoom(nParentRoom)
 {
+    setObjectType(GameEntity::missileobject);
     setMeshName(nMeshName);
     // Set a unique name for the room.
     static int uniqueNumber = 0;

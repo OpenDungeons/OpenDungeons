@@ -34,7 +34,7 @@ class GameEntity
     public:
         enum ObjectType
         {
-            unknown, creature, room, trap, weapon, roomobject
+            unknown, creature, room, trap, weapon, roomobject, missileobject, tile
         };
 
         //! \brief Default constructor with default values
@@ -50,7 +50,7 @@ class GameEntity
             level       (nLevel),
             active      (true),
             attackable  (true),
-            type        (unknown),
+            objectType  (unknown),
             gameMap     (0)
         { }
         virtual ~GameEntity(){}
@@ -78,7 +78,7 @@ class GameEntity
         inline bool                 isAttackable    () const    { return attackable; }
 
         //! \brief Get the type of this object
-        inline ObjectType           getType         () const    { return type; }
+        inline ObjectType           getObjectType   () const    { return objectType; }
 
         //! \brief Pointer to the GameMap
         inline GameMap*             getGameMap      () const    { return gameMap; }
@@ -100,7 +100,7 @@ class GameEntity
         inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
 
         //! \brief Set the type of the object. Should be done in all final derived constructors
-        inline void setType         (ObjectType nType)              { type = nType; }
+        inline void setObjectType   (ObjectType nType)              { objectType = nType; }
 
         //! \brief set a pointer the MameMap
         inline virtual void         setGameMap                      (GameMap* gameMap)
@@ -181,7 +181,7 @@ class GameEntity
         bool            attackable;
 
         //! \brief What kind of object is it
-        ObjectType      type;
+        ObjectType      objectType;
 
         //! \brief Pointer to the GameMap object.
         GameMap*        gameMap;

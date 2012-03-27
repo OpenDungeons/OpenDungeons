@@ -13,6 +13,8 @@ MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& 
 {
     static int uniqueNumber = 0;
 
+    setObjectType(GameEntity::missileobject);
+
     sem_init(&positionLockSemaphore, 0, 1);
 
     std::stringstream tempSS;

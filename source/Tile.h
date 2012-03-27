@@ -71,6 +71,7 @@ class Tile : public GameEntity
             sem_init(&claimLightLockSemaphore, 0, 1);
 
             setColor(0);
+            setObjectType(GameEntity::tile);
         }
 
         void setType(TileType t);

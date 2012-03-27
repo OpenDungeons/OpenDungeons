@@ -48,11 +48,10 @@ class Window;
  *  will probably be refined later but it works fine for now and the code
  *  affected by this change is relatively limited.
  */
-class Creature: public MovableGameEntity//, public AttackableEntity
+class Creature: public MovableGameEntity
 {
     public:
         Creature(GameMap* gameMap = 0, const std::string& name = "");
-        //~Creature();
 
         void createMesh();
         void destroyMesh();
@@ -133,10 +132,8 @@ class Creature: public MovableGameEntity//, public AttackableEntity
         std::vector<GameEntity*> getVisibleForce(int color, bool invert);
         Tile* positionTile();
         std::vector<Tile*> getCoveredTiles();
-        //int getLevel() const;
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
-        //AttackableEntity::AttackableObjectType getAttackableObjectType() const;
         void clearActionQueue();
 
         Player* getControllingPlayer();
@@ -188,7 +185,6 @@ class Creature: public MovableGameEntity//, public AttackableEntity
         double          exp;
         double          digRate;
         double          danceRate;
-        //int             level;
         int             deathCounter;
         int             gold;
         int             battleFieldAgeCounter;
