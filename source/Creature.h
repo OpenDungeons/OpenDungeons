@@ -116,6 +116,8 @@ class Creature: public MovableGameEntity, public AttackableEntity
 
         // AI stuff
         void doTurn();
+        //TODO: convert doTurn to doUpkeep();
+        bool doUpkeep(){return true;}
         double getHitroll(double range);
         double getDefense() const;
         void doLevelUp();

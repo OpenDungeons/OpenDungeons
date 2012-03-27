@@ -5,7 +5,6 @@
 #include <istream>
 #include <ostream>
 
-#include "ActiveEntity.h"
 #include "MovableGameEntity.h"
 
 class Room;
@@ -21,6 +20,8 @@ class RoomObject: public MovableGameEntity
         void createMesh();
         void destroyMesh();
         void deleteYourself();
+
+        bool doUpkeep() {return true;}
 
         std::string getOgreNamePrefix();
 

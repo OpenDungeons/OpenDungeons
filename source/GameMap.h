@@ -81,11 +81,8 @@ class GameMap
         MovableGameEntity* getAnimatedObject(std::string name);
         unsigned int numAnimatedObjects();
 
-        //void clearActiveObjects();
-        void addActiveObject(ActiveEntity *a);
-        void removeActiveObject(ActiveEntity *a);
-        //ActiveObject* getActiveObject(int index);
-        //unsigned int numActiveObjects();
+        void addActiveObject(GameEntity* a);
+        void removeActiveObject(GameEntity* a);
 
         void clearClasses();
         void addClassDescription(CreatureDefinition c);
@@ -275,8 +272,8 @@ class GameMap
         std::vector<MissileObject*> missileObjects;
         int nextUniqueFloodFillColor;
         bool floodFillEnabled;
-        std::vector<ActiveEntity*> activeObjects;
-        std::queue<ActiveEntity*> newActiveObjects; // active objects that are created by other active object, i.e. : cannon balls
+        std::vector<GameEntity*> activeObjects;
+        std::queue<GameEntity*> newActiveObjects; // active objects that are created by other active object, i.e. : cannon balls
 
         std::map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
         std::map<long int, std::vector<Creature*> > creaturesToDelete;

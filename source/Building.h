@@ -8,7 +8,6 @@
 #ifndef BUILDING_H_
 #define BUILDING_H_
 
-#include "ActiveEntity.h"
 #include "AttackableEntity.h"
 #include "GameEntity.h"
 
@@ -21,7 +20,7 @@ class Seat;
  * should be placed into this classand initialised with a good default value in the default
  * constructor. Member variables are private and only accessed through getters and setters.
  */
-class Building : public GameEntity, public AttackableEntity, public ActiveEntity
+class Building : public GameEntity, public AttackableEntity
 {
     public:
         //! \brief Default constructor with default values

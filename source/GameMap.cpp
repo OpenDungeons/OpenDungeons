@@ -593,36 +593,36 @@ unsigned int GameMap::numAnimatedObjects()
     return tempUnsigned;
 }
 
-//void GameMap::clearActiveObjects()
-
-void GameMap::addActiveObject(ActiveEntity *a)
+void GameMap::addActiveObject(GameEntity *a)
 {
-    sem_wait(&activeObjectsLockSemaphore);
-    activeObjects.push_back(a);
-    sem_post(&activeObjectsLockSemaphore);
-}
-
-void GameMap::removeActiveObject(ActiveEntity *a)
-{
-    sem_wait(&activeObjectsLockSemaphore);
-
-    // Loop over the activeObjects looking for activeObject a
-    for (unsigned int i = 0; i < activeObjects.size(); ++i)
+    if(a->isActive())
     {
-        if (a == activeObjects[i])
-        {
-            // ActiveObject found
-            activeObjects.erase(activeObjects.begin() + i);
-            break;
-        }
+        sem_wait(&activeObjectsLockSemaphore);
+        activeObjects.push_back(a);
+        sem_post(&activeObjectsLockSemaphore);
     }
-
-    sem_post(&activeObjectsLockSemaphore);
 }
 
-//ActiveObject* GameMap::getActiveObject(int index)
+void GameMap::removeActiveObject(GameEntity *a)
+{
+    if(a->isActive())
+    {
+        sem_wait(&activeObjectsLockSemaphore);
 
-//unsigned int GameMap::numActiveObjects()
+        // Loop over the activeObjects looking for activeObject a
+        for (unsigned int i = 0; i < activeObjects.size(); ++i)
+        {
+            if (a == activeObjects[i])
+            {
+                // ActiveObject found
+                activeObjects.erase(activeObjects.begin() + i);
+                break;
+            }
+        }
+
+        sem_post(&activeObjectsLockSemaphore);
+    }
+}
 
 /*! \brief Returns the total number of class descriptions stored in this game map.
  *

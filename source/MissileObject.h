@@ -7,12 +7,11 @@
 #include <Ogre.h>
 #include <semaphore.h>
 
-#include "ActiveEntity.h"
 #include "MovableGameEntity.h"
 
 class GameMap;
 
-class MissileObject: public ActiveEntity, public MovableGameEntity
+class MissileObject: public MovableGameEntity
 {
     public:
         MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap& gameMap);

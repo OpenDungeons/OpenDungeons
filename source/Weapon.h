@@ -53,6 +53,8 @@ class Weapon : public GameEntity
         inline const double    getRange() const                    { return range; }
         inline void            setRange(const double nRange)       { range = nRange; }
 
+        bool doUpkeep(){ return true; }
+
     private:
         std::string handString;
         double      damage;

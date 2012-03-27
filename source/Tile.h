@@ -140,6 +140,8 @@ class Tile : public GameEntity
         int floodFillColor;
         Ogre::Real rotation;
 
+        bool doUpkeep(){ return true; }
+
     private:
         void setFullnessValue(double f);
         // Private datamembers

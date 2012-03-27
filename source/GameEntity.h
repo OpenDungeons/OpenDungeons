@@ -10,8 +10,6 @@
 
 #include <string>
 
-#include <semaphore.h>
-
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
  *
@@ -32,17 +30,14 @@ class GameEntity
             meshName    (nMeshName),
             meshExists  (false),
             color       (nColor),
-            level       (nLevel)
-        {
-            //TODO: find out why this crashes, or replace whole thread system with boost thread
-            //sem_init(&nameLockSemaphore, 1, 1);
-        }
+            level       (nLevel),
+            active      (true)
+        { }
         virtual ~GameEntity(){}
 
         // ===== GETTERS =====
         //! \brief Get the name of the object
         inline const std::string&   getName         () const    { return name; }
-        //inline const std::string&   getName         () const    { sem_wait(&nameLockSemaphore); const std::string& tempName = name; sem_post(&nameLockSemaphore); return tempName; }
 
         //! \brief Get the mesh name of the object
         inline const std::string&   getMeshName     () const    { return meshName; }
@@ -56,10 +51,12 @@ class GameEntity
         //! \brief Get if the mesh is already existing
         inline bool                 isMeshExisting  () const    { return meshExists; }
 
+        //! \brief Get if the object is active (doing sth. on its own) or not
+        inline bool                 isActive        () const    { return active; }
+
         // ===== SETTERS =====
         //! \brief Set the name of the entity
         inline void setName         (const std::string& nName)      { name = nName; }
-        //inline void setName         (const std::string& nName)      { sem_wait(&nameLockSemaphore); name = nName; sem_post(&nameLockSemaphore); }
 
         //! \brief Set the name of the mesh file
         inline void setMeshName     (const std::string& nMeshName)  { meshName = nMeshName; }
@@ -83,6 +80,9 @@ class GameEntity
         //! \brief Pure virtual function that implements code for the removal from the map
         virtual void    deleteYourself  () = 0;
 
+        //! \brief defines what happens on each turn with this object
+        virtual bool    doUpkeep        () = 0;
+
     private:
         //! brief The name of the entity
         std::string     name;
@@ -99,7 +99,8 @@ class GameEntity
         //! \brief The level of the object
         unsigned int    level;
 
-        //mutable sem_t   nameLockSemaphore;
+        //! \brief A flag saying whether the object is active (doing something on its own) or not
+        bool            active;
 };
 
 #endif /* GAMEENTITY_H_ */

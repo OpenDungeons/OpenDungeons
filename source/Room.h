@@ -13,7 +13,7 @@ class Seat;
 class RoomObject;
 class GameMap;
 
-class Room: public Building
+class Room : public Building
 {
     public:
         // When room types are added to this enum they also need to be added to the switch statements in Room.cpp.
