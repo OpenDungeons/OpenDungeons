@@ -394,18 +394,6 @@ void Room::destroyRoomObjectMeshes()
     }
 }
 
-void Room::deleteYourself()
-{
-    destroyMesh();
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::deleteRoom;
-    request->p = this;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
-
 std::string Room::getFormat()
 {
     return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";

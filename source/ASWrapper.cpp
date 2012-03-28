@@ -11,11 +11,9 @@
  */
 
 /* TODO list:
- * - decide how many modules (don't forget to adjust loadScript() then)
  * - possible improvements to compilation of scripts? (AS has an addon)
  * - bind all needed classes
  * - find out if we really need all the asserts (binary size, start up time).
- * - should the helper function get their own file? Maybe useful for other stuff, too
  */
 
 #include <string>

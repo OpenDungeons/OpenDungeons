@@ -19,7 +19,6 @@ class RoomObject: public MovableGameEntity
 
         void createMesh();
         void destroyMesh();
-        void deleteYourself();
 
         //TODO: implment these in a good way
         bool doUpkeep() {return true;}

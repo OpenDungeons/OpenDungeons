@@ -123,9 +123,10 @@ std::istream& operator>>(std::istream& is, Creature *c)
 {
     double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
     double tempDouble;
+    std::string className;
     std::string tempString;
 
-    is >> c->className;
+    is >> className;
     is >> tempString;
 
     if (tempString.compare("autoname") == 0)
@@ -151,7 +152,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->weaponR->setHandString("R");
 
     // Copy the class based items
-    CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(c->className);
+    CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(className);
     if (creatureClass != 0)
     {
         //*c = *creatureClass;
@@ -2013,31 +2014,6 @@ std::vector<Tile*> Creature::getCoveredTiles()
     std::vector<Tile*> tempVector;
     tempVector.push_back(positionTile());
     return tempVector;
-}
-
-/*! \brief Completely destroy this creature, including its OGRE entities, scene nodes, etc.
- *
- */
-void Creature::deleteYourself()
-{
-    // Make sure the weapons are deleted as well.
-    weaponL->deleteYourself();
-    weaponR->deleteYourself();
-
-    // If we are standing in a valid tile, we need to notify that tile we are no longer there.
-    if (positionTile() != NULL)
-        positionTile()->removeCreature(this);
-
-    if (isMeshExisting())
-        destroyMesh();
-
-    // Create a render request asking the render queue to actually do the deletion of this creature.
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::deleteCreature;
-    request->p = static_cast<void*>(this);
-
-    // Add the requests to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
 }
 
 /*! \brief Creates a string with a unique number embedded into it so the creature's name will not be the same as any other OGRE entity name.

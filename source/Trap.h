@@ -42,7 +42,6 @@ class Trap : public Building
 
         void createMesh();
         void destroyMesh();
-        void deleteYourself();
 
         inline const TrapType& getType() const{return type;}
         static std::string getMeshNameFromTrapType(TrapType t);

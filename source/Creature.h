@@ -23,7 +23,6 @@
 
 #include "CreatureSound.h"
 #include "CreatureDefinition.h"
-//#include "AttackableEntity.h"
 #include "CreatureAction.h"
 #include "MovableGameEntity.h"
 
@@ -55,7 +54,6 @@ class Creature: public MovableGameEntity
 
         void createMesh();
         void destroyMesh();
-        void deleteYourself();
         std::string getUniqueCreatureName();
 
         //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
@@ -201,9 +199,6 @@ class Creature: public MovableGameEntity
         Field*          battleField;
         RoomDojo*       trainingDojo;
         CEGUI::Window*  statsWindow;
-
-        //TODO? isn't this something for CreatureDefintion?
-        std::string                     className;
 
         std::vector<Tile*>              visibleTiles;
         std::vector<GameEntity*>        visibleEnemyObjects;

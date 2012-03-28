@@ -62,20 +62,6 @@ void RoomObject::destroyMesh()
     parentRoom->getGameMap()->removeAnimatedObject(this);
 }
 
-void RoomObject::deleteYourself()
-{
-    if (isMeshExisting())
-        destroyMesh();
-
-    // Create a render request asking the render queue to actually do the deletion of this creature.
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::deleteRoomObject;
-    request->p = this;
-
-    // Add the requests to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
-
 std::string RoomObject::getOgreNamePrefix()
 {
     return "RoomObject_";

@@ -10,6 +10,7 @@
  * - complete the constructor
  * - add semaphores if/where needed
  * - default mesh handle code instead of pure virtuals that do almost the same in every subclass
+ * - static removeDeadObjects should not be in here (maybe in GameMap?)
  */
 
 #ifndef GAMEENTITY_H_
@@ -109,12 +110,10 @@ class GameEntity
         virtual void    destroyMesh     () = 0;
 
         //! \brief Pure virtual function that implements code for the removal from the map
-        virtual void    deleteYourself  () = 0;
+        virtual void    deleteYourself  ();
 
         //! \brief defines what happens on each turn with this object
         virtual bool    doUpkeep        () = 0;
-
-
 
         //! \brief Returns a list of the tiles that this object is in/covering.  For creatures and other small objects
         //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
@@ -141,8 +140,6 @@ class GameEntity
 
             return ret;
         }
-
-
 
     private:
         //! brief The name of the entity

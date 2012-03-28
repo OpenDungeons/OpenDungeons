@@ -828,24 +828,6 @@ bool Tile::isMarkedForDiggingByAnySeat()
     return !playersMarkingTile.empty();
 }
 
-/*! \brief This function places a message in the render queue to unload the mesh and delete the tile structure.
- *
- */
-void Tile::deleteYourself()
-{
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::destroyTile;
-    request->p = static_cast<void*>(this);
-
-    RenderRequest *request2 = new RenderRequest;
-    request2->type = RenderRequest::deleteTile;
-    request2->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-    RenderManager::queueRenderRequest(request2);
-}
-
 /*! \brief This function adds a creature to the list of creatures in this tile.
  *
  */

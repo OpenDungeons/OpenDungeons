@@ -100,6 +100,7 @@ set(OD_SOURCEFILES
     ${SRC}/DirectionalTrap.cpp
     ${SRC}/Field.cpp
     ${SRC}/Functions.cpp
+    ${SRC}/GameEntity.cpp
     ${SRC}/GameMap.cpp
     ${SRC}/GameState.cpp
     ${SRC}/GoalClaimNTiles.cpp

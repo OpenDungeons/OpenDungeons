@@ -22,7 +22,6 @@ class MissileObject: public MovableGameEntity
 
         void createMesh();
         void destroyMesh();
-        void deleteYourself();
 
         std::string getOgreNamePrefix()
         {

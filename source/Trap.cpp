@@ -151,20 +151,6 @@ void Trap::destroyMesh()
     }
 }
 
-void Trap::deleteYourself()
-{
-    if (isMeshExisting())
-        destroyMesh();
-    
-    // Create a render request asking the render queue to actually do the deletion of this creature.
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::deleteTrap;
-        request->p = static_cast<void*>(this);
-        
-        // Add the requests to the queue of rendering operations to be performed before the next frame.
-        RenderManager::queueRenderRequest(request);
-}
-
 std::string Trap::getMeshNameFromTrapType(TrapType t)
 {
     switch (t)
@@ -283,16 +269,6 @@ void Trap::removeCoveredTile(Tile* t)
             break;
         }
     }
-    /*
-     *     // Destroy the mesh for this tile.
-     *     RenderRequest *request = new RenderRequest;
-     *     request->type = RenderRequest::destroyTrap;
-     *     request->p = static_cast<void*>(this);
-     *     request->p2 = t;
-     * 
-     *     // Add the request to the queue of rendering operations to be performed before the next frame.
-     *     RenderManager::queueRenderRequest(request);
-     */
 }
 
 Tile* Trap::getCoveredTile(int index)

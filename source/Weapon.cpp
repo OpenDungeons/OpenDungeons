@@ -45,22 +45,6 @@ void Weapon::destroyMesh()
     RenderManager::queueRenderRequest(request);
 }
 
-void Weapon::deleteYourself()
-{
-    if (isMeshExisting())
-    {
-        destroyMesh();
-    }
-
-    // Create a render request asking the render queue to actually do the deletion of this creature.
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::deleteWeapon;
-    request->p = this;
-
-    // Add the requests to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
-
 std::string Weapon::getFormat()
 {
     //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.

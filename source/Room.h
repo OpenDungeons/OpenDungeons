@@ -51,7 +51,6 @@ class Room : public Building
                 double x, double y, double rotationAngle);
         void createRoomObjectMeshes();
         void destroyRoomObjectMeshes();
-        void deleteYourself();
         const RoomType& getType() const{return type;}
 
         static const char* getMeshNameFromRoomType(RoomType t);
