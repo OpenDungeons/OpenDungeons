@@ -9,7 +9,6 @@
  * - GameMap pointer should not be part of every object, since there is only one GameMap, at least let it set by ctor
  * - complete the constructor
  * - add semaphores if/where needed
- * - default mesh handle code instead of pure virtuals that do almost the same in every subclass
  * - static removeDeadObjects should not be in here (maybe in GameMap?)
  */
 
