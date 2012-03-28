@@ -107,18 +107,3 @@ void MissileObject::createMesh()
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 }
-
-void MissileObject::destroyMesh()
-{
-    if (!isMeshExisting())
-        return;
-
-    setMeshExisting(false);
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::destroyMissileObject;
-    request->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}

@@ -18,7 +18,6 @@ class RoomObject: public MovableGameEntity
         Room* getParentRoom();
 
         void createMesh();
-        void destroyMesh();
 
         //TODO: implment these in a good way
         bool doUpkeep() {return true;}

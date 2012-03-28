@@ -197,29 +197,6 @@ void Creature::createMesh()
     RenderManager::queueRenderRequest(request);
 }
 
-/*! \brief Free the mesh and inform the OGRE system that the mesh has been destroyed.
- *
- *  This function is primarily a helper function for other methods.
- */
-void Creature::destroyMesh()
-{
-    destroyStatsWindow();
-
-    if (!isMeshExisting())
-        return;
-
-    setMeshExisting(false);
-    weaponL->destroyMesh();
-    weaponR->destroyMesh();
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::destroyCreature;
-    request->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
-
 /*! \brief Changes the creature's position to a new position.
  *
  *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).

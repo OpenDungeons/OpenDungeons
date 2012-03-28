@@ -325,27 +325,6 @@ void Room::createMesh()
     }
 }
 
-void Room::destroyMesh()
-{
-    if (!isMeshExisting())
-        return;
-
-    setMeshExisting(false);
-
-    destroyRoomObjectMeshes();
-
-    for (unsigned int i = 0; i < coveredTiles.size(); ++i)
-    {
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::destroyRoom;
-        request->p = this;
-        request->p2 = coveredTiles[i];
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
-        RenderManager::queueRenderRequest(request);
-    }
-}
-
 /*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile, if the tile is NULL the object appears in the room's center, the rotation angle is given in degrees.
  *
  */

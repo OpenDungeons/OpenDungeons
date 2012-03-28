@@ -27,24 +27,6 @@ void Weapon::createMesh()
     RenderManager::queueRenderRequest(request);
 }
 
-void Weapon::destroyMesh()
-{
-    if (!isMeshExisting())
-    {
-        return;
-    }
-
-    setMeshExisting(false);
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::destroyWeapon;
-    request->p = this;
-    request->p2 = parentCreature;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
-
 std::string Weapon::getFormat()
 {
     //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.

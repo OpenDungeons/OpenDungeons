@@ -132,25 +132,6 @@ void Trap::createMesh()
     }
 }
 
-void Trap::destroyMesh()
-{
-    if (!isMeshExisting())
-        return;
-    
-    setMeshExisting(false);
-    
-    for (unsigned int i = 0; i < coveredTiles.size(); ++i)
-    {
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::destroyTrap;
-        request->p = static_cast<void*>(this);
-        request->p2 = coveredTiles[i];
-        
-        // Add the request to the queue of rendering operations to be performed before the next frame.
-        RenderManager::queueRenderRequest(request);
-    }
-}
-
 std::string Trap::getMeshNameFromTrapType(TrapType t)
 {
     switch (t)

@@ -44,24 +44,6 @@ void RoomObject::createMesh()
     parentRoom->getGameMap()->addAnimatedObject(this);
 }
 
-void RoomObject::destroyMesh()
-{
-    if (!isMeshExisting())
-        return;
-
-    setMeshExisting(false);
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::destroyRoomObject;
-    request->p = this;
-    request->p2 = parentRoom;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-
-    parentRoom->getGameMap()->removeAnimatedObject(this);
-}
-
 std::string RoomObject::getOgreNamePrefix()
 {
     return "RoomObject_";

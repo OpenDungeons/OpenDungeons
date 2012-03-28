@@ -107,7 +107,7 @@ class GameEntity
         virtual void    createMesh      () = 0;
 
         //! \brief Pure virtual function that implements the mesh deletion
-        virtual void    destroyMesh     () = 0;
+        virtual void    destroyMesh     ();
 
         //! \brief Pure virtual function that implements code for the removal from the map
         virtual void    deleteYourself  ();

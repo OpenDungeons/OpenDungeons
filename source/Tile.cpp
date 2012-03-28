@@ -678,24 +678,6 @@ void Tile::createMesh()
     RenderManager::queueRenderRequest(request);
 }
 
-/*! \brief This function puts a message in the renderQueue to unload the mesh for this tile.
- *
- */
-void Tile::destroyMesh()
-{
-    if (!isMeshExisting())
-        return;
-
-    setMeshExisting(false);
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::destroyTile;
-    request->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
-
 /*! \brief This function marks the tile as being selected through a mouse click or drag.
  *
  */

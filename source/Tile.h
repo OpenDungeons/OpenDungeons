@@ -90,7 +90,6 @@ class Tile : public GameEntity
 
         void refreshMesh();
         void createMesh();
-        void destroyMesh();
 
         void setSelected(bool s);
         bool getSelected() const;

@@ -41,7 +41,6 @@ class Trap : public Building
         static Trap* createTrapFromStream(std::istream &is, GameMap* gameMap);
 
         void createMesh();
-        void destroyMesh();
 
         inline const TrapType& getType() const{return type;}
         static std::string getMeshNameFromTrapType(TrapType t);

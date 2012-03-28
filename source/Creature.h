@@ -53,7 +53,6 @@ class Creature: public MovableGameEntity
         Creature(GameMap* gameMap = 0, const std::string& name = "");
 
         void createMesh();
-        void destroyMesh();
         std::string getUniqueCreatureName();
 
         //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.

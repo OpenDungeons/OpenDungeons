@@ -30,7 +30,6 @@ class Weapon : public GameEntity
         virtual ~Weapon() {};
 
         void createMesh();
-        void destroyMesh();
 
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Weapon *w);

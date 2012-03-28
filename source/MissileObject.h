@@ -21,7 +21,6 @@ class MissileObject: public MovableGameEntity
         Ogre::Vector3 getPosition();
 
         void createMesh();
-        void destroyMesh();
 
         std::string getOgreNamePrefix()
         {
