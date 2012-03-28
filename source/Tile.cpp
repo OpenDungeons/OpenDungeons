@@ -660,24 +660,6 @@ void Tile::refreshMesh()
     RenderManager::queueRenderRequest(request);
 }
 
-/*! \brief This function puts a message in the renderQueue to load the mesh for this tile.
- *
- */
-void Tile::createMesh()
-{
-    if (isMeshExisting())
-        return;
-
-    setMeshExisting(true);
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::createTile;
-    request->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
-
 /*! \brief This function marks the tile as being selected through a mouse click or drag.
  *
  */

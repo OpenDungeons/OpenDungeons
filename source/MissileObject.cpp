@@ -91,19 +91,3 @@ Ogre::Vector3 MissileObject::getPosition()
 
     return tempVector;
 }
-
-void MissileObject::createMesh()
-{
-    std::cout << "\nCalling createMesh()";
-    if (isMeshExisting())
-        return;
-
-    setMeshExisting(true);
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::createMissileObject;
-    request->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}

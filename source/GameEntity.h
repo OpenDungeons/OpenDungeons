@@ -103,13 +103,13 @@ class GameEntity
         }
 
         // ===== METHODS =====
-        //! \brief Pure virtual function that implements the mesh creation
-        virtual void    createMesh      () = 0;
+        //! \brief Function that implements the mesh creation
+        virtual void    createMesh      ();
 
-        //! \brief Pure virtual function that implements the mesh deletion
+        //! \brief Function that implements the mesh deletion
         virtual void    destroyMesh     ();
 
-        //! \brief Pure virtual function that implements code for the removal from the map
+        //! \brief Function that implements code for the removal from the map
         virtual void    deleteYourself  ();
 
         //! \brief defines what happens on each turn with this object

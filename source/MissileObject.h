@@ -20,8 +20,6 @@ class MissileObject: public MovableGameEntity
         void setPosition(const Ogre::Vector3& v);
         Ogre::Vector3 getPosition();
 
-        void createMesh();
-
         std::string getOgreNamePrefix()
         {
             return "";

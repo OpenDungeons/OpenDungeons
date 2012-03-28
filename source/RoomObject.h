@@ -17,8 +17,6 @@ class RoomObject: public MovableGameEntity
 
         Room* getParentRoom();
 
-        void createMesh();
-
         //TODO: implment these in a good way
         bool doUpkeep() {return true;}
         void recieveExp(double experience){}

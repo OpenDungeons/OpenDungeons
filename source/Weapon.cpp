@@ -1,31 +1,4 @@
 #include "Weapon.h"
-#include "RenderRequest.h"
-#include "Creature.h"
-#include "RenderManager.h"
-
-void Weapon::createMesh()
-{
-    if (isMeshExisting())
-    {
-        return;
-    }
-
-    setMeshExisting(true);
-
-    if (getName().compare("none") == 0)
-    {
-        return;
-    }
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::createWeapon;
-    request->p = this;
-    request->p2 = parentCreature;
-    request->p3 = &handString;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
 
 std::string Weapon::getFormat()
 {

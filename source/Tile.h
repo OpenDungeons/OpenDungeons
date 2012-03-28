@@ -89,7 +89,6 @@ class Tile : public GameEntity
         static std::string meshNameFromFullness(TileType t, int fullnessMeshNumber);
 
         void refreshMesh();
-        void createMesh();
 
         void setSelected(bool s);
         bool getSelected() const;

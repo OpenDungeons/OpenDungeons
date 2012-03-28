@@ -29,8 +29,6 @@ class Weapon : public GameEntity
 
         virtual ~Weapon() {};
 
-        void createMesh();
-
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Weapon *w);
         friend std::istream& operator>>(std::istream& is, Weapon *w);

@@ -174,29 +174,6 @@ Creature& Creature::operator=(const CreatureDefinition* c2)
     return *this;
 }
 
-/*! \brief Allocate storage for, load, and inform OGRE about a mesh for this creature.
- *
- *  This function is called after a creature has been loaded from hard disk,
- *  received from a network connection, or created during the game play by the
- *  game engine itself.
- */
-void Creature::createMesh()
-{
-    if (isMeshExisting())
-        return;
-
-    setMeshExisting(true);
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::createCreature;
-    request->str = definition->getMeshName();
-    request->vec = definition->getScale();
-    request->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-}
-
 /*! \brief Changes the creature's position to a new position.
  *
  *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).

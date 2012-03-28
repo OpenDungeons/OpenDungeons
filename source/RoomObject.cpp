@@ -10,7 +10,7 @@
 RoomObject::RoomObject(Room* nParentRoom, const std::string& nMeshName) :
         parentRoom(nParentRoom)
 {
-    setObjectType(GameEntity::missileobject);
+    setObjectType(GameEntity::roomobject);
     setMeshName(nMeshName);
     // Set a unique name for the room.
     static int uniqueNumber = 0;
@@ -22,26 +22,6 @@ RoomObject::RoomObject(Room* nParentRoom, const std::string& nMeshName) :
 Room* RoomObject::getParentRoom()
 {
     return parentRoom;
-}
-
-void RoomObject::createMesh()
-{
-    if (isMeshExisting())
-        return;
-
-    setMeshExisting(true);
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::createRoomObject;
-    request->p = this;
-    request->p2 = parentRoom;
-    request->str = getName();
-    request->p3 = new std::string(getMeshName());
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-
-    parentRoom->getGameMap()->addAnimatedObject(this);
 }
 
 std::string RoomObject::getOgreNamePrefix()

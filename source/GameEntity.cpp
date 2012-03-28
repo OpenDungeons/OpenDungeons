@@ -15,6 +15,110 @@
 
 #include "GameEntity.h"
 
+void GameEntity::createMesh()
+{
+    if (meshExists)
+    {
+        return;
+    }
+
+    meshExists = true;
+
+    RenderRequest* request = new RenderRequest;
+
+    switch(objectType)
+    {
+        case creature:
+            request->type   = RenderRequest::createCreature;
+            request->str    = static_cast<Creature*>(this)->getDefinition()->getMeshName();
+            request->vec    = static_cast<Creature*>(this)->getDefinition()->getScale();
+            break;
+
+        case room:
+        {
+            for (unsigned int i = 0, size = getCoveredTiles().size(); i < size; ++i)
+            {
+                RenderRequest* r = new RenderRequest;
+
+                r->type = RenderRequest::createRoom;
+                r->p    = static_cast<void*>(this);
+                r->p2   = getCoveredTiles()[i];
+
+                RenderManager::queueRenderRequest(r);
+            }
+
+            //delete original request and return because rooms create every tile separately
+            delete request;
+            return;
+        }
+
+        case roomobject:
+        {
+            Room* tempRoom = static_cast<RoomObject*>(this)->getParentRoom();
+
+            request->type   = RenderRequest::createRoomObject;
+            request->p2     = tempRoom;
+            request->str    = getName();
+            request->p3     = new std::string(getMeshName());
+
+            tempRoom->getGameMap()->addAnimatedObject(static_cast<MovableGameEntity*>(this));
+            break;
+        }
+
+        case missileobject:
+            request->type = RenderRequest::createMissileObject;
+            break;
+
+        case trap:
+        {
+            for (unsigned int i = 0; i < getCoveredTiles().size(); ++i)
+            {
+                RenderRequest* r = new RenderRequest;
+
+                r->type = RenderRequest::createTrap;
+                r->p    = static_cast<void*>(this);
+                r->p2   = getCoveredTiles()[i];
+
+                RenderManager::queueRenderRequest(r);
+            }
+
+            //delete original request and return because traps create every tile separately
+            delete request;
+            return;
+        }
+
+        case tile:
+            request->type = RenderRequest::createTile;
+            break;
+
+        case weapon:
+        {
+            if (getName().compare("none") == 0)
+            {
+                delete request;
+                return;
+            }
+
+            Weapon* tempWeapon = static_cast<Weapon*>(this);
+
+            request->type   = RenderRequest::createWeapon;
+            request->p      = static_cast<void*>(this);
+            request->p2     = tempWeapon->getParentCreature();
+            request->p3     = new std::string(tempWeapon->getHandString());
+
+            break;
+        }
+
+        default:
+            request->type = RenderRequest::noRequest;
+            break;
+    }
+
+    request->p = static_cast<void*>(this);
+
+    RenderManager::queueRenderRequest(request);
+}
+
 void GameEntity::destroyMesh()
 {
     if(!meshExists)

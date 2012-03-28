@@ -43,8 +43,6 @@ class Room : public Building
         friend std::ostream& operator<<(std::ostream& os, Room *r);
         friend std::istream& operator>>(std::istream& is, Room *r);
 
-        virtual void createMesh();
-
         RoomObject* loadRoomObject(std::string meshName, Tile *targetTile =
                 NULL, double rotationAngle = 0.0);
         RoomObject* loadRoomObject(std::string meshName, Tile *targetTile,

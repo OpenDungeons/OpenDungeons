@@ -306,25 +306,6 @@ const Tile* Room::getCentralTile() const
     return getGameMap()->getTile((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
-void Room::createMesh()
-{
-    if (isMeshExisting())
-        return;
-
-    setMeshExisting(true);
-
-    for (unsigned int i = 0, size = coveredTiles.size(); i < size; ++i)
-    {
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::createRoom;
-        request->p = this;
-        request->p2 = coveredTiles[i];
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
-        RenderManager::queueRenderRequest(request);
-    }
-}
-
 /*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile, if the tile is NULL the object appears in the room's center, the rotation angle is given in degrees.
  *
  */

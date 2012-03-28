@@ -113,25 +113,6 @@ Trap* Trap::createTrapFromStream(std::istream &is, GameMap* gameMap)
     return returnTrap;
 }
 
-void Trap::createMesh()
-{
-    if (isMeshExisting())
-        return;
-    
-    setMeshExisting(true);
-    
-    for (unsigned int i = 0; i < coveredTiles.size(); ++i)
-    {
-        RenderRequest *request = new RenderRequest;
-        request->type = RenderRequest::createTrap;
-        request->p = static_cast<void*>(this);
-        request->p2 = coveredTiles[i];
-        
-        // Add the request to the queue of rendering operations to be performed before the next frame.
-        RenderManager::queueRenderRequest(request);
-    }
-}
-
 std::string Trap::getMeshNameFromTrapType(TrapType t)
 {
     switch (t)
