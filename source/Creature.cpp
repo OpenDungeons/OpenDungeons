@@ -103,11 +103,7 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
 {
     os << c->definition->getClassName() << "\t" << c->getName() << "\t";
 
-    sem_wait(&c->positionLockSemaphore);
-    os << c->position.x << "\t" << c->position.y << "\t" << c->position.z
-            << "\t";
-    sem_post(&c->positionLockSemaphore);
-
+    os << c->getPosition() << "\t";
     os << c->getColor() << "\t";
     os << c->weaponL << "\t" << c->weaponR << "\t";
     os << c->getHP() << "\t";
@@ -135,7 +131,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setName(tempString);
 
     is >> xLocation >> yLocation >> zLocation;
-    c->setPosition(xLocation, yLocation, zLocation);
+    c->setPosition(Ogre::Vector3(xLocation, yLocation, zLocation));
 
     int color = 0;
     is >> color;
@@ -180,17 +176,6 @@ Creature& Creature::operator=(const CreatureDefinition* c2)
  */
 void Creature::setPosition(const Ogre::Vector3& v)
 {
-    setPosition(v.x, v.y, v.z);
-}
-
-/*! \brief Changes the creature's position to a new position.
- *
- *  Moves the creature to a new location in 3d space.  This function is
- *  responsible for informing OGRE anything it needs to know, as well as
- *  maintaining the list of creatures in the individual tiles.
- */
-void Creature::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
-{
     // If we are on the gameMap we may need to update the tile we are in
     if (getIsOnMap())
     {
@@ -199,35 +184,29 @@ void Creature::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
         // tile the creature is in before and after the move to properly
         // maintain the results returned by the positionTile() function.
         Tile *oldPositionTile = positionTile();
-        sem_wait(&positionLockSemaphore);
-        position = Ogre::Vector3(x, y, z);
-        sem_post(&positionLockSemaphore);
+        MovableGameEntity::setPosition(v);
         Tile *newPositionTile = positionTile();
 
         if (oldPositionTile != newPositionTile)
         {
-            if (oldPositionTile != NULL)
+            if (oldPositionTile != 0)
                 oldPositionTile->removeCreature(this);
 
-            if (positionTile() != NULL)
+            if (positionTile() != 0)
                 positionTile()->addCreature(this);
         }
     }
     else
     {
         // We are not on the map
-        sem_wait(&positionLockSemaphore);
-        position = Ogre::Vector3(x, y, z);
-        sem_post(&positionLockSemaphore);
+        MovableGameEntity::setPosition(v);
     }
-
-    //attackSound->setPosition(x, y, z);
 
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
     request->str = getName() + "_node";
-    request->vec = position;
+    request->vec = v;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
@@ -1953,9 +1932,7 @@ void Creature::destroyVisualDebugEntities()
  */
 Tile* Creature::positionTile()
 {
-    sem_wait(&positionLockSemaphore);
-    Ogre::Vector3 tempPosition(position);
-    sem_post(&positionLockSemaphore);
+    Ogre::Vector3 tempPosition = getPosition();
 
     return getGameMap()->getTile((int) (tempPosition.x), (int) (tempPosition.y));
 }

@@ -129,7 +129,7 @@ void RoomPortal::spawnCreature()
     // Set the creature specific parameters.
     //NOTE:  This needs to be modified manually when the level file creature format changes.
     newCreature->setName(newCreature->getUniqueCreatureName());
-    newCreature->setPosition(xCenter, yCenter, 0.0);
+    newCreature->setPosition(Ogre::Vector3(xCenter, yCenter, 0.0));
     newCreature->setColor(getColor());
 
     //NOTE:  This needs to be modified manually when the level file weapon format changes.

@@ -646,7 +646,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
                 mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
                 ODFrameListener::getSingleton().getCreatureSceneNode()->addChild(node);
                 mDragType = nullDragType;
-                gameMap->getCreature(draggedCreature)->setPosition(xPos, yPos, 0);
+                gameMap->getCreature(draggedCreature)->setPosition(Ogre::Vector3(xPos, yPos, 0));
             }
         }
 

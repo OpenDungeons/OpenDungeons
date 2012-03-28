@@ -99,7 +99,6 @@ class Creature: public MovableGameEntity
         const CreatureDefinition* getDefinition() const { return definition; }
 
         // ----- SETTERS -----
-        void setPosition        (Ogre::Real x, Ogre::Real y, Ogre::Real z);
         void setPosition        (const Ogre::Vector3& v);
         void setHP              (double nHP);
         void setIsOnMap         (bool nIsOnMap);

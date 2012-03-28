@@ -194,8 +194,8 @@ bool Player::dropCreature(Tile* t, unsigned int index)
                 RenderManager::queueRenderRequest(request);
             }
 
-			c->setPosition(static_cast<Ogre::Real>(t->x), 
-				static_cast<Ogre::Real>(t->y), 0.0);
+			c->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
+				static_cast<Ogre::Real>(t->y), 0.0));
 
             if (this == gameMap->getLocalPlayer() || hasAI)
             {

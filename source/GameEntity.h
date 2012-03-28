@@ -5,19 +5,15 @@
  * \brief  Provides the GameEntity class, the base class for all ingame objects
  */
 
-/* TODO list:
- * - GameMap pointer should not be part of every object, since there is only one GameMap, at least let it set by ctor
- * - complete the constructor
- * - add semaphores if/where needed
- * - static removeDeadObjects should not be in here (maybe in GameMap?)
- */
-
 #ifndef GAMEENTITY_H_
 #define GAMEENTITY_H_
 
 #include <cassert>
 #include <string>
 #include <vector>
+
+#include <semaphore.h>
+#include <Ogre.h>
 
 class GameMap;
 class Tile;
@@ -31,6 +27,13 @@ class Tile;
  */
 class GameEntity
 {
+/* TODO list:
+ * - GameMap pointer should not be part of every object, since there is only one GameMap, at least let it set by ctor
+ * - complete the constructor
+ * - add semaphores if/where needed
+ * - static removeDeadObjects should not be in here (maybe in GameMap?)
+ */
+
     public:
         enum ObjectType
         {
@@ -49,8 +52,12 @@ class GameEntity
             active      (true),
             attackable  (true),
             objectType  (unknown),
+            position    (Ogre::Vector3(0, 0, 0)),
             gameMap     (0)
-        { }
+        {
+            sem_init(&positionLockSemaphore, 0, 1);
+        }
+
         virtual ~GameEntity(){}
 
         // ===== GETTERS =====
@@ -78,6 +85,15 @@ class GameEntity
         //! \brief Pointer to the GameMap
         inline GameMap*             getGameMap      () const    { return gameMap; }
 
+        virtual Ogre::Vector3       getPosition     ()
+        {
+            sem_wait(&positionLockSemaphore);
+            Ogre::Vector3 tempVector = position;
+            sem_post(&positionLockSemaphore);
+
+            return tempVector;
+        }
+
         // ===== SETTERS =====
         //! \brief Set the name of the entity
         inline void setName         (const std::string& nName)      { name = nName; }
@@ -99,6 +115,13 @@ class GameEntity
         {
             this->gameMap = gameMap;
             assert(gameMap != 0);
+        }
+
+        virtual void                setPosition                     (const Ogre::Vector3& v)
+        {
+            sem_wait(&positionLockSemaphore);
+            position = v;
+            sem_post(&positionLockSemaphore);
         }
 
         // ===== METHODS =====
@@ -162,8 +185,14 @@ class GameEntity
         //! \brief What kind of object is it
         ObjectType      objectType;
 
+        //! \brief The position of this object
+        Ogre::Vector3   position;
+
         //! \brief Pointer to the GameMap object.
         GameMap*        gameMap;
+
+        //! \brief The semaphore to lock the position
+        sem_t           positionLockSemaphore;
 };
 
 #endif /* GAMEENTITY_H_ */

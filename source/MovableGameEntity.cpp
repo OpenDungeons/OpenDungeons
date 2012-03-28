@@ -16,38 +16,10 @@ MovableGameEntity::MovableGameEntity() :
         prevAnimationState(""),
         prevAnimationStateLoop(true)
 {
-    sem_init(&positionLockSemaphore, 0, 1);
     sem_init(&animationSpeedFactorLockSemaphore, 0, 1);
-
-    setPosition(Ogre::Vector3(0, 0, 0));
-
     sem_init(&walkQueueLockSemaphore, 0, 1);
 
     setAnimationSpeedFactor(1.0);
-}
-
-void MovableGameEntity::setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z)
-{
-    setPosition(Ogre::Vector3(x, y, z));
-}
-
-void MovableGameEntity::setPosition(const Ogre::Vector3& v)
-{
-    sem_wait(&positionLockSemaphore);
-    position = v;
-    sem_post(&positionLockSemaphore);
-}
-
-/*! \brief A simple accessor function to get the object's current position in 3d space.
- *
- */
-Ogre::Vector3 MovableGameEntity::getPosition()
-{
-    sem_wait(&positionLockSemaphore);
-    Ogre::Vector3 tempVector(position);
-    sem_post(&positionLockSemaphore);
-
-    return tempVector;
 }
 
 /*! \brief Adds a position in 3d space to an animated object's walk queue and, if necessary, starts it walking.
@@ -57,7 +29,6 @@ Ogre::Vector3 MovableGameEntity::getPosition()
  */
 void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
-    //cout << "w(" << x << ", " << y << ") ";
     Ogre::Vector3 destination(x, y, z);
 
     // if there are currently no destinations in the walk queue
@@ -162,7 +133,7 @@ void MovableGameEntity::stopWalking()
 void MovableGameEntity::faceToward(int x, int y)
 {
     // Rotate the object to face the direction of the destination
-    Ogre::Vector3 tempPosition = position;
+    Ogre::Vector3 tempPosition = getPosition();
 	walkDirection = Ogre::Vector3(
 		static_cast<Ogre::Real>(x),
 		static_cast<Ogre::Real>(y),

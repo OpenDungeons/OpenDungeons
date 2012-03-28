@@ -20,10 +20,6 @@ class MovableGameEntity : public GameEntity
         MovableGameEntity();
         virtual ~MovableGameEntity() {};
 
-        virtual void setPosition(Ogre::Real x, Ogre::Real y, Ogre::Real z);
-        virtual void setPosition(const Ogre::Vector3& v);
-        virtual Ogre::Vector3 getPosition();
-
         void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0);
         bool setWalkPath(std::list<Tile*> path, unsigned int minDestinations,
                 bool addFirstStop);
@@ -41,7 +37,6 @@ class MovableGameEntity : public GameEntity
 
         std::deque<Ogre::Vector3> walkQueue;
 
-        sem_t positionLockSemaphore;
         sem_t walkQueueLockSemaphore;
         bool walkQueueFirstEntryAdded;
         Ogre::Vector3 walkDirection;
@@ -54,7 +49,6 @@ class MovableGameEntity : public GameEntity
         virtual std::string getOgreNamePrefix() = 0;
 
     protected:
-        Ogre::Vector3 position;
         double moveSpeed;
         std::string prevAnimationState;
         bool prevAnimationStateLoop;
