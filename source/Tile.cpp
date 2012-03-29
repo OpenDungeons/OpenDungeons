@@ -104,7 +104,7 @@ void Tile::setFullness(double f)
     if (oldTilePassability != getTilePassability())
     {
         // Do a flood fill to update the contiguous region touching the tile.
-        gameMap->doFloodFill(x, y);
+        getGameMap()->doFloodFill(x, y);
     }
 
     // 		4 0 7		    180
@@ -112,13 +112,13 @@ void Tile::setFullness(double f)
     // 		7 1 5		     0
     //
     bool fillStatus[9];
-    Tile *tempTile = gameMap->getTile(x, y + 1);
+    Tile *tempTile = getGameMap()->getTile(x, y + 1);
     fillStatus[0] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
-    tempTile = gameMap->getTile(x, y - 1);
+    tempTile = getGameMap()->getTile(x, y - 1);
     fillStatus[1] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
-    tempTile = gameMap->getTile(x - 1, y);
+    tempTile = getGameMap()->getTile(x - 1, y);
     fillStatus[2] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
-    tempTile = gameMap->getTile(x + 1, y);
+    tempTile = getGameMap()->getTile(x + 1, y);
     fillStatus[3] = (tempTile != NULL) ? tempTile->getFullness() > 0.1 : false;
 
     int fullNeighbors = 0;
@@ -715,7 +715,7 @@ void Tile::setMarkedForDigging(bool s, Player *p)
 
     if (getMarkedForDigging(p) != s)
     {
-        bool thisRequestIsForMe = (p == gameMap->getLocalPlayer());
+        bool thisRequestIsForMe = (p == getGameMap()->getLocalPlayer());
         if (thisRequestIsForMe)
         {
             Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
@@ -764,10 +764,10 @@ void Tile::setMarkedForDigging(bool s, Player *p)
  */
 void Tile::setMarkedForDiggingForAllSeats(bool s)
 {
-    setMarkedForDigging(s, gameMap->getLocalPlayer());
+    setMarkedForDigging(s, getGameMap()->getLocalPlayer());
 
-    for (unsigned int i = 0, num = gameMap->numPlayers(); i < num; ++i)
-        setMarkedForDigging(s, gameMap->getPlayer(i));
+    for (unsigned int i = 0, num = getGameMap()->numPlayers(); i < num; ++i)
+        setMarkedForDigging(s, getGameMap()->getPlayer(i));
 }
 
 /*! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.
@@ -1067,7 +1067,7 @@ std::vector<Tile*> Tile::getAllNeighbors()
  */
 void Tile::setGameMap(GameMap* gameMap)
 {
-    this->gameMap = gameMap;
+    GameEntity::setGameMap(gameMap);
     setFullness(fullness);
 }
 

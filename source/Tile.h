@@ -61,8 +61,7 @@ class Tile : public GameEntity
                 fullnessMeshNumber  (-1),
                 coveringRoom        (0),
                 coveringTrap        (false),
-                claimLight          (0),
-                gameMap             (0)
+                claimLight          (0)
         {
             sem_init(&creaturesInCellLockSemaphore, 0, 1);
             sem_init(&fullnessLockSemaphore, 0, 1);
@@ -167,8 +166,6 @@ class Tile : public GameEntity
         mutable sem_t coveringRoomLockSemaphore;
         sem_t claimLightLockSemaphore;
         sem_t neighborsLockSemaphore;
-        
-        GameMap* gameMap;
 };
 
 #endif

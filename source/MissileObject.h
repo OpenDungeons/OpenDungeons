@@ -14,7 +14,7 @@ class GameMap;
 class MissileObject: public MovableGameEntity
 {
     public:
-        MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap& gameMap);
+        MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap* gameMap);
 
         void setPosition(const Ogre::Vector3& v);
 
@@ -36,7 +36,6 @@ class MissileObject: public MovableGameEntity
         static sem_t missileObjectUniqueNumberLockSemaphore;
 
     private:
-        GameMap& gameMap;
         std::deque<Ogre::Vector3> walkQueue;
         sem_t positionLockSemaphore;
 };

@@ -40,7 +40,7 @@ void TrapCannon::damage(std::vector<GameEntity*> enemyAttacked)
 	std::cout << "\nAdding cannonball from " << coveredTiles[0]->x << "," << coveredTiles[0]->y << " to " << enemyAttacked[0]->getCoveredTiles()[0]->x << "," << enemyAttacked[0]->getCoveredTiles()[0]->y << std::endl;
 	// Create the cannonball to move toward the enemy creature.
 	MissileObject *tempMissileObject = new MissileObject(
-        "Cannonball", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, cannonHeight), *getGameMap());
+        "Cannonball", Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, cannonHeight), getGameMap());
 	tempMissileObject->setMoveSpeed(8.0);
 	tempMissileObject->createMesh();
 	//TODO: Make this a pseudo newtonian mechanics solver which computes a parabola passing through the cannon

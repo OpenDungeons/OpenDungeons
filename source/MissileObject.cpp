@@ -8,9 +8,9 @@
 
 sem_t MissileObject::missileObjectUniqueNumberLockSemaphore;
 
-MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap& gameMap) :
-        gameMap(gameMap)
+MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap* gameMap)
 {
+    setGameMap(gameMap);
     static int uniqueNumber = 0;
 
     setObjectType(GameEntity::missileobject);
@@ -41,7 +41,7 @@ bool MissileObject::doUpkeep()
 void MissileObject::stopWalking()
 {
 	MovableGameEntity::stopWalking();
-	gameMap.removeMissileObject(this);
+	getGameMap()->removeMissileObject(this);
 	deleteYourself();
 }
 
