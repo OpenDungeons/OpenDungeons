@@ -6,14 +6,14 @@
 
 class Tile;
 
-typedef boost::multi_array<Tile*, 2> TileArray;
+typedef boost::multi_array<Tile*, 2> TileMultiArray_t;
 
-class TileMap
+class TileArray
 {
 
     public:
-        TileMap();
-        TileMap(size_t sizeX, size_t sizeY, int offsetX, int offsetY);
+        TileArray();
+        TileArray(size_t sizeX, size_t sizeY, int offsetX, int offsetY);
         void initialise(size_t sizeX, size_t sizeY, int offsetX, int offsetY);
         inline void clear(){ array.reset(); };
         void insertTile(Tile* tile);
@@ -24,9 +24,9 @@ class TileMap
             assert(ret != 0);
             return ret;
         }
-        virtual ~TileMap();
+        virtual ~TileArray();
     private:
-        boost::shared_ptr<TileArray> array;
+        boost::shared_ptr<TileMultiArray_t> array;
         int offsetX;
         int offsetY;
 };
