@@ -35,8 +35,8 @@
 #include "ResourceManager.h"
 
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::ms_Singleton = 0;
-#ifdef OD_DEBUG
-//If the application is compiled in debug mode, use the plugins with debug prefix.
+#if defined(OD_DEBUG) && OGRE_PLATFORM == OGRE_PLATFORM_WIN32
+//On windows, if the application is compiled in debug mode, use the plugins with debug prefix.
 const std::string ResourceManager::PLUGINSCFG = "plugins_d.cfg";
 #else
 const std::string ResourceManager::PLUGINSCFG = "plugins.cfg";

@@ -1007,8 +1007,9 @@ bool InputManager::keyPressed(const OIS::KeyEvent &arg)
                 // Quit the game
 
             case OIS::KC_ESCAPE:
-                MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *gameMap);
-                frameListener->requestExit();
+                //MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *gameMap);
+                //frameListener->requestExit();
+                Gui::getSingletonPtr()->switchGuiMode();
                 break;
 
                 // Print a screenshot

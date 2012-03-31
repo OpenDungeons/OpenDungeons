@@ -38,6 +38,7 @@ class Gui : public Ogre::Singleton<Gui>
         CEGUI::MouseButton  convertButton   (const OIS::MouseButtonID& buttonID);
         void                setVisible      (bool visible);
         void                toggleGui       ();
+	void                switchGuiMode();
 
         //Access names of the GUI elements
         static const std::string ROOT;
@@ -72,7 +73,7 @@ class Gui : public Ogre::Singleton<Gui>
         void assignEventHandlers();
 
         std::map<guiSheet, CEGUI::Window*> sheets;
-
+	bool mainMenuMode;
         guiSheet activeSheet;
 
         //Button handlers game UI

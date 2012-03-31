@@ -1,5 +1,5 @@
 /*!
- * \file   InputManager.cpp
+ * \file   InputManager.h
  * \date:  02 July 2011
  * \author StefanP.MUC
  * \brief  

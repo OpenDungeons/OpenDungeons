@@ -41,6 +41,7 @@ Gui::Gui() :
     sheets[ingameMenu] = wmgr->loadWindowLayout("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadWindowLayout("OpenDungeonsMainMenu.layout");
 
+    mainMenuMode = false;
     assignEventHandlers();
 }
 
@@ -222,7 +223,28 @@ bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
  */
 void Gui::toggleGui()
 {
-    loadGuiSheet(activeSheet != hideGui ? hideGui : ingameMenu);
+  if(activeSheet != hideGui)
+    {
+      loadGuiSheet(hideGui);
+    }
+  else
+    {
+      loadGuiSheet(ingameMenu);
+    }
+}
+void Gui::switchGuiMode()
+{
+  if(mainMenuMode)
+    {
+      loadGuiSheet(ingameMenu);
+      mainMenuMode=false;
+    }
+  else
+    {
+      loadGuiSheet(mainMenu);
+      mainMenuMode=true;
+    }
+
 }
 
 /*! \brief shows (true) or hides (false) the GUI
