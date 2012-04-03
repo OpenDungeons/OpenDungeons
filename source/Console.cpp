@@ -105,6 +105,7 @@ void Console::onKeyPressed(const OIS::KeyEvent& arg)
     switch(arg.key)
     {
         case OIS::KC_GRAVE:
+        case OIS::KC_ESCAPE:
         case OIS::KC_F12:
             Console::getSingleton().setVisible(false);
             ODFrameListener::getSingleton().setTerminalActive(false);
@@ -129,7 +130,11 @@ void Console::onKeyPressed(const OIS::KeyEvent& arg)
                 Ogre::String arguments = "";
                 for(size_t i = 1; i< params.size(); ++i)
                 {
-                    arguments += params[i] + ' ';
+                    arguments += params[i];
+                    if(i < params.size() - 1)
+                    {
+                      arguments += ' ';
+                    }
                 }
                 //remove until this point
 
@@ -138,10 +143,13 @@ void Console::onKeyPressed(const OIS::KeyEvent& arg)
                 std::transform(command.begin(), command.end(), command.begin(), ::tolower);
                 std::transform(params[0].begin(), params[0].end(), params[0].begin(), ::tolower);
 
+                
+                
                 //TODO: remove executePromptCommand after it is fully converted
                 //for now try hardcoded commands, and if none is found try AS
                 if(!ODFrameListener::getSingleton().executePromptCommand(command, arguments))
                 {
+                    LogManager::getSingleton().logMessage("Console command: " + command + " - arguments: " + arguments + " - actionscript");
                     ASWrapper::getSingleton().executeConsoleCommand(params);
                 }
 

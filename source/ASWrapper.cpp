@@ -297,11 +297,11 @@ void ASWrapper::registerEverything()
             asMETHOD(GameMap, createAllEntities),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("GameMap",
-            "uint& get_MaxAIThreads()",
+            "uint get_MaxAIThreads()",
             asMETHOD(GameMap, getMaxAIThreads),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("GameMap",
-            "void set_MaxAIThreads(uint &in)",
+            "void set_MaxAIThreads(uint)",
             asMETHOD(GameMap, setMaxAIThreads),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("GameMap",

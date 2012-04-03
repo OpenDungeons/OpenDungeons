@@ -168,8 +168,8 @@ class GameMap
         inline const int maxX() const {return width - 1;}
         inline const int maxY() const {return length - 1;}
 
-        inline const unsigned int& getMaxAIThreads() const {return maxAIThreads;}
-        inline void setMaxAIThreads(const unsigned int& maxThreads) {maxAIThreads = maxThreads;}
+        inline const unsigned int getMaxAIThreads() const {return maxAIThreads;}
+        inline void setMaxAIThreads(const unsigned int maxThreads) {maxAIThreads = maxThreads;}
 
         inline const std::string& getLevelFileName() const {return levelFileName;}
         inline void setLevelFileName(const std::string& maxThreads) {levelFileName = maxThreads;}

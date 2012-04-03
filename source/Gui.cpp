@@ -77,6 +77,8 @@ void Gui::loadGuiSheet(const guiSheet& newSheet)
 {
     activeSheet = newSheet;
     CEGUI::System::getSingletonPtr()->setGUISheet(sheets[newSheet]);
+    //This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
+    CEGUI::System::getSingletonPtr()->signalRedraw();
 }
 
 /*! \brief Assigns all event handlers to the GUI elements

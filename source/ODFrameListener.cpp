@@ -41,6 +41,7 @@
 #include "Seat.h"
 
 #include "ODFrameListener.h"
+#include "Console.h"
 
 template<> ODFrameListener*
         Ogre::Singleton<ODFrameListener>::ms_Singleton = 0;
@@ -330,9 +331,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
             GameMap::turnNumber.get());
     //TODO - we shouldn't have to reprint this every frame.
-    printText(ODApplication::MOTD + "\n" + (terminalActive ? (commandOutput + "\n")
-            : nullString) + (terminalActive ? prompt : nullString)
-            + (terminalActive ? promptCommand : nullString) + "\n" + turnString
+    printText(ODApplication::MOTD + "\n" + turnString
             + "\n" + (!chatMessages.empty() ? chatString : nullString));
 
     // Update the animations on any AnimatedObjects which have them
@@ -1618,6 +1617,9 @@ bool ODFrameListener::executePromptCommand(const std::string& command, std::stri
         //        += "\nCommand not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.\n";
     }
 
+    Console::getSingleton().print(commandOutput);
+    
+    
     return true;
 }
 

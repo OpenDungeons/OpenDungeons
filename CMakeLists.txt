@@ -446,6 +446,8 @@ endif()
 #### Installation ################
 ##################################
 
+#(This is currently not used)
+
 set(OPENDUNGEONS_CONFIGFILES ${CMAKE_CURRENT_SOURCE_DIR}/plugins.cfg)
 
 install(FILES ${OPENDUNGEONS_CONFIGFILES} DESTINATION ${OPENDUNGEONS_DATA_DEST})
@@ -460,9 +462,10 @@ endif()
 #### Copy files to binary dir ####
 ##################################
 
-# Copy level dir from git to build dir if this is not an in-source build
+# Copy level and scripts dir from git to build dir if this is not an in-source build
 if( NOT ${CMAKE_CURRENT_SOURCE_DIR} EQUAL ${CMAKE_CURRENT_BINARY_DIR})
     configure_file(levels_git/Test.level ${CMAKE_CURRENT_BINARY_DIR}/levels_git/Test.level)
+    file(COPY scripts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 ##################################
