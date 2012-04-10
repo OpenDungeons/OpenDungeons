@@ -14,6 +14,7 @@
 #include "LogManager.h"
 
 #include "Functions.h"
+#include "CameraManager.h"
 
 void queueServerNotification(ServerNotification *n)
 {
@@ -38,7 +39,7 @@ bool startServer(GameMap& gameMap)
         LogManager& logManager = LogManager::getSingleton();
         //NOTE: Code added to this routine may also need to be added to GameMap::doTurn() in the "loadNextLevel" stuff.
         // Sit down at the first available seat.
-        gameMap.me->setSeat(gameMap.popEmptySeat());
+        gameMap.getLocalPlayer()->setSeat(gameMap.popEmptySeat());
 
         //NOTE - temporary code to test ai
         Player* aiPlayer = new Player();
@@ -70,6 +71,10 @@ bool startServer(GameMap& gameMap)
         ssps->nFrameListener = ODFrameListener::getSingletonPtr();
         pthread_create(&ODFrameListener::getSingletonPtr()->serverThread,
                 NULL, serverSocketProcessor, (void*) ssps);
+        
+        //Move camera to dungeon temple (FIXME: This should probably not be done here.)
+        Seat* localPlayerSeat = gameMap.getLocalPlayer()->getSeat();
+        CameraManager::getSingleton().flyTo(Ogre::Vector3(localPlayerSeat->startingX, localPlayerSeat->startingY, 0.0));
 
         // Start the thread which will watch for local events to send to the clients
         SNPStruct* snps = new SNPStruct;
