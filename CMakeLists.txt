@@ -286,6 +286,10 @@ endif()
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
 add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 
+
+# set path
+set(BINDIR games CACHE PATH "")
+
 ##################################
 #### Install targets #############
 ##################################
@@ -297,7 +301,7 @@ if(WIN32)
     ) 
 else ()
     install(TARGETS ${PROJECT_BINARY_NAME}
-        DESTINATION games
+        DESTINATION ${BINDIR}
     )
 endif() 
 
@@ -378,7 +382,8 @@ endif()
 if(CMAKE_COMPILER_IS_GNUCXX)
     #TODO - move compiler defs
     #Add compiler warnings
-    add_definitions( "-Wall -Wunused -Wno-deprecated" )
+    #(-fno-strict-aliasing is here to silence a lot of warnings from angelscript)
+    add_definitions( "-Wall -Wunused -Wno-deprecated -fno-strict-aliasing" )
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -427,7 +432,7 @@ else()
 
     #Set data location to where we install if we want to use the installer
     set(OPENDUNGEONS_DATA_DEST share/games/${PROJECT_NAME})
-    set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST})
+    set(OPENDUNGEONS_DATA_PATH ${CMAKE_INSTALL_PREFIX}/${OPENDUNGEONS_DATA_DEST} CACHE PATH "")
 endif()
 
 #Do the configuration
@@ -438,7 +443,7 @@ configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_D
 if(UNIX)
     #On linux, set up the launcher script
     #TODO - add key repeat thing
-	set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME})
+	set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME} CACHE PATH "")
 	configure_file(${CMAKE_CONFIG_DIR}/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
 endif()
 
@@ -455,7 +460,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OP
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.zip.cfg)
 
 if(NOT WIN32)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION games PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION ${BINDIR} PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif()
 
 ##################################
