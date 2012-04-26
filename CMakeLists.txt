@@ -5,6 +5,7 @@ cmake_minimum_required(VERSION 2.8)
 ##################################
 
 #project paths
+set(CMAKE_BUILD_TYPE "Debug")
 set(SRC "${CMAKE_SOURCE_DIR}/source")
 set(DEPENDENCIES_DIR "${CMAKE_SOURCE_DIR}/dependencies")
 set(ANGELSCRIPT_DIR "${DEPENDENCIES_DIR}/angelscript")
