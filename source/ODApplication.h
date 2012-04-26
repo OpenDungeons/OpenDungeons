@@ -42,7 +42,7 @@ class ODApplication : public Ogre::Singleton<ODApplication>
         Ogre::RenderWindow* window;
 
         //TODO: this should not be created here.
-        GameMap* gameMap;
+        //GameMap* gameMap;
 
         void cleanUp();
 };

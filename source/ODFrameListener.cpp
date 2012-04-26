@@ -33,7 +33,7 @@
 #include "RenderManager.h"
 #include "ResourceManager.h"
 #include "ODApplication.h"
-#include "GameState.h"
+#include "GameStateManager.h"
 #include "LogManager.h"
 #include "InputManager.h"
 #include "CameraManager.h"
@@ -55,7 +55,7 @@ template<> ODFrameListener*
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         mWindow(win),
         renderManager(RenderManager::getSingletonPtr()),
         sfxHelper(SoundEffectsHelper::getSingletonPtr()),
@@ -65,9 +65,40 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
         chatMaxMessages(10),
         chatMaxTimeDisplay(20),
         frameDelay(0.0),
-        previousTurn(-1),
-        gameMap(gameMap)
+        previousTurn(-1)
 {
+    renderManager = new RenderManager;
+    gameMap = new GameMap;
+    renderManager->setGameMap(gameMap);
+    
+    //NOTE This is moved here temporarily.
+    try
+    {
+        Ogre::LogManager::getSingleton().logMessage("Creating camera...", Ogre::LML_NORMAL);
+        renderManager->createCamera();
+        Ogre::LogManager::getSingleton().logMessage("Creating viewports...", Ogre::LML_NORMAL);
+        renderManager->createViewports();
+        Ogre::LogManager::getSingleton().logMessage("Creating scene...", Ogre::LML_NORMAL);
+        renderManager->createScene();
+    }
+    catch(Ogre::Exception& e)
+    {
+        ODApplication::displayErrorMessage("Ogre exception when ininialising the render manager:\n"
+            + e.getFullDescription(), false);
+        exit(0);
+        //cleanUp();
+        //return;
+    }
+    catch (std::exception& e)
+    {
+        ODApplication::displayErrorMessage("Exception when ininialising the render manager:\n"
+            + std::string(e.what()), false);
+        exit(0);
+        //cleanUp();
+        //return;
+    }
+    
+    new CameraManager(renderManager->getCamera());
 
     //FIXME: this should be changed to a function or something.
     gameMap->me = new Player();

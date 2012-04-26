@@ -103,7 +103,7 @@ set(OD_SOURCEFILES
     ${SRC}/Functions.cpp
     ${SRC}/GameEntity.cpp
     ${SRC}/GameMap.cpp
-    ${SRC}/GameState.cpp
+    ${SRC}/GameStateManager.cpp
     ${SRC}/GoalClaimNTiles.cpp
     ${SRC}/Goal.cpp
     ${SRC}/GoalKillAllEnemies.cpp

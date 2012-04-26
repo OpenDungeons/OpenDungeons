@@ -16,41 +16,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 /*!
- * \file   GameState.h
+ * \file   GameState.cpp
  * \date   02 May 2011
  * \author oln
- * \brief  Header for class GameState
+ * \brief  Implementation for class GameStateManager
  */
 
-#ifndef GAMESTATE_H
-#define GAMESTATE_H
+#include "GameStateManager.h"
 
-#include <OgreSingleton.h>
 
-/*! \brief Class to manage the state of the game. (if we are in the menu, gameMode etc.)
- *
- */
-class GameState :
-    public Ogre::Singleton<GameState>
+template<> GameStateManager* Ogre::Singleton<GameStateManager>::ms_Singleton = 0;
+
+GameStateManager::GameStateManager()
+:
+    isServer(false),
+    applicationState(GameStateManager::MENU)
 {
-public:
-    enum ApplicationState {
-        MENU,
-        GAME,
-        EDITOR
-    };
-    //add game-modes etc. here
     
-    GameState();
-
-    ApplicationState getApplicationState(){return applicationState;}
-    void setApplicationState(ApplicationState applicationState){this->applicationState = applicationState;}
-    bool getIsServer(){return isServer;}
-    void setIsServer(bool isServer){this->isServer = isServer;}
-private:
-    GameState(const GameState&);
-    bool isServer;
-    ApplicationState applicationState;
-};
-
-#endif // GAMESTATE_H
+}
