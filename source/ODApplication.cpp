@@ -21,7 +21,7 @@
 #include "MiniMap.h"
 #include "LogManager.h"
 #include "Translation.h"
-#include "GameState.h"
+#include "GameStateManager.h"
 #include "CameraManager.h"
 #include "ASWrapper.h"
 #include "Console.h"
@@ -81,8 +81,8 @@ ODApplication::ODApplication() :
     LogManager* logManager = new LogManager();
     logManager->setLogDetail(Ogre::LL_BOREME);
     new Translation();
-    new GameState();
-    RenderManager* renderMgr = new RenderManager();
+    new GameStateManager();
+    //RenderManager* renderMgr = new RenderManager();
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
     new Gui();
@@ -97,11 +97,12 @@ ODApplication::ODApplication() :
     MusicPlayer::getSingleton().start(0);
 
     //TODO: this should not be created here.
-    gameMap = new GameMap;
-    renderMgr->setGameMap(gameMap);
+//    gameMap = new GameMap;
+//    renderMgr->setGameMap(gameMap);
 
     //FIXME: do this only if a level loads after the main menu
     //Try to create the camera, viewport and scene. 
+    /*
     try
     {
         logManager->logMessage("Creating camera...", Ogre::LML_NORMAL);
@@ -124,11 +125,11 @@ ODApplication::ODApplication() :
             + std::string(e.what()), false);
         cleanUp();
         return;
-    }
+    }*/
 
-    new CameraManager(renderMgr->getCamera());
+    //new CameraManager(renderMgr->getCamera());
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
-    root->addFrameListener(new ODFrameListener(window, gameMap));
+    root->addFrameListener(new ODFrameListener(window));
     //TODO: This should be moved once we have separated level loading from startup.
     
 
@@ -197,13 +198,13 @@ void ODApplication::cleanUp()
     delete Gui::getSingletonPtr();
     delete SoundEffectsHelper::getSingletonPtr();
     delete RenderManager::getSingletonPtr();
-    delete GameState::getSingletonPtr();
+    delete GameStateManager::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
     delete CameraManager::getSingletonPtr();
     delete Console::getSingletonPtr();
     delete ASWrapper::getSingletonPtr();
-    delete gameMap;
+    //delete gameMap;
 }
 
 //TODO: find some better places for some of these

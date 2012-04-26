@@ -48,7 +48,7 @@ class ODFrameListener :
 {
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
-        ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap);
+        ODFrameListener(Ogre::RenderWindow* win);
         virtual ~ODFrameListener();
         void requestExit();
         bool getThreadStopRequested();
