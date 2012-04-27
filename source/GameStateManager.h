@@ -26,10 +26,10 @@
 #define GAMESTATE_H
 
 #include <OgreSingleton.h>
-#include <vector>
+#include <stack>
 #include <AbstractGameState.h>
 
-using std::vector;
+using std::stack;
 
 
 
@@ -56,7 +56,7 @@ applicationState;}
     void setIsServer(bool isServer){this->isServer = isServer;}
 private:
     GameStateManager(const GameStateManager&);
-    vector<AbstractGameState*> gameStateStack;
+    stack<AbstractGameState*> gameStateStack;
     bool isServer;
     ApplicationState applicationState;
 };

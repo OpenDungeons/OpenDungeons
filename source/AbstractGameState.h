@@ -11,6 +11,13 @@ namespace OIS { class KeyEvent; }
 class AbstractGameState
 {
 
+
+    enum ApplicationState {
+        MENU,
+        GAME,
+        EDITOR
+    };
+
 public:
     AbstractGameState(GameStateManager& gameStateManager);
     virtual ~AbstractGameState();
