@@ -73,9 +73,8 @@ bool startServer(GameMap& gameMap)
                 NULL, serverSocketProcessor, (void*) ssps);
         
         //Move camera to dungeon temple (FIXME: This should probably not be done here.)
-        // Seat* localPlayerSeat = gameMap.getLocalPlayer()->getSeat();
-        // CameraManager::getSingleton().flyTo(Ogre::Vector3(localPlayerSeat->startingX, localPlayerSeat->startingY, 0.0)
-	// 				    );
+        Seat* localPlayerSeat = gameMap.getLocalPlayer()->getSeat();
+        CameraManager::getSingleton().flyTo(Ogre::Vector3(localPlayerSeat->startingX, localPlayerSeat->startingY, 0.0));
 
         // Start the thread which will watch for local events to send to the clients
         SNPStruct* snps = new SNPStruct;

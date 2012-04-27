@@ -339,12 +339,6 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 static_cast<Ogre::Real>(maxTps)).substr(0, 4);
         turnString += "\nFPS: " + Ogre::StringConverter::toString(
                 mWindow->getStatistics().lastFPS);
-        turnString += "\ntriangleCount: " + Ogre::StringConverter::toString(
-                mWindow->getStatistics().triangleCount);
-        turnString += "\nBatches: " + Ogre::StringConverter::toString(
-                mWindow->getStatistics().batchCount);
-
-
     }
     turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
             GameMap::turnNumber.get());

@@ -17,7 +17,6 @@
 #include "ODApplication.h"
 #include "LogManager.h"
 #include "Seat.h"
-#include "GameMap.h"
 
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
@@ -508,51 +507,33 @@ void *clientHandlerThread(void *p)
 
             // Send over the map tiles from the current game map.
             //TODO: Only send the tiles which the client is supposed to see due to fog of war.
-
-
-
-
-	    for(int ii=0 ; ii < gameMap->mapSizeX; ii++ ){
-	      for(int jj=0 ; jj < gameMap->mapSizeY; jj++ ){
+            TileMap_t::iterator itr = gameMap->firstTile();
+            while (itr != gameMap->lastTile())
+            {
                 tempSS.str("");
-                tempSS << gameMap->getTile(ii,jj);
+                tempSS << itr->second;
                 curSock->send(formatCommand("addtile", tempSS.str()));
                 // Throw away the ok response
                 curSock->recv(tempString);
-	      }
-	    }
-
-
-
-
-
-            // TileMap_t::iterator itr = gameMap->firstTile();
-            // while (itr != gameMap->lastTile())
-            // {
-            //     tempSS.str("");
-            //     tempSS << itr->second;
-            //     curSock->send(formatCommand("addtile", tempSS.str()));
-            //     // Throw away the ok response
-            //     curSock->recv(tempString);
-            //     ++itr;
-            // }
+                ++itr;
+            }
 
             // Send over the map lights from the current game map.
             //TODO: Only send the maplights which the client is supposed to see due to the fog of war.
-            for (unsigned int ii = 0; ii < gameMap->numMapLights(); ++ii)
+            for (unsigned int i = 0; i < gameMap->numMapLights(); ++i)
             {
                 tempSS.str("");
-                tempSS << gameMap->getMapLight(ii);
+                tempSS << gameMap->getMapLight(i);
                 curSock->send(formatCommand("addmaplight", tempSS.str()));
-
+                ++itr;
             }
 
             // Send over the rooms in use on the current game map
             //TODO: Only send the classes which the client is supposed to see due to fog of war.
-            for (unsigned int ii = 0; ii < gameMap->numRooms(); ++ii)
+            for (unsigned int i = 0; i < gameMap->numRooms(); ++i)
             {
                 tempSS.str("");
-                tempSS << gameMap->getRoom(ii);
+                tempSS << gameMap->getRoom(i);
                 curSock->send(formatCommand("addroom", tempSS.str()));
                 // Throw away the ok response
                 curSock->recv(tempString);

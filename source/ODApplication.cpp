@@ -135,7 +135,7 @@ ODApplication::ODApplication() :
     
 
     //FIXME: This should be at a better place (when level loads for the first time)
-    new MiniMap;
+    //new MiniMap;
 
     //FIXME: Is this the best place for instanciating these two?
     //Console needs to exist BEFORE ASWrapper because it needs it for callback

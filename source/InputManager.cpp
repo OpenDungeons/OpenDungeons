@@ -177,50 +177,26 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                         //mSceneMgr->getLight("MouseLight")->setPosition(xPos, yPos, 2.0);
 
                         if (mLMouseDown)
-			  {
+                        {
                             // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
                             //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords rather than the reverse that it is doing now.
-                            // std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(xPos,
-			    // 								  yPos, mLStartDragX, mLStartDragY);
+                            std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(xPos,
+                                                               yPos, mLStartDragX, mLStartDragY);
 
+                            for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
+                                    itr != last; ++itr)
+                            {
+                                if (std::find(affectedTiles.begin(), affectedTiles.end(), itr->second) != affectedTiles.end())
+                                {
+                                    itr->second->setSelected(true);
+                                }
+                                else
+                                {
+                                    itr->second->setSelected(false);
+                                }
+                            }
+                        }
 
-
-			    for (int jj = 0; jj < gameMap->mapSizeY; ++jj)
-			      {
-				for (int ii = 0; ii < gameMap->mapSizeX; ++ii)
-				  {
-
-				    gameMap->getTile(ii,jj)->setSelected(false);
-
-				    // if (std::find(affectedTiles.begin(), affectedTiles.end(), itr->second) != affectedTiles.end())
-				    //   {
-				    // 	gameMap->tiles[ii][jj].setSelected(true);
-				    //   }
-				    // else
-				    //   {
-				    // 	gameMap->tiles[ii][jj].setSelected(false);
-				    //   }
-				  }
-			      }
-
-			    for (int jj = yPos; jj < mLStartDragY; ++jj)
-			      {
-				for (int ii = xPos; ii < mLStartDragX; ++ii)
-				  {
-				    gameMap->getTile(ii,jj)->setSelected(true); 
-				    // {
-				    //     if (std::find(affectedTiles.begin(), affectedTiles.end(), itr->second) != affectedTiles.end())
-				    //     {
-				    //         itr->second->setSelected(true);
-				    //     }
-				    //     else
-				    //     {
-				    //         itr->second->setSelected(false);
-				    //     }
-				    // }
-				  }
-			      }
-			  }
                         if (mRMouseDown)
                         {
                         }
@@ -651,15 +627,11 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
         return true;
 
     // Unselect all tiles
-
-
-
-
-    // for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
-    //         itr != last; ++itr)
-    // {
-    //     itr->second->setSelected(false);
-    // }
+    for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
+            itr != last; ++itr)
+    {
+        itr->second->setSelected(false);
+    }
 
     // Left mouse button up
     if (id == OIS::MB_Left)

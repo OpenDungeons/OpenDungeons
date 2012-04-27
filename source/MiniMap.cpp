@@ -4,7 +4,7 @@
  * \author StefanP.MUC
  * \brief  Contains everything that is related to the minimap
  */
-#include <cstdlib>
+
 #include <CEGUI.h>
 #include <RendererModules/Ogre/CEGUIOgreRenderer.h>
 
@@ -55,9 +55,9 @@ MiniMap::MiniMap() :
              * this is not how it is intended/expected
              */
             ++pDest; //A, unused, shouldn't be here
-            *(++pDest) = rand()%255;  //R
-            *(++pDest) = rand()%255;  //G
-            *(++pDest) = rand()%255;  //B
+            *(++pDest) = 255;  //R
+            *(++pDest) = 255;  //G
+            *(++pDest) = 255;  //B
         }
     }
     pixelBuffer->unlock();
