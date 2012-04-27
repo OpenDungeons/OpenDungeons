@@ -128,8 +128,9 @@ ODApplication::ODApplication() :
     }*/
 
     //new CameraManager(renderMgr->getCamera());
-    logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
+    logManager->logMessage("*** Creating frame listener *** ", Ogre::LML_NORMAL);
     root->addFrameListener(new ODFrameListener(window));
+    logManager->logMessage("*** Frame listener created *** ", Ogre::LML_NORMAL);
     //TODO: This should be moved once we have separated level loading from startup.
     
 

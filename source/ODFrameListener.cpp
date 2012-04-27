@@ -42,6 +42,7 @@
 
 #include "ODFrameListener.h"
 #include "Console.h"
+#include "GameContext.h"
 
 template<> ODFrameListener*
         Ogre::Singleton<ODFrameListener>::ms_Singleton = 0;
@@ -57,7 +58,6 @@ template<> ODFrameListener*
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         mWindow(win),
-        renderManager(RenderManager::getSingletonPtr()),
         sfxHelper(SoundEffectsHelper::getSingletonPtr()),
         mContinue(true),
         terminalActive(false),
@@ -67,43 +67,22 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         frameDelay(0.0),
         previousTurn(-1)
 {
-    renderManager = new RenderManager;
-    gameMap = new GameMap;
-    renderManager->setGameMap(gameMap);
+    LogManager* logManager = LogManager::getSingletonPtr();
+  
+    gameContext.reset(new GameContext(win));
     
-    //NOTE This is moved here temporarily.
-    try
-    {
-        Ogre::LogManager::getSingleton().logMessage("Creating camera...", Ogre::LML_NORMAL);
-        renderManager->createCamera();
-        Ogre::LogManager::getSingleton().logMessage("Creating viewports...", Ogre::LML_NORMAL);
-        renderManager->createViewports();
-        Ogre::LogManager::getSingleton().logMessage("Creating scene...", Ogre::LML_NORMAL);
-        renderManager->createScene();
-    }
-    catch(Ogre::Exception& e)
-    {
-        ODApplication::displayErrorMessage("Ogre exception when ininialising the render manager:\n"
-            + e.getFullDescription(), false);
-        exit(0);
-        //cleanUp();
-        //return;
-    }
-    catch (std::exception& e)
-    {
-        ODApplication::displayErrorMessage("Exception when ininialising the render manager:\n"
-            + std::string(e.what()), false);
-        exit(0);
-        //cleanUp();
-        //return;
-    }
+    gameMap = gameContext.get()->getGameMap();
+  
+    logManager->logMessage("Created context");
     
-    new CameraManager(renderManager->getCamera());
+    renderManager = RenderManager::getSingletonPtr();
 
     //FIXME: this should be changed to a function or something.
     gameMap->me = new Player();
     gameMap->me->setNick("defaultNickName");
     gameMap->me->setGameMap(gameMap);
+    
+    logManager->logMessage("Created player");
     
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
@@ -115,6 +94,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     lightSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Light_scene_node");
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
+    
+    logManager->logMessage("Created scene nodes and ray query");
 
     inputManager = new InputManager(gameMap);
 

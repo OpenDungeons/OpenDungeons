@@ -14,8 +14,9 @@
 #include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 #include <semaphore.h>
+#include <ProtectedObject.h>
 
-template<typename T> class ProtectedObject;
+//template<typename T> class ProtectedObject;
 class RenderRequest;
 class GameMap;
 namespace Ogre
