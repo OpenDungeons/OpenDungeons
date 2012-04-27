@@ -30,7 +30,7 @@ template<> GameStateManager* Ogre::Singleton<GameStateManager>::ms_Singleton = 0
 GameStateManager::GameStateManager()
 :
     isServer(false),
-    applicationState(GameStateManager::MENU)
+    applicationStateId(GameStateManager::MENU)
 {
     
 }
