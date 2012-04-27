@@ -26,6 +26,12 @@
 #define GAMESTATE_H
 
 #include <OgreSingleton.h>
+#include <stack>
+#include <AbstractGameState.h>
+
+using std::stack;
+
+
 
 /*! \brief Class to manage the state of the game. (if we are in the menu, gameMode etc.)
  *
@@ -43,12 +49,14 @@ public:
     
     GameStateManager();
 
-    ApplicationState getApplicationState(){return applicationState;}
+    ApplicationState getApplicationState(){return 
+applicationState;}
     void setApplicationState(ApplicationState applicationState){this->applicationState = applicationState;}
     bool getIsServer(){return isServer;}
     void setIsServer(bool isServer){this->isServer = isServer;}
 private:
     GameStateManager(const GameStateManager&);
+    stack<AbstractGameState*> gameStateStack;
     bool isServer;
     ApplicationState applicationState;
 };

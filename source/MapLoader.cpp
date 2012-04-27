@@ -70,7 +70,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
                 << "\n\n\n";
         exit(1);
     }
-
+    gameMap_b.allocateMapMemory(GameMap::mapSizeX, GameMap::mapSizeY ); 
     gameMap_b.clearAll();
 
     // Read in the name of the next level to load after this one is complete.
@@ -103,6 +103,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
     // Read in the map tiles from disk
     Tile* tempTile;
     levelFile >> objectsToLoad;
+
     gameMap_b.disableFloodFill();
     for (int i = 0; i < objectsToLoad; ++i)
     {
@@ -112,18 +113,34 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
         tempTile = new Tile;
         levelFile >> tempTile;
 
+
+	tempTile->x+=GameMap::mapSizeX/2;
+	tempTile->y+=GameMap::mapSizeY/2;
+        tempTile->setGameMap(&gameMap_b);
         gameMap_b.addTile(tempTile);
+	delete tempTile;
     }
     gameMap_b.enableFloodFill();
 
     // Loop over all the tiles and force them to examine their
     // neighbors.  This allows them to switch to a mesh with fewer
     // polygons if some are hidden by the neighbors.
-    for(TileMap_t::iterator itr = gameMap_b.firstTile(), last = gameMap_b.lastTile();
-            itr != last; ++itr)
-    {
-        itr->second->setFullness(itr->second->getFullness());
+
+    // for(int ii=0 ; ii < mapSizeX; ii++ ){
+    //   for(int jj=0 ; jj < mapSizeY; jj++ ){
+
+    for(int ii=0 ; ii < gameMap_b.mapSizeX; ii++ ){
+      for(int jj=0 ; jj < gameMap_b.mapSizeY; jj++ ){
+
+	gameMap_b.getTile( ii, jj)->setFullness(gameMap_b.getTile( ii, jj)->getFullness());
+      }
     }
+
+    // for(TileMap_t::iterator itr = gameMap_b.firstTile(), last = gameMap_b.lastTile();
+    //         itr != last; ++itr)
+    // {
+    //     itr->second->setFullness(itr->second->getFullness());
+    // }
 
     // Read in the rooms
     Room* tempRoom;
@@ -160,7 +177,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
     // Read in the creature class descriptions
     CreatureDefinition* tempClass;
     levelFile >> objectsToLoad;
-    for (int i = 0; i < objectsToLoad; ++i)
+    for (int i = 0; i < objectsToLoad; ++i )
     {
         tempClass = new CreatureDefinition;
         levelFile >> tempClass;
@@ -170,6 +187,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
 
     // Read in the actual creatures themselves
     Creature* tempCreature;
+    Ogre::Vector3 tempVector;
     levelFile >> objectsToLoad;
     for (int i = 0; i < objectsToLoad; ++i)
     {
@@ -179,7 +197,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
         //Changes to this code should be reflected in that code as well
         tempCreature = new Creature(&gameMap_b);
         levelFile >> tempCreature;
+	
 
+	tempVector = tempCreature->getPosition();
+	tempVector.x+=GameMap::mapSizeX/2;
+	tempVector.y+=GameMap::mapSizeY/2;
+	tempCreature->setPosition(tempVector);
         gameMap_b.addCreature(tempCreature);
 
 
@@ -228,20 +251,35 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap_b)
     levelFile << "\n# Tiles\n" << gameMap_b.numTiles()
             << "  # The number of tiles to load.\n";
     levelFile << "# " << Tile::getFormat() << "\n";
-    TileMap_t::iterator itr = gameMap_b.firstTile();
-    while (itr != gameMap_b.lastTile())
-    {
-        //NOTE: This code is duplicated in the client side method
-        //"addclass" defined in src/Client.cpp and readGameMapFromFile.
-        //Changes to this code should be reflected in that code as well
-        tempTile = itr->second;
+
+
+
+    for(int ii=0 ; ii < gameMap_b.mapSizeX; ii++ ){
+      for(int jj=0 ; jj < gameMap_b.mapSizeY; jj++ ){
+
+	tempTile = gameMap_b.getTile(ii,jj);
         levelFile << tempTile->x << "\t" << tempTile->y << "\t";
         levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
 
         levelFile << std::endl;
 
-        ++itr;
+
+      }
     }
+    // TileMap_t::iterator itr = gameMap_b.firstTile();
+    // while (itr != gameMap_b.lastTile())
+    // {
+    //     //NOTE: This code is duplicated in the client side method
+    //     //"addclass" defined in src/Client.cpp and readGameMapFromFile.
+    //     //Changes to this code should be reflected in that code as well
+    //     tempTile = itr->second;
+    //     levelFile << tempTile->x << "\t" << tempTile->y << "\t";
+    //     levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
+
+    //     levelFile << std::endl;
+
+    //     ++itr;
+    // }
 
     // Write out the rooms to the file
     levelFile << "\n# Rooms\n" << gameMap_b.numRooms()
