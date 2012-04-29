@@ -19,7 +19,7 @@ class AbstractGameState
     };
 
 public:
-    AbstractGameState(GameStateManager& gameStateManager);
+    AbstractGameState(GameStateManager* gameStateManager);
     virtual ~AbstractGameState();
     
     virtual bool frameStarted   (const Ogre::FrameEvent& evt) = 0;
@@ -34,7 +34,7 @@ protected:
         return gameStateManager;
     }
 private:
-    GameStateManager& gameStateManager;
+    GameStateManager* const gameStateManager;
     AbstractGameState* parentState;
 };
 

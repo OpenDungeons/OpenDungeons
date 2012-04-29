@@ -5,17 +5,14 @@
 #include <string>
 #include <set>
 
-
-using namespace std;
-
 class Resource{};
 class Scenario{};
 
 class Director {
  private:
 
-  vector<Scenario> currentScenarios;
-  set<Resource> currentResources;
+  std::vector<Scenario> currentScenarios;
+  std::set<Resource> currentResources;
   int unloadResources();
   int loadResources();
 
@@ -28,8 +25,8 @@ class Director {
   ~Director();
   int playNextScenario();
   int playScenario(int ss);
-  int addScenario( string scenarioFileName );
-  int addScenario( string scenarioFileName, int ss );
+  int addScenario( const std::string& scenarioFileName );
+  int addScenario( const std::string& scenarioFileName, int ss );
   int removeScenario();
   int removeScenario(int ss );
   int clearScenarios();
