@@ -21,7 +21,7 @@
 #include "MiniMap.h"
 #include "LogManager.h"
 #include "Translation.h"
-#include "GameStateManager.h"
+#include "Director.h"
 #include "CameraManager.h"
 #include "ASWrapper.h"
 #include "Console.h"
@@ -81,7 +81,7 @@ ODApplication::ODApplication() :
     LogManager* logManager = new LogManager();
     logManager->setLogDetail(Ogre::LL_BOREME);
     new Translation();
-    new GameStateManager();
+    new Director();
     //RenderManager* renderMgr = new RenderManager();
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
@@ -199,7 +199,7 @@ void ODApplication::cleanUp()
     delete Gui::getSingletonPtr();
     delete SoundEffectsHelper::getSingletonPtr();
     delete RenderManager::getSingletonPtr();
-    delete GameStateManager::getSingletonPtr();
+    delete Director::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
     delete CameraManager::getSingletonPtr();

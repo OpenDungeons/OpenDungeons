@@ -1,7 +1,6 @@
 #include "Director.h"
 
-
-
+template<> Director* Ogre::Singleton<Director>::ms_Singleton = 0;
 
 
 
