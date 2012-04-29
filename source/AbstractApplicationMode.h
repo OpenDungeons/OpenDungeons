@@ -1,5 +1,5 @@
-#ifndef ABSTRACTGAMESTATE_H
-#define ABSTRACTGAMESTATE_H
+#ifndef ABSTRACTAPPLICATIONMODE_H
+#define ABSTRACTAPPLICATIONMODE_H
 
 #include <OIS/OISMouse.h>
 
@@ -8,19 +8,21 @@ namespace Ogre { class FrameEvent; }
 namespace OIS { class KeyEvent; }
 
 
-class AbstractGameState
+class AbstractApplicationMode
 {
 
 
     enum ApplicationState {
         MENU,
         GAME,
-        EDITOR
+        EDITOR,
+	FPP,
+	CONSOLE
     };
 
 public:
-    AbstractGameState(GameStateManager* gameStateManager);
-    virtual ~AbstractGameState();
+    AbstractApplicationMode(GameStateManager* gameStateManager, AbstractApplicationMode* parentState);
+    virtual ~AbstractApplicationMode();
     
     virtual bool frameStarted   (const Ogre::FrameEvent& evt) = 0;
     virtual bool mouseMoved     (const OIS::MouseEvent &arg) = 0;
@@ -29,13 +31,13 @@ public:
     virtual bool keyPressed     (const OIS::KeyEvent &arg) = 0;
     virtual bool keyReleased    (const OIS::KeyEvent &arg) = 0;
 protected:
-    inline GameStateManager& getGameStateManager()
+    inline GameStateManager* getGameStateManager()
     {
         return gameStateManager;
     }
 private:
     GameStateManager* const gameStateManager;
-    AbstractGameState* parentState;
+    AbstractApplicationMode* const parentState;
 };
 
-#endif // ABSTRACTGAMESTATE_H
+#endif // ABSTRACTAPPLICATIONMODE_H

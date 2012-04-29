@@ -33,7 +33,7 @@
 #include "RenderManager.h"
 #include "ResourceManager.h"
 #include "ODApplication.h"
-#include "GameStateManager.h"
+#include "Director.h"
 #include "LogManager.h"
 #include "InputManager.h"
 #include "CameraManager.h"

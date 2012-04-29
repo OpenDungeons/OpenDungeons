@@ -83,6 +83,7 @@ set(OD_SOURCEFILES
     ${TINYGETTEXT_DIR}/tinygettext.cpp
      
     #OpenDungeons sources
+    ${SRC}/AbstractApplicationMode.cpp
     ${SRC}/AIFactory.cpp
     ${SRC}/AIManager.cpp
     ${SRC}/AIWrapper.cpp
@@ -99,13 +100,12 @@ set(OD_SOURCEFILES
     ${SRC}/CreatureSound.cpp
     ${SRC}/DirectionalTrap.cpp
     ${SRC}/Director.cpp
-
     ${SRC}/Field.cpp
     ${SRC}/Functions.cpp
     ${SRC}/GameContext.cpp
     ${SRC}/GameEntity.cpp
     ${SRC}/GameMap.cpp
-    ${SRC}/GameStateManager.cpp
+    #${SRC}/GameStateManager.cpp
     ${SRC}/GoalClaimNTiles.cpp
     ${SRC}/Goal.cpp
     ${SRC}/GoalKillAllEnemies.cpp
