@@ -98,6 +98,8 @@ set(OD_SOURCEFILES
     ${SRC}/CreatureDefinition.cpp
     ${SRC}/CreatureSound.cpp
     ${SRC}/DirectionalTrap.cpp
+    ${SRC}/Director.cpp
+
     ${SRC}/Field.cpp
     ${SRC}/Functions.cpp
     ${SRC}/GameContext.cpp
