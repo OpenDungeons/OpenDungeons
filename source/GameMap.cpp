@@ -1215,7 +1215,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
     while (true)
     {
         // if the openList is empty we failed to find a path
-        if (openList.size() <= 0)
+        if (openList.empty())
             break;
 
         // Get the lowest fScore from the openList and move it to the closed list

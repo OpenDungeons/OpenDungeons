@@ -8,7 +8,7 @@
 #ifndef INPUTMANAGER_H_
 #define INPUTMANAGER_H_
 
-#include </usr/include/OIS/OIS.h>
+#include <OIS.h>
 
 #include "Tile.h"
 
