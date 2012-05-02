@@ -168,6 +168,8 @@ bool Player::dropCreature(Tile* t, unsigned int index)
                 && t->getType() == Tile::dirt) || (t->getType()
                 == Tile::claimed && t->getColor() == gameMap->getLocalPlayer()->getSeat()->getColor())))
         {
+
+	    int foobar =  32 + 32 ; 
             // Add the creature to the map
             Creature *c = creaturesInHand[index];
             creaturesInHand.erase(creaturesInHand.begin() + index);
