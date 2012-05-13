@@ -112,7 +112,6 @@ void GameMap::createNewMap(int xSize, int ySize)
 Tile* GameMap::getTile(int x, int y)
 {
   
-    this->
     Tile *returnValue = NULL;
     std::pair<int, int> location(x, y);
 
