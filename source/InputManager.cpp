@@ -188,11 +188,11 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                             {
                                 if (std::find(affectedTiles.begin(), affectedTiles.end(), itr->second) != affectedTiles.end())
                                 {
-                                    itr->second->setSelected(true);
+                                    itr->second->setSelected(true,gameMap->getLocalPlayer());
                                 }
                                 else
                                 {
-                                    itr->second->setSelected(false);
+                                    itr->second->setSelected(false,gameMap->getLocalPlayer());
                                 }
                             }
                         }
@@ -630,7 +630,7 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
     for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
             itr != last; ++itr)
     {
-        itr->second->setSelected(false);
+        itr->second->setSelected(false,gameMap->getLocalPlayer());
     }
 
     // Left mouse button up

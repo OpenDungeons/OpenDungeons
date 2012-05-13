@@ -58,7 +58,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void rtssTest(); 
 
 		static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
-
+        void colourizeEntity(Ogre::Entity *ent, int colour);
     protected:
         void queueRenderRequest_priv(RenderRequest* renderRequest);
         //Render request functions
@@ -104,7 +104,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         Ogre::Entity* createEntity(const std::string& entityName, const std::string& meshName,
                           const std::string& normalMapTextureName = "");
 
-        void colourizeEntity(Ogre::Entity *ent, int colour);
+
         std::string colourizeMaterial(const std::string& materialName, int color);
     private:
         RenderManager(const RenderManager&);
