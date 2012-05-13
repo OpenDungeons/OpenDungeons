@@ -89,7 +89,7 @@ class Tile : public GameEntity
 
         void refreshMesh();
 
-        void setSelected(bool s);
+        void setSelected(bool ss, Player *pp);
         bool getSelected() const;
 
         void setMarkedForDigging(bool s, Player *p);
