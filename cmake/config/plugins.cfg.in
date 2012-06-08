@@ -10,3 +10,6 @@ Plugin=RenderSystem_GL
 
 #This is a card specific library, installed on some systems but not on others
 Plugin=Plugin_CgProgramManager
+
+#Scene manager
+Plugin=Plugin_OctreeSceneManager
