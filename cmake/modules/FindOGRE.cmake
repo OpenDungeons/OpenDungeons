@@ -28,7 +28,7 @@
 #  Plugin_BSPSceneManager, Plugin_CgProgramManager,
 #  Plugin_OctreeSceneManager, Plugin_OctreeZone,
 #  Plugin_ParticleFX, Plugin_PCZSceneManager,
-#  RenderSystem_GL, RenderSystem_Direct3D9, RenderSystem_Direct3D10,
+#  RenderSystem_GL, RenderSystem_Direct3D9,
 #  Paging, Terrain
 #
 # For each of these components, the following variables are defined:
@@ -69,7 +69,11 @@ else ()
 endif ()
 
 
-set(OGRE_LIBRARY_NAMES "OgreMain${OGRE_LIB_SUFFIX}")
+if(APPLE AND NOT OGRE_BUILD_PLATFORM_APPLE_IOS)
+        set(OGRE_LIBRARY_NAMES "Ogre${OGRE_LIB_SUFFIX}")
+else()
+    set(OGRE_LIBRARY_NAMES "OgreMain${OGRE_LIB_SUFFIX}")
+endif()
 get_debug_names(OGRE_LIBRARY_NAMES)
 
 # construct search paths from environmental hints and
@@ -102,15 +106,15 @@ set(OGRE_PREFIX_BUILD ${OGRE_BUILD} ${ENV_OGRE_BUILD})
 set(OGRE_PREFIX_DEPENDENCIES_DIR ${OGRE_DEPENDENCIES_DIR} ${ENV_OGRE_DEPENDENCIES_DIR})
 if (OGRE_PREFIX_SOURCE AND OGRE_PREFIX_BUILD)
   foreach(dir ${OGRE_PREFIX_SOURCE})
-    set(OGRE_INC_SEARCH_PATH ${dir}/OgreMain/include ${dir}/Dependencies/include ${dir}/iPhoneDependencies/include ${OGRE_INC_SEARCH_PATH})
-    set(OGRE_LIB_SEARCH_PATH ${dir}/lib ${dir}/Dependencies/lib ${dir}/iPhoneDependencies/lib ${OGRE_LIB_SEARCH_PATH})
+    set(OGRE_INC_SEARCH_PATH ${dir}/OgreMain/include ${dir}/Dependencies/include ${dir}/iOSDependencies/include ${OGRE_INC_SEARCH_PATH})
+    set(OGRE_LIB_SEARCH_PATH ${dir}/lib ${dir}/Dependencies/lib ${dir}/iOSDependencies/lib ${OGRE_LIB_SEARCH_PATH})
     set(OGRE_BIN_SEARCH_PATH ${dir}/Samples/Common/bin ${OGRE_BIN_SEARCH_PATH})
   endforeach(dir)
   foreach(dir ${OGRE_PREFIX_BUILD})
     set(OGRE_INC_SEARCH_PATH ${dir}/include ${OGRE_INC_SEARCH_PATH})
     set(OGRE_LIB_SEARCH_PATH ${dir}/lib ${OGRE_LIB_SEARCH_PATH})
     set(OGRE_BIN_SEARCH_PATH ${dir}/bin ${OGRE_BIN_SEARCH_PATH})
-	set(OGRE_BIN_SEARCH_PATH ${dir}/Samples/Common/bin ${OGRE_BIN_SEARCH_PATH})
+        set(OGRE_BIN_SEARCH_PATH ${dir}/Samples/Common/bin ${OGRE_BIN_SEARCH_PATH})
   endforeach(dir)
   
   if (OGRE_PREFIX_DEPENDENCIES_DIR)
@@ -127,7 +131,7 @@ endif ()
 set(OGRE_COMPONENTS Paging Terrain 
   Plugin_BSPSceneManager Plugin_CgProgramManager Plugin_OctreeSceneManager
   Plugin_OctreeZone Plugin_PCZSceneManager Plugin_ParticleFX
-  RenderSystem_Direct3D10 RenderSystem_Direct3D9 RenderSystem_GL RenderSystem_GLES RenderSystem_GLES2)
+  RenderSystem_Direct3D11 RenderSystem_Direct3D9 RenderSystem_GL RenderSystem_GLES RenderSystem_GLES2)
 set(OGRE_RESET_VARS 
   OGRE_CONFIG_INCLUDE_DIR OGRE_INCLUDE_DIR 
   OGRE_LIBRARY_FWK OGRE_LIBRARY_REL OGRE_LIBRARY_DBG
@@ -141,14 +145,14 @@ endforeach (comp)
 set(OGRE_PREFIX_WATCH ${OGRE_PREFIX_PATH} ${OGRE_PREFIX_SOURCE} ${OGRE_PREFIX_BUILD})
 clear_if_changed(OGRE_PREFIX_WATCH ${OGRE_RESET_VARS})
 
-# try to locate Ogre via pkg-config
-use_pkgconfig(OGRE_PKGC "OGRE${OGRE_LIB_SUFFIX}")
-
 if(NOT OGRE_BUILD_PLATFORM_APPLE_IOS)
-  # try to find framework on OSX
-  findpkg_framework(OGRE)
+        # try to locate Ogre via pkg-config
+        use_pkgconfig(OGRE_PKGC "OGRE${OGRE_LIB_SUFFIX}")
+
+        # try to find framework on OSX
+        findpkg_framework(OGRE)
 else()
-	set(OGRE_LIBRARY_FWK "")
+        set(OGRE_LIBRARY_FWK "")
 endif()
 
 # locate Ogre include files
@@ -215,8 +219,8 @@ list(REMOVE_DUPLICATES OGRE_INCLUDE_DIR)
 findpkg_finish(OGRE)
 add_parent_dir(OGRE_INCLUDE_DIRS OGRE_INCLUDE_DIR)
 if (OGRE_SOURCE)
-	# If working from source rather than SDK, add samples include
-	set(OGRE_INCLUDE_DIRS ${OGRE_INCLUDE_DIRS} "${OGRE_SOURCE}/Samples/Common/include")
+        # If working from source rather than SDK, add samples include
+        set(OGRE_INCLUDE_DIRS ${OGRE_INCLUDE_DIRS} "${OGRE_SOURCE}/Samples/Common/include")
 endif()
 
 mark_as_advanced(OGRE_CONFIG_INCLUDE_DIR OGRE_MEDIA_DIR OGRE_PLUGIN_DIR_REL OGRE_PLUGIN_DIR_DBG)
@@ -248,13 +252,14 @@ if (OGRE_STATIC)
   if (APPLE AND NOT OGRE_BUILD_PLATFORM_APPLE_IOS)
     find_package(Cocoa QUIET)
     find_package(Carbon QUIET)
-    if (NOT Cocoa_FOUND OR NOT Carbon_FOUND)
+    find_package(CoreVideo QUIET)
+    if (NOT Cocoa_FOUND OR NOT Carbon_FOUND OR NOT CoreVideo_FOUND)
       set(OGRE_DEPS_FOUND FALSE)
     endif ()
   endif ()
   if (APPLE AND OGRE_BUILD_PLATFORM_APPLE_IOS)
-    find_package(iPhoneSDK QUIET)
-    if (NOT iPhoneSDK_FOUND)
+    find_package(iOSSDK QUIET)
+    if (NOT iOSSDK_FOUND)
       set(OGRE_DEPS_FOUND FALSE)
     endif ()
   endif ()
@@ -275,9 +280,9 @@ if (OGRE_STATIC)
     set(OGRE_DEPS_FOUND FALSE)
   endif ()
   if (UNIX AND NOT APPLE)
-	if (NOT X11_FOUND)
+        if (NOT X11_FOUND)
       set(OGRE_DEPS_FOUND FALSE)
-	endif ()
+        endif ()
   endif ()
 
   if (OGRE_CONFIG_THREADS)
@@ -325,57 +330,61 @@ set(OGRE_LIBRARY_DIRS ${OGRE_LIBRARY_DIR_REL} ${OGRE_LIBRARY_DIR_DBG})
 
 # find binaries
 if (NOT OGRE_STATIC)
-	if (WIN32)
-		find_file(OGRE_BINARY_REL NAMES "OgreMain.dll" HINTS ${OGRE_BIN_SEARCH_PATH}
+        if (WIN32)
+                find_file(OGRE_BINARY_REL NAMES "OgreMain.dll" HINTS ${OGRE_BIN_SEARCH_PATH}
           PATH_SUFFIXES "" release relwithdebinfo minsizerel)
-		find_file(OGRE_BINARY_DBG NAMES "OgreMain_d.dll" HINTS ${OGRE_BIN_SEARCH_PATH}
+                find_file(OGRE_BINARY_DBG NAMES "OgreMain_d.dll" HINTS ${OGRE_BIN_SEARCH_PATH}
           PATH_SUFFIXES "" debug )
-	endif()
-	mark_as_advanced(OGRE_BINARY_REL OGRE_BINARY_DBG)
+        endif()
+        mark_as_advanced(OGRE_BINARY_REL OGRE_BINARY_DBG)
 endif()
 
 
+#########################################################
+# Find Ogre components
+#########################################################
+
+set(OGRE_COMPONENT_SEARCH_PATH_REL 
+  ${OGRE_LIBRARY_DIR_REL}/..
+  ${OGRE_LIBRARY_DIR_REL}/../..
+  ${OGRE_BIN_SEARCH_PATH}
+)
+set(OGRE_COMPONENT_SEARCH_PATH_DBG
+  ${OGRE_LIBRARY_DIR_DBG}/..
+  ${OGRE_LIBRARY_DIR_DBG}/../..
+  ${OGRE_BIN_SEARCH_PATH}
+)
+
+macro(ogre_find_component COMPONENT HEADER)
+  findpkg_begin(OGRE_${COMPONENT})
+  find_path(OGRE_${COMPONENT}_INCLUDE_DIR NAMES ${HEADER} HINTS ${OGRE_INCLUDE_DIRS} ${OGRE_PREFIX_SOURCE} PATH_SUFFIXES ${COMPONENT} OGRE/${COMPONENT} Components/${COMPONENT}/include)
+  set(OGRE_${COMPONENT}_LIBRARY_NAMES "Ogre${COMPONENT}${OGRE_LIB_SUFFIX}")
+  get_debug_names(OGRE_${COMPONENT}_LIBRARY_NAMES)
+  find_library(OGRE_${COMPONENT}_LIBRARY_REL NAMES ${OGRE_${COMPONENT}_LIBRARY_NAMES} HINTS ${OGRE_LIBRARY_DIR_REL} PATH_SUFFIXES "" "release" "relwithdebinfo" "minsizerel")
+  find_library(OGRE_${COMPONENT}_LIBRARY_DBG NAMES ${OGRE_${COMPONENT}_LIBRARY_NAMES_DBG} HINTS ${OGRE_LIBRARY_DIR_DBG} PATH_SUFFIXES "" "debug")
+  make_library_set(OGRE_${COMPONENT}_LIBRARY)
+  findpkg_finish(OGRE_${COMPONENT})
+  if (OGRE_${COMPONENT}_FOUND)
+    # find binaries
+    if (NOT OGRE_STATIC)
+          if (WIN32)
+            find_file(OGRE_${COMPONENT}_BINARY_REL NAMES "Ogre${COMPONENT}.dll" HINTS ${OGRE_COMPONENT_SEARCH_PATH_REL} PATH_SUFFIXES "" bin bin/release bin/relwithdebinfo bin/minsizerel release)
+            find_file(OGRE_${COMPONENT}_BINARY_DBG NAMES "Ogre${COMPONENT}_d.dll" HINTS ${OGRE_COMPONENT_SEARCH_PATH_DBG} PATH_SUFFIXES "" bin bin/debug debug)
+          endif()
+          mark_as_advanced(OGRE_${COMPONENT}_BINARY_REL OGRE_${COMPONENT}_BINARY_DBG)
+    endif()
+  endif()
+endmacro()
 
 # look for Paging component
-findpkg_begin(OGRE_Paging)
-find_path(OGRE_Paging_INCLUDE_DIR NAMES OgrePaging.h HINTS ${OGRE_INCLUDE_DIRS} ${OGRE_PREFIX_SOURCE} PATH_SUFFIXES Paging OGRE/Paging Components/Paging/include)
-set(OGRE_Paging_LIBRARY_NAMES "OgrePaging${OGRE_LIB_SUFFIX}")
-get_debug_names(OGRE_Paging_LIBRARY_NAMES)
-find_library(OGRE_Paging_LIBRARY_REL NAMES ${OGRE_Paging_LIBRARY_NAMES} HINTS ${OGRE_LIBRARY_DIR_REL} PATH_SUFFIXES "" "release" "relwithdebinfo" "minsizerel")
-find_library(OGRE_Paging_LIBRARY_DBG NAMES ${OGRE_Paging_LIBRARY_NAMES_DBG} HINTS ${OGRE_LIBRARY_DIR_DBG} PATH_SUFFIXES "" "debug")
-set(OGRE_Paging_LIBRARY_FWK ${OGRE_LIBRARY_FWK})
-make_library_set(OGRE_Paging_LIBRARY)
-findpkg_finish(OGRE_Paging)
-
+ogre_find_component(Paging OgrePaging.h)
 # look for Terrain component
-findpkg_begin(OGRE_Terrain)
-find_path(OGRE_Terrain_INCLUDE_DIR NAMES OgreTerrain.h HINTS ${OGRE_INCLUDE_DIRS} ${OGRE_PREFIX_SOURCE} PATH_SUFFIXES Terrain OGRE/Terrain Components/Terrain/include)
-set(OGRE_Terrain_LIBRARY_NAMES "OgreTerrain${OGRE_LIB_SUFFIX}")
-get_debug_names(OGRE_Terrain_LIBRARY_NAMES)
-find_library(OGRE_Terrain_LIBRARY_REL NAMES ${OGRE_Terrain_LIBRARY_NAMES} HINTS ${OGRE_LIBRARY_DIR_REL} PATH_SUFFIXES "" "release" "relwithdebinfo" "minsizerel")
-find_library(OGRE_Terrain_LIBRARY_DBG NAMES ${OGRE_Terrain_LIBRARY_NAMES_DBG} HINTS ${OGRE_LIBRARY_DIR_DBG} PATH_SUFFIXES "" "debug")
-make_library_set(OGRE_Terrain_LIBRARY)
-findpkg_finish(OGRE_Terrain)
-
+ogre_find_component(Terrain OgreTerrain.h)
 # look for Property component
-findpkg_begin(OGRE_Property)
-find_path(OGRE_Property_INCLUDE_DIR NAMES OgreProperty.h HINTS ${OGRE_INCLUDE_DIRS} ${OGRE_PREFIX_SOURCE} PATH_SUFFIXES Property OGRE/Property Components/Property/include)
-set(OGRE_Property_LIBRARY_NAMES "OgreProperty${OGRE_LIB_SUFFIX}")
-get_debug_names(OGRE_Property_LIBRARY_NAMES)
-find_library(OGRE_Property_LIBRARY_REL NAMES ${OGRE_Property_LIBRARY_NAMES} HINTS ${OGRE_LIBRARY_DIR_REL} PATH_SUFFIXES "" "release" "relwithdebinfo" "minsizerel")
-find_library(OGRE_Property_LIBRARY_DBG NAMES ${OGRE_Property_LIBRARY_NAMES_DBG} HINTS ${OGRE_LIBRARY_DIR_DBG} PATH_SUFFIXES "" "debug")
-make_library_set(OGRE_Property_LIBRARY)
-findpkg_finish(OGRE_Property)
-
+ogre_find_component(Property OgreProperty.h)
 # look for RTShaderSystem component
-findpkg_begin(OGRE_RTShaderSystem)
-find_path(OGRE_RTShaderSystem_INCLUDE_DIR NAMES OgreRTShaderSystem.h HINTS ${OGRE_INCLUDE_DIRS} ${OGRE_PREFIX_SOURCE} PATH_SUFFIXES RTShaderSystem OGRE/RTShaderSystem Components/RTShaderSystem/include)
-set(OGRE_RTShaderSystem_LIBRARY_NAMES "OgreRTShaderSystem${OGRE_LIB_SUFFIX}")
-get_debug_names(OGRE_RTShaderSystem_LIBRARY_NAMES)
-find_library(OGRE_RTShaderSystem_LIBRARY_REL NAMES ${OGRE_RTShaderSystem_LIBRARY_NAMES} HINTS ${OGRE_LIBRARY_DIR_REL} PATH_SUFFIXES "" "release" "relwithdebinfo" "minsizerel")
-find_library(OGRE_RTShaderSystem_LIBRARY_DBG NAMES ${OGRE_RTShaderSystem_LIBRARY_NAMES_DBG} HINTS ${OGRE_LIBRARY_DIR_DBG} PATH_SUFFIXES "" "debug")
-make_library_set(OGRE_RTShaderSystem_LIBRARY)
-findpkg_finish(OGRE_RTShaderSystem)
+ogre_find_component(RTShaderSystem OgreRTShaderSystem.h)
+
 
 #########################################################
 # Find Ogre plugins
@@ -426,12 +435,12 @@ macro(ogre_find_plugin PLUGIN HEADER)
         set(OGRE_PLUGIN_SEARCH_PATH_REL 
           ${OGRE_LIBRARY_DIR_REL}/..
           ${OGRE_LIBRARY_DIR_REL}/../..
-		  ${OGRE_BIN_SEARCH_PATH}
+                  ${OGRE_BIN_SEARCH_PATH}
         )
         set(OGRE_PLUGIN_SEARCH_PATH_DBG
           ${OGRE_LIBRARY_DIR_DBG}/..
           ${OGRE_LIBRARY_DIR_DBG}/../..
-		  ${OGRE_BIN_SEARCH_PATH}
+                  ${OGRE_BIN_SEARCH_PATH}
         )
         find_path(OGRE_PLUGIN_DIR_REL NAMES "${PLUGIN}.dll" HINTS ${OGRE_PLUGIN_SEARCH_PATH_REL}
           PATH_SUFFIXES "" bin bin/release bin/relwithdebinfo bin/minsizerel release)
@@ -444,16 +453,16 @@ macro(ogre_find_plugin PLUGIN HEADER)
         set(OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_TMP} CACHE STRING "Ogre plugin dir (debug)")
       endif ()
     endif ()
-	
-	# find binaries
-	if (NOT OGRE_STATIC)
-		if (WIN32)
-			find_file(OGRE_${PLUGIN}_REL NAMES "${PLUGIN}.dll" HINTS ${OGRE_PLUGIN_DIR_REL})
-			find_file(OGRE_${PLUGIN}_DBG NAMES "${PLUGIN}_d.dll" HINTS ${OGRE_PLUGIN_DIR_DBG})
-		endif()
-		mark_as_advanced(OGRE_${PLUGIN}_REL OGRE_${PLUGIN}_DBG)
-	endif()
-	
+        
+        # find binaries
+        if (NOT OGRE_STATIC)
+                if (WIN32)
+                        find_file(OGRE_${PLUGIN}_REL NAMES "${PLUGIN}.dll" HINTS ${OGRE_PLUGIN_DIR_REL})
+                        find_file(OGRE_${PLUGIN}_DBG NAMES "${PLUGIN}_d.dll" HINTS ${OGRE_PLUGIN_DIR_DBG})
+                endif()
+                mark_as_advanced(OGRE_${PLUGIN}_REL OGRE_${PLUGIN}_DBG)
+        endif()
+        
   endif ()
 
   if (TMP_CMAKE_LIB_PREFIX)
@@ -534,4 +543,3 @@ set(OGRE_MEDIA_SEARCH_SUFFIX
 clear_if_changed(OGRE_PREFIX_WATCH OGRE_MEDIA_DIR)
 find_path(OGRE_MEDIA_DIR NAMES packs/cubemapsJS.zip HINTS ${OGRE_MEDIA_SEARCH_PATH}
   PATHS ${OGRE_PREFIX_PATH} PATH_SUFFIXES ${OGRE_MEDIA_SEARCH_SUFFIX})
-  

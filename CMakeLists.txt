@@ -420,14 +420,23 @@ else()
     set(OPENDUNGEONS_COMMENT_D3D "#")
     #On linux, we should look in the standard paths for plugins
     if(${OGRE_PLUGIN_DIR_REL} STREQUAL NOTFOUND)
-        #Ugly workaround for plugin dir not being set properly by the ogre find script.
-        get_filename_component(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OGRE_RenderSystem_GL_LIBRARY_REL} PATH)
+        #Try pkgconfig if the ogre module doesn't set the plugin paths
+        find_package(PkgConfig)
+        if(PKG_CONFIG_FOUND)
+            execute_process(COMMAND ${PKG_CONFIG_EXECUTABLE} OGRE --variable=plugindir
+                OUTPUT_VARIABLE OD_PLUGIN_DIR_TEMP
+                RESULT_VARIABLE OD_PKGCONFIG_FAILED
+                ERROR_VARIABLE  OD_PKGCONFIG_ERROR)
+            if(OD_PKGCONFIG_FAILED)
+                message(STATUS "Failed to run pkgconfig when looking for plugin directory" ${OD_PLUGIN_DIR_TEMP} " Error:" ${OD_PKGCONFIG_ERROR})
+                get_filename_component(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OGRE_RenderSystem_GL_LIBRARY_REL} PATH)
+            else()
+                set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OD_PLUGIN_DIR_TEMP})
+                set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ${OD_PLUGIN_DIR_TEMP})
+            endif()
+        endif()
     else()
         set(OPENDUNGEONS_OGRE_PLUGIN_DIR_REL ${OGRE_PLUGIN_DIR_REL})
-    endif()
-    if(${OGRE_PLUGIN_DIR_DBG} STREQUAL NOTFOUND)
-        get_filename_component(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ${OGRE_RenderSystem_GL_LIBRARY_DBG} PATH)
-    else()
         set(OPENDUNGEONS_OGRE_PLUGIN_DIR_DBG ${OGRE_PLUGIN_DIR_DBG})
     endif()
 
