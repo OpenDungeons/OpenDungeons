@@ -11,6 +11,8 @@
 #include <deque>
 #include <vector>
 
+#include <boost/shared_ptr.hpp>
+
 #include <pthread.h>
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
@@ -26,6 +28,7 @@
 
 #include "ProtectedObject.h"
 
+class GameContext;
 class Socket;
 class RenderManager;
 class InputManager;
@@ -48,7 +51,7 @@ class ODFrameListener :
 {
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
-        ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap);
+        ODFrameListener(Ogre::RenderWindow* win);
         virtual ~ODFrameListener();
         void requestExit();
         bool getThreadStopRequested();
@@ -127,6 +130,8 @@ class ODFrameListener :
         Ogre::SceneNode*        lightSceneNode;
         Ogre::Timer             statsDisplayTimer;
         GameMap*                gameMap;
+        
+        boost::shared_ptr<GameContext>    gameContext;
 
         std::vector<Ogre::ColourValue> playerColourValues;
 

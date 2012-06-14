@@ -8,8 +8,8 @@ Seat::Seat() :
         mana(1000),
         manaDelta(0),
         hp(1000),
-        gold(0),
-        goldMined(0),
+        gold(5000),
+        goldMined(5000),
         numCreaturesControlled(0),
         factionHumans(0.0),
         factionCorpars(0.0),
@@ -53,11 +53,12 @@ unsigned int Seat::numGoals()
 /** \brief A simple accessor function to allow for looping over the goals which must be completed by this seat before it can be declared a winner.
  *
  */
+
 Goal* Seat::getGoal(unsigned int index)
 {
     sem_wait(&goalsLockSemaphore);
     Goal *tempGoal = goals[index];
-    sem_post(&goalsLockSemaphore);
+    sem_post(&goalsLockSemaphore); // 
 
     return tempGoal;
 }

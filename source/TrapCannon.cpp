@@ -19,7 +19,7 @@ std::vector<GameEntity*> TrapCannon::aimEnemy()
 {
     std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(coveredTiles[0], range);
     std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleForce(visibleTiles, getColor(), true);
-    if(enemyObjects.size() <= 0) {
+    if(enemyObjects.empty()) {
         return std::vector<GameEntity*>();
     }
     // Select an enemy to shoot at.

@@ -483,7 +483,7 @@ Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
         return forge;
     else if (s.compare("Dojo") == 0)
         return dojo;
-    else
+    else 
     {
         std::cerr
                 << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";

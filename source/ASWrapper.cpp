@@ -72,6 +72,7 @@ ASWrapper::ASWrapper() :
 
     //Compile AS code, syntax errors will be printed to our Console
     builder->BuildModule();
+    LogManager::getSingleton().logMessage("*** AngelScript initialised ***");
 }
 
 /*! \brief closes AngelScript

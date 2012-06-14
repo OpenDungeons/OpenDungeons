@@ -9,6 +9,7 @@
 #define BUILDING_H_
 
 #include "GameEntity.h"
+#include "Seat.h"
 
 class Seat;
 
@@ -33,7 +34,7 @@ class Building : public GameEntity
         inline Seat*    getControllingSeat ()   const   { return controllingSeat; }
 
         // ===== SETTERS =====
-        inline void setControllingSeat  (Seat* nCS) { controllingSeat = nCS; }
+        inline void setControllingSeat  (Seat* nCS) { controllingSeat = nCS; setColor(nCS->getColor()); }
 
     private:
         //! \brief The Seat controlling this building

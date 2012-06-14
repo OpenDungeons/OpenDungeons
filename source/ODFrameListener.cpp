@@ -33,7 +33,7 @@
 #include "RenderManager.h"
 #include "ResourceManager.h"
 #include "ODApplication.h"
-#include "GameState.h"
+#include "Director.h"
 #include "LogManager.h"
 #include "InputManager.h"
 #include "CameraManager.h"
@@ -42,6 +42,7 @@
 
 #include "ODFrameListener.h"
 #include "Console.h"
+#include "GameContext.h"
 
 template<> ODFrameListener*
         Ogre::Singleton<ODFrameListener>::ms_Singleton = 0;
@@ -55,9 +56,8 @@ template<> ODFrameListener*
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         mWindow(win),
-        renderManager(RenderManager::getSingletonPtr()),
         sfxHelper(SoundEffectsHelper::getSingletonPtr()),
         mContinue(true),
         terminalActive(false),
@@ -65,14 +65,24 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
         chatMaxMessages(10),
         chatMaxTimeDisplay(20),
         frameDelay(0.0),
-        previousTurn(-1),
-        gameMap(gameMap)
+        previousTurn(-1)
 {
+    LogManager* logManager = LogManager::getSingletonPtr();
+  
+    gameContext.reset(new GameContext(win));
+    
+    gameMap = gameContext.get()->getGameMap();
+  
+    logManager->logMessage("Created context");
+    
+    renderManager = RenderManager::getSingletonPtr();
 
     //FIXME: this should be changed to a function or something.
     gameMap->me = new Player();
     gameMap->me->setNick("defaultNickName");
     gameMap->me->setGameMap(gameMap);
+    
+    logManager->logMessage("Created player");
     
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
@@ -84,6 +94,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, GameMap* gameMap) :
     lightSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Light_scene_node");
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
+    
+    logManager->logMessage("Created scene nodes and ray query");
 
     inputManager = new InputManager(gameMap);
 
