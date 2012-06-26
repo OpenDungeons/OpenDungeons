@@ -12,6 +12,12 @@
 #include <string>
 #include <vector>
 
+#ifdef __MINGW32__
+#ifndef mode_t
+#include <sys/types.h>
+#endif //mode_t
+#endif //mingw32
+
 #include <semaphore.h>
 #include <Ogre.h>
 
