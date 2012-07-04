@@ -718,10 +718,10 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
 
     if (getMarkedForDigging(pp) != ss)
     {
+        Ogre::Entity *ent = NULL;
         bool thisRequestIsForMe = (pp == getGameMap()->getLocalPlayer());
         if (thisRequestIsForMe)
         {
-            Ogre::Entity *ent = NULL;
             char tempString[255];
 
             Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
