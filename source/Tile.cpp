@@ -716,15 +716,14 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
     if (ss && (!isDiggable() || (getFullness() < 1)))
         return;
 
-    Ogre::Entity *ent = NULL;
-    char tempString[255];
-    char tempString2[255];
-
     if (getMarkedForDigging(pp) != ss)
     {
         bool thisRequestIsForMe = (pp == getGameMap()->getLocalPlayer());
         if (thisRequestIsForMe)
         {
+            Ogre::Entity *ent = NULL;
+            char tempString[255];
+
             Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
             //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
             snprintf(tempString, sizeof(tempString),
@@ -735,6 +734,7 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
             }
             else
             {
+                char tempString2[255];
                 snprintf(tempString2, sizeof(tempString2),
                          "Level_%3i_%3i_node", x, y);
                 Ogre::SceneNode *tempNode =

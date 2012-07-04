@@ -510,7 +510,6 @@ void Creature::doTurn()
 
                         // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
                         int tempX = 0, tempY = 0;
-                        bool workerFound = false;
                         if (!definition->isWorker())
                         {
                             // Non-workers only.
@@ -520,6 +519,7 @@ void Creature::doTurn()
                             //if(creatureJob == weakFighter) r -= 0.2;
                             if (r < 0.7)
                             {
+                                bool workerFound = false;
                                 // Try to find a worker to follow around.
                                 for (unsigned int i = 0; !workerFound && i
                                         < reachableAlliedObjects.size(); ++i)
