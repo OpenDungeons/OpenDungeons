@@ -19,7 +19,7 @@ using namespace std;
 
 template<> CameraManager* Ogre::Singleton<CameraManager>::ms_Singleton = 0;
 
-CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm) :
+CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
         mCamera(cam),
         gameMap(gm),
         mCamNode(cam->getParentSceneNode()),

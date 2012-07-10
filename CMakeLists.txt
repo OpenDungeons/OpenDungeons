@@ -102,10 +102,10 @@ set(OD_SOURCEFILES
     ${SRC}/Director.cpp
     ${SRC}/Field.cpp
     ${SRC}/Functions.cpp
-    ${SRC}/GameContext.cpp
+    #${SRC}/GameContext.cpp
     ${SRC}/GameEntity.cpp
     ${SRC}/GameMap.cpp
-    #${SRC}/GameStateManager.cpp
+    ${SRC}/GameStateManager.cpp
     ${SRC}/GoalClaimNTiles.cpp
     ${SRC}/Goal.cpp
     ${SRC}/GoalKillAllEnemies.cpp

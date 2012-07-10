@@ -37,7 +37,7 @@ public:
 
       int x ; int y ; int z;};
 
-    CameraManager(Ogre::Camera* cam, GameMap* gm);
+    CameraManager(Ogre::Camera* cam, GameMap* gm = NULL);
 
     //get/set moveSpeed
     inline const Ogre::Real& getMoveSpeed() const {
