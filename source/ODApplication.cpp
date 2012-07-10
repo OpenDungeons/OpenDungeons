@@ -21,7 +21,7 @@
 #include "MiniMap.h"
 #include "LogManager.h"
 #include "Translation.h"
-#include "Director.h"
+#include "GameStateManager.h"
 #include "CameraManager.h"
 #include "ASWrapper.h"
 #include "Console.h"
@@ -35,7 +35,7 @@
 #include "ODApplication.h"
 
 template<> ODApplication*
-        Ogre::Singleton<ODApplication>::ms_Singleton = 0;
+Ogre::Singleton<ODApplication>::ms_Singleton = 0;
 
 /*! Initializes the Application along with the ResourceManager
  *
@@ -56,9 +56,9 @@ ODApplication::ODApplication() :
 
     ResourceManager* resMgr = new ResourceManager;
     root = new Ogre::Root(
-            resMgr->getPluginsPath(),
-            resMgr->getCfgFile(),
-            resMgr->getLogFile());
+        resMgr->getPluginsPath(),
+        resMgr->getCfgFile(),
+        resMgr->getLogFile());
 
     resMgr->setupResources();
 
@@ -81,7 +81,7 @@ ODApplication::ODApplication() :
     LogManager* logManager = new LogManager();
     logManager->setLogDetail(Ogre::LL_BOREME);
     new Translation();
-    new Director();
+    new GameStateManager();
     //RenderManager* renderMgr = new RenderManager();
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
@@ -92,7 +92,7 @@ ODApplication::ODApplication() :
     //      this needs refactoring at some other places, too
     Gui::getSingletonPtr()->loadGuiSheet(Gui::mainMenu);
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
-                10, 50, 70, Ogre::ColourValue::Green);
+                                            10, 50, 70, Ogre::ColourValue::Green);
     //TODO - move this to when the map is actually loaded
     MusicPlayer::getSingleton().start(0);
 
@@ -101,7 +101,7 @@ ODApplication::ODApplication() :
 //    renderMgr->setGameMap(gameMap);
 
     //FIXME: do this only if a level loads after the main menu
-    //Try to create the camera, viewport and scene. 
+    //Try to create the camera, viewport and scene.
     /*
     try
     {
@@ -128,34 +128,34 @@ ODApplication::ODApplication() :
     }*/
 
     //new CameraManager(renderMgr->getCamera());
-    logManager->logMessage("*** Creating frame listener *** ", Ogre::LML_NORMAL);
+    logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
     root->addFrameListener(new ODFrameListener(window));
-    logManager->logMessage("*** Frame listener created *** ", Ogre::LML_NORMAL);
     //TODO: This should be moved once we have separated level loading from startup.
-    
+
 
     //FIXME: This should be at a better place (when level loads for the first time)
-    //new MiniMap;
+    // new MiniMap;
 
     //FIXME: Is this the best place for instanciating these two?
     //Console needs to exist BEFORE ASWrapper because it needs it for callback
     new Console();
     new ASWrapper();
+
     try
     {
         root->startRendering();
     }
-    catch(Ogre::Exception& e)
+    catch (Ogre::Exception& e)
     {
         displayErrorMessage("Ogre exception:\n"
-            + e.getFullDescription());
+                            + e.getFullDescription());
         cleanUp();
         return;
     }
-    catch(std::exception& e)
+    catch (std::exception& e)
     {
         displayErrorMessage("Exception:\n"
-            + std::string(e.what()));
+                            + std::string(e.what()));
         cleanUp();
         return;
     }
@@ -166,7 +166,7 @@ ODApplication::ODApplication() :
 
 ODApplication::~ODApplication()
 {
-    if(root)
+    if (root)
     {
         delete root;
     }
@@ -177,7 +177,7 @@ ODApplication::~ODApplication()
  */
 void ODApplication::displayErrorMessage(const std::string& message, bool log)
 {
-    if(log)
+    if (log)
     {
         LogManager::getSingleton().logMessage(message, Ogre::LML_CRITICAL);
     }
@@ -199,7 +199,7 @@ void ODApplication::cleanUp()
     delete Gui::getSingletonPtr();
     delete SoundEffectsHelper::getSingletonPtr();
     delete RenderManager::getSingletonPtr();
-    delete Director::getSingletonPtr();
+    delete GameStateManager::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
     delete CameraManager::getSingletonPtr();

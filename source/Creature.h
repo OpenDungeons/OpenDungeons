@@ -133,7 +133,8 @@ class Creature: public MovableGameEntity
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
         void clearActionQueue();
-
+	
+	Ogre::SceneNode* pSN;
         Player* getControllingPlayer();
         void computeBattlefield();
 

@@ -19,7 +19,8 @@
 #include "TextRenderer.h"
 #include "ODApplication.h"
 #include "Functions.h"
-
+#include "CameraManager.h"
+#include "MiniMap.h"
 #include "Gui.h"
 
 template<> Gui* Ogre::Singleton<Gui>::ms_Singleton = 0;
@@ -126,7 +127,30 @@ void Gui::assignEventHandlers()
     wmgr->getWindow(MM_BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMQuitButtonPressed));
+
+    wmgr->getWindow(MINIMAP)->subscribeEvent(
+	    CEGUI:: Window::EventMouseClick,
+	    CEGUI::Event::Subscriber(&miniMapclicked));
+        
+    
 }
+
+bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
+{
+    CEGUI::MouseEventArgs& ee = (CEGUI::MouseEventArgs&)e;
+      
+    Ogre::Vector2 cc = ODFrameListener::getSingleton().getGameMap()->getMiniMap()->camera_2dPositionFromClick(ee.position.d_x  ,
+													      ee.position.d_y );
+    
+    CameraManager::getSingleton().onMiniMapClick(cc);
+    // ODFrameListener::getSingleton().getGameMap()->getMiniMap()->draw();
+    // ODFrameListener::getSingleton().getGameMap()->getMiniMap()->swap();
+
+    
+
+    //std::cerr<< xx <<" "<< yy << " " <<std::endl;
+}
+
 
 bool Gui::quitButtonPressed(const CEGUI::EventArgs& e)
 {

@@ -1,6 +1,6 @@
 #include "AbstractGameState.h"
 
-AbstractGameState::AbstractGameState(GameStateManager* gameStateManager)
+AbstractGameState::AbstractGameState(GameStateManager& gameStateManager)
     : gameStateManager(gameStateManager)
 {
 

@@ -1,0 +1,18 @@
+GameMap.cpp:109:  //     itr->second->setFullness(itr->second->getFullness());
+GameMap.cpp:728:  //     itr->second->createMesh();
+GameMap.cpp:772:  //     itr->second->destroyMesh();
+GameMap.cpp.back:101:        itr->second->setFullness(itr->second->getFullness());
+GameMap.cpp.back:191:        itr->second->deleteYourself();
+GameMap.cpp.back:677:        itr->second->createMesh();
+GameMap.cpp.back:710:        itr->second->destroyMesh();
+#InputManager.cpp#:220:                            //         itr->second->setSelected(true);
+#InputManager.cpp#:224:                            //         itr->second->setSelected(false);
+#InputManager.cpp#:666:    //     itr->second->setSelected(false);
+InputManager.cpp:220:                            //         itr->second->setSelected(true);
+InputManager.cpp:224:                            //         itr->second->setSelected(false);
+InputManager.cpp:666:    //     itr->second->setSelected(false);
+#MapLoader.cpp#:125:        itr->second->setFullness(itr->second->getFullness());
+MapLoader.cpp:125:        itr->second->setFullness(itr->second->getFullness());
+MapLoader.cpp.back:125:        itr->second->setFullness(itr->second->getFullness());
+Room.cpp:341:        itr->second->createMesh();
+Room.cpp:352:        itr->second->destroyMesh();

@@ -37,7 +37,6 @@ bool AIManager::assignAI(Player& player, const std::string& type, const std::str
     {
         return false;
     }
-
     else
     {
         aiList.push_back(ai);

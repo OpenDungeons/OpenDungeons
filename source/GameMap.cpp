@@ -6,11 +6,13 @@
  */
 
 #ifdef _MSC_VER
-#define snprintf _snprintf
+#define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
 #include <iostream>
+#include <sstream>
 #include <algorithm>
+#include <string>
 
 #include <cmath>
 #include <cstdlib>
@@ -23,6 +25,7 @@
 #include "Tile.h"
 #include "Creature.h"
 #include "Player.h"
+#include "RenderManager.h"
 #include "Trap.h"
 #include "Seat.h"
 #include "MapLight.h"
@@ -33,12 +36,16 @@
 #include "MapLoader.h"
 #include "LogManager.h"
 
+using namespace std;
+
 //TODO: find some better place for this
 ProtectedObject<long int> GameMap::turnNumber(1);
 sem_t GameMap::creatureAISemaphore;
 
 GameMap::GameMap() :
+        iteration_doFloodFill(0),
         me(NULL),
+        tiles(NULL),
         loadNextLevel(false),
         averageAILeftoverTime(0.0),
         miscUpkeepTime(0),
@@ -46,11 +53,12 @@ GameMap::GameMap() :
         nextUniqueFloodFillColor(1),
         floodFillEnabled(false),
         numCallsTo_path(0),
-        maxAIThreads(2),
         tileCoordinateMap(new TileCoordinateMap(100)),
         length(0),
         width(0),
-        aiManager(*this)
+        aiManager(*this),
+	maxAIThreads(1),
+	visibleCreatures(true)
 {
     sem_init(&threadReferenceCountLockSemaphore, 0, 1);
     sem_init(&creaturesLockSemaphore, 0, 1);
@@ -60,48 +68,164 @@ GameMap::GameMap() :
     sem_init(&tilesLockSemaphore, 0, 1);
 }
 
+
+
+void GameMap:: toggleCreaturesVisibility(){
+    sem_wait(&creaturesLockSemaphore);
+    visibleCreatures = !visibleCreatures;
+    if(visibleCreatures ){
+	for(  std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++){
+	    if((*it)->isMeshExisting()) 
+
+		// (*it)->pSN=((*it)->sceneNode->getParentSceneNode());
+		//pSN->removeChild((*it)->
+		(*it)->pSN->addChild((*it)->sceneNode);
+	    //  addAnimatedObject(*it);
+	    // (*it)->createMesh();
+	} 
+    }
+    else{
+	for(  std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++){
+	    if((*it)->isMeshExisting()){
+		(*it)->pSN=((*it)->sceneNode->getParentSceneNode());
+		(*it)->pSN->removeChild((*it)->sceneNode);
+
+	    }
+
+	    // removeAnimatedObject(*it);
+	    // (*it)->destroyMesh();
+	    
+	} 
+    }
+    sem_post(&creaturesLockSemaphore);
+}
+
+
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
  *
  * The new map consists entirely of the same kind of tile, with no creature
  * classes loaded, no players, and no creatures.
  */
+
 void GameMap::createNewMap(int xSize, int ySize)
 {
     Tile *tempTile;
-    char array[255];
+    stringstream ss;
+    
+    
+    Ogre::SceneManager* sceneManager = RenderManager::getSingletonPtr()->getSceneManager();
 
-    clearAll();
+    for (int jj = 0; jj < ySize; ++jj)	{
+	for (int ii = 0; ii < xSize; ++ii){
 
-    for (int j = 0; j < ySize; ++j)
-    {
-        for (int i = 0; i < xSize; ++i)
-        {
-            tempTile = new Tile;
-            tempTile->setType(Tile::dirt);
-            tempTile->setFullness(100.0);
-            tempTile->x = i;
-            tempTile->y = j;
 
-            snprintf(array, sizeof(array), "Level_%3i_%3i", i, j);
-            tempTile->setName(array);
-            tempTile->createMesh();
-            sem_wait(&tilesLockSemaphore);
-            tiles.insert(std::pair<std::pair<int, int> , Tile*> (std::pair<int, int> (i, j),
-                    tempTile));
-            sem_post(&tilesLockSemaphore);
-        }
+	    if((tiles[ii][jj].getGameMap()) == NULL ){
+		ss.str(std::string());
+		ss<<"Level_"<<ii<<"_"<<jj;
+		
+		tempTile = new Tile;
+		tempTile->setGameMap(this);
+		tempTile->setType(Tile::dirt);
+		
+		tempTile->setName(ss.str());
+		tempTile->x=ii;
+		tempTile->y=jj;
+		sem_wait(&tilesLockSemaphore);
+		insert(tiles,ii, jj, tempTile );
+		sem_post(&tilesLockSemaphore);
+		delete tempTile;
+
+	    }
+	}
     }
 
     // Loop over all the tiles and force them to examine their
     // neighbors.  This allows them to switch to a mesh with fewer
     // polygons if some are hidden by the neighbors.
-    for(TileMap_t::iterator itr = firstTile(), last = lastTile();
-            itr != last; ++itr)
-    {
-        itr->second->setFullness(itr->second->getFullness());
+    for (int ii=0 ; ii < xSize; ii++ ) {
+        for (int jj=0 ; jj < ySize; jj++ ) {
+
+            tiles[ii][jj].setFullness(tiles[ii][jj].getFullness());
+        }
     }
-    length = ySize;
-    width = xSize;
+
+
+
+
+    // for(TileMap_t::iterator itr = firstTile(), last = lastTile();
+    //         itr != last; ++itr)
+    // {
+    //     itr->second->setFullness(itr->second->getFullness());
+    // }
+    // length = ySize;
+    // width = xSize;
+}
+
+
+void GameMap::createTilesMeshes(void){
+
+
+  for (int jj = 0; jj < mapSizeY; ++jj)	{
+	for (int ii = 0; ii < mapSizeX; ++ii){
+
+	    tiles[ii][jj].createMesh();
+
+
+	}
+    }
+
+
+}
+
+
+void GameMap::hideAllTiles(void){
+
+  for (int jj = 0; jj < mapSizeY; ++jj)	{
+	for (int ii = 0; ii < mapSizeX; ++ii){
+
+	    tiles[ii][jj].hide();
+
+
+	}
+    }
+
+
+
+}
+
+
+int GameMap::setAllNeighbors(){            
+    for (int ii = 0 ; ii < mapSizeX ; ii++) {
+	for (int jj = 0 ; jj < mapSizeY ; jj++) {
+	    setTileNeighbors(&tiles[ii][jj]);
+
+	}
+    }
+    return 1;
+}
+
+
+int GameMap::allocateMapMemory(int xSize, int ySize) {
+
+
+    stringstream ss;
+
+    // mapSizeX = xSize;
+    // mapSizeY=ySize;
+    if (tiles==NULL) {
+        tiles = new Tile* [mapSizeY];
+        for (int jj = 0 ; jj < mapSizeY ; jj++) {
+            tiles[jj] = new Tile [mapSizeX];
+
+        }
+
+
+        return 1;
+    }
+    else {
+        std :: cerr << " failed to allocate map memory" << std :: endl;
+        return 0;
+    }
 }
 
 /*! \brief Returns a pointer to the tile at location (x, y).
@@ -109,18 +233,21 @@ void GameMap::createNewMap(int xSize, int ySize)
  * The tile pointers are stored internally in a map so calls to this function
  * have a complexity O(log(N)) where N is the number of tiles in the map.
  */
-Tile* GameMap::getTile(int x, int y)
+Tile* GameMap::getTile(int xx, int yy)
 {
-  
     Tile *returnValue = NULL;
-    std::pair<int, int> location(x, y);
+    // std::pair<int, int> location(x, y);
 
-    sem_wait(&tilesLockSemaphore);
-    TileMap_t::iterator itr = tiles.find(location);
-    returnValue = (itr != tiles.end()) ? itr->second : NULL;
-    sem_post(&tilesLockSemaphore);
-
-    return returnValue;
+    // sem_wait(&tilesLockSemaphore);
+    // TileMap_t::iterator itr = tiles.find(location);
+    // returnValue = (itr != tiles.end()) ? itr->second : NULL;
+    // sem_post(&tilesLockSemaphore);
+    if ( xx < mapSizeX && yy < mapSizeY && xx >= 0 && yy >= 0 )
+        return returnValue = &(tiles[xx][yy]);
+    else {
+        // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
+        return NULL;
+    }
 }
 
 /*! \brief Returns a pointer to the tile at location (x, y) (const version).
@@ -128,18 +255,23 @@ Tile* GameMap::getTile(int x, int y)
  * The tile pointers are stored internally in a map so calls to this function
  * have a complexity O(log(N)) where N is the number of tiles in the map.
  */
-const Tile* GameMap::getTile(int x, int y) const
+const Tile* GameMap::getTile(int xx, int yy) const
 {
     Tile *returnValue = NULL;
-    std::pair<int, int> location(x, y);
+    // std::pair<int, int> location(x, y);
 
-    sem_wait(&tilesLockSemaphore);
-    const TileMap_t& constTiles = tiles;
-    TileMap_t::const_iterator itr = constTiles.find(location);
-    returnValue = (itr != tiles.end()) ? itr->second : NULL;
-    sem_post(&tilesLockSemaphore);
+    // sem_wait(&tilesLockSemaphore);
+    // const TileMap_t& constTiles = tiles;
+    // TileMap_t::const_iterator itr = constTiles.find(location);
+    // returnValue = (itr != tiles.end()) ? itr->second : NULL;
+    // sem_post(&tilesLockSemaphore);
+    if (xx < mapSizeX && yy < mapSizeY && xx >= 0 && yy >= 0 )
+        return returnValue = &(tiles[xx][yy]);
+    else {
+        // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
+        return NULL;
+    }
 
-    return returnValue;
 }
 
 /*! \brief Returns a pointer to the tile at location (x, y) (does not lock the tile semaphore)
@@ -149,15 +281,20 @@ const Tile* GameMap::getTile(int x, int y) const
  * NOTE: This function does not lock and is to be used in the visibleTiles function.
  * NOTE: Lock before calling.
  */
-Tile* GameMap::getTileNoLock(int x, int y)
+Tile* GameMap::getTileNoLock(int xx, int yy)
 {
     Tile *returnValue = NULL;
-    std::pair<int, int> location(x, y);
+    // std::pair<int, int> location(x, y);
 
-    TileMap_t::iterator itr = tiles.find(location);
-    returnValue = (itr != tiles.end()) ? itr->second : NULL;
+    // TileMap_t::iterator itr = tiles.find(location);
+    // returnValue = (itr != tiles.end()) ? itr->second : NULL;
+    if ( xx < mapSizeX && yy < mapSizeY && xx >= 0 && yy >= 0 )
+        return returnValue = &(tiles[xx][yy]);
+    else {
+        // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
+        return NULL;
+    }
 
-    return returnValue;
 }
 
 
@@ -172,7 +309,7 @@ void GameMap::clearAll()
 
     clearMapLights();
     clearRooms();
-    clearTiles();
+    //clearTiles();
 
     clearGoalsForAllSeats();
     clearEmptySeats();
@@ -183,29 +320,63 @@ void GameMap::clearAll()
 /*! \brief Clears the mesh and deletes the data structure for all the tiles in the GameMap.
  *
  */
+
+int GameMap::insert(Tile** mm ,int ii , int jj , Tile* tt) {
+    if ( ii < mapSizeX && jj < mapSizeY && ii >= 0 && jj >= 0 )  {
+
+        mm[ii][jj]=*tt;
+        return 1;
+    }
+    else
+        return 0;
+
+}
+
+
 void GameMap::clearTiles()
 {
     sem_wait(&tilesLockSemaphore);
-    for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
-            itr != end; ++itr)
-    {
-        itr->second->deleteYourself();
-    }
 
-    tiles.clear();
+    // for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
+    //         itr != end; ++itr)
+    for (int jj = 0; jj < mapSizeY; ++jj)
+    {
+        for (int ii = 0; ii < mapSizeX; ++ii)
+        {
+
+            (tiles[ii][jj]).deleteYourself();
+        }
+
+        //      map_clear(tiles);
+
+    }
     sem_post(&tilesLockSemaphore);
 }
+
+void GameMap::map_clear(Tile** tt)
+{
+
+
+    for (int ii = 0; ii < mapSizeX; ++ii)
+    {
+
+        delete[] tt[ii];
+    }
+
+}
+
 
 /*! \brief Clears the mesh and deletes the data structure for all the creatures in the GameMap.
  *
  */
+
 void GameMap::clearCreatures()
 {
     sem_wait(&creaturesLockSemaphore);
-    for (unsigned int i = 0; i < creatures.size(); ++i)
+    for (unsigned int ii = 0; ii < creatures.size(); ++ii)
     {
-        removeAnimatedObject(creatures[i]);
-        creatures[i]->deleteYourself();
+        removeAnimatedObject(creatures[ii]);
+        creatures[ii]->deleteYourself();
     }
 
     creatures.clear();
@@ -225,10 +396,10 @@ void GameMap::clearClasses()
  */
 void GameMap::clearPlayers()
 {
-    
-    for (unsigned int i = 0; i < numPlayers(); ++i)
+
+    for (unsigned int ii = 0; ii < numPlayers(); ++ii)
     {
-        delete players[i];
+        delete players[ii];
     }
 
     players.clear();
@@ -239,35 +410,30 @@ void GameMap::clearPlayers()
  */
 unsigned int GameMap::numTiles()
 {
-    sem_wait(&tilesLockSemaphore);
-    unsigned int tempUnsigned = tiles.size();
-    sem_post(&tilesLockSemaphore);
+    // sem_wait(&tilesLockSemaphore);
+    // unsigned int tempUnsigned = tiles.size();
+    // sem_post(&tilesLockSemaphore);
 
-    return tempUnsigned;
+    return mapSizeX*mapSizeY;
 }
 
 /*! \brief Adds the address of a new tile to be stored in this GameMap.
  *
  */
-void GameMap::addTile(Tile *t)
-{
-    // Notify the neighbor tiles already existing on the GameMap of our existance.
-    for (unsigned int i = 0; i < 4; ++i)
+
+void GameMap::setTileNeighbors(Tile *t){
+
+
+    for (unsigned int i = 0; i < 2; ++i)
     {
         int tempX = t->x, tempY = t->y;
         switch (i)
         {
-            break;
+
         case 0:
-            ++tempX;
-            break;
-        case 1:
-            ++tempY;
-            break;
-        case 2:
             --tempX;
             break;
-        case 3:
+        case 1:
             --tempY;
             break;
 
@@ -278,18 +444,60 @@ void GameMap::addTile(Tile *t)
 
         // If the current neigbor tile exists, add the current tile as one of its
         // neighbors and add it as one of the current tile's neighbors.
-        Tile *tempTile = getTile(tempX, tempY);
-        if (tempTile != NULL)
-        {
-            tempTile->addNeighbor(t);
-            t->addNeighbor(tempTile);
-        }
+        if (tempX >=0 && tempY >= 0)
+	    {
+
+		Tile *tempTile = getTile(tempX, tempY);
+
+
+		tempTile->addNeighbor(t);
+		t->addNeighbor(tempTile);
+	    }
     }
 
+
+
+}
+
+void GameMap::addTile(Tile *t)
+{
+    // Notify the neighbor tiles already existing on the GameMap of our existance.
+    // that's some stupid ad-hoc solution to properly read-in the tiles 
+    // for (unsigned int i = 0; i < 2; ++i)
+    // {
+    //     int tempX = t->x, tempY = t->y;
+    //     switch (i)
+    //     {
+
+    //     case 0:
+    //         --tempX;
+    //         break;
+    //     case 1:
+    //         --tempY;
+    //         break;
+
+    //     default:
+    //         std::cerr << "\n\n\nERROR:  Unknown neighbor index.\n\n\n";
+    //         exit(1);
+    //     }
+
+    //     // If the current neigbor tile exists, add the current tile as one of its
+    //     // neighbors and add it as one of the current tile's neighbors.
+    //     if (tempX >=0 && tempY >= 0)
+    // 	    {
+
+    // 		Tile *tempTile = getTile(tempX, tempY);
+
+
+    // 		tempTile->addNeighbor(t);
+    // 		t->addNeighbor(tempTile);
+    // 	    }
+    // }
+
     sem_wait(&tilesLockSemaphore);
-    tiles.insert(std::pair<std::pair<int, int> , Tile*> (std::pair<int, int> (t->x, t->y), t));
+    // tiles.insert(std::pair<std::pair<int, int> , Tile*> (std::pair<int, int> (t->x, t->y), t));
+    insert(tiles, t->x, t->y, t);
     sem_post(&tilesLockSemaphore);
-    t->setGameMap(this);
 }
 
 /** \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
@@ -305,12 +513,12 @@ std::vector<Tile*> GameMap::rectangularRegion(int x1, int y1, int x2, int y2)
     if (y1 > y2)
         std::swap(y1, y2);
 
-    for (int i = x1; i <= x2; ++i)
+    for (int ii = x1; ii <= x2; ++ii)
     {
-        for (int j = y1; j <= y2; ++j)
+        for (int jj = y1; jj <= y2; ++jj)
         {
             //TODO:  This routine could be sped up by using the neighborTiles function.
-            tempTile = getTile(i, j);
+            tempTile = getTile(ii, jj);
 
             if (tempTile != NULL)
                 returnList.push_back(tempTile);
@@ -344,8 +552,8 @@ std::vector<Tile*> GameMap::circularRegion(int x, int y, double radius)
             if (distSquared < radiusSquared)
             {
                 tempTile = getTile(i, j);
-                if (tempTile != NULL)
-                    returnList.push_back(tempTile);
+                 if (tempTile != NULL)
+                   returnList.push_back(tempTile);
             }
         }
     }
@@ -356,7 +564,7 @@ std::vector<Tile*> GameMap::circularRegion(int x, int y, double radius)
  *
  */
 std::vector<Tile*> GameMap::tilesBorderedByRegion(
-        const std::vector<Tile*> &region)
+    const std::vector<Tile*> &region)
 {
     std::vector<Tile*> neighbors, returnList;
 
@@ -596,7 +804,7 @@ unsigned int GameMap::numAnimatedObjects()
 
 void GameMap::addActiveObject(GameEntity *a)
 {
-    if(a->isActive())
+    if (a->isActive())
     {
         sem_wait(&activeObjectsLockSemaphore);
         activeObjects.push_back(a);
@@ -606,7 +814,7 @@ void GameMap::addActiveObject(GameEntity *a)
 
 void GameMap::removeActiveObject(GameEntity *a)
 {
-    if(a->isActive())
+    if (a->isActive())
     {
         sem_wait(&activeObjectsLockSemaphore);
 
@@ -671,13 +879,23 @@ CreatureDefinition* GameMap::getClassDescription(int index)
 void GameMap::createAllEntities()
 {
     // Create OGRE entities for map tiles
-    sem_wait(&tilesLockSemaphore);
-    for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
-            itr != end; ++itr)
+    // sem_wait(&tilesLockSemaphore);
+    for (int jj = 0; jj < mapSizeY; ++jj)
     {
-        itr->second->createMesh();
+        for (int ii = 0; ii < mapSizeX; ++ii)
+        {
+            tiles[ii][jj].createMesh();
+	    // tileSceneNode = sceneManager->getSceneNode( tiles[ii][jj].getName() + "_node" );
+	    // tiles[ii][jj].pSN = tileSceneNode->getParentSceneNode(); 
+	    // tiles[ii][jj].pSN->removeChild(tileSceneNode);
+        }
     }
-    sem_post(&tilesLockSemaphore);
+    // // for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
+    // //     itr != end; ++itr)
+    // //   {
+    // //     itr->second->createMesh();
+    // //   }
+    // sem_post(&tilesLockSemaphore);
 
     // Create OGRE entities for the creatures
     for (unsigned int i = 0, num = numCreatures(); i < num; ++i)
@@ -705,12 +923,23 @@ void GameMap::destroyAllEntities()
 {
     // Destroy OGRE entities for map tiles
     sem_wait(&tilesLockSemaphore);
-    TileMap_t::iterator itr = tiles.begin();
-    while (itr != tiles.end())
+
+
+    for (int jj = 0; jj < mapSizeY; ++jj)
     {
-        itr->second->destroyMesh();
-        ++itr;
+        for (int ii = 0; ii < mapSizeX; ++ii)
+        {
+
+            tiles[ii][jj].deleteYourself();
+        }
     }
+
+    // TileMap_t::iterator itr = tiles.begin();
+    // while (itr != tiles.end())
+    //   {
+    //     itr->second->destroyMesh();
+    //     ++itr;
+    //   }
     sem_post(&tilesLockSemaphore);
 
     // Destroy OGRE entities for the creatures
@@ -878,11 +1107,11 @@ void GameMap::doTurn()
                 tempSeat->factionCorpars += tempCreature->getDefinition()->getCoefficientCorpars();
                 tempSeat->factionUndead += tempCreature->getDefinition()->getCoefficientUndead();
                 tempSeat->factionConstructs
-                        += tempCreature->getDefinition()->getCoefficientConstructs();
+                += tempCreature->getDefinition()->getCoefficientConstructs();
                 tempSeat->factionDenizens += tempCreature->getDefinition()->getCoefficientDenizens();
 
                 tempSeat->alignmentAltruism
-                        += tempCreature->getDefinition()->getCoefficientAltruism();
+                += tempCreature->getDefinition()->getCoefficientAltruism();
                 tempSeat->alignmentOrder += tempCreature->getDefinition()->getCoefficientOrder();
                 tempSeat->alignmentPeace += tempCreature->getDefinition()->getCoefficientPeace();
             }
@@ -892,7 +1121,7 @@ void GameMap::doTurn()
     }
 
     std::cout << "\nDuring this turn there were " << numCallsTo_path
-            - numCallsTo_path_atStart << " calls to GameMap::path().";
+              - numCallsTo_path_atStart << " calls to GameMap::path().";
 
     sem_post(&creatureAISemaphore);
 }
@@ -967,7 +1196,7 @@ unsigned long int GameMap::doMiscUpkeep()
     // Count how many dungeon temples each color controls.
     std::vector<Room*> dungeonTemples = getRoomsByType(Room::dungeonTemple);
     std::map<int, int> dungeonTempleColorCounts;
-    for(unsigned int i = 0, size = dungeonTemples.size();
+    for (unsigned int i = 0, size = dungeonTemples.size();
             i < size; ++i)
     {
         ++dungeonTempleColorCounts[dungeonTemples[i]->getColor()];
@@ -1016,10 +1245,10 @@ unsigned long int GameMap::doMiscUpkeep()
     }
     sem_wait(&newActiveObjectsLockSemaphore);
     while (!newActiveObjects.empty()) // we create new active objects queued by active objects, such as cannon balls
-	{
-		activeObjects.push_back(newActiveObjects.front());
-		newActiveObjects.pop();
-	}
+    {
+        activeObjects.push_back(newActiveObjects.front());
+        newActiveObjects.pop();
+    }
     sem_post(&newActiveObjectsLockSemaphore);
     sem_post(&activeObjectsLockSemaphore);
 
@@ -1066,34 +1295,71 @@ unsigned long int GameMap::doMiscUpkeep()
 
     // Now loop over all of the tiles, if the tile is claimed increment the given seats count.
     sem_wait(&tilesLockSemaphore);
-    std::map<std::pair<int, int> , Tile*>::iterator currentTile = tiles.begin();
-    while (currentTile != tiles.end())
+
+    for (int jj = 0; jj < mapSizeY; ++jj)
     {
-        tempTile = currentTile->second;
-
-        // Check to see if the current tile is claimed by anyone.
-        if (tempTile->getType() == Tile::claimed)
+        for (int ii = 0; ii < mapSizeX; ++ii)
         {
-            // Increment the count of the seat who owns the tile.
-            tempSeat = getSeatByColor(tempTile->getColor());
-            if (tempSeat != NULL)
-            {
-                tempSeat->incrementNumClaimedTiles();
 
-                // Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
-                std::vector<Tile*> neighbors = neighborTiles(
-                        currentTile->second);
-                for (unsigned int i = 0; i < neighbors.size(); ++i)
+
+
+            tempTile = &tiles[ii][jj];
+
+            // Check to see if the current tile is claimed by anyone.
+            if (tempTile->getType() == Tile::claimed)
+            {
+                // Increment the count of the seat who owns the tile.
+                tempSeat = getSeatByColor(tempTile->getColor());
+                if (tempSeat != NULL)
                 {
-                    if (neighbors[i]->getType() == Tile::dirt
-                            && neighbors[i]->getFullness() < 1)// && neighbors[i]->colorDouble < 0.8)
-                        neighbors[i]->claimForColor(tempSeat->color, 0.04);
+                    tempSeat->incrementNumClaimedTiles();
+
+                    // Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
+                    std::vector<Tile*> neighbors = neighborTiles(tempTile);
+                    for (unsigned int ii = 0; ii < neighbors.size(); ++ii)
+                    {
+                        if (neighbors[ii]->getType() == Tile::dirt
+                                && neighbors[ii]->getFullness() < 1)// && neighbors[i]->colorDouble < 0.8)
+                            neighbors[ii]->claimForColor(tempSeat->color, 0.04);
+                    }
                 }
             }
-        }
 
-        ++currentTile;
+
+        }
     }
+
+
+
+
+    // std::map<std::pair<int, int> , Tile*>::iterator currentTile = tiles.begin();
+    // while (currentTile != tiles.end())
+    //   {
+    //     tempTile = currentTile->second;
+
+    //     // Check to see if the current tile is claimed by anyone.
+    //     if (tempTile->getType() == Tile::claimed)
+    //       {
+    // 	  // Increment the count of the seat who owns the tile.
+    // 	  tempSeat = getSeatByColor(tempTile->getColor());
+    // 	  if (tempSeat != NULL)
+    //           {
+    // 	      tempSeat->incrementNumClaimedTiles();
+
+    // 	      // Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
+    // 	      std::vector<Tile*> neighbors = neighborTiles(
+    // 							   currentTile->second);
+    // 	      for (unsigned int i = 0; i < neighbors.size(); ++i)
+    //               {
+    // 		  if (neighbors[i]->getType() == Tile::dirt
+    // 		      && neighbors[i]->getFullness() < 1)// && neighbors[i]->colorDouble < 0.8)
+    // 		    neighbors[i]->claimForColor(tempSeat->color, 0.04);
+    //               }
+    //           }
+    //       }
+
+    //     ++currentTile;
+    //   }
     sem_post(&tilesLockSemaphore);
 
     timeTaken = stopwatch.getMicroseconds();
@@ -1120,14 +1386,14 @@ unsigned long int GameMap::doCreatureTurns()
     {
         int startCreature = i * (arraySize / numThreads);
         int endCreature = (i + 1 == numThreads)
-                ? arraySize - 1
-                : (i + 1) * (arraySize / numThreads) - 1;
+                          ? arraySize - 1
+                          : (i + 1) * (arraySize / numThreads) - 1;
 
         threadParams[i].numCreatures = endCreature - startCreature + 1;
         threadParams[i].creatures = &creatureArray[startCreature];
 
         pthread_create(&threads[i], NULL, GameMap::creatureDoTurnHelperThread,
-                &threadParams[i]);
+                       &threadParams[i]);
     }
 
     for (unsigned int i = 0; i < numThreads; ++i)
@@ -1161,11 +1427,11 @@ void *GameMap::creatureDoTurnHelperThread(void *p)
  *
  */
 bool GameMap::pathExists(int x1, int y1, int x2, int y2,
-        Tile::TileClearType passability)
+                         Tile::TileClearType passability)
 {
     return (passability == Tile::walkableTile)
-            ? walkablePathExists(x1, y1, x2, y2)
-            : path(x1, y1, x2, y2, passability).size() >= 2;
+           ? walkablePathExists(x1, y1, x2, y2)
+           : path(x1, y1, x2, y2, passability).size() >= 2;
 }
 
 /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
@@ -1221,7 +1487,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 
         // Get the lowest fScore from the openList and move it to the closed list
         std::list<AstarEntry*>::iterator itr = openList.begin(), smallestAstar =
-                openList.begin();
+                                                   openList.begin();
         while (itr != openList.end())
         {
             if ((*itr)->fCost() < (*smallestAstar)->fCost())
@@ -1254,34 +1520,34 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
                 // See if the neighbor tile in question is passable
                 switch (passability)
                 {
-                    case Tile::walkableTile:
-                        if (!(neighbor->getTile()->getTilePassability() == Tile::walkableTile))
-                        {
-                            processNeighbor = false; // skip this tile and go on to the next neighbor tile
-                        }
-                        break;
+                case Tile::walkableTile:
+                    if (!(neighbor->getTile()->getTilePassability() == Tile::walkableTile))
+                    {
+                        processNeighbor = false; // skip this tile and go on to the next neighbor tile
+                    }
+                    break;
 
-                    case Tile::flyableTile:
-                        if (!(neighbor->getTile()->getTilePassability()
-                                == Tile::walkableTile
-                                || neighbor->getTile()->getTilePassability()
-                                        == Tile::flyableTile))
-                        {
-                            processNeighbor = false; // skip this tile and go on to the next neighbor tile
-                        }
-                        break;
+                case Tile::flyableTile:
+                    if (!(neighbor->getTile()->getTilePassability()
+                            == Tile::walkableTile
+                            || neighbor->getTile()->getTilePassability()
+                            == Tile::flyableTile))
+                    {
+                        processNeighbor = false; // skip this tile and go on to the next neighbor tile
+                    }
+                    break;
 
-                    case Tile::impassableTile:
-                        std::cerr
-                                << "\n\nERROR:  Trying to find a path through impassable tiles in GameMap::path()\n\n";
-                        exit(1);
-                        break;
+                case Tile::impassableTile:
+                    std::cerr
+                        << "\n\nERROR:  Trying to find a path through impassable tiles in GameMap::path()\n\n";
+                    exit(1);
+                    break;
 
-                    default:
-                        std::cerr
-                                << "\n\nERROR:  Unhandled tile type in GameMap::path()\n\n";
-                        exit(1);
-                        break;
+                default:
+                    std::cerr
+                        << "\n\nERROR:  Unhandled tile type in GameMap::path()\n\n";
+                    exit(1);
+                    break;
                 }
 
                 if (processNeighbor)
@@ -1403,26 +1669,40 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 /*! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
  *
  */
-TileMap_t::iterator GameMap::firstTile()
-{
-    sem_wait(&tilesLockSemaphore);
-    TileMap_t::iterator tempItr = tiles.begin();
-    sem_post(&tilesLockSemaphore);
 
-    return tempItr;
+Tile* GameMap::firstTile()
+{
+
+    return &tiles[0][0];
 }
+// TileMap_t::iterator GameMap::firstTile()
+// {
+//     sem_wait(&tilesLockSemaphore);
+//     TileMap_t::iterator tempItr = tiles.begin();
+//     sem_post(&tilesLockSemaphore);
+
+//     return tempItr;
+// }
 
 /*! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
  *
  */
-TileMap_t::iterator GameMap::lastTile()
-{
-    sem_wait(&tilesLockSemaphore);
-    TileMap_t::iterator tempItr = tiles.end();
-    sem_post(&tilesLockSemaphore);
 
-    return tempItr;
+Tile* GameMap::lastTile()
+{
+
+    return &tiles[mapSizeX][mapSizeY];
 }
+
+
+// TileMap_t::iterator GameMap::lastTile()
+// {
+//     sem_wait(&tilesLockSemaphore);
+//     TileMap_t::iterator tempItr = tiles.end();
+//     sem_post(&tilesLockSemaphore);
+
+//     return tempItr;
+// }
 
 /*! \brief Returns the (up to) 4 nearest neighbor tiles of the tile located at (x, y).
  *
@@ -1466,7 +1746,7 @@ bool GameMap::addPlayer(Player *p)
 bool GameMap::assignAI(Player& player, const std::string& aiType, const std::string& parameters)
 {
     bool success = aiManager.assignAI(player, aiType, parameters);
-    if(success)
+    if (success)
     {
         player.setHasAi(true);
     }
@@ -1536,8 +1816,8 @@ bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
     {
         Tile* tempTile2 = getTile(x2, y2);
         return (tempTile2)
-                ? (tempTile1->floodFillColor == tempTile2->floodFillColor)
-                : false;
+               ? (tempTile1->floodFillColor == tempTile2->floodFillColor)
+               : false;
     }
 
     return false;
@@ -1720,7 +2000,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
             // Now that we have identified the boundary lines of the region obscured by this tile, loop through until the end of
             // the tileQueue and remove any tiles which fall inside this obscured region since they are not visible either.
             std::list<std::pair<Tile*, double> >::iterator tileQueueIterator =
-                    tileQueue.begin();
+                tileQueue.begin();
             while (tileQueueIterator != tileQueue.end())
             {
                 tempAngle.setTheta((*tileQueueIterator).second);
@@ -1749,7 +2029,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
  *
  */
 std::vector<GameEntity*> GameMap::getVisibleForce(
-        std::vector<Tile*> visibleTiles, int color, bool invert)
+    std::vector<Tile*> visibleTiles, int color, bool invert)
 {
     //TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
     std::vector<GameEntity*> returnList;
@@ -1810,7 +2090,7 @@ std::vector<GameEntity*> GameMap::getVisibleForce(
  *
  */
 bool GameMap::pathIsClear(std::list<Tile*> path,
-        Tile::TileClearType passability)
+                          Tile::TileClearType passability)
 {
     if (path.empty())
         return false;
@@ -1826,28 +2106,28 @@ bool GameMap::pathIsClear(std::list<Tile*> path,
         switch (passability)
         {
             // Walking creatures can only move through walkableTile's.
-            case Tile::walkableTile:
-                isClear = (isClear && ((*itr)->getTilePassability()
-                        == Tile::walkableTile));
-                break;
+        case Tile::walkableTile:
+            isClear = (isClear && ((*itr)->getTilePassability()
+                                   == Tile::walkableTile));
+            break;
 
-                // Flying creatures can move through walkableTile's or flyableTile's.
-            case Tile::flyableTile:
-                isClear = (isClear && ((*itr)->getTilePassability()
-                        == Tile::walkableTile || (*itr)->getTilePassability()
-                        == Tile::flyableTile));
-                break;
+            // Flying creatures can move through walkableTile's or flyableTile's.
+        case Tile::flyableTile:
+            isClear = (isClear && ((*itr)->getTilePassability()
+                                   == Tile::walkableTile || (*itr)->getTilePassability()
+                                   == Tile::flyableTile));
+            break;
 
-                // No creatures can walk through impassableTile's
-            case Tile::impassableTile:
-                isClear = false;
-                break;
+            // No creatures can walk through impassableTile's
+        case Tile::impassableTile:
+            isClear = false;
+            break;
 
-            default:
-                std::cerr
-                        << "\n\nERROR:  Unhandled tile type in GameMap::pathIsClear()\n\n";
-                exit(1);
-                break;
+        default:
+            std::cerr
+                << "\n\nERROR:  Unhandled tile type in GameMap::pathIsClear()\n\n";
+            exit(1);
+            break;
         }
     }
 
@@ -1858,7 +2138,7 @@ bool GameMap::pathIsClear(std::list<Tile*> path,
  *
  */
 void GameMap::cutCorners(std::list<Tile*> &path,
-        Tile::TileClearType passability)
+                         Tile::TileClearType passability)
 {
     // Size must be >= 3 or else t3 and t4 can end up pointing at the same value
     if (path.size() <= 3)
@@ -1884,7 +2164,7 @@ void GameMap::cutCorners(std::list<Tile*> &path,
             // If we have a clear line of sight to t2, advance to
             // the next tile else break out of the inner loop
             std::list<Tile*> lineOfSightPath = lineOfSight((*t1)->x, (*t1)->y,
-                    (*t2)->x, (*t2)->y);
+                                               (*t2)->x, (*t2)->y);
 
             if (pathIsClear(lineOfSightPath, passability))
                 ++t2;
@@ -2026,8 +2306,8 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec,
     for (unsigned int i = 0; i < vec.size(); ++i)
     {
         if (pathExists(startTile->x, startTile->y,
-                vec[i]->getCoveredTile(0)->x, vec[i]->getCoveredTile(0)->y,
-                passability))
+                       vec[i]->getCoveredTile(0)->x, vec[i]->getCoveredTile(0)->y,
+                       passability))
             returnVector.push_back(vec[i]);
     }
 
@@ -2042,11 +2322,11 @@ void GameMap::clearTraps()
     }
 
     /*
-     for(unsigned int i = 0; i < numTraps(); ++i)
-     {
-     getTrap(i)->deleteYourself();
-     }
-     */
+      for(unsigned int i = 0; i < numTraps(); ++i)
+      {
+      getTrap(i)->deleteYourself();
+      }
+    */
 
     traps.clear();
 }
@@ -2137,13 +2417,13 @@ void GameMap::addMapLight(MapLight *m)
     mapLights.push_back(m);
 
     /*
-     // Place a message in the queue to inform the clients about the destruction of this MapLight.
-     ServerNotification *serverNotification = new ServerNotification;
-     serverNotification->type = ServerNotification::addMapLight;
-     serverNotification->p = m;
+    // Place a message in the queue to inform the clients about the destruction of this MapLight.
+    ServerNotification *serverNotification = new ServerNotification;
+    serverNotification->type = ServerNotification::addMapLight;
+    serverNotification->p = m;
 
-     queueServerNotification(serverNotification);
-     */
+    queueServerNotification(serverNotification);
+    */
 }
 
 void GameMap::removeMapLight(MapLight *m)
@@ -2153,13 +2433,13 @@ void GameMap::removeMapLight(MapLight *m)
         if (mapLights[i] == m)
         {
             /*
-             // Place a message in the queue to inform the clients about the destruction of this MapLight.
-             ServerNotification *serverNotification = new ServerNotification;
-             serverNotification->type = ServerNotification::removeMapLight;
-             serverNotification->p = m;
+            // Place a message in the queue to inform the clients about the destruction of this MapLight.
+            ServerNotification *serverNotification = new ServerNotification;
+            serverNotification->type = ServerNotification::removeMapLight;
+            serverNotification->p = m;
 
-             queueServerNotification(serverNotification);
-             */
+            queueServerNotification(serverNotification);
+            */
 
             mapLights.erase(mapLights.begin() + i);
             break;
@@ -2474,7 +2754,7 @@ Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)
 Ogre::Real GameMap::crowDistance(int x1, int x2, int y1, int y2)
 {
     return sqrt(pow(static_cast<Ogre::Real>(x2 - x1), 2.0f) + pow(
-		static_cast<Ogre::Real>(y2 - y1), 2.0f));
+                    static_cast<Ogre::Real>(y2 - y1), 2.0f));
 }
 
 /** \brief Returns an auto-incremented number for use in the flood fill algorithm used to determine walkability.
@@ -2489,8 +2769,11 @@ int GameMap::uniqueFloodFillColor()
  *
  */
 unsigned int GameMap::doFloodFill(int startX, int startY,
-        Tile::TileClearType passability, int color)
+                                  Tile::TileClearType passability, int color)
 {
+    // std::cerr << " hello this is doFloodFill " << iteration_doFloodFill
+    //           <<" startX "<< startX <<" startY "<< startY  << std::endl;
+    iteration_doFloodFill++;
     unsigned int tilesFlooded = 1;
 
     if (!floodFillEnabled)
@@ -2518,7 +2801,7 @@ unsigned int GameMap::doFloodFill(int startX, int startY,
         if (neighbors[i]->floodFillColor != color)
         {
             tilesFlooded += doFloodFill(neighbors[i]->x, neighbors[i]->y,
-                    passability, color);
+                                        passability, color);
         }
     }
 
@@ -2543,45 +2826,71 @@ void GameMap::enableFloodFill()
     // Carry out a flood fill of the whole level to make sure everything is good.
     // Start by setting the flood fill color for every tile on the map to -1.
     sem_wait(&tilesLockSemaphore);
-    for(std::map<std::pair<int, int>, Tile*>::iterator currentTile = tiles.begin(),
-            end = tiles.end(); currentTile != end; ++currentTile)
+    for (int jj = 0; jj < mapSizeY; ++jj)
     {
-        tempTile = currentTile->second;
-        tempTile->floodFillColor = -1;
+        for (int ii = 0; ii < mapSizeX; ++ii)
+        {
+            tiles[ii][jj].floodFillColor = -1;
+        }
+
     }
+
+    // for(std::map<std::pair<int, int>, Tile*>::iterator currentTile = tiles.begin(),
+    // 	end = tiles.end(); currentTile != end; ++currentTile)
+    //   {
+    //     tempTile = currentTile->second;
+    //     tempTile->floodFillColor = -1;
+    //   }
     sem_post(&tilesLockSemaphore);
 
     // Loop over the tiles again, this time flood filling when the flood fill color is -1.  This will flood the map enough times to cover the whole map.
 
     //TODO:  The looping construct here has a potential race condition in that the endTile could change between the time when it is initialized and the end of this loop.  If this happens the loop could continue infinitely.
     floodFillEnabled = true;
-    sem_wait(&tilesLockSemaphore);
-    std::map<std::pair<int, int> , Tile*>::iterator endTile = tiles.end();
-    sem_post(&tilesLockSemaphore);
-    for(std::map<std::pair<int, int>, Tile*>::iterator currentTile = tiles.begin();
-                currentTile != endTile; ++currentTile)
+    // sem_wait(&tilesLockSemaphore);
+    // std::map<std::pair<int, int> , Tile*>::iterator endTile = tiles.end();
+    // sem_post(&tilesLockSemaphore);
+
+
+
+    for (int jj = 0; jj < mapSizeY; ++jj)
     {
-        tempTile = currentTile->second;
-        if (tempTile->floodFillColor == -1)
-            doFloodFill(tempTile->x, tempTile->y);
+        for (int ii = 0; ii < mapSizeX; ++ii)
+        {
+
+            if (tiles[ii][jj].floodFillColor == -1)
+                doFloodFill( ii , jj);
+
+        }
     }
+
+
+//   for(std::map<std::pair<int, int>, Tile*>::iterator currentTile = tiles.begin();
+//       currentTile != endTile; ++currentTile)
+//     {
+//       tempTile = currentTile->second;
+//       if (tempTile->floodFillColor == -1)
+// 	doFloodFill(tempTile->x, tempTile->y);
+//     }
+
 }
+
 
 /** \brief <i>Convenience function, calls: path(int, int, int, int, TileClearType)</i>
  *
  */
 std::list<Tile*> GameMap::path(Creature *c1, Creature *c2,
-        Tile::TileClearType passability)
+                               Tile::TileClearType passability)
 {
     return path(c1->positionTile()->x, c1->positionTile()->y,
-            c2->positionTile()->x, c2->positionTile()->y, passability);
+                c2->positionTile()->x, c2->positionTile()->y, passability);
 }
 
 /** \brief <i>Convenience function, calls: path(int, int, int, int, TileClearType)</i>
  *
  */
 std::list<Tile*> GameMap::path(Tile *t1, Tile *t2,
-        Tile::TileClearType passability)
+                               Tile::TileClearType passability)
 {
     return path(t1->x, t1->y, t2->x, t2->y, passability);
 }
@@ -2605,7 +2914,7 @@ void GameMap::threadLockForTurn(long int turn)
     sem_wait(&threadReferenceCountLockSemaphore);
 
     std::map<long int, ProtectedObject<unsigned int> >::iterator result =
-            threadReferenceCount.find(turn);
+        threadReferenceCount.find(turn);
     if (result != threadReferenceCount.end())
     {
         (*result).second.lock();
@@ -2631,7 +2940,7 @@ void GameMap::threadUnlockForTurn(long int turn)
     sem_wait(&threadReferenceCountLockSemaphore);
 
     std::map<long int, ProtectedObject<unsigned int> >::iterator result =
-            threadReferenceCount.find(turn);
+        threadReferenceCount.find(turn);
     if (result != threadReferenceCount.end())
     {
         (*result).second.lock();
@@ -2641,13 +2950,16 @@ void GameMap::threadUnlockForTurn(long int turn)
     else
     {
         std::cout
-                << "\n\n\nERROR:  Calling threadUnlockForTurn on a turn number which does not have any current locks, bailing out.\n\n\n";
+            << "\n\n\nERROR:  Calling threadUnlockForTurn on a turn number which does not have any current locks, bailing out.\n\n\n";
         exit(1);
     }
 
     // Unlock the thread reference count map.
     sem_post(&threadReferenceCountLockSemaphore);
 }
+
+
+
 
 void GameMap::processDeletionQueues()
 {
@@ -2661,17 +2973,17 @@ void GameMap::processDeletionQueues()
 
     // Loop over the thread reference count and find the first turn number which has 0 outstanding threads holding references for that turn.
     std::map<long int, ProtectedObject<unsigned int> >::iterator
-            currentThreadReferenceCount = threadReferenceCount.begin();
+    currentThreadReferenceCount = threadReferenceCount.begin();
     while (currentThreadReferenceCount != threadReferenceCount.end())
     {
         std::cout << "(" << (*currentThreadReferenceCount).first << ", "
-                << (*currentThreadReferenceCount).second.rawGet() << ")   ";
+                  << (*currentThreadReferenceCount).second.rawGet() << ")   ";
         if ((*currentThreadReferenceCount).second.get() == 0)
         {
             // There are no threads which could be holding references to objects from the current turn so it is safe to retire.
             latestTurnToBeRetired = (*currentThreadReferenceCount).first;
             std::map<long int, ProtectedObject<unsigned int> >::iterator
-                    tempIterator = currentThreadReferenceCount++;
+            tempIterator = currentThreadReferenceCount++;
             threadReferenceCount.erase(tempIterator);
         }
         else
@@ -2691,24 +3003,24 @@ void GameMap::processDeletionQueues()
     // Loop over the creaturesToDeleteMap and delete all the creatures in any mapped vector whose
     // key value (the turn those creatures were added) is less than the latestTurnToBeRetired.
     std::map<long int, std::vector<Creature*> >::iterator
-            currentTurnForCreatureRetirement = creaturesToDelete.begin();
+    currentTurnForCreatureRetirement = creaturesToDelete.begin();
     while (currentTurnForCreatureRetirement != creaturesToDelete.end()
             && (*currentTurnForCreatureRetirement).first
-                    <= latestTurnToBeRetired)
+            <= latestTurnToBeRetired)
     {
         long int currentTurnToRetire =
-                (*currentTurnForCreatureRetirement).first;
+            (*currentTurnForCreatureRetirement).first;
 
         // Check to see if any creatures can be deleted.
         while (creaturesToDelete[currentTurnToRetire].size() > 0)
         {
             std::cout << "\nSending message to delete creature "
-                    << (*creaturesToDelete[currentTurnToRetire].begin())->getName();
+                      << (*creaturesToDelete[currentTurnToRetire].begin())->getName();
             std::cout.flush();
 
             (*creaturesToDelete[currentTurnToRetire].begin())->deleteYourself();
             creaturesToDelete[currentTurnToRetire].erase(
-                    creaturesToDelete[currentTurnToRetire].begin());
+                creaturesToDelete[currentTurnToRetire].begin());
         }
 
         ++currentTurnForCreatureRetirement;

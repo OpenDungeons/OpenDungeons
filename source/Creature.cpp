@@ -22,7 +22,7 @@
 #include "Creature.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#define snprintf _snprintf
+#define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
 //TODO: make this read from file
@@ -131,6 +131,8 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setName(tempString);
 
     is >> xLocation >> yLocation >> zLocation;
+    xLocation+=GameMap::mapSizeX/2;
+    yLocation+=GameMap::mapSizeY/2;
     c->setPosition(Ogre::Vector3(xLocation, yLocation, zLocation));
 
     int color = 0;
@@ -510,6 +512,7 @@ void Creature::doTurn()
 
                         // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
                         int tempX = 0, tempY = 0;
+                        bool workerFound = false;
                         if (!definition->isWorker())
                         {
                             // Non-workers only.
@@ -519,7 +522,6 @@ void Creature::doTurn()
                             //if(creatureJob == weakFighter) r -= 0.2;
                             if (r < 0.7)
                             {
-                                bool workerFound = false;
                                 // Try to find a worker to follow around.
                                 for (unsigned int i = 0; !workerFound && i
                                         < reachableAlliedObjects.size(); ++i)

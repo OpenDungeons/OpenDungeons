@@ -1,7 +1,7 @@
 #ifndef ROOM_H
 #define ROOM_H
 
-//#include <Ogre.h>
+#include <Ogre.h>
 #include <string>
 #include <deque>
 #include <iostream>

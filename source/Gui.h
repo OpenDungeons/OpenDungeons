@@ -77,6 +77,7 @@ class Gui : public Ogre::Singleton<Gui>
         guiSheet activeSheet;
 
         //Button handlers game UI
+	static bool miniMapclicked          (const CEGUI::EventArgs& e);
         static bool quitButtonPressed       (const CEGUI::EventArgs& e);
         static bool quartersButtonPressed   (const CEGUI::EventArgs& e);
         static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);

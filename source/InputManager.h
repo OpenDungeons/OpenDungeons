@@ -14,6 +14,8 @@
 
 class ODFrameListener;
 class GameMap;
+class MiniMap;
+class Player;
 
 class InputManager :
         public Ogre::Singleton<InputManager>,
@@ -21,7 +23,7 @@ class InputManager :
         public OIS::KeyListener
 {
     public:
-        InputManager(GameMap* gameMap);
+  InputManager(GameMap* gameMap,MiniMap* miniMap);
         virtual ~InputManager();
 
         bool mouseMoved     (const OIS::MouseEvent &arg);
@@ -43,6 +45,8 @@ class InputManager :
             tileBrushSelection,
             addNewRoom,
             addNewTrap,
+	    rotateAxisX,
+	    rotateAxisY,
             nullDragType
         };
 
@@ -69,6 +73,7 @@ class InputManager :
         DragType            mDragType;
         std::string         draggedCreature, draggedMapLight;
         GameMap*            gameMap;
+	MiniMap*            miniMap;
 };
 
 #endif /* INPUTMANAGER_H_ */

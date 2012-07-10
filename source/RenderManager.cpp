@@ -11,6 +11,10 @@
 #include <RTShaderSystem/OgreShaderExPerPixelLighting.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 #include <boost/scoped_ptr.hpp>
+#include <sstream>
+
+using std::stringstream;
+
 
 #include "GameMap.h"
 #include "RenderRequest.h"
@@ -41,11 +45,13 @@ ProtectedObject<unsigned int> RenderManager::numThreadsWaitingOnRenderQueueEmpty
 
 RenderManager::RenderManager() :
         roomSceneNode(0),
+        rockSceneNode(0),
         creatureSceneNode(0),
         lightSceneNode(0),
         fieldSceneNode(0),
         gameMap(0),
         mainCamera(0),
+        //This will use OctreSceneManager if the plugin is loaded
         sceneManager(ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE)),
         viewport(0),
         shaderGenerator(0),
@@ -53,7 +59,7 @@ RenderManager::RenderManager() :
 {
     sem_init(&renderQueueSemaphore, 0, 1);
     sem_init(&renderQueueEmptySemaphore, 0, 0);
-
+   
     //Initialise RTshader system
     if (!Ogre::RTShader::ShaderGenerator::initialize()) {
         //TODO - exit properly
@@ -73,10 +79,10 @@ RenderManager::~RenderManager()
 void RenderManager::createCamera()
 {
     mainCamera = sceneManager->createCamera("PlayerCam");
-    mainCamera->setNearClipDistance(.05);
+    mainCamera->setNearClipDistance(0.05);
     mainCamera->setFarClipDistance(300.0);
     mainCamera->setAutoTracking(false, sceneManager->getRootSceneNode()
-                                ->createChildSceneNode("CameraTarget"), Ogre::Vector3(0, 0, 0));
+                                ->createChildSceneNode("CameraTarget"), Ogre::Vector3(GameMap::mapSizeX/2,GameMap::mapSizeY/2 , 0));
 }
 
 /*! \brief setup the viewports
@@ -110,7 +116,7 @@ void RenderManager::createScene()
     Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
         ResourceManager::getSingleton().getShaderCachePath() + "../", "FileSystem", "Graphics");
     shaderGenerator->setShaderCachePath(ResourceManager::getSingleton().getShaderCachePath());
-    
+
     shaderGenerator->addSceneManager(sceneManager);
 
     viewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
@@ -144,7 +150,7 @@ void RenderManager::createScene()
 
     // Create the scene node that the camera attaches to
     Ogre::SceneNode* node = sceneManager->getRootSceneNode()
-                            ->createChildSceneNode("CamNode1", Ogre::Vector3(1, -1, 16));
+                            ->createChildSceneNode("CamNode1", Ogre::Vector3(1 + GameMap::mapSizeX/2, -1 + GameMap::mapSizeY/2, 16));
     node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
     node->roll(Ogre::Degree(30), Ogre::Node::TS_WORLD);
     node->attachObject(mainCamera);
@@ -174,9 +180,10 @@ void RenderManager::createScene()
 
 }
 
-void RenderManager::setSceneNodes(Ogre::SceneNode* roomSceneNode,
+void RenderManager::setSceneNodes(Ogre::SceneNode* rockSceneNode , Ogre::SceneNode* roomSceneNode,
                                   Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode )
 {
+    this->rockSceneNode = rockSceneNode;
     this->roomSceneNode = roomSceneNode;
     this->creatureSceneNode = creatureSceneNode;
 
@@ -202,6 +209,31 @@ bool RenderManager::handleRenderRequest ( const RenderRequest& renderRequest )
     case RenderRequest::destroyTile:
         rrDestroyTile(renderRequest);
         break;
+
+    case RenderRequest::detachTile:
+        rrDetachTile(renderRequest);
+        break;
+
+    case RenderRequest::attachTile:
+        rrAttachTile(renderRequest);
+        break;
+
+    case RenderRequest::colorTile:
+	rrColorTile(renderRequest);
+	break;
+
+    case RenderRequest::temporalMarkTile:
+	rrTemporalMarkTile(renderRequest);
+	break;
+
+    case RenderRequest::showSquareSelector:
+	rrShowSquareSelector(renderRequest);
+	break;
+
+    case RenderRequest::setPickAxe:
+	rrSetPickAxe(renderRequest);
+	break;
+
 
     case RenderRequest::createRoom:
         rrCreateRoom(renderRequest);
@@ -252,7 +284,9 @@ bool RenderManager::handleRenderRequest ( const RenderRequest& renderRequest )
     case RenderRequest::deleteTile:
     {
         Tile* curTile = static_cast<Tile*> (renderRequest.p);
-        delete curTile;
+        // curTile->~Tile();
+        // delete curTile;
+
         break;
     }
 
@@ -385,7 +419,8 @@ bool RenderManager::handleRenderRequest ( const RenderRequest& renderRequest )
 
 /*! \brief Loop through the render requests in the queue and process them
 */
-void RenderManager::processRenderRequests()
+void RenderManager::processRenderRequests
+()
 {
     /* If the renderQueue now contains 0 objects we should process this object and then
     * release any of the other threads which were waiting on a renderQueue flush.
@@ -469,9 +504,9 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
         Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
                             Tile::meshNameFromFullness(curTile->getType(),
                                                        curTile->getFullnessMeshNumber()) );
-/*        Ogre::Entity* ent = createEntity(curTile->name,
-                            Tile::meshNameFromFullness(curTile->getType(),
-                                                       curTile->getFullnessMeshNumber()), "Claimedwall2_nor3.png");*/
+        /*        Ogre::Entity* ent = createEntity(curTile->name,
+                                    Tile::meshNameFromFullness(curTile->getType(),
+                                                               curTile->getFullnessMeshNumber()), "Claimedwall2_nor3.png");*/
 
         colourizeEntity ( ent, curTile->getColor() );
 
@@ -483,8 +518,10 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
     }
 }
 
+
 void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 {
+    Ogre::SceneNode* node;
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
 
     Ogre::Entity* ent = sceneManager->createEntity( curTile->getName(),
@@ -494,9 +531,19 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     {
         colourizeEntity ( ent, curTile->getColor() );
     }
-    Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode (
-                                curTile->getName() + "_node" );
 
+    node = sceneManager->getRootSceneNode()->createChildSceneNode (
+								   curTile->getName() + "_node" );
+
+
+    // if (curTile->getType() == Tile::rock) {
+    //     node = rockSceneNode;
+
+
+    // }
+    // else {
+
+    // }
     Ogre::MeshPtr meshPtr = ent->getMesh();
     unsigned short src, dest;
     if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
@@ -505,30 +552,189 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     }
 
     //node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
-    node->attachObject ( ent );
     node->setPosition ( static_cast<Ogre::Real>(curTile->x)
                         , static_cast<Ogre::Real>(curTile->y),
                         0);
+    node->attachObject ( ent );
+
     node->setScale ( Ogre::Vector3 ( BLENDER_UNITS_PER_OGRE_UNIT,
                                      BLENDER_UNITS_PER_OGRE_UNIT,
                                      BLENDER_UNITS_PER_OGRE_UNIT ) );
     node->resetOrientation();
     node->roll ( Ogre::Degree ( curTile->rotation ) );
+
 }
+
+
 
 void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
 {
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
 
-    if ( sceneManager->hasEntity ( curTile->getName() ) )
-    {
-        Ogre::Entity* ent = sceneManager->getEntity ( curTile->getName() );
-        Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
-        node->detachAllObjects();
-        sceneManager->destroySceneNode ( curTile->getName() + "_node" );
-        sceneManager->destroyEntity ( ent );
-    }
+        if ( sceneManager->hasEntity ( curTile->getName() ) )
+        {
+            Ogre::Entity* ent = sceneManager->getEntity ( curTile->getName() );
+            Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
+            node->detachAllObjects();
+            sceneManager->destroySceneNode ( curTile->getName() + "_node" );
+            sceneManager->destroyEntity ( ent );
+        }    
+    
+    
+    // if (curTile->getType() == Tile::rock) {}
+    // else {
+
+    // }
 }
+
+void RenderManager::rrColorTile ( const RenderRequest& renderRequest ){
+    Tile* curTile = static_cast<Tile*> ( renderRequest.p );
+    Player* pp    = static_cast<Player*> ( renderRequest.p2 );
+    Ogre::Entity *ent = NULL;
+    char tempString[255];
+    char tempString2[255];
+    
+    if  (renderRequest.b){
+        curTile->setColor(pp->getSeat()->color);
+    }
+    else{
+	curTile->setColor(0);
+    }  
+        curTile->refreshMesh();
+}
+
+
+void RenderManager::rrSetPickAxe( const RenderRequest& renderRequest ) {
+    Tile* curTile = static_cast<Tile*> ( renderRequest.p );
+    bool bb =   renderRequest.b ;
+    Ogre::Entity *ent = NULL;
+    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
+    stringstream ss;
+    stringstream ss2;
+    
+    if ( sceneManager->hasSceneNode ( curTile->getName() + "_node" ) ){
+	ss.str(std::string());
+	ss << "Level";
+	ss << "_";
+	ss <<  curTile->x;
+	ss << "_";
+	ss <<  curTile->y;
+	ss << "_digging_indicator";
+
+	if (mSceneMgr->hasEntity(ss.str()))
+	    {
+		ent = mSceneMgr->getEntity(ss.str());
+	    }
+	else
+	    {
+	    ent = mSceneMgr->createEntity(ss.str(), "DigSelector.mesh");
+	    ss2.str(std::string());
+	    ss2 << "Level";
+	    ss2 << "_";
+	    ss2 <<  curTile->x;
+	    ss2 << "_";
+	    ss2 <<  curTile->y;
+	    ss2 << "_node";
+	    Ogre::SceneNode *tempNode = mSceneMgr->getSceneNode(ss2.str());
+	    tempNode->attachObject(ent);
+	    }
+
+
+
+	if ((ent!=NULL))
+	    ent->setVisible(bb);
+
+	}
+
+}
+
+void RenderManager::rrTemporalMarkTile ( const RenderRequest& renderRequest ){
+
+
+    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
+    Ogre::Entity* ent;
+    char tempString[255];
+    std::stringstream ss;
+    std::stringstream ss2;
+    Tile* curTile = static_cast<Tile*> ( renderRequest.p );
+    Player* pp    = static_cast<Player*> ( renderRequest.p2 );	
+
+    bool bb =  curTile->getSelected() ;
+
+    ss.str(std::string());
+    ss << "Level";
+    ss << "_";
+    ss <<  curTile->x;
+    ss << "_";
+    ss <<  curTile->y;
+    ss << "_selection_indicator";
+
+    if (mSceneMgr->hasEntity(ss.str()))
+        {
+            ent = mSceneMgr->getEntity(ss.str());
+        }
+    else
+        {
+                        
+
+	    ss2.str(std::string());
+	    ss2 << "Level";
+	    ss2 << "_";
+	    ss2 << curTile->x;
+	    ss2 << "_";
+	    ss2 << curTile->y;
+	    ss2 << "_node";
+            ent = mSceneMgr->createEntity(ss.str(), "SquareSelector.mesh");
+            mSceneMgr->getSceneNode(ss2.str())->attachObject(ent);
+        }
+
+
+    /*! \brief Well this should go where the pick up axe shows up
+     *
+     */
+
+    ent->setVisible(bb);
+
+
+
+}
+
+
+
+void RenderManager::rrDetachTile( const RenderRequest& renderRequest ){
+    Tile* curTile = static_cast<Tile*> ( renderRequest.p );
+    Ogre::SceneNode* tileNode = sceneManager->getSceneNode( curTile->getName() + "_node" );   
+
+    curTile->pSN=(tileNode->getParentSceneNode());
+    curTile->pSN->removeChild(tileNode);
+
+
+}
+
+
+
+void RenderManager::rrAttachTile( const RenderRequest& renderRequest ) {
+    Tile* curTile = static_cast<Tile*> ( renderRequest.p );
+    Ogre::SceneNode* tileNode = sceneManager->getSceneNode( curTile->getName() + "_node" );
+
+    curTile->pSN->addChild(tileNode);
+
+
+}
+
+
+void RenderManager::rrShowSquareSelector( const RenderRequest& renderRequest ) {
+
+    int* xPos = static_cast<int*> ( renderRequest.p );
+    int* yPos = static_cast<int*> ( renderRequest.p2 );
+
+     sceneManager->getEntity("SquareSelector")->setVisible(true);
+     sceneManager->getSceneNode("SquareSelectorNode")->setPosition(
+      								  *xPos, *yPos, 0);
+
+
+}
+
 
 void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
 {
@@ -696,7 +902,7 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
 
     assert(curCreature != 0);
     //assert(curCreature->getDefinition() != 0);
-    
+
     // Load the mesh for the creature
     Ogre::Entity* ent = sceneManager->createEntity("Creature_" + curCreature->getName(),
                         meshName);
@@ -1125,8 +1331,8 @@ void RenderManager::rrMoveSceneNode ( const RenderRequest& renderRequest )
 }
 
 bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialName,
-                                                   const std::string& normalMapTextureName,
-                                                   Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace)
+        const std::string& normalMapTextureName,
+        Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace)
 {
 
     bool success = shaderGenerator->createShaderBasedTechnique(materialName, Ogre::MaterialManager::DEFAULT_SCHEME_NAME,
@@ -1142,9 +1348,9 @@ bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialNa
     Ogre::MaterialPtr material = Ogre::MaterialManager::getSingleton().getByName(materialName);
     //Ogre::Pass* pass = material->getTechnique(0)->getPass(0);
     LogManager::getSingleton().logMessage("Technique and scheme - " + material->getTechnique(0)->getName() + " - "
-        + material->getTechnique(0)->getSchemeName());
+                                          + material->getTechnique(0)->getSchemeName());
     LogManager::getSingleton().logMessage("Viewport scheme: - " + viewport->getMaterialScheme());
-    
+
     Ogre::RTShader::RenderState* renderState = shaderGenerator->getRenderState(
                 Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, materialName, 0);
 
@@ -1161,7 +1367,7 @@ bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialNa
     else
     {
         Ogre::RTShader::SubRenderState* subRenderState = shaderGenerator->createSubRenderState(
-            Ogre::RTShader::NormalMapLighting::Type);
+                    Ogre::RTShader::NormalMapLighting::Type);
         Ogre::RTShader::NormalMapLighting* normalMapSRS =
             static_cast<Ogre::RTShader::NormalMapLighting*>(subRenderState);
         normalMapSRS->setNormalMapSpace(nmSpace);
@@ -1172,7 +1378,7 @@ bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialNa
 
     shaderGenerator->invalidateMaterial(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME, materialName);
     LogManager::getSingletonPtr()->logMessage("Created shader based technique for: " + materialName
-                , Ogre::LML_NORMAL);
+            , Ogre::LML_NORMAL);
     return true;
 }
 
@@ -1197,16 +1403,16 @@ void RenderManager::rtssTest()
     generateRTSSShadersForMaterial("Gold", "Dirt_dark_nor3.png");
     generateRTSSShadersForMaterial("Roundshield");
     generateRTSSShadersForMaterial("Staff");
-    
+
     shaderGenerator->invalidateScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
-    
+
 }
 
 Ogre::Entity* RenderManager::createEntity(const std::string& entityName, const std::string& meshName,
-                                 const std::string& normalMapTextureName)
+        const std::string& normalMapTextureName)
 {
     //TODO - has to be changed a bit, shaders shouldn't be generated here.
-    Ogre::Entity* ent = sceneManager->createEntity ( entityName, meshName);                     
+    Ogre::Entity* ent = sceneManager->createEntity ( entityName, meshName);
 
     Ogre::MeshPtr meshPtr = ent->getMesh();
     unsigned short src, dest;
@@ -1216,7 +1422,7 @@ Ogre::Entity* RenderManager::createEntity(const std::string& entityName, const s
     }
     //Generate rtss shaders
     Ogre::Mesh::SubMeshIterator it = meshPtr->getSubMeshIterator();
-    while(it.hasMoreElements()) {
+    while (it.hasMoreElements()) {
         Ogre::SubMesh* subMesh = it.getNext();
         LogManager::getSingleton().logMessage("Trying to generate shaders for material: " + subMesh->getMaterialName());
         generateRTSSShadersForMaterial(subMesh->getMaterialName(), normalMapTextureName);
@@ -1230,13 +1436,13 @@ void RenderManager::colourizeEntity(Ogre::Entity *ent, int colour)
 
     // Colorize the the textures
     // Loop over the sub entities in the mesh
-    if(colour != 0)
+    if (colour != 0)
     {
         for (unsigned int i = 0; i < ent->getNumSubEntities(); ++i)
         {
             Ogre::SubEntity *tempSubEntity = ent->getSubEntity(i);
             tempSubEntity->setMaterialName(colourizeMaterial(
-                    tempSubEntity->getMaterialName(), colour));
+                                               tempSubEntity->getMaterialName(), colour));
         }
     }
 
@@ -1251,7 +1457,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, in
     tempSS.str("");
     tempSS << "Color_" << colour << "_" << materialName;
     Ogre::MaterialPtr newMaterial = Ogre::MaterialPtr(
-            Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
+                                        Ogre::MaterialManager::getSingleton().getByName(tempSS.str()));
 
     //cout << "\nCloning material:  " << tempSS.str();
 
@@ -1265,8 +1471,8 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, in
 
         std::cout << "\nMaterial does not exist, creating a new one.";
         newMaterial = Ogre::MaterialPtr(
-                Ogre::MaterialManager::getSingleton().getByName(
-                        materialName))->clone(tempSS.str());
+                          Ogre::MaterialManager::getSingleton().getByName(
+                              materialName))->clone(tempSS.str());
 
         // Loop over the techniques for the new material
         for (unsigned int j = 0; j < newMaterial->getNumTechniques(); ++j)

@@ -148,8 +148,8 @@ void *clientSocketProcessor(void *p)
                 std::stringstream tempSS(arguments);
                 Tile *newTile = new Tile;
                 tempSS >> newTile;
+		newTile->setGameMap(&gameMap);
                 gameMap.addTile(newTile);
-                newTile->createMesh();
                 sem_wait(&sock->semaphore);
                 sock->send(formatCommand("ok", "addtile"));
                 sem_post(&sock->semaphore);

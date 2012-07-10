@@ -30,6 +30,7 @@
 #include "Seat.h"
 #include "Trap.h"
 #include "Player.h"
+#include "RenderRequest.h"
 #include "RenderManager.h"
 #include "CameraManager.h"
 #include "Console.h"
@@ -47,7 +48,8 @@ InputManager::~InputManager()
     mInputManager = 0;
 }
 
-InputManager::InputManager(GameMap* gameMap) :
+
+InputManager::InputManager(GameMap* gameMap,MiniMap* mM) :
         frameListener(ODFrameListener::getSingletonPtr()),
         mLMouseDown(false),
         mRMouseDown(false),
@@ -64,7 +66,8 @@ InputManager::InputManager(GameMap* gameMap) :
         mRStartDragY(0),
         mCurrentTileType(Tile::dirt),
         mDragType(nullDragType),
-        gameMap(gameMap)
+        gameMap(gameMap),
+	miniMap(mM)
 {
     LogManager::getSingleton().logMessage("*** Initializing OIS ***");
 
@@ -146,9 +149,17 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
         Ogre::RaySceneQueryResult::iterator end = result.end();
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         std::string resultName = "";
+	if(mDragType == rotateAxisX){
+	    CameraManager::getSingleton().move(CameraManager::randomRotateX,arg.state.X.rel);
 
+	}
 
-        if (mDragType == tileSelection || mDragType == addNewRoom || mDragType == nullDragType)
+	else if(mDragType == rotateAxisY){
+	    CameraManager::getSingleton().move(CameraManager::randomRotateY,arg.state.Y.rel);
+
+	}
+
+        else if (mDragType == tileSelection || mDragType == addNewRoom || mDragType == nullDragType)
         {
             // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
             for (; itr != end; ++itr)
@@ -159,50 +170,83 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                     resultName = itr->movable->getName();
 
                     if (resultName.find("Level_") != std::string::npos)
-                    {
-                        //Make the mouse light follow the mouse
-                        //TODO - we should make a pointer to the light or something.
-                        Ogre::RaySceneQuery* rq = frameListener->getRaySceneQuery();
-                        Ogre::Real dist = itr->distance;
-                        Ogre::Vector3 point = rq->getRay().getPoint(dist);
-                        mSceneMgr->getLight("MouseLight")->setPosition(point.x, point.y, 4.0);
+			{
+			    //Make the mouse light follow the mouse
+			    //TODO - we should make a pointer to the light or something.
+			    Ogre::RaySceneQuery* rq = frameListener->getRaySceneQuery();
+			    Ogre::Real dist = itr->distance;
+			    Ogre::Vector3 point = rq->getRay().getPoint(dist);
+			    mSceneMgr->getLight("MouseLight")->setPosition(point.x, point.y, 4.0);
 
-                        // Get the x-y coordinates of the tile.
-                        sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
+			    // Get the x-y coordinates of the tile.
+			    sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
+			    RenderRequest *request = new RenderRequest;
 
-                        // Make sure the "square selector" mesh is visible and position it over the current tile.
-                        mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-                        mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(
-                            xPos, yPos, 0);
-                        //mSceneMgr->getLight("MouseLight")->setPosition(xPos, yPos, 2.0);
+			    request->type = RenderRequest::showSquareSelector;
+			    request->p = static_cast<void*>(&xPos);
+			    request->p2 = static_cast<void*>(&yPos);
 
-                        if (mLMouseDown)
-                        {
-                            // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-                            //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords rather than the reverse that it is doing now.
-                            std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(xPos,
-                                                               yPos, mLStartDragX, mLStartDragY);
+			    // Add the request to the queue of rendering operations to be performed before the next frame.
+			    RenderManager::queueRenderRequest(request);
+			    
+			    
+			    // Make sure the "square selector" mesh is visible and position it over the current tile.
 
-                            for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
-                                    itr != last; ++itr)
-                            {
-                                if (std::find(affectedTiles.begin(), affectedTiles.end(), itr->second) != affectedTiles.end())
-                                {
-                                    itr->second->setSelected(true,gameMap->getLocalPlayer());
-                                }
-                                else
-                                {
-                                    itr->second->setSelected(false,gameMap->getLocalPlayer());
-                                }
-                            }
-                        }
+			    //mSceneMgr->getLight("MouseLight")->setPosition(xPos, yPos, 2.0);
 
-                        if (mRMouseDown)
-                        {
-                        }
+			    if (mLMouseDown)
+				{
+				    // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
+				    //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords rather than the reverse that it is doing now.
+				    std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(xPos,
+												  yPos, mLStartDragX, mLStartDragY);
 
-                        break;
-                    }
+
+				    for (int jj = 0; jj < gameMap->mapSizeY; ++jj)
+					{
+					    for (int ii = 0; ii < gameMap->mapSizeX; ++ii)
+						{
+						    gameMap->getTile(ii,jj)->setSelected(false,gameMap->getLocalPlayer());
+						}
+					}
+
+
+				    for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); itr++ ){
+
+					// for (int jj = 0; jj < GameMap::mapSizeY; ++jj)
+					//     {
+					// 	for (int ii = 0; ii < GameMap::mapSizeX; ++ii)
+					// 	    {
+
+
+					// 		for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
+					// 		        itr != last; ++itr)
+					// 		{
+					// 		}
+
+					// 		The hell , with the above, I see no reason aditional iteration over tiles in GameMap
+					// 		if (std::find(affectedTiles.begin(), affectedTiles.end(), gameMap->getTile(ii,jj)) != affectedTiles.end())
+					// 		    {
+					// 			(*itr)->setSelected(true,gameMap->getLocalPlayer());
+					// 		    }
+					// 		else
+					// 		    {
+					// 			(*itr)->setSelected(false,gameMap->getLocalPlayer());
+					// 		    }
+					// 	    }
+					//     }
+
+
+					(*itr)->setSelected(true,gameMap->getLocalPlayer());				  
+				    }
+				}
+
+			    if (mRMouseDown)
+				{
+				}
+
+			    break;
+			}
                 }
             }
         }
@@ -223,10 +267,14 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                         // Get the x-y coordinates of the tile.
                         sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
 
+
+			    RenderRequest *request = new RenderRequest;
+
+			    request->type = RenderRequest::showSquareSelector;
+			    request->p = static_cast<void*>(&xPos);
+			    request->p2 = static_cast<void*>(&yPos);
                         // Make sure the "square selector" mesh is visible and position it over the current tile.
-                        mSceneMgr->getEntity("SquareSelector")->setVisible(true);
-                        mSceneMgr->getSceneNode("SquareSelectorNode")->setPosition(
-                            xPos, yPos, 0);
+
                     }
                 }
             }
@@ -266,12 +314,19 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
                     {
                         // The current tile does not exist so we need to create it.
                         //currentTile = new Tile;
-                        char tempArray[255];
-                        snprintf(tempArray, sizeof(tempArray), "Level_%3i_%3i",
-                                 xPos + i, yPos + j);
+			stringstream ss;
+
+			ss.str(std::string());
+			ss << "Level";
+			ss << "_";
+			ss << xPos + 1;
+			ss << "_";
+			ss << yPos + 1;
+
+
                         currentTile = new Tile(xPos + i, yPos + j,
                                                mCurrentTileType, mCurrentFullness);
-                        currentTile->setName(tempArray);
+                        currentTile->setName(ss.str());
                         gameMap->addTile(currentTile);
                         currentTile->createMesh();
                     }
@@ -333,7 +388,7 @@ bool InputManager::mouseMoved(const OIS::MouseEvent &arg)
 
     //CameraManager::getSingleton().move(CameraManager::fullStop);
 
-    if (!directionKeyPressed)
+    if (!(directionKeyPressed || mDragType == rotateAxisX || mDragType == rotateAxisY))
     {
 
         if (arg.state.X.abs == 0)
@@ -409,8 +464,20 @@ bool InputManager::mousePressed(const OIS::MouseEvent &arg,
         mLStartDragX = xPos;
         mLStartDragY = yPos;
 
+	if(arg.state.Y.abs < 0.1*arg.state.height || arg.state.Y.abs > 0.9*arg.state.height){
+		mDragType=rotateAxisX;
+		return true;
+	    }
+
+	else if(arg.state.X.abs > 0.9*arg.state.width || arg.state.X.abs < 0.1*arg.state.width){
+		mDragType=rotateAxisY;
+		return true;
+	    }
+
+
         // See if the mouse is over any creatures
 
+	
         while (itr != result.end())
         {
             if (itr->movable != NULL)
@@ -626,18 +693,36 @@ bool InputManager::mouseReleased(const OIS::MouseEvent &arg,
     if (mouseDownOnCEGUIWindow)
         return true;
 
+    for (int jj = 0; jj < gameMap->mapSizeY; ++jj)
+	{
+	    for (int ii = 0; ii < gameMap->mapSizeX; ++ii)
+		{
+		    gameMap->getTile(ii,jj)->setSelected(false,gameMap->getLocalPlayer());
+		}
+	}
+
+
     // Unselect all tiles
-    for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
-            itr != last; ++itr)
-    {
-        itr->second->setSelected(false,gameMap->getLocalPlayer());
-    }
+    // for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
+    //         itr != last; ++itr)
+    // {
+    //     itr->second->setSelected(false,gameMap->getLocalPlayer());
+    // }
 
     // Left mouse button up
     if (id == OIS::MB_Left)
     {
+	if(mDragType == rotateAxisX){
+
+	    mDragType=nullDragType;
+	}
+	else if(mDragType == rotateAxisY){
+
+	    mDragType=nullDragType;
+	}
+
         // Check to see if we are moving a creature
-        if (mDragType == creature)
+        else if (mDragType == creature)
         {
             if (!isInGame())
             {

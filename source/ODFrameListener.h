@@ -1,7 +1,7 @@
 /*!
  * \file   ODFrameListener.h
  * \date   09 April 2011
- * \author Ogre team, andrewbuck, oln, StefanP.MUC
+ * \auth	(require 'ecb)or Ogre team, andrewbuck, oln, StefanP.MUC
  * \brief  Handles the input and rendering request
  */
 
@@ -10,8 +10,6 @@
 
 #include <deque>
 #include <vector>
-
-#include <boost/shared_ptr.hpp>
 
 #include <pthread.h>
 #include <OgreFrameListener.h>
@@ -28,7 +26,6 @@
 
 #include "ProtectedObject.h"
 
-class GameContext;
 class Socket;
 class RenderManager;
 class InputManager;
@@ -36,6 +33,7 @@ class CameraManager;
 class SoundEffectsHelper;
 class ChatMessage;
 class GameMap;
+class MiniMap;
 
 /*! \brief The main OGRE rendering class.
  *
@@ -49,6 +47,7 @@ class ODFrameListener :
         public Ogre::FrameListener,
         public Ogre::WindowEventListener
 {
+friend class Console;
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
         ODFrameListener(Ogre::RenderWindow* win);
@@ -84,11 +83,8 @@ class ODFrameListener :
         bool quit(const CEGUI::EventArgs &e);
         Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
 
-        // Console functions
-        void printText(const std::string& text);
-        bool executePromptCommand(const std::string& command, std::string arguments);
-        std::string getHelpText(std::string arg);
-
+	void printText(const std::string& text);
+	    
         //NOTE - we should generally avoid using this function
         inline GameMap* getGameMap() {return gameMap;}
         
@@ -128,10 +124,10 @@ class ODFrameListener :
         Ogre::SceneNode*        roomSceneNode;
         Ogre::SceneNode*        fieldSceneNode;
         Ogre::SceneNode*        lightSceneNode;
+        Ogre::SceneNode*        rockSceneNode;
         Ogre::Timer             statsDisplayTimer;
         GameMap*                gameMap;
-        
-        boost::shared_ptr<GameContext>    gameContext;
+	MiniMap*                miniMap;
 
         std::vector<Ogre::ColourValue> playerColourValues;
 

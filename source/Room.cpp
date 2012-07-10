@@ -411,6 +411,8 @@ std::istream& operator>>(std::istream& is, Room *r)
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
+	tempX+= GameMap::mapSizeX/2 ;
+	tempY+= GameMap::mapSizeY/2 ;
         Tile *tempTile = r->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
         {
@@ -483,7 +485,7 @@ Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
         return forge;
     else if (s.compare("Dojo") == 0)
         return dojo;
-    else 
+    else
     {
         std::cerr
                 << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";
