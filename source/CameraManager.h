@@ -9,6 +9,7 @@
 #define CAMERAMANAGER_H_
 
 #include "GameMap.h"
+#include "AbstractApplicationMode.h"
 #include <Ogre.h>
 
 class CameraManager : public Ogre::Singleton<CameraManager>
@@ -39,6 +40,11 @@ public:
 
     CameraManager(Ogre::Camera* cam, GameMap* gm = NULL);
 
+    //set Mode we do use
+    void setCurrentMode(AbstractApplicationMode* gm ){
+	gameMode = gm;
+	}
+    
     //get/set moveSpeed
     inline const Ogre::Real& getMoveSpeed() const {
         return moveSpeed;
@@ -94,6 +100,7 @@ public:
         return mCamera;
     }
 private:
+    AbstractApplicationMode* gameMode;
     Vector3i *top, *bottom, *middleLeft, *middleRight;
     Vector3i *oldTop, *oldBottom, *oldMiddleLeft, *oldMiddleRight;
     int precisionDigits;

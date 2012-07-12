@@ -97,8 +97,8 @@ ODApplication::ODApplication() :
     MusicPlayer::getSingleton().start(0);
 
     //TODO: this should not be created here.
-//    gameMap = new GameMap;
-//    renderMgr->setGameMap(gameMap);
+    //gameMap = new GameMap;
+    //renderMgr->setGameMap(gameMap);
 
     //FIXME: do this only if a level loads after the main menu
     //Try to create the camera, viewport and scene.
@@ -128,6 +128,10 @@ ODApplication::ODApplication() :
     }*/
 
     //new CameraManager(renderMgr->getCamera());
+    //FIXME: Is this the best place for instanciating these two?
+    //Console needs to exist BEFORE ASWrapper because it needs it for callback
+    new Console();
+
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
     root->addFrameListener(new ODFrameListener(window));
     //TODO: This should be moved once we have separated level loading from startup.
@@ -136,9 +140,6 @@ ODApplication::ODApplication() :
     //FIXME: This should be at a better place (when level loads for the first time)
     // new MiniMap;
 
-    //FIXME: Is this the best place for instanciating these two?
-    //Console needs to exist BEFORE ASWrapper because it needs it for callback
-    new Console();
     new ASWrapper();
 
     try

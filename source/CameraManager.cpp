@@ -168,8 +168,8 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     
     updateCameraView();
     gameMap->getMiniMap()->setCamera_2dPosition(getCameraViewTarget());
-    InputManager::getSingleton().mouseMoved(
-        OIS::MouseEvent(0, InputManager::getSingleton().getMouse()->getMouseState()));
+    gameMode->mouseMoved(
+        OIS::MouseEvent(0 ,gameMode->getMouse()->getMouseState()));
 
     //std::cerr << " x:" << mCamNode->getPosition().x << " y " << mCamNode->getPosition().y <<" z" << mCamNode->getPosition().z << std::endl;
 }

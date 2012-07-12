@@ -37,7 +37,8 @@
 #include "ODApplication.h"
 #include "GameStateManager.h"
 #include "LogManager.h"
-#include "InputManager.h"
+
+// #include "InputManager.h"
 #include "CameraManager.h"
 #include "MapLoader.h"
 #include "Seat.h"
@@ -103,7 +104,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         //return;
     }
     
-    new CameraManager(renderManager->getCamera(),gameMap);
+    CameraManager* cm = new CameraManager(renderManager->getCamera(),gameMap);
 
     //FIXME: this should be changed to a function or something.
     gameMap->me = new Player();
@@ -123,8 +124,12 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
             "Light_scene_node");
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
-    inputManager = new InputManager(gameMap,miniMap);
 
+    AbstractApplicationMode *aam = new AbstractApplicationMode(gameMap,miniMap);
+    inputManager = new GameMode( *aam) ;
+    
+    cm->setCurrentMode(inputManager);
+    Console::getSingletonPtr()->setCurrentMode(inputManager);
     //Set initial mouse clipping size
     windowResized(mWindow);
 

@@ -13,7 +13,7 @@
 #include "Socket.h"
 #include "ASWrapper.h"
 #include "Network.h"
-#include "InputManager.h"
+#include "GameMode.h"
 #include "LogManager.h"
 #include "ODApplication.h"
 #include "ODFrameListener.h"
@@ -123,7 +123,7 @@ void Console::onKeyPressed(const OIS::KeyEvent& arg)
         case OIS::KC_F12:
             Console::getSingleton().setVisible(false);
             ODFrameListener::getSingleton().setTerminalActive(false);
-            InputManager::getSingleton().getKeyboard()->setTextTranslation(OIS::Keyboard::Off);
+            gameMode->getKeyboard()->setTextTranslation(OIS::Keyboard::Off);
             break;
 
         case OIS::KC_RETURN:

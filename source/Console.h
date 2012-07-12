@@ -15,6 +15,7 @@
 #include <ODFrameListener.h>
 #include <Ogre.h>
 #include <OIS/OIS.h>
+#include <GameMode.h>
 #include "GameMap.h"
 
 #include "Gui.h"
@@ -29,6 +30,11 @@ class Console :
     public:
         Console();
         ~Console();
+
+	void setCurrentMode(AbstractApplicationMode* gm ){
+	    gameMode = gm;
+	    }
+    
 
         inline const bool& isVisible() const{return visible;}
         void setVisible(const bool newState);
@@ -68,6 +74,7 @@ class Console :
 
 
         //state variables
+	AbstractApplicationMode*       gameMode;
 	ODFrameListener* odf;
         unsigned int    consoleLineLength;
         unsigned int    consoleLineCount;

@@ -105,6 +105,7 @@ set(OD_SOURCEFILES
     #${SRC}/GameContext.cpp
     ${SRC}/GameEntity.cpp
     ${SRC}/GameMap.cpp
+    ${SRC}/GameMode.cpp
     ${SRC}/GameStateManager.cpp
     ${SRC}/GoalClaimNTiles.cpp
     ${SRC}/Goal.cpp
@@ -149,7 +150,7 @@ set(OD_SOURCEFILES
     ${SRC}/TestAI.cpp
     ${SRC}/TextRenderer.cpp
     ${SRC}/Tile.cpp
-#    ${SRC}/TileMap.cpp
+#   ${SRC}/TileMap.cpp
     ${SRC}/TileCoordinateMap.cpp
     ${SRC}/Translation.cpp
     ${SRC}/Trap.cpp
