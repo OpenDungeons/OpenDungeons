@@ -44,7 +44,8 @@
 GameMode::GameMode(AbstractApplicationMode const &aam):
 AbstractApplicationMode(aam)
 {
-
+    mMouse->setEventCallback(this);
+    mKeyboard->setEventCallback(this);
 
 }
 
