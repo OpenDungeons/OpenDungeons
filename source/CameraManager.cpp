@@ -416,8 +416,7 @@ int CameraManager::updateCameraView() {
 int CameraManager::bashAndSplashTiles(int mode)
 {
     bool bash,splash;
-    bool   bashX,splashX,bashY,splashY;
-    bashX=splashX=bashY=splashY=false;
+
     int xxLeftOld = oldTop->x;
     int xxRightOld= oldTop->x;
 
@@ -486,7 +485,6 @@ int CameraManager::bashAndSplashTiles(int mode)
 		xxRightOld += dxRightOld2;
 	    }
 
-	bashX=splashX=false;
 	int rr =  max(xxRight,xxRightOld);
 	for (int xx =  ((min(xxLeft,xxLeftOld)>>precisionDigits) -1)<<precisionDigits  ; xx <= rr ; xx+= (1<<precisionDigits)) {
 
@@ -580,19 +578,14 @@ bool CameraManager::getIntersectionPoints( Vector3i*& pp1,Vector3i*& pp2, Vector
     pp1 =  vi[1]; 
     pp2 =  vi[2]; 
     pp3 =  vi[3]; 
- 
 
-   
     cerr<<endl << "intersection points" << endl;
     cerr << pp1->x << " " << pp1->y << " " << pp1->z <<endl;
     cerr << pp2->x << " " << pp2->y << " " << pp2->z <<endl;
     cerr << pp3->x << " " << pp3->y << " " << pp3->z <<endl;
     cerr << pp0->x << " " << pp0->y << " " << pp0->z <<endl;
 
-    int foobar = 33 + 45 ;
     return true;
-
-
 }
 
 

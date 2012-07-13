@@ -283,7 +283,7 @@ bool RenderManager::handleRenderRequest ( const RenderRequest& renderRequest )
 
     case RenderRequest::deleteTile:
     {
-        Tile* curTile = static_cast<Tile*> (renderRequest.p);
+        //Tile* curTile = static_cast<Tile*> (renderRequest.p);
         // curTile->~Tile();
         // delete curTile;
 
@@ -590,17 +590,10 @@ void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
 void RenderManager::rrColorTile ( const RenderRequest& renderRequest ){
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
     Player* pp    = static_cast<Player*> ( renderRequest.p2 );
-    Ogre::Entity *ent = NULL;
-    char tempString[255];
-    char tempString2[255];
+    Ogre::Entity *ent = 0;
     
-    if  (renderRequest.b){
-        curTile->setColor(pp->getSeat()->color);
-    }
-    else{
-	curTile->setColor(0);
-    }  
-        curTile->refreshMesh();
+    curTile->setColor(renderRequest.b ? pp->getSeat()->getColor() : 0);
+    curTile->refreshMesh();
 }
 
 
@@ -653,13 +646,11 @@ void RenderManager::rrTemporalMarkTile ( const RenderRequest& renderRequest ){
 
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     Ogre::Entity* ent;
-    char tempString[255];
     std::stringstream ss;
     std::stringstream ss2;
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
-    Player* pp    = static_cast<Player*> ( renderRequest.p2 );	
 
-    bool bb =  curTile->getSelected() ;
+    bool    bb =  curTile->getSelected() ;
 
     ss.str(std::string());
     ss << "Level";
@@ -670,33 +661,26 @@ void RenderManager::rrTemporalMarkTile ( const RenderRequest& renderRequest ){
     ss << "_selection_indicator";
 
     if (mSceneMgr->hasEntity(ss.str()))
-        {
-            ent = mSceneMgr->getEntity(ss.str());
-        }
+    {
+        ent = mSceneMgr->getEntity(ss.str());
+    }
     else
-        {
-                        
-
-	    ss2.str(std::string());
-	    ss2 << "Level";
-	    ss2 << "_";
-	    ss2 << curTile->x;
-	    ss2 << "_";
-	    ss2 << curTile->y;
-	    ss2 << "_node";
-            ent = mSceneMgr->createEntity(ss.str(), "SquareSelector.mesh");
-            mSceneMgr->getSceneNode(ss2.str())->attachObject(ent);
-        }
-
+    {
+        ss2.str(std::string());
+        ss2 << "Level";
+        ss2 << "_";
+        ss2 << curTile->x;
+        ss2 << "_";
+        ss2 << curTile->y;
+        ss2 << "_node";
+        ent = mSceneMgr->createEntity(ss.str(), "SquareSelector.mesh");
+        mSceneMgr->getSceneNode(ss2.str())->attachObject(ent);
+    }
 
     /*! \brief Well this should go where the pick up axe shows up
      *
      */
-
     ent->setVisible(bb);
-
-
-
 }
 
 

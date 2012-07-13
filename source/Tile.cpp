@@ -539,7 +539,6 @@ std::istream& operator>>(std::istream& is, Tile *t)
 {
     int tempInt, xLocation, yLocation;
     double tempDouble;
-    char tempCellName[255];
     stringstream ss;
 
     is >> xLocation >> yLocation;
@@ -704,16 +703,10 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
         return;
 
     Ogre::Entity *ent = NULL;
-    char tempString[255];
-    char tempString2[255];
     RenderRequest *request ;
 
     if (getMarkedForDigging(pp) != ss)
 	{
-
-
-	
-	    
 	    if  (pp == getGameMap()->getLocalPlayer()) // if this request is for me 
 		{
 		    request = new RenderRequest;
@@ -732,8 +725,6 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
 		    request->b = ss;
 		    // Add the request to the queue of rendering operations to be performed before the next frame.
 		    RenderManager::queueRenderRequest(request);
-
-
 		}
         
 	    if (ss)

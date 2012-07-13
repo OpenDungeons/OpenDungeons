@@ -165,8 +165,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     
     LogManager::getSingletonPtr()->logMessage("*** FrameListener initialized ***");
     Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
-    Ogre::SceneNode* tileSceneNode;
-
 
     gameMap->createTilesMeshes();
     gameMap->hideAllTiles();

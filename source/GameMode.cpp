@@ -158,7 +158,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 					}
 
 
-				    for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); itr++ ){
+				    for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr ){
 
 					// for (int jj = 0; jj < GameMap::mapSizeY; ++jj)
 					//     {

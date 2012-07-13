@@ -74,7 +74,7 @@ void GameMap:: toggleCreaturesVisibility(){
     sem_wait(&creaturesLockSemaphore);
     visibleCreatures = !visibleCreatures;
     if(visibleCreatures ){
-	for(  std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++){
+	for(  std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); ++it){
 	    if((*it)->isMeshExisting()) 
 
 		// (*it)->pSN=((*it)->sceneNode->getParentSceneNode());
@@ -85,7 +85,7 @@ void GameMap:: toggleCreaturesVisibility(){
 	} 
     }
     else{
-	for(  std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); it++){
+	for(  std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); ++it){
 	    if((*it)->isMeshExisting()){
 		(*it)->pSN=((*it)->sceneNode->getParentSceneNode());
 		(*it)->pSN->removeChild((*it)->sceneNode);
@@ -2821,7 +2821,7 @@ void GameMap::disableFloodFill()
  */
 void GameMap::enableFloodFill()
 {
-    Tile *tempTile;
+    //Tile *tempTile;
 
     // Carry out a flood fill of the whole level to make sure everything is good.
     // Start by setting the flood fill color for every tile on the map to -1.

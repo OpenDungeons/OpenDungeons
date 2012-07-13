@@ -162,27 +162,23 @@ void MiniMap::draw() {
 		    }
 		}
 	}
-    for(	updatedCreatureIndex = gameMap->creatures.begin()   ;    updatedCreatureIndex < gameMap->creatures.end() ;    updatedCreatureIndex++){
-	if((*updatedCreatureIndex)->getIsOnMap()){
-	    double  ii  = (*updatedCreatureIndex)->getPosition().x;
-	    double  jj  = (*updatedCreatureIndex)->getPosition().y;	 
 
-	    //drawPixel(ii,jj,0x94,0x0,0x94);
+    for(updatedCreatureIndex = gameMap->creatures.begin(); updatedCreatureIndex < gameMap->creatures.end(); ++updatedCreatureIndex)
+    {
+        if((*updatedCreatureIndex)->getIsOnMap())
+        {
+            //double  ii  = (*updatedCreatureIndex)->getPosition().x;
+            //double  jj  = (*updatedCreatureIndex)->getPosition().y;
 
-	}
+            //drawPixel(ii,jj,0x94,0x0,0x94);
+        }
     }
- 
-    
-    
-    
 }
-
-
 
 void MiniMap::swap()
 {
     pixelBuffer->lock(*pixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
-    Ogre::uint8* currentLock ;
+
     Ogre::uint8* pDest;
     pDest = static_cast<Ogre::uint8*>( pixelBuffer->getCurrentLock().data) - 1;
 
@@ -195,17 +191,13 @@ void MiniMap::swap()
 		}
 	}
 
-
     pixelBuffer->unlock();
 }
 
 
 
-int MiniMap::allocateMiniMapMemory() {
-
-
-   
-
+int MiniMap::allocateMiniMapMemory()
+{
     // miniMapSizeX = xSize;
     // miniMapSizeY=ySize;
     if (tiles==NULL) {
