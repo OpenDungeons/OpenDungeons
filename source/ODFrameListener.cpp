@@ -37,6 +37,7 @@
 #include "ODApplication.h"
 #include "GameStateManager.h"
 #include "LogManager.h"
+#include "ModeContext.h"
 
 // #include "InputManager.h"
 #include "CameraManager.h"
@@ -125,8 +126,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
 
-    AbstractApplicationMode *aam = new AbstractApplicationMode(gameMap,miniMap);
-    inputManager = new GameMode( *aam) ;
+    ModeContext *mc = new ModeContext(gameMap,miniMap);
+    inputManager = new GameMode(mc);
     
     cm->setCurrentMode(inputManager);
     Console::getSingletonPtr()->setCurrentMode(inputManager);

@@ -1,22 +1,25 @@
-#ifndef GAMEODE_H
-#define GAMEODE_H
+#ifndef GAMEMODE_H
+#define GAMEMODE_H
 
 
 #include "AbstractApplicationMode.h"
+#include "ModeContext.h"
 
+class ModeContext;
 
 class  GameMode: public AbstractApplicationMode  {
 
 
  public:
  
+    ModeContext *mc;
 
-    GameMode(GameMap* ,MiniMap*);
-    GameMode( AbstractApplicationMode const& );
+    GameMode(ModeContext*);
+
     virtual ~GameMode();
 
-    inline virtual OIS::Mouse*      getMouse()      const   {return mMouse;}
-    inline virtual OIS::Keyboard*   getKeyboard()   const   {return mKeyboard;}
+    inline virtual OIS::Mouse*      getMouse()         {return mc->mMouse;}
+    inline virtual OIS::Keyboard*   getKeyboard()      {return mc->mKeyboard;}
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
@@ -24,8 +27,6 @@ class  GameMode: public AbstractApplicationMode  {
     virtual bool keyPressed     (const OIS::KeyEvent &arg);
     virtual bool keyReleased    (const OIS::KeyEvent &arg);
     virtual void handleHotkeys  (OIS::KeyCode keycode);
-
-protected:
     virtual bool isInGame();
     
 
