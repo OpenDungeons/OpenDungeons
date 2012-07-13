@@ -104,6 +104,10 @@ Object management</h2>
 <ul>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a0509f97130860b6fe3477f66e9fb712d">asBC_REFCPY</a></li>
 </ul>
+<p>Copy the object handle on stack to a handle in a variable. The reference count of the object is updated to reflect the copy.</p>
+<ul>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a8b1c7e7b7c8054b36a9d48c3452adf79">asBC_RefCpyV</a></li>
+</ul>
 <p>Push the pointer of an object type on the stack</p>
 <ul>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a0dcad2ccee9332253501c3cef2200fad">asBC_OBJTYPE</a></li>
@@ -326,6 +330,8 @@ Flow control</h2>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ac2792270f8022801384ccd0ae3b00604">asBC_JP</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ae4f95a73cfe667f1928e7766ea09511e">asBC_JNP</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a31eae477a85a0b1ee618df42deb0519c">asBC_JMPP</a></li>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a9da365af8ea85e3eb538567207d4a705">asBC_JLowZ</a></li>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a12e9c561f401be75a6db13a94a687d77">asBC_JLowNZ</a></li>
 </ul>
 <p>Call an application registered function</p>
 <ul>
@@ -341,11 +347,6 @@ Flow control</h2>
 </ul>
 <h2><a class="anchor" id="doc_adv_jit_1_8"></a>
 Stack and data management</h2>
-<p>Update the stack pointer.</p>
-<ul>
-<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0aa41f70f690348045c1ee90dae68a9c42">asBC_POP</a></li>
-<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6a74cc67208599b6a18f9ab85d03d023">asBC_PUSH</a></li>
-</ul>
 <p>Push a constant value on the stack.</p>
 <ul>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a53fa213a7d3fed6add6d37dfe073e1cb">asBC_PshC4</a></li>
@@ -360,11 +361,11 @@ Stack and data management</h2>
 <ul>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0ac23d851c5aaffca166d6494bec9bcf24">asBC_SwapPtr</a></li>
 </ul>
-<p>Pop an address from the stack, read a value from the address and push it on the stack.</p>
+<p>Dereference top pointer on stack. Raises exception if pointer is null.</p>
 <ul>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a2628264804fd19af3ce94e0336b3eeeb">asBC_RDSPtr</a></li>
 </ul>
-<p>Add an offset to the top address on the stack.</p>
+<p>Add an offset to the top address on the stack. Raises exception if address is null.</p>
 <ul>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a0219f343e6e7248e72d209ea22b63f4d">asBC_ADDSi</a></li>
 </ul>
@@ -403,6 +404,10 @@ Stack and data management</h2>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6ad13f895f055f69384efb4a67941369">asBC_GETREF</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0aaef456de01ad209271078728d304b803">asBC_GETOBJ</a></li>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6b9d0ef0c8e981a591c384792acf2c6d">asBC_GETOBJREF</a></li>
+</ul>
+<p>Pop and discard an address from the stack.</p>
+<ul>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a61f3044359836f88001928bcab382c1e">asBC_PopPtr</a></li>
 </ul>
 <p>Pop or push an address to or from the value register.</p>
 <ul>
@@ -443,6 +448,7 @@ Global variables</h2>
 <p>Push the value of a global variable on the stack</p>
 <ul>
 <li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a71be4bc7beb5407aac980f73cce33bd6">asBC_PshG4</a></li>
+<li><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a0c1133692af5029feef4a1e5aec5c65b">asBC_PshGPtr</a></li>
 </ul>
 <p>Load the address of a global variable into the value register</p>
 <ul>
@@ -470,7 +476,7 @@ Global variables</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

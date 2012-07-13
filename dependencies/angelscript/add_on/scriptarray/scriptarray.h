@@ -1,11 +1,26 @@
 #ifndef SCRIPTARRAY_H
 #define SCRIPTARRAY_H
 
+#ifndef ANGELSCRIPT_H 
+// Avoid having to inform include path if header is already include before
 #include <angelscript.h>
+#endif
+
+// Sometimes it may be desired to use the same method names as used by C++ STL.
+// This may for example reduce time when converting code from script to C++ or
+// back.
+//
+//  0 = off
+//  1 = on
+
+#ifndef AS_USE_STLNAMES
+#define AS_USE_STLNAMES 0
+#endif
 
 BEGIN_AS_NAMESPACE
 
 struct SArrayBuffer;
+struct SArrayCache;
 
 class CScriptArray
 {
@@ -22,12 +37,17 @@ public:
 	int            GetArrayTypeId() const;
 	int            GetElementTypeId() const;
 
+	void   Reserve(asUINT maxElements);
 	void   Resize(asUINT numElements);
 	asUINT GetSize() const;
+	bool   IsEmpty() const;
 
 	// Get a pointer to an element. Returns 0 if out of bounds
 	void       *At(asUINT index);
 	const void *At(asUINT index) const;
+
+	// Set value of an element
+	void  SetValue(asUINT index, void *value);
 
 	CScriptArray &operator=(const CScriptArray&);
 	bool operator==(const CScriptArray &) const;
@@ -58,8 +78,6 @@ protected:
 	asIObjectType    *objType;
 	SArrayBuffer     *buffer;
 	int               elementSize;
-	int               cmpFuncId;
-	int               eqFuncId;
 	int               subTypeId;
 
 	bool  Less(const void *a, const void *b, bool asc, asIScriptContext *ctx);
@@ -69,13 +87,12 @@ protected:
 	void  Precache();
 	bool  CheckMaxSize(asUINT numElements);
 	void  Resize(int delta, asUINT at);
-	void  SetValue(asUINT index, void *value);
 	void  CreateBuffer(SArrayBuffer **buf, asUINT numElements);
 	void  DeleteBuffer(SArrayBuffer *buf);
 	void  CopyBuffer(SArrayBuffer *dst, SArrayBuffer *src);
 	void  Construct(SArrayBuffer *buf, asUINT start, asUINT end);
 	void  Destruct(SArrayBuffer *buf, asUINT start, asUINT end);
-	bool  Equals(const void *a, const void *b, asIScriptContext *ctx) const;
+	bool  Equals(const void *a, const void *b, asIScriptContext *ctx, SArrayCache *cache) const;
 };
 
 void RegisterScriptArray(asIScriptEngine *engine, bool defaultArray);

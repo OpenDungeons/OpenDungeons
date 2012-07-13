@@ -65,7 +65,7 @@
 <div class="textblock"><p>To prevent long running scripts to freeze the application it may be necessary to add a way to timeout the execution. This article presents two different ways to do so.</p>
 <h2><a class="anchor" id="doc_adv_timeout_1"></a>
 With the line callback</h2>
-<p>The line callback feature can be used to perform some special treatment during execution of the scripts. The callback is called for every script statement, which for example makes it possible to verify if the script has executed for too long time and if so suspend the execution to be resumed at a later time.</p>
+<p>The line callback feature can be used to perform some special treatment during execution of the scripts. The callback is called for every script statement, which makes it possible to verify if the script has executed for too long time and if so suspend the execution to be resumed at a later time.</p>
 <p>Before calling the context's <a class="el" href="classas_i_script_context.html#a8e52894432737acac2e1a422e496bf84">Execute</a> method, set the callback function like so:</p>
 <div class="fragment"><pre class="fragment"><span class="keywordtype">int</span> ExecuteScriptWithTimeOut(<a class="code" href="classas_i_script_context.html" title="The interface to the virtual machine.">asIScriptContext</a> *ctx)
 {
@@ -91,6 +91,7 @@ With the line callback</h2>
     ctx-&gt;<a class="code" href="classas_i_script_context.html#ad4ac8be3586c46069b5870e40c86544a" title="Suspends the execution, which can then be resumed by calling Execute again.">Suspend</a>();
 }
 </pre></div><p>Take a look at the sample <a class="el" href="doc_samples_events.html">Events</a> to see this working.</p>
+<p>Observe that if the script is compiled with <a class="el" href="angelscript_8h.html#a53c2e8a74ade77c928316396394ebe0fa73b396e4ea6376f0962d19add962bd91">asEP_BUILD_WITHOUT_LINE_CUES</a>, the line callback will be invoked less frequently, though it is guaranteed to be invoked at least for every loop or function call.</p>
 <h2><a class="anchor" id="doc_adv_timeout_2"></a>
 With a secondary thread</h2>
 <p>A second thread can be set up to suspend the execution after the timeout. This thread can then be put to sleep so that it doesn't impact performance during the execution. When the thread wakes up it should call the context's <a class="el" href="classas_i_script_context.html#ad4ac8be3586c46069b5870e40c86544a">Suspend</a> method.</p>
@@ -139,7 +140,7 @@ With a secondary thread</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

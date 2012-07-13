@@ -74,7 +74,7 @@
 <li><a class="el" href="doc_expressions.html#relation">Relational comparison operators</a></li>
 <li><a class="el" href="doc_expressions.html#identity">Identity comparison operators</a></li>
 <li><a class="el" href="doc_expressions.html#increment">Increment operators</a></li>
-<li><a class="el" href="doc_expressions.html">Manual</a></li>
+<li><a class="el" href="doc_expressions.html#opindex">Indexing operator</a></li>
 <li><a class="el" href="doc_expressions.html#condition">Conditional expression</a></li>
 <li><a class="el" href="doc_expressions.html#member">Member access</a></li>
 <li><a class="el" href="doc_expressions.html#handle">Handle-of</a></li>
@@ -215,8 +215,8 @@ Increment operators</h2>
   a = i++;</pre><pre>  // The following means i = i - 1; b = i;
   b = --i;
 </pre><p>These operators can be placed either before or after an lvalue to increment/decrement its value either before or after the value is used in the expression. The value is always incremented or decremented with 1.</p>
-<h2><a class="anchor" id="index"></a>
-Manual</h2>
+<h2><a class="anchor" id="opindex"></a>
+Indexing operator</h2>
 <pre>
   arr[i] = 1;
 </pre><p>This operator is used to access an element contained within the object. Depending on the object type, the expression between the <code>[]</code> needs to be of different types.</p>
@@ -239,6 +239,7 @@ Handle-of</h2>
   @handle = null;
 </pre><p>Object handles are references to an object. More than one handle can reference the same object, and only when no more handles reference an object is the object destroyed.</p>
 <p>The members of the object that the handle references are accessed the same way through the handle as if accessed directly through the object variable, i.e. with <code>.</code> operator.</p>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_script_handle.html">Object handles</a></dd></dl>
 <h2><a class="anchor" id="parenthesis"></a>
 Parenthesis</h2>
 <pre>
@@ -254,16 +255,17 @@ Scope resolution</h2>
   int value;
   void function()
   {
-    int value;        // local variable overloads the global variable
+    int value;       // local variable overloads the global variable
     ::value = value; // use scope resolution operator to refer to the global variable 
   } 
-</pre><p>The scope resolution operator <code>::</code> can be used to access variables or functions from another scope when the name is overloaded by a local variable or function. Write the scope name on the left (or blank for the global scope) and the name of the variable/function on the right. </p>
+</pre><p>The scope resolution operator <code>::</code> can be used to access variables or functions from another scope when the name is overloaded by a local variable or function. Write the scope name on the left (or blank for the global scope) and the name of the variable/function on the right.</p>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_global.html#doc_global_namespace">Namespaces</a> </dd></dl>
 </div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

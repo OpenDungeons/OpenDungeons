@@ -20,7 +20,11 @@
 // Declaration
 //
 
+#ifndef ANGELSCRIPT_H 
+// Avoid having to inform include path if header is already include before
 #include <angelscript.h>
+#endif
+
 
 #if defined(_MSC_VER) && _MSC_VER <= 1200 
 // disable the annoying warnings on MSVC 6
@@ -76,7 +80,7 @@ public:
 	const char *GetMetadataStringForType(int typeId);
 
 	// Get metadata declared for functions
-	const char *GetMetadataStringForFunc(int funcId);
+	const char *GetMetadataStringForFunc(asIScriptFunction *func);
 
 	// Get metadata declared for global variables
 	const char *GetMetadataStringForVar(int varIdx);
@@ -85,7 +89,7 @@ public:
 	const char *GetMetadataStringForTypeProperty(int typeId, int varIdx);
 
 	// Get metadata declared for class functions
-	const char *GetMetadataStringForTypeMethod(int typeId, int methodId);
+	const char *GetMetadataStringForTypeMethod(int typeId, asIScriptFunction *method);
 #endif
 
 protected:

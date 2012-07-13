@@ -251,10 +251,12 @@ void AddFunction(asIScriptEngine *engine, string &arg)
 	else
 	{
 		// The script engine supports function overloads, but to simplify the 
-		// console we'll disallow multiple functions with the same name
-		if( mod->GetFunctionIdByName(func->GetName()) == asMULTIPLE_FUNCTIONS )
+		// console we'll disallow multiple functions with the same name.
+		// We know the function was added, so if GetFunctionByName() fails it is
+		// because there already was another function with the same name.
+		if( mod->GetFunctionByName(func->GetName()) == 0 )
 		{
-			mod->RemoveFunction(func->GetId());
+			mod->RemoveFunction(func);
 			cout << "Another function with that name already exists." << endl;
 		}
 		else
@@ -283,10 +285,10 @@ void DeleteFunction(asIScriptEngine *engine, string &arg)
 	if( p2 != string::npos )
 		arg = arg.substr(0, p2+1);
 
-	int id = mod->GetFunctionIdByName(arg.c_str());
-	if( id > 0 )
+	asIScriptFunction *func = mod->GetFunctionByName(arg.c_str());
+	if( func )
 	{
-		mod->RemoveFunction(id);
+		mod->RemoveFunction(func);
 		cout << "Function removed. " << endl;
 	}
 	else
@@ -337,8 +339,7 @@ void ListFunctions(asIScriptEngine *engine)
 	cout << "Application functions:" << endl;
 	for( n = 0; n < (asUINT)engine->GetGlobalFunctionCount(); n++ )
 	{
-		int id = engine->GetGlobalFunctionIdByIndex(n);
-		asIScriptFunction *func = engine->GetFunctionById(id);
+		asIScriptFunction *func = engine->GetGlobalFunctionByIndex(n);
 
 		// Skip the functions that start with _ as these are not meant to be called explicitly by the user
 		if( func->GetName()[0] != '_' )

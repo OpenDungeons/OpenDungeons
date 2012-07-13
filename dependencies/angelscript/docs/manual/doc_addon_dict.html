@@ -65,6 +65,7 @@
 <div class="textblock"><p><b>Path:</b> /sdk/add_on/scriptdictionary/</p>
 <p>The dictionary object maps string values to values or objects of other types.</p>
 <p>Register with <code>RegisterScriptDictionary(asIScriptEngine*)</code>.</p>
+<p>Compile the add-on with the pre-processor define AS_USE_STLNAMES=1 to register the methods with the same names as used by C++ STL where the methods have the same significance. Not all methods from STL is implemented in the add-on, but many of the most frequent once are so a port from script to C++ and vice versa might be easier if STL names are used.</p>
 <h2><a class="anchor" id="doc_addon_dict_1"></a>
 Public C++ interface</h2>
 <div class="fragment"><pre class="fragment"><span class="keyword">class </span>CScriptDictionary
@@ -96,6 +97,12 @@ Public C++ interface</h2>
   <span class="comment">// Returns true if the key is set</span>
   <span class="keywordtype">bool</span> Exists(<span class="keyword">const</span> std::string &amp;key) <span class="keyword">const</span>;
   
+  <span class="comment">// Returns true if the dictionary is empty</span>
+  <span class="keywordtype">bool</span> IsEmpty() <span class="keyword">const</span>;
+  
+  <span class="comment">// Returns the number of keys in the dictionary</span>
+  <a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> GetSize() <span class="keyword">const</span>;
+  
   <span class="comment">// Deletes the key</span>
   <span class="keywordtype">void</span> Delete(<span class="keyword">const</span> std::string &amp;key);
   
@@ -113,6 +120,8 @@ Public script interface</h2>
     bool get(const string &amp;in key, double &amp;out value) const;</pre><pre>    array&lt;string&gt; @getKeys() const;</pre><pre>    bool exists(const string &amp;in key) const;
     void delete(const string &amp;in key);
     void deleteAll();
+    bool isEmpty() const;
+    uint getSize() const;
   }
 </pre><h2><a class="anchor" id="doc_addon_dict_3"></a>
 Script example</h2>
@@ -134,7 +143,7 @@ Script example</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

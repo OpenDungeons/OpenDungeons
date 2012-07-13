@@ -112,9 +112,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a5682ef0572341f1f4aa8542d72f59c2d">GetFactoryCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of factory functions for the object type.  <a href="#a5682ef0572341f1f4aa8542d72f59c2d"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a8ca6e617d576841a225540e90f918af8">GetFactoryIdByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the factory id by index.  <a href="#a8ca6e617d576841a225540e90f918af8"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a3aa646c8a7d7e1efb5af2bde6f58b731">GetFactoryIdByDecl</a> (const char *decl) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the factory id by declaration.  <a href="#a3aa646c8a7d7e1efb5af2bde6f58b731"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a729e709e446e419cb95ade7ccc1fd427">GetFactoryByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the factory function by the index.  <a href="#a729e709e446e419cb95ade7ccc1fd427"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a53c799db82ab17dd3f3ee8471b53370b">GetFactoryByDecl</a> (const char *decl) const =0</td></tr>
@@ -123,11 +121,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a820500be1f8f1dd95df54867b7e445b1">GetMethodCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of methods for the object type.  <a href="#a820500be1f8f1dd95df54867b7e445b1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a01a8a47cb7c7f3e1a21c256b25f16c09">GetMethodIdByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, bool getVirtual=true) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the method id by index.  <a href="#a01a8a47cb7c7f3e1a21c256b25f16c09"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#afb70d2042e92b2eb383b813260c6c9f1">GetMethodIdByName</a> (const char *name, bool getVirtual=true) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the method id by name.  <a href="#afb70d2042e92b2eb383b813260c6c9f1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a20699d68d56dc614c3105506b68ffed9">GetMethodIdByDecl</a> (const char *decl, bool getVirtual=true) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the method id by declaration.  <a href="#a20699d68d56dc614c3105506b68ffed9"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a373a46ab316a5030ca43f0780dd5039f">GetMethodByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, bool getVirtual=true) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the method by index.  <a href="#a373a46ab316a5030ca43f0780dd5039f"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#ad05df0392fb1628cb7b17783917da0b8">GetMethodByName</a> (const char *name, bool getVirtual=true) const =0</td></tr>
@@ -144,13 +139,13 @@ Public Member Functions</h2></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Behaviours</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a7d1c56b8a7b06bf2db1482c3af1f6965">GetBehaviourCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of behaviours.  <a href="#a7d1c56b8a7b06bf2db1482c3af1f6965"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a2d9b43d22da3196777b883fb9aa03747">GetBehaviourByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, <a class="el" href="angelscript_8h.html#a7e38df5b10ec8cbf2a688f1d114097c5">asEBehaviours</a> *outBehaviour) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function id and type of the behaviour.  <a href="#a2d9b43d22da3196777b883fb9aa03747"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a613ae5a4e25a9b63a2da7d21b4dcb00f">GetBehaviourByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, <a class="el" href="angelscript_8h.html#a7e38df5b10ec8cbf2a688f1d114097c5">asEBehaviours</a> *outBehaviour) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function and type of the behaviour.  <a href="#a613ae5a4e25a9b63a2da7d21b4dcb00f"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">User data</div></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a4d542ed1b449f83f712c38bf27f78821">SetUserData</a> (void *data)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Register the memory address of some user data.  <a href="#a4d542ed1b449f83f712c38bf27f78821"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#aa00883f6c7d65651a4c0a8cfc7768c7a">GetUserData</a> () const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the address of the previously registered user data.  <a href="#aa00883f6c7d65651a4c0a8cfc7768c7a"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#acd29983132b4239567cc0902dce582d9">SetUserData</a> (void *data, <a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a> type=0)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Register the memory address of some user data.  <a href="#acd29983132b4239567cc0902dce582d9"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_object_type.html#a3ee5349863c7fc3fd07ba00838a261df">GetUserData</a> (<a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a> type=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the address of the previously registered user data.  <a href="#a3ee5349863c7fc3fd07ba00838a261df"></a><br/></td></tr>
 </table>
 <hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="aaf11085b174893774dd96fa44650402f"></a><!-- doxytag: member="asIObjectType::AddRef" ref="aaf11085b174893774dd96fa44650402f" args="() const =0" -->
@@ -231,12 +226,12 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a2d9b43d22da3196777b883fb9aa03747"></a><!-- doxytag: member="asIObjectType::GetBehaviourByIndex" ref="a2d9b43d22da3196777b883fb9aa03747" args="(asUINT index, asEBehaviours *outBehaviour) const =0" -->
+<a class="anchor" id="a613ae5a4e25a9b63a2da7d21b4dcb00f"></a><!-- doxytag: member="asIObjectType::GetBehaviourByIndex" ref="a613ae5a4e25a9b63a2da7d21b4dcb00f" args="(asUINT index, asEBehaviours *outBehaviour) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">virtual int asIObjectType::GetBehaviourByIndex </td>
+          <td class="memname">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a>* asIObjectType::GetBehaviourByIndex </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td>
           <td class="paramname"><em>index</em>, </td>
@@ -262,13 +257,7 @@ Public Member Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>The function id of the behaviour. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asINVALID_ARG</td><td>The <em>index</em> is too large. </td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The function of the behaviour, or null on error. </dd></dl>
 
 </div>
 </div>
@@ -402,24 +391,8 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">decl</td><td>The factory signature. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error, or the factory id. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asNO_FUNCTION</td><td>Didn't find any matching functions. </td></tr>
-    <tr><td class="paramname">asINVALID_DECLARATION</td><td><em>decl</em> is not a valid declaration. </td></tr>
-    <tr><td class="paramname">asERROR</td><td>The module for the type was not built successfully.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>The factory function is named after the object type and returns a handle to the object. Example:</p>
-<div class="fragment"><pre class="fragment"> <span class="keywordtype">id</span> = type-&gt;<a class="code" href="classas_i_object_type.html#a3aa646c8a7d7e1efb5af2bde6f58b731" title="Returns the factory id by declaration.">GetFactoryIdByDecl</a>(<span class="stringliteral">&quot;object@ object(int arg1, int arg2)&quot;</span>);
-</pre></div> 
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000011">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_object_type.html#a53c799db82ab17dd3f3ee8471b53370b">asIObjectType::GetFactoryByDecl</a> instead </dd></dl>
+
 </div>
 </div>
 <a class="anchor" id="a8ca6e617d576841a225540e90f918af8"></a><!-- doxytag: member="asIObjectType::GetFactoryIdByIndex" ref="a8ca6e617d576841a225540e90f918af8" args="(asUINT index) const =0" -->
@@ -436,19 +409,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the factory function. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error, or the factory id. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asINVALID_ARG</td><td><em>index</em> is out of bounds. </td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000010">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_object_type.html#a729e709e446e419cb95ade7ccc1fd427">asIObjectType::GetFactoryByIndex</a> instead </dd></dl>
 
 </div>
 </div>
@@ -467,7 +428,7 @@ Public Member Functions</h2></td></tr>
 <div class="memdoc">
 <dl class="return"><dt><b>Returns:</b></dt><dd>A bit mask with the flags from <a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7a">asEObjTypeFlags</a>.</dd></dl>
 <p>Script classes are identified by having the asOBJ_SCRIPT_OBJECT flag set. Interfaces are identified as a script class with a size of zero.</p>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="classas_i_object_type.html#a201bd5cc143082f844f701a5fef65bed" title="Returns the size of the object type.">GetSize</a> </dd></dl>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="classas_i_object_type.html#a201bd5cc143082f844f701a5fef65bed">GetSize</a> </dd></dl>
 
 </div>
 </div>
@@ -663,25 +624,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">decl</td><td>The method signature. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">getVirtual</td><td>Set to true if the virtual method or the real method should be retrieved. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error, or the method id. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asMULTIPLE_FUNCTIONS</td><td>Found multiple matching methods. </td></tr>
-    <tr><td class="paramname">asNO_FUNCTION</td><td>Didn't find any matching method. </td></tr>
-    <tr><td class="paramname">asINVALID_DECLARATION</td><td><em>decl</em> is not a valid declaration. </td></tr>
-    <tr><td class="paramname">asERROR</td><td>The module for the type was not built successfully.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>This method should be used to retrieve the id of the script method for the object that you wish to execute. The id is then sent to the context's <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">Prepare</a> method.</p>
-<p>The method will find the script method with the exact same declaration. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000014">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_object_type.html#a3b3bdbd8c4290724cc396cede83fa089">asIObjectType::GetMethodByDecl</a> instead </dd></dl>
 
 </div>
 </div>
@@ -709,22 +652,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the method. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">getVirtual</td><td>Set to true if the virtual method or the real method should be retrieved. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error, or the method id. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asINVALID_ARG</td><td><em>index</em> is out of bounds.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>This method should be used to retrieve the id of the script method for the object that you wish to execute. The id is then sent to the context's <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">Prepare</a> method.</p>
-<p>By default this returns the virtual method for script classes. This will allow you to call the virtual method on classes, and rely on the polymorphism to call the correct implementation. If you wish to inspect the real method, then you should set the second parameter to false to retrieve the real method. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000012">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_object_type.html#a373a46ab316a5030ca43f0780dd5039f">asIObjectType::GetMethodByIndex</a> instead </dd></dl>
 
 </div>
 </div>
@@ -752,22 +680,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The name of the method. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">getVirtual</td><td>Set to true if the virtual method or the real method should be retrieved. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error, or the method id. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asMULTIPLE_FUNCTIONS</td><td>Found multiple matching methods. </td></tr>
-    <tr><td class="paramname">asNO_FUNCTION</td><td>Didn't find any matching method.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>This method should be used to retrieve the id of the script method for the object that you wish to execute. The id is then sent to the context's <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">Prepare</a> method. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000013">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_object_type.html#ad05df0392fb1628cb7b17783917da0b8">asIObjectType::GetMethodByName</a> instead </dd></dl>
 
 </div>
 </div>
@@ -997,19 +910,26 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="aa00883f6c7d65651a4c0a8cfc7768c7a"></a><!-- doxytag: member="asIObjectType::GetUserData" ref="aa00883f6c7d65651a4c0a8cfc7768c7a" args="() const =0" -->
+<a class="anchor" id="a3ee5349863c7fc3fd07ba00838a261df"></a><!-- doxytag: member="asIObjectType::GetUserData" ref="a3ee5349863c7fc3fd07ba00838a261df" args="(asPWORD type=0) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">virtual void* asIObjectType::GetUserData </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a>&#160;</td>
+          <td class="paramname"><em>type</em> = <code>0</code></td><td>)</td>
           <td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>An identifier used to identify which user data to get. </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>The pointer to the user data. </dd></dl>
 
 </div>
@@ -1056,7 +976,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a4d542ed1b449f83f712c38bf27f78821"></a><!-- doxytag: member="asIObjectType::SetUserData" ref="a4d542ed1b449f83f712c38bf27f78821" args="(void *data)=0" -->
+<a class="anchor" id="acd29983132b4239567cc0902dce582d9"></a><!-- doxytag: member="asIObjectType::SetUserData" ref="acd29983132b4239567cc0902dce582d9" args="(void *data, asPWORD type=0)=0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1064,8 +984,18 @@ Public Member Functions</h2></td></tr>
           <td class="memname">virtual void* asIObjectType::SetUserData </td>
           <td>(</td>
           <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>data</em></td><td>)</td>
-          <td><code> [pure virtual]</code></td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a>&#160;</td>
+          <td class="paramname"><em>type</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
@@ -1073,12 +1003,14 @@ Public Member Functions</h2></td></tr>
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>A pointer to the user data. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>An identifier used to identify which user data to set. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>The previous pointer stored in the object type.</dd></dl>
-<p>This method allows the application to associate a value, e.g. a pointer, with the object type instance.</p>
-<p>Optionally, a callback function can be <a class="el" href="classas_i_script_engine.html#a7495c0b6307bb983ff807a3c31c4f938">registered</a> to clean up the user data when the object type is destroyed. As the callback is registered with the engine, it is only necessary to do it once, even if more than one context is used. </p>
+<p>This method allows the application to associate a value, e.g. a pointer, with the object type instance. Multiple different values can be defined where the type argument identifies which is referred to.</p>
+<p>The user data types identifiers between 1000 and 1999 are reserved for use by official add-ons.</p>
+<p>Optionally, a callback function can be <a class="el" href="classas_i_script_engine.html#a2336a92d5cd2a6a37007addf81ca059f">registered</a> to clean up the user data when the object type is destroyed. </p>
 
 </div>
 </div>
@@ -1091,7 +1023,7 @@ Public Member Functions</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="classas_i_object_type.html">asIObjectType</a>      </li>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

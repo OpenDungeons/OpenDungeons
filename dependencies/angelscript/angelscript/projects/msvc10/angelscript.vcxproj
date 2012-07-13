@@ -192,7 +192,6 @@
     <ClInclude Include="..\..\source\as_array.h" />
     <ClInclude Include="..\..\source\as_builder.h" />
     <ClInclude Include="..\..\source\as_bytecode.h" />
-    <ClInclude Include="..\..\source\as_bytecodedef.h" />
     <ClInclude Include="..\..\source\as_callfunc.h" />
     <ClInclude Include="..\..\source\as_compiler.h" />
     <ClInclude Include="..\..\source\as_config.h" />

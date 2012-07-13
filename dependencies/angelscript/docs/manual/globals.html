@@ -83,6 +83,12 @@
 <li>AS_API
 : <a class="el" href="angelscript_8h.html#a6412a04ba6b2737922fdb2d8f822f51c">angelscript.h</a>
 </li>
+<li>asAcquireExclusiveLock()
+: <a class="el" href="angelscript_8h.html#a016dbf716a1c761b3f903b92eb8bb580">angelscript.h</a>
+</li>
+<li>asAcquireSharedLock()
+: <a class="el" href="angelscript_8h.html#aa45545a038adcc8c73348cfe9488f32d">angelscript.h</a>
+</li>
 <li>asALLOCFUNC_t
 : <a class="el" href="angelscript_8h.html#a9813f6b04d4879aefc203794fe04a5b0">angelscript.h</a>
 </li>
@@ -389,6 +395,12 @@
 <li>asBC_JitEntry
 : <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6705ee9692b45f118cfe0ea24581fae5">angelscript.h</a>
 </li>
+<li>asBC_JLowNZ
+: <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a12e9c561f401be75a6db13a94a687d77">angelscript.h</a>
+</li>
+<li>asBC_JLowZ
+: <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a9da365af8ea85e3eb538567207d4a705">angelscript.h</a>
+</li>
 <li>asBC_JMP
 : <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6742a11dd679468b98df9c45aabfb32b">angelscript.h</a>
 </li>
@@ -491,8 +503,8 @@
 <li>asBC_PGA
 : <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0adc83ae72a402eb4c8d8248ef2ef75d9c">angelscript.h</a>
 </li>
-<li>asBC_POP
-: <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0aa41f70f690348045c1ee90dae68a9c42">angelscript.h</a>
+<li>asBC_PopPtr
+: <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a61f3044359836f88001928bcab382c1e">angelscript.h</a>
 </li>
 <li>asBC_PopRPtr
 : <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a567f07266bd50926c205460b31d579f6">angelscript.h</a>
@@ -508,6 +520,9 @@
 </li>
 <li>asBC_PshG4
 : <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a71be4bc7beb5407aac980f73cce33bd6">angelscript.h</a>
+</li>
+<li>asBC_PshGPtr
+: <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a0c1133692af5029feef4a1e5aec5c65b">angelscript.h</a>
 </li>
 <li>asBC_PshNull
 : <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a9343148f733f970e3463f37fac57f998">angelscript.h</a>
@@ -526,9 +541,6 @@
 </li>
 <li>asBC_PTRARG
 : <a class="el" href="angelscript_8h.html#aac9eb586274fc44bb1b838d833963996">angelscript.h</a>
-</li>
-<li>asBC_PUSH
-: <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6a74cc67208599b6a18f9ab85d03d023">angelscript.h</a>
 </li>
 <li>asBC_QWORDARG
 : <a class="el" href="angelscript_8h.html#a92e1437ea399e8c545e15bffd651f45f">angelscript.h</a>
@@ -550,6 +562,9 @@
 </li>
 <li>asBC_REFCPY
 : <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a0509f97130860b6fe3477f66e9fb712d">angelscript.h</a>
+</li>
+<li>asBC_RefCpyV
+: <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a8b1c7e7b7c8054b36a9d48c3452adf79">angelscript.h</a>
 </li>
 <li>asBC_RET
 : <a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0adf0df27f972bc4edb9b2213fe6448f68">angelscript.h</a>
@@ -1217,11 +1232,23 @@
 <li>asOFFSET
 : <a class="el" href="angelscript_8h.html#a717eccea17214bc1eb64bb9789c4915a">angelscript.h</a>
 </li>
+<li>asOUT_OF_MEMORY
+: <a class="el" href="angelscript_8h.html#a6e2a1647f02f2c5da931bab09e860f54a9a5232a5c1028cd729a744f592387059">angelscript.h</a>
+</li>
+<li>asPrepareMultithread()
+: <a class="el" href="angelscript_8h.html#a12955febb90225bae935ac1bf6121651">angelscript.h</a>
+</li>
 <li>asPWORD
 : <a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">angelscript.h</a>
 </li>
 <li>asQWORD
 : <a class="el" href="angelscript_8h.html#a10aea5de212e440ffd6ec8fc0b17563d">angelscript.h</a>
+</li>
+<li>asReleaseExclusiveLock()
+: <a class="el" href="angelscript_8h.html#a8a0617637eea3d76e33a52758b2cd49f">angelscript.h</a>
+</li>
+<li>asReleaseSharedLock()
+: <a class="el" href="angelscript_8h.html#a44f7327c5601e8dbf74768a2f3cc0dc3">angelscript.h</a>
 </li>
 <li>asResetGlobalMemoryFunctions()
 : <a class="el" href="angelscript_8h.html#a9267c4ad35aceaf7cc0961cd42147ee7">angelscript.h</a>
@@ -1325,6 +1352,9 @@
 <li>asUINT
 : <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">angelscript.h</a>
 </li>
+<li>asUnprepareMultithread()
+: <a class="el" href="angelscript_8h.html#a011355a8978d438cec77b4e1f041cba7">angelscript.h</a>
+</li>
 <li>asWORD
 : <a class="el" href="angelscript_8h.html#a340da175136fbe283932fa3c3442cea0">angelscript.h</a>
 </li>
@@ -1340,7 +1370,7 @@
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:11 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

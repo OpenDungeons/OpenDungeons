@@ -180,13 +180,13 @@ int CScriptBuilder::ProcessScriptSection(const char *script, const char *section
 	modifiedScript = script;
 
 	// First perform the checks for #if directives to exclude code that shouldn't be compiled
-	int pos = 0;
+	unsigned int pos = 0;
 	int nested = 0;
-	while( pos < (int)modifiedScript.size() )
+	while( pos < modifiedScript.size() )
 	{
 		int len;
 		asETokenClass t = engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
-		if( t == asTC_UNKNOWN && modifiedScript[pos] == '#' )
+		if( t == asTC_UNKNOWN && modifiedScript[pos] == '#' && (pos + 1 < modifiedScript.size()) )
 		{
 			int start = pos++;
 
@@ -251,7 +251,7 @@ int CScriptBuilder::ProcessScriptSection(const char *script, const char *section
 
 	// Then check for meta data and #include directives
 	pos = 0;
-	while( pos < (int)modifiedScript.size() )
+	while( pos < modifiedScript.size() )
 	{
 		int len;
 		asETokenClass t = engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
@@ -275,7 +275,7 @@ int CScriptBuilder::ProcessScriptSection(const char *script, const char *section
 			currentClass = modifiedScript.substr(pos,len);
 			
 			// Search until first { is encountered
-			while( pos < (int)modifiedScript.length() )
+			while( pos < modifiedScript.length() )
 			{
 				engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
 			
@@ -321,7 +321,7 @@ int CScriptBuilder::ProcessScriptSection(const char *script, const char *section
 		else 
 #endif
 		// Is this a preprocessor directive?
-		if( modifiedScript[pos] == '#' )
+		if( modifiedScript[pos] == '#' && (pos + 1 < modifiedScript.size()) )
 		{
 			int start = pos++;
 
@@ -436,9 +436,9 @@ int CScriptBuilder::Build()
 			if( decl->parentClass == "" )
 			{
 				// Find the function id
-				int funcId = module->GetFunctionIdByDecl(decl->declaration.c_str());
-				if( funcId >= 0 )
-					funcMetadataMap.insert(map<int, string>::value_type(funcId, decl->metadata));
+				asIScriptFunction *func = module->GetFunctionByDecl(decl->declaration.c_str());
+				if( func )
+					funcMetadataMap.insert(map<int, string>::value_type(func->GetId(), decl->metadata));
 			}
 			else
 			{
@@ -452,9 +452,9 @@ int CScriptBuilder::Build()
 				}
 
 				asIObjectType *type = engine->GetObjectTypeById(typeId);
-				int funcId = type->GetMethodIdByDecl(decl->declaration.c_str());
-				if( funcId >= 0 )
-					it->second.funcMetadataMap.insert(map<int, string>::value_type(funcId, decl->metadata));
+				asIScriptFunction *func = type->GetMethodByDecl(decl->declaration.c_str());
+				if( func )
+					it->second.funcMetadataMap.insert(map<int, string>::value_type(func->GetId(), decl->metadata));
 			}
 		}
 		else if( decl->type == 4 )
@@ -462,12 +462,12 @@ int CScriptBuilder::Build()
 			if( decl->parentClass == "" )
 			{
 				// Find the global virtual property accessors
-				int funcId = module->GetFunctionIdByName(("get_" + decl->declaration).c_str());
-				if( funcId >= 0 )
-					funcMetadataMap.insert(map<int, string>::value_type(funcId, decl->metadata));
-				funcId = module->GetFunctionIdByName(("set_" + decl->declaration).c_str());
-				if( funcId >= 0 )
-					funcMetadataMap.insert(map<int, string>::value_type(funcId, decl->metadata));
+				asIScriptFunction *func = module->GetFunctionByName(("get_" + decl->declaration).c_str());
+				if( func )
+					funcMetadataMap.insert(map<int, string>::value_type(func->GetId(), decl->metadata));
+				func = module->GetFunctionByName(("set_" + decl->declaration).c_str());
+				if( func )
+					funcMetadataMap.insert(map<int, string>::value_type(func->GetId(), decl->metadata));
 			}
 			else
 			{
@@ -481,12 +481,12 @@ int CScriptBuilder::Build()
 				}
 
 				asIObjectType *type = engine->GetObjectTypeById(typeId);
-				int funcId = type->GetMethodIdByName(("get_" + decl->declaration).c_str());
-				if( funcId >= 0 )
-					it->second.funcMetadataMap.insert(map<int, string>::value_type(funcId, decl->metadata));
-				funcId = type->GetMethodIdByName(("set_" + decl->declaration).c_str());
-				if( funcId >= 0 )
-					it->second.funcMetadataMap.insert(map<int, string>::value_type(funcId, decl->metadata));
+				asIScriptFunction *func = type->GetMethodByName(("get_" + decl->declaration).c_str());
+				if( func )
+					it->second.funcMetadataMap.insert(map<int, string>::value_type(func->GetId(), decl->metadata));
+				func = type->GetMethodByName(("set_" + decl->declaration).c_str());
+				if( func )
+					it->second.funcMetadataMap.insert(map<int, string>::value_type(func->GetId(), decl->metadata));
 
 			}
 		}
@@ -776,9 +776,9 @@ const char *CScriptBuilder::GetMetadataStringForType(int typeId)
 	return "";
 }
 
-const char *CScriptBuilder::GetMetadataStringForFunc(int funcId)
+const char *CScriptBuilder::GetMetadataStringForFunc(asIScriptFunction *func)
 {
-	map<int,string>::iterator it = funcMetadataMap.find(funcId);
+	map<int,string>::iterator it = funcMetadataMap.find(func->GetId());
 	if( it != funcMetadataMap.end() )
 		return it->second.c_str();
 
@@ -805,12 +805,12 @@ const char *CScriptBuilder::GetMetadataStringForTypeProperty(int typeId, int var
 	return propIt->second.c_str();
 }
 
-const char *CScriptBuilder::GetMetadataStringForTypeMethod(int typeId, int methodIdx)
+const char *CScriptBuilder::GetMetadataStringForTypeMethod(int typeId, asIScriptFunction *method)
 {
 	map<int, SClassMetadata>::iterator typeIt = classMetadataMap.find(typeId);
 	if(typeIt == classMetadataMap.end()) return "";
 
-	map<int, string>::iterator methodIt = typeIt->second.funcMetadataMap.find(methodIdx);
+	map<int, string>::iterator methodIt = typeIt->second.funcMetadataMap.find(method->GetId());
 	if(methodIt == typeIt->second.funcMetadataMap.end()) return "";
 	
 	return methodIt->second.c_str();

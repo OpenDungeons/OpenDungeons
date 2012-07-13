@@ -181,12 +181,36 @@ Namespaces</h2>
     // informed.
     void function() { A::function(); }
   }
+</pre><p>Observe that in order to refer to an entity from a different namespace the scoping operator must be used, even if the other namespace is a parent namespace or even the global scope.</p>
+<pre>
+  int varInGlobalScope;
+  namespace Parent
+  {
+    int varInParentScope;
+    namespace Child
+    {
+      int varInChildScope;
+      void func()
+      {
+        // Accessing variable in parent namespace requires 
+        // specifying the scope
+        varInChildScope = Parent::varInParentScope;</pre><pre>        // To access variables in global scope the scoping 
+        // operator without any name should be used
+        Parent::varInParentScope = ::varInGlobalScope;
+      }
+    }
+  }</pre><pre>  void func()
+  {
+    // Access variable in a nested namespace requires 
+    // fully qualified scope specifier
+    int var = Parent::Child::varInChildScope;
+  }
 </pre> </div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

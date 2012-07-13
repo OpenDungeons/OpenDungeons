@@ -186,7 +186,7 @@ bool CScriptDictionary::Get(const string &key, void *value, int typeId) const
 			// Copy the object into the given reference
 			if( isCompatible )
 			{
-				engine->CopyScriptObject(value, it->second.valueObj, typeId);
+				engine->AssignScriptObject(value, it->second.valueObj, typeId);
 
 				return true;
 			}
@@ -236,11 +236,22 @@ bool CScriptDictionary::Exists(const string &key) const
     map<string, valueStruct>::const_iterator it;
     it = dict.find(key);
     if( it != dict.end() )
-    {
         return true;
-    }
 
     return false;
+}
+
+bool CScriptDictionary::IsEmpty() const
+{
+	if( dict.size() == 0 )
+		return true;
+
+	return false;
+}
+
+asUINT CScriptDictionary::GetSize() const
+{
+	return asUINT(dict.size());
 }
 
 void CScriptDictionary::Delete(const string &key)
@@ -250,7 +261,6 @@ void CScriptDictionary::Delete(const string &key)
     if( it != dict.end() )
     {
         FreeValue(it->second);
-
         dict.erase(it);
     }
 }
@@ -259,9 +269,7 @@ void CScriptDictionary::DeleteAll()
 {
     map<string, valueStruct>::iterator it;
     for( it = dict.begin(); it != dict.end(); it++ )
-    {
         FreeValue(it->second);
-    }
 
     dict.clear();
 }
@@ -473,6 +481,8 @@ void RegisterScriptDictionary_Native(asIScriptEngine *engine)
     r = engine->RegisterObjectMethod("dictionary", "bool get(const string &in, double&out) const", asMETHODPR(CScriptDictionary,Get,(const string&,double&) const,bool), asCALL_THISCALL); assert( r >= 0 );
     
 	r = engine->RegisterObjectMethod("dictionary", "bool exists(const string &in) const", asMETHOD(CScriptDictionary,Exists), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("dictionary", "bool isEmpty() const", asMETHOD(CScriptDictionary, IsEmpty), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("dictionary", "uint getSize() const", asMETHOD(CScriptDictionary, GetSize), asCALL_THISCALL); assert( r >= 0 );
     r = engine->RegisterObjectMethod("dictionary", "void delete(const string &in)", asMETHOD(CScriptDictionary,Delete), asCALL_THISCALL); assert( r >= 0 );
     r = engine->RegisterObjectMethod("dictionary", "void deleteAll()", asMETHOD(CScriptDictionary,DeleteAll), asCALL_THISCALL); assert( r >= 0 );
 
@@ -484,6 +494,17 @@ void RegisterScriptDictionary_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_GETGCFLAG, "bool f()", asMETHOD(CScriptDictionary,GetGCFlag), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(CScriptDictionary,EnumReferences), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(CScriptDictionary,ReleaseAllReferences), asCALL_THISCALL); assert( r >= 0 );
+
+#if AS_USE_STLNAMES == 1
+	// Same as isEmpty
+	r = engine->RegisterObjectMethod("dictionary", "bool empty() const", asMETHOD(CScriptDictionary, IsEmpty), asCALL_THISCALL); assert( r >= 0 );
+	// Same as getSize
+	r = engine->RegisterObjectMethod("dictionary", "uint size() const", asMETHOD(CScriptDictionary, GetSize), asCALL_THISCALL); assert( r >= 0 );
+	// Same as delete
+    r = engine->RegisterObjectMethod("dictionary", "void erase(const string &in)", asMETHOD(CScriptDictionary,Delete), asCALL_THISCALL); assert( r >= 0 );
+	// Same as deleteAll
+	r = engine->RegisterObjectMethod("dictionary", "void clear()", asMETHOD(CScriptDictionary,DeleteAll), asCALL_THISCALL); assert( r >= 0 );
+#endif
 }
 
 void RegisterScriptDictionary_Generic(asIScriptEngine *engine)

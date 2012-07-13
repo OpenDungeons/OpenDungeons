@@ -94,11 +94,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a373d102f109ae0fa20584f243ead4035">GetFunctionCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of global functions in the module.  <a href="#a373d102f109ae0fa20584f243ead4035"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a6f2d37c051254c96fdb3fe820daf9385">GetFunctionIdByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function id by index.  <a href="#a6f2d37c051254c96fdb3fe820daf9385"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a5af2e0e25a6c0d319c8d22543210a09a">GetFunctionIdByName</a> (const char *name) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function id by name.  <a href="#a5af2e0e25a6c0d319c8d22543210a09a"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a3c9cc47d3e0efc4aaf22d92492735438">GetFunctionIdByDecl</a> (const char *decl) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function id by declaration.  <a href="#a3c9cc47d3e0efc4aaf22d92492735438"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#afd4d9951ee006caa8ec1bab3d3d206fc">GetFunctionByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function by index.  <a href="#afd4d9951ee006caa8ec1bab3d3d206fc"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#ab4754d55d8667aefbed135b4794d461b">GetFunctionByDecl</a> (const char *decl) const =0</td></tr>
@@ -106,7 +103,6 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a81d727c9677b683942b6087df4ce95ad">GetFunctionByName</a> (const char *name) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function by its name.  <a href="#a81d727c9677b683942b6087df4ce95ad"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a62c6783491b197e9eb29639e7997e1df">RemoveFunction</a> (int funcId)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a single function from the scope of the module.  <a href="#a62c6783491b197e9eb29639e7997e1df"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a54b6f8e09787ad20880f73bc97a8ef10">RemoveFunction</a> (<a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *func)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Remove a single function from the scope of the module.  <a href="#a54b6f8e09787ad20880f73bc97a8ef10"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Global variables</div></td></tr>
@@ -131,6 +127,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of object types.  <a href="#a931d0c00cba2df1b4e368e59bac1a207"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_object_type.html">asIObjectType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a33ebba99a6358ccfb0c154fca7f58f77">GetObjectTypeByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the object type interface by index.  <a href="#a33ebba99a6358ccfb0c154fca7f58f77"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_object_type.html">asIObjectType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a81b15d88f98902173400dd1e32722b58">GetObjectTypeByName</a> (const char *name) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the object type interface by name.  <a href="#a81b15d88f98902173400dd1e32722b58"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a7fbc2bd888b248d2c2ee2d953b49eefc">GetTypeIdByDecl</a> (const char *decl) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a type id by declaration.  <a href="#a7fbc2bd888b248d2c2ee2d953b49eefc"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Enums</div></td></tr>
@@ -156,8 +154,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the imported function declaration.  <a href="#a20e46ad7ea467f98bbf35ee052b86868"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#adc01b24a82ad14356f2edc082af4c146">GetImportedFunctionSourceModule</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> importIndex) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the declared imported function source module.  <a href="#adc01b24a82ad14356f2edc082af4c146"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a369f8792cec94f44833854ce54b28b8b">BindImportedFunction</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> importIndex, int funcId)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Binds an imported function to the function from another module.  <a href="#a369f8792cec94f44833854ce54b28b8b"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#ab24a8b95ce887c3f731eb906e3b518e5">BindImportedFunction</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> importIndex, <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *func)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Binds an imported function to the function from another module.  <a href="#ab24a8b95ce887c3f731eb906e3b518e5"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a4d59b4e833bf139f6b7256d6b6bd40b6">UnbindImportedFunction</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> importIndex)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Unbinds an imported function.  <a href="#a4d59b4e833bf139f6b7256d6b6bd40b6"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a3f0c215576adefd922c2cc95d16b55d8">BindAllImportedFunctions</a> ()=0</td></tr>
@@ -265,7 +263,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a369f8792cec94f44833854ce54b28b8b"></a><!-- doxytag: member="asIScriptModule::BindImportedFunction" ref="a369f8792cec94f44833854ce54b28b8b" args="(asUINT importIndex, int funcId)=0" -->
+<a class="anchor" id="ab24a8b95ce887c3f731eb906e3b518e5"></a><!-- doxytag: member="asIScriptModule::BindImportedFunction" ref="ab24a8b95ce887c3f731eb906e3b518e5" args="(asUINT importIndex, asIScriptFunction *func)=0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -278,8 +276,8 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">int&#160;</td>
-          <td class="paramname"><em>funcId</em>&#160;</td>
+          <td class="paramtype"><a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td>
+          <td class="paramname"><em>func</em>&#160;</td>
         </tr>
         <tr>
           <td></td>
@@ -292,14 +290,14 @@ Public Member Functions</h2></td></tr>
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">importIndex</td><td>The index of the imported function. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">funcId</td><td>The function id of the function that will be bound to the imported function. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">func</td><td>The true function that will be bound to the imported function. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error. </dd></dl>
 <dl><dt><b>Return values:</b></dt><dd>
   <table class="retval">
-    <tr><td class="paramname">asNO_FUNCTION</td><td><em>importIndex</em> or <em>fundId</em> is incorrect. </td></tr>
+    <tr><td class="paramname">asNO_FUNCTION</td><td><em>importIndex</em> or <em>func</em> is incorrect. </td></tr>
     <tr><td class="paramname">asINVALID_INTERFACE</td><td>The signature of function doesn't match the import statement.</td></tr>
   </table>
   </dd>
@@ -737,24 +735,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">decl</td><td>The function signature. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error, or the function id. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asERROR</td><td>The module was not compiled successfully. </td></tr>
-    <tr><td class="paramname">asINVALID_DECLARATION</td><td>The <em>decl</em> is invalid. </td></tr>
-    <tr><td class="paramname">asMULTIPLE_FUNCTIONS</td><td>Found multiple matching functions. </td></tr>
-    <tr><td class="paramname">asNO_FUNCTION</td><td>Didn't find any matching functions.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>This method should be used to retrieve the id of the script function that you wish to execute. The id is then sent to the context's <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">Prepare</a> method.</p>
-<p>The method will find the script function with the exact same declaration. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000005">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_script_module.html#ab4754d55d8667aefbed135b4794d461b">asIScriptModule::GetFunctionByDecl</a> instead </dd></dl>
 
 </div>
 </div>
@@ -772,20 +753,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the function. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error, or the function id. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asNO_FUNCTION</td><td>There is no function with that index.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>This method should be used to retrieve the id of the script function that you wish to execute. The id is then sent to the context's <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">Prepare</a> method. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000003">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_script_module.html#afd4d9951ee006caa8ec1bab3d3d206fc">asIScriptModule::GetFunctionByIndex</a> instead </dd></dl>
 
 </div>
 </div>
@@ -803,22 +771,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The name of the function. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error, or the function id. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asERROR</td><td>The module was not compiled successfully. </td></tr>
-    <tr><td class="paramname">asMULTIPLE_FUNCTIONS</td><td>Found multiple matching functions. </td></tr>
-    <tr><td class="paramname">asNO_FUNCTION</td><td>Didn't find any matching functions.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>This method should be used to retrieve the id of the script function that you wish to execute. The id is then sent to the context's <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">Prepare</a> method. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000004">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_script_module.html#a81d727c9677b683942b6087df4ce95ad">asIScriptModule::GetFunctionByName</a> instead </dd></dl>
 
 </div>
 </div>
@@ -1145,6 +1098,31 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
+<a class="anchor" id="a81b15d88f98902173400dd1e32722b58"></a><!-- doxytag: member="asIScriptModule::GetObjectTypeByName" ref="a81b15d88f98902173400dd1e32722b58" args="(const char *name) const =0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual <a class="el" href="classas_i_object_type.html">asIObjectType</a>* asIScriptModule::GetObjectTypeByName </td>
+          <td>(</td>
+          <td class="paramtype">const char *&#160;</td>
+          <td class="paramname"><em>name</em></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">name</td><td>The name of the type. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The object type interface for the type, or null if not found.</dd></dl>
+<p>This does not increase the reference count of the returned object. </p>
+
+</div>
+</div>
 <a class="anchor" id="a931d0c00cba2df1b4e368e59bac1a207"></a><!-- doxytag: member="asIScriptModule::GetObjectTypeCount" ref="a931d0c00cba2df1b4e368e59bac1a207" args="() const =0" -->
 <div class="memitem">
 <div class="memproto">
@@ -1318,20 +1296,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">funcId</td><td>The id of the function to remove. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asNO_FUNCTION</td><td>The function is not part of the scope.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>This method allows the application to remove a single function from the scope of the module. The function is not destroyed immediately though, only when no more references point to it. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000006">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_script_module.html#a54b6f8e09787ad20880f73bc97a8ef10">asIScriptModule::RemoveFunction(asIScriptFunction*)</a> instead </dd></dl>
 
 </div>
 </div>
@@ -1629,7 +1594,7 @@ Public Member Functions</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_module.html">asIScriptModule</a>      </li>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:11 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

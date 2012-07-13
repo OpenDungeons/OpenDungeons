@@ -15,9 +15,28 @@ static void RegisterScriptArray_Generic(asIScriptEngine *engine);
 
 struct SArrayBuffer
 {
+	asDWORD maxElements;
 	asDWORD numElements;
 	asBYTE  data[1];
 };
+
+struct SArrayCache
+{
+	asIScriptFunction *cmpFunc;
+	asIScriptFunction *eqFunc;
+};
+
+// We just define a number here that we assume nobody else is using for 
+// object type user data. The add-ons have reserved the numbers 1000 
+// through 1999 for this purpose, so we should be fine.
+const asPWORD ARRAY_CACHE = 1000;
+
+static void CleanupObjectTypeArrayCache(asIObjectType *type)
+{
+	SArrayCache *cache = reinterpret_cast<SArrayCache*>(type->GetUserData(ARRAY_CACHE));
+	if( cache )
+		delete cache;
+}
 
 static CScriptArray* ScriptArrayFactory2(asIObjectType *ot, asUINT length)
 {
@@ -76,10 +95,9 @@ static bool ScriptArrayTemplateCallback(asIObjectType *ot)
 			for( asUINT n = 0; n < subtype->GetBehaviourCount(); n++ )
 			{
 				asEBehaviours beh;
-				int funcId = subtype->GetBehaviourByIndex(n, &beh);
+				asIScriptFunction *func = subtype->GetBehaviourByIndex(n, &beh);
 				if( beh != asBEHAVE_CONSTRUCT ) continue;
 
-				asIScriptFunction *func = ot->GetEngine()->GetFunctionById(funcId);
 				if( func->GetParamCount() == 0 )
 				{
 					// Found the default constructor
@@ -95,8 +113,7 @@ static bool ScriptArrayTemplateCallback(asIObjectType *ot)
 			// Verify that there is a default factory
 			for( asUINT n = 0; n < subtype->GetFactoryCount(); n++ )
 			{
-				int funcId = subtype->GetFactoryIdByIndex(n);
-				asIScriptFunction *func = ot->GetEngine()->GetFunctionById(funcId);
+				asIScriptFunction *func = subtype->GetFactoryByIndex(n);
 				if( func->GetParamCount() == 0 )
 				{
 					// Found the default factory
@@ -131,6 +148,9 @@ static void RegisterScriptArray_Native(asIScriptEngine *engine)
 {
 	int r;
 	
+	// Register the object type user data clean up
+	engine->SetObjectTypeUserDataCleanupCallback(CleanupObjectTypeArrayCache, ARRAY_CACHE);
+
 	// Register the array type as a template
 	r = engine->RegisterObjectType("array<class T>", 0, asOBJ_REF | asOBJ_GC | asOBJ_TEMPLATE); assert( r >= 0 );
 
@@ -163,6 +183,7 @@ static void RegisterScriptArray_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("array<T>", "void removeLast()", asMETHOD(CScriptArray, RemoveLast), asCALL_THISCALL); assert( r >= 0 );
 	// TODO: Should length() and resize() be deprecated as the property accessors do the same thing?
 	r = engine->RegisterObjectMethod("array<T>", "uint length() const", asMETHOD(CScriptArray, GetSize), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("array<T>", "void reserve(uint)", asMETHOD(CScriptArray, Reserve), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void resize(uint)", asMETHODPR(CScriptArray, Resize, (asUINT), void), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void sortAsc()", asMETHODPR(CScriptArray, SortAsc, (), void), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "void sortAsc(uint, uint)", asMETHODPR(CScriptArray, SortAsc, (asUINT, asUINT), void), asCALL_THISCALL); assert( r >= 0 );
@@ -172,6 +193,7 @@ static void RegisterScriptArray_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("array<T>", "int find(const T&in) const", asMETHODPR(CScriptArray, Find, (void*) const, int), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "int find(uint, const T&in) const", asMETHODPR(CScriptArray, Find, (asUINT, void*) const, int), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectMethod("array<T>", "bool opEquals(const array<T>&in) const", asMETHOD(CScriptArray, operator==), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("array<T>", "bool isEmpty() const", asMETHOD(CScriptArray, IsEmpty), asCALL_THISCALL); assert( r >= 0 );
 
 	// Register virtual properties
 	r = engine->RegisterObjectMethod("array<T>", "uint get_length() const", asMETHOD(CScriptArray, GetSize), asCALL_THISCALL); assert( r >= 0 );
@@ -183,6 +205,21 @@ static void RegisterScriptArray_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_GETGCFLAG, "bool f()", asMETHOD(CScriptArray, GetFlag), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(CScriptArray, EnumReferences), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(CScriptArray, ReleaseAllHandles), asCALL_THISCALL); assert( r >= 0 );
+
+#if AS_USE_STLNAMES == 1
+	// Same as length
+	r = engine->RegisterObjectMethod("array<T>", "uint size() const", asMETHOD(CScriptArray, GetSize), asCALL_THISCALL); assert( r >= 0 );
+	// Same as isEmpty
+	r = engine->RegisterObjectMethod("array<T>", "bool empty() const", asMETHOD(CScriptArray, IsEmpty), asCALL_THISCALL); assert( r >= 0 );
+	// Same as insertLast
+	r = engine->RegisterObjectMethod("array<T>", "void push_back(const T&in)", asMETHOD(CScriptArray, InsertLast), asCALL_THISCALL); assert( r >= 0 );
+	// Same as removeLast
+	r = engine->RegisterObjectMethod("array<T>", "void pop_back()", asMETHOD(CScriptArray, RemoveLast), asCALL_THISCALL); assert( r >= 0 );
+	// Same as insertAt
+	r = engine->RegisterObjectMethod("array<T>", "void insert(uint, const T&in)", asMETHOD(CScriptArray, InsertAt), asCALL_THISCALL); assert( r >= 0 );
+	// Same as removeAt
+	r = engine->RegisterObjectMethod("array<T>", "void erase(uint)", asMETHOD(CScriptArray, RemoveAt), asCALL_THISCALL); assert( r >= 0 );
+#endif
 }
 
 CScriptArray &CScriptArray::operator=(const CScriptArray &other)
@@ -191,16 +228,11 @@ CScriptArray &CScriptArray::operator=(const CScriptArray &other)
 	if( &other != this && 
 		other.GetArrayObjectType() == GetArrayObjectType() )
 	{
-		if( buffer )
-		{
-			DeleteBuffer(buffer);
-			buffer = 0;
-		}
+		// Make sure the arrays are of the same size
+		Resize(other.buffer->numElements);
 
-		// Copy all elements from the other array
-		CreateBuffer(&buffer, other.buffer->numElements);
-		if( buffer )
-			CopyBuffer(buffer, other.buffer);
+		// Copy the value of each element
+		CopyBuffer(buffer, other.buffer);
 	}
 
 	return *this;
@@ -278,18 +310,22 @@ CScriptArray::CScriptArray(asUINT length, void *defVal, asIObjectType *ot)
 		SetValue(n, defVal);
 }
 
-// Internal
 void CScriptArray::SetValue(asUINT index, void *value)
 {
+	// At() will take care of the out-of-bounds checking, though  
+	// if called from the application then nothing will be done
 	void *ptr = At(index);
 	if( ptr == 0 ) return;
 
 	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) )
-		objType->GetEngine()->CopyScriptObject(ptr, value, subTypeId);
+		objType->GetEngine()->AssignScriptObject(ptr, value, subTypeId);
 	else if( subTypeId & asTYPEID_OBJHANDLE )
 	{
+		void *tmp = *(void**)ptr;
 		*(void**)ptr = *(void**)value;
 		objType->GetEngine()->AddRefScriptObject(*(void**)value, objType->GetSubType());
+		if( tmp )
+			objType->GetEngine()->ReleaseScriptObject(*(void**)value, objType->GetSubType());
 	}
 	else if( subTypeId == asTYPEID_BOOL ||
 			 subTypeId == asTYPEID_INT8 ||
@@ -322,6 +358,45 @@ CScriptArray::~CScriptArray()
 asUINT CScriptArray::GetSize() const
 {
 	return buffer->numElements;
+}
+
+bool CScriptArray::IsEmpty() const
+{
+	return buffer->numElements == 0;
+}
+
+void CScriptArray::Reserve(asUINT maxElements)
+{
+	if( maxElements <= buffer->maxElements )
+		return;
+
+	// Allocate memory for the buffer
+	SArrayBuffer *newBuffer;
+	#if defined(AS_MARMALADE)
+	newBuffer = (SArrayBuffer*)new asBYTE[sizeof(SArrayBuffer)-1 + elementSize*maxElements];
+	#else
+	newBuffer = (SArrayBuffer*)new (nothrow) asBYTE[sizeof(SArrayBuffer)-1 + elementSize*maxElements];
+	#endif
+	if( newBuffer )
+	{
+		newBuffer->numElements = buffer->numElements;
+		newBuffer->maxElements = maxElements;
+	}
+	else
+	{
+		// Out of memory
+		asIScriptContext *ctx = asGetActiveContext();
+		if( ctx )	
+			ctx->SetException("Out of memory");
+		return;
+	}
+
+	memcpy(newBuffer->data, buffer->data, buffer->numElements*elementSize);
+
+	// Release the old buffer
+	delete[] (asBYTE*)buffer;
+
+	buffer = newBuffer;
 }
 
 void CScriptArray::Resize(asUINT numElements)
@@ -357,42 +432,53 @@ void CScriptArray::Resize(int delta, asUINT at)
 
 	if( delta == 0 ) return;
 
-	// Allocate memory for the buffer
-	SArrayBuffer *newBuffer;
-	#if defined(AS_MARMALADE)
-	newBuffer = (SArrayBuffer*)new asBYTE[sizeof(SArrayBuffer)-1 + elementSize*(buffer->numElements + delta)];
-	#else
-	newBuffer = (SArrayBuffer*)new (nothrow) asBYTE[sizeof(SArrayBuffer)-1 + elementSize*(buffer->numElements + delta)];
-	#endif
-	if( newBuffer )
-		newBuffer->numElements = buffer->numElements + delta;
+	if( buffer->maxElements < buffer->numElements + delta )
+	{
+		// Allocate memory for the buffer
+		SArrayBuffer *newBuffer;
+		#if defined(AS_MARMALADE)
+		newBuffer = (SArrayBuffer*)new asBYTE[sizeof(SArrayBuffer)-1 + elementSize*(buffer->numElements + delta)];
+		#else
+		newBuffer = (SArrayBuffer*)new (nothrow) asBYTE[sizeof(SArrayBuffer)-1 + elementSize*(buffer->numElements + delta)];
+		#endif
+		if( newBuffer )
+		{
+			newBuffer->numElements = buffer->numElements + delta;
+			newBuffer->maxElements = newBuffer->numElements;
+		}
+		else
+		{
+			// Out of memory
+			asIScriptContext *ctx = asGetActiveContext();
+			if( ctx )	
+				ctx->SetException("Out of memory");
+			return;
+		}
+
+		memcpy(newBuffer->data, buffer->data, at*elementSize);
+		if( at < buffer->numElements )
+			memcpy(newBuffer->data + (at+delta)*elementSize, buffer->data + at*elementSize, (buffer->numElements-at)*elementSize);
+
+		if( subTypeId & asTYPEID_MASK_OBJECT )
+			Construct(newBuffer, at, at+delta);
+
+		// Release the old buffer
+		delete[] (asBYTE*)buffer;
+
+		buffer = newBuffer;
+	}
+	else if( delta < 0 )
+	{
+		Destruct(buffer, at, at-delta);
+		memmove(buffer->data + at*elementSize, buffer->data + (at-delta)*elementSize, (buffer->numElements - (at-delta))*elementSize);
+		buffer->numElements += delta;
+	}
 	else
 	{
-		// Out of memory
-		asIScriptContext *ctx = asGetActiveContext();
-		if( ctx )	
-			ctx->SetException("Out of memory");
-		return;
+		memmove(buffer->data + (at+delta)*elementSize, buffer->data + at*elementSize, (buffer->numElements - at)*elementSize);
+		Construct(buffer, at, at+delta);
+		buffer->numElements += delta;
 	}
-
-	memcpy(newBuffer->data, buffer->data, at*elementSize);
-	if( delta > 0 && at < buffer->numElements )
-		memcpy(newBuffer->data + (at+delta)*elementSize, buffer->data + at*elementSize, (buffer->numElements-at)*elementSize);
-	else if( delta < 0 && at < buffer->numElements )
-		memcpy(newBuffer->data + at*elementSize, buffer->data + (at-delta)*elementSize, (buffer->numElements-at+delta)*elementSize);
-
-	if( subTypeId & asTYPEID_MASK_OBJECT )
-	{
-		if( delta > 0 )
-			Construct(newBuffer, at, at+delta);
-		else if( delta < 0 )
-			Destruct(buffer, at, at-delta);
-	}
-
-	// Release the old buffer
-	delete[] (asBYTE*)buffer;
-
-	buffer = newBuffer;
 }
 
 // internal
@@ -527,6 +613,7 @@ void CScriptArray::CreateBuffer(SArrayBuffer **buf, asUINT numElements)
 	if( *buf )
 	{
 		(*buf)->numElements = numElements;
+		(*buf)->maxElements = numElements;
 		Construct(*buf, 0, numElements);
 	}
 	else
@@ -626,15 +713,19 @@ bool CScriptArray::Less(const void *a, const void *b, bool asc, asIScriptContext
 		int r = 0;
 
 		// Execute object opCmp
-		// TODO: Add proper error handling
-		r = ctx->Prepare(cmpFuncId); assert(r >= 0);
-		r = ctx->SetObject((void*)a); assert(r >= 0);
-		r = ctx->SetArgObject(0, (void*)b); assert(r >= 0);
-		r = ctx->Execute();
-
-		if( r == asEXECUTION_FINISHED )
+		SArrayCache *cache = reinterpret_cast<SArrayCache*>(objType->GetUserData(ARRAY_CACHE));
+		if( cache && cache->cmpFunc )
 		{
-			return (int)ctx->GetReturnDWord() < 0;
+			// TODO: Add proper error handling
+			r = ctx->Prepare(cache->cmpFunc); assert(r >= 0);
+			r = ctx->SetObject((void*)a); assert(r >= 0);
+			r = ctx->SetArgObject(0, (void*)b); assert(r >= 0);
+			r = ctx->Execute();
+
+			if( r == asEXECUTION_FINISHED )
+			{
+				return (int)ctx->GetReturnDWord() < 0;
+			}
 		}
 	}
 
@@ -667,31 +758,49 @@ bool CScriptArray::operator==(const CScriptArray &other) const
 		return false;
 
 	asIScriptContext *cmpContext = 0;
+	bool isNested = false;
 
 	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) )
 	{
-		// TODO: Ideally this context would be retrieved from a pool, so we don't have to 
-		//       create a new one everytime. We could keep a context with the array object 
-		//       but that would consume a lot of resources as each context is quite heavy.
-		cmpContext = objType->GetEngine()->CreateContext();
+		// Try to reuse the active context
+		cmpContext = asGetActiveContext();
+		if( cmpContext )
+		{
+			if( cmpContext->PushState() >= 0 )
+				isNested = true;
+			else
+				cmpContext = 0;
+		}
+		if( cmpContext == 0 )
+		{
+			// TODO: Ideally this context would be retrieved from a pool, so we don't have to 
+			//       create a new one everytime. We could keep a context with the array object 
+			//       but that would consume a lot of resources as each context is quite heavy.
+			cmpContext = objType->GetEngine()->CreateContext();
+		}
 	}
 	
+	// Check if all elements are equal
+	bool isEqual = true;
+	SArrayCache *cache = reinterpret_cast<SArrayCache*>(objType->GetUserData(ARRAY_CACHE));
 	for( asUINT n = 0; n < GetSize(); n++ )
-		if( !Equals(At(n), other.At(n), cmpContext) )
+		if( !Equals(At(n), other.At(n), cmpContext, cache) )
 		{
-			if( cmpContext )
-				cmpContext->Release();
-			return false;
+			isEqual = false;
+			break;
 		}
 
 	if( cmpContext )
-		cmpContext->Release();
+		if( isNested )
+			cmpContext->PopState();
+		else
+			cmpContext->Release();
 
-	return true;
+	return isEqual;
 }
 
 // internal
-bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx) const
+bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx, SArrayCache *cache) const
 {
 	if( !(subTypeId & ~asTYPEID_MASK_SEQNBR) )
 	{
@@ -721,10 +830,10 @@ bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx) c
 		int r = 0;
 
 		// Execute object opEquals if available
-		if( eqFuncId >= 0 )
+		if( cache && cache->eqFunc )
 		{
 			// TODO: Add proper error handling
-			r = ctx->Prepare(eqFuncId); assert(r >= 0);
+			r = ctx->Prepare(cache->eqFunc); assert(r >= 0);
 			r = ctx->SetObject((void*)a); assert(r >= 0);
 			r = ctx->SetArgObject(0, (void*)b); assert(r >= 0);
 			r = ctx->Execute();
@@ -736,10 +845,10 @@ bool CScriptArray::Equals(const void *a, const void *b, asIScriptContext *ctx) c
 		}
 
 		// Execute object opCmp if available
-		if( cmpFuncId >= 0 )
+		if( cache && cache->cmpFunc >= 0 )
 		{
 			// TODO: Add proper error handling
-			r = ctx->Prepare(cmpFuncId); assert(r >= 0);
+			r = ctx->Prepare(cache->cmpFunc); assert(r >= 0);
 			r = ctx->SetObject((void*)a); assert(r >= 0);
 			r = ctx->SetArgObject(0, (void*)b); assert(r >= 0);
 			r = ctx->Execute();
@@ -761,37 +870,57 @@ int CScriptArray::Find(void *value) const
 
 int CScriptArray::Find(asUINT index, void *value) const
 {
-	// Subtype isn't primitive and doesn't have opEquals / opCmp
-	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) && (cmpFuncId <= 0 && eqFuncId <= 0) )
+	// Check if the subtype really supports find()
+	// TODO: Can't this be done at compile time too by the template callback
+	SArrayCache *cache = 0;
+	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) )
 	{
-		asIScriptContext *ctx = asGetActiveContext();
-		asIObjectType* subType = objType->GetEngine()->GetObjectTypeById(subTypeId);
-
-		// Throw an exception
-		if( ctx )
+		cache = reinterpret_cast<SArrayCache*>(objType->GetUserData(ARRAY_CACHE));
+		if( !cache || (cache->cmpFunc == 0 && cache->eqFunc == 0) )
 		{
-			char tmp[512];
-#if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(AS_MARMALADE)
-			sprintf_s(tmp, 512, "Type '%s' does not have opEquals / opCmp", subType->GetName());
-#else
-			sprintf(tmp, "Type '%s' does not have opEquals / opCmp", subType->GetName());
-#endif
-			ctx->SetException(tmp);
-		}
+			asIScriptContext *ctx = asGetActiveContext();
+			asIObjectType* subType = objType->GetEngine()->GetObjectTypeById(subTypeId);
 
-		return -1;
+			// Throw an exception
+			if( ctx )
+			{
+				char tmp[512];
+#if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(AS_MARMALADE)
+				sprintf_s(tmp, 512, "Type '%s' does not have opEquals / opCmp", subType->GetName());
+#else
+				sprintf(tmp, "Type '%s' does not have opEquals / opCmp", subType->GetName());
+#endif
+				ctx->SetException(tmp);
+			}
+
+			return -1;
+		}
 	}
 
 	asIScriptContext *cmpContext = 0;
+	bool isNested = false;
 
 	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) )
 	{
-		// TODO: Ideally this context would be retrieved from a pool, so we don't have to 
-		//       create a new one everytime. We could keep a context with the array object 
-		//       but that would consume a lot of resources as each context is quite heavy.
-		cmpContext = objType->GetEngine()->CreateContext();
+		// Try to reuse the active context
+		cmpContext = asGetActiveContext();
+		if( cmpContext )
+		{
+			if( cmpContext->PushState() >= 0 )
+				isNested = true;
+			else
+				cmpContext = 0;
+		}
+		if( cmpContext == 0 )
+		{
+			// TODO: Ideally this context would be retrieved from a pool, so we don't have to 
+			//       create a new one everytime. We could keep a context with the array object 
+			//       but that would consume a lot of resources as each context is quite heavy.
+			cmpContext = objType->GetEngine()->CreateContext();
+		}
 	}
 
+	// Find the matching element
 	int ret = -1;
 	asUINT size = GetSize();
 
@@ -800,7 +929,7 @@ int CScriptArray::Find(asUINT index, void *value) const
 		for( asUINT i = index; i < size; i++ )
 		{
 			// value passed by reference
-			if( Equals(At(i), (value), cmpContext) )
+			if( Equals(At(i), (value), cmpContext, cache) )
 			{
 				ret = (int)i;
 				break;
@@ -809,7 +938,10 @@ int CScriptArray::Find(asUINT index, void *value) const
 	}
 
 	if( cmpContext )
-		cmpContext->Release();
+		if( isNested )
+			cmpContext->PopState();
+		else
+			cmpContext->Release();
 
 	return ret;
 }
@@ -877,24 +1009,28 @@ void CScriptArray::SortDesc(asUINT index, asUINT count)
 void CScriptArray::Sort(asUINT index, asUINT count, bool asc)
 {
 	// Subtype isn't primitive and doesn't have opCmp
-	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) && cmpFuncId <= 0 )
+	SArrayCache *cache = reinterpret_cast<SArrayCache*>(objType->GetUserData(ARRAY_CACHE));
+	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) )
 	{
-		asIScriptContext *ctx = asGetActiveContext();
-		asIObjectType* subType = objType->GetEngine()->GetObjectTypeById(subTypeId);
-
-		// Throw an exception
-		if( ctx )
+		if( !cache || cache->cmpFunc == 0 )
 		{
-			char tmp[512];
-#if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(AS_MARMALADE)
-			sprintf_s(tmp, 512, "Type '%s' does not have opCmp", subType->GetName());
-#else
-			sprintf(tmp, "Type '%s' does not have opCmp", subType->GetName());
-#endif
-			ctx->SetException(tmp);
-		}
+			asIScriptContext *ctx = asGetActiveContext();
+			asIObjectType* subType = objType->GetEngine()->GetObjectTypeById(subTypeId);
 
-		return;
+			// Throw an exception
+			if( ctx )
+			{
+				char tmp[512];
+#if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(AS_MARMALADE)
+				sprintf_s(tmp, 512, "Type '%s' does not have opCmp", subType->GetName());
+#else
+				sprintf(tmp, "Type '%s' does not have opCmp", subType->GetName());
+#endif
+				ctx->SetException(tmp);
+			}
+
+			return;
+		}
 	}
 
 	// No need to sort
@@ -922,13 +1058,26 @@ void CScriptArray::Sort(asUINT index, asUINT count, bool asc)
 
 	asBYTE tmp[16];
 	asIScriptContext *cmpContext = 0;
+	bool isNested = false;
 
 	if( (subTypeId & ~asTYPEID_MASK_SEQNBR) && !(subTypeId & asTYPEID_OBJHANDLE) )
 	{
-		// TODO: Ideally this context would be retrieved from a pool, so we don't have to 
-		//       create a new one everytime. We could keep a context with the array object 
-		//       but that would consume a lot of resources as each context is quite heavy.
-		cmpContext = objType->GetEngine()->CreateContext();
+		// Try to reuse the active context
+		cmpContext = asGetActiveContext();
+		if( cmpContext )
+		{
+			if( cmpContext->PushState() >= 0 )
+				isNested = true;
+			else
+				cmpContext = 0;
+		}
+		if( cmpContext == 0 )
+		{
+			// TODO: Ideally this context would be retrieved from a pool, so we don't have to 
+			//       create a new one everytime. We could keep a context with the array object 
+			//       but that would consume a lot of resources as each context is quite heavy.
+			cmpContext = objType->GetEngine()->CreateContext();
+		}
 	}
 
 	// Insertion sort
@@ -948,7 +1097,10 @@ void CScriptArray::Sort(asUINT index, asUINT count, bool asc)
 	}
 
 	if( cmpContext )
-		cmpContext->Release();
+		if( isNested )
+			cmpContext->PopState();
+		else
+			cmpContext->Release();
 }
 
 // internal
@@ -968,9 +1120,13 @@ void CScriptArray::CopyBuffer(SArrayBuffer *dst, SArrayBuffer *src)
 			
 			for( ; d < max; d++, s++ )
 			{
+				void *tmp = *d;
 				*d = *s;
 				if( *d )
 					engine->AddRefScriptObject(*d, objType->GetSubType());
+				// Release the old ref after incrementing the new to avoid problem incase it is the same ref
+				if( tmp )
+					engine->ReleaseScriptObject(tmp, objType->GetSubType());
 			}
 		}
 	}
@@ -987,7 +1143,7 @@ void CScriptArray::CopyBuffer(SArrayBuffer *dst, SArrayBuffer *src)
 				void **s   = (void**)src->data;
 
 				for( ; d < max; d++, s++ )
-					engine->CopyScriptObject(*d, *s, subTypeId);
+					engine->AssignScriptObject(*d, *s, subTypeId);
 			}
 			else
 			{
@@ -1002,59 +1158,73 @@ void CScriptArray::CopyBuffer(SArrayBuffer *dst, SArrayBuffer *src)
 // Precache some info
 void CScriptArray::Precache()
 {
-	// TODO: optimize: This information could be stored in the object type as user data,
-	//                 then it wouldn't be necessary to look for this for each array initialization.
-	//                 It cannot be stored in the user data, because then the cleanup function will
-	//                 not know how to cleanup the application's other user data.
-
 	subTypeId = objType->GetSubTypeId();
 
-	cmpFuncId = -1;
-	eqFuncId = -1;
-
-	// Object - search for opCmp / opEquals
+	// Check if it is an array of objects. Only for these do we need to cache anything
 	// Type ids for primitives and enums only has the sequence number part
-	if( subTypeId & ~asTYPEID_MASK_SEQNBR )
+	if( !(subTypeId & ~asTYPEID_MASK_SEQNBR) )
+		return;
+		
+	// The opCmp and opEquals methods are cached because the searching for the
+	// methods is quite time consuming if a lot of array objects are created.
+
+	// First check if a cache already exists for this array type
+	SArrayCache *cache = reinterpret_cast<SArrayCache*>(objType->GetUserData(ARRAY_CACHE));
+	if( cache )	return;
+
+	// We need to make sure the cache is created only once, even  
+	// if multiple threads reach the same point at the same time
+	asAcquireExclusiveLock();
+
+	// Now that we got the lock, we need to check again to make sure the 
+	// cache wasn't created while we were waiting for the lock
+	cache = reinterpret_cast<SArrayCache*>(objType->GetUserData(ARRAY_CACHE));
+	if( cache )
 	{
-		asIObjectType *subType = objType->GetEngine()->GetObjectTypeById(subTypeId);
+		asReleaseExclusiveLock();
+		return;
+	}
 
-		if( subType )
+	// Create the cache
+	cache = new SArrayCache();
+	memset(cache, 0, sizeof(SArrayCache));
+
+	asIObjectType *subType = objType->GetEngine()->GetObjectTypeById(subTypeId);
+	if( subType )
+	{
+		for( asUINT i = 0; i < subType->GetMethodCount(); i++ )
 		{
-			for( asUINT i = 0; i < subType->GetMethodCount(); i++ )
+			asIScriptFunction *func = subType->GetMethodByIndex(i);
+
+			if( func->GetParamCount() == 1 /* && func->IsReadOnly() */ )
 			{
-				asIScriptFunction *func = subType->GetMethodByIndex(i);
+				asDWORD flags = 0;
+				int returnTypeId = func->GetReturnTypeId();
+				int paramTypeId = func->GetParamTypeId(0, &flags);
 
-				if( func->GetParamCount() == 1 /* && func->IsReadOnly() */ )
+				// The parameter must either be a reference to the subtype or a handle to the subtype			
+				if( ((flags & asTM_INREF) && paramTypeId == subTypeId) ||
+					(flags == 0 && 
+					 (paramTypeId & asTYPEID_OBJHANDLE) &&
+					 (paramTypeId & ~(asTYPEID_OBJHANDLE | asTYPEID_HANDLETOCONST)) == (subTypeId & ~(asTYPEID_OBJHANDLE | asTYPEID_HANDLETOCONST))) )
 				{
-					asDWORD flags = 0;
-					int returnTypeId = func->GetReturnTypeId();
-					int paramTypeId = func->GetParamTypeId(0, &flags);
+					if( returnTypeId == asTYPEID_INT32 && strcmp(func->GetName(), "opCmp") == 0 )
+						cache->cmpFunc = subType->GetMethodByIndex(i);
 
-					// The parameter must either be a reference to the subtype or a handle to the subtype			
-					if( ((flags & asTM_INREF) && paramTypeId == subTypeId) ||
-						(flags == 0 && 
-						 (paramTypeId & asTYPEID_OBJHANDLE) &&
-						 (paramTypeId & ~(asTYPEID_OBJHANDLE | asTYPEID_HANDLETOCONST)) == (subTypeId & ~(asTYPEID_OBJHANDLE | asTYPEID_HANDLETOCONST))) )
-					{
-						if( returnTypeId == asTYPEID_INT32 && strcmp(func->GetName(), "opCmp") == 0 )
-						{
-							cmpFuncId = subType->GetMethodIdByIndex(i);
-						}
+					if( returnTypeId == asTYPEID_BOOL && strcmp(func->GetName(), "opEquals") == 0 )
+						cache->eqFunc = subType->GetMethodByIndex(i);
 
-						if( returnTypeId == asTYPEID_BOOL && strcmp(func->GetName(), "opEquals") == 0 )
-						{
-							eqFuncId = subType->GetMethodIdByIndex(i);
-						}
-
-						if( cmpFuncId >= 0 && eqFuncId >= 0 )
-						{
-							break;
-						}
-					}
+					if( cache->cmpFunc && cache->eqFunc )
+						break;
 				}
 			}
 		}
 	}
+
+	// Set the user data only at the end so others that retrieve it will know it is complete
+	objType->SetUserData(cache, ARRAY_CACHE);
+
+	asReleaseExclusiveLock();
 }
 
 // GC behaviour

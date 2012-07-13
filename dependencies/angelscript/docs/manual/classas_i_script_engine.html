@@ -100,7 +100,6 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a72aa1a3a5ac88a5a1dba4fa3655141d6">GetGlobalFunctionCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of registered functions.  <a href="#a72aa1a3a5ac88a5a1dba4fa3655141d6"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a154f25c36b7d88f73de1b440a169ec08">GetGlobalFunctionIdByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function id of the registered function.  <a href="#a154f25c36b7d88f73de1b440a169ec08"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#aaf2b79cef75adb4099a24e3412e4ea79">GetGlobalFunctionByIndex</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the registered function.  <a href="#aaf2b79cef75adb4099a24e3412e4ea79"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a42edd02e95731c795e13706400e8665a">GetGlobalFunctionByDecl</a> (const char *declaration) const =0</td></tr>
@@ -207,8 +206,11 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a script object defined by its type id.  <a href="#afdc06a65b6df9095835a32fa474c99d3"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a0369a333503be2a232580a85b854779c">CreateScriptObjectCopy</a> (void *obj, int typeId)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates a copy of a script object.  <a href="#a0369a333503be2a232580a85b854779c"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a8fe709ccb1d13977afb35f8726f380fb">CreateUninitializedScriptObject</a> (int typeId)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Creates an uninitialized script object defined by its type id.  <a href="#a8fe709ccb1d13977afb35f8726f380fb"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#ad299a2adb48c7510e3a167d8cea36789">CopyScriptObject</a> (void *dstObj, void *srcObj, int typeId)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy one script object to another.  <a href="#ad299a2adb48c7510e3a167d8cea36789"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#afba86bb1ebb7e5c014da59d245c95461">AssignScriptObject</a> (void *dstObj, void *srcObj, int typeId)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Copy one script object to another.  <a href="#afba86bb1ebb7e5c014da59d245c95461"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a3660c6a075d76df0071b6df35feb227a">ReleaseScriptObject</a> (void *obj, int typeId)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Release the script object pointer.  <a href="#a3660c6a075d76df0071b6df35feb227a"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a643746a83d3c1ba30cae7df40558bd13">ReleaseScriptObject</a> (void *obj, const <a class="el" href="classas_i_object_type.html">asIObjectType</a> *type)=0</td></tr>
@@ -232,20 +234,20 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a58ceeafd780dea3543e0ede4106199fd">GCEnumCallback</a> (void *reference)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Used by the garbage collector to enumerate all references held by an object.  <a href="#a58ceeafd780dea3543e0ede4106199fd"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">User data</div></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a339b31c7aea69e4132ae7cebc55f3e80">SetUserData</a> (void *data)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Register the memory address of some user data.  <a href="#a339b31c7aea69e4132ae7cebc55f3e80"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#aeab55f7073163d10552e02a469b0ef78">GetUserData</a> () const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the address of the previously registered user data.  <a href="#aeab55f7073163d10552e02a469b0ef78"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#ad91d8c1e53489bee1243e351be7e18a9">SetEngineUserDataCleanupCallback</a> (<a class="el" href="angelscript_8h.html#ab4583fe7648248c59f525f944cfb9db1">asCLEANENGINEFUNC_t</a> callback)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the function that should be called when the engine is destroyed.  <a href="#ad91d8c1e53489bee1243e351be7e18a9"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#aabee8d6ef426c434adee85ec6d57f940">SetUserData</a> (void *data, <a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a> type=0)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Register the memory address of some user data.  <a href="#aabee8d6ef426c434adee85ec6d57f940"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a701aa6a7ddf51a22c62281f3dec9a772">GetUserData</a> (<a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a> type=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the address of the previously registered user data.  <a href="#a701aa6a7ddf51a22c62281f3dec9a772"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a8fa4fc9aacb99db6d4be0a5542b85e35">SetEngineUserDataCleanupCallback</a> (<a class="el" href="angelscript_8h.html#ab4583fe7648248c59f525f944cfb9db1">asCLEANENGINEFUNC_t</a> callback, <a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a> type=0)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the function that should be called when the engine is destroyed.  <a href="#a8fa4fc9aacb99db6d4be0a5542b85e35"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#afb7a5e52a2232262ef2863e58bb2c7d1">SetModuleUserDataCleanupCallback</a> (<a class="el" href="angelscript_8h.html#a90d681aba2f00b701425d4dbdca3375b">asCLEANMODULEFUNC_t</a> callback)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the function that should be called when the module is destroyed.  <a href="#afb7a5e52a2232262ef2863e58bb2c7d1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#aafa5ed8214fc2029a6b5228e5cf60d6e">SetContextUserDataCleanupCallback</a> (<a class="el" href="angelscript_8h.html#a88ecc3288f67d86c6dd9d8d24d9980ca">asCLEANCONTEXTFUNC_t</a> callback)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the function that should be called when a context is destroyed.  <a href="#aafa5ed8214fc2029a6b5228e5cf60d6e"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#ae9585d4e65618b02c6005d3beaca4377">SetFunctionUserDataCleanupCallback</a> (<a class="el" href="angelscript_8h.html#ae396d162d9d46c34a7f197ecbc788dfa">asCLEANFUNCTIONFUNC_t</a> callback)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the function that should be called when a function is destroyed.  <a href="#ae9585d4e65618b02c6005d3beaca4377"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a7495c0b6307bb983ff807a3c31c4f938">SetObjectTypeUserDataCleanupCallback</a> (<a class="el" href="angelscript_8h.html#a8bbbe3a90082461266acf8f98ce9216e">asCLEANOBJECTTYPEFUNC_t</a> callback)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the function that should be called when an object type is destroyed.  <a href="#a7495c0b6307bb983ff807a3c31c4f938"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_engine.html#a2336a92d5cd2a6a37007addf81ca059f">SetObjectTypeUserDataCleanupCallback</a> (<a class="el" href="angelscript_8h.html#a8bbbe3a90082461266acf8f98ce9216e">asCLEANOBJECTTYPEFUNC_t</a> callback, <a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a> type=0)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the function that should be called when an object type is destroyed.  <a href="#a2336a92d5cd2a6a37007addf81ca059f"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
 <div class="textblock"><p>It is allowed to have multiple instances of script engines, but there is rarely a need for it. Even if the application needs to expose different interfaces to different types of scripts this can usually be accomplished through the use of dynamic configuration groups and access profiles. </p>
@@ -340,6 +342,49 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
+<a class="anchor" id="afba86bb1ebb7e5c014da59d245c95461"></a><!-- doxytag: member="asIScriptEngine::AssignScriptObject" ref="afba86bb1ebb7e5c014da59d245c95461" args="(void *dstObj, void *srcObj, int typeId)=0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void asIScriptEngine::AssignScriptObject </td>
+          <td>(</td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>dstObj</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">void *&#160;</td>
+          <td class="paramname"><em>srcObj</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>typeId</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">dstObj</td><td>A pointer to the destination object. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">srcObj</td><td>A pointer to the source object. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">typeId</td><td>The type id of the objects.</td></tr>
+  </table>
+  </dd>
+</dl>
+<p>This calls the assignment operator to copy the object from one to the other.</p>
+<p>This only works for objects. </p>
+
+</div>
+</div>
 <a class="anchor" id="ac81014e50dd7efc1920adcb3fd2d1e5d"></a><!-- doxytag: member="asIScriptEngine::BeginConfigGroup" ref="ac81014e50dd7efc1920adcb3fd2d1e5d" args="(const char *groupName)=0" -->
 <div class="memitem">
 <div class="memproto">
@@ -421,16 +466,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">dstObj</td><td>A pointer to the destination object. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">srcObj</td><td>A pointer to the source object. </td></tr>
-    <tr><td class="paramdir">[in]</td><td class="paramname">typeId</td><td>The type id of the objects.</td></tr>
-  </table>
-  </dd>
-</dl>
-<p>This calls the assignment operator to copy the object from one to the other.</p>
-<p>This only works for objects. </p>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000002">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_script_engine.html#afba86bb1ebb7e5c014da59d245c95461">asIScriptEngine::AssignScriptObject</a> instead </dd></dl>
 
 </div>
 </div>
@@ -512,6 +548,34 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <dl class="return"><dt><b>Returns:</b></dt><dd>A pointer to the new object if successful, or null if not.</dd></dl>
 <p>This method is used to create a copy of an existing object.</p>
 <p>This only works for objects, for primitive types and object handles the method doesn't do anything and returns a null pointer. </p>
+
+</div>
+</div>
+<a class="anchor" id="a8fe709ccb1d13977afb35f8726f380fb"></a><!-- doxytag: member="asIScriptEngine::CreateUninitializedScriptObject" ref="a8fe709ccb1d13977afb35f8726f380fb" args="(int typeId)=0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual void* asIScriptEngine::CreateUninitializedScriptObject </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>typeId</em></td><td>)</td>
+          <td><code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">typeId</td><td>The type id of the object to create. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>A pointer to the new object if successful, or null if not.</dd></dl>
+<p>This method can only be used to create instances of script classes.</p>
+<p>The returned object will only be initialized so far that there are no invalid pointers or references. The constructor of the script class will not be invoked.</p>
+<p>If the script class has any registered types as members, the default constructor for those members will be executed.</p>
+<p>This method is meant for objects that will be initialized manually by the application, e.g. when restoring a serialized object. </p>
 
 </div>
 </div>
@@ -1013,19 +1077,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">index</td><td>The index of the registered global function. </td></tr>
-  </table>
-  </dd>
-</dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>The id of the function, or a negative value on error. </dd></dl>
-<dl><dt><b>Return values:</b></dt><dd>
-  <table class="retval">
-    <tr><td class="paramname">asINVALID_ARG</td><td><em>index</em> is too large. </td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000001">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_script_engine.html#aaf2b79cef75adb4099a24e3412e4ea79">asIScriptEngine::GetGlobalFunctionByIndex</a> instead </dd></dl>
 
 </div>
 </div>
@@ -1505,19 +1557,26 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="aeab55f7073163d10552e02a469b0ef78"></a><!-- doxytag: member="asIScriptEngine::GetUserData" ref="aeab55f7073163d10552e02a469b0ef78" args="() const =0" -->
+<a class="anchor" id="a701aa6a7ddf51a22c62281f3dec9a772"></a><!-- doxytag: member="asIScriptEngine::GetUserData" ref="a701aa6a7ddf51a22c62281f3dec9a772" args="(asPWORD type=0) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">virtual void* asIScriptEngine::GetUserData </td>
           <td>(</td>
-          <td class="paramname"></td><td>)</td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a>&#160;</td>
+          <td class="paramname"><em>type</em> = <code>0</code></td><td>)</td>
           <td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>An identifier specifying the user data to get. </td></tr>
+  </table>
+  </dd>
+</dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>The pointer to the user data. </dd></dl>
 
 </div>
@@ -2569,7 +2628,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="ad91d8c1e53489bee1243e351be7e18a9"></a><!-- doxytag: member="asIScriptEngine::SetEngineUserDataCleanupCallback" ref="ad91d8c1e53489bee1243e351be7e18a9" args="(asCLEANENGINEFUNC_t callback)=0" -->
+<a class="anchor" id="a8fa4fc9aacb99db6d4be0a5542b85e35"></a><!-- doxytag: member="asIScriptEngine::SetEngineUserDataCleanupCallback" ref="a8fa4fc9aacb99db6d4be0a5542b85e35" args="(asCLEANENGINEFUNC_t callback, asPWORD type=0)=0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -2577,19 +2636,30 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
           <td class="memname">virtual void asIScriptEngine::SetEngineUserDataCleanupCallback </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="angelscript_8h.html#ab4583fe7648248c59f525f944cfb9db1">asCLEANENGINEFUNC_t</a>&#160;</td>
-          <td class="paramname"><em>callback</em></td><td>)</td>
-          <td><code> [pure virtual]</code></td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a>&#160;</td>
+          <td class="paramname"><em>type</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">callback</td><td>A pointer to the function</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">callback</td><td>A pointer to the function </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>An identifier specifying which user data the callback is to be used with.</td></tr>
   </table>
   </dd>
 </dl>
-<p>The function given with this call will be invoked when the engine is destroyed if any <a class="el" href="classas_i_script_engine.html#a339b31c7aea69e4132ae7cebc55f3e80">user data</a> has been registered with the engine.</p>
+<p>The function given with this call will be invoked when the engine is destroyed if any <a class="el" href="classas_i_script_engine.html#aabee8d6ef426c434adee85ec6d57f940">user data</a> has been registered with the engine.</p>
 <p>The function is called from within the engine destructor, so the callback should not be used for anything but cleaning up the user data itself. </p>
 
 </div>
@@ -2700,7 +2770,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 
 </div>
 </div>
-<a class="anchor" id="a7495c0b6307bb983ff807a3c31c4f938"></a><!-- doxytag: member="asIScriptEngine::SetObjectTypeUserDataCleanupCallback" ref="a7495c0b6307bb983ff807a3c31c4f938" args="(asCLEANOBJECTTYPEFUNC_t callback)=0" -->
+<a class="anchor" id="a2336a92d5cd2a6a37007addf81ca059f"></a><!-- doxytag: member="asIScriptEngine::SetObjectTypeUserDataCleanupCallback" ref="a2336a92d5cd2a6a37007addf81ca059f" args="(asCLEANOBJECTTYPEFUNC_t callback, asPWORD type=0)=0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -2708,24 +2778,35 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
           <td class="memname">virtual void asIScriptEngine::SetObjectTypeUserDataCleanupCallback </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="angelscript_8h.html#a8bbbe3a90082461266acf8f98ce9216e">asCLEANOBJECTTYPEFUNC_t</a>&#160;</td>
-          <td class="paramname"><em>callback</em></td><td>)</td>
-          <td><code> [pure virtual]</code></td>
+          <td class="paramname"><em>callback</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a>&#160;</td>
+          <td class="paramname"><em>type</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">callback</td><td>A pointer to the function</td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">callback</td><td>A pointer to the function </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>An identifier specifying which user data the callback is to be used with.</td></tr>
   </table>
   </dd>
 </dl>
-<p>The function given with this call will be invoked when an object type is destroyed if any <a class="el" href="classas_i_object_type.html#a4d542ed1b449f83f712c38bf27f78821">user data</a> has been registered with the type.</p>
+<p>The function given with this call will be invoked when an object type is destroyed if any <a class="el" href="classas_i_object_type.html#acd29983132b4239567cc0902dce582d9">user data</a> has been registered with the type.</p>
 <p>The function is called from within the object type destructor, so the callback should not be used for anything but cleaning up the user data itself. </p>
 
 </div>
 </div>
-<a class="anchor" id="a339b31c7aea69e4132ae7cebc55f3e80"></a><!-- doxytag: member="asIScriptEngine::SetUserData" ref="a339b31c7aea69e4132ae7cebc55f3e80" args="(void *data)=0" -->
+<a class="anchor" id="aabee8d6ef426c434adee85ec6d57f940"></a><!-- doxytag: member="asIScriptEngine::SetUserData" ref="aabee8d6ef426c434adee85ec6d57f940" args="(void *data, asPWORD type=0)=0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -2733,8 +2814,18 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
           <td class="memname">virtual void* asIScriptEngine::SetUserData </td>
           <td>(</td>
           <td class="paramtype">void *&#160;</td>
-          <td class="paramname"><em>data</em></td><td>)</td>
-          <td><code> [pure virtual]</code></td>
+          <td class="paramname"><em>data</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#a76fc6994aba7ff6c685a62c273c057e3">asPWORD</a>&#160;</td>
+          <td class="paramname"><em>type</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
@@ -2742,12 +2833,14 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">data</td><td>A pointer to the user data. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">type</td><td>An identifier specifying the user data to set. </td></tr>
   </table>
   </dd>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>The previous pointer stored in the engine.</dd></dl>
 <p>This method allows the application to associate a value, e.g. a pointer, with the engine instance.</p>
-<p>Optionally, a callback function can be <a class="el" href="classas_i_script_engine.html#ad91d8c1e53489bee1243e351be7e18a9">registered</a> to clean up the user data when the engine is destroyed. </p>
+<p>The type values 1000 through 1999 are reserved for use by the official add-ons.</p>
+<p>Optionally, a callback function can be <a class="el" href="classas_i_script_engine.html#a8fa4fc9aacb99db6d4be0a5542b85e35">registered</a> to clean up the user data when the engine is destroyed. </p>
 
 </div>
 </div>
@@ -2823,7 +2916,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_engine.html">asIScriptEngine</a>      </li>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:11 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

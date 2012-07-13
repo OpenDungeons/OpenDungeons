@@ -42,8 +42,8 @@
 
 BEGIN_AS_NAMESPACE
 
-// TODO: optimize: The access to the arguments should be optimized so that code 
-//                 doesn't have to count the position of the argument with every call
+// TODO: runtime optimize: The access to the arguments should be optimized so that code 
+//                         doesn't have to count the position of the argument with every call
 
 // internal
 asCGeneric::asCGeneric(asCScriptEngine *engine, asCScriptFunction *sysFunction, void *currentObject, asDWORD *stackPointer)
@@ -68,11 +68,14 @@ asIScriptEngine *asCGeneric::GetEngine() const
 	return (asIScriptEngine*)engine;
 }
 
+#ifdef AS_DEPRECATED
+// Deprecated since 2.24.0 - 2012-05-25
 // interface
 int asCGeneric::GetFunctionId() const
 {
 	return sysFunction->id;
 }
+#endif
 
 // interface
 asIScriptFunction *asCGeneric::GetFunction() const
@@ -80,11 +83,14 @@ asIScriptFunction *asCGeneric::GetFunction() const
 	return sysFunction;
 }
 
+#ifdef AS_DEPRECATED
+// Deprecated since 2.24.0 - 2012-05-25
 // interface
 void *asCGeneric::GetFunctionUserData() const
 {
 	return sysFunction->userData;
 }
+#endif
 
 // interface
 void *asCGeneric::GetObject()

@@ -127,7 +127,10 @@ Windows 64bit</h3>
 <p>The MSVC compiler doesn't support inline assembler for the x86 64bit CPU family. To support this platform a separate assembler file has been created: as_callfunc_x64_msvc_asm.asm.</p>
 <p>To compile this file it is necessary to configure a custom build command with the following:</p>
 <div class="fragment"><pre class="fragment">ml64.exe /c  /nologo /Fo$(OutDir)\as_callfunc_x64_msvc_asm.obj /W3 /Zi /Ta $(InputDir)\$(InputFileName)
-</pre></div><h3><a class="anchor" id="doc_compile_gnuc"></a>
+</pre></div><h3><a class="anchor" id="doc_compile_msvc_sdk"></a>
+Microsoft Visual C++</h3>
+<p>While AngelScript doesn't use Microsoft's language extensions you may still face trouble compiling the library if you disable the language extensions. This is because Microsoft's own SDK may have code that relies on the language extensions, e.g. in version 6.0a you might get compiler errors due to the existance of $ in the macro definitions in the specstrings.h header from the Platform SDK. This particular problem was fixed by Microsoft in version 6.1 of their SDK, but there may be others so it might just easier to leave the language extensions turned on.</p>
+<h3><a class="anchor" id="doc_compile_gnuc"></a>
 GNUC based compilers</h3>
 <p>In order to properly intergrate with C++ without the need for wrappers AngelScript uses a lot of pointer casts. Unfortunately it is not possible to always guarantee strict aliasing because of this, so on GNUC based compilers it is necessary to disable compiler optimizations that assume strict aliasing.</p>
 <p>Use the following compiler argument to disable this:</p>
@@ -146,7 +149,7 @@ Marmalade</h3>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:10 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

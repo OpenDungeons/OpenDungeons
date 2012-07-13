@@ -15,6 +15,140 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
+<h2>Version 2.24.0a - 2012/06/28</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Parser now recognizes declarations where the type is declared in a different namespace (Thanks alraz)
+<li>Parser can now parse templates where the subtype is in a different namespace (Thanks sylexer)
+<li>Stack pointer wasn't restored correctly when reusing context, which lead to memory invasions (Thanks virious)
+</ul>
+</ul>
+
+<h2>Version 2.24.0 - 2012/06/24</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed a potential crash if context is prepared but never executed (Thanks Andrew Ackermann)
+<li>Fixed crash with release of the thread manager if the last engine was released as part of destructor in global variable (Thanks Friggle)
+<li>Accessing entitites in global scope from a function in a namespace didn't work (Thanks _Vicious_)
+<li>Fixed assert failure on compiling unary plus operator on non-primitive (Thanks FDsagizi)
+<li>Fixed error in compiler with index operator on a value returned by a property index accessor (Thanks Andrew Ackermann)
+<li>Fixed error in compiler when compiling function call with @&amp; parameter and asEP_ALLOW_UNSAFE_REFERENCES (Thanks FDsagizi)
+<li>Fixed problem in parsing enum declarations where unexpected tokens might get ignored (Thanks virious)
+<li>Fixed crash on 64bit Mac OS X when calling native function that receives and returns large objects by value (Thanks Markus M&ouml;nig)
+<li>Namespaces are now properly considered for registered types as well (Thanks Ricky C and adam4813)
+<li>Improved compatibility with native calling convention on Android with gnuc (Thanks Lasse &Ouml;&ouml;rni)
+<li>SaveByteCode() was crashing when the script contained assignment of POD types without explicit opAssign method (Thanks Andrew Price)
+<li>Fixed crash with releasing a suspended context when a function was returning a value type by value (Thanks Andrew Price)
+<li>The engine allowed to register multiple ref cast behaviours to the same type, which would cause assert failure in compiler (Thanks Andrew Ackermann)
+<li>Improved compatibility with native calling conventions on iOS (Thanks Lasse &Ouml;&ouml;rni)
+<li>Templates with const subtypes are now properly handled (Thanks Andrew Ackermann)
+<li>Fixed SegV with gnuc when using a virtual method for the message callback (Thanks Tzarls)
+<li>Fixed problem with calling registered functions with more than 8 parameters on XBox 360 (Thanks virious)
+<li>Fixed problem with returning float/double on XBox 360 when the library is compiled with optimizations (Thanks virious)
+<li>Fixed bug with virtual property access with index and variable type argument (Thanks virious)
+<li>IsHandleCompatibleWithObject() was ignoring inheritance for script objects (Thanks saejox)
+<li>Fixed bug in compiler when compiling a cast on temporary ASHANDLE object (Thanks saejox)
+</ul>
+<li>Library interface
+<ul>
+<li>Added the global functions asPrepareMultithread() and asUnprepareMultithread()
+<li>The engine and object type can now hold multiple different user data
+<li>Added the global functions asAcquireExclusiveLock(), asReleaseExclusiveLock(), asAcquireSharedLock() and asReleaseSharedLock()
+<li>Deprecated engine::GetGlobalFunctionIdByIndex()
+<li>Deprecated module::GetFunctionIdBy...() and module::RemoveFunction(funcId)
+<li>Changed asIScriptContext::GetAddressOfVar() to dereference parameter references to make it easier to use (Thanks virious)
+<li>Changed BindImportedFunction to take a asIScriptFunction pointer
+<li>Deprecated context::Prepare(int id)
+<li>Deprecated generic::GetFunctionId() and GetFunctionUserData()
+<li>Deprecated objecttype::GetFactoryId...() and GetMethodId...()
+<li>Changed objecttype::GetBehaviourByIndex() to return asIScriptFunction*
+<li>Added the method engine::CreateUninitializedScriptObject() that will create an object without calling the constructor
+<li>Added module::GetObjectTypeByName()
+<li>Renamed engine::CopyScriptObject() to AssignScriptObject() to avoid common confusion with the intent of the method
+<li>Added PushState(), PopState(), and IsNested() to the context that can be used to reuse an active context in a system call
+</ul>
+<li>Library
+<ul>
+<li>Improved stability in out-of-memory conditions to allow graceful exits (Thanks Zylann)
+<li>Improved error handling when loading incorrect bytecode (Thanks Andrew Price)
+<li>Improved thread safety in XBox 360 native code
+</ul>
+<li>Add-ons &amp; Samples
+<ul>
+<li>SetValue is now a public method in the CScriptArray (Thanks saejox)
+<li>The array add-on takes advantage of the multiple user data types to share its cache between arrays of the same type
+<li>The array uses the new global functions to create the shared cache in a thread safe manner
+<li>CScriptBuilder::GetMetadataStringForFunc() and GetMetadataStringForTypeMethod() now takes a asIScriptFunction*
+<li>The string pool is now threadsafe and supports multiple engines
+<li>CSerializer now works when script class constructors modify global variables too (Thanks FDsagizi)
+<li>Added method AddExtraObjectToStore on CSerializer to allow serializing objects not referenced by global variables in module (Thanks FDsagizi)
+<li>Improved C++ interface for the CScriptHandle class to make it easier to use from application
+<li>The CScriptHandle is now capable of casting to inherited script classes or implemented interfaces (Thanks saejox)
+<li>The script array is using the nested context functionality to avoid instanciating temporary contexts
+<li>PrintException() is properly reporting nested calls when printing the callstack
+</ul>
+</ul>
+
+<h2>Version 2.23.1 - 2012/04/28</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed assert failure when loading bytecode containing calls to functions returning value types by value in an if-case (Thanks Markus Larsson)
+<li>Fixed crash when compiling constructor and base class doesn't have default constructor (Thanks Ekimr)
+<li>Fixed bug in asCScriptFunction (Thanks Richard Viney)
+<li>Compiler no longer accepts non-handles with the identity operator 'is' (Thanks SadSingleton)
+<li>Shared global functions didn't fail to compile unless the return type was 'void' (Thanks TheAtom)
+<li>Fixed problem with global get property accessor that returns a POD value type (Thanks Andrew Ackermann)
+<li>Fixed problem with global get property accessor with index that returns an object type (Thanks Andrew Ackermann)
+<li>Fixed crash when loading bytecode that contained shared classes in specific scenarios (Thanks TheAtom)
+<li>Fixed crash with native calling convention on 32bit Mac OS 10.7 with XCode 4.3 (Thanks Matt Bush)
+<li>Fixed crash with compiling private virtual property accessors (Thanks SadSingleton)
+<li>Fixed assert failure when compiling identity operator on non-handle operands (Thanks FDsagizi)
+</ul>
+<li>Script language
+<ul>
+<li>Added proper support for const overloads in property accessors (Thanks Andrew Ackermann)
+</ul>
+<li>Library
+<ul>
+<li>Changed config to enable multithread support on Mac OS X 64bit (Thanks Radu Braniste)
+<li>Bytecode optimizer replaces PshNull, RefCpyV, PopPtr with FREE
+<li>Bytecode optimizer removes CHKREF instructions before and after the ADDSi instruction
+<li>Bytecode optimizer removes CHKREF instructions before RDSPtr instruction
+<li>Bytecode optimizer replaces ChkRefS, RDSPtr with RDSPtr, CHKREF
+<li>Removed unnecessary ADDREF to object pointer in some class methods
+<li>For loop has been rearranged to avoid one JMP instruction
+<li>Context writes messages to callback if application does something wrong with Prepare or Execute.
+<li>Improved thread safety of the thread manager when multiple threads create separate engines (Thanks Carsten Orthbandt)
+</ul>
+<li>Virtual machine
+<ul>
+<li>Changed ADDSi to check if the pointer is a null pointer 
+<li>Changed RDSPtr to check if the pointer is a null pointer
+<li>Renamed the bytecode POP to PopPtr, and removed it's argument as it was always popping a single pointer.
+<li>Created the new instruction RefCpyV that is used to replace the oft occurring pair PSF and REFCPY
+<li>Added JLowZ and JLowNZ to replace ClrHi + JZ and ClrHi + JNZ
+<li>Added PshGPtr that replaces PGA + RDSPtr
+<li>Removed the PUSH instruction
+<li>The VM is guaranteed to call line callback at least once per function to allow interruption of inifinitely recursive calls (Thanks Philip Bennefall)
+<li>LoadThisR and LoadRObjR raises exception if the loaded object pointer is null
+</ul>
+<li>Add-ons &amp; Samples
+<ul>
+<li>Added GetSize() and IsEmpty() to the dictionary add-on (Thanks _Vicious_)
+<li>Added IsEmpty() to the array and string add-on (Thanks _Vicious_)
+<li>Added Reserve() to the array add-on (Thanks Philip Bennefall)
+<li>The string pool is now turned off by default, since it is not threadsafe. Turn it on with AS_USE_STRINGPOOL=1
+<li>Array, string, and dictionary now register their methods using the names from STL if AS_USE_STLNAMES=1 is defined (Thanks Thomas Grip)
+<li>Corrected the syntax in autowrapper add-on to allow it to compile for Android (Thanks brumi)
+</ul>
+</ul>
+
 <h2>Version 2.23.0 - 2012/03/11</h2>
 
 <ul>

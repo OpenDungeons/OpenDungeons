@@ -65,6 +65,7 @@
 <div class="textblock"><p><b>Path:</b> /sdk/add_on/scriptarray/</p>
 <p>The <code>array</code> type is a <a class="el" href="doc_adv_template.html">template object</a> that allow the scripts to declare arrays of any type. Since it is a generic class it is not the most performatic due to the need to determine characteristics at runtime. For that reason it is recommended that the application registers a <a class="el" href="doc_adv_template.html#doc_adv_template_2">template specialization</a> for the array types that are most commonly used.</p>
 <p>The type is registered with <code>RegisterScriptArray(asIScriptEngine *engine, bool defaultArrayType)</code>. The second parameter should be set to true if you wish to allow the syntax form <code>type[]</code> to declare arrays.</p>
+<p>Compile the add-on with the pre-processor define AS_USE_STLNAMES=1 to register the methods with the same names as used by C++ STL where the methods have the same significance. Not all methods from STL is implemented in the add-on, but many of the most frequent once are so a port from script to C++ and vice versa might be easier if STL names are used.</p>
 <h2><a class="anchor" id="doc_addon_array_1"></a>
 Public C++ interface</h2>
 <div class="fragment"><pre class="fragment"><span class="keyword">class </span>CScriptArray
@@ -86,13 +87,23 @@ Public C++ interface</h2>
 
   <span class="comment">// Get the current size</span>
   <a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> GetSize() <span class="keyword">const</span>;
+  
+  <span class="comment">// Returns true if the array is empty</span>
+  <span class="keywordtype">bool</span> IsEmpty() <span class="keyword">const</span>;
 
+  <span class="comment">// Pre-allocates memory for elements</span>
+  <span class="keywordtype">void</span> Reserve(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> numElements);
+  
   <span class="comment">// Resize the array</span>
-  <span class="keywordtype">void</span>   Resize(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> numElements);
+  <span class="keywordtype">void</span> Resize(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> numElements);
   
   <span class="comment">// Get a pointer to an element. Returns 0 if out of bounds</span>
   <span class="keywordtype">void</span>       *At(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index);
   <span class="keyword">const</span> <span class="keywordtype">void</span> *At(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index) <span class="keyword">const</span>;
+
+  <span class="comment">// Set value of an element. The value arg should be a pointer</span>
+  <span class="comment">// to the value that will be copied to the element</span>
+  <span class="keywordtype">void</span>  SetValue(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> index, <span class="keywordtype">void</span> *value);
 
   <span class="comment">// Copy the contents of one array to another (only if the types are the same)</span>
   CScriptArray &amp;operator=(<span class="keyword">const</span> CScriptArray&amp;);
@@ -127,7 +138,9 @@ Public script interface</h2>
     void insertLast(const T&amp; in);
     void removeLast();
     uint length() const;
+    uint isEmpty() const;
     void resize(uint);
+    void reserve(uint);
     void sortAsc();
     void sortAsc(uint index, uint count);
     void sortDesc();
@@ -157,15 +170,18 @@ C++ example</h2>
   {
     <a class="code" href="classas_i_script_engine.html" title="The engine interface.">asIScriptEngine</a>* engine = ctx-&gt;<a class="code" href="classas_i_script_context.html#a07f12016c5435aec5b63449abb6e4d8d" title="Returns a pointer to the engine.">GetEngine</a>();
 
-    <span class="comment">// The script array needs to know its type to properly handle the elements</span>
-    <a class="code" href="classas_i_object_type.html" title="The interface for an object type.">asIObjectType</a>* t = engine-&gt;<a class="code" href="classas_i_script_engine.html#a52f3e08240c9fc493793036721cbd5ce" title="Returns the object type interface for type.">GetObjectTypeById</a>(engine-&gt;<a class="code" href="classas_i_script_engine.html#ad1f6fecb0f53fd7966736b01f65c3dcb" title="Returns a type id by declaration.">GetTypeIdByDecl</a>(<span class="stringliteral">&quot;array&lt;string@&gt;&quot;</span>));
+    <span class="comment">// The script array needs to know its type to properly handle the elements.</span>
+    <span class="comment">// Note that the object type should be cached to avoid performance issues</span>
+    <span class="comment">// if the function is called frequently.</span>
+    <a class="code" href="classas_i_object_type.html" title="The interface for an object type.">asIObjectType</a>* t = engine-&gt;<a class="code" href="classas_i_script_engine.html#a52f3e08240c9fc493793036721cbd5ce" title="Returns the object type interface for type.">GetObjectTypeById</a>(engine-&gt;<a class="code" href="classas_i_script_engine.html#ad1f6fecb0f53fd7966736b01f65c3dcb" title="Returns a type id by declaration.">GetTypeIdByDecl</a>(<span class="stringliteral">&quot;array&lt;string&gt;&quot;</span>));
 
+    <span class="comment">// Create an array with the initial size of 3 elements</span>
     CScriptArray* arr = <span class="keyword">new</span> CScriptArray(3, t);
     <span class="keywordflow">for</span>( <a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> i = 0; i &lt; arr-&gt;GetSize(); i++ )
     {
-      <span class="comment">// Get the pointer to the element so it can be set</span>
-      CScriptString** p = <span class="keyword">static_cast&lt;</span>CScriptString**<span class="keyword">&gt;</span>(arr-&gt;At(i));
-      *p = <span class="keyword">new</span> CScriptString(<span class="stringliteral">&quot;test&quot;</span>);
+      <span class="comment">// Set the value of each element</span>
+      <span class="keywordtype">string</span> val(<span class="stringliteral">&quot;test&quot;</span>);
+      arr-&gt;SetValue(i, &amp;val);
     }
 
     <span class="comment">// The ref count for the returned handle was already set in the array&#39;s constructor</span>
@@ -178,7 +194,7 @@ C++ example</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

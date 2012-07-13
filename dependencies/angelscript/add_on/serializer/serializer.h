@@ -8,7 +8,11 @@
 #ifndef SERIALIZER_H
 #define SERIALIZER_H
 
+#ifndef ANGELSCRIPT_H 
+// Avoid having to inform include path if header is already include before
 #include <angelscript.h>
+#endif
+
 #include <vector>
 #include <string>
 #include <map>
@@ -96,8 +100,6 @@ protected:
 	// Cleanup children
 	void ClearChildren();
 
-
-
 	// The serializer object
 	CSerializer *m_serializer;
 
@@ -121,7 +123,7 @@ protected:
 	// 'this' pointer to variable. 
 	// While storing, this points to the actual variable that was stored. 
 	// While restoring, it is just a unique identifier.
-	void *m_ptr;
+	void *m_originalPtr;
 
 	// where handle references
 	// While storing, this points to the actual object.
@@ -138,13 +140,13 @@ protected:
 };
 
 
-// This class keeps a list of variables, then restores them after the reboot script.
-// But you have to be careful with the change of signature classes, or 
+// This class keeps a list of variables, then restores them after the script is rebuilt.
+// But you have to be careful with the change of signature in classes, or 
 // changing the types of objects. You can remove or add variables, functions, 
-// methods. But you can not (yet) to change the variable type. 
+// methods, but you can not (yet) change the type of variables. 
 //
-// You also need to understand that after a reboot you should get a new id 
-// FUNCTIONS, or class to call them from C + + code.
+// You also need to understand that after a rebuild you should get  
+// new functions and typeids from the module.
 class CSerializer
 {
 public:
@@ -160,6 +162,12 @@ public:
 	// Restore all global variables after reloading script
 	int Restore(asIScriptModule *mod);
 
+	// Store extra objects that are not seen from the module's global variables
+	void AddExtraObjectToStore(asIScriptObject *object);
+
+	// Return new pointer to restored object
+	void *GetPointerToRestoredObject(void *originalObject);
+
 protected:
 	friend class CSerializedValue;
 
@@ -168,6 +176,15 @@ protected:
 	asIScriptModule  *m_mod;
 
 	std::map<std::string, CUserType*> m_userTypes;
+
+	struct SExtraObject
+	{
+		asIScriptObject *originalObject;
+		std::string      originalClassName;
+		int              originalTypeId;
+	};
+
+	std::vector<SExtraObject> m_extraObjects;
 };
 
 

@@ -63,25 +63,41 @@
 </div>
 <div class="contents">
 <div class="textblock"><dl class="reflist">
-<dt><a class="anchor" id="_deprecated000006"></a>Member <a class="el" href="classas_i_object_type.html#ae844dd84a1f17be41c19cb5c27765ca6">asIObjectType::GetMethodDescriptorByIndex</a>  (asUINT index, bool getVirtual=true) const =0</dt>
-<dd></dd>
-<dt><a class="anchor" id="_deprecated000002"></a>Member <a class="el" href="classas_i_script_engine.html#ab7b9ce9df4fc3e8ffaf1184325b9b01c">asIScriptEngine::GetFunctionDescriptorById</a>  (int funcId) const =0</dt>
-<dd></dd>
-<dt><a class="anchor" id="_deprecated000001"></a>Member <a class="el" href="classas_i_script_engine.html#a704a7cc1f7455e52a8d2760b110fdb4f">asIScriptEngine::SetConfigGroupModuleAccess</a>  (const char *groupName, const char *module, bool hasAccess)=0</dt>
-<dd></dd>
-<dt><a class="anchor" id="_deprecated000005"></a>Member <a class="el" href="classas_i_script_generic.html#a3ab2dd1e7b8cfbe74b5317ec643c8ce4">asIScriptGeneric::GetFunctionDescriptor</a>  () const =0</dt>
-<dd></dd>
-<dt><a class="anchor" id="_deprecated000004"></a>Member <a class="el" href="classas_i_script_module.html#ad09b8ddf16d45154b1f12a5847a57db6">asIScriptModule::GetFunctionDescriptorById</a>  (int funcId) const =0</dt>
-<dd></dd>
-<dt><a class="anchor" id="_deprecated000003"></a>Member <a class="el" href="classas_i_script_module.html#a7c1030fdb2e0b5dac3ed3f2d27cd3119">asIScriptModule::GetFunctionDescriptorByIndex</a>  (asUINT index) const =0</dt>
-<dd></dd>
+<dt><a class="anchor" id="_deprecated000011"></a>Member <a class="el" href="classas_i_object_type.html#a3aa646c8a7d7e1efb5af2bde6f58b731">asIObjectType::GetFactoryIdByDecl</a>  (const char *decl) const =0</dt>
+<dd>Use <a class="el" href="classas_i_object_type.html#a53c799db82ab17dd3f3ee8471b53370b">asIObjectType::GetFactoryByDecl</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000010"></a>Member <a class="el" href="classas_i_object_type.html#a8ca6e617d576841a225540e90f918af8">asIObjectType::GetFactoryIdByIndex</a>  (asUINT index) const =0</dt>
+<dd>Use <a class="el" href="classas_i_object_type.html#a729e709e446e419cb95ade7ccc1fd427">asIObjectType::GetFactoryByIndex</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000014"></a>Member <a class="el" href="classas_i_object_type.html#a20699d68d56dc614c3105506b68ffed9">asIObjectType::GetMethodIdByDecl</a>  (const char *decl, bool getVirtual=true) const =0</dt>
+<dd>Use <a class="el" href="classas_i_object_type.html#a3b3bdbd8c4290724cc396cede83fa089">asIObjectType::GetMethodByDecl</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000012"></a>Member <a class="el" href="classas_i_object_type.html#a01a8a47cb7c7f3e1a21c256b25f16c09">asIObjectType::GetMethodIdByIndex</a>  (asUINT index, bool getVirtual=true) const =0</dt>
+<dd>Use <a class="el" href="classas_i_object_type.html#a373a46ab316a5030ca43f0780dd5039f">asIObjectType::GetMethodByIndex</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000013"></a>Member <a class="el" href="classas_i_object_type.html#afb70d2042e92b2eb383b813260c6c9f1">asIObjectType::GetMethodIdByName</a>  (const char *name, bool getVirtual=true) const =0</dt>
+<dd>Use <a class="el" href="classas_i_object_type.html#ad05df0392fb1628cb7b17783917da0b8">asIObjectType::GetMethodByName</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000007"></a>Member <a class="el" href="classas_i_script_context.html#ad048f847854cc8b95fde0380a8b39d7e">asIScriptContext::Prepare</a>  (int funcId)=0</dt>
+<dd>Use <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">asIScriptContext::Prepare(asIScriptFunction *)</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000002"></a>Member <a class="el" href="classas_i_script_engine.html#ad299a2adb48c7510e3a167d8cea36789">asIScriptEngine::CopyScriptObject</a>  (void *dstObj, void *srcObj, int typeId)=0</dt>
+<dd>Use <a class="el" href="classas_i_script_engine.html#afba86bb1ebb7e5c014da59d245c95461">asIScriptEngine::AssignScriptObject</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000001"></a>Member <a class="el" href="classas_i_script_engine.html#a154f25c36b7d88f73de1b440a169ec08">asIScriptEngine::GetGlobalFunctionIdByIndex</a>  (asUINT index) const =0</dt>
+<dd>Use <a class="el" href="classas_i_script_engine.html#aaf2b79cef75adb4099a24e3412e4ea79">asIScriptEngine::GetGlobalFunctionByIndex</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000008"></a>Member <a class="el" href="classas_i_script_generic.html#a667dc2155f6d9bf7669fdd23dfc27ee7">asIScriptGeneric::GetFunctionId</a>  () const =0</dt>
+<dd>Use <a class="el" href="classas_i_script_generic.html#acf00e806a36e0b42686c0f8df25b0898">asIScriptGeneric::GetFunction</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000009"></a>Member <a class="el" href="classas_i_script_generic.html#a612689a8045e9502a6cde83f78eb3360">asIScriptGeneric::GetFunctionUserData</a>  () const =0</dt>
+<dd>Use <a class="el" href="classas_i_script_function.html#a74d7dccdc0de6cef550bad52a2b40156">asIScriptFunction::GetUserData</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000005"></a>Member <a class="el" href="classas_i_script_module.html#a3c9cc47d3e0efc4aaf22d92492735438">asIScriptModule::GetFunctionIdByDecl</a>  (const char *decl) const =0</dt>
+<dd>Use <a class="el" href="classas_i_script_module.html#ab4754d55d8667aefbed135b4794d461b">asIScriptModule::GetFunctionByDecl</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000003"></a>Member <a class="el" href="classas_i_script_module.html#a6f2d37c051254c96fdb3fe820daf9385">asIScriptModule::GetFunctionIdByIndex</a>  (asUINT index) const =0</dt>
+<dd>Use <a class="el" href="classas_i_script_module.html#afd4d9951ee006caa8ec1bab3d3d206fc">asIScriptModule::GetFunctionByIndex</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000004"></a>Member <a class="el" href="classas_i_script_module.html#a5af2e0e25a6c0d319c8d22543210a09a">asIScriptModule::GetFunctionIdByName</a>  (const char *name) const =0</dt>
+<dd>Use <a class="el" href="classas_i_script_module.html#a81d727c9677b683942b6087df4ce95ad">asIScriptModule::GetFunctionByName</a> instead  </dd>
+<dt><a class="anchor" id="_deprecated000006"></a>Member <a class="el" href="classas_i_script_module.html#a62c6783491b197e9eb29639e7997e1df">asIScriptModule::RemoveFunction</a>  (int funcId)=0</dt>
+<dd>Use <a class="el" href="classas_i_script_module.html#a54b6f8e09787ad20880f73bc97a8ef10">asIScriptModule::RemoveFunction(asIScriptFunction*)</a> instead </dd>
 </dl>
 </div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Nov 6 2011 13:26:31 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

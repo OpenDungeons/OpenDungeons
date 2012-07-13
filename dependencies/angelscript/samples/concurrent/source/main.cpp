@@ -149,8 +149,8 @@ int main(int argc, char **argv)
 	r = CompileScript(engine);
 	if( r < 0 ) return -1;
 
-	contextManager.AddContext(engine, engine->GetModule("script1")->GetFunctionIdByDecl("void main()"));
-	contextManager.AddContext(engine, engine->GetModule("script2")->GetFunctionIdByDecl("void main()"));
+	contextManager.AddContext(engine, engine->GetModule("script1")->GetFunctionByDecl("void main()"));
+	contextManager.AddContext(engine, engine->GetModule("script2")->GetFunctionByDecl("void main()"));
 	
 	// Print some useful information and start the input loop
 	cout << "This sample shows how two scripts can be executed concurrently." << endl; 

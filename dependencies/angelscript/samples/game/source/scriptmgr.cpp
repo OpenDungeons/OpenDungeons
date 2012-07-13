@@ -151,11 +151,7 @@ CScriptMgr::SController *CScriptMgr::GetControllerScript(const string &script)
 	// Cache the functions and methods that will be used
 	SController *ctrl = new SController;
 	controllers.push_back(ctrl);
-
-	ctrl->module          = script;
-	ctrl->type            = 0;
-	ctrl->factoryFuncId   = 0;
-	ctrl->onThinkMethodId = 0;
+	ctrl->module = script;
 
 	// Find the class that implements the IController interface
 	mod = engine->GetModule(script.c_str(), asGM_ONLY_IF_EXISTS);
@@ -193,8 +189,8 @@ CScriptMgr::SController *CScriptMgr::GetControllerScript(const string &script)
 	// Find the factory function
 	// The game engine will pass in the owning CGameObj to the controller for storage
 	string s = string(type->GetName()) + "@ " + string(type->GetName()) + "(CGameObj @)";
-	ctrl->factoryFuncId = type->GetFactoryIdByDecl(s.c_str());
-	if( ctrl->factoryFuncId < 0 )
+	ctrl->factoryFunc = type->GetFactoryByDecl(s.c_str());
+	if( ctrl->factoryFunc == 0 )
 	{
 		cout << "Couldn't find the appropriate factory for the type '" << script << "'" << endl;
 		controllers.pop_back();
@@ -203,8 +199,8 @@ CScriptMgr::SController *CScriptMgr::GetControllerScript(const string &script)
 	}
 	
 	// Find the optional event handlers
-	ctrl->onThinkMethodId     = type->GetMethodIdByDecl("void OnThink()");
-	ctrl->onMessageMethodId   = type->GetMethodIdByDecl("void OnMessage(ref @msg, const CGameObj @sender)");
+	ctrl->onThinkMethod     = type->GetMethodByDecl("void OnThink()");
+	ctrl->onMessageMethod   = type->GetMethodByDecl("void OnMessage(ref @msg, const CGameObj @sender)");
 
 	// Add the cache as user data to the type for quick access
 	type->SetUserData(ctrl);
@@ -221,7 +217,7 @@ asIScriptObject *CScriptMgr::CreateController(const string &script, CGameObj *ga
 	if( ctrl == 0 ) return 0;
 		
 	// Create the object using the factory function
-	asIScriptContext *ctx = PrepareContextFromPool(ctrl->factoryFuncId);
+	asIScriptContext *ctx = PrepareContextFromPool(ctrl->factoryFunc);
 
 	// Pass the object pointer to the script function. With this call the 
 	// context will automatically increase the reference count for the object.
@@ -251,9 +247,9 @@ void CScriptMgr::CallOnThink(asIScriptObject *object)
 	SController *ctrl = reinterpret_cast<SController*>(object->GetObjectType()->GetUserData());
 
 	// Call the method using the shared context
-	if( ctrl->onThinkMethodId > 0 )
+	if( ctrl->onThinkMethod == 0 )
 	{
-		asIScriptContext *ctx = PrepareContextFromPool(ctrl->onThinkMethodId);
+		asIScriptContext *ctx = PrepareContextFromPool(ctrl->onThinkMethod);
 		ctx->SetObject(object);
 		ExecuteCall(ctx);
 		ReturnContextToPool(ctx);
@@ -266,9 +262,9 @@ void CScriptMgr::CallOnMessage(asIScriptObject *object, CScriptHandle &msg, CGam
 	SController *ctrl = reinterpret_cast<SController*>(object->GetObjectType()->GetUserData());
 
 	// Call the method using the shared context
-	if( ctrl->onMessageMethodId > 0 )
+	if( ctrl->onMessageMethod > 0 )
 	{
-		asIScriptContext *ctx = PrepareContextFromPool(ctrl->onMessageMethodId);
+		asIScriptContext *ctx = PrepareContextFromPool(ctrl->onMessageMethod);
 		ctx->SetObject(object);
 		ctx->SetArgObject(0, &msg);
 		ctx->SetArgObject(1, caller);
@@ -297,7 +293,7 @@ int CScriptMgr::ExecuteCall(asIScriptContext *ctx)
 	return r;
 }
 
-asIScriptContext *CScriptMgr::PrepareContextFromPool(int funcId)
+asIScriptContext *CScriptMgr::PrepareContextFromPool(asIScriptFunction *func)
 {
 	asIScriptContext *ctx = 0;
 	if( contexts.size() )
@@ -308,7 +304,7 @@ asIScriptContext *CScriptMgr::PrepareContextFromPool(int funcId)
 	else
 		ctx = engine->CreateContext();
 
-	int r = ctx->Prepare(funcId); assert( r >= 0 );
+	int r = ctx->Prepare(func); assert( r >= 0 );
 
 	return ctx;
 }

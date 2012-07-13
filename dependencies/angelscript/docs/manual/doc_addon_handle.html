@@ -79,14 +79,17 @@ Public C++ interface</h2>
 
   <span class="comment">// Copy the stored reference from another handle object</span>
   CScriptHandle &amp;operator=(<span class="keyword">const</span> CScriptHandle &amp;other);
-  CScriptHandle &amp;opAssign(<span class="keywordtype">void</span> *ref, <span class="keywordtype">int</span> typeId);
+  
+  <span class="comment">// Set the reference</span>
+  <span class="keywordtype">void</span> Set(<span class="keywordtype">void</span> *ref, <span class="keywordtype">int</span> typeId);
 
   <span class="comment">// Compare equalness</span>
-  <span class="keywordtype">bool</span> opEquals(<span class="keyword">const</span> CScriptHandle &amp;o) <span class="keyword">const</span>;
+  <span class="keywordtype">bool</span> operator==(<span class="keyword">const</span> CScriptHandle &amp;o) <span class="keyword">const</span>;
+  <span class="keywordtype">bool</span> operator!=(<span class="keyword">const</span> CScriptHandle &amp;o) <span class="keyword">const</span>;
   <span class="keywordtype">bool</span> opEquals(<span class="keywordtype">void</span> *ref, <span class="keywordtype">int</span> typeId) <span class="keyword">const</span>;
 
   <span class="comment">// Dynamic cast to desired handle type</span>
-  <span class="keywordtype">void</span> opCast(<span class="keywordtype">void</span> **outRef, <span class="keywordtype">int</span> typeId);
+  <span class="keywordtype">void</span> Cast(<span class="keywordtype">void</span> **outRef, <span class="keywordtype">int</span> typeId);
 };
 </pre></div><h2><a class="anchor" id="doc_addon_handle_3"></a>
 Example usage</h2>
@@ -109,7 +112,7 @@ Example usage</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

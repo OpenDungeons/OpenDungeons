@@ -103,7 +103,7 @@ Classes</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Information on a bytecode instruction.  <a href="structas_s_b_c_info.html#details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="define-members"></a>
 Defines</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a99c6b8b0882e45e5d0b2ed19f6f7a157">ANGELSCRIPT_VERSION</a>&#160;&#160;&#160;22300</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a99c6b8b0882e45e5d0b2ed19f6f7a157">ANGELSCRIPT_VERSION</a>&#160;&#160;&#160;22400</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a717eccea17214bc1eb64bb9789c4915a"></a><!-- doxytag: member="angelscript.h::asOFFSET" ref="a717eccea17214bc1eb64bb9789c4915a" args="(s, m)" -->
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a717eccea17214bc1eb64bb9789c4915a">asOFFSET</a>(s, m)&#160;&#160;&#160;((size_t)(&amp;reinterpret_cast&lt;s*&gt;(100000)-&gt;m)-100000)</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the offset of an attribute in a struct. <br/></td></tr>
@@ -417,7 +417,9 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#a6e2a1647f02f2c5da931bab09e860f54abbab3f809b0eeea2c331e5239be517c1">asBUILD_IN_PROGRESS</a> =  -25, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#a6e2a1647f02f2c5da931bab09e860f54a539a1fcf3f48feaaf7c0776c88123430">asINIT_GLOBAL_VARS_FAILED</a> =  -26
+&#160;&#160;<a class="el" href="angelscript_8h.html#a6e2a1647f02f2c5da931bab09e860f54a539a1fcf3f48feaaf7c0776c88123430">asINIT_GLOBAL_VARS_FAILED</a> =  -26, 
+<br/>
+&#160;&#160;<a class="el" href="angelscript_8h.html#a6e2a1647f02f2c5da931bab09e860f54a9a5232a5c1028cd729a744f592387059">asOUT_OF_MEMORY</a> =  -27
 <br/>
  }</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Return codes.  <a href="angelscript_8h.html#a6e2a1647f02f2c5da931bab09e860f54">More...</a><br/></td></tr>
@@ -555,9 +557,9 @@ Enumerations</h2></td></tr>
  }</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Function types.  <a href="angelscript_8h.html#a06fb2a1ebf5d007e0d542abced1b648f">More...</a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0">asEBCInstr</a> { <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0aa41f70f690348045c1ee90dae68a9c42">asBC_POP</a> =  0, 
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a61f3044359836f88001928bcab382c1e">asBC_PopPtr</a> =  0, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a6a74cc67208599b6a18f9ab85d03d023">asBC_PUSH</a> =  1, 
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a0c1133692af5029feef4a1e5aec5c65b">asBC_PshGPtr</a> =  1, 
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a53fa213a7d3fed6add6d37dfe073e1cb">asBC_PshC4</a> =  2, 
 <br/>
@@ -925,7 +927,13 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a55e484687643f87565827249a81cf3a8">asBC_LoadRObjR</a> =  184, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a2285121bf664f86d462560fde6dad0f7">asBC_LoadVObjR</a> =  185
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a2285121bf664f86d462560fde6dad0f7">asBC_LoadVObjR</a> =  185, 
+<br/>
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a8b1c7e7b7c8054b36a9d48c3452adf79">asBC_RefCpyV</a> =  186, 
+<br/>
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a9da365af8ea85e3eb538567207d4a705">asBC_JLowZ</a> =  187, 
+<br/>
+&#160;&#160;<a class="el" href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0a12e9c561f401be75a6db13a94a687d77">asBC_JLowNZ</a> =  188
 <br/>
  }</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">The bytecode instructions used by the VM.  <a href="angelscript_8h.html#ab3692c4e5d47fc93f8c9646d1783aef0">More...</a><br/></td></tr>
@@ -980,6 +988,18 @@ Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the options used to compile the library.  <a href="#aba86cba765a7148e2a306b4305ba48f9"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">AS_API <a class="el" href="classas_i_script_context.html">asIScriptContext</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#ad3a20dc58093b92a5a44c7b6ada34a10">asGetActiveContext</a> ()</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the currently active context.  <a href="#ad3a20dc58093b92a5a44c7b6ada34a10"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">AS_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a12955febb90225bae935ac1bf6121651">asPrepareMultithread</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets up the internally shared resources for multithreading.  <a href="#a12955febb90225bae935ac1bf6121651"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">AS_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a011355a8978d438cec77b4e1f041cba7">asUnprepareMultithread</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees resources prepared for multithreading.  <a href="#a011355a8978d438cec77b4e1f041cba7"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">AS_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a016dbf716a1c761b3f903b92eb8bb580">asAcquireExclusiveLock</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Acquire an exclusive lock.  <a href="#a016dbf716a1c761b3f903b92eb8bb580"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">AS_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a8a0617637eea3d76e33a52758b2cd49f">asReleaseExclusiveLock</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Release an exclusive lock.  <a href="#a8a0617637eea3d76e33a52758b2cd49f"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">AS_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#aa45545a038adcc8c73348cfe9488f32d">asAcquireSharedLock</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Acquire a shared lock.  <a href="#aa45545a038adcc8c73348cfe9488f32d"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">AS_API void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a44f7327c5601e8dbf74768a2f3cc0dc3">asReleaseSharedLock</a> ()</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Release a shared lock.  <a href="#a44f7327c5601e8dbf74768a2f3cc0dc3"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">AS_API int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a51079811680d5217046aad2a2b695dc7">asThreadCleanup</a> ()</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Cleans up memory allocated for the current thread.  <a href="#a51079811680d5217046aad2a2b695dc7"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">AS_API int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a527ab125defc58aa40cc151a25582a31">asSetGlobalMemoryFunctions</a> (<a class="el" href="angelscript_8h.html#a9813f6b04d4879aefc203794fe04a5b0">asALLOCFUNC_t</a> allocFunc, <a class="el" href="angelscript_8h.html#a9dd42e5d8378d6a8aa8f35efacfb772e">asFREEFUNC_t</a> freeFunc)</td></tr>
@@ -1003,12 +1023,12 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define ANGELSCRIPT_VERSION&#160;&#160;&#160;22300</td>
+          <td class="memname">#define ANGELSCRIPT_VERSION&#160;&#160;&#160;22400</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Version 2.23.0 </p>
+<p>Version 2.24.0 </p>
 
 </div>
 </div>
@@ -1048,11 +1068,11 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <div class="memdoc">
 <dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_adv_jit_1.html">Byte code instructions</a> </dd></dl>
 <dl><dt><b>Enumerator: </b></dt><dd><table border="0" cellspacing="2" cellpadding="0">
-<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0aa41f70f690348045c1ee90dae68a9c42"></a><!-- doxytag: member="asBC_POP" ref="ab3692c4e5d47fc93f8c9646d1783aef0aa41f70f690348045c1ee90dae68a9c42" args="" -->asBC_POP</em>&nbsp;</td><td>
-<p>Decrease the stack with the amount in the argument. </p>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a61f3044359836f88001928bcab382c1e"></a><!-- doxytag: member="asBC_PopPtr" ref="ab3692c4e5d47fc93f8c9646d1783aef0a61f3044359836f88001928bcab382c1e" args="" -->asBC_PopPtr</em>&nbsp;</td><td>
+<p>Removes a pointer from the stack. </p>
 </td></tr>
-<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a6a74cc67208599b6a18f9ab85d03d023"></a><!-- doxytag: member="asBC_PUSH" ref="ab3692c4e5d47fc93f8c9646d1783aef0a6a74cc67208599b6a18f9ab85d03d023" args="" -->asBC_PUSH</em>&nbsp;</td><td>
-<p>Increase the stack with the amount in the argument. </p>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a0c1133692af5029feef4a1e5aec5c65b"></a><!-- doxytag: member="asBC_PshGPtr" ref="ab3692c4e5d47fc93f8c9646d1783aef0a0c1133692af5029feef4a1e5aec5c65b" args="" -->asBC_PshGPtr</em>&nbsp;</td><td>
+<p>Pushes a pointer from a global variable onto the stack. </p>
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a53fa213a7d3fed6add6d37dfe073e1cb"></a><!-- doxytag: member="asBC_PshC4" ref="ab3692c4e5d47fc93f8c9646d1783aef0a53fa213a7d3fed6add6d37dfe073e1cb" args="" -->asBC_PshC4</em>&nbsp;</td><td>
 <p>Push the 32bit value in the argument onto the stack. </p>
@@ -1605,6 +1625,15 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a2285121bf664f86d462560fde6dad0f7"></a><!-- doxytag: member="asBC_LoadVObjR" ref="ab3692c4e5d47fc93f8c9646d1783aef0a2285121bf664f86d462560fde6dad0f7" args="" -->asBC_LoadVObjR</em>&nbsp;</td><td>
 <p>Load address of member of value object into register. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a8b1c7e7b7c8054b36a9d48c3452adf79"></a><!-- doxytag: member="asBC_RefCpyV" ref="ab3692c4e5d47fc93f8c9646d1783aef0a8b1c7e7b7c8054b36a9d48c3452adf79" args="" -->asBC_RefCpyV</em>&nbsp;</td><td>
+<p>Copies a handle to a variable. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a9da365af8ea85e3eb538567207d4a705"></a><!-- doxytag: member="asBC_JLowZ" ref="ab3692c4e5d47fc93f8c9646d1783aef0a9da365af8ea85e3eb538567207d4a705" args="" -->asBC_JLowZ</em>&nbsp;</td><td>
+<p>Jump if low byte of value register is 0. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="ab3692c4e5d47fc93f8c9646d1783aef0a12e9c561f401be75a6db13a94a687d77"></a><!-- doxytag: member="asBC_JLowNZ" ref="ab3692c4e5d47fc93f8c9646d1783aef0a12e9c561f401be75a6db13a94a687d77" args="" -->asBC_JLowNZ</em>&nbsp;</td><td>
+<p>Jump if low byte of value register is not 0. </p>
 </td></tr>
 </table>
 </dd>
@@ -2251,6 +2280,9 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <tr><td valign="top"><em><a class="anchor" id="a6e2a1647f02f2c5da931bab09e860f54a539a1fcf3f48feaaf7c0776c88123430"></a><!-- doxytag: member="asINIT_GLOBAL_VARS_FAILED" ref="a6e2a1647f02f2c5da931bab09e860f54a539a1fcf3f48feaaf7c0776c88123430" args="" -->asINIT_GLOBAL_VARS_FAILED</em>&nbsp;</td><td>
 <p>The initialization of global variables failed. </p>
 </td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a6e2a1647f02f2c5da931bab09e860f54a9a5232a5c1028cd729a744f592387059"></a><!-- doxytag: member="asOUT_OF_MEMORY" ref="a6e2a1647f02f2c5da931bab09e860f54a9a5232a5c1028cd729a744f592387059" args="" -->asOUT_OF_MEMORY</em>&nbsp;</td><td>
+<p>It wasn't possible to allocate the needed memory. </p>
+</td></tr>
 </table>
 </dd>
 </dl>
@@ -2396,6 +2428,40 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 </div>
 </div>
 <hr/><h2>Function Documentation</h2>
+<a class="anchor" id="a016dbf716a1c761b3f903b92eb8bb580"></a><!-- doxytag: member="angelscript.h::asAcquireExclusiveLock" ref="a016dbf716a1c761b3f903b92eb8bb580" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AS_API void asAcquireExclusiveLock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>This function will block the calling thread until there are no other threads that hold shared or exclusive locks. </p>
+
+</div>
+</div>
+<a class="anchor" id="aa45545a038adcc8c73348cfe9488f32d"></a><!-- doxytag: member="angelscript.h::asAcquireSharedLock" ref="aa45545a038adcc8c73348cfe9488f32d" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AS_API void asAcquireSharedLock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>This function will block the calling thread until there are no other threads that hold exclusive locks. Other threads may hold shared locks. </p>
+
+</div>
+</div>
 <a class="anchor" id="af84c6359750675bf3ceccf373286a533"></a><!-- doxytag: member="angelscript.h::asCreateScriptEngine" ref="af84c6359750675bf3ceccf373286a533" args="(asDWORD version)" -->
 <div class="memitem">
 <div class="memproto">
@@ -2477,6 +2543,58 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 
 </div>
 </div>
+<a class="anchor" id="a12955febb90225bae935ac1bf6121651"></a><!-- doxytag: member="angelscript.h::asPrepareMultithread" ref="a12955febb90225bae935ac1bf6121651" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AS_API void asPrepareMultithread </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Call this function from the main thread to set up shared resources for multithreading if engines are to be created in multiple threads.</p>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_adv_multithread.html">Multithreading</a> </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a8a0617637eea3d76e33a52758b2cd49f"></a><!-- doxytag: member="angelscript.h::asReleaseExclusiveLock" ref="a8a0617637eea3d76e33a52758b2cd49f" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AS_API void asReleaseExclusiveLock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Releases the previously acquired exclusive lock. </p>
+
+</div>
+</div>
+<a class="anchor" id="a44f7327c5601e8dbf74768a2f3cc0dc3"></a><!-- doxytag: member="angelscript.h::asReleaseSharedLock" ref="a44f7327c5601e8dbf74768a2f3cc0dc3" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AS_API void asReleaseSharedLock </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>Releases the previously acquired shared lock. </p>
+
+</div>
+</div>
 <a class="anchor" id="a9267c4ad35aceaf7cc0961cd42147ee7"></a><!-- doxytag: member="angelscript.h::asResetGlobalMemoryFunctions" ref="a9267c4ad35aceaf7cc0961cd42147ee7" args="()" -->
 <div class="memitem">
 <div class="memproto">
@@ -2552,8 +2670,25 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
   </table>
   </dd>
 </dl>
-<p>Call this method before terminating a thread that has accessed the engine to clean up memory allocated for that thread.</p>
+<p>Call this function before terminating a thread that has accessed the engine to clean up memory allocated for that thread.</p>
 <p>It's not necessary to call this if only a single thread accesses the engine. </p>
+
+</div>
+</div>
+<a class="anchor" id="a011355a8978d438cec77b4e1f041cba7"></a><!-- doxytag: member="angelscript.h::asUnprepareMultithread" ref="a011355a8978d438cec77b4e1f041cba7" args="()" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">AS_API void asUnprepareMultithread </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<p>If <a class="el" href="angelscript_8h.html#a12955febb90225bae935ac1bf6121651">asPrepareMultithread()</a> has been called, then this function should be called after the last engine has been released to free the resources prepared for multithreading. </p>
 
 </div>
 </div>
@@ -2563,7 +2698,7 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
     <ul>
       <li class="navelem"><a class="el" href="angelscript_8h.html">angelscript.h</a>      </li>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

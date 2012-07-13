@@ -92,15 +92,15 @@ Public C++ interface</h2>
   <span class="comment">//  void yield()</span>
   <span class="keywordtype">void</span> RegisterCoRoutineSupport(<a class="code" href="classas_i_script_engine.html" title="The engine interface.">asIScriptEngine</a> *engine);
 
-  <span class="comment">// Create a new context, prepare it with the function id, then return </span>
+  <span class="comment">// Create a new context, prepare it with the function, then return </span>
   <span class="comment">// it so that the application can pass the argument values. The context</span>
   <span class="comment">// will be released by the manager after the execution has completed.</span>
-  <a class="code" href="classas_i_script_context.html" title="The interface to the virtual machine.">asIScriptContext</a> *AddContext(<a class="code" href="classas_i_script_engine.html" title="The engine interface.">asIScriptEngine</a> *engine, <span class="keywordtype">int</span> funcId);
+  <a class="code" href="classas_i_script_context.html" title="The interface to the virtual machine.">asIScriptContext</a> *AddContext(<a class="code" href="classas_i_script_engine.html" title="The engine interface.">asIScriptEngine</a> *engine, <a class="code" href="classas_i_script_context.html" title="The interface to the virtual machine.">asIScriptContext</a> *func);
 
-  <span class="comment">// Create a new context, prepare it with the function id, then return</span>
+  <span class="comment">// Create a new context, prepare it with the function, then return</span>
   <span class="comment">// it so that the application can pass the argument values. The context</span>
   <span class="comment">// will be added as a co-routine in the same thread as the currCtx.</span>
-  <a class="code" href="classas_i_script_context.html" title="The interface to the virtual machine.">asIScriptContext</a> *AddContextForCoRoutine(<a class="code" href="classas_i_script_context.html" title="The interface to the virtual machine.">asIScriptContext</a> *currCtx, <span class="keywordtype">int</span> funcId);
+  <a class="code" href="classas_i_script_context.html" title="The interface to the virtual machine.">asIScriptContext</a> *AddContextForCoRoutine(<a class="code" href="classas_i_script_context.html" title="The interface to the virtual machine.">asIScriptContext</a> *currCtx, <a class="code" href="classas_i_script_context.html" title="The interface to the virtual machine.">asIScriptContext</a> *func);
 
   <span class="comment">// Execute each script that is not currently sleeping. The function returns after </span>
   <span class="comment">// each script has been executed once. The application should call this function</span>
@@ -122,7 +122,7 @@ Public C++ interface</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

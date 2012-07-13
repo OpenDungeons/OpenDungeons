@@ -338,7 +338,7 @@ bool CScriptAny::Retrieve(void *ref, int refTypeId) const
 		// Copy the object into the given reference
 		if( value.typeId == refTypeId )
 		{
-			engine->CopyScriptObject(ref, value.valueObj, value.typeId);
+			engine->AssignScriptObject(ref, value.valueObj, value.typeId);
 
 			return true;
 		}

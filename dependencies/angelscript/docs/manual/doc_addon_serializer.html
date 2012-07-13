@@ -87,6 +87,12 @@ Public C++ interface</h2>
 
   <span class="comment">// Restore all global variables after reloading script</span>
   <span class="keywordtype">int</span> Restore(<a class="code" href="classas_i_script_module.html" title="The interface to the script modules.">asIScriptModule</a> *mod);
+  
+  <span class="comment">// Store extra objects that are not seen from the module&#39;s global variables</span>
+  <span class="keywordtype">void</span> AddExtraObjectToStore(<a class="code" href="classas_i_script_object.html" title="The interface for an instance of a script object.">asIScriptObject</a> *<span class="keywordtype">object</span>);
+
+  <span class="comment">// Return new pointer to restored object</span>
+  <span class="keywordtype">void</span> *GetPointerToRestoredObject(<span class="keywordtype">void</span> *originalObject);
 };
 </pre></div><h2><a class="anchor" id="doc_addon_serializer_2"></a>
 Example usage</h2>
@@ -157,7 +163,7 @@ Example usage</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

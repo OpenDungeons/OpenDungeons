@@ -120,7 +120,8 @@ var NAVTREE =
       ] ]
     ] ],
     [ "Related Pages", "pages.html", [
-      [ "Todo List", "todo.html", null ]
+      [ "Todo List", "todo.html", null ],
+      [ "Deprecated List", "deprecated.html", null ]
     ] ],
     [ "Class List", "annotated.html", [
       [ "asIBinaryStream", "classas_i_binary_stream.html", null ],

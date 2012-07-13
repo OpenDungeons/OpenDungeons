@@ -65,8 +65,8 @@ void ScriptCreateCoRoutine(string &func, CScriptAny *arg)
 
 		// We need to find the function that will be created as the co-routine
 		string decl = "void " + func + "(any @)"; 
-		int funcId = engine->GetModule(mod.c_str())->GetFunctionIdByDecl(decl.c_str());
-		if( funcId < 0 )
+		asIScriptFunction *func = engine->GetModule(mod.c_str())->GetFunctionByDecl(decl.c_str());
+		if( func == 0 )
 		{
 			// No function could be found, raise an exception
 			ctx->SetException(("Function '" + decl + "' doesn't exist").c_str());
@@ -74,7 +74,7 @@ void ScriptCreateCoRoutine(string &func, CScriptAny *arg)
 		}
 
 		// Create a new context for the co-routine
-		asIScriptContext *coctx = g_ctxMgr->AddContextForCoRoutine(ctx, funcId);
+		asIScriptContext *coctx = g_ctxMgr->AddContextForCoRoutine(ctx, func);
 
 		// Pass the argument to the context
 		coctx->SetArgObject(0, arg);
@@ -236,7 +236,7 @@ void CContextMgr::AbortAll()
 	m_currentThread = 0;
 }
 
-asIScriptContext *CContextMgr::AddContext(asIScriptEngine *engine, int funcId)
+asIScriptContext *CContextMgr::AddContext(asIScriptEngine *engine, asIScriptFunction *func)
 {
 	// Create the new context
 	asIScriptContext *ctx = engine->CreateContext();
@@ -244,7 +244,7 @@ asIScriptContext *CContextMgr::AddContext(asIScriptEngine *engine, int funcId)
 		return 0;
 
 	// Prepare it to execute the function
-	int r = ctx->Prepare(funcId);
+	int r = ctx->Prepare(func);
 	if( r < 0 )
 	{
 		ctx->Release();
@@ -271,7 +271,7 @@ asIScriptContext *CContextMgr::AddContext(asIScriptEngine *engine, int funcId)
 	return ctx;
 }
 
-asIScriptContext *CContextMgr::AddContextForCoRoutine(asIScriptContext *currCtx, int funcId)
+asIScriptContext *CContextMgr::AddContextForCoRoutine(asIScriptContext *currCtx, asIScriptFunction *func)
 {
 	asIScriptEngine *engine = currCtx->GetEngine();
 	asIScriptContext *coctx = engine->CreateContext();
@@ -281,7 +281,7 @@ asIScriptContext *CContextMgr::AddContextForCoRoutine(asIScriptContext *currCtx,
 	}
 
 	// Prepare the context
-	int r = coctx->Prepare(funcId);
+	int r = coctx->Prepare(func);
 	if( r < 0 )
 	{
 		// Couldn't prepare the context

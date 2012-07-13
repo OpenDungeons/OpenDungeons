@@ -67,6 +67,9 @@
 <h2><a class="anchor" id="doc_adv_multithread_1"></a>
 Things to think about with a multithreaded environment</h2>
 <ul>
+<li>If you plan on creating engines in multiple threads, the application should call <a class="el" href="angelscript_8h.html#a12955febb90225bae935ac1bf6121651">asPrepareMultithread()</a> from the main thread before the first engine is created, and <a class="el" href="angelscript_8h.html#a011355a8978d438cec77b4e1f041cba7">asUnprepareMultithread()</a> after the last engine has been created. This is to avoid race conditions when the engine creates the internal shared thread manager. If only one script engine is used, then it is not necessary to do go through these extra steps.</li>
+</ul>
+<ul>
 <li>Always call <a class="el" href="angelscript_8h.html#a51079811680d5217046aad2a2b695dc7">asThreadCleanup</a> before terminating a thread that accesses the script engine. If this is not done, the memory allocated specifically for that thread will be lost until the script engine is freed.</li>
 </ul>
 <ul>
@@ -79,7 +82,10 @@ Things to think about with a multithreaded environment</h2>
 <li>Do not execute the <a class="el" href="doc_gc.html">garbage collector</a> while other script threads are executed, as the garbage collector may be traversing the reference graph while the objects are modified by the other threads.</li>
 </ul>
 <ul>
-<li>Resources that are shared by script modules such as registered properties and objects must be protected by the application for simultaneous access, as the script engine doesn't do this automatically.</li>
+<li>Resources that are shared by script modules such as registered properties and objects must be protected by the application for simultaneous access, as the script engine doesn't do this automatically. A read-write lock is provided by the library that can be used for this. See <a class="el" href="angelscript_8h.html#a016dbf716a1c761b3f903b92eb8bb580">asAcquireExclusiveLock()</a>, <a class="el" href="angelscript_8h.html#a8a0617637eea3d76e33a52758b2cd49f">asReleaseExclusiveLock()</a>, <a class="el" href="angelscript_8h.html#aa45545a038adcc8c73348cfe9488f32d">asAcquireSharedLock()</a>, and <a class="el" href="angelscript_8h.html#a44f7327c5601e8dbf74768a2f3cc0dc3">asReleaseSharedLock()</a>.</li>
+</ul>
+<ul>
+<li>Many of the add-ons are not thread safe. Either create your own or make sure you review the add-ons you wish to use to guarantee thread safety.</li>
 </ul>
 <h2><a class="anchor" id="doc_adv_fibers"></a>
 Fibers</h2>
@@ -90,7 +96,7 @@ Fibers</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:09 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

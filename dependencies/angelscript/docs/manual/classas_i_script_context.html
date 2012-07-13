@@ -82,11 +82,8 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">Prepare</a> (<a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *func)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepares the context for execution of the function.  <a href="#a43976f42dfc6c1af23e132d36265173a"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#ad048f847854cc8b95fde0380a8b39d7e">Prepare</a> (int funcId)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Prepares the context for execution of the function identified by funcId.  <a href="#ad048f847854cc8b95fde0380a8b39d7e"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#ae3c18a2cc66c56f840e6ee4310287f65">Unprepare</a> ()=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees resources held by the context.  <a href="#ae3c18a2cc66c56f840e6ee4310287f65"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a10d3c152b25d07584999f4d9fe5ce8b1">SetObject</a> (void *obj)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the object for a class method call.  <a href="#a10d3c152b25d07584999f4d9fe5ce8b1"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a8e52894432737acac2e1a422e496bf84">Execute</a> ()=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Executes the prepared function.  <a href="#a8e52894432737acac2e1a422e496bf84"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a374befd21b8c14de81ef0ed9d2dea334">Abort</a> ()=0</td></tr>
@@ -95,6 +92,15 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Suspends the execution, which can then be resumed by calling Execute again.  <a href="#ad4ac8be3586c46069b5870e40c86544a"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#a867f14b4137dd4602fda1e616b217a69">asEContextState</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a17024a9e1648f66711a3182b21676aa7">GetState</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the state of the context.  <a href="#a17024a9e1648f66711a3182b21676aa7"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#ad8f7637a23d67e227d07f65621b6cdd6">PushState</a> ()=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Backups the current state to prepare the context for a nested call.  <a href="#ad8f7637a23d67e227d07f65621b6cdd6"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a5d963974625e582799b5d911d182d9be">PopState</a> ()=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Restores the state to resume previous script execution.  <a href="#a5d963974625e582799b5d911d182d9be"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a378f3bbfa04ef7b806300c5d4f1a0d65">IsNested</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> *nestCount=0) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the context has any nested calls.  <a href="#a378f3bbfa04ef7b806300c5d4f1a0d65"></a><br/></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Object pointer for calling class methods</div></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a10d3c152b25d07584999f4d9fe5ce8b1">SetObject</a> (void *obj)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets the object for a class method call.  <a href="#a10d3c152b25d07584999f4d9fe5ce8b1"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Arguments</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#ac5ac8ce5bb209f43d4da620db5d271da">SetArgByte</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> arg, <a class="el" href="angelscript_8h.html#a48b3da7121b3abb56bff63b3beb0df63">asBYTE</a> value)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Sets an 8-bit argument value.  <a href="#ac5ac8ce5bb209f43d4da620db5d271da"></a><br/></td></tr>
@@ -153,8 +159,8 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a3771cf314de339fa5d70edfbfcd88370"></a><!-- doxytag: member="asIScriptContext::ClearLineCallback" ref="a3771cf314de339fa5d70edfbfcd88370" args="()=0" -->
 virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a3771cf314de339fa5d70edfbfcd88370">ClearLineCallback</a> ()=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Removes a previously registered callback. Removes a previously registered callback. <br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a88ea15c717f4051cbaffc9623bf01e4b">GetCallstackSize</a> ()=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the callstack, i.e. the number of functions that have yet to complete.  <a href="#a88ea15c717f4051cbaffc9623bf01e4b"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#aab359abc4563a8439338bfd655824bd7">GetCallstackSize</a> () const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the size of the callstack, i.e. the number of functions that have yet to complete.  <a href="#aab359abc4563a8439338bfd655824bd7"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#a1c101300447f2909e5d188409a7180f6">GetFunction</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> stackLevel=0)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function at the specified callstack level.  <a href="#a1c101300447f2909e5d188409a7180f6"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_context.html#adf82981def59c6ec5dd9f74f034be2af">GetLineNumber</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> stackLevel=0, int *column=0, const char **sectionName=0)=0</td></tr>
@@ -341,7 +347,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 
 </div>
 </div>
-<a class="anchor" id="a88ea15c717f4051cbaffc9623bf01e4b"></a><!-- doxytag: member="asIScriptContext::GetCallstackSize" ref="a88ea15c717f4051cbaffc9623bf01e4b" args="()=0" -->
+<a class="anchor" id="aab359abc4563a8439338bfd655824bd7"></a><!-- doxytag: member="asIScriptContext::GetCallstackSize" ref="aab359abc4563a8439338bfd655824bd7" args="() const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -349,7 +355,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
           <td class="memname">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> asIScriptContext::GetCallstackSize </td>
           <td>(</td>
           <td class="paramname"></td><td>)</td>
-          <td><code> [pure virtual]</code></td>
+          <td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
@@ -467,7 +473,10 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
   </dd>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>The function descriptor on the call stack referred to by the index.</dd></dl>
-<p>Index 0 refers to the current function, index 1 to the calling function, and so on. The highest index is the originating function that the application called. </p>
+<p>Index 0 refers to the current function, index 1 to the calling function, and so on. The highest index is the originating function that the application called.</p>
+<p>The returned value will be null if the stackLevel is invalid, or if the requested stack level doesn't have a defined function. The latter scenario happens when the engine performs a nested call internally, e.g. to call a constructor for a script object indirectly created.</p>
+<p>If the application performs a nested call, then the returned value will give the application registered function that was called by the previous script.</p>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="classas_i_script_context.html#ad8f7637a23d67e227d07f65621b6cdd6">PushState</a> </dd></dl>
 
 </div>
 </div>
@@ -509,7 +518,9 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
   </table>
   </dd>
 </dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>The line number for the call stack level referred to by the index. </dd></dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The line number for the call stack level referred to by the index.</dd></dl>
+<p>This function returns the line number, and optionally the column number and the name of the script section where the program is current at.</p>
+<p>The sectionName pointer will point to an internal buffer, so do not deallocate it. </p>
 
 </div>
 </div>
@@ -770,7 +781,13 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
   </table>
   </dd>
 </dl>
-<dl class="return"><dt><b>Returns:</b></dt><dd>The number of variables in the function on the call stack level.</dd></dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>The number of variables in the function on the call stack level. Or negative value on error. </dd></dl>
+<dl><dt><b>Return values:</b></dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">asINVALID_ARG</td><td>The stackLevel is invalid.</td></tr>
+  </table>
+  </dd>
+</dl>
 <p>Returns the number of declared variables, including the parameters, in the function on the stack. </p>
 
 </div>
@@ -886,6 +903,30 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 
 </div>
 </div>
+<a class="anchor" id="a378f3bbfa04ef7b806300c5d4f1a0d65"></a><!-- doxytag: member="asIScriptContext::IsNested" ref="a378f3bbfa04ef7b806300c5d4f1a0d65" args="(asUINT *nestCount=0) const =0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool asIScriptContext::IsNested </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> *&#160;</td>
+          <td class="paramname"><em>nestCount</em> = <code>0</code></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl><dt><b>Parameters:</b></dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">nestCount</td><td>This argument receives the nesting level. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>true if there are any nested calls. </dd></dl>
+
+</div>
+</div>
 <a class="anchor" id="a45fcf7d8d711d5ec5cb9927e7839387a"></a><!-- doxytag: member="asIScriptContext::IsVarInScope" ref="a45fcf7d8d711d5ec5cb9927e7839387a" args="(asUINT varIndex, asUINT stackLevel=0)=0" -->
 <div class="memitem">
 <div class="memproto">
@@ -919,6 +960,29 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>True if variable is in scope.</dd></dl>
 <p>This method can be used to determine if a variable is currently visible from the current program position. This is especially useful if multiple variables with the same name is declared in different scopes. </p>
+
+</div>
+</div>
+<a class="anchor" id="a5d963974625e582799b5d911d182d9be"></a><!-- doxytag: member="asIScriptContext::PopState" ref="a5d963974625e582799b5d911d182d9be" args="()=0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int asIScriptContext::PopState </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error. </dd></dl>
+<dl><dt><b>Return values:</b></dt><dd>
+  <table class="retval">
+    <tr><td class="paramname">asERROR</td><td>The state couldn't be restored. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -968,23 +1032,33 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
       </table>
 </div>
 <div class="memdoc">
-<dl><dt><b>Parameters:</b></dt><dd>
-  <table class="params">
-    <tr><td class="paramdir">[in]</td><td class="paramname">funcId</td><td>The id of the function/method that will be executed. </td></tr>
-  </table>
-  </dd>
-</dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000007">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">asIScriptContext::Prepare(asIScriptFunction *)</a> instead </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="ad8f7637a23d67e227d07f65621b6cdd6"></a><!-- doxytag: member="asIScriptContext::PushState" ref="ad8f7637a23d67e227d07f65621b6cdd6" args="()=0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int asIScriptContext::PushState </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td><code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
 <dl class="return"><dt><b>Returns:</b></dt><dd>A negative value on error. </dd></dl>
 <dl><dt><b>Return values:</b></dt><dd>
   <table class="retval">
-    <tr><td class="paramname">asCONTEXT_ACTIVE</td><td>The context is still active or suspended. </td></tr>
-    <tr><td class="paramname">asNO_FUNCTION</td><td>The function id doesn't exist.</td></tr>
+    <tr><td class="paramname">asERROR</td><td>The state couldn't be pushed.</td></tr>
   </table>
   </dd>
 </dl>
-<p>This method prepares the context for execution of a script function. It allocates the stack space required and reserves space for return value and parameters. The default value for parameters and return value is 0.</p>
-<p>This method is slightly slower than the <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">Prepare(asIScriptFunction*)</a> variant.</p>
-<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_call_script_func.html">Calling a script function</a> </dd></dl>
+<p>This method can be invoked on an active context in order to reuse the context for a nested call, e.g. when a function called by a script needs to call another script before returning. After the method returns with success the method <a class="el" href="classas_i_script_context.html#a43976f42dfc6c1af23e132d36265173a">Prepare()</a> shall be invoked to prepare the new execution.</p>
+<p>By reusing an active context the application can avoid creating a temporary context, and thus improve the run time performance.</p>
+<p>For each successful call to <a class="el" href="classas_i_script_context.html#ad8f7637a23d67e227d07f65621b6cdd6" title="Backups the current state to prepare the context for a nested call.">PushState()</a> the method <a class="el" href="classas_i_script_context.html#a5d963974625e582799b5d911d182d9be">PopState()</a> must be called to return the state in order to resume the previous script execution. </p>
 
 </div>
 </div>
@@ -1614,7 +1688,7 @@ virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" hr
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_context.html">asIScriptContext</a>      </li>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:11 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

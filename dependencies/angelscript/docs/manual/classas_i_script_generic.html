@@ -74,11 +74,9 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_engine.html">asIScriptEngine</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_generic.html#a3f3b0838588e3afa7172f9bbb87f5445">GetEngine</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns a pointer to the script engine.  <a href="#a3f3b0838588e3afa7172f9bbb87f5445"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_generic.html#a667dc2155f6d9bf7669fdd23dfc27ee7">GetFunctionId</a> () const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function id of the called function.  <a href="#a667dc2155f6d9bf7669fdd23dfc27ee7"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_generic.html#a612689a8045e9502a6cde83f78eb3360">GetFunctionUserData</a> () const =0</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_script_function.html">asIScriptFunction</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_generic.html#acf00e806a36e0b42686c0f8df25b0898">GetFunction</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the function that is being called.  <a href="#acf00e806a36e0b42686c0f8df25b0898"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_generic.html#a612689a8045e9502a6cde83f78eb3360">GetFunctionUserData</a> () const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the user data for the called function.  <a href="#a612689a8045e9502a6cde83f78eb3360"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Object</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_generic.html#ab9e6627ec3920b1e1576d82586cac84d">GetObject</a> ()=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the object pointer if this is a class method, or null if it not.  <a href="#ab9e6627ec3920b1e1576d82586cac84d"></a><br/></td></tr>
@@ -456,7 +454,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl class="return"><dt><b>Returns:</b></dt><dd>The function id of the function being called. </dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000008">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_script_generic.html#acf00e806a36e0b42686c0f8df25b0898">asIScriptGeneric::GetFunction</a> instead </dd></dl>
 
 </div>
 </div>
@@ -473,7 +471,7 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl class="return"><dt><b>Returns:</b></dt><dd>The user data for the called function. </dd></dl>
+<dl class="deprecated"><dt><b><a class="el" href="deprecated.html#_deprecated000009">Deprecated:</a></b></dt><dd>Use <a class="el" href="classas_i_script_function.html#a74d7dccdc0de6cef550bad52a2b40156">asIScriptFunction::GetUserData</a> instead </dd></dl>
 
 </div>
 </div>
@@ -779,7 +777,7 @@ Public Member Functions</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_generic.html">asIScriptGeneric</a>      </li>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:11 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

@@ -14,7 +14,7 @@ int CompareRelation(asIScriptEngine *engine, void *lobj, void *robj, int typeId,
     //       then the method id and context should be cached between calls.
     
 	int retval = -1;
-	int funcId = 0;
+	asIScriptFunction *func = 0;
 
 	asIObjectType *ot = engine->GetObjectTypeById(typeId);
 	if( ot )
@@ -22,30 +22,30 @@ int CompareRelation(asIScriptEngine *engine, void *lobj, void *robj, int typeId,
 		// Check if the object type has a compatible opCmp method
 		for( asUINT n = 0; n < ot->GetMethodCount(); n++ )
 		{
-			asIScriptFunction *func = ot->GetMethodByIndex(n);
-			if( strcmp(func->GetName(), "opCmp") == 0 &&
-				func->GetReturnTypeId() == asTYPEID_INT32 &&
-				func->GetParamCount() == 1 )
+			asIScriptFunction *f = ot->GetMethodByIndex(n);
+			if( strcmp(f->GetName(), "opCmp") == 0 &&
+				f->GetReturnTypeId() == asTYPEID_INT32 &&
+				f->GetParamCount() == 1 )
 			{
 				asDWORD flags;
-				int paramTypeId = func->GetParamTypeId(0, &flags);
+				int paramTypeId = f->GetParamTypeId(0, &flags);
 				
 				// The parameter must be an input reference of the same type
 				if( flags != asTM_INREF || typeId != paramTypeId )
 					break;
 
 				// Found the method
-				funcId = ot->GetMethodIdByIndex(n);
+				func = f;
 				break;
 			}
 		}
 	}
 
-	if( funcId )
+	if( func )
 	{
 		// Call the method
 		asIScriptContext *ctx = engine->CreateContext();
-		ctx->Prepare(funcId);
+		ctx->Prepare(func);
 		ctx->SetObject(lobj);
 		ctx->SetArgAddress(0, robj);
 		int r = ctx->Execute();
@@ -65,10 +65,10 @@ int CompareRelation(asIScriptEngine *engine, void *lobj, void *robj, int typeId,
 int CompareEquality(asIScriptEngine *engine, void *lobj, void *robj, int typeId, bool &result)
 {
     // TODO: If a lot of script objects are going to be compared, e.g. when searching for an
-	//       entry in a set, then the method id and context should be cached between calls.
+	//       entry in a set, then the method and context should be cached between calls.
     
 	int retval = -1;
-	int funcId = 0;
+	asIScriptFunction *func = 0;
 
 	asIObjectType *ot = engine->GetObjectTypeById(typeId);
 	if( ot )
@@ -76,30 +76,30 @@ int CompareEquality(asIScriptEngine *engine, void *lobj, void *robj, int typeId,
 		// Check if the object type has a compatible opEquals method
 		for( asUINT n = 0; n < ot->GetMethodCount(); n++ )
 		{
-			asIScriptFunction *func = ot->GetMethodByIndex(n);
-			if( strcmp(func->GetName(), "opEquals") == 0 &&
-				func->GetReturnTypeId() == asTYPEID_BOOL &&
-				func->GetParamCount() == 1 )
+			asIScriptFunction *f = ot->GetMethodByIndex(n);
+			if( strcmp(f->GetName(), "opEquals") == 0 &&
+				f->GetReturnTypeId() == asTYPEID_BOOL &&
+				f->GetParamCount() == 1 )
 			{
 				asDWORD flags;
-				int paramTypeId = func->GetParamTypeId(0, &flags);
+				int paramTypeId = f->GetParamTypeId(0, &flags);
 				
 				// The parameter must be an input reference of the same type
 				if( flags != asTM_INREF || typeId != paramTypeId )
 					break;
 
 				// Found the method
-				funcId = ot->GetMethodIdByIndex(n);
+				func = f;
 				break;
 			}
 		}
 	}
 
-	if( funcId )
+	if( func )
 	{
 		// Call the method
 		asIScriptContext *ctx = engine->CreateContext();
-		ctx->Prepare(funcId);
+		ctx->Prepare(func);
 		ctx->SetObject(lobj);
 		ctx->SetArgAddress(0, robj);
 		int r = ctx->Execute();
@@ -142,7 +142,7 @@ int ExecuteString(asIScriptEngine *engine, const char *code, asIScriptModule *mo
 
 	// If no context was provided, request a new one from the engine
 	asIScriptContext *execCtx = ctx ? ctx : engine->CreateContext();
-	r = execCtx->Prepare(func->GetId());
+	r = execCtx->Prepare(func);
 	if( r < 0 )
 	{
 		func->Release();
@@ -316,7 +316,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 			asUINT m;
 			for( m = 0; m < type->GetFactoryCount(); m++ )
 			{
-				asIScriptFunction *func = engine->GetFunctionById(type->GetFactoryIdByIndex(m));
+				asIScriptFunction *func = type->GetFactoryByIndex(m);
 				asDWORD accessMask = func->GetAccessMask();
 				if( accessMask != currAccessMask )
 				{
@@ -328,7 +328,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 			for( m = 0; m < type->GetBehaviourCount(); m++ )
 			{
 				asEBehaviours beh;
-				asIScriptFunction *func = engine->GetFunctionById(type->GetBehaviourByIndex(m, &beh));
+				asIScriptFunction *func = type->GetBehaviourByIndex(m, &beh);
 				fprintf(f, "objbeh \"%s\" %d \"%s\"\n", typeDecl.c_str(), beh, func->GetDeclaration(false));
 			}
 			for( m = 0; m < type->GetMethodCount(); m++ )
@@ -362,7 +362,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 	c = engine->GetGlobalFunctionCount();
 	for( n = 0; n < c; n++ )
 	{
-		asIScriptFunction *func = engine->GetFunctionById(engine->GetGlobalFunctionIdByIndex(n));
+		asIScriptFunction *func = engine->GetGlobalFunctionByIndex(n);
 		const char *nameSpace = func->GetNamespace();
 		if( nameSpace != currNamespace )
 		{
@@ -441,9 +441,25 @@ void PrintException(asIScriptContext *ctx, bool printStack)
 		for( asUINT n = 1; n < ctx->GetCallstackSize(); n++ )
 		{
 			function = ctx->GetFunction(n);
-			printf("%s (%d): %s\n", function->GetScriptSectionName(),
-			                        ctx->GetLineNumber(n),
-								    function->GetDeclaration());
+			if( function )
+			{
+				if( function->GetFuncType() == asFUNC_SCRIPT )
+				{
+					printf("%s (%d): %s\n", function->GetScriptSectionName(),
+											ctx->GetLineNumber(n),
+											function->GetDeclaration());
+				}
+				else
+				{
+					// The context is being reused by the application for a nested call
+					printf("{...application...}: %s\n", function->GetDeclaration());
+				}
+			}
+			else
+			{
+				// The context is being reused by the script engine for a nested call
+				printf("{...script engine...}\n");
+			}			
 		}
 	}
 }

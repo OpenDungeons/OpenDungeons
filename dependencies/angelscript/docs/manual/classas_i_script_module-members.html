@@ -65,7 +65,7 @@
 This is the complete list of members for <a class="el" href="classas_i_script_module.html">asIScriptModule</a>, including all inherited members.<table>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a330835919b565c76c25e9425536f50b7">AddScriptSection</a>(const char *name, const char *code, size_t codeLength=0, int lineOffset=0)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a3f0c215576adefd922c2cc95d16b55d8">BindAllImportedFunctions</a>()=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
-  <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a369f8792cec94f44833854ce54b28b8b">BindImportedFunction</a>(asUINT importIndex, int funcId)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#ab24a8b95ce887c3f731eb906e3b518e5">BindImportedFunction</a>(asUINT importIndex, asIScriptFunction *func)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a8acf107194c5f079d7f7507309ebe613">Build</a>()=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a1258d7cfeed965f36ba312beeb49e81c">CompileFunction</a>(const char *sectionName, const char *code, int lineOffset, asDWORD compileFlags, asIScriptFunction **outFunc)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a34850e152dcdcb58c53a2b6929cebf77">CompileGlobalVar</a>(const char *sectionName, const char *code, int lineOffset)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
@@ -93,6 +93,7 @@ This is the complete list of members for <a class="el" href="classas_i_script_mo
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#adc01b24a82ad14356f2edc082af4c146">GetImportedFunctionSourceModule</a>(asUINT importIndex) const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a4967db3ed89836ac2f3b529c499d473d">GetName</a>() const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a33ebba99a6358ccfb0c154fca7f58f77">GetObjectTypeByIndex</a>(asUINT index) const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a81b15d88f98902173400dd1e32722b58">GetObjectTypeByName</a>(const char *name) const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a931d0c00cba2df1b4e368e59bac1a207">GetObjectTypeCount</a>() const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a120442b78bbea4af45a1045a4beaf435">GetTypedefByIndex</a>(asUINT index, int *typeId, const char **nameSpace=0) const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#ad30b22539655df3135f29ce28b89c820">GetTypedefCount</a>() const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
@@ -115,7 +116,7 @@ This is the complete list of members for <a class="el" href="classas_i_script_mo
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Mar 11 2012 13:39:11 for AngelScript by
+    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>
