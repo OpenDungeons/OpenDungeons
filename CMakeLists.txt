@@ -121,6 +121,7 @@ set(OD_SOURCEFILES
     ${SRC}/MapLoader.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
+    ${SRC}/ModeContext.cpp
     ${SRC}/MovableGameEntity.cpp
     ${SRC}/MusicPlayer.cpp
     ${SRC}/NullAI.cpp

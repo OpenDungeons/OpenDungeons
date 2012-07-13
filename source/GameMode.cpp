@@ -1,4 +1,3 @@
-
 /*!
  * \file   InputManager.cpp
  * \date:  02 July 2011
@@ -41,11 +40,12 @@
 #include "GameMode.h"
 
 
-GameMode::GameMode(AbstractApplicationMode const &aam):
-AbstractApplicationMode(aam)
+GameMode::GameMode(ModeContext *modeContext):mc(modeContext)
 {
-    mMouse->setEventCallback(this);
-    mKeyboard->setEventCallback(this);
+
+
+    mc->mMouse->setEventCallback(this);
+    mc->mKeyboard->setEventCallback(this);
 
 }
 
@@ -53,10 +53,10 @@ AbstractApplicationMode(aam)
 GameMode::~GameMode()
 {
     LogManager::getSingleton().logMessage("*** Destroying GameMode ***");
-    mInputManager->destroyInputObject(mMouse);
-    mInputManager->destroyInputObject(mKeyboard);
-    OIS::InputManager::destroyInputSystem(mInputManager);
-    mInputManager = 0;
+    mc->mInputManager->destroyInputObject(mc->mMouse);
+    mc->mInputManager->destroyInputObject(mc->mKeyboard);
+    OIS::InputManager::destroyInputSystem(mc->mInputManager);
+    mc->mInputManager = 0;
 }
 
 
@@ -75,16 +75,16 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     CEGUI::System::getSingleton().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
     //TODO: do this (and the others isInGame() in here) by GameState
 
-    if (frameListener->isTerminalActive())
+    if (mc->frameListener->isTerminalActive())
     {
-        Console::getSingleton().onMouseMoved(arg, mKeyboard->isModifierDown(OIS::Keyboard::Ctrl));
+        Console::getSingleton().onMouseMoved(arg, mc->mKeyboard->isModifierDown(OIS::Keyboard::Ctrl));
     }
     else
     {
         //If we have a room or trap (or later spell) selected, show what we
         //have selected
         //TODO: This should be changed, or combined with an icon or something later.
-        if (gameMap->getLocalPlayer()->getNewRoomType() || gameMap->getLocalPlayer()->getNewTrapType())
+        if (mc->gameMap->getLocalPlayer()->getNewRoomType() || mc->gameMap->getLocalPlayer()->getNewTrapType())
         {
             TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
                                                   arg.state.X.abs + 30, arg.state.Y.abs);
@@ -96,17 +96,17 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         Ogre::RaySceneQueryResult::iterator end = result.end();
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         std::string resultName = "";
-	if(mDragType == rotateAxisX){
+	if(mc->mDragType == rotateAxisX){
 	    CameraManager::getSingleton().move(CameraManager::randomRotateX,arg.state.X.rel);
 
 	}
 
-	else if(mDragType == rotateAxisY){
+	else if(mc->mDragType == rotateAxisY){
 	    CameraManager::getSingleton().move(CameraManager::randomRotateY,arg.state.Y.rel);
 
 	}
 
-        else if (mDragType == tileSelection || mDragType == addNewRoom || mDragType == nullDragType)
+        else if (mc->mDragType == tileSelection || mc->mDragType == addNewRoom || mc->mDragType == nullDragType)
         {
             // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
             for (; itr != end; ++itr)
@@ -120,18 +120,18 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 			{
 			    //Make the mouse light follow the mouse
 			    //TODO - we should make a pointer to the light or something.
-			    Ogre::RaySceneQuery* rq = frameListener->getRaySceneQuery();
+			    Ogre::RaySceneQuery* rq = mc->frameListener->getRaySceneQuery();
 			    Ogre::Real dist = itr->distance;
 			    Ogre::Vector3 point = rq->getRay().getPoint(dist);
 			    mSceneMgr->getLight("MouseLight")->setPosition(point.x, point.y, 4.0);
 
 			    // Get the x-y coordinates of the tile.
-			    sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
+			    sscanf(resultName.c_str(), "Level_%i_%i", &mc->xPos, &mc->yPos);
 			    RenderRequest *request = new RenderRequest;
 
 			    request->type = RenderRequest::showSquareSelector;
-			    request->p = static_cast<void*>(&xPos);
-			    request->p2 = static_cast<void*>(&yPos);
+			    request->p = static_cast<void*>(&mc->xPos);
+			    request->p2 = static_cast<void*>(&mc->yPos);
 
 			    // Add the request to the queue of rendering operations to be performed before the next frame.
 			    RenderManager::queueRenderRequest(request);
@@ -139,21 +139,21 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 			    
 			    // Make sure the "square selector" mesh is visible and position it over the current tile.
 
-			    //mSceneMgr->getLight("MouseLight")->setPosition(xPos, yPos, 2.0);
+			    //mSceneMgr->getLight("MouseLight")->setPosition(mc->xPos, mc->yPos, 2.0);
 
-			    if (mLMouseDown)
+			    if (mc->mLMouseDown)
 				{
 				    // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
 				    //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords rather than the reverse that it is doing now.
-				    std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(xPos,
-												  yPos, mLStartDragX, mLStartDragY);
+				    std::vector<Tile*> affectedTiles = mc->gameMap->rectangularRegion(mc->xPos,
+												  mc->yPos, mc->mLStartDragX, mc->mLStartDragY);
 
 
-				    for (int jj = 0; jj < gameMap->mapSizeY; ++jj)
+				    for (int jj = 0; jj < mc->gameMap->mapSizeY; ++jj)
 					{
-					    for (int ii = 0; ii < gameMap->mapSizeX; ++ii)
+					    for (int ii = 0; ii < mc->gameMap->mapSizeX; ++ii)
 						{
-						    gameMap->getTile(ii,jj)->setSelected(false,gameMap->getLocalPlayer());
+						    mc->gameMap->getTile(ii,jj)->setSelected(false,mc->gameMap->getLocalPlayer());
 						}
 					}
 
@@ -166,29 +166,29 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 					// 	    {
 
 
-					// 		for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
+					// 		for (TileMap_t::iterator itr = mc->gameMap->firstTile(), last = mc->gameMap->lastTile();
 					// 		        itr != last; ++itr)
 					// 		{
 					// 		}
 
 					// 		The hell , with the above, I see no reason aditional iteration over tiles in GameMap
-					// 		if (std::find(affectedTiles.begin(), affectedTiles.end(), gameMap->getTile(ii,jj)) != affectedTiles.end())
+					// 		if (std::find(affectedTiles.begin(), affectedTiles.end(), mc->gameMap->getTile(ii,jj)) != affectedTiles.end())
 					// 		    {
-					// 			(*itr)->setSelected(true,gameMap->getLocalPlayer());
+					// 			(*itr)->setSelected(true,mc->gameMap->getLocalPlayer());
 					// 		    }
 					// 		else
 					// 		    {
-					// 			(*itr)->setSelected(false,gameMap->getLocalPlayer());
+					// 			(*itr)->setSelected(false,mc->gameMap->getLocalPlayer());
 					// 		    }
 					// 	    }
 					//     }
 
 
-					(*itr)->setSelected(true,gameMap->getLocalPlayer());				  
+					(*itr)->setSelected(true,mc->gameMap->getLocalPlayer());				  
 				    }
 				}
 
-			    if (mRMouseDown)
+			    if (mc->mRMouseDown)
 				{
 				}
 
@@ -212,14 +212,14 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                     if (resultName.find("Level_") != std::string::npos)
                     {
                         // Get the x-y coordinates of the tile.
-                        sscanf(resultName.c_str(), "Level_%i_%i", &xPos, &yPos);
+                        sscanf(resultName.c_str(), "Level_%i_%i", &mc->xPos, &mc->yPos);
 
 
 			    RenderRequest *request = new RenderRequest;
 
 			    request->type = RenderRequest::showSquareSelector;
-			    request->p = static_cast<void*>(&xPos);
-			    request->p2 = static_cast<void*>(&yPos);
+			    request->p = static_cast<void*>(&mc->xPos);
+			    request->p2 = static_cast<void*>(&mc->yPos);
                         // Make sure the "square selector" mesh is visible and position it over the current tile.
 
                     }
@@ -228,34 +228,34 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         }
 
         // If we are drawing with the brush in the map editor.
-        if (mLMouseDown && mDragType == tileBrushSelection && !isInGame())
+        if (mc->mLMouseDown && mc->mDragType == tileBrushSelection && !isInGame())
         {
             // Loop over the square region surrounding current mouse location and either set the tile type of the affected tiles or create new ones.
             Tile *currentTile;
             std::vector<Tile*> affectedTiles;
-            int radiusSquared = mCurrentTileRadius * mCurrentTileRadius;
+            int radiusSquared = mc->mCurrentTileRadius * mc->mCurrentTileRadius;
 
-            for (int i = -1 * (mCurrentTileRadius - 1); i <= (mCurrentTileRadius
+            for (int i = -1 * (mc->mCurrentTileRadius - 1); i <= (mc->mCurrentTileRadius
                     - 1); ++i)
             {
-                for (int j = -1 * (mCurrentTileRadius - 1); j
-                        <= (mCurrentTileRadius - 1); ++j)
+                for (int j = -1 * (mc->mCurrentTileRadius - 1); j
+                        <= (mc->mCurrentTileRadius - 1); ++j)
                 {
-                    // Check to see if the current location falls inside a circle with a radius of mCurrentTileRadius.
+                    // Check to see if the current location falls inside a circle with a radius of mc->mCurrentTileRadius.
                     int distSquared = i * i + j * j;
 
                     if (distSquared > radiusSquared)
                         continue;
 
-                    currentTile = gameMap->getTile(xPos + i, yPos + j);
+                    currentTile = mc->gameMap->getTile(mc->xPos + i, mc->yPos + j);
 
                     // Check to see if the current tile already exists.
                     if (currentTile != NULL)
                     {
                         // It does exist so set its type and fullness.
                         affectedTiles.push_back(currentTile);
-                        currentTile->setType((Tile::TileType)mCurrentTileType);
-                        currentTile->setFullness((Tile::TileType)mCurrentFullness);
+                        currentTile->setType((Tile::TileType)mc->mCurrentTileType);
+                        currentTile->setFullness((Tile::TileType)mc->mCurrentFullness);
                     }
                     else
                     {
@@ -266,15 +266,15 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 			ss.str(std::string());
 			ss << "Level";
 			ss << "_";
-			ss << xPos + 1;
+			ss << mc->xPos + 1;
 			ss << "_";
-			ss << yPos + 1;
+			ss << mc->yPos + 1;
 
 
-                        currentTile = new Tile(xPos + i, yPos + j,
-                                               (Tile::TileType)mCurrentTileType, (Tile::TileType)mCurrentFullness);
+                        currentTile = new Tile(mc->xPos + i, mc->yPos + j,
+                                               (Tile::TileType)mc->mCurrentTileType, (Tile::TileType)mc->mCurrentFullness);
                         currentTile->setName(ss.str());
-                        gameMap->addTile(currentTile);
+                        mc->gameMap->addTile(currentTile);
                         currentTile->createMesh();
                     }
                 }
@@ -282,7 +282,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
             // Add any tiles which border the affected region to the affected tiles list
             // as they may alo want to switch meshes to optimize polycount now too.
-            std::vector<Tile*> borderingTiles = gameMap->tilesBorderedByRegion(
+            std::vector<Tile*> borderingTiles = mc->gameMap->tilesBorderedByRegion(
                                                     affectedTiles);
 
             affectedTiles.insert(affectedTiles.end(), borderingTiles.begin(),
@@ -296,35 +296,35 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         }
 
         // If we are dragging a map light we need to update its position to the current x-y location.
-        if (mLMouseDown && mDragType == mapLight && !isInGame())
+        if (mc->mLMouseDown && mc->mDragType == mapLight && !isInGame())
         {
-            MapLight* tempMapLight = gameMap->getMapLight(draggedMapLight);
+            MapLight* tempMapLight = mc->gameMap->getMapLight(mc->draggedMapLight);
 
             if (tempMapLight != NULL)
-                tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
+                tempMapLight->setPosition(mc->xPos, mc->yPos, tempMapLight->getPosition().z);
         }
 
         if (arg.state.Z.rel > 0)
         {
-            if (mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
+            if (mc->mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
             {
                 CameraManager::getSingleton().move(CameraManager::moveDown);
             }
             else
             {
-                gameMap->getLocalPlayer()->rotateCreaturesInHand(1);
+                mc->gameMap->getLocalPlayer()->rotateCreaturesInHand(1);
             }
         }
         else
             if (arg.state.Z.rel < 0)
             {
-                if (mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
+                if (mc->mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
                 {
                     CameraManager::getSingleton().move(CameraManager::moveUp);
                 }
                 else
                 {
-                    gameMap->getLocalPlayer()->rotateCreaturesInHand(-1);
+                    mc->gameMap->getLocalPlayer()->rotateCreaturesInHand(-1);
                 }
             }
             else
@@ -335,7 +335,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     //CameraManager::getSingleton().move(CameraManager::fullStop);
 
-    if (!(directionKeyPressed || mDragType == rotateAxisX || mDragType == rotateAxisY))
+    if (!(mc->directionKeyPressed || mc->mDragType == rotateAxisX || mc->mDragType == rotateAxisY))
     {
 
         if (arg.state.X.abs == 0)
@@ -389,12 +389,12 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 
     if (tempWindow != 0 && tempWindow->getName().compare("Root") != 0)
     {
-        mouseDownOnCEGUIWindow = true;
+        mc->mouseDownOnCEGUIWindow = true;
         return true;
     }
     else
     {
-        mouseDownOnCEGUIWindow = false;
+        mc->mouseDownOnCEGUIWindow = false;
     }
 
     Ogre::RaySceneQueryResult &result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
@@ -407,17 +407,17 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 
     if (id == OIS::MB_Left)
     {
-        mLMouseDown = true;
-        mLStartDragX = xPos;
-        mLStartDragY = yPos;
+        mc->mLMouseDown = true;
+        mc->mLStartDragX = mc->xPos;
+        mc->mLStartDragY = mc->yPos;
 
 	if(arg.state.Y.abs < 0.1*arg.state.height || arg.state.Y.abs > 0.9*arg.state.height){
-		mDragType=rotateAxisX;
+		mc->mDragType=rotateAxisX;
 		return true;
 	    }
 
 	else if(arg.state.X.abs > 0.9*arg.state.width || arg.state.X.abs < 0.1*arg.state.width){
-		mDragType=rotateAxisY;
+		mc->mDragType=rotateAxisY;
 		return true;
 	    }
 
@@ -443,12 +443,12 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
                         tempSS.getline(array, sizeof(array), '_');
                         tempSS.getline(array, sizeof(array));
 
-                        Creature *currentCreature = gameMap->getCreature(array);
+                        Creature *currentCreature = mc->gameMap->getCreature(array);
 
                         if (currentCreature != 0 && currentCreature->getColor()
-                                == gameMap->getLocalPlayer()->getSeat()->getColor())
+                                == mc->gameMap->getLocalPlayer()->getSeat()->getColor())
                         {
-                            gameMap->getLocalPlayer()->pickUpCreature(currentCreature);
+                            mc->gameMap->getLocalPlayer()->pickUpCreature(currentCreature);
                             SoundEffectsHelper::getSingleton().playInterfaceSound(
                                 SoundEffectsHelper::PICKUP);
                             return true;
@@ -464,15 +464,15 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
                         mSceneMgr->getEntity("SquareSelector")->setVisible(
                             false);
 
-                        draggedCreature = resultName.substr(
+                        mc->draggedCreature = resultName.substr(
                                               ((std::string) "Creature_").size(),
                                               resultName.size());
                         Ogre::SceneNode *node = mSceneMgr->getSceneNode(
-                                                    draggedCreature + "_node");
+                                                    mc->draggedCreature + "_node");
                         ODFrameListener::getSingleton().getCreatureSceneNode()->removeChild(node);
                         mSceneMgr->getSceneNode("Hand_node")->addChild(node);
                         node->setPosition(0, 0, 0);
-                        mDragType = creature;
+                        mc->mDragType = creature;
 
                         SoundEffectsHelper::getSingleton().playInterfaceSound(
                             SoundEffectsHelper::PICKUP);
@@ -500,8 +500,8 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 
                     if (resultName.find("MapLightIndicator_") != std::string::npos)
                     {
-                        mDragType = mapLight;
-                        draggedMapLight = resultName.substr(
+                        mc->mDragType = mapLight;
+                        mc->draggedMapLight = resultName.substr(
                                               ((std::string) "MapLightIndicator_").size(),
                                               resultName.size());
 
@@ -526,26 +526,26 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
                 if (resultName.find("Level_") != std::string::npos)
                 {
                     // Start by assuming this is a tileSelection drag.
-                    mDragType = tileSelection;
+                    mc->mDragType = tileSelection;
 
                     // If we are in the map editor, use a brush selection if it has been activated.
 
-                    if (!isInGame() && mBrushMode)
+                    if (!isInGame() && mc->mBrushMode)
                     {
-                        mDragType = tileBrushSelection;
+                        mc->mDragType = tileBrushSelection;
                     }
 
                     // If we have selected a room type to add to the map, use a addNewRoom drag type.
-                    if (gameMap->getLocalPlayer()->getNewRoomType() != Room::nullRoomType)
+                    if (mc->gameMap->getLocalPlayer()->getNewRoomType() != Room::nullRoomType)
                     {
-                        mDragType = addNewRoom;
+                        mc->mDragType = addNewRoom;
                     }
 
                     // If we have selected a trap type to add to the map, use a addNewTrap drag type.
                     else
-                        if (gameMap->getLocalPlayer()->getNewTrapType() != Trap::nullTrapType)
+                        if (mc->gameMap->getLocalPlayer()->getNewTrapType() != Trap::nullTrapType)
                         {
-                            mDragType = addNewTrap;
+                            mc->mDragType = addNewTrap;
                         }
 
                     break;
@@ -559,11 +559,11 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
         // by dragging out a selection starting from an unmarcked tile, or unmark them by starting the drag from a marked one.
         if (isInGame())
         {
-            Tile *tempTile = gameMap->getTile(xPos, yPos);
+            Tile *tempTile = mc->gameMap->getTile(mc->xPos, mc->yPos);
 
             if (tempTile != NULL)
             {
-                digSetBool = !(tempTile->getMarkedForDigging(gameMap->getLocalPlayer()));
+                mc->digSetBool = !(tempTile->getMarkedForDigging(mc->gameMap->getLocalPlayer()));
             }
         }
     }
@@ -571,24 +571,24 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
     // Right mouse button down
     if (id == OIS::MB_Right)
     {
-        mRMouseDown = true;
-        mRStartDragX = xPos;
-        mRStartDragY = yPos;
+        mc->mRMouseDown = true;
+        mc->mRStartDragX = mc->xPos;
+        mc->mRStartDragY = mc->yPos;
 
         // Stop creating rooms, traps, etc.
-        mDragType = nullDragType;
-        gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
-        gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+        mc->mDragType = nullDragType;
+        mc->gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
+        mc->gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
         TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
         // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
-        Tile *curTile = gameMap->getTile(xPos, yPos);
+        Tile *curTile = mc->gameMap->getTile(mc->xPos, mc->yPos);
 
         if (curTile != NULL)
         {
-            gameMap->getLocalPlayer()->dropCreature(curTile);
+            mc->gameMap->getLocalPlayer()->dropCreature(curTile);
 
-            if (gameMap->getLocalPlayer()->numCreaturesInHand() > 0)
+            if (mc->gameMap->getLocalPlayer()->numCreaturesInHand() > 0)
             {
                 SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
             }
@@ -606,7 +606,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 
                 if (resultName.find("Creature_") != std::string::npos)
                 {
-                    Creature* tempCreature = gameMap->getCreature(resultName.substr(
+                    Creature* tempCreature = mc->gameMap->getCreature(resultName.substr(
                                                  ((std::string) "Creature_").size(), resultName.size()));
 
                     if (tempCreature != NULL)
@@ -637,70 +637,70 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
 
     // If the mouse press was on a CEGUI window ignore it
 
-    if (mouseDownOnCEGUIWindow)
+    if (mc->mouseDownOnCEGUIWindow)
         return true;
 
-    for (int jj = 0; jj < gameMap->mapSizeY; ++jj)
+    for (int jj = 0; jj < mc->gameMap->mapSizeY; ++jj)
 	{
-	    for (int ii = 0; ii < gameMap->mapSizeX; ++ii)
+	    for (int ii = 0; ii < mc->gameMap->mapSizeX; ++ii)
 		{
-		    gameMap->getTile(ii,jj)->setSelected(false,gameMap->getLocalPlayer());
+		    mc->gameMap->getTile(ii,jj)->setSelected(false,mc->gameMap->getLocalPlayer());
 		}
 	}
 
 
     // Unselect all tiles
-    // for (TileMap_t::iterator itr = gameMap->firstTile(), last = gameMap->lastTile();
+    // for (TileMap_t::iterator itr = mc->gameMap->firstTile(), last = mc->gameMap->lastTile();
     //         itr != last; ++itr)
     // {
-    //     itr->second->setSelected(false,gameMap->getLocalPlayer());
+    //     itr->second->setSelected(false,mc->gameMap->getLocalPlayer());
     // }
 
     // Left mouse button up
     if (id == OIS::MB_Left)
     {
-	if(mDragType == rotateAxisX){
+	if(mc->mDragType == rotateAxisX){
 
-	    mDragType=nullDragType;
+	    mc->mDragType=nullDragType;
 	}
-	else if(mDragType == rotateAxisY){
+	else if(mc->mDragType == rotateAxisY){
 
-	    mDragType=nullDragType;
+	    mc->mDragType=nullDragType;
 	}
 
         // Check to see if we are moving a creature
-        else if (mDragType == creature)
+        else if (mc->mDragType == creature)
         {
             if (!isInGame())
             {
                 Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-                Ogre::SceneNode *node = mSceneMgr->getSceneNode(draggedCreature + "_node");
+                Ogre::SceneNode *node = mSceneMgr->getSceneNode(mc->draggedCreature + "_node");
                 mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
                 ODFrameListener::getSingleton().getCreatureSceneNode()->addChild(node);
-                mDragType = nullDragType;
-                gameMap->getCreature(draggedCreature)->setPosition(Ogre::Vector3(xPos, yPos, 0));
+                mc->mDragType = nullDragType;
+                mc->gameMap->getCreature(mc->draggedCreature)->setPosition(Ogre::Vector3(mc->xPos, mc->yPos, 0));
             }
         }
 
         // Check to see if we are dragging a map light.
         else
-            if (mDragType == mapLight)
+            if (mc->mDragType == mapLight)
             {
                 if (!isInGame())
                 {
-                    MapLight *tempMapLight = gameMap->getMapLight(draggedMapLight);
+                    MapLight *tempMapLight = mc->gameMap->getMapLight(mc->draggedMapLight);
 
                     if (tempMapLight != NULL)
                     {
-                        tempMapLight->setPosition(xPos, yPos, tempMapLight->getPosition().z);
+                        tempMapLight->setPosition(mc->xPos, mc->yPos, tempMapLight->getPosition().z);
                     }
                 }
             }
 
         // Check to see if we are dragging out a selection of tiles or creating a new room
             else
-                if (mDragType == tileSelection || mDragType == addNewRoom ||
-                        mDragType == addNewTrap)
+                if (mc->mDragType == tileSelection || mc->mDragType == addNewRoom ||
+                        mc->mDragType == addNewTrap)
                 {
                     //TODO: move to own function.
 
@@ -708,8 +708,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                     // loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
                     // which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
                     // the next loop will actually create the room.  A similar pruning is done for traps.
-                    std::vector<Tile*> affectedTiles = gameMap->rectangularRegion(xPos,
-                                                       yPos, mLStartDragX, mLStartDragY);
+                    std::vector<Tile*> affectedTiles = mc->gameMap->rectangularRegion(mc->xPos,
+                                                       mc->yPos, mc->mLStartDragX, mc->mLStartDragY);
                     std::vector<Tile*>::iterator itr = affectedTiles.begin();
 
                     while (itr != affectedTiles.end())
@@ -718,7 +718,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
 
                         // If we are dragging out tiles.
 
-                        if (mDragType == tileSelection)
+                        if (mc->mDragType == tileSelection)
                         {
                             // See if we are in a game or not
                             if (isInGame())
@@ -729,8 +729,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                                     if (Socket::serverSocket != NULL)
                                     {
                                         // On the server:  Just mark the tile for digging.
-                                        currentTile->setMarkedForDigging(digSetBool,
-                                                                         gameMap->getLocalPlayer());
+                                        currentTile->setMarkedForDigging(mc->digSetBool,
+                                                                         mc->gameMap->getLocalPlayer());
                                     }
                                     else
                                     {
@@ -740,7 +740,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                                         clientNotification->type
                                         = ClientNotification::markTile;
                                         clientNotification->p = currentTile;
-                                        clientNotification->flag = digSetBool;
+                                        clientNotification->flag = mc->digSetBool;
 
                                         sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
                                         ClientNotification::clientNotificationQueue.push_back(
@@ -749,7 +749,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
 
                                         sem_post(&ClientNotification::clientNotificationQueueSemaphore);
 
-                                        currentTile->setMarkedForDigging(digSetBool, gameMap->getLocalPlayer());
+                                        currentTile->setMarkedForDigging(mc->digSetBool, mc->gameMap->getLocalPlayer());
 
                                     }
 
@@ -761,11 +761,11 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                             else
                             {
                                 // In the map editor:  Fill the current tile with the new value
-                                currentTile->setType((Tile::TileType)mCurrentTileType);
-                                currentTile->setFullness((Tile::TileType)mCurrentFullness);
+                                currentTile->setType((Tile::TileType)mc->mCurrentTileType);
+                                currentTile->setFullness((Tile::TileType)mc->mCurrentFullness);
                             }
                         }
-                        else // if(mDragType == ExampleFrameListener::addNewRoom || mDragType == ExampleFrameListener::addNewTrap)
+                        else // if(mc->mDragType == ExampleFrameListener::addNewRoom || mc->mDragType == ExampleFrameListener::addNewTrap)
                         {
                             // If the tile already contains a room, prune it from the list of affected tiles.
                             if (!currentTile->isBuildableUpon())
@@ -782,7 +782,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                                         && currentTile->getType() == Tile::claimed
                                         && currentTile->colorDouble > 0.99
                                         && currentTile->getColor()
-                                        == gameMap->getLocalPlayer()->getSeat()->color))
+                                        == mc->gameMap->getLocalPlayer()->getSeat()->color))
                                 {
                                     itr = affectedTiles.erase(itr);
                                     continue;
@@ -805,10 +805,10 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
 
                     // If we are adding new rooms the above loop will have pruned out the tiles not eligible
                     // for adding rooms to.  This block then actually adds rooms to the remaining tiles.
-                    if (mDragType == addNewRoom && !affectedTiles.empty())
+                    if (mc->mDragType == addNewRoom && !affectedTiles.empty())
                     {
-                        Room* newRoom = Room::buildRoom(gameMap, gameMap->getLocalPlayer()->getNewRoomType(),
-                                                        affectedTiles, gameMap->getLocalPlayer(), !isInGame());
+                        Room* newRoom = Room::buildRoom(mc->gameMap, mc->gameMap->getLocalPlayer()->getNewRoomType(),
+                                                        affectedTiles, mc->gameMap->getLocalPlayer(), !isInGame());
 
                         if (newRoom == NULL)
                         {
@@ -820,10 +820,10 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                     // If we are adding new traps the above loop will have pruned out the tiles not eligible
                     // for adding traps to.  This block then actually adds traps to the remaining tiles.
                     else
-                        if (mDragType == addNewTrap && !affectedTiles.empty())
+                        if (mc->mDragType == addNewTrap && !affectedTiles.empty())
                         {
-                            Trap* newTrap = Trap::buildTrap(gameMap, gameMap->getLocalPlayer()->getNewTrapType(),
-                                                            affectedTiles, gameMap->getLocalPlayer(), !isInGame());
+                            Trap* newTrap = Trap::buildTrap(mc->gameMap, mc->gameMap->getLocalPlayer()->getNewTrapType(),
+                                                            affectedTiles, mc->gameMap->getLocalPlayer(), !isInGame());
 
                             if (newTrap == NULL)
                             {
@@ -833,7 +833,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                         }
 
                     // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
-                    std::vector<Tile*> borderTiles = gameMap->tilesBorderedByRegion(
+                    std::vector<Tile*> borderTiles = mc->gameMap->tilesBorderedByRegion(
                                                          affectedTiles);
 
                     affectedTiles.insert(affectedTiles.end(), borderTiles.begin(),
@@ -850,13 +850,13 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                     }
                 }
 
-        mLMouseDown = false;
+        mc->mLMouseDown = false;
     }
 
     // Right mouse button up
     if (id == OIS::MB_Right)
     {
-        mRMouseDown = false;
+        mc->mRMouseDown = false;
     }
 
     return true;
@@ -868,7 +868,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
 bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 {
     //TODO: do this (and the others isInGame() in here) by GameState
-    if (frameListener->isTerminalActive())
+    if (mc->frameListener->isTerminalActive())
     {
         Console::getSingleton().onKeyPressed(arg);
     }
@@ -887,15 +887,15 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
             case OIS::KC_GRAVE:
 
             case OIS::KC_F12:
-                frameListener->setTerminalActive(true);
+                mc->frameListener->setTerminalActive(true);
                 Console::getSingleton().setVisible(true);
-                mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
+                mc->mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
                 break;
 
             case OIS::KC_LEFT:
 
             case OIS::KC_A:
-                directionKeyPressed = true;
+                mc->directionKeyPressed = true;
 
                 camMgr.move(camMgr.moveLeft); // Move left
                 break;
@@ -903,7 +903,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
             case OIS::KC_RIGHT:
 
             case OIS::KC_D:
-                directionKeyPressed = true;
+                mc->directionKeyPressed = true;
                 camMgr.move(camMgr.moveRight); // Move right
                 break;
 
@@ -911,7 +911,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
             case OIS::KC_W:
 
-                directionKeyPressed = true;
+                mc->directionKeyPressed = true;
                 camMgr.move(camMgr.moveForward); // Move forward
                 break;
 
@@ -919,7 +919,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
             case OIS::KC_S:
 
-                directionKeyPressed = true;
+                mc->directionKeyPressed = true;
                 camMgr.move(camMgr.moveBackward); // Move backward
                 break;
 
@@ -951,16 +951,16 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
                 camMgr.move(camMgr.rotateRight); // Turn right
                 break;
 
-                //Toggle mCurrentTileType
+                //Toggle mc->mCurrentTileType
 
             case OIS::KC_R:
 
                 if (!isInGame())
                 {
-                    mCurrentTileType = Tile::nextTileType((Tile::TileType)mCurrentTileType);
+                    mc->mCurrentTileType = Tile::nextTileType((Tile::TileType)mc->mCurrentTileType);
                     std::stringstream tempSS("");
                     tempSS << "Tile type:  " << Tile::tileTypeToString(
-                        (Tile::TileType)mCurrentTileType);
+                        (Tile::TileType)mc->mCurrentTileType);
                     ODApplication::MOTD = tempSS.str();
                 }
 
@@ -972,14 +972,14 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
                 if (!isInGame())
                 {
-                    if (mCurrentTileRadius > 1)
+                    if (mc->mCurrentTileRadius > 1)
                     {
-                        --mCurrentTileRadius;
+                        --mc->mCurrentTileRadius;
                     }
 
                     ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
 
-                                              mCurrentTileRadius);
+                                              mc->mCurrentTileRadius);
                 }
 
                 break;
@@ -990,46 +990,46 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
                 if (!isInGame())
                 {
-                    if (mCurrentTileRadius < 10)
+                    if (mc->mCurrentTileRadius < 10)
                     {
-                        ++mCurrentTileRadius;
+                        ++mc->mCurrentTileRadius;
                     }
 
                     ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
 
-                                              mCurrentTileRadius);
+                                              mc->mCurrentTileRadius);
                 }
 
                 break;
 
-                //Toggle mBrushMode
+                //Toggle mc->mBrushMode
 
             case OIS::KC_B:
 
                 if (!isInGame())
                 {
-                    mBrushMode = !mBrushMode;
-                    ODApplication::MOTD = (mBrushMode)
+                    mc->mBrushMode = !mc->mBrushMode;
+                    ODApplication::MOTD = (mc->mBrushMode)
                                           ? "Brush mode turned on"
                                           : "Brush mode turned off";
                 }
 
                 break;
 
-                //Toggle mCurrentFullness
+                //Toggle mc->mCurrentFullness
 
             case OIS::KC_T:
                 // If we are not in a game.
 
                 if (!isInGame())
                 {
-                    mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
+                    mc->mCurrentFullness = Tile::nextTileFullness(mc->mCurrentFullness);
                     ODApplication::MOTD = "Tile fullness:  " + Ogre::StringConverter::toString(
-                                              mCurrentFullness);
+                                              mc->mCurrentFullness);
                 }
                 else // If we are in a game.
                 {
-                    Seat* tempSeat = gameMap->getLocalPlayer()->getSeat();
+                    Seat* tempSeat = mc->gameMap->getLocalPlayer()->getSeat();
                     CameraManager::getSingleton().flyTo(Ogre::Vector3(
                                                             tempSeat->startingX, tempSeat->startingY, 0.0));
                 }
@@ -1039,8 +1039,8 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
                 // Quit the game
 
             case OIS::KC_ESCAPE:
-                //MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *gameMap);
-                //frameListener->requestExit();
+                //MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *mc->gameMap);
+                //mc->frameListener->requestExit();
                 Gui::getSingletonPtr()->switchGuiMode();
                 break;
 
@@ -1088,7 +1088,7 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 {
     CEGUI::System::getSingleton().injectKeyUp(arg.key);
 
-    if (!frameListener->isTerminalActive())
+    if (!mc->frameListener->isTerminalActive())
     {
         CameraManager& camMgr = CameraManager::getSingleton();
 
@@ -1098,28 +1098,28 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
             case OIS::KC_LEFT:
 
             case OIS::KC_A:
-                directionKeyPressed = false;
+                mc->directionKeyPressed = false;
                 camMgr.move(camMgr.stopLeft);
                 break;
 
             case OIS::KC_RIGHT:
 
             case OIS::KC_D:
-                directionKeyPressed = false;
+                mc->directionKeyPressed = false;
                 camMgr.move(camMgr.stopRight);
                 break;
 
             case OIS::KC_UP:
 
             case OIS::KC_W:
-                directionKeyPressed = false;
+                mc->directionKeyPressed = false;
                 camMgr.move(camMgr.stopForward);
                 break;
 
             case OIS::KC_DOWN:
 
             case OIS::KC_S:
-                directionKeyPressed = false;
+                mc->directionKeyPressed = false;
                 camMgr.move(camMgr.stopBackward);
                 break;
 
@@ -1170,16 +1170,16 @@ void GameMode::handleHotkeys(OIS::KeyCode keycode)
     //keycode minus two because the codes are shifted by two against the actual number
     unsigned int keynumber = keycode - 2;
 
-    if (mKeyboard->isModifierDown(OIS::Keyboard::Shift))
+    if (mc->mKeyboard->isModifierDown(OIS::Keyboard::Shift))
     {
-        hotkeyLocationIsValid[keynumber] = true;
-        hotkeyLocation[keynumber] = CameraManager::getSingleton().getCameraViewTarget();
+        mc->hotkeyLocationIsValid[keynumber] = true;
+        mc->hotkeyLocation[keynumber] = CameraManager::getSingleton().getCameraViewTarget();
     }
     else
     {
-        if (hotkeyLocationIsValid[keynumber])
+        if (mc->hotkeyLocationIsValid[keynumber])
         {
-            CameraManager::getSingleton().flyTo(hotkeyLocation[keynumber]);
+            CameraManager::getSingleton().flyTo(mc->hotkeyLocation[keynumber]);
         }
     }
 }
