@@ -227,82 +227,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
             }
         }
 
-        // If we are drawing with the brush in the map editor.
-        if (mc->mLMouseDown && mc->mDragType == tileBrushSelection && !isInGame())
-        {
-            // Loop over the square region surrounding current mouse location and either set the tile type of the affected tiles or create new ones.
-            Tile *currentTile;
-            std::vector<Tile*> affectedTiles;
-            int radiusSquared = mc->mCurrentTileRadius * mc->mCurrentTileRadius;
 
-            for (int i = -1 * (mc->mCurrentTileRadius - 1); i <= (mc->mCurrentTileRadius
-                    - 1); ++i)
-            {
-                for (int j = -1 * (mc->mCurrentTileRadius - 1); j
-                        <= (mc->mCurrentTileRadius - 1); ++j)
-                {
-                    // Check to see if the current location falls inside a circle with a radius of mc->mCurrentTileRadius.
-                    int distSquared = i * i + j * j;
-
-                    if (distSquared > radiusSquared)
-                        continue;
-
-                    currentTile = mc->gameMap->getTile(mc->xPos + i, mc->yPos + j);
-
-                    // Check to see if the current tile already exists.
-                    if (currentTile != NULL)
-                    {
-                        // It does exist so set its type and fullness.
-                        affectedTiles.push_back(currentTile);
-                        currentTile->setType((Tile::TileType)mc->mCurrentTileType);
-                        currentTile->setFullness((Tile::TileType)mc->mCurrentFullness);
-                    }
-                    else
-                    {
-                        // The current tile does not exist so we need to create it.
-                        //currentTile = new Tile;
-			stringstream ss;
-
-			ss.str(std::string());
-			ss << "Level";
-			ss << "_";
-			ss << mc->xPos + 1;
-			ss << "_";
-			ss << mc->yPos + 1;
-
-
-                        currentTile = new Tile(mc->xPos + i, mc->yPos + j,
-                                               (Tile::TileType)mc->mCurrentTileType, (Tile::TileType)mc->mCurrentFullness);
-                        currentTile->setName(ss.str());
-                        mc->gameMap->addTile(currentTile);
-                        currentTile->createMesh();
-                    }
-                }
-            }
-
-            // Add any tiles which border the affected region to the affected tiles list
-            // as they may alo want to switch meshes to optimize polycount now too.
-            std::vector<Tile*> borderingTiles = mc->gameMap->tilesBorderedByRegion(
-                                                    affectedTiles);
-
-            affectedTiles.insert(affectedTiles.end(), borderingTiles.begin(),
-                                 borderingTiles.end());
-
-            // Loop over all the affected tiles and force them to examine their
-            // neighbors.  This allows them to switch to a mesh with fewer
-            // polygons if some are hidden by the neighbors.
-            for (unsigned int i = 0; i < affectedTiles.size(); ++i)
-                affectedTiles[i]->setFullness(affectedTiles[i]->getFullness());
-        }
-
-        // If we are dragging a map light we need to update its position to the current x-y location.
-        if (mc->mLMouseDown && mc->mDragType == mapLight && !isInGame())
-        {
-            MapLight* tempMapLight = mc->gameMap->getMapLight(mc->draggedMapLight);
-
-            if (tempMapLight != NULL)
-                tempMapLight->setPosition(mc->xPos, mc->yPos, tempMapLight->getPosition().z);
-        }
 
         if (arg.state.Z.rel > 0)
         {
@@ -486,35 +411,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
             ++itr;
         }
 
-        // If no creatures are under the  mouse run through the list again to check for lights
-        if (!isInGame())
-        {
-            //FIXME: These other code blocks that loop over the result list should probably use this same loop structure.
-            itr = result.begin();
 
-            while (itr != result.end())
-            {
-                if (itr->movable != NULL)
-                {
-                    resultName = itr->movable->getName();
-
-                    if (resultName.find("MapLightIndicator_") != std::string::npos)
-                    {
-                        mc->mDragType = mapLight;
-                        mc->draggedMapLight = resultName.substr(
-                                              ((std::string) "MapLightIndicator_").size(),
-                                              resultName.size());
-
-                        SoundEffectsHelper::getSingleton().playInterfaceSound(
-                            SoundEffectsHelper::PICKUP);
-
-                        return true;
-                    }
-                }
-
-                ++itr;
-            }
-        }
 
         // If no creatures or lights are under the  mouse run through the list again to check for tiles
         itr = result.begin();
@@ -530,10 +427,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 
                     // If we are in the map editor, use a brush selection if it has been activated.
 
-                    if (!isInGame() && mc->mBrushMode)
-                    {
-                        mc->mDragType = tileBrushSelection;
-                    }
 
                     // If we have selected a room type to add to the map, use a addNewRoom drag type.
                     if (mc->gameMap->getLocalPlayer()->getNewRoomType() != Room::nullRoomType)
@@ -671,30 +564,14 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
         // Check to see if we are moving a creature
         else if (mc->mDragType == creature)
         {
-            if (!isInGame())
-            {
-                Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-                Ogre::SceneNode *node = mSceneMgr->getSceneNode(mc->draggedCreature + "_node");
-                mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
-                ODFrameListener::getSingleton().getCreatureSceneNode()->addChild(node);
-                mc->mDragType = nullDragType;
-                mc->gameMap->getCreature(mc->draggedCreature)->setPosition(Ogre::Vector3(mc->xPos, mc->yPos, 0));
-            }
+
         }
 
         // Check to see if we are dragging a map light.
         else
             if (mc->mDragType == mapLight)
             {
-                if (!isInGame())
-                {
-                    MapLight *tempMapLight = mc->gameMap->getMapLight(mc->draggedMapLight);
 
-                    if (tempMapLight != NULL)
-                    {
-                        tempMapLight->setPosition(mc->xPos, mc->yPos, tempMapLight->getPosition().z);
-                    }
-                }
             }
 
         // Check to see if we are dragging out a selection of tiles or creating a new room
@@ -955,14 +832,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
             case OIS::KC_R:
 
-                if (!isInGame())
-                {
-                    mc->mCurrentTileType = Tile::nextTileType((Tile::TileType)mc->mCurrentTileType);
-                    std::stringstream tempSS("");
-                    tempSS << "Tile type:  " << Tile::tileTypeToString(
-                        (Tile::TileType)mc->mCurrentTileType);
-                    ODApplication::MOTD = tempSS.str();
-                }
+
 
                 break;
 
@@ -970,17 +840,6 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
             case OIS::KC_COMMA:
 
-                if (!isInGame())
-                {
-                    if (mc->mCurrentTileRadius > 1)
-                    {
-                        --mc->mCurrentTileRadius;
-                    }
-
-                    ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
-
-                                              mc->mCurrentTileRadius);
-                }
 
                 break;
 
@@ -988,17 +847,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
             case OIS::KC_PERIOD:
 
-                if (!isInGame())
-                {
-                    if (mc->mCurrentTileRadius < 10)
-                    {
-                        ++mc->mCurrentTileRadius;
-                    }
 
-                    ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
-
-                                              mc->mCurrentTileRadius);
-                }
 
                 break;
 
@@ -1006,13 +855,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
             case OIS::KC_B:
 
-                if (!isInGame())
-                {
-                    mc->mBrushMode = !mc->mBrushMode;
-                    ODApplication::MOTD = (mc->mBrushMode)
-                                          ? "Brush mode turned on"
-                                          : "Brush mode turned off";
-                }
+
 
                 break;
 
@@ -1021,13 +864,8 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
             case OIS::KC_T:
                 // If we are not in a game.
 
-                if (!isInGame())
-                {
-                    mc->mCurrentFullness = Tile::nextTileFullness(mc->mCurrentFullness);
-                    ODApplication::MOTD = "Tile fullness:  " + Ogre::StringConverter::toString(
-                                              mc->mCurrentFullness);
-                }
-                else // If we are in a game.
+
+                if(isInGame()) // If we are in a game.
                 {
                     Seat* tempSeat = mc->gameMap->getLocalPlayer()->getSeat();
                     CameraManager::getSingleton().flyTo(Ogre::Vector3(

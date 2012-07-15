@@ -914,12 +914,7 @@ bool EditorMode::keyPressed     (const OIS::KeyEvent &arg){
                     ODApplication::MOTD = "Tile fullness:  " + Ogre::StringConverter::toString(
                                               mc->mCurrentFullness);
                 }
-                else // If we are in a game.
-                {
-                    Seat* tempSeat = mc->gameMap->getLocalPlayer()->getSeat();
-                    CameraManager::getSingleton().flyTo(Ogre::Vector3(
-                                                            tempSeat->startingX, tempSeat->startingY, 0.0));
-                }
+
 
                 break;
 
