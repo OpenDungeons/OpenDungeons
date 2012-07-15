@@ -395,7 +395,7 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];
     }
 
-    context->Prepare(builder->GetModule()->GetFunctionIdByDecl(
+    context->Prepare(builder->GetModule()->GetFunctionByDecl(
             "void executeConsoleCommand(string &in, string[] &in)"));
     context->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
     context->SetArgObject(1, arguments);
