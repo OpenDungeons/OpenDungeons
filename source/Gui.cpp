@@ -226,6 +226,7 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 {
     Gui::getSingletonPtr()->loadGuiSheet(ingameMenu);
+    modeManager->progressMode(ModeManager::EDITOR);
     return true;
 }
 

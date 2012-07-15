@@ -100,6 +100,7 @@ set(OD_SOURCEFILES
     ${SRC}/CreatureSound.cpp
     ${SRC}/DirectionalTrap.cpp
     ${SRC}/Director.cpp
+    ${SRC}/EditorMode.cpp
     ${SRC}/Field.cpp
     ${SRC}/Functions.cpp
     #${SRC}/GameContext.cpp

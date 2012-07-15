@@ -2,6 +2,7 @@
 #include "ModeContext.h"
 #include "MenuMode.h"
 #include "GameMode.h"
+#include "EditorMode.h"
 
 ModeManager::ModeManager(GameMap* gameMap,MiniMap* miniMap){
     
@@ -9,7 +10,7 @@ ModeManager::ModeManager(GameMap* gameMap,MiniMap* miniMap){
     mc = new ModeContext(gameMap,miniMap);
     modesArray[0]= new MenuMode(mc);
     modesArray[1]= new GameMode(mc);
-    modesArray[2]= new GameMode(mc);
+    modesArray[2]= new EditorMode(mc);
     modesStack.push(MENU);
     modesArray[modesStack.top()]->giveFocus();
 }
