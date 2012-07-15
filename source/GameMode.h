@@ -28,7 +28,7 @@ class  GameMode: public AbstractApplicationMode  {
     virtual bool keyReleased    (const OIS::KeyEvent &arg);
     virtual void handleHotkeys  (OIS::KeyCode keycode);
     virtual bool isInGame();
-    
+    virtual void giveFocus();
 
 };
 

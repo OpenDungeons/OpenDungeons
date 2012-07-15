@@ -21,7 +21,7 @@ ModeManager::~ModeManager(){
     delete modesArray[0];
     delete modesArray[1];
     delete modesArray[2];
-
+    delete mc;
 }
 
 

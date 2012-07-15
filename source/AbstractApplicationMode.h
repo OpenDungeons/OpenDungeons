@@ -43,7 +43,8 @@ class AbstractApplicationMode :
 	    rotateAxisY,
             nullDragType
         };
-
+	
+	virtual void giveFocus()=0 ; 
         virtual bool isInGame()=0  ;
 	
 

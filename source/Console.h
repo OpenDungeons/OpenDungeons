@@ -21,6 +21,8 @@
 #include "Gui.h"
 
 using std::string;
+class ModeManager;
+
 
 class Console :
         public Ogre::Singleton<Console>,
@@ -31,10 +33,7 @@ class Console :
         Console();
         ~Console();
 
-	void setCurrentMode(AbstractApplicationMode* gm ){
-	    gameMode = gm;
-	    }
-    
+	void  setModeManager(ModeManager* mm){modeManager = mm;};
 
         inline const bool& isVisible() const{return visible;}
         void setVisible(const bool newState);
@@ -74,7 +73,8 @@ class Console :
 
 
         //state variables
-	AbstractApplicationMode*       gameMode;
+
+	ModeManager*    modeManager;
 	ODFrameListener* odf;
         unsigned int    consoleLineLength;
         unsigned int    consoleLineCount;

@@ -25,7 +25,7 @@
 #include "RenderManager.h"
 #include "ResourceManager.h"
 #include "AllGoals.h"
-
+#include "ModeManager.h"
 
 template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
 using std::min;
@@ -123,7 +123,7 @@ void Console::onKeyPressed(const OIS::KeyEvent& arg)
         case OIS::KC_F12:
             Console::getSingleton().setVisible(false);
             ODFrameListener::getSingleton().setTerminalActive(false);
-            gameMode->getKeyboard()->setTextTranslation(OIS::Keyboard::Off);
+            modeManager->getCurrentMode()->getKeyboard()->setTextTranslation(OIS::Keyboard::Off);
             break;
 
         case OIS::KC_RETURN:

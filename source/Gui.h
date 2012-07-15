@@ -16,6 +16,9 @@
 #include <OIS.h>
 #include <OgreSingleton.h>
 
+
+
+class ModeManager;
 class GameMap;
 
 /*! \brief This class holds all GUI related functions
@@ -33,7 +36,8 @@ class Gui : public Ogre::Singleton<Gui>
 
         Gui();
         ~Gui();
-
+	
+	static void         setModeManager(ModeManager* mm){modeManager = mm;};
         void                loadGuiSheet    (const guiSheet& newSheet);
         CEGUI::MouseButton  convertButton   (const OIS::MouseButtonID& buttonID);
         void                setVisible      (bool visible);
@@ -68,6 +72,8 @@ class Gui : public Ogre::Singleton<Gui>
         static const std::string MM_BUTTON_QUIT;
 
     private:
+        static ModeManager* modeManager;
+
         Gui(const Gui&);
 
         void assignEventHandlers();
@@ -93,5 +99,8 @@ class Gui : public Ogre::Singleton<Gui>
         static bool mMOptionsButtonPressed  (const CEGUI::EventArgs& e);
         static bool mMQuitButtonPressed     (const CEGUI::EventArgs& e);
 };
+
+
+
 
 #endif /* GUI_H_ */

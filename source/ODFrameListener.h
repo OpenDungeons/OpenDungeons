@@ -18,8 +18,7 @@
 #include <OgreSceneQuery.h>
 #include <OgreTimer.h>
 #include <CEGUIEventArgs.h>
-#include "GameMode.h"
-#include "AbstractApplicationMode.h"
+
 
 
 //Use this define to signify OIS will be used as a DLL
@@ -32,6 +31,8 @@
 class Socket;
 class RenderManager;
 class AbstractApplicationMode;
+class ModeManager;
+class GameMode;
 class CameraManager;
 class SoundEffectsHelper;
 class ChatMessage;
@@ -114,7 +115,7 @@ friend class Console;
         Ogre::RaySceneQuery*    mRaySceneQuery;
         RenderManager*          renderManager;
         CameraManager*          cameraManager;
-        AbstractApplicationMode*  inputManager;
+        ModeManager*            inputManager;
         SoundEffectsHelper*     sfxHelper;
         bool                    mContinue;
         bool                    terminalActive;

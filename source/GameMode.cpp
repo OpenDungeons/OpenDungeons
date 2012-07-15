@@ -1195,3 +1195,11 @@ bool GameMode::isInGame()
     //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
 }
 
+
+void GameMode::giveFocus(){
+
+    mc->mMouse->setEventCallback(this);
+    mc->mKeyboard->setEventCallback(this);
+}
+
+

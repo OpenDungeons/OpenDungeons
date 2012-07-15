@@ -119,9 +119,11 @@ set(OD_SOURCEFILES
     ${SRC}/main.cpp
     ${SRC}/MapLight.cpp
     ${SRC}/MapLoader.cpp
+    ${SRC}/MenuMode.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
     ${SRC}/ModeContext.cpp
+    ${SRC}/ModeManager.cpp
     ${SRC}/MovableGameEntity.cpp
     ${SRC}/MusicPlayer.cpp
     ${SRC}/NullAI.cpp

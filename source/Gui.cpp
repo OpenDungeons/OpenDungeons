@@ -22,6 +22,8 @@
 #include "CameraManager.h"
 #include "MiniMap.h"
 #include "Gui.h"
+#include "ModeManager.h"
+
 
 template<> Gui* Ogre::Singleton<Gui>::ms_Singleton = 0;
 
@@ -216,6 +218,8 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     Gui::getSingletonPtr()->loadGuiSheet(ingameMenu);
+    modeManager->progressMode(ModeManager::GAME);
+
     return startServer(*gameMap);
 }
 
@@ -310,3 +314,6 @@ const std::string Gui::MM_WELCOME_MESSAGE = "MainMenu/WelcomeMessage";
 const std::string Gui::MM_BUTTON_START_NEW_GAME = "MainMenu/StartNewGameButton";
 const std::string Gui::MM_BUTTON_MAPEDITOR = "MainMenu/MapEditorButton";
 const std::string Gui::MM_BUTTON_QUIT = "MainMenu/QuitButton";
+
+
+ModeManager* Gui::modeManager = NULL;

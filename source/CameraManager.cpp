@@ -12,7 +12,9 @@
 #include "SoundEffectsHelper.h"
 #include "InputManager.h"
 #include "CameraManager.h"
+#include "ModeManager.h"
 #include <OGRE/OgreSceneNode.h>
+
 
 
 using namespace std;
@@ -168,8 +170,8 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     
     updateCameraView();
     gameMap->getMiniMap()->setCamera_2dPosition(getCameraViewTarget());
-    gameMode->mouseMoved(
-        OIS::MouseEvent(0 ,gameMode->getMouse()->getMouseState()));
+    modeManager->getCurrentMode()->mouseMoved(
+        OIS::MouseEvent(0 ,modeManager->getCurrentMode()->getMouse()->getMouseState()));
 
     //std::cerr << " x:" << mCamNode->getPosition().x << " y " << mCamNode->getPosition().y <<" z" << mCamNode->getPosition().z << std::endl;
 }

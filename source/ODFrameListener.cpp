@@ -40,6 +40,7 @@
 #include "ModeContext.h"
 
 // #include "InputManager.h"
+#include "ModeManager.h"
 #include "CameraManager.h"
 #include "MapLoader.h"
 #include "Seat.h"
@@ -126,11 +127,11 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
 
-    ModeContext *mc = new ModeContext(gameMap,miniMap);
-    inputManager = new GameMode(mc);
-    
-    cm->setCurrentMode(inputManager);
-    Console::getSingletonPtr()->setCurrentMode(inputManager);
+
+    inputManager = new ModeManager(gameMap,miniMap);
+    cm->setModeManager(inputManager);
+    Console::getSingletonPtr()->setModeManager(inputManager);
+    Gui::getSingletonPtr()->setModeManager(inputManager);    
     //Set initial mouse clipping size
     windowResized(mWindow);
 
@@ -181,7 +182,7 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = inputManager->getMouse()->getMouseState();
+    const OIS::MouseState &ms = inputManager->getCurrentMode()->getMouse()->getMouseState();
     ms.width = width;
     ms.height = height;
 
@@ -579,8 +580,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     gameMap->threadUnlockForTurn(currentTurnNumber);
 
     //Need to capture/update each device
-    inputManager->getKeyboard()->capture();
-    inputManager->getMouse()->capture();
+    inputManager->getCurrentMode()->getKeyboard()->capture();
+    inputManager->getCurrentMode()->getMouse()->capture();
 
     CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
 
