@@ -44,10 +44,12 @@ AbstractApplicationMode* ModeManager::progressMode(ModeType mm){
 
 
 AbstractApplicationMode* ModeManager::regressMode(){
-    modesStack.pop();
-    modesArray[modesStack.top()]->giveFocus();
-    return modesArray[modesStack.top()];
-
-
+    if( modesStack.size() > 1){
+	modesStack.pop();
+	modesArray[modesStack.top()]->giveFocus();
+	return modesArray[modesStack.top()];
+    }
+    else 
+	return modesArray[modesStack.top()]; 
 }
 
