@@ -10,7 +10,7 @@ class AbstractApplicationMode;
 class ModeContext;
 class GameMap;
 class MiniMap;
-
+class Console;
 
 class ModeManager
 {
@@ -22,26 +22,30 @@ public:
 enum ModeType {
     MENU,
     GAME,
-    EDITOR
+    EDITOR,
+    CONSOLE,
+    PREV
     };
 
 
 
-ModeManager(GameMap* ,MiniMap* );
+ModeManager(GameMap* ,MiniMap*, Console* cn );
 ~ModeManager();
+
 AbstractApplicationMode*  getCurrentMode();
 
 
 AbstractApplicationMode*  progressMode(ModeType);
 AbstractApplicationMode*  regressMode();
 
-
+int lookForNewMode();
 
 
 
 
 private:
-AbstractApplicationMode* modesArray[3];
+Console *cn;
+AbstractApplicationMode* modesArray[4];
 stack<ModeType> modesStack;
 ModeContext *mc;
 

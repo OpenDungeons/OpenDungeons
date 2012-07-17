@@ -29,6 +29,7 @@ class Console :
         public Ogre::FrameListener,
         public Ogre::LogListener
 {
+    friend class ConsoleMode;
     public:
         Console();
         ~Console();

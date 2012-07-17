@@ -2,7 +2,7 @@
 #include "Gui.h"
 #include "Socket.h"
 
-MenuMode::MenuMode(ModeContext *modeContext):mc(modeContext)
+MenuMode::MenuMode(ModeContext *modeContext):AbstractApplicationMode(modeContext)
 {
 
 
@@ -40,8 +40,14 @@ bool MenuMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id
 }
 bool MenuMode::keyPressed     (const OIS::KeyEvent &arg){
 
+    switch (arg.key)
+    {
 
-
+	case OIS::KC_ESCAPE:
+	    regressMode();
+            Gui::getSingletonPtr()->switchGuiMode();
+	    break;
+    }
 
 }
 bool MenuMode::keyReleased    (const OIS::KeyEvent &arg){

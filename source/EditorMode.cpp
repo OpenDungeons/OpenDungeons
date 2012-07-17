@@ -28,7 +28,7 @@
 #include "EditorMode.h"
 
 
-EditorMode::EditorMode(ModeContext *modeContext):mc(modeContext)
+EditorMode::EditorMode(ModeContext *modeContext):AbstractApplicationMode(modeContext)
 {
 
 
@@ -49,7 +49,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
 
     if (mc->frameListener->isTerminalActive())
     {
-        Console::getSingleton().onMouseMoved(arg, mc->mKeyboard->isModifierDown(OIS::Keyboard::Ctrl));
+
     }
     else
     {
@@ -757,7 +757,7 @@ bool EditorMode::keyPressed     (const OIS::KeyEvent &arg){
    //TODO: do this (and the others isInGame() in here) by GameState
     if (mc->frameListener->isTerminalActive())
     {
-        Console::getSingleton().onKeyPressed(arg);
+
     }
     else
     {
@@ -774,6 +774,7 @@ bool EditorMode::keyPressed     (const OIS::KeyEvent &arg){
             case OIS::KC_GRAVE:
 
             case OIS::KC_F12:
+		progressMode(ModeManager::CONSOLE);
                 mc->frameListener->setTerminalActive(true);
                 Console::getSingleton().setVisible(true);
                 mc->mKeyboard->setTextTranslation(OIS::Keyboard::Ascii);
@@ -923,6 +924,7 @@ bool EditorMode::keyPressed     (const OIS::KeyEvent &arg){
             case OIS::KC_ESCAPE:
                 //MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *mc->gameMap);
                 //mc->frameListener->requestExit();
+		progressMode(ModeManager::MENU);
                 Gui::getSingletonPtr()->switchGuiMode();
                 break;
 

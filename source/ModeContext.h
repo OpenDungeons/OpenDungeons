@@ -4,7 +4,7 @@
 #include <Ogre.h>
 #include <OIS.h>
 #include <string>
-
+#include "ModeManager.h"
 
 class GameMap;
 class MiniMap;
@@ -38,6 +38,8 @@ struct ModeContext{
     bool                mBrushMode;
     bool                digSetBool;
     bool                directionKeyPressed;
+    ModeManager::ModeType            nextMode;
+    bool                changed;
     int                 mCurrentFullness, mCurrentTileRadius;
     int                 xPos, yPos;
     int                 mLStartDragX, mLStartDragY;
