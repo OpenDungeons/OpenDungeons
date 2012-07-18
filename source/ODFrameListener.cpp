@@ -128,7 +128,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
 
 
 
-    inputManager = new ModeManager(gameMap,miniMap);
+    inputManager = new ModeManager(gameMap,miniMap,Console::getSingletonPtr());
     cm->setModeManager(inputManager);
     Console::getSingletonPtr()->setModeManager(inputManager);
     Gui::getSingletonPtr()->setModeManager(inputManager);    
@@ -314,10 +314,10 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     //NOTE:  If this function exits early the corresponding unlock function must be called.
     long int currentTurnNumber = GameMap::turnNumber.get();
-    if(!(rand()%10)){
-     miniMap->draw();
-     miniMap->swap();
-    }
+    miniMap->draw();
+    miniMap->swap();
+
+  
     gameMap->threadLockForTurn(currentTurnNumber);
 
     MusicPlayer::getSingletonPtr()->update();
@@ -580,6 +580,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     gameMap->threadUnlockForTurn(currentTurnNumber);
 
     //Need to capture/update each device
+    inputManager->lookForNewMode();
     inputManager->getCurrentMode()->getKeyboard()->capture();
     inputManager->getCurrentMode()->getMouse()->capture();
 
@@ -610,6 +611,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
+
+
+    
     return true;
 }
 

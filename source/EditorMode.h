@@ -12,7 +12,6 @@ class  EditorMode: public AbstractApplicationMode  {
 
  public:
  
-    ModeContext *mc;
 
     EditorMode(ModeContext*);
 

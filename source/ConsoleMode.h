@@ -1,5 +1,5 @@
-#ifndef MENUMODE_H
-#define MENUMODE_H
+#ifndef CONSOLEMODE_H
+#define CONSOLEMODE_H
 
 
 #include "AbstractApplicationMode.h"
@@ -7,15 +7,15 @@
 
 class ModeContext;
 
-class  MenuMode: public AbstractApplicationMode  {
+class  ConsoleMode: public AbstractApplicationMode  {
 
 
  public:
  
 
-    MenuMode(ModeContext*);
+    ConsoleMode(ModeContext*, Console* );
 
-    virtual ~MenuMode();
+    virtual ~ConsoleMode();
 
     inline virtual OIS::Mouse*      getMouse()         {return mc->mMouse;}
     inline virtual OIS::Keyboard*   getKeyboard()      {return mc->mKeyboard;}
@@ -29,6 +29,18 @@ class  MenuMode: public AbstractApplicationMode  {
     virtual bool isInGame();
     virtual void giveFocus();
 
+  private:
+    Console* cn;
+
+
+
+
+
+
+
+
+
+
 };
 
-#endif // MENUMODE_H
+#endif // CONSOLEMODE_H

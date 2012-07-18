@@ -94,6 +94,7 @@ set(OD_SOURCEFILES
     ${SRC}/Client.cpp
     ${SRC}/ClientNotification.cpp
     ${SRC}/Console.cpp
+    ${SRC}/ConsoleMode.cpp
     ${SRC}/Creature.cpp
     ${SRC}/CreatureAction.cpp
     ${SRC}/CreatureDefinition.cpp

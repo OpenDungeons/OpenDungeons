@@ -12,7 +12,7 @@ class  GameMode: public AbstractApplicationMode  {
 
  public:
  
-    ModeContext *mc;
+
 
     GameMode(ModeContext*);
 

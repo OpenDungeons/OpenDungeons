@@ -3,14 +3,16 @@
 #include "MenuMode.h"
 #include "GameMode.h"
 #include "EditorMode.h"
+#include "ConsoleMode.h"
 
-ModeManager::ModeManager(GameMap* gameMap,MiniMap* miniMap){
+ModeManager::ModeManager(GameMap* gameMap,MiniMap* miniMap, Console* console){
     
 
     mc = new ModeContext(gameMap,miniMap);
     modesArray[0]= new MenuMode(mc);
     modesArray[1]= new GameMode(mc);
     modesArray[2]= new EditorMode(mc);
+    modesArray[3]= new ConsoleMode(mc,console);
     modesStack.push(MENU);
     modesArray[modesStack.top()]->giveFocus();
 }
@@ -22,6 +24,7 @@ ModeManager::~ModeManager(){
     delete modesArray[0];
     delete modesArray[1];
     delete modesArray[2];
+    delete modesArray[3];
     delete mc;
 }
 
@@ -33,7 +36,7 @@ AbstractApplicationMode* ModeManager::getCurrentMode(){
 
 }
 
-AbstractApplicationMode* ModeManager::progressMode(ModeType mm){
+AbstractApplicationMode* ModeManager:: progressMode(ModeType mm){
     modesStack.push(mm);
     modesArray[modesStack.top()]->giveFocus();
     return modesArray[modesStack.top()];
@@ -53,3 +56,19 @@ AbstractApplicationMode* ModeManager::regressMode(){
 	return modesArray[modesStack.top()]; 
 }
 
+int ModeManager::lookForNewMode(){
+
+    if(mc->changed){
+	mc->changed = false;
+
+
+	if(mc->nextMode == PREV)
+	    regressMode();
+	else
+	    progressMode(mc->nextMode);
+	return 1;
+    }
+    else
+	return 0; 
+
+}
