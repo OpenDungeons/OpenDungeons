@@ -23,7 +23,8 @@
 
 ModeContext::ModeContext(GameMap* gameMap,MiniMap * mm):   
         frameListener(ODFrameListener::getSingletonPtr()),
-        mLMouseDown(false),
+	changed(false),
+	mLMouseDown(false),
         mRMouseDown(false),
         mBrushMode(false),
         digSetBool(false),
