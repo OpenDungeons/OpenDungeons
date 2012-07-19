@@ -43,6 +43,8 @@ Gui::Gui() :
     sheets[hideGui] = 0;
     sheets[ingameMenu] = wmgr->loadWindowLayout("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadWindowLayout("OpenDungeonsMainMenu.layout");
+    sheets[editorMenu] =  wmgr->loadWindowLayout("OpenDungeonsEditorMenu.layout");; 
+
 
     mainMenuMode = false;
     assignEventHandlers();
@@ -225,7 +227,7 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 {
-    Gui::getSingletonPtr()->loadGuiSheet(ingameMenu);
+    Gui::getSingletonPtr()->loadGuiSheet(editorMenu);
     modeManager->progressMode(ModeManager::EDITOR);
     return true;
 }
@@ -277,6 +279,11 @@ void Gui::switchGuiMode()
     }
 
 }
+
+
+
+
+
 
 /*! \brief shows (true) or hides (false) the GUI
  *

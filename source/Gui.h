@@ -31,7 +31,8 @@ class Gui : public Ogre::Singleton<Gui>
             hideGui,
             mainMenu,
             optionsMenu,
-            ingameMenu
+            ingameMenu,
+	    editorMenu
         };
 
         Gui();
