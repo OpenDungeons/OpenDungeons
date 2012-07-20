@@ -28,7 +28,12 @@
 #include "EditorMode.h"
 
 
-EditorMode::EditorMode(ModeContext *modeContext):AbstractApplicationMode(modeContext)
+EditorMode::EditorMode(ModeContext *modeContext):AbstractApplicationMode(modeContext),        
+						 mCurrentTileType(Tile::dirt),
+						 mBrushMode(false),
+						 mCurrentFullness(100),
+						 mCurrentTileRadius(1)
+
 {
 
 
@@ -205,15 +210,15 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
             // Loop over the square region surrounding current mouse location and either set the tile type of the affected tiles or create new ones.
             Tile *currentTile;
             std::vector<Tile*> affectedTiles;
-            int radiusSquared = mc->mCurrentTileRadius * mc->mCurrentTileRadius;
+            int radiusSquared = mCurrentTileRadius * mCurrentTileRadius;
 
-            for (int i = -1 * (mc->mCurrentTileRadius - 1); i <= (mc->mCurrentTileRadius
+            for (int i = -1 * (mCurrentTileRadius - 1); i <= (mCurrentTileRadius
                     - 1); ++i)
             {
-                for (int j = -1 * (mc->mCurrentTileRadius - 1); j
-                        <= (mc->mCurrentTileRadius - 1); ++j)
+                for (int j = -1 * (mCurrentTileRadius - 1); j
+                        <= (mCurrentTileRadius - 1); ++j)
                 {
-                    // Check to see if the current location falls inside a circle with a radius of mc->mCurrentTileRadius.
+                    // Check to see if the current location falls inside a circle with a radius of mCurrentTileRadius.
                     int distSquared = i * i + j * j;
 
                     if (distSquared > radiusSquared)
@@ -226,8 +231,8 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
                     {
                         // It does exist so set its type and fullness.
                         affectedTiles.push_back(currentTile);
-                        currentTile->setType((Tile::TileType)mc->mCurrentTileType);
-                        currentTile->setFullness((Tile::TileType)mc->mCurrentFullness);
+                        currentTile->setType((Tile::TileType)mCurrentTileType);
+                        currentTile->setFullness((Tile::TileType)mCurrentFullness);
                     }
                     else
                     {
@@ -244,7 +249,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
 
 
                         currentTile = new Tile(mc->xPos + i, mc->yPos + j,
-                                               (Tile::TileType)mc->mCurrentTileType, (Tile::TileType)mc->mCurrentFullness);
+                                               (Tile::TileType)mCurrentTileType, (Tile::TileType)mCurrentFullness);
                         currentTile->setName(ss.str());
                         mc->gameMap->addTile(currentTile);
                         currentTile->createMesh();
@@ -270,7 +275,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
         // If we are dragging a map light we need to update its position to the current x-y location.
         if (mc->mLMouseDown && mc->mDragType == mapLight && !isInGame())
         {
-            MapLight* tempMapLight = mc->gameMap->getMapLight(mc->draggedMapLight);
+            MapLight* tempMapLight = mc->gameMap->getMapLight(draggedMapLight);
 
             if (tempMapLight != NULL)
                 tempMapLight->setPosition(mc->xPos, mc->yPos, tempMapLight->getPosition().z);
@@ -413,11 +418,11 @@ bool EditorMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID 
                         mSceneMgr->getEntity("SquareSelector")->setVisible(
                             false);
 
-                        mc->draggedCreature = resultName.substr(
+                        draggedCreature = resultName.substr(
                                               ((std::string) "Creature_").size(),
                                               resultName.size());
                         Ogre::SceneNode *node = mSceneMgr->getSceneNode(
-                                                    mc->draggedCreature + "_node");
+                                                    draggedCreature + "_node");
                         ODFrameListener::getSingleton().getCreatureSceneNode()->removeChild(node);
                         mSceneMgr->getSceneNode("Hand_node")->addChild(node);
                         node->setPosition(0, 0, 0);
@@ -450,7 +455,7 @@ bool EditorMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID 
                     if (resultName.find("MapLightIndicator_") != std::string::npos)
                     {
                         mc->mDragType = mapLight;
-                        mc->draggedMapLight = resultName.substr(
+                        draggedMapLight = resultName.substr(
                                               ((std::string) "MapLightIndicator_").size(),
                                               resultName.size());
 
@@ -479,7 +484,7 @@ bool EditorMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID 
 
                     // If we are in the map editor, use a brush selection if it has been activated.
 
-                    if (!isInGame() && mc->mBrushMode)
+                    if (!isInGame() && mBrushMode)
                     {
                         mc->mDragType = tileBrushSelection;
                     }
@@ -611,11 +616,11 @@ bool EditorMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID 
             if (!isInGame())
             {
                 Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-                Ogre::SceneNode *node = mSceneMgr->getSceneNode(mc->draggedCreature + "_node");
+                Ogre::SceneNode *node = mSceneMgr->getSceneNode(draggedCreature + "_node");
                 mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
                 ODFrameListener::getSingleton().getCreatureSceneNode()->addChild(node);
                 mc->mDragType = nullDragType;
-                mc->gameMap->getCreature(mc->draggedCreature)->setPosition(Ogre::Vector3(mc->xPos, mc->yPos, 0));
+                mc->gameMap->getCreature(draggedCreature)->setPosition(Ogre::Vector3(mc->xPos, mc->yPos, 0));
             }
         }
 
@@ -625,7 +630,7 @@ bool EditorMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID 
             {
                 if (!isInGame())
                 {
-                    MapLight *tempMapLight = mc->gameMap->getMapLight(mc->draggedMapLight);
+                    MapLight *tempMapLight = mc->gameMap->getMapLight(draggedMapLight);
 
                     if (tempMapLight != NULL)
                     {
@@ -662,8 +667,8 @@ bool EditorMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID 
                             if(!isInGame())
                             {
                                 // In the map editor:  Fill the current tile with the new value
-                                currentTile->setType((Tile::TileType)mc->mCurrentTileType);
-                                currentTile->setFullness((Tile::TileType)mc->mCurrentFullness);
+                                currentTile->setType((Tile::TileType)mCurrentTileType);
+                                currentTile->setFullness((Tile::TileType)mCurrentFullness);
                             }
                         }
                         else // if(mc->mDragType == ExampleFrameListener::addNewRoom || mc->mDragType == ExampleFrameListener::addNewTrap)
@@ -839,16 +844,16 @@ bool EditorMode::keyPressed     (const OIS::KeyEvent &arg){
                 camMgr.move(camMgr.rotateRight); // Turn right
                 break;
 
-                //Toggle mc->mCurrentTileType
+                //Toggle mCurrentTileType
 
             case OIS::KC_R:
 
                 if (!isInGame())
                 {
-                    mc->mCurrentTileType = Tile::nextTileType((Tile::TileType)mc->mCurrentTileType);
+                    mCurrentTileType = Tile::nextTileType((Tile::TileType)mCurrentTileType);
                     std::stringstream tempSS("");
                     tempSS << "Tile type:  " << Tile::tileTypeToString(
-                        (Tile::TileType)mc->mCurrentTileType);
+                        (Tile::TileType)mCurrentTileType);
                     ODApplication::MOTD = tempSS.str();
                 }
 
@@ -860,14 +865,14 @@ bool EditorMode::keyPressed     (const OIS::KeyEvent &arg){
 
                 if (!isInGame())
                 {
-                    if (mc->mCurrentTileRadius > 1)
+                    if (mCurrentTileRadius > 1)
                     {
-                        --mc->mCurrentTileRadius;
+                        --mCurrentTileRadius;
                     }
 
                     ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
 
-                                              mc->mCurrentTileRadius);
+                                              mCurrentTileRadius);
                 }
 
                 break;
@@ -878,42 +883,42 @@ bool EditorMode::keyPressed     (const OIS::KeyEvent &arg){
 
                 if (!isInGame())
                 {
-                    if (mc->mCurrentTileRadius < 10)
+                    if (mCurrentTileRadius < 10)
                     {
-                        ++mc->mCurrentTileRadius;
+                        ++mCurrentTileRadius;
                     }
 
                     ODApplication::MOTD = "Brush size:  " + Ogre::StringConverter::toString(
 
-                                              mc->mCurrentTileRadius);
+                                              mCurrentTileRadius);
                 }
 
                 break;
 
-                //Toggle mc->mBrushMode
+                //Toggle mBrushMode
 
             case OIS::KC_B:
 
                 if (!isInGame())
                 {
-                    mc->mBrushMode = !mc->mBrushMode;
-                    ODApplication::MOTD = (mc->mBrushMode)
+                    mBrushMode = !mBrushMode;
+                    ODApplication::MOTD = (mBrushMode)
                                           ? "Brush mode turned on"
                                           : "Brush mode turned off";
                 }
 
                 break;
 
-                //Toggle mc->mCurrentFullness
+                //Toggle mCurrentFullness
 
             case OIS::KC_T:
                 // If we are not in a game.
 
                 if (!isInGame())
                 {
-                    mc->mCurrentFullness = Tile::nextTileFullness(mc->mCurrentFullness);
+                    mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
                     ODApplication::MOTD = "Tile fullness:  " + Ogre::StringConverter::toString(
-                                              mc->mCurrentFullness);
+                                              mCurrentFullness);
                 }
 
 

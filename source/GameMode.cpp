@@ -40,7 +40,8 @@
 #include "GameMode.h"
 
 
-GameMode::GameMode(ModeContext *modeContext):AbstractApplicationMode(modeContext)
+GameMode::GameMode(ModeContext *modeContext):AbstractApplicationMode(modeContext),
+					     digSetBool(false)
 {
 
 
@@ -383,27 +384,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
                             LogManager::getSingleton().logMessage("Tried to pick up another players creature, or creature was 0");
                         }
                     }
-                    else // if in the Map Editor:  Begin dragging the creature
-                    {
-                        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-                        mSceneMgr->getEntity("SquareSelector")->setVisible(
-                            false);
-
-                        mc->draggedCreature = resultName.substr(
-                                              ((std::string) "Creature_").size(),
-                                              resultName.size());
-                        Ogre::SceneNode *node = mSceneMgr->getSceneNode(
-                                                    mc->draggedCreature + "_node");
-                        ODFrameListener::getSingleton().getCreatureSceneNode()->removeChild(node);
-                        mSceneMgr->getSceneNode("Hand_node")->addChild(node);
-                        node->setPosition(0, 0, 0);
-                        mc->mDragType = creature;
-
-                        SoundEffectsHelper::getSingleton().playInterfaceSound(
-                            SoundEffectsHelper::PICKUP);
-
-                        return true;
-                    }
                 }
 
             }
@@ -456,7 +436,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 
             if (tempTile != NULL)
             {
-                mc->digSetBool = !(tempTile->getMarkedForDigging(mc->gameMap->getLocalPlayer()));
+                digSetBool = !(tempTile->getMarkedForDigging(mc->gameMap->getLocalPlayer()));
             }
         }
     }
@@ -606,7 +586,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                                     if (Socket::serverSocket != NULL)
                                     {
                                         // On the server:  Just mark the tile for digging.
-                                        currentTile->setMarkedForDigging(mc->digSetBool,
+                                        currentTile->setMarkedForDigging(digSetBool,
                                                                          mc->gameMap->getLocalPlayer());
                                     }
                                     else
@@ -617,7 +597,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                                         clientNotification->type
                                         = ClientNotification::markTile;
                                         clientNotification->p = currentTile;
-                                        clientNotification->flag = mc->digSetBool;
+                                        clientNotification->flag = digSetBool;
 
                                         sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
                                         ClientNotification::clientNotificationQueue.push_back(
@@ -626,7 +606,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
 
                                         sem_post(&ClientNotification::clientNotificationQueueSemaphore);
 
-                                        currentTile->setMarkedForDigging(mc->digSetBool, mc->gameMap->getLocalPlayer());
+                                        currentTile->setMarkedForDigging(digSetBool, mc->gameMap->getLocalPlayer());
 
                                     }
 
@@ -634,12 +614,6 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
 
                                         SoundEffectsHelper::DIGSELECT, false);
                                 }
-                            }
-                            else
-                            {
-                                // In the map editor:  Fill the current tile with the new value
-                                currentTile->setType((Tile::TileType)mc->mCurrentTileType);
-                                currentTile->setFullness((Tile::TileType)mc->mCurrentFullness);
                             }
                         }
                         else // if(mc->mDragType == ExampleFrameListener::addNewRoom || mc->mDragType == ExampleFrameListener::addNewTrap)

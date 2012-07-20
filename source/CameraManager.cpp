@@ -10,7 +10,6 @@
 
 //TODO : CAMERA LOOSE ITS PROPER SENSE OF LEFT, RIGHT, TOP, DOWN WHEN YOU DO MORE THAN QUATER BAREEL VIA CAMERA ROTATE, AKA PTICH > 90 DEG 
 #include "SoundEffectsHelper.h"
-#include "InputManager.h"
 #include "CameraManager.h"
 #include "ModeManager.h"
 #include <OGRE/OgreSceneNode.h>

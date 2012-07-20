@@ -8,7 +8,13 @@
 class ModeContext;
 
 class  EditorMode: public AbstractApplicationMode  {
-
+    bool                changed;
+    int                 mCurrentFullness, mCurrentTileRadius;
+    bool                mBrushMode;
+    int                 mCurrentTileType;
+    int                 mDragType;
+    std::string         draggedCreature;
+    std::string         draggedMapLight;
 
  public:
  
@@ -19,6 +25,9 @@ class  EditorMode: public AbstractApplicationMode  {
 
     inline virtual OIS::Mouse*      getMouse()         {return mc->mMouse;}
     inline virtual OIS::Keyboard*   getKeyboard()      {return mc->mKeyboard;}
+
+
+
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);

@@ -8,6 +8,7 @@
 class ModeContext;
 
 class  GameMode: public AbstractApplicationMode  {
+    bool                digSetBool;
 
 
  public:
