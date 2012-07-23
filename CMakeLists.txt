@@ -94,6 +94,8 @@ set(OD_SOURCEFILES
     ${SRC}/Client.cpp
     ${SRC}/ClientNotification.cpp
     ${SRC}/Console.cpp
+    ${SRC}/Console_executePromptCommand.cpp
+    ${SRC}/Console_getHelp.cpp
     ${SRC}/ConsoleMode.cpp
     ${SRC}/Creature.cpp
     ${SRC}/CreatureAction.cpp
