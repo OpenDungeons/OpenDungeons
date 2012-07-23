@@ -38,6 +38,8 @@ class SoundEffectsHelper;
 class ChatMessage;
 class GameMap;
 class MiniMap;
+class GameContext;
+
 
 /*! \brief The main OGRE rendering class.
  *
@@ -56,6 +58,9 @@ friend class Console;
         // Constructor takes a RenderWindow because it uses that to determine input context
         ODFrameListener(Ogre::RenderWindow* win);
         virtual ~ODFrameListener();
+
+
+	void makeGameContext();
         void requestExit();
         bool getThreadStopRequested();
         void setThreadStopRequested(bool value);
@@ -133,6 +138,8 @@ friend class Console;
         GameMap*                gameMap;
 	MiniMap*                miniMap;
 
+
+	GameContext*   gc;
         std::vector<Ogre::ColourValue> playerColourValues;
 
         //To see if the frameListener wants to exit

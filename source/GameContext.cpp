@@ -1,3 +1,4 @@
+#include "ASWrapper.h"
 #include "ODApplication.h"
 #include "CameraManager.h"
 #include "LogManager.h"
@@ -6,14 +7,17 @@
 
 #include "GameContext.h"
 
-GameContext::GameContext(Ogre::RenderWindow* renderWindow)
-    : gameMap(new GameMap)
+GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputManager,GameMap *gm )
+    : gameMap(gm)
 {
+
+
     logManager = LogManager::getSingletonPtr();
-    renderManager = new RenderManager;
+    renderManager = RenderManager::getSingletonPtr();
     //gameMap = new GameMap;
-    renderManager->setGameMap(gameMap.get());
+    renderManager->setGameMap(gameMap);
     
+
     //NOTE This is moved here temporarily.
     try
     {
@@ -41,10 +45,36 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow)
         //return;
     }
     
-    cameraManager = new CameraManager(renderManager->getCamera());
+    cameraManager = new CameraManager(renderManager->getCamera(),gameMap);
+    cameraManager->setModeManager(inputManager);
     
     logManager->logMessage("Created camera manager");
+
+
+    new ASWrapper();
+
+    gameMap->createTilesMeshes();
+    gameMap->hideAllTiles();
 }
+
+
+void GameContext::onFrameStarted(){
+
+
+
+
+
+
+}
+
+
+
+
+
+
+
+void GameContext::onFrameEnded(){}
+
 
 GameContext::~GameContext()
 {

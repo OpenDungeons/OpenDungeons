@@ -221,7 +221,7 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     Gui::getSingletonPtr()->loadGuiSheet(ingameMenu);
     modeManager->progressMode(ModeManager::GAME);
-
+    ODFrameListener::getSingleton().makeGameContext();
     return startServer(*gameMap);
 }
 

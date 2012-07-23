@@ -140,7 +140,7 @@ ODApplication::ODApplication() :
     //FIXME: This should be at a better place (when level loads for the first time)
     // new MiniMap;
 
-    new ASWrapper();
+
 
     try
     {

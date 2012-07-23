@@ -110,6 +110,7 @@ set(OD_SOURCEFILES
     ${SRC}/GameEntity.cpp
     ${SRC}/GameMap.cpp
     ${SRC}/GameMode.cpp
+    ${SRC}/GameContext.cpp
     ${SRC}/GameStateManager.cpp
     ${SRC}/GoalClaimNTiles.cpp
     ${SRC}/Goal.cpp

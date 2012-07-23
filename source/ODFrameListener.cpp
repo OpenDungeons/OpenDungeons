@@ -38,6 +38,9 @@
 #include "GameStateManager.h"
 #include "LogManager.h"
 #include "ModeContext.h"
+#include "GameContext.h"
+
+
 
 // #include "InputManager.h"
 #include "ModeManager.h"
@@ -72,7 +75,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         chatMaxMessages(10),
         chatMaxTimeDisplay(20),
         frameDelay(0.0),
-        previousTurn(-1)
+        previousTurn(-1),
+	gc(NULL)
 {
     renderManager = new RenderManager;
     gameMap = new GameMap;
@@ -80,33 +84,33 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     renderManager->setGameMap(gameMap);
     miniMap = new MiniMap(gameMap);    
     //NOTE This is moved here temporarily.
-    try
-    {
-        Ogre::LogManager::getSingleton().logMessage("Creating camera...", Ogre::LML_NORMAL);
-        renderManager->createCamera();
-        Ogre::LogManager::getSingleton().logMessage("Creating viewports...", Ogre::LML_NORMAL);
-        renderManager->createViewports();
-        Ogre::LogManager::getSingleton().logMessage("Creating scene...", Ogre::LML_NORMAL);
-        renderManager->createScene();
-    }
-    catch(Ogre::Exception& e)
-    {
-        ODApplication::displayErrorMessage("Ogre exception when ininialising the render manager:\n"
-            + e.getFullDescription(), false);
-        exit(0);
-        //cleanUp();
-        //return;
-    }
-    catch (std::exception& e)
-    {
-        ODApplication::displayErrorMessage("Exception when ininialising the render manager:\n"
-            + std::string(e.what()), false);
-        exit(0);
-        //cleanUp();
-        //return;
-    }
+    // try
+    // {
+    //     Ogre::LogManager::getSingleton().logMessage("Creating camera...", Ogre::LML_NORMAL);
+    //     renderManager->createCamera();
+    //     Ogre::LogManager::getSingleton().logMessage("Creating viewports...", Ogre::LML_NORMAL);
+    //     renderManager->createViewports();
+    //     Ogre::LogManager::getSingleton().logMessage("Creating scene...", Ogre::LML_NORMAL);
+    //     renderManager->createScene();
+    // }
+    // catch(Ogre::Exception& e)
+    // {
+    //     ODApplication::displayErrorMessage("Ogre exception when ininialising the render manager:\n"
+    //         + e.getFullDescription(), false);
+    //     exit(0);
+    //     //cleanUp();
+    //     //return;
+    // }
+    // catch (std::exception& e)
+    // {
+    //     ODApplication::displayErrorMessage("Exception when ininialising the render manager:\n"
+    //         + std::string(e.what()), false);
+    //     exit(0);
+    //     //cleanUp();
+    //     //return;
+    // }
     
-    CameraManager* cm = new CameraManager(renderManager->getCamera(),gameMap);
+    // CameraManager* cm = new CameraManager(renderManager->getCamera(),gameMap);
 
     //FIXME: this should be changed to a function or something.
     gameMap->me = new Player();
@@ -129,7 +133,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
 
 
     inputManager = new ModeManager(gameMap,miniMap,Console::getSingletonPtr());
-    cm->setModeManager(inputManager);
+ 
     Console::getSingletonPtr()->setModeManager(inputManager);
     Gui::getSingletonPtr()->setModeManager(inputManager);    
     //Set initial mouse clipping size
@@ -168,8 +172,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     LogManager::getSingletonPtr()->logMessage("*** FrameListener initialized ***");
     Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
 
-    gameMap->createTilesMeshes();
-    gameMap->hideAllTiles();
+
 
 }
 
@@ -314,8 +317,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     //NOTE:  If this function exits early the corresponding unlock function must be called.
     long int currentTurnNumber = GameMap::turnNumber.get();
-    miniMap->draw();
-    miniMap->swap();
+
 
   
     gameMap->threadLockForTurn(currentTurnNumber);
@@ -584,7 +586,10 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     inputManager->getCurrentMode()->getKeyboard()->capture();
     inputManager->getCurrentMode()->getMouse()->capture();
 
-    CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
+    if(gc!=NULL){
+	gc->onFrameStarted();
+	CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
+    }
 
     // Sleep to limit the framerate to the max value
     frameDelay -= evt.timeSinceLastFrame;
@@ -612,7 +617,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
 
-
+    if(gc!=NULL){
+	gc->onFrameEnded();
+    }
     
     return true;
 }
@@ -681,4 +688,12 @@ void ODFrameListener::printText(const std::string& text)
     }
 
     TextRenderer::getSingleton().setText("DebugMessages", tempString);
+}
+
+
+
+void ODFrameListener::makeGameContext(){
+
+    gc = new GameContext(mWindow, inputManager, gameMap);
+
 }
