@@ -42,6 +42,7 @@ class MiniMap : public Ogre::Singleton<MiniMap>
 	std::vector<Creature*>::iterator updatedCreatureIndex;
 	void setCamera_2dPosition( Ogre::Vector3 vv);
 	Ogre::Vector2 camera_2dPositionFromClick( int xx, int yy);
+
         
     private:
         int allocateMiniMapMemory();

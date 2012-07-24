@@ -587,8 +587,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     inputManager->getCurrentMode()->getMouse()->capture();
 
     if(gc!=NULL){
-	gc->onFrameStarted();
-	CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
+	gc->onFrameStarted(evt);
+
     }
 
     // Sleep to limit the framerate to the max value
@@ -618,7 +618,7 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
 
     if(gc!=NULL){
-	gc->onFrameEnded();
+	gc->onFrameEnded(evt);
     }
     
     return true;

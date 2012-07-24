@@ -58,11 +58,12 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputMan
 }
 
 
-void GameContext::onFrameStarted(){
+void GameContext::onFrameStarted(const Ogre::FrameEvent& evt){
 
+	CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
 
-
-
+	gameMap->getMiniMap()->draw();
+	gameMap->getMiniMap()->swap();	
 
 
 }
@@ -73,7 +74,7 @@ void GameContext::onFrameStarted(){
 
 
 
-void GameContext::onFrameEnded(){}
+void GameContext::onFrameEnded(const Ogre::FrameEvent& evt){}
 
 
 GameContext::~GameContext()

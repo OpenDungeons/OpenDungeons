@@ -29,8 +29,8 @@ class GameContext
             return gameMap;
         }
 
-	void onFrameStarted();
-	void onFrameEnded();
+	void onFrameStarted(const Ogre::FrameEvent& evt);
+	void onFrameEnded(const Ogre::FrameEvent& evt);
 
 
     private:
