@@ -218,17 +218,21 @@ bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 //! \brief What happens after a click on New Game in the main menu
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+
     Gui::getSingletonPtr()->loadGuiSheet(ingameMenu);
     modeManager->progressMode(ModeManager::GAME);
     ODFrameListener::getSingleton().makeGameContext();
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     return startServer(*gameMap);
 }
 
 bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 {
+
     Gui::getSingletonPtr()->loadGuiSheet(editorMenu);
     modeManager->progressMode(ModeManager::EDITOR);
+    ODFrameListener::getSingleton().makeEditorContext();
+
     return true;
 }
 

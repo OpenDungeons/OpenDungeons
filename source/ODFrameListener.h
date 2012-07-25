@@ -39,7 +39,7 @@ class ChatMessage;
 class GameMap;
 class MiniMap;
 class GameContext;
-
+class EditorContext;
 
 /*! \brief The main OGRE rendering class.
  *
@@ -59,7 +59,7 @@ friend class Console;
         ODFrameListener(Ogre::RenderWindow* win);
         virtual ~ODFrameListener();
 
-
+	void makeEditorContext();
 	void makeGameContext();
         void requestExit();
         bool getThreadStopRequested();
@@ -140,6 +140,7 @@ friend class Console;
 
 
 	GameContext*   gc;
+	EditorContext*   ed;
         std::vector<Ogre::ColourValue> playerColourValues;
 
         //To see if the frameListener wants to exit

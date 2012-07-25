@@ -39,7 +39,7 @@
 #include "LogManager.h"
 #include "ModeContext.h"
 #include "GameContext.h"
-
+#include "EditorContext.h"
 
 
 // #include "InputManager.h"
@@ -76,7 +76,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         chatMaxTimeDisplay(20),
         frameDelay(0.0),
         previousTurn(-1),
-	gc(NULL)
+	gc(NULL),
+	ed(NULL)
 {
     renderManager = new RenderManager;
     gameMap = new GameMap;
@@ -591,6 +592,11 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     }
 
+    if(ed!=NULL){
+	ed->onFrameStarted(evt);
+
+    }
+
     // Sleep to limit the framerate to the max value
     frameDelay -= evt.timeSinceLastFrame;
     if (frameDelay > 0.0)
@@ -695,5 +701,12 @@ void ODFrameListener::printText(const std::string& text)
 void ODFrameListener::makeGameContext(){
 
     gc = new GameContext(mWindow, inputManager, gameMap);
+
+}
+
+
+void ODFrameListener::makeEditorContext(){
+
+    ed = new EditorContext(mWindow, inputManager, gameMap);
 
 }
