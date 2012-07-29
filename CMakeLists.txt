@@ -136,6 +136,7 @@ set(OD_SOURCEFILES
     ${SRC}/ODFrameListener.cpp
     ${SRC}/Player.cpp
     ${SRC}/ProximityTrap.cpp
+    ${SRC}/Quadtree.cpp
     ${SRC}/RadialVector2.cpp
     ${SRC}/Random.cpp
     ${SRC}/RenderManager.cpp

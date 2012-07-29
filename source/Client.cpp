@@ -208,7 +208,7 @@ void *clientSocketProcessor(void *p)
             {
                 //NOTE: This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
                 // Changes to this code should be reflected in that code as well
-                Creature *newCreature = new Creature(&gameMap);
+                Creature *newCreature = new Creature(  &gameMap);
 
                 std::stringstream tempSS;
                 tempSS.str(arguments);

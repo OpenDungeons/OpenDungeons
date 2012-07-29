@@ -35,6 +35,7 @@
 #include "Weapon.h"
 #include "MapLoader.h"
 #include "LogManager.h"
+#include "Quadtree.h"
 
 using namespace std;
 
@@ -66,6 +67,9 @@ GameMap::GameMap() :
     sem_init(&activeObjectsLockSemaphore, 0, 1);
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
     sem_init(&tilesLockSemaphore, 0, 1);
+
+    myCullingQuad.setRadious(256);
+    myCullingQuad.setCenter(200,200);    
 }
 
 

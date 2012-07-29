@@ -5,7 +5,7 @@
 #include <CEGUIWindow.h>
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>
-
+#include <OgreVector2.h>
 #include "CreatureAction.h"
 #include "Field.h"
 #include "Weapon.h"
@@ -18,7 +18,7 @@
 #include "RenderManager.h"
 #include "Random.h"
 #include "LogManager.h"
-
+#include "Quadtree.h"
 #include "Creature.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
@@ -28,8 +28,10 @@
 //TODO: make this read from file
 static const int MAX_LEVEL = 100;
 
-Creature::Creature( GameMap*            gameMap,
+Creature::Creature( 
+                    GameMap*            gameMap,
                     const std::string&  name
+
                     ) :
         weaponL                 (0),
         weaponR                 (0),
@@ -49,7 +51,8 @@ Creature::Creature( GameMap*            gameMap,
         trainWait               (0),
         previousPositionTile    (0),
         battleField             (new Field("autoname")),
-        trainingDojo            (0),
+        trainingDojo            (0),	
+	index_point             (position.x,position.y),
         sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
     setGameMap(gameMap);
@@ -59,7 +62,10 @@ Creature::Creature( GameMap*            gameMap,
     sem_init(&actionQueueLockSemaphore, 0, 1);
     sem_init(&statsWindowLockSemaphore, 0, 1);
 
+
     setName(name);
+    gameMap->myCullingQuad.insert(this);
+
 
     sem_wait(&statsWindowLockSemaphore);
     statsWindow = 0;
@@ -196,11 +202,19 @@ void Creature::setPosition(const Ogre::Vector3& v)
 
             if (positionTile() != 0)
                 positionTile()->addCreature(this);
+
+	    
         }
+
+	tracingCullingQuad->moveEntryDelta(this,get2dPosition());
+
     }
     else
     {
         // We are not on the map
+        
+
+
         MovableGameEntity::setPosition(v);
     }
 

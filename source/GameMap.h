@@ -13,6 +13,7 @@
 #include <map>
 #include <string>
 
+
 class Tile;
 class TileCoordinateMap;
 class Creature;
@@ -29,6 +30,8 @@ class MovableGameEntity;
 #include "MiniMap.h"
 #include "AIManager.h"
 #include "Room.h"
+#include "Quadtree.h"
+
 class MiniMap;
 
 
@@ -50,6 +53,7 @@ friend class MiniMap;
  public:
   GameMap();
 
+  CullingQuad myCullingQuad;
   bool visibleCreatures;
   void toggleCreaturesVisibility();
   int setAllNeighbors();     
@@ -268,6 +272,8 @@ friend class MiniMap;
   unsigned long int doCreatureTurns();
 
   // Private datamembers
+
+
 
   MiniMap *miniMap;
   int iteration_doFloodFill   ;

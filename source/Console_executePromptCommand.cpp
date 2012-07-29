@@ -459,7 +459,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         if (!arguments.empty())
         {
             // Creature the creature and add it to the odf->gameMap
-            Creature *tempCreature = new Creature(odf->gameMap);
+            Creature *tempCreature = new Creature(odf->gameMap );
             std::stringstream tempSS(arguments);
             CreatureDefinition *tempClass = odf->gameMap->getClassDescription(
                     tempCreature->getDefinition()->getClassName());

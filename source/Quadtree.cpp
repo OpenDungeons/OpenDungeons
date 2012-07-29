@@ -1,7 +1,7 @@
 #include <iostream>
+#include <cstdlib>
 
-
-#include "Quadtree.hpp"
+#include "Quadtree.h"
 
 
 using std::cerr;
@@ -20,6 +20,8 @@ using Ogre::Vector2;
 using std::ifstream;
 using std::ofstream;
 using std::swap;
+using std::abs;
+
 
 #include <cstdlib> // for exit function
 
@@ -27,360 +29,92 @@ using std::swap;
 // and echoes them to the display until a negative value
 // is read.
 
-int main()
-    {
-    ifstream indata; // indata is like cin
-    ofstream outdate;
-    int nPoints;
-    int nSegments;
+// int main()
+//     {
+//     ifstream indata; // indata is like cin
+//     ofstream outdate;
+//     int nPoints;
+//     int nSegments;
 
 
-    Segment *sectorsArray;
-    Ogre::Vector2 *pointsArray;
+//     Segment *sectorsArray;
+//     Ogre::Vector2 *pointsArray;
 
-    indata.open("a.in"); // opens the file
-    if(!indata) { // file couldn't be opened
-	cerr << "Error: file could not be opened" << endl;
-	exit(1);
-	}
+//     indata.open("a.in"); // opens the file
+//     if(!indata) { // file couldn't be opened
+// 	cerr << "Error: file could not be opened" << endl;
+// 	exit(1);
+// 	}
 
-    indata >> nSegments;
-
-
-
-    sectorsArray = new Segment[nSegments];
+//     indata >> nSegments;
 
 
 
+//     sectorsArray = new Segment[nSegments];
 
 
 
 
-    for(int ii = 0 ;  ii  < nSegments && !indata.eof(); ii++){
+
+
+
+//     for(int ii = 0 ;  ii  < nSegments && !indata.eof(); ii++){
 	
 	
-	indata >> sectorsArray[ii]; 
-	}
+// 	indata >> sectorsArray[ii]; 
+// 	}
 
-    for(int ii = 0 ;  ii  < nSegments ; ii++){
-	sectorsArray[ii].setDelta(sectorsArray[(ii+1)%nSegments].tail);
+//     for(int ii = 0 ;  ii  < nSegments ; ii++){
+// 	sectorsArray[ii].setDelta(sectorsArray[(ii+1)%nSegments].tail);
 	
-	}
+// 	}
 
     
-    indata >> nPoints;
+//     indata >> nPoints;
 
-    pointsArray = new Vector2[nPoints];
+//     pointsArray = new Vector2[nPoints];
 
-    for(int ii = 0 ;  ii  < nPoints && !indata.eof(); ii++){
+//     for(int ii = 0 ;  ii  < nPoints && !indata.eof(); ii++){
 	
 	
-	indata >> pointsArray[ii]; 
-	}
+// 	indata >> pointsArray[ii]; 
+// 	}
 
-    indata.close();
+//     indata.close();
 
 
-    CullingQuad myQuad;
-    myQuad.setRadious(200);
-    myQuad.setCenter(200,200);
+//     CullingQuad myQuad;
+//     myQuad.setRadious(200);
+//     myQuad.setCenter(200,200);
  
-    for(int ii = 0 ;  ii  < nPoints && !indata.eof(); ii++){
+//     for(int ii = 0 ;  ii  < nPoints && !indata.eof(); ii++){
 	
 	
-	myQuad.insert( new Entry(pointsArray[ii]));
-	}
+// 	myQuad.insert( new Entry(pointsArray[ii]));
+// 	}
     
-    int foobar = 3004 + 4;
-    // myCulQuad.cut(&sectorsArray[2]);   
+//     int foobar = 3004 + 4;
+//     // myCulQuad.cut(&sectorsArray[2]);   
 
 
-    for(int ii = 0 ;  ii  < nSegments ; ii++){
-    	myQuad.cut(&sectorsArray[ii]);
+//     for(int ii = 0 ;  ii  < nSegments ; ii++){
+//     	myQuad.cut(&sectorsArray[ii]);
    
 
-    	}
+//     	}
 
-    int foobar2 = 3004 + 4;
-    cout<< nSegments   <<endl;
-    for(int ii = 0 ;  ii  < nSegments ; ii++){
-	cout << sectorsArray[ii].tail.x << "  " << sectorsArray[ii].tail.y << "  " << endl;
-	}
+//     int foobar2 = 3004 + 4;
+//     cout<< nSegments   <<endl;
+//     for(int ii = 0 ;  ii  < nSegments ; ii++){
+// 	cout << sectorsArray[ii].tail.x << "  " << sectorsArray[ii].tail.y << "  " << endl;
+// 	}
 
 
-    cout << myQuad.count_nodes() << endl;
-    myQuad.print();
-    return 0;
-    }
+//     cout << myQuad.countNodes() << endl;
+//     myQuad.print();
+//     return 0;
+//     }
 
-Quadtree::Quadtree():nodes(NULL),entry(NULL){}
-Quadtree::Quadtree(Entry &key):nodes(NULL){
-    entry = new Entry (key);
-
-    }
-Quadtree::Quadtree(Entry *key):nodes(NULL){
-    entry = key;
-	
-    }
-Quadtree* Quadtree::find(Entry* ee){
-    return find(ee->index_point);
-    }
-Quadtree* Quadtree::find(Entry& ee){
-    return find(ee.index_point);
-    }
-
-Quadtree* Quadtree::find(Ogre::Vector2& vv){
-    return find(&vv);
-    }
-Quadtree* Quadtree::find(Ogre::Vector2* vv){
-        if(isLeaf())
-	return this;
-
-    
-	if(vv->x >= center.x && vv->y >= center.y){
-	    return nodes[UR].find(vv);
-
-	} 
-	else if(vv->x < center.x && vv->y >= center.y ){
-	    return  nodes[UL].find(vv);
-
-	}
-	
-	else if(vv->x < center.x && vv->y < center.y ){
-	    return  nodes[BL].find(vv);
-	}
-	
-	else if(vv->x >= center.x && vv->y < center.y){
-	     return  nodes[BR].find(vv);
-	}
-
-
-}
-
-void Quadtree::insert(Entry& ee){
-
-    
-    
-
-    }
-void Quadtree::insert(Entry* ee){
-    Quadtree* qq = find(ee);
-    qq->shallow_insert(ee);
-}
-
-void Quadtree::shallow_insert(Entry* ee){
-    Entry **tmpEntry;
-    int foobar2 = 3004 + 4;
-
-    if(isNonEmptyLeaf()){
-
-	tmpEntry = new Entry*[3];
-    
-        tmpEntry[2]=NULL;
-	tmpEntry[1]=entry;
-    	entry=NULL; 
-    
-	tmpEntry[0]=ee;
-
-	nodes = new Quadtree[4];
-	for(int jj = 0 ; jj < 4 ; jj++)
-	    nodes[jj].setCenterFromParent(this);
-
-	for(int ii=0  ; tmpEntry[ii]!=NULL ;ii++ ){
-	    if(tmpEntry[ii]->index_point.x >= center.x && tmpEntry[ii]->index_point.y >= center.y){
-		nodes[UR].shallow_insert(tmpEntry[ii]);
-
-	    } 
-	    else if(tmpEntry[ii]->index_point.x < center.x && tmpEntry[ii]->index_point.y >= center.y ){
-		nodes[UL].shallow_insert(tmpEntry[ii]);
-
-	    }
-	
-	    else if(tmpEntry[ii]->index_point.x < center.x && tmpEntry[ii]->index_point.y < center.y ){
-		nodes[BL].shallow_insert(tmpEntry[ii]);
-	    }
-	
-	    else if(tmpEntry[ii]->index_point.x >= center.x && tmpEntry[ii]->index_point.y < center.y){
-		nodes[BR].shallow_insert(tmpEntry[ii]);
-	    }	    
-	    
-
-	}
-    }
-    else{
-	entry = ee ;
-
-    }  
-
-
-}
-
-void Quadtree::del(Entry* ee){
-    Ogre::Vector2* vv;
-    Quadtree* current_quad = this;
-    while(current_quad->nodes){
-	vv = &(ee->index_point);
-	aux_stack_quad.push(current_quad);
-	if(vv->x >= center.x && vv->y >= center.y){
-	    current_quad =  &nodes[UR];
-
-	    } 
-	else if(vv->x < center.x && vv->y >= center.y ){
-	    current_quad =   &nodes[UL];
-
-	    }
-	
-	else if(vv->x < center.x && vv->y < center.y ){
-	    current_quad =   &nodes[BL];
-	    }
-	
-	else if(vv->x >= center.x && vv->y < center.y){
-	    current_quad =   &nodes[BR];
-	    }
-	
-	}
-
-    if(*ee == *current_quad->entry){
-	delete current_quad->entry;
-	current_quad->entry=NULL;
-	//Normalize the quadtree, i.e not to have too many empty leaf nodes :
-
-	while(!aux_stack_quad.empty()){
-	    current_quad = aux_stack_quad.top();
-	    aux_stack_quad.pop();
-	    if( current_quad->nodes[UL].isEmptyLeaf() && current_quad->nodes[UR].isEmptyLeaf() 
-		&& current_quad->nodes[BR].isEmptyLeaf() && current_quad->nodes[BL].isEmptyLeaf() ){}
-	    else if(static_cast<int>(current_quad->nodes[UL].isEmptyLeaf()) + static_cast<int>(current_quad->nodes[UL].isEmptyLeaf()) + static_cast<int>(current_quad->nodes[UL].isEmptyLeaf()) + static_cast<int>(current_quad->nodes[UL].isEmptyLeaf()) ==3){
-		int nn;
-		for(nn =0 ; current_quad->nodes[nn].isNonEmptyLeaf(); nn++);
-		current_quad->entry =  current_quad->nodes[nn].entry;
-		current_quad->nodes[nn].entry = NULL;
-		current_quad->merge();
-
-		}
-	    else{
-
-		aux_stack_quad = std::stack<Quadtree*>();
-		    
-		}
-
-	    }
-
-	}
-    else{
-	cerr << "quadtree not found " << endl;
-	}
-
-
-     
-    }
-void Quadtree::del(Entry& ee){
-    
-
-
-    }
-
-
-
-
-
-list<Entry*> Quadtree::lineQuery(Ogre::Vector2* v1, Ogre::Vector2* v2, Ogre::Vector2* v3, Ogre::Vector2* v4){
-
-
-    return lineQuery(*v1,*v2,*v3,*v4);
-
-    }
-
-list<Entry*> Quadtree::lineQuery(Ogre::Vector2& v1, Ogre::Vector2& v2, Ogre::Vector2& v3, Ogre::Vector2& v4){
-
-
-    stack<Quadtree*> *tmp = new stack<Quadtree*>();
-    
-
-
-    return lineQueryAux(v1,v2,v3,v4, tmp);
-
-    }
-
-list<Entry*> Quadtree::lineQueryAux(Ogre::Vector2& v1,Ogre::Vector2& v2,Ogre::Vector2& v3 ,Ogre::Vector2& v4,  stack<Quadtree*> *quadsLeft){
-
-    
-
-
-
-
-
-    // mylist.splice(const_iterator mylist.end(), other); 
-
-    }
-
-
-void Quadtree::split(){
-    if (nodes==NULL)
-	cerr<<"error : attempt to split non-empty tree"<<std::endl;
-    else{
-
-	nodes= new Quadtree[4];
-	for(int jj = 0 ; jj < 4 ; jj++)
-	    nodes[jj].setCenterFromParent(this);
-
-	}
-    }
-   
-void Quadtree::merge(){
-    if (nodes!=NULL)
-	cerr<<"error : attempt to merge  tree with empty siblings node"<<std::endl;
-    else{
-
-	delete [] nodes;
-
-	}
-    }
-   
-void Quadtree::setCenter(double xx, double yy){
-    center.x = xx;
-    center.y = yy;
-
-
-}
-
-void Quadtree::setRadious(double rr){
-    radious = rr;
-
-}
-
-void Quadtree::setCenterFromParent(Quadtree* qq){
-
-    radious = qq->radious/2;
-    int ii = this - qq->nodes ;
-    switch (ii){
-    case UR:
-	center.x = qq->center.x + radious;
- 	center.y = qq->center.y + radious;
-	
-	break;
-    case UL:
-	center.x = qq->center.x - radious;
- 	center.y = qq->center.y + radious;
-
-	break;    
-    case BL:
-	center.x = qq->center.x - radious;
- 	center.y = qq->center.y - radious;
-
-	break;
-    case BR:
-	center.x = qq->center.x + radious;
- 	center.y = qq->center.y - radious;
-	break;
-
-
-
-    }
-
-
-
-}
 
 
 void CullingQuad::setCenter(double xx, double yy){
@@ -395,40 +129,39 @@ void CullingQuad::setRadious(double rr){
 
 }
 
-CullingQuad::CullingQuad():nodes(NULL),entry(NULL){
+CullingQuad::CullingQuad():nodes(NULL),entry(NULL), parent(NULL){
 
     center = new Ogre::Vector2();
 
 
 }
 
-CullingQuad::CullingQuad(CullingQuad* qt){
+
+
+// COPY constructor
+CullingQuad::CullingQuad(CullingQuad* qt,CullingQuad* pp ):parent(pp){
 
     int foobar2 = 3004 + 4;
 
-    if(qt->isEmptyLeaf()){
-	nodes = NULL;
-	entry = NULL;
-	center = (qt->center);
-	radious = qt->radious;
+    if(qt->isLeaf()){
 
-	return;
-	}
-    else if(qt->isNonEmptyLeaf()){
 	nodes = NULL;
 	entry = qt->entry;
 	center = (qt->center);
 	radious = qt->radious;
 	
 	return;
-	}
+       }
+
     else{
 	nodes=new CullingQuad*[4];
+	for(int jj = 0 ;  jj < 4 ;  jj++)
+	    nodes[jj]->parent=this;
 	entry = NULL;
-	nodes[0]= new CullingQuad(qt->nodes[UR]);
-	nodes[1]= new CullingQuad(qt->nodes[UL]);
-	nodes[2]= new CullingQuad(qt->nodes[BL]);
-	nodes[3]= new CullingQuad(qt->nodes[BR]);
+	nodes[0]= new CullingQuad(qt->nodes[UR],this );
+	nodes[1]= new CullingQuad(qt->nodes[UL],this );
+	nodes[2]= new CullingQuad(qt->nodes[BL],this );
+	nodes[3]= new CullingQuad(qt->nodes[BR],this );
 	center = (qt->center);
 	radious = qt->radious;
 
@@ -442,6 +175,8 @@ CullingQuad* CullingQuad::find(Entry* ee){
 CullingQuad* CullingQuad::find(Entry& ee){
     return find(ee.index_point);
     }
+
+
 
 CullingQuad* CullingQuad::find(Ogre::Vector2& vv){
     return find(&vv);
@@ -471,15 +206,15 @@ CullingQuad* CullingQuad::find(Ogre::Vector2* vv){
 
 }
 
-void CullingQuad::insert(Entry& ee){
+CullingQuad* CullingQuad::insert(Entry& ee){
 
-    
+    return insert(&ee);
     
 
     }
-void CullingQuad::insert(Entry* ee){
+CullingQuad* CullingQuad::insert(Entry* ee){
     CullingQuad* qq = find(ee);
-    qq->shallow_insert(ee);
+    return qq->shallowInsert(ee);
 }
 
 
@@ -512,7 +247,7 @@ void CullingQuad::print(){
 
 }
 
-int CullingQuad::count_nodes(){
+int CullingQuad::countNodes(){
 
     int nodesNumber=0;
 
@@ -521,7 +256,7 @@ int CullingQuad::count_nodes(){
     if(nodes!=NULL)
     	for(int ii = 0 ; ii < 4 ; ii++){
     	    if(nodes[ii]!=NULL)
-    		nodesNumber += nodes[ii]->count_nodes();
+    		nodesNumber += nodes[ii]->countNodes();
     	}
 
 
@@ -572,56 +307,166 @@ void CullingQuad::setCenterFromParent(CullingQuad* qq , int jj){
 }
 
 
-void CullingQuad::shallow_insert(Entry* ee){
+CullingQuad* CullingQuad::shallowInsert(Entry* ee){
     Entry **tmpEntry;
     int foobar2 = 3004 + 4;
 
     if(isNonEmptyLeaf()){
 
-	tmpEntry = new Entry*[3];
+
+
+	if(entry->index_point == ee->index_point){
+	    entry->creature_list.splice(entry->creature_list.end(),ee->creature_list );
+	    delete ee;
+	    entry->changeQuad(this);
+	}
+
+	else{
+	    tmpEntry = new Entry*[3];
     
-        tmpEntry[2]=NULL;
-	tmpEntry[1]=entry;
-    	entry=NULL; 
+	    tmpEntry[2]=NULL;
+	    tmpEntry[1]=entry;
+	    entry=NULL; 
     
-	tmpEntry[0]=ee;
+	    tmpEntry[0]=ee;
 
-	nodes = new CullingQuad* [4];
+	    nodes = new CullingQuad* [4];
 
-	nodes[0]= new CullingQuad();
-	nodes[1]= new CullingQuad();
-	nodes[2]= new CullingQuad();
-	nodes[3]= new CullingQuad();
+	    nodes[0]= new CullingQuad();
+	    nodes[1]= new CullingQuad();
+	    nodes[2]= new CullingQuad();
+	    nodes[3]= new CullingQuad();
 
-	for(int jj = 0 ; jj < 4 ; jj++)
-	    nodes[jj]->setCenterFromParent(this,jj);
-
-	for(int ii=0  ; tmpEntry[ii]!=NULL ;ii++ ){
-	    if(tmpEntry[ii]->index_point.x >= center->x && tmpEntry[ii]->index_point.y >= center->y){
-		nodes[UR]->shallow_insert(tmpEntry[ii]);
-
-	    } 
-	    else if(tmpEntry[ii]->index_point.x < center->x && tmpEntry[ii]->index_point.y >= center->y ){
-		nodes[UL]->shallow_insert(tmpEntry[ii]);
-
+	    for(int jj = 0 ; jj < 4 ; jj++){
+		nodes[jj]->setCenterFromParent(this,jj);
+		nodes[jj]->parent = this;		
 	    }
+	    for(int ii=0  ; tmpEntry[ii]!=NULL ;ii++ ){
+		if(tmpEntry[ii]->index_point.x >= center->x && tmpEntry[ii]->index_point.y >= center->y){
+		    nodes[UR]->shallowInsert(tmpEntry[ii]);
+
+		} 
+		else if(tmpEntry[ii]->index_point.x < center->x && tmpEntry[ii]->index_point.y >= center->y ){
+		    nodes[UL]->shallowInsert(tmpEntry[ii]);
+
+		}
 	
-	    else if(tmpEntry[ii]->index_point.x < center->x && tmpEntry[ii]->index_point.y < center->y ){
-		nodes[BL]->shallow_insert(tmpEntry[ii]);
-	    }
+		else if(tmpEntry[ii]->index_point.x < center->x && tmpEntry[ii]->index_point.y < center->y ){
+		    nodes[BL]->shallowInsert(tmpEntry[ii]);
+		}
 	
-	    else if(tmpEntry[ii]->index_point.x >= center->x && tmpEntry[ii]->index_point.y < center->y){
-		nodes[BR]->shallow_insert(tmpEntry[ii]);
-	    }	    
+		else if(tmpEntry[ii]->index_point.x >= center->x && tmpEntry[ii]->index_point.y < center->y){
+		    nodes[BR]->shallowInsert(tmpEntry[ii]);
+		}	    
 	    
 
+	    }
 	}
     }
+	
     else{
 	entry = ee ;
+	entry->changeQuad(this);
+    }
 
-    }  
 }
+
+CullingQuad* CullingQuad::shallowInsert(Entry& ee){
+    return shallowInsert(&ee);
+
+    }
+
+
+
+bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPosition  ){
+
+
+    if((abs(newPosition.x - center->x) <  radious) && (abs(newPosition.y - center->y) <  radious) && entry->creature_list.size()==1){
+  	   entry->index_point = newPosition;
+    }
+    
+    else if( !((abs(newPosition.x - center->x) <  radious) && (abs(newPosition.y - center->y) <  radious)) && entry->creature_list.size()==1){
+	if(parent!=NULL){
+
+	    entry->index_point = newPosition;
+	    parent->reinsert(entry);
+	    entry = NULL;
+	}
+	else{
+	    //Throw exception
+	}
+	
+	
+
+
+    }
+    
+    //The new position is inside the current CullingQuad node
+    else if(abs(newPosition.x - center->x) <  radious && abs(newPosition.y - center->y) <  radious) {  // && !  entry->creature_list.size()==1)
+
+	    if(parent!=NULL){
+		Entry* ee = new Entry(cc);
+   		ee->index_point = newPosition;
+		entry->creature_list.remove(cc);
+		insert(ee);
+
+	    }
+	    else{
+		//Throw exception
+	    }
+
+
+	}
+    
+    //The new position is outside the current CullingQuad node
+    else{ // !(abs(newPosition.x - center->x) <  radious) && (abs(newPosition.y - center->y) <  radious) {  // && !  entry->creature_list.size()==1)
+
+	    if(parent!=NULL){
+		Entry* ee = new Entry(cc);
+   		ee->index_point = newPosition;
+		entry->creature_list.remove(cc);
+		parent->reinsert(ee);
+
+	    }
+	    else{
+		//Throw exception
+	    }
+
+
+
+
+    }
+
+
+
+
+}
+
+
+bool CullingQuad::reinsert( Entry* ee ){
+
+
+    if((abs(entry->index_point.x - center->x) <  radious) && (abs(entry->index_point.y - center->y) <  radious)){
+	
+	insert(ee);
+    }
+    
+
+    //The new position is outside the current CullingQuad node
+    else{
+	if(parent!=NULL)
+	    parent->reinsert(ee);
+	else{
+	    //Throw exception
+	}
+
+    }
+
+
+
+
+}
+
 
 bool CullingQuad::cut ( Segment *ss) {
     int nodes_sign[8];
@@ -654,9 +499,6 @@ bool CullingQuad::cut ( Segment *ss) {
 
 
 
-
-
-
 	for(int ii = 0 ; ii < 4 ; ii++){
 	if(nodes[ii]!=NULL){		
 	    // nodes_sign_sort(nodes_pointer[0],nodes_pointer[1],nodes_pointer[2]  );
@@ -680,6 +522,5 @@ bool CullingQuad::cut ( Segment *ss) {
 
 
     // else if(isEmptyLeaf()){} nothing to do :)
-
 
 }

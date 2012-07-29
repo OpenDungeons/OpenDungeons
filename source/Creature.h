@@ -26,12 +26,15 @@
 #include "CreatureAction.h"
 #include "MovableGameEntity.h"
 
+
 class GameMap;
 class Creature;
 class RoomDojo;
 class Weapon;
 class Player;
 class Field;
+class CullingQuad;
+
 namespace CEGUI
 {
 class Window;
@@ -49,8 +52,9 @@ class Window;
  */
 class Creature: public MovableGameEntity
 {
+friend class CullingQuad;
     public:
-        Creature(GameMap* gameMap = 0, const std::string& name = "");
+        Creature( GameMap* gameMap = 0, const std::string& name = "");
 
         std::string getUniqueCreatureName();
 
@@ -65,6 +69,9 @@ class Creature: public MovableGameEntity
         void setCreatureDefinition(const CreatureDefinition* def); 
 
         // ----- GETTERS -----
+	Ogre::Vector2 get2dPosition(){return index_point;};
+
+
         //! \brief Get the level of the object
         inline unsigned int         getLevel        () const    { return level; }
 
@@ -142,6 +149,7 @@ class Creature: public MovableGameEntity
         void createVisualDebugEntities();
         void destroyVisualDebugEntities();
         bool getHasVisualDebuggingEntities();
+	Ogre::Vector2 index_point;
 
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Creature *c);
@@ -150,8 +158,12 @@ class Creature: public MovableGameEntity
 
         //TODO: make this read from definition file
         static const int maxGoldCarriedByWorkers = 1500;
-
+	inline void setQuad(CullingQuad* cq) {tracingCullingQuad=cq;};
+	inline CullingQuad* getQuad(){return tracingCullingQuad;};
     private:
+
+	CullingQuad* tracingCullingQuad;
+
         void pushAction(CreatureAction action);
         void popAction();
         CreatureAction peekAction();
