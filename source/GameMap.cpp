@@ -232,34 +232,15 @@ int GameMap::allocateMapMemory(int xSize, int ySize) {
     }
 }
 
-/*! \brief Returns a pointer to the tile at location (x, y).
- *
- * The tile pointers are stored internally in a map so calls to this function
- * have a complexity O(log(N)) where N is the number of tiles in the map.
- */
-Tile* GameMap::getTile(int xx, int yy)
-{
-    Tile *returnValue = NULL;
-    // std::pair<int, int> location(x, y);
 
-    // sem_wait(&tilesLockSemaphore);
-    // TileMap_t::iterator itr = tiles.find(location);
-    // returnValue = (itr != tiles.end()) ? itr->second : NULL;
-    // sem_post(&tilesLockSemaphore);
-    if ( xx < mapSizeX && yy < mapSizeY && xx >= 0 && yy >= 0 )
-        return returnValue = &(tiles[xx][yy]);
-    else {
-        // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
-        return NULL;
-    }
-}
 
 /*! \brief Returns a pointer to the tile at location (x, y) (const version).
  *
  * The tile pointers are stored internally in a map so calls to this function
- * have a complexity O(log(N)) where N is the number of tiles in the map.
+ * have a complexity O(log(N)) where N is the number of tiles in the map. 
+ * This function does not lock. 
  */
-const Tile* GameMap::getTile(int xx, int yy) const
+Tile* GameMap::getTile(int xx, int yy) const
 {
     Tile *returnValue = NULL;
     // std::pair<int, int> location(x, y);
@@ -278,28 +259,7 @@ const Tile* GameMap::getTile(int xx, int yy) const
 
 }
 
-/*! \brief Returns a pointer to the tile at location (x, y) (does not lock the tile semaphore)
- *
- * The tile pointers are stored internally in a map so calls to this function
- * have a complexity O(log(N)) where N is the number of tiles in the map.
- * NOTE: This function does not lock and is to be used in the visibleTiles function.
- * NOTE: Lock before calling.
- */
-Tile* GameMap::getTileNoLock(int xx, int yy)
-{
-    Tile *returnValue = NULL;
-    // std::pair<int, int> location(x, y);
 
-    // TileMap_t::iterator itr = tiles.find(location);
-    // returnValue = (itr != tiles.end()) ? itr->second : NULL;
-    if ( xx < mapSizeX && yy < mapSizeY && xx >= 0 && yy >= 0 )
-        return returnValue = &(tiles[xx][yy]);
-    else {
-        // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
-        return NULL;
-    }
-
-}
 
 
 /*! \brief Clears the mesh and deletes the data structure for all the tiles, creatures, classes, and players in the GameMap.
@@ -1699,14 +1659,6 @@ Tile* GameMap::lastTile()
 }
 
 
-// TileMap_t::iterator GameMap::lastTile()
-// {
-//     sem_wait(&tilesLockSemaphore);
-//     TileMap_t::iterator tempItr = tiles.end();
-//     sem_post(&tilesLockSemaphore);
-
-//     return tempItr;
-// }
 
 /*! \brief Returns the (up to) 4 nearest neighbor tiles of the tile located at (x, y).
  *
@@ -1959,7 +1911,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
         std::pair<int, int> coord = tileCoordinateMap->getCoordinate(tileCounter);
 
-        Tile *tempTile = getTileNoLock(startX + coord.first, startY + coord.second);
+        Tile *tempTile = getTile(startX + coord.first, startY + coord.second);
         double tempTheta = tileCoordinateMap->getCentralTheta(tileCounter);
         if (tempTile != NULL)
             tileQueue.push_back(std::pair<Tile*, double> (tempTile, tempTheta));
@@ -2325,12 +2277,7 @@ void GameMap::clearTraps()
         removeActiveObject(traps[i]);
     }
 
-    /*
-      for(unsigned int i = 0; i < numTraps(); ++i)
-      {
-      getTrap(i)->deleteYourself();
-      }
-    */
+
 
     traps.clear();
 }
@@ -2839,21 +2786,13 @@ void GameMap::enableFloodFill()
 
     }
 
-    // for(std::map<std::pair<int, int>, Tile*>::iterator currentTile = tiles.begin(),
-    // 	end = tiles.end(); currentTile != end; ++currentTile)
-    //   {
-    //     tempTile = currentTile->second;
-    //     tempTile->floodFillColor = -1;
-    //   }
+
     sem_post(&tilesLockSemaphore);
 
     // Loop over the tiles again, this time flood filling when the flood fill color is -1.  This will flood the map enough times to cover the whole map.
 
     //TODO:  The looping construct here has a potential race condition in that the endTile could change between the time when it is initialized and the end of this loop.  If this happens the loop could continue infinitely.
     floodFillEnabled = true;
-    // sem_wait(&tilesLockSemaphore);
-    // std::map<std::pair<int, int> , Tile*>::iterator endTile = tiles.end();
-    // sem_post(&tilesLockSemaphore);
 
 
 
@@ -2868,14 +2807,6 @@ void GameMap::enableFloodFill()
         }
     }
 
-
-//   for(std::map<std::pair<int, int>, Tile*>::iterator currentTile = tiles.begin();
-//       currentTile != endTile; ++currentTile)
-//     {
-//       tempTile = currentTile->second;
-//       if (tempTile->floodFillColor == -1)
-// 	doFloodFill(tempTile->x, tempTile->y);
-//     }
 
 }
 

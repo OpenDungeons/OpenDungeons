@@ -211,7 +211,8 @@ void Creature::setPosition(const Ogre::Vector3& v)
     }
     else
     {
-        // We are not on the map
+        // We are not on the m
+ap
         
 
 

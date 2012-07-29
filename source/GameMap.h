@@ -72,8 +72,8 @@ friend class MiniMap;
   void addTile(Tile *t);
   
   void setTileNeighbors(Tile *t);
-  Tile* getTile(int xx, int yy);
-  const Tile* getTile(int x, int y) const;
+
+  Tile* getTile(int x, int y) const;
   Tile* firstTile();
   Tile* lastTile();
   unsigned int numTiles();
@@ -259,7 +259,7 @@ friend class MiniMap;
   static void *creatureDoTurnThread(void *p);
   static void *creatureDoTurnHelperThread(void *p);
 
-  Tile* getTileNoLock(int x, int y);
+
 
   class CDTHTStruct
   {
