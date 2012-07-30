@@ -11,7 +11,7 @@
 #include "GameMap.h"
 #include "AbstractApplicationMode.h"
 #include <Ogre.h>
-
+#include <set>
 
 class ModeManager;
 
@@ -75,7 +75,7 @@ public:
     inline const Ogre::Vector3& getTranslateVectorAccel() const {
         return translateVectorAccel;
     }
-    bool getIntersectionPoints( Vector3i*& pp1,Vector3i*& pp2, Vector3i*& pp3, Vector3i*& pp4   );
+    bool getIntersectionPoints(   );
     //get camera
     inline Ogre::Camera* getCamera() const {
         return mCamera;
@@ -102,8 +102,16 @@ public:
     }
 private:
 
+    set<Creature*>*  currentVisibleCreatures;
+    set<Creature*>*  previousVisibleCreatures ;
+
+
+    Ogre::Plane myplanes[6];
+    Ogre::Ray myRay[4];
+
     ModeManager* modeManager;
     AbstractApplicationMode* gameMode;
+    Ogre::Vector3 ogreVectorsArray[4];
     Vector3i *top, *bottom, *middleLeft, *middleRight;
     Vector3i *oldTop, *oldBottom, *oldMiddleLeft, *oldMiddleRight;
     int precisionDigits;

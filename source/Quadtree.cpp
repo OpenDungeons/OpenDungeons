@@ -247,6 +247,41 @@ void CullingQuad::print(){
 
 }
 
+set<Creature*>* CullingQuad::returnCreaturesSet(){
+    set<Creature*>* ss = new set<Creature*>() ;
+
+    if(entry!=NULL){
+	for(list<Creature*>::iterator it = entry->creature_list.begin()  ; it != entry->creature_list.end()   ; it++   ){
+	    ss->insert(*it);
+	}
+    }
+
+    if(nodes!=NULL)
+    	for(int ii = 0 ; ii < 4 ; ii++){
+    	    if(nodes[ii]!=NULL)
+    		nodes[ii]->returnCreaturesSetAux(ss);
+    	}
+    return ss;
+}
+
+void CullingQuad::returnCreaturesSetAux(set<Creature*> *ss){
+
+    if(entry!=NULL){
+	for(list<Creature*>::iterator it = entry->creature_list.begin()  ; it != entry->creature_list.end()   ; it++   ){
+	    ss->insert(*it);
+	}	
+    }
+	
+    if(nodes!=NULL)
+    	for(int ii = 0 ; ii < 4 ; ii++){
+    	    if(nodes[ii]!=NULL)
+    		nodes[ii]->returnCreaturesSetAux(ss);
+    	}
+
+}
+
+
+
 int CullingQuad::countNodes(){
 
     int nodesNumber=0;
@@ -437,9 +472,6 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
 
     }
 
-
-
-
 }
 
 
@@ -467,8 +499,13 @@ bool CullingQuad::reinsert( Entry* ee ){
 
 }
 
+bool CullingQuad::cut ( const Segment &ss) {
+    return cut(&ss);
 
-bool CullingQuad::cut ( Segment *ss) {
+
+}
+
+bool CullingQuad::cut ( const Segment *ss) {
     int nodes_sign[8];
     int foobar = 23 + 4;
 

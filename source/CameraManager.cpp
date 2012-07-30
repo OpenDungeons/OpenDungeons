@@ -11,12 +11,15 @@
 //TODO : CAMERA LOOSE ITS PROPER SENSE OF LEFT, RIGHT, TOP, DOWN WHEN YOU DO MORE THAN QUATER BAREEL VIA CAMERA ROTATE, AKA PTICH > 90 DEG 
 #include "SoundEffectsHelper.h"
 #include "CameraManager.h"
+#include "Quadtree.h"
 #include "ModeManager.h"
 #include <OGRE/OgreSceneNode.h>
+#include <algorithm>
 
 
+using  std::set; using  std::swap; using  std::max; using  std::min; 
+using  std::cerr;
 
-using namespace std;
 
 template<> CameraManager* Ogre::Singleton<CameraManager>::ms_Singleton = 0;
 
@@ -36,18 +39,29 @@ CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
         mRotateLocalVector(Ogre::Vector3(0.0, 0.0, 0.0)),
         zChange(0.0),
         mZoomSpeed(7.0),
-        oldTop(0),
-        oldBottom(0),
-        oldMiddleLeft(0),
-        oldMiddleRight(0),
-        top(0),
-        bottom(0),
-        middleLeft(0),
-        middleRight(0),
+        oldTop(NULL),
+        oldBottom(NULL),
+        oldMiddleLeft(NULL),
+        oldMiddleRight(NULL),
+        top(NULL),
+        bottom(NULL),
+        middleLeft(NULL),
+        middleRight(NULL),
 	precisionDigits(10),
-        worldCoordinatesVector(Ogre::Vector3((double)GameMap::mapSizeX/2,(double)GameMap::mapSizeX/2,0 ))
+        worldCoordinatesVector(Ogre::Vector3((double)GameMap::mapSizeX/2,(double)GameMap::mapSizeX/2,0 )),
+
+	currentVisibleCreatures(new set<Creature*>()),
+	previousVisibleCreatures(new set<Creature*>())
 {
   
+
+
+    myplanes[0]=(Ogre::Plane(0,0,1,0));
+    myplanes[1]=(Ogre::Plane(0,0,-1,20));
+    myplanes[2]=(Ogre::Plane(0,1,0,-1));
+    myplanes[3]=(Ogre::Plane(0,-1,0,395));
+    myplanes[4]=(Ogre::Plane(1,0,0,-1));
+    myplanes[5]=(Ogre::Plane(-1,0,0,395));
   //mCamNode->setPosition(Ogre::Vector3(0,0,200)+ mCamNode->getPosition());
 }
 
@@ -366,15 +380,43 @@ int CameraManager::updateCameraView() {
     oldMiddleLeft=middleLeft ;
     oldMiddleRight=middleRight;
 
-    getIntersectionPoints(top, bottom, middleLeft, middleRight);
+    
 
 
 
-    // *top=*top +  worldCoordinatesVector;
-    // *bottom=*bottom + worldCoordinatesVector;
-    // *middleLeft=*middleLeft + worldCoordinatesVector;
-    // *middleRight=*middleRight + worldCoordinatesVector;
+    getIntersectionPoints();
 
+    top = new Vector3i(ogreVectorsArray[0]);
+    middleLeft = new Vector3i(ogreVectorsArray[1]);
+    bottom = new Vector3i(ogreVectorsArray[2]);
+    middleRight = new Vector3i(ogreVectorsArray[3]);
+
+
+
+
+
+
+    CullingQuad tmpQuad(&(gameMap->myCullingQuad));
+
+    tmpQuad.cut(Segment(ogreVectorsArray[0],ogreVectorsArray[1]));
+    tmpQuad.cut(Segment(ogreVectorsArray[1],ogreVectorsArray[2]));
+    tmpQuad.cut(Segment(ogreVectorsArray[3],ogreVectorsArray[2]));
+    tmpQuad.cut(Segment(ogreVectorsArray[3],ogreVectorsArray[0]));
+
+
+    delete previousVisibleCreatures;
+    previousVisibleCreatures = currentVisibleCreatures;
+    currentVisibleCreatures = tmpQuad.returnCreaturesSet();
+
+
+    std::set<Creature*> intersection; 
+    std::set<Creature*> ascendingCreatures;
+    std::set<Creature*> descendingCreatures;    
+    std::set_intersection(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), currentVisibleCreatures->begin(), currentVisibleCreatures->end(), std::inserter(intersection, intersection.end()));  
+    std::set_difference(currentVisibleCreatures->begin(), currentVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(ascendingCreatures, ascendingCreatures.end())); 
+    std::set_difference(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(descendingCreatures, descendingCreatures.end())); 
+
+    
 
 
     // sort the new tiles to form the proper diamod
@@ -390,11 +432,6 @@ int CameraManager::updateCameraView() {
 	bashAndSplashTiles(SHOW | HIDE);
     }
     else{
-
-
-
-
-
 	oldTop=new  Vector3i (*top) ;
 	oldBottom=new  Vector3i (*bottom) ;
 	oldMiddleLeft=new  Vector3i (*middleLeft) ;
@@ -404,6 +441,8 @@ int CameraManager::updateCameraView() {
     }
     return 1;
 }
+
+
 
 
 
@@ -517,31 +556,20 @@ int CameraManager::bashAndSplashTiles(int mode)
     return 1;        
 }
 
-bool CameraManager::getIntersectionPoints( Vector3i*& pp1,Vector3i*& pp2, Vector3i*& pp3, Vector3i*& pp0   ) {
+bool CameraManager::getIntersectionPoints() {
 
-    const Ogre::Vector3*  myvector = getCamera()->getWorldSpaceCorners();
-
-    Ogre::Plane** myplanes =  new  Ogre::Plane*[6];
-    Ogre::Ray** myRay = new Ogre::Ray*[4];
-    Vector3i** vi = new Vector3i*[4];
-
-    
-    myplanes[0]=new Ogre::Plane(0,0,1,0);
-    myplanes[1]=new Ogre::Plane(0,0,-1,20);
-    myplanes[2]=new Ogre::Plane(0,1,0,-1);
-    myplanes[3]=new Ogre::Plane(0,-1,0,395);
-    myplanes[4]=new Ogre::Plane(1,0,0,-1);
-    myplanes[5]=new Ogre::Plane(-1,0,0,395);
+    const Ogre::Vector3*  myvector    = getCamera()->getWorldSpaceCorners();
+    Ogre::Vector3* pp ;
 
 
 
-    myRay[0]= new  Ogre::Ray (myvector[0],  myvector[4] - myvector[0] );
-    myRay[1]= new  Ogre::Ray (myvector[1],  myvector[5] - myvector[1] );
-    myRay[2]= new  Ogre::Ray (myvector[2],  myvector[6] - myvector[2] );
-    myRay[3]= new  Ogre::Ray (myvector[3],  myvector[7] - myvector[3] );
+    myRay[0]= Ogre::Ray (myvector[0],  myvector[4] - myvector[0] );
+    myRay[1]= Ogre::Ray (myvector[1],  myvector[5] - myvector[1] );
+    myRay[2]= Ogre::Ray (myvector[2],  myvector[6] - myvector[2] );
+    myRay[3]= Ogre::Ray (myvector[3],  myvector[7] - myvector[3] );
 
     std::pair<bool, Ogre::Real> intersectionResult;
-    Ogre::Vector3 pp ;
+
 
     //  for(int ii = 0 ; ii <4 ; ii++){
     //  	     intersectionResult =  myRay[ii]->intersects(*myplanes[0]) ;
@@ -556,35 +584,34 @@ bool CameraManager::getIntersectionPoints( Vector3i*& pp1,Vector3i*& pp2, Vector
 	int rr = 0;
 	do
 	    {
-		intersectionResult =  myRay[ii]->intersects(*myplanes[rr]) ;
+		intersectionResult =  myRay[ii].intersects(myplanes[rr]) ;
 		rr++;
 		if(intersectionResult.first)
-		    pp= myRay[ii]->getPoint(intersectionResult.second);
+		    ogreVectorsArray[ii]= (myRay[ii].getPoint(intersectionResult.second));
 
 
 	    }
-	while(!( (intersectionResult.first && pp.x >= 0.0 && pp.x <=396.0 && pp.y >= 0.0 && pp.y <=396.0    ) )   && rr < 6);
+	while(!( (intersectionResult.first && ogreVectorsArray[ii].x >= 0.0 && ogreVectorsArray[ii].x <=396.0 && ogreVectorsArray[ii].y >= 0.0 && ogreVectorsArray[ii].y <=396.0    ) )   && rr < 6);
 	if(intersectionResult.first){
-	    vi[ii]=new   Vector3i (pp);
+
 
 	}
 	else{
-	    cerr<< "I didn't found the intersection point for " << ii <<"th ray"<<endl;
-	    vi[ii]=NULL;
+	    cerr<< "I didn't find the intersection point for " << ii <<"th ray"<<endl;
 	    exit(1);
 	}
     }
 
-    pp0 =  vi[0];
-    pp1 =  vi[1]; 
-    pp2 =  vi[2]; 
-    pp3 =  vi[3]; 
+
+
+
+
 
     cerr<<endl << "intersection points" << endl;
-    cerr << pp1->x << " " << pp1->y << " " << pp1->z <<endl;
-    cerr << pp2->x << " " << pp2->y << " " << pp2->z <<endl;
-    cerr << pp3->x << " " << pp3->y << " " << pp3->z <<endl;
-    cerr << pp0->x << " " << pp0->y << " " << pp0->z <<endl;
+    cerr << ogreVectorsArray[1].x << " " << ogreVectorsArray[1].y << " " << ogreVectorsArray[1].z <<endl;
+    cerr << ogreVectorsArray[2].x << " " << ogreVectorsArray[2].y << " " << ogreVectorsArray[2].z <<endl;
+    cerr << ogreVectorsArray[3].x << " " << ogreVectorsArray[3].y << " " << ogreVectorsArray[3].z <<endl;
+    cerr << ogreVectorsArray[0].x << " " << ogreVectorsArray[0].y << " " << ogreVectorsArray[0].z <<endl;
 
     return true;
 }
@@ -599,7 +626,7 @@ void CameraManager::sort(Vector3i*& p1 , Vector3i*& p2, bool sortByX) {
 
 
         if (p1->x > p2->x) {
-	  std::swap(p1,p2);
+	  swap(p1,p2);
         }
 
     }
@@ -608,7 +635,7 @@ void CameraManager::sort(Vector3i*& p1 , Vector3i*& p2, bool sortByX) {
     else {
 
         if (p1->y > p2->y) {
-	  std::swap(p1,p2);
+	  swap(p1,p2);
         }
 
 

@@ -18,7 +18,7 @@ using std::stack;
 using std::list;
 using std::istream;
 using std::ostream;
-
+using std::set;
 
 class Quadtree;
 class Entry;
@@ -81,7 +81,7 @@ public:
     Ogre::Vector2 delta;
     Segment(){};
     Segment(Ogre::Vector2 tt, Ogre::Vector2 hh):tail(tt) {delta.x = hh.x - tt.x ; delta.y = hh.y - tt.y; };
-
+    Segment(Ogre::Vector3 tt, Ogre::Vector3 hh):tail(tt.x,tt.y){delta.x = hh.x - tt.x ; delta.y = hh.y - tt.y; };
 
 
 
@@ -121,19 +121,23 @@ public:
     CullingQuad* shallowInsert(Entry*);
     CullingQuad* shallowInsert(Entry&);
     void setCenterFromParent(CullingQuad*, int);
-
+    set<Creature*>* returnCreaturesSet();
+    void returnCreaturesSetAux(set<Creature*> *ss);
 
     CullingQuad();
     /* CullingQuad(CullingQuad*); */
     CullingQuad(CullingQuad*,CullingQuad* = NULL);
     CullingQuad(CullingQuad&);
     ~CullingQuad();
-    bool cut(Segment*);
+    bool cut(const Segment*);
+    bool cut(const Segment&);
     void print();
     int countNodes();
     void setCenter(double, double);
     void setRadious(double);
     bool moveEntryDelta(Creature* ,const Ogre::Vector2&  );
+
+
 
     inline bool isEmptyLeaf(){return isLeaf() && entry==NULL  && entry->creature_list.empty() ;};
     inline bool isNonEmptyLeaf(){return isLeaf() && entry!=NULL && !(entry->creature_list.empty()) ;};
