@@ -25,97 +25,6 @@ using std::abs;
 
 #include <cstdlib> // for exit function
 
-// This program reads values from the file 'example.dat'
-// and echoes them to the display until a negative value
-// is read.
-
-// int main()
-//     {
-//     ifstream indata; // indata is like cin
-//     ofstream outdate;
-//     int nPoints;
-//     int nSegments;
-
-
-//     Segment *sectorsArray;
-//     Ogre::Vector2 *pointsArray;
-
-//     indata.open("a.in"); // opens the file
-//     if(!indata) { // file couldn't be opened
-// 	cerr << "Error: file could not be opened" << endl;
-// 	exit(1);
-// 	}
-
-//     indata >> nSegments;
-
-
-
-//     sectorsArray = new Segment[nSegments];
-
-
-
-
-
-
-
-//     for(int ii = 0 ;  ii  < nSegments && !indata.eof(); ii++){
-	
-	
-// 	indata >> sectorsArray[ii]; 
-// 	}
-
-//     for(int ii = 0 ;  ii  < nSegments ; ii++){
-// 	sectorsArray[ii].setDelta(sectorsArray[(ii+1)%nSegments].tail);
-	
-// 	}
-
-    
-//     indata >> nPoints;
-
-//     pointsArray = new Vector2[nPoints];
-
-//     for(int ii = 0 ;  ii  < nPoints && !indata.eof(); ii++){
-	
-	
-// 	indata >> pointsArray[ii]; 
-// 	}
-
-//     indata.close();
-
-
-//     CullingQuad myQuad;
-//     myQuad.setRadious(200);
-//     myQuad.setCenter(200,200);
- 
-//     for(int ii = 0 ;  ii  < nPoints && !indata.eof(); ii++){
-	
-	
-// 	myQuad.insert( new Entry(pointsArray[ii]));
-// 	}
-    
-//     int foobar = 3004 + 4;
-//     // myCulQuad.cut(&sectorsArray[2]);   
-
-
-//     for(int ii = 0 ;  ii  < nSegments ; ii++){
-//     	myQuad.cut(&sectorsArray[ii]);
-   
-
-//     	}
-
-//     int foobar2 = 3004 + 4;
-//     cout<< nSegments   <<endl;
-//     for(int ii = 0 ;  ii  < nSegments ; ii++){
-// 	cout << sectorsArray[ii].tail.x << "  " << sectorsArray[ii].tail.y << "  " << endl;
-// 	}
-
-
-//     cout << myQuad.countNodes() << endl;
-//     myQuad.print();
-//     return 0;
-//     }
-
-
 
 void CullingQuad::setCenter(double xx, double yy){
     center->x = xx;
@@ -155,13 +64,13 @@ CullingQuad::CullingQuad(CullingQuad* qt,CullingQuad* pp ):parent(pp){
 
     else{
 	nodes=new CullingQuad*[4];
-	for(int jj = 0 ;  jj < 4 ;  jj++)
-	    nodes[jj]->parent=this;
 	entry = NULL;
 	nodes[0]= new CullingQuad(qt->nodes[UR],this );
 	nodes[1]= new CullingQuad(qt->nodes[UL],this );
 	nodes[2]= new CullingQuad(qt->nodes[BL],this );
 	nodes[3]= new CullingQuad(qt->nodes[BR],this );
+	for(int jj = 0 ;  jj < 4 ;  jj++)
+	    nodes[jj]->parent=this;
 	center = (qt->center);
 	radious = qt->radious;
 

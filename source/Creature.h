@@ -69,7 +69,7 @@ friend class CullingQuad;
         void setCreatureDefinition(const CreatureDefinition* def); 
 
         // ----- GETTERS -----
-	Ogre::Vector2 get2dPosition(){return index_point;};
+	Ogre::Vector2 get2dPosition(){ 	Ogre::Vector3 tmp = getPosition();   return Ogre::Vector2(tmp.x,tmp.y);};
 
 
         //! \brief Get the level of the object
@@ -149,7 +149,7 @@ friend class CullingQuad;
         void createVisualDebugEntities();
         void destroyVisualDebugEntities();
         bool getHasVisualDebuggingEntities();
-	Ogre::Vector2 index_point;
+
 
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Creature *c);

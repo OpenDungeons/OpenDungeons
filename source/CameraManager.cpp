@@ -18,7 +18,7 @@
 
 
 using  std::set; using  std::swap; using  std::max; using  std::min; 
-using  std::cerr;
+using  std::cerr; using std::endl;
 
 
 template<> CameraManager* Ogre::Singleton<CameraManager>::ms_Singleton = 0;
@@ -395,19 +395,19 @@ int CameraManager::updateCameraView() {
 
 
 
-
+    cerr << "countnodes " << gameMap->myCullingQuad.countNodes() <<endl;  
     CullingQuad tmpQuad(&(gameMap->myCullingQuad));
 
-    tmpQuad.cut(Segment(ogreVectorsArray[0],ogreVectorsArray[1]));
-    tmpQuad.cut(Segment(ogreVectorsArray[1],ogreVectorsArray[2]));
+    tmpQuad.cut(Segment(ogreVectorsArray[1],ogreVectorsArray[0]));
+    tmpQuad.cut(Segment(ogreVectorsArray[0],ogreVectorsArray[3]));
     tmpQuad.cut(Segment(ogreVectorsArray[3],ogreVectorsArray[2]));
-    tmpQuad.cut(Segment(ogreVectorsArray[3],ogreVectorsArray[0]));
+    tmpQuad.cut(Segment(ogreVectorsArray[2],ogreVectorsArray[1]));
 
-
+    cerr << "tmpQuad.countNodes() " << tmpQuad.countNodes() <<endl;  
     delete previousVisibleCreatures;
     previousVisibleCreatures = currentVisibleCreatures;
     currentVisibleCreatures = tmpQuad.returnCreaturesSet();
-
+    cerr << "currentVisibleCreatures  " << currentVisibleCreatures->size() <<endl;
 
     std::set<Creature*> intersection; 
     std::set<Creature*> ascendingCreatures;
@@ -416,8 +416,9 @@ int CameraManager::updateCameraView() {
     std::set_difference(currentVisibleCreatures->begin(), currentVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(ascendingCreatures, ascendingCreatures.end())); 
     std::set_difference(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(descendingCreatures, descendingCreatures.end())); 
 
-    
 
+    cerr << "ascendingCreatures  " << ascendingCreatures.size() <<endl;
+    cerr << "descendingCreatures " << descendingCreatures.size()<<endl;
 
     // sort the new tiles to form the proper diamod
 

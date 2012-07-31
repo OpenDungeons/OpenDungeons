@@ -38,8 +38,8 @@ struct Entry{
     list<Creature*> creature_list;
     Ogre::Vector2 index_point;
 
-Entry(Creature* cc):creature_list(1,cc) {this->index_point = cc->index_point;};
-Entry(Creature& cc):creature_list(1,&cc){this->index_point = cc.index_point; };
+Entry(Creature* const& cc):creature_list(1,cc) {this->index_point = cc->get2dPosition();};
+Entry(Creature& cc):creature_list(1,&cc){this->index_point = cc.get2dPosition(); };
     bool operator==(Entry& ee){
 	return  index_point == ee.index_point;
 

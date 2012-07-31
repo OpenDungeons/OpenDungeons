@@ -600,15 +600,18 @@ void GameMap::addClassDescription(CreatureDefinition c)
 /*! \brief Adds the address of a new creature to be stored in this GameMap.
  *
  */
-void GameMap::addCreature(Creature *c)
+void GameMap::addCreature(Creature *cc)
 {
     sem_wait(&creaturesLockSemaphore);
-    creatures.push_back(c);
+    creatures.push_back(cc);
     sem_post(&creaturesLockSemaphore);
 
-    c->positionTile()->addCreature(c);
-    addAnimatedObject(c);
-    c->setIsOnMap(true);
+    cc->positionTile()->addCreature(cc);
+    myCullingQuad.insert(cc);
+
+
+    addAnimatedObject(cc);
+    cc->setIsOnMap(true);
 }
 
 /*! \brief Removes the creature from the game map but does not delete its data structure.

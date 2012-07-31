@@ -52,7 +52,6 @@ Creature::Creature(
         previousPositionTile    (0),
         battleField             (new Field("autoname")),
         trainingDojo            (0),	
-	index_point             (position.x,position.y),
         sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
     setGameMap(gameMap);
@@ -64,8 +63,6 @@ Creature::Creature(
 
 
     setName(name);
-    gameMap->myCullingQuad.insert(this);
-
 
     sem_wait(&statsWindowLockSemaphore);
     statsWindow = 0;
@@ -206,7 +203,7 @@ void Creature::setPosition(const Ogre::Vector3& v)
 	    
         }
 
-	tracingCullingQuad->moveEntryDelta(this,get2dPosition());
+	// tracingCullingQuad->moveEntryDelta(this,get2dPosition());
 
     }
     else
