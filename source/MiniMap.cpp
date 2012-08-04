@@ -94,8 +94,8 @@ Ogre::Vector2 MiniMap::camera_2dPositionFromClick( int    xx, int yy){
 
 
 
-    camera_2dPosition.x += (  (xx - topLeftCornerX )/double(width) - 0.5  )*width/grainSize  ; 
-    camera_2dPosition.y += (  (yy - topLeftCornerY )/double(height) - 0.5 )*height/grainSize ;
+    camera_2dPosition.x +=  ((yy - topLeftCornerY )/double(height) - 0.5 )*height/grainSize ;
+    camera_2dPosition.y +=  ((xx - topLeftCornerX )/double(width) - 0.5  )*width/grainSize  ; 
 
     return camera_2dPosition;
 }
