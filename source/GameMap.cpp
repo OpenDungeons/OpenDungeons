@@ -72,9 +72,13 @@ GameMap::GameMap() :
     myCullingQuad.setCenter(200,200);    
 }
 
+GameMap::~GameMap(){
 
+    delete auxTilesArray;
 
-void GameMap:: toggleCreaturesVisibility(){
+}
+
+void GameMap::toggleCreaturesVisibility(){
     sem_wait(&creaturesLockSemaphore);
     visibleCreatures = !visibleCreatures;
     if(visibleCreatures ){
@@ -216,10 +220,13 @@ int GameMap::allocateMapMemory(int xSize, int ySize) {
 
     // mapSizeX = xSize;
     // mapSizeY=ySize;
+
+    auxTilesArray = new Tile [mapSizeX * mapSizeY];
+
     if (tiles==NULL) {
         tiles = new Tile* [mapSizeY];
         for (int jj = 0 ; jj < mapSizeY ; jj++) {
-            tiles[jj] = new Tile [mapSizeX];
+            tiles[jj] = &auxTilesArray[jj*mapSizeX];
 
         }
 

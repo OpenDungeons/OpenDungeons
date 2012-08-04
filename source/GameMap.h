@@ -52,7 +52,7 @@ class GameMap
 friend class MiniMap;
  public:
   GameMap();
-
+  ~GameMap();
   CullingQuad myCullingQuad;
   bool visibleCreatures;
   void toggleCreaturesVisibility();
@@ -253,6 +253,7 @@ friend class MiniMap;
  private:
   void processDeletionQueues();
   bool walkablePathExists(int x1, int y1, int x2, int y2);
+  Tile* auxTilesArray;
 
   // THREAD - This function is meant to be called by pthread_create.
   static void *miscUpkeepThread(void *p);
@@ -358,6 +359,7 @@ friend class MiniMap;
     inline void             setG        (const double& newG)    {g = newG;}
 
   private:
+
     Tile*       tile;
     AstarEntry* parent;
     double      g;
