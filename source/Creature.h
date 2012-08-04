@@ -55,7 +55,7 @@ class Creature: public MovableGameEntity
 friend class CullingQuad;
     public:
         Creature( GameMap* gameMap = 0, const std::string& name = "");
-
+        virtual ~Creature();
         std::string getUniqueCreatureName();
 
         //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.

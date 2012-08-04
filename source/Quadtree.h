@@ -9,7 +9,7 @@
 #include <stack>
 #include <list>
 #include <set>
-
+#include <semaphore.h>
 
 
 using std::string;
@@ -21,7 +21,7 @@ using std::ostream;
 using std::set;
 
 class Quadtree;
-class Entry;
+
 
 
 
@@ -38,7 +38,7 @@ struct Entry{
     list<Creature*> creature_list;
     Ogre::Vector2 index_point;
 
-Entry(Creature* const& cc):creature_list(1,cc) {this->index_point = cc->get2dPosition();};
+Entry(Creature* cc):creature_list(1,cc) {this->index_point = cc->get2dPosition();};
 Entry(Creature& cc):creature_list(1,&cc){this->index_point = cc.get2dPosition(); };
     bool operator==(Entry& ee){
 	return  index_point == ee.index_point;
@@ -46,10 +46,27 @@ Entry(Creature& cc):creature_list(1,&cc){this->index_point = cc.get2dPosition();
     }
 
     void changeQuad(CullingQuad* qq){
-	for(list<Creature*>::iterator it =  creature_list.begin(); it!=creature_list.end(); it++ )
+	std::cerr << " changeQuads :: " << qq << std::endl;
+	printList();
+	for(list<Creature*>::iterator it =  creature_list.begin(); it!=creature_list.end(); it++ ){
 	    (*it)->setQuad(qq);
+	}
+	/* std::cerr<<"changed!"<< std::endl; */
     }
+    void printList(){
 
+	for(list<Creature*>::iterator it =  creature_list.begin(); it!=creature_list.end(); it++ )
+	    std::cerr<<(*it)->getName() << ", ";
+        std::cerr <<std::endl;	    
+	}
+    bool listFind(Creature* cc){
+	list<Creature*>::iterator it;
+	for( it =  creature_list.begin(); it!=creature_list.end(); it++ ){
+	    if(*it==cc) break;
+	}
+	return (it == creature_list.end())? false : true;
+
+    }
 
 };
 
@@ -93,6 +110,8 @@ class CullingQuad{
 
 
 public:
+
+    mutable sem_t creaturesInCullingQuadLockSemaphore;
     Entry *entry; 
     Ogre::Vector2 *center;
     CullingQuad **nodes;
@@ -115,8 +134,8 @@ public:
 
     CullingQuad* insert(Entry*);
     CullingQuad* insert(Entry&);
-    inline  CullingQuad *insert(Creature* cc){return insert (new Entry(cc)) ;};
-    inline  CullingQuad *insert(Creature& cc){return insert (new Entry(cc)) ;};
+    inline  CullingQuad* insert(Creature* cc){return insert (new Entry(cc)) ;};
+    inline  CullingQuad* insert(Creature& cc){return insert (new Entry(cc)) ;};
 
     CullingQuad* shallowInsert(Entry*);
     CullingQuad* shallowInsert(Entry&);
@@ -138,11 +157,20 @@ public:
     bool moveEntryDelta(Creature* ,const Ogre::Vector2&  );
 
 
+private:
+    void holdRootSemaphore(){  /* std::cerr<<std::endl<<std::endl<<"hold"<<std::endl<<std::endl; */ CullingQuad* cq = this ; while(cq->parent!=NULL) cq=cq->parent;     sem_wait(&(cq->creaturesInCullingQuadLockSemaphore)); };
+    void releaseRootSemaphore(){ /* std::cerr<<std::endl<<std::endl<<"release"<<std::endl<<std::endl;  */   CullingQuad* cq = this ; while(cq->parent!=NULL) cq=cq->parent;     sem_post(&(cq->creaturesInCullingQuadLockSemaphore)); };
 
-    inline bool isEmptyLeaf(){return isLeaf() && entry==NULL  && entry->creature_list.empty() ;};
-    inline bool isNonEmptyLeaf(){return isLeaf() && entry!=NULL && !(entry->creature_list.empty()) ;};
+    inline bool isEmptyLeaf(){return isLeaf() && (entry==NULL  ||  entry->creature_list.empty() );};
+    inline bool isNonEmptyLeaf(){return isLeaf() && !(entry==NULL || entry->creature_list.empty()) ;};
     inline bool isLeaf(){ return nodes==NULL ;};
+    CullingQuad* insertNoLock(Entry* ee);
+
+
     };
+
+
+
 
 
 /* istream& operator>>(istream &is, Ogre::Vector2 &vv ){is>>vv.x; is>>vv.y ; return is;} */

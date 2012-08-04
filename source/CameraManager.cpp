@@ -396,7 +396,7 @@ int CameraManager::updateCameraView() {
 
 
     cerr << "countnodes " << gameMap->myCullingQuad.countNodes() <<endl;  
-    CullingQuad tmpQuad(&(gameMap->myCullingQuad));
+    CullingQuad tmpQuad;
 
     tmpQuad.cut(Segment(ogreVectorsArray[1],ogreVectorsArray[0]));
     tmpQuad.cut(Segment(ogreVectorsArray[0],ogreVectorsArray[3]));

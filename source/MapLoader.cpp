@@ -201,10 +201,9 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
         tempCreature = new Creature(&gameMap_b);
         levelFile >> tempCreature;
 	
-
-	tempVector = tempCreature->getPosition();
-	tempCreature->setPosition(tempVector);
         gameMap_b.addCreature(tempCreature);
+
+
 
 
     }

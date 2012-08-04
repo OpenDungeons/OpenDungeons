@@ -4,9 +4,8 @@
 #include "Quadtree.h"
 
 
-using std::cerr;
-using std::endl;
-using std::string;
+
+
 
 
 
@@ -21,7 +20,10 @@ using std::ifstream;
 using std::ofstream;
 using std::swap;
 using std::abs;
-
+using std::setbase;
+using std::hex;
+using std::dec;
+using std::string;
 
 #include <cstdlib> // for exit function
 
@@ -39,7 +41,7 @@ void CullingQuad::setRadious(double rr){
 }
 
 CullingQuad::CullingQuad():nodes(NULL),entry(NULL), parent(NULL){
-
+    sem_init(&creaturesInCullingQuadLockSemaphore,0,1);
     center = new Ogre::Vector2();
 
 
@@ -49,8 +51,11 @@ CullingQuad::CullingQuad():nodes(NULL),entry(NULL), parent(NULL){
 
 // COPY constructor
 CullingQuad::CullingQuad(CullingQuad* qt,CullingQuad* pp ):parent(pp){
-
+    sem_init(&creaturesInCullingQuadLockSemaphore,0,1);
     int foobar2 = 3004 + 4;
+
+
+
 
     if(qt->isLeaf()){
 
@@ -91,6 +96,7 @@ CullingQuad* CullingQuad::find(Ogre::Vector2& vv){
     return find(&vv);
     }
 CullingQuad* CullingQuad::find(Ogre::Vector2* vv){
+    // cerr << "find" <<endl;
         if(isLeaf())
 	return this;
 
@@ -111,7 +117,7 @@ CullingQuad* CullingQuad::find(Ogre::Vector2* vv){
 	else if(vv->x >= center->x && vv->y < center->y){
 	     return  nodes[BR]->find(vv);
 	}
-
+    // cerr << "find:End " <<endl;
 
 }
 
@@ -120,14 +126,29 @@ CullingQuad* CullingQuad::insert(Entry& ee){
     return insert(&ee);
     
 
-    }
-CullingQuad* CullingQuad::insert(Entry* ee){
+}
+CullingQuad* CullingQuad::insertNoLock(Entry* ee){
+
     CullingQuad* qq = find(ee);
     return qq->shallowInsert(ee);
+
 }
 
 
+CullingQuad* CullingQuad::insert(Entry* ee){
 
+
+    CullingQuad* returnQuad;
+    holdRootSemaphore();
+    // cerr << "CullingQuad::insert start " << endl;
+    // ee->printList();
+    CullingQuad* qq = find(ee);
+    returnQuad = qq->shallowInsert(ee);
+    releaseRootSemaphore();
+    return returnQuad;
+    // cerr << "CullingQuad::insert end " <<  endl;
+
+}
 
 CullingQuad::~CullingQuad(){
 
@@ -253,26 +274,29 @@ void CullingQuad::setCenterFromParent(CullingQuad* qq , int jj){
 
 CullingQuad* CullingQuad::shallowInsert(Entry* ee){
     Entry **tmpEntry;
+    CullingQuad *returnQuad;
     int foobar2 = 3004 + 4;
 
+    // cerr << " shallowInsert " <<endl;
     if(isNonEmptyLeaf()){
 
 
 
 	if(entry->index_point == ee->index_point){
 	    entry->creature_list.splice(entry->creature_list.end(),ee->creature_list );
-	    delete ee;
 	    entry->changeQuad(this);
+	    return this;
 	}
 
 	else{
 	    tmpEntry = new Entry*[3];
-    
-	    tmpEntry[2]=NULL;
+
+	    tmpEntry[0]=ee;    
 	    tmpEntry[1]=entry;
+	    tmpEntry[2]=NULL;
 	    entry=NULL; 
     
-	    tmpEntry[0]=ee;
+
 
 	    nodes = new CullingQuad* [4];
 
@@ -287,32 +311,41 @@ CullingQuad* CullingQuad::shallowInsert(Entry* ee){
 	    }
 	    for(int ii=0  ; tmpEntry[ii]!=NULL ;ii++ ){
 		if(tmpEntry[ii]->index_point.x >= center->x && tmpEntry[ii]->index_point.y >= center->y){
-		    nodes[UR]->shallowInsert(tmpEntry[ii]);
+		    returnQuad=nodes[UR]->shallowInsert(tmpEntry[ii]);
 
 		} 
 		else if(tmpEntry[ii]->index_point.x < center->x && tmpEntry[ii]->index_point.y >= center->y ){
-		    nodes[UL]->shallowInsert(tmpEntry[ii]);
+		    returnQuad=nodes[UL]->shallowInsert(tmpEntry[ii]);
 
 		}
 	
 		else if(tmpEntry[ii]->index_point.x < center->x && tmpEntry[ii]->index_point.y < center->y ){
-		    nodes[BL]->shallowInsert(tmpEntry[ii]);
+		    returnQuad=nodes[BL]->shallowInsert(tmpEntry[ii]);
 		}
 	
 		else if(tmpEntry[ii]->index_point.x >= center->x && tmpEntry[ii]->index_point.y < center->y){
-		    nodes[BR]->shallowInsert(tmpEntry[ii]);
-		}	    
+		    returnQuad=nodes[BR]->shallowInsert(tmpEntry[ii]);
+		}
+		
 	    
 
 	    }
+	    delete tmpEntry;
+	    return returnQuad;
 	}
     }
 	
     else{
+	if(!isLeaf()){
+	    // cerr<<" Fatal Error : attempy to insert at nonLeaf node "<<endl;
+	    exit(1);
+	}
 	entry = ee ;
 	entry->changeQuad(this);
-    }
+	return this;
 
+    }
+    // cerr << " shallowInsert:End " <<endl;
 }
 
 CullingQuad* CullingQuad::shallowInsert(Entry& ee){
@@ -323,8 +356,19 @@ CullingQuad* CullingQuad::shallowInsert(Entry& ee){
 
 
 bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPosition  ){
+    Entry* entryCopy;
+    if( entry == NULL)
+	// cerr << "moveEntryDelta:  Creature* cc " << cc->getName() << " has the Quad, but entry is NULL "<<  setbase(16) << cc->tracingCullingQuad<<endl 
+	;
 
 
+    else if(!entry->listFind(cc))
+	// cerr << "moveEntryDelta:  Creature* cc " << cc->getName() << " not found in Quad: "<<  setbase(16) << cc->tracingCullingQuad<<endl 
+	;
+
+
+    holdRootSemaphore();
+    // cerr << "moveEntryDelta:  Creature* cc " << cc->getName() << " Quad: "<<  setbase(16) << cc->tracingCullingQuad   << setbase(10) << " const Ogre::Vector2& newPosition  " << newPosition.x <<" " << newPosition.y  << endl;
     if((abs(newPosition.x - center->x) <  radious) && (abs(newPosition.y - center->y) <  radious) && entry->creature_list.size()==1){
   	   entry->index_point = newPosition;
     }
@@ -333,10 +377,13 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
 	if(parent!=NULL){
 
 	    entry->index_point = newPosition;
-	    parent->reinsert(entry);
+	    entryCopy = entry;
 	    entry = NULL;
+	    parent->reinsert(entryCopy);
+
 	}
 	else{
+	    throw 1;
 	    //Throw exception
 	}
 	
@@ -352,10 +399,11 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
 		Entry* ee = new Entry(cc);
    		ee->index_point = newPosition;
 		entry->creature_list.remove(cc);
-		insert(ee);
+		insertNoLock(ee);
 
 	    }
 	    else{
+	      throw 2;
 		//Throw exception
 	    }
 
@@ -373,6 +421,7 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
 
 	    }
 	    else{
+	      throw 3;
 		//Throw exception
 	    }
 
@@ -380,16 +429,19 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
 
 
     }
+    // cerr << "moveEntryDelta: END :   CreatureName "  << cc->getName() << "Quad: "<<  setbase(16) << cc->tracingCullingQuad   << setbase(10) << " const Ogre::Vector2& newPosition  " << newPosition.x <<" " << newPosition.y  << endl;
+    releaseRootSemaphore();
+
 
 }
 
 
 bool CullingQuad::reinsert( Entry* ee ){
 
-
-    if((abs(entry->index_point.x - center->x) <  radious) && (abs(entry->index_point.y - center->y) <  radious)){
+    // cerr << "reinsert " <<endl;
+    if((abs(ee->index_point.x - center->x) <  radious) && (abs(ee->index_point.y - center->y) <  radious)){
 	
-	insert(ee);
+	insertNoLock(ee);
     }
     
 
@@ -402,9 +454,7 @@ bool CullingQuad::reinsert( Entry* ee ){
 	}
 
     }
-
-
-
+    // cerr << "reinsert:End " <<endl;
 
 }
 

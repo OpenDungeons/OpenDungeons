@@ -52,7 +52,8 @@ Creature::Creature(
         previousPositionTile    (0),
         battleField             (new Field("autoname")),
         trainingDojo            (0),	
-        sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
+        sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName())),
+	tracingCullingQuad      (NULL)
 {
     setGameMap(gameMap);
     sem_init(&hpLockSemaphore, 0, 1);
@@ -77,6 +78,13 @@ Creature::Creature(
 
     pushAction(CreatureAction::idle);
 }
+
+/*  Destructor is needed when removing from Quadtree*/
+ Creature::~Creature()
+ {
+     tracingCullingQuad->entry->creature_list.remove(this);
+ }
+
 
 /*  This function causes a segfault in Creature::doTurn() when computeBattlefield() is called.
  Creature::~Creature()
@@ -175,6 +183,7 @@ Creature& Creature::operator=(const CreatureDefinition* c2)
     return *this;
 }
 
+
 /*! \brief Changes the creature's position to a new position.
  *
  *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
@@ -189,6 +198,8 @@ void Creature::setPosition(const Ogre::Vector3& v)
         // tile the creature is in before and after the move to properly
         // maintain the results returned by the positionTile() function.
         Tile *oldPositionTile = positionTile();
+
+
         MovableGameEntity::setPosition(v);
         Tile *newPositionTile = positionTile();
 
@@ -203,16 +214,16 @@ void Creature::setPosition(const Ogre::Vector3& v)
 	    
         }
 
-	// tracingCullingQuad->moveEntryDelta(this,get2dPosition());
+	tracingCullingQuad->moveEntryDelta(this,get2dPosition());
 
     }
     else
     {
-        // We are not on the m
+        // We are not on the map
         
 
+	MovableGameEntity::setPosition(v);
 
-        MovableGameEntity::setPosition(v);
     }
 
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
@@ -224,6 +235,7 @@ void Creature::setPosition(const Ogre::Vector3& v)
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 }
+
 
 void Creature::setHP(double nHP)
 {
