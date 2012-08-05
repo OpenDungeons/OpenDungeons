@@ -391,12 +391,30 @@ int CameraManager::updateCameraView() {
     bottom = new Vector3i(ogreVectorsArray[2]);
     middleRight = new Vector3i(ogreVectorsArray[3]);
 
+    sort(bottom, top, false);
+    sort(middleLeft, middleRight, false);
+    sort(middleRight, top, false);
+    sort(bottom, middleLeft, false);
+    sort(middleLeft, middleRight, true);
 
+
+    if(oldTop!=0){
+	bashAndSplashTiles(SHOW | HIDE);
+    }
+    else{
+	oldTop=new  Vector3i (*top) ;
+	oldBottom=new  Vector3i (*bottom) ;
+	oldMiddleLeft=new  Vector3i (*middleLeft) ;
+	oldMiddleRight=new  Vector3i (*middleRight);
+
+	bashAndSplashTiles(SHOW);
+
+    }
 
 
 
     cerr << "countnodes " << gameMap->myCullingQuad.countNodes() <<endl;  
-    CullingQuad tmpQuad;
+    CullingQuad tmpQuad(&(gameMap->myCullingQuad));
 
     tmpQuad.cut(Segment(ogreVectorsArray[1],ogreVectorsArray[0]));
     tmpQuad.cut(Segment(ogreVectorsArray[0],ogreVectorsArray[3]));
@@ -417,29 +435,22 @@ int CameraManager::updateCameraView() {
     std::set_difference(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(descendingCreatures, descendingCreatures.end())); 
 
 
+
+
     cerr << "ascendingCreatures  " << ascendingCreatures.size() <<endl;
     cerr << "descendingCreatures " << descendingCreatures.size()<<endl;
 
     // sort the new tiles to form the proper diamod
 
-    sort(bottom, top, false);
-    sort(middleLeft, middleRight, false);
-    sort(middleRight, top, false);
-    sort(bottom, middleLeft, false);
-    sort(middleLeft, middleRight, true);
 
 
-    if(oldTop!=0){
-	bashAndSplashTiles(SHOW | HIDE);
-    }
-    else{
-	oldTop=new  Vector3i (*top) ;
-	oldBottom=new  Vector3i (*bottom) ;
-	oldMiddleLeft=new  Vector3i (*middleLeft) ;
-	oldMiddleRight=new  Vector3i (*middleRight);
 
-	bashAndSplashTiles(SHOW);
-    }
+    for(std::set<Creature*> :: iterator it = ascendingCreatures.begin() ;  it != ascendingCreatures.end() ; it++   )
+    	(*it)->show();
+
+    for(std::set<Creature*> :: iterator it = descendingCreatures.begin() ;  it != descendingCreatures.end() ; it++   )
+    	(*it)->hide();
+
     return 1;
 }
 

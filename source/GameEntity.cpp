@@ -113,9 +113,7 @@ void GameEntity::createMesh()
             request->type = RenderRequest::noRequest;
             break;
     }
-
     request->p = static_cast<void*>(this);
-
     RenderManager::queueRenderRequest(request);
 }
 
@@ -281,3 +279,5 @@ void GameEntity::deleteYourself()
 
     RenderManager::queueRenderRequest(request);
 }
+
+

@@ -13,6 +13,9 @@
 #include <vector>
 #include <semaphore.h>
 #include <Ogre.h>
+#include "RenderManager.h"
+#include "RenderRequest.h"
+
 
 class GameMap;
 class Tile;
@@ -121,6 +124,9 @@ class GameEntity
 	assert(gameMap != 0);
     }
 
+
+
+
     virtual void                setPosition                     (const Ogre::Vector3& v)
     {
 	sem_wait(&positionLockSemaphore);
@@ -137,6 +143,33 @@ class GameEntity
 
     //! \brief Function that implements code for the removal from the map
     virtual void    deleteYourself  ();
+
+
+    inline void show(){
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::attachTile;
+	request->p = static_cast<void*>(this);
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	RenderManager::queueRenderRequest(request);
+  
+  
+  
+  
+    };
+
+    inline void hide(){
+  
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::detachTile;
+	request->p = static_cast<void*>(this);
+
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	RenderManager::queueRenderRequest(request);  
+  
+  
+    };
+
 
     //! \brief defines what happens on each turn with this object
     virtual bool    doUpkeep        () = 0;
@@ -155,6 +188,8 @@ class GameEntity
     //! the enemy inflicted the damage and the object can use this accordingly.
     virtual void takeDamage(double damage, Tile *tileTakingDamage) = 0;
 
+    Ogre::SceneNode* pSN;
+
     static std::vector<GameEntity*> removeDeadObjects(const std::vector<GameEntity*> &objects)
     {
 	std::vector<GameEntity*> ret;
@@ -172,6 +207,8 @@ class GameEntity
     Ogre::Vector3   position;
 
   private:
+
+        
 
 
     //! brief The name of the entity

@@ -4,7 +4,6 @@
 #include "LogManager.h"
 #include "RenderManager.h"
 #include "GameMap.h"
-
 #include "GameContext.h"
 
 GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputManager,GameMap *gm )
@@ -55,6 +54,14 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputMan
 
     gameMap->createTilesMeshes();
     gameMap->hideAllTiles();
+    
+
+
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::toggleCreatureVisibility;
+
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderManager::queueRenderRequest(request);  
 }
 
 

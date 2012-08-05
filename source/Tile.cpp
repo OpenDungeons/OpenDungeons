@@ -669,30 +669,6 @@ void Tile::refreshMesh()
     RenderManager::queueRenderRequest(request);
 }
 
-void Tile::show(){
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::attachTile;
-    request->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
-  
-  
-  
-  
-}
-
-void Tile::hide(){
-  
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::detachTile;
-    request->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);  
-  
-  
-}
 
 void Tile::setMarkedForDigging(bool ss, Player *pp)
 {

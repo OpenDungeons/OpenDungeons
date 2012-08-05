@@ -67,8 +67,12 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void rrRefreshTile(const RenderRequest& renderRequest);
         void rrCreateTile(const RenderRequest& renderRequest);
         void rrDestroyTile(const RenderRequest& renderRequest);
-        void rrDetachTile(const RenderRequest& renderRequest);	
+        void rrDetachCreature(const RenderRequest& renderRequest);
+        void rrAttachCreature(const RenderRequest& renderRequest);
+        void rrDetachTile(const RenderRequest& renderRequest);
         void rrAttachTile(const RenderRequest& renderRequest);
+
+	void rrToggleCreaturesVisibility();
 	void rrColorTile(const RenderRequest& renderRequest);
 	void rrSetPickAxe( const RenderRequest& renderRequest ); 
 	void rrTemporalMarkTile ( const RenderRequest& renderRequest );
@@ -113,6 +117,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
 
         std::string colourizeMaterial(const std::string& materialName, int color);
     private:
+        bool visibleCreatures;
         RenderManager(const RenderManager&);
         //TODO -should we maybe encapsulate the semaphores somewhere?
         sem_t renderQueueSemaphore;

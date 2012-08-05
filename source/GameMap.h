@@ -50,12 +50,11 @@ typedef Tile** TileMap_t;
 class GameMap 
 {
 friend class MiniMap;
+friend class RenderManager;
  public:
   GameMap();
   ~GameMap();
   CullingQuad myCullingQuad;
-  bool visibleCreatures;
-  void toggleCreaturesVisibility();
   int setAllNeighbors();     
   void createNewMap(int xSize, int ySize);
   int allocateMapMemory(int xSize, int ySize); 
@@ -227,6 +226,7 @@ friend class MiniMap;
   inline Player* getLocalPlayer() {return me;}
   inline const Player* getLocalPlayer() const {return me;}
 
+  mutable sem_t creaturesLockSemaphore; 
   Player *me;
   std::string nextLevel;
   bool loadNextLevel;
@@ -248,6 +248,7 @@ friend class MiniMap;
 
 
   static sem_t creatureAISemaphore;
+  std::vector<Creature*> creatures;
   static ProtectedObject<long int> turnNumber;
 
  private:
@@ -282,9 +283,9 @@ friend class MiniMap;
   std::string levelFileName;
   mutable sem_t tilesLockSemaphore;
   std::vector<boost::shared_ptr<CreatureDefinition> > classDescriptions;
-  std::vector<Creature*> creatures;
+
   //Mutable to allow locking in const functions.
-  mutable sem_t creaturesLockSemaphore; //TODO: Most of these other vectors should also probably have semaphore locks on them.
+  //TODO: Most of these other vectors should also probably have semaphore locks on them.
   std::vector<MovableGameEntity*> animatedObjects;
   sem_t animatedObjectsLockSemaphore;
   sem_t activeObjectsLockSemaphore;

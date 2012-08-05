@@ -807,7 +807,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
             case OIS::KC_R:
 
-		mc->gameMap->toggleCreaturesVisibility();
+
 
                 break;
 

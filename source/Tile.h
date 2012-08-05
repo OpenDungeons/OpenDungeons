@@ -139,9 +139,6 @@ class Tile : public GameEntity
 
     int getX() const {return x;}
     int getY() const {return y;}
-    void show();
-    void hide();
-        
         
     int x, y;
     double colorDouble;
@@ -155,7 +152,7 @@ class Tile : public GameEntity
     void takeDamage(double damage, Tile *tileTakingDamage) {}
     double getHP(Tile *tile) {return 0;}
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
-    Ogre::SceneNode* pSN;
+
 
  private:
     void setFullnessValue(double f);

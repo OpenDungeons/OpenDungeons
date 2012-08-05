@@ -141,7 +141,7 @@ friend class CullingQuad;
         void recieveExp(double experience);
         void clearActionQueue();
 	
-	Ogre::SceneNode* pSN;
+
         Player* getControllingPlayer();
         void computeBattlefield();
 

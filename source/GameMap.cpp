@@ -58,8 +58,7 @@ GameMap::GameMap() :
         length(0),
         width(0),
         aiManager(*this),
-	maxAIThreads(1),
-	visibleCreatures(true)
+	maxAIThreads(1)
 {
     sem_init(&threadReferenceCountLockSemaphore, 0, 1);
     sem_init(&creaturesLockSemaphore, 0, 1);
@@ -76,36 +75,6 @@ GameMap::~GameMap(){
 
     delete auxTilesArray;
 
-}
-
-void GameMap::toggleCreaturesVisibility(){
-    sem_wait(&creaturesLockSemaphore);
-    visibleCreatures = !visibleCreatures;
-    if(visibleCreatures ){
-	for(  std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); ++it){
-	    if((*it)->isMeshExisting()) 
-
-		// (*it)->pSN=((*it)->sceneNode->getParentSceneNode());
-		//pSN->removeChild((*it)->
-		(*it)->pSN->addChild((*it)->sceneNode);
-	    //  addAnimatedObject(*it);
-	    // (*it)->createMesh();
-	} 
-    }
-    else{
-	for(  std::vector<Creature*>::iterator it = creatures.begin(); it != creatures.end(); ++it){
-	    if((*it)->isMeshExisting()){
-		(*it)->pSN=((*it)->sceneNode->getParentSceneNode());
-		(*it)->pSN->removeChild((*it)->sceneNode);
-
-	    }
-
-	    // removeAnimatedObject(*it);
-	    // (*it)->destroyMesh();
-	    
-	} 
-    }
-    sem_post(&creaturesLockSemaphore);
 }
 
 
