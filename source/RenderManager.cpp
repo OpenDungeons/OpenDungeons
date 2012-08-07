@@ -727,7 +727,7 @@ void RenderManager::rrDetachCreature( const RenderRequest& renderRequest ){
     GameEntity* curEntity = static_cast<GameEntity*> ( renderRequest.p );
     Ogre::SceneNode* creatureNode = sceneManager->getSceneNode( curEntity->getName() + "_node" );   
 
-    curEntity->pSN=(creatureNode->getParentSceneNode());
+
     curEntity->pSN->removeChild(creatureNode);
 
 
@@ -976,6 +976,8 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
     node->setPosition(curCreature->getPosition());
     node->setScale(scale);
     node->attachObject(ent);
+    curCreature->pSN=(node->getParentSceneNode());
+    curCreature->pSN->removeChild(node);
 }
 
 void RenderManager::rrDestroyCreature ( const RenderRequest& renderRequest )

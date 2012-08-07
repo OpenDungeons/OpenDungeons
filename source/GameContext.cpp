@@ -57,11 +57,11 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputMan
     
 
 
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::toggleCreatureVisibility;
+    // RenderRequest *request = new RenderRequest;
+    // request->type = RenderRequest::toggleCreatureVisibility;
 
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);  
+    // // Add the request to the queue of rendering operations to be performed before the next frame.
+    // RenderManager::queueRenderRequest(request);  
 }
 
 

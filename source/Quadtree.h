@@ -155,11 +155,11 @@ public:
     void setCenter(double, double);
     void setRadious(double);
     bool moveEntryDelta(Creature* ,const Ogre::Vector2&  );
-
-
-private:
     void holdRootSemaphore(){  /* std::cerr<<std::endl<<std::endl<<"hold"<<std::endl<<std::endl; */ CullingQuad* cq = this ; while(cq->parent!=NULL) cq=cq->parent;     sem_wait(&(cq->creaturesInCullingQuadLockSemaphore)); };
     void releaseRootSemaphore(){ /* std::cerr<<std::endl<<std::endl<<"release"<<std::endl<<std::endl;  */   CullingQuad* cq = this ; while(cq->parent!=NULL) cq=cq->parent;     sem_post(&(cq->creaturesInCullingQuadLockSemaphore)); };
+
+private:
+
 
     inline bool isEmptyLeaf(){return isLeaf() && (entry==NULL  ||  entry->creature_list.empty() );};
     inline bool isNonEmptyLeaf(){return isLeaf() && !(entry==NULL || entry->creature_list.empty()) ;};
