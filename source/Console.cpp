@@ -33,7 +33,6 @@ template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
 
 Console::Console() :
         //these two define how much text goes into the console
-        odf(ODFrameListener::getSingletonPtr()),
         consoleLineLength   (100),
         consoleLineCount    (14),
         blinkSpeed          (0.5),

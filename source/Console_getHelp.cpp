@@ -181,6 +181,6 @@ string Console::getHelpText(std::string arg)
     }
     else
     {
-        return "Help for command:  \"" + odf->arguments + "\" not found.";
+        return "Help for command:  \"" + ODFrameListener::getSingletonPtr()->arguments + "\" not found.";
     }
 }
