@@ -32,7 +32,7 @@ class Gui : public Ogre::Singleton<Gui>
             mainMenu,
             optionsMenu,
             ingameMenu,
-	    editorMenu
+	    editorToolBox
         };
 
         Gui();

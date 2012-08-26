@@ -61,10 +61,10 @@ EditorContext::EditorContext(Ogre::RenderWindow* renderWindow, ModeManager* inpu
 
 void EditorContext::onFrameStarted(const Ogre::FrameEvent& evt){
 
-	CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
+    CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
 
-	gameMap->getMiniMap()->draw();
-	gameMap->getMiniMap()->swap();	
+    gameMap->getMiniMap()->draw();
+    gameMap->getMiniMap()->swap();	
 
 
 }
