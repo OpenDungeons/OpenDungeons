@@ -26,12 +26,12 @@ int main(int argc, char **argv)
     {
         new ODApplication;
     }
-    catch (Ogre::Exception& e)
+    catch (const std::exception& e)
     {
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 
         MessageBox(0, e.what(), "An exception has occurred!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
-        fprintf(stderr, "An exception has occurred: %s\n", e.what());
+		std::cerr<< "An exception has occurred: " << e.what() << std::endl;
 #endif
     }
 

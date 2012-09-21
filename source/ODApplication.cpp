@@ -44,6 +44,7 @@ ODApplication::ODApplication() :
         root(0),
         window(0)
 {
+    try {
     sem_init(&MapLight::lightNumberLockSemaphore, 0, 1);
     sem_init(&MissileObject::missileObjectUniqueNumberLockSemaphore, 0, 1);
     sem_init(&ServerNotification::serverNotificationQueueSemaphore, 0, 0);
@@ -140,29 +141,16 @@ ODApplication::ODApplication() :
     //FIXME: This should be at a better place (when level loads for the first time)
     // new MiniMap;
 
-
-
-    try
-    {
-        root->startRendering();
-    }
-    catch (Ogre::Exception& e)
-    {
-        displayErrorMessage("Ogre exception:\n"
-                            + e.getFullDescription());
-        cleanUp();
-        return;
-    }
-    catch (std::exception& e)
-    {
-        displayErrorMessage("Exception:\n"
-                            + std::string(e.what()));
-        cleanUp();
-        return;
-    }
+	root->startRendering();
+    
     //Moved out from cleanup, as we only want to remove it if it exists.
     root->removeFrameListener(ODFrameListener::getSingletonPtr());
-    cleanUp();
+	} catch( const Ogre::Exception& e ) {
+		std::cerr<< "An internal Ogre3D error ocurred: " << e.getFullDescription() << std::endl;
+		displayErrorMessage("Internal Ogre3D exception: " + e.getFullDescription());
+	}
+	// Will be called even if an Ogre::Exception was thrown
+	cleanUp();
 }
 
 ODApplication::~ODApplication()
