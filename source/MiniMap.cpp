@@ -19,7 +19,7 @@
 
 
 
-template<> MiniMap* Ogre::Singleton<MiniMap>::ms_Singleton = 0;
+template<> MiniMap* Ogre::Singleton<MiniMap>::msSingleton = 0;
 
 /*! Initializes the MiniMap
  *

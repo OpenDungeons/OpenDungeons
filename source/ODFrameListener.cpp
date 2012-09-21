@@ -54,7 +54,7 @@
 #include "Console.h"
 
 template<> ODFrameListener*
-        Ogre::Singleton<ODFrameListener>::ms_Singleton = 0;
+        Ogre::Singleton<ODFrameListener>::msSingleton = 0;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf_is_banned_in_OD_code _snprintf

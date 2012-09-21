@@ -51,7 +51,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         */
         static void queueRenderRequest(RenderRequest* renderRequest)
         {
-            ms_Singleton->queueRenderRequest_priv(renderRequest);
+            msSingleton->queueRenderRequest_priv(renderRequest);
         }
 
         void rtssTest(); 

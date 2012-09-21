@@ -60,7 +60,7 @@ class Console :
         void onMouseMoved   (const OIS::MouseEvent& arg, const bool isCtrlDown = false);
         void onKeyPressed   (const OIS::KeyEvent& arg);
         void messageLogged  (const Ogre::String& message, Ogre::LogMessageLevel lml,
-        bool maskDebug, const Ogre::String& logName);
+        bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
         bool executePromptCommand(const std::string& command, std::string arguments);
 	string getHelpText(std::string arg);
 	void printText(const std::string& text);

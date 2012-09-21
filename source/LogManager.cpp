@@ -23,7 +23,7 @@
 #include "LogManager.h"
 
 template<> LogManager*
-        Ogre::Singleton<LogManager>::ms_Singleton = 0;
+        Ogre::Singleton<LogManager>::msSingleton = 0;
 
 LogManager::LogManager()
 {

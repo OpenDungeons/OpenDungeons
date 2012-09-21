@@ -25,7 +25,7 @@
 #include "ModeManager.h"
 
 
-template<> Gui* Ogre::Singleton<Gui>::ms_Singleton = 0;
+template<> Gui* Ogre::Singleton<Gui>::msSingleton = 0;
 
 /*! \brief Constructor that initializes the whole CEGUI system
  *  including renderer, system, resource provider, setting defaults,
@@ -43,7 +43,7 @@ Gui::Gui() :
     sheets[hideGui] = 0;
     sheets[ingameMenu] = wmgr->loadWindowLayout("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadWindowLayout("OpenDungeonsMainMenu.layout");
-    sheets[editorToolBox] =  wmgr->loadWindowLayout("OpenDungeonsEditorToolBox.layout");
+    //sheets[editorToolBox] =  wmgr->loadWindowLayout("OpenDungeonsEditorToolBox.layout");
 
     mainMenuMode = false;
     assignEventHandlers();

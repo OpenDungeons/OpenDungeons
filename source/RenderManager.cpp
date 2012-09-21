@@ -39,7 +39,7 @@ using std::stringstream;
 #include "LogManager.h"
 #include "GameEntity.h"
 
-template<> RenderManager* Ogre::Singleton<RenderManager>::ms_Singleton = 0;
+template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = 0;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 ProtectedObject<unsigned int> RenderManager::numThreadsWaitingOnRenderQueueEmpty(0);

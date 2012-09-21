@@ -35,7 +35,7 @@
 #include "ODApplication.h"
 
 template<> ODApplication*
-Ogre::Singleton<ODApplication>::ms_Singleton = 0;
+Ogre::Singleton<ODApplication>::msSingleton = 0;
 
 /*! Initializes the Application along with the ResourceManager
  *

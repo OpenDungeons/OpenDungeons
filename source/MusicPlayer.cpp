@@ -15,7 +15,7 @@
 
 #include "MusicPlayer.h"
 
-template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::ms_Singleton = 0;
+template<> MusicPlayer* Ogre::Singleton<MusicPlayer>::msSingleton = 0;
 
 /*! \brief Initialize variables and load music files in the resource
  *  locations listed under "Music".

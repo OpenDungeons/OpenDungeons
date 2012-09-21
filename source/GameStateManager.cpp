@@ -25,7 +25,7 @@
 #include "GameStateManager.h"
 
 
-template<> GameStateManager* Ogre::Singleton<GameStateManager>::ms_Singleton = 0;
+template<> GameStateManager* Ogre::Singleton<GameStateManager>::msSingleton = 0;
 
 GameStateManager::GameStateManager()
         :

@@ -27,7 +27,7 @@
 
 #include "ModeManager.h"
 
-template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
+template<> Console* Ogre::Singleton<Console>::msSingleton = 0;
 
 
 
@@ -245,8 +245,10 @@ std::vector<Ogre::String> Console::split(const Ogre::String& str, const char spl
  * We only allow critical messages to the console. Non-critical messages would
  * pollute the console window and make it hardly readable.
  */
-void Console::messageLogged(const Ogre::String & message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String & logName)
+void Console::messageLogged(const Ogre::String & message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String & logName, bool& skipThisMessage)
 {
+	// if skipThisMessage is true then just return, skipping the rest of the implementation
+	if(skipThisMessage) return;
     //test if the logLevel is allowed, if not then return
     switch(lml)
     {
