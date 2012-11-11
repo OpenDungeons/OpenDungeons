@@ -64,6 +64,7 @@
 <div class="contents">
 <div class="textblock"><p>If the application uses multiple script modules to control different parts of the application it may sometimes be beneficial to allow parts of the scripts to be shared between the script modules. The main benefits of shared entities is the reduced memory consumption, and the fact that the type of the shared entity is the same for the modules, thus simplifying the information exchange between modules where this is used.</p>
 <p>Shared entities have a restriction in that they cannot access non-shared entities because the non-shared entities are exclusive to the script module in which they were compiled.</p>
+<p>Once a shared entity has been compiled in one module it will not be compiled again in another module. This can be taken advantage of as a module that is to use a shared entity already compiled in a previous module doesn't have to provide the complete implementation in the script. If this is done, the application must make sure the module that has the complete implementation is always compiled first.</p>
 <h2><a class="anchor" id="doc_script_shared_1"></a>
 How to declare shared entities</h2>
 <p>To declare a shared entity simply put the keyword 'shared' before the ordinary declaration, e.g.</p>
@@ -78,14 +79,14 @@ How to declare shared entities</h2>
 <p>The easiest way to guarantee that the implementation is the same is by using the same source file, but this is not a requirement.</p>
 <h2><a class="anchor" id="doc_script_shared_2"></a>
 What can be shared</h2>
-<p>Currently only the <a class="el" href="doc_script_class.html">class</a>, <a class="el" href="doc_global.html#doc_global_interface">interface</a>, <a class="el" href="doc_global.html#doc_global_function">function</a>, and <a class="el" href="doc_global.html#doc_global_enums">enum</a> entities can be shared.</p>
-<p>Future versions may allow <a class="el" href="doc_global.html#doc_global_variable">global variables</a> to be shared too. </p>
+<p>Currently only the <a class="el" href="doc_script_class.html">class</a>, <a class="el" href="doc_global_interface.html">interface</a>, <a class="el" href="doc_script_func.html">function</a>, and <a class="el" href="doc_global_enums.html">enum</a> entities can be shared.</p>
+<p>Future versions may allow <a class="el" href="doc_global_variable.html">global variables</a> to be shared too. </p>
 </div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

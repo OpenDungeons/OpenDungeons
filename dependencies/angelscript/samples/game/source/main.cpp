@@ -1,4 +1,5 @@
 #include <iostream>  // cout
+#include <stdio.h>
 #include <angelscript.h>
 #ifdef _MSC_VER
 	#include <crtdbg.h>  // debugging routines

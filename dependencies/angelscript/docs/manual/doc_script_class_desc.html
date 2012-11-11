@@ -64,7 +64,7 @@
 <div class="contents">
 <div class="textblock"><p>With classes the script writer can declare new data types that hold groups of properties and methods to manipulate them.</p>
 <p>Script classes are reference types, which means that multiple references or <a class="el" href="doc_script_handle.html">handles</a> can be held for the same object instance. The classes uses automatic memory management so the object instances are only destroyed when the last reference to the instance is cleared.</p>
-<p>The class methods are implemented the same way as <a class="el" href="doc_global.html#doc_global_function">global functions</a>, with the addition that the class method can access the class instance properties through either directly or through the 'this' keyword in the case a local variable has the same name.</p>
+<p>The class methods are implemented the same way as <a class="el" href="doc_script_func.html">global functions</a>, with the addition that the class method can access the class instance properties through either directly or through the 'this' keyword in the case a local variable has the same name.</p>
 <pre>
   // The class declaration
   class MyClass
@@ -82,8 +82,7 @@
   }
 </pre><p>A class can implement specific methods to <a class="el" href="doc_script_class_ops.html">overload operators</a>. This can simplify how the object instances are used in expressions, so that it is not necessary to explicitly name each function, e.g. the opAdd method translates to the + operator.</p>
 <p>Another useful feature is the ability to implement <a class="el" href="doc_script_class_prop.html">property accessors</a>, which can be used either to provide virtual properties, i.e. that look like properties but really aren't, or to implement specific routines that must be executed everytime a property is accessed.</p>
-<p>A script class can also <a class="el" href="doc_script_class_inheritance.html">inherit</a> from other classes, and implement <a class="el" href="doc_global.html#doc_global_interface">interfaces</a>.</p>
-<dl class="todo"><dt><b><a class="el" href="todo.html#_todo000006">Todo:</a></b></dt><dd>Explain const methods</dd></dl>
+<p>A script class can also <a class="el" href="doc_script_class_inheritance.html">inherit</a> from other classes, and implement <a class="el" href="doc_global_interface.html">interfaces</a>.</p>
 <h2><a class="anchor" id="doc_script_class_construct"></a>
 Class constructors</h2>
 <p>Class constructors are specific methods that will be used to create new instances of the class. It is not required for a class to declare constructors, but doing so may make it easier to use the class as it will not be necessary to first instanciate the class and then manually set the properties.</p>
@@ -119,13 +118,29 @@ Class destructor</h2>
     }
   }
 </pre><p>Observe that AngelScript uses automatic memory management with garbage collection so it may not always be easy to predict when the destructor is executed. AngelScript will also call the destructor only once, even if the object is resurrected by adding a reference to it while executing the destructor.</p>
-<p>It is not possible to directly invoke the destructor. If you need to be able to directly invoke the cleanup, then you should implement a public method for that. </p>
-</div></div>
+<p>It is not possible to directly invoke the destructor. If you need to be able to directly invoke the cleanup, then you should implement a public method for that.</p>
+<h2><a class="anchor" id="doc_script_class_const"></a>
+Const methods</h2>
+<p>Classes add a new type of <a class="el" href="doc_script_func_overload.html">function overload</a>, i.e. const overload. When a class method is accessed through a read-only reference or handle, only methods that have been marked as constant can be invoked. When the reference or handle is writable, then both types can be invoked, with the preference being the non-const version in case both matches.</p>
+<pre>
+  class CMyClass
+  {
+    int method()       { a++; return a; } 
+    int method() const {      return a; }
+    int a;
+  }
+  void Function()
+  {
+     CMyClass o;
+     const CMyClass @h = o;</pre><pre>     o.method(); // invokes the non-const version that increments the member a
+     h.method(); // invokes the const version that doesn't increment the member a
+  }
+</pre> </div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

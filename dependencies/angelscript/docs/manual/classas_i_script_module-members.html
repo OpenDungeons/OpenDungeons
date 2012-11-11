@@ -99,12 +99,12 @@ This is the complete list of members for <a class="el" href="classas_i_script_mo
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#ad30b22539655df3135f29ce28b89c820">GetTypedefCount</a>() const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a7fbc2bd888b248d2c2ee2d953b49eefc">GetTypeIdByDecl</a>(const char *decl) const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#acfe8b510171e4d330a88847bf31e2208">GetUserData</a>() const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
-  <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a2cf2e0fa7de8a14034eb31aa3edecbd0">LoadByteCode</a>(asIBinaryStream *in)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a8b4a222e5309c6b367f136b6d2f664ba">LoadByteCode</a>(asIBinaryStream *in, bool *wasDebugInfoStripped=0)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a62c6783491b197e9eb29639e7997e1df">RemoveFunction</a>(int funcId)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a54b6f8e09787ad20880f73bc97a8ef10">RemoveFunction</a>(asIScriptFunction *func)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#aac10878c3d16f18ace4db881f7a1bb11">RemoveGlobalVar</a>(asUINT index)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a7b084b6693a05616097d7059e54d983b">ResetGlobalVars</a>(asIScriptContext *ctx=0)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
-  <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a493e91e8ccf282966881276e2022dab1">SaveByteCode</a>(asIBinaryStream *out) const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
+  <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#ac6cd95dd97cc6abf28ab4d82257f5aeb">SaveByteCode</a>(asIBinaryStream *out, bool stripDebugInfo=false) const =0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a76733de5a86875c4a0f021f7f92a6d12">SetAccessMask</a>(asDWORD accessMask)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#ab8629af79cee8212d0d244314d36f42a">SetDefaultNamespace</a>(const char *nameSpace)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
   <tr class="memlist"><td><a class="el" href="classas_i_script_module.html#a1a7534bace9eefdc3175a1999f9cbf4a">SetName</a>(const char *name)=0</td><td><a class="el" href="classas_i_script_module.html">asIScriptModule</a></td><td><code> [pure virtual]</code></td></tr>
@@ -116,7 +116,7 @@ This is the complete list of members for <a class="el" href="classas_i_script_mo
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

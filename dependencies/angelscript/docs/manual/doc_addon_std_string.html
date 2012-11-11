@@ -73,60 +73,13 @@ Public C++ interface</h2>
 <p>Refer to the <code>std::string</code> implementation for your compiler.</p>
 <h2><a class="anchor" id="doc_addon_std_string_2"></a>
 Public script interface</h2>
-<pre>
-  class string
-  {
-    // Constructors
-    string();
-    string(const string &amp;in);</pre><pre>    // Property accessor for getting and setting the length
-    uint length { get const; set; }</pre><pre>    // Methods for getting and setting the length
-    uint length() const;
-    void resize(uint);</pre><pre>    // Returns true if the string is empty
-    bool isEmpty() const;</pre><pre>    // Assignment and concatenation
-    string &amp;opAssign(const string &amp;in other);
-    string &amp;opAddAssign(const string &amp;in other);
-    string  opAdd(const string &amp;in right) const;</pre><pre>    // Access individual characters
-    uint8       &amp;opIndex(uint);
-    const uint8 &amp;opIndex(uint) const;</pre><pre>    // Comparison operators
-    bool opEquals(const string &amp;in right) const;
-    int  opCmp(const string &amp;in right) const;</pre><pre>    // Substring
-    string substr(uint start = 0, int count = -1) const;
-    array&lt;string&gt;@ split(const string &amp;in delimiter) const;</pre><pre>    // Search
-    int findFirst(const string &amp;in str, uint start = 0) const;
-    int findLast(const string &amp;in str, int start = -1) const;</pre><pre>    // Automatic conversion from primitive types to string type
-    string &amp;opAssign(double val);
-    string &amp;opAddAssign(double val);
-    string  opAdd(double val) const;
-    string  opAdd_r(double val) const;</pre><pre>    string &amp;opAssign(int val);
-    string &amp;opAddAssign(int val);
-    string  opAdd(int val) const;
-    string  opAdd_r(int val) const;</pre><pre>    string &amp;opAssign(uint val);
-    string &amp;opAddAssign(uint val);
-    string  opAdd(uint val) const;
-    string  opAdd_r(uint val) const;</pre><pre>    string &amp;opAssign(bool val);
-    string &amp;opAddAssign(bool val);
-    string  opAdd(bool val) const;
-    string  opAdd_r(bool val) const;
-  }</pre><pre>  // Takes an array of strings and joins them into one string separated by the specified delimiter
-  string join(const array&lt;string&gt; &amp;in arr, const string &amp;in delimiter);</pre><pre>  // Formatting numbers into strings
-  // The options should be informed as characters in a string
-  //  l = left justify
-  //  0 = pad with zeroes
-  //  + = always include the sign, even if positive
-  //    = add a space in case of positive number
-  //  h = hexadecimal integer small letters
-  //  H = hexadecimal integer capital letters
-  //  e = exponent character with small e
-  //  E = exponent character with capital E
-  string formatInt(int64 val, const string &amp;in options, uint width = 0);
-  string formatFloat(double val, const string &amp;in options, uint width = 0, uint precision = 0);</pre><pre>  // Parsing numbers from strings
-  int64  parseInt(const string &amp;in, uint base = 10, uint &amp;out byteCount = 0);
-  double parseFloat(const string &amp;in, uint &amp;out byteCount = 0);</pre><pre></pre> </div></div>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_datatypes_strings.html#doc_datatypes_strings_addon">Strings in the script language</a> </dd></dl>
+</div></div>
 </div>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

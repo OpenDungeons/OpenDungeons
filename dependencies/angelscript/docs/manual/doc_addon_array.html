@@ -72,6 +72,7 @@ Public C++ interface</h2>
 {
 <span class="keyword">public</span>:
   <span class="comment">// Constructor</span>
+  CScriptArray(<span class="keyword">const</span> CScriptArray &amp;other);
   CScriptArray(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> length, <a class="code" href="classas_i_object_type.html" title="The interface for an object type.">asIObjectType</a> *ot);
   CscriptArray(<a class="code" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815" title="32 bit unsigned integer">asUINT</a> length, <span class="keywordtype">void</span> *defaultValue, <a class="code" href="classas_i_object_type.html" title="The interface for an object type.">asIObjectType</a> *ot);
   <span class="keyword">virtual</span> ~CScriptArray();
@@ -126,39 +127,8 @@ Public C++ interface</h2>
 };
 </pre></div><h2><a class="anchor" id="doc_addon_array_2"></a>
 Public script interface</h2>
-<pre>
-  class array&lt;class T&gt;
-  {
-    array();
-    array(uint length);
-    array(uint length, const T &amp;in defaultValue);</pre><pre>    T       &amp;opIndex(uint);
-    const T &amp;opIndex(uint) const;</pre><pre>    array&lt;T&gt; opAssign(const array&lt;T&gt; &amp;in);
-    bool     opEquals(const array&lt;T&gt; &amp;in) const;</pre><pre>    uint length { get const; set; }</pre><pre>    void insertAt(uint index, const T &amp;in);
-    void removeAt(uint index);
-    void insertLast(const T&amp; in);
-    void removeLast();
-    uint length() const;
-    uint isEmpty() const;
-    void resize(uint);
-    void reserve(uint);
-    void sortAsc();
-    void sortAsc(uint index, uint count);
-    void sortDesc();
-    void sortDesc(uint index, uint count);
-    void reverse();
-    int  find(const T&amp; in) const;
-    int  find(uint index, const T&amp; in) const;
-  }
-</pre><h2><a class="anchor" id="doc_addon_array_3"></a>
-Script example</h2>
-<pre>
-  int main()
-  {
-    array&lt;int&gt; arr = {1,2,3};</pre><pre>    int sum = 0;
-    for( uint n = 0; n &lt; arr.length; n++ )
-      sum += arr[n];</pre><pre>    return sum;
-  }
-</pre><h2><a class="anchor" id="doc_addon_array_4"></a>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_datatypes_arrays.html#doc_datatypes_arrays_addon">Arrays in the script language</a></dd></dl>
+<h2><a class="anchor" id="doc_addon_array_4"></a>
 C++ example</h2>
 <p>This function shows how a script array can be instanciated from the application and then passed to the script.</p>
 <div class="fragment"><pre class="fragment">CScriptArray *CreateArrayOfStrings()
@@ -194,7 +164,7 @@ C++ example</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

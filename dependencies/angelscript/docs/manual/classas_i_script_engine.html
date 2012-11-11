@@ -250,7 +250,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Set the function that should be called when an object type is destroyed.  <a href="#a2336a92d5cd2a6a37007addf81ca059f"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>It is allowed to have multiple instances of script engines, but there is rarely a need for it. Even if the application needs to expose different interfaces to different types of scripts this can usually be accomplished through the use of dynamic configuration groups and access profiles. </p>
+<div class="textblock"><p>It is allowed to have multiple instances of script engines, but there is rarely a need for it. Even if the application needs to expose different interfaces to different types of scripts this can usually be accomplished through the use of <a class="el" href="doc_adv_dynamic_config.html">configuration groups</a> and <a class="el" href="doc_adv_access_mask.html">access profiles</a>. </p>
 </div><hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="aa95a5d9b5d9e7e6a230fedf056eaf8ce"></a><!-- doxytag: member="asIScriptEngine::AddRef" ref="aa95a5d9b5d9e7e6a230fedf056eaf8ce" args="() const =0" -->
 <div class="memitem">
@@ -1896,7 +1896,8 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
     <tr><td class="paramname">asNOT_SUPPORTED</td><td>The calling convention is not supported. </td></tr>
     <tr><td class="paramname">asWRONG_CALLING_CONV</td><td>The function's calling convention doesn't match <em>callConv</em>. </td></tr>
     <tr><td class="paramname">asINVALID_DECLARATION</td><td>The function declaration is invalid. </td></tr>
-    <tr><td class="paramname">asNAME_TAKEN</td><td>The function name is already used elsewhere.</td></tr>
+    <tr><td class="paramname">asNAME_TAKEN</td><td>The function name is already used elsewhere. </td></tr>
+    <tr><td class="paramname">asALREADY_REGISTERED</td><td>The function has already been registered with the same parameter list.</td></tr>
   </table>
   </dd>
 </dl>
@@ -2154,7 +2155,8 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
     <tr><td class="paramname">asINVALID_TYPE</td><td>The <em>obj</em> parameter is not a valid object name. </td></tr>
     <tr><td class="paramname">asINVALID_DECLARATION</td><td>The <em>declaration</em> is invalid. </td></tr>
     <tr><td class="paramname">asNAME_TAKEN</td><td>The name conflicts with other members. </td></tr>
-    <tr><td class="paramname">asWRONG_CALLING_CONV</td><td>The function's calling convention isn't compatible with <em>callConv</em>.</td></tr>
+    <tr><td class="paramname">asWRONG_CALLING_CONV</td><td>The function's calling convention isn't compatible with <em>callConv</em>. </td></tr>
+    <tr><td class="paramname">asALREADY_REGISTERED</td><td>The method has already been registered with the same parameter list.</td></tr>
   </table>
   </dd>
 </dl>
@@ -2916,7 +2918,7 @@ virtual <a class="el" href="classas_i_j_i_t_compiler.html">asIJITCompiler</a> *&
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_engine.html">asIScriptEngine</a>      </li>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

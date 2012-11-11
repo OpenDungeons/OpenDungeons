@@ -15,7 +15,114 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
-<h2>Version 2.24.0a - 2012/06/28</h2>
+<h2>Version 2.25.1 - 2012/10/28</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed including mixin from a different script section (Thanks Nick Robinson)
+<li>Registering template specializations for templates without default constructor is now working (Thanks slicer4ever)
+<li>Fixed compiler assert on unary negate operator on void expression (Thanks FDsagizi)
+<li>Fixed bug with NOCOUNT object when copying script class members (Thanks FDsagizi)
+<li>Problem with exception handling after loading pre-compiled bytecode when class constructor takes object in argument (Thanks FDsagizi)
+<li>GetLineNumber() could crash when called for nested context calls (Thanks saejox)
+<li>Compiler would incorrectly find global functions when compiling function calls as post ops (Thanks FDsagizi)
+<li>Fixed bug in compiler when compiling property get expression that returned a reference to an object, but the reference wasn't used (Thanks Eero Tanskanen)
+<li>Fixed bug with virtual methods returning objects in memory on ARM platforms (Thanks Cordan)
+<li>Fixed compiler bug when compiling function that takes out reference of a type where opAssign returned a value (Thanks _Engine_)
+<li>Compiler wasn't showing error for virtual properties without any accessor (Thanks FDsagizi)
+<li>Shared enums in pre-compiled bytecode were not treated as shared when loading (Thanks _Engine_)
+<li>Shared classes will now validate that declared members exist in the original declaration during compilation (Thanks _Engine_)
+</ul>
+<li>Library
+<ul>
+<li>Implemented an inline profiler to get better understanding of bottlenecks in the code
+<li>Added support for the new ABI in MinGW32 4.7 (Thanks Heuristics)
+<li>Improved error messages when loading bytecode with shared types that doesn't match existing shared types
+<li>The context's line callback is now invoked one extra time just before leaving the Execute() method to allow listeners to catch state changes (Thanks saejox)
+<li>Made some improvements towards compatibility with Marmalade
+<li>Added validation against duplicate registration of global functions or class methods (Thanks Jason Dorie)
+</ul>
+<li>Script language
+<ul>
+<li>Class properties of the same type can now be declared together separated by ,
+<li>Interfaces can now inherit from other interfaces
+<li>Improved the way function overloads are matched against arguments so least conversion cost for all arguments wins (Thanks Adam Hoult)
+</ul>
+<li>Add-ons
+<ul>
+<li>Slight optimization in the string pool when a string is inserted for the first time (Thanks thewavelength)
+<li>Fixed bug in script builder add-on with parsing metadata for invalid script (Thanks FDsagizi)
+</ul>
+</ul>
+
+<h2>Version 2.25.0 - 2012/09/17</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>GetEnumByIndex and GetTypedefByIndex wasn't returning a valid typeId when the type was not in the default namespace (Thanks Polyák István)
+<li>Inheriting from a class or interface in a different namespace didn't work (Thanks Polyák István)
+<li>Functions and class methods didn't accept the scope operator in the return type (Thanks Polyák István)
+<li>Compiler missed adding a validation for a null pointer when compiling a return statement for a function returning object by value (Thanks Philip Bennefall)
+<li>Fixed crash when cleaning up after a script exception in a function that returns a value object by value (Thanks Philip Bennefall)
+<li>Fixed memory leak when compiling script that declares interface with virtual properties (Thanks brumi)
+<li>Functions that take 64bit types as arguments now work with Android native calling conventions (Thanks Fredrik Ehnbom)
+<li>Fixed bug in compiler when assigning value from property accessor to array element (Thanks Philip Bennefall)
+<li>Fixed crash in garbage collector when using automatic collections (Thanks Polyák István)
+<li>Compiler failed to compile default argument expression that accessed an index in global array (Thanks Philip Bennefall)
+<li>Avoid temporary copy of script object without explicit opAssign method when assigned from global variable (Thanks Andrew Ackermann)
+<li>Duplicate class methods are now detected at their declaration (Thanks FDsagizi)
+<li>Local function pointers variables now properly take precedence over class methods of the same name (Thanks cellulose)
+<li>Serializing bytecode that called funcions with variable arguments didn't work properly (Thanks Markus Lenger)
+<li>Construct calls in expressions are now parsed properly when the type is preceeded with the namespace (Thanks Andrew Ackermann)
+<li>Compiler gave error when compiling non-const methods that returned const references to members (Thanks Polyák István)
+</ul>
+<li>Library
+<ul>
+<li>The VM will catch C++ exceptions thrown by the registered functions and set a script exception. This can be turned off by AS_NO_EXCEPTIONS if exception handling is not supported (Thanks Polyák István)
+<li>Loading large precompiled bytecode files will now be significantly faster. Performance should now be similar to pre 2.23.0 (Thanks loboWu)
+<li>Improved build performance of tokenizer for large initialization lists (Thanks Markus Lenger)
+<li>Improved build performance of parser for scripts with a lot of statements
+<li>Improved build performance of searching for global properties by name (Thanks Markus Lenger)
+<li>Improved build performance of searching for global script functions (Thanks Markus Lenger)
+<li>Compiler will now implicitly convert rvalue to handle when doing a handle assignment to ASHANDLE type
+<li>Types registered with asOBJ_APP_PRIMITIVE or asOBJ_APP_FLOAT can now be passed by value in native calling convention on 64bit Linux and Mac (Thanks Cordan)
+<li>Error message now includes the error code when an improper call to an engine function is made
+<li>Improved error message when parser encounters unexpected end of file (Thanks Philip Bennefall)
+<li>Improved build performance when optimizing bytecode with a large amount of conditions
+</ul>
+<li>Virtual Machine
+<ul>
+<li>float and double comparisons in the VM now properly handle infinity (Thanks GGLucas)
+</ul>
+<li>Library interface
+<ul>
+<li>Added asOBJ_APP_CLASS_ALIGN8 used to inform AngelScript that a type may need to be aligned on 8byte boundaries (Thanks Fredrik Ehnbom)
+<li>The template callback behaviour now take a second argument to allow the application to tell the engine if an instance shouldn't be garbage collected
+<li>Added asOBJ_SCRIPT_FUNCTION flag to identify the object type that represents script functions
+<li>Added asIScriptFunction::IsCompatibleWithTypeId() and GetTypeId() to work with function pointers as generic types
+<li>Added an optional argument to asIScriptModule::SaveByteCode to strip the debug info
+<li>Added an optional argument to asIScriptModule::LoadByteCode to determine if the bytecode contains debug info or not
+</ul>
+<li>Script language
+<ul>
+<li>Added keyword 'mixin'
+<li>mixin classes can now be declared with default implementations to be included into a class
+</ul>
+<li>Add-ons
+<ul>
+<li>The script array is no longer garbage collected if the type cannot form circular references (Thanks Philip Bennefall)
+<li>Implemented the C++ copy constructor for the CScriptArray
+<li>Added GetType() to CScriptHandle
+<li>CScriptHandle::Cast() properly handles function pointers
+<li>Fixed bug in CScriptArray::SetValue() when replacing a handle in an element (Thanks Andrew Ackermann)
+<li>Added wrapper for std::string::operator== to fix compile error on gcc 4.7 (Thanks Piotr Rak)
+<li>Fixed bug in CSerializer related to extra objects (Thanks FDsagizi)
+</ul>
+</ul>
+
+<h2>Version 2.24.1 - 2012/08/07</h2>
 
 <ul>
 <li>Bug fixes
@@ -23,6 +130,45 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 <li>Parser now recognizes declarations where the type is declared in a different namespace (Thanks alraz)
 <li>Parser can now parse templates where the subtype is in a different namespace (Thanks sylexer)
 <li>Stack pointer wasn't restored correctly when reusing context, which lead to memory invasions (Thanks virious)
+<li>Fixed problem with loading bytecode that contained arrays of function pointers (Thanks TheAtom)
+<li>GetFunctionByDecl() failed to find functions with parameters when they were declared in a namespace (Thanks alraz)
+<li>The scope operator can now be used in the inheritance list when a class is deriving from a class in another namespace (Thanks alraz)
+<li>IsVarInScope() and GetAddressOfVar() now works properly even before Execute() (Thanks Friggle)
+<li>The garbage collector could enter an infinite recursive loop if invoked while calling a class destructor (Thanks Philip Bennefall)
+<li>Aborting a nested script call could cause a crash in the VM (Thanks Philip Bennefall)
+<li>AS_64BIT_PTR is now defined in angelscript.h instead of in as_config.h (Thanks quarnster)
+<li>Saving bytecode with functions that take enums by value could fail on 64bit platforms (Thanks m4ttbush)
+<li>asIScriptContext::GetLineNumber() will now return the line where the function call was made from (Thanks quarnster)
+<li>Registering object properties when both object and property type is in a namespace is now working properly (Thanks Starfox)
+<li>Fixed memory invasion when script allocated script class that had other script classes as members (Thanks Andrew Ackermann)
+<li>Registering global properties with a type from another namespace failed (Thanks _Engine_)
+<li>Fixed 64bit bug when saving bytecode (Thanks quarnster)
+</ul>
+<li>Library
+<ul>
+<li>Removed functionality where interfaces would be automatically shared if the declaration was identical. This was already deprecated in version 2.23.0
+<li>Improved internal handling of namespaces
+<li>Reduced the size of saved bytecode by not storing the namespace of class methods
+<li>Bytecode optimizer exchanges some more sequences with shorter ones for better performance
+<li>When the engine receives a request to abort a script in a nested call it will now forward the request to the outer call, after aborting the inner call (Thanks Philip Bennefall)
+<li>Reduced recursiveness in compiler to allow it to compile extremely long expressions without stack overflow (Thanks Philip Bennefall)
+<li>Added JitEntry instructions in the factory stub functions and generated default constructor 
+</ul>
+<li>Script language
+<ul>
+<li>Function pointers can now be invoked from arbitrary expressions without first assigning them to a variable (Thanks TheAtom)
+</ul>
+<li>Virtual machine
+<ul>
+<li>Each call to Execute() will now tell the GC to process at least one step unless automatic garbage collection is turned off
+</ul>
+<li>Add-ons
+<ul>
+<li>Corrected the implementation of Complex::operator/() to calculate the proper result (Thanks CMRM)
+<li>Fixed compilation error in scriptbuilder.cpp on XCode 4.3 with CLang++ 3.1 (Thanks Ricky C)
+<li>The script array will forward requests to abort a script to the outer call when performing comparisons, which uses nested calls (Thanks Philip Bennefall)
+<li>Fixed linker error in scriptstdstring.cpp on XCode 4.3 with CLang++ 3.1 (Thanks Ricky C)
+<li>Fixed crash in script array when the array was created with a very large initial size (Thanks Philip Bennefall)
 </ul>
 </ul>
 

@@ -60,7 +60,7 @@
 
 // AS_DEBUG
 // This flag can be defined to make the library write some extra output when
-// compiling and executing scripts. 
+// compiling and executing scripts.
 
 // AS_DEPRECATED
 // If this flag is defined then some backwards compatibility is maintained.
@@ -78,9 +78,9 @@
 // AS_DOUBLEBYTE_CHARSET
 // When this flag is defined, the parser will treat all characters in strings
 // that are greater than 127 as lead characters and automatically include the
-// next character in the script without checking its value. This should be 
-// compatible with common encoding schemes, e.g. Big5. Shift-JIS is not compatible 
-// though as it encodes some single byte characters above 127. 
+// next character in the script without checking its value. This should be
+// compatible with common encoding schemes, e.g. Big5. Shift-JIS is not compatible
+// though as it encodes some single byte characters above 127.
 //
 // If support for international text is desired, it is recommended that UTF-8
 // is used as this is supported natively by the compiler without the use for this
@@ -90,6 +90,9 @@
 // Compiles the library without support for compiling scripts. This is intended
 // for those applications that will load pre-compiled bytecode and wants to decrease
 // the size of the executable.
+
+// AS_NO_EXCEPTIONS
+// Define this if exception handling is turned off or not available on the target platform.
 
 
 //
@@ -115,7 +118,7 @@
 //-----------------------------------------
 
 // asVSNPRINTF(a,b,c,d)
-// Some compilers use different names for this function. You must 
+// Some compilers use different names for this function. You must
 // define this macro to map to the proper function.
 
 // ASM_AT_N_T or ASM_INTEL
@@ -203,7 +206,7 @@
 // Use MSVC assembler code for the X64 AMD/Intel CPU family
 
 // AS_64BIT_PTR
-// Define this to make the engine store all pointers in 64bit words. 
+// Define this to make the engine store all pointers in 64bit words.
 
 // AS_BIG_ENDIAN
 // Define this for CPUs that use big endian memory layout, e.g. PPC
@@ -268,7 +271,7 @@
 // or in the registers as normal structures
 
 // COMPLEX_MASK
-// This constant shows what attributes determine if an object is implicitly passed 
+// This constant shows what attributes determine if an object is implicitly passed
 // by reference or not, even if the argument is declared by value
 
 // THISCALL_RETURN_SIMPLE_IN_MEMORY
@@ -316,7 +319,7 @@
 
 // SPLIT_OBJS_BY_MEMBER_TYPES
 // On some platforms objects with primitive members are split over different
-// register types when passed by value to functions. 
+// register types when passed by value to functions.
 
 
 
@@ -377,6 +380,12 @@
 
 // Microsoft Visual C++
 #if defined(_MSC_VER) && !defined(__MWERKS__)
+
+	#if _MSC_VER <= 1200 // MSVC6
+		// Disable the useless warnings about truncated symbol names for template instances
+		#pragma warning( disable : 4786 )
+	#endif
+
 	#ifdef _M_X64
 		#define MULTI_BASE_OFFSET(x) (*((asDWORD*)(&x)+2))
 		#define VIRTUAL_BASE_OFFSET(x) (*((asDWORD*)(&x)+4))
@@ -388,7 +397,7 @@
 	#define THISCALL_RETURN_SIMPLE_IN_MEMORY
 	#define THISCALL_PASS_OBJECT_POINTER_IN_ECX
 
-	// There doesn't seem to be a standard define to identify Marmalade, so we'll 
+	// There doesn't seem to be a standard define to identify Marmalade, so we'll
 	// look for one of these defines that have to be given by the project settings
 	// http://www.madewithmarmalade.com/
 	#if defined(AS_MARMALADE) || defined (MARMALADE)
@@ -399,7 +408,11 @@
 
 		// Marmalade doesn't use the Windows libraries
 		#define asVSNPRINTF(a, b, c, d) vsnprintf(a, b, c, d)
-		#define AS_POSIX_THREADS
+		
+		// Marmalade doesn't seem to have proper support for 
+		// atomic instructions or read/write locks
+		//#define AS_POSIX_THREADS
+		#define AS_NO_THREADS
 		#define AS_NO_ATOMIC
 	#else
 		#if _MSC_VER < 1500  // MSVC++ 9 (aka MSVC++ .NET 2008)
@@ -486,7 +499,7 @@
 	#define UNREACHABLE_RETURN
 #endif
 
-// SN Systems ProDG 
+// SN Systems ProDG
 #if defined(__SNC__) || defined(SNSYS)
 	#define GNU_STYLE_VIRTUAL_METHOD
 	#define MULTI_BASE_OFFSET(x) (*((asDWORD*)(&x)+1))
@@ -529,6 +542,7 @@
 #endif
 
 // GNU C (and MinGW or Cygwin on Windows)
+// Use the following command to determine predefined macros: echo . | mingw32-g++ -dM -E -
 #if (defined(__GNUC__) && !defined(__SNC__)) || defined(EPPC) || defined(__CYGWIN__) // JWC -- use this instead for Wii
 	#define GNU_STYLE_VIRTUAL_METHOD
 #if !defined( __amd64__ )
@@ -572,6 +586,7 @@
 		#if defined(i386) && !defined(__LP64__)
 			// Support native calling conventions on Mac OS X + Intel 32bit CPU
 			#define AS_X86
+			#define THISCALL_PASS_OBJECT_POINTER_ON_THE_STACK
 			#undef COMPLEX_MASK
 			#define COMPLEX_MASK (asOBJ_APP_CLASS_DESTRUCTOR | asOBJ_APP_CLASS_COPY_CONSTRUCTOR)
 			#undef COMPLEX_RETURN_MASK
@@ -626,7 +641,7 @@
 			#define COMPLEX_MASK (asOBJ_APP_CLASS_DESTRUCTOR | asOBJ_APP_CLASS_COPY_CONSTRUCTOR)
 			#undef COMPLEX_RETURN_MASK
 			#define COMPLEX_RETURN_MASK (asOBJ_APP_CLASS_DESTRUCTOR | asOBJ_APP_CLASS_COPY_CONSTRUCTOR)
-			
+
 			// STDCALL is not available on ARM
 			#undef STDCALL
 			#define STDCALL
@@ -635,7 +650,7 @@
 			#define AS_MAX_PORTABILITY
 		#endif
 		#define AS_POSIX_THREADS
- 
+
 	// Windows
 	#elif defined(WIN32) || defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 		// On Windows the simple classes are returned in the EAX:EDX registers
@@ -651,6 +666,17 @@
 		#if defined(i386) && !defined(__LP64__)
 			// Support native calling conventions on Intel 32bit CPU
 			#define AS_X86
+
+			// As of version 4.7 MinGW changed the ABI, presumably
+			// to be better aligned with how MSVC works
+			#if (__GNUC__ == 4 && __GNUC_MINOR__ >= 7) || __GNUC__ > 4
+				#undef  CALLEE_POPS_HIDDEN_RETURN_POINTER
+				#define THISCALL_CALLEE_POPS_ARGUMENTS
+			#else
+				// Earlier versions than 4.7
+				#define THISCALL_PASS_OBJECT_POINTER_ON_THE_STACK
+			#endif
+
 		#elif defined(__x86_64__)
 			#define AS_X64_MINGW
 			#define AS_CALLEE_DESTROY_OBJ_BY_VAL
@@ -676,6 +702,7 @@
 			#define COMPLEX_RETURN_MASK (asOBJ_APP_CLASS_DESTRUCTOR | asOBJ_APP_CLASS_COPY_CONSTRUCTOR)
 
 			// Support native calling conventions on Intel 32bit CPU
+			#define THISCALL_PASS_OBJECT_POINTER_ON_THE_STACK
 			#define AS_X86
 		#elif defined(__LP64__)
 			#define AS_X64_GCC
@@ -726,6 +753,7 @@
 			#define COMPLEX_MASK (asOBJ_APP_CLASS_DESTRUCTOR | asOBJ_APP_CLASS_COPY_CONSTRUCTOR)
 			#undef COMPLEX_RETURN_MASK
 			#define COMPLEX_RETURN_MASK (asOBJ_APP_CLASS_DESTRUCTOR | asOBJ_APP_CLASS_COPY_CONSTRUCTOR)
+			#define THISCALL_PASS_OBJECT_POINTER_ON_THE_STACK
 			#define AS_X86
 		#elif defined(__LP64__)
 			#define AS_X64_GCC
@@ -811,6 +839,8 @@
 
 			#undef COMPLEX_MASK
 			#define COMPLEX_MASK (asOBJ_APP_CLASS_DESTRUCTOR | asOBJ_APP_CLASS_COPY_CONSTRUCTOR)
+			#undef COMPLEX_RETURN_MASK
+			#define COMPLEX_RETURN_MASK (asOBJ_APP_CLASS_DESTRUCTOR | asOBJ_APP_CLASS_COPY_CONSTRUCTOR)
 
 			#define AS_ARM
 			#define AS_CALLEE_DESTROY_OBJ_BY_VAL
@@ -825,6 +855,7 @@
 		// for future compatibility
 		#if defined(i386) && !defined(__LP64__)
 			#define AS_X86
+			#define THISCALL_PASS_OBJECT_POINTER_ON_THE_STACK
 			#define THISCALL_RETURN_SIMPLE_IN_MEMORY
 			#define CDECL_RETURN_SIMPLE_IN_MEMORY
 			#define STDCALL_RETURN_SIMPLE_IN_MEMORY
@@ -846,6 +877,7 @@
 			#define STDCALL_RETURN_SIMPLE_IN_MEMORY
 
 			// Support native calling conventions on Intel 32bit CPU
+			#define THISCALL_PASS_OBJECT_POINTER_ON_THE_STACK
 			#define AS_X86
 		#elif defined(__LP64__)
 			#define AS_X64_GCC
@@ -914,13 +946,6 @@
 	#define AS_USE_DOUBLE_AS_FLOAT	// use 32bit floats instead of doubles
 #endif
 
-// Is the target a 64bit system?
-#if defined(__LP64__) || defined(__amd64__) || defined(__x86_64__) || defined(_M_X64)
-	#ifndef AS_64BIT_PTR
-		#define AS_64BIT_PTR
-	#endif
-#endif
-
 // If there are no current support for native calling
 // conventions, then compile with AS_MAX_PORTABILITY
 #if (!defined(AS_X86) && !defined(AS_SH4) && !defined(AS_MIPS) && !defined(AS_PPC) && !defined(AS_PPC_64) && !defined(AS_XENON) && !defined(AS_X64_GCC) && !defined(AS_X64_MSVC) && !defined(AS_ARM) && !defined(AS_X64_MINGW))
@@ -969,19 +994,13 @@
 	#define	ALIGN(b) (b)
 #endif
 
-#define	ARG_W(b)    ((asWORD*)&b)
-#define	ARG_DW(b)   ((asDWORD*)&b)
-#define	ARG_QW(b)   ((asQWORD*)&b)
-#define	BCARG_W(b)  ((asWORD*)&(b)[1])
-#define	BCARG_DW(b) ((asDWORD*)&(b)[1])
-#define	BCARG_QW(b) ((asQWORD*)&(b)[1])
-
-#ifdef AS_64BIT_PTR
-	#define AS_PTR_SIZE  2
-#else
-	#define AS_PTR_SIZE  1
-#endif
+#define ARG_W(b)     ((asWORD*)&b)
+#define ARG_DW(b)    ((asDWORD*)&b)
+#define ARG_QW(b)    ((asQWORD*)&b)
 #define ARG_PTR(b)   ((asPWORD*)&b)
+#define BCARG_W(b)   ((asWORD*)&(b)[1])
+#define BCARG_DW(b)  ((asDWORD*)&(b)[1])
+#define BCARG_QW(b)  ((asQWORD*)&(b)[1])
 #define BCARG_PTR(b) ((asPWORD*)&(b)[1])
 
 // This macro is used to avoid warnings about unused variables.

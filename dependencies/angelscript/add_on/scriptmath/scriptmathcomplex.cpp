@@ -73,36 +73,37 @@ Complex &Complex::operator/=(const Complex &other)
 	return *this;
 }
 
+float Complex::squaredLength() const
+{
+	return r*r + i*i;
+}
+
 float Complex::length() const
 {
-	return sqrtf(r*r + i*i);
+	return sqrtf(squaredLength());
 }
 
 Complex Complex::operator+(const Complex &other) const
 {
-	Complex res(r + other.r, i + other.i);
-	return res;
+	return Complex(r + other.r, i + other.i);
 }
 
 Complex Complex::operator-(const Complex &other) const
 {
-	Complex res(r - other.r, i + other.i);
-	return res;
+	return Complex(r - other.r, i + other.i);
 }
 
 Complex Complex::operator*(const Complex &other) const
 {
-	Complex res(r*other.r - i*other.i, r*other.i + i*other.r);
-	return res;
+	return Complex(r*other.r - i*other.i, r*other.i + i*other.r);
 }
 
 Complex Complex::operator/(const Complex &other) const
 {
-	float len = other.length();
-	if( len == 0 ) return Complex(0,0);
+	float squaredLen = other.squaredLength();
+	if( squaredLen == 0 ) return Complex(0,0);
 
-	Complex res((r*other.r + i*other.i)/len, (i*other.r - r*other.i)/len);
-	return res;
+	return Complex((r*other.r + i*other.i)/squaredLen, (i*other.r - r*other.i)/squaredLen);
 }
 
 //-----------------------

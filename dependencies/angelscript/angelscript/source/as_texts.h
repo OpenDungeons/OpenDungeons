@@ -52,17 +52,18 @@
 #define TXT_CANNOT_CALL_CONSTRUCTOR_IN_LOOPS     "Can't call a constructor in loops"
 #define TXT_CANNOT_CALL_CONSTRUCTOR_IN_SWITCH    "Can't call a constructor in switch"
 #define TXT_CANNOT_CALL_CONSTRUCTOR_TWICE        "Can't call a constructor multiple times"
+#define TXT_CANNOT_IMPLEMENT_SELF                "Can't implement itself, or another interface that implements this interface"
 #define TXT_CANNOT_INHERIT_FROM_s_FINAL          "Can't inherit from class '%s' marked as final"
 #define TXT_CANNOT_INHERIT_FROM_MULTIPLE_CLASSES "Can't inherit from multiple classes"
 #define TXT_CANNOT_INHERIT_FROM_SELF             "Can't inherit from itself, or another class that inherits from this class"
 #define TXT_CANNOT_INSTANCIATE_TEMPLATE_s_WITH_s "Can't instanciate template '%s' with subtype '%s'"
-#define TXT_CANT_IMPLICITLY_CONVERT_s_TO_s       "Can't implicitly convert from '%s' to '%s'."
 #define TXT_CANNOT_RETURN_REF_TO_LOCAL           "Can't return reference to local value."
+#define TXT_CANT_IMPLICITLY_CONVERT_s_TO_s       "Can't implicitly convert from '%s' to '%s'."
 #define TXT_CANT_RETURN_VALUE                    "Can't return value when return type is 'void'"
 #define TXT_CHANGE_SIGN                          "Implicit conversion changed sign of value"
 #define TXT_COMPILING_s                          "Compiling %s"
 #define TXT_COMPOUND_ASGN_WITH_PROP              "Compound assignments with property accessors are not allowed"
-#define TXT_CONSTRUCTOR_NAME_ERROR               "The constructor name must be the same as the class"
+#define TXT_CONSTRUCTOR_NAME_ERROR               "The name of constructors and destructors must be the same as the class"
 
 #define TXT_DATA_TYPE_CANT_BE_s           "Data type can't be '%s'"
 #define TXT_DECL_IN_SWITCH                "Variables cannot be declared in switch cases, except inside statement blocks"
@@ -85,6 +86,7 @@
 #define TXT_EXPECTED_POST_OPERATOR        "Expected post operator"
 #define TXT_EXPECTED_PRE_OPERATOR         "Expected pre operator"
 #define TXT_EXPECTED_STRING               "Expected string"
+#define TXT_EXPR_DOESNT_EVAL_TO_FUNC      "Expression doesn't evaluate to a function"
 #define TXT_EXPR_MUST_BE_BOOL             "Expression must be of boolean type"
 
 #define TXT_FAILED_TO_COMPILE_DEF_ARG_d_IN_FUNC_s "Failed while compiling default arg for parameter %d in function '%s'"
@@ -109,6 +111,7 @@
 #define TXT_ILLEGAL_VARIABLE_NAME_s             "Illegal variable name '%s'."
 #define TXT_INIT_LIST_CANNOT_BE_USED_WITH_s     "Initialization lists cannot be used with '%s'"
 #define TXT_INTERFACE_s_ALREADY_IMPLEMENTED     "The interface '%s' is already implemented"
+#define TXT_INTERFACE_CAN_ONLY_IMPLEMENT_INTERFACE "Interfaces can only implement other interfaces"
 #define TXT_INVALID_BREAK                       "Invalid 'break'"
 #define TXT_INVALID_CHAR_LITERAL                "Invalid character literal"
 #define TXT_INVALID_CONTINUE                    "Invalid 'continue'"
@@ -124,6 +127,9 @@
 #define TXT_METHOD_CANT_HAVE_NAME_OF_CLASS          "The method cannot be named with the class name"
 #define TXT_METHOD_s_DOES_NOT_OVERRIDE              "Method '%s' marked as override but does not replace any base class or interface method"
 #define TXT_MISSING_IMPLEMENTATION_OF_s             "Missing implementation of '%s'"
+#define TXT_MIXIN_CANNOT_BE_DECLARED_AS_s           "Mixin class cannot be declared as '%s'"
+#define TXT_MIXIN_CANNOT_HAVE_CONSTRUCTOR           "Mixin classes cannot have constructors or destructors"
+#define TXT_MIXIN_CLASS_CANNOT_INHERIT              "Mixin class cannot inherit from classes or implement interfaces"
 #define TXT_MORE_THAN_ONE_MATCHING_OP               "Found more than one matching operator"
 #define TXT_MULTIPLE_MATCHING_SIGNATURES_TO_s       "Multiple matching signatures to '%s'"
 #define TXT_MULTIPLE_PROP_GET_ACCESSOR_FOR_s        "Found multiple get accessors for property '%s'"
@@ -132,10 +138,12 @@
 #define TXT_MUST_BE_OBJECT                          "Only objects have constructors"
 #define TXT_MUST_RETURN_VALUE                       "Must return a value"
 
+#define TXT_NAMESPACE_s_DOESNT_EXIST               "Namespace '%s' doesn't exist."
 #define TXT_NAME_CONFLICT_s_EXTENDED_TYPE          "Name conflict. '%s' is an extended data type."
 #define TXT_NAME_CONFLICT_s_GLOBAL_PROPERTY        "Name conflict. '%s' is a global property."
 #define TXT_NAME_CONFLICT_s_IS_NAMED_TYPE          "Name conflict. '%s' is a named type."
 #define TXT_NAME_CONFLICT_s_IS_FUNCDEF             "Name conflict. '%s' is a funcdef."
+#define TXT_NAME_CONFLICT_s_IS_MIXIN               "Name conflict. '%s' is a mixin class."
 #define TXT_NAME_CONFLICT_s_STRUCT                 "Name conflict. '%s' is a class."
 #define TXT_NAME_CONFLICT_s_OBJ_PROPERTY           "Name conflict. '%s' is an object property."
 #define TXT_NAME_CONFLICT_s_METHOD                 "Name conflict. '%s' is a class method."
@@ -181,6 +189,7 @@
 #define TXT_PROPERTY_CANT_BE_CONST                "Class properties cannot be declared as const"
 #define TXT_PROPERTY_HAS_NO_GET_ACCESSOR          "The property has no get accessor"
 #define TXT_PROPERTY_HAS_NO_SET_ACCESSOR          "The property has no set accessor"
+#define TXT_PROPERTY_WITHOUT_ACCESSOR             "Virtual property must have at least one get or set accessor"
 
 #define TXT_REF_IS_READ_ONLY                    "Reference is read-only"
 #define TXT_REF_IS_TEMP                         "Reference is temporary"
@@ -190,16 +199,17 @@
 
 #define TXT_SHARED_CANNOT_ACCESS_NON_SHARED_VAR_s      "Shared code cannot access non-shared global variable '%s'"
 #define TXT_SHARED_CANNOT_CALL_NON_SHARED_FUNC_s       "Shared code cannot call non-shared function '%s'"
-#define TXT_SHARED_CANNOT_IMPLEMENT_NON_SHARED_s       "Shared class cannot implement non-shared interface '%s'"
+#define TXT_SHARED_CANNOT_IMPLEMENT_NON_SHARED_s       "Shared type cannot implement non-shared interface '%s'"
 #define TXT_SHARED_CANNOT_INHERIT_FROM_NON_SHARED_s    "Shared class cannot inherit from non-shared class '%s'"
 #define TXT_SHARED_CANNOT_USE_NON_SHARED_TYPE_s        "Shared code cannot use non-shared type '%s'"
-#define TXT_SHARED_DOESNT_MATCH_ORIGINAL               "Shared type doesn't match the original declaration in other module"
+#define TXT_SHARED_s_DOESNT_MATCH_ORIGINAL             "Shared type '%s' doesn't match the original declaration in other module"
 #define TXT_SIGNED_UNSIGNED_MISMATCH                   "Signed/Unsigned mismatch"
 #define TXT_STRINGS_NOT_RECOGNIZED                     "Strings are not recognized by the application"
 #define TXT_SWITCH_CASE_MUST_BE_CONSTANT               "Case expressions must be constants"
 #define TXT_SWITCH_MUST_BE_INTEGRAL                    "Switch expressions must be integral numbers"
 
 #define TXT_TYPE_s_NOT_AVAILABLE_FOR_MODULE  "Type '%s' is not available for this module"
+#define TXT_TOO_MANY_JUMP_LABELS             "The function has too many jump labels to handle. Split the function into smaller ones."
 
 #define TXT_UNEXPECTED_END_OF_FILE        "Unexpected end of file"
 #define TXT_UNEXPECTED_TOKEN_s            "Unexpected token '%s'"
@@ -209,6 +219,12 @@
 #define TXT_UNUSED_SCRIPT_NODE            "Unused script node"
 
 #define TXT_VALUE_TOO_LARGE_FOR_TYPE      "Value is too large for data type"
+
+#define TXT_WHILE_PARSING_ARG_LIST        "While parsing argument list"
+#define TXT_WHILE_PARSING_EXPRESSION      "While parsing expression"
+#define TXT_WHILE_PARSING_INIT_LIST       "While parsing initialization list"
+#define TXT_WHILE_PARSING_STATEMENT_BLOCK "While parsing statement block"
+#define TXT_WHILE_INCLUDING_MIXIN         "Previous error occurred while including mixin"
 
 // Global variable initialization
 
@@ -238,10 +254,11 @@
 #define TXT_TEMPLATE_SUBTYPE_s_DOESNT_EXIST        "Template subtype '%s' doesn't exist"
 #define TXT_FAILED_READ_SUBTYPE_OF_TEMPLATE_s      "Failed to read subtype of template type '%s'"
 #define TXT_INSTANCING_INVLD_TMPL_TYPE_s_s         "Attempting to instanciate invalid template type '%s<%s>'"
-#define TXT_FAILED_IN_FUNC_s                       "Failed in call to function '%s'"
-#define TXT_FAILED_IN_FUNC_s_WITH_s                "Failed in call to function '%s' with '%s'"
-#define TXT_FAILED_IN_FUNC_s_WITH_s_AND_s          "Failed in call to function '%s' with '%s' and '%s'"
+#define TXT_FAILED_IN_FUNC_s_d                     "Failed in call to function '%s' (Code: %d)"
+#define TXT_FAILED_IN_FUNC_s_WITH_s_d              "Failed in call to function '%s' with '%s' (Code: %d)"
+#define TXT_FAILED_IN_FUNC_s_WITH_s_AND_s_d        "Failed in call to function '%s' with '%s' and '%s' (Code: %d)"
 #define TXT_GC_RECEIVED_NULL_PTR                   "AddScriptObjectToGC called with null pointer"
+#define TXT_EXCEPTION_IN_NESTED_CALL               "An exception occurred in a nested call"
 
 // Internal names
 
@@ -258,5 +275,6 @@
 #define TXT_INVALID_CALLING_CONVENTION    "Invalid calling convention"
 #define TXT_UNBOUND_FUNCTION              "Unbound function called"
 #define TXT_OUT_OF_BOUNDS                 "Out of range"
+#define TXT_EXCEPTION_CAUGHT              "Caught an exception from the application"
 
 #endif

@@ -118,12 +118,14 @@ Value types and native calling conventions</h2>
 r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a29c6c087c8c5b5cdb6271cfd161cc5a6" title="Registers a new object type.">RegisterObjectType</a>(<span class="stringliteral">&quot;complex&quot;</span>, <span class="keyword">sizeof</span>(complex), <a class="code" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa9fc16a8ac0f30f9ff9c6568e0b7be91d" title="A value type.">asOBJ_VALUE</a> | <a class="code" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa12d358962300537f2b0da20106eb270c" title="The C++ type is a class with a constructor, destructor, assignment operator, and copy constructor...">asOBJ_APP_CLASS_CDAK</a>); assert( r &gt;= 0 );
 </pre></div><p>Make sure you inform these flags correctly, because if you do not you may get various errors when executing the scripts. Common problems are stack corruptions and invalid memory accesses. In some cases you may face more silent errors that may be difficult to detect, e.g. the function is not returning the expected values.</p>
 <p>On some platforms the native calling convention may require further knowledge about the class members in order to work properly; most notable are the Linux 64bit and Mac OSX 64bit systems with the GNUC compiler. On these systems small classes that do not have a destructor or a copy constructor will have different behaviours depending on the type of their members.</p>
-<p>AngelScript lets the application inform the two most common variants, i.e. the class should be treated as if all members are integers, or it should be treated as if all members are floats.</p>
+<p>AngelScript lets the application give information that cover the most common variants, e.g. the class should be treated as if all members are integers, or it should be treated as if all members are floats.</p>
 <table  border="0" cellspacing="0" cellpadding="0">
 <tr>
 <td><a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa5b8de58c5be3145aaa3e54008fb2edeb">asOBJ_APP_CLASS_ALLINTS</a> &#160; </td><td>The C++ class members can be treated as if all integers </td></tr>
 <tr>
 <td><a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa12afb6a0fa4ac874ce89815d3611823d">asOBJ_APP_CLASS_ALLFLOATS</a> &#160; </td><td>The C++ class members can be treated as if all floats or doubles </td></tr>
+<tr>
+<td><a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa244efb813b401b3a6d087c3add802818">asOBJ_APP_CLASS_ALIGN8</a> &#160; </td><td>The C++ class contains members that may require 8byte alignment, e.g. a double. </td></tr>
 </table>
 <p>It is difficult to explain when one or the other should be used as it requires indepth knowledge of the ABI for the respective system, so if you find that you really need to use these flags, make sure you perform adequate testing to guarantee that your functions are called correctly by the script engine. If neither of these flags work, and you're not able to change the class to work without them, then the only other option is to use the generic calling convention, preferably with the <a class="el" href="doc_addon_autowrap.html">auto wrappers</a>. </p>
 </div></div>
@@ -131,7 +133,7 @@ r = engine-&gt;<a class="code" href="classas_i_script_engine.html#a29c6c087c8c5b
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

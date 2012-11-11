@@ -11,6 +11,7 @@ var NAVTREE =
       ] ],
       [ "Using AngelScript", "doc_using.html", [
         [ "Understanding AngelScript", "doc_understanding_as.html", [
+          [ "Script modules", "doc_module.html", null ],
           [ "Datatypes in AngelScript and C++", "doc_as_vs_cpp_types.html", null ],
           [ "The string type", "doc_strings.html", null ],
           [ "Arrays", "doc_arrays.html", null ],
@@ -61,25 +62,41 @@ var NAVTREE =
         ] ]
       ] ],
       [ "The script language", "doc_script.html", [
-        [ "Global script entities", "doc_global.html", null ],
+        [ "Global entities", "doc_script_global.html", [
+          [ "Functions", "doc_script_func.html", [
+            [ "Function declaration", "doc_script_func_decl.html", null ],
+            [ "Parameter references", "doc_script_func_ref.html", null ],
+            [ "Return references", "doc_script_func_retref.html", null ],
+            [ "Function overloading", "doc_script_func_overload.html", null ],
+            [ "Default arguments", "doc_script_func_defarg.html", null ]
+          ] ],
+          [ "Variables", "doc_global_variable.html", null ],
+          [ "Virtual properties", "doc_global_virtprop.html", null ],
+          [ "Script classes", "doc_script_class.html", [
+            [ "Script class overview", "doc_script_class_desc.html", null ],
+            [ "Inheritance and polymorphism", "doc_script_class_inheritance.html", null ],
+            [ "Private class members", "doc_script_class_private.html", null ],
+            [ "Operator overloads", "doc_script_class_ops.html", null ],
+            [ "Property accessors", "doc_script_class_prop.html", null ]
+          ] ],
+          [ "Interfaces", "doc_global_interface.html", null ],
+          [ "Mixin class", "doc_script_mixin.html", null ],
+          [ "Enums", "doc_global_enums.html", null ],
+          [ "Funcdefs", "doc_global_funcdef.html", null ],
+          [ "Typedefs", "doc_global_typedef.html", null ],
+          [ "Namespaces", "doc_global_namespace.html", null ],
+          [ "Imports", "doc_global_import.html", null ]
+        ] ],
         [ "Statements", "doc_script_statements.html", null ],
         [ "Expressions", "doc_expressions.html", null ],
         [ "Data types", "doc_datatypes.html", [
           [ "Primitives", "doc_datatypes_primitives.html", null ],
-          [ "Arrays", "doc_datatypes_arrays.html", null ],
           [ "Objects and handles", "doc_datatypes_obj.html", null ],
+          [ "Arrays", "doc_datatypes_arrays.html", null ],
           [ "Strings", "doc_datatypes_strings.html", null ],
           [ "Function pointers", "doc_datatypes_funcptr.html", null ]
         ] ],
         [ "Object handles", "doc_script_handle.html", null ],
-        [ "Script classes", "doc_script_class.html", [
-          [ "Script class overview", "doc_script_class_desc.html", null ],
-          [ "Inheritance and polymorphism", "doc_script_class_inheritance.html", null ],
-          [ "Private class members", "doc_script_class_private.html", null ],
-          [ "Operator overloads", "doc_script_class_ops.html", null ]
-        ] ],
-        [ "Property accessors", "doc_script_class_prop.html", null ],
-        [ "Returning a reference", "doc_script_retref.html", null ],
         [ "Shared script entities", "doc_script_shared.html", null ],
         [ "Operator precedence", "doc_operator_precedence.html", null ],
         [ "Reserved keywords and tokens", "doc_reserved_keywords.html", null ]

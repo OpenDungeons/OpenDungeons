@@ -62,11 +62,11 @@
 <div class="title">Inheritance and polymorphism </div>  </div>
 </div>
 <div class="contents">
-<div class="textblock"><p>AngelScript supports single inheritance, where a derived class inherits the properties and methods of its base class. Multiple inheritance is not supported, but polymorphism is supprted by implementing <a class="el" href="doc_global.html#doc_global_interface">interfaces</a>.</p>
+<div class="textblock"><p>AngelScript supports single inheritance, where a derived class inherits the properties and methods of its base class. Multiple inheritance is not supported, but polymorphism is supported by implementing <a class="el" href="doc_global_interface.html">interfaces</a>, and code reuse is provided by including <a class="el" href="doc_script_mixin.html">mixin classes</a>.</p>
 <p>All the class methods are virtual, so it is not necessary to specify this manually. When a derived class overrides an implementation, it can extend the original implementation by specifically calling the base class' method using the scope resolution operator. When implementing the constructor for a derived class the constructor for the base class is called using the <code>super</code> keyword. If none of the base class' constructors is manually called, the compiler will automatically insert a call to the default constructor in the beginning. The base class' destructor will always be called after the derived class' destructor, so there is no need to manually do this.</p>
 <pre>
   // A derived class
-  class MyDerived : MyClass
+  class MyDerived : MyBase
   {
     // The default constructor
     MyDerived()
@@ -77,12 +77,25 @@
     void DoSomething()
     {
       // Call the base class' implementation
-      MyClass::DoSomething();</pre><pre>      // Do something more
+      MyBase::DoSomething();</pre><pre>      // Do something more
       b = a;
     }</pre><pre>    int b;
   }
-</pre><dl class="todo"><dt><b><a class="el" href="todo.html#_todo000007">Todo:</a></b></dt><dd>Show how the polymorphism is used with cast behaviours</dd></dl>
-<h2><a class="anchor" id="doc_script_class_inheritance_2"></a>
+</pre><p>A class that is derived from another can be implicitly cast to the base class. The same works for interfaces that are implemented by a class. The other direction requires an <a class="el" href="doc_expressions.html#conversion">explicit cast</a>, as it is not known at compile time if the cast is valid.</p>
+<pre>
+  class A {}
+  class B : A {}
+  void Foo()
+  {
+    A @handle_to_A;
+    B @handle_to_B;</pre><pre>    @handle_to_A = A(); // OK
+    @handle_to_A = B(); // OK. The reference will be implicitly cast to A@</pre><pre>    @handle_to_B = A(); // Not OK. This will give a compilation error
+    @handle_to_B = B(); // OK</pre><pre>    @handle_to_A = handle_to_B; // OK. The reference will be implicitly cast to A@
+    @handle_to_B = handle_to_A; // Not OK. This will give a compilation error</pre><pre>    @handle_to_B = cast&lt;B&gt;(handle_to_A); // OK. Though, the explicit cast will return null 
+                                         // if the object in handle_to_a is not really an
+                                         // instance of B
+  }
+</pre><h2><a class="anchor" id="doc_script_class_inheritance_2"></a>
 Extra control with final and override</h2>
 <p>A class can be marked as 'final' to prevent the inheritance of it. This is an optional feature and mostly used in larger projects where there are many classes and it may be difficult to manually control the correct use of all classes. It is also possible to mark individual class methods of a class as 'final', in which case it is still possible to inherit from the class, but the finalled method cannot be overridden.</p>
 <pre>
@@ -114,7 +127,7 @@ Extra control with final and override</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

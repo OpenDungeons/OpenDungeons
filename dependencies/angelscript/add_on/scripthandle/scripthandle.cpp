@@ -7,7 +7,8 @@ BEGIN_AS_NAMESPACE
 
 static void Construct(CScriptHandle *self) { new(self) CScriptHandle(); }
 static void Construct(CScriptHandle *self, const CScriptHandle &o) { new(self) CScriptHandle(o); }
-static void Construct(CScriptHandle *self, void *ref, int typeId) { new(self) CScriptHandle(ref, typeId); }
+// This one is not static because it needs to be friend with the CScriptHandle class
+void Construct(CScriptHandle *self, void *ref, int typeId) { new(self) CScriptHandle(ref, typeId); }
 static void Destruct(CScriptHandle *self) { self->~CScriptHandle(); }
 
 CScriptHandle::CScriptHandle()
@@ -94,6 +95,11 @@ void CScriptHandle::Set(void *ref, asIObjectType *type)
 	m_type = type;
 
 	AddRefHandle();
+}
+
+asIObjectType *CScriptHandle::GetType()
+{
+	return m_type;
 }
 
 // This method shouldn't be called from the application 
@@ -186,6 +192,15 @@ void CScriptHandle::Cast(void **outRef, int typeId)
 
 	if( type == m_type )
 	{
+		// If the requested type is a script function it is 
+		// necessary to check if the functions are compatible too
+		if( m_type->GetFlags() & asOBJ_SCRIPT_FUNCTION )
+		{
+			asIScriptFunction *func = reinterpret_cast<asIScriptFunction*>(m_ref);
+			if( !func->IsCompatibleWithTypeId(typeId) )
+				return;
+		}
+
 		// Must increase the ref count as we're returning a new reference to the object
 		AddRefHandle();
 		*outRef = m_ref;
@@ -209,7 +224,7 @@ void CScriptHandle::Cast(void **outRef, int typeId)
 	}
 }
 
-static void RegisterScriptHandle_Native(asIScriptEngine *engine)
+void RegisterScriptHandle_Native(asIScriptEngine *engine)
 {
 	int r;
 

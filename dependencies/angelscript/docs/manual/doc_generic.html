@@ -64,14 +64,22 @@
 <div class="contents">
 <div class="textblock"><p>The generic calling convention is available for those situations where the application's native calling convention doesn't work, for example on platforms where support for native calling conventions haven't been added yet. You can detect if native calling conventions isn't supported on your target platform by calling the <a class="el" href="angelscript_8h.html#aba86cba765a7148e2a306b4305ba48f9">asGetLibraryOptions</a> function and checking the returned string for "AS_MAX_PORTABILITY". If the identifier is in the returned string, then native calling conventions is not supported.</p>
 <p>Functions implementing the generic calling conventions are always global functions (or static class methods), that take as parameter a pointer to an <a class="el" href="classas_i_script_generic.html" title="The interface for the generic calling convention.">asIScriptGeneric</a> interface and returns void.</p>
-<div class="fragment"><pre class="fragment"><span class="keywordtype">void</span> MyGenericFunction(<a class="code" href="classas_i_script_generic.html" title="The interface for the generic calling convention.">asIScriptGeneric</a> *gen)
+<div class="fragment"><pre class="fragment"><span class="comment">// The function has been registered with signature:</span>
+<span class="comment">//  MyIntf @func(int, float, MyIntf @)</span>
+<span class="keywordtype">void</span> MyGenericFunction(<a class="code" href="classas_i_script_generic.html" title="The interface for the generic calling convention.">asIScriptGeneric</a> *gen)
 {
-  <span class="comment">// Code to extract arguments from the generic </span>
-  <span class="comment">// interface and to execute the real function</span>
-  ...
+  <span class="comment">// Extract the arguments</span>
+  <span class="keywordtype">int</span> arg0              = gen-&gt;<a class="code" href="classas_i_script_generic.html#aab74bcbe4be32fc423b21b75a3f4d57a" title="Returns the value of a 32-bit integer argument.">GetArgDWord</a>(0);
+  <span class="keywordtype">float</span> arg1            = gen-&gt;<a class="code" href="classas_i_script_generic.html#a487a68e409d79e61fcc624337c4ac991" title="Returns the value of a float argument.">GetArgFloat</a>(1);
+  <a class="code" href="classas_i_script_object.html" title="The interface for an instance of a script object.">asIScriptObject</a> *arg2 = <span class="keyword">reinterpret_cast&lt;</span><a class="code" href="classas_i_script_object.html" title="The interface for an instance of a script object.">asIScriptObject</a>*<span class="keyword">&gt;</span>(gen-&gt;<a class="code" href="classas_i_script_generic.html#a6732b01132cd58e81cd0354ac274039a" title="Returns a pointer to the object in a object argument.">GetArgObject</a>(2));
+  
+  <span class="comment">// Call the real function</span>
+  <a class="code" href="classas_i_script_object.html" title="The interface for an instance of a script object.">asIScriptObject</a> *ret = MyFunction(arg0, arg1, arg2);
+  
+  <span class="comment">// Set the return value</span>
+  gen-&gt;<a class="code" href="classas_i_script_generic.html#a94c9ca32722cb44b09211e51fa906e6e" title="Sets the object return value.">SetReturnObject</a>(ret);
 }
-</pre></div><dl class="todo"><dt><b><a class="el" href="todo.html#_todo000001">Todo:</a></b></dt><dd>Improve the example to better describe how it works</dd></dl>
-<p>Functions using the generic calling convention can be registered anywhere the script engine is expecting global functions or class methods (except where explicitly written otherwise).</p>
+</pre></div><p>Functions using the generic calling convention can be registered anywhere the script engine is expecting global functions or class methods (except where explicitly written otherwise).</p>
 <p>Writing the functions for the generic calling convention requires extracting each argument from the AngelScript stack, and then manually giving the return value back. For that reason it may be a desired to use the <a class="el" href="doc_addon_autowrap.html">automatic wrapper functions</a> rather than writing the functions yourself.</p>
 <h2><a class="anchor" id="doc_generic_1"></a>
 Extracting function arguments</h2>
@@ -87,7 +95,7 @@ Returning values</h2>
   <div id="nav-path" class="navpath">
     <ul>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

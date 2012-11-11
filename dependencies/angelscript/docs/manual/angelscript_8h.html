@@ -103,7 +103,7 @@ Classes</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Information on a bytecode instruction.  <a href="structas_s_b_c_info.html#details">More...</a><br/></td></tr>
 <tr><td colspan="2"><h2><a name="define-members"></a>
 Defines</h2></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a99c6b8b0882e45e5d0b2ed19f6f7a157">ANGELSCRIPT_VERSION</a>&#160;&#160;&#160;22400</td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a99c6b8b0882e45e5d0b2ed19f6f7a157">ANGELSCRIPT_VERSION</a>&#160;&#160;&#160;22501</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a717eccea17214bc1eb64bb9789c4915a"></a><!-- doxytag: member="angelscript.h::asOFFSET" ref="a717eccea17214bc1eb64bb9789c4915a" args="(s, m)" -->
 #define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="angelscript_8h.html#a717eccea17214bc1eb64bb9789c4915a">asOFFSET</a>(s, m)&#160;&#160;&#160;((size_t)(&amp;reinterpret_cast&lt;s*&gt;(100000)-&gt;m)-100000)</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the offset of an attribute in a struct. <br/></td></tr>
@@ -319,13 +319,17 @@ Enumerations</h2></td></tr>
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa12afb6a0fa4ac874ce89815d3611823d">asOBJ_APP_CLASS_ALLFLOATS</a> =  0x10000, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aad8b12da6bf9cd48990d48c2ddf13584d">asOBJ_NOCOUNT</a> =  0x20000
+&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aad8b12da6bf9cd48990d48c2ddf13584d">asOBJ_NOCOUNT</a> =  0x20000, 
+<br/>
+&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa244efb813b401b3a6d087c3add802818">asOBJ_APP_CLASS_ALIGN8</a> =  0x40000
 , <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aaa82f3ef517372e0db029f7dcfe7f88eb">asOBJ_SCRIPT_OBJECT</a> =  0x80000, 
 <br/>
 &#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa92354ace56201eb543c818b6c0852baf">asOBJ_SHARED</a> =  0x100000, 
 <br/>
-&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa770f4012f052a1190edbac8931140091">asOBJ_NOINHERIT</a> =  0x200000
+&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa770f4012f052a1190edbac8931140091">asOBJ_NOINHERIT</a> =  0x200000, 
+<br/>
+&#160;&#160;<a class="el" href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7aa817bffd72a92219d1dc5c6d2361f6e09">asOBJ_SCRIPT_FUNCTION</a> =  0x400000
 <br/>
  }</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Object type flags.  <a href="angelscript_8h.html#a855d86fa9ee15b9f75e553ee376b5c7a">More...</a><br/></td></tr>
@@ -1023,12 +1027,12 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">#define ANGELSCRIPT_VERSION&#160;&#160;&#160;22400</td>
+          <td class="memname">#define ANGELSCRIPT_VERSION&#160;&#160;&#160;22501</td>
         </tr>
       </table>
 </div>
 <div class="memdoc">
-<p>Version 2.24.0 </p>
+<p>Version 2.25.1 </p>
 
 </div>
 </div>
@@ -2173,6 +2177,9 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 <tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aad8b12da6bf9cd48990d48c2ddf13584d"></a><!-- doxytag: member="asOBJ_NOCOUNT" ref="a855d86fa9ee15b9f75e553ee376b5c7aad8b12da6bf9cd48990d48c2ddf13584d" args="" -->asOBJ_NOCOUNT</em>&nbsp;</td><td>
 <p>The type doesn't use reference counting. Only valid for reference types. </p>
 </td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aa244efb813b401b3a6d087c3add802818"></a><!-- doxytag: member="asOBJ_APP_CLASS_ALIGN8" ref="a855d86fa9ee15b9f75e553ee376b5c7aa244efb813b401b3a6d087c3add802818" args="" -->asOBJ_APP_CLASS_ALIGN8</em>&nbsp;</td><td>
+<p>The C++ class contains types that may require 8byte alignment. Only valid for value types. </p>
+</td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aaa82f3ef517372e0db029f7dcfe7f88eb"></a><!-- doxytag: member="asOBJ_SCRIPT_OBJECT" ref="a855d86fa9ee15b9f75e553ee376b5c7aaa82f3ef517372e0db029f7dcfe7f88eb" args="" -->asOBJ_SCRIPT_OBJECT</em>&nbsp;</td><td>
 <p>The object is a script class or an interface. </p>
 </td></tr>
@@ -2181,6 +2188,9 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
 </td></tr>
 <tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aa770f4012f052a1190edbac8931140091"></a><!-- doxytag: member="asOBJ_NOINHERIT" ref="a855d86fa9ee15b9f75e553ee376b5c7aa770f4012f052a1190edbac8931140091" args="" -->asOBJ_NOINHERIT</em>&nbsp;</td><td>
 <p>The object type is marked as final and cannot be inherited. </p>
+</td></tr>
+<tr><td valign="top"><em><a class="anchor" id="a855d86fa9ee15b9f75e553ee376b5c7aa817bffd72a92219d1dc5c6d2361f6e09"></a><!-- doxytag: member="asOBJ_SCRIPT_FUNCTION" ref="a855d86fa9ee15b9f75e553ee376b5c7aa817bffd72a92219d1dc5c6d2361f6e09" args="" -->asOBJ_SCRIPT_FUNCTION</em>&nbsp;</td><td>
+<p>The object type is a script function. </p>
 </td></tr>
 </table>
 </dd>
@@ -2698,7 +2708,7 @@ const <a class="el" href="structas_s_b_c_info.html">asSBCInfo</a>&#160;</td><td 
     <ul>
       <li class="navelem"><a class="el" href="angelscript_8h.html">angelscript.h</a>      </li>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

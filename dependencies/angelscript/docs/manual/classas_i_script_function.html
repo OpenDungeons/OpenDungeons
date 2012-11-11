@@ -89,7 +89,7 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the name of the config group in which the function was registered.  <a href="#afea841f0923573cea81467ac90b71996"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#a5c49841eb92a0993a16eb855577b590c">GetAccessMask</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the access mast of the function.  <a href="#a5c49841eb92a0993a16eb855577b590c"></a><br/></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Function info</div></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Function signature</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classas_i_object_type.html">asIObjectType</a> *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#a73442bb7c6dca067ae2f4d3d069d19de">GetObjectType</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the object type for class or interface method.  <a href="#a73442bb7c6dca067ae2f4d3d069d19de"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual const char *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#a69e30464d13867fb72e66ce3365fdec8">GetObjectName</a> () const =0</td></tr>
@@ -110,13 +110,17 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the method is meant to override a method in the base class.  <a href="#a5aec17ae5639fb9cad403c835d429f6e"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#a805ae8064598ad12f44bb583118b6cc5">IsShared</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns true if the function is shared.  <a href="#a805ae8064598ad12f44bb583118b6cc5"></a><br/></td></tr>
-<tr><td colspan="2"><div class="groupHeader">Parameter and return types</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#a8ca059886317b944c52933b7bbe85cfa">GetParamCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of parameters for this function.  <a href="#a8ca059886317b944c52933b7bbe85cfa"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#af75544f2e9216b5ee611cefe4cfa7672">GetParamTypeId</a> (<a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a> index, <a class="el" href="angelscript_8h.html#a5428f0c940201e5f3bbb28304aeb81bc">asDWORD</a> *flags=0) const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the type id of the specified parameter.  <a href="#af75544f2e9216b5ee611cefe4cfa7672"></a><br/></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#a3b121928dc38cd9816a681f296c53be5">GetReturnTypeId</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the type id of the return type.  <a href="#a3b121928dc38cd9816a681f296c53be5"></a><br/></td></tr>
+<tr><td colspan="2"><div class="groupHeader">Type id for function pointers</div></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#a4a5e24c464e423a2a6724cb849babd21">GetTypeId</a> () const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the type id representing a function pointer for this function.  <a href="#a4a5e24c464e423a2a6724cb849babd21"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#a76715df2843cb37cc010fc3a5d999e84">IsCompatibleWithTypeId</a> (int typeId) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Checks if the given type id can represent this function.  <a href="#a76715df2843cb37cc010fc3a5d999e84"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Debug information</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="angelscript_8h.html#ac8186f029686800b7ce36bde4a55c815">asUINT</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_function.html#a92e14168997c0f67a975e7ed042d8328">GetVarCount</a> () const =0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the number of local variables in the function.  <a href="#a92e14168997c0f67a975e7ed042d8328"></a><br/></td></tr>
@@ -497,7 +501,25 @@ Public Member Functions</h2></td></tr>
       </table>
 </div>
 <div class="memdoc">
-<dl class="return"><dt><b>Returns:</b></dt><dd>A null terminated string with the script section name where the function was implemented. </dd></dl>
+<dl class="return"><dt><b>Returns:</b></dt><dd>A null terminated string with the script section name where the function was implemented.</dd></dl>
+<p>The returned pointer is null when the function doesn't originate from a script file, i.e. a registered function or an auto-generated script function. It can also be null if the information has been removed, e.g. when saving bytecode without debug info. </p>
+
+</div>
+</div>
+<a class="anchor" id="a4a5e24c464e423a2a6724cb849babd21"></a><!-- doxytag: member="asIScriptFunction::GetTypeId" ref="a4a5e24c464e423a2a6724cb849babd21" args="() const =0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual int asIScriptFunction::GetTypeId </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl class="return"><dt><b>Returns:</b></dt><dd>The type id that represents a function pointer for this function </dd></dl>
 
 </div>
 </div>
@@ -604,6 +626,24 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <dl class="return"><dt><b>Returns:</b></dt><dd>The declaration string, or null on error </dd></dl>
+
+</div>
+</div>
+<a class="anchor" id="a76715df2843cb37cc010fc3a5d999e84"></a><!-- doxytag: member="asIScriptFunction::IsCompatibleWithTypeId" ref="a76715df2843cb37cc010fc3a5d999e84" args="(int typeId) const =0" -->
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">virtual bool asIScriptFunction::IsCompatibleWithTypeId </td>
+          <td>(</td>
+          <td class="paramtype">int&#160;</td>
+          <td class="paramname"><em>typeId</em></td><td>)</td>
+          <td> const<code> [pure virtual]</code></td>
+        </tr>
+      </table>
+</div>
+<div class="memdoc">
+<dl class="return"><dt><b>Returns:</b></dt><dd>Returns true if the type id can represent this function. </dd></dl>
 
 </div>
 </div>
@@ -745,7 +785,7 @@ Public Member Functions</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_function.html">asIScriptFunction</a>      </li>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

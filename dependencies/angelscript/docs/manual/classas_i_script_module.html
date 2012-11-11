@@ -163,10 +163,10 @@ Public Member Functions</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#ab7b4c4b94190779028776fd1057a658f">UnbindAllImportedFunctions</a> ()=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Unbinds all imported functions.  <a href="#ab7b4c4b94190779028776fd1057a658f"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">Bytecode saving and loading</div></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a493e91e8ccf282966881276e2022dab1">SaveByteCode</a> (<a class="el" href="classas_i_binary_stream.html">asIBinaryStream</a> *out) const =0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Save compiled bytecode to a binary stream.  <a href="#a493e91e8ccf282966881276e2022dab1"></a><br/></td></tr>
-<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a2cf2e0fa7de8a14034eb31aa3edecbd0">LoadByteCode</a> (<a class="el" href="classas_i_binary_stream.html">asIBinaryStream</a> *in)=0</td></tr>
-<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Load pre-compiled bytecode from a binary stream.  <a href="#a2cf2e0fa7de8a14034eb31aa3edecbd0"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#ac6cd95dd97cc6abf28ab4d82257f5aeb">SaveByteCode</a> (<a class="el" href="classas_i_binary_stream.html">asIBinaryStream</a> *out, bool stripDebugInfo=false) const =0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Save compiled bytecode to a binary stream.  <a href="#ac6cd95dd97cc6abf28ab4d82257f5aeb"></a><br/></td></tr>
+<tr><td class="memItemLeft" align="right" valign="top">virtual int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#a8b4a222e5309c6b367f136b6d2f664ba">LoadByteCode</a> (<a class="el" href="classas_i_binary_stream.html">asIBinaryStream</a> *in, bool *wasDebugInfoStripped=0)=0</td></tr>
+<tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Load pre-compiled bytecode from a binary stream.  <a href="#a8b4a222e5309c6b367f136b6d2f664ba"></a><br/></td></tr>
 <tr><td colspan="2"><div class="groupHeader">User data</div></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top">virtual void *&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classas_i_script_module.html#aa6560a0c5e187695664da2859a9da437">SetUserData</a> (void *data)=0</td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Register the memory address of some user data.  <a href="#aa6560a0c5e187695664da2859a9da437"></a><br/></td></tr>
@@ -174,10 +174,9 @@ Public Member Functions</h2></td></tr>
 <tr><td class="mdescLeft">&#160;</td><td class="mdescRight">Returns the address of the previously registered user data.  <a href="#acfe8b510171e4d330a88847bf31e2208"></a><br/></td></tr>
 </table>
 <hr/><a name="details" id="details"></a><h2>Detailed Description</h2>
-<div class="textblock"><p>A script module can be thought of a library of script functions, objects, and global variables. These are built from a single or multiple script files, also known as script sections.</p>
-<p>An application can load multiple modules independently, and can even discard modules that are no longer used without affecting the other modules. This makes modules convenient for use with on-demand script logic, i.e. the script is loaded and compiled only as it needed, rather than everything up front.</p>
-<p>If two modules are built using the same source script files, they will each hold unique copies of the global variables, functions, and objects declared in the script. There may be valid reasons to do this, but if your only reason is to give a set of individual scripted properties to application objects, then you should consider designing your scripts to use script classes. The use of script classes will allow each application object to maintain its own instance of the script class, while still sharing the same implementation in a single module.</p>
-<p>While different modules are independent, they can communicate with each other with a little help from the application. It is for example possible to import functions between modules, or a handle to an interface might be passed from one module to another to allow. To facilitate the information exchange between modules, the script language permits the declaration of shared entities, e.g. classes and interfaces. These shared entities will be seen and shared by all modules that declare them, thus making guaranteeing that the modules speak the same language, so to speak. </p>
+<div class="textblock"><p>A script module can be thought of a library of script functions, classes, and global variables.</p>
+<p>A pointer to the module interface is obtained by calling <a class="el" href="classas_i_script_engine.html#a9f7cdc52b59034e6e55eb8a56b427aa4" title="Return an interface pointer to the module.">asIScriptEngine::GetModule</a>. The module can then be <a class="el" href="classas_i_script_module.html#a8acf107194c5f079d7f7507309ebe613">built</a> from a single or multiple script files, also known as script sections. Alternatively pre-built bytecode can be <a class="el" href="classas_i_script_module.html#a8b4a222e5309c6b367f136b6d2f664ba">loaded</a>, if it has been saved from a previous build.</p>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_module.html">Script modules</a> </dd></dl>
 </div><hr/><h2>Member Function Documentation</h2>
 <a class="anchor" id="a330835919b565c76c25e9425536f50b7"></a><!-- doxytag: member="asIScriptModule::AddScriptSection" ref="a330835919b565c76c25e9425536f50b7" args="(const char *name, const char *code, size_t codeLength=0, int lineOffset=0)=0" -->
 <div class="memitem">
@@ -1249,7 +1248,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a2cf2e0fa7de8a14034eb31aa3edecbd0"></a><!-- doxytag: member="asIScriptModule::LoadByteCode" ref="a2cf2e0fa7de8a14034eb31aa3edecbd0" args="(asIBinaryStream *in)=0" -->
+<a class="anchor" id="a8b4a222e5309c6b367f136b6d2f664ba"></a><!-- doxytag: member="asIScriptModule::LoadByteCode" ref="a8b4a222e5309c6b367f136b6d2f664ba" args="(asIBinaryStream *in, bool *wasDebugInfoStripped=0)=0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1257,8 +1256,18 @@ Public Member Functions</h2></td></tr>
           <td class="memname">virtual int asIScriptModule::LoadByteCode </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classas_i_binary_stream.html">asIBinaryStream</a> *&#160;</td>
-          <td class="paramname"><em>in</em></td><td>)</td>
-          <td><code> [pure virtual]</code></td>
+          <td class="paramname"><em>in</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool *&#160;</td>
+          <td class="paramname"><em>wasDebugInfoStripped</em> = <code>0</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td><code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
@@ -1266,6 +1275,7 @@ Public Member Functions</h2></td></tr>
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">in</td><td>The input stream. </td></tr>
+    <tr><td class="paramdir">[out]</td><td class="paramname">wasDebugInfoStripped</td><td>Set to true if the bytecode was saved without debug information. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1278,7 +1288,8 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <p>This method is used to load pre-compiled byte code from disk or memory. The application must implement an object that inherits from <a class="el" href="classas_i_binary_stream.html">asIBinaryStream</a> to provide the necessary stream operations.</p>
-<p>It is expected that the application performs the necessary validations to make sure the pre-compiled byte code is from a trusted source. The application should also make sure the pre-compiled byte code is compatible with the current engine configuration, i.e. that the engine has been configured in the same way as when the byte code was first compiled. </p>
+<p>It is expected that the application performs the necessary validations to make sure the pre-compiled byte code is from a trusted source. The application should also make sure the pre-compiled byte code is compatible with the current engine configuration, i.e. that the engine has been configured in the same way as when the byte code was first compiled.</p>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_adv_precompile.html">Pre-compiled byte code</a> </dd></dl>
 
 </div>
 </div>
@@ -1394,7 +1405,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a493e91e8ccf282966881276e2022dab1"></a><!-- doxytag: member="asIScriptModule::SaveByteCode" ref="a493e91e8ccf282966881276e2022dab1" args="(asIBinaryStream *out) const =0" -->
+<a class="anchor" id="ac6cd95dd97cc6abf28ab4d82257f5aeb"></a><!-- doxytag: member="asIScriptModule::SaveByteCode" ref="ac6cd95dd97cc6abf28ab4d82257f5aeb" args="(asIBinaryStream *out, bool stripDebugInfo=false) const =0" -->
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
@@ -1402,8 +1413,18 @@ Public Member Functions</h2></td></tr>
           <td class="memname">virtual int asIScriptModule::SaveByteCode </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="classas_i_binary_stream.html">asIBinaryStream</a> *&#160;</td>
-          <td class="paramname"><em>out</em></td><td>)</td>
-          <td> const<code> [pure virtual]</code></td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool&#160;</td>
+          <td class="paramname"><em>stripDebugInfo</em> = <code>false</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td> const<code> [pure virtual]</code></td>
         </tr>
       </table>
 </div>
@@ -1411,6 +1432,7 @@ Public Member Functions</h2></td></tr>
 <dl><dt><b>Parameters:</b></dt><dd>
   <table class="params">
     <tr><td class="paramdir">[in]</td><td class="paramname">out</td><td>The output stream. </td></tr>
+    <tr><td class="paramdir">[in]</td><td class="paramname">stripDebugInfo</td><td>Set to true to skip saving the debug information. </td></tr>
   </table>
   </dd>
 </dl>
@@ -1423,7 +1445,7 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 <p>This method is used to save pre-compiled byte code to disk or memory, for a later restoral. The application must implement an object that inherits from <a class="el" href="classas_i_binary_stream.html">asIBinaryStream</a> to provide the necessary stream operations.</p>
-<p>The pre-compiled byte code is currently not platform independent, so you need to make sure the byte code is compiled on a platform that is compatible with the one that will load it. </p>
+<dl class="see"><dt><b>See also:</b></dt><dd><a class="el" href="doc_adv_precompile.html">Pre-compiled byte code</a> </dd></dl>
 
 </div>
 </div>
@@ -1594,7 +1616,7 @@ Public Member Functions</h2></td></tr>
     <ul>
       <li class="navelem"><a class="el" href="classas_i_script_module.html">asIScriptModule</a>      </li>
 
-    <li class="footer">Generated on Sun Jun 24 2012 18:02:59 for AngelScript by
+    <li class="footer">Generated on Sun Oct 28 2012 18:20:54 for AngelScript by
     <a href="http://www.doxygen.org/index.html">
     <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.5.1 </li>
    </ul>

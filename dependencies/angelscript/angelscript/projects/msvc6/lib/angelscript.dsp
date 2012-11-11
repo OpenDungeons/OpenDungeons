@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MT /W3 /O2 /Oy- /Ob2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "ANGELSCRIPT_EXPORT" /YX /FD /opt:nowin98 /c
+# ADD CPP /nologo /MT /W3 /O2 /Oy- /Ob2 /D "AS_NO_EXCEPTIONS" /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "ANGELSCRIPT_EXPORT" /YX /FD /opt:nowin98 /c
 # ADD BASE RSC /l 0x416 /d "NDEBUG"
 # ADD RSC /l 0x416 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -65,7 +65,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /ZI /Od /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "ANGELSCRIPT_EXPORT" /YX /FD /opt:nowin98 /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /ZI /Od /D "AS_NO_EXCEPTIONS" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "ANGELSCRIPT_EXPORT" /YX /FD /opt:nowin98 /GZ /c
 # ADD BASE RSC /l 0x416 /d "_DEBUG"
 # ADD RSC /l 0x416 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -88,7 +88,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "Debug_with_stats"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /ZI /Od /D "AS_DEBUG" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "ANGELSCRIPT_EXPORT" /YX /FD /opt:nowin98 /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /ZI /Od /D "AS_DEBUG_STATS" /D "AS_USE_NAMESPACE" /D "AS_DEBUG" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "ANGELSCRIPT_EXPORT" /FR /YX /FD /opt:nowin98 /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /ZI /Od /D "AS_NO_EXCEPTIONS" /D "AS_DEBUG_STATS" /D "AS_USE_NAMESPACE" /D "AS_DEBUG" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /D "ANGELSCRIPT_EXPORT" /FR /YX /FD /opt:nowin98 /GZ /c
 # ADD BASE RSC /l 0x416 /d "_DEBUG"
 # ADD RSC /l 0x416 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -375,6 +375,10 @@ SOURCE=..\..\..\source\as_string.h
 # Begin Source File
 
 SOURCE=..\..\..\source\as_string_util.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\..\source\as_symboltable.h
 # End Source File
 # Begin Source File
 

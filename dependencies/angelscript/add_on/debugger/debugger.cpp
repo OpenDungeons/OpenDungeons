@@ -1,6 +1,7 @@
 #include "debugger.h"
 #include <iostream>  // cout
 #include <sstream> // stringstream
+#include <stdlib.h> // atoi
 
 using namespace std;
 
@@ -102,6 +103,12 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 
 void CDebugger::LineCallback(asIScriptContext *ctx)
 {
+	// By default we ignore callbacks when the context is not active.
+	// An application might override this to for example disconnect the
+	// debugger as the execution finished.
+	if( ctx->GetState() != asEXECUTION_ACTIVE )
+		return;
+
 	if( m_action == CONTINUE )
 	{
 		if( !CheckBreakPoint(ctx) )
@@ -185,13 +192,16 @@ bool CDebugger::CheckBreakPoint(asIScriptContext *ctx)
 				int line = func->FindNextLineWithCode(breakPoints[n].lineNbr);
 				if( line >= 0 )
 				{
-					stringstream s;
-					s << "Moving break point " << n << " in file '" << file << "' to next line with code at line " << line << endl;
-					Output(s.str());
-
-					// Move the breakpoint to the next line
 					breakPoints[n].needsAdjusting = false;
-					breakPoints[n].lineNbr = line;
+					if( line != breakPoints[n].lineNbr )
+					{
+						stringstream s;
+						s << "Moving break point " << n << " in file '" << file << "' to next line with code at line " << line << endl;
+						Output(s.str());
+
+						// Move the breakpoint to the next line
+						breakPoints[n].lineNbr = line;
+					}
 				}
 			}
 		}

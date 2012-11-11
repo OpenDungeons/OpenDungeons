@@ -30,6 +30,7 @@ struct Complex
 	Complex &operator/=(const Complex &other);
 
 	float length() const;
+	float squaredLength() const;
 
 	// Swizzle operators
 	Complex get_ri() const;

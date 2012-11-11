@@ -32,6 +32,9 @@ public:
 	// Dynamic cast to desired handle type
 	void Cast(void **outRef, int typeId);
 
+	// Returns the type of the reference held
+	asIObjectType *GetType();
+
 protected:
 	// These functions need to have access to protected
 	// members in order to call them from the script engine

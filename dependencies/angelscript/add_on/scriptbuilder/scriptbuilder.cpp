@@ -3,15 +3,15 @@
 using namespace std;
 
 #include <stdio.h>
-#if defined(_MSC_VER) && !defined(_WIN32_WCE) && !defined( AS_MARMALADE )
+#if defined(_MSC_VER) && !defined(_WIN32_WCE) && !defined( AS_MARMALADE ) && !defined(MARMALADE)
 #include <direct.h>
 #endif
 #ifdef _WIN32_WCE
-#include <windows.h> // For GetModuleFileName
+#include <windows.h> // For GetModuleFileName()
 #endif
 
-#if defined(AS_MARMALADE)
-#include <unistd.h>
+#if defined(AS_MARMALADE) || defined(MARMALADE) || defined(__APPLE__)
+#include <unistd.h> // For getcwd()
 #endif
 
 BEGIN_AS_NAMESPACE
@@ -127,7 +127,7 @@ int CScriptBuilder::LoadScriptSection(const char *filename)
 {
 	// Open the script file
 	string scriptFile = filename;
-#if _MSC_VER >= 1500 && !defined(AS_MARMALADE)
+#if _MSC_VER >= 1500 && !defined(AS_MARMALADE) && !defined(MARMALADE)
 	FILE *f = 0;
 	fopen_s(&f, scriptFile.c_str(), "rb");
 #else
@@ -269,25 +269,33 @@ int CScriptBuilder::ProcessScriptSection(const char *script, const char *section
 			do 
 			{
 				pos += len;
+				if( pos >= modifiedScript.size() )
+				{
+					t = asTC_UNKNOWN;
+					break;
+				}
 				t = engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
 			} while(t == asTC_COMMENT || t == asTC_WHITESPACE);
 
-			currentClass = modifiedScript.substr(pos,len);
-			
-			// Search until first { is encountered
-			while( pos < modifiedScript.length() )
+			if( t == asTC_IDENTIFIER )
 			{
-				engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
-			
-				// If start of class section encountered stop
-				if( modifiedScript[pos] == '{' ) 
+				currentClass = modifiedScript.substr(pos,len);
+				
+				// Search until first { is encountered
+				while( pos < modifiedScript.length() )
 				{
-					pos += len;
-					break;
-				}
+					engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
+				
+					// If start of class section encountered stop
+					if( modifiedScript[pos] == '{' ) 
+					{
+						pos += len;
+						break;
+					}
 
-				// Check next symbol
-				pos += len;
+					// Check next symbol
+					pos += len;
+				}
 			}
 
 			continue;
@@ -851,7 +859,7 @@ static const char *GetCurrentDir(char *buf, size_t size)
 #endif
 
     return buf;
-#elif defined( AS_MARMALADE )
+#elif defined(AS_MARMALADE) || defined(MARMALADE)
 	// Marmalade uses its own portable C library
 	return getcwd(buf, (int)size);
 #elif _XBOX_VER >= 200

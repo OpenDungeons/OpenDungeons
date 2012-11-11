@@ -47,6 +47,7 @@
 #include "as_string_util.h"
 #include "as_texts.h"
 #include "as_parser.h"
+#include "as_debug.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -119,6 +120,9 @@ int asCCompiler::CompileDefaultConstructor(asCBuilder *builder, asCScriptCode *s
 {
 	Reset(builder, script, outFunc);
 	
+	// Insert a JitEntry at the start of the function for JIT compilers
+	byteCode.InstrPTR(asBC_JitEntry, 0);
+
 	// Make sure all the class members can be initialized with default constructors
 	for( asUINT n = 0; n < outFunc->objectType->properties.GetLength(); n++ )
 	{
@@ -162,12 +166,13 @@ int asCCompiler::CompileFactory(asCBuilder *builder, asCScriptCode *script, asCS
 {
 	Reset(builder, script, outFunc);
 
-	unsigned int n;
+	// Insert a JitEntry at the start of the function for JIT compilers
+	byteCode.InstrPTR(asBC_JitEntry, 0);
 
 	// Find the corresponding constructor
 	asCDataType dt = asCDataType::CreateObject(outFunc->returnType.GetObjectType(), false);
 	int constructor = 0;
-	for( n = 0; n < dt.GetBehaviour()->factories.GetLength(); n++ )
+	for( unsigned int n = 0; n < dt.GetBehaviour()->factories.GetLength(); n++ )
 	{
 		if( dt.GetBehaviour()->factories[n] == outFunc->id )
 		{
@@ -234,6 +239,8 @@ int asCCompiler::CompileFactory(asCBuilder *builder, asCScriptCode *script, asCS
 
 void asCCompiler::FinalizeFunction()
 {
+	TimeIt("asCCompiler::FinalizeFunction");
+
 	asUINT n;
 
 	// Tell the bytecode which variables are temporary
@@ -262,7 +269,7 @@ void asCCompiler::FinalizeFunction()
 			}
 		}
 	}
-	outFunc->objVariablesOnHeap = outFunc->objVariablePos.GetLength();
+	outFunc->objVariablesOnHeap = asUINT(outFunc->objVariablePos.GetLength());
 	for( n = 0; n < variableAllocations.GetLength(); n++ )
 	{
 		if( variableAllocations[n].IsObject() && !variableAllocations[n].IsReference() )
@@ -284,23 +291,18 @@ void asCCompiler::FinalizeFunction()
 	outFunc->lineNumbers = byteCode.lineNumbers;
 }
 
-// Entry
-int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sExplicitSignature *signature, asCScriptNode *func, asCScriptFunction *outFunc)
+// internal
+int asCCompiler::SetupParametersAndReturnVariable(sExplicitSignature *signature, asCScriptNode *func)
 {
 	// TODO: The compiler should take the return type and parameter types from the 
 	//       outFunc, instead of interpreting the script nodes again. The builder
 	//       must pass the list of parameter names. Making this change we can
 	//       eliminate large parts of this function and the sExplicitSignature structure
 
-	Reset(builder, script, outFunc);
-	int buildErrors = builder->numErrors;
-
 	int stackPos = 0;
+
 	if( outFunc->objectType )
 		stackPos = -AS_PTR_SIZE; // The first parameter is the pointer to the object
-
-	// Reserve a label for the cleanup code
-	nextLabel++;
 
 	// Add the first variable scope, which the parameters and
 	// variables declared in the outermost statement block is
@@ -333,7 +335,7 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 		if( node->nodeType == snDataType )
 		{
 			// TODO: namespace: Use correct implicit namespace from function
-			returnType = builder->CreateDataTypeFromNode(node, script, "");
+			returnType = builder->CreateDataTypeFromNode(node, script, engine->nameSpaces[0]);
 			returnType = builder->ModifyDataTypeFromNode(returnType, node->next, script, 0, 0);
 
 			// Make sure the return type is instanciable or is void
@@ -383,7 +385,7 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 		{
 			// Get the parameter type
 			// TODO: namespace: Use correct implicit namespace from function
-			asCDataType type = builder->CreateDataTypeFromNode(node, script, "");
+			asCDataType type = builder->CreateDataTypeFromNode(node, script, engine->nameSpaces[0]);
 
 			asETypeModifiers inoutFlag = asTM_NONE;
 			type = builder->ModifyDataTypeFromNode(type, node->next, script, &inoutFlag, 0);
@@ -434,7 +436,6 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 	}
 	else
 	{
-		
 		asCArray<asCDataType> &args = signature->argTypes;
 		asCArray<asETypeModifiers> &inoutFlags = signature->argModifiers;
 		asCArray<asCString> &argNames = signature->argNames;
@@ -487,11 +488,23 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 
 	variables->DeclareVariable("return", returnType, stackPos, true);
 
+	return stackPos;
+}
+
+// Entry
+int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sExplicitSignature *signature, asCScriptNode *func, asCScriptFunction *outFunc)
+{
+	TimeIt("asCCompiler::CompileFunction");
+
+	Reset(builder, script, outFunc);
+	int buildErrors = builder->numErrors;
+
+	int stackPos = SetupParametersAndReturnVariable(signature, func);
+
 	//--------------------------------------------
 	// Compile the statement block
 
 	// We need to parse the statement block now
-
 	asCScriptNode *blockBegin;
 
 	if( !signature )
@@ -500,10 +513,14 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 		blockBegin = func;
 
 	// TODO: memory: We can parse the statement block one statement at a time, thus save even more memory
+	// TODO: optimize: For large functions, the parsing of the statement block can take a long time. Presumably because a lot of memory needs to be allocated
 	asCParser parser(builder);
 	int r = parser.ParseStatementBlock(script, blockBegin);
 	if( r < 0 ) return -1;
 	asCScriptNode *block = parser.GetScriptNode();
+
+	// Reserve a label for the cleanup code
+	nextLabel++;
 
 	bool hasReturn;
 	asCByteCode bc(engine);
@@ -512,7 +529,7 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 	LineInstr(&bc, blockBegin->tokenPos + blockBegin->tokenLength);
 
 	// Make sure there is a return in all paths (if not return type is void)
-	if( returnType != asCDataType::CreatePrimitive(ttVoid, false) )
+	if( outFunc->returnType != asCDataType::CreatePrimitive(ttVoid, false) )
 	{
 		if( hasReturn == false )
 			Error(TXT_NOT_ALL_PATHS_RETURN, blockBegin);
@@ -563,6 +580,7 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 	byteCode.AddCode(&bc);
 
 	// Deallocate all local variables
+	int n;
 	for( n = (int)variables->variables.GetLength() - 1; n >= 0; n-- )
 	{
 		sVariable *v = variables->variables[n];
@@ -596,9 +614,11 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 
 	// Release the object pointer again
 	if( outFunc->objectType && !m_isConstructor && !outFunc->returnType.IsReference() )
-	{
 		byteCode.InstrW_PTR(asBC_FREE, 0, outFunc->objectType);
-	}
+
+	// Check if the number of labels in the functions isn't too many to be handled
+	if( nextLabel >= (1<<15) )
+		Error(TXT_TOO_MANY_JUMP_LABELS, func);
 
 	// If there are compile errors, there is no reason to build the final code
 	if( hasCompileErrors || builder->numErrors != buildErrors )
@@ -609,12 +629,6 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 
 	// Remove the variable scope
 	RemoveVariableScope();
-
-	// This POP is not necessary as the return will clean up the stack frame anyway.
-	// The bytecode optimizer would remove this POP, however by not including it here
-	// it is guaranteed it doesn't have to be adjusted by the asCRestore class when
-	// a types are of a different size than originally compiled for.
-	// byteCode.Pop(varSize);
 
 	byteCode.Ret(-stackPos);
 
@@ -1747,7 +1761,14 @@ int asCCompiler::CompileDefaultArgs(asCScriptNode *node, asCArray<asSExprContext
 		asCScriptCode code;
 		code.SetCode("default arg", func->defaultArgs[n]->AddressOf(), false);
 		int r = parser.ParseExpression(&code);
-		if( r < 0 ) { anyErrors = true; continue; }
+		if( r < 0 ) 
+		{ 
+			asCString msg;
+			msg.Format(TXT_FAILED_TO_COMPILE_DEF_ARG_d_IN_FUNC_s, n, func->GetDeclaration());
+			Error(msg.AddressOf(), node);
+			anyErrors = true; 
+			continue; 
+		}
 
 		asCScriptNode *arg = parser.GetScriptNode();
 
@@ -1812,10 +1833,9 @@ int asCCompiler::CompileDefaultArgs(asCScriptNode *node, asCArray<asSExprContext
 asUINT asCCompiler::MatchFunctions(asCArray<int> &funcs, asCArray<asSExprContext*> &args, asCScriptNode *node, const char *name, asCObjectType *objectType, bool isConstMethod, bool silent, bool allowObjectConstruct, const asCString &scope)
 {
 	asCArray<int> origFuncs = funcs; // Keep the original list for error message
-
 	asUINT cost = 0;
-
 	asUINT n;
+
 	if( funcs.GetLength() > 0 )
 	{
 		// Check the number of parameters in the found functions
@@ -1851,12 +1871,18 @@ asUINT asCCompiler::MatchFunctions(asCArray<int> &funcs, asCArray<asSExprContext
 		}
 
 		// Match functions with the parameters, and discard those that do not match
-		asCArray<int> matchingFuncs = funcs;
+		asCArray<asSOverloadCandidate> matchingFuncs;
+		matchingFuncs.SetLengthNoConstruct( funcs.GetLength() );
+		for ( n = 0; n < funcs.GetLength(); ++n )
+		{
+			matchingFuncs[n].funcId = funcs[n];
+			matchingFuncs[n].cost = 0;
+		}
 
 		for( n = 0; n < args.GetLength(); ++n )
 		{
-			asCArray<int> tempFuncs;
-			cost += MatchArgument(funcs, tempFuncs, &args[n]->type, n, allowObjectConstruct);
+			asCArray<asSOverloadCandidate> tempFuncs;
+			MatchArgument(funcs, tempFuncs, &args[n]->type, n, allowObjectConstruct);
 
 			// Intersect the found functions with the list of matching functions
 			for( asUINT f = 0; f < matchingFuncs.GetLength(); f++ )
@@ -1864,8 +1890,13 @@ asUINT asCCompiler::MatchFunctions(asCArray<int> &funcs, asCArray<asSExprContext
 				asUINT c;
 				for( c = 0; c < tempFuncs.GetLength(); c++ )
 				{
-					if( matchingFuncs[f] == tempFuncs[c] )
+					if( matchingFuncs[f].funcId == tempFuncs[c].funcId )
+					{
+						// Sum argument cost
+						matchingFuncs[f].cost += tempFuncs[c].cost;
 						break;
+
+					} // End if match
 				}
 
 				// Was the function a match?
@@ -1881,7 +1912,23 @@ asUINT asCCompiler::MatchFunctions(asCArray<int> &funcs, asCArray<asSExprContext
 			}
 		}
 
-		funcs = matchingFuncs;
+		// Select the overload(s) with the lowest overall cost
+		funcs.SetLength(0);
+		asUINT bestCost = asUINT(-1);
+		for( n = 0; n < matchingFuncs.GetLength(); ++n )
+		{
+			cost = matchingFuncs[n].cost;
+			if( cost < bestCost )
+			{
+				funcs.SetLength(0);
+				bestCost = cost;
+			}
+			if( cost == bestCost )
+				funcs.PushLast( matchingFuncs[n].funcId );
+		}
+
+		// Cost returned is equivalent to the best cost discovered
+		cost = bestCost;
 	}
 
 	if( !isConstMethod )
@@ -1943,7 +1990,7 @@ void asCCompiler::CompileDeclaration(asCScriptNode *decl, asCByteCode *bc)
 {
 	// Get the data type
 	// TODO: namespace: Use correct implicit namespace from function
-	asCDataType type = builder->CreateDataTypeFromNode(decl->firstChild, script, "");
+	asCDataType type = builder->CreateDataTypeFromNode(decl->firstChild, script, engine->nameSpaces[0]);
 
 	// Declare all variables in this declaration
 	asCScriptNode *node = decl->firstChild->next;
@@ -2778,6 +2825,12 @@ void asCCompiler::CompileIfStatement(asCScriptNode *inode, bool *hasReturn, asCB
 
 		// Add a test
 		bc->InstrSHORT(asBC_CpyVtoR4, expr.type.stackOffset);
+		if( expr.type.isTemporary )
+		{
+			// Add a hint for the bytecode optimizer to let it know that the variable won't be used after this.
+			// Without this, the bytecode optimizer may have to search all following instructions with a chance that the variable is never used again.
+			bc->DiscardVar(expr.type.stackOffset);
+		}
 		bc->Instr(asBC_ClrHi);
 		bc->InstrDWORD(asBC_JZ, afterLabel);
 		ReleaseTemporaryVariable(expr.type, bc);
@@ -2918,6 +2971,12 @@ void asCCompiler::CompileForStatement(asCScriptNode *fnode, asCByteCode *bc)
 				// If expression is false exit the loop
 				ConvertToVariable(&expr);
 				expr.bc.InstrSHORT(asBC_CpyVtoR4, expr.type.stackOffset);
+				if( expr.type.isTemporary )
+				{
+					// Add a hint for the bytecode optimizer to let it know that the variable won't be used after this.
+					// Without this, the bytecode optimizer may have to search all following instructions with a chance that the variable is never used again.
+					expr.bc.DiscardVar(expr.type.stackOffset);
+				}
 				expr.bc.Instr(asBC_ClrHi);
 				expr.bc.InstrDWORD(asBC_JNZ, insideLabel);
 				ReleaseTemporaryVariable(expr.type, &expr.bc);
@@ -3017,6 +3076,12 @@ void asCCompiler::CompileWhileStatement(asCScriptNode *wnode, asCByteCode *bc)
 
 		// Jump to end of statement if expression is false
 		bc->InstrSHORT(asBC_CpyVtoR4, expr.type.stackOffset);
+		if( expr.type.isTemporary )
+		{
+			// Add a hint for the bytecode optimizer to let it know that the variable won't be used after this.
+			// Without this, the bytecode optimizer may have to search all following instructions with a chance that the variable is never used again.
+			bc->DiscardVar(expr.type.stackOffset);
+		}
 		bc->Instr(asBC_ClrHi);
 		bc->InstrDWORD(asBC_JZ, afterLabel);
 		ReleaseTemporaryVariable(expr.type, bc);
@@ -3102,6 +3167,12 @@ void asCCompiler::CompileDoWhileStatement(asCScriptNode *wnode, asCByteCode *bc)
 
 		// Jump to next iteration if expression is true
 		bc->InstrSHORT(asBC_CpyVtoR4, expr.type.stackOffset);
+		if( expr.type.isTemporary )
+		{
+			// Add a hint for the bytecode optimizer to let it know that the variable won't be used after this.
+			// Without this, the bytecode optimizer may have to search all following instructions with a chance that the variable is never used again.
+			bc->DiscardVar(expr.type.stackOffset);
+		}
 		bc->Instr(asBC_ClrHi);
 		bc->InstrDWORD(asBC_JNZ, beforeLabel);
 		ReleaseTemporaryVariable(expr.type, bc);
@@ -3335,8 +3406,11 @@ void asCCompiler::CompileReturnStatement(asCScriptNode *rnode, asCByteCode *bc)
 
 			// The type must match exactly as we cannot convert
 			// the reference without loosing the original value
-			if( !(v->type == expr.type.dataType ||
-				(expr.type.dataType.IsObject() && !expr.type.dataType.IsObjectHandle() && v->type.IsEqualExceptRef(expr.type.dataType))) )
+			if( !(v->type.IsEqualExceptConst(expr.type.dataType) ||
+				  (expr.type.dataType.IsObject() && 
+				   !expr.type.dataType.IsObjectHandle() && 
+				   v->type.IsEqualExceptRefAndConst(expr.type.dataType))) ||
+				(!v->type.IsReadOnly() && expr.type.dataType.IsReadOnly()) )
 			{
 				// Clean up the potential deferred parameters
 				ProcessDeferredParams(&expr);
@@ -3869,6 +3943,11 @@ void asCCompiler::PrepareOperand(asSExprContext *ctx, asCScriptNode *node)
 
 void asCCompiler::PrepareForAssignment(asCDataType *lvalue, asSExprContext *rctx, asCScriptNode *node, bool toTemporary, asSExprContext *lvalueExpr)
 {
+	// Reserve the temporary variables used in the lvalue expression so they won't end up being used by the rvalue too
+	int l = int(reservedVariables.GetLength());
+	if( lvalueExpr ) lvalueExpr->bc.GetVarsUsed(reservedVariables);
+
+
 	ProcessPropertyGetAccessor(rctx, node);
 
 	// Make sure the rvalue is initialized if it is a variable
@@ -3886,10 +3965,7 @@ void asCCompiler::PrepareForAssignment(asCDataType *lvalue, asSExprContext *rctx
 		}
 
 		// Implicitly convert the value to the right type
-		int l = int(reservedVariables.GetLength());
-		if( lvalueExpr ) lvalueExpr->bc.GetVarsUsed(reservedVariables);
 		ImplicitConversion(rctx, *lvalue, node, asIC_IMPLICIT_CONV);
-		reservedVariables.SetLength(l);
 
 		// Check data type
 		if( !lvalue->IsEqualExceptRefAndConst(rctx->type.dataType) )
@@ -3941,6 +4017,9 @@ void asCCompiler::PrepareForAssignment(asCDataType *lvalue, asSExprContext *rctx
 				asASSERT(!rctx->type.dataType.IsReference());
 		}
 	}
+
+	// Unreserve variables
+	reservedVariables.SetLength(l);
 }
 
 bool asCCompiler::IsLValue(asCTypeInfo &type)
@@ -5134,7 +5213,18 @@ asUINT asCCompiler::ImplicitConvObjectToObject(asSExprContext *ctx, const asCDat
 			if( ctx->type.dataType.IsObjectHandle() && !ctx->type.isExplicitHandle )
 			{
 				if( generateCode )
-					ctx->bc.Instr(asBC_CHKREF);
+				{
+					if( ctx->type.dataType.IsReference() )
+					{
+						// The pointer on the stack refers to the handle
+						ctx->bc.Instr(asBC_ChkRefS);
+					}
+					else
+					{
+						// The pointer on the stack refers to the object
+						ctx->bc.Instr(asBC_CHKREF);
+					}
+				}
 
 				ctx->type.dataType.MakeHandle(false);
 			}
@@ -5970,7 +6060,24 @@ int asCCompiler::DoAssignment(asSExprContext *ctx, asSExprContext *lctx, asSExpr
 		if( lctx->type.dataType.GetObjectType()->flags & asOBJ_ASHANDLE )
 		{
 			// The object is a value type but that should be treated as a handle
-			// TODO: handle: Make sure the right hand value is a handle
+
+			// Make sure the right hand value is a handle
+			if( !rctx->type.isExplicitHandle && 
+				!(rctx->type.dataType.GetObjectType() && (rctx->type.dataType.GetObjectType()->flags & asOBJ_ASHANDLE)) )
+			{
+				asCDataType dt = rctx->type.dataType;
+				dt.MakeHandle(true);
+				dt.MakeReference(false);
+
+				PrepareArgument(&dt, rctx, rexpr, true, asTM_INREF);
+				if( !dt.IsEqualExceptRefAndConst(rctx->type.dataType) )
+				{
+					asCString str;
+					str.Format(TXT_CANT_IMPLICITLY_CONVERT_s_TO_s, rctx->type.dataType.Format().AddressOf(), lctx->type.dataType.Format().AddressOf());
+					Error(str.AddressOf(), rexpr);
+					return -1;
+				}
+			}
 
 			if( CompileOverloadedDualOperator(opNode, lctx, rctx, ctx) )
 			{
@@ -5987,7 +6094,7 @@ int asCCompiler::DoAssignment(asSExprContext *ctx, asSExprContext *lctx, asSExpr
 			asCDataType dt = lctx->type.dataType;
 			dt.MakeReference(false);
 
-			PrepareArgument(&dt, rctx, rexpr, true, 1);
+			PrepareArgument(&dt, rctx, rexpr, true, asTM_INREF);
 			if( !dt.IsEqualExceptRefAndConst(rctx->type.dataType) )
 			{
 				asCString str;
@@ -6005,7 +6112,7 @@ int asCCompiler::DoAssignment(asSExprContext *ctx, asSExprContext *lctx, asSExpr
 
 			ReleaseTemporaryVariable(rctx->type, &ctx->bc);
 
-			ctx->type = rctx->type;
+			ctx->type = lctx->type;
 		}
 	}
 	else // if( lctx->type.dataType.IsObject() )
@@ -6065,14 +6172,16 @@ int asCCompiler::DoAssignment(asSExprContext *ctx, asSExprContext *lctx, asSExpr
 		bool simpleExpr = (lctx->type.dataType.GetObjectType()->GetFlags() & asOBJ_VALUE) && lctx->bc.IsSimpleExpression();
 
 		// Implicitly convert the rvalue to the type of the lvalue
+		bool needConversion = false;
 		if( !lctx->type.dataType.IsEqualExceptRefAndConst(rctx->type.dataType) )
-			simpleExpr = false;
-		if( !simpleExpr )
+			needConversion = true;
+
+		if( !simpleExpr || needConversion )
 		{
 			asCDataType dt = lctx->type.dataType;
 			dt.MakeReference(true);
 			dt.MakeReadOnly(true);
-			PrepareArgument(&dt, rctx, rexpr, true, 1);
+			PrepareArgument(&dt, rctx, rexpr, true, 1, !needConversion);
 			if( !dt.IsEqualExceptRefAndConst(rctx->type.dataType) )
 			{
 				asCString str;
@@ -6093,15 +6202,18 @@ int asCCompiler::DoAssignment(asSExprContext *ctx, asSExprContext *lctx, asSExpr
 		MergeExprBytecode(ctx, rctx);
 		MergeExprBytecode(ctx, lctx);
 
-		if( !simpleExpr )
+		if( !simpleExpr || needConversion )
 		{
-			if( (rctx->type.isVariable || rctx->type.isTemporary) && !IsVariableOnHeap(rctx->type.stackOffset) )
-				// TODO: runtime optimize: Actually the reference can be pushed on the stack directly
-				//                         as the value allocated on the stack is guaranteed to be safe.
-				//                         The bytecode optimizer should be able to determine this and optimize away the VAR + GETREF
-				ctx->bc.InstrWORD(asBC_GETREF, AS_PTR_SIZE);
-			else
-				ctx->bc.InstrWORD(asBC_GETOBJREF, AS_PTR_SIZE);
+			if( (rctx->type.isVariable || rctx->type.isTemporary) )
+			{
+				if( !IsVariableOnHeap(rctx->type.stackOffset) )
+					// TODO: runtime optimize: Actually the reference can be pushed on the stack directly
+					//                         as the value allocated on the stack is guaranteed to be safe.
+					//                         The bytecode optimizer should be able to determine this and optimize away the VAR + GETREF
+					ctx->bc.InstrWORD(asBC_GETREF, AS_PTR_SIZE);
+				else
+					ctx->bc.InstrWORD(asBC_GETOBJREF, AS_PTR_SIZE);
+			}
 		}
 
 		PerformAssignment(&lctx->type, &rctx->type, &ctx->bc, opNode);
@@ -6208,6 +6320,12 @@ int asCCompiler::CompileCondition(asCScriptNode *expr, asSExprContext *ctx)
 				ctx->type = e.type;
 				ConvertToVariable(ctx);
 				ctx->bc.InstrSHORT(asBC_CpyVtoR4, ctx->type.stackOffset);
+				if( ctx->type.isTemporary )
+				{
+					// Add a hint for the bytecode optimizer to let it know that the variable won't be used after this.
+					// Without this, the bytecode optimizer may have to search all following instructions with a chance that the variable is never used again.
+					ctx->bc.DiscardVar(ctx->type.stackOffset);
+				}
 				ctx->bc.Instr(asBC_ClrHi);
 				ctx->bc.InstrDWORD(asBC_JZ, elseLabel);
 				ReleaseTemporaryVariable(ctx->type, &ctx->bc);
@@ -6250,6 +6368,12 @@ int asCCompiler::CompileCondition(asCScriptNode *expr, asSExprContext *ctx)
 				ctx->type = e.type;
 				ConvertToVariable(ctx);
 				ctx->bc.InstrSHORT(asBC_CpyVtoR4, ctx->type.stackOffset);
+				if( ctx->type.isTemporary )
+				{
+					// Add a hint for the bytecode optimizer to let it know that the variable won't be used after this.
+					// Without this, the bytecode optimizer may have to search all following instructions with a chance that the variable is never used again.
+					ctx->bc.DiscardVar(ctx->type.stackOffset);
+				}
 				ctx->bc.Instr(asBC_ClrHi);
 				ctx->bc.InstrDWORD(asBC_JZ, elseLabel);
 				ReleaseTemporaryVariable(ctx->type, &ctx->bc);
@@ -6349,7 +6473,6 @@ int asCCompiler::CompileExpression(asCScriptNode *expr, asSExprContext *ctx)
 
 	asCArray<asCScriptNode *> stack(count);
 	asCArray<asCScriptNode *> stack2(count);
-	asCArray<asCScriptNode *> postfix(count);
 
 	node = expr->firstChild;
 	while( node )
@@ -6368,29 +6491,8 @@ int asCCompiler::CompileExpression(asCScriptNode *expr, asSExprContext *ctx)
 	while( stack.GetLength() > 0 )
 		stack2.PushLast(stack.PopLast());
 
-	// We need to swap operands so that the left
-	// operand is always computed before the right
-	SwapPostFixOperands(stack2, postfix);
-
 	// Compile the postfix formatted expression
-	return CompilePostFixExpression(&postfix, ctx);
-}
-
-void asCCompiler::SwapPostFixOperands(asCArray<asCScriptNode *> &postfix, asCArray<asCScriptNode *> &target)
-{
-	if( postfix.GetLength() == 0 ) return;
-
-	asCScriptNode *node = postfix.PopLast();
-	if( node->nodeType == snExprTerm )
-	{
-		target.PushLast(node);
-		return;
-	}
-
-	SwapPostFixOperands(postfix, target);
-	SwapPostFixOperands(postfix, target);
-
-	target.PushLast(node);
+	return CompilePostFixExpression(&stack2, ctx);
 }
 
 int asCCompiler::CompilePostFixExpression(asCArray<asCScriptNode *> *postfix, asSExprContext *ctx)
@@ -6402,23 +6504,54 @@ int asCCompiler::CompilePostFixExpression(asCArray<asCScriptNode *> *postfix, as
 	// errors in case the expression fails to compile
 	ctx->type.SetDummy();
 
-	// Pop the last node
-	asCScriptNode *node = postfix->PopLast();
-	ctx->exprNode = node;
+	// Evaluate the operands and operators
+	asCArray<asSExprContext*> free;
+	asCArray<asSExprContext*> expr;
+	int ret = 0;
+	for( asUINT n = 0; ret == 0 && n < postfix->GetLength(); n++ )
+	{
+		asCScriptNode *node = (*postfix)[n];
+		if( node->nodeType == snExprTerm )
+		{
+			asSExprContext *e = free.GetLength() ? free.PopLast() : asNEW(asSExprContext)(engine);
+			expr.PushLast(e);
+			e->exprNode = node;
+			ret = CompileExpressionTerm(node, e);
+		}
+		else
+		{
+			asSExprContext *r = expr.PopLast();
+			asSExprContext *l = expr.PopLast();
 
-	// If term, compile the term
-	if( node->nodeType == snExprTerm )
-		return CompileExpressionTerm(node, ctx);
+			// Now compile the operator
+			asSExprContext *e = free.GetLength() ? free.PopLast() : asNEW(asSExprContext)(engine);
+			ret = CompileOperator(node, l, r, e);
 
-	// Compile the two expression terms
-	asSExprContext r(engine), l(engine);
+			expr.PushLast(e);
 
-	int ret;
-	ret = CompilePostFixExpression(postfix, &l); if( ret < 0 ) return ret;
-	ret = CompilePostFixExpression(postfix, &r); if( ret < 0 ) return ret;
+			// Free the operands
+			l->Clear();
+			free.PushLast(l);
+			r->Clear();
+			free.PushLast(r);
+		}
+	}
 
-	// Compile the operation
-	return CompileOperator(node, &l, &r, ctx);
+	if( ret == 0 )
+	{
+		asASSERT(expr.GetLength() == 1);
+
+		// The final result should be moved to the output context
+		MergeExprBytecodeAndType(ctx, expr[0]);
+	}
+	
+	// Clean up
+	for( asUINT e = 0; e < expr.GetLength(); e++ )
+		asDELETE(expr[e], asSExprContext);
+	for( asUINT f = 0; f < free.GetLength(); f++ )
+		asDELETE(free[f], asSExprContext);
+
+	return ret;
 }
 
 int asCCompiler::CompileExpressionTerm(asCScriptNode *node, asSExprContext *ctx)
@@ -6459,7 +6592,7 @@ int asCCompiler::CompileExpressionTerm(asCScriptNode *node, asSExprContext *ctx)
 	return 0;
 }
 
-int asCCompiler::CompileVariableAccess(const asCString &name, const asCString &scope, asSExprContext *ctx, asCScriptNode *errNode, bool isOptional, bool noFunction, asCObjectType *objType)
+int asCCompiler::CompileVariableAccess(const asCString &name, const asCString &scope, asSExprContext *ctx, asCScriptNode *errNode, bool isOptional, bool noFunction, bool noGlobal, asCObjectType *objType)
 {
 	bool found = false;
 
@@ -6613,7 +6746,7 @@ int asCCompiler::CompileVariableAccess(const asCString &name, const asCString &s
 	}
 
 	// Is it a global property?
-	if( !found && !objType )
+	if( !found && !objType && !noGlobal )
 	{
 		// See if there are any matching global property accessors
 		// TODO: namespace: Support namespaces for global property accessors too
@@ -6645,20 +6778,11 @@ int asCCompiler::CompileVariableAccess(const asCString &name, const asCString &s
 			bool isCompiled = true;
 			bool isPureConstant = false;
 			bool isAppProp = false;
-			asQWORD constantValue;
-			asCString ns = scope;
-
-			if( ns == "" )
-			{
-				if( outFunc->nameSpace != "" )
-					ns = outFunc->nameSpace;
-				else if( outFunc->objectType && outFunc->objectType->nameSpace != "" )
-					ns = outFunc->objectType->nameSpace;
-			}
-			else if( ns == "::" )
-				ns = "";
-
-			asCGlobalProperty *prop = builder->GetGlobalProperty(name.AddressOf(), ns, &isCompiled, &isPureConstant, &constantValue, &isAppProp);
+			asQWORD constantValue = 0;
+			asCGlobalProperty *prop = 0;
+			asSNameSpace *ns = DetermineNameSpace(scope);
+			if( ns )
+				prop = builder->GetGlobalProperty(name.AddressOf(), ns, &isCompiled, &isPureConstant, &constantValue, &isAppProp);
 			if( prop )
 			{
 				found = true;
@@ -6731,22 +6855,13 @@ int asCCompiler::CompileVariableAccess(const asCString &name, const asCString &s
 	}
 
 	// Is it the name of a global function?
-	if( !noFunction && !found && !objType )
+	if( !noFunction && !found && !objType && !noGlobal )
 	{
 		asCArray<int> funcs;
-		asCString ns = scope;
-
-		if( ns == "" )
-		{
-			if( outFunc->nameSpace != "" )
-				ns = outFunc->nameSpace;
-			else if( outFunc->objectType && outFunc->objectType->nameSpace != "" )
-				ns = outFunc->objectType->nameSpace;
-		}
-		else if( ns == "::" )
-			ns = "";
-
-		builder->GetFunctionDescriptions(name.AddressOf(), funcs, ns);
+		
+		asSNameSpace *ns = DetermineNameSpace(scope);
+		if( ns )
+			builder->GetFunctionDescriptions(name.AddressOf(), funcs, ns);
 
 		if( funcs.GetLength() > 1 )
 		{
@@ -6782,7 +6897,7 @@ int asCCompiler::CompileVariableAccess(const asCString &name, const asCString &s
 	}
 
 	// Is it an enum value?
-	if( !found && !objType )
+	if( !found && !objType && !noGlobal )
 	{
 		// The enum type may be declared in a namespace too
 		asCObjectType *scopeType = 0;
@@ -6790,16 +6905,17 @@ int asCCompiler::CompileVariableAccess(const asCString &name, const asCString &s
 		{
 			// Use the last scope name as the enum type
 			asCString enumType = scope;
-			asCString ns;
+			asCString nsScope;
 			int p = scope.FindLast("::");
 			if( p != -1 )
 			{
 				enumType = scope.SubString(p+2);
-				ns = scope.SubString(0, p);
+				nsScope = scope.SubString(0, p);
 			}
 
-			// resolve the type before the scope
-			scopeType = builder->GetObjectType(enumType.AddressOf(), ns);
+			asSNameSpace *ns = engine->FindNameSpace(nsScope.AddressOf());
+			if( ns )
+				scopeType = builder->GetObjectType(enumType.AddressOf(), ns);
 		}
 
 		asDWORD value = 0;
@@ -6812,21 +6928,10 @@ int asCCompiler::CompileVariableAccess(const asCString &name, const asCString &s
 		else if( !engine->ep.requireEnumScope )
 		{
 			// Look for the enum value without explicitly informing the enum type
-			asCString ns = scope;
-
-			if( ns == "" )
-			{
-				// Use implicit scope from the current function that is being compiled
-				// TODO: cleanup: This is repeated in a lot of places. Should use function for it
-				if( outFunc->nameSpace != "" )
-					ns = outFunc->nameSpace;
-				else if( outFunc->objectType && outFunc->objectType->nameSpace != "" )
-					ns = outFunc->objectType->nameSpace;
-			}
-			else if( ns == "::" )
-				ns = "";
-
-			int e = builder->GetEnumValue(name.AddressOf(), dt, value, ns);
+			asSNameSpace *ns = DetermineNameSpace(scope);
+			int e = 0;
+			if( ns )
+				e = builder->GetEnumValue(name.AddressOf(), dt, value, ns);
 			if( e )
 			{
 				found = true;
@@ -7364,7 +7469,7 @@ void asCCompiler::CompileConversion(asCScriptNode *node, asSExprContext *ctx)
 
 		// Determine the requested type
 		// TODO: namespace: Use correct implicit namespace from function
-		to = builder->CreateDataTypeFromNode(node->firstChild, script, "");
+		to = builder->CreateDataTypeFromNode(node->firstChild, script, engine->nameSpaces[0]);
 		to.MakeReadOnly(true); // Default to const
 		asASSERT(to.IsPrimitive());
 	}
@@ -7379,7 +7484,7 @@ void asCCompiler::CompileConversion(asCScriptNode *node, asSExprContext *ctx)
 
 		// Determine the requested type
 		// TODO: namespace: Use correct implicit namespace from function
-		to = builder->CreateDataTypeFromNode(node->firstChild, script, "");
+		to = builder->CreateDataTypeFromNode(node->firstChild, script, engine->nameSpaces[0]);
 		to = builder->ModifyDataTypeFromNode(to, node->firstChild->next, script, 0, 0);
 
 		// If the type support object handles, then use it
@@ -7573,6 +7678,11 @@ void asCCompiler::ProcessDeferredParams(asSExprContext *ctx)
 
 				if( !o.type.dataType.IsPrimitive() ) o.bc.Instr(asBC_PopPtr);
 
+				// The assignment may itself have resulted in a new temporary variable, e.g. if 
+				// the opAssign returns a non-reference. We must release this temporary variable 
+				// since it won't be used
+				ReleaseTemporaryVariable(o.type, &o.bc);
+
 				MergeExprBytecode(ctx, &o);
 			}
 			else
@@ -7628,7 +7738,7 @@ void asCCompiler::CompileConstructCall(asCScriptNode *node, asSExprContext *ctx)
 	// It is possible that the name is really a constructor
 	asCDataType dt;
 	// TODO: namespace: Use correct implicit namespace from function
-	dt = builder->CreateDataTypeFromNode(node->firstChild, script, "");
+	dt = builder->CreateDataTypeFromNode(node->firstChild, script, engine->nameSpaces[0]);
 	if( dt.IsPrimitive() )
 	{
 		// This is a cast to a primitive type
@@ -7814,62 +7924,33 @@ int asCCompiler::CompileFunctionCall(asCScriptNode *node, asSExprContext *ctx, a
 	asCString name;
 	asCTypeInfo tempObj;
 	asCArray<int> funcs;
-	int r = -1;
+	int localVar = -1;
 
 	asCScriptNode *nm = node->lastChild->prev;
 	name.Assign(&script->code[nm->tokenPos], nm->tokenLength);
 
-	// If we're compiling a class method, then the call may be to a class method
-	// even though it looks like an ordinary call to a global function. If it is 
-	// to a class method it is necessary to implicitly add the this pointer.
-	if( objectType == 0 && outFunc && outFunc->objectType && scope != "::" )
-	{
-		// The special keyword 'super' may be used in constructors to invoke the base 
-		// class' constructor. This can only be used without any scoping operator
-		if( m_isConstructor && name == SUPER_TOKEN && scope == "" )
-		{
-			// We are calling the base class' constructor, so set the objectType
-			objectType = outFunc->objectType;
-		}
-		else
-		{
-			// Are there any class methods that may match?
-			// TODO: namespace: Should really make sure the scope also match. Because the scope
-			//                  may match a base class, or it may match a global namespace. If it is
-			//                  matching a global scope then we're not calling a class method even
-			//                  if there is a method with the same name.
-			asCArray<int> funcs;
-			builder->GetObjectMethodDescriptions(name.AddressOf(), outFunc->objectType, funcs, false);
-
-			if( funcs.GetLength() )
-			{
-				// We're calling a class method, so set the objectType
-				objectType = outFunc->objectType;
-			}
-		}
-	
-		// If a class method is being called then implicitly add the this pointer for the call
-		if( objectType )
-		{
-			asCDataType dt = asCDataType::CreateObject(objectType, false);
-
-			// The object pointer is located at stack position 0
-			ctx->bc.InstrSHORT(asBC_PSF, 0);
-			ctx->type.SetVariable(dt, 0, false);
-			ctx->type.dataType.MakeReference(true);
-
-			Dereference(ctx, true);
-		}			
-	}
-
-	// First check for a local variable of a function type
+	// First check for a local variable of a function type as it would take precedence
 	// Must not allow function names, nor global variables to be returned in this instance
+	// If objectType is set then this is a post op expression and we shouldn't look for local variables
 	asSExprContext funcPtr(engine);
 	if( objectType == 0 )
-		r = CompileVariableAccess(name, scope, &funcPtr, node, true, true);
-	if( r < 0 )
 	{
-		if( objectType )
+		localVar = CompileVariableAccess(name, scope, &funcPtr, node, true, true, true);
+		if( localVar >= 0 && !funcPtr.type.dataType.GetFuncDef() )
+		{
+			// The variable is not a function
+			asCString msg;
+			msg.Format(TXT_NOT_A_FUNC_s_IS_VAR, name.AddressOf());
+			Error(msg.AddressOf(), node);
+			return -1;
+		}
+	}
+
+	if( localVar < 0 )
+	{
+		// If this is an expression post op, or if a class method is 
+		// being compiled, then we should look for matching class methods
+		if( objectType || (outFunc && outFunc->objectType && scope != "::") )
 		{
 			// If we're compiling a constructor and the name of the function is super then
 			// the constructor of the base class is being called.
@@ -7877,8 +7958,8 @@ int asCCompiler::CompileFunctionCall(asCScriptNode *node, asSExprContext *ctx, a
 			if( scope == "" && m_isConstructor && name == SUPER_TOKEN )
 			{
 				// If the class is not derived from anyone else, calling super should give an error
-				if( objectType->derivedFrom )
-					funcs = objectType->derivedFrom->beh.constructors;
+				if( outFunc && outFunc->objectType->derivedFrom )
+					funcs = outFunc->objectType->derivedFrom->beh.constructors;
 
 				// Must not allow calling base class' constructor multiple times
 				if( continueLabels.GetLength() > 0 )
@@ -7901,40 +7982,71 @@ int asCCompiler::CompileFunctionCall(asCScriptNode *node, asSExprContext *ctx, a
 			else
 			{
 				// The scope is can be used to specify the base class
-				builder->GetObjectMethodDescriptions(name.AddressOf(), objectType, funcs, objIsConst, scope);
+				builder->GetObjectMethodDescriptions(name.AddressOf(), objectType ? objectType : outFunc->objectType, funcs, objIsConst, scope);
 			}
 
 			// It is still possible that there is a class member of a function type
 			if( funcs.GetLength() == 0 )
-				CompileVariableAccess(name, scope, &funcPtr, node, true, true, objectType);
+			{
+				int r = CompileVariableAccess(name, scope, &funcPtr, node, true, true, true, objectType);
+				if( r >= 0 && !funcPtr.type.dataType.GetFuncDef() )
+				{
+					// The variable is not a function
+					asCString msg;
+					msg.Format(TXT_NOT_A_FUNC_s_IS_VAR, name.AddressOf());
+					Error(msg.AddressOf(), node);
+					return -1;
+				}
+			}
+
+			// If a class method is being called implicitly, then add the this pointer for the call
+			if( funcs.GetLength() && !objectType )
+			{
+				objectType = outFunc->objectType;
+
+				asCDataType dt = asCDataType::CreateObject(objectType, false);
+
+				// The object pointer is located at stack position 0
+				ctx->bc.InstrSHORT(asBC_PSF, 0);
+				ctx->type.SetVariable(dt, 0, false);
+				ctx->type.dataType.MakeReference(true);
+
+				Dereference(ctx, true);
+			}
 		}
-		else
+
+		// If it is not a class method or member function pointer, 
+		// then look for global functions or global function pointers, 
+		// unless this is an expression post op, incase only member 
+		// functions are expected
+		if( objectType == 0 && funcs.GetLength() == 0 && funcPtr.type.dataType.GetFuncDef() == 0 )
 		{
 			// The scope is used to define the namespace
-			asCString ns = scope;
-
-			if( ns == "" )
+			asSNameSpace *ns = DetermineNameSpace(scope);
+			if( ns )
 			{
-				if( outFunc->nameSpace != "" )
-					ns = outFunc->nameSpace;
-				else if( outFunc->objectType && outFunc->objectType->nameSpace != "" )
-					ns = outFunc->objectType->nameSpace;
+				builder->GetFunctionDescriptions(name.AddressOf(), funcs, ns);
+				if( funcs.GetLength() == 0 )
+				{
+					int r = CompileVariableAccess(name, scope, &funcPtr, node, true, true);
+					if( r >= 0 && !funcPtr.type.dataType.GetFuncDef() )
+					{
+						// The variable is not a function
+						asCString msg;
+						msg.Format(TXT_NOT_A_FUNC_s_IS_VAR, name.AddressOf());
+						Error(msg.AddressOf(), node);
+						return -1;
+					}
+				}
 			}
-			else if( ns == "::" )
-				ns = "";
-
-			builder->GetFunctionDescriptions(name.AddressOf(), funcs, ns);
-
-			// TODO: funcdef: It is still possible that there is a global variable of a function type
+			else
+			{
+				asCString msg;
+				msg.Format(TXT_NAMESPACE_s_DOESNT_EXIST, scope.AddressOf());
+				Error(msg.AddressOf(), node);
+				return -1;
+			}
 		}
-	}
-	else if( !funcPtr.type.dataType.GetFuncDef() )
-	{
-		// The variable is not a function
-		asCString msg;
-		msg.Format(TXT_NOT_A_FUNC_s_IS_VAR, name.AddressOf());
-		Error(msg.AddressOf(), node);
-		return -1;
 	}
 
 	if( funcs.GetLength() == 0 && funcPtr.type.dataType.GetFuncDef() )
@@ -8024,6 +8136,27 @@ int asCCompiler::CompileFunctionCall(asCScriptNode *node, asSExprContext *ctx, a
 		}
 
 	return 0;
+}
+
+asSNameSpace *asCCompiler::DetermineNameSpace(const asCString &scope)
+{
+	asSNameSpace *ns;
+
+	if( scope == "" )
+	{
+		if( outFunc->nameSpace->name != "" )
+			ns = outFunc->nameSpace;
+		else if( outFunc->objectType && outFunc->objectType->nameSpace->name != "" )
+			ns = outFunc->objectType->nameSpace;
+		else
+			ns = engine->nameSpaces[0];
+	}
+	else if( scope == "::" )
+		ns = engine->nameSpaces[0];
+	else
+		ns = engine->FindNameSpace(scope.AddressOf());
+
+	return ns;
 }
 
 int asCCompiler::CompileExpressionPreOp(asCScriptNode *node, asSExprContext *ctx)
@@ -8153,6 +8286,20 @@ int asCCompiler::CompileExpressionPreOp(asCScriptNode *node, asSExprContext *ctx
 	}
 	else if( op == ttPlus || op == ttMinus )
 	{
+		// This is only for primitives. Objects are treated in the above block
+
+		// Make sure the type is a math type
+		if( !(ctx->type.dataType.IsIntegerType()  ||
+			  ctx->type.dataType.IsUnsignedType() ||
+			  ctx->type.dataType.IsEnumType()     ||
+			  ctx->type.dataType.IsFloatType()    ||
+			  ctx->type.dataType.IsDoubleType()     ) )
+		{
+			Error(TXT_ILLEGAL_OPERATION, node);
+			return -1;
+		}
+
+
 		ProcessPropertyGetAccessor(ctx, node);
 
 		asCDataType to = ctx->type.dataType;
@@ -8222,17 +8369,6 @@ int asCCompiler::CompileExpressionPreOp(asCScriptNode *node, asSExprContext *ctx
 				}
 
 				return 0;
-			}
-		}
-
-		if( op == ttPlus )
-		{
-			if( !ctx->type.dataType.IsIntegerType() &&
-				!ctx->type.dataType.IsFloatType() &&
-				!ctx->type.dataType.IsDoubleType() )
-			{
-				Error(TXT_ILLEGAL_OPERATION, node);
-				return -1;
 			}
 		}
 	}
@@ -8473,7 +8609,7 @@ int asCCompiler::FindPropertyAccessor(const asCString &name, asSExprContext *ctx
 		asCArray<int> funcs;
 		asUINT n;
 		// TODO: namespace: use the proper namespace
-		builder->GetFunctionDescriptions(getName.AddressOf(), funcs, "");
+		builder->GetFunctionDescriptions(getName.AddressOf(), funcs, engine->nameSpaces[0]);
 		for( n = 0; n < funcs.GetLength(); n++ )
 		{
 			asCScriptFunction *f = builder->GetFunctionDescription(funcs[n]);
@@ -8494,7 +8630,7 @@ int asCCompiler::FindPropertyAccessor(const asCString &name, asSExprContext *ctx
 
 		funcs.SetLength(0);
 		// TODO: namespace: use the proper namespace
-		builder->GetFunctionDescriptions(setName.AddressOf(), funcs, "");
+		builder->GetFunctionDescriptions(setName.AddressOf(), funcs, engine->nameSpaces[0]);
 		for( n = 0; n < funcs.GetLength(); n++ )
 		{
 			asCScriptFunction *f = builder->GetFunctionDescription(funcs[n]);
@@ -8822,8 +8958,11 @@ void asCCompiler::ProcessPropertyGetAccessor(asSExprContext *ctx, asCScriptNode 
 	if( func->objectType )
 	{
 		// TODO: This is from CompileExpressionPostOp, can we unify the code?
+
+		// If the method returned a reference, then we can't release the original
+		// object yet, because the reference may be to a member of it
 		if( !objType.isTemporary ||
-			!ctx->type.dataType.IsReference() ||
+			!(ctx->type.dataType.IsReference() || (ctx->type.dataType.IsObject() && !ctx->type.dataType.IsObjectHandle())) ||
 			ctx->type.isVariable ) // If the resulting type is a variable, then the reference is not a member
 		{
 			// As the method didn't return a reference to a member
@@ -9223,6 +9362,75 @@ int asCCompiler::CompileExpressionPostOp(asCScriptNode *node, asSExprContext *ct
 			MergeExprBytecodeAndType(ctx, &lctx);
 		}
 	}
+	else if( op == ttOpenParanthesis )
+	{
+		// TODO: Most of this is already done by CompileFunctionCall(). Can we share the code?
+
+		// Make sure the expression is a funcdef
+		if( !ctx->type.dataType.GetFuncDef() )
+		{
+			Error(TXT_EXPR_DOESNT_EVAL_TO_FUNC, node);
+			return -1;
+		}
+
+		// Compile arguments
+		asCArray<asSExprContext *> args;
+		if( CompileArgumentList(node->lastChild, args) >= 0 )
+		{
+			// Match arguments with the funcdef
+			asCArray<int> funcs;
+			funcs.PushLast(ctx->type.dataType.GetFuncDef()->id);
+			MatchFunctions(funcs, args, node, ctx->type.dataType.GetFuncDef()->name.AddressOf());
+
+			if( funcs.GetLength() != 1 )
+			{
+				// The error was reported by MatchFunctions()
+
+				// Dummy value
+				ctx->type.SetDummy();
+			}
+			else
+			{
+				int r = asSUCCESS;
+
+				// Add the default values for arguments not explicitly supplied
+				asCScriptFunction *func = (funcs[0] & 0xFFFF0000) == 0 ? engine->scriptFunctions[funcs[0]] : 0;
+				if( func && args.GetLength() < (asUINT)func->GetParamCount() )
+					r = CompileDefaultArgs(node, args, func);
+
+				// TODO: funcdef: Do we have to make sure the handle is stored in a temporary variable, or
+				//                is it enough to make sure it is in a local variable?
+
+				// For function pointer we must guarantee that the function is safe, i.e.
+				// by first storing the function pointer in a local variable (if it isn't already in one)
+				if( r == asSUCCESS )
+				{
+					Dereference(ctx, true);
+					if( !ctx->type.isVariable )
+						ConvertToVariable(ctx);
+					else
+					{
+						// Remove the reference from the stack as the asBC_CALLPTR instruction takes the variable as argument
+						ctx->bc.Instr(asBC_PopPtr);
+					}
+					asCTypeInfo t = ctx->type;
+
+					MakeFunctionCall(ctx, funcs[0], 0, args, node, false, 0, ctx->type.stackOffset);
+
+					ReleaseTemporaryVariable(t, &ctx->bc);
+				}
+			}
+		}
+		else
+			ctx->type.SetDummy();
+
+		// Cleanup
+		for( asUINT n = 0; n < args.GetLength(); n++ )
+			if( args[n] )
+			{
+				asDELETE(args[n],asSExprContext);
+			}
+	}
 
 	return 0;
 }
@@ -9288,9 +9496,8 @@ int asCCompiler::GetPrecedence(asCScriptNode *op)
 	return 0;
 }
 
-asUINT asCCompiler::MatchArgument(asCArray<int> &funcs, asCArray<int> &matches, const asCTypeInfo *argType, int paramNum, bool allowObjectConstruct)
+asUINT asCCompiler::MatchArgument(asCArray<int> &funcs, asCArray<asSOverloadCandidate> &matches, const asCTypeInfo *argType, int paramNum, bool allowObjectConstruct)
 {
-	asUINT bestCost = asUINT(-1);
 	matches.SetLength(0);
 
 	for( asUINT n = 0; n < funcs.GetLength(); n++ )
@@ -9352,19 +9559,10 @@ asUINT asCCompiler::MatchArgument(asCArray<int> &funcs, asCArray<int> &matches, 
 
 		// How well does the argument match the function parameter?
 		if( desc->parameterTypes[paramNum].IsEqualExceptRef(ti.type.dataType) )
-		{
-			if( cost < bestCost )
-			{
-				matches.SetLength(0);
-				bestCost = cost;
-			}
-
-			if( cost == bestCost )
-				matches.PushLast(funcs[n]);
-		}
+			matches.PushLast(asSOverloadCandidate(funcs[n], cost));
 	}
 
-	return bestCost;
+	return (asUINT)matches.GetLength();
 }
 
 void asCCompiler::PrepareArgument2(asSExprContext *ctx, asSExprContext *arg, asCDataType *paramType, bool isFunction, int refType, bool isMakingCopy)
@@ -9617,8 +9815,23 @@ int asCCompiler::CompileOverloadedDualOperator2(asCScriptNode *node, const char 
 		}
 
 		// Which is the best matching function?
+		asCArray<asSOverloadCandidate> tempFuncs;
+		MatchArgument(funcs, tempFuncs, &rctx->type, 0);
+
+		// Find the lowest cost operator(s)
 		asCArray<int> ops;
-		MatchArgument(funcs, ops, &rctx->type, 0);
+		asUINT bestCost = asUINT(-1);
+		for( asUINT n = 0; n < tempFuncs.GetLength(); ++n )
+		{
+			asUINT cost = tempFuncs[n].cost;
+			if( cost < bestCost )
+			{
+				ops.SetLength(0);
+				bestCost = cost;
+			}
+			if( cost == bestCost )
+				ops.PushLast(tempFuncs[n].funcId);
+		}
 
 		// If the object is not const, then we need to prioritize non-const methods
 		if( !isConst )
@@ -10975,18 +11188,23 @@ void asCCompiler::CompileBooleanOperator(asCScriptNode *node, asSExprContext *lc
 
 			int label1 = nextLabel++;
 			int label2 = nextLabel++;
+
+			ctx->bc.InstrSHORT(asBC_CpyVtoR4, lctx->type.stackOffset);
+			if( lctx->type.isTemporary )
+			{
+				// Add a hint for the bytecode optimizer to let it know that the variable won't be used after this.
+				// Without this, the bytecode optimizer may have to search all following instructions with a chance that the variable is never used again.
+				ctx->bc.DiscardVar(lctx->type.stackOffset);
+			}			
+			ctx->bc.Instr(asBC_ClrHi);
 			if( op == ttAnd )
 			{
-				ctx->bc.InstrSHORT(asBC_CpyVtoR4, lctx->type.stackOffset);
-				ctx->bc.Instr(asBC_ClrHi);
 				ctx->bc.InstrDWORD(asBC_JNZ, label1);
 				ctx->bc.InstrW_DW(asBC_SetV4, (asWORD)offset, 0);
 				ctx->bc.InstrINT(asBC_JMP, label2);
 			}
 			else if( op == ttOr )
 			{
-				ctx->bc.InstrSHORT(asBC_CpyVtoR4, lctx->type.stackOffset);
-				ctx->bc.Instr(asBC_ClrHi);
 				ctx->bc.InstrDWORD(asBC_JZ, label1);
 #if AS_SIZEOF_BOOL == 1
 				ctx->bc.InstrSHORT_B(asBC_SetV1, (short)offset, VALUE_OF_BOOLEAN_TRUE);

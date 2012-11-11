@@ -47,7 +47,7 @@ static CScriptArray* ScriptArrayFactory2(asIObjectType *ot, asUINT length)
 	asIScriptContext *ctx = asGetActiveContext();
 	if( ctx && ctx->GetState() == asEXECUTION_EXCEPTION )
 	{
-		delete a;
+		a->Release();
 		return 0;
 	}
 
@@ -63,7 +63,7 @@ static CScriptArray* ScriptArrayFactoryDefVal(asIObjectType *ot, asUINT length, 
 	asIScriptContext *ctx = asGetActiveContext();
 	if( ctx && ctx->GetState() == asEXECUTION_EXCEPTION )
 	{
-		delete a;
+		a->Release();
 		return 0;
 	}
 
@@ -77,8 +77,10 @@ static CScriptArray* ScriptArrayFactory(asIObjectType *ot)
 
 // This optional callback is called when the template type is first used by the compiler.
 // It allows the application to validate if the template can be instanciated for the requested 
-// subtype at compile time, instead of at runtime.
-static bool ScriptArrayTemplateCallback(asIObjectType *ot)
+// subtype at compile time, instead of at runtime. The output argument dontGarbageCollect
+// allow the callback to tell the engine if the template instance type shouldn't be garbage collected, 
+// i.e. no asOBJ_GC flag. 
+static bool ScriptArrayTemplateCallback(asIObjectType *ot, bool &dontGarbageCollect)
 {
 	// Make sure the subtype can be instanciated with a default factory/constructor, 
 	// otherwise we won't be able to instanciate the elements. 
@@ -92,6 +94,7 @@ static bool ScriptArrayTemplateCallback(asIObjectType *ot)
 		if( (flags & asOBJ_VALUE) && !(flags & asOBJ_POD) )
 		{
 			// Verify that there is a default constructor
+			bool found = false;
 			for( asUINT n = 0; n < subtype->GetBehaviourCount(); n++ )
 			{
 				asEBehaviours beh;
@@ -101,29 +104,48 @@ static bool ScriptArrayTemplateCallback(asIObjectType *ot)
 				if( func->GetParamCount() == 0 )
 				{
 					// Found the default constructor
-					return true;
+					found = true;
+					break;
 				}
 			}
 
-			// There is no default constructor
-			return false;
+			if( !found )
+			{
+				// There is no default constructor
+				return false;
+			}
 		}
 		else if( (flags & asOBJ_REF) )
 		{
 			// Verify that there is a default factory
+			bool found = false;
 			for( asUINT n = 0; n < subtype->GetFactoryCount(); n++ )
 			{
 				asIScriptFunction *func = subtype->GetFactoryByIndex(n);
 				if( func->GetParamCount() == 0 )
 				{
 					// Found the default factory
-					return true;
+					found = true;
+					break;
 				}
 			}	
 
-			// No default factory
-			return false;
+			if( !found )
+			{
+				// No default factory
+				return false;
+			}
 		}
+
+		// If the object type is not garbage collected then the array also doesn't need to be
+		if( !(flags & asOBJ_GC) )
+			dontGarbageCollect = true;
+	}
+	else if( !(typeId & asTYPEID_OBJHANDLE) )
+	{
+		// Arrays with primitives cannot form circular references, 
+		// thus there is no need to garbage collect them
+		dontGarbageCollect = true;
 	}
 
 	// The type is ok
@@ -155,7 +177,7 @@ static void RegisterScriptArray_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectType("array<class T>", 0, asOBJ_REF | asOBJ_GC | asOBJ_TEMPLATE); assert( r >= 0 );
 
 	// Register a callback for validating the subtype before it is used
-	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_TEMPLATE_CALLBACK, "bool f(int&in)", asFUNCTION(ScriptArrayTemplateCallback), asCALL_CDECL); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_TEMPLATE_CALLBACK, "bool f(int&in, bool&out)", asFUNCTION(ScriptArrayTemplateCallback), asCALL_CDECL); assert( r >= 0 );
 
 	// Templates receive the object type as the first parameter. To the script writer this is hidden
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in)", asFUNCTIONPR(ScriptArrayFactory, (asIObjectType*), CScriptArray*), asCALL_CDECL); assert( r >= 0 );
@@ -250,13 +272,9 @@ CScriptArray::CScriptArray(asUINT length, asIObjectType *ot)
 
 	// Determine element size
 	if( subTypeId & asTYPEID_MASK_OBJECT )
-	{
 		elementSize = sizeof(asPWORD);
-	}
 	else
-	{
 		elementSize = objType->GetEngine()->GetSizeOfPrimitiveType(subTypeId);
-	}
 
 	// Make sure the array size isn't too large for us to handle
 	if( !CheckMaxSize(length) )
@@ -272,6 +290,27 @@ CScriptArray::CScriptArray(asUINT length, asIObjectType *ot)
 		objType->GetEngine()->NotifyGarbageCollectorOfNewObject(this, objType);
 }
 
+CScriptArray::CScriptArray(const CScriptArray &other)
+{
+	refCount = 1;
+	gcFlag = false;
+	objType = other.objType;
+	objType->AddRef();
+	buffer = 0;
+
+	Precache();
+
+	elementSize = other.elementSize;
+
+	if( objType->GetFlags() & asOBJ_GC )
+		objType->GetEngine()->NotifyGarbageCollectorOfNewObject(this, objType);
+
+	CreateBuffer(&buffer, 0);
+
+	// Copy the content
+	*this = other;
+}
+
 CScriptArray::CScriptArray(asUINT length, void *defVal, asIObjectType *ot)
 {
 	refCount = 1;
@@ -284,13 +323,9 @@ CScriptArray::CScriptArray(asUINT length, void *defVal, asIObjectType *ot)
 
 	// Determine element size
 	if( subTypeId & asTYPEID_MASK_OBJECT )
-	{
 		elementSize = sizeof(asPWORD);
-	}
 	else
-	{
 		elementSize = objType->GetEngine()->GetSizeOfPrimitiveType(subTypeId);
-	}
 
 	// Make sure the array size isn't too large for us to handle
 	if( !CheckMaxSize(length) )
@@ -325,7 +360,7 @@ void CScriptArray::SetValue(asUINT index, void *value)
 		*(void**)ptr = *(void**)value;
 		objType->GetEngine()->AddRefScriptObject(*(void**)value, objType->GetSubType());
 		if( tmp )
-			objType->GetEngine()->ReleaseScriptObject(*(void**)value, objType->GetSubType());
+			objType->GetEngine()->ReleaseScriptObject(tmp, objType->GetSubType());
 	}
 	else if( subTypeId == asTYPEID_BOOL ||
 			 subTypeId == asTYPEID_INT8 ||
@@ -372,7 +407,7 @@ void CScriptArray::Reserve(asUINT maxElements)
 
 	// Allocate memory for the buffer
 	SArrayBuffer *newBuffer;
-	#if defined(AS_MARMALADE)
+	#if defined(AS_MARMALADE) || defined(MARMALADE)
 	newBuffer = (SArrayBuffer*)new asBYTE[sizeof(SArrayBuffer)-1 + elementSize*maxElements];
 	#else
 	newBuffer = (SArrayBuffer*)new (nothrow) asBYTE[sizeof(SArrayBuffer)-1 + elementSize*maxElements];
@@ -436,7 +471,7 @@ void CScriptArray::Resize(int delta, asUINT at)
 	{
 		// Allocate memory for the buffer
 		SArrayBuffer *newBuffer;
-		#if defined(AS_MARMALADE)
+		#if defined(AS_MARMALADE) || defined(MARMALADE)
 		newBuffer = (SArrayBuffer*)new asBYTE[sizeof(SArrayBuffer)-1 + elementSize*(buffer->numElements + delta)];
 		#else
 		newBuffer = (SArrayBuffer*)new (nothrow) asBYTE[sizeof(SArrayBuffer)-1 + elementSize*(buffer->numElements + delta)];
@@ -595,7 +630,7 @@ void CScriptArray::CreateBuffer(SArrayBuffer **buf, asUINT numElements)
 {
 	if( subTypeId & asTYPEID_MASK_OBJECT )
 	{
-	#if defined( AS_MARMALADE )
+	#if defined(AS_MARMALADE) || defined(MARMALADE)
 		*buf = (SArrayBuffer*)new asBYTE[sizeof(SArrayBuffer)-1+sizeof(void*)*numElements];
 	#else
 		*buf = (SArrayBuffer*)new (nothrow) asBYTE[sizeof(SArrayBuffer)-1+sizeof(void*)*numElements];
@@ -603,7 +638,7 @@ void CScriptArray::CreateBuffer(SArrayBuffer **buf, asUINT numElements)
 	}
 	else
 	{
-		#if defined( AS_MARMALADE )
+		#if defined(AS_MARMALADE) || defined(MARMALADE)
 		*buf = (SArrayBuffer*)new asBYTE[sizeof(SArrayBuffer)-1+elementSize*numElements];
         #else
 		*buf = (SArrayBuffer*)new (nothrow) asBYTE[sizeof(SArrayBuffer)-1+elementSize*numElements];
@@ -792,7 +827,12 @@ bool CScriptArray::operator==(const CScriptArray &other) const
 
 	if( cmpContext )
 		if( isNested )
+		{
+			asEContextState state = cmpContext->GetState();
 			cmpContext->PopState();
+			if( state == asEXECUTION_ABORTED )
+				cmpContext->Abort();
+		}
 		else
 			cmpContext->Release();
 
@@ -885,7 +925,7 @@ int CScriptArray::Find(asUINT index, void *value) const
 			if( ctx )
 			{
 				char tmp[512];
-#if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(AS_MARMALADE)
+#if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(AS_MARMALADE) && !defined(MARMALADE)
 				sprintf_s(tmp, 512, "Type '%s' does not have opEquals / opCmp", subType->GetName());
 #else
 				sprintf(tmp, "Type '%s' does not have opEquals / opCmp", subType->GetName());
@@ -939,7 +979,12 @@ int CScriptArray::Find(asUINT index, void *value) const
 
 	if( cmpContext )
 		if( isNested )
+		{
+			asEContextState state = cmpContext->GetState();
 			cmpContext->PopState();
+			if( state == asEXECUTION_ABORTED )
+				cmpContext->Abort();
+		}
 		else
 			cmpContext->Release();
 
@@ -1021,7 +1066,7 @@ void CScriptArray::Sort(asUINT index, asUINT count, bool asc)
 			if( ctx )
 			{
 				char tmp[512];
-#if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(AS_MARMALADE)
+#if defined(_MSC_VER) && _MSC_VER >= 1500 && !defined(AS_MARMALADE) && !defined(MARMALADE)
 				sprintf_s(tmp, 512, "Type '%s' does not have opCmp", subType->GetName());
 #else
 				sprintf(tmp, "Type '%s' does not have opCmp", subType->GetName());
@@ -1098,7 +1143,12 @@ void CScriptArray::Sort(asUINT index, asUINT count, bool asc)
 
 	if( cmpContext )
 		if( isNested )
+		{
+			asEContextState state = cmpContext->GetState();
 			cmpContext->PopState();
+			if( state == asEXECUTION_ABORTED )
+				cmpContext->Abort();
+		}
 		else
 			cmpContext->Release();
 }
@@ -1314,7 +1364,8 @@ static void ScriptArrayFactoryDefVal_Generic(asIScriptGeneric *gen)
 static void ScriptArrayTemplateCallback_Generic(asIScriptGeneric *gen)
 {
 	asIObjectType *ot = *(asIObjectType**)gen->GetAddressOfArg(0);
-	*(bool*)gen->GetAddressOfReturnLocation() = ScriptArrayTemplateCallback(ot);
+	bool *dontGarbageCollect = *(bool**)gen->GetAddressOfArg(1);
+	*(bool*)gen->GetAddressOfReturnLocation() = ScriptArrayTemplateCallback(ot, *dontGarbageCollect);
 }
 
 static void ScriptArrayAssignment_Generic(asIScriptGeneric *gen)
@@ -1401,7 +1452,7 @@ static void RegisterScriptArray_Generic(asIScriptEngine *engine)
 	r = engine->RegisterObjectType("array<class T>", 0, asOBJ_REF | asOBJ_GC | asOBJ_TEMPLATE); assert( r >= 0 );
 
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in)", asFUNCTION(ScriptArrayFactory_Generic), asCALL_GENERIC); assert( r >= 0 );
-	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_TEMPLATE_CALLBACK, "bool f(int&in)", asFUNCTION(ScriptArrayTemplateCallback_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_TEMPLATE_CALLBACK, "bool f(int&in, bool&out)", asFUNCTION(ScriptArrayTemplateCallback_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in, uint)", asFUNCTION(ScriptArrayFactory2_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_FACTORY, "array<T>@ f(int&in, uint, const T &in)", asFUNCTION(ScriptArrayFactoryDefVal_Generic), asCALL_GENERIC); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("array<T>", asBEHAVE_LIST_FACTORY, "array<T>@ f(int&in, uint)", asFUNCTION(ScriptArrayFactory2_Generic), asCALL_GENERIC); assert( r >= 0 );

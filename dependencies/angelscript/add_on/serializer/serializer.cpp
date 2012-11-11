@@ -95,8 +95,10 @@ int CSerializer::Restore(asIScriptModule *mod)
 			{
 				if( m_root.m_children[i2]->m_originalPtr == o.originalObject )
 				{
-					void *newPtr = m_engine->CreateScriptObject( type->GetTypeId() );
-
+					// Create a new script object, but don't call its constructor as we will initialize the members. 
+					// Calling the constructor may have unwanted side effects if for example the constructor changes
+					// any outside entities, such as setting global variables to point to new objects, etc.
+					void *newPtr = m_engine->CreateUninitializedScriptObject( type->GetTypeId() );
 					m_root.m_children[i2]->Restore( newPtr, type->GetTypeId() ); 
 				}
 			}
@@ -354,7 +356,7 @@ void CSerializedValue::Restore(void *ref, int typeId)
 
 			if( type->GetFactoryCount() == 0 )
 			{
-				*(void**)m_restorePtr = m_handlePtr;
+				m_children[0]->m_restorePtr = m_handlePtr;
 			}
 			else
 			{

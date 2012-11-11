@@ -33,6 +33,7 @@
 #include "as_config.h"
 #include "as_scriptengine.h"
 #include "as_scriptobject.h"
+#include "as_texts.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -43,8 +44,8 @@ asIScriptObject *ScriptObjectFactory(const asCObjectType *objType, asCScriptEngi
 	int r = 0;
 	bool isNested = false;
 
-	// TODO: optimize: There should be a pool for the context so it doesn't 
-	//                 have to be allocated just for creating the script object
+	// TODO: runtime optimize: There should be a pool for the context so it doesn't 
+	//                         have to be allocated just for creating the script object
 
 	// TODO: It must be possible for the application to debug the creation of the object too
 
@@ -92,7 +93,19 @@ asIScriptObject *ScriptObjectFactory(const asCObjectType *objType, asCScriptEngi
 	if( r != asEXECUTION_FINISHED )
 	{
 		if( isNested )
+		{
 			ctx->PopState();
+
+			// If the execution was aborted or an exception occurred,
+			// then we should forward that to the outer execution.
+			if( r == asEXECUTION_EXCEPTION )
+			{
+				// TODO: How to improve this exception
+				ctx->SetException(TXT_EXCEPTION_IN_NESTED_CALL);
+			}
+			else if( r == asEXECUTION_ABORTED )
+				ctx->Abort();
+		}
 		else
 			ctx->Release();
 		return 0;
@@ -254,8 +267,6 @@ void asCScriptObject::Destruct()
 
 asCScriptObject::~asCScriptObject()
 {
-	objType->Release();
-
 	// The engine pointer should be available from the objectType
 	asCScriptEngine *engine = objType->engine;
 
@@ -274,6 +285,8 @@ asCScriptObject::~asCScriptObject()
 			}
 		}
 	}
+
+	objType->Release();
 }
 
 asIScriptEngine *asCScriptObject::GetEngine() const
@@ -316,6 +329,7 @@ void asCScriptObject::CallDestructor()
 {
 	asIScriptContext *ctx = 0;
 	bool isNested = false;
+	bool doAbort = false;
 
 	// Make sure the destructor is called once only, even if the  
 	// reference count is increased and then decreased again
@@ -365,8 +379,15 @@ void asCScriptObject::CallDestructor()
 						break;
 				}
 
-				// There's not much to do if the execution doesn't 
-				// finish, so we just ignore the result
+				// Exceptions in the destructor will be ignored, as there is not much
+				// that can be done about them. However a request to abort the execution
+				// will be forwarded to the outer execution, in case of a nested call.
+				if( r == asEXECUTION_ABORTED )
+					doAbort = true;
+
+				// Observe, even though the current destructor was aborted or an exception
+				// occurred, we still try to execute the base class' destructor if available
+				// in order to free as many resources as possible.
 			}
 		}
 
@@ -376,7 +397,13 @@ void asCScriptObject::CallDestructor()
 	if( ctx )
 	{
 		if( isNested )
+		{
 			ctx->PopState();
+
+			// Forward any request to abort the execution to the outer call
+			if( doAbort )
+				ctx->Abort();
+		}
 		else
 			ctx->Release();
 	}
@@ -603,10 +630,13 @@ void asCScriptObject::CopyObject(void *src, void *dst, asCObjectType *objType, a
 
 void asCScriptObject::CopyHandle(asPWORD *src, asPWORD *dst, asCObjectType *objType, asCScriptEngine *engine)
 {
-	if( *dst )
+	// asOBJ_NOCOUNT doesn't have addref or release behaviours
+	asASSERT( (objType->flags & asOBJ_NOCOUNT) || (objType->beh.release && objType->beh.addref) );
+
+	if( *dst && objType->beh.release )
 		engine->CallObjectMethod(*(void**)dst, objType->beh.release);
 	*dst = *src;
-	if( *dst )
+	if( *dst && objType->beh.addref )
 		engine->CallObjectMethod(*(void**)dst, objType->beh.addref);
 }
 
