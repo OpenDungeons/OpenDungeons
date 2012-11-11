@@ -11,6 +11,7 @@ set(ANGELSCRIPT_DIR "${DEPENDENCIES_DIR}/angelscript")
 set(ANGELSCRIPT_SRC_DIR "${ANGELSCRIPT_DIR}/angelscript/source")
 set(ANGELSCRIPT_ADDON_DIR "${ANGELSCRIPT_DIR}/add_on")
 set(TINYGETTEXT_DIR "${DEPENDENCIES_DIR}/tinygettext")
+set(TINYXML_DIR "${DEPENDENCIES_DIR}/tinyxml2")
 
 #cmake paths
 set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
@@ -82,6 +83,9 @@ set(OD_SOURCEFILES
     ${TINYGETTEXT_DIR}/po_parser.cpp
     ${TINYGETTEXT_DIR}/tinygettext.cpp
      
+	#Tinyxml2 sources
+	${TINYXML_DIR}/tinyxml2.cpp
+
     #OpenDungeons sources
     ${SRC}/AbstractApplicationMode.cpp
     ${SRC}/AIFactory.cpp
@@ -247,6 +251,9 @@ include_directories(
     #tinygettext includes
     ${TINYGETTEXT_DIR}
 
+	#tinyxml2 includes
+	${TINYXML_DIR}
+
     #Angelscript includes    
     ${ANGELSCRIPT_DIR}/angelscript/include
 	${ANGELSCRIPT_SRC_DIR}
@@ -299,7 +306,6 @@ endif()
 
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
 add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
-
 
 # set path
 set(BINDIR games CACHE PATH "")

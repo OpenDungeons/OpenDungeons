@@ -37,7 +37,7 @@
 
 #include "ASWrapper.h"
 
-template<> ASWrapper* Ogre::Singleton<ASWrapper>::ms_Singleton = 0;
+template<> ASWrapper* Ogre::Singleton<ASWrapper>::msSingleton = 0;
 
 /*! \brief Initialises AngelScript
  *
