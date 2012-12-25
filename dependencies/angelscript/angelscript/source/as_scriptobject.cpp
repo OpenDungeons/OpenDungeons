@@ -267,6 +267,8 @@ void asCScriptObject::Destruct()
 
 asCScriptObject::~asCScriptObject()
 {
+	objType->Release();
+
 	// The engine pointer should be available from the objectType
 	asCScriptEngine *engine = objType->engine;
 
@@ -285,8 +287,6 @@ asCScriptObject::~asCScriptObject()
 			}
 		}
 	}
-
-	objType->Release();
 }
 
 asIScriptEngine *asCScriptObject::GetEngine() const
@@ -630,13 +630,10 @@ void asCScriptObject::CopyObject(void *src, void *dst, asCObjectType *objType, a
 
 void asCScriptObject::CopyHandle(asPWORD *src, asPWORD *dst, asCObjectType *objType, asCScriptEngine *engine)
 {
-	// asOBJ_NOCOUNT doesn't have addref or release behaviours
-	asASSERT( (objType->flags & asOBJ_NOCOUNT) || (objType->beh.release && objType->beh.addref) );
-
-	if( *dst && objType->beh.release )
+	if( *dst )
 		engine->CallObjectMethod(*(void**)dst, objType->beh.release);
 	*dst = *src;
-	if( *dst && objType->beh.addref )
+	if( *dst )
 		engine->CallObjectMethod(*(void**)dst, objType->beh.addref);
 }
 

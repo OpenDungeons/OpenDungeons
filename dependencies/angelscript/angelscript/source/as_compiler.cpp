@@ -47,7 +47,6 @@
 #include "as_string_util.h"
 #include "as_texts.h"
 #include "as_parser.h"
-#include "as_debug.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -239,8 +238,6 @@ int asCCompiler::CompileFactory(asCBuilder *builder, asCScriptCode *script, asCS
 
 void asCCompiler::FinalizeFunction()
 {
-	TimeIt("asCCompiler::FinalizeFunction");
-
 	asUINT n;
 
 	// Tell the bytecode which variables are temporary
@@ -291,18 +288,23 @@ void asCCompiler::FinalizeFunction()
 	outFunc->lineNumbers = byteCode.lineNumbers;
 }
 
-// internal
-int asCCompiler::SetupParametersAndReturnVariable(sExplicitSignature *signature, asCScriptNode *func)
+// Entry
+int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sExplicitSignature *signature, asCScriptNode *func, asCScriptFunction *outFunc)
 {
 	// TODO: The compiler should take the return type and parameter types from the 
 	//       outFunc, instead of interpreting the script nodes again. The builder
 	//       must pass the list of parameter names. Making this change we can
 	//       eliminate large parts of this function and the sExplicitSignature structure
 
-	int stackPos = 0;
+	Reset(builder, script, outFunc);
+	int buildErrors = builder->numErrors;
 
+	int stackPos = 0;
 	if( outFunc->objectType )
 		stackPos = -AS_PTR_SIZE; // The first parameter is the pointer to the object
+
+	// Reserve a label for the cleanup code
+	nextLabel++;
 
 	// Add the first variable scope, which the parameters and
 	// variables declared in the outermost statement block is
@@ -436,6 +438,7 @@ int asCCompiler::SetupParametersAndReturnVariable(sExplicitSignature *signature,
 	}
 	else
 	{
+		
 		asCArray<asCDataType> &args = signature->argTypes;
 		asCArray<asETypeModifiers> &inoutFlags = signature->argModifiers;
 		asCArray<asCString> &argNames = signature->argNames;
@@ -488,23 +491,11 @@ int asCCompiler::SetupParametersAndReturnVariable(sExplicitSignature *signature,
 
 	variables->DeclareVariable("return", returnType, stackPos, true);
 
-	return stackPos;
-}
-
-// Entry
-int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sExplicitSignature *signature, asCScriptNode *func, asCScriptFunction *outFunc)
-{
-	TimeIt("asCCompiler::CompileFunction");
-
-	Reset(builder, script, outFunc);
-	int buildErrors = builder->numErrors;
-
-	int stackPos = SetupParametersAndReturnVariable(signature, func);
-
 	//--------------------------------------------
 	// Compile the statement block
 
 	// We need to parse the statement block now
+
 	asCScriptNode *blockBegin;
 
 	if( !signature )
@@ -513,14 +504,10 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 		blockBegin = func;
 
 	// TODO: memory: We can parse the statement block one statement at a time, thus save even more memory
-	// TODO: optimize: For large functions, the parsing of the statement block can take a long time. Presumably because a lot of memory needs to be allocated
 	asCParser parser(builder);
 	int r = parser.ParseStatementBlock(script, blockBegin);
 	if( r < 0 ) return -1;
 	asCScriptNode *block = parser.GetScriptNode();
-
-	// Reserve a label for the cleanup code
-	nextLabel++;
 
 	bool hasReturn;
 	asCByteCode bc(engine);
@@ -529,7 +516,7 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 	LineInstr(&bc, blockBegin->tokenPos + blockBegin->tokenLength);
 
 	// Make sure there is a return in all paths (if not return type is void)
-	if( outFunc->returnType != asCDataType::CreatePrimitive(ttVoid, false) )
+	if( returnType != asCDataType::CreatePrimitive(ttVoid, false) )
 	{
 		if( hasReturn == false )
 			Error(TXT_NOT_ALL_PATHS_RETURN, blockBegin);
@@ -580,7 +567,6 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 	byteCode.AddCode(&bc);
 
 	// Deallocate all local variables
-	int n;
 	for( n = (int)variables->variables.GetLength() - 1; n >= 0; n-- )
 	{
 		sVariable *v = variables->variables[n];
@@ -629,6 +615,12 @@ int asCCompiler::CompileFunction(asCBuilder *builder, asCScriptCode *script, sEx
 
 	// Remove the variable scope
 	RemoveVariableScope();
+
+	// This POP is not necessary as the return will clean up the stack frame anyway.
+	// The bytecode optimizer would remove this POP, however by not including it here
+	// it is guaranteed it doesn't have to be adjusted by the asCRestore class when
+	// a types are of a different size than originally compiled for.
+	// byteCode.Pop(varSize);
 
 	byteCode.Ret(-stackPos);
 
@@ -1833,9 +1825,10 @@ int asCCompiler::CompileDefaultArgs(asCScriptNode *node, asCArray<asSExprContext
 asUINT asCCompiler::MatchFunctions(asCArray<int> &funcs, asCArray<asSExprContext*> &args, asCScriptNode *node, const char *name, asCObjectType *objectType, bool isConstMethod, bool silent, bool allowObjectConstruct, const asCString &scope)
 {
 	asCArray<int> origFuncs = funcs; // Keep the original list for error message
-	asUINT cost = 0;
-	asUINT n;
 
+	asUINT cost = 0;
+
+	asUINT n;
 	if( funcs.GetLength() > 0 )
 	{
 		// Check the number of parameters in the found functions
@@ -1871,18 +1864,12 @@ asUINT asCCompiler::MatchFunctions(asCArray<int> &funcs, asCArray<asSExprContext
 		}
 
 		// Match functions with the parameters, and discard those that do not match
-		asCArray<asSOverloadCandidate> matchingFuncs;
-		matchingFuncs.SetLengthNoConstruct( funcs.GetLength() );
-		for ( n = 0; n < funcs.GetLength(); ++n )
-		{
-			matchingFuncs[n].funcId = funcs[n];
-			matchingFuncs[n].cost = 0;
-		}
+		asCArray<int> matchingFuncs = funcs;
 
 		for( n = 0; n < args.GetLength(); ++n )
 		{
-			asCArray<asSOverloadCandidate> tempFuncs;
-			MatchArgument(funcs, tempFuncs, &args[n]->type, n, allowObjectConstruct);
+			asCArray<int> tempFuncs;
+			cost += MatchArgument(funcs, tempFuncs, &args[n]->type, n, allowObjectConstruct);
 
 			// Intersect the found functions with the list of matching functions
 			for( asUINT f = 0; f < matchingFuncs.GetLength(); f++ )
@@ -1890,13 +1877,8 @@ asUINT asCCompiler::MatchFunctions(asCArray<int> &funcs, asCArray<asSExprContext
 				asUINT c;
 				for( c = 0; c < tempFuncs.GetLength(); c++ )
 				{
-					if( matchingFuncs[f].funcId == tempFuncs[c].funcId )
-					{
-						// Sum argument cost
-						matchingFuncs[f].cost += tempFuncs[c].cost;
+					if( matchingFuncs[f] == tempFuncs[c] )
 						break;
-
-					} // End if match
 				}
 
 				// Was the function a match?
@@ -1912,23 +1894,7 @@ asUINT asCCompiler::MatchFunctions(asCArray<int> &funcs, asCArray<asSExprContext
 			}
 		}
 
-		// Select the overload(s) with the lowest overall cost
-		funcs.SetLength(0);
-		asUINT bestCost = asUINT(-1);
-		for( n = 0; n < matchingFuncs.GetLength(); ++n )
-		{
-			cost = matchingFuncs[n].cost;
-			if( cost < bestCost )
-			{
-				funcs.SetLength(0);
-				bestCost = cost;
-			}
-			if( cost == bestCost )
-				funcs.PushLast( matchingFuncs[n].funcId );
-		}
-
-		// Cost returned is equivalent to the best cost discovered
-		cost = bestCost;
+		funcs = matchingFuncs;
 	}
 
 	if( !isConstMethod )
@@ -7678,11 +7644,6 @@ void asCCompiler::ProcessDeferredParams(asSExprContext *ctx)
 
 				if( !o.type.dataType.IsPrimitive() ) o.bc.Instr(asBC_PopPtr);
 
-				// The assignment may itself have resulted in a new temporary variable, e.g. if 
-				// the opAssign returns a non-reference. We must release this temporary variable 
-				// since it won't be used
-				ReleaseTemporaryVariable(o.type, &o.bc);
-
 				MergeExprBytecode(ctx, &o);
 			}
 			else
@@ -8016,10 +7977,8 @@ int asCCompiler::CompileFunctionCall(asCScriptNode *node, asSExprContext *ctx, a
 		}
 
 		// If it is not a class method or member function pointer, 
-		// then look for global functions or global function pointers, 
-		// unless this is an expression post op, incase only member 
-		// functions are expected
-		if( objectType == 0 && funcs.GetLength() == 0 && funcPtr.type.dataType.GetFuncDef() == 0 )
+		// then look for global functions or global function pointers
+		if( funcs.GetLength() == 0 && funcPtr.type.dataType.GetFuncDef() == 0 )
 		{
 			// The scope is used to define the namespace
 			asSNameSpace *ns = DetermineNameSpace(scope);
@@ -8286,20 +8245,6 @@ int asCCompiler::CompileExpressionPreOp(asCScriptNode *node, asSExprContext *ctx
 	}
 	else if( op == ttPlus || op == ttMinus )
 	{
-		// This is only for primitives. Objects are treated in the above block
-
-		// Make sure the type is a math type
-		if( !(ctx->type.dataType.IsIntegerType()  ||
-			  ctx->type.dataType.IsUnsignedType() ||
-			  ctx->type.dataType.IsEnumType()     ||
-			  ctx->type.dataType.IsFloatType()    ||
-			  ctx->type.dataType.IsDoubleType()     ) )
-		{
-			Error(TXT_ILLEGAL_OPERATION, node);
-			return -1;
-		}
-
-
 		ProcessPropertyGetAccessor(ctx, node);
 
 		asCDataType to = ctx->type.dataType;
@@ -8369,6 +8314,17 @@ int asCCompiler::CompileExpressionPreOp(asCScriptNode *node, asSExprContext *ctx
 				}
 
 				return 0;
+			}
+		}
+
+		if( op == ttPlus )
+		{
+			if( !ctx->type.dataType.IsIntegerType() &&
+				!ctx->type.dataType.IsFloatType() &&
+				!ctx->type.dataType.IsDoubleType() )
+			{
+				Error(TXT_ILLEGAL_OPERATION, node);
+				return -1;
 			}
 		}
 	}
@@ -8958,11 +8914,8 @@ void asCCompiler::ProcessPropertyGetAccessor(asSExprContext *ctx, asCScriptNode 
 	if( func->objectType )
 	{
 		// TODO: This is from CompileExpressionPostOp, can we unify the code?
-
-		// If the method returned a reference, then we can't release the original
-		// object yet, because the reference may be to a member of it
 		if( !objType.isTemporary ||
-			!(ctx->type.dataType.IsReference() || (ctx->type.dataType.IsObject() && !ctx->type.dataType.IsObjectHandle())) ||
+			!ctx->type.dataType.IsReference() ||
 			ctx->type.isVariable ) // If the resulting type is a variable, then the reference is not a member
 		{
 			// As the method didn't return a reference to a member
@@ -9496,8 +9449,9 @@ int asCCompiler::GetPrecedence(asCScriptNode *op)
 	return 0;
 }
 
-asUINT asCCompiler::MatchArgument(asCArray<int> &funcs, asCArray<asSOverloadCandidate> &matches, const asCTypeInfo *argType, int paramNum, bool allowObjectConstruct)
+asUINT asCCompiler::MatchArgument(asCArray<int> &funcs, asCArray<int> &matches, const asCTypeInfo *argType, int paramNum, bool allowObjectConstruct)
 {
+	asUINT bestCost = asUINT(-1);
 	matches.SetLength(0);
 
 	for( asUINT n = 0; n < funcs.GetLength(); n++ )
@@ -9559,10 +9513,19 @@ asUINT asCCompiler::MatchArgument(asCArray<int> &funcs, asCArray<asSOverloadCand
 
 		// How well does the argument match the function parameter?
 		if( desc->parameterTypes[paramNum].IsEqualExceptRef(ti.type.dataType) )
-			matches.PushLast(asSOverloadCandidate(funcs[n], cost));
+		{
+			if( cost < bestCost )
+			{
+				matches.SetLength(0);
+				bestCost = cost;
+			}
+
+			if( cost == bestCost )
+				matches.PushLast(funcs[n]);
+		}
 	}
 
-	return (asUINT)matches.GetLength();
+	return bestCost;
 }
 
 void asCCompiler::PrepareArgument2(asSExprContext *ctx, asSExprContext *arg, asCDataType *paramType, bool isFunction, int refType, bool isMakingCopy)
@@ -9815,23 +9778,8 @@ int asCCompiler::CompileOverloadedDualOperator2(asCScriptNode *node, const char 
 		}
 
 		// Which is the best matching function?
-		asCArray<asSOverloadCandidate> tempFuncs;
-		MatchArgument(funcs, tempFuncs, &rctx->type, 0);
-
-		// Find the lowest cost operator(s)
 		asCArray<int> ops;
-		asUINT bestCost = asUINT(-1);
-		for( asUINT n = 0; n < tempFuncs.GetLength(); ++n )
-		{
-			asUINT cost = tempFuncs[n].cost;
-			if( cost < bestCost )
-			{
-				ops.SetLength(0);
-				bestCost = cost;
-			}
-			if( cost == bestCost )
-				ops.PushLast(tempFuncs[n].funcId);
-		}
+		MatchArgument(funcs, ops, &rctx->type, 0);
 
 		// If the object is not const, then we need to prioritize non-const methods
 		if( !isConst )

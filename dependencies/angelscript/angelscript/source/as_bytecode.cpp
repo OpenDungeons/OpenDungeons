@@ -46,7 +46,6 @@
 #include "as_array.h"
 #include "as_string.h"
 #include "as_scriptengine.h"
-#include "as_debug.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -109,8 +108,6 @@ void asCByteCode::InsertIfNotExists(asCArray<int> &vars, int var)
 
 void asCByteCode::GetVarsUsed(asCArray<int> &vars)
 {
-	TimeIt("asCByteCode::GetVarsUsed");
-
 	asCByteInstruction *curr = first;
 	while( curr )
 	{
@@ -148,8 +145,6 @@ void asCByteCode::GetVarsUsed(asCArray<int> &vars)
 
 bool asCByteCode::IsVarUsed(int offset)
 {
-	TimeIt("asCByteCode::IsVarUsed");
-
 	asCByteInstruction *curr = first;
 	while( curr )
 	{
@@ -330,8 +325,6 @@ asCByteInstruction *asCByteCode::GoBack(asCByteInstruction *curr)
 
 bool asCByteCode::PostponeInitOfTemp(asCByteInstruction *curr, asCByteInstruction **next)
 {
-	TimeIt("asCByteCode::PostponeInitOfTemp");
-
 	// This is not done for pointers
 	if( (curr->op != asBC_SetV4 && curr->op != asBC_SetV8) || 
 		!IsTemporary(curr->wArg[0]) ) return false;
@@ -379,20 +372,18 @@ bool asCByteCode::PostponeInitOfTemp(asCByteInstruction *curr, asCByteInstructio
 
 bool asCByteCode::RemoveUnusedValue(asCByteInstruction *curr, asCByteInstruction **next)
 {
-	TimeIt("asCByteCode::RemoveUnusedValue");
-
 	// TODO: runtime optimize: Should work for 64bit types as well
 
 	// The value isn't used for anything
-	if( curr->op != asBC_FREE && // Can't remove the FREE instruction
-		(asBCInfo[curr->op].type == asBCTYPE_wW_rW_rW_ARG ||
+	if( (asBCInfo[curr->op].type == asBCTYPE_wW_rW_rW_ARG ||
 		 asBCInfo[curr->op].type == asBCTYPE_wW_rW_ARG    ||
 		 asBCInfo[curr->op].type == asBCTYPE_wW_rW_DW_ARG ||
 		 asBCInfo[curr->op].type == asBCTYPE_wW_ARG       ||
 		 asBCInfo[curr->op].type == asBCTYPE_wW_DW_ARG    ||
 		 asBCInfo[curr->op].type == asBCTYPE_wW_QW_ARG) &&
 		IsTemporary(curr->wArg[0]) &&
-		!IsTempVarRead(curr, curr->wArg[0]) ) 
+		!IsTempVarRead(curr, curr->wArg[0]) &&
+		curr->op != asBC_FREE ) // Can't remove the FREE instruction
 	{
 		if( curr->op == asBC_LdGRdR4 && IsTempRegUsed(curr) )
 		{
@@ -412,8 +403,8 @@ bool asCByteCode::RemoveUnusedValue(asCByteInstruction *curr, asCByteInstruction
 		     curr->next->op == asBC_CMPf ||
 		     curr->next->op == asBC_CMPu) &&
 		    curr->wArg[0] == curr->next->wArg[1] &&
-		    IsTemporary(curr->wArg[0]) &&                       // The variable is temporary and never used again
-		    !IsTempVarRead(curr->next, curr->wArg[0]) )
+		    (IsTemporary(curr->wArg[0]) &&                       // The variable is temporary and never used again
+		    !IsTempVarRead(curr->next, curr->wArg[0])) )
 		{
 			if(      curr->next->op == asBC_CMPi ) curr->next->op = asBC_CMPIi;
 			else if( curr->next->op == asBC_CMPf ) curr->next->op = asBC_CMPIf;
@@ -571,8 +562,6 @@ bool asCByteCode::RemoveUnusedValue(asCByteInstruction *curr, asCByteInstruction
 
 bool asCByteCode::IsTemporary(short offset)
 {
-	TimeIt("asCByteCode::IsTemporary");
-
 	for( asUINT n = 0; n < temporaryVariables.GetLength(); n++ )
 		if( temporaryVariables[n] == offset )
 			return true;
@@ -582,8 +571,6 @@ bool asCByteCode::IsTemporary(short offset)
 
 int asCByteCode::Optimize()
 {
-	TimeIt("asCByteCode::Optimize");
-
 	// TODO: runtime optimize: The optimizer should be able to inline function calls.
 	//                         If the called function has only a few instructions, the function call should be inlined.
 	//                         This is especially useful with the factory stubs used for template types and script classes.
@@ -1073,8 +1060,6 @@ bool asCByteCode::IsTempVarOverwrittenByInstr(asCByteInstruction *curr, int offs
 
 bool asCByteCode::IsTempVarRead(asCByteInstruction *curr, int offset)
 {
-	TimeIt("asCByteCode::IsTempVarRead");
-
 	asCArray<asCByteInstruction *> openPaths;
 	asCArray<asCByteInstruction *> closedPaths;
 
@@ -1154,8 +1139,6 @@ bool asCByteCode::IsTempVarRead(asCByteInstruction *curr, int offset)
 
 bool asCByteCode::IsTempRegUsed(asCByteInstruction *curr)
 {
-	TimeIt("asCByteCode::IsTempRegUsed");
-
 	// We're not interested in the first instruction, since it is the one that sets the register
 	while( curr->next )
 	{
@@ -1269,8 +1252,6 @@ bool asCByteCode::IsSimpleExpression()
 
 void asCByteCode::ExtractLineNumbers()
 {
-	TimeIt("asCByteCode::ExtractLineNumbers");
-
 	int lastLinePos = -1;
 	int pos = 0;
 	asCByteInstruction *instr = first;
@@ -1582,8 +1563,6 @@ void asCByteCode::DiscardVar(int varIdx)
 
 int asCByteCode::FindLabel(int label, asCByteInstruction *from, asCByteInstruction **dest, int *positionDelta)
 {
-	TimeIt("asCByteCode::FindLabel");
-
 	// Search forward
 	int labelPos = -from->GetSize();
 
@@ -1634,8 +1613,6 @@ int asCByteCode::FindLabel(int label, asCByteInstruction *from, asCByteInstructi
 
 int asCByteCode::ResolveJumpAddresses()
 {
-	TimeIt("asCByteCode::ResolveJumpAddresses");
-
 	asCByteInstruction *instr = first;
 	while( instr )
 	{
@@ -1676,8 +1653,6 @@ asCByteInstruction *asCByteCode::DeleteInstruction(asCByteInstruction *instr)
 
 void asCByteCode::Output(asDWORD *array)
 {
-	TimeIt("asCByteCode::Output");
-
 	// TODO: Receive a script function pointer instead of the bytecode array
 
 	asDWORD *ap = array;
@@ -1748,8 +1723,6 @@ void asCByteCode::Output(asDWORD *array)
 
 void asCByteCode::PostProcess()
 {
-	TimeIt("asCByteCode::PostProcess");
-
 	if( first == 0 ) return;
 
 	// This function will do the following

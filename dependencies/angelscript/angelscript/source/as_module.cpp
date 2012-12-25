@@ -41,7 +41,6 @@
 #include "as_builder.h"
 #include "as_context.h"
 #include "as_texts.h"
-#include "as_debug.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -188,8 +187,6 @@ int asCModule::Build()
 #ifdef AS_NO_COMPILER
 	return asNOT_SUPPORTED;
 #else
-	TimeIt("asCModule::Build");
-
 	// Only one thread may build at one time
 	// TODO: It should be possible to have multiple threads perform compilations
 	int r = engine->RequestBuild();

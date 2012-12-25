@@ -103,12 +103,6 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 
 void CDebugger::LineCallback(asIScriptContext *ctx)
 {
-	// By default we ignore callbacks when the context is not active.
-	// An application might override this to for example disconnect the
-	// debugger as the execution finished.
-	if( ctx->GetState() != asEXECUTION_ACTIVE )
-		return;
-
 	if( m_action == CONTINUE )
 	{
 		if( !CheckBreakPoint(ctx) )

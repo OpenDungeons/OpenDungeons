@@ -117,14 +117,6 @@ struct asSExprContext
 	asSExprContext *origExpr;
 };
 
-struct asSOverloadCandidate
-{
-	asSOverloadCandidate() : funcId(0), cost(0) {}
-	asSOverloadCandidate(int _id, asUINT _cost ) : funcId(_id), cost(_cost) {}
-	int funcId;
-	asUINT cost;
-};
-
 enum EImplicitConv
 {
 	asIC_IMPLICIT_CONV,
@@ -219,7 +211,7 @@ protected:
 	bool IsVariableInitialized(asCTypeInfo *type, asCScriptNode *node);
 	void Dereference(asSExprContext *ctx, bool generateCode);
 	bool CompileRefCast(asSExprContext *ctx, const asCDataType &to, bool isExplicit, asCScriptNode *node, bool generateCode = true);
-	asUINT MatchArgument(asCArray<int> &funcs, asCArray<asSOverloadCandidate> &matches, const asCTypeInfo *argType, int paramNum, bool allowObjectConstruct = true);
+	asUINT MatchArgument(asCArray<int> &funcs, asCArray<int> &matches, const asCTypeInfo *argType, int paramNum, bool allowObjectConstruct = true);
 	void PerformFunctionCall(int funcId, asSExprContext *out, bool isConstructor = false, asCArray<asSExprContext*> *args = 0, asCObjectType *objTypeForConstruct = 0, bool useVariable = false, int varOffset = 0, int funcPtrVar = 0);
 	void MoveArgsToStack(int funcId, asCByteCode *bc, asCArray<asSExprContext *> &args, bool addOneToOffset);
 	void MakeFunctionCall(asSExprContext *ctx, int funcId, asCObjectType *objectType, asCArray<asSExprContext*> &args, asCScriptNode *node, bool useVariable = false, int stackOffset = 0, int funcPtrVar = 0);
@@ -241,7 +233,6 @@ protected:
 	void PushVariableOnStack(asSExprContext *ctx, bool asReference);
 	void DestroyVariables(asCByteCode *bc);
 	asSNameSpace *DetermineNameSpace(const asCString &scope);
-	int  SetupParametersAndReturnVariable(sExplicitSignature *signature, asCScriptNode *func);
 
 	// Returns the cost of the conversion (the sum of the EConvCost performed)
 	asUINT ImplicitConversion(asSExprContext *ctx, const asCDataType &to, asCScriptNode *node, EImplicitConv convType, bool generateCode = true, bool allowObjectConstruct = true);

@@ -15,47 +15,6 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
-<h2>Version 2.25.1 - 2012/10/28</h2>
-
-<ul>
-<li>Bug fixes
-<ul>
-<li>Fixed including mixin from a different script section (Thanks Nick Robinson)
-<li>Registering template specializations for templates without default constructor is now working (Thanks slicer4ever)
-<li>Fixed compiler assert on unary negate operator on void expression (Thanks FDsagizi)
-<li>Fixed bug with NOCOUNT object when copying script class members (Thanks FDsagizi)
-<li>Problem with exception handling after loading pre-compiled bytecode when class constructor takes object in argument (Thanks FDsagizi)
-<li>GetLineNumber() could crash when called for nested context calls (Thanks saejox)
-<li>Compiler would incorrectly find global functions when compiling function calls as post ops (Thanks FDsagizi)
-<li>Fixed bug in compiler when compiling property get expression that returned a reference to an object, but the reference wasn't used (Thanks Eero Tanskanen)
-<li>Fixed bug with virtual methods returning objects in memory on ARM platforms (Thanks Cordan)
-<li>Fixed compiler bug when compiling function that takes out reference of a type where opAssign returned a value (Thanks _Engine_)
-<li>Compiler wasn't showing error for virtual properties without any accessor (Thanks FDsagizi)
-<li>Shared enums in pre-compiled bytecode were not treated as shared when loading (Thanks _Engine_)
-<li>Shared classes will now validate that declared members exist in the original declaration during compilation (Thanks _Engine_)
-</ul>
-<li>Library
-<ul>
-<li>Implemented an inline profiler to get better understanding of bottlenecks in the code
-<li>Added support for the new ABI in MinGW32 4.7 (Thanks Heuristics)
-<li>Improved error messages when loading bytecode with shared types that doesn't match existing shared types
-<li>The context's line callback is now invoked one extra time just before leaving the Execute() method to allow listeners to catch state changes (Thanks saejox)
-<li>Made some improvements towards compatibility with Marmalade
-<li>Added validation against duplicate registration of global functions or class methods (Thanks Jason Dorie)
-</ul>
-<li>Script language
-<ul>
-<li>Class properties of the same type can now be declared together separated by ,
-<li>Interfaces can now inherit from other interfaces
-<li>Improved the way function overloads are matched against arguments so least conversion cost for all arguments wins (Thanks Adam Hoult)
-</ul>
-<li>Add-ons
-<ul>
-<li>Slight optimization in the string pool when a string is inserted for the first time (Thanks thewavelength)
-<li>Fixed bug in script builder add-on with parsing metadata for invalid script (Thanks FDsagizi)
-</ul>
-</ul>
-
 <h2>Version 2.25.0 - 2012/09/17</h2>
 
 <ul>

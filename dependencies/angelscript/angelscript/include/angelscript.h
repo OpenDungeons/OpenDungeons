@@ -58,8 +58,8 @@ BEGIN_AS_NAMESPACE
 
 // AngelScript version
 
-#define ANGELSCRIPT_VERSION        22501
-#define ANGELSCRIPT_VERSION_STRING "2.25.1"
+#define ANGELSCRIPT_VERSION        22500
+#define ANGELSCRIPT_VERSION_STRING "2.25.0"
 
 // Data types
 
@@ -334,7 +334,7 @@ enum asEFuncType
 typedef unsigned char  asBYTE;
 typedef unsigned short asWORD;
 typedef unsigned int   asUINT;
-#if (defined(_MSC_VER) && _MSC_VER <= 1200) || defined(AS_MARMALADE) || defined(MARMALADE)
+#if defined(_MSC_VER) && _MSC_VER <= 1200 // MSVC6 
 	// size_t is not really correct, since it only guaranteed to be large enough to hold the segment size.
 	// For example, on 16bit systems the size_t may be 16bits only even if pointers are 32bit. But nobody
 	// is likely to use MSVC6 to compile for 16bit systems anymore, so this should be ok.

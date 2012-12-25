@@ -41,7 +41,6 @@
 #include "as_parser.h"
 #include "as_tokendef.h"
 #include "as_texts.h"
-#include "as_debug.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4702) // unreachable code
@@ -1817,8 +1816,6 @@ asCScriptNode *asCParser::ParseNamespace()
 
 int asCParser::ParseStatementBlock(asCScriptCode *script, asCScriptNode *block)
 {
-	TimeIt("asCParser::ParseStatementBlock");
-
 	Reset();
 
 	// Tell the parser to validate the identifiers as valid types
@@ -2540,27 +2537,7 @@ asCScriptNode *asCParser::ParseInterface()
 
 	node->AddChildLast(ParseIdentifier());
 
-	// Can optionally have a list of interfaces that are inherited
 	GetToken(&t);
-	if( t.type == ttColon )
-	{
-		asCScriptNode *inherit = CreateNode(snIdentifier);
-		node->AddChildLast(inherit);
-
-		ParseOptionalScope(inherit);
-		inherit->AddChildLast(ParseIdentifier());
-		GetToken(&t);
-		while( t.type == ttListSeparator )
-		{
-			inherit = CreateNode(snIdentifier);
-			node->AddChildLast(inherit);
-
-			ParseOptionalScope(inherit);
-			inherit->AddChildLast(ParseIdentifier());
-			GetToken(&t);
-		}
-	}
-
 	if( t.type != ttStartStatementBlock )
 	{
 		Error(ExpectedToken("{").AddressOf(), &t);
@@ -2701,11 +2678,40 @@ asCScriptNode *asCParser::ParseClass()
 	{
 		// Is it a property or a method?
 		if( IsFuncDecl(true) )
+		{
+			// Parse the method
 			node->AddChildLast(ParseFunction(true));
+		}
 		else if( IsVirtualPropertyDecl() )
+		{
 			node->AddChildLast(ParseVirtualPropertyDecl(true, false));
+		}
 		else if( IsVarDecl() )
-			node->AddChildLast(ParseDeclaration(true));
+		{
+			// Parse a property declaration
+			asCScriptNode *prop = CreateNode(snDeclaration);
+			if( prop == 0 ) return 0;
+
+			node->AddChildLast(prop);
+
+			// A variable declaration can be preceded by 'private'
+			if( t.type == ttPrivate )
+				prop->AddChildLast(ParseToken(ttPrivate));
+
+			prop->AddChildLast(ParseType(true));
+			if( isSyntaxError ) return node;
+
+			prop->AddChildLast(ParseIdentifier());
+			if( isSyntaxError ) return node;
+
+			GetToken(&t);
+			if( t.type != ttEndStatement )
+			{
+				Error(ExpectedToken(";").AddressOf(), &t);
+				return node;
+			}
+			prop->UpdateSourcePos(t.pos, t.length);
+		}
 		else
 		{
 			Error(TXT_EXPECTED_METHOD_OR_PROPERTY, &t);
@@ -3134,22 +3140,16 @@ asCScriptNode *asCParser::ParseInitList()
 	UNREACHABLE_RETURN;
 }
 
-asCScriptNode *asCParser::ParseDeclaration(bool isClassProp)
+asCScriptNode *asCParser::ParseDeclaration()
 {
 	asCScriptNode *node = CreateNode(snDeclaration);
 	if( node == 0 ) return 0;
 
-	sToken t;
-	GetToken(&t);
-	RewindTo(&t);
-
-	// A class property can be preceeded by private
-	if( t.type == ttPrivate && isClassProp )
-		node->AddChildLast(ParseToken(ttPrivate));
-	
 	// Parse data type
 	node->AddChildLast(ParseType(true));
 	if( isSyntaxError ) return node;
+
+	sToken t;
 
 	for(;;)
 	{
@@ -3158,33 +3158,30 @@ asCScriptNode *asCParser::ParseDeclaration(bool isClassProp)
 		if( isSyntaxError ) return node;
 
 		// If next token is assignment, parse expression
-		if( !isClassProp )
+		GetToken(&t);
+		if( t.type == ttOpenParanthesis )
+		{
+			RewindTo(&t);
+			node->AddChildLast(ParseArgList());
+			if( isSyntaxError ) return node;
+		}
+		else if( t.type == ttAssignment )
 		{
 			GetToken(&t);
-			if( t.type == ttOpenParanthesis )
+			RewindTo(&t);
+			if( t.type == ttStartStatementBlock )
 			{
-				RewindTo(&t);
-				node->AddChildLast(ParseArgList());
+				node->AddChildLast(ParseInitList());
 				if( isSyntaxError ) return node;
 			}
-			else if( t.type == ttAssignment )
-			{
-				GetToken(&t);
-				RewindTo(&t);
-				if( t.type == ttStartStatementBlock )
-				{
-					node->AddChildLast(ParseInitList());
-					if( isSyntaxError ) return node;
-				}
-				else
-				{
-					node->AddChildLast(ParseAssignment());
-					if( isSyntaxError ) return node;
-				}
-			}
 			else
-				RewindTo(&t);
+			{
+				node->AddChildLast(ParseAssignment());
+				if( isSyntaxError ) return node;
+			}
 		}
+		else
+			RewindTo(&t);
 
 		// continue if list separator, else terminate with end statement
 		GetToken(&t);

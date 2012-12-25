@@ -111,7 +111,7 @@ protected:
 	asCScriptNode *ParseContinue();
 
 	// Declarations
-	asCScriptNode *ParseDeclaration(bool isClassProp = false);
+	asCScriptNode *ParseDeclaration();
 	asCScriptNode *ParseImport();
 	asCScriptNode *ParseScript(bool inBlock);
 	asCScriptNode *ParseNamespace();

@@ -51,19 +51,8 @@
 #include "as_scriptobject.h"
 #include "as_compiler.h"
 #include "as_bytecode.h"
-#include "as_debug.h"
 
 BEGIN_AS_NAMESPACE
-
-
-
-#ifdef AS_PROFILE
-// Instanciate the profiler once
-CProfiler g_profiler;
-#endif
-
-
-
 
 extern "C"
 {
@@ -228,9 +217,6 @@ AS_API asIScriptEngine *asCreateScriptEngine(asDWORD version)
 
 	return asNEW(asCScriptEngine)();
 }
-
-} // extern "C"
-
 
 int asCScriptEngine::SetEngineProperty(asEEngineProp property, asPWORD value)
 {
@@ -402,7 +388,13 @@ asPWORD asCScriptEngine::GetEngineProperty(asEEngineProp property) const
 	return 0;
 }
 
-asCScriptEngine::asCScriptEngine()
+} // extern "C"
+
+
+
+
+
+asCScriptEngine::asCScriptEngine() 
 {
 	asCThreadManager::Prepare();
 
@@ -581,7 +573,7 @@ asCScriptEngine::~asCScriptEngine()
 	GarbageCollect(asGC_FULL_CYCLE);
 	ClearUnusedTypes();
 
-	// If the application hasn't registered GC behaviours for all types
+	// If the application hasn't registered GC behaviours for all types 
 	// that can form circular references with script types, then there
 	// may still be objects in the GC.
 	if( gc.ReportAndReleaseUndestroyedObjects() > 0 )
@@ -721,7 +713,7 @@ asSNameSpace *asCScriptEngine::AddNameSpace(const char *name)
 	// First check if it doesn't exist already
 	asSNameSpace *ns = FindNameSpace(name);
 	if( ns ) return ns;
-
+	
 	ns = asNEW(asSNameSpace);
 	if( ns == 0 )
 	{
@@ -729,7 +721,7 @@ asSNameSpace *asCScriptEngine::AddNameSpace(const char *name)
 		return 0;
 	}
 	ns->name = name;
-
+	
 	nameSpaces.PushLast(ns);
 
 	return ns;
@@ -814,7 +806,7 @@ void *asCScriptEngine::SetUserData(void *data, asPWORD type)
 // interface
 void *asCScriptEngine::GetUserData(asPWORD type) const
 {
-	// There may be multiple threads reading, but when
+	// There may be multiple threads reading, but when  
 	// setting the user data nobody must be reading.
 	ACQUIRESHARED(engineRWLock);
 
@@ -1202,7 +1194,7 @@ int asCScriptEngine::CreateContext(asIScriptContext **context, bool isInternal)
 	if( *context == 0 )
 		return asOUT_OF_MEMORY;
 
-	// We need to make sure the engine has been
+	// We need to make sure the engine has been 
 	// prepared before any context is executed
 	PrepareEngine();
 
@@ -1537,7 +1529,7 @@ int asCScriptEngine::RegisterObjectType(const char *name, int byteSize, asDWORD 
 		asUINT n;
 		for( n = 0; n < objectTypes.GetLength(); n++ )
 		{
-			if( objectTypes[n] &&
+			if( objectTypes[n] && 
 				objectTypes[n]->name == typeName &&
 				objectTypes[n]->nameSpace == defaultNamespace )
 				// This is not an irrepairable error, as it may just be that the same type is registered twice
@@ -1546,7 +1538,7 @@ int asCScriptEngine::RegisterObjectType(const char *name, int byteSize, asDWORD 
 
 		for( n = 0; n < templateTypes.GetLength(); n++ )
 		{
-			if( templateTypes[n] &&
+			if( templateTypes[n] && 
 				templateTypes[n]->name == typeName &&
 				templateTypes[n]->nameSpace == defaultNamespace )
 				// This is not an irrepairable error, as it may just be that the same type is registered twice
@@ -1906,8 +1898,8 @@ int asCScriptEngine::RegisterBehaviourToObjectType(asCObjectType *objectType, as
 	else if( behaviour == asBEHAVE_RELEASE )
 	{
 		// Must be a ref type and must not have asOBJ_NOHANDLE
-		if( !(func.objectType->flags & asOBJ_REF) ||
-			(func.objectType->flags & asOBJ_NOHANDLE) ||
+		if( !(func.objectType->flags & asOBJ_REF) || 
+			(func.objectType->flags & asOBJ_NOHANDLE) || 
 			(func.objectType->flags & asOBJ_NOCOUNT) )
 		{
 			WriteMessage("", 0, 0, asMSGTYPE_ERROR, TXT_ILLEGAL_BEHAVIOUR_FOR_TYPE);
@@ -1929,7 +1921,7 @@ int asCScriptEngine::RegisterBehaviourToObjectType(asCObjectType *objectType, as
 	}
 	else if( behaviour == asBEHAVE_TEMPLATE_CALLBACK )
 	{
-		// Must be a template type
+		// Must be a template type 
 		if( !(func.objectType->flags & asOBJ_TEMPLATE) )
 		{
 			WriteMessage("", 0, 0, asMSGTYPE_ERROR, TXT_ILLEGAL_BEHAVIOUR_FOR_TYPE);
@@ -1947,7 +1939,7 @@ int asCScriptEngine::RegisterBehaviourToObjectType(asCObjectType *objectType, as
 		if( func.parameterTypes.GetLength() != 2 )
 			return ConfigError(asINVALID_DECLARATION, "RegisterObjectBehaviour", objectType->name.AddressOf(), decl);
 
-		// The first parameter must be an inref (to receive the object type), and
+		// The first parameter must be an inref (to receive the object type), and 
 		// the second must be a bool out ref (to return if the type should or shouldn't be garbage collected)
 		if( func.inOutFlags[0] != asTM_INREF || func.inOutFlags[1] != asTM_OUTREF || !func.parameterTypes[1].IsEqualExceptRef(asCDataType::CreatePrimitive(ttBool, false)) )
 			return ConfigError(asINVALID_DECLARATION, "RegisterObjectBehaviour", objectType->name.AddressOf(), decl);
@@ -2037,7 +2029,7 @@ int asCScriptEngine::RegisterBehaviourToObjectType(asCObjectType *objectType, as
 		if( func.IsReadOnly() )
 			return ConfigError(asINVALID_DECLARATION, "RegisterObjectBehaviour", objectType->name.AddressOf(), decl);
 
-		// Verify that the same cast is not registered already
+		// Verify that the same cast is not registered already 
 		// (const or non-const is treated the same for the return type)
 		if( func.parameterTypes.GetLength() == 1 )
 		{
@@ -2384,23 +2376,8 @@ int asCScriptEngine::RegisterMethodToObjectType(asCObjectType *objectType, const
 	r = bld.CheckNameConflictMember(objectType, func->name.AddressOf(), 0, 0, false);
 	if( r < 0 )
 	{
-		func->funcType = asFUNC_DUMMY;
 		asDELETE(func,asCScriptFunction);
 		return ConfigError(asNAME_TAKEN, "RegisterObjectMethod", objectType->name.AddressOf(), declaration);
-	}
-
-	// Check against duplicate methods
-	asUINT n;
-	for( n = 0; n < func->objectType->methods.GetLength(); n++ )
-	{
-		asCScriptFunction *f = scriptFunctions[func->objectType->methods[n]];
-		if( f->name == func->name &&
-			f->IsSignatureExceptNameAndReturnTypeEqual(func) )
-		{
-			func->funcType = asFUNC_DUMMY;
-			asDELETE(func,asCScriptFunction);
-			return ConfigError(asALREADY_REGISTERED, "RegisterObjectMethod", objectType->name.AddressOf(), declaration);
-		}
 	}
 
 	func->id = GetNextScriptFunctionId();
@@ -2415,7 +2392,7 @@ int asCScriptEngine::RegisterMethodToObjectType(asCObjectType *objectType, const
 		asCConfigGroup *group = FindConfigGroupForObjectType(func->returnType.GetObjectType());
 		currentGroup->RefConfigGroup(group);
 	}
-	for( n = 0; n < func->parameterTypes.GetLength(); n++ )
+	for( asUINT n = 0; n < func->parameterTypes.GetLength(); n++ )
 	{
 		if( func->parameterTypes[n].GetObjectType() )
 		{
@@ -2518,21 +2495,6 @@ int asCScriptEngine::RegisterGlobalFunction(const char *declaration, const asSFu
 		return ConfigError(asNAME_TAKEN, "RegisterGlobalFunction", declaration, 0);
 	}
 
-	// Make sure the function is not identical to a previously registered function
-	asUINT n;
-	for( n = 0; n < registeredGlobalFuncs.GetLength(); n++ )
-	{
-		asCScriptFunction *f = registeredGlobalFuncs[n];
-		if( f->name == func->name &&
-			f->nameSpace == func->nameSpace &&
-			f->IsSignatureExceptNameAndReturnTypeEqual(func) )
-		{
-			func->funcType = asFUNC_DUMMY;
-			asDELETE(func,asCScriptFunction);
-			return ConfigError(asALREADY_REGISTERED, "RegisterGlobalFunction", declaration, 0);
-		}
-	}
-
 	func->id = GetNextScriptFunctionId();
 	SetScriptFunction(func);
 
@@ -2546,7 +2508,7 @@ int asCScriptEngine::RegisterGlobalFunction(const char *declaration, const asSFu
 		asCConfigGroup *group = FindConfigGroupForObjectType(func->returnType.GetObjectType());
 		currentGroup->RefConfigGroup(group);
 	}
-	for( n = 0; n < func->parameterTypes.GetLength(); n++ )
+	for( asUINT n = 0; n < func->parameterTypes.GetLength(); n++ )
 	{
 		if( func->parameterTypes[n].GetObjectType() )
 		{
@@ -2601,8 +2563,8 @@ asIScriptFunction *asCScriptEngine::GetGlobalFunctionByDecl(const char *decl) co
 	int id = -1;
 	for( size_t n = 0; n < registeredGlobalFuncs.GetLength(); ++n )
 	{
-		if( registeredGlobalFuncs[n]->objectType == 0 &&
-			func.name == registeredGlobalFuncs[n]->name &&
+		if( registeredGlobalFuncs[n]->objectType == 0 && 
+			func.name == registeredGlobalFuncs[n]->name && 
 			func.returnType == registeredGlobalFuncs[n]->returnType &&
 			func.parameterTypes.GetLength() == registeredGlobalFuncs[n]->parameterTypes.GetLength() )
 		{
@@ -2751,7 +2713,7 @@ int asCScriptEngine::ConfigError(int err, const char *funcName, const char *arg1
 		}
 		else
 			str.Format(TXT_FAILED_IN_FUNC_s_d, funcName, err);
-
+			
 		WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.AddressOf());
 	}
 	return err;
@@ -3003,6 +2965,10 @@ asCObjectType *asCScriptEngine::GetTemplateInstanceType(asCObjectType *templateT
 
 	// No previous template instance exists
 
+	// Make sure the template has factories as it doesn't have a default factory
+	if( templateType->beh.factories.GetLength() == 0 )
+		return 0;
+
 	// Make sure this template supports the subtype
 	if( !templateType->acceptValueSubType && (subType.IsPrimitive() || (subType.GetObjectType()->flags & asOBJ_VALUE)) )
 		return 0;
@@ -3199,7 +3165,7 @@ asCScriptFunction *asCScriptEngine::GenerateTemplateFactoryStub(asCObjectType *t
 	SetScriptFunction(func);
 
 	// Generate the bytecode for the factory stub
-	asUINT bcLength = asBCTypeSize[asBCInfo[asBC_OBJTYPE].type] +
+	asUINT bcLength = asBCTypeSize[asBCInfo[asBC_OBJTYPE].type] + 
 	                  asBCTypeSize[asBCInfo[asBC_CALLSYS].type] +
 	                  asBCTypeSize[asBCInfo[asBC_RET].type];
 
@@ -3367,7 +3333,7 @@ void asCScriptEngine::CallObjectMethod(void *obj, asSSystemFunctionInterface *i,
 		void (*f)(asIScriptGeneric *) = (void (*)(asIScriptGeneric *))(i->func);
 		f(&gen);
 	}
-	else if( i->callConv == ICC_THISCALL || i->callConv == ICC_VIRTUAL_THISCALL )
+	else if( i->callConv == ICC_VIRTUAL_THISCALL )
 	{
 		// For virtual thiscalls we must call the method as a true class method
 		// so that the compiler will lookup the function address in the vftable
@@ -3385,8 +3351,9 @@ void asCScriptEngine::CallObjectMethod(void *obj, asSSystemFunctionInterface *i,
 		void (asCSimpleDummy::*f)() = p.mthd;
 		(((asCSimpleDummy*)obj)->*f)();
 	}
-	else /*if( i->callConv == ICC_CDECL_OBJLAST || i->callConv == ICC_CDECL_OBJFIRST )*/
+	else /*if( i->callConv == ICC_THISCALL || i->callConv == ICC_CDECL_OBJLAST || i->callConv == ICC_CDECL_OBJFIRST )*/
 	{
+		// Non-virtual thiscall can be called just like any global function, passing the object as the first parameter
 		void (*f)(void *) = (void (*)(void *))(i->func);
 		f(obj);
 	}
@@ -3434,7 +3401,7 @@ bool asCScriptEngine::CallObjectMethodRetBool(void *obj, int func)
 		f(&gen);
 		return *(bool*)gen.GetReturnPointer();
 	}
-	else if( i->callConv == ICC_THISCALL || i->callConv == ICC_VIRTUAL_THISCALL )
+	else if( i->callConv == ICC_VIRTUAL_THISCALL )
 	{
 		// For virtual thiscalls we must call the method as a true class method so that the compiler will lookup the function address in the vftable
 		union
@@ -3443,16 +3410,17 @@ bool asCScriptEngine::CallObjectMethodRetBool(void *obj, int func)
 			struct
 			{
 				asFUNCTION_t func;
-				asPWORD baseOffset;
+				asDWORD baseOffset;
 			} f;
 		} p;
 		p.f.func = (void (*)())(i->func);
-		p.f.baseOffset = asPWORD(i->baseOffset);
+		p.f.baseOffset = i->baseOffset;
 		bool (asCSimpleDummy::*f)() = (bool (asCSimpleDummy::*)())(p.mthd);
 		return (((asCSimpleDummy*)obj)->*f)();
 	}
-	else /*if( i->callConv == ICC_CDECL_OBJLAST || i->callConv == ICC_CDECL_OBJFIRST )*/
+	else /*if( i->callConv == ICC_THISCALL || i->callConv == ICC_CDECL_OBJLAST || i->callConv == ICC_CDECL_OBJFIRST )*/
 	{
+		// Non-virtual thiscall can be called just like any global function, passing the object as the first parameter
 		bool (*f)(void *) = (bool (*)(void *))(i->func);
 		return f(obj);
 	}
@@ -3501,7 +3469,7 @@ int asCScriptEngine::CallObjectMethodRetInt(void *obj, int func)
 		f(&gen);
 		return *(int*)gen.GetReturnPointer();
 	}
-	else if( i->callConv == ICC_THISCALL || i->callConv == ICC_VIRTUAL_THISCALL )
+	else if( i->callConv == ICC_VIRTUAL_THISCALL )
 	{
 		// For virtual thiscalls we must call the method as a true class method so that the compiler will lookup the function address in the vftable
 		union
@@ -3510,16 +3478,17 @@ int asCScriptEngine::CallObjectMethodRetInt(void *obj, int func)
 			struct
 			{
 				asFUNCTION_t func;
-				asPWORD baseOffset;
+				asDWORD baseOffset;
 			} f;
 		} p;
 		p.f.func = (void (*)())(i->func);
-		p.f.baseOffset = asPWORD(i->baseOffset);
+		p.f.baseOffset = i->baseOffset;
 		int (asCSimpleDummy::*f)() = (int (asCSimpleDummy::*)())(p.mthd);
 		return (((asCSimpleDummy*)obj)->*f)();
 	}
-	else /*if( i->callConv == ICC_CDECL_OBJLAST || i->callConv == ICC_CDECL_OBJFIRST )*/
+	else /*if( i->callConv == ICC_THISCALL || i->callConv == ICC_CDECL_OBJLAST || i->callConv == ICC_CDECL_OBJFIRST )*/
 	{
+		// Non-virtual thiscall can be called just like any global function, passing the object as the first parameter
 		int (*f)(void *) = (int (*)(void *))(i->func);
 		return f(obj);
 	}
@@ -3631,7 +3600,7 @@ void asCScriptEngine::CallObjectMethod(void *obj, void *param, asSSystemFunction
 		void (*f)(asIScriptGeneric *) = (void (*)(asIScriptGeneric *))(i->func);
 		f(&gen);
 	}
-	else if( i->callConv == ICC_VIRTUAL_THISCALL || i->callConv == ICC_THISCALL )
+	else if( i->callConv == ICC_VIRTUAL_THISCALL )
 	{
 		// For virtual thiscalls we must call the method as a true class method
 		// so that the compiler will lookup the function address in the vftable
@@ -3649,7 +3618,7 @@ void asCScriptEngine::CallObjectMethod(void *obj, void *param, asSSystemFunction
 		void (asCSimpleDummy::*f)(void*) = (void (asCSimpleDummy::*)(void*))(p.mthd);
 		(((asCSimpleDummy*)obj)->*f)(param);
 	}
-	else /*if( i->callConv == ICC_CDECL_OBJFIRST */
+	else /*if( i->callConv == ICC_CDECL_OBJFIRST || i->callConv == ICC_THISCALL )*/
 	{
 		void (*f)(void *, void *) = (void (*)(void *, void *))(i->func);
 		f(obj, param);
@@ -3793,7 +3762,7 @@ int asCScriptEngine::GetTypeIdFromDataType(const asCDataType &dtIn) const
 			int typeId = mapTypeIdToDataType.GetKey(cursor);
 			if( dtIn.GetObjectType() && !(dtIn.GetObjectType()->flags & asOBJ_ASHANDLE) )
 			{
-				// The the ASHANDLE types behave like handles, but are really
+				// The the ASHANDLE types behave like handles, but are really 
 				// value types so the typeId is never returned as a handle
 				if( dtIn.IsObjectHandle() )
 					typeId |= asTYPEID_OBJHANDLE;
@@ -3814,7 +3783,7 @@ int asCScriptEngine::GetTypeIdFromDataType(const asCDataType &dtIn) const
 	if( dt.GetObjectType() )
 	{
 		if( dt.GetObjectType()->flags & asOBJ_SCRIPT_OBJECT ) typeId |= asTYPEID_SCRIPTOBJECT;
-		else if( dt.GetObjectType()->flags & asOBJ_TEMPLATE ) typeId |= asTYPEID_TEMPLATE;
+		else if( dt.GetObjectType()->flags & asOBJ_TEMPLATE ) typeId |= asTYPEID_TEMPLATE; 
 		else if( dt.GetObjectType()->flags & asOBJ_ENUM ) {} // TODO: Should we have a specific bit for this?
 		else typeId |= asTYPEID_APPOBJECT;
 	}
@@ -3934,7 +3903,7 @@ void *asCScriptEngine::CreateScriptObject(int typeId)
 	}
 	else if( objType->flags & asOBJ_TEMPLATE )
 	{
-		// The registered factory that takes the object type is moved
+		// The registered factory that takes the object type is moved 
 		// to the construct behaviour when the type is instanciated
 		ptr = CallGlobalFunctionRetPtr(objType->beh.construct, objType);
 	}
@@ -4104,7 +4073,7 @@ void asCScriptEngine::ReleaseScriptObject(void *obj, const asIObjectType *type)
 {
 	// Make sure it is not a null pointer
 	if( obj == 0 ) return;
-
+	
 	const asCObjectType *objType = static_cast<const asCObjectType *>(type);
 	if( objType->flags & asOBJ_REF )
 	{
@@ -4203,11 +4172,11 @@ int asCScriptEngine::EndConfigGroup()
 // interface
 int asCScriptEngine::RemoveConfigGroup(const char *groupName)
 {
-	// It is not allowed to remove a group that is still in use.
+	// It is not allowed to remove a group that is still in use. 
 
 	// It would be possible to change the code in such a way that
 	// the group could be removed even though it was still in use,
-	// but that would cause severe negative impact on runtime
+	// but that would cause severe negative impact on runtime 
 	// performance, since the VM would then have to be able handle
 	// situations where the types, functions, and global variables
 	// can be removed at any time.
@@ -4775,7 +4744,7 @@ bool asCScriptEngine::IsTemplateType(const char *name) const
 // internal
 int asCScriptEngine::AddConstantString(const char *str, size_t len)
 {
-	// This is only called when build a script module, so it is
+	// This is only called when build a script module, so it is 
 	// known that only one thread can enter the function at a time.
 	asASSERT( isBuilding );
 
@@ -4838,7 +4807,7 @@ int asCScriptEngine::GetScriptSectionNameIndex(const char *name)
 	return r;
 }
 
-// interface
+// interface 
 void asCScriptEngine::SetEngineUserDataCleanupCallback(asCLEANENGINEFUNC_t callback, asPWORD type)
 {
 	ACQUIREEXCLUSIVE(engineRWLock);
@@ -4860,7 +4829,7 @@ void asCScriptEngine::SetEngineUserDataCleanupCallback(asCLEANENGINEFUNC_t callb
 	RELEASEEXCLUSIVE(engineRWLock);
 }
 
-// interface
+// interface 
 void asCScriptEngine::SetModuleUserDataCleanupCallback(asCLEANMODULEFUNC_t callback)
 {
 	cleanModuleFunc = callback;

@@ -1152,13 +1152,6 @@ int asCContext::Execute()
 	while( m_status == asEXECUTION_ACTIVE )
 		ExecuteNext();
 
-	if( m_lineCallback )
-	{
-		// Call the line callback one last time before leaving 
-		// so anyone listening can catch the state change
-		CallLineCallback();
-	}
-
 	if( m_engine->ep.autoGarbageCollect )
 	{
 		asUINT gcPosObjects = 0;
@@ -1384,17 +1377,11 @@ int asCContext::GetLineNumber(asUINT stackLevel, int *column, const char **secti
 		bytePos -= 1;
 	}
 
-	// For nested calls it is possible that func is null
-	if( func == 0 )
-	{
-		if( column ) *column = 0;
-		if( sectionName ) *sectionName = 0;
-		return 0;
-	}
-
 	asDWORD line = func->GetLineNumber(int(bytePos - func->byteCode.AddressOf()));
 	if( column ) *column = (line >> 20);
+
 	if( sectionName ) *sectionName = func->GetScriptSectionName();
+
 	return (line & 0xFFFFF);
 }
 
