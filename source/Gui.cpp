@@ -43,7 +43,7 @@ Gui::Gui() :
     sheets[hideGui] = 0;
     sheets[ingameMenu] = wmgr->loadWindowLayout("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadWindowLayout("OpenDungeonsMainMenu.layout");
-    //sheets[editorToolBox] =  wmgr->loadWindowLayout("OpenDungeonsEditorToolBox.layout");
+    sheets[editorToolBox] =  wmgr->loadWindowLayout("OpenDungeonsEditorToolBox.layout");
 
     mainMenuMode = false;
     assignEventHandlers();
@@ -228,7 +228,11 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 {
 
-     Gui::getSingletonPtr()->loadGuiSheet(editorToolBox);
+
+    // CEGUI::Window *myWin =   CEGUI::System::getSingleton().getGUISheet();
+    Gui::getSingletonPtr()->loadGuiSheet(editorToolBox);
+    
+    // myWin->addChildWindow(sheets[editorToolBox]);
     modeManager->progressMode(ModeManager::EDITOR);
     ODFrameListener::getSingleton().makeEditorContext();
 

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ 
+<GUILayout >
+
+        <Window Type="OD/FrameWindow" Name="TOOLSPALETE" >
+        <Property Name="Text" >1</Property>
+        <Property Name="InheritsAlpha" Value="False" />
+        <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+        <Property Name="UnifiedAreaRect" Value="{{0,0},{0,0},{1,0},{1,0}}" />
+            <Property Name="Text" >Dave, it&apos;s full of widgets!</Property>
+            <Property Name="TitlebarFont" Value="Commonwealth-10" />
+            <Property Name="CaptionColour" Value="00FFFFFF" />
+            <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+            <Property Name="TitlebarEnabled" Value="True" />
+            <Property Name="UnifiedAreaRect" Value="{{0.00375,0},{0.143333,0},{0.751248,0},{0.806665,0}}" />
+
+
+            <Window Type="OD/RadioButton" Name="RadioButton_A" >
+                <Property Name="Font" Value="Commonwealth-10" />
+                <Property Name="Text" >A</Property>
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.652856,0},{0.189876,0},{0.704964,0},{0.246164,0}}" />
+            </Window>
+            <Window Type="OD/RadioButton" Name="RadioButton_B" >
+                <Property Name="Font" Value="Commonwealth-10" />
+                <Property Name="Text" >B</Property>
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.707569,0},{0.189876,0},{0.759678,0},{0.246164,0}}" />
+            </Window>
+            <Window Type="OD/RadioButton" Name="RadioButton_C" >
+                <Property Name="Font" Value="Commonwealth-10" />
+                <Property Name="Text" >C</Property>
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.761542,0},{0.189876,0},{0.813651,0},{0.246164,0}}" />
+            </Window>
+            <Window Type="OD/RadioButton" Name="RadioButton_1" >
+                <Property Name="Font" Value="Commonwealth-10" />
+                <Property Name="Text" >1</Property>
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.845164,0},{0.189876,0},{0.897272,0},{0.246164,0}}" />
+            </Window>
+            <Window Type="OD/RadioButton" Name="RadioButton_2" >
+                <Property Name="Font" Value="Commonwealth-10" />
+                <Property Name="Text" >2</Property>
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.845164,0},{0.245152,0},{0.897272,0},{0.30144,0}}" />
+            </Window>
+            <Window Type="OD/RadioButton" Name="RadioButton_3" >
+                <Property Name="Font" Value="Commonwealth-10" />
+                <Property Name="Text" >3</Property>
+                <Property Name="UnifiedMaxSize" Value="{{1,0},{1,0}}" />
+                <Property Name="UnifiedAreaRect" Value="{{0.845164,0},{0.300429,0},{0.897272,0},{0.356717,0}}" />
+            </Window>
+
+    </Window>
+
+</GUILayout>

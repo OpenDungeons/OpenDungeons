@@ -15,7 +15,7 @@ class Player;
 using std::endl; using std::cout;
 
 class AbstractApplicationMode :
-public OIS::MouseListener,
+    public OIS::MouseListener,
     public OIS::KeyListener
 {
 
