@@ -23,7 +23,7 @@
 #include "RenderRequest.h"
 #include "RenderManager.h"
 #include "CameraManager.h"
-#include "Console.h"
+#include "Console.h" 
 
 #include "EditorMode.h"
 
@@ -74,12 +74,12 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         std::string resultName = "";
 	if(mc->mDragType == rotateAxisX){
-	    CameraManager::getSingleton().move(CameraManager::randomRotateX,arg.state.X.rel);
+	    CameraManager::getSingleton().move(CameraManager::randomRotateX, arg.state.X.rel);
 
 	}
 
 	else if(mc->mDragType == rotateAxisY){
-	    CameraManager::getSingleton().move(CameraManager::randomRotateY,arg.state.Y.rel);
+	    CameraManager::getSingleton().move(CameraManager::randomRotateY, arg.state.Y.rel);
 
 	}
 
@@ -103,6 +103,8 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
 			    mSceneMgr->getLight("MouseLight")->setPosition(point.x, point.y, 4.0);
 
 			    // Get the x-y coordinates of the tile.
+
+			    //warning obsolete cstdio function
 			    sscanf(resultName.c_str(), "Level_%i_%i", &mc->xPos, &mc->yPos);
 			    RenderRequest *request = new RenderRequest;
 
