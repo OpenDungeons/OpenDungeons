@@ -4,8 +4,14 @@
 
 #include "AbstractApplicationMode.h"
 #include "ModeContext.h"
+#include <list>
+#include <string>
+
+using std::string; using std::list;
+
 
 class ModeContext;
+class PrefixTreeLL;
 
 class  ConsoleMode: public AbstractApplicationMode  {
 
@@ -31,11 +37,11 @@ class  ConsoleMode: public AbstractApplicationMode  {
 
   private:
     Console* cn;
-
-
-
-
-
+    PrefixTreeLL* pt;
+    list<string>* ll ; 
+    string prefix;     ;    
+    bool nonTagKeyPressed;
+    list<string>::iterator it;
 
 
 

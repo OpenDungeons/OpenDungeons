@@ -15,6 +15,7 @@
 
 class ModeManager;
 
+
 class CameraManager : public Ogre::Singleton<CameraManager>
 {
 public:
@@ -125,6 +126,7 @@ private:
 
     Ogre::Camera*       mCamera;
     Ogre::SceneNode*    mCamNode;
+
     GameMap* gameMap;
     bool            cameraIsFlying;
     Ogre::Real      moveSpeed;

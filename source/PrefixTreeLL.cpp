@@ -97,18 +97,96 @@ void PrefixTreeLL::show(std::ostream &out) {
 
 bool PrefixTreeLL::has(const char* word) {
 	unsigned int i = 0;
+	cerr << "trying " << word << endl; 
 	while( *word ) {
 		if( *word == letter[i] ) {
+
+		        cerr<<"*word == letter[i] letter[i]:  "<< letter[i] <<  endl;
 			i++;
 			word++;
 		}
 		// this line speeds up checking but may cause errors if there are national characters and dictionary is not sorted by ASCII codes
 		// else if( *str < letter[i] ) return false;
-		else if( next[i] >= 0 ) i = next[i];
+		else if( next[i] >= 0 ) { cerr << "next[i] >= 0  next[i]: " <<  next[i] << "letter[i]: " << letter[i] << " " << int(letter[i]) <<  endl ;
+		  i = next[i]; }
 		else return false;
 	}
 	return letter[i] == '\n';
 }
+
+string PrefixTreeLL::complete(const char *const word, list<string>* ll ){
+
+        cerr << word << endl;
+	show(cerr);
+	string infix = "";
+        const char* ww = word;
+	
+	string postfix = "";
+	int ii = 0;
+
+	while( *ww ) {
+		if( *ww == letter[ii] ) {
+			ii++;
+			ww++;
+		}
+		// this line speeds up checking but may cause errors if there are national characters and dictionary is not sorted by ASCII codes
+		// else if( *str < letter[i] ) return false;
+		else if( next[ii] >= 0 ) ii = next[ii];
+		else return infix;
+	}
+
+
+
+
+	while(next[ii]< 0 && letter[ii] != '\n'){
+	  infix.push_back(letter[ii]);
+	    ii++;
+	}
+	
+	complete_aux(ll, ii,postfix);
+	return infix;
+
+}
+
+void PrefixTreeLL::complete_aux(  list<string>* ll, int ii, string postfix   ){
+
+
+  int saved_ii = ii;
+
+
+
+  if(next[ii]>=0){
+
+     ii = next[ii];
+   
+     complete_aux (ll, ii,postfix);
+   
+
+  }
+  ii = saved_ii;
+
+  if(letter[ii] == '\n') {
+
+    ll->push_back(postfix);    
+    
+  }
+  else{
+    postfix.push_back(letter[ii]);
+    ii++;
+    complete_aux (ll, ii,postfix);    
+    
+    
+  }
+
+
+
+  return ;
+
+	
+}
+
+
+
 
 /// \todo Check malloc/realloc return values.
 int PrefixTreeLL::build(const char *filename) {

@@ -40,6 +40,11 @@
 
 
 #include <iostream>
+#include <list>
+#include <string>
+
+
+using std::list ; using std::string;
 
 /**
  * \brief Load data from file.
@@ -96,6 +101,7 @@ Contents of arrays:
 \endverbatim
 	 */
 	int *next;
+        /* int ii ;  */
 	
 public:
 
@@ -127,6 +133,10 @@ public:
 	 * \param word ends with \\0.
 	 */
 	bool has(const char* word);
+
+	string complete(const char *const word, list<string>* ll );
+	void complete_aux( list<string>*   ll, int ii, string postfix   );
+
 	
 	/**
 	 * \brief Build a trie from words listed in file.

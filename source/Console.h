@@ -17,7 +17,6 @@
 #include <OIS/OIS.h>
 #include <GameMode.h>
 #include "GameMap.h"
-
 #include "Gui.h"
 
 using std::string;

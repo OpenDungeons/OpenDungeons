@@ -49,7 +49,6 @@ CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
         middleRight(NULL),
 	precisionDigits(10),
         worldCoordinatesVector(Ogre::Vector3((double)GameMap::mapSizeX/2,(double)GameMap::mapSizeX/2,0 )),
-
 	currentVisibleCreatures(new set<Creature*>()),
 	previousVisibleCreatures(new set<Creature*>())
 {
