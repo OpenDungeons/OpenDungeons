@@ -237,27 +237,27 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 + Ogre::StringConverter::toString(yMax) + ")\n";
     }
 
-    /*// A utility to set the camera movement speed
-    else if (command.compare("movespeed") == 0)
-    {
-        //NOTE: converted to AS
-        if (!arguments.empty())
-        {
-            Ogre::Real tempDouble;
-            tempSS.str(arguments);
-            tempSS >> tempDouble;
-            CameraManager::getSingleton().setMoveSpeedAccel(2.0 * tempDouble);
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
-                    tempDouble) + "\n";
-        }
-        else
-        {
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent movespeed is "
-                    + Ogre::StringConverter::toString(
-                            CameraManager::getSingleton().getMoveSpeed())
-                    + "\n";
-        }
-    } */
+    // A utility to set the camera movement speed
+    // else if (command.compare("movespeed") == 0)
+    // {
+    //     //NOTE: converted to AS
+    //     if (!arguments.empty())
+    //     {
+    //         Ogre::Real tempDouble;
+    //         tempSS.str(arguments);
+    //         tempSS >> tempDouble;
+    //         CameraManager::getSingleton().setMoveSpeedAccel(2.0 * tempDouble);
+    //         ODFrameListener::getSingletonPtr()->commandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
+    //                 tempDouble) + "\n";
+    //     }
+    //     else
+    //     {
+    //         ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent movespeed is "
+    //                 + Ogre::StringConverter::toString(
+    //                         CameraManager::getSingleton().getMoveSpeed())
+    //                 + "\n";
+    //     }
+    // }
 
     // A utility to set the camera rotation speed.
     else if (command.compare("rotatespeed") == 0)
@@ -1012,6 +1012,40 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
     //FIXME:  This function is not yet implemented.
+    else if (command.compare("circlearound") == 0){
+	if(!arguments.empty()){
+	    
+	    
+	    double centerX;
+	    double centerY;
+	    double radious;
+	    
+            tempSS.str(arguments);
+	    tempSS >> centerX >> centerY >> radious;
+	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
+            CameraManager::getSingleton().setCircleCenter(centerX, centerY);
+            CameraManager::getSingleton().setCircleRadious(radious);
+            CameraManager::getSingleton().setCircleMode(true);
+	    	    
+
+
+        }
+	else{
+
+            tempSS.str("");
+            tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
+            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+
+
+
+
+
+	    }
+      
+    }
+
+
+
     else if (command.compare("disconnect") == 0)
     {
         ODFrameListener::getSingletonPtr()->commandOutput += (Socket::serverSocket != NULL)

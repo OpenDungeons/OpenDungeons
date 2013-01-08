@@ -17,10 +17,10 @@ class ModeManager;
 
 
 class CameraManager : public Ogre::Singleton<CameraManager>
-{
-public:
-    enum Direction
     {
+    public:
+    enum Direction
+	{
         moveLeft, moveRight, moveForward, moveBackward, moveUp, moveDown,
         rotateLeft, rotateRight, rotateUp, rotateDown,
 
@@ -31,56 +31,63 @@ public:
 	randomRotateX,	zeroRandomRotateX,
 	randomRotateY,	zeroRandomRotateY,
         fullStop
-    };
+	};
     
     static const int HIDE =  1;
     static const int SHOW =  2;
 
     struct Vector3i{
-      Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ;  }
+	Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ;  }
 
 
-      int x ; int y ; int z;};
+	int x ; int y ; int z;};
 
 
     CameraManager(Ogre::Camera* cam, GameMap* gm = NULL);
+
+    inline void setCircleCenter( int XX, int YY) {centerX = XX ; centerY = YY;} ;
+    inline void setCircleRadious(unsigned int rr){ radious = rr;};
+    inline void setCircleMode(bool mm){circleMode = mm ; alpha = 0;};
+
+
+
 
     void setModeManager(ModeManager* mm){modeManager = mm;};
     
     //get/set moveSpeed
     inline const Ogre::Real& getMoveSpeed() const {
         return moveSpeed;
-    }
+	}
     inline void setMoveSpeed(const Ogre::Real& newMoveSpeed) {
         moveSpeed = newMoveSpeed;
-    }
+	}
 
 
     //get/set moveSpeedAccel
     inline const Ogre::Real& getMoveSpeedAccel() const {
         return moveSpeedAccel;
-    }
+	}
     inline void setMoveSpeedAccel(const Ogre::Real& newMoveSpeedAccel) {
         moveSpeed = newMoveSpeedAccel;
-    }
+	}
 
     //get/set rotateSpeed
     inline const Ogre::Degree& getRotateSpeed() const {
         return rotateSpeed;
-    }
+	}
     inline void setRotateSpeed(const Ogre::Degree& newRotateSpeed) {
         rotateSpeed = newRotateSpeed;
-    }
+	}
 
     //get translateVectorAccel
     inline const Ogre::Vector3& getTranslateVectorAccel() const {
         return translateVectorAccel;
-    }
+	}
     bool getIntersectionPoints(   );
     //get camera
     inline Ogre::Camera* getCamera() const {
         return mCamera;
-    }
+	}
 
     bool isCamMovingAtAll() const;
 
@@ -97,14 +104,22 @@ public:
     void        move        (const Direction direction, double aux = 0.0);
     inline void stopZooming () {
         zChange = 0;
-    }
+	}
     inline Ogre::Camera* getCamera() {
         return mCamera;
-    }
-private:
+	}
+    private:
 
     set<Creature*>*  currentVisibleCreatures;
     set<Creature*>*  previousVisibleCreatures ;
+
+
+    bool circleMode;
+	
+    double radious;
+    int centerX;
+    int centerY; 
+    double alpha;
 
 
     Ogre::Plane myplanes[6];
@@ -127,6 +142,7 @@ private:
     Ogre::Camera*       mCamera;
     Ogre::SceneNode*    mCamNode;
 
+
     GameMap* gameMap;
     bool            cameraIsFlying;
     Ogre::Real      moveSpeed;
@@ -141,6 +157,6 @@ private:
     Ogre::Vector3   worldCoordinatesVector;
     double          zChange;
     float           mZoomSpeed;
-};
+    };
 
 #endif /* CAMERAMANAGER_H_ */

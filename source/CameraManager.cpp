@@ -173,6 +173,20 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
         }
     }
 
+
+    if(circleMode){
+	alpha += 0.1 * frameTime;
+
+	newPosition.x = cos(alpha)*radious + centerX;
+	newPosition.y = sin(alpha)*radious + centerY;
+
+	if(alpha > 2* 3.145){
+	    circleMode = false;
+
+	    }
+	}
+
+
     // Move the camera to the new location
     mCamNode->setPosition(newPosition);
 
