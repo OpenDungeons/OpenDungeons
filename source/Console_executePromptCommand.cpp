@@ -1011,7 +1011,45 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
     }
 
-    //FIXME:  This function is not yet implemented.
+
+    else if (command.compare("bspline") == 0){
+	if(!arguments.empty()){
+	    
+	    
+	    int NN;
+	    double localX;
+	    double localY;
+
+
+	    
+            tempSS.str(arguments);
+	    tempSS >> NN;
+	    for ( int ii = 0 ; ii < NN ; ii++){
+		tempSS>>NN;
+
+
+		}	    
+
+	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
+            // CameraManager::getSingleton().setCircleCenter(centerX, centerY);
+            // CameraManager::getSingleton().setCircleRadious(radious);
+            // CameraManager::getSingleton().setCircleMode(true);
+	    	    
+
+
+        }
+	else{
+
+            tempSS.str("");
+            tempSS  << "ERROR:  You need to specify:  N - number of control points  and n pairs of  control points for bsplines ";
+            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+
+	    }
+      
+    }
+
+
+
     else if (command.compare("circlearound") == 0){
 	if(!arguments.empty()){
 	    
@@ -1035,10 +1073,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
             ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
-
-
-
-
 
 	    }
       

@@ -23,6 +23,7 @@
 #include "MiniMap.h"
 #include "Gui.h"
 #include "ModeManager.h"
+#include "EditorMode.h"
 
 
 template<> Gui* Ogre::Singleton<Gui>::msSingleton = 0;
@@ -135,6 +136,27 @@ void Gui::assignEventHandlers()
 	    CEGUI:: Window::EventMouseClick,
 	    CEGUI::Event::Subscriber(&miniMapclicked));
         
+    wmgr->getWindow(TOOLSPALETE_LAVA_BUTTON)->subscribeEvent(
+	    CEGUI:: Window::EventMouseClick,
+	    CEGUI::Event::Subscriber(&tpLavaButtonPressed));
+
+    wmgr->getWindow(TOOLSPALETE_GOLD_BUTTON)->subscribeEvent(
+	    CEGUI:: Window::EventMouseClick,
+	    CEGUI::Event::Subscriber(&tpGoldButtonPressed));
+
+    wmgr->getWindow(TOOLSPALETE_ROCK_BUTTON)->subscribeEvent(
+	    CEGUI:: Window::EventMouseClick,
+	    CEGUI::Event::Subscriber(&tpRockButtonPressed));
+
+    wmgr->getWindow(TOOLSPALETE_WATER_BUTTON)->subscribeEvent(
+	    CEGUI:: Window::EventMouseClick,
+	    CEGUI::Event::Subscriber(&tpWaterButtonPressed));
+
+    wmgr->getWindow(TOOLSPALETE_DIRT_BUTTON)->subscribeEvent(
+	    CEGUI:: Window::EventMouseClick,
+	    CEGUI::Event::Subscriber(&tpDirtButtonPressed));
+
+
     
 }
 
@@ -213,6 +235,45 @@ bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     return startServer(*gameMap);
 }
+
+
+bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
+{
+
+    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::gold;
+
+}
+
+
+
+bool Gui::tpLavaButtonPressed(const CEGUI::EventArgs& e)
+{
+    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::lava;
+
+}
+
+bool Gui::tpRockButtonPressed(const CEGUI::EventArgs& e)
+{
+
+    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::rock;
+
+}
+
+
+
+bool Gui::tpWaterButtonPressed(const CEGUI::EventArgs& e)
+{
+    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::water;
+
+}
+
+bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
+{
+    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::dirt;
+
+}
+
+
 
 //! \brief What happens after a click on New Game in the main menu
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
@@ -329,6 +390,13 @@ const std::string Gui::MM_WELCOME_MESSAGE = "MainMenu/WelcomeMessage";
 const std::string Gui::MM_BUTTON_START_NEW_GAME = "MainMenu/StartNewGameButton";
 const std::string Gui::MM_BUTTON_MAPEDITOR = "MainMenu/MapEditorButton";
 const std::string Gui::MM_BUTTON_QUIT = "MainMenu/QuitButton";
+const std::string Gui::TOOLSPALETE = "TOOLSPALETE";
 
+
+const std::string Gui::TOOLSPALETE_LAVA_BUTTON = "TOOLSPALETE/LavaButton";
+const std::string Gui::TOOLSPALETE_GOLD_BUTTON = "TOOLSPALETE/GoldButton";
+const std::string Gui::TOOLSPALETE_DIRT_BUTTON = "TOOLSPALETE/DirtButton";
+const std::string Gui::TOOLSPALETE_WATER_BUTTON = "TOOLSPALETE/WaterButton";
+const std::string Gui::TOOLSPALETE_ROCK_BUTTON = "TOOLSPALETE/RockButton";
 
 ModeManager* Gui::modeManager = NULL;

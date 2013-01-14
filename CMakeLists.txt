@@ -93,6 +93,7 @@ set(OD_SOURCEFILES
     ${SRC}/AIWrapper.cpp
     ${SRC}/ASWrapper.cpp    
     ${SRC}/BaseAI.cpp
+    #{SRC}/Bspline.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
     ${SRC}/Client.cpp

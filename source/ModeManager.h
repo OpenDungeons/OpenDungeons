@@ -14,7 +14,7 @@ class Console;
 
 class ModeManager
 {
-
+friend class Gui;
 
 
 public:
@@ -40,14 +40,14 @@ AbstractApplicationMode*  regressMode();
 
 int lookForNewMode();
 
-
+ModeContext *mc;
 
 
 private:
 Console *cn;
 AbstractApplicationMode* modesArray[4];
 stack<ModeType> modesStack;
-ModeContext *mc;
+
 
 
 

@@ -8,22 +8,10 @@
 
 **********************************************************************/
 
-#include <graphics.h>
-#include <stdlib.h>
+// #include <graphics.h>
+#include <stdlibc>
+#include "bspline.h"
 
-struct point {
-  double x;
-  double y;
-  double z;
-};
-
-int set_graph(void);
-void compute_intervals(int *u, int n, int t);
-double blend(int k, int t, int *u, double v);
-void compute_point(int *u, int n, int t, double v, point *control,
-		   point *output);
-
-void bspline(int n, int t, point *control, point *output, int num_output)
 
 /*********************************************************************
 
@@ -41,6 +29,7 @@ Pre-conditions:
 
 
 **********************************************************************/
+void bspline(int n, int t, point *control, point *output, int num_output)
 
 {
   int *u;
@@ -69,51 +58,51 @@ Pre-conditions:
   delete u;
 }
 
-void main()
-{
-  int *u;
-  int n,t,i;
-  n=7;          // number of control points = n+1
-  t=4;           // degree of polynomial = t-1
+// void main()
+// {
+//   int *u;
+//   int n,t,i;
+//   n=7;          // number of control points = n+1
+//   t=4;           // degree of polynomial = t-1
 
-  point *pts;          // allocate our control point array
-  pts=new point[n+1];
-/*
-  randomize();
-  for (i=0; i<=n; i++)  // assign the control points randomly
-  {
-      (pts[i].x)=random(100)+(i*600/n);
-      (pts[i].y)=random(500);
-      (pts[i].z)=random(500);
-  }
-*/
-  pts[0].x=10;  pts[0].y=100;  pts[0].z=0;
-  pts[1].x=200;  pts[1].y=100;  pts[1].z=0;
-  pts[2].x=345;  pts[2].y=300;  pts[2].z=0;
-  pts[3].x=400;  pts[3].y=250;  pts[3].z=0;
-  pts[4].x=500;  pts[4].y=550;  pts[4].z=0;
-  pts[5].x=550;  pts[5].y=150;  pts[5].z=0;
-  pts[6].x=570;  pts[6].y=50;   pts[6].z=0;
-  pts[7].x=600;  pts[7].y=100;  pts[7].z=0;
+//   point *pts;          // allocate our control point array
+//   pts=new point[n+1];
+// /*
+//   randomize();
+//   for (i=0; i<=n; i++)  // assign the control points randomly
+//   {
+//       (pts[i].x)=random(100)+(i*600/n);
+//       (pts[i].y)=random(500);
+//       (pts[i].z)=random(500);
+//   }
+// */
+//   pts[0].x=10;  pts[0].y=100;  pts[0].z=0;
+//   pts[1].x=200;  pts[1].y=100;  pts[1].z=0;
+//   pts[2].x=345;  pts[2].y=300;  pts[2].z=0;
+//   pts[3].x=400;  pts[3].y=250;  pts[3].z=0;
+//   pts[4].x=500;  pts[4].y=550;  pts[4].z=0;
+//   pts[5].x=550;  pts[5].y=150;  pts[5].z=0;
+//   pts[6].x=570;  pts[6].y=50;   pts[6].z=0;
+//   pts[7].x=600;  pts[7].y=100;  pts[7].z=0;
 
-  int resolution = 100;  // how many points our in our output array
-  point *out_pts;
-  out_pts = new point[resolution];
+//   int resolution = 100;  // how many points our in our output array
+//   point *out_pts;
+//   out_pts = new point[resolution];
 
-  bspline(n, t, pts, out_pts, resolution);
-  if (set_graph())
-  {
-    setcolor(69);
-    for (i=0; i<=n; i++)
-      circle(pts[i].x,pts[i].y,2); // put circles at control points
-    circle(pts[0].x,pts[0].y,0);  // drop the pen down at first control point
-    for (i=0; i<resolution; i++)
-    {
-      setcolor(i);   // have a little fun with the colors
-      putpixel(out_pts[i].x,out_pts[i].y,WHITE);
-    }
-  }
-}
+//   bspline(n, t, pts, out_pts, resolution);
+//   if (set_graph())
+//   {
+//     setcolor(69);
+//     for (i=0; i<=n; i++)
+//       circle(pts[i].x,pts[i].y,2); // put circles at control points
+//     circle(pts[0].x,pts[0].y,0);  // drop the pen down at first control point
+//     for (i=0; i<resolution; i++)
+//     {
+//       setcolor(i);   // have a little fun with the colors
+//       putpixel(out_pts[i].x,out_pts[i].y,WHITE);
+//     }
+//   }
+// }
 
 double blend(int k, int t, int *u, double v)  // calculate the blending value
 {
@@ -181,19 +170,19 @@ void compute_point(int *u, int n, int t, double v, point *control,
 }
 
 
-int set_graph(void)
-  {
-	int graphdriver = DETECT, graphmode, error_code;
+// int set_graph(void)
+//   {
+// 	int graphdriver = DETECT, graphmode, error_code;
 
-	//Initialize graphics system; must be EGA or VGA
-	initgraph(&graphdriver, &graphmode, "c:\\borlandc\\bgi");
-	error_code = graphresult();
-	if (error_code != grOk)
-		return(-1);               // No graphics hardware found
-	if ((graphdriver != EGA) && (graphdriver != VGA))
-	{
-		closegraph();
-		return 0;
-	}
-	return(1);                   // Graphics OK, so return "true"
-}
+// 	//Initialize graphics system; must be EGA or VGA
+// 	initgraph(&graphdriver, &graphmode, "c:\\borlandc\\bgi");
+// 	error_code = graphresult();
+// 	if (error_code != grOk)
+// 		return(-1);               // No graphics hardware found
+// 	if ((graphdriver != EGA) && (graphdriver != VGA))
+// 	{
+// 		closegraph();
+// 		return 0;
+// 	}
+// 	return(1);                   // Graphics OK, so return "true"
+// }

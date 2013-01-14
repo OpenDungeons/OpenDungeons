@@ -71,6 +71,14 @@ class Gui : public Ogre::Singleton<Gui>
         static const std::string MM_BUTTON_START_NEW_GAME;
         static const std::string MM_BUTTON_MAPEDITOR;
         static const std::string MM_BUTTON_QUIT;
+	static const std::string TOOLSPALETE;
+	static const std::string TOOLSPALETE_LAVA_BUTTON;
+	static const std::string TOOLSPALETE_GOLD_BUTTON;
+	static const std::string TOOLSPALETE_ROCK_BUTTON;
+	static const std::string TOOLSPALETE_WATER_BUTTON;
+	static const std::string TOOLSPALETE_DIRT_BUTTON;
+
+
 
     private:
         static ModeManager* modeManager;
@@ -82,6 +90,16 @@ class Gui : public Ogre::Singleton<Gui>
         std::map<guiSheet, CEGUI::Window*> sheets;
 	bool mainMenuMode;
         guiSheet activeSheet;
+
+
+
+        //Button ToolsBox
+	static bool tpLavaButtonPressed(const CEGUI::EventArgs& e);
+	static bool tpGoldButtonPressed(const CEGUI::EventArgs& e);
+	static bool tpRockButtonPressed(const CEGUI::EventArgs& e);
+	static bool tpWaterButtonPressed(const CEGUI::EventArgs& e);
+	static bool tpDirtButtonPressed(const CEGUI::EventArgs& e);
+
 
         //Button handlers game UI
 	static bool miniMapclicked          (const CEGUI::EventArgs& e);

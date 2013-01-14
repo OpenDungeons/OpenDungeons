@@ -6,8 +6,13 @@
 #include "ModeContext.h"
 
 class ModeContext;
+class Gui;
+
 
 class  EditorMode: public AbstractApplicationMode  {
+
+    friend class Gui;
+
     bool                changed;
     int                 mCurrentFullness, mCurrentTileRadius;
     bool                mBrushMode;
