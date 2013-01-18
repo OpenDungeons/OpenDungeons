@@ -10,10 +10,14 @@
 
 #include "GameMap.h"
 #include "AbstractApplicationMode.h"
+#include "HermiteCatmullSpline.h"
+
+
 #include <Ogre.h>
 #include <set>
 
 class ModeManager;
+
 
 
 class CameraManager : public Ogre::Singleton<CameraManager>
@@ -36,6 +40,11 @@ class CameraManager : public Ogre::Singleton<CameraManager>
     static const int HIDE =  1;
     static const int SHOW =  2;
 
+    HermiteCatmullSpline xHCS;
+    HermiteCatmullSpline yHCS; 
+
+
+
     struct Vector3i{
 	Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ;  }
 
@@ -48,7 +57,7 @@ class CameraManager : public Ogre::Singleton<CameraManager>
     inline void setCircleCenter( int XX, int YY) {centerX = XX ; centerY = YY;} ;
     inline void setCircleRadious(unsigned int rr){ radious = rr;};
     inline void setCircleMode(bool mm){circleMode = mm ; alpha = 0;};
-
+    inline void setCatmullSplineMode(bool mm){catmullSplineMode = mm;  alpha = 0; };
 
 
 
@@ -115,16 +124,21 @@ class CameraManager : public Ogre::Singleton<CameraManager>
 
 
     bool circleMode;
+    bool catmullSplineMode;
 	
     double radious;
     int centerX;
     int centerY; 
     double alpha;
+    
+
+
 
 
     Ogre::Plane myplanes[6];
     Ogre::Ray myRay[4];
 
+   
     ModeManager* modeManager;
     AbstractApplicationMode* gameMode;
     Ogre::Vector3 ogreVectorsArray[4];
@@ -159,4 +173,4 @@ class CameraManager : public Ogre::Singleton<CameraManager>
     float           mZoomSpeed;
     };
 
-#endif /* CAMERAMANAGER_H_ */
+ #endif /* CAMERAMANAGER_H_ */

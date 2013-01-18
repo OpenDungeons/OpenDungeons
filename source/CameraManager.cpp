@@ -13,6 +13,8 @@
 #include "CameraManager.h"
 #include "Quadtree.h"
 #include "ModeManager.h"
+#include "HermiteCatmullSpline.h"
+
 #include <OGRE/OgreSceneNode.h>
 #include <algorithm>
 
@@ -39,6 +41,8 @@ CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
         mRotateLocalVector(Ogre::Vector3(0.0, 0.0, 0.0)),
         zChange(0.0),
         mZoomSpeed(7.0),
+	circleMode(false),
+	catmullSplineMode(false),
         oldTop(NULL),
         oldBottom(NULL),
         oldMiddleLeft(NULL),
@@ -184,6 +188,34 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
 	    circleMode = false;
 
 	    }
+	}
+
+
+    else if(catmullSplineMode){
+	cerr << "catmullSplineMode " << endl;
+	alpha += 0.1 * frameTime;
+
+	cerr << "alpha "<< alpha << endl;
+	
+	double tempX, tempY;
+	
+	tempX = xHCS.evaluate(alpha);
+	cerr<< "newPosition.x"<< newPosition.x << endl;
+	tempY = yHCS.evaluate(alpha); 
+	cerr<< "newPosition.y"<< newPosition.y << endl;
+	
+	if (tempX < 0.9*gameMap->mapSizeX &&  tempX > 10 && tempY < 0.9*gameMap->mapSizeX &&  tempY > 10 ) {
+	    newPosition.x = tempX;
+	    newPosition.y = tempY;
+
+	    }
+       
+
+
+	if(alpha > xHCS.getNN()){
+	    catmullSplineMode = false; 
+	    }
+
 	}
 
 

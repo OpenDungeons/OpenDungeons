@@ -100,6 +100,9 @@ class Console :
         Ogre::String            cursorChar;
 
         //history variables
+
+
+
         std::vector<Ogre::String>   history;
         unsigned int                curHistPos;
 

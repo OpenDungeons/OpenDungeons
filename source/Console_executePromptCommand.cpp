@@ -1049,6 +1049,52 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
 
+    else if (command.compare("catmullspline") == 0){
+	if(!arguments.empty()){
+	    
+	    
+	    int nn;
+
+	    int tempInt1;
+	    int tempInt2;
+	    
+            tempSS.str(arguments);
+	    tempSS >> nn;
+	    CameraManager::getSingleton().xHCS.resetNodes(nn);
+	    CameraManager::getSingleton().yHCS.resetNodes(nn);
+	    for (int ii = 0 ; ii < nn ; ii++){
+		
+		tempSS>>tempInt1;
+		tempSS>>tempInt2;
+
+		cerr << "tempInt1 " <<  tempInt1 << endl;
+		cerr << "tempInt2 " <<  tempInt2 << endl;
+		CameraManager::getSingleton().xHCS.addNode(tempInt1);
+		CameraManager::getSingleton().yHCS.addNode(tempInt2);
+		
+
+		}
+	    
+	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
+
+            CameraManager::getSingleton().setCatmullSplineMode(true);
+	    	    
+	    cerr << "catmullspline loaded from cmd line " << endl;
+
+        }
+	else{
+
+            tempSS.str("");
+            tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
+            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+
+	    }
+      
+    }
+
+
+
+
 
     else if (command.compare("circlearound") == 0){
 	if(!arguments.empty()){

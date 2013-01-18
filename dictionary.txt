@@ -5,6 +5,7 @@ addtiles
 aithreads
 ambientlight
 c
+catmullspline
 chat
 chathelp
 circlearound

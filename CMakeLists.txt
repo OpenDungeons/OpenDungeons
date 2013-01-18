@@ -125,6 +125,7 @@ set(OD_SOURCEFILES
     ${SRC}/GoalProtectCreature.cpp
     ${SRC}/GoalProtectDungeonTemple.cpp
     ${SRC}/Gui.cpp
+    ${SRC}/HermiteCatmullSpline.cpp
     ${SRC}/LogManager.cpp
     ${SRC}/main.cpp
     ${SRC}/MapLight.cpp
