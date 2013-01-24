@@ -116,9 +116,9 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     newPosition += horizontalSpeedFactor * (viewDirectionQuaternion * translateVector);
 
     // Prevent camera from moving down into the tiles.
-    if (newPosition.z <= 4.5)
+    if (newPosition.z <= 0.5)
     {
-        newPosition.z = 4.5;
+        newPosition.z = 0.5;
     }
 
     // Tilt the camera up or down.

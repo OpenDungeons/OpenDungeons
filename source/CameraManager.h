@@ -17,11 +17,14 @@
 #include <set>
 
 class ModeManager;
-
+class Console;
 
 
 class CameraManager : public Ogre::Singleton<CameraManager>
     {
+    friend class Console;
+
+
     public:
     enum Direction
 	{

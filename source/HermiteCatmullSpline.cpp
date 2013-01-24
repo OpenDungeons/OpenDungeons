@@ -158,7 +158,7 @@ bool HermiteCatmullSpline::addNode(double node){
 
     if(reserved < nn){
 	pp[reserved] = node;
-	tt[reserved] = reserved;
+	tt[reserved] = (double)reserved/2;
 	reserved++;
 	if(reserved == nn)
 	    computeTangents();

@@ -32,6 +32,8 @@ quit
 refreshmesh
 rotatespeed
 save
+setcamerafovx
+setcamerafovy
 setcolor
 termwidth
 tps

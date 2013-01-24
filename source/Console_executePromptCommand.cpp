@@ -28,6 +28,7 @@
 
 using std::min;
 using std::max;
+using Ogre::Radian;
 bool Console::executePromptCommand(const std::string& command, std::string arguments)
 {
     std::stringstream tempSS;
@@ -1093,6 +1094,49 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
 
+    else if (command.compare("setcamerafovx") == 0){
+	if(!arguments.empty()){
+	    
+
+	    double tmp;
+            tempSS.str(arguments);
+	    tempSS >> tmp;
+	    Radian radianAngle(tmp);
+
+
+	    // CameraManager::getSingleton().mCamera->setFOVx(radianAngle);
+	    // // TODO check the for the maximal and minimal value of setFoVy
+        }
+	else{
+
+            tempSS.str("");
+            tempSS  << "ERROR:  No such commend in Ogre, try setcamerafovy and camera aspect ratio ";
+            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+
+	    }
+	}
+
+    else if (command.compare("setcamerafovy") == 0){
+	if(!arguments.empty()){
+	    
+
+	    double tmp;
+            tempSS.str(arguments);
+	    tempSS >> tmp;
+	    Radian radianAngle(tmp);
+
+
+	    CameraManager::getSingleton().mCamera->setFOVy(radianAngle);
+	    // TODO check the for the maximal and minimal value of setFoVy
+        }
+	else{
+
+            tempSS.str("");
+            tempSS  << "ERROR:  you need to specify an angle in radians ";
+            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+
+	    }
+	}
 
 
 
