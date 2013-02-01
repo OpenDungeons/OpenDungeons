@@ -135,6 +135,7 @@ set(OD_SOURCEFILES
     ${SRC}/MissileObject.cpp
     ${SRC}/ModeContext.cpp
     ${SRC}/ModeManager.cpp
+    ${SRC}/MortuaryQuad.cpp
     ${SRC}/MovableGameEntity.cpp
     ${SRC}/MusicPlayer.cpp
     ${SRC}/NullAI.cpp

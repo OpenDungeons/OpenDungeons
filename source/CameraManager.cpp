@@ -226,7 +226,7 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
         newPosition, mCamNode->getOrientation());
 
     
-    updateCameraView();
+
     gameMap->getMiniMap()->setCamera_2dPosition(getCameraViewTarget());
     modeManager->getCurrentMode()->mouseMoved(
         OIS::MouseEvent(0 ,modeManager->getCurrentMode()->getMouse()->getMouseState()));
@@ -720,3 +720,17 @@ bool CameraManager::isCamMovingAtAll() const
            );
 }
 
+
+
+bool CameraManager::onFrameStarted (){
+    updateCameraView();
+
+
+
+}
+bool CameraManager::onFrameEnded   (){
+
+
+
+
+}

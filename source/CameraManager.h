@@ -105,7 +105,8 @@ class CameraManager : public Ogre::Singleton<CameraManager>
 
     int updateCameraView();
 
-
+    bool onFrameStarted   ();
+    bool onFrameEnded     ();
 
 
     void            moveCamera          (const Ogre::Real frameTime);

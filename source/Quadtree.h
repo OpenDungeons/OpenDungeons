@@ -158,7 +158,7 @@ public:
     void holdRootSemaphore(){  /* std::cerr<<std::endl<<std::endl<<"hold"<<std::endl<<std::endl; */ CullingQuad* cq = this ; while(cq->parent!=NULL) cq=cq->parent;     sem_wait(&(cq->creaturesInCullingQuadLockSemaphore)); };
     void releaseRootSemaphore(){ /* std::cerr<<std::endl<<std::endl<<"release"<<std::endl<<std::endl;  */   CullingQuad* cq = this ; while(cq->parent!=NULL) cq=cq->parent;     sem_post(&(cq->creaturesInCullingQuadLockSemaphore)); };
 
-private:
+protected:
 
 
     inline bool isEmptyLeaf(){return isLeaf() && (entry==NULL  ||  entry->creature_list.empty() );};

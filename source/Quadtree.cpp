@@ -50,37 +50,33 @@ CullingQuad::CullingQuad():nodes(NULL),entry(NULL), parent(NULL){
 
 
 // COPY constructor
-CullingQuad::CullingQuad(CullingQuad* qt,CullingQuad* pp ):parent(pp){
+CullingQuad::CullingQuad(CullingQuad* qd,CullingQuad* pp ):parent(pp),nodes(NULL),entry(NULL){
     sem_init(&creaturesInCullingQuadLockSemaphore,0,1);
     int foobar2 = 3004 + 4;
 
+    center = (qd->center);
+    radious = qd->radious;
 
+    if(qd->isLeaf()){
 
+	entry = qd->entry;
 
-    if(qt->isLeaf()){
-
-	nodes = NULL;
-	entry = qt->entry;
-	center = (qt->center);
-	radious = qt->radious;
-	
-	return;
-       }
+	}
 
     else{
 	nodes=new CullingQuad*[4];
-	entry = NULL;
-	nodes[0]= new CullingQuad(qt->nodes[UR],this );
-	nodes[1]= new CullingQuad(qt->nodes[UL],this );
-	nodes[2]= new CullingQuad(qt->nodes[BL],this );
-	nodes[3]= new CullingQuad(qt->nodes[BR],this );
+	nodes[0]= new CullingQuad(qd->nodes[UR],this );
+	nodes[1]= new CullingQuad(qd->nodes[UL],this );
+	nodes[2]= new CullingQuad(qd->nodes[BL],this );
+	nodes[3]= new CullingQuad(qd->nodes[BR],this );
 	for(int jj = 0 ;  jj < 4 ;  jj++)
 	    nodes[jj]->parent=this;
-	center = (qt->center);
-	radious = qt->radious;
 
 	}
-}
+
+
+
+    }
 
 
 CullingQuad* CullingQuad::find(Entry* ee){

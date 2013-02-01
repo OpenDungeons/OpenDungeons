@@ -71,7 +71,7 @@ void GameContext::onFrameStarted(const Ogre::FrameEvent& evt){
 
 	gameMap->getMiniMap()->draw();
 	gameMap->getMiniMap()->swap();	
-
+	cameraManager->onFrameStarted();
 
 }
 

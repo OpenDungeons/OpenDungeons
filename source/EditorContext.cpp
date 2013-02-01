@@ -65,7 +65,7 @@ void EditorContext::onFrameStarted(const Ogre::FrameEvent& evt){
 
     gameMap->getMiniMap()->draw();
     gameMap->getMiniMap()->swap();	
-
+    cameraManager->onFrameStarted();
 
 }
 
@@ -75,7 +75,9 @@ void EditorContext::onFrameStarted(const Ogre::FrameEvent& evt){
 
 
 
-void EditorContext::onFrameEnded(const Ogre::FrameEvent& evt){}
+void EditorContext::onFrameEnded(const Ogre::FrameEvent& evt){
+
+}
 
 
 EditorContext::~EditorContext()
