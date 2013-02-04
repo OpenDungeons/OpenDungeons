@@ -175,6 +175,12 @@ class CameraManager : public Ogre::Singleton<CameraManager>
     Ogre::Vector3   worldCoordinatesVector;
     double          zChange;
     float           mZoomSpeed;
+
+
+
+    set<Creature*> tmpMortuary;
+
+
     };
 
  #endif /* CAMERAMANAGER_H_ */

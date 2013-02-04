@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 #include "Quadtree.h"
-
+#include "MortuaryQuad.h"
 
 
 
@@ -41,7 +41,7 @@ void CullingQuad::setRadious(double rr){
 }
 
 CullingQuad::CullingQuad():nodes(NULL),entry(NULL), parent(NULL){
-    sem_init(&creaturesInCullingQuadLockSemaphore,0,1);
+
     center = new Ogre::Vector2();
 
 
@@ -51,7 +51,7 @@ CullingQuad::CullingQuad():nodes(NULL),entry(NULL), parent(NULL){
 
 // COPY constructor
 CullingQuad::CullingQuad(CullingQuad* qd,CullingQuad* pp ):parent(pp),nodes(NULL),entry(NULL){
-    sem_init(&creaturesInCullingQuadLockSemaphore,0,1);
+
     int foobar2 = 3004 + 4;
 
     center = (qd->center);
@@ -514,5 +514,35 @@ bool CullingQuad::cut ( const Segment *ss) {
 
 
     // else if(isEmptyLeaf()){} nothing to do :)
+
+}
+
+
+void CullingQuad::holdRootSemaphore(){ 
+
+    /* std::cerr<<std::endl<<std::endl<<"hold"<<std::endl<<std::endl; */
+    CullingQuad* cq = this ;
+    while(cq->parent!=NULL)
+	cq=cq->parent;   
+    MortuaryQuad *casted_cq = static_cast<MortuaryQuad*>(cq) ;
+    sem_wait(&(casted_cq->creaturesInCullingQuadLockSemaphore));
+};
+void CullingQuad::releaseRootSemaphore(){ 
+    /* std::cerr<<std::endl<<std::endl<<"release"<<std::endl<<std::endl;  */ 
+    CullingQuad* cq = this ; 
+    while(cq->parent!=NULL)
+	cq=cq->parent;
+    MortuaryQuad  *casted_cq = static_cast<MortuaryQuad*>(cq) ;
+    sem_post(&(casted_cq->creaturesInCullingQuadLockSemaphore));
+};
+
+
+void CullingQuad::mortuaryInsert(Creature *cc){ 
+
+    CullingQuad* cq = this ; 
+    while(cq->parent!=NULL)
+	cq=cq->parent;
+    MortuaryQuad  *casted_cq = static_cast<MortuaryQuad*>(cq) ;
+    casted_cq->mortuaryInsert(cc);
 
 }

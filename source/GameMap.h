@@ -30,7 +30,7 @@ class MovableGameEntity;
 #include "MiniMap.h"
 #include "AIManager.h"
 #include "Room.h"
-#include "Quadtree.h"
+#include "MortuaryQuad.h"
 
 class MiniMap;
 
@@ -54,7 +54,7 @@ friend class RenderManager;
  public:
   GameMap();
   ~GameMap();
-  CullingQuad myCullingQuad;
+  MortuaryQuad myCullingQuad;
   int setAllNeighbors();     
   void createNewMap(int xSize, int ySize);
   int allocateMapMemory(int xSize, int ySize); 

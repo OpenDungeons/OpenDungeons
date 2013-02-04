@@ -455,12 +455,10 @@ int CameraManager::updateCameraView() {
 	bashAndSplashTiles(SHOW);
 
     }
-
-
-
     cerr << "countnodes " << gameMap->myCullingQuad.countNodes() <<endl;  
     gameMap->myCullingQuad.holdRootSemaphore();
-    CullingQuad tmpQuad(&(gameMap->myCullingQuad));
+    MortuaryQuad tmpQuad((gameMap->myCullingQuad));
+
     gameMap->myCullingQuad.releaseRootSemaphore();
 
     tmpQuad.cut(Segment(ogreVectorsArray[1],ogreVectorsArray[0]));
@@ -482,7 +480,14 @@ int CameraManager::updateCameraView() {
     std::set_difference(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(descendingCreatures, descendingCreatures.end())); 
 
 
+    std::set_difference(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(descendingCreatures, descendingCreatures.end())); 
+    
 
+    for( std::vector<Creature*>:: iterator it = tmpQuad.mortuary.begin(); it != tmpQuad.mortuary.end() ; it++  ){
+	descendingCreatures.erase(*it) ; 
+
+
+    }
 
     cerr << "ascendingCreatures  " << ascendingCreatures.size() <<endl;
     cerr << "descendingCreatures " << descendingCreatures.size()<<endl;
@@ -499,6 +504,10 @@ int CameraManager::updateCameraView() {
     	(*it)->hide();
 
     return 1;
+
+
+
+
 }
 
 
@@ -723,8 +732,9 @@ bool CameraManager::isCamMovingAtAll() const
 
 
 bool CameraManager::onFrameStarted (){
-    updateCameraView();
 
+
+    updateCameraView();
 
 
 }

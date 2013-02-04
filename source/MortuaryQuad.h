@@ -2,22 +2,27 @@
 #define MORTUARY_QUAD_H
 
 #include "Quadtree.h"
-
+#include <vector>
 
 class Creature;
 
-class MortuaryQuad : CullingQuad{
+class MortuaryQuad : public CullingQuad{
 
 public:
-
-    MortuaryQuad( MortuaryQuad *qd  );
-    void insertCreature(Creature* cc);
+    MortuaryQuad(  );
+    MortuaryQuad( const MortuaryQuad &qd  );
+    void mortuaryInsert(Creature* cc);
     void clearMortuary();
+    mutable sem_t creaturesInCullingQuadLockSemaphore;
+
+
+    vector<Creature*>  mortuary;
+
 
 private:
     
 
-    set<Creature*>  mortuary;
+
 
 
 

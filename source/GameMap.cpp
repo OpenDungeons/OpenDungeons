@@ -35,7 +35,7 @@
 #include "Weapon.h"
 #include "MapLoader.h"
 #include "LogManager.h"
-#include "Quadtree.h"
+#include "MortuaryQuad.h"
 
 using namespace std;
 

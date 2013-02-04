@@ -82,7 +82,10 @@ Creature::Creature(
 /*  Destructor is needed when removing from Quadtree*/
  Creature::~Creature()
  {
+
+
      tracingCullingQuad->entry->creature_list.remove(this);
+     tracingCullingQuad->mortuaryInsert(this);
  }
 
 

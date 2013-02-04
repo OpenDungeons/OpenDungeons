@@ -1,28 +1,38 @@
 #include "MortuaryQuad.h"
 #include "Creature.h"
 
+MortuaryQuad :: MortuaryQuad(   ){
+    sem_init(&creaturesInCullingQuadLockSemaphore,0,1);
+
+}
 
 
 
-MortuaryQuad :: MortuaryQuad( MortuaryQuad *qd  ){
+
+
+
+MortuaryQuad :: MortuaryQuad( const  MortuaryQuad &qd  ):mortuary(qd.mortuary){
+
+
+    
     sem_init(&creaturesInCullingQuadLockSemaphore,0,1);
     int foobar2 = 3004 + 4;
 
-    center = (qd->center);
-    radious = qd->radious;
+    center = (qd.center);
+    radious = qd.radious;
 
-    if(qd->isLeaf()){
+    if(qd.isLeaf()){
 
-	entry = qd->entry;
+	entry = qd.entry;
 
 	}
 
     else{
 	nodes=new CullingQuad*[4];
-	nodes[0]= new CullingQuad(qd->nodes[UR],this );
-	nodes[1]= new CullingQuad(qd->nodes[UL],this );
-	nodes[2]= new CullingQuad(qd->nodes[BL],this );
-	nodes[3]= new CullingQuad(qd->nodes[BR],this );
+	nodes[0]= new CullingQuad(qd.nodes[UR],this );
+	nodes[1]= new CullingQuad(qd.nodes[UL],this );
+	nodes[2]= new CullingQuad(qd.nodes[BL],this );
+	nodes[3]= new CullingQuad(qd.nodes[BR],this );
 	for(int jj = 0 ;  jj < 4 ;  jj++)
 	    nodes[jj]->parent=this;
 
@@ -31,10 +41,12 @@ MortuaryQuad :: MortuaryQuad( MortuaryQuad *qd  ){
 
      }
 
-void MortuaryQuad ::insertCreature(Creature* cc ){
+void MortuaryQuad ::mortuaryInsert(Creature* cc ){
 
+    releaseRootSemaphore();
+    mortuary.push_back(cc);
+    holdRootSemaphore();
 
-    mortuary.insert(cc);
 
     }
 void MortuaryQuad ::clearMortuary(){
@@ -45,3 +57,4 @@ void MortuaryQuad ::clearMortuary(){
 
 
     }
+

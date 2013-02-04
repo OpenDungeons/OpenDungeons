@@ -111,7 +111,7 @@ class CullingQuad{
 
 public:
 
-    mutable sem_t creaturesInCullingQuadLockSemaphore;
+
     Entry *entry; 
     Ogre::Vector2 *center;
     CullingQuad **nodes;
@@ -155,17 +155,16 @@ public:
     void setCenter(double, double);
     void setRadious(double);
     bool moveEntryDelta(Creature* ,const Ogre::Vector2&  );
-    void holdRootSemaphore(){  /* std::cerr<<std::endl<<std::endl<<"hold"<<std::endl<<std::endl; */ CullingQuad* cq = this ; while(cq->parent!=NULL) cq=cq->parent;     sem_wait(&(cq->creaturesInCullingQuadLockSemaphore)); };
-    void releaseRootSemaphore(){ /* std::cerr<<std::endl<<std::endl<<"release"<<std::endl<<std::endl;  */   CullingQuad* cq = this ; while(cq->parent!=NULL) cq=cq->parent;     sem_post(&(cq->creaturesInCullingQuadLockSemaphore)); };
-
+    void holdRootSemaphore();
+    void releaseRootSemaphore();
+    void mortuaryInsert(Creature*);
 protected:
 
 
-    inline bool isEmptyLeaf(){return isLeaf() && (entry==NULL  ||  entry->creature_list.empty() );};
-    inline bool isNonEmptyLeaf(){return isLeaf() && !(entry==NULL || entry->creature_list.empty()) ;};
-    inline bool isLeaf(){ return nodes==NULL ;};
+    inline bool isEmptyLeaf() const {return isLeaf() && (entry==NULL  ||  entry->creature_list.empty() );};
+    inline bool isNonEmptyLeaf() const {return isLeaf() && !(entry==NULL || entry->creature_list.empty()) ;};
+    inline bool isLeaf() const { return nodes==NULL ;};
     CullingQuad* insertNoLock(Entry* ee);
-
 
     };
 
