@@ -569,14 +569,15 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     }
 
     //node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
-    node->setPosition ( static_cast<Ogre::Real>(curTile->x)
-                        , static_cast<Ogre::Real>(curTile->y),
+    node->setPosition ( static_cast<Ogre::Real>(curTile->x),
+	                static_cast<Ogre::Real>(curTile->y),
                         0);
     node->attachObject ( ent );
 
-    node->setScale ( Ogre::Vector3 ( BLENDER_UNITS_PER_OGRE_UNIT,
-                                     BLENDER_UNITS_PER_OGRE_UNIT,
-                                     BLENDER_UNITS_PER_OGRE_UNIT ) );
+    node->setScale ( Ogre::Vector3 (
+	    4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
+	    4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
+	    4.0 / BLENDER_UNITS_PER_OGRE_UNIT ));
     node->resetOrientation();
     node->roll ( Ogre::Degree ( curTile->rotation ) );
 

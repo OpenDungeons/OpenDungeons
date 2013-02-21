@@ -649,7 +649,7 @@ std::string Tile::meshNameFromFullness(TileType t, int fullnessMeshNumber)
 {
     std::stringstream ss;
     //FIXME - define postfix somewhere
-    ss << tileTypeToString(t) << fullnessMeshNumber << ".mesh";
+    ss << tileTypeToString(t) << "_" << (fullnessMeshNumber > 0 ?  "11111111" : "00000000" ) << ".mesh";
     return ss.str();
 }
 
