@@ -73,8 +73,11 @@ friend class RenderManager;
   void setTileNeighbors(Tile *t);
 
   Tile* getTile(int x, int y) const;
+  Tile::TileType getSafeTileType(Tile* tt );
+
   Tile* firstTile();
   Tile* lastTile();
+  Tile::TileType*  getNeighborsTypes( Tile* , Tile::TileType*);
   unsigned int numTiles();
   std::vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);
   std::vector<Tile*> circularRegion(int x, int y, double radius);
@@ -231,6 +234,8 @@ friend class RenderManager;
   std::string nextLevel;
   bool loadNextLevel;
   double averageAILeftoverTime;
+  static Tile::TileType*  neighborType; // should be of 8 objects 
+
 
   // Overloaded method declarations (these just make it easier to call the above functions)
   std::list<Tile*> path(Creature *c1, Creature *c2,
@@ -352,6 +357,9 @@ friend class RenderManager;
 
     inline Tile*            getTile     () const                {return tile;}
     inline void             setTile     (Tile* newTile)         {tile = newTile;}
+
+
+
 
     inline AstarEntry*      getParent   () const                {return parent;}
     inline void             setParent   (AstarEntry* newParent) {parent = newParent;}

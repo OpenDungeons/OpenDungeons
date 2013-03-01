@@ -44,6 +44,9 @@ template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = 0;
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 ProtectedObject<unsigned int> RenderManager::numThreadsWaitingOnRenderQueueEmpty(0);
 
+
+
+
 RenderManager::RenderManager() :
         roomSceneNode(0),
         rockSceneNode(0),
@@ -519,8 +522,9 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
         sceneManager->destroyEntity ( curTile->getName() );
 
         Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
-                            Tile::meshNameFromFullness(curTile->getType(),
-                                                       curTile->getFullnessMeshNumber()) );
+                            Tile::meshNameFromNeighbors(curTile->getType(),
+							curTile->getFullnessMeshNumber(),
+						        gameMap->getNeighborsTypes( curTile,    GameMap::neighborType)));
         /*        Ogre::Entity* ent = createEntity(curTile->name,
                                     Tile::meshNameFromFullness(curTile->getType(),
                                                                curTile->getFullnessMeshNumber()), "Claimedwall2_nor3.png");*/
@@ -541,9 +545,11 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     Ogre::SceneNode* node;
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
 
-    Ogre::Entity* ent = sceneManager->createEntity( curTile->getName(),
-                        Tile::meshNameFromFullness(curTile->getType(),
-                                                   curTile->getFullnessMeshNumber()));
+    Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
+                            Tile::meshNameFromNeighbors(curTile->getType(),
+							curTile->getFullnessMeshNumber(),
+						        gameMap->getNeighborsTypes( curTile,    GameMap::neighborType)));
+
     if (curTile->getType() == Tile::claimed)
     {
         colourizeEntity ( ent, curTile->getColor() );

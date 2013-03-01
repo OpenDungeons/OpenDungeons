@@ -138,6 +138,10 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         bool initialized;
 
         static ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;
+
+
+
+
 };
 
 #endif /* RENDERMANAGER_H_ */

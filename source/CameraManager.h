@@ -13,7 +13,7 @@
 #include "HermiteCatmullSpline.h"
 
 
-#include <Ogre.h>
+#include <Ogre.h>>
 #include <set>
 
 class ModeManager;

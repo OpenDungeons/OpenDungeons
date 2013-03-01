@@ -1,4 +1,6 @@
 #include <cstddef>
+#include <bitset>
+
 
 #include "Functions.h"
 #include "Creature.h"
@@ -13,6 +15,8 @@
 #include "Player.h"
 #include "Tile.h"
 
+
+
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
@@ -22,6 +26,8 @@
  * In addition to setting the tile type this function also reloads the new mesh
  * for the tile.
  */
+
+
 
 void Tile::setType(TileType t)
 {
@@ -642,8 +648,79 @@ int Tile::nextTileFullness(int f)
     }
 }
 
+
+
+
+// foobar(){
+//     Position
+    
+
+//     for(int ii = 0 ; ii < 8 ; ii++){
+// 	tilePos += position
+
+
+
+//     }
+
+
+
+// }
+
+
 /*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
  *
+ */
+std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumber,  TileType *neighbors)
+{
+    std::stringstream ss;
+    //FIXME - define postfix somewhere
+    int postfixInt = 0  ;
+    unsigned char  shiftedAroundBits;
+
+
+
+    for(int ii  = 0 ; ii < 8 ; ii++){
+	
+	postfixInt *=2 ; 
+	postfixInt += (neighbors[ii] == myType);
+
+    }
+
+
+    shiftedAroundBits = postfixInt &  0x80;
+    postfixInt <<= 1;
+    shiftedAroundBits >>= 7;
+    shiftedAroundBits &= 0x01;
+    postfixInt &= 0xFF;
+    postfixInt += shiftedAroundBits;
+
+
+    int foobar = 170 & postfixInt;
+
+
+    shiftedAroundBits = postfixInt &  0x03;
+    postfixInt >>= 2;
+    postfixInt &= 0xFF;
+    postfixInt += shiftedAroundBits;
+
+
+    int foobar2 = 170 & postfixInt; 
+
+
+    postfixInt = foobar | foobar2 | postfixInt;
+
+
+
+
+
+    ss << tileTypeToString( (myType == rock ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
+       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt )  : 0 ) << ".mesh";
+    
+    return ss.str();
+}
+
+/*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
+ *  
  */
 std::string Tile::meshNameFromFullness(TileType t, int fullnessMeshNumber)
 {

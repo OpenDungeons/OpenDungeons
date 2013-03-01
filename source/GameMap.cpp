@@ -42,6 +42,7 @@ using namespace std;
 //TODO: find some better place for this
 ProtectedObject<long int> GameMap::turnNumber(1);
 sem_t GameMap::creatureAISemaphore;
+Tile::TileType *GameMap::neighborType  = new Tile::TileType [8];
 
 GameMap::GameMap() :
         iteration_doFloodFill(0),
@@ -2941,3 +2942,28 @@ void GameMap::processDeletionQueues()
     }
 }
 
+Tile::TileType* GameMap::getNeighborsTypes( Tile *curTile, Tile::TileType   *neighbors){
+
+    int xx = curTile->getX();
+    int yy = curTile->getY();
+    
+
+    neighbors[0] = getSafeTileType(getTile(xx-1,yy+1) );
+    neighbors[1] = getSafeTileType(getTile(xx,yy+1));
+    neighbors[2] = getSafeTileType(getTile(xx+1,yy+1));
+    neighbors[3] = getSafeTileType(getTile(xx+1,yy) );
+    neighbors[4] = getSafeTileType(getTile(xx+1,yy-1));
+    neighbors[5] = getSafeTileType(getTile(xx,yy-1));
+    neighbors[6] = getSafeTileType(getTile(xx-1,yy-1));
+    neighbors[7] = getSafeTileType(getTile(xx-1,yy) );
+
+
+    return neighbors; 
+
+}
+
+
+Tile::TileType GameMap::getSafeTileType(Tile* tt ){
+
+    return (tt == NULL) ? Tile::nullTileType : tt->getType();
+}
