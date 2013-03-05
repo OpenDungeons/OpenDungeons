@@ -11,6 +11,9 @@
 #include <OgreSceneNode.h>
 
 #include "GameEntity.h"
+#include <OgreMeshManager.h>
+
+
 
 class Tile;
 class Creature;
@@ -26,6 +29,14 @@ class GameMap;
  * the tile has been dug out.  Additionally the tile contains lists of the
  * entities located within it to aid in AI calculations.
  */
+
+
+enum RotationType{ R0, R1, R2, R3};
+
+
+
+
+
 class Tile : public GameEntity
 {
  
@@ -94,7 +105,7 @@ class Tile : public GameEntity
     static TileType nextTileType(TileType t);
     static int nextTileFullness(int f);
     static std::string meshNameFromFullness(TileType t, int fullnessMeshNumber);
-    static std::string meshNameFromNeighbors(TileType   , int , TileType* );
+    static std::string meshNameFromNeighbors(TileType   , int , TileType* , int&);
 
 
 

@@ -29,6 +29,11 @@
 
 
 
+static Ogre::MeshManager *myOgreMeshManger
+= Ogre:: MeshManager::getSingletonPtr();
+
+
+
 void Tile::setType(TileType t)
 {
     // If the type has changed from its previous value we need to see if
@@ -670,7 +675,7 @@ int Tile::nextTileFullness(int f)
 /*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
  *
  */
-std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumber,  TileType *neighbors)
+std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumber,  TileType *neighbors, int &rt )
 {
     std::stringstream ss;
     //FIXME - define postfix somewhere
@@ -678,6 +683,8 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     unsigned char  shiftedAroundBits;
 
 
+
+    // get the integer from neighbors[], using it as a number coded in binary base 
 
     for(int ii  = 0 ; ii < 8 ; ii++){
 	
@@ -687,6 +694,10 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     }
 
 
+    // current implementation does not allow on separate corner tiles 
+    // leave only those corner tiles  ( the one in  the even position in PostfixInt binary base ) who have at least one ver or hor neighbor
+
+    // shift the 8ht position bit to the 1st position, shifting the rest 1 position to the left . 
     shiftedAroundBits = postfixInt &  0x80;
     postfixInt <<= 1;
     shiftedAroundBits >>= 7;
@@ -695,6 +706,9 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     postfixInt += shiftedAroundBits;
 
 
+
+    // check for the clockwise rotation hor or ver neighbor for diagonal tile 
+    
     int foobar = 170 & postfixInt;
 
 
@@ -703,7 +717,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     postfixInt &= 0xFF;
     postfixInt += shiftedAroundBits;
 
-
+    // check for the anti - clockwise rotation hor or ver neighbor for diagonal tile 
     int foobar2 = 170 & postfixInt; 
 
 
@@ -716,6 +730,35 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     ss << tileTypeToString( (myType == rock ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
        << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt )  : 0 ) << ".mesh";
     
+
+
+    // rotate the postfix number, as long , as we won't find Exisitng mesh 
+
+
+    for(rt = 0 ;  Ogre::MeshManager::getSingletonPtr()->resourceExists(ss.str()) && rt < 4 ; rt++  ) { 
+    shiftedAroundBits = postfixInt &  0xC0;
+    postfixInt <<= 2;
+    shiftedAroundBits >>= 6;
+    shiftedAroundBits &= 0x03;
+    postfixInt &= 0xFF;
+    postfixInt += shiftedAroundBits;
+    
+    ss .clear();
+
+    ss << tileTypeToString( (myType == rock ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
+       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt )  : 0 ) << ".mesh";
+
+
+  }
+
+
+
+
+
+
+
+
+
     return ss.str();
 }
 
