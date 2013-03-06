@@ -693,7 +693,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 
     }
 
-
+    int storedInt = postfixInt ; 
     // current implementation does not allow on separate corner tiles 
     // leave only those corner tiles  ( the one in  the even position in PostfixInt binary base ) who have at least one ver or hor neighbor
 
@@ -709,47 +709,53 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 
     // check for the clockwise rotation hor or ver neighbor for diagonal tile 
     
-    int foobar = 170 & postfixInt;
+    int foobar = postfixInt;
 
 
     shiftedAroundBits = postfixInt &  0x03;
     postfixInt >>= 2;
-    postfixInt &= 0xFF;
+    postfixInt &= 0x3F;
+    shiftedAroundBits <<= 6;
+
     postfixInt += shiftedAroundBits;
 
     // check for the anti - clockwise rotation hor or ver neighbor for diagonal tile 
-    int foobar2 = 170 & postfixInt; 
-
-
-    postfixInt = foobar | foobar2 | postfixInt;
+    int foobar2 = postfixInt; 
 
 
 
 
+    // 85  == 01010101b
+    // 170 == 10101010b
+    postfixInt = (foobar & foobar2 & 85) | (storedInt & 170);
 
-    ss << tileTypeToString( (myType == rock ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
+
+
+
+
+    ss << tileTypeToString( (myType == rock  || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
        << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt )  : 0 ) << ".mesh";
     
 
 
     // rotate the postfix number, as long , as we won't find Exisitng mesh 
 
-
-    for(rt = 0 ;  !Ogre::MeshManager::getSingletonPtr()->resourceExists(ss.str()) && rt < 4 ; rt++  ) { 
+    cerr <<  ss.str() << endl ; 
+    for(rt = 1 ;  !Ogre::MeshManager::getSingletonPtr()->resourceExists(ss.str()) && rt < 4 ; rt++  ) { 
     shiftedAroundBits = postfixInt &  0xC0;
     postfixInt <<= 2;
+    postfixInt &= 0xFF;
     shiftedAroundBits >>= 6;
     shiftedAroundBits &= 0x03;
-    postfixInt &= 0xFF;
     postfixInt += shiftedAroundBits;
     
     ss.str("");
     ss.clear();
 
-    ss << tileTypeToString( (myType == rock ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
+    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
        << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt )  : 0 ) << ".mesh";
 
-
+    cerr <<  ss.str()<< endl ; 
   }
 
 
