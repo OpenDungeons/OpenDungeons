@@ -734,15 +734,14 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     // 	Naros	if its null, then load it.
     // Naros	you want to use Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("MyResourceGroupName", "MyMeshFileName");
 
-    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
-       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType != water) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
+    meshNameAux(ss, postfixInt , fullnessMeshNumber , myType);
     
 
 
     // rotate the postfix number, as long , as we won't find Exisitng mesh 
 
     cerr <<  ss.str() << endl ; 
-    for(rt = 2 ;  !Ogre::MeshManager::getSingletonPtr()->resourceExists(ss.str()) && rt < 6 ; rt++  ) { 
+    for(rt = 0 ;  !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str())  && rt < 4 ; rt++  ) { 
     shiftedAroundBits = postfixInt &  0xC0;
     postfixInt <<= 2;
     postfixInt &= 0xFF;
@@ -753,8 +752,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     ss.str("");
     ss.clear();
 
-    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
-       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType != water) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
+    meshNameAux(ss, postfixInt,fullnessMeshNumber,  myType);
 
     cerr <<  ss.str()<< endl ; 
   }
@@ -1199,10 +1197,10 @@ void Tile::setGameMap(GameMap* gameMap)
 
 
 
-void Tile::meshNameAux(std::stringstream &ss; int &postfixInt ){
+void Tile::meshNameAux(std::stringstream &ss, int &postfixInt , int& fMN, TileType myType ){
 
     ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
-       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType != water) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
+       << (fMN > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType == water || myType == lava) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
 
 
 }

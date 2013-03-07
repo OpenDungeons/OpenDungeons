@@ -167,7 +167,7 @@ class Tile : public GameEntity
     void takeDamage(double damage, Tile *tileTakingDamage) {}
     double getHP(Tile *tile) {return 0;}
     std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
-    void meshNameAux(std::stringstream&, int& );
+    static void meshNameAux(std::stringstream&, int& , int&,  TileType);
 
  private:
     void setFullnessValue(double f);
