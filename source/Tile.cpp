@@ -719,7 +719,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 
     postfixInt += shiftedAroundBits;
 
-    // check for the anti - clockwise rotation hor or ver neighbor for diagonal tile 
+    // check for the anti - clockwise rotation hor or ver neighbor of a diagonal tile 
     int foobar2 = postfixInt; 
 
 
@@ -730,18 +730,19 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     postfixInt = (foobar & foobar2 & 85) | (storedInt & 170);
 
 
+    // Naros	rather than simply using getByName() and testing if MeshPtr.isNull() is true
+    // 	Naros	if its null, then load it.
+    // Naros	you want to use Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("MyResourceGroupName", "MyMeshFileName");
 
-
-
-    ss << tileTypeToString( (myType == rock  || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
-       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt )  : 0 ) << ".mesh";
+    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
+       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType != water) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
     
 
 
     // rotate the postfix number, as long , as we won't find Exisitng mesh 
 
     cerr <<  ss.str() << endl ; 
-    for(rt = 1 ;  !Ogre::MeshManager::getSingletonPtr()->resourceExists(ss.str()) && rt < 4 ; rt++  ) { 
+    for(rt = 2 ;  !Ogre::MeshManager::getSingletonPtr()->resourceExists(ss.str()) && rt < 6 ; rt++  ) { 
     shiftedAroundBits = postfixInt &  0xC0;
     postfixInt <<= 2;
     postfixInt &= 0xFF;
@@ -753,7 +754,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     ss.clear();
 
     ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
-       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt )  : 0 ) << ".mesh";
+       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType != water) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
 
     cerr <<  ss.str()<< endl ; 
   }
@@ -1196,3 +1197,12 @@ void Tile::setGameMap(GameMap* gameMap)
     setFullness(fullness);
 }
 
+
+
+void Tile::meshNameAux(std::stringstream &ss; int &postfixInt ){
+
+    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
+       << (fullnessMeshNumber > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType != water) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
+
+
+}

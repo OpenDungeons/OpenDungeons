@@ -511,9 +511,10 @@ void RenderManager::waitOnRenderQueueFlush()
 
     void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
     {
+	int rt;
 	Tile* curTile = static_cast<Tile*> ( renderRequest.p );
     
-	int rt;
+
     
 	if ( sceneManager->hasSceneNode ( curTile->getName() + "_node" ) )
 	{
@@ -531,7 +532,7 @@ void RenderManager::waitOnRenderQueueFlush()
 		                                                 ));
         /*        Ogre::Entity* ent = createEntity(curTile->name,
 		  Tile::meshNameFromFullness(curTile->getType(),
-		  curTile->getFullnessMeshNumber()), "Claimedwall2_nor3.png");*/
+		  curTile->FullnessMeshNumber()), "Claimedwall2_nor3.png");*/
 
         colourizeEntity ( ent, curTile->getColor() );
 
@@ -539,18 +540,19 @@ void RenderManager::waitOnRenderQueueFlush()
         Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
         node->attachObject ( ent );
         node->resetOrientation();
-        node->roll ( Ogre::Degree ( curTile->rotation ) );
+        node->roll ( Ogre::Degree ( rt * 90 ) );
     }
 }
 
 
 void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 {
+    int rt;
     Ogre::SceneNode* node;
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
 
 
-    int rt;
+
 
     Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
 						     Tile::meshNameFromNeighbors(curTile->getType(),
@@ -594,7 +596,7 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 			 4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
 			 4.0 / BLENDER_UNITS_PER_OGRE_UNIT ));
     node->resetOrientation();
-    node->roll ( Ogre::Degree ( curTile->rotation ) );
+    node->roll ( Ogre::Degree ( rt * 90 ) );
 
 }
 

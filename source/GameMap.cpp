@@ -2947,15 +2947,15 @@ Tile::TileType* GameMap::getNeighborsTypes( Tile *curTile, Tile::TileType   *nei
     int xx = curTile->getX();
     int yy = curTile->getY();
     
+    neighbors[0] = getSafeTileType(getTile(xx-1,yy) );
+    neighbors[1] = getSafeTileType(getTile(xx-1,yy+1) );
+    neighbors[2] = getSafeTileType(getTile(xx,yy+1));
+    neighbors[3] = getSafeTileType(getTile(xx+1,yy+1));
+    neighbors[4] = getSafeTileType(getTile(xx+1,yy) );
+    neighbors[5] = getSafeTileType(getTile(xx+1,yy-1));
+    neighbors[6] = getSafeTileType(getTile(xx,yy-1));
+    neighbors[7] = getSafeTileType(getTile(xx-1,yy-1));
 
-    neighbors[0] = getSafeTileType(getTile(xx-1,yy+1) );
-    neighbors[1] = getSafeTileType(getTile(xx,yy+1));
-    neighbors[2] = getSafeTileType(getTile(xx+1,yy+1));
-    neighbors[3] = getSafeTileType(getTile(xx+1,yy) );
-    neighbors[4] = getSafeTileType(getTile(xx+1,yy-1));
-    neighbors[5] = getSafeTileType(getTile(xx,yy-1));
-    neighbors[6] = getSafeTileType(getTile(xx-1,yy-1));
-    neighbors[7] = getSafeTileType(getTile(xx-1,yy) );
 
 
     return neighbors; 
