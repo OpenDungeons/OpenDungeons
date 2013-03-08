@@ -686,10 +686,11 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 
     // get the integer from neighbors[], using it as a number coded in binary base 
 
-    for(int ii  = 0 ; ii < 8 ; ii++){
+    for(int ii  = 8 ; ii >=1 ; ii--){
 	
 	postfixInt *=2 ; 
-	postfixInt += (neighbors[ii] == myType);
+	postfixInt += ((neighbors[(ii)%8] == myType) // || (!(myType!=water && myType!=lava) ||  fullnessMeshNumber > 0   )
+	    );
 
     }
 

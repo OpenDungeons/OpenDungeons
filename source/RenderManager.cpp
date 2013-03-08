@@ -540,7 +540,7 @@ void RenderManager::waitOnRenderQueueFlush()
         Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
         node->attachObject ( ent );
         node->resetOrientation();
-        node->roll ( Ogre::Degree ( rt * 90 ) );
+        node->roll ( Ogre::Degree ( (-1)*rt * 90 ) );
     }
 }
 
@@ -596,7 +596,7 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 			 4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
 			 12.0 / BLENDER_UNITS_PER_OGRE_UNIT ));
     node->resetOrientation();
-    node->roll ( Ogre::Degree ( rt * 90 ) );
+    node->roll ( Ogre::Degree ( (-1)*rt * 90 ) );
 
 }
 
