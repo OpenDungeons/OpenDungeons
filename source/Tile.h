@@ -105,7 +105,7 @@ class Tile : public GameEntity
     static TileType nextTileType(TileType t);
     static int nextTileFullness(int f);
     static std::string meshNameFromFullness(TileType t, int fullnessMeshNumber);
-    static std::string meshNameFromNeighbors(TileType   , int , TileType* , int&);
+    static std::string meshNameFromNeighbors(TileType   , int , TileType*, bool* , int&);
 
 
 

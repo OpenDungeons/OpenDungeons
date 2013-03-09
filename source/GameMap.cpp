@@ -43,6 +43,7 @@ using namespace std;
 ProtectedObject<long int> GameMap::turnNumber(1);
 sem_t GameMap::creatureAISemaphore;
 Tile::TileType *GameMap::neighborType  = new Tile::TileType [8];
+bool  *GameMap::neighborFullness  = new bool [8];
 
 GameMap::GameMap() :
         iteration_doFloodFill(0),
@@ -2963,7 +2964,35 @@ Tile::TileType* GameMap::getNeighborsTypes( Tile *curTile, Tile::TileType   *nei
 }
 
 
+bool* GameMap::getNeighborsFullness( Tile *curTile, bool *neighborsFullness){
+
+    int xx = curTile->getX();
+    int yy = curTile->getY();
+    
+    neighborsFullness[0] = getSafeTileFullness(getTile(xx-1,yy) );
+    neighborsFullness[1] = getSafeTileFullness(getTile(xx-1,yy+1) );
+    neighborsFullness[2] = getSafeTileFullness(getTile(xx,yy+1));
+    neighborsFullness[3] = getSafeTileFullness(getTile(xx+1,yy+1));
+    neighborsFullness[4] = getSafeTileFullness(getTile(xx+1,yy) );
+    neighborsFullness[5] = getSafeTileFullness(getTile(xx+1,yy-1));
+    neighborsFullness[6] = getSafeTileFullness(getTile(xx,yy-1));
+    neighborsFullness[7] = getSafeTileFullness(getTile(xx-1,yy-1));
+
+
+
+    return neighborsFullness; 
+
+}
+
+
+
+
 Tile::TileType GameMap::getSafeTileType(Tile* tt ){
 
     return (tt == NULL) ? Tile::nullTileType : tt->getType();
+}
+
+bool  GameMap::getSafeTileFullness(Tile* tt ){
+
+    return (tt == NULL) ?  false : ( tt->getFullness() > 0 ) ;
 }

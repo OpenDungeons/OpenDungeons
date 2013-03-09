@@ -74,10 +74,12 @@ friend class RenderManager;
 
   Tile* getTile(int x, int y) const;
   Tile::TileType getSafeTileType(Tile* tt );
+  bool getSafeTileFullness(Tile* tt );
 
   Tile* firstTile();
   Tile* lastTile();
   Tile::TileType*  getNeighborsTypes( Tile* , Tile::TileType*);
+  bool*   getNeighborsFullness( Tile* , bool*);
   unsigned int numTiles();
   std::vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);
   std::vector<Tile*> circularRegion(int x, int y, double radius);
@@ -235,7 +237,7 @@ friend class RenderManager;
   bool loadNextLevel;
   double averageAILeftoverTime;
   static Tile::TileType*  neighborType; // should be of 8 objects 
-
+  static bool*  neighborFullness; // should be of 8 objects 
 
   // Overloaded method declarations (these just make it easier to call the above functions)
   std::list<Tile*> path(Creature *c1, Creature *c2,

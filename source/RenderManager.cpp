@@ -528,6 +528,7 @@ void RenderManager::waitOnRenderQueueFlush()
 							     Tile::meshNameFromNeighbors(curTile->getType(),
 											 curTile->getFullnessMeshNumber(),
 											 gameMap->getNeighborsTypes( curTile,    GameMap::neighborType),
+										         gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
 							                                 rt
 		                                                 ));
         /*        Ogre::Entity* ent = createEntity(curTile->name,
@@ -558,6 +559,7 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 						     Tile::meshNameFromNeighbors(curTile->getType(),
 										 curTile->getFullnessMeshNumber(),
 										 gameMap->getNeighborsTypes( curTile,    GameMap::neighborType),
+										 gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
 										 rt
 							 ));
 

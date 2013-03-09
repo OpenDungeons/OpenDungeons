@@ -675,7 +675,7 @@ int Tile::nextTileFullness(int f)
 /*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
  *
  */
-std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumber,  TileType *neighbors, int &rt )
+std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumber,  TileType *neighbors, bool* neighborsFullness, int &rt )
 {
     std::stringstream ss;
     //FIXME - define postfix somewhere
@@ -689,7 +689,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     for(int ii  = 8 ; ii >=1 ; ii--){
 	
 	postfixInt *=2 ; 
-	postfixInt += ((neighbors[(ii)%8] == myType) // || (!(myType!=water && myType!=lava) ||  fullnessMeshNumber > 0   )
+	postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=water && myType!=lava)  || neighborsFullness[(ii)%8]  )) // || (!(myType!=water && myType!=lava) ||  fullnessMeshNumber > 0   )
 	    );
 
     }
