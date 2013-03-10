@@ -12,7 +12,8 @@
 #include <string>
 #include <vector>
 #include <semaphore.h>
-#include <Ogre.h>
+#include  <OgreVector3.h>
+#include <OgreSceneNode.h>
 #include "RenderManager.h"
 #include "RenderRequest.h"
 

@@ -19,8 +19,9 @@
 #include <deque>
 
 #include <semaphore.h>
-#include <Ogre.h>
-
+#include <OgreVector2.h>
+#include <OgreVector3.h>
+#include <OgreSharedPtr.h>
 #include "CreatureSound.h"
 #include "CreatureDefinition.h"
 #include "CreatureAction.h"
