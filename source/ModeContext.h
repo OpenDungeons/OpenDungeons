@@ -1,7 +1,7 @@
 
 #ifndef MODECONTEXT_H
 #define MODECONTEXT_H
-#include <Ogre.h>
+#include <OgreVector3.h>
 #include <OIS.h>
 #include <string>
 #include "ModeManager.h"

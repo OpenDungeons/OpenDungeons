@@ -24,6 +24,7 @@
 #include "RenderManager.h"
 #include "CameraManager.h"
 #include "Console.h" 
+#include <OgreEntity.h>
 
 #include "EditorMode.h"
 

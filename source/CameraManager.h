@@ -13,7 +13,15 @@
 #include "HermiteCatmullSpline.h"
 
 
-#include <Ogre.h>
+
+#include <OgrePrerequisites.h>
+#include <OgreVector3.h>
+#include <OgreCamera.h>
+#include <OgreSingleton.h>
+#include <OgreSceneNode.h>
+#include <OgreRay.h>
+#include <OgrePlane.h>
+
 #include <set>
 
 class ModeManager;

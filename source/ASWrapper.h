@@ -8,7 +8,7 @@
 #ifndef ASWRAPPER_H_
 #define ASWRAPPER_H_
 
-#include <Ogre.h>
+#include <OgreSingleton.h>
 
 class asIObjectType;
 class asIScriptContext;

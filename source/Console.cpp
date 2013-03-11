@@ -18,6 +18,7 @@
 #include "ODApplication.h"
 #include "ODFrameListener.h"
 #include "RenderManager.h"
+#include "OgreOverlayManager.h"
 
 
 

@@ -8,8 +8,9 @@
 #define ODAPPLICATION_H
 
 #include <string>
+#include <OgreRenderWindow.h>
+#include <OgreRoot.h>
 
-#include <Ogre.h>
 
 class GameMap;
 

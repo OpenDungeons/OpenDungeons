@@ -5,8 +5,14 @@
  *  \brief  handles the render requests
  */
 
+
+#include <OgreSubEntity.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>
+#include <OgreMovableObject.h>
+#include <OgreEntity.h>
+#include <OgreSubMesh.h>
+
 //#include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExPerPixelLighting.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>

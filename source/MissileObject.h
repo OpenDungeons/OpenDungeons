@@ -4,7 +4,7 @@
 #include <deque>
 #include <string>
 
-#include <Ogre.h>
+#include <OgreVector3.h>
 #include <semaphore.h>
 
 #include "MovableGameEntity.h"

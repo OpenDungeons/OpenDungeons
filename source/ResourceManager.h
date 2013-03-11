@@ -10,7 +10,11 @@
 
 #include <string>
 
-#include <Ogre.h>
+
+#include <OgreSingleton.h>
+#include <OgreStringVector.h>
+
+
 
 class ResourceManager : public Ogre::Singleton<ResourceManager>
 {

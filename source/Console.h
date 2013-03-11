@@ -13,9 +13,19 @@
 
 #include <OgreFrameListener.h>
 #include <ODFrameListener.h>
-#include <Ogre.h>
 #include <OIS/OIS.h>
 #include <GameMode.h>
+#include <OgreSingleton.h>
+#include <OgreString.h>
+#include <OgreFrameListener.h>
+#include <OgreLog.h>
+#include <OgrePrerequisites.h>
+#include <OgreOverlayContainer.h>
+#include <OgreOverlay.h>
+#include <OgreOverlayElement.h>
+
+
+
 #include "GameMap.h"
 #include "Gui.h"
 

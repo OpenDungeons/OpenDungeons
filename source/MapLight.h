@@ -3,7 +3,12 @@
 
 #include <iostream>
 #include <string>
-#include <Ogre.h>
+
+
+#include <OgrePrerequisites.h>
+#include <OgreVector3.h>
+#include <OgreColourValue.h>
+#include <semaphore.h>
 
 class MapLight
 {

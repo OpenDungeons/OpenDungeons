@@ -25,6 +25,8 @@
 #include "Functions.h"
 #include "ResourceManager.h"
 #include "Network.h"
+#include <OgreSceneNode.h>
+#include <OgreEntity.h>
 
 using std::min;
 using std::max;
