@@ -12,7 +12,13 @@
 #include <string>
 #include <map>
 
-#include <CEGUI.h>
+
+#include <CEGUIWindow.h>
+#include <CEGUIEventArgs.h>
+#include <CEGUIInputEvent.h>
+
+
+
 #include <OIS.h>
 #include <OgreSingleton.h>
 

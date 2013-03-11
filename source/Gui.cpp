@@ -10,6 +10,12 @@
 //      Then we could easily adjust the GUI without recompiling.
 
 #include <RendererModules/Ogre/CEGUIOgreRenderer.h>
+#include <CEGUISchemeManager.h>
+#include <CEGUISystem.h>
+#include <CEGUIWindowManager.h>
+#include <elements/CEGUIPushButton.h>
+#include <CEGUIEvent.h>
+
 
 #include "MapLoader.h"
 #include "ODFrameListener.h"
@@ -24,6 +30,7 @@
 #include "Gui.h"
 #include "ModeManager.h"
 #include "EditorMode.h"
+
 
 
 template<> Gui* Ogre::Singleton<Gui>::msSingleton = 0;
