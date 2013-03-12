@@ -1,8 +1,13 @@
 #include <cmath>
 #include <algorithm>
 
-#include <CEGUI.h>
+#include <CEGUISystem.h>
+#include <CEGUIWindowManager.h>
 #include <CEGUIWindow.h>
+#include <CEGUIUDim.h>
+#include <CEGUIVector.h>
+
+
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>
 #include <OgreVector2.h>

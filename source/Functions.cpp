@@ -1,7 +1,8 @@
 //TODO: get rid of this whole file.
 //      - The server stuff should go into some of the network classes.
 
-#include <CEGUI.h>
+#include <elements/CEGUITabControl.h>
+#include <CEGUIWindowManager.h>
 
 #include "Network.h"
 #include "Socket.h"

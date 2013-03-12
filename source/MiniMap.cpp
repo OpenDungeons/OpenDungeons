@@ -5,8 +5,13 @@
  * \brief  Contains everything that is related to the minimap
  */
 #include <cstdlib>
-#include <CEGUI.h>
-#include <vector>
+#include <CEGUIWindowManager.h>
+#include <CEGUIImageset.h>
+#include <CEGUIPropertyHelper.h>
+#include <CEGUITexture.h>
+#include <CEGUIImagesetManager.h>
+#include <CEGUISize.h>
+
 
 
 #include "ODApplication.h"
