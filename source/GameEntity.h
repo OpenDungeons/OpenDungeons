@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 #include <semaphore.h>
-#include  <OgreVector3.h>
+#include <OgreVector3.h>
 #include <OgreSceneNode.h>
 #include "RenderManager.h"
 #include "RenderRequest.h"

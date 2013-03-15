@@ -2,7 +2,10 @@
 #ifndef MODECONTEXT_H
 #define MODECONTEXT_H
 #include <OgreVector3.h>
-#include <OIS.h>
+#include <OIS/OISMouse.h>
+#include <OIS/OISKeyboard.h>
+#include <OIS/OISInputManager.h>
+
 #include <string>
 #include "ModeManager.h"
 

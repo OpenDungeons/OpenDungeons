@@ -1,6 +1,7 @@
 #ifndef ABSTRACTAPPLICATIONMODE_H
 #define ABSTRACTAPPLICATIONMODE_H
-#include <OIS.h>
+#include <OIS/OISMouse.h>
+#include <OIS/OISKeyboard.h>
 
 #include "Tile.h"
 #include "ModeManager.h"

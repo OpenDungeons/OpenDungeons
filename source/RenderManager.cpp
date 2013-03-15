@@ -569,6 +569,10 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 										 rt
 							 ));
 
+
+
+
+
     if (curTile->getType() == Tile::claimed)
     {
         colourizeEntity ( ent, curTile->getColor() );

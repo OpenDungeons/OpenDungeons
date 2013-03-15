@@ -13,7 +13,8 @@
 
 #include <OgreFrameListener.h>
 #include <ODFrameListener.h>
-#include <OIS/OIS.h>
+#include <OIS/OISMouse.h>
+#include <OIS/OISKeyboard.h>
 #include <GameMode.h>
 #include <OgreSingleton.h>
 #include <OgreString.h>

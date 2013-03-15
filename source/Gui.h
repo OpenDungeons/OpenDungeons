@@ -19,7 +19,7 @@
 
 
 
-#include <OIS.h>
+#include <OISMouse.h>
 #include <OgreSingleton.h>
 
 

@@ -741,7 +741,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 
     // rotate the postfix number, as long , as we won't find Exisitng mesh 
 
-    cerr <<  ss.str() << endl ; 
+    // cerr <<  ss.str() << endl ; 
     for(rt = 0 ;  !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str())  && rt < 4 ; rt++  ) { 
     shiftedAroundBits = postfixInt &  0xC0;
     postfixInt <<= 2;
@@ -755,7 +755,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 
     meshNameAux(ss, postfixInt,fullnessMeshNumber,  myType);
 
-    cerr <<  ss.str()<< endl ; 
+    // cerr <<  ss.str()<< endl ; 
   }
 
 
