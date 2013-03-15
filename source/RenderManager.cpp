@@ -540,6 +540,22 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
         /*        Ogre::Entity* ent = createEntity(curTile->name,
 		  Tile::meshNameFromFullness(curTile->getType(),
 		  curTile->FullnessMeshNumber()), "Claimedwall2_nor3.png");*/
+	if(curTile->getType()==Tile::gold){
+
+
+	    for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
+		ent->getSubEntity(ii)->setMaterialName("Gold");
+		}
+	    }
+
+	else if(curTile->getType()==Tile::rock){
+	    for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
+		ent->getSubEntity(ii)->setMaterialName("Rock");
+		}
+  
+	    }
+
+
 
         colourizeEntity ( ent, curTile->getColor() );
 
