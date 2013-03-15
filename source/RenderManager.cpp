@@ -515,28 +515,28 @@ void RenderManager::waitOnRenderQueueFlush()
     sem_wait(&renderQueueEmptySemaphore);
 }
 
-    void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
+void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
     {
-	int rt;
-	Tile* curTile = static_cast<Tile*> ( renderRequest.p );
+    int rt;
+    Tile* curTile = static_cast<Tile*> ( renderRequest.p );
     
 
     
-	if ( sceneManager->hasSceneNode ( curTile->getName() + "_node" ) )
+    if ( sceneManager->hasSceneNode ( curTile->getName() + "_node" ) )
 	{
 
-	    // Unlink and delete the old mesh
-	    sceneManager->getSceneNode ( curTile->getName() + "_node" )->detachObject (
-		curTile->getName() );
-	    sceneManager->destroyEntity ( curTile->getName() );
+	// Unlink and delete the old mesh
+	sceneManager->getSceneNode ( curTile->getName() + "_node" )->detachObject (
+	    curTile->getName() );
+	sceneManager->destroyEntity ( curTile->getName() );
 
-	    Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
-							     Tile::meshNameFromNeighbors(curTile->getType(),
-											 curTile->getFullnessMeshNumber(),
-											 gameMap->getNeighborsTypes( curTile,    GameMap::neighborType),
-										         gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
-							                                 rt
-		                                                 ));
+	Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
+	    Tile::meshNameFromNeighbors(curTile->getType(),
+		curTile->getFullnessMeshNumber(),
+		gameMap->getNeighborsTypes( curTile,    GameMap::neighborType),
+		gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
+		rt
+		));
         /*        Ogre::Entity* ent = createEntity(curTile->name,
 		  Tile::meshNameFromFullness(curTile->getType(),
 		  curTile->FullnessMeshNumber()), "Claimedwall2_nor3.png");*/
@@ -548,35 +548,44 @@ void RenderManager::waitOnRenderQueueFlush()
         node->attachObject ( ent );
         node->resetOrientation();
         node->roll ( Ogre::Degree ( (-1)*rt * 90 ) );
+	}
     }
-}
 
 
 void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
-{
+    {
     int rt;
     Ogre::SceneNode* node;
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
 
 
-
-
     Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
-						     Tile::meshNameFromNeighbors(curTile->getType(),
-										 curTile->getFullnessMeshNumber(),
-										 gameMap->getNeighborsTypes( curTile,    GameMap::neighborType),
-										 gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
-										 rt
-							 ));
+	Tile::meshNameFromNeighbors(curTile->getType(),
+	    curTile->getFullnessMeshNumber(),
+	    gameMap->getNeighborsTypes( curTile,    GameMap::neighborType),
+	    gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
+	    rt
+	    ));
 
 
+    if(curTile->getType()==Tile::gold){
 
 
+	for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
+	    ent->getSubEntity(ii)->setMaterialName("Gold");
+	    }
+	}
 
-    if (curTile->getType() == Tile::claimed)
-    {
-        colourizeEntity ( ent, curTile->getColor() );
-    }
+    else if(curTile->getType()==Tile::rock){
+	for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
+	    ent->getSubEntity(ii)->setMaterialName("Rock");
+	    }
+  
+	}
+
+    if (curTile->getType() == Tile::claimed){
+	colourizeEntity ( ent, curTile->getColor() );
+	}
 
     node = sceneManager->getRootSceneNode()->createChildSceneNode (
 	curTile->getName() + "_node" );
@@ -592,39 +601,38 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     // }
     Ogre::MeshPtr meshPtr = ent->getMesh();
     unsigned short src, dest;
-    if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
-    {
-        meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
-    }
+    if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest)){
+	meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
+	}
 
     //node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
     node->setPosition ( static_cast<Ogre::Real>(curTile->x),
-	                static_cast<Ogre::Real>(curTile->y),
-                        0);
+	static_cast<Ogre::Real>(curTile->y),
+	0);
     node->attachObject ( ent );
 
     node->setScale ( Ogre::Vector3 (
-			 4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
-			 4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
-			 12.0 / BLENDER_UNITS_PER_OGRE_UNIT ));
+	    4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
+	    4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
+	    12.0 / BLENDER_UNITS_PER_OGRE_UNIT ));
     node->resetOrientation();
     node->roll ( Ogre::Degree ( (-1)*rt * 90 ) );
 
-}
+    }
 
 
 
 void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
-{
+    {
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
 
-        if ( sceneManager->hasEntity ( curTile->getName() ) )
+    if ( sceneManager->hasEntity ( curTile->getName() ) )
         {
-            Ogre::Entity* ent = sceneManager->getEntity ( curTile->getName() );
-            Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
-            node->detachAllObjects();
-            sceneManager->destroySceneNode ( curTile->getName() + "_node" );
-            sceneManager->destroyEntity ( ent );
+	Ogre::Entity* ent = sceneManager->getEntity ( curTile->getName() );
+	Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
+	node->detachAllObjects();
+	sceneManager->destroySceneNode ( curTile->getName() + "_node" );
+	sceneManager->destroyEntity ( ent );
         }    
     
     
@@ -632,7 +640,7 @@ void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
     // else {
 
     // }
-}
+    }
 
 void RenderManager::rrColorTile ( const RenderRequest& renderRequest ){
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
@@ -641,7 +649,7 @@ void RenderManager::rrColorTile ( const RenderRequest& renderRequest ){
     
     curTile->setColor(renderRequest.b ? pp->getSeat()->getColor() : 0);
     curTile->refreshMesh();
-}
+    }
 
 
 void RenderManager::rrSetPickAxe( const RenderRequest& renderRequest ) {
