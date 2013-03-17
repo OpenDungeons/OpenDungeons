@@ -84,6 +84,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
 	gc(NULL),
 	ed(NULL)
 {
+    Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager", "SceneManager");
     renderManager = new RenderManager;
     gameMap = new GameMap;
 
@@ -176,7 +177,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     exitRequested.set(false);
     
     LogManager::getSingletonPtr()->logMessage("*** FrameListener initialized ***");
-    Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE);
+
 
 
 

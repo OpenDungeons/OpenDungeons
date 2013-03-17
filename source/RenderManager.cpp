@@ -62,7 +62,7 @@ RenderManager::RenderManager() :
         gameMap(0),
         mainCamera(0),
         //This will use OctreSceneManager if the plugin is loaded
-        sceneManager(ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_EXTERIOR_CLOSE)),
+        sceneManager(ODApplication::getSingletonPtr()->getRoot()->getSceneManager("SceneManager")),
         viewport(0),
         shaderGenerator(0),
         initialized(false),
@@ -186,7 +186,7 @@ void RenderManager::createScene()
     light->setDiffuseColour(Ogre::ColourValue(0.65, 0.65, 0.45));
     light->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
     light->setPosition(0, 0, 6);
-    light->setAttenuation(30, 0.6, 0.7, 0.17);
+    light->setAttenuation(50, 1.0, 0.09, 0.032);
     //node->attachObject(light);
 
 }
