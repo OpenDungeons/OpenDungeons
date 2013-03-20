@@ -1175,28 +1175,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
 
     else if (command.compare("switchpolygonmode") == 0){
-	if(!arguments.empty()){
-	    
 
-	    
-            tempSS.str(arguments);
-	    tempSS >> centerX >> centerY >> radious;
-	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-            CameraManager::getSingleton().
-            CameraManager::getSingleton().setCircleRadious(radious);
-            CameraManager::getSingleton().setCircleMode(true);
-	    	    
-
-
-        }
-	else{
-
-            tempSS.str("");
-            tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
-            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
-
-	    }
-      
+	    CameraManager::getSingletonPtr()->switchPM();
+    
     }
 
 

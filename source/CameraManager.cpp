@@ -26,6 +26,7 @@ using  std::cerr; using std::endl;
 template<> CameraManager* Ogre::Singleton<CameraManager>::msSingleton = 0;
 
 CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
+        switchedPM(false),
         mCamera(cam),
         gameMap(gm),
         mCamNode(cam->getParentSceneNode()),
@@ -71,11 +72,11 @@ CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
 
 
 
-Ogre::String switchPolygonMode(){
+Ogre::String CameraManager::switchPolygonMode(){
         Ogre::String newVal;
         Ogre::PolygonMode pm;
 
-        switch (mCamera->getPolygonMode())
+        switch (getCamera()->getPolygonMode())
         {
         case Ogre::PM_SOLID:
             newVal = "Wireframe";
@@ -90,7 +91,7 @@ Ogre::String switchPolygonMode(){
             pm = Ogre::PM_SOLID;
         }
 
-        setPolygonMode(pm);
+        getCamera()->setPolygonMode(pm);
 
     }
 
@@ -762,9 +763,14 @@ bool CameraManager::onFrameStarted (){
 
 
 }
+
+
+
 bool CameraManager::onFrameEnded   (){
 
+    if(switchedPM){
+    switchPolygonMode();
+    switchedPM = false;
 
-
-
+    }
 }

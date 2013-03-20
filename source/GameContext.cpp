@@ -81,7 +81,10 @@ void GameContext::onFrameStarted(const Ogre::FrameEvent& evt){
 
 
 
-void GameContext::onFrameEnded(const Ogre::FrameEvent& evt){}
+void GameContext::onFrameEnded(const Ogre::FrameEvent& evt){
+
+
+}
 
 
 GameContext::~GameContext()

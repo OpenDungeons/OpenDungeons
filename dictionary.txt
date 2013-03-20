@@ -35,6 +35,7 @@ save
 setcamerafovx
 setcamerafovy
 setcolor
+switchpolygonmode
 termwidth
 tps
 turnspersecond

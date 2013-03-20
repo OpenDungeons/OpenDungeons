@@ -21,6 +21,7 @@
 #include <OgreSceneNode.h>
 #include <OgreRay.h>
 #include <OgrePlane.h>
+#include <OgreString.h>
 
 #include <set>
 
@@ -69,10 +70,11 @@ class CameraManager : public Ogre::Singleton<CameraManager>
     inline void setCircleRadious(unsigned int rr){ radious = rr;};
     inline void setCircleMode(bool mm){circleMode = mm ; alpha = 0;};
     inline void setCatmullSplineMode(bool mm){catmullSplineMode = mm;  alpha = 0; };
-
+    inline bool switchPM(){ switchedPM = true;  };
 
 
     void setModeManager(ModeManager* mm){modeManager = mm;};
+
     
     //get/set moveSpeed
     inline const Ogre::Real& getMoveSpeed() const {
@@ -130,6 +132,8 @@ class CameraManager : public Ogre::Singleton<CameraManager>
         return mCamera;
 	}
     private:
+    bool switchedPM ;
+    Ogre::String switchPolygonMode();
 
     set<Creature*>*  currentVisibleCreatures;
     set<Creature*>*  previousVisibleCreatures ;
@@ -167,6 +171,7 @@ class CameraManager : public Ogre::Singleton<CameraManager>
 
     Ogre::Camera*       mCamera;
     Ogre::SceneNode*    mCamNode;
+
 
 
     GameMap* gameMap;

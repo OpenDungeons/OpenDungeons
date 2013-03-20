@@ -602,7 +602,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 	ed->onFrameStarted(evt);
 
     }
-
+    // CameraManager::getSingletonPtr()->onFrameStarted() ; 
     // Sleep to limit the framerate to the max value
     frameDelay -= evt.timeSinceLastFrame;
     if (frameDelay > 0.0)
@@ -628,12 +628,20 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
+    
 
     if(gc!=NULL){
 	gc->onFrameEnded(evt);
     }
     
+    if(ed!=NULL){
+	ed->onFrameEnded(evt);
+    }
+    if (CameraManager::getSingletonPtr()!=NULL)
+	CameraManager::getSingletonPtr()->onFrameEnded() ; 
     return true;
+
+
 }
 
 /*! \brief Exit the game.
