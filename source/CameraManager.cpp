@@ -70,6 +70,30 @@ CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
 
 
 
+
+Ogre::String switchPolygonMode(){
+        Ogre::String newVal;
+        Ogre::PolygonMode pm;
+
+        switch (mCamera->getPolygonMode())
+        {
+        case Ogre::PM_SOLID:
+            newVal = "Wireframe";
+            pm = Ogre::PM_WIREFRAME;
+            break;
+        case Ogre::PM_WIREFRAME:
+            newVal = "Points";
+            pm = Ogre::PM_POINTS;
+            break;
+        default:
+            newVal = "Solid";
+            pm = Ogre::PM_SOLID;
+        }
+
+        setPolygonMode(pm);
+
+    }
+
 /*! \brief Sets the camera to a new location while still satisfying the
  * constraints placed on its movement
  */
