@@ -13,6 +13,8 @@ set(ANGELSCRIPT_ADDON_DIR "${ANGELSCRIPT_DIR}/add_on")
 set(TINYGETTEXT_DIR "${DEPENDENCIES_DIR}/tinygettext")
 set(TINYXML_DIR "${DEPENDENCIES_DIR}/tinyxml2")
 
+
+
 #cmake paths
 set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
@@ -21,6 +23,14 @@ if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMake build type is not set, defaulting to 'Release'")
     set(CMAKE_BUILD_TYPE "Release")
 endif()
+
+
+##################################
+#### ExplicitCompilerFlags #######
+##################################
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+
 
 ##################################
 #### Source files (.cpp) #########
