@@ -737,13 +737,11 @@ bool EditorMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID 
 
                     // Loop over all the affected tiles and force them to examine their neighbors.  This allows
                     // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
-                    itr = affectedTiles.begin();
-
-                    while (itr != affectedTiles.end())
+                    for (itr = affectedTiles.begin(); itr != affectedTiles.end() ; ++itr)
                     {
-                        (*itr)->setFullness((*itr)->getFullness());
-                        ++itr;
-                    }
+		    (*itr)->refreshMesh();
+                                  
+		    }
                 }
 
         mc->mLMouseDown = false;
