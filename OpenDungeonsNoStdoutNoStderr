@@ -1,2 +1,3 @@
 #!/bin/bash
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib/
 ./OpenDungeons.bin 1>/dev/null 2>/dev/null

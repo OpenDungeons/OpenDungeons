@@ -38,7 +38,8 @@ class Gui : public Ogre::Singleton<Gui>
             mainMenu,
             optionsMenu,
             ingameMenu,
-	    editorToolBox
+	    editorToolBox,
+	    creaturesShuffle,
         };
 
         Gui();
@@ -50,6 +51,7 @@ class Gui : public Ogre::Singleton<Gui>
         void                setVisible      (bool visible);
         void                toggleGui       ();
 	void                switchGuiMode();
+
 
         //Access names of the GUI elements
         static const std::string ROOT;
@@ -83,7 +85,7 @@ class Gui : public Ogre::Singleton<Gui>
 	static const std::string TOOLSPALETE_ROCK_BUTTON;
 	static const std::string TOOLSPALETE_WATER_BUTTON;
 	static const std::string TOOLSPALETE_DIRT_BUTTON;
-
+        static const std::string CREATURESSHUFFLE;
 
 
     private:

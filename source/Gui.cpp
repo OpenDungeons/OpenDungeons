@@ -53,6 +53,9 @@ Gui::Gui() :
     sheets[mainMenu] = wmgr->loadWindowLayout("OpenDungeonsMainMenu.layout");
     sheets[editorToolBox] =  wmgr->loadWindowLayout("OpenDungeonsEditorToolBox.layout");
 
+
+
+
     mainMenuMode = false;
     assignEventHandlers();
 }
@@ -61,6 +64,9 @@ Gui::~Gui()
 {
     CEGUI::OgreRenderer::destroySystem();
 }
+
+
+
 
 /*! \brief A required function to pass input to the OIS system.
  *
@@ -398,6 +404,7 @@ const std::string Gui::MM_BUTTON_START_NEW_GAME = "MainMenu/StartNewGameButton";
 const std::string Gui::MM_BUTTON_MAPEDITOR = "MainMenu/MapEditorButton";
 const std::string Gui::MM_BUTTON_QUIT = "MainMenu/QuitButton";
 const std::string Gui::TOOLSPALETE = "TOOLSPALETE";
+const std::string Gui::CREATURESSHUFFLE = "TOOLSPALETE/CreaturesShuffle";
 
 
 const std::string Gui::TOOLSPALETE_LAVA_BUTTON = "TOOLSPALETE/LavaButton";

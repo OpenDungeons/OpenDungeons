@@ -368,7 +368,7 @@ bool EditorMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID 
     CEGUI::Window *tempWindow =
         CEGUI::System::getSingleton().getWindowContainingMouse();
 
-    if (tempWindow != 0 && tempWindow->getName().compare("TOOLSPALETE") != 0)
+    if (tempWindow != 0 && tempWindow->getName().compare("EDITORGUI") != 0)
     {
         mc->mouseDownOnCEGUIWindow = true;
         return true;
