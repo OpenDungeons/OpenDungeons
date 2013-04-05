@@ -48,7 +48,6 @@ bool  *GameMap::neighborFullness  = new bool [8];
 GameMap::GameMap() :
         iteration_doFloodFill(0),
         me(NULL),
-        tiles(NULL),
         loadNextLevel(false),
         averageAILeftoverTime(0.0),
         miscUpkeepTime(0),
@@ -75,7 +74,7 @@ GameMap::GameMap() :
 
 GameMap::~GameMap(){
 
-    delete auxTilesArray;
+
 
 }
 
@@ -88,7 +87,7 @@ GameMap::~GameMap(){
 
 void GameMap::createNewMap(int xSize, int ySize)
 {
-    Tile *tempTile;
+    Tile tempTile;
     stringstream ss;
     
     
@@ -98,21 +97,21 @@ void GameMap::createNewMap(int xSize, int ySize)
 	for (int ii = 0; ii < xSize; ++ii){
 
 
-	    if((tiles[ii][jj].getGameMap()) == NULL ){
+	    if((getTile(ii,jj)->getGameMap()) == NULL ){
 		ss.str(std::string());
 		ss<<"Level_"<<ii<<"_"<<jj;
 		
-		tempTile = new Tile;
-		tempTile->setGameMap(this);
-		tempTile->setType(Tile::dirt);
+
+		tempTile.setGameMap(this);
+		tempTile.setType(Tile::dirt);
 		
-		tempTile->setName(ss.str());
-		tempTile->x=ii;
-		tempTile->y=jj;
+		tempTile.setName(ss.str());
+		tempTile.x=ii;
+		tempTile.y=jj;
 		sem_wait(&tilesLockSemaphore);
-		insert(tiles,ii, jj, tempTile );
+		insert(ii, jj, tempTile );
 		sem_post(&tilesLockSemaphore);
-		delete tempTile;
+
 
 	    }
 	}
@@ -124,7 +123,7 @@ void GameMap::createNewMap(int xSize, int ySize)
     for (int ii=0 ; ii < xSize; ii++ ) {
         for (int jj=0 ; jj < ySize; jj++ ) {
 
-            tiles[ii][jj].setFullness(tiles[ii][jj].getFullness());
+            getTile(ii,jj)->setFullness(getTile(ii,jj)->getFullness());
         }
     }
 
@@ -147,7 +146,7 @@ void GameMap::createTilesMeshes(void){
   for (int jj = 0; jj < mapSizeY; ++jj)	{
 	for (int ii = 0; ii < mapSizeX; ++ii){
 
-	    tiles[ii][jj].createMesh();
+	    getTile(ii,jj)->createMesh();
 
 
 	}
@@ -162,7 +161,7 @@ void GameMap::hideAllTiles(void){
   for (int jj = 0; jj < mapSizeY; ++jj)	{
 	for (int ii = 0; ii < mapSizeX; ++ii){
 
-	    tiles[ii][jj].hide();
+	    getTile(ii,jj)->hide();
 
 
 	}
@@ -176,65 +175,11 @@ void GameMap::hideAllTiles(void){
 int GameMap::setAllNeighbors(){            
     for (int ii = 0 ; ii < mapSizeX ; ii++) {
 	for (int jj = 0 ; jj < mapSizeY ; jj++) {
-	    setTileNeighbors(&tiles[ii][jj]);
+	    setTileNeighbors(getTile(ii,jj));
 
 	}
     }
     return 1;
-}
-
-
-int GameMap::allocateMapMemory(int xSize, int ySize) {
-
-
-    stringstream ss;
-
-    // mapSizeX = xSize;
-    // mapSizeY=ySize;
-
-    auxTilesArray = new Tile [mapSizeX * mapSizeY];
-
-    if (tiles==NULL) {
-        tiles = new Tile* [mapSizeY];
-        for (int jj = 0 ; jj < mapSizeY ; jj++) {
-            tiles[jj] = &auxTilesArray[jj*mapSizeX];
-
-        }
-
-
-        return 1;
-    }
-    else {
-        std :: cerr << " failed to allocate map memory" << std :: endl;
-        return 0;
-    }
-}
-
-
-
-/*! \brief Returns a pointer to the tile at location (x, y) (const version).
- *
- * The tile pointers are stored internally in a map so calls to this function
- * have a complexity O(log(N)) where N is the number of tiles in the map. 
- * This function does not lock. 
- */
-Tile* GameMap::getTile(int xx, int yy) const
-{
-    Tile *returnValue = NULL;
-    // std::pair<int, int> location(x, y);
-
-    // sem_wait(&tilesLockSemaphore);
-    // const TileMap_t& constTiles = tiles;
-    // TileMap_t::const_iterator itr = constTiles.find(location);
-    // returnValue = (itr != tiles.end()) ? itr->second : NULL;
-    // sem_post(&tilesLockSemaphore);
-    if (xx < mapSizeX && yy < mapSizeY && xx >= 0 && yy >= 0 )
-        return returnValue = &(tiles[xx][yy]);
-    else {
-        // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
-        return NULL;
-    }
-
 }
 
 
@@ -257,54 +202,6 @@ void GameMap::clearAll()
     clearEmptySeats();
     clearPlayers();
     clearFilledSeats();
-}
-
-/*! \brief Clears the mesh and deletes the data structure for all the tiles in the GameMap.
- *
- */
-
-int GameMap::insert(Tile** mm ,int ii , int jj , Tile* tt) {
-    if ( ii < mapSizeX && jj < mapSizeY && ii >= 0 && jj >= 0 )  {
-
-        mm[ii][jj]=*tt;
-        return 1;
-    }
-    else
-        return 0;
-
-}
-
-
-void GameMap::clearTiles()
-{
-    sem_wait(&tilesLockSemaphore);
-
-    // for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
-    //         itr != end; ++itr)
-    for (int jj = 0; jj < mapSizeY; ++jj)
-    {
-        for (int ii = 0; ii < mapSizeX; ++ii)
-        {
-
-            (tiles[ii][jj]).deleteYourself();
-        }
-
-        //      map_clear(tiles);
-
-    }
-    sem_post(&tilesLockSemaphore);
-}
-
-void GameMap::map_clear(Tile** tt)
-{
-
-
-    for (int ii = 0; ii < mapSizeX; ++ii)
-    {
-
-        delete[] tt[ii];
-    }
-
 }
 
 
@@ -347,209 +244,6 @@ void GameMap::clearPlayers()
     players.clear();
 }
 
-/*! \brief Returns the number of tile pointers currently stored in this GameMap.
- *
- */
-unsigned int GameMap::numTiles()
-{
-    // sem_wait(&tilesLockSemaphore);
-    // unsigned int tempUnsigned = tiles.size();
-    // sem_post(&tilesLockSemaphore);
-
-    return mapSizeX*mapSizeY;
-}
-
-/*! \brief Adds the address of a new tile to be stored in this GameMap.
- *
- */
-
-void GameMap::setTileNeighbors(Tile *t){
-
-
-    for (unsigned int i = 0; i < 2; ++i)
-    {
-        int tempX = t->x, tempY = t->y;
-        switch (i)
-        {
-
-        case 0:
-            --tempX;
-            break;
-        case 1:
-            --tempY;
-            break;
-
-        default:
-            std::cerr << "\n\n\nERROR:  Unknown neighbor index.\n\n\n";
-            exit(1);
-        }
-
-        // If the current neigbor tile exists, add the current tile as one of its
-        // neighbors and add it as one of the current tile's neighbors.
-        if (tempX >=0 && tempY >= 0)
-	    {
-
-		Tile *tempTile = getTile(tempX, tempY);
-
-
-		tempTile->addNeighbor(t);
-		t->addNeighbor(tempTile);
-	    }
-    }
-
-
-
-}
-
-void GameMap::addTile(Tile *t)
-{
-    // Notify the neighbor tiles already existing on the GameMap of our existance.
-    // that's some stupid ad-hoc solution to properly read-in the tiles 
-    // for (unsigned int i = 0; i < 2; ++i)
-    // {
-    //     int tempX = t->x, tempY = t->y;
-    //     switch (i)
-    //     {
-
-    //     case 0:
-    //         --tempX;
-    //         break;
-    //     case 1:
-    //         --tempY;
-    //         break;
-
-    //     default:
-    //         std::cerr << "\n\n\nERROR:  Unknown neighbor index.\n\n\n";
-    //         exit(1);
-    //     }
-
-    //     // If the current neigbor tile exists, add the current tile as one of its
-    //     // neighbors and add it as one of the current tile's neighbors.
-    //     if (tempX >=0 && tempY >= 0)
-    // 	    {
-
-    // 		Tile *tempTile = getTile(tempX, tempY);
-
-
-    // 		tempTile->addNeighbor(t);
-    // 		t->addNeighbor(tempTile);
-    // 	    }
-    // }
-
-    sem_wait(&tilesLockSemaphore);
-    // tiles.insert(std::pair<std::pair<int, int> , Tile*> (std::pair<int, int> (t->x, t->y), t));
-    insert(tiles, t->x, t->y, t);
-    sem_post(&tilesLockSemaphore);
-}
-
-/** \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
- *
- */
-std::vector<Tile*> GameMap::rectangularRegion(int x1, int y1, int x2, int y2)
-{
-    std::vector<Tile*> returnList;
-    Tile *tempTile;
-
-    if (x1 > x2)
-        std::swap(x1, x2);
-    if (y1 > y2)
-        std::swap(y1, y2);
-
-    for (int ii = x1; ii <= x2; ++ii)
-    {
-        for (int jj = y1; jj <= y2; ++jj)
-        {
-            //TODO:  This routine could be sped up by using the neighborTiles function.
-            tempTile = getTile(ii, jj);
-
-            if (tempTile != NULL)
-                returnList.push_back(tempTile);
-        }
-    }
-
-    return returnList;
-}
-
-/** \brief Returns all the valid tiles in the curcular region surrounding the given point and extending outward to the specified radius.
- *
- */
-std::vector<Tile*> GameMap::circularRegion(int x, int y, double radius)
-{
-    std::vector<Tile*> returnList;
-    Tile *tempTile;
-    int xDist, yDist, distSquared;
-    double radiusSquared = radius * radius;
-
-    if (radius < 0.0)
-        radius = 0.0;
-
-    for (int i = x - radius; i <= x + radius; ++i)
-    {
-        for (int j = y - radius; j <= y + radius; ++j)
-        {
-            //TODO:  This routine could be sped up by using the neighborTiles function.
-            xDist = i - x;
-            yDist = j - y;
-            distSquared = xDist * xDist + yDist * yDist;
-            if (distSquared < radiusSquared)
-            {
-                tempTile = getTile(i, j);
-                 if (tempTile != NULL)
-                   returnList.push_back(tempTile);
-            }
-        }
-    }
-    return returnList;
-}
-
-/** \brief Returns a vector of all the valid tiles which are a neighbor to one or more tiles in the specified region, i.e. the "perimeter" of the region extended out one tile.
- *
- */
-std::vector<Tile*> GameMap::tilesBorderedByRegion(
-    const std::vector<Tile*> &region)
-{
-    std::vector<Tile*> neighbors, returnList;
-
-    // Loop over all the tiles in the specified region.
-    for (unsigned int i = 0; i < region.size(); ++i)
-    {
-        // Get the tiles bordering the current tile and loop over them.
-        neighbors = neighborTiles(region[i]);
-        for (unsigned int j = 0; j < neighbors.size(); ++j)
-        {
-            bool neighborFound = false;
-
-            // Check to see if the current neighbor is one of the tiles in the region.
-            for (unsigned int k = 0; k < region.size(); ++k)
-            {
-                if (region[k] == neighbors[j])
-                {
-                    neighborFound = true;
-                    break;
-                }
-            }
-
-            if (!neighborFound)
-            {
-                // Check to see if the current neighbor is already in the returnList.
-                for (unsigned int k = 0; k < returnList.size(); ++k)
-                {
-                    if (returnList[k] == neighbors[j])
-                    {
-                        neighborFound = true;
-                        break;
-                    }
-                }
-            }
-
-            // If the given neighbor was not already in the returnList, then add it.
-            if (!neighborFound)
-                returnList.push_back(neighbors[j]);
-        }
-    }
-
-    return returnList;
-}
 
 /*! \brief Adds the address of a new class description to be stored in this GameMap.
  *
@@ -829,10 +523,10 @@ void GameMap::createAllEntities()
     {
         for (int ii = 0; ii < mapSizeX; ++ii)
         {
-            tiles[ii][jj].createMesh();
-	    // tileSceneNode = sceneManager->getSceneNode( tiles[ii][jj].getName() + "_node" );
-	    // tiles[ii][jj].pSN = tileSceneNode->getParentSceneNode(); 
-	    // tiles[ii][jj].pSN->removeChild(tileSceneNode);
+            getTile(ii,jj)->createMesh();
+	    // tileSceneNode = sceneManager->getSceneNode( getTile(ii,jj)->getName() + "_node" );
+	    // getTile(ii,jj)->pSN = tileSceneNode->getParentSceneNode(); 
+	    // getTile(ii,jj)->pSN->removeChild(tileSceneNode);
         }
     }
     // // for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
@@ -875,7 +569,7 @@ void GameMap::destroyAllEntities()
         for (int ii = 0; ii < mapSizeX; ++ii)
         {
 
-            tiles[ii][jj].deleteYourself();
+            getTile(ii,jj)->deleteYourself();
         }
     }
 
@@ -1245,10 +939,7 @@ unsigned long int GameMap::doMiscUpkeep()
     {
         for (int ii = 0; ii < mapSizeX; ++ii)
         {
-
-
-
-            tempTile = &tiles[ii][jj];
+            tempTile = getTile(ii,jj);
 
             // Check to see if the current tile is claimed by anyone.
             if (tempTile->getType() == Tile::claimed)
@@ -1615,29 +1306,6 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
  *
  */
 
-Tile* GameMap::firstTile()
-{
-
-    return &tiles[0][0];
-}
-// TileMap_t::iterator GameMap::firstTile()
-// {
-//     sem_wait(&tilesLockSemaphore);
-//     TileMap_t::iterator tempItr = tiles.begin();
-//     sem_post(&tilesLockSemaphore);
-
-//     return tempItr;
-// }
-
-/*! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
- *
- */
-
-Tile* GameMap::lastTile()
-{
-
-    return &tiles[mapSizeX][mapSizeY];
-}
 
 
 
@@ -2762,7 +2430,7 @@ void GameMap::enableFloodFill()
     {
         for (int ii = 0; ii < mapSizeX; ++ii)
         {
-            tiles[ii][jj].floodFillColor = -1;
+            getTile(ii,jj)->floodFillColor = -1;
         }
 
     }
@@ -2782,7 +2450,7 @@ void GameMap::enableFloodFill()
         for (int ii = 0; ii < mapSizeX; ++ii)
         {
 
-            if (tiles[ii][jj].floodFillColor == -1)
+            if (getTile(ii,jj)->floodFillColor == -1)
                 doFloodFill( ii , jj);
 
         }
@@ -2943,56 +2611,3 @@ void GameMap::processDeletionQueues()
     }
 }
 
-Tile::TileType* GameMap::getNeighborsTypes( Tile *curTile, Tile::TileType   *neighbors){
-
-    int xx = curTile->getX();
-    int yy = curTile->getY();
-    
-    neighbors[0] = getSafeTileType(getTile(xx-1,yy) );
-    neighbors[1] = getSafeTileType(getTile(xx-1,yy+1) );
-    neighbors[2] = getSafeTileType(getTile(xx,yy+1));
-    neighbors[3] = getSafeTileType(getTile(xx+1,yy+1));
-    neighbors[4] = getSafeTileType(getTile(xx+1,yy) );
-    neighbors[5] = getSafeTileType(getTile(xx+1,yy-1));
-    neighbors[6] = getSafeTileType(getTile(xx,yy-1));
-    neighbors[7] = getSafeTileType(getTile(xx-1,yy-1));
-
-
-
-    return neighbors; 
-
-}
-
-
-bool* GameMap::getNeighborsFullness( Tile *curTile, bool *neighborsFullness){
-
-    int xx = curTile->getX();
-    int yy = curTile->getY();
-    
-    neighborsFullness[0] = getSafeTileFullness(getTile(xx-1,yy) );
-    neighborsFullness[1] = getSafeTileFullness(getTile(xx-1,yy+1) );
-    neighborsFullness[2] = getSafeTileFullness(getTile(xx,yy+1));
-    neighborsFullness[3] = getSafeTileFullness(getTile(xx+1,yy+1));
-    neighborsFullness[4] = getSafeTileFullness(getTile(xx+1,yy) );
-    neighborsFullness[5] = getSafeTileFullness(getTile(xx+1,yy-1));
-    neighborsFullness[6] = getSafeTileFullness(getTile(xx,yy-1));
-    neighborsFullness[7] = getSafeTileFullness(getTile(xx-1,yy-1));
-
-
-
-    return neighborsFullness; 
-
-}
-
-
-
-
-Tile::TileType GameMap::getSafeTileType(Tile* tt ){
-
-    return (tt == NULL) ? Tile::nullTileType : tt->getType();
-}
-
-bool  GameMap::getSafeTileFullness(Tile* tt ){
-
-    return (tt == NULL) ?  false : ( tt->getFullness() > 0 ) ;
-}

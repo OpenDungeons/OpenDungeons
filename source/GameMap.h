@@ -31,6 +31,9 @@ class MovableGameEntity;
 #include "AIManager.h"
 #include "Room.h"
 #include "MortuaryQuad.h"
+#include "TileContainer.h"
+#include "TileContainersModificator.h"
+
 
 class MiniMap;
 
@@ -47,7 +50,7 @@ typedef Tile** TileMap_t;
  * sortest path between two tiles" or "what creatures are in some particular
  * tile".
  */
-class GameMap 
+class GameMap : public TileContainer,  public TileContainersModificator
 {
 friend class MiniMap;
 friend class RenderManager;
@@ -57,34 +60,11 @@ friend class RenderManager;
   MortuaryQuad myCullingQuad;
   int setAllNeighbors();     
   void createNewMap(int xSize, int ySize);
-  int allocateMapMemory(int xSize, int ySize); 
   void createAllEntities();
   void destroyAllEntities();
   void clearAll();
   MiniMap* getMiniMap(){ return miniMap; }
-  const static int mapSizeX = 400,  mapSizeY = 400;
 
-  // Game state methods
-  int  insert(Tile** mm ,int ii , int jj , Tile* tt);
-  void clearTiles();
-  void map_clear(Tile **tt);
-  void addTile(Tile *t);
-  
-  void setTileNeighbors(Tile *t);
-
-  Tile* getTile(int x, int y) const;
-  Tile::TileType getSafeTileType(Tile* tt );
-  bool getSafeTileFullness(Tile* tt );
-
-  Tile* firstTile();
-  Tile* lastTile();
-  Tile::TileType*  getNeighborsTypes( Tile* , Tile::TileType*);
-  bool*   getNeighborsFullness( Tile* , bool*);
-  unsigned int numTiles();
-  std::vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);
-  std::vector<Tile*> circularRegion(int x, int y, double radius);
-  std::vector<Tile*> tilesBorderedByRegion(
-					   const std::vector<Tile*> &region);
 
   void clearCreatures();
   void addCreature(Creature *c);
@@ -286,9 +266,9 @@ friend class RenderManager;
 
   MiniMap *miniMap;
   int iteration_doFloodFill   ;
-  Tile **tiles;
+
   std::string levelFileName;
-  mutable sem_t tilesLockSemaphore;
+
   std::vector<boost::shared_ptr<CreatureDefinition> > classDescriptions;
 
   //Mutable to allow locking in const functions.
