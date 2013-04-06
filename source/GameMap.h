@@ -187,8 +187,7 @@ friend class RenderManager;
 		  Tile::TileClearType passability);
   std::list<Tile*> path(int x1, int y1, int x2, int y2,
 			Tile::TileClearType passability);
-  std::vector<Tile*> neighborTiles(int x, int y);
-  std::vector<Tile*> neighborTiles(Tile *t);
+
   std::list<Tile*> lineOfSight(int x1, int y1, int x2, int y2);
   std::vector<Tile*> visibleTiles(Tile *startTile, double sightRadius);
   std::vector<GameEntity*> getVisibleForce(

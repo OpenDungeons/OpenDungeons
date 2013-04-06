@@ -66,7 +66,7 @@ GameMap::GameMap() :
     sem_init(&animatedObjectsLockSemaphore, 0, 1);
     sem_init(&activeObjectsLockSemaphore, 0, 1);
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
-    sem_init(&tilesLockSemaphore, 0, 1);
+
 
     myCullingQuad.setRadious(256);
     myCullingQuad.setCenter(200,200);    
@@ -1309,24 +1309,6 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 
 
 
-/*! \brief Returns the (up to) 4 nearest neighbor tiles of the tile located at (x, y).
- *
- */
-std::vector<Tile*> GameMap::neighborTiles(int x, int y)
-{
-    std::vector<Tile*> tempVector;
-
-    Tile *tempTile = getTile(x, y);
-    if (tempTile != NULL)
-        tempVector = neighborTiles(tempTile);
-
-    return tempVector;
-}
-
-std::vector<Tile*> GameMap::neighborTiles(Tile *t)
-{
-    return t->getAllNeighbors();
-}
 
 /*! \brief Adds a pointer to a player structure to the players stored by this GameMap.
  *

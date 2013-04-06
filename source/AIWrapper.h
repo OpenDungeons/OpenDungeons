@@ -24,13 +24,14 @@
 
 #include "Room.h"
 #include "Trap.h"
+#include "TileContainersModificator.h"
 
 class Player;
 class Seat;
 class GameMap;
 class Creature;
 
-class AIWrapper
+class AIWrapper : public TileContainersModificator
 {
 
 public:
@@ -46,8 +47,6 @@ public:
     std::vector<const Room*> getOwnedRoomsByType(Room::RoomType type);
     const Room* getDungeonTemple();
     void markTileForDigging(Tile* tile);
-    std::vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);
-    std::vector<Tile*> circularRegion(int x, int y, double radius);
     
     //Should remove these when we have the needed functions
     const GameMap& getGameMap() const {return gameMap;}

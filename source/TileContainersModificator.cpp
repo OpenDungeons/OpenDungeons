@@ -4,7 +4,7 @@
 /** \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
  *
  */
-std::vector<Tile*> TilesContainersModificator::rectangularRegion(int x1, int y1, int x2, int y2)
+std::vector<Tile*> TileContainersModificator::rectangularRegion(int x1, int y1, int x2, int y2)
 {
     std::vector<Tile*> returnList;
     Tile *tempTile;
@@ -19,7 +19,7 @@ std::vector<Tile*> TilesContainersModificator::rectangularRegion(int x1, int y1,
         for (int jj = y1; jj <= y2; ++jj)
         {
             //TODO:  This routine could be sped up by using the neighborTiles function.
-            tempTile = getTile(ii, jj);
+            tempTile = getContainer()->getTile(ii, jj);
 
             if (tempTile != NULL)
                 returnList.push_back(tempTile);
@@ -32,7 +32,7 @@ std::vector<Tile*> TilesContainersModificator::rectangularRegion(int x1, int y1,
 /** \brief Returns all the valid tiles in the curcular region surrounding the given point and extending outward to the specified radius.
  *
  */
-std::vector<Tile*> TilesContainersModificator::circularRegion(int x, int y, double radius)
+std::vector<Tile*> TileContainersModificator::circularRegion(int x, int y, double radius)
 {
     std::vector<Tile*> returnList;
     Tile *tempTile;
@@ -52,7 +52,7 @@ std::vector<Tile*> TilesContainersModificator::circularRegion(int x, int y, doub
             distSquared = xDist * xDist + yDist * yDist;
             if (distSquared < radiusSquared)
             {
-                tempTile = getTile(i, j);
+                tempTile = getContainer()->getTile(i, j);
                  if (tempTile != NULL)
                    returnList.push_back(tempTile);
             }
@@ -64,7 +64,7 @@ std::vector<Tile*> TilesContainersModificator::circularRegion(int x, int y, doub
 /** \brief Returns a vector of all the valid tiles which are a neighbor to one or more tiles in the specified region, i.e. the "perimeter" of the region extended out one tile.
  *
  */
-std::vector<Tile*> TilesContainersModificator::tilesBorderedByRegion(
+std::vector<Tile*> TileContainersModificator::tilesBorderedByRegion(
     const std::vector<Tile*> &region)
 {
     std::vector<Tile*> neighbors, returnList;
@@ -109,3 +109,23 @@ std::vector<Tile*> TilesContainersModificator::tilesBorderedByRegion(
 
     return returnList;
 }
+
+/*! \brief Returns the (up to) 4 nearest neighbor tiles of the tile located at (x, y).
+ *
+ */
+std::vector<Tile*> TileContainersModificator::neighborTiles(int x, int y)
+{
+    std::vector<Tile*> tempVector;
+
+    Tile *tempTile = getContainer()->getTile(x, y);
+    if (tempTile != NULL)
+        tempVector = neighborTiles(tempTile);
+
+    return tempVector;
+}
+
+std::vector<Tile*> TileContainersModificator::neighborTiles(Tile *t)
+{
+    return t->getAllNeighbors();
+}
+

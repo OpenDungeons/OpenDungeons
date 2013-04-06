@@ -201,11 +201,6 @@ bool* TileContainer::getNeighborsFullness( Tile *curTile, bool *neighborsFullnes
 
 }
 
-bool  TileContainer::getSafeTileFullness(Tile* tt ){
-
-    return (tt == NULL) ?  false : ( tt->getFullness() > 0 ) ;
-}
-
 
 /*! \brief Returns the number of tile pointers currently stored in this TileContainer.
  *
@@ -269,4 +264,14 @@ int TileContainer::allocateMapMemory(int xSize, int ySize) {
         std :: cerr << " failed to allocate map memory" << std :: endl;
         return 0;
     }
+}
+
+Tile::TileType TileContainer::getSafeTileType(Tile* tt ){
+
+    return (tt == NULL) ? Tile::nullTileType : tt->getType();
+}
+
+bool  TileContainer::getSafeTileFullness(Tile* tt ){
+
+    return (tt == NULL) ?  false : ( tt->getFullness() > 0 ) ;
 }

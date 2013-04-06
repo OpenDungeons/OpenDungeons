@@ -29,10 +29,15 @@ public:
   unsigned int numTiles();
   int allocateMapMemory(int xSize, int ySize);
 
+  const static int mapSizeX = 400,  mapSizeY = 400;
+
+protected:
+  mutable sem_t tilesLockSemaphore;
+
 private:
   Tile **tiles;
-  const static int mapSizeX = 400,  mapSizeY = 400;
-  mutable sem_t tilesLockSemaphore;
+
+
   Tile* auxTilesArray;
     
     };
