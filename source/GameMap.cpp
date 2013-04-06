@@ -66,7 +66,7 @@ GameMap::GameMap() :
     sem_init(&animatedObjectsLockSemaphore, 0, 1);
     sem_init(&activeObjectsLockSemaphore, 0, 1);
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
-
+    setContainer(this);
 
     myCullingQuad.setRadious(256);
     myCullingQuad.setCenter(200,200);    

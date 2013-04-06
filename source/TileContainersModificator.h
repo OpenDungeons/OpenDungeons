@@ -15,8 +15,8 @@ class TileContainersModificator{
 
   public:
 
-    inline  TileContainer* getContainer() { return container; };
-    inline void setContainer( TileContainer* container ) { this->container =  container; };
+    TileContainer* getContainer() { return container; };
+    void setContainer( TileContainer* container ) { this->container =  container; };
     std::vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);
     std::vector<Tile*> circularRegion(int x, int y, double radius);
     std::vector<Tile*> tilesBorderedByRegion(
