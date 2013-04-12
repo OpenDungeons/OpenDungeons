@@ -1,8 +1,7 @@
 #include "TileContainer.h"
 
 TileContainer::TileContainer(){
-
-
+    sem_init(&tilesLockSemaphore, 0, 1);
 }
 
 TileContainer::~TileContainer(){
@@ -195,10 +194,7 @@ bool* TileContainer::getNeighborsFullness( Tile *curTile, bool *neighborsFullnes
     neighborsFullness[6] = getSafeTileFullness(getTile(xx,yy-1));
     neighborsFullness[7] = getSafeTileFullness(getTile(xx-1,yy-1));
 
-
-
     return neighborsFullness; 
-
 }
 
 
