@@ -158,7 +158,10 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 						}
 					}
 
+				    if (affectedTiles.size() > 16){
 
+					int debugfoobar = 2 + 2;
+				    }
 				    for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr ){
 
 					// for (int jj = 0; jj < GameMap::mapSizeY; ++jj)

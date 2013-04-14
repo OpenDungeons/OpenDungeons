@@ -1,13 +1,13 @@
 #include "TileContainer.h"
 
-TileContainer::TileContainer(){
+TileContainer::TileContainer():auxTilesArray(0), tiles(0){
     sem_init(&tilesLockSemaphore, 0, 1);
 }
 
 TileContainer::~TileContainer(){
 
-    delete auxTilesArray;
-
+    delete [] auxTilesArray;
+    delete [] tiles;
 }
 
 
@@ -246,12 +246,18 @@ int TileContainer::allocateMapMemory(int xSize, int ySize) {
 
     auxTilesArray = new Tile [mapSizeX * mapSizeY];
 
-    if (tiles==NULL) {
+    if (auxTilesArray) {
         tiles = new Tile* [mapSizeY];
-        for (int jj = 0 ; jj < mapSizeY ; jj++) {
-            tiles[jj] = &auxTilesArray[jj*mapSizeX];
+        if(tiles){
+	    for (int jj = 0 ; jj < mapSizeY ; jj++) {
+		tiles[jj] = &auxTilesArray[jj*mapSizeX];
 
-        }
+	    }
+	}
+	else {
+	    std :: cerr << " failed to allocate map memory" << std :: endl;
+	    return 0;
+	}
 
 
         return 1;
