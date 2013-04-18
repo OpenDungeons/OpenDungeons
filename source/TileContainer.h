@@ -7,13 +7,14 @@
 
 class TileContainer{
 
+friend class TileContainersModificator;
+
 public:
    TileContainer();
   ~TileContainer();
   // Game state methods
   int  insert(int ii , int jj , Tile tt);
   void clearTiles();
-  void map_clear(Tile **tt);
   void addTile(Tile *t);
   
   void setTileNeighbors(Tile *t);
@@ -28,14 +29,22 @@ public:
   bool*   getNeighborsFullness( Tile* , bool*);
   unsigned int numTiles();
   int allocateMapMemory(int xSize, int ySize);
-
-  const static int mapSizeX = 400,  mapSizeY = 400;
+  int getMapSizeX() const;
+  int getMapSizeY() const;
+  int setMapSizeX(int );
+  int setMapSizeY(int );
 
 protected:
   mutable sem_t tilesLockSemaphore;
-
+  int mapSizeX;
+  int mapSizeY;
+  int rr;
+  
 private:
   Tile **tiles;
+  bool symetry;
+
+
 
 
   Tile* auxTilesArray;

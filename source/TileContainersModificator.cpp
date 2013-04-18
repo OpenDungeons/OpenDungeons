@@ -1,5 +1,5 @@
 #include "TileContainersModificator.h"
-#include "Tile.h"
+#include <algorithm> 
 
 /** \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
  *
@@ -53,8 +53,8 @@ std::vector<Tile*> TileContainersModificator::circularRegion(int x, int y, doubl
             if (distSquared < radiusSquared)
             {
                 tempTile = getContainer()->getTile(i, j);
-                 if (tempTile != NULL)
-                   returnList.push_back(tempTile);
+		if (tempTile != NULL)
+		    returnList.push_back(tempTile);
             }
         }
     }
@@ -128,4 +128,86 @@ std::vector<Tile*> TileContainersModificator::neighborTiles(Tile *t)
 {
     return t->getAllNeighbors();
 }
+
+
+TileContainer* TileContainersModificator::create(int x , int y , Tile::TileType tt ){
+
+    TileContainer *tc = new TileContainer();
+    
+
+}
+
+
+TileContainer* TileContainersModificator::copy(TileContainer* tc1 , TileContainer* tc2 ){
+
+
+    for(int ii = 0 ; ii < tc1->getMapSizeX() ; ii++){
+	for(int jj = 0 ; jj < tc2->getMapSizeY(); jj++){
+	    // tc2->getTile(ii,jj) = tc1->getTile(ii,jj);
+
+	}
+	return tc2;
+    }
+}
+
+TileContainer* TileContainersModificator::embed(TileContainer* tc1 , TileContainer* tc2 ){
+  
+    delete tc1;
+    return tc2;
+}
+
+TileContainer* TileContainersModificator::rotate90(TileContainer* tc1 ){
+    // std::swap(tc1->getMapSizeX(),tc1->getMapSizeY());
+
+
+
+
+    return tc1;
+
+}
+
+
+
+TileContainer* TileContainersModificator::reflectX(TileContainer* tc){
+    tc->symetry = !tc->symetry;
+    tc->rr++;
+    tc->rr%=4;
+    return tc; 
+}
+
+
+
+TileContainer* TileContainersModificator::reflectY(TileContainer* tc){
+    tc->symetry = !tc->symetry;
+    return tc; 
+}
+
+
+TileContainer* TileContainersModificator::tilePermute(int x , int y , Tile::TileType tt ){
+
+
+
+
+}
+
+
+
+TileContainer* TileContainersModificator::tileReplace( TileContainer* tc1 , Tile::TileType tt1, Tile::TileType tt2  ){
+
+    for(int ii = 0 ; ii < tc1->getMapSizeX() ; ii++){
+	for(int jj = 0 ; jj < tc1->getMapSizeY(); jj++){
+	    if(tc1->getTile(ii,jj)->type == tt1  ){
+		tc1->getTile(ii,jj)->type = tt2 ;
+	    }
+
+	}
+    }
+
+    return tc1;
+}
+
+
+
+
+
 

@@ -150,8 +150,8 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setName(tempString);
 
     is >> xLocation >> yLocation >> zLocation;
-    xLocation+=GameMap::mapSizeX/2;
-    yLocation+=GameMap::mapSizeY/2;
+    xLocation+=c->getGameMap()->getMapSizeX()/2;
+    yLocation+=c->getGameMap()->getMapSizeY()/2;
     c->setPosition(Ogre::Vector3(xLocation, yLocation, zLocation));
 
     int color = 0;

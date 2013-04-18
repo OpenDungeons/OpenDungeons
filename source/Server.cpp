@@ -512,8 +512,8 @@ void *clientHandlerThread(void *p)
 
 
 
-	    for(int ii=0 ; ii < gameMap->mapSizeX; ii++ ){
-	      for(int jj=0 ; jj < gameMap->mapSizeY; jj++ ){
+	    for(int ii=0 ; ii < gameMap->getMapSizeX(); ii++ ){
+	      for(int jj=0 ; jj < gameMap->getMapSizeY(); jj++ ){
                 tempSS.str("");
                 tempSS << gameMap->getTile(ii,jj);
                 curSock->send(formatCommand("addtile", tempSS.str()));

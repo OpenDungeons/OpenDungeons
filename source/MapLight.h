@@ -10,6 +10,8 @@
 #include <OgreColourValue.h>
 #include <semaphore.h>
 
+class GameMap;
+
 class MapLight
 {
     public:
@@ -76,8 +78,12 @@ class MapLight
         friend std::istream& operator>>(std::istream& is, MapLight *m);
 
         static sem_t lightNumberLockSemaphore;
+	void setGameMap(GameMap* gm);
+
 
     private:
+	
+	GameMap* gameMap;
         Ogre::Vector3 position;
         Ogre::ColourValue diffuseColor;
         Ogre::ColourValue specularColor;

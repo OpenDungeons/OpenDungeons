@@ -59,7 +59,7 @@ friend class RenderManager;
   ~GameMap();
   MortuaryQuad myCullingQuad;
   int setAllNeighbors();     
-  void createNewMap(int xSize, int ySize);
+  void createNewMap();
   void createAllEntities();
   void destroyAllEntities();
   void clearAll();

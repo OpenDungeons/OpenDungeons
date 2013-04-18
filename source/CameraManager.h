@@ -185,7 +185,6 @@ class CameraManager : public Ogre::Singleton<CameraManager>
     Ogre::Vector3   translateVectorAccel;
     Ogre::Vector3   cameraFlightDestination;
     Ogre::Vector3   mRotateLocalVector;
-    Ogre::Vector3   worldCoordinatesVector;
     double          zChange;
     float           mZoomSpeed;
 

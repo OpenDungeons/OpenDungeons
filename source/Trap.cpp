@@ -312,8 +312,8 @@ std::istream& operator>>(std::istream& is, Trap *t)
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
-	tempX+= GameMap::mapSizeX/2 ;
-	tempY+= GameMap::mapSizeY/2 ;
+	tempX+= t->getGameMap()->getMapSizeX()/2 ;
+	tempY+= t->getGameMap()->getMapSizeY()/2 ;
         Tile *tempTile = t->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
         {

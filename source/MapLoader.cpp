@@ -71,7 +71,14 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
                 << "\n\n\n";
         exit(1);
     }
-    gameMap_b.allocateMapMemory(GameMap::mapSizeX, GameMap::mapSizeY ); 
+    int mapSizeX;
+    int mapSizeY;
+    levelFile >> mapSizeX;
+    levelFile >> mapSizeY;
+
+    gameMap_b.setMapSizeX(mapSizeX);
+    gameMap_b.setMapSizeY(mapSizeY);
+    gameMap_b.allocateMapMemory(gameMap_b.getMapSizeX(), gameMap_b.getMapSizeY() ); 
     // gameMap_b.clearAll();
 
     // Read in the name of the next level to load after this one is complete.
@@ -102,7 +109,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
     }
 
     // Read in the map tiles from disk
-    Tile* tempTile;
+    Tile tempTile;
+    tempTile.setGameMap(&gameMap_b);
     levelFile >> objectsToLoad;
 
     gameMap_b.disableFloodFill();
@@ -111,16 +119,14 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
         //NOTE: This code is duplicated in the client side method
         //"addclass" defined in src/Client.cpp and readGameMapFromFile.
         //Changes to this code should be reflected in that code as well
-        tempTile = new Tile;
-        levelFile >> tempTile;
+        levelFile >> &tempTile;
 
-        tempTile->setGameMap(&gameMap_b);
-        gameMap_b.addTile(tempTile);
-	delete tempTile;
+
+        gameMap_b.addTile(&tempTile);
     }
 
 
-    gameMap_b.createNewMap(GameMap::mapSizeX, GameMap::mapSizeY);
+    gameMap_b.createNewMap();
     gameMap_b.setAllNeighbors();
     gameMap_b.enableFloodFill();
 
@@ -128,11 +134,11 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
     // neighbors.  This allows them to switch to a mesh with fewer
     // polygons if some are hidden by the neighbors.
 
-    // for(int ii=0 ; ii < mapSizeX; ii++ ){
-    //   for(int jj=0 ; jj < mapSizeY; jj++ ){
+    // for(int ii=0 ; ii < getMapSizeX(); ii++ ){
+    //   for(int jj=0 ; jj < getMapSizeY(); jj++ ){
 
-    // for(int ii=0 ; ii < gameMap_b.mapSizeX; ii++ ){
-    //   for(int jj=0 ; jj < gameMap_b.mapSizeY; jj++ ){
+    // for(int ii=0 ; ii < gameMap_b.getMapSizeX(); ii++ ){
+    //   for(int jj=0 ; jj < gameMap_b.getMapSizeY(); jj++ ){
 
     // 	gameMap_b.getTile( ii, jj)->setFullness(gameMap_b.getTile( ii, jj)->getFullness());
     //   }
@@ -172,6 +178,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
     for (int i = 0; i < objectsToLoad; ++i)
     {
         tempLight = new MapLight;
+	tempLight->setGameMap(&gameMap_b);
         levelFile >> tempLight;
 
         gameMap_b.addMapLight(tempLight);
@@ -202,10 +209,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
         levelFile >> tempCreature;
 	
         gameMap_b.addCreature(tempCreature);
-
-
-
-
     }
 
     return true;
@@ -254,8 +257,8 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap_b)
 
 
 
-    for(int ii=0 ; ii < gameMap_b.mapSizeX; ii++ ){
-      for(int jj=0 ; jj < gameMap_b.mapSizeY; jj++ ){
+    for(int ii=0 ; ii < gameMap_b.getMapSizeX(); ii++ ){
+      for(int jj=0 ; jj < gameMap_b.getMapSizeY(); jj++ ){
 
 	tempTile = gameMap_b.getTile(ii,jj);
         levelFile << tempTile->x << "\t" << tempTile->y << "\t";

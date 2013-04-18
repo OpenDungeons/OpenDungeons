@@ -553,8 +553,8 @@ std::istream& operator>>(std::istream& is, Tile *t)
     stringstream ss;
 
     is >> xLocation >> yLocation;
-    xLocation+=GameMap::mapSizeX/2;
-    yLocation+=GameMap::mapSizeY/2;
+    xLocation+=t->getGameMap()->getMapSizeX()/2;
+    yLocation+=t->getGameMap()->getMapSizeY()/2;
     //t->location = Ogre::Vector3(xLocation, yLocation, 0);
     ss.str(std::string());
     ss << "Level";

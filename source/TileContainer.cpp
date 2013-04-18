@@ -13,7 +13,7 @@ TileContainer::~TileContainer(){
 
 
 int TileContainer::insert(int ii , int jj , Tile tt) {
-    if ( ii < mapSizeX && jj < mapSizeY && ii >= 0 && jj >= 0 )  {
+    if ( ii < getMapSizeX() && jj < getMapSizeY() && ii >= 0 && jj >= 0 )  {
 
         tiles[ii][jj]=tt;
         return 1;
@@ -31,9 +31,9 @@ void TileContainer::clearTiles()
 
     // for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
     //         itr != end; ++itr)
-    for (int jj = 0; jj < mapSizeY; ++jj)
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
-        for (int ii = 0; ii < mapSizeX; ++ii)
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
 
             (tiles[ii][jj]).deleteYourself();
@@ -43,19 +43,6 @@ void TileContainer::clearTiles()
 
     }
     sem_post(&tilesLockSemaphore);
-}
-
-
-void TileContainer::map_clear(Tile** tt)
-{
-
-
-    for (int ii = 0; ii < mapSizeX; ++ii)
-    {
-
-        delete[] tt[ii];
-    }
-
 }
 
 
@@ -151,7 +138,7 @@ Tile* TileContainer::getTile(int xx, int yy) const
     // TileMap_t::const_iterator itr = constTiles.find(location);
     // returnValue = (itr != tiles.end()) ? itr->second : NULL;
     // sem_post(&tilesLockSemaphore);
-    if (xx < mapSizeX && yy < mapSizeY && xx >= 0 && yy >= 0 )
+    if (xx < getMapSizeX() && yy < getMapSizeY() && xx >= 0 && yy >= 0 )
         return returnValue = &(tiles[xx][yy]);
     else {
         // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
@@ -207,7 +194,7 @@ unsigned int TileContainer::numTiles()
     // unsigned int tempUnsigned = tiles.size();
     // sem_post(&tilesLockSemaphore);
 
-    return mapSizeX*mapSizeY;
+    return getMapSizeX()*getMapSizeY();
 }
 
 
@@ -232,7 +219,7 @@ Tile* TileContainer::firstTile()
 Tile* TileContainer::lastTile()
 {
 
-    return &tiles[mapSizeX][mapSizeY];
+    return &tiles[getMapSizeX()][getMapSizeY()];
 }
 
 
@@ -241,16 +228,16 @@ int TileContainer::allocateMapMemory(int xSize, int ySize) {
 
     std::stringstream ss;
 
-    // mapSizeX = xSize;
-    // mapSizeY=ySize;
+    // getMapSizeX() = xSize;
+    // getMapSizeY()=ySize;
 
-    auxTilesArray = new Tile [mapSizeX * mapSizeY];
+    auxTilesArray = new Tile [getMapSizeX() * getMapSizeY()];
 
     if (auxTilesArray) {
-        tiles = new Tile* [mapSizeY];
+        tiles = new Tile* [getMapSizeY()];
         if(tiles){
-	    for (int jj = 0 ; jj < mapSizeY ; jj++) {
-		tiles[jj] = &auxTilesArray[jj*mapSizeX];
+	    for (int jj = 0 ; jj < getMapSizeY() ; jj++) {
+		tiles[jj] = &auxTilesArray[jj*getMapSizeX()];
 
 	    }
 	}
@@ -277,3 +264,9 @@ bool  TileContainer::getSafeTileFullness(Tile* tt ){
 
     return (tt == NULL) ?  false : ( tt->getFullness() > 0 ) ;
 }
+
+
+int TileContainer::getMapSizeX() const{return mapSizeX; };
+int TileContainer::getMapSizeY() const{return mapSizeY; };
+int TileContainer::setMapSizeX(int XX){ mapSizeX = XX;};
+int TileContainer::setMapSizeY(int YY){ mapSizeY = YY;};

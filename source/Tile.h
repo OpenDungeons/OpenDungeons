@@ -40,6 +40,8 @@ enum RotationType{ R0, R1, R2, R3};
 class Tile : public GameEntity
 {
  
+    friend class TileContainersModificator;
+                 
  public:
     //TODO:  These should be renumbered to put 0 as the nullTileType, however this will mean converting all the dirt tiles in the level files.
     enum TileType

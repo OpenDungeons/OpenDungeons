@@ -93,7 +93,7 @@ void RenderManager::createCamera()
     mainCamera->setNearClipDistance(0.05);
     mainCamera->setFarClipDistance(300.0);
     mainCamera->setAutoTracking(false, sceneManager->getRootSceneNode()
-                                ->createChildSceneNode("CameraTarget"), Ogre::Vector3(GameMap::mapSizeX/2,GameMap::mapSizeY/2 , 0));
+                                ->createChildSceneNode("CameraTarget"), Ogre::Vector3(gameMap->getMapSizeX()/2,gameMap->getMapSizeY()/2 , 0));
 }
 
 /*! \brief setup the viewports
@@ -161,7 +161,7 @@ void RenderManager::createScene()
 
     // Create the scene node that the camera attaches to
     Ogre::SceneNode* node = sceneManager->getRootSceneNode()
-                            ->createChildSceneNode("CamNode1", Ogre::Vector3(1 + GameMap::mapSizeX/2, -1 + GameMap::mapSizeY/2, 16));
+	->createChildSceneNode("CamNode1", Ogre::Vector3(1 + gameMap->getMapSizeX()/2, -1 + gameMap->getMapSizeY()/2, 16));
     node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
     node->roll(Ogre::Degree(30), Ogre::Node::TS_WORLD);
     node->attachObject(mainCamera);

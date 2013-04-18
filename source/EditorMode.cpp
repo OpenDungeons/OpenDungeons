@@ -129,9 +129,9 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
 												  mc->yPos, mc->mLStartDragX, mc->mLStartDragY);
 
 
-				    for (int jj = 0; jj < mc->gameMap->mapSizeY; ++jj)
+				    for (int jj = 0; jj < mc->gameMap->getMapSizeY(); ++jj)
 					{
-					    for (int ii = 0; ii < mc->gameMap->mapSizeX; ++ii)
+					    for (int ii = 0; ii < mc->gameMap->getMapSizeX(); ++ii)
 						{
 						    mc->gameMap->getTile(ii,jj)->setSelected(false,mc->gameMap->getLocalPlayer());
 						}
@@ -140,9 +140,9 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
 
 				    for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr ){
 
-					// for (int jj = 0; jj < GameMap::mapSizeY; ++jj)
+					// for (int jj = 0; jj < GameMap::getMapSizeY(); ++jj)
 					//     {
-					// 	for (int ii = 0; ii < GameMap::mapSizeX; ++ii)
+					// 	for (int ii = 0; ii < GameMap::getMapSizeX(); ++ii)
 					// 	    {
 
 
@@ -585,9 +585,9 @@ bool EditorMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID 
     if (mc->mouseDownOnCEGUIWindow)
         return true;
 
-    for (int jj = 0; jj < mc->gameMap->mapSizeY; ++jj)
+    for (int jj = 0; jj < mc->gameMap->getMapSizeY(); ++jj)
 	{
-	    for (int ii = 0; ii < mc->gameMap->mapSizeX; ++ii)
+	    for (int ii = 0; ii < mc->gameMap->getMapSizeX(); ++ii)
 		{
 		    mc->gameMap->getTile(ii,jj)->setSelected(false,mc->gameMap->getLocalPlayer());
 		}

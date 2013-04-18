@@ -53,8 +53,7 @@ CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
         middleLeft(NULL),
         middleRight(NULL),
 	precisionDigits(10),
-        worldCoordinatesVector(Ogre::Vector3((double)GameMap::mapSizeX/2,(double)GameMap::mapSizeX/2,0 )),
-	currentVisibleCreatures(new set<Creature*>()),
+        currentVisibleCreatures(new set<Creature*>()),
 	previousVisibleCreatures(new set<Creature*>())
 {
   
@@ -229,7 +228,7 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
 	tempY = yHCS.evaluate(alpha); 
 	cerr<< "newPosition.y"<< newPosition.y << endl;
 	
-	if (tempX < 0.9*gameMap->mapSizeX &&  tempX > 10 && tempY < 0.9*gameMap->mapSizeX &&  tempY > 10 ) {
+	if (tempX < 0.9*gameMap->getMapSizeX() &&  tempX > 10 && tempY < 0.9*gameMap->getMapSizeY() &&  tempY > 10 ) {
 	    newPosition.x = tempX;
 	    newPosition.y = tempY;
 

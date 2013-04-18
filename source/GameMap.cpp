@@ -85,7 +85,7 @@ GameMap::~GameMap(){
  * classes loaded, no players, and no creatures.
  */
 
-void GameMap::createNewMap(int xSize, int ySize)
+void GameMap::createNewMap()
 {
     Tile tempTile;
     stringstream ss;
@@ -93,8 +93,8 @@ void GameMap::createNewMap(int xSize, int ySize)
     
     Ogre::SceneManager* sceneManager = RenderManager::getSingletonPtr()->getSceneManager();
 
-    for (int jj = 0; jj < ySize; ++jj)	{
-	for (int ii = 0; ii < xSize; ++ii){
+    for (int jj = 0; jj < mapSizeX; ++jj)	{
+	for (int ii = 0; ii < mapSizeY; ++ii){
 
 
 	    if((getTile(ii,jj)->getGameMap()) == NULL ){
@@ -120,8 +120,8 @@ void GameMap::createNewMap(int xSize, int ySize)
     // Loop over all the tiles and force them to examine their
     // neighbors.  This allows them to switch to a mesh with fewer
     // polygons if some are hidden by the neighbors.
-    for (int ii=0 ; ii < xSize; ii++ ) {
-        for (int jj=0 ; jj < ySize; jj++ ) {
+    for (int ii=0 ; ii < getMapSizeX(); ii++ ) {
+        for (int jj=0 ; jj < getMapSizeY(); jj++ ) {
 
             getTile(ii,jj)->setFullness(getTile(ii,jj)->getFullness());
         }
@@ -143,8 +143,8 @@ void GameMap::createNewMap(int xSize, int ySize)
 void GameMap::createTilesMeshes(void){
 
 
-  for (int jj = 0; jj < mapSizeY; ++jj)	{
-	for (int ii = 0; ii < mapSizeX; ++ii){
+  for (int jj = 0; jj < getMapSizeY(); ++jj)	{
+	for (int ii = 0; ii < getMapSizeX(); ++ii){
 
 	    getTile(ii,jj)->createMesh();
 
@@ -158,8 +158,8 @@ void GameMap::createTilesMeshes(void){
 
 void GameMap::hideAllTiles(void){
 
-  for (int jj = 0; jj < mapSizeY; ++jj)	{
-	for (int ii = 0; ii < mapSizeX; ++ii){
+  for (int jj = 0; jj < getMapSizeY() ; ++jj)	{
+	for (int ii = 0; ii < getMapSizeX(); ++ii){
 
 	    getTile(ii,jj)->hide();
 
@@ -173,8 +173,8 @@ void GameMap::hideAllTiles(void){
 
 
 int GameMap::setAllNeighbors(){            
-    for (int ii = 0 ; ii < mapSizeX ; ii++) {
-	for (int jj = 0 ; jj < mapSizeY ; jj++) {
+    for (int ii = 0 ; ii < getMapSizeX() ; ii++) {
+	for (int jj = 0 ; jj < getMapSizeY() ; jj++) {
 	    setTileNeighbors(getTile(ii,jj));
 
 	}
@@ -519,9 +519,9 @@ void GameMap::createAllEntities()
 {
     // Create OGRE entities for map tiles
     // sem_wait(&tilesLockSemaphore);
-    for (int jj = 0; jj < mapSizeY; ++jj)
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
-        for (int ii = 0; ii < mapSizeX; ++ii)
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
             getTile(ii,jj)->createMesh();
 	    // tileSceneNode = sceneManager->getSceneNode( getTile(ii,jj)->getName() + "_node" );
@@ -564,9 +564,9 @@ void GameMap::destroyAllEntities()
     sem_wait(&tilesLockSemaphore);
 
 
-    for (int jj = 0; jj < mapSizeY; ++jj)
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
-        for (int ii = 0; ii < mapSizeX; ++ii)
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
 
             getTile(ii,jj)->deleteYourself();
@@ -935,9 +935,9 @@ unsigned long int GameMap::doMiscUpkeep()
     // Now loop over all of the tiles, if the tile is claimed increment the given seats count.
     sem_wait(&tilesLockSemaphore);
 
-    for (int jj = 0; jj < mapSizeY; ++jj)
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
-        for (int ii = 0; ii < mapSizeX; ++ii)
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
             tempTile = getTile(ii,jj);
 
@@ -964,9 +964,6 @@ unsigned long int GameMap::doMiscUpkeep()
 
         }
     }
-
-
-
 
     // std::map<std::pair<int, int> , Tile*>::iterator currentTile = tiles.begin();
     // while (currentTile != tiles.end())
@@ -2408,9 +2405,9 @@ void GameMap::enableFloodFill()
     // Carry out a flood fill of the whole level to make sure everything is good.
     // Start by setting the flood fill color for every tile on the map to -1.
     sem_wait(&tilesLockSemaphore);
-    for (int jj = 0; jj < mapSizeY; ++jj)
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
-        for (int ii = 0; ii < mapSizeX; ++ii)
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
             getTile(ii,jj)->floodFillColor = -1;
         }
@@ -2427,9 +2424,9 @@ void GameMap::enableFloodFill()
 
 
 
-    for (int jj = 0; jj < mapSizeY; ++jj)
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
-        for (int ii = 0; ii < mapSizeX; ++ii)
+        for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
 
             if (getTile(ii,jj)->floodFillColor == -1)
