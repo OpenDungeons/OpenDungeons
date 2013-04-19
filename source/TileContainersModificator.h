@@ -30,17 +30,17 @@ class TileContainersModificator{
 
     TileContainer* embed(TileContainer* tc1 , TileContainer* tc2 );
 
-    TileContainer* rotate90(TileContainer* tc1 );
+    TileContainer* rotate90(TileContainer* tc );
 
     TileContainer* reflectX(TileContainer* tc);
 
     TileContainer* reflectY(TileContainer* tc);
 
-    TileContainer* tilePermute(int x , int y , Tile::TileType tt );
+    TileContainer* tilePermute(TileContainer* t, int x , int y , Tile::TileType tt );
 
-    TileContainer* clone(TileContainer* tc1 );
+    TileContainer* clone(TileContainer* tc );
 
-    TileContainer* tileReplace( TileContainer* tc1 , Tile::TileType tt1, Tile::TileType tt2  );
+    TileContainer* tileReplace( TileContainer* tc , Tile::TileType tt1, Tile::TileType tt2  );
 
 
 
