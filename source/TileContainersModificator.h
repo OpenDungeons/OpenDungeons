@@ -38,6 +38,8 @@ class TileContainersModificator{
 
     TileContainer* tilePermute(int x , int y , Tile::TileType tt );
 
+    TileContainer* clone(TileContainer* tc1 );
+
     TileContainer* tileReplace( TileContainer* tc1 , Tile::TileType tt1, Tile::TileType tt2  );
 
 

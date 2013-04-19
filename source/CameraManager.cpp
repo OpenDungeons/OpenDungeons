@@ -44,15 +44,8 @@ CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
         mZoomSpeed(7.0),
 	circleMode(false),
 	catmullSplineMode(false),
-        oldTop(NULL),
-        oldBottom(NULL),
-        oldMiddleLeft(NULL),
-        oldMiddleRight(NULL),
-        top(NULL),
-        bottom(NULL),
-        middleLeft(NULL),
-        middleRight(NULL),
 	precisionDigits(10),
+        firstIter(true),
         currentVisibleCreatures(new set<Creature*>()),
 	previousVisibleCreatures(new set<Creature*>())
 {
@@ -439,10 +432,10 @@ void CameraManager::move(const Direction direction, double aux  )
 
 int CameraManager::updateCameraView() {
 
-    delete oldTop;
-    delete oldBottom;
-    delete oldMiddleLeft;
-    delete oldMiddleRight;
+    // delete oldTop;
+    // delete oldBottom;
+    // delete oldMiddleLeft;
+    // delete oldMiddleRight;
 
     oldTop=top ;
     oldBottom=bottom ;
@@ -455,10 +448,10 @@ int CameraManager::updateCameraView() {
 
     getIntersectionPoints();
 
-    top = new Vector3i(ogreVectorsArray[0]);
-    middleLeft = new Vector3i(ogreVectorsArray[1]);
-    bottom = new Vector3i(ogreVectorsArray[2]);
-    middleRight = new Vector3i(ogreVectorsArray[3]);
+    top = Vector3i(ogreVectorsArray[0]);
+    middleLeft = Vector3i(ogreVectorsArray[1]);
+    bottom = Vector3i(ogreVectorsArray[2]);
+    middleRight = Vector3i(ogreVectorsArray[3]);
 
     sort(bottom, top, false);
     sort(middleLeft, middleRight, false);
@@ -467,16 +460,24 @@ int CameraManager::updateCameraView() {
     sort(middleLeft, middleRight, true);
 
 
-    if(oldTop!=0){
-	bashAndSplashTiles(SHOW | HIDE);
-    }
-    else{
-	oldTop=new  Vector3i (*top) ;
-	oldBottom=new  Vector3i (*bottom) ;
-	oldMiddleLeft=new  Vector3i (*middleLeft) ;
-	oldMiddleRight=new  Vector3i (*middleRight);
+    if(firstIter){
+	oldTop=top;
+	oldBottom=bottom;
+	oldMiddleLeft=middleLeft;
+	oldMiddleRight=middleRight;
 
 	bashAndSplashTiles(SHOW);
+	firstIter=false;
+
+    }
+    else{
+	// oldTop=new  Vector3i (*top) ;
+	// oldBottom=new  Vector3i (*bottom) ;
+	// oldMiddleLeft=new  Vector3i (*middleLeft) ;
+	// oldMiddleRight=new  Vector3i (*middleRight);
+	bashAndSplashTiles(SHOW | HIDE);
+
+
 
     }
     cerr << "countnodes " << gameMap->myCullingQuad.countNodes() <<endl;  
@@ -549,71 +550,71 @@ int CameraManager::bashAndSplashTiles(int mode)
 {
     bool bash,splash;
 
-    int xxLeftOld = oldTop->x;
-    int xxRightOld= oldTop->x;
+    int xxLeftOld = oldTop.x;
+    int xxRightOld= oldTop.x;
 
-    int dxLeftOld1 = (int)(oldMiddleLeft->x - oldTop->x)* (1<<precisionDigits) / (int)(oldTop->y - oldMiddleLeft->y);
-    int dxRightOld1 = (int)(oldMiddleRight->x - oldTop->x)* (1<<precisionDigits) / (int)(oldTop->y - oldMiddleRight->y) ;
+    int dxLeftOld1 = (int)(oldMiddleLeft.x - oldTop.x)* (1<<precisionDigits) / (int)(oldTop.y - oldMiddleLeft.y);
+    int dxRightOld1 = (int)(oldMiddleRight.x - oldTop.x)* (1<<precisionDigits) / (int)(oldTop.y - oldMiddleRight.y) ;
 
-    int dxLeftOld2 = (int)(oldBottom->x - oldMiddleLeft->x)* (1<<precisionDigits)/ (int)(oldMiddleLeft->y - oldBottom->y );
-    int dxRightOld2 =(int)(oldBottom->x - oldMiddleRight->x)* (1<<precisionDigits)/ (int)(oldMiddleRight->y - oldBottom->y) ;
+    int dxLeftOld2 = (int)(oldBottom.x - oldMiddleLeft.x)* (1<<precisionDigits)/ (int)(oldMiddleLeft.y - oldBottom.y );
+    int dxRightOld2 =(int)(oldBottom.x - oldMiddleRight.x)* (1<<precisionDigits)/ (int)(oldMiddleRight.y - oldBottom.y) ;
 
 
-    int xxLeft = top->x;
-    int xxRight= top->x;
+    int xxLeft = top.x;
+    int xxRight= top.x;
 
-    int  dxLeft1 = (int)(middleLeft->x - top->x) * (1<<precisionDigits) / (int)(top->y - middleLeft->y);
-    int  dxRight1 = (int)(middleRight->x - top->x)* (1<<precisionDigits) / (int)(top->y - middleRight->y) ;
+    int  dxLeft1 = (int)(middleLeft.x - top.x) * (1<<precisionDigits) / (int)(top.y - middleLeft.y);
+    int  dxRight1 = (int)(middleRight.x - top.x)* (1<<precisionDigits) / (int)(top.y - middleRight.y) ;
 
-    int  dxLeft2 = (int)(bottom->x - middleLeft->x)* (1<<precisionDigits)/ (int)(middleLeft->y - bottom->y );
-    int  dxRight2 =(int)(bottom->x - middleRight->x)* (1<<precisionDigits)/ (int)(middleRight->y - bottom->y) ;
+    int  dxLeft2 = (int)(bottom.x - middleLeft.x)* (1<<precisionDigits)/ (int)(middleLeft.y - bottom.y );
+    int  dxRight2 =(int)(bottom.x - middleRight.x)* (1<<precisionDigits)/ (int)(middleRight.y - bottom.y) ;
 
 
       
 
-    int bb = min(bottom->y,oldBottom->y);
+    int bb = min(bottom.y,oldBottom.y);
 
        
-    for (int yy =  ((max(top->y,oldTop->y)>>precisionDigits)+1 )<<precisionDigits ; yy >= bb ; yy-=(1<<precisionDigits)) {
+    for (int yy =  ((max(top.y,oldTop.y)>>precisionDigits)+1 )<<precisionDigits ; yy >= bb ; yy-=(1<<precisionDigits)) {
 
 
 
 
 
-	// if(yy == top->y)splashY=!splashY;
+	// if(yy == top.y)splashY=!splashY;
 
-	// if(yy == oldTop->y)bashY=!bashY;
-
-
+	// if(yy == oldTop.y)bashY=!bashY;
 
 
-	    if ( yy > middleLeft->y && yy<=top->y) {
+
+
+	    if ( yy > middleLeft.y && yy<=top.y) {
 	      xxLeft += dxLeft1;
 	    }
-	    else if( yy <= middleLeft->y && yy>bottom->y){
+	    else if( yy <= middleLeft.y && yy>bottom.y){
 	      xxLeft += dxLeft2;
 
 	    }
-	    if ( yy > middleRight->y && yy<=top->y ) {
+	    if ( yy > middleRight.y && yy<=top.y ) {
 	      xxRight += dxRight1;
 	    }
-	    else if( yy <=  middleRight->y && yy>bottom->y ){
+	    else if( yy <=  middleRight.y && yy>bottom.y ){
 	      xxRight += dxRight2;
 
 	    }
 
 
-	    if ( yy > oldMiddleLeft->y && yy<=oldTop->y) {
+	    if ( yy > oldMiddleLeft.y && yy<=oldTop.y) {
 		xxLeftOld += dxLeftOld1;
 	    }
-	    else if( yy <=  oldMiddleLeft->y && yy>oldBottom->y) {
+	    else if( yy <=  oldMiddleLeft.y && yy>oldBottom.y) {
 		xxLeftOld += dxLeftOld2;
 
 	    }
-	    if ( yy > oldMiddleRight->y && yy<=oldTop->y) {
+	    if ( yy > oldMiddleRight.y && yy<=oldTop.y) {
 		xxRightOld += dxRightOld1;
 	    }
-	    else if( yy <=  oldMiddleRight->y && yy>oldBottom->y){
+	    else if( yy <=  oldMiddleRight.y && yy>oldBottom.y){
 		xxRightOld += dxRightOld2;
 	    }
 
@@ -626,9 +627,9 @@ int CameraManager::bashAndSplashTiles(int mode)
 
     
 
-	    splash = (xx >=(int)xxLeft  && xx <=(int)xxRight && (yy >= (int)bottom->y) && yy <= (int)top->y)  ;
+	    splash = (xx >=(int)xxLeft  && xx <=(int)xxRight && (yy >= (int)bottom.y) && yy <= (int)top.y)  ;
 	   
-	    bash   = (xx >=(int)xxLeftOld  && xx <=(int)xxRightOld && (yy >= (int)oldBottom->y) && yy <= (int)oldTop->y) ;
+	    bash   = (xx >=(int)xxLeftOld  && xx <=(int)xxRightOld && (yy >= (int)oldBottom.y) && yy <= (int)oldTop.y) ;
 	    
 	    // cerr<< " x" <<  xx  << " y" << yy << " " <<bash<<splash << endl;		    
 	      if(bash && splash && (mode & HIDE) && (mode & SHOW) ){}
@@ -642,8 +643,8 @@ int CameraManager::bashAndSplashTiles(int mode)
 	    // if(xx >(int)xxRight)splashX=!splashX;
 	}
 
-	// if(yy < (int)oldBottom->y)bashY=!bashY;
-	// if(yy < (int)bottom->y)splashY=!splashY;
+	// if(yy < (int)oldBottom.y)bashY=!bashY;
+	// if(yy < (int)bottom.y)splashY=!splashY;
     }      
     return 1;        
 }
@@ -712,21 +713,19 @@ bool CameraManager::getIntersectionPoints() {
 /*! \brief Sort two Vector3i p1 and p2  to satisfy p1 <= p2 according to  
  * the value of X or Y coordiante, which depends on sortByX param . 
  */
-void CameraManager::sort(Vector3i*& p1 , Vector3i*& p2, bool sortByX) {
+void CameraManager::sort(Vector3i& p1 , Vector3i& p2, bool sortByX) {
 
     if (sortByX) {
 
-
-        if (p1->x > p2->x) {
+        if (p1.x > p2.x) {
 	  swap(p1,p2);
         }
 
     }
 
-
     else {
 
-        if (p1->y > p2->y) {
+        if (p1.y > p2.y) {
 	  swap(p1,p2);
         }
 

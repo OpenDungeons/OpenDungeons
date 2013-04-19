@@ -139,7 +139,8 @@ TileContainer* TileContainersModificator::create(int x , int y , Tile::TileType 
 
 
 TileContainer* TileContainersModificator::copy(TileContainer* tc1 , TileContainer* tc2 ){
-
+    if(tc1 == NULL || tc2 == NULL)
+	return NULL; 
 
     for(int ii = 0 ; ii < tc1->getMapSizeX() ; ii++){
 	for(int jj = 0 ; jj < tc2->getMapSizeY(); jj++){
@@ -151,7 +152,8 @@ TileContainer* TileContainersModificator::copy(TileContainer* tc1 , TileContaine
 }
 
 TileContainer* TileContainersModificator::embed(TileContainer* tc1 , TileContainer* tc2 ){
-  
+    if(tc1 == NULL )
+	return NULL;   
     delete tc1;
     return tc2;
 }
@@ -205,7 +207,6 @@ TileContainer* TileContainersModificator::tileReplace( TileContainer* tc1 , Tile
 
     return tc1;
 }
-
 
 
 

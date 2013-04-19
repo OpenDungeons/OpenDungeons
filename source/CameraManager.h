@@ -58,8 +58,10 @@ class CameraManager : public Ogre::Singleton<CameraManager>
 
 
     struct Vector3i{
-	Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ;  }
+	Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ; 
 
+	}
+	Vector3i(){};
 
 	int x ; int y ; int z;};
 
@@ -141,6 +143,7 @@ class CameraManager : public Ogre::Singleton<CameraManager>
 
     bool circleMode;
     bool catmullSplineMode;
+    bool firstIter;
 	
     double radious;
     int centerX;
@@ -158,11 +161,11 @@ class CameraManager : public Ogre::Singleton<CameraManager>
     ModeManager* modeManager;
     AbstractApplicationMode* gameMode;
     Ogre::Vector3 ogreVectorsArray[4];
-    Vector3i *top, *bottom, *middleLeft, *middleRight;
-    Vector3i *oldTop, *oldBottom, *oldMiddleLeft, *oldMiddleRight;
+    Vector3i top, bottom, middleLeft, middleRight;
+    Vector3i oldTop, oldBottom, oldMiddleLeft, oldMiddleRight;
     int precisionDigits;
     
-    void sort(Vector3i*& p1 , Vector3i*& p2, bool sortByX);
+    void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
 
     // we use the above variables for the methods below
 

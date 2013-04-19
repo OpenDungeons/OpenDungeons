@@ -11,6 +11,9 @@ friend class TileContainersModificator;
 
 public:
    TileContainer();
+   TileContainer( TileContainer const&);
+   TileContainer operator=( TileContainer const&);
+
   ~TileContainer();
   // Game state methods
   int  insert(int ii , int jj , Tile tt);

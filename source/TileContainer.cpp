@@ -10,7 +10,17 @@ TileContainer::~TileContainer(){
     delete [] tiles;
 }
 
+// TileContainer::TileContainer(const TileContainer&){
 
+//     sem_init(&tilesLockSemaphore, 0, 1);
+
+
+// }
+// TileContainer TileContainer::operator=(const TileContainer&){
+
+
+
+// }
 
 int TileContainer::insert(int ii , int jj , Tile tt) {
     if ( ii < getMapSizeX() && jj < getMapSizeY() && ii >= 0 && jj >= 0 )  {
@@ -264,6 +274,9 @@ bool  TileContainer::getSafeTileFullness(Tile* tt ){
 
     return (tt == NULL) ?  false : ( tt->getFullness() > 0 ) ;
 }
+
+
+
 
 
 int TileContainer::getMapSizeX() const{return mapSizeX; };
