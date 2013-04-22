@@ -48,7 +48,7 @@ ASWrapper::ASWrapper() :
         context (engine->CreateContext())
 {
     LogManager::getSingleton().logMessage("*** Initialising script engine AngelScript ***");
-
+    LogManager::getSingleton().logMessage( asGetLibraryOptions());
     //register function that gives out standard runtime information
     engine->SetMessageCallback(asMETHOD(ASWrapper, messageCallback), this, asCALL_THISCALL);
 

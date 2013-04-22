@@ -2,7 +2,8 @@
 # Type 'make' then 'make install' to complete the installation of the library
 
 # For 'make install' to work, set LOCAL according to your system configuration
-LOCAL = /usr/local
+LOCAL ?= /usr/local
+INSTALL_LIBDIR ?= lib
 
 # If you want to build a shared library, then run make with SHARED=1 and VERSION=version
 ifdef SHARED
@@ -20,22 +21,22 @@ ifeq ($(TARGETPLATFORM), iphone)
 	IPHONEBIN =  /Developer/Platforms/iPhoneOS.platform/Developer/usr/bin
 	OBJDIR = obj-iphone
 	LIBDIR = ../../lib-iphone
-	CXX = $(IPHONEBIN)/clang++
-	CXXFLAGS += -O2 -Wall -fPIC -arch armv7 -isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk -miphoneos-version-min=3.0
+	CXX ?= $(IPHONEBIN)/clang++
+	CXXFLAGS += -Wall -fPIC -fno-strict-aliasing -arch armv7 -isysroot /Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS5.0.sdk -miphoneos-version-min=3.0
 else ifeq ($(TARGETPLATFORM), iphonesimulator)
 	IPHONEBIN =  /Developer/Platforms/iPhoneSimulator.platform/Developer/usr/bin
 	OBJDIR = obj-iphone
 	LIBDIR = ../../lib-iphone
-	CXX = $(IPHONEBIN)/clang++
-	CXXFLAGS += -O2 -Wall -fPIC -arch i386 -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.0.sdk -miphoneos-version-min=3.0
+	CXX ?= $(IPHONEBIN)/clang++
+	CXXFLAGS += -Wall -fPIC -fno-strict-aliasing -arch i386 -isysroot /Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator5.0.sdk -miphoneos-version-min=3.0
 else ifeq ($(TARGETPLATFORM), android)
 	ANDROIDNDKROOT = /cygdrive/c/android/android-ndk-1.6_r1
 	ANDROIDBIN = $(ANDROIDNDKROOT)/build/prebuilt/windows/arm-eabi-4.2.1/bin
 	SYSROOT = $(ANDROIDNDKROOT)/build/platforms/android-4/arch-arm
 	OBJDIR = obj-android
 	LIBDIR = ../../lib-android
-	CXX = $(ANDROIDBIN)/arm-eabi-gcc
-	CXXFLAGS += -g -Wall -I$(SYSROOT)/usr/include \
+	CXX ?= $(ANDROIDBIN)/arm-eabi-gcc
+	CXXFLAGS += -I$(SYSROOT)/usr/include \
 	-Wall \
 	-DANDROID \
 	-fno-exceptions \
@@ -44,10 +45,10 @@ else ifeq ($(TARGETPLATFORM), android)
 else
 	OBJDIR = obj
 	LIBDIR = ../../lib
-	CXX ?= gcc
+	CXX ?= g++
 	# On i686 architecture you may need to add -march=i686 if you get 
 	# an undefined symbol for __sync_sub_and_fetch_4 in as_atomic.cpp.
-	CXXFLAGS += -g -Wall -fPIC -fno-strict-aliasing
+	CXXFLAGS += -Wall -fPIC -fno-strict-aliasing
 endif
 
 AR ?= ar
@@ -106,8 +107,7 @@ all: $(BIN)
 
 $(BIN): $(OBJDIR) $(LIBDIR) $(OBJ)
 ifdef SHARED
-	$(CXX) -shared -Wl,-soname,$(LIB) -o $(BIN) $(OBJ)
-	( cd $(LIBDIR); ln -s $(LIB) $(DEVLIB) )
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -Wl,-soname,$(LIB) -o $(BIN) $(OBJ)
 else
 	$(AR) r $(BIN) $(OBJ)
 	$(RANLIB) $(BIN)
@@ -135,18 +135,19 @@ clean:
 	$(DELETER) $(OBJ) $(BIN) $(LIBDIR)/$(DEVLIB)
 
 install: $(BIN)
-	@echo Installing to: $(LOCAL)/lib and $(LOCAL)/include...
+	@echo Installing to: $(LOCAL)/$(INSTALL_LIBDIR) and $(LOCAL)/include...
 	@echo -------------------------------------------------------------------
 ifdef SHARED
-	$(COPIER) $(LIBDIR)/$(DEVLIB) $(LOCAL)/lib
+	$(COPIER) $(LIBDIR)/$(DEVLIB) $(LOCAL)/$(INSTALL_LIBDIR)
+	( cd $(LIBDIR); ln -s $(LIB) $(DEVLIB) )
 endif
-	$(COPIER) $(BIN) $(LOCAL)/lib
+	$(COPIER) $(BIN) $(LOCAL)/$(INSTALL_LIBDIR)
 	$(COPIER) $(INCDIR)/$(INC) $(LOCAL)/include
 	@echo -------------------------------------------------------------------
 	@echo Angelscript library installed. Enjoy!
 
 uninstall:
-	$(DELETER) $(LOCAL)/include/$(INC) $(LOCAL)/lib/$(LIB) $(LOCAL)/lib/$(DEVLIB)
+	$(DELETER) $(LOCAL)/include/$(INC) $(LOCAL)/$(INSTALL_LIBDIR)/$(LIB) $(LOCAL)/$(INSTALL_LIBDIR)/$(DEVLIB)
 	@echo -------------------------------------------------------------------
 	@echo Angelscript library uninstalled.
 

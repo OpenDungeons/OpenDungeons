@@ -15,6 +15,251 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
+<h2>Version 2.26.3 WIP - 2013/04/19</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Compiler was generating invalid bytecode when compiling var declaration with initialization using void opAssign (Thanks Andrew Ackermann)
+<li>RegisterObjectProperty() will now return an error if the offset is larger than a signed 16bit value which is what the VM supports (Thanks Adrian Bibby Walther)
+<li>Fixed bug in compiler where the class constructor could become invalid if two classes with the same name was declared in different namespaces (Thanks loverlin)
+</ul>
+<li>Library interface
+<ul>
+<li>The new enum asFUNC_DELEGATE is used to identify function objects that are delegates
+<li>The engine property asEP_DISALLOW_VALUE_ASSIGN_FOR_REF_TYPE disables value assignments for reference types
+</ul>
+<li>Script language
+<ul>
+<li>Delegates can now be instanciated with a construct call for a funcdef with the class method as argument
+</ul>
+<li>Add-ons
+<ul>
+<li>Script array add-on will not allow subtypes of reference types unless they are handles if asEP_DISALLOW_VALUE_ASSIGN_FOR_REF_TYPE is turned on (Thanks Polyák István)
+</ul>
+</ul>
+
+<h2>Version 2.26.2 - 2013/03/31</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed bug in compiler when compiling implicit cast of global variable of ref type to a primitive value (Thanks jrick)
+<li>Fixed crash that could happen on releasing the engine if some garbage collected object was still kept alive by application (Thanks thd.MM)
+<li>Fixed the native calling conventions on Android (Thanks Grimshaw)
+<li>Fixed problem with shared global functions being recompiled in all modules and thus causing memory leaks (Thanks thd.MM)
+<li>Fixed crash with native calling conventions on Linux 64bit (Thanks darthvolvo)
+<li>The compiler wasn't giving error when default arg expression didn't match the parameter type (Thanks Philip Bennefall)
+<li>Evaluating -2147483648 / -1 is now treated properly with a script exception (Thanks TyRoXx) 
+<li>Initializing class member in declaration with a non-default constructor produced invalid bytecode (Thanks fanwars)
+<li>Fixed the native calling conventions on MinGW64 4.7 (Thanks Neuntoter)
+</ul>
+<li>Library
+<ul>
+<li>Improved garbage collector to give better error messages when it can't release all objects
+<li>Added engine property asEP_COMPILER_WARNINGS to allow applications to turn off warnings
+<li>Changed the code back to emit a warning instead of an error on unreachable code as it was often used by developers to temporarily skip parts of the code during testing
+<li>Increased maximum limit of number of functions in the engine from 65535 to approximately 10^9 (Thanks TheAtom)
+</ul>
+<li>Script language
+<ul>
+<li>Integer constants are now considered signed by default (Thanks cellulose)
+</ul>
+<li>Add-ons
+<ul>
+<li>Implemented helper function GetTypeTraits&lt;T&gt; to aid in the registration of value types. Relies on C++11 features (Thanks Heuristics)
+</ul>
+<li>Project
+<ul>
+<li>Updated the Android makefile to make sure the library is compiled with thumb mode turned off (Thanks quarnster)
+<li>Modified the gnuc makefile to make it easier for Linux package maintainers (Thanks Michael Shigorin)
+<li>Updated trolltech makefile to allow it to compile as_callfunc_x64_msvc_asm.asm on 64bit Windows (Thanks Markus Mönig)
+</ul>
+</ul>
+
+<h2>Version 2.26.1 - 2013/03/02</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed compiler error on Mac OS X in with the atomic functions (Thanks thd.MM)
+<li>Fixed segfault in GetGlobalVarIndexByDecl on passing invalid declaration (Thanks Nate Kent)
+<li>AssignScriptObject and CopyFrom wasn't using the script class' opAssign method (Thanks Polyák István)
+<li>Fixed bug in compiler with complex expressions in default args (Thanks Philip Bennefall)
+<li>Fixed the line numbers for for-loops (Thanks FDsagizi)
+<li>Fixed bug with the allocation of function ids, which could cause random behaviour for very large scripts (Thanks TheAtom)
+<li>Fixed bug with loading bytecode that used registered value types that could cause unexpected behaviour (Thanks TheAtom)
+<li>The compiler wasn't considering the correct namespace when parsing methods of classes and interfaces within namespaces (Thanks Wipe)
+<li>Interfaces that inherited other interfaces didn't expose the inherited methods (Thanks Wipe)
+<li>Fixed assert failure in compiler with use of copy constructor for value type with unsafe reference (Thanks FDsagizi)
+<li>Fixed assert failure in compiler with nested access to virtual property accessors (Thanks AgentC)
+<li>Fixed null pointer access in compiler when compiling default constructor for a class with invalid member initialization expressions (Thanks FDsagizi)
+<li>Fixed crash in compiler when compiling call to imported function with default arguments (Thanks Wipe)
+<li>Compiler no longer emits warnings on implementing the same interface multiple times (Thanks Wipe)
+<li>Compiler generated invalid bytecode when compiling expression that called function pointer returned from virtual property accessor (Thanks Wipe)
+<li>Fixed crash in GetLineNumber after loading module from bytecode (Thanks FDsagizi)
+<li>Fixed memory leak that could happen upon script exception (Thanks Wipe)
+</ul>
+<li>Library
+<ul>
+<li>Improved error message from CreateScriptObject when called for type that doesn't have default constructor (Thanks izackp)
+<li>Parser doesn't complain with empty declaration, i.e. a single ;, in classes (Thanks FDsagizi)
+<li>Improved error message when encountering non-terminated string literals (Thanks FDsagizi)
+<li>Templates now support multiple subtypes (Thanks Amer Koleci)
+<li>Added support for native calling conventions on Linux with ARM and gnuc compiler (Thanks Carlos Luna)
+<li>Compiler will report error if virtual property in shared interface doesn't match first declaration of the interface (Thanks Wipe)
+<li>Funcdefs are now automatically shared between modules if they are identical (Thanks Wipe)
+</ul>
+<li>Script language
+<ul>
+<li>Primitives can now be implicitly cast to value types via a call to the appropriate constructor
+<li>Added support for octal and binary constants with prefixes 0o and 0b respectively (Thanks ketmar) 
+<li>Heredoc strings keep the last linebreak (Thanks Scott Bean)
+</ul>
+<li>Add-ons
+<ul>
+<li>Script any, dictionary, and file add-ons now uses asAtomicInc/Dec to provide threadsafe reference counting
+<li>Implicit casts from primitives to the complex math type can be done with the new constructor
+</ul>
+</ul>
+
+<h2>Version 2.26.0 - 2013/02/03</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed rare crash after an object type had been deleted prematurely by the engine
+<li>Fixed incorrect static_cast on MSVC when attempting to register method for class with virtual inheritance (Thanks David Rosen)
+<li>Fixed compiler warnings when compiling with AS_NO_THREADS (Thanks Papirosnik)
+<li>Namespaces are now properly considered when compiler searches for property accessors (Thanks Violet CLM)
+<li>Fixed crash that occurred when using asCALL_GENERIC with asBEHAVE_TEMPLATE_CALLBACK (Thanks Andre Santee)
+<li>Fixed problem with saving/loading bytecode that passed function pointers in a function parameter (Thanks Andre Santee)
+<li>Fixed global variables of scoped reference types
+<li>Fixed bug in XBox 360 native calling convention code when returning simple objects by value (Thanks Jason Dorie)
+<li>Fixed compiler errors on Wii U (Thanks virious)
+<li>Shared types would get the implemented interfaces duplicated if compiled in multiple modules (Thanks Andrew Ackermann)
+<li>Fixed bug in compiler with passing temp handle to function taking inout ref to object (Thanks kozec)
+<li>RegisterObjectType no longer accepts combination of asOBJ_VALUE and asOBJ_NOHANDLE (Thanks Paril101)
+<li>Compiler wasn't considering the correct implicit namespace when looking up datatypes (Thanks Paril101)
+<li>Loading bytecode always failed if global variables had been disabled, even if the saved bytecode didn't have any global variables (Thanks Paril101)
+<li>Constructor with const &amp;inout is now recognized as copy constructor with asEP_ALLOW_UNSAFE_REFERENCES (Thanks FDsagizi)
+<li>Fixed parser error when function declaration had default argument that used paranthesis (Thanks Thomas Grip)
+<li>Fixed null pointer access in GetLineNumber() if called on function without debug info (Thanks ketmar)
+<li>Fixed crash that could happen discarding a module and the garbage collector held a reference to an object declared in the module (Thanks Thomas Grip)
+<li>Script arrays could be falsely marked as non-garbage collected as the asOBJ_GC flag wasn't set when the template callback was invoked
+<li>Fixed bug where a script class could be incorrectly marked as non-garbage collected when including a garbage collected member by value
+</ul>
+<li>Library interface
+<ul>
+<li>Added asCALL_THISCALL_ASGLOBAL for registering a class method as a global function
+<li>RegisterGlobalFunction() now takes an optional object pointer to be used with THISCALL_ASGLOBAL (Thanks zerochen)
+<li>asPrepareMultithread now takes an optional argument for using a shared thread manager in multiple dlls (Thanks Damien French)
+<li>asGetThreadManager and asIThreadManager for retrieving an existing thread manager (Thanks Damien French)
+<li>Added GetDefaultNamespace to engine and module (Thanks dkrusu)
+<li>Prepared asIObjectType for future implementation of templates with multiple subtypes
+<li>Added asAtomicInc and asAtomicDec as global functions to aid in development of portable and threadsafe add-ons
+</ul>
+<li>Library
+<ul>
+<li>Unreachable code in script functions is now considered an error by the compiler, instead of just a warning
+<li>Compiler avoids misleading error message about not all paths having a return value after encountering unreachable code (Thanks zerochen)
+<li>Marmalade is now identified as an OS with its own ABI (Thanks Braden MacDonald)
+<li>Added configuration for compiling the library with gnuc on Linux with mips. Though only with AS_MAX_PORTABILITY (Thanks Andris Jaunzeikars)
+<li>Added compile time option AS_NO_MEMBER_INIT to disable member initialization for backwards compatibility (Thanks Andrew Ackermann)
+<li>Reduced size of executable by avoiding code inlining in templated functions for taking function pointers (Thanks AgentC)
+<li>Slight reduction on overhead of calling system functions (Thanks Andrew Ackermann)
+<li>Improved algorithm in compiler for determining if objects needs to be garbage collected or not by taking advantage of the 'final' flag (Thanks Andrew Ackermann)
+</ul>
+<li>Script language
+<ul>
+<li>It is now possible to initialize class members directly in the declaration
+</ul>
+<li>Add-ons
+<ul>
+<li>Implemented the generic calling convention wrappers for the missing methods in the script array add-on
+<li>Implemented the generic calling convention wrappers for the script handle add-on
+<li>Implemented the generic calling convention wrappers for the missing methods in the std::string add-on
+<li>Fixed bug in script array when comparing two arrays for equality and only opCmp had been implemented in the element type (Thanks virious)
+<li>Fixed fopen_s compiler error on Marmalade in the scriptfile and scripthelper add-ons (Thanks Braden MacDonald)
+<li>CScriptBuilder::AddSectionFromMemory() now requires a name and an optional length for the buffer in case it is not null terminated (Thanks Paril101)
+<li>Fixed null pointer access in CDebugger when stepping over a function without debug info (Thanks ketmar)
+<li>Script array's reference counter is now threadsafe by using the global functions asAtomicInc and asAtomicDec
+</ul>
+</ul>
+
+<h2>Version 2.25.2 - 2012/11/24</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Problem with template types when non-default factory was registered before the default factory (Thanks zeta945)
+<li>import functions can now be declared with default arguments without crashing (Thanks Wipe)
+<li>Fixed bug in IsNested() that could sometimes give false positives
+<li>Fixed incorrect error messages for mismatching property accessors when this had been disabled by application (Thanks Philip Bennefall)
+</ul>
+<li>Library
+<ul>
+<li>Changed to localized bytecode optimizations for greatly enhanced compilation speeds in large complex functions
+<li>Added new bytecode optimizations for improved runtime performance
+<li>Script functions are now only added to the GC when the owning module releases them
+<li>Some more unused methods in the code are excluded when compiling with AS_NO_COMPILER
+<li>Global properties are also only added to the GC when the owning module releases them
+<li>Object types are no longer added to the GC while the module still references them
+<li>Changed style of comments in as_callfunc_arm_gcc.S to avoid compiler errors with Marmalade (Thanks Papirosnik)
+</ul>
+<li>Script language
+<ul>
+<li>Mixin classes can now implement interfaces
+</ul>
+<li>Add-ons &amp; Samples
+<ul>
+<li>Fixed some compiler errors with gnuc in the sample projects (Thanks Aapo Rantalainen)
+<li>ScriptBuilder now supports metadata for entities in namespaces (Thanks Chase W)
+<li>Changed the code in the string factory to avoid confusing the Marmalade memory leak detector (Thanks Papirosnik)
+</ul>
+</ul>
+
+<h2>Version 2.25.1 - 2012/10/28</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Fixed including mixin from a different script section (Thanks Nick Robinson)
+<li>Registering template specializations for templates without default constructor is now working (Thanks slicer4ever)
+<li>Fixed compiler assert on unary negate operator on void expression (Thanks FDsagizi)
+<li>Fixed bug with NOCOUNT object when copying script class members (Thanks FDsagizi)
+<li>Problem with exception handling after loading pre-compiled bytecode when class constructor takes object in argument (Thanks FDsagizi)
+<li>GetLineNumber() could crash when called for nested context calls (Thanks saejox)
+<li>Compiler would incorrectly find global functions when compiling function calls as post ops (Thanks FDsagizi)
+<li>Fixed bug in compiler when compiling property get expression that returned a reference to an object, but the reference wasn't used (Thanks Eero Tanskanen)
+<li>Fixed bug with virtual methods returning objects in memory on ARM platforms (Thanks Cordan)
+<li>Fixed compiler bug when compiling function that takes out reference of a type where opAssign returned a value (Thanks _Engine_)
+<li>Compiler wasn't showing error for virtual properties without any accessor (Thanks FDsagizi)
+<li>Shared enums in pre-compiled bytecode were not treated as shared when loading (Thanks _Engine_)
+<li>Shared classes will now validate that declared members exist in the original declaration during compilation (Thanks _Engine_)
+</ul>
+<li>Library
+<ul>
+<li>Implemented an inline profiler to get better understanding of bottlenecks in the code
+<li>Added support for the new ABI in MinGW32 4.7 (Thanks Heuristics)
+<li>Improved error messages when loading bytecode with shared types that doesn't match existing shared types
+<li>The context's line callback is now invoked one extra time just before leaving the Execute() method to allow listeners to catch state changes (Thanks saejox)
+<li>Made some improvements towards compatibility with Marmalade
+<li>Added validation against duplicate registration of global functions or class methods (Thanks Jason Dorie)
+</ul>
+<li>Script language
+<ul>
+<li>Class properties of the same type can now be declared together separated by ,
+<li>Interfaces can now inherit from other interfaces
+<li>Improved the way function overloads are matched against arguments so least conversion cost for all arguments wins (Thanks Adam Hoult)
+</ul>
+<li>Add-ons
+<ul>
+<li>Slight optimization in the string pool when a string is inserted for the first time (Thanks thewavelength)
+<li>Fixed bug in script builder add-on with parsing metadata for invalid script (Thanks FDsagizi)
+</ul>
+</ul>
+
 <h2>Version 2.25.0 - 2012/09/17</h2>
 
 <ul>

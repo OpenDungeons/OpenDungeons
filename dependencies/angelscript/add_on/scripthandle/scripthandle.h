@@ -40,6 +40,7 @@ protected:
 	// members in order to call them from the script engine
 	friend void Construct(CScriptHandle *self, void *ref, int typeId);
 	friend void RegisterScriptHandle_Native(asIScriptEngine *engine);
+	friend void CScriptHandle_AssignVar_Generic(asIScriptGeneric *gen);
 
 	void ReleaseHandle();
 	void AddRefHandle();

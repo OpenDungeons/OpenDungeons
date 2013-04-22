@@ -224,6 +224,8 @@ void CScriptHandle::Cast(void **outRef, int typeId)
 	}
 }
 
+
+
 void RegisterScriptHandle_Native(asIScriptEngine *engine)
 {
 	int r;
@@ -240,11 +242,94 @@ void RegisterScriptHandle_Native(asIScriptEngine *engine)
 	r = engine->RegisterObjectMethod("ref", "bool opEquals(const ?&in) const", asMETHODPR(CScriptHandle, Equals, (void*, int) const, bool), asCALL_THISCALL); assert( r >= 0 );
 }
 
+void CScriptHandle_Construct_Generic(asIScriptGeneric *gen)
+{
+	CScriptHandle *self = reinterpret_cast<CScriptHandle*>(gen->GetObject());
+	new(self) CScriptHandle();
+}
+
+void CScriptHandle_ConstructCopy_Generic(asIScriptGeneric *gen)
+{
+	CScriptHandle *other = reinterpret_cast<CScriptHandle*>(gen->GetArgAddress(0));
+	CScriptHandle *self = reinterpret_cast<CScriptHandle*>(gen->GetObject());
+	new(self) CScriptHandle(*other);
+}
+
+void CScriptHandle_ConstructVar_Generic(asIScriptGeneric *gen)
+{
+	void *ref = gen->GetArgAddress(0);
+	int typeId = gen->GetArgTypeId(0);
+	CScriptHandle *self = reinterpret_cast<CScriptHandle*>(gen->GetObject());
+	Construct(self, ref, typeId);
+}
+
+void CScriptHandle_Destruct_Generic(asIScriptGeneric *gen)
+{
+	CScriptHandle *self = reinterpret_cast<CScriptHandle*>(gen->GetObject());
+	self->~CScriptHandle();
+}
+
+void CScriptHandle_Cast_Generic(asIScriptGeneric *gen)
+{
+	void **ref = reinterpret_cast<void**>(gen->GetArgAddress(0));
+	int typeId = gen->GetArgTypeId(0);
+	CScriptHandle *self = reinterpret_cast<CScriptHandle*>(gen->GetObject());
+	self->Cast(ref, typeId);
+}
+
+void CScriptHandle_Assign_Generic(asIScriptGeneric *gen)
+{
+	CScriptHandle *other = reinterpret_cast<CScriptHandle*>(gen->GetArgAddress(0));
+	CScriptHandle *self = reinterpret_cast<CScriptHandle*>(gen->GetObject());
+	*self = *other;
+	gen->SetReturnAddress(self);
+}
+
+void CScriptHandle_AssignVar_Generic(asIScriptGeneric *gen)
+{
+	void *ref = gen->GetArgAddress(0);
+	int typeId = gen->GetArgTypeId(0);
+	CScriptHandle *self = reinterpret_cast<CScriptHandle*>(gen->GetObject());
+	self->Assign(ref, typeId);
+	gen->SetReturnAddress(self);
+}
+
+void CScriptHandle_Equals_Generic(asIScriptGeneric *gen)
+{
+	CScriptHandle *other = reinterpret_cast<CScriptHandle*>(gen->GetArgAddress(0));
+	CScriptHandle *self = reinterpret_cast<CScriptHandle*>(gen->GetObject());
+	gen->SetReturnByte(*self == *other);
+}
+
+void CScriptHandle_EqualsVar_Generic(asIScriptGeneric *gen)
+{
+	void *ref = gen->GetArgAddress(0);
+	int typeId = gen->GetArgTypeId(0);
+	CScriptHandle *self = reinterpret_cast<CScriptHandle*>(gen->GetObject());
+	gen->SetReturnByte(self->Equals(ref, typeId));
+}
+
+void RegisterScriptHandle_Generic(asIScriptEngine *engine)
+{
+	int r;
+
+	r = engine->RegisterObjectType("ref", sizeof(CScriptHandle), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_APP_CLASS_CDAK); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("ref", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(CScriptHandle_Construct_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("ref", asBEHAVE_CONSTRUCT, "void f(const ref &in)", asFUNCTION(CScriptHandle_ConstructCopy_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("ref", asBEHAVE_CONSTRUCT, "void f(const ?&in)", asFUNCTION(CScriptHandle_ConstructVar_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("ref", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(CScriptHandle_Destruct_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("ref", asBEHAVE_REF_CAST, "void f(?&out)", asFUNCTION(CScriptHandle_Cast_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("ref", "ref &opAssign(const ref &in)", asFUNCTION(CScriptHandle_Assign_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("ref", "ref &opAssign(const ?&in)", asFUNCTION(CScriptHandle_AssignVar_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("ref", "bool opEquals(const ref &in) const", asFUNCTION(CScriptHandle_Equals_Generic), asCALL_GENERIC); assert( r >= 0 );
+	r = engine->RegisterObjectMethod("ref", "bool opEquals(const ?&in) const", asFUNCTION(CScriptHandle_EqualsVar_Generic), asCALL_GENERIC); assert( r >= 0 );
+}
+
 void RegisterScriptHandle(asIScriptEngine *engine)
 {
-//	if( strstr(asGetLibraryOptions(), "AS_MAX_PORTABILITY") )
-//		RegisterScriptHandle_Generic(engine);
-//	else
+	if( strstr(asGetLibraryOptions(), "AS_MAX_PORTABILITY") )
+		RegisterScriptHandle_Generic(engine);
+	else
 		RegisterScriptHandle_Native(engine);
 }
 

@@ -165,7 +165,9 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 	int c, n;
 
 	FILE *f = 0;
-#if _MSC_VER >= 1400 // MSVC 8.0 / 2005
+#if _MSC_VER >= 1400 && !defined(__S3E__) 
+	// MSVC 8.0 / 2005 introduced new functions 
+	// Marmalade doesn't use these, even though it uses the MSVC compiler
 	fopen_s(&f, filename, "wt");
 #else
 	f = fopen(filename, "wt");
@@ -191,7 +193,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 		const char *enumName = engine->GetEnumByIndex(n, &typeId, &nameSpace, 0, &accessMask);
 		if( accessMask != currAccessMask )
 		{
-			fprintf(f, "access %X\n", accessMask);
+			fprintf(f, "access %X\n", (unsigned int)(accessMask));
 			currAccessMask = accessMask;
 		}
 		if( nameSpace != currNamespace )
@@ -219,7 +221,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 		asDWORD accessMask = type->GetAccessMask();
 		if( accessMask != currAccessMask )
 		{
-			fprintf(f, "access %X\n", accessMask);
+			fprintf(f, "access %X\n", (unsigned int)(accessMask));
 			currAccessMask = accessMask;
 		}
 		const char *nameSpace = type->GetNamespace();
@@ -258,7 +260,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 		}
 		if( accessMask != currAccessMask )
 		{
-			fprintf(f, "access %X\n", accessMask);
+			fprintf(f, "access %X\n", (unsigned int)(accessMask));
 			currAccessMask = accessMask;
 		}
 		fprintf(f, "typedef %s \"%s\"\n", typeDef, engine->GetTypeDeclaration(typeId));
@@ -277,7 +279,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 		}
 		if( accessMask != currAccessMask )
 		{
-			fprintf(f, "access %X\n", accessMask);
+			fprintf(f, "access %X\n", (unsigned int)(accessMask));
 			currAccessMask = accessMask;
 		}
 		fprintf(f, "funcdef \"%s\"\n", funcDef->GetDeclaration());
@@ -305,7 +307,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 				asDWORD accessMask = func->GetAccessMask();
 				if( accessMask != currAccessMask )
 				{
-					fprintf(f, "access %X\n", accessMask);
+					fprintf(f, "access %X\n", (unsigned int)(accessMask));
 					currAccessMask = accessMask;
 				}
 				fprintf(f, "intfmthd %s \"%s\"\n", typeDecl.c_str(), func->GetDeclaration(false));
@@ -320,7 +322,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 				asDWORD accessMask = func->GetAccessMask();
 				if( accessMask != currAccessMask )
 				{
-					fprintf(f, "access %X\n", accessMask);
+					fprintf(f, "access %X\n", (unsigned int)(accessMask));
 					currAccessMask = accessMask;
 				}
 				fprintf(f, "objbeh \"%s\" %d \"%s\"\n", typeDecl.c_str(), asBEHAVE_FACTORY, func->GetDeclaration(false));
@@ -337,7 +339,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 				asDWORD accessMask = func->GetAccessMask();
 				if( accessMask != currAccessMask )
 				{
-					fprintf(f, "access %X\n", accessMask);
+					fprintf(f, "access %X\n", (unsigned int)(accessMask));
 					currAccessMask = accessMask;
 				}
 				fprintf(f, "objmthd \"%s\" \"%s\"\n", typeDecl.c_str(), func->GetDeclaration(false));
@@ -348,7 +350,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 				type->GetProperty(m, 0, 0, 0, 0, 0, &accessMask);
 				if( accessMask != currAccessMask )
 				{
-					fprintf(f, "access %X\n", accessMask);
+					fprintf(f, "access %X\n", (unsigned int)(accessMask));
 					currAccessMask = accessMask;
 				}
 				fprintf(f, "objprop \"%s\" \"%s\"\n", typeDecl.c_str(), type->GetPropertyDeclaration(m));
@@ -372,7 +374,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 		asDWORD accessMask = func->GetAccessMask();
 		if( accessMask != currAccessMask )
 		{
-			fprintf(f, "access %X\n", accessMask);
+			fprintf(f, "access %X\n", (unsigned int)(accessMask));
 			currAccessMask = accessMask;
 		}
 		fprintf(f, "func \"%s\"\n", func->GetDeclaration());
@@ -392,7 +394,7 @@ int WriteConfigToFile(asIScriptEngine *engine, const char *filename)
 		engine->GetGlobalPropertyByIndex(n, &name, &nameSpace, &typeId, &isConst, 0, 0, &accessMask);
 		if( accessMask != currAccessMask )
 		{
-			fprintf(f, "access %X\n", accessMask);
+			fprintf(f, "access %X\n", (unsigned int)(accessMask));
 			currAccessMask = accessMask;
 		}
 		if( nameSpace != currNamespace )

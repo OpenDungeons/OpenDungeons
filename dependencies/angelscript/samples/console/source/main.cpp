@@ -135,7 +135,7 @@ void MessageCallback(const asSMessageInfo *msg, void *param)
 	else if( msg->type == asMSGTYPE_INFORMATION )
 		type = "INFO";
 
-	printf("%s (%d, %d) : %s : %s\n", msg->section, msg->row, msg->col, type, msg->message);
+	cout << msg->section << " (" << msg->row << ", " << msg->col << ") : " << type << " : " << msg->message << endl;
 }
 
 void ConfigureEngine(asIScriptEngine *engine)

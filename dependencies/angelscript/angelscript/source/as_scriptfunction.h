@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2012 Andreas Jonsson
+   Copyright (c) 2003-2013 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -87,11 +87,6 @@ struct asSSystemFunctionInterface;
 //       also functions/methods that are being called. This could be used to build a 
 //       code database with call graphs, etc.
 
-// TODO: runtime optimize: The GC should only be notified of the script function when the last module
-//                         removes it from the scope. Must make sure it is only added to the GC once
-//                         in case the function is added to another module after the GC already knows 
-//                         about the function.
-
 void RegisterScriptFunction(asCScriptEngine *engine);
 
 class asCScriptFunction : public asIScriptFunction
@@ -152,18 +147,23 @@ public:
 	~asCScriptFunction();
 
 	void      DestroyInternal();
+	void      Orphan(asIScriptModule *mod);
 
 	void      AddVariable(asCString &name, asCDataType &type, int stackOffset);
 
 	int       GetSpaceNeededForArguments();
 	int       GetSpaceNeededForReturnValue();
 	asCString GetDeclarationStr(bool includeObjectName = true, bool includeNamespace = false) const;
-	int       GetLineNumber(int programPosition);
+	int       GetLineNumber(int programPosition, int *sectionIdx);
 	void      ComputeSignatureId();
 	bool      IsSignatureEqual(const asCScriptFunction *func) const;
 	bool      IsSignatureExceptNameEqual(const asCScriptFunction *func) const;
 	bool      IsSignatureExceptNameEqual(const asCDataType &retType, const asCArray<asCDataType> &paramTypes, const asCArray<asETypeModifiers> &inOutFlags, const asCObjectType *type, bool isReadOnly) const;
+	bool      IsSignatureExceptNameAndReturnTypeEqual(const asCScriptFunction *fun) const;
 	bool      IsSignatureExceptNameAndReturnTypeEqual(const asCArray<asCDataType> &paramTypes, const asCArray<asETypeModifiers> &inOutFlags, const asCObjectType *type, bool isReadOnly) const;
+	bool      IsSignatureExceptNameAndObjectTypeEqual(const asCScriptFunction *func) const;
+
+	void      MakeDelegate(asCScriptFunction *func, void *obj);
 
 	bool      DoesReturnOnStack() const;
 
@@ -214,6 +214,10 @@ public:
 
 	asSNameSpace                *nameSpace;
 
+	// Used by asFUNC_DELEGATE
+	void              *objForDelegate;
+	asCScriptFunction *funcForDelegate;
+
 	// Used by asFUNC_SCRIPT
 	asCArray<asDWORD>               byteCode;
 	// The stack space needed for the local variables
@@ -237,6 +241,7 @@ public:
 	int                             stackNeeded;
 	asCArray<int>                   lineNumbers;      // debug info
 	int                             scriptSectionIdx; // debug info
+	asCArray<int>                   sectionIdxs;      // debug info. Store position/index pairs if the bytecode is compiled from multiple script sections
 	bool                            dontCleanUpOnException;   // Stub functions don't own the object and parameters
 
 	// Used by asFUNC_VIRTUAL
@@ -248,6 +253,9 @@ public:
     // JIT compiled code of this function
     asJITFunction                jitFunction;
 };
+
+const char * const DELEGATE_FACTORY = "%delegate_factory";
+asCScriptFunction *CreateDelegate(asCScriptFunction *func, void *obj);
 
 END_AS_NAMESPACE
 

@@ -100,5 +100,24 @@ MOC_DIR = tmp
 UI_DIR = tmp
 RCC_DIR = tmp
 
+!win32-g++:win32:contains(QMAKE_HOST.arch, x86_64):{
+    asm_compiler.commands = ml64 /c
+    asm_compiler.commands +=  /Fo ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
+    asm_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+    asm_compiler.input = ASM_SOURCES
+    asm_compiler.variable_out = OBJECTS
+    asm_compiler.name = compiling[asm] ${QMAKE_FILE_IN}
+    silent:asm_compiler.commands = @echo compiling[asm] ${QMAKE_FILE_IN} && $$asm_compiler.commands
+    QMAKE_EXTRA_COMPILERS += asm_compiler
+
+    ASM_SOURCES += \
+        $$PWD/angelscript/source/as_callfunc_x64_msvc_asm.asm
+		
+    if(win32-msvc2008|win32-msvc2010):equals(TEMPLATE_PREFIX, "vc") {
+        SOURCES += \
+            $$PWD/angelscript/source/as_callfunc_x64_msvc_asm.asm
+    }
+}
+
 # QMAKE_CXXFLAGS_RELEASE += /MP
 

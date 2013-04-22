@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2012 Andreas Jonsson
+   Copyright (c) 2003-2013 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -55,6 +55,29 @@ asCGarbageCollector::asCGarbageCollector()
 	numNewDestroyed = 0;
 	numDetected     = 0;
 	isProcessing    = false;
+}
+
+asCGarbageCollector::~asCGarbageCollector()
+{
+	// This local typedef is done to workaround a compiler error on
+	// MSVC6 when using the typedef declared in the class definition
+	typedef asSMapNode_t node_t;
+	for( asUINT n = 0; n < freeNodes.GetLength(); n++ )
+		asDELETE(freeNodes[n], node_t);
+	freeNodes.SetLength(0);
+}
+
+bool asCGarbageCollector::IsObjectInGC(void *obj)
+{
+	asUINT n;
+	for( n = 0; n < gcNewObjects.GetLength(); n++ )
+		if( gcNewObjects[n].obj == obj )
+			return true;
+	for( n = 0; n < gcOldObjects.GetLength(); n++ )
+		if( gcOldObjects[n].obj == obj )
+			return true;
+
+	return false;
 }
 
 void asCGarbageCollector::AddScriptObjectToGC(void *obj, asCObjectType *objType)
@@ -163,11 +186,18 @@ int asCGarbageCollector::GarbageCollect(asDWORD flags)
 				if( count != (unsigned int)(gcNewObjects.GetLength() + gcOldObjects.GetLength()) )
 					count = (unsigned int)(gcNewObjects.GetLength() + gcOldObjects.GetLength());
 				else
-					break;
+				{
+					// Let the engine destroy the types that reached refCount 0
+					// If none were destroyed, then leave the GC
+					// TODO: The asCObjectType should destroy its content when refCount reaches 0
+					//       since no-one is using them. The registered types should have their
+					//       refcount increased by the config groups. Doing it like that will allow 
+					//       me to remove this call to ClearUnusedTypes() that the GC really 
+					//       shouldn't be calling.
+					if( engine->ClearUnusedTypes() == 0 )
+						break;
+				}
 			}
-
-			// Take the opportunity to clear unused types as well
-			engine->ClearUnusedTypes();
 
 			isProcessing = false;
 			LEAVECRITICALSECTION(gcCollecting);
@@ -396,10 +426,31 @@ int asCGarbageCollector::ReportAndReleaseUndestroyedObjects()
 	{
 		asSObjTypePair gcObj = GetOldObjectAtIdx(n);
 
+		int refCount = 0;
+		if( gcObj.type->beh.gcGetRefCount && engine->scriptFunctions[gcObj.type->beh.gcGetRefCount] )
+			refCount = engine->CallObjectMethodRetInt(gcObj.obj, gcObj.type->beh.gcGetRefCount);
+
 		// Report the object as not being properly destroyed
 		asCString msg;
-		msg.Format(TXT_GC_CANNOT_FREE_OBJ_OF_TYPE_s, gcObj.type->name.AddressOf());
+		msg.Format(TXT_GC_CANNOT_FREE_OBJ_OF_TYPE_s_REF_COUNT_d, gcObj.type->name.AddressOf(), refCount - 1);
 		engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, msg.AddressOf());
+
+		// Add additional info for builtin types
+		if( gcObj.type->name == "_builtin_function_" )
+		{
+			msg.Format(TXT_PREV_TYPE_IS_NAMED_s, reinterpret_cast<asCScriptFunction*>(gcObj.obj)->GetName());
+			engine->WriteMessage("", 0, 0, asMSGTYPE_INFORMATION, msg.AddressOf());
+		}
+		else if( gcObj.type->name == "_builtin_objecttype_" )
+		{
+			msg.Format(TXT_PREV_TYPE_IS_NAMED_s, reinterpret_cast<asCObjectType*>(gcObj.obj)->GetName());
+			engine->WriteMessage("", 0, 0, asMSGTYPE_INFORMATION, msg.AddressOf());
+		}
+		else if( gcObj.type->name == "_builtin_globalprop_" )
+		{
+			msg.Format(TXT_PREV_TYPE_IS_NAMED_s, reinterpret_cast<asCGlobalProperty*>(gcObj.obj)->name.AddressOf());
+			engine->WriteMessage("", 0, 0, asMSGTYPE_INFORMATION, msg.AddressOf());
+		}
 
 		// Release the reference that the GC holds if the release functions is still available
 		if( gcObj.type->beh.release && engine->scriptFunctions[gcObj.type->beh.release] )
@@ -541,7 +592,7 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 
 				engine->CallObjectMethod(obj, it.type->beh.release);
 
-				gcMap.Erase(cursor);
+				ReturnNode(gcMap.Remove(cursor));
 
 				return 1;
 			}
@@ -580,7 +631,8 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 				if( refCount > 1 )
 				{
 					asSIntTypePair it = {refCount-1, gcObj.type};
-					gcMap.Insert(gcObj.obj, it);
+
+					gcMap.Insert(GetNode(gcObj.obj, it));
 
 					// Increment the object's reference counter when putting it in the map
 					engine->CallObjectMethod(gcObj.obj, gcObj.type->beh.addref);
@@ -695,7 +747,7 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 				if( gcMap.MoveTo(&cursor, gcObj) )
 				{
 					type = gcMap.GetValue(cursor).type;
-					gcMap.Erase(cursor);
+					ReturnNode(gcMap.Remove(cursor));
 
 					// We need to decrease the reference count again as we remove the object from the map
 					engine->CallObjectMethod(gcObj, type->beh.release);
@@ -798,6 +850,24 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 
 	// Shouldn't reach this point
 	UNREACHABLE_RETURN;
+}
+
+asCGarbageCollector::asSMapNode_t *asCGarbageCollector::GetNode(void *obj, asSIntTypePair it)
+{
+	asSMapNode_t *node;
+	if( freeNodes.GetLength() )
+		node = freeNodes.PopLast();
+	else
+		node = asNEW(asSMapNode_t);
+
+	node->Init(obj, it);
+	return node;
+}
+
+void asCGarbageCollector::ReturnNode(asSMapNode_t *node)
+{
+	if( node )
+		freeNodes.PushLast(node);
 }
 
 void asCGarbageCollector::GCEnumCallback(void *reference)

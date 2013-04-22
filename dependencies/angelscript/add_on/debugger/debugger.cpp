@@ -103,6 +103,12 @@ string CDebugger::ToString(void *value, asUINT typeId, bool expandMembers, asISc
 
 void CDebugger::LineCallback(asIScriptContext *ctx)
 {
+	// By default we ignore callbacks when the context is not active.
+	// An application might override this to for example disconnect the
+	// debugger as the execution finished.
+	if( ctx->GetState() != asEXECUTION_ACTIVE )
+		return;
+
 	if( m_action == CONTINUE )
 	{
 		if( !CheckBreakPoint(ctx) )
@@ -151,7 +157,7 @@ bool CDebugger::CheckBreakPoint(asIScriptContext *ctx)
 	int lineNbr = ctx->GetLineNumber(0, 0, &tmp);
 
 	// Consider just filename, not the full path
-	string file = tmp;
+	string file = tmp ? tmp : "";
 	size_t r = file.find_last_of("\\/");
 	if( r != string::npos )
 		file = file.substr(r+1);
