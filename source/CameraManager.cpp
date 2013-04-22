@@ -46,8 +46,8 @@ CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
 	catmullSplineMode(false),
 	precisionDigits(10),
         firstIter(true),
-        currentVisibleCreatures(new set<Creature*>()),
-	previousVisibleCreatures(new set<Creature*>())
+        currentVisibleCreatures(&creaturesSet[0]),
+	previousVisibleCreatures(&creaturesSet[1])
 {
   
 
@@ -492,9 +492,10 @@ int CameraManager::updateCameraView() {
     tmpQuad.cut(Segment(ogreVectorsArray[2],ogreVectorsArray[1]));
 
     cerr << "tmpQuad.countNodes() " << tmpQuad.countNodes() <<endl;  
-    delete previousVisibleCreatures;
-    previousVisibleCreatures = currentVisibleCreatures;
-    currentVisibleCreatures = tmpQuad.returnCreaturesSet();
+
+
+    swap(currentVisibleCreatures, previousVisibleCreatures);
+    currentVisibleCreatures = tmpQuad.returnCreaturesSet(currentVisibleCreatures);
     cerr << "currentVisibleCreatures  " << currentVisibleCreatures->size() <<endl;
 
     std::set<Creature*> intersection; 

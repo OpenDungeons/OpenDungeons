@@ -137,8 +137,10 @@ class CameraManager : public Ogre::Singleton<CameraManager>
     bool switchedPM ;
     Ogre::String switchPolygonMode();
 
-    set<Creature*>*  currentVisibleCreatures;
+    set<Creature*>*  currentVisibleCreatures ;
     set<Creature*>*  previousVisibleCreatures ;
+
+    set<Creature*> creaturesSet[2]; 
 
 
     bool circleMode;

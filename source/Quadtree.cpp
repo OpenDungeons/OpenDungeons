@@ -173,9 +173,9 @@ void CullingQuad::print(){
 
 }
 
-set<Creature*>* CullingQuad::returnCreaturesSet(){
-    set<Creature*>* ss = new set<Creature*>() ;
+set<Creature*>* CullingQuad::returnCreaturesSet(set<Creature*>* ss){
 
+    ss->clear();
     if(entry!=NULL){
 	for(list<Creature*>::iterator it = entry->creature_list.begin()  ; it != entry->creature_list.end()   ; it++   ){
 	    ss->insert(*it);

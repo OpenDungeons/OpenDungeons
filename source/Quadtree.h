@@ -140,8 +140,8 @@ public:
     CullingQuad* shallowInsert(Entry*);
     CullingQuad* shallowInsert(Entry&);
     void setCenterFromParent(CullingQuad*, int);
-    set<Creature*>* returnCreaturesSet();
-    void returnCreaturesSetAux(set<Creature*> *ss);
+    set<Creature*>* returnCreaturesSet(  set<Creature*>*);
+    void returnCreaturesSetAux(set<Creature*> *);
 
     CullingQuad();
     /* CullingQuad(CullingQuad*); */

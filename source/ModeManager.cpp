@@ -4,6 +4,7 @@
 #include "GameMode.h"
 #include "EditorMode.h"
 #include "ConsoleMode.h"
+#include "FppMode.h"
 
 ModeManager::ModeManager(GameMap* gameMap,MiniMap* miniMap, Console* console){
     
