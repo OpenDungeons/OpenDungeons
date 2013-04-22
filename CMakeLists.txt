@@ -121,6 +121,7 @@ set(OD_SOURCEFILES
     ${SRC}/EditorContext.cpp
     ${SRC}/EditorMode.cpp
     ${SRC}/Field.cpp
+    ${SRC}/FppMode.cpp
     ${SRC}/Functions.cpp
     ${SRC}/GameContext.cpp
     ${SRC}/GameEntity.cpp

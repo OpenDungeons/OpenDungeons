@@ -45,7 +45,7 @@ ModeContext *mc;
 
 private:
 Console *cn;
-AbstractApplicationMode* modesArray[4];
+AbstractApplicationMode* modesArray[5];
 stack<ModeType> modesStack;
 
 

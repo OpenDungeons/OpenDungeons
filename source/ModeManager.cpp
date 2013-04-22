@@ -13,6 +13,7 @@ ModeManager::ModeManager(GameMap* gameMap,MiniMap* miniMap, Console* console){
     modesArray[1]= new GameMode(mc);
     modesArray[2]= new EditorMode(mc);
     modesArray[3]= new ConsoleMode(mc,console);
+    modesArray[4]= new FppMode(mc);
     modesStack.push(MENU);
     modesArray[modesStack.top()]->giveFocus();
 }
