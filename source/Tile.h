@@ -28,16 +28,18 @@ class GameMap;
 class Tile : public GameEntity
 {
     public:
-        //TODO:  These should be renumbered to put 0 as the nullTileType, however this will mean converting all the dirt tiles in the level files.
+        
         enum TileType
         {
-            dirt = 0,
-            gold = 1,
-            rock = 2,
-            water = 3,
-            lava = 4,
-            claimed = 5,
-            nullTileType
+            nullTileType = 0,
+            dirt = 1,
+            gold = 2,
+            rock = 3,
+            water = 4,
+            lava = 5,
+            //if the last type is changed or more are added, changes must be
+            //  reflected in Tile::nextTileType() in Tile.cpp
+            claimed = 6
         };
         // Changes to this enum must be reflected in Tile::getTilePassability() as well as in GameMap::path()
         enum TileClearType
