@@ -11,6 +11,7 @@ class ModeContext;
 class GameMap;
 class MiniMap;
 class Console;
+class CameraManager;
 
 class ModeManager
 {
@@ -29,7 +30,7 @@ enum ModeType {
 
 
 
-ModeManager(GameMap* ,MiniMap*, Console* cn );
+ModeManager(GameMap* ,MiniMap*, Console*);
 ~ModeManager();
 
 AbstractApplicationMode*  getCurrentMode();

@@ -23,7 +23,6 @@ using  std::set; using  std::swap; using  std::max; using  std::min;
 using  std::cerr; using std::endl;
 
 
-template<> CameraManager* Ogre::Singleton<CameraManager>::msSingleton = 0;
 
 CameraManager::CameraManager(Ogre::Camera* cam, GameMap* gm ) :
         switchedPM(false),
@@ -757,9 +756,7 @@ bool CameraManager::isCamMovingAtAll() const
 
 bool CameraManager::onFrameStarted (){
 
-
     updateCameraView();
-
 
 }
 

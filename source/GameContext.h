@@ -31,7 +31,7 @@ class GameContext
 
 	void onFrameStarted(const Ogre::FrameEvent& evt);
 	void onFrameEnded(const Ogre::FrameEvent& evt);
-
+	void setCameraManager(CameraManager*  );
 
     private:
         GameMap* gameMap;

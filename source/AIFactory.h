@@ -24,7 +24,7 @@ public:
 
 
 private:
-    template <typename T> friend class AIFactoryRegister;
+     template <typename T> friend class AIFactoryRegister;
 
     template <typename D>
     static BaseAI* createAI(GameMap& gameMap, Player& player, const std::string& parameters = "")

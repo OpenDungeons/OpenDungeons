@@ -7,8 +7,7 @@
 #include "FppMode.h"
 
 ModeManager::ModeManager(GameMap* gameMap,MiniMap* miniMap, Console* console){
-    
-
+   
     mc = new ModeContext(gameMap,miniMap);
     modesArray[0]= new MenuMode(mc);
     modesArray[1]= new GameMode(mc);
@@ -27,6 +26,7 @@ ModeManager::~ModeManager(){
     delete modesArray[1];
     delete modesArray[2];
     delete modesArray[3];
+    delete modesArray[4];
     delete mc;
 }
 

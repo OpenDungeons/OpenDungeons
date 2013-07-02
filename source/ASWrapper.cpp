@@ -361,9 +361,9 @@ void ASWrapper::registerEverything()
     //CameraManager
     r = engine->RegisterObjectType(
             "CameraManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    r = engine->RegisterGlobalProperty(
-            "CameraManager cameraManager",
-            CameraManager::getSingletonPtr()); assert(r >= 0);
+    // r = engine->RegisterGlobalProperty(
+    //         "CameraManager cameraManager",
+    //         CameraManager::getSingletonPtr()); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "void set_MoveSpeedAccel(float &in)",
             asMETHOD(CameraManager, setMoveSpeedAccel),

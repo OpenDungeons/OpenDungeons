@@ -24,12 +24,26 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE "Release")
 endif()
 
-
 ##################################
 #### ExplicitCompilerFlags #######
 ##################################
+if (MSVC)
+  set ( CMAKE_CXX_FLAGS "/GLOBAL_FLAGS_GO_HERE")
+  set ( CMAKE_CXX_FLAGS_DEBUG "/DEBUG_FLAGSS_GO_HERE")
+  set ( CMAKE_CXX_FLAGS_RELEASE  "/RELEASE_FLAGS_GO_HERE" )
+endif ()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+if (BORLAND)
+  set ( CMAKE_CXX_FLAGS "/GLOBAL_FLAGS_GO_HERE")
+  set ( CMAKE_CXX_FLAGS_DEBUG "/DEBUG_FLAGS_GO_HERE")
+  set ( CMAKE_CXX_FLAGS_RELEASE  "/RELEASE_FLAGS_GO_HERE" )
+endif ()
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+  set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++11")
+  list( APPEND CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS}   -g -O2")
+  set ( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS}   -O3 " )
+endif ()
 
 
 ##################################

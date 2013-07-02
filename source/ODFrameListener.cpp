@@ -88,6 +88,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     renderManager = new RenderManager;
     gameMap = new GameMap;
 
+
+
     renderManager->setGameMap(gameMap);
     miniMap = new MiniMap(gameMap);    
     //NOTE This is moved here temporarily.
@@ -117,7 +119,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     //     //return;
     // }
     
-    // CameraManager* cm = new CameraManager(renderManager->getCamera(),gameMap);
+
 
     //FIXME: this should be changed to a function or something.
     gameMap->me = new Player();
@@ -142,6 +144,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     inputManager = new ModeManager(gameMap,miniMap,Console::getSingletonPtr());
  
     Console::getSingletonPtr()->setModeManager(inputManager);
+
     Gui::getSingletonPtr()->setModeManager(inputManager);    
     //Set initial mouse clipping size
     windowResized(mWindow);
@@ -602,7 +605,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 	ed->onFrameStarted(evt);
 
     }
-    // CameraManager::getSingletonPtr()->onFrameStarted() ; 
+    if (cm!=NULL){
+       cm->onFrameStarted() ; 
+    }
     // Sleep to limit the framerate to the max value
     frameDelay -= evt.timeSinceLastFrame;
     if (frameDelay > 0.0)
@@ -637,8 +642,8 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
     if(ed!=NULL){
 	ed->onFrameEnded(evt);
     }
-    if (CameraManager::getSingletonPtr()!=NULL)
-	CameraManager::getSingletonPtr()->onFrameEnded() ; 
+    if (cm!=NULL)
+	cm->onFrameEnded() ; 
     return true;
 
 
@@ -658,7 +663,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(
 {
     // Setup the ray scene query, use CEGUI's mouse position
     CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();// * mMouseScale;
-    Ogre::Ray mouseRay = CameraManager::getSingleton().getCamera()->getCameraToViewportRay(mousePos.d_x / float(
+    Ogre::Ray mouseRay = cm->getCamera()->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
     mRaySceneQuery->setRay(mouseRay);
     mRaySceneQuery->setSortByDistance(true);
@@ -714,13 +719,20 @@ void ODFrameListener::printText(const std::string& text)
 
 void ODFrameListener::makeGameContext(){
 
-    gc = new GameContext(mWindow, inputManager, gameMap);
 
+    gc = new GameContext(mWindow, inputManager, gameMap);
+    cm = new CameraManager(renderManager->getCamera(),gameMap);
+    cm->setModeManager(inputManager); 
+    Console::getSingletonPtr()->setCameraManager(cm);
+    gc->setCameraManager(cm);
 }
 
 
 void ODFrameListener::makeEditorContext(){
 
     ed = new EditorContext(mWindow, inputManager, gameMap);
-
+    cm = new CameraManager(renderManager->getCamera(),gameMap);
+    cm->setModeManager(inputManager); 
+    Console::getSingletonPtr()->setCameraManager(cm);
+    ed->setCameraManager(cm);
 }

@@ -249,7 +249,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     //         Ogre::Real tempDouble;
     //         tempSS.str(arguments);
     //         tempSS >> tempDouble;
-    //         CameraManager::getSingleton().setMoveSpeedAccel(2.0 * tempDouble);
+    //         cm->setMoveSpeedAccel(2.0 * tempDouble);
     //         ODFrameListener::getSingletonPtr()->commandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
     //                 tempDouble) + "\n";
     //     }
@@ -257,7 +257,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     //     {
     //         ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent movespeed is "
     //                 + Ogre::StringConverter::toString(
-    //                         CameraManager::getSingleton().getMoveSpeed())
+    //                         cm->getMoveSpeed())
     //                 + "\n";
     //     }
     // }
@@ -270,11 +270,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 			Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            CameraManager::getSingleton().setRotateSpeed(Ogre::Degree(tempDouble));
+            cm->setRotateSpeed(Ogre::Degree(tempDouble));
             ODFrameListener::getSingletonPtr()->commandOutput += "\nrotatespeed set to "
                     + Ogre::StringConverter::toString(
                             static_cast<Ogre::Real>(
-                                    CameraManager::getSingleton().getRotateSpeed().valueDegrees()))
+                                    cm->getRotateSpeed().valueDegrees()))
                     + "\n";
         }
         else
@@ -282,7 +282,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent rotatespeed is "
                     + Ogre::StringConverter::toString(
                             static_cast<Ogre::Real>(
-                                    CameraManager::getSingleton().getRotateSpeed().valueDegrees()))
+                                    cm->getRotateSpeed().valueDegrees()))
                     + "\n";
         }
     }
@@ -393,17 +393,17 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            CameraManager::getSingleton().getCamera()->setNearClipDistance(tempDouble);
+            cm->getCamera()->setNearClipDistance(tempDouble);
             ODFrameListener::getSingletonPtr()->commandOutput += "\nNear clip distance set to "
                     + Ogre::StringConverter::toString(
-                            CameraManager::getSingleton().getCamera()->getNearClipDistance())
+                            cm->getCamera()->getNearClipDistance())
                     + "\n";
         }
         else
         {
             ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent near clip distance is "
                     + Ogre::StringConverter::toString(
-                            CameraManager::getSingleton().getCamera()->getNearClipDistance())
+                            cm->getCamera()->getNearClipDistance())
                     + "\n";
         }
     }
@@ -416,16 +416,16 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            CameraManager::getSingleton().getCamera()->setFarClipDistance(tempDouble);
+            cm->getCamera()->setFarClipDistance(tempDouble);
             ODFrameListener::getSingletonPtr()->commandOutput += "\nFar clip distance set to "
                     + Ogre::StringConverter::toString(
-                            CameraManager::getSingleton().getCamera()->getFarClipDistance()) + "\n";
+                            cm->getCamera()->getFarClipDistance()) + "\n";
         }
         else
         {
             ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent far clip distance is "
                     + Ogre::StringConverter::toString(
-                            CameraManager::getSingleton().getCamera()->getFarClipDistance()) + "\n";
+                            cm->getCamera()->getFarClipDistance()) + "\n";
         }
     }
 
@@ -1034,9 +1034,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 		}	    
 
 	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-            // CameraManager::getSingleton().setCircleCenter(centerX, centerY);
-            // CameraManager::getSingleton().setCircleRadious(radious);
-            // CameraManager::getSingleton().setCircleMode(true);
+            // cm->setCircleCenter(centerX, centerY);
+            // cm->setCircleRadious(radious);
+            // cm->setCircleMode(true);
 	    	    
 
 
@@ -1063,8 +1063,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 	    
             tempSS.str(arguments);
 	    tempSS >> nn;
-	    CameraManager::getSingleton().xHCS.resetNodes(nn);
-	    CameraManager::getSingleton().yHCS.resetNodes(nn);
+	    cm->xHCS.resetNodes(nn);
+	    cm->yHCS.resetNodes(nn);
 	    for (int ii = 0 ; ii < nn ; ii++){
 		
 		tempSS>>tempInt1;
@@ -1072,15 +1072,15 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
 		cerr << "tempInt1 " <<  tempInt1 << endl;
 		cerr << "tempInt2 " <<  tempInt2 << endl;
-		CameraManager::getSingleton().xHCS.addNode(tempInt1);
-		CameraManager::getSingleton().yHCS.addNode(tempInt2);
+		cm->xHCS.addNode(tempInt1);
+		cm->yHCS.addNode(tempInt2);
 		
 
 		}
 	    
 	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
 
-            CameraManager::getSingleton().setCatmullSplineMode(true);
+            cm->setCatmullSplineMode(true);
 	    	    
 	    cerr << "catmullspline loaded from cmd line " << endl;
 
@@ -1106,7 +1106,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 	    Radian radianAngle(tmp);
 
 
-	    // CameraManager::getSingleton().mCamera->setFOVx(radianAngle);
+	    // cm->mCamera->setFOVx(radianAngle);
 	    // // TODO check the for the maximal and minimal value of setFoVy
         }
 	else{
@@ -1128,7 +1128,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 	    Radian radianAngle(tmp);
 
 
-	    CameraManager::getSingleton().mCamera->setFOVy(radianAngle);
+	    cm->mCamera->setFOVy(radianAngle);
 	    // TODO check the for the maximal and minimal value of setFoVy
         }
 	else{
@@ -1156,9 +1156,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
 	    tempSS >> centerX >> centerY >> radious;
 	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-            CameraManager::getSingleton().setCircleCenter(centerX, centerY);
-            CameraManager::getSingleton().setCircleRadious(radious);
-            CameraManager::getSingleton().setCircleMode(true);
+            cm->setCircleCenter(centerX, centerY);
+            cm->setCircleRadious(radious);
+            cm->setCircleMode(true);
 	    	    
 
 
@@ -1176,7 +1176,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
     else if (command.compare("switchpolygonmode") == 0){
 
-	    CameraManager::getSingletonPtr()->switchPM();
+	    cm->switchPM();
     
     }
 

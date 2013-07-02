@@ -40,6 +40,7 @@ class GameMap;
 class MiniMap;
 class GameContext;
 class EditorContext;
+class CameraManager;
 
 /*! \brief The main OGRE rendering class.
  *
@@ -112,6 +113,7 @@ friend class Console;
         pthread_t clientNotificationThread;
         std::vector<pthread_t*> clientHandlerThreads;
         pthread_t creatureThread;
+        CameraManager*          cm;
 
     private:
         ODFrameListener(const ODFrameListener&);
@@ -119,7 +121,7 @@ friend class Console;
         Ogre::RenderWindow*     mWindow;
         Ogre::RaySceneQuery*    mRaySceneQuery;
         RenderManager*          renderManager;
-        CameraManager*          cameraManager;
+
         ModeManager*            inputManager;
         SoundEffectsHelper*     sfxHelper;
         bool                    mContinue;

@@ -17,7 +17,6 @@
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
 #include <OgreCamera.h>
-#include <OgreSingleton.h>
 #include <OgreSceneNode.h>
 #include <OgreRay.h>
 #include <OgrePlane.h>
@@ -29,7 +28,7 @@ class ModeManager;
 class Console;
 
 
-class CameraManager : public Ogre::Singleton<CameraManager>
+class CameraManager
     {
     friend class Console;
 

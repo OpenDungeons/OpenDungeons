@@ -191,7 +191,6 @@ void ODApplication::cleanUp()
     delete GameStateManager::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
-    delete CameraManager::getSingletonPtr();
     delete Console::getSingletonPtr();
     delete ASWrapper::getSingletonPtr();
     //delete gameMap;

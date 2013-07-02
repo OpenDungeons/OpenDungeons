@@ -11,11 +11,10 @@
 #include <list>
 #include <vector>
 
-#include <OgreFrameListener.h>
+
 #include <ODFrameListener.h>
 #include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
-#include <GameMode.h>
 #include <OgreSingleton.h>
 #include <OgreString.h>
 #include <OgreFrameListener.h>
@@ -26,7 +25,7 @@
 #include <OgreOverlayElement.h>
 
 
-
+#include "GameMode.h"
 #include "GameMap.h"
 #include "Gui.h"
 
@@ -45,6 +44,7 @@ class Console :
         ~Console();
 
 	void  setModeManager(ModeManager* mm){modeManager = mm;};
+	void setCameraManager(CameraManager* tmp){cm = tmp;};
 
         inline const bool& isVisible() const{return visible;}
         void setVisible(const bool newState);
@@ -86,6 +86,7 @@ class Console :
         //state variables
 
 	ModeManager*    modeManager;
+        CameraManager* cm;
 	ODFrameListener* odf;
         unsigned int    consoleLineLength;
         unsigned int    consoleLineCount;

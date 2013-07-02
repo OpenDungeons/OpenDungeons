@@ -98,12 +98,12 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         std::string resultName = "";
 	if(mc->mDragType == rotateAxisX){
-	    CameraManager::getSingleton().move(CameraManager::randomRotateX,arg.state.X.rel);
+	    mc->frameListener->cm->move(CameraManager::randomRotateX,arg.state.X.rel);
 
 	}
 
 	else if(mc->mDragType == rotateAxisY){
-	    CameraManager::getSingleton().move(CameraManager::randomRotateY,arg.state.Y.rel);
+	    mc->frameListener->cm->move(CameraManager::randomRotateY,arg.state.Y.rel);
 
 	}
 
@@ -237,7 +237,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         {
             if (mc->mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
             {
-                CameraManager::getSingleton().move(CameraManager::moveDown);
+                mc->frameListener->cm->move(CameraManager::moveDown);
             }
             else
             {
@@ -249,7 +249,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
             {
                 if (mc->mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
                 {
-                    CameraManager::getSingleton().move(CameraManager::moveUp);
+                    mc->frameListener->cm->move(CameraManager::moveUp);
                 }
                 else
                 {
@@ -258,34 +258,34 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
             }
             else
             {
-                CameraManager::getSingleton().stopZooming();
+                mc->frameListener->cm->stopZooming();
             }
     }
 
-    //CameraManager::getSingleton().move(CameraManager::fullStop);
+    //mc->frameListener->cm->move(CameraManager::fullStop);
 
     if (!(mc->directionKeyPressed || mc->mDragType == rotateAxisX || mc->mDragType == rotateAxisY))
     {
 
         if (arg.state.X.abs == 0)
-            CameraManager::getSingleton().move(CameraManager::moveLeft);
+            mc->frameListener->cm->move(CameraManager::moveLeft);
         else
-            CameraManager::getSingleton().move(CameraManager::stopLeft);
+            mc->frameListener->cm->move(CameraManager::stopLeft);
 
         if (arg.state.X.abs ==  arg.state.width)
-            CameraManager::getSingleton().move(CameraManager::moveRight);
+            mc->frameListener->cm->move(CameraManager::moveRight);
         else
-            CameraManager::getSingleton().move(CameraManager::stopRight);
+            mc->frameListener->cm->move(CameraManager::stopRight);
 
         if (arg.state.Y.abs == 0)
-            CameraManager::getSingleton().move(CameraManager::moveForward);
+            mc->frameListener->cm->move(CameraManager::moveForward);
         else
-            CameraManager::getSingleton().move(CameraManager::stopForward);
+            mc->frameListener->cm->move(CameraManager::stopForward);
 
         if (arg.state.Y.abs ==  arg.state.height)
-            CameraManager::getSingleton().move(CameraManager::moveBackward);
+            mc->frameListener->cm->move(CameraManager::moveBackward);
         else
-            CameraManager::getSingleton().move(CameraManager::stopBackward);
+            mc->frameListener->cm->move(CameraManager::stopBackward);
     }
 
 
@@ -295,7 +295,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     //  cerr << arg.state.width <<"\n" ;
     //  cerr << arg.state.height <<"\n" ;
 
-    //CameraManager::getSingleton().move(CameraManager::moveBackward);
+    //mc->frameListener->cm->move(CameraManager::moveBackward);
 
 
     return true;
@@ -733,7 +733,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
         sys->injectKeyDown(arg.key);
         sys->injectChar(arg.text);
 
-        CameraManager& camMgr = CameraManager::getSingleton();
+        CameraManager& camMgr = *(mc->frameListener->cm);
 
         switch (arg.key)
         {
@@ -846,7 +846,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
                 if(isInGame()) // If we are in a game.
                 {
                     Seat* tempSeat = mc->gameMap->getLocalPlayer()->getSeat();
-                    CameraManager::getSingleton().flyTo(Ogre::Vector3(
+                    mc->frameListener->cm->flyTo(Ogre::Vector3(
                                                             tempSeat->startingX, tempSeat->startingY, 0.0));
                 }
 
@@ -907,8 +907,7 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 
     if (!mc->frameListener->isTerminalActive())
     {
-        CameraManager& camMgr = CameraManager::getSingleton();
-
+        CameraManager& camMgr = *(mc->frameListener->cm);
         switch (arg.key)
         {
 
@@ -990,13 +989,13 @@ void GameMode::handleHotkeys(OIS::KeyCode keycode)
     if (mc->mKeyboard->isModifierDown(OIS::Keyboard::Shift))
     {
         mc->hotkeyLocationIsValid[keynumber] = true;
-        mc->hotkeyLocation[keynumber] = CameraManager::getSingleton().getCameraViewTarget();
+        mc->hotkeyLocation[keynumber] = mc->frameListener->cm->getCameraViewTarget();
     }
     else
     {
         if (mc->hotkeyLocationIsValid[keynumber])
         {
-            CameraManager::getSingleton().flyTo(mc->hotkeyLocation[keynumber]);
+            mc->frameListener->cm->flyTo(mc->hotkeyLocation[keynumber]);
         }
     }
 }

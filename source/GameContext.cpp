@@ -7,7 +7,8 @@
 #include "GameContext.h"
 
 GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputManager,GameMap *gm )
-    : gameMap(gm)
+    : gameMap(gm),
+     cameraManager(NULL)
 {
 
 
@@ -44,8 +45,7 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputMan
         //return;
     }
     
-    cameraManager = new CameraManager(renderManager->getCamera(),gameMap);
-    cameraManager->setModeManager(inputManager);
+
     
     logManager->logMessage("Created camera manager");
 
@@ -67,19 +67,21 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputMan
 
 void GameContext::onFrameStarted(const Ogre::FrameEvent& evt){
 
-	CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
+	cameraManager->moveCamera(evt.timeSinceLastFrame);
 
 	gameMap->getMiniMap()->draw();
 	gameMap->getMiniMap()->swap();	
-	cameraManager->onFrameStarted();
+
 
 }
 
 
+void GameContext::setCameraManager(CameraManager* tmpCm ){
+    cameraManager = tmpCm;
 
 
 
-
+}
 
 void GameContext::onFrameEnded(const Ogre::FrameEvent& evt){
 

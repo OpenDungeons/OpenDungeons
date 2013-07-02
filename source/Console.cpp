@@ -47,7 +47,8 @@ Console::Console() :
         cursorVisible       (true),
         startLine           (0),
         cursorChar          ("_"),
-        curHistPos          (0)
+        curHistPos          (0),
+       cm(NULL)
 {
     LogManager::getSingleton().logMessage("*** Initiliasing Console ***");
     ODApplication::getSingleton().getRoot()->addFrameListener(this);

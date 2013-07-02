@@ -8,7 +8,8 @@
 #include "EditorContext.h"
 
 EditorContext::EditorContext(Ogre::RenderWindow* renderWindow, ModeManager* inputManager,GameMap *gm )
-    : gameMap(gm)
+    : gameMap(gm),
+      cameraManager(NULL)
 {
 
 
@@ -45,8 +46,7 @@ EditorContext::EditorContext(Ogre::RenderWindow* renderWindow, ModeManager* inpu
         //return;
     }
     
-    cameraManager = new CameraManager(renderManager->getCamera(),gameMap);
-    cameraManager->setModeManager(inputManager);
+
     
     logManager->logMessage("Created camera manager");
 
@@ -54,18 +54,17 @@ EditorContext::EditorContext(Ogre::RenderWindow* renderWindow, ModeManager* inpu
     new ASWrapper();
 
     gameMap->createTilesMeshes();
-    gameMap->hideAllTiles();
 
 }
 
 
 void EditorContext::onFrameStarted(const Ogre::FrameEvent& evt){
 
-    CameraManager::getSingleton().moveCamera(evt.timeSinceLastFrame);
+    cameraManager->moveCamera(evt.timeSinceLastFrame);
 
     gameMap->getMiniMap()->draw();
     gameMap->getMiniMap()->swap();	
-    cameraManager->onFrameStarted();
+ 
 
 }
 
@@ -79,6 +78,10 @@ void EditorContext::onFrameEnded(const Ogre::FrameEvent& evt){
 
 }
 
+
+void EditorContext::setCameraManager(CameraManager*tmpCm ){
+    cameraManager = tmpCm;
+}
 
 EditorContext::~EditorContext()
 {
