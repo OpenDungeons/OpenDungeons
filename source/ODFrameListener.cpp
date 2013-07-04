@@ -82,7 +82,9 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         frameDelay(0.0),
         previousTurn(-1),
 	gc(NULL),
-	ed(NULL)
+        ed(NULL),
+	cm(NULL)
+	
 {
     Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager", "SceneManager");
     renderManager = new RenderManager;
