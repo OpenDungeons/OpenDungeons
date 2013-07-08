@@ -9,7 +9,6 @@
 #define MINIMAP_H_
 
 #include <OgreTexture.h>
-#include <OgreSingleton.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <RendererModules/Ogre/CEGUIOgreRenderer.h>
 #include "GameMap.h"
@@ -31,7 +30,7 @@ struct color{
 
 
 
-class MiniMap : public Ogre::Singleton<MiniMap>
+class MiniMap 
 {
     public:
         MiniMap(GameMap*);

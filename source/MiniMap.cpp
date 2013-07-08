@@ -24,7 +24,6 @@
 
 
 
-template<> MiniMap* Ogre::Singleton<MiniMap>::msSingleton = 0;
 
 /*! Initializes the MiniMap
  *

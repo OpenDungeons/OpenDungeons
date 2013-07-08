@@ -54,6 +54,7 @@ EditorContext::EditorContext(Ogre::RenderWindow* renderWindow, ModeManager* inpu
     new ASWrapper();
 
     gameMap->createTilesMeshes();
+    gameMap->hideAllTiles();
 
 }
 

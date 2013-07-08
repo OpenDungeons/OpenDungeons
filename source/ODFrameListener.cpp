@@ -222,7 +222,7 @@ void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
 
 ODFrameListener::~ODFrameListener()
 {
-
+    delete miniMap;
 }
 
 void ODFrameListener::requestExit()
