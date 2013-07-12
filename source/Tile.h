@@ -43,17 +43,20 @@ class Tile : public GameEntity
     friend class TileContainersModificator;
                  
  public:
-    //TODO:  These should be renumbered to put 0 as the nullTileType, however this will mean converting all the dirt tiles in the level files.
+    // Changes to this enum must be reflected in Tile::getTilePassability()
     enum TileType
     {
-	dirt = 0,
-	gold = 1,
-	rock = 2,
-	water = 3,
-	lava = 4,
-	claimed = 5,
-	nullTileType
+        nullTileType = 0,
+	dirt = 1,
+	gold = 2,
+	rock = 3,
+	water = 4,
+	lava = 5,
+        //if the last type is changed it must also substitute the type 
+        //  referenced in Tile::nextTileType()
+	claimed = 6
     };
+    
     // Changes to this enum must be reflected in Tile::getTilePassability() as well as in GameMap::path()
     enum TileClearType
     {

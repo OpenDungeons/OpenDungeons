@@ -432,6 +432,10 @@ Tile::TileClearType Tile::getTilePassability() const
 
     switch (type)
     {
+        case nullTileType:
+            return impassableTile;
+            break;
+
         case dirt:
         case gold:
         case rock:
@@ -617,7 +621,7 @@ const char* Tile::tileTypeToString(TileType t)
 Tile::TileType Tile::nextTileType(TileType t)
 {
     return static_cast<TileType>((static_cast<int>(t) + 1)
-            % static_cast<int>(nullTileType));
+            % static_cast<int>(claimed));
 }
 
 /*! \brief This is a helper function to scroll through the list of available fullness levels.
