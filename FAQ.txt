@@ -39,22 +39,26 @@
 
 1. What is OpenDungeons ? 
 
-   OpenDungeons is an open source, real time strategy game sharing game elements with the Dungeon Keeper series and Evil Genius. Players build an underground dungeon which is inhabited by creatures. Players fight each other for control of the underground by indirectly commanding their creatures, directly casting spells in combat, and luring enemies into sinister traps. 
+   OpenDungeons is an open source, real time strategy game sharing game elements with the Dungeon Keeper series and Evil Genius. Players build an
+   underground dungeon which is inhabited by creatures. Players fight each other for control of the underground by indirectly commanding their
+   creatures, directly casting spells in combat, and luring enemies into sinister traps.
 
-   1A. Is it free ? 
+   1A. Is it free ?
 
-   It is free of charge, but more over it's free as in freedom of speech , that is ,  you are permitted to redistribute , modify , copy this game further under GPL. 
-   1B. What license is it distributed under ? 
+   It is free of charge, but more over it's free as in freedom of speech , that is , you are permitted to redistribute , modify , copy this game
+   further under GPL.  1B. What license is it distributed under ?
 
-      Code is under GNU Public License. Any added new code must be compatible with that license
-      Game content comes under Creative Commons license.
+   Code is under GNU Public License. Any added new code must be compatible with that license.
+   Game content comes under Creative Commons license.
 
-   1C. How much it is playable ? 
+   1C. How much it is playable ?
 
-      The OD ( as of July 2013 ) is in it's Pre-Alpha, there's no real gameplay - just a bunch of creatures walking around, doing simple task and minions digging in marked places by Player.
+   The OD ( as of July 2013 ) is in it's Pre-Alpha, there's no real gameplay - just a bunch of creatures walking around, doing simple task and
+   minions digging in marked places by Player.
 
-   1D. When it is completed ? 
-   Nobody knows, currently it lacks developers especially the coders , as for artist there are two graphic modellers who are still pushing their work ( Danimal and Scorpio , Yo ! :))
+   1D. When it is completed ?  
+   Nobody knows, currently it lacks developers especially the coders , as for artist there are two graphic modellers who are still pushing their
+   work ( Danimal and Scorpio , Yo ! :))
 
    
 2. Building OpenDungeons: 
@@ -73,31 +77,50 @@
 5. ProgrammersFAQ
    6A. Why Ogre3D ?
 
-   As of 2008 ( when project started ) Ogre3d was leading and rapidly developing opensource 3d Engine, and only one of the few similar avaible ( the other being Irrlicht ) . The general consensus its it's praised for it's object-oriented design ( by fans of object-oriented programming ) and minimal effort to manage common situations. On the other hand it's criticised by it's object-oriented design (from persons who don't like OOP ) and lack of extensible documentation and paper-books ( althought both exist to small extent ) . 
+   As of 2008 ( when project started ) Ogre3d was leading and rapidly developing opensource 3d Engine, and only one of the few similar avaible (
+   the other being Irrlicht ) . The general consensus its it's praised for it's object-oriented design ( by fans of object-oriented programming )
+   and minimal effort to manage common situations. On the other hand it's criticised by it's object-oriented design (from persons who don't like
+   OOP ) and lack of extensible documentation and paper-books ( althought both exist to small extent ) . 
 
    6B. Why STL ?
 
-   From OpenDungeons forum : 
-   >>Whichever m**** decided that using the vector class from STL is a good idea? You are aware that STL uses lots and lots of exceptions and that exceptions are a definite no-no for real time games, aren't you?<<  xahodo.
+   From OpenDungeons forum : >>Whichever m**** decided that using the vector class from STL is a good idea? You are aware that STL uses lots and
+   lots of exceptions and that exceptions are a definite no-no for real time games, aren't you?<< xahodo.
 
-   >>I say may because although I wasn't previously aware of this specific issue I had considered the performance implications using templated STL classes instead of handrolling my own. I then weighed this consideration against the potential impact on code readability, maintainability, reliability, and cross platform issues and decided that it made far more sense to use the STL implementations. Weighing heavily on my decision was the fact that something like 85% of security vulnerabilities in C and C++ code come from buffer overflows, which are greatly reduced by sticking to tried and tested STL code which throws exceptions when exceptional circumstances occur instead of just crashing the engine, or worse, allowing for arbitrary code execution injected by the untrusted people you are gaming with.<< andrewbuck.
+   >>I say may because although I wasn't previously aware of this specific issue I had considered the performance implications using templated
+     STL classes instead of handrolling my own. I then weighed this consideration against the potential impact on code readability,
+     maintainability, reliability, and cross platform issues and decided that it made far more sense to use the STL implementations. Weighing
+     heavily on my decision was the fact that something like 85% of security vulnerabilities in C and C++ code come from buffer overflows, which
+     are greatly reduced by sticking to tried and tested STL code which throws exceptions when exceptional circumstances occur instead of just
+     crashing the engine, or worse, allowing for arbitrary code execution injected by the untrusted people you are gaming with.<< andrewbuck.
    
    from stackoverflow.com :
-   >>Back when I worked in professional game development, STL was too immature and bloated. But that was >10 years ago.
 
-      Now I work in military simulation, which has even tougher performance requirements (like the framerate can never go below some FPS). In military simulation STL is used all over the place.
-      Some of the people who tell you not to use STL use the argument that it's not always the perfect or even the best solution to the problem. But that isn't an answer to the question. The question should be: Is there something inherently wrong with using STL in games? I'd say no, STL is most of the time a better implementation than what a user would come up with on their own.
-   Just make sure you know how to use the STL, and use it in your game. Read some books and look at the implementation code in the STL you are using.  
-   answered Jul 15 '10 at 1:39
-   kevin42 << 
+   >>Back when I worked in professional game development, STL was too immature and bloated. But that was >10 years ago.
+     Now I work in military simulation, which has even tougher performance requirements (like the framerate can never go below some FPS). In
+     military simulation STL is used all over the place.  Some of the people who tell you not to use STL use the argument that it's not always
+     the perfect or even the best solution to the problem. But that isn't an answer to the question. The question should be: Is there something
+     inherently wrong with using STL in games? I'd say no, STL is most of the time a better implementation than what a user would come up with
+     on their own.  Just make sure you know how to use the STL, and use it in your game. Read some books and look at the implementation code in
+     the STL you are using.  answered Jul 15 '10 at 1:39 kevin42 <<
    
    6C. General ideas and design patterns 
-              
+   
+   The game uses the Control-Observation-Control pattern ( as much as possible).  It uses MessageQueue pattern to recieve rendering request from
+   withing the main thread ( the RenderRequest class ) .  It uses the AbstractInterface pattern when implementing various input manager classes
+   which interprets the OIS libraty due to user's interaction mode with application.
 
    6D. Code conventions
 
+
+
+
    6E. What code constructs to AVOID
+
    Avoid using any functions from old libC library ( that is the standard library of the C language ).
+   I beg annyone to stop using one-character names of variables ( poor caputre of most editor search function ) [paul424] .  
+   Do not use Singletons which depends on other non-singleton classes ( that is your code shouldn't do any >>hidden<< singleton initialization. 
+   
       
 
 
