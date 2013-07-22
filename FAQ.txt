@@ -1,0 +1,76 @@
+******************************************************
+*-------OPENDUNGEONS---------------------------------*
+******************************************************
+	FREQUENTLY ASKED QUESTIONS
+1. What is OpenDungeons ? 
+   1A. Is it free ? 
+   1B. What license is it distributed under ? 
+   1C. How much it is playable ? 
+   1D. When it is completed ? 
+2. Building OpenDungeons: 
+   2A. Help!, I cannot compile the OD !
+   2B. Help!, I cannot run the OD !
+   2C. Building on Windows 
+   2D. Building on Linux
+   2E. Building on MacOS
+3. Gameplay:
+   3A. Key-shortcuts
+   3B. Running Console and Console's commands
+4. May I contribute to OpenDungeons ?
+   4A. I do XYZ , Do you need me ? 
+   4B. I wrote a patch ....
+   4C. I cannot do programming ....
+5. ProgrammersFAQ
+   6A. Why Ogre3D ?
+   6B. Why STL ?
+   6C. General ideas and design patterns 
+   6D. Code conventions
+   6E. What code constructs to AVOID
+   6F. Known bugs
+   6G. Pending tasks
+   6H. Requests for features
+   6I. Requests for bug fixes
+6. Used libraries and abbreviations:
+   6A. Libraries
+   6B. Abbreviations
+
+
+
+
+1. What is OpenDungeons ? 
+   OpenDungeons is an open source, real time strategy game sharing game elements with the Dungeon Keeper series and Evil Genius. Players build an underground dungeon which is inhabited by creatures. Players fight each other for control of the underground by indirectly commanding their creatures, directly casting spells in combat, and luring enemies into sinister traps. 
+   1A. Is it free ? 
+   It is free of charge, but more over it's free as freedom of speech , that you are permitted to redistribute , modify , copy this game further under GPL. 
+   1B. What license is it distributed under ? 
+      Code is under GNU Public License. Any added new code must be compatible with that license
+      Game content comes under 
+   1C. How much it is playable ? 
+      The OD ( as of July 2013 ) is in it's Pre-Alpha, there's no real gameplay - just a bunch of creatures walking around, doing simple task and minions digging in marked places by Player.
+   1D. When it is completed ? 
+   Nobody knows, currently it lacks developers ......
+2. Building OpenDungeons: 
+   2A. Help!, I cannot compile the OD !
+   2B. Help!, I cannot run the OD !
+   2C. Building on Windows 
+   2D. Building on Linux
+   2E. Building on MacOS
+3. Gameplay:
+   3A. Key-shortcuts
+   3B. Running Console and Console's commands
+4. May I contribute to OpenDungeons ?
+   4A. I do XYZ , Do you need me ? 
+   4B. I wrote a patch ....
+   4C. I cannot do programming ....
+5. ProgrammersFAQ
+   6A. Why Ogre3D ?
+   6B. Why STL ?
+   6C. General ideas and design patterns 
+   6D. Code conventions
+   6E. What code constructs to AVOID
+   6F. Known bugs
+   6G. Pending tasks
+   6H. Requests for features
+   6I. Requests for bug fixes
+6. Used libraries and abbreviations:
+   6A. Libraries
+   6B. Abbreviations
