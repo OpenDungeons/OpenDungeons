@@ -12,7 +12,7 @@
    2B. Help!, I cannot run the OD !
    2C. Building on Windows 
    2D. Building on Linux
-   2E. Building on MacOS
+   2E. Building on MacOSX
 3. Gameplay:
    3A. Key-shortcuts
    3B. Running Console and Console's commands
@@ -45,41 +45,89 @@
 
    1A. Is it free ?
 
-   It is free of charge, but more over it's free as in freedom of speech , that is , you are permitted to redistribute , modify , copy this game
-   further under GPL.  1B. What license is it distributed under ?
+   It is free of charge, but more over it's free as in freedom of speech , that is , you are permitted to redistribute , modify, and copy this
+   game further under GPL.
+
+   1B. What license is it distributed under ?
 
    Code is under GNU Public License. Any added new code must be compatible with that license.
    Game content comes under Creative Commons license.
 
-   1C. How much it is playable ?
+   1C. How much is it playable ?
 
-   The OD ( as of July 2013 ) is in it's Pre-Alpha, there's no real gameplay - just a bunch of creatures walking around, doing simple task and
+   The OD ( as of July 2013 ) is in its Pre-Alpha, there's no real gameplay - just a bunch of creatures walking around, doing simple task and
    minions digging in marked places by Player.
 
-   1D. When it is completed ?  
+   1D. When will it be completed ?  
    Nobody knows, currently it lacks developers especially the coders , as for artist there are two graphic modellers who are still pushing their
    work ( Danimal and Scorpio , Yo ! :))
 
    
 2. Building OpenDungeons: 
    2A. Help!, I cannot compile the OD !
+   
+
+
+
+
    2B. Help!, I cannot run the OD !
+
+
+   
+   I get runtime error exception like, or similiar : 
+   >>Mesh: Loading Dirt_10001000.mesh.  An internal Ogre3D error ocurred: OGRE EXCEPTION(6:FileNotFoundException): Cannot locate resource
+   Dirt_10001000.mesh in resource group Autodetect or any other group. in ResourceGroupManager::openResource at /home/bender/Bureau/ogre/OgreMain
+   <<
+
+   You must install properly the NST. Go to . Download tarball ( bottom of the page ) and unpack its content to media dir. If you have done that
+   already, ensure that you have renamed one of the alternative Tile's  postfixes ( *a | *b ) to their normal name.  So
+   Dirt_10001000a.mesh | Dirt_10001000b.mesh -> Dirt_10001000.mesh , just pick one and rename as needed. Repeat on similar exceptions until
+   success .
+
+
+   ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======== ======
+
+
+   
+
+
+
+
+
+
+
+
    2C. Building on Windows 
+
+   Currenltly Windows version is quite complicated to build , the user Bertram promises to deliver auto-build system for Win, so we have nightly builds after every code's commit. Let keep him by this promise . 
+
+
+
    2D. Building on Linux
+
+   Is quite complicated because the OD is still on the move , and you cannot be ever sure which libraries' version OD currently use. Thing is like this : 
+   Every library package keeps updating, and usually current >>development<< or whatever branch is well behind the bloody-edge version . 
+
+
+
+
    2E. Building on MacOS
+
 3. Gameplay:
    3A. Key-shortcuts
    3B. Running Console and Console's commands
+
 4. May I contribute to OpenDungeons ?
    4A. I do XYZ , Do you need me ? 
    4B. I wrote a patch ....
    4C. I cannot do programming ....
+
 5. ProgrammersFAQ
    6A. Why Ogre3D ?
 
    As of 2008 ( when project started ) Ogre3d was leading and rapidly developing opensource 3d Engine, and only one of the few similar avaible (
-   the other being Irrlicht ) . The general consensus its it's praised for it's object-oriented design ( by fans of object-oriented programming )
-   and minimal effort to manage common situations. On the other hand it's criticised by it's object-oriented design (from persons who don't like
+   the other being Irrlicht ) . The general consensus is it's praised for its object-oriented design ( by fans of object-oriented programming )
+   and minimal effort to manage common situations. On the other hand it's criticised for its object-oriented design (by people who don't like
    OOP ) and lack of extensible documentation and paper-books ( althought both exist to small extent ) . 
 
    6B. Why STL ?
@@ -106,7 +154,7 @@
    
    6C. General ideas and design patterns 
    
-   The game uses the Control-Observation-Control pattern ( as much as possible).  It uses MessageQueue pattern to recieve rendering request from
+   The game uses the Control-Observation-Control pattern ( as much as possible).  It uses the MessageQueue pattern to recieve rendering request from
    withing the main thread ( the RenderRequest class ) .  It uses the AbstractInterface pattern when implementing various input manager classes
    which interprets the OIS libraty due to user's interaction mode with application.
 
@@ -117,8 +165,8 @@
 
    6E. What code constructs to AVOID
 
-   Avoid using any functions from old libC library ( that is the standard library of the C language ).
-   I beg annyone to stop using one-character names of variables ( poor caputre of most editor search function ) [paul424] .  
+   Avoid using any functions from the old libC library ( that is the standard library of the C language ).
+   I beg anyone to stop using one-character names for variables ( poor caputre of most editors' search function ) [paul424] .  
    Do not use Singletons which depends on other non-singleton classes ( that is your code shouldn't do any >>hidden<< singleton initialization. 
    
       
@@ -129,8 +177,11 @@
    6G. Pending tasks
    6H. Requests for features
    6I. Requests for bug fixes
+
 6. Used libraries and abbreviations:
    6A. Libraries
+       
+
    6B. Abbreviations
        OD = OpenDungeons
        NST = New Scorpio TileSet ( from April 2013) 
