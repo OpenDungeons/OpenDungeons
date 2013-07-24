@@ -198,7 +198,7 @@ void ODApplication::cleanUp()
 const unsigned int ODApplication::PORT_NUMBER = 31222;
 const double ODApplication::DEFAULT_FRAMES_PER_SECOND = 60.0;
 double ODApplication::MAX_FRAMES_PER_SECOND = DEFAULT_FRAMES_PER_SECOND;
-double ODApplication::turnsPerSecond = 14;
+double ODApplication::turnsPerSecond = 1.4;
 const std::string ODApplication::VERSION = "0.4.9";
 const std::string ODApplication::VERSIONSTRING = "OpenDungeons_Version:" + VERSION;
 std::string ODApplication::MOTD = "Welcome to Open Dungeons\tVersion:  " + VERSION;
