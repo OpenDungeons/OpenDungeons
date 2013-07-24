@@ -58,7 +58,8 @@
    The OD ( as of July 2013 ) is in its Pre-Alpha, there's no real gameplay - just a bunch of creatures walking around, doing simple task and
    minions digging in marked places by Player.
 
-   1D. When will it be completed ?  
+   1D. When will it be completed ? 
+ 
    Nobody knows, currently it lacks developers especially the coders , as for artist there are two graphic modellers who are still pushing their
    work ( Danimal and Scorpio , Yo ! :))
 
@@ -67,14 +68,16 @@
    2A. Help!, I cannot compile the OD !
    
 
-
-
+   USE C++11 WHEN COMPILING OD ! Genral notice : some of the files ( some AI*.cpp) use explicit construct of new C++ standard : C++11. Each
+   compiler has it;'s flag , for GNU g++ it's : "g++ --std=c++11" bash cmd : cmake-gui --> tag cmake--> ->CMakeCxxFlags. 
+   NOTICE: Since g++ 4.8 it is the default lanugage standard the compiler picks up [ no need to set that for version >= 4.8 ].
 
    2B. Help!, I cannot run the OD !
 
 
    
-   I get runtime error exception like, or similiar : 
+   I get runtime error exception similiar to: 
+
    >>Mesh: Loading Dirt_10001000.mesh.  An internal Ogre3D error ocurred: OGRE EXCEPTION(6:FileNotFoundException): Cannot locate resource
    Dirt_10001000.mesh in resource group Autodetect or any other group. in ResourceGroupManager::openResource at /home/bender/Bureau/ogre/OgreMain
    <<
@@ -91,22 +94,26 @@
    
 
 
+   I get runtime error something like : "CEGUI : OGre3d system not initialized '
 
-
-
+   You have wrong CEGUI version. Actually, it might be right one, but it was compiled against diffrent OGRE3D package, and now it is loorking for
+   it's interface while it isn't there in memory ;) . Either build your own version from sourcepackages OR ENSURE THAT your package is built for
+   currently installed OGRE3D package's version. For most well-maintained linux distros it means they are from the SAME REPOSITORY.
 
 
 
    2C. Building on Windows 
 
-   Currenltly Windows version is quite complicated to build , the user Bertram promises to deliver auto-build system for Win, so we have nightly builds after every code's commit. Let keep him by this promise . 
+   Currenltly Windows version is quite complicated to build , the user Bertram promises to deliver auto-build system for Win, so we have nightly
+   builds after every code's commit. Let keep him by this promise .
 
 
 
    2D. Building on Linux
 
-   Is quite complicated because the OD is still on the move , and you cannot be ever sure which libraries' version OD currently use. Thing is like this : 
-   Every library package keeps updating, and usually current >>development<< or whatever branch is well behind the bloody-edge version . 
+   Is quite complicated because the OD is still on the move , and you cannot be ever sure which libraries' version OD currently use. Thing is
+   like this : Every library package keeps updating, and usually current >>development<< or whatever branch is well behind the bloody-edge
+   version .
 
 
 
@@ -160,7 +167,7 @@
 
    6D. Code conventions
 
-
+   http://opendungeons.sourceforge.net/index.php/Code_Style_Guidelines
 
 
    6E. What code constructs to AVOID
@@ -173,7 +180,7 @@
 
 
    6F. Known bugs
-       The Quadtree/MortuaryQuad does not have limitation on nodes number, and allocates all the system memory after some time. 
+       The Quadtree/MortuaryQuad does not have limitation on number of nodes, and allocates all the system memory after some time. 
    6G. Pending tasks
    6H. Requests for features
    6I. Requests for bug fixes
