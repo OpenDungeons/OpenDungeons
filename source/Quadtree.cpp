@@ -82,6 +82,7 @@ CullingQuad::CullingQuad(CullingQuad* qd,CullingQuad* pp ):parent(pp),nodes(NULL
 CullingQuad* CullingQuad::find(Entry* ee){
     return find(ee->index_point);
     }
+
 CullingQuad* CullingQuad::find(Entry& ee){
     return find(ee.index_point);
     }
