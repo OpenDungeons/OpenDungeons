@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<creature xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureSchema.xsd">
+    <class>Wizard</class>
+    <name>Wiz</name>
+    <HP>80 </HP>
+    <mana>50 </mana>
+    <posX>-4</posX>
+    <posY>3</posY>
+    <posZ>0</posZ>
+    <color>1</color>
+    <weaponLname>
+        <name>Staff</name>
+        <damage>7</damage>
+        <range>9</range>
+        <defense>0</defense>
+        
+    </weaponLname>
+    <weaponRname>
+        <name>none</name>
+        <damage>8</damage>
+        <range>3</range>
+        <defense>0</defense>
+            
+     </weaponRname>        
+        
+        
+</creature>

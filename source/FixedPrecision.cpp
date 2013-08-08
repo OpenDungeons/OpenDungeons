@@ -32,7 +32,6 @@ FixedPrecision& FixedPrecision::operator-=( FixedPrecision const& r ){this->valu
 // FixedPrecision& operator*=( FixedPrecision const& r ){}
 FixedPrecision& FixedPrecision::operator/=( FixedPrecision const& r ){this->value<<(FixedPrecision::precisionDigits) /  r.value; return *this ; }
 
-
 // nonmember comparison operators
 bool operator<( FixedPrecision const& l, FixedPrecision const& r ){return l.value < r.value ; };
 bool operator>( FixedPrecision const& l, FixedPrecision const& r ){return l.value > r.value ; };

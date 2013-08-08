@@ -21,7 +21,8 @@ bool FppMode::mouseMoved     (const OIS::MouseEvent &arg){
 
 
 }
-bool FppMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
+
+bool FppMode::FppMode   (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
 
 
     CEGUI::System::getSingleton().injectMouseButtonDown(
@@ -53,9 +54,9 @@ bool FppMode::keyPressed     (const OIS::KeyEvent &arg){
 bool FppMode::keyReleased    (const OIS::KeyEvent &arg){
 
 
-
-
 }
+
+
 void FppMode::handleHotkeys  (OIS::KeyCode keycode){
 
 

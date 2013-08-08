@@ -33,11 +33,11 @@
 
   <xs:complexType name="stats">
     <xs:sequence>
-      <xs:element name="class" type="xs:string"/>
+      <xs:element name="className" type="xs:string"/>
       <xs:element name="level_stats" type="level_stats" minOccurs="1" maxOccurs="10"/>
       <xs:element name="attack" type="attack" minOccurs="1" maxOccurs="unbounded"/>
       <xs:element name="job" type="job" minOccurs="0" maxOccurs="unbounded"/>
-      <xs:element name="bedname" type="xs:string"/>
+      <xs:element name="bedMeshName" type="xs:string"/>
       <xs:element name="bedDimX" type="xs:integer"/>
       <xs:element name="bedDimY" type="xs:integer"/>
       <xs:element name="move_speed" type="xs:decimal" minOccurs="0" maxOccurs="1" default="1.0"/>
