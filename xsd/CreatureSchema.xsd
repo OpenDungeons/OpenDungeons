@@ -6,8 +6,14 @@
 
             <xs:sequence>
 
-                <xs:element name="name" type="xs:string"/>
+                <xs:element name="class" type="xs:string"/>
 
+                <xs:element name="name"  type="xs:string"/>
+                
+                <xs:element name="HP" type="xs:integer"/>                
+                
+                <xs:element name="mana" type="xs:integer"/>
+                
                 <xs:element name="posX" type="xs:integer"/>
 
                 <xs:element name="posY" type="xs:integer"/>
@@ -30,6 +36,7 @@
 
     <xs:complexType name="weapon">
         <xs:sequence>
+            <xs:element name="name" type="xs:string"/>           
             <xs:element name="damage" type="xs:integer"/>
             <xs:element name="range" type="xs:integer"/>
             <xs:element name="defense" type="xs:integer"/>
