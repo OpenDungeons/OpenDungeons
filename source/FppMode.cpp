@@ -22,7 +22,7 @@ bool FppMode::mouseMoved     (const OIS::MouseEvent &arg){
 
 }
 
-bool FppMode::FppMode   (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
+bool FppMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
 
 
     CEGUI::System::getSingleton().injectMouseButtonDown(
