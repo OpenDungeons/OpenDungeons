@@ -70,7 +70,7 @@ RenderManager::RenderManager() :
 {
     sem_init(&renderQueueSemaphore, 0, 1);
     sem_init(&renderQueueEmptySemaphore, 0, 0);
-   
+
     //Initialise RTshader system
     if (!Ogre::RTShader::ShaderGenerator::initialize()) {
         //TODO - exit properly
@@ -519,9 +519,9 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
     {
     int rt;
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
-    
 
-    
+
+
     if ( sceneManager->hasSceneNode ( curTile->getName() + "_node" ) )
 	{
 
@@ -552,7 +552,7 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
 	    for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
 		ent->getSubEntity(ii)->setMaterialName("Rock");
 		}
-  
+
 	    }
 
 
@@ -596,7 +596,7 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 	for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
 	    ent->getSubEntity(ii)->setMaterialName("Rock");
 	    }
-  
+
 	}
 
     if (curTile->getType() == Tile::claimed){
@@ -649,9 +649,9 @@ void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
 	node->detachAllObjects();
 	sceneManager->destroySceneNode ( curTile->getName() + "_node" );
 	sceneManager->destroyEntity ( ent );
-        }    
-    
-    
+        }
+
+
     // if (curTile->getType() == Tile::rock) {}
     // else {
 
@@ -662,7 +662,7 @@ void RenderManager::rrColorTile ( const RenderRequest& renderRequest ){
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
     Player* pp    = static_cast<Player*> ( renderRequest.p2 );
     Ogre::Entity *ent = 0;
-    
+
     curTile->setColor(renderRequest.b ? pp->getSeat()->getColor() : 0);
     curTile->refreshMesh();
     }
@@ -675,7 +675,7 @@ void RenderManager::rrSetPickAxe( const RenderRequest& renderRequest ) {
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     stringstream ss;
     stringstream ss2;
-    
+
     if ( sceneManager->hasSceneNode ( curTile->getName() + "_node" ) ){
 	ss.str(std::string());
 	ss << "Level";
@@ -758,7 +758,7 @@ void RenderManager::rrTemporalMarkTile ( const RenderRequest& renderRequest ){
 
 void RenderManager::rrDetachTile( const RenderRequest& renderRequest ){
     GameEntity* curEntity = static_cast<GameEntity*> ( renderRequest.p );
-    Ogre::SceneNode* tileNode = sceneManager->getSceneNode( curEntity->getName() + "_node" );   
+    Ogre::SceneNode* tileNode = sceneManager->getSceneNode( curEntity->getName() + "_node" );
 
     curEntity->pSN=(tileNode->getParentSceneNode());
     curEntity->pSN->removeChild(tileNode);
@@ -772,14 +772,18 @@ void RenderManager::rrAttachTile( const RenderRequest& renderRequest ) {
     GameEntity* curEntity = static_cast<GameEntity*> ( renderRequest.p );
     Ogre::SceneNode* creatureNode = sceneManager->getSceneNode( curEntity->getName() + "_node" );
 
-    curEntity->pSN->addChild(creatureNode);
-
+    Ogre::SceneNode* parentNode = creatureNode->getParentSceneNode();
+    if (parentNode == nullptr) {
+        curEntity->pSN->addChild(creatureNode);
+    } else {
+        curEntity->pSN = parentNode;
+    }
 
 }
 
 void RenderManager::rrDetachCreature( const RenderRequest& renderRequest ){
     GameEntity* curEntity = static_cast<GameEntity*> ( renderRequest.p );
-    Ogre::SceneNode* creatureNode = sceneManager->getSceneNode( curEntity->getName() + "_node" );   
+    Ogre::SceneNode* creatureNode = sceneManager->getSceneNode( curEntity->getName() + "_node" );
 
 
     curEntity->pSN->removeChild(creatureNode);
@@ -804,14 +808,14 @@ void RenderManager::rrToggleCreaturesVisibility(){
     visibleCreatures  = !visibleCreatures;
     if(visibleCreatures ){
 	for(  std::vector<Creature*>::iterator it = gameMap->creatures.begin(); it != gameMap->creatures.end(); ++it){
-	    if((*it)->isMeshExisting() && (*it)->sceneNode!=NULL  ) 
+	    if((*it)->isMeshExisting() && (*it)->sceneNode!=NULL  )
 
 		// (*it)->pSN=((*it)->sceneNode->getParentSceneNode());
 		//pSN->removeChild((*it)->
 		(*it)->pSN->addChild((*it)->sceneNode);
 	    //  addAnimatedObject(*it);
 	    // (*it)->createMesh();
-	} 
+	}
     }
     else{
 	for(  std::vector<Creature*>::iterator it = gameMap->creatures.begin(); it != gameMap->creatures.end(); ++it){
@@ -823,8 +827,8 @@ void RenderManager::rrToggleCreaturesVisibility(){
 
 	    // removeAnimatedObject(*it);
 	    // (*it)->destroyMesh();
-	    
-	} 
+
+	}
     }
     sem_post(&(gameMap->creaturesLockSemaphore));
 }
@@ -1057,7 +1061,7 @@ void RenderManager::rrOrientSceneNodeToward ( const RenderRequest& renderRequest
 
     // Work around 180 degree quaternion rotation quirk
     if ((1.0f + tempVector.dotProduct(renderRequest.vec)) < 0.0001f)
-    { 
+    {
         node->roll(Ogre::Degree(180));
     }
     else
