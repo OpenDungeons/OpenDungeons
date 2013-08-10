@@ -33,7 +33,7 @@
 //TODO: make this read from file
 static const int MAX_LEVEL = 100;
 
-Creature::Creature( 
+Creature::Creature(
                     GameMap*            gameMap,
                     const std::string&  name
 
@@ -56,7 +56,7 @@ Creature::Creature(
         trainWait               (0),
         previousPositionTile    (0),
         battleField             (new Field("autoname")),
-        trainingDojo            (0),	
+        trainingDojo            (0),
         sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName())),
 	tracingCullingQuad      (NULL)
 {
@@ -219,7 +219,7 @@ void Creature::setPosition(const Ogre::Vector3& v)
             if (positionTile() != 0)
                 positionTile()->addCreature(this);
 
-	    
+
         }
 
 	tracingCullingQuad->moveEntryDelta(this,get2dPosition());
@@ -228,7 +228,7 @@ void Creature::setPosition(const Ogre::Vector3& v)
     else
     {
         // We are not on the map
-        
+
 
 	MovableGameEntity::setPosition(v);
 
@@ -470,7 +470,7 @@ void Creature::doTurn()
     do
     {
         ++loops;
-        
+
         loopBack = false;
 
         // Carry out the current task
@@ -631,11 +631,14 @@ void Creature::doTurn()
                             // Workers only.
 
                             // Choose a tile far away from our current position to wander to.
-                            tempTile = visibleTiles[Random::Uint(
-                                    visibleTiles.size() / 2,
-                                    visibleTiles.size() - 1)];
-                            tempX = tempTile->x;
-                            tempY = tempTile->y;
+                            if (!visibleTiles.empty())
+                            {
+                                tempTile = visibleTiles[Random::Uint(
+                                        visibleTiles.size() / 2,
+                                        visibleTiles.size() - 1)];
+                                tempX = tempTile->x;
+                                tempY = tempTile->y;
+                            }
                         }
 
                         Tile *tempPositionTile = positionTile();
@@ -982,7 +985,7 @@ void Creature::doTurn()
                             wasANeighbor = true;
 
                             //Set sound position and play dig sound.
-                            
+
                             break;
                         }
                     }
@@ -2058,7 +2061,7 @@ std::string Creature::getStatsText()
 }
 
 /** \brief Sets the creature definition for this creature
- * 
+ *
  */
 void Creature::setCreatureDefinition(const CreatureDefinition* def)
 {
