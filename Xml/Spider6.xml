@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<creature xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureSchema.xsd">
+    <name>Spider6</name>
+    <HP>125 </HP>
+    <mana>3 </mana>
+    <posX>-2</posX>
+    <posY>31</posY>
+    <posZ>0</posZ>
+    <color>1</color>
+    <weaponLname>
+        <name>none</name>
+        <damage>1</damage>
+        <range>4</range>
+        <defense>UniqueUniconr18</defense>
+        
+    </weaponLname>
+    <weaponRname>
+        <name>none</name>
+        <damage>8</damage>
+        <range>4</range>
+        <defense>0</defense>
+            
+     </weaponRname>        
+        
+        
+</creature>
