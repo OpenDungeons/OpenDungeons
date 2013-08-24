@@ -13,7 +13,7 @@
             </xs:sequence>
           </xs:complexType>
         </xs:element>
-        <xs:element name="soundlist">
+        <xs:element name="soundjoblist">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="sound" type="sound" minOccurs="1" maxOccurs="unbounded"/>
