@@ -98,7 +98,7 @@ int CSerializer::Restore(asIScriptModule *mod)
 					// Create a new script object, but don't call its constructor as we will initialize the members. 
 					// Calling the constructor may have unwanted side effects if for example the constructor changes
 					// any outside entities, such as setting global variables to point to new objects, etc.
-					void *newPtr = m_engine->CreateUninitializedScriptObject( type->GetTypeId() );
+					void *newPtr = m_engine->CreateUninitializedScriptObject( type );
 					m_root.m_children[i2]->Restore( newPtr, type->GetTypeId() ); 
 				}
 			}
@@ -198,7 +198,7 @@ void CSerializedValue::ClearChildren()
 	// then it is necessary to release the handle here, so we won't get a memory leak
 	if( (m_typeId & asTYPEID_OBJHANDLE) && m_children.size() == 1 && m_children[0]->m_restorePtr )
 	{
-		m_serializer->m_engine->ReleaseScriptObject(m_children[0]->m_restorePtr, m_children[0]->m_typeId);
+		m_serializer->m_engine->ReleaseScriptObject(m_children[0]->m_restorePtr, m_serializer->m_engine->GetObjectTypeById(m_children[0]->m_typeId));
 	}
 
 	for( size_t n = 0; n < m_children.size(); n++ )
@@ -363,8 +363,8 @@ void CSerializedValue::Restore(void *ref, int typeId)
 				// Create a new script object, but don't call its constructor as we will initialize the members. 
 				// Calling the constructor may have unwanted side effects if for example the constructor changes
 				// any outside entities, such as setting global variables to point to new objects, etc.
-				void *newObject = m_serializer->m_engine->CreateUninitializedScriptObject(type->GetTypeId());
-				m_children[0]->Restore(newObject, type->GetTypeId());	
+				void *newObject = m_serializer->m_engine->CreateUninitializedScriptObject(type);
+				m_children[0]->Restore(newObject, type->GetTypeId());
 			}
 		}
 	}
@@ -465,15 +465,17 @@ void CSerializedValue::RestoreHandles()
 
 			if( m_restorePtr && handleTo && handleTo->m_restorePtr )
 			{
+				asIObjectType *type = m_serializer->m_engine->GetObjectTypeById(m_typeId);
+
 				// If the handle is already pointing to something it must be released first
 				if( *(void**)m_restorePtr )
-					m_serializer->m_engine->ReleaseScriptObject(*(void**)m_restorePtr, m_typeId);
+					m_serializer->m_engine->ReleaseScriptObject(*(void**)m_restorePtr, type);
 
 				// Update the internal pointer
 				*(void**)m_restorePtr = handleTo->m_restorePtr;
 
 				// Increase the reference
-				m_serializer->m_engine->AddRefScriptObject(handleTo->m_restorePtr, m_typeId);
+				m_serializer->m_engine->AddRefScriptObject(handleTo->m_restorePtr, type);
 			}
 		}
 		else
@@ -481,7 +483,7 @@ void CSerializedValue::RestoreHandles()
 			// If the handle is pointing to something, we must release it to restore the null pointer
 			if( m_restorePtr && *(void**)m_restorePtr )
 			{
-				m_serializer->m_engine->ReleaseScriptObject(*(void**)m_restorePtr, m_typeId);
+				m_serializer->m_engine->ReleaseScriptObject(*(void**)m_restorePtr, m_serializer->m_engine->GetObjectTypeById(m_typeId));
 				*(void**)m_restorePtr = 0;
 			}
 		}

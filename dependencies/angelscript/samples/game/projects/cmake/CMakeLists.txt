@@ -9,6 +9,7 @@ add_executable(
     ../../../../add_on/scriptbuilder/scriptbuilder.cpp
     ../../../../add_on/scripthandle/scripthandle.cpp
     ../../../../add_on/scriptstdstring/scriptstdstring.cpp
+    ../../../../add_on/weakref/weakref.cpp
 )
 target_link_libraries(game Angelscript)
 

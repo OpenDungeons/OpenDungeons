@@ -82,6 +82,10 @@ public:
 	// Add a pre-processor define for conditional compilation
 	void DefineWord(const char *word);
 
+	// Enumerate included script sections
+	unsigned int GetSectionCount() const;
+	std::string  GetSectionName(unsigned int idx) const;
+
 #if AS_PROCESS_METADATA == 1
 	// Get metadata declared for class types and interfaces
 	const char *GetMetadataStringForType(int typeId);

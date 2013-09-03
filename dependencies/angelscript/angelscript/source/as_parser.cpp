@@ -610,7 +610,7 @@ asCScriptNode *asCParser::ParseParameterList()
 			node->AddChildLast(ParseTypeMod(true));
 			if( isSyntaxError ) return node;
 
-			// Parse identifier
+			// Parse optional identifier
 			GetToken(&t1);
 			if( t1.type == ttIdentifier )
 			{
@@ -620,17 +620,17 @@ asCScriptNode *asCParser::ParseParameterList()
 				if( isSyntaxError ) return node;
 
 				GetToken(&t1);
+			}
 
-				// Parse the expression for the default arg
-				if( t1.type == ttAssignment )
-				{
-					// Do a superficial parsing of the default argument
-					// The actual parsing will be done when the argument is compiled for a function call
-					node->AddChildLast(SuperficiallyParseExpression());
-					if( isSyntaxError ) return node;
+			// Parse optional expression for the default arg
+			if( t1.type == ttAssignment )
+			{
+				// Do a superficial parsing of the default argument
+				// The actual parsing will be done when the argument is compiled for a function call
+				node->AddChildLast(SuperficiallyParseExpression());
+				if( isSyntaxError ) return node;
 
-					GetToken(&t1);
-				}
+				GetToken(&t1);
 			}
 
 			// Check if list continues
@@ -1079,7 +1079,10 @@ asCScriptNode *asCParser::ParseExprValue()
 	GetToken(&t2);
 	RewindTo(&t1);
 
-	if( IsRealType(t1.type) )
+	// 'void' is a special expression that doesn't do anything (normally used for skipping output arguments)
+	if( t1.type == ttVoid )
+		node->AddChildLast(ParseToken(ttVoid));
+	else if( IsRealType(t1.type) )
 		node->AddChildLast(ParseConstructCall());
 	else if( t1.type == ttIdentifier || t1.type == ttScope )
 	{
@@ -1871,7 +1874,7 @@ int asCParser::ParseStatementBlock(asCScriptCode *script, asCScriptNode *block)
 	this->script = script;
 	sourcePos = block->tokenPos;
 
-	scriptNode = ParseStatementBlock();	
+	scriptNode = ParseStatementBlock();
 
 	if( isSyntaxError || errorWhileParsing )
 		return -1;
@@ -2279,10 +2282,21 @@ bool asCParser::IsFuncDecl(bool isMethod)
 	GetToken(&t2);
 	if( t2.type == ttOpenParanthesis ) 
 	{	
-		// If the closing paranthesis is not followed by a  
+		// If the closing parenthesis is not followed by a  
 		// statement block then it is not a function. 
-		while( t2.type != ttCloseParanthesis && t2.type != ttEnd )
+		// It's possible that there are nested parenthesis due to default
+		// arguments so this should be checked for.
+		int nest = 0;
+		GetToken(&t2);
+		while( (nest || t2.type != ttCloseParanthesis) && t2.type != ttEnd )
+		{
+			if( t2.type == ttOpenParanthesis )
+				nest++;
+			if( t2.type == ttCloseParanthesis )
+				nest--;
+
 			GetToken(&t2);
+		}
 
 		if( t2.type == ttEnd ) 
 			return false;

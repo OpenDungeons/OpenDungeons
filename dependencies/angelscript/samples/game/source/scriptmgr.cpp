@@ -7,6 +7,7 @@
 #include <assert.h>
 #include "../../../add_on/scriptstdstring/scriptstdstring.h"
 #include "../../../add_on/scriptbuilder/scriptbuilder.h"
+#include "../../../add_on/weakref/weakref.h"
 
 using namespace std;
 
@@ -43,11 +44,14 @@ int CScriptMgr::Init()
 	// Register the generic handle type, called 'ref' in the script
 	RegisterScriptHandle(engine);
 
+	// Register the weak ref template type
+	RegisterScriptWeakRef(engine);
 
 	// Register the game object. The scripts cannot create these directly, so there is no factory function.
 	r = engine->RegisterObjectType("CGameObj", 0, asOBJ_REF); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("CGameObj", asBEHAVE_ADDREF, "void f()", asMETHOD(CGameObj, AddRef), asCALL_THISCALL); assert( r >= 0 );
 	r = engine->RegisterObjectBehaviour("CGameObj", asBEHAVE_RELEASE, "void f()", asMETHOD(CGameObj, Release), asCALL_THISCALL); assert( r >= 0 );
+	r = engine->RegisterObjectBehaviour("CGameObj", asBEHAVE_GET_WEAKREF_FLAG, "int &f()", asMETHOD(CGameObj, GetWeakRefFlag), asCALL_THISCALL); assert( r >= 0 );
 
 	// The object's position is read-only to the script. The position is updated with the Move method
 	r = engine->RegisterObjectMethod("CGameObj", "int get_x() const", asMETHOD(CGameObj, GetX), asCALL_THISCALL); assert( r >= 0 );

@@ -108,12 +108,12 @@ void CScriptDictionary::Set(const string &key, void *value, int typeId)
 	{
 		// We're receiving a reference to the handle, so we need to dereference it
 		valStruct.valueObj = *(void**)value;
-		engine->AddRefScriptObject(valStruct.valueObj, typeId);
+		engine->AddRefScriptObject(valStruct.valueObj, engine->GetObjectTypeById(typeId));
 	}
 	else if( typeId & asTYPEID_MASK_OBJECT )
 	{
 		// Create a copy of the object
-		valStruct.valueObj = engine->CreateScriptObjectCopy(value, typeId);
+		valStruct.valueObj = engine->CreateScriptObjectCopy(value, engine->GetObjectTypeById(typeId));
 	}
 	else
 	{
@@ -172,7 +172,7 @@ bool CScriptDictionary::Get(const string &key, void *value, int typeId) const
 			if( (it->second.typeId & asTYPEID_MASK_OBJECT) && 
 				engine->IsHandleCompatibleWithObject(it->second.valueObj, it->second.typeId, typeId) )
 			{
-				engine->AddRefScriptObject(it->second.valueObj, it->second.typeId);
+				engine->AddRefScriptObject(it->second.valueObj, engine->GetObjectTypeById(it->second.typeId));
 				*(void**)value = it->second.valueObj;
 
 				return true;
@@ -188,7 +188,7 @@ bool CScriptDictionary::Get(const string &key, void *value, int typeId) const
 			// Copy the object into the given reference
 			if( isCompatible )
 			{
-				engine->AssignScriptObject(value, it->second.valueObj, typeId);
+				engine->AssignScriptObject(value, it->second.valueObj, engine->GetObjectTypeById(typeId));
 
 				return true;
 			}
@@ -282,7 +282,7 @@ void CScriptDictionary::FreeValue(valueStruct &value)
 	if( value.typeId & asTYPEID_MASK_OBJECT )
 	{
 		// Let the engine release the object
-		engine->ReleaseScriptObject(value.valueObj, value.typeId);
+		engine->ReleaseScriptObject(value.valueObj, engine->GetObjectTypeById(value.typeId));
 		value.valueObj = 0;
 		value.typeId = 0;
 	}

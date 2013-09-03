@@ -1,27 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<creature xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureSchema.xsd">
-    <name>UniqueUnicorn10</name>
-    <HP>UniqueUnicorn23 </HP>
-    <mana>UniqueUnicorn24 </mana>
-    <posX>UniqueUnicorn11</posX>
-    <posY>UniqueUnicorn12</posY>
-    <posZ>UniqueUnicorn13</posZ>
-    <color>UniqueUnicorn14</color>
-    <weaponLname>
-        <name>UniqueUnicorn15</name>
-        <damage>UniqueUnicorn16</damage>
-        <range>UniqueUnicorn17</range>
-        <defense>UniqueUnicorn18</defense>
-        
-    </weaponLname>
-    <weaponRname>
-        <name>UniqueUnicorn19</name>
-        <damage>UniqueUnicorn20</damage>
-        <range>UniqueUnicorn21</range>
-        <defense>UniqueUnicorn22</defense>
-            
-     </weaponRname>        
-        
-        
-</creature>
+<room xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/RoomScheme.xsd">
+    <roomType>roomType0</roomType>
+    <meshName>meshName0</meshName>
+    <color>color0</color>
+    <numTiles>0</numTiles>
+    <point>
+        <tileX>0</tileX>
+        <tileY>0</tileY>
+    </point>
+    <point>
+        <tileX>0</tileX>
+        <tileY>0</tileY>
+    </point>
+</room>

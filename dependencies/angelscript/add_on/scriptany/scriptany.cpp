@@ -211,12 +211,12 @@ CScriptAny &CScriptAny::operator=(const CScriptAny &other)
 	{
 		// For handles, copy the pointer and increment the reference count
 		value.valueObj = other.value.valueObj;
-		engine->AddRefScriptObject(value.valueObj, value.typeId);
+		engine->AddRefScriptObject(value.valueObj, engine->GetObjectTypeById(value.typeId));
 	}
 	else if( value.typeId & asTYPEID_MASK_OBJECT )
 	{
 		// Create a copy of the object
-		value.valueObj = engine->CreateScriptObjectCopy(other.value.valueObj, value.typeId);
+		value.valueObj = engine->CreateScriptObjectCopy(other.value.valueObj, engine->GetObjectTypeById(value.typeId));
 	}
 	else
 	{
@@ -286,12 +286,12 @@ void CScriptAny::Store(void *ref, int refTypeId)
 	{
 		// We're receiving a reference to the handle, so we need to dereference it
 		value.valueObj = *(void**)ref;
-		engine->AddRefScriptObject(value.valueObj, value.typeId);
+		engine->AddRefScriptObject(value.valueObj, engine->GetObjectTypeById(value.typeId));
 	}
 	else if( value.typeId & asTYPEID_MASK_OBJECT )
 	{
 		// Create a copy of the object
-		value.valueObj = engine->CreateScriptObjectCopy(ref, value.typeId);
+		value.valueObj = engine->CreateScriptObjectCopy(ref, engine->GetObjectTypeById(value.typeId));
 	}
 	else
 	{
@@ -327,7 +327,7 @@ bool CScriptAny::Retrieve(void *ref, int refTypeId) const
 		if( (value.typeId & asTYPEID_MASK_OBJECT) && 
 			engine->IsHandleCompatibleWithObject(value.valueObj, value.typeId, refTypeId) )
 		{
-			engine->AddRefScriptObject(value.valueObj, value.typeId);
+			engine->AddRefScriptObject(value.valueObj, engine->GetObjectTypeById(value.typeId));
 			*(void**)ref = value.valueObj;
 
 			return true;
@@ -340,7 +340,7 @@ bool CScriptAny::Retrieve(void *ref, int refTypeId) const
 		// Copy the object into the given reference
 		if( value.typeId == refTypeId )
 		{
-			engine->AssignScriptObject(ref, value.valueObj, value.typeId);
+			engine->AssignScriptObject(ref, value.valueObj, engine->GetObjectTypeById(value.typeId));
 
 			return true;
 		}
@@ -389,14 +389,14 @@ int CScriptAny::GetTypeId() const
 
 void CScriptAny::FreeObject()
 {
-    // If it is a handle or a ref counted object, call release
+	// If it is a handle or a ref counted object, call release
 	if( value.typeId & asTYPEID_MASK_OBJECT )
 	{
 		// Let the engine release the object
-		engine->ReleaseScriptObject(value.valueObj, value.typeId);
+		asIObjectType *ot = engine->GetObjectTypeById(value.typeId);
+		engine->ReleaseScriptObject(value.valueObj, ot);
 
 		// Release the object type info
-		asIObjectType *ot = engine->GetObjectTypeById(value.typeId);
 		if( ot )
 			ot->Release();
 
@@ -404,7 +404,7 @@ void CScriptAny::FreeObject()
 		value.typeId = 0;
 	}
 
-    // For primitives, there's nothing to do
+	// For primitives, there's nothing to do
 }
 
 

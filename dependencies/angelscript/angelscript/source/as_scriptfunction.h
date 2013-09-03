@@ -103,6 +103,7 @@ public:
 	int                  GetId() const;
 	asEFuncType          GetFuncType() const;
 	const char          *GetModuleName() const;
+	asIScriptModule     *GetModule() const;
 	const char          *GetScriptSectionName() const;
 	const char          *GetConfigGroup() const;
 	asDWORD              GetAccessMask() const;
@@ -120,11 +121,16 @@ public:
 	bool                 IsShared() const;
 	asUINT               GetParamCount() const;
 	int                  GetParamTypeId(asUINT index, asDWORD *flags = 0) const;
-	int                  GetReturnTypeId() const;
+	int                  GetReturnTypeId(asDWORD *flags = 0) const;
 
 	// Type id for function pointers 
 	int                  GetTypeId() const;
 	bool                 IsCompatibleWithTypeId(int typeId) const;
+
+	// Delegates
+	void                *GetDelegateObject() const;
+	asIObjectType       *GetDelegateObjectType() const;
+	asIScriptFunction   *GetDelegateFunction() const;
 
 	// Debug information
 	asUINT               GetVarCount() const;
@@ -172,6 +178,8 @@ public:
 	void      AddReferences();
 	void      ReleaseReferences();
 
+	void      AllocateScriptFunctionData();
+	void      DeallocateScriptFunctionData();
 
 	asCGlobalProperty *GetPropertyByGlobalVarPtr(void *gvarPtr);
 
@@ -219,39 +227,52 @@ public:
 	asCScriptFunction *funcForDelegate;
 
 	// Used by asFUNC_SCRIPT
-	asCArray<asDWORD>               byteCode;
-	// The stack space needed for the local variables
-	asDWORD                         variableSpace;
+	struct ScriptFunctionData
+	{
+		// Bytecode for the script function
+		asCArray<asDWORD>               byteCode;
 
-	// These hold information objects and function pointers, including temporary
-	// variables used by exception handler and when saving bytecode
-	asCArray<asCObjectType*>        objVariableTypes;
-	asCArray<asCScriptFunction*>    funcVariableTypes;
-	asCArray<int>	                objVariablePos;
-	// The first variables in above array are allocated on the heap, the rest on the stack.
-	// This variable shows how many are on the heap.
-	asUINT                          objVariablesOnHeap;
+		// The stack space needed for the local variables
+		asDWORD                         variableSpace;
 
-	// Holds information on scope for object variables on the stack
-	asCArray<asSObjectVariableInfo> objVariableInfo;
+		// These hold information objects and function pointers, including temporary
+		// variables used by exception handler and when saving bytecode
+		asCArray<asCObjectType*>        objVariableTypes;
+		asCArray<asCScriptFunction*>    funcVariableTypes;
+		asCArray<int>                   objVariablePos;
 
-	// Holds information on explicitly declared variables
-	asCArray<asSScriptVariable*>    variables;        // debug info
+		// The first variables in above array are allocated on the heap, the rest on the stack.
+		// This variable shows how many are on the heap.
+		asUINT                          objVariablesOnHeap;
 
-	int                             stackNeeded;
-	asCArray<int>                   lineNumbers;      // debug info
-	int                             scriptSectionIdx; // debug info
-	asCArray<int>                   sectionIdxs;      // debug info. Store position/index pairs if the bytecode is compiled from multiple script sections
-	bool                            dontCleanUpOnException;   // Stub functions don't own the object and parameters
+		// Holds information on scope for object variables on the stack
+		asCArray<asSObjectVariableInfo> objVariableInfo;
+
+		// The stack needed to execute the function
+		int                             stackNeeded;
+
+		// JIT compiled code of this function
+		asJITFunction                   jitFunction;
+
+		// Holds debug information on explicitly declared variables
+		asCArray<asSScriptVariable*>    variables;
+		// Store position, line number pairs for debug information
+		asCArray<int>                   lineNumbers;
+		// Store the script section where the code was declared
+		int                             scriptSectionIdx;
+		// Store position/index pairs if the bytecode is compiled from multiple script sections
+		asCArray<int>                   sectionIdxs;
+	};
+	ScriptFunctionData          *scriptData;
+
+	// Stub functions and delegates don't own the object and parameters
+	bool                         dontCleanUpOnException;
 
 	// Used by asFUNC_VIRTUAL
 	int                          vfTableIdx;
 
 	// Used by asFUNC_SYSTEM
 	asSSystemFunctionInterface  *sysFuncIntf;
-
-    // JIT compiled code of this function
-    asJITFunction                jitFunction;
 };
 
 const char * const DELEGATE_FACTORY = "%delegate_factory";

@@ -23,15 +23,17 @@ int CompareRelation(asIScriptEngine *engine, void *lobj, void *robj, int typeId,
 		for( asUINT n = 0; n < ot->GetMethodCount(); n++ )
 		{
 			asIScriptFunction *f = ot->GetMethodByIndex(n);
+			asDWORD flags;
 			if( strcmp(f->GetName(), "opCmp") == 0 &&
-				f->GetReturnTypeId() == asTYPEID_INT32 &&
+				f->GetReturnTypeId(&flags) == asTYPEID_INT32 &&
+				flags == asTM_NONE &&
 				f->GetParamCount() == 1 )
 			{
-				asDWORD flags;
 				int paramTypeId = f->GetParamTypeId(0, &flags);
 				
 				// The parameter must be an input reference of the same type
-				if( flags != asTM_INREF || typeId != paramTypeId )
+				// If the reference is a inout reference, then it must also be read-only
+				if( !(flags & asTM_INREF) || typeId != paramTypeId || ((flags & asTM_OUTREF) && !(flags & asTM_CONST)) )
 					break;
 
 				// Found the method
@@ -77,15 +79,17 @@ int CompareEquality(asIScriptEngine *engine, void *lobj, void *robj, int typeId,
 		for( asUINT n = 0; n < ot->GetMethodCount(); n++ )
 		{
 			asIScriptFunction *f = ot->GetMethodByIndex(n);
+			asDWORD flags;
 			if( strcmp(f->GetName(), "opEquals") == 0 &&
-				f->GetReturnTypeId() == asTYPEID_BOOL &&
+				f->GetReturnTypeId(&flags) == asTYPEID_BOOL &&
+				flags == asTM_NONE &&
 				f->GetParamCount() == 1 )
 			{
-				asDWORD flags;
 				int paramTypeId = f->GetParamTypeId(0, &flags);
 				
 				// The parameter must be an input reference of the same type
-				if( flags != asTM_INREF || typeId != paramTypeId )
+				// If the reference is a inout reference, then it must also be read-only
+				if( !(flags & asTM_INREF) || typeId != paramTypeId || ((flags & asTM_OUTREF) && !(flags & asTM_CONST)) )
 					break;
 
 				// Found the method
@@ -126,14 +130,35 @@ int CompareEquality(asIScriptEngine *engine, void *lobj, void *robj, int typeId,
 
 int ExecuteString(asIScriptEngine *engine, const char *code, asIScriptModule *mod, asIScriptContext *ctx)
 {
+	return ExecuteString(engine, code, 0, asTYPEID_VOID, mod, ctx);
+}
+
+int ExecuteString(asIScriptEngine *engine, const char *code, void *ref, int refTypeId, asIScriptModule *mod, asIScriptContext *ctx)
+{
 	// Wrap the code in a function so that it can be compiled and executed
-	string funcCode = "void ExecuteString() {\n";
+	string funcCode = " ExecuteString() {\n";
 	funcCode += code;
 	funcCode += "\n;}";
 	
+	// Determine the return type based on the type of the ref arg
+	funcCode = engine->GetTypeDeclaration(refTypeId, true) + funcCode;
+
+	// GetModule will free unused types, so to be on the safe side we'll hold on to a reference to the type
+	asIObjectType *type = 0;
+	if( refTypeId & asTYPEID_MASK_OBJECT )
+	{
+		type = engine->GetObjectTypeById(refTypeId);
+		if( type )
+			type->AddRef();
+	}
+	
 	// If no module was provided, get a dummy from the engine
 	asIScriptModule *execMod = mod ? mod : engine->GetModule("ExecuteString", asGM_ALWAYS_CREATE);
-	
+
+	// Now it's ok to release the type
+	if( type )
+		type->Release();
+
 	// Compile the function that can be executed
 	asIScriptFunction *func = 0;
 	int r = execMod->CompileFunction("ExecuteString", funcCode.c_str(), -1, 0, &func);
@@ -152,6 +177,29 @@ int ExecuteString(asIScriptEngine *engine, const char *code, asIScriptModule *mo
 
 	// Execute the function
 	r = execCtx->Execute();
+
+	// Unless the provided type was void retrieve it's value
+	if( ref != 0 && refTypeId != asTYPEID_VOID )
+	{
+		if( refTypeId & asTYPEID_OBJHANDLE )
+		{
+			// Expect the pointer to be null to start with
+			assert( *reinterpret_cast<void**>(ref) == 0 );
+			*reinterpret_cast<void**>(ref) = *reinterpret_cast<void**>(execCtx->GetAddressOfReturnValue());
+			engine->AddRefScriptObject(*reinterpret_cast<void**>(ref), engine->GetObjectTypeById(refTypeId));
+		}
+		else if( refTypeId & asTYPEID_MASK_OBJECT )
+		{
+			// Expect the pointer to point to a valid object
+			assert( *reinterpret_cast<void**>(ref) != 0 );
+			engine->AssignScriptObject(ref, execCtx->GetAddressOfReturnValue(), engine->GetObjectTypeById(refTypeId));
+		}
+		else
+		{
+			// Copy the primitive value
+			memcpy(ref, execCtx->GetAddressOfReturnValue(), engine->GetSizeOfPrimitiveType(refTypeId));
+		}
+	}
 	
 	// Clean up
 	func->Release();

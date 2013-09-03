@@ -15,7 +15,98 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 
 <h1>AngelScript Change Log</h1>
 
-<h2>Version 2.26.3 WIP - 2013/04/19</h2>
+<h2>Version 2.27.1 - 2013/08/16</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Engine no longer accepts registering template factory with autohandles
+<li>Implicit conversion to ASHANDLE type will not copy the value any longer
+<li>Fixed 64bit bug in asBC_SwapPtr (Thanks Colin Didier)
+<li>Fixed bug in the compiler when dealing with opAssign that returns anything else than a reference (Thanks neorej16)
+<li>Compiler was incorrectly reusing temporary variables in some expressions with ternary condition operator (Thanks neorej16)
+<li>Compiler was incorrectly making a copy of the object in some cases for explicit ref casts
+</ul>
+<li>Library
+<ul>
+<li>Reduced memory footprint for applications with a lot of registered functions
+</ul>
+<li>Script language
+<ul>
+<li>For consistency @null is now a valid expression
+<li>Default arguments can be used with anonymous parameters (Thanks Sir Ementaler)
+<li>void is a legal expression and can be used to ignore output parameters
+</ul>
+<li>Add-ons & samples
+<ul>
+<li>Fixed bug in CScriptBuilder with loading an empty file (Thanks Piotr Kosek)
+<li>Implemented a different ExecuteString that can return a value of variable type
+</ul>
+</ul>
+
+<h2>Version 2.27.0 - 2013/07/28</h2>
+
+<ul>
+<li>Bug fixes
+<ul>
+<li>Compiler would call a script class' opAssign method as if it was a system function in a specific situation causing a crash (Thanks Polyák István)
+<li>A compound assignment to a class member could be compiled incorrectly if the lvalue had deferred parameters in expression (Thanks Polyák István)
+<li>GetExceptionLineNumber would crash if the exception had been raised in a generated function (Thanks Polyák István)
+<li>Fixed compiler error on FreeBSD (Thanks Veniamin Gvozdikov)
+<li>Compiler didn't detect ambigious enum values when compiling initialization of global variables
+<li>Nested calls in context could overwrite value in register (Thanks Philip Bennefall)
+<li>Fixed bug with max portability and delegates (Thanks Andris Jaunzeikars)
+<li>Fixed memory leak in compiler with shared classes and virtual properties (Thanks Xifos)
+<li>Function pointers for global functions in namespaces wasn't resolving properly (Thanks Violet CLM)
+<li>Registered value types that didn't have size evenly divisable of 4 weren't allocated with enough space (Thanks Hermann Noll)
+<li>Class methods with default args using parenthesis failed to parse (Thanks Aaron Baker)
+<li>Template arguments declared as const T@ will keep the handle-to-const attribute in template instances
+</ul>
+<li>Library interface
+<ul>
+<li>Removed previously deprecated methods
+<li>Added GetModule method to the asIScriptFunction and asIObjectType interfaces
+<li>Added Discard to the asIScriptModule interface, that does the same as asIScriptEngine::DiscardModule
+<li>Added GetDelegateObject and GetDelegateFunction to asIScriptFunction
+<li>Added CreateDelegate to asIScriptEngine
+<li>RegisterObjectBehaviour and RegisterStringFactory now accepts asCALL_THISCALL_ASGLOBAL
+<li>Added type modifier asTM_CONST to indicate parameters and return types that are const references (Thanks Polyák István)
+<li>GetArgTypeId and GetReturnTypeId now have optional parameter to retrieve the type modifier flags
+<li>Added GetFuncDefFromTypeId to allow getting the asIScriptFunction for a function definition (Thanks Polyák István)
+<li>NotifyGarbageCollectorOfNewObject will return the sequence number attributed to the object
+<li>Added GetObjectInGC to allow inspecting objects that are currently known by the GC
+<li>The new behaviour asBEHAVE_GET_WEAKREF_FLAG was added to support weak references (Thanks vroad)
+<li>Added the interface asILockableSharedBool for the weak ref flag
+<li>Global asCreateLockableSharedBool can be used by application classes to create instances of shared booleans
+<li>CreateScriptObject, CreateScriptObjectCopy and CreateUnitializedScriptObject now takes an asIObjectType instead of type id
+<li>AssignScriptObject also takes an asIObjectType instead of type id
+<li>Deprecated AddRefScriptObject and ReleaseScriptObject that takes type id
+</ul>
+<li>Library
+<ul>
+<li>Improved performance of thread manager and with that reduced the overhead of script calls (Thanks Andrew Ackermann)
+<li>GC now gives an id for each object from a sequence and reports this when it cannot destroy an object
+<li>GC will call script class destructor before breaking circular references (Thanks hupsilardee)
+<li>Engine no longer silently accepts modifications to built-in types by the application (Thanks Violet CLM)
+<li>Added support for weak references (Thanks vroad)
+</ul>
+<li>Script language
+<ul>
+<li>Literal float and double constants accept the format 1e5 (Thanks Jason Goepel)
+<li>Template subtypes can no longer be declared as read-only
+<li>Derived classes can no longer override base methods with different return types (Thanks Philip Bennefall)
+</ul>
+<li>Add-ons & samples
+<ul>
+<li>Script array add-on can now sort arrays of handles by calling the opCmp on the objects (Thanks Polyák István)
+<li>Script array does a better search for matching opCmp and opEquals (Thanks Polyák István)
+<li>Fixed compilation error with has_trivial_destructor on g++ 4.8 in GetTypeTraits (Thanks Craig Soutar)
+<li>Added the weakref add-on (Thanks vroad)
+<li>The game sample uses the weakref add-on
+</ul>
+</ul>
+
+<h2>Version 2.26.3 - 2013/05/08</h2>
 
 <ul>
 <li>Bug fixes
@@ -23,6 +114,9 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 <li>Compiler was generating invalid bytecode when compiling var declaration with initialization using void opAssign (Thanks Andrew Ackermann)
 <li>RegisterObjectProperty() will now return an error if the offset is larger than a signed 16bit value which is what the VM supports (Thanks Adrian Bibby Walther)
 <li>Fixed bug in compiler where the class constructor could become invalid if two classes with the same name was declared in different namespaces (Thanks loverlin)
+<li>A null pointer access error could happen when compiling a script with enums after discarding a script with global variables (Thanks Robert Weitzel)
+<li>The context could in some situations attempt to destroy objects on the stack that had never been initialized upon cleanup (Thanks Philip Bennefall)
+<li>Multi-template types where both subtypes are of the same script class no longer crash the GC (Thanks Polyák István)
 </ul>
 <li>Library interface
 <ul>
@@ -32,10 +126,14 @@ BODY { FONT-SIZE: 12px; FONT-FAMILY: Arial; }
 <li>Script language
 <ul>
 <li>Delegates can now be instanciated with a construct call for a funcdef with the class method as argument
+<li>Function handles for overloaded functions are now implicitly resolved by the compiler by deferring the choice of the function until its used
+<li>Parent namespaces are now searched recursively for matching entities
 </ul>
 <li>Add-ons
 <ul>
 <li>Script array add-on will not allow subtypes of reference types unless they are handles if asEP_DISALLOW_VALUE_ASSIGN_FOR_REF_TYPE is turned on (Thanks Polyák István)
+<li>Added methods GetSectionCount() and GetSectionName() to builder for enumerating the included script sections
+<li>Added fpToIEEE and fpFromIEEE to the math addon. These allow platform agnostic conversion between floating point and IEEE 754 representation (Thanks Maarten van Berkel)
 </ul>
 </ul>
 

@@ -61,11 +61,11 @@ void ScriptCreateCoRoutine(string &func, CScriptAny *arg)
 	if( ctx && g_ctxMgr )
 	{
 		asIScriptEngine *engine = ctx->GetEngine();
-		string mod = ctx->GetFunction()->GetModuleName();
+		asIScriptModule *mod = ctx->GetFunction()->GetModule();
 
 		// We need to find the function that will be created as the co-routine
 		string decl = "void " + func + "(any @)"; 
-		asIScriptFunction *func = engine->GetModule(mod.c_str())->GetFunctionByDecl(decl.c_str());
+		asIScriptFunction *func = mod->GetFunctionByDecl(decl.c_str());
 		if( func == 0 )
 		{
 			// No function could be found, raise an exception

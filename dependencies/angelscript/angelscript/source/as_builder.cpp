@@ -364,9 +364,9 @@ int asCBuilder::CompileFunction(const char *sectionName, const char *code, int l
 
 	asCArray<asCString> parameterNames;
 	GetParsedFunctionDetails(node, scripts[0], 0, func->name, func->returnType, parameterNames, func->parameterTypes, func->inOutFlags, func->defaultArgs, func->isReadOnly, isConstructor, isDestructor, isPrivate, isFinal, isOverride, isShared, module->defaultNamespace);
-	func->id               = engine->GetNextScriptFunctionId();
-	func->scriptSectionIdx = engine->GetScriptSectionNameIndex(sectionName ? sectionName : "");
-	func->nameSpace        = module->defaultNamespace;
+	func->id                           = engine->GetNextScriptFunctionId();
+	func->scriptData->scriptSectionIdx = engine->GetScriptSectionNameIndex(sectionName ? sectionName : "");
+	func->nameSpace                    = module->defaultNamespace;
 
 	// Make sure the default args are declared correctly
 	int r = ValidateDefaultArgs(script, node, func);
@@ -910,7 +910,7 @@ asCGlobalProperty *asCBuilder::GetGlobalProperty(const char *prop, asSNameSpace 
 #ifndef AS_NO_COMPILER
 	// Check properties being compiled now
 	sGlobalVariableDescription* desc = globVariables.GetFirst(ns, prop);
-	if( desc )
+	if( desc && !desc->isEnumValue )
 	{
 		if( isCompiled )     *isCompiled     = desc->isCompiled;
 		if( isPureConstant ) *isPureConstant = desc->isPureConstant;
@@ -1595,6 +1595,8 @@ int asCBuilder::RegisterClass(asCScriptNode *node, asCScriptCode *file, asSNameS
 	engine->scriptFunctions[st->beh.copy]->AddRef();
 	engine->scriptFunctions[st->beh.factory]->AddRef();
 	engine->scriptFunctions[st->beh.construct]->AddRef();
+	// TODO: weak: Should not do this if the class has been declared with noweak
+	engine->scriptFunctions[st->beh.getWeakRefFlag]->AddRef();
 	for( asUINT i = 1; i < st->beh.operators.GetLength(); i += 2 )
 		engine->scriptFunctions[st->beh.operators[i]]->AddRef();
 
@@ -1757,7 +1759,7 @@ void asCBuilder::CompileGlobalVariables()
 				if( gvar->nextNode )
 				{
 					asCCompiler comp(engine);
-					asCScriptFunction func(engine, module, asFUNC_DUMMY);
+					asCScriptFunction func(engine, module, asFUNC_SCRIPT);
 
 					// Set the namespace that should be used during the compilation
 					func.nameSpace = gvar->datatype.GetObjectType()->nameSpace;
@@ -1768,6 +1770,9 @@ void asCBuilder::CompileGlobalVariables()
 					gvar->datatype = asCDataType::CreatePrimitive(ttInt, true);
 					r = comp.CompileGlobalVariable(this, gvar->script, gvar->nextNode, gvar, &func);
 					gvar->datatype = saveType;
+
+					// Make the function a dummy so it doesn't try to release objects while destroying the function
+					func.funcType = asFUNC_DUMMY;
 				}
 				else
 				{
@@ -1817,7 +1822,7 @@ void asCBuilder::CompileGlobalVariables()
 			else
 			{
 				// Compile the global variable
-				initFunc = asNEW(asCScriptFunction)(engine, module, asFUNC_DUMMY);
+				initFunc = asNEW(asCScriptFunction)(engine, module, asFUNC_SCRIPT);
 				if( initFunc == 0 )
 				{
 					// Out of memory
@@ -1838,6 +1843,7 @@ void asCBuilder::CompileGlobalVariables()
 				else
 				{
 					// Compilation failed
+					initFunc->funcType = asFUNC_DUMMY;
 					asDELETE(initFunc, asCScriptFunction);
 					initFunc = 0;
 				}
@@ -1858,16 +1864,15 @@ void asCBuilder::CompileGlobalVariables()
 					initOrder.Put(gvar->property);
 
 				// Does the function contain more than just a SUSPEND followed by a RET instruction?
-				if( initFunc && initFunc->byteCode.GetLength() > 2 )
+				if( initFunc && initFunc->scriptData->byteCode.GetLength() > 2 )
 				{
 					// Create the init function for this variable
 					initFunc->id = engine->GetNextScriptFunctionId();
 					engine->SetScriptFunction(initFunc);
 
 					// Finalize the init function for this variable
-					initFunc->funcType = asFUNC_SCRIPT;
 					initFunc->returnType = asCDataType::CreatePrimitive(ttVoid, false);
-					initFunc->scriptSectionIdx = engine->GetScriptSectionNameIndex(gvar->script->name.AddressOf());
+					initFunc->scriptData->scriptSectionIdx = engine->GetScriptSectionNameIndex(gvar->script->name.AddressOf());
 
 					gvar->property->SetInitFunc(initFunc);
 
@@ -1877,6 +1882,7 @@ void asCBuilder::CompileGlobalVariables()
 				else if( initFunc )
 				{
 					// Destroy the function as it won't be used
+					initFunc->funcType = asFUNC_DUMMY;
 					asDELETE(initFunc, asCScriptFunction);
 					initFunc = 0;
 				}
@@ -2456,8 +2462,16 @@ void asCBuilder::CompileClasses()
 				for( asUINT d = 0; d < decl->objType->methods.GetLength(); d++ )
 				{
 					derivedFunc = GetFunctionDescription(decl->objType->methods[d]);
-					if( derivedFunc->IsSignatureEqual(baseFunc) )
+					if( derivedFunc->name == baseFunc->name &&
+						derivedFunc->IsSignatureExceptNameAndReturnTypeEqual(baseFunc) )
 					{
+						if( baseFunc->returnType != derivedFunc->returnType )
+						{
+							asCString msg;
+							msg.Format(TXT_DERIVED_METHOD_MUST_HAVE_SAME_RETTYPE_s, baseFunc->GetDeclaration());
+							WriteError(msg, decl->script, decl->node);
+						}
+
 						if( baseFunc->IsFinal() )
 						{
 							asCString msg;
@@ -3036,7 +3050,6 @@ int asCBuilder::CreateVirtualFunction(asCScriptFunction *func, int idx)
 	vf->parameterTypes   = func->parameterTypes;
 	vf->inOutFlags       = func->inOutFlags;
 	vf->id               = engine->GetNextScriptFunctionId();
-	vf->scriptSectionIdx = func->scriptSectionIdx;
 	vf->isReadOnly       = func->isReadOnly;
 	vf->objectType       = func->objectType;
 	vf->signatureId      = func->signatureId;
@@ -3316,7 +3329,8 @@ int asCBuilder::RegisterEnum(asCScriptNode *node, asCScriptCode *file, asSNameSp
 				gvar->name			  = name;
 				gvar->datatype		  = type;
 				// No need to allocate space on the global memory stack since the values are stored in the asCObjectType
-				gvar->index			  = 0;
+				// Set the index to a negative to allow compiler to diferentiate from ordinary global var when compiling the initialization
+				gvar->index			  = -1; 
 				gvar->isCompiled	  = false;
 				gvar->isPureConstant  = true;
 				gvar->isEnumValue     = true;
@@ -4014,6 +4028,9 @@ int asCBuilder::RegisterVirtualProperty(asCScriptNode *node, asCScriptCode *file
 				RegisterScriptFunction(funcNode, file, objType, isInterface, isGlobalFunction, ns, false, false, name, returnType, paramNames, paramTypes, paramModifiers, defaultArgs, isConst, false, false, isPrivate, isOverride, isFinal, false);
 			else
 			{
+				// Free the funcNode as it won't be used
+				if( funcNode ) funcNode->Destroy(engine);
+
 				// Should validate that the function really exists in the class/interface
 				bool found = false;
 				for( asUINT n = 0; n < objType->methods.GetLength(); n++ )
@@ -4297,6 +4314,22 @@ asSNameSpace *asCBuilder::GetNameSpaceFromNode(asCScriptNode *node, asCScriptCod
 	return ns;
 }
 
+asSNameSpace *asCBuilder::GetParentNameSpace(asSNameSpace *ns)
+{
+	if( ns == 0 ) return 0;
+	if( ns == engine->nameSpaces[0] ) return 0;
+
+	asCString scope = ns->name;
+	int pos = scope.FindLast("::");
+	if( pos >= 0 )
+	{
+		scope = scope.SubString(0, pos);
+		return engine->FindNameSpace(scope.AddressOf());
+	}
+
+	return engine->nameSpaces[0];
+}
+
 asCDataType asCBuilder::CreateDataTypeFromNode(asCScriptNode *node, asCScriptCode *file, asSNameSpace *implicitNamespace, bool acceptHandleForScope, asCObjectType *currentType)
 {
 	asASSERT(node->nodeType == snDataType);
@@ -4324,141 +4357,167 @@ asCDataType asCBuilder::CreateDataTypeFromNode(asCScriptNode *node, asCScriptCod
 
 	if( n->tokenType == ttIdentifier )
 	{
+		bool found = false;
+
 		asCScriptNode *nameToken = n;
 		asCString str;
 		str.Assign(&file->code[n->tokenPos], n->tokenLength);
 
-		asCObjectType *ot = 0;
-
-		// If this is for a template type, then we must first determine if the
-		// identifier matches any of the template subtypes
-		if( currentType && (currentType->flags & asOBJ_TEMPLATE))
+		// Recursively search parent namespaces for matching type
+		while( ns && !found )
 		{
-			for( asUINT subtypeIndex = 0; subtypeIndex < currentType->templateSubTypes.GetLength(); subtypeIndex++)
+			asCObjectType *ot = 0;
+
+			// If this is for a template type, then we must first determine if the
+			// identifier matches any of the template subtypes
+			if( currentType && (currentType->flags & asOBJ_TEMPLATE))
 			{
-				if(str == currentType->templateSubTypes[subtypeIndex].GetObjectType()->name )
+				for( asUINT subtypeIndex = 0; subtypeIndex < currentType->templateSubTypes.GetLength(); subtypeIndex++)
 				{
-					ot = currentType->templateSubTypes[subtypeIndex].GetObjectType();
-					break;
+					if(str == currentType->templateSubTypes[subtypeIndex].GetObjectType()->name )
+					{
+						ot = currentType->templateSubTypes[subtypeIndex].GetObjectType();
+						break;
+					}
 				}
 			}
-		}
 
-		if( ot == 0 )
-			ot = GetObjectType(str.AddressOf(), ns);
-		if( ot == 0 && !module && currentType )
-			ot = GetObjectTypeFromTypesKnownByObject(str.AddressOf(), currentType);
+			if( ot == 0 )
+				ot = GetObjectType(str.AddressOf(), ns);
+			if( ot == 0 && !module && currentType )
+				ot = GetObjectTypeFromTypesKnownByObject(str.AddressOf(), currentType);
 
-		if( ot )
-		{
-			if( ot->flags & asOBJ_IMPLICIT_HANDLE )
-				isImplicitHandle = true;
-
-			// Make sure the module has access to the object type
-			if( !module || (module->accessMask & ot->accessMask) )
+			if( ot )
 			{
-				if(asOBJ_TYPEDEF == (ot->flags & asOBJ_TYPEDEF))
+				found = true;
+
+				if( ot->flags & asOBJ_IMPLICIT_HANDLE )
+					isImplicitHandle = true;
+
+				// Make sure the module has access to the object type
+				if( !module || (module->accessMask & ot->accessMask) )
 				{
-					// TODO: typedef: A typedef should be considered different from the original type (though with implicit conversions between the two)
-					// Create primitive data type based on object flags
-					dt = ot->templateSubTypes[0];
-					dt.MakeReadOnly(isConst);
+					if(asOBJ_TYPEDEF == (ot->flags & asOBJ_TYPEDEF))
+					{
+						// TODO: typedef: A typedef should be considered different from the original type (though with implicit conversions between the two)
+						// Create primitive data type based on object flags
+						dt = ot->templateSubTypes[0];
+						dt.MakeReadOnly(isConst);
+					}
+					else
+					{
+						if( ot->flags & asOBJ_TEMPLATE )
+						{
+							// Check if the subtype is a type or the template's subtype
+							// if it is the template's subtype then this is the actual template type,
+							// orderwise it is a template instance.
+							// Only do this for application registered interface, as the
+							// scripts cannot implement templates.
+							// TODO: namespace: Use correct implicit namespace
+							asCArray<asCDataType> subTypes;
+							asUINT subtypeIndex;
+							while( n && n->next && n->next->nodeType == snDataType )
+							{
+								n = n->next;
+
+								asCDataType subType = CreateDataTypeFromNode(n, file, engine->nameSpaces[0], false, module ? 0 : ot);
+								subTypes.PushLast(subType);
+
+								if( subType.IsReadOnly() )
+								{
+									asCString msg;
+									msg.Format(TXT_TMPL_SUBTYPE_MUST_NOT_BE_READ_ONLY);
+									WriteError(msg, file, n);
+
+									// Return a dummy
+									return asCDataType::CreatePrimitive(ttInt, false);
+								}
+							}
+
+							if( subTypes.GetLength() != ot->templateSubTypes.GetLength() )
+							{
+								asCString msg;
+								msg.Format(TXT_TMPL_s_EXPECTS_d_SUBTYPES, ot->name.AddressOf(), int(ot->templateSubTypes.GetLength()));
+								WriteError(msg, file, nameToken);
+
+								// Return a dummy
+								return asCDataType::CreatePrimitive(ttInt, false);
+							}
+
+							asASSERT( subTypes.GetLength() == ot->templateSubTypes.GetLength() );
+
+							// Check if any of the given subtypes are different from the template's declared subtypes
+							bool isDifferent = false;
+							for( subtypeIndex = 0; subtypeIndex < subTypes.GetLength(); subtypeIndex++ )
+							{
+								if( subTypes[subtypeIndex].GetObjectType() != ot->templateSubTypes[subtypeIndex].GetObjectType() )
+								{
+									isDifferent = true;
+									break;
+								}
+							}
+
+							if( isDifferent )
+							{
+								// This is a template instance
+								// Need to find the correct object type
+								asCObjectType *otInstance = engine->GetTemplateInstanceType(ot, subTypes);
+
+								if( !otInstance )
+								{
+									asCString msg;
+									// TODO: Should name all subtypes
+									msg.Format(TXT_CANNOT_INSTANCIATE_TEMPLATE_s_WITH_s, ot->name.AddressOf(), subTypes[0].Format().AddressOf());
+									WriteError(msg, file, n);
+								}
+
+								ot = otInstance;
+							}
+						}
+
+						// Create object data type
+						if( ot )
+							dt = asCDataType::CreateObject(ot, isConst);
+						else
+							dt = asCDataType::CreatePrimitive(ttInt, isConst);
+					}
 				}
 				else
 				{
-					if( ot->flags & asOBJ_TEMPLATE )
-					{
-						// Check if the subtype is a type or the template's subtype
-						// if it is the template's subtype then this is the actual template type,
-						// orderwise it is a template instance.
-						// Only do this for application registered interface, as the
-						// scripts cannot implement templates.
-						// TODO: namespace: Use correct implicit namespace
-						asCArray<asCDataType> subTypes;
-						asUINT subtypeIndex;
-						while( n && n->next && n->next->nodeType == snDataType )
-						{
-							n = n->next;
+					asCString msg;
+					msg.Format(TXT_TYPE_s_NOT_AVAILABLE_FOR_MODULE, (const char *)str.AddressOf());
+					WriteError(msg, file, n);
 
-							asCDataType subType = CreateDataTypeFromNode(n, file, engine->nameSpaces[0], false, module ? 0 : ot);
-							subTypes.PushLast(subType);
-						}
-
-						if( subTypes.GetLength() != ot->templateSubTypes.GetLength() )
-						{
-							asCString msg;
-							msg.Format(TXT_TMPL_s_EXPECTS_d_SUBTYPES, ot->name.AddressOf(), int(ot->templateSubTypes.GetLength()));
-							WriteError(msg, file, nameToken);
-
-							// Return a dummy
-							return asCDataType::CreatePrimitive(ttInt, false);
-						}
-
-						asASSERT( subTypes.GetLength() == ot->templateSubTypes.GetLength() );
-
-						// Check if any of the given subtypes are different from the template's declared subtypes
-						bool isDifferent = false;
-						for( subtypeIndex = 0; subtypeIndex < subTypes.GetLength(); subtypeIndex++ )
-						{
-							if( subTypes[subtypeIndex].GetObjectType() != ot->templateSubTypes[subtypeIndex].GetObjectType() )
-							{
-								isDifferent = true;
-								break;
-							}
-						}
-
-						if( isDifferent )
-						{
-							// This is a template instance
-							// Need to find the correct object type
-							asCObjectType *otInstance = engine->GetTemplateInstanceType(ot, subTypes);
-
-							if( !otInstance )
-							{
-								asCString msg;
-								// TODO: Should name all subtypes
-								msg.Format(TXT_CANNOT_INSTANCIATE_TEMPLATE_s_WITH_s, ot->name.AddressOf(), subTypes[0].Format().AddressOf());
-								WriteError(msg, file, n);
-							}
-
-							ot = otInstance;
-						}
-					}
-
-					// Create object data type
-					if( ot )
-						dt = asCDataType::CreateObject(ot, isConst);
-					else
-						dt = asCDataType::CreatePrimitive(ttInt, isConst);
+					dt.SetTokenType(ttInt);
 				}
 			}
-			else
+			else if( ot == 0 )
 			{
-				asCString msg;
-				msg.Format(TXT_TYPE_s_NOT_AVAILABLE_FOR_MODULE, (const char *)str.AddressOf());
-				WriteError(msg, file, n);
+				// It can still be a function definition
+				asCScriptFunction *funcdef = GetFuncDef(str.AddressOf());
 
-				dt.SetTokenType(ttInt);
+				if( funcdef )
+				{
+					dt = asCDataType::CreateFuncDef(funcdef);
+					found = true;
+				}
+			}
+
+			if( !found )
+			{
+				// Try to find it in the parent namespace
+				ns = GetParentNameSpace(ns);
 			}
 		}
-		else if( ot == 0 )
+
+		if( !found )
 		{
-			// It can still be a function definition
-			asCScriptFunction *funcdef = GetFuncDef(str.AddressOf());
+			asCString msg;
+			msg.Format(TXT_IDENTIFIER_s_NOT_DATA_TYPE, (const char *)str.AddressOf());
+			WriteError(msg, file, n);
 
-			if( funcdef )
-			{
-				dt = asCDataType::CreateFuncDef(funcdef);
-			}
-			else if( funcdef == 0 )
-			{
-				asCString msg;
-				msg.Format(TXT_IDENTIFIER_s_NOT_DATA_TYPE, (const char *)str.AddressOf());
-				WriteError(msg, file, n);
-
-				dt = asCDataType::CreatePrimitive(ttInt, isConst);
-				return dt;
-			}
+			dt = asCDataType::CreatePrimitive(ttInt, isConst);
+			return dt;
 		}
 	}
 	else

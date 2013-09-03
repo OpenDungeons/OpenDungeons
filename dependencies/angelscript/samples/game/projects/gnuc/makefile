@@ -21,7 +21,8 @@ OBJ = $(addprefix $(OBJDIR)/, $(notdir $(SRCNAMES:.cpp=.o))) \
   obj/scripthandle.o \
   obj/scriptstdstring.o \
   obj/scriptbuilder.o \
-
+  obj/weakref.o \
+  
 
 BIN = ../../bin/game
 DELETER = rm -f
@@ -43,6 +44,9 @@ obj/scriptstdstring.o: ../../../../add_on/scriptstdstring/scriptstdstring.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 obj/scriptbuilder.o: ../../../../add_on/scriptbuilder/scriptbuilder.cpp
+	$(CXX) $(CXXFLAGS) -o $@ -c $<
+
+obj/weakref.o: ../../../../add_on/weakref/weakref.cpp
 	$(CXX) $(CXXFLAGS) -o $@ -c $<
 
 clean:

@@ -71,6 +71,7 @@
 #define TXT_DEFAULT_MUST_BE_LAST          "The default case must be the last one"
 #define TXT_DEF_ARG_MISSING_IN_FUNC_s     "All subsequent parameters after the first default value must have default values in function '%s'"
 #define TXT_DEF_ARG_TYPE_DOESNT_MATCH     "The type of the default argument expression doesn't match the function parameter type"
+#define TXT_DERIVED_METHOD_MUST_HAVE_SAME_RETTYPE_s "The method in the derived class must have the same return type as in the base class: '%s'"
 #define TXT_DESTRUCTOR_MAY_NOT_HAVE_PARM  "The destructor must not have any parameters"
 #define TXT_DISALLOW_ASSIGN_ON_REF_TYPE   "Value assignment on reference types is not allowed. Did you mean to do a handle assignment?"
 #define TXT_DISALLOW_COMPOUND_ASSIGN_ON_REF_TYPE "Compound assignment on reference types is not allowed"
@@ -96,7 +97,7 @@
 #define TXT_FAILED_TO_COMPILE_DEF_ARG_d_IN_FUNC_s "Failed while compiling default arg for parameter %d in function '%s'"
 #define TXT_FAILED_TO_CREATE_TEMP_OBJ     "Previous error occurred while attempting to create a temporary copy of object"
 #define TXT_FOUND_MULTIPLE_ENUM_VALUES    "Found multiple matching enum values"
-#define TXT_FUNCTION_ALREADY_EXIST        "A function with the same name and parameters already exist"
+#define TXT_FUNCTION_ALREADY_EXIST        "A function with the same name and parameters already exists"
 #define TXT_FUNCTION_s_NOT_FOUND          "Function '%s' not found"
 
 #define TXT_GET_SET_ACCESSOR_TYPE_MISMATCH_FOR_s "The property '%s' has mismatching types for the get and set accessors"
@@ -215,18 +216,21 @@
 #define TXT_SWITCH_CASE_MUST_BE_CONSTANT               "Case expressions must be constants"
 #define TXT_SWITCH_MUST_BE_INTEGRAL                    "Switch expressions must be integral numbers"
 
-#define TXT_TMPL_s_EXPECTS_d_SUBTYPES        "Template '%s' expects %d sub type(s)"
-#define TXT_TOO_MANY_JUMP_LABELS             "The function has too many jump labels to handle. Split the function into smaller ones."
-#define TXT_TYPE_s_NOT_AVAILABLE_FOR_MODULE  "Type '%s' is not available for this module"
+#define TXT_TMPL_s_EXPECTS_d_SUBTYPES          "Template '%s' expects %d sub type(s)"
+#define TXT_TMPL_SUBTYPE_MUST_NOT_BE_READ_ONLY "Template subtype must not be read-only"
+#define TXT_TOO_MANY_JUMP_LABELS               "The function has too many jump labels to handle. Split the function into smaller ones."
+#define TXT_TYPE_s_NOT_AVAILABLE_FOR_MODULE    "Type '%s' is not available for this module"
 
 #define TXT_UNEXPECTED_END_OF_FILE        "Unexpected end of file"
 #define TXT_UNEXPECTED_TOKEN_s            "Unexpected token '%s'"
 #define TXT_UNINITIALIZED_GLOBAL_VAR_s    "Use of uninitialized global variable '%s'."
+#define TXT_UNKNOWN_SCOPE_s               "Unknown scope '%s'"
 #define TXT_UNREACHABLE_CODE              "Unreachable code"
 #define TXT_UNRECOGNIZED_VIRTUAL_PROPERTY_NODE "Virtual property contains unrecognized aspect"
 #define TXT_UNUSED_SCRIPT_NODE            "Unused script node"
 
 #define TXT_VALUE_TOO_LARGE_FOR_TYPE      "Value is too large for data type"
+#define TXT_VOID_CANT_BE_OPERAND          "Void cannot be an operand in expressions"
 
 #define TXT_WARNINGS_TREATED_AS_ERROR     "Warnings are treated as errors by the application"
 #define TXT_WHILE_PARSING_ARG_LIST        "While parsing argument list"
@@ -244,6 +248,8 @@
 // Engine message
 
 #define TXT_AUTOHANDLE_CANNOT_BE_USED_FOR_NOCOUNT     "Autohandles cannot be used with types that have been registered with NOCOUNT"
+#define TXT_AUTOHANDLE_IS_NOT_SUPPORTED_FOR_TEMPLATE_FACTORY "Autohandles are not supported for template factory"
+#define TXT_FIRST_PARAM_MUST_BE_REF_FOR_TEMPLATE_FACTORY "First parameter to template factory must be a reference. This will be used to pass the object type of the template"
 #define TXT_INVALID_CONFIGURATION                     "Invalid configuration. Verify the registered application interface."
 #define TXT_VALUE_TYPE_MUST_HAVE_SIZE                 "A value type must be registered with a non-zero size"
 #define TXT_TYPE_s_IS_MISSING_BEHAVIOURS              "Type '%s' is missing behaviours"
@@ -258,8 +264,8 @@
 #define TXT_DONT_SUPPORT_TYPE_s_BY_VAL                "Don't support passing type '%s' by value to application in native calling convention on this platform"
 // TODO: Should be something like "This platform requires that AngelScript knows the exact content of the type '%s' in order to return by value from application in native calling convention"
 #define TXT_DONT_SUPPORT_RET_TYPE_s_BY_VAL            "Don't support returning type '%s' by value from application in native calling convention on this platform"
-#define TXT_GC_CANNOT_FREE_OBJ_OF_TYPE_s              "GC cannot destroy an object of type '%s' as it doesn't know how many references to there are."
-#define TXT_GC_CANNOT_FREE_OBJ_OF_TYPE_s_REF_COUNT_d  "GC cannot destroy an object of type '%s' as it can't see all references. Current ref count is %d."
+#define TXT_d_GC_CANNOT_FREE_OBJ_OF_TYPE_s              "Object {%d}. GC cannot destroy an object of type '%s' as it doesn't know how many references to there are."
+#define TXT_d_GC_CANNOT_FREE_OBJ_OF_TYPE_s_REF_COUNT_d  "Object {%d}. GC cannot destroy an object of type '%s' as it can't see all references. Current ref count is %d."
 #define TXT_OBJECT_TYPE_s_DOESNT_EXIST                "Object type '%s' doesn't exist"
 #define TXT_TEMPLATE_TYPE_s_DOESNT_EXIST              "Template type '%s' doesn't exist"
 #define TXT_TEMPLATE_SUBTYPE_s_DOESNT_EXIST           "Template subtype '%s' doesn't exist"

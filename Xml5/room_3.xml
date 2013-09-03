@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <room xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/RoomScheme.xsd">
+<roomType>Treasury</roomType>
+<meshName>Treasury</meshName>
+<color>1</color>
+<numTiles>1</numTiles>
+<pair>
+<tileX>-4</tileX>
+<tileY>15</tileY>
+</pair>
+</room>

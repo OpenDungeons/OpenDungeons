@@ -472,7 +472,7 @@ void CDebugger::PrintValue(const std::string &expr, asIScriptContext *ctx)
 		// Look for global variables
 		if( !ptr )
 		{
-			asIScriptModule *mod = ctx->GetEngine()->GetModule(func->GetModuleName(), asGM_ONLY_IF_EXISTS);
+			asIScriptModule *mod = func->GetModule();
 			if( mod )
 			{
 				for( asUINT n = 0; n < mod->GetGlobalVarCount(); n++ )
@@ -547,7 +547,7 @@ void CDebugger::ListGlobalVariables(asIScriptContext *ctx)
 	asIScriptFunction *func = ctx->GetFunction();
 	if( !func ) return;
 
-	asIScriptModule *mod = ctx->GetEngine()->GetModule(func->GetModuleName(), asGM_ONLY_IF_EXISTS);
+	asIScriptModule *mod = func->GetModule();
 	if( !mod ) return;
 
 	stringstream s;

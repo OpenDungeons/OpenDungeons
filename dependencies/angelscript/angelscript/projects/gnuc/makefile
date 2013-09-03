@@ -138,8 +138,9 @@ install: $(BIN)
 	@echo Installing to: $(LOCAL)/$(INSTALL_LIBDIR) and $(LOCAL)/include...
 	@echo -------------------------------------------------------------------
 ifdef SHARED
-	$(COPIER) $(LIBDIR)/$(DEVLIB) $(LOCAL)/$(INSTALL_LIBDIR)
-	( cd $(LIBDIR); ln -s $(LIB) $(DEVLIB) )
+	$(COPIER) $(LIBDIR)/$(LIB) $(LOCAL)/$(INSTALL_LIBDIR)
+	ln -s $(LOCAL)/$(INSTALL_LIBDIR)/$(LIB) $(LOCAL)/$(INSTALL_LIBDIR)/$(DEVLIB)
+	ln -s $(LOCAL)/$(INSTALL_LIBDIR)/$(LIB) $(LOCAL)/$(INSTALL_LIBDIR)/$(DEVLIB).$(VERSION)
 endif
 	$(COPIER) $(BIN) $(LOCAL)/$(INSTALL_LIBDIR)
 	$(COPIER) $(INCDIR)/$(INC) $(LOCAL)/include

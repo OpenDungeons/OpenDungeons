@@ -20,6 +20,11 @@ int CompareEquality(asIScriptEngine *engine, void *lobj, void *robj, int typeId,
 // The caller can optionally provide its own context, for example if a context should be reused.
 int ExecuteString(asIScriptEngine *engine, const char *code, asIScriptModule *mod = 0, asIScriptContext *ctx = 0);
 
+// Compile and execute simple statements with option of return value
+// The module is optional. If given the statements can access the entitites compiled in the module.
+// The caller can optionally provide its own context, for example if a context should be reused.
+int ExecuteString(asIScriptEngine *engine, const char *code, void *ret, int retTypeId, asIScriptModule *mod = 0, asIScriptContext *ctx = 0);
+
 // Write the registered application interface to a file for an offline compiler.
 // The format is compatible with the offline compiler in /sdk/samples/asbuild/.
 int WriteConfigToFile(asIScriptEngine *engine, const char *filename);
@@ -39,7 +44,12 @@ template<typename T>
 asUINT GetTypeTraits()
 {
 	bool hasConstructor =  std::is_default_constructible<T>::value && !std::has_trivial_default_constructor<T>::value;
+#if defined(__GNUC__) && __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 8) 
+	// http://stackoverflow.com/questions/12702103/writing-code-that-works-when-has-trivial-destructor-is-defined-instead-of-is
+	bool hasDestructor = std::is_destructible<T>::value && !std::is_trivially_destructible<T>::value;
+#else
 	bool hasDestructor = std::is_destructible<T>::value && !std::has_trivial_destructor<T>::value;
+#endif
 	bool hasAssignmentOperator = std::is_copy_assignable<T>::value && !std::has_trivial_copy_assign<T>::value;
 	bool hasCopyConstructor = std::is_copy_constructible<T>::value && !std::has_trivial_copy_constructor<T>::value;
 	bool isFloat = std::is_floating_point<T>::value;

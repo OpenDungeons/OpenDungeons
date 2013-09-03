@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
     <xs:element name="trap">
         <xs:complexType>
             <xs:sequence>
-
+                <xs:element name="trapType" type="xs:string"/>
                 <xs:element name="meshName" type="xs:string"/>
-
                 <xs:element name="color" type="xs:string"/>
-
                 <xs:element name="numTiles" type="xs:integer"/>
-
-                <xs:element name="tileX" type="xs:integer"/>
-
-                <xs:element name="tileY" type="xs:integer"/>
+                <xs:element name="point"  minOccurs="1" maxOccurs="unbounded" >
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="tileX" type="xs:integer"/>
+                            <xs:element name="tileY" type="xs:integer"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
-
 </xs:schema>
