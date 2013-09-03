@@ -5,12 +5,12 @@
 <meshName>Quarters</meshName>
 <color>1</color>
 <numTiles>2</numTiles>
-<pair>
+<point>
 <tileX>-5</tileX>
 <tileY>13</tileY>
-</pair>
-<pair>
+</point>
+<point>
 <tileX>-6</tileX>
 <tileY>13</tileY>
-</pair>
+</point>
 </room>

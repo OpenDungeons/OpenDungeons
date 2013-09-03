@@ -5,8 +5,8 @@
 <meshName>Treasury</meshName>
 <color>1</color>
 <numTiles>1</numTiles>
-<pair>
+<point>
 <tileX>-4</tileX>
 <tileY>15</tileY>
-</pair>
+</point>
 </room>
