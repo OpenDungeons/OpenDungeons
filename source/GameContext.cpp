@@ -50,7 +50,6 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputMan
     logManager->logMessage("Created camera manager");
 
 
-    new ASWrapper();
 
     gameMap->createTilesMeshes();
     gameMap->hideAllTiles();

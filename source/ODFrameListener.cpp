@@ -52,7 +52,7 @@
 #include "CameraManager.h"
 #include "MapLoader.h"
 #include "Seat.h"
-
+#include "ASWrapper.h"
 
 
 #include "ODFrameListener.h"
@@ -727,6 +727,7 @@ void ODFrameListener::makeGameContext(){
     cm->setModeManager(inputManager); 
     Console::getSingletonPtr()->setCameraManager(cm);
     gc->setCameraManager(cm);
+    new ASWrapper(cm);
 }
 
 
@@ -736,5 +737,6 @@ void ODFrameListener::makeEditorContext(){
     cm = new CameraManager(renderManager->getCamera(),gameMap);
     cm->setModeManager(inputManager); 
     Console::getSingletonPtr()->setCameraManager(cm);
-    ed->setCameraManager(cm);
+    ed->setCameraManager(cm);    
+    new ASWrapper(cm);
 }

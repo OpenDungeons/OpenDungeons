@@ -42,10 +42,11 @@ template<> ASWrapper* Ogre::Singleton<ASWrapper>::msSingleton = 0;
 /*! \brief Initialises AngelScript
  *
  */
-ASWrapper::ASWrapper() :
+ASWrapper::ASWrapper(CameraManager* cm) :
         engine  (asCreateScriptEngine(ANGELSCRIPT_VERSION)),
         builder (new CScriptBuilder()),
-        context (engine->CreateContext())
+        context (engine->CreateContext()),
+	cameraManager(cm)
 {
     LogManager::getSingleton().logMessage("*** Initialising script engine AngelScript ***");
     LogManager::getSingleton().logMessage( asGetLibraryOptions());
@@ -361,24 +362,24 @@ void ASWrapper::registerEverything()
     //CameraManager
     r = engine->RegisterObjectType(
             "CameraManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    // r = engine->RegisterGlobalProperty(
-    //         "CameraManager cameraManager",
-    //         CameraManager::getSingletonPtr()); assert(r >= 0);
+    r = engine->RegisterGlobalProperty(
+            "CameraManager cameraManager",
+            cameraManager); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "void set_MoveSpeedAccel(float &in)",
-            asMETHOD(CameraManager, setMoveSpeedAccel),
+            asMETHOD(cameraManager, setMoveSpeedAccel),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "float& get_MoveSpeed()",
-            asMETHOD(CameraManager, getMoveSpeed),
+            asMETHOD(cameraManager, getMoveSpeed),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "void set_RotateSpeed(float &in)",
-            asMETHOD(CameraManager, setRotateSpeed),
+            asMETHOD(cameraManager, setRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "float get_RotateSpeed()",
-            asMETHOD(CameraManager, getRotateSpeed),
+            asMETHOD(cameraManager, getRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);
 }
 
