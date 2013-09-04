@@ -367,19 +367,19 @@ void ASWrapper::registerEverything()
             cameraManager); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "void set_MoveSpeedAccel(float &in)",
-            asMETHOD(cameraManager, setMoveSpeedAccel),
+            asMETHOD(CameraManager, setMoveSpeedAccel),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "float& get_MoveSpeed()",
-            asMETHOD(cameraManager, getMoveSpeed),
+            asMETHOD(CameraManager, getMoveSpeed),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "void set_RotateSpeed(float &in)",
-            asMETHOD(cameraManager, setRotateSpeed),
+            asMETHOD(CameraManager, setRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "float get_RotateSpeed()",
-            asMETHOD(cameraManager, getRotateSpeed),
+            asMETHOD(CameraManager, getRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);
 }
 

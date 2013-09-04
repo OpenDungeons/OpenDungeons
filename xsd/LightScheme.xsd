@@ -26,9 +26,7 @@
 
         <xs:sequence>
             <xs:element name="Red" type="xs:decimal"/>
-
             <xs:element name="Green" type="xs:decimal"/>
-
             <xs:element name="Blue" type="xs:decimal"/>
 
 
@@ -49,11 +47,5 @@
         </xs:sequence>
 
     </xs:complexType>
-
-
-
-
-
-
 
 </xs:schema>
