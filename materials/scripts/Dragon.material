@@ -1,0 +1,20 @@
+import RTSS/PerPixel_SinglePass from "RTShaderSystem.material"
+material Dragon : RTSS/PerPixel_SinglePass
+{
+    technique
+    {
+        pass
+        {	
+        
+            ambient 1.0 1.0 1.0
+            diffuse 1.0 1.0 1.0
+            specular 0.8 0.8 0.8 128
+            emissive 0.6 0.6 0.6 0.6
+
+            texture_unit
+            {
+                texture Dragon.png
+            }
+        }
+    }
+}

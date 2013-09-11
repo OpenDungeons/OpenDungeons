@@ -1,0 +1,7 @@
+import base_material from "general.material"
+material Shelf : base_material
+{
+    set_texture_alias diffuseMap Shelf_col.png
+    set_texture_alias specMap Shelf_spec.png
+    set_texture_alias normalMap Shelf_nor.png
+}

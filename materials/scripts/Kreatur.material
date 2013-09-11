@@ -1,0 +1,21 @@
+import base_material from "general.material"
+material Kreatur : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            // No diffuse to remove the metallic effect
+            diffuse 0.0 0.0 0.0
+
+            texture_unit
+            {
+                texture KreaturE.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap KreaturE.png
+    set_texture_alias specMap KreaturE.png
+    //set_texture_alias normalMap Kreatur_nor2.png
+}

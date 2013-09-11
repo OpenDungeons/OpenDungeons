@@ -1,0 +1,18 @@
+import base_material from "general.material"
+material Adventurer : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Adventurer.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Adventurer.png
+    set_texture_alias specMap Adventurer.png
+    //set_texture_alias normalMap Adventurer.png
+}

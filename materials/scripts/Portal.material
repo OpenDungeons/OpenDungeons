@@ -1,0 +1,52 @@
+material Portal
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.00000 0.00000 0.00000 1.000000
+			diffuse 0.7 0.7 0.7 1.000000
+			specular 0.000000 0.000000 0.000000 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			texture_unit
+			{
+				texture Obsidian.png
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+			texture_unit
+			{
+				texture buvneurt_env5.png
+				colour_op_ex blend_manual src_texture src_current 0.3
+				env_map spherical
+			}
+		}
+	}
+}
+material Portalvortex/TWOSIDE
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.00000 0.00000 0.00000 1.000000
+			diffuse 0.640000 0.640000 0.640000 1.000000
+			specular 0.500000 0.500000 0.500000 1.000000 12.500000
+			emissive 1.0 1.0 1.0 1.000000
+			scene_blend alpha_blend
+			depth_write off
+			cull_hardware none
+			cull_software none
+			texture_unit
+			{
+				texture Portalvortex.png
+				tex_address_mode wrap
+				filtering trilinear
+				colour_op alpha_blend
+			}
+		}
+	}
+}

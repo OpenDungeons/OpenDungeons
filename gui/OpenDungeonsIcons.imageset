@@ -1,0 +1,30 @@
+<Imageset autoScaled="false" imagefile="OpenDungeonsIcons.png" name="OpenDungeonsIcons" nativeHorzRes="800" nativeVertRes="600" version="2">
+	
+	<Image height="20" name="GoldCoin" width="30" xPos="0" yPos="5" />
+	<Image height="20" name="TerritoryIcon" width="30" xPos="32" yPos="5" />
+	<Image height="20" name="ManaIcon" width="30" xPos="64" yPos="5" />
+	
+	
+	<Image height="60" name="ButtonBackground" width="60" xPos="1" yPos="35" />
+	<Image height="60" name="ButtonHoverEffect" width="60" xPos="63" yPos="35" />
+	<Image height="60" name="ButtonDisabledEffect" width="60" xPos="125" yPos="35" />
+	<Image height="60" name="ButtonPushedEffect" width="60" xPos="187" yPos="35" />
+	<Image height="60" name="ButtonFrame" width="60" xPos="249" yPos="35" />
+	
+	
+	<Image height="60" name="QuartersButton" width="60" xPos="1" yPos="97" />
+	<Image height="60" name="DojoButton" width="60" xPos="63" yPos="97" />
+	<Image height="60" name="ForgeButton" width="60" xPos="125" yPos="97" />
+	<Image height="60" name="TreasuryButton" width="60" xPos="187" yPos="97" />
+	
+	
+	
+	
+	<Image height="60" name="CannonButton" width="60" xPos="125" yPos="159" />
+	
+	
+	
+	
+	<Image height="60" name="HostButton" width="60" xPos="1" yPos="159" />
+	<Image height="60" name="QuitButton" width="60" xPos="63" yPos="159" />
+</Imageset>

@@ -1,0 +1,7 @@
+import base_material from "general.material"
+material Table : base_material
+{
+    set_texture_alias diffuseMap Table_col.png
+    set_texture_alias specMap Table_spec.png
+    set_texture_alias normalMap Table_nor.png
+}

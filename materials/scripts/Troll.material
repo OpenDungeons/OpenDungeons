@@ -1,0 +1,17 @@
+import base_material from "general.material"
+material Troll2 : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Troll2_col3.png
+            }
+        }
+    }
+    set_texture_alias diffuseMap Troll2_col3.png
+    set_texture_alias specMap Troll2_spec2.png
+    set_texture_alias normalMap Troll2_nor3.png
+}

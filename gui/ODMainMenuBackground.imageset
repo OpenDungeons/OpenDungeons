@@ -1,0 +1,3 @@
+<Imageset autoScaled="true" imagefile="ODMainMenuBackground.png" name="ODMainMenuBackground" nativeHorzRes="800" nativeVertRes="600" version="2">
+    <Image height="600" name="MainMenuBackground" width="800" xPos="0" yPos="0" />
+</Imageset>

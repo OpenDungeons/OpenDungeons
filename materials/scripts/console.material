@@ -1,0 +1,18 @@
+material console/background
+{
+   technique
+   {
+      pass
+      {
+         scene_blend alpha_blend
+         lighting off
+         depth_write off
+         texture_unit
+         {
+            colour_op_ex source1 src_manual src_current 0.2 0.2 0.2
+            alpha_op_ex source1 src_manual src_current 0.6
+         }
+      }
+     
+   }
+}

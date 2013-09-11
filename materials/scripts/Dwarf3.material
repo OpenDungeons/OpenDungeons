@@ -1,0 +1,18 @@
+import base_material from "general.material"
+material Dwarf  : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Dwarf_col.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Dwarf_col.png
+    set_texture_alias specMap Dwarf_spec.png
+    set_texture_alias normalMap Dwarf_nor.png
+}

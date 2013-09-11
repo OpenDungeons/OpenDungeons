@@ -1,0 +1,35 @@
+import base_material from "general.material"
+material Goblin : base_material
+{
+    technique
+    {
+        pass
+        {	
+            texture_unit
+            {
+                texture Goblin.png
+            }
+        }
+    }
+}
+
+material Goblin_old
+{
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.00000 0.00000 0.00000 1.000000
+            diffuse 0.8 0.8 0.8 1.000000
+            emissive 0.000000 0.000000 0.000000 1.000000
+            texture_unit
+            {
+                texture Goblin.png
+                tex_address_mode wrap
+                filtering bilinear
+                colour_op alpha_blend
+            }
+        }
+    }
+}

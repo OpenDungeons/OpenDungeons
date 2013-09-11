@@ -1,0 +1,27 @@
+import base_material from "general.material"
+
+#TODO - fix this typo
+material TrainingDummmy : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            // No diffuse to remove the metallic effect
+	    ambient 1.0 1.0 1.0
+            diffuse 0.0 0.0 0.0
+            specular 0.1 0.1 0.1
+            emissive 0.6 0.6 0.6 0.6
+
+            texture_unit
+            {
+                texture leatherdummy2.png
+            }
+        }
+    }
+    
+    set_texture_alias DiffuseMap leatherdummy2.png
+    set_texture_alias SpecMap leatherdummy2.png
+    //set_texture_alias NormalMap leatherdummy2-nm.png
+}
+

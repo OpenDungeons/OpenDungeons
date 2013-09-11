@@ -1,0 +1,35 @@
+import base_material from "general.material"
+material Gnome : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Gnome.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Gnome.png
+    set_texture_alias specMap Gnome.png
+    //set_texture_alias normalMap Gnome.png
+}
+
+material Gnome/TWOSIDE : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Gnome.png
+            }
+        }
+    }
+    set_texture_alias diffuseMap Gnome.png
+    set_texture_alias specMap Gnome.png
+    //set_texture_alias normalMap Gnome.png
+}

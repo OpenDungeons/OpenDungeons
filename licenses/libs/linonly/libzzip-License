@@ -1,0 +1,123 @@
+Copyright (c) 1999,2000,2001,2002,2003 Guido Draheim
+
+
+  THE ZZIP LICENSE
+
+All rights on the project sources are reserved.
+
+use freely under the restrictions of the Lesser GNU General Public License
+or the exceptions described in the following sections that offer additional
+rules foremost for static linking of the library into other software parts.
+ 
+* LGPL clarifications
+
+The project material has not been cross licensed with the 
+Free Software Foundation (FSF) and it will not do at any point.
+
+The FSF has written the original Lesser GNU General Public
+License (LGPL) which is the main opensource license used by 
+this project. The FSF has no copyright on the sources. 
+
+All rights to the project sources are reserved and the 
+copyright holders are entitled to negotiate other licenses
+with interested parties. The LGPL is used as the General
+Public License that can be used without any special
+license agreement with the copyright holders.
+
+The license holders feel that sometimes the LGPL is a bit
+too restrictive but nonetheless good to protect the freedom
+of this software. Feel free to contact us on any special
+permission you need for your opensource project or some
+form of commercial software.
+
+In general, special license agreements will only be made if 
+they benefit the creation of free software including donations
+to projects and non-profit organization promoting free software 
+(from which one can generally get a tax reduction offer).
+
+Regarding example programs you will find a notice in the source
+header that they are not under LGPL but the ZLIB license to allow 
+you to derive your own programs freely from these source code parts.
+
+* additional static linking 
+
+1) Static Linking Exception 
+
+  The LGPL describes ways to combine the project sources with
+  other work not under the same license - the programmers do
+  generally call it linking and separate it by their link
+  time into dynamic linking and static linking. The LGPL
+  ensures that the final recipient of a combined work can
+  relink a combined work, including a rule in section 6
+  to allow shipping of static linked program binaries.
+
+  The rules in section 6 of the LGPL are often inconvenient and
+  not useful to promote and protect the opensource character of
+  this project. The recepient relinking freedom can be dropped as
+  an extension to the LGPL rules, provided the following rules
+  apply. Note that these rules only apply to static linking and 
+  as an extension to section 6 and do not touch any other part 
+  of the LGPL.
+
+2) OSI-approved Opensource Projects
+
+  You may static link with any opensource project material
+  which is under an OSI-approved license. (general-opensource).
+
+  You may static link with any project material under a
+  license derived from an OSI-approved license by
+  removing restrictions including the removal of 
+  restrictions under certain explicit conditions
+  that can be fulfilled by all possible licensees
+  in a way that the license can be possibly OSI-approved
+  later on. (opensource-like).
+
+  A project that applies to these rules can even ship
+  with modified sources of the project provided that
+  the modifications are still under LGPL and these
+  exceptions. (merge-back-acceptance).
+
+  This rule is made under the assumption that relinking is
+  not required if the combined work can be derived from
+  their pristine sources made available to the final
+  recipient. (i-am-no-lawyer).
+
+3) Published And Supported Derivative Work
+
+  Any software, including commercial applications, may
+  static link with a modified derivate of this project
+  when ALL of the following conditions are met which
+  are extracted from the Mozilla Public License 1.0, and
+  called section 3.2 and 3.3. over there - these will
+  require you to redistribute the modified sources. You 
+  may not offer or impose any terms on any Source Code 
+  version that alters or restricts the applicable version 
+  of this License or the recipients' rights hereunder.
+
+  3.2. Availability of Source Code.
+
+   Any Modification which You create or to which You contribute 
+   must be made available in Source Code form under the terms of 
+   this License either on the same media as an Executable version 
+   or via an accepted Electronic Distribution Mechanism to anyone 
+   to whom you made an Executable version available; and if made 
+   available via Electronic Distribution Mechanism, must remain 
+   available for at least twelve (12) months after the date it 
+   initially became available, or at least six (6) months after 
+   a subsequent version of that particular Modification has been 
+   made available to such recipients. You are responsible for 
+   ensuring that the Source Code version remains available even 
+   if the Electronic Distribution Mechanism is maintained by a 
+   third party.
+
+  3.3. Description of Modifications.
+   
+   You must cause all Covered Code to which you contribute to 
+   contain a file documenting the changes You made to create that 
+   Covered Code and the date of any change. You must include a 
+   prominent statement that the Modification is derived, directly 
+   or indirectly, from Original Code provided by the Initial 
+   Developer and including the name of the Initial Developer in 
+   (a) the Source Code, and (b) in any notice in an Executable 
+   version or related documentation in which You describe the 
+   origin or ownership of the Covered Code.

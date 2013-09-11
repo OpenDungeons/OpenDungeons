@@ -1,0 +1,7 @@
+import base_material from "general.material"
+material Chicken : base_material
+{
+    set_texture_alias diffuseMap ChickenE.png
+    set_texture_alias specMap ChickenE_spec.png
+    set_texture_alias normalMap ChickenE_nor.png
+}

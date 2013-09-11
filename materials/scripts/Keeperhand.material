@@ -1,0 +1,7 @@
+import base_material from "general.material"
+material Keeperhand : base_material
+{
+    set_texture_alias diffuseMap Keeperhand_colC.png
+    set_texture_alias specMap Keeperhand_spec.png
+    set_texture_alias normalMap Keeperhand_nor.png
+}

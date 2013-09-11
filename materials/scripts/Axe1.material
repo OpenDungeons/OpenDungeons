@@ -1,0 +1,14 @@
+material axt
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture Panels_Diffuse.png
+			}				
+					
+		}				
+	}
+}

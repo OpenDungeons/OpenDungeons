@@ -1,0 +1,29 @@
+<Imageset autoScaled="" imagefile="ODMainMenuButtons.png" name="ODMainMenuButton" nativeHorzRes="800" nativeVertRes="600" version="2">
+    <Image height="48" name="ButtonCenterNormal" width="50" xPos="39" yPos="40" />
+    <Image height="40" name="ButtonNormalUpLeft" width="39" xPos="0" yPos="0" />
+    <Image height="40" name="ButtonNormalDownLeft" width="39" xPos="0" yPos="88" />
+    <Image height="40" name="ButtonNormalDownRight" width="39" xPos="89" yPos="88" />
+    <Image height="40" name="ButtonNormalUpRight" width="39" xPos="89" yPos="0" />
+    <Image height="40" name="ButtonNormalUp" width="50" xPos="39" yPos="0" />
+    <Image height="40" name="ButtonNormalDown" width="50" xPos="39" yPos="88" />
+    <Image height="48" name="ButtonNormalLeft" width="39" xPos="0" yPos="40" />
+    <Image height="48" name="ButtonNormalRight" width="39" xPos="89" yPos="40" />
+    <Image height="40" name="ButtonHoverUpLeft" width="39" xPos="0" yPos="128" />
+    <Image height="40" name="ButtonHoverUp" width="50" xPos="39" yPos="128" />
+    <Image height="40" name="ButtonHoverUpRight" width="39" xPos="89" yPos="128" />
+    <Image height="48" name="ButtonCenterHover" width="50" xPos="39" yPos="168" />
+    <Image height="48" name="ButtonHoverLeft" width="39" xPos="0" yPos="168" />
+    <Image height="48" name="ButtonHoverRight" width="39" xPos="89" yPos="168" />
+    <Image height="40" name="ButtonHoverDownLeft" width="39" xPos="0" yPos="216" />
+    <Image height="40" name="ButtonHoverDown" width="50" xPos="39" yPos="216" />
+    <Image height="40" name="ButtonHoverDownRight" width="39" xPos="89" yPos="216" />
+    <Image height="40" name="ButtonPushedUpLeft" width="39" xPos="0" yPos="256" />
+    <Image height="40" name="ButtonPushedUp" width="50" xPos="39" yPos="256" />
+    <Image height="40" name="ButtonPushedUpRight" width="39" xPos="89" yPos="256" />
+    <Image height="48" name="ButtonCenterPushed" width="50" xPos="39" yPos="296" />
+    <Image height="48" name="ButtonPushedLeft" width="39" xPos="0" yPos="296" />
+    <Image height="48" name="ButtonPushedRight" width="39" xPos="89" yPos="296" />
+    <Image height="40" name="ButtonPushedDownLeft" width="39" xPos="0" yPos="344" />
+    <Image height="40" name="ButtonPushedDown" width="50" xPos="39" yPos="344" />
+    <Image height="40" name="ButtonPushedDownRight" width="39" xPos="89" yPos="344" />
+</Imageset>

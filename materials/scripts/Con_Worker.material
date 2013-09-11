@@ -1,0 +1,44 @@
+import RTSS/PerPixel_SinglePass from "RTShaderSystem.material"
+material Zahnradbild/TWOSIDE : RTSS/PerPixel_SinglePass
+{
+	receive_shadows on
+	technique
+	{
+		pass
+		{
+			ambient 0.00000 0.00000 0.00000 1.000000
+			diffuse 0.30000 0.90000 0.30000 1.000000
+			specular 0.100000 0.100000 0.100000 1.000000 12.500000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			scene_blend alpha_blend
+			lighting on
+			texture_unit
+			{
+				texture Con_gear.png
+			}
+		}
+	}
+}
+
+material Halo/TWOSIDE
+{
+	receive_shadows off
+	technique
+	{
+		pass
+		{
+			ambient 0.500000 0.500000 0.500000 1.000000
+			diffuse 0.151868 0.800000 0.190481 1.000000
+			specular 0.680480 0.680480 0.680480 1.000000 55.000000
+			emissive 0.000000 0.000000 0.000000 1.000000
+			scene_blend alpha_blend
+			lighting off
+			texture_unit
+			{
+				anim_texture Halo2.png 4 1.1
+				tex_address_mode wrap
+				filtering trilinear
+			}
+		}
+	}
+}

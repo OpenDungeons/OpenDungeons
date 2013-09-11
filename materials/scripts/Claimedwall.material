@@ -1,0 +1,13 @@
+material Claimedwall
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				texture Claimedwall2B.png
+			}
+		}
+	}
+}

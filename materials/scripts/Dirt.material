@@ -1,0 +1,15 @@
+material Dirt
+{
+	technique
+	{
+		pass
+		{
+		    specular 0.3 0.3 0.3 1 20
+			texture_unit
+			{
+				texture Dirt_darkE.png
+			}
+		}
+	}
+}
+

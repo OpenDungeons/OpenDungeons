@@ -1,0 +1,18 @@
+import base_material from "general.material"
+material Insect_low : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Cavehornet_col.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Cavehornet_col.png
+    set_texture_alias specMap Cavehornet_spec.png
+    set_texture_alias normalMap Cavehornet_nor.png
+}

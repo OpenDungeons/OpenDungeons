@@ -1,0 +1,18 @@
+material Pit_demon
+{
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0 1.000000
+            diffuse 0.7 0.7 0.7 1.0
+            specular 0.155866 0.149445 0.146546 1.000000 61.750000
+            emissive 0.6 0.6 0.6 0.6
+            texture_unit
+            {
+                texture Pit_Demon.png
+            }
+        }
+    }
+}

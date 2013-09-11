@@ -1,0 +1,14 @@
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Treasury RTSS/NormalMapping_MultiPass
+{
+	technique
+	{
+		pass
+		{
+			texture_unit decalmap
+			{
+				texture Treasury.png
+			}
+		}
+	}
+}

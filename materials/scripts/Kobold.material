@@ -1,0 +1,36 @@
+import base_material from "general.material"
+material Kobold_skin/TEXFACE/kobold_skin6.png : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture kobold_skin6.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap kobold_skin6.png
+    set_texture_alias specMap kobold_skin6.png
+    //set_texture_alias normalMap kobold_skin6.png
+}
+
+material Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture kobold_skin6.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap kobold_skin6.png
+    set_texture_alias specMap kobold_skin6.png
+    //set_texture_alias normalMap kobold_skin6.png
+}

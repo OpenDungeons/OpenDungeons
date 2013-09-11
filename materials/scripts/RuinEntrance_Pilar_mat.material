@@ -1,0 +1,42 @@
+// pilar1 genrated by blender2ogre 0.5.9
+
+material pilar1 
+{
+    receive_shadows on 
+
+    technique
+    {
+        pass pilar1
+        {
+            ambient 0.6509804129600525 0.6039215922355652 0.5411764979362488 1.0
+            diffuse 0.5207843381283332 0.48313728098775854 0.4329412048003256 1.0
+            specular 0.16470588743686676 0.16470588743686676 0.16470588743686676 1.0 12.5
+            emissive 0.0 0.0 0.0 1.0
+
+            alpha_to_coverage off
+            colour_write on
+            cull_hardware clockwise
+            depth_check on
+            depth_func less_equal
+            depth_write on
+            illumination_stage 
+            light_clip_planes off
+            light_scissor off
+            lighting on
+            normalise_normals off
+            polygon_mode solid
+            scene_blend one zero
+            scene_blend_op add
+            shading gouraud
+            transparent_sorting on
+
+            texture_unit 
+            {
+                texture RuinEntrance_Pilar.png
+                tex_address_mode wrap
+                scale 1.0 1.0
+                colour_op alpha_blend
+            }
+        }
+    }
+}

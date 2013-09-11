@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/StaticImage" name="Background" >
+        <Property name="Area" value="{{0,0},{0,0},{1,2},{1,0}}" />
+        <Property name="Image" value="ODMainMenuBackground/MainMenuBackground" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
+        <Window type="OD/MainMenuButton" name="StartNewGameButton" >
+            <Property name="Area" value="{{0.5,-82},{0,281},{0.5,82},{0,371}}" />
+            <Property name="Text" value="New Game" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="MapEditorButton" >
+            <Property name="Area" value="{{0.5,-82},{0,401},{0.5,82},{0,491}}" />
+            <Property name="Text" value="Map Editor" />
+        </Window>
+        <Window type="OD/StaticImage" name="WelcomeBanner" >
+            <Property name="Area" value="{{0.5,-383},{0,50},{0.5,383},{0,200}}" />
+            <Property name="Image" value="ODLogo/Logo" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="QuitButton" >
+            <Property name="Area" value="{{0.5,-82},{0,524},{0.5,82},{0,614}}" />
+            <Property name="Text" value="Quit" />
+        </Window>
+    </Window>
+</GUILayout>

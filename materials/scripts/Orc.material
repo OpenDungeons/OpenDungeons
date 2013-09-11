@@ -1,0 +1,18 @@
+import base_material from "general.material"
+material Orc : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Orc_col.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Orc_col.png
+    set_texture_alias specMap Orc_spec.png
+    set_texture_alias normalMap Orc_nor.png
+}

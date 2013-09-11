@@ -1,0 +1,37 @@
+import base_material from "general.material"
+material Wizard : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Wizard.png
+            }
+        }
+    }
+
+    set_texture_alias DiffuseMap Wizard.png
+    set_texture_alias SpecMap Wizard.png
+    set_texture_alias NormalMap Wizard_nor.png
+}
+
+import base_material from "general.material"
+material Wizard/TWOSIDE : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Wizard.png
+            }
+        }
+    }
+
+    set_texture_alias DiffuseMap Wizard.png
+    set_texture_alias SpecMap Wizard.png
+    set_texture_alias NormalMap Wizard_nor.png
+}

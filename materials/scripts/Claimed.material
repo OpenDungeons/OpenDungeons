@@ -1,0 +1,14 @@
+material Claimed
+{
+	technique
+	{
+		pass
+		{
+		    specular 1.000000 1.000000 1.000000 1.000000 64
+			texture_unit
+			{
+				texture Claimed6c.png 
+			}
+		}
+	}
+}

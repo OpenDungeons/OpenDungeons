@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="DefaultWindow" name="Root" >
+        <Property name="Area" value="{{0,-1},{0,-1},{1,-1},{1,-1}}" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Window type="OD/StaticImage" name="HorizontalPipe" >
+            <Property name="Area" value="{{0,4},{0,11},{1,-220},{0,23}}" />
+            <Property name="Image" value="OpenDungeons/HorizontalPipe" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="HorzFormatting" value="Tiled" />
+            <Window type="OD/StaticText" name="GoldDisplay" >
+                <Property name="Area" value="{{0,5},{0,0},{0,135},{0,24}}" />
+                <Property name="Text" value="0" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="TooltipText" value="Your Gold" />
+                <Property name="HorzFormatting" value="RightAligned" />
+                <Property name="ClippedByParent" value="False" />
+                <Property name="VerticalAlignment" value="Centre" />
+                <Window type="OD/StaticImage" name="Icon" >
+                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,20}}" />
+                    <Property name="Image" value="OpenDungeonsIcons/GoldCoin" />
+                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                    <Property name="AlwaysOnTop" value="True" />
+                    <Property name="TooltipText" value="Your Gold" />
+                    <Property name="FrameEnabled" value="False" />
+                    <Property name="ClippedByParent" value="False" />
+                    <Property name="BackgroundEnabled" value="False" />
+                    <Property name="VerticalAlignment" value="Centre" />
+                </Window>
+            </Window>
+            <Window type="OD/StaticText" name="ManaDisplay" >
+                <Property name="Area" value="{{0,140},{0,0},{0,270},{0,24}}" />
+                <Property name="Text" value="0" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="TooltipText" value="Your Mana" />
+                <Property name="HorzFormatting" value="RightAligned" />
+                <Property name="ClippedByParent" value="False" />
+                <Property name="VerticalAlignment" value="Centre" />
+                <Window type="OD/StaticImage" name="Icon" >
+                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,20}}" />
+                    <Property name="Image" value="OpenDungeonsIcons/ManaIcon" />
+                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                    <Property name="AlwaysOnTop" value="True" />
+                    <Property name="TooltipText" value="Your Mana" />
+                    <Property name="FrameEnabled" value="False" />
+                    <Property name="ClippedByParent" value="False" />
+                    <Property name="BackgroundEnabled" value="False" />
+                    <Property name="VerticalAlignment" value="Centre" />
+                </Window>
+            </Window>
+            <Window type="OD/StaticText" name="TerritoryDisplay" >
+                <Property name="Area" value="{{0,275},{0,0},{0,405},{0,24}}" />
+                <Property name="Text" value="0" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="TooltipText" value="Your claimed territory" />
+                <Property name="HorzFormatting" value="RightAligned" />
+                <Property name="ClippedByParent" value="False" />
+                <Property name="VerticalAlignment" value="Centre" />
+                <Window type="OD/StaticImage" name="Icon" >
+                    <Property name="Area" value="{{0,0},{0,0},{0,30},{0,20}}" />
+                    <Property name="Image" value="OpenDungeonsIcons/TerritoryIcon" />
+                    <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                    <Property name="AlwaysOnTop" value="True" />
+                    <Property name="TooltipText" value="Your claimed territory" />
+                    <Property name="FrameEnabled" value="False" />
+                    <Property name="ClippedByParent" value="False" />
+                    <Property name="BackgroundEnabled" value="False" />
+                    <Property name="VerticalAlignment" value="Centre" />
+                </Window>
+            </Window>
+        </Window>
+        <Window type="OD/Button" name="OptionsButton" >
+            <Property name="Area" value="{{0,736},{0,2},{0,808},{0,35}}" />
+            <Property name="Text" value="Options" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="TooltipText" value="Options" />
+            <Property name="ClippedByParent" value="False" />
+        </Window>
+        <Window type="OD/StaticImage" name="MiniMap" >
+            <Property name="Area" value="{{1,-201},{0,2},{1,-1},{0,202}}" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="AlwaysOnTop" value="True" />
+        </Window>
+        <Window type="OD/StaticText" name="MessagesDisplayWindow" >
+            <Property name="Area" value="{{1,-250},{1,-150},{1,0},{1,0}}" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="VertScrollbar" value="True" />
+        </Window>
+        <Window type="OD/TabControl" name="MainTabControl" >
+            <Property name="Area" value="{{0,0},{1,-133},{1,0},{1,0}}" />
+            <Property name="TabHeight" value="{0,30}" />
+            <Property name="RiseOnClickEnabled" value="False" />
+            <Window type="DefaultWindow" name="Rooms" >
+                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                <Property name="Text" value="Rooms" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="RiseOnClickEnabled" value="False" />
+                <Window type="OD/ImageButton" name="QuartersButton" >
+                    <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/QuartersButton" />
+                    <Property name="TooltipText" value="Build sleeping places for your creatures" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
+                <Window type="OD/ImageButton" name="ForgeButton" >
+                    <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/ForgeButton" />
+                    <Property name="TooltipText" value="Build a Forge" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
+                <Window type="OD/ImageButton" name="DojoButton" >
+                    <Property name="Area" value="{{0,140},{0,20},{0,200},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/DojoButton" />
+                    <Property name="TooltipText" value="Build a dojo" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
+                <Window type="OD/ImageButton" name="TreasuryButton" >
+                    <Property name="Area" value="{{0,200},{0,20},{0,260},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/TreasuryButton" />
+                    <Property name="TooltipText" value="Build a treasury" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
+            </Window>
+            <Window type="DefaultWindow" name="Traps" >
+                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                <Property name="Text" value="Traps" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="Visible" value="False" />
+                <Property name="RiseOnClickEnabled" value="False" />
+                <Window type="OD/ImageButton" name="CannonButton" >
+                    <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/CannonButton" />
+                    <Property name="TooltipText" value="Buid a cannon" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
+            </Window>
+            <Window type="DefaultWindow" name="Creatures" >
+                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                <Property name="Text" value="Creatures" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="Visible" value="False" />
+                <Property name="RiseOnClickEnabled" value="False" />
+            </Window>
+            <Window type="DefaultWindow" name="Spells" >
+                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />
+                <Property name="Text" value="Spells" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="Visible" value="False" />
+                <Property name="RiseOnClickEnabled" value="False" />
+            </Window>
+            <Window type="DefaultWindow" name="System" >
+                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,1}}" />
+                <Property name="Text" value="System" />
+                <Property name="MaxSize" value="{{1,0},{1,0}}" />
+                <Property name="Visible" value="False" />
+                <Property name="RiseOnClickEnabled" value="False" />
+                <Window type="OD/ImageButton" name="HostButton" >
+                    <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/HostButton" />
+                    <Property name="TooltipText" value="Starts the game" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
+                <Window type="OD/ImageButton" name="QuitButton" >
+                    <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/QuitButton" />
+                    <Property name="TooltipText" value="Quits the game" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
+            </Window> 
+        </Window>
+    </Window>
+</GUILayout>

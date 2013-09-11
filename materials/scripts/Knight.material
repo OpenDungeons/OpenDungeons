@@ -1,0 +1,37 @@
+import base_material from "general.material"
+material Knight : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Knight.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Knight.png
+    set_texture_alias specMap Knight.png
+    //set_texture_alias normalMap Knight.png
+}
+
+import base_material from "general.material"
+material Knight/TWOSIDE : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Knight.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Knight.png
+    set_texture_alias specMap Knight.png
+    //set_texture_alias normalMap Knight.png
+}

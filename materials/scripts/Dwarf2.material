@@ -1,0 +1,37 @@
+import base_material from "general.material"
+material Dwarf2 : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Dwarf2.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Dwarf2.png
+    set_texture_alias specMap Dwarf2.png
+    //set_texture_alias normalMap Dwarf2.png
+}
+
+import base_material from "general.material"
+material Dwarf2/TWOSIDE : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Dwarf2.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Dwarf2.png
+    set_texture_alias specMap Dwarf2.png
+    //set_texture_alias normalMap Dwarf2.png
+}

@@ -1,0 +1,18 @@
+import base_material from "general.material"
+material Material : base_material
+{
+    technique
+    {
+        pass 0
+        {
+            texture_unit
+            {
+                texture Forge_base_texture.png
+            }
+        }
+    }
+
+    set_texture_alias diffuseMap Forge_base_texture.png
+    set_texture_alias specMap Forge_base_texture.png
+    set_texture_alias normalMap Forge_normalmap.png
+}
