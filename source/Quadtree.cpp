@@ -158,6 +158,9 @@ CullingQuad::~CullingQuad(){
 	    delete nodes[2];
 	if(nodes[3]!=NULL)
 	    delete nodes[3];
+
+	delete[] nodes;
+	nodes=NULL;
 	}
 
     }
