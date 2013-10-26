@@ -108,6 +108,7 @@ void RenderManager::createViewports()
                                    viewport->getActualHeight()));
 }
 
+
 /*! \brief setup the scene
 *
 */
@@ -158,17 +159,16 @@ void RenderManager::createScene()
     gameMap->createAllEntities();
     LogManager::getSingleton().logMessage("entities created");
     sceneManager->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
-
     // Create the scene node that the camera attaches to
     Ogre::SceneNode* node = sceneManager->getRootSceneNode()
 	->createChildSceneNode("CamNode1", Ogre::Vector3(1 + gameMap->getMapSizeX()/2, -1 + gameMap->getMapSizeY()/2, 16));
     node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
     node->roll(Ogre::Degree(30), Ogre::Node::TS_WORLD);
     node->attachObject(mainCamera);
-
+    
     // Create the single tile selection mesh
     Ogre::Entity* ent = sceneManager->createEntity("SquareSelector", "SquareSelector.mesh");
-    node = sceneManager->getRootSceneNode()->createChildSceneNode(
+        node = sceneManager->getRootSceneNode()->createChildSceneNode(
                "SquareSelectorNode");
     node->translate(Ogre::Vector3(0, 0, 0));
     node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
@@ -537,6 +537,7 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
 		gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
 		rt
 		));
+	
         /*        Ogre::Entity* ent = createEntity(curTile->name,
 		  Tile::meshNameFromFullness(curTile->getType(),
 		  curTile->FullnessMeshNumber()), "Claimedwall2_nor3.png");*/
@@ -625,6 +626,7 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     node->setPosition ( static_cast<Ogre::Real>(curTile->x),
 	static_cast<Ogre::Real>(curTile->y),
 	0);
+    
     node->attachObject ( ent );
 
     node->setScale ( Ogre::Vector3 (
@@ -647,7 +649,7 @@ void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
 	Ogre::Entity* ent = sceneManager->getEntity ( curTile->getName() );
 	Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
 	node->detachAllObjects();
-	sceneManager->destroySceneNode ( curTile->getName() + "_node" );
+	sceneManager->destroySceneNode ( curTile->getName() + "_node" );	
 	sceneManager->destroyEntity ( ent );
         }
 

@@ -54,7 +54,7 @@ ODApplication::ODApplication() :
     sem_init(&GameMap::creatureAISemaphore, 0, 1);
 
     Random::initialize();
-
+    
     ResourceManager* resMgr = new ResourceManager;
     root = new Ogre::Root(
         resMgr->getPluginsPath(),

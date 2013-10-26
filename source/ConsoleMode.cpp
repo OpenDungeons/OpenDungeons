@@ -19,7 +19,6 @@ ConsoleMode::ConsoleMode(ModeContext *modeContext, Console* console):AbstractApp
   ll = new list<string>();
   pt->build(("./dictionary.txt"));
   nonTagKeyPressed= true; 
-
 }
 
 ConsoleMode::~ConsoleMode(){

@@ -2,6 +2,7 @@
 #define CULLINGQUAD_H
 
 #include "Creature.h"
+#include "FastPODAllocator.h"
 #include <fstream>
 #include <OgreVector2.h>
 #include <string>
@@ -105,7 +106,7 @@ public:
     };
 
 
-class CullingQuad{
+class CullingQuad : public gms::FastPODAllocator<CullingQuad>{
 
 
 
