@@ -3,7 +3,9 @@
 
 class  MenuGameState: public AbstractGameState {
 
-  MenuGameState(){}
+  MenuGameState(GameStateManager& gm):
+      AbstractGameState(gm)
+      {}
  ~MenuGameState(){}
 
 
