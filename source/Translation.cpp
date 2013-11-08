@@ -31,7 +31,7 @@ Translation::Translation()
 #if defined(WIN32) && !defined(__CYGWIN__)
     setlocale(LC_CTYPE, "");
 #else
-    setlocale(LC_MESSAGES, "");
+    //setlocale(LC_MESSAGES, "");
 #endif
 
     ResourceManager* resMgr = ResourceManager::getSingletonPtr();
