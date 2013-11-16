@@ -12,8 +12,7 @@
 				<Option type="0" />
 				<Option compiler="gnu_gcc_compilerdw2" />
 				<Compiler>
-					<Add option="-Wextra" />
-					<Add option="-Wall" />
+					<Add option="-w" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
@@ -365,7 +364,6 @@
 		<Unit filename="source/TrapCannon.h" />
 		<Unit filename="source/Weapon.cpp" />
 		<Unit filename="source/Weapon.h" />
-		<Unit filename="source/check.cpp" />
 		<Unit filename="source/main.cpp" />
 		<Extensions>
 			<code_completion />
