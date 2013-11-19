@@ -45,7 +45,7 @@
 #include "ModeContext.h"
 #include "GameContext.h"
 #include "EditorContext.h"
-
+#include "CullingManager.h"
 
 // #include "InputManager.h"
 #include "ModeManager.h"
@@ -83,7 +83,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
         previousTurn(-1),
 	gc(NULL),
         ed(NULL),
-	cm(NULL)
+	cm(NULL),
+	culm(NULL)
 	
 {
     Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager", "SceneManager");
@@ -182,9 +183,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     exitRequested.set(false);
     
     LogManager::getSingletonPtr()->logMessage("*** FrameListener initialized ***");
-
-
-
 
 }
 
@@ -610,6 +608,11 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     if (cm!=NULL){
        cm->onFrameStarted() ; 
     }
+
+    if (culm!=NULL)
+	culm->onFrameStarted() ; 
+
+
     // Sleep to limit the framerate to the max value
     frameDelay -= evt.timeSinceLastFrame;
     if (frameDelay > 0.0)
@@ -645,7 +648,11 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 	ed->onFrameEnded(evt);
     }
     if (cm!=NULL)
-	cm->onFrameEnded() ; 
+	cm->onFrameEnded() ;
+ 
+    if (culm!=NULL)
+	culm->onFrameEnded() ; 
+
     return true;
 
 
@@ -724,6 +731,7 @@ void ODFrameListener::makeGameContext(){
 
     gc = new GameContext(mWindow, inputManager, gameMap);
     cm = new CameraManager(renderManager->getCamera(),gameMap);
+    culm = new CullingManager(cm);
     cm->setModeManager(inputManager); 
     Console::getSingletonPtr()->setCameraManager(cm);
     gc->setCameraManager(cm);
@@ -735,6 +743,7 @@ void ODFrameListener::makeEditorContext(){
 
     ed = new EditorContext(mWindow, inputManager, gameMap);
     cm = new CameraManager(renderManager->getCamera(),gameMap);
+    culm = new CullingManager(cm);
     cm->setModeManager(inputManager); 
     Console::getSingletonPtr()->setCameraManager(cm);
     ed->setCameraManager(cm);    

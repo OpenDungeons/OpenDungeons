@@ -18,8 +18,7 @@
 #include <OgreVector3.h>
 #include <OgreCamera.h>
 #include <OgreSceneNode.h>
-#include <OgreRay.h>
-#include <OgrePlane.h>
+
 #include <OgreString.h>
 
 #include <set>
@@ -31,7 +30,7 @@ class Console;
 class CameraManager
     {
     friend class Console;
-
+    friend class CullingManager;
 
     public:
     enum Direction
@@ -115,6 +114,7 @@ class CameraManager
     bool isCamMovingAtAll() const;
 
     int updateCameraView();
+    
 
     bool onFrameStarted   ();
     bool onFrameEnded     ();
@@ -136,10 +136,6 @@ class CameraManager
     bool switchedPM ;
     Ogre::String switchPolygonMode();
 
-    set<Creature*>*  currentVisibleCreatures ;
-    set<Creature*>*  previousVisibleCreatures ;
-
-    set<Creature*> creaturesSet[2]; 
 
 
     bool circleMode;
@@ -151,20 +147,10 @@ class CameraManager
     int centerY; 
     double alpha;
     
-
-
-
-
-    Ogre::Plane myplanes[6];
-    Ogre::Ray myRay[4];
-
-   
     ModeManager* modeManager;
     AbstractApplicationMode* gameMode;
-    Ogre::Vector3 ogreVectorsArray[4];
-    Vector3i top, bottom, middleLeft, middleRight;
-    Vector3i oldTop, oldBottom, oldMiddleLeft, oldMiddleRight;
-    int precisionDigits;
+
+
     
     void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
 

@@ -1181,7 +1181,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
 
+    else if (command.compare("triggercompositor") == 0){
 
+	RenderManager::getSingletonPtr()->triggerCompositor();
+
+	}    
 
 
 

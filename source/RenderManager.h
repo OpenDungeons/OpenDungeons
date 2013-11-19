@@ -44,6 +44,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void updateAnimations();
         void createCamera();
         void createViewports();
+        void triggerCompositor();
         void createScene();
 
         void waitOnRenderQueueFlush();

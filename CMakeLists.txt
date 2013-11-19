@@ -130,6 +130,7 @@ set(OD_SOURCEFILES
     ${SRC}/CreatureAction.cpp
     ${SRC}/CreatureDefinition.cpp
     ${SRC}/CreatureSound.cpp
+    ${SRC}/CullingManager.cpp
     ${SRC}/DirectionalTrap.cpp
     ${SRC}/Director.cpp
     ${SRC}/EditorContext.cpp

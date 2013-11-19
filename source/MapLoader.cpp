@@ -255,7 +255,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap_b)
             << "  # The number of tiles to load.\n";
     levelFile << "# " << Tile::getFormat() << "\n";
 
-
+    
 
     for(int ii=0 ; ii < gameMap_b.getMapSizeX(); ii++ ){
       for(int jj=0 ; jj < gameMap_b.getMapSizeY(); jj++ ){

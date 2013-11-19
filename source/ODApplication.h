@@ -10,7 +10,7 @@
 #include <string>
 #include <OgreRenderWindow.h>
 #include <OgreRoot.h>
-
+#include <OgreCompositorManager.h>
 
 class GameMap;
 

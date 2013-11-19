@@ -351,14 +351,12 @@ void Gui::switchGuiMode()
   if(mainMenuMode)
     {
       loadGuiSheet(ingameMenu);
-      mainMenuMode=false;
     }
   else
     {
       loadGuiSheet(mainMenu);
-      mainMenuMode=true;
     }
-
+  mainMenuMode = ! mainMenuMode;
 }
 
 

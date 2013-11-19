@@ -12,6 +12,7 @@
 #include <OgreMovableObject.h>
 #include <OgreEntity.h>
 #include <OgreSubMesh.h>
+#include <OgreCompositorManager.h>
 
 //#include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExPerPixelLighting.h>
@@ -108,6 +109,16 @@ void RenderManager::createViewports()
                                    viewport->getActualHeight()));
 }
 
+
+/*! \brief triggerCompositor
+*
+*/
+void RenderManager::triggerCompositor(){
+
+Ogre::CompositorManager::getSingleton().addCompositor(viewport, "B&W");
+
+
+}
 
 /*! \brief setup the scene
 *
