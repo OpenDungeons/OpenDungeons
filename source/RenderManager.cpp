@@ -116,7 +116,7 @@ void RenderManager::createViewports()
 void RenderManager::triggerCompositor(){
 
 Ogre::CompositorManager::getSingleton().addCompositor(viewport, "B&W");
-
+Ogre::CompositorManager::getSingleton().setCompositorEnabled(viewport, "B&W", true);
 
 }
 

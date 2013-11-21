@@ -38,5 +38,6 @@ setcolor
 switchpolygonmode
 termwidth
 tps
+triggercompositor
 turnspersecond
 visdebug
