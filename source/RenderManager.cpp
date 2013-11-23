@@ -109,14 +109,28 @@ void RenderManager::createViewports()
                                    viewport->getActualHeight()));
 }
 
-
-/*! \brief triggerCompositor
-*
+/*! \brief creates all compoistors
+*   Compositor types are hardcoded 
+*   but they should be read from the external XML file 
 */
-void RenderManager::triggerCompositor(){
+void RenderManager::createCompositors(){
+
 
 Ogre::CompositorManager::getSingleton().addCompositor(viewport, "B&W");
-Ogre::CompositorManager::getSingleton().setCompositorEnabled(viewport, "B&W", true);
+
+
+
+}
+
+
+
+/*! \brief starts the compositor compositorName // assuming 
+*
+*/
+void RenderManager::triggerCompositor(string compositorName){
+
+
+Ogre::CompositorManager::getSingleton().setCompositorEnabled(viewport, compositorName.c_str(), true);
 
 }
 

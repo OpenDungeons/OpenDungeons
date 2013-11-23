@@ -27,6 +27,8 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputMan
         renderManager->createViewports();
         logManager->logMessage("Creating scene...", Ogre::LML_NORMAL);
         renderManager->createScene();
+        logManager->logMessage("Creating compositors...", Ogre::LML_NORMAL);
+	renderManager->createCompositors();
     }
     catch(Ogre::Exception& e)
     {

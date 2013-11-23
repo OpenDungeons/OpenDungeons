@@ -25,7 +25,8 @@ enum ModeType {
     GAME,
     EDITOR,
     CONSOLE,
-    PREV
+    FPP,
+    PREV,
     };
 
 

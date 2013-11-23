@@ -112,6 +112,9 @@ ODApplication::ODApplication() :
         renderMgr->createViewports();
         logManager->logMessage("Creating scene...", Ogre::LML_NORMAL);
         renderMgr->createScene();
+        logManager->logMessage("Creating compositors...", Ogre::LML_NORMAL);
+	renderMgr->createCompositors();
+      
     }
     catch(Ogre::Exception& e)
     {

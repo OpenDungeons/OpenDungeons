@@ -1140,7 +1140,15 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 	    }
 	}
 
+    else if (command.compare("possescreature") == 0){
 
+            tempSS.str("");
+            tempSS  << "Click creature you want to posses ";
+            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+	    modeManager->mc->expectCreatureClick = true;
+
+
+	}
 
 
 
@@ -1182,8 +1190,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
 
     else if (command.compare("triggercompositor") == 0){
-
-	RenderManager::getSingletonPtr()->triggerCompositor();
+            tempSS.str(arguments);
+	    RenderManager::getSingletonPtr()->triggerCompositor(tempSS.str());
 
 	}    
 

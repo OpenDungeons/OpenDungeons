@@ -36,6 +36,7 @@ struct ModeContext{
     OIS::Keyboard*      mKeyboard;
     bool                (hotkeyLocationIsValid) [10];
     Ogre::Vector3       (hotkeyLocation)  [10];
+    bool                expectCreatureClick;
     bool                mLMouseDown, mRMouseDown;
     bool                mouseDownOnCEGUIWindow;
     bool                directionKeyPressed;

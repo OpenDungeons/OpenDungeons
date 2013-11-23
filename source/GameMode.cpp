@@ -363,7 +363,17 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
                 if (resultName.find("Creature_") != std::string::npos)
                 {
                     // if in a game:  Pick the creature up and put it in our hand
-                    if (isInGame())
+		    if(mc->expectCreatureClick && isInGame() ){
+ 			    // itr->
+			    // progressMode(ModeManager::FPP);
+			    // cameraManager->setFPPCamera(cc);
+			    // cameraManager->setActiveCamera();
+			    
+                               mc->expectCreatureClick =false; 
+
+
+		    }
+                    else if (isInGame())
                     {
                         // through away everything before the '_' and then copy the rest into 'array'
                         char array[255];

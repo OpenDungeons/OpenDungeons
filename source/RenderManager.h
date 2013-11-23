@@ -9,11 +9,13 @@
 #define RENDERMANAGER_H_
 
 #include <deque>
-
+#include <string>
 #include <OgreSingleton.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 #include <semaphore.h>
+
+using  std::string;
 
 template<typename T> class ProtectedObject;
 class RenderRequest;
@@ -44,8 +46,9 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void updateAnimations();
         void createCamera();
         void createViewports();
-        void triggerCompositor();
+        void triggerCompositor(string);
         void createScene();
+        void createCompositors();
 
         void waitOnRenderQueueFlush();
         /*! \brief Put a render request in the queue (helper function to avoid having to fetch the singleton)

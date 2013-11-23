@@ -29,6 +29,7 @@ newmap
 next
 nick
 quit
+possescreature
 refreshmesh
 rotatespeed
 save
