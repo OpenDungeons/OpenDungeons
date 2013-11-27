@@ -15,7 +15,9 @@ CullingManager::CullingManager(CameraManager* cameraManager):
     currentVisibleCreatures(&creaturesSet[0]),
     previousVisibleCreatures(&creaturesSet[1]),
     precisionDigits(10),
-    firstIter(true)
+    firstIter(true),
+    cullCreaturesFlag(false),
+    cullTilesFlag(false)
     {
     cm = cameraManager;
     myplanes[0]=(Ogre::Plane(0,0,1,0));
@@ -24,14 +26,36 @@ CullingManager::CullingManager(CameraManager* cameraManager):
     myplanes[3]=(Ogre::Plane(0,-1,0,395));
     myplanes[4]=(Ogre::Plane(1,0,0,-1));
     myplanes[5]=(Ogre::Plane(-1,0,0,395));
-
-
-
-
-
-
+    myCullingQuad.setRadious(256);
+    myCullingQuad.setCenter(200,200);   
 
 }
+
+CullingManager::CullingManager():
+    currentVisibleCreatures(&creaturesSet[0]),
+    previousVisibleCreatures(&creaturesSet[1]),
+    precisionDigits(10),
+    firstIter(true),
+    cullCreaturesFlag(false),
+    cullTilesFlag(false)
+    {
+
+    myplanes[0]=(Ogre::Plane(0,0,1,0));
+    myplanes[1]=(Ogre::Plane(0,0,-1,20));
+    myplanes[2]=(Ogre::Plane(0,1,0,-1));
+    myplanes[3]=(Ogre::Plane(0,-1,0,395));
+    myplanes[4]=(Ogre::Plane(1,0,0,-1));
+    myplanes[5]=(Ogre::Plane(-1,0,0,395));
+    myCullingQuad.setRadious(256);
+    myCullingQuad.setCenter(200,200);   
+
+}
+
+
+void CullingManager::setCameraManager(CameraManager* cameraManager){
+    cm = cameraManager;
+}
+
 
 int CullingManager::cullTiles() {
     // delete oldTop;
@@ -59,12 +83,12 @@ int CullingManager::cullTiles() {
 
 
     if(firstIter){
-	oldTop=top;
-	oldBottom=bottom;
-	oldMiddleLeft=middleLeft;
-	oldMiddleRight=middleRight;
+	// oldTop=top;
+	// oldBottom=bottom;
+	// oldMiddleLeft=middleLeft;
+	// oldMiddleRight=middleRight;
 
-	bashAndSplashTiles(SHOW);
+	// bashAndSplashTiles(SHOW);
 	firstIter=false;
 
 	}
@@ -79,14 +103,67 @@ int CullingManager::cullTiles() {
 
 	}
     }
+    void CullingManager::startCreatureCulling(){
+
+
+
+	cullCreaturesFlag = true;
+
+	}
+    void CullingManager::startTileCulling(){
+
+
+
+
+
+	oldTop=top;
+	oldBottom=bottom;
+	oldMiddleLeft=middleLeft;
+	oldMiddleRight=middleRight;
+	hideAllTiles();
+	bashAndSplashTiles( SHOW );
+
+
+
+	cullTilesFlag = true;
+
+	}
+    void CullingManager::stopCreatureCulling(){
+
+	cullCreaturesFlag = false;
+	}
+    void CullingManager::stopTileCulling(){
+	oldTop=top;
+	oldBottom=bottom;
+	oldMiddleLeft=middleLeft;
+	oldMiddleRight=middleRight;
+
+	bashAndSplashTiles(HIDE);
+
+
+
+
+	cullTilesFlag = false;
+	}
+
+void CullingManager::hideAllTiles(void){
+
+  for (int jj = 0; jj < cm->gameMap->getMapSizeY() ; ++jj)	{
+	for (int ii = 0; ii < cm->gameMap->getMapSizeX(); ++ii){
+
+	    cm->gameMap->getTile(ii,jj)->hide();
+
+	}
+    }
+}
 
 
 int CullingManager::cullCreatures(){
-    cerr << "countnodes " << cm->gameMap->myCullingQuad.countNodes() <<endl;  
-    cm->gameMap->myCullingQuad.holdRootSemaphore();
-    MortuaryQuad tmpQuad((cm->gameMap->myCullingQuad));
+    cerr << "countnodes " << myCullingQuad.countNodes() <<endl;  
+    myCullingQuad.holdRootSemaphore();
+    MortuaryQuad tmpQuad((myCullingQuad));
 
-    cm->gameMap->myCullingQuad.releaseRootSemaphore();
+    myCullingQuad.releaseRootSemaphore();
 
     tmpQuad.cut(Segment(ogreVectorsArray[1],ogreVectorsArray[0]));
     tmpQuad.cut(Segment(ogreVectorsArray[0],ogreVectorsArray[3]));
@@ -303,8 +380,9 @@ bool CullingManager::getIntersectionPoints() {
 
 bool CullingManager::onFrameStarted   (){
     
-
+    if(cullTilesFlag)
     cullTiles();
+    if(cullCreaturesFlag)
     cullCreatures();
 }
 

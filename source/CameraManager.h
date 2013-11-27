@@ -179,10 +179,6 @@ class CameraManager
     float           mZoomSpeed;
 
 
-
-    set<Creature*> tmpMortuary;
-
-
     };
 
  #endif /* CAMERAMANAGER_H_ */

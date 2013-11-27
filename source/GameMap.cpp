@@ -36,6 +36,7 @@
 #include "MapLoader.h"
 #include "LogManager.h"
 #include "MortuaryQuad.h"
+#include "CullingManager.h"
 
 using namespace std;
 
@@ -68,8 +69,7 @@ GameMap::GameMap() :
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
     setContainer(this);
 
-    myCullingQuad.setRadious(256);
-    myCullingQuad.setCenter(200,200);    
+ 
 }
 
 GameMap::~GameMap(){
@@ -155,21 +155,6 @@ void GameMap::createTilesMeshes(void){
 
 }
 
-
-void GameMap::hideAllTiles(void){
-
-  for (int jj = 0; jj < getMapSizeY() ; ++jj)	{
-	for (int ii = 0; ii < getMapSizeX(); ++ii){
-
-	    getTile(ii,jj)->hide();
-
-
-	}
-    }
-
-
-
-}
 
 
 int GameMap::setAllNeighbors(){            
@@ -279,8 +264,7 @@ void GameMap::addCreature(Creature *cc)
     sem_post(&creaturesLockSemaphore);
 
     cc->positionTile()->addCreature(cc);
-    myCullingQuad.insert(cc);
-
+    culm->myCullingQuad.insert(cc);
 
     addAnimatedObject(cc);
     cc->setIsOnMap(true);

@@ -91,7 +91,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     renderManager = new RenderManager;
     gameMap = new GameMap;
 
-
+    culm = new CullingManager(cm);
+    gameMap->setCullingManger(culm);
 
     renderManager->setGameMap(gameMap);
     miniMap = new MiniMap(gameMap);    
@@ -731,7 +732,8 @@ void ODFrameListener::makeGameContext(){
 
     gc = new GameContext(mWindow, inputManager, gameMap);
     cm = new CameraManager(renderManager->getCamera(),gameMap);
-    culm = new CullingManager(cm);
+
+    culm->setCameraManager(cm);
     cm->setModeManager(inputManager); 
     Console::getSingletonPtr()->setCameraManager(cm);
     gc->setCameraManager(cm);
@@ -743,7 +745,8 @@ void ODFrameListener::makeEditorContext(){
 
     ed = new EditorContext(mWindow, inputManager, gameMap);
     cm = new CameraManager(renderManager->getCamera(),gameMap);
-    culm = new CullingManager(cm);
+
+    culm->setCameraManager(cm);
     cm->setModeManager(inputManager); 
     Console::getSingletonPtr()->setCameraManager(cm);
     ed->setCameraManager(cm);    

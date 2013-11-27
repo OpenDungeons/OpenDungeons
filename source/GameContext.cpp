@@ -54,7 +54,7 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputMan
 
 
     gameMap->createTilesMeshes();
-    gameMap->hideAllTiles();
+
     
 
 

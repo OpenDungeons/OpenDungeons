@@ -30,13 +30,12 @@ class MovableGameEntity;
 #include "MiniMap.h"
 #include "AIManager.h"
 #include "Room.h"
-#include "MortuaryQuad.h"
 #include "TileContainer.h"
 #include "TileContainersModificator.h"
 
 
 class MiniMap;
-
+class CullingManager;
 
 typedef Tile** TileMap_t;
 /* typedef std::map<std::pair<int, int> , Tile*> TileMap_t; */
@@ -57,7 +56,7 @@ friend class RenderManager;
  public:
   GameMap();
   ~GameMap();
-  MortuaryQuad myCullingQuad;
+
   int setAllNeighbors();     
   void createNewMap();
   void createAllEntities();
@@ -174,6 +173,7 @@ friend class RenderManager;
 
   inline const unsigned int getMaxAIThreads() const {return maxAIThreads;}
   inline void setMaxAIThreads(const unsigned int maxThreads) {maxAIThreads = maxThreads;}
+  inline void setCullingManger(CullingManager* tempCulm){culm = tempCulm;}
 
   inline const std::string& getLevelFileName() const {return levelFileName;}
   inline void setLevelFileName(const std::string& maxThreads) {levelFileName = maxThreads;}
@@ -212,6 +212,7 @@ friend class RenderManager;
 
   mutable sem_t creaturesLockSemaphore; 
   Player *me;
+  CullingManager* culm;
   std::string nextLevel;
   bool loadNextLevel;
   double averageAILeftoverTime;

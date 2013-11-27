@@ -1,6 +1,7 @@
 
 #include "GameMap.h"
 #include "CameraManager.h"
+#include "MortuaryQuad.h"
 #include <OgreRay.h>
 #include <OgrePlane.h>
 #include <set>
@@ -19,12 +20,14 @@ class CameraManager;
 
 class CullingManager{
 
+
+    friend class GameMap;
     set<Creature*>*  currentVisibleCreatures ;
     set<Creature*>*  previousVisibleCreatures ;
 
     set<Creature*> creaturesSet[2]; 
 
-
+    MortuaryQuad myCullingQuad;
     Ogre::Vector3 ogreVectorsArray[4];
     Vector3i top, bottom, middleLeft, middleRight;
     Vector3i oldTop, oldBottom, oldMiddleLeft, oldMiddleRight;
@@ -45,6 +48,10 @@ public:
 
     
     CullingManager(CameraManager*);
+    CullingManager();
+
+    void setCameraManager(CameraManager* cameraManager);
+
     void startCreatureCulling();
     void startTileCulling();
     void stopCreatureCulling();
@@ -52,26 +59,18 @@ public:
 
     bool getIntersectionPoints();
 
+    void hideAllTiles(void);
 
     int cullCreatures();
     int cullTiles();
+    bool cullCreaturesFlag;
+    bool cullTilesFlag;
 
     bool onFrameStarted   ();
     bool onFrameEnded     ();
     int bashAndSplashTiles(int); // set the new tiles
     void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
 
-
-
-
-
-
-
-
-
-
-
-
-
+    set<Creature*> tmpMortuary;
 
     };
