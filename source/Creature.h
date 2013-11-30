@@ -152,6 +152,9 @@ friend class CullingQuad;
         bool getHasVisualDebuggingEntities();
 
 
+        void attach();
+        void detach();
+
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Creature *c);
         friend std::istream& operator>>(std::istream& is, Creature *c);

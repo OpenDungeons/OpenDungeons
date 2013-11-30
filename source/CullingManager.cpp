@@ -15,7 +15,7 @@ CullingManager::CullingManager(CameraManager* cameraManager):
     currentVisibleCreatures(&creaturesSet[0]),
     previousVisibleCreatures(&creaturesSet[1]),
     precisionDigits(10),
-    firstIter(true),
+    firstIter(false),
     cullCreaturesFlag(false),
     cullTilesFlag(false)
     {
@@ -67,9 +67,7 @@ int CullingManager::cullTiles() {
     oldBottom=bottom ;
     oldMiddleLeft=middleLeft ;
     oldMiddleRight=middleRight;
- 
-    getIntersectionPoints();
-
+  
     top = Vector3i(ogreVectorsArray[0]);
     middleLeft = Vector3i(ogreVectorsArray[1]);
     bottom = Vector3i(ogreVectorsArray[2]);
@@ -81,27 +79,9 @@ int CullingManager::cullTiles() {
     sort(bottom, middleLeft, false);
     sort(middleLeft, middleRight, true);
 
-
-    if(firstIter){
-	// oldTop=top;
-	// oldBottom=bottom;
-	// oldMiddleLeft=middleLeft;
-	// oldMiddleRight=middleRight;
-
-	// bashAndSplashTiles(SHOW);
-	firstIter=false;
-
-	}
-    else{
-	// oldTop=new  Vector3i (*top) ;
-	// oldBottom=new  Vector3i (*bottom) ;
-	// oldMiddleLeft=new  Vector3i (*middleLeft) ;
-	// oldMiddleRight=new  Vector3i (*middleRight);
-	bashAndSplashTiles(SHOW | HIDE);
+    bashAndSplashTiles(SHOW | HIDE);
 
 
-
-	}
     }
     void CullingManager::startCreatureCulling(){
 
@@ -113,8 +93,12 @@ int CullingManager::cullTiles() {
     void CullingManager::startTileCulling(){
 
 
+	getIntersectionPoints();
 
-
+	top = Vector3i(ogreVectorsArray[0]);
+	middleLeft = Vector3i(ogreVectorsArray[1]);
+	bottom = Vector3i(ogreVectorsArray[2]);
+	middleRight = Vector3i(ogreVectorsArray[3]);
 
 	oldTop=top;
 	oldBottom=bottom;
@@ -148,14 +132,14 @@ int CullingManager::cullTiles() {
 
 void CullingManager::hideAllTiles(void){
 
-  for (int jj = 0; jj < cm->gameMap->getMapSizeY() ; ++jj)	{
+    for (int jj = 0; jj < cm->gameMap->getMapSizeY() ; ++jj)	{
 	for (int ii = 0; ii < cm->gameMap->getMapSizeX(); ++ii){
 
 	    cm->gameMap->getTile(ii,jj)->hide();
 
+	    }
 	}
     }
-}
 
 
 int CullingManager::cullCreatures(){
@@ -207,8 +191,6 @@ int CullingManager::cullCreatures(){
     	(*it)->hide();
 
     return 1;
-
-
     }
 
 /*! \brief Auxilary function, according to mode flags : SHOW and HIDE will try to show or hide a tile in single pass
@@ -380,10 +362,12 @@ bool CullingManager::getIntersectionPoints() {
 
 bool CullingManager::onFrameStarted   (){
     
+    if(cullTilesFlag || cullCreaturesFlag)
+	getIntersectionPoints();
     if(cullTilesFlag)
-    cullTiles();
+	cullTiles();
     if(cullCreaturesFlag)
-    cullCreatures();
+	cullCreatures();
 }
 
 bool CullingManager::onFrameEnded     (){

@@ -1062,7 +1062,7 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
     node->setScale(scale);
     node->attachObject(ent);
     curCreature->pSN=(node->getParentSceneNode());
-    curCreature->pSN->removeChild(node);
+    // curCreature->pSN->removeChild(node);
 }
 
 void RenderManager::rrDestroyCreature ( const RenderRequest& renderRequest )

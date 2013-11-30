@@ -36,6 +36,8 @@ save
 setcamerafovx
 setcamerafovy
 setcolor
+startcreatureculling
+starttileculling
 switchpolygonmode
 termwidth
 tps

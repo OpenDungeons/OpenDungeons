@@ -9,7 +9,6 @@
 #include "Random.h"
 #include "SoundEffectsHelper.h"
 #include "Player.h"
-
 #include "Trap.h"
 
 const double Trap::defaultTileHP = 10.0;

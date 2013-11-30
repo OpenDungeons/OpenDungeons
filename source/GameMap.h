@@ -33,7 +33,6 @@ class MovableGameEntity;
 #include "TileContainer.h"
 #include "TileContainersModificator.h"
 
-
 class MiniMap;
 class CullingManager;
 

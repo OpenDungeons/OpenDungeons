@@ -91,7 +91,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     renderManager = new RenderManager;
     gameMap = new GameMap;
 
-    culm = new CullingManager(cm);
+    culm = new CullingManager();
     gameMap->setCullingManger(culm);
 
     renderManager->setGameMap(gameMap);

@@ -25,6 +25,7 @@
 #include "Functions.h"
 #include "ResourceManager.h"
 #include "Network.h"
+#include "CullingManager.h"
 #include <OgreSceneNode.h>
 #include <OgreEntity.h>
 
@@ -1185,6 +1186,18 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     else if (command.compare("switchpolygonmode") == 0){
 
 	    cm->switchPM();
+    
+    }
+
+    else if (command.compare("starttileculling") == 0){
+
+            ODFrameListener::getSingletonPtr()->gameMap->culm->startTileCulling();
+    
+    }
+
+    else if (command.compare("startcreatureculling") == 0){
+
+            ODFrameListener::getSingletonPtr()->gameMap->culm->startCreatureCulling();
     
     }
 

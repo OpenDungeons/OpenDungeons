@@ -297,6 +297,30 @@ bool Creature::getIsOnMap() const
     return tempBool;
 }
 
+
+void Creature::attach(){
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::attachCreature;
+    request->p = this;
+
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderManager::queueRenderRequest(request);
+
+}
+
+
+void Creature::detach(){
+
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::detachCreature;
+    request->p = this;
+
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderManager::queueRenderRequest(request);
+
+}
+
+
 /*! \brief The main AI routine which decides what the creature will do and carries out that action.
  *
  * The doTurn routine is the heart of the Creature AI subsystem.  The other,
