@@ -83,52 +83,52 @@ int CullingManager::cullTiles() {
 
 
     }
-    void CullingManager::startCreatureCulling(){
+void CullingManager::startCreatureCulling(){
 
 
 
-	cullCreaturesFlag = true;
+    cullCreaturesFlag = true;
 
-	}
-    void CullingManager::startTileCulling(){
-
-
-	getIntersectionPoints();
-
-	top = Vector3i(ogreVectorsArray[0]);
-	middleLeft = Vector3i(ogreVectorsArray[1]);
-	bottom = Vector3i(ogreVectorsArray[2]);
-	middleRight = Vector3i(ogreVectorsArray[3]);
-
-	oldTop=top;
-	oldBottom=bottom;
-	oldMiddleLeft=middleLeft;
-	oldMiddleRight=middleRight;
-	hideAllTiles();
-	bashAndSplashTiles( SHOW );
+}
+void CullingManager::startTileCulling(){
 
 
+    getIntersectionPoints();
 
-	cullTilesFlag = true;
+    top = Vector3i(ogreVectorsArray[0]);
+    middleLeft = Vector3i(ogreVectorsArray[1]);
+    bottom = Vector3i(ogreVectorsArray[2]);
+    middleRight = Vector3i(ogreVectorsArray[3]);
 
-	}
-    void CullingManager::stopCreatureCulling(){
-
-	cullCreaturesFlag = false;
-	}
-    void CullingManager::stopTileCulling(){
-	oldTop=top;
-	oldBottom=bottom;
-	oldMiddleLeft=middleLeft;
-	oldMiddleRight=middleRight;
-
-	bashAndSplashTiles(HIDE);
+    oldTop=top;
+    oldBottom=bottom;
+    oldMiddleLeft=middleLeft;
+    oldMiddleRight=middleRight;
+    hideAllTiles();
+    bashAndSplashTiles( SHOW );
 
 
 
+    cullTilesFlag = true;
 
-	cullTilesFlag = false;
-	}
+}
+void CullingManager::stopCreatureCulling(){
+
+    cullCreaturesFlag = false;
+}
+void CullingManager::stopTileCulling(){
+    oldTop=top;
+    oldBottom=bottom;
+    oldMiddleLeft=middleLeft;
+    oldMiddleRight=middleRight;
+
+    bashAndSplashTiles(HIDE);
+
+
+
+
+    cullTilesFlag = false;
+}
 
 void CullingManager::hideAllTiles(void){
 
@@ -137,9 +137,9 @@ void CullingManager::hideAllTiles(void){
 
 	    cm->gameMap->getTile(ii,jj)->hide();
 
-	    }
 	}
     }
+}
 
 
 int CullingManager::cullCreatures(){
@@ -306,7 +306,7 @@ int CullingManager::bashAndSplashTiles(int mode)
 
 bool CullingManager::getIntersectionPoints() {
 
-    const Ogre::Vector3*  myvector    = cm->getCamera()->getWorldSpaceCorners();
+    const Ogre::Vector3*  myvector    = cm->getActiveCamera()->getWorldSpaceCorners();
     Ogre::Vector3* pp ;
 
 

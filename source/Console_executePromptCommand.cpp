@@ -394,17 +394,17 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            cm->getCamera()->setNearClipDistance(tempDouble);
+            cm->getActiveCamera()->setNearClipDistance(tempDouble);
             ODFrameListener::getSingletonPtr()->commandOutput += "\nNear clip distance set to "
                     + Ogre::StringConverter::toString(
-                            cm->getCamera()->getNearClipDistance())
+                            cm->getActiveCamera()->getNearClipDistance())
                     + "\n";
         }
         else
         {
             ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent near clip distance is "
                     + Ogre::StringConverter::toString(
-                            cm->getCamera()->getNearClipDistance())
+                            cm->getActiveCamera()->getNearClipDistance())
                     + "\n";
         }
     }
@@ -417,16 +417,16 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            cm->getCamera()->setFarClipDistance(tempDouble);
+            cm->getActiveCamera()->setFarClipDistance(tempDouble);
             ODFrameListener::getSingletonPtr()->commandOutput += "\nFar clip distance set to "
                     + Ogre::StringConverter::toString(
-                            cm->getCamera()->getFarClipDistance()) + "\n";
+                            cm->getActiveCamera()->getFarClipDistance()) + "\n";
         }
         else
         {
             ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent far clip distance is "
                     + Ogre::StringConverter::toString(
-                            cm->getCamera()->getFarClipDistance()) + "\n";
+                            cm->getActiveCamera()->getFarClipDistance()) + "\n";
         }
     }
 
@@ -1129,7 +1129,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 	    Radian radianAngle(tmp);
 
 
-	    cm->mCamera->setFOVy(radianAngle);
+	    cm->mActiveCamera->setFOVy(radianAngle);
 	    // TODO check the for the maximal and minimal value of setFoVy
         }
 	else{

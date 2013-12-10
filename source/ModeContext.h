@@ -18,6 +18,7 @@ struct ModeContext{
     enum DragType
         {
 	creature,
+	creaturePosses,
 	mapLight,
 	tileSelection,
 	tileBrushSelection,

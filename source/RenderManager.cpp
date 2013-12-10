@@ -13,6 +13,7 @@
 #include <OgreEntity.h>
 #include <OgreSubMesh.h>
 #include <OgreCompositorManager.h>
+#include <OgreViewport.h>
 
 //#include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExPerPixelLighting.h>
@@ -61,7 +62,6 @@ RenderManager::RenderManager() :
         lightSceneNode(0),
         fieldSceneNode(0),
         gameMap(0),
-        mainCamera(0),
         //This will use OctreSceneManager if the plugin is loaded
         sceneManager(ODApplication::getSingletonPtr()->getRoot()->getSceneManager("SceneManager")),
         viewport(0),
@@ -83,31 +83,20 @@ RenderManager::RenderManager() :
 
 RenderManager::~RenderManager()
 {
+
 }
 
-/*! \brief Sets up the main camera
-*
+/*! \brief creates all compoistors
+*   Compositor types are hardcoded 
+*   but they should be read from the external XML file 
 */
-void RenderManager::createCamera()
-{
-    mainCamera = sceneManager->createCamera("PlayerCam");
-    mainCamera->setNearClipDistance(0.05);
-    mainCamera->setFarClipDistance(300.0);
-    mainCamera->setAutoTracking(false, sceneManager->getRootSceneNode()
-                                ->createChildSceneNode("CameraTarget"), Ogre::Vector3(gameMap->getMapSizeX()/2,gameMap->getMapSizeY()/2 , 0));
+void RenderManager::setViewport(Ogre::Viewport* tmpViewport){
+
+    viewport = tmpViewport;
+
 }
 
-/*! \brief setup the viewports
-*
-*/
-void RenderManager::createViewports()
-{
-    viewport = ODApplication::getSingleton().getWindow()->
-               addViewport(mainCamera);
-    viewport->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
-    mainCamera->setAspectRatio(Ogre::Real(viewport->getActualWidth()) / Ogre::Real(
-                                   viewport->getActualHeight()));
-}
+
 
 /*! \brief creates all compoistors
 *   Compositor types are hardcoded 
@@ -115,10 +104,7 @@ void RenderManager::createViewports()
 */
 void RenderManager::createCompositors(){
 
-
-Ogre::CompositorManager::getSingleton().addCompositor(viewport, "B&W");
-
-
+    Ogre::CompositorManager::getSingleton().addCompositor(viewport, "B&W");
 
 }
 
@@ -129,8 +115,7 @@ Ogre::CompositorManager::getSingleton().addCompositor(viewport, "B&W");
 */
 void RenderManager::triggerCompositor(string compositorName){
 
-
-Ogre::CompositorManager::getSingleton().setCompositorEnabled(viewport, compositorName.c_str(), true);
+    Ogre::CompositorManager::getSingleton().setCompositorEnabled(viewport, compositorName.c_str(), true);
 
 }
 
@@ -185,15 +170,11 @@ void RenderManager::createScene()
     LogManager::getSingleton().logMessage("entities created");
     sceneManager->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
     // Create the scene node that the camera attaches to
-    Ogre::SceneNode* node = sceneManager->getRootSceneNode()
-	->createChildSceneNode("CamNode1", Ogre::Vector3(1 + gameMap->getMapSizeX()/2, -1 + gameMap->getMapSizeY()/2, 16));
-    node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
-    node->roll(Ogre::Degree(30), Ogre::Node::TS_WORLD);
-    node->attachObject(mainCamera);
+
     
     // Create the single tile selection mesh
     Ogre::Entity* ent = sceneManager->createEntity("SquareSelector", "SquareSelector.mesh");
-        node = sceneManager->getRootSceneNode()->createChildSceneNode(
+    Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode(
                "SquareSelectorNode");
     node->translate(Ogre::Vector3(0, 0, 0));
     node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
@@ -214,6 +195,10 @@ void RenderManager::createScene()
     light->setAttenuation(50, 1.0, 0.09, 0.032);
     //node->attachObject(light);
 
+}
+
+void RenderManager::setCameraManager(CameraManager* cameraManager){
+    // cm = cameraManager;
 }
 
 void RenderManager::setSceneNodes(Ogre::SceneNode* rockSceneNode , Ogre::SceneNode* roomSceneNode,

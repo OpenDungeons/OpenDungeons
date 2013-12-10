@@ -131,7 +131,7 @@ ODApplication::ODApplication() :
         return;
     }*/
 
-    //new CameraManager(renderMgr->getCamera());
+    //new CameraManager(renderMgr->getActiveCamera());
     //FIXME: Is this the best place for instanciating these two?
     //Console needs to exist BEFORE ASWrapper because it needs it for callback
     new Console();

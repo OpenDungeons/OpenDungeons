@@ -88,13 +88,34 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
 	
 {
     Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager", "SceneManager");
-    renderManager = new RenderManager;
+
     gameMap = new GameMap;
+    //FIXME game Map should be read at this point, instead , at the below I set map sizes manually paul424
+    gameMap->setMapSizeX(400);
+    gameMap->setMapSizeY(400);    
 
     culm = new CullingManager();
     gameMap->setCullingManger(culm);
+    cm = new CameraManager(sceneManager,gameMap);
+
+    LogManager::getSingletonPtr()->logMessage("Creating viewports...", Ogre::LML_NORMAL);
+    cm->createViewport();
+    LogManager::getSingletonPtr()->logMessage("Creating RTS Camera...", Ogre::LML_NORMAL);
+    cm->createCamera("RTS", 0.02, 300.0);
+    LogManager::getSingletonPtr()->logMessage("Creating RTS CameraNode...", Ogre::LML_NORMAL);
+    cm->createCameraNode("RTS");
+    LogManager::getSingletonPtr()->logMessage("Setting ActiveCamera...", Ogre::LML_NORMAL);
+    cm->setActiveCamera("RTS");
+    LogManager::getSingletonPtr()->logMessage("Setting ActiveCameraNode...", Ogre::LML_NORMAL);
+    cm->setActiveCameraNode("RTS");
+    LogManager::getSingletonPtr()->logMessage("Created everything :)", Ogre::LML_NORMAL);
+
+    renderManager = new RenderManager();
+    
 
     renderManager->setGameMap(gameMap);
+    renderManager->setCameraManager(cm);
+    renderManager->setViewport(cm->getViewport());
     miniMap = new MiniMap(gameMap);    
     //NOTE This is moved here temporarily.
     // try
@@ -673,7 +694,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(
 {
     // Setup the ray scene query, use CEGUI's mouse position
     CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();// * mMouseScale;
-    Ogre::Ray mouseRay = cm->getCamera()->getCameraToViewportRay(mousePos.d_x / float(
+    Ogre::Ray mouseRay = cm->getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
     mRaySceneQuery->setRay(mouseRay);
     mRaySceneQuery->setSortByDistance(true);
@@ -731,7 +752,6 @@ void ODFrameListener::makeGameContext(){
 
 
     gc = new GameContext(mWindow, inputManager, gameMap);
-    cm = new CameraManager(renderManager->getCamera(),gameMap);
 
     culm->setCameraManager(cm);
     cm->setModeManager(inputManager); 
@@ -744,7 +764,6 @@ void ODFrameListener::makeGameContext(){
 void ODFrameListener::makeEditorContext(){
 
     ed = new EditorContext(mWindow, inputManager, gameMap);
-    cm = new CameraManager(renderManager->getCamera(),gameMap);
 
     culm->setCameraManager(cm);
     cm->setModeManager(inputManager); 

@@ -20,10 +20,14 @@ using  std::string;
 template<typename T> class ProtectedObject;
 class RenderRequest;
 class GameMap;
+class CameraManager;
+
 namespace Ogre
 {
 class SceneManager;
 class SceneNode;
+
+
 /*namespace RTShader {
     class ShaderGenerator;
 }*/
@@ -38,14 +42,13 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void setSceneNodes(Ogre::SceneNode* rockSceneNode, Ogre::SceneNode* roomSceneNode,
                                     Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode );
 
-        inline Ogre::Camera* getCamera()const {return mainCamera;}
+
         inline Ogre::SceneManager* getSceneManager()const {return sceneManager;}
         inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;}
-
+        void setCameraManager(CameraManager* );	
+        void setViewport(Ogre::Viewport* );  
         void processRenderRequests();
         void updateAnimations();
-        void createCamera();
-        void createViewports();
         void triggerCompositor(string);
         void createScene();
         void createCompositors();
@@ -135,7 +138,6 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         Ogre::SceneNode* fieldSceneNode;
 	Ogre::SceneNode* rockSceneNode;
         GameMap* gameMap;
-        Ogre::Camera* mainCamera;
         Ogre::SceneManager* sceneManager;
         Ogre::Viewport* viewport;
         Ogre::RTShader::ShaderGenerator* shaderGenerator;

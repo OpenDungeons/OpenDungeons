@@ -21,10 +21,10 @@ GameContext::GameContext(Ogre::RenderWindow* renderWindow, ModeManager* inputMan
     //NOTE This is moved here temporarily.
     try
     {
-        logManager->logMessage("Creating camera...", Ogre::LML_NORMAL);
-        renderManager->createCamera();
-        logManager->logMessage("Creating viewports...", Ogre::LML_NORMAL);
-        renderManager->createViewports();
+
+        // renderManager->createCamera();
+
+        // renderManager->createViewports();
         logManager->logMessage("Creating scene...", Ogre::LML_NORMAL);
         renderManager->createScene();
         logManager->logMessage("Creating compositors...", Ogre::LML_NORMAL);

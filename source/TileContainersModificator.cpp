@@ -163,10 +163,7 @@ TileContainer* TileContainersModificator::rotate90(TileContainer* tc ){
     if(tc == NULL )
 	return NULL;   
 
-
-
     return tc;
-
 }
 
 

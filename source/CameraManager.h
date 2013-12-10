@@ -22,9 +22,14 @@
 #include <OgreString.h>
 
 #include <set>
+#include <vector>
+#include <map>
 
 class ModeManager;
 class Console;
+class Viewport;
+
+using std::vector; using std::pair; using std::map;
 
 
 class CameraManager
@@ -47,8 +52,7 @@ class CameraManager
         fullStop
 	};
     
-    static const int HIDE =  1;
-    static const int SHOW =  2;
+
 
     HermiteCatmullSpline xHCS;
     HermiteCatmullSpline yHCS; 
@@ -56,15 +60,13 @@ class CameraManager
 
 
     struct Vector3i{
-	Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ; 
-
-	}
+	Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ; }
 	Vector3i(){};
 
 	int x ; int y ; int z;};
 
 
-    CameraManager(Ogre::Camera* cam, GameMap* gm = NULL);
+    CameraManager( Ogre::SceneManager*   , GameMap*);
 
     inline void setCircleCenter( int XX, int YY) {centerX = XX ; centerY = YY;} ;
     inline void setCircleRadious(unsigned int rr){ radious = rr;};
@@ -74,8 +76,8 @@ class CameraManager
 
 
     void setModeManager(ModeManager* mm){modeManager = mm;};
+    void setFPPCamera(Creature*);
 
-    
     //get/set moveSpeed
     inline const Ogre::Real& getMoveSpeed() const {
         return moveSpeed;
@@ -106,10 +108,7 @@ class CameraManager
         return translateVectorAccel;
 	}
     bool getIntersectionPoints(   );
-    //get camera
-    inline Ogre::Camera* getCamera() const {
-        return mCamera;
-	}
+
 
     bool isCamMovingAtAll() const;
 
@@ -129,13 +128,28 @@ class CameraManager
     inline void stopZooming () {
         zChange = 0;
 	}
-    inline Ogre::Camera* getCamera() {
-        return mCamera;
+
+
+    void createCameraNode(std::string ss);
+    Ogre::SceneNode* getActiveCameraNode();
+    Ogre::SceneNode* setActiveCameraNode(std::string ss);
+
+    void createCamera(std::string ss, double nearClip, double farClip);
+    void setActiveCamera(std::string ss);
+
+    inline Ogre::Camera* getActiveCamera(){
+        return  mActiveCamera ;
 	}
+    Ogre::Camera* getCamera(std::string ss);
+
+    Ogre::Viewport* getViewport();
+    void createViewport();
+
     private:
     bool switchedPM ;
-    Ogre::String switchPolygonMode();
-
+    std::string switchPolygonMode();
+    std::set<string> registeredCameraNames;
+    std::set<string> registeredCameraNodeNames;
 
 
     bool circleMode;
@@ -159,10 +173,9 @@ class CameraManager
     int bashAndSplashTiles(int); // set the new tiles
     CameraManager(const CameraManager&);
 
-    Ogre::Camera*       mCamera;
-    Ogre::SceneNode*    mCamNode;
-
-
+    
+    Ogre::Camera* mActiveCamera;
+    Ogre::SceneNode* mActiveCameraNode; 
 
     GameMap* gameMap;
     bool            cameraIsFlying;
@@ -175,6 +188,8 @@ class CameraManager
     Ogre::Vector3   translateVectorAccel;
     Ogre::Vector3   cameraFlightDestination;
     Ogre::Vector3   mRotateLocalVector;
+    Ogre::SceneManager* mSceneManager;
+    Ogre::Viewport* mViewport;
     double          zChange;
     float           mZoomSpeed;
 
