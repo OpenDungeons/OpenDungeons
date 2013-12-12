@@ -10847,7 +10847,7 @@ Cannon	1
 -7	5	3.75	0.9	0.8	0.6	0.2	0.2	0.2	50	0.012	0.32	0.0018
 
 # Creature classes
-18  # The number of creature classes to load.
+19  # The number of creature classes to load.
 # className	creatureJob	meshName	bedMeshName	bedDim1	bedDim2	scaleX	scaleY	scaleZ	hp/level	mana/level	sightRadius	digRate	danceRate	moveSpeed	cHumans	cCorpars	cUndead	cConstructs	cDenizens	cAltruism	cOrder	cPeace
 Wyvern	WeakFighter	Wyvern.mesh	Bed	2	2	1	1	1	5	5	15	0	0	1.3	1	0	0	0	0	0	1	0
 Knight	WeakFighter	Knight.mesh	Bed	1	2	1	1	1	5	5	15	0	0	1	1	0	0	0	0	1	1	1
@@ -10867,10 +10867,12 @@ Wizard	WeakFighter	Wizard.mesh	Bed	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
 Tentacle1	WeakFighter	Tentacle.mesh	ForgeAnvilObject	1	1	1.5	1.5	1.5	5	5	15	0	0	1	0	1	0	0	0	0	1	0
 Tentacle2	WeakFighter	Tentacle2.mesh	ForgeAnvilObject	1	1	1.3	1.3	1.3	5	5	15	0	0	1	0	1	0	0	0	0	1	0
 Troll	StrongFighter	Troll.mesh	Bed	2	3	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	0	-1
+Adventurer	WeakFighter	Adventurer.mesh	Bed	1	2	1	1	1	5	5	15	0	0	1	0	1	0	0	0	0	1	0
 
 # Creatures
-50  # The number of creatures to load.
+51  # The number of creatures to load.
 # className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana
+Adventurer	Adventurer_001	-4	0	0	1	Shield_small	7	4	0	Shortsword	8	3	0	155	2
 ConstructWorker	ConstructWorker1	-4	30	0	1	none	1	4	3	none	8	4	0	125	3
 Gnome	Gnome2	-8	29	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	3
 Goblin	Goblin3	-17	29	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	3

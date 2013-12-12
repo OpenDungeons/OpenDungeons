@@ -15,6 +15,7 @@
 #include "ModeManager.h"
 #include "HermiteCatmullSpline.h"
 #include "ODApplication.h"
+#include "Creature.h"
 
 #include <OGRE/OgrePrerequisites.h>
 #include <OGRE/OgreSceneNode.h>
@@ -65,7 +66,7 @@ void CameraManager::createCamera(std::string ss, double nearClip, double farClip
     tmpCamera->setNearClipDistance(nearClip);
     tmpCamera->setFarClipDistance(farClip);
     tmpCamera->setAutoTracking(false, mSceneManager->getRootSceneNode()
-                                ->createChildSceneNode("CameraTarget"), Ogre::Vector3(gameMap->getMapSizeX()/2,gameMap->getMapSizeY()/2 , 0));
+                                ->createChildSceneNode("CameraTarget_" + ss), Ogre::Vector3(gameMap->getMapSizeX()/2,gameMap->getMapSizeY()/2 , 0));
     registeredCameraNames.insert(ss);
 }
 
@@ -95,7 +96,9 @@ void CameraManager::createViewport()
 }
 
 void CameraManager::setFPPCamera(Creature* cc){
-    
+    Ogre::SceneNode* tmpNode = mSceneManager->getSceneNode("FPP_node");
+    tmpNode->getParentSceneNode()->removeChild(tmpNode);
+    cc->sceneNode->addChild(tmpNode);
 }
 
 Ogre::SceneNode* CameraManager::getActiveCameraNode(){

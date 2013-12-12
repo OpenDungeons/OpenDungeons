@@ -104,6 +104,12 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     cm->createCamera("RTS", 0.02, 300.0);
     LogManager::getSingletonPtr()->logMessage("Creating RTS CameraNode...", Ogre::LML_NORMAL);
     cm->createCameraNode("RTS");
+
+    LogManager::getSingletonPtr()->logMessage("Creating FPP Camera...", Ogre::LML_NORMAL);
+    cm->createCamera("FPP", 0.02, 300.0);
+    LogManager::getSingletonPtr()->logMessage("Creating FPP CameraNode...", Ogre::LML_NORMAL);
+    cm->createCameraNode("FPP");
+
     LogManager::getSingletonPtr()->logMessage("Setting ActiveCamera...", Ogre::LML_NORMAL);
     cm->setActiveCamera("RTS");
     LogManager::getSingletonPtr()->logMessage("Setting ActiveCameraNode...", Ogre::LML_NORMAL);

@@ -40,7 +40,7 @@ if (BORLAND)
 endif ()
 
 if (CMAKE_COMPILER_IS_GNUCXX)
-  set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++11")
+  set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wunused -Wno-deprecated -fno-strict-aliasing" CACHE STRING "compile flags" FORCE)
   list( APPEND CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS}   -g -O2")
   set ( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS}   -O3 " )
 endif ()
@@ -431,12 +431,6 @@ else()
     target_link_libraries (${PROJECT_BINARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-    #TODO - move compiler defs
-    #Add compiler warnings
-    #(-fno-strict-aliasing is here to silence a lot of warnings from angelscript)
-    add_definitions( "-Wall -Wunused -Wno-deprecated -fno-strict-aliasing" )
-endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions("-DOD_DEBUG")

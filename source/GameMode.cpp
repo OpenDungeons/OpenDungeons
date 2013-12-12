@@ -365,13 +365,14 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
                     // if in a game:  Pick the creature up and put it in our hand
 		    if(mc->expectCreatureClick && isInGame() ){
  			  
-			    progressMode(ModeManager::FPP);
-			    // cameraManager->setFPPCamera();
-			    mc->frameListener->cm->setActiveCamera(Ogre::String("FPP"));
-			    
-                            mc->expectCreatureClick =false; 
-
-
+			progressMode(ModeManager::FPP);
+			const string& tmp_name =  (itr->movable->getName());
+			std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
+			mc->frameListener->cm->setFPPCamera(mc->gameMap->getCreature(tmp_name.substr( 9, tmp_name.size())));
+			mc->frameListener->cm->setActiveCameraNode("FPP");
+			mc->frameListener->cm->setActiveCamera("FPP");
+					    
+			mc->expectCreatureClick =false; 
 		    }
                     else if (isInGame())
                     {
