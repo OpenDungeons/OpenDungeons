@@ -32,7 +32,7 @@ bool MenuMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id
 }
 bool MenuMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow().injectMouseButtonUp(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
         Gui::getSingletonPtr()->convertButton(id));
 
 

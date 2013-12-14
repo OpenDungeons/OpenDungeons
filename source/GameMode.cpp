@@ -519,7 +519,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                                  OIS::MouseButtonID id)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow().injectMouseButtonUp(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
         Gui::getSingletonPtr()->convertButton(id));
 
     // If the mouse press was on a CEGUI window ignore it

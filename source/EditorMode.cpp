@@ -570,7 +570,7 @@ bool EditorMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID 
 
 bool EditorMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow().injectMouseButtonUp(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
         Gui::getSingletonPtr()->convertButton(id));
 
 
