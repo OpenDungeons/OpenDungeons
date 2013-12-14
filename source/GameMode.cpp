@@ -73,7 +73,7 @@ GameMode::~GameMode()
 bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 {
 
-    CEGUI::System::getSingleton().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
     //TODO: do this (and the others isInGame() in here) by GameState
 
     if (mc->frameListener->isTerminalActive())
@@ -309,7 +309,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 bool GameMode::mousePressed(const OIS::MouseEvent &arg,
                                 OIS::MouseButtonID id)
 {
-    CEGUI::System::getSingleton().injectMouseButtonDown(
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::getSingletonPtr()->convertButton(id));
 
     // If the mouse press is on a CEGUI window ignore it
@@ -519,7 +519,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                                  OIS::MouseButtonID id)
 {
-    CEGUI::System::getSingleton().injectMouseButtonUp(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow().injectMouseButtonUp(
         Gui::getSingletonPtr()->convertButton(id));
 
     // If the mouse press was on a CEGUI window ignore it

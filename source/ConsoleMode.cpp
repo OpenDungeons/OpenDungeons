@@ -30,7 +30,7 @@ ConsoleMode::~ConsoleMode(){
 
 
 bool ConsoleMode::mouseMoved     (const OIS::MouseEvent &arg){
-  CEGUI::System::getSingleton().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
+  CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
   if(arg.state.Z.rel == 0 || !cn->visible)
     {
       return false;
@@ -52,7 +52,7 @@ bool ConsoleMode::mouseMoved     (const OIS::MouseEvent &arg){
 bool ConsoleMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
 
 
-  CEGUI::System::getSingleton().injectMouseButtonDown(
+  CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
 						      Gui::getSingletonPtr()->convertButton(id));
 
 
@@ -60,7 +60,7 @@ bool ConsoleMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID
 }
 bool ConsoleMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
 
-  CEGUI::System::getSingleton().injectMouseButtonUp(
+  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow().injectMouseButtonUp(
 						    Gui::getSingletonPtr()->convertButton(id));
 
 

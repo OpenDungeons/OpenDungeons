@@ -9,12 +9,12 @@
 #include <algorithm>
 #include <cstdlib>
 
-#include <CEGUIWindowManager.h>
-#include <CEGUIEventArgs.h>
-#include <CEGUIWindow.h>
-#include <CEGUISize.h>
-#include <CEGUISystem.h>
-#include <CEGUIMouseCursor.h>
+#include <CEGUI/WindowManager.h>
+#include <CEGUI/EventArgs.h>
+#include <CEGUI/Window.h>
+#include <CEGUI/Size.h>
+#include <CEGUI/System.h>
+#include <CEGUI/MouseCursor.h>
 
 #include "Socket.h"
 #include "Functions.h"

@@ -67,6 +67,7 @@ void CameraManager::createCamera(std::string ss, double nearClip, double farClip
     tmpCamera->setFarClipDistance(farClip);
     tmpCamera->setAutoTracking(false, mSceneManager->getRootSceneNode()
                                 ->createChildSceneNode("CameraTarget_" + ss), Ogre::Vector3(gameMap->getMapSizeX()/2,gameMap->getMapSizeY()/2 , 0));
+
     registeredCameraNames.insert(ss);
 }
 
@@ -98,6 +99,7 @@ void CameraManager::createViewport()
 void CameraManager::setFPPCamera(Creature* cc){
     Ogre::SceneNode* tmpNode = mSceneManager->getSceneNode("FPP_node");
     tmpNode->getParentSceneNode()->removeChild(tmpNode);
+    tmpNode->setInheritOrientation(true);
     cc->sceneNode->addChild(tmpNode);
 }
 

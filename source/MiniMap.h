@@ -10,7 +10,7 @@
 
 #include <OgreTexture.h>
 #include <OgreHardwarePixelBuffer.h>
-#include <RendererModules/Ogre/CEGUIOgreRenderer.h>
+#include <CEGUI/RendererModules/Ogre/Renderer.h>
 #include "GameMap.h"
 #include "Tile.h"
 #include "Creature.h"

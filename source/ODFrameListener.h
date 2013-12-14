@@ -17,7 +17,7 @@
 #include <OgreSingleton.h>
 #include <OgreSceneQuery.h>
 #include <OgreTimer.h>
-#include <CEGUIEventArgs.h>
+#include <CEGUI/EventArgs.h>
 
 
 

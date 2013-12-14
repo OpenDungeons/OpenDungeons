@@ -1,10 +1,12 @@
 /*!
  *  \file   RenderManager.cpp
  *  \date   26 March 2001
- *  \author oln
+ *  \author oln, paul424
  *  \brief  handles the render requests
  */
 
+
+// TODO the prefix Creature_ should be static field in some class then changing won't broke program
 
 #include <OgreSubEntity.h>
 #include <OgreSceneManager.h>
@@ -1028,6 +1030,7 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
     //assert(curCreature->getDefinition() != 0);
 
     // Load the mesh for the creature
+    // TODO the prefix Creature_ should be static field in some class then changing won't broke program
     Ogre::Entity* ent = sceneManager->createEntity("Creature_" + curCreature->getName(),
                         meshName);
     Ogre::MeshPtr meshPtr = ent->getMesh();

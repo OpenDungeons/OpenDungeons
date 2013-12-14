@@ -8,6 +8,7 @@
 /* TODO: do intense testing that everything works
  * TODO: switch from TextRenderer to Console
  */
+#include <Overlay/OgreOverlayManager.h>
 #include "Console.h"
 
 
@@ -18,7 +19,7 @@
 #include "ODApplication.h"
 #include "ODFrameListener.h"
 #include "RenderManager.h"
-#include "OgreOverlayManager.h"
+
 
 
 

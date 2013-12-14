@@ -13,9 +13,9 @@
 #include <map>
 
 
-#include <CEGUIWindow.h>
-#include <CEGUIEventArgs.h>
-#include <CEGUIInputEvent.h>
+#include <CEGUI/Window.h>
+#include <CEGUI/EventArgs.h>
+#include <CEGUI/InputEvent.h>
 
 
 

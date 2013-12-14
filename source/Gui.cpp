@@ -9,12 +9,12 @@
 //      script the GUI actions. Maybe even register CEGUI to AS to make it fully scripted?
 //      Then we could easily adjust the GUI without recompiling.
 
-#include <RendererModules/Ogre/CEGUIOgreRenderer.h>
-#include <CEGUISchemeManager.h>
-#include <CEGUISystem.h>
-#include <CEGUIWindowManager.h>
+#include <CEGUI/RendererModules/Ogre/Renderer.h>
+#include <CEGUI/SchemeManager.h>
+#include <CEGUI/System.h>
+#include <CEGUI/WindowManager.h>
 #include <elements/CEGUIPushButton.h>
-#include <CEGUIEvent.h>
+#include <CEGUI/Event.h>
 
 
 #include "MapLoader.h"
@@ -303,7 +303,7 @@ bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 {
 
 
-    // CEGUI::Window *myWin =   CEGUI::System::getSingleton().getGUISheet();
+    // CEGUI::Window *myWin =   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
     Gui::getSingletonPtr()->loadGuiSheet(editorToolBox);
     
     // myWin->addChildWindow(sheets[editorToolBox]);

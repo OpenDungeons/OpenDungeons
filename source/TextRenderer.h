@@ -1,9 +1,9 @@
 #ifndef TEXTRENDERER_H
 #define TEXTRENDERER_H
 
-#include <OgreOverlayManager.h>
-#include <OgreOverlay.h>
-#include <OgreOverlayContainer.h>
+#include <Overlay/OgreOverlayManager.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayContainer.h>
 #include <OgreSingleton.h>
 
 //http://www.ogre3d.org/tikiwiki/Simple+Text+Output&structure=Cookbook

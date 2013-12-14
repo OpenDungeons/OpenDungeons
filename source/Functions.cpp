@@ -2,7 +2,7 @@
 //      - The server stuff should go into some of the network classes.
 
 #include <elements/CEGUITabControl.h>
-#include <CEGUIWindowManager.h>
+#include <CEGUI/WindowManager.h>
 
 #include "Network.h"
 #include "Socket.h"

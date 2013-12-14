@@ -1,11 +1,11 @@
 #include <cmath>
 #include <algorithm>
 
-#include <CEGUISystem.h>
-#include <CEGUIWindowManager.h>
-#include <CEGUIWindow.h>
-#include <CEGUIUDim.h>
-#include <CEGUIVector.h>
+#include <CEGUI/System.h>
+#include <CEGUI/WindowManager.h>
+#include <CEGUI/Window.h>
+#include <CEGUI/UDim.h>
+#include <CEGUI/Vector.h>
 
 
 #include <OgreQuaternion.h>
@@ -2031,7 +2031,7 @@ void Creature::createStatsWindow()
     }
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
-    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getGUISheet();
+    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
     statsWindow = wmgr->createWindow("OD/FrameWindow",
             std::string("Root/CreatureStatsWindows/") + getName());
@@ -2042,8 +2042,8 @@ void Creature::createStatsWindow()
             statsWindow->getName() + "TextDisplay");
     textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
     textWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
-    statsWindow->addChildWindow(textWindow);
-    rootWindow->addChildWindow(statsWindow);
+    statsWindow->addChild(textWindow);
+    rootWindow->addChild(statsWindow);
     statsWindow->show();
     sem_post(&statsWindowLockSemaphore);
 

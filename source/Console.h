@@ -20,9 +20,9 @@
 #include <OgreFrameListener.h>
 #include <OgreLog.h>
 #include <OgrePrerequisites.h>
-#include <OgreOverlayContainer.h>
-#include <OgreOverlay.h>
-#include <OgreOverlayElement.h>
+#include <Overlay/OgreOverlayContainer.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayElement.h>
 
 
 #include "GameMode.h"
