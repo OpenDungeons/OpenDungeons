@@ -313,8 +313,10 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
         Gui::getSingletonPtr()->convertButton(id));
 
     // If the mouse press is on a CEGUI window ignore it
-    CEGUI::Window *tempWindow =
-        CEGUI::System::getSingleton().getWindowContainingMouse();
+//    CEGUI::Window *tempWindow =
+//        CEGUI::System::getSingleton().getWindowContainingMouse();
+
+    CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getWindowContainingMouse();
 
     if (tempWindow != 0 && tempWindow->getName().compare("Root") != 0)
     {
@@ -519,8 +521,11 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 bool GameMode::mouseReleased(const OIS::MouseEvent &arg,
                                  OIS::MouseButtonID id)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
-        Gui::getSingletonPtr()->convertButton(id));
+//    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
+//        Gui::getSingletonPtr()->convertButton(id));
+
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
+                Gui::getSingletonPtr()->convertButton(id));
 
     // If the mouse press was on a CEGUI window ignore it
 
@@ -740,9 +745,13 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
     else
     {
         //inject key to Gui
-        CEGUI::System* sys = CEGUI::System::getSingletonPtr();
-        sys->injectKeyDown(arg.key);
-        sys->injectChar(arg.text);
+//        CEGUI::System* sys = CEGUI::System::getSingletonPtr();
+//        sys->injectKeyDown(arg.key);
+//        sys->injectChar(arg.text);
+
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
+        CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
+
 
         CameraManager& camMgr = *(mc->frameListener->cm);
 
@@ -914,7 +923,8 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
  */
 bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 {
-    CEGUI::System::getSingleton().injectKeyUp(arg.key);
+    //CEGUI::System::getSingleton().injectKeyUp(arg.key);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
 
     if (!mc->frameListener->isTerminalActive())
     {

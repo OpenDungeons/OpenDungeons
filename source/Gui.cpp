@@ -9,11 +9,12 @@
 //      script the GUI actions. Maybe even register CEGUI to AS to make it fully scripted?
 //      Then we could easily adjust the GUI without recompiling.
 
+#include <CEGUI/CEGUI.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
 #include <CEGUI/SchemeManager.h>
 #include <CEGUI/System.h>
 #include <CEGUI/WindowManager.h>
-#include <elements/CEGUIPushButton.h>
+#include <CEGUI/widgets/PushButton.h>
 #include <CEGUI/Event.h>
 
 
@@ -43,8 +44,10 @@ Gui::Gui() :
         activeSheet(hideGui)
 {
     CEGUI::OgreRenderer::bootstrapSystem();
-    CEGUI::SchemeManager::getSingleton().create("OpenDungeonsSkin.scheme");
-    CEGUI::System::getSingleton().setDefaultMouseCursor("OpenDungeons", "MouseArrow");
+    //CEGUI::SchemeManager::getSingleton().create("OpenDungeonsSkin.scheme");
+    CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");;
+
+    CEGUI::System::getSingleton(). setDefaultMouseCursor("OpenDungeons", "MouseArrow");
     CEGUI::System::getSingleton().setDefaultTooltip("OD/Tooltip");
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
@@ -52,10 +55,6 @@ Gui::Gui() :
     sheets[ingameMenu] = wmgr->loadWindowLayout("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadWindowLayout("OpenDungeonsMainMenu.layout");
     sheets[editorToolBox] =  wmgr->loadWindowLayout("OpenDungeonsEditorToolBox.layout");
-
-
-
-
     mainMenuMode = false;
     assignEventHandlers();
 }

@@ -6,10 +6,10 @@
  */
 #include <cstdlib>
 #include <CEGUI/WindowManager.h>
-#include <CEGUI/Imageset.h>
+#include <CEGUI/Image.h>
 #include <CEGUI/PropertyHelper.h>
 #include <CEGUI/Texture.h>
-#include <CEGUI/ImagesetManager.h>
+#include <CEGUI/ImageManager.h>
 #include <CEGUI/Size.h>
 
 
@@ -22,7 +22,7 @@
 // #include <Magick++.h>
 
 
-
+ // getDefaultGUIContext.getRootWindow // this way we can get root window
 
 
 /*! Initializes the MiniMap

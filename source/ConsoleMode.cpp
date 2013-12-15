@@ -60,7 +60,7 @@ bool ConsoleMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID
 }
 bool ConsoleMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
 
-  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
+  CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
 						    Gui::getSingletonPtr()->convertButton(id));
 
 

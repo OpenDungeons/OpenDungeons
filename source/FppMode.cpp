@@ -33,10 +33,10 @@ bool FppMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 }
 bool FppMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
-        Gui::getSingletonPtr()->convertButton(id));
-
-
+    //CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
+    //    Gui::getSingletonPtr()->convertButton(id));
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
+                Gui::getSingletonPtr()->convertButton(id));
 
 }
 bool FppMode::keyPressed     (const OIS::KeyEvent &arg){

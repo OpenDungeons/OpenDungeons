@@ -1,8 +1,11 @@
 //TODO: get rid of this whole file.
 //      - The server stuff should go into some of the network classes.
 
-#include <elements/CEGUITabControl.h>
+#include <CEGUI/CEGUI.h>
 #include <CEGUI/WindowManager.h>
+#include <CEGUI/widgets/TabControl.h>
+//#include <elements/CEGUITabControl.h>
+//
 
 #include "Network.h"
 #include "Socket.h"
@@ -93,8 +96,7 @@ bool startServer(GameMap& gameMap)
 
         // Set the active tabs on the tab selector across the bottom of the screen so
         // the user doesn't have to click into them first to see the contents.
-        static_cast<CEGUI::TabControl*>(CEGUI::WindowManager::getSingletonPtr()->
-                getWindow("Root/MainTabControl"))->setSelectedTab(0);
+        static_cast<CEGUI::TabControl*>(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("MainTabControl"))->setSelectedTab(0);
     }
 
     return true;

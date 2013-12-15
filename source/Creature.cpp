@@ -2033,21 +2033,25 @@ void Creature::createStatsWindow()
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
-    statsWindow->setSize(CEGUI::USize(0.25, 0.3));
-
-
+    statsWindow->setSize(CEGUI::USize(CEGUI::UDim(0.25, 0.3), CEGUI::UDim(0.25, 0.3)));
 
     statsWindow = wmgr->createWindow("OD/FrameWindow",
             std::string("Root/CreatureStatsWindows/") + getName());
     statsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.65, 0)));
-    statsWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
 
-    statsWindow->setSize(CEGUI::USize(0.25, 0.3));
+    //statsWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+    statsWindow->setSize(CEGUI::USize(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.25, 0)));
 
-    CEGUI::Window *textWindow = wmgr->createWindow("OD/StaticText",
+    //statsWindow->setSize(CEGUI::Size<double>(0.25, 0.3));
+
+    CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText",
             statsWindow->getName() + "TextDisplay");
-    textWindow->setPosition(CEGUI::USize(0.05, 0.15));
-    textWindow->setSize(CEGUI::USize(0.9, 0.8));
+
+    //textWindow->setPosition(CEGUI::USize(0.05,0.0), CEGUI::USize(0.15,0.0));
+    textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
+
+    //textWindow->setSize(CEGUI::USize(0.9, 0.8));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
 
     statsWindow->addChild(textWindow);
     rootWindow->addChild(statsWindow);
