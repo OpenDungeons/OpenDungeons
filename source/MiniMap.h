@@ -9,6 +9,7 @@
 #define MINIMAP_H_
 
 #include <OgreTexture.h>
+#include <OgrePixelFormat.h>
 #include <OgreHardwarePixelBuffer.h>
 #include <CEGUI/RendererModules/Ogre/Renderer.h>
 #include "GameMap.h"

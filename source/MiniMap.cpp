@@ -33,10 +33,10 @@ MiniMap::MiniMap(GameMap* gm) :
 	tiles(NULL),
 	grainSize(4),
         miniMapOgreTexture(0),
-        width(  CEGUI::WindowManager::getSingleton().getWindow ( Gui::MINIMAP )->getPixelSize().d_width ),
-        height( CEGUI::WindowManager::getSingleton().getWindow ( Gui::MINIMAP )->getPixelSize().d_height),
-	topLeftCornerX(CEGUI::WindowManager::getSingleton().getWindow( Gui::MINIMAP )->getUnclippedOuterRect().getPosition().d_x),
-	topLeftCornerY(CEGUI::WindowManager::getSingleton().getWindow( Gui::MINIMAP )->getUnclippedOuterRect().getPosition().d_y),	
+        width(  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
+        height( CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_height),
+	topLeftCornerX(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
+        topLeftCornerY(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),	
 	pixelBox(new Ogre::PixelBox (width, height, 0, Ogre::PF_R8G8B8))
 {
     /* TODO: separate some of this code in own functions to make it possible
@@ -66,7 +66,7 @@ MiniMap::MiniMap(GameMap* gm) :
             = static_cast<CEGUI::OgreRenderer*>(CEGUI::System::getSingletonPtr()
                     ->getRenderer())->createTexture(miniMapOgreTexture);
 
-    CEGUI::Imageset& imageset = CEGUI::ImagesetManager::getSingletonPtr()
+    CEGUI::Image& imageset = CEGUI::ImageManager::getSingletonPtr()
             ->create("MiniMapImageset", miniMapTextureGui);
     imageset.defineImage("MiniMapImage",
             CEGUI::Point(0.0f, 0.0f),

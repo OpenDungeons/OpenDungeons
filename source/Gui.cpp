@@ -47,8 +47,8 @@ Gui::Gui() :
     //CEGUI::SchemeManager::getSingleton().create("OpenDungeonsSkin.scheme");
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");;
 
-    CEGUI::System::getSingleton(). setDefaultMouseCursor("OpenDungeons", "MouseArrow");
-    CEGUI::System::getSingleton().setDefaultTooltip("OD/Tooltip");
+    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setImage("OpenDungeons/MouseArrow");
+    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltip("OD/Tooltip");
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     sheets[hideGui] = 0;
@@ -104,67 +104,67 @@ void Gui::assignEventHandlers()
 {
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
 
-    wmgr->getWindow(BUTTON_QUARTERS)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_QUARTERS)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&quartersButtonPressed));
 
-    wmgr->getWindow(BUTTON_TREASURY)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_TREASURY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-    wmgr->getWindow(BUTTON_FORGE)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_FORGE)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-    wmgr->getWindow(BUTTON_DOJO)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_DOJO)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&dojoButtonPressed));
 
-    wmgr->getWindow(BUTTON_CANNON)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-    wmgr->getWindow(BUTTON_HOST)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_HOST)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&serverButtonPressed));
 
-    wmgr->getWindow(BUTTON_QUIT)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&quitButtonPressed));
 
-    wmgr->getWindow(MM_BUTTON_START_NEW_GAME)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_START_NEW_GAME)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
 
-    wmgr->getWindow(MM_BUTTON_MAPEDITOR)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMMapEditorButtonPressed));
 
-    wmgr->getWindow(MM_BUTTON_QUIT)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMQuitButtonPressed));
 
-    wmgr->getWindow(MINIMAP)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MINIMAP)->subscribeEvent(
 	    CEGUI:: Window::EventMouseClick,
 	    CEGUI::Event::Subscriber(&miniMapclicked));
         
-    wmgr->getWindow(TOOLSPALETE_LAVA_BUTTON)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_LAVA_BUTTON)->subscribeEvent(
 	    CEGUI:: Window::EventMouseClick,
 	    CEGUI::Event::Subscriber(&tpLavaButtonPressed));
 
-    wmgr->getWindow(TOOLSPALETE_GOLD_BUTTON)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_GOLD_BUTTON)->subscribeEvent(
 	    CEGUI:: Window::EventMouseClick,
 	    CEGUI::Event::Subscriber(&tpGoldButtonPressed));
 
-    wmgr->getWindow(TOOLSPALETE_ROCK_BUTTON)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_ROCK_BUTTON)->subscribeEvent(
 	    CEGUI:: Window::EventMouseClick,
 	    CEGUI::Event::Subscriber(&tpRockButtonPressed));
 
-    wmgr->getWindow(TOOLSPALETE_WATER_BUTTON)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_WATER_BUTTON)->subscribeEvent(
 	    CEGUI:: Window::EventMouseClick,
 	    CEGUI::Event::Subscriber(&tpWaterButtonPressed));
 
-    wmgr->getWindow(TOOLSPALETE_DIRT_BUTTON)->subscribeEvent(
+    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_DIRT_BUTTON)->subscribeEvent(
 	    CEGUI:: Window::EventMouseClick,
 	    CEGUI::Event::Subscriber(&tpDirtButtonPressed));
 
