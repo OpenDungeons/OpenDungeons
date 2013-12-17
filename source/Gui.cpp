@@ -48,13 +48,13 @@ Gui::Gui() :
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");;
 
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setImage("OpenDungeons/MouseArrow");
-    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltip("OD/Tooltip");
+    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltip(new CEGUI::Tooltip("OD","Tooltip"));
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     sheets[hideGui] = 0;
-    sheets[ingameMenu] = wmgr->loadWindowLayout("OpenDungeons.layout");
-    sheets[mainMenu] = wmgr->loadWindowLayout("OpenDungeonsMainMenu.layout");
-    sheets[editorToolBox] =  wmgr->loadWindowLayout("OpenDungeonsEditorToolBox.layout");
+    sheets[ingameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
+    sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
+    sheets[editorToolBox] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorToolBox.layout");
     mainMenuMode = false;
     assignEventHandlers();
 }
@@ -93,9 +93,9 @@ CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
 void Gui::loadGuiSheet(const guiSheet& newSheet)
 {
     activeSheet = newSheet;
-    CEGUI::System::getSingletonPtr()->setGUISheet(sheets[newSheet]);
+    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(sheets[newSheet]);
     //This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
-    CEGUI::System::getSingletonPtr()->signalRedraw();
+    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().markAsDirty();
 }
 
 /*! \brief Assigns all event handlers to the GUI elements

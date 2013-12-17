@@ -699,7 +699,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(
         const OIS::MouseEvent &arg)
 {
     // Setup the ray scene query, use CEGUI's mouse position
-    CEGUI::Point mousePos = CEGUI::MouseCursor::getSingleton().getPosition();// * mMouseScale;
+    CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();// * mMouseScale;
     Ogre::Ray mouseRay = cm->getActiveCamera()->getCameraToViewportRay(mousePos.d_x / float(
             arg.state.width), mousePos.d_y / float(arg.state.height));
     mRaySceneQuery->setRay(mouseRay);

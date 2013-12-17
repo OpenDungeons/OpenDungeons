@@ -65,14 +65,14 @@ MiniMap::MiniMap(GameMap* gm) :
 
     CEGUI::Texture& miniMapTextureGui
             = static_cast<CEGUI::OgreRenderer*>(CEGUI::System::getSingletonPtr()
-                    ->getRenderer())->createTexture(miniMapOgreTexture);
+						->getRenderer())->createTexture("miniMapTextureGui", miniMapOgreTexture);
 
-    CEGUI::Image& imageset = CEGUI::ImageManager::getSingletonPtr()
-            ->create("MiniMapImageset", miniMapTextureGui);
+    CEGUI::BasicImage& imageset = CEGUI::ImageManager::getSingletonPtr()
+	->create("MiniMapImageset", miniMapTextureGui);
     imageset.defineImage("MiniMapImage",
-            CEGUI::Vector2(0.0f, 0.0f),
-            CEGUI::Size(width, height),
-            CEGUI::Vector2(0.0f, 0.0f));
+			 CEGUI::Vector2<float>(0.0f, 0.0f),
+			 CEGUI::Size<float>(width, height),
+			 CEGUI::Vector2<float>(0.0f, 0.0f));
 
     CEGUI::WindowManager::getSingleton().getWindow(Gui::MINIMAP)->setProperty(
             "Image", CEGUI::PropertyHelper::imageToString(
