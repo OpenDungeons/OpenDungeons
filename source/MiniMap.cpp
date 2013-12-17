@@ -5,14 +5,15 @@
  * \brief  Contains everything that is related to the minimap
  */
 #include <cstdlib>
+
+#include <OgrePrerequisites.h>
+
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/Image.h>
 #include <CEGUI/PropertyHelper.h>
 #include <CEGUI/Texture.h>
 #include <CEGUI/ImageManager.h>
 #include <CEGUI/Size.h>
-
-
 
 #include "ODApplication.h"
 #include "RenderManager.h"
@@ -69,9 +70,9 @@ MiniMap::MiniMap(GameMap* gm) :
     CEGUI::Image& imageset = CEGUI::ImageManager::getSingletonPtr()
             ->create("MiniMapImageset", miniMapTextureGui);
     imageset.defineImage("MiniMapImage",
-            CEGUI::Point(0.0f, 0.0f),
+            CEGUI::Vector2(0.0f, 0.0f),
             CEGUI::Size(width, height),
-            CEGUI::Point(0.0f, 0.0f));
+            CEGUI::Vector2(0.0f, 0.0f));
 
     CEGUI::WindowManager::getSingleton().getWindow(Gui::MINIMAP)->setProperty(
             "Image", CEGUI::PropertyHelper::imageToString(

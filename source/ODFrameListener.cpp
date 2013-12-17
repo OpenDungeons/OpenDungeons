@@ -228,7 +228,7 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
     ms.height = height;
 
     //Notify CEGUI that the display size has changed.
-    CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Size(
+    CEGUI::System::getSingleton().notifyDisplaySizeChanged(CEGUI::Size<float>(
             static_cast<float> (width), static_cast<float> (height)));
 }
 
@@ -539,20 +539,20 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             CEGUI::WindowManager *windowManager =
                     CEGUI::WindowManager::getSingletonPtr();
 
-            CEGUI::Window *tempWindow = windowManager->getWindow(
+            CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(
                     (CEGUI::utf8*) "Root/TerritoryDisplay");
             tempSS.str("");
             tempSS << mySeat->getNumClaimedTiles();
             tempWindow->setText(tempSS.str());
 
             tempWindow
-                    = windowManager->getWindow((CEGUI::utf8*) "Root/GoldDisplay");
+                    = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild((CEGUI::utf8*) "Root/GoldDisplay");
             tempSS.str("");
             tempSS << mySeat->getGold();
             tempWindow->setText(tempSS.str());
 
             tempWindow
-                    = windowManager->getWindow((CEGUI::utf8*) "Root/ManaDisplay");
+                    = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild((CEGUI::utf8*) "Root/ManaDisplay");
             tempSS.str("");
             tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
                     << mySeat->getManaDelta();
@@ -563,7 +563,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             {
                 mySeat->resetGoalsChanged();
                 // Update the goals display in the message window.
-                tempWindow = windowManager->getWindow(
+                tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(
                         (CEGUI::utf8*) "Root/MessagesDisplayWindow");
                 tempSS.str("");
                 bool iAmAWinner = gameMap->seatIsAWinner(mySeat);
