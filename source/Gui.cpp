@@ -48,7 +48,7 @@ Gui::Gui() :
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");;
 
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setImage("OpenDungeons/MouseArrow");
-    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltip(new CEGUI::Tooltip("OD","Tooltip"));
+    CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipObject(new CEGUI::Tooltip("OD","Tooltip"));
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     sheets[hideGui] = 0;

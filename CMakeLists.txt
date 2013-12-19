@@ -373,7 +373,14 @@ target_link_libraries(
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES}
 )
-    
+
+# Ogre 1.9 requires OgreOverlay to be linked as well; TODO: add this to FindOgre script
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    target_link_libraries(${PROJECT_BINARY_NAME} OgreOverlay_d)
+else()
+    target_link_libraries(${PROJECT_BINARY_NAME} OgreOverlay)
+endif()
+
 # MSVC automatically links boost
 if(NOT MSVC)
     target_link_libraries(${PROJECT_BINARY_NAME} ${Boost_LIBRARIES})

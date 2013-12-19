@@ -63,7 +63,9 @@ MiniMap::MiniMap(GameMap* gm) :
     //old draw code
     //old CEGUI code 
 
-    CEGUI::Texture& miniMapTextureGui
+    // Temporarily disabled until new CEGUI version works
+    // Working game UI needed to test a a possible fix for this!
+    /*CEGUI::Texture& miniMapTextureGui
             = static_cast<CEGUI::OgreRenderer*>(CEGUI::System::getSingletonPtr()
 						->getRenderer())->createTexture("miniMapTextureGui", miniMapOgreTexture);
 
@@ -79,7 +81,7 @@ MiniMap::MiniMap(GameMap* gm) :
                     &imageset.getImage("MiniMapImage")));   
     
     miniMapOgreTexture->load();
-    updatedCreatureIndex = gameMap->creatures.begin();
+    updatedCreatureIndex = gameMap->creatures.begin();*/
 }
 
 MiniMap::~MiniMap()
