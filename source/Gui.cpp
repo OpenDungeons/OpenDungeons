@@ -45,7 +45,7 @@ Gui::Gui() :
 {
     CEGUI::OgreRenderer::bootstrapSystem();
     //CEGUI::SchemeManager::getSingleton().create("OpenDungeonsSkin.scheme");
-    CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");;
+    CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");
 
     CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setImage("OpenDungeons/MouseArrow");
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipObject(new CEGUI::Tooltip("OD","Tooltip"));
@@ -56,7 +56,9 @@ Gui::Gui() :
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
     sheets[editorToolBox] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorToolBox.layout");
     mainMenuMode = false;
+
     assignEventHandlers();
+    //loadGuiSheet(mainMenu);
 }
 
 Gui::~Gui()
@@ -98,78 +100,143 @@ void Gui::loadGuiSheet(const guiSheet& newSheet)
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().markAsDirty();
 }
 
+CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
+{
+    if (sheets.find(sheet) != sheets.end())
+    {
+        return sheets[sheet];
+    }
+    return NULL;
+}
+
+
 /*! \brief Assigns all event handlers to the GUI elements
  */
 void Gui::assignEventHandlers()
 {
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_QUARTERS)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&quartersButtonPressed));
+    std::cout << "Gui::assignEventHandlers()" << std::endl;
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_TREASURY)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&treasuryButtonPressed));
+    loadGuiSheet(ingameMenu);
+    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_FORGE)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&forgeButtonPressed));
+    if (rootWindow != NULL)
+    {
+        std::cout << " root window children count: " << CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChildCount() << std::endl;
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_DOJO)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&dojoButtonPressed));
+        for (int k = 0; k < rootWindow->getChildCount(); k++)
+        {
+            CEGUI::Window* childWindow = rootWindow->getChildAtIdx(k);
+            std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
+        }
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_CANNON)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&cannonButtonPressed));
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_QUARTERS)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&quartersButtonPressed));
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_HOST)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&serverButtonPressed));
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_TREASURY)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_QUIT)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&quitButtonPressed));
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_FORGE)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_START_NEW_GAME)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_DOJO)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&dojoButtonPressed));
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMMapEditorButtonPressed));
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_CANNON)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_QUIT)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mMQuitButtonPressed));
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_HOST)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&serverButtonPressed));
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MINIMAP)->subscribeEvent(
-	    CEGUI:: Window::EventMouseClick,
-	    CEGUI::Event::Subscriber(&miniMapclicked));
-        
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_LAVA_BUTTON)->subscribeEvent(
-	    CEGUI:: Window::EventMouseClick,
-	    CEGUI::Event::Subscriber(&tpLavaButtonPressed));
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_QUIT)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&quitButtonPressed));
+    }
+    else
+    {
+        std::cerr << "ERROR: No Root window pointer!!!" << std::endl;
+    }
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_GOLD_BUTTON)->subscribeEvent(
-	    CEGUI:: Window::EventMouseClick,
-	    CEGUI::Event::Subscriber(&tpGoldButtonPressed));
+    loadGuiSheet(mainMenu);
+    rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
+    if (rootWindow != NULL)
+    {
+        for (int k = 0; k < rootWindow->getChildCount(); k++)
+        {
+            CEGUI::Window* childWindow = rootWindow->getChildAtIdx(k);
+            std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_ROCK_BUTTON)->subscribeEvent(
-	    CEGUI:: Window::EventMouseClick,
-	    CEGUI::Event::Subscriber(&tpRockButtonPressed));
+            for (int l = 0; l < childWindow->getChildCount(); l++)
+            {
+                CEGUI::Window* childWindow2 = childWindow->getChildAtIdx(l);
+                std::cout << "   - " << l << ": " << childWindow2->getName() << " -- " << childWindow2->getNamePath() << std::endl;
+            }
+        }
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_WATER_BUTTON)->subscribeEvent(
-	    CEGUI:: Window::EventMouseClick,
-	    CEGUI::Event::Subscriber(&tpWaterButtonPressed));
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_START_NEW_GAME)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_DIRT_BUTTON)->subscribeEvent(
-	    CEGUI:: Window::EventMouseClick,
-	    CEGUI::Event::Subscriber(&tpDirtButtonPressed));
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&mMMapEditorButtonPressed));
 
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_QUIT)->subscribeEvent(
+                CEGUI::PushButton::EventClicked,
+                CEGUI::Event::Subscriber(&mMQuitButtonPressed));
+    }
+    else
+    {
+        std::cerr << "ERROR: No Root window pointer!!!" << std::endl;
+    }
 
-    
+    loadGuiSheet(editorToolBox);
+    rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
+    if (rootWindow != NULL)
+    {
+        for (int k = 0; k < rootWindow->getChildCount(); k++)
+        {
+            CEGUI::Window* childWindow = rootWindow->getChildAtIdx(k);
+            std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
+        }
+
+        /*CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MINIMAP)->subscribeEvent(
+            CEGUI:: Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&miniMapclicked));
+
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_LAVA_BUTTON)->subscribeEvent(
+            CEGUI:: Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&tpLavaButtonPressed));
+
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_GOLD_BUTTON)->subscribeEvent(
+            CEGUI:: Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&tpGoldButtonPressed));
+
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_ROCK_BUTTON)->subscribeEvent(
+            CEGUI:: Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&tpRockButtonPressed));
+
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_WATER_BUTTON)->subscribeEvent(
+            CEGUI:: Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&tpWaterButtonPressed));
+
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_DIRT_BUTTON)->subscribeEvent(
+            CEGUI:: Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&tpDirtButtonPressed));*/
+    }
+    else
+    {
+        std::cerr << "ERROR: No Root window pointer!!!" << std::endl;
+    }
+
+    //loadGuiSheet(mainMenu);
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
@@ -376,30 +443,50 @@ void Gui::setVisible(bool visible)
  */
 //TODO: Probably these should be read from a file? Script file?
 const std::string Gui::ROOT = "Root";
-const std::string Gui::DISPLAY_GOLD = "Root/GoldDisplay";
-const std::string Gui::DISPLAY_MANA = "Root/ManaDisplay";
-const std::string Gui::DISPLAY_TERRITORY = "Root/TerritoryDisplay";
-const std::string Gui::MINIMAP = "Root/MiniMap";
-const std::string Gui::MESSAGE_WINDOW = "Root/MessagesDisplayWindow";
-const std::string Gui::MAIN_TABCONTROL = "Root/MainTabControl";
-const std::string Gui::TAB_ROOMS = "Root/MainTabControl/Rooms";
-const std::string Gui::BUTTON_QUARTERS = "Root/MainTabControl/Rooms/QuartersButton";
-const std::string Gui::BUTTON_FORGE = "Root/MainTabControl/Rooms/ForgeButton";
-const std::string Gui::BUTTON_DOJO = "Root/MainTabControl/Rooms/DojoButton";
-const std::string Gui::BUTTON_TREASURY = "Root/MainTabControl/Rooms/TreasuryButton";
-const std::string Gui::TAB_TRAPS = "Root/MainTabControl/Traps";
-const std::string Gui::BUTTON_CANNON = "Root/MainTabControl/Traps/CannonButton";
-const std::string Gui::TAB_SPELLS = "Root/MainTabControl/Spells";
-const std::string Gui::TAB_CREATURES = "Root/MainTabControl/Creatures";
-const std::string Gui::TAB_COMBAT = "Root/MainTabControl/Combat";
-const std::string Gui::TAB_SYSTEM = "Root/MainTabControl/System";
-const std::string Gui::BUTTON_HOST = "Root/MainTabControl/System/HostButton";
-const std::string Gui::BUTTON_QUIT = "Root/MainTabControl/System/QuitButton";
+//const std::string Gui::DISPLAY_GOLD = "Root/GoldDisplay";
+//const std::string Gui::DISPLAY_MANA = "Root/ManaDisplay";
+//const std::string Gui::DISPLAY_TERRITORY = "Root/TerritoryDisplay";
+//const std::string Gui::MINIMAP = "Root/MiniMap";
+//const std::string Gui::MESSAGE_WINDOW = "Root/MessagesDisplayWindow";
+//const std::string Gui::MAIN_TABCONTROL = "Root/MainTabControl";
+//const std::string Gui::TAB_ROOMS = "Root/MainTabControl/Rooms";
+//const std::string Gui::BUTTON_QUARTERS = "Root/MainTabControl/Rooms/QuartersButton";
+//const std::string Gui::BUTTON_FORGE = "Root/MainTabControl/Rooms/ForgeButton";
+//const std::string Gui::BUTTON_DOJO = "Root/MainTabControl/Rooms/DojoButton";
+//const std::string Gui::BUTTON_TREASURY = "Root/MainTabControl/Rooms/TreasuryButton";
+//const std::string Gui::TAB_TRAPS = "Root/MainTabControl/Traps";
+//const std::string Gui::BUTTON_CANNON = "Root/MainTabControl/Traps/CannonButton";
+//const std::string Gui::TAB_SPELLS = "Root/MainTabControl/Spells";
+//const std::string Gui::TAB_CREATURES = "Root/MainTabControl/Creatures";
+//const std::string Gui::TAB_COMBAT = "Root/MainTabControl/Combat";
+//const std::string Gui::TAB_SYSTEM = "Root/MainTabControl/System";
+//const std::string Gui::BUTTON_HOST = "Root/MainTabControl/System/HostButton";
+//const std::string Gui::BUTTON_QUIT = "Root/MainTabControl/System/QuitButton";
+const std::string Gui::DISPLAY_GOLD = "GoldDisplay";
+const std::string Gui::DISPLAY_MANA = "ManaDisplay";
+const std::string Gui::DISPLAY_TERRITORY = "TerritoryDisplay";
+const std::string Gui::MINIMAP = "MiniMap";
+const std::string Gui::MESSAGE_WINDOW = "MessagesDisplayWindow";
+const std::string Gui::MAIN_TABCONTROL = "MainTabControl";
+const std::string Gui::TAB_ROOMS = "MainTabControl/Rooms";
+const std::string Gui::BUTTON_QUARTERS = "MainTabControl/Rooms/QuartersButton";
+const std::string Gui::BUTTON_FORGE = "MainTabControl/Rooms/ForgeButton";
+const std::string Gui::BUTTON_DOJO = "MainTabControl/Rooms/DojoButton";
+const std::string Gui::BUTTON_TREASURY = "MainTabControl/Rooms/TreasuryButton";
+const std::string Gui::TAB_TRAPS = "MainTabControl/Traps";
+const std::string Gui::BUTTON_CANNON = "MainTabControl/Traps/CannonButton";
+const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
+const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
+const std::string Gui::TAB_COMBAT = "MainTabControl/Combat";
+const std::string Gui::TAB_SYSTEM = "MainTabControl/System";
+const std::string Gui::BUTTON_HOST = "MainTabControl/System/HostButton";
+const std::string Gui::BUTTON_QUIT = "MainTabControl/System/QuitButton";
+
 const std::string Gui::MM = "MainMenu";
-const std::string Gui::MM_WELCOME_MESSAGE = "MainMenu/WelcomeMessage";
-const std::string Gui::MM_BUTTON_START_NEW_GAME = "MainMenu/StartNewGameButton";
-const std::string Gui::MM_BUTTON_MAPEDITOR = "MainMenu/MapEditorButton";
-const std::string Gui::MM_BUTTON_QUIT = "MainMenu/QuitButton";
+const std::string Gui::MM_WELCOME_MESSAGE = "Background/WelcomeMessage";
+const std::string Gui::MM_BUTTON_START_NEW_GAME = "Background/StartNewGameButton";
+const std::string Gui::MM_BUTTON_MAPEDITOR = "Background/MapEditorButton";
+const std::string Gui::MM_BUTTON_QUIT = "Background/QuitButton";
 const std::string Gui::TOOLSPALETE = "TOOLSPALETE";
 const std::string Gui::CREATURESSHUFFLE = "TOOLSPALETE/CreaturesShuffle";
 

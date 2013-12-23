@@ -38,20 +38,21 @@ class Gui : public Ogre::Singleton<Gui>
             mainMenu,
             optionsMenu,
             ingameMenu,
-	    editorToolBox,
-	    creaturesShuffle,
+            editorToolBox,
+            creaturesShuffle,
         };
 
         Gui();
         ~Gui();
 	
-	static void         setModeManager(ModeManager* mm){modeManager = mm;};
+        static void         setModeManager(ModeManager* mm) {modeManager = mm;}
         void                loadGuiSheet    (const guiSheet& newSheet);
         CEGUI::MouseButton  convertButton   (const OIS::MouseButtonID& buttonID);
         void                setVisible      (bool visible);
         void                toggleGui       ();
-	void                switchGuiMode();
+        void                switchGuiMode();
 
+        CEGUI::Window* getGuiSheet(const guiSheet&);
 
         //Access names of the GUI elements
         static const std::string ROOT;
@@ -79,12 +80,12 @@ class Gui : public Ogre::Singleton<Gui>
         static const std::string MM_BUTTON_START_NEW_GAME;
         static const std::string MM_BUTTON_MAPEDITOR;
         static const std::string MM_BUTTON_QUIT;
-	static const std::string TOOLSPALETE;
-	static const std::string TOOLSPALETE_LAVA_BUTTON;
-	static const std::string TOOLSPALETE_GOLD_BUTTON;
-	static const std::string TOOLSPALETE_ROCK_BUTTON;
-	static const std::string TOOLSPALETE_WATER_BUTTON;
-	static const std::string TOOLSPALETE_DIRT_BUTTON;
+        static const std::string TOOLSPALETE;
+        static const std::string TOOLSPALETE_LAVA_BUTTON;
+        static const std::string TOOLSPALETE_GOLD_BUTTON;
+        static const std::string TOOLSPALETE_ROCK_BUTTON;
+        static const std::string TOOLSPALETE_WATER_BUTTON;
+        static const std::string TOOLSPALETE_DIRT_BUTTON;
         static const std::string CREATURESSHUFFLE;
 
 
@@ -96,21 +97,20 @@ class Gui : public Ogre::Singleton<Gui>
         void assignEventHandlers();
 
         std::map<guiSheet, CEGUI::Window*> sheets;
-	bool mainMenuMode;
+        bool mainMenuMode;
         guiSheet activeSheet;
 
 
-
         //Button ToolsBox
-	static bool tpLavaButtonPressed(const CEGUI::EventArgs& e);
-	static bool tpGoldButtonPressed(const CEGUI::EventArgs& e);
-	static bool tpRockButtonPressed(const CEGUI::EventArgs& e);
-	static bool tpWaterButtonPressed(const CEGUI::EventArgs& e);
-	static bool tpDirtButtonPressed(const CEGUI::EventArgs& e);
+        static bool tpLavaButtonPressed(const CEGUI::EventArgs& e);
+        static bool tpGoldButtonPressed(const CEGUI::EventArgs& e);
+        static bool tpRockButtonPressed(const CEGUI::EventArgs& e);
+        static bool tpWaterButtonPressed(const CEGUI::EventArgs& e);
+        static bool tpDirtButtonPressed(const CEGUI::EventArgs& e);
 
 
         //Button handlers game UI
-	static bool miniMapclicked          (const CEGUI::EventArgs& e);
+        static bool miniMapclicked          (const CEGUI::EventArgs& e);
         static bool quitButtonPressed       (const CEGUI::EventArgs& e);
         static bool quartersButtonPressed   (const CEGUI::EventArgs& e);
         static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);

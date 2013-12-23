@@ -84,14 +84,22 @@ ODApplication::ODApplication() :
     new Translation();
     new GameStateManager();
     //RenderManager* renderMgr = new RenderManager();
+
+    mOverlaySystem = new Ogre::OverlaySystem();
+
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
     new Gui();
-    new TextRenderer();
+
     new MusicPlayer();
     //TODO: Main menu should display without having the map loaded, but
     //      this needs refactoring at some other places, too
     Gui::getSingletonPtr()->loadGuiSheet(Gui::mainMenu);
+
+
+
+    new TextRenderer();
+
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
                                             10, 50, 70, Ogre::ColourValue::Green);
     //TODO - move this to when the map is actually loaded
@@ -137,7 +145,8 @@ ODApplication::ODApplication() :
     new Console();
 
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
-    root->addFrameListener(new ODFrameListener(window));
+    mFrameListener = new ODFrameListener(window);
+    root->addFrameListener(mFrameListener);
     //TODO: This should be moved once we have separated level loading from startup.
 
 
@@ -146,9 +155,11 @@ ODApplication::ODApplication() :
 
 	root->startRendering();
     
+    //sm->removeRenderQueueListener(mOverlaySystem);
+
     //Moved out from cleanup, as we only want to remove it if it exists.
     root->removeFrameListener(ODFrameListener::getSingletonPtr());
-	} catch( const Ogre::Exception& e ) {
+    } catch( const Ogre::Exception& e ) {
 		std::cerr<< "An internal Ogre3D error ocurred: " << e.getFullDescription() << std::endl;
 		displayErrorMessage("Internal Ogre3D exception: " + e.getFullDescription());
 	}
@@ -183,7 +194,7 @@ void ODApplication::displayErrorMessage(const std::string& message, bool log)
  */
 void ODApplication::cleanUp()
 {
-    delete ODFrameListener::getSingletonPtr();
+    delete mFrameListener; //ODFrameListener::getSingletonPtr();
     delete MusicPlayer::getSingletonPtr();
     delete TextRenderer::getSingletonPtr();
     delete Gui::getSingletonPtr();

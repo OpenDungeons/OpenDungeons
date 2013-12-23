@@ -61,8 +61,8 @@ friend class Console;
         ODFrameListener(Ogre::RenderWindow* win);
         virtual ~ODFrameListener();
 
-	void makeEditorContext();
-	void makeGameContext();
+        void makeEditorContext();
+        void makeGameContext();
         void requestExit();
         bool getThreadStopRequested();
         void setThreadStopRequested(bool value);

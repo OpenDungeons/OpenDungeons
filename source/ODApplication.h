@@ -12,7 +12,10 @@
 #include <OgreRoot.h>
 #include <OgreCompositorManager.h>
 
+#include <OGRE/Overlay/OgreOverlaySystem.h>
+
 class GameMap;
+class ODFrameListener;
 
 /*! Base class which manages the startup of OpenDungeons.
  */
@@ -41,6 +44,9 @@ class ODApplication : public Ogre::Singleton<ODApplication>
         ~ODApplication();
         Ogre::Root* root;
         Ogre::RenderWindow* window;
+
+        Ogre::OverlaySystem* mOverlaySystem;
+        ODFrameListener* mFrameListener;
 
         //TODO: this should not be created here.
         //GameMap* gameMap;

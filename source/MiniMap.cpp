@@ -34,16 +34,23 @@ MiniMap::MiniMap(GameMap* gm) :
 	tiles(NULL),
 	grainSize(4),
         miniMapOgreTexture(0),
-        width(  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
-        height( CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_height),
-	topLeftCornerX(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
-        topLeftCornerY(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),	
-	pixelBox(new Ogre::PixelBox (width, height, 0, Ogre::PF_R8G8B8))
+        //width(  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
+        //height( CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_height),
+        //topLeftCornerX(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
+        //topLeftCornerY(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
+        pixelBox(new Ogre::PixelBox (width, height, 0, Ogre::PF_R8G8B8))
 {
     /* TODO: separate some of this code in own functions to make it possible
      * to change cameras from outside (for example to recalculate it after a
      * new level was loaded)
      */
+
+    CEGUI::Window* inGameMenu = Gui::getSingleton().getGuiSheet(Gui::ingameMenu);
+    width  = inGameMenu->getChild(Gui::MINIMAP)->getPixelSize().d_width;
+    height = inGameMenu->getChild(Gui::MINIMAP)->getPixelSize().d_height;
+    topLeftCornerX = inGameMenu->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_x;
+    topLeftCornerY = inGameMenu->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_y;
+
     gameMap->miniMap=this;
     allocateMiniMapMemory();
     // Image blank_image( Geometry(400, 300), Color(MaxRGB, MaxRGB, MaxRGB, 0));
@@ -64,7 +71,7 @@ MiniMap::MiniMap(GameMap* gm) :
     //old CEGUI code 
 
     // Temporarily disabled until new CEGUI version works
-    // Working game UI needed to test a a possible fix for this!
+    // Working game UI needed to test a possible fix for this!
     /*CEGUI::Texture& miniMapTextureGui
             = static_cast<CEGUI::OgreRenderer*>(CEGUI::System::getSingletonPtr()
 						->getRenderer())->createTexture("miniMapTextureGui", miniMapOgreTexture);

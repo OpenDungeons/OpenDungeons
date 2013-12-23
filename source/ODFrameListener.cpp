@@ -87,7 +87,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
 	culm(NULL)
 	
 {
-    Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager", "SceneManager");
+    Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
 
     gameMap = new GameMap;
     //FIXME game Map should be read at this point, instead , at the below I set map sizes manually paul424
