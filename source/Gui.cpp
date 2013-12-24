@@ -51,10 +51,18 @@ Gui::Gui() :
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipObject(new CEGUI::Tooltip("OD","Tooltip"));
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
+    CEGUI::Window* root = wmgr->createWindow("OD/FrameWindow",Gui::ROOT);
     sheets[hideGui] = 0;
     sheets[ingameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
     sheets[editorToolBox] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorToolBox.layout");
+    root->addChild(sheets[ingameMenu]);
+    root->addChild(sheets[mainMenu]);
+    root->addChild(sheets[editorToolBox]);
+
+
+    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(root);
+
     mainMenuMode = false;
 
     assignEventHandlers();

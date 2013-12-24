@@ -32,13 +32,13 @@
 MiniMap::MiniMap(GameMap* gm) :
         gameMap(gm),
 	tiles(nullptr),
-	grainSize(4)
+	grainSize(4),
         // miniMapOgreTexture(0)
-        //width(  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
-        //height( CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_height),
-        //topLeftCornerX(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
-        //topLeftCornerY(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
-        // pixelBox(nullptr)
+        width(  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
+        height( CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_height),
+        topLeftCornerX(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
+        topLeftCornerY(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
+        pixelBox(new Ogre::PixelBox (width, height, 0, Ogre::PF_R8G8B8))
 {
     /* TODO: separate some of this code in own functions to make it possible
      * to change cameras from outside (for example to recalculate it after a
