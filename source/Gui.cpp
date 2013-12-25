@@ -103,9 +103,9 @@ CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
 void Gui::loadGuiSheet(const guiSheet& newSheet)
 {
     activeSheet = newSheet;
-    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(sheets[newSheet]);
+    sheets[activeSheet]->activate();
     //This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
-    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().markAsDirty();
+    
 }
 
 CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
