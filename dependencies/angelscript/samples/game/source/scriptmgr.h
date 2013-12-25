@@ -24,17 +24,18 @@ public:
 
 protected:
 	void MessageCallback(const asSMessageInfo &msg);
-	asIScriptContext *PrepareContextFromPool(int funcId);
+	asIScriptContext *PrepareContextFromPool(asIScriptFunction *func);
 	void ReturnContextToPool(asIScriptContext *ctx);
 	int ExecuteCall(asIScriptContext *ctx);
 
 	struct SController
 	{
-		std::string module;
-		asIObjectType *type;
-		int factoryFuncId;
-		int onThinkMethodId;
-		int onMessageMethodId;
+		SController() : type(0), factoryFunc(0), onThinkMethod(0), onMessageMethod(0) {}
+		std::string        module;
+		asIObjectType     *type;
+		asIScriptFunction *factoryFunc;
+		asIScriptFunction *onThinkMethod;
+		asIScriptFunction *onMessageMethod;
 	};
 
 	SController *GetControllerScript(const std::string &type);

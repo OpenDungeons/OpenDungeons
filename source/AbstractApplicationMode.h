@@ -1,43 +1,70 @@
 #ifndef ABSTRACTAPPLICATIONMODE_H
 #define ABSTRACTAPPLICATIONMODE_H
-
 #include <OIS/OISMouse.h>
+#include <OIS/OISKeyboard.h>
 
-class GameStateManager;
-namespace Ogre { class FrameEvent; }
-namespace OIS { class KeyEvent; }
+#include "Tile.h"
+#include "ModeManager.h"
+#include "ModeContext.h"
 
 
-class AbstractApplicationMode
+class ODFrameListener;
+class GameMap;
+class MiniMap;
+class Player;
+
+using std::endl; using std::cout;
+
+class AbstractApplicationMode :
+    public OIS::MouseListener,
+    public OIS::KeyListener
 {
 
+  protected:
+    ModeContext* mc;
 
-    enum ApplicationState {
-        MENU,
-        GAME,
-        EDITOR,
-	FPP,
-	CONSOLE
-    };
 
-public:
-    AbstractApplicationMode(GameStateManager* gameStateManager, AbstractApplicationMode* parentState);
-    virtual ~AbstractApplicationMode();
+  public:
+    AbstractApplicationMode(ModeContext *modeContext):mc(modeContext){};
+    virtual ~AbstractApplicationMode(){};
+
+    virtual bool mouseMoved     (const OIS::MouseEvent &arg)=0;
+    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id)=0;
+    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id)=0;
+    virtual bool keyPressed     (const OIS::KeyEvent &arg)=0;
+    virtual bool keyReleased    (const OIS::KeyEvent &arg)=0;
+    virtual void handleHotkeys  (OIS::KeyCode keycode)=0;
+    inline void progressMode (ModeManager::ModeType mm){mc->changed=true; mc->nextMode= mm ;}; 
+    inline void regressMode(){mc->changed=true; mc->nextMode= ModeManager::PREV ;};
+
+
     
-    virtual bool frameStarted   (const Ogre::FrameEvent& evt) = 0;
-    virtual bool mouseMoved     (const OIS::MouseEvent &arg) = 0;
-    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) = 0;
-    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id) = 0;
-    virtual bool keyPressed     (const OIS::KeyEvent &arg) = 0;
-    virtual bool keyReleased    (const OIS::KeyEvent &arg) = 0;
-protected:
-    inline GameStateManager* getGameStateManager()
+    inline virtual OIS::Mouse*      getMouse() =0;
+    inline virtual OIS::Keyboard*   getKeyboard() =0;
+
+    enum DragType
     {
-        return gameStateManager;
-    }
-private:
-    GameStateManager* const gameStateManager;
-    AbstractApplicationMode* const parentState;
+	creature,
+	mapLight,
+	tileSelection,
+	tileBrushSelection,
+	addNewRoom,
+	addNewTrap,
+	rotateAxisX,
+	rotateAxisY,
+	nullDragType
+    };
+	
+    virtual void giveFocus()=0 ; 
+    virtual bool isInGame()=0  ;
+	
+
+
 };
+
+/* #endif /\* INPUTMANAGER_H_ *\/ */
+
+
+
 
 #endif // ABSTRACTAPPLICATIONMODE_H

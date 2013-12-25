@@ -21,7 +21,7 @@
 #include "MiniMap.h"
 #include "LogManager.h"
 #include "Translation.h"
-#include "Director.h"
+#include "GameStateManager.h"
 #include "CameraManager.h"
 #include "ASWrapper.h"
 #include "Console.h"
@@ -35,7 +35,7 @@
 #include "ODApplication.h"
 
 template<> ODApplication*
-        Ogre::Singleton<ODApplication>::ms_Singleton = 0;
+Ogre::Singleton<ODApplication>::msSingleton = 0;
 
 /*! Initializes the Application along with the ResourceManager
  *
@@ -44,6 +44,7 @@ ODApplication::ODApplication() :
         root(0),
         window(0)
 {
+    try {
     sem_init(&MapLight::lightNumberLockSemaphore, 0, 1);
     sem_init(&MissileObject::missileObjectUniqueNumberLockSemaphore, 0, 1);
     sem_init(&ServerNotification::serverNotificationQueueSemaphore, 0, 0);
@@ -53,12 +54,12 @@ ODApplication::ODApplication() :
     sem_init(&GameMap::creatureAISemaphore, 0, 1);
 
     Random::initialize();
-
+    
     ResourceManager* resMgr = new ResourceManager;
     root = new Ogre::Root(
-            resMgr->getPluginsPath(),
-            resMgr->getCfgFile(),
-            resMgr->getLogFile());
+        resMgr->getPluginsPath(),
+        resMgr->getCfgFile(),
+        resMgr->getLogFile());
 
     resMgr->setupResources();
 
@@ -81,27 +82,35 @@ ODApplication::ODApplication() :
     LogManager* logManager = new LogManager();
     logManager->setLogDetail(Ogre::LL_BOREME);
     new Translation();
-    new Director();
+    new GameStateManager();
     //RenderManager* renderMgr = new RenderManager();
+
+    mOverlaySystem = new Ogre::OverlaySystem();
+
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
     new Gui();
-    new TextRenderer();
+
     new MusicPlayer();
     //TODO: Main menu should display without having the map loaded, but
     //      this needs refactoring at some other places, too
     Gui::getSingletonPtr()->loadGuiSheet(Gui::mainMenu);
+
+
+
+    new TextRenderer();
+
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
-                10, 50, 70, Ogre::ColourValue::Green);
+                                            10, 50, 70, Ogre::ColourValue::Green);
     //TODO - move this to when the map is actually loaded
     MusicPlayer::getSingleton().start(0);
 
     //TODO: this should not be created here.
-//    gameMap = new GameMap;
-//    renderMgr->setGameMap(gameMap);
+    //gameMap = new GameMap;
+    //renderMgr->setGameMap(gameMap);
 
     //FIXME: do this only if a level loads after the main menu
-    //Try to create the camera, viewport and scene. 
+    //Try to create the camera, viewport and scene.
     /*
     try
     {
@@ -111,6 +120,9 @@ ODApplication::ODApplication() :
         renderMgr->createViewports();
         logManager->logMessage("Creating scene...", Ogre::LML_NORMAL);
         renderMgr->createScene();
+        logManager->logMessage("Creating compositors...", Ogre::LML_NORMAL);
+	renderMgr->createCompositors();
+      
     }
     catch(Ogre::Exception& e)
     {
@@ -127,46 +139,37 @@ ODApplication::ODApplication() :
         return;
     }*/
 
-    //new CameraManager(renderMgr->getCamera());
-    logManager->logMessage("*** Creating frame listener *** ", Ogre::LML_NORMAL);
-    root->addFrameListener(new ODFrameListener(window));
-    logManager->logMessage("*** Frame listener created *** ", Ogre::LML_NORMAL);
-    //TODO: This should be moved once we have separated level loading from startup.
-    
-
-    //FIXME: This should be at a better place (when level loads for the first time)
-    //new MiniMap;
-
+    //new CameraManager(renderMgr->getActiveCamera());
     //FIXME: Is this the best place for instanciating these two?
     //Console needs to exist BEFORE ASWrapper because it needs it for callback
     new Console();
-    new ASWrapper();
-    try
-    {
-        root->startRendering();
-    }
-    catch(Ogre::Exception& e)
-    {
-        displayErrorMessage("Ogre exception:\n"
-            + e.getFullDescription());
-        cleanUp();
-        return;
-    }
-    catch(std::exception& e)
-    {
-        displayErrorMessage("Exception:\n"
-            + std::string(e.what()));
-        cleanUp();
-        return;
-    }
+
+    logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
+    mFrameListener = new ODFrameListener(window);
+    root->addFrameListener(mFrameListener);
+    //TODO: This should be moved once we have separated level loading from startup.
+
+
+    //FIXME: This should be at a better place (when level loads for the first time)
+    // new MiniMap;
+
+	root->startRendering();
+    
+    //sm->removeRenderQueueListener(mOverlaySystem);
+
     //Moved out from cleanup, as we only want to remove it if it exists.
     root->removeFrameListener(ODFrameListener::getSingletonPtr());
-    cleanUp();
+    } catch( const Ogre::Exception& e ) {
+		std::cerr<< "An internal Ogre3D error ocurred: " << e.getFullDescription() << std::endl;
+		displayErrorMessage("Internal Ogre3D exception: " + e.getFullDescription());
+	}
+	// Will be called even if an Ogre::Exception was thrown
+	cleanUp();
 }
 
 ODApplication::~ODApplication()
 {
-    if(root)
+    if (root)
     {
         delete root;
     }
@@ -177,7 +180,7 @@ ODApplication::~ODApplication()
  */
 void ODApplication::displayErrorMessage(const std::string& message, bool log)
 {
-    if(log)
+    if (log)
     {
         LogManager::getSingleton().logMessage(message, Ogre::LML_CRITICAL);
     }
@@ -191,18 +194,15 @@ void ODApplication::displayErrorMessage(const std::string& message, bool log)
  */
 void ODApplication::cleanUp()
 {
-    delete MiniMap::getSingletonPtr();
-
-    delete ODFrameListener::getSingletonPtr();
+    delete mFrameListener; //ODFrameListener::getSingletonPtr();
     delete MusicPlayer::getSingletonPtr();
     delete TextRenderer::getSingletonPtr();
     delete Gui::getSingletonPtr();
     delete SoundEffectsHelper::getSingletonPtr();
     delete RenderManager::getSingletonPtr();
-    delete Director::getSingletonPtr();
+    delete GameStateManager::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
-    delete CameraManager::getSingletonPtr();
     delete Console::getSingletonPtr();
     delete ASWrapper::getSingletonPtr();
     //delete gameMap;

@@ -1,7 +1,7 @@
 /*!
  * \file   ODFrameListener.h
  * \date   09 April 2011
- * \author Ogre team, andrewbuck, oln, StefanP.MUC
+ * \auth	(require 'ecb)or Ogre team, andrewbuck, oln, StefanP.MUC
  * \brief  Handles the input and rendering request
  */
 
@@ -11,15 +11,15 @@
 #include <deque>
 #include <vector>
 
-#include <boost/shared_ptr.hpp>
-
 #include <pthread.h>
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 #include <OgreSingleton.h>
 #include <OgreSceneQuery.h>
 #include <OgreTimer.h>
-#include <CEGUIEventArgs.h>
+#include <CEGUI/EventArgs.h>
+
+
 
 //Use this define to signify OIS will be used as a DLL
 //(so that dll import/export macros are in effect)
@@ -28,14 +28,20 @@
 
 #include "ProtectedObject.h"
 
-class GameContext;
 class Socket;
 class RenderManager;
-class InputManager;
+class AbstractApplicationMode;
+class ModeManager;
+class GameMode;
 class CameraManager;
 class SoundEffectsHelper;
 class ChatMessage;
 class GameMap;
+class MiniMap;
+class GameContext;
+class EditorContext;
+class CameraManager;
+class CullingManager;
 
 /*! \brief The main OGRE rendering class.
  *
@@ -49,10 +55,14 @@ class ODFrameListener :
         public Ogre::FrameListener,
         public Ogre::WindowEventListener
 {
+friend class Console;
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
         ODFrameListener(Ogre::RenderWindow* win);
         virtual ~ODFrameListener();
+
+        void makeEditorContext();
+        void makeGameContext();
         void requestExit();
         bool getThreadStopRequested();
         void setThreadStopRequested(bool value);
@@ -84,11 +94,8 @@ class ODFrameListener :
         bool quit(const CEGUI::EventArgs &e);
         Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
 
-        // Console functions
-        void printText(const std::string& text);
-        bool executePromptCommand(const std::string& command, std::string arguments);
-        std::string getHelpText(std::string arg);
-
+	void printText(const std::string& text);
+	    
         //NOTE - we should generally avoid using this function
         inline GameMap* getGameMap() {return gameMap;}
         
@@ -107,6 +114,8 @@ class ODFrameListener :
         pthread_t clientNotificationThread;
         std::vector<pthread_t*> clientHandlerThreads;
         pthread_t creatureThread;
+        CameraManager*          cm;
+        CullingManager*        culm;
 
     private:
         ODFrameListener(const ODFrameListener&);
@@ -114,8 +123,8 @@ class ODFrameListener :
         Ogre::RenderWindow*     mWindow;
         Ogre::RaySceneQuery*    mRaySceneQuery;
         RenderManager*          renderManager;
-        CameraManager*          cameraManager;
-        InputManager*           inputManager;
+
+        ModeManager*            inputManager;
         SoundEffectsHelper*     sfxHelper;
         bool                    mContinue;
         bool                    terminalActive;
@@ -128,11 +137,14 @@ class ODFrameListener :
         Ogre::SceneNode*        roomSceneNode;
         Ogre::SceneNode*        fieldSceneNode;
         Ogre::SceneNode*        lightSceneNode;
+        Ogre::SceneNode*        rockSceneNode;
         Ogre::Timer             statsDisplayTimer;
         GameMap*                gameMap;
-        
-        boost::shared_ptr<GameContext>    gameContext;
+	MiniMap*                miniMap;
 
+
+	GameContext*   gc;
+	EditorContext*   ed;
         std::vector<Ogre::ColourValue> playerColourValues;
 
         //To see if the frameListener wants to exit

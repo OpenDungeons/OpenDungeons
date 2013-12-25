@@ -112,7 +112,7 @@ int main(int argc, char **argv)
 	r = CompileScript(engine);
 	if( r < 0 ) return -1;
 
-	contextMgr.AddContext(engine, engine->GetModule("script")->GetFunctionIdByDecl("void main()"));
+	contextMgr.AddContext(engine, engine->GetModule("script")->GetFunctionByDecl("void main()"));
 	
 	// Print some useful information and start the input loop
 	cout << "This sample shows how to use co-routines with AngelScript. Co-routines" << endl; 

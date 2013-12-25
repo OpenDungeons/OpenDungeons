@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Light xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/LightScheme.xsd">
+    <posX>38</posX>
+    <posY>-64</posY>
+    <posZ>3.75</posZ>
+    <Diffuse>
+        <Red>0</Red>
+        <Green>0</Green>
+        <Blue>0.9</Blue>
+    </Diffuse>
+    <Specular>
+        <Red>0.6</Red>
+        <Green>0.6</Green>
+        <Blue>0.6</Blue>
+    </Specular>
+    <Attenuation>
+        <Range>50</Range>
+        <Const>0.005</Const>
+        <Linear>0.25</Linear>
+        <Quadraple>0.0013</Quadraple>
+    </Attenuation>
+</Light>

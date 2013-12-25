@@ -1,4 +1,6 @@
 #include <cstddef>
+#include <bitset>
+
 
 #include "Functions.h"
 #include "Creature.h"
@@ -10,12 +12,13 @@
 #include "SoundEffectsHelper.h"
 #include "RenderManager.h"
 #include "Socket.h"
-
-#include "Tile.h"
 #include "Player.h"
+#include "Tile.h"
+
+
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#define snprintf _snprintf
+#define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
 /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
@@ -23,6 +26,14 @@
  * In addition to setting the tile type this function also reloads the new mesh
  * for the tile.
  */
+
+
+
+static Ogre::MeshManager *myOgreMeshManger
+= Ogre:: MeshManager::getSingletonPtr();
+
+
+
 void Tile::setType(TileType t)
 {
     // If the type has changed from its previous value we need to see if
@@ -142,67 +153,67 @@ void Tile::setFullness(double f)
         fullnessMeshNumber = 50;
         switch (fullNeighbors)
         {
-        case 1:
-            fullnessMeshNumber = 51;
-            if (fillStatus[0])
-            {
-                rotation = 270;
-                break;
-            }//correct
-            if (fillStatus[1])
-            {
-                rotation = 90;
-                break;
-            }//correct
-            if (fillStatus[2])
-            {
-                rotation = 0;
-                break;
-            }//correct
-            if (fillStatus[3])
-            {
-                rotation = 180;
-                break;
-            }//correct
-            break;
-
-        case 2:
-            fullnessMeshNumber = 52;
-            if (fillStatus[0] && fillStatus[2])
-            {
-                rotation = 270;
-                break;
-            }//correct
-            if (fillStatus[0] && fillStatus[3])
-            {
-                rotation = 180;
-                break;
-            }//correct
-            if (fillStatus[1] && fillStatus[2])
-            {
-                rotation = 0;
-                break;
-            }//correct
-            if (fillStatus[1] && fillStatus[3])
-            {
-                rotation = 90;
-                break;
-            }//correct
-
-            //TODO:  These next two options are for when the half full tile is in the middle of a wall, the need a separate mesh to be made.
-            if (fillStatus[0] && fillStatus[1])
-            {
+            case 1:
                 fullnessMeshNumber = 51;
-                rotation = 0;
+                if (fillStatus[0])
+                {
+                    rotation = 270;
+                    break;
+                }//correct
+                if (fillStatus[1])
+                {
+                    rotation = 90;
+                    break;
+                }//correct
+                if (fillStatus[2])
+                {
+                    rotation = 0;
+                    break;
+                }//correct
+                if (fillStatus[3])
+                {
+                    rotation = 180;
+                    break;
+                }//correct
                 break;
-            }//correct
-            if (fillStatus[2] && fillStatus[3])
-            {
-                fullnessMeshNumber = 51;
-                rotation = 90;
+
+            case 2:
+                fullnessMeshNumber = 52;
+                if (fillStatus[0] && fillStatus[2])
+                {
+                    rotation = 270;
+                    break;
+                }//correct
+                if (fillStatus[0] && fillStatus[3])
+                {
+                    rotation = 180;
+                    break;
+                }//correct
+                if (fillStatus[1] && fillStatus[2])
+                {
+                    rotation = 0;
+                    break;
+                }//correct
+                if (fillStatus[1] && fillStatus[3])
+                {
+                    rotation = 90;
+                    break;
+                }//correct
+
+                //TODO:  These next two options are for when the half full tile is in the middle of a wall, the need a separate mesh to be made.
+                if (fillStatus[0] && fillStatus[1])
+                {
+                    fullnessMeshNumber = 51;
+                    rotation = 0;
+                    break;
+                }//correct
+                if (fillStatus[2] && fillStatus[3])
+                {
+                    fullnessMeshNumber = 51;
+                    rotation = 90;
+                    break;
+                }//correct
                 break;
-            }//correct
-            break;
         }
     }
 
@@ -211,28 +222,28 @@ void Tile::setFullness(double f)
         fullnessMeshNumber = 75;
         switch (fullNeighbors)
         {
-        case 1:
-            if (fillStatus[0])
-            {
-                rotation = 270;
+            case 1:
+                if (fillStatus[0])
+                {
+                    rotation = 270;
+                    break;
+                }//correct
+                if (fillStatus[1])
+                {
+                    rotation = 90;
+                    break;
+                }//correct
+                if (fillStatus[2])
+                {
+                    rotation = 0;
+                    break;
+                }//correct
+                if (fillStatus[3])
+                {
+                    rotation = 180;
+                    break;
+                }//correct
                 break;
-            }//correct
-            if (fillStatus[1])
-            {
-                rotation = 90;
-                break;
-            }//correct
-            if (fillStatus[2])
-            {
-                rotation = 0;
-                break;
-            }//correct
-            if (fillStatus[3])
-            {
-                rotation = 180;
-                break;
-            }//correct
-            break;
         }
     }
     else if (f > 75)
@@ -241,121 +252,121 @@ void Tile::setFullness(double f)
         {
             //TODO:  Determine the rotation for each of these case statements
             int tempInt;
-        case 0:
-            fullnessMeshNumber = 104;
-            rotation = 0;
-            break;
-
-        case 1:
-            fullnessMeshNumber = 103;
-            if (fillStatus[0])
-            {
-                rotation = 180;
-                break;
-            }//correct
-            if (fillStatus[1])
-            {
-                rotation = 0;
-                break;
-            }//correct
-            if (fillStatus[2])
-            {
-                rotation = 270;
-                break;
-            }//correct
-            if (fillStatus[3])
-            {
-                rotation = 90;
-                break;
-            }//correct
-            break;
-
-        case 2:
-            tempInt = 0;
-            if (fillStatus[0])
-                tempInt += 1;
-            if (fillStatus[1])
-                tempInt += 2;
-            if (fillStatus[2])
-                tempInt += 4;
-            if (fillStatus[3])
-                tempInt += 8;
-
-            switch (tempInt)
-            {
-            case 5:
-                fullnessMeshNumber = 52;
-                rotation = 270;
-                break;
-
-            case 6:
-                fullnessMeshNumber = 52;
+            case 0:
+                fullnessMeshNumber = 104;
                 rotation = 0;
                 break;
 
-            case 9:
-                fullnessMeshNumber = 52;
-                rotation = 180;
+            case 1:
+                fullnessMeshNumber = 103;
+                if (fillStatus[0])
+                {
+                    rotation = 180;
+                    break;
+                }//correct
+                if (fillStatus[1])
+                {
+                    rotation = 0;
+                    break;
+                }//correct
+                if (fillStatus[2])
+                {
+                    rotation = 270;
+                    break;
+                }//correct
+                if (fillStatus[3])
+                {
+                    rotation = 90;
+                    break;
+                }//correct
                 break;
 
-            case 10:
-                fullnessMeshNumber = 52;
-                rotation = 90;
+            case 2:
+                tempInt = 0;
+                if (fillStatus[0])
+                    tempInt += 1;
+                if (fillStatus[1])
+                    tempInt += 2;
+                if (fillStatus[2])
+                    tempInt += 4;
+                if (fillStatus[3])
+                    tempInt += 8;
+
+                switch (tempInt)
+                {
+                    case 5:
+                        fullnessMeshNumber = 52;
+                        rotation = 270;
+                        break;
+
+                    case 6:
+                        fullnessMeshNumber = 52;
+                        rotation = 0;
+                        break;
+
+                    case 9:
+                        fullnessMeshNumber = 52;
+                        rotation = 180;
+                        break;
+
+                    case 10:
+                        fullnessMeshNumber = 52;
+                        rotation = 90;
+                        break;
+
+                    case 3:
+                        fullnessMeshNumber = 102;
+                        rotation = 0.0;
+                        break;
+
+                    case 12:
+                        fullnessMeshNumber = 102;
+                        rotation = 90.0;
+                        break;
+
+                    default:
+                        std::cerr
+                                << "\n\nERROR:  Unhandled case statement in Tile::setFullness(), exiting.  tempInt = "
+                                << tempInt << "\n\n";
+                        exit(1);
+                        break;
+                }
                 break;
 
             case 3:
-                fullnessMeshNumber = 102;
-                rotation = 0.0;
+                fullnessMeshNumber = 101; //this is wrong for now it should be 101
+                if (!fillStatus[0])
+                {
+                    rotation = 90;
+                    break;
+                }//correct
+                if (!fillStatus[1])
+                {
+                    rotation = 270;
+                    break;
+                }
+                if (!fillStatus[2])
+                {
+                    rotation = 180;
+                    break;
+                }
+                if (!fillStatus[3])
+                {
+                    rotation = 0;
+                    break;
+                }
                 break;
 
-            case 12:
-                fullnessMeshNumber = 102;
-                rotation = 90.0;
+            case 4:
+                fullnessMeshNumber = 100;
+                rotation = 0;
                 break;
 
             default:
                 std::cerr
-                    << "\n\nERROR:  Unhandled case statement in Tile::setFullness(), exiting.  tempInt = "
-                    << tempInt << "\n\n";
+                        << "\n\nERROR:  fullNeighbors != 0 or 1 or 2 or 3 or 4.  This is impossible, exiting program.\n\n";
                 exit(1);
                 break;
-            }
-            break;
-
-        case 3:
-            fullnessMeshNumber = 101; //this is wrong for now it should be 101
-            if (!fillStatus[0])
-            {
-                rotation = 90;
-                break;
-            }//correct
-            if (!fillStatus[1])
-            {
-                rotation = 270;
-                break;
-            }
-            if (!fillStatus[2])
-            {
-                rotation = 180;
-                break;
-            }
-            if (!fillStatus[3])
-            {
-                rotation = 0;
-                break;
-            }
-            break;
-
-        case 4:
-            fullnessMeshNumber = 100;
-            rotation = 0;
-            break;
-
-        default:
-            std::cerr
-                << "\n\nERROR:  fullNeighbors != 0 or 1 or 2 or 3 or 4.  This is impossible, exiting program.\n\n";
-            exit(1);
-            break;
         }
 
     }
@@ -369,7 +380,7 @@ void Tile::setFullness(double f)
 
 /*! \brief Set the fullness value for the tile.
  *  This only sets the fullness variable. This function is here to change the value
- *  before a map object has been set. setFullness is called once a map is assigned.
+ *  before a map object has been set. setFullness is called once a map is assigned. 
  */
 void Tile::setFullnessValue(double f)
 {
@@ -421,32 +432,36 @@ Tile::TileClearType Tile::getTilePassability() const
 
     switch (type)
     {
-    case dirt:
-    case gold:
-    case rock:
-    case claimed:
-        return walkableTile;
-        break;
+        case nullTileType:
+            return impassableTile;
+            break;
 
-    case water:
-        return walkableTile;
-        break;
+        case dirt:
+        case gold:
+        case rock:
+        case claimed:
+            return walkableTile;
+            break;
 
-    case lava:
-        return flyableTile;
-        break;
+        case water:
+            return walkableTile;
+            break;
 
-    default:
-        std::cerr
-            << "\n\nERROR:  Unhandled tile type in Tile::getTilePassability()\n\n";
-        exit(1);
-        break;
+        case lava:
+            return flyableTile;
+            break;
+
+        default:
+            std::cerr
+                    << "\n\nERROR:  Unhandled tile type in Tile::getTilePassability()\n\n";
+            exit(1);
+            break;
     }
 
     // Return something to make the compiler happy.
     // Control should really never reach here because of the exit(1) call in the default switch case above
     std::cerr
-        << "\n\nERROR:  Control reached the end of Tile::getTilePassability, this should never actually happen.\n\n";
+            << "\n\nERROR:  Control reached the end of Tile::getTilePassability, this should never actually happen.\n\n";
     exit(1);
     return impassableTile;
 }
@@ -461,7 +476,7 @@ bool Tile::permitsVision() const
 /* Checks if the place is buildable at the moment */
 bool Tile::isBuildableUpon() const
 {
-    if (type != claimed || getFullness() > 0.01 || coveringTrap==true)
+    if(type != claimed || getFullness() > 0.01 || coveringTrap==true)
     {
         return false;
     }
@@ -525,7 +540,7 @@ const char* Tile::getFormat()
 std::ostream& operator<<(std::ostream& os, Tile *t)
 {
     os << t->x << "\t" << t->y << "\t" << t->getType() << "\t"
-    << t->getFullness();
+            << t->getFullness();
 
     return os;
 }
@@ -539,12 +554,20 @@ std::istream& operator>>(std::istream& is, Tile *t)
 {
     int tempInt, xLocation, yLocation;
     double tempDouble;
-    char tempCellName[255];
+    stringstream ss;
 
     is >> xLocation >> yLocation;
+    xLocation+=t->getGameMap()->getMapSizeX()/2;
+    yLocation+=t->getGameMap()->getMapSizeY()/2;
     //t->location = Ogre::Vector3(xLocation, yLocation, 0);
-    snprintf(tempCellName, sizeof(tempCellName), "Level_%3i_%3i", xLocation, yLocation);
-    t->setName(tempCellName);
+    ss.str(std::string());
+    ss << "Level";
+    ss << "_";
+    ss << xLocation;
+    ss << "_";
+    ss << yLocation;
+	
+    t->setName(ss.str());
     t->x = xLocation;
     t->y = yLocation;
 
@@ -553,7 +576,7 @@ std::istream& operator>>(std::istream& is, Tile *t)
 
     is >> tempDouble;
     t->setFullnessValue(tempDouble);
-
+    
     return is;
 }
 
@@ -568,24 +591,24 @@ const char* Tile::tileTypeToString(TileType t)
 {
     switch (t)
     {
-    default:
-    case dirt:
-        return "Dirt";
+        default:
+        case dirt:
+            return "Dirt";
 
-    case rock:
-        return "Rock";
+        case rock:
+            return "Rock";
 
-    case gold:
-        return "Gold";
+        case gold:
+            return "Gold";
 
-    case water:
-        return "Water";
+        case water:
+            return "Water";
 
-    case lava:
-        return "Lava";
+        case lava:
+            return "Lava";
 
-    case claimed:
-        return "Claimed";
+        case claimed:
+            return "Claimed";
     }
 }
 
@@ -598,7 +621,7 @@ const char* Tile::tileTypeToString(TileType t)
 Tile::TileType Tile::nextTileType(TileType t)
 {
     return static_cast<TileType>((static_cast<int>(t) + 1)
-                                 % static_cast<int>(nullTileType));
+            % static_cast<int>(claimed));
 }
 
 /*! \brief This is a helper function to scroll through the list of available fullness levels.
@@ -614,34 +637,150 @@ int Tile::nextTileFullness(int f)
     // Cycle the tile's fullness through the possible values
     switch (f)
     {
-    case 0:
-        return 25;
+        case 0:
+            return 25;
 
-    case 25:
-        return 50;
+        case 25:
+            return 50;
 
-    case 50:
-        return 75;
+        case 50:
+            return 75;
 
-    case 75:
-        return 100;
+        case 75:
+            return 100;
 
-    case 100:
-        return 0;
+        case 100:
+            return 0;
 
-    default:
-        return 0;
+        default:
+            return 0;
     }
 }
 
+
+
+
+// foobar(){
+//     Position
+    
+
+//     for(int ii = 0 ; ii < 8 ; ii++){
+// 	tilePos += position
+
+
+
+//     }
+
+
+
+// }
+
+
 /*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
  *
+ */
+std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumber,  TileType *neighbors, bool* neighborsFullness, int &rt )
+{
+    std::stringstream ss;
+    //FIXME - define postfix somewhere
+    int postfixInt = 0  ;
+    unsigned char  shiftedAroundBits;
+
+
+
+    // get the integer from neighbors[], using it as a number coded in binary base 
+
+    for(int ii  = 8 ; ii >=1 ; ii--){
+	
+	postfixInt *=2 ; 
+	postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=water && myType!=lava)  || neighborsFullness[(ii)%8]  )) // || (!(myType!=water && myType!=lava) ||  fullnessMeshNumber > 0   )
+	    );
+
+    }
+
+    int storedInt = postfixInt ; 
+    // current implementation does not allow on separate corner tiles 
+    // leave only those corner tiles  ( the one in  the even position in PostfixInt binary base ) who have at least one ver or hor neighbor
+
+    // shift the 8ht position bit to the 1st position, shifting the rest 1 position to the left . 
+    shiftedAroundBits = postfixInt &  0x80;
+    postfixInt <<= 1;
+    shiftedAroundBits >>= 7;
+    shiftedAroundBits &= 0x01;
+    postfixInt &= 0xFF;
+    postfixInt += shiftedAroundBits;
+
+
+
+    // check for the clockwise rotation hor or ver neighbor for diagonal tile 
+    
+    int foobar = postfixInt;
+
+
+    shiftedAroundBits = postfixInt &  0x03;
+    postfixInt >>= 2;
+    postfixInt &= 0x3F;
+    shiftedAroundBits <<= 6;
+
+    postfixInt += shiftedAroundBits;
+
+    // check for the anti - clockwise rotation hor or ver neighbor of a diagonal tile 
+    int foobar2 = postfixInt; 
+
+
+
+
+    // 85  == 01010101b
+    // 170 == 10101010b
+    postfixInt = (foobar & foobar2 & 85) | (storedInt & 170);
+
+
+    // Naros	rather than simply using getByName() and testing if MeshPtr.isNull() is true
+    // 	Naros	if its null, then load it.
+    // Naros	you want to use Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("MyResourceGroupName", "MyMeshFileName");
+
+    meshNameAux(ss, postfixInt , fullnessMeshNumber , myType);
+    
+
+
+    // rotate the postfix number, as long , as we won't find Exisitng mesh 
+
+    // cerr <<  ss.str() << endl ; 
+    for(rt = 0 ;  !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str())  && rt < 4 ; rt++  ) { 
+    shiftedAroundBits = postfixInt &  0xC0;
+    postfixInt <<= 2;
+    postfixInt &= 0xFF;
+    shiftedAroundBits >>= 6;
+    shiftedAroundBits &= 0x03;
+    postfixInt += shiftedAroundBits;
+    
+    ss.str("");
+    ss.clear();
+
+    meshNameAux(ss, postfixInt,fullnessMeshNumber,  myType);
+
+    // cerr <<  ss.str()<< endl ; 
+  }
+
+
+
+
+
+
+
+
+
+    return ss.str();
+}
+
+/*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
+ *  
  */
 std::string Tile::meshNameFromFullness(TileType t, int fullnessMeshNumber)
 {
     std::stringstream ss;
     //FIXME - define postfix somewhere
-    ss << tileTypeToString(t) << fullnessMeshNumber << ".mesh";
+    ss << tileTypeToString(t) << "_" << (fullnessMeshNumber > 0 ?  "11111111" : "00000000" ) << ".mesh";
     return ss.str();
 }
 
@@ -661,40 +800,78 @@ void Tile::refreshMesh()
     RenderManager::queueRenderRequest(request);
 }
 
+
+void Tile::setMarkedForDigging(bool ss, Player *pp)
+{
+    /* If we are trying to mark a tile that is not dirt or gold
+     * or is already dug out, ignore the request.
+     */
+    if (ss && (!isDiggable() || (getFullness() < 1)))
+        return;
+
+    Ogre::Entity *ent = NULL;
+    RenderRequest *request ;
+
+    if (getMarkedForDigging(pp) != ss)
+	{
+	    if  (pp == getGameMap()->getLocalPlayer()) // if this request is for me 
+		{
+		    request = new RenderRequest;
+
+		    request->type = RenderRequest::setPickAxe;
+		    request->p = static_cast<void*>(this);
+		    request->p2 = static_cast<void*>(pp);
+		    request->b = ss;
+		    // Add the request to the queue of rendering operations to be performed before the next frame.
+		    RenderManager::queueRenderRequest(request);
+		    request = new RenderRequest;
+
+		    request->type = RenderRequest::colorTile;
+		    request->p = static_cast<void*>(this);
+		    request->p2 = static_cast<void*>(pp);
+		    request->b = ss;
+		    // Add the request to the queue of rendering operations to be performed before the next frame.
+		    RenderManager::queueRenderRequest(request);
+		}
+        
+	    if (ss)
+		{
+		    //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
+		    addPlayerMarkingTile(pp);
+		}
+	    else
+		{
+		    removePlayerMarkingTile(pp);
+		}
+	    // refreshMesh();
+
+	}
+}
+
 /*! \brief This function marks the tile as being selected through a mouse click or drag.
  *
  */
 void Tile::setSelected(bool ss, Player* pp)
 {
+
+
     if (selected != ss)
-    {
-        selected = ss;
-        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-        Ogre::Entity* ent;
-        char tempString[255];
+    	{
 
-        snprintf(tempString, sizeof(tempString),
-                 "Level_%3i_%3i_selection_indicator", x, y);
-        if (mSceneMgr->hasEntity(tempString))
-        {
-            ent = mSceneMgr->getEntity(tempString);
-        }
-        else
-        {
-            char tempString2[255];
-            snprintf(tempString2, sizeof(tempString2), "Level_%3i_%3i_node", x, y);
-            ent = mSceneMgr->createEntity(tempString, "SquareSelector.mesh");
-            mSceneMgr->getSceneNode(tempString2)->attachObject(ent);
-        }
+    	    selected = ss;
+
+    	    RenderRequest *request = new RenderRequest;
+
+    	    request->type = RenderRequest::temporalMarkTile;
+    	    request->p = static_cast<void*>(this);
+    	    request->p2 = static_cast<void*>(pp);
 
 
-        /*! \brief Well this should go where the pick up axe shows up
-         *
-         */
+    	    // Add the request to the queue of rendering operations to be performed before the next frame.
+    	    RenderManager::queueRenderRequest(request);
 
-        ent->setVisible(selected);
 
-    }
+    	}
 }
 
 /*! \brief This accessor function returns whether or not the tile has been selected.
@@ -708,61 +885,8 @@ bool Tile::getSelected() const
 /*! \brief This function marks the tile to be dug out by workers, and displays the dig indicator on it.
  *
  */
-void Tile::setMarkedForDigging(bool ss, Player *pp)
-{
-    /* If we are trying to mark a tile that is not dirt or gold
-     * or is already dug out, ignore the request.
-     */
-    if (ss && (!isDiggable() || (getFullness() < 1)))
-        return;
-
-    Ogre::Entity *ent = NULL;
-    char tempString[255];
-    char tempString2[255];
-
-    if (getMarkedForDigging(pp) != ss)
-    {
-        bool thisRequestIsForMe = (pp == getGameMap()->getLocalPlayer());
-        if (thisRequestIsForMe)
-        {
-            Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-            //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
-            snprintf(tempString, sizeof(tempString),
-                     "Level_%i_%i_selection_indicator", x, y);
-            if (mSceneMgr->hasEntity(tempString))
-            {
-                ent = mSceneMgr->getEntity(tempString);
-            }
-            else
-            {
-                snprintf(tempString2, sizeof(tempString2),
-                         "Level_%3i_%3i_node", x, y);
-                Ogre::SceneNode *tempNode =
-                    mSceneMgr->getSceneNode(tempString2);
-
-                ent = mSceneMgr->createEntity(tempString, "DigSelector.mesh");
-                tempNode->attachObject(ent);
-            }
-        }
 
 
-        if (thisRequestIsForMe&&(ent!=NULL))
-            ent->setVisible(ss);
-
-        if (ss)
-        {
-            //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
-            addPlayerMarkingTile(pp);
-            setColor(pp->getSeat()->color);
-        }
-        else
-        {
-            removePlayerMarkingTile(pp);
-            setColor(0);
-        }
-        refreshMesh();
-    }
-}
 
 /*! \brief This is a simple helper function which just calls setMarkedForDigging() for everyone in the game (including me).
  *
@@ -938,13 +1062,13 @@ double Tile::claimForColor(int nColor, double nDanceRate)
         //and hamper performance.
         /*Ogre::ColourValue tempColour =
                 gameMap->getSeatByColor(nColor)->colourValue;
-
+         
         claimLight = new TemporaryMapLight(Ogre::Vector3(x, y, 0.5),
                 tempColour.r, tempColour.g, tempColour.b, 1.0, 0.1, 0.5, 0.5);
         gameMap->addMapLight(claimLight);
         claimLight->createOgreEntity();*/
         SoundEffectsHelper::getSingleton().playInterfaceSound(
-            SoundEffectsHelper::CLAIM, this->x, this->y);
+                SoundEffectsHelper::CLAIM, this->x, this->y);
     }
     sem_post(&claimLightLockSemaphore);
 
@@ -1041,11 +1165,11 @@ double Tile::scaleDigRate(double digRate)
 {
     switch (type)
     {
-    case claimed:
-        return 0.2 * digRate;
+        case claimed:
+            return 0.2 * digRate;
 
-    default:
-        return digRate;
+        default:
+            return digRate;
     }
 }
 
@@ -1076,3 +1200,12 @@ void Tile::setGameMap(GameMap* gameMap)
     setFullness(fullness);
 }
 
+
+
+void Tile::meshNameAux(std::stringstream &ss, int &postfixInt , int& fMN, TileType myType ){
+
+    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
+       << (fMN > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType == water || myType == lava) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
+
+
+}

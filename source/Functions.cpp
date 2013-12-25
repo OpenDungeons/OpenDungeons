@@ -1,7 +1,11 @@
 //TODO: get rid of this whole file.
 //      - The server stuff should go into some of the network classes.
 
-#include <CEGUI.h>
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/WindowManager.h>
+#include <CEGUI/widgets/TabControl.h>
+//#include <elements/CEGUITabControl.h>
+//
 
 #include "Network.h"
 #include "Socket.h"
@@ -73,8 +77,9 @@ bool startServer(GameMap& gameMap)
                 NULL, serverSocketProcessor, (void*) ssps);
         
         //Move camera to dungeon temple (FIXME: This should probably not be done here.)
-        Seat* localPlayerSeat = gameMap.getLocalPlayer()->getSeat();
-        CameraManager::getSingleton().flyTo(Ogre::Vector3(localPlayerSeat->startingX, localPlayerSeat->startingY, 0.0));
+        // Seat* localPlayerSeat = gameMap.getLocalPlayer()->getSeat();
+        // CameraManager::getSingleton().flyTo(Ogre::Vector3(localPlayerSeat->startingX, localPlayerSeat->startingY, 0.0)
+	// 				    );
 
         // Start the thread which will watch for local events to send to the clients
         SNPStruct* snps = new SNPStruct;
@@ -91,8 +96,7 @@ bool startServer(GameMap& gameMap)
 
         // Set the active tabs on the tab selector across the bottom of the screen so
         // the user doesn't have to click into them first to see the contents.
-        static_cast<CEGUI::TabControl*>(CEGUI::WindowManager::getSingletonPtr()->
-                getWindow("Root/MainTabControl"))->setSelectedTab(0);
+        static_cast<CEGUI::TabControl*>(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild("MainTabControl"))->setSelectedTab(0);
     }
 
     return true;

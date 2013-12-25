@@ -9,7 +9,7 @@
 const float TILE_ZPOS = 2.5;
 
 template<> SoundEffectsHelper*
-        Ogre::Singleton<SoundEffectsHelper>::ms_Singleton = 0;
+        Ogre::Singleton<SoundEffectsHelper>::msSingleton = 0;
 
 /*! \brief Loads sounds
  *

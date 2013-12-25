@@ -19,12 +19,14 @@
 #include <deque>
 
 #include <semaphore.h>
-#include <Ogre.h>
-
+#include <OgreVector2.h>
+#include <OgreVector3.h>
+#include <OgreSharedPtr.h>
 #include "CreatureSound.h"
 #include "CreatureDefinition.h"
 #include "CreatureAction.h"
 #include "MovableGameEntity.h"
+
 
 class GameMap;
 class Creature;
@@ -32,6 +34,8 @@ class RoomDojo;
 class Weapon;
 class Player;
 class Field;
+class CullingQuad;
+
 namespace CEGUI
 {
 class Window;
@@ -49,9 +53,10 @@ class Window;
  */
 class Creature: public MovableGameEntity
 {
+friend class CullingQuad;
     public:
-        Creature(GameMap* gameMap = 0, const std::string& name = "");
-
+        Creature( GameMap* gameMap = 0, const std::string& name = "");
+        virtual ~Creature();
         std::string getUniqueCreatureName();
 
         //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
@@ -65,6 +70,9 @@ class Creature: public MovableGameEntity
         void setCreatureDefinition(const CreatureDefinition* def); 
 
         // ----- GETTERS -----
+	Ogre::Vector2 get2dPosition(){ 	Ogre::Vector3 tmp = getPosition();   return Ogre::Vector2(tmp.x,tmp.y);};
+
+
         //! \brief Get the level of the object
         inline unsigned int         getLevel        () const    { return level; }
 
@@ -133,6 +141,7 @@ class Creature: public MovableGameEntity
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
         void clearActionQueue();
+	
 
         Player* getControllingPlayer();
         void computeBattlefield();
@@ -142,6 +151,10 @@ class Creature: public MovableGameEntity
         void destroyVisualDebugEntities();
         bool getHasVisualDebuggingEntities();
 
+
+        void attach();
+        void detach();
+
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Creature *c);
         friend std::istream& operator>>(std::istream& is, Creature *c);
@@ -149,8 +162,12 @@ class Creature: public MovableGameEntity
 
         //TODO: make this read from definition file
         static const int maxGoldCarriedByWorkers = 1500;
-
+	inline void setQuad(CullingQuad* cq) {tracingCullingQuad=cq;};
+	inline CullingQuad* getQuad(){return tracingCullingQuad;};
     private:
+
+	CullingQuad* tracingCullingQuad;
+
         void pushAction(CreatureAction action);
         void popAction();
         CreatureAction peekAction();

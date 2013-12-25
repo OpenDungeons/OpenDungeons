@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2012 Andreas Jonsson
+   Copyright (c) 2003-2013 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied
    warranty. In no event will the authors be held liable for any
@@ -54,10 +54,45 @@ asCGarbageCollector::asCGarbageCollector()
 	numDestroyed    = 0;
 	numNewDestroyed = 0;
 	numDetected     = 0;
+	numAdded        = 0;
+	isProcessing    = false;
+
+	seqAtSweepStart[0] = 0;
+	seqAtSweepStart[1] = 0;
+	seqAtSweepStart[2] = 0;
 }
 
-void asCGarbageCollector::AddScriptObjectToGC(void *obj, asCObjectType *objType)
+asCGarbageCollector::~asCGarbageCollector()
 {
+	// This local typedef is done to workaround a compiler error on
+	// MSVC6 when using the typedef declared in the class definition
+	typedef asSMapNode_t node_t;
+	for( asUINT n = 0; n < freeNodes.GetLength(); n++ )
+		asDELETE(freeNodes[n], node_t);
+	freeNodes.SetLength(0);
+}
+
+bool asCGarbageCollector::IsObjectInGC(void *obj)
+{
+	asUINT n;
+	for( n = 0; n < gcNewObjects.GetLength(); n++ )
+		if( gcNewObjects[n].obj == obj )
+			return true;
+	for( n = 0; n < gcOldObjects.GetLength(); n++ )
+		if( gcOldObjects[n].obj == obj )
+			return true;
+
+	return false;
+}
+
+int asCGarbageCollector::AddScriptObjectToGC(void *obj, asCObjectType *objType)
+{
+	if( obj == 0 || objType == 0 )
+	{
+		engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, TXT_GC_RECEIVED_NULL_PTR);
+		return asINVALID_ARG;
+	}
+
 	engine->CallObjectMethod(obj, objType->beh.addref);
 	asSObjTypePair ot = {obj, objType, 0};
 
@@ -68,24 +103,31 @@ void asCGarbageCollector::AddScriptObjectToGC(void *obj, asCObjectType *objType)
 	if( engine->ep.autoGarbageCollect && gcNewObjects.GetLength() )
 	{
 		// If the GC is already processing in another thread, then don't try this again
-		// TODO: What if it is already processing in this thread?
 		if( TRYENTERCRITICALSECTION(gcCollecting) )
 		{
-			// TODO: The number of iterations should be dynamic, and increase 
-			//       if the number of objects in the garbage collector grows high
-
-			// Run one step of DetectGarbage
-			if( gcOldObjects.GetLength() )
+			// Skip this if the GC is already running in this thread
+			if( !isProcessing )
 			{
-				IdentifyGarbageWithCyclicRefs();
-				DestroyOldGarbage();
-			}
+				isProcessing = true;
 
-			// Run a few steps of DestroyGarbage
-			int iter = (int)gcNewObjects.GetLength();
-			if( iter > 10 ) iter = 10;
-			while( iter-- > 0 )
-				DestroyNewGarbage();
+				// TODO: The number of iterations should be dynamic, and increase 
+				//       if the number of objects in the garbage collector grows high
+
+				// Run one step of DetectGarbage
+				if( gcOldObjects.GetLength() )
+				{
+					IdentifyGarbageWithCyclicRefs();
+					DestroyOldGarbage();
+				}
+
+				// Run a few steps of DestroyGarbage
+				int iter = (int)gcNewObjects.GetLength();
+				if( iter > 10 ) iter = 10;
+				while( iter-- > 0 )
+					DestroyNewGarbage();
+
+				isProcessing = false;
+			}
 
 			LEAVECRITICALSECTION(gcCollecting);
 		}
@@ -94,16 +136,53 @@ void asCGarbageCollector::AddScriptObjectToGC(void *obj, asCObjectType *objType)
 	// Add the data to the gcObjects array in a critical section as
 	// another thread might be calling this method at the same time
 	ENTERCRITICALSECTION(gcCritical);
+	ot.seqNbr = numAdded++;
 	gcNewObjects.PushLast(ot);
 	LEAVECRITICALSECTION(gcCritical);
+
+	return ot.seqNbr;
+}
+
+int asCGarbageCollector::GetObjectInGC(asUINT idx, asUINT *seqNbr, void **obj, asIObjectType **type)
+{
+	if( seqNbr ) *seqNbr = 0;
+	if( obj )    *obj    = 0;
+	if( type )   *type   = 0;
+
+	ENTERCRITICALSECTION(gcCritical);
+	asSObjTypePair *o = 0;
+	asUINT newObjs = gcNewObjects.GetLength();
+	if( idx < newObjs )
+		o = &gcNewObjects[idx];
+	else if( idx < gcOldObjects.GetLength() + newObjs )
+		o = &gcOldObjects[idx-newObjs];
+	else
+	{
+		LEAVECRITICALSECTION(gcCritical);
+		return asINVALID_ARG;
+	}
+	if( seqNbr ) *seqNbr = o->seqNbr;
+	if( obj )    *obj    = o->obj;
+	if( type )   *type   = o->type;
+	LEAVECRITICALSECTION(gcCritical);
+
+	return asSUCCESS;
 }
 
 int asCGarbageCollector::GarbageCollect(asDWORD flags)
 {
 	// If the GC is already processing in another thread, then don't enter here again
-	// TODO: What if it is already processing in this thread?
 	if( TRYENTERCRITICALSECTION(gcCollecting) )
 	{
+		// If the GC is already processing in this thread, then don't enter here again
+		if( isProcessing ) 
+		{	
+			LEAVECRITICALSECTION(gcCollecting);
+			return 1;
+		}
+
+		isProcessing = true;
+
 		bool doDetect  = (flags & asGC_DETECT_GARBAGE)  || !(flags & asGC_DESTROY_GARBAGE);
 		bool doDestroy = (flags & asGC_DESTROY_GARBAGE) || !(flags & asGC_DETECT_GARBAGE);
 
@@ -141,12 +220,20 @@ int asCGarbageCollector::GarbageCollect(asDWORD flags)
 				if( count != (unsigned int)(gcNewObjects.GetLength() + gcOldObjects.GetLength()) )
 					count = (unsigned int)(gcNewObjects.GetLength() + gcOldObjects.GetLength());
 				else
-					break;
+				{
+					// Let the engine destroy the types that reached refCount 0
+					// If none were destroyed, then leave the GC
+					// TODO: The asCObjectType should destroy its content when refCount reaches 0
+					//       since no-one is using them. The registered types should have their
+					//       refcount increased by the config groups. Doing it like that will allow 
+					//       me to remove this call to ClearUnusedTypes() that the GC really 
+					//       shouldn't be calling.
+					if( engine->ClearUnusedTypes() == 0 )
+						break;
+				}
 			}
 
-			// Take the opportunity to clear unused types as well
-			engine->ClearUnusedTypes();
-
+			isProcessing = false;
 			LEAVECRITICALSECTION(gcCollecting);
 			return 0;
 		}
@@ -164,6 +251,7 @@ int asCGarbageCollector::GarbageCollect(asDWORD flags)
 				IdentifyGarbageWithCyclicRefs();
 		}
 
+		isProcessing = false;
 		LEAVECRITICALSECTION(gcCollecting);
 	}
 	
@@ -181,6 +269,8 @@ void asCGarbageCollector::GetStatistics(asUINT *currentSize, asUINT *totalDestro
 
 	if( totalDestroyed )
 		*totalDestroyed = numDestroyed;
+
+	asASSERT( numAdded == gcNewObjects.GetLength() + gcOldObjects.GetLength() + numDestroyed );
 
 	if( totalDetected )
 		*totalDetected = numDetected;
@@ -251,15 +341,6 @@ void asCGarbageCollector::MoveObjectToOldList(int idx)
 	LEAVECRITICALSECTION(gcCritical);
 }
 
-void asCGarbageCollector::IncreaseCounterForNewObject(int idx)
-{
-	// We need to protect this update with a critical section as
-	// another thread might be appending an object at the same time
-	ENTERCRITICALSECTION(gcCritical);
-	gcNewObjects[idx].count++;
-	LEAVECRITICALSECTION(gcCritical);
-}
-
 int asCGarbageCollector::DestroyNewGarbage()
 {
 	for(;;)
@@ -271,6 +352,12 @@ int asCGarbageCollector::DestroyNewGarbage()
 			// If there are no objects to be freed then don't start
 			if( gcNewObjects.GetLength() == 0 )
 				return 0;
+
+			// Update the seqAtSweepStart which is used to determine when 
+			// to move an object from the new set to the old set
+			seqAtSweepStart[0] = seqAtSweepStart[1];
+			seqAtSweepStart[1] = seqAtSweepStart[2];
+			seqAtSweepStart[2] = numAdded;
 
 			destroyNewIdx = (asUINT)-1;
 			destroyNewState = destroyGarbage_loop;
@@ -323,17 +410,15 @@ int asCGarbageCollector::DestroyNewGarbage()
 
 					destroyNewState = destroyGarbage_haveMore;
 				}
-				else if( gcObj.count == 3 )
+				// Check if this object has been inspected 3 times already, and if so move it to the 
+				// set of old objects that are less likely to become garbage in a short time
+				// TODO: Is 3 really a good value? Should the number of times be dynamic? 
+				else if( gcObj.seqNbr < seqAtSweepStart[0] )
 				{
 					// We've already verified this object multiple times. It is likely
 					// to live for quite a long time so we'll move it to the list if old objects
 					MoveObjectToOldList(destroyNewIdx);
 					destroyNewIdx--;
-				}
-				else
-				{
-					// Increase the counter for the number of times the object has been verified
-					IncreaseCounterForNewObject(destroyNewIdx);
 				}
 
 				// Allow the application to work a little
@@ -372,10 +457,31 @@ int asCGarbageCollector::ReportAndReleaseUndestroyedObjects()
 	{
 		asSObjTypePair gcObj = GetOldObjectAtIdx(n);
 
+		int refCount = 0;
+		if( gcObj.type->beh.gcGetRefCount && engine->scriptFunctions[gcObj.type->beh.gcGetRefCount] )
+			refCount = engine->CallObjectMethodRetInt(gcObj.obj, gcObj.type->beh.gcGetRefCount);
+
 		// Report the object as not being properly destroyed
 		asCString msg;
-		msg.Format(TXT_GC_CANNOT_FREE_OBJ_OF_TYPE_s, gcObj.type->name.AddressOf());
+		msg.Format(TXT_d_GC_CANNOT_FREE_OBJ_OF_TYPE_s_REF_COUNT_d, gcObj.seqNbr, gcObj.type->name.AddressOf(), refCount - 1);
 		engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, msg.AddressOf());
+
+		// Add additional info for builtin types
+		if( gcObj.type->name == "_builtin_function_" )
+		{
+			msg.Format(TXT_PREV_TYPE_IS_NAMED_s, reinterpret_cast<asCScriptFunction*>(gcObj.obj)->GetName());
+			engine->WriteMessage("", 0, 0, asMSGTYPE_INFORMATION, msg.AddressOf());
+		}
+		else if( gcObj.type->name == "_builtin_objecttype_" )
+		{
+			msg.Format(TXT_PREV_TYPE_IS_NAMED_s, reinterpret_cast<asCObjectType*>(gcObj.obj)->GetName());
+			engine->WriteMessage("", 0, 0, asMSGTYPE_INFORMATION, msg.AddressOf());
+		}
+		else if( gcObj.type->name == "_builtin_globalprop_" )
+		{
+			msg.Format(TXT_PREV_TYPE_IS_NAMED_s, reinterpret_cast<asCGlobalProperty*>(gcObj.obj)->name.AddressOf());
+			engine->WriteMessage("", 0, 0, asMSGTYPE_INFORMATION, msg.AddressOf());
+		}
 
 		// Release the reference that the GC holds if the release functions is still available
 		if( gcObj.type->beh.release && engine->scriptFunctions[gcObj.type->beh.release] )
@@ -425,7 +531,7 @@ int asCGarbageCollector::DestroyOldGarbage()
 					// will be forced to skip the destruction of the objects, so as not to 
 					// crash the application.
 					asCString msg;
-					msg.Format(TXT_GC_CANNOT_FREE_OBJ_OF_TYPE_s, gcObj.type->name.AddressOf());
+					msg.Format(TXT_d_GC_CANNOT_FREE_OBJ_OF_TYPE_s, gcObj.seqNbr, gcObj.type->name.AddressOf());
 					engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, msg.AddressOf());
 
 					// Just remove the object, as we will not bother to destroy it
@@ -517,7 +623,7 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 
 				engine->CallObjectMethod(obj, it.type->beh.release);
 
-				gcMap.Erase(cursor);
+				ReturnNode(gcMap.Remove(cursor));
 
 				return 1;
 			}
@@ -556,7 +662,8 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 				if( refCount > 1 )
 				{
 					asSIntTypePair it = {refCount-1, gcObj.type};
-					gcMap.Insert(gcObj.obj, it);
+
+					gcMap.Insert(GetNode(gcObj.obj, it));
 
 					// Increment the object's reference counter when putting it in the map
 					engine->CallObjectMethod(gcObj.obj, gcObj.type->beh.addref);
@@ -671,7 +778,7 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 				if( gcMap.MoveTo(&cursor, gcObj) )
 				{
 					type = gcMap.GetValue(cursor).type;
-					gcMap.Erase(cursor);
+					ReturnNode(gcMap.Remove(cursor));
 
 					// We need to decrease the reference count again as we remove the object from the map
 					engine->CallObjectMethod(gcObj, type->beh.release);
@@ -743,6 +850,14 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 				numDetected++;
 				void *gcObj = gcMap.GetKey(gcMapCursor);
 				asCObjectType *type = gcMap.GetValue(gcMapCursor).type;
+				if( type->flags & asOBJ_SCRIPT_OBJECT )
+				{
+					// For script objects we must call the class destructor before
+					// releasing the references, otherwise the destructor may not
+					// be able to perform the necessary clean-up as the handles will 
+					// be null.
+					reinterpret_cast<asCScriptObject*>(gcObj)->CallDestructor();
+				}
 				engine->CallObjectMethod(gcObj, engine, type->beh.gcReleaseAllReferences);
 
 				gcMap.MoveNext(&gcMapCursor, gcMapCursor);
@@ -774,6 +889,24 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 
 	// Shouldn't reach this point
 	UNREACHABLE_RETURN;
+}
+
+asCGarbageCollector::asSMapNode_t *asCGarbageCollector::GetNode(void *obj, asSIntTypePair it)
+{
+	asSMapNode_t *node;
+	if( freeNodes.GetLength() )
+		node = freeNodes.PopLast();
+	else
+		node = asNEW(asSMapNode_t);
+
+	node->Init(obj, it);
+	return node;
+}
+
+void asCGarbageCollector::ReturnNode(asSMapNode_t *node)
+{
+	if( node )
+		freeNodes.PushLast(node);
 }
 
 void asCGarbageCollector::GCEnumCallback(void *reference)

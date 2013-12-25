@@ -11,6 +11,9 @@ set(ANGELSCRIPT_DIR "${DEPENDENCIES_DIR}/angelscript")
 set(ANGELSCRIPT_SRC_DIR "${ANGELSCRIPT_DIR}/angelscript/source")
 set(ANGELSCRIPT_ADDON_DIR "${ANGELSCRIPT_DIR}/add_on")
 set(TINYGETTEXT_DIR "${DEPENDENCIES_DIR}/tinygettext")
+set(TINYXML_DIR "${DEPENDENCIES_DIR}/tinyxml2")
+
+
 
 #cmake paths
 set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
@@ -20,6 +23,28 @@ if(NOT CMAKE_BUILD_TYPE)
     message(STATUS "CMake build type is not set, defaulting to 'Release'")
     set(CMAKE_BUILD_TYPE "Release")
 endif()
+
+##################################
+#### ExplicitCompilerFlags #######
+##################################
+if (MSVC)
+  set ( CMAKE_CXX_FLAGS "/GLOBAL_FLAGS_GO_HERE")
+  set ( CMAKE_CXX_FLAGS_DEBUG "/DEBUG_FLAGSS_GO_HERE")
+  set ( CMAKE_CXX_FLAGS_RELEASE  "/RELEASE_FLAGS_GO_HERE" )
+endif ()
+
+if (BORLAND)
+  set ( CMAKE_CXX_FLAGS "/GLOBAL_FLAGS_GO_HERE")
+  set ( CMAKE_CXX_FLAGS_DEBUG "/DEBUG_FLAGS_GO_HERE")
+  set ( CMAKE_CXX_FLAGS_RELEASE  "/RELEASE_FLAGS_GO_HERE" )
+endif ()
+
+if (CMAKE_COMPILER_IS_GNUCXX)
+  set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wunused -Wno-deprecated -fno-strict-aliasing" CACHE STRING "compile flags" FORCE)
+  list( APPEND CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS}   -g -O2")
+  set ( CMAKE_CXX_FLAGS_RELEASE  "${CMAKE_CXX_FLAGS}   -O3 " )
+endif ()
+
 
 ##################################
 #### Source files (.cpp) #########
@@ -82,6 +107,9 @@ set(OD_SOURCEFILES
     ${TINYGETTEXT_DIR}/po_parser.cpp
     ${TINYGETTEXT_DIR}/tinygettext.cpp
      
+	#Tinyxml2 sources
+	${TINYXML_DIR}/tinyxml2.cpp
+
     #OpenDungeons sources
     ${SRC}/AbstractApplicationMode.cpp
     ${SRC}/AIFactory.cpp
@@ -89,23 +117,33 @@ set(OD_SOURCEFILES
     ${SRC}/AIWrapper.cpp
     ${SRC}/ASWrapper.cpp    
     ${SRC}/BaseAI.cpp
+    #{SRC}/Bspline.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
     ${SRC}/Client.cpp
     ${SRC}/ClientNotification.cpp
     ${SRC}/Console.cpp
+    ${SRC}/Console_executePromptCommand.cpp
+    ${SRC}/Console_getHelp.cpp
+    ${SRC}/ConsoleMode.cpp
     ${SRC}/Creature.cpp
     ${SRC}/CreatureAction.cpp
     ${SRC}/CreatureDefinition.cpp
     ${SRC}/CreatureSound.cpp
+    ${SRC}/CullingManager.cpp
     ${SRC}/DirectionalTrap.cpp
     ${SRC}/Director.cpp
+    ${SRC}/EditorContext.cpp
+    ${SRC}/EditorMode.cpp
     ${SRC}/Field.cpp
+    ${SRC}/FppMode.cpp
     ${SRC}/Functions.cpp
     ${SRC}/GameContext.cpp
     ${SRC}/GameEntity.cpp
     ${SRC}/GameMap.cpp
-    #${SRC}/GameStateManager.cpp
+    ${SRC}/GameMode.cpp
+    ${SRC}/GameContext.cpp
+    ${SRC}/GameStateManager.cpp
     ${SRC}/GoalClaimNTiles.cpp
     ${SRC}/Goal.cpp
     ${SRC}/GoalKillAllEnemies.cpp
@@ -113,13 +151,17 @@ set(OD_SOURCEFILES
     ${SRC}/GoalProtectCreature.cpp
     ${SRC}/GoalProtectDungeonTemple.cpp
     ${SRC}/Gui.cpp
-    ${SRC}/InputManager.cpp
+    ${SRC}/HermiteCatmullSpline.cpp
     ${SRC}/LogManager.cpp
     ${SRC}/main.cpp
     ${SRC}/MapLight.cpp
     ${SRC}/MapLoader.cpp
+    ${SRC}/MenuMode.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
+    ${SRC}/ModeContext.cpp
+    ${SRC}/ModeManager.cpp
+    ${SRC}/MortuaryQuad.cpp
     ${SRC}/MovableGameEntity.cpp
     ${SRC}/MusicPlayer.cpp
     ${SRC}/NullAI.cpp
@@ -127,6 +169,8 @@ set(OD_SOURCEFILES
     ${SRC}/ODFrameListener.cpp
     ${SRC}/Player.cpp
     ${SRC}/ProximityTrap.cpp
+    ${SRC}/PrefixTreeLL.cpp
+    ${SRC}/Quadtree.cpp
     ${SRC}/RadialVector2.cpp
     ${SRC}/Random.cpp
     ${SRC}/RenderManager.cpp
@@ -149,8 +193,10 @@ set(OD_SOURCEFILES
     ${SRC}/TestAI.cpp
     ${SRC}/TextRenderer.cpp
     ${SRC}/Tile.cpp
-#    ${SRC}/TileMap.cpp
+#   ${SRC}/TileMap.cpp
     ${SRC}/TileCoordinateMap.cpp
+    ${SRC}/TileContainer.cpp
+    ${SRC}/TileContainersModificator.cpp
     ${SRC}/Translation.cpp
     ${SRC}/Trap.cpp
     ${SRC}/TrapBoulder.cpp
@@ -237,6 +283,9 @@ include_directories(
     #tinygettext includes
     ${TINYGETTEXT_DIR}
 
+	#tinyxml2 includes
+	${TINYXML_DIR}
+
     #Angelscript includes    
     ${ANGELSCRIPT_DIR}/angelscript/include
 	${ANGELSCRIPT_SRC_DIR}
@@ -290,7 +339,6 @@ endif()
 # Create the binary file (WIN32 makes sure there is no console window on windows.)
 add_executable(${PROJECT_BINARY_NAME} WIN32 ${OD_SOURCEFILES})
 
-
 # set path
 set(BINDIR games CACHE PATH "")
 
@@ -325,7 +373,14 @@ target_link_libraries(
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES}
 )
-    
+
+# Ogre 1.9 requires OgreOverlay to be linked as well; TODO: add this to FindOgre script
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Debug")
+    target_link_libraries(${PROJECT_BINARY_NAME} OgreOverlay_d)
+else()
+    target_link_libraries(${PROJECT_BINARY_NAME} OgreOverlay)
+endif()
+
 # MSVC automatically links boost
 if(NOT MSVC)
     target_link_libraries(${PROJECT_BINARY_NAME} ${Boost_LIBRARIES})
@@ -383,12 +438,6 @@ else()
     target_link_libraries (${PROJECT_BINARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX)
-    #TODO - move compiler defs
-    #Add compiler warnings
-    #(-fno-strict-aliasing is here to silence a lot of warnings from angelscript)
-    add_definitions( "-Wall -Wunused -Wno-deprecated -fno-strict-aliasing" )
-endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions("-DOD_DEBUG")

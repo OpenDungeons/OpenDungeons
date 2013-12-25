@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2012 Andreas Jonsson
+   Copyright (c) 2003-2013 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -42,8 +42,8 @@
 
 BEGIN_AS_NAMESPACE
 
-// TODO: optimize: The access to the arguments should be optimized so that code 
-//                 doesn't have to count the position of the argument with every call
+// TODO: runtime optimize: The access to the arguments should be optimized so that code 
+//                         doesn't have to count the position of the argument with every call
 
 // internal
 asCGeneric::asCGeneric(asCScriptEngine *engine, asCScriptFunction *sysFunction, void *currentObject, asDWORD *stackPointer)
@@ -69,21 +69,9 @@ asIScriptEngine *asCGeneric::GetEngine() const
 }
 
 // interface
-int asCGeneric::GetFunctionId() const
-{
-	return sysFunction->id;
-}
-
-// interface
 asIScriptFunction *asCGeneric::GetFunction() const
 {
 	return sysFunction;
-}
-
-// interface
-void *asCGeneric::GetFunctionUserData() const
-{
-	return sysFunction->userData;
 }
 
 // interface
@@ -305,10 +293,16 @@ void *asCGeneric::GetAddressOfArg(asUINT arg)
 }
 
 // interface
-int asCGeneric::GetArgTypeId(asUINT arg) const
+int asCGeneric::GetArgTypeId(asUINT arg, asDWORD *flags) const
 {
 	if( arg >= (unsigned)sysFunction->parameterTypes.GetLength() )
 		return 0;
+
+	if( flags )
+	{
+		*flags = sysFunction->inOutFlags[arg];
+		*flags |= sysFunction->parameterTypes[arg].IsReadOnly() ? asTM_CONST : 0;
+	}
 
 	asCDataType *dt = &sysFunction->parameterTypes[arg];
 	if( dt->GetTokenType() != ttQuestion )
@@ -518,9 +512,9 @@ void *asCGeneric::GetAddressOfReturnLocation()
 }
 
 // interface
-int asCGeneric::GetReturnTypeId() const
+int asCGeneric::GetReturnTypeId(asDWORD *flags) const
 {
-	return sysFunction->GetReturnTypeId();
+	return sysFunction->GetReturnTypeId(flags);
 }
 
 END_AS_NAMESPACE

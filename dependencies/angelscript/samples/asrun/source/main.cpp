@@ -150,14 +150,14 @@ int ExecuteScript(asIScriptEngine *engine, const char *scriptFile, bool debug)
 	if( !mod ) return -1;
 
 	// Find the main function
-	int funcId = mod->GetFunctionIdByDecl("int main()");
-	if( funcId < 0 )
+	asIScriptFunction *func = mod->GetFunctionByDecl("int main()");
+	if( func == 0 )
 	{
 		// Try again with "void main()"
-		funcId = mod->GetFunctionIdByDecl("void main()");
+		func = mod->GetFunctionByDecl("void main()");
 	}
 
-	if( funcId < 0 )
+	if( func == 0 )
 	{
 		engine->WriteMessage(scriptFile, 0, 0, asMSGTYPE_ERROR, "Cannot find 'int main()' or 'void main()'");
 		return -1;
@@ -193,7 +193,7 @@ int ExecuteScript(asIScriptEngine *engine, const char *scriptFile, bool debug)
 	}
 
 	// Execute the script
-	ctx->Prepare(funcId);
+	ctx->Prepare(func);
 	r = ctx->Execute();
 	if( r != asEXECUTION_FINISHED )
 	{
@@ -217,7 +217,6 @@ int ExecuteScript(asIScriptEngine *engine, const char *scriptFile, bool debug)
 	else
 	{
 		// Get the return value from the script
-		asIScriptFunction *func = engine->GetFunctionById(funcId);
 		if( func->GetReturnTypeId() == asTYPEID_INT32 )
 		{
 			r = *(int*)ctx->GetAddressOfReturnValue();

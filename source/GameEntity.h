@@ -11,12 +11,16 @@
 #include <cassert>
 #include <string>
 #include <vector>
-
 #include <semaphore.h>
-#include <Ogre.h>
+#include <OgreVector3.h>
+#include <OgreSceneNode.h>
+#include "RenderManager.h"
+#include "RenderRequest.h"
+
 
 class GameMap;
 class Tile;
+class Quadtree;
 
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
@@ -27,6 +31,9 @@ class Tile;
  */
 class GameEntity
 {
+
+
+
 /* TODO list:
  * - GameMap pointer should not be part of every object, since there is only one GameMap, at least let it set by ctor
  * - complete the constructor
@@ -34,165 +41,205 @@ class GameEntity
  * - static removeDeadObjects should not be in here (maybe in GameMap?)
  */
 
-    public:
-        enum ObjectType
-        {
-            unknown, creature, room, trap, weapon, roomobject, missileobject, tile
-        };
+  public:
+    enum ObjectType
+    {
+	unknown, creature, room, trap, weapon, roomobject, missileobject, tile
+    };
 
-        //! \brief Default constructor with default values
-        GameEntity( std::string     nName       = "",
-                    std::string     nMeshName   = "",
-                    int             nColor      = 0
-                  ) :
-            name        (nName),
-            meshName    (nMeshName),
-            meshExists  (false),
-            color       (nColor),
-            active      (true),
-            attackable  (true),
-            objectType  (unknown),
-            position    (Ogre::Vector3(0, 0, 0)),
-            gameMap     (0)
+    //! \brief Default constructor with default values
+  GameEntity( 
+      std::string     nName       = "",
+      std::string     nMeshName   = "",
+      int             nColor      = 0
+      ) : 
+    name        (nName),
+	meshName    (nMeshName),
+	meshExists  (false),
+	color       (nColor),
+	active      (true),
+	attackable  (true),
+	objectType  (unknown),
+	position    (Ogre::Vector3(0, 0, 0)),
+	gameMap     (0)
         {
             sem_init(&positionLockSemaphore, 0, 1);
         }
 
-        virtual ~GameEntity(){}
+    virtual ~GameEntity(){}
 
-        // ===== GETTERS =====
-        //! \brief Get the name of the object
-        inline const std::string&   getName         () const    { return name; }
+    // ===== GETTERS =====
+    //! \brief Get the name of the object
+    inline const std::string&   getName         () const    { return name; }
 
-        //! \brief Get the mesh name of the object
-        inline const std::string&   getMeshName     () const    { return meshName; }
+    //! \brief Get the mesh name of the object
+    inline const std::string&   getMeshName     () const    { return meshName; }
 
-        //! \brief Get the id of the color that the objects belongs to
-        inline int                  getColor        () const    { return color; }
+    //! \brief Get the id of the color that the objects belongs to
+    inline int                  getColor        () const    { return color; }
 
-        //! \brief Get if the mesh is already existing
-        inline bool                 isMeshExisting  () const    { return meshExists; }
+    //! \brief Get if the mesh is already existing
+    inline bool                 isMeshExisting  () const    { return meshExists; }
 
-        //! \brief Get if the object is active (doing sth. on its own) or not
-        inline bool                 isActive        () const    { return active; }
+    //! \brief Get if the object is active (doing sth. on its own) or not
+    inline bool                 isActive        () const    { return active; }
 
-        //! \brief Get if the object can be attacked or not
-        inline bool                 isAttackable    () const    { return attackable; }
+    //! \brief Get if the object can be attacked or not
+    inline bool                 isAttackable    () const    { return attackable; }
 
-        //! \brief Get the type of this object
-        inline ObjectType           getObjectType   () const    { return objectType; }
+    //! \brief Get the type of this object
+    inline ObjectType           getObjectType   () const    { return objectType; }
 
-        //! \brief Pointer to the GameMap
-        inline GameMap*             getGameMap      () const    { return gameMap; }
+    //! \brief Pointer to the GameMap
+    inline GameMap*             getGameMap      () const    { return gameMap; }
 
-        virtual Ogre::Vector3       getPosition     ()
-        {
-            sem_wait(&positionLockSemaphore);
-            Ogre::Vector3 tempVector = position;
-            sem_post(&positionLockSemaphore);
+    virtual Ogre::Vector3       getPosition     ()
+    {
+	sem_wait(&positionLockSemaphore);
+	Ogre::Vector3 tempVector = position;
+	sem_post(&positionLockSemaphore);
 
-            return tempVector;
-        }
+	return tempVector;
+    }
 
-        // ===== SETTERS =====
-        //! \brief Set the name of the entity
-        inline void setName         (const std::string& nName)      { name = nName; }
+    // ===== SETTERS =====
+    //! \brief Set the name of the entity
+    inline void setName         (const std::string& nName)      { name = nName; }
 
-        //! \brief Set the name of the mesh file
-        inline void setMeshName     (const std::string& nMeshName)  { meshName = nMeshName; }
+    //! \brief Set the name of the mesh file
+    inline void setMeshName     (const std::string& nMeshName)  { meshName = nMeshName; }
 
-        //! \brief Set if the mesh exists
-        inline void setColor        (int nColor)                    { color = nColor; }
+    //! \brief Set if the mesh exists
+    inline void setColor        (int nColor)                    { color = nColor; }
 
-        //! \brief Set if the mesh exists
-        inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
+    //! \brief Set if the mesh exists
+    inline void setMeshExisting (bool isExisting)               { meshExists = isExisting; }
 
-        //! \brief Set the type of the object. Should be done in all final derived constructors
-        inline void setObjectType   (ObjectType nType)              { objectType = nType; }
+    //! \brief Set the type of the object. Should be done in all final derived constructors
+    inline void setObjectType   (ObjectType nType)              { objectType = nType; }
 
-        //! \brief set a pointer the MameMap
-        inline virtual void         setGameMap                      (GameMap* gameMap)
-        {
-            this->gameMap = gameMap;
-            assert(gameMap != 0);
-        }
+    //! \brief set a pointer the MameMap
+    inline virtual void         setGameMap                      (GameMap* gameMap)
+    {
+	this->gameMap = gameMap;
+	assert(gameMap != 0);
+    }
 
-        virtual void                setPosition                     (const Ogre::Vector3& v)
-        {
-            sem_wait(&positionLockSemaphore);
-            position = v;
-            sem_post(&positionLockSemaphore);
-        }
 
-        // ===== METHODS =====
-        //! \brief Function that implements the mesh creation
-        virtual void    createMesh      ();
 
-        //! \brief Function that implements the mesh deletion
-        virtual void    destroyMesh     ();
 
-        //! \brief Function that implements code for the removal from the map
-        virtual void    deleteYourself  ();
+    virtual void                setPosition                     (const Ogre::Vector3& v)
+    {
+	sem_wait(&positionLockSemaphore);
+	position = v;
+	sem_post(&positionLockSemaphore);
+    }
 
-        //! \brief defines what happens on each turn with this object
-        virtual bool    doUpkeep        () = 0;
+    // ===== METHODS =====
+    //! \brief Function that implements the mesh creation
+    virtual void    createMesh      ();
 
-        //! \brief Returns a list of the tiles that this object is in/covering.  For creatures and other small objects
-        //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
-        virtual std::vector<Tile*> getCoveredTiles() = 0;
+    //! \brief Function that implements the mesh deletion
+    virtual void    destroyMesh     ();
 
-        //! \brief Returns the HP associated with the given tile of the object, it is up to the object how they want to treat the tile/HP relationship.
-        virtual double getHP(Tile *tile) = 0;
+    //! \brief Function that implements code for the removal from the map
+    virtual void    deleteYourself  ();
 
-        //! \brief Returns defense rating for the object, i.e. how much less than inflicted damage should it recieve.
-        virtual double getDefense() const = 0;
 
-        //! \brief Subtracts the given number of hitpoints from the object, the tile specifies where
-        //! the enemy inflicted the damage and the object can use this accordingly.
-        virtual void takeDamage(double damage, Tile *tileTakingDamage) = 0;
+    inline void show(){
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::attachTile;
+	request->p = static_cast<void*>(this);
 
-        static std::vector<GameEntity*> removeDeadObjects(const std::vector<GameEntity*> &objects)
-        {
-            std::vector<GameEntity*> ret;
-            for(unsigned int i = 0, size = objects.size(); i < size; ++i)
-            {
-                if (objects[i]->getHP(NULL) > 0.0)
-                    ret.push_back(objects[i]);
-            }
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	RenderManager::queueRenderRequest(request);
+  
+  
+  
+  
+    };
 
-            return ret;
-        }
+    inline void hide(){
+  
+	RenderRequest *request = new RenderRequest;
+	request->type = RenderRequest::detachTile;
+	request->p = static_cast<void*>(this);
 
-    private:
-        //! brief The name of the entity
-        std::string     name;
+	// Add the request to the queue of rendering operations to be performed before the next frame.
+	RenderManager::queueRenderRequest(request);  
+  
+  
+    };
 
-        //! \brief The name of the mesh
-        std::string     meshName;
 
-        //! \brief Stores the existence state of the mesh
-        bool            meshExists;
+    //! \brief defines what happens on each turn with this object
+    virtual bool    doUpkeep        () = 0;
 
-        //! \brief The id of the color that the objcts belongs to
-        int             color;
+    //! \brief Returns a list of the tiles that this object is in/covering.  For creatures and other small objects
+    //! this will be a single tile, for larger objects like rooms this will be 1 or more tiles.
+    virtual std::vector<Tile*> getCoveredTiles() = 0;
 
-        //! \brief A flag saying whether the object is active (doing something on its own) or not
-        bool            active;
+    //! \brief Returns the HP associated with the given tile of the object, it is up to the object how they want to treat the tile/HP relationship.
+    virtual double getHP(Tile *tile) = 0;
 
-        //! \brief A flag saying whether the object can be attacked or not
-        bool            attackable;
+    //! \brief Returns defense rating for the object, i.e. how much less than inflicted damage should it recieve.
+    virtual double getDefense() const = 0;
 
-        //! \brief What kind of object is it
-        ObjectType      objectType;
+    //! \brief Subtracts the given number of hitpoints from the object, the tile specifies where
+    //! the enemy inflicted the damage and the object can use this accordingly.
+    virtual void takeDamage(double damage, Tile *tileTakingDamage) = 0;
 
-        //! \brief The position of this object
-        Ogre::Vector3   position;
+    Ogre::SceneNode* pSN;
 
-        //! \brief Pointer to the GameMap object.
-        GameMap*        gameMap;
+    static std::vector<GameEntity*> removeDeadObjects(const std::vector<GameEntity*> &objects)
+    {
+	std::vector<GameEntity*> ret;
+	for(unsigned int i = 0, size = objects.size(); i < size; ++i)
+	{
+	    if (objects[i]->getHP(NULL) > 0.0)
+		ret.push_back(objects[i]);
+	}
 
-        //! \brief The semaphore to lock the position
-        sem_t           positionLockSemaphore;
+	return ret;
+    }
+
+  protected:
+    //! \brief The position of this object
+    Ogre::Vector3   position;
+
+  private:
+
+        
+
+
+    //! brief The name of the entity
+    std::string     name;
+
+    //! \brief The name of the mesh
+    std::string     meshName;
+
+    //! \brief Stores the existence state of the mesh
+    bool            meshExists;
+
+    //! \brief The id of the color that the objcts belongs to
+    int             color;
+
+    //! \brief A flag saying whether the object is active (doing something on its own) or not
+    bool            active;
+
+    //! \brief A flag saying whether the object can be attacked or not
+    bool            attackable;
+
+    //! \brief What kind of object is it
+    ObjectType      objectType;
+
+
+
+    //! \brief Pointer to the GameMap object.
+    GameMap*        gameMap;
+
+    //! \brief The semaphore to lock the position
+    sem_t           positionLockSemaphore;
 };
 
 #endif /* GAMEENTITY_H_ */

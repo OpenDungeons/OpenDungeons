@@ -8,7 +8,7 @@
 #ifndef ASWRAPPER_H_
 #define ASWRAPPER_H_
 
-#include <Ogre.h>
+#include <OgreSingleton.h>
 
 class asIObjectType;
 class asIScriptContext;
@@ -16,6 +16,7 @@ class asIScriptEngine;
 class asIScriptModule;
 class asSMessageInfo;
 class CScriptBuilder;
+class CameraManager;
 
 /*! \brief This singleton initialises AngelScript and provides all neccessary functions to
  *         execute script code, including registering our own classes, templated reference
@@ -24,7 +25,7 @@ class CScriptBuilder;
 class ASWrapper : public Ogre::Singleton<ASWrapper>
 {
     public:
-        ASWrapper   ();
+        ASWrapper   (CameraManager*);
         ~ASWrapper  ();
 
         void executeScriptCode      (const std::string& code);
@@ -35,6 +36,7 @@ class ASWrapper : public Ogre::Singleton<ASWrapper>
         CScriptBuilder*     builder;
         asIScriptContext*   context;
         asIObjectType*      stringArray;
+	CameraManager*      cameraManager;
 
         void messageCallback    (const asSMessageInfo* msg, void* param);
         void registerEverything ();

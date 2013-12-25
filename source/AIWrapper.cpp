@@ -26,6 +26,7 @@
 AIWrapper::AIWrapper(GameMap& gameMap, Player& player)
     : gameMap(gameMap), player(player), seat(*player.getSeat()), dungeonTemple(NULL)
 {
+    setContainer(&gameMap);
 }
 
 /*
@@ -96,15 +97,6 @@ void AIWrapper::markTileForDigging(Tile* tile)
     tile->setMarkedForDigging(true, &player);
 }
 
-std::vector< Tile* > AIWrapper::rectangularRegion(int x1, int y1, int x2, int y2)
-{
-    return gameMap.rectangularRegion(x1, y1, x2, y2);
-}
-
-std::vector< Tile* > AIWrapper::circularRegion(int x, int y, double radius)
-{
-    return gameMap.circularRegion(x, y, radius);
-}
 
 int AIWrapper::getGoldInTreasury() const
 {

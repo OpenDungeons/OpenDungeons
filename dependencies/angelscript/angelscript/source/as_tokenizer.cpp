@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2011 Andreas Jonsson
+   Copyright (c) 2003-2013 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -89,6 +89,14 @@ const char *asCTokenizer::GetDefinition(int tokenType)
 			return tokenWords[n].word;
 
 	return 0;
+}
+
+bool asCTokenizer::IsDigitInRadix(char ch, int radix) const
+{
+	if( ch >= '0' && ch <= '9' ) return (ch -= '0') < radix;
+	if( ch >= 'A' && ch <= 'Z' ) return (ch -= 'A'-10) < radix;
+	if( ch >= 'a' && ch <= 'z' ) return (ch -= 'a'-10) < radix;
+	return false;
 }
 
 eTokenType asCTokenizer::GetToken(const char *source, size_t sourceLength, size_t *tokenLength, asETokenClass *tc) const
@@ -214,21 +222,30 @@ bool asCTokenizer::IsConstant(const char *source, size_t sourceLength, size_t &t
 	// Starting with number
 	if( (source[0] >= '0' && source[0] <= '9') || (source[0] == '.' && sourceLength > 1 && source[1] >= '0' && source[1] <= '9') )
 	{
-		// Is it a hexadecimal number?
-		if( source[0] == '0' && sourceLength > 1 && (source[1] == 'x' || source[1] == 'X') )
+		// Is it a based number?
+		if( source[0] == '0' && sourceLength > 1 )
 		{
-			size_t n;
-			for( n = 2; n < sourceLength; n++ )
-			{
-				if( !(source[n] >= '0' && source[n] <= '9') &&
-					!(source[n] >= 'a' && source[n] <= 'f') &&
-					!(source[n] >= 'A' && source[n] <= 'F') )
-					break;
-			}
+			// Determine the radix for the constant
+			int radix = 0;
+			switch( source[1] )
+ 			{
+			case 'b': case 'B': radix =  2; break;
+			case 'o': case 'O': radix =  8; break;
+			case 'd': case 'D': radix = 10; break;
+			case 'x': case 'X': radix = 16; break;
+ 			}
 
-			tokenType   = ttBitsConstant;
-			tokenLength = n;
-			return true;
+			if( radix )
+			{
+				size_t n;
+				for( n = 2; n < sourceLength; n++ )
+					if( !IsDigitInRadix(source[n], radix) )
+						break;
+
+				tokenType   = ttBitsConstant;
+				tokenLength = n;
+				return true;
+			}
 		}
 
 		size_t n;
@@ -238,13 +255,16 @@ bool asCTokenizer::IsConstant(const char *source, size_t sourceLength, size_t &t
 				break;
 		}
 
-		if( n < sourceLength && source[n] == '.' )
+		if( n < sourceLength && (source[n] == '.' || source[n] == 'e' || source[n] == 'E') )
 		{
-			n++;
-			for( ; n < sourceLength; n++ )
+			if( source[n] == '.' )
 			{
-				if( source[n] < '0' || source[n] > '9' )
-					break;
+				n++;
+				for( ; n < sourceLength; n++ )
+				{
+					if( source[n] < '0' || source[n] > '9' )
+						break;
+				}
 			}
 
 			if( n < sourceLength && (source[n] == 'e' || source[n] == 'E') )
@@ -385,6 +405,17 @@ bool asCTokenizer::IsKeyWord(const char *source, size_t sourceLength, size_t &to
 	// Choose the best map
 	const asCMap<asCStringPointer,eTokenType> *map;
 	int maxLength;
+
+	// Optimization for large array init-lists
+	// This makes a significant improvement when parsing
+	// very long initialization lists, yet doesn't cause
+	// a noticeable impact in other situations.
+	if (source[0] == ',')
+	{
+		tokenType = ttListSeparator;
+		tokenLength = 1;
+		return true;
+	}
 
 	if( (source[0] >= 'a' && source[0] <= 'z') ||
 		(source[0] >= 'A' && source[0] <= 'Z') )

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    
+    <xs:group name="SeatList" >
+        <xs:sequence>
+            <xs:element name="Seat"  maxOccurs="unbounded">   
+                <xs:complexType >
+                    <xs:sequence>
+                        <xs:element name="color" type="xs:string"/>
+                        <xs:element name="faction" type="xs:string"/>
+                        <xs:element name="startingX" type="xs:integer"/>
+                        <xs:element name="startingY" type="xs:integer"/>
+                        <xs:element name="colorR" type="xs:decimal"/>            
+                        <xs:element name="colorG" type="xs:decimal"/>
+                        <xs:element name="colorB" type="xs:decimal"/>            
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>        
+        </xs:sequence>      
+    </xs:group>
+    <xs:element name="SeatList" >
+        <xs:complexType >
+        <xs:sequence maxOccurs="1">
+            <xs:group ref="SeatList"/>
+        </xs:sequence>
+        </xs:complexType >
+    </xs:element>  
+</xs:schema>

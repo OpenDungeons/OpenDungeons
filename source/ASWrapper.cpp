@@ -37,18 +37,19 @@
 
 #include "ASWrapper.h"
 
-template<> ASWrapper* Ogre::Singleton<ASWrapper>::ms_Singleton = 0;
+template<> ASWrapper* Ogre::Singleton<ASWrapper>::msSingleton = 0;
 
 /*! \brief Initialises AngelScript
  *
  */
-ASWrapper::ASWrapper() :
+ASWrapper::ASWrapper(CameraManager* cm) :
         engine  (asCreateScriptEngine(ANGELSCRIPT_VERSION)),
         builder (new CScriptBuilder()),
-        context (engine->CreateContext())
+        context (engine->CreateContext()),
+	cameraManager(cm)
 {
     LogManager::getSingleton().logMessage("*** Initialising script engine AngelScript ***");
-
+    LogManager::getSingleton().logMessage( asGetLibraryOptions());
     //register function that gives out standard runtime information
     engine->SetMessageCallback(asMETHOD(ASWrapper, messageCallback), this, asCALL_THISCALL);
 
@@ -72,7 +73,6 @@ ASWrapper::ASWrapper() :
 
     //Compile AS code, syntax errors will be printed to our Console
     builder->BuildModule();
-    LogManager::getSingleton().logMessage("*** AngelScript initialised ***");
 }
 
 /*! \brief closes AngelScript
@@ -364,7 +364,7 @@ void ASWrapper::registerEverything()
             "CameraManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
     r = engine->RegisterGlobalProperty(
             "CameraManager cameraManager",
-            CameraManager::getSingletonPtr()); assert(r >= 0);
+            cameraManager); assert(r >= 0);
     r = engine->RegisterObjectMethod("CameraManager",
             "void set_MoveSpeedAccel(float &in)",
             asMETHOD(CameraManager, setMoveSpeedAccel),
@@ -396,7 +396,7 @@ void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullComman
     	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];
     }
 
-    context->Prepare(builder->GetModule()->GetFunctionIdByDecl(
+    context->Prepare(builder->GetModule()->GetFunctionByDecl(
             "void executeConsoleCommand(string &in, string[] &in)"));
     context->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
     context->SetArgObject(1, arguments);

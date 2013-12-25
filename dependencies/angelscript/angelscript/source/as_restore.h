@@ -50,17 +50,20 @@ class asCReader
 public:
 	asCReader(asCModule *module, asIBinaryStream *stream, asCScriptEngine *engine);
 
-	int Read();
+	int Read(bool *wasDebugInfoStripped);
 
 protected:
 	asCModule       *module;
 	asIBinaryStream *stream;
 	asCScriptEngine *engine;
+	bool             noDebugInfo;
 	bool             error;
+
+	int                ReadInner();
 
 	void               ReadData(void *data, asUINT size);
 	void               ReadString(asCString *str);
-	asCScriptFunction *ReadFunction(bool addToModule = true, bool addToEngine = true, bool addToGC = true);
+	asCScriptFunction *ReadFunction(bool &isNew, bool addToModule = true, bool addToEngine = true, bool addToGC = true);
 	void               ReadFunctionSignature(asCScriptFunction *func);
 	void               ReadGlobalProperty();
 	void               ReadObjectProperty(asCObjectType *ot);
@@ -121,7 +124,7 @@ protected:
 class asCWriter
 {
 public:
-	asCWriter(asCModule *module, asIBinaryStream *stream, asCScriptEngine *engine);
+	asCWriter(asCModule *module, asIBinaryStream *stream, asCScriptEngine *engine, bool stripDebugInfo);
 
 	int Write();
 
@@ -129,6 +132,7 @@ protected:
 	asCModule       *module;
 	asIBinaryStream *stream;
 	asCScriptEngine *engine;
+	bool             stripDebugInfo;
 
 	void WriteData(const void *data, asUINT size);
 

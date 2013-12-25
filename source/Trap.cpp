@@ -9,7 +9,6 @@
 #include "Random.h"
 #include "SoundEffectsHelper.h"
 #include "Player.h"
-
 #include "Trap.h"
 
 const double Trap::defaultTileHP = 10.0;
@@ -312,6 +311,8 @@ std::istream& operator>>(std::istream& is, Trap *t)
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
+	tempX+= t->getGameMap()->getMapSizeX()/2 ;
+	tempY+= t->getGameMap()->getMapSizeY()/2 ;
         Tile *tempTile = t->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
         {

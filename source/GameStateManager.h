@@ -25,12 +25,13 @@
 #ifndef GAMESTATE_H
 #define GAMESTATE_H
 
-#include <stack>
-
-#include <boost/shared_ptr.hpp>
 #include <OgreSingleton.h>
-
+#include <vector>
 #include <AbstractGameState.h>
+
+using std::vector;
+
+
 
 /*! \brief Class to manage the state of the game. (if we are in the menu, gameMode etc.)
  *
@@ -39,42 +40,25 @@ class GameStateManager :
     public Ogre::Singleton<GameStateManager>
 {
 public:
-    enum ApplicationStateId {
-        MENU = 0,
+    enum ApplicationState {
+        MENU,
         GAME,
         EDITOR
     };
     //add game-modes etc. here
     
     GameStateManager();
-    
-    inline AbstractGameState& getCurrentState()
-    {
-        return *gameStateStack.top();
-    }
 
-    inline ApplicationStateId getApplicationStateId() const
-    {
-        return applicationStateId;
-    }
-    inline void setApplicationState(ApplicationStateId applicationStateId)
-    {
-        this->applicationStateId = applicationStateId;
-    }
-    bool getIsServer() const
-    {
-        return isServer;
-    }
-    void setIsServer(bool isServer)
-    {
-        this->isServer = isServer;
-    }
+    ApplicationState getApplicationState(){return 
+applicationState;}
+    void setApplicationState(ApplicationState applicationState){this->applicationState = applicationState;}
+    bool getIsServer(){return isServer;}
+    void setIsServer(bool isServer){this->isServer = isServer;}
 private:
     GameStateManager(const GameStateManager&);
-    std::stack<AbstractGameState*> gameStateStack;
-    std::vector<boost::shared_ptr<AbstractGameState> > gameStates;
+    vector<AbstractGameState*> gameStateStack;
     bool isServer;
-    ApplicationStateId applicationStateId;
+    ApplicationState applicationState;
 };
 
 #endif // GAMESTATE_H

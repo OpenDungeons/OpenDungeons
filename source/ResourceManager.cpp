@@ -34,7 +34,7 @@
 
 #include "ResourceManager.h"
 
-template<> ResourceManager* Ogre::Singleton<ResourceManager>::ms_Singleton = 0;
+template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = 0;
 #if defined(OD_DEBUG) && OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 //On windows, if the application is compiled in debug mode, use the plugins with debug prefix.
 const std::string ResourceManager::PLUGINSCFG = "plugins_d.cfg";
@@ -49,6 +49,7 @@ const std::string ResourceManager::LANGUAGESUBPATH = "lang/";
 const std::string ResourceManager::SHADERCACHESUBPATH = "shaderCache/";
 const std::string ResourceManager::CONFIGFILENAME = "ogre.cfg";
 const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
+
 const std::string ResourceManager::RESOURCEGROUPMUSIC = "Music";
 const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
 

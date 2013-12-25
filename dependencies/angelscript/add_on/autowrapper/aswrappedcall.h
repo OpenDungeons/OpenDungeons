@@ -1,7 +1,11 @@
 #ifndef AS_GEN_WRAPPER_H
 #define AS_GEN_WRAPPER_H
 
-#include "angelscript.h"
+#ifndef ANGELSCRIPT_H 
+// Avoid having to inform include path if header is already include before
+#include <angelscript.h>
+#endif
+
 #include <new>
 
 namespace gw {
@@ -547,18 +551,30 @@ struct Id {
 template <typename T>
 Id<T> id(T fn_ptr) { return Id<T>(); }
 
-#define WRAP_FN(name)             (::gw::id(name).f< name >())
-#define WRAP_MFN(ClassType, name) (::gw::id(&ClassType::name).f< &ClassType::name >())
-#define WRAP_OBJ_FIRST(name)      (::gw::id(name).of< name >())
-#define WRAP_OBJ_LAST(name)       (::gw::id(name).ol< name >())
+// On some versions of GNUC it is necessary to use the template keyword as disambiguator,
+// on others the template keyword gives an error, hence the need for the following define.
+// MSVC on the other hand seems to accept both with or without the template keyword.
+#if defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 4)) 
+	// GNUC 4.4.3 doesn't need the template keyword, and 
+	// hopefully upcoming versions won't need it either
+	#define TMPL template
+#else
+	#define TMPL
+#endif
 
-#define WRAP_FN_PR(name, Parameters, ReturnType)             asFUNCTION((::gw::Wrapper<ReturnType (*)Parameters>::f< name >))
-#define WRAP_MFN_PR(ClassType, name, Parameters, ReturnType) asFUNCTION((::gw::Wrapper<ReturnType (ClassType::*)Parameters>::f< &ClassType::name >))
-#define WRAP_OBJ_FIRST_PR(name, Parameters, ReturnType)      asFUNCTION((::gw::ObjFirst<ReturnType (*)Parameters>::f< name >))
-#define WRAP_OBJ_LAST_PR(name, Parameters, ReturnType)       asFUNCTION((::gw::ObjLast<ReturnType (*)Parameters>::f< name >))
+#define WRAP_FN(name)             (::gw::id(name).TMPL f< name >())
+#define WRAP_MFN(ClassType, name) (::gw::id(&ClassType::name).TMPL f< &ClassType::name >())
+#define WRAP_OBJ_FIRST(name)      (::gw::id(name).TMPL of< name >())
+#define WRAP_OBJ_LAST(name)       (::gw::id(name).TMPL ol< name >())
+
+#define WRAP_FN_PR(name, Parameters, ReturnType)             asFUNCTION((::gw::Wrapper<ReturnType (*)Parameters>::TMPL f< name >))
+#define WRAP_MFN_PR(ClassType, name, Parameters, ReturnType) asFUNCTION((::gw::Wrapper<ReturnType (ClassType::*)Parameters>::TMPL f< &ClassType::name >))
+#define WRAP_OBJ_FIRST_PR(name, Parameters, ReturnType)      asFUNCTION((::gw::ObjFirst<ReturnType (*)Parameters>::TMPL f< name >))
+#define WRAP_OBJ_LAST_PR(name, Parameters, ReturnType)       asFUNCTION((::gw::ObjLast<ReturnType (*)Parameters>::TMPL f< name >))
 
 #define WRAP_CON(ClassType, Parameters) asFUNCTION((::gw::Constructor<ClassType Parameters>::f))
 #define WRAP_DES(ClassType)             asFUNCTION((::gw::destroy<ClassType>))
+
 
 } // end namespace gw
 

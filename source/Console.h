@@ -11,20 +11,40 @@
 #include <list>
 #include <vector>
 
-#include <OgreFrameListener.h>
-#include <Ogre.h>
-#include <OIS/OIS.h>
 
+#include <ODFrameListener.h>
+#include <OIS/OISMouse.h>
+#include <OIS/OISKeyboard.h>
+#include <OgreSingleton.h>
+#include <OgreString.h>
+#include <OgreFrameListener.h>
+#include <OgreLog.h>
+#include <OgrePrerequisites.h>
+#include <Overlay/OgreOverlayContainer.h>
+#include <Overlay/OgreOverlay.h>
+#include <Overlay/OgreOverlayElement.h>
+
+
+#include "GameMode.h"
+#include "GameMap.h"
 #include "Gui.h"
+
+using std::string;
+class ModeManager;
+
 
 class Console :
         public Ogre::Singleton<Console>,
         public Ogre::FrameListener,
         public Ogre::LogListener
 {
+    friend class ConsoleMode;
     public:
         Console();
         ~Console();
+
+	void  setModeManager(ModeManager* mm){modeManager = mm;};
+	void setCameraManager(CameraManager* tmp){cm = tmp;};
 
         inline const bool& isVisible() const{return visible;}
         void setVisible(const bool newState);
@@ -50,10 +70,24 @@ class Console :
         void onMouseMoved   (const OIS::MouseEvent& arg, const bool isCtrlDown = false);
         void onKeyPressed   (const OIS::KeyEvent& arg);
         void messageLogged  (const Ogre::String& message, Ogre::LogMessageLevel lml,
-                bool maskDebug, const Ogre::String& logName);
+        bool maskDebug, const Ogre::String& logName, bool& skipThisMessage);
+        bool executePromptCommand(const std::string& command, std::string arguments);
+	string getHelpText(std::string arg);
+	void printText(const std::string& text);
 
     private:
+
+        // Console variables
+        std::deque<ChatMessage*> chatMessages;
+        std::string promptCommand, chatString;
+
+
+
         //state variables
+
+	ModeManager*    modeManager;
+        CameraManager* cm;
+	ODFrameListener* odf;
         unsigned int    consoleLineLength;
         unsigned int    consoleLineCount;
         Ogre::Real      blinkSpeed;
@@ -78,6 +112,9 @@ class Console :
         Ogre::String            cursorChar;
 
         //history variables
+
+
+
         std::vector<Ogre::String>   history;
         unsigned int                curHistPos;
 

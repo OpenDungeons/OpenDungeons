@@ -217,10 +217,18 @@ std::ostream& operator<<(std::ostream& os, MapLight *m)
 std::istream& operator>>(std::istream& is, MapLight *m)
 {
     is >> m->position.x >> m->position.y >> m->position.z;
+    m->position.x+=m->gameMap->getMapSizeX()/2;
+    m->position.y+=m->gameMap->getMapSizeY()/2;
     is >> m->diffuseColor.r >> m->diffuseColor.g >> m->diffuseColor.b;
     is >> m->specularColor.r >> m->specularColor.g >> m->specularColor.b;
     is >> m->attenuationRange >> m->attenuationConstant;
     is >> m->attenuationLinear >> m->attenuationQuadratic;
 
     return is;
+}
+
+
+void MapLight::setGameMap(GameMap* gm){
+    gameMap=gm;
+
 }

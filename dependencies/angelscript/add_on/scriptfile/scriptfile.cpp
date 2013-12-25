@@ -256,12 +256,12 @@ CScriptFile::~CScriptFile()
 
 void CScriptFile::AddRef() const
 {
-    ++refCount;
+	asAtomicInc(refCount);
 }
 
 void CScriptFile::Release() const
 {
-    if( --refCount == 0 )
+    if( asAtomicDec(refCount) == 0 )
         delete this;
 }
 
@@ -316,7 +316,9 @@ int CScriptFile::Open(const std::string &filename, const std::string &mode)
 	m += "b";
 
     // Open the file
-#if _MSC_VER >= 1400 // MSVC 8.0 / 2005
+#if _MSC_VER >= 1400 && !defined(__S3E__) 
+	// MSVC 8.0 / 2005 introduced new functions 
+	// Marmalade doesn't use these, even though it uses the MSVC compiler
 	fopen_s(&file, myFilename.c_str(), m.c_str());
 #else
     file = fopen(myFilename.c_str(), m.c_str());

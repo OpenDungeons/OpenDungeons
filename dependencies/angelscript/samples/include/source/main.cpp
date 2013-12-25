@@ -141,9 +141,9 @@ int RunApplication()
 		return -1;
 	}
 
-	// Find the function id for the function we want to execute.
-	int funcId = engine->GetModule(0)->GetFunctionIdByDecl("void main()");
-	if( funcId < 0 )
+	// Find the function for the function we want to execute.
+	asIScriptFunction *func = engine->GetModule(0)->GetFunctionByDecl("void main()");
+	if( func == 0 )
 	{
 		cout << "The function 'void main()' was not found." << endl;
 		ctx->Release();
@@ -154,9 +154,9 @@ int RunApplication()
 	// Prepare the script context with the function we wish to execute. Prepare()
 	// must be called on the context before each new script function that will be
 	// executed. Note, that if you intend to execute the same function several 
-	// times, it might be a good idea to store the function id returned by 
-	// GetFunctionIDByDecl(), so that this relatively slow call can be skipped.
-	r = ctx->Prepare(funcId);
+	// times, it might be a good idea to store the function returned by 
+	// GetFunctionByDecl(), so that this relatively slow call can be skipped.
+	r = ctx->Prepare(func);
 	if( r < 0 ) 
 	{
 		cout << "Failed to prepare the context." << endl;

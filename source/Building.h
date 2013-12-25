@@ -11,7 +11,6 @@
 #include "GameEntity.h"
 #include "Seat.h"
 
-class Seat;
 
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
@@ -35,7 +34,6 @@ class Building : public GameEntity
 
         // ===== SETTERS =====
         inline void setControllingSeat  (Seat* nCS) { controllingSeat = nCS; setColor(nCS->getColor()); }
-
     private:
         //! \brief The Seat controlling this building
         Seat*                   controllingSeat;

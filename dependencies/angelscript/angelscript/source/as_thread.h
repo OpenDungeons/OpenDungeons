@@ -1,6 +1,6 @@
 /*
    AngelCode Scripting Library
-   Copyright (c) 2003-2008 Andreas Jonsson
+   Copyright (c) 2003-2013 Andreas Jonsson
 
    This software is provided 'as-is', without any express or implied 
    warranty. In no event will the authors be held liable for any 
@@ -43,40 +43,39 @@
 #include "as_string.h"
 #include "as_array.h"
 #include "as_map.h"
-#include "as_atomic.h"
 #include "as_criticalsection.h"
 
 BEGIN_AS_NAMESPACE
 
 class asCThreadLocalData;
 
-class asCThreadManager
+class asCThreadManager : public asIThreadManager
 {
 public:
-	asCThreadManager();
+	static asCThreadLocalData *GetLocalData();
+	static int CleanupLocalData();
 
-	asCThreadLocalData *GetLocalData();
-	int CleanupLocalData();
+	static int  Prepare(asIThreadManager *externalThreadMgr);
+	static void Unprepare();
 
-	void AddRef();
-	void Release();
+	// This read/write lock can be used by the application to provide simple synchronization
+	DECLAREREADWRITELOCK(appRWLock)
 
 protected:
+	asCThreadManager();
 	~asCThreadManager();
-	asCAtomic refCount;
+
+	// No need to use the atomic int here, as it will only be
+	// updated within the thread manager's critical section
+	int refCount;
 
 #ifndef AS_NO_THREADS
-	asCThreadLocalData *GetLocalData(asPWORD threadId);
-	void SetLocalData(asPWORD threadId, asCThreadLocalData *tld);
-
-	asCMap<asPWORD,asCThreadLocalData*> tldMap;
-	DECLARECRITICALSECTION(criticalSection)
+	asDWORD tlsKey;
+	DECLARECRITICALSECTION(criticalSection);
 #else
 	asCThreadLocalData *tld;
 #endif
 };
-
-extern asCThreadManager *threadManager;
 
 //======================================================================
 

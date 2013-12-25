@@ -6,9 +6,12 @@
 
 class GameMap;
 class CameraManager;
-class InputManager;
+class ModeManager;
 class LogManager;
 class RenderManager;
+
+
+
 
 namespace Ogre
 {
@@ -19,18 +22,23 @@ namespace Ogre
 class GameContext
 {
     public:
-        GameContext(Ogre::RenderWindow* renderWindow);
+    GameContext(Ogre::RenderWindow* , ModeManager* ,GameMap*);
         ~GameContext();
         inline GameMap* getGameMap()
         {
-            return gameMap.get();
+            return gameMap;
         }
+
+	void onFrameStarted(const Ogre::FrameEvent& evt);
+	void onFrameEnded(const Ogre::FrameEvent& evt);
+	void setCameraManager(CameraManager*  );
+
     private:
-        boost::shared_ptr<GameMap> gameMap;
+        GameMap* gameMap;
         //TODO: Un-singleton this class and make it a stack object.
         RenderManager*          renderManager;
         CameraManager*          cameraManager;
-        InputManager*           inputManager;
+        ModeManager*            modeManager;
         LogManager*             logManager;
         long int                previousTurn;
         Ogre::SceneNode*        creatureSceneNode;

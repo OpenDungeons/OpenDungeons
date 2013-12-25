@@ -1,4 +1,3 @@
-
 //
 // CSerializer
 //
@@ -53,13 +52,18 @@ int CSerializer::Store(asIScriptModule *mod)
 	m_root.m_serializer = this;
 
 	// First store global variables
-	for( asUINT i = 0; i < mod->GetGlobalVarCount(); i++ )
+	asUINT i;
+	for( i = 0; i < mod->GetGlobalVarCount(); i++ )
 	{
 		const char *name, *nameSpace;
 		int typeId;
 		mod->GetGlobalVar(i, &name, &nameSpace, &typeId);
 		m_root.m_children.push_back(new CSerializedValue(&m_root, name, nameSpace, mod->GetAddressOfGlobalVar(i), typeId));
 	}
+
+	// Second store extra objects
+	for( i = 0; i < m_extraObjects.size(); i++ )
+		m_root.m_children.push_back(new CSerializedValue(&m_root, "", "", m_extraObjects[i].originalObject, m_extraObjects[i].originalTypeId));
 
 	// For the handles that were stored, we need to substitute the stored pointer
 	// that is still pointing to the original object to an internal reference so
@@ -79,9 +83,31 @@ int CSerializer::Restore(asIScriptModule *mod)
 	if( m_engine ) m_engine->Release();
 	m_engine = mod->GetEngine();
 
-	// First restore the global variables
+	// First restore extra objects, i.e. the ones that are not directly seen from the module's global variables
+	asUINT i;
+	for( i = 0; i < m_extraObjects.size(); i++ )
+	{
+		SExtraObject &o = m_extraObjects[i];
+		asIObjectType *type = m_mod->GetObjectTypeByName( o.originalClassName.c_str() );
+		if( type )
+		{
+			for( size_t i2 = 0; i2 < m_root.m_children.size(); i2++ )
+			{
+				if( m_root.m_children[i2]->m_originalPtr == o.originalObject )
+				{
+					// Create a new script object, but don't call its constructor as we will initialize the members. 
+					// Calling the constructor may have unwanted side effects if for example the constructor changes
+					// any outside entities, such as setting global variables to point to new objects, etc.
+					void *newPtr = m_engine->CreateUninitializedScriptObject( type );
+					m_root.m_children[i2]->Restore( newPtr, type->GetTypeId() ); 
+				}
+			}
+		}
+	}
+
+	// Second restore the global variables
 	asUINT varCount = mod->GetGlobalVarCount();
-	for( asUINT i = 0; i < varCount; i++ )
+	for( i = 0; i < varCount; i++ )
 	{
 		const char *name, *nameSpace;
 		int typeId;
@@ -98,6 +124,30 @@ int CSerializer::Restore(asIScriptModule *mod)
 
 	return 0;
 }
+
+void *CSerializer::GetPointerToRestoredObject(void *ptr)
+{
+	return m_root.GetPointerToRestoredObject( ptr );
+}
+
+void CSerializer::AddExtraObjectToStore( asIScriptObject *object )
+{
+	if( !object )
+		return;
+
+	// Check if the object hasn't been included already
+	for( size_t i=0; i < m_extraObjects.size(); i++ )
+		if( m_extraObjects[i].originalObject == object )
+			return;
+
+	SExtraObject o;
+	o.originalObject    = object;
+	o.originalClassName = object->GetObjectType()->GetName();
+	o.originalTypeId    = object->GetTypeId();
+
+	m_extraObjects.push_back( o );
+}
+
 
 ///////////////////////////////////////////////////////////////////////////////////
 
@@ -118,13 +168,13 @@ CSerializedValue::CSerializedValue(CSerializedValue *parent, const std::string &
 
 void CSerializedValue::Init()
 {
-	m_handlePtr  = 0;
-	m_restorePtr = 0;
-	m_typeId     = 0;
-	m_isInit     = false;
-	m_serializer = 0;
-	m_userData   = 0;
-	m_ptr        = 0;
+	m_handlePtr   = 0;
+	m_restorePtr  = 0;
+	m_typeId      = 0;
+	m_isInit      = false;
+	m_serializer  = 0;
+	m_userData    = 0;
+	m_originalPtr = 0;
 }
 
 void CSerializedValue::Uninit()
@@ -148,7 +198,7 @@ void CSerializedValue::ClearChildren()
 	// then it is necessary to release the handle here, so we won't get a memory leak
 	if( (m_typeId & asTYPEID_OBJHANDLE) && m_children.size() == 1 && m_children[0]->m_restorePtr )
 	{
-		m_serializer->m_engine->ReleaseScriptObject(m_children[0]->m_restorePtr, m_children[0]->m_typeId);
+		m_serializer->m_engine->ReleaseScriptObject(m_children[0]->m_restorePtr, m_serializer->m_engine->GetObjectTypeById(m_children[0]->m_typeId));
 	}
 
 	for( size_t n = 0; n < m_children.size(); n++ )
@@ -173,7 +223,7 @@ CSerializedValue *CSerializedValue::FindByName(const std::string &name, const st
 
 void  CSerializedValue::GetAllPointersOfChildren(std::vector<void*> *ptrs)
 {
-	ptrs->push_back(m_ptr);
+	ptrs->push_back(m_originalPtr);
 
 	for( size_t i = 0; i < m_children.size(); ++i )
 		m_children[i]->GetAllPointersOfChildren(ptrs);
@@ -181,7 +231,7 @@ void  CSerializedValue::GetAllPointersOfChildren(std::vector<void*> *ptrs)
 
 CSerializedValue *CSerializedValue::FindByPtr(void *ptr)
 {
-	if( m_ptr == ptr )
+	if( m_originalPtr == ptr )
 		return this;
 
 	for( size_t i = 0; i < m_children.size(); i++ )
@@ -196,7 +246,7 @@ CSerializedValue *CSerializedValue::FindByPtr(void *ptr)
 
 void *CSerializedValue::GetPointerToRestoredObject(void *ptr)
 {
-	if( m_ptr == ptr )
+	if( m_originalPtr == ptr )
 		return m_restorePtr;
 
 	for( size_t i = 0; i < m_children.size(); ++i )
@@ -215,7 +265,7 @@ CSerializedValue *CSerializedValue::FindByPtrInHandles(void *ptr)
 	// if this handle created object
 	if( (m_typeId & asTYPEID_OBJHANDLE) && m_children.size() == 1 )
 	{
-		if( m_children[0]->m_ptr == ptr )
+		if( m_children[0]->m_originalPtr == ptr )
 			return this;
 	}
 
@@ -236,7 +286,7 @@ void CSerializedValue::Store(void *ref, int typeId)
 {
 	m_isInit = true;
 	SetType(typeId);
-	m_ptr = ref;
+	m_originalPtr = ref;
 
 	if( m_typeId & asTYPEID_OBJHANDLE )
 	{
@@ -266,7 +316,7 @@ void CSerializedValue::Store(void *ref, int typeId)
 		{			
 			// if it is user type( string, array, etc ... )
 			if( m_serializer->m_userTypes[m_typeName] )
-				m_serializer->m_userTypes[m_typeName]->Store(this, m_ptr);
+				m_serializer->m_userTypes[m_typeName]->Store(this, m_originalPtr);
 			
 			// it is script class
 			else if( GetType() )
@@ -304,9 +354,18 @@ void CSerializedValue::Restore(void *ref, int typeId)
 		{
 			asIObjectType *type = m_children[0]->GetType();
 
-			void *newObject = m_serializer->m_engine->CreateScriptObject(type->GetTypeId());
-
-			m_children[0]->Restore(newObject, type->GetTypeId());	
+			if( type->GetFactoryCount() == 0 )
+			{
+				m_children[0]->m_restorePtr = m_handlePtr;
+			}
+			else
+			{
+				// Create a new script object, but don't call its constructor as we will initialize the members. 
+				// Calling the constructor may have unwanted side effects if for example the constructor changes
+				// any outside entities, such as setting global variables to point to new objects, etc.
+				void *newObject = m_serializer->m_engine->CreateUninitializedScriptObject(type);
+				m_children[0]->Restore(newObject, type->GetTypeId());
+			}
 		}
 	}
 	else if( m_typeId & asTYPEID_SCRIPTOBJECT )
@@ -329,11 +388,22 @@ void CSerializedValue::Restore(void *ref, int typeId)
 	else
 	{
 		if( m_mem.size() )
+		{
+			// POD values can be restored with direct copy
 			memcpy(ref, &m_mem[0], m_mem.size());
-		
-		// user type restore
+		}
 		else if( m_serializer->m_userTypes[m_typeName] )
+		{
+			// user type restore
 			m_serializer->m_userTypes[m_typeName]->Restore(this, m_restorePtr);
+		}
+		else
+		{
+			std::string str = "Cannot restore type '";
+			str += type->GetName();
+			str += "'";
+			m_serializer->m_engine->WriteMessage("", 0, 0, asMSGTYPE_ERROR, str.c_str());
+		}
 	}
 }
 
@@ -395,15 +465,17 @@ void CSerializedValue::RestoreHandles()
 
 			if( m_restorePtr && handleTo && handleTo->m_restorePtr )
 			{
+				asIObjectType *type = m_serializer->m_engine->GetObjectTypeById(m_typeId);
+
 				// If the handle is already pointing to something it must be released first
 				if( *(void**)m_restorePtr )
-					m_serializer->m_engine->ReleaseScriptObject(*(void**)m_restorePtr, m_typeId);
+					m_serializer->m_engine->ReleaseScriptObject(*(void**)m_restorePtr, type);
 
 				// Update the internal pointer
 				*(void**)m_restorePtr = handleTo->m_restorePtr;
 
 				// Increase the reference
-				m_serializer->m_engine->AddRefScriptObject(handleTo->m_restorePtr, m_typeId);
+				m_serializer->m_engine->AddRefScriptObject(handleTo->m_restorePtr, type);
 			}
 		}
 		else
@@ -411,7 +483,7 @@ void CSerializedValue::RestoreHandles()
 			// If the handle is pointing to something, we must release it to restore the null pointer
 			if( m_restorePtr && *(void**)m_restorePtr )
 			{
-				m_serializer->m_engine->ReleaseScriptObject(*(void**)m_restorePtr, m_typeId);
+				m_serializer->m_engine->ReleaseScriptObject(*(void**)m_restorePtr, m_serializer->m_engine->GetObjectTypeById(m_typeId));
 				*(void**)m_restorePtr = 0;
 			}
 		}

@@ -3,6 +3,7 @@
 #include "scriptmgr.h"
 #include <string.h>  // strcpy
 #include <stdio.h>   // rand
+#include <stdlib.h>  // rand
 #include <iostream>  // cout
 
 using namespace std;
@@ -32,14 +33,14 @@ int CGameMgr::StartGame()
 
 	// Create some stones
 	for( unsigned int n = 0; n < 10; n++ )
-		SpawnObject("stone", '0', 10*rand()/RAND_MAX, 10*rand()/RAND_MAX);
+		SpawnObject("stone", '0', rand()%10, rand()%10);
 
 	// Create some zombies
 	for( unsigned int n = 0; n < 3; n++ )
-		SpawnObject("zombie", 'z', 10*rand()/RAND_MAX, 10*rand()/RAND_MAX);
+		SpawnObject("zombie", 'z', rand()%10, rand()%10);
 
 	// Create the player
-	CGameObj *obj = SpawnObject("player", 'p', 10*rand()/RAND_MAX, 10*rand()/RAND_MAX);
+	CGameObj *obj = SpawnObject("player", 'p', rand()%10, rand()%10);
 	if( obj )
 		obj->name = "player";
 
@@ -119,7 +120,11 @@ void CGameMgr::Render()
 		buf[gameObjects[n]->y][gameObjects[n]->x] = gameObjects[n]->displayCharacter;
 
 	// Clear the screen
+#ifdef _WIN32
 	system("cls");
+#else
+	system("clear");
+#endif
 
 	// Print some useful information and start the input loop
 	cout << "Sample game using AngelScript " << asGetLibraryVersion() << "." << endl;

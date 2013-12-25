@@ -3,7 +3,8 @@
 
 #include <string>
 #include <iostream>
-#include <Ogre.h>
+#include <OgreVector3.h>
+
 
 #include "Tile.h"
 

@@ -50,13 +50,12 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				WholeProgramOptimization="false"
-				PreprocessorDefinitions="ANGELSCRIPT_EXPORT;AS_DEBUG;AS_DEBUG_STATS;WIN32;_DEBUG;_LIB"
+				PreprocessorDefinitions="ANGELSCRIPT_EXPORT;AS_DEBUG;WIN32;_DEBUG;_LIB"
 				StringPooling="true"
-				ExceptionHandling="0"
+				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="false"
 				RuntimeLibrary="1"
-				DisableLanguageExtensions="true"
 				RuntimeTypeInfo="false"
 				WarningLevel="4"
 				WarnAsError="true"
@@ -123,7 +122,7 @@
 				WholeProgramOptimization="true"
 				PreprocessorDefinitions="ANGELSCRIPT_EXPORT;WIN32;NDEBUG;_LIB"
 				StringPooling="true"
-				ExceptionHandling="0"
+				ExceptionHandling="1"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
@@ -189,7 +188,7 @@
 				WholeProgramOptimization="false"
 				PreprocessorDefinitions="ANGELSCRIPT_EXPORT;AS_DEBUG;_DEBUG;_LIB"
 				StringPooling="true"
-				ExceptionHandling="0"
+				ExceptionHandling="1"
 				BasicRuntimeChecks="3"
 				SmallerTypeCheck="false"
 				RuntimeLibrary="1"
@@ -262,7 +261,7 @@
 				WholeProgramOptimization="true"
 				PreprocessorDefinitions="ANGELSCRIPT_EXPORT;NDEBUG;_LIB"
 				StringPooling="true"
-				ExceptionHandling="0"
+				ExceptionHandling="1"
 				RuntimeLibrary="0"
 				BufferSecurityCheck="false"
 				RuntimeTypeInfo="false"
@@ -621,6 +620,10 @@
 			</File>
 			<File
 				RelativePath="..\..\source\as_string_util.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\source\as_symboltable.h"
 				>
 			</File>
 			<File

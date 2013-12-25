@@ -38,6 +38,10 @@
 
 #include <stdlib.h>
 
+#if !defined(__APPLE__) && !defined( __SNC__ ) && !defined( __ghs__ ) && !defined(__FreeBSD__)
+#include <malloc.h>
+#endif
+
 #include "as_config.h"
 #include "as_memory.h"
 #include "as_scriptnode.h"
@@ -158,9 +162,9 @@ void *asCMemoryMgr::AllocByteInstruction()
 		return byteInstructionPool.PopLast();
 
 #if defined(AS_DEBUG) 
-	return ((asALLOCFUNCDEBUG_t)(userAlloc))(sizeof(cByteInstruction), __FILE__, __LINE__);
+	return ((asALLOCFUNCDEBUG_t)(userAlloc))(sizeof(asCByteInstruction), __FILE__, __LINE__);
 #else
-	return userAlloc(sizeof(cByteInstruction));
+	return userAlloc(sizeof(asCByteInstruction));
 #endif
 }
 

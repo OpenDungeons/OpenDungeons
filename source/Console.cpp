@@ -8,16 +8,30 @@
 /* TODO: do intense testing that everything works
  * TODO: switch from TextRenderer to Console
  */
+#include <Overlay/OgreOverlayManager.h>
+#include "Console.h"
+
 
 #include "ASWrapper.h"
-#include "Console.h"
-#include "InputManager.h"
+
+#include "GameMode.h"
 #include "LogManager.h"
 #include "ODApplication.h"
 #include "ODFrameListener.h"
 #include "RenderManager.h"
 
-template<> Console* Ogre::Singleton<Console>::ms_Singleton = 0;
+
+
+
+
+
+
+
+#include "ModeManager.h"
+
+template<> Console* Ogre::Singleton<Console>::msSingleton = 0;
+
+
 
 Console::Console() :
         //these two define how much text goes into the console
@@ -34,7 +48,8 @@ Console::Console() :
         cursorVisible       (true),
         startLine           (0),
         cursorChar          ("_"),
-        curHistPos          (0)
+        curHistPos          (0),
+       cm(NULL)
 {
     LogManager::getSingleton().logMessage("*** Initiliasing Console ***");
     ODApplication::getSingleton().getRoot()->addFrameListener(this);
@@ -70,137 +85,12 @@ Console::~Console()
     delete overlay;
 }
 
-/*! \brief Handles the mouse movement on the Console
+
+/*! \brief Check if we are in editor mode
  *
  */
-void Console::onMouseMoved(const OIS::MouseEvent& arg, const bool isCtrlDown)
-{
-    if(arg.state.Z.rel == 0 || !visible)
-    {
-        return;
-    }
 
-    if(isCtrlDown)
-    {
-        scrollHistory(arg.state.Z.rel > 0);
-    }
-    else
-    {
-        scrollText(arg.state.Z.rel > 0);
-    }
 
-    updateOverlay = true;
-}
-
-/*! \brief Handles the key input on the Console
- *
- */
-void Console::onKeyPressed(const OIS::KeyEvent& arg)
-{
-    if (!visible)
-    {
-        return;
-    }
-
-    switch(arg.key)
-    {
-        case OIS::KC_GRAVE:
-        case OIS::KC_ESCAPE:
-        case OIS::KC_F12:
-            Console::getSingleton().setVisible(false);
-            ODFrameListener::getSingleton().setTerminalActive(false);
-            InputManager::getSingleton().getKeyboard()->setTextTranslation(OIS::Keyboard::Off);
-            break;
-
-        case OIS::KC_RETURN:
-        {
-            //only do this for non-empty input
-            if(!prompt.empty())
-            {
-                //print our input and push it to the history
-                print(prompt);
-                history.push_back(prompt);
-                ++curHistPos;
-
-                //split the input into it's space-separated "words"
-                std::vector<Ogre::String> params = split(prompt, ' ');
-
-                //TODO: remove this until AS console handler is ready
-                Ogre::String command = params[0];
-                Ogre::String arguments = "";
-                for(size_t i = 1; i< params.size(); ++i)
-                {
-                    arguments += params[i];
-                    if(i < params.size() - 1)
-                    {
-                      arguments += ' ';
-                    }
-                }
-                //remove until this point
-
-                // Force command to lower case
-                //TODO: later do this only for params[0]
-                std::transform(command.begin(), command.end(), command.begin(), ::tolower);
-                std::transform(params[0].begin(), params[0].end(), params[0].begin(), ::tolower);
-
-                
-                
-                //TODO: remove executePromptCommand after it is fully converted
-                //for now try hardcoded commands, and if none is found try AS
-                if(!ODFrameListener::getSingleton().executePromptCommand(command, arguments))
-                {
-                    LogManager::getSingleton().logMessage("Console command: " + command + " - arguments: " + arguments + " - actionscript");
-                    ASWrapper::getSingleton().executeConsoleCommand(params);
-                }
-
-                prompt = "";
-            }
-            else
-            {
-                //set history position back to last entry
-                curHistPos = history.size();
-            }
-            break;
-        }
-
-        case OIS::KC_BACK:
-            prompt = prompt.substr(0, prompt.length() - 1);
-            break;
-
-        case OIS::KC_PGUP:
-            scrollText(true);
-            break;
-
-        case OIS::KC_PGDOWN:
-            scrollText(false);
-            break;
-
-        case OIS::KC_UP:
-            scrollHistory(true);
-            break;
-
-        case OIS::KC_DOWN:
-            scrollHistory(false);
-            break;
-
-        case OIS::KC_F10:
-        {
-            LogManager::getSingleton().logMessage("RTSS test----------");
-            RenderManager::getSingleton().rtssTest();
-            break;
-        }
-
-        default:
-            if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
-                    arg.text) != std::string::npos)
-            {
-                prompt += arg.text;
-            }
-            break;
-    }
-
-    updateOverlay = true;
-}
 
 /*! \brief Defines the action on starting the current frame
  *
@@ -358,8 +248,10 @@ std::vector<Ogre::String> Console::split(const Ogre::String& str, const char spl
  * We only allow critical messages to the console. Non-critical messages would
  * pollute the console window and make it hardly readable.
  */
-void Console::messageLogged(const Ogre::String & message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String & logName)
+void Console::messageLogged(const Ogre::String & message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String & logName, bool& skipThisMessage)
 {
+	// if skipThisMessage is true then just return, skipping the rest of the implementation
+	if(skipThisMessage) return;
     //test if the logLevel is allowed, if not then return
     switch(lml)
     {
@@ -437,3 +329,7 @@ void Console::scrollText(const bool direction)
         }
     }
 }
+
+
+
+

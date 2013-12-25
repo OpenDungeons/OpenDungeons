@@ -9,20 +9,25 @@
 #define RENDERMANAGER_H_
 
 #include <deque>
-
+#include <string>
 #include <OgreSingleton.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
 #include <semaphore.h>
-#include <ProtectedObject.h>
 
-//template<typename T> class ProtectedObject;
+using  std::string;
+
+template<typename T> class ProtectedObject;
 class RenderRequest;
 class GameMap;
+class CameraManager;
+
 namespace Ogre
 {
 class SceneManager;
 class SceneNode;
+
+
 /*namespace RTShader {
     class ShaderGenerator;
 }*/
@@ -34,31 +39,33 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         RenderManager();
         ~RenderManager();
 
-        void setSceneNodes(Ogre::SceneNode* roomSceneNode,
+        void setSceneNodes(Ogre::SceneNode* rockSceneNode, Ogre::SceneNode* roomSceneNode,
                                     Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode );
 
-        inline Ogre::Camera* getCamera()const {return mainCamera;}
+
         inline Ogre::SceneManager* getSceneManager()const {return sceneManager;}
         inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;}
-
+        void setCameraManager(CameraManager* );	
+        void setViewport(Ogre::Viewport* );  
         void processRenderRequests();
         void updateAnimations();
-        void createCamera();
-        void createViewports();
+        void triggerCompositor(string);
         void createScene();
+        void createCompositors();
 
         void waitOnRenderQueueFlush();
         /*! \brief Put a render request in the queue (helper function to avoid having to fetch the singleton)
         */
         static void queueRenderRequest(RenderRequest* renderRequest)
         {
-            ms_Singleton->queueRenderRequest_priv(renderRequest);
+            msSingleton->queueRenderRequest_priv(renderRequest);
         }
 
         void rtssTest(); 
+        void colourizeEntity(Ogre::Entity *ent, int colour);	
+	static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
 
-		static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
-        void colourizeEntity(Ogre::Entity *ent, int colour);
+
     protected:
         void queueRenderRequest_priv(RenderRequest* renderRequest);
         //Render request functions
@@ -67,6 +74,16 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void rrRefreshTile(const RenderRequest& renderRequest);
         void rrCreateTile(const RenderRequest& renderRequest);
         void rrDestroyTile(const RenderRequest& renderRequest);
+        void rrDetachCreature(const RenderRequest& renderRequest);
+        void rrAttachCreature(const RenderRequest& renderRequest);
+        void rrDetachTile(const RenderRequest& renderRequest);
+        void rrAttachTile(const RenderRequest& renderRequest);
+
+	void rrToggleCreaturesVisibility();
+	void rrColorTile(const RenderRequest& renderRequest);
+	void rrSetPickAxe( const RenderRequest& renderRequest ); 
+	void rrTemporalMarkTile ( const RenderRequest& renderRequest );
+	void rrShowSquareSelector  ( const RenderRequest& renderRequest );
         void rrCreateRoom(const RenderRequest& renderRequest);
         void rrDestroyRoom(const RenderRequest& renderRequest);
         void rrCreateRoomObject(const RenderRequest& renderRequest);
@@ -107,6 +124,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
 
         std::string colourizeMaterial(const std::string& materialName, int color);
     private:
+        bool visibleCreatures;
         RenderManager(const RenderManager&);
         //TODO -should we maybe encapsulate the semaphores somewhere?
         sem_t renderQueueSemaphore;
@@ -118,14 +136,18 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         Ogre::SceneNode* creatureSceneNode;
         Ogre::SceneNode* lightSceneNode;
         Ogre::SceneNode* fieldSceneNode;
+	Ogre::SceneNode* rockSceneNode;
         GameMap* gameMap;
-        Ogre::Camera* mainCamera;
         Ogre::SceneManager* sceneManager;
         Ogre::Viewport* viewport;
         Ogre::RTShader::ShaderGenerator* shaderGenerator;
         bool initialized;
 
         static ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;
+
+
+
+
 };
 
 #endif /* RENDERMANAGER_H_ */

@@ -9,7 +9,7 @@
 
 #include "Translation.h"
 
-template<> Translation* Ogre::Singleton<Translation>::ms_Singleton = 0;
+template<> Translation* Ogre::Singleton<Translation>::msSingleton = 0;
 
 /*! \brief Initializes tinygettext (loading available languages)
  *

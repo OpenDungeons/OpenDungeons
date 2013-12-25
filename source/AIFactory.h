@@ -24,7 +24,7 @@ public:
 
 
 private:
-    template <typename T> friend class AIFactoryRegister;
+     template <typename T> friend class AIFactoryRegister;
 
     template <typename D>
     static BaseAI* createAI(GameMap& gameMap, Player& player, const std::string& parameters = "")
@@ -53,8 +53,10 @@ struct AIFactoryRegister
 {
     AIFactoryRegister(const std::string& name)
     {
-        std::pair<std::string, AIFactory::CreateAIFunc> p = std::make_pair<std::string, AIFactory::CreateAIFunc>(
-            name, &AIFactory::createAI<T>);
+
+       std::pair<std::string, AIFactory::CreateAIFunc> p = { name, &AIFactory::createAI<T> };
+        /* auto p = std::make_pair<std::string, AIFactory::CreateAIFunc>( */
+        /*     name, &AIFactory::createAI<T>); */
         AIFactory::getMap().insert(p);
     }
 private:

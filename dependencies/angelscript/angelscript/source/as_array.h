@@ -47,32 +47,37 @@ template <class T> class asCArray
 public:
 	asCArray();
 	asCArray(const asCArray<T> &);
-	asCArray(int reserve);
+	asCArray(size_t reserve);
 	~asCArray();
 
 	void   Allocate(size_t numElements, bool keepData);
+	void   AllocateNoConstruct(size_t numElements, bool keepData);
 	size_t GetCapacity() const;
 
 	void PushLast(const T &element);
 	T    PopLast();
 
-	void   SetLength(size_t numElements);
+	bool   SetLength(size_t numElements);
+	bool   SetLengthNoConstruct(size_t numElements);
 	size_t GetLength() const;
 
-	void Copy(const T*, size_t count);
+	void         Copy(const T*, size_t count);
 	asCArray<T> &operator =(const asCArray<T> &);
+	void         SwapWith(asCArray<T> &other);
 
 	const T &operator [](size_t index) const;
-	T &operator [](size_t index);
-	T *AddressOf();
+	T       &operator [](size_t index);
+	T       *AddressOf();
+	const T *AddressOf() const;
 
 	void Concatenate(const asCArray<T> &);
 	void Concatenate(T*, unsigned int count);
 
 	bool Exists(T &element) const;
 	int  IndexOf(T &element) const;
-	void RemoveIndex(size_t index);     // Removes the entry without reordering the array
-	void RemoveValue(const T &element);
+	void RemoveIndex(size_t index);          // Removes the entry without reordering the array
+	void RemoveValue(const T &element);      // Removes the value without reordering the array
+	void RemoveIndexUnordered(size_t index); // Removes the entry without keeping the order
 
 	bool operator==(const asCArray<T> &) const;
 	bool operator!=(const asCArray<T> &) const;
@@ -88,6 +93,12 @@ protected:
 
 template <class T>
 T *asCArray<T>::AddressOf()
+{
+	return array;
+}
+
+template <class T>
+const T *asCArray<T>::AddressOf() const
 {
 	return array;
 }
@@ -111,7 +122,7 @@ asCArray<T>::asCArray(const asCArray<T> &copy)
 }
 
 template <class T>
-asCArray<T>::asCArray(int reserve)
+asCArray<T>::asCArray(size_t reserve)
 {
 	array     = 0;
 	length    = 0;
@@ -158,6 +169,12 @@ void asCArray<T>::PushLast(const T &element)
 			Allocate(1, false);
 		else
 			Allocate(2*maxLength, true);
+
+		if( length == maxLength )
+		{
+			// Out of memory. Return without doing anything
+			return;
+		}
 	}
 
 	array[length++] = element;
@@ -185,10 +202,17 @@ void asCArray<T>::Allocate(size_t numElements, bool keepData)
 	{
 		if( sizeof(T)*numElements <= 8 )
 			// Use the internal buffer
-			tmp = (T*)buf;
+			tmp = reinterpret_cast<T*>(buf);
 		else
+		{
 			// Allocate the array and construct each of the elements
 			tmp = asNEWARRAY(T,numElements);
+			if( tmp == 0 )
+			{
+				// Out of memory. Return without doing anything
+				return;
+			}
+		}
 
 		if( array == tmp )
 		{
@@ -205,7 +229,7 @@ void asCArray<T>::Allocate(size_t numElements, bool keepData)
 	}
 
 	if( array )
-	{
+	{	
 		size_t oldLength = length;
 
 		if( array == tmp )
@@ -239,7 +263,67 @@ void asCArray<T>::Allocate(size_t numElements, bool keepData)
 			for( size_t n = 0; n < oldLength; n++ )
 				array[n].~T();
 
-			if( array != (T*)buf )
+			if( array != reinterpret_cast<T*>(buf) )
+				asDELETEARRAY(array);
+		}
+	}
+
+	array = tmp;
+	maxLength = numElements;
+}
+
+template <class T>
+void asCArray<T>::AllocateNoConstruct(size_t numElements, bool keepData)
+{
+	// We have 4 situations
+	// 1. The previous array is 8 bytes or smaller and the new array is also 8 bytes or smaller
+	// 2. The previous array is 8 bytes or smaller and the new array is larger than 8 bytes
+	// 3. The previous array is larger than 8 bytes and the new array is 8 bytes or smaller
+	// 4. The previous array is larger than 8 bytes and the new array is also larger than 8 bytes
+
+	T *tmp = 0;
+	if( numElements )
+	{
+		if( sizeof(T)*numElements <= 8 )
+			// Use the internal buffer
+			tmp = reinterpret_cast<T*>(buf);
+		else
+		{
+			// Allocate the array and construct each of the elements
+			tmp = asNEWARRAY(T,numElements);
+			if( tmp == 0 )
+			{
+				// Out of memory. Return without doing anything
+				return;
+			}
+		}
+	}
+
+	if( array )
+	{
+		if( array == tmp )
+		{
+			if( keepData )
+			{
+				if( length > numElements )
+					length = numElements;
+			}
+			else
+				length = 0;
+		}
+		else
+		{
+			if( keepData )
+			{
+				if( length > numElements )
+					length = numElements;
+
+				memcpy(tmp, array, sizeof(T)*length);
+			}
+			else
+				length = 0;
+
+			if( array != reinterpret_cast<T*>(buf) )
 				asDELETEARRAY(array);
 		}
 	}
@@ -255,19 +339,51 @@ size_t asCArray<T>::GetCapacity() const
 }
 
 template <class T>
-void asCArray<T>::SetLength(size_t numElements)
+bool asCArray<T>::SetLength(size_t numElements)
 {
 	if( numElements > maxLength )
+	{
 		Allocate(numElements, true);
+		if( numElements > maxLength )
+		{
+			// Out of memory. Return without doing anything
+			return false;
+		}
+	}
 
 	length = numElements;
+	return true;
+}
+
+template <class T>
+bool asCArray<T>::SetLengthNoConstruct(size_t numElements)
+{
+	if( numElements > maxLength )
+	{
+		AllocateNoConstruct(numElements, true);
+		if( numElements > maxLength )
+		{
+			// Out of memory. Return without doing anything
+			return false;
+		}
+	}
+
+	length = numElements;
+	return true;
 }
 
 template <class T>
 void asCArray<T>::Copy(const T *data, size_t count)
 {
 	if( maxLength < count )
+	{
 		Allocate(count, false);
+		if( maxLength < count )
+		{
+			// Out of memory. Return without doing anything
+			return;
+		}
+	}
 
 	for( size_t n = 0; n < count; n++ )
 		array[n] = data[n];
@@ -284,11 +400,37 @@ asCArray<T> &asCArray<T>::operator =(const asCArray<T> &copy)
 }
 
 template <class T>
+void asCArray<T>::SwapWith(asCArray<T> &other)
+{
+	T      *tmpArray = array;
+	size_t  tmpLength = length;
+	size_t  tmpMaxLength = maxLength;
+	char    tmpBuf[sizeof(buf)];
+	memcpy(tmpBuf, buf, sizeof(buf));
+
+	array = other.array;
+	length = other.length;
+	maxLength = other.maxLength;
+	memcpy(buf, other.buf, sizeof(buf));
+
+	other.array = tmpArray;
+	other.length = tmpLength;
+	other.maxLength = tmpMaxLength;
+	memcpy(other.buf, tmpBuf, sizeof(buf));
+
+	// If the data is in the internal buffer, then the array pointer must refer to it
+	if( array == reinterpret_cast<T*>(other.buf) )
+		array = reinterpret_cast<T*>(buf);
+	if( other.array == reinterpret_cast<T*>(buf) )
+		other.array = reinterpret_cast<T*>(other.buf);
+}
+
+template <class T>
 bool asCArray<T>::operator ==(const asCArray<T> &other) const
 {
 	if( length != other.length ) return false;
 
-	for( asUINT n = 0; n < length; n++ )
+	for( size_t n = 0; n < length; n++ )
 		if( array[n] != other.array[n] )
 			return false;
 
@@ -330,7 +472,7 @@ template <class T>
 int asCArray<T>::IndexOf(T &e) const
 {
 	for( size_t n = 0; n < length; n++ )
-		if( array[n] == e ) return (int)n;
+		if( array[n] == e ) return static_cast<int>(n);
 
 	return -1;
 }
@@ -358,6 +500,15 @@ void asCArray<T>::RemoveValue(const T &e)
 			break;
 		}
 	}
+}
+
+template <class T>
+void asCArray<T>::RemoveIndexUnordered(size_t index)
+{
+	if( index == length - 1 )
+		PopLast();
+	else if( index < length )
+		array[index] = PopLast();
 }
 
 END_AS_NAMESPACE

@@ -3,6 +3,8 @@ TEMPLATE = lib
 DEPENDPATH += ../../source ../../include
 INCLUDEPATH += ../../include
 
+QMAKE_CXXFLAGS += -Wno-strict-aliasing
+
 CONFIG -= debug debug_and_release release app_bundle qt dll
 
 CONFIG += staticlib release
@@ -15,16 +17,18 @@ win32: LIBS += -lwinmm
 
 HEADERS += ../../include/angelscript.h \
            ../../source/as_array.h \
+           ../../source/as_atomic.h \
            ../../source/as_builder.h \
            ../../source/as_bytecode.h \
-           ../../source/as_bytecodedef.h \
            ../../source/as_callfunc.h \
            ../../source/as_compiler.h \
            ../../source/as_config.h \
            ../../source/as_configgroup.h \
            ../../source/as_context.h \
+           ../../source/as_criticalsection.h \   
            ../../source/as_datatype.h \
            ../../source/as_debug.h \
+           ../../source/as_gc.h \ 
            ../../source/as_generic.h \
            ../../source/as_map.h \
            ../../source/as_memory.h \
@@ -41,6 +45,7 @@ HEADERS += ../../include/angelscript.h \
            ../../source/as_scriptobject.h \
            ../../source/as_string.h \
            ../../source/as_string_util.h \
+           ../../source/as_symboltable.h \   
            ../../source/as_texts.h \
            ../../source/as_thread.h \
            ../../source/as_tokendef.h \
@@ -53,8 +58,14 @@ SOURCES += ../../source/as_atomic.cpp \
            ../../source/as_bytecode.cpp \
            ../../source/as_callfunc.cpp \
            ../../source/as_callfunc_mips.cpp \
+           ../../source/as_callfunc_ppc.cpp \
+           ../../source/as_callfunc_ppc_64.cpp \
            ../../source/as_callfunc_sh4.cpp \
+           ../../source/as_callfunc_x64_gcc.cpp \
+           ../../source/as_callfunc_x64_mingw.cpp \
+           ../../source/as_callfunc_x64_msvc.cpp \
            ../../source/as_callfunc_x86.cpp \
+           ../../source/as_callfunc_xenon.cpp \
            ../../source/as_compiler.cpp \
            ../../source/as_configgroup.cpp \
            ../../source/as_context.cpp \
@@ -81,24 +92,45 @@ SOURCES += ../../source/as_atomic.cpp \
            ../../source/as_variablescope.cpp
 
 HEADERS += ../../../add_on/scriptany/scriptany.h \
+           ../../../add_on/scriptarray/scriptarray.h \
            ../../../add_on/scriptdictionary/scriptdictionary.h \
            ../../../add_on/scriptmath/scriptmath.h \
-           ../../../add_on/scriptmath3d/scriptmath3d.h \
-           ../../../add_on/scriptstring/scriptstring.h \
+           ../../../add_on/scripthandle/scripthandle.h \
+           ../../../add_on/scriptstdstring/scriptstdstring.h \
            ../../../add_on/scriptbuilder/scriptbuilder.h
 
 SOURCES += ../../../add_on/scriptany/scriptany.cpp \
+           ../../../add_on/scriptarray/scriptarray.cpp \
            ../../../add_on/scriptdictionary/scriptdictionary.cpp \
            ../../../add_on/scriptmath/scriptmath.cpp \
-           ../../../add_on/scriptmath3d/scriptmath3d.cpp \
-           ../../../add_on/scriptstring/scriptstring.cpp \
-           ../../../add_on/scriptstring/scriptstring_utils.cpp \
+           ../../../add_on/scripthandle/scripthandle.cpp \
+           ../../../add_on/scriptstdstring/scriptstdstring.cpp \
+           ../../../add_on/scriptstdstring/scriptstdstring_utils.cpp \
            ../../../add_on/scriptbuilder/scriptbuilder.cpp
 
 OBJECTS_DIR = tmp
 MOC_DIR = tmp
 UI_DIR = tmp
 RCC_DIR = tmp
+
+!win32-g++:win32:contains(QMAKE_HOST.arch, x86_64):{
+    asm_compiler.commands = ml64 /c
+    asm_compiler.commands +=  /Fo ${QMAKE_FILE_OUT} ${QMAKE_FILE_IN}
+    asm_compiler.output = ${QMAKE_VAR_OBJECTS_DIR}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_OBJ)}
+    asm_compiler.input = ASM_SOURCES
+    asm_compiler.variable_out = OBJECTS
+    asm_compiler.name = compiling[asm] ${QMAKE_FILE_IN}
+    silent:asm_compiler.commands = @echo compiling[asm] ${QMAKE_FILE_IN} && $$asm_compiler.commands
+    QMAKE_EXTRA_COMPILERS += asm_compiler
+
+    ASM_SOURCES += \
+        $$PWD/angelscript/source/as_callfunc_x64_msvc_asm.asm
+		
+    if(win32-msvc2008|win32-msvc2010):equals(TEMPLATE_PREFIX, "vc") {
+        SOURCES += \
+            $$PWD/angelscript/source/as_callfunc_x64_msvc_asm.asm
+    }
+}
 
 # QMAKE_CXXFLAGS_RELEASE += /MP
 

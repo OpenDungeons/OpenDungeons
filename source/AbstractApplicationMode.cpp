@@ -1,13 +1,6 @@
 #include "AbstractApplicationMode.h"
+#include "ODFrameListener.h"
+#include "LogManager.h"
+#include "ODApplication.h"
 
-AbstractApplicationMode::AbstractApplicationMode(GameStateManager* gameStateManager, AbstractApplicationMode* parentState)
-    : gameStateManager(gameStateManager), parentState(parentState)
-{
-
-}
-
-AbstractApplicationMode::~AbstractApplicationMode()
-{
-
-}
 

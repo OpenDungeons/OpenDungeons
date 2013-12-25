@@ -3,5 +3,5 @@ LOCAL_PATH:= $(call my-dir)/../../source
 include $(CLEAR_VARS)
 LOCAL_SRC_FILES:= $(commonSources)
 LOCAL_MODULE:= libangelscript
+LOCAL_ARM_MODE:= arm
 include $(BUILD_STATIC_LIBRARY)
-

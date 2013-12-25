@@ -1,11 +1,16 @@
 #include <cmath>
 #include <algorithm>
 
-#include <CEGUI.h>
-#include <CEGUIWindow.h>
+#include <CEGUI/System.h>
+#include <CEGUI/WindowManager.h>
+#include <CEGUI/Window.h>
+#include <CEGUI/UDim.h>
+#include <CEGUI/Vector.h>
+
+
 #include <OgreQuaternion.h>
 #include <OgreVector3.h>
-
+#include <OgreVector2.h>
 #include "CreatureAction.h"
 #include "Field.h"
 #include "Weapon.h"
@@ -18,18 +23,20 @@
 #include "RenderManager.h"
 #include "Random.h"
 #include "LogManager.h"
-
+#include "Quadtree.h"
 #include "Creature.h"
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
-#define snprintf _snprintf
+#define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
 //TODO: make this read from file
 static const int MAX_LEVEL = 100;
 
-Creature::Creature( GameMap*            gameMap,
+Creature::Creature(
+                    GameMap*            gameMap,
                     const std::string&  name
+
                     ) :
         weaponL                 (0),
         weaponR                 (0),
@@ -50,7 +57,8 @@ Creature::Creature( GameMap*            gameMap,
         previousPositionTile    (0),
         battleField             (new Field("autoname")),
         trainingDojo            (0),
-        sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
+        sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName())),
+	tracingCullingQuad      (NULL)
 {
     setGameMap(gameMap);
     sem_init(&hpLockSemaphore, 0, 1);
@@ -58,6 +66,7 @@ Creature::Creature( GameMap*            gameMap,
     sem_init(&isOnMapLockSemaphore, 0, 1);
     sem_init(&actionQueueLockSemaphore, 0, 1);
     sem_init(&statsWindowLockSemaphore, 0, 1);
+
 
     setName(name);
 
@@ -74,6 +83,16 @@ Creature::Creature( GameMap*            gameMap,
 
     pushAction(CreatureAction::idle);
 }
+
+/*  Destructor is needed when removing from Quadtree*/
+ Creature::~Creature()
+ {
+
+
+     tracingCullingQuad->entry->creature_list.remove(this);
+     tracingCullingQuad->mortuaryInsert(this);
+ }
+
 
 /*  This function causes a segfault in Creature::doTurn() when computeBattlefield() is called.
  Creature::~Creature()
@@ -131,6 +150,8 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setName(tempString);
 
     is >> xLocation >> yLocation >> zLocation;
+    xLocation+=c->getGameMap()->getMapSizeX()/2;
+    yLocation+=c->getGameMap()->getMapSizeY()/2;
     c->setPosition(Ogre::Vector3(xLocation, yLocation, zLocation));
 
     int color = 0;
@@ -170,6 +191,7 @@ Creature& Creature::operator=(const CreatureDefinition* c2)
     return *this;
 }
 
+
 /*! \brief Changes the creature's position to a new position.
  *
  *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
@@ -184,6 +206,8 @@ void Creature::setPosition(const Ogre::Vector3& v)
         // tile the creature is in before and after the move to properly
         // maintain the results returned by the positionTile() function.
         Tile *oldPositionTile = positionTile();
+
+
         MovableGameEntity::setPosition(v);
         Tile *newPositionTile = positionTile();
 
@@ -194,12 +218,20 @@ void Creature::setPosition(const Ogre::Vector3& v)
 
             if (positionTile() != 0)
                 positionTile()->addCreature(this);
+
+
         }
+
+	tracingCullingQuad->moveEntryDelta(this,get2dPosition());
+
     }
     else
     {
         // We are not on the map
-        MovableGameEntity::setPosition(v);
+
+
+	MovableGameEntity::setPosition(v);
+
     }
 
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
@@ -211,6 +243,7 @@ void Creature::setPosition(const Ogre::Vector3& v)
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 }
+
 
 void Creature::setHP(double nHP)
 {
@@ -264,6 +297,30 @@ bool Creature::getIsOnMap() const
     return tempBool;
 }
 
+
+void Creature::attach(){
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::attachCreature;
+    request->p = this;
+
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderManager::queueRenderRequest(request);
+
+}
+
+
+void Creature::detach(){
+
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::detachCreature;
+    request->p = this;
+
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderManager::queueRenderRequest(request);
+
+}
+
+
 /*! \brief The main AI routine which decides what the creature will do and carries out that action.
  *
  * The doTurn routine is the heart of the Creature AI subsystem.  The other,
@@ -305,7 +362,7 @@ void Creature::doTurn()
     }
 
     // Check to see if we have earned enough experience to level up.
-    while (exp >= 5 * (getLevel() + powl(getLevel() / 3.0, 2)) && getLevel() < 100)
+    while (exp >= 5 * (getLevel() + pow(getLevel() / 3.0, 2)) && getLevel() < 100)
     {
         doLevelUp();
     }
@@ -396,7 +453,7 @@ void Creature::doTurn()
         }
 
         // If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-        if (homeTile != 0 && 100.0 * powl(Random::Double(0.0, 0.8), 2) > awakeness && peekAction().getType() != CreatureAction::sleep)
+        if (homeTile != 0 && 100.0 * pow(Random::Double(0.0, 0.8), 2) > awakeness && peekAction().getType() != CreatureAction::sleep)
         {
             tempAction.setType(CreatureAction::sleep);
             pushAction(tempAction);
@@ -437,7 +494,7 @@ void Creature::doTurn()
     do
     {
         ++loops;
-        
+
         loopBack = false;
 
         // Carry out the current task
@@ -510,7 +567,7 @@ void Creature::doTurn()
 
                         // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
                         int tempX = 0, tempY = 0;
-                        bool workerFound = false;
+
                         if (!definition->isWorker())
                         {
                             // Non-workers only.
@@ -520,6 +577,7 @@ void Creature::doTurn()
                             //if(creatureJob == weakFighter) r -= 0.2;
                             if (r < 0.7)
                             {
+                                bool workerFound = false;
                                 // Try to find a worker to follow around.
                                 for (unsigned int i = 0; !workerFound && i
                                         < reachableAlliedObjects.size(); ++i)
@@ -597,11 +655,14 @@ void Creature::doTurn()
                             // Workers only.
 
                             // Choose a tile far away from our current position to wander to.
-                            tempTile = visibleTiles[Random::Uint(
-                                    visibleTiles.size() / 2,
-                                    visibleTiles.size() - 1)];
-                            tempX = tempTile->x;
-                            tempY = tempTile->y;
+                            if (!visibleTiles.empty())
+                            {
+                                tempTile = visibleTiles[Random::Uint(
+                                        visibleTiles.size() / 2,
+                                        visibleTiles.size() - 1)];
+                                tempX = tempTile->x;
+                                tempY = tempTile->y;
+                            }
                         }
 
                         Tile *tempPositionTile = positionTile();
@@ -948,7 +1009,7 @@ void Creature::doTurn()
                             wasANeighbor = true;
 
                             //Set sound position and play dig sound.
-                            
+
                             break;
                         }
                     }
@@ -1319,7 +1380,7 @@ void Creature::doTurn()
                     }
 
                     // Randomly decide to stop training, we are more likely to stop when we are tired.
-                    if (100.0 * powl(Random::Double(0.0, 1.0), 2) > awakeness)
+                    if (100.0 * pow(Random::Double(0.0, 1.0), 2) > awakeness)
                     {
                         popAction();
                         trainWait = 0;
@@ -1466,7 +1527,7 @@ void Creature::doTurn()
                         double damageDone = getHitroll(getGameMap()->crowDistance(
                                 myTile, tempTile));
                         damageDone *= Random::Double(0.0, 1.0);
-                        damageDone -= powl(Random::Double(0.0, 0.4), 2.0)
+                        damageDone -= pow(Random::Double(0.0, 0.4), 2.0)
                                 * tempAttackableObject->getDefense();
 
                         // Make sure the damage is positive.
@@ -1476,7 +1537,7 @@ void Creature::doTurn()
                         // Do the damage and award experience points to both creatures.
                         tempAttackableObject->takeDamage(damageDone, tempTile);
                         double expGained;
-                        expGained = 1.0 + 0.2 * powl(damageDone, 1.3);
+                        expGained = 1.0 + 0.2 * pow(damageDone, 1.3);
                         awakeness -= 0.5;
 
                         // Give a small amount of experince to the creature we hit.
@@ -1728,7 +1789,7 @@ void Creature::doLevelUp()
  */
 void Creature::updateVisibleTiles()
 {
-    //double effectiveRadius = min(5.0, sightRadius) + sightRadius*powl(randomDouble(0.0, 1.0), 3.0);
+    //double effectiveRadius = min(5.0, sightRadius) + sightRadius*pow(randomDouble(0.0, 1.0), 3.0);
     //double effectiveRadius = sightRadius;
     //visibleTiles = getGameMap()->visibleTiles(positionTile(), effectiveRadius);
     visibleTiles = getGameMap()->visibleTiles(positionTile(), definition->getSightRadius());
@@ -1819,7 +1880,7 @@ std::vector<GameEntity*> Creature::getEnemyObjectsInRange(
         Tile *tempTile = enemyObjectsToCheck[i]->getCoveredTiles()[0];
         if (tempTile != NULL)
         {
-            double rSquared = powl(myTile->x - tempTile->x, 2.0) + powl(
+            double rSquared = pow(myTile->x - tempTile->x, 2.0) + pow(
                     myTile->y - tempTile->y, 2.0);
 
             if (rSquared < weaponRangeSquared)
@@ -1970,19 +2031,30 @@ void Creature::createStatsWindow()
     }
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
-    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getGUISheet();
+    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
+
+    statsWindow->setSize(CEGUI::USize(CEGUI::UDim(0.25, 0.3), CEGUI::UDim(0.25, 0.3)));
 
     statsWindow = wmgr->createWindow("OD/FrameWindow",
             std::string("Root/CreatureStatsWindows/") + getName());
     statsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.65, 0)));
-    statsWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
 
-    CEGUI::Window *textWindow = wmgr->createWindow("OD/StaticText",
+    //statsWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
+    statsWindow->setSize(CEGUI::USize(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.25, 0)));
+
+    //statsWindow->setSize(CEGUI::Size<double>(0.25, 0.3));
+
+    CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText",
             statsWindow->getName() + "TextDisplay");
+
+    //textWindow->setPosition(CEGUI::USize(0.05,0.0), CEGUI::USize(0.15,0.0));
     textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
-    textWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
-    statsWindow->addChildWindow(textWindow);
-    rootWindow->addChildWindow(statsWindow);
+
+    //textWindow->setSize(CEGUI::USize(0.9, 0.8));
+    textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
+
+    statsWindow->addChild(textWindow);
+    rootWindow->addChild(statsWindow);
     statsWindow->show();
     sem_post(&statsWindowLockSemaphore);
 
@@ -2024,7 +2096,7 @@ std::string Creature::getStatsText()
 }
 
 /** \brief Sets the creature definition for this creature
- * 
+ *
  */
 void Creature::setCreatureDefinition(const CreatureDefinition* def)
 {
@@ -2161,7 +2233,7 @@ void Creature::computeBattlefield()
             Tile *tempTile2 = tempObject->getCoveredTiles()[0];
 
             // Compensate for how close the creature is to me
-            //rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
+            //rSquared = pow(myTile->x - tempTile2->x, 2.0) + pow(myTile->y - tempTile2->y, 2.0);
             //double factor = 1.0 / (sqrt(rSquared) + 1.0);
 
             // Subtract for the distance from the enemy creature to r
@@ -2178,7 +2250,7 @@ void Creature::computeBattlefield()
             Tile *tempTile2 = visibleAlliedObjects[j]->getCoveredTiles()[0];
 
             // Compensate for how close the creature is to me
-            //rSquared = powl(myTile->x - tempTile2->x, 2.0) + powl(myTile->y - tempTile2->y, 2.0);
+            //rSquared = pow(myTile->x - tempTile2->x, 2.0) + pow(myTile->y - tempTile2->y, 2.0);
             //double factor = 1.0 / (sqrt(rSquared) + 1.0);
 
             xDist = tempTile->x - tempTile2->x;
