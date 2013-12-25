@@ -31,13 +31,14 @@ class GameMap;
  */
 class Gui : public Ogre::Singleton<Gui>
 {
+    friend class MiniMap;
     public:
         enum guiSheet
         {
             hideGui,
             mainMenu,
             optionsMenu,
-            ingameMenu,
+            inGameMenu,
             editorToolBox,
             creaturesShuffle,
         };

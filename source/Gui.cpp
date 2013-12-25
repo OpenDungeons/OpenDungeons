@@ -53,10 +53,10 @@ Gui::Gui() :
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     CEGUI::Window* root = wmgr->createWindow("OD/FrameWindow",Gui::ROOT);
     sheets[hideGui] = 0;
-    sheets[ingameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
+    sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
     sheets[editorToolBox] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorToolBox.layout");
-    root->addChild(sheets[ingameMenu]);
+    root->addChild(sheets[inGameMenu]);
     root->addChild(sheets[mainMenu]);
     root->addChild(sheets[editorToolBox]);
 
@@ -126,7 +126,7 @@ void Gui::assignEventHandlers()
 
     std::cout << "Gui::assignEventHandlers()" << std::endl;
 
-    loadGuiSheet(ingameMenu);
+    loadGuiSheet(inGameMenu);
     CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
     if (rootWindow != NULL)
@@ -139,31 +139,31 @@ void Gui::assignEventHandlers()
             std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
         }
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_QUARTERS)->subscribeEvent(
+        sheets[inGameMenu]->getChild(BUTTON_QUARTERS)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&quartersButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_TREASURY)->subscribeEvent(
+        sheets[inGameMenu]->getChild(BUTTON_TREASURY)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&treasuryButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_FORGE)->subscribeEvent(
+        sheets[inGameMenu]->getChild(BUTTON_FORGE)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&forgeButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_DOJO)->subscribeEvent(
+        sheets[inGameMenu]->getChild(BUTTON_DOJO)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&dojoButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_CANNON)->subscribeEvent(
+        sheets[inGameMenu]->getChild(BUTTON_CANNON)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_HOST)->subscribeEvent(
+        sheets[inGameMenu]->getChild(BUTTON_HOST)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&serverButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(BUTTON_QUIT)->subscribeEvent(
+        sheets[inGameMenu]->getChild(BUTTON_QUIT)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&quitButtonPressed));
     }
@@ -188,15 +188,15 @@ void Gui::assignEventHandlers()
             }
         }
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_START_NEW_GAME)->subscribeEvent(
+        sheets[mainMenu]->getChild(MM_BUTTON_START_NEW_GAME)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
+        sheets[mainMenu]->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&mMMapEditorButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MM_BUTTON_QUIT)->subscribeEvent(
+        sheets[mainMenu]->getChild(MM_BUTTON_QUIT)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
                 CEGUI::Event::Subscriber(&mMQuitButtonPressed));
     }
@@ -366,7 +366,7 @@ bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
 
-    Gui::getSingletonPtr()->loadGuiSheet(ingameMenu);
+    Gui::getSingletonPtr()->loadGuiSheet(inGameMenu);
     modeManager->progressMode(ModeManager::GAME);
     ODFrameListener::getSingleton().makeGameContext();
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
@@ -417,14 +417,14 @@ void Gui::toggleGui()
     }
   else
     {
-      loadGuiSheet(ingameMenu);
+      loadGuiSheet(inGameMenu);
     }
 }
 void Gui::switchGuiMode()
 {
   if(mainMenuMode)
     {
-      loadGuiSheet(ingameMenu);
+      loadGuiSheet(inGameMenu);
     }
   else
     {
@@ -443,7 +443,7 @@ void Gui::switchGuiMode()
  */
 void Gui::setVisible(bool visible)
 {
-    loadGuiSheet(visible ? ingameMenu : hideGui);
+    loadGuiSheet(visible ? inGameMenu : hideGui);
 }
 
 /* These constants are used to access the GUI element

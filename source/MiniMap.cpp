@@ -34,10 +34,10 @@ MiniMap::MiniMap(GameMap* gm) :
 	tiles(nullptr),
 	grainSize(4),
         // miniMapOgreTexture(0)
-        width(  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
-        height( CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getPixelSize().d_height),
-        topLeftCornerX(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
-        topLeftCornerY(CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
+        width( Gui::getSingletonPtr()->sheets[ Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
+        height( Gui::getSingletonPtr()->sheets[ Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_height),
+        topLeftCornerX( Gui::getSingletonPtr()->sheets[ Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
+    topLeftCornerY( Gui::getSingletonPtr()->sheets[ Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
         pixelBox(new Ogre::PixelBox (width, height, 0, Ogre::PF_R8G8B8))
 {
     /* TODO: separate some of this code in own functions to make it possible
@@ -45,7 +45,7 @@ MiniMap::MiniMap(GameMap* gm) :
      * new level was loaded)
      */
 
-    CEGUI::Window* inGameMenu = Gui::getSingleton().getGuiSheet(Gui::ingameMenu);
+    CEGUI::Window* inGameMenu = Gui::getSingleton().getGuiSheet(Gui::inGameMenu);
     width  = inGameMenu->getChild(Gui::MINIMAP)->getPixelSize().d_width;
     height = inGameMenu->getChild(Gui::MINIMAP)->getPixelSize().d_height;
     topLeftCornerX = inGameMenu->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_x;
