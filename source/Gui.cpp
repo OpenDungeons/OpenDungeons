@@ -51,22 +51,15 @@ Gui::Gui() :
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipObject(new CEGUI::Tooltip("OD","Tooltip"));
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
-    CEGUI::Window* root = wmgr->createWindow("OD/FrameWindow",Gui::ROOT);
     sheets[hideGui] = 0;
     sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
     sheets[editorToolBox] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorToolBox.layout");
-    root->addChild(sheets[inGameMenu]);
-    root->addChild(sheets[mainMenu]);
-    root->addChild(sheets[editorToolBox]);
-
-
-    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(root);
 
     mainMenuMode = false;
 
     assignEventHandlers();
-    //loadGuiSheet(mainMenu);
+    loadGuiSheet(mainMenu);
 }
 
 Gui::~Gui()
@@ -103,10 +96,10 @@ CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
 void Gui::loadGuiSheet(const guiSheet& newSheet)
 {
     activeSheet = newSheet;
-    sheets[activeSheet]->activate();
-    //This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
-    
-}
+    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(sheets[newSheet]);
+//This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
+    CEGUI::System::getSingletonPtr()->getDefaultGUIContext().markAsDirty() ;
+} 
 
 CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
 {
