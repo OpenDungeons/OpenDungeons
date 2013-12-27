@@ -413,6 +413,7 @@ void Gui::toggleGui()
       loadGuiSheet(inGameMenu);
     }
 }
+
 void Gui::switchGuiMode()
 {
   if(mainMenuMode)
@@ -463,9 +464,9 @@ const std::string Gui::ROOT = "Root";
 //const std::string Gui::TAB_SYSTEM = "Root/MainTabControl/System";
 //const std::string Gui::BUTTON_HOST = "Root/MainTabControl/System/HostButton";
 //const std::string Gui::BUTTON_QUIT = "Root/MainTabControl/System/QuitButton";
-const std::string Gui::DISPLAY_GOLD = "GoldDisplay";
-const std::string Gui::DISPLAY_MANA = "ManaDisplay";
-const std::string Gui::DISPLAY_TERRITORY = "TerritoryDisplay";
+const std::string Gui::DISPLAY_GOLD = "HorizontalPipe/GoldDisplay";
+const std::string Gui::DISPLAY_MANA = "HorizontalPipe/ManaDisplay";
+const std::string Gui::DISPLAY_TERRITORY = "HorizontalPipe/TerritoryDisplay";
 const std::string Gui::MINIMAP = "MiniMap";
 const std::string Gui::MESSAGE_WINDOW = "MessagesDisplayWindow";
 const std::string Gui::MAIN_TABCONTROL = "MainTabControl";
