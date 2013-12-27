@@ -539,20 +539,20 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             CEGUI::WindowManager *windowManager =
                     CEGUI::WindowManager::getSingletonPtr();
 
-            CEGUI::Window *tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(
-                    (CEGUI::utf8*) "Root/TerritoryDisplay");
+            CEGUI::Window *tempWindow 
+		= CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::DISPLAY_TERRITORY );
             tempSS.str("");
             tempSS << mySeat->getNumClaimedTiles();
             tempWindow->setText(tempSS.str());
 
             tempWindow
-                    = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild((CEGUI::utf8*) "Root/GoldDisplay");
+               = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(  Gui::DISPLAY_GOLD );
             tempSS.str("");
             tempSS << mySeat->getGold();
             tempWindow->setText(tempSS.str());
 
             tempWindow
-                    = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild((CEGUI::utf8*) "Root/ManaDisplay");
+		= CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::DISPLAY_MANA  );
             tempSS.str("");
             tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
                     << mySeat->getManaDelta();
@@ -563,8 +563,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             {
                 mySeat->resetGoalsChanged();
                 // Update the goals display in the message window.
-                tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(
-                        (CEGUI::utf8*) "Root/MessagesDisplayWindow");
+                tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MESSAGE_WINDOW );
                 tempSS.str("");
                 bool iAmAWinner = gameMap->seatIsAWinner(mySeat);
 
@@ -614,7 +613,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 tempWindow->setText(tempSS.str());
             }
         }
-    }
+    } 
 
     // Decrement the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     gameMap->threadUnlockForTurn(currentTurnNumber);
