@@ -14,6 +14,7 @@
 #include <CEGUI/Texture.h>
 #include <CEGUI/ImageManager.h>
 #include <CEGUI/Size.h>
+#include <CEGUI/BasicImage.h>
 
 #include "ODApplication.h"
 #include "RenderManager.h"
@@ -34,10 +35,10 @@ MiniMap::MiniMap(GameMap* gm) :
 	tiles(nullptr),
 	grainSize(4),
         // miniMapOgreTexture(0)
-        width( Gui::getSingletonPtr()->sheets[ Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
-        height( Gui::getSingletonPtr()->sheets[ Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_height),
-        topLeftCornerX( Gui::getSingletonPtr()->sheets[ Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
-    topLeftCornerY( Gui::getSingletonPtr()->sheets[ Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
+        width(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
+        height(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_height),
+        topLeftCornerX(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
+        topLeftCornerY(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
         pixelBox(new Ogre::PixelBox (width, height, 0, Ogre::PF_R8G8B8))
 {
     /* TODO: separate some of this code in own functions to make it possible
@@ -45,7 +46,7 @@ MiniMap::MiniMap(GameMap* gm) :
      * new level was loaded)
      */
 
-    CEGUI::Window* inGameMenu = Gui::getSingleton().getGuiSheet(Gui::inGameMenu);
+    CEGUI::Window* inGameMenu = Gui::getSingleton().sheets[Gui::inGameMenu]  ;
     width  = inGameMenu->getChild(Gui::MINIMAP)->getPixelSize().d_width;
     height = inGameMenu->getChild(Gui::MINIMAP)->getPixelSize().d_height;
     topLeftCornerX = inGameMenu->getChild(Gui::MINIMAP)->getUnclippedOuterRect().get().getPosition().d_x;
@@ -72,23 +73,25 @@ MiniMap::MiniMap(GameMap* gm) :
 
     // Temporarily disabled until new CEGUI version works
     // Working game UI needed to test a possible fix for this!
-    /*CEGUI::Texture& miniMapTextureGui
+    CEGUI::Texture& miniMapTextureGui
             = static_cast<CEGUI::OgreRenderer*>(CEGUI::System::getSingletonPtr()
 						->getRenderer())->createTexture("miniMapTextureGui", miniMapOgreTexture);
 
-    CEGUI::BasicImage& imageset = CEGUI::ImageManager::getSingletonPtr()
-	->create("MiniMapImageset", miniMapTextureGui);
-    imageset.defineImage("MiniMapImage",
-			 CEGUI::Vector2<float>(0.0f, 0.0f),
-			 CEGUI::Size<float>(width, height),
-			 CEGUI::Vector2<float>(0.0f, 0.0f));
+    CEGUI::BasicImage& imageset = dynamic_cast<CEGUI::BasicImage&>(CEGUI::ImageManager::getSingletonPtr()->create("BasicImage","MiniMapImageset"));
+    // imageset.defineImage("MiniMapImage",
+    // 			 CEGUI::Vector2<float>(0.0f, 0.0f),
+    // 			 CEGUI::Size<float>(width, height)
+    // 			 );
 
-    CEGUI::WindowManager::getSingleton().getWindow(Gui::MINIMAP)->setProperty(
-            "Image", CEGUI::PropertyHelper::imageToString(
-                    &imageset.getImage("MiniMapImage")));   
+
+    imageset.setTexture(&miniMapTextureGui);
+    inGameMenu->getChild(Gui::MINIMAP)->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
+    // CEGUI::WindowManager::getSingleton().getWindow(Gui::MINIMAP)->setProperty(
+    //         "Image", CEGUI::PropertyHelper::imageToString(
+    //                 &imageset.getImage("MiniMapImage")));   
     
     miniMapOgreTexture->load();
-    updatedCreatureIndex = gameMap->creatures.begin();*/
+    updatedCreatureIndex = gameMap->creatures.begin();
 }
 
 MiniMap::~MiniMap()
@@ -103,7 +106,7 @@ void MiniMap::setCamera_2dPosition( Ogre::Vector3 vv){
 }
 
 
-Ogre::Vector2 MiniMap::camera_2dPositionFromClick( int    xx, int yy){
+Ogre::Vector2 MiniMap::camera_2dPositionFromClick( int  xx, int yy){
 
 
 
