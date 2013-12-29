@@ -205,27 +205,27 @@ void Gui::assignEventHandlers()
             std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
         }
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MINIMAP)->subscribeEvent(
+        sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&miniMapclicked));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_LAVA_BUTTON)->subscribeEvent(
+        sheets[editorToolBox]->getChild(TOOLSPALETE_LAVA_BUTTON)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&tpLavaButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_GOLD_BUTTON)->subscribeEvent(
+        sheets[editorToolBox]->getChild(TOOLSPALETE_GOLD_BUTTON)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&tpGoldButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_ROCK_BUTTON)->subscribeEvent(
+        sheets[editorToolBox]->getChild(TOOLSPALETE_ROCK_BUTTON)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&tpRockButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_WATER_BUTTON)->subscribeEvent(
+        sheets[editorToolBox]->getChild(TOOLSPALETE_WATER_BUTTON)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&tpWaterButtonPressed));
 
-        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_DIRT_BUTTON)->subscribeEvent(
+        sheets[editorToolBox]->getChild(TOOLSPALETE_DIRT_BUTTON)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&tpDirtButtonPressed));
     }
