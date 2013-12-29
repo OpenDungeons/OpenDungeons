@@ -97,7 +97,7 @@ void Gui::loadGuiSheet(const guiSheet& newSheet)
 {
     activeSheet = newSheet;
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(sheets[newSheet]);
-//This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
+    //This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().markAsDirty() ;
 } 
 
@@ -119,7 +119,6 @@ void Gui::assignEventHandlers()
 
     std::cout << "Gui::assignEventHandlers()" << std::endl;
 
-    loadGuiSheet(inGameMenu);
     CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
     if (rootWindow != NULL)
@@ -165,7 +164,6 @@ void Gui::assignEventHandlers()
         std::cerr << "ERROR: No Root window pointer!!!" << std::endl;
     }
 
-    loadGuiSheet(mainMenu);
     rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
     if (rootWindow != NULL)
     {
@@ -198,7 +196,6 @@ void Gui::assignEventHandlers()
         std::cerr << "ERROR: No Root window pointer!!!" << std::endl;
     }
 
-    loadGuiSheet(editorToolBox);
     rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
     if (rootWindow != NULL)
     {
@@ -208,7 +205,7 @@ void Gui::assignEventHandlers()
             std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
         }
 
-        /*CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MINIMAP)->subscribeEvent(
+        CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&miniMapclicked));
 
@@ -230,14 +227,13 @@ void Gui::assignEventHandlers()
 
         CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(TOOLSPALETE_DIRT_BUTTON)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
-            CEGUI::Event::Subscriber(&tpDirtButtonPressed));*/
+            CEGUI::Event::Subscriber(&tpDirtButtonPressed));
     }
     else
     {
         std::cerr << "ERROR: No Root window pointer!!!" << std::endl;
     }
 
-    //loadGuiSheet(mainMenu);
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
@@ -444,7 +440,7 @@ void Gui::setVisible(bool visible)
  * NOTE: when add/remove/rename a GUI element, don't forget to change it here
  */
 //TODO: Probably these should be read from a file? Script file?
-const std::string Gui::ROOT = "Root";
+
 //const std::string Gui::DISPLAY_GOLD = "Root/GoldDisplay";
 //const std::string Gui::DISPLAY_MANA = "Root/ManaDisplay";
 //const std::string Gui::DISPLAY_TERRITORY = "Root/TerritoryDisplay";
