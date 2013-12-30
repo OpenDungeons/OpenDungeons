@@ -119,17 +119,18 @@ void Gui::assignEventHandlers()
 
     std::cout << "Gui::assignEventHandlers()" << std::endl;
 
-    CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
+    CEGUI::Window* rootWindow = sheets[inGameMenu];
+    // CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
     if (rootWindow != NULL)
     {
-        std::cout << " root window children count: " << CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChildCount() << std::endl;
+        // std::cout << " root window children count: " << CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChildCount() << std::endl;
 
-        for (int k = 0; k < rootWindow->getChildCount(); k++)
-        {
-            CEGUI::Window* childWindow = rootWindow->getChildAtIdx(k);
-            std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
-        }
+        // for (int k = 0; k < rootWindow->getChildCount(); k++)
+        // {
+        //     CEGUI::Window* childWindow = rootWindow->getChildAtIdx(k);
+        //     std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
+        // }
 
         sheets[inGameMenu]->getChild(BUTTON_QUARTERS)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
@@ -164,20 +165,20 @@ void Gui::assignEventHandlers()
         std::cerr << "ERROR: No Root window pointer!!!" << std::endl;
     }
 
-    rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
+    // rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
     if (rootWindow != NULL)
     {
-        for (int k = 0; k < rootWindow->getChildCount(); k++)
-        {
-            CEGUI::Window* childWindow = rootWindow->getChildAtIdx(k);
-            std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
+        // for (int k = 0; k < rootWindow->getChildCount(); k++)
+        // {
+        //     CEGUI::Window* childWindow = rootWindow->getChildAtIdx(k);
+        //     std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
 
-            for (int l = 0; l < childWindow->getChildCount(); l++)
-            {
-                CEGUI::Window* childWindow2 = childWindow->getChildAtIdx(l);
-                std::cout << "   - " << l << ": " << childWindow2->getName() << " -- " << childWindow2->getNamePath() << std::endl;
-            }
-        }
+        //     for (int l = 0; l < childWindow->getChildCount(); l++)
+        //     {
+        //         CEGUI::Window* childWindow2 = childWindow->getChildAtIdx(l);
+        //         std::cout << "   - " << l << ": " << childWindow2->getName() << " -- " << childWindow2->getNamePath() << std::endl;
+        //     }
+        // }
 
         sheets[mainMenu]->getChild(MM_BUTTON_START_NEW_GAME)->subscribeEvent(
                 CEGUI::PushButton::EventClicked,
@@ -196,14 +197,14 @@ void Gui::assignEventHandlers()
         std::cerr << "ERROR: No Root window pointer!!!" << std::endl;
     }
 
-    rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
+    // rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
     if (rootWindow != NULL)
     {
-        for (int k = 0; k < rootWindow->getChildCount(); k++)
-        {
-            CEGUI::Window* childWindow = rootWindow->getChildAtIdx(k);
-            std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
-        }
+        // for (int k = 0; k < rootWindow->getChildCount(); k++)
+        // {
+        //     CEGUI::Window* childWindow = rootWindow->getChildAtIdx(k);
+        //     std::cout << " * " << k << ": " << childWindow->getName() << " -- " << childWindow->getNamePath() << std::endl;
+        // }
 
         sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
@@ -315,9 +316,7 @@ bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
 {
-
     static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::gold;
-
 }
 
 
@@ -325,14 +324,11 @@ bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::tpLavaButtonPressed(const CEGUI::EventArgs& e)
 {
     static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::lava;
-
 }
 
 bool Gui::tpRockButtonPressed(const CEGUI::EventArgs& e)
 {
-
     static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::rock;
-
 }
 
 
@@ -340,7 +336,6 @@ bool Gui::tpRockButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::tpWaterButtonPressed(const CEGUI::EventArgs& e)
 {
     static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::water;
-
 }
 
 bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
