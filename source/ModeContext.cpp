@@ -35,6 +35,7 @@ ModeContext::ModeContext(GameMap* gameMap,MiniMap * mm):
         mRStartDragY(0),
         mDragType(nullDragType),
         gameMap(gameMap),
+        expectCreatureClick(false),
 	miniMap(mm){
     LogManager::getSingleton().logMessage("*** Initializing OIS ***");
 
