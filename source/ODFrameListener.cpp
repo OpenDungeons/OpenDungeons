@@ -563,7 +563,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             {
                 mySeat->resetGoalsChanged();
                 // Update the goals display in the message window.
-                tempWindow =  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MESSAGE_WINDOW );
+                tempWindow =  Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu) ->getChild( Gui::MESSAGE_WINDOW );
                 tempSS.str("");
                 bool iAmAWinner = gameMap->seatIsAWinner(mySeat);
 
