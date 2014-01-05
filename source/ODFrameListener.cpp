@@ -70,7 +70,7 @@ template<> ODFrameListener*
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem *tmpOverlaySystem) :
         mWindow(win),
         renderManager(RenderManager::getSingletonPtr()),
         sfxHelper(SoundEffectsHelper::getSingletonPtr()),
@@ -88,7 +88,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
 	
 {
     Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
-
+    sceneManager->addRenderQueueListener(tmpOverlaySystem);
     gameMap = new GameMap;
     //FIXME game Map should be read at this point, instead , at the below I set map sizes manually paul424
     gameMap->setMapSizeX(400);
@@ -540,19 +540,19 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                     CEGUI::WindowManager::getSingletonPtr();
 
             CEGUI::Window *tempWindow 
-		= CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::DISPLAY_TERRITORY );
+		= Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild( Gui::DISPLAY_TERRITORY );
             tempSS.str("");
             tempSS << mySeat->getNumClaimedTiles();
             tempWindow->setText(tempSS.str());
 
             tempWindow
-               = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild(  Gui::DISPLAY_GOLD );
+               = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(  Gui::DISPLAY_GOLD );
             tempSS.str("");
             tempSS << mySeat->getGold();
             tempWindow->setText(tempSS.str());
 
             tempWindow
-		= CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::DISPLAY_MANA  );
+		= Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild( Gui::DISPLAY_MANA  );
             tempSS.str("");
             tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
                     << mySeat->getManaDelta();
@@ -563,7 +563,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             {
                 mySeat->resetGoalsChanged();
                 // Update the goals display in the message window.
-                tempWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MESSAGE_WINDOW );
+                tempWindow =  CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->getChild( Gui::MESSAGE_WINDOW );
                 tempSS.str("");
                 bool iAmAWinner = gameMap->seatIsAWinner(mySeat);
 
@@ -636,9 +636,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
        cm->onFrameStarted() ; 
     }
 
-    if (culm!=NULL)
+    if (culm!=NULL){
 	culm->onFrameStarted() ; 
-
+    }	
 
     // Sleep to limit the framerate to the max value
     frameDelay -= evt.timeSinceLastFrame;
