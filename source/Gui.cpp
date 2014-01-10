@@ -47,7 +47,8 @@ Gui::Gui() :
     //CEGUI::SchemeManager::getSingleton().create("OpenDungeonsSkin.scheme");
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");
 
-    CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setImage("OpenDungeons/MouseArrow");
+    // CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setImage("OpenDungeons/MouseArrow");
+    // CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().setVisible(true);
     CEGUI::System::getSingleton().getDefaultGUIContext().setDefaultTooltipObject(new CEGUI::Tooltip("OD","Tooltip"));
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();

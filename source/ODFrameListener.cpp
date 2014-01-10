@@ -87,7 +87,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem *t
 	culm(NULL)
 	
 {
-    Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
+    Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager","SceneManager");
     sceneManager->addRenderQueueListener(tmpOverlaySystem);
     gameMap = new GameMap;
     //FIXME game Map should be read at this point, instead , at the below I set map sizes manually paul424
@@ -103,12 +103,12 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem *t
     LogManager::getSingletonPtr()->logMessage("Creating RTS Camera...", Ogre::LML_NORMAL);
     cm->createCamera("RTS", 0.02, 300.0);
     LogManager::getSingletonPtr()->logMessage("Creating RTS CameraNode...", Ogre::LML_NORMAL);
-    cm->createCameraNode("RTS");
+    cm->createCameraNode("RTS", Ogre::Vector3(1 + gameMap->getMapSizeX()/2, -1 + gameMap->getMapSizeY()/2,16 ));
 
     LogManager::getSingletonPtr()->logMessage("Creating FPP Camera...", Ogre::LML_NORMAL);
-    cm->createCamera("FPP", 0.02, 300.0);
+    cm->createCamera("FPP", 0.02, 30.0 );
     LogManager::getSingletonPtr()->logMessage("Creating FPP CameraNode...", Ogre::LML_NORMAL);
-    cm->createCameraNode("FPP");
+    cm->createCameraNode("FPP", Ogre::Vector3(), Ogre::Degree(0), Ogre::Degree(75), Ogre::Degree(0));
 
     LogManager::getSingletonPtr()->logMessage("Setting ActiveCamera...", Ogre::LML_NORMAL);
     cm->setActiveCamera("RTS");

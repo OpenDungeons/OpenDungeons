@@ -65,13 +65,15 @@
 
    
 2. Building OpenDungeons: 
+
+   Currently the development version requires Ogre3d 1 9 0 and CEGUI 0 8 3, SFML and OIS library ( included with Ogre3d) .
+
    2A. Help!, I cannot compile the OD !
    
 
    USE C++11 WHEN COMPILING OD ! Genral notice : some of the files ( some AI*.cpp) use explicit construct of new C++ standard : C++11. Each
-   compiler has it;'s flag , for GNU g++ it's : "g++ --std=c++11" bash cmd : cmake-gui --> tag cmake--> ->CMakeCxxFlags. 
-   NOTICE: Since g++ 4.8 it is the default lanugage standard the compiler picks up [ no need to set that for version >= 4.8 ].
-
+   compiler has it;'s flag , for GNU g++ it's : "g++ --std=c++11" bash cmd : cmake-gui (that Opens window application )--> tag cmake--> ->CMakeCxxFlags. 
+   
    2B. Help!, I cannot run the OD !
 
 
