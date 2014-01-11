@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"  standalone="no"  ?>
+<!DOCTYPE doc [
+<!ENTITY seat0 SYSTEM "../Xml6/Seat_0.xml">
+<!ENTITY seat1 SYSTEM "../Xml6/Seat_1.xml"> 
+<!ENTITY seat2 SYSTEM "../Xml6/Seat_2.xml">
+<!ENTITY seat3 SYSTEM "../Xml6/Seat_3.xml">
+<!ENTITY seat4 SYSTEM "../Xml6/Seat_4.xml">
+]>
+<SeatList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/SeatListScheme.xsd">
+    &seat0;
+    &seat1;
+    &seat2;
+    &seat3;
+    &seat4;   
+</SeatList>
