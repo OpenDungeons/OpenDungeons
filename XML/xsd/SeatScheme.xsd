@@ -15,6 +15,7 @@
                         <xs:element name="colorG" type="xs:decimal"/>
                         <xs:element name="colorB" type="xs:decimal"/>            
                     </xs:sequence>
+                    <xs:attribute ref="xml:base"/>   
                 </xs:complexType>
             </xs:element>        
         </xs:sequence>      

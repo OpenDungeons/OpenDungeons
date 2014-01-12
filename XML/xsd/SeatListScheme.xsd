@@ -5,7 +5,7 @@
     <xs:element name="SeatList" >
         <xs:complexType >
             <xs:sequence>
-                <xs:group ref="Seat"/>
+                <xs:group ref="Seat" maxOccurs="unbounded"/>
             </xs:sequence>
         </xs:complexType >
     </xs:element>  
