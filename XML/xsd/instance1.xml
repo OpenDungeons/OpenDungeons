@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Seat xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/SeatScheme.xsd">
+    <color>color0</color>
+    <faction>faction0</faction>
+    <startingX>0</startingX>
+    <startingY>0</startingY>
+    <colorR>0</colorR>
+    <colorG>0</colorG>
+    <colorB>0</colorB>
+</Seat>

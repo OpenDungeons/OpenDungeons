@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2005/08/xml.xsd"/>    
+    <xs:group name="Room" >
+    <xs:sequence>
+    <xs:element name="Room">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="roomType" type="xs:string"/>
+                <xs:element name="meshName" type="xs:string"/>
+                <xs:element name="color" type="xs:string"/>
+                <xs:element name="numTiles" type="xs:integer"/>
+                <xs:element name="point"  minOccurs="1" maxOccurs="unbounded" >
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="tileX" type="xs:integer"/>
+                            <xs:element name="tileY" type="xs:integer"/>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+    </xs:sequence>  
+    </xs:group>    
+</xs:schema>
+
+
+<xs:element name="Room">
+    <xs:complexType>
+        <xs:sequence>
+            <xs:element name="roomType" type="xs:string"/>
+            <xs:element name="meshName" type="xs:string"/>
+            <xs:element name="color" type="xs:string"/>
+            <xs:element name="numTiles" type="xs:integer"/>
+            <xs:element name="point"  minOccurs="1" maxOccurs="unbounded" >
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="tileX" type="xs:integer"/>
+                        <xs:element name="tileY" type="xs:integer"/>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:element>

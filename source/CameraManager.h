@@ -130,7 +130,7 @@ class CameraManager
 	}
 
 
-    void createCameraNode(std::string ss);
+	void createCameraNode(std::string ss, Ogre::Vector3 = Ogre::Vector3(0,0,0),Ogre::Degree = Ogre::Degree(0), Ogre::Degree = Ogre::Degree (0), Ogre::Degree = Ogre::Degree (0) );
     Ogre::SceneNode* getActiveCameraNode();
     Ogre::SceneNode* setActiveCameraNode(std::string ss);
 

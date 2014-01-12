@@ -15,6 +15,7 @@
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 #include <OgreSingleton.h>
+#include <Overlay/OgreOverlaySystem.h>
 #include <OgreSceneQuery.h>
 #include <OgreTimer.h>
 #include <CEGUI/EventArgs.h>
@@ -58,7 +59,7 @@ class ODFrameListener :
 friend class Console;
     public:
         // Constructor takes a RenderWindow because it uses that to determine input context
-        ODFrameListener(Ogre::RenderWindow* win);
+         ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* tmpOverlaySystem);
         virtual ~ODFrameListener();
 
         void makeEditorContext();

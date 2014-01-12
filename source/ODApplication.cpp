@@ -77,6 +77,9 @@ ODApplication::ODApplication() :
         return;
     }
 
+
+    mOverlaySystem = new Ogre::OverlaySystem();
+
     window = root->initialise(true, "OpenDungeons " + VERSION);
 
     LogManager* logManager = new LogManager();
@@ -84,8 +87,6 @@ ODApplication::ODApplication() :
     new Translation();
     new GameStateManager();
     //RenderManager* renderMgr = new RenderManager();
-
-    mOverlaySystem = new Ogre::OverlaySystem();
 
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
@@ -145,7 +146,7 @@ ODApplication::ODApplication() :
     new Console();
 
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
-    mFrameListener = new ODFrameListener(window);
+    mFrameListener = new ODFrameListener(window,mOverlaySystem);
     root->addFrameListener(mFrameListener);
     //TODO: This should be moved once we have separated level loading from startup.
 

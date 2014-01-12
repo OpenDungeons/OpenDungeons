@@ -3,7 +3,9 @@
 
 class  GameGameState: public AbstractGameState {
 
-  GameGameState(){}
+  GameGameState(GameStateManager& gm):
+      AbstractGameState(gm)
+  {}
  ~GameGameState(){}
 
 

@@ -71,11 +71,13 @@ void CameraManager::createCamera(std::string ss, double nearClip, double farClip
     registeredCameraNames.insert(ss);
 }
 
-void CameraManager::createCameraNode(std::string ss){
-    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(ss + "_node", Ogre::Vector3(1 + gameMap->getMapSizeX()/2, -1 + gameMap->getMapSizeY()/2, 16));
+void CameraManager::createCameraNode(std::string ss,Ogre::Vector3 xyz, Ogre::Degree yaw, Ogre::Degree pitch , Ogre::Degree roll ){
+    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(ss + "_node",xyz);
     Ogre::Camera* tmpCamera = getCamera(ss);
-    node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
-    node->roll(Ogre::Degree(30), Ogre::Node::TS_WORLD);
+    // node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
+    node->yaw  (yaw ,Ogre::Node::TS_LOCAL);
+    node->pitch(pitch, Ogre::Node::TS_LOCAL);
+    node->roll (roll, Ogre::Node::TS_LOCAL);    
     node->attachObject(tmpCamera);
     node->setPosition(Ogre::Vector3(0,0,2) +  node->getPosition()); 
     registeredCameraNodeNames.insert(ss);

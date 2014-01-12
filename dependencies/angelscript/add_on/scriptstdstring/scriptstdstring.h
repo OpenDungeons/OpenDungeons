@@ -3,7 +3,7 @@
 //
 // This function registers the std::string type with AngelScript to be used as the default string type.
 //
-// The string type is registered as a value type, thus may have performance issues if a lot of 
+// The string type is registered as a value type, thus may have performance issues if a lot of
 // string operations are performed in the script. However, for relatively few operations, this should
 // not cause any problem for most applications.
 //
@@ -11,19 +11,24 @@
 #ifndef SCRIPTSTDSTRING_H
 #define SCRIPTSTDSTRING_H
 
-#ifndef ANGELSCRIPT_H 
+#ifndef ANGELSCRIPT_H
 // Avoid having to inform include path if header is already include before
 #include <angelscript.h>
 #endif
 
 #include <string>
 
+// Undef GetObject if defined to avoid potential compilation problems.
+#ifdef GetObject
+#undef GetObject
+#endif
+
 //---------------------------
 // Compilation settings
 //
 
 // The use of the string pool can improve performance quite drastically
-// for scripts that work with a lot of literal string constants. 
+// for scripts that work with a lot of literal string constants.
 //
 //  1 = on
 //  0 = off

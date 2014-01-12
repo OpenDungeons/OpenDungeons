@@ -362,7 +362,7 @@ void Creature::doTurn()
     }
 
     // Check to see if we have earned enough experience to level up.
-    while (exp >= 5 * (getLevel() + pow(getLevel() / 3.0, 2)) && getLevel() < 100)
+    while (exp >= 5 * (getLevel() + std::pow(getLevel() / 3.0, 2)) && getLevel() < 100)
     {
         doLevelUp();
     }
@@ -453,7 +453,7 @@ void Creature::doTurn()
         }
 
         // If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-        if (homeTile != 0 && 100.0 * pow(Random::Double(0.0, 0.8), 2) > awakeness && peekAction().getType() != CreatureAction::sleep)
+        if (homeTile != 0 && 100.0 * std::pow(Random::Double(0.0, 0.8), 2) > awakeness && peekAction().getType() != CreatureAction::sleep)
         {
             tempAction.setType(CreatureAction::sleep);
             pushAction(tempAction);
@@ -1380,7 +1380,7 @@ void Creature::doTurn()
                     }
 
                     // Randomly decide to stop training, we are more likely to stop when we are tired.
-                    if (100.0 * pow(Random::Double(0.0, 1.0), 2) > awakeness)
+                    if (100.0 * std::pow(Random::Double(0.0, 1.0), 2) > awakeness)
                     {
                         popAction();
                         trainWait = 0;
@@ -1527,7 +1527,7 @@ void Creature::doTurn()
                         double damageDone = getHitroll(getGameMap()->crowDistance(
                                 myTile, tempTile));
                         damageDone *= Random::Double(0.0, 1.0);
-                        damageDone -= pow(Random::Double(0.0, 0.4), 2.0)
+                        damageDone -= std::pow(Random::Double(0.0, 0.4), 2.0)
                                 * tempAttackableObject->getDefense();
 
                         // Make sure the damage is positive.
@@ -1537,7 +1537,7 @@ void Creature::doTurn()
                         // Do the damage and award experience points to both creatures.
                         tempAttackableObject->takeDamage(damageDone, tempTile);
                         double expGained;
-                        expGained = 1.0 + 0.2 * pow(damageDone, 1.3);
+                        expGained = 1.0 + 0.2 * std::pow(damageDone, 1.3);
                         awakeness -= 0.5;
 
                         // Give a small amount of experince to the creature we hit.
@@ -1789,7 +1789,7 @@ void Creature::doLevelUp()
  */
 void Creature::updateVisibleTiles()
 {
-    //double effectiveRadius = min(5.0, sightRadius) + sightRadius*pow(randomDouble(0.0, 1.0), 3.0);
+    //double effectiveRadius = min(5.0, sightRadius) + sightRadius*std::pow(randomDouble(0.0, 1.0), 3.0);
     //double effectiveRadius = sightRadius;
     //visibleTiles = getGameMap()->visibleTiles(positionTile(), effectiveRadius);
     visibleTiles = getGameMap()->visibleTiles(positionTile(), definition->getSightRadius());
@@ -1880,7 +1880,7 @@ std::vector<GameEntity*> Creature::getEnemyObjectsInRange(
         Tile *tempTile = enemyObjectsToCheck[i]->getCoveredTiles()[0];
         if (tempTile != NULL)
         {
-            double rSquared = pow(myTile->x - tempTile->x, 2.0) + pow(
+            double rSquared = std::pow(myTile->x - tempTile->x, 2.0) + std::pow(
                     myTile->y - tempTile->y, 2.0);
 
             if (rSquared < weaponRangeSquared)
@@ -2233,7 +2233,7 @@ void Creature::computeBattlefield()
             Tile *tempTile2 = tempObject->getCoveredTiles()[0];
 
             // Compensate for how close the creature is to me
-            //rSquared = pow(myTile->x - tempTile2->x, 2.0) + pow(myTile->y - tempTile2->y, 2.0);
+            //rSquared = std::pow(myTile->x - tempTile2->x, 2.0) + std::pow(myTile->y - tempTile2->y, 2.0);
             //double factor = 1.0 / (sqrt(rSquared) + 1.0);
 
             // Subtract for the distance from the enemy creature to r
@@ -2250,7 +2250,7 @@ void Creature::computeBattlefield()
             Tile *tempTile2 = visibleAlliedObjects[j]->getCoveredTiles()[0];
 
             // Compensate for how close the creature is to me
-            //rSquared = pow(myTile->x - tempTile2->x, 2.0) + pow(myTile->y - tempTile2->y, 2.0);
+            //rSquared = std::pow(myTile->x - tempTile2->x, 2.0) + std::pow(myTile->y - tempTile2->y, 2.0);
             //double factor = 1.0 / (sqrt(rSquared) + 1.0);
 
             xDist = tempTile->x - tempTile2->x;

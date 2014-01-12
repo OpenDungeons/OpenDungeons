@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 
     if(WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
     {
-        cerr << "Couldn't not find a usable WinSock DLL.n";
+        MessageBox(0, "Error", "Couldn't not find a usable WinSock DLL.n", MB_OK | MB_ICONERROR | MB_TASKMODAL);
         exit(1);
     }
 #endif
@@ -28,10 +28,10 @@ int main(int argc, char **argv)
     }
     catch (const std::exception& e)
     {
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         MessageBox(0, e.what(), "An exception has occurred!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
-		std::cerr<< "An exception has occurred: " << e.what() << std::endl;
+		std::cout << "An exception has occurred: " << e.what() << std::endl;
 #endif
     }
 
