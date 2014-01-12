@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<creature xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureSchema.xsd">
+    <name>Orc_0002</name>
+    <HP>165 </HP>
+    <mana>10 </mana>
+    <posX>6</posX>
+    <posY>3</posY>
+    <posZ>0</posZ>
+    <color>2</color>
+    <weaponLname>
+        <name>none</name>
+        <damage>8</damage>
+        <range>4</range>
+        <defense>0</defense>
+        
+    </weaponLname>
+    <weaponRname>
+        <name>Longsword</name>
+        <damage>14</damage>
+        <range>4</range>
+        <defense>0</defense>
+            
+     </weaponRname>        
+        
+        
+</creature>

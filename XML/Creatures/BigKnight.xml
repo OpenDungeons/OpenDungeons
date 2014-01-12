@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CreatureDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureDefinitionsSchema.xsd">
+    <stats>
+        <className>StrongFighter</className>
+        <level_stats>
+            <level>6</level>
+            <health>5</health>
+            <mana>15</mana>
+            <wager>0</wager>
+            <dig_rate>0</dig_rate>
+        </level_stats>
+        <attack>
+            <level_attack>
+                <level>6</level>
+                <damage>0.0</damage>
+                <enabled>false</enabled>
+            </level_attack>
+            <type>melee</type>
+        </attack>
+        <job>Knight.mesh</job>
+        <bedMeshName>3</bedMeshName>
+        <bedDimX>3</bedDimX>
+        <bedDimY>1.2</bedDimY>
+        <move_speed>1</move_speed>
+        <sight_radius>0</sight_radius>
+        <dance_rate>1.2</dance_rate>
+        <social_coefficients> 
+            <cHumans>0</cHumans>
+            <cCorpars>0</cCorpars>
+            <cUndead>0</cUndead>
+            <cConstructs>0</cConstructs>
+            <cDenizens>1</cDenizens>
+            <cAltruism>1</cAltruism>
+            <cOrder>1</cOrder>
+            <cPeace>UniqueUnicorn32</cPeace>
+                                            
+        
+        </social_coefficients>
+    </stats>
+    <graphics>
+        <scale>
+            <xscale>1.2</xscale>
+            <yscale>1.2</yscale>
+            <zscale>5</zscale>
+        </scale>
+        <material>
+            <texturemap>
+                <normalmap filename="filename0" space="tangent"/>
+                <specularmap filename="filename1"/>
+            </texturemap>
+            <name>name0</name>
+            <filename>filename2</filename>
+            <type>normal_map</type>
+        </material>
+        <mesh_name>ForgeForgeObject</mesh_name>
+    </graphics>
+    <soundlist>
+        <sound>
+            <filename>filename3</filename>
+            <animation>animation0</animation>
+            <frame>0</frame>
+            <volume>0</volume>
+        </sound>
+    </soundlist>
+    <scripts>
+        <filename>filename4</filename>
+    </scripts>
+</CreatureDefinition>

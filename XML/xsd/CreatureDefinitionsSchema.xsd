@@ -1,0 +1,153 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="CreatureDefinition">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="stats" type="stats"/>
+        <xs:element name="graphics">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="scale" type="scale"/>
+              <xs:element name="material" type="material" minOccurs="1" maxOccurs="unbounded"/>
+              <xs:element name="mesh_name" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="soundjoblist">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="sound" type="sound" minOccurs="1" maxOccurs="unbounded"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="scripts">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="filename" type="xs:string"/>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="stats">
+    <xs:sequence>
+      <xs:element name="className" type="xs:string"/>
+      <xs:element name="level_stats" type="level_stats" minOccurs="1" maxOccurs="10"/>
+      <xs:element name="attack" type="attack" minOccurs="1" maxOccurs="unbounded"/>
+      <xs:element name="job" type="job" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="bedMeshName" type="xs:string"/>
+      <xs:element name="bedDimX" type="xs:integer"/>
+      <xs:element name="bedDimY" type="xs:integer"/>
+      <xs:element name="move_speed" type="xs:decimal" minOccurs="0" maxOccurs="1" default="1.0"/>
+      <xs:element name="sight_radius" type="xs:decimal"/>
+      <xs:element name="dance_rate" type="xs:decimal" minOccurs="0" maxOccurs="1" default="0.5"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="level_integer">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="1"/>
+      <xs:maxInclusive value="10"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="level_stats">
+    <xs:sequence>
+      <xs:element name="level" type="level_integer"/>
+      <xs:element name="health" type="xs:decimal"/>
+      <xs:element name="mana" type="xs:decimal"/>
+      <xs:element name="wager" type="xs:decimal"/>
+      <xs:element name="dig_rate" type="xs:decimal" default="0.0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:simpleType name="job">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="researcher"/>
+      <xs:enumeration value="crafter"/>
+      <xs:enumeration value="guard"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="attack">
+    <xs:sequence>
+      <xs:element name="level_attack" type="level_attack"/>
+      <xs:element name="type">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="melee"/>
+            <xs:enumeration value="missile"/>
+            <xs:enumeration value="spell"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="level_attack">
+    <xs:sequence>
+      <xs:element name="level" type="level_integer"/>
+      <xs:element name="damage" type="xs:decimal" default="0.0"/>
+      <xs:element name="enabled" type="xs:boolean" default="false"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="scale">
+    <xs:sequence>
+      <xs:element name="xscale" type="xs:decimal" default="1.0"/>
+      <xs:element name="yscale" type="xs:decimal" default="1.0"/>
+      <xs:element name="zscale" type="xs:decimal" default="1.0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="material">
+    <xs:sequence>
+      <xs:element name="texturemap">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="normalmap" type="normalmap" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="specularmap" type="specularmap" minOccurs="0" maxOccurs="1"/>
+          </xs:all>
+        </xs:complexType>
+      </xs:element>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="filename" type="xs:string"/>
+      <xs:element name="type">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="normal_map"/>
+            <xs:enumeration value="per_pixel_lighting"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="normalmap">
+    <xs:attribute name="filename" type="xs:string" use="required"/>
+    <xs:attribute name="space" use="required">
+      <xs:simpleType>
+        <xs:restriction base="xs:string">
+          <xs:enumeration value="tangent"/>
+          <xs:enumeration value="object"/>
+        </xs:restriction>
+      </xs:simpleType>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="specularmap">
+    <xs:attribute name="filename" type="xs:string" use="required"/>
+  </xs:complexType>
+
+  <xs:complexType name="sound">
+    <xs:sequence>
+      <xs:element name="filename" type="xs:string"/>
+      <xs:element name="animation" type="xs:string"/>
+      <xs:element name="frame" type="xs:integer"/>
+      <xs:element name="volume" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

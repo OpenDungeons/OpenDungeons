@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <room xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/RoomScheme.xsd">
+<roomType>Treasury</roomType>
+<meshName>Treasury</meshName>
+<color>2</color>
+<numTiles>9</numTiles>
+<point>
+<tileX>13</tileX>
+<tileY>14</tileY>
+</point>
+<point>
+<tileX>13</tileX>
+<tileY>15</tileY>
+</point>
+<point>
+<tileX>13</tileX>
+<tileY>16</tileY>
+</point>
+<point>
+<tileX>11</tileX>
+<tileY>16</tileY>
+</point>
+<point>
+<tileX>12</tileX>
+<tileY>16</tileY>
+</point>
+<point>
+<tileX>11</tileX>
+<tileY>14</tileY>
+</point>
+<point>
+<tileX>11</tileX>
+<tileY>15</tileY>
+</point>
+<point>
+<tileX>12</tileX>
+<tileY>14</tileY>
+</point>
+<point>
+<tileX>12</tileX>
+<tileY>15</tileY>
+</point>
+</room>
