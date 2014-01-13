@@ -3,7 +3,7 @@
     <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2005/08/xml.xsd"/>    
     <xs:group name="Room" >
     <xs:sequence>
-    <xs:element name="Room">
+    <xs:element name="room">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="roomType" type="xs:string"/>
@@ -19,14 +19,12 @@
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
+            <xs:attribute ref="xml:base"/>   
         </xs:complexType>
     </xs:element>
     </xs:sequence>  
     </xs:group>    
-</xs:schema>
-
-
-<xs:element name="Room">
+<xs:element name="room">
     <xs:complexType>
         <xs:sequence>
             <xs:element name="roomType" type="xs:string"/>
@@ -44,3 +42,4 @@
         </xs:sequence>
     </xs:complexType>
 </xs:element>
+</xs:schema>
