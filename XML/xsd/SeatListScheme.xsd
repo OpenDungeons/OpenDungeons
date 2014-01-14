@@ -2,11 +2,24 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
     <xs:import namespace="http://www.w3.org/XML/1998/namespace" schemaLocation="http://www.w3.org/2005/08/xml.xsd"/>     
     <xs:include schemaLocation="SeatScheme.xsd"/>
+    <xs:group name="SeatList" >
+    <xs:sequence>    
     <xs:element name="SeatList" >
         <xs:complexType >
-            <xs:sequence>
-                <xs:group ref="Seat"/>
+            <xs:sequence maxOccurs="unbounded">
+                <xs:group ref="Seat" maxOccurs="unbounded"/>
             </xs:sequence>
+        <xs:attribute ref="xml:base"/>      
         </xs:complexType >
     </xs:element>  
+    </xs:sequence>        
+    </xs:group>
+    
+<xs:element name="SeatList" >
+    <xs:complexType >
+        <xs:sequence maxOccurs="unbounded">
+            <xs:group ref="Seat" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType >
+</xs:element> 
 </xs:schema>

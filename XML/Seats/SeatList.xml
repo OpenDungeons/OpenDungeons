@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"  standalone="no"  ?>
 
 <SeatList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/SeatListScheme.xsd"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/SeatListScheme.xsd"
     xmlns:xi="http://www.w3.org/2001/XInclude"
     >
-    <xi:include href="../Xml6/Seat_0.xml"/>
-    <xi:include href="../Xml6/Seat_1.xml"/>
-    <xi:include href="../Xml6/Seat_2.xml"/>
-    <xi:include href="../Xml6/Seat_3.xml"/>
-    <xi:include href="../Xml6/Seat_4.xml"/>
+    <xi:include href="../Seats/Seat_0.xml"/>
+    <xi:include href="../Seats/Seat_1.xml"/>
+    <xi:include href="../Seats/Seat_2.xml"/>
+    <xi:include href="../Seats/Seat_3.xml"/>
+    <xi:include href="../Seats//Seat_4.xml"/>
 </SeatList>
