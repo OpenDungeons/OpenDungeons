@@ -11,6 +11,7 @@
     <xs:include schemaLocation="TrapListScheme.xsd"/>
     <xs:include schemaLocation="LightListScheme.xsd"/>    
     <xs:include schemaLocation="ActorListScheme.xsd"/>
+    <xs:include schemaLocation="CreatureDefinitionListScheme.xsd"/>   
     <xs:element name="GameMap">
         <xs:complexType>
             <xs:sequence>
@@ -22,7 +23,8 @@
                 <xs:group ref="RoomList" />
                 <xs:group ref="TrapList" />
                 <xs:group ref="LightList" />
-                <xs:group ref="ActorList" />                
+                <xs:group ref="ActorList" />
+                <xs:group ref="CreatureDefinitionList" />                    
             </xs:sequence>                       
         </xs:complexType>       
     </xs:element >
