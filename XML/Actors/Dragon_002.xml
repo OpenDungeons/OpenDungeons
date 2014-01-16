@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<creature xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureSchema.xsd">
+<actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorSchema.xsd">
+    <class>Dragon</class>
     <name>Dragon_002</name>
-    <HP>200 </HP>
-    <mana>25 </mana>
-    <posX>-16</posX>
-    <posY>4</posY>
+    <HP>200</HP>
+    <mana>25</mana>
+    <posX>-9</posX>
+    <posY>-7</posY>
     <posZ>0</posZ>
     <color>1</color>
     <weaponLname>
@@ -13,15 +14,11 @@
         <damage>10</damage>
         <range>4</range>
         <defense>0</defense>
-        
     </weaponLname>
     <weaponRname>
         <name>none</name>
         <damage>8</damage>
         <range>3</range>
         <defense>0</defense>
-            
-     </weaponRname>        
-        
-        
-</creature>
+    </weaponRname>
+</actor>

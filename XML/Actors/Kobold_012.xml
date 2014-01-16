@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<creature xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureSchema.xsd">
+<actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorSchema.xsd">
+    <class>Kobold</class>
     <name>Kobold_012</name>
-    <HP>125 </HP>
-    <mana>3 </mana>
-    <posX>-10</posX>
-    <posY>-3</posY>
+    <HP>125</HP>
+    <mana>3</mana>
+    <posX>-12</posX>
+    <posY>0</posY>
     <posZ>0</posZ>
     <color>1</color>
     <weaponLname>
@@ -13,15 +14,11 @@
         <damage>0</damage>
         <range>0</range>
         <defense>5</defense>
-        
     </weaponLname>
     <weaponRname>
         <name>Longsword</name>
         <damage>14</damage>
         <range>3</range>
         <defense>0</defense>
-            
-     </weaponRname>        
-        
-        
-</creature>
+    </weaponRname>
+</actor>

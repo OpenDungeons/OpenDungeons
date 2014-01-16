@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<creature xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureSchema.xsd">
+<actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorSchema.xsd">
+    <class>Kreatur</class>
     <name>Kre</name>
-    <HP>180 </HP>
-    <mana>10 </mana>
+    <HP>180</HP>
+    <mana>10</mana>
     <posX>15</posX>
     <posY>16</posY>
     <posZ>0</posZ>
@@ -13,15 +14,11 @@
         <damage>12</damage>
         <range>4</range>
         <defense>0</defense>
-        
     </weaponLname>
     <weaponRname>
         <name>none</name>
         <damage>6</damage>
         <range>4</range>
         <defense>0</defense>
-            
-     </weaponRname>        
-        
-        
-</creature>
+    </weaponRname>
+</actor>

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<creature xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureSchema.xsd">
+<actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorSchema.xsd">
+    <class>Knight</class>
     <name>Knight_c2</name>
-    <HP>125 </HP>
-    <mana>3 </mana>
+    <HP>125</HP>
+    <mana>3</mana>
     <posX>-8</posX>
     <posY>33</posY>
     <posZ>0</posZ>
@@ -13,15 +14,11 @@
         <damage>1</damage>
         <range>4</range>
         <defense>3</defense>
-        
     </weaponLname>
     <weaponRname>
         <name>Longsword</name>
         <damage>8</damage>
         <range>4</range>
         <defense>0</defense>
-            
-     </weaponRname>        
-        
-        
-</creature>
+    </weaponRname>
+</actor>

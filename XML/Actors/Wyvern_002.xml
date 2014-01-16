@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<creature xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/CreatureSchema.xsd">
+<actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorSchema.xsd">
+    <class>Wyvern</class>
     <name>Wyvern_002</name>
-    <HP>150 </HP>
-    <mana>5 </mana>
+    <HP>150</HP>
+    <mana>5</mana>
     <posX>-14</posX>
     <posY>-115</posY>
     <posZ>0</posZ>
@@ -13,15 +14,11 @@
         <damage>8</damage>
         <range>3</range>
         <defense>0</defense>
-        
     </weaponLname>
     <weaponRname>
         <name>none</name>
         <damage>6</damage>
         <range>3</range>
         <defense>0</defense>
-            
-     </weaponRname>        
-        
-        
-</creature>
+    </weaponRname>
+</actor>
