@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GoalList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/GoalListScheme.xsd"
+    xmlns:xi="http://www.w3.org/2001/XInclude">
+    <xi:include href="../Goals/Goal_0.xml"/>
+    <xi:include href="../Goals/Goal_1.xml"/>
+    <xi:include href="../Goals/Goal_2.xml"/>
+    <xi:include href="../Goals/Goal_3.xml"/>
+    <xi:include href="../Goals/Goal_4.xml"/>
+    <xi:include href="../Goals/Goal_5.xml"/>
+    <xi:include href="../Goals/Goal_6.xml"/>
+    <xi:include href="../Goals/Goal_7.xml"/>
+</GoalList>
+

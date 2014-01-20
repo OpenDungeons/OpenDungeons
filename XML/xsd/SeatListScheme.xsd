@@ -7,7 +7,7 @@
     <xs:element name="SeatList" >
         <xs:complexType >
             <xs:sequence maxOccurs="unbounded">
-                <xs:group ref="Seat" maxOccurs="unbounded"/>
+                <xs:group ref="Seat" />
             </xs:sequence>
         <xs:attribute ref="xml:base"/>      
         </xs:complexType >
@@ -18,7 +18,7 @@
 <xs:element name="SeatList" >
     <xs:complexType >
         <xs:sequence maxOccurs="unbounded">
-            <xs:group ref="Seat" maxOccurs="unbounded"/>
+            <xs:group ref="Seat" />
         </xs:sequence>
     </xs:complexType >
 </xs:element> 

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"  standalone="no"  ?>
+
+<trapList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/TrapListScheme.xsd"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    >
+    <xi:include href="../Traps/Canon_trap_1.xml"/>
+    
+</trapList>

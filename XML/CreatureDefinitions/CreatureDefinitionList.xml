@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<creatureDefinitionList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../xsd/CreatureDefinitionListScheme.xsd"
+    xmlns:xi="http://www.w3.org/2001/XInclude" >
+    <xi:include href="../CreatureDefinitions/Adventurer.xml"/>
+    <xi:include href="../CreatureDefinitions/BigKnight.xml"/>
+    <xi:include href="../CreatureDefinitions/ConstructWorker.xml"/>
+    <xi:include href="../CreatureDefinitions/Dragon.xml"/>
+    <xi:include href="../CreatureDefinitions/Dwarf1.xml"/>
+    <xi:include href="../CreatureDefinitions/Dwarf2.xml"/>
+    <xi:include href="../CreatureDefinitions/Gnome.xml"/>
+    <xi:include href="../CreatureDefinitions/Goblin.xml"/>
+    <xi:include href="../CreatureDefinitions/Knight.xml"/>
+    <xi:include href="../CreatureDefinitions/Kobold.xml"/>
+    <xi:include href="../CreatureDefinitions/Kreatur.xml"/>
+    <xi:include href="../CreatureDefinitions/Orc.xml"/>
+    <xi:include href="../CreatureDefinitions/PitDemon.xml"/>
+    <xi:include href="../CreatureDefinitions/Spider.xml"/>
+    <xi:include href="../CreatureDefinitions/Tentacle1.xml"/>
+    <xi:include href="../CreatureDefinitions/Tentacle2.xml"/>
+    <xi:include href="../CreatureDefinitions/Troll.xml"/>
+    <xi:include href="../CreatureDefinitions/Wizard.xml"/>
+    <xi:include href="../CreatureDefinitions/Wyvern.xml"/>
+    
+</creatureDefinitionList>

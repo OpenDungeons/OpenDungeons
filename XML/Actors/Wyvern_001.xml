@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorSchema.xsd">
+ xsi:noNamespaceSchemaLocation="../xsd/ActorScheme.xsd">
     <class>Wyvern</class>
     <name>Wyvern_001</name>
     <HP>150</HP>

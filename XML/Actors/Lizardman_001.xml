@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorScheme.xsd">
+    xsi:noNamespaceSchemaLocation="../xsd/ActorScheme.xsd">
+    <class>Lizardman</class>
     <name>Lizardman_001</name>
     <HP>145 </HP>
     <mana>7 </mana>

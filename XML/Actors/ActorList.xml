@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<actorList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../xsd/ActorListScheme.xsd"
+    xmlns:xi="http://www.w3.org/2001/XInclude" >
+    <xi:include href="../Actors/Adventurer_001.xml"/>
+    <xi:include href="../Actors/ConstructWorker1.xml"/>
+    <xi:include href="../Actors/Dragon_001.xml"/>
+    <xi:include href="../Actors/Dragon_002.xml"/>
+    <xi:include href="../Actors/Dragon_003.xml"/>
+    <xi:include href="../Actors/Dragon_004.xml"/>
+    <xi:include href="../Actors/Dwarf1_001.xml"/>
+    <xi:include href="../Actors/Dwarf1_002.xml"/>
+    <xi:include href="../Actors/Dwarf1_004.xml"/>
+    <xi:include href="../Actors/Dwarf1_006.xml"/>
+    <xi:include href="../Actors/Dwarf1_007.xml"/>
+    <xi:include href="../Actors/Dwarf2_001.xml"/>
+    <xi:include href="../Actors/Dwarf2_002.xml"/>
+    <xi:include href="../Actors/Dwarf3_001.xml"/>
+    <xi:include href="../Actors/Gnome2.xml"/>
+    <xi:include href="../Actors/Goblin3.xml"/>
+    <xi:include href="../Actors/King.xml"/>
+    <xi:include href="../Actors/Knight_003.xml"/>
+    <xi:include href="../Actors/Knight_004.xml"/>
+    <xi:include href="../Actors/Knight_005.xml"/>
+    <xi:include href="../Actors/Knight_006.xml"/>
+    <xi:include href="../Actors/Knight_007.xml"/>
+    <xi:include href="../Actors/Knight_c1.xml"/>
+    <xi:include href="../Actors/Knight_c2.xml"/>
+    <xi:include href="../Actors/Knight_c3.xml"/>
+    <xi:include href="../Actors/Knight_c4.xml"/>
+    <xi:include href="../Actors/Knight_c5.xml"/>
+    <xi:include href="../Actors/Knight.xml"/>
+    <xi:include href="../Actors/Kobold_007.xml"/>
+    <xi:include href="../Actors/Kobold_012.xml"/>
+    <xi:include href="../Actors/Kobold.xml"/>
+    <xi:include href="../Actors/Kreatur_001.xml"/>
+    <xi:include href="../Actors/Kreatur_002.xml"/>
+    <xi:include href="../Actors/Kreatur_003.xml"/>
+    <xi:include href="../Actors/Kreatur_004.xml"/>
+    <xi:include href="../Actors/Kreatur_006.xml"/>
+    <xi:include href="../Actors/Kre.xml"/>
+    <xi:include href="../Actors/Lizardman_001.xml"/>
+    <xi:include href="../Actors/Lizardman_002.xml"/>
+    <xi:include href="../Actors/Mage.xml"/>
+    <xi:include href="../Actors/Orc_0001.xml"/>
+    <xi:include href="../Actors/Orc_0002.xml"/>
+    <xi:include href="../Actors/Orc_0003.xml"/>
+    <xi:include href="../Actors/Orc_0004.xml"/>
+    <xi:include href="../Actors/PitDemon5.xml"/>
+    <xi:include href="../Actors/Spider6.xml"/>
+    <xi:include href="../Actors/Tentacle18.xml"/>
+    <xi:include href="../Actors/Tentacle29.xml"/>
+    <xi:include href="../Actors/Troll10.xml"/>
+    <xi:include href="../Actors/Troll11.xml"/>
+    <xi:include href="../Actors/Wizard7.xml"/>
+    <xi:include href="../Actors/Wiz.xml"/>
+    <xi:include href="../Actors/Wyvern_001.xml"/>
+    <xi:include href="../Actors/Wyvern_002.xml"/>
+    <xi:include href="../Actors/Wyvern_003.xml"/>
+    
+    
+</actorList>

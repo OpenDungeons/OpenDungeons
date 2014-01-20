@@ -23,8 +23,8 @@
                 <xs:group ref="RoomList" />
                 <xs:group ref="TrapList" />
                 <xs:group ref="LightList" />
+                <xs:group ref="CreatureDefinitionList" />
                 <xs:group ref="ActorList" />
-                <xs:group ref="CreatureDefinitionList" />                    
             </xs:sequence>                       
         </xs:complexType>       
     </xs:element >

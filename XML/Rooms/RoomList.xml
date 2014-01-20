@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"  standalone="no"  ?>
+
+<roomList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/RoomListScheme.xsd"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    >
+    <xi:include href="Room_0.xml"/>
+    <xi:include href="Room_1.xml"/>
+    <xi:include href="Room_2.xml"/>
+    <xi:include href="Room_3.xml"/>
+    <xi:include href="Room_4.xml"/>
+    <xi:include href="Room_5.xml"/>
+    <xi:include href="Room_6.xml"/>
+    <xi:include href="Room_7.xml"/>
+    <xi:include href="Room_8.xml"/>
+    <xi:include href="Room_9.xml"/>
+    <xi:include href="Room_10.xml"/>    
+    <xi:include href="Room_11.xml"/>        
+    <xi:include href="Room_12.xml"/>
+    <xi:include href="Room_13.xml"/>   
+</roomList>

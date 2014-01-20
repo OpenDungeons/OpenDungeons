@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorScheme.xsd">
+    xsi:noNamespaceSchemaLocation="../xsd/ActorScheme.xsd">
     <name>UniqueUnicorn10</name>
     <HP>UniqueUnicorn23 </HP>
     <mana>UniqueUnicorn24 </mana>

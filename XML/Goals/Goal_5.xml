@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<goal task="MineNGold" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/GoalScheme.xsd" >
+    <option>5000</option>
+    <option>-1</option>
+</goal>

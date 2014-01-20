@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorScheme.xsd">
+    xsi:noNamespaceSchemaLocation="../xsd/ActorScheme.xsd">
+    <class>Orc</class>
     <name>Orc_0004</name>
     <HP>165 </HP>
     <mana>10 </mana>

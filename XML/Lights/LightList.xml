@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<lightList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/LightListScheme.xsd"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    >
+    <xi:include href="../Lights/Light_0.xml"/>
+<!--    <xi:include href="../Lights/Light_1.xml"/>
+    <xi:include href="../Lights/Light_2.xml"/>
+    <xi:include href="../Lights/Light_3.xml"/>
+    <xi:include href="../Lights/Light_4.xml"/>
+    <xi:include href="../Lights/Light_5.xml"/>
+    <xi:include href="../Lights/Light_6.xml"/>
+    <xi:include href="../Lights/Light_7.xml"/>
+    <xi:include href="../Lights/Light_8.xml"/>
+    <xi:include href="../Lights/Light_9.xml"/>
+    <xi:include href="../Lights/Light_10.xml"/>
+    <xi:include href="../Lights/Light_11.xml"/>
+    <xi:include href="../Lights/Light_12.xml"/>
+    <xi:include href="../Lights/Light_13.xml"/>
+    <xi:include href="../Lights/Light_14.xml"/>
+    <xi:include href="../Lights/Light_15.xml"/>
+    <xi:include href="../Lights/Light_16.xml"/>
+    <xi:include href="../Lights/Light_17.xml"/>
+    <xi:include href="../Lights/Light_18.xml"/>
+    <xi:include href="../Lights/Light_19.xml"/>
+    <xi:include href="../Lights/Light_20.xml"/>
+    <xi:include href="../Lights/Light_21.xml"/>-->
+    
+</lightList>
+

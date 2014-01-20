@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GameMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/MapDefinitionSchema.xsd"
+ xmlns:xi="http://www.w3.org/2001/XInclude">
+    <MapSizeX>
+        400
+    </MapSizeX>
+    <MapSizeY>
+        400
+    </MapSizeY>
+    <xi:include href="../Seats/SeatList.xml"/>
+    <xi:include href="../Goals/GoalList.xml"/>
+    <xi:include href="../TileContainers/TileContainerList.xml"/>
+    <xi:include href="../Rooms/RoomList.xml"/>
+    <xi:include href="../Traps/TrapList.xml"/>    
+    <xi:include href="../Lights/LightList.xml"/>
+    <xi:include href="../CreatureDefinitions/CreatureDefinitionList.xml"/>    
+    <xi:include href="../Actors/ActorList.xml"/> 
+    
+</GameMap>

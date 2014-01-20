@@ -6,9 +6,9 @@
             <xs:element name="light">                      
                 <xs:complexType>
                     <xs:sequence>
-                        <xs:element name="posX" type="xs:integer"/>
-                        <xs:element name="posY" type="xs:integer"/>
-                        <xs:element name="posZ" type="xs:integer"/>
+                        <xs:element name="posX" type="xs:decimal"/>
+                        <xs:element name="posY" type="xs:decimal"/>
+                        <xs:element name="posZ" type="xs:decimal"/>
                         <xs:element name="Diffuse" type="RGB"/>
                         <xs:element name="Specular" type="RGB"/>
                         <xs:element name="Attenuation" type="AttenuationType"/>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+    <xs:import namespace="http://www.w3.org/XML/1998/namespace"
+        schemaLocation="http://www.w3.org/2005/08/xml.xsd"/>
+
+    <xs:element name="goal">
+        <xs:complexType>
+            <xs:sequence  >
+                <xs:element name="option" type="xs:string"  maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute name="task" type="xs:string"/>
+            <xs:attribute ref="xml:base"/>   
+        </xs:complexType>
+    </xs:element>
+    <xs:group name="Goal">
+        <xs:sequence>
+            <xs:element name="goal">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="option" type="xs:string" maxOccurs="unbounded"/>
+                    </xs:sequence>
+                    <xs:attribute name="task" type="xs:string"/>
+                    <xs:attribute ref="xml:base"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:group>
+</xs:schema>

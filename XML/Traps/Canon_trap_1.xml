@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <trap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/xsd/TrapScheme.xsd">
+   xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/TrapScheme.xsd">
+   <trapType>Cannon</trapType>
    <meshName>Cannon</meshName>
    <color>1</color>
    <numTiles>1</numTiles>

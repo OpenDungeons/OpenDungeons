@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actor xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
- xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/ActorSchema.xsd">
+ xsi:noNamespaceSchemaLocation="../xsd/ActorScheme.xsd">
     <class>Kreatur</class>
     <name>Kreatur_002</name>
     <HP>180</HP>
