@@ -48,10 +48,10 @@ MusicPlayer::MusicPlayer() :
         logMgr.logMessage(path + "/" + *it);
         Ogre::SharedPtr<sf::Music> track(new sf::Music());
         //TODO - check for text encoding issues.
-        if(track->OpenFromFile(path + "/" + *it))
+        if(track->openFromFile(path + "/" + *it))
         {
-            track->SetVolume(25.0f);
-            track->SetAttenuation(0);
+            track->setVolume(25.0f);
+            track->setAttenuation(0);
             tracks.push_back(track);
         }
     }
@@ -78,7 +78,7 @@ void MusicPlayer::update()
      * (in 1.6 it's private, but in 2.0 it's protected, so we then can
      * override it)
      */
-    if(loaded && (tracks[currentTrack]->GetStatus() == sf::Sound::Stopped))
+    if(loaded && (tracks[currentTrack]->getStatus() == sf::Sound::Stopped))
     {
         next();
     }
@@ -91,9 +91,9 @@ void MusicPlayer::start(const unsigned int& trackNumber)
 {
     if(loaded)
     {
-        tracks[currentTrack]->Stop();
+        tracks[currentTrack]->stop();
         currentTrack = trackNumber;
-        tracks[currentTrack]->Play();
+        tracks[currentTrack]->play();
     }
 }
 

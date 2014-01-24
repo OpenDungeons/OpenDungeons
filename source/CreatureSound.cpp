@@ -19,8 +19,8 @@ CreatureSound::CreatureSound()
 void CreatureSound::play(SoundType type)
 {
     //TODO - can it ever happen that we start playing the same sound before it's finished?
-    sounds[type].Stop();
-    sounds[type].Play();
+    sounds[type].stop();
+    sounds[type].play();
 }
 
 void CreatureSound::setPosition(Ogre::Vector3 p)
@@ -37,7 +37,7 @@ void CreatureSound::setPosition(float x, float y, float z)
     SoundEffectsHelper::SoundFXVector::iterator it;
     for (it = sounds.begin(); it != sounds.end(); ++it)
     {
-        it->SetPosition(x, y, z);
-    }
+        it->setPosition(x, y, z);
+    } 
 }
 
