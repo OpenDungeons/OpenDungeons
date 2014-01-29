@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 
+# Must be set early so that other CMake variables are also set,
+# such as CMAKE_COMPILER_IS_GNUCXX.
+project(OpenDungeons)
+
 ##################################
 #### Useful variables ############
 ##################################
@@ -54,7 +58,7 @@ endif ()
 
 set(OD_SOURCEFILES
     #AngelScript sources
-	${ANGELSCRIPT_SRC_DIR}/as_atomic.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_atomic.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_builder.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_bytecode.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc.cpp
@@ -98,7 +102,7 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder/scriptbuilder.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scripthelper/scripthelper.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
-    
+
     #Tinygettext sources
     ${TINYGETTEXT_DIR}/dictionary_manager.cpp
     ${TINYGETTEXT_DIR}/dictionary.cpp
@@ -106,9 +110,9 @@ set(OD_SOURCEFILES
     ${TINYGETTEXT_DIR}/plural_forms.cpp
     ${TINYGETTEXT_DIR}/po_parser.cpp
     ${TINYGETTEXT_DIR}/tinygettext.cpp
-     
-	#Tinyxml2 sources
-	${TINYXML_DIR}/tinyxml2.cpp
+
+    #Tinyxml2 sources
+    ${TINYXML_DIR}/tinyxml2.cpp
 
     #OpenDungeons sources
     ${SRC}/AbstractApplicationMode.cpp
@@ -208,15 +212,13 @@ set(OD_SOURCEFILES
 #### Project settings ############
 ##################################
 
-project(OpenDungeons)
-
 #postfix bin if we are on linux as we want to launch with a script
 if(WIN32)
-	set( PROJECT_BINARY_NAME "OpenDungeons")
+    set( PROJECT_BINARY_NAME "OpenDungeons")
 else()
-	set( PROJECT_BINARY_NAME "OpenDungeons.bin")
+    set( PROJECT_BINARY_NAME "OpenDungeons.bin")
 endif()
-	
+
 # Project version
 # TODO - make this set version string in source file automatically.
 set(${PROJECT_NAME}_MAJOR_VERSION 0)
@@ -239,14 +241,14 @@ find_package(SFML REQUIRED COMPONENTS Audio System)
 set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1)
 
 if(WIN32 AND ${OGRE_FOUND})
-	# On windows we can try to use boost from the Ogre SDK instead
+    # On windows we can try to use boost from the Ogre SDK instead
     set( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${ENV_OGRE_HOME}/boost_1_44/lib)
     set( CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${ENV_OGRE_HOME}/boost_1_44)
 
     # We set these instead of searching if using MSVC
     # This is because the libs in the ogre dir has a lib prefix making findboost not find them
-	set( OD_BOOST_LIB_DIRS  ${ENV_OGRE_HOME}/boost_1_44/lib)
-	set( OD_BOOST_INCLUDE_DIRS ${ENV_OGRE_HOME}/boost_1_44)
+    set( OD_BOOST_LIB_DIRS  ${ENV_OGRE_HOME}/boost_1_44/lib)
+    set( OD_BOOST_INCLUDE_DIRS ${ENV_OGRE_HOME}/boost_1_44)
 endif()
 
 if(MINGW)
@@ -319,7 +321,7 @@ if(WIN32)
         link_libraries(${Boost_LIBRARIES})
         include_directories(${Boost_INCLUDE_DIRS})
     endif()
-    
+
     if(MSVC)
         #Provide dirent.h if visual studio is used
         include_directories(${DEPENDENCIES_DIR}/dirent)
@@ -391,7 +393,7 @@ if(${SFML_AUDIO_LIBRARY_SHARED_DEBUG})
         optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG} 
         debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG} 
         debug ${SFML_SYSTEM_LIBRARY_SHARED_DEBUG}
-    ) 
+    )
 else()
     target_link_libraries(${PROJECT_BINARY_NAME} 
         ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
@@ -427,7 +429,7 @@ if(WIN32)
             "ws2_32"
             Userenv
         )
-        
+
     endif()
 else()
     target_link_libraries (${PROJECT_BINARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
@@ -463,7 +465,7 @@ else()
     #only use d3d renderer plugins if we are on windows
     set(OPENDUNGEONS_COMMENT_D3D "#")
     #On linux, we should look in the standard paths for plugins
-    if(${OGRE_PLUGIN_DIR_REL} STREQUAL NOTFOUND)
+    if("${OGRE_PLUGIN_DIR_REL}" STREQUAL NOTFOUND)
         #Try pkgconfig if the ogre module doesn't set the plugin paths
         find_package(PkgConfig)
         if(PKG_CONFIG_FOUND)
@@ -500,8 +502,8 @@ configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_D
 if(UNIX)
     #On linux, set up the launcher script
     #TODO - add key repeat thing
-	set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME} CACHE PATH "")
-	configure_file(${CMAKE_CONFIG_DIR}/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
+    set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME} CACHE PATH "")
+    configure_file(${CMAKE_CONFIG_DIR}/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
 endif()
 
 ##################################
@@ -517,7 +519,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OP
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.zip.cfg)
 
 if(NOT WIN32)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION ${BINDIR} PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION ${BINDIR} PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif()
 
 ##################################
