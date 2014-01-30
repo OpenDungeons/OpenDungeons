@@ -4,7 +4,7 @@
 #include <OIS/OISMouse.h>
 
 class GameStateManager;
-namespace Ogre { class FrameEvent; }
+namespace Ogre { struct FrameEvent; }
 namespace OIS { class KeyEvent; }
 
 
@@ -14,7 +14,7 @@ class AbstractGameState
 public:
     AbstractGameState(GameStateManager& gameStateManager);
     virtual ~AbstractGameState();
-    
+
     virtual bool frameStarted   (const Ogre::FrameEvent& evt) = 0;
     virtual bool mouseMoved     (const OIS::MouseEvent &arg) = 0;
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) = 0;

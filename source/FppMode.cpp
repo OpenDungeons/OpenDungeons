@@ -15,7 +15,7 @@ FppMode::~FppMode(){
 }
 
 
-bool FppMode::mouseMoved     (const OIS::MouseEvent &arg){
+bool FppMode::mouseMoved(const OIS::MouseEvent &arg) {
     // CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
     // if (arg.state.X.abs == 0)
     // 	mc->frameListener->cm->move(CameraManager::moveLeft);
@@ -36,58 +36,47 @@ bool FppMode::mouseMoved     (const OIS::MouseEvent &arg){
     // 	mc->frameListener->cm->move(CameraManager::moveBackward);
     // else
     // 	mc->frameListener->cm->move(CameraManager::stopBackward);
-
+    return true;
 }
 
-bool FppMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
-
-
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-    Gui::getSingletonPtr()->convertButton(id));
-
+bool FppMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id) {
+    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
+                Gui::getSingletonPtr()->convertButton(id));
 }
-bool FppMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
 
+bool FppMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id) {
     //CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
     //    Gui::getSingletonPtr()->convertButton(id));
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
+    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
                 Gui::getSingletonPtr()->convertButton(id));
-
 }
-bool FppMode::keyPressed     (const OIS::KeyEvent &arg){
 
-    switch (arg.key)
-    {
+bool FppMode::keyPressed(const OIS::KeyEvent &arg) {
 
-	case OIS::KC_ESCAPE:
-	    regressMode();
-            Gui::getSingletonPtr()->switchGuiMode();
-	    break;
+    switch (arg.key) {
+    case OIS::KC_ESCAPE:
+        regressMode();
+        Gui::getSingletonPtr()->switchGuiMode();
+        break;
     }
-
-}
-bool FppMode::keyReleased    (const OIS::KeyEvent &arg){
-
-
+    return true;
 }
 
+bool FppMode::keyReleased(const OIS::KeyEvent &arg) {
+    return true;
+}
 
-void FppMode::handleHotkeys  (OIS::KeyCode keycode){
-
-
-
-
+void FppMode::handleHotkeys(OIS::KeyCode keycode) {
 
 }
+
 bool FppMode::isInGame(){
     //TODO: this exact function is also in ODFrameListener, replace it too after GameState works
     //TODO - we should use a bool or something, not the sockets for this.
     return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
     //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
-
-
 }
-    
+
 void FppMode::giveFocus(){
 
     mc->mMouse->setEventCallback(this);

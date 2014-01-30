@@ -1,6 +1,6 @@
-
 #ifndef MODECONTEXT_H
 #define MODECONTEXT_H
+
 #include <OgreVector3.h>
 #include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
@@ -13,21 +13,22 @@ class GameMap;
 class MiniMap;
 class ODFrameListener;
 
-struct ModeContext{
+class ModeContext {
+public:
 
     enum DragType
-        {
-	creature,
-	creaturePosses,
-	mapLight,
-	tileSelection,
-	tileBrushSelection,
-	addNewRoom,
-	addNewTrap,
-	rotateAxisX,
-	rotateAxisY,
-	nullDragType
-        };
+    {
+        creature,
+        creaturePosses,
+        mapLight,
+        tileSelection,
+        tileBrushSelection,
+        addNewRoom,
+        addNewTrap,
+        rotateAxisX,
+        rotateAxisY,
+        nullDragType
+    };
 
 
     ModeContext(GameMap* gm, MiniMap* mm);
@@ -49,6 +50,6 @@ struct ModeContext{
     int                 mDragType;
     GameMap            *gameMap;
     MiniMap            *miniMap;
-    };
+};
 
 #endif //MODECONTEXT_H

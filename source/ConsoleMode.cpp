@@ -18,12 +18,12 @@ ConsoleMode::ConsoleMode(ModeContext *modeContext, Console* console):AbstractApp
   pt = new PrefixTreeLL();
   ll = new list<string>();
   pt->build(("./dictionary.txt"));
-  nonTagKeyPressed= true; 
+  nonTagKeyPressed= true;
 }
 
 ConsoleMode::~ConsoleMode(){
 
-  delete pt; 
+  delete pt;
   delete ll;
 }
 
@@ -49,23 +49,17 @@ bool ConsoleMode::mouseMoved     (const OIS::MouseEvent &arg){
 
 
 }
+
 bool ConsoleMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
-
-
-  CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
-						      Gui::getSingletonPtr()->convertButton(id));
-
-
-
+    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
+        Gui::getSingletonPtr()->convertButton(id));
 }
+
 bool ConsoleMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
-
-  CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
-						    Gui::getSingletonPtr()->convertButton(id));
-
-
-
+    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
+        Gui::getSingletonPtr()->convertButton(id));
 }
+
 bool ConsoleMode::keyPressed     (const OIS::KeyEvent &arg){
   if (!cn->visible)
     {
@@ -78,7 +72,7 @@ bool ConsoleMode::keyPressed     (const OIS::KeyEvent &arg){
 
 
 
-	
+
       // it points to postfix candidate
 
 
@@ -105,12 +99,12 @@ bool ConsoleMode::keyPressed     (const OIS::KeyEvent &arg){
       it = ll-> begin();
 
 
-	    
+
     }
 
 
 
-    nonTagKeyPressed= false; 
+    nonTagKeyPressed= false;
 
   }
   else{
@@ -157,8 +151,8 @@ bool ConsoleMode::keyPressed     (const OIS::KeyEvent &arg){
 	      std::transform(command.begin(), command.end(), command.begin(), ::tolower);
 	      std::transform(params[0].begin(), params[0].end(), params[0].begin(), ::tolower);
 
-                
-                
+
+
 	      //TODO: remove executePromptCommand after it is fully converted
 	      //for now try hardcoded commands, and if none is found try AS
 	      if(!cn->executePromptCommand(command, arguments))
@@ -218,22 +212,16 @@ bool ConsoleMode::keyPressed     (const OIS::KeyEvent &arg){
   }
 
   cn->updateOverlay = true;
+}
 
+bool ConsoleMode::keyReleased(const OIS::KeyEvent &arg) {
+    return true;
+}
+
+void ConsoleMode::handleHotkeys(OIS::KeyCode keycode) {
 
 }
-bool ConsoleMode::keyReleased    (const OIS::KeyEvent &arg){
 
-
-
-
-}
-void ConsoleMode::handleHotkeys  (OIS::KeyCode keycode){
-
-
-
-
-
-}
 bool ConsoleMode::isInGame(){
   //TODO: this exact function is also in ODFrameListener, replace it too after GameState works
   //TODO - we should use a bool or something, not the sockets for this.
@@ -242,7 +230,7 @@ bool ConsoleMode::isInGame(){
 
 
 }
-    
+
 void ConsoleMode::giveFocus(){
 
   mc->mMouse->setEventCallback(this);

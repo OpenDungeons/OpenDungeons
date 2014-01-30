@@ -2,17 +2,13 @@
 
 template<> Director* Ogre::Singleton<Director>::msSingleton = 0;
 
+Director::Director() {}
+Director::~Director() {}
+int Director::playNextScenario() { return 0; }
+int Director::playScenario(int ss) { return 0; }
+int Director::addScenario(const std::string& scenarioFileName) { return 0; }
+int Director::addScenario(const std::string& scenarioFileName, int ss) { return 0; }
 
-
-Director::Director(){}
-Director::~Director(){}
-int Director::playNextScenario(){}
-int Director::playScenario(int ss){}
-int Director::addScenario( const std::string& scenarioFileName ){}
-int Director::addScenario( const std::string& scenarioFileName,int ss ){}
-
-int Director::removeScenario(){}
-int Director::removeScenario(int ss ){}
-int Director::clearScenarios(){}
-  
-
+int Director::removeScenario() { return 0; }
+int Director::removeScenario(int ss) { return 0; }
+int Director::clearScenarios() { return 0; }

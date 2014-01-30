@@ -29,9 +29,9 @@ class MapLight
             thetaX                          (0.0),
             thetaY                          (0.0),
             thetaZ                          (0.0),
-            factorX                         (0.1),
-            factorY                         (0.1),
-            factorZ                         (0.1)
+            factorX                         (0),
+            factorY                         (0),
+            factorZ                         (0)
         {
             static unsigned int lightNumber = 0;
 
@@ -82,7 +82,7 @@ class MapLight
 
 
     private:
-	
+
 	GameMap* gameMap;
         Ogre::Vector3 position;
         Ogre::ColourValue diffuseColor;

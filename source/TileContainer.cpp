@@ -59,7 +59,7 @@ void TileContainer::clearTiles()
 void TileContainer::addTile(Tile *t)
 {
     // Notify the neighbor tiles already existing on the TileContainer of our existance.
-    // that's some stupid ad-hoc solution to properly read-in the tiles 
+    // that's some stupid ad-hoc solution to properly read-in the tiles
     // for (unsigned int i = 0; i < 2; ++i)
     // {
     //     int tempX = t->x, tempY = t->y;
@@ -135,8 +135,8 @@ void TileContainer::setTileNeighbors(Tile *t){
 /*! \brief Returns a pointer to the tile at location (x, y) (const version).
  *
  * The tile pointers are stored internally in a map so calls to this function
- * have a complexity O(log(N)) where N is the number of tiles in the map. 
- * This function does not lock. 
+ * have a complexity O(log(N)) where N is the number of tiles in the map.
+ * This function does not lock.
  */
 Tile* TileContainer::getTile(int xx, int yy) const
 {
@@ -160,7 +160,7 @@ Tile::TileType* TileContainer::getNeighborsTypes( Tile *curTile, Tile::TileType 
 
     int xx = curTile->getX();
     int yy = curTile->getY();
-    
+
     neighbors[0] = getSafeTileType(getTile(xx-1,yy) );
     neighbors[1] = getSafeTileType(getTile(xx-1,yy+1) );
     neighbors[2] = getSafeTileType(getTile(xx,yy+1));
@@ -172,7 +172,7 @@ Tile::TileType* TileContainer::getNeighborsTypes( Tile *curTile, Tile::TileType 
 
 
 
-    return neighbors; 
+    return neighbors;
 
 }
 
@@ -181,7 +181,7 @@ bool* TileContainer::getNeighborsFullness( Tile *curTile, bool *neighborsFullnes
 
     int xx = curTile->getX();
     int yy = curTile->getY();
-    
+
     neighborsFullness[0] = getSafeTileFullness(getTile(xx-1,yy) );
     neighborsFullness[1] = getSafeTileFullness(getTile(xx-1,yy+1) );
     neighborsFullness[2] = getSafeTileFullness(getTile(xx,yy+1));
@@ -191,7 +191,7 @@ bool* TileContainer::getNeighborsFullness( Tile *curTile, bool *neighborsFullnes
     neighborsFullness[6] = getSafeTileFullness(getTile(xx,yy-1));
     neighborsFullness[7] = getSafeTileFullness(getTile(xx-1,yy-1));
 
-    return neighborsFullness; 
+    return neighborsFullness;
 }
 
 
@@ -279,7 +279,7 @@ bool  TileContainer::getSafeTileFullness(Tile* tt ){
 
 
 
-int TileContainer::getMapSizeX() const{return mapSizeX; };
-int TileContainer::getMapSizeY() const{return mapSizeY; };
-int TileContainer::setMapSizeX(int XX){ mapSizeX = XX;};
-int TileContainer::setMapSizeY(int YY){ mapSizeY = YY;};
+int TileContainer::getMapSizeX() const { return mapSizeX; };
+int TileContainer::getMapSizeY() const { return mapSizeY; };
+int TileContainer::setMapSizeX(int XX) { mapSizeX = XX; return mapSizeX; };
+int TileContainer::setMapSizeY(int YY) { mapSizeY = YY; return mapSizeY; };

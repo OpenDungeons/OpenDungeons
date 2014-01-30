@@ -1,5 +1,5 @@
 #include "TileContainersModificator.h"
-#include <algorithm> 
+#include <algorithm>
 
 /** \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
  *
@@ -130,17 +130,16 @@ std::vector<Tile*> TileContainersModificator::neighborTiles(Tile *t)
 }
 
 
-TileContainer* TileContainersModificator::create(int x , int y , Tile::TileType tt ){
+TileContainer* TileContainersModificator::create(int x, int y, Tile::TileType tt) {
 
-    TileContainer *tc = new TileContainer();
-    
-
+    TileContainer* tc = new TileContainer();
+    return tc;
 }
 
 
 TileContainer* TileContainersModificator::copy(TileContainer* tc1 , TileContainer* tc2 ){
     if(tc1 == NULL || tc2 == NULL)
-	return NULL; 
+	return NULL;
 
     for(int ii = 0 ; ii < tc1->getMapSizeX() ; ii++){
 	for(int jj = 0 ; jj < tc2->getMapSizeY(); jj++){
@@ -153,7 +152,7 @@ TileContainer* TileContainersModificator::copy(TileContainer* tc1 , TileContaine
 
 TileContainer* TileContainersModificator::embed(TileContainer* tc1 , TileContainer* tc2 ){
     if(tc1 == NULL )
-	return NULL;   
+	return NULL;
     delete tc1;
     return tc2;
 }
@@ -161,7 +160,7 @@ TileContainer* TileContainersModificator::embed(TileContainer* tc1 , TileContain
 TileContainer* TileContainersModificator::rotate90(TileContainer* tc ){
     // std::swap(tc1->getMapSizeX(),tc1->getMapSizeY());
     if(tc == NULL )
-	return NULL;   
+	return NULL;
 
     return tc;
 }
@@ -170,26 +169,26 @@ TileContainer* TileContainersModificator::rotate90(TileContainer* tc ){
 
 TileContainer* TileContainersModificator::reflectX(TileContainer* tc){
     if(tc == NULL )
-	return NULL;   
+	return NULL;
     tc->symetry = !tc->symetry;
     tc->rr++;
     tc->rr%=4;
-    return tc; 
+    return tc;
 }
 
 
 
 TileContainer* TileContainersModificator::reflectY(TileContainer* tc){
     if(tc == NULL )
-	return NULL;  
+	return NULL;
     tc->symetry = !tc->symetry;
-    return tc; 
+    return tc;
 }
 
 
 TileContainer* TileContainersModificator::tilePermute(TileContainer* tc, int x , int y , Tile::TileType tt ){
     if(tc == NULL )
-	return NULL;  
+	return NULL;
 
     return tc;
 
@@ -199,7 +198,7 @@ TileContainer* TileContainersModificator::tilePermute(TileContainer* tc, int x ,
 
 TileContainer* TileContainersModificator::tileReplace( TileContainer* tc , Tile::TileType tt1, Tile::TileType tt2  ){
     if(tc == NULL )
-	return NULL;  
+	return NULL;
 
 
     for(int ii = 0 ; ii < tc->getMapSizeX() ; ii++){

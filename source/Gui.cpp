@@ -53,7 +53,7 @@ Gui::Gui() :
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     CEGUI::Window* myHide = wmgr->createWindow( "DefaultWindow", "DummyWindow" );
-    sheets[hideGui] = myHide; 
+    sheets[hideGui] = myHide;
     sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
     sheets[editorToolBox] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorToolBox.layout");
@@ -101,7 +101,7 @@ void Gui::loadGuiSheet(const guiSheet& newSheet)
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(sheets[newSheet]);
     //This shouldn't be needed, but the gui seems to not allways change when using hideGui without it.
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().markAsDirty() ;
-} 
+}
 
 CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
 {
@@ -242,17 +242,16 @@ void Gui::assignEventHandlers()
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
 {
     CEGUI::MouseEventArgs& ee = (CEGUI::MouseEventArgs&)e;
-      
-    Ogre::Vector2 cc = ODFrameListener::getSingleton().getGameMap()->getMiniMap()->camera_2dPositionFromClick(ee.position.d_x  ,
-													      ee.position.d_y );
-    
+
+    Ogre::Vector2 cc = ODFrameListener::getSingleton().getGameMap()->getMiniMap()->camera_2dPositionFromClick(ee.position.d_x,
+                                                                                                              ee.position.d_y );
+
     modeManager->mc->frameListener->cm->onMiniMapClick(cc);
     // ODFrameListener::getSingleton().getGameMap()->getMiniMap()->draw();
     // ODFrameListener::getSingleton().getGameMap()->getMiniMap()->swap();
 
-    
-
     //std::cerr<< xx <<" "<< yy << " " <<std::endl;
+    return true;
 }
 
 
@@ -319,6 +318,7 @@ bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
 {
     static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::gold;
+    return true;
 }
 
 
@@ -326,24 +326,25 @@ bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::tpLavaButtonPressed(const CEGUI::EventArgs& e)
 {
     static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::lava;
+    return true;
 }
 
 bool Gui::tpRockButtonPressed(const CEGUI::EventArgs& e)
 {
     static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::rock;
+    return true;
 }
-
-
 
 bool Gui::tpWaterButtonPressed(const CEGUI::EventArgs& e)
 {
     static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::water;
+    return true;
 }
 
 bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
 {
     static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::dirt;
-
+    return true;
 }
 
 
@@ -351,7 +352,6 @@ bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
 //! \brief What happens after a click on New Game in the main menu
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
-
     Gui::getSingletonPtr()->loadGuiSheet(inGameMenu);
     modeManager->progressMode(ModeManager::GAME);
     ODFrameListener::getSingleton().makeGameContext();
@@ -365,7 +365,7 @@ bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 
     // CEGUI::Window *myWin =   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
     Gui::getSingletonPtr()->loadGuiSheet(editorToolBox);
-    
+
     // myWin->addChildWindow(sheets[editorToolBox]);
     modeManager->progressMode(ModeManager::EDITOR);
     ODFrameListener::getSingleton().makeEditorContext();
