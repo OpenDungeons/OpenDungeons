@@ -267,22 +267,26 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if (!(mc->directionKeyPressed || mc->mDragType == rotateAxisX || mc->mDragType == rotateAxisY))
     {
 
-        if (arg.state.X.abs == 0)
+	// The fracture value range is done because mouse pointer not always points 
+	// to the window border , thanks to OIS debugging trick we use to have 
+	// regrababble window :D 
+
+        if (arg.state.X.abs <= 0.01 *  arg.state.width )
             mc->frameListener->cm->move(CameraManager::moveLeft);
         else
             mc->frameListener->cm->move(CameraManager::stopLeft);
 
-        if (arg.state.X.abs ==  arg.state.width)
+        if (arg.state.X.abs >= 0.99 *  arg.state.width)
             mc->frameListener->cm->move(CameraManager::moveRight);
         else
             mc->frameListener->cm->move(CameraManager::stopRight);
 
-        if (arg.state.Y.abs == 0)
+        if (arg.state.Y.abs <= 0.01 *  arg.state.height )
             mc->frameListener->cm->move(CameraManager::moveForward);
         else
             mc->frameListener->cm->move(CameraManager::stopForward);
 
-        if (arg.state.Y.abs ==  arg.state.height)
+        if (arg.state.Y.abs >= 0.99 * arg.state.height)
             mc->frameListener->cm->move(CameraManager::moveBackward);
         else
             mc->frameListener->cm->move(CameraManager::stopBackward);
