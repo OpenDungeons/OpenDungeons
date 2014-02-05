@@ -39,7 +39,7 @@ MiniMap::MiniMap(GameMap* gm) :
         height(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_height),
         topLeftCornerX(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
         topLeftCornerY(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
-        pixelBox(new Ogre::PixelBox (width, height, 0, Ogre::PF_R8G8B8))
+        pixelBox(new Ogre::PixelBox (width, height, 1, Ogre::PF_R8G8B8))
 {
     /* TODO: separate some of this code in own functions to make it possible
      * to change cameras from outside (for example to recalculate it after a
@@ -78,6 +78,9 @@ MiniMap::MiniMap(GameMap* gm) :
 						->getRenderer())->createTexture("miniMapTextureGui", miniMapOgreTexture);
 
     CEGUI::BasicImage& imageset = dynamic_cast<CEGUI::BasicImage&>(CEGUI::ImageManager::getSingletonPtr()->create("BasicImage","MiniMapImageset"));
+    imageset.setArea(CEGUI::Rectf(CEGUI::Vector2f(0.0, 0.0) , CEGUI::Size<float> (200.0, 200.0)  ));
+
+
     // imageset.defineImage("MiniMapImage",
     // 			 CEGUI::Vector2<float>(0.0f, 0.0f),
     // 			 CEGUI::Size<float>(width, height)
@@ -194,19 +197,22 @@ void MiniMap::draw() {
 
 void MiniMap::swap()
 {
-    pixelBuffer->lock(*pixelBox, Ogre::HardwareBuffer::HBL_NORMAL);
+    pixelBuffer->lock(*pixelBox, Ogre::HardwareBuffer::HBL_NORMAL     );
 
     Ogre::uint8* pDest;
     pDest = static_cast<Ogre::uint8*>( pixelBuffer->getCurrentLock().data) - 1;
 
-    for (Ogre::uint ii = 0; ii <  width; ++ii)
-	{
-	    for (Ogre::uint jj = 0; jj <  height; ++jj)
-		{
-		    
-		    drawPixelToMemory(pDest, tiles[ii][jj].RR, tiles[ii][jj].GG, tiles[ii][jj].BB );
-		}
-	}
+
+
+    for (Ogre::uint ii = 0; ii < width  ; ++ii)
+    	{
+    	    for (Ogre::uint jj = 0; jj <  height; ++jj)
+    		{
+
+
+    		    drawPixelToMemory(pDest, tiles[ii][jj].RR, tiles[ii][jj].GG, tiles[ii][jj].BB );
+    		}
+    	}
 
     pixelBuffer->unlock();
 }
@@ -217,7 +223,7 @@ int MiniMap::allocateMiniMapMemory()
 {
     // miniMapSizeX = xSize;
     // miniMapSizeY=ySize;
-    if (tiles==NULL) {
+    if (tiles==nullptr) {
         tiles = new color* [height];
         for (int jj = 0 ; jj < height ; jj++) {
             tiles[jj] = new color [width];
