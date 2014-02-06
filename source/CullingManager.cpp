@@ -6,7 +6,7 @@
 #include "MortuaryQuad.h"
 #include <algorithm>
 
-using  std::set; using  std::swap; using  std::max; using  std::min; 
+using  std::set; using  std::swap; using  std::max; using  std::min;
 using  std::cerr; using std::endl;
 
 
@@ -27,7 +27,7 @@ CullingManager::CullingManager(CameraManager* cameraManager):
     myplanes[4]=(Ogre::Plane(1,0,0,-1));
     myplanes[5]=(Ogre::Plane(-1,0,0,395));
     myCullingQuad.setRadious(256);
-    myCullingQuad.setCenter(200,200);   
+    myCullingQuad.setCenter(200,200);
 
 }
 
@@ -47,7 +47,7 @@ CullingManager::CullingManager():
     myplanes[4]=(Ogre::Plane(1,0,0,-1));
     myplanes[5]=(Ogre::Plane(-1,0,0,395));
     myCullingQuad.setRadious(256);
-    myCullingQuad.setCenter(200,200);   
+    myCullingQuad.setCenter(200,200);
 
 }
 
@@ -67,7 +67,7 @@ int CullingManager::cullTiles() {
     oldBottom=bottom ;
     oldMiddleLeft=middleLeft ;
     oldMiddleRight=middleRight;
-  
+
     top = Vector3i(ogreVectorsArray[0]);
     middleLeft = Vector3i(ogreVectorsArray[1]);
     bottom = Vector3i(ogreVectorsArray[2]);
@@ -79,20 +79,14 @@ int CullingManager::cullTiles() {
     sort(bottom, middleLeft, false);
     sort(middleLeft, middleRight, true);
 
-    bashAndSplashTiles(SHOW | HIDE);
-
-
-    }
-void CullingManager::startCreatureCulling(){
-
-
-
-    cullCreaturesFlag = true;
-
+    return bashAndSplashTiles(SHOW | HIDE);
 }
-void CullingManager::startTileCulling(){
 
+void CullingManager::startCreatureCulling() {
+    cullCreaturesFlag = true;
+}
 
+void CullingManager::startTileCulling() {
     getIntersectionPoints();
 
     top = Vector3i(ogreVectorsArray[0]);
@@ -107,15 +101,14 @@ void CullingManager::startTileCulling(){
     hideAllTiles();
     bashAndSplashTiles( SHOW );
 
-
-
     cullTilesFlag = true;
-
 }
+
 void CullingManager::stopCreatureCulling(){
 
     cullCreaturesFlag = false;
 }
+
 void CullingManager::stopTileCulling(){
     oldTop=top;
     oldBottom=bottom;
@@ -123,9 +116,6 @@ void CullingManager::stopTileCulling(){
     oldMiddleRight=middleRight;
 
     bashAndSplashTiles(HIDE);
-
-
-
 
     cullTilesFlag = false;
 }
@@ -143,7 +133,7 @@ void CullingManager::hideAllTiles(void){
 
 
 int CullingManager::cullCreatures(){
-    cerr << "countnodes " << myCullingQuad.countNodes() <<endl;  
+    cerr << "countnodes " << myCullingQuad.countNodes() <<endl;
     myCullingQuad.holdRootSemaphore();
     MortuaryQuad tmpQuad((myCullingQuad));
 
@@ -154,26 +144,26 @@ int CullingManager::cullCreatures(){
     tmpQuad.cut(Segment(ogreVectorsArray[3],ogreVectorsArray[2]));
     tmpQuad.cut(Segment(ogreVectorsArray[2],ogreVectorsArray[1]));
 
-    cerr << "tmpQuad.countNodes() " << tmpQuad.countNodes() <<endl;  
+    cerr << "tmpQuad.countNodes() " << tmpQuad.countNodes() <<endl;
 
 
     swap(currentVisibleCreatures, previousVisibleCreatures);
     currentVisibleCreatures = tmpQuad.returnCreaturesSet(currentVisibleCreatures);
     cerr << "currentVisibleCreatures  " << currentVisibleCreatures->size() <<endl;
 
-    std::set<Creature*> intersection; 
+    std::set<Creature*> intersection;
     std::set<Creature*> ascendingCreatures;
-    std::set<Creature*> descendingCreatures;    
-    std::set_intersection(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), currentVisibleCreatures->begin(), currentVisibleCreatures->end(), std::inserter(intersection, intersection.end()));  
-    std::set_difference(currentVisibleCreatures->begin(), currentVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(ascendingCreatures, ascendingCreatures.end())); 
-    std::set_difference(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(descendingCreatures, descendingCreatures.end())); 
+    std::set<Creature*> descendingCreatures;
+    std::set_intersection(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), currentVisibleCreatures->begin(), currentVisibleCreatures->end(), std::inserter(intersection, intersection.end()));
+    std::set_difference(currentVisibleCreatures->begin(), currentVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(ascendingCreatures, ascendingCreatures.end()));
+    std::set_difference(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(descendingCreatures, descendingCreatures.end()));
 
 
-    std::set_difference(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(descendingCreatures, descendingCreatures.end())); 
-    
+    std::set_difference(previousVisibleCreatures->begin(), previousVisibleCreatures->end(), intersection.begin(), intersection.end(),    std::inserter(descendingCreatures, descendingCreatures.end()));
+
 
     for( std::vector<Creature*>:: iterator it = tmpQuad.mortuary.begin(); it != tmpQuad.mortuary.end() ; it++  ){
-	descendingCreatures.erase(*it) ; 
+	descendingCreatures.erase(*it) ;
 
 
 	}
@@ -194,9 +184,9 @@ int CullingManager::cullCreatures(){
     }
 
 /*! \brief Auxilary function, according to mode flags : SHOW and HIDE will try to show or hide a tile in single pass
- *  In each call there are two processes : one which traces the old camera view ( the one which would hide old Tiles ) , and one 
+ *  In each call there are two processes : one which traces the old camera view ( the one which would hide old Tiles ) , and one
  *  which traces the new camera view ( the one which would show new Tiles). Mode parameter allows to only activate one of those processes, or activate both or none :)
- *  TODO : IMPLEMENT THE FLOOR AND CEIL MATH FUNCTIONS FOR FRACTURE VALUES, SO THAT THE EDGEING TILES ( IN CAMERA VIEW ) ARE NOT CULLED AWAY 
+ *  TODO : IMPLEMENT THE FLOOR AND CEIL MATH FUNCTIONS FOR FRACTURE VALUES, SO THAT THE EDGEING TILES ( IN CAMERA VIEW ) ARE NOT CULLED AWAY
  */
 
 int CullingManager::bashAndSplashTiles(int mode)
@@ -223,11 +213,11 @@ int CullingManager::bashAndSplashTiles(int mode)
     int  dxRight2 =(int)(bottom.x - middleRight.x)* (1<<precisionDigits)/ (int)(middleRight.y - bottom.y) ;
 
 
-      
+
 
     int bb = min(bottom.y,oldBottom.y);
 
-       
+
     for (int yy =  ((max(top.y,oldTop.y)>>precisionDigits)+1 )<<precisionDigits ; yy >= bb ; yy-=(1<<precisionDigits)) {
 
 
@@ -278,13 +268,13 @@ int CullingManager::bashAndSplashTiles(int mode)
 	    // if(xx <=(int)xxLeft ) splashX=!splashX;
 	    // if(xx <=(int)xxLeftOld  && xx >(int)xxRightOld) ) bashX=true;
 
-    
+
 
 	    splash = (xx >=(int)xxLeft  && xx <=(int)xxRight && (yy >= (int)bottom.y) && yy <= (int)top.y)  ;
-	   
+
 	    bash   = (xx >=(int)xxLeftOld  && xx <=(int)xxRightOld && (yy >= (int)oldBottom.y) && yy <= (int)oldTop.y) ;
-	    
-	    // cerr<< " x" <<  xx  << " y" << yy << " " <<bash<<splash << endl;		    
+
+	    // cerr<< " x" <<  xx  << " y" << yy << " " <<bash<<splash << endl;
 	      if(bash && splash && (mode & HIDE) && (mode & SHOW) ){}
 	      else if (bash && (mode & HIDE))	      cm->gameMap->getTile(xx>>precisionDigits,yy>>precisionDigits)->hide();
 	      else if (splash && (mode & SHOW))	      cm->gameMap->getTile(xx>>precisionDigits,yy>>precisionDigits)->show();
@@ -298,8 +288,8 @@ int CullingManager::bashAndSplashTiles(int mode)
 
 	// if(yy < (int)oldBottom.y)bashY=!bashY;
 	// if(yy < (int)bottom.y)splashY=!splashY;
-    }      
-    return 1;        
+    }
+    return 1;
 }
 
 
@@ -360,22 +350,22 @@ bool CullingManager::getIntersectionPoints() {
 }
 
 
-bool CullingManager::onFrameStarted   (){
-    
+bool CullingManager::onFrameStarted() {
     if(cullTilesFlag || cullCreaturesFlag)
-	getIntersectionPoints();
+        getIntersectionPoints();
     if(cullTilesFlag)
-	cullTiles();
+        cullTiles();
     if(cullCreaturesFlag)
-	cullCreatures();
+        cullCreatures();
+    return true;
 }
 
-bool CullingManager::onFrameEnded     (){
-
+bool CullingManager::onFrameEnded() {
+    return true;
 }
 
-/*! \brief Sort two Vector3i p1 and p2  to satisfy p1 <= p2 according to  
- * the value of X or Y coordiante, which depends on sortByX param . 
+/*! \brief Sort two Vector3i p1 and p2  to satisfy p1 <= p2 according to
+ * the value of X or Y coordiante, which depends on sortByX param .
  */
 void CullingManager::sort(Vector3i& p1 , Vector3i& p2, bool sortByX) {
 

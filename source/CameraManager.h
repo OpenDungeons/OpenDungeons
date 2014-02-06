@@ -33,31 +33,26 @@ using std::vector; using std::pair; using std::map;
 
 
 class CameraManager
-    {
+{
     friend class Console;
     friend class CullingManager;
 
-    public:
+public:
     enum Direction
-	{
+    {
         moveLeft, moveRight, moveForward, moveBackward, moveUp, moveDown,
         rotateLeft, rotateRight, rotateUp, rotateDown,
 
         stopLeft, stopRight, stopForward, stopBackward, stopUp, stopDown,
         stopRotLeft, stopRotRight, stopRotUp, stopRotDown,
-	
 
-	randomRotateX,	zeroRandomRotateX,
-	randomRotateY,	zeroRandomRotateY,
+        randomRotateX,	zeroRandomRotateX,
+        randomRotateY,	zeroRandomRotateY,
         fullStop
-	};
-    
-
+    };
 
     HermiteCatmullSpline xHCS;
-    HermiteCatmullSpline yHCS; 
-
-
+    HermiteCatmullSpline yHCS;
 
     struct Vector3i{
 	Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ; }
@@ -72,7 +67,7 @@ class CameraManager
     inline void setCircleRadious(unsigned int rr){ radious = rr;};
     inline void setCircleMode(bool mm){circleMode = mm ; alpha = 0;};
     inline void setCatmullSplineMode(bool mm){catmullSplineMode = mm;  alpha = 0; };
-    inline bool switchPM(){ switchedPM = true;  };
+    inline bool switchPM() { switchedPM = true; return true; };
 
 
     void setModeManager(ModeManager* mm){modeManager = mm;};
@@ -113,7 +108,7 @@ class CameraManager
     bool isCamMovingAtAll() const;
 
     int updateCameraView();
-    
+
 
     bool onFrameStarted   ();
     bool onFrameEnded     ();
@@ -155,17 +150,17 @@ class CameraManager
     bool circleMode;
     bool catmullSplineMode;
     bool firstIter;
-	
+
     double radious;
     int centerX;
-    int centerY; 
+    int centerY;
     double alpha;
-    
+
     ModeManager* modeManager;
     AbstractApplicationMode* gameMode;
 
 
-    
+
     void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
 
     // we use the above variables for the methods below
@@ -173,9 +168,9 @@ class CameraManager
     int bashAndSplashTiles(int); // set the new tiles
     CameraManager(const CameraManager&);
 
-    
+
     Ogre::Camera* mActiveCamera;
-    Ogre::SceneNode* mActiveCameraNode; 
+    Ogre::SceneNode* mActiveCameraNode;
 
     GameMap* gameMap;
     bool            cameraIsFlying;

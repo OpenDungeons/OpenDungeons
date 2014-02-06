@@ -8,7 +8,7 @@
  */
 
 
-//TODO : CAMERA LOOSE ITS PROPER SENSE OF LEFT, RIGHT, TOP, DOWN WHEN YOU DO MORE THAN QUATER BAREEL VIA CAMERA ROTATE, AKA PTICH > 90 DEG 
+//TODO : CAMERA LOOSE ITS PROPER SENSE OF LEFT, RIGHT, TOP, DOWN WHEN YOU DO MORE THAN QUATER BAREEL VIA CAMERA ROTATE, AKA PTICH > 90 DEG
 #include "SoundEffectsHelper.h"
 #include "CameraManager.h"
 #include "Quadtree.h"
@@ -25,8 +25,8 @@
 #include <algorithm>
 
 
-using  std::set; using  std::swap; using  std::max; using  std::min; 
-using  std::cerr; using std::endl; 
+using  std::set; using  std::swap; using  std::max; using  std::min;
+using  std::cerr; using std::endl;
 
 
 
@@ -52,7 +52,7 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager , GameMap* gm  
     mViewport(0),
     mActiveCamera(0),
     mActiveCameraNode(0)
-{  
+{
 
 
 }
@@ -77,9 +77,9 @@ void CameraManager::createCameraNode(std::string ss,Ogre::Vector3 xyz, Ogre::Deg
     // node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
     node->yaw  (yaw ,Ogre::Node::TS_LOCAL);
     node->pitch(pitch, Ogre::Node::TS_LOCAL);
-    node->roll (roll, Ogre::Node::TS_LOCAL);    
+    node->roll (roll, Ogre::Node::TS_LOCAL);
     node->attachObject(tmpCamera);
-    node->setPosition(Ogre::Vector3(0,0,2) +  node->getPosition()); 
+    node->setPosition(Ogre::Vector3(0,0,2) +  node->getPosition());
     registeredCameraNodeNames.insert(ss);
 }
 
@@ -95,7 +95,7 @@ void CameraManager::createViewport()
     for(set<string>::iterator m_itr = registeredCameraNames.begin(); m_itr != registeredCameraNames.end() ; m_itr++){
 	Ogre::Camera* tmpCamera = getCamera(*m_itr);
 
-    }	
+    }
 }
 
 void CameraManager::setFPPCamera(Creature* cc){
@@ -110,7 +110,7 @@ Ogre::SceneNode* CameraManager::getActiveCameraNode(){
 }
 
 Ogre::SceneNode* CameraManager::setActiveCameraNode(Ogre::String ss){
-    mActiveCameraNode = mSceneManager->getSceneNode(ss + "_node");
+    return mActiveCameraNode = mSceneManager->getSceneNode(ss + "_node");
 }
 
 Ogre::Camera* CameraManager::getCamera(Ogre::String ss){
@@ -118,7 +118,7 @@ Ogre::Camera* CameraManager::getCamera(Ogre::String ss){
 }
 
 void CameraManager::setActiveCamera(Ogre::String ss){
-    mActiveCamera = mSceneManager->getCamera(ss); 
+    mActiveCamera = mSceneManager->getCamera(ss);
     mViewport->setCamera(mActiveCamera);
     mActiveCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
 }
@@ -127,7 +127,7 @@ void CameraManager::setActiveCamera(Ogre::String ss){
 
 Ogre::Viewport* CameraManager::getViewport()
 {
-    return mViewport;    
+    return mViewport;
 }
 
 Ogre::String CameraManager::switchPolygonMode(){
@@ -150,7 +150,8 @@ Ogre::String CameraManager::switchPolygonMode(){
     }
 
     getActiveCamera()->setPolygonMode(pm);
-	
+
+    return newVal;
 }
 
 
@@ -158,7 +159,7 @@ Ogre::String CameraManager::switchPolygonMode(){
 
 /*! \brief Sets the camera to a new location while still satisfying the
  * constraints placed on its movement
- */ 
+ */
 void CameraManager::moveCamera(const Ogre::Real frameTime)
 {
     // Carry out the acceleration/deceleration calculations on the camera translation.
@@ -282,22 +283,22 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
 	alpha += 0.1 * frameTime;
 
 	cerr << "alpha "<< alpha << endl;
-	
+
 	double tempX, tempY;
-	
+
 	tempX = xHCS.evaluate(alpha);
 	cerr<< "newPosition.x"<< newPosition.x << endl;
-	tempY = yHCS.evaluate(alpha); 
+	tempY = yHCS.evaluate(alpha);
 	cerr<< "newPosition.y"<< newPosition.y << endl;
-	
+
 	if (tempX < 0.9*gameMap->getMapSizeX() &&  tempX > 10 && tempY < 0.9*gameMap->getMapSizeY() &&  tempY > 10 ) {
 	    newPosition.x = tempX;
 	    newPosition.y = tempY;
 
 	}
-       
+
 	if(alpha > xHCS.getNN()){
-	    catmullSplineMode = false; 
+	    catmullSplineMode = false;
 	}
 
     }
@@ -309,7 +310,7 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     SoundEffectsHelper::getSingleton().setListenerPosition(
         newPosition,  getActiveCameraNode()->getOrientation());
 
-    
+
 
     gameMap->getMiniMap()->setCamera_2dPosition(getCameraViewTarget());
     modeManager->getCurrentMode()->mouseMoved(
@@ -377,7 +378,7 @@ void CameraManager::move(const Direction direction, double aux  )
 
 	    if (translateVectorAccel.x > 0)
 		translateVectorAccel.x = 0;
-	    
+
 	    break;
 
 	case stopLeft:
@@ -461,7 +462,7 @@ void CameraManager::move(const Direction direction, double aux  )
 
 	case stopRotUp:
 	    mRotateLocalVector.x -= rotateSpeed.valueDegrees();
-	
+
 	    break;
 
 	case randomRotateX:
@@ -470,7 +471,7 @@ void CameraManager::move(const Direction direction, double aux  )
 
 
 	case zeroRandomRotateX:
-	    swivelDegrees = Ogre::Degree( 0.0);	
+	    swivelDegrees = Ogre::Degree( 0.0);
 
 	    break;
 
@@ -496,10 +497,8 @@ void CameraManager::move(const Direction direction, double aux  )
  *  show or hide the tiles according to camera view
  *
  */
-
 int CameraManager::updateCameraView() {
-
-
+    return 0;
 }
 
 //TODO: This check is not used currently, because there's a bug with the cam
@@ -515,24 +514,20 @@ bool CameraManager::isCamMovingAtAll() const
             zChange != 0 ||
             swivelDegrees.valueDegrees() != 0 ||
             mRotateLocalVector.x != 0 ||
-            cameraIsFlying
-	);
+            cameraIsFlying);
 }
-
-
 
 bool CameraManager::onFrameStarted (){
 
     updateCameraView();
-
+    return true;
 }
-
-
 
 bool CameraManager::onFrameEnded   (){
 
-    if(switchedPM){
-	switchPolygonMode();
-	switchedPM = false;
+    if(switchedPM) {
+        switchPolygonMode();
+        switchedPM = false;
     }
+    return true;
 }

@@ -15,7 +15,7 @@ public:
 
     static BaseAI* createInstance(const std::string& className, GameMap& gameMap, Player& player, const std::string& parameters = "")
     {
-        typename std::map<std::string, CreateAIFunc>::iterator it = typeMap->find(className);
+        std::map<std::string, CreateAIFunc>::iterator it = typeMap->find(className);
         if(it != typeMap->end()) {
             return ((*it).second)(gameMap, player, parameters);
         }
@@ -40,7 +40,7 @@ private:
         }
         return *typeMap;
     }
-    
+
     //typedef std::map<std::string, CreateObjectFunc> FuncMap;
 
     //AbstractBaseFactory();
@@ -49,16 +49,17 @@ private:
 };
 
 template <typename T>
-struct AIFactoryRegister
+class AIFactoryRegister
 {
+public:
     AIFactoryRegister(const std::string& name)
     {
 
-       std::pair<std::string, AIFactory::CreateAIFunc> p = { name, &AIFactory::createAI<T> };
-        /* auto p = std::make_pair<std::string, AIFactory::CreateAIFunc>( */
-        /*     name, &AIFactory::createAI<T>); */
+        std::pair<std::string, AIFactory::CreateAIFunc> p =
+            std::make_pair<std::string, AIFactory::CreateAIFunc>(std::string(name), &AIFactory::createAI<T>);
         AIFactory::getMap().insert(p);
     }
+
 private:
     AIFactoryRegister(const AIFactoryRegister&);
 };

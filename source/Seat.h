@@ -39,11 +39,11 @@ class Seat
         void incrementNumClaimedTiles();
         bool getHasGoalsChanged();
         void resetGoalsChanged();
-        inline int getColor() const {return color;}
-        inline int getGold() const {return gold;}
-        inline int getMana() const {return mana;}
-        inline int getManaDelta() const {return manaDelta;}
-        
+        inline int getColor() const { return color; }
+        inline int getGold() const { return gold; }
+        inline double getMana() const { return mana; }
+        inline double getManaDelta() const { return manaDelta; }
+
 
         // Public data members
         int color; /**< \brief The color index of the players sitting in this seat. */
@@ -66,7 +66,7 @@ class Seat
         double alignmentOrder;
         double alignmentPeace;
 
-        
+
 
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Seat *s);
@@ -74,7 +74,7 @@ class Seat
 
     private:
         void goalsHasChanged();
-        
+
         std::vector<Goal*> goals; /**< \brief The currently unmet goals for this seat, the first Seat to empty this wins. */
         sem_t goalsLockSemaphore;
 
