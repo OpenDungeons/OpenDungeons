@@ -14,8 +14,9 @@ FREQUENTLY ASKED QUESTIONS
 2D. Building on Linux
 2E. Building on MacOSX
 3. Gameplay:
-3A. Key-shortcuts
-3B. Running Console and Console's commands
+3A.Controling Player's Field of  View ( Camera )
+3B. Key-shortcuts 
+3C. Running Console and Console's commands
 4. May I contribute to OpenDungeons ?
 4A. I do XYZ , Do you need me ? 
 4B. I wrote a patch ....
@@ -148,13 +149,6 @@ the screen in LEFT OR RIGHT direction ..... !
 There is no zooming as understood in classincal CG terms , but you can move
 camera up or down regarding the floor , by holding the CTRL key and using
 mouse scroll ( does it works on Windows version ) ? 
-
-
-
-
-
-
-
 
 
 
