@@ -78,7 +78,7 @@ MiniMap::MiniMap(GameMap* gm) :
 						->getRenderer())->createTexture("miniMapTextureGui", miniMapOgreTexture);
 
     CEGUI::BasicImage& imageset = dynamic_cast<CEGUI::BasicImage&>(CEGUI::ImageManager::getSingletonPtr()->create("BasicImage","MiniMapImageset"));
-    imageset.setArea(CEGUI::Rectf(CEGUI::Vector2f(0.0, 0.0) , CEGUI::Size<float> (200.0, 200.0)  ));
+    imageset.setArea(CEGUI::Rectf(CEGUI::Vector2f(0.0, 0.0) , CEGUI::Size<float> (width, height)  ));
 
 
     // imageset.defineImage("MiniMapImage",
@@ -183,16 +183,16 @@ void MiniMap::draw() {
 		}
 	}
 
-    for(updatedCreatureIndex = gameMap->creatures.begin(); updatedCreatureIndex < gameMap->creatures.end(); ++updatedCreatureIndex)
-    {
-        if((*updatedCreatureIndex)->getIsOnMap())
-        {
-            //double  ii  = (*updatedCreatureIndex)->getPosition().x;
-            //double  jj  = (*updatedCreatureIndex)->getPosition().y;
+    // for(updatedCreatureIndex = gameMap->creatures.begin(); updatedCreatureIndex < gameMap->creatures.end(); ++updatedCreatureIndex)
+    // {
+    //     if((*updatedCreatureIndex)->getIsOnMap())
+    //     {
+    //         double  ii  = (*updatedCreatureIndex)->getPosition().x;
+    //         double  jj  = (*updatedCreatureIndex)->getPosition().y;
 
-            //drawPixel(ii,jj,0x94,0x0,0x94);
-        }
-    }
+    //         drawPixel(ii,jj,0x94,0x0,0x94);
+    //     }
+    // }
 }
 
 void MiniMap::swap()

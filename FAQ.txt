@@ -136,7 +136,30 @@ bloody-edge version .
 
 2E. Building on MacOS
 
-3. Gameplay: 3A. Key-shortcuts 3B. Running Console and Console's commands
+3. Gameplay: 3A.Controling Player's Field of  View ( Camera )
+3B. Key-shortcuts 3C. Running Console and Console's commands
+
+Camera movement is achieved by moving keyboard arrows ( up, down, left, right
+) or W A S D  or pushing mouse towards the desired edge of the screen. 
+Camera Rotation is done by DRAGING with LMB over the edge in direction UP or
+DOWN ( left and right edge ) as well DRAGING with LMB at bottom or top edge of
+the screen in LEFT OR RIGHT direction ..... !
+
+There is no zooming as understood in classincal CG terms , but you can move
+camera up or down regarding the floor , by holding the CTRL key and using
+mouse scroll ( does it works on Windows version ) ? 
+
+
+
+
+
+
+
+
+
+
+
+
 
 4. May I contribute to OpenDungeons ?  4A. I do XYZ , Do you need me ?  4B. I wrote a
 patch ....  4C. I cannot do programming ....
