@@ -1,18 +1,12 @@
 #include <AbstractGameState.h>
 
 
-class  GameGameState: public AbstractGameState {
+class GameGameState: public AbstractGameState {
 
-  GameGameState(GameStateManager& gm):
-      AbstractGameState(gm)
-  {}
- ~GameGameState(){}
+    GameGameState(GameStateManager& gm):
+        AbstractGameState(gm)
+    {}
 
-
-
-
-
-
-
+    ~GameGameState() {}
 
 };

@@ -32,6 +32,11 @@ using  std::cerr; using std::endl;
 
 CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager , GameMap* gm  ) :
     switchedPM(false),
+    circleMode(false),
+    catmullSplineMode(false),
+    firstIter(true),
+    mActiveCamera(0),
+    mActiveCameraNode(0),
     gameMap(gm),
     cameraIsFlying(false),
     moveSpeed(2.0),
@@ -43,15 +48,10 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager , GameMap* gm  
     translateVector(Ogre::Vector3(0.0, 0.0, 0.0)),
     translateVectorAccel(Ogre::Vector3(0.0, 0.0, 0.0)),
     mRotateLocalVector(Ogre::Vector3(0.0, 0.0, 0.0)),
-    zChange(0.0),
-    mZoomSpeed(7.0),
-    circleMode(false),
-    catmullSplineMode(false),
-    firstIter(true),
     mSceneManager(tmpSceneManager),
     mViewport(0),
-    mActiveCamera(0),
-    mActiveCameraNode(0)
+    zChange(0.0),
+    mZoomSpeed(7.0)
 {
 
 
@@ -92,10 +92,10 @@ void CameraManager::createViewport()
     mViewport = ODApplication::getSingleton().getWindow()->addViewport(NULL);
     mViewport->setBackgroundColour(Ogre::ColourValue(0, 0, 0));
 
-    for(set<string>::iterator m_itr = registeredCameraNames.begin(); m_itr != registeredCameraNames.end() ; m_itr++){
-	Ogre::Camera* tmpCamera = getCamera(*m_itr);
-
-    }
+// TODO: Update registered camera if needed.
+//    for(set<string>::iterator m_itr = registeredCameraNames.begin(); m_itr != registeredCameraNames.end() ; m_itr++){
+//        Ogre::Camera* tmpCamera = getCamera(*m_itr);
+//    }
 }
 
 void CameraManager::setFPPCamera(Creature* cc){

@@ -668,14 +668,14 @@ int CScriptBuilder::ExcludeCode(int pos)
 	int nested = 0;
 	while( pos < (int)modifiedScript.size() )
 	{
-		asETokenClass t = engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
+		engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
 		if( modifiedScript[pos] == '#' )
 		{
 			modifiedScript[pos] = ' ';
 			pos++;
 
 			// Is it an #if or #endif directive?
-			t = engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
+			engine->ParseToken(&modifiedScript[pos], modifiedScript.size() - pos, &len);
 			string token;
 			token.assign(&modifiedScript[pos], len);
 			OverwriteCode(pos, len);

@@ -8,9 +8,10 @@
 /* TODO: do intense testing that everything works
  * TODO: switch from TextRenderer to Console
  */
-#include <Overlay/OgreOverlayManager.h>
+
 #include "Console.h"
 
+#include <Overlay/OgreOverlayManager.h>
 
 #include "ASWrapper.h"
 
@@ -20,20 +21,12 @@
 #include "ODFrameListener.h"
 #include "RenderManager.h"
 
-
-
-
-
-
-
-
 #include "ModeManager.h"
 
 template<> Console* Ogre::Singleton<Console>::msSingleton = 0;
 
-
-
 Console::Console() :
+        cm                  (NULL),
         //these two define how much text goes into the console
         consoleLineLength   (100),
         consoleLineCount    (14),
@@ -48,8 +41,7 @@ Console::Console() :
         cursorVisible       (true),
         startLine           (0),
         cursorChar          ("_"),
-        curHistPos          (0),
-       cm(NULL)
+        curHistPos          (0)
 {
     LogManager::getSingleton().logMessage("*** Initiliasing Console ***");
     ODApplication::getSingleton().getRoot()->addFrameListener(this);

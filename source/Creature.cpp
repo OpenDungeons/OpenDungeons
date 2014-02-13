@@ -38,6 +38,7 @@ Creature::Creature(
                     const std::string&  name
 
                     ) :
+        tracingCullingQuad      (NULL),
         weaponL                 (0),
         weaponR                 (0),
         homeTile                (0),
@@ -57,8 +58,7 @@ Creature::Creature(
         previousPositionTile    (0),
         battleField             (new Field("autoname")),
         trainingDojo            (0),
-        sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName())),
-	tracingCullingQuad      (NULL)
+        sound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
     setGameMap(gameMap);
     sem_init(&hpLockSemaphore, 0, 1);

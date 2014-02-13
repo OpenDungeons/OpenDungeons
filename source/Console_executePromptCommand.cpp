@@ -9,10 +9,6 @@
  * TODO: switch from TextRenderer to Console
  */
 
-
-
-
-
 #include "Console.h"
 #include "Socket.h"
 #include "RenderManager.h"
@@ -222,7 +218,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
 
 
-		
+
 		Tile *t = new Tile(i, j, Tile::dirt, 100);
 
 
@@ -311,7 +307,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
     }*/
 
-    
+
     // Set the max number of threads the ODFrameListener::getSingletonPtr()->gameMap should spawn when it does the creature AI.
     else if (command.compare("aithreads") == 0)
     {
@@ -342,7 +338,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 		+ Ogre::StringConverter::toString(ODFrameListener::getSingletonPtr()->gameMap->getMaxAIThreads())
                             + "\n";
         }
-    } 
+    }
 
     // Set the turnsPerSecond variable to control the AI speed
     else if(command.compare("turnspersecond") == 0
@@ -1018,27 +1014,22 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
     else if (command.compare("bspline") == 0){
 	if(!arguments.empty()){
-	    
-	    
+
 	    int NN;
-	    double localX;
-	    double localY;
 
-
-	    
             tempSS.str(arguments);
 	    tempSS >> NN;
 	    for ( int ii = 0 ; ii < NN ; ii++){
 		tempSS>>NN;
 
 
-		}	    
+		}
 
 	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
             // cm->setCircleCenter(centerX, centerY);
             // cm->setCircleRadious(radious);
             // cm->setCircleMode(true);
-	    	    
+
 
 
         }
@@ -1049,25 +1040,25 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
 
 	    }
-      
+
     }
 
 
     else if (command.compare("catmullspline") == 0){
 	if(!arguments.empty()){
-	    
-	    
+
+
 	    int nn;
 
 	    int tempInt1;
 	    int tempInt2;
-	    
+
             tempSS.str(arguments);
 	    tempSS >> nn;
 	    cm->xHCS.resetNodes(nn);
 	    cm->yHCS.resetNodes(nn);
 	    for (int ii = 0 ; ii < nn ; ii++){
-		
+
 		tempSS>>tempInt1;
 		tempSS>>tempInt2;
 
@@ -1075,14 +1066,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 		cerr << "tempInt2 " <<  tempInt2 << endl;
 		cm->xHCS.addNode(tempInt1);
 		cm->yHCS.addNode(tempInt2);
-		
+
 
 		}
-	    
+
 	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
 
             cm->setCatmullSplineMode(true);
-	    	    
+
 	    cerr << "catmullspline loaded from cmd line " << endl;
 
         }
@@ -1093,13 +1084,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
 
 	    }
-      
+
     }
 
 
     else if (command.compare("setcamerafovx") == 0){
 	if(!arguments.empty()){
-	    
+
 
 	    double tmp;
             tempSS.str(arguments);
@@ -1121,7 +1112,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
     else if (command.compare("setcamerafovy") == 0){
 	if(!arguments.empty()){
-	    
+
 
 	    double tmp;
             tempSS.str(arguments);
@@ -1156,19 +1147,19 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
     else if (command.compare("circlearound") == 0){
 	if(!arguments.empty()){
-	    
-	    
+
+
 	    double centerX;
 	    double centerY;
 	    double radious;
-	    
+
             tempSS.str(arguments);
 	    tempSS >> centerX >> centerY >> radious;
 	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
             cm->setCircleCenter(centerX, centerY);
             cm->setCircleRadious(radious);
             cm->setCircleMode(true);
-	    	    
+
 
 
         }
@@ -1179,26 +1170,26 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
 
 	    }
-      
+
     }
 
 
     else if (command.compare("switchpolygonmode") == 0){
 
 	    cm->switchPM();
-    
+
     }
 
     else if (command.compare("starttileculling") == 0){
 
             ODFrameListener::getSingletonPtr()->gameMap->culm->startTileCulling();
-    
+
     }
 
     else if (command.compare("startcreatureculling") == 0){
 
             ODFrameListener::getSingletonPtr()->gameMap->culm->startCreatureCulling();
-    
+
     }
 
 
@@ -1206,7 +1197,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
 	    RenderManager::getSingletonPtr()->triggerCompositor(tempSS.str());
 
-	}    
+	}
 
 
 
@@ -1243,8 +1234,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
     Console::getSingleton().print(ODFrameListener::getSingletonPtr()->commandOutput);
-    
-    
+
+
     return true;
 }
 

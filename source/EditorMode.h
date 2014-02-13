@@ -9,8 +9,9 @@ class ModeContext;
 class Gui;
 
 
-class  EditorMode: public AbstractApplicationMode  {
+class  EditorMode: public AbstractApplicationMode {
 
+private:
     friend class Gui;
 
     bool                changed;
@@ -22,7 +23,7 @@ class  EditorMode: public AbstractApplicationMode  {
     std::string         draggedMapLight;
 
  public:
- 
+
 
     EditorMode(ModeContext*);
 

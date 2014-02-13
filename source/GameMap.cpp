@@ -1,5 +1,5 @@
 /*!
- * \file   Helper.cpp
+ * \file   GameMap.cpp
  * \date
  * \author OD team
  * \brief  The central object holding everything that is on the map
@@ -56,11 +56,11 @@ GameMap::GameMap() :
         nextUniqueFloodFillColor(1),
         floodFillEnabled(false),
         numCallsTo_path(0),
+        maxAIThreads(1),
         tileCoordinateMap(new TileCoordinateMap(100)),
         length(0),
         width(0),
-        aiManager(*this),
-	maxAIThreads(1)
+        aiManager(*this)
 {
     sem_init(&threadReferenceCountLockSemaphore, 0, 1);
     sem_init(&creaturesLockSemaphore, 0, 1);
@@ -69,7 +69,7 @@ GameMap::GameMap() :
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
     setContainer(this);
 
- 
+
 }
 
 GameMap::~GameMap(){
@@ -89,8 +89,8 @@ void GameMap::createNewMap()
 {
     Tile tempTile;
     stringstream ss;
-    
-    
+
+
     Ogre::SceneManager* sceneManager = RenderManager::getSingletonPtr()->getSceneManager();
 
     for (int jj = 0; jj < mapSizeX; ++jj)	{
@@ -100,11 +100,11 @@ void GameMap::createNewMap()
 	    if((getTile(ii,jj)->getGameMap()) == NULL ){
 		ss.str(std::string());
 		ss<<"Level_"<<ii<<"_"<<jj;
-		
+
 
 		tempTile.setGameMap(this);
 		tempTile.setType(Tile::dirt);
-		
+
 		tempTile.setName(ss.str());
 		tempTile.x=ii;
 		tempTile.y=jj;
@@ -157,7 +157,7 @@ void GameMap::createTilesMeshes(void){
 
 
 
-int GameMap::setAllNeighbors(){            
+int GameMap::setAllNeighbors(){
     for (int ii = 0 ; ii < getMapSizeX() ; ii++) {
 	for (int jj = 0 ; jj < getMapSizeY() ; jj++) {
 	    setTileNeighbors(getTile(ii,jj));
@@ -509,7 +509,7 @@ void GameMap::createAllEntities()
         {
             getTile(ii,jj)->createMesh();
 	    // tileSceneNode = sceneManager->getSceneNode( getTile(ii,jj)->getName() + "_node" );
-	    // getTile(ii,jj)->pSN = tileSceneNode->getParentSceneNode(); 
+	    // getTile(ii,jj)->pSN = tileSceneNode->getParentSceneNode();
 	    // getTile(ii,jj)->pSN->removeChild(tileSceneNode);
         }
     }

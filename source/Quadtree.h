@@ -35,7 +35,7 @@ template <typename T> int sgnZero(T val) {
 
 struct Entry{
 
-    
+
     list<Creature*> creature_list;
     Ogre::Vector2 index_point;
 
@@ -58,7 +58,7 @@ Entry(Creature& cc):creature_list(1,&cc){this->index_point = cc.get2dPosition();
 
 	for(list<Creature*>::iterator it =  creature_list.begin(); it!=creature_list.end(); it++ )
 	    std::cerr<<(*it)->getName() << ", ";
-        std::cerr <<std::endl;	    
+        std::cerr <<std::endl;
 	}
     bool listFind(Creature* cc){
 	list<Creature*>::iterator it;
@@ -76,20 +76,13 @@ enum side_names{LEFT,RIGHT};
 typedef enum quad_part{ALL, SOME,NONE} QuadPart;
 
 
-class Segment{
-    
-    
-    
+class Segment {
 
-    
 public:
     friend istream& operator>>( istream& is, Segment &ss){
-	double tmp_x, tmp_y;
-    	is>>ss.tail.x;
-    	is>>ss.tail.y;
-    	return is;
-
-
+        is>>ss.tail.x;
+        is>>ss.tail.y;
+        return is;
     };
 
     void setDelta(Ogre::Vector2 &dd){ delta.x = dd.x - tail.x ; delta.y = dd.y - tail.y; };
@@ -103,7 +96,7 @@ public:
 
 
 
-    };
+};
 
 
 class CullingQuad : public gms::FastPODAllocator<CullingQuad>{
@@ -113,12 +106,12 @@ class CullingQuad : public gms::FastPODAllocator<CullingQuad>{
 public:
 
 
-    Entry *entry; 
+    Entry *entry;
     Ogre::Vector2 *center;
     CullingQuad **nodes;
     CullingQuad *parent;
     double radious;
-    
+
     void nodes_sign_sort(int*&, int*&, int*& );
     bool reinsert( Entry* ee );
 

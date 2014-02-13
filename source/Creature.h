@@ -66,8 +66,8 @@ friend class CullingQuad;
         void destroyStatsWindow();
         void updateStatsWindow();
         std::string getStatsText();
-        
-        void setCreatureDefinition(const CreatureDefinition* def); 
+
+        void setCreatureDefinition(const CreatureDefinition* def);
 
         // ----- GETTERS -----
 	Ogre::Vector2 get2dPosition(){ 	Ogre::Vector3 tmp = getPosition();   return Ogre::Vector2(tmp.x,tmp.y);};
@@ -141,7 +141,7 @@ friend class CullingQuad;
         void takeDamage(double damage, Tile *tileTakingDamage);
         void recieveExp(double experience);
         void clearActionQueue();
-	
+
 
         Player* getControllingPlayer();
         void computeBattlefield();
@@ -166,7 +166,7 @@ friend class CullingQuad;
 	inline CullingQuad* getQuad(){return tracingCullingQuad;};
     private:
 
-	CullingQuad* tracingCullingQuad;
+        CullingQuad* tracingCullingQuad;
 
         void pushAction(CreatureAction action);
         void popAction();

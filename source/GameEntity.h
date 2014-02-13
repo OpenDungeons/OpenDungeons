@@ -44,27 +44,27 @@ class GameEntity
   public:
     enum ObjectType
     {
-	unknown, creature, room, trap, weapon, roomobject, missileobject, tile
+        unknown, creature, room, trap, weapon, roomobject, missileobject, tile
     };
 
     //! \brief Default constructor with default values
-  GameEntity( 
-      std::string     nName       = "",
-      std::string     nMeshName   = "",
-      int             nColor      = 0
-      ) : 
+    GameEntity(
+          std::string     nName       = std::string(),
+          std::string     nMeshName   = std::string(),
+          int             nColor      = 0
+          ) :
+    position    (Ogre::Vector3(0, 0, 0)),
     name        (nName),
-	meshName    (nMeshName),
-	meshExists  (false),
-	color       (nColor),
-	active      (true),
-	attackable  (true),
-	objectType  (unknown),
-	position    (Ogre::Vector3(0, 0, 0)),
-	gameMap     (0)
-        {
-            sem_init(&positionLockSemaphore, 0, 1);
-        }
+    meshName    (nMeshName),
+    meshExists  (false),
+    color       (nColor),
+    active      (true),
+    attackable  (true),
+    objectType  (unknown),
+    gameMap     (0)
+    {
+        sem_init(&positionLockSemaphore, 0, 1);
+    }
 
     virtual ~GameEntity(){}
 
@@ -153,22 +153,22 @@ class GameEntity
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
 	RenderManager::queueRenderRequest(request);
-  
-  
-  
-  
+
+
+
+
     };
 
     inline void hide(){
-  
+
 	RenderRequest *request = new RenderRequest;
 	request->type = RenderRequest::detachTile;
 	request->p = static_cast<void*>(this);
 
 	// Add the request to the queue of rendering operations to be performed before the next frame.
-	RenderManager::queueRenderRequest(request);  
-  
-  
+	RenderManager::queueRenderRequest(request);
+
+
     };
 
 
@@ -208,10 +208,6 @@ class GameEntity
     Ogre::Vector3   position;
 
   private:
-
-        
-
-
     //! brief The name of the entity
     std::string     name;
 

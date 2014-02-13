@@ -187,8 +187,6 @@ public:
     Ogre::Viewport* mViewport;
     double          zChange;
     float           mZoomSpeed;
+};
 
-
-    };
-
- #endif /* CAMERAMANAGER_H_ */
+#endif /* CAMERAMANAGER_H_ */

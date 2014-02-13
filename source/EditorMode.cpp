@@ -23,18 +23,17 @@
 #include "RenderRequest.h"
 #include "RenderManager.h"
 #include "CameraManager.h"
-#include "Console.h" 
+#include "Console.h"
 #include <OgreEntity.h>
 
 #include "EditorMode.h"
 
 
-EditorMode::EditorMode(ModeContext *modeContext):AbstractApplicationMode(modeContext),        
-						 mCurrentTileType(Tile::dirt),
-						 mBrushMode(false),
-						 mCurrentFullness(100),
-						 mCurrentTileRadius(1)
-
+EditorMode::EditorMode(ModeContext *modeContext):AbstractApplicationMode(modeContext),
+                        mCurrentFullness(100),
+                        mCurrentTileRadius(1),
+                        mBrushMode(false),
+                        mCurrentTileType(Tile::dirt)
 {
 
 }
@@ -111,8 +110,8 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
 
 			    // Add the request to the queue of rendering operations to be performed before the next frame.
 			    RenderManager::queueRenderRequest(request);
-			    
-			    
+
+
 			    // Make sure the "square selector" mesh is visible and position it over the current tile.
 
 			    //mSceneMgr->getLight("MouseLight")->setPosition(mc->xPos, mc->yPos, 2.0);
@@ -160,7 +159,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg){
 					//     }
 
 
-					(*itr)->setSelected(true,mc->gameMap->getLocalPlayer());				  
+					(*itr)->setSelected(true,mc->gameMap->getLocalPlayer());
 				    }
 				}
 
@@ -402,7 +401,7 @@ bool EditorMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID 
 
         // See if the mouse is over any creatures
 
-	
+
         while (itr != result.end())
         {
             if (itr->movable != NULL)
@@ -678,7 +677,7 @@ bool EditorMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID 
                                 continue;
                             }
 
- 
+
                             if (!isInGame())                            // We are in the map editor
                             {
                                 // If the currentTile is not empty and claimed, then remove it from the affectedTiles vector.
@@ -735,7 +734,7 @@ bool EditorMode::mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID 
                     for (itr = affectedTiles.begin(); itr != affectedTiles.end() ; ++itr)
                     {
 		    (*itr)->refreshMesh();
-                                  
+
 		    }
                 }
 
@@ -1072,7 +1071,7 @@ bool EditorMode::isInGame(){
 
 
 }
-    
+
 void EditorMode::giveFocus(){
 
     mc->mMouse->setEventCallback(this);

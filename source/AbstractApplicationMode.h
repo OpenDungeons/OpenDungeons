@@ -34,13 +34,11 @@ class AbstractApplicationMode :
     virtual bool keyPressed     (const OIS::KeyEvent &arg)=0;
     virtual bool keyReleased    (const OIS::KeyEvent &arg)=0;
     virtual void handleHotkeys  (OIS::KeyCode keycode)=0;
-    inline void progressMode (ModeManager::ModeType mm){mc->changed=true; mc->nextMode= mm ;}; 
+    inline void progressMode (ModeManager::ModeType mm){mc->changed=true; mc->nextMode= mm ;};
     inline void regressMode(){mc->changed=true; mc->nextMode= ModeManager::PREV ;};
 
-
-    
-    inline virtual OIS::Mouse*      getMouse() =0;
-    inline virtual OIS::Keyboard*   getKeyboard() =0;
+    virtual OIS::Mouse*      getMouse() = 0;
+    virtual OIS::Keyboard*   getKeyboard() = 0;
 
     enum DragType
     {
@@ -54,10 +52,10 @@ class AbstractApplicationMode :
 	rotateAxisY,
 	nullDragType
     };
-	
-    virtual void giveFocus()=0 ; 
+
+    virtual void giveFocus()=0 ;
     virtual bool isInGame()=0  ;
-	
+
 
 
 };

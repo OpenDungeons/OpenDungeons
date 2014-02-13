@@ -56,7 +56,7 @@ friend class RenderManager;
   GameMap();
   ~GameMap();
 
-  int setAllNeighbors();     
+  int setAllNeighbors();
   void createNewMap();
   void createAllEntities();
   void destroyAllEntities();
@@ -72,7 +72,7 @@ friend class RenderManager;
   const Creature* getCreature(int index) const;
   Creature* getCreature(std::string cName);
   const Creature* getCreature(std::string cName) const;
-        
+
   unsigned int numCreatures() const;
   std::vector<Creature*> getCreaturesByColor(int color);
 
@@ -166,7 +166,7 @@ friend class RenderManager;
   void removeMissileObject(MissileObject *m);
   MissileObject* getMissileObject(int index);
   unsigned int numMissileObjects();
-        
+
   inline const int maxX() const {return width - 1;}
   inline const int maxY() const {return length - 1;}
 
@@ -209,14 +209,14 @@ friend class RenderManager;
   inline Player* getLocalPlayer() {return me;}
   inline const Player* getLocalPlayer() const {return me;}
 
-  mutable sem_t creaturesLockSemaphore; 
+  mutable sem_t creaturesLockSemaphore;
   Player *me;
   CullingManager* culm;
   std::string nextLevel;
   bool loadNextLevel;
   double averageAILeftoverTime;
-  static Tile::TileType*  neighborType; // should be of 8 objects 
-  static bool*  neighborFullness; // should be of 8 objects 
+  static Tile::TileType*  neighborType; // should be of 8 objects
+  static bool*  neighborFullness; // should be of 8 objects
 
   // Overloaded method declarations (these just make it easier to call the above functions)
   std::list<Tile*> path(Creature *c1, Creature *c2,
@@ -298,7 +298,7 @@ friend class RenderManager;
   unsigned int maxAIThreads;
 
   TileCoordinateMap *tileCoordinateMap;
-        
+
   int length, width;
 
   AIManager aiManager;

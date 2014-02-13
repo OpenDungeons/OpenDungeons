@@ -45,9 +45,8 @@ bool ConsoleMode::mouseMoved     (const OIS::MouseEvent &arg){
       cn->scrollText(arg.state.Z.rel > 0);
     }
 
-  cn->updateOverlay = true;
-
-
+    cn->updateOverlay = true;
+    return true;
 }
 
 bool ConsoleMode::mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id){
@@ -211,7 +210,8 @@ bool ConsoleMode::keyPressed     (const OIS::KeyEvent &arg){
       }
   }
 
-  cn->updateOverlay = true;
+    cn->updateOverlay = true;
+    return true;
 }
 
 bool ConsoleMode::keyReleased(const OIS::KeyEvent &arg) {

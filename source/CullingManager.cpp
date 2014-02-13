@@ -297,9 +297,6 @@ int CullingManager::bashAndSplashTiles(int mode)
 bool CullingManager::getIntersectionPoints() {
 
     const Ogre::Vector3*  myvector    = cm->getActiveCamera()->getWorldSpaceCorners();
-    Ogre::Vector3* pp ;
-
-
 
     myRay[0]= Ogre::Ray (myvector[0],  myvector[4] - myvector[0] );
     myRay[1]= Ogre::Ray (myvector[1],  myvector[5] - myvector[1] );
@@ -309,14 +306,13 @@ bool CullingManager::getIntersectionPoints() {
     std::pair<bool, Ogre::Real> intersectionResult;
 
 
+    //  Ogre::Vector3* pp ;
     //  for(int ii = 0 ; ii <4 ; ii++){
     //  	     intersectionResult =  myRay[ii]->intersects(*myplanes[0]) ;
     //  	     rr++;
     //  	     if(intersectionResult.first)
     //  		 pp= myRay[ii]->getPoint(intersectionResult.second);
     // }
-
-
 
     for(int ii = 0 ; ii <4 ; ii++){
 	int rr = 0;
