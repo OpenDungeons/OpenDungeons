@@ -76,6 +76,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     mWindow(win),
     renderManager(RenderManager::getSingletonPtr()),
     sfxHelper(SoundEffectsHelper::getSingletonPtr()),
+    mShowDebugInfo(false),
     mContinue(true),
     terminalActive(false),
     terminalWordWrap(78),
@@ -408,30 +409,38 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     string nullString = "";
     string turnString = "";
     turnString.reserve(100);
-    if (Socket::serverSocket != 0)
-    {
-        turnString = "On average the creature AI is finishing ";
-        turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
-                gameMap->averageAILeftoverTime)).substr(0, 4) + " s ";
-        turnString += (gameMap->averageAILeftoverTime >= 0.0 ? "early" : "late");
-        double maxTps = 1.0 / ((1.0 / ODApplication::turnsPerSecond)
-                - gameMap->averageAILeftoverTime);
-        turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
-                static_cast<Ogre::Real>(maxTps)).substr(0, 4);
-        turnString += "\nFPS: " + Ogre::StringConverter::toString(
-                mWindow->getStatistics().lastFPS);
-        turnString += "\ntriangleCount: " + Ogre::StringConverter::toString(
-                mWindow->getStatistics().triangleCount);
-        turnString += "\nBatches: " + Ogre::StringConverter::toString(
-                mWindow->getStatistics().batchCount);
 
-
+    //TODO - we should call printText only when the text changes.
+    if (Socket::serverSocket == 0) {
+        // Tells the user the game is loading.
+        printText("\nLoading...");
     }
-    turnString += "\nTurn number:  " + Ogre::StringConverter::toString(
-            GameMap::turnNumber.get());
-    //TODO - we shouldn't have to reprint this every frame.
-    printText(ODApplication::MOTD + "\n" + turnString
-            + "\n" + (!chatMessages.empty() ? chatString : nullString));
+    else {
+        if (mShowDebugInfo) {
+            turnString = "On average the creature AI is finishing ";
+            turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
+                    gameMap->averageAILeftoverTime)).substr(0, 4) + " s ";
+            turnString += (gameMap->averageAILeftoverTime >= 0.0 ? "early" : "late");
+            double maxTps = 1.0 / ((1.0 / ODApplication::turnsPerSecond)
+                - gameMap->averageAILeftoverTime);
+            turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
+                static_cast<Ogre::Real>(maxTps)).substr(0, 4);
+            turnString += "\nFPS: " + Ogre::StringConverter::toString(
+                mWindow->getStatistics().lastFPS);
+            turnString += "\ntriangleCount: " + Ogre::StringConverter::toString(
+                mWindow->getStatistics().triangleCount);
+            turnString += "\nBatches: " + Ogre::StringConverter::toString(
+                mWindow->getStatistics().batchCount);
+            turnString += "\nTurn number:  "
+                + Ogre::StringConverter::toString(GameMap::turnNumber.get());
+
+            printText(ODApplication::MOTD + "\n" + turnString
+                    + "\n" + (!chatMessages.empty() ? chatString : nullString));
+        }
+        else {
+            printText("");
+        }
+    }
 
     // Update the animations on any AnimatedObjects which have them
     for (unsigned int i = 0; i < gameMap->numAnimatedObjects(); ++i)

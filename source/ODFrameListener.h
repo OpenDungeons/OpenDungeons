@@ -78,6 +78,10 @@ friend class Console;
         inline unsigned int getChatMaxTimeDisplay() const           {return chatMaxTimeDisplay;}
         inline void         setChatMaxTimeDisplay(unsigned int nT)  {chatMaxTimeDisplay = nT;}
 
+        void toggleDebugInfo() {
+            mShowDebugInfo = !mShowDebugInfo;
+        }
+
         inline Ogre::SceneNode*     getCreatureSceneNode() const    {return creatureSceneNode;}
         inline Ogre::RaySceneQuery* getRaySceneQuery    ()          {return mRaySceneQuery;}
 
@@ -95,7 +99,7 @@ friend class Console;
         bool quit(const CEGUI::EventArgs &e);
         Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
 
-	void printText(const std::string& text);
+        void printText(const std::string& text);
 	    
         //NOTE - we should generally avoid using this function
         inline GameMap* getGameMap() {return gameMap;}
@@ -127,6 +131,7 @@ friend class Console;
 
         ModeManager*            inputManager;
         SoundEffectsHelper*     sfxHelper;
+        bool                    mShowDebugInfo;
         bool                    mContinue;
         bool                    terminalActive;
         int                     terminalWordWrap;
@@ -141,11 +146,9 @@ friend class Console;
         Ogre::SceneNode*        rockSceneNode;
         Ogre::Timer             statsDisplayTimer;
         GameMap*                gameMap;
-	MiniMap*                miniMap;
-
-
-	GameContext*   gc;
-	EditorContext*   ed;
+        MiniMap*                miniMap;
+        GameContext*            gc;
+        EditorContext*          ed;
         std::vector<Ogre::ColourValue> playerColourValues;
 
         //To see if the frameListener wants to exit

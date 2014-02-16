@@ -760,9 +760,10 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
         switch (arg.key)
         {
-
+            case OIS::KC_F11:
+                ODFrameListener::getSingleton().toggleDebugInfo();
+                break;
             case OIS::KC_GRAVE:
-
             case OIS::KC_F12:
 		progressMode(ModeManager::CONSOLE);
                 mc->frameListener->setTerminalActive(true);
