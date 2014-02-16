@@ -70,29 +70,28 @@ template<> ODFrameListener*
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem *tmpOverlaySystem) :
-        mWindow(win),
-        renderManager(RenderManager::getSingletonPtr()),
-        sfxHelper(SoundEffectsHelper::getSingletonPtr()),
-        mContinue(true),
-        terminalActive(false),
-        terminalWordWrap(78),
-        chatMaxMessages(10),
-        chatMaxTimeDisplay(20),
-        frameDelay(0.0),
-        previousTurn(-1),
-	gc(NULL),
-        ed(NULL),
-	cm(NULL),
-	culm(NULL)
-	
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* tmpOverlaySystem) :
+    cm(NULL),
+    culm(NULL),
+    mWindow(win),
+    renderManager(RenderManager::getSingletonPtr()),
+    sfxHelper(SoundEffectsHelper::getSingletonPtr()),
+    mContinue(true),
+    terminalActive(false),
+    terminalWordWrap(78),
+    chatMaxMessages(10),
+    chatMaxTimeDisplay(20),
+    frameDelay(0.0),
+    previousTurn(-1),
+    gc(NULL),
+    ed(NULL)
 {
     Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager","SceneManager");
     sceneManager->addRenderQueueListener(tmpOverlaySystem);
     gameMap = new GameMap;
     //FIXME game Map should be read at this point, instead , at the below I set map sizes manually paul424
     gameMap->setMapSizeX(400);
-    gameMap->setMapSizeY(400);    
+    gameMap->setMapSizeY(400);
 
     culm = new CullingManager();
     gameMap->setCullingManger(culm);
@@ -117,12 +116,12 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem *t
     LogManager::getSingletonPtr()->logMessage("Created everything :)", Ogre::LML_NORMAL);
 
     renderManager = new RenderManager();
-    
+
 
     renderManager->setGameMap(gameMap);
     renderManager->setCameraManager(cm);
     renderManager->setViewport(cm->getViewport());
-    miniMap = new MiniMap(gameMap);    
+    miniMap = new MiniMap(gameMap);
     //NOTE This is moved here temporarily.
     // try
     // {
@@ -149,14 +148,14 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem *t
     //     //cleanUp();
     //     //return;
     // }
-    
+
 
 
     //FIXME: this should be changed to a function or something.
     gameMap->me = new Player();
     gameMap->me->setNick("defaultNickName");
     gameMap->me->setGameMap(gameMap);
-    
+
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     rockSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Rock_scene_node");
@@ -173,10 +172,10 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem *t
 
 
     inputManager = new ModeManager(gameMap,miniMap,Console::getSingletonPtr());
- 
+
     Console::getSingletonPtr()->setModeManager(inputManager);
 
-    Gui::getSingletonPtr()->setModeManager(inputManager);    
+    Gui::getSingletonPtr()->setModeManager(inputManager);
     //Set initial mouse clipping size
     windowResized(mWindow);
 
@@ -209,7 +208,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem *t
 
     threadStopRequested.set(false);
     exitRequested.set(false);
-    
+
     LogManager::getSingletonPtr()->logMessage("*** FrameListener initialized ***");
 
 }
@@ -262,7 +261,7 @@ void ODFrameListener::exitApplication()
     LogManager::getSingleton().logMessage("\nClosing down.");
     //Mark that we want the threads to stop.
     requestStopThreads();
-    
+
     ServerNotification* exitServerNotification = new ServerNotification();
     exitServerNotification->type = ServerNotification::exit;
     sem_wait(&ServerNotification::serverNotificationQueueLockSemaphore);
@@ -274,7 +273,7 @@ void ODFrameListener::exitApplication()
     //serverNotificationQueue.push_back(exitServerNotification);
     sem_post(&ServerNotification::serverNotificationQueueLockSemaphore);
     queueServerNotification(exitServerNotification);
-    
+
     ClientNotification* exitClientNotification = new ClientNotification();
     exitClientNotification->type = ClientNotification::exit;
     //TODO: There should be a function to do this.
@@ -357,12 +356,12 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     long int currentTurnNumber = GameMap::turnNumber.get();
 
 
-  
+
     gameMap->threadLockForTurn(currentTurnNumber);
 
     MusicPlayer::getSingletonPtr()->update();
     renderManager->processRenderRequests();
-    
+
     string chatBaseString = "\n---------- Chat ----------\n";
     chatString = chatBaseString;
 
@@ -533,13 +532,10 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             *if proper locking is done.
             */
             gameMap->doPlayerAITurn(evt.timeSinceLastFrame);
-            
+
             Seat *mySeat = gameMap->getLocalPlayer()->getSeat();
 
-            CEGUI::WindowManager *windowManager =
-                    CEGUI::WindowManager::getSingletonPtr();
-
-            CEGUI::Window *tempWindow 
+            CEGUI::Window *tempWindow
 		= Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild( Gui::DISPLAY_TERRITORY );
             tempSS.str("");
             tempSS << mySeat->getNumClaimedTiles();
@@ -613,7 +609,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 tempWindow->setText(tempSS.str());
             }
         }
-    } 
+    }
 
     // Decrement the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     gameMap->threadUnlockForTurn(currentTurnNumber);
@@ -633,12 +629,12 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     }
     if (cm!=NULL){
-       cm->onFrameStarted() ; 
+       cm->onFrameStarted() ;
     }
 
     if (culm!=NULL){
-	culm->onFrameStarted() ; 
-    }	
+	culm->onFrameStarted() ;
+    }
 
     // Sleep to limit the framerate to the max value
     frameDelay -= evt.timeSinceLastFrame;
@@ -665,20 +661,20 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
-    
+
 
     if(gc!=NULL){
 	gc->onFrameEnded(evt);
     }
-    
+
     if(ed!=NULL){
 	ed->onFrameEnded(evt);
     }
     if (cm!=NULL)
 	cm->onFrameEnded() ;
- 
+
     if (culm!=NULL)
-	culm->onFrameEnded() ; 
+	culm->onFrameEnded() ;
 
     return true;
 
@@ -759,7 +755,7 @@ void ODFrameListener::makeGameContext(){
     gc = new GameContext(mWindow, inputManager, gameMap);
 
     culm->setCameraManager(cm);
-    cm->setModeManager(inputManager); 
+    cm->setModeManager(inputManager);
     Console::getSingletonPtr()->setCameraManager(cm);
     gc->setCameraManager(cm);
     new ASWrapper(cm);
@@ -771,8 +767,8 @@ void ODFrameListener::makeEditorContext(){
     ed = new EditorContext(mWindow, inputManager, gameMap);
 
     culm->setCameraManager(cm);
-    cm->setModeManager(inputManager); 
+    cm->setModeManager(inputManager);
     Console::getSingletonPtr()->setCameraManager(cm);
-    ed->setCameraManager(cm);    
+    ed->setCameraManager(cm);
     new ASWrapper(cm);
 }

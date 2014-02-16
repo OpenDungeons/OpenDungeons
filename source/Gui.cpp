@@ -117,8 +117,6 @@ CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
  */
 void Gui::assignEventHandlers()
 {
-    CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
-
     std::cout << "Gui::assignEventHandlers()" << std::endl;
 
     CEGUI::Window* rootWindow = sheets[inGameMenu];

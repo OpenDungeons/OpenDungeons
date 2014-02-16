@@ -47,12 +47,12 @@ Tile::TileType *GameMap::neighborType  = new Tile::TileType [8];
 bool  *GameMap::neighborFullness  = new bool [8];
 
 GameMap::GameMap() :
-        iteration_doFloodFill(0),
         me(NULL),
         loadNextLevel(false),
         averageAILeftoverTime(0.0),
         miscUpkeepTime(0),
         creatureTurnsTime(0),
+        iteration_doFloodFill(0),
         nextUniqueFloodFillColor(1),
         floodFillEnabled(false),
         numCallsTo_path(0),
@@ -89,9 +89,6 @@ void GameMap::createNewMap()
 {
     Tile tempTile;
     stringstream ss;
-
-
-    Ogre::SceneManager* sceneManager = RenderManager::getSingletonPtr()->getSceneManager();
 
     for (int jj = 0; jj < mapSizeX; ++jj)	{
 	for (int ii = 0; ii < mapSizeY; ++ii){

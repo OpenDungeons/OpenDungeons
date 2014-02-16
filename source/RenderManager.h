@@ -45,8 +45,8 @@ class RenderManager: public Ogre::Singleton<RenderManager>
 
         inline Ogre::SceneManager* getSceneManager()const {return sceneManager;}
         inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;}
-        void setCameraManager(CameraManager* );	
-        void setViewport(Ogre::Viewport* );  
+        void setCameraManager(CameraManager* );
+        void setViewport(Ogre::Viewport* );
         void processRenderRequests();
         void updateAnimations();
         void triggerCompositor(string);
@@ -61,8 +61,8 @@ class RenderManager: public Ogre::Singleton<RenderManager>
             msSingleton->queueRenderRequest_priv(renderRequest);
         }
 
-        void rtssTest(); 
-        void colourizeEntity(Ogre::Entity *ent, int colour);	
+        void rtssTest();
+        void colourizeEntity(Ogre::Entity *ent, int colour);
 	static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
 
 
@@ -81,7 +81,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
 
 	void rrToggleCreaturesVisibility();
 	void rrColorTile(const RenderRequest& renderRequest);
-	void rrSetPickAxe( const RenderRequest& renderRequest ); 
+	void rrSetPickAxe( const RenderRequest& renderRequest );
 	void rrTemporalMarkTile ( const RenderRequest& renderRequest );
 	void rrShowSquareSelector  ( const RenderRequest& renderRequest );
         void rrCreateRoom(const RenderRequest& renderRequest);
@@ -136,7 +136,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         Ogre::SceneNode* creatureSceneNode;
         Ogre::SceneNode* lightSceneNode;
         Ogre::SceneNode* fieldSceneNode;
-	Ogre::SceneNode* rockSceneNode;
+        Ogre::SceneNode* rockSceneNode;
         GameMap* gameMap;
         Ogre::SceneManager* sceneManager;
         Ogre::Viewport* viewport;
@@ -144,10 +144,6 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         bool initialized;
 
         static ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;
-
-
-
-
 };
 
 #endif /* RENDERMANAGER_H_ */

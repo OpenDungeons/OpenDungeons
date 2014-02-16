@@ -21,22 +21,23 @@
 #include "Console.h"
 
 
-ModeContext::ModeContext(GameMap* gameMap,MiniMap * mm):   
-        frameListener(ODFrameListener::getSingletonPtr()),
-	changed(false),
-	mLMouseDown(false),
-        mRMouseDown(false),
-        directionKeyPressed(false),
-        xPos(0),
-        yPos(0),
-        mLStartDragX(0),
-        mLStartDragY(0),
-        mRStartDragX(0),
-        mRStartDragY(0),
-        mDragType(nullDragType),
-        gameMap(gameMap),
-        expectCreatureClick(false),
-	miniMap(mm){
+ModeContext::ModeContext(GameMap* gameMap,MiniMap * mm):
+    frameListener(ODFrameListener::getSingletonPtr()),
+    expectCreatureClick(false),
+    mLMouseDown(false),
+    mRMouseDown(false),
+    directionKeyPressed(false),
+    changed(false),
+    xPos(0),
+    yPos(0),
+    mLStartDragX(0),
+    mLStartDragY(0),
+    mRStartDragX(0),
+    mRStartDragY(0),
+    mDragType(nullDragType),
+    gameMap(gameMap),
+    miniMap(mm)
+{
     LogManager::getSingleton().logMessage("*** Initializing OIS ***");
 
     for (int i = 0; i < 10; ++i)
@@ -66,7 +67,7 @@ ModeContext::ModeContext(GameMap* gameMap,MiniMap * mm):
     paramList.insert(std::make_pair(std::string("x11_mouse_hide"), std::string("false")));
     paramList.insert(std::make_pair(std::string("x11_keyboard_grab"), std::string("true")));
     paramList.insert(std::make_pair(std::string("XAutoRepeatOn"), std::string("true")));
-#endif 
+#endif
 
     //setup InputManager
     mInputManager = OIS::InputManager::createInputSystem(paramList);
@@ -74,10 +75,10 @@ ModeContext::ModeContext(GameMap* gameMap,MiniMap * mm):
     //setup Keyboard
     mKeyboard = static_cast<OIS::Keyboard*>(mInputManager->createInputObject(
                                                 OIS::OISKeyboard, true));
-    
+
 
     //setup Mouse
     mMouse = static_cast<OIS::Mouse*>(mInputManager->createInputObject(OIS::OISMouse, true));
-    
+
 
 }

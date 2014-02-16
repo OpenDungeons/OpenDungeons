@@ -31,15 +31,14 @@
  *
  */
 MiniMap::MiniMap(GameMap* gm) :
-        gameMap(gm),
-	tiles(nullptr),
-	grainSize(4),
-        // miniMapOgreTexture(0)
-        width(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
-        height(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_height),
-        topLeftCornerX(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
-        topLeftCornerY(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
-        pixelBox(new Ogre::PixelBox (width, height, 1, Ogre::PF_R8G8B8))
+    topLeftCornerX(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_x),
+    topLeftCornerY(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getUnclippedOuterRect().get().getPosition().d_y),
+    grainSize(4),
+    tiles(nullptr),
+    gameMap(gm),
+    width(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_width ),
+    height(  Gui::getSingleton().sheets[Gui::inGameMenu]->getChild( Gui::MINIMAP )->getPixelSize().d_height),
+    pixelBox(new Ogre::PixelBox (width, height, 1, Ogre::PF_R8G8B8))
 {
     /* TODO: separate some of this code in own functions to make it possible
      * to change cameras from outside (for example to recalculate it after a
@@ -66,10 +65,10 @@ MiniMap::MiniMap(GameMap* gm) :
 
     pixelBuffer = miniMapOgreTexture->getBuffer();
 
-    
-    
+
+
     //old draw code
-    //old CEGUI code 
+    //old CEGUI code
 
     // Temporarily disabled until new CEGUI version works
     // Working game UI needed to test a possible fix for this!
@@ -91,8 +90,8 @@ MiniMap::MiniMap(GameMap* gm) :
     inGameMenu->getChild(Gui::MINIMAP)->setProperty("Image", CEGUI::PropertyHelper<CEGUI::Image*>::toString(&imageset));
     // CEGUI::WindowManager::getSingleton().getWindow(Gui::MINIMAP)->setProperty(
     //         "Image", CEGUI::PropertyHelper::imageToString(
-    //                 &imageset.getImage("MiniMapImage")));   
-    
+    //                 &imageset.getImage("MiniMapImage")));
+
     miniMapOgreTexture->load();
     updatedCreatureIndex = gameMap->creatures.begin();
 }
@@ -115,7 +114,7 @@ Ogre::Vector2 MiniMap::camera_2dPositionFromClick( int  xx, int yy){
 
 
     camera_2dPosition.x +=  ((yy - topLeftCornerY )/double(height) - 0.5 )*height/grainSize ;
-    camera_2dPosition.y +=  ((xx - topLeftCornerX )/double(width) - 0.5  )*width/grainSize  ; 
+    camera_2dPosition.y +=  ((xx - topLeftCornerX )/double(width) - 0.5  )*width/grainSize  ;
 
     return camera_2dPosition;
 }
@@ -123,7 +122,7 @@ Ogre::Vector2 MiniMap::camera_2dPositionFromClick( int  xx, int yy){
 
 void MiniMap::draw() {
 
-    
+
     // Ogre::Vector3 halfCamera_2dPosition = camera_2dPosition /2;
 
     for (Ogre::uint ii = 0, mm =  camera_2dPosition.x -width/(2*grainSize); ii < width; ++mm, ii+=grainSize)
@@ -141,44 +140,44 @@ void MiniMap::draw() {
 		    else{
 
 			switch (gameMap->getTile(mm,nn)->getType()){
-	      
-	      
+
+
 			case Tile::water:
 			    drawPixel(ii,jj,0x7F,0xFF,0xD4);
 			    break;
-		
+
 			case Tile::dirt:
 			    drawPixel(ii,jj,0x8B,0x45,0x13);
-			    break;	
-		
+			    break;
+
 			case Tile::lava:
 			    drawPixel(ii,jj,0xB2,0x22,0x22);
-			    break;		
+			    break;
 
 			case Tile::rock:
 			    drawPixel(ii,jj,0xA9,0xA9,0xA9);
 			    break;
-		
+
 			case Tile::gold:
 			    drawPixel(ii,jj,0xFF,0xD7,0xD0);
-			    break;		
+			    break;
 
-		
+
 			    // to be made more sophisticated :)
 			case Tile::claimed:
 			    drawPixel(ii,jj,0x94,0x00,0xD3);
-			    break;		
+			    break;
 
 			case Tile::nullTileType:
 			    drawPixel(ii,jj,0x00,0x00,0x00);
-			    break;		
-		
-			
+			    break;
+
+
 			default:
 			    drawPixel(ii,jj,0x00,0xFF,0x7F);
 			    break;
 			}
-		
+
 		    }
 		}
 	}
@@ -223,13 +222,11 @@ int MiniMap::allocateMiniMapMemory()
 {
     // miniMapSizeX = xSize;
     // miniMapSizeY=ySize;
-    if (tiles==nullptr) {
+    if (tiles == nullptr) {
         tiles = new color* [height];
-        for (int jj = 0 ; jj < height ; jj++) {
+        for (Ogre::uint jj = 0; jj < height; ++jj) {
             tiles[jj] = new color [width];
-
         }
-
 
         return 1;
     }

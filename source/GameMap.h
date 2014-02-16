@@ -259,12 +259,9 @@ friend class RenderManager;
   unsigned long int doMiscUpkeep();
   unsigned long int doCreatureTurns();
 
-  // Private datamembers
-
-
-
+  // Private data members
   MiniMap *miniMap;
-  int iteration_doFloodFill   ;
+  int iteration_doFloodFill;
 
   std::string levelFileName;
 

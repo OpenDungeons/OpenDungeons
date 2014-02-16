@@ -136,8 +136,8 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
 			    // Add the request to the queue of rendering operations to be performed before the next frame.
 			    RenderManager::queueRenderRequest(request);
-			    
-			    
+
+
 			    // Make sure the "square selector" mesh is visible and position it over the current tile.
 
 			    //mSceneMgr->getLight("MouseLight")->setPosition(mc->xPos, mc->yPos, 2.0);
@@ -160,7 +160,6 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
 				    if (affectedTiles.size() > 16){
 
-					int debugfoobar = 2 + 2;
 				    }
 				    for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr ){
 
@@ -188,7 +187,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 					//     }
 
 
-					(*itr)->setSelected(true,mc->gameMap->getLocalPlayer());				  
+					(*itr)->setSelected(true,mc->gameMap->getLocalPlayer());
 				    }
 				}
 
@@ -267,9 +266,9 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     if (!(mc->directionKeyPressed || mc->mDragType == rotateAxisX || mc->mDragType == rotateAxisY))
     {
 
-	// The fracture value range is done because mouse pointer not always points 
-	// to the window border , thanks to OIS debugging trick we use to have 
-	// regrababble window :D 
+	// The fracture value range is done because mouse pointer not always points
+	// to the window border , thanks to OIS debugging trick we use to have
+	// regrababble window :D
 
         if (arg.state.X.abs <= 0.01 *  arg.state.width )
             mc->frameListener->cm->move(CameraManager::moveLeft);
@@ -359,7 +358,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
 
         // See if the mouse is over any creatures
 
-	
+
         while (itr != result.end())
         {
             if (itr->movable != NULL)
@@ -370,15 +369,15 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
                 {
                     // if in a game:  Pick the creature up and put it in our hand
 		    if(mc->expectCreatureClick && isInGame() ){
- 			  
+
 			progressMode(ModeManager::FPP);
 			const string& tmp_name =  (itr->movable->getName());
 			std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
 			mc->frameListener->cm->setFPPCamera(mc->gameMap->getCreature(tmp_name.substr( 9, tmp_name.size())));
 			mc->frameListener->cm->setActiveCameraNode("FPP");
 			mc->frameListener->cm->setActiveCamera("FPP");
-					    
-			mc->expectCreatureClick =false; 
+
+			mc->expectCreatureClick =false;
 		    }
                     else if (isInGame())
                     {

@@ -34,6 +34,8 @@ bool MenuMode::keyPressed(const OIS::KeyEvent &arg) {
         regressMode();
         Gui::getSingletonPtr()->switchGuiMode();
         break;
+    default:
+        break;
     }
     return true;
 }

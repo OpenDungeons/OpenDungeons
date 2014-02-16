@@ -380,7 +380,7 @@ void Tile::setFullness(double f)
 
 /*! \brief Set the fullness value for the tile.
  *  This only sets the fullness variable. This function is here to change the value
- *  before a map object has been set. setFullness is called once a map is assigned. 
+ *  before a map object has been set. setFullness is called once a map is assigned.
  */
 void Tile::setFullnessValue(double f)
 {
@@ -566,7 +566,7 @@ std::istream& operator>>(std::istream& is, Tile *t)
     ss << xLocation;
     ss << "_";
     ss << yLocation;
-	
+
     t->setName(ss.str());
     t->x = xLocation;
     t->y = yLocation;
@@ -576,7 +576,7 @@ std::istream& operator>>(std::istream& is, Tile *t)
 
     is >> tempDouble;
     t->setFullnessValue(tempDouble);
-    
+
     return is;
 }
 
@@ -662,7 +662,7 @@ int Tile::nextTileFullness(int f)
 
 // foobar(){
 //     Position
-    
+
 
 //     for(int ii = 0 ; ii < 8 ; ii++){
 // 	tilePos += position
@@ -688,21 +688,21 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 
 
 
-    // get the integer from neighbors[], using it as a number coded in binary base 
+    // get the integer from neighbors[], using it as a number coded in binary base
 
     for(int ii  = 8 ; ii >=1 ; ii--){
-	
-	postfixInt *=2 ; 
+
+	postfixInt *=2 ;
 	postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=water && myType!=lava)  || neighborsFullness[(ii)%8]  )) // || (!(myType!=water && myType!=lava) ||  fullnessMeshNumber > 0   )
 	    );
 
     }
 
-    int storedInt = postfixInt ; 
-    // current implementation does not allow on separate corner tiles 
+    int storedInt = postfixInt ;
+    // current implementation does not allow on separate corner tiles
     // leave only those corner tiles  ( the one in  the even position in PostfixInt binary base ) who have at least one ver or hor neighbor
 
-    // shift the 8ht position bit to the 1st position, shifting the rest 1 position to the left . 
+    // shift the 8ht position bit to the 1st position, shifting the rest 1 position to the left .
     shiftedAroundBits = postfixInt &  0x80;
     postfixInt <<= 1;
     shiftedAroundBits >>= 7;
@@ -712,8 +712,8 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 
 
 
-    // check for the clockwise rotation hor or ver neighbor for diagonal tile 
-    
+    // check for the clockwise rotation hor or ver neighbor for diagonal tile
+
     int foobar = postfixInt;
 
 
@@ -724,8 +724,8 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 
     postfixInt += shiftedAroundBits;
 
-    // check for the anti - clockwise rotation hor or ver neighbor of a diagonal tile 
-    int foobar2 = postfixInt; 
+    // check for the anti - clockwise rotation hor or ver neighbor of a diagonal tile
+    int foobar2 = postfixInt;
 
 
 
@@ -740,26 +740,26 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     // Naros	you want to use Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("MyResourceGroupName", "MyMeshFileName");
 
     meshNameAux(ss, postfixInt , fullnessMeshNumber , myType);
-    
 
 
-    // rotate the postfix number, as long , as we won't find Exisitng mesh 
 
-    // cerr <<  ss.str() << endl ; 
-    for(rt = 0 ;  !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str())  && rt < 4 ; rt++  ) { 
+    // rotate the postfix number, as long , as we won't find Exisitng mesh
+
+    // cerr <<  ss.str() << endl ;
+    for(rt = 0 ;  !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str())  && rt < 4 ; rt++  ) {
     shiftedAroundBits = postfixInt &  0xC0;
     postfixInt <<= 2;
     postfixInt &= 0xFF;
     shiftedAroundBits >>= 6;
     shiftedAroundBits &= 0x03;
     postfixInt += shiftedAroundBits;
-    
+
     ss.str("");
     ss.clear();
 
     meshNameAux(ss, postfixInt,fullnessMeshNumber,  myType);
 
-    // cerr <<  ss.str()<< endl ; 
+    // cerr <<  ss.str()<< endl ;
   }
 
 
@@ -774,7 +774,7 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
 }
 
 /*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
- *  
+ *
  */
 std::string Tile::meshNameFromFullness(TileType t, int fullnessMeshNumber)
 {
@@ -809,12 +809,11 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
     if (ss && (!isDiggable() || (getFullness() < 1)))
         return;
 
-    Ogre::Entity *ent = NULL;
-    RenderRequest *request ;
+    RenderRequest *request;
 
     if (getMarkedForDigging(pp) != ss)
 	{
-	    if  (pp == getGameMap()->getLocalPlayer()) // if this request is for me 
+	    if  (pp == getGameMap()->getLocalPlayer()) // if this request is for me
 		{
 		    request = new RenderRequest;
 
@@ -833,7 +832,7 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
 		    // Add the request to the queue of rendering operations to be performed before the next frame.
 		    RenderManager::queueRenderRequest(request);
 		}
-        
+
 	    if (ss)
 		{
 		    //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
@@ -1062,7 +1061,7 @@ double Tile::claimForColor(int nColor, double nDanceRate)
         //and hamper performance.
         /*Ogre::ColourValue tempColour =
                 gameMap->getSeatByColor(nColor)->colourValue;
-         
+
         claimLight = new TemporaryMapLight(Ogre::Vector3(x, y, 0.5),
                 tempColour.r, tempColour.g, tempColour.b, 1.0, 0.1, 0.5, 0.5);
         gameMap->addMapLight(claimLight);
@@ -1204,7 +1203,7 @@ void Tile::setGameMap(GameMap* gameMap)
 
 void Tile::meshNameAux(std::stringstream &ss, int &postfixInt , int& fMN, TileType myType ){
 
-    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_" 
+    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_"
        << (fMN > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType == water || myType == lava) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
 
 

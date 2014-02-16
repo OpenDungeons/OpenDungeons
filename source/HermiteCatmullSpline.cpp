@@ -13,14 +13,12 @@ HermiteCatmullSpline::HermiteCatmullSpline(int nn_in):nn(nn_in)   {
     }
 
 
-HermiteCatmullSpline::HermiteCatmullSpline(int nn_in , double *pp_in,double *tt_in):nn(nn_in), pp(pp_in), tt(tt_in)   {
-
-
+HermiteCatmullSpline::HermiteCatmullSpline(int nn_in, double* pp_in, double* tt_in):
+    nn(nn_in), tt(tt_in), pp(pp_in)
+{
     mm = new double[nn];
     computeTangents();
-
-
-    }
+}
 
 HermiteCatmullSpline::~HermiteCatmullSpline(){
 

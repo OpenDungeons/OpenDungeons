@@ -28,32 +28,27 @@ using std::string;
 #include <cstdlib> // for exit function
 
 
-void CullingQuad::setCenter(double xx, double yy){
+void CullingQuad::setCenter(double xx, double yy)
+{
     center->x = xx;
     center->y = yy;
-
-
 }
 
-void CullingQuad::setRadious(double rr){
+void CullingQuad::setRadious(double rr)
+{
     radious = rr;
-
 }
 
-CullingQuad::CullingQuad():nodes(NULL),entry(NULL), parent(NULL){
-
+CullingQuad::CullingQuad():
+    entry(NULL), nodes(NULL), parent(NULL)
+{
     center = new Ogre::Vector2();
-
-
 }
-
-
 
 // COPY constructor
-CullingQuad::CullingQuad(CullingQuad* qd,CullingQuad* pp ):parent(pp),nodes(NULL),entry(NULL){
-
-    int foobar2 = 3004 + 4;
-
+CullingQuad::CullingQuad(CullingQuad* qd, CullingQuad* pp):
+    entry(NULL), nodes(NULL), parent(pp)
+{
     center = (qd->center);
     radious = qd->radious;
 
@@ -87,12 +82,13 @@ CullingQuad* CullingQuad::find(Entry& ee){
     return find(ee.index_point);
     }
 
-
-
-CullingQuad* CullingQuad::find(Ogre::Vector2& vv){
+CullingQuad* CullingQuad::find(Ogre::Vector2& vv)
+{
     return find(&vv);
-    }
-CullingQuad* CullingQuad::find(Ogre::Vector2* vv){
+}
+
+CullingQuad* CullingQuad::find(Ogre::Vector2* vv)
+{
     // cerr << "find" <<endl;
         if(isLeaf())
 	return this;
@@ -115,7 +111,8 @@ CullingQuad* CullingQuad::find(Ogre::Vector2* vv){
 	     return  nodes[BR]->find(vv);
 	}
     // cerr << "find:End " <<endl;
-
+    // NOTE: Should not happen
+    return nullptr;
 }
 
 CullingQuad* CullingQuad::insert(Entry& ee){
@@ -274,8 +271,7 @@ void CullingQuad::setCenterFromParent(CullingQuad* qq , int jj){
 
 CullingQuad* CullingQuad::shallowInsert(Entry* ee){
     Entry **tmpEntry;
-    CullingQuad *returnQuad;
-    int foobar2 = 3004 + 4;
+    CullingQuad* returnQuad = nullptr;
 
     // cerr << " shallowInsert " <<endl;
     if(isNonEmptyLeaf()){
@@ -432,7 +428,7 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
     // cerr << "moveEntryDelta: END :   CreatureName "  << cc->getName() << "Quad: "<<  setbase(16) << cc->tracingCullingQuad   << setbase(10) << " const Ogre::Vector2& newPosition  " << newPosition.x <<" " << newPosition.y  << endl;
     releaseRootSemaphore();
 
-
+    return true;
 }
 
 
@@ -462,7 +458,6 @@ bool CullingQuad::cut ( const Segment &ss) {
 
 bool CullingQuad::cut ( const Segment *ss) {
     int nodes_sign[8];
-    int foobar = 23 + 4;
 
     if(!isLeaf()){
 	Ogre::Vector2 center_delta (*center);   center_delta -=  ss->tail  ;

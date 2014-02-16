@@ -139,15 +139,16 @@ TileContainer* TileContainersModificator::create(int x, int y, Tile::TileType tt
 
 TileContainer* TileContainersModificator::copy(TileContainer* tc1 , TileContainer* tc2 ){
     if(tc1 == NULL || tc2 == NULL)
-	return NULL;
+        return NULL;
 
-    for(int ii = 0 ; ii < tc1->getMapSizeX() ; ii++){
-	for(int jj = 0 ; jj < tc2->getMapSizeY(); jj++){
-	    // tc2->getTile(ii,jj) = tc1->getTile(ii,jj);
-
-	}
-	return tc2;
+    // FIXME: This function is obviously broken
+    for(int ii = 0 ; ii < tc1->getMapSizeX(); ++ii) {
+        for(int jj = 0 ; jj < tc2->getMapSizeY(); ++jj) {
+            // tc2->getTile(ii,jj) = tc1->getTile(ii,jj);
+        }
+        return tc2;
     }
+    return tc2;
 }
 
 TileContainer* TileContainersModificator::embed(TileContainer* tc1 , TileContainer* tc2 ){

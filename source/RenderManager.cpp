@@ -58,18 +58,18 @@ ProtectedObject<unsigned int> RenderManager::numThreadsWaitingOnRenderQueueEmpty
 
 
 RenderManager::RenderManager() :
-        roomSceneNode(0),
-        rockSceneNode(0),
-        creatureSceneNode(0),
-        lightSceneNode(0),
-        fieldSceneNode(0),
-        gameMap(0),
-        //This will use OctreSceneManager if the plugin is loaded
-        sceneManager(ODApplication::getSingletonPtr()->getRoot()->getSceneManager("SceneManager")),
-        viewport(0),
-        shaderGenerator(0),
-        initialized(false),
-	visibleCreatures(true)
+    visibleCreatures(true),
+    roomSceneNode(0),
+    creatureSceneNode(0),
+    lightSceneNode(0),
+    fieldSceneNode(0),
+    rockSceneNode(0),
+    gameMap(0),
+    //This will use OctreSceneManager if the plugin is loaded
+    sceneManager(ODApplication::getSingletonPtr()->getRoot()->getSceneManager("SceneManager")),
+    viewport(0),
+    shaderGenerator(0),
+    initialized(false)
 {
     sem_init(&renderQueueSemaphore, 0, 1);
     sem_init(&renderQueueEmptySemaphore, 0, 0);
@@ -89,8 +89,8 @@ RenderManager::~RenderManager()
 }
 
 /*! \brief creates all compoistors
-*   Compositor types are hardcoded 
-*   but they should be read from the external XML file 
+*   Compositor types are hardcoded
+*   but they should be read from the external XML file
 */
 void RenderManager::setViewport(Ogre::Viewport* tmpViewport){
 
@@ -101,8 +101,8 @@ void RenderManager::setViewport(Ogre::Viewport* tmpViewport){
 
 
 /*! \brief creates all compoistors
-*   Compositor types are hardcoded 
-*   but they should be read from the external XML file 
+*   Compositor types are hardcoded
+*   but they should be read from the external XML file
 */
 void RenderManager::createCompositors(){
 
@@ -112,7 +112,7 @@ void RenderManager::createCompositors(){
 
 
 
-/*! \brief starts the compositor compositorName // assuming 
+/*! \brief starts the compositor compositorName // assuming
 *
 */
 void RenderManager::triggerCompositor(string compositorName){
@@ -173,7 +173,7 @@ void RenderManager::createScene()
     sceneManager->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
     // Create the scene node that the camera attaches to
 
-    
+
     // Create the single tile selection mesh
     Ogre::Entity* ent = sceneManager->createEntity("SquareSelector", "SquareSelector.mesh");
     Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode(
@@ -549,26 +549,21 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
 		gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
 		rt
 		));
-	
+
         /*        Ogre::Entity* ent = createEntity(curTile->name,
 		  Tile::meshNameFromFullness(curTile->getType(),
 		  curTile->FullnessMeshNumber()), "Claimedwall2_nor3.png");*/
-	if(curTile->getType()==Tile::gold){
+	if(curTile->getType() == Tile::gold) {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+            ent->getSubEntity(ii)->setMaterialName("Gold");
+        }
+    }
+    else if(curTile->getType() == Tile::rock) {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+            ent->getSubEntity(ii)->setMaterialName("Rock");
+        }
 
-
-	    for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
-		ent->getSubEntity(ii)->setMaterialName("Gold");
-		}
-	    }
-
-	else if(curTile->getType()==Tile::rock){
-	    for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
-		ent->getSubEntity(ii)->setMaterialName("Rock");
-		}
-
-	    }
-
-
+    }
 
         colourizeEntity ( ent, curTile->getColor() );
 
@@ -597,20 +592,16 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 	    ));
 
 
-    if(curTile->getType()==Tile::gold){
-
-
-	for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
-	    ent->getSubEntity(ii)->setMaterialName("Gold");
-	    }
-	}
-
-    else if(curTile->getType()==Tile::rock){
-	for(int ii = 0 ; ii <  ent->getNumSubEntities() ; ii++){
-	    ent->getSubEntity(ii)->setMaterialName("Rock");
-	    }
-
-	}
+    if(curTile->getType() == Tile::gold) {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+            ent->getSubEntity(ii)->setMaterialName("Gold");
+        }
+    }
+    else if(curTile->getType() == Tile::rock) {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+            ent->getSubEntity(ii)->setMaterialName("Rock");
+        }
+    }
 
     if (curTile->getType() == Tile::claimed){
 	colourizeEntity ( ent, curTile->getColor() );
@@ -638,7 +629,7 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     node->setPosition ( static_cast<Ogre::Real>(curTile->x),
 	static_cast<Ogre::Real>(curTile->y),
 	0);
-    
+
     node->attachObject ( ent );
 
     node->setScale ( Ogre::Vector3 (
@@ -661,7 +652,7 @@ void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
 	Ogre::Entity* ent = sceneManager->getEntity ( curTile->getName() );
 	Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
 	node->detachAllObjects();
-	sceneManager->destroySceneNode ( curTile->getName() + "_node" );	
+	sceneManager->destroySceneNode ( curTile->getName() + "_node" );
 	sceneManager->destroyEntity ( ent );
         }
 
@@ -672,14 +663,13 @@ void RenderManager::rrDestroyTile ( const RenderRequest& renderRequest )
     // }
     }
 
-void RenderManager::rrColorTile ( const RenderRequest& renderRequest ){
+void RenderManager::rrColorTile(const RenderRequest& renderRequest) {
     Tile* curTile = static_cast<Tile*> ( renderRequest.p );
     Player* pp    = static_cast<Player*> ( renderRequest.p2 );
-    Ogre::Entity *ent = 0;
 
     curTile->setColor(renderRequest.b ? pp->getSeat()->getColor() : 0);
     curTile->refreshMesh();
-    }
+}
 
 
 void RenderManager::rrSetPickAxe( const RenderRequest& renderRequest ) {

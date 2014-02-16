@@ -1,6 +1,8 @@
 #include "TileContainer.h"
 
-TileContainer::TileContainer():auxTilesArray(0), tiles(0){
+TileContainer::TileContainer():
+    tiles(0), auxTilesArray(0)
+{
     sem_init(&tilesLockSemaphore, 0, 1);
 }
 
