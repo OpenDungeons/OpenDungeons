@@ -8,6 +8,21 @@
  *  www.angelcode.com/angelscript/sdk/docs/manual/index.html
  * The Ogre-Angelscript binding project is something to keep an eye on:
  *  code.google.com/p/ogre-angelscript/
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* TODO list:
@@ -39,50 +54,46 @@
 
 template<> ASWrapper* Ogre::Singleton<ASWrapper>::msSingleton = 0;
 
-/*! \brief Initialises AngelScript
- *
- */
+//! \brief Initialises AngelScript
 ASWrapper::ASWrapper(CameraManager* cm) :
-        engine  (asCreateScriptEngine(ANGELSCRIPT_VERSION)),
-        builder (new CScriptBuilder()),
-        context (engine->CreateContext()),
-	cameraManager(cm)
+        mEngine  (asCreateScriptEngine(ANGELSCRIPT_VERSION)),
+        mBuilder (new CScriptBuilder()),
+        mContext (mEngine->CreateContext()),
+        mCameraManager(cm)
 {
     LogManager::getSingleton().logMessage("*** Initialising script engine AngelScript ***");
     LogManager::getSingleton().logMessage( asGetLibraryOptions());
     //register function that gives out standard runtime information
-    engine->SetMessageCallback(asMETHOD(ASWrapper, messageCallback), this, asCALL_THISCALL);
+    mEngine->SetMessageCallback(asMETHOD(ASWrapper, messageCallback), this, asCALL_THISCALL);
 
     //bind all objects, functions, etc to AngelScript
     registerEverything();
 
     //save the string[] type because it's often used for console interaction
-    stringArray = engine->GetObjectTypeById(engine->GetTypeIdByDecl("string[]"));
+    mStringArray = mEngine->GetObjectTypeById(mEngine->GetTypeIdByDecl("string[]"));
 
     //load all .as files from /scripts folder using the ScriptBuilder addond so we can access them
-    builder->StartNewModule(engine, "asModule");
+    mBuilder->StartNewModule(mEngine, "asModule");
     const std::string& scriptpath = ResourceManager::getSingleton().getScriptPath();
     std::vector<std::string> files = ResourceManager::getSingleton().listAllFiles(scriptpath);
     for(std::vector<std::string>::iterator i = files.begin(), end = files.end(); i < end; ++i)
     {
         if(ResourceManager::hasFileEnding(*i, ".as"))
         {
-            builder->AddSectionFromFile((scriptpath + *i).c_str());
+            mBuilder->AddSectionFromFile((scriptpath + *i).c_str());
         }
     }
 
     //Compile AS code, syntax errors will be printed to our Console
-    builder->BuildModule();
+    mBuilder->BuildModule();
 }
 
-/*! \brief closes AngelScript
- *
- */
+//! \brief closes AngelScript
 ASWrapper::~ASWrapper()
 {
-    delete builder;
-    context->Release();
-    engine->Release();
+    delete mBuilder;
+    mContext->Release();
+    mEngine->Release();
 }
 
 /*! \brief passes code to the script engine and tries to execute it
@@ -91,7 +102,7 @@ ASWrapper::~ASWrapper()
  */
 void ASWrapper::executeScriptCode(const std::string& code)
 {
-    ExecuteString(engine, code.c_str(), builder->GetModule(), context);
+    ExecuteString(mEngine, code.c_str(), mBuilder->GetModule(), mContext);
 }
 
 /*! \brief Send AngelScript errors, warnings and information to our console
@@ -135,8 +146,8 @@ void ASWrapper::registerEverything()
 {
     /* Register some standard types and features, they are official AS addons
      */
-    RegisterStdString(engine);
-    RegisterScriptArray(engine, true);
+    RegisterStdString(mEngine);
+    RegisterScriptArray(mEngine, true);
 
     /* OVERVIEW of what happens in the following lines
      *
@@ -153,21 +164,21 @@ void ASWrapper::registerEverything()
      * the getSingleton() method, but registering the reference to the object itself makes it
      * easier for script authors because the object already exists globally instead of heaving to
      * get the handle all the time.
-     *    engine->RegisterGlobalProperty("Type varname", Type::GetSingleton());
+     *    mEngine->RegisterGlobalProperty("Type varname", Type::GetSingleton());
      *
      * Then only for NON-SIngletons we need a constructor, reference counter
      * (telling AS how many references to the object exist) and a dereferencer
      *
      * Constructor (static method in ASWrapper):
-     *    engine->RegisterObjectBehaviour(name, asBEHAVE_FACTORY, "name@ f()",
+     *    mEngine->RegisterObjectBehaviour(name, asBEHAVE_FACTORY, "name@ f()",
      *        asMETHOD(ASRef::createInstance<ClassName>), asCALL_CDECL);
      *
      * Reference counter:
-     *    engine->RegisterObjectBehaviour(name, asBEHAVE_ADDREF, "void f()",
+     *    mEngine->RegisterObjectBehaviour(name, asBEHAVE_ADDREF, "void f()",
      *        asMETHOD(ASRef<ClassName>, addref), asCALL_THISCALL);
      *
      * Dereferencer (Release Reference):
-     *    engine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()",
+     *    mEngine->RegisterObjectBehaviour(name, asBEHAVE_RELEASE, "void f()",
      *        asMETHOD(ASRef<ClassName>, release), asCALL_THISCALL);
      *
      * Now the class is set up and we can add the methods and theoretically also properties. But
@@ -183,92 +194,92 @@ void ASWrapper::registerEverything()
     int r = 0;
 
     //helper functions
-    r = engine->RegisterGlobalFunction(
+    r = mEngine->RegisterGlobalFunction(
             "int stringToInt(string &in)",
             asFUNCTION(Helper::stringToT<int>),
             asCALL_CDECL); assert(r >= 0);
-    r = engine->RegisterGlobalFunction(
+    r = mEngine->RegisterGlobalFunction(
             "uint stringToUInt(string &in)",
             asFUNCTION(Helper::stringToT<unsigned int>),
             asCALL_CDECL); assert(r >= 0);
-    r = engine->RegisterGlobalFunction(
+    r = mEngine->RegisterGlobalFunction(
             "float stringToFloat(string &in)",
             asFUNCTION(Helper::stringToT<float>),
             asCALL_CDECL); assert(r >= 0);
-    r = engine->RegisterGlobalFunction(
+    r = mEngine->RegisterGlobalFunction(
             "double stringToDouble(string &in)",
             asFUNCTION(Helper::stringToT<double>),
             asCALL_CDECL); assert(r >= 0);
-    r = engine->RegisterGlobalFunction(
+    r = mEngine->RegisterGlobalFunction(
             "bool checkIfInt(string &in)",
             asFUNCTION(Helper::checkIfT<int>),
             asCALL_CDECL); assert(r >= 0);
-    r = engine->RegisterGlobalFunction(
+    r = mEngine->RegisterGlobalFunction(
             "bool checkIfFloat(string &in)",
             asFUNCTION(Helper::checkIfT<float>),
             asCALL_CDECL); assert(r >= 0);
 
     //implicit conversions
-    r = engine->RegisterObjectBehaviour(
+    r = mEngine->RegisterObjectBehaviour(
             "string",
             asBEHAVE_IMPLICIT_VALUE_CAST,
             "int f() const", asFUNCTION(Helper::stringToT<int>),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
-    r = engine->RegisterObjectBehaviour(
+    r = mEngine->RegisterObjectBehaviour(
             "string",
             asBEHAVE_IMPLICIT_VALUE_CAST,
             "float f() const", asFUNCTION(Helper::stringToT<float>),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
-    r = engine->RegisterObjectBehaviour(
+    r = mEngine->RegisterObjectBehaviour(
             "string",
             asBEHAVE_IMPLICIT_VALUE_CAST,
             "double f() const", asFUNCTION(Helper::stringToT<double>),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
-    r = engine->RegisterObjectBehaviour(
+    r = mEngine->RegisterObjectBehaviour(
             "string",
             asBEHAVE_IMPLICIT_VALUE_CAST,
             "uint f() const", asFUNCTION(Helper::stringToT<unsigned int>),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
 
     //some variabless
-    r = engine->RegisterGlobalProperty(
+    r = mEngine->RegisterGlobalProperty(
             "double MAXFPS",
             &ODApplication::MAX_FRAMES_PER_SECOND); assert(r >= 0);
 
     //Console
-    r = engine->RegisterObjectType(
+    r = mEngine->RegisterObjectType(
             "Console", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    r = engine->RegisterGlobalProperty(
+    r = mEngine->RegisterGlobalProperty(
             "Console console",
             Console::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod("Console",
+    r = mEngine->RegisterObjectMethod("Console",
             "void print(string)",
             asMETHOD(Console, print),
             asCALL_THISCALL); assert(r >= 0);
 
     //LogManager
-    r = engine->RegisterObjectType(
+    r = mEngine->RegisterObjectType(
             "LogManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    r = engine->RegisterGlobalProperty(
+    r = mEngine->RegisterGlobalProperty(
             "LogManager logManager",
             LogManager::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod("LogManager",
+    r = mEngine->RegisterObjectMethod("LogManager",
             "void logMessage(string)",
             asMETHOD(LogManager, logMessage),
             asCALL_THISCALL); assert(r >= 0);
 
     //Creature
-    r = engine->RegisterObjectType("Creature", 0, asOBJ_REF); assert(r >= 0);
-    r = engine->RegisterObjectBehaviour("Creature",
+    r = mEngine->RegisterObjectType("Creature", 0, asOBJ_REF); assert(r >= 0);
+    r = mEngine->RegisterObjectBehaviour("Creature",
             asBEHAVE_ADDREF, "void f()",
             asMETHOD(ASRef<Creature>, addref),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectBehaviour("Creature",
+    r = mEngine->RegisterObjectBehaviour("Creature",
             asBEHAVE_RELEASE, "void f()",
             asMETHOD(ASRef<Creature>, release),
             asCALL_THISCALL); assert( r >= 0 );
     //FIXME: This doesn't work because Creature doesn't have a default constructor
-    /* r = engine->RegisterObjectBehaviour(
+    /* r = mEngine->RegisterObjectBehaviour(
             "Creature",
             asBEHAVE_FACTORY,
             "Creature@ f()",
@@ -276,108 +287,108 @@ void ASWrapper::registerEverything()
             asCALL_CDECL); assert( r >= 0 ); */
 
     //GameMap
-    r = engine->RegisterObjectType("GameMap", 0, asOBJ_REF); assert(r >= 0);
-    r = engine->RegisterObjectBehaviour("GameMap",
+    r = mEngine->RegisterObjectType("GameMap", 0, asOBJ_REF); assert(r >= 0);
+    r = mEngine->RegisterObjectBehaviour("GameMap",
             asBEHAVE_ADDREF, "void f()",
             asFUNCTION(ASWrapper::dummy),
             asCALL_CDECL_OBJLAST); assert(r >= 0);
-    r = engine->RegisterObjectBehaviour("GameMap",
+    r = mEngine->RegisterObjectBehaviour("GameMap",
             asBEHAVE_RELEASE, "void f()",
             asFUNCTION(ASWrapper::dummy),
             asCALL_CDECL_OBJLAST); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("GameMap",
+    r = mEngine->RegisterObjectMethod("GameMap",
             "void createNewMap(int, int)",
             asMETHOD(GameMap, createNewMap),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("GameMap",
+    r = mEngine->RegisterObjectMethod("GameMap",
             "void destroyAllEntities()",
             asMETHOD(GameMap, destroyAllEntities),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("GameMap",
+    r = mEngine->RegisterObjectMethod("GameMap",
             "void createAllEntities()",
             asMETHOD(GameMap, createAllEntities),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("GameMap",
+    r = mEngine->RegisterObjectMethod("GameMap",
             "uint get_MaxAIThreads()",
             asMETHOD(GameMap, getMaxAIThreads),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("GameMap",
+    r = mEngine->RegisterObjectMethod("GameMap",
             "void set_MaxAIThreads(uint)",
             asMETHOD(GameMap, setMaxAIThreads),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("GameMap",
+    r = mEngine->RegisterObjectMethod("GameMap",
             "string& get_LevelFileName()",
             asMETHOD(GameMap, getLevelFileName),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("GameMap",
+    r = mEngine->RegisterObjectMethod("GameMap",
             "void set_LevelFileName(string &in)",
             asMETHOD(GameMap, setLevelFileName),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("GameMap",
+    r = mEngine->RegisterObjectMethod("GameMap",
             "void addCreature(Creature@)",
             asMETHOD(GameMap, addCreature),
             asCALL_THISCALL); assert(r >= 0);
 
     //GameMap helper functions
-    r = engine->RegisterGlobalFunction(
+    r = mEngine->RegisterGlobalFunction(
             "void writeGameMapToFile(string &in, GameMap &in)",
             asFUNCTION(MapLoader::writeGameMapToFile),
             asCALL_CDECL);
-    r = engine->RegisterGlobalFunction(
+    r = mEngine->RegisterGlobalFunction(
             "void readGameMapFromFile(string &in, GameMap &in)",
             asFUNCTION(MapLoader::readGameMapFromFile),
             asCALL_CDECL);
 
     //ODFrameListener
-    r = engine->RegisterObjectType(
+    r = mEngine->RegisterObjectType(
             "ODFrameListener", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    r = engine->RegisterGlobalProperty(
+    r = mEngine->RegisterGlobalProperty(
             "ODFrameListener frameListener",
             ODFrameListener::getSingletonPtr()); assert(r >= 0);
-    r = engine->RegisterObjectMethod("ODFrameListener",
+    r = mEngine->RegisterObjectMethod("ODFrameListener",
             "void requestExit()",
             asMETHOD(ODFrameListener, requestExit),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("ODFrameListener",
+    r = mEngine->RegisterObjectMethod("ODFrameListener",
             "GameMap@ get_GameMap()",
             asMETHODPR(ODFrameListener, getGameMap, (), GameMap*),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("ODFrameListener",
+    r = mEngine->RegisterObjectMethod("ODFrameListener",
             "uint get_ChatMaxTimeDisplay()",
             asMETHOD(ODFrameListener, getChatMaxTimeDisplay),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("ODFrameListener",
+    r = mEngine->RegisterObjectMethod("ODFrameListener",
             "void set_ChatMaxTimeDisplay(uint)",
             asMETHOD(ODFrameListener, setChatMaxTimeDisplay),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("ODFrameListener",
+    r = mEngine->RegisterObjectMethod("ODFrameListener",
             "uint get_ChatMaxMessages()",
             asMETHOD(ODFrameListener, getChatMaxMessages),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("ODFrameListener",
+    r = mEngine->RegisterObjectMethod("ODFrameListener",
             "void set_ChatMaxMessages(uint)",
             asMETHOD(ODFrameListener, setChatMaxMessages),
             asCALL_THISCALL); assert(r >= 0);
 
     //CameraManager
-    r = engine->RegisterObjectType(
+    r = mEngine->RegisterObjectType(
             "CameraManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
-    r = engine->RegisterGlobalProperty(
+    r = mEngine->RegisterGlobalProperty(
             "CameraManager cameraManager",
-            cameraManager); assert(r >= 0);
-    r = engine->RegisterObjectMethod("CameraManager",
+            mCameraManager); assert(r >= 0);
+    r = mEngine->RegisterObjectMethod("CameraManager",
             "void set_MoveSpeedAccel(float &in)",
             asMETHOD(CameraManager, setMoveSpeedAccel),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("CameraManager",
+    r = mEngine->RegisterObjectMethod("CameraManager",
             "float& get_MoveSpeed()",
             asMETHOD(CameraManager, getMoveSpeed),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("CameraManager",
+    r = mEngine->RegisterObjectMethod("CameraManager",
             "void set_RotateSpeed(float &in)",
             asMETHOD(CameraManager, setRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);
-    r = engine->RegisterObjectMethod("CameraManager",
+    r = mEngine->RegisterObjectMethod("CameraManager",
             "float get_RotateSpeed()",
             asMETHOD(CameraManager, getRotateSpeed),
             asCALL_THISCALL); assert(r >= 0);
@@ -390,16 +401,16 @@ void ASWrapper::registerEverything()
  */
 void ASWrapper::executeConsoleCommand(const std::vector<std::string>& fullCommand)
 {
-    CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1, stringArray);
+    CScriptArray* arguments = new CScriptArray(fullCommand.size() - 1, mStringArray);
     for(asUINT i = 0, size = arguments->GetSize(); i < size; ++i)
     {
     	*(static_cast<std::string*>(arguments->At(i))) = fullCommand[i + 1];
     }
 
-    context->Prepare(builder->GetModule()->GetFunctionByDecl(
+    mContext->Prepare(mBuilder->GetModule()->GetFunctionByDecl(
             "void executeConsoleCommand(string &in, string[] &in)"));
-    context->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
-    context->SetArgObject(1, arguments);
-    context->Execute();
+    mContext->SetArgAddress(0, const_cast<std::string*>(&fullCommand[0]));
+    mContext->SetArgObject(1, arguments);
+    mContext->Execute();
     delete arguments;
 }

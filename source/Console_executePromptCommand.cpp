@@ -1146,21 +1146,18 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
 
     else if (command.compare("circlearound") == 0){
-	if(!arguments.empty()){
+    if(!arguments.empty())
+    {
+        double centerX;
+        double centerY;
+        double radius;
 
-
-	    double centerX;
-	    double centerY;
-	    double radious;
-
-            tempSS.str(arguments);
-	    tempSS >> centerX >> centerY >> radious;
-	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-            cm->setCircleCenter(centerX, centerY);
-            cm->setCircleRadious(radious);
-            cm->setCircleMode(true);
-
-
+        tempSS.str(arguments);
+        tempSS >> centerX >> centerY >> radius;
+        // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
+        cm->setCircleCenter(centerX, centerY);
+        cm->setCircleRadius(radius);
+        cm->setCircleMode(true);
 
         }
 	else{

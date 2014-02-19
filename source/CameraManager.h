@@ -3,6 +3,21 @@
  * \date:  02 July 2011
  * \author StefanP.MUC
  * \brief  Handles the camera movements
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef CAMERAMANAGER_H_
@@ -11,8 +26,6 @@
 #include "GameMap.h"
 #include "AbstractApplicationMode.h"
 #include "HermiteCatmullSpline.h"
-
-
 
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
@@ -54,139 +67,168 @@ public:
     HermiteCatmullSpline xHCS;
     HermiteCatmullSpline yHCS;
 
-    struct Vector3i{
-	Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ; }
-	Vector3i(){};
+    struct Vector3i {
+        Vector3i(const Ogre::Vector3& OV) {
+            x = (1 << 10) * OV.x;
+            y = (1 << 10) * OV.y;
+            z = (1 << 10) * OV.z;
+        }
 
-	int x ; int y ; int z;};
+        Vector3i():
+            x(0),
+            y(0),
+            z(0)
+        {};
+
+        int x;
+        int y;
+        int z;
+    };
 
 
-    CameraManager( Ogre::SceneManager*   , GameMap*);
+    CameraManager(Ogre::SceneManager*, GameMap*);
 
-    inline void setCircleCenter( int XX, int YY) {centerX = XX ; centerY = YY;} ;
-    inline void setCircleRadious(unsigned int rr){ radious = rr;};
-    inline void setCircleMode(bool mm){circleMode = mm ; alpha = 0;};
-    inline void setCatmullSplineMode(bool mm){catmullSplineMode = mm;  alpha = 0; };
-    inline bool switchPM() { switchedPM = true; return true; };
+    inline void setCircleCenter( int XX, int YY) {
+        mCenterX = XX;
+        mCenterY = YY;
+    }
 
+    inline void setCircleRadius(unsigned int rr)
+    { mRadius = rr; }
 
-    void setModeManager(ModeManager* mm){modeManager = mm;};
+    inline void setCircleMode(bool mm) {
+        mCircleMode = mm;
+        mAlpha = 0;
+    }
+
+    inline void setCatmullSplineMode(bool mm) {
+        mCatmullSplineMode = mm;
+        mAlpha = 0;
+    }
+
+    inline bool switchPM() {
+        mSwitchedPM = true;
+        return true;
+    }
+
+    void setModeManager(ModeManager* mm)
+    { mModeManager = mm; }
+
     void setFPPCamera(Creature*);
 
     //get/set moveSpeed
     inline const Ogre::Real& getMoveSpeed() const {
-        return moveSpeed;
-	}
-    inline void setMoveSpeed(const Ogre::Real& newMoveSpeed) {
-        moveSpeed = newMoveSpeed;
-	}
+        return mMoveSpeed;
+    }
 
+    inline void setMoveSpeed(const Ogre::Real& newMoveSpeed) {
+        mMoveSpeed = newMoveSpeed;
+    }
 
     //get/set moveSpeedAccel
     inline const Ogre::Real& getMoveSpeedAccel() const {
-        return moveSpeedAccel;
-	}
+        return mMoveSpeedAccel;
+    }
+
     inline void setMoveSpeedAccel(const Ogre::Real& newMoveSpeedAccel) {
-        moveSpeed = newMoveSpeedAccel;
-	}
+        mMoveSpeed = newMoveSpeedAccel;
+    }
 
     //get/set rotateSpeed
     inline const Ogre::Degree& getRotateSpeed() const {
-        return rotateSpeed;
-	}
+        return mRotateSpeed;
+    }
+
     inline void setRotateSpeed(const Ogre::Degree& newRotateSpeed) {
-        rotateSpeed = newRotateSpeed;
-	}
+        mRotateSpeed = newRotateSpeed;
+    }
 
     //get translateVectorAccel
     inline const Ogre::Vector3& getTranslateVectorAccel() const {
-        return translateVectorAccel;
-	}
-    bool getIntersectionPoints(   );
+        return mTranslateVectorAccel;
+    }
 
+    bool getIntersectionPoints();
 
     bool isCamMovingAtAll() const;
 
     int updateCameraView();
 
+    bool onFrameStarted();
+    bool onFrameEnded();
 
-    bool onFrameStarted   ();
-    bool onFrameEnded     ();
+    void moveCamera(const Ogre::Real frameTime);
+    const Ogre::Vector3 getCameraViewTarget();
+    void onMiniMapClick(Ogre ::Vector2 cc);
+    void flyTo(const Ogre::Vector3& destination);
 
+    void move(const Direction direction, double aux = 0.0);
 
-    void            moveCamera          (const Ogre::Real frameTime);
-    const Ogre::Vector3   getCameraViewTarget ();
-    void            onMiniMapClick(Ogre ::Vector2 cc);
-    void            flyTo               (const Ogre::Vector3& destination);
-
-    void        move        (const Direction direction, double aux = 0.0);
     inline void stopZooming () {
-        zChange = 0;
-	}
+        mZChange = 0;
+    }
 
+    void createCameraNode(const Ogre::String& ss, Ogre::Vector3 = Ogre::Vector3(0,0,0),
+                          Ogre::Degree = Ogre::Degree(0),
+                          Ogre::Degree = Ogre::Degree (0),
+                          Ogre::Degree = Ogre::Degree (0));
 
-	void createCameraNode(std::string ss, Ogre::Vector3 = Ogre::Vector3(0,0,0),Ogre::Degree = Ogre::Degree(0), Ogre::Degree = Ogre::Degree (0), Ogre::Degree = Ogre::Degree (0) );
     Ogre::SceneNode* getActiveCameraNode();
-    Ogre::SceneNode* setActiveCameraNode(std::string ss);
+    Ogre::SceneNode* setActiveCameraNode(const Ogre::String& ss);
 
-    void createCamera(std::string ss, double nearClip, double farClip);
-    void setActiveCamera(std::string ss);
+    void createCamera(const Ogre::String& ss, double nearClip, double farClip);
+    void setActiveCamera(const Ogre::String& ss);
 
     inline Ogre::Camera* getActiveCamera(){
         return  mActiveCamera ;
-	}
-    Ogre::Camera* getCamera(std::string ss);
+    }
+
+    Ogre::Camera* getCamera(const Ogre::String& ss);
 
     Ogre::Viewport* getViewport();
     void createViewport();
 
-    private:
-    bool switchedPM ;
-    std::string switchPolygonMode();
-    std::set<string> registeredCameraNames;
-    std::set<string> registeredCameraNodeNames;
+private:
+    bool mSwitchedPM;
+    std::set<Ogre::String> mRegisteredCameraNames;
+    std::set<Ogre::String> mRegisteredCameraNodeNames;
 
+    bool mCircleMode;
+    bool mCatmullSplineMode;
+    bool mFirstIter;
 
-    bool circleMode;
-    bool catmullSplineMode;
-    bool firstIter;
+    double mRadius;
+    int mCenterX;
+    int mCenterY;
+    double mAlpha;
 
-    double radious;
-    int centerX;
-    int centerY;
-    double alpha;
-
-    ModeManager* modeManager;
-    AbstractApplicationMode* gameMode;
-
-
-
-    void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
-
-    // we use the above variables for the methods below
-
-    int bashAndSplashTiles(int); // set the new tiles
-    CameraManager(const CameraManager&);
-
+    ModeManager* mModeManager;
+    AbstractApplicationMode* mGameMode;
 
     Ogre::Camera* mActiveCamera;
     Ogre::SceneNode* mActiveCameraNode;
 
-    GameMap* gameMap;
-    bool            cameraIsFlying;
-    Ogre::Real      moveSpeed;
-    Ogre::Real      moveSpeedAccel;
-    Ogre::Real      cameraFlightSpeed;
-    Ogre::Degree    rotateSpeed;
-    Ogre::Degree    swivelDegrees;
-    Ogre::Vector3   translateVector;
-    Ogre::Vector3   translateVectorAccel;
-    Ogre::Vector3   cameraFlightDestination;
+    GameMap* mGameMap;
+    bool            mCameraIsFlying;
+    Ogre::Real      mMoveSpeed;
+    Ogre::Real      mMoveSpeedAccel;
+    Ogre::Real      mCameraFlightSpeed;
+    Ogre::Degree    mRotateSpeed;
+    Ogre::Degree    mSwivelDegrees;
+    Ogre::Vector3   mTranslateVector;
+    Ogre::Vector3   mTranslateVectorAccel;
+    Ogre::Vector3   mCameraFlightDestination;
     Ogre::Vector3   mRotateLocalVector;
     Ogre::SceneManager* mSceneManager;
     Ogre::Viewport* mViewport;
-    double          zChange;
+    double          mZChange;
     float           mZoomSpeed;
+
+    std::string switchPolygonMode();
+    void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
+
+    int bashAndSplashTiles(int); // set the new tiles
+    CameraManager(const CameraManager&);
 };
 
 #endif /* CAMERAMANAGER_H_ */

@@ -120,14 +120,18 @@ void CullingManager::stopTileCulling(){
     cullTilesFlag = false;
 }
 
-void CullingManager::hideAllTiles(void){
+void CullingManager::hideAllTiles(void)
+{
+    GameMap* gm = cm->mGameMap;
+    if (!gm)
+        return;
 
-    for (int jj = 0; jj < cm->gameMap->getMapSizeY() ; ++jj)	{
-	for (int ii = 0; ii < cm->gameMap->getMapSizeX(); ++ii){
-
-	    cm->gameMap->getTile(ii,jj)->hide();
-
-	}
+    for (int jj = 0; jj < gm->getMapSizeY() ; ++jj)
+    {
+        for (int ii = 0; ii < gm->getMapSizeX(); ++ii)
+        {
+            gm->getTile(ii,jj)->hide();
+        }
     }
 }
 
@@ -274,13 +278,16 @@ int CullingManager::bashAndSplashTiles(int mode)
 
 	    bash   = (xx >=(int)xxLeftOld  && xx <=(int)xxRightOld && (yy >= (int)oldBottom.y) && yy <= (int)oldTop.y) ;
 
-	    // cerr<< " x" <<  xx  << " y" << yy << " " <<bash<<splash << endl;
-	      if(bash && splash && (mode & HIDE) && (mode & SHOW) ){}
-	      else if (bash && (mode & HIDE))	      cm->gameMap->getTile(xx>>precisionDigits,yy>>precisionDigits)->hide();
-	      else if (splash && (mode & SHOW))	      cm->gameMap->getTile(xx>>precisionDigits,yy>>precisionDigits)->show();
-
-
-
+        // cerr<< " x" <<  xx  << " y" << yy << " " <<bash<<splash << endl;
+        GameMap* gm = cm->mGameMap;
+        if(bash && splash && (mode & HIDE) && (mode & SHOW))
+        {
+            // Nothing
+        }
+        else if (gm && bash && (mode & HIDE))
+            gm->getTile(xx >> precisionDigits, yy >> precisionDigits)->hide();
+        else if (gm && splash && (mode & SHOW))
+            gm->getTile(xx >> precisionDigits, yy >> precisionDigits)->show();
 
 	    // if(xx >(int)xxRightOld) bashX=!bashX;
 	    // if(xx >(int)xxRight)splashX=!splashX;

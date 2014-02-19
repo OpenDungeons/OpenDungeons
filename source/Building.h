@@ -3,6 +3,21 @@
  * \date:  22 March 2011
  * \author StefanP.MUC
  * \brief  Provides common methods and members for buildable objects, like rooms and traps
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef BUILDING_H_
@@ -10,7 +25,6 @@
 
 #include "GameEntity.h"
 #include "Seat.h"
-
 
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
@@ -21,22 +35,25 @@
  */
 class Building : public GameEntity
 {
-    public:
-        //! \brief Default constructor with default values
-        Building() :
-            controllingSeat (0)
-        { }
+public:
+    //! \brief Default constructor with default values
+    Building() :
+        mControllingSeat(NULL)
+    {}
 
-        virtual ~Building(){}
+    virtual ~Building() {}
 
-        // ===== GETTERS =====
-        inline Seat*    getControllingSeat ()   const   { return controllingSeat; }
+    inline Seat* getControllingSeat() const
+    { return mControllingSeat; }
 
-        // ===== SETTERS =====
-        inline void setControllingSeat  (Seat* nCS) { controllingSeat = nCS; setColor(nCS->getColor()); }
-    private:
-        //! \brief The Seat controlling this building
-        Seat*                   controllingSeat;
+    inline void setControllingSeat(Seat* nCS) {
+        mControllingSeat = nCS;
+        setColor(nCS->getColor());
+    }
+
+private:
+    //! \brief The Seat controlling this building
+    Seat* mControllingSeat;
 };
 
 #endif /* BUILDING_H_ */

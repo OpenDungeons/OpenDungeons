@@ -47,14 +47,14 @@ bool TestAI::doTurn(double frameTime)
 
 void TestAI::lookForGold()
 {
-    const Tile* central = aiWrapper.getDungeonTemple()->getCentralTile();
-    std::vector<Tile*> tiles = aiWrapper.circularRegion(central->getX(), central->getY(), 30);
+    const Tile* central = mAiWrapper.getDungeonTemple()->getCentralTile();
+    std::vector<Tile*> tiles = mAiWrapper.circularRegion(central->getX(), central->getY(), 30);
     for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
     {
         Tile* tile = *it;
         if(tile->getType() == Tile::gold)
         {
-            aiWrapper.markTileForDigging(tile);
+            mAiWrapper.markTileForDigging(tile);
         }
     }
 }
