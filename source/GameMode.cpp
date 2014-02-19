@@ -236,11 +236,11 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         {
             if (mc->mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
             {
-                mc->frameListener->cm->move(CameraManager::moveDown);
+                mc->gameMap->getLocalPlayer()->rotateCreaturesInHand(1);
             }
             else
             {
-                mc->gameMap->getLocalPlayer()->rotateCreaturesInHand(1);
+                mc->frameListener->cm->move(CameraManager::moveDown);
             }
         }
         else
@@ -248,11 +248,11 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
             {
                 if (mc->mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
                 {
-                    mc->frameListener->cm->move(CameraManager::moveUp);
+                    mc->gameMap->getLocalPlayer()->rotateCreaturesInHand(-1);
                 }
                 else
                 {
-                    mc->gameMap->getLocalPlayer()->rotateCreaturesInHand(-1);
+                    mc->frameListener->cm->move(CameraManager::moveUp);
                 }
             }
             else
