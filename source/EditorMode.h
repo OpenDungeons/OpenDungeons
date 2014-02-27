@@ -29,8 +29,8 @@ private:
 
     virtual ~EditorMode();
 
-    inline virtual OIS::Mouse*      getMouse()         {return mc->mMouse;}
-    inline virtual OIS::Keyboard*   getKeyboard()      {return mc->mKeyboard;}
+    inline virtual OIS::Mouse*      getMouse()         {return mMc->mMouse;}
+    inline virtual OIS::Keyboard*   getKeyboard()      {return mMc->mKeyboard;}
 
 
 

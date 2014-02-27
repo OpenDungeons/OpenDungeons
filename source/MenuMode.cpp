@@ -57,6 +57,6 @@ bool MenuMode::isInGame(){
 
 void MenuMode::giveFocus(){
 
-    mc->mMouse->setEventCallback(this);
-    mc->mKeyboard->setEventCallback(this);
+    mMc->mMouse->setEventCallback(this);
+    mMc->mKeyboard->setEventCallback(this);
 }

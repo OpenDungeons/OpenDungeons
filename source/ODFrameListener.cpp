@@ -5,17 +5,9 @@
  * \brief  Handles the input and rendering request
  */
 
-#include <iostream>
-#include <algorithm>
-#include <cstdlib>
+#include "ODFrameListener.h"
 
-#include <CEGUI/WindowManager.h>
-#include <CEGUI/EventArgs.h>
-#include <CEGUI/Window.h>
-#include <CEGUI/Size.h>
-#include <CEGUI/System.h>
-#include <CEGUI/MouseCursor.h>
-
+#include "Console.h"
 #include "Socket.h"
 #include "Functions.h"
 #include "Creature.h"
@@ -54,12 +46,18 @@
 #include "Seat.h"
 #include "ASWrapper.h"
 
+#include <CEGUI/WindowManager.h>
+#include <CEGUI/EventArgs.h>
+#include <CEGUI/Window.h>
+#include <CEGUI/Size.h>
+#include <CEGUI/System.h>
+#include <CEGUI/MouseCursor.h>
 
-#include "ODFrameListener.h"
-#include "Console.h"
+#include <iostream>
+#include <algorithm>
+#include <cstdlib>
 
-template<> ODFrameListener*
-        Ogre::Singleton<ODFrameListener>::msSingleton = 0;
+template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf_is_banned_in_OD_code _snprintf
@@ -276,17 +274,17 @@ void ODFrameListener::exitApplication()
     queueServerNotification(exitServerNotification);
 
     ClientNotification* exitClientNotification = new ClientNotification();
-    exitClientNotification->type = ClientNotification::exit;
+    exitClientNotification->mType = ClientNotification::exit;
     //TODO: There should be a function to do this.
-    sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
+    sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
     //Empty the queue so we don't get any crashes here.
-    while(!ClientNotification::clientNotificationQueue.empty())
+    while(!ClientNotification::mClientNotificationQueue.empty())
     {
-        delete ClientNotification::clientNotificationQueue.front();
-        ClientNotification::clientNotificationQueue.pop_front();
+        delete ClientNotification::mClientNotificationQueue.front();
+        ClientNotification::mClientNotificationQueue.pop_front();
     }
-    ClientNotification::clientNotificationQueue.push_back(exitClientNotification);
-    sem_post(&ClientNotification::clientNotificationQueueLockSemaphore);
+    ClientNotification::mClientNotificationQueue.push_back(exitClientNotification);
+    sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
     //Wait for threads to exit
     //TODO: Add a timeout here.

@@ -37,11 +37,11 @@ class AbstractApplicationMode :
     public OIS::KeyListener
 {
 protected:
-    ModeContext* mc;
+    ModeContext* mMc;
 
 public:
     AbstractApplicationMode(ModeContext *modeContext):
-        mc(modeContext)
+        mMc(modeContext)
     {};
 
     virtual ~AbstractApplicationMode() {};
@@ -54,13 +54,13 @@ public:
     virtual void handleHotkeys  (OIS::KeyCode keycode) = 0;
 
     inline void progressMode (ModeManager::ModeType mm) {
-        mc->changed = true;
-        mc->nextMode = mm;
+        mMc->changed = true;
+        mMc->nextMode = mm;
     }
 
     inline void regressMode() {
-        mc->changed = true;
-        mc->nextMode = ModeManager::PREV;
+        mMc->changed = true;
+        mMc->nextMode = ModeManager::PREV;
     }
 
     virtual OIS::Mouse*      getMouse() = 0;

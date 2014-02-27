@@ -244,7 +244,7 @@ bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
     Ogre::Vector2 cc = ODFrameListener::getSingleton().getGameMap()->getMiniMap()->camera_2dPositionFromClick(ee.position.d_x,
                                                                                                               ee.position.d_y );
 
-    modeManager->mc->frameListener->cm->onMiniMapClick(cc);
+    modeManager->mMc->frameListener->cm->onMiniMapClick(cc);
     // ODFrameListener::getSingleton().getGameMap()->getMiniMap()->draw();
     // ODFrameListener::getSingleton().getGameMap()->getMiniMap()->swap();
 
@@ -315,37 +315,33 @@ bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::gold;
+    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::gold;
     return true;
 }
 
-
-
 bool Gui::tpLavaButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::lava;
+    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::lava;
     return true;
 }
 
 bool Gui::tpRockButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::rock;
+    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::rock;
     return true;
 }
 
 bool Gui::tpWaterButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::water;
+    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::water;
     return true;
 }
 
 bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->modesArray[2])->mCurrentTileType = Tile::dirt;
+    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::dirt;
     return true;
 }
-
-
 
 //! \brief What happens after a click on New Game in the main menu
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
@@ -359,8 +355,6 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 {
-
-
     // CEGUI::Window *myWin =   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
     Gui::getSingletonPtr()->loadGuiSheet(editorToolBox);
 

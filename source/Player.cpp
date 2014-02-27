@@ -124,15 +124,15 @@ void Player::pickUpCreature(Creature *c)
             {
                 // Send a message to the server telling it we picked up this creature
                 ClientNotification *clientNotification = new ClientNotification;
-                clientNotification->type = ClientNotification::creaturePickUp;
-                clientNotification->p = c;
-                clientNotification->p2 = this;
+                clientNotification->mType = ClientNotification::creaturePickUp;
+                clientNotification->mP = c;
+                clientNotification->mP2 = this;
 
-                sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
-                ClientNotification::clientNotificationQueue.push_back(clientNotification);
-                sem_post(&ClientNotification::clientNotificationQueueLockSemaphore);
+                sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
+                ClientNotification::mClientNotificationQueue.push_back(clientNotification);
+                sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
-                sem_post(&ClientNotification::clientNotificationQueueSemaphore);
+                sem_post(&ClientNotification::mClientNotificationQueueSemaphore);
             }
         }
         else // it is just a message indicating another player has picked up a creature
@@ -216,15 +216,15 @@ bool Player::dropCreature(Tile* t, unsigned int index)
                     {
                         // Send a message to the server telling it we dropped this creature
                         ClientNotification *clientNotification = new ClientNotification;
-                        clientNotification->type = ClientNotification::creatureDrop;
-                        clientNotification->p = this;
-                        clientNotification->p2 = t;
+                        clientNotification->mType = ClientNotification::creatureDrop;
+                        clientNotification->mP = this;
+                        clientNotification->mP2 = t;
 
-                        sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
-                        ClientNotification::clientNotificationQueue.push_back(clientNotification);
-                        sem_post(&ClientNotification::clientNotificationQueueLockSemaphore);
+                        sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
+                        ClientNotification::mClientNotificationQueue.push_back(clientNotification);
+                        sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
-                        sem_post(&ClientNotification::clientNotificationQueueSemaphore);
+                        sem_post(&ClientNotification::mClientNotificationQueueSemaphore);
                     }
                 }
             }

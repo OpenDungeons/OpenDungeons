@@ -3,6 +3,21 @@
  * \date:  04 July 2011
  * \author StefanP.MUC
  * \brief  Ingame console
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* TODO: do intense testing that everything works
@@ -22,12 +37,14 @@
 #include "ResourceManager.h"
 #include "Network.h"
 #include "CullingManager.h"
+
 #include <OgreSceneNode.h>
 #include <OgreEntity.h>
 
 using std::min;
 using std::max;
 using Ogre::Radian;
+
 bool Console::executePromptCommand(const std::string& command, std::string arguments)
 {
     std::stringstream tempSS;
@@ -130,7 +147,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         if (!arguments.empty())
         {
-            Ogre::Real tempR, tempG, tempB;
+            Ogre::Real tempR, tempG, tempB = 0.0;
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
             mSceneMgr->setAmbientLight(Ogre::ColourValue(tempR, tempG, tempB));
@@ -206,26 +223,19 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             {
                 if (ODFrameListener::getSingletonPtr()->gameMap->getTile(i, j) == NULL)
                 {
+                    stringstream ss;
 
-		stringstream ss;
+                    ss.str(std::string());
+                    ss << "Level";
+                    ss << "_";
+                    ss << i;
+                    ss << "_";
+                    ss << j;
 
-		ss.str(std::string());
-		ss << "Level";
-		ss << "_";
-		ss << i;
-		ss << "_";
-		ss << j;
-
-
-
-
-		Tile *t = new Tile(i, j, Tile::dirt, 100);
-
-
-
-		t->setName(ss.str());
-		ODFrameListener::getSingletonPtr()->gameMap->addTile(t);
-		t->createMesh();
+                    Tile *t = new Tile(i, j, Tile::dirt, 100);
+                    t->setName(ss.str());
+                    ODFrameListener::getSingletonPtr()->gameMap->addTile(t);
+                    t->createMesh();
                 }
             }
         }
@@ -264,14 +274,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (!arguments.empty())
         {
-			Ogre::Real tempDouble;
+            Ogre::Real tempDouble = 0.0;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            cm->setRotateSpeed(Ogre::Degree(tempDouble));
+            mCm->setRotateSpeed(Ogre::Degree(tempDouble));
             ODFrameListener::getSingletonPtr()->commandOutput += "\nrotatespeed set to "
                     + Ogre::StringConverter::toString(
                             static_cast<Ogre::Real>(
-                                    cm->getRotateSpeed().valueDegrees()))
+                                    mCm->getRotateSpeed().valueDegrees()))
                     + "\n";
         }
         else
@@ -279,7 +289,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent rotatespeed is "
                     + Ogre::StringConverter::toString(
                             static_cast<Ogre::Real>(
-                                    cm->getRotateSpeed().valueDegrees()))
+                                    mCm->getRotateSpeed().valueDegrees()))
                     + "\n";
         }
     }
@@ -322,7 +332,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 ODFrameListener::getSingletonPtr()->gameMap->setMaxAIThreads(tempInt);
                 ODFrameListener::getSingletonPtr()->commandOutput
                         += "\nMaximum number of creature AI threads set to "
-                                + Ogre::StringConverter::toString(
+                        + Ogre::StringConverter::toString(
                                         ODFrameListener::getSingletonPtr()->gameMap->getMaxAIThreads()) + "\n";
             }
             else
@@ -335,8 +345,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         {
             ODFrameListener::getSingletonPtr()->commandOutput
                     += "\nCurrent maximum number of creature AI threads is "
-		+ Ogre::StringConverter::toString(ODFrameListener::getSingletonPtr()->gameMap->getMaxAIThreads())
-                            + "\n";
+                    + Ogre::StringConverter::toString(ODFrameListener::getSingletonPtr()->gameMap->getMaxAIThreads())
+                    + "\n";
         }
     }
 
@@ -357,10 +367,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 try
                 {
                     // Inform any connected clients about the change
-                    ServerNotification *serverNotification =
-                            new ServerNotification;
-                    serverNotification->type
-                            = ServerNotification::setTurnsPerSecond;
+                    ServerNotification *serverNotification = new ServerNotification;
+                    serverNotification->type = ServerNotification::setTurnsPerSecond;
                     serverNotification->doub = ODApplication::turnsPerSecond;
 
                     queueServerNotification(serverNotification);
@@ -368,7 +376,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 catch (bad_alloc&)
                 {
                     Ogre::LogManager::getSingleton().logMessage("\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n", Ogre::LML_CRITICAL);
-                    ODFrameListener::getSingletonPtr()->requestExit();
                 }
             }
 
@@ -390,17 +397,17 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            cm->getActiveCamera()->setNearClipDistance(tempDouble);
+            mCm->getActiveCamera()->setNearClipDistance(tempDouble);
             ODFrameListener::getSingletonPtr()->commandOutput += "\nNear clip distance set to "
                     + Ogre::StringConverter::toString(
-                            cm->getActiveCamera()->getNearClipDistance())
+                            mCm->getActiveCamera()->getNearClipDistance())
                     + "\n";
         }
         else
         {
             ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent near clip distance is "
                     + Ogre::StringConverter::toString(
-                            cm->getActiveCamera()->getNearClipDistance())
+                            mCm->getActiveCamera()->getNearClipDistance())
                     + "\n";
         }
     }
@@ -413,16 +420,16 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            cm->getActiveCamera()->setFarClipDistance(tempDouble);
+            mCm->getActiveCamera()->setFarClipDistance(tempDouble);
             ODFrameListener::getSingletonPtr()->commandOutput += "\nFar clip distance set to "
                     + Ogre::StringConverter::toString(
-                            cm->getActiveCamera()->getFarClipDistance()) + "\n";
+                            mCm->getActiveCamera()->getFarClipDistance()) + "\n";
         }
         else
         {
             ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent far clip distance is "
                     + Ogre::StringConverter::toString(
-                            cm->getActiveCamera()->getFarClipDistance()) + "\n";
+                            mCm->getActiveCamera()->getFarClipDistance()) + "\n";
         }
     }
 
@@ -846,7 +853,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             ODFrameListener::getSingletonPtr()->commandOutput
                     += "\nYou must set a nick with the \"nick\" command before you can host a server.\n";
         }
-
     }
 
     // Send help command information to all players
@@ -854,7 +860,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (ODFrameListener::getSingletonPtr()->isInGame())
         {
-
             if (!arguments.empty())
             {
                 // call getHelpText()
@@ -871,13 +876,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     executePromptCommand("chat", "\n" + tempString);
                 }
             }
-
             else
             {
                 tempSS << "No command argument specified. See 'help' for a list of arguments.\n";
             }
         }
-
         else
         {
             tempSS << "Please host or connect to a game before running chathelp.\n";
@@ -908,7 +911,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             }
 
             // Display the chat message in our own message queue
-            chatMessages.push_back(new ChatMessage(ODFrameListener::getSingletonPtr()->gameMap->me->getNick(), arguments,
+            mChatMessages.push_back(new ChatMessage(ODFrameListener::getSingletonPtr()->gameMap->me->getNick(), arguments,
                     time(NULL), time(NULL)));
         }
         else
@@ -1012,192 +1015,154 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
 
 
-    else if (command.compare("bspline") == 0){
-	if(!arguments.empty()){
+    else if (command.compare("bspline") == 0)
+    {
+        if(!arguments.empty())
+        {
 
-	    int NN;
-
+            int NN;
             tempSS.str(arguments);
-	    tempSS >> NN;
-	    for ( int ii = 0 ; ii < NN ; ii++){
-		tempSS>>NN;
+            tempSS >> NN;
+            for ( int ii = 0 ; ii < NN ; ++ii)
+            {
+                tempSS>>NN;
+            }
 
-
-		}
-
-	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
+            // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
             // cm->setCircleCenter(centerX, centerY);
             // cm->setCircleRadious(radious);
             // cm->setCircleMode(true);
 
-
-
         }
-	else{
-
+        else {
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify:  N - number of control points  and n pairs of  control points for bsplines ";
             ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
-
-	    }
-
+        }
     }
 
 
     else if (command.compare("catmullspline") == 0){
-	if(!arguments.empty()){
+        if(!arguments.empty()){
 
+            int nn = 0;
 
-	    int nn;
-
-	    int tempInt1;
-	    int tempInt2;
+            int tempInt1 = 0;
+            int tempInt2 = 0;
 
             tempSS.str(arguments);
-	    tempSS >> nn;
-	    cm->xHCS.resetNodes(nn);
-	    cm->yHCS.resetNodes(nn);
-	    for (int ii = 0 ; ii < nn ; ii++){
+            tempSS >> nn;
+            mCm->xHCS.resetNodes(nn);
+            mCm->yHCS.resetNodes(nn);
 
-		tempSS>>tempInt1;
-		tempSS>>tempInt2;
+            for (int ii = 0 ; ii < nn ; ++ii)
+            {
+                tempSS>>tempInt1;
+                tempSS>>tempInt2;
 
-		cerr << "tempInt1 " <<  tempInt1 << endl;
-		cerr << "tempInt2 " <<  tempInt2 << endl;
-		cm->xHCS.addNode(tempInt1);
-		cm->yHCS.addNode(tempInt2);
+                //cerr << "tempInt1 " <<  tempInt1 << endl;
+                //cerr << "tempInt2 " <<  tempInt2 << endl;
+                mCm->xHCS.addNode(tempInt1);
+                mCm->yHCS.addNode(tempInt2);
+            }
 
+            // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
 
-		}
+            mCm->setCatmullSplineMode(true);
 
-	    // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-
-            cm->setCatmullSplineMode(true);
-
-	    cerr << "catmullspline loaded from cmd line " << endl;
-
+            //cerr << "catmullspline loaded from cmd line " << endl;
         }
-	else{
+        else
+        {
 
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
             ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
-
-	    }
-
-    }
-
-
-    else if (command.compare("setcamerafovx") == 0){
-	if(!arguments.empty()){
-
-
-	    double tmp;
-            tempSS.str(arguments);
-	    tempSS >> tmp;
-	    Radian radianAngle(tmp);
-
-
-	    // cm->mCamera->setFOVx(radianAngle);
-	    // // TODO check the for the maximal and minimal value of setFoVy
         }
-	else{
+    }
+    else if (command.compare("setcamerafovx") == 0){
+        if(!arguments.empty())
+        {
+            double tmp;
+            tempSS.str(arguments);
+            tempSS >> tmp;
+            Radian radianAngle(tmp);
+
+            // mCm->mCamera->setFOVx(radianAngle);
+            // TODO check the for the maximal and minimal value of setFoVy
+        }
+        else
+        {
 
             tempSS.str("");
             tempSS  << "ERROR:  No such commend in Ogre, try setcamerafovy and camera aspect ratio ";
             ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
-
-	    }
-	}
-
-    else if (command.compare("setcamerafovy") == 0){
-	if(!arguments.empty()){
-
-
-	    double tmp;
-            tempSS.str(arguments);
-	    tempSS >> tmp;
-	    Radian radianAngle(tmp);
-
-
-	    cm->mActiveCamera->setFOVy(radianAngle);
-	    // TODO check the for the maximal and minimal value of setFoVy
         }
-	else{
+    }
+    else if (command.compare("setcamerafovy") == 0)
+    {
+        if(!arguments.empty()){
 
+            double tmp;
+            tempSS.str(arguments);
+            tempSS >> tmp;
+            Radian radianAngle(tmp);
+
+            mCm->mActiveCamera->setFOVy(radianAngle);
+            // TODO check the for the maximal and minimal value of setFoVy
+        }
+        else
+        {
             tempSS.str("");
             tempSS  << "ERROR:  you need to specify an angle in radians ";
             ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
-
-	    }
-	}
-
-    else if (command.compare("possescreature") == 0){
-
-            tempSS.str("");
-            tempSS  << "Click creature you want to posses ";
-            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
-	    modeManager->mc->expectCreatureClick = true;
-
-
-	}
-
-
-
-
-    else if (command.compare("circlearound") == 0){
-    if(!arguments.empty())
-    {
-        double centerX;
-        double centerY;
-        double radius;
-
-        tempSS.str(arguments);
-        tempSS >> centerX >> centerY >> radius;
-        // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-        cm->setCircleCenter(centerX, centerY);
-        cm->setCircleRadius(radius);
-        cm->setCircleMode(true);
-
         }
-	else{
+    }
+    else if (command.compare("possescreature") == 0)
+    {
+        tempSS.str("");
+        tempSS  << "Click creature you want to posses ";
+        ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+        mModeManager->mMc->expectCreatureClick = true;
+    }
+    else if (command.compare("circlearound") == 0){
+        if(!arguments.empty())
+        {
+            double centerX;
+            double centerY;
+            double radius;
 
+            tempSS.str(arguments);
+            tempSS >> centerX >> centerY >> radius;
+            // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
+            mCm->setCircleCenter(centerX, centerY);
+            mCm->setCircleRadius(radius);
+            mCm->setCircleMode(true);
+        }
+        else
+        {
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
             ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
-
-	    }
-
+        }
     }
-
-
-    else if (command.compare("switchpolygonmode") == 0){
-
-	    cm->switchPM();
-
+    else if (command.compare("switchpolygonmode") == 0)
+    {
+        mCm->switchPM();
     }
-
-    else if (command.compare("starttileculling") == 0){
-
+    else if (command.compare("starttileculling") == 0)
+    {
             ODFrameListener::getSingletonPtr()->gameMap->culm->startTileCulling();
-
     }
-
-    else if (command.compare("startcreatureculling") == 0){
-
+    else if (command.compare("startcreatureculling") == 0)
+    {
             ODFrameListener::getSingletonPtr()->gameMap->culm->startCreatureCulling();
-
     }
-
-
-    else if (command.compare("triggercompositor") == 0){
-            tempSS.str(arguments);
-	    RenderManager::getSingletonPtr()->triggerCompositor(tempSS.str());
-
-	}
-
-
-
+    else if (command.compare("triggercompositor") == 0)
+    {
+        tempSS.str(arguments);
+        RenderManager::getSingletonPtr()->triggerCompositor(tempSS.str());
+    }
     else if (command.compare("disconnect") == 0)
     {
         ODFrameListener::getSingletonPtr()->commandOutput += (Socket::serverSocket != NULL)
@@ -1206,9 +1171,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 ? "\nDisconnecting from server.\n"
                 : "\nYou are not connected to a server and you are not hosting a server.";
     }
-
-    // Load the next level.
-    else if (command.compare("next") == 0)
+    else if (command.compare("next") == 0) // Load the next level.
     {
         if (ODFrameListener::getSingletonPtr()->gameMap->seatIsAWinner(ODFrameListener::getSingletonPtr()->gameMap->me->getSeat()))
         {
@@ -1221,7 +1184,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             ODFrameListener::getSingletonPtr()->commandOutput += "\nYou have not completed this level yet.\n";
         }
     }
-
     else
     {
         //try AngelScript interpreter
@@ -1232,7 +1194,5 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
     Console::getSingleton().print(ODFrameListener::getSingletonPtr()->commandOutput);
 
-
     return true;
 }
-

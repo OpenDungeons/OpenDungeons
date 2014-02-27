@@ -3,6 +3,21 @@
  * \date:  04 July 2011
  * \author StefanP.MUC
  * \brief  Ingame console
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* TODO: do intense testing that everything works
@@ -17,8 +32,7 @@
  *  specified in by the user.
  */
 
-
-/*! \brief A helper function to return a help text string for a given termianl command.
+/*! \brief A helper function to return a help text string for a given terminal command.
  *
  */
 string Console::getHelpText(std::string arg)
@@ -28,28 +42,28 @@ string Console::getHelpText(std::string arg)
     if (arg.compare("save") == 0)
     {
         return "Save the current level to a file.  The file name is given as an argument to the save command, if no file name is given the last file loaded is overwritten by the save command.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "save Test\n\nThe above command will save the level to levels/Test.level.  The Test level is loaded automatically when OpenDungeons starts.";
     }
 
     else if (arg.compare("load") == 0)
     {
         return "Load a level from a file.  The new level replaces the current level.  The levels are stored in the levels directory and have a .level extension on the end.  Both the directory and the .level extension are automatically applied for you, if no file name is given the last file loaded is reloaded.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "load Level1\n\nThe above command will load the file Level1.level from the levels directory.";
     }
 
     else if (arg.compare("addclass") == 0)
     {
         return "Add a new class decription to the current map.  Because it is common to load many creatures of the same type creatures are given a class which stores their common information such as the mesh to load, scaling, etc.  Addclass defines a new class of creature, allowing creatures of this class to be loaded in the future.  The argument to addclass is interpreted in the same was as a class description line in the .level file format.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "addclass Skeleton Skeleton.mesh 0.01 0.01 0.01\n\nThe above command defines the class \"Skeleton\" which uses the mesh file \"Skeleton.mesh\" and has a scale factor of 0.01 in the X, Y, and Z dimensions.";
     }
 
     else if (arg.compare("addcreature") == 0)
     {
         return "Add a new creature to the current map.  The creature class to be used must be loaded first, either from the loaded map file or by using the addclass command.  Once a class has been declared a creature can be loaded using that class.  The argument to the addcreature command is interpreted in the same way as a creature line in a .level file.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "addcreature Skeleton Bob 10 15 0\n\nThe above command adds a creature of class \"Skeleton\" whose name is \"Bob\" at location X=10, y=15, and Z=0.  The new creature's name must be unique to the creatures in that level.  Alternatively the name can be se to \"autoname\" to have OpenDungeons assign a unique name.";
     }
 
@@ -61,21 +75,21 @@ string Console::getHelpText(std::string arg)
     else if (arg.compare("termwidth") == 0)
     {
         return "The termwidth program sets the maximum number of characters that can be displayed on the terminal without word wrapping taking place.  When run with no arguments, termwidth displays a ruler across the top of you terminal indicating the terminal's current width.  When run with an argument, termwidth sets the terminal width to a new value specified in the argument.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "termwidth 80\n\nThe above command sets the terminal width to 80.";
     }
 
     else if (arg.compare("addtiles") == 0)
     {
         return "The addtiles command adds a rectangular region of tiles to the map.  The tiles are initialized to a fullness of 100 and have their type set to dirt.  The region to be added is given as two pairs of X-Y coordinates.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "addtiles -10 -5 34 20\n\nThe above command adds the tiles in the given region to the map.  Tiles which overlap already existing tiles will be ignored.";
     }
 
     else if (arg.compare("newmap") == 0)
     {
         return "Replaces the existing map with a new rectangular map.  The X and Y dimensions of the new map are given as arguments to the newmap command.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "newmap 10 20\n\nThe above command creates a new map 10 tiles by 20 tiles.  The new map will be filled with dirt tiles with a fullness of 100.";
     }
 
@@ -87,21 +101,21 @@ string Console::getHelpText(std::string arg)
     else if (arg.compare("movespeed") == 0)
     {
         return "The movespeed command sets how fast the camera moves at.  When run with no argument movespeed simply prints out the current camera move speed.  With an argument movespeed sets the camera move speed.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "movespeed 3.7\n\nThe above command sets the camera move speed to 3.7.";
     }
 
     else if (arg.compare("rotatespeed") == 0)
     {
         return "The rotatespeed command sets how fast the camera rotates.  When run with no argument rotatespeed simply prints out the current camera rotation speed.  With an argument rotatespeed sets the camera rotation speed.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "rotatespeed 35\n\nThe above command sets the camera rotation speed to 35.";
     }
 
     else if (arg.compare("ambientlight") == 0)
     {
         return "The ambientlight command sets the minumum light that every object in the scene is illuminated with.  It takes as it's argument and RGB triplet whose values for red, green, and blue range from 0.0 to 1.0.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "ambientlight 0.4 0.6 0.5\n\nThe above command sets the ambient light color to red=0.4, green=0.6, and blue = 0.5.";
     }
 
@@ -125,21 +139,21 @@ string Console::getHelpText(std::string arg)
     else if (arg.compare("list") == 0 || arg.compare("ls") == 0)
     {
         return "List (or \"ls\" for short is a utility which lists various types of information about the current game.  Running list without an argument will produce a list of the lists available.  Running list with an argument displays the contents of that list.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "list creatures\n\nThe above command will produce a list of all the creatures currently in the game.";
     }
 
     else if (arg.compare("visdebug") == 0)
     {
         return "Visual debugging is a way to see a given creature\'s AI state.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "visdebug skeletor\n\nThe above command wil turn on visual debugging for the creature named \'skeletor\'.  The same command will turn it back off again.";
     }
 
     else if (arg.compare("turnspersecond") == 0 || arg.compare("tps") == 0)
     {
         return "turnspersecond (or \"tps\" for short is a utility which displays or sets the speed at which the game is running.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "tps 5\n\nThe above command will set the current game speed to 5 turns per second.";
     }
 
@@ -151,7 +165,7 @@ string Console::getHelpText(std::string arg)
     else if (arg.compare("framespersecond") == 0 || arg.compare("fps") == 0)
     {
         return "framespersecond (or \"fps\" for short is a utility which displays or sets the maximum framerate at which the rendering will attempt to update the screen.\n\nExample:\n"
-                + prompt
+                + mPrompt
                 + "fps 35\n\nThe above command will set the current maximum framerate to 35 turns per second.";
     }
 

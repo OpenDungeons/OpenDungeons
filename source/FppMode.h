@@ -17,8 +17,8 @@ class  FppMode: public AbstractApplicationMode  {
 
     virtual ~FppMode();
 
-    inline virtual OIS::Mouse*      getMouse()         {return mc->mMouse;}
-    inline virtual OIS::Keyboard*   getKeyboard()      {return mc->mKeyboard;}
+    inline virtual OIS::Mouse*      getMouse()         {return mMc->mMouse;}
+    inline virtual OIS::Keyboard*   getKeyboard()      {return mMc->mKeyboard;}
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);

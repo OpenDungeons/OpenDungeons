@@ -18,24 +18,24 @@ FppMode::~FppMode(){
 bool FppMode::mouseMoved(const OIS::MouseEvent &arg) {
     // CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
     // if (arg.state.X.abs == 0)
-    // 	mc->frameListener->cm->move(CameraManager::moveLeft);
+    // 	mMc->frameListener->cm->move(CameraManager::moveLeft);
     // else
-    // 	mc->frameListener->cm->move(CameraManager::stopLeft);
+    // 	mMc->frameListener->cm->move(CameraManager::stopLeft);
 
     // if (arg.state.X.abs ==  arg.state.width)
-    // 	mc->frameListener->cm->move(CameraManager::moveRight);
+    // 	mMc->frameListener->cm->move(CameraManager::moveRight);
     // else
-    // 	mc->frameListener->cm->move(CameraManager::stopRight);
+    // 	mMc->frameListener->cm->move(CameraManager::stopRight);
 
     // if (arg.state.Y.abs == 0)
-    // 	mc->frameListener->cm->move(CameraManager::moveForward);
+    // 	mMc->frameListener->cm->move(CameraManager::moveForward);
     // else
-    // 	mc->frameListener->cm->move(CameraManager::stopForward);
+    // 	mMc->frameListener->cm->move(CameraManager::stopForward);
 
     // if (arg.state.Y.abs ==  arg.state.height)
-    // 	mc->frameListener->cm->move(CameraManager::moveBackward);
+    // 	mMc->frameListener->cm->move(CameraManager::moveBackward);
     // else
-    // 	mc->frameListener->cm->move(CameraManager::stopBackward);
+    // 	mMc->frameListener->cm->move(CameraManager::stopBackward);
     return true;
 }
 
@@ -81,6 +81,6 @@ bool FppMode::isInGame(){
 
 void FppMode::giveFocus(){
 
-    mc->mMouse->setEventCallback(this);
-    mc->mKeyboard->setEventCallback(this);
+    mMc->mMouse->setEventCallback(this);
+    mMc->mKeyboard->setEventCallback(this);
 }

@@ -3,6 +3,21 @@
  * \date:  04 July 2011
  * \author StefanP.MUC
  * \brief  Ingame console
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /* TODO: do intense testing that everything works
@@ -10,8 +25,6 @@
  */
 
 #include "Console.h"
-
-#include <Overlay/OgreOverlayManager.h>
 
 #include "ASWrapper.h"
 
@@ -23,66 +36,66 @@
 
 #include "ModeManager.h"
 
+#include <Overlay/OgreOverlayManager.h>
+
 template<> Console* Ogre::Singleton<Console>::msSingleton = 0;
 
 Console::Console() :
-        cm                  (NULL),
-        //these two define how much text goes into the console
-        consoleLineLength   (100),
-        consoleLineCount    (14),
-        blinkSpeed          (0.5),
-        timeSinceLastBlink  (0.0),
-        visible             (false),
-        updateOverlay       (true),
-        allowTrivial        (false),
-        allowNormal         (false),
-        allowCritical       (true),
-        chatMode            (false),
-        cursorVisible       (true),
-        startLine           (0),
-        cursorChar          ("_"),
-        curHistPos          (0)
+    mModeManager(NULL),
+    mCm(NULL),
+    mOdf(NULL),
+    //these two define how much text goes into the console
+    mConsoleLineLength(100),
+    mConsoleLineCount(14),
+    mBlinkSpeed(0.5),
+    mTimeSinceLastBlink(0.0),
+    mVisible(false),
+    mUpdateOverlay(true),
+    mAllowTrivial(false),
+    mAllowNormal(false),
+    mAllowCritical(true),
+    mChatMode(false),
+    mCursorVisible(true),
+    mPanel(NULL),
+    mTextbox(NULL),
+    mOverlay(NULL),
+    mStartLine(0),
+    mCursorChar("_"),
+    mCurHistPos(0)
 {
     LogManager::getSingleton().logMessage("*** Initiliasing Console ***");
     ODApplication::getSingleton().getRoot()->addFrameListener(this);
     Ogre::OverlayManager& olMgr = Ogre::OverlayManager::getSingleton();
 
     // Create a panel
-    panel = static_cast<Ogre::OverlayContainer*>(
+    mPanel = static_cast<Ogre::OverlayContainer*>(
             olMgr.createOverlayElement("Panel", "ConsolePanel"));
-    panel->setPosition(0, 0.7);
-    panel->setDimensions(1, 0.3);
-    panel->setMaterialName("console/background");
+    mPanel->setPosition(0, 0.7);
+    mPanel->setDimensions(1, 0.3);
+    mPanel->setMaterialName("console/background");
 
     // Create a text area
-    textbox = olMgr.createOverlayElement("TextArea", "ConsoleText");
-    textbox->setPosition(0, 0);
-    textbox->setParameter("font_name", "FreeMono");
-    textbox->setParameter("char_height", "0.02");
+    mTextbox = olMgr.createOverlayElement("TextArea", "ConsoleText");
+    mTextbox->setPosition(0, 0);
+    mTextbox->setParameter("font_name", "FreeMono");
+    mTextbox->setParameter("char_height", "0.02");
 
     // Create an overlay, and add the panel
-    overlay = olMgr.create("Console");
-    overlay->add2D(panel);
+    mOverlay = olMgr.create("Console");
+    mOverlay->add2D(mPanel);
 
     // Add the text area to the panel
-    panel->addChild(textbox);
+    mPanel->addChild(mTextbox);
 
     LogManager::getSingleton().getLog().addListener(this);
 }
 
 Console::~Console()
 {
-    delete panel;
-    delete textbox;
-    delete overlay;
+    delete mPanel;
+    delete mTextbox;
+    delete mOverlay;
 }
-
-
-/*! \brief Check if we are in editor mode
- *
- */
-
-
 
 /*! \brief Defines the action on starting the current frame
  *
@@ -91,39 +104,39 @@ Console::~Console()
  */
 bool Console::frameStarted(const Ogre::FrameEvent& evt)
 {
-    if(visible)
+    if(mVisible)
     {
-        timeSinceLastBlink += evt.timeSinceLastFrame;
+        mTimeSinceLastBlink += evt.timeSinceLastFrame;
 
-        if(timeSinceLastBlink >= blinkSpeed)
+        if(mTimeSinceLastBlink >= mBlinkSpeed)
         {
-            timeSinceLastBlink -= blinkSpeed;
-            cursorVisible = !cursorVisible;
-            updateOverlay = true;
+            mTimeSinceLastBlink -= mBlinkSpeed;
+            mCursorVisible = !mCursorVisible;
+            mUpdateOverlay = true;
         }
     }
 
-    if(updateOverlay)
+    if(mUpdateOverlay)
     {
         Ogre::String text;
-        std::list<Ogre::String>::iterator i, start, end;
+        std::list<Ogre::String>::iterator it, start, end;
 
         //make sure is in range
-        if(startLine > lines.size())
+        if(mStartLine > mLines.size())
         {
-            startLine = lines.size();
+            mStartLine = mLines.size();
         }
 
-        start = lines.begin();
-        for (unsigned int c = 0; c < startLine; ++c)
+        start = mLines.begin();
+        for (unsigned int c = 0; c < mStartLine; ++c)
         {
             ++start;
         }
 
         end = start;
-        for (unsigned int c = 0; c < consoleLineCount; ++c)
+        for (unsigned int c = 0; c < mConsoleLineCount; ++c)
         {
-            if (end == lines.end())
+            if (end == mLines.end())
             {
                 break;
             }
@@ -131,21 +144,21 @@ bool Console::frameStarted(const Ogre::FrameEvent& evt)
         }
 
         unsigned int counter = 0;
-        for (i = start; i != end; ++i)
+        for (it = start; it != end; ++it)
         {
-            text += (*i) + "\n";
+            text += (*it) + "\n";
             ++counter;
         }
 
-        for(; counter < consoleLineCount; ++counter)
+        for(; counter < mConsoleLineCount; ++counter)
         {
             text += "\n";
         }
         //add the prompt
-        text += ">>> " + prompt + (cursorVisible ? cursorChar : "");
+        text += ">>> " + mPrompt + (mCursorVisible ? mCursorChar : "");
 
-        textbox->setCaption(text);
-        updateOverlay = false;
+        mTextbox->setCaption(text);
+        mUpdateOverlay = false;
     }
 
     return true;
@@ -169,13 +182,13 @@ bool Console::frameEnded(const Ogre::FrameEvent& evt)
 void Console::print(const Ogre::String& text)
 {
     std::vector<Ogre::String> newLines = split(text, '\n');
-    lines.insert(lines.end(), newLines.begin(), newLines.end());
+    mLines.insert(mLines.end(), newLines.begin(), newLines.end());
 
-    startLine = (lines.size() > consoleLineCount)
-                            ? lines.size() - consoleLineCount
+    mStartLine = (mLines.size() > mConsoleLineCount)
+                            ? mLines.size() - mConsoleLineCount
                             : 0;
 
-    updateOverlay = true;
+    mUpdateOverlay = true;
 }
 
 /*! \brief show or hide the console manually
@@ -183,8 +196,8 @@ void Console::print(const Ogre::String& text)
  */
 void Console::setVisible(const bool newState)
 {
-    visible = newState;
-    Gui::getSingleton().setVisible(!visible);
+    mVisible = newState;
+    Gui::getSingleton().setVisible(!mVisible);
     checkVisibility();
 }
 
@@ -193,8 +206,8 @@ void Console::setVisible(const bool newState)
  */
 void Console::toggleVisibility()
 {
-    visible = !visible;
-    Gui::getSingleton().setVisible(!visible);
+    mVisible = !mVisible;
+    Gui::getSingleton().setVisible(!mVisible);
     checkVisibility();
 }
 
@@ -203,13 +216,13 @@ void Console::toggleVisibility()
  */
 void Console::checkVisibility()
 {
-    if(visible)
+    if(mVisible)
     {
-        overlay->show();
+        mOverlay->show();
     }
     else
     {
-        overlay->hide();
+        mOverlay->hide();
     }
 }
 
@@ -240,23 +253,29 @@ std::vector<Ogre::String> Console::split(const Ogre::String& str, const char spl
  * We only allow critical messages to the console. Non-critical messages would
  * pollute the console window and make it hardly readable.
  */
-void Console::messageLogged(const Ogre::String & message, Ogre::LogMessageLevel lml, bool maskDebug, const Ogre::String & logName, bool& skipThisMessage)
+void Console::messageLogged(const Ogre::String& message, Ogre::LogMessageLevel lml,
+                            bool maskDebug, const Ogre::String& logName, bool& skipThisMessage)
 {
-	// if skipThisMessage is true then just return, skipping the rest of the implementation
-	if(skipThisMessage) return;
+    // if skipThisMessage is true then just return, skipping the rest of the implementation
+    if(skipThisMessage)
+        return;
+
     //test if the logLevel is allowed, if not then return
     switch(lml)
     {
         case Ogre::LML_CRITICAL:
-            if(!allowCritical){return;}
+            if(!mAllowCritical)
+                return;
             break;
 
         case Ogre::LML_TRIVIAL:
-            if(!allowTrivial){return;}
+            if(!mAllowTrivial)
+                return;
             break;
 
         case Ogre::LML_NORMAL:
-            if(!allowNormal){return;}
+            if(!mAllowNormal)
+                return;
             break;
 
         default:
@@ -276,28 +295,28 @@ void Console::scrollHistory(const bool direction)
     if(direction)
     {
         //don't go unter 0, it's an unsigned int and the minimum index!
-        if(curHistPos == 0)
+        if(mCurHistPos == 0)
         {
             return;
         }
         else
         {
-            --curHistPos;
+            --mCurHistPos;
         }
     }
     else
     {
         //don't go over maximum index and clear the prompt when trying.
-        if(++curHistPos >= history.size())
+        if(++mCurHistPos >= mHistory.size())
         {
-            curHistPos = history.size();
-            prompt = "";
+            mCurHistPos = mHistory.size();
+            mPrompt = "";
             return;
         }
 
     }
 
-    prompt = history[curHistPos];
+    mPrompt = mHistory[mCurHistPos];
 }
 
 /*! \brief Scrolls through the text output in the console
@@ -308,20 +327,16 @@ void Console::scrollText(const bool direction)
 {
     if(direction)
     {
-        if(startLine > 0)
+        if(mStartLine > 0)
         {
-            --startLine;
+            --mStartLine;
         }
     }
     else
     {
-        if(startLine < lines.size() && lines.size() - startLine > consoleLineCount)
+        if(mStartLine < mLines.size() && mLines.size() - mStartLine > mConsoleLineCount)
         {
-            ++startLine;
+            ++mStartLine;
         }
     }
 }
-
-
-
-

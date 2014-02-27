@@ -48,13 +48,13 @@ ODApplication::ODApplication() :
     sem_init(&MapLight::lightNumberLockSemaphore, 0, 1);
     sem_init(&MissileObject::missileObjectUniqueNumberLockSemaphore, 0, 1);
     sem_init(&ServerNotification::serverNotificationQueueSemaphore, 0, 0);
-    sem_init(&ClientNotification::clientNotificationQueueSemaphore, 0, 0);
+    sem_init(&ClientNotification::mClientNotificationQueueSemaphore, 0, 0);
     sem_init(&ServerNotification::serverNotificationQueueLockSemaphore, 0, 1);
-    sem_init(&ClientNotification::clientNotificationQueueLockSemaphore, 0, 1);
+    sem_init(&ClientNotification::mClientNotificationQueueLockSemaphore, 0, 1);
     sem_init(&GameMap::creatureAISemaphore, 0, 1);
 
     Random::initialize();
-    
+
     ResourceManager* resMgr = new ResourceManager;
     root = new Ogre::Root(
         resMgr->getPluginsPath(),
@@ -123,7 +123,7 @@ ODApplication::ODApplication() :
         renderMgr->createScene();
         logManager->logMessage("Creating compositors...", Ogre::LML_NORMAL);
 	renderMgr->createCompositors();
-      
+
     }
     catch(Ogre::Exception& e)
     {
@@ -155,7 +155,7 @@ ODApplication::ODApplication() :
     // new MiniMap;
 
 	root->startRendering();
-    
+
     //sm->removeRenderQueueListener(mOverlaySystem);
 
     //Moved out from cleanup, as we only want to remove it if it exists.

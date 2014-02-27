@@ -1,17 +1,17 @@
 /**
  * \file    check.cpp
- * 
+ *
  * \brief Demo Check PrefixGraph.
- * 
+ *
  * Probably you want to run script test.sh which do all the tests.
- * 
+ *
  * Program checks if PrefixGraph contains a list of words.
- * 
+ *
  * Run this program with the name of PrefixGraph file as the first argument and the name of file with a list of words as the second.\n
  * First you should create PrefixGraph file by using program convert from this directory
  */
 
-
+//TODO: Can we remove this file now?
 #include "string.h"
 #include <iostream>
 #include "PrefixTreeLL.h"
@@ -22,15 +22,15 @@ using namespace std;
 template <class Dict>
 int check(Dict *dt, const char* filename) {
   int errors = 0;
-	
+
   long size ;
-	
+
   char *buffer = loadFile(filename, size);
 
   char *word = buffer;
-	
+
   for(long i=0; i<size; i++) if(word[i] == '\n' ) word[i] = '\0';
-	
+
   long words_num=0;
   while( word < buffer+size ) {
     words_num++;
@@ -39,9 +39,9 @@ int check(Dict *dt, const char* filename) {
     }
     word += strlen(word)+1;
   }
-	
+
   cout<<words_num<<" words checked\n";
-	
+
 
   return errors;
 }
@@ -55,13 +55,13 @@ int check(Dict *dt, const char* filename) {
 // 			dt->build(argv[1]);
 // 			cout<<"checking..\n";
 // 			int errors = check(dt, argv[2]);
-			
+
 // 			if(errors) {
 // 				cout<<"error: "<<errors<<" words not found\n";
 // 				return 1;
 // 			}
 // 			else cout<<"ok"<<endl;
-		
+
 // 			delete dt;
 // 		}
 // 		catch (exception &e) {
@@ -80,16 +80,16 @@ int check(Dict *dt, const char* filename) {
 // 		cout<<" give a name of file with a list of words as a second argument\n";
 // 		cout<<"  every word has to be ended by \\n\n";
 // 	}
-	
+
 // 	return 0;
 // }
 
 
 
-
+/*
 int main(int argc, char** argv)
 {
-  list<string> ll ; 
+  list<string> ll ;
   string prefixString;
   try {
     PrefixTreeLL* dt = new PrefixTreeLL;
@@ -106,12 +106,12 @@ int main(int argc, char** argv)
       cout<<"Those prefix were found " << endl;
       cin >> prefixString;
 
-			
+
     }
-    delete dt;			
+    delete dt;
   }
 
-		
+
 
 catch (exception &e) {
   cout<<"exception: "<<e.what()<<endl;
@@ -126,6 +126,6 @@ catch (exception &e) {
 return 0;
 }
 
+*/
 
 
-         

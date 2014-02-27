@@ -1,4 +1,19 @@
-#include <string>
+/*!
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "Socket.h"
 #include "ODFrameListener.h"
@@ -13,6 +28,9 @@
 #include "ProtectedObject.h"
 #include "Weapon.h"
 #include "ODApplication.h"
+#include "LogManager.h"
+
+#include <string>
 
 /*! \brief A thread function which runs on the client to handle communications with the server.
  *
@@ -25,14 +43,36 @@
 // THREAD - This function is meant to be called by pthread_create.
 void *clientSocketProcessor(void *p)
 {
-    bool tempBool;
+    bool tempBool = false;
     std::string tempString;
-    std::string serverCommand, arguments;
+    std::string serverCommand;
+    std::string arguments;
+
+    if (!p)
+        return NULL;
+
     Socket *sock = static_cast<CSPStruct*>(p)->nSocket;
+    if (!sock) {
+        delete static_cast<CSPStruct*>(p);
+        return NULL;
+    }
+
     ODFrameListener *frameListener = static_cast<CSPStruct*>(p)->nFrameListener;
+    if (!frameListener) {
+        delete static_cast<CSPStruct*>(p);
+        return NULL;
+    }
+
     GameMap& gameMap = *(frameListener->getGameMap());
+    if (!frameListener->getGameMap()) {
+        delete static_cast<CSPStruct*>(p);
+        return NULL;
+    }
     delete static_cast<CSPStruct*>(p);
     p = NULL;
+
+    // Get a reference to the LogManager
+    LogManager& logMgr = LogManager::getSingleton();
 
     // Send a hello request to start the conversation with the server
     sem_wait(&sock->semaphore);
@@ -40,13 +80,12 @@ void *clientSocketProcessor(void *p)
     sem_post(&sock->semaphore);
     while (sock->is_valid())
     {
-        std::string commandFromServer = "";
-        bool packetComplete;
+        std::string commandFromServer;
+        bool packetComplete = false;
 
         // Loop until we get to a place that ends in a '>' symbol
         // indicating that we have 1 or more FULL messages so we
         // don't break in the middle of a message.
-        packetComplete = false;
         while (!packetComplete)
         {
             int charsRead = sock->recv(tempString);
@@ -148,7 +187,7 @@ void *clientSocketProcessor(void *p)
                 std::stringstream tempSS(arguments);
                 Tile *newTile = new Tile;
                 tempSS >> newTile;
-		newTile->setGameMap(&gameMap);
+                newTile->setGameMap(&gameMap);
                 gameMap.addTile(newTile);
                 sem_wait(&sock->semaphore);
                 sock->send(formatCommand("ok", "addtile"));
@@ -193,7 +232,6 @@ void *clientSocketProcessor(void *p)
             else if (serverCommand.compare("addclass") == 0)
             {
                 std::stringstream tempSS(arguments);
-                ;
                 CreatureDefinition *tempClass = new CreatureDefinition;
 
                 tempSS >> tempClass;
@@ -208,7 +246,7 @@ void *clientSocketProcessor(void *p)
             {
                 //NOTE: This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
                 // Changes to this code should be reflected in that code as well
-                Creature *newCreature = new Creature(  &gameMap);
+                Creature *newCreature = new Creature(&gameMap);
 
                 std::stringstream tempSS;
                 tempSS.str(arguments);
@@ -259,11 +297,9 @@ void *clientSocketProcessor(void *p)
                             tempVector.y);
             }
 
-            else if (serverCommand.compare("animatedObjectClearDestinations")
-                    == 0)
+            else if (serverCommand.compare("animatedObjectClearDestinations") == 0)
             {
-                MovableGameEntity *tempAnimatedObject = gameMap.getAnimatedObject(
-                        arguments);
+                MovableGameEntity *tempAnimatedObject = gameMap.getAnimatedObject(arguments);
 
                 if (tempAnimatedObject != NULL)
                     tempAnimatedObject->clearDestinations();
@@ -363,16 +399,17 @@ void *clientSocketProcessor(void *p)
                 }
                 else
                 {
-                    cerr
-                            << "\nERROR:  Server told us to set the fullness for a nonexistent tile.\n";
+                    logMgr.logMessage("ERROR:  Server told us to set the fullness for a nonexistent tile.");
                 }
             }
 
             else
             {
-                cerr << "\n\n\nERROR:  Unknown server command!\nCommand:";
-                cerr << serverCommand << "\nArguments:" << arguments << "\n\n";
-                exit(1);
+                std::stringstream tempSS;
+                tempSS.str("");
+                tempSS << "ERROR:  Unknown server command!\nCommand:"
+                       << serverCommand << std::endl << "Arguments:" << arguments << std::endl;
+                logMgr.logMessage(tempSS.str());
             }
 
             //NOTE: This command is duplicated at the beginning of this do-while loop.
@@ -396,28 +433,31 @@ void *clientSocketProcessor(void *p)
 void *clientNotificationProcessor(void *p)
 {
     std::stringstream tempSS;
-    Tile *tempTile;
-    Creature *tempCreature;
-    Player *tempPlayer;
-    bool flag;
+    Tile* tempTile = NULL;
+    Creature* tempCreature = NULL;
+    Player* tempPlayer = NULL;
+    bool flag = false;
     bool running = true;
 
     while (running)
     {
         // Wait until a message is place in the queue
-        sem_wait(&ClientNotification::clientNotificationQueueSemaphore);
+        sem_wait(&ClientNotification::mClientNotificationQueueSemaphore);
 
         // Take a message out of the front of the notification queue
-        sem_wait(&ClientNotification::clientNotificationQueueLockSemaphore);
-        ClientNotification* event = ClientNotification::clientNotificationQueue.front();
-        ClientNotification::clientNotificationQueue.pop_front();
-        sem_post(&ClientNotification::clientNotificationQueueLockSemaphore);
+        sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
+        ClientNotification* event = ClientNotification::mClientNotificationQueue.front();
+        ClientNotification::mClientNotificationQueue.pop_front();
+        sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
-        switch (event->type)
+        if (!event)
+            continue;
+
+        switch (event->mType)
         {
             case ClientNotification::creaturePickUp:
-                tempCreature = static_cast<Creature*>(event->p);
-                tempPlayer = static_cast<Player*>(event->p2);
+                tempCreature = static_cast<Creature*>(event->mP);
+                tempPlayer = static_cast<Player*>(event->mP2);
 
                 tempSS.str("");
                 tempSS << tempPlayer->getNick() << ":" << tempCreature->getName();
@@ -428,8 +468,8 @@ void *clientNotificationProcessor(void *p)
                 break;
 
             case ClientNotification::creatureDrop:
-                tempPlayer = static_cast<Player*>(event->p);
-                tempTile = static_cast<Tile*>(event->p2);
+                tempPlayer = static_cast<Player*>(event->mP);
+                tempTile = static_cast<Tile*>(event->mP2);
 
                 tempSS.str("");
                 tempSS << tempPlayer->getNick() << ":" << tempTile->x << ":"
@@ -441,8 +481,8 @@ void *clientNotificationProcessor(void *p)
                 break;
 
             case ClientNotification::markTile:
-                tempTile = static_cast<Tile*>(event->p);
-                flag = event->flag;
+                tempTile = static_cast<Tile*>(event->mP);
+                flag = event->mFlag;
                 tempSS.str("");
                 tempSS << tempTile->x << ":" << tempTile->y << ":"
                         << (flag ? "true" : "false");
@@ -456,14 +496,20 @@ void *clientNotificationProcessor(void *p)
                 running = false;
                 break;
 
+            case ClientNotification::invalidType:
             default:
+                LogManager& logMgr = LogManager::getSingleton();
                 ODApplication::displayErrorMessage("Unhandled ClientNotification type encoutered!");
+                logMgr.logMessage("Unhandled ClientNotification type encountered:");
+                tempSS.str("");
+                tempSS << (int) event->mType << std::endl;
+                logMgr.logMessage(tempSS.str());
 
-                //TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
-                Creature * throwAsegfault = NULL;
-                throwAsegfault->getPosition();
-
-                exit(1);
+                // This is forcing a core dump so I can debug why this happened
+                // Enable this if needed
+                //Creature * throwAsegfault = NULL;
+                //throwAsegfault->getPosition();
+                //exit(1);
                 break;
         }
     }
