@@ -1,32 +1,38 @@
 /*!
  * \file   Creature.h
- * \date
- * \author
  * \brief  Creature class
- */
-
-/*TODO list:
- * - write a good default constructor with default arguments
- * - make hp, mana and exp unsigned int
- * - replace hardcoded calculations by scripts and/or read the numbers from XML defintion files
- * - the doTurn() functions needs a major rewrite, splitup and script support
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef CREATURE_H
 #define CREATURE_H
 
-#include <string>
-#include <deque>
-
-#include <semaphore.h>
-#include <OgreVector2.h>
-#include <OgreVector3.h>
-#include <OgreSharedPtr.h>
 #include "CreatureSound.h"
 #include "CreatureDefinition.h"
 #include "CreatureAction.h"
 #include "MovableGameEntity.h"
 
+#include <semaphore.h>
+#include <OgreVector2.h>
+#include <OgreVector3.h>
+#include <OgreSharedPtr.h>
+
+#include <string>
+#include <deque>
 
 class GameMap;
 class Creature;
@@ -53,177 +59,197 @@ class Window;
  */
 class Creature: public MovableGameEntity
 {
-friend class CullingQuad;
-    public:
-        Creature( GameMap* gameMap = 0, const std::string& name = "");
-        virtual ~Creature();
-        std::string getUniqueCreatureName();
+    friend class CullingQuad;
+public:
+    Creature(GameMap* gameMap = NULL, const std::string& name = std::string());
+    virtual ~Creature();
+    std::string getUniqueCreatureName();
 
-        //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
-        std::string getOgreNamePrefix() { return "Creature_"; }
+    //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
+    std::string getOgreNamePrefix()
+    { return "Creature_"; }
 
-        void createStatsWindow();
-        void destroyStatsWindow();
-        void updateStatsWindow();
-        std::string getStatsText();
+    void createStatsWindow();
+    void destroyStatsWindow();
+    void updateStatsWindow();
+    std::string getStatsText();
 
-        void setCreatureDefinition(const CreatureDefinition* def);
+    void setCreatureDefinition(const CreatureDefinition* def);
 
-        // ----- GETTERS -----
-	Ogre::Vector2 get2dPosition(){ 	Ogre::Vector3 tmp = getPosition();   return Ogre::Vector2(tmp.x,tmp.y);};
+    Ogre::Vector2 get2dPosition() {
+        Ogre::Vector3 tmp = getPosition();
+        return Ogre::Vector2(tmp.x,tmp.y);
+    }
 
+    //! \brief Get the level of the object
+    inline unsigned int getLevel() const
+    { return mLevel; }
 
-        //! \brief Get the level of the object
-        inline unsigned int         getLevel        () const    { return level; }
+    double getHP(Tile *tile)
+    { return getHP(); }
 
-        double  getHP           (Tile *tile)            { return getHP(); }
-        double  getHP           ()              const;
+    double getHP() const;
 
-        //! \brief Gets the maximum HP the creature can have currently
-        double  getMaxHp        ()              const   { return maxHP; }
+    //! \brief Gets the maximum HP the creature can have currently
+    double getMaxHp()const
+    { return mMaxHP; }
 
-        //! \brief True if the creature is on the map, false if not (e.g. when in hand)
-        bool    getIsOnMap      ()              const;
+    //! \brief True if the creature is on the map, false if not (e.g. when in hand)
+    bool getIsOnMap() const;
 
-        //! \brief Gets the current mana
-        double  getMana         ()              const;
+    //! \brief Gets the current mana
+    double getMana() const;
 
-        //! \brief Gets the current dig rate
-        double  getDigRate      ()              const   { return digRate; }
+    //! \brief Gets the current dig rate
+    double getDigRate() const
+    { return mDigRate; }
 
-        //! \brief Gets the death counter
-        int     getDeathCounter ()              const   { return deathCounter; }
+    //! \brief Gets the death counter
+    int getDeathCounter() const
+    { return mDeathCounter; }
 
-        //! \brief Gets pointer to the Weapon in left hand
-        Weapon* getWeaponL      ()              const   { return weaponL; }
+    //! \brief Gets pointer to the Weapon in left hand
+    Weapon* getWeaponL() const
+    { return mWeaponL; }
 
-        //! \brief Gets pointer to the Weapon in right hand
-        Weapon* getWeaponR      ()              const   { return weaponR; }
+    //! \brief Gets pointer to the Weapon in right hand
+    Weapon* getWeaponR() const
+    { return mWeaponR; }
 
-        //! \brief Pointer to the creatures home tile, where its bed is located
-        Tile*   getHomeTile     ()              const   { return homeTile; }
+    //! \brief Pointer to the creatures home tile, where its bed is located
+    Tile* getHomeTile() const
+    { return mHomeTile; }
 
-        //! \brief Pointer to the creature type specification
-        const CreatureDefinition* getDefinition() const { return definition; }
+    //! \brief Pointer to the creature type specification
+    const CreatureDefinition* getDefinition() const
+    { return mDefinition; }
 
-        // ----- SETTERS -----
-        void setPosition        (const Ogre::Vector3& v);
-        void setHP              (double nHP);
-        void setIsOnMap         (bool nIsOnMap);
-        void setMana            (double nMana);
-        inline void setDeathCounter     (unsigned int nC)    { deathCounter = nC; }
-        inline void setWeaponL          (Weapon* wL)         { weaponL = wL; }
-        inline void setWeaponR          (Weapon* wR)         { weaponR = wR; }
-        inline void setHomeTile         (Tile* ht)           { homeTile = ht; }
+    void setPosition(const Ogre::Vector3& v);
+    void setHP(double nHP);
+    void setIsOnMap(bool nIsOnMap);
+    void setMana(double nMana);
 
-        //! \brief Set the level of the creature
-        inline void setLevel            (unsigned int nL)    { level = nL; }
+    inline void setDeathCounter(unsigned int nC)
+    { mDeathCounter = nC; }
 
-        // AI stuff
-        void doTurn();
-        //TODO: convert doTurn to doUpkeep();
-        bool doUpkeep(){return true;}
-        double getHitroll(double range);
-        double getDefense() const;
-        void doLevelUp();
-        void updateVisibleTiles();
-        std::vector<GameEntity*> getVisibleEnemyObjects();
-        std::vector<GameEntity*> getReachableAttackableObjects(
-                const std::vector<GameEntity*> &objectsToCheck,
-                unsigned int *minRange, GameEntity **nearestObject);
-        std::vector<GameEntity*> getEnemyObjectsInRange(
-                const std::vector<GameEntity*> &enemyObjectsToCheck);
-        std::vector<GameEntity*> getVisibleAlliedObjects();
-        std::vector<Tile*> getVisibleMarkedTiles();
-        std::vector<GameEntity*> getVisibleForce(int color, bool invert);
-        Tile* positionTile();
-        std::vector<Tile*> getCoveredTiles();
-        void takeDamage(double damage, Tile *tileTakingDamage);
-        void recieveExp(double experience);
-        void clearActionQueue();
+    inline void setWeaponL(Weapon* wL)
+    { mWeaponL = wL; }
 
+    inline void setWeaponR(Weapon* wR)
+    { mWeaponR = wR; }
 
-        Player* getControllingPlayer();
-        void computeBattlefield();
+    inline void setHomeTile(Tile* ht)
+    { mHomeTile = ht; }
 
-        // Visual debugging routines
-        void createVisualDebugEntities();
-        void destroyVisualDebugEntities();
-        bool getHasVisualDebuggingEntities();
+    //! \brief Set the level of the creature
+    inline void setLevel(unsigned int nL)
+    { mLevel = nL; }
 
+    // AI stuff
+    void doTurn();
+    //TODO: convert doTurn to doUpkeep();
+    bool doUpkeep()
+    { return true; }
 
-        void attach();
-        void detach();
+    double getHitroll(double range);
+    double getDefense() const;
+    void doLevelUp();
+    void updateVisibleTiles();
 
-        static std::string getFormat();
-        friend std::ostream& operator<<(std::ostream& os, Creature *c);
-        friend std::istream& operator>>(std::istream& is, Creature *c);
-        Creature& operator=(const CreatureDefinition* c2);
+    std::vector<GameEntity*> getVisibleEnemyObjects();
+    std::vector<GameEntity*> getReachableAttackableObjects(const std::vector<GameEntity*> &objectsToCheck,
+                                                           unsigned int *minRange, GameEntity **nearestObject);
+    std::vector<GameEntity*> getEnemyObjectsInRange(const std::vector<GameEntity*> &enemyObjectsToCheck);
+    std::vector<GameEntity*> getVisibleAlliedObjects();
+    std::vector<Tile*> getVisibleMarkedTiles();
+    std::vector<GameEntity*> getVisibleForce(int color, bool invert);
+    Tile* positionTile();
+    std::vector<Tile*> getCoveredTiles();
+    void takeDamage(double damage, Tile* tileTakingDamage);
+    void recieveExp(double experience);
+    void clearActionQueue();
 
-        //TODO: make this read from definition file
-        static const int maxGoldCarriedByWorkers = 1500;
-	inline void setQuad(CullingQuad* cq) {tracingCullingQuad=cq;};
-	inline CullingQuad* getQuad(){return tracingCullingQuad;};
-    private:
+    Player* getControllingPlayer();
+    void computeBattlefield();
 
-        CullingQuad* tracingCullingQuad;
+    // Visual debugging routines
+    void createVisualDebugEntities();
+    void destroyVisualDebugEntities();
+    bool getHasVisualDebuggingEntities();
 
-        void pushAction(CreatureAction action);
-        void popAction();
-        CreatureAction peekAction();
+    void attach();
+    void detach();
 
-        //! \brief The weapon the creature is holding in its left hand
-        Weapon* weaponL;
+    static std::string getFormat();
+    friend std::ostream& operator<<(std::ostream& os, Creature *c);
+    friend std::istream& operator>>(std::istream& is, Creature *c);
+    Creature& operator=(const CreatureDefinition* c2);
 
-        //! \brief The weapon the creature is holding in its right hand
-        Weapon* weaponR;
+    inline void setQuad(CullingQuad* cq)
+    { mTracingCullingQuad = cq; }
 
-        //! \brief The creatures home tile (where its bed is located)
-        Tile *homeTile;
+    inline CullingQuad* getQuad()
+    { return mTracingCullingQuad; }
 
-        //! \brief Pointer to the struct holding the general type of the creature with its values
-        const CreatureDefinition* definition;
+private:
+    CullingQuad* mTracingCullingQuad;
 
-        mutable sem_t   hpLockSemaphore;
-        mutable sem_t   manaLockSemaphore;
-        mutable sem_t   isOnMapLockSemaphore;
-        sem_t           actionQueueLockSemaphore;
-        sem_t           statsWindowLockSemaphore;
+    //! \brief The weapon the creature is holding in its left hand
+    Weapon* mWeaponL;
 
-        bool            isOnMap;
-        bool            hasVisualDebuggingEntities;
-        double          awakeness;
-        double          maxHP;
-        double          maxMana;
+    //! \brief The weapon the creature is holding in its right hand
+    Weapon* mWeaponR;
 
-        //! \brief The level of the creature
-        unsigned int    level;
+    //! \brief The creatures home tile (where its bed is located)
+    Tile *mHomeTile;
 
-        double          hp;
-        double          mana;
-        double          exp;
-        double          digRate;
-        double          danceRate;
-        unsigned int    deathCounter;
-        int             gold;
-        int             battleFieldAgeCounter;
-        int             trainWait;
+    //! \brief Pointer to the struct holding the general type of the creature with its values
+    const CreatureDefinition* mDefinition;
 
-        Tile*           previousPositionTile;
-        Field*          battleField;
-        RoomDojo*       trainingDojo;
-        CEGUI::Window*  statsWindow;
+    mutable sem_t   mHpLockSemaphore;
+    mutable sem_t   mManaLockSemaphore;
+    mutable sem_t   mIsOnMapLockSemaphore;
+    sem_t           mActionQueueLockSemaphore;
+    sem_t           mStatsWindowLockSemaphore;
 
-        std::vector<Tile*>              visibleTiles;
-        std::vector<GameEntity*>        visibleEnemyObjects;
-        std::vector<GameEntity*>        reachableEnemyObjects;
-        std::vector<GameEntity*>        enemyObjectsInRange;
-        std::vector<GameEntity*>        livingEnemyObjectsInRange;
-        std::vector<GameEntity*>        visibleAlliedObjects;
-        std::vector<GameEntity*>        reachableAlliedObjects;
-        std::deque<CreatureAction>      actionQueue;
-        std::list<Tile*>                visualDebugEntityTiles;
-        Ogre::SharedPtr<CreatureSound>  sound;
+    bool            mIsOnMap;
+    bool            mHasVisualDebuggingEntities;
+    double          mAwakeness;
+    double          mMaxHP;
+    double          mMaxMana;
+
+    //! \brief The level of the creature
+    unsigned int    mLevel;
+
+    double          mHp;
+    double          mMana;
+    double          mExp;
+    double          mDigRate;
+    double          mDanceRate;
+    unsigned int    mDeathCounter;
+    int             mGold;
+    int             mBattleFieldAgeCounter;
+    int             mTrainWait;
+
+    Tile*           mPreviousPositionTile;
+    Field*          mBattleField;
+    RoomDojo*       mTrainingDojo;
+    CEGUI::Window*  mStatsWindow;
+
+    std::vector<Tile*>              mVisibleTiles;
+    std::vector<GameEntity*>        mVisibleEnemyObjects;
+    std::vector<GameEntity*>        mReachableEnemyObjects;
+    std::vector<GameEntity*>        mEnemyObjectsInRange;
+    std::vector<GameEntity*>        mLivingEnemyObjectsInRange;
+    std::vector<GameEntity*>        mVisibleAlliedObjects;
+    std::vector<GameEntity*>        mReachableAlliedObjects;
+    std::deque<CreatureAction>      mActionQueue;
+    std::list<Tile*>                mVisualDebugEntityTiles;
+    Ogre::SharedPtr<CreatureSound>  mSound;
+
+    void pushAction(CreatureAction action);
+    void popAction();
+    CreatureAction peekAction();
 };
 
-#endif
+#endif // CREATURE_H
