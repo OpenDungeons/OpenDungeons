@@ -477,13 +477,10 @@ creatureActionDoWhileLoop:
     // action immediately after some other action happens.
     bool            loopBack        = false;
     bool            tempBool        = false;
-    bool            stopUsingDojo   = false;
     int             tempInt         = 0;
     unsigned int    tempUnsigned    = 0;
     unsigned int    loops           = 0;
     double          tempDouble      = 0.0;
-
-    GameEntity* tempAttackableObject = NULL;
 
     std::list<Tile*>    tempPath;
     std::list<Tile*>    tempPath2;
@@ -1330,367 +1327,33 @@ goto claimTileBreakStatement;
                     break;
 
                 case CreatureAction::sleep:
-                    myTile = positionTile();
-                    if (mHomeTile == NULL)
-                        break;
-
-                    if (myTile != mHomeTile)
-                    {
-                        // Walk to the the home tile.
-                        tempPath = getGameMap()->path(myTile, mHomeTile,
-                                mDefinition->getTilePassability());
-                        getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
-                        if (setWalkPath(tempPath, 2, false))
-                        {
-                            setAnimationState("Walk");
-                            pushAction(CreatureAction::walkToTile);
-                            //loopBack = true;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        // We are at the home tile so sleep.
-                        setAnimationState("Sleep");
-                        mAwakeness += 4.0;
-                        if (mAwakeness > 100.0)
-                        {
-                            mAwakeness = 100.0;
-                            popAction();
-                        }
-                    }
+                    loopBack = handleSleepAction();
                     break;
 
                 case CreatureAction::train:
-                {
-                    // Creatures can only train to level 10 at a dojo.
-                    //TODO: Check to see if the dojo has been upgraded to allow training to a higher level.
-                    stopUsingDojo = false;
-                    if (getLevel() > 10)
-                    {
-                        popAction();
-                        loopBack = true;
-                        mTrainWait = 0;
-                        stopUsingDojo = true;
-goto trainBreakStatement;
-                    }
-
-                    // Randomly decide to stop training, we are more likely to stop when we are tired.
-                    if (100.0 * std::pow(Random::Double(0.0, 1.0), 2) > mAwakeness)
-                    {
-                        popAction();
-                        mTrainWait = 0;
-                        loopBack = true;
-                        stopUsingDojo = true;
-goto trainBreakStatement;
-                    }
-
-                    // Decrement a counter each turn until it reaches 0, if it reaches 0 we try to train this turn.
-                    if (mTrainWait > 0)
-                    {
-                        setAnimationState("Idle");
-                        --mTrainWait;
-goto trainBreakStatement;
-                    }
-
-                    // Make sure we are on the map.
-                    myTile = positionTile();
-                    if (myTile != NULL)
-                    {
-                        // See if we are in a dojo now.
-                        tempRoom = myTile->getCoveringRoom();
-                        if (tempRoom != 0 && tempRoom->getType() == Room::dojo
-                                && tempRoom->numOpenCreatureSlots() > 0)
-                        {
-                            // Train at this dojo.
-                            mTrainingDojo = static_cast<RoomDojo*>(tempRoom);
-                            mTrainingDojo->addCreatureUsingRoom(this);
-                            tempTile = tempRoom->getCentralTile();
-                            faceToward(tempTile->x, tempTile->y);
-                            setAnimationState("Attack1");
-                            recieveExp(5.0);
-                            mAwakeness -= 5.0;
-                            mTrainWait = Random::Uint(3, 8);
-goto trainBreakStatement;
-                        }
-                    }
-                    else
-                    {
-                        // We are not on the map, don't do anything.
-                        popAction();
-                        stopUsingDojo = true;
-goto trainBreakStatement;
-                    }
-
-                    // Get the list of dojos controlled by our seat and make sure there is at least one.
-                    tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dojo, getColor());
-
-                    if (tempRooms.empty())
-                    {
-                        popAction();
-                        loopBack = true;
-                        stopUsingDojo = true;
-goto trainBreakStatement;
-                    }
-
-                    // Pick a dojo to train at and try to walk to it.
-                    //TODO: Pick a close dojo, not necessarily the closest just a somewhat closer than average one.
-                    tempInt = 0;
-                    double maxTrainDistance;
-                    maxTrainDistance = 40.0;
-                    do
-                    {
-                        tempInt = Random::Uint(0, tempRooms.size() - 1);
-                        tempRoom = tempRooms[tempInt];
-                        tempRooms.erase(tempRooms.begin() + tempInt);
-                        tempDouble = 1.0 / (maxTrainDistance
-                                - getGameMap()->crowDistance(myTile,
-                                        tempRoom->getCoveredTile(0)));
-                        if (Random::Double(0.0, 1.0) < tempDouble)
-                            break;
-                        ++tempInt;
-                    } while (tempInt < 5 && tempRoom->numOpenCreatureSlots()
-                            == 0 && !tempRooms.empty());
-
-                    if (tempRoom->numOpenCreatureSlots() == 0)
-                    {
-                        // The room is already being used, stop trying to train.
-                        popAction();
-                        loopBack = true;
-                        stopUsingDojo = true;
-goto trainBreakStatement;
-                    }
-
-                    tempTile = tempRoom->getCoveredTile(Random::Uint(0,
-                            tempRoom->numCoveredTiles() - 1));
-                    tempPath = getGameMap()->path(myTile, tempTile, mDefinition->getTilePassability());
-                    if (tempPath.size() < maxTrainDistance && setWalkPath(
-                            tempPath, 2, false))
-                    {
-                        setAnimationState("Walk");
-                        //loopBack = true;
-                        pushAction(CreatureAction::walkToTile);
-goto trainBreakStatement;
-                    }
-                    else
-                    {
-                        // We could not find a dojo to train at so stop trying to find one.
-                        popAction();
-                        loopBack = true;
-                        stopUsingDojo = true;
-goto trainBreakStatement;
-                    }
-
-trainBreakStatement:
-                    if (stopUsingDojo && mTrainingDojo != NULL)
-                    {
-
-                        mTrainingDojo->removeCreatureUsingRoom(this);
-                        mTrainingDojo = NULL;
-                    }
+                    loopBack = handleTrainingAction();
                     break;
-                }
 
                 case CreatureAction::attackObject:
-                    // If there are no more enemies which are reachable, stop attacking
-                    if (mReachableEnemyObjects.empty())
-                    {
-                        popAction();
-                        loopBack = true;
-                        break;
-                    }
-
-                    myTile = positionTile();
-
-                    // Find the first enemy close enough to hit and attack it
-                    if (!mLivingEnemyObjectsInRange.empty())
-                    {
-                        tempAttackableObject = mLivingEnemyObjectsInRange[0];
-
-                        // Turn to face the creature we are attacking and set the animation state to Attack.
-                        //TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
-                        tempTile = tempAttackableObject->getCoveredTiles()[0];
-                        clearDestinations();
-                        faceToward(tempTile->x, tempTile->y);
-                        setAnimationState("Attack1");
-
-                        //Play attack sound
-                        //TODO - syncronise with animation
-                        mSound->setPosition(getPosition());
-                        mSound->play(CreatureSound::ATTACK);
-
-                        // Calculate how much damage we do.
-                        double damageDone = getHitroll(getGameMap()->crowDistance(myTile, tempTile));
-                        damageDone *= Random::Double(0.0, 1.0);
-                        damageDone -= std::pow(Random::Double(0.0, 0.4), 2.0)
-                                               * tempAttackableObject->getDefense();
-
-                        // Make sure the damage is positive.
-                        if (damageDone < 0.0)
-                            damageDone = 0.0;
-
-                        // Do the damage and award experience points to both creatures.
-                        tempAttackableObject->takeDamage(damageDone, tempTile);
-                        double expGained;
-                        expGained = 1.0 + 0.2 * std::pow(damageDone, 1.3);
-                        mAwakeness -= 0.5;
-
-                        // Give a small amount of experince to the creature we hit.
-                        if(tempAttackableObject->getObjectType() == GameEntity::creature)
-                        {
-                            Creature* tempCreature = static_cast<Creature*>(tempAttackableObject);
-                            tempCreature->recieveExp(0.15 * expGained);
-
-                            // Add a bonus modifier based on the level of the creature we hit
-                            // to expGained and give ourselves that much experience.
-                            if (tempCreature->getLevel() >= getLevel())
-                                expGained *= 1.0 + (tempCreature->getLevel() - getLevel()) / 10.0;
-                            else
-                                expGained /= 1.0 + (getLevel() - tempCreature->getLevel()) / 10.0;
-                        }
-                        recieveExp(expGained);
-
-                        //std::cout << "\n" << getName() << " did " << damageDone
-                        //        << " damage to "
-                                //FIXME: Attackabe object needs a name...
-                        //        << "";
-                                //<< tempAttackableObject->getName();
-                        //std::cout << " who now has " << tempAttackableObject->getHP(
-                         //       tempTile) << "hp";
-
-                        // Randomly decide to start maneuvering again so we don't just stand still and fight.
-                        if (Random::Double(0.0, 1.0) <= 0.6)
-                            popAction();
-
-                        break;
-                    }
-
-                    // There is not an enemy within range, begin maneuvering to try to get near an enemy, or out of the combat situation.
-                    popAction();
-                    pushAction(CreatureAction::maneuver);
-                    loopBack = true;
+                    loopBack = handleAttackAction();
                     break;
 
                 case CreatureAction::maneuver:
-                    myTile = positionTile();
-
-                    // If there is an enemy within range, stop maneuvering and attack it.
-                    if (!mLivingEnemyObjectsInRange.empty())
-                    {
-                        popAction();
-                        loopBack = true;
-
-                        // If the next action down the stack is not an attackObject action, add it.
-                        sem_wait(&mActionQueueLockSemaphore);
-                        tempBool = (mActionQueue.front().getType() != CreatureAction::attackObject);
-                        sem_post(&mActionQueueLockSemaphore);
-                        if (tempBool)
-                            pushAction(CreatureAction::attackObject);
-
-                        break;
-                    }
-
-                    // If there are no more enemies which are reachable, stop maneuvering.
-                    if (mReachableEnemyObjects.empty())
-                    {
-                        popAction();
-                        loopBack = true;
-                        break;
-                    }
-
-                    /*
-                     // Check to see if we should try to strafe the enemy
-                     if(randomDouble(0.0, 1.0) < 0.3)
-                     {
-                     //TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
-                     tempTile = nearestEnemyObject->getCoveredTiles()[0];
-                     tempVector = Ogre::Vector3(tempTile->x, tempTile->y, 0.0);
-                     sem_wait(&positionLockSemaphore);
-                     tempVector -= position;
-                     sem_post(&positionLockSemaphore);
-                     tempVector.normalise();
-                     tempVector *= randomDouble(0.0, 3.0);
-                     tempQuat.FromAngleAxis(Ogre::Degree((randomDouble(0.0, 1.0) < 0.5 ? 90 : 270)), Ogre::Vector3::UNIT_Z);
-                     tempTile = getGameMap()->getTile(positionTile()->x + tempVector.x, positionTile()->y + tempVector.y);
-                     if(tempTile != NULL)
-                     {
-                     tempPath = getGameMap()->path(positionTile(), tempTile, tilePassability);
-
-                     if(setWalkPath(tempPath, 2, false))
-                     setAnimationState("Walk");
-                     }
-                     }
-                     */
-
-                    // There are no enemy creatures in range so we will have to maneuver towards one.
-                    // Prepare the battlefield so we can decide where to move.
-                    if (mBattleFieldAgeCounter == 0)
-                    {
-                        computeBattlefield();
-                        mBattleFieldAgeCounter = Random::Uint(2, 6);
-                    }
-
-                    // Find a location on the battlefield to move to, we try to find a minumum if we are
-                    // trying to "attack" and a maximum if we are trying to "retreat".
-                    if (mBattleField->get(myTile->x, myTile->y).first > 0.0)
-                    {
-                        minimumFieldValue = mBattleField->min(); // Attack
-                        tempBool = true;
-                        //TODO: Set this to some sort of Attack-move animation.
-                    }
-                    else
-                    {
-                        minimumFieldValue = mBattleField->max(); // Retreat
-                        tempBool = false;
-                    }
-
-                    // Pick a destination tile near the tile we got from the battlefield.
-                    clearDestinations();
-                    tempDouble = std::max(mWeaponL->getRange(), mWeaponR->getRange()); // Pick a true destination randomly within the max range of our weapons.
-                    tempDouble = sqrt(tempDouble);
-                    //FIXME:  This should find a path to a tile we can walk to, it does not always
-                    //do this the way it is right now. Because minimumFieldValue is never initialisesed...
-                    tempPath = getGameMap()->path(positionTile()->x,
-                            positionTile()->y, minimumFieldValue.first.first
-                                    + Random::Double(-1.0 * tempDouble,
-                                            tempDouble),
-                            minimumFieldValue.first.second + Random::Double(-1.0
-                                    * tempDouble, tempDouble), mDefinition->getTilePassability());
-
-                    // Walk a maximum of N tiles before recomputing the destination since we are in combat.
-                    tempUnsigned = 5;
-                    if (tempPath.size() >= tempUnsigned)
-                        tempPath.resize(tempUnsigned);
-
-                    getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
-                    if (setWalkPath(tempPath, 2, false))
-                    {
-                        setAnimationState(tempBool ? "Walk" : "Flee");
-                    }
-
-                    // Push a walkToTile action into the creature's action queue to make them walk the path they have
-                    // decided on without recomputing, this helps prevent them from getting stuck in local minima.
-                    pushAction(CreatureAction::walkToTile);
-
-                    // This is a debugging statement, it produces a visual display of the battlefield as seen by the first creature.
-                    /*
-                    if (battleField->name.compare("field_1") == 0)
-                    {
-                        battleField->refreshMeshes(1.0);
-                    }*/
+                    loopBack = handleManeuverAction();
                     break;
 
                 default:
-                    //std::cerr << "\n\nERROR:  Unhandled action type in Creature::doTurn().\n\n";
-                    //exit(1);
+                    LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doTurn().");
+                    popAction();
+                    loopBack = false;
                     break;
             }
         }
         else
         {
             sem_post(&mActionQueueLockSemaphore);
-            //std::cerr << "\n\nERROR:  Creature has empty action queue in doTurn(), this should not happen.\n\n";
-            //exit(1);
+            LogManager::getSingleton().logMessage("ERROR:  Creature has empty action queue in doTurn(), this should not happen.");
+            loopBack = false;
         }
     } while (loopBack && loops < 20);
 
@@ -1710,6 +1373,352 @@ trainBreakStatement:
         createVisualDebugEntities();
     }
 }
+
+bool Creature::handleTrainingAction()
+{
+    // Current creature tile position
+    Tile* myTile = positionTile();
+
+    // Creatures can only train to level 10 at a dojo.
+    //TODO: Check to see if the dojo has been upgraded to allow training to a higher level.
+    if (getLevel() > 10)
+    {
+        popAction();
+        mTrainWait = 0;
+
+        stopUsingDojo();
+        return true;
+    }
+    // Randomly decide to stop training, we are more likely to stop when we are tired.
+    else if (100.0 * std::pow(Random::Double(0.0, 1.0), 2) > mAwakeness)
+    {
+        popAction();
+        mTrainWait = 0;
+
+        stopUsingDojo();
+        return true;
+    }
+    // Decrement a counter each turn until it reaches 0, if it reaches 0 we try to train this turn.
+    else if (mTrainWait > 0)
+    {
+        setAnimationState("Idle");
+        --mTrainWait;
+    }
+    // Make sure we are on the map.
+    else if (myTile != NULL)
+    {
+        // See if we are in a dojo now.
+        Room* tempRoom = myTile->getCoveringRoom();
+        if (tempRoom != NULL && tempRoom->getType() == Room::dojo && tempRoom->numOpenCreatureSlots() > 0)
+        {
+            Tile* tempTile = tempRoom->getCentralTile();
+            if (tempTile != NULL)
+            {
+                // Train at this dojo.
+                mTrainingDojo = static_cast<RoomDojo*>(tempRoom);
+                mTrainingDojo->addCreatureUsingRoom(this);
+                faceToward(tempTile->x, tempTile->y);
+                setAnimationState("Attack1");
+                recieveExp(5.0);
+                mAwakeness -= 5.0;
+                mTrainWait = Random::Uint(3, 8);
+            }
+        }
+    }
+    else
+    {
+        // We are not on the map, don't do anything.
+        popAction();
+
+        stopUsingDojo();
+        return false;
+    }
+
+    // Get the list of dojos controlled by our seat and make sure there is at least one.
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dojo, getColor());
+
+    if (tempRooms.empty())
+    {
+        popAction();
+
+        stopUsingDojo();
+        return true;
+    }
+
+    // Pick a dojo to train at and try to walk to it.
+    //TODO: Pick a close dojo, not necessarily the closest just a somewhat closer than average one.
+    int tempInt = 0;
+    double maxTrainDistance = 40.0;
+    Room* tempRoom = NULL;
+    do
+    {
+        tempInt = Random::Uint(0, tempRooms.size() - 1);
+        tempRoom = tempRooms[tempInt];
+        tempRooms.erase(tempRooms.begin() + tempInt);
+        double tempDouble = 1.0 / (maxTrainDistance - getGameMap()->crowDistance(myTile, tempRoom->getCoveredTile(0)));
+        if (Random::Double(0.0, 1.0) < tempDouble)
+            break;
+        ++tempInt;
+    } while (tempInt < 5 && tempRoom->numOpenCreatureSlots() == 0 && !tempRooms.empty());
+
+    if (tempRoom && tempRoom->numOpenCreatureSlots() == 0)
+    {
+        // The room is already being used, stop trying to train.
+        popAction();
+        stopUsingDojo();
+        return true;
+    }
+
+    Tile* tempTile = tempRoom->getCoveredTile(Random::Uint(0, tempRoom->numCoveredTiles() - 1));
+    std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition->getTilePassability());
+    if (tempPath.size() < maxTrainDistance && setWalkPath(tempPath, 2, false))
+    {
+        setAnimationState("Walk");
+        pushAction(CreatureAction::walkToTile);
+        return false;
+    }
+    else
+    {
+        // We could not find a dojo to train at so stop trying to find one.
+        popAction();
+    }
+
+    // Default action
+    stopUsingDojo();
+    return true;
+}
+
+void Creature::stopUsingDojo()
+{
+    if (mTrainingDojo == NULL)
+        return;
+
+    mTrainingDojo->removeCreatureUsingRoom(this);
+    mTrainingDojo = NULL;
+}
+
+bool Creature::handleAttackAction()
+{
+    // If there are no more enemies which are reachable, stop attacking
+    if (mReachableEnemyObjects.empty())
+    {
+        popAction();
+        return true;
+    }
+
+    // Find the first enemy close enough to hit and attack it
+    if (mLivingEnemyObjectsInRange.empty())
+    {
+        // There is not an enemy within range, begin maneuvering to try to get near an enemy, or out of the combat situation.
+        popAction();
+        pushAction(CreatureAction::maneuver);
+        return true;
+    }
+
+    GameEntity* tempAttackableObject = mLivingEnemyObjectsInRange[0];
+
+    // Turn to face the creature we are attacking and set the animation state to Attack.
+    //TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+    Tile* tempTile = tempAttackableObject->getCoveredTiles()[0];
+    clearDestinations();
+    faceToward(tempTile->x, tempTile->y);
+    setAnimationState("Attack1");
+
+    //Play attack sound
+    //TODO - syncronise with animation
+    mSound->setPosition(getPosition());
+    mSound->play(CreatureSound::ATTACK);
+
+    // Calculate how much damage we do.
+    Tile* myTile = positionTile();
+    double damageDone = getHitroll(getGameMap()->crowDistance(myTile, tempTile));
+    damageDone *= Random::Double(0.0, 1.0);
+    damageDone -= std::pow(Random::Double(0.0, 0.4), 2.0) * tempAttackableObject->getDefense();
+
+    // Make sure the damage is positive.
+    if (damageDone < 0.0)
+        damageDone = 0.0;
+
+    // Do the damage and award experience points to both creatures.
+    tempAttackableObject->takeDamage(damageDone, tempTile);
+    double expGained;
+    expGained = 1.0 + 0.2 * std::pow(damageDone, 1.3);
+    mAwakeness -= 0.5;
+
+    // Give a small amount of experince to the creature we hit.
+    if(tempAttackableObject->getObjectType() == GameEntity::creature)
+    {
+        Creature* tempCreature = static_cast<Creature*>(tempAttackableObject);
+        tempCreature->recieveExp(0.15 * expGained);
+
+        // Add a bonus modifier based on the level of the creature we hit
+        // to expGained and give ourselves that much experience.
+        if (tempCreature->getLevel() >= getLevel())
+            expGained *= 1.0 + (tempCreature->getLevel() - getLevel()) / 10.0;
+        else
+            expGained /= 1.0 + (getLevel() - tempCreature->getLevel()) / 10.0;
+    }
+    recieveExp(expGained);
+
+    //std::cout << "\n" << getName() << " did " << damageDone
+    //        << " damage to "
+            //FIXME: Attackabe object needs a name...
+    //        << "";
+            //<< tempAttackableObject->getName();
+    //std::cout << " who now has " << tempAttackableObject->getHP(
+        //       tempTile) << "hp";
+
+    // Randomly decide to start maneuvering again so we don't just stand still and fight.
+    if (Random::Double(0.0, 1.0) <= 0.6)
+        popAction();
+
+    return false;
+}
+
+bool Creature::handleManeuverAction()
+{
+    // If there is an enemy within range, stop maneuvering and attack it.
+    if (!mLivingEnemyObjectsInRange.empty())
+    {
+        popAction();
+
+        // If the next action down the stack is not an attackObject action, add it.
+        sem_wait(&mActionQueueLockSemaphore);
+        bool tempBool = (mActionQueue.front().getType() != CreatureAction::attackObject);
+        sem_post(&mActionQueueLockSemaphore);
+        if (tempBool)
+            pushAction(CreatureAction::attackObject);
+
+        return true;
+    }
+
+    // If there are no more enemies which are reachable, stop maneuvering.
+    if (mReachableEnemyObjects.empty())
+    {
+        popAction();
+        return true;
+    }
+
+    /*
+        // Check to see if we should try to strafe the enemy
+        if(randomDouble(0.0, 1.0) < 0.3)
+        {
+        //TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+        tempTile = nearestEnemyObject->getCoveredTiles()[0];
+        tempVector = Ogre::Vector3(tempTile->x, tempTile->y, 0.0);
+        sem_wait(&positionLockSemaphore);
+        tempVector -= position;
+        sem_post(&positionLockSemaphore);
+        tempVector.normalise();
+        tempVector *= randomDouble(0.0, 3.0);
+        tempQuat.FromAngleAxis(Ogre::Degree((randomDouble(0.0, 1.0) < 0.5 ? 90 : 270)), Ogre::Vector3::UNIT_Z);
+        tempTile = getGameMap()->getTile(positionTile()->x + tempVector.x, positionTile()->y + tempVector.y);
+        if(tempTile != NULL)
+        {
+        tempPath = getGameMap()->path(positionTile(), tempTile, tilePassability);
+
+        if(setWalkPath(tempPath, 2, false))
+        setAnimationState("Walk");
+        }
+        }
+        */
+
+    // There are no enemy creatures in range so we will have to maneuver towards one.
+    // Prepare the battlefield so we can decide where to move.
+    if (mBattleFieldAgeCounter == 0)
+    {
+        computeBattlefield();
+        mBattleFieldAgeCounter = Random::Uint(2, 6);
+    }
+
+    // Find a location on the battlefield to move to, we try to find a minumum if we are
+    // trying to "attack" and a maximum if we are trying to "retreat".
+    Tile* myTile = positionTile();
+    bool attack_animation = true;
+    std::pair<LocationType, double> minimumFieldValue;
+    if (mBattleField->get(myTile->x, myTile->y).first > 0.0)
+    {
+        minimumFieldValue = mBattleField->min(); // Attack
+        attack_animation = true;
+        //TODO: Set this to some sort of Attack-move animation.
+    }
+    else
+    {
+        minimumFieldValue = mBattleField->max(); // Retreat
+        attack_animation = false;
+    }
+
+    // Pick a destination tile near the tile we got from the battlefield.
+    clearDestinations();
+    // Pick a true destination randomly within the max range of our weapons.
+    double tempDouble = std::max(mWeaponL->getRange(), mWeaponR->getRange());
+    tempDouble = sqrt(tempDouble);
+    //FIXME:  This should find a path to a tile we can walk to, it does not always
+    //do this the way it is right now. Because minimumFieldValue is never initialised...
+    std::list<Tile*> tempPath = getGameMap()->path(positionTile()->x, positionTile()->y,
+                                              minimumFieldValue.first.first + Random::Double(-1.0 * tempDouble, tempDouble),
+                                              minimumFieldValue.first.second + Random::Double(-1.0 * tempDouble, tempDouble),
+                                              mDefinition->getTilePassability());
+
+    // Walk a maximum of N tiles before recomputing the destination since we are in combat.
+    unsigned int tempUnsigned = 5;
+    if (tempPath.size() >= tempUnsigned)
+        tempPath.resize(tempUnsigned);
+
+    getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
+    if (setWalkPath(tempPath, 2, false))
+    {
+        setAnimationState(attack_animation ? "Walk" : "Flee");
+    }
+
+    // Push a walkToTile action into the creature's action queue to make them walk the path they have
+    // decided on without recomputing, this helps prevent them from getting stuck in local minima.
+    pushAction(CreatureAction::walkToTile);
+
+    // This is a debugging statement, it produces a visual display of the battlefield as seen by the first creature.
+    /*
+    if (battleField->name.compare("field_1") == 0)
+    {
+        battleField->refreshMeshes(1.0);
+    }*/
+    return false;
+}
+
+bool Creature::handleSleepAction()
+{
+    Tile* myTile = positionTile();
+    if (mHomeTile == NULL) {
+        popAction();
+        return false;
+    }
+
+    if (myTile != mHomeTile)
+    {
+        // Walk to the the home tile.
+        std::list<Tile*> tempPath = getGameMap()->path(myTile, mHomeTile, mDefinition->getTilePassability());
+        getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
+        if (setWalkPath(tempPath, 2, false))
+        {
+            setAnimationState("Walk");
+            popAction();
+            pushAction(CreatureAction::walkToTile);
+            return false;
+        }
+    }
+    else
+    {
+        // We are at the home tile so sleep.
+        setAnimationState("Sleep");
+        mAwakeness += 4.0;
+        if (mAwakeness > 100.0)
+        {
+            mAwakeness = 100.0;
+            popAction();
+        }
+    }
+    return false;
+}
+
 
 double Creature::getHitroll(double range)
 {
@@ -1846,8 +1855,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
 }
 
 //! \brief Loops over the enemyObjectsToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
-std::vector<GameEntity*> Creature::getEnemyObjectsInRange(
-        const std::vector<GameEntity*> &enemyObjectsToCheck)
+std::vector<GameEntity*> Creature::getEnemyObjectsInRange(const std::vector<GameEntity*> &enemyObjectsToCheck)
 {
     std::vector<GameEntity*> tempVector;
 

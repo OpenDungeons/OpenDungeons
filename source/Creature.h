@@ -250,6 +250,29 @@ private:
     void pushAction(CreatureAction action);
     void popAction();
     CreatureAction peekAction();
+
+    //! \brief A sub-function called by doTurn() and/or handleActions()
+    //! This functions will hanlde the creature training logic.
+    //! \return true when another action should handled after that one.
+    bool handleTrainingAction();
+
+    //! \brief Makes the creature stop using the Dojo (Training room)
+    void stopUsingDojo();
+
+    //! \brief A sub-function called by doTurn() and/or handleActions()
+    //! This functions will hanlde the creature attack logic.
+    //! \return true when another action should handled after that one.
+    bool handleAttackAction();
+
+    //! \brief A sub-function called by doTurn() and/or handleActions()
+    //! This functions will hanlde the creature maneuver logic.
+    //! \return true when another action should handled after that one.
+    bool handleManeuverAction();
+
+    //! \brief A sub-function called by doTurn() and/or handleActions()
+    //! This functions will hanlde the creature sleeping logic.
+    //! \return true when another action should handled after that one.
+    bool handleSleepAction();
 };
 
 #endif // CREATURE_H
