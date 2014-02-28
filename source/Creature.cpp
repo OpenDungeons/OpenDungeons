@@ -1108,99 +1108,7 @@ goto claimTileBreakStatement;
                 }
 
                 case CreatureAction::findHome:
-                    // Check to see if we are standing in an open quarters tile that we can claim as our home.
-                    myTile = positionTile();
-                    if (myTile != NULL)
-                    {
-                        tempRoom = myTile->getCoveringRoom();
-                        if (tempRoom != NULL && tempRoom->getType() == Room::quarters)
-                        {
-                            if (static_cast<RoomQuarters*>(tempRoom)->claimTileForSleeping(myTile, this))
-                                mHomeTile = myTile;
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                    // If we found a tile to claim as our home in the above block.
-                    if (mHomeTile != NULL)
-                    {
-                        popAction();
-                        loopBack = true;
-                        break;
-                    }
-
-                    // Check to see if we can walk to a quarters that does have an open tile.
-                    tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::quarters, getColor());
-                    std::random_shuffle(tempRooms.begin(), tempRooms.end());
-                    unsigned int nearestQuartersDistance;
-                    nearestQuartersDistance = 0; // to avoid a compilation warning
-                    bool validPathFound;
-                    validPathFound = false;
-                    tempPath.clear();
-                    tempPath2.clear();
-                    for (unsigned int i = 0; i < tempRooms.size(); ++i)
-                    {
-                        // Get the list of open rooms at the current quarters and check to see if
-                        // there is a place where we could put a bed big enough to sleep in.
-                        tempTile = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
-                                        mDefinition->getBedDim1(), mDefinition->getBedDim2());
-
-                        // If the previous attempt to place the bed in this quarters failed, try again with the bed the other way.
-                        if (tempTile == NULL)
-                            tempTile
-                                    = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
-                                            mDefinition->getBedDim2(), mDefinition->getBedDim1());
-
-                        // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
-                        if (tempTile != NULL)
-                        {
-                            tempPath2 = getGameMap()->path(myTile, tempTile,
-                                    mDefinition->getTilePassability());
-
-                            // Find out the minimum valid path length of the paths determined in the above block.
-                            if (!validPathFound)
-                            {
-                                // If the current path is long enough to be valid then record the path and the distance.
-                                if (tempPath2.size() >= 2)
-                                {
-                                    tempPath = tempPath2;
-                                    nearestQuartersDistance = tempPath.size();
-                                    validPathFound = true;
-                                }
-                            }
-                            else
-                            {
-                                // If the current path is long enough to be valid but shorter than the
-                                // shortest path seen so far, then record the path and the distance.
-                                if (tempPath2.size() >= 2 && tempPath2.size()
-                                        < nearestQuartersDistance)
-                                {
-                                    tempPath = tempPath2;
-                                    nearestQuartersDistance = tempPath.size();
-                                }
-                            }
-                        }
-                    }
-
-                    // If we found a valid path to an open room in a quarters, then start walking along it.
-                    if (validPathFound)
-                    {
-                        getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
-                        if (setWalkPath(tempPath, 2, false))
-                        {
-                            setAnimationState("Walk");
-                            pushAction(CreatureAction::walkToTile);
-                            //loopBack = true;
-                            break;
-                        }
-                    }
-
-                    // If we got here there are no reachable quarters that are unclaimed so we quit trying to find one.
-                    popAction();
-                    loopBack = true;
+                    loopBack = handleFindHomeAction();
                     break;
 
                 case CreatureAction::sleep:
@@ -1374,6 +1282,93 @@ bool Creature::handleWalkToTileAction()
     }
     sem_post(&walkQueueLockSemaphore); // If this is removed remove the one in the 'if' block as well.
     return false;
+}
+
+bool Creature::handleFindHomeAction()
+{
+    // Check to see if we are standing in an open quarters tile that we can claim as our home.
+    Tile* myTile = positionTile();
+    if (myTile == NULL)
+        return false;
+
+    Room* tempRoom = myTile->getCoveringRoom();
+    if (tempRoom != NULL && tempRoom->getType() == Room::quarters)
+    {
+        if (static_cast<RoomQuarters*>(tempRoom)->claimTileForSleeping(myTile, this))
+            mHomeTile = myTile;
+    }
+
+    // If we found a tile to claim as our home in the above block.
+    if (mHomeTile != NULL)
+    {
+        popAction();
+        return true;
+    }
+
+    // Check to see if we can walk to a quarters that does have an open tile.
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::quarters, getColor());
+    std::random_shuffle(tempRooms.begin(), tempRooms.end());
+    unsigned int nearestQuartersDistance = 0;
+    bool validPathFound = false;
+    std::list<Tile*> tempPath;
+    for (unsigned int i = 0; i < tempRooms.size(); ++i)
+    {
+        // Get the list of open rooms at the current quarters and check to see if
+        // there is a place where we could put a bed big enough to sleep in.
+        Tile* tempTile = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
+                        mDefinition->getBedDim1(), mDefinition->getBedDim2());
+
+        // If the previous attempt to place the bed in this quarters failed, try again with the bed the other way.
+        if (tempTile == NULL)
+            tempTile = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
+                                                                     mDefinition->getBedDim2(), mDefinition->getBedDim1());
+
+        // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
+        if (tempTile != NULL)
+        {
+            std::list<Tile*> tempPath2 = getGameMap()->path(myTile, tempTile,
+                    mDefinition->getTilePassability());
+
+            // Find out the minimum valid path length of the paths determined in the above block.
+            if (!validPathFound)
+            {
+                // If the current path is long enough to be valid then record the path and the distance.
+                if (tempPath2.size() >= 2)
+                {
+                    tempPath = tempPath2;
+                    nearestQuartersDistance = tempPath.size();
+                    validPathFound = true;
+                }
+            }
+            else
+            {
+                // If the current path is long enough to be valid but shorter than the
+                // shortest path seen so far, then record the path and the distance.
+                if (tempPath2.size() >= 2 && tempPath2.size()
+                        < nearestQuartersDistance)
+                {
+                    tempPath = tempPath2;
+                    nearestQuartersDistance = tempPath.size();
+                }
+            }
+        }
+    }
+
+    // If we found a valid path to an open room in a quarters, then start walking along it.
+    if (validPathFound)
+    {
+        getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
+        if (setWalkPath(tempPath, 2, false))
+        {
+            setAnimationState("Walk");
+            pushAction(CreatureAction::walkToTile);
+            return false;
+        }
+    }
+
+    // If we got here there are no reachable quarters that are unclaimed so we quit trying to find one.
+    popAction();
+    return true;
 }
 
 bool Creature::handleTrainingAction()

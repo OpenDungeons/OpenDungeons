@@ -261,6 +261,11 @@ private:
     bool handleWalkToTileAction();
 
     //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature finding home logic.
+    //! \return true when another action should handled after that one.
+    bool handleFindHomeAction();
+
+    //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature training logic.
     //! \return true when another action should handled after that one.
     bool handleTrainingAction();
