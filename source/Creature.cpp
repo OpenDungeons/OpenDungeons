@@ -612,189 +612,7 @@ void Creature::doTurn()
                     break;
 
                 case CreatureAction::claimTile:
-                    myTile = positionTile();
-                    //NOTE:  This is a workaround for the problem with the positionTile() function,
-                    // it can be removed when that issue is resolved.
-                    if (myTile == 0)
-                    {
-                        popAction();
-                        break;
-                    }
-
-                    // Randomly decide to stop claiming with a small probability
-                    if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
-                    {
-                        // If there are any visible tiles marked for digging start working on that.
-                        if (!markedTiles.empty())
-                        {
-                            loopBack = true;
-                            popAction();
-                            pushAction(CreatureAction::digTile);
-                            break;
-                        }
-                    }
-
-                    // See if the tile we are standing on can be claimed
-                    if ((myTile->getColor() != getColor() || myTile->colorDouble
-                            < 1.0) && myTile->isClaimable())
-                    {
-                        //cout << "\nTrying to claim the tile I am standing on.";
-                        // Check to see if one of the tile's neighbors is claimed for our color
-                        neighbors = getGameMap()->neighborTiles(myTile);
-                        for (unsigned int j = 0; j < neighbors.size(); ++j)
-                        {
-                            // Check to see if the current neighbor is already claimed
-                            tempTile = neighbors[j];
-                            if (tempTile->getColor() == getColor()
-                                    && tempTile->colorDouble >= 1.0)
-                            {
-                                //cout << "\t\tFound a neighbor that is claimed.";
-                                // If we found a neighbor that is claimed for our side than we can start
-                                // dancing on this tile.  If there is "left over" claiming that can be done
-                                // it will spill over into neighboring tiles until it is gone.
-                                setAnimationState("Claim");
-                                myTile->claimForColor(getColor(), mDefinition->getDanceRate());
-                                recieveExp(1.5 * (mDefinition->getDanceRate() / (0.35 + 0.05
-                                        * getLevel())));
-
-                                // Since we danced on a tile we are done for this turn
-goto claimTileBreakStatement;
-                            }
-                        }
-                    }
-
-                    // The tile we are standing on is already claimed or is not currently
-                    // claimable, find candidates for claiming.
-                    // Start by checking the neighbor tiles of the one we are already in
-                    neighbors = getGameMap()->neighborTiles(myTile);
-                    while (!neighbors.empty())
-                    {
-                        // If the current neighbor is claimable, walk into it and skip to the end of this turn
-                        tempInt = Random::Uint(0, neighbors.size() - 1);
-                        tempTile = neighbors[tempInt];
-                        //NOTE:  I don't think the "colorDouble" check should happen here.
-                        if (tempTile != NULL && tempTile->getTilePassability()
-                                == Tile::walkableTile && (tempTile->getColor()
-                                != getColor() || tempTile->colorDouble < 1.0)
-                                && tempTile->isClaimable())
-                        {
-                            // The neighbor tile is a potential candidate for claiming, to be an actual candidate
-                            // though it must have a neighbor of its own that is already claimed for our side.
-                            Tile* tempTile2;
-                            std::vector<Tile*> neighbors2 = getGameMap()->neighborTiles(tempTile);
-                            for (unsigned int i = 0; i < neighbors2.size(); ++i)
-                            {
-                                tempTile2 = neighbors2[i];
-                                if (tempTile2->getColor() == getColor()
-                                        && tempTile2->colorDouble >= 1.0)
-                                {
-                                    clearDestinations();
-                                    addDestination(tempTile->x, tempTile->y);
-                                    setAnimationState("Walk");
-goto claimTileBreakStatement;
-                                }
-                            }
-                        }
-
-                        neighbors.erase(neighbors.begin() + tempInt);
-                    }
-
-                    //cout << "\nLooking at the visible tiles to see if I can claim a tile.";
-                    // If we still haven't found a tile to claim, check the rest of the visible tiles
-                    for (unsigned int i = 0; i < mVisibleTiles.size(); ++i)
-                    {
-                        // if this tile is not fully claimed yet or the tile is of another player's color
-                        tempTile = mVisibleTiles[i];
-                        if (tempTile != NULL && tempTile->getTilePassability()
-                                == Tile::walkableTile && (tempTile->colorDouble
-                                < 1.0 || tempTile->getColor() != getColor())
-                                && tempTile->isClaimable())
-                        {
-                            // Check to see if one of the tile's neighbors is claimed for our color
-                            neighbors = getGameMap()->neighborTiles(mVisibleTiles[i]);
-                            for (unsigned int j = 0; j < neighbors.size(); ++j)
-                            {
-                                tempTile = neighbors[j];
-                                if (tempTile->getColor() == getColor()
-                                        && tempTile->colorDouble >= 1.0)
-                                {
-                                    claimableTiles.push_back(tempTile);
-                                }
-                            }
-                        }
-                    }
-
-                    //cout << "  I see " << claimableTiles.size() << " tiles I can claim.";
-                    // Randomly pick a claimable tile, plot a path to it and walk to it
-                    while (!claimableTiles.empty())
-                    {
-                        // Randomly find a "good" tile to claim.  A good tile is one that has many neighbors
-                        // already claimed, this makes the claimed are more "round" and less jagged.
-                        do
-                        {
-                            int numNeighborsClaimed = 0;
-
-                            // Start by randomly picking a candidate tile.
-                            tempTile = claimableTiles[Random::Uint(0,
-                                    claimableTiles.size() - 1)];
-
-                            // Count how many of the candidate tile's neighbors are already claimed.
-                            neighbors = getGameMap()->neighborTiles(tempTile);
-                            for (unsigned int i = 0; i < neighbors.size(); ++i)
-                            {
-                                if (neighbors[i]->getColor() == getColor()
-                                        && neighbors[i]->colorDouble >= 1.0)
-                                    ++numNeighborsClaimed;
-                            }
-
-                            // Pick a random number in [0:1], if this number is high enough, than use this tile to claim.  The
-                            // bar for success approaches 0 as numTiles approaches N so this will be guaranteed to succeed at,
-                            // or before the time we get to the last unclaimed tile.  The bar for success is also lowered
-                            // according to how many neighbors are already claimed.
-                            //NOTE: The bar can be negative, when this happens we are guarenteed to use this candidate tile.
-                            double bar = 1.0 - (numNeighborsClaimed / 4.0)
-                                         - (tempUnsigned / (double) (claimableTiles.size() - 1));
-                            if (Random::Double(0.0, 1.0) >= bar)
-                                break;
-
-                            // Safety catch to prevent infinite loop in case the bar for success is too high and is never met.
-                            if (tempUnsigned >= claimableTiles.size() - 1)
-                                break;
-
-                            // Increment the counter indicating how many candidate tiles we have rejected so far.
-                            ++tempUnsigned;
-                        } while (true);
-
-                        if (tempTile != NULL)
-                        {
-                            // If we find a valid path to the tile start walking to it and break
-                            tempPath = getGameMap()->path(myTile, tempTile, mDefinition->getTilePassability());
-                            getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
-                            if (setWalkPath(tempPath, 2, false))
-                            {
-                                //loopBack = true;
-                                setAnimationState("Walk");
-                                pushAction(CreatureAction::walkToTile);
-goto claimTileBreakStatement;
-                            }
-                        }
-
-                        // If we got to this point, the tile we randomly picked cannot be gotten to via a
-                        // valid path.  Delete it from the claimable tiles vector and repeat the outer
-                        // loop to try to find another valid tile.
-                        for (unsigned int i = 0; i < claimableTiles.size(); ++i)
-                        {
-                            if (claimableTiles[i] == tempTile)
-                            {
-                                claimableTiles.erase(claimableTiles.begin() + i);
-                                break; // Break out of this for loop.
-                            }
-                        }
-                    }
-
-                    // We couldn't find a tile to try to claim so we stop trying
-                    popAction();
-claimTileBreakStatement:
+                    loopBack = handleClaimTileAction();
                     break;
 
                 case CreatureAction::digTile:
@@ -979,6 +797,187 @@ bool Creature::handleWalkToTileAction()
         return true;
     }
     sem_post(&walkQueueLockSemaphore); // If this is removed remove the one in the 'if' block as well.
+    return false;
+}
+
+bool Creature::handleClaimTileAction()
+{
+    Tile* myTile = positionTile();
+    //NOTE:  This is a workaround for the problem with the positionTile() function,
+    // it can be removed when that issue is resolved.
+    if (myTile == NULL)
+    {
+        popAction();
+        return false;
+    }
+
+    // Randomly decide to stop claiming with a small probability
+    std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
+    if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
+    {
+        // If there are any visible tiles marked for digging start working on that.
+        if (!markedTiles.empty())
+        {
+            popAction();
+            pushAction(CreatureAction::digTile);
+            return true;
+        }
+    }
+
+    // See if the tile we are standing on can be claimed
+    if ((myTile->getColor() != getColor() || myTile->colorDouble < 1.0) && myTile->isClaimable())
+    {
+        //cout << "\nTrying to claim the tile I am standing on.";
+        // Check to see if one of the tile's neighbors is claimed for our color
+        std::vector<Tile*> neighbors = getGameMap()->neighborTiles(myTile);
+        for (unsigned int j = 0; j < neighbors.size(); ++j)
+        {
+            // Check to see if the current neighbor is already claimed
+            Tile* tempTile = neighbors[j];
+            if (tempTile->getColor() == getColor() && tempTile->colorDouble >= 1.0)
+            {
+                //cout << "\t\tFound a neighbor that is claimed.";
+                // If we found a neighbor that is claimed for our side than we can start
+                // dancing on this tile.  If there is "left over" claiming that can be done
+                // it will spill over into neighboring tiles until it is gone.
+                setAnimationState("Claim");
+                myTile->claimForColor(getColor(), mDefinition->getDanceRate());
+                recieveExp(1.5 * (mDefinition->getDanceRate() / (0.35 + 0.05 * getLevel())));
+
+                // Since we danced on a tile we are done for this turn
+                return false;
+            }
+        }
+    }
+
+    // The tile we are standing on is already claimed or is not currently
+    // claimable, find candidates for claiming.
+    // Start by checking the neighbor tiles of the one we are already in
+    std::vector<Tile*> neighbors = getGameMap()->neighborTiles(myTile);
+    while (!neighbors.empty())
+    {
+        // If the current neighbor is claimable, walk into it and skip to the end of this turn
+        int tempInt = Random::Uint(0, neighbors.size() - 1);
+        Tile* tempTile = neighbors[tempInt];
+        //NOTE:  I don't think the "colorDouble" check should happen here.
+        if (tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile
+            && (tempTile->getColor() != getColor() || tempTile->colorDouble < 1.0)
+            && tempTile->isClaimable())
+        {
+            // The neighbor tile is a potential candidate for claiming, to be an actual candidate
+            // though it must have a neighbor of its own that is already claimed for our side.
+            Tile* tempTile2;
+            std::vector<Tile*> neighbors2 = getGameMap()->neighborTiles(tempTile);
+            for (unsigned int i = 0; i < neighbors2.size(); ++i)
+            {
+                tempTile2 = neighbors2[i];
+                if (tempTile2->getColor() == getColor()
+                        && tempTile2->colorDouble >= 1.0)
+                {
+                    clearDestinations();
+                    addDestination(tempTile->x, tempTile->y);
+                    setAnimationState("Walk");
+                    return false;
+                }
+            }
+        }
+
+        neighbors.erase(neighbors.begin() + tempInt);
+    }
+
+    //cout << "\nLooking at the visible tiles to see if I can claim a tile.";
+    // If we still haven't found a tile to claim, check the rest of the visible tiles
+    std::vector<Tile*> claimableTiles;
+    for (unsigned int i = 0; i < mVisibleTiles.size(); ++i)
+    {
+        // if this tile is not fully claimed yet or the tile is of another player's color
+        Tile* tempTile = mVisibleTiles[i];
+        if (tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile
+            && (tempTile->colorDouble < 1.0 || tempTile->getColor() != getColor())
+            && tempTile->isClaimable())
+        {
+            // Check to see if one of the tile's neighbors is claimed for our color
+            neighbors = getGameMap()->neighborTiles(mVisibleTiles[i]);
+            for (unsigned int j = 0; j < neighbors.size(); ++j)
+            {
+                tempTile = neighbors[j];
+                if (tempTile->getColor() == getColor()
+                        && tempTile->colorDouble >= 1.0)
+                {
+                    claimableTiles.push_back(tempTile);
+                }
+            }
+        }
+    }
+
+    //cout << "  I see " << claimableTiles.size() << " tiles I can claim.";
+    // Randomly pick a claimable tile, plot a path to it and walk to it
+    unsigned int tempUnsigned = 0;
+    Tile* tempTile = NULL;
+    while (!claimableTiles.empty())
+    {
+        // Randomly find a "good" tile to claim.  A good tile is one that has many neighbors
+        // already claimed, this makes the claimed are more "round" and less jagged.
+        do
+        {
+            int numNeighborsClaimed = 0;
+
+            // Start by randomly picking a candidate tile.
+            tempTile = claimableTiles[Random::Uint(0, claimableTiles.size() - 1)];
+
+            // Count how many of the candidate tile's neighbors are already claimed.
+            neighbors = getGameMap()->neighborTiles(tempTile);
+            for (unsigned int i = 0; i < neighbors.size(); ++i)
+            {
+                if (neighbors[i]->getColor() == getColor() && neighbors[i]->colorDouble >= 1.0)
+                    ++numNeighborsClaimed;
+            }
+
+            // Pick a random number in [0:1], if this number is high enough, than use this tile to claim.  The
+            // bar for success approaches 0 as numTiles approaches N so this will be guaranteed to succeed at,
+            // or before the time we get to the last unclaimed tile.  The bar for success is also lowered
+            // according to how many neighbors are already claimed.
+            //NOTE: The bar can be negative, when this happens we are guarenteed to use this candidate tile.
+            double bar = 1.0 - (numNeighborsClaimed / 4.0) - (tempUnsigned / (double) (claimableTiles.size() - 1));
+            if (Random::Double(0.0, 1.0) >= bar)
+                break;
+
+            // Safety catch to prevent infinite loop in case the bar for success is too high and is never met.
+            if (tempUnsigned >= claimableTiles.size() - 1)
+                break;
+
+            // Increment the counter indicating how many candidate tiles we have rejected so far.
+            ++tempUnsigned;
+        } while (true);
+
+        if (tempTile != NULL)
+        {
+            // If we find a valid path to the tile start walking to it and break
+            std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition->getTilePassability());
+            getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
+            if (setWalkPath(tempPath, 2, false))
+            {
+                setAnimationState("Walk");
+                pushAction(CreatureAction::walkToTile);
+                return false;
+            }
+        }
+
+        // If we got to this point, the tile we randomly picked cannot be gotten to via a
+        // valid path.  Delete it from the claimable tiles vector and repeat the outer
+        // loop to try to find another valid tile.
+        for (unsigned int i = 0; i < claimableTiles.size(); ++i)
+        {
+            if (claimableTiles[i] == tempTile)
+            {
+                claimableTiles.erase(claimableTiles.begin() + i);
+                break; // Break out of this for loop.
+            }
+        }
+    }
+
+    // We couldn't find a tile to try to claim so we stop trying
+    popAction();
     return false;
 }
 
