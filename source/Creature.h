@@ -256,6 +256,11 @@ private:
     void decideNextAction();
 
     //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature idle action logic.
+    //! \return true when another action should handled after that one.
+    bool handleIdleAction();
+
+    //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature walking action logic.
     //! \return true when another action should handled after that one.
     bool handleWalkToTileAction();

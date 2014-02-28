@@ -355,8 +355,6 @@ void Creature::detach()
  */
 void Creature::doTurn()
 {
-    //TODO: get rid of all these goto label stuff in here
-
     // If we are not standing somewhere on the map, do nothing.
     if (positionTile() == NULL)
         return;
@@ -397,44 +395,17 @@ void Creature::doTurn()
 
     decideNextAction();
 
-    CreatureAction tempAction;
-
     // The loopback variable allows creatures to begin processing a new
     // action immediately after some other action happens.
-    bool            loopBack        = false;
-    bool            tempBool        = false;
-    int             tempInt         = 0;
-    unsigned int    tempUnsigned    = 0;
-    unsigned int    loops           = 0;
-    double          tempDouble      = 0.0;
-
-    std::list<Tile*>    tempPath;
-    std::list<Tile*>    tempPath2;
-    std::vector<Room*>  tempRooms;
-    std::vector<Tile*>  neighbors;
-    std::vector<Tile*>  claimableTiles;
-
-    //FIXME: This is never initialised with some values (see the other comment addressing this)
-    std::pair<LocationType, double> minimumFieldValue;
+    bool loopBack = false;
+    unsigned int loops = 0;
 
     do
     {
         ++loops;
-
         loopBack = false;
 
         // Carry out the current task
-        Player* tempPlayer = NULL;
-        Tile*   tempTile = NULL;
-        Tile*   myTile = NULL;
-        Room*   tempRoom = NULL;
-
-        tempPath.clear();
-        tempPath2.clear();
-        tempRooms.clear();
-        neighbors.clear();
-        claimableTiles.clear();
-
         sem_wait(&mActionQueueLockSemaphore);
         if (!mActionQueue.empty())
         {
@@ -445,166 +416,7 @@ void Creature::doTurn()
             switch (topActionItem.getType())
             {
                 case CreatureAction::idle:
-                    //cout << "idle ";
-                    setAnimationState("Idle");
-                    //FIXME: make this into a while loop over a vector of <action, probability> pairs
-                    //TODO: This should mainly be decided based on whether there are any
-                    //marked and/or unclaimed tiles nearby, not a random value.
-                    // Workers only.
-                    if (mDefinition->isWorker())
-                    {
-                        // Decide to check for diggable tiles
-                        if (!markedTiles.empty())
-                        {
-                            loopBack = true;
-                            pushAction(CreatureAction::digTile);
-                        }
-
-                        // Decide to check for clamiable tiles
-                        else if (diceRoll < 0.9)
-                        {
-                            loopBack = true;
-                            pushAction(CreatureAction::claimTile);
-                        }
-
-                        // Decide to deposit the gold we are carrying into a treasury.
-                        /*else if (diceRoll < 0.7 + 0.6 * (mGold
-                                / (double) MaxGoldCarriedByWorkers))*/
-                        else if(mGold != 0)
-                        {
-                            //TODO: We need a flag to see if we have tried to do this
-                            // so the creature won't get confused if we are out of space.
-                            loopBack = true;
-                            pushAction(CreatureAction::depositGold);
-                        }
-                    }
-                    // Non-workers only
-                    else
-                    {
-                    }
-
-                    // Any creature.
-
-                    // Decide to "wander" a short distance
-                    if (diceRoll < 0.6)
-                    {
-                        loopBack = true;
-                        pushAction(CreatureAction::walkToTile);
-
-                        // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
-                        int tempX = 0, tempY = 0;
-
-                        if (!mDefinition->isWorker())
-                        {
-                            // Non-workers only.
-
-                            // Check to see if we want to try to follow a worker around or if we want to try to explore.
-                            double r = Random::Double(0.0, 1.0);
-                            //if(creatureJob == weakFighter) r -= 0.2;
-                            if (r < 0.7)
-                            {
-                                bool workerFound = false;
-                                // Try to find a worker to follow around.
-                                for (unsigned int i = 0; !workerFound && i
-                                        < mReachableAlliedObjects.size(); ++i)
-                                {
-                                    // Check to see if we found a worker.
-                                    if (mReachableAlliedObjects[i]->getObjectType() == GameEntity::creature
-                                            && static_cast<Creature*>(mReachableAlliedObjects[i])->mDefinition->isWorker())
-                                    {
-                                        // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
-                                        tempTile
-                                                = mReachableAlliedObjects[i]->getCoveredTiles()[0];
-                                        if (static_cast<Creature*>(mReachableAlliedObjects[i])->peekAction().getType()
-                                                == CreatureAction::digTile)
-                                        {
-                                            // Worker is digging, get near it since it could expose enemies.
-                                            tempX = static_cast<double>(tempTile->x) + 3.0
-                                                    * Random::gaussianRandomDouble();
-                                            tempY = static_cast<double>(tempTile->y) + 3.0
-                                                    * Random::gaussianRandomDouble();
-                                        }
-                                        else
-                                        {
-                                            // Worker is not digging, wander a bit farther around the worker.
-                                            tempX = static_cast<double>(tempTile->x) + 8.0
-                                                    * Random::gaussianRandomDouble();
-                                            tempY = static_cast<double>(tempTile->y) + 8.0
-                                                    * Random::gaussianRandomDouble();
-                                        }
-                                        workerFound = true;
-                                    }
-
-                                    // If there are no workers around, choose tiles far away to "roam" the dungeon.
-                                    if (!workerFound)
-                                    {
-                                        if (!mVisibleTiles.empty())
-                                        {
-                                            tempTile = mVisibleTiles[static_cast<unsigned int>(
-                                                            Random::Double(0.6, 0.8)
-                                                            * (mVisibleTiles.size()
-                                                            - 1))];
-                                            tempX = tempTile->x;
-                                            tempY = tempTile->y;
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                // Randomly choose a tile near where we are standing to walk to.
-                                if (!mVisibleTiles.empty())
-                                {
-                                    unsigned int tileIndex = static_cast<unsigned int>(
-                                            mVisibleTiles.size() * Random::Double(
-                                                    0.1, 0.3));
-                                    myTile = positionTile();
-                                    tempPath = getGameMap()->path(myTile,
-                                            mVisibleTiles[tileIndex],
-                                            mDefinition->getTilePassability());
-                                    if (setWalkPath(tempPath, 2, false))
-                                    {
-                                        setAnimationState("Walk");
-                                        pushAction(CreatureAction::walkToTile);
-                                        //loopBack = true;
-                                        break;
-                                    }
-                                }
-
-                            }
-                        }
-                        else
-                        {
-                            // Workers only.
-
-                            // Choose a tile far away from our current position to wander to.
-                            if (!mVisibleTiles.empty())
-                            {
-                                tempTile = mVisibleTiles[Random::Uint(
-                                        mVisibleTiles.size() / 2,
-                                        mVisibleTiles.size() - 1)];
-                                tempX = tempTile->x;
-                                tempY = tempTile->y;
-                            }
-                        }
-
-                        Tile *tempPositionTile = positionTile();
-                        std::list<Tile*> result;
-                        if (tempPositionTile != NULL)
-                        {
-                            result = getGameMap()->path(tempPositionTile->x,
-                                    tempPositionTile->y, tempX, tempY, mDefinition->getTilePassability());
-                        }
-
-                        getGameMap()->cutCorners(result, mDefinition->getTilePassability());
-                        if (setWalkPath(result, 2, false))
-                        {
-                            //loopBack = true;
-                            setAnimationState("Walk");
-                            pushAction(CreatureAction::walkToTile);
-                            break;
-                        }
-                    }
+                    loopBack = handleIdleAction();
                     break;
 
                 case CreatureAction::walkToTile:
@@ -742,6 +554,157 @@ void Creature::decideNextAction()
         pushAction(CreatureAction::train);
         mTrainWait = 0;
     }
+}
+
+bool Creature::handleIdleAction()
+{
+    double diceRoll = Random::Double(0.0, 1.0);
+    bool loopBack = false;
+
+    //cout << "idle ";
+    setAnimationState("Idle");
+    //FIXME: make this into a while loop over a vector of <action, probability> pairs
+    //TODO: This should mainly be decided based on whether there are any
+    //marked and/or unclaimed tiles nearby, not a random value.
+    // Workers only.
+    if (mDefinition->isWorker())
+    {
+        // Decide to check for diggable tiles
+        if (!getVisibleMarkedTiles().empty())
+        {
+            loopBack = true;
+            pushAction(CreatureAction::digTile);
+        }
+        // Decide to check for claimable tiles
+        else if (diceRoll < 0.9)
+        {
+            loopBack = true;
+            pushAction(CreatureAction::claimTile);
+        }
+
+        // Decide to deposit the gold we are carrying into a treasury.
+        else if(mGold != 0)
+        {
+            //TODO: We need a flag to see if we have tried to do this
+            // so the creature won't get confused if we are out of space.
+            loopBack = true;
+            pushAction(CreatureAction::depositGold);
+        }
+    }
+
+    // Any creature.
+
+    // Decide whether to "wander" a short distance
+    if (diceRoll >= 0.6)
+        return loopBack;
+
+    // Note: Always return true from now on.
+    pushAction(CreatureAction::walkToTile);
+
+    // Workers should move around randomly at large jumps.  Non-workers either wander short distances or follow workers.
+    int tempX = 0;
+    int tempY = 0;
+
+    if (!mDefinition->isWorker())
+    {
+        // Non-workers only.
+
+        // Check to see if we want to try to follow a worker around or if we want to try to explore.
+        double r = Random::Double(0.0, 1.0);
+        //if(creatureJob == weakFighter) r -= 0.2;
+        if (r < 0.7)
+        {
+            bool workerFound = false;
+            // Try to find a worker to follow around.
+            for (unsigned int i = 0; !workerFound && i < mReachableAlliedObjects.size(); ++i)
+            {
+                // Check to see if we found a worker.
+                if (mReachableAlliedObjects[i]->getObjectType() == GameEntity::creature
+                    && static_cast<Creature*>(mReachableAlliedObjects[i])->mDefinition->isWorker())
+                {
+                    // We found a worker so find a tile near the worker to walk to.  See if the worker is digging.
+                    Tile* tempTile = mReachableAlliedObjects[i]->getCoveredTiles()[0];
+                    if (static_cast<Creature*>(mReachableAlliedObjects[i])->peekAction().getType()
+                            == CreatureAction::digTile)
+                    {
+                        // Worker is digging, get near it since it could expose enemies.
+                        tempX = static_cast<double>(tempTile->x) + 3.0
+                                * Random::gaussianRandomDouble();
+                        tempY = static_cast<double>(tempTile->y) + 3.0
+                                * Random::gaussianRandomDouble();
+                    }
+                    else
+                    {
+                        // Worker is not digging, wander a bit farther around the worker.
+                        tempX = static_cast<double>(tempTile->x) + 8.0
+                                * Random::gaussianRandomDouble();
+                        tempY = static_cast<double>(tempTile->y) + 8.0
+                                * Random::gaussianRandomDouble();
+                    }
+                    workerFound = true;
+                }
+
+                // If there are no workers around, choose tiles far away to "roam" the dungeon.
+                if (!workerFound)
+                {
+                    if (!mVisibleTiles.empty())
+                    {
+                        Tile* tempTile = mVisibleTiles[static_cast<unsigned int>(Random::Double(0.6, 0.8)
+                                                                                 * (mVisibleTiles.size() - 1))];
+                        tempX = tempTile->x;
+                        tempY = tempTile->y;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // Randomly choose a tile near where we are standing to walk to.
+            if (!mVisibleTiles.empty())
+            {
+                unsigned int tileIndex = static_cast<unsigned int>(mVisibleTiles.size()
+                                                                   * Random::Double(0.1, 0.3));
+                Tile* myTile = positionTile();
+                std::list<Tile*> tempPath = getGameMap()->path(myTile,
+                        mVisibleTiles[tileIndex],
+                        mDefinition->getTilePassability());
+                if (setWalkPath(tempPath, 2, false))
+                {
+                    setAnimationState("Walk");
+                    pushAction(CreatureAction::walkToTile);
+                    return true;
+                }
+            }
+        }
+    }
+    else
+    {
+        // Workers only.
+
+        // Choose a tile far away from our current position to wander to.
+        if (!mVisibleTiles.empty())
+        {
+            Tile* tempTile = mVisibleTiles[Random::Uint(mVisibleTiles.size() / 2, mVisibleTiles.size() - 1)];
+            tempX = tempTile->x;
+            tempY = tempTile->y;
+        }
+    }
+
+    Tile *tempPositionTile = positionTile();
+    std::list<Tile*> result;
+    if (tempPositionTile != NULL)
+    {
+        result = getGameMap()->path(tempPositionTile->x, tempPositionTile->y,
+                                    tempX, tempY, mDefinition->getTilePassability());
+    }
+
+    getGameMap()->cutCorners(result, mDefinition->getTilePassability());
+    if (setWalkPath(result, 2, false))
+    {
+        setAnimationState("Walk");
+        pushAction(CreatureAction::walkToTile);
+    }
+    return true;
 }
 
 bool Creature::handleWalkToTileAction()
