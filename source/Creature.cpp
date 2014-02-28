@@ -396,82 +396,12 @@ void Creature::doTurn()
 
     std::vector<Tile*> markedTiles;
 
-    CreatureAction tempAction;
-    // If the creature can see enemies that are reachable.
-    if (!mReachableEnemyObjects.empty())
-    {
-        // Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
-        bool alreadyFighting = false;
-        sem_wait(&mActionQueueLockSemaphore);
-        for (unsigned int i = 0, size = mActionQueue.size(); i < size; ++i)
-        {
-            if (mActionQueue[i].getType() == CreatureAction::attackObject
-                    || mActionQueue[i].getType() == CreatureAction::maneuver)
-            {
-                alreadyFighting = true;
-                break;
-            }
-        }
-        sem_post(&mActionQueueLockSemaphore);
-
-        // If we are not already fighting with a creature or maneuvering then start doing so.
-        if (!alreadyFighting)
-        {
-            if (Random::Double(0.0, 1.0) < (mDefinition->isWorker() ? 0.05 : 0.8))
-            {
-                tempAction.setType(CreatureAction::maneuver);
-                mBattleFieldAgeCounter = 0;
-                pushAction(tempAction);
-                // Jump immediately to the action processor since we don't want to decide to
-                //train or something if there are enemies around.
-goto creatureActionDoWhileLoop;
-            }
-        }
-    }
-
-    if (mBattleFieldAgeCounter > 0)
-    {
-        --mBattleFieldAgeCounter;
-    }
-
     if (mDefinition->isWorker())
-    {
         markedTiles = getVisibleMarkedTiles();
-    }
-    else
-    {
-        // Check to see if we have found a "home" tile where we can sleep yet.
-        if (Random::Double(0.0, 1.0) < 0.03 && mHomeTile == NULL
-            && peekAction().getType() != CreatureAction::findHome)
-        {
-            // Check to see if there are any quarters owned by our color that we can reach.
-            std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::quarters, getColor());
-            tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition->getTilePassability());
-            if (!tempRooms.empty())
-            {
-                tempAction.setType(CreatureAction::findHome);
-                pushAction(tempAction);
-goto creatureActionDoWhileLoop;
-            }
-        }
 
-        // If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-        if (mHomeTile != 0 && 100.0 * std::pow(Random::Double(0.0, 0.8), 2) > mAwakeness && peekAction().getType() != CreatureAction::sleep)
-        {
-            tempAction.setType(CreatureAction::sleep);
-            pushAction(tempAction);
-        }
-        else if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0) < mAwakeness / 100.0 && peekAction().getType() != CreatureAction::train)
-        {
-            // Check to see if there is a Dojo we can train at.
-            //TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
-            tempAction.setType(CreatureAction::train);
-            pushAction(tempAction);
-            mTrainWait = 0;
-        }
-    }
+    decideNextAction();
 
-creatureActionDoWhileLoop:
+    CreatureAction tempAction;
 
     // The loopback variable allows creatures to begin processing a new
     // action immediately after some other action happens.
@@ -1374,6 +1304,75 @@ goto claimTileBreakStatement;
     }
 }
 
+void Creature::decideNextAction()
+{
+    // If the creature can see enemies that are reachable.
+    if (!mReachableEnemyObjects.empty())
+    {
+        // Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
+        bool alreadyFighting = false;
+        sem_wait(&mActionQueueLockSemaphore);
+        for (unsigned int i = 0, size = mActionQueue.size(); i < size; ++i)
+        {
+            if (mActionQueue[i].getType() == CreatureAction::attackObject
+                    || mActionQueue[i].getType() == CreatureAction::maneuver)
+            {
+                alreadyFighting = true;
+                break;
+            }
+        }
+        sem_post(&mActionQueueLockSemaphore);
+
+        // If we are not already fighting with a creature or maneuvering then start doing so.
+        if (!alreadyFighting)
+        {
+            if (Random::Double(0.0, 1.0) < (mDefinition->isWorker() ? 0.05 : 0.8))
+            {
+                mBattleFieldAgeCounter = 0;
+                pushAction(CreatureAction::maneuver);
+                // Jump immediately to the action processor since we don't want to decide to
+                //train or something if there are enemies around.
+                return;
+            }
+        }
+    }
+
+    if (mBattleFieldAgeCounter > 0)
+        --mBattleFieldAgeCounter;
+
+    if (mDefinition->isWorker())
+        return;
+
+    // Check to see if we have found a "home" tile where we can sleep yet.
+    if (Random::Double(0.0, 1.0) < 0.03 && mHomeTile == NULL
+        && peekAction().getType() != CreatureAction::findHome)
+    {
+        // Check to see if there are any quarters owned by our color that we can reach.
+        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::quarters, getColor());
+        tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition->getTilePassability());
+        if (!tempRooms.empty())
+        {
+            pushAction(CreatureAction::findHome);
+            return;
+        }
+    }
+
+    // If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
+    if (mHomeTile != 0 && 100.0 * std::pow(Random::Double(0.0, 0.8), 2) > mAwakeness
+        && peekAction().getType() != CreatureAction::sleep)
+    {
+        pushAction(CreatureAction::sleep);
+    }
+    else if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0) < mAwakeness / 100.0
+             && peekAction().getType() != CreatureAction::train)
+    {
+        // Check to see if there is a Dojo we can train at.
+        //TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
+        pushAction(CreatureAction::train);
+        mTrainWait = 0;
+    }
+}
+
 bool Creature::handleTrainingAction()
 {
     // Current creature tile position
@@ -1687,7 +1686,8 @@ bool Creature::handleManeuverAction()
 bool Creature::handleSleepAction()
 {
     Tile* myTile = positionTile();
-    if (mHomeTile == NULL) {
+    if (mHomeTile == NULL)
+    {
         popAction();
         return false;
     }
