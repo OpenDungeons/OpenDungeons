@@ -612,60 +612,7 @@ void Creature::doTurn()
                     break;
 
                 case CreatureAction::walkToTile:
-                    //TODO: This should be decided based on some aggressiveness parameter.
-                    if (Random::Double(0.0, 1.0) < 0.6 && !mEnemyObjectsInRange.empty())
-                    {
-                        popAction();
-                        tempAction.setType(CreatureAction::attackObject);
-                        pushAction(tempAction);
-                        clearDestinations();
-                        loopBack = true;
-                        break;
-                    }
-
-                    //TODO: Peek at the item that caused us to walk
-                    // If we are walking toward a tile we are trying to dig out, check to see if it is still marked for digging.
-                    sem_wait(&mActionQueueLockSemaphore);
-                    tempBool = (mActionQueue[1].getType() == CreatureAction::digTile);
-                    sem_post(&mActionQueueLockSemaphore);
-                    if (tempBool)
-                    {
-                        tempPlayer = getControllingPlayer();
-
-                        // Check to see if the tile is still marked for digging
-                        sem_wait(&walkQueueLockSemaphore);
-                        unsigned int index = walkQueue.size();
-                        Tile *currentTile = NULL;
-                        if (index > 0)
-                            currentTile = getGameMap()->getTile((int) walkQueue[index - 1].x,
-                                    (int) walkQueue[index - 1].y);
-
-                        sem_post(&walkQueueLockSemaphore);
-
-                        if (currentTile != NULL)
-                        {
-                            // If it is not marked
-                            if (tempPlayer != 0 && !currentTile->getMarkedForDigging(tempPlayer))
-                            {
-                                // Clear the walk queue
-                                clearDestinations();
-                            }
-                        }
-                    }
-
-                    //cout << "walkToTile ";
-                    sem_wait(&walkQueueLockSemaphore);
-                    if (walkQueue.empty())
-                    {
-                        popAction();
-                        loopBack = true;
-
-                        // This extra post is included here because if the break statement happens
-                        // the one at the end of the 'if' block will not happen.
-                        sem_post(&walkQueueLockSemaphore);
-                        break;
-                    }
-                    sem_post(&walkQueueLockSemaphore); // If this is removed remove the one in the 'if' block as well.
+                    loopBack = handleWalkToTileAction();
                     break;
 
                 case CreatureAction::claimTile:
@@ -1371,6 +1318,62 @@ void Creature::decideNextAction()
         pushAction(CreatureAction::train);
         mTrainWait = 0;
     }
+}
+
+bool Creature::handleWalkToTileAction()
+{
+    //TODO: This should be decided based on some aggressiveness parameter.
+    if (Random::Double(0.0, 1.0) < 0.6 && !mEnemyObjectsInRange.empty())
+    {
+        popAction();
+        pushAction(CreatureAction::attackObject);
+        clearDestinations();
+        return true;
+    }
+
+    //TODO: Peek at the item that caused us to walk
+    // If we are walking toward a tile we are trying to dig out, check to see if it is still marked for digging.
+    sem_wait(&mActionQueueLockSemaphore);
+    bool toDigTile = (mActionQueue[1].getType() == CreatureAction::digTile);
+    sem_post(&mActionQueueLockSemaphore);
+    if (toDigTile)
+    {
+        Player* tempPlayer = getControllingPlayer();
+
+        // Check to see if the tile is still marked for digging
+        sem_wait(&walkQueueLockSemaphore);
+        unsigned int index = walkQueue.size();
+        Tile *currentTile = NULL;
+        if (index > 0)
+            currentTile = getGameMap()->getTile((int) walkQueue[index - 1].x,
+                    (int) walkQueue[index - 1].y);
+
+        sem_post(&walkQueueLockSemaphore);
+
+        if (currentTile != NULL)
+        {
+            // If it is not marked
+            if (tempPlayer != 0 && !currentTile->getMarkedForDigging(tempPlayer))
+            {
+                // Clear the walk queue
+                clearDestinations();
+            }
+        }
+    }
+
+    //cout << "walkToTile ";
+    sem_wait(&walkQueueLockSemaphore);
+    if (walkQueue.empty())
+    {
+        popAction();
+
+        // This extra post is included here because if the break statement happens
+        // the one at the end of the 'if' block will not happen.
+        sem_post(&walkQueueLockSemaphore);
+        return true;
+    }
+    sem_post(&walkQueueLockSemaphore); // If this is removed remove the one in the 'if' block as well.
+    return false;
 }
 
 bool Creature::handleTrainingAction()
