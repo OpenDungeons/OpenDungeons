@@ -995,117 +995,8 @@ goto claimTileBreakStatement;
                 }
 
                 case CreatureAction::depositGold:
-                {
-                    // Check to see if we are standing in a treasury.
-                    myTile = positionTile();
-                    if (myTile != 0)
-                    {
-                        tempRoom = myTile->getCoveringRoom();
-                        if (tempRoom != NULL && tempRoom->getType() == Room::treasury)
-                        {
-                            // Deposit as much of the gold we are carrying as we can into this treasury.
-                            mGold -= static_cast<RoomTreasury*>(tempRoom)->depositGold(mGold, myTile);
-
-                            // Depending on how much gold we have left (what did not fit in this treasury) we may want to continue
-                            // looking for another treasury to put the gold into.  Roll a dice to see if we want to quit looking not.
-                            if (Random::Double(1.0, MaxGoldCarriedByWorkers) > mGold)
-                            {
-                                popAction();
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        break;
-                    }
-
-                    // We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
-                    // Check to see if our seat controls any treasuries.
-                    std::vector<Room*> treasuriesOwned = getGameMap()->getRoomsByTypeAndColor(
-                            Room::treasury, getColor());
-                    if (!treasuriesOwned.empty())
-                    {
-                        Tile *nearestTreasuryTile;
-                        nearestTreasuryTile = NULL;
-                        unsigned int nearestTreasuryDistance;
-                        nearestTreasuryDistance = 0; // to avoid a compilation warning
-                        bool validPathFound;
-                        validPathFound = false;
-                        tempPath.clear();
-                        tempPath2.clear();
-                        // Loop over the treasuries to find the closest one.
-                        for (unsigned int i = 0; i < treasuriesOwned.size(); ++i)
-                        {
-                            if (!validPathFound)
-                            {
-                                // We have not yet found a valid path to a treasury, check to see if we can get to this treasury.
-                                tempUnsigned = Random::Uint(0,
-                                        treasuriesOwned[i]->numCoveredTiles()
-                                                - 1);
-                                nearestTreasuryTile
-                                        = treasuriesOwned[i]->getCoveredTile(
-                                                tempUnsigned);
-                                tempPath = getGameMap()->path(myTile,
-                                        nearestTreasuryTile, mDefinition->getTilePassability());
-                                if (tempPath.size() >= 2
-                                        && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
-                                {
-                                    validPathFound = true;
-                                    nearestTreasuryDistance = tempPath.size();
-                                }
-                            }
-                            else
-                            {
-                                // We have already found at least one valid path to a treasury, see if this one is closer.
-                                tempUnsigned = Random::Uint(0,
-                                        treasuriesOwned[i]->numCoveredTiles()
-                                                - 1);
-                                tempTile = treasuriesOwned[i]->getCoveredTile(
-                                        tempUnsigned);
-                                tempPath2 = getGameMap()->path(myTile, tempTile,
-                                        mDefinition->getTilePassability());
-                                if (tempPath2.size() >= 2 && tempPath2.size()
-                                        < nearestTreasuryDistance
-                                        && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
-                                {
-                                    tempPath = tempPath2;
-                                    nearestTreasuryDistance = tempPath.size();
-                                }
-                            }
-                        }
-
-                        if (validPathFound)
-                        {
-                            // Begin walking to this treasury.
-                            getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
-                            if (setWalkPath(tempPath, 2, false))
-                            {
-                                setAnimationState("Walk");
-                                pushAction(CreatureAction::walkToTile);
-                                //loopBack = true;
-                                break;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // There are no treasuries available so just go back to what we were doing.
-                        popAction();
-                        loopBack = true;
-                        LogManager::getSingleton().logMessage("No space to put gold for creature for player "
-                            + Ogre::StringConverter::toString(getColor()));
-                        break;
-                    }
-
-                    // If we get to here, there is either no treasuries controlled by us, or they are all
-                    // unreachable, or they are all full, so quit trying to deposit gold.
-                    popAction();
-                    loopBack = true;
-                    LogManager::getSingleton().logMessage("No space to put gold for creature for player "
-                        + Ogre::StringConverter::toString(getColor()));
+                    loopBack = handleDepositGoldAction();
                     break;
-                }
 
                 case CreatureAction::findHome:
                     loopBack = handleFindHomeAction();
@@ -1282,6 +1173,96 @@ bool Creature::handleWalkToTileAction()
     }
     sem_post(&walkQueueLockSemaphore); // If this is removed remove the one in the 'if' block as well.
     return false;
+}
+
+bool Creature::handleDepositGoldAction()
+{
+    // Check to see if we are standing in a treasury.
+    Tile* myTile = positionTile();
+    if (myTile == NULL)
+        return false;
+
+    Room* tempRoom = myTile->getCoveringRoom();
+    if (tempRoom != NULL && tempRoom->getType() == Room::treasury)
+    {
+        // Deposit as much of the gold we are carrying as we can into this treasury.
+        mGold -= static_cast<RoomTreasury*>(tempRoom)->depositGold(mGold, myTile);
+
+        // Depending on how much gold we have left (what did not fit in this treasury) we may want to continue
+        // looking for another treasury to put the gold into.  Roll a dice to see if we want to quit looking not.
+        if (Random::Double(1.0, MaxGoldCarriedByWorkers) > mGold)
+        {
+            popAction();
+            return false;
+        }
+    }
+
+    // We were not standing in a treasury that has enough room for the gold we are carrying, so try to find one to walk to.
+    // Check to see if our seat controls any treasuries.
+    std::vector<Room*> treasuriesOwned = getGameMap()->getRoomsByTypeAndColor(Room::treasury, getColor());
+    if (treasuriesOwned.empty())
+    {
+        // There are no treasuries available so just go back to what we were doing.
+        popAction();
+        LogManager::getSingleton().logMessage("No space to put gold for creature for player "
+            + Ogre::StringConverter::toString(getColor()));
+        return true;
+    }
+
+    Tile* nearestTreasuryTile = NULL;
+    unsigned int nearestTreasuryDistance = 0;
+    bool validPathFound = false;
+    std::list<Tile*> tempPath;
+
+    // Loop over the treasuries to find the closest one.
+    for (unsigned int i = 0; i < treasuriesOwned.size(); ++i)
+    {
+        if (!validPathFound)
+        {
+            // We have not yet found a valid path to a treasury, check to see if we can get to this treasury.
+            unsigned int tempUnsigned = Random::Uint(0, treasuriesOwned[i]->numCoveredTiles() - 1);
+            nearestTreasuryTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
+            tempPath = getGameMap()->path(myTile, nearestTreasuryTile, mDefinition->getTilePassability());
+            if (tempPath.size() >= 2 && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
+            {
+                validPathFound = true;
+                nearestTreasuryDistance = tempPath.size();
+            }
+        }
+        else
+        {
+            // We have already found at least one valid path to a treasury, see if this one is closer.
+            unsigned int tempUnsigned = Random::Uint(0, treasuriesOwned[i]->numCoveredTiles() - 1);
+            Tile* tempTile = treasuriesOwned[i]->getCoveredTile(tempUnsigned);
+            std::list<Tile*> tempPath2 = getGameMap()->path(myTile, tempTile, mDefinition->getTilePassability());
+            if (tempPath2.size() >= 2 && tempPath2.size() < nearestTreasuryDistance
+                && static_cast<RoomTreasury*>(treasuriesOwned[i])->emptyStorageSpace() > 0)
+            {
+                tempPath = tempPath2;
+                nearestTreasuryDistance = tempPath.size();
+            }
+        }
+    }
+
+    if (validPathFound)
+    {
+        // Begin walking to this treasury.
+        getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
+        if (setWalkPath(tempPath, 2, false))
+        {
+            setAnimationState("Walk");
+            pushAction(CreatureAction::walkToTile);
+            //loopBack = true;
+            return false;
+        }
+    }
+
+    // If we get to here, there is either no treasuries controlled by us, or they are all
+    // unreachable, or they are all full, so quit trying to deposit gold.
+    popAction();
+    LogManager::getSingleton().logMessage("No space to put gold for creature for player "
+        + Ogre::StringConverter::toString(getColor()));
+    return true;
 }
 
 bool Creature::handleFindHomeAction()

@@ -256,17 +256,22 @@ private:
     void decideNextAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature walking logic.
+    //! This functions will hanlde the creature walking action logic.
     //! \return true when another action should handled after that one.
     bool handleWalkToTileAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature finding home logic.
+    //! This functions will hanlde the creature deposit gold action logic.
+    //! \return true when another action should handled after that one.
+    bool handleDepositGoldAction();
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature finding home action logic.
     //! \return true when another action should handled after that one.
     bool handleFindHomeAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature training logic.
+    //! This functions will hanlde the creature training action logic.
     //! \return true when another action should handled after that one.
     bool handleTrainingAction();
 
@@ -274,17 +279,17 @@ private:
     void stopUsingDojo();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature attack logic.
+    //! This functions will hanlde the creature attack action logic.
     //! \return true when another action should handled after that one.
     bool handleAttackAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature maneuver logic.
+    //! This functions will hanlde the creature maneuver action logic.
     //! \return true when another action should handled after that one.
     bool handleManeuverAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature sleeping logic.
+    //! This functions will hanlde the creature sleeping action logic.
     //! \return true when another action should handled after that one.
     bool handleSleepAction();
 };
