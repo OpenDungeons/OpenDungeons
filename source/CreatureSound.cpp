@@ -1,8 +1,23 @@
 /*
- * CreatureSound.cpp
+ *  CreatureSound.cpp
  *
  *  Created on: 24. feb. 2011
- *      Author: oln
+ *  Author: oln
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "CreatureSound.h"
@@ -10,17 +25,14 @@
 CreatureSound::CreatureSound()
 {
     //Reserve space for sound objects
-    sounds.assign(NUM_CREATURE_SOUNDS, sf::Sound());
+    mSounds.assign(NUM_CREATURE_SOUNDS, sf::Sound());
 }
 
-/*! \brief Play the wanted sound.
- *
- */
+//! \brief Play the wanted sound.
 void CreatureSound::play(SoundType type)
 {
-    //TODO - can it ever happen that we start playing the same sound before it's finished?
-    sounds[type].stop();
-    sounds[type].play();
+    mSounds[type].stop();
+    mSounds[type].play();
 }
 
 void CreatureSound::setPosition(Ogre::Vector3 p)
@@ -33,11 +45,10 @@ void CreatureSound::setPosition(Ogre::Vector3 p)
  */
 void CreatureSound::setPosition(float x, float y, float z)
 {
-    //TODO - can this be optimised?
     SoundEffectsHelper::SoundFXVector::iterator it;
-    for (it = sounds.begin(); it != sounds.end(); ++it)
+    for (it = mSounds.begin(); it != mSounds.end(); ++it)
     {
         it->setPosition(x, y, z);
-    } 
+    }
 }
 

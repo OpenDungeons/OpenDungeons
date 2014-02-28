@@ -1,52 +1,38 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#ifndef CULLINGMANAGER_H_
+#define CULLINGMANAGER_H_
 
 #include "GameMap.h"
 #include "CameraManager.h"
 #include "MortuaryQuad.h"
+
 #include <OgreRay.h>
 #include <OgrePlane.h>
 #include <set>
 
 class CameraManager;
 
-    struct Vector3i{
-	Vector3i(const Ogre::Vector3& OV){x = (1<<10) * OV.x ; y = (1<<10) * OV.y; z = (1<<10) *OV.z ; 
-
-	}
-	Vector3i(){};
-
-	int x ; int y ; int z;};
-
-
-
-class CullingManager{
-
-
+class CullingManager
+{
     friend class GameMap;
-    set<Creature*>*  currentVisibleCreatures ;
-    set<Creature*>*  previousVisibleCreatures ;
 
-    set<Creature*> creaturesSet[2]; 
-
-    MortuaryQuad myCullingQuad;
-    Ogre::Vector3 ogreVectorsArray[4];
-    Vector3i top, bottom, middleLeft, middleRight;
-    Vector3i oldTop, oldBottom, oldMiddleLeft, oldMiddleRight;
-    GameMap* gameMap;
-    int precisionDigits;
-    bool firstIter;
-    CameraManager* cm;
-
-    Ogre::Plane myplanes[6];
-    Ogre::Ray myRay[4];
-
-   
-
-public: 
-
-    static const int HIDE =  1;
-    static const int SHOW =  2;
-
-    
+public:
     CullingManager(CameraManager*);
     CullingManager();
 
@@ -54,23 +40,45 @@ public:
 
     void startCreatureCulling();
     void startTileCulling();
+
     void stopCreatureCulling();
     void stopTileCulling();
 
     bool getIntersectionPoints();
 
-    void hideAllTiles(void);
+    void hideAllTiles();
 
     int cullCreatures();
     int cullTiles();
-    bool cullCreaturesFlag;
-    bool cullTilesFlag;
 
-    bool onFrameStarted   ();
-    bool onFrameEnded     ();
-    int bashAndSplashTiles(int); // set the new tiles
-    void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
+    bool onFrameStarted();
+    bool onFrameEnded();
 
-    set<Creature*> tmpMortuary;
+    // set the new tiles
+    int bashAndSplashTiles(int);
 
-    };
+    void sort(Vector3i& p1, Vector3i& p2, bool sortByX);
+
+private:
+    std::set<Creature*>*  mCurrentVisibleCreatures;
+    std::set<Creature*>*  mPreviousVisibleCreatures;
+
+    std::set<Creature*> mCreaturesSet[2];
+
+    MortuaryQuad mMyCullingQuad;
+    Ogre::Vector3 mOgreVectorsArray[4];
+    Vector3i mTop, mBottom, mMiddleLeft, mMiddleRight;
+    Vector3i mOldTop, mOldBottom, mOldMiddleLeft, mOldMiddleRight;
+    GameMap* mGameMap;
+    int mPrecisionDigits;
+    bool mFirstIter;
+    CameraManager* mCm;
+
+    Ogre::Plane mMyplanes[6];
+    Ogre::Ray mMyRay[4];
+
+    bool mCullCreaturesFlag;
+    bool mCullTilesFlag;
+};
+
+#endif // CULLINGMANAGER_H_

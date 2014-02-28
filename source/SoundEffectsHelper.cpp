@@ -110,7 +110,7 @@ void SoundEffectsHelper::setListenerPosition(const Ogre::Vector3& position,
 
     //TODO - verify if this is right
     Ogre::Vector3 vDir = orientation.zAxis();
-    //FIXME Are those really sets the orientation of players ears 
+    //FIXME Are those really sets the orientation of players ears
     //Acording to SFML docs this should be a point in ABSOLUTE coordinates
     //Where player is targeting his ear :P . paul424 .
     sf::Listener::setDirection(-vDir.x, -vDir.y, -vDir.z);
@@ -176,7 +176,7 @@ Ogre::SharedPtr<CreatureSound> SoundEffectsHelper::createCreatureSound(
         const std::string& creatureClass)
 {
     Ogre::SharedPtr<CreatureSound> sound(new CreatureSound());
-    SoundFXVector& soundVector = sound->sounds;
+    SoundFXVector& soundVector = sound->mSounds;
     SoundFXBufferVector& buffers = creatureSoundBuffers["Default"];
     soundVector[CreatureSound::ATTACK].setBuffer(
             *buffers[CreatureSound::ATTACK].get());

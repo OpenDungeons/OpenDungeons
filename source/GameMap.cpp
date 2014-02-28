@@ -261,7 +261,7 @@ void GameMap::addCreature(Creature *cc)
     sem_post(&creaturesLockSemaphore);
 
     cc->positionTile()->addCreature(cc);
-    culm->myCullingQuad.insert(cc);
+    culm->mMyCullingQuad.insert(cc);
 
     addAnimatedObject(cc);
     cc->setIsOnMap(true);

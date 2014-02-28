@@ -44,6 +44,26 @@ class Viewport;
 
 using std::vector; using std::pair; using std::map;
 
+// A custom vector used commonly between the CameraManager and the CullingManager classes
+struct Vector3i
+{
+    Vector3i(const Ogre::Vector3& OV)
+    {
+        x = (int)((1 << 10) * OV.x);
+        y = (int)((1 << 10) * OV.y);
+        z = (int)((1 << 10) * OV.z);
+    }
+
+    Vector3i():
+        x(0),
+        y(0),
+        z(0)
+    {}
+
+    int x;
+    int y;
+    int z;
+};
 
 class CameraManager
 {
@@ -66,25 +86,6 @@ public:
 
     HermiteCatmullSpline xHCS;
     HermiteCatmullSpline yHCS;
-
-    struct Vector3i {
-        Vector3i(const Ogre::Vector3& OV) {
-            x = (1 << 10) * OV.x;
-            y = (1 << 10) * OV.y;
-            z = (1 << 10) * OV.z;
-        }
-
-        Vector3i():
-            x(0),
-            y(0),
-            z(0)
-        {};
-
-        int x;
-        int y;
-        int z;
-    };
-
 
     CameraManager(Ogre::SceneManager*, GameMap*);
 
