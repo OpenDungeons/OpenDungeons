@@ -17,7 +17,7 @@
 
 /*TODO list:
  * - replace hardcoded calculations by scripts and/or read the numbers from XML defintion files
- * - the doTurn() functions needs a major rewrite, splitup and script support
+ * - the doTurn() functions needs script support
  */
 
 #include "Creature.h"
@@ -412,7 +412,6 @@ void Creature::doTurn()
             CreatureAction topActionItem = mActionQueue.front();
             sem_post(&mActionQueueLockSemaphore);
 
-            double diceRoll = Random::Double(0.0, 1.0);
             switch (topActionItem.getType())
             {
                 case CreatureAction::idle:

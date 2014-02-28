@@ -1,3 +1,20 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 //TODO: ideally we shouldn't need this file. Reasons:
 // - The stream operators should be replaced by a proper XML reader class that creates
 // the Definition objects through its ctor (that's what ctors are for).
@@ -8,7 +25,7 @@
 
 #include "CreatureDefinition.h"
 
-CreatureDefinition::CreatureJob CreatureDefinition::creatureJobFromString(std::string s)
+CreatureDefinition::CreatureJob CreatureDefinition::creatureJobFromString(const std::string& s)
 {
     if (s.compare("BasicWorker") == 0)
         return basicWorker;
@@ -44,85 +61,85 @@ std::string CreatureDefinition::creatureJobToString(CreatureJob c)
 {
     switch (c)
     {
-        case nullCreatureJob:
-            return "NullCreatureJob";
+    case nullCreatureJob:
+        return "NullCreatureJob";
 
-        case basicWorker:
-            return "BasicWorker";
+    case basicWorker:
+        return "BasicWorker";
 
-        case advancedWorker:
-            return "AdvancedWorker";
+    case advancedWorker:
+        return "AdvancedWorker";
 
-        case scout:
-            return "Scout";
+    case scout:
+        return "Scout";
 
-        case weakFighter:
-            return "WeakFighter";
+    case weakFighter:
+        return "WeakFighter";
 
-        case weakSpellcaster:
-            return "WeakSpellcaster";
+    case weakSpellcaster:
+        return "WeakSpellcaster";
 
-        case weakBuilder:
-            return "WeakBuilder";
+    case weakBuilder:
+        return "WeakBuilder";
 
-        case strongFighter:
-            return "StrongFighter";
+    case strongFighter:
+        return "StrongFighter";
 
-        case strongSpellcaster:
-            return "StrongSpellcaster";
+    case strongSpellcaster:
+        return "StrongSpellcaster";
 
-        case strongBuilder:
-            return "StrongBuilder";
+    case strongBuilder:
+        return "StrongBuilder";
 
-        case guard:
-            return "Guard";
+    case guard:
+        return "Guard";
 
-        case specialCreature:
-            return "SpecialCreature";
+    case specialCreature:
+        return "SpecialCreature";
 
-        case summon:
-            return "Summon";
+    case summon:
+        return "Summon";
 
-        case superCreature:
-            return "SuperCreature";
+    case superCreature:
+        return "SuperCreature";
 
-        default:
-            return "NullCreatureJob";
+    default:
+        return "NullCreatureJob";
     }
 }
 
 std::ostream& operator<<(std::ostream& os, CreatureDefinition *c)
 {
     //TODO: Need to include maxHP/maxMana in the file format.
-    os << c->className << "\t" << CreatureDefinition::creatureJobToString(
-            c->creatureJob) << "\t" << c->meshName << "\t";
-    os << c->bedMeshName << "\t" << c->bedDim1 << "\t" << c->bedDim2 << "\t";
-    os << c->scale.x << "\t" << c->scale.y << "\t" << c->scale.z << "\t";
-    os << c->hpPerLevel << "\t" << c->manaPerLevel << "\t";
-    os << c->sightRadius << "\t" << c->digRate << "\t" << c->danceRate << "\t"
-            << c->moveSpeed << "\t";
-    os << c->coefficientHumans << "\t" << c->coefficientCorpars << "\t"
-            << c->coefficientUndead << "\t";
-    os << c->coefficientConstructs << "\t" << c->coefficientDenizens << "\t";
-    os << c->coefficientAltruism << "\t" << c->coefficientOrder << "\t"
-            << c->coefficientPeace;
+    os << c->mClassName << "\t"
+       << CreatureDefinition::creatureJobToString(c->mCreatureJob)
+       << "\t" << c->mMeshName << "\t";
+    os << c->mBedMeshName << "\t" << c->mBedDim1 << "\t" << c->mBedDim2 << "\t";
+    os << c->mScale.x << "\t" << c->mScale.y << "\t" << c->mScale.z << "\t";
+    os << c->mHpPerLevel << "\t" << c->mManaPerLevel << "\t";
+    os << c->mSightRadius << "\t" << c->mDigRate << "\t" << c->mDanceRate << "\t"
+       << c->mMoveSpeed << "\t";
+    os << c->mCoefficientHumans << "\t" << c->mCoefficientCorpars << "\t"
+       << c->mCoefficientUndead << "\t";
+    os << c->mCoefficientConstructs << "\t" << c->mCoefficientDenizens << "\t";
+    os << c->mCoefficientAltruism << "\t" << c->mCoefficientOrder << "\t"
+       << c->mCoefficientPeace;
     return os;
 }
 
 std::istream& operator>>(std::istream& is, CreatureDefinition *c)
 {
     std::string tempString;
-    is >> c->className >> tempString;
-    c->creatureJob = CreatureDefinition::creatureJobFromString(tempString);
-    is >> c->meshName;
-    is >> c->bedMeshName >> c->bedDim1 >> c->bedDim2;
-    is >> c->scale.x >> c->scale.y >> c->scale.z;
-    is >> c->hpPerLevel >> c->manaPerLevel;
-    is >> c->sightRadius >> c->digRate >> c->danceRate >> c->moveSpeed;
-    is >> c->coefficientHumans >> c->coefficientCorpars >> c->coefficientUndead;
-    is >> c->coefficientConstructs >> c->coefficientDenizens;
-    is >> c->coefficientAltruism >> c->coefficientOrder >> c->coefficientPeace;
+    is >> c->mClassName >> tempString;
+    c->mCreatureJob = CreatureDefinition::creatureJobFromString(tempString);
+    is >> c->mMeshName;
+    is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2;
+    is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
+    is >> c->mHpPerLevel >> c->mManaPerLevel;
+    is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate >> c->mMoveSpeed;
+    is >> c->mCoefficientHumans >> c->mCoefficientCorpars >> c->mCoefficientUndead;
+    is >> c->mCoefficientConstructs >> c->mCoefficientDenizens;
+    is >> c->mCoefficientAltruism >> c->mCoefficientOrder >> c->mCoefficientPeace;
 
     return is;
 }
-
