@@ -1506,7 +1506,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
     int startX = startTile->x;
     int startY = startTile->y;
-    int sightRadiusSquared = sightRadius * sightRadius;
+    int sightRadiusSquared = (int)(sightRadius * sightRadius);
     std::list<std::pair<Tile*, double> > tileQueue;
 
     int tileCounter = 0;

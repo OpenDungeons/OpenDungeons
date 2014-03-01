@@ -12,7 +12,7 @@ MortuaryQuad::MortuaryQuad(const MortuaryQuad &qd):
     sem_init(&creaturesInCullingQuadLockSemaphore, 0, 1);
 
     center = (qd.center);
-    radious = qd.radious;
+    mRadius = qd.mRadius;
 
     if(qd.isLeaf()) {
         entry = qd.entry;

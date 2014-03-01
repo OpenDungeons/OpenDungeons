@@ -45,7 +45,7 @@ CullingManager::CullingManager(CameraManager* cameraManager):
     mMyplanes[3]=(Ogre::Plane(0, -1, 0, 395));
     mMyplanes[4]=(Ogre::Plane(1, 0, 0, -1));
     mMyplanes[5]=(Ogre::Plane(-1, 0, 0, 395));
-    mMyCullingQuad.setRadious(256);
+    mMyCullingQuad.setRadius(256);
     mMyCullingQuad.setCenter(200, 200);
 
     // init the Ogre vector
@@ -74,7 +74,7 @@ CullingManager::CullingManager():
     mMyplanes[3]=(Ogre::Plane(0, -1, 0, 395));
     mMyplanes[4]=(Ogre::Plane(1, 0, 0, -1));
     mMyplanes[5]=(Ogre::Plane(-1, 0, 0, 395));
-    mMyCullingQuad.setRadious(256);
+    mMyCullingQuad.setRadius(256);
     mMyCullingQuad.setCenter(200, 200);
 
     // init the Ogre vector

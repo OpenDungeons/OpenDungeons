@@ -101,7 +101,10 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     LogManager::getSingletonPtr()->logMessage("Creating RTS Camera...", Ogre::LML_NORMAL);
     cm->createCamera("RTS", 0.02, 300.0);
     LogManager::getSingletonPtr()->logMessage("Creating RTS CameraNode...", Ogre::LML_NORMAL);
-    cm->createCameraNode("RTS", Ogre::Vector3(1 + gameMap->getMapSizeX()/2, -1 + gameMap->getMapSizeY()/2,16 ), Ogre::Degree(0.0)  ,Ogre::Degree(45.0) );
+    cm->createCameraNode("RTS", Ogre::Vector3((Ogre::Real)(1 + gameMap->getMapSizeX() / 2),
+                                              (Ogre::Real)(-1 + gameMap->getMapSizeY()/2),
+                                              (Ogre::Real)16),
+                                              Ogre::Degree(0.0), Ogre::Degree(45.0));
 
     LogManager::getSingletonPtr()->logMessage("Creating FPP Camera...", Ogre::LML_NORMAL);
     cm->createCamera("FPP", 0.02, 30.0 );
@@ -448,9 +451,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         // Advance the animation
         if (currentAnimatedObject->animationState != NULL)
         {
-            currentAnimatedObject->animationState->addTime(ODApplication::turnsPerSecond
+            currentAnimatedObject->animationState->addTime((Ogre::Real)(ODApplication::turnsPerSecond
                     * evt.timeSinceLastFrame
-                    * currentAnimatedObject->getAnimationSpeedFactor());
+                    * currentAnimatedObject->getAnimationSpeedFactor()));
         }
 
         // Move the creature
@@ -462,8 +465,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             {
                 currentAnimatedObject->walkQueueFirstEntryAdded = false;
                 currentAnimatedObject->faceToward(
-                        currentAnimatedObject->walkQueue.front().x,
-                        currentAnimatedObject->walkQueue.front().y);
+                        (int)currentAnimatedObject->walkQueue.front().x,
+                        (int)currentAnimatedObject->walkQueue.front().y);
             }
 
             //FIXME: The moveDist should probably be tied to the scale of the creature as well
@@ -508,7 +511,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 currentAnimatedObject->setPosition(
                         currentAnimatedObject->getPosition()
                                 + currentAnimatedObject->walkDirection
-                                        * moveDist);
+                                        * (Ogre::Real)moveDist);
             }
         }
         sem_post(&currentAnimatedObject->walkQueueLockSemaphore);

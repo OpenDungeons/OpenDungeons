@@ -75,11 +75,13 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm) :
 void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double farClip)
 {
     Ogre::Camera* tmpCamera = mSceneManager->createCamera(ss);
-    tmpCamera->setNearClipDistance(nearClip);
-    tmpCamera->setFarClipDistance(farClip);
+    tmpCamera->setNearClipDistance((Ogre::Real)nearClip);
+    tmpCamera->setFarClipDistance((Ogre::Real)farClip);
     tmpCamera->setAutoTracking(false, mSceneManager->getRootSceneNode()
                                 ->createChildSceneNode("CameraTarget_" + ss),
-                                    Ogre::Vector3(mGameMap->getMapSizeX() / 2, mGameMap->getMapSizeY() / 2, 0));
+                                    Ogre::Vector3((Ogre::Real)(mGameMap->getMapSizeX() / 2),
+                                                  (Ogre::Real)(mGameMap->getMapSizeY() / 2),
+                                                  (Ogre::Real)0));
 
     mRegisteredCameraNames.insert(ss);
 }
@@ -178,9 +180,9 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
 {
     // Carry out the acceleration/deceleration calculations on the camera translation.
     Ogre::Real speed = mTranslateVector.normalise();
-    mTranslateVector *= std::max(0.0, speed - (0.75 + (speed / mMoveSpeed))
+    mTranslateVector *= (Ogre::Real)std::max(0.0, speed - (0.75 + (speed / mMoveSpeed))
                                 * mMoveSpeedAccel * frameTime);
-    mTranslateVector += mTranslateVectorAccel * (frameTime * 2.0);
+    mTranslateVector += mTranslateVectorAccel * (Ogre::Real)(frameTime * 2.0);
 
     // If we have sped up to more than the maximum moveSpeed then rescale the
     // vector to that length. We use the squaredLength() in this calculation
@@ -207,10 +209,10 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
 
     // Adjust the newPosition vector to account for the translation due
     // to the movement keys on the keyboard (the arrow keys and/or WASD).
-    newPosition.z += mZChange * frameTime * mZoomSpeed;
+    newPosition.z += (Ogre::Real)(mZChange * frameTime * mZoomSpeed);
 
     Ogre::Real horizontalSpeedFactor =
-        (newPosition.z >= 25.0) ? 1.0 : newPosition.z / (25.0);
+        (newPosition.z >= 25.0) ? (Ogre::Real)1.0 : (Ogre::Real)(newPosition.z / (25.0));
 
     newPosition += horizontalSpeedFactor * (viewDirectionQuaternion * mTranslateVector);
 
@@ -286,8 +288,8 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     {
         mAlpha += 0.1 * frameTime;
 
-        newPosition.x = cos(mAlpha) * mRadius + mCenterX;
-        newPosition.y = sin(mAlpha) * mRadius + mCenterY;
+        newPosition.x = (Ogre::Real)(cos(mAlpha) * mRadius + mCenterX);
+        newPosition.y = (Ogre::Real)(sin(mAlpha) * mRadius + mCenterY);
 
         if(mAlpha > 2.0 * 3.145)
             mCircleMode = false;
@@ -310,8 +312,8 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
                 tempX > 10 &&
                 tempY < 0.9 * mGameMap->getMapSizeY() &&
                 tempY > 10 ) {
-            newPosition.x = tempX;
-            newPosition.y = tempY;
+            newPosition.x = (Ogre::Real)tempX;
+            newPosition.y = (Ogre::Real)tempY;
         }
 
         if(mAlpha > xHCS.getNN())
@@ -448,7 +450,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case randomRotateX:
-        mSwivelDegrees = Ogre::Degree(64 * aux);
+        mSwivelDegrees = Ogre::Degree((Ogre::Real)(64 * aux));
         break;
 
     case zeroRandomRotateX:
@@ -456,7 +458,7 @@ void CameraManager::move(const Direction direction, double aux)
         break;
 
     case randomRotateY:
-        mRotateLocalVector.x =  64 * aux;
+        mRotateLocalVector.x = (Ogre::Real)(64 * aux);
         break;
 
     case zeroRandomRotateY:

@@ -165,7 +165,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     is >> xLocation >> yLocation >> zLocation;
     xLocation += c->getGameMap()->getMapSizeX()/2;
     yLocation += c->getGameMap()->getMapSizeY()/2;
-    c->setPosition(Ogre::Vector3(xLocation, yLocation, zLocation));
+    c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
 
     int color = 0;
     is >> color;
@@ -627,18 +627,18 @@ bool Creature::handleIdleAction()
                             == CreatureAction::digTile)
                     {
                         // Worker is digging, get near it since it could expose enemies.
-                        tempX = static_cast<double>(tempTile->x) + 3.0
-                                * Random::gaussianRandomDouble();
-                        tempY = static_cast<double>(tempTile->y) + 3.0
-                                * Random::gaussianRandomDouble();
+                        tempX = (int)(static_cast<double>(tempTile->x) + 3.0
+                                * Random::gaussianRandomDouble());
+                        tempY = (int)(static_cast<double>(tempTile->y) + 3.0
+                                * Random::gaussianRandomDouble());
                     }
                     else
                     {
                         // Worker is not digging, wander a bit farther around the worker.
-                        tempX = static_cast<double>(tempTile->x) + 8.0
-                                * Random::gaussianRandomDouble();
-                        tempY = static_cast<double>(tempTile->y) + 8.0
-                                * Random::gaussianRandomDouble();
+                        tempX = (int)(static_cast<double>(tempTile->x) + 8.0
+                                * Random::gaussianRandomDouble());
+                        tempY = (int)(static_cast<double>(tempTile->y) + 8.0
+                                * Random::gaussianRandomDouble());
                     }
                     workerFound = true;
                 }
@@ -837,7 +837,7 @@ bool Creature::handleClaimTileAction()
                         && tempTile2->colorDouble >= 1.0)
                 {
                     clearDestinations();
-                    addDestination(tempTile->x, tempTile->y);
+                    addDestination((Ogre::Real)tempTile->x, (Ogre::Real)tempTile->y);
                     setAnimationState("Walk");
                     return false;
                 }
@@ -977,11 +977,9 @@ bool Creature::handleDigTileAction()
                 //FIXME: Make sure we can't dig gold if the creature has max gold.
                 // Or let gold on the ground, until there is space so that the player
                 // isn't stuck when making a way through gold.
-                double tempDouble = 5 * std::min(mDefinition->getDigRate(),
-                        tempTile->getFullness());
-                mGold += tempDouble;
-                getGameMap()->getSeatByColor(getColor())->goldMined
-                        += tempDouble;
+                double tempDouble = 5 * std::min(mDefinition->getDigRate(), tempTile->getFullness());
+                mGold += (int)tempDouble;
+                getGameMap()->getSeatByColor(getColor())->goldMined += (int)tempDouble;
                 recieveExp(5.0 * mDefinition->getDigRate() / 20.0);
             }
 
@@ -1004,7 +1002,7 @@ bool Creature::handleDigTileAction()
                     // Remove the dig action and replace it with
                     // walking to the newly dug out tile.
                     //popAction();
-                    addDestination(tempTile->x, tempTile->y);
+                    addDestination((Ogre::Real)tempTile->x, (Ogre::Real)tempTile->y);
                     pushAction(CreatureAction::walkToTile);
                 }
                 //Set sound position and play dig sound.
@@ -1587,8 +1585,8 @@ bool Creature::handleManeuverAction()
     //FIXME:  This should find a path to a tile we can walk to, it does not always
     //do this the way it is right now. Because minimumFieldValue is never initialised...
     std::list<Tile*> tempPath = getGameMap()->path(positionTile()->x, positionTile()->y,
-                                              minimumFieldValue.first.first + Random::Double(-1.0 * tempDouble, tempDouble),
-                                              minimumFieldValue.first.second + Random::Double(-1.0 * tempDouble, tempDouble),
+                                              (int)minimumFieldValue.first.first + Random::Double(-1.0 * tempDouble, tempDouble),
+                                              (int)minimumFieldValue.first.second + Random::Double(-1.0 * tempDouble, tempDouble),
                                               mDefinition->getTilePassability());
 
     // Walk a maximum of N tiles before recomputing the destination since we are in combat.
@@ -1702,7 +1700,7 @@ void Creature::doLevelUp()
     if (isMeshExisting() && ((getLevel() <= 30 && getLevel() % 2 == 0) || (getLevel() > 30 && getLevel()
             % 3 == 0)))
     {
-        Ogre::Real scaleFactor = 1.0 + static_cast<double>(getLevel()) / 250.0;
+        Ogre::Real scaleFactor = (Ogre::Real)(1.0 + static_cast<double>(getLevel()) / 250.0);
         if (scaleFactor > 1.03)
             scaleFactor = 1.04;
         RenderRequest *request = new RenderRequest;

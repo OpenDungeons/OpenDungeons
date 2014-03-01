@@ -110,7 +110,7 @@ public:
     Ogre::Vector2 *center;
     CullingQuad **nodes;
     CullingQuad *parent;
-    double radious;
+    double mRadius;
 
     void nodes_sign_sort(int*&, int*&, int*& );
     bool reinsert( Entry* ee );
@@ -147,7 +147,7 @@ public:
     void print();
     int countNodes();
     void setCenter(double, double);
-    void setRadious(double);
+    void setRadius(double);
     bool moveEntryDelta(Creature* ,const Ogre::Vector2&  );
     void holdRootSemaphore();
     void releaseRootSemaphore();

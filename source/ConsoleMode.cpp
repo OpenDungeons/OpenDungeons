@@ -49,7 +49,7 @@ ConsoleMode::~ConsoleMode()
 
 bool ConsoleMode::mouseMoved(const OIS::MouseEvent &arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
     if(arg.state.Z.rel == 0 || !mConsole->mVisible)
         return false;
 

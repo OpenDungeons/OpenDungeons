@@ -130,7 +130,7 @@ void SoundEffectsHelper::playBlockDestroySound(int tileX, int tileY)
         digSounds[nextDigSound].stop();
 
     }
-    digSounds[nextDigSound].setPosition(tileX, tileY, TILE_ZPOS);
+    digSounds[nextDigSound].setPosition((float)tileX, (float)tileY, TILE_ZPOS);
     digSounds[nextDigSound].play();
 
     if(++nextDigSound >= digSounds.size())

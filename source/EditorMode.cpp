@@ -61,7 +61,7 @@ EditorMode::~EditorMode()
 
 bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
     //TODO: do this (and the others isInGame() in here) by GameState
 
     if (!mMc->frameListener->isTerminalActive())
@@ -72,7 +72,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
         if (mMc->gameMap->getLocalPlayer()->getNewRoomType() || mMc->gameMap->getLocalPlayer()->getNewTrapType())
         {
             TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-                                                  arg.state.X.abs + 30, arg.state.Y.abs);
+                                                  (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
         }
 
         Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
@@ -280,7 +280,7 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
             MapLight* tempMapLight = mMc->gameMap->getMapLight(mDraggedMapLight);
 
             if (tempMapLight != NULL)
-                tempMapLight->setPosition(mMc->xPos, mMc->yPos, tempMapLight->getPosition().z);
+                tempMapLight->setPosition((Ogre::Real)mMc->xPos, (Ogre::Real)mMc->yPos, tempMapLight->getPosition().z);
         }
 
         if (arg.state.Z.rel > 0)
@@ -599,7 +599,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
         ODFrameListener::getSingleton().getCreatureSceneNode()->addChild(node);
         mMc->mDragType = nullDragType;
-        mMc->gameMap->getCreature(mDraggedCreature)->setPosition(Ogre::Vector3(mMc->xPos, mMc->yPos, 0));
+        mMc->gameMap->getCreature(mDraggedCreature)->setPosition(Ogre::Vector3((Ogre::Real)mMc->xPos, (Ogre::Real)mMc->yPos, (Ogre::Real)0));
     }
 
     // Check to see if we are dragging a map light.
@@ -611,7 +611,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
 
             if (tempMapLight != NULL)
             {
-                tempMapLight->setPosition(mMc->xPos, mMc->yPos, tempMapLight->getPosition().z);
+                tempMapLight->setPosition((Ogre::Real)mMc->xPos, (Ogre::Real)mMc->yPos, tempMapLight->getPosition().z);
             }
         }
 

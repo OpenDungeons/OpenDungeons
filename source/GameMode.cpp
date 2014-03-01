@@ -69,8 +69,7 @@ GameMode::~GameMode()
  */
 bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 {
-
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
     //TODO: do this (and the others isInGame() in here) by GameState
 
     if (mMc->frameListener->isTerminalActive())
@@ -85,7 +84,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         if (mMc->gameMap->getLocalPlayer()->getNewRoomType() || mMc->gameMap->getLocalPlayer()->getNewTrapType())
         {
             TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-                                                  arg.state.X.abs + 30, arg.state.Y.abs);
+                                                  (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
         }
 
         Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
@@ -867,8 +866,9 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
                 if(isInGame()) // If we are in a game.
                 {
                     Seat* tempSeat = mMc->gameMap->getLocalPlayer()->getSeat();
-                    mMc->frameListener->cm->flyTo(Ogre::Vector3(
-                                                            tempSeat->startingX, tempSeat->startingY, 0.0));
+                    mMc->frameListener->cm->flyTo(Ogre::Vector3((Ogre::Real)tempSeat->startingX,
+                                                                (Ogre::Real)tempSeat->startingY,
+                                                                (Ogre::Real)0.0));
                 }
 
                 break;

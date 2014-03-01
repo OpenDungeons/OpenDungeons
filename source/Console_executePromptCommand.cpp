@@ -1086,7 +1086,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             double tmp;
             tempSS.str(arguments);
             tempSS >> tmp;
-            Radian radianAngle(tmp);
+            Radian radianAngle((Ogre::Real)tmp);
 
             // mCm->mCamera->setFOVx(radianAngle);
             // TODO check the for the maximal and minimal value of setFoVy
@@ -1106,7 +1106,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             double tmp;
             tempSS.str(arguments);
             tempSS >> tmp;
-            Radian radianAngle(tmp);
+            Radian radianAngle((Ogre::Real)tmp);
 
             mCm->mActiveCamera->setFOVy(radianAngle);
             // TODO check the for the maximal and minimal value of setFoVy
@@ -1135,8 +1135,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> centerX >> centerY >> radius;
             // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-            mCm->setCircleCenter(centerX, centerY);
-            mCm->setCircleRadius(radius);
+            mCm->setCircleCenter((int)centerX, (int)centerY);
+            mCm->setCircleRadius((unsigned int)radius);
             mCm->setCircleMode(true);
         }
         else

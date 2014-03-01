@@ -29,7 +29,7 @@ class asIObjectType;
 class asIScriptContext;
 class asIScriptEngine;
 class asIScriptModule;
-class asSMessageInfo;
+struct asSMessageInfo;
 class CScriptBuilder;
 class CameraManager;
 

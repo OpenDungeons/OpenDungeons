@@ -183,10 +183,12 @@ void RenderManager::createScene()
                               BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
     node->attachObject(ent);
     Ogre::SceneNode *node2 = node->createChildSceneNode("Hand_node");
-    node2->setPosition(0.0 / BLENDER_UNITS_PER_OGRE_UNIT, 0.0
-                       / BLENDER_UNITS_PER_OGRE_UNIT, 3.0 / BLENDER_UNITS_PER_OGRE_UNIT);
-    node2->scale(Ogre::Vector3(1.0 / BLENDER_UNITS_PER_OGRE_UNIT, 1.0
-                               / BLENDER_UNITS_PER_OGRE_UNIT, 1.0 / BLENDER_UNITS_PER_OGRE_UNIT));
+    node2->setPosition((Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                       (Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                       (Ogre::Real)(3.0 / BLENDER_UNITS_PER_OGRE_UNIT));
+    node2->scale(Ogre::Vector3((Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                               (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                               (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
 
     // Create the light which follows the single tile selection mesh
     Ogre::Light* light = sceneManager->createLight("MouseLight");
@@ -571,7 +573,7 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
         Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
         node->attachObject ( ent );
         node->resetOrientation();
-        node->roll ( Ogre::Degree ( (-1)*rt * 90 ) );
+        node->roll (Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 	}
     }
 
@@ -632,12 +634,11 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
 
     node->attachObject ( ent );
 
-    node->setScale ( Ogre::Vector3 (
-	    4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
-	    4.0 / BLENDER_UNITS_PER_OGRE_UNIT ,
-	    12.0 / BLENDER_UNITS_PER_OGRE_UNIT ));
+    node->setScale(Ogre::Vector3((Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+	                             (Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+	                             (Ogre::Real)(12.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
     node->resetOrientation();
-    node->roll ( Ogre::Degree ( (-1)*rt * 90 ) );
+    node->roll (Ogre::Degree((Ogre::Real)(-1 * rt * 90 )));
 
     }
 
@@ -839,16 +840,15 @@ void RenderManager::rrToggleCreaturesVisibility(){
 
 
 
-void RenderManager::rrShowSquareSelector( const RenderRequest& renderRequest ) {
-
+void RenderManager::rrShowSquareSelector(const RenderRequest& renderRequest)
+{
     int* xPos = static_cast<int*> ( renderRequest.p );
     int* yPos = static_cast<int*> ( renderRequest.p2 );
 
-     sceneManager->getEntity("SquareSelector")->setVisible(true);
-     sceneManager->getSceneNode("SquareSelectorNode")->setPosition(
-      								  *xPos, *yPos, 0);
-
-
+    sceneManager->getEntity("SquareSelector")->setVisible(true);
+    sceneManager->getSceneNode("SquareSelectorNode")->setPosition((Ogre::Real)*xPos,
+                                                                  (Ogre::Real)*yPos,
+                                                                  (Ogre::Real)0);
 }
 
 
@@ -974,10 +974,9 @@ void RenderManager::rrCreateTreasuryIndicator ( const RenderRequest& renderReque
     //FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT, it can be gotten rid of when that hack is fixed.
     node = node->createChildSceneNode(node->getName()
                                       + "_hack_node");
-    node->setScale(Ogre::Vector3(1.0 / BLENDER_UNITS_PER_OGRE_UNIT,
-                                 1.0 / BLENDER_UNITS_PER_OGRE_UNIT, 1.0
-                                 / BLENDER_UNITS_PER_OGRE_UNIT));
-
+    node->setScale(Ogre::Vector3((Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                                 (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                                 (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
     node->attachObject(ent);
 }
 
@@ -1308,7 +1307,8 @@ void RenderManager::rrRefreshField ( const RenderRequest& renderRequest )
             fieldIndicatorNode->attachObject(fieldIndicatorEntity);
         }
 
-        fieldIndicatorNode->setPosition(x, y, tempDouble + tempDouble2);
+        fieldIndicatorNode->setPosition((Ogre::Real)x, (Ogre::Real)y,
+                                        (Ogre::Real)(tempDouble + tempDouble2));
         ++fieldItr;
     }
 
@@ -1334,7 +1334,7 @@ void RenderManager::rrPickUpCreature ( const RenderRequest& renderRequest )
     {
         curCreature = gameMap->me->getCreatureInHand(i);
         creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
-        creatureNode->setPosition(i % 6 + 1, (i / (int) 6), 0.0);
+        creatureNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
     }
 }
 
@@ -1356,7 +1356,7 @@ void RenderManager::rrDropCreature ( const RenderRequest& renderRequest )
     {
         curCreature = curPlayer->getCreatureInHand(i);
         creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
-        creatureNode->setPosition(i % 6 + 1, (i / (int) 6), 0.0);
+        creatureNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
     }
 }
 
@@ -1367,7 +1367,7 @@ void RenderManager::rrRotateCreaturesInHand ( const RenderRequest& )
     {
         Creature* curCreature = gameMap->me->getCreatureInHand(i);
         Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
-        creatureNode->setPosition(i % 6 + 1, (i / (int) 6), 0.0);
+        creatureNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
     }
 }
 
@@ -1387,7 +1387,7 @@ void RenderManager::rrCreateCreatureVisualDebug ( const RenderRequest& renderReq
         Ogre::SceneNode* visIndicatorNode = creatureSceneNode->createChildSceneNode(tempSS.str()
                                             + "_node");
         visIndicatorNode->attachObject(visIndicatorEntity);
-        visIndicatorNode->setPosition(Ogre::Vector3(curTile->x, curTile->y, 0));
+        visIndicatorNode->setPosition(Ogre::Vector3((Ogre::Real)curTile->x, (Ogre::Real)curTile->y, (Ogre::Real)0));
         visIndicatorNode->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT,
                                    BLENDER_UNITS_PER_OGRE_UNIT));

@@ -51,7 +51,9 @@ void RoomDungeonTemple::produceKobold()
             Creature* newCreature = new Creature( getGameMap());
             newCreature->setCreatureDefinition(classToSpawn);
             newCreature->setName(newCreature->getUniqueCreatureName());
-            newCreature->setPosition(Ogre::Vector3(coveredTiles[0]->x, coveredTiles[0]->y, 0));
+            newCreature->setPosition(Ogre::Vector3((Ogre::Real)coveredTiles[0]->x,
+                                                   (Ogre::Real)coveredTiles[0]->y,
+                                                   (Ogre::Real)0));
             newCreature->setColor(getColor());
 
             //NOTE:  This needs to be modified manually when the level file weapon format changes.

@@ -325,9 +325,9 @@ RoomObject* Room::loadRoomObject(std::string meshName, Tile *targetTile, double 
 {
     RoomObject *tempRoomObject = new RoomObject(this, meshName);
     roomObjects[targetTile] = tempRoomObject;
-    tempRoomObject->x = x;
-    tempRoomObject->y = y;
-    tempRoomObject->rotationAngle = rotationAngle;
+    tempRoomObject->x = (Ogre::Real)x;
+    tempRoomObject->y = (Ogre::Real)y;
+    tempRoomObject->rotationAngle = (Ogre::Real)rotationAngle;
 
     return tempRoomObject;
 }

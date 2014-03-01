@@ -172,9 +172,9 @@ Ogre::Real MapLight::getAttenuationQuadratic() const
 void MapLight::advanceFlicker(Ogre::Real time)
 {
 
-    thetaX += factorX * 3.14 * time;
-    thetaY += factorY * 3.14 * time;
-    thetaZ += factorZ * 3.14 * time;
+    thetaX += (Ogre::Real)(factorX * 3.14 * time);
+    thetaY += (Ogre::Real)(factorY * 3.14 * time);
+    thetaZ += (Ogre::Real)(factorZ * 3.14 * time);
 
     if (Random::Double(0.0, 1.0) < 0.1)
         factorX *= -1;

@@ -30,13 +30,13 @@ using std::string;
 
 void CullingQuad::setCenter(double xx, double yy)
 {
-    center->x = xx;
-    center->y = yy;
+    center->x = (Ogre::Real)xx;
+    center->y = (Ogre::Real)yy;
 }
 
-void CullingQuad::setRadious(double rr)
+void CullingQuad::setRadius(double rr)
 {
-    radious = rr;
+    mRadius = rr;
 }
 
 CullingQuad::CullingQuad():
@@ -50,37 +50,33 @@ CullingQuad::CullingQuad(CullingQuad* qd, CullingQuad* pp):
     entry(NULL), nodes(NULL), parent(pp)
 {
     center = (qd->center);
-    radious = qd->radious;
+    mRadius = qd->mRadius;
 
-    if(qd->isLeaf()){
-
-	entry = qd->entry;
-
+    if(qd->isLeaf())
+    {
+    	entry = qd->entry;
 	}
-
-    else{
-	nodes=new CullingQuad*[4];
-	nodes[0]= new CullingQuad(qd->nodes[UR],this );
-	nodes[1]= new CullingQuad(qd->nodes[UL],this );
-	nodes[2]= new CullingQuad(qd->nodes[BL],this );
-	nodes[3]= new CullingQuad(qd->nodes[BR],this );
-	for(int jj = 0 ;  jj < 4 ;  jj++)
-	    nodes[jj]->parent=this;
-
+    else
+    {
+	    nodes = new CullingQuad*[4];
+	    nodes[0] = new CullingQuad(qd->nodes[UR], this);
+	    nodes[1] = new CullingQuad(qd->nodes[UL], this);
+	    nodes[2] = new CullingQuad(qd->nodes[BL], this);
+	    nodes[3] = new CullingQuad(qd->nodes[BR], this);
+	    for(int jj = 0; jj < 4; ++jj)
+	        nodes[jj]->parent = this;
 	}
+}
 
-
-
-    }
-
-
-CullingQuad* CullingQuad::find(Entry* ee){
+CullingQuad* CullingQuad::find(Entry* ee)
+{
     return find(ee->index_point);
-    }
+}
 
-CullingQuad* CullingQuad::find(Entry& ee){
+CullingQuad* CullingQuad::find(Entry& ee)
+{
     return find(ee.index_point);
-    }
+}
 
 CullingQuad* CullingQuad::find(Ogre::Vector2& vv)
 {
@@ -225,49 +221,39 @@ int CullingQuad::countNodes(){
     return nodesNumber;
 }
 
-
-void CullingQuad::nodes_sign_sort(int*& p1, int*& p2, int*& p3){
-
-
-    if(*p2>*p3)
-	swap(p2,p3);
-    if(*p1>*p2)
-	swap(p1,p2);
-    if(*p3>*p1)
-	swap(p3,p1);
-
-
+void CullingQuad::nodes_sign_sort(int*& p1, int*& p2, int*& p3)
+{
+    if(*p2 > *p3)
+	    std::swap(p2, p3);
+    if(*p1 > *p2)
+	    std::swap(p1, p2);
+    if(*p3 > *p1)
+	    std::swap(p3, p1);
 }
 
-
-void CullingQuad::setCenterFromParent(CullingQuad* qq , int jj){
-
-    radious = qq->radious/2;
-    switch (jj){
+void CullingQuad::setCenterFromParent(CullingQuad* qq, int jj)
+{
+    mRadius = qq->mRadius / 2;
+    switch (jj)
+    {
     case UR:
-	center->x = qq->center->x + radious;
- 	center->y = qq->center->y + radious;
-
-	break;
+	    center->x = (Ogre::Real)(qq->center->x + mRadius);
+ 	    center->y = (Ogre::Real)(qq->center->y + mRadius);
+	    break;
     case UL:
-	center->x = qq->center->x - radious;
- 	center->y = qq->center->y + radious;
-
-	break;
+	    center->x = (Ogre::Real)(qq->center->x - mRadius);
+ 	    center->y = (Ogre::Real)(qq->center->y + mRadius);
+	    break;
     case BL:
-	center->x = qq->center->x - radious;
- 	center->y = qq->center->y - radious;
-
-	break;
+	    center->x = (Ogre::Real)(qq->center->x - mRadius);
+ 	    center->y = (Ogre::Real)(qq->center->y - mRadius);
+	    break;
     case BR:
-	center->x = qq->center->x + radious;
- 	center->y = qq->center->y - radious;
-	break;
-
+	    center->x = (Ogre::Real)(qq->center->x + mRadius);
+ 	    center->y = (Ogre::Real)(qq->center->y - mRadius);
+	    break;
     }
-
 }
-
 
 CullingQuad* CullingQuad::shallowInsert(Entry* ee){
     Entry **tmpEntry;
@@ -354,22 +340,22 @@ CullingQuad* CullingQuad::shallowInsert(Entry& ee){
 bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPosition  ){
     Entry* entryCopy;
     if( entry == NULL)
-	// cerr << "moveEntryDelta:  Creature* cc " << cc->getName() << " has the Quad, but entry is NULL "<<  setbase(16) << cc->tracingCullingQuad<<endl
-	;
-
+    {
+	// cerr << "moveEntryDelta:  Creature* cc " << cc->getName() << " has the Quad, but entry is NULL "<<  setbase(16) << cc->tracingCullingQuad<<endl;
+    }
 
     else if(!entry->listFind(cc))
-	// cerr << "moveEntryDelta:  Creature* cc " << cc->getName() << " not found in Quad: "<<  setbase(16) << cc->tracingCullingQuad<<endl
-	;
-
+    {
+	// cerr << "moveEntryDelta:  Creature* cc " << cc->getName() << " not found in Quad: "<<  setbase(16) << cc->tracingCullingQuad<<endl;
+    }
 
     holdRootSemaphore();
     // cerr << "moveEntryDelta:  Creature* cc " << cc->getName() << " Quad: "<<  setbase(16) << cc->tracingCullingQuad   << setbase(10) << " const Ogre::Vector2& newPosition  " << newPosition.x <<" " << newPosition.y  << endl;
-    if((abs(newPosition.x - center->x) <  radious) && (abs(newPosition.y - center->y) <  radious) && entry->creature_list.size()==1){
+    if((abs(newPosition.x - center->x) < mRadius) && (abs(newPosition.y - center->y) < mRadius) && entry->creature_list.size()==1){
   	   entry->index_point = newPosition;
     }
 
-    else if( !((abs(newPosition.x - center->x) <  radious) && (abs(newPosition.y - center->y) <  radious)) && entry->creature_list.size()==1){
+    else if( !((abs(newPosition.x - center->x) < mRadius) && (abs(newPosition.y - center->y) < mRadius)) && entry->creature_list.size()==1){
 	if(parent!=NULL){
 
 	    entry->index_point = newPosition;
@@ -389,7 +375,7 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
     }
 
     //The new position is inside the current CullingQuad node
-    else if(abs(newPosition.x - center->x) <  radious && abs(newPosition.y - center->y) <  radious) {  // && !  entry->creature_list.size()==1)
+    else if(abs(newPosition.x - center->x) <  mRadius && abs(newPosition.y - center->y) < mRadius) {  // && !  entry->creature_list.size()==1)
 
 	    if(parent!=NULL){
 		Entry* ee = new Entry(cc);
@@ -435,10 +421,10 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
 bool CullingQuad::reinsert( Entry* ee ) {
 
     // cerr << "reinsert " <<endl;
-    if ((abs(ee->index_point.x - center->x) <  radious) && (abs(ee->index_point.y - center->y) <  radious)) {
+    if ((abs(ee->index_point.x - center->x) < mRadius) && (abs(ee->index_point.y - center->y) < mRadius))
+    {
         insertNoLock(ee);
     }
-
     //The new position is outside the current CullingQuad node
     else {
         if(parent != NULL) {
@@ -461,14 +447,14 @@ bool CullingQuad::cut ( const Segment *ss) {
 
     if(!isLeaf()){
 	Ogre::Vector2 center_delta (*center);   center_delta -=  ss->tail  ;
- 	Ogre::Vector2 right_delta  ( center->x + radious, center->y );   right_delta   -= ss->tail  ;
- 	Ogre::Vector2 upper_right_delta ( center->x + radious, center->y  + radious);    upper_right_delta  -= ss->tail  ;
-	Ogre::Vector2 upper_delta  ( center->x , center->y + radious);  upper_delta -= ss->tail  ;
-	Ogre::Vector2 upper_left_delta( center->x -  radious, center->y  + radious);     upper_left_delta   -= ss->tail  ;
-	Ogre::Vector2 left_delta  ( center->x -  radious , center->y );  left_delta -= ss->tail  ;
-	Ogre::Vector2 bottom_left_delta( center->x - radious, center->y  - radious );    bottom_left_delta -= ss->tail  ;
-	Ogre::Vector2 bottom_delta  ( center->x , center->y - radious );  bottom_delta -= ss->tail  ;
-	Ogre::Vector2 bottom_right_delta  ( center->x + radious , center->y - radious ); bottom_right_delta  -= ss->tail  ;
+ 	Ogre::Vector2 right_delta  ( center->x + mRadius, center->y );   right_delta   -= ss->tail  ;
+ 	Ogre::Vector2 upper_right_delta ( center->x + mRadius, center->y  + mRadius);    upper_right_delta  -= ss->tail  ;
+	Ogre::Vector2 upper_delta  ( center->x , center->y + mRadius);  upper_delta -= ss->tail  ;
+	Ogre::Vector2 upper_left_delta( center->x -  mRadius, center->y  + mRadius);     upper_left_delta   -= ss->tail  ;
+	Ogre::Vector2 left_delta  ( center->x - mRadius , center->y );  left_delta -= ss->tail  ;
+	Ogre::Vector2 bottom_left_delta( center->x - mRadius, center->y  - mRadius );    bottom_left_delta -= ss->tail  ;
+	Ogre::Vector2 bottom_delta  ( center->x , center->y - mRadius );  bottom_delta -= ss->tail  ;
+	Ogre::Vector2 bottom_right_delta  ( center->x + mRadius , center->y - mRadius ); bottom_right_delta  -= ss->tail  ;
 
 
 

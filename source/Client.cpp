@@ -290,7 +290,7 @@ void *clientSocketProcessor(void *p)
                 tempSS.getline(array, sizeof(array));
                 tempZ = atof(array);
 
-                Ogre::Vector3 tempVector(tempX, tempY, tempZ);
+                Ogre::Vector3 tempVector((Ogre::Real)tempX, (Ogre::Real)tempY, (Ogre::Real)tempZ);
 
                 if (tempAnimatedObject != NULL)
                     tempAnimatedObject->addDestination(tempVector.x,
@@ -392,7 +392,7 @@ void *clientSocketProcessor(void *p)
                 tempSS.getline(array, sizeof(array));
                 tempY = atof(array);
 
-                Tile *tempTile = gameMap.getTile(tempX, tempY);
+                Tile *tempTile = gameMap.getTile((int)tempX, (int)tempY);
                 if (tempTile != NULL)
                 {
                     tempTile->setFullness(tempFullness);
