@@ -15,7 +15,7 @@ TrapBoulder::TrapBoulder(int x, int y) :
 std::vector<GameEntity*> TrapBoulder::aimEnemy()
 {
     std::list<Tile*> tmp = getGameMap()->lineOfSight(coveredTiles[0]->x,
-            coveredTiles[0]->y, dir.first, dir.second);
+            coveredTiles[0]->y, mDir.first, mDir.second);
     std::vector<Tile*> visibleTiles;
     for(std::list<Tile*>::const_iterator it = tmp.begin(); it != tmp.end(); ++it)
     {
@@ -41,10 +41,10 @@ std::vector<GameEntity*> TrapBoulder::aimEnemy()
 void TrapBoulder::damage(std::vector<GameEntity*> enemyAttacked) // we launch a boulder AND damage creatures, in the futur, the missileobject will be in charge of damaging
 {
 	DirectionalTrap::damage(enemyAttacked);
-	
+
 	if(enemyAttacked.empty())
 		return;
-	
+
     // when a Boulder.mesh file exists, do this:
 	//~ std::cout << "\nAdding boudler from " << coveredTiles[0]->x << "," << coveredTiles[0]->y << " to " << enemyAttacked.back()->getCoveredTiles()[0]->x << "," << enemyAttacked.back()->getCoveredTiles()[0]->y << std::endl;
 	//~ // Create the cannonball to move toward the enemy creature.
