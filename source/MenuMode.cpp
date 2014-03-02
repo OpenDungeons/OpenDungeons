@@ -1,19 +1,23 @@
 #include "MenuMode.h"
+
 #include "Gui.h"
 #include "Socket.h"
+#include "ModeManager.h"
 
-MenuMode::MenuMode(ModeContext *modeContext):AbstractApplicationMode(modeContext)
+MenuMode::MenuMode(ModeContext *modeContext):
+    AbstractApplicationMode(modeContext, ModeManager::MENU)
 {
 
 }
 
-MenuMode::~MenuMode() {
+MenuMode::~MenuMode()
+{
 
 }
 
-
-bool MenuMode::mouseMoved(const OIS::MouseEvent &arg) {
-    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
+bool MenuMode::mouseMoved(const OIS::MouseEvent &arg)
+{
+    return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
 }
 
 bool MenuMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id) {

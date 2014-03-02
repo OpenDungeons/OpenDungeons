@@ -2,18 +2,14 @@
 #include "Gui.h"
 #include "Socket.h"
 
-FppMode::FppMode(ModeContext *modeContext):AbstractApplicationMode(modeContext)
+FppMode::FppMode(ModeContext *modeContext):
+    AbstractApplicationMode(modeContext, ModeManager::FPP)
 {
-
-
 }
 
-FppMode::~FppMode(){
-
-
-
+FppMode::~FppMode()
+{
 }
-
 
 bool FppMode::mouseMoved(const OIS::MouseEvent &arg) {
     // CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);

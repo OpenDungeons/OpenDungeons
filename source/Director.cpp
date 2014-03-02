@@ -20,8 +20,7 @@
 template<> Director* Ogre::Singleton<Director>::msSingleton = NULL;
 
 Director::Director():
-    mIsServer(false),
-    mApplicationModeId(MENU)
+    mIsServer(false)
 {
 }
 

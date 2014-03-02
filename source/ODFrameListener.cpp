@@ -412,12 +412,15 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     turnString.reserve(100);
 
     //TODO - we should call printText only when the text changes.
-    if (Socket::serverSocket == 0) {
+    if (!ed && Socket::serverSocket == NULL)
+    {
         // Tells the user the game is loading.
         printText("\nLoading...");
     }
-    else {
-        if (mShowDebugInfo) {
+    else
+    {
+        if (mShowDebugInfo)
+        {
             turnString = "On average the creature AI is finishing ";
             turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
                     gameMap->averageAILeftoverTime)).substr(0, 4) + " s ";
@@ -438,7 +441,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             printText(ODApplication::MOTD + "\n" + turnString
                     + "\n" + (!chatMessages.empty() ? chatString : nullString));
         }
-        else {
+        else
+        {
             printText("");
         }
     }
@@ -493,9 +497,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 else // There are still entries left in the queue
                 {
                     // Turn to face the next direction
-                    currentAnimatedObject->faceToward(
-                            currentAnimatedObject->walkQueue.front().x,
-                            currentAnimatedObject->walkQueue.front().y);
+                    currentAnimatedObject->faceToward((int)currentAnimatedObject->walkQueue.front().x,
+                                                      (int)currentAnimatedObject->walkQueue.front().y);
 
                     // Compute the distance to the next location in the queue and store it in the shortDistance datamember.
                     Ogre::Vector3 tempVector =

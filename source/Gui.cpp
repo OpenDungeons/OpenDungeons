@@ -313,31 +313,46 @@ bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::gold;
+    if (!(modeManager->getCurrentModeType() == ModeManager::EDITOR))
+        return true;
+
+    static_cast<EditorMode*>(modeManager->getCurrentMode())->mCurrentTileType = Tile::gold;
     return true;
 }
 
 bool Gui::tpLavaButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::lava;
+    if (!(modeManager->getCurrentModeType() == ModeManager::EDITOR))
+        return true;
+
+    static_cast<EditorMode*>(modeManager->getCurrentMode())->mCurrentTileType = Tile::lava;
     return true;
 }
 
 bool Gui::tpRockButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::rock;
+    if (!(modeManager->getCurrentModeType() == ModeManager::EDITOR))
+        return true;
+
+    static_cast<EditorMode*>(modeManager->getCurrentMode())->mCurrentTileType = Tile::rock;
     return true;
 }
 
 bool Gui::tpWaterButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::water;
+    if (!(modeManager->getCurrentModeType() == ModeManager::EDITOR))
+        return true;
+
+    static_cast<EditorMode*>(modeManager->getCurrentMode())->mCurrentTileType = Tile::water;
     return true;
 }
 
 bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
 {
-    static_cast<EditorMode*>(modeManager->mModesArray[2])->mCurrentTileType = Tile::dirt;
+    if (!(modeManager->getCurrentModeType() == ModeManager::EDITOR))
+        return true;
+
+    static_cast<EditorMode*>(modeManager->getCurrentMode())->mCurrentTileType = Tile::dirt;
     return true;
 }
 
@@ -345,7 +360,7 @@ bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
     Gui::getSingletonPtr()->loadGuiSheet(inGameMenu);
-    modeManager->progressMode(ModeManager::GAME);
+    modeManager->addGameMode(ModeManager::GAME);
     ODFrameListener::getSingleton().makeGameContext();
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     return startServer(*gameMap);
@@ -357,7 +372,7 @@ bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
     Gui::getSingletonPtr()->loadGuiSheet(editorToolBox);
 
     // myWin->addChildWindow(sheets[editorToolBox]);
-    modeManager->progressMode(ModeManager::EDITOR);
+    modeManager->addGameMode(ModeManager::EDITOR);
     ODFrameListener::getSingleton().makeEditorContext();
 
     return true;

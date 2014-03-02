@@ -24,65 +24,108 @@
 #include "ConsoleMode.h"
 #include "FppMode.h"
 
-ModeManager::ModeManager(GameMap* gameMap,MiniMap* miniMap, Console* console)
+ModeManager::ModeManager(GameMap* gameMap, MiniMap* miniMap, Console* console)
 {
     mMc = new ModeContext(gameMap, miniMap);
-    mModesArray[0]= new MenuMode(mMc);
-    mModesArray[1]= new GameMode(mMc);
-    mModesArray[2]= new EditorMode(mMc);
-    mModesArray[3]= new ConsoleMode(mMc, console);
-    mModesArray[4]= new FppMode(mMc);
-    mModesStack.push(MENU);
-    mModesArray[mModesStack.top()]->giveFocus();
+
+    mGameModes.push_back(new MenuMode(mMc));
+    mGameModes.back()->giveFocus();
+
+    // We set a console open in any case.
+    mConsole = console;
+    mConsoleMode = new ConsoleMode(mMc, console);
+    // The console isn't the active one when starting the game
+    mIsInConsole = false;
 }
 
 ModeManager::~ModeManager()
 {
-    delete mModesArray[0];
-    delete mModesArray[1];
-    delete mModesArray[2];
-    delete mModesArray[3];
-    delete mModesArray[4];
+    for (unsigned int i = 0; i < mGameModes.size(); ++i)
+        delete mGameModes[i];
     delete mMc;
+    delete mConsoleMode;
 }
 
 AbstractApplicationMode* ModeManager::getCurrentMode()
 {
-    return mModesArray[mModesStack.top()] ;
+    if (mIsInConsole)
+        return mConsoleMode;
+
+    return mGameModes.back();
 }
 
-AbstractApplicationMode* ModeManager:: progressMode(ModeType mm)
+ModeManager::ModeType ModeManager::getCurrentModeType()
 {
-    mModesStack.push(mm);
-    mModesArray[mModesStack.top()]->giveFocus();
-    return mModesArray[mModesStack.top()];
+    return getCurrentMode()->getModeType();
 }
 
-AbstractApplicationMode* ModeManager::regressMode()
+AbstractApplicationMode* ModeManager::addGameMode(ModeType mm)
 {
-    if( mModesStack.size() > 1)
+    // Check the current mode and return if it was already active.
+    if (mGameModes.back()->getModeType() == mm)
+        return mGameModes.back();
+
+    switch(mm)
     {
-        mModesStack.pop();
-        mModesArray[mModesStack.top()]->giveFocus();
-        return mModesArray[mModesStack.top()];
+    // We use a unique console instance.
+    case CONSOLE:
+        mIsInConsole = true;
+        mConsoleMode->giveFocus();
+        return mConsoleMode;
+        break;
+    case MENU:
+        mGameModes.push_back(new MenuMode(mMc));
+        break;
+    case GAME:
+        mGameModes.push_back(new GameMode(mMc));
+        break;
+    case EDITOR:
+        mGameModes.push_back(new EditorMode(mMc));
+        break;
+    case FPP:
+        mGameModes.push_back(new FppMode(mMc));
+        break;
+    default:
+        break;
     }
+
+    // We're no more in console mode.
+    mIsInConsole = false;
+
+    mGameModes.back()->giveFocus();
+    return mGameModes.back();
+}
+
+AbstractApplicationMode* ModeManager::removeGameMode()
+{
+    // If we were in the console, we simply switch back
+    if (mIsInConsole)
+    {
+        mIsInConsole = false;
+        return mGameModes.back();
+    }
+
+    if(mGameModes.size() > 1)
+    {
+        delete mGameModes.back();
+        mGameModes.pop_back();
+        mGameModes.back()->giveFocus();
+        return mGameModes.back();
+    }
+    else // We never remove the main menu
+        return mGameModes.back();
+}
+
+void ModeManager::lookForNewMode()
+{
+
+    if(!mMc->changed)
+        return;
+
+    mMc->changed = false;
+
+    if(mMc->nextMode == PREV)
+        removeGameMode();
     else
-        return mModesArray[mModesStack.top()];
-}
-
-int ModeManager::lookForNewMode(){
-
-    if(mMc->changed)
-    {
-        mMc->changed = false;
-
-        if(mMc->nextMode == PREV)
-            regressMode();
-        else
-            progressMode(mMc->nextMode);
-        return 1;
-    }
-    else {
-        return 0;
-    }
+        addGameMode(mMc->nextMode);
 }

@@ -37,11 +37,10 @@
 #include <vector>
 #include <string>
 
-GameMode::GameMode(ModeContext *modeContext):AbstractApplicationMode(modeContext),
-					     digSetBool(false)
+GameMode::GameMode(ModeContext *modeContext):
+    AbstractApplicationMode(modeContext, ModeManager::GAME),
+	digSetBool(false)
 {
-
-
     mMc->mMouse->setEventCallback(this);
     mMc->mKeyboard->setEventCallback(this);
 

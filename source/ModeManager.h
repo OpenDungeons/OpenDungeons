@@ -18,48 +18,62 @@
 #ifndef MODEMANAGER_H
 #define MODEMANAGER_H
 
-#include <stack>
-
-using std::stack;
+#include <vector>
 
 class AbstractApplicationMode;
 class ModeContext;
 class GameMap;
 class MiniMap;
 class Console;
+class ConsoleMode;
 class CameraManager;
 
 class ModeManager
 {
     friend class Gui;
+    friend class Console;
 
 public:
 
-    enum ModeType {
+    enum ModeType
+    {
         MENU,
         GAME,
         EDITOR,
         CONSOLE,
         FPP,
-        PREV,
+        PREV
     };
 
-    ModeManager(GameMap* ,MiniMap*, Console*);
+    ModeManager(GameMap*, MiniMap*, Console*);
     ~ModeManager();
 
     AbstractApplicationMode* getCurrentMode();
 
-    AbstractApplicationMode* progressMode(ModeType);
-    AbstractApplicationMode* regressMode();
+    ModeType getCurrentModeType();
 
-    int lookForNewMode();
+    AbstractApplicationMode* addGameMode(ModeType);
+    AbstractApplicationMode* removeGameMode();
 
-    ModeContext *mMc;
+    void lookForNewMode();
 
 private:
-    Console *cn;
-    AbstractApplicationMode* mModesArray[5];
-    std::stack<ModeType> mModesStack;
+    // \brief The mode context handler
+    ModeContext* mMc;
+
+    //! \brief A unique console mode instance, shared between game modes.
+    ConsoleMode* mConsoleMode;
+
+    //! \brief Tells whether the user is in console mode.
+    bool mIsInConsole;
+
+    //! \brief The console instance
+    Console* mConsole;
+
+    //! \brief The vector containing the loaded game modes.
+    //! The active one is either the last one, or the console when
+    //! mIsInConsole is equal to true.
+    std::vector<AbstractApplicationMode*> mGameModes;
 };
 
 #endif // MODEMANAGER_H

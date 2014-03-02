@@ -45,7 +45,7 @@
 #include <string>
 
 EditorMode::EditorMode(ModeContext *modeContext):
-    AbstractApplicationMode(modeContext),
+    AbstractApplicationMode(modeContext, ModeManager::EDITOR),
     mChanged(false),
     mCurrentFullness(100),
     mCurrentTileRadius(1),
@@ -725,6 +725,10 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
         CameraManager& camMgr = *(mMc->frameListener->cm);
         switch (arg.key)
         {
+        case OIS::KC_F11:
+            ODFrameListener::getSingleton().toggleDebugInfo();
+            break;
+
         case OIS::KC_GRAVE:
         case OIS::KC_F12:
             progressMode(ModeManager::CONSOLE);
@@ -945,7 +949,10 @@ void EditorMode::handleHotkeys(OIS::KeyCode keycode)
 
 bool EditorMode::isInGame()
 {
-    return false;
+    //TODO: this exact function is also in ODFrameListener, replace it too after GameState works
+    //TODO - we should use a bool or something, not the sockets for this.
+    return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
+    //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
 }
 
 void EditorMode::giveFocus()

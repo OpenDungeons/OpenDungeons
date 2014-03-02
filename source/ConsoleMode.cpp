@@ -30,7 +30,7 @@
 using std::list;  using std::string;
 
 ConsoleMode::ConsoleMode(ModeContext* modeContext, Console* console):
-    AbstractApplicationMode(modeContext),
+    AbstractApplicationMode(modeContext, ModeManager::CONSOLE),
     mConsole(console),
     mPrefixTree(NULL),
     mLl(NULL),

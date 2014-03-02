@@ -68,15 +68,6 @@ class Director : public Ogre::Singleton<Director>
 {
 public:
 
-    enum ApplicationModeId
-    {
-        MENU = 0,
-        GAME,
-        EDITOR,
-        CONSOLE,
-        FPP
-    };
-
     Director();
     ~Director();
 
@@ -85,16 +76,6 @@ public:
     inline AbstractApplicationMode& getCurrentState()
     {
         return *mGameStateStack.top();
-    }
-
-    inline ApplicationModeId getApplicationModeId() const
-    {
-        return mApplicationModeId;
-    }
-
-    inline void setApplicationState(ApplicationModeId applicationModeId)
-    {
-        mApplicationModeId = applicationModeId;
     }
 
     bool getIsServer() const
@@ -119,7 +100,6 @@ private:
     std::stack<AbstractApplicationMode*> mGameStateStack;
     std::vector<boost::shared_ptr<AbstractApplicationMode> > mGameStates;
     bool mIsServer;
-    ApplicationModeId mApplicationModeId;
 
     std::vector<Scenario> mCurrentScenarios;
     std::set<Resource> mCurrentResources;

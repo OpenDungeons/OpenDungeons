@@ -37,11 +37,14 @@ class AbstractApplicationMode :
     public OIS::KeyListener
 {
 protected:
+    // Handled in ModeManager, don't delete it.
     ModeContext* mMc;
 
 public:
-    AbstractApplicationMode(ModeContext *modeContext):
-        mMc(modeContext)
+
+    AbstractApplicationMode(ModeContext *modeContext, ModeManager::ModeType modeType):
+        mMc(modeContext),
+        mModeType(modeType)
     {};
 
     virtual ~AbstractApplicationMode() {};
@@ -63,6 +66,10 @@ public:
         mMc->nextMode = ModeManager::PREV;
     }
 
+    inline ModeManager::ModeType getModeType() const {
+        return mModeType;
+    }
+
     virtual OIS::Mouse*      getMouse() = 0;
     virtual OIS::Keyboard*   getKeyboard() = 0;
 
@@ -81,6 +88,10 @@ public:
 
     virtual void giveFocus() = 0;
     virtual bool isInGame() = 0;
+
+protected:
+    // The game mode type;
+    ModeManager::ModeType mModeType;
 };
 
 #endif // ABSTRACTAPPLICATIONMODE_H

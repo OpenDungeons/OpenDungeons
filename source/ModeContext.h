@@ -43,7 +43,7 @@ public:
     bool                mouseDownOnCEGUIWindow;
     bool                directionKeyPressed;
     bool                changed;
-    ModeManager::ModeType            nextMode;
+    ModeManager::ModeType nextMode;
     int                 xPos, yPos;
     int                 mLStartDragX, mLStartDragY;
     int                 mRStartDragX, mRStartDragY;
