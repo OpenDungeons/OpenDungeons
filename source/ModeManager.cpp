@@ -17,33 +17,42 @@
 
 #include "ModeManager.h"
 
-#include "ModeContext.h"
+#include "InputManager.h"
 #include "MenuMode.h"
 #include "GameMode.h"
 #include "EditorMode.h"
+#include "Console.h"
 #include "ConsoleMode.h"
 #include "FppMode.h"
 
-ModeManager::ModeManager(GameMap* gameMap, MiniMap* miniMap, Console* console)
+ModeManager::ModeManager()
 {
-    mMc = new ModeContext(gameMap, miniMap);
+    mInputManager = new InputManager();
 
-    mGameModes.push_back(new MenuMode(mMc));
+    mGameModes.push_back(new MenuMode(this));
     mGameModes.back()->giveFocus();
 
-    // We set a console open in any case.
+    // NOTE: Console needs to exist BEFORE ASWrapper because it needs it for callback
+    // TODO: Merge Console and Console Mode
+    Console* console = new Console(this);
+
+    // We set a console mode loaded in any case.
     mConsole = console;
-    mConsoleMode = new ConsoleMode(mMc, console);
+    mConsoleMode = new ConsoleMode(this, console);
     // The console isn't the active one when starting the game
     mIsInConsole = false;
+
+    // Don't change the application mode for now.
+    mRequestedMode = NONE;
 }
 
 ModeManager::~ModeManager()
 {
     for (unsigned int i = 0; i < mGameModes.size(); ++i)
         delete mGameModes[i];
-    delete mMc;
+    delete mInputManager;
     delete mConsoleMode;
+    delete Console::getSingletonPtr();
 }
 
 AbstractApplicationMode* ModeManager::getCurrentMode()
@@ -74,16 +83,16 @@ AbstractApplicationMode* ModeManager::addGameMode(ModeType mm)
         return mConsoleMode;
         break;
     case MENU:
-        mGameModes.push_back(new MenuMode(mMc));
+        mGameModes.push_back(new MenuMode(this));
         break;
     case GAME:
-        mGameModes.push_back(new GameMode(mMc));
+        mGameModes.push_back(new GameMode(this));
         break;
     case EDITOR:
-        mGameModes.push_back(new EditorMode(mMc));
+        mGameModes.push_back(new EditorMode(this));
         break;
     case FPP:
-        mGameModes.push_back(new FppMode(mMc));
+        mGameModes.push_back(new FppMode(this));
         break;
     default:
         break;
@@ -116,16 +125,15 @@ AbstractApplicationMode* ModeManager::removeGameMode()
         return mGameModes.back();
 }
 
-void ModeManager::lookForNewMode()
+void ModeManager::checkModeChange()
 {
-
-    if(!mMc->changed)
+    if (mRequestedMode == NONE)
         return;
 
-    mMc->changed = false;
-
-    if(mMc->nextMode == PREV)
+    if(mRequestedMode == PREV)
         removeGameMode();
     else
-        addGameMode(mMc->nextMode);
+        addGameMode(mRequestedMode);
+
+    mRequestedMode = NONE;
 }

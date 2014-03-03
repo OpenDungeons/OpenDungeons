@@ -115,7 +115,7 @@ set(OD_SOURCEFILES
     ${SRC}/AIFactory.cpp
     ${SRC}/AIManager.cpp
     ${SRC}/AIWrapper.cpp
-    ${SRC}/ASWrapper.cpp    
+    ${SRC}/ASWrapper.cpp
     ${SRC}/BaseAI.cpp
     #{SRC}/Bspline.cpp
     ${SRC}/CameraManager.cpp
@@ -132,7 +132,6 @@ set(OD_SOURCEFILES
     ${SRC}/CreatureSound.cpp
     ${SRC}/CullingManager.cpp
     ${SRC}/DirectionalTrap.cpp
-    ${SRC}/Director.cpp
     ${SRC}/EditorContext.cpp
     ${SRC}/EditorMode.cpp
     ${SRC}/Field.cpp
@@ -143,7 +142,6 @@ set(OD_SOURCEFILES
     ${SRC}/GameMap.cpp
     ${SRC}/GameMode.cpp
     ${SRC}/GameContext.cpp
-    ${SRC}/GameStateManager.cpp
     ${SRC}/GoalClaimNTiles.cpp
     ${SRC}/Goal.cpp
     ${SRC}/GoalKillAllEnemies.cpp
@@ -152,6 +150,7 @@ set(OD_SOURCEFILES
     ${SRC}/GoalProtectDungeonTemple.cpp
     ${SRC}/Gui.cpp
     ${SRC}/HermiteCatmullSpline.cpp
+    ${SRC}/InputManager.cpp
     ${SRC}/LogManager.cpp
     ${SRC}/main.cpp
     ${SRC}/MapLight.cpp
@@ -159,7 +158,6 @@ set(OD_SOURCEFILES
     ${SRC}/MenuMode.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
-    ${SRC}/ModeContext.cpp
     ${SRC}/ModeManager.cpp
     ${SRC}/MortuaryQuad.cpp
     ${SRC}/MovableGameEntity.cpp
@@ -193,7 +191,6 @@ set(OD_SOURCEFILES
     ${SRC}/TestAI.cpp
     ${SRC}/TextRenderer.cpp
     ${SRC}/Tile.cpp
-#   ${SRC}/TileMap.cpp
     ${SRC}/TileCoordinateMap.cpp
     ${SRC}/TileContainer.cpp
     ${SRC}/TileContainersModificator.cpp
@@ -286,7 +283,7 @@ include_directories(
 	#tinyxml2 includes
 	${TINYXML_DIR}
 
-    #Angelscript includes    
+    #Angelscript includes
     ${ANGELSCRIPT_DIR}/angelscript/include
 	${ANGELSCRIPT_SRC_DIR}
 
@@ -350,12 +347,12 @@ set(BINDIR games CACHE PATH "")
 if(WIN32)
     install(TARGETS ${PROJECT_BINARY_NAME}
         DESTINATION .
-    ) 
+    )
 else ()
     install(TARGETS ${PROJECT_BINARY_NAME}
         DESTINATION ${BINDIR}
     )
-endif() 
+endif()
 
 ##################################
 #### Link libraries ##############
@@ -367,7 +364,7 @@ target_link_libraries(
     ${PROJECT_BINARY_NAME}
 
     #libraries
-    ${OGRE_LIBRARIES} 
+    ${OGRE_LIBRARIES}
     ${OGRE_RTShaderSystem_LIBRARIES}
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
@@ -388,12 +385,12 @@ if(${SFML_AUDIO_LIBRARY_SHARED_DEBUG})
         ${PROJECT_BINARY_NAME}
 
         optimized ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
-        optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG} 
-        debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG} 
+        optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG}
+        debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG}
         debug ${SFML_SYSTEM_LIBRARY_SHARED_DEBUG}
     ) 
 else()
-    target_link_libraries(${PROJECT_BINARY_NAME} 
+    target_link_libraries(${PROJECT_BINARY_NAME}
         ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
         ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG})
 endif()

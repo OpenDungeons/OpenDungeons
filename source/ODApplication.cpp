@@ -21,7 +21,6 @@
 #include "MiniMap.h"
 #include "LogManager.h"
 #include "Translation.h"
-#include "GameStateManager.h"
 #include "CameraManager.h"
 #include "ASWrapper.h"
 #include "Console.h"
@@ -73,10 +72,7 @@ ODApplication::ODApplication() :
      *       (drop smaller than 800x600, AA, shadow quality, mipmaps, etc)
      */
     if (!root->showConfigDialog())
-    {
         return;
-    }
-
 
     mOverlaySystem = new Ogre::OverlaySystem();
 
@@ -85,7 +81,6 @@ ODApplication::ODApplication() :
     LogManager* logManager = new LogManager();
     logManager->setLogDetail(Ogre::LL_BOREME);
     new Translation();
-    new GameStateManager();
     //RenderManager* renderMgr = new RenderManager();
 
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
@@ -97,18 +92,11 @@ ODApplication::ODApplication() :
     //      this needs refactoring at some other places, too
     Gui::getSingletonPtr()->loadGuiSheet(Gui::mainMenu);
 
-
-
     new TextRenderer();
-
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
                                             10, 50, 70, Ogre::ColourValue::Green);
     //TODO - move this to when the map is actually loaded
     MusicPlayer::getSingleton().start(0);
-
-    //TODO: this should not be created here.
-    //gameMap = new GameMap;
-    //renderMgr->setGameMap(gameMap);
 
     //FIXME: do this only if a level loads after the main menu
     //Try to create the camera, viewport and scene.
@@ -140,32 +128,23 @@ ODApplication::ODApplication() :
         return;
     }*/
 
-    //new CameraManager(renderMgr->getActiveCamera());
-    //FIXME: Is this the best place for instanciating these two?
-    //Console needs to exist BEFORE ASWrapper because it needs it for callback
-    new Console();
-
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
     mFrameListener = new ODFrameListener(window,mOverlaySystem);
     root->addFrameListener(mFrameListener);
     //TODO: This should be moved once we have separated level loading from startup.
 
-
-    //FIXME: This should be at a better place (when level loads for the first time)
-    // new MiniMap;
-
-	root->startRendering();
-
-    //sm->removeRenderQueueListener(mOverlaySystem);
+    root->startRendering();
 
     //Moved out from cleanup, as we only want to remove it if it exists.
     root->removeFrameListener(ODFrameListener::getSingletonPtr());
-    } catch( const Ogre::Exception& e ) {
-		std::cerr<< "An internal Ogre3D error ocurred: " << e.getFullDescription() << std::endl;
-		displayErrorMessage("Internal Ogre3D exception: " + e.getFullDescription());
-	}
-	// Will be called even if an Ogre::Exception was thrown
-	cleanUp();
+    }
+    catch( const Ogre::Exception& e)
+    {
+        std::cerr<< "An internal Ogre3D error ocurred: " << e.getFullDescription() << std::endl;
+        displayErrorMessage("Internal Ogre3D exception: " + e.getFullDescription());
+    }
+    // Will be called even if an Ogre::Exception was thrown
+    cleanUp();
 }
 
 ODApplication::~ODApplication()
@@ -201,10 +180,8 @@ void ODApplication::cleanUp()
     delete Gui::getSingletonPtr();
     delete SoundEffectsHelper::getSingletonPtr();
     delete RenderManager::getSingletonPtr();
-    delete GameStateManager::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
-    delete Console::getSingletonPtr();
     delete ASWrapper::getSingletonPtr();
     //delete gameMap;
 }

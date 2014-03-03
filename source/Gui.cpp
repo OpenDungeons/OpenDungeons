@@ -241,10 +241,12 @@ bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
 {
     CEGUI::MouseEventArgs& ee = (CEGUI::MouseEventArgs&)e;
 
-    Ogre::Vector2 cc = ODFrameListener::getSingleton().getGameMap()->getMiniMap()->camera_2dPositionFromClick((int)ee.position.d_x,
-                                                                                                              (int)ee.position.d_y);
+    ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
-    modeManager->mMc->frameListener->cm->onMiniMapClick(cc);
+    Ogre::Vector2 cc = frameListener.getGameMap()->getMiniMap()->camera_2dPositionFromClick((int)ee.position.d_x,
+                                                                                            (int)ee.position.d_y);
+
+    frameListener.cm->onMiniMapClick(cc);
 
     //std::cerr<< xx <<" "<< yy << " " <<std::endl;
     return true;

@@ -53,14 +53,8 @@ class Console :
     friend class ConsoleMode;
 
 public:
-    Console();
+    Console(ModeManager*);
     ~Console();
-
-    void setModeManager(ModeManager* mm)
-    { mModeManager = mm; };
-
-    void setCameraManager(CameraManager* tmp)
-    { mCm = tmp; }
 
     inline const bool& isVisible() const
     { return mVisible; }
@@ -113,8 +107,6 @@ private:
 
     //state variables
     ModeManager* mModeManager;
-    CameraManager* mCm;
-    ODFrameListener* mOdf;
 
     unsigned int mConsoleLineLength;
     unsigned int mConsoleLineCount;
@@ -150,4 +142,4 @@ private:
     void scrollText (const bool direction);
 };
 
-#endif /* CONSOLE_H_ */
+#endif // CONSOLE_H_

@@ -40,10 +40,8 @@
 
 template<> Console* Ogre::Singleton<Console>::msSingleton = 0;
 
-Console::Console() :
-    mModeManager(NULL),
-    mCm(NULL),
-    mOdf(NULL),
+Console::Console(ModeManager* modeManager) :
+    mModeManager(modeManager),
     //these two define how much text goes into the console
     mConsoleLineLength(100),
     mConsoleLineCount(14),

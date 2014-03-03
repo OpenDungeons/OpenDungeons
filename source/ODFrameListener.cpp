@@ -32,9 +32,7 @@
 #include "RenderManager.h"
 #include "ResourceManager.h"
 #include "ODApplication.h"
-#include "GameStateManager.h"
 #include "LogManager.h"
-#include "ModeContext.h"
 #include "GameContext.h"
 #include "EditorContext.h"
 #include "CullingManager.h"
@@ -85,16 +83,13 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     gc(NULL),
     ed(NULL)
 {
-    Ogre::SceneManager* sceneManager =  ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager","SceneManager");
+    Ogre::SceneManager* sceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager","SceneManager");
     sceneManager->addRenderQueueListener(tmpOverlaySystem);
     gameMap = new GameMap;
-    //FIXME game Map should be read at this point, instead , at the below I set map sizes manually paul424
-    gameMap->setMapSizeX(400);
-    gameMap->setMapSizeY(400);
 
     culm = new CullingManager();
     gameMap->setCullingManger(culm);
-    cm = new CameraManager(sceneManager,gameMap);
+    cm = new CameraManager(sceneManager, gameMap);
 
     LogManager::getSingletonPtr()->logMessage("Creating viewports...", Ogre::LML_NORMAL);
     cm->createViewport();
@@ -118,11 +113,10 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     LogManager::getSingletonPtr()->logMessage("Created everything :)", Ogre::LML_NORMAL);
 
     renderManager = new RenderManager();
-
-
     renderManager->setGameMap(gameMap);
     renderManager->setCameraManager(cm);
     renderManager->setViewport(cm->getViewport());
+
     miniMap = new MiniMap(gameMap);
     //NOTE This is moved here temporarily.
     // try
@@ -151,13 +145,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     //     //return;
     // }
 
-
-
-    //FIXME: this should be changed to a function or something.
-    gameMap->me = new Player();
-    gameMap->me->setNick("defaultNickName");
-    gameMap->me->setGameMap(gameMap);
-
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     rockSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Rock_scene_node");
@@ -171,13 +158,9 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
             "Light_scene_node");
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
+    modeManager = new ModeManager();
+    Gui::getSingletonPtr()->setModeManager(modeManager);
 
-
-    inputManager = new ModeManager(gameMap,miniMap,Console::getSingletonPtr());
-
-    Console::getSingletonPtr()->setModeManager(inputManager);
-
-    Gui::getSingletonPtr()->setModeManager(inputManager);
     //Set initial mouse clipping size
     windowResized(mWindow);
 
@@ -224,7 +207,7 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = inputManager->getCurrentMode()->getMouse()->getMouseState();
+    const OIS::MouseState &ms = modeManager->getCurrentMode()->getMouse()->getMouseState();
     ms.width = width;
     ms.height = height;
 
@@ -240,9 +223,9 @@ void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
 {
     if(rw == mWindow)
     {
-        if(inputManager)
+        if(modeManager)
         {
-            delete inputManager;
+            delete modeManager;
         }
     }
 }
@@ -529,7 +512,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     std::stringstream tempSS("");
     // Update the CEGUI displays of gold, mana, etc.
-    if (isInGame())
+    if (isConnected())
     {
         //
         /*We only need to recreate the info windows when each turn when
@@ -568,7 +551,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             tempWindow->setText(tempSS.str());
 
 
-            if (isInGame())// && gameMap->me->seat->getHasGoalsChanged())
+            if (isConnected())// && gameMap->me->seat->getHasGoalsChanged())
             {
                 mySeat->resetGoalsChanged();
                 // Update the goals display in the message window.
@@ -628,9 +611,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     gameMap->threadUnlockForTurn(currentTurnNumber);
 
     //Need to capture/update each device
-    inputManager->lookForNewMode();
-    inputManager->getCurrentMode()->getKeyboard()->capture();
-    inputManager->getCurrentMode()->getMouse()->capture();
+    modeManager->checkModeChange();
+    modeManager->getCurrentMode()->getKeyboard()->capture();
+    modeManager->getCurrentMode()->getMouse()->capture();
 
     if(gc!=NULL){
 	gc->onFrameStarted(evt);
@@ -718,7 +701,7 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(
 }
 
 
-bool ODFrameListener::isInGame()
+bool ODFrameListener::isConnected()
 {
     //TODO: this exact function is also in InputManager, replace it too after GameState works
     //TODO - we should use a bool or something, not the sockets for this.
@@ -762,26 +745,23 @@ void ODFrameListener::printText(const std::string& text)
 
 
 
-void ODFrameListener::makeGameContext(){
-
-
-    gc = new GameContext(mWindow, inputManager, gameMap);
+void ODFrameListener::makeGameContext()
+{
+    gc = new GameContext(mWindow, modeManager, gameMap);
 
     culm->setCameraManager(cm);
-    cm->setModeManager(inputManager);
-    Console::getSingletonPtr()->setCameraManager(cm);
+    cm->setModeManager(modeManager);
     gc->setCameraManager(cm);
     new ASWrapper(cm);
 }
 
 
-void ODFrameListener::makeEditorContext(){
-
-    ed = new EditorContext(mWindow, inputManager, gameMap);
+void ODFrameListener::makeEditorContext()
+{
+    ed = new EditorContext(mWindow, modeManager, gameMap);
 
     culm->setCameraManager(cm);
-    cm->setModeManager(inputManager);
-    Console::getSingletonPtr()->setCameraManager(cm);
+    cm->setModeManager(modeManager);
     ed->setCameraManager(cm);
     new ASWrapper(cm);
 }

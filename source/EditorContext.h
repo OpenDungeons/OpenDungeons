@@ -51,7 +51,7 @@ public:
 
 private:
     GameMap* mGameMap;
-    //TODO: Un-singleton this class and make it a stack object.
+
     RenderManager*          mRenderManager;
     CameraManager*          mCameraManager;
     ModeManager*            mModeManager;

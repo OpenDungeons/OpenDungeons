@@ -3,22 +3,13 @@
 
 
 #include "AbstractApplicationMode.h"
-#include "ModeContext.h"
 
-class ModeContext;
-
-class  MenuMode: public AbstractApplicationMode  {
-
-
- public:
- 
-
-    MenuMode(ModeContext*);
+class  MenuMode: public AbstractApplicationMode
+{
+public:
+    MenuMode(ModeManager*);
 
     virtual ~MenuMode();
-
-    inline virtual OIS::Mouse*      getMouse()         {return mMc->mMouse;}
-    inline virtual OIS::Keyboard*   getKeyboard()      {return mMc->mKeyboard;}
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
@@ -26,9 +17,9 @@ class  MenuMode: public AbstractApplicationMode  {
     virtual bool keyPressed     (const OIS::KeyEvent &arg);
     virtual bool keyReleased    (const OIS::KeyEvent &arg);
     virtual void handleHotkeys  (OIS::KeyCode keycode);
-    virtual bool isInGame();
-    virtual void giveFocus();
 
+    void onFrameStarted(const Ogre::FrameEvent& evt) {};
+    void onFrameEnded(const Ogre::FrameEvent& evt) {};
 };
 
 #endif // MENUMODE_H

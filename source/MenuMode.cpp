@@ -1,18 +1,15 @@
 #include "MenuMode.h"
 
 #include "Gui.h"
-#include "Socket.h"
 #include "ModeManager.h"
 
-MenuMode::MenuMode(ModeContext *modeContext):
-    AbstractApplicationMode(modeContext, ModeManager::MENU)
+MenuMode::MenuMode(ModeManager *modeManager):
+    AbstractApplicationMode(modeManager, ModeManager::MENU)
 {
-
 }
 
 MenuMode::~MenuMode()
 {
-
 }
 
 bool MenuMode::mouseMoved(const OIS::MouseEvent &arg)
@@ -20,12 +17,14 @@ bool MenuMode::mouseMoved(const OIS::MouseEvent &arg)
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
 }
 
-bool MenuMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id) {
+bool MenuMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+{
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::getSingletonPtr()->convertButton(id));
 }
 
-bool MenuMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id) {
+bool MenuMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+{
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
         Gui::getSingletonPtr()->convertButton(id));
 }
@@ -44,23 +43,11 @@ bool MenuMode::keyPressed(const OIS::KeyEvent &arg) {
     return true;
 }
 
-bool MenuMode::keyReleased(const OIS::KeyEvent &arg) {
+bool MenuMode::keyReleased(const OIS::KeyEvent &arg)
+{
     return true;
 }
 
-void MenuMode::handleHotkeys(OIS::KeyCode keycode) {
-
-}
-
-bool MenuMode::isInGame(){
-    //TODO: this exact function is also in ODFrameListener, replace it too after GameState works
-    //TODO - we should use a bool or something, not the sockets for this.
-    return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
-    //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
-}
-
-void MenuMode::giveFocus(){
-
-    mMc->mMouse->setEventCallback(this);
-    mMc->mKeyboard->setEventCallback(this);
+void MenuMode::handleHotkeys(OIS::KeyCode keycode)
+{
 }

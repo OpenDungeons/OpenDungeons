@@ -16,3 +16,18 @@
  */
 
 #include "AbstractApplicationMode.h"
+
+#include "Socket.h"
+
+bool AbstractApplicationMode::isConnected()
+{
+    //TODO: this exact function is also in ODFrameListener, replace it too after GameState works
+    //TODO - we should use a bool or something, not the sockets for this.
+    return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
+}
+
+void AbstractApplicationMode::giveFocus()
+{
+    mModeManager->getInputManager()->mMouse->setEventCallback(this);
+    mModeManager->getInputManager()->mKeyboard->setEventCallback(this);
+}

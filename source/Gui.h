@@ -45,7 +45,7 @@ class Gui : public Ogre::Singleton<Gui>
 
         Gui();
         ~Gui();
-	
+
         static void         setModeManager(ModeManager* mm) {modeManager = mm;}
         void                loadGuiSheet    (const guiSheet& newSheet);
         CEGUI::MouseButton  convertButton   (const OIS::MouseButtonID& buttonID);

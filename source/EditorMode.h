@@ -19,9 +19,11 @@
 #define EDITORMODE_H
 
 #include "AbstractApplicationMode.h"
-#include "ModeContext.h"
 
-class ModeContext;
+#include "GameMap.h"
+
+#include <OgreTimer.h>
+
 class Gui;
 
 class  EditorMode: public AbstractApplicationMode
@@ -29,15 +31,9 @@ class  EditorMode: public AbstractApplicationMode
     friend class Gui;
 
 public:
-    EditorMode(ModeContext*);
+    EditorMode(ModeManager* modeManager);
 
     virtual ~EditorMode();
-
-    inline virtual OIS::Mouse* getMouse()
-    { return mMc->mMouse; }
-
-    inline virtual OIS::Keyboard* getKeyboard()
-    { return mMc->mKeyboard; }
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
@@ -45,8 +41,15 @@ public:
     virtual bool keyPressed     (const OIS::KeyEvent &arg);
     virtual bool keyReleased    (const OIS::KeyEvent &arg);
     virtual void handleHotkeys  (OIS::KeyCode keycode);
-    virtual bool isInGame();
-    virtual void giveFocus();
+
+    void onFrameStarted(const Ogre::FrameEvent& evt);
+    void onFrameEnded(const Ogre::FrameEvent& evt);
+
+    // ! Specific functions
+    GameMap* getGameMap()
+    {
+        return mGameMap;
+    }
 
 private:
     bool                mChanged;
@@ -57,6 +60,19 @@ private:
     DragType            mDragType;
     std::string         mDraggedCreature;
     std::string         mDraggedMapLight;
+
+    //! \brief Rendering members
+    GameMap*            mGameMap;
+
+    Ogre::SceneNode*    mCreatureSceneNode;
+    Ogre::SceneNode*    mRoomSceneNode;
+    Ogre::SceneNode*    mFieldSceneNode;
+    Ogre::SceneNode*    mLightSceneNode;
+    Ogre::Timer         mStatsDisplayTimer;
+
+    //! \brief A sub-function called by mouseMoved()
+    //! It will handle each drag type and permit easy early inner return
+    void handleMouseMovedDragType(const OIS::MouseEvent &arg);
 };
 
 #endif // EDITORMODE_H

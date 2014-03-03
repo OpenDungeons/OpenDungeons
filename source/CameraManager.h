@@ -227,9 +227,6 @@ private:
 
     std::string switchPolygonMode();
     void sort(Vector3i& p1 , Vector3i& p2, bool sortByX);
-
-    int bashAndSplashTiles(int); // set the new tiles
-    CameraManager(const CameraManager&);
 };
 
 #endif /* CAMERAMANAGER_H_ */

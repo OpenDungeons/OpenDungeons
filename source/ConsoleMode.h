@@ -19,29 +19,21 @@
 #define CONSOLEMODE_H
 
 #include "AbstractApplicationMode.h"
-#include "ModeContext.h"
 
 #include <list>
 #include <string>
 
 using std::string; using std::list;
 
-class ModeContext;
 class PrefixTreeLL;
 
-class  ConsoleMode: public AbstractApplicationMode {
-
+class  ConsoleMode: public AbstractApplicationMode
+{
 public:
 
-    ConsoleMode(ModeContext*, Console*);
+    ConsoleMode(ModeManager*, Console*);
 
     virtual ~ConsoleMode();
-
-    inline virtual OIS::Mouse* getMouse()
-    { return mMc->mMouse; }
-
-    inline virtual OIS::Keyboard* getKeyboard()
-    { return mMc->mKeyboard; }
 
     virtual bool mouseMoved(const OIS::MouseEvent &arg);
     virtual bool mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id);
@@ -49,8 +41,9 @@ public:
     virtual bool keyPressed(const OIS::KeyEvent &arg);
     virtual bool keyReleased(const OIS::KeyEvent &arg);
     virtual void handleHotkeys(OIS::KeyCode keycode);
-    virtual bool isInGame();
-    virtual void giveFocus();
+
+    void onFrameStarted(const Ogre::FrameEvent& evt) {};
+    void onFrameEnded(const Ogre::FrameEvent& evt) {};
 
 private:
     Console* mConsole;

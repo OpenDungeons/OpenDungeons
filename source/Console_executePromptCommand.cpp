@@ -49,19 +49,23 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 {
     std::stringstream tempSS;
 
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
+    CameraManager* cm = frameListener->cm;
+    GameMap* gameMap = frameListener->gameMap;
+
     /*
     // Exit the program
     if (command.compare("quit") == 0 || command.compare("exit") == 0)
     {
         //NOTE: converted to AS
-        ODFrameListener::getSingletonPtr()->requestExit();
+        frameListener->requestExit();
     }
 
     // Repeat the arguments of the command back to you
     else if (command.compare("echo") == 0)
     {
         //NOTE: dropped in AS (was this any useful?)
-        ODFrameListener::getSingletonPtr()->commandOutput += "\n" + arguments + "\n";
+        frameListener->commandOutput += "\n" + arguments + "\n";
     } */
 
     /*
@@ -71,17 +75,17 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         //NOTE: convetred to AS
         if (arguments.empty())
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "No level name given: saving over the last loaded level: "
-                            + ODFrameListener::getSingletonPtr()->gameMap->getLevelFileName() + "\n\n";
-            arguments = ODFrameListener::getSingletonPtr()->gameMap->getLevelFileName();
+                            + gameMap->getLevelFileName() + "\n\n";
+            arguments = gameMap->getLevelFileName();
         }
 
         string tempFileName = "levels/" + arguments + ".level";
-        MapLoader::writeGameMapToFile(tempFileName, *ODFrameListener::getSingletonPtr()->gameMap);
-        ODFrameListener::getSingletonPtr()->commandOutput += "\nFile saved to   " + tempFileName + "\n";
+        MapLoader::writeGameMapToFile(tempFileName, *gameMap);
+        frameListener->commandOutput += "\nFile saved to   " + tempFileName + "\n";
 
-        ODFrameListener::getSingletonPtr()->gameMap->setLevelFileName(arguments);
+        gameMap->setLevelFileName(arguments);
     }*/
 
     // Clear the current level and load a new one from a file
@@ -89,10 +93,10 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (arguments.empty())
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "No level name given: loading the last loaded level: "
-                            + ODFrameListener::getSingletonPtr()->gameMap->getLevelFileName() + "\n\n";
-            arguments = ODFrameListener::getSingletonPtr()->gameMap->getLevelFileName();
+                            + gameMap->getLevelFileName() + "\n\n";
+            arguments = gameMap->getLevelFileName();
         }
 
         if (Socket::clientSocket == NULL)
@@ -108,35 +112,35 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             if (Socket::serverSocket != NULL)
             {
-                ODFrameListener::getSingletonPtr()->gameMap->nextLevel = tempString;
-                ODFrameListener::getSingletonPtr()->gameMap->loadNextLevel = true;
+                gameMap->nextLevel = tempString;
+                gameMap->loadNextLevel = true;
             }
             else
             {
                 if (MapLoader::readGameMapFromFile(tempString, *ODFrameListener::getSingletonPtr()->gameMap))
                 {
                     tempSS << "Successfully loaded file:  " << tempString
-                            << "\nNum tiles:  " << ODFrameListener::getSingletonPtr()->gameMap->numTiles()
+                            << "\nNum tiles:  " << gameMap->numTiles()
                             << "\nNum classes:  "
-                            << ODFrameListener::getSingletonPtr()->gameMap->numClassDescriptions()
-                            << "\nNum creatures:  " << ODFrameListener::getSingletonPtr()->gameMap->numCreatures();
-                    ODFrameListener::getSingletonPtr()->commandOutput += tempSS.str();
+                            << gameMap->numClassDescriptions()
+                            << "\nNum creatures:  " << gameMap->numCreatures();
+                    frameListener->commandOutput += tempSS.str();
 
-                    ODFrameListener::getSingletonPtr()->gameMap->createAllEntities();
+                    gameMap->createAllEntities();
                 }
                 else
                 {
                     tempSS << "ERROR: Could not load game map \'" << tempString
                             << "\'.";
-                    ODFrameListener::getSingletonPtr()->commandOutput += tempSS.str();
+                    frameListener->commandOutput += tempSS.str();
                 }
             }
 
-            ODFrameListener::getSingletonPtr()->gameMap->setLevelFileName(arguments);
+            gameMap->setLevelFileName(arguments);
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "ERROR:  Cannot load a level if you are a client, only the sever can load new levels.";
         }
     }
@@ -151,7 +155,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
             mSceneMgr->setAmbientLight(Ogre::ColourValue(tempR, tempG, tempB));
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nAmbient light set to:\nRed:  "
+            frameListener->commandOutput += "\nAmbient light set to:\nRed:  "
                     + Ogre::StringConverter::toString((Ogre::Real) tempR) + "    Green:  "
                     + Ogre::StringConverter::toString((Ogre::Real) tempG) + "    Blue:  "
                     + Ogre::StringConverter::toString((Ogre::Real) tempB) + "\n";
@@ -160,7 +164,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         else
         {
             Ogre::ColourValue curLight = mSceneMgr->getAmbientLight();
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent ambient light is:\nRed:  "
+            frameListener->commandOutput += "\nCurrent ambient light is:\nRed:  "
                     + Ogre::StringConverter::toString((Ogre::Real) curLight.r)
                     + "    Green:  " + Ogre::StringConverter::toString(
                     (Ogre::Real) curLight.g) + "    Blue:  "
@@ -171,7 +175,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     // Print the help message
     else if (command.compare("help") == 0)
     {
-        ODFrameListener::getSingletonPtr()->commandOutput += (!arguments.empty())
+        frameListener->commandOutput += (!arguments.empty())
                 ? "\nHelp for command:  " + arguments + "\n\n" + getHelpText(arguments) + "\n"
                 : "\n" + ODApplication::HELP_MESSAGE + "\n";
     }
@@ -190,16 +194,16 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         // Print the "tens" place line at the top
         for (int i = 0; i < terminalWordWrap / 10; ++i)
         {
-            ODFrameListener::getSingletonPtr()->commandOutput += "         " + Ogre::StringConverter::toString(i + 1);
+            frameListener->commandOutput += "         " + Ogre::StringConverter::toString(i + 1);
         }
 
-        ODFrameListener::getSingletonPtr()->commandOutput += "\n";
+        frameListener->commandOutput += "\n";
 
         // Print the "ones" place
         const std::string tempString = "1234567890";
         for (int i = 0; i < terminalWordWrap - 1; ++i)
         {
-            ODFrameListener::getSingletonPtr()->commandOutput += tempString.substr(i % 10, 1);
+            frameListener->commandOutput += tempString.substr(i % 10, 1);
         }
 
     } */
@@ -221,7 +225,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         {
             for (int i = xMin; i < xMax; ++i)
             {
-                if (ODFrameListener::getSingletonPtr()->gameMap->getTile(i, j) == NULL)
+                if (gameMap->getTile(i, j) == NULL)
                 {
                     stringstream ss;
 
@@ -234,13 +238,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
                     Tile *t = new Tile(i, j, Tile::dirt, 100);
                     t->setName(ss.str());
-                    ODFrameListener::getSingletonPtr()->gameMap->addTile(t);
+                    gameMap->addTile(t);
                     t->createMesh();
                 }
             }
         }
 
-        ODFrameListener::getSingletonPtr()->commandOutput += "\nCreating tiles for region:\n\n\t("
+        frameListener->commandOutput += "\nCreating tiles for region:\n\n\t("
                 + Ogre::StringConverter::toString(xMin) + ", "
                 + Ogre::StringConverter::toString(yMin) + ")\tto\t("
                 + Ogre::StringConverter::toString(xMax) + ", "
@@ -257,12 +261,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     //         tempSS.str(arguments);
     //         tempSS >> tempDouble;
     //         cm->setMoveSpeedAccel(2.0 * tempDouble);
-    //         ODFrameListener::getSingletonPtr()->commandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
+    //         frameListener->commandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
     //                 tempDouble) + "\n";
     //     }
     //     else
     //     {
-    //         ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent movespeed is "
+    //         frameListener->commandOutput += "\nCurrent movespeed is "
     //                 + Ogre::StringConverter::toString(
     //                         cm->getMoveSpeed())
     //                 + "\n";
@@ -277,19 +281,19 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble = 0.0;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            mCm->setRotateSpeed(Ogre::Degree(tempDouble));
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nrotatespeed set to "
+            cm->setRotateSpeed(Ogre::Degree(tempDouble));
+            frameListener->commandOutput += "\nrotatespeed set to "
                     + Ogre::StringConverter::toString(
                             static_cast<Ogre::Real>(
-                                    mCm->getRotateSpeed().valueDegrees()))
+                                    cm->getRotateSpeed().valueDegrees()))
                     + "\n";
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent rotatespeed is "
+            frameListener->commandOutput += "\nCurrent rotatespeed is "
                     + Ogre::StringConverter::toString(
                             static_cast<Ogre::Real>(
-                                    mCm->getRotateSpeed().valueDegrees()))
+                                    cm->getRotateSpeed().valueDegrees()))
                     + "\n";
         }
     }
@@ -305,23 +309,23 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> tempDouble;
             ODApplication::MAX_FRAMES_PER_SECOND = tempDouble;
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nMaximum framerate set to "
+            frameListener->commandOutput += "\nMaximum framerate set to "
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::MAX_FRAMES_PER_SECOND))
                     + "\n";
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent maximum framerate is "
+            frameListener->commandOutput += "\nCurrent maximum framerate is "
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::MAX_FRAMES_PER_SECOND))
                     + "\n";
         }
     }*/
 
 
-    // Set the max number of threads the ODFrameListener::getSingletonPtr()->gameMap should spawn when it does the creature AI.
+    // Set the max number of threads the gameMap should spawn when it does the creature AI.
     else if (command.compare("aithreads") == 0)
     {
-        //NOTE: converted to AS, but ODFrameListener::getSingletonPtr()->gameMap needs to be prepared
+        //NOTE: converted to AS, but gameMap needs to be prepared
         if (!arguments.empty())
         {
             tempSS.str(arguments);
@@ -329,23 +333,23 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS >> tempInt;
             if (tempInt >= 1)
             {
-                ODFrameListener::getSingletonPtr()->gameMap->setMaxAIThreads(tempInt);
-                ODFrameListener::getSingletonPtr()->commandOutput
+                gameMap->setMaxAIThreads(tempInt);
+                frameListener->commandOutput
                         += "\nMaximum number of creature AI threads set to "
                         + Ogre::StringConverter::toString(
-                                        ODFrameListener::getSingletonPtr()->gameMap->getMaxAIThreads()) + "\n";
+                                        gameMap->getMaxAIThreads()) + "\n";
             }
             else
             {
-                ODFrameListener::getSingletonPtr()->commandOutput
+                frameListener->commandOutput
                         += "\nERROR: Maximum number of threads must be >= 1.\n";
             }
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "\nCurrent maximum number of creature AI threads is "
-                    + Ogre::StringConverter::toString(ODFrameListener::getSingletonPtr()->gameMap->getMaxAIThreads())
+                    + Ogre::StringConverter::toString(gameMap->getMaxAIThreads())
                     + "\n";
         }
     }
@@ -360,7 +364,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS >> ODApplication::turnsPerSecond;
 
             // Clear the queue of early/late time counts to reset the moving window average in the AI time display.
-            ODFrameListener::getSingletonPtr()->gameMap->previousLeftoverTimes.clear();
+            gameMap->previousLeftoverTimes.clear();
 
             if (Socket::serverSocket != NULL)
             {
@@ -379,12 +383,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 }
             }
 
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nMaximum turns per second set to "
+            frameListener->commandOutput += "\nMaximum turns per second set to "
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::turnsPerSecond)) + "\n";
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent maximum turns per second is "
+            frameListener->commandOutput += "\nCurrent maximum turns per second is "
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::turnsPerSecond)) + "\n";
         }
     }
@@ -397,17 +401,17 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            mCm->getActiveCamera()->setNearClipDistance(tempDouble);
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nNear clip distance set to "
+            cm->getActiveCamera()->setNearClipDistance(tempDouble);
+            frameListener->commandOutput += "\nNear clip distance set to "
                     + Ogre::StringConverter::toString(
-                            mCm->getActiveCamera()->getNearClipDistance())
+                            cm->getActiveCamera()->getNearClipDistance())
                     + "\n";
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent near clip distance is "
+            frameListener->commandOutput += "\nCurrent near clip distance is "
                     + Ogre::StringConverter::toString(
-                            mCm->getActiveCamera()->getNearClipDistance())
+                            cm->getActiveCamera()->getNearClipDistance())
                     + "\n";
         }
     }
@@ -420,16 +424,16 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempDouble;
             tempSS.str(arguments);
             tempSS >> tempDouble;
-            mCm->getActiveCamera()->setFarClipDistance(tempDouble);
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nFar clip distance set to "
+            cm->getActiveCamera()->setFarClipDistance(tempDouble);
+            frameListener->commandOutput += "\nFar clip distance set to "
                     + Ogre::StringConverter::toString(
-                            mCm->getActiveCamera()->getFarClipDistance()) + "\n";
+                            cm->getActiveCamera()->getFarClipDistance()) + "\n";
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent far clip distance is "
+            frameListener->commandOutput += "\nCurrent far clip distance is "
                     + Ogre::StringConverter::toString(
-                            mCm->getActiveCamera()->getFarClipDistance()) + "\n";
+                            cm->getActiveCamera()->getFarClipDistance()) + "\n";
         }
     }
 
@@ -440,7 +444,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         //NOTE: dropped in AS
         //Doesn't do anything at the moment, after the mouse input to cegui change.
         //TODO - remove or make usable.
-        ODFrameListener::getSingletonPtr()->commandOutput += "The command is disabled\n";
+        frameListener->commandOutput += "The command is disabled\n";
         //		if(!arguments.empty())
         //		{
         //			float speed;
@@ -449,11 +453,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         //			CEGUI::System::getSingleton().setMouseMoveScaling(speed);
         //			tempSS.str("");
         //			tempSS << "Mouse speed changed to: " << speed;
-        //			ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+        //			frameListener->commandOutput += "\n" + tempSS.str() + "\n";
         //		}
         //		else
         //		{
-        //			ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent mouse speed is: "
+        //			frameListener->commandOutput += "\nCurrent mouse speed is: "
         //				+ StringConverter::toString(static_cast<Real>(
         //				CEGUI::System::getSingleton().getMouseMoveScaling())) + "\n";
         //		}
@@ -465,32 +469,31 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (!arguments.empty())
         {
-            // Creature the creature and add it to the ODFrameListener::getSingletonPtr()->gameMap
-            Creature *tempCreature = new Creature(ODFrameListener::getSingletonPtr()->gameMap );
+            // Creature the creature and add it to the gameMap
+            Creature *tempCreature = new Creature(gameMap);
             std::stringstream tempSS(arguments);
-            CreatureDefinition *tempClass = ODFrameListener::getSingletonPtr()->gameMap->getClassDescription(
-                    tempCreature->getDefinition()->getClassName());
+            CreatureDefinition *tempClass = gameMap->getClassDescription(tempCreature->getDefinition()->getClassName());
             if (tempClass != NULL)
             {
                 *tempCreature = tempClass;
                 tempSS >> tempCreature;
 
-                ODFrameListener::getSingletonPtr()->gameMap->addCreature(tempCreature);
+                gameMap->addCreature(tempCreature);
 
                 // Create the mesh and SceneNode for the new creature
                 Ogre::Entity *ent = RenderManager::getSingletonPtr()->getSceneManager()->createEntity("Creature_"
                         + tempCreature->getName(), tempCreature->getDefinition()->getMeshName());
-                Ogre::SceneNode *node = ODFrameListener::getSingletonPtr()->creatureSceneNode->createChildSceneNode(
+                Ogre::SceneNode *node = frameListener->creatureSceneNode->createChildSceneNode(
                         tempCreature->getName() + "_node");
                 //node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
                 node->setPosition(tempCreature->getPosition());
                 node->setScale(tempCreature->getDefinition()->getScale());
                 node->attachObject(ent);
-                ODFrameListener::getSingletonPtr()->commandOutput += "\nCreature added successfully\n";
+                frameListener->commandOutput += "\nCreature added successfully\n";
             }
             else
             {
-                ODFrameListener::getSingletonPtr()->commandOutput
+                frameListener->commandOutput
                         += "\nInvalid creature class name, you need to first add a class with the \'addclass\' terminal command.\n";
             }
         }
@@ -505,7 +508,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> tempClass;
 
-            ODFrameListener::getSingletonPtr()->gameMap->addClassDescription(tempClass);
+            gameMap->addClassDescription(tempClass);
         }
 
     }
@@ -521,32 +524,31 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             if (arguments.compare("creatures") == 0)
             {
                 tempSS << "Class:\tCreature name:\tLocation:\tColor:\tLHand:\tRHand\n\n";
-                for (unsigned int i = 0; i < ODFrameListener::getSingletonPtr()->gameMap->numCreatures(); ++i)
+                for (unsigned int i = 0; i < gameMap->numCreatures(); ++i)
                 {
-                    tempSS << ODFrameListener::getSingletonPtr()->gameMap->getCreature(i) << endl;
+                    tempSS << gameMap->getCreature(i) << endl;
                 }
             }
 
             else if (arguments.compare("classes") == 0)
             {
                 tempSS << "Class:\tMesh:\tScale:\tHP:\tMana:\tSightRadius:\tDigRate:\tMovespeed:\n\n";
-                for (unsigned int i = 0; i < ODFrameListener::getSingletonPtr()->gameMap->numClassDescriptions(); ++i)
+                for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
                 {
-                    CreatureDefinition *currentClassDesc =
-                            ODFrameListener::getSingletonPtr()->gameMap->getClassDescription(i);
+                    CreatureDefinition *currentClassDesc = gameMap->getClassDescription(i);
                     tempSS << currentClassDesc << "\n";
                 }
             }
 
             else if (arguments.compare("players") == 0)
             {
-                // There are only players if we are in a game.
-                if (ODFrameListener::getSingletonPtr()->isInGame())
+                // There are only players if we are connected.
+                if (frameListener->isConnected())
                 {
                     tempSS << "Player:\tNick:\tColor:\n\n";
-                    tempSS << "me\t\t" << ODFrameListener::getSingletonPtr()->gameMap->getLocalPlayer()->getNick() << "\t"
-                            << ODFrameListener::getSingletonPtr()->gameMap->getLocalPlayer()->getSeat()->getColor() << "\n\n";
-                    for (unsigned int i = 0; i < ODFrameListener::getSingletonPtr()->gameMap->numPlayers(); ++i)
+                    tempSS << "me\t\t" << gameMap->getLocalPlayer()->getNick() << "\t"
+                            << gameMap->getLocalPlayer()->getSeat()->getColor() << "\n\n";
+                    for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
                     {
                         const Player *currentPlayer = ODFrameListener::getSingletonPtr()->gameMap->getPlayer(i);
                         tempSS << i << "\t\t" << currentPlayer->getNick() << "\t"
@@ -571,33 +573,33 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     tempSS << "You are currently acting as a server.";
                 }
 
-                if (!ODFrameListener::getSingletonPtr()->isInGame())
-                {
-                    tempSS << "You are currently in the map editor.";
-                }
+                // FIXME: This is plain wrong as it will have to test for the application mode.
+                //if (!frameListener->isConnected())
+                //{
+                //    tempSS << "You are currently in the map editor.";
+                //}
             }
 
             else if (arguments.compare("rooms") == 0)
             {
                 tempSS << "Name:\tColor:\tNum tiles:\n\n";
-                for (unsigned int i = 0; i < ODFrameListener::getSingletonPtr()->gameMap->numRooms(); ++i)
+                for (unsigned int i = 0; i < gameMap->numRooms(); ++i)
                 {
                     Room *currentRoom;
-                    currentRoom = ODFrameListener::getSingletonPtr()->gameMap->getRoom(i);
+                    currentRoom = gameMap->getRoom(i);
                     tempSS << currentRoom->getName() << "\t" << currentRoom->getColor()
                             << "\t" << currentRoom->numCoveredTiles() << "\n";
                 }
             }
 
-            else if (arguments.compare("colors") == 0 || arguments.compare(
-                    "colours") == 0)
+            else if (arguments.compare("colors") == 0 || arguments.compare("colours") == 0)
             {
                 tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
-                for (unsigned int i = 0; i < ODFrameListener::getSingletonPtr()->playerColourValues.size(); ++i)
+                for (unsigned int i = 0; i < frameListener->playerColourValues.size(); ++i)
                 {
-                    tempSS << "\n" << i << "\t\t" << ODFrameListener::getSingletonPtr()->playerColourValues[i].r
-                            << "\t\t" << ODFrameListener::getSingletonPtr()->playerColourValues[i].g << "\t\t"
-                            << ODFrameListener::getSingletonPtr()->playerColourValues[i].b;
+                    tempSS << "\n" << i << "\t\t" << frameListener->playerColourValues[i].r
+                            << "\t\t" << frameListener->playerColourValues[i].g << "\t\t"
+                            << frameListener->playerColourValues[i].b;
                 }
             }
 
@@ -624,14 +626,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             else if (arguments.compare("goals") == 0)
             {
-                if (ODFrameListener::getSingletonPtr()->isInGame())
+                if (frameListener->isConnected())
                 {
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS
                             << "Unfinished Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
-                    for (unsigned int i = 0; i < ODFrameListener::getSingletonPtr()->gameMap->me->getSeat()->numGoals(); ++i)
+                    for (unsigned int i = 0; i < gameMap->me->getSeat()->numGoals(); ++i)
                     {
-                        Goal *tempGoal = ODFrameListener::getSingletonPtr()->gameMap->me->getSeat()->getGoal(i);
+                        Goal *tempGoal = gameMap->me->getSeat()->getGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
                                 << tempGoal->getDescription() << "\n";
                     }
@@ -640,9 +642,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     tempSS
                             << "\n\nCompleted Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
                     for (unsigned int i = 0; i
-                            < ODFrameListener::getSingletonPtr()->gameMap->me->getSeat()->numCompletedGoals(); ++i)
+                            < gameMap->me->getSeat()->numCompletedGoals(); ++i)
                     {
-                        Goal *tempGoal = ODFrameListener::getSingletonPtr()->gameMap->me->getSeat()->getCompletedGoal(i);
+                        Goal *tempGoal = gameMap->me->getSeat()->getCompletedGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
                                 << tempGoal->getSuccessMessage() << "\n";
                     }
@@ -658,11 +660,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 tempSS << "ERROR:  Unrecognized list.  Type \"list\" with no arguments to see available lists.";
             }
 
-            ODFrameListener::getSingletonPtr()->commandOutput += "+\n" + tempSS.str() + "\n";
+            frameListener->commandOutput += "+\n" + tempSS.str() + "\n";
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "lists available:\n\t\tclasses\tcreatures\tplayers\n\t\tnetwork\trooms\tcolors\n\t\tgoals\tlevels\n";
         }
     }
@@ -678,7 +680,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             tempSS.str(arguments);
             tempSS >> tempX >> tempY;
-            ODFrameListener::getSingletonPtr()->gameMap->createNewMap(tempX, tempY);
+            gameMap->createNewMap(tempX, tempY);
         }
     }*/
 
@@ -687,9 +689,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     else if (command.compare("refreshmesh") == 0)
     {
         //NOTE: Converted to AS
-        ODFrameListener::getSingletonPtr()->gameMap->destroyAllEntities();
-        ODFrameListener::getSingletonPtr()->gameMap->createAllEntities();
-        ODFrameListener::getSingletonPtr()->commandOutput += "\nRecreating all meshes.\n";
+        gameMap->destroyAllEntities();
+        gameMap->createAllEntities();
+        frameListener->commandOutput += "\nRecreating all meshes.\n";
     }*/
 
     // Set your nickname
@@ -697,15 +699,15 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (!arguments.empty())
         {
-            ODFrameListener::getSingletonPtr()->gameMap->me->setNick(arguments);
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nNickname set to:  ";
+            gameMap->me->setNick(arguments);
+            frameListener->commandOutput += "\nNickname set to:  ";
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nCurrent nickname is:  ";
+            frameListener->commandOutput += "\nCurrent nickname is:  ";
         }
 
-        ODFrameListener::getSingletonPtr()->commandOutput += ODFrameListener::getSingletonPtr()->gameMap->me->getNick() + "\n";
+        frameListener->commandOutput += ODFrameListener::getSingletonPtr()->gameMap->me->getNick() + "\n";
     }
 
     /*
@@ -726,7 +728,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     << chatMaxTimeDisplay;
         }
 
-        ODFrameListener::getSingletonPtr()->commandOutput += "\n " + tempSS.str() + "\n";
+        frameListener->commandOutput += "\n " + tempSS.str() + "\n";
     } */
 
     /*
@@ -744,17 +746,17 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS << "Max chat messages to display is: " << chatMaxMessages;
         }
 
-        ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+        frameListener->commandOutput += "\n" + tempSS.str() + "\n";
     } */
 
     // Connect to a server
     else if (command.compare("connect") == 0)
     {
         // Make sure we have set a nickname.
-        if (!ODFrameListener::getSingletonPtr()->gameMap->me->getNick().empty())
+        if (!gameMap->me->getNick().empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
-            if (!ODFrameListener::getSingletonPtr()->isInGame())
+            if (!frameListener->isConnected())
             {
                 // Make sure an IP address to connect to was provided
                 if (!arguments.empty())
@@ -771,51 +773,51 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
                     if (Socket::clientSocket->connect(arguments, ODApplication::PORT_NUMBER))
                     {
-                        ODFrameListener::getSingletonPtr()->commandOutput += "\nConnection successful.\n";
+                        frameListener->commandOutput += "\nConnection successful.\n";
 
                         CSPStruct *csps = new CSPStruct;
                         csps->nSocket = Socket::clientSocket;
-                        csps->nFrameListener = ODFrameListener::getSingletonPtr();
+                        csps->nFrameListener = frameListener;
 
                         // Start a thread to talk to the server
-                        pthread_create(&(ODFrameListener::getSingletonPtr()->clientThread), NULL,
+                        pthread_create(&(frameListener->clientThread), NULL,
                                 clientSocketProcessor, (void*) csps);
 
                         // Start the thread which will watch for local events to send to the server
                         CNPStruct *cnps = new CNPStruct;
-                        cnps->nFrameListener = ODFrameListener::getSingletonPtr();
-                        pthread_create(&(ODFrameListener::getSingletonPtr()->clientNotificationThread), NULL,
+                        cnps->nFrameListener = frameListener;
+                        pthread_create(&(frameListener->clientNotificationThread), NULL,
                                 clientNotificationProcessor, cnps);
 
                         // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
-                        ODFrameListener::getSingletonPtr()->gameMap->clearMapLightIndicators();
+                        gameMap->clearMapLightIndicators();
                     }
                     else
                     {
                         Socket::clientSocket = NULL;
-                        ODFrameListener::getSingletonPtr()->commandOutput += "\nConnection failed!\n";
+                        frameListener->commandOutput += "\nConnection failed!\n";
                     }
                 }
                 else
                 {
-                    ODFrameListener::getSingletonPtr()->commandOutput
+                    frameListener->commandOutput
                             += "\nYou must specify the IP address of the server you want to connect to.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1\n";
                 }
 
             }
             else
             {
-                ODFrameListener::getSingletonPtr()->commandOutput
+                frameListener->commandOutput
                         += "\nYou are already connected to a server.  You must disconnect before you can connect to a new game.\n";
             }
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "\nYou must set a nick with the \"nick\" command before you can join a server.\n";
         }
 
-        ConnectEndLabel: ODFrameListener::getSingletonPtr()->commandOutput += "\n";
+        ConnectEndLabel: frameListener->commandOutput += "\n";
 
     }
 
@@ -823,34 +825,33 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     else if (command.compare("host") == 0)
     {
         // Make sure we have set a nickname.
-        if (!ODFrameListener::getSingletonPtr()->gameMap->getLocalPlayer()->getNick().empty())
+        if (!gameMap->getLocalPlayer()->getNick().empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
-            if (!ODFrameListener::getSingletonPtr()->isInGame())
-            {
+            if (!frameListener->isConnected())            {
 
-                if (startServer(*ODFrameListener::getSingletonPtr()->gameMap))
+                if (startServer(*gameMap))
                 {
-                    ODFrameListener::getSingletonPtr()->commandOutput += "\nServer started successfully.\n";
+                    frameListener->commandOutput += "\nServer started successfully.\n";
 
                     // Automatically closes the terminal
-                    ODFrameListener::getSingletonPtr()->terminalActive = false;
+                    frameListener->terminalActive = false;
                 }
                 else
                 {
-                    ODFrameListener::getSingletonPtr()->commandOutput += "\nERROR:  Could not start server!\n";
+                    frameListener->commandOutput += "\nERROR:  Could not start server!\n";
                 }
 
             }
             else
             {
-                ODFrameListener::getSingletonPtr()->commandOutput
+                frameListener->commandOutput
                         += "\nERROR:  You are already connected to a game or are already hosting a game!\n";
             }
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "\nYou must set a nick with the \"nick\" command before you can host a server.\n";
         }
     }
@@ -858,7 +859,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     // Send help command information to all players
     else if (command.compare("chathelp") == 0)
     {
-        if (ODFrameListener::getSingletonPtr()->isInGame())
+        if (frameListener->isConnected())
         {
             if (!arguments.empty())
             {
@@ -886,7 +887,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS << "Please host or connect to a game before running chathelp.\n";
         }
 
-        ODFrameListener::getSingletonPtr()->commandOutput += "\n " + tempSS.str() + "\n";
+        frameListener->commandOutput += "\n " + tempSS.str() + "\n";
     }
 
     // Send a chat message
@@ -895,28 +896,28 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         if (Socket::clientSocket != NULL)
         {
             sem_wait(&Socket::clientSocket->semaphore);
-            Socket::clientSocket->send(formatCommand("chat", ODFrameListener::getSingletonPtr()->gameMap->me->getNick() + ":"
+            Socket::clientSocket->send(formatCommand("chat", gameMap->me->getNick() + ":"
                     + arguments));
             sem_post(&Socket::clientSocket->semaphore);
         }
         else if (Socket::serverSocket != NULL)
         {
             // Send the chat to all the connected clients
-            for (unsigned int i = 0; i < ODFrameListener::getSingletonPtr()->clientSockets.size(); ++i)
+            for (unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
             {
-                sem_wait(&ODFrameListener::getSingletonPtr()->clientSockets[i]->semaphore);
-                ODFrameListener::getSingletonPtr()->clientSockets[i]->send(formatCommand("chat", ODFrameListener::getSingletonPtr()->gameMap->me->getNick()
+                sem_wait(&frameListener->clientSockets[i]->semaphore);
+                ODFrameListener::getSingletonPtr()->clientSockets[i]->send(formatCommand("chat", gameMap->me->getNick()
                         + ":" + arguments));
-                sem_post(&ODFrameListener::getSingletonPtr()->clientSockets[i]->semaphore);
+                sem_post(&frameListener->clientSockets[i]->semaphore);
             }
 
             // Display the chat message in our own message queue
-            mChatMessages.push_back(new ChatMessage(ODFrameListener::getSingletonPtr()->gameMap->me->getNick(), arguments,
+            mChatMessages.push_back(new ChatMessage(gameMap->me->getNick(), arguments,
                     time(NULL), time(NULL)));
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "\nYou must be either connected to a server, or hosting a server to use chat.\n";
         }
     }
@@ -929,40 +930,40 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             if (arguments.length() > 0)
             {
                 // Activate visual debugging
-                Creature *tempCreature = ODFrameListener::getSingletonPtr()->gameMap->getCreature(arguments);
+                Creature *tempCreature = gameMap->getCreature(arguments);
                 if (tempCreature != NULL)
                 {
                     if (!tempCreature->getHasVisualDebuggingEntities())
                     {
                         tempCreature->createVisualDebugEntities();
-                        ODFrameListener::getSingletonPtr()->commandOutput
+                        frameListener->commandOutput
                                 += "\nVisual debugging entities created for creature:  "
                                         + arguments + "\n";
                     }
                     else
                     {
                         tempCreature->destroyVisualDebugEntities();
-                        ODFrameListener::getSingletonPtr()->commandOutput
+                        frameListener->commandOutput
                                 += "\nVisual debugging entities destroyed for creature:  "
                                         + arguments + "\n";
                     }
                 }
                 else
                 {
-                    ODFrameListener::getSingletonPtr()->commandOutput
+                    frameListener->commandOutput
                             += "\nCould not create visual debugging entities for creature:  "
                                     + arguments + "\n";
                 }
             }
             else
             {
-                ODFrameListener::getSingletonPtr()->commandOutput
+                frameListener->commandOutput
                         += "\nERROR:  You must supply a valid creature name to create debug entities for.\n";
             }
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "\nERROR:  Visual debugging only works when you are hosting a game.\n";
         }
     }
@@ -974,14 +975,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
-            ODFrameListener::getSingletonPtr()->playerColourValues.push_back(Ogre::ColourValue(tempR, tempG, tempB));
+            frameListener->playerColourValues.push_back(Ogre::ColourValue(tempR, tempG, tempB));
             tempSS.str("");
-            tempSS << "Color number " << ODFrameListener::getSingletonPtr()->playerColourValues.size() << " added.";
-            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+            tempSS << "Color number " << frameListener->playerColourValues.size() << " added.";
+            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput
+            frameListener->commandOutput
                     += "\nERROR:  You need to specify and RGB triplet with values in (0.0, 1.0)\n";
         }
     }
@@ -994,13 +995,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> index >> tempR >> tempG >> tempB;
-            if (index < ODFrameListener::getSingletonPtr()->playerColourValues.size())
+            if (index < frameListener->playerColourValues.size())
             {
-                ODFrameListener::getSingletonPtr()->playerColourValues[index] = Ogre::ColourValue(tempR, tempG, tempB);
+                frameListener->playerColourValues[index] = Ogre::ColourValue(tempR, tempG, tempB);
                 tempSS.str("");
                 tempSS << "Color number " << index << " changed to " << tempR
                         << "\t" << tempG << "\t" << tempB;
-                ODFrameListener::getSingletonPtr()->commandOutput += "an" + tempSS.str() + "\n";
+                frameListener->commandOutput += "an" + tempSS.str() + "\n";
             }
 
         }
@@ -1008,9 +1009,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         {
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify a color index between 0 and "
-                    << ODFrameListener::getSingletonPtr()->playerColourValues.size()
+                    << frameListener->playerColourValues.size()
                     << " and an RGB triplet with values in (0.0, 1.0)";
-            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
         }
     }
 
@@ -1037,7 +1038,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         else {
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify:  N - number of control points  and n pairs of  control points for bsplines ";
-            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
         }
     }
 
@@ -1052,8 +1053,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             tempSS.str(arguments);
             tempSS >> nn;
-            mCm->xHCS.resetNodes(nn);
-            mCm->yHCS.resetNodes(nn);
+            cm->xHCS.resetNodes(nn);
+            cm->yHCS.resetNodes(nn);
 
             for (int ii = 0 ; ii < nn ; ++ii)
             {
@@ -1062,13 +1063,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
                 //cerr << "tempInt1 " <<  tempInt1 << endl;
                 //cerr << "tempInt2 " <<  tempInt2 << endl;
-                mCm->xHCS.addNode(tempInt1);
-                mCm->yHCS.addNode(tempInt2);
+                cm->xHCS.addNode(tempInt1);
+                cm->yHCS.addNode(tempInt2);
             }
 
             // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
 
-            mCm->setCatmullSplineMode(true);
+            cm->setCatmullSplineMode(true);
 
             //cerr << "catmullspline loaded from cmd line " << endl;
         }
@@ -1077,7 +1078,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
-            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
         }
     }
     else if (command.compare("setcamerafovx") == 0){
@@ -1096,7 +1097,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             tempSS.str("");
             tempSS  << "ERROR:  No such commend in Ogre, try setcamerafovy and camera aspect ratio ";
-            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
         }
     }
     else if (command.compare("setcamerafovy") == 0)
@@ -1108,24 +1109,25 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS >> tmp;
             Radian radianAngle((Ogre::Real)tmp);
 
-            mCm->mActiveCamera->setFOVy(radianAngle);
+            cm->mActiveCamera->setFOVy(radianAngle);
             // TODO check the for the maximal and minimal value of setFoVy
         }
         else
         {
             tempSS.str("");
             tempSS  << "ERROR:  you need to specify an angle in radians ";
-            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
         }
     }
     else if (command.compare("possescreature") == 0)
     {
         tempSS.str("");
         tempSS  << "Click creature you want to posses ";
-        ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
-        mModeManager->mMc->expectCreatureClick = true;
+        frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+        mModeManager->getInputManager()->mExpectCreatureClick = true;
     }
-    else if (command.compare("circlearound") == 0){
+    else if (command.compare("circlearound") == 0)
+    {
         if(!arguments.empty())
         {
             double centerX;
@@ -1135,28 +1137,28 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> centerX >> centerY >> radius;
             // if(){}else{} TODO : Check if any part of the circle can fall out of the map bounderies
-            mCm->setCircleCenter((int)centerX, (int)centerY);
-            mCm->setCircleRadius((unsigned int)radius);
-            mCm->setCircleMode(true);
+            cm->setCircleCenter((int)centerX, (int)centerY);
+            cm->setCircleRadius((unsigned int)radius);
+            cm->setCircleMode(true);
         }
         else
         {
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
-            ODFrameListener::getSingletonPtr()->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
         }
     }
     else if (command.compare("switchpolygonmode") == 0)
     {
-        mCm->switchPM();
+        cm->switchPM();
     }
     else if (command.compare("starttileculling") == 0)
     {
-            ODFrameListener::getSingletonPtr()->gameMap->culm->startTileCulling();
+            gameMap->culm->startTileCulling();
     }
     else if (command.compare("startcreatureculling") == 0)
     {
-            ODFrameListener::getSingletonPtr()->gameMap->culm->startCreatureCulling();
+            gameMap->culm->startCreatureCulling();
     }
     else if (command.compare("triggercompositor") == 0)
     {
@@ -1165,7 +1167,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
     else if (command.compare("disconnect") == 0)
     {
-        ODFrameListener::getSingletonPtr()->commandOutput += (Socket::serverSocket != NULL)
+        frameListener->commandOutput += (Socket::serverSocket != NULL)
             ? "\nStopping server.\n"
             : (Socket::clientSocket != NULL)
                 ? "\nDisconnecting from server.\n"
@@ -1173,26 +1175,26 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
     else if (command.compare("next") == 0) // Load the next level.
     {
-        if (ODFrameListener::getSingletonPtr()->gameMap->seatIsAWinner(ODFrameListener::getSingletonPtr()->gameMap->me->getSeat()))
+        if (gameMap->seatIsAWinner(gameMap->me->getSeat()))
         {
-            ODFrameListener::getSingletonPtr()->gameMap->loadNextLevel = true;
-            ODFrameListener::getSingletonPtr()->commandOutput += (string) "\nLoading level levels/"
-                    + ODFrameListener::getSingletonPtr()->gameMap->nextLevel + ".level\n";
+            gameMap->loadNextLevel = true;
+            frameListener->commandOutput += (string) "\nLoading level levels/"
+                    + gameMap->nextLevel + ".level\n";
         }
         else
         {
-            ODFrameListener::getSingletonPtr()->commandOutput += "\nYou have not completed this level yet.\n";
+            frameListener->commandOutput += "\nYou have not completed this level yet.\n";
         }
     }
     else
     {
         //try AngelScript interpreter
         return false;
-        //ODFrameListener::getSingletonPtr()->commandOutput
+        //frameListener->commandOutput
         //        += "\nCommand not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.\n";
     }
 
-    Console::getSingleton().print(ODFrameListener::getSingletonPtr()->commandOutput);
+    Console::getSingleton().print(frameListener->commandOutput);
 
     return true;
 }

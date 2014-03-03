@@ -21,9 +21,7 @@
 #include <vector>
 
 class AbstractApplicationMode;
-class ModeContext;
-class GameMap;
-class MiniMap;
+class InputManager;
 class Console;
 class ConsoleMode;
 class CameraManager;
@@ -37,29 +35,45 @@ public:
 
     enum ModeType
     {
-        MENU,
+        NONE = 0, // No change requested
+        MENU = 1,
         GAME,
         EDITOR,
         CONSOLE,
         FPP,
-        PREV
+        PREV // Parent game mode requested
     };
 
-    ModeManager(GameMap*, MiniMap*, Console*);
+    ModeManager();
     ~ModeManager();
 
     AbstractApplicationMode* getCurrentMode();
-
     ModeType getCurrentModeType();
 
-    AbstractApplicationMode* addGameMode(ModeType);
-    AbstractApplicationMode* removeGameMode();
+    //! \brief Request loading a new game mode at next update
+    void requestNewGameMode(ModeType mm)
+    {
+        mRequestedMode = mm;
+    }
 
-    void lookForNewMode();
+    //! \brief Request unloading the current new game mode and activate the parent one
+    //! at next update
+    void requestUnloadToParentGameMode()
+    {
+        mRequestedMode = PREV;
+    }
+
+    //! \brief Actually change the game mode if needed
+    void checkModeChange();
+
+    InputManager* getInputManager()
+    {
+        return mInputManager;
+    }
 
 private:
-    // \brief The mode context handler
-    ModeContext* mMc;
+    //! \brief The common input manager reference
+    InputManager* mInputManager;
 
     //! \brief A unique console mode instance, shared between game modes.
     ConsoleMode* mConsoleMode;
@@ -74,6 +88,12 @@ private:
     //! The active one is either the last one, or the console when
     //! mIsInConsole is equal to true.
     std::vector<AbstractApplicationMode*> mGameModes;
+
+    //! \brief Tells which new game mode is requested.
+    ModeManager::ModeType mRequestedMode;
+
+    AbstractApplicationMode* addGameMode(ModeType);
+    AbstractApplicationMode* removeGameMode();
 };
 
 #endif // MODEMANAGER_H

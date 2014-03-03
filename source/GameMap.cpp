@@ -69,13 +69,21 @@ GameMap::GameMap() :
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
     setContainer(this);
 
+    //FIXME The Game Map size should be read from config instead
+    setMapSizeX(400);
+    setMapSizeY(400);
 
+    // Init the player
+    me = new Player();
+    me->setNick("defaultNickName");
+    me->setGameMap(this);
 }
 
-GameMap::~GameMap(){
-
-
-
+GameMap::~GameMap()
+{
+    clearAll();
+    delete tileCoordinateMap;
+    delete me;
 }
 
 

@@ -1,9 +1,26 @@
-#include "FppMode.h"
-#include "Gui.h"
-#include "Socket.h"
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-FppMode::FppMode(ModeContext *modeContext):
-    AbstractApplicationMode(modeContext, ModeManager::FPP)
+#include "FppMode.h"
+
+#include "Gui.h"
+
+FppMode::FppMode(ModeManager *modeManager):
+    AbstractApplicationMode(modeManager, ModeManager::FPP)
 {
 }
 
@@ -11,7 +28,8 @@ FppMode::~FppMode()
 {
 }
 
-bool FppMode::mouseMoved(const OIS::MouseEvent &arg) {
+bool FppMode::mouseMoved(const OIS::MouseEvent &arg)
+{
     // CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);
     // if (arg.state.X.abs == 0)
     // 	mMc->frameListener->cm->move(CameraManager::moveLeft);
@@ -35,21 +53,22 @@ bool FppMode::mouseMoved(const OIS::MouseEvent &arg) {
     return true;
 }
 
-bool FppMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id) {
+bool FppMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+{
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
                 Gui::getSingletonPtr()->convertButton(id));
 }
 
-bool FppMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id) {
-    //CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow()->injectMouseButtonUp(
-    //    Gui::getSingletonPtr()->convertButton(id));
+bool FppMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+{
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
                 Gui::getSingletonPtr()->convertButton(id));
 }
 
-bool FppMode::keyPressed(const OIS::KeyEvent &arg) {
-
-    switch (arg.key) {
+bool FppMode::keyPressed(const OIS::KeyEvent &arg)
+{
+    switch (arg.key)
+    {
     case OIS::KC_ESCAPE:
         regressMode();
         Gui::getSingletonPtr()->switchGuiMode();
@@ -60,23 +79,11 @@ bool FppMode::keyPressed(const OIS::KeyEvent &arg) {
     return true;
 }
 
-bool FppMode::keyReleased(const OIS::KeyEvent &arg) {
+bool FppMode::keyReleased(const OIS::KeyEvent &arg)
+{
     return true;
 }
 
-void FppMode::handleHotkeys(OIS::KeyCode keycode) {
-
-}
-
-bool FppMode::isInGame(){
-    //TODO: this exact function is also in ODFrameListener, replace it too after GameState works
-    //TODO - we should use a bool or something, not the sockets for this.
-    return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
-    //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
-}
-
-void FppMode::giveFocus(){
-
-    mMc->mMouse->setEventCallback(this);
-    mMc->mKeyboard->setEventCallback(this);
+void FppMode::handleHotkeys(OIS::KeyCode keycode)
+{
 }

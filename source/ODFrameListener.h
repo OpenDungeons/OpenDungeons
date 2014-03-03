@@ -100,10 +100,10 @@ friend class Console;
         Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
 
         void printText(const std::string& text);
-	    
+
         //NOTE - we should generally avoid using this function
         inline GameMap* getGameMap() {return gameMap;}
-        
+
         inline const GameMap* getGameMap() const {return gameMap;}
 
         // Console variables
@@ -129,7 +129,7 @@ friend class Console;
         Ogre::RaySceneQuery*    mRaySceneQuery;
         RenderManager*          renderManager;
 
-        ModeManager*            inputManager;
+        ModeManager*            modeManager;
         SoundEffectsHelper*     sfxHelper;
         bool                    mShowDebugInfo;
         bool                    mContinue;
@@ -154,9 +154,9 @@ friend class Console;
         //To see if the frameListener wants to exit
         ProtectedObject<bool>   threadStopRequested;
         ProtectedObject<bool>   exitRequested;
-        
+
         void exitApplication();
-        bool isInGame       ();
+        bool isConnected();
 };
 
 #endif

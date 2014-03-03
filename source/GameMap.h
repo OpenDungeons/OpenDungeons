@@ -206,8 +206,11 @@ friend class RenderManager;
   void disableFloodFill();
   void enableFloodFill();
 
-  inline Player* getLocalPlayer() {return me;}
-  inline const Player* getLocalPlayer() const {return me;}
+  inline Player* getLocalPlayer()
+  { return me; }
+
+  inline const Player* getLocalPlayer() const
+  { return me; }
 
   mutable sem_t creaturesLockSemaphore;
   Player *me;

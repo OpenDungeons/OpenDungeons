@@ -18,61 +18,37 @@
 #ifndef ABSTRACTAPPLICATIONMODE_H
 #define ABSTRACTAPPLICATIONMODE_H
 
+#include "ModeManager.h"
+#include "InputManager.h"
+
 #include <OIS/OISMouse.h>
 #include <OIS/OISKeyboard.h>
-
-#include "Tile.h"
-#include "ModeManager.h"
-#include "ModeContext.h"
-
-class ODFrameListener;
-class GameMap;
-class MiniMap;
-class Player;
+#include <OgreFrameListener.h>
+#include <OgreWindowEventUtilities.h>
 
 using std::endl; using std::cout;
 
 class AbstractApplicationMode :
     public OIS::MouseListener,
-    public OIS::KeyListener
+    public OIS::KeyListener,
+    public Ogre::FrameListener,
+    public Ogre::WindowEventListener
 {
 protected:
-    // Handled in ModeManager, don't delete it.
-    ModeContext* mMc;
+    // foreign reference, don't delete it.
+    ModeManager* mModeManager;
 
 public:
 
-    AbstractApplicationMode(ModeContext *modeContext, ModeManager::ModeType modeType):
-        mMc(modeContext),
+    AbstractApplicationMode(ModeManager *modeManager, ModeManager::ModeType modeType):
+        mModeManager(modeManager),
         mModeType(modeType)
     {};
 
-    virtual ~AbstractApplicationMode() {};
+    virtual ~AbstractApplicationMode()
+    {};
 
-    virtual bool mouseMoved     (const OIS::MouseEvent &arg) = 0;
-    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) = 0;
-    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id) = 0;
-    virtual bool keyPressed     (const OIS::KeyEvent &arg) = 0;
-    virtual bool keyReleased    (const OIS::KeyEvent &arg) = 0;
-    virtual void handleHotkeys  (OIS::KeyCode keycode) = 0;
-
-    inline void progressMode (ModeManager::ModeType mm) {
-        mMc->changed = true;
-        mMc->nextMode = mm;
-    }
-
-    inline void regressMode() {
-        mMc->changed = true;
-        mMc->nextMode = ModeManager::PREV;
-    }
-
-    inline ModeManager::ModeType getModeType() const {
-        return mModeType;
-    }
-
-    virtual OIS::Mouse*      getMouse() = 0;
-    virtual OIS::Keyboard*   getKeyboard() = 0;
-
+    //! \brief Input methods
     enum DragType
     {
         creature,
@@ -86,8 +62,49 @@ public:
         nullDragType
     };
 
-    virtual void giveFocus() = 0;
-    virtual bool isInGame() = 0;
+    virtual bool mouseMoved     (const OIS::MouseEvent &arg) = 0;
+    virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id) = 0;
+    virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id) = 0;
+    virtual bool keyPressed     (const OIS::KeyEvent &arg) = 0;
+    virtual bool keyReleased    (const OIS::KeyEvent &arg) = 0;
+    virtual void handleHotkeys  (OIS::KeyCode keycode) = 0;
+
+    virtual OIS::Mouse* getMouse()
+    {
+        return mModeManager->getInputManager()->mMouse;
+    }
+
+    virtual OIS::Keyboard* getKeyboard()
+    {
+        return mModeManager->getInputManager()->mKeyboard;
+    }
+
+    //! \brief Methods permitting to change the current game mode.
+    void progressMode (ModeManager::ModeType mm)
+    {
+        mModeManager->requestNewGameMode(mm);
+    }
+
+    void regressMode()
+    {
+        mModeManager->requestUnloadToParentGameMode();
+    }
+
+    ModeManager::ModeType getModeType() const
+    {
+        return mModeType;
+    }
+
+    //! \brief Makes the handling of louse and keyboard interact with this mode.
+    virtual void giveFocus();
+
+    //! \brief Tells whether the client and the server are speaking to each other.
+    //! TODO This should be moved to a better common place such as in the mode manager
+    virtual bool isConnected();
+
+    //! \brief Game mode specific rendering methods.
+    virtual void onFrameStarted(const Ogre::FrameEvent& evt) = 0;
+    virtual void onFrameEnded(const Ogre::FrameEvent& evt) = 0;
 
 protected:
     // The game mode type;

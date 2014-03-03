@@ -16,21 +16,20 @@
  */
 
 #include "ConsoleMode.h"
+
 #include "Gui.h"
 #include "Socket.h"
 #include "Console.h"
 #include "LogManager.h"
 #include "ASWrapper.h"
 #include "RenderManager.h"
-#include <list>
-#include <string>
 #include "PrefixTreeLL.h"
 
+#include <list>
+#include <string>
 
-using std::list;  using std::string;
-
-ConsoleMode::ConsoleMode(ModeContext* modeContext, Console* console):
-    AbstractApplicationMode(modeContext, ModeManager::CONSOLE),
+ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
+    AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
     mConsole(console),
     mPrefixTree(NULL),
     mLl(NULL),
@@ -53,7 +52,7 @@ bool ConsoleMode::mouseMoved(const OIS::MouseEvent &arg)
     if(arg.state.Z.rel == 0 || !mConsole->mVisible)
         return false;
 
-    if(mMc->mKeyboard->isModifierDown(OIS::Keyboard::Ctrl))
+    if(getKeyboard()->isModifierDown(OIS::Keyboard::Ctrl))
         mConsole->scrollHistory(arg.state.Z.rel > 0);
     else
         mConsole->scrollText(arg.state.Z.rel > 0);
@@ -214,18 +213,4 @@ bool ConsoleMode::keyReleased(const OIS::KeyEvent &arg)
 void ConsoleMode::handleHotkeys(OIS::KeyCode keycode)
 {
 
-}
-
-bool ConsoleMode::isInGame()
-{
-    //TODO: this exact function is also in ODFrameListener, replace it too after GameState works
-    //TODO - we should use a bool or something, not the sockets for this.
-    return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
-    //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
-}
-
-void ConsoleMode::giveFocus()
-{
-    mMc->mMouse->setEventCallback(this);
-    mMc->mKeyboard->setEventCallback(this);
 }
