@@ -17,6 +17,7 @@
 
 #include "ModeManager.h"
 
+#include "ASWrapper.h"
 #include "InputManager.h"
 #include "MenuMode.h"
 #include "GameMode.h"
@@ -44,6 +45,9 @@ ModeManager::ModeManager()
 
     // Don't change the application mode for now.
     mRequestedMode = NONE;
+
+    // Init the Angel Script wrapper for game modes
+    mASWrapper = new ASWrapper();
 }
 
 ModeManager::~ModeManager()
@@ -52,7 +56,8 @@ ModeManager::~ModeManager()
         delete mGameModes[i];
     delete mInputManager;
     delete mConsoleMode;
-    delete Console::getSingletonPtr();
+    delete mConsole;
+    delete mASWrapper;
 }
 
 AbstractApplicationMode* ModeManager::getCurrentMode()

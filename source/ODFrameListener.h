@@ -62,8 +62,6 @@ friend class Console;
          ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* tmpOverlaySystem);
         virtual ~ODFrameListener();
 
-        void makeEditorContext();
-        void makeGameContext();
         void requestExit();
         bool getThreadStopRequested();
         void setThreadStopRequested(bool value);
@@ -147,8 +145,6 @@ friend class Console;
         Ogre::Timer             statsDisplayTimer;
         GameMap*                gameMap;
         MiniMap*                miniMap;
-        GameContext*            gc;
-        EditorContext*          ed;
         std::vector<Ogre::ColourValue> playerColourValues;
 
         //To see if the frameListener wants to exit

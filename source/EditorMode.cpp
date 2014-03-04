@@ -52,47 +52,11 @@ EditorMode::EditorMode(ModeManager* modeManager):
     mBrushMode(false),
     mCurrentTileType(Tile::dirt),
     mDragType(nullDragType),
-    mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
-    mCreatureSceneNode(NULL),
-    mRoomSceneNode(NULL),
-    mFieldSceneNode(NULL),
-    mLightSceneNode(NULL)
+    mGameMap(ODFrameListener::getSingletonPtr()->getGameMap())
 {
-    RenderManager* renderManager = RenderManager::getSingletonPtr();
-    renderManager->setGameMap(mGameMap);
-
-    LogManager* logManager = LogManager::getSingletonPtr();
-
-    // Init the editor mode
-    try
-    {
-        logManager->logMessage("Creating scene...", Ogre::LML_NORMAL);
-        renderManager->createScene();
-        logManager->logMessage("Creating compositors...", Ogre::LML_NORMAL);
-        renderManager->createCompositors();
-    }
-    catch(Ogre::Exception& e)
-    {
-        ODApplication::displayErrorMessage("Ogre exception when initialising the render manager:\n"
-            + e.getFullDescription(), false);
-        // TODO: Cleanly exit instead
-        exit(0);
-        //cleanUp();
-        //return;
-    }
-    catch (std::exception& e)
-    {
-        ODApplication::displayErrorMessage("Exception when initialising the render manager:\n"
-            + std::string(e.what()), false);
-        // TODO: Cleanly exit instead
-        exit(0);
-        //cleanUp();
-        //return;
-    }
-
-    logManager->logMessage("Created camera manager");
-
-    mGameMap->createTilesMeshes();
+    // TODO: Permit loading any level.
+    // Read in the default game map
+    mGameMap->LoadLevel("levels/Test.level");
 }
 
 EditorMode::~EditorMode()

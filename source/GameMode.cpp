@@ -55,8 +55,10 @@ GameMode::GameMode(ModeManager *modeManager):
     mDigSetBool(false),
     mGameMap(ODFrameListener::getSingletonPtr()->getGameMap())
 {
+    // TODO: Permit loading any level.
+    // Read in the default game map
+    mGameMap->LoadLevel("levels/Test.level");
 }
-
 
 GameMode::~GameMode()
 {
@@ -820,4 +822,18 @@ void GameMode::handleHotkeys(OIS::KeyCode keycode)
             cm->flyTo(inputManager->mHotkeyLocation[keynumber]);
         }
     }
+}
+
+void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
+{
+    CameraManager* cm = ODFrameListener::getSingletonPtr()->cm;
+    cm->moveCamera(evt.timeSinceLastFrame);
+
+    mGameMap->getMiniMap()->draw();
+    mGameMap->getMiniMap()->swap();
+}
+
+void GameMode::onFrameEnded(const Ogre::FrameEvent& evt)
+{
+
 }

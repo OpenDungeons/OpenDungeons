@@ -40,7 +40,7 @@ class CameraManager;
 class ASWrapper : public Ogre::Singleton<ASWrapper>
 {
 public:
-    ASWrapper   (CameraManager*);
+    ASWrapper   ();
     ~ASWrapper  ();
 
     void executeScriptCode      (const std::string& code);
@@ -51,7 +51,6 @@ private:
     CScriptBuilder*     mBuilder;
     asIScriptContext*   mContext;
     asIObjectType*      mStringArray;
-    CameraManager*      mCameraManager;
 
     void messageCallback    (const asSMessageInfo* msg, void* param);
     void registerEverything ();

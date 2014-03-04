@@ -69,7 +69,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
                 << "\nERROR:  The file is for OpenDungeons:  " << tempString
                 << "\nERROR:  This version of OpenDungeons:  " << ODApplication::VERSION
                 << "\n\n\n";
-        exit(1);
+        return false;
     }
     int mapSizeX;
     int mapSizeY;

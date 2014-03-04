@@ -132,16 +132,13 @@ set(OD_SOURCEFILES
     ${SRC}/CreatureSound.cpp
     ${SRC}/CullingManager.cpp
     ${SRC}/DirectionalTrap.cpp
-    ${SRC}/EditorContext.cpp
     ${SRC}/EditorMode.cpp
     ${SRC}/Field.cpp
     ${SRC}/FppMode.cpp
     ${SRC}/Functions.cpp
-    ${SRC}/GameContext.cpp
     ${SRC}/GameEntity.cpp
     ${SRC}/GameMap.cpp
     ${SRC}/GameMode.cpp
-    ${SRC}/GameContext.cpp
     ${SRC}/GoalClaimNTiles.cpp
     ${SRC}/Goal.cpp
     ${SRC}/GoalKillAllEnemies.cpp

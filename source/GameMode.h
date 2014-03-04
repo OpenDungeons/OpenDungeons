@@ -36,8 +36,8 @@ class  GameMode: public AbstractApplicationMode
     virtual bool keyReleased    (const OIS::KeyEvent &arg);
     virtual void handleHotkeys  (OIS::KeyCode keycode);
 
-    void onFrameStarted(const Ogre::FrameEvent& evt) {};
-    void onFrameEnded(const Ogre::FrameEvent& evt) {};
+    void onFrameStarted(const Ogre::FrameEvent& evt);
+    void onFrameEnded(const Ogre::FrameEvent& evt);
 
 private:
     //! \brief Sets whether a tile must marked or unmarked for digging.

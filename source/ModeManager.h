@@ -21,6 +21,7 @@
 #include <vector>
 
 class AbstractApplicationMode;
+class ASWrapper;
 class InputManager;
 class Console;
 class ConsoleMode;
@@ -91,6 +92,9 @@ private:
 
     //! \brief Tells which new game mode is requested.
     ModeManager::ModeType mRequestedMode;
+
+    //! \brief The Angel Script wrapper, used in every game modes
+    ASWrapper* mASWrapper;
 
     AbstractApplicationMode* addGameMode(ModeType);
     AbstractApplicationMode* removeGameMode();

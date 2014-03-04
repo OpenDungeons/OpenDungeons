@@ -4,11 +4,7 @@
  *  \brief  Class ODApplication containing everything to start the game
  */
 
-#include <string>
-#include <sstream>
-#include <fstream>
-
-#include <OgreErrorDialog.h>
+#include "ODApplication.h"
 
 #include "ODFrameListener.h"
 #include "GameMap.h"
@@ -31,7 +27,11 @@
 #include "ServerNotification.h"
 #include "ClientNotification.h"
 
-#include "ODApplication.h"
+#include <OgreErrorDialog.h>
+
+#include <string>
+#include <sstream>
+#include <fstream>
 
 template<> ODApplication*
 Ogre::Singleton<ODApplication>::msSingleton = 0;
@@ -95,43 +95,13 @@ ODApplication::ODApplication() :
     new TextRenderer();
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
                                             10, 50, 70, Ogre::ColourValue::Green);
-    //TODO - move this to when the map is actually loaded
+    // TODO - move this to when the map is actually loaded
+    // or play the music fitting the active mode.
     MusicPlayer::getSingleton().start(0);
 
-    //FIXME: do this only if a level loads after the main menu
-    //Try to create the camera, viewport and scene.
-    /*
-    try
-    {
-        logManager->logMessage("Creating camera...", Ogre::LML_NORMAL);
-        renderMgr->createCamera();
-        logManager->logMessage("Creating viewpoerts...", Ogre::LML_NORMAL);
-        renderMgr->createViewports();
-        logManager->logMessage("Creating scene...", Ogre::LML_NORMAL);
-        renderMgr->createScene();
-        logManager->logMessage("Creating compositors...", Ogre::LML_NORMAL);
-	renderMgr->createCompositors();
-
-    }
-    catch(Ogre::Exception& e)
-    {
-        displayErrorMessage("Ogre exception when ininialising the render manager:\n"
-            + e.getFullDescription(), false);
-        cleanUp();
-        return;
-    }
-    catch (std::exception& e)
-    {
-        displayErrorMessage("Exception when ininialising the render manager:\n"
-            + std::string(e.what()), false);
-        cleanUp();
-        return;
-    }*/
-
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
-    mFrameListener = new ODFrameListener(window,mOverlaySystem);
+    mFrameListener = new ODFrameListener(window, mOverlaySystem);
     root->addFrameListener(mFrameListener);
-    //TODO: This should be moved once we have separated level loading from startup.
 
     root->startRendering();
 

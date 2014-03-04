@@ -55,11 +55,10 @@
 template<> ASWrapper* Ogre::Singleton<ASWrapper>::msSingleton = 0;
 
 //! \brief Initialises AngelScript
-ASWrapper::ASWrapper(CameraManager* cm) :
+ASWrapper::ASWrapper() :
         mEngine  (asCreateScriptEngine(ANGELSCRIPT_VERSION)),
         mBuilder (new CScriptBuilder()),
-        mContext (mEngine->CreateContext()),
-        mCameraManager(cm)
+        mContext (mEngine->CreateContext())
 {
     LogManager::getSingleton().logMessage("*** Initialising script engine AngelScript ***");
     LogManager::getSingleton().logMessage( asGetLibraryOptions());
@@ -375,7 +374,7 @@ void ASWrapper::registerEverything()
             "CameraManager", 0, asOBJ_REF | asOBJ_NOHANDLE); assert(r >= 0);
     r = mEngine->RegisterGlobalProperty(
             "CameraManager cameraManager",
-            mCameraManager); assert(r >= 0);
+            ODFrameListener::getSingletonPtr()->cm); assert(r >= 0);
     r = mEngine->RegisterObjectMethod("CameraManager",
             "void set_MoveSpeedAccel(float &in)",
             asMETHOD(CameraManager, setMoveSpeedAccel),

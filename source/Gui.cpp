@@ -363,19 +363,14 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
     Gui::getSingletonPtr()->loadGuiSheet(inGameMenu);
     modeManager->addGameMode(ModeManager::GAME);
-    ODFrameListener::getSingleton().makeGameContext();
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     return startServer(*gameMap);
 }
 
 bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 {
-    // CEGUI::Window *myWin =   CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
     Gui::getSingletonPtr()->loadGuiSheet(editorToolBox);
-
-    // myWin->addChildWindow(sheets[editorToolBox]);
     modeManager->addGameMode(ModeManager::EDITOR);
-    ODFrameListener::getSingleton().makeEditorContext();
 
     return true;
 }

@@ -1,5 +1,28 @@
+/*!
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef GAMEMAP_H
 #define GAMEMAP_H
+
+#include "MiniMap.h"
+#include "AIManager.h"
+#include "Room.h"
+#include "TileContainer.h"
+#include "TileContainersModificator.h"
 
 #ifdef __MINGW32__
 #ifndef mode_t
@@ -13,7 +36,6 @@
 #include <map>
 #include <string>
 
-
 class Tile;
 class TileCoordinateMap;
 class Creature;
@@ -25,13 +47,6 @@ class MapLight;
 template<typename T> class ProtectedObject;
 class MissileObject;
 class MovableGameEntity;
-
-
-#include "MiniMap.h"
-#include "AIManager.h"
-#include "Room.h"
-#include "TileContainer.h"
-#include "TileContainersModificator.h"
 
 class MiniMap;
 class CullingManager;
@@ -58,6 +73,11 @@ friend class RenderManager;
 
   int setAllNeighbors();
   void createNewMap();
+
+  //! \brief Load a level file (Part of the resource paths)
+  //! \returns whether the file loaded correctly
+  bool LoadLevel(const std::string& levelFilepath);
+
   void createAllEntities();
   void destroyAllEntities();
   void clearAll();
@@ -175,7 +195,7 @@ friend class RenderManager;
   inline void setCullingManger(CullingManager* tempCulm){culm = tempCulm;}
 
   inline const std::string& getLevelFileName() const {return levelFileName;}
-  inline void setLevelFileName(const std::string& maxThreads) {levelFileName = maxThreads;}
+  inline void setLevelFileName(const std::string& nlevelFileName) {levelFileName = nlevelFileName;}
   void createTilesMeshes(void);
   void hideAllTiles(void);
   // AI Methods

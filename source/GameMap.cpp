@@ -1,31 +1,36 @@
 /*!
  * \file   GameMap.cpp
- * \date
- * \author OD team
  * \brief  The central object holding everything that is on the map
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifdef _MSC_VER
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-#include <iostream>
-#include <sstream>
-#include <algorithm>
-#include <string>
-
-#include <cmath>
-#include <cstdlib>
-
-#include <pthread.h>
+#include "GameMap.h"
 
 #include "Functions.h"
-#include "GameMap.h"
 #include "RadialVector2.h"
 #include "Tile.h"
 #include "Creature.h"
 #include "Player.h"
 #include "RenderManager.h"
+#include "ResourceManager.h"
 #include "Trap.h"
 #include "Seat.h"
 #include "MapLight.h"
@@ -38,9 +43,19 @@
 #include "MortuaryQuad.h"
 #include "CullingManager.h"
 
+#include <iostream>
+#include <sstream>
+#include <algorithm>
+#include <string>
+
+#include <cmath>
+#include <cstdlib>
+
+#include <pthread.h>
+
 using namespace std;
 
-//TODO: find some better place for this
+// Static GameMap members initialization
 ProtectedObject<long int> GameMap::turnNumber(1);
 sem_t GameMap::creatureAISemaphore;
 Tile::TileType *GameMap::neighborType  = new Tile::TileType [8];
@@ -69,7 +84,7 @@ GameMap::GameMap() :
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
     setContainer(this);
 
-    //FIXME The Game Map size should be read from config instead
+    //Set a default size early so that the tile container acts right.
     setMapSizeX(400);
     setMapSizeY(400);
 
@@ -86,13 +101,30 @@ GameMap::~GameMap()
     delete me;
 }
 
+bool GameMap::LoadLevel(const std::string& levelFilepath)
+{
+    clearAll();
+
+    // Read in the game map filepath
+    std::string levelPath = ResourceManager::getSingletonPtr()->getResourcePath()
+                            + levelFilepath;
+
+    // TODO The map loader class should be merged back to GameMap.
+    MapLoader::readGameMapFromFile(levelPath, *this);
+    setLevelFileName(levelFilepath);
+
+    createTilesMeshes();
+    // Create ogre entities for the tiles, rooms, and creatures
+    createAllEntities();
+    return true;
+}
+
 
 /*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
  *
  * The new map consists entirely of the same kind of tile, with no creature
  * classes loaded, no players, and no creatures.
  */
-
 void GameMap::createNewMap()
 {
     Tile tempTile;
@@ -545,6 +577,7 @@ void GameMap::createAllEntities()
     {
         getRoom(i)->createMesh();
     }
+    LogManager::getSingleton().logMessage("entities created");
 }
 
 void GameMap::destroyAllEntities()

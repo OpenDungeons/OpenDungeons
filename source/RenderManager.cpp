@@ -126,8 +126,6 @@ void RenderManager::triggerCompositor(string compositorName){
 */
 void RenderManager::createScene()
 {
-
-
     //Set up the shader generator
     shaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
     //shaderGenerator->setTargetLanguage("glsl");
@@ -145,31 +143,8 @@ void RenderManager::createScene()
 
     viewport->setMaterialScheme(Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
 
-    /* TODO: move level loading to a better place
-    *       (own class to exclude from global skope?)
-    *       and generalize it for the future when we have more levels
-    */
-    // Read in the default game map
-    std::string levelPath = ResourceManager::getSingletonPtr()->
-                            getResourcePath() + "levels_git/Test.level";
-    {
-        //Check if the level from git exists. If not, use the standard one.
-        std::ifstream file(levelPath.c_str(), std::ios_base::in);
-        if (!file.is_open())
-        {
-            levelPath = ResourceManager::getSingletonPtr()->getResourcePath()
-                        + "levels/Test.level";
-        }
-    }
-
-    gameMap->setLevelFileName("Test");
-    MapLoader::readGameMapFromFile(levelPath, *gameMap);
-
     rtssTest();
 
-    // Create ogre entities for the tiles, rooms, and creatures
-    gameMap->createAllEntities();
-    LogManager::getSingleton().logMessage("entities created");
     sceneManager->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
     // Create the scene node that the camera attaches to
 

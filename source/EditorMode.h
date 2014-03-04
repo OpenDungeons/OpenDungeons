@@ -22,14 +22,11 @@
 
 #include "GameMap.h"
 
-#include <OgreTimer.h>
-
-class Gui;
+class Gui; // Used to change the Current tile type
 
 class  EditorMode: public AbstractApplicationMode
 {
     friend class Gui;
-
 public:
     EditorMode(ModeManager* modeManager);
 
@@ -63,12 +60,6 @@ private:
 
     //! \brief Rendering members
     GameMap*            mGameMap;
-
-    Ogre::SceneNode*    mCreatureSceneNode;
-    Ogre::SceneNode*    mRoomSceneNode;
-    Ogre::SceneNode*    mFieldSceneNode;
-    Ogre::SceneNode*    mLightSceneNode;
-    Ogre::Timer         mStatsDisplayTimer;
 
     //! \brief A sub-function called by mouseMoved()
     //! It will handle each drag type and permit easy early inner return
