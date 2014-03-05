@@ -671,8 +671,7 @@ bool ODFrameListener::quit(const CEGUI::EventArgs &e)
     return true;
 }
 
-Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(
-        const OIS::MouseEvent &arg)
+Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEvent &arg)
 {
     // Setup the ray scene query, use CEGUI's mouse position
     CEGUI::Vector2<float> mousePos = CEGUI::System::getSingleton().getDefaultGUIContext().getMouseCursor().getPosition();// * mMouseScale;

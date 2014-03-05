@@ -48,9 +48,6 @@ class ODApplication : public Ogre::Singleton<ODApplication>
         Ogre::OverlaySystem* mOverlaySystem;
         ODFrameListener* mFrameListener;
 
-        //TODO: this should not be created here.
-        //GameMap* gameMap;
-
         void cleanUp();
 };
 

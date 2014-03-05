@@ -58,10 +58,41 @@ GameMode::GameMode(ModeManager *modeManager):
     // TODO: Permit loading any level.
     // Read in the default game map
     mGameMap->LoadLevel("levels/Test.level");
+
+    // Set per default the input on the map
+    mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
+
+    // Keep track of the mouse light object
+    Ogre::SceneManager* sceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
+    mMouseLight = sceneMgr->getLight("MouseLight");
 }
 
 GameMode::~GameMode()
 {
+}
+
+void GameMode::handleCursorPositionUpdate()
+{
+    InputManager* inputManager = mModeManager->getInputManager();
+
+    // Don't update if we didn't actually change the tile coordinate.
+    if (mMouseX == inputManager->mXPos && mMouseY == inputManager->mYPos)
+        return;
+
+    // Updates mouse position for other functions.
+    mMouseX = inputManager->mXPos;
+    mMouseY = inputManager->mYPos;
+
+    // Make the mouse light follow the mouse
+    mMouseLight->setPosition((int)mMouseX, (int)mMouseY, 2.0);
+
+    // Make the square selector follow the mouse
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::showSquareSelector;
+    request->p = static_cast<void*>(&mMouseX);
+    request->p2 = static_cast<void*>(&mMouseY);
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderManager::queueRenderRequest(request); // NOTE: will delete the request member for us.
 }
 
 /*! \brief Process the mouse movement event.
@@ -94,11 +125,13 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                                                 (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
     }
 
+    handleMouseWheel(arg);
+
     Ogre::RaySceneQueryResult& result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
 
     Ogre::RaySceneQueryResult::iterator itr = result.begin();
     Ogre::RaySceneQueryResult::iterator end = result.end();
-    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
+
     std::string resultName;
 
     if(inputManager->mDragType == rotateAxisX)
@@ -110,10 +143,11 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     {
         cm->move(CameraManager::randomRotateY, arg.state.Y.rel);
     }
-    else if (inputManager->mDragType == tileSelection || inputManager->mDragType == addNewRoom
-             || inputManager->mDragType == nullDragType)
+    else // if (inputManager->mDragType == tileSelection || inputManager->mDragType == addNewRoom
+         //    || inputManager->mDragType == nullDragType) or anything else
     {
-        // Since this is a tile selection query we loop over the result set and look for the first object which is actually a tile.
+        // Since this is a tile selection query we loop over the result set
+        // and look for the first object which is actually a tile.
         for (; itr != end; ++itr)
         {
             if (itr->movable == NULL)
@@ -125,80 +159,46 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
             if (resultName.find("Level_") == std::string::npos)
                 continue;
 
-            //Make the mouse light follow the mouse
-            //TODO - we should make a pointer to the light or something.
-            Ogre::RaySceneQuery* rq = frameListener->getRaySceneQuery();
-            Ogre::Real dist = itr->distance;
-            Ogre::Vector3 point = rq->getRay().getPoint(dist);
-            mSceneMgr->getLight("MouseLight")->setPosition(point.x, point.y, 4.0);
-
-            // Get the x-y coordinates of the tile.
+            // Updates the x-y coordinates of the tile.
             sscanf(resultName.c_str(), "Level_%i_%i", &inputManager->mXPos, &inputManager->mYPos);
-            RenderRequest *request = new RenderRequest;
+            handleCursorPositionUpdate();
 
-            request->type = RenderRequest::showSquareSelector;
-            request->p = static_cast<void*>(&inputManager->mXPos);
-            request->p2 = static_cast<void*>(&inputManager->mYPos);
+            // If we don't drag anything, there is no affected tiles to compute.
+            if (!inputManager->mLMouseDown || inputManager->mDragType == nullDragType)
+                break;
 
-            // Add the request to the queue of rendering operations to be performed before the next frame.
-            RenderManager::queueRenderRequest(request);
+            // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
+            //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
+            // rather than the reverse that it is doing now.
+            std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                                                                            inputManager->mYPos,
+                                                                            inputManager->mLStartDragX,
+                                                                            inputManager->mLStartDragY);
 
-            if (inputManager->mLMouseDown)
+
+            for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
             {
-                // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-                //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
-                // rather than the reverse that it is doing now.
-                std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                                                                               inputManager->mYPos,
-                                                                               inputManager->mLStartDragX,
-                                                                               inputManager->mLStartDragY);
-
-
-                for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
+                for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
                 {
-                    for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
-                    {
-                        mGameMap->getTile(ii,jj)->setSelected(false, mGameMap->getLocalPlayer());
-                    }
+                    mGameMap->getTile(ii,jj)->setSelected(false, mGameMap->getLocalPlayer());
                 }
+            }
 
-                for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr )
-                {
-                    (*itr)->setSelected(true, mGameMap->getLocalPlayer());
-                }
+            for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr )
+            {
+                (*itr)->setSelected(true, mGameMap->getLocalPlayer());
             }
 
             break;
         }
     }
-    else
-    {
-        // We are dragging a creature but we want to loop over the result set to find the first tile entry,
-        // we do this to get the current x-y location of where the "square selector" should be drawn.
-        for (; itr != end; ++itr)
-        {
-            if (itr->movable == NULL)
-                continue;
 
-            // Check to see if the current query result is a tile.
-            resultName = itr->movable->getName();
+    return true;
+}
 
-            if (resultName.find("Level_") == std::string::npos)
-                continue;
-
-            // Get the x-y coordinates of the tile.
-            sscanf(resultName.c_str(), "Level_%i_%i", &inputManager->mXPos, &inputManager->mYPos);
-
-            RenderRequest *request = new RenderRequest;
-
-            request->type = RenderRequest::showSquareSelector;
-            request->p = static_cast<void*>(&inputManager->mXPos);
-            request->p2 = static_cast<void*>(&inputManager->mYPos);
-            // Make sure the "square selector" mesh is visible and position it over the current tile.
-        }
-    }
-
-
+void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
+{
+    CameraManager* cm = ODFrameListener::getSingleton().cm;
 
     if (arg.state.Z.rel > 0)
     {
@@ -226,8 +226,6 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     {
         cm->stopZooming();
     }
-
-    return true;
 }
 
 /*! \brief Handle mouse clicks.
@@ -235,8 +233,7 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
  * This function does a ray scene query to determine what is under the mouse
  * and determines whether a creature or a selection of tiles, is being dragged.
  */
-bool GameMode::mousePressed(const OIS::MouseEvent &arg,
-                                OIS::MouseButtonID id)
+bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::getSingletonPtr()->convertButton(id));
@@ -424,8 +421,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg,
  */
 bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
-    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
-                Gui::getSingletonPtr()->convertButton(id));
+    CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::getSingletonPtr()->convertButton(id));
 
     InputManager* inputManager = mModeManager->getInputManager();
 
@@ -599,9 +595,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     return true;
 }
 
-/*! \brief Handle the keyboard input.
- *
- */
+//! \brief Handle the keyboard input.
 bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();

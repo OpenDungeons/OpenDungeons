@@ -1,11 +1,11 @@
 // Implementation of the Socket class.
 
+#include "Socket.h"
+
 #include <iostream>
 #include <cstring>
 #include <cerrno>
 #include <fcntl.h>
-
-#include "Socket.h"
 
 Socket* Socket::serverSocket = 0;
 Socket* Socket::clientSocket = 0;

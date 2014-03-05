@@ -95,6 +95,9 @@ friend class Console;
 
         //CEGUI Functions
         bool quit(const CEGUI::EventArgs &e);
+
+        // \brief Setup the ray scene query, use CEGUI's mouse position
+        // This permits to get the mouse world coordinates and other entities present below it.
         Ogre::RaySceneQueryResult& doRaySceneQuery(const OIS::MouseEvent &arg);
 
         void printText(const std::string& text);

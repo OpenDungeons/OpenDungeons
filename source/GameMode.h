@@ -47,6 +47,20 @@ private:
     //! \brief A reference to the game map used by the game mode
     //! For now, handled by the frame listener, don't delete it.
     GameMap* mGameMap;
+
+    //! \brief Stores the lastest mouse cursor and light positions.
+    int mMouseX;
+    int mMouseY;
+
+    //! \brief The Mouse environment light following the mouse, don't delete it.
+    Ogre::Light* mMouseLight;
+
+    //! \brief Handle updating the selector position on screen
+    void handleCursorPositionUpdate();
+
+    //! \brief A sub-function called by mouseMoved()
+    //! It will handle the potential mouse wheel logic
+    void handleMouseWheel(const OIS::MouseEvent& arg);
 };
 
 #endif // GAMEMODE_H

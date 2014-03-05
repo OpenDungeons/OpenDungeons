@@ -61,9 +61,23 @@ private:
     //! \brief Rendering members
     GameMap*            mGameMap;
 
+    //! \brief Stores the lastest mouse cursor and light positions.
+    int mMouseX;
+    int mMouseY;
+
+    //! \brief The Mouse environment light following the mouse, don't delete it.
+    Ogre::Light* mMouseLight;
+
     //! \brief A sub-function called by mouseMoved()
     //! It will handle each drag type and permit easy early inner return
-    void handleMouseMovedDragType(const OIS::MouseEvent &arg);
+    void handleMouseMovedDragType(const OIS::MouseEvent& arg);
+
+    //! \brief A sub-function called by mouseMoved()
+    //! It will handle the potential mouse wheel logic
+    void handleMouseWheel(const OIS::MouseEvent& arg);
+
+    //! \brief Handle updating the selector position on screen
+    void handleCursorPositionUpdate();
 };
 
 #endif // EDITORMODE_H

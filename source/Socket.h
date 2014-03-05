@@ -4,9 +4,9 @@
 #define Socket_class
 
 #if defined(WIN32) || defined(_WIN32)
+
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <windows.h>
 
 //TODO:  This is a hack to make the windows version compile, it may not work properly at runtime
 //#define MSG_WAITALL 0
@@ -69,8 +69,6 @@ class Socket
     private:
         int m_sock;
         sockaddr_in m_addr;
-
 };
 
 #endif
-

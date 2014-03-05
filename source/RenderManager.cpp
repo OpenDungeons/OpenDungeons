@@ -146,13 +146,11 @@ void RenderManager::createScene()
     rtssTest();
 
     sceneManager->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
-    // Create the scene node that the camera attaches to
 
-
+    // Create the scene nodes that will follow the mouse pointer.
     // Create the single tile selection mesh
     Ogre::Entity* ent = sceneManager->createEntity("SquareSelector", "SquareSelector.mesh");
-    Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode(
-               "SquareSelectorNode");
+    Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode("SquareSelectorNode");
     node->translate(Ogre::Vector3(0, 0, 0));
     node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
                               BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
@@ -172,7 +170,6 @@ void RenderManager::createScene()
     light->setSpecularColour(Ogre::ColourValue(0.65, 0.65, 0.45));
     light->setPosition(0, 0, 6);
     light->setAttenuation(50, 1.0, 0.09, 0.032);
-    //node->attachObject(light);
 
 }
 
