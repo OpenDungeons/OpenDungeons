@@ -217,8 +217,8 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     newPosition += horizontalSpeedFactor * (viewDirectionQuaternion * mTranslateVector);
 
     // Prevent camera from moving down into the tiles or too high.
-    if (newPosition.z <= 3.0)
-        newPosition.z = 3.0;
+    if (newPosition.z <= 5.0)
+        newPosition.z = 5.0;
     else if (newPosition.z >= 30.0)
         newPosition.z = 30.0;
 
@@ -234,8 +234,6 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_Z,
                                   Ogre::Degree(mRotateLocalVector.z * frameTime),
                                   Ogre::Node::TS_LOCAL);
-
-    move(zeroRandomRotateY);
 
     // Swivel the camera to the left or right, while maintaining the same
     // view target location on the ground.
@@ -255,7 +253,6 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
                                   Ogre::Degree(mSwivelDegrees * frameTime),
                                   Ogre::Node::TS_WORLD);
 
-    move(zeroRandomRotateX);
     // If the camera is trying to fly toward a destination, move it in that direction.
     if (mCameraIsFlying)
     {

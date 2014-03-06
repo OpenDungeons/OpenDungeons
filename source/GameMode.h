@@ -20,7 +20,7 @@
 
 #include "AbstractApplicationMode.h"
 
-class GameMap;
+#include "GameMap.h"
 
 class  GameMode: public AbstractApplicationMode
 {
@@ -61,6 +61,9 @@ private:
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);
+
+    // Refresh the tiles borders based a recent change on the map
+    void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
 };
 
 #endif // GAMEMODE_H

@@ -26,7 +26,6 @@
 #include "GameMode.h"
 
 #include "MapLoader.h"
-#include "GameMap.h"
 #include "Socket.h"
 #include "Network.h"
 #include "ClientNotification.h"
@@ -134,63 +133,53 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     std::string resultName;
 
-    if(inputManager->mDragType == rotateAxisX)
+    // if (inputManager->mDragType == tileSelection || inputManager->mDragType == addNewRoom
+    //    || inputManager->mDragType == nullDragType) or anything else
+
+    // Since this is a tile selection query we loop over the result set
+    // and look for the first object which is actually a tile.
+    for (; itr != end; ++itr)
     {
-        cm->move(CameraManager::randomRotateX, arg.state.X.rel);
-    }
+        if (itr->movable == NULL)
+            continue;
 
-    else if(inputManager->mDragType == rotateAxisY)
-    {
-        cm->move(CameraManager::randomRotateY, arg.state.Y.rel);
-    }
-    else // if (inputManager->mDragType == tileSelection || inputManager->mDragType == addNewRoom
-         //    || inputManager->mDragType == nullDragType) or anything else
-    {
-        // Since this is a tile selection query we loop over the result set
-        // and look for the first object which is actually a tile.
-        for (; itr != end; ++itr)
-        {
-            if (itr->movable == NULL)
-                continue;
+        // Check to see if the current query result is a tile.
+        resultName = itr->movable->getName();
 
-            // Check to see if the current query result is a tile.
-            resultName = itr->movable->getName();
+        if (resultName.find("Level_") == std::string::npos)
+            continue;
 
-            if (resultName.find("Level_") == std::string::npos)
-                continue;
+        // Updates the x-y coordinates of the tile.
+        sscanf(resultName.c_str(), "Level_%i_%i", &inputManager->mXPos, &inputManager->mYPos);
+        handleCursorPositionUpdate();
 
-            // Updates the x-y coordinates of the tile.
-            sscanf(resultName.c_str(), "Level_%i_%i", &inputManager->mXPos, &inputManager->mYPos);
-            handleCursorPositionUpdate();
-
-            // If we don't drag anything, there is no affected tiles to compute.
-            if (!inputManager->mLMouseDown || inputManager->mDragType == nullDragType)
-                break;
-
-            // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-            //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
-            // rather than the reverse that it is doing now.
-            std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                                                                            inputManager->mYPos,
-                                                                            inputManager->mLStartDragX,
-                                                                            inputManager->mLStartDragY);
-
-
-            for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
-            {
-                for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
-                {
-                    mGameMap->getTile(ii,jj)->setSelected(false, mGameMap->getLocalPlayer());
-                }
-            }
-
-            for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr )
-            {
-                (*itr)->setSelected(true, mGameMap->getLocalPlayer());
-            }
-
+        // If we don't drag anything, there is no affected tiles to compute.
+        if (!inputManager->mLMouseDown || inputManager->mDragType == nullDragType)
             break;
+
+        // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
+        //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
+        // rather than the reverse that it is doing now.
+        std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                                                                        inputManager->mYPos,
+                                                                        inputManager->mLStartDragX,
+                                                                        inputManager->mLStartDragY);
+
+
+        for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
+        {
+            for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
+            {
+                mGameMap->getTile(ii,jj)->setSelected(false, mGameMap->getLocalPlayer());
+            }
         }
+
+        for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr )
+        {
+            (*itr)->setSelected(true, mGameMap->getLocalPlayer());
+        }
+
+        break;
     }
 
     return true;
@@ -317,17 +306,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     inputManager->mLMouseDown = true;
     inputManager->mLStartDragX = inputManager->mXPos;
     inputManager->mLStartDragY = inputManager->mYPos;
-
-    if(arg.state.Y.abs < 0.1 * arg.state.height || arg.state.Y.abs > 0.9 * arg.state.height)
-    {
-        inputManager->mDragType = rotateAxisX;
-        return true;
-    }
-    else if(arg.state.X.abs > 0.9 * arg.state.width || arg.state.X.abs < 0.1 * arg.state.width)
-    {
-        inputManager->mDragType = rotateAxisY;
-        return true;
-    }
 
     CameraManager* cm = ODFrameListener::getSingletonPtr()->cm;
 
@@ -457,17 +435,9 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     switch(inputManager->mDragType)
     {
         default:
-            return true;
-
-        case rotateAxisX:
-        case rotateAxisY:
-            inputManager->mDragType = nullDragType;
-            return true;
-
         case creature:
-            return true;
-
         case mapLight:
+            inputManager->mDragType = nullDragType;
             return true;
 
         // When either selecting a tile, adding room or a trap
@@ -577,22 +547,23 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         }
     }
 
+    refreshBorderingTilesOf(affectedTiles);
+
+    inputManager->mDragType = nullDragType;
+    return true;
+}
+
+void GameMode::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
+{
     // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
     std::vector<Tile*> borderTiles = mGameMap->tilesBorderedByRegion(affectedTiles);
 
-    affectedTiles.insert(affectedTiles.end(), borderTiles.begin(), borderTiles.end());
+    borderTiles.insert(borderTiles.end(), affectedTiles.begin(), affectedTiles.end());
 
     // Loop over all the affected tiles and force them to examine their neighbors.  This allows
     // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
-    itr = affectedTiles.begin();
-
-    while (itr != affectedTiles.end())
-    {
-        (*itr)->setFullness((*itr)->getFullness());
-        ++itr;
-    }
-
-    return true;
+    for (std::vector<Tile*>::iterator itr = borderTiles.begin(); itr != borderTiles.end() ; ++itr)
+        (*itr)->refreshMesh();
 }
 
 //! \brief Handle the keyboard input.
@@ -647,30 +618,28 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
         camMgr.move(camMgr.moveBackward); // Move backward
         break;
 
-    case OIS::KC_PGUP:
-    case OIS::KC_E:
-        camMgr.move(camMgr.moveDown); // Move down
-        break;
-
-    case OIS::KC_INSERT:
     case OIS::KC_Q:
-        camMgr.move(camMgr.moveUp); // Move up
-        break;
-
-    case OIS::KC_HOME:
-        camMgr.move(camMgr.rotateUp); // Tilt up
-        break;
-
-    case OIS::KC_END:
-        camMgr.move(camMgr.rotateDown); // Tilt down
-        break;
-
-    case OIS::KC_DELETE:
         camMgr.move(camMgr.rotateLeft); // Turn left
         break;
 
-    case OIS::KC_PGDOWN:
+    case OIS::KC_E:
         camMgr.move(camMgr.rotateRight); // Turn right
+        break;
+
+    case OIS::KC_HOME:
+        camMgr.move(camMgr.moveDown); // Move down
+        break;
+
+    case OIS::KC_END:
+        camMgr.move(camMgr.moveUp); // Move up
+        break;
+
+    case OIS::KC_PGUP:
+        camMgr.move(camMgr.rotateUp); // Tilt up
+        break;
+
+    case OIS::KC_PGDOWN:
+        camMgr.move(camMgr.rotateDown); // Tilt down
         break;
 
     case OIS::KC_T:
@@ -757,30 +726,28 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
         camMgr.move(camMgr.stopBackward);
         break;
 
-    case OIS::KC_PGUP:
-    case OIS::KC_E:
-        camMgr.move(camMgr.stopDown);
-        break;
-
-    case OIS::KC_INSERT:
     case OIS::KC_Q:
-        camMgr.move(camMgr.stopUp);
-        break;
-
-    case OIS::KC_HOME:
-        camMgr.move(camMgr.stopRotUp);
-        break;
-
-    case OIS::KC_END:
-        camMgr.move(camMgr.stopRotDown);
-        break;
-
-    case OIS::KC_DELETE:
         camMgr.move(camMgr.stopRotLeft);
         break;
 
-    case OIS::KC_PGDOWN:
+    case OIS::KC_E:
         camMgr.move(camMgr.stopRotRight);
+        break;
+
+    case OIS::KC_HOME:
+        camMgr.move(camMgr.stopDown);
+        break;
+
+    case OIS::KC_END:
+        camMgr.move(camMgr.stopUp);
+        break;
+
+    case OIS::KC_PGUP:
+        camMgr.move(camMgr.stopRotUp);
+        break;
+
+    case OIS::KC_PGDOWN:
+        camMgr.move(camMgr.stopRotDown);
         break;
 
     default:

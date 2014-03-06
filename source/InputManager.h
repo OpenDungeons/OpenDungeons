@@ -38,8 +38,6 @@ public:
         tileBrushSelection,
         addNewRoom,
         addNewTrap,
-        rotateAxisX,
-        rotateAxisY,
         nullDragType
     };
 

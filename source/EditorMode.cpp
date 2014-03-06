@@ -170,14 +170,6 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
 
     switch(inputManager->mDragType)
     {
-    case rotateAxisX:
-        cm->move(CameraManager::randomRotateX, arg.state.X.rel);
-        return;
-
-    case rotateAxisY:
-        cm->move(CameraManager::randomRotateY, arg.state.Y.rel);
-        return;
-
     default:
     case tileSelection:
     case addNewRoom:
@@ -320,18 +312,6 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         inputManager->mLMouseDown = true;
         inputManager->mLStartDragX = inputManager->mXPos;
         inputManager->mLStartDragY = inputManager->mYPos;
-
-        // FIXME This should be moved to key use only as it is getting in the way when playing.
-        if(arg.state.Y.abs < 0.1 * arg.state.height || arg.state.Y.abs > 0.9 * arg.state.height)
-        {
-            inputManager->mDragType = rotateAxisX;
-            return true;
-        }
-        else if(arg.state.X.abs > 0.9 * arg.state.width || arg.state.X.abs < 0.1 * arg.state.width)
-        {
-            inputManager->mDragType = rotateAxisY;
-            return true;
-        }
 
         // See if the mouse is over any creatures
         for (; itr != result.end(); ++itr)
@@ -501,16 +481,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
 
     inputManager->mLMouseDown = false;
 
-    if(inputManager->mDragType == rotateAxisX)
-    {
-        inputManager->mDragType = nullDragType;
-    }
-    else if(inputManager->mDragType == rotateAxisY)
-    {
-        inputManager->mDragType = nullDragType;
-    }
     // Check to see if we are moving a creature
-    else if (inputManager->mDragType == creature)
+    if (inputManager->mDragType == creature)
     {
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
         Ogre::SceneNode *node = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
@@ -531,6 +503,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         if (tempMapLight != NULL)
             tempMapLight->setPosition((Ogre::Real)inputManager->mXPos, (Ogre::Real)inputManager->mYPos,
                                       tempMapLight->getPosition().z);
+        inputManager->mDragType = nullDragType;
         return true;
     }
 
@@ -602,6 +575,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         }
 
         refreshBorderingTilesOf(affectedTiles);
+        inputManager->mDragType = nullDragType;
         return true;
     }
 
@@ -666,7 +640,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     }
 
     refreshBorderingTilesOf(affectedTiles);
-
+    inputManager->mDragType = nullDragType;
     return true;
 }
 
@@ -734,30 +708,28 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
         camMgr.move(camMgr.moveBackward); // Move backward
         break;
 
-    case OIS::KC_PGUP:
-    case OIS::KC_E:
-        camMgr.move(camMgr.moveDown); // Move down
-        break;
-
-    case OIS::KC_INSERT:
     case OIS::KC_Q:
-        camMgr.move(camMgr.moveUp); // Move up
-        break;
-
-    case OIS::KC_HOME:
-        camMgr.move(camMgr.rotateUp); // Tilt up
-        break;
-
-    case OIS::KC_END:
-        camMgr.move(camMgr.rotateDown); // Tilt down
-        break;
-
-    case OIS::KC_DELETE:
         camMgr.move(camMgr.rotateLeft); // Turn left
         break;
 
-    case OIS::KC_PGDOWN:
+    case OIS::KC_E:
         camMgr.move(camMgr.rotateRight); // Turn right
+        break;
+
+    case OIS::KC_PGUP:
+        camMgr.move(camMgr.rotateUp); // Tilt up
+        break;
+
+    case OIS::KC_PGDOWN:
+        camMgr.move(camMgr.rotateDown); // Tilt down
+        break;
+
+    case OIS::KC_HOME:
+        camMgr.move(camMgr.moveUp); // Move up
+        break;
+
+    case OIS::KC_END:
+        camMgr.move(camMgr.moveDown); // Move down
         break;
 
     //Toggle mCurrentTileType
@@ -873,30 +845,28 @@ bool EditorMode::keyReleased(const OIS::KeyEvent& arg)
         camMgr.move(camMgr.stopBackward);
         break;
 
-    case OIS::KC_PGUP:
-    case OIS::KC_E:
-        camMgr.move(camMgr.stopDown);
-        break;
-
-    case OIS::KC_INSERT:
     case OIS::KC_Q:
-        camMgr.move(camMgr.stopUp);
-        break;
-
-    case OIS::KC_HOME:
-        camMgr.move(camMgr.stopRotUp);
-        break;
-
-    case OIS::KC_END:
-        camMgr.move(camMgr.stopRotDown);
-        break;
-
-    case OIS::KC_DELETE:
         camMgr.move(camMgr.stopRotLeft);
         break;
 
-    case OIS::KC_PGDOWN:
+    case OIS::KC_E:
         camMgr.move(camMgr.stopRotRight);
+        break;
+
+    case OIS::KC_PGUP:
+        camMgr.move(camMgr.stopRotUp);
+        break;
+
+    case OIS::KC_PGDOWN:
+        camMgr.move(camMgr.stopRotDown);
+        break;
+
+    case OIS::KC_HOME:
+        camMgr.move(camMgr.stopUp);
+        break;
+
+    case OIS::KC_END:
+        camMgr.move(camMgr.stopDown);
         break;
 
     default:
