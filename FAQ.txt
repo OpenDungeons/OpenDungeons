@@ -1,44 +1,41 @@
 ******************************************************
 *-------OPENDUNGEONS---------------------------------*
 ******************************************************
-FREQUENTLY ASKED QUESTIONS
-1. What is OpenDungeons ? 
-1A. Is it free ? 
-1B. What license is it distributed under ? 
-1C. How much it is playable ? 
-1D. When it is completed ? 
-2. Building OpenDungeons: 
-2A. Help!, I cannot compile the OD !
-2B. Help!, I cannot run the OD !
-2C. Building on Windows 
-2D. Building on Linux
-2E. Building on MacOSX
+
+FREQUENTLY ASKED QUESTION
+
+1. What is OpenDungeons ?
+1A. Is it free ?
+1B. What license is it distributed under ?
+1C. How much it is playable ?
+1D. When it is completed ?
+
+2. Building OpenDungeons:
+2A. Help!, I cannot compile OD !
+2B. Help!, I cannot run OD !
+
 3. Gameplay:
-3A.Controling Player's Field of  View ( Camera )
-3B. Key-shortcuts 
+3A. Controling Player's Field of View (Camera)
+3B. Key-shortcuts
 3C. Running Console and Console's commands
+
 4. May I contribute to OpenDungeons ?
-4A. I do XYZ , Do you need me ? 
-4B. I wrote a patch ....
-4C. I cannot do programming ....
-5. ProgrammersFAQ
-6A. Why Ogre3D ?
-6B. Why STL ?
-6C. General ideas and design patterns 
-6D. Code conventions
-6E. What code constructs to AVOID
-6F. Known bugs
-6G. Pending tasks
-6H. Requests for features
-6I. Requests for bug fixes
+4A. I wrote a patch ...
+4B. I cannot do programming ...
+
+5. Developer's FAQ
+5A. Why Ogre3D ?
+5B. General ideas and design patterns
+5C. Code conventions
+5D. What code constructs to AVOID
+
 6. Used libraries and abbreviations:
 6A. Libraries
 6B. Abbreviations
 
 
-
-
 1. What is OpenDungeons ?
+-------------------------
 
 OpenDungeons is an open source, real time strategy game sharing game elements with the
 Dungeon Keeper series and Evil Genius. Players build an underground dungeon which is
@@ -47,52 +44,91 @@ indirectly commanding their creatures, directly casting spells in combat, and lu
 enemies into sinister traps.
 
 1A. Is it free ?
+----------------
 
-It is free of charge, but more over it's free as in freedom of speech , that is , you are
-permitted to redistribute , modify, and copy this game further under GPL.
+It is free of charge, but more over it's free as in freedom of speech, that is, you are
+permitted to redistribute, modify, and copy this game further under GPLv2.
 
 1B. What license is it distributed under ?
+------------------------------------------
 
 Code is under GNU Public License. Any added new code must be compatible with that license.
 Game content comes under Creative Commons license.
 
 1C. How much is it playable ?
+-----------------------------
 
-The OD ( as of July 2013 ) is in its Pre-Alpha, there's no real gameplay - just a bunch of
-creatures walking around, doing simple task and minions digging in marked places by
-Player.
+OD (as of March 2014) is still in Alpha, this means you can have a basic gameplay experience:
+- Select tiles of dirt walls to dig them and gold to collect money.
+- With money, you build the basic room: Treasure rooms, Sleeping rooms, Training grounds, and forges.
+- The creatures you have will either dig the tiles of dirt, train, sleep or fight on their own.
+- You can grab and drop your own creatures near enemy ones to let them fight.
+
+In the default map given, You play as green in the center of the map,
+and must defeat the other creatures to win.
+
 
 1D. When will it be completed ?
+-------------------------------
 
-Nobody knows, currently it lacks developers especially the coders , as for artist there
-are two graphic modellers who are still pushing their work ( Danimal and Scorpio , Yo !
-:))
+Nobody knows, it is a spare-time project and we always need help!
 
 
 2. Building OpenDungeons:
+-------------------------
 
-Currently the development version requires Ogre3d 1 9 0 and CEGUI 0 8 3, SFML and OIS
-library ( included with Ogre3d) .
+On linux, make sure to install the required dependencies (§ 6A).
 
-2A. Help!, I cannot compile the OD !
+On Windows, MSVC 11 (2012) is required to build the game and you'll need the following SDKs:
+(Make sure to either compile from source or take the MSVC 11 (2012 SDK))
+- Ogre 1.9
+- CEGUI 0.8
+- boost (same version than Ogre)
+- DirectX
+- SFML 2.x
+
+Then, in either way, you'll need to install cmake.
+
+On linux, "cmake ." and "make" should make you able to compile the game.
+On Windows, you'll have to start the Cmake Gui, and configure and create a MSVC 11 project file.
 
 
-USE C++11 WHEN COMPILING OD ! Genral notice : some of the files ( some AI*.cpp) use
+2A. Help!, I cannot compile OD !
+--------------------------------
+
+USE C++11 WHEN COMPILING OD ! General notice : some of the files ( some AI*.cpp) use
 explicit construct of new C++ standard : C++11. Each compiler has it;'s flag , for GNU g++
 it's : "g++ --std=c++11" bash cmd : cmake-gui (that Opens window application )--> tag
 cmake--> ->CMakeCxxFlags.
 
-2B. Help!, I cannot run the OD !
 
+2B. Help!, I cannot run OD !
+----------------------------
 
-
-I get runtime error exception similiar to:
+-- I get runtime error exception similiar to:
 
 >>Mesh: Loading Dirt_10001000.mesh.  An internal Ogre3D error ocurred: OGRE
 EXCEPTION(6:FileNotFoundException): Cannot locate resource Dirt_10001000.mesh in resource
 group Autodetect or any other group. in ResourceGroupManager::openResource at
 /home/bender/Bureau/ogre/OgreMain <<
 
+Make sure you have the game data files installed.
+As of March 2014, the development branch of the official repository doesn't include them.
+You can grab the following directories from Bertram's repo:
+https://github.com/Bertram25/OpenDungeons (look for the download button)
+gui/
+materials/
+models/
+music/
+scripts/
+sounds/
+
+On windows, please note also that the necessary dlls must be copied in the same directory
+than the game data along with the main OD binary in order to let the game run.
+(You can grab an official Windows game copy to get them in the sourceforge OD downloads)
+
+
+[To remove later once I've fixed that in my repo.]
 You must install properly the NST. Go to . Download tarball ( bottom of the page ) and
 unpack its content to media dir. If you have done that already, ensure that you have
 renamed one of the alternative Tile's postfixes ( *a | *b ) to their normal name.  So
@@ -100,139 +136,176 @@ Dirt_10001000a.mesh | Dirt_10001000b.mesh -> Dirt_10001000.mesh , just pick one 
 as needed. Repeat on similar exceptions until success .
 
 
-======== ======== ======== ======== ======== ======== ======== ======== ======== ========
-======== ======== ======== ======== ======== ======
+-- I get runtime error something like : "CEGUI : OGre3d system not initialized '
 
-
-
-
-
-I get runtime error something like : "CEGUI : OGre3d system not initialized '
-
-You have wrong CEGUI version. Actually, it might be right one, but it was compiled against
+You have a wrong CEGUI version. Actually, it might be right one, but it was compiled against
 diffrent OGRE3D package, and now it is loorking for it's interface while it isn't there in
-memory ;) . Either build your own version from sourcepackages OR ENSURE THAT your package
+memory ;). Either build your own version from sourcepackages OR ENSURE THAT your package
 is built for currently installed OGRE3D package's version. For most well-maintained linux
 distros it means they are from the SAME REPOSITORY.
 
 
+3. Gameplay:
+------------
 
-2C. Building on Windows
-
-Currenltly Windows version is quite complicated to build , the user Bertram promises to
-deliver auto-build system for Win, so we have nightly builds after every code's
-commit. Let keep him by this promise .
-
+Please note that there are more game controls available than listed here,
+but only the working ones were added. More will be added as the game gets improved.
 
 
-2D. Building on Linux
+3A. Controlling Player's Field of View (Camera)
+------------------------------------------------
 
-Is quite complicated because the OD is still on the move , and you cannot be ever sure
-which libraries' version OD currently use. Thing is like this : Every library package
-keeps updating, and usually current >>development<< or whatever branch is well behind the
-bloody-edge version .
+Camera movement: (Read as in a US layout keyboard)
+- keyboard arrows ( up, down, left, right) or W A S D.
+- Rotate left or right: Q and E.
+- Rotate up or down: Page up and down
+- Move higher/lower: Mouse wheel or Home, End.
+
+-- Game:
+You can left click on creatures to grab them and right click on a neutral
+or tile of your color to drop them there. Note that you can grab several of them
+without needing to drop the last one each time.
+
+You can click on a room type on the bottom the screen in the room menu,
+and click on a tile of your color to create a room tile if you have enough money.
+
+You can click on a dirt or gold wall to make your creature dig it.
+Creatures digging gold tiles will then deposit the gold on the treasury room tiles,
+and make you have money, permitting you create add more room tiles.
+
+You can drag dirt or gold tiles to select a square of tile to dig/undig.
+
+-- Editor:
+You can left-click on a creature and drag it to another location, when releasing the left button,
+the creature will be put on the new location.
+
+You can click on tiles to add walls of the currently selected type.
 
 
+3B. Key-shortcuts
+-----------------
+
+- Tilde: Open Console
+
+-- Game:
+- T: Return to the Dungeon start location.
+
+-- Editor:
+- R: Change the tile type.
 
 
-2E. Building on MacOS
+3C. Running Console and Console's commands
+------------------------------------------
 
-3. Gameplay: 3A.Controling Player's Field of  View ( Camera )
-3B. Key-shortcuts 3C. Running Console and Console's commands
-
-Camera movement is achieved by moving keyboard arrows ( up, down, left, right
-) or W A S D  or pushing mouse towards the desired edge of the screen. 
-Camera Rotation is done by DRAGING with LMB over the edge in direction UP or
-DOWN ( left and right edge ) as well DRAGING with LMB at bottom or top edge of
-the screen in LEFT OR RIGHT direction ..... !
-
-There is no zooming as understood in classincal CG terms , but you can move
-camera up or down regarding the floor , by holding the CTRL key and using
-mouse scroll ( does it works on Windows version ) ? 
+Console commands needs testing.
 
 
+4. May I contribute to OpenDungeons ?
+-------------------------------------
+
+For bugs, patches, propose help, so hello or anything related,
+drop by our forums:
+http://forum.freegamedev.net/viewforum.php?f=15
 
 
+4A. I wrote a patch ...
+-----------------------
+
+Please:
+- Make sure your patch compile fine without adding new warnings,
+and that the game is still running fine, this means:
+- Start the game editor and play with it a bit.
+- Start the game and make sure the basic game actions are still working.
+- Make sure the feature you've coded has got no weird regression or unbearable drawbacks.
 
 
-4. May I contribute to OpenDungeons ?  4A. I do XYZ , Do you need me ?  4B. I wrote a
-patch ....  4C. I cannot do programming ....
+4B. I cannot do programming ...
+-------------------------------
 
-5. ProgrammersFAQ 6A. Why Ogre3D ?
+I you are ready to test the game and present thorough bug reports,
+can certainly appreciate your help.
+I you can do modeling, or if you're interested in improving the game GUI,
+and are rather at ease with image manipulation, there is always something
+to do ;)
+Please drop by our forums.
 
-As of 2008 ( when project started ) Ogre3d was leading and rapidly developing opensource
-3d Engine, and only one of the few similar avaible ( the other being Irrlicht ) . The
-general consensus is it's praised for its object-oriented design ( by fans of
-object-oriented programming ) and minimal effort to manage common situations. On the other
-hand it's criticised for its object-oriented design (by people who don't like OOP ) and
-lack of extensible documentation and paper-books ( althought both exist to small extent )
-.
 
-6B. Why STL ?
+5. Developer's FAQ
+------------------
 
-From OpenDungeons forum : >>Whichever m**** decided that using the vector class from STL
-is a good idea? You are aware that STL uses lots and lots of exceptions and that
-exceptions are a definite no-no for real time games, aren't you?<< xahodo.
+5A. Why Ogre3D ?
+----------------
 
->>I say may because although I wasn't previously aware of this specific issue I had
-considered the performance implications using templated STL classes instead of handrolling
-my own. I then weighed this consideration against the potential impact on code
-readability, maintainability, reliability, and cross platform issues and decided that it
-made far more sense to use the STL implementations. Weighing heavily on my decision was
-the fact that something like 85% of security vulnerabilities in C and C++ code come from
-buffer overflows, which are greatly reduced by sticking to tried and tested STL code which
-throws exceptions when exceptional circumstances occur instead of just crashing the
-engine, or worse, allowing for arbitrary code execution injected by the untrusted people
-you are gaming with.<< andrewbuck.
+As of 2008 (when project started) Ogre3d was leading and rapidly developing opensource
+3d Engine, and only one of the few similar available (the other being Irrlicht) . The
+general consensus is it's praised for its object-oriented design (by fans of
+object-oriented programming) and minimal effort to manage common situations. On the other
+hand it's criticised for its object-oriented design (by people who don't like OOP) and
+lack of extensible documentation and paper-books (although both exist to small extent).
 
-from stackoverflow.com :
+5B. General ideas and design patterns
+-------------------------------------
 
->>Back when I worked in professional game development, STL was too immature and
-bloated. But that was >10 years ago.  Now I work in military simulation, which has even
-tougher performance requirements (like the framerate can never go below some FPS). In
-military simulation STL is used all over the place.  Some of the people who tell you not
-to use STL use the argument that it's not always the perfect or even the best solution to
-the problem. But that isn't an answer to the question. The question should be: Is there
-something inherently wrong with using STL in games? I'd say no, STL is most of the time a
-better implementation than what a user would come up with on their own.  Just make sure
-you know how to use the STL, and use it in your game. Read some books and look at the
-implementation code in the STL you are using.  answered Jul 15 '10 at 1:39 kevin42 <<
-
-6C. General ideas and design patterns
-
-The game uses the Control-Observation-Control pattern ( as much as possible).  It uses the
-MessageQueue pattern to recieve rendering request from withing the main thread ( the
-RenderRequest class ) .  It uses the AbstractInterface pattern when implementing various
+The game uses the Control-Observation-Control pattern (as much as possible).  It uses the
+MessageQueue pattern to recieve rendering request from withing the main thread (the
+RenderRequest class). It uses the AbstractInterface pattern when implementing various
 input manager classes which interprets the OIS libraty due to user's interaction mode with
 application.
 
-6D. Code conventions
+Overall, and anyway, try to have a clear view of what you want to achieve first, and start simple,
+components by components. Once you have a clear view of your components and how they interact
+to each others, you might find clever to add a few design pattern here or there.
+
+Starting by using a design pattern and applying it to something new right from the start
+is a bad idea, especially in a spare-time project.
+
+
+5C. Code conventions
+--------------------
 
 http://opendungeons.sourceforge.net/index.php/Code_Style_Guidelines
 
 
-6E. What code constructs to AVOID
+5D. What code constructs to AVOID
+---------------------------------
 
-Avoid using any functions from the old libC library ( that is the standard library of the
-C language ).  I beg anyone to stop using one-character names for variables ( poor caputre
-of most editors' search function ) [paul424] .  Do not use Singletons which depends on
-other non-singleton classes ( that is your code shouldn't do any >>hidden<< singleton
-initialization.
+Avoid using any functions from the old libC library, eg: <cstdio>
+(that is the standard library of the C language).
 
+I beg anyone to stop using one-character names for variables (poor capture
+of most editors' search function) [paul424] .
+--> I myself beg for people to stop using temp as a variable name, except for one-liners.
+A variable always has a role, and can be named accordingly.
 
-
-
-6F. Known bugs The Quadtree/MortuaryQuad does not have limitation on number of nodes, and
-allocates all the system memory after some time.  6G. Pending tasks 6H. Requests for
-features 6I. Requests for bug fixes
-
-6. Used libraries and abbreviations: 6A. Libraries
-
-
-6B. Abbreviations OD = OpenDungeons NST = New Scorpio TileSet ( from April 2013) STL =
-Standard Template Library
+Do not use Singletons which depends on other non-singleton classes
+(that is your code shouldn't do any >>hidden<< singleton initialization.)
+--> If you happen to do that, maybe it's meaning the singleton is simply a component
+of the mother class and can be accessed exclusively from the mother class,
+and can be un-singleton-ed. [Bertram]
 
 
+7. Used libraries and abbreviations:
+------------------------------------
+
+7A. Libraries
+-------------
+
+Ogre - Version 1.9.x
+CEGUI - Version 0.8.x
+Boost system, thread, pool (same version than the one used by Ogre)
+SFML - Version 2.x
+OpenAL (Required by SFML)
+
+- Included in the repository (in 'dependencies/'):
+AngelScript
+TinyGetText
+pthread (Windows only)
 
 
+7B. Abbreviations
+-----------------
 
+OD = OpenDungeons
+NST = New Scorpio TileSet (from April 2013)
+STL = Standard Template Library
+FPP Mode = First Person Player Mode, when incarnating a creature in game.
