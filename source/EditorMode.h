@@ -78,6 +78,9 @@ private:
 
     //! \brief Handle updating the selector position on screen
     void handleCursorPositionUpdate();
+
+    // Refresh the tiles borders based a recent change on the map
+    void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
 };
 
 #endif // EDITORMODE_H

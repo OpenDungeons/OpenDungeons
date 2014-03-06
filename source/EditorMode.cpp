@@ -142,7 +142,7 @@ void EditorMode::handleCursorPositionUpdate()
     mMouseY = inputManager->mYPos;
 
     // Make the mouse light follow the mouse
-    mMouseLight->setPosition((int)mMouseX, (int)mMouseY, 2.0);
+    mMouseLight->setPosition((Ogre::Real)mMouseX, (Ogre::Real)mMouseY, 2.0);
 
     // Make the square selector follow the mouse
     RenderRequest *request = new RenderRequest;
@@ -194,8 +194,7 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
             if (resultName.find("Level_") == std::string::npos)
                 continue;
 
-            // Get the x-y coordinates of the tile.
-            // warning obsolete cstdio function
+            // Updates the x-y coordinates of the tile.
             sscanf(resultName.c_str(), "Level_%i_%i", &inputManager->mXPos, &inputManager->mYPos);
             handleCursorPositionUpdate();
 
@@ -205,23 +204,13 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
 
             // Handle when dragging using the left mouse button
 
-            // Loop over the tiles in the rectangular selection region and set their setSelected flag accordingly.
-            //TODO: This function is horribly inefficient, it should loop over a rectangle selecting tiles by x-y coords
-            // rather than the reverse that it is doing now.
-            std::vector<Tile*> affectedTiles =
-                mGameMap->rectangularRegion(inputManager->mXPos, inputManager->mYPos,
-                                            inputManager->mLStartDragX, inputManager->mLStartDragY);
+            // Loop over the tiles in the rectangular selection region and set their type
+            std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
+                                                                           inputManager->mYPos,
+                                                                           inputManager->mLStartDragX,
+                                                                           inputManager->mLStartDragY);
 
-            for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
-            {
-                for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
-                {
-                    mGameMap->getTile(ii,jj)->setSelected(false, mGameMap->getLocalPlayer());
-                }
-            }
-
-
-            for(std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr )
+            for(std::vector<Tile*>::iterator itr = affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
             {
                 (*itr)->setSelected(true, mGameMap->getLocalPlayer());
             }
@@ -295,18 +284,7 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
             }
         }
 
-        // Add any tiles which border the affected region to the affected tiles list
-        // as they may alo want to switch meshes to optimize polycount now too.
-        std::vector<Tile*> borderingTiles = mGameMap->tilesBorderedByRegion(affectedTiles);
-
-        affectedTiles.insert(affectedTiles.end(), borderingTiles.begin(),
-                                borderingTiles.end());
-
-        // Loop over all the affected tiles and force them to examine their
-        // neighbors.  This allows them to switch to a mesh with fewer
-        // polygons if some are hidden by the neighbors.
-        for (unsigned int i = 0; i < affectedTiles.size(); ++i)
-            affectedTiles[i]->setFullness(affectedTiles[i]->getFullness());
+        refreshBorderingTilesOf(affectedTiles);
     }
         return;
 
@@ -465,6 +443,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     if (id == OIS::MB_Middle)
     {
+        /* FIXME: This makes the game crash
         // See if the mouse is over any creatures
         for (itr = result.begin(); itr != result.end(); ++itr)
         {
@@ -484,6 +463,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
             return true;
         }
+        */
     }
     return true;
 }
@@ -499,6 +479,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     if (inputManager->mMouseDownOnCEGUIWindow)
         return true;
 
+    // Unselect all tiles
     for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
@@ -506,13 +487,6 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             mGameMap->getTile(ii,jj)->setSelected(false, mGameMap->getLocalPlayer());
         }
     }
-
-    // Unselect all tiles
-    // for (TileMap_t::iterator itr = mMc->gameMap->firstTile(), last = mMc->gameMap->lastTile();
-    //         itr != last; ++itr)
-    // {
-    //     itr->second->setSelected(false,mMc->gameMap->getLocalPlayer());
-    // }
 
     // Right mouse button up
     if (id == OIS::MB_Right)
@@ -522,7 +496,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     }
 
     // Left mouse button up
-    if (!id != OIS::MB_Left)
+    if (id != OIS::MB_Left)
         return true;
 
     inputManager->mLMouseDown = false;
@@ -546,6 +520,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         mGameMap->getCreature(mDraggedCreature)->setPosition(Ogre::Vector3((Ogre::Real)inputManager->mXPos,
                                                                            (Ogre::Real)inputManager->mYPos,
                                                                            (Ogre::Real)0));
+        return true;
     }
 
     // Check to see if we are dragging a map light.
@@ -564,6 +539,72 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         && inputManager->mDragType != addNewTrap)
         return true;
 
+    // If we are dragging out tiles.
+    if (inputManager->mDragType == tileSelection)
+    {
+        // Loop over the square region surrounding current mouse location
+        // and either set the tile type of the affected tiles or create new ones.
+        std::vector<Tile*> affectedTiles;
+
+        // Get selection range
+        int startX = inputManager->mLStartDragX;
+        int startY = inputManager->mLStartDragY;
+        int endX = inputManager->mXPos;
+        int endY = inputManager->mYPos;
+
+        // Handle possible inverted selections
+        if (startX > endX)
+        {
+            int temp = startX;
+            startX = endX;
+            endX = temp;
+        }
+        if (startY > endY)
+        {
+            int temp = startY;
+            startY = endY;
+            endY = temp;
+        }
+
+        for (int x = startX; x <= endX; ++x)
+        {
+            for (int y = startY; y <= endY; ++y)
+            {
+                Tile* currentTile = mGameMap->getTile(x, y);
+
+                // Check to see if the current tile already exists.
+                if (currentTile != NULL)
+                {
+                    // It does exist so set its type and fullness.
+                    affectedTiles.push_back(currentTile);
+                    currentTile->setType((Tile::TileType)mCurrentTileType);
+                    currentTile->setFullness((Tile::TileType)mCurrentFullness);
+                    continue;
+                }
+
+                // The current tile does not exist so we need to create it.
+                stringstream ss;
+
+                ss.str(std::string());
+                ss << "Level_";
+                ss << x;
+                ss << "_";
+                ss << y;
+
+                currentTile = new Tile(x, y,
+                                       (Tile::TileType)mCurrentTileType,
+                                       (Tile::TileType)mCurrentFullness);
+                currentTile->setName(ss.str());
+                mGameMap->addTile(currentTile);
+                currentTile->createMesh();
+                affectedTiles.push_back(currentTile);
+            }
+        }
+
+        refreshBorderingTilesOf(affectedTiles);
+        return true;
+    }
+
     // Loop over the valid tiles in the affected region.  If we are doing a tileSelection (changing the tile type and fullness) this
     // loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
     // which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
@@ -578,28 +619,21 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     {
         Tile *currentTile = *itr;
 
-        // If we are dragging out tiles.
-        if (inputManager->mDragType == tileSelection)
-        {
-            // In the map editor:  Fill the current tile with the new value
-            currentTile->setType((Tile::TileType)mCurrentTileType);
-            currentTile->setFullness((Tile::TileType)mCurrentFullness);
-        }
-        else // if(inputManager->mDragType == addNewRoom || inputManager->mDragType == addNewTrap)
-        {
-            // If the tile already contains a room, prune it from the list of affected tiles.
-            if (!currentTile->isBuildableUpon())
-            {
-                itr = affectedTiles.erase(itr);
-                continue;
-            }
+        if(inputManager->mDragType != addNewRoom && inputManager->mDragType != addNewTrap)
+            continue;
 
-            // If the currentTile is not empty and claimed, then remove it from the affectedTiles vector.
-            if (!(currentTile->getFullness() < 1 && currentTile->getType() == Tile::claimed))
-            {
-                itr = affectedTiles.erase(itr);
-                continue;
-            }
+        // If the tile already contains a room, prune it from the list of affected tiles.
+        if (!currentTile->isBuildableUpon())
+        {
+            itr = affectedTiles.erase(itr);
+            continue;
+        }
+
+        // If the currentTile is not empty and claimed, then remove it from the affectedTiles vector.
+        if (!(currentTile->getFullness() < 1 && currentTile->getType() == Tile::claimed))
+        {
+            itr = affectedTiles.erase(itr);
+            continue;
         }
 
         ++itr;
@@ -631,18 +665,22 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         }
     }
 
+    refreshBorderingTilesOf(affectedTiles);
+
+    return true;
+}
+
+void EditorMode::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
+{
     // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
     std::vector<Tile*> borderTiles = mGameMap->tilesBorderedByRegion(affectedTiles);
 
-    affectedTiles.insert(affectedTiles.end(), borderTiles.begin(),
-                            borderTiles.end());
+    borderTiles.insert(borderTiles.end(), affectedTiles.begin(), affectedTiles.end());
 
     // Loop over all the affected tiles and force them to examine their neighbors.  This allows
     // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
-    for (itr = affectedTiles.begin(); itr != affectedTiles.end() ; ++itr)
+    for (std::vector<Tile*>::iterator itr = borderTiles.begin(); itr != borderTiles.end() ; ++itr)
         (*itr)->refreshMesh();
-
-    return true;
 }
 
 bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
