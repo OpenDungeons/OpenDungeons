@@ -219,13 +219,22 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     // Prevent camera from moving down into the tiles or too high.
     if (newPosition.z <= 5.0)
         newPosition.z = 5.0;
-    else if (newPosition.z >= 30.0)
-        newPosition.z = 30.0;
+    else if (newPosition.z >= 25.0)
+        newPosition.z = 25.0;
 
-    // Tilt the camera up or down.
-    getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_X,
-                                  Ogre::Degree(mRotateLocalVector.x * frameTime),
-                                  Ogre::Node::TS_LOCAL);
+    // Prevent the tilting to show a reversed world or looking too high.
+    if (mRotateLocalVector.x != 0)
+    {
+        Ogre::Real pitch = getActiveCameraNode()->getOrientation().getPitch().valueRadians();
+        if ((pitch >= 0.0 && mRotateLocalVector.x < 0)
+            || (pitch <= 0.8 && mRotateLocalVector.x > 0))
+        {
+            // Tilt the camera up or down.
+            getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_X,
+                                          Ogre::Degree(mRotateLocalVector.x * frameTime),
+                                          Ogre::Node::TS_LOCAL);
+        }
+    }
 
     getActiveCameraNode()->rotate(Ogre::Vector3::UNIT_Y,
                                   Ogre::Degree(mRotateLocalVector.y * frameTime),

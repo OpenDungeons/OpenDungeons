@@ -99,8 +99,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     cm->createCamera("RTS", 0.02, 300.0);
     logManager->logMessage("Creating RTS CameraNode...", Ogre::LML_NORMAL);
     cm->createCameraNode("RTS", Ogre::Vector3((Ogre::Real)(1 + gameMap->getMapSizeX() / 2),
-                                              (Ogre::Real)(-1 + gameMap->getMapSizeY()/2),
-                                              (Ogre::Real)16),
+                                              (Ogre::Real)(-1 + gameMap->getMapSizeY() / 2),
+                                              (Ogre::Real)16.0),
                                               Ogre::Degree(0.0), Ogre::Degree(45.0));
 
     logManager->logMessage("Creating FPP Camera...", Ogre::LML_NORMAL);

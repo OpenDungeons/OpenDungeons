@@ -83,7 +83,7 @@ void GameMode::handleCursorPositionUpdate()
     mMouseY = inputManager->mYPos;
 
     // Make the mouse light follow the mouse
-    mMouseLight->setPosition((int)mMouseX, (int)mMouseY, 2.0);
+    mMouseLight->setPosition((Ogre::Real)mMouseX, (Ogre::Real)mMouseY, 2.0);
 
     // Make the square selector follow the mouse
     RenderRequest *request = new RenderRequest;
