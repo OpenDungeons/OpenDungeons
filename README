@@ -1,8 +1,29 @@
-This readme files gives a short overview of the structure of the OpenDungeons
-code repository and how to use it. If you were looking for the media files, please
-have a look in our SVN repository.
+Open Dungeons
+=============
 
---- Folder sturcture ---
+Welcome into the Open Dungeons (OD) project README file.
+
+Website: http://opendungeons.sourceforge.net/
+Forums: http://forum.freegamedev.net/viewforum.php?f=15
+Official repository: http://sourceforge.net/p/opendungeons/git/ci/master/tree/ ('development' branch)
+Official Media files SVN repository: http://sourceforge.net/p/opendungeons/svn/HEAD/tree/
+
+
+--- Folders structure ---
+Data files :
+------------
+
+gui/             - CEGUI files + corresponding Gui images.
+materials/       - Materials (models texturing scripts and textures)
+models/          - Model files
+music/           - Music files
+sounds/          - Game Sounds
+levels/          - Test levels for the game
+scripts/         - Our AngelScript code files
+
+Code files:
+-----------
+
 cmake/           - Helper files for CMake
  |- config/      - Variable input files for the CMake script
  |- modules/     - Addon scripts for CMake to find dependencies
@@ -12,18 +33,17 @@ dependencies/    - All external projects
  |- pthreads/    - Thread support for Windows
  |- tinygettext/ - Gettext alternative for multilang support
 documentation/   - Misc. files (incl. a Doxyfile and sketches)
-levels_git/      - Test levels for the game (not shipped)
-scripts/         - Our AngelScript code files
 sources/         - All our own .cpp and .h files of the game
-.gitignore       - The files and folder that are ignored by git locally
-CMakeLists.txt   - CMake script for generatin the Makefile and IDE projects
+.gitignore       - The files and folders that are ignored by git locally
+CMakeLists.txt   - CMake script for generating the Makefile and IDE projects
 od.cppcheck      - Project file for Cppcheck (cppcheck.sourceforge.net)
 README           - The file you are currently reading
 
 -- Coding Guideline ---
-Before you start coding you should take a glimpse at our guideline over at the
-wiki:
+Before you start coding you should take a glimpse at our guideline
+over at the wiki:
   http://opendungeons.sourceforge.net/index.php/Code_Style_Guidelines
+
 It contains a rather deep introduction on how we name, indent, structure and
 extend our code. It also has some performance optimisation tips.
 
@@ -38,12 +58,15 @@ README file is. You will need CMake for this (http://cmake.org/).
 	make
 	./OpenDungeons.bin
 
-To build on windows you will need to link against the following libraries:
-*  OGRE SDK
-*  OIS
-*  CEGUI SDK
-*  pthreads-win32
-*  SFML
+To build the game, you will need to link against the following libraries:
+*  OGRE SDK (1.9.x)
+*  boost (same version than the one used by Ogre)
+*  CEGUI SDK (0.8.x)
+*  pthreads-win32 (for windows only)
+*  SFML (2.x)
 
-CMake also can generate project files for your preferred IDE (Visual Studio,
-Eclipse, ...)
+On windows, make sure you have the MSVC corresponding SDK, or either compile from source.
+
+Then, use CMake-Gui to generate project files for your IDE.
+
+You can also have a look at our FAQ.txt file for more intformation.
