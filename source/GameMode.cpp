@@ -735,11 +735,11 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_HOME:
-        camMgr.move(camMgr.stopDown);
+        camMgr.stopZooming();
         break;
 
     case OIS::KC_END:
-        camMgr.move(camMgr.stopUp);
+        camMgr.stopZooming();
         break;
 
     case OIS::KC_PGUP:
