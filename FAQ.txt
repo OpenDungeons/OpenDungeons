@@ -25,9 +25,10 @@ FREQUENTLY ASKED QUESTION
 
 5. Developer's FAQ
 5A. Why Ogre3D ?
-5B. General ideas and design patterns
-5C. Code conventions
-5D. What code constructs to AVOID
+5B. Why STL ?
+5C. General ideas and design patterns
+5D. Code conventions
+5E. What code constructs to AVOID
 
 6. Used libraries and abbreviations:
 6A. Libraries
@@ -43,17 +44,20 @@ inhabited by creatures. Players fight each other for control of the underground 
 indirectly commanding their creatures, directly casting spells in combat, and luring
 enemies into sinister traps.
 
+
 1A. Is it free ?
 ----------------
 
 It is free of charge, but more over it's free as in freedom of speech, that is, you are
 permitted to redistribute, modify, and copy this game further under GPLv2.
 
+
 1B. What license is it distributed under ?
 ------------------------------------------
 
 Code is under GNU Public License. Any added new code must be compatible with that license.
 Game content comes under Creative Commons license.
+
 
 1C. How much is it playable ?
 -----------------------------
@@ -96,10 +100,12 @@ On Windows, you'll have to start the Cmake Gui, and configure and create a MSVC 
 2A. Help!, I cannot compile OD !
 --------------------------------
 
-USE C++11 WHEN COMPILING OD ! General notice : some of the files ( some AI*.cpp) use
-explicit construct of new C++ standard : C++11. Each compiler has it;'s flag , for GNU g++
-it's : "g++ --std=c++11" bash cmd : cmake-gui (that Opens window application )--> tag
-cmake--> ->CMakeCxxFlags.
+USE C++11 WHEN COMPILING OD ! General notice : some of the files (some AI*.cpp) use
+explicit construct of new C++ standard : C++11.
+
+Each compiler has it's C++0x or C++11 flag, for GNU g++ it's :
+"g++ --std=c++11"
+On CMake, make sure to add that to the CMakeCxxFlags.
 
 
 2B. Help!, I cannot run OD !
@@ -126,14 +132,6 @@ sounds/
 On windows, please note also that the necessary dlls must be copied in the same directory
 than the game data along with the main OD binary in order to let the game run.
 (You can grab an official Windows game copy to get them in the sourceforge OD downloads)
-
-
-[To remove later once I've fixed that in my repo.]
-You must install properly the NST. Go to . Download tarball ( bottom of the page ) and
-unpack its content to media dir. If you have done that already, ensure that you have
-renamed one of the alternative Tile's postfixes ( *a | *b ) to their normal name.  So
-Dirt_10001000a.mesh | Dirt_10001000b.mesh -> Dirt_10001000.mesh , just pick one and rename
-as needed. Repeat on similar exceptions until success .
 
 
 -- I get runtime error something like : "CEGUI : OGre3d system not initialized '
@@ -171,7 +169,7 @@ and click on a tile of your color to create a room tile if you have enough money
 
 You can click on a dirt or gold wall to make your creature dig it.
 Creatures digging gold tiles will then deposit the gold on the treasury room tiles,
-and make you have money, permitting you create add more room tiles.
+and make you have money, permitting you add more room tiles.
 
 You can drag dirt or gold tiles to select a square of tile to dig/undig.
 
@@ -203,7 +201,7 @@ Console commands needs testing.
 4. May I contribute to OpenDungeons ?
 -------------------------------------
 
-For bugs, patches, propose help, so hello or anything related,
+For bugs, patches, propose help, say hello or anything related,
 drop by our forums:
 http://forum.freegamedev.net/viewforum.php?f=15
 
@@ -216,18 +214,18 @@ Please:
 and that the game is still running fine, this means:
 - Start the game editor and play with it a bit.
 - Start the game and make sure the basic game actions are still working.
-- Make sure the feature you've coded has got no weird regression or unbearable drawbacks.
+- Make sure the feature you've coded has got no weird regressions or unbearable drawbacks.
 
 
 4B. I cannot do programming ...
 -------------------------------
 
 I you are ready to test the game and present thorough bug reports,
-can certainly appreciate your help.
+we can certainly appreciate your help.
 I you can do modeling, or if you're interested in improving the game GUI,
 and are rather at ease with image manipulation, there is always something
 to do ;)
-Please drop by our forums.
+Please drop by our forums. (Link at §4)
 
 
 5. Developer's FAQ
@@ -243,7 +241,25 @@ object-oriented programming) and minimal effort to manage common situations. On 
 hand it's criticised for its object-oriented design (by people who don't like OOP) and
 lack of extensible documentation and paper-books (although both exist to small extent).
 
-5B. General ideas and design patterns
+
+5B. Why using STL ?
+-------------------
+
+It has been argued in the past that the use of STL (Standard Template Library)
+was not something relevant when doing a game,
+especially a 3D game, notably because of the STL's use of exceptions.
+
+Well, at first, STL's state, C++ language and practice have fortunately evolved in 10 years.
+Secondly, it is a rather curious to ask that to us since we're using Ogre3D,
+which is a 3D gaming library using exceptions itself. Ask them first ;)
+
+STL is nowadays a well famous standard, used even in military-grade applications,
+and we do think it's properly shaped to be used in our game, rather than implementing
+custom-made templates with forcefully poorer quality and reinvent the wheel.
+There is always something to improve in our code, though, and you are welcome to propose patches.
+
+
+5C. General ideas and design patterns
 -------------------------------------
 
 The game uses the Control-Observation-Control pattern (as much as possible).  It uses the
@@ -260,13 +276,13 @@ Starting by using a design pattern and applying it to something new right from t
 is a bad idea, especially in a spare-time project.
 
 
-5C. Code conventions
+5D. Code conventions
 --------------------
 
 http://opendungeons.sourceforge.net/index.php/Code_Style_Guidelines
 
 
-5D. What code constructs to AVOID
+5E. What code constructs to AVOID
 ---------------------------------
 
 Avoid using any functions from the old libC library, eg: <cstdio>
