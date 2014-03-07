@@ -145,7 +145,8 @@ void RenderManager::createScene()
 
     rtssTest();
 
-    sceneManager->setAmbientLight(Ogre::ColourValue(0.2, 0.2, 0.2));
+    // Sets the overall world lighting.
+    sceneManager->setAmbientLight(Ogre::ColourValue(0.3, 0.3, 0.3));
 
     // Create the scene nodes that will follow the mouse pointer.
     // Create the single tile selection mesh
