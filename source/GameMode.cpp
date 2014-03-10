@@ -110,7 +110,6 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     InputManager* inputManager = mModeManager->getInputManager();
-    CameraManager* cm = frameListener->cm;
 
     if (frameListener->isTerminalActive())
         return true;

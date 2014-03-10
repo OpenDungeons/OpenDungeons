@@ -164,7 +164,6 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
 
     Ogre::RaySceneQueryResult::iterator itr = result.begin();
     Ogre::RaySceneQueryResult::iterator end = result.end();
-    Ogre::SceneManager* sceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
 
     InputManager* inputManager = mModeManager->getInputManager();
 
