@@ -18,8 +18,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* TODO: a lot of the stuff happening in these function should be moved
- * into better places and only be called from here
+/*
  * TODO: Make input user-definable
  */
 
@@ -117,10 +116,12 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
     //If we have a room or trap (or later spell) selected, show what we
     //have selected
     //TODO: This should be changed, or combined with an icon or something later.
-    if (mGameMap->getLocalPlayer()->getNewRoomType() || mGameMap->getLocalPlayer()->getNewTrapType())
+    Player* player = mGameMap->getLocalPlayer();
+    if (player && (player->getNewRoomType() != Room::nullRoomType
+        || player->getNewTrapType() != Trap::nullTrapType))
     {
         TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-                                                (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
+                                              (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
     }
 
     handleMouseWheel(arg);
@@ -169,13 +170,13 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         {
             for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
             {
-                mGameMap->getTile(ii,jj)->setSelected(false, mGameMap->getLocalPlayer());
+                mGameMap->getTile(ii,jj)->setSelected(false, player);
             }
         }
 
-        for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr )
+        for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
         {
-            (*itr)->setSelected(true, mGameMap->getLocalPlayer());
+            (*itr)->setSelected(true, player);
         }
 
         break;
@@ -308,9 +309,23 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     CameraManager* cm = ODFrameListener::getSingletonPtr()->cm;
 
+    // Check whether the player is already placing rooms or traps.
+    bool skipCreaturePickUp = false;
+    Player* player = mGameMap->getLocalPlayer();
+    if (player && (player->getNewRoomType() != Room::nullRoomType
+        || player->getNewTrapType() != Trap::nullTrapType))
+    {
+        skipCreaturePickUp = true;
+    }
+
     // See if the mouse is over any creatures
     for (;itr != result.end(); ++itr)
     {
+        // Skip picking up creatures when placing rooms or traps
+        // as creatures often get in the way.
+        if (skipCreaturePickUp)
+            break;
+
         if (itr->movable == NULL)
             continue;
 
@@ -340,11 +355,11 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             tempSS.getline(array, sizeof(array), '_');
             tempSS.getline(array, sizeof(array));
 
-            Creature *currentCreature = mGameMap->getCreature(array);
+            Creature* currentCreature = mGameMap->getCreature(array);
 
-            if (currentCreature != 0 && currentCreature->getColor() == mGameMap->getLocalPlayer()->getSeat()->getColor())
+            if (currentCreature != NULL && currentCreature->getColor() == player->getSeat()->getColor())
             {
-                mGameMap->getLocalPlayer()->pickUpCreature(currentCreature);
+                player->pickUpCreature(currentCreature);
                 SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::PICKUP);
                 return true;
             }
