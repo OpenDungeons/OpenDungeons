@@ -85,6 +85,8 @@ GameMap::GameMap() :
     setContainer(this);
 
     //Set a default size early so that the tile container acts right.
+    // TODO: Remove the need of this here and rather adds this if necessary
+    // when loading a map
     setMapSizeX(400);
     setMapSizeY(400);
 
@@ -92,6 +94,9 @@ GameMap::GameMap() :
     me = new Player();
     me->setNick("defaultNickName");
     me->setGameMap(this);
+
+    // Init the minimap
+    miniMap = new MiniMap(this);
 }
 
 GameMap::~GameMap()
@@ -99,6 +104,7 @@ GameMap::~GameMap()
     clearAll();
     delete tileCoordinateMap;
     delete me;
+    delete miniMap;
 }
 
 bool GameMap::LoadLevel(const std::string& levelFilepath)

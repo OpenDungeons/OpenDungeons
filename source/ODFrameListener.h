@@ -147,7 +147,6 @@ friend class Console;
         Ogre::SceneNode*        rockSceneNode;
         Ogre::Timer             statsDisplayTimer;
         GameMap*                gameMap;
-        MiniMap*                miniMap;
         std::vector<Ogre::ColourValue> playerColourValues;
 
         //To see if the frameListener wants to exit

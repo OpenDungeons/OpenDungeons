@@ -119,8 +119,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     renderManager->setCameraManager(cm);
     renderManager->setViewport(cm->getViewport());
 
-    miniMap = new MiniMap(gameMap);
-
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     rockSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
             "Rock_scene_node");
@@ -234,7 +232,6 @@ void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
 
 ODFrameListener::~ODFrameListener()
 {
-    delete miniMap;
 }
 
 void ODFrameListener::requestExit()
