@@ -668,10 +668,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
     // Quit the game
     case OIS::KC_ESCAPE:
-        //MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *mMc->gameMap);
-        //mMc->frameListener->requestExit();
         regressMode();
-        Gui::getSingletonPtr()->switchGuiMode();
         break;
 
     // Print a screenshot

@@ -29,7 +29,6 @@ class CameraManager;
 
 class ModeManager
 {
-    friend class Gui;
     friend class Console;
 
 public:

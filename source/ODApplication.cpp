@@ -85,12 +85,8 @@ ODApplication::ODApplication() :
 
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
-    new Gui();
 
     new MusicPlayer();
-    //TODO: Main menu should display without having the map loaded, but
-    //      this needs refactoring at some other places, too
-    Gui::getSingletonPtr()->loadGuiSheet(Gui::mainMenu);
 
     new TextRenderer();
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,

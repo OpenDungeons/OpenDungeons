@@ -71,7 +71,6 @@ bool FppMode::keyPressed(const OIS::KeyEvent &arg)
     {
     case OIS::KC_ESCAPE:
         regressMode();
-        Gui::getSingletonPtr()->switchGuiMode();
         break;
     default:
         break;

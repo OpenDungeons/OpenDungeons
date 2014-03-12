@@ -779,7 +779,6 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
         //MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *mMc->gameMap);
         //mMc->frameListener->requestExit();
         regressMode();
-        Gui::getSingletonPtr()->switchGuiMode();
         break;
 
     // Print a screenshot

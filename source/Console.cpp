@@ -195,7 +195,6 @@ void Console::print(const Ogre::String& text)
 void Console::setVisible(const bool newState)
 {
     mVisible = newState;
-    Gui::getSingleton().setVisible(!mVisible);
     checkVisibility();
 }
 
@@ -205,7 +204,6 @@ void Console::setVisible(const bool newState)
 void Console::toggleVisibility()
 {
     mVisible = !mVisible;
-    Gui::getSingleton().setVisible(!mVisible);
     checkVisibility();
 }
 

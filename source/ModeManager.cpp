@@ -141,4 +141,27 @@ void ModeManager::checkModeChange()
         addGameMode(mRequestedMode);
 
     mRequestedMode = NONE;
+
+    // Update the Gui sheet according to the new game mode
+    Gui& gui = Gui::getSingleton();
+    switch(getCurrentModeType())
+    {
+        default:
+        case ModeManager::NONE: // shouldn't happen
+        case ModeManager::PREV: // shouldn't happen
+        case ModeManager::FPP:  // TODO
+        case ModeManager::CONSOLE:
+            // Hide the Gui sheet in those cases
+            gui.loadGuiSheet(Gui::hideGui);
+            break;
+        case ModeManager::MENU:
+            gui.loadGuiSheet(Gui::mainMenu);
+            break;
+        case ModeManager::GAME:
+            gui.loadGuiSheet(Gui::inGameMenu);
+            break;
+        case ModeManager::EDITOR:
+            gui.loadGuiSheet(Gui::editorToolBox);
+            break;
+    }
 }
