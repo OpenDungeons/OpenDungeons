@@ -212,8 +212,9 @@ bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
 
 bool Gui::quitButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    MapLoader::writeGameMapToFile(std::string("levels/Test.level") + std::string(".out"), *gameMap);
+    // TODO: Move this within the editor gui
+    //GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    //MapLoader::writeGameMapToFile(std::string("levels/Test.level") + std::string(".out"), *gameMap);
     ODFrameListener::getSingletonPtr()->requestExit();
     return true;
 }

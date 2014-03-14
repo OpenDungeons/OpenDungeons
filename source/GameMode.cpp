@@ -178,16 +178,15 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
                                                                         inputManager->mLStartDragX,
                                                                         inputManager->mLStartDragY);
 
-
         for (int jj = 0; jj < mGameMap->getMapSizeY(); ++jj)
         {
             for (int ii = 0; ii < mGameMap->getMapSizeX(); ++ii)
             {
-                mGameMap->getTile(ii,jj)->setSelected(false, player);
+                mGameMap->getTile(ii, jj)->setSelected(false, player);
             }
         }
 
-        for( std::vector<Tile*>::iterator itr =  affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
+        for( std::vector<Tile*>::iterator itr = affectedTiles.begin(); itr != affectedTiles.end(); ++itr)
         {
             (*itr)->setSelected(true, player);
         }
@@ -258,7 +257,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     Ogre::RaySceneQueryResult &result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
     Ogre::RaySceneQueryResult::iterator itr = result.begin();
-    std::string resultName;
 
     if (id == OIS::MB_Middle)
     {
@@ -268,7 +266,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             if (itr->movable == NULL)
                 continue;
 
-            resultName = itr->movable->getName();
+            std::string resultName = itr->movable->getName();
 
             if (resultName.find("Creature_") == std::string::npos)
                 continue;
@@ -342,7 +340,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (itr->movable == NULL)
             continue;
 
-        resultName = itr->movable->getName();
+        std::string resultName = itr->movable->getName();
 
         if (resultName.find("Creature_") == std::string::npos)
             continue;
@@ -353,11 +351,11 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             progressMode(ModeManager::FPP);
             const string& tmp_name =  (itr->movable->getName());
             std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
-            cm->setFPPCamera(mGameMap->getCreature(tmp_name.substr( 9, tmp_name.size())));
+            cm->setFPPCamera(mGameMap->getCreature(tmp_name.substr(9, tmp_name.size())));
             cm->setActiveCameraNode("FPP");
             cm->setActiveCamera("FPP");
 
-            inputManager->mExpectCreatureClick =false;
+            inputManager->mExpectCreatureClick = false;
         }
         else
         {
@@ -388,6 +386,8 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     {
         if (itr->movable == NULL)
             continue;
+
+        std::string resultName = itr->movable->getName();
 
         if (resultName.find("Level_") == std::string::npos)
             continue;
@@ -523,7 +523,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                 SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DIGSELECT, false);
             }
         }
-        else // if(mMc->mDragType == ExampleFrameListener::addNewRoom || mMc->mDragType == ExampleFrameListener::addNewTrap)
+        else // if(inputManager->mDragType == addNewRoom || inputManager->mDragType == addNewTrap)
         {
             // If the tile already contains a room, prune it from the list of affected tiles.
             if (!currentTile->isBuildableUpon())
