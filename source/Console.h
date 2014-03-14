@@ -53,14 +53,13 @@ class Console :
     friend class ConsoleMode;
 
 public:
-    Console(ModeManager*);
+    Console();
     ~Console();
 
     inline const bool& isVisible() const
     { return mVisible; }
 
     void setVisible(const bool newState);
-    void toggleVisibility();
 
     inline const bool& getAllowTrivial() const
     { return mAllowTrivial; }
@@ -106,8 +105,6 @@ private:
     std::string mChatString;
 
     //state variables
-    ModeManager* mModeManager;
-
     unsigned int mConsoleLineLength;
     unsigned int mConsoleLineCount;
     Ogre::Real mBlinkSpeed;

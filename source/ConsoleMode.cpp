@@ -91,7 +91,7 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
             // it points to postfix candidate
             if (mIt == mLl->end())
             {
-                mConsole->mPrompt = mPrefix ;
+                mConsole->mPrompt = mPrefix;
                 mIt = mLl->begin();
             }
             else{

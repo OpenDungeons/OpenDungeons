@@ -37,7 +37,7 @@ ModeManager::ModeManager()
 
     // NOTE: Console needs to exist BEFORE ASWrapper because it needs it for callback
     // TODO: Merge Console and Console Mode
-    Console* console = new Console(this);
+    Console* console = new Console();
 
     // We set a console mode loaded in any case.
     mConsole = console;
@@ -117,16 +117,14 @@ void ModeManager::_removeGameMode()
     if (mIsInConsole)
     {
         mIsInConsole = false;
-        return;
     }
-
-    if(mGameModes.size() > 1)
+    else if (mGameModes.size() > 1)
     {
         delete mGameModes.back();
         mGameModes.pop_back();
-
-        mGameModes.back()->activate();
     }
+
+    mGameModes.back()->activate();
 }
 
 void ModeManager::checkModeChange()

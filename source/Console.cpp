@@ -40,8 +40,7 @@
 
 template<> Console* Ogre::Singleton<Console>::msSingleton = 0;
 
-Console::Console(ModeManager* modeManager) :
-    mModeManager(modeManager),
+Console::Console() :
     //these two define how much text goes into the console
     mConsoleLineLength(100),
     mConsoleLineCount(14),
@@ -198,18 +197,7 @@ void Console::setVisible(const bool newState)
     checkVisibility();
 }
 
-/*! \brief enables or disables the console, depending on what state it has
- *
- */
-void Console::toggleVisibility()
-{
-    mVisible = !mVisible;
-    checkVisibility();
-}
-
-/*! \brief Does the actual showing/hiding depending on bool visible
- *
- */
+//! \brief Does the actual showing/hiding depending on bool visible
 void Console::checkVisibility()
 {
     if(mVisible)

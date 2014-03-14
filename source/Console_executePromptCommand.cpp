@@ -1124,7 +1124,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         tempSS.str("");
         tempSS  << "Click creature you want to posses ";
         frameListener->commandOutput += "\n" + tempSS.str() + "\n";
-        mModeManager->getInputManager()->mExpectCreatureClick = true;
+        frameListener->getModeManager()->getInputManager()->mExpectCreatureClick = true;
     }
     else if (command.compare("circlearound") == 0)
     {
