@@ -28,6 +28,14 @@ FppMode::~FppMode()
 {
 }
 
+void FppMode::activate()
+{
+    // Loads the corresponding Gui sheet.
+    Gui::getSingleton().loadGuiSheet(Gui::hideGui);
+
+    giveFocus();
+}
+
 bool FppMode::mouseMoved(const OIS::MouseEvent &arg)
 {
     // CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition(arg.state.X.abs, arg.state.Y.abs);

@@ -39,6 +39,10 @@ class  GameMode: public AbstractApplicationMode
     void onFrameStarted(const Ogre::FrameEvent& evt);
     void onFrameEnded(const Ogre::FrameEvent& evt);
 
+    //! \brief Called when the game mode is activated
+    //! Used to call the corresponding Gui Sheet.
+    void activate();
+
 private:
     //! \brief Sets whether a tile must marked or unmarked for digging.
     //! this value is based on the first marked flag tile selected.

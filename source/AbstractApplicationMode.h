@@ -79,6 +79,10 @@ public:
         return mModeManager->getInputManager()->mKeyboard;
     }
 
+    //! Called when activating the new game mode
+    //! Used for instance, to load the corresponding Gui Sheet
+    virtual void activate() = 0;
+
     //! \brief Methods permitting to change the current game mode.
     void progressMode (ModeManager::ModeType mm)
     {

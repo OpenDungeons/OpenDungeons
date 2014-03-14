@@ -73,6 +73,14 @@ EditorMode::~EditorMode()
 {
 }
 
+void EditorMode::activate()
+{
+    // Loads the corresponding Gui sheet.
+    Gui::getSingleton().loadGuiSheet(Gui::editorToolBox);
+
+    giveFocus();
+}
+
 bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);

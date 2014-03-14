@@ -95,8 +95,8 @@ private:
     //! \brief The Angel Script wrapper, used in every game modes
     ASWrapper* mASWrapper;
 
-    AbstractApplicationMode* addGameMode(ModeType);
-    AbstractApplicationMode* removeGameMode();
+    void _addGameMode(ModeType);
+    void _removeGameMode();
 };
 
 #endif // MODEMANAGER_H

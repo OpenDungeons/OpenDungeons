@@ -54,9 +54,8 @@ template<> Gui* Ogre::Singleton<Gui>::msSingleton = 0;
  *  including renderer, system, resource provider, setting defaults,
  *  loading all sheets, assigning all event handler
  */
-Gui::Gui(ModeManager* mm)
+Gui::Gui()
 {
-    mModeManager = mm;
     CEGUI::OgreRenderer::bootstrapSystem();
 
     CEGUI::SchemeManager::getSingleton().createFromFile("OpenDungeonsSkin.scheme");
@@ -273,60 +272,72 @@ bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
 {
-    if (!(mModeManager->getCurrentModeType() == ModeManager::EDITOR))
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
-    static_cast<EditorMode*>(mModeManager->getCurrentMode())->mCurrentTileType = Tile::gold;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::gold;
     return true;
 }
 
 bool Gui::tpLavaButtonPressed(const CEGUI::EventArgs& e)
 {
-    if (!(mModeManager->getCurrentModeType() == ModeManager::EDITOR))
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
-    static_cast<EditorMode*>(mModeManager->getCurrentMode())->mCurrentTileType = Tile::lava;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::lava;
     return true;
 }
 
 bool Gui::tpRockButtonPressed(const CEGUI::EventArgs& e)
 {
-    if (!(mModeManager->getCurrentModeType() == ModeManager::EDITOR))
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
-    static_cast<EditorMode*>(mModeManager->getCurrentMode())->mCurrentTileType = Tile::rock;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::rock;
     return true;
 }
 
 bool Gui::tpWaterButtonPressed(const CEGUI::EventArgs& e)
 {
-    if (!(mModeManager->getCurrentModeType() == ModeManager::EDITOR))
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
-    static_cast<EditorMode*>(mModeManager->getCurrentMode())->mCurrentTileType = Tile::water;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::water;
     return true;
 }
 
 bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
 {
-    if (!(mModeManager->getCurrentModeType() == ModeManager::EDITOR))
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
         return true;
 
-    static_cast<EditorMode*>(mModeManager->getCurrentMode())->mCurrentTileType = Tile::dirt;
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::dirt;
     return true;
 }
 
 //! \brief What happens after a click on New Game in the main menu
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
-    mModeManager->requestNewGameMode(ModeManager::GAME);
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    return startServer(*gameMap);
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm)
+        return true;
+
+    mm->requestNewGameMode(ModeManager::GAME);
+    return true;
 }
 
 bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
 {
-    mModeManager->requestNewGameMode(ModeManager::EDITOR);
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm)
+        return true;
+
+    mm->requestNewGameMode(ModeManager::EDITOR);
     return true;
 }
 
@@ -407,5 +418,3 @@ const std::string Gui::TOOLSPALETE_GOLD_BUTTON = "TOOLSPALETE/GoldButton";
 const std::string Gui::TOOLSPALETE_DIRT_BUTTON = "TOOLSPALETE/DirtButton";
 const std::string Gui::TOOLSPALETE_WATER_BUTTON = "TOOLSPALETE/WaterButton";
 const std::string Gui::TOOLSPALETE_ROCK_BUTTON = "TOOLSPALETE/RockButton";
-
-ModeManager* Gui::mModeManager = NULL;

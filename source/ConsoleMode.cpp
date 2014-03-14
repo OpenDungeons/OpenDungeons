@@ -46,6 +46,14 @@ ConsoleMode::~ConsoleMode()
     delete mLl;
 }
 
+void ConsoleMode::activate()
+{
+    // Loads the corresponding Gui sheet.
+    Gui::getSingleton().loadGuiSheet(Gui::hideGui);
+
+    giveFocus();
+}
+
 bool ConsoleMode::mouseMoved(const OIS::MouseEvent &arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);

@@ -42,6 +42,10 @@ public:
     void onFrameStarted(const Ogre::FrameEvent& evt);
     void onFrameEnded(const Ogre::FrameEvent& evt);
 
+    //! \brief Called when the game mode is activated
+    //! Used to call the corresponding Gui Sheet.
+    void activate();
+
     // ! Specific functions
     GameMap* getGameMap()
     {

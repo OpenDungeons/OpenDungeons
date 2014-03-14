@@ -20,7 +20,7 @@
 
 #include "AbstractApplicationMode.h"
 
-class  FppMode: public AbstractApplicationMode
+class FppMode: public AbstractApplicationMode
 {
  public:
     FppMode(ModeManager*);
@@ -36,6 +36,10 @@ class  FppMode: public AbstractApplicationMode
 
     void onFrameStarted(const Ogre::FrameEvent& evt) {};
     void onFrameEnded(const Ogre::FrameEvent& evt) {};
+
+    //! \brief Called when the game mode is activated
+    //! Used to call the corresponding Gui Sheet.
+    void activate();
 };
 
 #endif // FPPMODE_H

@@ -133,7 +133,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
 
     modeManager = new ModeManager();
-    new Gui(modeManager);
     cm->setModeManager(modeManager);
 
     //Set initial mouse clipping size

@@ -8,6 +8,14 @@ MenuMode::MenuMode(ModeManager *modeManager):
 {
 }
 
+void MenuMode::activate()
+{
+    // Loads the corresponding Gui sheet.
+    Gui::getSingleton().loadGuiSheet(Gui::mainMenu);
+
+    giveFocus();
+}
+
 MenuMode::~MenuMode()
 {
 }

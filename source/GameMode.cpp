@@ -28,6 +28,8 @@
 #include "Socket.h"
 #include "Network.h"
 #include "ClientNotification.h"
+#include "Functions.h"
+#include "Gui.h"
 #include "ODFrameListener.h"
 #include "LogManager.h"
 #include "Gui.h"
@@ -63,10 +65,21 @@ GameMode::GameMode(ModeManager *modeManager):
     // Keep track of the mouse light object
     Ogre::SceneManager* sceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     mMouseLight = sceneMgr->getLight("MouseLight");
+
+    // For now, only the single player mode exists, so we start the server part.
+    startServer(*mGameMap);
 }
 
 GameMode::~GameMode()
 {
+}
+
+void GameMode::activate()
+{
+    // Loads the corresponding Gui sheet.
+    Gui::getSingleton().loadGuiSheet(Gui::inGameMenu);
+
+    giveFocus();
 }
 
 void GameMode::handleCursorPositionUpdate()

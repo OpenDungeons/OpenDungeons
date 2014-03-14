@@ -30,8 +30,10 @@ ModeManager::ModeManager()
 {
     mInputManager = new InputManager();
 
+    // Loads the main menu
     mGameModes.push_back(new MenuMode(this));
     mGameModes.back()->giveFocus();
+    Gui::getSingleton().loadGuiSheet(Gui::mainMenu);
 
     // NOTE: Console needs to exist BEFORE ASWrapper because it needs it for callback
     // TODO: Merge Console and Console Mode
@@ -73,19 +75,19 @@ ModeManager::ModeType ModeManager::getCurrentModeType()
     return getCurrentMode()->getModeType();
 }
 
-AbstractApplicationMode* ModeManager::addGameMode(ModeType mm)
+void ModeManager::_addGameMode(ModeType mt)
 {
     // Check the current mode and return if it was already active.
-    if (mGameModes.back()->getModeType() == mm)
-        return mGameModes.back();
+    if (mGameModes.back()->getModeType() == mt)
+        return;
 
-    switch(mm)
+    switch(mt)
     {
     // We use a unique console instance.
     case CONSOLE:
         mIsInConsole = true;
-        mConsoleMode->giveFocus();
-        return mConsoleMode;
+        mConsoleMode->activate();
+        return;
         break;
     case MENU:
         mGameModes.push_back(new MenuMode(this));
@@ -106,28 +108,25 @@ AbstractApplicationMode* ModeManager::addGameMode(ModeType mm)
     // We're no more in console mode.
     mIsInConsole = false;
 
-    mGameModes.back()->giveFocus();
-    return mGameModes.back();
+    mGameModes.back()->activate();
 }
 
-AbstractApplicationMode* ModeManager::removeGameMode()
+void ModeManager::_removeGameMode()
 {
     // If we were in the console, we simply switch back
     if (mIsInConsole)
     {
         mIsInConsole = false;
-        return mGameModes.back();
+        return;
     }
 
     if(mGameModes.size() > 1)
     {
         delete mGameModes.back();
         mGameModes.pop_back();
-        mGameModes.back()->giveFocus();
-        return mGameModes.back();
+
+        mGameModes.back()->activate();
     }
-    else // We never remove the main menu
-        return mGameModes.back();
 }
 
 void ModeManager::checkModeChange()
@@ -136,32 +135,9 @@ void ModeManager::checkModeChange()
         return;
 
     if(mRequestedMode == PREV)
-        removeGameMode();
+        _removeGameMode();
     else
-        addGameMode(mRequestedMode);
+        _addGameMode(mRequestedMode);
 
     mRequestedMode = NONE;
-
-    // Update the Gui sheet according to the new game mode
-    Gui& gui = Gui::getSingleton();
-    switch(getCurrentModeType())
-    {
-        default:
-        case ModeManager::NONE: // shouldn't happen
-        case ModeManager::PREV: // shouldn't happen
-        case ModeManager::FPP:  // TODO
-        case ModeManager::CONSOLE:
-            // Hide the Gui sheet in those cases
-            gui.loadGuiSheet(Gui::hideGui);
-            break;
-        case ModeManager::MENU:
-            gui.loadGuiSheet(Gui::mainMenu);
-            break;
-        case ModeManager::GAME:
-            gui.loadGuiSheet(Gui::inGameMenu);
-            break;
-        case ModeManager::EDITOR:
-            gui.loadGuiSheet(Gui::editorToolBox);
-            break;
-    }
 }

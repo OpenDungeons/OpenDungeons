@@ -102,10 +102,14 @@ friend class Console;
 
         void printText(const std::string& text);
 
-        //NOTE - we should generally avoid using this function
-        inline GameMap* getGameMap() {return gameMap;}
+        inline GameMap* getGameMap()
+        { return gameMap; }
 
-        inline const GameMap* getGameMap() const {return gameMap;}
+        inline const GameMap* getGameMap() const
+        { return gameMap; }
+
+        inline ModeManager* getModeManager() const
+        { return modeManager; }
 
         // Console variables
         std::string command, arguments, commandOutput, prompt;

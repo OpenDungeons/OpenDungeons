@@ -85,7 +85,7 @@ ODApplication::ODApplication() :
 
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new SoundEffectsHelper();
-
+    new Gui();
     new MusicPlayer();
 
     new TextRenderer();

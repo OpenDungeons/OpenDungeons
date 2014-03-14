@@ -52,7 +52,7 @@ public:
         creaturesShuffle,
     };
 
-    Gui(ModeManager* mm);
+    Gui();
     ~Gui();
 
     void loadGuiSheet(const guiSheet& newSheet);
@@ -96,21 +96,18 @@ public:
     static const std::string CREATURESSHUFFLE;
 
 private:
-    //! A reference to the mode manager, don't delete it.
-    static ModeManager* mModeManager;
-
     void assignEventHandlers();
 
     std::map<guiSheet, CEGUI::Window*> sheets;
 
-    //Button handlers main menu
+    // Button handlers main menu
     static bool mMNewGameButtonPressed  (const CEGUI::EventArgs& e);
     static bool mMMapEditorButtonPressed(const CEGUI::EventArgs& e);
     static bool mMLoadButtonPressed     (const CEGUI::EventArgs& e);
     static bool mMOptionsButtonPressed  (const CEGUI::EventArgs& e);
     static bool mMQuitButtonPressed     (const CEGUI::EventArgs& e);
 
-    //Button handlers game UI
+    // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);
     static bool quitButtonPressed       (const CEGUI::EventArgs& e);
     static bool quartersButtonPressed   (const CEGUI::EventArgs& e);
@@ -120,7 +117,7 @@ private:
     static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
     static bool serverButtonPressed     (const CEGUI::EventArgs& e);
 
-    //Button ToolsBox
+    // Button ToolsBox
     static bool tpLavaButtonPressed(const CEGUI::EventArgs& e);
     static bool tpGoldButtonPressed(const CEGUI::EventArgs& e);
     static bool tpRockButtonPressed(const CEGUI::EventArgs& e);
@@ -128,4 +125,4 @@ private:
     static bool tpDirtButtonPressed(const CEGUI::EventArgs& e);
 };
 
-#endif /* GUI_H_ */
+#endif // GUI_H_
