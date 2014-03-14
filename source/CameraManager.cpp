@@ -226,7 +226,7 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     if (mRotateLocalVector.x != 0)
     {
         Ogre::Real pitch = getActiveCameraNode()->getOrientation().getPitch().valueRadians();
-        if ((pitch >= 0.0 && mRotateLocalVector.x < 0)
+        if ((pitch >= 0.5 && mRotateLocalVector.x < 0)
             || (pitch <= 0.8 && mRotateLocalVector.x > 0))
         {
             // Tilt the camera up or down.
