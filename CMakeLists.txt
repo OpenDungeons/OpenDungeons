@@ -520,7 +520,9 @@ endif()
 
 # Copy level and scripts dir from git to build dir if this is not an in-source build
 if( NOT ${CMAKE_CURRENT_SOURCE_DIR} EQUAL ${CMAKE_CURRENT_BINARY_DIR})
-    configure_file(levels_git/Test.level ${CMAKE_CURRENT_BINARY_DIR}/levels_git/Test.level)
+    if (EXISTS "levels/Test.level")
+        configure_file(levels/Test.level ${CMAKE_CURRENT_BINARY_DIR}/levels/Test.level)
+    endif()
     file(COPY scripts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
