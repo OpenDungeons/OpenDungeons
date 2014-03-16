@@ -405,11 +405,11 @@ const std::string Gui::TAB_SYSTEM = "MainTabControl/System";
 const std::string Gui::BUTTON_HOST = "MainTabControl/System/HostButton";
 const std::string Gui::BUTTON_QUIT = "MainTabControl/System/QuitButton";
 
-const std::string Gui::MM_BACKGROUND = "MainMenu";
-const std::string Gui::MM_WELCOME_MESSAGE = "Background/WelcomeMessage";
-const std::string Gui::MM_BUTTON_START_NEW_GAME = "Background/StartNewGameButton";
-const std::string Gui::MM_BUTTON_MAPEDITOR = "Background/MapEditorButton";
-const std::string Gui::MM_BUTTON_QUIT = "Background/QuitButton";
+const std::string Gui::MM_BACKGROUND = "Background";
+const std::string Gui::MM_WELCOME_MESSAGE = "WelcomeBanner";
+const std::string Gui::MM_BUTTON_START_NEW_GAME = "StartNewGameButton";
+const std::string Gui::MM_BUTTON_MAPEDITOR = "MapEditorButton";
+const std::string Gui::MM_BUTTON_QUIT = "QuitButton";
 const std::string Gui::TOOLSPALETE = "TOOLSPALETE";
 const std::string Gui::CREATURESSHUFFLE = "TOOLSPALETE/CreaturesShuffle";
 

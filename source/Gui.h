@@ -41,6 +41,7 @@ class GameMap;
 class Gui : public Ogre::Singleton<Gui>
 {
     friend class MiniMap;
+
 public:
     enum guiSheet
     {
