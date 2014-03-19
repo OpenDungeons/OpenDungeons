@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<goal task="ClaimNTiles" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="file:/home/tom/Opendungeons/opendungeons/XML/xsd/GoalScheme.xsd" >
-    <option>200</option>
-</goal>

@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"  standalone="no"  ?>
-
-<TileContainerList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:noNamespaceSchemaLocation="../xsd/TileContainerListScheme.xsd"
-    xmlns:xi="http://www.w3.org/2001/XInclude"
-    >
-    <xi:include href="../TileContainers/TileContainer_0.xml"/>
-
-</TileContainerList>
