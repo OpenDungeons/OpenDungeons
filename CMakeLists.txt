@@ -13,8 +13,6 @@ set(ANGELSCRIPT_ADDON_DIR "${ANGELSCRIPT_DIR}/add_on")
 set(TINYGETTEXT_DIR "${DEPENDENCIES_DIR}/tinygettext")
 set(TINYXML_DIR "${DEPENDENCIES_DIR}/tinyxml2")
 
-
-
 #cmake paths
 set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/cmake/config")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake/modules)
@@ -54,7 +52,7 @@ endif ()
 
 set(OD_SOURCEFILES
     #AngelScript sources
-	${ANGELSCRIPT_SRC_DIR}/as_atomic.cpp
+    ${ANGELSCRIPT_SRC_DIR}/as_atomic.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_builder.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_bytecode.cpp
     ${ANGELSCRIPT_SRC_DIR}/as_callfunc.cpp
@@ -98,7 +96,7 @@ set(OD_SOURCEFILES
     ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder/scriptbuilder.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scripthelper/scripthelper.cpp
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring/scriptstdstring.cpp
-    
+
     #Tinygettext sources
     ${TINYGETTEXT_DIR}/dictionary_manager.cpp
     ${TINYGETTEXT_DIR}/dictionary.cpp
@@ -106,9 +104,9 @@ set(OD_SOURCEFILES
     ${TINYGETTEXT_DIR}/plural_forms.cpp
     ${TINYGETTEXT_DIR}/po_parser.cpp
     ${TINYGETTEXT_DIR}/tinygettext.cpp
-     
-	#Tinyxml2 sources
-	${TINYXML_DIR}/tinyxml2.cpp
+
+    #Tinyxml2 sources
+    ${TINYXML_DIR}/tinyxml2.cpp
 
     #OpenDungeons sources
     ${SRC}/AbstractApplicationMode.cpp
@@ -206,11 +204,11 @@ project(OpenDungeons)
 
 #postfix bin if we are on linux as we want to launch with a script
 if(WIN32)
-	set( PROJECT_BINARY_NAME "OpenDungeons")
+    set(PROJECT_BINARY_NAME "OpenDungeons")
 else()
-	set( PROJECT_BINARY_NAME "OpenDungeons.bin")
+    set(PROJECT_BINARY_NAME "OpenDungeons.bin")
 endif()
-	
+
 # Project version
 # TODO - make this set version string in source file automatically.
 set(${PROJECT_NAME}_MAJOR_VERSION 0)
@@ -229,37 +227,56 @@ find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
 find_package(SFML REQUIRED COMPONENTS Audio System)
 
+if ((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
+    message(SEND_ERROR "OGRE version >= 1.9.0 required")
+endif()
+
+if ((CEGUI_VERSION_MINOR LESS 8) OR (CEGUI_VERSION_MAJOR LESS 1))
+    message(SEND_ERROR "CEGUI version >= 0.8.0 required")
+endif()
+
+if (SFML_VERSION_MAJOR LESS 2)
+    message(SEND_ERROR "SFML version >= 2.0 required")
+endif()
+
 #This has to cover the versions not already known by CMake
-set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1)
+set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1 1.55.0)
 
 if(WIN32 AND ${OGRE_FOUND})
-	# On windows we can try to use boost from the Ogre SDK instead
-    set( CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${ENV_OGRE_HOME}/boost_1_44/lib)
-    set( CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${ENV_OGRE_HOME}/boost_1_44)
+    # On windows we can try to use boost from the Ogre SDK instead
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${ENV_OGRE_HOME}/boost_1_44/lib)
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${ENV_OGRE_HOME}/boost_1_44)
 
     # We set these instead of searching if using MSVC
     # This is because the libs in the ogre dir has a lib prefix making findboost not find them
-	set( OD_BOOST_LIB_DIRS  ${ENV_OGRE_HOME}/boost_1_44/lib)
-	set( OD_BOOST_INCLUDE_DIRS ${ENV_OGRE_HOME}/boost_1_44)
+    set(OD_BOOST_LIB_DIRS  ${ENV_OGRE_HOME}/boost_1_44/lib)
+    set(OD_BOOST_INCLUDE_DIRS ${ENV_OGRE_HOME}/boost_1_44)
+
+    find_package(Boost)
+    if(Boost_FOUND)
+        set(OD_BOOST_LIB_DIRS  ${Boost_INCLUDE_DIRS}/stage/lib)
+        set(OD_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
+    endif()
 endif()
 
 if(MINGW)
     # We need to specify the compiler here that Ogre used to compile boost
     set(Boost_COMPILER -mgw45)
-    find_package(Boost COMPONENTS thread REQUIRED)
+    find_package(Boost COMPONENTS thread system REQUIRED)
 endif()
 
 #OpenAL
 #If we are on windows we can also look for OpenAL where SFML is
 if(WIN32 AND ${SFML_FOUND})
-    set( CMAKE_LIBRARY_PATH ${SFMLDIR}/extlibs/libs-vc2005 ${SFMLDIR}/extlibs/libs-mingw)
-    set( CMAKE_INCLUDE_PATH ${SFMLDIR}/extlibs/headers ${SFMLDIR}/extlibs/headers/AL)
+    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH} ${SFMLDIR}/extlibs/libs-vc2005 ${SFMLDIR}/extlibs/libs-mingw)
+    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH} ${SFMLDIR}/extlibs/headers ${SFMLDIR}/extlibs/headers/AL)
 endif()
 
 find_package(OpenAL REQUIRED)
 
 if(UNIX)
     find_package(Threads REQUIRED)
+    find_package(Boost COMPONENTS thread system REQUIRED)
 endif()
 
 ##################################
@@ -277,26 +294,17 @@ include_directories(
     #tinygettext includes
     ${TINYGETTEXT_DIR}
 
-	#tinyxml2 includes
-	${TINYXML_DIR}
+    #tinyxml2 includes
+    ${TINYXML_DIR}
 
     #Angelscript includes
     ${ANGELSCRIPT_DIR}/angelscript/include
-	${ANGELSCRIPT_SRC_DIR}
+    ${ANGELSCRIPT_SRC_DIR}
 
     #AngelScript Addons, in-comment only the ones we actually use
-#    ${ANGELSCRIPT_ADDON_DIR}/autowrapper
-#    ${ANGELSCRIPT_ADDON_DIR}/clib
-#    ${ANGELSCRIPT_ADDON_DIR}/contextmgr
-#    ${ANGELSCRIPT_ADDON_DIR}/debugger
-#    ${ANGELSCRIPT_ADDON_DIR}/scriptany
     ${ANGELSCRIPT_ADDON_DIR}/scriptarray
     ${ANGELSCRIPT_ADDON_DIR}/scriptbuilder
-#    ${ANGELSCRIPT_ADDON_DIR}/scriptdictionary
-#    ${ANGELSCRIPT_ADDON_DIR}/scriptfile
     ${ANGELSCRIPT_ADDON_DIR}/scripthelper
-#    ${ANGELSCRIPT_ADDON_DIR}/scriptmath
-#    ${ANGELSCRIPT_ADDON_DIR}/scriptmath3d
     ${ANGELSCRIPT_ADDON_DIR}/scriptstdstring
 
     #external packages includes
@@ -313,7 +321,7 @@ if(WIN32)
         link_libraries(${Boost_LIBRARIES})
         include_directories(${Boost_INCLUDE_DIRS})
     endif()
-    
+
     if(MSVC)
         #Provide dirent.h if visual studio is used
         include_directories(${DEPENDENCIES_DIR}/dirent)
@@ -385,7 +393,7 @@ if(${SFML_AUDIO_LIBRARY_SHARED_DEBUG})
         optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG}
         debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG}
         debug ${SFML_SYSTEM_LIBRARY_SHARED_DEBUG}
-    ) 
+    )
 else()
     target_link_libraries(${PROJECT_BINARY_NAME}
         ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
@@ -397,7 +405,7 @@ if(WIN32)
     if(MSVC_IDE)
         #Set some extra compiler flags
         #TODO - investigate if these are what they should be
-        set( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc /SUBSYSTEM:WINDOWS /ENTRY:\"main\"" )
+        set( PLATFORM_C_FLAGS "/W3 /MD /Od /D \"WIN32\" /D \"_WINDOWS\" /Gm /Gy /fp:fast /ZI /EHsc" )
         set( PLATFORM_C_FLAGS_DEBUG "/W3 /MDd /Od /Gm /Gy /fp:fast /ZI /DOD_DEBUG" )
 
         set( CMAKE_CXX_FLAGS "${PLATFORM_C_FLAGS}" )
@@ -421,7 +429,7 @@ if(WIN32)
             "ws2_32"
             Userenv
         )
-        
+
     endif()
 else()
     target_link_libraries (${PROJECT_BINARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
@@ -457,7 +465,7 @@ else()
     #only use d3d renderer plugins if we are on windows
     set(OPENDUNGEONS_COMMENT_D3D "#")
     #On linux, we should look in the standard paths for plugins
-    if(${OGRE_PLUGIN_DIR_REL} STREQUAL NOTFOUND)
+    if("${OGRE_PLUGIN_DIR_REL}" STREQUAL "NOTFOUND")
         #Try pkgconfig if the ogre module doesn't set the plugin paths
         find_package(PkgConfig)
         if(PKG_CONFIG_FOUND)
@@ -494,8 +502,8 @@ configure_file(${CMAKE_CONFIG_DIR}/resources.zip.cfg.in ${CMAKE_CURRENT_BINARY_D
 if(UNIX)
     #On linux, set up the launcher script
     #TODO - add key repeat thing
-	set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME} CACHE PATH "")
-	configure_file(${CMAKE_CONFIG_DIR}/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
+    set(OPENDUNGEONS_BINARY_PATH ${CMAKE_INSTALL_PREFIX}/games/${PROJECT_BINARY_NAME} CACHE PATH "")
+    configure_file(${CMAKE_CONFIG_DIR}/OpenDungeons.in ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons)
 endif()
 
 ##################################
@@ -511,7 +519,7 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.cfg DESTINATION ${OP
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/resources_install.zip.cfg DESTINATION ${OPENDUNGEONS_DATA_DEST} RENAME resources.zip.cfg)
 
 if(NOT WIN32)
-	install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION ${BINDIR} PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/OpenDungeons DESTINATION ${BINDIR} PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 endif()
 
 ##################################
@@ -538,5 +546,5 @@ set(CPACK_PACKAGE_VERSION ${${PROJECT_NAME}_MAJOR_VERSION}.${${PROJECT_NAME}_MIN
 set(CPACK_PACKAGE_CONTACT OpenDungeons Team)
 set(CPACK_GENERATOR "DEB")
 set(CPACK_SOURCE_GENERATOR "DEB")
-set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.7.1), libois-1.2.0, libsfml-audio1.6, libopenal1, libogremain-1.7.2")
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libcegui (>= 0.8.3), libois-1.2.0, libsfml-audio2.0, libopenal1, libogremain-1.9.0")
 include(CPack)
