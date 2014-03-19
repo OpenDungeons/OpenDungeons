@@ -40,8 +40,8 @@ Ogre::Singleton<ODApplication>::msSingleton = 0;
  *
  */
 ODApplication::ODApplication() :
-        root(0),
-        window(0)
+    root(NULL),
+    window(NULL)
 {
     try {
     sem_init(&MapLight::lightNumberLockSemaphore, 0, 1);
@@ -86,16 +86,13 @@ ODApplication::ODApplication() :
     //RenderManager* renderMgr = new RenderManager();
 
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
-    new SoundEffectsHelper();
-    new Gui();
     new MusicPlayer();
+    new SoundEffectsHelper();
 
+    new Gui();
     new TextRenderer();
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
                                             10, 50, 70, Ogre::ColourValue::Green);
-    // TODO - move this to when the map is actually loaded
-    // or play the music fitting the active mode.
-    MusicPlayer::getSingleton().start(0);
 
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
     mFrameListener = new ODFrameListener(window, mOverlaySystem);
@@ -106,9 +103,9 @@ ODApplication::ODApplication() :
     //Moved out from cleanup, as we only want to remove it if it exists.
     root->removeFrameListener(ODFrameListener::getSingletonPtr());
     }
-    catch( const Ogre::Exception& e)
+    catch(const Ogre::Exception& e)
     {
-        std::cerr<< "An internal Ogre3D error ocurred: " << e.getFullDescription() << std::endl;
+        std::cerr << "An internal Ogre3D error ocurred: " << e.getFullDescription() << std::endl;
         displayErrorMessage("Internal Ogre3D exception: " + e.getFullDescription());
     }
     // Will be called even if an Ogre::Exception was thrown
@@ -151,7 +148,6 @@ void ODApplication::cleanUp()
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
     delete ASWrapper::getSingletonPtr();
-    //delete gameMap;
 }
 
 //TODO: find some better places for some of these

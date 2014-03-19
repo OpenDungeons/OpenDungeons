@@ -32,8 +32,7 @@ ModeManager::ModeManager()
 
     // Loads the main menu
     mGameModes.push_back(new MenuMode(this));
-    mGameModes.back()->giveFocus();
-    Gui::getSingleton().loadGuiSheet(Gui::mainMenu);
+    mGameModes.back()->activate();
 
     // NOTE: Console needs to exist BEFORE ASWrapper because it needs it for callback
     // TODO: Merge Console and Console Mode

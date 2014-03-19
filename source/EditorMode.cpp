@@ -36,6 +36,7 @@
 #include "RenderManager.h"
 #include "CameraManager.h"
 #include "Console.h"
+#include "MusicPlayer.h"
 
 #include <OgreEntity.h>
 
@@ -75,6 +76,9 @@ void EditorMode::activate()
     Gui::getSingleton().loadGuiSheet(Gui::editorToolBox);
 
     giveFocus();
+
+    // Stop the game music.
+    MusicPlayer::getSingleton().stop();
 }
 
 bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
@@ -425,12 +429,12 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         Creature* droppedCreature = mGameMap->getCreature(mDraggedCreature);
         Tile::TileClearType passability = droppedCreature->getDefinition()->getTilePassability();
 
-        Ogre::Real newXPos = inputManager->mXPos;
-        Ogre::Real newYPos = inputManager->mYPos;
+        Ogre::Real newXPos = (Ogre::Real)inputManager->mXPos;
+        Ogre::Real newYPos = (Ogre::Real)inputManager->mYPos;
         if (droppedTile == NULL || droppedTile->getTilePassability() != passability)
         {
-            newXPos = inputManager->mLStartDragX;
-            newYPos = inputManager->mLStartDragY;
+            newXPos = (Ogre::Real)inputManager->mLStartDragX;
+            newYPos = (Ogre::Real)inputManager->mLStartDragY;
         }
 
         // Remove the creature node from the selector and back to the game

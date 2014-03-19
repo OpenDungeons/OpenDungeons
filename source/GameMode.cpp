@@ -45,6 +45,7 @@
 #include "RenderManager.h"
 #include "CameraManager.h"
 #include "Console.h"
+#include "MusicPlayer.h"
 
 #include <algorithm>
 #include <vector>
@@ -80,6 +81,10 @@ void GameMode::activate()
     Gui::getSingleton().loadGuiSheet(Gui::inGameMenu);
 
     giveFocus();
+
+    // Play the game music.
+    // TODO: Actually, the game music should be part of the game data
+    MusicPlayer::getSingleton().start(0);
 }
 
 void GameMode::handleCursorPositionUpdate()

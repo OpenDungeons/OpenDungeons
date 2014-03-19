@@ -2,6 +2,7 @@
 
 #include "Gui.h"
 #include "ModeManager.h"
+#include "MusicPlayer.h"
 
 MenuMode::MenuMode(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU)
@@ -14,6 +15,9 @@ void MenuMode::activate()
     Gui::getSingleton().loadGuiSheet(Gui::mainMenu);
 
     giveFocus();
+
+    // Play the main menu music
+    MusicPlayer::getSingleton().start(0);
 }
 
 MenuMode::~MenuMode()
