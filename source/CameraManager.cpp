@@ -19,7 +19,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//TODO : CAMERA LOOSE ITS PROPER SENSE OF LEFT, RIGHT, TOP, DOWN WHEN YOU DO MORE THAN QUATER BAREEL VIA CAMERA ROTATE, AKA PTICH > 90 DEG
 #include "CameraManager.h"
 
 #include "SoundEffectsHelper.h"
@@ -225,6 +224,8 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     // Prevent the tilting to show a reversed world or looking too high.
     if (mRotateLocalVector.x != 0)
     {
+        // NOTE : The camera loses the desired sense of left, right, top, down
+        // when the camera pitch is more than 90 degrees.
         Ogre::Real pitch = getActiveCameraNode()->getOrientation().getPitch().valueRadians();
         if ((pitch >= 0.5 && mRotateLocalVector.x < 0)
             || (pitch <= 0.8 && mRotateLocalVector.x > 0))

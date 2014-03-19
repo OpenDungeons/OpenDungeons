@@ -53,17 +53,21 @@ public:
     }
 
 private:
-    bool                mChanged;
-    int                 mCurrentFullness;
-    int                 mCurrentTileRadius;
-    bool                mBrushMode;
-    int                 mCurrentTileType;
-    DragType            mDragType;
-    std::string         mDraggedCreature;
-    std::string         mDraggedMapLight;
+    //! \brief Tile type (Dirt, Lava, ...)
+    Tile::TileType mCurrentTileType;
+
+    //! \brief how of the wall type is there (0 - 100.0)
+    //! < 1.0 means no walls.
+    double mCurrentFullness;
+
+    //! \brief The creature node name being dragged by the mouse
+    std::string mDraggedCreature;
+
+    //! \brief The map light node name being dragged by the mouse
+    std::string mDraggedMapLight;
 
     //! \brief Rendering members
-    GameMap*            mGameMap;
+    GameMap* mGameMap;
 
     //! \brief Stores the lastest mouse cursor and light positions.
     int mMouseX;
@@ -85,6 +89,10 @@ private:
 
     // Refresh the tiles borders based a recent change on the map
     void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
+
+    // Updates the text seen next to the cursor position.
+    // This text gives the tile position, and the current left-click action
+    void updateCursorText();
 };
 
 #endif // EDITORMODE_H

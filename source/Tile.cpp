@@ -452,17 +452,9 @@ Tile::TileClearType Tile::getTilePassability() const
             break;
 
         default:
-            std::cerr
-                    << "\n\nERROR:  Unhandled tile type in Tile::getTilePassability()\n\n";
-            exit(1);
             break;
     }
 
-    // Return something to make the compiler happy.
-    // Control should really never reach here because of the exit(1) call in the default switch case above
-    std::cerr
-            << "\n\nERROR:  Control reached the end of Tile::getTilePassability, this should never actually happen.\n\n";
-    exit(1);
     return impassableTile;
 }
 
@@ -587,7 +579,7 @@ std::istream& operator>>(std::istream& is, Tile *t)
  * concatenated with a fullnessMeshNumber to form the filename, e.g.
  * Dirt104.mesh is a 4 sided dirt mesh with 100% fullness.
  */
-const char* Tile::tileTypeToString(TileType t)
+std::string Tile::tileTypeToString(TileType t)
 {
     switch (t)
     {
@@ -967,13 +959,15 @@ unsigned int Tile::numCreaturesInCell() const
 /*! \brief This function returns the i'th creature in the tile.
  *
  */
-Creature* Tile::getCreature(int index)
+Creature* Tile::getCreature(unsigned int index)
 {
     sem_wait(&creaturesInCellLockSemaphore);
-    Creature *tempCreature = creaturesInCell[index];
+    Creature* creature = NULL;
+    if (index < creaturesInCell.size())
+        creature = creaturesInCell[index];
     sem_post(&creaturesInCellLockSemaphore);
 
-    return tempCreature;
+    return creature;
 }
 
 /*! \brief Add a player to the vector of players who have marked this tile for digging.

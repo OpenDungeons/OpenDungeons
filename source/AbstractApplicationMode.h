@@ -54,11 +54,8 @@ public:
         creature,
         mapLight,
         tileSelection,
-        tileBrushSelection,
         addNewRoom,
         addNewTrap,
-        rotateAxisX,
-        rotateAxisY,
         nullDragType
     };
 

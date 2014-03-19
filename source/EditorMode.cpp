@@ -46,12 +46,8 @@
 
 EditorMode::EditorMode(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::EDITOR),
-    mChanged(false),
-    mCurrentFullness(100),
-    mCurrentTileRadius(1),
-    mBrushMode(false),
     mCurrentTileType(Tile::dirt),
-    mDragType(nullDragType),
+    mCurrentFullness(100.0),
     mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
     mMouseX(0),
     mMouseY(0),
@@ -88,14 +84,9 @@ bool EditorMode::mouseMoved(const OIS::MouseEvent &arg)
     if (ODFrameListener::getSingletonPtr()->isTerminalActive())
         return true;
 
-    //If we have a room or trap (or later spell) selected, show what we
-    //have selected
-    //TODO: This should be changed, or combined with an icon or something later.
-    if (mGameMap->getLocalPlayer()->getNewRoomType() || mGameMap->getLocalPlayer()->getNewTrapType())
-    {
-        TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
-                                                (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
-    }
+
+    TextRenderer::getSingleton().moveText(ODApplication::POINTER_INFO_STRING,
+                                          (Ogre::Real)(arg.state.X.abs + 30), (Ogre::Real)arg.state.Y.abs);
 
     handleMouseWheel(arg);
 
@@ -159,6 +150,8 @@ void EditorMode::handleCursorPositionUpdate()
     request->p2 = static_cast<void*>(&mMouseY);
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request); // NOTE: will delete the request member for us.
+
+    updateCursorText();
 }
 
 void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
@@ -232,61 +225,6 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
         return;
     }
 
-    case tileBrushSelection:
-    {
-        // If we are drawing with the brush in the map editor.
-        if (!inputManager->mLMouseDown)
-            return;
-
-        // Loop over the square region surrounding current mouse location
-        // and either set the tile type of the affected tiles or create new ones.
-        std::vector<Tile*> affectedTiles;
-        int radiusSquared = mCurrentTileRadius * mCurrentTileRadius;
-
-        for (int i = -1 * (mCurrentTileRadius - 1); i <= (mCurrentTileRadius - 1); ++i)
-        {
-            for (int j = -1 * (mCurrentTileRadius - 1); j <= (mCurrentTileRadius - 1); ++j)
-            {
-                // Check to see if the current location falls inside a circle with a radius of mCurrentTileRadius.
-                int distSquared = i * i + j * j;
-
-                if (distSquared > radiusSquared)
-                    continue;
-
-                Tile* currentTile = mGameMap->getTile(inputManager->mXPos + i, inputManager->mYPos + j);
-
-                // Check to see if the current tile already exists.
-                if (currentTile != NULL)
-                {
-                    // It does exist so set its type and fullness.
-                    affectedTiles.push_back(currentTile);
-                    currentTile->setType((Tile::TileType)mCurrentTileType);
-                    currentTile->setFullness((Tile::TileType)mCurrentFullness);
-                    continue;
-                }
-
-                // The current tile does not exist so we need to create it.
-                stringstream ss;
-
-                ss.str(std::string());
-                ss << "Level";
-                ss << "_";
-                ss << inputManager->mXPos + 1;
-                ss << "_";
-                ss << inputManager->mYPos + 1;
-
-                currentTile = new Tile(inputManager->mXPos + i, inputManager->mYPos + j,
-                                       (Tile::TileType)mCurrentTileType, (Tile::TileType)mCurrentFullness);
-                currentTile->setName(ss.str());
-                mGameMap->addTile(currentTile);
-                currentTile->createMesh();
-            }
-        }
-
-        refreshBorderingTilesOf(affectedTiles);
-    }
-        return;
-
     } // switch drag type
 }
 
@@ -344,6 +282,8 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             node->setPosition(0, 0, 0);
             inputManager->mDragType = creature;
 
+            updateCursorText();
+
             SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::PICKUP);
 
             return true;
@@ -364,6 +304,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             inputManager->mDragType = mapLight;
             mDraggedMapLight = resultName.substr(((std::string) "MapLightIndicator_").size(),
                                                     resultName.size());
+            updateCursorText();
 
             SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::PICKUP);
 
@@ -382,22 +323,19 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             // Start by assuming this is a tileSelection drag.
             inputManager->mDragType = tileSelection;
 
-            // If we are in the map editor, use a brush selection if it has been activated.
-            if (mBrushMode)
-                inputManager->mDragType = tileBrushSelection;
-
             // If we have selected a room type to add to the map, use a addNewRoom drag type.
             if (mGameMap->getLocalPlayer()->getNewRoomType() != Room::nullRoomType)
             {
                 inputManager->mDragType = addNewRoom;
             }
-
             else
             {
                 // If we have selected a trap type to add to the map, use a addNewTrap drag type.
                 if (mGameMap->getLocalPlayer()->getNewTrapType() != Trap::nullTrapType)
                     inputManager->mDragType = addNewTrap;
             }
+
+            updateCursorText();
 
             break;
         }
@@ -414,18 +352,8 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         inputManager->mDragType = nullDragType;
         mGameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
         mGameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-        TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "");
 
-        // If we right clicked with the mouse over a valid map tile, try to drop a creature onto the map.
-        Tile *curTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
-
-        if (curTile != NULL)
-        {
-            mGameMap->getLocalPlayer()->dropCreature(curTile);
-
-            if (mGameMap->getLocalPlayer()->numCreaturesInHand() > 0)
-                SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
-        }
+        updateCursorText();
     }
 
     if (id == OIS::MB_Middle)
@@ -491,14 +419,30 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     // Check to see if we are moving a creature
     if (inputManager->mDragType == creature)
     {
+        // If the user tries to drop the creature on a wall tile, then we put it back to its former place.
+        // Same goes when we drop it on a non-existing tile.
+        Tile* droppedTile = mGameMap->getTile(inputManager->mXPos, inputManager->mYPos);
+        Creature* droppedCreature = mGameMap->getCreature(mDraggedCreature);
+        Tile::TileClearType passability = droppedCreature->getDefinition()->getTilePassability();
+
+        Ogre::Real newXPos = inputManager->mXPos;
+        Ogre::Real newYPos = inputManager->mYPos;
+        if (droppedTile == NULL || droppedTile->getTilePassability() != passability)
+        {
+            newXPos = inputManager->mLStartDragX;
+            newYPos = inputManager->mLStartDragY;
+        }
+
+        // Remove the creature node from the selector and back to the game
         Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-        Ogre::SceneNode *node = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
+        Ogre::SceneNode* node = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
         mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
         ODFrameListener::getSingleton().getCreatureSceneNode()->addChild(node);
+
         inputManager->mDragType = nullDragType;
-        mGameMap->getCreature(mDraggedCreature)->setPosition(Ogre::Vector3((Ogre::Real)inputManager->mXPos,
-                                                                           (Ogre::Real)inputManager->mYPos,
-                                                                           (Ogre::Real)0));
+        droppedCreature->setPosition(Ogre::Vector3(newXPos, newYPos, (Ogre::Real)0.0));
+        updateCursorText();
+        SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
         return true;
     }
 
@@ -511,6 +455,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             tempMapLight->setPosition((Ogre::Real)inputManager->mXPos, (Ogre::Real)inputManager->mYPos,
                                       tempMapLight->getPosition().z);
         inputManager->mDragType = nullDragType;
+        updateCursorText();
         return true;
     }
 
@@ -555,10 +500,14 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                 // Check to see if the current tile already exists.
                 if (currentTile != NULL)
                 {
+                    // Do not add a wall upon a creature
+                    if (currentTile->numCreaturesInCell() > 0)
+                        continue;
+
                     // It does exist so set its type and fullness.
                     affectedTiles.push_back(currentTile);
-                    currentTile->setType((Tile::TileType)mCurrentTileType);
-                    currentTile->setFullness((Tile::TileType)mCurrentFullness);
+                    currentTile->setType(mCurrentTileType);
+                    currentTile->setFullness(mCurrentFullness);
                     continue;
                 }
 
@@ -571,9 +520,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                 ss << "_";
                 ss << y;
 
-                currentTile = new Tile(x, y,
-                                       (Tile::TileType)mCurrentTileType,
-                                       (Tile::TileType)mCurrentFullness);
+                currentTile = new Tile(x, y, mCurrentTileType,
+                                             mCurrentFullness);
                 currentTile->setName(ss.str());
                 mGameMap->addTile(currentTile);
                 currentTile->createMesh();
@@ -583,6 +531,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
 
         refreshBorderingTilesOf(affectedTiles);
         inputManager->mDragType = nullDragType;
+        updateCursorText();
         return true;
     }
 
@@ -610,8 +559,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             continue;
         }
 
-        // If the currentTile is not empty and claimed, then remove it from the affectedTiles vector.
-        if (!(currentTile->getFullness() < 1 && currentTile->getType() == Tile::claimed))
+        // If the currentTile is not empty, then remove it from the affectedTiles vector.
+        if (currentTile->getFullness() >= 1)
         {
             itr = affectedTiles.erase(itr);
             continue;
@@ -648,6 +597,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
 
     refreshBorderingTilesOf(affectedTiles);
     inputManager->mDragType = nullDragType;
+    updateCursorText();
     return true;
 }
 
@@ -662,6 +612,37 @@ void EditorMode::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles
     // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
     for (std::vector<Tile*>::iterator itr = borderTiles.begin(); itr != borderTiles.end() ; ++itr)
         (*itr)->refreshMesh();
+}
+
+void EditorMode::updateCursorText()
+{
+    // Gets the current action from the drag type
+    std::stringstream actionType("");
+    switch(mModeManager->getInputManager()->mDragType)
+    {
+    default:
+    case nullDragType:
+    case tileSelection:
+        actionType << "Tile type: " << Tile::tileTypeToString(mCurrentTileType)
+                   << std::endl << "Fullness: " << mCurrentFullness;
+        break;
+    case creature:
+        actionType << "Creature: " << mDraggedCreature;
+        break;
+    case mapLight:
+        actionType << "Light: " << mDraggedMapLight;
+        break;
+    case addNewRoom:
+    case addNewTrap:
+        //TODO
+        break;
+    }
+
+    // Tells the current tile type and fullness
+    std::stringstream tileTypeSS;
+    tileTypeSS << "X: " << mMouseX << ", Y: " << mMouseY << std::endl
+               << actionType.str() << std::endl;
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, tileTypeSS.str());
 }
 
 bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
@@ -742,44 +723,15 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
     //Toggle mCurrentTileType
     case OIS::KC_R:
     {
-        mCurrentTileType = Tile::nextTileType((Tile::TileType)mCurrentTileType);
-        std::stringstream tempSS("");
-        tempSS << "Tile type:  " << Tile::tileTypeToString((Tile::TileType)mCurrentTileType);
-        ODApplication::MOTD = tempSS.str();
+        mCurrentTileType = Tile::nextTileType(mCurrentTileType);
+        updateCursorText();
     }
-        break;
-
-    //Decrease brush radius
-    case OIS::KC_COMMA:
-        if (mCurrentTileRadius > 1)
-            --mCurrentTileRadius;
-
-        ODApplication::MOTD = "Brush size:  "
-                                + Ogre::StringConverter::toString(mCurrentTileRadius);
-        break;
-
-    //Increase brush radius
-    case OIS::KC_PERIOD:
-        if (mCurrentTileRadius < 10)
-            ++mCurrentTileRadius;
-
-        ODApplication::MOTD = "Brush size:  "
-                                + Ogre::StringConverter::toString(mCurrentTileRadius);
-        break;
-
-    //Toggle mBrushMode
-    case OIS::KC_B:
-        mBrushMode = !mBrushMode;
-        ODApplication::MOTD = (mBrushMode)
-                                ? "Brush mode turned on"
-                                : "Brush mode turned off";
         break;
 
     //Toggle mCurrentFullness
     case OIS::KC_T:
-        mCurrentFullness = Tile::nextTileFullness(mCurrentFullness);
-        ODApplication::MOTD = "Tile fullness:  "
-                                + Ogre::StringConverter::toString(mCurrentFullness);
+        mCurrentFullness = Tile::nextTileFullness((int)mCurrentFullness);
+        updateCursorText();
         break;
 
     // Quit the Editor Mode

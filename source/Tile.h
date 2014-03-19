@@ -106,7 +106,7 @@ class Tile : public GameEntity
     TileClearType getTilePassability() const;
     bool permitsVision() const;
 
-    static const char* tileTypeToString(TileType t);
+    static std::string tileTypeToString(TileType t);
     static TileType nextTileType(TileType t);
     static int nextTileFullness(int f);
     static std::string meshNameFromFullness(TileType t, int fullnessMeshNumber);
@@ -128,7 +128,7 @@ class Tile : public GameEntity
     void addCreature(Creature *c);
     void removeCreature(Creature *c);
     unsigned numCreaturesInCell() const;
-    Creature* getCreature(int index);
+    Creature* getCreature(unsigned int index);
 
     void addPlayerMarkingTile(Player *p);
     void removePlayerMarkingTile(Player *p);
