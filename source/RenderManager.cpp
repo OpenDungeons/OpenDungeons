@@ -1225,59 +1225,53 @@ void RenderManager::rrDestroyMapLightVisualIndicator ( const RenderRequest& rend
     }
 }
 
-void RenderManager::rrCreateField ( const RenderRequest& renderRequest )
+void RenderManager::rrCreateField (const RenderRequest& renderRequest)
 {
-    Field* curField = static_cast<Field*> (renderRequest.p);
-    //FIXME these vars should have proper names
+    BattleField* curField = static_cast<BattleField*> (renderRequest.p);
     double* tempDoublePtr = static_cast<double*>(renderRequest.p2);
-    Ogre::Real tempDouble = static_cast<Ogre::Real>(*tempDoublePtr);
+    Ogre::Real securityLevel = static_cast<Ogre::Real>(*tempDoublePtr);
     delete tempDoublePtr;
 
     FieldType::iterator fieldItr = curField->begin();
     while (fieldItr != curField->end())
     {
-        int x = fieldItr->first.first;
-        int y = fieldItr->first.second;
-        Ogre::Real tempDouble2 = static_cast<Ogre::Real>(fieldItr->second);
+        int x = fieldItr->getPosX();
+        int y = fieldItr->getPosY();
+        Ogre::Real securityLevel2 = static_cast<Ogre::Real>(fieldItr->getSecurityLevel());
         //cout << "\ncreating field tile:  " << tempX << "
-        //"\t" << tempY << "\t" << tempDouble;
+        //"\t" << tempY << "\t" << securityLevel;
         std::stringstream tempSS;
-        tempSS << "Field_" << curField->name << "_" << x << "_"
-        << y;
+        tempSS << "Field_" << curField->getName() << "_" << x << "_" << y;
         Ogre::Entity* fieldIndicatorEntity = sceneManager->createEntity(tempSS.str(),
                                              "Field_indicator.mesh");
         Ogre::SceneNode* fieldIndicatorNode = fieldSceneNode->createChildSceneNode(tempSS.str()
                                               + "_node");
-        fieldIndicatorNode->setPosition(static_cast<Ogre::Real>(x)
-                                        , static_cast<Ogre::Real>(y)
-                                        , tempDouble + tempDouble2);
+        fieldIndicatorNode->setPosition(static_cast<Ogre::Real>(x),
+                                        static_cast<Ogre::Real>(y),
+                                        securityLevel + securityLevel2);
         fieldIndicatorNode->attachObject(fieldIndicatorEntity);
 
         ++fieldItr;
     }
 }
 
-void RenderManager::rrRefreshField ( const RenderRequest& renderRequest )
+void RenderManager::rrRefreshField (const RenderRequest& renderRequest)
 {
-    Field* curField = static_cast<Field*> (renderRequest.p);
-    //FIXME these vars should have proper names
+    BattleField* curField = static_cast<BattleField*> (renderRequest.p);
     double* tempDoublePtr = static_cast<double*>(renderRequest.p2);
-    double tempDouble = *tempDoublePtr;
+    double securityLevel = *tempDoublePtr;
     delete tempDoublePtr;
 
     // Update existing meshes and create any new ones needed.
     FieldType::iterator fieldItr = curField->begin();
     while (fieldItr != curField->end())
     {
-
-
-        int x = fieldItr->first.first;
-        int y = fieldItr->first.second;
-        double tempDouble2 = fieldItr->second;
+        int x = fieldItr->getPosX();
+        int y = fieldItr->getPosY();
+        double securityLevel2 = fieldItr->getSecurityLevel();
 
         std::stringstream tempSS;
-        tempSS << "Field_" << curField->name << "_" << x << "_"
-        << y;
+        tempSS << "Field_" << curField->getName() << "_" << x << "_" << y;
 
         Ogre::SceneNode* fieldIndicatorNode = NULL;
 
@@ -1297,11 +1291,11 @@ void RenderManager::rrRefreshField ( const RenderRequest& renderRequest )
         }
 
         fieldIndicatorNode->setPosition((Ogre::Real)x, (Ogre::Real)y,
-                                        (Ogre::Real)(tempDouble + tempDouble2));
+                                        (Ogre::Real)(securityLevel + securityLevel2));
         ++fieldItr;
     }
 
-    //TODO:  This is not done yet.
+    //TODO: Deleting is not done yet.
     // Delete any meshes not in the field currently
 }
 

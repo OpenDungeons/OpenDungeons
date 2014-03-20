@@ -1,117 +1,88 @@
-#include <iostream>
-
-#include <OgreStringConverter.h>
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "Field.h"
+
 #include "RenderRequest.h"
 #include "RenderManager.h"
 
-Field::Field(const std::string& nName) :
-        hasMeshes(false)
-{
-    static int uniqueNumber = 0;
+#include <OgreStringConverter.h>
 
-    name = (nName.compare("autoname") == 0)
-            ? "field_" + Ogre::StringConverter::toString(++uniqueNumber)
-            : nName;
+#include <iostream>
+
+BattleField::BattleField() :
+    mHasMeshes(false)
+{
+    static int uniqueNumber = 0; // So that no creature has got the same node name
+
+    mName = "field_" + Ogre::StringConverter::toString(++uniqueNumber);
 }
 
-/*! \brief Returns the stored value at a position (or 0) and a boolean indicating whether the value was actually found.
- *
- */
-std::pair<double, bool> Field::get(int x, int y)
+double BattleField::getTileSecurityLevel(int x, int y)
 {
-    LocationType location(x, y);
-    FieldType::iterator itr;
-    itr = theField.find(location);
-    bool found = (itr != theField.end());
-
-    return std::pair<double, bool> (found ? (*itr).second : 0.0, found);
-}
-
-FieldType::iterator Field::begin()
-{
-    return theField.begin();
-}
-
-FieldType::iterator Field::end()
-{
-    return theField.end();
-}
-
-/*! \brief Sets the field value at location (x,y) to the value f adding that place if necessary.
- *
- */
-void Field::set(int x, int y, double f)
-{
-    LocationType location(x, y);
-    theField[location] = f;
-}
-
-/*! \brief Loops over all the places currently set and sets each one to f.
- *
- */
-void Field::setAll(double f)
-{
-    for (FieldType::iterator itr = theField.begin(), end = theField.end();
-            itr != end; ++itr)
+    for (unsigned int i = 0; i < mField.size(); ++i)
     {
-        (*itr).second = f;
+        if (mField[i].isPosition(x, y))
+            return mField[i].getSecurityLevel();
     }
+
+    return 0.0;
 }
 
-/*! \brief Adds the values in f to the values stored in theField.
- *
- * Nonexistant tiles in theField are treated as if their original value was
- * zero (i.e. a new entry is created and set the f(x, y)).
- */
-void Field::addField(Field *f, double scale = 1.0)
+FieldType::iterator BattleField::begin()
 {
-    FieldType::iterator thisOne;
-    for (FieldType::iterator itr = f->theField.begin(), end = f->theField.end();
-            itr != end; ++itr)
+    return mField.begin();
+}
+
+FieldType::iterator BattleField::end()
+{
+    return mField.end();
+}
+
+void BattleField::setTileSecurityLevel(int x, int y, double f)
+{
+    for (unsigned int i = 0; i < mField.size(); ++i)
     {
-        double fValue = (*itr).second;
-        thisOne = theField.find(
-                LocationType((*itr).first.first, (*itr).first.second));
-        if (thisOne != theField.end())
+        if (mField[i].isPosition(x, y))
         {
-            (*thisOne).second += scale * fValue;
-        }
-        else
-        {
-            theField[(*itr).first] = scale * fValue;
+            mField[i].setSecurityLevel(f);
+            return;
         }
     }
+
+    mField.push_back(SecurityTile(x, y, f));
 }
 
-void Field::subtractField(Field *f, double scale = 1.0)
+void BattleField::clear()
 {
-    addField(f, -1.0 * scale);
+    mField.clear();
 }
 
-void Field::clear()
+SecurityTile BattleField::getMinSecurityLevel()
 {
-    theField.clear();
-}
+    if (mField.empty())
+        return SecurityTile(-1, -1, 0.0);
 
-std::pair<LocationType, double> Field::min()
-{
-    if (theField.empty())
+    FieldType::iterator itr = mField.begin();
+    FieldType::iterator minimum = mField.begin();
+    while (itr != mField.end())
     {
-        std::cerr
-                << "\n\nERROR:  Trying to find the minumum value on a field of 0 elements.\n\n";
-        exit(1);
-    }
-
-    FieldType::iterator itr = theField.begin();
-    FieldType::iterator minimum = theField.begin();
-    while (itr != theField.end())
-    {
-        if (itr->second < minimum->second)
-        {
+        if (itr->getSecurityLevel() < minimum->getSecurityLevel())
             minimum = itr;
-        }
 
         ++itr;
     }
@@ -119,79 +90,69 @@ std::pair<LocationType, double> Field::min()
     return *minimum;
 }
 
-std::pair<LocationType, double> Field::max()
+SecurityTile BattleField::getMaxSecurityLevel()
 {
-    if (theField.empty())
-    {
-        std::cerr
-                << "\n\nERROR:  Trying to find the minumum value on a field of 0 elements.\n\n";
-        exit(1);
-    }
+    if (mField.empty())
+        return SecurityTile(-1, -1, 0.0);
 
-    FieldType::iterator itr = theField.begin();
-    FieldType::iterator maximum = theField.begin();
-    while (itr != theField.end())
+    FieldType::iterator itr = mField.begin();
+    FieldType::iterator maximum = mField.begin();
+    while (itr != mField.end())
     {
-        if (itr->second > maximum->second)
-        {
+        if (itr->getSecurityLevel() > maximum->getSecurityLevel())
             maximum = itr;
-        }
 
         ++itr;
     }
 
     return *maximum;
 }
-void Field::refreshMeshes(double offset = 0.0)
-{
-    if (theField.empty() && !hasMeshes)
-    {
-        return;
-    }
 
-    if (!hasMeshes)
+void BattleField::refreshMeshes(double offset = 0.0)
+{
+    if (mField.empty() && !mHasMeshes)
+        return;
+
+    if (!mHasMeshes)
     {
         createMeshes(offset);
     }
     else
     {
-        hasMeshes = true;
+        mHasMeshes = true;
 
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::refreshField;
         request->p = static_cast<void*>(this);
-        request->p2 = new double(offset); //FIXME: This leaks memory, it should either be deleted in the request handler or passed via a different method.
+        request->p2 = new double(offset); // The new double() is later deleted by the render manager.
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
         RenderManager::queueRenderRequest(request);
     }
 }
 
-void Field::createMeshes(double offset = 0.0)
+void BattleField::createMeshes(double offset = 0.0)
 {
-    if (theField.empty() || hasMeshes)
-    {
+    if (mField.empty() || mHasMeshes)
         return;
-    }
 
-    hasMeshes = true;
+    mHasMeshes = true;
 
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::createField;
     request->p = static_cast<void*>(this);
-    request->p2 = new double(offset);
+    request->p2 = new double(offset); // The new double() is later deleted by the render manager.
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 }
 
-void Field::destroyMeshes()
+void BattleField::destroyMeshes()
 {
-    if (!hasMeshes)
-    {
+    if (!mHasMeshes)
         return;
-    }
-    hasMeshes = false;
+
+    mHasMeshes = false;
 
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyField;

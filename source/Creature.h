@@ -39,7 +39,7 @@ class Creature;
 class RoomDojo;
 class Weapon;
 class Player;
-class Field;
+class BattleField;
 class CullingQuad;
 
 namespace CEGUI
@@ -232,7 +232,7 @@ private:
     int             mTrainWait;
 
     Tile*           mPreviousPositionTile;
-    Field*          mBattleField;
+    BattleField*    mBattleField;
     RoomDojo*       mTrainingDojo;
     CEGUI::Window*  mStatsWindow;
 

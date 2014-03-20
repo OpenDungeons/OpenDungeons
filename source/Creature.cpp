@@ -80,7 +80,7 @@ Creature::Creature(GameMap* gameMap, const std::string& name) :
     mBattleFieldAgeCounter   (0),
     mTrainWait               (0),
     mPreviousPositionTile    (NULL),
-    mBattleField             (new Field("autoname")),
+    mBattleField             (new BattleField()),
     mTrainingDojo            (NULL),
     mStatsWindow             (NULL),
     mSound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
@@ -113,13 +113,11 @@ Creature::~Creature()
     mTracingCullingQuad->entry->creature_list.remove(this);
     mTracingCullingQuad->mortuaryInsert(this);
 
-    /*  This function causes a segfault in Creature::doTurn() when computeBattlefield() is called.
-    if(battleField != NULL)
+    if(mBattleField != NULL)
     {
-        delete battleField;
-        battleField = NULL;
+        delete mBattleField;
+        mBattleField = NULL;
     }
-    */
 }
 
 //! \brief A function which returns a string describing the IO format of the << and >> operators.
@@ -1528,7 +1526,12 @@ bool Creature::handleManeuverAction()
         return true;
     }
 
+    // Should not happen
+    if (mBattleField == NULL)
+        return true;
+
     /*
+    // TODO: Check this
     // Check to see if we should try to strafe the enemy
     if(randomDouble(0.0, 1.0) < 0.3)
     {
@@ -1564,29 +1567,35 @@ bool Creature::handleManeuverAction()
     // trying to "attack" and a maximum if we are trying to "retreat".
     Tile* myTile = positionTile();
     bool attack_animation = true;
-    std::pair<LocationType, double> minimumFieldValue;
-    if (mBattleField->get(myTile->x, myTile->y).first > 0.0)
+    SecurityTile minimumFieldValue(-1, -1, 0.0);
+
+    // Check whether the hostility level is not under zero, meaning that we have enough allies
+    // around there aren't enough enemies to go and attack.
+    if (mBattleField->getTileSecurityLevel(myTile->x, myTile->y) > 0.0)
     {
-        minimumFieldValue = mBattleField->min(); // Attack
+        minimumFieldValue = mBattleField->getMinSecurityLevel(); // Attack where there are most enemies
         attack_animation = true;
-        //TODO: Set this to some sort of Attack-move animation.
     }
     else
     {
-        minimumFieldValue = mBattleField->max(); // Retreat
+        // Too much enemies or not enough allies
+        minimumFieldValue = mBattleField->getMaxSecurityLevel(); // Retreat where there are most allies
         attack_animation = false;
     }
+
+    // Find a path if we obtained an actual tile to it
+    if (minimumFieldValue.getPosX() < 0 || minimumFieldValue.getPosY() < 0)
+        return true;
 
     // Pick a destination tile near the tile we got from the battlefield.
     clearDestinations();
     // Pick a true destination randomly within the max range of our weapons.
     double tempDouble = std::max(mWeaponL->getRange(), mWeaponR->getRange());
     tempDouble = sqrt(tempDouble);
-    //FIXME:  This should find a path to a tile we can walk to, it does not always
-    //do this the way it is right now. Because minimumFieldValue is never initialised...
+
     std::list<Tile*> tempPath = getGameMap()->path(positionTile()->x, positionTile()->y,
-                                              (int)minimumFieldValue.first.first + Random::Double(-1.0 * tempDouble, tempDouble),
-                                              (int)minimumFieldValue.first.second + Random::Double(-1.0 * tempDouble, tempDouble),
+                                              (int)minimumFieldValue.getPosX() + Random::Double(-1.0 * tempDouble, tempDouble),
+                                              (int)minimumFieldValue.getPosY() + Random::Double(-1.0 * tempDouble, tempDouble),
                                               mDefinition->getTilePassability());
 
     // Walk a maximum of N tiles before recomputing the destination since we are in combat.
@@ -1604,11 +1613,12 @@ bool Creature::handleManeuverAction()
     // decided on without recomputing, this helps prevent them from getting stuck in local minima.
     pushAction(CreatureAction::walkToTile);
 
-    // This is a debugging statement, it produces a visual display of the battlefield as seen by the first creature.
+    // This is a debugging statement, it produces a visual display of the battlefield seen by the first created creature.
+    //TODO: Add support to display this when toggling the debug view. See ODFrameListener / GameMode.
     /*
-    if (battleField->name.compare("field_1") == 0)
+    if (mBattleField->getName().compare("field_1") == 0)
     {
-        battleField->refreshMeshes(1.0);
+        mBattleField->refreshMeshes(1.0);
     }*/
     return false;
 }
@@ -1691,7 +1701,6 @@ void Creature::doLevelUp()
     //std::cout << "New dig rate: " << mDigRate << "\tnew dance rate: " << mDanceRate << "\n";
 
     moveSpeed += 0.4 / (getLevel() + 2.0);
-    //if(digRate > 60)  digRate = 60;
 
     mMaxHP += mDefinition->getHpPerLevel();
     mMaxMana += mDefinition->getManaPerLevel();
@@ -1721,9 +1730,6 @@ void Creature::doLevelUp()
  */
 void Creature::updateVisibleTiles()
 {
-    //double effectiveRadius = min(5.0, sightRadius) + sightRadius*std::pow(randomDouble(0.0, 1.0), 3.0);
-    //double effectiveRadius = sightRadius;
-    //mVisibleTiles = getGameMap()->visibleTiles(positionTile(), effectiveRadius);
     mVisibleTiles = getGameMap()->visibleTiles(positionTile(), mDefinition->getSightRadius());
 }
 
@@ -1734,8 +1740,8 @@ std::vector<GameEntity*> Creature::getVisibleEnemyObjects()
 }
 
 //! \brief Loops over objectsToCheck and returns a vector containing all the ones which can be reached via a valid path.
-std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vector<GameEntity*> &objectsToCheck,
-                                                                 unsigned int *minRange, GameEntity **nearestObject)
+std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vector<GameEntity*>& objectsToCheck,
+                                                                 unsigned int* minRange, GameEntity** nearestObject)
 {
     std::vector<GameEntity*> tempVector;
     Tile* myTile = positionTile();
@@ -1747,7 +1753,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
     for (unsigned int i = 0; i < objectsToCheck.size(); ++i)
     {
         // Try to find a valid path from the tile this creature is in to the nearest tile where the current target object is.
-        //TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
+        // TODO: This should be improved so it picks the closest tile rather than just the [0] tile.
         objectTile = objectsToCheck[i]->getCoveredTiles()[0];
         if (getGameMap()->pathExists(myTile->x, myTile->y, objectTile->x,
                 objectTile->y, mDefinition->getTilePassability()))
@@ -1757,7 +1763,7 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
             if (minRange == NULL)
                 continue;
 
-            //TODO:  If this could be computed without the path call that would be better.
+            // TODO: If this could be computed without the path call that would be better.
             tempPath = getGameMap()->path(myTile, objectTile, mDefinition->getTilePassability());
 
             if (!minRangeSet)
@@ -2095,6 +2101,9 @@ CreatureAction Creature::peekAction()
  */
 void Creature::computeBattlefield()
 {
+    if (mBattleField == NULL)
+        return;
+
     Tile *tempTile = 0;
     int xDist, yDist = 0;
     GameEntity* tempObject = NULL;
@@ -2150,7 +2159,7 @@ void Creature::computeBattlefield()
 
         const double jitter = 0.00;
         const double tileScaleFactor = 0.5;
-        mBattleField->set(tempTile->x, tempTile->y,
-                          (tileValue + Random::Double(-1.0 * jitter, jitter)) * tileScaleFactor);
+        mBattleField->setTileSecurityLevel(tempTile->x, tempTile->y,
+                                           (tileValue + Random::Double(-1.0 * jitter, jitter)) * tileScaleFactor);
     }
 }
