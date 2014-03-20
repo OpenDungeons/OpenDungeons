@@ -539,6 +539,14 @@ void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
         }
 
     }
+    else if(curTile->getType() == Tile::lava)
+    {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+            Ogre::SubEntity* subEnt = ent->getSubEntity(ii);
+            if (subEnt->getMaterialName() == "Water")
+                subEnt->setMaterialName("Lava");
+        }
+    }
 
         colourizeEntity ( ent, curTile->getColor() );
 
@@ -575,6 +583,14 @@ void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
     else if(curTile->getType() == Tile::rock) {
         for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
             ent->getSubEntity(ii)->setMaterialName("Rock");
+        }
+    }
+    else if(curTile->getType() == Tile::lava)
+    {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+            Ogre::SubEntity* subEnt = ent->getSubEntity(ii);
+            if (subEnt->getMaterialName() == "Water")
+                subEnt->setMaterialName("Lava");
         }
     }
 
