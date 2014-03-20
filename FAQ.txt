@@ -120,8 +120,9 @@ group Autodetect or any other group. in ResourceGroupManager::openResource at
 
 Make sure you have the game data files installed.
 As of March 2014, the development branch of the official repository doesn't include them.
-You can grab the following directories from Bertram's repo:
-https://github.com/Bertram25/OpenDungeons (look for the download button)
+You can grab the following directories from the SVN repo:
+http://sourceforge.net/p/opendungeons/svn/HEAD/tree/
+
 gui/
 materials/
 models/
@@ -190,6 +191,7 @@ You can click on tiles to add walls of the currently selected type.
 
 -- Editor:
 - R: Change the tile type.
+- T: Change the tile fullness. (With a fullness of 0, you actually remove walls, and ground tiles of the given type.)
 
 
 3C. Running Console and Console's commands
@@ -279,7 +281,8 @@ is a bad idea, especially in a spare-time project.
 5D. Code conventions
 --------------------
 
-http://opendungeons.sourceforge.net/index.php/Code_Style_Guidelines
+http://opendungeons.sourceforge.net/?q=code-style-guidelines
+http://forum.freegamedev.net/viewtopic.php?f=35&t=5363
 
 
 5E. What code constructs to AVOID
@@ -300,10 +303,10 @@ of the mother class and can be accessed exclusively from the mother class,
 and can be un-singleton-ed. [Bertram]
 
 
-7. Used libraries and abbreviations:
+6. Used libraries and abbreviations:
 ------------------------------------
 
-7A. Libraries
+6A. Libraries
 -------------
 
 Ogre - Version 1.9.x
@@ -318,7 +321,7 @@ TinyGetText
 pthread (Windows only)
 
 
-7B. Abbreviations
+6B. Abbreviations
 -----------------
 
 OD = OpenDungeons
