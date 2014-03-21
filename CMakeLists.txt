@@ -225,7 +225,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 find_package(OIS REQUIRED)
 find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
-find_package(SFML REQUIRED COMPONENTS Audio System)
+find_package(SFML 2 REQUIRED COMPONENTS Audio System)
 
 if ((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
     message(SEND_ERROR "OGRE version >= 1.9.0 required")
