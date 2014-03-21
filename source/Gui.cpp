@@ -266,8 +266,7 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    return startServer(*gameMap);
+    return ODServer::startServer();
 }
 
 

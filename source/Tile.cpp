@@ -103,7 +103,7 @@ void Tile::setFullness(double f)
             serverNotification->type = ServerNotification::tileFullnessChange;
             serverNotification->tile = this;
 
-            queueServerNotification(serverNotification);
+            ODServer::queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
         {

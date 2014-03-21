@@ -1,11 +1,24 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 //TODO: get rid of this whole file.
 //      - The server stuff should go into some of the network classes.
 
-#include <CEGUI/CEGUI.h>
-#include <CEGUI/WindowManager.h>
-#include <CEGUI/widgets/TabControl.h>
-//#include <elements/CEGUITabControl.h>
-//
+#include "Functions.h"
 
 #include "Network.h"
 #include "Socket.h"
@@ -16,14 +29,24 @@
 #include "Player.h"
 #include "ODFrameListener.h"
 #include "LogManager.h"
-
-#include "Functions.h"
 #include "CameraManager.h"
 
-void queueServerNotification(ServerNotification *n)
+#include <CEGUI/CEGUI.h>
+#include <CEGUI/WindowManager.h>
+#include <CEGUI/widgets/TabControl.h>
+
+//TODO: Make a server class.
+namespace ODServer {
+
+void queueServerNotification(ServerNotification* n)
 {
-    //TODO: Make a server class.
+    if (n == NULL)
+        return;
+
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    if (gameMap == NULL)
+        return;
+
     n->turnNumber = GameMap::turnNumber.get();
     gameMap->threadLockForTurn(n->turnNumber);
 
@@ -34,8 +57,12 @@ void queueServerNotification(ServerNotification *n)
     sem_post(&ServerNotification::serverNotificationQueueSemaphore);
 }
 
-bool startServer(GameMap& gameMap)
+bool startServer()
 {
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    if (gameMap == NULL)
+        return false;
+
     LogManager& logManager = LogManager::getSingleton();
 
     // Start the server socket listener as well as the server socket thread
@@ -49,7 +76,7 @@ bool startServer(GameMap& gameMap)
         logManager.logMessage("Couldn't start server: The client socket was not NULL");
         return false;
     }
-    if (gameMap.numEmptySeats() == 0)
+    if (gameMap->numEmptySeats() == 0)
     {
         logManager.logMessage("Couldn't start server: The number of empty seats was 0.");
         return false;
@@ -57,19 +84,19 @@ bool startServer(GameMap& gameMap)
 
     //NOTE: Code added to this routine may also need to be added to GameMap::doTurn() in the "loadNextLevel" stuff.
     // Sit down at the first available seat.
-    gameMap.getLocalPlayer()->setSeat(gameMap.popEmptySeat());
+    gameMap->getLocalPlayer()->setSeat(gameMap->popEmptySeat());
 
     //NOTE - temporary code to test ai
     Player* aiPlayer = new Player();
     aiPlayer->setNick("test ai player");
-    bool success = gameMap.addPlayer(aiPlayer);
+    bool success = gameMap->addPlayer(aiPlayer);
     if(!success)
     {
         logManager.logMessage("Failed to add player");
     }
     else
     {
-        success = gameMap.assignAI(*aiPlayer, "testai");
+        success = gameMap->assignAI(*aiPlayer, "testai");
         if(!success)
         {
             logManager.logMessage("Failed to assign ai to player");
@@ -77,7 +104,7 @@ bool startServer(GameMap& gameMap)
     }
 
     logManager.logMessage("Player has colour:" +
-        Ogre::StringConverter::toString(gameMap.getLocalPlayer()->getSeat()->getColor()));
+        Ogre::StringConverter::toString(gameMap->getLocalPlayer()->getSeat()->getColor()));
     logManager.logMessage("ai has colour:" +
         Ogre::StringConverter::toString(aiPlayer->getSeat()->getColor()));
 
@@ -88,7 +115,7 @@ bool startServer(GameMap& gameMap)
     ssps->nSocket = Socket::serverSocket;
     ssps->nFrameListener = ODFrameListener::getSingletonPtr();
     pthread_create(&ODFrameListener::getSingletonPtr()->serverThread,
-            NULL, serverSocketProcessor, (void*) ssps);
+                   NULL, serverSocketProcessor, (void*) ssps);
         
     //Move camera to dungeon temple (FIXME: This should probably not be done here.)
     // Seat* localPlayerSeat = gameMap.getLocalPlayer()->getSeat();
@@ -99,14 +126,16 @@ bool startServer(GameMap& gameMap)
     SNPStruct* snps = new SNPStruct;
     snps->nFrameListener = ODFrameListener::getSingletonPtr();
     pthread_create(&ODFrameListener::getSingletonPtr()->serverNotificationThread,
-            NULL, serverNotificationProcessor, snps);
+                   NULL, serverNotificationProcessor, snps);
 
     // Start the creature AI thread
     pthread_create(&ODFrameListener::getSingletonPtr()->creatureThread,
-            NULL, creatureAIThread, static_cast<void*>(&gameMap));
+                   NULL, creatureAIThread, static_cast<void*>(gameMap));
 
     // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
-    gameMap.clearMapLightIndicators();
+    gameMap->clearMapLightIndicators();
 
     return true;
 }
+
+} // namespace ODServer

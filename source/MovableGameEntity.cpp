@@ -56,7 +56,7 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
         serverNotification->str = getName();
         serverNotification->vec = destination;
 
-        queueServerNotification(serverNotification);
+        ODServer::queueServerNotification(serverNotification);
     }
 }
 
@@ -112,7 +112,7 @@ void MovableGameEntity::clearDestinations()
                 = ServerNotification::animatedObjectClearDestinations;
         serverNotification->ani = this;
 
-        queueServerNotification(serverNotification);
+       ODServer::queueServerNotification(serverNotification);
     }
 }
 
@@ -190,7 +190,7 @@ void MovableGameEntity::setAnimationState(const std::string& s, bool loop)
             serverNotification->p = static_cast<void*>(this);
             serverNotification->b = loop;
 
-            queueServerNotification(serverNotification);
+            ODServer::queueServerNotification(serverNotification);
         }
         catch (bad_alloc&)
         {

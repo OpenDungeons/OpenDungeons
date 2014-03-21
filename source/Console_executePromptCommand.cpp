@@ -375,7 +375,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     serverNotification->type = ServerNotification::setTurnsPerSecond;
                     serverNotification->doub = ODApplication::turnsPerSecond;
 
-                    queueServerNotification(serverNotification);
+                    ODServer::queueServerNotification(serverNotification);
                 }
                 catch (bad_alloc&)
                 {
@@ -830,7 +830,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             // Make sure we are not already connected to a server or hosting a game.
             if (!frameListener->isConnected())            {
 
-                if (startServer(*gameMap))
+                if (ODServer::startServer())
                 {
                     frameListener->commandOutput += "\nServer started successfully.\n";
 

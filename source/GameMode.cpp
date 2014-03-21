@@ -68,7 +68,7 @@ GameMode::GameMode(ModeManager *modeManager):
     mMouseLight = sceneMgr->getLight("MouseLight");
 
     // For now, only the single player mode exists, so we start the server part.
-    startServer(*mGameMap);
+    ODServer::startServer();
 }
 
 GameMode::~GameMode()

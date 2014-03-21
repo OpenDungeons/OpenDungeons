@@ -105,7 +105,7 @@ void Player::pickUpCreature(Creature *c)
             serverNotification->cre = c;
             serverNotification->player = this;
 
-            queueServerNotification(serverNotification);
+            ODServer::queueServerNotification(serverNotification);
         }
 
         // If it is actually the user picking up a creature we move the scene node and inform
@@ -208,7 +208,7 @@ bool Player::dropCreature(Tile* t, unsigned int index)
                     serverNotification->player = this;
                     serverNotification->tile = t;
 
-                    queueServerNotification(serverNotification);
+                    ODServer::queueServerNotification(serverNotification);
                 }
                 else
                 {

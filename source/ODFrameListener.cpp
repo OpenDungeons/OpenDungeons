@@ -254,7 +254,7 @@ void ODFrameListener::exitApplication()
     }
     //serverNotificationQueue.push_back(exitServerNotification);
     sem_post(&ServerNotification::serverNotificationQueueLockSemaphore);
-    queueServerNotification(exitServerNotification);
+    ODServer::queueServerNotification(exitServerNotification);
 
     ClientNotification* exitClientNotification = new ClientNotification();
     exitClientNotification->mType = ClientNotification::exit;

@@ -174,7 +174,7 @@ void *creatureAIThread(void *p)
             ServerNotification *serverNotification = new ServerNotification;
             serverNotification->type = ServerNotification::turnStarted;
 
-            queueServerNotification(serverNotification);
+            ODServer::queueServerNotification(serverNotification);
         }
         catch (bad_alloc&)
         {
