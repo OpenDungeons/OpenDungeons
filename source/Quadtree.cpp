@@ -55,17 +55,17 @@ CullingQuad::CullingQuad(CullingQuad* qd, CullingQuad* pp):
     if(qd->isLeaf())
     {
     	entry = qd->entry;
-	}
+    }
     else
     {
-	    nodes = new CullingQuad*[4];
-	    nodes[0] = new CullingQuad(qd->nodes[UR], this);
-	    nodes[1] = new CullingQuad(qd->nodes[UL], this);
-	    nodes[2] = new CullingQuad(qd->nodes[BL], this);
-	    nodes[3] = new CullingQuad(qd->nodes[BR], this);
-	    for(int jj = 0; jj < 4; ++jj)
-	        nodes[jj]->parent = this;
-	}
+	nodes = new CullingQuad*[4];
+	nodes[0] = new CullingQuad(qd->nodes[UR], this);
+	nodes[1] = new CullingQuad(qd->nodes[UL], this);
+	nodes[2] = new CullingQuad(qd->nodes[BL], this);
+	nodes[3] = new CullingQuad(qd->nodes[BR], this);
+	for(int jj = 0; jj < 4; ++jj)
+	    nodes[jj]->parent = this;
+    }
 }
 
 CullingQuad* CullingQuad::find(Entry* ee)
@@ -368,11 +368,9 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
 	    throw 1;
 	    //Throw exception
 	}
-
-
-
-
     }
+
+
 
     //The new position is inside the current CullingQuad node
     else if(abs(newPosition.x - center->x) <  mRadius && abs(newPosition.y - center->y) < mRadius) {  // && !  entry->creature_list.size()==1)
@@ -406,10 +404,6 @@ bool CullingQuad::moveEntryDelta( Creature* cc , const Ogre::Vector2& newPositio
 	      throw 3;
 		//Throw exception
 	    }
-
-
-
-
     }
     // cerr << "moveEntryDelta: END :   CreatureName "  << cc->getName() << "Quad: "<<  setbase(16) << cc->tracingCullingQuad   << setbase(10) << " const Ogre::Vector2& newPosition  " << newPosition.x <<" " << newPosition.y  << endl;
     releaseRootSemaphore();
@@ -428,9 +422,17 @@ bool CullingQuad::reinsert( Entry* ee ) {
     //The new position is outside the current CullingQuad node
     else {
         if(parent != NULL) {
+	    if( nodes[UR]->isEmptyLeaf() && nodes[UL]->isEmptyLeaf() && nodes[BR]->isEmptyLeaf() && nodes[BL]->isEmptyLeaf()  ){
+		delete [] nodes;
+		nodes = NULL;
+	    }
+
             parent->reinsert(ee);
         }
         else {
+	    
+
+
             //Throw exception
         }
     }
