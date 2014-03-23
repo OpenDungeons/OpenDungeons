@@ -106,7 +106,8 @@ explicit construct of new C++ standard : C++11.
 Each compiler has it's C++0x or C++11 flag, for GNU g++ it's :
 "g++ --std=c++11"
 On CMake, make sure to add that to the CMakeCxxFlags.
-
+Or type bash cmd 'cmake-gui' it opens graphical configurator, unfold the CMake node. And find 
+the  CMakeCxxFlags flag. 
 
 2B. Help!, I cannot run OD !
 ----------------------------
