@@ -81,7 +81,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
 {
     LogManager* logManager = LogManager::getSingletonPtr();
 
-    Ogre::SceneManager* sceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager("OctreeSceneManager",
+    // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
+    Ogre::SceneManager* sceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_GENERIC,
                                                                                                        "SceneManager");
     sceneManager->addRenderQueueListener(tmpOverlaySystem);
     gameMap = new GameMap;

@@ -237,7 +237,10 @@ endif()
 
 if (SFML_VERSION_MAJOR LESS 2)
     message(SEND_ERROR "SFML version >= 2.0 required")
+else()
+    message(STATUS "SFML include directory: ${SFML_INCLUDE_DIR}; SFML audio library: ${SFML_AUDIO_LIBRARY_DEBUG} ${SFML_AUDIO_LIBRARY_RELEASE}")
 endif()
+
 
 #This has to cover the versions not already known by CMake
 set(Boost_ADDITIONAL_VERSIONS 1.47 1.47.0 1.47.1 1.55.0)
@@ -376,7 +379,8 @@ target_link_libraries(
     ${CEGUI_LIBRARIES}
 )
 
-target_link_libraries(${PROJECT_BINARY_NAME} OgreOverlay)
+# The name of the OGRE Overlay library is available as CMAKE variable, also discovering debug versions correctly; please leave it like that!
+target_link_libraries(${PROJECT_BINARY_NAME} ${OGRE_Overlay_LIBRARY})
 
 # MSVC automatically links boost
 if(NOT MSVC)
@@ -389,15 +393,15 @@ if(${SFML_AUDIO_LIBRARY_SHARED_DEBUG})
     target_link_libraries(
         ${PROJECT_BINARY_NAME}
 
-        optimized ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
-        optimized ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG}
-        debug ${SFML_AUDIO_LIBRARY_SHARED_DEBUG}
-        debug ${SFML_SYSTEM_LIBRARY_SHARED_DEBUG}
+        optimized ${SFML_AUDIO_LIBRARY_RELEASE}
+        optimized ${SFML_SYSTEM_LIBRARY_RELEASE}
+        debug ${SFML_AUDIO_LIBRARY_DEBUG}
+        debug ${SFML_SYSTEM_LIBRARY_DEBUG}
     )
 else()
     target_link_libraries(${PROJECT_BINARY_NAME}
-        ${SFML_AUDIO_LIBRARY_SHARED_NONDEBUG}
-        ${SFML_SYSTEM_LIBRARY_SHARED_NONDEBUG})
+        ${SFML_AUDIO_LIBRARY_RELEASE}
+        ${SFML_SYSTEM_LIBRARY_RELEASE})
 endif()
 
 # Link pthreads. (And also userenv if we are on windows.)
@@ -528,9 +532,9 @@ endif()
 
 # Copy level and scripts dir from git to build dir if this is not an in-source build
 if( NOT ${CMAKE_CURRENT_SOURCE_DIR} EQUAL ${CMAKE_CURRENT_BINARY_DIR})
-    if (EXISTS "levels/Test.level")
-        configure_file(levels/Test.level ${CMAKE_CURRENT_BINARY_DIR}/levels/Test.level)
-    endif()
+    #if (EXISTS "levels/Test.level")
+    #    configure_file(levels/Test.level #${CMAKE_CURRENT_BINARY_DIR}/levels/Test.level)
+    #endif()
     file(COPY scripts DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 

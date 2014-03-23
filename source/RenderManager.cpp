@@ -1426,6 +1426,7 @@ bool RenderManager::generateRTSSShadersForMaterial(const std::string& materialNa
         const std::string& normalMapTextureName,
         Ogre::RTShader::NormalMapLighting::NormalMapSpace nmSpace)
 {
+    std::cout << "RenderManager::generateRTSSShadersForMaterial(" << materialName << "," << normalMapTextureName << "," << nmSpace << ")" << std::endl;
 
     bool success = shaderGenerator->createShaderBasedTechnique(materialName, Ogre::MaterialManager::DEFAULT_SCHEME_NAME,
                    Ogre::RTShader::ShaderGenerator::DEFAULT_SCHEME_NAME);
@@ -1503,6 +1504,7 @@ void RenderManager::rtssTest()
 Ogre::Entity* RenderManager::createEntity(const std::string& entityName, const std::string& meshName,
         const std::string& normalMapTextureName)
 {
+    std::cout << "RenderManager::createEntity(" << entityName << "," << meshName << "," << normalMapTextureName << ")" << std::endl;
     //TODO - has to be changed a bit, shaders shouldn't be generated here.
     Ogre::Entity* ent = sceneManager->createEntity ( entityName, meshName);
 

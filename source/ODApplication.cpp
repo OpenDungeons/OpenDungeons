@@ -55,6 +55,8 @@ ODApplication::ODApplication() :
     Random::initialize();
 
     ResourceManager* resMgr = new ResourceManager;
+
+    std::cout << "Creating OGRE::Root instance; Plugins path: " << resMgr->getPluginsPath() << "; config file: " << resMgr->getCfgFile() << "; log file: " << resMgr->getLogFile() << std::endl;
     root = new Ogre::Root(
         resMgr->getPluginsPath(),
         resMgr->getCfgFile(),
