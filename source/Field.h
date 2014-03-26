@@ -19,6 +19,7 @@
 #define BATTLE_FIELD_H
 
 #include <vector>
+#include <string>
 
 //! \brief A structure storing the security level of the creature visible tiles
 struct SecurityTile {
