@@ -42,7 +42,6 @@ class MiniMap;
 class GameContext;
 class EditorContext;
 class CameraManager;
-class CullingManager;
 
 /*! \brief The main OGRE rendering class.
  *
@@ -125,7 +124,6 @@ friend class Console;
         std::vector<pthread_t*> clientHandlerThreads;
         pthread_t creatureThread;
         CameraManager*          cm;
-        CullingManager*        culm;
 
     private:
         ODFrameListener(const ODFrameListener&);

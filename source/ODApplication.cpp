@@ -83,7 +83,6 @@ ODApplication::ODApplication() :
     LogManager* logManager = new LogManager();
     logManager->setLogDetail(Ogre::LL_BOREME);
     new Translation();
-    //RenderManager* renderMgr = new RenderManager();
 
     Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
     new MusicPlayer();
@@ -94,30 +93,27 @@ ODApplication::ODApplication() :
     TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
                                             10, 50, 70, Ogre::ColourValue::Green);
 
-    logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
     mFrameListener = new ODFrameListener(window, mOverlaySystem);
     root->addFrameListener(mFrameListener);
 
     root->startRendering();
-
-    //Moved out from cleanup, as we only want to remove it if it exists.
-    root->removeFrameListener(ODFrameListener::getSingletonPtr());
     }
     catch(const Ogre::Exception& e)
     {
         std::cerr << "An internal Ogre3D error ocurred: " << e.getFullDescription() << std::endl;
         displayErrorMessage("Internal Ogre3D exception: " + e.getFullDescription());
     }
-    // Will be called even if an Ogre::Exception was thrown
-    cleanUp();
 }
 
 ODApplication::~ODApplication()
 {
     if (root)
     {
+        root->removeFrameListener(mFrameListener);
         delete root;
     }
+
+    cleanUp();
 }
 
 /*! \brief Display a GUI error message

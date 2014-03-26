@@ -33,7 +33,6 @@
 #include "ResourceManager.h"
 #include "ODApplication.h"
 #include "LogManager.h"
-#include "CullingManager.h"
 #include "ModeManager.h"
 #include "CameraManager.h"
 #include "MapLoader.h"
@@ -64,7 +63,6 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* tmpOverlaySystem) :
     cm(NULL),
-    culm(NULL),
     mWindow(win),
     renderManager(RenderManager::getSingletonPtr()),
     sfxHelper(SoundEffectsHelper::getSingletonPtr()),
@@ -78,6 +76,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     previousTurn(-1)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
+    logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
 
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
     Ogre::SceneManager* sceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_GENERIC,
@@ -86,31 +85,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     gameMap = new GameMap;
 
     cm = new CameraManager(sceneManager, gameMap);
-    logManager->logMessage("Created camera manager");
-    culm = new CullingManager();
-    culm->setCameraManager(cm);
 
-    gameMap->setCullingManger(culm);
-
-    logManager->logMessage("Creating viewports...", Ogre::LML_NORMAL);
-    cm->createViewport();
-    logManager->logMessage("Creating RTS Camera...", Ogre::LML_NORMAL);
-    cm->createCamera("RTS", 0.02, 300.0);
-    logManager->logMessage("Creating RTS CameraNode...", Ogre::LML_NORMAL);
-    cm->createCameraNode("RTS", Ogre::Vector3((Ogre::Real)(1 + gameMap->getMapSizeX() / 2),
-                                              (Ogre::Real)(-1 + gameMap->getMapSizeY() / 2),
-                                              (Ogre::Real)16.0),
-                                              Ogre::Degree(0.0), Ogre::Degree(45.0));
-
-    logManager->logMessage("Creating FPP Camera...", Ogre::LML_NORMAL);
-    cm->createCamera("FPP", 0.02, 30.0 );
-    logManager->logMessage("Creating FPP CameraNode...", Ogre::LML_NORMAL);
-    cm->createCameraNode("FPP", Ogre::Vector3(), Ogre::Degree(0), Ogre::Degree(75), Ogre::Degree(0));
-
-    logManager->logMessage("Setting ActiveCamera...", Ogre::LML_NORMAL);
-    cm->setActiveCamera("RTS");
-    logManager->logMessage("Setting ActiveCameraNode...", Ogre::LML_NORMAL);
-    cm->setActiveCameraNode("RTS");
     logManager->logMessage("Created everything :)", Ogre::LML_NORMAL);
 
     renderManager = new RenderManager();
@@ -230,6 +205,10 @@ void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
 
 ODFrameListener::~ODFrameListener()
 {
+    if (modeManager)
+        delete modeManager;
+    delete cm;
+    delete gameMap;
 }
 
 void ODFrameListener::requestExit()
@@ -617,9 +596,6 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     if (cm != NULL)
        cm->onFrameStarted();
 
-    if (culm != NULL)
-	    culm->onFrameStarted();
-
     // Sleep to limit the framerate to the max value
     frameDelay -= evt.timeSinceLastFrame;
     if (frameDelay > 0.0)
@@ -650,9 +626,6 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 
     if (cm != NULL)
         cm->onFrameEnded();
-
-    if (culm != NULL)
-	    culm->onFrameEnded();
 
     return true;
 }

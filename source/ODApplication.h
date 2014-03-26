@@ -23,6 +23,7 @@ class ODApplication : public Ogre::Singleton<ODApplication>
 {
     public:
         ODApplication();
+        ~ODApplication();
 
         inline Ogre::Root* getRoot()const {return root;}
         inline Ogre::RenderWindow* getWindow()const {return window;}
@@ -41,7 +42,7 @@ class ODApplication : public Ogre::Singleton<ODApplication>
 
     private:
         ODApplication(const ODApplication&);
-        ~ODApplication();
+
         Ogre::Root* root;
         Ogre::RenderWindow* window;
 

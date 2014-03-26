@@ -18,7 +18,6 @@
 #ifndef CULLINGMANAGER_H_
 #define CULLINGMANAGER_H_
 
-#include "GameMap.h"
 #include "CameraManager.h"
 #include "MortuaryQuad.h"
 
@@ -27,6 +26,7 @@
 #include <set>
 
 class CameraManager;
+class GameMap;
 
 class CullingManager
 {
@@ -34,9 +34,6 @@ class CullingManager
 
 public:
     CullingManager(CameraManager*);
-    CullingManager();
-
-    void setCameraManager(CameraManager* cameraManager);
 
     void startCreatureCulling();
     void startTileCulling();
@@ -69,7 +66,6 @@ private:
     Ogre::Vector3 mOgreVectorsArray[4];
     Vector3i mTop, mBottom, mMiddleLeft, mMiddleRight;
     Vector3i mOldTop, mOldBottom, mOldMiddleLeft, mOldMiddleRight;
-    GameMap* mGameMap;
     int mPrecisionDigits;
     bool mFirstIter;
     CameraManager* mCm;

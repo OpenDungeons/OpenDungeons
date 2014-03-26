@@ -27,6 +27,8 @@
 #include "HermiteCatmullSpline.h"
 #include "ODApplication.h"
 #include "Creature.h"
+#include "LogManager.h"
+#include "CullingManager.h"
 
 #include <OGRE/OgrePrerequisites.h>
 #include <OGRE/OgreSceneNode.h>
@@ -48,9 +50,9 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm) :
     mCenterY(0),
     mAlpha(0.0),
     mModeManager(NULL),
-    mGameMode(NULL),
-    mActiveCamera(0),
-    mActiveCameraNode(0),
+    mCullingManager(NULL),
+    mActiveCamera(NULL),
+    mActiveCameraNode(NULL),
     mGameMap(gm),
     mCameraIsFlying(false),
     mMoveSpeed(2.0),
@@ -68,6 +70,35 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm) :
     mZChange(0.0),
     mZoomSpeed(7.0)
 {
+    mCullingManager = new CullingManager(this);
+
+    gm->setCullingManger(mCullingManager);
+
+    createViewport();
+    createCamera("RTS", 0.02, 300.0);
+    /*createCameraNode("RTS", Ogre::Vector3((Ogre::Real)(1 + gm->getMapSizeX() / 2),
+                                              (Ogre::Real)(-1 + gm->getMapSizeY() / 2),
+                                              (Ogre::Real)16.0),
+                                              Ogre::Degree(0.0), Ogre::Degree(45.0));*/
+
+    createCameraNode("RTS", Ogre::Vector3((Ogre::Real)10.0,
+                                              (Ogre::Real)10.0,
+                                              (Ogre::Real)16.0),
+                                              Ogre::Degree(0.0), Ogre::Degree(45.0));
+
+    createCamera("FPP", 0.02, 30.0);
+    createCameraNode("FPP", Ogre::Vector3(), Ogre::Degree(0), Ogre::Degree(75), Ogre::Degree(0));
+
+    setActiveCamera("RTS");
+    setActiveCameraNode("RTS");
+
+    LogManager* logManager = LogManager::getSingletonPtr();
+    logManager->logMessage("Created camera manager");
+}
+
+CameraManager::~CameraManager()
+{
+    delete mCullingManager;
 }
 
 //! \brief Sets up the main camera
@@ -83,20 +114,24 @@ void CameraManager::createCamera(const Ogre::String& ss, double nearClip, double
                                                   (Ogre::Real)0));
 
     mRegisteredCameraNames.insert(ss);
+    LogManager* logManager = LogManager::getSingletonPtr();
+    logManager->logMessage("Creating " + ss + " camera...", Ogre::LML_NORMAL);
 }
 
 void CameraManager::createCameraNode(const Ogre::String& ss, Ogre::Vector3 xyz,
                                      Ogre::Degree yaw, Ogre::Degree pitch, Ogre::Degree roll)
 {
-    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(ss + "_node",xyz);
+    Ogre::SceneNode* node = mSceneManager->getRootSceneNode()->createChildSceneNode(ss + "_node", xyz);
     Ogre::Camera* tmpCamera = getCamera(ss);
-    // node->pitch(Ogre::Degree(25), Ogre::Node::TS_WORLD);
-    node->yaw  (yaw ,Ogre::Node::TS_LOCAL);
+    node->yaw(yaw, Ogre::Node::TS_LOCAL);
     node->pitch(pitch, Ogre::Node::TS_LOCAL);
-    node->roll (roll, Ogre::Node::TS_LOCAL);
+    node->roll(roll, Ogre::Node::TS_LOCAL);
     node->attachObject(tmpCamera);
     node->setPosition(Ogre::Vector3(0,0,2) +  node->getPosition());
     mRegisteredCameraNodeNames.insert(ss);
+
+    LogManager* logManager = LogManager::getSingletonPtr();
+    logManager->logMessage("Creating " + ss + "_node camera node...", Ogre::LML_NORMAL);
 }
 
 
@@ -110,6 +145,8 @@ void CameraManager::createViewport()
 //    for(set<string>::iterator m_itr = mRegisteredCameraNames.begin(); m_itr != mRegisteredCameraNames.end() ; ++m_itr){
 //        Ogre::Camera* tmpCamera = getCamera(*m_itr);
 //    }
+    LogManager* logManager = LogManager::getSingletonPtr();
+    logManager->logMessage("Creating viewport...", Ogre::LML_NORMAL);
 }
 
 void CameraManager::setFPPCamera(Creature* cc)
@@ -127,6 +164,9 @@ Ogre::SceneNode* CameraManager::getActiveCameraNode()
 
 Ogre::SceneNode* CameraManager::setActiveCameraNode(const Ogre::String& ss)
 {
+    LogManager* logManager = LogManager::getSingletonPtr();
+    logManager->logMessage("Setting active camera node to " + ss + "_node ...", Ogre::LML_NORMAL);
+
     return mActiveCameraNode = mSceneManager->getSceneNode(ss + "_node");
 }
 
@@ -140,6 +180,9 @@ void CameraManager::setActiveCamera(const Ogre::String& ss)
     mActiveCamera = mSceneManager->getCamera(ss);
     mViewport->setCamera(mActiveCamera);
     mActiveCamera->setAspectRatio(Ogre::Real(mViewport->getActualWidth()) / Ogre::Real(mViewport->getActualHeight()));
+
+    LogManager* logManager = LogManager::getSingletonPtr();
+    logManager->logMessage("Setting Active Camera to " + ss + " ...", Ogre::LML_NORMAL);
 }
 
 Ogre::Viewport* CameraManager::getViewport()
@@ -365,9 +408,12 @@ const Ogre::Vector3 CameraManager::getCameraViewTarget()
     return target;
 }
 
-/** \brief Starts the camera moving towards a destination position,
- *         it will stop moving when it gets there.
- */
+void CameraManager::setCameraPosition(const Ogre::Vector3& position)
+{
+    getActiveCameraNode()->setPosition(position);
+}
+
+
 void CameraManager::flyTo(const Ogre::Vector3& destination)
 {
     mCameraIsFlying = true;
@@ -506,6 +552,8 @@ bool CameraManager::isCamMovingAtAll() const
 bool CameraManager::onFrameStarted()
 {
     updateCameraView();
+    mCullingManager->onFrameStarted();
+
     return true;
 }
 
@@ -515,5 +563,7 @@ bool CameraManager::onFrameEnded()
         switchPolygonMode();
         mSwitchedPM = false;
     }
+
+    mCullingManager->onFrameEnded();
     return true;
 }

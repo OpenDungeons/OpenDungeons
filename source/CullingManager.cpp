@@ -32,7 +32,6 @@ static const int SHOW =  2;
 CullingManager::CullingManager(CameraManager* cameraManager):
     mCurrentVisibleCreatures(&mCreaturesSet[0]),
     mPreviousVisibleCreatures(&mCreaturesSet[1]),
-    mGameMap(NULL),
     mPrecisionDigits(10),
     mFirstIter(false),
     mCm(cameraManager),
@@ -56,41 +55,6 @@ CullingManager::CullingManager(CameraManager* cameraManager):
         mOgreVectorsArray[i].z = (Ogre::Real)0.0;
     }
 }
-
-CullingManager::CullingManager():
-    mCurrentVisibleCreatures(&mCreaturesSet[0]),
-    mPreviousVisibleCreatures(&mCreaturesSet[1]),
-    mGameMap(NULL),
-    mPrecisionDigits(10),
-    mFirstIter(true),
-    mCm(NULL),
-    mCullCreaturesFlag(false),
-    mCullTilesFlag(false)
-{
-
-    mMyplanes[0]=(Ogre::Plane(0, 0, 1, 0));
-    mMyplanes[1]=(Ogre::Plane(0, 0, -1, 20));
-    mMyplanes[2]=(Ogre::Plane(0, 1, 0, -1));
-    mMyplanes[3]=(Ogre::Plane(0, -1, 0, 395));
-    mMyplanes[4]=(Ogre::Plane(1, 0, 0, -1));
-    mMyplanes[5]=(Ogre::Plane(-1, 0, 0, 395));
-    mMyCullingQuad.setRadius(256);
-    mMyCullingQuad.setCenter(200, 200);
-
-    // init the Ogre vector
-    for (unsigned int i = 0; i < 4; ++i)
-    {
-        mOgreVectorsArray[i].x = (Ogre::Real)0.0;
-        mOgreVectorsArray[i].y = (Ogre::Real)0.0;
-        mOgreVectorsArray[i].z = (Ogre::Real)0.0;
-    }
-}
-
-void CullingManager::setCameraManager(CameraManager* cameraManager)
-{
-    mCm = cameraManager;
-}
-
 
 int CullingManager::cullTiles()
 {

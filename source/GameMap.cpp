@@ -84,12 +84,6 @@ GameMap::GameMap() :
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
     setContainer(this);
 
-    //Set a default size early so that the tile container acts right.
-    // TODO: Remove the need of this here and rather adds this if necessary
-    // when loading a map
-    setMapSizeX(400);
-    setMapSizeY(400);
-
     // Init the player
     me = new Player();
     me->setNick("defaultNickName");

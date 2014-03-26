@@ -68,7 +68,21 @@ GameMode::GameMode(ModeManager *modeManager):
     mMouseLight = sceneMgr->getLight("MouseLight");
 
     // For now, only the single player mode exists, so we start the server part.
-    ODServer::startServer();
+    if (!ODServer::startServer())
+        return;
+
+    // Move camera to dungeon temple
+    Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
+    // FIXME: For now the objects and tiles coordinates are relative to the map center
+    Ogre::Real startX = (Ogre::Real)(localPlayerSeat->startingX + (mGameMap->getMapSizeX() / 2));
+    Ogre::Real startY = (Ogre::Real)(localPlayerSeat->startingY + (mGameMap->getMapSizeY() / 2));
+    // We make the temple appear in the center of the game view
+    startY = (Ogre::Real)(startY - 15.0);
+    // Bound check
+    if (startY <= 0.0)
+        startY = 0.0;
+
+    ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, 16.0));
 }
 
 GameMode::~GameMode()

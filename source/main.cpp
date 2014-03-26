@@ -22,7 +22,9 @@ int main(int argc, char **argv)
 #endif
     try
     {
-        new ODApplication;
+        ODApplication* app = new ODApplication;
+        // Once the contructor has finished constructing, we can exit the application
+        delete app;
     }
     catch (const std::exception& e)
     {

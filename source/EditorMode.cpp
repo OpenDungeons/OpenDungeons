@@ -64,6 +64,10 @@ EditorMode::EditorMode(ModeManager* modeManager):
     // Keep track of the mouse light object
     Ogre::SceneManager* sceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     mMouseLight = sceneMgr->getLight("MouseLight");
+
+    // Start on the map center
+    ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3((Ogre::Real)mGameMap->getMapSizeX() / 2,
+                                                                        (Ogre::Real)mGameMap->getMapSizeY() / 2, 16.0));
 }
 
 EditorMode::~EditorMode()

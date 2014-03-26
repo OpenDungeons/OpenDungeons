@@ -88,6 +88,7 @@ public:
     HermiteCatmullSpline yHCS;
 
     CameraManager(Ogre::SceneManager*, GameMap*);
+    ~CameraManager();
 
     inline void setCircleCenter( int XX, int YY) {
         mCenterX = XX;
@@ -161,7 +162,14 @@ public:
     void moveCamera(const Ogre::Real frameTime);
     const Ogre::Vector3 getCameraViewTarget();
     void onMiniMapClick(Ogre ::Vector2 cc);
+
+    /** \brief Starts the camera moving towards a destination position,
+     *  it will stop moving when it gets there.
+     */
     void flyTo(const Ogre::Vector3& destination);
+
+    //! \brief Directly set the new camera position
+    void setCameraPosition(const Ogre::Vector3& position);
 
     void move(const Direction direction, double aux = 0.0);
 
@@ -180,7 +188,7 @@ public:
     void createCamera(const Ogre::String& ss, double nearClip, double farClip);
     void setActiveCamera(const Ogre::String& ss);
 
-    inline Ogre::Camera* getActiveCamera(){
+    inline Ogre::Camera* getActiveCamera() {
         return  mActiveCamera ;
     }
 
@@ -204,7 +212,7 @@ private:
     double mAlpha;
 
     ModeManager* mModeManager;
-    AbstractApplicationMode* mGameMode;
+    CullingManager* mCullingManager;
 
     Ogre::Camera* mActiveCamera;
     Ogre::SceneNode* mActiveCameraNode;
