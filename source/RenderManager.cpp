@@ -28,7 +28,7 @@ using std::stringstream;
 
 #include "GameMap.h"
 #include "RenderRequest.h"
-#include "Functions.h"
+#include "ODServer.h"
 #include "Room.h"
 #include "RoomObject.h"
 #include "MapLight.h"
@@ -37,7 +37,7 @@ using std::stringstream;
 #include "MissileObject.h"
 #include "Trap.h"
 #include "ProtectedObject.h"
-#include "Field.h"
+#include "BattleField.h"
 #include "Player.h"
 #include "ODApplication.h"
 #include "ResourceManager.h"
