@@ -99,10 +99,9 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
     levelFile >> objectsToLoad;
-    Goal* tempGoal;
     for (int i = 0; i < objectsToLoad; ++i)
     {
-        tempGoal = Goal::instantiateFromStream(levelFile, gameMap_b);
+        Goal* tempGoal = Goal::instantiateFromStream(levelFile);
 
         if (tempGoal != NULL)
             gameMap_b.addGoalForAllSeats(tempGoal);
@@ -178,7 +177,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
     for (int i = 0; i < objectsToLoad; ++i)
     {
         tempLight = new MapLight;
-	tempLight->setGameMap(&gameMap_b);
+	    tempLight->setGameMap(&gameMap_b);
         levelFile >> tempLight;
 
         gameMap_b.addMapLight(tempLight);

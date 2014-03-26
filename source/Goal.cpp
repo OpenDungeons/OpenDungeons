@@ -1,11 +1,26 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "Goal.h"
 #include "AllGoals.h"
 
-Goal::Goal(const std::string& nName, const std::string& nArguments, const GameMap& gameMap) :
-        gameMap(gameMap),
-        name(nName),
-        arguments(nArguments)
-        
+Goal::Goal(const std::string& nName, const std::string& nArguments) :
+    mName(nName),
+    mArguments(nArguments)
 {
 }
 
@@ -30,32 +45,32 @@ bool Goal::isFailed(Seat *s)
 
 void Goal::addSuccessSubGoal(Goal *g)
 {
-    successSubGoals.push_back(g);
+    mSuccessSubGoals.push_back(g);
 }
 
 unsigned int Goal::numSuccessSubGoals() const
 {
-    return successSubGoals.size();
+    return mSuccessSubGoals.size();
 }
 
 Goal* Goal::getSuccessSubGoal(int index)
 {
-    return successSubGoals[index];
+    return mSuccessSubGoals[index];
 }
 
 void Goal::addFailureSubGoal(Goal *g)
 {
-    failureSubGoals.push_back(g);
+    mFailureSubGoals.push_back(g);
 }
 
 unsigned int Goal::numFailureSubGoals() const
 {
-    return failureSubGoals.size();
+    return mFailureSubGoals.size();
 }
 
 Goal* Goal::getFailureSubGoal(int index)
 {
-    return failureSubGoals[index];
+    return mFailureSubGoals[index];
 }
 
 std::string Goal::getFormat()
@@ -67,8 +82,8 @@ std::ostream& operator<<(std::ostream& os, Goal *g)
 {
     unsigned int subGoals;
 
-    os << g->name << "\t";
-    os << (g->arguments.size() > 0 ? g->arguments : "NULL") << "\n";
+    os << g->mName << "\t";
+    os << (g->mArguments.size() > 0 ? g->mArguments : "NULL") << "\n";
 
     subGoals = g->numSuccessSubGoals();
     if (subGoals > 0)
@@ -89,10 +104,10 @@ std::ostream& operator<<(std::ostream& os, Goal *g)
     return os;
 }
 
-Goal* Goal::instantiateFromStream(std::istream& is, const GameMap& gameMap)
+Goal* Goal::instantiateFromStream(std::istream& is)
 {
     std::string tempName, tempArguments;
-    Goal *tempGoal = NULL;
+    Goal* tempGoal = NULL;
 
     // Store the name and arguments of the goal so we can instantiate a specific goal subclass below.
     is >> tempName;
@@ -114,27 +129,27 @@ Goal* Goal::instantiateFromStream(std::istream& is, const GameMap& gameMap)
     // Parse the goal type name to find out what subclass of goal tempGoal should be instantiated as.
     if (tempName.compare("KillAllEnemies") == 0)
     {
-        tempGoal = new GoalKillAllEnemies(tempName, tempArguments, gameMap);
+        tempGoal = new GoalKillAllEnemies(tempName, tempArguments);
     }
 
     else if (tempName.compare("ProtectCreature") == 0)
     {
-        tempGoal = new GoalProtectCreature(tempName, tempArguments, gameMap);
+        tempGoal = new GoalProtectCreature(tempName, tempArguments);
     }
 
     else if (tempName.compare("ClaimNTiles") == 0)
     {
-        tempGoal = new GoalClaimNTiles(tempName, tempArguments, gameMap);
+        tempGoal = new GoalClaimNTiles(tempName, tempArguments);
     }
 
     else if (tempName.compare("MineNGold") == 0)
     {
-        tempGoal = new GoalMineNGold(tempName, tempArguments, gameMap);
+        tempGoal = new GoalMineNGold(tempName, tempArguments);
     }
 
     else if (tempName.compare("ProtectDungeonTemple") == 0)
     {
-        tempGoal = new GoalProtectDungeonTemple(tempName, tempArguments, gameMap);
+        tempGoal = new GoalProtectDungeonTemple(tempName, tempArguments);
     }
 
     // Now that the goal has been properly instantiated we check to see if there are subgoals to read in.
@@ -147,7 +162,7 @@ Goal* Goal::instantiateFromStream(std::istream& is, const GameMap& gameMap)
         is.ignore(1);
         is >> numSubgoals;
         for (int i = 0; i < numSubgoals; ++i)
-            tempGoal->addSuccessSubGoal(instantiateFromStream(is, gameMap));
+            tempGoal->addSuccessSubGoal(instantiateFromStream(is));
     }
     else if (c == '-')
     {
@@ -155,7 +170,7 @@ Goal* Goal::instantiateFromStream(std::istream& is, const GameMap& gameMap)
         is.ignore(1);
         is >> numSubgoals;
         for (int i = 0; i < numSubgoals; ++i)
-            tempGoal->addFailureSubGoal(instantiateFromStream(is, gameMap));
+            tempGoal->addFailureSubGoal(instantiateFromStream(is));
     }
 
     return tempGoal;
