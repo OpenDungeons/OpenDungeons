@@ -9,4 +9,4 @@ Plugin=RenderSystem_GL_d
 #Plugin=Plugin_ParticleFX_d
 
 #This is a card specific library, installed on some systems but not on others
-Plugin=Plugin_CgProgramManager_d
+#Plugin=Plugin_CgProgramManager_d
