@@ -14,7 +14,8 @@ MovableGameEntity::MovableGameEntity() :
         sceneNode(NULL),
         moveSpeed(1.0),
         prevAnimationState(""),
-        prevAnimationStateLoop(true)
+        prevAnimationStateLoop(true),
+	rotatinalPercent(0)
 {
     sem_init(&animationSpeedFactorLockSemaphore, 0, 1);
     sem_init(&walkQueueLockSemaphore, 0, 1);
@@ -148,6 +149,28 @@ void MovableGameEntity::faceToward(int x, int y)
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 }
+
+
+void MovableGameEntity::rotateToward(int x, int y)
+{
+    // Rotate the object to face the direction of the destination
+    Ogre::Vector3 tempPosition = getPosition();
+	walkDirection = Ogre::Vector3(
+		static_cast<Ogre::Real>(x),
+		static_cast<Ogre::Real>(y),
+		tempPosition.z) - tempPosition;
+    walkDirection.normalise();
+
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::rotateSceneNodeToward;
+    request->vec = walkDirection;
+    request->turnNumber = 100;
+    request->str = getName() + "_node";
+
+    // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderManager::queueRenderRequest(request);
+}
+
 
 double MovableGameEntity::getMoveSpeed()
 {

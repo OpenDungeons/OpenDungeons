@@ -446,10 +446,17 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             // If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
             if (currentAnimatedObject->walkQueueFirstEntryAdded)
             {
-                currentAnimatedObject->walkQueueFirstEntryAdded = false;
-                currentAnimatedObject->faceToward(
+
+		currentAnimatedObject->rotatinalPercent +=  
+                currentAnimatedObject->rotateToward(
                         (int)currentAnimatedObject->walkQueue.front().x,
-                        (int)currentAnimatedObject->walkQueue.front().y);
+                        (int)currentAnimatedObject->walkQueue.front().y,
+			currentAnimatedObject->rotatinalPercent 
+		         );
+		if( currentAnimatedObject->rotatinalPercent  >= 100){
+		    currentAnimatedObject->walkQueueFirstEntryAdded = false;
+		    currentAnimatedObject->rotatinalPercent = 0;
+		}
             }
 
             //FIXME: The moveDist should probably be tied to the scale of the creature as well

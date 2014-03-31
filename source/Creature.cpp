@@ -452,6 +452,9 @@ void Creature::doTurn()
                     loopBack = handleManeuverAction();
                     break;
 
+
+	        case CreatureAction::noFreeWay:
+		    loopBack = handleNoFreeWayAction();
                 default:
                     LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doTurn().");
                     popAction();
@@ -1414,6 +1417,17 @@ bool Creature::handleTrainingAction()
     stopUsingDojo();
     return true;
 }
+
+bool Creature::handleNoFreeWayAction(){
+
+
+    handleIdleAction();
+
+
+    return true;
+}
+
+
 
 void Creature::stopUsingDojo()
 {

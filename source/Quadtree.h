@@ -131,6 +131,10 @@ public:
     inline  CullingQuad* insert(Creature* cc){return insert (new Entry(cc)) ;};
     inline  CullingQuad* insert(Creature& cc){return insert (new Entry(cc)) ;};
 
+    bool isCircleEmpty(Ogre::Vector2&,double);
+    bool isCircleEmpty(Ogre::Vector2*,double);
+
+
     CullingQuad* shallowInsert(Entry*);
     CullingQuad* shallowInsert(Entry&);
     void setCenterFromParent(CullingQuad*, int);

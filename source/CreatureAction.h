@@ -38,6 +38,7 @@ public:
         findHome, // Try to find a "home" tile in a quarters somewhere where the creature can sleep.
         sleep, // Try to go to its home tile to and sleep when it gets there.
         train, // Check to see if our seat controls a dojo, and if so go there to train.
+	noFreeWay,
         idle // Stand around doing nothing.
     };
 
