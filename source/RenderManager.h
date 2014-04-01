@@ -96,6 +96,7 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void rrDestroyCreature(const RenderRequest& renderRequest);
         void rrOrientSceneNodeToward(const RenderRequest& renderRequest);
         void rrReorientSceneNode(const RenderRequest& renderRequest);
+        void rrRoteSceneNode ( const RenderRequest& renderRequest );
         void rrScaleSceneNode(const RenderRequest& renderRequest);
         void rrCreateWeapon(const RenderRequest& renderRequest);
         void rrDestroyWeapon(const RenderRequest& renderRequest);

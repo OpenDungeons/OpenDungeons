@@ -162,7 +162,7 @@ void MovableGameEntity::rotateToward(int x, int y)
     walkDirection.normalise();
 
     RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::rotateSceneNodeToward;
+    request->type = RenderRequest::rotateSceneNode;
     request->vec = walkDirection;
     request->turnNumber = 100;
     request->str = getName() + "_node";

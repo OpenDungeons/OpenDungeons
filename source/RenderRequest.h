@@ -11,6 +11,9 @@
  *  the global renderQueue.  The requests are taken out of the queue and
  *  processed by the frameStarted event in the ExampleFrameListener class. 
  */
+
+
+// TODO Some should add the description of RequestType's desired actions 
 class RenderRequest
 {
     public:
@@ -63,6 +66,7 @@ class RenderRequest
             moveSceneNode,
             orientSceneNodeToward,
             reorientSceneNode,
+	    rotateSceneNode,
             scaleSceneNode,
             createMissileObject,
             destroyMissileObject,
