@@ -2,7 +2,7 @@
 #include <bitset>
 
 
-#include "ODServer.h"
+#include "Functions.h"
 #include "Creature.h"
 #include "GameMap.h"
 #include "ServerNotification.h"

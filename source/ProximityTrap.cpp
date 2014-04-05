@@ -1,4 +1,4 @@
-#include "ODServer.h"
+#include "Functions.h"
 #include "ProximityTrap.h"
 #include "GameMap.h"
 //~ #include "MissileObject.h"

@@ -1,6 +1,6 @@
 #include <cmath>
 
-#include "ODServer.h"
+#include "Functions.h"
 #include "Seat.h"
 #include "Player.h"
 #include "Creature.h"

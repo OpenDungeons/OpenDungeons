@@ -24,7 +24,7 @@
 
 #include "GameMap.h"
 
-#include "ODServer.h"
+#include "Functions.h"
 #include "RadialVector2.h"
 #include "Tile.h"
 #include "Creature.h"

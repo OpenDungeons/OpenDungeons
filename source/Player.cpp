@@ -1,5 +1,5 @@
 #include "Player.h"
-#include "ODServer.h"
+#include "Functions.h"
 #include "ServerNotification.h"
 #include "Creature.h"
 #include "GameMap.h"

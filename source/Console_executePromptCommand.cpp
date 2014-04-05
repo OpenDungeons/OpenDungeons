@@ -33,7 +33,7 @@
 #include "ServerNotification.h"
 #include "Player.h"
 #include "AllGoals.h"
-#include "ODServer.h"
+#include "Functions.h"
 #include "ResourceManager.h"
 #include "Network.h"
 #include "CullingManager.h"

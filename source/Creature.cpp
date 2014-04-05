@@ -23,7 +23,7 @@
 #include "Creature.h"
 
 #include "CreatureAction.h"
-#include "BattleField.h"
+#include "Field.h"
 #include "Weapon.h"
 #include "GameMap.h"
 #include "RenderRequest.h"

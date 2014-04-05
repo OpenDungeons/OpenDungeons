@@ -33,7 +33,7 @@
 #include "Trap.h"
 #include "TextRenderer.h"
 #include "ODApplication.h"
-#include "ODServer.h"
+#include "Functions.h"
 #include "CameraManager.h"
 #include "MiniMap.h"
 #include "ModeManager.h"

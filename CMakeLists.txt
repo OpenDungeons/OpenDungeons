@@ -115,7 +115,6 @@ set(OD_SOURCEFILES
     ${SRC}/AIWrapper.cpp
     ${SRC}/ASWrapper.cpp
     ${SRC}/BaseAI.cpp
-    ${SRC}/BattleField.cpp
     #{SRC}/Bspline.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
@@ -132,7 +131,9 @@ set(OD_SOURCEFILES
     ${SRC}/CullingManager.cpp
     ${SRC}/DirectionalTrap.cpp
     ${SRC}/EditorMode.cpp
+    ${SRC}/Field.cpp
     ${SRC}/FppMode.cpp
+    ${SRC}/Functions.cpp
     ${SRC}/GameEntity.cpp
     ${SRC}/GameMap.cpp
     ${SRC}/GameMode.cpp
@@ -159,7 +160,6 @@ set(OD_SOURCEFILES
     ${SRC}/NullAI.cpp
     ${SRC}/ODApplication.cpp
     ${SRC}/ODFrameListener.cpp
-    ${SRC}/ODServer.cpp
     ${SRC}/Player.cpp
     ${SRC}/ProximityTrap.cpp
     ${SRC}/PrefixTreeLL.cpp

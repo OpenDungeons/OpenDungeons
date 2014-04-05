@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "BattleField.h"
+#include "Field.h"
 
 #include "RenderRequest.h"
 #include "RenderManager.h"
