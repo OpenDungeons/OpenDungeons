@@ -5,7 +5,7 @@
 #include "ODFrameListener.h"
 #include "Network.h"
 #include "ChatMessage.h"
-#include "Functions.h"
+#include "ODServer.h"
 #include "Sleep.h"
 #include "ServerNotification.h"
 #include "Player.h"

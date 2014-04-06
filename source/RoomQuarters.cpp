@@ -1,5 +1,5 @@
 #include "RoomQuarters.h"
-#include "Functions.h"
+#include "ODServer.h"
 #include "Tile.h"
 #include "GameMap.h"
 #include "RoomObject.h"

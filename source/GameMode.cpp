@@ -28,7 +28,7 @@
 #include "Socket.h"
 #include "Network.h"
 #include "ClientNotification.h"
-#include "Functions.h"
+#include "ODServer.h"
 #include "Gui.h"
 #include "ODFrameListener.h"
 #include "LogManager.h"

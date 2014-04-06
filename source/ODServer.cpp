@@ -15,10 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//TODO: get rid of this whole file.
-//      - The server stuff should go into some of the network classes.
-
-#include "Functions.h"
+#include "ODServer.h"
 
 #include "Network.h"
 #include "Socket.h"
