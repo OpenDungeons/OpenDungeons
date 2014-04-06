@@ -189,14 +189,7 @@ set<Creature*>* CullingQuad::returnCreaturesSet(set<Creature*>* ss){
 
 bool CullingQuad::isCircleEmpty(Ogre::Vector2& point ,double epsilon){
 
-    return isCircleEmpty(&point, epsilon);
-
-
-}
-
-bool CullingQuad::isCircleEmpty(Ogre::Vector2* point ,double epsilon){
-
-    // if(abs(point->x - center->x ) > mRadious || abs(point->y - center->y ) > mRadious ){
+    // if(abs(point.x - center.x ) > mRadious || abs(point.y - center.y ) > mRadious ){
     // 	throw PointOutOfCullingQuad;
     // }
 
@@ -209,17 +202,17 @@ bool CullingQuad::isCircleEmpty(Ogre::Vector2* point ,double epsilon){
     
 
 
-    if( abs(point->x - center->x) <= epsilon && abs(point->y - center->y) <= epsilon ){
+    if( abs(point.x - center.x) <= epsilon && abs(point.y - center.y) <= epsilon ){
 	
     }
 
 
-    else if( abs(point->y - center->y) <= epsilon){
+    else if( abs(point.y - center.y) <= epsilon){
 
 
 
     }
-    else if( abs(point->x - center->x) <= epsilon){
+    else if( abs(point.x - center.x) <= epsilon){
 
 
 
@@ -231,6 +224,13 @@ bool CullingQuad::isCircleEmpty(Ogre::Vector2* point ,double epsilon){
     }
 
 
+}
+
+bool CullingQuad::isCircleEmpty(Ogre::Vector2* point ,double epsilon){
+
+
+
+    return isCircleEmpty(*point, epsilon);
 
 
 }

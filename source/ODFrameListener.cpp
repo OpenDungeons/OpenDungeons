@@ -447,11 +447,11 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             if (currentAnimatedObject->walkQueueFirstEntryAdded)
             {
 
-
+		currentAnimatedObject->rotatinalPercent +=  
                 currentAnimatedObject->rotateToward(
                         (int)currentAnimatedObject->walkQueue.front().x,
-                        (int)currentAnimatedObject->walkQueue.front().y
-			
+                        (int)currentAnimatedObject->walkQueue.front().y,
+			currentAnimatedObject->rotatinalPercent 
 		         );
 		if( currentAnimatedObject->rotatinalPercent  >= 100){
 		    currentAnimatedObject->walkQueueFirstEntryAdded = false;
