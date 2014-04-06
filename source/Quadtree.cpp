@@ -187,56 +187,6 @@ set<Creature*>* CullingQuad::returnCreaturesSet(set<Creature*>* ss){
     return ss;
 }
 
-bool CullingQuad::isCircleEmpty(Ogre::Vector2& point ,double epsilon){
-
-    // if(abs(point.x - center.x ) > mRadious || abs(point.y - center.y ) > mRadious ){
-    // 	throw PointOutOfCullingQuad;
-    // }
-
-
-
-    if(isEmptyLeaf())
-	return true;
-    if(isNonEmptyLeaf())
-	return false;
-    
-
-
-    if( abs(point.x - center.x) <= epsilon && abs(point.y - center.y) <= epsilon ){
-	
-    }
-
-
-    else if( abs(point.y - center.y) <= epsilon){
-
-
-
-    }
-    else if( abs(point.x - center.x) <= epsilon){
-
-
-
-
-    }
-    else{
-
-
-    }
-
-
-}
-
-bool CullingQuad::isCircleEmpty(Ogre::Vector2* point ,double epsilon){
-
-
-
-    return isCircleEmpty(*point, epsilon);
-
-
-}
-
-
-
 void CullingQuad::returnCreaturesSetAux(set<Creature*> *ss){
 
     if(entry!=NULL){
@@ -548,10 +498,6 @@ bool CullingQuad::cut ( const Segment *ss) {
     // else if(isEmptyLeaf()){} nothing to do :)
     return true;
 }
-
-
-
-
 
 
 void CullingQuad::holdRootSemaphore(){

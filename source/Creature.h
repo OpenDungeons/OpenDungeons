@@ -307,10 +307,6 @@ private:
     //! This functions will hanlde the creature sleeping action logic.
     //! \return true when another action should handled after that one.
     bool handleSleepAction();
-    bool handleNoFreeWayAction();
-
-
-
 };
 
 #endif // CREATURE_H

@@ -26,7 +26,6 @@ class MovableGameEntity : public GameEntity
         void clearDestinations();
         virtual void stopWalking();
         void faceToward(int x, int y);
-        void rotateToward(int x,int y);
 
         virtual double getMoveSpeed();
         virtual void setMoveSpeed(double s);
@@ -42,7 +41,6 @@ class MovableGameEntity : public GameEntity
         bool walkQueueFirstEntryAdded;
         Ogre::Vector3 walkDirection;
         double shortDistance;
-        double rotatinalPercent;
 
         Ogre::AnimationState *animationState;
         std::string destinationAnimationState;
