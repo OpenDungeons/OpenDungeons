@@ -49,8 +49,7 @@ public:
         mainMenu,
         optionsMenu,
         inGameMenu,
-        editorToolBox,
-        creaturesShuffle,
+        editorMenu
     };
 
     Gui();
@@ -88,13 +87,12 @@ public:
     static const std::string MM_BUTTON_START_NEW_GAME;
     static const std::string MM_BUTTON_MAPEDITOR;
     static const std::string MM_BUTTON_QUIT;
-    static const std::string TOOLSPALETE;
-    static const std::string TOOLSPALETE_LAVA_BUTTON;
-    static const std::string TOOLSPALETE_GOLD_BUTTON;
-    static const std::string TOOLSPALETE_ROCK_BUTTON;
-    static const std::string TOOLSPALETE_WATER_BUTTON;
-    static const std::string TOOLSPALETE_DIRT_BUTTON;
-    static const std::string CREATURESSHUFFLE;
+    static const std::string EDITOR;
+    static const std::string EDITOR_LAVA_BUTTON;
+    static const std::string EDITOR_GOLD_BUTTON;
+    static const std::string EDITOR_ROCK_BUTTON;
+    static const std::string EDITOR_WATER_BUTTON;
+    static const std::string EDITOR_DIRT_BUTTON;
 
 private:
     void assignEventHandlers();
@@ -118,7 +116,7 @@ private:
     static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
     static bool serverButtonPressed     (const CEGUI::EventArgs& e);
 
-    // Button ToolsBox
+    // Editor Buttons
     static bool tpLavaButtonPressed(const CEGUI::EventArgs& e);
     static bool tpGoldButtonPressed(const CEGUI::EventArgs& e);
     static bool tpRockButtonPressed(const CEGUI::EventArgs& e);

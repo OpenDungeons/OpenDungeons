@@ -71,7 +71,7 @@ Gui::Gui()
 
     sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
-    sheets[editorToolBox] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorToolBox.layout");
+    sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
 
     assignEventHandlers();
 }
@@ -175,23 +175,23 @@ void Gui::assignEventHandlers()
         CEGUI::Event::Subscriber(&miniMapclicked));
 
     // Editor Mode controls
-    sheets[editorToolBox]->getChild(TOOLSPALETE_LAVA_BUTTON)->subscribeEvent(
+    sheets[editorMenu]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&tpLavaButtonPressed));
 
-    sheets[editorToolBox]->getChild(TOOLSPALETE_GOLD_BUTTON)->subscribeEvent(
+    sheets[editorMenu]->getChild(EDITOR_GOLD_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&tpGoldButtonPressed));
 
-    sheets[editorToolBox]->getChild(TOOLSPALETE_ROCK_BUTTON)->subscribeEvent(
+    sheets[editorMenu]->getChild(EDITOR_ROCK_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&tpRockButtonPressed));
 
-    sheets[editorToolBox]->getChild(TOOLSPALETE_WATER_BUTTON)->subscribeEvent(
+    sheets[editorMenu]->getChild(EDITOR_WATER_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&tpWaterButtonPressed));
 
-    sheets[editorToolBox]->getChild(TOOLSPALETE_DIRT_BUTTON)->subscribeEvent(
+    sheets[editorMenu]->getChild(EDITOR_DIRT_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&tpDirtButtonPressed));
 }
@@ -365,25 +365,6 @@ bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
  */
 //TODO: Probably these should be read from a file? Script file?
 
-//const std::string Gui::DISPLAY_GOLD = "Root/GoldDisplay";
-//const std::string Gui::DISPLAY_MANA = "Root/ManaDisplay";
-//const std::string Gui::DISPLAY_TERRITORY = "Root/TerritoryDisplay";
-//const std::string Gui::MINIMAP = "Root/MiniMap";
-//const std::string Gui::MESSAGE_WINDOW = "Root/MessagesDisplayWindow";
-//const std::string Gui::MAIN_TABCONTROL = "Root/MainTabControl";
-//const std::string Gui::TAB_ROOMS = "Root/MainTabControl/Rooms";
-//const std::string Gui::BUTTON_QUARTERS = "Root/MainTabControl/Rooms/QuartersButton";
-//const std::string Gui::BUTTON_FORGE = "Root/MainTabControl/Rooms/ForgeButton";
-//const std::string Gui::BUTTON_DOJO = "Root/MainTabControl/Rooms/DojoButton";
-//const std::string Gui::BUTTON_TREASURY = "Root/MainTabControl/Rooms/TreasuryButton";
-//const std::string Gui::TAB_TRAPS = "Root/MainTabControl/Traps";
-//const std::string Gui::BUTTON_CANNON = "Root/MainTabControl/Traps/CannonButton";
-//const std::string Gui::TAB_SPELLS = "Root/MainTabControl/Spells";
-//const std::string Gui::TAB_CREATURES = "Root/MainTabControl/Creatures";
-//const std::string Gui::TAB_COMBAT = "Root/MainTabControl/Combat";
-//const std::string Gui::TAB_SYSTEM = "Root/MainTabControl/System";
-//const std::string Gui::BUTTON_HOST = "Root/MainTabControl/System/HostButton";
-//const std::string Gui::BUTTON_QUIT = "Root/MainTabControl/System/QuitButton";
 const std::string Gui::DISPLAY_GOLD = "HorizontalPipe/GoldDisplay";
 const std::string Gui::DISPLAY_MANA = "HorizontalPipe/ManaDisplay";
 const std::string Gui::DISPLAY_TERRITORY = "HorizontalPipe/TerritoryDisplay";
@@ -409,12 +390,10 @@ const std::string Gui::MM_WELCOME_MESSAGE = "WelcomeBanner";
 const std::string Gui::MM_BUTTON_START_NEW_GAME = "StartNewGameButton";
 const std::string Gui::MM_BUTTON_MAPEDITOR = "MapEditorButton";
 const std::string Gui::MM_BUTTON_QUIT = "QuitButton";
-const std::string Gui::TOOLSPALETE = "TOOLSPALETE";
-const std::string Gui::CREATURESSHUFFLE = "TOOLSPALETE/CreaturesShuffle";
 
-
-const std::string Gui::TOOLSPALETE_LAVA_BUTTON = "TOOLSPALETE/LavaButton";
-const std::string Gui::TOOLSPALETE_GOLD_BUTTON = "TOOLSPALETE/GoldButton";
-const std::string Gui::TOOLSPALETE_DIRT_BUTTON = "TOOLSPALETE/DirtButton";
-const std::string Gui::TOOLSPALETE_WATER_BUTTON = "TOOLSPALETE/WaterButton";
-const std::string Gui::TOOLSPALETE_ROCK_BUTTON = "TOOLSPALETE/RockButton";
+const std::string Gui::EDITOR = "MainTabControl";
+const std::string Gui::EDITOR_LAVA_BUTTON = "MainTabControl/Tiles/LavaButton";
+const std::string Gui::EDITOR_GOLD_BUTTON = "MainTabControl/Tiles/GoldButton";
+const std::string Gui::EDITOR_DIRT_BUTTON = "MainTabControl/Tiles/DirtButton";
+const std::string Gui::EDITOR_WATER_BUTTON = "MainTabControl/Tiles/WaterButton";
+const std::string Gui::EDITOR_ROCK_BUTTON = "MainTabControl/Tiles/RockButton";

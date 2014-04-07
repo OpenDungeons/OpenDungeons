@@ -77,7 +77,7 @@ EditorMode::~EditorMode()
 void EditorMode::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::editorToolBox);
+    Gui::getSingleton().loadGuiSheet(Gui::editorMenu);
 
     giveFocus();
 
