@@ -41,3 +41,5 @@ plugins_d.cfg
 resources.cfg
 resources_install.cfg
 screenshot*
+ogre.cfg
+shaderCache
