@@ -177,23 +177,27 @@ void Gui::assignEventHandlers()
     // Editor Mode controls
     sheets[editorMenu]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&tpLavaButtonPressed));
+        CEGUI::Event::Subscriber(&editorLavaButtonPressed));
 
     sheets[editorMenu]->getChild(EDITOR_GOLD_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&tpGoldButtonPressed));
+        CEGUI::Event::Subscriber(&editorGoldButtonPressed));
 
     sheets[editorMenu]->getChild(EDITOR_ROCK_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&tpRockButtonPressed));
+        CEGUI::Event::Subscriber(&editorRockButtonPressed));
 
     sheets[editorMenu]->getChild(EDITOR_WATER_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&tpWaterButtonPressed));
+        CEGUI::Event::Subscriber(&editorWaterButtonPressed));
 
     sheets[editorMenu]->getChild(EDITOR_DIRT_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&tpDirtButtonPressed));
+        CEGUI::Event::Subscriber(&editorDirtButtonPressed));
+
+    sheets[editorMenu]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
+        CEGUI:: Window::EventMouseClick,
+        CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
@@ -270,7 +274,9 @@ bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 }
 
 
-bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
+// EDITOR
+
+bool Gui::editorGoldButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
@@ -280,7 +286,7 @@ bool Gui::tpGoldButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::tpLavaButtonPressed(const CEGUI::EventArgs& e)
+bool Gui::editorLavaButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
@@ -290,7 +296,7 @@ bool Gui::tpLavaButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::tpRockButtonPressed(const CEGUI::EventArgs& e)
+bool Gui::editorRockButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
@@ -300,7 +306,7 @@ bool Gui::tpRockButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::tpWaterButtonPressed(const CEGUI::EventArgs& e)
+bool Gui::editorWaterButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
@@ -310,7 +316,7 @@ bool Gui::tpWaterButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
+bool Gui::editorDirtButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
@@ -319,6 +325,18 @@ bool Gui::tpDirtButtonPressed(const CEGUI::EventArgs& e)
     static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::dirt;
     return true;
 }
+
+bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::EDITOR)
+        return true;
+
+    static_cast<EditorMode*>(mm->getCurrentMode())->mCurrentTileType = Tile::claimed;
+    return true;
+}
+
+// MAIN MENU
 
 //! \brief What happens after a click on New Game in the main menu
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
@@ -397,3 +415,4 @@ const std::string Gui::EDITOR_GOLD_BUTTON = "MainTabControl/Tiles/GoldButton";
 const std::string Gui::EDITOR_DIRT_BUTTON = "MainTabControl/Tiles/DirtButton";
 const std::string Gui::EDITOR_WATER_BUTTON = "MainTabControl/Tiles/WaterButton";
 const std::string Gui::EDITOR_ROCK_BUTTON = "MainTabControl/Tiles/RockButton";
+const std::string Gui::EDITOR_CLAIMED_BUTTON = "MainTabControl/Tiles/ClaimedButton";

@@ -93,6 +93,7 @@ public:
     static const std::string EDITOR_ROCK_BUTTON;
     static const std::string EDITOR_WATER_BUTTON;
     static const std::string EDITOR_DIRT_BUTTON;
+    static const std::string EDITOR_CLAIMED_BUTTON;
 
 private:
     void assignEventHandlers();
@@ -117,11 +118,12 @@ private:
     static bool serverButtonPressed     (const CEGUI::EventArgs& e);
 
     // Editor Buttons
-    static bool tpLavaButtonPressed(const CEGUI::EventArgs& e);
-    static bool tpGoldButtonPressed(const CEGUI::EventArgs& e);
-    static bool tpRockButtonPressed(const CEGUI::EventArgs& e);
-    static bool tpWaterButtonPressed(const CEGUI::EventArgs& e);
-    static bool tpDirtButtonPressed(const CEGUI::EventArgs& e);
+    static bool editorLavaButtonPressed(const CEGUI::EventArgs& e);
+    static bool editorGoldButtonPressed(const CEGUI::EventArgs& e);
+    static bool editorRockButtonPressed(const CEGUI::EventArgs& e);
+    static bool editorWaterButtonPressed(const CEGUI::EventArgs& e);
+    static bool editorDirtButtonPressed(const CEGUI::EventArgs& e);
+    static bool editorClaimedButtonPressed(const CEGUI::EventArgs& e);
 };
 
 #endif // GUI_H_
