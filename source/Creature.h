@@ -161,7 +161,13 @@ public:
                                                            unsigned int *minRange, GameEntity **nearestObject);
     std::vector<GameEntity*> getEnemyObjectsInRange(const std::vector<GameEntity*> &enemyObjectsToCheck);
     std::vector<GameEntity*> getVisibleAlliedObjects();
+
+    //! \brief Loops over the visibleTiles and adds any which are marked for digging to a vector which it returns.
     std::vector<Tile*> getVisibleMarkedTiles();
+
+    //! \brief Loops over the visibleTiles and adds any which are claimable walls.
+    std::vector<Tile*> getVisibleClaimableWallTiles();
+
     std::vector<GameEntity*> getVisibleForce(int color, bool invert);
     Tile* positionTile();
     std::vector<Tile*> getCoveredTiles();
@@ -269,6 +275,11 @@ private:
     //! This functions will hanlde the creature claim tile action logic.
     //! \return true when another action should handled after that one.
     bool handleClaimTileAction();
+
+    //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature claim wall tile action logic.
+    //! \return true when another action should handled after that one.
+    bool handleClaimWallTileAction();
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature dig tile action logic.

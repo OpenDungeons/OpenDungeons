@@ -46,6 +46,9 @@ std::string CreatureAction::toString() const
     case digTile:
         return "digTile";
 
+    case claimWallTile:
+        return "claimWallTile";
+
     case claimTile:
         return "claimTile";
 

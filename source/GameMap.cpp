@@ -131,27 +131,27 @@ void GameMap::createNewMap()
     stringstream ss;
 
     for (int jj = 0; jj < mapSizeX; ++jj)	{
-	for (int ii = 0; ii < mapSizeY; ++ii){
+    for (int ii = 0; ii < mapSizeY; ++ii){
 
 
-	    if((getTile(ii,jj)->getGameMap()) == NULL ){
-		ss.str(std::string());
-		ss<<"Level_"<<ii<<"_"<<jj;
+        if((getTile(ii,jj)->getGameMap()) == NULL ){
+        ss.str(std::string());
+        ss<<"Level_"<<ii<<"_"<<jj;
 
 
-		tempTile.setGameMap(this);
-		tempTile.setType(Tile::dirt);
+        tempTile.setGameMap(this);
+        tempTile.setType(Tile::dirt);
 
-		tempTile.setName(ss.str());
-		tempTile.x=ii;
-		tempTile.y=jj;
-		sem_wait(&tilesLockSemaphore);
-		insert(ii, jj, tempTile );
-		sem_post(&tilesLockSemaphore);
+        tempTile.setName(ss.str());
+        tempTile.x=ii;
+        tempTile.y=jj;
+        sem_wait(&tilesLockSemaphore);
+        insert(ii, jj, tempTile );
+        sem_post(&tilesLockSemaphore);
 
 
-	    }
-	}
+        }
+    }
     }
 
     // Loop over all the tiles and force them to examine their
@@ -181,12 +181,12 @@ void GameMap::createTilesMeshes(void){
 
 
   for (int jj = 0; jj < getMapSizeY(); ++jj)	{
-	for (int ii = 0; ii < getMapSizeX(); ++ii){
+    for (int ii = 0; ii < getMapSizeX(); ++ii){
 
-	    getTile(ii,jj)->createMesh();
+        getTile(ii,jj)->createMesh();
 
 
-	}
+    }
     }
 
 
@@ -196,10 +196,10 @@ void GameMap::createTilesMeshes(void){
 
 int GameMap::setAllNeighbors(){
     for (int ii = 0 ; ii < getMapSizeX() ; ii++) {
-	for (int jj = 0 ; jj < getMapSizeY() ; jj++) {
-	    setTileNeighbors(getTile(ii,jj));
+    for (int jj = 0 ; jj < getMapSizeY() ; jj++) {
+        setTileNeighbors(getTile(ii,jj));
 
-	}
+    }
     }
     return 1;
 }
@@ -545,9 +545,9 @@ void GameMap::createAllEntities()
         for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
             getTile(ii,jj)->createMesh();
-	    // tileSceneNode = sceneManager->getSceneNode( getTile(ii,jj)->getName() + "_node" );
-	    // getTile(ii,jj)->pSN = tileSceneNode->getParentSceneNode();
-	    // getTile(ii,jj)->pSN->removeChild(tileSceneNode);
+        // tileSceneNode = sceneManager->getSceneNode( getTile(ii,jj)->getName() + "_node" );
+        // getTile(ii,jj)->pSN = tileSceneNode->getParentSceneNode();
+        // getTile(ii,jj)->pSN->removeChild(tileSceneNode);
         }
     }
     // // for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
@@ -971,15 +971,6 @@ unsigned long int GameMap::doMiscUpkeep()
                 if (tempSeat != NULL)
                 {
                     tempSeat->incrementNumClaimedTiles();
-
-                    // Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
-                    std::vector<Tile*> neighbors = neighborTiles(tempTile);
-                    for (unsigned int ii = 0; ii < neighbors.size(); ++ii)
-                    {
-                        if (neighbors[ii]->getType() == Tile::dirt
-                                && neighbors[ii]->getFullness() < 1)// && neighbors[i]->colorDouble < 0.8)
-                            neighbors[ii]->claimForColor(tempSeat->color, 0.04);
-                    }
                 }
             }
 
@@ -987,34 +978,6 @@ unsigned long int GameMap::doMiscUpkeep()
         }
     }
 
-    // std::map<std::pair<int, int> , Tile*>::iterator currentTile = tiles.begin();
-    // while (currentTile != tiles.end())
-    //   {
-    //     tempTile = currentTile->second;
-
-    //     // Check to see if the current tile is claimed by anyone.
-    //     if (tempTile->getType() == Tile::claimed)
-    //       {
-    // 	  // Increment the count of the seat who owns the tile.
-    // 	  tempSeat = getSeatByColor(tempTile->getColor());
-    // 	  if (tempSeat != NULL)
-    //           {
-    // 	      tempSeat->incrementNumClaimedTiles();
-
-    // 	      // Add a small increment of this player's color to the tiles to allow the claimed area to grow on its own.
-    // 	      std::vector<Tile*> neighbors = neighborTiles(
-    // 							   currentTile->second);
-    // 	      for (unsigned int i = 0; i < neighbors.size(); ++i)
-    //               {
-    // 		  if (neighbors[i]->getType() == Tile::dirt
-    // 		      && neighbors[i]->getFullness() < 1)// && neighbors[i]->colorDouble < 0.8)
-    // 		    neighbors[i]->claimForColor(tempSeat->color, 0.04);
-    //               }
-    //           }
-    //       }
-
-    //     ++currentTile;
-    //   }
     sem_post(&tilesLockSemaphore);
 
     timeTaken = stopwatch.getMicroseconds();

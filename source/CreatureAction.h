@@ -33,6 +33,7 @@ public:
         maneuver, // Like walkToTile but used for combat situations.
         digTile, // (worker only) Dig out a tile, i.e. decrease its fullness.
         claimTile, // (worker only) "Dance" on tile to change its color.
+        claimWallTile, // (worker only) "Dance" next to wall tile to change its color and set it as reinforced.
         depositGold, // (worker only) Carry gold that has been mined to a treasury.
         attackObject, // Do damage to an attackableObject withing range, if not in range begin maneuvering.
         findHome, // Try to find a "home" tile in a quarters somewhere where the creature can sleep.

@@ -424,6 +424,10 @@ void Creature::doTurn()
                     loopBack = handleClaimTileAction();
                     break;
 
+                case CreatureAction::claimWallTile:
+                    loopBack = handleClaimWallTileAction();
+                    break;
+
                 case CreatureAction::digTile:
                     loopBack = handleDigTileAction();
                     break;
@@ -785,7 +789,7 @@ bool Creature::handleClaimTileAction()
     }
 
     // See if the tile we are standing on can be claimed
-    if ((myTile->getColor() != getColor() || myTile->colorDouble < 1.0) && myTile->isClaimable())
+    if ((myTile->getColor() != getColor() || myTile->colorDouble < 1.0) && myTile->isGroundClaimable())
     {
         //cout << "\nTrying to claim the tile I am standing on.";
         // Check to see if one of the tile's neighbors is claimed for our color
@@ -822,7 +826,7 @@ bool Creature::handleClaimTileAction()
         //NOTE:  I don't think the "colorDouble" check should happen here.
         if (tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile
             && (tempTile->getColor() != getColor() || tempTile->colorDouble < 1.0)
-            && tempTile->isClaimable())
+            && tempTile->isGroundClaimable())
         {
             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
             // though it must have a neighbor of its own that is already claimed for our side.
@@ -854,7 +858,7 @@ bool Creature::handleClaimTileAction()
         Tile* tempTile = mVisibleTiles[i];
         if (tempTile != NULL && tempTile->getTilePassability() == Tile::walkableTile
             && (tempTile->colorDouble < 1.0 || tempTile->getColor() != getColor())
-            && tempTile->isClaimable())
+            && tempTile->isGroundClaimable())
         {
             // Check to see if one of the tile's neighbors is claimed for our color
             neighbors = getGameMap()->neighborTiles(mVisibleTiles[i]);
@@ -936,26 +940,37 @@ bool Creature::handleClaimTileAction()
         }
     }
 
-    // We couldn't find a tile to try to claim so we stop trying
+    // We couldn't find a tile to try to claim so we start searching for claimable walls
     popAction();
-    return false;
+    pushAction(CreatureAction::claimWallTile);
+    return true;
 }
 
-bool Creature::handleDigTileAction()
+bool Creature::handleClaimWallTileAction()
 {
     Tile* myTile = positionTile();
+    //NOTE:  This is a workaround for the problem with the positionTile() function,
+    // it can be removed when that issue is resolved.
     if (myTile == NULL)
-        return false;
-
-    //cout << "dig ";
-
-    // Randomly decide to stop digging with a small probability
-    /*
-    if (Random::Double(0.0, 1.0) < 0.35 - 0.2 * markedTiles.size())
     {
         popAction();
-        return true;
-    }*/
+        return false;
+    }
+
+    // Randomly decide to stop claiming with a small probability
+    std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
+    if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
+    {
+        // If there are any visible tiles marked for digging start working on that.
+        if (!markedTiles.empty())
+        {
+            popAction();
+            pushAction(CreatureAction::digTile);
+            return true;
+        }
+    }
+
+    //std::cout << "Claim wall" << std::endl;
 
     // See if any of the tiles is one of our neighbors
     bool wasANeighbor = false;
@@ -963,92 +978,41 @@ bool Creature::handleDigTileAction()
     Player* tempPlayer = getControllingPlayer();
     for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
     {
+        if (tempPlayer == NULL)
+            break;
+
         Tile* tempTile = creatureNeighbors[i];
 
-        if (tempPlayer != NULL && tempTile->getMarkedForDigging(tempPlayer))
-        {
-            // We found a tile marked by our controlling seat, dig out the tile.
+        if (!tempTile->isWallClaimable(getColor()))
+            continue;
 
-            // If the tile is a gold tile accumulate gold for this creature.
-            if (tempTile->getType() == Tile::gold)
-            {
-                //FIXME: Make sure we can't dig gold if the creature has max gold.
-                // Or let gold on the ground, until there is space so that the player
-                // isn't stuck when making a way through gold.
-                double tempDouble = 5 * std::min(mDefinition->getDigRate(), tempTile->getFullness());
-                mGold += (int)tempDouble;
-                getGameMap()->getSeatByColor(getColor())->goldMined += (int)tempDouble;
-                recieveExp(5.0 * mDefinition->getDigRate() / 20.0);
-            }
+        // Turn so that we are facing toward the tile we are going to dig out.
+        faceToward(tempTile->x, tempTile->y);
 
-            // Turn so that we are facing toward the tile we are going to dig out.
-            faceToward(tempTile->x, tempTile->y);
+        // Dig out the tile by decreasing the tile's fullness.
+        setAnimationState("Claim");
+        tempTile->claimForColor(getColor(), mDefinition->getDanceRate());
+        recieveExp(1.5 * mDefinition->getDanceRate() / 20.0);
 
-            // Dig out the tile by decreasing the tile's fullness.
-            setAnimationState("Dig");
-            double amountDug = tempTile->digOut(mDefinition->getDigRate(), true);
-            if(amountDug > 0.0)
-            {
-                recieveExp(1.5 * mDefinition->getDigRate() / 20.0);
-
-                // If the tile has been dug out, move into that tile and try to continue digging.
-                if (tempTile->getFullness() < 1)
-                {
-                    recieveExp(2.5);
-                    setAnimationState("Walk");
-
-                    // Remove the dig action and replace it with
-                    // walking to the newly dug out tile.
-                    //popAction();
-                    addDestination((Ogre::Real)tempTile->x, (Ogre::Real)tempTile->y);
-                    pushAction(CreatureAction::walkToTile);
-                }
-                //Set sound position and play dig sound.
-                mSound->setPosition(getPosition());
-                mSound->play(CreatureSound::DIG);
-            }
-            else
-            {
-                //We tried to dig a tile we are not able to
-                //Completely bail out if this happens.
-                clearActionQueue();
-            }
-
-            wasANeighbor = true;
-            break;
-        }
+        wasANeighbor = true;
+        //std::cout << "Claiming wall" << std::endl;
+        break;
     }
 
-    // Check to see if we are carrying the maximum amount of gold we can carry, and if so, try to take it to a treasury.
-    if (mGold >= MaxGoldCarriedByWorkers)
-    {
-        // Remove the dig action and replace it with a depositGold action.
-        pushAction(CreatureAction::depositGold);
-    }
-
-    // If we successfully dug a tile then we are done for this turn.
+    // If we successfully found a wall tile to claim then we are done for this turn.
     if (wasANeighbor)
         return false;
+    //std::cout << "Looking for a wall to claim" << std::endl;
 
-    /*
-    // Randomly decide to stop digging with a larger probability
-    if(randomDouble(0.0, 1.0) < 0.1)
-    {
-        popAction();
-        return true;
-    }
-     */
-
-    // Find paths to all of the neighbor tiles for all of the marked visible tiles.
+    // Find paths to all of the neighbor tiles for all of the visible wall tiles.
     std::vector<std::list<Tile*> > possiblePaths;
-    Tile* neighborTile = NULL;
-    std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
-    for (unsigned int i = 0; i < markedTiles.size(); ++i)
+    std::vector<Tile*> wallTiles = getVisibleClaimableWallTiles();
+    for (unsigned int i = 0; i < wallTiles.size(); ++i)
     {
-        std::vector<Tile*> neighbors = getGameMap()->neighborTiles(markedTiles[i]);
+        std::vector<Tile*> neighbors = getGameMap()->neighborTiles(wallTiles[i]);
         for (unsigned int j = 0; j < neighbors.size(); ++j)
         {
-            neighborTile = neighbors[j];
+            Tile* neighborTile = neighbors[j];
             if (neighborTile != NULL && neighborTile->getFullness() < 1)
                 possiblePaths.push_back(getGameMap()->path(positionTile(), neighborTile, mDefinition->getTilePassability()));
         }
@@ -1062,8 +1026,7 @@ bool Creature::handleDigTileAction()
         for (unsigned int i = 0; i < possiblePaths.size(); ++i)
         {
             // If the current path is long enough to be valid
-            unsigned int currentLength =
-                    possiblePaths[i].size();
+            unsigned int currentLength = possiblePaths[i].size();
             if (currentLength >= 2)
             {
                 shortPaths.push_back(possiblePaths[i]);
@@ -1076,19 +1039,173 @@ bool Creature::handleDigTileAction()
                     // Kick out the longest
                     longestLength = shortPaths[0].size();
                     longestIndex = 0;
-                    for (unsigned int j = 1; j
-                            < shortPaths.size(); ++j)
+                    for (unsigned int j = 1; j < shortPaths.size(); ++j)
                     {
-                        if (shortPaths[j].size()
-                                > longestLength)
+                        if (shortPaths[j].size() > longestLength)
                         {
                             longestLength = shortPaths.size();
                             longestIndex = j;
                         }
                     }
 
-                    shortPaths.erase(shortPaths.begin()
-                            + longestIndex);
+                    shortPaths.erase(shortPaths.begin() + longestIndex);
+                }
+            }
+        }
+
+        // Randomly pick a short path to take
+        unsigned int numShortPaths = shortPaths.size();
+        if (numShortPaths > 0)
+        {
+            unsigned int shortestIndex;
+            shortestIndex = Random::Uint(0, numShortPaths - 1);
+            std::list<Tile*> walkPath = shortPaths[shortestIndex];
+
+            // If the path is a legitimate path, walk down it to the tile to be dug out
+            getGameMap()->cutCorners(walkPath, mDefinition->getTilePassability());
+            if (setWalkPath(walkPath, 2, false))
+            {
+                setAnimationState("Walk");
+                pushAction(CreatureAction::walkToTile);
+                return false;
+            }
+        }
+    }
+
+    // If we found no path, let's stop doing this
+    popAction();
+    return true;
+}
+
+bool Creature::handleDigTileAction()
+{
+    Tile* myTile = positionTile();
+    if (myTile == NULL)
+        return false;
+
+    //cout << "dig ";
+
+    // See if any of the tiles is one of our neighbors
+    bool wasANeighbor = false;
+    std::vector<Tile*> creatureNeighbors = getGameMap()->neighborTiles(myTile);
+    Player* tempPlayer = getControllingPlayer();
+    for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
+    {
+        if (tempPlayer == NULL)
+            break;
+
+        Tile* tempTile = creatureNeighbors[i];
+
+        if (!tempTile->getMarkedForDigging(tempPlayer))
+            continue;
+
+        // We found a tile marked by our controlling seat, dig out the tile.
+
+        // If the tile is a gold tile accumulate gold for this creature.
+        if (tempTile->getType() == Tile::gold)
+        {
+            //FIXME: Make sure we can't dig gold if the creature has max gold.
+            // Or let gold on the ground, until there is space so that the player
+            // isn't stuck when making a way through gold.
+            double tempDouble = 5 * std::min(mDefinition->getDigRate(), tempTile->getFullness());
+            mGold += (int)tempDouble;
+            getGameMap()->getSeatByColor(getColor())->goldMined += (int)tempDouble;
+            recieveExp(5.0 * mDefinition->getDigRate() / 20.0);
+        }
+
+        // Turn so that we are facing toward the tile we are going to dig out.
+        faceToward(tempTile->x, tempTile->y);
+
+        // Dig out the tile by decreasing the tile's fullness.
+        setAnimationState("Dig");
+        double amountDug = tempTile->digOut(mDefinition->getDigRate(), true);
+        if(amountDug > 0.0)
+        {
+            recieveExp(1.5 * mDefinition->getDigRate() / 20.0);
+
+            // If the tile has been dug out, move into that tile and try to continue digging.
+            if (tempTile->getFullness() < 1)
+            {
+                recieveExp(2.5);
+                setAnimationState("Walk");
+
+                // Remove the dig action and replace it with
+                // walking to the newly dug out tile.
+                //popAction();
+                addDestination((Ogre::Real)tempTile->x, (Ogre::Real)tempTile->y);
+                pushAction(CreatureAction::walkToTile);
+            }
+            //Set sound position and play dig sound.
+            mSound->setPosition(getPosition());
+            mSound->play(CreatureSound::DIG);
+        }
+        else
+        {
+            //We tried to dig a tile we are not able to
+            //Completely bail out if this happens.
+            clearActionQueue();
+        }
+
+        wasANeighbor = true;
+        break;
+    }
+
+    // Check to see if we are carrying the maximum amount of gold we can carry, and if so, try to take it to a treasury.
+    if (mGold >= MaxGoldCarriedByWorkers)
+    {
+        // Remove the dig action and replace it with a depositGold action.
+        pushAction(CreatureAction::depositGold);
+    }
+
+    // If we successfully dug a tile then we are done for this turn.
+    if (wasANeighbor)
+        return false;
+
+    // Find paths to all of the neighbor tiles for all of the marked visible tiles.
+    std::vector<std::list<Tile*> > possiblePaths;
+    std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
+    for (unsigned int i = 0; i < markedTiles.size(); ++i)
+    {
+        std::vector<Tile*> neighbors = getGameMap()->neighborTiles(markedTiles[i]);
+        for (unsigned int j = 0; j < neighbors.size(); ++j)
+        {
+            Tile* neighborTile = neighbors[j];
+            if (neighborTile != NULL && neighborTile->getFullness() < 1)
+                possiblePaths.push_back(getGameMap()->path(positionTile(), neighborTile, mDefinition->getTilePassability()));
+        }
+    }
+
+    // Find the shortest path and start walking toward the tile to be dug out
+    if (!possiblePaths.empty())
+    {
+        // Find the N shortest valid paths, see if there are any valid paths shorter than this first guess
+        std::vector<std::list<Tile*> > shortPaths;
+        for (unsigned int i = 0; i < possiblePaths.size(); ++i)
+        {
+            // If the current path is long enough to be valid
+            unsigned int currentLength = possiblePaths[i].size();
+            if (currentLength >= 2)
+            {
+                shortPaths.push_back(possiblePaths[i]);
+
+                // If we already have enough short paths
+                if (shortPaths.size() > 5)
+                {
+                    unsigned int longestLength, longestIndex;
+
+                    // Kick out the longest
+                    longestLength = shortPaths[0].size();
+                    longestIndex = 0;
+                    for (unsigned int j = 1; j < shortPaths.size(); ++j)
+                    {
+                        if (shortPaths[j].size() > longestLength)
+                        {
+                            longestLength = shortPaths.size();
+                            longestIndex = j;
+                        }
+                    }
+
+                    shortPaths.erase(shortPaths.begin() + longestIndex);
                 }
             }
         }
@@ -1828,7 +1945,6 @@ std::vector<GameEntity*> Creature::getVisibleAlliedObjects()
     return getVisibleForce(getColor(), false);
 }
 
-//! \brief Loops over the visibleTiles and adds any which are marked for digging to a vector which it returns.
 std::vector<Tile*> Creature::getVisibleMarkedTiles()
 {
     std::vector<Tile*> tempVector;
@@ -1843,6 +1959,22 @@ std::vector<Tile*> Creature::getVisibleMarkedTiles()
     }
 
     return tempVector;
+}
+
+//! \brief Loops over the visibleTiles and adds any which are claimable walls.
+std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
+{
+    std::vector<Tile*> claimableWallTiles;
+
+    // Loop over all the visible tiles.
+    for (unsigned int i = 0, size = mVisibleTiles.size(); i < size; ++i)
+    {
+        // Check to see if the tile is marked for digging.
+        if (mVisibleTiles[i]->isWallClaimable(getColor()))
+            claimableWallTiles.push_back(mVisibleTiles[i]);
+    }
+
+    return claimableWallTiles;
 }
 
 //! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.

@@ -514,7 +514,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (inputManager->mDragType == tileSelection)
         {
             //See if the tile can be marked for digging.
-            if (currentTile->isDiggable())
+            if (currentTile->isDiggable(mGameMap->getLocalPlayer()->getSeat()->color))
             {
                 if (Socket::serverSocket != NULL)
                 {

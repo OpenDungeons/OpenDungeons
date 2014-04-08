@@ -1,6 +1,4 @@
-#include <cstddef>
-#include <bitset>
-
+#include "Tile.h"
 
 #include "ODServer.h"
 #include "Creature.h"
@@ -13,26 +11,15 @@
 #include "RenderManager.h"
 #include "Socket.h"
 #include "Player.h"
-#include "Tile.h"
 
-
+#include <cstddef>
+#include <bitset>
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-/*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
- *
- * In addition to setting the tile type this function also reloads the new mesh
- * for the tile.
- */
-
-
-
-static Ogre::MeshManager *myOgreMeshManger
-= Ogre:: MeshManager::getSingletonPtr();
-
-
+static Ogre::MeshManager *myOgreMeshManger = Ogre:: MeshManager::getSingletonPtr();
 
 void Tile::setType(TileType t)
 {
@@ -45,26 +32,6 @@ void Tile::setType(TileType t)
     }
 }
 
-/*! \brief An accessor which returns the tile type (rock, claimed, etc.).
- *
- */
-Tile::TileType Tile::getType() const
-{
-    return type;
-}
-
-/*! \brief A mutator to change how "filled in" the tile is.
- *
- * Additionally this function reloads the proper mesh to display to the user
- * how full the tile is.  It also determines the orientation of the
- * tile to make corners display correctly.  Both of these tasks are
- * accomplished by setting the fullnessMeshNumber variable which is
- * concatenated to the tile's type to determine the mesh to load, e.g.
- * Rock104.mesh for a rocky tile which has all 4 sides shown because it is an
- * "island" with all four sides visible.  Claimed102.mesh would be a fully
- * filled in tile but only two sides are drawn because it borders full tiles on
- * 2 sides.
- */
 void Tile::setFullness(double f)
 {
     int oldFullnessMeshNumber = fullnessMeshNumber;
@@ -378,10 +345,6 @@ void Tile::setFullness(double f)
     }
 }
 
-/*! \brief Set the fullness value for the tile.
- *  This only sets the fullness variable. This function is here to change the value
- *  before a map object has been set. setFullness is called once a map is assigned.
- */
 void Tile::setFullnessValue(double f)
 {
     sem_wait(&fullnessLockSemaphore);
@@ -389,9 +352,6 @@ void Tile::setFullnessValue(double f)
     sem_post(&fullnessLockSemaphore);
 }
 
-/*! \brief An accessor which returns the tile's fullness which should range from 0 to 100.
- *
- */
 double Tile::getFullness() const
 {
     sem_wait(&fullnessLockSemaphore);
@@ -401,23 +361,11 @@ double Tile::getFullness() const
     return tempDouble;
 }
 
-/*! \brief An accessor which returns the tile's fullness mesh number.
- *
- * The fullness mesh number is concatenated to the tile's type to determine the
- * mesh to load to display a given tile type.
- */
 int Tile::getFullnessMeshNumber() const
 {
     return fullnessMeshNumber;
 }
 
-/*! \brief Returns the 'passability' state of a tile (impassableTile, walkableTile, etc.).
- *
- * The passability of a tile indicates what type of creatures may move into the
- * given tile.  As an example, no creatures may move into an 'impassableTile'
- * like Dirt100 and only flying creatures may move into a 'flyableTile' like
- * Lava0.
- */
 Tile::TileClearType Tile::getTilePassability() const
 {
     // Check to see if the tile is filled in.
@@ -460,15 +408,13 @@ Tile::TileClearType Tile::getTilePassability() const
 
 bool Tile::permitsVision() const
 {
-    //TODO: This call to getTilePassability() is far too much work, when the rules for vision are more well established this function should be replaced with specialized code which avoids this call.
     TileClearType clearType = getTilePassability();
     return (clearType == walkableTile || clearType == flyableTile);
 }
 
-/* Checks if the place is buildable at the moment */
 bool Tile::isBuildableUpon() const
 {
-    if(type != claimed || getFullness() > 0.01 || coveringTrap==true)
+    if(type != claimed || getFullness() > 0.01 || coveringTrap == true)
     {
         return false;
     }
@@ -505,18 +451,109 @@ void Tile::setCoveringRoom(Room *r)
     sem_post(&coveringRoomLockSemaphore);
 }
 
-/*! \brief Check if tile is diggable.
- *  Returns true if a tile is diggable.
- *  (Can be marked for digging and dug out by kobolds)
- */
-bool Tile::isDiggable() const
+bool Tile::isDiggable(int team_color_id) const
 {
-    return ((type == dirt || type == gold || type == claimed) && getFullness() > 1);
+    if (getFullness() < 1)
+        return false;
+
+    // Return true for common types.
+    if (type == dirt || type == gold)
+        return true;
+
+    // Return false for undiggable types.
+    if (type == lava || type == water || type == rock)
+        return false;
+
+    if (type != claimed)
+        return false;
+
+    // type == claimed
+
+    // For claimed walls, we check whether the walls is either claimed by the given player,
+    if (getColor() == team_color_id && colorDouble > 0.99)
+        return true;
+
+    // or whether it isn't belonging to a specific team.
+    if (colorDouble <= 0.0)
+        return true;
+
+    return false;
 }
 
-bool Tile::isClaimable() const
+bool Tile::isGroundClaimable() const
 {
     return ((type == dirt || type == claimed) && getFullness() < 1);
+}
+
+bool Tile::isWallClaimable(int team_color_id)
+{
+    if (getFullness() < 1)
+        return false;
+
+    if (type == lava || type == water || type == rock || type == gold)
+        return false;
+
+    // Check whether at least one neighbor is a claimed ground tile of the given color
+    // which is a condition to permit claiming the given wall tile.
+    bool foundClaimedGroundTile = false;
+    sem_wait(&neighborsLockSemaphore);
+    for (unsigned int j = 0; j < neighbors.size(); ++j)
+    {
+        if (neighbors[j]->getFullness() > 1)
+            continue;
+
+        if (neighbors[j]->getType() == claimed
+                && neighbors[j]->colorDouble >= 1.0
+                && neighbors[j]->getColor() == team_color_id)
+        {
+            foundClaimedGroundTile = true;
+            break;
+        }
+    }
+    sem_post(&neighborsLockSemaphore);
+
+    if (foundClaimedGroundTile == false)
+        return false;
+
+    if (type == dirt)
+        return true;
+
+    if (type != claimed)
+        return false;
+
+    // type == claimed
+
+    // For claimed walls, we check whether it isn't belonging completely to a specific team.
+    if (colorDouble <= 0.99)
+        return true;
+
+    // Or whether the wall tile is either claimed by the given player entirely already,
+    if (getColor() == team_color_id) // NOTE: colorDouble >= 1.0 here
+        return false; // Already claimed.
+
+    // Or whether the enemy player that claimed the wall tile has got any ground tiles permitting to keep claiming that wall tile.
+    foundClaimedGroundTile = false;
+    int enemy_color_id = getColor(); // NOTE: != team_color_id here.
+    sem_wait(&neighborsLockSemaphore);
+    for (unsigned int j = 0; j < neighbors.size(); ++j)
+    {
+        if (neighbors[j]->getFullness() > 1)
+            continue;
+
+        if (neighbors[j]->getType() == claimed
+                && neighbors[j]->colorDouble >= 1.0
+                && neighbors[j]->getColor() == enemy_color_id)
+        {
+            foundClaimedGroundTile = true;
+            break;
+        }
+    }
+    sem_post(&neighborsLockSemaphore);
+
+    if (!foundClaimedGroundTile)
+        return true;
+
+    return false;
 }
 
 const char* Tile::getFormat()
@@ -524,11 +561,6 @@ const char* Tile::getFormat()
     return "posX\tposY\ttype\tfullness";
 }
 
-/*! \brief The << operator is used for saving tiles to a file and sending them over the net.
- *
- * This operator is used in conjunction with the >> operator to standardize
- * tile format in the level files, as well as sending tiles over the network.
- */
 std::ostream& operator<<(std::ostream& os, Tile *t)
 {
     os << t->x << "\t" << t->y << "\t" << t->getType() << "\t"
@@ -537,11 +569,6 @@ std::ostream& operator<<(std::ostream& os, Tile *t)
     return os;
 }
 
-/*! \brief The >> operator is used for loading tiles from a file and for receiving them over the net.
- *
- * This operator is used in conjunction with the << operator to standardize
- * tile format in the level files, as well as sending tiles over the network.
- */
 std::istream& operator>>(std::istream& is, Tile *t)
 {
     int tempInt, xLocation, yLocation;
@@ -572,13 +599,6 @@ std::istream& operator>>(std::istream& is, Tile *t)
     return is;
 }
 
-/*! \brief This is a helper function which just converts the tile type enum into a string.
- *
- * This function is used primarily in forming the mesh names to load from disk
- * for the various tile types.  The name returned by this function is
- * concatenated with a fullnessMeshNumber to form the filename, e.g.
- * Dirt104.mesh is a 4 sided dirt mesh with 100% fullness.
- */
 std::string Tile::tileTypeToString(TileType t)
 {
     switch (t)
@@ -604,25 +624,12 @@ std::string Tile::tileTypeToString(TileType t)
     }
 }
 
-/*! \brief This is a helper function to scroll through the list of available tile types.
- *
- * This function is used in the map editor when the user presses the button to
- * select the next tile type to be active in the user interface.  The active
- * tile type is the one which is placed when the user clicks the mouse button.
- */
 Tile::TileType Tile::nextTileType(TileType t)
 {
     return static_cast<TileType>((static_cast<int>(t) + 1)
             % static_cast<int>(claimed));
 }
 
-/*! \brief This is a helper function to scroll through the list of available fullness levels.
- *
- * This function is used in the map editor when the user presses the button to
- * select the next tile fullness level to be active in the user interface.  The
- * active fullness level is the one which is placed when the user clicks the
- * mouse button.
- */
 int Tile::nextTileFullness(int f)
 {
 
@@ -649,48 +656,22 @@ int Tile::nextTileFullness(int f)
     }
 }
 
-
-
-
-// foobar(){
-//     Position
-
-
-//     for(int ii = 0 ; ii < 8 ; ii++){
-// 	tilePos += position
-
-
-
-//     }
-
-
-
-// }
-
-
-/*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
- *
- */
-std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumber,  TileType *neighbors, bool* neighborsFullness, int &rt )
+std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, TileType *neighbors, bool* neighborsFullness, int &rt)
 {
     std::stringstream ss;
     //FIXME - define postfix somewhere
-    int postfixInt = 0  ;
-    unsigned char  shiftedAroundBits;
-
-
+    int postfixInt = 0;
+    unsigned char shiftedAroundBits;
 
     // get the integer from neighbors[], using it as a number coded in binary base
-
-    for(int ii  = 8 ; ii >=1 ; ii--){
-
-	postfixInt *=2 ;
-	postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=water && myType!=lava)  || neighborsFullness[(ii)%8]  )) // || (!(myType!=water && myType!=lava) ||  fullnessMeshNumber > 0   )
-	    );
-
+    for(int ii = 8; ii >=1; ii--)
+    {
+        postfixInt *=2;
+        postfixInt += ((neighbors[(ii)%8] == myType &&  (!(myType!=water && myType!=lava)  || neighborsFullness[(ii)%8]  )) // || (!(myType!=water && myType!=lava) ||  fullnessMeshNumber > 0   )
+                      );
     }
 
-    int storedInt = postfixInt ;
+    int storedInt = postfixInt;
     // current implementation does not allow on separate corner tiles
     // leave only those corner tiles  ( the one in  the even position in PostfixInt binary base ) who have at least one ver or hor neighbor
 
@@ -702,12 +683,8 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     postfixInt &= 0xFF;
     postfixInt += shiftedAroundBits;
 
-
-
     // check for the clockwise rotation hor or ver neighbor for diagonal tile
-
     int foobar = postfixInt;
-
 
     shiftedAroundBits = postfixInt &  0x03;
     postfixInt >>= 2;
@@ -719,55 +696,38 @@ std::string Tile::meshNameFromNeighbors(TileType myType  , int fullnessMeshNumbe
     // check for the anti - clockwise rotation hor or ver neighbor of a diagonal tile
     int foobar2 = postfixInt;
 
-
-
-
     // 85  == 01010101b
     // 170 == 10101010b
     postfixInt = (foobar & foobar2 & 85) | (storedInt & 170);
 
-
     // Naros	rather than simply using getByName() and testing if MeshPtr.isNull() is true
     // 	Naros	if its null, then load it.
     // Naros	you want to use Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("MyResourceGroupName", "MyMeshFileName");
-
-    meshNameAux(ss, postfixInt , fullnessMeshNumber , myType);
-
-
+    meshNameAux(ss, postfixInt, fullnessMeshNumber, myType);
 
     // rotate the postfix number, as long , as we won't find Exisitng mesh
 
     // cerr <<  ss.str() << endl ;
-    for(rt = 0 ;  !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str())  && rt < 4 ; rt++  ) {
-    shiftedAroundBits = postfixInt &  0xC0;
-    postfixInt <<= 2;
-    postfixInt &= 0xFF;
-    shiftedAroundBits >>= 6;
-    shiftedAroundBits &= 0x03;
-    postfixInt += shiftedAroundBits;
+    for(rt = 0; !Ogre::ResourceGroupManager::getSingletonPtr()->resourceExists("Graphics", ss.str()) && rt < 4; rt++)
+    {
+        shiftedAroundBits = postfixInt &  0xC0;
+        postfixInt <<= 2;
+        postfixInt &= 0xFF;
+        shiftedAroundBits >>= 6;
+        shiftedAroundBits &= 0x03;
+        postfixInt += shiftedAroundBits;
 
-    ss.str("");
-    ss.clear();
+        ss.str("");
+        ss.clear();
 
-    meshNameAux(ss, postfixInt,fullnessMeshNumber,  myType);
+        meshNameAux(ss, postfixInt, fullnessMeshNumber, myType);
 
-    // cerr <<  ss.str()<< endl ;
-  }
-
-
-
-
-
-
-
-
+        // cerr <<  ss.str()<< endl ;
+    }
 
     return ss.str();
 }
 
-/*! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
- *
- */
 std::string Tile::meshNameFromFullness(TileType t, int fullnessMeshNumber)
 {
     std::stringstream ss;
@@ -776,9 +736,12 @@ std::string Tile::meshNameFromFullness(TileType t, int fullnessMeshNumber)
     return ss.str();
 }
 
-/*! \brief This function puts a message in the renderQueue to change the mesh for this tile.
- *
- */
+void Tile::meshNameAux(std::stringstream &ss, int &postfixInt, int& fMN, TileType myType)
+{
+    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt : (myType == lava) ? water : myType  ) << "_"
+       << (fMN > 0 ?  std::bitset<8>( postfixInt ).to_string() : ( (myType == water || myType == lava) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
+}
+
 void Tile::refreshMesh()
 {
     if (!isMeshExisting())
@@ -798,90 +761,64 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
     /* If we are trying to mark a tile that is not dirt or gold
      * or is already dug out, ignore the request.
      */
-    if (ss && (!isDiggable() || (getFullness() < 1)))
+    if (ss && (!isDiggable(pp->getSeat()->color) || (getFullness() < 1)))
         return;
 
     RenderRequest *request;
 
     if (getMarkedForDigging(pp) != ss)
-	{
-	    if  (pp == getGameMap()->getLocalPlayer()) // if this request is for me
-		{
-		    request = new RenderRequest;
+    {
+        if  (pp == getGameMap()->getLocalPlayer()) // if this request is for me
+        {
+            request = new RenderRequest;
 
-		    request->type = RenderRequest::setPickAxe;
-		    request->p = static_cast<void*>(this);
-		    request->p2 = static_cast<void*>(pp);
-		    request->b = ss;
-		    // Add the request to the queue of rendering operations to be performed before the next frame.
-		    RenderManager::queueRenderRequest(request);
-		    request = new RenderRequest;
+            request->type = RenderRequest::setPickAxe;
+            request->p = static_cast<void*>(this);
+            request->p2 = static_cast<void*>(pp);
+            request->b = ss;
+            // Add the request to the queue of rendering operations to be performed before the next frame.
+            RenderManager::queueRenderRequest(request);
+            request = new RenderRequest;
 
-		    request->type = RenderRequest::colorTile;
-		    request->p = static_cast<void*>(this);
-		    request->p2 = static_cast<void*>(pp);
-		    request->b = ss;
-		    // Add the request to the queue of rendering operations to be performed before the next frame.
-		    RenderManager::queueRenderRequest(request);
-		}
+            request->type = RenderRequest::colorTile;
+            request->p = static_cast<void*>(this);
+            request->p2 = static_cast<void*>(pp);
+            request->b = ss;
+            // Add the request to the queue of rendering operations to be performed before the next frame.
+            RenderManager::queueRenderRequest(request);
+        }
 
-	    if (ss)
-		{
-		    //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
-		    addPlayerMarkingTile(pp);
-		}
-	    else
-		{
-		    removePlayerMarkingTile(pp);
-		}
-	    // refreshMesh();
+        if (ss)
+        {
+            //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
+            addPlayerMarkingTile(pp);
+        }
+        else
+        {
+            removePlayerMarkingTile(pp);
+        }
+        // refreshMesh();
 
-	}
+    }
 }
 
-/*! \brief This function marks the tile as being selected through a mouse click or drag.
- *
- */
 void Tile::setSelected(bool ss, Player* pp)
 {
-
-
     if (selected != ss)
-    	{
+    {
+        selected = ss;
 
-    	    selected = ss;
+        RenderRequest *request = new RenderRequest;
 
-    	    RenderRequest *request = new RenderRequest;
+        request->type = RenderRequest::temporalMarkTile;
+        request->p = static_cast<void*>(this);
+        request->p2 = static_cast<void*>(pp);
 
-    	    request->type = RenderRequest::temporalMarkTile;
-    	    request->p = static_cast<void*>(this);
-    	    request->p2 = static_cast<void*>(pp);
-
-
-    	    // Add the request to the queue of rendering operations to be performed before the next frame.
-    	    RenderManager::queueRenderRequest(request);
-
-
-    	}
+        // Add the request to the queue of rendering operations to be performed before the next frame.
+        RenderManager::queueRenderRequest(request);
+    }
 }
 
-/*! \brief This accessor function returns whether or not the tile has been selected.
- *
- */
-bool Tile::getSelected() const
-{
-    return selected;
-}
-
-/*! \brief This function marks the tile to be dug out by workers, and displays the dig indicator on it.
- *
- */
-
-
-
-/*! \brief This is a simple helper function which just calls setMarkedForDigging() for everyone in the game (including me).
- *
- */
 void Tile::setMarkedForDiggingForAllSeats(bool s)
 {
     setMarkedForDigging(s, getGameMap()->getLocalPlayer());
@@ -890,9 +827,6 @@ void Tile::setMarkedForDiggingForAllSeats(bool s)
         setMarkedForDigging(s, getGameMap()->getPlayer(i));
 }
 
-/*! \brief This accessor function returns whether or not the tile has been marked to be dug out by a given Player p.
- *
- */
 bool Tile::getMarkedForDigging(Player *p)
 {
     // Loop over any players who have marked this tile and see if 'p' is one of them
@@ -912,9 +846,6 @@ bool Tile::isMarkedForDiggingByAnySeat()
     return !playersMarkingTile.empty();
 }
 
-/*! \brief This function adds a creature to the list of creatures in this tile.
- *
- */
 void Tile::addCreature(Creature *c)
 {
     sem_wait(&creaturesInCellLockSemaphore);
@@ -922,9 +853,6 @@ void Tile::addCreature(Creature *c)
     sem_post(&creaturesInCellLockSemaphore);
 }
 
-/*! \brief This function removes a creature to the list of creatures in this tile.
- *
- */
 void Tile::removeCreature(Creature *c)
 {
     sem_wait(&creaturesInCellLockSemaphore);
@@ -944,9 +872,6 @@ void Tile::removeCreature(Creature *c)
     sem_post(&creaturesInCellLockSemaphore);
 }
 
-/*! \brief This function returns the count of the number of creatures in the tile.
- *
- */
 unsigned int Tile::numCreaturesInCell() const
 {
     sem_wait(&creaturesInCellLockSemaphore);
@@ -956,9 +881,6 @@ unsigned int Tile::numCreaturesInCell() const
     return tempUnsigned;
 }
 
-/*! \brief This function returns the i'th creature in the tile.
- *
- */
 Creature* Tile::getCreature(unsigned int index)
 {
     sem_wait(&creaturesInCellLockSemaphore);
@@ -970,9 +892,6 @@ Creature* Tile::getCreature(unsigned int index)
     return creature;
 }
 
-/*! \brief Add a player to the vector of players who have marked this tile for digging.
- *
- */
 void Tile::addPlayerMarkingTile(Player *p)
 {
     playersMarkingTile.push_back(p);
@@ -1007,19 +926,17 @@ void Tile::addNeighbor(Tile *n)
     sem_post(&neighborsLockSemaphore);
 }
 
-double Tile::claimForColor(int nColor, double nDanceRate)
+void Tile::claimForColor(int nColor, double nDanceRate)
 {
     Tile *tempTile;
     double amountClaimed;
 
-    if (!isClaimable())
-        return 0.0;
-
+    //std::cout << "Claiming for color" << std::endl;
     // If the color is the same as ours we add to it, if it is an enemy color we subtract from it.
     if (nColor == getColor())
     {
         amountClaimed = std::min(nDanceRate, 1.0 - colorDouble);
-        //cout << "\t\tmyTile is My color.";
+        //std::cout << "Claiming: Same color" << std::endl;
         colorDouble += nDanceRate;
         if (colorDouble >= 1.0)
         {
@@ -1027,10 +944,12 @@ double Tile::claimForColor(int nColor, double nDanceRate)
             colorDouble = 1.0;
             setType(Tile::claimed);
             refreshMesh();
+            //std::cout << "Claiming: color complete" << std::endl;
         }
     }
     else
     {
+        //std::cout << "Claiming: different color" << std::endl;
         amountClaimed = std::min(nDanceRate, 1.0 + colorDouble);
         colorDouble -= nDanceRate;
         if (colorDouble <= 0.0)
@@ -1047,50 +966,26 @@ double Tile::claimForColor(int nColor, double nDanceRate)
         }
     }
 
+    /*
+    // TODO: This should rather add lights along claimed walls, and not on every walls. Maybe each 5 ones?
     // If this is the first time this tile has been claimed, emit a flash of light indicating that the tile was claimed.
     sem_wait(&claimLightLockSemaphore);
     if (amountClaimed > 0.0 && claimLight == NULL)
     {
         //Disabled claim lights for now, as they make things look rather ugly
         //and hamper performance.
-        /*Ogre::ColourValue tempColour =
+        Ogre::ColourValue tempColour =
                 gameMap->getSeatByColor(nColor)->colourValue;
 
         claimLight = new TemporaryMapLight(Ogre::Vector3(x, y, 0.5),
                 tempColour.r, tempColour.g, tempColour.b, 1.0, 0.1, 0.5, 0.5);
         gameMap->addMapLight(claimLight);
-        claimLight->createOgreEntity();*/
+        claimLight->createOgreEntity();
         SoundEffectsHelper::getSingleton().playInterfaceSound(
                 SoundEffectsHelper::CLAIM, this->x, this->y);
     }
     sem_post(&claimLightLockSemaphore);
-
-    // If there is still some left to claim.
-    if (amountClaimed > 0.0 && amountClaimed < nDanceRate)
-    {
-        double amountToClaim = nDanceRate - amountClaimed;
-        if (amountToClaim < 0.05)
-            return amountClaimed;
-
-        // Distribute the remaining amount left to claim out amongst the neighbor tiles.
-        sem_wait(&neighborsLockSemaphore);
-        amountToClaim /= (double) neighbors.size();
-        for (unsigned int j = 0; j < neighbors.size(); ++j)
-        {
-            if (neighbors[j]->getType() == dirt || neighbors[j]->getType()
-                    == claimed)
-            {
-                tempTile = neighbors[j];
-                // Release and relock the semaphore since the claimForColor() routine will eventually need to lock it.
-                sem_post(&neighborsLockSemaphore);
-                amountClaimed += tempTile->claimForColor(getColor(), amountToClaim);
-                sem_wait(&neighborsLockSemaphore);
-            }
-        }
-        sem_post(&neighborsLockSemaphore);
-    }
-
-    return amountClaimed;
+    */
 }
 
 double Tile::digOut(double digRate, bool doScaleDigRate)
@@ -1102,7 +997,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
 
     double amountDug = 0.0;
 
-    if (!isDiggable())
+    if (getFullness() < 1 || type == lava || type == water || type == rock)
         return 0.0;
 
     sem_wait(&fullnessLockSemaphore);
@@ -1184,21 +1079,8 @@ std::vector<Tile*> Tile::getAllNeighbors()
     return ret;
 }
 
-/**
- * \brief Sets the gameMap and resets the tile fullness.
- */
 void Tile::setGameMap(GameMap* gameMap)
 {
     GameEntity::setGameMap(gameMap);
     setFullness(fullness);
-}
-
-
-
-void Tile::meshNameAux(std::stringstream &ss, int &postfixInt , int& fMN, TileType myType ){
-
-    ss << tileTypeToString( (myType == rock || myType == gold ) ? dirt  :  (myType == lava) ?  water  : myType  ) << "_"
-       << (fMN > 0 ?  std::bitset<8>( postfixInt ).to_string()  : ( (myType == water || myType == lava) ? std::bitset<8>( postfixInt ).to_string() : "0"  ))  << ".mesh";
-
-
 }
