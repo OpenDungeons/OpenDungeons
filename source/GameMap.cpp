@@ -130,50 +130,37 @@ void GameMap::createNewMap()
     Tile tempTile;
     stringstream ss;
 
-    for (int jj = 0; jj < mapSizeX; ++jj)	{
-    for (int ii = 0; ii < mapSizeY; ++ii){
+    for (int jj = 0; jj < mapSizeY; ++jj)
+    {
+        for (int ii = 0; ii < mapSizeX; ++ii)
+        {
+            // Skip tiles already set up
+            if ((getTile(ii,jj)->getGameMap()) != NULL)
+                continue;
 
+            ss.str(std::string());
+            ss << "Level_" << ii << "_" << jj;
 
-        if((getTile(ii,jj)->getGameMap()) == NULL ){
-        ss.str(std::string());
-        ss<<"Level_"<<ii<<"_"<<jj;
+            tempTile.setGameMap(this);
+            tempTile.setType(Tile::dirt);
 
-
-        tempTile.setGameMap(this);
-        tempTile.setType(Tile::dirt);
-
-        tempTile.setName(ss.str());
-        tempTile.x=ii;
-        tempTile.y=jj;
-        sem_wait(&tilesLockSemaphore);
-        insert(ii, jj, tempTile );
-        sem_post(&tilesLockSemaphore);
-
-
-        }
-    }
-    }
-
-    // Loop over all the tiles and force them to examine their
-    // neighbors.  This allows them to switch to a mesh with fewer
-    // polygons if some are hidden by the neighbors.
-    for (int ii=0 ; ii < getMapSizeX(); ii++ ) {
-        for (int jj=0 ; jj < getMapSizeY(); jj++ ) {
-
-            getTile(ii,jj)->setFullness(getTile(ii,jj)->getFullness());
+            tempTile.setName(ss.str());
+            tempTile.x = ii;
+            tempTile.y = jj;
+            sem_wait(&tilesLockSemaphore);
+            addTile(tempTile);
+            sem_post(&tilesLockSemaphore);
         }
     }
 
-
-
-
-    // for(TileMap_t::iterator itr = firstTile(), last = lastTile();
-    //         itr != last; ++itr)
-    // {
-    //     itr->second->setFullness(itr->second->getFullness());
-    // }
-    // length = ySize;
-    // width = xSize;
+    // Set the fullness of the tiles
+    for (int ii = 0; ii < getMapSizeX(); ++ii)
+    {
+        for (int jj = 0; jj < getMapSizeY(); ++jj)
+        {
+            getTile(ii, jj)->setFullness(getTile(ii, jj)->getFullness());
+        }
+    }
 }
 
 

@@ -236,10 +236,10 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     ss << "_";
                     ss << j;
 
-                    Tile *t = new Tile(i, j, Tile::dirt, 100);
-                    t->setName(ss.str());
+                    Tile t(i, j, Tile::dirt, 100);
+                    t.setName(ss.str());
+                    t.createMesh();
                     gameMap->addTile(t);
-                    t->createMesh();
                 }
             }
         }

@@ -528,12 +528,11 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                 ss << "_";
                 ss << y;
 
-                currentTile = new Tile(x, y, mCurrentTileType,
-                                             mCurrentFullness);
-                currentTile->setName(ss.str());
-                mGameMap->addTile(currentTile);
-                currentTile->createMesh();
-                affectedTiles.push_back(currentTile);
+                Tile myTile(x, y, mCurrentTileType, mCurrentFullness);
+                myTile.setName(ss.str());
+                myTile.createMesh();
+                mGameMap->addTile(myTile);
+                affectedTiles.push_back(&myTile);
             }
         }
 

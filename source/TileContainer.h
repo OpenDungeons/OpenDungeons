@@ -16,10 +16,12 @@ public:
 
   ~TileContainer();
   // Game state methods
-  int  insert(int ii , int jj , Tile tt);
   void clearTiles();
-  void addTile(Tile *t);
-  
+
+    //! \brief Adds the given tile on map. The tile coordinates members must be ready.
+    //! \returns true if added.
+    bool addTile(const Tile& t);
+
   void setTileNeighbors(Tile *t);
 
   Tile* getTile(int x, int y) const;
@@ -31,18 +33,27 @@ public:
   Tile::TileType*  getNeighborsTypes( Tile* , Tile::TileType*);
   bool*   getNeighborsFullness( Tile* , bool*);
   unsigned int numTiles();
-  int allocateMapMemory(int xSize, int ySize);
-  int getMapSizeX() const;
-  int getMapSizeY() const;
-  int setMapSizeX(int );
-  int setMapSizeY(int );
+
+    //! \brief Set the map size and memory
+    bool allocateMapMemory(int xSize, int ySize);
+
+    //! \brief Gets the map size
+    int getMapSizeX() const
+    { return mapSizeX; }
+
+    int getMapSizeY() const
+    { return mapSizeY; }
 
 protected:
-  mutable sem_t tilesLockSemaphore;
-  int mapSizeX;
-  int mapSizeY;
-  int rr;
-  
+    //! \brief Tile change semaphore
+    mutable sem_t tilesLockSemaphore;
+
+    //! \brief The map size
+    int mapSizeX;
+    int mapSizeY;
+
+    int rr;
+
 private:
   Tile **tiles;
   bool symetry;
@@ -51,7 +62,7 @@ private:
 
 
   Tile* auxTilesArray;
-    
+
     };
 
 #endif //TILECONTAINER_H

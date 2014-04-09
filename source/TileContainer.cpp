@@ -1,39 +1,21 @@
 #include "TileContainer.h"
 
 TileContainer::TileContainer():
-    tiles(0), auxTilesArray(0)
+    tiles(0),
+    auxTilesArray(0)
 {
     sem_init(&tilesLockSemaphore, 0, 1);
 }
 
-TileContainer::~TileContainer(){
-
-    delete [] auxTilesArray;
-    delete [] tiles;
+TileContainer::~TileContainer()
+{
+    clearTiles();
+    if (auxTilesArray)
+        delete [] auxTilesArray;
+    if (tiles)
+        delete [] tiles;
 }
 
-// TileContainer::TileContainer(const TileContainer&){
-
-//     sem_init(&tilesLockSemaphore, 0, 1);
-
-
-// }
-// TileContainer TileContainer::operator=(const TileContainer&){
-
-
-
-// }
-
-int TileContainer::insert(int ii , int jj , Tile tt) {
-    if ( ii < getMapSizeX() && jj < getMapSizeY() && ii >= 0 && jj >= 0 )  {
-
-        tiles[ii][jj]=tt;
-        return 1;
-    }
-    else
-        return 0;
-
-}
 /*! \brief Clears the mesh and deletes the data structure for all the tiles in the TileContainer.
  *
  */
@@ -41,62 +23,27 @@ void TileContainer::clearTiles()
 {
     sem_wait(&tilesLockSemaphore);
 
-    // for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
-    //         itr != end; ++itr)
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
-
             (tiles[ii][jj]).deleteYourself();
         }
-
-        //      map_clear(tiles);
-
     }
+
     sem_post(&tilesLockSemaphore);
 }
 
 
-void TileContainer::addTile(Tile *t)
+bool TileContainer::addTile(const Tile& t)
 {
-    // Notify the neighbor tiles already existing on the TileContainer of our existance.
-    // that's some stupid ad-hoc solution to properly read-in the tiles
-    // for (unsigned int i = 0; i < 2; ++i)
-    // {
-    //     int tempX = t->x, tempY = t->y;
-    //     switch (i)
-    //     {
+    if (t.x < getMapSizeX() && t.y < getMapSizeY() && t.x >= 0 && t.y >= 0)
+    {
+        tiles[t.x][t.y] = t;
+        return true;
+    }
 
-    //     case 0:
-    //         --tempX;
-    //         break;
-    //     case 1:
-    //         --tempY;
-    //         break;
-
-    //     default:
-    //         std::cerr << "\n\n\nERROR:  Unknown neighbor index.\n\n\n";
-    //         exit(1);
-    //     }
-
-    //     // If the current neigbor tile exists, add the current tile as one of its
-    //     // neighbors and add it as one of the current tile's neighbors.
-    //     if (tempX >=0 && tempY >= 0)
-    // 	    {
-
-    // 		Tile *tempTile = getTile(tempX, tempY);
-
-
-    // 		tempTile->addNeighbor(t);
-    // 		t->addNeighbor(tempTile);
-    // 	    }
-    // }
-
-    sem_wait(&tilesLockSemaphore);
-    // tiles.insert(std::pair<std::pair<int, int> , Tile*> (std::pair<int, int> (t->x, t->y), t));
-    insert( t->x, t->y, *t);
-    sem_post(&tilesLockSemaphore);
+    return false;
 }
 
 /*! \brief Adds the address of a new tile to be stored in this TileContainer.
@@ -209,79 +156,61 @@ unsigned int TileContainer::numTiles()
     return getMapSizeX()*getMapSizeY();
 }
 
-
 Tile* TileContainer::firstTile()
 {
-
     return &tiles[0][0];
 }
-// TileMap_t::iterator GameMap::firstTile()
-// {
-//     sem_wait(&tilesLockSemaphore);
-//     TileMap_t::iterator tempItr = tiles.begin();
-//     sem_post(&tilesLockSemaphore);
-
-//     return tempItr;
-// }
 
 /*! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
  *
  */
-
 Tile* TileContainer::lastTile()
 {
-
     return &tiles[getMapSizeX()][getMapSizeY()];
 }
 
 
-int TileContainer::allocateMapMemory(int xSize, int ySize) {
+bool TileContainer::allocateMapMemory(int xSize, int ySize)
+{
+    // Set map size
+    mapSizeX = xSize;
+    mapSizeY = ySize;
 
+    // Clear memory usage first
+    if (auxTilesArray)
+        delete [] auxTilesArray;
+    if (tiles)
+        delete [] tiles;
 
-    std::stringstream ss;
+    auxTilesArray = new Tile [mapSizeX * mapSizeY];
 
-    // getMapSizeX() = xSize;
-    // getMapSizeY()=ySize;
-
-    auxTilesArray = new Tile [getMapSizeX() * getMapSizeY()];
-
-    if (auxTilesArray) {
-        tiles = new Tile* [getMapSizeY()];
-        if(tiles){
-	    for (int jj = 0 ; jj < getMapSizeY() ; jj++) {
-		tiles[jj] = &auxTilesArray[jj*getMapSizeX()];
-
-	    }
-	}
-	else {
-	    std :: cerr << " failed to allocate map memory" << std :: endl;
-	    return 0;
-	}
-
-
-        return 1;
+    if (!auxTilesArray)
+    {
+        std::cerr << "Failed to allocate map memory" << std::endl;
+        return false;
     }
-    else {
-        std :: cerr << " failed to allocate map memory" << std :: endl;
-        return 0;
+
+    tiles = new Tile* [getMapSizeY()];
+    if(!tiles)
+    {
+        std::cerr << "Failed to allocate map memory" << std::endl;
+        return false;
     }
+
+    for (int jj = 0; jj < getMapSizeY(); ++jj)
+    {
+        tiles[jj] = &auxTilesArray[jj * getMapSizeX()];
+
+    }
+    return true;
 }
 
-Tile::TileType TileContainer::getSafeTileType(Tile* tt ){
-
+Tile::TileType TileContainer::getSafeTileType(Tile* tt )
+{
     return (tt == NULL) ? Tile::nullTileType : tt->getType();
 }
 
-bool  TileContainer::getSafeTileFullness(Tile* tt ){
-
-    return (tt == NULL) ?  false : ( tt->getFullness() > 0 ) ;
+bool  TileContainer::getSafeTileFullness(Tile* tt)
+{
+    return (tt == NULL) ? false : (tt->getFullness() > 0 );
 }
-
-
-
-
-
-int TileContainer::getMapSizeX() const { return mapSizeX; };
-int TileContainer::getMapSizeY() const { return mapSizeY; };
-int TileContainer::setMapSizeX(int XX) { mapSizeX = XX; return mapSizeX; };
-int TileContainer::setMapSizeY(int YY) { mapSizeY = YY; return mapSizeY; };

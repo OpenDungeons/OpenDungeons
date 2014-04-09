@@ -185,9 +185,9 @@ void *clientSocketProcessor(void *p)
             else if (serverCommand.compare("addtile") == 0)
             {
                 std::stringstream tempSS(arguments);
-                Tile *newTile = new Tile;
-                tempSS >> newTile;
-                newTile->setGameMap(&gameMap);
+                Tile newTile;
+                tempSS >> &newTile;
+                newTile.setGameMap(&gameMap);
                 gameMap.addTile(newTile);
                 sem_wait(&sock->semaphore);
                 sock->send(formatCommand("ok", "addtile"));
@@ -195,7 +195,7 @@ void *clientSocketProcessor(void *p)
 
                 // Loop over the tile's neighbors to force them to recheck
                 // their mesh to see if they can use an optimized one
-                std::vector<Tile*> neighbors = gameMap.neighborTiles(newTile);
+                std::vector<Tile*> neighbors = gameMap.neighborTiles(&newTile);
                 for (unsigned int i = 0; i < neighbors.size(); ++i)
                 {
                     neighbors[i]->setFullness(neighbors[i]->getFullness());

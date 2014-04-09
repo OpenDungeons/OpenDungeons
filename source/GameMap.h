@@ -72,6 +72,8 @@ friend class RenderManager;
   ~GameMap();
 
   int setAllNeighbors();
+
+  //! \brief Adds the missing tiles in a map to fit its dimensions.
   void createNewMap();
 
   //! \brief Load a level file (Part of the resource paths)

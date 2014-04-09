@@ -71,15 +71,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
                 << "\n\n\n";
         return false;
     }
-    int mapSizeX;
-    int mapSizeY;
-    levelFile >> mapSizeX;
-    levelFile >> mapSizeY;
-
-    gameMap_b.setMapSizeX(mapSizeX);
-    gameMap_b.setMapSizeY(mapSizeY);
-    gameMap_b.allocateMapMemory(gameMap_b.getMapSizeX(), gameMap_b.getMapSizeY() ); 
-    // gameMap_b.clearAll();
 
     // Read in the name of the next level to load after this one is complete.
     levelFile >> gameMap_b.nextLevel;
@@ -107,6 +98,16 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
             gameMap_b.addGoalForAllSeats(tempGoal);
     }
 
+    // Load the map size
+    int mapSizeX;
+    int mapSizeY;
+    levelFile >> mapSizeX;
+    levelFile >> mapSizeY;
+
+    // gameMap_b.clearAll();
+    if (!gameMap_b.allocateMapMemory(mapSizeX, mapSizeY))
+        return false;
+
     // Read in the map tiles from disk
     Tile tempTile;
     tempTile.setGameMap(&gameMap_b);
@@ -121,34 +122,12 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
         levelFile >> &tempTile;
 
 
-        gameMap_b.addTile(&tempTile);
+        gameMap_b.addTile(tempTile);
     }
-
 
     gameMap_b.createNewMap();
     gameMap_b.setAllNeighbors();
     gameMap_b.enableFloodFill();
-
-    // Loop over all the tiles and force them to examine their
-    // neighbors.  This allows them to switch to a mesh with fewer
-    // polygons if some are hidden by the neighbors.
-
-    // for(int ii=0 ; ii < getMapSizeX(); ii++ ){
-    //   for(int jj=0 ; jj < getMapSizeY(); jj++ ){
-
-    // for(int ii=0 ; ii < gameMap_b.getMapSizeX(); ii++ ){
-    //   for(int jj=0 ; jj < gameMap_b.getMapSizeY(); jj++ ){
-
-    // 	gameMap_b.getTile( ii, jj)->setFullness(gameMap_b.getTile( ii, jj)->getFullness());
-    //   }
-    // }
-
-
-    // for(TileMap_t::iterator itr = gameMap_b.firstTile(), last = gameMap_b.lastTile();
-    //         itr != last; ++itr)
-    // {
-    //     itr->second->setFullness(itr->second->getFullness());
-    // }
 
     // Read in the rooms
     Room* tempRoom;
@@ -206,7 +185,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
         //Changes to this code should be reflected in that code as well
         tempCreature = new Creature(&gameMap_b);
         levelFile >> tempCreature;
-	
+
         gameMap_b.addCreature(tempCreature);
     }
 
@@ -220,7 +199,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap_b)
 
     // Write the identifier string and the version number
     levelFile << ODApplication::VERSIONSTRING
-            << "  # The version of OpenDungeons which created this file (for compatability reasons).\n";
+            << "  # The version of OpenDungeons which created this file (for compatibility reasons).\n";
 
     // write out the name of the next level to load after this one is complete.
     levelFile << gameMap_b.nextLevel
@@ -249,39 +228,28 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap_b)
         levelFile << gameMap_b.getGoalForAllSeats(i);
     }
 
+    int mapSizeX = gameMap_b.getMapSizeX();
+    int mapSizeY = gameMap_b.getMapSizeY();
+    levelFile << "# Map Size" << std::endl;
+    levelFile << mapSizeX << " # MapSizeX" << std::endl;
+    levelFile << mapSizeY << " # MapSizeY" << std::endl;
+
     // Write out the tiles to the file
     levelFile << "\n# Tiles\n" << gameMap_b.numTiles()
             << "  # The number of tiles to load.\n";
     levelFile << "# " << Tile::getFormat() << "\n";
 
-    
+    for(int ii = 0; ii < gameMap_b.getMapSizeX(); ++ii)
+    {
+        for(int jj = 0; jj < gameMap_b.getMapSizeY(); ++jj)
+        {
+            tempTile = gameMap_b.getTile(ii,jj);
+            levelFile << tempTile->x << "\t" << tempTile->y << "\t";
+            levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
 
-    for(int ii=0 ; ii < gameMap_b.getMapSizeX(); ii++ ){
-      for(int jj=0 ; jj < gameMap_b.getMapSizeY(); jj++ ){
-
-	tempTile = gameMap_b.getTile(ii,jj);
-        levelFile << tempTile->x << "\t" << tempTile->y << "\t";
-        levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
-
-        levelFile << std::endl;
-
-
-      }
+            levelFile << std::endl;
+        }
     }
-    // TileMap_t::iterator itr = gameMap_b.firstTile();
-    // while (itr != gameMap_b.lastTile())
-    // {
-    //     //NOTE: This code is duplicated in the client side method
-    //     //"addclass" defined in src/Client.cpp and readGameMapFromFile.
-    //     //Changes to this code should be reflected in that code as well
-    //     tempTile = itr->second;
-    //     levelFile << tempTile->x << "\t" << tempTile->y << "\t";
-    //     levelFile << tempTile->getType() << "\t" << tempTile->getFullness();
-
-    //     levelFile << std::endl;
-
-    //     ++itr;
-    // }
 
     // Write out the rooms to the file
     levelFile << "\n# Rooms\n" << gameMap_b.numRooms()
