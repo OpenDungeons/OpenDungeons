@@ -18,6 +18,8 @@
 #ifndef AIMANAGER_H
 #define AIMANAGER_H
 
+#include "Player.h"
+
 #include <map>
 #include <list>
 
