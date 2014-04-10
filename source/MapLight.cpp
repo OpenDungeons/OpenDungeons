@@ -1,4 +1,21 @@
-#include <sstream>
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "MapLight.h"
 
 #include "RenderManager.h"
 #include "RenderRequest.h"
@@ -6,109 +23,102 @@
 #include "Random.h"
 #include "Socket.h"
 
-#include "MapLight.h"
+#include <sstream>
 
-sem_t MapLight::lightNumberLockSemaphore;
+sem_t MapLight::mLightNumberLockSemaphore;
 
 void MapLight::setLocation(const Ogre::Vector3& nPosition)
 {
     //TODO: This needs to make a RenderRequest to actually move the light.
-    position = nPosition;
+    mPosition = nPosition;
 }
 
-void MapLight::setDiffuseColor(Ogre::Real red, Ogre::Real green,
-        Ogre::Real blue)
+void MapLight::setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue)
 {
-    diffuseColor = Ogre::ColourValue(red, green, blue);
+    mDiffuseColor = Ogre::ColourValue(red, green, blue);
     //TODO: Call refresh of the OGRE entity.
 }
 
-void MapLight::setSpecularColor(Ogre::Real red, Ogre::Real green,
-        Ogre::Real blue)
+void MapLight::setSpecularColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue)
 {
-    specularColor = Ogre::ColourValue(red, green, blue);
+    mSpecularColor = Ogre::ColourValue(red, green, blue);
     //TODO: Call refresh of the OGRE entity.
 }
 
 void MapLight::setAttenuation(Ogre::Real range, Ogre::Real constant,
-        Ogre::Real linear, Ogre::Real quadratic)
+                              Ogre::Real linear, Ogre::Real quadratic)
 {
-    attenuationRange = range;
-    attenuationConstant = constant;
-    attenuationLinear = linear;
-    attenuationQuadratic = quadratic;
+    mAttenuationRange = range;
+    mAttenuationConstant = constant;
+    mAttenuationLinear = linear;
+    mAttenuationQuadratic = quadratic;
     //TODO: Call refresh of the OGRE entity.
 }
 
 void MapLight::createOgreEntity()
 {
-    if (ogreEntityExists)
+    if (mOgreEntityExists)
         return;
 
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::createMapLight;
-    //TODO - this check should be put somewhere else
+    //TODO - this check should be put somewhere else / fixed
     request->p = static_cast<void*>(this);
     request->b = (Socket::serverSocket == NULL && Socket::clientSocket == NULL);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 
-    ogreEntityExists = true;
-    ogreEntityVisualIndicatorExists = true;
+    mOgreEntityExists = true;
+    mOgreEntityVisualIndicatorExists = true;
 }
 
 void MapLight::destroyOgreEntity()
 {
-    if (!ogreEntityExists)
+    if (!mOgreEntityExists)
         return;
 
     destroyOgreEntityVisualIndicator();
 
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::destroyMapLight;
     request->p = this;
-    /*Check if we are in editor mode
-     * TODO this check should be elsewhere
-    */
+    /* Check if we are in editor mode
+     * TODO this check should be elsewhere / fixed
+     */
     request->b = (Socket::serverSocket == NULL && Socket::clientSocket == NULL);
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 
-    ogreEntityExists = false;
+    mOgreEntityExists = false;
 }
 
 void MapLight::destroyOgreEntityVisualIndicator()
 {
-    if (!ogreEntityExists || !ogreEntityVisualIndicatorExists)
+    if (!mOgreEntityExists || !mOgreEntityVisualIndicatorExists)
         return;
 
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::destroyMapLightVisualIndicator;
     request->p = this;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 
-    ogreEntityVisualIndicatorExists = false;
+    mOgreEntityVisualIndicatorExists = false;
 }
 
 void MapLight::deleteYourself()
 {
     destroyOgreEntity();
 
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::deleteMapLight;
     request->p = this;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
-}
-
-const std::string& MapLight::getName() const
-{
-    return name;
 }
 
 void MapLight::setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ)
@@ -118,78 +128,39 @@ void MapLight::setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ)
 
 void MapLight::setPosition(const Ogre::Vector3& nPosition)
 {
-    position = nPosition;
+    mPosition = nPosition;
 
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
-    request->str = std::string("MapLight_") + name + "_node";
-    request->vec = position;
+    request->str = std::string("MapLight_") + mName + "_node";
+    request->vec = mPosition;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 }
 
-const Ogre::Vector3& MapLight::getPosition() const
-{
-    return position;
-}
-
-const Ogre::ColourValue& MapLight::getDiffuseColor() const
-{
-    return diffuseColor;
-}
-
-const Ogre::ColourValue& MapLight::getSpecularColor() const
-{
-    return specularColor;
-}
-
-Ogre::Real MapLight::getAttenuationRange() const
-{
-    return attenuationRange;
-}
-
-Ogre::Real MapLight::getAttenuationConstant() const
-{
-    return attenuationConstant;
-}
-
-Ogre::Real MapLight::getAttenuationLinear() const
-{
-    return attenuationLinear;
-}
-
-Ogre::Real MapLight::getAttenuationQuadratic() const
-{
-    return attenuationQuadratic;
-}
-
-/** \brief Moves the light in a semi-random fashion around its "native" position.  The time
- * variable indicates how much time has elapsed since the last update.
- *
- */
 void MapLight::advanceFlicker(Ogre::Real time)
 {
 
-    thetaX += (Ogre::Real)(factorX * 3.14 * time);
-    thetaY += (Ogre::Real)(factorY * 3.14 * time);
-    thetaZ += (Ogre::Real)(factorZ * 3.14 * time);
+    mThetaX += (Ogre::Real)(mFactorX * 3.14 * time);
+    mThetaY += (Ogre::Real)(mFactorY * 3.14 * time);
+    mThetaZ += (Ogre::Real)(mFactorZ * 3.14 * time);
 
     if (Random::Double(0.0, 1.0) < 0.1)
-        factorX *= -1;
+        mFactorX *= -1;
     if (Random::Double(0.0, 1.0) < 0.1)
-        factorY *= -1;
+        mFactorY *= -1;
     if (Random::Double(0.0, 1.0) < 0.1)
-        factorZ *= -1;
+        mFactorZ *= -1;
 
-    flickerPosition = Ogre::Vector3(sin(thetaX), sin(thetaY), sin(thetaZ));
+    mFlickerPosition = Ogre::Vector3(sin(mThetaX), sin(mThetaY), sin(mThetaZ));
 
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
-    request->str = std::string("MapLight_") + name + "_flicker_node";
-    request->vec = flickerPosition;
+    request->str = std::string("MapLight_") + mName + "_flicker_node";
+    request->vec = mFlickerPosition;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
@@ -200,35 +171,34 @@ std::string MapLight::getFormat()
     return "posX\tposY\tposZ\tdiffuseR\tdiffuseG\tdiffuseB\tspecularR\tspecularG\tspecularB\tattenRange\tattenConst\tattenLin\tattenQuad";
 }
 
-std::ostream& operator<<(std::ostream& os, MapLight *m)
+std::ostream& operator<<(std::ostream& os, MapLight* m)
 {
-    os << m->position.x << "\t" << m->position.y << "\t" << m->position.z
+    os << m->mPosition.x << "\t" << m->mPosition.y << "\t" << m->mPosition.z
             << "\t";
-    os << m->diffuseColor.r << "\t" << m->diffuseColor.g << "\t"
-            << m->diffuseColor.b << "\t";
-    os << m->specularColor.r << "\t" << m->specularColor.g << "\t"
-            << m->specularColor.b << "\t";
-    os << m->attenuationRange << "\t" << m->attenuationConstant << "\t";
-    os << m->attenuationLinear << "\t" << m->attenuationQuadratic;
+    os << m->mDiffuseColor.r << "\t" << m->mDiffuseColor.g << "\t"
+            << m->mDiffuseColor.b << "\t";
+    os << m->mSpecularColor.r << "\t" << m->mSpecularColor.g << "\t"
+            << m->mSpecularColor.b << "\t";
+    os << m->mAttenuationRange << "\t" << m->mAttenuationConstant << "\t";
+    os << m->mAttenuationLinear << "\t" << m->mAttenuationQuadratic;
 
     return os;
 }
 
-std::istream& operator>>(std::istream& is, MapLight *m)
+std::istream& operator>>(std::istream& is, MapLight* m)
 {
-    is >> m->position.x >> m->position.y >> m->position.z;
-    m->position.x+=m->gameMap->getMapSizeX()/2;
-    m->position.y+=m->gameMap->getMapSizeY()/2;
-    is >> m->diffuseColor.r >> m->diffuseColor.g >> m->diffuseColor.b;
-    is >> m->specularColor.r >> m->specularColor.g >> m->specularColor.b;
-    is >> m->attenuationRange >> m->attenuationConstant;
-    is >> m->attenuationLinear >> m->attenuationQuadratic;
+    is >> m->mPosition.x >> m->mPosition.y >> m->mPosition.z;
+    m->mPosition.x += m->mGameMap->getMapSizeX() / 2;
+    m->mPosition.y += m->mGameMap->getMapSizeY() / 2;
+    is >> m->mDiffuseColor.r >> m->mDiffuseColor.g >> m->mDiffuseColor.b;
+    is >> m->mSpecularColor.r >> m->mSpecularColor.g >> m->mSpecularColor.b;
+    is >> m->mAttenuationRange >> m->mAttenuationConstant;
+    is >> m->mAttenuationLinear >> m->mAttenuationQuadratic;
 
     return is;
 }
 
-
-void MapLight::setGameMap(GameMap* gm){
-    gameMap=gm;
-
+void MapLight::setGameMap(GameMap* gm)
+{
+    mGameMap = gm;
 }

@@ -1,110 +1,150 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef MAPLIGHT_H
 #define MAPLIGHT_H
-
-#include <iostream>
-#include <string>
-
 
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
 #include <OgreColourValue.h>
 #include <semaphore.h>
 
+#include <iostream>
+#include <string>
+
 class GameMap;
 
 class MapLight
 {
-    public:
-        MapLight( const Ogre::Vector3&  nPosition   = Ogre::Vector3(0, 0, 0),
-                  Ogre::Real            red         = 0,
-                  Ogre::Real            green       = 0,
-                  Ogre::Real            blue        = 0,
-                  Ogre::Real            range       = 0,
-                  Ogre::Real            constant    = 0,
-                  Ogre::Real            linear      = 0,
-                  Ogre::Real            quadratic   = 0
-                ) :
-            ogreEntityExists                (false),
-            ogreEntityVisualIndicatorExists (false),
-            thetaX                          (0.0),
-            thetaY                          (0.0),
-            thetaZ                          (0.0),
-            factorX                         (0),
-            factorY                         (0),
-            factorZ                         (0)
-        {
-            static unsigned int lightNumber = 0;
+public:
+    MapLight(const Ogre::Vector3&  nPosition   = Ogre::Vector3(0, 0, 0),
+             Ogre::Real            red         = 0.0,
+             Ogre::Real            green       = 0.0,
+             Ogre::Real            blue        = 0.0,
+             Ogre::Real            range       = 0.0,
+             Ogre::Real            constant    = 0.0,
+             Ogre::Real            linear      = 0.0,
+             Ogre::Real            quadratic   = 0.0) :
+        mOgreEntityExists                (false),
+        mOgreEntityVisualIndicatorExists (false),
+        mThetaX                          (0.0),
+        mThetaY                          (0.0),
+        mThetaZ                          (0.0),
+        mFactorX                         (0),
+        mFactorY                         (0),
+        mFactorZ                         (0)
+    {
+        static unsigned int lightNumber = 0;
 
-            std::stringstream tempSS;
-            sem_wait(&lightNumberLockSemaphore);
-            tempSS << "Map_light_ " << ++lightNumber;
-            sem_post(&lightNumberLockSemaphore);
-            name = tempSS.str();
+        std::stringstream tempSS;
+        sem_wait(&mLightNumberLockSemaphore);
+        tempSS << "Map_light_ " << ++lightNumber;
+        sem_post(&mLightNumberLockSemaphore);
+        mName = tempSS.str();
 
-            setPosition(nPosition);
-            setDiffuseColor(red, green, blue);
-            setSpecularColor(red, green, blue);
-            setAttenuation(range, constant, linear, quadratic);
-        }
+        setPosition(nPosition);
+        setDiffuseColor(red, green, blue);
+        setSpecularColor(red, green, blue);
+        setAttenuation(range, constant, linear, quadratic);
+    }
 
-        virtual ~MapLight() {}
+    virtual ~MapLight()
+    {}
 
-        void setLocation(const Ogre::Vector3& nPosition);
-        void setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
-        void setSpecularColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
-        void setAttenuation(Ogre::Real range, Ogre::Real constant, Ogre::Real linear,
-                Ogre::Real quadratic);
+    void setLocation(const Ogre::Vector3& nPosition);
+    void setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
+    void setSpecularColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
+    void setAttenuation(Ogre::Real range, Ogre::Real constant,
+                        Ogre::Real linear, Ogre::Real quadratic);
 
-        void createOgreEntity();
-        void destroyOgreEntity();
-        void destroyOgreEntityVisualIndicator();
-        void deleteYourself();
+    void createOgreEntity();
+    void destroyOgreEntity();
+    void destroyOgreEntityVisualIndicator();
+    void deleteYourself();
 
-        const std::string& getName() const;
-        void setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ);
-        void setPosition(const Ogre::Vector3& nPosition);
-        const Ogre::Vector3& getPosition() const;
-        const Ogre::ColourValue& getDiffuseColor() const;
-        const Ogre::ColourValue& getSpecularColor() const;
-        Ogre::Real getAttenuationRange() const;
-        Ogre::Real getAttenuationConstant() const;
-        Ogre::Real getAttenuationLinear() const;
-        Ogre::Real getAttenuationQuadratic() const;
+    void setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ);
+    void setPosition(const Ogre::Vector3& nPosition);
 
-        void advanceFlicker(Ogre::Real time);
+    const std::string& getName() const
+    { return mName; }
 
-        static std::string getFormat();
-        friend std::ostream& operator<<(std::ostream& os, MapLight *m);
-        friend std::istream& operator>>(std::istream& is, MapLight *m);
+    const Ogre::Vector3& getPosition() const
+    { return mPosition; }
 
-        static sem_t lightNumberLockSemaphore;
-	void setGameMap(GameMap* gm);
+    const Ogre::ColourValue& getDiffuseColor() const
+    { return mDiffuseColor; }
 
+    const Ogre::ColourValue& getSpecularColor() const
+    { return mSpecularColor; }
 
-    private:
+    Ogre::Real getAttenuationRange() const
+    { return mAttenuationRange; }
 
-	GameMap* gameMap;
-        Ogre::Vector3 position;
-        Ogre::ColourValue diffuseColor;
-        Ogre::ColourValue specularColor;
+    Ogre::Real getAttenuationConstant() const
+    { return mAttenuationConstant; }
 
-        Ogre::Real attenuationRange;
-        Ogre::Real attenuationConstant;
-        Ogre::Real attenuationLinear;
-        Ogre::Real attenuationQuadratic;
+    Ogre::Real getAttenuationLinear() const
+    { return mAttenuationLinear; }
 
-        std::string name;
-        bool ogreEntityExists;
-        bool ogreEntityVisualIndicatorExists;
+    Ogre::Real getAttenuationQuadratic() const
+    { return mAttenuationQuadratic; }
 
-        Ogre::Vector3 flickerPosition;
-        Ogre::Real thetaX;
-        Ogre::Real thetaY;
-        Ogre::Real thetaZ;
-        int factorX;
-        int factorY;
-        int factorZ;
+    /** \brief Moves the light in a semi-random fashion around its "native" position.
+     * \param time The time variable indicates how much time has elapsed since the last update.
+     */
+    void advanceFlicker(Ogre::Real time);
+
+    static std::string getFormat();
+    friend std::ostream& operator<<(std::ostream& os, MapLight *m);
+    friend std::istream& operator>>(std::istream& is, MapLight *m);
+
+    void setGameMap(GameMap* gm);
+
+    //! \brief Map number lock semaphore initialized in the ODApplication constructor.
+    static sem_t mLightNumberLockSemaphore;
+
+private:
+    GameMap* mGameMap;
+
+    Ogre::Vector3 mPosition;
+
+    Ogre::ColourValue mDiffuseColor;
+    Ogre::ColourValue mSpecularColor;
+
+    Ogre::Real mAttenuationRange;
+    Ogre::Real mAttenuationConstant;
+    Ogre::Real mAttenuationLinear;
+    Ogre::Real mAttenuationQuadratic;
+
+    //! \brief The entity unique name.
+    std::string mName;
+
+    bool mOgreEntityExists;
+    bool mOgreEntityVisualIndicatorExists;
+
+    Ogre::Vector3 mFlickerPosition;
+
+    Ogre::Real mThetaX;
+    Ogre::Real mThetaY;
+    Ogre::Real mThetaZ;
+
+    int mFactorX;
+    int mFactorY;
+    int mFactorZ;
 };
 
-#endif
-
+#endif // MAPLIGHT_H

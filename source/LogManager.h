@@ -1,21 +1,19 @@
 /*
-    <one line to give the program's name and a brief idea of what it does.>
-    Copyright (C) 2011  <copyright holder> <email>
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef LOGMANAGER_H
 #define LOGMANAGER_H
@@ -35,26 +33,31 @@
 #include <semaphore.h>
 #endif
 
-/*! \brief Helper/wapper class to provide thread-safe logging when ogre is compiled without threads.
- *
- */
+//! \brief Helper/wrapper class to provide thread-safe logging when ogre is compiled without threads.
 class LogManager : public Ogre::Singleton<LogManager>
 {
-
 public:
     LogManager();
-    ~LogManager();
 
+    ~LogManager()
+    {}
+
+    //! \brief Log a message to the game log.
     void logMessage(const std::string& message, Ogre::LogMessageLevel lml = Ogre::LML_NORMAL,
                     bool maskDebug = false);
+
+    //! \brief Set the log detail level.
     void setLogDetail(Ogre::LoggingLevel ll);
-    Ogre::Log& getLog() { return *gameLog;}
+
+    Ogre::Log& getLog()
+    { return *mGameLog; }
+
     Ogre::LoggingLevel getLogDetail();
+
     static const std::string GAMELOG_NAME;
+
 private:
-    LogManager(const LogManager& other);
-    LogManager& operator=(const LogManager& other);
-    Ogre::Log* gameLog;
+    Ogre::Log* mGameLog;
 #ifdef LOGMANAGER_USE_LOCKS
     sem_t logLockSemaphore;
 #endif

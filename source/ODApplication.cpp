@@ -44,7 +44,7 @@ ODApplication::ODApplication() :
     window(NULL)
 {
     try {
-    sem_init(&MapLight::lightNumberLockSemaphore, 0, 1);
+    sem_init(&MapLight::mLightNumberLockSemaphore, 0, 1);
     sem_init(&MissileObject::missileObjectUniqueNumberLockSemaphore, 0, 1);
     sem_init(&ServerNotification::serverNotificationQueueSemaphore, 0, 0);
     sem_init(&ClientNotification::mClientNotificationQueueSemaphore, 0, 0);
