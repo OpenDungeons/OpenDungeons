@@ -40,16 +40,14 @@ void *serverSocketProcessor(void *p)
     // Set up the socket to listen on the specified port
     if (!sock->create())
     {
-        frameListener->commandOutput
-                = "ERROR:  Server could not create server socket!";
+        frameListener->setConsoleCommandOutput("ERROR:  Server could not create server socket!");
         return NULL;
     }
 
     int port = ODApplication::PORT_NUMBER;
     if (!sock->bind(port))
     {
-        frameListener->commandOutput
-                += "ERROR:  Server could not bind to port!";
+        frameListener->setConsoleCommandOutput("ERROR:  Server could not bind to port!");
         return NULL;
     }
 
@@ -61,7 +59,7 @@ void *serverSocketProcessor(void *p)
         // Wait until a client connects
         if (!sock->listen())
         {
-            frameListener->commandOutput += "ERROR:  Server could not listen!";
+            frameListener->setConsoleCommandOutput("ERROR:  Server could not listen!");
             return NULL;
         }
 
@@ -70,14 +68,14 @@ void *serverSocketProcessor(void *p)
         sock->accept(*curSock);
 
         //FIXME:  Also need to remove this pointer from the vector when the connection closes.
-        frameListener->clientSockets.push_back(curSock);
+        frameListener->mClientSockets.push_back(curSock);
 
         pthread_t *clientThread = new pthread_t;
         CHTStruct *params = new CHTStruct;
         params->nSocket = curSock;
         params->nFrameListener = frameListener;
         pthread_create(clientThread, NULL, clientHandlerThread, (void*) params);
-        frameListener->clientHandlerThreads.push_back(clientThread);
+        frameListener->mClientHandlerThreads.push_back(clientThread);
     }
     return NULL;
 }
@@ -261,13 +259,13 @@ void *serverNotificationProcessor(void *p)
     while (running)
     {
         // Wait until a message is put into the serverNotificationQueue
-        sem_wait(&ServerNotification::serverNotificationQueueSemaphore);
+        sem_wait(&ServerNotification::mServerNotificationQueueSemaphore);
 
         // Take a message out of the front of the notification queue
-        sem_wait(&ServerNotification::serverNotificationQueueLockSemaphore);
+        sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
         ServerNotification *event = ServerNotification::serverNotificationQueue.front();
         ServerNotification::serverNotificationQueue.pop_front();
-        sem_post(&ServerNotification::serverNotificationQueueLockSemaphore);
+        sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
 
         //FIXME:  This really should never happen but the queue does occasionally pop a NULL.
         //This is probably a bug somewhere else where a NULL is being place in the queue.
@@ -424,7 +422,7 @@ void *clientHandlerThread(void *p)
         // If the client closed the connection
         if (charsRead <= 0)
         {
-            frameListener->chatMessages.push_back(new ChatMessage(
+            frameListener->addChatMessage(new ChatMessage(
                     "SERVER_INFORMATION: ", "Client disconnect: " + clientNick,
                     time(NULL)));
             break;
@@ -452,7 +450,7 @@ void *clientHandlerThread(void *p)
         if (clientCommand.compare("hello") == 0)
         {
             std::stringstream tempSS;
-            frameListener->chatMessages.push_back(new ChatMessage(
+            frameListener->addChatMessage(new ChatMessage(
                     "SERVER_INFORMATION: ", "Client connect with version: "
                             + arguments, time(NULL)));
 
@@ -465,7 +463,7 @@ void *clientHandlerThread(void *p)
             //TODO:  verify that this really is true
             curSock->recv(tempString);
             parseCommand(tempString, tempString2, clientNick);
-            frameListener->chatMessages.push_back(new ChatMessage(
+            frameListener->addChatMessage(new ChatMessage(
                     "SERVER_INFORMATION: ", "Client nick is: " + clientNick,
                     time(NULL)));
 
@@ -599,16 +597,16 @@ void *clientHandlerThread(void *p)
             ChatMessage *newMessage = processChatMessage(arguments);
 
             // Send the message to all the connected clients
-            for (unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
+            for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
             {
-                sem_wait(&frameListener->clientSockets[i]->semaphore);
-                frameListener->clientSockets[i]->send(formatCommand("chat",
+                sem_wait(&frameListener->mClientSockets[i]->semaphore);
+                frameListener->mClientSockets[i]->send(formatCommand("chat",
                         newMessage->getClientNick() + ":" + newMessage->getMessage()));
-                sem_post(&frameListener->clientSockets[i]->semaphore);
+                sem_post(&frameListener->mClientSockets[i]->semaphore);
             }
 
             // Put the message in our own queue
-            frameListener->chatMessages.push_back(newMessage);
+            frameListener->addChatMessage(newMessage);
         }
 
         //NOTE:  This code is duplicated in clientSocketProcessor()
@@ -709,11 +707,11 @@ void *clientHandlerThread(void *p)
 
 void sendToAllClients(ODFrameListener *frameListener, std::string str)
 {
-    for (unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
+    for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
     {
-        sem_wait(&frameListener->clientSockets[i]->semaphore);
-        frameListener->clientSockets[i]->send(str);
-        sem_post(&frameListener->clientSockets[i]->semaphore);
+        sem_wait(&frameListener->mClientSockets[i]->semaphore);
+        frameListener->mClientSockets[i]->send(str);
+        sem_post(&frameListener->mClientSockets[i]->semaphore);
     }
 }
 

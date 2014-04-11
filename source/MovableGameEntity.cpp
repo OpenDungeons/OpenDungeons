@@ -18,6 +18,7 @@
 #include "MovableGameEntity.h"
 
 #include "ODServer.h"
+#include "ODApplication.h"
 #include "ServerNotification.h"
 #include "Tile.h"
 #include "Socket.h"
@@ -204,3 +205,63 @@ void MovableGameEntity::setAnimationSpeedFactor(double f)
     sem_post(&mAnimationSpeedFactorLockSemaphore);
 }
 
+void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
+{
+    // Advance the animation
+    if (mAnimationState != NULL)
+    {
+        mAnimationState->addTime((Ogre::Real)(ODApplication::turnsPerSecond
+                                 * timeSinceLastFrame
+                                 * getAnimationSpeedFactor()));
+    }
+
+    if (mWalkQueue.empty())
+        return;
+
+    // Move the creature
+    sem_wait(&mWalkQueueLockSemaphore);
+
+    // If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
+    if (mWalkQueueFirstEntryAdded)
+    {
+        mWalkQueueFirstEntryAdded = false;
+        faceToward((int)mWalkQueue.front().x, (int)mWalkQueue.front().y);
+    }
+
+    //FIXME: The moveDist should probably be tied to the scale of the creature as well
+    //FIXME: When the client and the server are using different frame rates, the creatures walk at different speeds
+    double moveDist = ODApplication::turnsPerSecond
+                      * getMoveSpeed()
+                      * timeSinceLastFrame;
+    mShortestDistance -= moveDist;
+
+    // Check to see if we have walked to, or past, the first destination in the queue
+    if (mShortestDistance <= 0.0)
+    {
+        // Compensate for any overshoot and place the creature at the intended destination
+        setPosition(mWalkQueue.front());
+        mWalkQueue.pop_front();
+
+        // If there are no more places to walk to still left in the queue
+        if (mWalkQueue.empty())
+        {
+            // Stop walking
+            stopWalking();
+        }
+        else // There are still entries left in the queue
+        {
+            // Turn to face the next direction
+            faceToward((int)mWalkQueue.front().x, (int)mWalkQueue.front().y);
+
+            // Compute the distance to the next location in the queue and store it in the shortDistance datamember.
+            Ogre::Vector3 tempVector = mWalkQueue.front() - getPosition();
+            mShortestDistance = tempVector.normalise();
+        }
+    }
+    else // We have not reached the destination at the front of the queue
+    {
+        // Move the object closer to its destination by the amount it should travel this frame.
+        setPosition(getPosition() + mWalkDirection * (Ogre::Real)moveDist);
+    }
+    sem_post(&mWalkQueueLockSemaphore);
+}

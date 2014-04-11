@@ -104,7 +104,8 @@ public:
     { return mAttenuationQuadratic; }
 
     /** \brief Moves the light in a semi-random fashion around its "native" position.
-     * \param time The time variable indicates how much time has elapsed since the last update.
+     * \param time The time variable indicates how much time has elapsed since the last update
+     * in seconds.
      */
     void advanceFlicker(Ogre::Real time);
 

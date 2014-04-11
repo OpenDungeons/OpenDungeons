@@ -258,7 +258,7 @@ friend class RenderManager;
   unsigned long int miscUpkeepTime, creatureTurnsTime;
 
 
-  static sem_t creatureAISemaphore;
+  static sem_t mCreatureAISemaphore;
   std::vector<Creature*> creatures;
   static ProtectedObject<long int> turnNumber;
 

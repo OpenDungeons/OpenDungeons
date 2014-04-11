@@ -1,5 +1,5 @@
 #include "ServerNotification.h"
 
-sem_t ServerNotification::serverNotificationQueueLockSemaphore;
-sem_t ServerNotification::serverNotificationQueueSemaphore;
+sem_t ServerNotification::mServerNotificationQueueLockSemaphore;
+sem_t ServerNotification::mServerNotificationQueueSemaphore;
 std::deque<ServerNotification*> ServerNotification::serverNotificationQueue;

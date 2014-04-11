@@ -51,7 +51,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     CameraManager* cm = frameListener->cm;
-    GameMap* gameMap = frameListener->gameMap;
+    GameMap* gameMap = frameListener->mGameMap;
 
     /*
     // Exit the program
@@ -65,7 +65,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     else if (command.compare("echo") == 0)
     {
         //NOTE: dropped in AS (was this any useful?)
-        frameListener->commandOutput += "\n" + arguments + "\n";
+        frameListener->mCommandOutput += "\n" + arguments + "\n";
     } */
 
     /*
@@ -75,7 +75,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         //NOTE: convetred to AS
         if (arguments.empty())
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "No level name given: saving over the last loaded level: "
                             + gameMap->getLevelFileName() + "\n\n";
             arguments = gameMap->getLevelFileName();
@@ -83,7 +83,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
         string tempFileName = "levels/" + arguments + ".level";
         MapLoader::writeGameMapToFile(tempFileName, *gameMap);
-        frameListener->commandOutput += "\nFile saved to   " + tempFileName + "\n";
+        frameListener->mCommandOutput += "\nFile saved to   " + tempFileName + "\n";
 
         gameMap->setLevelFileName(arguments);
     }*/
@@ -93,7 +93,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (arguments.empty())
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "No level name given: loading the last loaded level: "
                             + gameMap->getLevelFileName() + "\n\n";
             arguments = gameMap->getLevelFileName();
@@ -117,14 +117,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             }
             else
             {
-                if (MapLoader::readGameMapFromFile(tempString, *ODFrameListener::getSingletonPtr()->gameMap))
+                if (MapLoader::readGameMapFromFile(tempString, *gameMap))
                 {
                     tempSS << "Successfully loaded file:  " << tempString
                             << "\nNum tiles:  " << gameMap->numTiles()
                             << "\nNum classes:  "
                             << gameMap->numClassDescriptions()
                             << "\nNum creatures:  " << gameMap->numCreatures();
-                    frameListener->commandOutput += tempSS.str();
+                    frameListener->mCommandOutput += tempSS.str();
 
                     gameMap->createAllEntities();
                 }
@@ -132,7 +132,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 {
                     tempSS << "ERROR: Could not load game map \'" << tempString
                             << "\'.";
-                    frameListener->commandOutput += tempSS.str();
+                    frameListener->mCommandOutput += tempSS.str();
                 }
             }
 
@@ -140,7 +140,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
         else
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "ERROR:  Cannot load a level if you are a client, only the sever can load new levels.";
         }
     }
@@ -155,7 +155,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
             mSceneMgr->setAmbientLight(Ogre::ColourValue(tempR, tempG, tempB));
-            frameListener->commandOutput += "\nAmbient light set to:\nRed:  "
+            frameListener->mCommandOutput += "\nAmbient light set to:\nRed:  "
                     + Ogre::StringConverter::toString((Ogre::Real) tempR) + "    Green:  "
                     + Ogre::StringConverter::toString((Ogre::Real) tempG) + "    Blue:  "
                     + Ogre::StringConverter::toString((Ogre::Real) tempB) + "\n";
@@ -164,7 +164,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         else
         {
             Ogre::ColourValue curLight = mSceneMgr->getAmbientLight();
-            frameListener->commandOutput += "\nCurrent ambient light is:\nRed:  "
+            frameListener->mCommandOutput += "\nCurrent ambient light is:\nRed:  "
                     + Ogre::StringConverter::toString((Ogre::Real) curLight.r)
                     + "    Green:  " + Ogre::StringConverter::toString(
                     (Ogre::Real) curLight.g) + "    Blue:  "
@@ -175,7 +175,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     // Print the help message
     else if (command.compare("help") == 0)
     {
-        frameListener->commandOutput += (!arguments.empty())
+        frameListener->mCommandOutput += (!arguments.empty())
                 ? "\nHelp for command:  " + arguments + "\n\n" + getHelpText(arguments) + "\n"
                 : "\n" + ODApplication::HELP_MESSAGE + "\n";
     }
@@ -194,16 +194,16 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         // Print the "tens" place line at the top
         for (int i = 0; i < terminalWordWrap / 10; ++i)
         {
-            frameListener->commandOutput += "         " + Ogre::StringConverter::toString(i + 1);
+            frameListener->mCommandOutput += "         " + Ogre::StringConverter::toString(i + 1);
         }
 
-        frameListener->commandOutput += "\n";
+        frameListener->mCommandOutput += "\n";
 
         // Print the "ones" place
         const std::string tempString = "1234567890";
         for (int i = 0; i < terminalWordWrap - 1; ++i)
         {
-            frameListener->commandOutput += tempString.substr(i % 10, 1);
+            frameListener->mCommandOutput += tempString.substr(i % 10, 1);
         }
 
     } */
@@ -244,7 +244,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             }
         }
 
-        frameListener->commandOutput += "\nCreating tiles for region:\n\n\t("
+        frameListener->mCommandOutput += "\nCreating tiles for region:\n\n\t("
                 + Ogre::StringConverter::toString(xMin) + ", "
                 + Ogre::StringConverter::toString(yMin) + ")\tto\t("
                 + Ogre::StringConverter::toString(xMax) + ", "
@@ -261,12 +261,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     //         tempSS.str(arguments);
     //         tempSS >> tempDouble;
     //         cm->setMoveSpeedAccel(2.0 * tempDouble);
-    //         frameListener->commandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
+    //         frameListener->mCommandOutput += "\nmovespeed set to " + Ogre::StringConverter::toString(
     //                 tempDouble) + "\n";
     //     }
     //     else
     //     {
-    //         frameListener->commandOutput += "\nCurrent movespeed is "
+    //         frameListener->mCommandOutput += "\nCurrent movespeed is "
     //                 + Ogre::StringConverter::toString(
     //                         cm->getMoveSpeed())
     //                 + "\n";
@@ -282,7 +282,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> tempDouble;
             cm->setRotateSpeed(Ogre::Degree(tempDouble));
-            frameListener->commandOutput += "\nrotatespeed set to "
+            frameListener->mCommandOutput += "\nrotatespeed set to "
                     + Ogre::StringConverter::toString(
                             static_cast<Ogre::Real>(
                                     cm->getRotateSpeed().valueDegrees()))
@@ -290,7 +290,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
         else
         {
-            frameListener->commandOutput += "\nCurrent rotatespeed is "
+            frameListener->mCommandOutput += "\nCurrent rotatespeed is "
                     + Ogre::StringConverter::toString(
                             static_cast<Ogre::Real>(
                                     cm->getRotateSpeed().valueDegrees()))
@@ -309,13 +309,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> tempDouble;
             ODApplication::MAX_FRAMES_PER_SECOND = tempDouble;
-            frameListener->commandOutput += "\nMaximum framerate set to "
+            frameListener->mCommandOutput += "\nMaximum framerate set to "
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::MAX_FRAMES_PER_SECOND))
                     + "\n";
         }
         else
         {
-            frameListener->commandOutput += "\nCurrent maximum framerate is "
+            frameListener->mCommandOutput += "\nCurrent maximum framerate is "
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::MAX_FRAMES_PER_SECOND))
                     + "\n";
         }
@@ -334,20 +334,20 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             if (tempInt >= 1)
             {
                 gameMap->setMaxAIThreads(tempInt);
-                frameListener->commandOutput
+                frameListener->mCommandOutput
                         += "\nMaximum number of creature AI threads set to "
                         + Ogre::StringConverter::toString(
                                         gameMap->getMaxAIThreads()) + "\n";
             }
             else
             {
-                frameListener->commandOutput
+                frameListener->mCommandOutput
                         += "\nERROR: Maximum number of threads must be >= 1.\n";
             }
         }
         else
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "\nCurrent maximum number of creature AI threads is "
                     + Ogre::StringConverter::toString(gameMap->getMaxAIThreads())
                     + "\n";
@@ -383,12 +383,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 }
             }
 
-            frameListener->commandOutput += "\nMaximum turns per second set to "
+            frameListener->mCommandOutput += "\nMaximum turns per second set to "
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::turnsPerSecond)) + "\n";
         }
         else
         {
-            frameListener->commandOutput += "\nCurrent maximum turns per second is "
+            frameListener->mCommandOutput += "\nCurrent maximum turns per second is "
                     + Ogre::StringConverter::toString(static_cast<Ogre::Real>(ODApplication::turnsPerSecond)) + "\n";
         }
     }
@@ -402,14 +402,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> tempDouble;
             cm->getActiveCamera()->setNearClipDistance(tempDouble);
-            frameListener->commandOutput += "\nNear clip distance set to "
+            frameListener->mCommandOutput += "\nNear clip distance set to "
                     + Ogre::StringConverter::toString(
                             cm->getActiveCamera()->getNearClipDistance())
                     + "\n";
         }
         else
         {
-            frameListener->commandOutput += "\nCurrent near clip distance is "
+            frameListener->mCommandOutput += "\nCurrent near clip distance is "
                     + Ogre::StringConverter::toString(
                             cm->getActiveCamera()->getNearClipDistance())
                     + "\n";
@@ -425,13 +425,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> tempDouble;
             cm->getActiveCamera()->setFarClipDistance(tempDouble);
-            frameListener->commandOutput += "\nFar clip distance set to "
+            frameListener->mCommandOutput += "\nFar clip distance set to "
                     + Ogre::StringConverter::toString(
                             cm->getActiveCamera()->getFarClipDistance()) + "\n";
         }
         else
         {
-            frameListener->commandOutput += "\nCurrent far clip distance is "
+            frameListener->mCommandOutput += "\nCurrent far clip distance is "
                     + Ogre::StringConverter::toString(
                             cm->getActiveCamera()->getFarClipDistance()) + "\n";
         }
@@ -444,7 +444,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         //NOTE: dropped in AS
         //Doesn't do anything at the moment, after the mouse input to cegui change.
         //TODO - remove or make usable.
-        frameListener->commandOutput += "The command is disabled\n";
+        frameListener->mCommandOutput += "The command is disabled\n";
         //		if(!arguments.empty())
         //		{
         //			float speed;
@@ -453,11 +453,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         //			CEGUI::System::getSingleton().setMouseMoveScaling(speed);
         //			tempSS.str("");
         //			tempSS << "Mouse speed changed to: " << speed;
-        //			frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+        //			frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         //		}
         //		else
         //		{
-        //			frameListener->commandOutput += "\nCurrent mouse speed is: "
+        //			frameListener->mCommandOutput += "\nCurrent mouse speed is: "
         //				+ StringConverter::toString(static_cast<Real>(
         //				CEGUI::System::getSingleton().getMouseMoveScaling())) + "\n";
         //		}
@@ -483,17 +483,17 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 // Create the mesh and SceneNode for the new creature
                 Ogre::Entity *ent = RenderManager::getSingletonPtr()->getSceneManager()->createEntity("Creature_"
                         + tempCreature->getName(), tempCreature->getDefinition()->getMeshName());
-                Ogre::SceneNode *node = frameListener->creatureSceneNode->createChildSceneNode(
+                Ogre::SceneNode *node = frameListener->mCreatureSceneNode->createChildSceneNode(
                         tempCreature->getName() + "_node");
                 //node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
                 node->setPosition(tempCreature->getPosition());
                 node->setScale(tempCreature->getDefinition()->getScale());
                 node->attachObject(ent);
-                frameListener->commandOutput += "\nCreature added successfully\n";
+                frameListener->mCommandOutput += "\nCreature added successfully\n";
             }
             else
             {
-                frameListener->commandOutput
+                frameListener->mCommandOutput
                         += "\nInvalid creature class name, you need to first add a class with the \'addclass\' terminal command.\n";
             }
         }
@@ -550,7 +550,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                             << gameMap->getLocalPlayer()->getSeat()->getColor() << "\n\n";
                     for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
                     {
-                        const Player *currentPlayer = ODFrameListener::getSingletonPtr()->gameMap->getPlayer(i);
+                        const Player *currentPlayer = gameMap->getPlayer(i);
                         tempSS << i << "\t\t" << currentPlayer->getNick() << "\t"
                                 << currentPlayer->getSeat()->getColor() << "\n";
                     }
@@ -595,11 +595,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             else if (arguments.compare("colors") == 0 || arguments.compare("colours") == 0)
             {
                 tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
-                for (unsigned int i = 0; i < frameListener->playerColourValues.size(); ++i)
+                for (unsigned int i = 0; i < frameListener->mPlayerColourValues.size(); ++i)
                 {
-                    tempSS << "\n" << i << "\t\t" << frameListener->playerColourValues[i].r
-                            << "\t\t" << frameListener->playerColourValues[i].g << "\t\t"
-                            << frameListener->playerColourValues[i].b;
+                    tempSS << "\n" << i << "\t\t" << frameListener->mPlayerColourValues[i].r
+                            << "\t\t" << frameListener->mPlayerColourValues[i].g << "\t\t"
+                            << frameListener->mPlayerColourValues[i].b;
                 }
             }
 
@@ -660,11 +660,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 tempSS << "ERROR:  Unrecognized list.  Type \"list\" with no arguments to see available lists.";
             }
 
-            frameListener->commandOutput += "+\n" + tempSS.str() + "\n";
+            frameListener->mCommandOutput += "+\n" + tempSS.str() + "\n";
         }
         else
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "lists available:\n\t\tclasses\tcreatures\tplayers\n\t\tnetwork\trooms\tcolors\n\t\tgoals\tlevels\n";
         }
     }
@@ -691,7 +691,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         //NOTE: Converted to AS
         gameMap->destroyAllEntities();
         gameMap->createAllEntities();
-        frameListener->commandOutput += "\nRecreating all meshes.\n";
+        frameListener->mCommandOutput += "\nRecreating all meshes.\n";
     }*/
 
     // Set your nickname
@@ -700,14 +700,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         if (!arguments.empty())
         {
             gameMap->me->setNick(arguments);
-            frameListener->commandOutput += "\nNickname set to:  ";
+            frameListener->mCommandOutput += "\nNickname set to:  ";
         }
         else
         {
-            frameListener->commandOutput += "\nCurrent nickname is:  ";
+            frameListener->mCommandOutput += "\nCurrent nickname is:  ";
         }
 
-        frameListener->commandOutput += ODFrameListener::getSingletonPtr()->gameMap->me->getNick() + "\n";
+        frameListener->mCommandOutput += gameMap->me->getNick() + "\n";
     }
 
     /*
@@ -728,7 +728,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     << chatMaxTimeDisplay;
         }
 
-        frameListener->commandOutput += "\n " + tempSS.str() + "\n";
+        frameListener->mCommandOutput += "\n " + tempSS.str() + "\n";
     } */
 
     /*
@@ -746,7 +746,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS << "Max chat messages to display is: " << chatMaxMessages;
         }
 
-        frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+        frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
     } */
 
     // Connect to a server
@@ -766,27 +766,27 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     if (!Socket::clientSocket->create())
                     {
                         Socket::clientSocket = NULL;
-                        ODFrameListener::getSingletonPtr()->commandOutput
+                        ODFrameListener::getSingletonPtr()->mCommandOutput
                                 += "\nERROR:  Could not create client socket!\n";
                         goto ConnectEndLabel;
                     }
 
                     if (Socket::clientSocket->connect(arguments, ODApplication::PORT_NUMBER))
                     {
-                        frameListener->commandOutput += "\nConnection successful.\n";
+                        frameListener->mCommandOutput += "\nConnection successful.\n";
 
                         CSPStruct *csps = new CSPStruct;
                         csps->nSocket = Socket::clientSocket;
                         csps->nFrameListener = frameListener;
 
                         // Start a thread to talk to the server
-                        pthread_create(&(frameListener->clientThread), NULL,
+                        pthread_create(&(frameListener->mClientThread), NULL,
                                 clientSocketProcessor, (void*) csps);
 
                         // Start the thread which will watch for local events to send to the server
                         CNPStruct *cnps = new CNPStruct;
                         cnps->nFrameListener = frameListener;
-                        pthread_create(&(frameListener->clientNotificationThread), NULL,
+                        pthread_create(&(frameListener->mClientNotificationThread), NULL,
                                 clientNotificationProcessor, cnps);
 
                         // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
@@ -795,29 +795,29 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     else
                     {
                         Socket::clientSocket = NULL;
-                        frameListener->commandOutput += "\nConnection failed!\n";
+                        frameListener->mCommandOutput += "\nConnection failed!\n";
                     }
                 }
                 else
                 {
-                    frameListener->commandOutput
+                    frameListener->mCommandOutput
                             += "\nYou must specify the IP address of the server you want to connect to.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1\n";
                 }
 
             }
             else
             {
-                frameListener->commandOutput
+                frameListener->mCommandOutput
                         += "\nYou are already connected to a server.  You must disconnect before you can connect to a new game.\n";
             }
         }
         else
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "\nYou must set a nick with the \"nick\" command before you can join a server.\n";
         }
 
-        ConnectEndLabel: frameListener->commandOutput += "\n";
+        ConnectEndLabel: frameListener->mCommandOutput += "\n";
 
     }
 
@@ -832,26 +832,26 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
                 if (ODServer::startServer())
                 {
-                    frameListener->commandOutput += "\nServer started successfully.\n";
+                    frameListener->mCommandOutput += "\nServer started successfully.\n";
 
                     // Automatically closes the terminal
-                    frameListener->terminalActive = false;
+                    frameListener->mTerminalActive = false;
                 }
                 else
                 {
-                    frameListener->commandOutput += "\nERROR:  Could not start server!\n";
+                    frameListener->mCommandOutput += "\nERROR:  Could not start server!\n";
                 }
 
             }
             else
             {
-                frameListener->commandOutput
+                frameListener->mCommandOutput
                         += "\nERROR:  You are already connected to a game or are already hosting a game!\n";
             }
         }
         else
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "\nYou must set a nick with the \"nick\" command before you can host a server.\n";
         }
     }
@@ -887,7 +887,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS << "Please host or connect to a game before running chathelp.\n";
         }
 
-        frameListener->commandOutput += "\n " + tempSS.str() + "\n";
+        frameListener->mCommandOutput += "\n " + tempSS.str() + "\n";
     }
 
     // Send a chat message
@@ -903,12 +903,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         else if (Socket::serverSocket != NULL)
         {
             // Send the chat to all the connected clients
-            for (unsigned int i = 0; i < frameListener->clientSockets.size(); ++i)
+            for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
             {
-                sem_wait(&frameListener->clientSockets[i]->semaphore);
-                ODFrameListener::getSingletonPtr()->clientSockets[i]->send(formatCommand("chat", gameMap->me->getNick()
+                sem_wait(&frameListener->mClientSockets[i]->semaphore);
+                ODFrameListener::getSingletonPtr()->mClientSockets[i]->send(formatCommand("chat", gameMap->me->getNick()
                         + ":" + arguments));
-                sem_post(&frameListener->clientSockets[i]->semaphore);
+                sem_post(&frameListener->mClientSockets[i]->semaphore);
             }
 
             // Display the chat message in our own message queue
@@ -917,7 +917,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
         else
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "\nYou must be either connected to a server, or hosting a server to use chat.\n";
         }
     }
@@ -936,34 +936,34 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     if (!tempCreature->getHasVisualDebuggingEntities())
                     {
                         tempCreature->createVisualDebugEntities();
-                        frameListener->commandOutput
+                        frameListener->mCommandOutput
                                 += "\nVisual debugging entities created for creature:  "
                                         + arguments + "\n";
                     }
                     else
                     {
                         tempCreature->destroyVisualDebugEntities();
-                        frameListener->commandOutput
+                        frameListener->mCommandOutput
                                 += "\nVisual debugging entities destroyed for creature:  "
                                         + arguments + "\n";
                     }
                 }
                 else
                 {
-                    frameListener->commandOutput
+                    frameListener->mCommandOutput
                             += "\nCould not create visual debugging entities for creature:  "
                                     + arguments + "\n";
                 }
             }
             else
             {
-                frameListener->commandOutput
+                frameListener->mCommandOutput
                         += "\nERROR:  You must supply a valid creature name to create debug entities for.\n";
             }
         }
         else
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "\nERROR:  Visual debugging only works when you are hosting a game.\n";
         }
     }
@@ -975,14 +975,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> tempR >> tempG >> tempB;
-            frameListener->playerColourValues.push_back(Ogre::ColourValue(tempR, tempG, tempB));
+            frameListener->mPlayerColourValues.push_back(Ogre::ColourValue(tempR, tempG, tempB));
             tempSS.str("");
-            tempSS << "Color number " << frameListener->playerColourValues.size() << " added.";
-            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+            tempSS << "Color number " << frameListener->mPlayerColourValues.size() << " added.";
+            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
         else
         {
-            frameListener->commandOutput
+            frameListener->mCommandOutput
                     += "\nERROR:  You need to specify and RGB triplet with values in (0.0, 1.0)\n";
         }
     }
@@ -995,13 +995,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             Ogre::Real tempR, tempG, tempB;
             tempSS.str(arguments);
             tempSS >> index >> tempR >> tempG >> tempB;
-            if (index < frameListener->playerColourValues.size())
+            if (index < frameListener->mPlayerColourValues.size())
             {
-                frameListener->playerColourValues[index] = Ogre::ColourValue(tempR, tempG, tempB);
+                frameListener->mPlayerColourValues[index] = Ogre::ColourValue(tempR, tempG, tempB);
                 tempSS.str("");
                 tempSS << "Color number " << index << " changed to " << tempR
                         << "\t" << tempG << "\t" << tempB;
-                frameListener->commandOutput += "an" + tempSS.str() + "\n";
+                frameListener->mCommandOutput += "an" + tempSS.str() + "\n";
             }
 
         }
@@ -1009,9 +1009,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         {
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify a color index between 0 and "
-                    << frameListener->playerColourValues.size()
+                    << frameListener->mPlayerColourValues.size()
                     << " and an RGB triplet with values in (0.0, 1.0)";
-            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
     }
 
@@ -1038,7 +1038,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         else {
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify:  N - number of control points  and n pairs of  control points for bsplines ";
-            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
     }
 
@@ -1078,7 +1078,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
-            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
     }
     else if (command.compare("setcamerafovx") == 0){
@@ -1097,7 +1097,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             tempSS.str("");
             tempSS  << "ERROR:  No such commend in Ogre, try setcamerafovy and camera aspect ratio ";
-            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
     }
     else if (command.compare("setcamerafovy") == 0)
@@ -1116,14 +1116,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         {
             tempSS.str("");
             tempSS  << "ERROR:  you need to specify an angle in radians ";
-            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
     }
     else if (command.compare("possescreature") == 0)
     {
         tempSS.str("");
         tempSS  << "Click creature you want to posses ";
-        frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+        frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         frameListener->getModeManager()->getInputManager()->mExpectCreatureClick = true;
     }
     else if (command.compare("circlearound") == 0)
@@ -1145,7 +1145,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         {
             tempSS.str("");
             tempSS  << "ERROR:  You need to specify an circle center ( two coordinates ) and circle radious";
-            frameListener->commandOutput += "\n" + tempSS.str() + "\n";
+            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
         }
     }
     else if (command.compare("switchpolygonmode") == 0)
@@ -1167,7 +1167,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
     else if (command.compare("disconnect") == 0)
     {
-        frameListener->commandOutput += (Socket::serverSocket != NULL)
+        frameListener->mCommandOutput += (Socket::serverSocket != NULL)
             ? "\nStopping server.\n"
             : (Socket::clientSocket != NULL)
                 ? "\nDisconnecting from server.\n"
@@ -1178,23 +1178,23 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         if (gameMap->seatIsAWinner(gameMap->me->getSeat()))
         {
             gameMap->loadNextLevel = true;
-            frameListener->commandOutput += (string) "\nLoading level levels/"
+            frameListener->mCommandOutput += (string) "\nLoading level levels/"
                     + gameMap->nextLevel + ".level\n";
         }
         else
         {
-            frameListener->commandOutput += "\nYou have not completed this level yet.\n";
+            frameListener->mCommandOutput += "\nYou have not completed this level yet.\n";
         }
     }
     else
     {
         //try AngelScript interpreter
         return false;
-        //frameListener->commandOutput
+        //frameListener->mCommandOutput
         //        += "\nCommand not found.  Try typing help to get info on how to use the console or just press enter to exit the console and return to the game.\n";
     }
 
-    Console::getSingleton().print(frameListener->commandOutput);
+    Console::getSingleton().print(frameListener->mCommandOutput);
 
     return true;
 }

@@ -94,7 +94,7 @@ void *clientSocketProcessor(void *p)
             {
                 // Place a chat message in the queue to inform
                 // the user about the disconnect
-                frameListener->chatMessages.push_back(new ChatMessage(
+                frameListener->addChatMessage(new ChatMessage(
                         "SERVER_INFORMATION: ", "Server disconnect.",
                         time(NULL)));
 
@@ -169,7 +169,7 @@ void *clientSocketProcessor(void *p)
             else if (serverCommand.compare("chat") == 0)
             {
                 ChatMessage *newMessage = processChatMessage(arguments);
-                frameListener->chatMessages.push_back(newMessage);
+                frameListener->addChatMessage(newMessage);
             }
 
             else if (serverCommand.compare("newmap") == 0)

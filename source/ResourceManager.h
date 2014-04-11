@@ -10,16 +10,15 @@
 
 #include <string>
 
-
 #include <OgreSingleton.h>
 #include <OgreStringVector.h>
-
-
 
 class ResourceManager : public Ogre::Singleton<ResourceManager>
 {
     public:
         ResourceManager();
+        ~ResourceManager()
+        {}
 
         static bool hasFileEnding(const std::string& filename, const std::string& ending);
 
@@ -42,10 +41,8 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
     protected:
         static bool createFolderIfNotExists(const std::string& folderName);
         static std::string locateHomeFolder();
-    private:
-        ResourceManager(const ResourceManager&);
-        ~ResourceManager();
 
+    private:
         unsigned int screenshotCounter;
         std::string resourcePath;
         std::string homePath;
@@ -73,4 +70,4 @@ class ResourceManager : public Ogre::Singleton<ResourceManager>
         static const std::string RESOURCEGROUPSOUND;
 };
 
-#endif /* RESOURCEMANAGER_H_ */
+#endif // RESOURCEMANAGER_H_

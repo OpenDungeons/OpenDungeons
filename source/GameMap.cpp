@@ -57,7 +57,7 @@ using namespace std;
 
 // Static GameMap members initialization
 ProtectedObject<long int> GameMap::turnNumber(1);
-sem_t GameMap::creatureAISemaphore;
+sem_t GameMap::mCreatureAISemaphore;
 Tile::TileType *GameMap::neighborType  = new Tile::TileType [8];
 bool  *GameMap::neighborFullness  = new bool [8];
 
@@ -698,7 +698,7 @@ void GameMap::doTurn()
         }
     }
 
-    sem_wait(&creatureAISemaphore);
+    sem_wait(&mCreatureAISemaphore);
 
     std::cout << "\nStarting creature AI for turn " << turnNumber.get();
     unsigned int numCallsTo_path_atStart = numCallsTo_path;
@@ -771,7 +771,7 @@ void GameMap::doTurn()
     std::cout << "\nDuring this turn there were " << numCallsTo_path
               - numCallsTo_path_atStart << " calls to GameMap::path().";
 
-    sem_post(&creatureAISemaphore);
+    sem_post(&mCreatureAISemaphore);
 }
 
 void GameMap::doPlayerAITurn(double frameTime)

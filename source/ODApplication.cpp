@@ -2,6 +2,21 @@
  *  \author Ogre team, andrewbuck, oln, StefanP.MUC
  *  \date   07 April 2011
  *  \brief  Class ODApplication containing everything to start the game
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ODApplication.h"
@@ -33,70 +48,69 @@
 #include <sstream>
 #include <fstream>
 
-template<> ODApplication*
-Ogre::Singleton<ODApplication>::msSingleton = 0;
+template<> ODApplication* Ogre::Singleton<ODApplication>::msSingleton = 0;
 
-/*! Initializes the Application along with the ResourceManager
- *
- */
 ODApplication::ODApplication() :
-    root(NULL),
-    window(NULL)
+    mRoot(NULL),
+    mWindow(NULL)
 {
-    try {
-    sem_init(&MapLight::mLightNumberLockSemaphore, 0, 1);
-    sem_init(&MissileObject::mMissileObjectUniqueNumberLockSemaphore, 0, 1);
-    sem_init(&ServerNotification::serverNotificationQueueSemaphore, 0, 0);
-    sem_init(&ClientNotification::mClientNotificationQueueSemaphore, 0, 0);
-    sem_init(&ServerNotification::serverNotificationQueueLockSemaphore, 0, 1);
-    sem_init(&ClientNotification::mClientNotificationQueueLockSemaphore, 0, 1);
-    sem_init(&GameMap::creatureAISemaphore, 0, 1);
+    try
+    {
+        sem_init(&MapLight::mLightNumberLockSemaphore, 0, 1);
+        sem_init(&MissileObject::mMissileObjectUniqueNumberLockSemaphore, 0, 1);
+        sem_init(&ServerNotification::mServerNotificationQueueSemaphore, 0, 0);
+        sem_init(&ClientNotification::mClientNotificationQueueSemaphore, 0, 0);
+        sem_init(&ServerNotification::mServerNotificationQueueLockSemaphore, 0, 1);
+        sem_init(&ClientNotification::mClientNotificationQueueLockSemaphore, 0, 1);
+        sem_init(&GameMap::mCreatureAISemaphore, 0, 1);
 
-    Random::initialize();
+        Random::initialize();
 
-    ResourceManager* resMgr = new ResourceManager;
+        ResourceManager* resMgr = new ResourceManager;
 
-    std::cout << "Creating OGRE::Root instance; Plugins path: " << resMgr->getPluginsPath() << "; config file: " << resMgr->getCfgFile() << "; log file: " << resMgr->getLogFile() << std::endl;
-    root = new Ogre::Root(
-        resMgr->getPluginsPath(),
-        resMgr->getCfgFile(),
-        resMgr->getLogFile());
+        std::cout << "Creating OGRE::Root instance; Plugins path: " << resMgr->getPluginsPath()
+                  << "; config file: " << resMgr->getCfgFile()
+                  << "; log file: " << resMgr->getLogFile() << std::endl;
 
-    resMgr->setupResources();
+        mRoot = new Ogre::Root(resMgr->getPluginsPath(),
+                               resMgr->getCfgFile(),
+                               resMgr->getLogFile());
 
-    /* TODO: Skip this and use root.restoreConfig()
-     * to load configuration settings if we are sure there are valid ones
-     * saved in ogre.cfg
-     * We should use this later (when we have an own setup options screen)
-     * to avoid having the setup dialog started on every run
-     */
-    /* TODO: create our own options menu and define good default values
-     *       (drop smaller than 800x600, AA, shadow quality, mipmaps, etc)
-     */
-    if (!root->showConfigDialog())
-        return;
+        resMgr->setupResources();
 
-    mOverlaySystem = new Ogre::OverlaySystem();
+        /* TODO: Skip this and use root.restoreConfig()
+         * to load configuration settings if we are sure there are valid ones
+         * saved in ogre.cfg
+         * We should use this later (when we have an own setup options screen)
+         * to avoid having the setup dialog started on every run
+         */
+        /* TODO: create our own options menu and define good default values
+         *       (drop smaller than 800x600, AA, shadow quality, mipmaps, etc)
+         */
+        if (!mRoot->showConfigDialog())
+            return;
 
-    window = root->initialise(true, "OpenDungeons " + VERSION);
+        mOverlaySystem = new Ogre::OverlaySystem();
 
-    LogManager* logManager = new LogManager();
-    logManager->setLogDetail(Ogre::LL_BOREME);
-    new Translation();
+        mWindow = mRoot->initialise(true, "OpenDungeons " + VERSION);
 
-    Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
-    new MusicPlayer();
-    new SoundEffectsHelper();
+        LogManager* logManager = new LogManager();
+        logManager->setLogDetail(Ogre::LL_BOREME);
+        new Translation();
 
-    new Gui();
-    new TextRenderer();
-    TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
-                                            10, 50, 70, Ogre::ColourValue::Green);
+        Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
+        new MusicPlayer();
+        new SoundEffectsHelper();
 
-    mFrameListener = new ODFrameListener(window, mOverlaySystem);
-    root->addFrameListener(mFrameListener);
+        new Gui();
+        new TextRenderer();
+        TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
+                                                10, 50, 70, Ogre::ColourValue::Green);
 
-    root->startRendering();
+        mFrameListener = new ODFrameListener(mWindow, mOverlaySystem);
+        mRoot->addFrameListener(mFrameListener);
+
+        mRoot->startRendering();
     }
     catch(const Ogre::Exception& e)
     {
@@ -107,18 +121,9 @@ ODApplication::ODApplication() :
 
 ODApplication::~ODApplication()
 {
-    if (root)
-    {
-        root->removeFrameListener(mFrameListener);
-        delete root;
-    }
-
     cleanUp();
 }
 
-/*! \brief Display a GUI error message
- *
- */
 void ODApplication::displayErrorMessage(const std::string& message, bool log)
 {
     if (log)
@@ -129,21 +134,22 @@ void ODApplication::displayErrorMessage(const std::string& message, bool log)
     e.display(message, LogManager::GAMELOG_NAME);
 }
 
-
-/*! \brief Delete the various singleton objects and clean up other stuff
- *
- */
 void ODApplication::cleanUp()
 {
-    delete mFrameListener; //ODFrameListener::getSingletonPtr();
+    if (mRoot)
+    {
+        mRoot->removeFrameListener(mFrameListener);
+        delete mRoot;
+    }
+
+    delete mFrameListener; // same as ODFrameListener::getSingletonPtr();
     delete MusicPlayer::getSingletonPtr();
     delete TextRenderer::getSingletonPtr();
     delete Gui::getSingletonPtr();
     delete SoundEffectsHelper::getSingletonPtr();
-    delete RenderManager::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
-    delete ASWrapper::getSingletonPtr();
+    delete ResourceManager::getSingletonPtr();
 }
 
 //TODO: find some better places for some of these

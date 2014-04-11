@@ -47,11 +47,11 @@ void queueServerNotification(ServerNotification* n)
     n->turnNumber = GameMap::turnNumber.get();
     gameMap->threadLockForTurn(n->turnNumber);
 
-    sem_wait(&ServerNotification::serverNotificationQueueLockSemaphore);
+    sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
     ServerNotification::serverNotificationQueue.push_back(n);
-    sem_post(&ServerNotification::serverNotificationQueueLockSemaphore);
+    sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
 
-    sem_post(&ServerNotification::serverNotificationQueueSemaphore);
+    sem_post(&ServerNotification::mServerNotificationQueueSemaphore);
 }
 
 bool startServer()
@@ -111,17 +111,17 @@ bool startServer()
     SSPStruct* ssps = new SSPStruct;
     ssps->nSocket = Socket::serverSocket;
     ssps->nFrameListener = ODFrameListener::getSingletonPtr();
-    pthread_create(&ODFrameListener::getSingletonPtr()->serverThread,
+    pthread_create(&ODFrameListener::getSingletonPtr()->mServerThread,
                    NULL, serverSocketProcessor, (void*) ssps);
 
     // Start the thread which will watch for local events to send to the clients
     SNPStruct* snps = new SNPStruct;
     snps->nFrameListener = ODFrameListener::getSingletonPtr();
-    pthread_create(&ODFrameListener::getSingletonPtr()->serverNotificationThread,
+    pthread_create(&ODFrameListener::getSingletonPtr()->mServerNotificationThread,
                    NULL, serverNotificationProcessor, snps);
 
     // Start the creature AI thread
-    pthread_create(&ODFrameListener::getSingletonPtr()->creatureThread,
+    pthread_create(&ODFrameListener::getSingletonPtr()->mCreatureThread,
                    NULL, creatureAIThread, static_cast<void*>(gameMap));
 
     // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.

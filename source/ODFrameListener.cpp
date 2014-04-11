@@ -3,6 +3,21 @@
  * \date   09 April 2011
  * \author Ogre team, andrewbuck, oln, StefanP.MUC
  * \brief  Handles the input and rendering request
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ODFrameListener.h"
@@ -56,24 +71,23 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-/*! \brief This constructor is where the OGRE system is initialized and started.
+/*! \brief This constructor is where the OGRE rendering system is initialized and started.
  *
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* tmpOverlaySystem) :
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* overlaySystem) :
     cm(NULL),
+    mInitialized(false),
     mWindow(win),
-    renderManager(RenderManager::getSingletonPtr()),
-    sfxHelper(SoundEffectsHelper::getSingletonPtr()),
     mShowDebugInfo(false),
     mContinue(true),
-    terminalActive(false),
-    terminalWordWrap(78),
-    chatMaxMessages(10),
-    chatMaxTimeDisplay(20),
-    frameDelay(0.0),
-    previousTurn(-1)
+    mTerminalActive(false),
+    mTerminalWordWrap(78),
+    mChatMaxMessages(10),
+    mChatMaxTimeDisplay(20),
+    mFrameDelay(0.0),
+    mPreviousTurn(-1)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
@@ -81,33 +95,25 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
     Ogre::SceneManager* sceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_GENERIC,
                                                                                                        "SceneManager");
-    sceneManager->addRenderQueueListener(tmpOverlaySystem);
-    gameMap = new GameMap;
+    sceneManager->addRenderQueueListener(overlaySystem);
 
-    cm = new CameraManager(sceneManager, gameMap);
+    mGameMap = new GameMap;
+    cm = new CameraManager(sceneManager, mGameMap);
 
-    logManager->logMessage("Created everything :)", Ogre::LML_NORMAL);
-
-    renderManager = new RenderManager();
-    renderManager->setGameMap(gameMap);
+    RenderManager* renderManager = new RenderManager();
+    renderManager->setGameMap(mGameMap);
     renderManager->setCameraManager(cm);
     renderManager->setViewport(cm->getViewport());
 
-    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-    rockSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
-            "Rock_scene_node");
-    creatureSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
-            "Creature_scene_node");
-    roomSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
-            "Room_scene_node");
-    fieldSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
-            "Field_scene_node");
-    lightSceneNode = mSceneMgr->getRootSceneNode()->createChildSceneNode(
-            "Light_scene_node");
-    mRaySceneQuery = mSceneMgr->createRayQuery(Ogre::Ray());
+    mRockSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Rock_scene_node");
+    mCreatureSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
+    mRoomSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Room_scene_node");
+    mFieldSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Field_scene_node");
+    mLightSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Light_scene_node");
+    mRaySceneQuery = sceneManager->createRayQuery(Ogre::Ray());
 
-    modeManager = new ModeManager();
-    cm->setModeManager(modeManager);
+    mModeManager = new ModeManager();
+    cm->setModeManager(mModeManager);
 
     //Set initial mouse clipping size
     windowResized(mWindow);
@@ -118,28 +124,32 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
     TextRenderer::getSingleton().addTextBox(ODApplication::POINTER_INFO_STRING, "",
             0, 0, 200, 50, Ogre::ColourValue::White);
 
-    renderManager->setSceneNodes(rockSceneNode, roomSceneNode, creatureSceneNode,
-                                     lightSceneNode, fieldSceneNode);
+    renderManager->setSceneNodes(mRockSceneNode, mRoomSceneNode, mCreatureSceneNode,
+                                 mLightSceneNode, mFieldSceneNode);
+
+    // TODO: Move this into the common definitions files.
     //Available team colours
     //red
-    playerColourValues.push_back(Ogre::ColourValue(1.0, 0.0, 0.0, 1.0));
+    mPlayerColourValues.push_back(Ogre::ColourValue(1.0, 0.0, 0.0, 1.0));
     //yellow
-    playerColourValues.push_back(Ogre::ColourValue(1.0, 1.0, 0.0, 1.0));
+    mPlayerColourValues.push_back(Ogre::ColourValue(1.0, 1.0, 0.0, 1.0));
     //green
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 1.0, 0.0, 1.0));
+    mPlayerColourValues.push_back(Ogre::ColourValue(0.0, 1.0, 0.0, 1.0));
     //cyan
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 1.0, 1.0, 1.0));
+    mPlayerColourValues.push_back(Ogre::ColourValue(0.0, 1.0, 1.0, 1.0));
     //blue
-    playerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 1.0, 1.0));
+    mPlayerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 1.0, 1.0));
     //violet
-    playerColourValues.push_back(Ogre::ColourValue(1.0, 0.0, 1.0, 1.0));
+    mPlayerColourValues.push_back(Ogre::ColourValue(1.0, 0.0, 1.0, 1.0));
     //white
-    playerColourValues.push_back(Ogre::ColourValue(1.0, 1.0, 1.0, 1.0));
+    mPlayerColourValues.push_back(Ogre::ColourValue(1.0, 1.0, 1.0, 1.0));
     //black
-    playerColourValues.push_back(Ogre::ColourValue(0.5, 0.5, 0.5, 1.0));
+    mPlayerColourValues.push_back(Ogre::ColourValue(0.5, 0.5, 0.5, 1.0));
 
-    threadStopRequested.set(false);
-    exitRequested.set(false);
+    mThreadStopRequested.set(false);
+    mExitRequested.set(false);
+
+    mInitialized = true;
 
     // Init the render manager
     try
@@ -148,39 +158,29 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* t
         renderManager->createScene();
         logManager->logMessage("Creating compositors...", Ogre::LML_NORMAL);
         renderManager->createCompositors();
+        logManager->logMessage("*** FrameListener initialized ***");
     }
     catch(Ogre::Exception& e)
     {
         ODApplication::displayErrorMessage("Ogre exception when initialising the render manager:\n"
             + e.getFullDescription(), false);
-        // TODO: Cleanly exit instead
-        exit(0);
-        //cleanUp();
-        //return;
+        requestExit();
     }
     catch (std::exception& e)
     {
         ODApplication::displayErrorMessage("Exception when initialising the render manager:\n"
             + std::string(e.what()), false);
-        // TODO: Cleanly exit instead
-        exit(0);
-        //cleanUp();
-        //return;
+        requestExit();
     }
-
-    LogManager::getSingletonPtr()->logMessage("*** FrameListener initialized ***");
 }
 
-/*! \brief Adjust mouse clipping area
- *
- */
 void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
 {
     unsigned int width, height, depth;
     int left, top;
     rw->getMetrics(width, height, depth, left, top);
 
-    const OIS::MouseState &ms = modeManager->getCurrentMode()->getMouse()->getMouseState();
+    const OIS::MouseState &ms = mModeManager->getCurrentMode()->getMouse()->getMouseState();
     ms.width = width;
     ms.height = height;
 
@@ -189,50 +189,49 @@ void ODFrameListener::windowResized(Ogre::RenderWindow* rw)
             static_cast<float> (width), static_cast<float> (height)));
 }
 
-/*! \brief Unattach OIS before window shutdown (very important under Linux)
- *
- */
 void ODFrameListener::windowClosed(Ogre::RenderWindow* rw)
 {
-    if(rw == mWindow)
+    if(rw == mWindow && mModeManager)
     {
-        if(modeManager)
-        {
-            delete modeManager;
-        }
+        delete mModeManager;
+        mModeManager = NULL;
     }
 }
 
 ODFrameListener::~ODFrameListener()
 {
-    if (modeManager)
-        delete modeManager;
+    if (mInitialized)
+        exitApplication();
+
+    if (mModeManager)
+        delete mModeManager;
     delete cm;
-    delete gameMap;
+    delete mGameMap;
+    // We deinit it here since it was also created in this class.
+    delete RenderManager::getSingletonPtr();
 }
 
 void ODFrameListener::requestExit()
 {
-    exitRequested.set(true);
+    mExitRequested.set(true);
 }
 
 void ODFrameListener::exitApplication()
 {
-
     LogManager::getSingleton().logMessage("\nClosing down.");
     //Mark that we want the threads to stop.
     requestStopThreads();
 
     ServerNotification* exitServerNotification = new ServerNotification();
     exitServerNotification->type = ServerNotification::exit;
-    sem_wait(&ServerNotification::serverNotificationQueueLockSemaphore);
+    sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
     while(!ServerNotification::serverNotificationQueue.empty())
     {
         delete ServerNotification::serverNotificationQueue.front();
         ServerNotification::serverNotificationQueue.pop_front();
     }
     //serverNotificationQueue.push_back(exitServerNotification);
-    sem_post(&ServerNotification::serverNotificationQueueLockSemaphore);
+    sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
     ODServer::queueServerNotification(exitServerNotification);
 
     ClientNotification* exitClientNotification = new ClientNotification();
@@ -251,60 +250,55 @@ void ODFrameListener::exitApplication()
     //Wait for threads to exit
     //TODO: Add a timeout here.
     Ogre::LogManager::getSingleton().logMessage("Trying to close server notification thread..", Ogre::LML_NORMAL);
-    pthread_join(serverNotificationThread, NULL);
+    pthread_join(mServerNotificationThread, NULL);
     Ogre::LogManager::getSingleton().logMessage("Trying to close client notification thread..", Ogre::LML_NORMAL);
     //pthread_join(clientNotificationThread, NULL);
     //TODO - change this back to join when we know what causes this to lock up sometimes.
-    pthread_cancel(clientNotificationThread);
+    pthread_cancel(mClientNotificationThread);
     Ogre::LogManager::getSingleton().logMessage("Trying to close creature thread..", Ogre::LML_NORMAL);
-    pthread_join(creatureThread, NULL);
+    pthread_join(mCreatureThread, NULL);
     /* Cancel the rest of the threads.
      * NOTE:Threads should ideally not be cancelled, but told to exit instead.
      * However, these threads are blocking while waiting for network data.
      * This could be changed if we want a different behaviour later.
      */
     Ogre::LogManager::getSingleton().logMessage("Trying to cancel client thread..", Ogre::LML_NORMAL);
-    pthread_cancel(clientThread);
+    pthread_cancel(mClientThread);
     Ogre::LogManager::getSingleton().logMessage("Trying to cancel client handler threads..", Ogre::LML_NORMAL);
     //FIXME: Does the thread handles here actually need to be pointers?
-    for(std::vector<pthread_t*>::iterator it = clientHandlerThreads.begin();
-        it != clientHandlerThreads.end(); ++it)
+    for(std::vector<pthread_t*>::iterator it = mClientHandlerThreads.begin();
+        it != mClientHandlerThreads.end(); ++it)
     {
         pthread_cancel(*(*it));
     }
     Ogre::LogManager::getSingleton().logMessage("Trying to cancel server thread..", Ogre::LML_NORMAL);
-    pthread_cancel(serverThread);
+    pthread_cancel(mServerThread);
     Ogre::LogManager::getSingleton().logMessage("Clearing game map..", Ogre::LML_NORMAL);
-    gameMap->clearAll();
+    mGameMap->clearAll();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
 
     //Remove ourself as a Window listener
     Ogre::WindowEventUtilities::removeWindowEventListener(mWindow, this);
     windowClosed(mWindow);
+
+    mInitialized = false;
 }
 
 bool ODFrameListener::getThreadStopRequested()
 {
-    return threadStopRequested.get();
+    return mThreadStopRequested.get();
 }
 
 void ODFrameListener::setThreadStopRequested(bool value)
 {
-    threadStopRequested.set(value);
+    mThreadStopRequested.set(value);
 }
 
 void ODFrameListener::requestStopThreads()
 {
-    threadStopRequested.set(true);
+    mThreadStopRequested.set(true);
 }
 
-/*! \brief The main rendering function for the OGRE 3d environment.
- *
- * This function is the one which actually carries out all of the rendering in
- * the OGRE 3d system.  Since all the rendering must happen here, one of the
- * operations performed by this function is the processing of a request queue
- * full of RenderRequest structures.
- */
 bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 {
     if (mWindow->isClosed())
@@ -316,13 +310,13 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     //NOTE:  If this function exits early the corresponding unlock function must be called.
     long int currentTurnNumber = GameMap::turnNumber.get();
 
-    gameMap->threadLockForTurn(currentTurnNumber);
+    mGameMap->threadLockForTurn(currentTurnNumber);
 
     MusicPlayer::getSingletonPtr()->update();
-    renderManager->processRenderRequests();
+    RenderManager::getSingletonPtr()->processRenderRequests();
 
-    string chatBaseString = "\n---------- Chat ----------\n";
-    chatString = chatBaseString;
+    std::string chatBaseString = "\n---------- Chat ----------\n";
+    mChatString = chatBaseString;
 
     // Delete any chat messages older than the maximum allowable age
     //TODO:  Lock this queue before doing this stuff
@@ -330,13 +324,13 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     time(&now);
     ChatMessage* currentMessage;
     unsigned int i = 0;
-    while (i < chatMessages.size())
+    while (i < mChatMessages.size())
     {
-        std::deque<ChatMessage*>::iterator itr = chatMessages.begin() + i;
+        std::deque<ChatMessage*>::iterator itr = mChatMessages.begin() + i;
         currentMessage = *itr;
-        if (difftime(now, currentMessage->getRecvTime()) > chatMaxTimeDisplay)
+        if (difftime(now, currentMessage->getRecvTime()) > mChatMaxTimeDisplay)
         {
-            chatMessages.erase(itr);
+            mChatMessages.erase(itr);
         }
         else
         {
@@ -345,21 +339,21 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     }
 
     // Only keep the N newest chat messages of the ones that remain
-    while (chatMessages.size() > chatMaxMessages)
+    while (mChatMessages.size() > mChatMaxMessages)
     {
-        delete chatMessages.front();
-        chatMessages.pop_front();
+        delete mChatMessages.front();
+        mChatMessages.pop_front();
     }
 
     // Fill up the chat window with the arrival time and contents of all the chat messages left in the queue.
-    for (unsigned int i = 0; i < chatMessages.size(); ++i)
+    for (unsigned int i = 0; i < mChatMessages.size(); ++i)
     {
         std::stringstream chatSS("");
-        struct tm *friendlyTime = localtime(&chatMessages[i]->getRecvTime());
+        struct tm *friendlyTime = localtime(&mChatMessages[i]->getRecvTime());
         chatSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":"
-                << friendlyTime->tm_sec << "  " << chatMessages[i]->getClientNick()
-                << ":  " << chatMessages[i]->getMessage();
-        chatString += chatSS.str() + "\n";
+                << friendlyTime->tm_sec << "  " << mChatMessages[i]->getClientNick()
+                << ":  " << mChatMessages[i]->getMessage();
+        mChatString += chatSS.str() + "\n";
     }
 
     // Display the terminal, the current turn number, and the
@@ -369,7 +363,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     turnString.reserve(100);
 
     //TODO - we should call printText only when the text changes.
-    bool isEditor = (modeManager->getCurrentModeType() == ModeManager::EDITOR);
+    bool isEditor = (mModeManager->getCurrentModeType() == ModeManager::EDITOR);
     if (!isEditor && Socket::serverSocket == NULL)
     {
         // Tells the user the game is loading.
@@ -381,10 +375,10 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         {
             turnString = "On average the creature AI is finishing ";
             turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
-                    gameMap->averageAILeftoverTime)).substr(0, 4) + " s ";
-            turnString += (gameMap->averageAILeftoverTime >= 0.0 ? "early" : "late");
+                    mGameMap->averageAILeftoverTime)).substr(0, 4) + " s ";
+            turnString += (mGameMap->averageAILeftoverTime >= 0.0 ? "early" : "late");
             double maxTps = 1.0 / ((1.0 / ODApplication::turnsPerSecond)
-                - gameMap->averageAILeftoverTime);
+                - mGameMap->averageAILeftoverTime);
             turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
                 static_cast<Ogre::Real>(maxTps)).substr(0, 4);
             turnString += "\nFPS: " + Ogre::StringConverter::toString(
@@ -397,7 +391,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 + Ogre::StringConverter::toString(GameMap::turnNumber.get());
 
             printText(ODApplication::MOTD + "\n" + turnString
-                    + "\n" + (!chatMessages.empty() ? chatString : nullString));
+                    + "\n" + (!mChatMessages.empty() ? mChatString : nullString));
         }
         else
         {
@@ -406,82 +400,20 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     }
 
     // Update the animations on any AnimatedObjects which have them
-    for (unsigned int i = 0; i < gameMap->numAnimatedObjects(); ++i)
+    for (unsigned int i = 0; i < mGameMap->numAnimatedObjects(); ++i)
     {
-        MovableGameEntity *currentAnimatedObject = gameMap->getAnimatedObject(i);
+        MovableGameEntity* currentAnimatedObject = mGameMap->getAnimatedObject(i);
 
-        // Advance the animation
-        if (currentAnimatedObject->mAnimationState != NULL)
-        {
-            currentAnimatedObject->mAnimationState->addTime((Ogre::Real)(ODApplication::turnsPerSecond
-                    * evt.timeSinceLastFrame
-                    * currentAnimatedObject->getAnimationSpeedFactor()));
-        }
+        if (!currentAnimatedObject)
+            continue;
 
-        // Move the creature : TODO The code should be moved within the movable game entity class
-        sem_wait(&currentAnimatedObject->mWalkQueueLockSemaphore);
-        if (!currentAnimatedObject->mWalkQueue.empty())
-        {
-            // If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
-            if (currentAnimatedObject->mWalkQueueFirstEntryAdded)
-            {
-                currentAnimatedObject->mWalkQueueFirstEntryAdded = false;
-                currentAnimatedObject->faceToward(
-                        (int)currentAnimatedObject->mWalkQueue.front().x,
-                        (int)currentAnimatedObject->mWalkQueue.front().y);
-            }
-
-            //FIXME: The moveDist should probably be tied to the scale of the creature as well
-            //FIXME: When the client and the server are using different frame rates, the creatures walk at different speeds
-            double moveDist = ODApplication::turnsPerSecond
-                    * currentAnimatedObject->getMoveSpeed()
-                    * evt.timeSinceLastFrame;
-            currentAnimatedObject->mShortestDistance -= moveDist;
-
-            // Check to see if we have walked to, or past, the first destination in the queue
-            if (currentAnimatedObject->mShortestDistance <= 0.0)
-            {
-                // Compensate for any overshoot and place the creature at the intended destination
-                currentAnimatedObject->setPosition(
-                        currentAnimatedObject->mWalkQueue.front());
-                currentAnimatedObject->mWalkQueue.pop_front();
-
-                // If there are no more places to walk to still left in the queue
-                if (currentAnimatedObject->mWalkQueue.empty())
-                {
-                    // Stop walking
-                    currentAnimatedObject->stopWalking();
-                }
-                else // There are still entries left in the queue
-                {
-                    // Turn to face the next direction
-                    currentAnimatedObject->faceToward((int)currentAnimatedObject->mWalkQueue.front().x,
-                                                      (int)currentAnimatedObject->mWalkQueue.front().y);
-
-                    // Compute the distance to the next location in the queue and store it in the shortDistance datamember.
-                    Ogre::Vector3 tempVector =
-                            currentAnimatedObject->mWalkQueue.front()
-                                    - currentAnimatedObject->getPosition();
-                    currentAnimatedObject->mShortestDistance
-                            = tempVector.normalise();
-                }
-            }
-            else // We have not reached the destination at the front of the queue
-            {
-                // Move the object closer to its destination by the amount it should travel this frame.
-                currentAnimatedObject->setPosition(
-                        currentAnimatedObject->getPosition()
-                                + currentAnimatedObject->mWalkDirection
-                                        * (Ogre::Real)moveDist);
-            }
-        }
-        sem_post(&currentAnimatedObject->mWalkQueueLockSemaphore);
+        currentAnimatedObject->update(evt.timeSinceLastFrame);
     }
 
     // Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
-    for (unsigned int i = 0; i < gameMap->numMapLights(); ++i)
+    for (unsigned int i = 0; i < mGameMap->numMapLights(); ++i)
     {
-        MapLight *tempMapLight = gameMap->getMapLight(i);
+        MapLight* tempMapLight = mGameMap->getMapLight(i);
         tempMapLight->advanceFlicker(evt.timeSinceLastFrame);
     }
 
@@ -489,50 +421,48 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // Update the CEGUI displays of gold, mana, etc.
     if (isConnected())
     {
-        //
-        /*We only need to recreate the info windows when each turn when
-        *the text updates.
-        *TODO Update these only when needed.
+        /*
+        * We only need to recreate the info windows when each turn when
+        * the text updates.
+        * TODO Update these only when needed.
         */
-        if(previousTurn < currentTurnNumber)
+        if(mPreviousTurn < currentTurnNumber)
         {
-            previousTurn = currentTurnNumber;
+            mPreviousTurn = currentTurnNumber;
 
-            /*NOTE: currently running this in the main thread
+            /*
+            * NOTE: currently running this in the main thread
             *Once per turn. We could put this in it's own thread
             *if proper locking is done.
             */
-            gameMap->doPlayerAITurn(evt.timeSinceLastFrame);
+            mGameMap->doPlayerAITurn(evt.timeSinceLastFrame);
 
-            Seat *mySeat = gameMap->getLocalPlayer()->getSeat();
+            Seat* mySeat = mGameMap->getLocalPlayer()->getSeat();
 
-            CEGUI::Window *tempWindow
-		= Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild( Gui::DISPLAY_TERRITORY );
+            //! \brief Updates common info on screen.
+            CEGUI::Window *tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_TERRITORY);
             tempSS.str("");
             tempSS << mySeat->getNumClaimedTiles();
             tempWindow->setText(tempSS.str());
 
-            tempWindow
-               = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(  Gui::DISPLAY_GOLD );
+            tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_GOLD);
             tempSS.str("");
             tempSS << mySeat->getGold();
             tempWindow->setText(tempSS.str());
 
-            tempWindow
-		= Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild( Gui::DISPLAY_MANA  );
+            tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_MANA);
             tempSS.str("");
             tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
                     << mySeat->getManaDelta();
             tempWindow->setText(tempSS.str());
 
-
             if (isConnected())// && gameMap->me->seat->getHasGoalsChanged())
             {
                 mySeat->resetGoalsChanged();
                 // Update the goals display in the message window.
-                tempWindow =  Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu) ->getChild( Gui::MESSAGE_WINDOW );
+                tempWindow =  Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu) ->getChild(Gui::MESSAGE_WINDOW);
                 tempSS.str("");
-                bool iAmAWinner = gameMap->seatIsAWinner(mySeat);
+                bool iAmAWinner = mGameMap->seatIsAWinner(mySeat);
 
                 if (mySeat->numGoals() > 0)
                 {
@@ -548,9 +478,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 if (mySeat->numCompletedGoals() > 0)
                 {
                     // Loop over the list of completed goals for the seat we are sitting in an print them.
-                    tempSS << "\n\nCompleted Goals:\n---------------------\n";
-                    for (unsigned int i = 0; i
-                            < mySeat->numCompletedGoals(); ++i)
+                    tempSS << "\nCompleted Goals:\n---------------------\n";
+                    for (unsigned int i = 0; i < mySeat->numCompletedGoals(); ++i)
                     {
                         Goal *tempGoal = mySeat->getCompletedGoal(i);
                         tempSS << tempGoal->getSuccessMessage() << "\n";
@@ -560,8 +489,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 if (mySeat->numFailedGoals() > 0)
                 {
                     // Loop over the list of completed goals for the seat we are sitting in an print them.
-                    tempSS
-                            << "\n\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
+                    tempSS << "\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
                     for (unsigned int i = 0; i < mySeat->numFailedGoals(); ++i)
                     {
                         Goal *tempGoal = mySeat->getFailedGoal(i);
@@ -575,7 +503,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                             << "\nCongratulations, you have completed this level.\nOpen the terminal and run the \'next\'\n";
                     tempSS
                             << "command to move on to move on to the next level.\n\nThe next level is:  "
-                            << gameMap->nextLevel;
+                            << mGameMap->nextLevel;
                 }
                 tempWindow->setText(tempSS.str());
             }
@@ -583,11 +511,11 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     }
 
     // Decrement the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
-    gameMap->threadUnlockForTurn(currentTurnNumber);
+    mGameMap->threadUnlockForTurn(currentTurnNumber);
 
     //Need to capture/update each device
-    modeManager->checkModeChange();
-    AbstractApplicationMode* currentMode = modeManager->getCurrentMode();
+    mModeManager->checkModeChange();
+    AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
     currentMode->getKeyboard()->capture();
     currentMode->getMouse()->capture();
 
@@ -597,20 +525,20 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
        cm->onFrameStarted();
 
     // Sleep to limit the framerate to the max value
-    frameDelay -= evt.timeSinceLastFrame;
-    if (frameDelay > 0.0)
+    mFrameDelay -= evt.timeSinceLastFrame;
+    if (mFrameDelay > 0.0)
     {
-        usleep(1e6 * frameDelay);
+        usleep(1e6 * mFrameDelay);
     }
     else
     {
         //FIXME: I think this 2.0 should be a 1.0 but this gives the
         // correct result.  This probably indicates a bug.
-        frameDelay += 2.0 / ODApplication::MAX_FRAMES_PER_SECOND;
+        mFrameDelay += 2.0 / ODApplication::MAX_FRAMES_PER_SECOND;
     }
 
     //If an exit has been requested, start cleaning up.
-    if(exitRequested.get() || mContinue == false)
+    if(mExitRequested.get() || mContinue == false)
     {
         exitApplication();
         mContinue = false;
@@ -621,7 +549,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
 {
-    AbstractApplicationMode* currentMode = modeManager->getCurrentMode();
+    AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
     currentMode->onFrameEnded(evt);
 
     if (cm != NULL)
@@ -630,9 +558,6 @@ bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)
     return true;
 }
 
-/*! \brief Exit the game.
- *
- */
 bool ODFrameListener::quit(const CEGUI::EventArgs &e)
 {
     requestExit();
@@ -652,21 +577,12 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
     return mRaySceneQuery->execute();
 }
 
-
 bool ODFrameListener::isConnected()
 {
-    //TODO: this exact function is also in InputManager, replace it too after GameState works
     //TODO - we should use a bool or something, not the sockets for this.
     return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
-    //return GameState::getSingletonPtr()->getApplicationState() == GameState::ApplicationState::GAME;
 }
 
-
-/*! \brief Print a string in the upper left corner of the screen.
- *
- * Displays the given text on the screen starting in the upper-left corner.
- * This is the function which displays the text on the in game console.
- */
 void ODFrameListener::printText(const std::string& text)
 {
     std::string tempString;
@@ -679,7 +595,7 @@ void ODFrameListener::printText(const std::string& text)
             lineLength = 0;
         }
 
-        if (lineLength < terminalWordWrap)
+        if (lineLength < mTerminalWordWrap)
         {
             ++lineLength;
         }
@@ -693,4 +609,9 @@ void ODFrameListener::printText(const std::string& text)
     }
 
     TextRenderer::getSingleton().setText("DebugMessages", tempString);
+}
+
+void ODFrameListener::addChatMessage(ChatMessage *message)
+{
+    mChatMessages.push_back(message);
 }

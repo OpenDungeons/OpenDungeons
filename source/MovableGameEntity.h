@@ -74,6 +74,10 @@ public:
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
 
+    //! \brief Updates the entity path, movement, and direction
+    //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
+    void update(Ogre::Real timeSinceLastFrame);
+
     std::deque<Ogre::Vector3> mWalkQueue;
     sem_t mWalkQueueLockSemaphore;
     bool mWalkQueueFirstEntryAdded;
