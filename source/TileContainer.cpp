@@ -1,8 +1,7 @@
 #include "TileContainer.h"
 
 TileContainer::TileContainer():
-    tiles(0),
-    auxTilesArray(0)
+    tiles(NULL)
 {
     sem_init(&tilesLockSemaphore, 0, 1);
 }
@@ -10,8 +9,6 @@ TileContainer::TileContainer():
 TileContainer::~TileContainer()
 {
     clearTiles();
-    if (auxTilesArray)
-        delete [] auxTilesArray;
     if (tiles)
         delete [] tiles;
 }
@@ -153,7 +150,7 @@ unsigned int TileContainer::numTiles()
     // unsigned int tempUnsigned = tiles.size();
     // sem_post(&tilesLockSemaphore);
 
-    return getMapSizeX()*getMapSizeY();
+    return mapSizeX * mapSizeY;
 }
 
 Tile* TileContainer::firstTile()
@@ -172,36 +169,32 @@ Tile* TileContainer::lastTile()
 
 bool TileContainer::allocateMapMemory(int xSize, int ySize)
 {
+    if (xSize <= 0 || ySize <= 0)
+    {
+        std::cerr << "Invalid map size given. Couldn't allocate map memory" << std::endl;
+        return false;
+    }
+
     // Set map size
     mapSizeX = xSize;
     mapSizeY = ySize;
 
     // Clear memory usage first
-    if (auxTilesArray)
-        delete [] auxTilesArray;
     if (tiles)
         delete [] tiles;
 
-    auxTilesArray = new Tile [mapSizeX * mapSizeY];
-
-    if (!auxTilesArray)
-    {
-        std::cerr << "Failed to allocate map memory" << std::endl;
-        return false;
-    }
-
-    tiles = new Tile* [getMapSizeY()];
+    tiles = new Tile *[mapSizeX];
     if(!tiles)
     {
         std::cerr << "Failed to allocate map memory" << std::endl;
         return false;
     }
 
-    for (int jj = 0; jj < getMapSizeY(); ++jj)
+    for (unsigned int i = 0; i < mapSizeX; ++i)
     {
-        tiles[jj] = &auxTilesArray[jj * getMapSizeX()];
-
+        tiles[i] = new Tile[mapSizeY];
     }
+
     return true;
 }
 

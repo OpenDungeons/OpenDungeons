@@ -5,7 +5,8 @@
 #include <sstream>
 
 
-class TileContainer{
+class TileContainer
+{
 
 friend class TileContainersModificator;
 
@@ -57,12 +58,6 @@ protected:
 private:
   Tile **tiles;
   bool symetry;
-
-
-
-
-  Tile* auxTilesArray;
-
-    };
+};
 
 #endif //TILECONTAINER_H
