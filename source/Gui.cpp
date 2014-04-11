@@ -228,7 +228,7 @@ bool Gui::quartersButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::quarters);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "quarters");
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Quarters");
     return true;
 }
 
@@ -237,7 +237,7 @@ bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::treasury);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "treasury");
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Treasury");
     return true;
 }
 
@@ -246,7 +246,7 @@ bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::forge);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "forge");
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Forge");
     return true;
 }
 
@@ -255,7 +255,7 @@ bool Gui::dojoButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::dojo);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "dojo");
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Dojo");
     return true;
 }
 
@@ -264,7 +264,7 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::cannon);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "cannon");
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Cannon");
     return true;
 }
 
