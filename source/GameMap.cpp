@@ -528,6 +528,12 @@ void GameMap::createAllEntities()
     {
         getRoom(i)->createMesh();
     }
+
+    // Create OGRE entities for the rooms
+    for (unsigned int i = 0, num = numTraps(); i < num; ++i)
+    {
+        getTrap(i)->createMesh();
+    }
     LogManager::getSingleton().logMessage("entities created");
 }
 
@@ -543,7 +549,6 @@ void GameMap::destroyAllEntities()
         {
             Tile* tile = getTile(ii,jj);
             tile->destroyMesh();
-            tile->deleteYourself();
         }
     }
 
@@ -570,6 +575,13 @@ void GameMap::destroyAllEntities()
     {
         Room *currentRoom = getRoom(i);
         currentRoom->destroyMesh();
+    }
+
+    // Destroy OGRE entities for the traps
+    for (unsigned int i = 0; i < numTraps(); ++i)
+    {
+        Trap* trap = getTrap(i);
+        trap->destroyMesh();
     }
 }
 
