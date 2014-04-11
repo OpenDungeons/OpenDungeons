@@ -1,12 +1,30 @@
-#include <iostream>
-#include <sstream>
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "MissileObject.h"
+
 #include "RenderRequest.h"
 #include "RenderManager.h"
 #include "GameMap.h"
 
-sem_t MissileObject::missileObjectUniqueNumberLockSemaphore;
+#include <iostream>
+#include <sstream>
+
+sem_t MissileObject::mMissileObjectUniqueNumberLockSemaphore;
 
 MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap* gameMap)
 {
@@ -15,12 +33,12 @@ MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& 
 
     setObjectType(GameEntity::missileobject);
 
-    sem_init(&positionLockSemaphore, 0, 1);
+    sem_init(&mPositionLockSemaphore, 0, 1);
 
     std::stringstream tempSS;
-    sem_wait(&missileObjectUniqueNumberLockSemaphore);
+    sem_wait(&mMissileObjectUniqueNumberLockSemaphore);
     tempSS << "Missile_Object_" << ++uniqueNumber;
-    sem_post(&missileObjectUniqueNumberLockSemaphore);
+    sem_post(&mMissileObjectUniqueNumberLockSemaphore);
     setName(tempSS.str());
 
     setMeshName(nMeshName);
@@ -30,32 +48,23 @@ MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& 
 
 bool MissileObject::doUpkeep()
 {
-	// check if we collide with a creature, if yes, do some damage and delete ourselves
+    // TODO: check if we collide with a creature, if yes, do some damage and delete ourselves
     return true;
 }
 
-
-/*! \brief The missile reach the end of the travel, it's destroyed
- *
- */
 void MissileObject::stopWalking()
 {
-	MovableGameEntity::stopWalking();
-	getGameMap()->removeMissileObject(this);
-	deleteYourself();
+    MovableGameEntity::stopWalking();
+    getGameMap()->removeMissileObject(this);
+    deleteYourself();
 }
 
-/*! \brief Changes the missile's position to a new position.
- *  Moves the creature to a new location in 3d space.  This function is
- *  responsible for informing OGRE anything it needs to know, as well as
- *  maintaining the list of creatures in the individual tiles.
- */
 void MissileObject::setPosition(const Ogre::Vector3& v)
 {
     MovableGameEntity::setPosition(v);
 
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
     request->str = getName() + "_node";
     request->vec = v;

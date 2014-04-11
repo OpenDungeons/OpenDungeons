@@ -154,7 +154,7 @@ void CameraManager::setFPPCamera(Creature* cc)
     Ogre::SceneNode* tmpNode = mSceneManager->getSceneNode("FPP_node");
     tmpNode->getParentSceneNode()->removeChild(tmpNode);
     tmpNode->setInheritOrientation(true);
-    cc->sceneNode->addChild(tmpNode);
+    cc->mSceneNode->addChild(tmpNode);
 }
 
 Ogre::SceneNode* CameraManager::getActiveCameraNode()

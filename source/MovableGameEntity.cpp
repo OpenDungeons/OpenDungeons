@@ -1,58 +1,69 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "MovableGameEntity.h"
+
 #include "ODServer.h"
 #include "ServerNotification.h"
 #include "Tile.h"
 #include "Socket.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
-
-#include "MovableGameEntity.h"
+#include "LogManager.h"
 
 MovableGameEntity::MovableGameEntity() :
-        walkQueueFirstEntryAdded(false),
-        animationState(NULL),
-        destinationAnimationState("Idle"),
-        sceneNode(NULL),
-        moveSpeed(1.0),
-        prevAnimationState(""),
-        prevAnimationStateLoop(true)
+        mWalkQueueFirstEntryAdded(false),
+        mAnimationState(NULL),
+        mDestinationAnimationState("Idle"),
+        mSceneNode(NULL),
+        mMoveSpeed(1.0),
+        mPrevAnimationStateLoop(true)
 {
-    sem_init(&animationSpeedFactorLockSemaphore, 0, 1);
-    sem_init(&walkQueueLockSemaphore, 0, 1);
+    sem_init(&mAnimationSpeedFactorLockSemaphore, 0, 1);
+    sem_init(&mWalkQueueLockSemaphore, 0, 1);
 
     setAnimationSpeedFactor(1.0);
 }
 
-/*! \brief Adds a position in 3d space to an animated object's walk queue and, if necessary, starts it walking.
- *
- * This function also places a message in the serverNotificationQueue so that
- * relevant clients are informed about the change.
- */
 void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     Ogre::Vector3 destination(x, y, z);
 
     // if there are currently no destinations in the walk queue
-    sem_wait(&walkQueueLockSemaphore);
-    if (walkQueue.empty())
+    sem_wait(&mWalkQueueLockSemaphore);
+    if (mWalkQueue.empty())
     {
         // Add the destination and set the remaining distance counter
-        walkQueue.push_back(destination);
-        shortDistance = getPosition().distance(walkQueue.front());
-        walkQueueFirstEntryAdded = true;
+        mWalkQueue.push_back(destination);
+        mShortestDistance = getPosition().distance(mWalkQueue.front());
+        mWalkQueueFirstEntryAdded = true;
     }
     else
     {
         // Add the destination
-        walkQueue.push_back(destination);
+        mWalkQueue.push_back(destination);
     }
-    sem_post(&walkQueueLockSemaphore);
+    sem_post(&mWalkQueueLockSemaphore);
 
     if (Socket::serverSocket != NULL)
     {
         // Place a message in the queue to inform the clients about the new destination
-        ServerNotification *serverNotification = new ServerNotification;
-        serverNotification->type
-                = ServerNotification::animatedObjectAddDestination;
+        ServerNotification* serverNotification = new ServerNotification;
+        serverNotification->type = ServerNotification::animatedObjectAddDestination;
         serverNotification->str = getName();
         serverNotification->vec = destination;
 
@@ -60,13 +71,8 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     }
 }
 
-/*! \brief Replaces a object's current walk queue with a new path.
- *
- * This replacement is done if, and only if, the new path is at least minDestinations
- * long; if addFirstStop is false the new path will start with the second entry in path.
- */
 bool MovableGameEntity::setWalkPath(std::list<Tile*> path,
-        unsigned int minDestinations, bool addFirstStop)
+                                    unsigned int minDestinations, bool addFirstStop)
 {
     // Remove any existing stops from the walk queue.
     clearDestinations();
@@ -90,89 +96,70 @@ bool MovableGameEntity::setWalkPath(std::list<Tile*> path,
         return true;
     }
 
-    //setAnimationState("Idle");
     return false;
 }
 
-/*! \brief Clears all future destinations from the walk queue, stops the object where it is, and sets its animation state.
- *
- */
 void MovableGameEntity::clearDestinations()
 {
-    sem_wait(&walkQueueLockSemaphore);
-    walkQueue.clear();
-    sem_post(&walkQueueLockSemaphore);
+    sem_wait(&mWalkQueueLockSemaphore);
+    mWalkQueue.clear();
+    sem_post(&mWalkQueueLockSemaphore);
     stopWalking();
 
     if (Socket::serverSocket != NULL)
     {
         // Place a message in the queue to inform the clients about the clear
-        ServerNotification *serverNotification = new ServerNotification;
-        serverNotification->type
-                = ServerNotification::animatedObjectClearDestinations;
+        ServerNotification* serverNotification = new ServerNotification;
+        serverNotification->type = ServerNotification::animatedObjectClearDestinations;
         serverNotification->ani = this;
 
        ODServer::queueServerNotification(serverNotification);
     }
 }
 
-/*! \brief Stops the object where it is, and sets its animation state.
- *
- */
 void MovableGameEntity::stopWalking()
 {
-    walkDirection = Ogre::Vector3::ZERO;
+    mWalkDirection = Ogre::Vector3::ZERO;
 
     // Set the animation state of this object to the state that was set for it to enter into after it reaches it's destination.
-    setAnimationState(destinationAnimationState);
+    setAnimationState(mDestinationAnimationState);
 }
 
-/** Rotates the object so that it is facing toward the given x-y location.
- *
- */
 void MovableGameEntity::faceToward(int x, int y)
 {
     // Rotate the object to face the direction of the destination
     Ogre::Vector3 tempPosition = getPosition();
-	walkDirection = Ogre::Vector3(
-		static_cast<Ogre::Real>(x),
-		static_cast<Ogre::Real>(y),
-		tempPosition.z) - tempPosition;
-    walkDirection.normalise();
+    mWalkDirection = Ogre::Vector3(
+        static_cast<Ogre::Real>(x),
+        static_cast<Ogre::Real>(y),
+        tempPosition.z) - tempPosition;
+    mWalkDirection.normalise();
 
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::orientSceneNodeToward;
-    request->vec = walkDirection;
+    request->vec = mWalkDirection;
     request->str = getName() + "_node";
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 }
 
-double MovableGameEntity::getMoveSpeed()
-{
-    return moveSpeed;
-}
-
-void MovableGameEntity::setMoveSpeed(double s)
-{
-    moveSpeed = s;
-}
-
 void MovableGameEntity::setAnimationState(const std::string& s, bool loop)
 {
-    // Ignore the command if the command is exactly the same as what we did last time, this is not only faster it prevents non-looped actions like die from being inadvertantly repeated.
-    if (s.compare(prevAnimationState) == 0 && loop == prevAnimationStateLoop)
+    // Ignore the command if the command is exactly the same as what we did last time,
+    // this is not only faster it prevents non-looped actions
+    // like 'die' from being inadvertantly repeated.
+    if (s.compare(mPrevAnimationState) == 0 && loop == mPrevAnimationStateLoop)
         return;
 
-    prevAnimationState = s;
+    mPrevAnimationState = s;
 
     if (s.compare("Walk") == 0 || s.compare("Flee") == 0)
-        setAnimationSpeedFactor(moveSpeed);
+        setAnimationSpeedFactor(mMoveSpeed);
     else
         setAnimationSpeedFactor(1.0);
 
-    RenderRequest *request = new RenderRequest;
+    RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::setObjectAnimationState;
     request->p = static_cast<void*>(this);
     request->str = s;
@@ -183,9 +170,8 @@ void MovableGameEntity::setAnimationState(const std::string& s, bool loop)
         try
         {
             // Place a message in the queue to inform the clients about the new animation state
-            ServerNotification *serverNotification = new ServerNotification;
-            serverNotification->type
-                    = ServerNotification::setObjectAnimationState;
+            ServerNotification* serverNotification = new ServerNotification;
+            serverNotification->type = ServerNotification::setObjectAnimationState;
             serverNotification->str = s;
             serverNotification->p = static_cast<void*>(this);
             serverNotification->b = loop;
@@ -194,8 +180,7 @@ void MovableGameEntity::setAnimationState(const std::string& s, bool loop)
         }
         catch (bad_alloc&)
         {
-            cerr << "\n\nERROR:  bad alloc in Creature::setAnimationState\n\n";
-            exit(1);
+            LogManager::getSingleton().logMessage("\n\nERROR: Bad memory allocation in Creature::setAnimationState()\n\n");
         }
     }
 
@@ -205,17 +190,17 @@ void MovableGameEntity::setAnimationState(const std::string& s, bool loop)
 
 double MovableGameEntity::getAnimationSpeedFactor()
 {
-    sem_wait(&animationSpeedFactorLockSemaphore);
-    double tempDouble = animationSpeedFactor;
-    sem_post(&animationSpeedFactorLockSemaphore);
+    sem_wait(&mAnimationSpeedFactorLockSemaphore);
+    double tempDouble = mAnimationSpeedFactor;
+    sem_post(&mAnimationSpeedFactorLockSemaphore);
 
     return tempDouble;
 }
 
 void MovableGameEntity::setAnimationSpeedFactor(double f)
 {
-    sem_wait(&animationSpeedFactorLockSemaphore);
-    animationSpeedFactor = f;
-    sem_post(&animationSpeedFactorLockSemaphore);
+    sem_wait(&mAnimationSpeedFactorLockSemaphore);
+    mAnimationSpeedFactor = f;
+    sem_post(&mAnimationSpeedFactorLockSemaphore);
 }
 

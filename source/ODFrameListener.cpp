@@ -411,24 +411,24 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         MovableGameEntity *currentAnimatedObject = gameMap->getAnimatedObject(i);
 
         // Advance the animation
-        if (currentAnimatedObject->animationState != NULL)
+        if (currentAnimatedObject->mAnimationState != NULL)
         {
-            currentAnimatedObject->animationState->addTime((Ogre::Real)(ODApplication::turnsPerSecond
+            currentAnimatedObject->mAnimationState->addTime((Ogre::Real)(ODApplication::turnsPerSecond
                     * evt.timeSinceLastFrame
                     * currentAnimatedObject->getAnimationSpeedFactor()));
         }
 
-        // Move the creature
-        sem_wait(&currentAnimatedObject->walkQueueLockSemaphore);
-        if (!currentAnimatedObject->walkQueue.empty())
+        // Move the creature : TODO The code should be moved within the movable game entity class
+        sem_wait(&currentAnimatedObject->mWalkQueueLockSemaphore);
+        if (!currentAnimatedObject->mWalkQueue.empty())
         {
             // If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
-            if (currentAnimatedObject->walkQueueFirstEntryAdded)
+            if (currentAnimatedObject->mWalkQueueFirstEntryAdded)
             {
-                currentAnimatedObject->walkQueueFirstEntryAdded = false;
+                currentAnimatedObject->mWalkQueueFirstEntryAdded = false;
                 currentAnimatedObject->faceToward(
-                        (int)currentAnimatedObject->walkQueue.front().x,
-                        (int)currentAnimatedObject->walkQueue.front().y);
+                        (int)currentAnimatedObject->mWalkQueue.front().x,
+                        (int)currentAnimatedObject->mWalkQueue.front().y);
             }
 
             //FIXME: The moveDist should probably be tied to the scale of the creature as well
@@ -436,18 +436,18 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             double moveDist = ODApplication::turnsPerSecond
                     * currentAnimatedObject->getMoveSpeed()
                     * evt.timeSinceLastFrame;
-            currentAnimatedObject->shortDistance -= moveDist;
+            currentAnimatedObject->mShortestDistance -= moveDist;
 
             // Check to see if we have walked to, or past, the first destination in the queue
-            if (currentAnimatedObject->shortDistance <= 0.0)
+            if (currentAnimatedObject->mShortestDistance <= 0.0)
             {
                 // Compensate for any overshoot and place the creature at the intended destination
                 currentAnimatedObject->setPosition(
-                        currentAnimatedObject->walkQueue.front());
-                currentAnimatedObject->walkQueue.pop_front();
+                        currentAnimatedObject->mWalkQueue.front());
+                currentAnimatedObject->mWalkQueue.pop_front();
 
                 // If there are no more places to walk to still left in the queue
-                if (currentAnimatedObject->walkQueue.empty())
+                if (currentAnimatedObject->mWalkQueue.empty())
                 {
                     // Stop walking
                     currentAnimatedObject->stopWalking();
@@ -455,14 +455,14 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 else // There are still entries left in the queue
                 {
                     // Turn to face the next direction
-                    currentAnimatedObject->faceToward((int)currentAnimatedObject->walkQueue.front().x,
-                                                      (int)currentAnimatedObject->walkQueue.front().y);
+                    currentAnimatedObject->faceToward((int)currentAnimatedObject->mWalkQueue.front().x,
+                                                      (int)currentAnimatedObject->mWalkQueue.front().y);
 
                     // Compute the distance to the next location in the queue and store it in the shortDistance datamember.
                     Ogre::Vector3 tempVector =
-                            currentAnimatedObject->walkQueue.front()
+                            currentAnimatedObject->mWalkQueue.front()
                                     - currentAnimatedObject->getPosition();
-                    currentAnimatedObject->shortDistance
+                    currentAnimatedObject->mShortestDistance
                             = tempVector.normalise();
                 }
             }
@@ -471,11 +471,11 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
                 // Move the object closer to its destination by the amount it should travel this frame.
                 currentAnimatedObject->setPosition(
                         currentAnimatedObject->getPosition()
-                                + currentAnimatedObject->walkDirection
+                                + currentAnimatedObject->mWalkDirection
                                         * (Ogre::Real)moveDist);
             }
         }
-        sem_post(&currentAnimatedObject->walkQueueLockSemaphore);
+        sem_post(&currentAnimatedObject->mWalkQueueLockSemaphore);
     }
 
     // Advance the "flickering" of the lights by the amount of time that has passed since the last frame.

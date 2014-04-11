@@ -430,7 +430,7 @@ bool CullingQuad::reinsert( Entry* ee ) {
             parent->reinsert(ee);
         }
         else {
-	    
+
 
 
             //Throw exception
@@ -507,7 +507,7 @@ void CullingQuad::holdRootSemaphore(){
     while(cq->parent!=NULL)
 	cq=cq->parent;
     MortuaryQuad *casted_cq = static_cast<MortuaryQuad*>(cq) ;
-    sem_wait(&(casted_cq->creaturesInCullingQuadLockSemaphore));
+    sem_wait(&(casted_cq->mCreaturesInCullingQuadLockSemaphore));
 };
 void CullingQuad::releaseRootSemaphore(){
     /* std::cerr<<std::endl<<std::endl<<"release"<<std::endl<<std::endl;  */
@@ -515,7 +515,7 @@ void CullingQuad::releaseRootSemaphore(){
     while(cq->parent!=NULL)
 	cq=cq->parent;
     MortuaryQuad  *casted_cq = static_cast<MortuaryQuad*>(cq) ;
-    sem_post(&(casted_cq->creaturesInCullingQuadLockSemaphore));
+    sem_post(&(casted_cq->mCreaturesInCullingQuadLockSemaphore));
 };
 
 

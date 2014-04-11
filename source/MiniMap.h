@@ -112,8 +112,6 @@ private:
         *pDest++ = GG;  //G
         *pDest++ = RR;  //R
     }
-
-    void drawPixelToMemory();
 };
 
 #endif // MINIMAP_H_

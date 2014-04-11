@@ -729,14 +729,14 @@ bool Creature::handleWalkToTileAction()
         Player* tempPlayer = getControllingPlayer();
 
         // Check to see if the tile is still marked for digging
-        sem_wait(&walkQueueLockSemaphore);
-        unsigned int index = walkQueue.size();
+        sem_wait(&mWalkQueueLockSemaphore);
+        unsigned int index = mWalkQueue.size();
         Tile *currentTile = NULL;
         if (index > 0)
-            currentTile = getGameMap()->getTile((int) walkQueue[index - 1].x,
-                    (int) walkQueue[index - 1].y);
+            currentTile = getGameMap()->getTile((int) mWalkQueue[index - 1].x,
+                    (int) mWalkQueue[index - 1].y);
 
-        sem_post(&walkQueueLockSemaphore);
+        sem_post(&mWalkQueueLockSemaphore);
 
         if (currentTile != NULL)
         {
@@ -750,17 +750,17 @@ bool Creature::handleWalkToTileAction()
     }
 
     //cout << "walkToTile ";
-    sem_wait(&walkQueueLockSemaphore);
-    if (walkQueue.empty())
+    sem_wait(&mWalkQueueLockSemaphore);
+    if (mWalkQueue.empty())
     {
         popAction();
 
         // This extra post is included here because if the break statement happens
         // the one at the end of the 'if' block will not happen.
-        sem_post(&walkQueueLockSemaphore);
+        sem_post(&mWalkQueueLockSemaphore);
         return true;
     }
-    sem_post(&walkQueueLockSemaphore); // If this is removed remove the one in the 'if' block as well.
+    sem_post(&mWalkQueueLockSemaphore); // If this is removed remove the one in the 'if' block as well.
     return false;
 }
 
@@ -1817,7 +1817,7 @@ void Creature::doLevelUp()
     }
     //std::cout << "New dig rate: " << mDigRate << "\tnew dance rate: " << mDanceRate << "\n";
 
-    moveSpeed += 0.4 / (getLevel() + 2.0);
+    mMoveSpeed += 0.4 / (getLevel() + 2.0);
 
     mMaxHP += mDefinition->getHpPerLevel();
     mMaxMana += mDefinition->getManaPerLevel();
@@ -1831,7 +1831,7 @@ void Creature::doLevelUp()
             scaleFactor = 1.04;
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::scaleSceneNode;
-        request->p = sceneNode;
+        request->p = mSceneNode;
         request->vec = Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor);
 
         // Add the request to the queue of rendering operations to be performed before the next frame.

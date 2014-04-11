@@ -172,7 +172,7 @@ int CullingManager::cullCreatures()
                         intersection.begin(), intersection.end(),
                         std::inserter(descendingCreatures, descendingCreatures.end()));
 
-    for(std::vector<Creature*>::iterator it = tmpQuad.mortuary.begin(); it != tmpQuad.mortuary.end(); ++it)
+    for(std::vector<Creature*>::iterator it = tmpQuad.mMortuaryQuad.begin(); it != tmpQuad.mMortuaryQuad.end(); ++it)
         descendingCreatures.erase(*it);
 
     //cerr << "ascendingCreatures  " << ascendingCreatures.size() <<endl;

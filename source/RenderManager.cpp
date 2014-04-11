@@ -802,20 +802,20 @@ void RenderManager::rrToggleCreaturesVisibility(){
     visibleCreatures  = !visibleCreatures;
     if(visibleCreatures ){
 	for(  std::vector<Creature*>::iterator it = gameMap->creatures.begin(); it != gameMap->creatures.end(); ++it){
-	    if((*it)->isMeshExisting() && (*it)->sceneNode!=NULL  )
+	    if((*it)->isMeshExisting() && (*it)->mSceneNode != NULL  )
 
 		// (*it)->pSN=((*it)->sceneNode->getParentSceneNode());
 		//pSN->removeChild((*it)->
-		(*it)->pSN->addChild((*it)->sceneNode);
+		(*it)->pSN->addChild((*it)->mSceneNode);
 	    //  addAnimatedObject(*it);
 	    // (*it)->createMesh();
 	}
     }
     else{
 	for(  std::vector<Creature*>::iterator it = gameMap->creatures.begin(); it != gameMap->creatures.end(); ++it){
-	    if((*it)->isMeshExisting() && (*it)->sceneNode!=NULL ){
-		(*it)->pSN=((*it)->sceneNode->getParentSceneNode());
-		(*it)->pSN->removeChild((*it)->sceneNode);
+	    if((*it)->isMeshExisting() && (*it)->mSceneNode!=NULL ){
+		(*it)->pSN=((*it)->mSceneNode->getParentSceneNode());
+		(*it)->pSN->removeChild((*it)->mSceneNode);
 
 	    }
 
@@ -1023,11 +1023,11 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
     //colourizeEntity(ent, curCreature->color);
     Ogre::SceneNode* node = creatureSceneNode->createChildSceneNode(
                                 curCreature->getName() + "_node");
-    curCreature->sceneNode = node;
+    curCreature->mSceneNode = node;
     node->setPosition(curCreature->getPosition());
     node->setScale(scale);
     node->attachObject(ent);
-    curCreature->pSN=(node->getParentSceneNode());
+    curCreature->pSN = (node->getParentSceneNode());
     // curCreature->pSN->removeChild(node);
 }
 
@@ -1043,7 +1043,7 @@ void RenderManager::rrDestroyCreature ( const RenderRequest& renderRequest )
         sceneManager->destroyEntity(ent);
         sceneManager->destroySceneNode(curCreature->getName() + "_node");
     }
-    curCreature->sceneNode = NULL;
+    curCreature->mSceneNode = NULL;
 }
 
 void RenderManager::rrOrientSceneNodeToward ( const RenderRequest& renderRequest )
@@ -1416,10 +1416,10 @@ void RenderManager::rrSetObjectAnimationState ( const RenderRequest& renderReque
 
         // Enable the animation specified in the RenderRequest object.
         // FIXME:, make a function rather than using a public var
-        curAnimatedObject->animationState = objectEntity->getAnimationState(
+        curAnimatedObject->mAnimationState = objectEntity->getAnimationState(
                                                 renderRequest.str);
-        curAnimatedObject->animationState->setLoop(renderRequest.b);
-        curAnimatedObject->animationState->setEnabled(true);
+        curAnimatedObject->mAnimationState->setLoop(renderRequest.b);
+        curAnimatedObject->mAnimationState->setEnabled(true);
     }
     //TODO:  Handle the case where this entity does not have the requested animation.
 }
