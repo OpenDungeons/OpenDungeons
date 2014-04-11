@@ -626,20 +626,19 @@ void EditorMode::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles
 void EditorMode::updateCursorText()
 {
     // Gets the current action from the drag type
-    std::stringstream actionType("");
+    std::stringstream textSS("");
     switch(mModeManager->getInputManager()->mDragType)
     {
     default:
     case nullDragType:
     case tileSelection:
-        actionType << "Tile type: " << Tile::tileTypeToString(mCurrentTileType)
-                   << std::endl << "Fullness: " << mCurrentFullness;
+        textSS << "Tile type: " << Tile::tileTypeToString(mCurrentTileType);
         break;
     case creature:
-        actionType << "Creature: " << mDraggedCreature;
+        textSS << "Creature: " << mDraggedCreature;
         break;
     case mapLight:
-        actionType << "Light: " << mDraggedMapLight;
+        textSS << "Light: " << mDraggedMapLight;
         break;
     case addNewRoom:
     case addNewTrap:
@@ -647,11 +646,20 @@ void EditorMode::updateCursorText()
         break;
     }
 
-    // Tells the current tile type and fullness
-    std::stringstream tileTypeSS;
-    tileTypeSS << "X: " << mMouseX << ", Y: " << mMouseY << std::endl
-               << actionType.str() << std::endl;
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, tileTypeSS.str());
+    // Tells the current tile type and fullness;
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, textSS.str());
+
+    // Update the fullness info
+    CEGUI::Window *posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorMenu)->getChild(Gui::EDITOR_FULLNESS);
+    textSS.str("");
+    textSS << "Tile Fullness (T): " << mCurrentFullness << "%";
+    posWin->setText(textSS.str());
+
+    // Update the cursor position
+    posWin = Gui::getSingletonPtr()->getGuiSheet(Gui::editorMenu)->getChild(Gui::EDITOR_CURSOR_POS);
+    textSS.str("");
+    textSS << "Cursor: x: " << mMouseX << ", y: " << mMouseY;
+    posWin->setText(textSS.str());
 }
 
 bool EditorMode::keyPressed(const OIS::KeyEvent &arg)

@@ -94,6 +94,8 @@ public:
     static const std::string EDITOR_WATER_BUTTON;
     static const std::string EDITOR_DIRT_BUTTON;
     static const std::string EDITOR_CLAIMED_BUTTON;
+    static const std::string EDITOR_FULLNESS;
+    static const  std::string EDITOR_CURSOR_POS;
 
 private:
     void assignEventHandlers();
