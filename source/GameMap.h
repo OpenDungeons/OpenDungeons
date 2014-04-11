@@ -70,14 +70,16 @@ friend class RenderManager;
   GameMap();
   ~GameMap();
 
-  int setAllNeighbors();
-
-  //! \brief Adds the missing tiles in a map to fit its dimensions.
-  void createNewMap();
-
   //! \brief Load a level file (Part of the resource paths)
   //! \returns whether the file loaded correctly
   bool LoadLevel(const std::string& levelFilepath);
+
+  //! \brief Adds the missing tiles in a map to fit its dimensions.
+  bool createNewMap(int sizeX, int sizeY);
+
+  //! \brief Set every tiles fullness and neighbors list
+  //! Used when loading a map.
+  void setAllFullnessAndNeighbors();
 
   void createAllEntities();
   void destroyAllEntities();
@@ -267,8 +269,6 @@ friend class RenderManager;
   static void *miscUpkeepThread(void *p);
   static void *creatureDoTurnThread(void *p);
   static void *creatureDoTurnHelperThread(void *p);
-
-
 
   class CDTHTStruct
   {

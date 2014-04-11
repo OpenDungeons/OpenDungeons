@@ -27,7 +27,8 @@ void TileContainer::clearTiles()
     {
         for (int ii = 0; ii < mapSizeX; ++ii)
         {
-            (tiles[ii][jj]).deleteYourself();
+            tiles[ii][jj].destroyMesh();
+            tiles[ii][jj].deleteYourself();
         }
     }
 

@@ -48,9 +48,6 @@ public:
     //! \brief Returns the (up to) 4 nearest neighbor tiles of the tile located at (x, y).
     std::vector<Tile*> neighborTiles(int x, int y);
 
-    //! \brief Set the map size and memory
-    bool allocateMapMemory(int xSize, int ySize);
-
     //! \brief Gets the map size
     int getMapSizeX() const
     { return mapSizeX; }
@@ -68,6 +65,8 @@ protected:
 
     int rr;
 
+    //! \brief Set the map size and memory
+    bool allocateMapMemory(int xSize, int ySize);
 private:
   Tile **tiles;
 };

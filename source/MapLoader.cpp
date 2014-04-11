@@ -104,8 +104,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
     levelFile >> mapSizeX;
     levelFile >> mapSizeY;
 
-    // gameMap_b.clearAll();
-    if (!gameMap_b.allocateMapMemory(mapSizeX, mapSizeY))
+    if (!gameMap_b.createNewMap(mapSizeX, mapSizeY))
         return false;
 
     // Read in the map tiles from disk
@@ -125,8 +124,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap_b)
         gameMap_b.addTile(tempTile);
     }
 
-    gameMap_b.createNewMap();
-    gameMap_b.setAllNeighbors();
+    gameMap_b.setAllFullnessAndNeighbors();
     gameMap_b.enableFloodFill();
 
     // Read in the rooms

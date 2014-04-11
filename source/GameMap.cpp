@@ -110,7 +110,6 @@ bool GameMap::LoadLevel(const std::string& levelFilepath)
     MapLoader::readGameMapFromFile(levelPath, *this);
     setLevelFileName(levelFilepath);
 
-    createTilesMeshes();
     // Create ogre entities for the tiles, rooms, and creatures
     createAllEntities();
     return true;
@@ -122,10 +121,13 @@ bool GameMap::LoadLevel(const std::string& levelFilepath)
  * The new map consists entirely of the same kind of tile, with no creature
  * classes loaded, no players, and no creatures.
  */
-void GameMap::createNewMap()
+bool GameMap::createNewMap(int sizeX, int sizeY)
 {
     Tile tempTile;
     stringstream ss;
+
+    if (!allocateMapMemory(sizeX, sizeY))
+        return false;
 
     for (int jj = 0; jj < mapSizeY; ++jj)
     {
@@ -150,46 +152,21 @@ void GameMap::createNewMap()
         }
     }
 
-    // Set the fullness of the tiles
-    for (int ii = 0; ii < getMapSizeX(); ++ii)
+    return true;
+}
+
+void GameMap::setAllFullnessAndNeighbors()
+{
+    for (int ii = 0; ii < mapSizeX; ++ii)
     {
-        for (int jj = 0; jj < getMapSizeY(); ++jj)
+        for (int jj = 0; jj < mapSizeY; ++jj)
         {
-            getTile(ii, jj)->setFullness(getTile(ii, jj)->getFullness());
+            Tile* tile = getTile(ii, jj);
+            tile->setFullness(tile->getFullness());
+            setTileNeighbors(tile);
         }
     }
 }
-
-
-void GameMap::createTilesMeshes(void){
-
-
-  for (int jj = 0; jj < getMapSizeY(); ++jj)	{
-    for (int ii = 0; ii < getMapSizeX(); ++ii){
-
-        getTile(ii,jj)->createMesh();
-
-
-    }
-    }
-
-
-}
-
-
-
-int GameMap::setAllNeighbors(){
-    for (int ii = 0 ; ii < getMapSizeX() ; ii++) {
-    for (int jj = 0 ; jj < getMapSizeY() ; jj++) {
-        setTileNeighbors(getTile(ii,jj));
-
-    }
-    }
-    return 1;
-}
-
-
-
 
 /*! \brief Clears the mesh and deletes the data structure for all the tiles, creatures, classes, and players in the GameMap.
  *
@@ -523,23 +500,13 @@ CreatureDefinition* GameMap::getClassDescription(int index)
 void GameMap::createAllEntities()
 {
     // Create OGRE entities for map tiles
-    // sem_wait(&tilesLockSemaphore);
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
             getTile(ii,jj)->createMesh();
-        // tileSceneNode = sceneManager->getSceneNode( getTile(ii,jj)->getName() + "_node" );
-        // getTile(ii,jj)->pSN = tileSceneNode->getParentSceneNode();
-        // getTile(ii,jj)->pSN->removeChild(tileSceneNode);
         }
     }
-    // // for(TileMap_t::iterator itr = tiles.begin(), end = tiles.end();
-    // //     itr != end; ++itr)
-    // //   {
-    // //     itr->second->createMesh();
-    // //   }
-    // sem_post(&tilesLockSemaphore);
 
     // Create OGRE entities for the creatures
     for (unsigned int i = 0, num = numCreatures(); i < num; ++i)
@@ -574,17 +541,12 @@ void GameMap::destroyAllEntities()
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
-
-            getTile(ii,jj)->deleteYourself();
+            Tile* tile = getTile(ii,jj);
+            tile->destroyMesh();
+            tile->deleteYourself();
         }
     }
 
-    // TileMap_t::iterator itr = tiles.begin();
-    // while (itr != tiles.end())
-    //   {
-    //     itr->second->destroyMesh();
-    //     ++itr;
-    //   }
     sem_post(&tilesLockSemaphore);
 
     // Destroy OGRE entities for the creatures
