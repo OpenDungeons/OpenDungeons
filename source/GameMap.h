@@ -22,7 +22,6 @@
 #include "AIManager.h"
 #include "Room.h"
 #include "TileContainer.h"
-#include "TileContainersModificator.h"
 
 #ifdef __MINGW32__
 #ifndef mode_t
@@ -63,7 +62,7 @@ typedef Tile** TileMap_t;
  * sortest path between two tiles" or "what creatures are in some particular
  * tile".
  */
-class GameMap : public TileContainer,  public TileContainersModificator
+class GameMap : public TileContainer
 {
 friend class MiniMap;
 friend class RenderManager;
@@ -188,9 +187,6 @@ friend class RenderManager;
   void removeMissileObject(MissileObject *m);
   MissileObject* getMissileObject(int index);
   unsigned int numMissileObjects();
-
-  inline const int maxX() const {return width - 1;}
-  inline const int maxY() const {return length - 1;}
 
   inline const unsigned int getMaxAIThreads() const {return maxAIThreads;}
   inline void setMaxAIThreads(const unsigned int maxThreads) {maxAIThreads = maxThreads;}
@@ -320,8 +316,6 @@ friend class RenderManager;
   unsigned int maxAIThreads;
 
   TileCoordinateMap *tileCoordinateMap;
-
-  int length, width;
 
   AIManager aiManager;
 

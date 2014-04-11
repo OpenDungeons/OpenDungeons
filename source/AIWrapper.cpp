@@ -25,7 +25,6 @@
 AIWrapper::AIWrapper(GameMap& gameMap, Player& player)
     : gameMap(gameMap), player(player), seat(*player.getSeat()), dungeonTemple(NULL)
 {
-    setContainer(&gameMap);
 }
 
 AIWrapper::~AIWrapper()

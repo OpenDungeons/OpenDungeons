@@ -20,7 +20,6 @@
 
 #include "Room.h"
 #include "Trap.h"
-#include "TileContainersModificator.h"
 
 #include <vector>
 
@@ -29,7 +28,7 @@ class Seat;
 class GameMap;
 class Creature;
 
-class AIWrapper : public TileContainersModificator
+class AIWrapper
 {
 
 public:

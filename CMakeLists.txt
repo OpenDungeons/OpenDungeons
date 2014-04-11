@@ -188,7 +188,6 @@ set(OD_SOURCEFILES
     ${SRC}/Tile.cpp
     ${SRC}/TileCoordinateMap.cpp
     ${SRC}/TileContainer.cpp
-    ${SRC}/TileContainersModificator.cpp
     ${SRC}/Translation.cpp
     ${SRC}/Trap.cpp
     ${SRC}/TrapBoulder.cpp

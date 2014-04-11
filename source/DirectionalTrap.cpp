@@ -32,18 +32,18 @@ std::pair<int, int> DirectionalTrap::projectionOnBorder(int xdir, int ydir)
     int a = (ydir - coveredTiles[0]->y) / (xdir - coveredTiles[0]->x);
     int b = ydir - a * xdir;
 
-    if(b >= 0 && b <= gm->maxY())
+    if(b >= 0 && b < gm->getMapSizeY())
     {
         return std::pair<int, int>(0, b);
     }
-    else if(-(b/a) >= 0 && -(b/a) <= gm->maxX())
+    else if(-(b/a) >= 0 && -(b/a) < gm->getMapSizeX())
     {
         return std::pair<int, int>((-b)/a, 0);
     }
 
-    int tmp = a * gm->maxX() + b;
-    if(tmp >= 0 && tmp <= gm->maxY())
-        return std::pair<int, int>(gm->maxX(), tmp);
+    int tmp = a * (gm->getMapSizeY() - 1) + b;
+    if(tmp >= 0 && tmp < gm->getMapSizeY())
+        return std::pair<int, int>(gm->getMapSizeX() - 1, tmp);
 
-    return std::pair<int, int>((gm->maxY() - b)/a, gm->maxY());
+    return std::pair<int, int>((gm->getMapSizeY() - b - 1)/a, gm->getMapSizeY() - 1);
 }

@@ -793,7 +793,7 @@ bool Creature::handleClaimTileAction()
     {
         //cout << "\nTrying to claim the tile I am standing on.";
         // Check to see if one of the tile's neighbors is claimed for our color
-        std::vector<Tile*> neighbors = getGameMap()->neighborTiles(myTile);
+        std::vector<Tile*> neighbors = myTile->getAllNeighbors();
         for (unsigned int j = 0; j < neighbors.size(); ++j)
         {
             // Check to see if the current neighbor is already claimed
@@ -817,7 +817,7 @@ bool Creature::handleClaimTileAction()
     // The tile we are standing on is already claimed or is not currently
     // claimable, find candidates for claiming.
     // Start by checking the neighbor tiles of the one we are already in
-    std::vector<Tile*> neighbors = getGameMap()->neighborTiles(myTile);
+    std::vector<Tile*> neighbors = myTile->getAllNeighbors();
     while (!neighbors.empty())
     {
         // If the current neighbor is claimable, walk into it and skip to the end of this turn
@@ -831,7 +831,7 @@ bool Creature::handleClaimTileAction()
             // The neighbor tile is a potential candidate for claiming, to be an actual candidate
             // though it must have a neighbor of its own that is already claimed for our side.
             Tile* tempTile2;
-            std::vector<Tile*> neighbors2 = getGameMap()->neighborTiles(tempTile);
+            std::vector<Tile*> neighbors2 = tempTile->getAllNeighbors();
             for (unsigned int i = 0; i < neighbors2.size(); ++i)
             {
                 tempTile2 = neighbors2[i];
@@ -861,7 +861,7 @@ bool Creature::handleClaimTileAction()
             && tempTile->isGroundClaimable())
         {
             // Check to see if one of the tile's neighbors is claimed for our color
-            neighbors = getGameMap()->neighborTiles(mVisibleTiles[i]);
+            neighbors = mVisibleTiles[i]->getAllNeighbors();
             for (unsigned int j = 0; j < neighbors.size(); ++j)
             {
                 tempTile = neighbors[j];
@@ -890,7 +890,7 @@ bool Creature::handleClaimTileAction()
             tempTile = claimableTiles[Random::Uint(0, claimableTiles.size() - 1)];
 
             // Count how many of the candidate tile's neighbors are already claimed.
-            neighbors = getGameMap()->neighborTiles(tempTile);
+            neighbors = tempTile->getAllNeighbors();
             for (unsigned int i = 0; i < neighbors.size(); ++i)
             {
                 if (neighbors[i]->getColor() == getColor() && neighbors[i]->colorDouble >= 1.0)
@@ -974,7 +974,7 @@ bool Creature::handleClaimWallTileAction()
 
     // See if any of the tiles is one of our neighbors
     bool wasANeighbor = false;
-    std::vector<Tile*> creatureNeighbors = getGameMap()->neighborTiles(myTile);
+    std::vector<Tile*> creatureNeighbors = myTile->getAllNeighbors();
     Player* tempPlayer = getControllingPlayer();
     for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
     {
@@ -1009,7 +1009,7 @@ bool Creature::handleClaimWallTileAction()
     std::vector<Tile*> wallTiles = getVisibleClaimableWallTiles();
     for (unsigned int i = 0; i < wallTiles.size(); ++i)
     {
-        std::vector<Tile*> neighbors = getGameMap()->neighborTiles(wallTiles[i]);
+        std::vector<Tile*> neighbors = wallTiles[i]->getAllNeighbors();
         for (unsigned int j = 0; j < neighbors.size(); ++j)
         {
             Tile* neighborTile = neighbors[j];
@@ -1087,7 +1087,7 @@ bool Creature::handleDigTileAction()
 
     // See if any of the tiles is one of our neighbors
     bool wasANeighbor = false;
-    std::vector<Tile*> creatureNeighbors = getGameMap()->neighborTiles(myTile);
+    std::vector<Tile*> creatureNeighbors = myTile->getAllNeighbors();
     Player* tempPlayer = getControllingPlayer();
     for (unsigned int i = 0; i < creatureNeighbors.size() && !wasANeighbor; ++i)
     {
@@ -1166,7 +1166,7 @@ bool Creature::handleDigTileAction()
     std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
     for (unsigned int i = 0; i < markedTiles.size(); ++i)
     {
-        std::vector<Tile*> neighbors = getGameMap()->neighborTiles(markedTiles[i]);
+        std::vector<Tile*> neighbors = markedTiles[i]->getAllNeighbors();
         for (unsigned int j = 0; j < neighbors.size(); ++j)
         {
             Tile* neighborTile = neighbors[j];

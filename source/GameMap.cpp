@@ -73,8 +73,6 @@ GameMap::GameMap() :
         numCallsTo_path(0),
         maxAIThreads(1),
         tileCoordinateMap(new TileCoordinateMap(100)),
-        length(0),
-        width(0),
         aiManager(*this)
 {
     sem_init(&threadReferenceCountLockSemaphore, 0, 1);
@@ -82,7 +80,6 @@ GameMap::GameMap() :
     sem_init(&animatedObjectsLockSemaphore, 0, 1);
     sem_init(&activeObjectsLockSemaphore, 0, 1);
     sem_init(&newActiveObjectsLockSemaphore, 0, 1);
-    setContainer(this);
 
     // Init the player
     me = new Player();
@@ -205,7 +202,7 @@ void GameMap::clearAll()
 
     clearMapLights();
     clearRooms();
-    //clearTiles();
+    clearTiles();
 
     clearGoalsForAllSeats();
     clearEmptySeats();
@@ -1112,7 +1109,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
         }
 
         // Check the tiles surrounding the current square
-        std::vector<Tile*> neighbors = neighborTiles(currentEntry->getTile());
+        std::vector<Tile*> neighbors = currentEntry->getTile()->getAllNeighbors();
         bool processNeighbor;
         for (unsigned int i = 0; i < neighbors.size(); ++i)
         {

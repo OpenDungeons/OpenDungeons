@@ -195,7 +195,7 @@ void *clientSocketProcessor(void *p)
 
                 // Loop over the tile's neighbors to force them to recheck
                 // their mesh to see if they can use an optimized one
-                std::vector<Tile*> neighbors = gameMap.neighborTiles(&newTile);
+                std::vector<Tile*> neighbors = newTile.getAllNeighbors();
                 for (unsigned int i = 0; i < neighbors.size(); ++i)
                 {
                     neighbors[i]->setFullness(neighbors[i]->getFullness());
