@@ -139,6 +139,7 @@ void ODApplication::displayErrorMessage(const std::string& message, bool log)
 
 void ODApplication::cleanUp()
 {
+    LogManager::getSingleton().logMessage("Quitting main application...", Ogre::LML_CRITICAL);
     if (mRoot)
     {
         mRoot->removeFrameListener(mFrameListener);

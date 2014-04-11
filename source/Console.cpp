@@ -60,7 +60,7 @@ Console::Console() :
     mCursorChar("_"),
     mCurHistPos(0)
 {
-    LogManager::getSingleton().logMessage("*** Initiliasing Console ***");
+    LogManager::getSingleton().logMessage("*** Initializing Console ***");
     ODApplication::getSingleton().getRoot()->addFrameListener(this);
     Ogre::OverlayManager& olMgr = Ogre::OverlayManager::getSingleton();
 
@@ -89,9 +89,13 @@ Console::Console() :
 
 Console::~Console()
 {
-    delete mPanel;
-    delete mTextbox;
-    delete mOverlay;
+    LogManager::getSingleton().logMessage("*** Deinitializing Console ***");
+    LogManager::getSingleton().getLog().removeListener(this);
+    ODApplication::getSingleton().getRoot()->removeFrameListener(this);
+    // Handled by Ogre.
+    //delete mPanel;
+    //delete mTextbox;
+    //delete mOverlay;
 }
 
 /*! \brief Defines the action on starting the current frame

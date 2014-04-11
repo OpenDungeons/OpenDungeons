@@ -55,9 +55,9 @@ ModeManager::~ModeManager()
 {
     for (unsigned int i = 0; i < mGameModes.size(); ++i)
         delete mGameModes[i];
-    delete mInputManager;
     delete mConsoleMode;
     delete mConsole;
+    delete mInputManager;
     delete mASWrapper;
 }
 

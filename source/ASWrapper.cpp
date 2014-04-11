@@ -90,6 +90,7 @@ ASWrapper::ASWrapper() :
 //! \brief closes AngelScript
 ASWrapper::~ASWrapper()
 {
+    LogManager::getSingleton().logMessage("Deleting AS Wrapper");
     delete mBuilder;
     mContext->Release();
     mEngine->Release();
