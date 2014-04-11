@@ -90,6 +90,7 @@ ODApplication::ODApplication() :
         if (!mRoot->showConfigDialog())
             return;
 
+        // Needed for the TextRenderer and the Render Manager
         mOverlaySystem = new Ogre::OverlaySystem();
 
         mWindow = mRoot->initialise(true, "OpenDungeons " + VERSION);
@@ -103,11 +104,13 @@ ODApplication::ODApplication() :
         new SoundEffectsHelper();
 
         new Gui();
-        new TextRenderer();
-        TextRenderer::getSingleton().addTextBox("DebugMessages", MOTD.c_str(), 140,
-                                                10, 50, 70, Ogre::ColourValue::Green);
+        TextRenderer* textRenderer = new TextRenderer();
+        textRenderer->addTextBox("DebugMessages", ODApplication::MOTD.c_str(), 140,
+                                    10, 50, 70, Ogre::ColourValue::Green);
+        textRenderer->addTextBox(ODApplication::POINTER_INFO_STRING, "",
+                                    0, 0, 200, 50, Ogre::ColourValue::White);
 
-        mFrameListener = new ODFrameListener(mWindow, mOverlaySystem);
+        mFrameListener = new ODFrameListener(mWindow);
         mRoot->addFrameListener(mFrameListener);
 
         mRoot->startRendering();

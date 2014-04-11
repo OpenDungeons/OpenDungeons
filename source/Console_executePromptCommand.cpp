@@ -481,9 +481,10 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 gameMap->addCreature(tempCreature);
 
                 // Create the mesh and SceneNode for the new creature
-                Ogre::Entity *ent = RenderManager::getSingletonPtr()->getSceneManager()->createEntity("Creature_"
+                RenderManager* rdrMgr = RenderManager::getSingletonPtr();
+                Ogre::Entity *ent = rdrMgr->getSceneManager()->createEntity("Creature_"
                         + tempCreature->getName(), tempCreature->getDefinition()->getMeshName());
-                Ogre::SceneNode *node = frameListener->mCreatureSceneNode->createChildSceneNode(
+                Ogre::SceneNode *node = rdrMgr->getCreatureSceneNode()->createChildSceneNode(
                         tempCreature->getName() + "_node");
                 //node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
                 node->setPosition(tempCreature->getPosition());

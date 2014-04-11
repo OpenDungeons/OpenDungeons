@@ -20,7 +20,6 @@ using  std::string;
 template<typename T> class ProtectedObject;
 class RenderRequest;
 class GameMap;
-class CameraManager;
 
 namespace Ogre
 {
@@ -39,19 +38,14 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         RenderManager();
         ~RenderManager();
 
-        void setSceneNodes(Ogre::SceneNode* rockSceneNode, Ogre::SceneNode* roomSceneNode,
-                                    Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode );
+        inline Ogre::SceneManager* getSceneManager() const
+        { return sceneManager; }
 
-
-        inline Ogre::SceneManager* getSceneManager()const {return sceneManager;}
         inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;}
-        void setCameraManager(CameraManager* );
-        void setViewport(Ogre::Viewport* );
         void processRenderRequests();
         void updateAnimations();
         void triggerCompositor(string);
-        void createScene();
-        void createCompositors();
+        void createScene(Ogre::Viewport*);
 
         void waitOnRenderQueueFlush();
         /*! \brief Put a render request in the queue (helper function to avoid having to fetch the singleton)
@@ -59,6 +53,11 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         static void queueRenderRequest(RenderRequest* renderRequest)
         {
             msSingleton->queueRenderRequest_priv(renderRequest);
+        }
+
+        Ogre::SceneNode* getCreatureSceneNode()
+        {
+            return mCreatureSceneNode;
         }
 
         void rtssTest();
@@ -125,20 +124,25 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         std::string colourizeMaterial(const std::string& materialName, int color);
     private:
         bool visibleCreatures;
-        RenderManager(const RenderManager&);
+
         //TODO -should we maybe encapsulate the semaphores somewhere?
         sem_t renderQueueSemaphore;
         sem_t renderQueueEmptySemaphore;
         std::deque<RenderRequest*> renderQueue;
-        //TODO - these should probably be defined in here instead of in the frame listener
-        //FIXME - may want to rename these to make the functionality clearer
-        Ogre::SceneNode* roomSceneNode;
-        Ogre::SceneNode* creatureSceneNode;
-        Ogre::SceneNode* lightSceneNode;
-        Ogre::SceneNode* fieldSceneNode;
-        Ogre::SceneNode* rockSceneNode;
-        GameMap* gameMap;
+
+        //! \brief The main scene manager reference. Don't delete it.
         Ogre::SceneManager* sceneManager;
+
+        //! \brief Reference to the Ogre sub scene nodes. Don't delete them.
+        Ogre::SceneNode* mRoomSceneNode;
+        Ogre::SceneNode* mCreatureSceneNode;
+        Ogre::SceneNode* mLightSceneNode;
+        Ogre::SceneNode* mFieldSceneNode;
+        Ogre::SceneNode* mRockSceneNode;
+
+        //! \brief The game map reference. Don't delete it.
+        GameMap* gameMap;
+
         Ogre::Viewport* viewport;
         Ogre::RTShader::ShaderGenerator* shaderGenerator;
         bool initialized;
@@ -146,4 +150,4 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         static ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;
 };
 
-#endif /* RENDERMANAGER_H_ */
+#endif // RENDERMANAGER_H_

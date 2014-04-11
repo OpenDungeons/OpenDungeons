@@ -76,7 +76,7 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
  * The primary function of this routine is to initialize variables, and start
  * up the OGRE system.
  */
-ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* overlaySystem) :
+ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     cm(NULL),
     mInitialized(false),
     mWindow(win),
@@ -92,25 +92,15 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* o
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
 
-    // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
-    Ogre::SceneManager* sceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_GENERIC,
-                                                                                                       "SceneManager");
-    sceneManager->addRenderQueueListener(overlaySystem);
+    RenderManager* renderManager = new RenderManager();
 
     mGameMap = new GameMap;
-    cm = new CameraManager(sceneManager, mGameMap);
+    cm = new CameraManager(renderManager->getSceneManager(), mGameMap);
 
-    RenderManager* renderManager = new RenderManager();
     renderManager->setGameMap(mGameMap);
-    renderManager->setCameraManager(cm);
-    renderManager->setViewport(cm->getViewport());
+    renderManager->createScene(cm->getViewport());
 
-    mRockSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Rock_scene_node");
-    mCreatureSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
-    mRoomSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Room_scene_node");
-    mFieldSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Field_scene_node");
-    mLightSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Light_scene_node");
-    mRaySceneQuery = sceneManager->createRayQuery(Ogre::Ray());
+    mRaySceneQuery = renderManager->getSceneManager()->createRayQuery(Ogre::Ray());
 
     mModeManager = new ModeManager();
     cm->setModeManager(mModeManager);
@@ -120,12 +110,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* o
 
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
-
-    TextRenderer::getSingleton().addTextBox(ODApplication::POINTER_INFO_STRING, "",
-            0, 0, 200, 50, Ogre::ColourValue::White);
-
-    renderManager->setSceneNodes(mRockSceneNode, mRoomSceneNode, mCreatureSceneNode,
-                                 mLightSceneNode, mFieldSceneNode);
 
     // TODO: Move this into the common definitions files.
     //Available team colours
@@ -150,28 +134,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* o
     mExitRequested.set(false);
 
     mInitialized = true;
-
-    // Init the render manager
-    try
-    {
-        logManager->logMessage("Creating scene...", Ogre::LML_NORMAL);
-        renderManager->createScene();
-        logManager->logMessage("Creating compositors...", Ogre::LML_NORMAL);
-        renderManager->createCompositors();
-        logManager->logMessage("*** FrameListener initialized ***");
-    }
-    catch(Ogre::Exception& e)
-    {
-        ODApplication::displayErrorMessage("Ogre exception when initialising the render manager:\n"
-            + e.getFullDescription(), false);
-        requestExit();
-    }
-    catch (std::exception& e)
-    {
-        ODApplication::displayErrorMessage("Exception when initialising the render manager:\n"
-            + std::string(e.what()), false);
-        requestExit();
-    }
 }
 
 void ODFrameListener::windowResized(Ogre::RenderWindow* rw)

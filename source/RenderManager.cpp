@@ -59,73 +59,53 @@ ProtectedObject<unsigned int> RenderManager::numThreadsWaitingOnRenderQueueEmpty
 
 RenderManager::RenderManager() :
     visibleCreatures(true),
-    roomSceneNode(0),
-    creatureSceneNode(0),
-    lightSceneNode(0),
-    fieldSceneNode(0),
-    rockSceneNode(0),
-    gameMap(0),
-    //This will use OctreSceneManager if the plugin is loaded
-    sceneManager(ODApplication::getSingletonPtr()->getRoot()->getSceneManager("SceneManager")),
-    viewport(0),
-    shaderGenerator(0),
+    gameMap(NULL),
+    viewport(NULL),
+    shaderGenerator(NULL),
     initialized(false)
 {
     sem_init(&renderQueueSemaphore, 0, 1);
     sem_init(&renderQueueEmptySemaphore, 0, 0);
 
     //Initialise RTshader system
-    if (!Ogre::RTShader::ShaderGenerator::initialize()) {
+    if (!Ogre::RTShader::ShaderGenerator::initialize())
+    {
         //TODO - exit properly
         LogManager::getSingletonPtr()->logMessage("FATAL:"
                 "Failed to initialise shader generator, exiting", Ogre::LML_CRITICAL);
         exit(1);
     }
+
+    // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
+    sceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
+    sceneManager->addRenderQueueListener(ODApplication::getSingletonPtr()->getOverlaySystem());
+
+    mRockSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Rock_scene_node");
+    mCreatureSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Creature_scene_node");
+    mRoomSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Room_scene_node");
+    mFieldSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Field_scene_node");
+    mLightSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Light_scene_node");
 }
 
 RenderManager::~RenderManager()
 {
-
 }
 
-/*! \brief creates all compoistors
-*   Compositor types are hardcoded
-*   but they should be read from the external XML file
-*/
-void RenderManager::setViewport(Ogre::Viewport* tmpViewport){
-
-    viewport = tmpViewport;
-
-}
-
-
-
-/*! \brief creates all compoistors
-*   Compositor types are hardcoded
-*   but they should be read from the external XML file
-*/
-void RenderManager::createCompositors(){
-
-    Ogre::CompositorManager::getSingleton().addCompositor(viewport, "B&W");
-
-}
-
-
-
-/*! \brief starts the compositor compositorName // assuming
-*
-*/
-void RenderManager::triggerCompositor(string compositorName){
-
+//! \brief starts the compositor compositorName.
+void RenderManager::triggerCompositor(string compositorName)
+{
     Ogre::CompositorManager::getSingleton().setCompositorEnabled(viewport, compositorName.c_str(), true);
-
 }
 
 /*! \brief setup the scene
 *
 */
-void RenderManager::createScene()
+void RenderManager::createScene(Ogre::Viewport* nViewport)
 {
+    LogManager::getSingleton().logMessage("Creating scene...", Ogre::LML_NORMAL);
+
+    viewport = nViewport;
+
     //Set up the shader generator
     shaderGenerator = Ogre::RTShader::ShaderGenerator::getSingletonPtr();
     //shaderGenerator->setTargetLanguage("glsl");
@@ -172,21 +152,8 @@ void RenderManager::createScene()
     light->setPosition(0, 0, 6);
     light->setAttenuation(50, 1.0, 0.09, 0.032);
 
-}
-
-void RenderManager::setCameraManager(CameraManager* cameraManager){
-    // cm = cameraManager;
-}
-
-void RenderManager::setSceneNodes(Ogre::SceneNode* rockSceneNode , Ogre::SceneNode* roomSceneNode,
-                                  Ogre::SceneNode* creatureSceneNode, Ogre::SceneNode* lightSceneNode, Ogre::SceneNode* fieldSceneNode )
-{
-    this->rockSceneNode = rockSceneNode;
-    this->roomSceneNode = roomSceneNode;
-    this->creatureSceneNode = creatureSceneNode;
-
-    this->lightSceneNode = lightSceneNode;
-    this->fieldSceneNode = fieldSceneNode;
+    LogManager::getSingleton().logMessage("Creating compositor...", Ogre::LML_NORMAL);
+    Ogre::CompositorManager::getSingleton().addCompositor(viewport, "B&W");
 }
 
 /*! \brief Handle the renderRequest requested
@@ -850,7 +817,7 @@ void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
     tempSS << curRoom->getName() << "_" << curTile->x << "_"
     << curTile->y;
     Ogre::Entity* ent = sceneManager->createEntity ( tempSS.str(), curRoom->getMeshName() + ".mesh" );
-    Ogre::SceneNode* node = roomSceneNode->createChildSceneNode ( tempSS.str()
+    Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode ( tempSS.str()
                             + "_node" );
     node->setPosition ( static_cast<Ogre::Real>(curTile->x),
                         static_cast<Ogre::Real>(curTile->y),
@@ -873,7 +840,7 @@ void RenderManager::rrDestroyRoom ( const RenderRequest& renderRequest )
         Ogre::Entity* ent = sceneManager->getEntity(tempSS.str());
         Ogre::SceneNode* node = sceneManager->getSceneNode(tempSS.str() + "_node");
         node->detachObject(ent);
-        roomSceneNode->removeChild(node);
+        mRoomSceneNode->removeChild(node);
         sceneManager->destroyEntity(ent);
         sceneManager->destroySceneNode(tempSS.str() + "_node");
     }
@@ -891,7 +858,7 @@ void RenderManager::rrCreateRoomObject ( const RenderRequest& renderRequest )
                              + name;
     Ogre::Entity* ent = sceneManager->createEntity(tempString,
                         *meshName.get() + ".mesh");
-    Ogre::SceneNode* node = roomSceneNode->createChildSceneNode(tempString
+    Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString
                             + "_node");
     node->setPosition(Ogre::Vector3(curRoomObject->x, curRoomObject->y, 0.0));
     node->roll(Ogre::Degree(curRoomObject->rotationAngle));
@@ -924,7 +891,7 @@ void RenderManager::rrCreateTrap ( const RenderRequest& renderRequest )
     std::string tempString = tempSS.str();
     Ogre::Entity* ent = sceneManager->createEntity(tempString,
                         curTrap->getMeshName() + ".mesh");
-    Ogre::SceneNode* node = roomSceneNode->createChildSceneNode(tempString
+    Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString
                             + "_node");
     node->setPosition(static_cast<Ogre::Real>(curTile->x),
                       static_cast<Ogre::Real>(curTile->y),
@@ -1021,7 +988,7 @@ void RenderManager::rrCreateCreature ( const RenderRequest& renderRequest )
 
     //Disabled temporarily for normal-mapping
     //colourizeEntity(ent, curCreature->color);
-    Ogre::SceneNode* node = creatureSceneNode->createChildSceneNode(
+    Ogre::SceneNode* node = mCreatureSceneNode->createChildSceneNode(
                                 curCreature->getName() + "_node");
     curCreature->mSceneNode = node;
     node->setPosition(curCreature->getPosition());
@@ -1039,7 +1006,7 @@ void RenderManager::rrDestroyCreature ( const RenderRequest& renderRequest )
         Ogre::Entity* ent = sceneManager->getEntity("Creature_" + curCreature->getName());
         Ogre::SceneNode* node = sceneManager->getSceneNode(curCreature->getName() + "_node");
         node->detachObject(ent);
-        creatureSceneNode->removeChild(node);
+        mCreatureSceneNode->removeChild(node);
         sceneManager->destroyEntity(ent);
         sceneManager->destroySceneNode(curCreature->getName() + "_node");
     }
@@ -1124,7 +1091,7 @@ void RenderManager::rrCreateMissileObject ( const RenderRequest& renderRequest )
     Ogre::Entity* ent = sceneManager->createEntity(curMissileObject->getName(),
                         curMissileObject->getMeshName() + ".mesh");
     //TODO:  Make a new subroot scene node for these so lookups are faster since only a few missile objects should be onscreen at once.
-    Ogre::SceneNode* node = creatureSceneNode->createChildSceneNode(
+    Ogre::SceneNode* node = mCreatureSceneNode->createChildSceneNode(
                                 curMissileObject->getName() + "_node");
     node->setPosition(curMissileObject->getPosition());
     node->attachObject(ent);
@@ -1138,7 +1105,7 @@ void RenderManager::rrDestroyMissileObject ( const RenderRequest& renderRequest 
         Ogre::Entity* ent = sceneManager->getEntity(curMissileObject->getName());
         Ogre::SceneNode* node = sceneManager->getSceneNode(curMissileObject->getName()  + "_node");
         node->detachObject(ent);
-        creatureSceneNode->removeChild(node);
+        mCreatureSceneNode->removeChild(node);
         sceneManager->destroyEntity(ent);
         sceneManager->destroySceneNode(curMissileObject->getName() + "_node");
     }
@@ -1159,7 +1126,7 @@ void RenderManager::rrCreateMapLight ( const RenderRequest& renderRequest )
                           curMapLight->getAttenuationQuadratic());
 
     // Create the base node that the "flicker_node" and the mesh attach to.
-    Ogre::SceneNode* mapLightNode = lightSceneNode->createChildSceneNode(mapLightName
+    Ogre::SceneNode* mapLightNode = mLightSceneNode->createChildSceneNode(mapLightName
                                     + "_node");
     mapLightNode->setPosition(curMapLight->getPosition());
 
@@ -1191,7 +1158,7 @@ void RenderManager::rrDestroyMapLight ( const RenderRequest& renderRequest )
         Ogre::SceneNode* lightFlickerNode = sceneManager->getSceneNode(mapLightName
                                             + "_flicker_node");
         lightFlickerNode->detachObject(light);
-        lightSceneNode->removeChild(lightNode);
+        mLightSceneNode->removeChild(lightNode);
         sceneManager->destroyLight(light);
 
         if (sceneManager->hasEntity(mapLightName))
@@ -1244,7 +1211,7 @@ void RenderManager::rrCreateField (const RenderRequest& renderRequest)
         tempSS << "Field_" << curField->getName() << "_" << x << "_" << y;
         Ogre::Entity* fieldIndicatorEntity = sceneManager->createEntity(tempSS.str(),
                                              "Field_indicator.mesh");
-        Ogre::SceneNode* fieldIndicatorNode = fieldSceneNode->createChildSceneNode(tempSS.str()
+        Ogre::SceneNode* fieldIndicatorNode = mFieldSceneNode->createChildSceneNode(tempSS.str()
                                               + "_node");
         fieldIndicatorNode->setPosition(static_cast<Ogre::Real>(x),
                                         static_cast<Ogre::Real>(y),
@@ -1285,7 +1252,7 @@ void RenderManager::rrRefreshField (const RenderRequest& renderRequest)
             // The mesh does not exist, create a new one
             Ogre::Entity* fieldIndicatorEntity = sceneManager->createEntity(tempSS.str(),
                                                  "Field_indicator.mesh");
-            fieldIndicatorNode = fieldSceneNode->createChildSceneNode(
+            fieldIndicatorNode = mFieldSceneNode->createChildSceneNode(
                                      tempSS.str() + "_node");
             fieldIndicatorNode->attachObject(fieldIndicatorEntity);
         }
@@ -1305,7 +1272,7 @@ void RenderManager::rrPickUpCreature ( const RenderRequest& renderRequest )
     // Detach the creature from the creature scene node
     Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
     //FIXME this variable name is a bit misleading
-    creatureSceneNode->removeChild(creatureNode);
+    mCreatureSceneNode->removeChild(creatureNode);
 
     // Attatch the creature to the hand scene node
     sceneManager->getSceneNode("Hand_node")->addChild(creatureNode);
@@ -1330,7 +1297,7 @@ void RenderManager::rrDropCreature ( const RenderRequest& renderRequest )
     sceneManager->getSceneNode("Hand_node")->removeChild(creatureNode);
 
     // Attach the creature from the creature scene node
-    creatureSceneNode->addChild(creatureNode);
+    mCreatureSceneNode->addChild(creatureNode);
     creatureNode->setPosition(curCreature->getPosition());
     creatureNode->scale(3.0, 3.0, 3.0);
 
@@ -1367,7 +1334,7 @@ void RenderManager::rrCreateCreatureVisualDebug ( const RenderRequest& renderReq
 
         Ogre::Entity* visIndicatorEntity = sceneManager->createEntity(tempSS.str(),
                                            "Cre_vision_indicator.mesh");
-        Ogre::SceneNode* visIndicatorNode = creatureSceneNode->createChildSceneNode(tempSS.str()
+        Ogre::SceneNode* visIndicatorNode = mCreatureSceneNode->createChildSceneNode(tempSS.str()
                                             + "_node");
         visIndicatorNode->attachObject(visIndicatorEntity);
         visIndicatorNode->setPosition(Ogre::Vector3((Ogre::Real)curTile->x, (Ogre::Real)curTile->y, (Ogre::Real)0));

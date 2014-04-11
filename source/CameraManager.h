@@ -90,7 +90,8 @@ public:
     CameraManager(Ogre::SceneManager*, GameMap*);
     ~CameraManager();
 
-    inline void setCircleCenter( int XX, int YY) {
+    inline void setCircleCenter( int XX, int YY)
+    {
         mCenterX = XX;
         mCenterY = YY;
     }
@@ -98,17 +99,20 @@ public:
     inline void setCircleRadius(unsigned int rr)
     { mRadius = rr; }
 
-    inline void setCircleMode(bool mm) {
+    inline void setCircleMode(bool mm)
+    {
         mCircleMode = mm;
         mAlpha = 0;
     }
 
-    inline void setCatmullSplineMode(bool mm) {
+    inline void setCatmullSplineMode(bool mm)
+    {
         mCatmullSplineMode = mm;
         mAlpha = 0;
     }
 
-    inline bool switchPM() {
+    inline bool switchPM()
+    {
         mSwitchedPM = true;
         return true;
     }
@@ -119,34 +123,41 @@ public:
     void setFPPCamera(Creature*);
 
     //get/set moveSpeed
-    inline const Ogre::Real& getMoveSpeed() const {
+    inline const Ogre::Real& getMoveSpeed() const
+    {
         return mMoveSpeed;
     }
 
-    inline void setMoveSpeed(const Ogre::Real& newMoveSpeed) {
+    inline void setMoveSpeed(const Ogre::Real& newMoveSpeed)
+    {
         mMoveSpeed = newMoveSpeed;
     }
 
     //get/set moveSpeedAccel
-    inline const Ogre::Real& getMoveSpeedAccel() const {
+    inline const Ogre::Real& getMoveSpeedAccel() const
+    {
         return mMoveSpeedAccel;
     }
 
-    inline void setMoveSpeedAccel(const Ogre::Real& newMoveSpeedAccel) {
+    inline void setMoveSpeedAccel(const Ogre::Real& newMoveSpeedAccel)
+    {
         mMoveSpeed = newMoveSpeedAccel;
     }
 
     //get/set rotateSpeed
-    inline const Ogre::Degree& getRotateSpeed() const {
+    inline const Ogre::Degree& getRotateSpeed() const
+    {
         return mRotateSpeed;
     }
 
-    inline void setRotateSpeed(const Ogre::Degree& newRotateSpeed) {
+    inline void setRotateSpeed(const Ogre::Degree& newRotateSpeed)
+    {
         mRotateSpeed = newRotateSpeed;
     }
 
     //get translateVectorAccel
-    inline const Ogre::Vector3& getTranslateVectorAccel() const {
+    inline const Ogre::Vector3& getTranslateVectorAccel() const
+    {
         return mTranslateVectorAccel;
     }
 
@@ -173,7 +184,8 @@ public:
 
     void move(const Direction direction, double aux = 0.0);
 
-    inline void stopZooming () {
+    inline void stopZooming ()
+    {
         mZChange = 0;
     }
 
@@ -188,7 +200,8 @@ public:
     void createCamera(const Ogre::String& ss, double nearClip, double farClip);
     void setActiveCamera(const Ogre::String& ss);
 
-    inline Ogre::Camera* getActiveCamera() {
+    inline Ogre::Camera* getActiveCamera()
+    {
         return  mActiveCamera ;
     }
 

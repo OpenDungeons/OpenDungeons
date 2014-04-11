@@ -74,7 +74,7 @@ friend class Console;
 
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
-    ODFrameListener(Ogre::RenderWindow* win, Ogre::OverlaySystem* overlaySystem);
+    ODFrameListener(Ogre::RenderWindow* win);
     virtual ~ODFrameListener();
 
     void requestExit();
@@ -103,9 +103,6 @@ public:
     //! \brief Toggle the display of debug info (default key used to do that: F11)
     void toggleDebugInfo()
     { mShowDebugInfo = !mShowDebugInfo; }
-
-    inline Ogre::SceneNode* getCreatureSceneNode() const
-    { return mCreatureSceneNode; }
 
     inline Ogre::RaySceneQuery* getRaySceneQuery()
     { return mRaySceneQuery; }
@@ -186,14 +183,6 @@ private:
     double                  mFrameDelay;
     long int                mPreviousTurn;
 
-    // TODO All that are part of the render manager singleton and should be moved there
-    // completely along with initialisation / deinitialisation.
-    //! \brief Reference to the Ogre sub scene nodes. Don't delete them.
-    Ogre::SceneNode*        mCreatureSceneNode;
-    Ogre::SceneNode*        mRoomSceneNode;
-    Ogre::SceneNode*        mFieldSceneNode;
-    Ogre::SceneNode*        mLightSceneNode;
-    Ogre::SceneNode*        mRockSceneNode;
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
     Ogre::RaySceneQuery*    mRaySceneQuery;
 

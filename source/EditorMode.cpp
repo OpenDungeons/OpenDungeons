@@ -278,14 +278,15 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                 continue;
 
             // Begin dragging the creature
-            Ogre::SceneManager* sceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
+            RenderManager* rdrMgr = RenderManager::getSingletonPtr();
+            Ogre::SceneManager* sceneMgr = rdrMgr->getSceneManager();
             sceneMgr->getEntity("SquareSelector")->setVisible(false);
 
             mDraggedCreature = resultName.substr(
                                     ((std::string) "Creature_").size(),
                                     resultName.size());
             Ogre::SceneNode *node = sceneMgr->getSceneNode(mDraggedCreature + "_node");
-            ODFrameListener::getSingleton().getCreatureSceneNode()->removeChild(node);
+            rdrMgr->getCreatureSceneNode()->removeChild(node);
             sceneMgr->getSceneNode("Hand_node")->addChild(node);
             node->setPosition(0, 0, 0);
             inputManager->mDragType = creature;
@@ -442,10 +443,11 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         }
 
         // Remove the creature node from the selector and back to the game
-        Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-        Ogre::SceneNode* node = mSceneMgr->getSceneNode(mDraggedCreature + "_node");
-        mSceneMgr->getSceneNode("Hand_node")->removeChild(node);
-        ODFrameListener::getSingleton().getCreatureSceneNode()->addChild(node);
+        RenderManager* rdrMgr = RenderManager::getSingletonPtr();
+        Ogre::SceneManager* sceneMgr = rdrMgr->getSceneManager();
+        Ogre::SceneNode* node = sceneMgr->getSceneNode(mDraggedCreature + "_node");
+        sceneMgr->getSceneNode("Hand_node")->removeChild(node);
+        rdrMgr->getCreatureSceneNode()->addChild(node);
 
         inputManager->mDragType = nullDragType;
         droppedCreature->setPosition(Ogre::Vector3(newXPos, newYPos, (Ogre::Real)0.0));

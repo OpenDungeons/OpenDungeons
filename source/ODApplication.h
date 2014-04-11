@@ -48,6 +48,9 @@ public:
     inline Ogre::RenderWindow* getWindow() const
     { return mWindow; }
 
+    inline Ogre::OverlaySystem* getOverlaySystem() const
+    { return mOverlaySystem; }
+
     //! \brief Display a GUI error message
     static void displayErrorMessage(const std::string& message, bool log = true);
 
@@ -67,8 +70,9 @@ private:
     Ogre::Root* mRoot;
     Ogre::RenderWindow* mWindow;
 
-    Ogre::OverlaySystem* mOverlaySystem;
     ODFrameListener* mFrameListener;
+    //! \brief by both the RenderManager and the TextRenderer.
+    Ogre::OverlaySystem* mOverlaySystem;
 
     //! \brief Delete the various singleton objects and clean up other stuff
     void cleanUp();
