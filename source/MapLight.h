@@ -113,6 +113,9 @@ public:
     friend std::ostream& operator<<(std::ostream& os, MapLight *m);
     friend std::istream& operator>>(std::istream& is, MapLight *m);
 
+    //! \brief Loads the map light data from a level line.
+    static void loadFromLine(const std::string& line, MapLight* m);
+
     void setGameMap(GameMap* gm);
 
     //! \brief Map number lock semaphore initialized in the ODApplication constructor.

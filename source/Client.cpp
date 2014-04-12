@@ -221,7 +221,9 @@ void *clientSocketProcessor(void *p)
             else if (serverCommand.compare("addroom") == 0)
             {
                 std::stringstream tempSS(arguments);
-                Room *newRoom = Room::createRoomFromStream(tempSS, &gameMap);
+                std::string roomName;
+                tempSS >> roomName;
+                Room *newRoom = Room::createRoomFromStream(roomName, tempSS, &gameMap);
                 gameMap.addRoom(newRoom);
                 newRoom->createMesh();
                 sem_wait(&sock->semaphore);

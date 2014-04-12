@@ -16,7 +16,7 @@ class Tile;
 
 /*! \class Trap Trap.h
  *  \brief Defines a trap
- *  
+ *
  */
 class Trap : public Building
 {
@@ -38,7 +38,7 @@ class Trap : public Building
         static Trap* buildTrap(GameMap* gameMap, Trap::TrapType nType,
                                const std::vector< Tile* >& coveredTiles,
                                Player* player, bool inEditor = false, void* params = NULL);
-        static Trap* createTrapFromStream(std::istream &is, GameMap* gameMap);
+        static Trap* createTrapFromStream(const std::string& trapName, std::istream &is, GameMap* gameMap);
 
         inline const TrapType& getType() const{return type;}
         static std::string getMeshNameFromTrapType(TrapType t);
@@ -49,7 +49,7 @@ class Trap : public Building
         // Functions which can be overridden by child classes.
         virtual bool doUpkeep();
         virtual bool doUpkeep(Trap *t);
-        
+
         virtual std::vector<GameEntity*> aimEnemy();
         virtual void damage(std::vector<GameEntity*>);
 

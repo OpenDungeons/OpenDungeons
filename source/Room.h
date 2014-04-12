@@ -33,7 +33,6 @@ class Room : public Building
 
         static Room* createRoom(RoomType nType,
                 const std::vector<Tile*> &nCoveredTiles, int nColor);
-        static Room* createRoomFromStream(std::istream &is, GameMap* gameMap);
         static Room* buildRoom(GameMap* gameMap, RoomType nType,
                 const std::vector<Tile*> &coveredTiles, Player* player, bool inEditor = false);
         virtual void absorbRoom(Room *r);
@@ -41,6 +40,7 @@ class Room : public Building
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Room *r);
         friend std::istream& operator>>(std::istream& is, Room *r);
+        static Room* createRoomFromStream(const std::string& roomName, std::istream &is, GameMap* gameMap);
 
         RoomObject* loadRoomObject(std::string meshName, Tile *targetTile =
                 NULL, double rotationAngle = 0.0);

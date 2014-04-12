@@ -78,8 +78,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         gameMap.nextLevel = nextParam;
     }
 
-    int objectsToLoad = 0;
-
     // TODO: Use an sub-function when encountering [Seats]
     levelFile >> nextParam;
     if (nextParam != "[Seats]")
@@ -90,7 +88,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     }
 
     // Read in the seats from the level file
-    //levelFile >> objectsToLoad;
     while (true)
     {
         levelFile >> nextParam;
@@ -109,9 +106,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     }
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
-    //levelFile >> objectsToLoad;
     levelFile >> nextParam;
-
     // TODO: Use an sub-function when encountering [Goals]
     if (nextParam != "[Goals]")
     {
@@ -132,9 +127,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
             gameMap.addGoalForAllSeats(tempGoal);
     }
 
-    //levelFile >> objectsToLoad;
     levelFile >> nextParam;
-
     // TODO: Use an sub-function when encountering [Tiles]
     if (nextParam != "[Tiles]")
     {
@@ -180,34 +173,73 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     gameMap.enableFloodFill();
 
     // Read in the rooms
-    Room* tempRoom;
-    levelFile >> objectsToLoad;
-    for (int i = 0; i < objectsToLoad; ++i)
+    levelFile >> nextParam;
+    // TODO: Use an sub-function when encountering [Rooms]
+    if (nextParam != "[Rooms]")
     {
-        tempRoom = Room::createRoomFromStream(levelFile, &gameMap);
+        std::cout << "Invalid Rooms start format." << std::endl;
+        std::cout << "Line was " << nextParam << std::endl;
+        return false;
+    }
+
+    while(true)
+    {
+        levelFile >> nextParam;
+        if (nextParam == "[/Rooms]")
+            break;
+
+        Room* tempRoom = Room::createRoomFromStream(nextParam, levelFile, &gameMap);
 
         gameMap.addRoom(tempRoom);
     }
 
+
     // Read in the traps
-    Trap* tempTrap;
-    levelFile >> objectsToLoad;
-    for (int i = 0; i < objectsToLoad; ++i)
+    levelFile >> nextParam;
+    // TODO: Use an sub-function when encountering [Traps]
+    if (nextParam != "[Traps]")
     {
-        tempTrap = Trap::createTrapFromStream(levelFile, &gameMap);
+        std::cout << "Invalid Traps start format." << std::endl;
+        std::cout << "Line was " << nextParam << std::endl;
+        return false;
+    }
+
+    while(true)
+    {
+        levelFile >> nextParam;
+        if (nextParam == "[/Traps]")
+            break;
+
+        Trap* tempTrap = Trap::createTrapFromStream(nextParam, levelFile, &gameMap);
         tempTrap->createMesh();
 
         gameMap.addTrap(tempTrap);
     }
 
     // Read in the lights
-    MapLight* tempLight;
-    levelFile >> objectsToLoad;
-    for (int i = 0; i < objectsToLoad; ++i)
+    levelFile >> nextParam;
+    // TODO: Use an sub-function when encountering [Lights]
+    if (nextParam != "[Lights]")
     {
-        tempLight = new MapLight;
-	    tempLight->setGameMap(&gameMap);
-        levelFile >> tempLight;
+        std::cout << "Invalid Lights start format." << std::endl;
+        std::cout << "Line was " << nextParam << std::endl;
+        return false;
+    }
+
+    while(true)
+    {
+        levelFile >> nextParam;
+        if (nextParam == "[/Lights]")
+            break;
+
+        std::string entire_line = nextParam;
+        std::getline(levelFile, nextParam);
+        entire_line += nextParam;
+        //std::cout << "Entire line: " << entire_line << std::endl;
+
+        MapLight* tempLight = new MapLight;
+        tempLight->setGameMap(&gameMap);
+        MapLight::loadFromLine(entire_line, tempLight);
 
         gameMap.addMapLight(tempLight);
     }
@@ -222,31 +254,30 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     }
     levelFile >> nextParam;
     MapLoader::loadCreatureDefinition(nextParam, gameMap);
-    /*
-    // Read in the creature class descriptions
-    CreatureDefinition* tempClass;
-    levelFile >> objectsToLoad;
-    for (int i = 0; i < objectsToLoad; ++i)
-    {
-        tempClass = new CreatureDefinition;
-        levelFile >> tempClass;
-
-        gameMap.addClassDescription(tempClass);
-    }
-    */
 
     // Read in the actual creatures themselves
-    Creature* tempCreature;
-    Ogre::Vector3 tempVector;
-    levelFile >> objectsToLoad;
-    for (int i = 0; i < objectsToLoad; ++i)
+    levelFile >> nextParam;
+    // TODO: Use an sub-function when encountering [Creatures]
+    if (nextParam != "[Creatures]")
     {
+        std::cout << "Invalid Creatures start format." << std::endl;
+        std::cout << "Line was " << nextParam << std::endl;
+        return false;
+    }
 
-        //NOTE: This code is duplicated in the client side method
-        //"addclass" defined in src/Client.cpp and writeGameMapToFile.
-        //Changes to this code should be reflected in that code as well
-        tempCreature = new Creature(&gameMap);
-        levelFile >> tempCreature;
+    while(true)
+    {
+        levelFile >> nextParam;
+        if (nextParam == "[/Creatures]")
+            break;
+
+        std::string entire_line = nextParam;
+        std::getline(levelFile, nextParam);
+        entire_line += nextParam;
+        //std::cout << "Entire line: " << entire_line << std::endl;
+
+        Creature* tempCreature = new Creature(&gameMap);
+        Creature::loadFromLine(entire_line, tempCreature);
 
         gameMap.addCreature(tempCreature);
     }
@@ -337,13 +368,13 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     }
 
     // Write out the lights to the file.
-    levelFile << "\n# Lights\n" << gameMap.numMapLights()
-            << "  # The number of lights to load.\n";
+    levelFile << "\n[Lights]\n";
     levelFile << "# " << MapLight::getFormat() << "\n";
     for (unsigned int i = 0, num = gameMap.numMapLights(); i < num; ++i)
     {
         levelFile << gameMap.getMapLight(i) << std::endl;
     }
+    levelFile << "[/Lights]" << std::endl;
 
     // Write out where to find the creatures definition file.
     levelFile << "\n# The file containing the creatures definition." << std::endl
@@ -351,8 +382,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     << gameMap.getCreatureDefinitionFileName() << std::endl;
 
     // Write out the individual creatures to the file
-    levelFile << "\n# Creatures\n" << gameMap.numCreatures()
-            << "  # The number of creatures to load.\n";
+    levelFile << "\n[Creatures]\n";
     levelFile << "# " << Creature::getFormat() << "\n";
     for (unsigned int i = 0, num = gameMap.numCreatures(); i < num; ++i)
     {
@@ -361,8 +391,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
         //Changes to this code should be reflected in that code as well
         levelFile << gameMap.getCreature(i) << std::endl;
     }
-
-    levelFile << std::endl;
+    levelFile << "[/Creatures]" << std::endl;
 
     levelFile.close();
 }

@@ -27,7 +27,7 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
                        Seat *nControllingSeat, void* params)
 {
     Trap *tempTrap = NULL;
-    
+
     switch (nType)
     {
         case nullTrapType:
@@ -43,7 +43,7 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
             }
             break;
     }
-    
+
     if (tempTrap == NULL)
     {
         std::cerr
@@ -52,23 +52,23 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
         << "\n\n\n";
         exit(1);
     }
-    
+
     tempTrap->setControllingSeat(nControllingSeat);
-    
+
     tempTrap->setMeshName(getMeshNameFromTrapType(nType));
     tempTrap->type = nType;
-    
+
     static int uniqueNumber = -1;
     std::stringstream tempSS;
-    
+
     tempSS.str("");
     tempSS << tempTrap->getMeshName() << "_" << uniqueNumber;
     --uniqueNumber;
     tempTrap->setName(tempSS.str());
-    
+
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
         tempTrap->addCoveredTile(nCoveredTiles[i]);
-    
+
     return tempTrap;
 }
 
@@ -101,12 +101,14 @@ Trap* Trap::buildTrap(GameMap* gameMap, Trap::TrapType nType, const std::vector<
     return newTrap;
 }
 
-Trap* Trap::createTrapFromStream(std::istream &is, GameMap* gameMap)
+Trap* Trap::createTrapFromStream(const std::string& trapName, std::istream &is, GameMap* gameMap)
 {
     Trap tempTrap;
     tempTrap.setGameMap(gameMap);
+    tempTrap.setMeshName(trapName);
+
     is >> &tempTrap;
-    
+
     Trap *returnTrap = createTrap(tempTrap.type, tempTrap.coveredTiles,
                                   tempTrap.getControllingSeat());
     return returnTrap;
@@ -173,11 +175,11 @@ bool Trap::doUpkeep()
         reloadTimeCounter--;
         return true;
     }
-    
+
     std::vector<GameEntity*> enemyAttacked = aimEnemy();
-    
+
     damage(enemyAttacked);
-    
+
     if(!enemyAttacked.empty())
     {
         if(reloadTime >= 0)
@@ -200,7 +202,7 @@ bool Trap::doUpkeep(Trap* t)
 
 void Trap::damage(std::vector<GameEntity*> enemyAttacked)
 {
-    for(unsigned i=0;i<enemyAttacked.size();++i) 
+    for(unsigned i=0;i<enemyAttacked.size();++i)
     {
         enemyAttacked[i]->takeDamage(Random::Double(minDamage, maxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
     }
@@ -269,7 +271,7 @@ double Trap::getHP(Tile *tile)
             total += itr->second;
             ++itr;
         }
-        
+
         return total;
     }
 }
@@ -294,19 +296,15 @@ std::istream& operator>>(std::istream& is, Trap *t)
     static int uniqueNumber = 0;
     int tilesToLoad, tempX, tempY, tempInt;
     std::stringstream tempSS;
-    
-    std::string tempMeshName;
-    is >> tempMeshName;
-    t->setMeshName(tempMeshName);
 
     is >> tempInt;
     t->setControllingSeat(t->getGameMap()->getSeatByColor(tempInt));
-    
+
     tempSS.str("");
     tempSS << t->getMeshName() << "_" << ++uniqueNumber;
 
     t->setName(tempSS.str());
-    
+
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
     {
@@ -322,7 +320,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
             tempTile->colorDouble = 1.0;
         }
     }
-    
+
     t->type = Trap::getTrapTypeFromMeshName(t->getMeshName());
     return is;
 }
@@ -336,6 +334,6 @@ std::ostream& operator<<(std::ostream& os, Trap *t)
         Tile *tempTile = t->coveredTiles[i];
         os << tempTile->x << "\t" << tempTile->y << "\n";
     }
-    
+
     return os;
 }

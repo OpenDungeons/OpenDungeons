@@ -35,6 +35,7 @@
 #include "Random.h"
 #include "LogManager.h"
 #include "Quadtree.h"
+#include "Helper.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/WindowManager.h>
@@ -194,6 +195,57 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setMana(tempDouble);
 
     return is;
+}
+
+void Creature::loadFromLine(const std::string& line, Creature* c)
+{
+    std::vector<std::string> elems = Helper::split(line, '\t');
+
+    // Copy the class based items
+    CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(elems[0]);
+    if (creatureClass != 0)
+    {
+        //*c = *creatureClass;
+        c->mDefinition = creatureClass;
+    }
+    assert(c->mDefinition);
+
+    std::string creatureName = elems[1];
+    if (creatureName.compare("autoname") == 0)
+        creatureName = c->getUniqueCreatureName();
+    c->setName(creatureName);
+
+    double xLocation = Helper::toDouble(elems[2]);
+    double yLocation = Helper::toDouble(elems[3]);
+    double zLocation = Helper::toDouble(elems[4]);
+
+    xLocation += c->getGameMap()->getMapSizeX() / 2;
+    yLocation += c->getGameMap()->getMapSizeY() / 2;
+
+    c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
+
+    c->setColor(Helper::toInt(elems[5]));
+
+    c->mWeaponL = new Weapon;
+    c->mWeaponL->setName(elems[6]);
+    c->mWeaponL->setMeshName(elems[6] + ".mesh");
+    c->mWeaponL->setDamage(Helper::toDouble(elems[7]));
+    c->mWeaponL->setRange(Helper::toDouble(elems[8]));
+    c->mWeaponL->setDefense(Helper::toDouble(elems[9]));
+    c->mWeaponL->setParentCreature(c);
+    c->mWeaponL->setHandString("L");
+
+    c->mWeaponR = new Weapon;
+    c->mWeaponR->setName(elems[10]);
+    c->mWeaponR->setMeshName(elems[10] + ".mesh");
+    c->mWeaponR->setDamage(Helper::toDouble(elems[11]));
+    c->mWeaponR->setRange(Helper::toDouble(elems[12]));
+    c->mWeaponR->setDefense(Helper::toDouble(elems[13]));
+    c->mWeaponR->setParentCreature(c);
+    c->mWeaponR->setHandString("R");
+
+    c->setHP(Helper::toDouble(elems[14]));
+    c->setMana(Helper::toDouble(elems[15]));
 }
 
 Creature& Creature::operator=(const CreatureDefinition* c2)

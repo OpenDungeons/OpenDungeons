@@ -143,15 +143,6 @@ void Room::absorbRoom(Room *r)
     r->roomObjects.clear();
 }
 
-Room* Room::createRoomFromStream(std::istream &is, GameMap* gameMap)
-{
-    Room tempRoom;
-    tempRoom.setGameMap(gameMap);
-    is >> &tempRoom;
-
-    return createRoom(tempRoom.type, tempRoom.coveredTiles, tempRoom.getColor());
-}
-
 void Room::addCoveredTile(Tile* t, double nHP)
 {
     coveredTiles.push_back(t);
@@ -389,15 +380,21 @@ bool Room::doUpkeep(Room *r)
     return true;
 }
 
+Room* Room::createRoomFromStream(const std::string& roomName, std::istream &is, GameMap* gameMap)
+{
+    Room tempRoom;
+    tempRoom.setMeshName(roomName);
+    tempRoom.setGameMap(gameMap);
+    is >> &tempRoom;
+
+    return createRoom(tempRoom.type, tempRoom.coveredTiles, tempRoom.getColor());
+}
+
 std::istream& operator>>(std::istream& is, Room *r)
 {
     static int uniqueNumber = 0;
     int tilesToLoad, tempX, tempY;
     std::stringstream tempSS;
-
-    std::string tempString;
-    is >> tempString;
-    r->setMeshName(tempString);
 
     int tempInt = 0;
     is >> tempInt;
