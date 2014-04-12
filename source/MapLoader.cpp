@@ -300,7 +300,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
             << " # The level to load after this level is complete.\n";
 
     // Write out the seats to the file
-    levelFile << "\n[Seats]\n\n";
+    levelFile << "\n[Seats]\n";
     levelFile << "# " << Seat::getFormat() << "\n";
     for (unsigned int i = 0; i < gameMap.numEmptySeats(); ++i)
     {
@@ -314,7 +314,7 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "[/Seats]" << std::endl;
 
     // Write out the goals shared by all players to the file.
-    levelFile << "\n[Goals]\n\n";
+    levelFile << "\n[Goals]\n";
     levelFile << "# " << Goal::getFormat() << "\n";
     for (unsigned int i = 0, num = gameMap.numGoalsForAllSeats(); i < num; ++i)
     {
@@ -350,22 +350,22 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "[/Tiles]" << std::endl;
 
     // Write out the rooms to the file
-    levelFile << "\n# Rooms\n" << gameMap.numRooms()
-            << "  # The number of rooms to load.\n";
+    levelFile << "\n[Rooms]\n";
     levelFile << "# " << Room::getFormat() << "\n";
     for (unsigned int i = 0, num = gameMap.numRooms(); i < num; ++i)
     {
-        levelFile << gameMap.getRoom(i) << std::endl;
+        levelFile << gameMap.getRoom(i);
     }
+    levelFile << "[/Rooms]" << std::endl;
 
     // Write out the traps to the file
-    levelFile << "\n# Traps\n" << gameMap.numTraps()
-            << "  # The number of traps to load.\n";
+    levelFile << "\n[Traps]\n";
     levelFile << "# " << Trap::getFormat() << "\n";
     for (unsigned int i = 0; i < gameMap.numTraps(); ++i)
     {
-        levelFile << gameMap.getTrap(i) << std::endl;
+        levelFile << gameMap.getTrap(i);
     }
+    levelFile << "[/Traps]" << std::endl;
 
     // Write out the lights to the file.
     levelFile << "\n[Lights]\n";

@@ -190,8 +190,6 @@ std::ostream& operator<<(std::ostream& os, MapLight* m)
 std::istream& operator>>(std::istream& is, MapLight* m)
 {
     is >> m->mPosition.x >> m->mPosition.y >> m->mPosition.z;
-    m->mPosition.x += m->mGameMap->getMapSizeX() / 2;
-    m->mPosition.y += m->mGameMap->getMapSizeY() / 2;
     is >> m->mDiffuseColor.r >> m->mDiffuseColor.g >> m->mDiffuseColor.b;
     is >> m->mSpecularColor.r >> m->mSpecularColor.g >> m->mSpecularColor.b;
     is >> m->mAttenuationRange >> m->mAttenuationConstant;
@@ -207,9 +205,6 @@ void MapLight::loadFromLine(const std::string& line, MapLight* m)
     m->mPosition.x = Helper::toDouble(elems[0]);
     m->mPosition.y = Helper::toDouble(elems[1]);
     m->mPosition.z = Helper::toDouble(elems[2]);
-
-    m->mPosition.x += m->mGameMap->getMapSizeX() / 2;
-    m->mPosition.y += m->mGameMap->getMapSizeY() / 2;
 
     m->mDiffuseColor.r = Helper::toDouble(elems[3]);
     m->mDiffuseColor.g = Helper::toDouble(elems[4]);

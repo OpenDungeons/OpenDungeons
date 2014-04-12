@@ -74,8 +74,8 @@ GameMode::GameMode(ModeManager *modeManager):
     // Move camera to starting position
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
     // FIXME: For now the objects and tiles coordinates are relative to the map center
-    Ogre::Real startX = (Ogre::Real)(localPlayerSeat->startingX + (mGameMap->getMapSizeX() / 2));
-    Ogre::Real startY = (Ogre::Real)(localPlayerSeat->startingY + (mGameMap->getMapSizeY() / 2));
+    Ogre::Real startX = (Ogre::Real)(localPlayerSeat->startingX);
+    Ogre::Real startY = (Ogre::Real)(localPlayerSeat->startingY);
     // We make the temple appear in the center of the game view
     startY = (Ogre::Real)(startY - 15.0);
     // Bound check

@@ -408,8 +408,6 @@ std::istream& operator>>(std::istream& is, Room *r)
     for (int i = 0; i < tilesToLoad; ++i)
     {
         is >> tempX >> tempY;
-	tempX+= r->getGameMap()->getMapSizeX()/2 ;
-	tempY+= r->getGameMap()->getMapSizeY()/2 ;
         Tile *tempTile = r->getGameMap()->getTile(tempX, tempY);
         if (tempTile != NULL)
         {

@@ -753,9 +753,11 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     // Quit the Editor Mode
     case OIS::KC_ESCAPE:
-        //MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *mMc->gameMap);
-        //mMc->frameListener->requestExit();
         regressMode();
+        break;
+
+    case OIS::KC_F8:
+        MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *frameListener->getGameMap());
         break;
 
     // Print a screenshot

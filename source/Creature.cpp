@@ -134,7 +134,9 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
 {
     os << c->mDefinition->getClassName() << "\t" << c->getName() << "\t";
 
-    os << c->getPosition() << "\t";
+    os << c->getPosition().x << "\t";
+    os << c->getPosition().y << "\t";
+    os << c->getPosition().z << "\t";
     os << c->getColor() << "\t";
     os << c->mWeaponL << "\t" << c->mWeaponR << "\t";
     os << c->getHP() << "\t";
@@ -162,8 +164,6 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setName(tempString);
 
     is >> xLocation >> yLocation >> zLocation;
-    xLocation += c->getGameMap()->getMapSizeX()/2;
-    yLocation += c->getGameMap()->getMapSizeY()/2;
     c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
 
     int color = 0;
@@ -205,7 +205,6 @@ void Creature::loadFromLine(const std::string& line, Creature* c)
     CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(elems[0]);
     if (creatureClass != 0)
     {
-        //*c = *creatureClass;
         c->mDefinition = creatureClass;
     }
     assert(c->mDefinition);
@@ -218,9 +217,6 @@ void Creature::loadFromLine(const std::string& line, Creature* c)
     double xLocation = Helper::toDouble(elems[2]);
     double yLocation = Helper::toDouble(elems[3]);
     double zLocation = Helper::toDouble(elems[4]);
-
-    xLocation += c->getGameMap()->getMapSizeX() / 2;
-    yLocation += c->getGameMap()->getMapSizeY() / 2;
 
     c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
 
