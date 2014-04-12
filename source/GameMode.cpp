@@ -71,7 +71,7 @@ GameMode::GameMode(ModeManager *modeManager):
     if (!ODServer::startServer())
         return;
 
-    // Move camera to dungeon temple
+    // Move camera to starting position
     Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
     // FIXME: For now the objects and tiles coordinates are relative to the map center
     Ogre::Real startX = (Ogre::Real)(localPlayerSeat->startingX + (mGameMap->getMapSizeX() / 2));

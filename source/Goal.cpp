@@ -18,6 +18,8 @@
 #include "Goal.h"
 #include "AllGoals.h"
 
+#include "Helper.h"
+
 Goal::Goal(const std::string& nName, const std::string& nArguments) :
     mName(nName),
     mArguments(nArguments)
@@ -104,13 +106,12 @@ std::ostream& operator<<(std::ostream& os, Goal *g)
     return os;
 }
 
-Goal* Goal::instantiateFromStream(std::istream& is)
+Goal* Goal::instantiateFromStream(const std::string& goalName, std::istream& is)
 {
-    std::string tempName, tempArguments;
+    std::string tempArguments;
     Goal* tempGoal = NULL;
 
     // Store the name and arguments of the goal so we can instantiate a specific goal subclass below.
-    is >> tempName;
     getline(is, tempArguments);
 
     // Since getline leaves any leading whitespace we need to cut that off the beginning of the arguments string.
@@ -127,52 +128,54 @@ Goal* Goal::instantiateFromStream(std::istream& is)
         tempArguments = "";
 
     // Parse the goal type name to find out what subclass of goal tempGoal should be instantiated as.
-    if (tempName.compare("KillAllEnemies") == 0)
+    if (goalName.compare("KillAllEnemies") == 0)
     {
-        tempGoal = new GoalKillAllEnemies(tempName, tempArguments);
+        tempGoal = new GoalKillAllEnemies(goalName, tempArguments);
     }
 
-    else if (tempName.compare("ProtectCreature") == 0)
+    else if (goalName.compare("ProtectCreature") == 0)
     {
-        tempGoal = new GoalProtectCreature(tempName, tempArguments);
+        tempGoal = new GoalProtectCreature(goalName, tempArguments);
     }
 
-    else if (tempName.compare("ClaimNTiles") == 0)
+    else if (goalName.compare("ClaimNTiles") == 0)
     {
-        tempGoal = new GoalClaimNTiles(tempName, tempArguments);
+        tempGoal = new GoalClaimNTiles(goalName, tempArguments);
     }
 
-    else if (tempName.compare("MineNGold") == 0)
+    else if (goalName.compare("MineNGold") == 0)
     {
-        tempGoal = new GoalMineNGold(tempName, tempArguments);
+        tempGoal = new GoalMineNGold(goalName, tempArguments);
     }
 
-    else if (tempName.compare("ProtectDungeonTemple") == 0)
+    else if (goalName.compare("ProtectDungeonTemple") == 0)
     {
-        tempGoal = new GoalProtectDungeonTemple(tempName, tempArguments);
+        tempGoal = new GoalProtectDungeonTemple(goalName, tempArguments);
     }
 
     // Now that the goal has been properly instantiated we check to see if there are subgoals to read in.
     char c;
     c = is.peek();
+    std::string subGoalName;
     int numSubgoals;
     if (c == '+')
     {
         // There is a subgoal which should be added on success.
         is.ignore(1);
         is >> numSubgoals;
+        is >> subGoalName;
         for (int i = 0; i < numSubgoals; ++i)
-            tempGoal->addSuccessSubGoal(instantiateFromStream(is));
+            tempGoal->addSuccessSubGoal(instantiateFromStream(subGoalName, is));
     }
     else if (c == '-')
     {
         // There is a subgoal which should be added on failure.
         is.ignore(1);
         is >> numSubgoals;
+        is >> subGoalName;
         for (int i = 0; i < numSubgoals; ++i)
-            tempGoal->addFailureSubGoal(instantiateFromStream(is));
+            tempGoal->addFailureSubGoal(instantiateFromStream(subGoalName, is));
     }
 
     return tempGoal;
 }
-

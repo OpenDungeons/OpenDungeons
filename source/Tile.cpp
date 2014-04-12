@@ -11,6 +11,7 @@
 #include "RenderManager.h"
 #include "Socket.h"
 #include "Player.h"
+#include "Helper.h"
 
 #include <cstddef>
 #include <bitset>
@@ -597,6 +598,33 @@ std::istream& operator>>(std::istream& is, Tile *t)
     t->setFullnessValue(tempDouble);
 
     return is;
+}
+
+void Tile::loadFromLine(const std::string& line, Tile *t)
+{
+    std::vector<std::string> elems = Helper::split(line, '\t');
+
+    int xLocation = Helper::toInt(elems[0]);
+    int yLocation = Helper::toInt(elems[1]);
+    xLocation += t->getGameMap()->getMapSizeX() / 2;
+    yLocation += t->getGameMap()->getMapSizeY() / 2;
+
+    std::stringstream tileName("");
+    tileName << "Level";
+    tileName << "_";
+    tileName << xLocation;
+    tileName << "_";
+    tileName << yLocation;
+
+    t->setName(tileName.str());
+    t->x = xLocation;
+    t->y = yLocation;
+
+    t->setType((Tile::TileType) Helper::toInt(elems[2]));
+
+    t->setFullnessValue(Helper::toDouble(elems[3]));
+    //std::cout << "Tile: " << xLocation << ", " << yLocation << ", " << t->getName()
+    //<< ", " << t->getFullness() << std::endl;
 }
 
 std::string Tile::tileTypeToString(TileType t)

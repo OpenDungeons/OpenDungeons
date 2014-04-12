@@ -58,7 +58,7 @@ public:
 
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Goal *g);
-    static Goal* instantiateFromStream(std::istream& is);
+    static Goal* instantiateFromStream(const std::string& goalName, std::istream& is);
 
 protected:
     std::string mName;

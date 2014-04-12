@@ -84,7 +84,9 @@ friend class RenderManager;
   void createAllEntities();
   void destroyAllEntities();
   void clearAll();
-  MiniMap* getMiniMap(){ return miniMap; }
+
+  MiniMap* getMiniMap()
+  { return miniMap; }
 
 
   void clearCreatures();
@@ -194,8 +196,18 @@ friend class RenderManager;
   inline void setMaxAIThreads(const unsigned int maxThreads) {maxAIThreads = maxThreads;}
   inline void setCullingManger(CullingManager* tempCulm){culm = tempCulm;}
 
-  inline const std::string& getLevelFileName() const {return levelFileName;}
-  inline void setLevelFileName(const std::string& nlevelFileName) {levelFileName = nlevelFileName;}
+  inline const std::string& getLevelFileName() const
+  { return levelFileName; }
+
+  inline void setLevelFileName(const std::string& nlevelFileName)
+  { levelFileName = nlevelFileName; }
+
+  inline const std::string& getCreatureDefinitionFileName() const
+  { return creatureDefinitionFilename; }
+
+  inline void setCreatureDefinitionFileName(const std::string& defFileName)
+  { creatureDefinitionFilename = defFileName; }
+
   void createTilesMeshes(void);
   void hideAllTiles(void);
   // AI Methods
@@ -285,6 +297,7 @@ friend class RenderManager;
   int iteration_doFloodFill;
 
   std::string levelFileName;
+  std::string creatureDefinitionFilename;
 
   std::vector<boost::shared_ptr<CreatureDefinition> > classDescriptions;
 

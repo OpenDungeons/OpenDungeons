@@ -1,6 +1,8 @@
 #include "Seat.h"
 #include "Goal.h"
 
+#include "Helper.h"
+
 Seat::Seat() :
         color(0),
         startingX(0),
@@ -180,7 +182,7 @@ unsigned int Seat::checkAllGoals()
 
             //FIXME: This is probably a memory leak since the goal is created on the heap and should probably be deleted here.
             currentGoal = goals.erase(currentGoal);
-            
+
         }
         else
         {
@@ -308,3 +310,16 @@ std::istream& operator>>(std::istream& is, Seat *s)
     return is;
 }
 
+void Seat::loadFromLine(const std::string& line, Seat *s)
+{
+    std::vector<std::string> elems = Helper::split(line, '\t');
+
+    s->color = Helper::toInt(elems[0]);
+    s->faction = elems[1];
+    s->startingX = Helper::toInt(elems[2]);
+    s->startingY = Helper::toInt(elems[3]);
+    s->colourValue.r = Helper::toDouble(elems[4]);
+    s->colourValue.g = Helper::toDouble(elems[5]);
+    s->colourValue.b = Helper::toDouble(elems[6]);
+    s->colourValue.a = 1.0;
+}

@@ -63,6 +63,10 @@ void RoomDungeonTemple::produceKobold()
             newCreature->createMesh();
             getGameMap()->addCreature(newCreature);
         }
+        else
+        {
+            std::cout << "Error: No 'Kobold' creature definition" << std::endl;
+        }
     }
     else
     {

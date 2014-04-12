@@ -245,6 +245,9 @@ public:
 
     static const char* getFormat();
 
+    //! \brief Loads the tile data from a level line.
+    static void loadFromLine(const std::string& line, Tile *t);
+
     /*! \brief The << operator is used for saving tiles to a file and sending them over the net.
      *
      * This operator is used in conjunction with the >> operator to standardize

@@ -115,6 +115,9 @@ public:
     friend std::ostream & operator <<(std::ostream & os, CreatureDefinition *c);
     friend std::istream & operator >>(std::istream & is, CreatureDefinition *c);
 
+    //! \brief Loads a definition from a line of the creature definition file.
+    static void loadFromLine(const std::string& line, CreatureDefinition* c);
+
     inline CreatureJob          getCreatureJob  () const    { return mCreatureJob; }
     inline int                  getBedDim1      () const    { return mBedDim1; }
     inline int                  getBedDim2      () const    { return mBedDim2; }

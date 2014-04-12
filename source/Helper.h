@@ -26,6 +26,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 //! \brief Math constant pi. Always use this one, never M_PI from <cmath> (it's not portable)
 const double PI = 3.141592653589793238462643;
@@ -58,6 +59,36 @@ namespace Helper
         std::istringstream stream(str);
         T t = 0;
         return (stream >> t);
+    }
+
+    static std::vector<std::string> split(const std::string& line, char delimiter)
+    {
+        //std::cout << line << std::endl;
+        std::stringstream ss(line);
+        std::vector<std::string> elems;
+        std::string item;
+        while (std::getline(ss, item, '\t'))
+        {
+            elems.push_back(item);
+            //std::cout << item << std::endl;
+        }
+        return elems;
+    }
+
+    static int toInt(const std::string& text)
+    {
+        std::stringstream ss(text);
+        int number = 0;
+        ss >> number;
+        return number;
+    }
+
+    static double toDouble(const std::string& text)
+    {
+        std::stringstream ss(text);
+        double number = 0.0;
+        ss >> number;
+        return number;
     }
 }
 

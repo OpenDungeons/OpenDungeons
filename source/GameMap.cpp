@@ -68,6 +68,7 @@ GameMap::GameMap() :
         miscUpkeepTime(0),
         creatureTurnsTime(0),
         iteration_doFloodFill(0),
+        creatureDefinitionFilename("levels/creatures.def"), // default name
         nextUniqueFloodFillColor(1),
         floodFillEnabled(false),
         numCallsTo_path(0),

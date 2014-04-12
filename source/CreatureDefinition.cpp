@@ -25,6 +25,8 @@
 
 #include "CreatureDefinition.h"
 
+#include "Helper.h"
+
 CreatureDefinition::CreatureJob CreatureDefinition::creatureJobFromString(const std::string& s)
 {
     if (s.compare("BasicWorker") == 0)
@@ -142,4 +144,38 @@ std::istream& operator>>(std::istream& is, CreatureDefinition *c)
     is >> c->mCoefficientAltruism >> c->mCoefficientOrder >> c->mCoefficientPeace;
 
     return is;
+}
+
+void CreatureDefinition::loadFromLine(const std::string& line, CreatureDefinition* c)
+{
+    std::vector<std::string> elems = Helper::split(line, '\t');
+
+    c->mClassName = elems[0];
+    c->mCreatureJob = CreatureDefinition::creatureJobFromString(elems[1]);
+    c->mMeshName = elems[2];
+
+    c->mBedMeshName = elems[3];
+    c->mBedDim1 = Helper::toInt(elems[4]);
+    c->mBedDim2 = Helper::toInt(elems[5]);
+
+    c->mScale.x = Helper::toDouble(elems[6]);
+    c->mScale.y = Helper::toDouble(elems[7]);
+    c->mScale.z = Helper::toDouble(elems[8]);
+
+    c->mHpPerLevel = Helper::toDouble(elems[9]);
+    c->mManaPerLevel = Helper::toDouble(elems[10]);
+
+    c->mSightRadius = Helper::toDouble(elems[11]);
+    c->mDigRate = Helper::toDouble(elems[12]);
+    c->mDanceRate = Helper::toDouble(elems[13]);
+    c->mMoveSpeed = Helper::toDouble(elems[14]);
+
+    c->mCoefficientHumans = Helper::toDouble(elems[15]);
+    c->mCoefficientCorpars = Helper::toDouble(elems[16]);
+    c->mCoefficientUndead = Helper::toDouble(elems[17]);
+    c->mCoefficientConstructs = Helper::toDouble(elems[18]);
+    c->mCoefficientDenizens = Helper::toDouble(elems[19]);
+    c->mCoefficientAltruism = Helper::toDouble(elems[20]);
+    c->mCoefficientOrder = Helper::toDouble(elems[21]);
+    c->mCoefficientPeace = Helper::toDouble(elems[22]);
 }
