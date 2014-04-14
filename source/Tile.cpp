@@ -966,7 +966,17 @@ void Tile::claimForColor(int nColor, double nDanceRate)
             // Claim the tile.
             colorDouble = 1.0;
             setType(Tile::claimed);
+            
             refreshMesh();
+
+            // Force all the neighbors to recheck their meshes as we have updated this tile.
+            sem_wait(&neighborsLockSemaphore);
+            for (unsigned int j = 0; j < neighbors.size(); ++j)
+            {
+                neighbors[j]->refreshMesh();
+            }
+            sem_post(&neighborsLockSemaphore);
+
             //std::cout << "Claiming: color complete" << std::endl;
         }
     }
@@ -985,6 +995,14 @@ void Tile::claimForColor(int nColor, double nDanceRate)
             {
                 colorDouble = 1.0;
                 refreshMesh();
+
+                // Force all the neighbors to recheck their meshes as we have updated this tile.
+                sem_wait(&neighborsLockSemaphore);
+                for (unsigned int j = 0; j < neighbors.size(); ++j)
+                {
+                    neighbors[j]->refreshMesh();
+                }
+                sem_post(&neighborsLockSemaphore);
             }
         }
     }
