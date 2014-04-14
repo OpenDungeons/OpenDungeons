@@ -776,19 +776,38 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     {
                         frameListener->mCommandOutput += "\nConnection successful.\n";
 
-                        CSPStruct *csps = new CSPStruct;
-                        csps->nSocket = Socket::clientSocket;
-                        csps->nFrameListener = frameListener;
-
                         // Start a thread to talk to the server
-                        pthread_create(&(frameListener->mClientThread), NULL,
-                                clientSocketProcessor, (void*) csps);
+                        if (frameListener->mClientThread == NULL)
+                        {
+                            CSPStruct *csps = new CSPStruct;
+                            csps->nSocket = Socket::clientSocket;
+                            csps->nFrameListener = frameListener;
+
+                            frameListener->mClientThread = new pthread_t;
+                            pthread_create(frameListener->mClientThread, NULL,
+                                    clientSocketProcessor, (void*) csps);
+                        }
+                        else
+                        {
+                            ODFrameListener::getSingletonPtr()->mCommandOutput
+                                += "\nERROR:  Client thread already started!\n";
+                        }
 
                         // Start the thread which will watch for local events to send to the server
-                        CNPStruct *cnps = new CNPStruct;
-                        cnps->nFrameListener = frameListener;
-                        pthread_create(&(frameListener->mClientNotificationThread), NULL,
-                                clientNotificationProcessor, cnps);
+                        if (frameListener->mClientNotificationThread == NULL)
+                        {
+                            CNPStruct *cnps = new CNPStruct;
+                            cnps->nFrameListener = frameListener;
+
+                            frameListener->mClientNotificationThread = new pthread_t;
+                            pthread_create(frameListener->mClientNotificationThread, NULL,
+                                           clientNotificationProcessor, cnps);
+                        }
+                        else
+                        {
+                            ODFrameListener::getSingletonPtr()->mCommandOutput
+                                += "\nERROR:  Client notification thread already started!\n";
+                        }
 
                         // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
                         gameMap->clearMapLightIndicators();

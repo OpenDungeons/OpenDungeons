@@ -152,12 +152,12 @@ public:
 
     // Multiplayer stuff
     std::vector<Socket*> mClientSockets;
-    pthread_t mClientThread;
-    pthread_t mServerThread;
-    pthread_t mServerNotificationThread;
-    pthread_t mClientNotificationThread;
+    pthread_t* mClientThread;
+    pthread_t* mServerThread;
+    pthread_t* mServerNotificationThread;
+    pthread_t* mClientNotificationThread;
     std::vector<pthread_t*> mClientHandlerThreads;
-    pthread_t mCreatureThread;
+    pthread_t* mCreatureThread;
 
     //! \brief The console output
     void setConsoleCommandOutput(const std::string& output)

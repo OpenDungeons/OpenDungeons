@@ -77,11 +77,11 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
  * up the OGRE system.
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
-    mClientThread(0),
-    mServerThread(0),
-    mServerNotificationThread(0),
-    mClientNotificationThread(0),
-    mCreatureThread(0),
+    mClientThread(NULL),
+    mServerThread(NULL),
+    mServerNotificationThread(NULL),
+    mClientNotificationThread(NULL),
+    mCreatureThread(NULL),
     cm(NULL),
     mInitialized(false),
     mWindow(win),
@@ -215,26 +215,32 @@ void ODFrameListener::exitApplication()
     sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
     //Wait for threads to exit
-    if (mServerNotificationThread != 0)
+    if (mServerNotificationThread != NULL)
     {
         //TODO: Add a timeout here.
         Ogre::LogManager::getSingleton().logMessage("Trying to close server notification thread..", Ogre::LML_NORMAL);
-        pthread_join(mServerNotificationThread, NULL);
+        pthread_join(*mServerNotificationThread, NULL);
+        delete mServerNotificationThread;
+        mServerNotificationThread = NULL;
     }
 
-    if (mClientNotificationThread != 0)
+    if (mClientNotificationThread != NULL)
     {
         Ogre::LogManager::getSingleton().logMessage("Trying to close client notification thread..", Ogre::LML_NORMAL);
         // TEST: Put this back to cancel if it makes things unbearable.
-        pthread_join(mClientNotificationThread, NULL);
+        pthread_join(*mClientNotificationThread, NULL);
         //TODO - change this back to join when we know what causes this to lock up sometimes.
         //pthread_cancel(mClientNotificationThread);
+        delete mClientNotificationThread;
+        mClientNotificationThread = NULL;
     }
 
-    if (mCreatureThread != 0)
+    if (mCreatureThread != NULL)
     {
         Ogre::LogManager::getSingleton().logMessage("Trying to close creature thread..", Ogre::LML_NORMAL);
-        pthread_join(mCreatureThread, NULL);
+        pthread_join(*mCreatureThread, NULL);
+        delete mCreatureThread;
+        mCreatureThread = NULL;
     }
 
     /* Cancel the rest of the threads.
@@ -243,24 +249,28 @@ void ODFrameListener::exitApplication()
     * This could be changed if we want a different behaviour later.
     */
 
-    if (mClientThread != 0)
+    if (mClientThread != NULL)
     {
         Ogre::LogManager::getSingleton().logMessage("Trying to cancel client thread..", Ogre::LML_NORMAL);
-        pthread_cancel(mClientThread);
+        pthread_cancel(*mClientThread);
+        delete mClientThread;
+        mClientThread = NULL;
     }
 
     Ogre::LogManager::getSingleton().logMessage("Trying to cancel client handler threads..", Ogre::LML_NORMAL);
-    //FIXME: Does the thread handles here actually need to be pointers?
+    // The thread handles here actually need to be pointers as on Windows, there are structs and not unsigned ints.
     for(std::vector<pthread_t*>::iterator it = mClientHandlerThreads.begin();
         it != mClientHandlerThreads.end(); ++it)
     {
         pthread_cancel(*(*it));
     }
 
-    if (mServerThread != 0)
+    if (mServerThread != NULL)
     {
         Ogre::LogManager::getSingleton().logMessage("Trying to cancel server thread..", Ogre::LML_NORMAL);
-        pthread_cancel(mServerThread);
+        pthread_cancel(*mServerThread);
+        delete mServerThread;
+        mServerThread = NULL;
     }
 
     Ogre::LogManager::getSingleton().logMessage("Clearing game map..", Ogre::LML_NORMAL);

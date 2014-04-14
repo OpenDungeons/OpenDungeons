@@ -56,7 +56,8 @@ void queueServerNotification(ServerNotification* n)
 
 bool startServer()
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
+    GameMap* gameMap = frameListener->getGameMap();
     if (gameMap == NULL)
         return false;
 
@@ -110,19 +111,43 @@ bool startServer()
     // Start the server thread which will listen for, and accept, connections
     SSPStruct* ssps = new SSPStruct;
     ssps->nSocket = Socket::serverSocket;
-    ssps->nFrameListener = ODFrameListener::getSingletonPtr();
-    pthread_create(&ODFrameListener::getSingletonPtr()->mServerThread,
-                   NULL, serverSocketProcessor, (void*) ssps);
+    ssps->nFrameListener = frameListener;
+    if (frameListener->mServerThread == NULL)
+    {
+        frameListener->mServerThread = new pthread_t;
+        pthread_create(frameListener->mServerThread,
+                       NULL, serverSocketProcessor, (void*) ssps);
+    }
+    else
+    {
+        logManager.logMessage("Warning: Server thread already started when trying to create server.");
+    }
 
     // Start the thread which will watch for local events to send to the clients
     SNPStruct* snps = new SNPStruct;
-    snps->nFrameListener = ODFrameListener::getSingletonPtr();
-    pthread_create(&ODFrameListener::getSingletonPtr()->mServerNotificationThread,
-                   NULL, serverNotificationProcessor, snps);
+    snps->nFrameListener = frameListener;
+    if (frameListener->mServerNotificationThread == NULL)
+    {
+        frameListener->mServerNotificationThread = new pthread_t;
+        pthread_create(frameListener->mServerNotificationThread,
+                       NULL, serverNotificationProcessor, snps);
+    }
+    else
+    {
+        logManager.logMessage("Warning: Server notification thread already started when trying to create server.");
+    }
 
     // Start the creature AI thread
-    pthread_create(&ODFrameListener::getSingletonPtr()->mCreatureThread,
-                   NULL, creatureAIThread, static_cast<void*>(gameMap));
+    if (frameListener->mCreatureThread == NULL)
+    {
+        frameListener->mCreatureThread = new pthread_t;
+        pthread_create(frameListener->mCreatureThread,
+                       NULL, creatureAIThread, static_cast<void*>(gameMap));
+    }
+    else
+    {
+        logManager.logMessage("Warning: Creature AI thread already started when trying to create server.");
+    }
 
     // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
     gameMap->clearMapLightIndicators();
