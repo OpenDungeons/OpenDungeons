@@ -952,7 +952,6 @@ void Tile::addNeighbor(Tile *n)
 
 void Tile::claimForColor(int nColor, double nDanceRate)
 {
-    Tile *tempTile;
     double amountClaimed;
 
     //std::cout << "Claiming for color" << std::endl;

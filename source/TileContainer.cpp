@@ -194,7 +194,7 @@ bool TileContainer::allocateMapMemory(int xSize, int ySize)
         return false;
     }
 
-    for (unsigned int i = 0; i < mapSizeX; ++i)
+    for (int i = 0; i < mapSizeX; ++i)
     {
         tiles[i] = new Tile[mapSizeY];
     }
