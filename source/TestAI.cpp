@@ -53,7 +53,7 @@ void TestAI::lookForGold()
     for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
     {
         Tile* tile = *it;
-        if(tile->getType() == Tile::gold)
+        if(tile->getType() == Tile::gold && tile->getFullness() > 1.0)
         {
             mAiWrapper.markTileForDigging(tile);
         }

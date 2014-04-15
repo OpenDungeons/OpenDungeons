@@ -469,134 +469,123 @@ void RenderManager::waitOnRenderQueueFlush()
     sem_wait(&renderQueueEmptySemaphore);
 }
 
-void RenderManager::rrRefreshTile ( const RenderRequest& renderRequest )
+void RenderManager::rrRefreshTile(const RenderRequest& renderRequest)
+{
+    int rt = 0;
+    Tile* curTile = static_cast<Tile*>(renderRequest.p);
+
+    if (!sceneManager->hasSceneNode(curTile->getName() + "_node"))
+        return;
+
+    // Unlink and delete the old mesh
+    sceneManager->getSceneNode(curTile->getName() + "_node")->detachObject(curTile->getName());
+    sceneManager->destroyEntity(curTile->getName());
+
+    std::string meshName = Tile::meshNameFromNeighbors(curTile->getType(),
+                                                       curTile->getFullnessMeshNumber(),
+                                                       gameMap->getNeighborsTypes(curTile),
+                                                       gameMap->getNeighborsFullness(curTile),
+                                                       rt);
+
+    Ogre::Entity* ent = sceneManager->createEntity(curTile->getName(), meshName);
+
+    if(curTile->getType() == Tile::gold)
     {
-    int rt;
-    Tile* curTile = static_cast<Tile*> ( renderRequest.p );
-
-
-
-    if ( sceneManager->hasSceneNode ( curTile->getName() + "_node" ) )
-	{
-
-	// Unlink and delete the old mesh
-	sceneManager->getSceneNode ( curTile->getName() + "_node" )->detachObject (
-	    curTile->getName() );
-	sceneManager->destroyEntity ( curTile->getName() );
-
-	Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
-	    Tile::meshNameFromNeighbors(curTile->getType(),
-		curTile->getFullnessMeshNumber(),
-		gameMap->getNeighborsTypes( curTile,    GameMap::neighborType),
-		gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
-		rt
-		));
-
-        /*        Ogre::Entity* ent = createEntity(curTile->name,
-		  Tile::meshNameFromFullness(curTile->getType(),
-		  curTile->FullnessMeshNumber()), "Claimedwall2_nor3.png");*/
-	if(curTile->getType() == Tile::gold) {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+        {
             ent->getSubEntity(ii)->setMaterialName("Gold");
         }
     }
-    else if(curTile->getType() == Tile::rock) {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+    else if(curTile->getType() == Tile::rock)
+    {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+        {
             ent->getSubEntity(ii)->setMaterialName("Rock");
         }
 
     }
     else if(curTile->getType() == Tile::lava)
     {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+        {
             Ogre::SubEntity* subEnt = ent->getSubEntity(ii);
             if (subEnt->getMaterialName() == "Water")
                 subEnt->setMaterialName("Lava");
         }
     }
 
-        colourizeEntity ( ent, curTile->getColor() );
+    colourizeEntity (ent, curTile->getColor());
 
-        // Link the tile mesh back to the relevant scene node so OGRE will render it
-        Ogre::SceneNode* node = sceneManager->getSceneNode ( curTile->getName() + "_node" );
-        node->attachObject ( ent );
-        node->resetOrientation();
-        node->roll (Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
-	}
-    }
+    // Link the tile mesh back to the relevant scene node so OGRE will render it
+    Ogre::SceneNode* node = sceneManager->getSceneNode(curTile->getName() + "_node");
+    node->attachObject(ent);
+    node->resetOrientation();
+    node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
+}
 
 
-void RenderManager::rrCreateTile ( const RenderRequest& renderRequest )
+void RenderManager::rrCreateTile(const RenderRequest& renderRequest)
+{
+    int rt = 0;
+    Tile* curTile = static_cast<Tile*> (renderRequest.p);
+
+    std::string meshName = Tile::meshNameFromNeighbors(curTile->getType(),
+                                                       curTile->getFullnessMeshNumber(),
+                                                       gameMap->getNeighborsTypes(curTile),
+                                                       gameMap->getNeighborsFullness(curTile),
+                                                       rt);
+
+    Ogre::Entity* ent = sceneManager->createEntity(curTile->getName(), meshName);
+
+
+    if(curTile->getType() == Tile::gold)
     {
-    int rt;
-    Ogre::SceneNode* node;
-    Tile* curTile = static_cast<Tile*> ( renderRequest.p );
-
-
-    Ogre::Entity* ent = sceneManager->createEntity ( curTile->getName(),
-	Tile::meshNameFromNeighbors(curTile->getType(),
-	    curTile->getFullnessMeshNumber(),
-	    gameMap->getNeighborsTypes( curTile,    GameMap::neighborType),
-	    gameMap->getNeighborsFullness( curTile,    GameMap::neighborFullness),
-	    rt
-	    ));
-
-
-    if(curTile->getType() == Tile::gold) {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+        {
             ent->getSubEntity(ii)->setMaterialName("Gold");
         }
     }
-    else if(curTile->getType() == Tile::rock) {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+    else if(curTile->getType() == Tile::rock)
+    {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+        {
             ent->getSubEntity(ii)->setMaterialName("Rock");
         }
     }
     else if(curTile->getType() == Tile::lava)
     {
-        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii) {
+        for(unsigned int ii = 0; ii < ent->getNumSubEntities(); ++ii)
+        {
             Ogre::SubEntity* subEnt = ent->getSubEntity(ii);
             if (subEnt->getMaterialName() == "Water")
                 subEnt->setMaterialName("Lava");
         }
     }
 
-    if (curTile->getType() == Tile::claimed){
-	colourizeEntity ( ent, curTile->getColor() );
-	}
+    if (curTile->getType() == Tile::claimed)
+    {
+        colourizeEntity(ent, curTile->getColor());
+    }
 
-    node = sceneManager->getRootSceneNode()->createChildSceneNode (
-	curTile->getName() + "_node" );
+    Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode(curTile->getName() + "_node");
 
-
-    // if (curTile->getType() == Tile::rock) {
-    //     node = rockSceneNode;
-
-
-    // }
-    // else {
-
-    // }
     Ogre::MeshPtr meshPtr = ent->getMesh();
     unsigned short src, dest;
-    if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest)){
-	meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
-	}
+    if (!meshPtr->suggestTangentVectorBuildParams(Ogre::VES_TANGENT, src, dest))
+    {
+        meshPtr->buildTangentVectors(Ogre::VES_TANGENT, src, dest);
+    }
 
-    //node->setPosition(Ogre::Vector3(x/BLENDER_UNITS_PER_OGRE_UNIT, y/BLENDER_UNITS_PER_OGRE_UNIT, 0));
-    node->setPosition ( static_cast<Ogre::Real>(curTile->x),
-	static_cast<Ogre::Real>(curTile->y),
-	0);
+    node->setPosition(static_cast<Ogre::Real>(curTile->x), static_cast<Ogre::Real>(curTile->y), 0);
 
-    node->attachObject ( ent );
+    node->attachObject(ent);
 
     node->setScale(Ogre::Vector3((Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-	                             (Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-	                             (Ogre::Real)(12.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
+                                 (Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
+                                 (Ogre::Real)(12.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
     node->resetOrientation();
-    node->roll (Ogre::Degree((Ogre::Real)(-1 * rt * 90 )));
-
-    }
+    node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
+}
 
 
 

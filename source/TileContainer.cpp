@@ -106,42 +106,43 @@ Tile* TileContainer::getTile(int xx, int yy) const
     }
 }
 
-Tile::TileType* TileContainer::getNeighborsTypes( Tile *curTile, Tile::TileType   *neighbors){
+const Tile::TileType* TileContainer::getNeighborsTypes(Tile* curTile)
+{
+    static Tile::TileType neighborsType[8];
 
     int xx = curTile->getX();
     int yy = curTile->getY();
 
-    neighbors[0] = getSafeTileType(getTile(xx-1,yy) );
-    neighbors[1] = getSafeTileType(getTile(xx-1,yy+1) );
-    neighbors[2] = getSafeTileType(getTile(xx,yy+1));
-    neighbors[3] = getSafeTileType(getTile(xx+1,yy+1));
-    neighbors[4] = getSafeTileType(getTile(xx+1,yy) );
-    neighbors[5] = getSafeTileType(getTile(xx+1,yy-1));
-    neighbors[6] = getSafeTileType(getTile(xx,yy-1));
-    neighbors[7] = getSafeTileType(getTile(xx-1,yy-1));
+    neighborsType[0] = getSafeTileType(getTile(xx - 1, yy));
+    neighborsType[1] = getSafeTileType(getTile(xx - 1, yy + 1));
+    neighborsType[2] = getSafeTileType(getTile(xx, yy + 1));
+    neighborsType[3] = getSafeTileType(getTile(xx + 1, yy + 1));
+    neighborsType[4] = getSafeTileType(getTile(xx + 1, yy));
+    neighborsType[5] = getSafeTileType(getTile(xx + 1, yy - 1));
+    neighborsType[6] = getSafeTileType(getTile(xx, yy - 1));
+    neighborsType[7] = getSafeTileType(getTile(xx - 1, yy-1));
 
-
-
-    return neighbors;
-
+    return const_cast<Tile::TileType*>(neighborsType);
 }
 
 
-bool* TileContainer::getNeighborsFullness( Tile *curTile, bool *neighborsFullness){
+const bool* TileContainer::getNeighborsFullness(Tile* curTile)
+{
+    static bool neighborsFullness[8];
 
     int xx = curTile->getX();
     int yy = curTile->getY();
 
-    neighborsFullness[0] = getSafeTileFullness(getTile(xx-1,yy) );
-    neighborsFullness[1] = getSafeTileFullness(getTile(xx-1,yy+1) );
-    neighborsFullness[2] = getSafeTileFullness(getTile(xx,yy+1));
-    neighborsFullness[3] = getSafeTileFullness(getTile(xx+1,yy+1));
-    neighborsFullness[4] = getSafeTileFullness(getTile(xx+1,yy) );
-    neighborsFullness[5] = getSafeTileFullness(getTile(xx+1,yy-1));
-    neighborsFullness[6] = getSafeTileFullness(getTile(xx,yy-1));
-    neighborsFullness[7] = getSafeTileFullness(getTile(xx-1,yy-1));
+    neighborsFullness[0] = getSafeTileFullness(getTile(xx - 1, yy));
+    neighborsFullness[1] = getSafeTileFullness(getTile(xx - 1, yy + 1));
+    neighborsFullness[2] = getSafeTileFullness(getTile(xx, yy + 1));
+    neighborsFullness[3] = getSafeTileFullness(getTile(xx + 1,yy + 1));
+    neighborsFullness[4] = getSafeTileFullness(getTile(xx + 1, yy));
+    neighborsFullness[5] = getSafeTileFullness(getTile(xx + 1,yy - 1));
+    neighborsFullness[6] = getSafeTileFullness(getTile(xx, yy - 1));
+    neighborsFullness[7] = getSafeTileFullness(getTile(xx - 1,yy - 1));
 
-    return neighborsFullness;
+    return const_cast<bool*>(neighborsFullness);
 }
 
 

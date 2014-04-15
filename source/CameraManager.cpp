@@ -76,11 +76,6 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm) :
 
     createViewport();
     createCamera("RTS", 0.02, 300.0);
-    /*createCameraNode("RTS", Ogre::Vector3((Ogre::Real)(1 + gm->getMapSizeX() / 2),
-                                              (Ogre::Real)(-1 + gm->getMapSizeY() / 2),
-                                              (Ogre::Real)16.0),
-                                              Ogre::Degree(0.0), Ogre::Degree(45.0));*/
-
     createCameraNode("RTS", Ogre::Vector3((Ogre::Real)10.0,
                                               (Ogre::Real)10.0,
                                               (Ogre::Real)16.0),

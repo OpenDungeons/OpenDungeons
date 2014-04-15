@@ -58,18 +58,87 @@ using namespace std;
 // Static GameMap members initialization
 ProtectedObject<long int> GameMap::turnNumber(1);
 sem_t GameMap::mCreatureAISemaphore;
-Tile::TileType *GameMap::neighborType  = new Tile::TileType [8];
-bool  *GameMap::neighborFullness  = new bool [8];
+
+//! \brief A class used to get parameters from threaded functions below.
+class CDTHTStruct
+{
+public:
+    CDTHTStruct():
+        numCreatures(0),
+        creatures(NULL)
+    {}
+
+    int numCreatures;
+    Creature **creatures;
+};
+
+/*! \brief A helper class for the A* search in the GameMap::path function.
+*
+* This class stores the requisite information about a tile which is placed in
+* the search queue for the A-star, or A*, algorithm which is used to
+* calculate paths in the path function.
+*
+* The A* description can be found here:
+* http://en.wikipedia.org/wiki/A*_search_algorithm
+*/
+class AstarEntry
+{
+public:
+    AstarEntry() :
+        tile    (NULL),
+        parent  (0),
+        g       (0),
+        h       (0)
+    {}
+
+    AstarEntry(Tile* tile, int x1, int y1, int x2, int y2) :
+        tile    (tile),
+        parent  (0),
+        g       (0),
+        h       (0)
+    {
+        setHeuristic(x1, y1, x2, y2);
+    }
+
+    void setHeuristic(const int& x1, const int& y1, const int& x2, const int& y2)
+    {
+        h = fabs(static_cast<double>(x2 - x1)) + fabs(static_cast<double>(y2 - y1));
+    }
+
+    inline double fCost() const
+    { return g + h; }
+
+    inline Tile* getTile() const
+    { return tile; }
+
+    inline void setTile(Tile* newTile)
+    { tile = newTile; }
+
+    inline AstarEntry* getParent() const
+    { return parent; }
+
+    inline void setParent(AstarEntry* newParent)
+    { parent = newParent; }
+
+    inline const double& getG() const
+    { return g; }
+
+    inline void setG(const double& newG)
+    { g = newG; }
+
+private:
+    Tile*       tile;
+    AstarEntry* parent;
+    double      g;
+    double      h;
+};
 
 GameMap::GameMap() :
         me(NULL),
-        loadNextLevel(false),
         averageAILeftoverTime(0.0),
         miscUpkeepTime(0),
         creatureTurnsTime(0),
-        iteration_doFloodFill(0),
         creatureDefinitionFilename("levels/creatures.def"), // default name
-        nextUniqueFloodFillColor(1),
         floodFillEnabled(false),
         numCallsTo_path(0),
         maxAIThreads(1),
@@ -116,12 +185,6 @@ bool GameMap::LoadLevel(const std::string& levelFilepath)
     return true;
 }
 
-
-/*! \brief Erase all creatures, tiles, etc. from the map and make a new rectangular one.
- *
- * The new map consists entirely of the same kind of tile, with no creature
- * classes loaded, no players, and no creatures.
- */
 bool GameMap::createNewMap(int sizeX, int sizeY)
 {
     Tile tempTile;
@@ -135,7 +198,7 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
         for (int ii = 0; ii < mapSizeX; ++ii)
         {
             // Skip tiles already set up
-            if ((getTile(ii,jj)->getGameMap()) != NULL)
+            if ((getTile(ii, jj)->getGameMap()) != NULL)
                 continue;
 
             ss.str(std::string());
@@ -169,9 +232,6 @@ void GameMap::setAllFullnessAndNeighbors()
     }
 }
 
-/*! \brief Clears the mesh and deletes the data structure for all the tiles, creatures, classes, and players in the GameMap.
- *
- */
 void GameMap::clearAll()
 {
     clearCreatures();
@@ -188,11 +248,6 @@ void GameMap::clearAll()
     clearFilledSeats();
 }
 
-
-/*! \brief Clears the mesh and deletes the data structure for all the creatures in the GameMap.
- *
- */
-
 void GameMap::clearCreatures()
 {
     sem_wait(&creaturesLockSemaphore);
@@ -206,17 +261,11 @@ void GameMap::clearCreatures()
     sem_post(&creaturesLockSemaphore);
 }
 
-/*! \brief Deletes the data structure for all the creature classes in the GameMap.
- *
- */
 void GameMap::clearClasses()
 {
     classDescriptions.clear();
 }
 
-/*! \brief Deletes the data structure for all the players in the GameMap.
- *
- */
 void GameMap::clearPlayers()
 {
 
@@ -228,34 +277,18 @@ void GameMap::clearPlayers()
     players.clear();
 }
 
-
-/*! \brief Adds the address of a new class description to be stored in this GameMap.
- *
- * The class descriptions take the form of a creature data structure with most
- * of the data members filled in.  This class structure is then copied into the
- * data structure of new creatures that are added who are of this class.  The
- * copied members include things like HP, mana, etc, that are the same for all
- * members of that class.  Creature specific things like location, etc. are
- * then filled out for the individual creature.
- */
 void GameMap::addClassDescription(CreatureDefinition *c)
 {
     boost::shared_ptr<CreatureDefinition> ptr(c);
     classDescriptions.push_back(ptr);
 }
 
-/*! \brief Copies the creature class structure into a newly created structure and stores the address of the new structure in this GameMap.
- *
- */
 void GameMap::addClassDescription(CreatureDefinition c)
 {
     boost::shared_ptr<CreatureDefinition> ptr(new CreatureDefinition(c));
     classDescriptions.push_back(ptr);
 }
 
-/*! \brief Adds the address of a new creature to be stored in this GameMap.
- *
- */
 void GameMap::addCreature(Creature *cc)
 {
     sem_wait(&creaturesLockSemaphore);
@@ -269,9 +302,6 @@ void GameMap::addCreature(Creature *cc)
     cc->setIsOnMap(true);
 }
 
-/*! \brief Removes the creature from the game map but does not delete its data structure.
- *
- */
 void GameMap::removeCreature(Creature *c)
 {
     sem_wait(&creaturesLockSemaphore);
@@ -294,10 +324,6 @@ void GameMap::removeCreature(Creature *c)
     c->setIsOnMap(false);
 }
 
-/** \brief Adds the given creature to the queue of creatures to be deleted in a future turn
- * when it is safe to do so after all references to the creature have been cleared.
- *
- */
 void GameMap::queueCreatureForDeletion(Creature *c)
 {
     // If the creature has a homeTile where they sleep, their bed needs to be destroyed.
@@ -311,9 +337,6 @@ void GameMap::queueCreatureForDeletion(Creature *c)
     creaturesToDelete[turnNumber.get()].push_back(c);
 }
 
-/*! \brief Returns a pointer to the first class description whose 'name' parameter matches the query string.
- *
- */
 CreatureDefinition* GameMap::getClassDescription(std::string query)
 {
     for (unsigned int i = 0; i < classDescriptions.size(); ++i)
@@ -325,9 +348,6 @@ CreatureDefinition* GameMap::getClassDescription(std::string query)
     return NULL;
 }
 
-/*! \brief Returns the total number of creatures stored in this game map.
- *
- */
 unsigned int GameMap::numCreatures() const
 {
     sem_wait(&creaturesLockSemaphore);
@@ -337,9 +357,6 @@ unsigned int GameMap::numCreatures() const
     return tempUnsigned;
 }
 
-/*! \brief Returns a vector containing all the creatures controlled by the given seat.
- *
- */
 std::vector<Creature*> GameMap::getCreaturesByColor(int color)
 {
     std::vector<Creature*> tempVector;
@@ -455,17 +472,11 @@ void GameMap::removeActiveObject(GameEntity *a)
     }
 }
 
-/*! \brief Returns the total number of class descriptions stored in this game map.
- *
- */
 unsigned int GameMap::numClassDescriptions()
 {
     return classDescriptions.size();
 }
 
-/*! \brief Gets the i'th creature in this GameMap.
- *
- */
 Creature* GameMap::getCreature(int index)
 {
     sem_wait(&creaturesLockSemaphore);
@@ -475,9 +486,6 @@ Creature* GameMap::getCreature(int index)
     return tempCreature;
 }
 
-/*! \brief Gets the i'th creature in this GameMap. (const version)
- *
- */
 const Creature* GameMap::getCreature(int index) const
 {
     sem_wait(&creaturesLockSemaphore);
@@ -487,17 +495,11 @@ const Creature* GameMap::getCreature(int index) const
     return tempCreature;
 }
 
-/*! \brief Gets the i'th class description in this GameMap.
- *
- */
 CreatureDefinition* GameMap::getClassDescription(int index)
 {
     return classDescriptions[index].get();
 }
 
-/*! \brief Creates meshes for all the tiles and creatures stored in this GameMap.
- *
- */
 void GameMap::createAllEntities()
 {
     // Create OGRE entities for map tiles
@@ -586,10 +588,7 @@ void GameMap::destroyAllEntities()
     }
 }
 
-/*! \brief Returns a pointer to the creature whose name matches cName.
- *
- */
-Creature* GameMap::getCreature(std::string cName)
+Creature* GameMap::getCreature(const std::string& cName)
 {
     //TODO: This function should look the name up in a map of creature names onto pointers, care should also be taken to minimize calls to this function.
     Creature *returnValue = NULL;
@@ -608,10 +607,7 @@ Creature* GameMap::getCreature(std::string cName)
     return returnValue;
 }
 
-/*! \brief Returns a pointer to the creature whose name matches cName. (const version)
- *
- */
-const Creature* GameMap::getCreature(std::string cName) const
+const Creature* GameMap::getCreature(const std::string& cName) const
 {
     //TODO: This function should look the name up in a map of creature names onto pointers, care should also be taken to minimize calls to this function.
     Creature *returnValue = NULL;
@@ -630,45 +626,15 @@ const Creature* GameMap::getCreature(std::string cName) const
     return returnValue;
 }
 
-/*! \brief Loops over all the creatures and calls their individual doTurn methods, also check goals and do the upkeep.
- *
- */
 void GameMap::doTurn()
 {
-    // Local variables
-    unsigned int tempUnsigned;
-
     // Compute the moving window average of how much extra time was left over after the previous doTurn() calls finished.
     averageAILeftoverTime = 0.0;
-    for (tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); ++tempUnsigned)
+    for (unsigned int tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); ++tempUnsigned)
         averageAILeftoverTime += previousLeftoverTimes[tempUnsigned];
 
     if (!previousLeftoverTimes.empty())
         averageAILeftoverTime /= (double) previousLeftoverTimes.size();
-
-    if (loadNextLevel)
-    {
-        if (numCreatures() > 0)
-        {
-            while (numCreatures() > 0)
-            {
-                sem_wait(&creaturesLockSemaphore);
-                Creature *tempCreature = creatures[0];
-                sem_post(&creaturesLockSemaphore);
-
-                queueCreatureForDeletion(tempCreature);
-            }
-        }
-        else
-        {
-            loadNextLevel = false;
-            //TODO: The return value from the level load should be checked to make sure it loaded properly.
-            //TODO: Move this out of the gameMap object
-            MapLoader::readGameMapFromFile(nextLevel, *this);
-            createAllEntities();
-            me->setSeat(popEmptySeat());
-        }
-    }
 
     sem_wait(&mCreatureAISemaphore);
 
@@ -1000,9 +966,6 @@ void *GameMap::creatureDoTurnHelperThread(void *p)
     return NULL;
 }
 
-/*! \brief Returns whether or not a Creature with a given passability would be able to move between the two specified tiles.
- *
- */
 bool GameMap::pathExists(int x1, int y1, int x2, int y2,
                          Tile::TileClearType passability)
 {
@@ -1011,17 +974,6 @@ bool GameMap::pathExists(int x1, int y1, int x2, int y2,
            : path(x1, y1, x2, y2, passability).size() >= 2;
 }
 
-/*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
- *
- * The search is carried out using the A-star search algorithm.
- * The path returned contains both the starting and ending tiles, and consists
- * entirely of tiles which satify the 'passability' criterion specified in the
- * search.  The returned tiles are also a "manhattan path" meaning that every
- * successive tile is one of the 4 nearest neighbors of the previous tile in
- * the path.  In most cases you will want to call GameMap::cutCorners on the
- * returned path to shorten the number of steps on the path, as well as the
- * actual walking distance along the path.
- */
 std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
 {
     ++numCallsTo_path;
@@ -1243,17 +1195,6 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
     return returnList;
 }
 
-/*! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
- *
- */
-
-
-
-
-
-/*! \brief Adds a pointer to a player structure to the players stored by this GameMap.
- *
- */
 bool GameMap::addPlayer(Player *p)
 {
     if (!emptySeats.empty())
@@ -1269,9 +1210,6 @@ bool GameMap::addPlayer(Player *p)
     return false;
 }
 
-/*! \brief Assigns an ai to the chosen player
- *
- */
 bool GameMap::assignAI(Player& player, const std::string& aiType, const std::string& parameters)
 {
     bool success = aiManager.assignAI(player, aiType, parameters);
@@ -1284,25 +1222,16 @@ bool GameMap::assignAI(Player& player, const std::string& aiType, const std::str
     return success;
 }
 
-/*! \brief Returns a pointer to the i'th player structure stored by this GameMap.
- *
- */
 Player* GameMap::getPlayer(int index)
 {
     return players[index];
 }
 
-/*! \brief Returns a pointer to the i'th player structure stored by this GameMap. (const version)
- *
- */
 const Player* GameMap::getPlayer(int index) const
 {
     return players[index];
 }
 
-/*! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
- *
- */
 Player* GameMap::getPlayer(const std::string& pName)
 {
     for (unsigned int i = 0; i < numPlayers(); ++i)
@@ -1316,9 +1245,6 @@ Player* GameMap::getPlayer(const std::string& pName)
     return NULL;
 }
 
-/*! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
- *
- */
 const Player* GameMap::getPlayer(const std::string& pName) const
 {
     for (unsigned int i = 0; i < numPlayers(); ++i)
@@ -1332,9 +1258,6 @@ const Player* GameMap::getPlayer(const std::string& pName) const
     return NULL;
 }
 
-/*! \brief Returns the number of player structures stored in this GameMap.
- *
- */
 unsigned int GameMap::numPlayers() const
 {
     return players.size();
@@ -1354,13 +1277,6 @@ bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
     return false;
 }
 
-/*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2), NOTE: in spite of
- * the name, you do not need to be able to see through the tiles returned by this method.
- *
- * This algorithm is from
- * http://en.wikipedia.org/w/index.php?title=Bresenham%27s_line_algorithm&oldid=295047020
- * A more detailed description of how it works can be found there.
- */
 std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
 {
     std::list<Tile*> path;
@@ -1460,9 +1376,6 @@ std::list<Tile*> GameMap::lineOfSight(int x0, int y0, int x1, int y1)
     return path;
 }
 
-/*! \brief Returns the tiles visible from the given start tile out to the specified sight radius.
- *
- */
 std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 {
     std::vector<Tile*> tempVector;
@@ -1556,11 +1469,7 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
     return tempVector;
 }
 
-/*! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
- *
- */
-std::vector<GameEntity*> GameMap::getVisibleForce(
-    std::vector<Tile*> visibleTiles, int color, bool invert)
+std::vector<GameEntity*> GameMap::getVisibleForce(std::vector<Tile*> visibleTiles, int color, bool invert)
 {
     //TODO:  This function also needs to list Rooms, Traps, Doors, etc (maybe add GameMap::getAttackableObjectsInCell to do this).
     std::vector<GameEntity*> returnList;
@@ -1617,11 +1526,7 @@ std::vector<GameEntity*> GameMap::getVisibleForce(
     return returnList;
 }
 
-/*! \brief Determines whether or not you can travel along a path.
- *
- */
-bool GameMap::pathIsClear(std::list<Tile*> path,
-                          Tile::TileClearType passability)
+bool GameMap::pathIsClear(std::list<Tile*> path, Tile::TileClearType passability)
 {
     if (path.empty())
         return false;
@@ -1665,11 +1570,7 @@ bool GameMap::pathIsClear(std::list<Tile*> path,
     return isClear;
 }
 
-/*! \brief Loops over a path an replaces 'manhattan' paths with 'as the crow flies' paths.
- *
- */
-void GameMap::cutCorners(std::list<Tile*> &path,
-                         Tile::TileClearType passability)
+void GameMap::cutCorners(std::list<Tile*> &path, Tile::TileClearType passability)
 {
     // Size must be >= 3 or else t3 and t4 can end up pointing at the same value
     if (path.size() <= 3)
@@ -1723,9 +1624,6 @@ void GameMap::cutCorners(std::list<Tile*> &path,
     }
 }
 
-/** \brief Calls the deleteYourself() method on each of the rooms in the game map as well as clearing the vector of stored rooms.
- *
- */
 void GameMap::clearRooms()
 {
     for (unsigned int i = 0; i < rooms.size(); ++i)
@@ -1738,9 +1636,6 @@ void GameMap::clearRooms()
     rooms.clear();
 }
 
-/** \brief A simple mutator method to add the given Room to the GameMap.
- *
- */
 void GameMap::addRoom(Room *r)
 {
     rooms.push_back(r);
@@ -1763,17 +1658,11 @@ void GameMap::removeRoom(Room *r)
     }
 }
 
-/** \brief A simple accessor method to return the given Room.
- *
- */
 Room* GameMap::getRoom(int index)
 {
     return rooms[index];
 }
 
-/** \brief A simple accessor method to return the number of Rooms stored in the GameMap.
- *
- */
 unsigned int GameMap::numRooms()
 {
     return rooms.size();
@@ -1804,7 +1693,7 @@ std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type,
     return returnList;
 }
 
-std::vector<const Room* > GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color) const
+std::vector<const Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color) const
 {
     std::vector<const Room*> returnList;
     for (unsigned int i = 0; i < rooms.size(); ++i)
@@ -1816,8 +1705,7 @@ std::vector<const Room* > GameMap::getRoomsByTypeAndColor(Room::RoomType type, i
     return returnList;
 }
 
-unsigned int GameMap::numRoomsByTypeAndColor(Room::RoomType type,
-        int color) const
+unsigned int GameMap::numRoomsByTypeAndColor(Room::RoomType type, int color) const
 {
     unsigned int count = 0;;
     std::vector<Room*>::const_iterator it;
@@ -1851,8 +1739,6 @@ void GameMap::clearTraps()
     {
         removeActiveObject(traps[i]);
     }
-
-
 
     traps.clear();
 }
@@ -1995,9 +1881,6 @@ unsigned int GameMap::numMapLights()
     return mapLights.size();
 }
 
-/** \brief A simple mutator method to clear the vector of empty Seats stored in the GameMap.
- *
- */
 void GameMap::clearEmptySeats()
 {
     for (unsigned int i = 0; i < numEmptySeats(); ++i)
@@ -2006,9 +1889,6 @@ void GameMap::clearEmptySeats()
     emptySeats.clear();
 }
 
-/** \brief A simple mutator method to add another empty Seat to the GameMap.
- *
- */
 void GameMap::addEmptySeat(Seat *s)
 {
     emptySeats.push_back(s);
@@ -2018,25 +1898,16 @@ void GameMap::addEmptySeat(Seat *s)
         s->addGoal(getGoalForAllSeats(i));
 }
 
-/** \brief A simple accessor method to return the given Seat.
- *
- */
 Seat* GameMap::getEmptySeat(int index)
 {
     return emptySeats[index];
 }
 
-/** \brief A simple accessor method to return the given Seat. (const version)
- *
- */
 const Seat* GameMap::getEmptySeat(int index) const
 {
     return emptySeats[index];
 }
 
-/** \brief Removes the first empty Seat from the GameMap and returns a pointer to it, this is used when a Player "sits down" at the GameMap.
- *
- */
 Seat* GameMap::popEmptySeat()
 {
     Seat *s = NULL;
@@ -2050,9 +1921,6 @@ Seat* GameMap::popEmptySeat()
     return s;
 }
 
-/** \brief A simple accessor method to return the number of empty Seats on the GameMap.
- *
- */
 unsigned int GameMap::numEmptySeats() const
 {
     return emptySeats.size();
@@ -2075,17 +1943,11 @@ void GameMap::addFilledSeat(Seat *s)
         s->addGoal(getGoalForAllSeats(i));
 }
 
-/** \brief A simple accessor method to return the given filled Seat.
- *
- */
 Seat* GameMap::getFilledSeat(int index)
 {
     return filledSeats[index];
 }
 
-/** \brief A simple accessor method to return the given filled Seat. (const version)
- *
- */
 const Seat* GameMap::getFilledSeat(int index) const
 {
     return filledSeats[index];
@@ -2266,9 +2128,6 @@ unsigned int GameMap::numMissileObjects()
     return missileObjects.size();
 }
 
-/** \brief Returns the as the crow flies distance between tiles located at the two coordinates
- * given.  If tiles do not exist at these locations the function returns -1.0.
- */
 Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)
 {
     if (t1 != NULL && t2 != NULL)
@@ -2279,34 +2138,23 @@ Ogre::Real GameMap::crowDistance(Tile *t1, Tile *t2)
 
 Ogre::Real GameMap::crowDistance(int x1, int x2, int y1, int y2)
 {
-    return sqrt(pow(static_cast<Ogre::Real>(x2 - x1), 2.0f) + pow(
-                    static_cast<Ogre::Real>(y2 - y1), 2.0f));
+    return sqrt(pow(static_cast<Ogre::Real>(x2 - x1), 2.0f)
+                + pow(static_cast<Ogre::Real>(y2 - y1), 2.0f));
 }
 
-/** \brief Returns an auto-incremented number for use in the flood fill algorithm used to determine walkability.
- *
- */
-int GameMap::uniqueFloodFillColor()
+unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType passability, int color)
 {
-    return ++nextUniqueFloodFillColor;
-}
-
-/** \brief Starts at the tile at the given coordinates and paints outward over all the tiles whose passability matches the passability of the seed tile.
- *
- */
-unsigned int GameMap::doFloodFill(int startX, int startY,
-                                  Tile::TileClearType passability, int color)
-{
-    // std::cerr << " hello this is doFloodFill " << iteration_doFloodFill
-    //           <<" startX "<< startX <<" startY "<< startY  << std::endl;
-    iteration_doFloodFill++;
     unsigned int tilesFlooded = 1;
+    static int uniqueFloodFillingColor = 0;
 
     if (!floodFillEnabled)
         return 0;
 
     if (color < 0)
-        color = uniqueFloodFillColor();
+    {
+        ++uniqueFloodFillingColor;
+        color = uniqueFloodFillingColor;
+    }
 
     // Check to see if we should color the current tile.
     Tile *tempTile = getTile(startX, startY);
@@ -2334,21 +2182,8 @@ unsigned int GameMap::doFloodFill(int startX, int startY,
     return tilesFlooded;
 }
 
-/** \brief Temporarily disables the flood fill computations on this game map.
- *
- */
-void GameMap::disableFloodFill()
-{
-    floodFillEnabled = false;
-}
-
-/** \brief Re-enables the flood filling on the game map, also recomputes the painting on the
- * whole map since the passabilities may have changed since the flood filling was disabled.
- */
 void GameMap::enableFloodFill()
 {
-    //Tile *tempTile;
-
     // Carry out a flood fill of the whole level to make sure everything is good.
     // Start by setting the flood fill color for every tile on the map to -1.
     sem_wait(&tilesLockSemaphore);
@@ -2360,54 +2195,36 @@ void GameMap::enableFloodFill()
         }
 
     }
-
-
     sem_post(&tilesLockSemaphore);
 
-    // Loop over the tiles again, this time flood filling when the flood fill color is -1.  This will flood the map enough times to cover the whole map.
+    // Loop over the tiles again, this time flood filling when the flood fill color is -1.
+    // This will flood the map enough times to cover the whole map.
 
-    //TODO:  The looping construct here has a potential race condition in that the endTile could change between the time when it is initialized and the end of this loop.  If this happens the loop could continue infinitely.
+    // TODO: The looping construct here has a potential race condition in that the endTile could change between the time
+    // when it is initialized and the end of this loop.  If this happens the loop could continue infinitely.
     floodFillEnabled = true;
-
-
 
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
         {
-
-            if (getTile(ii,jj)->floodFillColor == -1)
-                doFloodFill( ii , jj);
-
+            if (getTile(ii, jj)->floodFillColor == -1)
+                doFloodFill(ii , jj);
         }
     }
-
-
 }
 
-
-/** \brief <i>Convenience function, calls: path(int, int, int, int, TileClearType)</i>
- *
- */
-std::list<Tile*> GameMap::path(Creature *c1, Creature *c2,
-                               Tile::TileClearType passability)
+std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability)
 {
     return path(c1->positionTile()->x, c1->positionTile()->y,
                 c2->positionTile()->x, c2->positionTile()->y, passability);
 }
 
-/** \brief <i>Convenience function, calls: path(int, int, int, int, TileClearType)</i>
- *
- */
-std::list<Tile*> GameMap::path(Tile *t1, Tile *t2,
-                               Tile::TileClearType passability)
+std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability)
 {
     return path(t1->x, t1->y, t2->x, t2->y, passability);
 }
 
-/** \brief <i>Convenience function, calls: crowDistance(Tile*, Tile*)</i>
- *
- */
 Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
 {
     //TODO:  This is sub-optimal, improve it.
@@ -2415,9 +2232,6 @@ Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
     return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
 }
 
-/** \brief Increments a semaphore for the given turn indicating how many outstanding references to game asssets have been copied by other functions.
- *
- */
 void GameMap::threadLockForTurn(long int turn)
 {
     // Lock the thread reference count map to prevent race conditions.
@@ -2440,10 +2254,6 @@ void GameMap::threadLockForTurn(long int turn)
     sem_post(&threadReferenceCountLockSemaphore);
 }
 
-/** \brief Decrements a semaphore for the given turn indicating how many outstanding references to game asssets there are,
- * when this reaches 0 the turn can be safely retired and assets queued for deletion then can be safely deleted.
- *
- */
 void GameMap::threadUnlockForTurn(long int turn)
 {
     // Lock the thread reference count map to prevent race conditions.
@@ -2467,9 +2277,6 @@ void GameMap::threadUnlockForTurn(long int turn)
     // Unlock the thread reference count map.
     sem_post(&threadReferenceCountLockSemaphore);
 }
-
-
-
 
 void GameMap::processDeletionQueues()
 {
@@ -2536,4 +2343,3 @@ void GameMap::processDeletionQueues()
         ++currentTurnForCreatureRetirement;
     }
 }
-

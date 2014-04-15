@@ -169,7 +169,8 @@ public:
 
     //! \brief This is a helper function that generates a mesh filename from a tile type and a fullness mesh number.
     //! \TODO Define what is a postfix.
-    static std::string meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, TileType *neighbors, bool* neighborsFullness, int &rt);
+    static std::string meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, const TileType* neighbors,
+                                             const bool* neighborsFullness, int &rt);
 
     static void meshNameAux(std::stringstream &ss, int &postfixInt, int& fMN, TileType myType);
 

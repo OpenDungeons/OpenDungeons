@@ -29,9 +29,18 @@ public:
 
   Tile* firstTile();
   Tile* lastTile();
-  Tile::TileType*  getNeighborsTypes( Tile* , Tile::TileType*);
-  bool*   getNeighborsFullness( Tile* , bool*);
-  unsigned int numTiles();
+
+    //! \brief Gets the tile type of all neighbors
+    //! \param tile The tile to be checked.
+    //! \returns a Tile::TileType[8] array pointer where the info is stored.
+    const Tile::TileType* getNeighborsTypes(Tile* tile);
+
+    //! \brief Gets the tile fullness of all neighbors
+    //! \param tile The tile to be checked.
+    //! \returns a bool[8] array pointer where the info is stored.
+    const bool* getNeighborsFullness(Tile* tile);
+
+    unsigned int numTiles();
 
     //! \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
     std::vector<Tile*> rectangularRegion(int x1, int y1, int x2, int y2);

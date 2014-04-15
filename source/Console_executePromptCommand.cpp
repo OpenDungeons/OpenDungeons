@@ -112,31 +112,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             if (Socket::serverSocket != NULL)
             {
-                gameMap->nextLevel = tempString;
-                gameMap->loadNextLevel = true;
+                frameListener->mCommandOutput
+                    += "ERROR:  Cannot load a level if you are a already running a server.";
             }
             else
             {
-                if (MapLoader::readGameMapFromFile(tempString, *gameMap))
-                {
-                    tempSS << "Successfully loaded file:  " << tempString
-                            << "\nNum tiles:  " << gameMap->numTiles()
-                            << "\nNum classes:  "
-                            << gameMap->numClassDescriptions()
-                            << "\nNum creatures:  " << gameMap->numCreatures();
-                    frameListener->mCommandOutput += tempSS.str();
-
-                    gameMap->createAllEntities();
-                }
-                else
-                {
-                    tempSS << "ERROR: Could not load game map \'" << tempString
-                            << "\'.";
-                    frameListener->mCommandOutput += tempSS.str();
-                }
+                gameMap->LoadLevel(tempString);
             }
-
-            gameMap->setLevelFileName(arguments);
         }
         else
         {
@@ -1145,19 +1127,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             : (Socket::clientSocket != NULL)
                 ? "\nDisconnecting from server.\n"
                 : "\nYou are not connected to a server and you are not hosting a server.";
-    }
-    else if (command.compare("next") == 0) // Load the next level.
-    {
-        if (gameMap->seatIsAWinner(gameMap->me->getSeat()))
-        {
-            gameMap->loadNextLevel = true;
-            frameListener->mCommandOutput += (string) "\nLoading level levels/"
-                    + gameMap->nextLevel + ".level\n";
-        }
-        else
-        {
-            frameListener->mCommandOutput += "\nYou have not completed this level yet.\n";
-        }
     }
     else
     {

@@ -680,7 +680,8 @@ int Tile::nextTileFullness(int f)
     }
 }
 
-std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber, TileType *neighbors, bool* neighborsFullness, int &rt)
+std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
+                                        const TileType* neighbors, const bool* neighborsFullness, int& rt)
 {
     std::stringstream ss;
     //FIXME - define postfix somewhere
@@ -966,7 +967,7 @@ void Tile::claimForColor(int nColor, double nDanceRate)
             // Claim the tile.
             colorDouble = 1.0;
             setType(Tile::claimed);
-            
+
             refreshMesh();
 
             // Force all the neighbors to recheck their meshes as we have updated this tile.

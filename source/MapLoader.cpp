@@ -70,15 +70,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         return false;
     }
 
-    // Read in the name of the next level to load after this one is complete.
-    levelFile >> nextParam;
-    if (nextParam == "[Next_Level]")
-    {
-        levelFile >> nextParam;
-        gameMap.nextLevel = nextParam;
-    }
-
-    // TODO: Use an sub-function when encountering [Seats]
     levelFile >> nextParam;
     if (nextParam != "[Seats]")
     {
@@ -107,7 +98,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     // Read in the goals that are shared by all players, the first player to complete all these goals is the winner.
     levelFile >> nextParam;
-    // TODO: Use an sub-function when encountering [Goals]
     if (nextParam != "[Goals]")
     {
         std::cout << "Invalid Goals start format." << std::endl;
@@ -128,7 +118,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     }
 
     levelFile >> nextParam;
-    // TODO: Use an sub-function when encountering [Tiles]
     if (nextParam != "[Tiles]")
     {
         std::cout << "Invalid tile start format." << std::endl;
@@ -157,8 +146,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Tiles]")
             break;
 
-        // TEMP: Get all the params together in order to prepare for the new parsing function
-        // TODO: Later, we parse directly lines by lines.
+        // Get all the params together in order to prepare for the new parsing function
         std::string entire_line = nextParam;
         std::getline(levelFile, nextParam);
         entire_line += nextParam;
@@ -174,7 +162,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     // Read in the rooms
     levelFile >> nextParam;
-    // TODO: Use an sub-function when encountering [Rooms]
     if (nextParam != "[Rooms]")
     {
         std::cout << "Invalid Rooms start format." << std::endl;
@@ -193,10 +180,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         gameMap.addRoom(tempRoom);
     }
 
-
     // Read in the traps
     levelFile >> nextParam;
-    // TODO: Use an sub-function when encountering [Traps]
     if (nextParam != "[Traps]")
     {
         std::cout << "Invalid Traps start format." << std::endl;
@@ -218,7 +203,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     // Read in the lights
     levelFile >> nextParam;
-    // TODO: Use an sub-function when encountering [Lights]
     if (nextParam != "[Lights]")
     {
         std::cout << "Invalid Lights start format." << std::endl;
@@ -257,7 +241,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 
     // Read in the actual creatures themselves
     levelFile >> nextParam;
-    // TODO: Use an sub-function when encountering [Creatures]
     if (nextParam != "[Creatures]")
     {
         std::cout << "Invalid Creatures start format." << std::endl;
@@ -293,11 +276,6 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     // Write the identifier string and the version number
     levelFile << ODApplication::VERSIONSTRING
             << "  # The version of OpenDungeons which created this file (for compatibility reasons).\n";
-
-    // write out the name of the next level to load after this one is complete.
-    levelFile << "[Next_Level]" << std::endl;
-    levelFile << gameMap.nextLevel
-            << " # The level to load after this level is complete.\n";
 
     // Write out the seats to the file
     levelFile << "\n[Seats]\n";

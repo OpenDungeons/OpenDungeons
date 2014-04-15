@@ -483,11 +483,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
                 if (iAmAWinner)
                 {
-                    tempSS
-                            << "\nCongratulations, you have completed this level.\nOpen the terminal and run the \'next\'\n";
-                    tempSS
-                            << "command to move on to move on to the next level.\n\nThe next level is:  "
-                            << mGameMap->nextLevel;
+                    tempSS << "\nCongratulations, you have completed this level.";
                 }
                 tempWindow->setText(tempSS.str());
             }
