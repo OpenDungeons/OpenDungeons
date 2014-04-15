@@ -12,10 +12,10 @@ find_package(PkgConfig)
 message(STATUS "looking for headers")
 #TODO - check for ogre renderer
 #Look for headers
-find_path(CEGUI_INCLUDE_DIR CEGUI.h
+find_path(CEGUI_INCLUDE_DIR CEGUI/CEGUI.h
     HINTS $ENV{CEGUIDIR}
-        ${PC_CEGUI_INCLUDEDIR}
-    PATH_SUFFIXES include/CEGUI CEGUI include cegui/include
+    ${PC_CEGUI_INCLUDEDIR}
+    PATH_SUFFIXES include cegui/include cegui-0
     PATHS
     ~/Library/Frameworks
     /Library/Frameworks
@@ -29,7 +29,7 @@ find_path(CEGUI_INCLUDE_DIR CEGUI.h
     
 #Look for libs
 find_library(CEGUI_LIBRARY
-  CEGUIBase
+  CEGUIBase CEGUIBase-0
   HINTS
   $ENV{CEGUIDIR}
   ${PC_CEGUI_LIBDIR}
@@ -41,11 +41,10 @@ find_library(CEGUI_LIBRARY
   /opt
   /usr
   /usr/local
-
 )
 
 find_library(CEGUIOGRE_LIBRARY
- CEGUIOgreRenderer
+  CEGUIOgreRenderer CEGUIOgreRenderer-0
   HINTS
   $ENV{CEGUIDIR}
   ${PC_CEGUI_LIBDIR}
@@ -57,7 +56,6 @@ find_library(CEGUIOGRE_LIBRARY
   /opt
   /usr
   /usr/local
-
 )
 
 set(CEGUI_LIBRARIES ${CEGUI_LIBRARY} ${CEGUIOGRE_LIBRARY})
