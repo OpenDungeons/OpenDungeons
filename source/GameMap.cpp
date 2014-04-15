@@ -1215,7 +1215,7 @@ bool GameMap::assignAI(Player& player, const std::string& aiType, const std::str
     bool success = aiManager.assignAI(player, aiType, parameters);
     if (success)
     {
-        player.setHasAi(true);
+        player.setHasAI(true);
         LogManager::getSingleton().logMessage("Assign AI: " + aiType + ", to player: " + player.getNick());
     }
     LogManager::getSingleton().logMessage("Couldn't assign AI: " + aiType + ", to player: " + player.getNick());

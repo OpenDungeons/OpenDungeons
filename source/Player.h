@@ -1,12 +1,29 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef PLAYER_H
 #define PLAYER_H
+
+#include "Trap.h"
+#include "Room.h"
 
 #include <string>
 #include <vector>
 
-
-#include "Trap.h" //Class has enum, so has to include this.
-#include "Room.h"
 class Seat;
 class Creature;
 
@@ -23,50 +40,96 @@ class Player
 {
 public:
     Player();
-    
-    
-    //int goldInTreasury();
-    //int oreInRefinery();
-    //int ironInRefinery();
 
-    const std::string& getNick() const {return nick;}
-    Seat* getSeat() {return seat;}
-    const Seat* getSeat() const {return seat;}
-    void setNick (const std::string& nick) {this->nick = nick;}
-    void setSeat(Seat* seat) {this->seat = seat;}
+    const std::string& getNick() const
+    {return mNickname; }
 
-    // Public functions
+    Seat* getSeat()
+    { return mSeat; }
+
+    const Seat* getSeat() const
+    { return mSeat; }
+
+    void setNick (const std::string& nick)
+    { mNickname = nick; }
+
+    void setSeat(Seat* seat)
+    { mSeat = seat; }
+
+    //! \brief A simple accessor function to return the number of creatures
+    //! this player is holding in his/her hand.
     unsigned int numCreaturesInHand() const;
+
+    //! \brief A simple accessor function to return a pointer to the i'th creature in the players hand.
     Creature *getCreatureInHand(int i);
     const Creature* getCreatureInHand(int i) const;
+
+    /*! \brief Check to see if it is the user or another player picking up the creature and act accordingly.
+     *
+     * This function takes care of all of the operations required for a player to
+     * pick up a creature.  If the player is the user we need to move the creature
+     * oncreen to the "hand" as well as add the creature to the list of creatures
+     * in our own hand, this is done by setting moveToHand to true.  If move to
+     * hand is false we just hide the creature (and stop its AI, etc.), rather than
+     * making it follow the cursor.
+     */
     void pickUpCreature(Creature *c);
+
+    //! \brief Check to see the first creatureInHand can be dropped on Tile t and do so if possible.
     bool dropCreature(Tile *t, unsigned int index = 0);
+
     void rotateCreaturesInHand(int n);
-    inline void setGameMap(GameMap* gameMap) {this->gameMap = gameMap;};
-    inline bool getHasAi() const {return hasAI;};
-    inline void setHasAi(bool hasAi) {this->hasAI = hasAi;} 
-    inline const std::vector<Creature*>& getCreaturesInHand() {return creaturesInHand;};
-    inline const Room::RoomType getNewRoomType() { return newRoomType;}
-    inline void setNewRoomType(Room::RoomType newRoomType) {this->newRoomType = newRoomType;}
-    inline const Trap::TrapType getNewTrapType() const {return newTrapType;}
-    inline void setNewTrapType(Trap::TrapType newTrapType) {this->newTrapType = newTrapType;}
+
+    inline void setGameMap(GameMap* gameMap)
+    { mGameMap = gameMap; }
+
+    inline bool getHasAI() const
+    { return mHasAI; }
+
+    inline void setHasAI(bool hasAI)
+    { mHasAI = hasAI; }
+
+    inline const std::vector<Creature*>& getCreaturesInHand()
+    { return mCreaturesInHand; }
+
+    inline const Room::RoomType getNewRoomType()
+    { return mNewRoomType; }
+
+    inline void setNewRoomType(Room::RoomType newRoomType)
+    { mNewRoomType = newRoomType; }
+
+    inline const Trap::TrapType getNewTrapType() const
+    { return mNewTrapType; }
+
+    inline void setNewTrapType(Trap::TrapType newTrapType)
+    { mNewTrapType = newTrapType; }
 
 private:
-    Room::RoomType newRoomType;
-    Trap::TrapType newTrapType;
-    
-    GameMap* gameMap;
-    Seat *seat;
-    std::string nick; /**< The nickname used un chat, etc. */
-    // Private functions
-    void addCreatureToHand(Creature *c); // Private, for other classes use pickUpCreature() instead.
-    void removeCreatureFromHand(int i); // Private, for other classes use dropCreature() instead.
+    //! \brief Room or trap tile type the player is currently willing to place on map.
+    Room::RoomType mNewRoomType;
+    Trap::TrapType mNewTrapType;
 
-    // Private datamembers
-    std::vector<Creature*> creaturesInHand;
+    GameMap* mGameMap;
+    Seat *mSeat;
 
-    bool hasAI; /**< True: player is human.    False: player is a computer. */
+    //! \brief The nickname used in chat, etc.
+    std::string mNickname;
+
+    //! \brief The creature the player has got in hand.
+    std::vector<Creature*> mCreaturesInHand;
+
+    //! True: player is human. False: player is a computer.
+    bool mHasAI;
+
+    //! \brief A simple mutator function to put the given creature into the player's hand,
+    //! note this should NOT be called directly for creatures on the map,
+    //! for that you should use pickUpCreature() instead.
+    void addCreatureToHand(Creature *c);
+
+    //! \brief A simple mutator function to remove a creature from the player's hand,
+    //! note this should NOT be called directly for creatures on the map,
+    //! for that you should use dropCreature() instead.
+    void removeCreatureFromHand(int i);
 };
 
-#endif
-
+#endif // PLAYER_H
