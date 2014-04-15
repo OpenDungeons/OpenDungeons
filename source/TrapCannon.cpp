@@ -10,21 +10,21 @@ TrapCannon::TrapCannon() :
 {
     reloadTime = 5;
     reloadTimeCounter = reloadTime;
-    range = 12;
+    mRange = 12;
     minDamage = 104;
     maxDamage = 120;
 }
 
 std::vector<GameEntity*> TrapCannon::aimEnemy()
 {
-    std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(coveredTiles[0], range);
+    std::vector<Tile*> visibleTiles = getGameMap()->visibleTiles(coveredTiles[0], mRange);
     std::vector<GameEntity*> enemyObjects = getGameMap()->getVisibleForce(visibleTiles, getColor(), true);
     if(enemyObjects.empty()) {
         return std::vector<GameEntity*>();
     }
     // Select an enemy to shoot at.
     GameEntity* targetEnemy = enemyObjects[Random::Uint(0, enemyObjects.size()-1)];
-    
+
     std::vector<GameEntity*> enemies = std::vector<GameEntity*>();
     enemies.push_back(targetEnemy);
     return enemies;
@@ -33,10 +33,10 @@ std::vector<GameEntity*> TrapCannon::aimEnemy()
 void TrapCannon::damage(std::vector<GameEntity*> enemyAttacked)
 {
 	ProximityTrap::damage(enemyAttacked);
-	
+
 	if(enemyAttacked.empty())
 		return;
-	
+
 	std::cout << "\nAdding cannonball from " << coveredTiles[0]->x << "," << coveredTiles[0]->y << " to " << enemyAttacked[0]->getCoveredTiles()[0]->x << "," << enemyAttacked[0]->getCoveredTiles()[0]->y << std::endl;
 	// Create the cannonball to move toward the enemy creature.
 	MissileObject *tempMissileObject = new MissileObject(
@@ -45,7 +45,7 @@ void TrapCannon::damage(std::vector<GameEntity*> enemyAttacked)
 	tempMissileObject->createMesh();
 	//TODO: Make this a pseudo newtonian mechanics solver which computes a parabola passing through the cannon
 	// and the enemy it is shooting at, add this as 10 or so destinations in the queue instead of just one.
-	tempMissileObject->addDestination((Ogre::Real)enemyAttacked[0]->getCoveredTiles()[0]->x, 
+	tempMissileObject->addDestination((Ogre::Real)enemyAttacked[0]->getCoveredTiles()[0]->x,
                                       (Ogre::Real)enemyAttacked[0]->getCoveredTiles()[0]->y,
                                       (Ogre::Real)cannonHeight);
 	getGameMap()->addMissileObject(tempMissileObject);
