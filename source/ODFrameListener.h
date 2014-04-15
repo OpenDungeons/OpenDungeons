@@ -188,7 +188,6 @@ private:
 
     Ogre::Timer             mStatsDisplayTimer;
     GameMap*                mGameMap;
-    std::vector<Ogre::ColourValue> mPlayerColourValues;
 
     //! \brief To see if the frameListener wants to exit
     ProtectedObject<bool>   mThreadStopRequested;

@@ -56,10 +56,6 @@ GameMode::GameMode(ModeManager *modeManager):
     mDigSetBool(false),
     mGameMap(ODFrameListener::getSingletonPtr()->getGameMap())
 {
-    // TODO: Permit loading any level.
-    // Read in the default game map
-    mGameMap->LoadLevel("levels/Test.level");
-
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
 
@@ -67,13 +63,85 @@ GameMode::GameMode(ModeManager *modeManager):
     Ogre::SceneManager* sceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     mMouseLight = sceneMgr->getLight("MouseLight");
 
+    // TEMP: Start the default level
+    // TODO: Permit loading any level.
+    startLevel("levels/Test.level");
+}
+
+GameMode::~GameMode()
+{
+}
+
+bool GameMode::startLevel(const std::string& levelFilename)
+{
+    // Read in the default game map
+    if (!mGameMap->LoadLevel(levelFilename))
+        return false;
+
+    // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
+    mGameMap->clearMapLightIndicators();
+
+    LogManager& logManager = LogManager::getSingleton();
+
+    // Check for empty seats
+    if (mGameMap->numEmptySeats() == 0)
+    {
+        logManager.logMessage("Can't start local game: There were no available seats.");
+        return false;
+    }
+
+    // Fill seats with either player, AIs or nothing depending on the given faction.
+    unsigned int i = 0;
+    unsigned int uniqueAINumber = 1;
+    while (i < mGameMap->numEmptySeats())
+    {
+        std::string faction = mGameMap->getEmptySeat(i)->faction;
+
+        if (faction == "Player")
+        {
+            // Add local player on first slot available.
+            if (mGameMap->getLocalPlayer()->getSeat() == NULL)
+            {
+                // The empty seat is removed, so we loop without incrementing i
+                mGameMap->getLocalPlayer()->setSeat(mGameMap->popEmptySeat());
+                logManager.logMessage("Adding local player.");
+                continue;
+            }
+        }
+        else if (faction == "KeeperAI")
+        {
+            // NOTE - AI should later have definable names maybe?.
+            std::stringstream ss("");
+            ss << "Keeper AI " << uniqueAINumber++;
+            Player* aiPlayer = new Player();
+            aiPlayer->setNick(ss.str());
+
+            // The empty seat is removed by addPlayer(), so we loop without incrementing i
+            if (mGameMap->addPlayer(aiPlayer))
+            {
+                mGameMap->assignAI(*aiPlayer, "testai");
+                continue;
+            }
+        }
+        ++i;
+    }
+
+    // Check whether at least a local player was added.
+    Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
+    if (localPlayerSeat == NULL)
+    {
+        logManager.logMessage("Can't start the local game: No available seat for local player.");
+        return false;
+    }
+
+    logManager.logMessage("Player has colour: " + Ogre::StringConverter::toString(localPlayerSeat->getColor()));
+    logManager.logMessage("Added: " + Ogre::StringConverter::toString(uniqueAINumber - 1) + " AI players");
+
     // For now, only the single player mode exists, so we start the server part.
     if (!ODServer::startServer())
-        return;
+        return false;
 
     // Move camera to starting position
-    Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
-    // FIXME: For now the objects and tiles coordinates are relative to the map center
     Ogre::Real startX = (Ogre::Real)(localPlayerSeat->startingX);
     Ogre::Real startY = (Ogre::Real)(localPlayerSeat->startingY);
     // We make the temple appear in the center of the game view
@@ -83,10 +151,6 @@ GameMode::GameMode(ModeManager *modeManager):
         startY = 0.0;
 
     ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, 16.0));
-}
-
-GameMode::~GameMode()
-{
 }
 
 void GameMode::activate()

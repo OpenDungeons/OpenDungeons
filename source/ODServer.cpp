@@ -74,37 +74,6 @@ bool startServer()
         logManager.logMessage("Couldn't start server: The client socket was not NULL");
         return false;
     }
-    if (gameMap->numEmptySeats() == 0)
-    {
-        logManager.logMessage("Couldn't start server: The number of empty seats was 0.");
-        return false;
-    }
-
-    //NOTE: Code added to this routine may also need to be added to GameMap::doTurn() in the "loadNextLevel" stuff.
-    // Sit down at the first available seat.
-    gameMap->getLocalPlayer()->setSeat(gameMap->popEmptySeat());
-
-    //NOTE - temporary code to test ai
-    Player* aiPlayer = new Player();
-    aiPlayer->setNick("test ai player");
-    bool success = gameMap->addPlayer(aiPlayer);
-    if(!success)
-    {
-        logManager.logMessage("Failed to add player");
-    }
-    else
-    {
-        success = gameMap->assignAI(*aiPlayer, "testai");
-        if(!success)
-        {
-            logManager.logMessage("Failed to assign ai to player");
-        }
-    }
-
-    logManager.logMessage("Player has colour:" +
-        Ogre::StringConverter::toString(gameMap->getLocalPlayer()->getSeat()->getColor()));
-    logManager.logMessage("ai has colour:" +
-        Ogre::StringConverter::toString(aiPlayer->getSeat()->getColor()));
 
     Socket::serverSocket = new Socket;
 
@@ -148,9 +117,6 @@ bool startServer()
     {
         logManager.logMessage("Warning: Creature AI thread already started when trying to create server.");
     }
-
-    // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
-    gameMap->clearMapLightIndicators();
 
     return true;
 }

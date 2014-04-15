@@ -66,8 +66,11 @@ private:
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);
 
-    // Refresh the tiles borders based a recent change on the map
+    //! \brief Refresh the tiles borders based a recent change on the map
     void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
+
+    //! \brief Loads the given level file, and setup a single player local game.
+    bool startLevel(const std::string& levelFilename);
 };
 
 #endif // GAMEMODE_H

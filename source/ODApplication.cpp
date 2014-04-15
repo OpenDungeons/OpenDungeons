@@ -194,7 +194,5 @@ For information on how to use a particular command, type help followed by the co
 \n\tnearclip - sets the near clipping distance\
 \n\tfarclip - sets the far clipping distance\
 \n\tvisdebug - turns on visual debugging for a creature\
-\n\taddcolor - adds another player color\
-\n\tsetcolor - changes the value of one of the player's color\
 \n\tdisconnect - stops a running server or client and returns to the map editor\
 \n\taithreads - sets the maximum number of creature AI threads on the server";

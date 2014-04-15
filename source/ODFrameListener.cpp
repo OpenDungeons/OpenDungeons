@@ -116,25 +116,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
-    // TODO: Move this into the common definitions files.
-    //Available team colours
-    //red
-    mPlayerColourValues.push_back(Ogre::ColourValue(1.0, 0.0, 0.0, 1.0));
-    //yellow
-    mPlayerColourValues.push_back(Ogre::ColourValue(1.0, 1.0, 0.0, 1.0));
-    //green
-    mPlayerColourValues.push_back(Ogre::ColourValue(0.0, 1.0, 0.0, 1.0));
-    //cyan
-    mPlayerColourValues.push_back(Ogre::ColourValue(0.0, 1.0, 1.0, 1.0));
-    //blue
-    mPlayerColourValues.push_back(Ogre::ColourValue(0.0, 0.0, 1.0, 1.0));
-    //violet
-    mPlayerColourValues.push_back(Ogre::ColourValue(1.0, 0.0, 1.0, 1.0));
-    //white
-    mPlayerColourValues.push_back(Ogre::ColourValue(1.0, 1.0, 1.0, 1.0));
-    //black
-    mPlayerColourValues.push_back(Ogre::ColourValue(0.5, 0.5, 0.5, 1.0));
-
     mThreadStopRequested.set(false);
     mExitRequested.set(false);
 

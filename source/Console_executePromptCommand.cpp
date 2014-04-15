@@ -596,11 +596,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             else if (arguments.compare("colors") == 0 || arguments.compare("colours") == 0)
             {
                 tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
-                for (unsigned int i = 0; i < frameListener->mPlayerColourValues.size(); ++i)
+                for (unsigned int i = 0; i < gameMap->numFilledSeats(); ++i)
                 {
-                    tempSS << "\n" << i << "\t\t" << frameListener->mPlayerColourValues[i].r
-                            << "\t\t" << frameListener->mPlayerColourValues[i].g << "\t\t"
-                            << frameListener->mPlayerColourValues[i].b;
+                    Ogre::ColourValue color = gameMap->getFilledSeat(i)->colourValue;
+
+                    tempSS << "\n" << i << "\t\t" << color.r
+                           << "\t\t" << color.g << "\t\t" << color.b;
                 }
             }
 
@@ -987,54 +988,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     += "\nERROR:  Visual debugging only works when you are hosting a game.\n";
         }
     }
-
-    else if (command.compare("addcolor") == 0)
-    {
-        if (!arguments.empty())
-        {
-            Ogre::Real tempR, tempG, tempB;
-            tempSS.str(arguments);
-            tempSS >> tempR >> tempG >> tempB;
-            frameListener->mPlayerColourValues.push_back(Ogre::ColourValue(tempR, tempG, tempB));
-            tempSS.str("");
-            tempSS << "Color number " << frameListener->mPlayerColourValues.size() << " added.";
-            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
-        }
-        else
-        {
-            frameListener->mCommandOutput
-                    += "\nERROR:  You need to specify and RGB triplet with values in (0.0, 1.0)\n";
-        }
-    }
-
-    else if (command.compare("setcolor") == 0)
-    {
-        if (!arguments.empty())
-        {
-            unsigned int index;
-            Ogre::Real tempR, tempG, tempB;
-            tempSS.str(arguments);
-            tempSS >> index >> tempR >> tempG >> tempB;
-            if (index < frameListener->mPlayerColourValues.size())
-            {
-                frameListener->mPlayerColourValues[index] = Ogre::ColourValue(tempR, tempG, tempB);
-                tempSS.str("");
-                tempSS << "Color number " << index << " changed to " << tempR
-                        << "\t" << tempG << "\t" << tempB;
-                frameListener->mCommandOutput += "an" + tempSS.str() + "\n";
-            }
-
-        }
-        else
-        {
-            tempSS.str("");
-            tempSS  << "ERROR:  You need to specify a color index between 0 and "
-                    << frameListener->mPlayerColourValues.size()
-                    << " and an RGB triplet with values in (0.0, 1.0)";
-            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
-        }
-    }
-
 
     else if (command.compare("bspline") == 0)
     {

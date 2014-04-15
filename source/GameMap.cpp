@@ -1265,6 +1265,7 @@ bool GameMap::addPlayer(Player *p)
         return true;
     }
 
+    LogManager::getSingleton().logMessage("Couldn't add player: " + p->getNick());
     return false;
 }
 
@@ -1277,7 +1278,9 @@ bool GameMap::assignAI(Player& player, const std::string& aiType, const std::str
     if (success)
     {
         player.setHasAi(true);
+        LogManager::getSingleton().logMessage("Assign AI: " + aiType + ", to player: " + player.getNick());
     }
+    LogManager::getSingleton().logMessage("Couldn't assign AI: " + aiType + ", to player: " + player.getNick());
     return success;
 }
 
