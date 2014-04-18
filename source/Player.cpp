@@ -37,7 +37,10 @@ const Creature* Player::getCreatureInHand(int i) const
 void Player::addCreatureToHand(Creature *c)
 {
     if (mCreaturesInHand.empty())
+    {
         mCreaturesInHand.push_back(c);
+        return;
+    }
 
     // creaturesInHand.push_front(c);
     // Since vectors have no push_front method,
