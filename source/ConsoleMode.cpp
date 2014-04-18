@@ -23,27 +23,18 @@
 #include "LogManager.h"
 #include "ASWrapper.h"
 #include "RenderManager.h"
-#include "PrefixTreeLL.h"
 
 #include <list>
 #include <string>
 
 ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
     AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
-    mConsole(console),
-    mPrefixTree(NULL),
-    mLl(NULL),
-    mNonTagKeyPressed(true)
+    mConsole(console)
 {
-    mPrefixTree = new PrefixTreeLL();
-    mLl = new list<string>();
-    mPrefixTree->build(("./dictionary.txt"));
 }
 
 ConsoleMode::~ConsoleMode()
 {
-    delete mPrefixTree;
-    delete mLl;
 }
 
 void ConsoleMode::activate()
@@ -84,129 +75,100 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
     if (!mConsole->mVisible)
         return false;
 
-    if(arg.key == OIS::KC_TAB)
+    switch(arg.key)
     {
-        if(!mNonTagKeyPressed)
+    case OIS::KC_GRAVE:
+    case OIS::KC_ESCAPE:
+    case OIS::KC_F12:
+        regressMode();
+        mConsole->setVisible(false);
+        ODFrameListener::getSingleton().setTerminalActive(false);
+        getKeyboard()->setTextTranslation(OIS::Keyboard::Off);
+        break;
+
+    case OIS::KC_RETURN:
+    {
+        //only do this for non-empty input
+        if(!mConsole->mPrompt.empty())
         {
-            // it points to postfix candidate
-            if (mIt == mLl->end())
+            //print our input and push it to the history
+            mConsole->print(mConsole->mPrompt);
+            mConsole->mHistory.push_back(mConsole->mPrompt);
+            ++mConsole->mCurHistPos;
+
+            //split the input into it's space-separated "words"
+            std::vector<Ogre::String> params = mConsole->split(mConsole->mPrompt, ' ');
+
+            //TODO: remove this until AS console handler is ready
+            Ogre::String command = params[0];
+            Ogre::String arguments;
+            for(size_t i = 1; i< params.size(); ++i)
             {
-                mConsole->mPrompt = mPrefix;
-                mIt = mLl->begin();
+                arguments += params[i];
+                if(i < params.size() - 1)
+                {
+                    arguments += ' ';
+                }
             }
-            else{
-                mConsole->mPrompt = mPrefix + *mIt;
-                ++mIt;
+            //remove until this point
+
+            // Force command to lower case
+            //TODO: later do this only for params[0]
+            std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+            std::transform(params[0].begin(), params[0].end(), params[0].begin(), ::tolower);
+
+            //TODO: remove executePromptCommand after it is fully converted
+            //for now try hardcoded commands, and if none is found try AS
+            if(!mConsole->executePromptCommand(command, arguments))
+            {
+                LogManager::getSingleton().logMessage("Console command: " + command
+                    + " - arguments: " + arguments + " - actionscript");
+                ASWrapper::getSingleton().executeConsoleCommand(params);
             }
+
+            mConsole->mPrompt.clear();
         }
         else
         {
-            mLl->clear();
-            mConsole->mPrompt += mPrefixTree->complete(mConsole->mPrompt.c_str(), mLl);
-            mPrefix = mConsole->mPrompt ;
-            mIt = mLl->begin();
+            // Set history position back to last entry
+            mConsole->mCurHistPos = mConsole->mHistory.size();
         }
-
-        mNonTagKeyPressed= false;
+        break;
     }
-    else
+    case OIS::KC_BACK:
+        mConsole->mPrompt = mConsole->mPrompt.substr(0, mConsole->mPrompt.length() - 1);
+        break;
+
+    case OIS::KC_PGUP:
+        mConsole->scrollText(true);
+        break;
+
+    case OIS::KC_PGDOWN:
+        mConsole->scrollText(false);
+        break;
+
+    case OIS::KC_UP:
+        mConsole->scrollHistory(true);
+        break;
+
+    case OIS::KC_DOWN:
+        mConsole->scrollHistory(false);
+        break;
+
+    case OIS::KC_F10:
     {
-        mNonTagKeyPressed = true;
-        switch(arg.key)
+        LogManager::getSingleton().logMessage("RTSS test----------");
+        RenderManager::getSingleton().rtssTest();
+        break;
+    }
+
+    default:
+        if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
+                        arg.text) != std::string::npos)
         {
-        case OIS::KC_GRAVE:
-        case OIS::KC_ESCAPE:
-        case OIS::KC_F12:
-            regressMode();
-            mConsole->setVisible(false);
-            ODFrameListener::getSingleton().setTerminalActive(false);
-            getKeyboard()->setTextTranslation(OIS::Keyboard::Off);
-            break;
-
-        case OIS::KC_RETURN:
-        {
-            //only do this for non-empty input
-            if(!mConsole->mPrompt.empty())
-            {
-                //print our input and push it to the history
-                mConsole->print(mConsole->mPrompt);
-                mConsole->mHistory.push_back(mConsole->mPrompt);
-                ++mConsole->mCurHistPos;
-
-                //split the input into it's space-separated "words"
-                std::vector<Ogre::String> params = mConsole->split(mConsole->mPrompt, ' ');
-
-                //TODO: remove this until AS console handler is ready
-                Ogre::String command = params[0];
-                Ogre::String arguments;
-                for(size_t i = 1; i< params.size(); ++i)
-                {
-                    arguments += params[i];
-                    if(i < params.size() - 1)
-                    {
-                        arguments += ' ';
-                    }
-                }
-                //remove until this point
-
-                // Force command to lower case
-                //TODO: later do this only for params[0]
-                std::transform(command.begin(), command.end(), command.begin(), ::tolower);
-                std::transform(params[0].begin(), params[0].end(), params[0].begin(), ::tolower);
-
-                //TODO: remove executePromptCommand after it is fully converted
-                //for now try hardcoded commands, and if none is found try AS
-                if(!mConsole->executePromptCommand(command, arguments))
-                {
-                    LogManager::getSingleton().logMessage("Console command: " + command
-                        + " - arguments: " + arguments + " - actionscript");
-                    ASWrapper::getSingleton().executeConsoleCommand(params);
-                }
-
-                mConsole->mPrompt.clear();
-            }
-            else
-            {
-                // Set history position back to last entry
-                mConsole->mCurHistPos = mConsole->mHistory.size();
-            }
-            break;
+            mConsole->mPrompt += arg.text;
         }
-        case OIS::KC_BACK:
-            mConsole->mPrompt = mConsole->mPrompt.substr(0, mConsole->mPrompt.length() - 1);
-            break;
-
-        case OIS::KC_PGUP:
-            mConsole->scrollText(true);
-            break;
-
-        case OIS::KC_PGDOWN:
-            mConsole->scrollText(false);
-            break;
-
-        case OIS::KC_UP:
-            mConsole->scrollHistory(true);
-            break;
-
-        case OIS::KC_DOWN:
-            mConsole->scrollHistory(false);
-            break;
-
-        case OIS::KC_F10:
-        {
-            LogManager::getSingleton().logMessage("RTSS test----------");
-            RenderManager::getSingleton().rtssTest();
-            break;
-        }
-
-        default:
-            if (std::string("abcdefghijklmnopqrstuvwxyz ABCDEFGHIJKLMNOPQRSTUVWXYZ,.<>/?1234567890-=\\!@#$%^&*()_+|;\':\"[]{}").find(
-                            arg.text) != std::string::npos)
-            {
-                mConsole->mPrompt += arg.text;
-            }
-            break;
-        }
+        break;
     }
 
     mConsole->mUpdateOverlay = true;

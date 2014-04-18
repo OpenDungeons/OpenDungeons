@@ -23,10 +23,6 @@
 #include <list>
 #include <string>
 
-using std::string; using std::list;
-
-class PrefixTreeLL;
-
 class  ConsoleMode: public AbstractApplicationMode
 {
 public:
@@ -51,11 +47,6 @@ public:
 
 private:
     Console* mConsole;
-    PrefixTreeLL* mPrefixTree;
-    list<std::string>* mLl;
-    std::string mPrefix;
-    bool mNonTagKeyPressed;
-    std::list<std::string>::iterator mIt;
 };
 
 #endif // CONSOLEMODE_H
