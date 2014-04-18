@@ -393,9 +393,6 @@ Tile::TileClearType Tile::getTilePassability() const
             break;
 
         case water:
-            return walkableTile;
-            break;
-
         case lava:
             return flyableTile;
             break;
