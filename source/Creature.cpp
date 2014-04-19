@@ -2109,6 +2109,14 @@ std::string Creature::getUniqueCreatureName()
     std::string tempString = mDefinition->getClassName()
                              + Ogre::StringConverter::toString(uniqueNumber);
     ++uniqueNumber;
+
+    while (getGameMap()->doesCreatureNameExist(tempString))
+    {
+        tempString = mDefinition->getClassName()
+                     + Ogre::StringConverter::toString(uniqueNumber);
+        ++uniqueNumber;
+    }
+
     return tempString;
 }
 

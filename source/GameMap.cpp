@@ -289,6 +289,21 @@ void GameMap::addClassDescription(CreatureDefinition c)
     classDescriptions.push_back(ptr);
 }
 
+bool GameMap::doesCreatureNameExist(const std::string& entity_name)
+{
+    sem_wait(&creaturesLockSemaphore);
+    for (unsigned int ii = 0; ii < creatures.size(); ++ii)
+    {
+        if (creatures[ii]->getName() == entity_name)
+        {
+            sem_post(&creaturesLockSemaphore);
+            return true;
+        }
+    }
+    sem_post(&creaturesLockSemaphore);
+    return false;
+}
+
 void GameMap::addCreature(Creature *cc)
 {
     sem_wait(&creaturesLockSemaphore);

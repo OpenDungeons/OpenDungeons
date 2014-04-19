@@ -97,6 +97,10 @@ public:
     //! \brief Clears the mesh and deletes the data structure for all the creatures in the GameMap.
     void clearCreatures();
 
+    //! \brief Tells whether the entity name already exists.
+    //! \note Ogre entity names must be unique.
+    bool doesCreatureNameExist(const std::string& entity_name);
+
     //! \brief Adds the address of a new creature to be stored in this GameMap.
     void addCreature(Creature *c);
 
