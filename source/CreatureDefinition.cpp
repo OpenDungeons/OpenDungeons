@@ -121,6 +121,7 @@ std::ostream& operator<<(std::ostream& os, CreatureDefinition *c)
     os << c->mHpPerLevel << "\t" << c->mManaPerLevel << "\t";
     os << c->mSightRadius << "\t" << c->mDigRate << "\t" << c->mDanceRate << "\t"
        << c->mMoveSpeed << "\t";
+    os << Tile::tilePassabilityToString(c->mTilePassability);
     os << c->mCoefficientHumans << "\t" << c->mCoefficientCorpars << "\t"
        << c->mCoefficientUndead << "\t";
     os << c->mCoefficientConstructs << "\t" << c->mCoefficientDenizens << "\t";
@@ -139,6 +140,8 @@ std::istream& operator>>(std::istream& is, CreatureDefinition *c)
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
     is >> c->mHpPerLevel >> c->mManaPerLevel;
     is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate >> c->mMoveSpeed;
+    is >> tempString;
+    c->mTilePassability = Tile::tilePassabilityFromString(tempString);
     is >> c->mCoefficientHumans >> c->mCoefficientCorpars >> c->mCoefficientUndead;
     is >> c->mCoefficientConstructs >> c->mCoefficientDenizens;
     is >> c->mCoefficientAltruism >> c->mCoefficientOrder >> c->mCoefficientPeace;
@@ -169,13 +172,14 @@ void CreatureDefinition::loadFromLine(const std::string& line, CreatureDefinitio
     c->mDigRate = Helper::toDouble(elems[12]);
     c->mDanceRate = Helper::toDouble(elems[13]);
     c->mMoveSpeed = Helper::toDouble(elems[14]);
+    c->mTilePassability = Tile::tilePassabilityFromString(elems[15]);
 
-    c->mCoefficientHumans = Helper::toDouble(elems[15]);
-    c->mCoefficientCorpars = Helper::toDouble(elems[16]);
-    c->mCoefficientUndead = Helper::toDouble(elems[17]);
-    c->mCoefficientConstructs = Helper::toDouble(elems[18]);
-    c->mCoefficientDenizens = Helper::toDouble(elems[19]);
-    c->mCoefficientAltruism = Helper::toDouble(elems[20]);
-    c->mCoefficientOrder = Helper::toDouble(elems[21]);
-    c->mCoefficientPeace = Helper::toDouble(elems[22]);
+    c->mCoefficientHumans = Helper::toDouble(elems[16]);
+    c->mCoefficientCorpars = Helper::toDouble(elems[17]);
+    c->mCoefficientUndead = Helper::toDouble(elems[18]);
+    c->mCoefficientConstructs = Helper::toDouble(elems[19]);
+    c->mCoefficientDenizens = Helper::toDouble(elems[20]);
+    c->mCoefficientAltruism = Helper::toDouble(elems[21]);
+    c->mCoefficientOrder = Helper::toDouble(elems[22]);
+    c->mCoefficientPeace = Helper::toDouble(elems[23]);
 }

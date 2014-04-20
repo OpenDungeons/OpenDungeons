@@ -193,7 +193,7 @@ private:
     //! \brief How fast the creature moves
     double mMoveSpeed;
 
-    //TODO:  This is not set from file yet.
+    //! \brief Tile passability (defines mostly if the creature is walking, flying, or etherreal)
     Tile::TileClearType mTilePassability;
 
     //! \brief Probability coefficients to determine how likely a creature is to come through the portal.

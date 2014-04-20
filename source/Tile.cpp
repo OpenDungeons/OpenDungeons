@@ -620,6 +620,30 @@ void Tile::loadFromLine(const std::string& line, Tile *t)
     //<< ", " << t->getFullness() << std::endl;
 }
 
+std::string Tile::tilePassabilityToString(TileClearType t)
+{
+    switch(t)
+    {
+        default:
+        case impassableTile:
+            return "impassableTile";
+        case walkableTile:
+            return "walkableTile";
+        case flyableTile:
+            return "flyableTile";
+    }
+}
+
+Tile::TileClearType Tile::tilePassabilityFromString(const::string& t)
+{
+    if (t == "flyableTile")
+        return flyableTile;
+    else if (t == "walkableTile")
+        return walkableTile;
+
+    return impassableTile;
+}
+
 std::string Tile::tileTypeToString(TileType t)
 {
     switch (t)

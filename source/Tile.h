@@ -272,6 +272,12 @@ public:
      */
     static std::string tileTypeToString(TileType t);
 
+    //! \brief Gives the tile passability string
+    static std::string tilePassabilityToString(TileClearType t);
+
+    //! \brief Gives the tile passability from the given string
+    static TileClearType tilePassabilityFromString(const::string& t);
+
     /**
      * \brief Sets the gameMap and resets the tile fullness.
      * FIXME: The fullness should be set at load time more properly.
