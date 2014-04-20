@@ -167,12 +167,13 @@ std::istream& operator>>(std::istream& is, Creature *c)
     is >> color;
     c->setColor(color);
 
-    c->mWeaponL = new Weapon;
+    // TODO: Load weapon from a catalog file.
+    c->mWeaponL = new Weapon(std::string(), 0.0, 0.0, 0.0, std::string());
     is >> c->mWeaponL;
     c->mWeaponL->setParentCreature(c);
     c->mWeaponL->setHandString("L");
 
-    c->mWeaponR = new Weapon;
+    c->mWeaponR = new Weapon(std::string(), 0.0, 0.0, 0.0, std::string());
     is >> c->mWeaponR;
     c->mWeaponR->setParentCreature(c);
     c->mWeaponR->setHandString("R");
@@ -218,23 +219,12 @@ void Creature::loadFromLine(const std::string& line, Creature* c)
 
     c->setColor(Helper::toInt(elems[5]));
 
-    c->mWeaponL = new Weapon;
-    c->mWeaponL->setName(elems[6]);
-    c->mWeaponL->setMeshName(elems[6] + ".mesh");
-    c->mWeaponL->setDamage(Helper::toDouble(elems[7]));
-    c->mWeaponL->setRange(Helper::toDouble(elems[8]));
-    c->mWeaponL->setDefense(Helper::toDouble(elems[9]));
-    c->mWeaponL->setParentCreature(c);
-    c->mWeaponL->setHandString("L");
+    // TODO: Load weapons from a catalog file.
+    c->mWeaponL = new Weapon(elems[6], Helper::toDouble(elems[7]),
+                             Helper::toDouble(elems[8]), Helper::toDouble(elems[9]), "L", c);
 
-    c->mWeaponR = new Weapon;
-    c->mWeaponR->setName(elems[10]);
-    c->mWeaponR->setMeshName(elems[10] + ".mesh");
-    c->mWeaponR->setDamage(Helper::toDouble(elems[11]));
-    c->mWeaponR->setRange(Helper::toDouble(elems[12]));
-    c->mWeaponR->setDefense(Helper::toDouble(elems[13]));
-    c->mWeaponR->setParentCreature(c);
-    c->mWeaponR->setHandString("R");
+    c->mWeaponR = new Weapon(elems[10], Helper::toDouble(elems[11]),
+                             Helper::toDouble(elems[12]), Helper::toDouble(elems[13]), "R", c);
 
     c->setHP(Helper::toDouble(elems[14]));
     c->setMana(Helper::toDouble(elems[15]));

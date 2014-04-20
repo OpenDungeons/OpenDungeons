@@ -1,68 +1,110 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef WEAPON_H
 #define WEAPON_H
+
+#include "GameEntity.h"
 
 #include <string>
 #include <istream>
 #include <ostream>
 
-#include "GameEntity.h"
-
 class Creature;
 
 class Weapon : public GameEntity
 {
-    public:
-        Weapon( const std::string&  name        = "",
-                double              damage      = 0.0,
-                double              range       = 0.0,
-                double              defense     = 0.0,
-                Creature*           parent      = 0,
-                const std::string&  handString  = ""
-               ) :
-            GameEntity      (name, "", 0),
-            handString      (handString),
-            damage          (damage),
-            range           (range),
-            defense         (defense),
-            parentCreature  (parent)
-        {}
+public:
+    Weapon(const std::string& name,
+           double             damage,
+           double             range,
+           double             defense,
+           const std::string& handString,
+           Creature*          parent = NULL):
+        GameEntity     (name, std::string(), 0),
+        mHandString    (handString),
+        mDamage        (damage),
+        mRange         (range),
+        mDefense       (defense),
+        mParentCreature(parent)
+    {
+        // TODO: Makes this obtained with a true parameter
+        setMeshName(name + ".mesh");
+    }
 
-        virtual ~Weapon() {};
+    virtual ~Weapon()
+    {}
 
-        static std::string getFormat();
-        friend std::ostream& operator<<(std::ostream& os, Weapon *w);
-        friend std::istream& operator>>(std::istream& is, Weapon *w);
+    static std::string getFormat();
+    friend std::ostream& operator<<(std::ostream& os, Weapon *w);
+    friend std::istream& operator>>(std::istream& is, Weapon *w);
 
-        inline double           getDamage() const                   { return damage; }
-        inline void             setDamage(const double nDamage)     { damage = nDamage; }
+    inline double getDamage() const
+    { return mDamage; }
 
-        inline double           getDefense() const                  { return defense; }
-        inline void             setDefense(const double nDefense)   { defense = nDefense; }
+    inline void setDamage(const double nDamage)
+    { mDamage = nDamage; }
 
-        inline const std::string&  getHandString() const           { return handString; }
-        inline void                setHandString(const std::string& nHandString)
-                                                                   { handString = nHandString; }
+    inline double getDefense() const
+    { return mDefense; }
 
-        inline Creature*        getParentCreature() const           { return parentCreature; }
-        inline void             setParentCreature(Creature* nParent){ parentCreature = nParent; }
+    inline void setDefense(const double nDefense)
+    { mDefense = nDefense; }
 
-        inline double           getRange() const                    { return range; }
-        inline void             setRange(const double nRange)       { range = nRange; }
+    inline const std::string& getHandString() const
+    { return mHandString; }
 
-        //TODO: implment these in a good way
-        bool doUpkeep(){ return true; }
-        void recieveExp(double experience){}
-        void takeDamage(double damage, Tile *tileTakingDamage) {}
-        double getHP(Tile *tile) {return 0;}
-        std::vector<Tile*> getCoveredTiles() { return std::vector<Tile*>() ;}
+    inline void setHandString(const std::string& nHandString)
+    { mHandString = nHandString; }
 
-    private:
-        std::string handString;
-        double      damage;
-        double      range;
-        double      defense;
-        Creature*   parentCreature;
+    inline Creature* getParentCreature() const
+    { return mParentCreature; }
+
+    inline void setParentCreature(Creature* nParent)
+    { mParentCreature = nParent; }
+
+    inline double getRange() const
+    { return mRange; }
+
+    inline void setRange(const double nRange)
+    { mRange = nRange; }
+
+    //TODO: implement these in a good way
+    bool doUpkeep()
+    { return true; }
+
+    void recieveExp(double experience)
+    {}
+
+    void takeDamage(double damage, Tile* tileTakingDamage)
+    {}
+
+    double getHP(Tile* tile)
+    { return 0.0; }
+
+    std::vector<Tile*> getCoveredTiles()
+    { return std::vector<Tile*>(); }
+
+private:
+    std::string mHandString;
+    double      mDamage;
+    double      mRange;
+    double      mDefense;
+    Creature*   mParentCreature;
 };
 
-#endif
-
+#endif // WEAPON_H
