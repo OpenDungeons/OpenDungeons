@@ -415,7 +415,7 @@ void Creature::doTurn()
 
     std::vector<Tile*> markedTiles;
 
-    if (mDefinition->isWorker())
+    if (mDefinition->getDigRate() > 0.0)
         markedTiles = getVisibleMarkedTiles();
 
     decideNextAction();
@@ -589,35 +589,27 @@ bool Creature::handleIdleAction()
     double diceRoll = Random::Double(0.0, 1.0);
     bool loopBack = false;
 
-    //cout << "idle ";
     setAnimationState("Idle");
-    //FIXME: make this into a while loop over a vector of <action, probability> pairs
-    //TODO: This should mainly be decided based on whether there are any
-    //marked and/or unclaimed tiles nearby, not a random value.
-    // Workers only.
-    if (mDefinition->isWorker())
-    {
-        // Decide to check for diggable tiles
-        if (!getVisibleMarkedTiles().empty())
-        {
-            loopBack = true;
-            pushAction(CreatureAction::digTile);
-        }
-        // Decide to check for claimable tiles
-        else if (diceRoll < 0.9)
-        {
-            loopBack = true;
-            pushAction(CreatureAction::claimTile);
-        }
 
-        // Decide to deposit the gold we are carrying into a treasury.
-        else if(mGold != 0)
-        {
-            //TODO: We need a flag to see if we have tried to do this
-            // so the creature won't get confused if we are out of space.
-            loopBack = true;
-            pushAction(CreatureAction::depositGold);
-        }
+    // Decide to check for diggable tiles
+    if (mDefinition->getDigRate() > 0.0 && !getVisibleMarkedTiles().empty())
+    {
+        loopBack = true;
+        pushAction(CreatureAction::digTile);
+    }
+    // Decide to check for claimable tiles
+    else if (mDefinition->getDanceRate() > 0.0 && diceRoll < 0.9)
+    {
+        loopBack = true;
+        pushAction(CreatureAction::claimTile);
+    }
+    // Decide to deposit the gold we are carrying into a treasury.
+    else if (mDefinition->getDigRate() > 0.0 && mGold > 0)
+    {
+        //TODO: We need a flag to see if we have tried to do this
+        // so the creature won't get confused if we are out of space.
+        loopBack = true;
+        pushAction(CreatureAction::depositGold);
     }
 
     // Any creature.
@@ -1841,8 +1833,8 @@ void Creature::doLevelUp()
     {
         mDigRate += 4.0 * getLevel() / (getLevel() + 5.0);
         mDanceRate += 0.12 * getLevel() / (getLevel() + 5.0);
+        //std::cout << "New dig rate: " << mDigRate << "\tnew dance rate: " << mDanceRate << "\n";
     }
-    //std::cout << "New dig rate: " << mDigRate << "\tnew dance rate: " << mDanceRate << "\n";
 
     mMoveSpeed += 0.4 / (getLevel() + 2.0);
 
