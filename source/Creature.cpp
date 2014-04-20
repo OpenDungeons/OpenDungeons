@@ -552,11 +552,20 @@ void Creature::decideNextAction()
         --mBattleFieldAgeCounter;
 
     if (mDefinition->isWorker())
+    {
+        // Workers will regenerate slowly since they never sleep
+        mHp += 1.0;
+        if (mHp >= mMaxHP)
+            mHp = mMaxHP;
         return;
+    }
+
+    // Check whether the creature is weak
+    bool isWeak = (mHp < mMaxHP / 3);
 
     // Check to see if we have found a "home" tile where we can sleep yet.
-    if (Random::Double(0.0, 1.0) < 0.03 && mHomeTile == NULL
-        && peekAction().getType() != CreatureAction::findHome)
+    if (isWeak || (Random::Double(0.0, 1.0) < 0.03 && mHomeTile == NULL
+        && peekAction().getType() != CreatureAction::findHome))
     {
         // Check to see if there are any quarters owned by our color that we can reach.
         std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::quarters, getColor());
@@ -569,8 +578,8 @@ void Creature::decideNextAction()
     }
 
     // If we have found a home tile to sleep on, see if we are tired enough to want to go to sleep.
-    if (mHomeTile != 0 && 100.0 * std::pow(Random::Double(0.0, 0.8), 2) > mAwakeness
-        && peekAction().getType() != CreatureAction::sleep)
+    if (isWeak || (mHomeTile != NULL && 100.0 * std::pow(Random::Double(0.0, 0.8), 2) > mAwakeness
+        && peekAction().getType() != CreatureAction::sleep))
     {
         pushAction(CreatureAction::sleep);
     }
@@ -1785,12 +1794,21 @@ bool Creature::handleSleepAction()
     {
         // We are at the home tile so sleep.
         setAnimationState("Sleep");
+        // Improve awakeness
         mAwakeness += 4.0;
         if (mAwakeness > 100.0)
-        {
             mAwakeness = 100.0;
+        // Improve HP but a bit slower.
+        mHp += 1.0;
+        if (mHp > mMaxHP)
+            mHp = mMaxHP;
+        // Improve mana
+        mMana += 4.0;
+        if (mMana > mMaxMana)
+            mMana = mMaxMana;
+
+        if (mAwakeness >= 100.0 && mHp >= mMaxHP && mMana >= mMaxMana)
             popAction();
-        }
     }
     return false;
 }
