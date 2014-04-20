@@ -166,7 +166,7 @@ void ODFrameListener::requestExit()
 
 void ODFrameListener::exitApplication()
 {
-    LogManager::getSingleton().logMessage("\nClosing down.");
+    LogManager::getSingleton().logMessage("Closing down.");
     //Mark that we want the threads to stop.
     requestStopThreads();
 

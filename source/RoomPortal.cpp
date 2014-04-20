@@ -85,7 +85,7 @@ bool RoomPortal::doUpkeep(Room *r)
  */
 void RoomPortal::spawnCreature()
 {
-    std::cout << "\n\n\n\n\nPortal: " << getName() << "  spawn creature...\n";
+    std::cout << "Portal: " << getName() << "  spawn creature..." << std::endl;
     CreatureDefinition *classToSpawn = NULL;
 
     if (portalObject != NULL)
@@ -116,7 +116,7 @@ void RoomPortal::spawnCreature()
         }
     }
 
-    std::cout << "\n\n\nSpawning a creature of class " << classToSpawn->getClassName() << "\n\n\n";
+    std::cout << "Spawning a creature of class " << classToSpawn->getClassName() << std::endl;
 
     // Create a new creature and copy over the class-based creature parameters.
     Creature *newCreature = new Creature(getGameMap());

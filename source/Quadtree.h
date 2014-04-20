@@ -47,8 +47,8 @@ Entry(Creature& cc):creature_list(1,&cc){this->index_point = cc.get2dPosition();
     }
 
     void changeQuad(CullingQuad* qq){
-	std::cerr << " changeQuads :: " << qq << std::endl;
-	printList();
+	//std::cerr << " changeQuads :: " << qq << std::endl;
+	//printList();
 	for(list<Creature*>::iterator it =  creature_list.begin(); it!=creature_list.end(); it++ ){
 	    (*it)->setQuad(qq);
 	}
