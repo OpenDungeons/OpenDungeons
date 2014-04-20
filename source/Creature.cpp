@@ -100,9 +100,6 @@ Creature::Creature(GameMap* gameMap, const std::string& name) :
 
     setIsOnMap(false);
 
-    setHP(100.0);
-    setMana(100.0);
-
     setObjectType(GameEntity::creature);
 
     pushAction(CreatureAction::idle);
@@ -182,10 +179,9 @@ std::istream& operator>>(std::istream& is, Creature *c)
 
     // Copy the class based items
     CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(className);
-    if (creatureClass != 0)
+    if (creatureClass != NULL)
     {
-        //*c = *creatureClass;
-        c->mDefinition = creatureClass;
+        c->setCreatureDefinition(creatureClass);
     }
     assert(c->mDefinition);
 
@@ -243,13 +239,6 @@ void Creature::loadFromLine(const std::string& line, Creature* c)
     c->setHP(Helper::toDouble(elems[14]));
     c->setMana(Helper::toDouble(elems[15]));
 }
-
-Creature& Creature::operator=(const CreatureDefinition* c2)
-{
-    setCreatureDefinition(c2);
-    return *this;
-}
-
 
 /*! \brief Changes the creature's position to a new position.
  *
@@ -2106,14 +2095,13 @@ std::vector<Tile*> Creature::getCoveredTiles()
 std::string Creature::getUniqueCreatureName()
 {
     static int uniqueNumber = 1;
-    std::string tempString = mDefinition->getClassName()
-                             + Ogre::StringConverter::toString(uniqueNumber);
+    std::string className = mDefinition ? mDefinition->getClassName() : std::string();
+    std::string tempString = className + Ogre::StringConverter::toString(uniqueNumber);
     ++uniqueNumber;
 
     while (getGameMap()->doesCreatureNameExist(tempString))
     {
-        tempString = mDefinition->getClassName()
-                     + Ogre::StringConverter::toString(uniqueNumber);
+        tempString = className + Ogre::StringConverter::toString(uniqueNumber);
         ++uniqueNumber;
     }
 
@@ -2197,6 +2185,24 @@ std::string Creature::getStatsText()
 void Creature::setCreatureDefinition(const CreatureDefinition* def)
 {
     mDefinition = def;
+
+    if (mDefinition == NULL)
+    {
+        std::cout << "Invalid creature definition for creature: " << getName() << std::endl;
+        return;
+    }
+
+    // Note: We reset the creature to level 1 in that case.
+    setLevel(1);
+    mExp = 0.0;
+
+    mMaxHP = def->getHpPerLevel();
+    setHP(mMaxHP);
+    mMaxMana = def->getManaPerLevel();
+    setMana(mMaxMana);
+    setMoveSpeed(def->getMoveSpeed());
+    mDigRate = def->getDigRate();
+    mDanceRate = def->getDanceRate();
 }
 
 //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.

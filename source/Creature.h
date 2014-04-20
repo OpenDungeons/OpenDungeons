@@ -193,8 +193,6 @@ public:
     //! \brief Loads the map light data from a level line.
     static void loadFromLine(const std::string& line, Creature* c);
 
-    Creature& operator=(const CreatureDefinition* c2);
-
     inline void setQuad(CullingQuad* cq)
     { mTracingCullingQuad = cq; }
 

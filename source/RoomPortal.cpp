@@ -132,9 +132,6 @@ void RoomPortal::spawnCreature()
     newCreature->setWeaponL(new Weapon("none", 5, 4, 0, newCreature, "L"));
     newCreature->setWeaponR(new Weapon("none", 5, 4, 0, newCreature, "R"));
 
-    newCreature->setHP(classToSpawn->getMaxHp());
-    newCreature->setMana(classToSpawn->getMaxMana());
-
     // Add the creature to the gameMap and create meshes so it is visible.
     getGameMap()->addCreature(newCreature);
     newCreature->createMesh();

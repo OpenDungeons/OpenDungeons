@@ -37,6 +37,7 @@
 #include "ResourceManager.h"
 #include "Network.h"
 #include "CullingManager.h"
+#include "Weapon.h"
 
 #include <OgreSceneNode.h>
 #include <OgreEntity.h>
@@ -457,21 +458,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             CreatureDefinition *tempClass = gameMap->getClassDescription(tempCreature->getDefinition()->getClassName());
             if (tempClass != NULL)
             {
-                *tempCreature = tempClass;
+                tempCreature->setCreatureDefinition(tempClass);
                 tempSS >> tempCreature;
 
+                tempCreature->createMesh();
+                tempCreature->getWeaponL()->createMesh();
+                tempCreature->getWeaponR()->createMesh();
                 gameMap->addCreature(tempCreature);
-
-                // Create the mesh and SceneNode for the new creature
-                RenderManager* rdrMgr = RenderManager::getSingletonPtr();
-                Ogre::Entity *ent = rdrMgr->getSceneManager()->createEntity("Creature_"
-                        + tempCreature->getName(), tempCreature->getDefinition()->getMeshName());
-                Ogre::SceneNode *node = rdrMgr->getCreatureSceneNode()->createChildSceneNode(
-                        tempCreature->getName() + "_node");
-                //node->setPosition(tempCreature->getPosition()/BLENDER_UNITS_PER_OGRE_UNIT);
-                node->setPosition(tempCreature->getPosition());
-                node->setScale(tempCreature->getDefinition()->getScale());
-                node->attachObject(ent);
                 frameListener->mCommandOutput += "\nCreature added successfully\n";
             }
             else

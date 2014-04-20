@@ -130,6 +130,7 @@ public:
     inline double               getMaxHp        () const    { return mMaxHP; }
     inline double               getMaxMana      () const    { return mMaxMana; }
     inline const std::string&   getMeshName     () const    { return mMeshName; }
+    inline double               getMoveSpeed    () const    { return mMoveSpeed; }
     inline const Ogre::Vector3& getScale        () const    { return mScale; }
     inline double               getSightRadius  () const    { return mSightRadius; }
 

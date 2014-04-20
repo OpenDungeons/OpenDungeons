@@ -57,6 +57,8 @@ void RoomDungeonTemple::produceKobold()
             newCreature->setWeaponR(new Weapon("none", 5, 4, 0, newCreature, "R"));
 
             newCreature->createMesh();
+            newCreature->getWeaponL()->createMesh();
+            newCreature->getWeaponR()->createMesh();
             getGameMap()->addCreature(newCreature);
         }
         else
