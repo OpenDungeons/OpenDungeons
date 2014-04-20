@@ -146,6 +146,7 @@ set(OD_SOURCEFILES
     ${SRC}/Gui.cpp
     ${SRC}/HermiteCatmullSpline.cpp
     ${SRC}/InputManager.cpp
+    ${SRC}/KeeperAI.cpp
     ${SRC}/LogManager.cpp
     ${SRC}/main.cpp
     ${SRC}/MapLight.cpp
@@ -184,7 +185,6 @@ set(OD_SOURCEFILES
     ${SRC}/Socket.cpp
     ${SRC}/SoundEffectsHelper.cpp
     ${SRC}/Spell.cpp
-    ${SRC}/TestAI.cpp
     ${SRC}/TextRenderer.cpp
     ${SRC}/Tile.cpp
     ${SRC}/TileCoordinateMap.cpp

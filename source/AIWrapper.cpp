@@ -99,7 +99,8 @@ std::vector< Tile* > AIWrapper::getAffectedTiles(int x1, int y1, int x2, int y2)
     std::vector<Tile*>::iterator it = affectedTiles.begin();
     while(it != affectedTiles.end())
     {
-        if((*it)->getColor() != seat.getColor() || !(*it)->isBuildableUpon()) {
+        if((*it)->getColor() != seat.getColor() || !(*it)->isBuildableUpon())
+        {
             it = affectedTiles.erase(it);
         }
         else
@@ -108,10 +109,4 @@ std::vector< Tile* > AIWrapper::getAffectedTiles(int x1, int y1, int x2, int y2)
         }
     }
     return affectedTiles;
-}
-
-
-AIWrapper& AIWrapper::operator=(const AIWrapper& other)
-{
-    return *this;
 }

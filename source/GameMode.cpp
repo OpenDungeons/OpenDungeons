@@ -119,7 +119,7 @@ bool GameMode::startLevel(const std::string& levelFilename)
             // The empty seat is removed by addPlayer(), so we loop without incrementing i
             if (mGameMap->addPlayer(aiPlayer))
             {
-                mGameMap->assignAI(*aiPlayer, "testai");
+                mGameMap->assignAI(*aiPlayer, "KeeperAI");
                 continue;
             }
         }

@@ -55,7 +55,6 @@ public:
     { return player; }
 
 private:
-    virtual AIWrapper& operator=(const AIWrapper& other);
     std::vector<Tile*> getAffectedTiles(int x1, int y1, int x2, int y2);
 
     GameMap& gameMap;
