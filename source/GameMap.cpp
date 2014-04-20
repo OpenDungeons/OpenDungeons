@@ -1210,7 +1210,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
     return returnList;
 }
 
-bool GameMap::addPlayer(Player *p)
+bool GameMap::addPlayer(Player* p)
 {
     if (!emptySeats.empty())
     {
@@ -1227,14 +1227,15 @@ bool GameMap::addPlayer(Player *p)
 
 bool GameMap::assignAI(Player& player, const std::string& aiType, const std::string& parameters)
 {
-    bool success = aiManager.assignAI(player, aiType, parameters);
-    if (success)
+    if (aiManager.assignAI(player, aiType, parameters))
     {
         player.setHasAI(true);
         LogManager::getSingleton().logMessage("Assign AI: " + aiType + ", to player: " + player.getNick());
+        return true;
     }
+
     LogManager::getSingleton().logMessage("Couldn't assign AI: " + aiType + ", to player: " + player.getNick());
-    return success;
+    return false;
 }
 
 Player* GameMap::getPlayer(int index)
