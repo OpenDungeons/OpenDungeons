@@ -1,19 +1,15 @@
-#include <iostream>
-#include <cstdlib>
 
-#include "Quadtree.h"
+#include "CullingQuad.h"
+
 #include "MortuaryQuad.h"
 
-
-
-
-
+#include <iostream>
+#include <cstdlib>
+#include <cstdlib> // for exit function
 
 using std::cerr;
 using std::cout;
 using std::endl;
-
-
 
 using Ogre::Vector2;
 using std::ifstream;
@@ -25,8 +21,10 @@ using std::hex;
 using std::dec;
 using std::string;
 
-#include <cstdlib> // for exit function
-
+template <typename T> int sgnZero(T val)
+{
+    return (T(0) < val) - (val < T(0));
+}
 
 void CullingQuad::setCenter(double xx, double yy)
 {

@@ -130,6 +130,7 @@ set(OD_SOURCEFILES
     ${SRC}/CreatureDefinition.cpp
     ${SRC}/CreatureSound.cpp
     ${SRC}/CullingManager.cpp
+    ${SRC}/CullingQuad.cpp
     ${SRC}/DummyArrayClass.cpp
     ${SRC}/DirectionalTrap.cpp
     ${SRC}/EditorMode.cpp
@@ -164,7 +165,6 @@ set(OD_SOURCEFILES
     ${SRC}/ODServer.cpp
     ${SRC}/Player.cpp
     ${SRC}/ProximityTrap.cpp
-    ${SRC}/Quadtree.cpp
     ${SRC}/RadialVector2.cpp
     ${SRC}/Random.cpp
     ${SRC}/RenderManager.cpp

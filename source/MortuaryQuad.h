@@ -18,7 +18,7 @@
 #ifndef MORTUARY_QUAD_H
 #define MORTUARY_QUAD_H
 
-#include "Quadtree.h"
+#include "CullingQuad.h"
 
 #include <vector>
 

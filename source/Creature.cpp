@@ -34,7 +34,7 @@
 #include "RenderManager.h"
 #include "Random.h"
 #include "LogManager.h"
-#include "Quadtree.h"
+#include "CullingQuad.h"
 #include "Helper.h"
 
 #include <CEGUI/System.h>

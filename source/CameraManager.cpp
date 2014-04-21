@@ -22,7 +22,7 @@
 #include "CameraManager.h"
 
 #include "SoundEffectsHelper.h"
-#include "Quadtree.h"
+#include "CullingQuad.h"
 #include "ModeManager.h"
 #include "HermiteCatmullSpline.h"
 #include "ODApplication.h"
