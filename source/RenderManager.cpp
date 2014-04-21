@@ -810,7 +810,7 @@ void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
                             + "_node" );
     node->setPosition ( static_cast<Ogre::Real>(curTile->x),
                         static_cast<Ogre::Real>(curTile->y),
-                        static_cast<Ogre::Real>(0.0f));
+                        static_cast<Ogre::Real>(0.1f));
     node->setScale ( Ogre::Vector3 ( BLENDER_UNITS_PER_OGRE_UNIT,
                                      BLENDER_UNITS_PER_OGRE_UNIT,
                                      BLENDER_UNITS_PER_OGRE_UNIT ) );
