@@ -30,19 +30,32 @@ public:
 
 protected:
     //! \brief Create some room around the temple.
-    void MakeSomePlace();
+    //! \brief Returns whether the action could succeed.
+    //! It will also return false once it's done.
+    bool MakeSomePlace();
 
     //! \brief Create a sleep room once we've got enough gold
-    void buildSleepRoom();
+    //! \brief Returns whether the action could succeed.
+    //! It will also return false once it's done.
+    bool buildSleepRoom();
+
+    //! \brief Create a dojo room once we've got enough gold
+    //! \brief Returns whether the action could succeed.
+    //! It will also return false once it's done.
+    bool buildDojoRoom();
 
     //! \brief Look for gold and make way up to it.
-    void lookForGold();
+    //! \brief Returns whether the action could succeed.
+    //! It will also return false once it's done.
+    bool lookForGold();
 
 private:
     static AIFactoryRegister<KeeperAI> reg;
 
     bool mSomePlaceMade;
     bool mSleepRoomMade;
+    bool mDojoRoomMade;
+    bool mNoMoreReachableGold;
     double mLastTimeLookingForGold;
 };
 

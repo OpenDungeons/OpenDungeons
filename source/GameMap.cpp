@@ -1082,7 +1082,8 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
                 break;
 
             case Tile::diggableTile:
-                if (neighbor->getTile()->isDiggable(color) == false)
+                if (neighbor->getTile()->getTilePassability() != Tile::walkableTile
+                    && neighbor->getTile()->isDiggable(color) == false)
                 {
                     processNeighbor = false;
                 }
@@ -1178,7 +1179,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
         currentEntry = (*itr);
         do
         {
-            if (currentEntry->getTile() != 0)
+            if (currentEntry->getTile() != NULL)
             {
                 returnList.push_front(currentEntry->getTile());
                 currentEntry = currentEntry->getParent();
