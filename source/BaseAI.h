@@ -37,16 +37,11 @@ public:
      *  successful call.
      */
     virtual bool doTurn(double frameTime) = 0;
-    virtual inline AIManager::AIType getType() const
-    { return mAiType; }
 
 protected:
     virtual bool initialize(const std::string& parameters);
 
     AIWrapper mAiWrapper;
-
-private:
-    AIManager::AIType mAiType;
 };
 
 #endif // BASEAI_H

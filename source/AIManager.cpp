@@ -58,9 +58,3 @@ void AIManager::clearAIList()
     }
     aiList.clear();
 }
-
-AIManager& AIManager::operator=(const AIManager& other)
-{
-    return *this;
-}
-

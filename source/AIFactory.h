@@ -18,11 +18,12 @@
 #ifndef ABSTRACTBASEFACTORY_H
 #define ABSTRACTBASEFACTORY_H
 
+#include "BaseAI.h"
+
 #include <string>
 #include <map>
 #include <vector>
 #include <cstddef>
-#include "BaseAI.h"
 
 class AIFactory
 {
@@ -37,7 +38,8 @@ public:
             return NULL;
 
         std::map<std::string, CreateAIFunc>::iterator it = mTypeMap->find(className);
-        if(it != mTypeMap->end()) {
+        if(it != mTypeMap->end())
+        {
             return ((*it).second)(gameMap, player, parameters);
         }
         return NULL;

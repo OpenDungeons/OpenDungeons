@@ -18,8 +18,7 @@
 #include "BaseAI.h"
 
 BaseAI::BaseAI(GameMap& gameMap, Player& player, const std::string& parameters):
-    mAiWrapper(gameMap, player),
-    mAiType(AIManager::AIType::invalidAI)
+    mAiWrapper(gameMap, player)
 {
     initialize(parameters);
 }

@@ -30,12 +30,6 @@ class AIManager
 {
 
 public:
-    enum AIType
-    {
-        invalidAI,
-        nullAI,
-        testAI
-    };
     typedef std::list<BaseAI*> AIList;
 
     AIManager(GameMap& gameMap);
@@ -46,8 +40,6 @@ public:
     void clearAIList();
 
 private:
-    virtual AIManager& operator=(const AIManager& other);
-
     GameMap& gameMap;
     AIList aiList;
 };

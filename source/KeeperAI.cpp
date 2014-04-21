@@ -24,10 +24,9 @@
 
 AIFactoryRegister<KeeperAI> KeeperAI::reg("KeeperAI");
 
-KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& parameters)
-    : BaseAI(gameMap, player, parameters)
+KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& parameters):
+    BaseAI(gameMap, player, parameters)
 {
-
 }
 
 bool KeeperAI::doTurn(double frameTime)
