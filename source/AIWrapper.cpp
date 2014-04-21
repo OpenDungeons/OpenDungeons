@@ -65,7 +65,7 @@ std::vector< const Room* > AIWrapper::getOwnedRoomsByType(Room::RoomType type)
     return gm.getRoomsByTypeAndColor(type, seat.getColor());
 }
 
-const Room* AIWrapper::getDungeonTemple()
+Room* AIWrapper::getDungeonTemple()
 {
     if(dungeonTemple == NULL)
     {

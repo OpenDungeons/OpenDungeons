@@ -982,20 +982,20 @@ void *GameMap::creatureDoTurnHelperThread(void *p)
 }
 
 bool GameMap::pathExists(int x1, int y1, int x2, int y2,
-                         Tile::TileClearType passability)
+                         Tile::TileClearType passability, int color)
 {
     return (passability == Tile::walkableTile)
            ? walkablePathExists(x1, y1, x2, y2)
-           : path(x1, y1, x2, y2, passability).size() >= 2;
+           : path(x1, y1, x2, y2, passability, color).size() >= 2;
 }
 
-std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability)
+std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearType passability, int color)
 {
     ++numCallsTo_path;
     std::list<Tile*> returnList;
 
     // If the start tile was not found return an empty path
-    if (getTile(x1, y1) == 0)
+    if (getTile(x1, y1) == NULL)
         return returnList;
 
     // If flood filling is enabled, we can possibly eliminate this path by checking to see if they two tiles are colored differently.
@@ -1005,7 +1005,7 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
 
     // If the end tile was not found return an empty path
     Tile* destination = getTile(x2, y2);
-    if (destination == 0)
+    if (destination == NULL)
         return returnList;
 
     AstarEntry *currentEntry = new AstarEntry(getTile(x1, y1), x1, y1, x2, y2);
@@ -1058,107 +1058,104 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
             neighbor->setTile(neighbors[i]);
 
             processNeighbor = true;
-            if (neighbor->getTile() != 0)
+            if (neighbor->getTile() == NULL)
+                continue;
+
+            //TODO:  This code is duplicated in GameMap::pathIsClear, it should be moved into a function.
+            // See if the neighbor tile in question is passable
+            switch (passability)
             {
-                //TODO:  This code is duplicated in GameMap::pathIsClear, it should be moved into a function.
-                // See if the neighbor tile in question is passable
-                switch (passability)
+            default:
+            case Tile::walkableTile:
+                if (neighbor->getTile()->getTilePassability() != Tile::walkableTile)
                 {
-                case Tile::walkableTile:
-                    if (!(neighbor->getTile()->getTilePassability() == Tile::walkableTile))
-                    {
-                        processNeighbor = false; // skip this tile and go on to the next neighbor tile
-                    }
-                    break;
+                    processNeighbor = false; // skip this tile and go on to the next neighbor tile
+                }
+                break;
 
-                case Tile::flyableTile:
-                    if (!(neighbor->getTile()->getTilePassability()
-                            == Tile::walkableTile
-                            || neighbor->getTile()->getTilePassability()
-                            == Tile::flyableTile))
-                    {
-                        processNeighbor = false; // skip this tile and go on to the next neighbor tile
-                    }
-                    break;
+            case Tile::flyableTile:
+                if (neighbor->getTile()->getTilePassability() != Tile::walkableTile
+                    && neighbor->getTile()->getTilePassability() != Tile::flyableTile)
+                {
+                    processNeighbor = false; // skip this tile and go on to the next neighbor tile
+                }
+                break;
 
-                case Tile::impassableTile:
-                    std::cerr
-                        << "\n\nERROR:  Trying to find a path through impassable tiles in GameMap::path()\n\n";
-                    exit(1);
-                    break;
+            case Tile::diggableTile:
+                if (neighbor->getTile()->isDiggable(color) == false)
+                {
+                    processNeighbor = false;
+                }
+                break;
 
-                default:
-                    std::cerr
-                        << "\n\nERROR:  Unhandled tile type in GameMap::path()\n\n";
-                    exit(1);
+            case Tile::impassableTile:
+                break;
+            }
+
+            if (!processNeighbor)
+                continue;
+
+            // See if the neighbor is in the closed list
+            bool neighborFound = false;
+            std::list<AstarEntry*>::iterator itr = closedList.begin();
+            while (itr != closedList.end())
+            {
+                if (neighbor->getTile() == (*itr)->getTile())
+                {
+                    neighborFound = true;
                     break;
                 }
-
-                if (processNeighbor)
+                else
                 {
-                    // See if the neighbor is in the closed list
-                    bool neighborFound = false;
-                    std::list<AstarEntry*>::iterator itr = closedList.begin();
-                    while (itr != closedList.end())
-                    {
-                        if (neighbor->getTile() == (*itr)->getTile())
-                        {
-                            neighborFound = true;
-                            break;
-                        }
-                        else
-                        {
-                            ++itr;
-                        }
-                    }
+                    ++itr;
+                }
+            }
 
-                    // Ignore the neighbor if it is on the closed list
-                    if (!neighborFound)
-                    {
-                        // See if the neighbor is in the open list
-                        neighborFound = false;
-                        std::list<AstarEntry*>::iterator itr = openList.begin();
-                        while (itr != openList.end())
-                        {
-                            if (neighbor->getTile() == (*itr)->getTile())
-                            {
-                                neighborFound = true;
-                                break;
-                            }
-                            else
-                            {
-                                ++itr;
-                            }
-                        }
+            // Ignore the neighbor if it is on the closed list
+            if (neighborFound)
+                continue;
 
-                        // If the neighbor is not in the open list
-                        if (!neighborFound)
-                        {
-                            // NOTE: This +1 weights all steps the same, diagonal steps
-                            // should get a greater wieght iis they are included in the future
-                            neighbor->setG(currentEntry->getG() + 1);
+            // See if the neighbor is in the open list
+            neighborFound = false;
+            itr = openList.begin();
+            while (itr != openList.end())
+            {
+                if (neighbor->getTile() == (*itr)->getTile())
+                {
+                    neighborFound = true;
+                    break;
+                }
+                else
+                {
+                    ++itr;
+                }
+            }
 
-                            // Use the manhattan distance for the heuristic
-                            currentEntry->setHeuristic(x1, y1, neighbor->getTile()->x, neighbor->getTile()->y);
-                            neighbor->setParent(currentEntry);
+            // If the neighbor is not in the open list
+            if (!neighborFound)
+            {
+                // NOTE: This +1 weights all steps the same, diagonal steps
+                // should get a greater wieght iis they are included in the future
+                neighbor->setG(currentEntry->getG() + 1);
 
-                            openList.push_back(new AstarEntry(*neighbor));
-                        }
-                        else
-                        {
-                            // If this path to the given neighbor tile is a shorter path than the
-                            // one already given, make this the new parent.
-                            // NOTE: This +1 weights all steps the same, diagonal steps
-                            // should get a greater wieght iis they are included in the future
-                            if (currentEntry->getG() + 1 < (*itr)->getG())
-                            {
-                                // NOTE: This +1 weights all steps the same, diagonal steps
-                                // should get a greater wieght iis they are included in the future
-                                (*itr)->setG(currentEntry->getG() + 1);
-                                (*itr)->setParent(currentEntry);
-                            }
-                        }
-                    }
+                // Use the manhattan distance for the heuristic
+                currentEntry->setHeuristic(x1, y1, neighbor->getTile()->x, neighbor->getTile()->y);
+                neighbor->setParent(currentEntry);
+
+                openList.push_back(new AstarEntry(*neighbor));
+            }
+            else
+            {
+                // If this path to the given neighbor tile is a shorter path than the
+                // one already given, make this the new parent.
+                // NOTE: This +1 weights all steps the same, diagonal steps
+                // should get a greater wieght iis they are included in the future
+                if (currentEntry->getG() + 1 < (*itr)->getG())
+                {
+                    // NOTE: This +1 weights all steps the same, diagonal steps
+                    // should get a greater wieght iis they are included in the future
+                    (*itr)->setG(currentEntry->getG() + 1);
+                    (*itr)->setParent(currentEntry);
                 }
             }
         }
@@ -2230,15 +2227,15 @@ void GameMap::enableFloodFill()
     }
 }
 
-std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability)
+std::list<Tile*> GameMap::path(Creature *c1, Creature *c2, Tile::TileClearType passability, int color)
 {
     return path(c1->positionTile()->x, c1->positionTile()->y,
-                c2->positionTile()->x, c2->positionTile()->y, passability);
+                c2->positionTile()->x, c2->positionTile()->y, passability, color);
 }
 
-std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability)
+std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passability, int color)
 {
-    return path(t1->x, t1->y, t2->x, t2->y, passability);
+    return path(t1->x, t1->y, t2->x, t2->y, passability, color);
 }
 
 Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)

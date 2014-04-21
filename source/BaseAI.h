@@ -35,6 +35,7 @@ public:
      *  This is the function that will be called each turn for the ai.
      *  For custom AI's this should be overridden and return true on a
      *  successful call.
+     *  \param frameTime Time elapsed since last call in seconds.
      */
     virtual bool doTurn(double frameTime) = 0;
 

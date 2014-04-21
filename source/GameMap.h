@@ -297,7 +297,7 @@ public:
     void doPlayerAITurn(double frameTime);
 
     //! \brief Tells whether a path exists between two corrdinate points with the given passability.
-    bool pathExists(int x1, int y1, int x2, int y2, Tile::TileClearType passability);
+    bool pathExists(int x1, int y1, int x2, int y2, Tile::TileClearType passability, int color = 0);
 
     /*! \brief Calculates the walkable path between tiles (x1, y1) and (x2, y2).
      *
@@ -309,11 +309,13 @@ public:
      * the path.  In most cases you will want to call GameMap::cutCorners on the
      * returned path to shorten the number of steps on the path, as well as the
      * actual walking distance along the path.
+     * \param color The color param is used when searching a diggable path to know
+     * what tile actually diggable for the given team color.
      */
     std::list<Tile*> path(int x1, int y1, int x2, int y2,
-                          Tile::TileClearType passability);
-    std::list<Tile*> path(Creature *c1, Creature *c2, Tile::TileClearType passability);
-    std::list<Tile*> path(Tile *t1, Tile *t2, Tile::TileClearType passability);
+                          Tile::TileClearType passability, int color = 0);
+    std::list<Tile*> path(Creature *c1, Creature *c2, Tile::TileClearType passability, int color = 0);
+    std::list<Tile*> path(Tile *t1, Tile *t2, Tile::TileClearType passability, int color = 0);
 
     /*! \brief Returns a list of valid tiles along a straight line from (x1, y1) to (x2, y2), NOTE: in spite of
      * the name, you do not need to be able to see through the tiles returned by this method.

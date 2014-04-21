@@ -29,10 +29,21 @@ public:
     virtual bool doTurn(double frameTime);
 
 protected:
+    //! \brief Create some room around the temple.
+    void MakeSomePlace();
+
+    //! \brief Create a sleep room once we've got enough gold
+    void buildSleepRoom();
+
+    //! \brief Look for gold and make way up to it.
     void lookForGold();
 
 private:
     static AIFactoryRegister<KeeperAI> reg;
+
+    bool mSomePlaceMade;
+    bool mSleepRoomMade;
+    double mLastTimeLookingForGold;
 };
 
 #endif // KEEPERAI_H

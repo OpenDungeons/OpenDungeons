@@ -44,11 +44,11 @@ public:
     bool pickUpCreature(Creature* creature);
     const std::vector<Creature*>& getCreaturesInHand();
     std::vector<const Room*> getOwnedRoomsByType(Room::RoomType type);
-    const Room* getDungeonTemple();
+    Room* getDungeonTemple();
     void markTileForDigging(Tile* tile);
 
     //Should remove these when we have the needed functions
-    const GameMap& getGameMap() const
+    GameMap& getGameMap() const
     { return gameMap; }
 
     const Player& getPlayer() const

@@ -71,7 +71,8 @@ public:
     {
         impassableTile = 0,
         walkableTile = 1,
-        flyableTile = 2
+        flyableTile = 2,
+        diggableTile = 3
     };
 
     Tile(int nX = 0, int nY = 0, TileType nType = dirt, double nFullness = 100.0) :
