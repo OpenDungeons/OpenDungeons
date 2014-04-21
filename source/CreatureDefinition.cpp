@@ -110,7 +110,7 @@ std::string CreatureDefinition::creatureJobToString(CreatureJob c)
     }
 }
 
-std::ostream& operator<<(std::ostream& os, CreatureDefinition *c)
+std::ostream& operator<<(std::ostream& os, CreatureDefinition* c)
 {
     //TODO: Need to include maxHP/maxMana in the file format.
     os << c->mClassName << "\t"
@@ -119,9 +119,10 @@ std::ostream& operator<<(std::ostream& os, CreatureDefinition *c)
     os << c->mBedMeshName << "\t" << c->mBedDim1 << "\t" << c->mBedDim2 << "\t";
     os << c->mScale.x << "\t" << c->mScale.y << "\t" << c->mScale.z << "\t";
     os << c->mHpPerLevel << "\t" << c->mManaPerLevel << "\t";
+    os << c->mMaxHP << "\t" << c->mMaxMana << "\t";
     os << c->mSightRadius << "\t" << c->mDigRate << "\t" << c->mDanceRate << "\t"
        << c->mMoveSpeed << "\t";
-    os << Tile::tilePassabilityToString(c->mTilePassability);
+    os << Tile::tilePassabilityToString(c->mTilePassability) << "\t";
     os << c->mCoefficientHumans << "\t" << c->mCoefficientCorpars << "\t"
        << c->mCoefficientUndead << "\t";
     os << c->mCoefficientConstructs << "\t" << c->mCoefficientDenizens << "\t";
@@ -130,7 +131,7 @@ std::ostream& operator<<(std::ostream& os, CreatureDefinition *c)
     return os;
 }
 
-std::istream& operator>>(std::istream& is, CreatureDefinition *c)
+std::istream& operator>>(std::istream& is, CreatureDefinition* c)
 {
     std::string tempString;
     is >> c->mClassName >> tempString;
@@ -138,7 +139,7 @@ std::istream& operator>>(std::istream& is, CreatureDefinition *c)
     is >> c->mMeshName;
     is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2;
     is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
-    is >> c->mHpPerLevel >> c->mManaPerLevel;
+    is >> c->mHpPerLevel >> c->mManaPerLevel >> c->mMaxHP >> c->mMaxMana;
     is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate >> c->mMoveSpeed;
     is >> tempString;
     c->mTilePassability = Tile::tilePassabilityFromString(tempString);
@@ -167,19 +168,21 @@ void CreatureDefinition::loadFromLine(const std::string& line, CreatureDefinitio
 
     c->mHpPerLevel = Helper::toDouble(elems[9]);
     c->mManaPerLevel = Helper::toDouble(elems[10]);
+    c->mMaxHP = Helper::toDouble(elems[11]);
+    c->mMaxMana = Helper::toDouble(elems[12]);
 
-    c->mSightRadius = Helper::toDouble(elems[11]);
-    c->mDigRate = Helper::toDouble(elems[12]);
-    c->mDanceRate = Helper::toDouble(elems[13]);
-    c->mMoveSpeed = Helper::toDouble(elems[14]);
-    c->mTilePassability = Tile::tilePassabilityFromString(elems[15]);
+    c->mSightRadius = Helper::toDouble(elems[13]);
+    c->mDigRate = Helper::toDouble(elems[14]);
+    c->mDanceRate = Helper::toDouble(elems[15]);
+    c->mMoveSpeed = Helper::toDouble(elems[16]);
+    c->mTilePassability = Tile::tilePassabilityFromString(elems[17]);
 
-    c->mCoefficientHumans = Helper::toDouble(elems[16]);
-    c->mCoefficientCorpars = Helper::toDouble(elems[17]);
-    c->mCoefficientUndead = Helper::toDouble(elems[18]);
-    c->mCoefficientConstructs = Helper::toDouble(elems[19]);
-    c->mCoefficientDenizens = Helper::toDouble(elems[20]);
-    c->mCoefficientAltruism = Helper::toDouble(elems[21]);
-    c->mCoefficientOrder = Helper::toDouble(elems[22]);
-    c->mCoefficientPeace = Helper::toDouble(elems[23]);
+    c->mCoefficientHumans = Helper::toDouble(elems[18]);
+    c->mCoefficientCorpars = Helper::toDouble(elems[19]);
+    c->mCoefficientUndead = Helper::toDouble(elems[20]);
+    c->mCoefficientConstructs = Helper::toDouble(elems[21]);
+    c->mCoefficientDenizens = Helper::toDouble(elems[22]);
+    c->mCoefficientAltruism = Helper::toDouble(elems[23]);
+    c->mCoefficientOrder = Helper::toDouble(elems[24]);
+    c->mCoefficientPeace = Helper::toDouble(elems[25]);
 }

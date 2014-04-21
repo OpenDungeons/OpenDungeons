@@ -391,15 +391,15 @@ void Creature::doTurn()
     // Heal.
     sem_wait(&mHpLockSemaphore);
     mHp += 0.1;
-    if (mHp > mDefinition->getMaxHp())
-        mHp = mDefinition->getMaxHp();
+    if (mHp > getMaxHp())
+        mHp = getMaxHp();
     sem_post(&mHpLockSemaphore);
 
     // Regenrate mana.
     sem_wait(&mManaLockSemaphore);
     mMana += 0.45;
-    if (mMana > mDefinition->getMaxMana())
-        mMana = mDefinition->getMaxMana();
+    if (mMana > mMaxMana)
+        mMana = mMaxMana;
     sem_post(&mManaLockSemaphore);
 
     mAwakeness -= 0.15;
@@ -552,13 +552,7 @@ void Creature::decideNextAction()
         --mBattleFieldAgeCounter;
 
     if (mDefinition->isWorker())
-    {
-        // Workers will regenerate slowly since they never sleep
-        mHp += 1.0;
-        if (mHp >= mMaxHP)
-            mHp = mMaxHP;
         return;
-    }
 
     // Check whether the creature is weak
     bool isWeak = (mHp < mMaxHP / 3);
@@ -1858,6 +1852,12 @@ void Creature::doLevelUp()
 
     mMaxHP += mDefinition->getHpPerLevel();
     mMaxMana += mDefinition->getManaPerLevel();
+
+    // Test the max HP/mana against their absolute class maximums
+    if (mMaxHP > mDefinition->getMaxHp())
+        mMaxHP = mDefinition->getMaxHp();
+    if (mMaxMana > mDefinition->getMaxMana())
+        mMaxMana = mDefinition->getMaxMana();
 
     // Scale up the mesh.
     if (isMeshExisting() && ((getLevel() <= 30 && getLevel() % 2 == 0) || (getLevel() > 30 && getLevel()

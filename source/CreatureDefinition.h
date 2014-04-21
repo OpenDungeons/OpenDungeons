@@ -51,17 +51,17 @@ public:
             const std::string&      className   = std::string(),
             const std::string&      meshName    = std::string(),
             const std::string&      bedMeshName = std::string(),
-            int                     bedDim1     = 0,
-            int                     bedDim2     = 0,
+            int                     bedDim1     = 1,
+            int                     bedDim2     = 1,
             const Ogre::Vector3&    scale       = Ogre::Vector3(1, 1, 1),
-            double                  sightRadius = 0.0,
+            double                  sightRadius = 15.0,
             double                  digRate     = 10.0,
             double                  danceRate   = 0.35,
-            double                  hpPerLevel  = 0.0,
-            double                  manaPerLevel= 0.0,
-            double                  maxHP       = 10.0,
-            double                  maxMana     = 10.0,
-            double                  moveSpeed   = 0.0,
+            double                  hpPerLevel  = 5.0,
+            double                  manaPerLevel= 5.0,
+            double                  maxHP       = 100.0,
+            double                  maxMana     = 100.0,
+            double                  moveSpeed   = 1.0,
 
             Tile::TileClearType     tilePassability = Tile::walkableTile,
 
@@ -109,7 +109,9 @@ public:
 
     inline static std::string getFormat()
     {
-        return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\thp/level\tmana/level\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\tcHumans\tcCorpars\tcUndead\tcConstructs\tcDenizens\tcAltruism\tcOrder\tcPeace\n";
+        return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\t"
+               "hp/level\tmana/level\tmaxHP\tmaxMana\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\ttilePassability\t"
+               "cHumans\tcCorpars\tcUndead\tcConstructs\tcDenizens\tcAltruism\tcOrder\tcPeace\n";
     }
 
     friend std::ostream & operator <<(std::ostream & os, CreatureDefinition *c);
