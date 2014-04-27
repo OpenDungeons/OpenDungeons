@@ -134,7 +134,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode("SquareSelectorNode");
     node->translate(Ogre::Vector3(0, 0, 0));
     node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
-                              BLENDER_UNITS_PER_OGRE_UNIT, 0.58 * BLENDER_UNITS_PER_OGRE_UNIT));
+                              BLENDER_UNITS_PER_OGRE_UNIT, 0.45 * BLENDER_UNITS_PER_OGRE_UNIT));
     node->attachObject(ent);
     Ogre::SceneNode *node2 = node->createChildSceneNode("Hand_node");
     node2->setPosition((Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
@@ -582,7 +582,7 @@ void RenderManager::rrCreateTile(const RenderRequest& renderRequest)
 
     node->setScale(Ogre::Vector3((Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                                  (Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                                 (Ogre::Real)(7.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
+                                 (Ogre::Real)(5.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
     node->resetOrientation();
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 }
@@ -796,25 +796,24 @@ void RenderManager::rrShowSquareSelector(const RenderRequest& renderRequest)
                                                                   (Ogre::Real)0);
 }
 
-
 void RenderManager::rrCreateRoom ( const RenderRequest& renderRequest )
 {
-    Room* curRoom = static_cast<Room*> ( renderRequest.p );
-    Tile* curTile = static_cast<Tile*> ( renderRequest.p2 );
+    Room* curRoom = static_cast<Room*>(renderRequest.p);
+    Tile* curTile = static_cast<Tile*>(renderRequest.p2);
 
     std::stringstream tempSS;
-    tempSS << curRoom->getName() << "_" << curTile->x << "_"
-    << curTile->y;
-    Ogre::Entity* ent = sceneManager->createEntity ( tempSS.str(), curRoom->getMeshName() + ".mesh" );
-    Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode ( tempSS.str()
-                            + "_node" );
-    node->setPosition ( static_cast<Ogre::Real>(curTile->x),
-                        static_cast<Ogre::Real>(curTile->y),
-                        static_cast<Ogre::Real>(0.1f));
-    node->setScale ( Ogre::Vector3 ( BLENDER_UNITS_PER_OGRE_UNIT,
-                                     BLENDER_UNITS_PER_OGRE_UNIT,
-                                     BLENDER_UNITS_PER_OGRE_UNIT ) );
-    node->attachObject ( ent );
+    tempSS << curRoom->getName() << "_" << curTile->x << "_" << curTile->y;
+    // Create the room ground tile
+    Ogre::Entity* ent = sceneManager->createEntity(tempSS.str(), curRoom->getMeshName() + ".mesh");
+    Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempSS.str() + "_node");
+
+    node->setPosition(static_cast<Ogre::Real>(curTile->x),
+                       static_cast<Ogre::Real>(curTile->y),
+                       static_cast<Ogre::Real>(0.1f));
+    node->setScale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
+                                 BLENDER_UNITS_PER_OGRE_UNIT,
+                                 BLENDER_UNITS_PER_OGRE_UNIT));
+    node->attachObject(ent);
 }
 
 void RenderManager::rrDestroyRoom ( const RenderRequest& renderRequest )
@@ -835,29 +834,25 @@ void RenderManager::rrDestroyRoom ( const RenderRequest& renderRequest )
     }
 }
 
-void RenderManager::rrCreateRoomObject ( const RenderRequest& renderRequest )
+void RenderManager::rrCreateRoomObject(const RenderRequest& renderRequest)
 {
     RoomObject* curRoomObject = static_cast<RoomObject*> (renderRequest.p);
     std::string name = renderRequest.str;
     boost::scoped_ptr<std::string> meshName(static_cast<std::string*>(renderRequest.p3));
-    //TODO - find out why this was here
-    //Room* curRoom = static_cast<Room*> ( renderRequest.p2 );
+    std::string tempString = curRoomObject->getOgreNamePrefix() + name;
 
-    std::string tempString = curRoomObject->getOgreNamePrefix()
-                             + name;
-    Ogre::Entity* ent = sceneManager->createEntity(tempString,
-                        *meshName.get() + ".mesh");
-    Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString
-                            + "_node");
+    Ogre::Entity* ent = sceneManager->createEntity(tempString, *meshName.get() + ".mesh");
+    Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
+
     node->setPosition(Ogre::Vector3(curRoomObject->x, curRoomObject->y, 0.0));
+    node->setScale(Ogre::Vector3(0.7, 0.7, 0.7));
     node->roll(Ogre::Degree(curRoomObject->rotationAngle));
     node->attachObject(ent);
 }
 
-void RenderManager::rrDestroyRoomObject ( const RenderRequest& renderRequest )
+void RenderManager::rrDestroyRoomObject(const RenderRequest& renderRequest)
 {
     RoomObject* curRoomObject = static_cast<RoomObject*> (renderRequest.p);
-    //Room* curRoom = static_cast<Room*> ( renderRequest.p2 );
 
     std::string tempString = curRoomObject->getOgreNamePrefix()
                              + curRoomObject->getName();
