@@ -412,6 +412,11 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         skipCreaturePickUp = true;
     }
 
+    // Check whether the player selection is over a wall and skip creature in that case
+    // to permit easier wall selection.
+    if (mGameMap->getTile(mMouseX, mMouseY)->getFullness() > 1.0)
+        skipCreaturePickUp = true;
+
     // See if the mouse is over any creatures
     for (;itr != result.end(); ++itr)
     {
@@ -450,16 +455,14 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             tempSS.getline(array, sizeof(array));
 
             Creature* currentCreature = mGameMap->getCreature(array);
+            if (currentCreature == NULL)
+                continue;
 
-            if (currentCreature != NULL && currentCreature->getColor() == player->getSeat()->getColor())
+            if (currentCreature->getColor() == player->getSeat()->getColor())
             {
                 player->pickUpCreature(currentCreature);
                 SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::PICKUP);
                 return true;
-            }
-            else
-            {
-                LogManager::getSingleton().logMessage("Tried to pick up another players creature, or creature was 0");
             }
         }
     }
