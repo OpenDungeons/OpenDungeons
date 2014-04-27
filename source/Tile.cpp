@@ -779,7 +779,8 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
         && (neighbors[6] != myType || !neighborsFullness[6])
         && neighborsFullness[0] && neighborsFullness[2] && neighborsFullness[4])
     {
-        rt = 2;
+        if (myType == Tile::dirt || myType == Tile::gold || myType == Tile::rock)
+            rt = 2;
     }
 
     return ss.str();
