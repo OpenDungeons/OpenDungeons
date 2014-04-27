@@ -771,6 +771,17 @@ std::string Tile::meshNameFromNeighbors(TileType myType, int fullnessMeshNumber,
         // cerr <<  ss.str()<< endl ;
     }
 
+    //DEBUG find the name of the missing mesh
+    // Bad hack to workaround a bug with the file Dirt_10001111.mesh
+    // Since the corresponding file used must be turned by 180°, this ugly hack handles the rotation
+    // manually.
+    if (neighbors[0] == myType && neighbors[2] == myType && neighbors[4] == myType
+        && (neighbors[6] != myType || !neighborsFullness[6])
+        && neighborsFullness[0] && neighborsFullness[2] && neighborsFullness[4])
+    {
+        rt = 2;
+    }
+
     return ss.str();
 }
 
