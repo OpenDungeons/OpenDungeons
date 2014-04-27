@@ -134,7 +134,7 @@ void RenderManager::createScene(Ogre::Viewport* nViewport)
     Ogre::SceneNode* node = sceneManager->getRootSceneNode()->createChildSceneNode("SquareSelectorNode");
     node->translate(Ogre::Vector3(0, 0, 0));
     node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
-                              BLENDER_UNITS_PER_OGRE_UNIT, BLENDER_UNITS_PER_OGRE_UNIT));
+                              BLENDER_UNITS_PER_OGRE_UNIT, 0.58 * BLENDER_UNITS_PER_OGRE_UNIT));
     node->attachObject(ent);
     Ogre::SceneNode *node2 = node->createChildSceneNode("Hand_node");
     node2->setPosition((Ogre::Real)(0.0 / BLENDER_UNITS_PER_OGRE_UNIT),
@@ -582,7 +582,7 @@ void RenderManager::rrCreateTile(const RenderRequest& renderRequest)
 
     node->setScale(Ogre::Vector3((Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                                  (Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                                 (Ogre::Real)(12.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
+                                 (Ogre::Real)(7.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
     node->resetOrientation();
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 }
