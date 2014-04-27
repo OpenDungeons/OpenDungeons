@@ -77,7 +77,7 @@ RenderManager::RenderManager() :
     }
 
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
-    sceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_GENERIC, "SceneManager");
+    sceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_INTERIOR, "SceneManager");
     sceneManager->addRenderQueueListener(ODApplication::getSingletonPtr()->getOverlaySystem());
 
     mRockSceneNode = sceneManager->getRootSceneNode()->createChildSceneNode("Rock_scene_node");
