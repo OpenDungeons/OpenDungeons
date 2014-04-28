@@ -19,8 +19,14 @@
 
 #include "Creature.h"
 #include "MortuaryQuad.h"
+#include "Vector3i.h"
 
 #include <algorithm>
+
+extern const int mPrecisionDigits = 10;
+extern const int Unit = (1 << mPrecisionDigits);
+
+
 
 using  std::set; using std::swap; using std::max; using std::min;
 using  std::cerr; using std::endl;
@@ -32,7 +38,6 @@ static const int SHOW =  2;
 CullingManager::CullingManager(CameraManager* cameraManager):
     mCurrentVisibleCreatures(&mCreaturesSet[0]),
     mPreviousVisibleCreatures(&mCreaturesSet[1]),
-    mPrecisionDigits(10),
     mFirstIter(false),
     mCm(cameraManager),
     mCullCreaturesFlag(false),
@@ -58,23 +63,33 @@ CullingManager::CullingManager(CameraManager* cameraManager):
 
 int CullingManager::cullTiles()
 {
-    mOldTop = mTop ;
-    mOldBottom = mBottom ;
-    mOldMiddleLeft = mMiddleLeft ;
-    mOldMiddleRight = mMiddleRight;
+    // mOldTop = mTop ;
+    // mOldBottom = mBottom ;
+    // mOldMiddleLeft = mMiddleLeft ;
+    // mOldMiddleRight = mMiddleRight;
 
-    mTop = Vector3i(mOgreVectorsArray[0]);
-    mMiddleLeft = Vector3i(mOgreVectorsArray[1]);
-    mBottom = Vector3i(mOgreVectorsArray[2]);
-    mMiddleRight = Vector3i(mOgreVectorsArray[3]);
+    // mTop = Vector3i(mOgreVectorsArray[0]);
+    // mMiddleLeft = Vector3i(mOgreVectorsArray[1]);
+    // mBottom = Vector3i(mOgreVectorsArray[2]);
+    // mMiddleRight = Vector3i(mOgreVectorsArray[3]);
 
-    sort(mBottom, mTop, false);
-    sort(mMiddleLeft, mMiddleRight, false);
-    sort(mMiddleRight, mTop, false);
-    sort(mBottom, mMiddleLeft, false);
-    sort(mMiddleLeft, mMiddleRight, true);
+    // sort(mBottom, mTop, false);
+    // sort(mMiddleLeft, mMiddleRight, false);
+    // sort(mMiddleRight, mTop, false);
+    // sort(mBottom, mMiddleLeft, false);
+    // sort(mMiddleLeft, mMiddleRight, true);
 
-    return bashAndSplashTiles(SHOW | HIDE);
+    oldWalk = mWalk;
+    mWalk.myArray[0] =  Vector3i(mOgreVectorsArray[0]);
+    mWalk.myArray[1] =  Vector3i(mOgreVectorsArray[1]);
+    mWalk.myArray[2] =  Vector3i(mOgreVectorsArray[2]);
+    mWalk.myArray[3] =  Vector3i(mOgreVectorsArray[3]);
+    mWalk.buildSlopes();
+
+    oldWalk.prepareWalk();
+    mWalk.prepareWalk();
+
+    return newBashAndSplashTiles(SHOW | HIDE);
 }
 
 void CullingManager::startCreatureCulling()
@@ -86,18 +101,27 @@ void CullingManager::startTileCulling()
 {
     getIntersectionPoints();
 
-    mTop = Vector3i(mOgreVectorsArray[0]);
-    mMiddleLeft = Vector3i(mOgreVectorsArray[1]);
-    mBottom = Vector3i(mOgreVectorsArray[2]);
-    mMiddleRight = Vector3i(mOgreVectorsArray[3]);
 
-    mOldTop = mTop;
-    mOldBottom = mBottom;
-    mOldMiddleLeft = mMiddleLeft;
-    mOldMiddleRight = mMiddleRight;
+    mWalk.myArray[0] =  Vector3i(mOgreVectorsArray[0]);
+    mWalk.myArray[1] =  Vector3i(mOgreVectorsArray[1]);
+    mWalk.myArray[2] =  Vector3i(mOgreVectorsArray[2]);
+    mWalk.myArray[3] =  Vector3i(mOgreVectorsArray[3]);
+    mWalk.buildSlopes();
+    oldWalk = mWalk;
+    oldWalk.prepareWalk();
+    mWalk.prepareWalk();
+    // mTop = Vector3i(mOgreVectorsArray[0]);
+    // mMiddleLeft = Vector3i(mOgreVectorsArray[1]);
+    // mBottom = Vector3i(mOgreVectorsArray[2]);
+    // mMiddleRight = Vector3i(mOgreVectorsArray[3]);
+
+    // mOldTop = mTop;
+    // mOldBottom = mBottom;
+    // mOldMiddleLeft = mMiddleLeft;
+    // mOldMiddleRight = mMiddleRight;
 
     hideAllTiles();
-    bashAndSplashTiles(SHOW);
+    newBashAndSplashTiles(SHOW);
 
     mCullTilesFlag = true;
 }
@@ -109,12 +133,13 @@ void CullingManager::stopCreatureCulling()
 
 void CullingManager::stopTileCulling()
 {
-    mOldTop = mTop;
-    mOldBottom = mBottom;
-    mOldMiddleLeft = mMiddleLeft;
-    mOldMiddleRight = mMiddleRight;
+    // mOldTop = mTop;
+    // mOldBottom = mBottom;
+    // mOldMiddleLeft = mMiddleLeft;
+    // mOldMiddleRight = mMiddleRight;
 
-    bashAndSplashTiles(HIDE);
+    oldWalk = mWalk;
+    newBashAndSplashTiles(HIDE);
 
     mCullTilesFlag = false;
 }
@@ -186,6 +211,47 @@ int CullingManager::cullCreatures()
         (*it)->hide();
 
     return 1;
+}
+
+
+int CullingManager::newBashAndSplashTiles(int mode){
+    int xxLeftOld = oldWalk.getTopVertex().x;
+    int xxRightOld= oldWalk.getTopVertex().x;
+    int xxLeft = mWalk.getTopVertex().x;
+    int xxRight= mWalk.getTopVertex().x;
+
+    int bb = std::min(mWalk.getBottomVertex().y , oldWalk.getBottomVertex().y);
+
+    for (int yy = std::max(mWalk.getTopVertex().y, oldWalk.getTopVertex().y ) + Unit;
+         yy >= bb; yy -= Unit)
+    {
+
+	xxLeft += mWalk.getCurrentDxLeft();
+	xxLeftOld += oldWalk.getCurrentDxLeft();
+	xxRight += mWalk.getCurrentDxRight();
+	xxRightOld += oldWalk.getCurrentDxRight(); 
+	cerr << (xxLeft  >> mPrecisionDigits )<< " " << (xxLeftOld  >> mPrecisionDigits )<< " " << (xxRight  >> mPrecisionDigits )<< " " << (xxRightOld  >> mPrecisionDigits )<< " " <<endl ; 
+	cerr << "DxLeft, DxRight: " << mWalk.getCurrentDxLeft() << " " << mWalk.getCurrentDxRight() << " " << endl;
+
+        for (int xx = std::min(xxLeft, xxLeftOld) ; xx <= max(xxRight,xxRightOld) ; xx+= Unit){
+            bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= oldWalk.getBottomVertex().y) && yy <= oldWalk.getTopVertex().y);
+            bool splash = (xx >= xxLeft && xx <= xxRight && (yy >= mWalk.getBottomVertex().y) && yy <= mWalk.getTopVertex().y);
+
+
+	    cerr<<"CullingManager "   << " x" <<  (xx >> mPrecisionDigits )<< " y" << (yy >> mPrecisionDigits ) << " " << (splash && (mode & SHOW)) << (bash && (mode & HIDE)) << endl;
+            GameMap* gm = mCm->mGameMap;
+            if(bash && splash && (mode & HIDE) && (mode & SHOW))
+            {
+                // Nothing
+            }
+            else if (gm && bash && (mode & HIDE))
+                gm->getTile(xx >> mPrecisionDigits, yy >> mPrecisionDigits)->hide();
+            else if (gm && splash && (mode & SHOW))
+                gm->getTile(xx >> mPrecisionDigits, yy >> mPrecisionDigits)->show();
+	}
+	mWalk.notifyOnMoveDown(yy);
+	oldWalk.notifyOnMoveDown(yy);
+    }    
 }
 
 /*! \brief Auxilary function, according to mode flags : SHOW and HIDE will try to show or hide a tile in single pass
@@ -377,3 +443,5 @@ void CullingManager::sort(Vector3i& p1, Vector3i& p2, bool sortByX)
             std::swap(p1, p2);
     }
 }
+
+

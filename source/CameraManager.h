@@ -26,6 +26,7 @@
 #include "GameMap.h"
 #include "AbstractApplicationMode.h"
 #include "HermiteCatmullSpline.h"
+#include "Vector3i.h"
 
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
@@ -45,25 +46,7 @@ class Viewport;
 using std::vector; using std::pair; using std::map;
 
 // A custom vector used commonly between the CameraManager and the CullingManager classes
-struct Vector3i
-{
-    Vector3i(const Ogre::Vector3& OV)
-    {
-        x = (int)((1 << 10) * OV.x);
-        y = (int)((1 << 10) * OV.y);
-        z = (int)((1 << 10) * OV.z);
-    }
 
-    Vector3i():
-        x(0),
-        y(0),
-        z(0)
-    {}
-
-    int x;
-    int y;
-    int z;
-};
 
 class CameraManager
 {

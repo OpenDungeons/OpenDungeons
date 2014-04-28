@@ -130,6 +130,7 @@ set(OD_SOURCEFILES
     ${SRC}/CreatureDefinition.cpp
     ${SRC}/CreatureSound.cpp
     ${SRC}/CullingManager.cpp
+    ${SRC}/DummyArrayClass.cpp
     ${SRC}/DirectionalTrap.cpp
     ${SRC}/EditorMode.cpp
     ${SRC}/FppMode.cpp
@@ -180,6 +181,7 @@ set(OD_SOURCEFILES
     ${SRC}/Seat.cpp
     ${SRC}/Server.cpp
     ${SRC}/ServerNotification.cpp
+    ${SRC}/SlopeWalk.cpp
     ${SRC}/Socket.cpp
     ${SRC}/SoundEffectsHelper.cpp
     ${SRC}/Spell.cpp
@@ -192,6 +194,7 @@ set(OD_SOURCEFILES
     ${SRC}/Trap.cpp
     ${SRC}/TrapBoulder.cpp
     ${SRC}/TrapCannon.cpp
+    ${SRC}/Vector3i.cpp
     ${SRC}/Weapon.cpp
 )
 

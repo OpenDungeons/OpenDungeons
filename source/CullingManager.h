@@ -20,6 +20,8 @@
 
 #include "CameraManager.h"
 #include "MortuaryQuad.h"
+#include "SlopeWalk.h"
+#include "Vector3i.h"
 
 #include <OgreRay.h>
 #include <OgrePlane.h>
@@ -27,6 +29,9 @@
 
 class CameraManager;
 class GameMap;
+
+extern const int mPrecisionDigits;
+extern const int Unit;
 
 class CullingManager
 {
@@ -53,8 +58,11 @@ public:
 
     // set the new tiles
     int bashAndSplashTiles(int);
+    int newBashAndSplashTiles(int);
 
     void sort(Vector3i& p1, Vector3i& p2, bool sortByX);
+
+
 
 private:
     std::set<Creature*>*  mCurrentVisibleCreatures;
@@ -62,11 +70,13 @@ private:
 
     std::set<Creature*> mCreaturesSet[2];
 
+    SlopeWalk mWalk, oldWalk;
+    
     MortuaryQuad mMyCullingQuad;
     Ogre::Vector3 mOgreVectorsArray[4];
     Vector3i mTop, mBottom, mMiddleLeft, mMiddleRight;
     Vector3i mOldTop, mOldBottom, mOldMiddleLeft, mOldMiddleRight;
-    int mPrecisionDigits;
+
     bool mFirstIter;
     CameraManager* mCm;
 
