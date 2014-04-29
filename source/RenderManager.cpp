@@ -582,7 +582,7 @@ void RenderManager::rrCreateTile(const RenderRequest& renderRequest)
 
     node->setScale(Ogre::Vector3((Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
                                  (Ogre::Real)(4.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                                 (Ogre::Real)(5.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
+                                 (Ogre::Real)(6.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
     node->resetOrientation();
     node->roll(Ogre::Degree((Ogre::Real)(-1 * rt * 90)));
 }
