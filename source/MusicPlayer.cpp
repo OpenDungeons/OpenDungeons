@@ -115,6 +115,10 @@ void MusicPlayer::start(const unsigned int& trackNumber)
 
     if (mIsPlaying)
         mTracks[mCurrentTrack]->stop();
+
+    if (trackNumber >= mTracks.size())
+        return;
+
     mCurrentTrack = trackNumber;
     mTracks[mCurrentTrack]->play();
     mIsPlaying = true;
