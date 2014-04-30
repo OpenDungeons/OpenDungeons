@@ -43,6 +43,10 @@ class ModeManager;
 class Console;
 class Viewport;
 
+// The min/max camera height in tile size
+const Ogre::Real MIN_CAMERA_Z = 3.0;
+const Ogre::Real MAX_CAMERA_Z = 12.0;
+
 using std::vector; using std::pair; using std::map;
 
 // A custom vector used commonly between the CameraManager and the CullingManager classes

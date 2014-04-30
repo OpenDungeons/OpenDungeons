@@ -67,7 +67,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
 
     // Start on the map center
     ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3((Ogre::Real)mGameMap->getMapSizeX() / 2,
-                                                                        (Ogre::Real)mGameMap->getMapSizeY() / 2, 16.0));
+                                                                        (Ogre::Real)mGameMap->getMapSizeY() / 2, MAX_CAMERA_Z));
 }
 
 EditorMode::~EditorMode()

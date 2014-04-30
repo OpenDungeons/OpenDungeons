@@ -145,12 +145,12 @@ bool GameMode::startLevel(const std::string& levelFilename)
     Ogre::Real startX = (Ogre::Real)(localPlayerSeat->startingX);
     Ogre::Real startY = (Ogre::Real)(localPlayerSeat->startingY);
     // We make the temple appear in the center of the game view
-    startY = (Ogre::Real)(startY - 10.0);
+    startY = (Ogre::Real)(startY - 7.0);
     // Bound check
     if (startY <= 0.0)
         startY = 0.0;
 
-    ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, 10.0));
+    ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
 }
 
 void GameMode::activate()

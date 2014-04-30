@@ -78,8 +78,8 @@ CameraManager::CameraManager(Ogre::SceneManager* tmpSceneManager, GameMap* gm) :
     createCamera("RTS", 0.02, 300.0);
     createCameraNode("RTS", Ogre::Vector3((Ogre::Real)10.0,
                                               (Ogre::Real)10.0,
-                                              (Ogre::Real)8.0),
-                                              Ogre::Degree(0.0), Ogre::Degree(45.0));
+                                              MAX_CAMERA_Z / 2.0),
+                                              Ogre::Degree(0.0), Ogre::Degree(30.0));
 
     createCamera("FPP", 0.02, 30.0);
     createCameraNode("FPP", Ogre::Vector3(), Ogre::Degree(0), Ogre::Degree(75), Ogre::Degree(0));
@@ -254,10 +254,10 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     newPosition += horizontalSpeedFactor * (viewDirectionQuaternion * mTranslateVector);
 
     // Prevent camera from moving down into the tiles or too high.
-    if (newPosition.z <= 5.0)
-        newPosition.z = 5.0;
-    else if (newPosition.z >= 16.0)
-        newPosition.z = 16.0;
+    if (newPosition.z <= MIN_CAMERA_Z)
+        newPosition.z = MIN_CAMERA_Z;
+    else if (newPosition.z >= MAX_CAMERA_Z)
+        newPosition.z = MAX_CAMERA_Z;
 
     // Prevent the tilting to show a reversed world or looking too high.
     if (mRotateLocalVector.x != 0)
