@@ -54,9 +54,8 @@
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
-//TODO: make this read from file
-static const int MAX_LEVEL = 100;
-//TODO: make this read from definition file
+static const int MAX_LEVEL = 30;
+//TODO: make this read from definition file?
 static const int MaxGoldCarriedByWorkers = 1500;
 
 Creature::Creature(GameMap* gameMap, const std::string& name) :
