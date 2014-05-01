@@ -123,8 +123,7 @@ void processServerNotifications()
         sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
 
         // If the queue is empty, let's get out of the loop.
-        bool queueEmpty = ServerNotification::serverNotificationQueue.empty();
-        if (queueEmpty)
+        if (ServerNotification::serverNotificationQueue.empty())
         {
             sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
             break;

@@ -721,22 +721,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                         Socket::clientSocket->send(formatCommand("hello", std::string("OpenDungeons V ") + ODApplication::VERSION));
                         sem_post(&Socket::clientSocket->semaphore);
 
-                        // Start the thread which will watch for local events to send to the server
-                        if (frameListener->mClientNotificationThread == NULL)
-                        {
-                            CNPStruct *cnps = new CNPStruct;
-                            cnps->nFrameListener = frameListener;
-
-                            frameListener->mClientNotificationThread = new pthread_t;
-                            pthread_create(frameListener->mClientNotificationThread, NULL,
-                                           clientNotificationProcessor, cnps);
-                        }
-                        else
-                        {
-                            ODFrameListener::getSingletonPtr()->mCommandOutput
-                                += "\nERROR:  Client notification thread already started!\n";
-                        }
-
                         // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
                         gameMap->clearMapLightIndicators();
                     }

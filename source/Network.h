@@ -51,23 +51,19 @@ bool processClientNotifications(Socket* clientSocket);
  */
 void processClientSocketMessages();
 
-// Functions called by pthread_create which run on the client
-void *clientNotificationProcessor(void *p);
+/*! \brief The function which monitors the clientNotificationQueue for new events and informs the server about them.
+ *
+ * This runs on the client side and acts as a "consumer" on the
+ * clientNotificationQueue.  It takes an event out of the queue, determines
+ * which clients need to be informed about that particular event, and
+ * dispacthes TCP packets to inform the clients about the new information.
+ */
+void processClientNotifications();
 
 // Other functions  (these are defined in src/Server.cpp)
 std::string formatCommand(std::string command, std::string arguments);
 bool parseCommand(std::string &command, std::string &commandName, std::string &arguments);
 ChatMessage *processChatMessage(std::string arguments);
 void sendToAllClients(ODFrameListener *frameListener, std::string str);
-
-/*! \brief Client Notification Processor Structure
- *
- * This is a data structure used for passing arguments to the clientNotificationProcessor(void *p) defined in src/Client.cpp.
- */
-class CNPStruct
-{
-    public:
-        ODFrameListener *nFrameListener;
-};
 
 #endif

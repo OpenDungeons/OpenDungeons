@@ -53,7 +53,6 @@ public:
     bool mFlag;
 
     static std::deque<ClientNotification*> mClientNotificationQueue;
-    static sem_t mClientNotificationQueueSemaphore;
     static sem_t mClientNotificationQueueLockSemaphore;
 };
 

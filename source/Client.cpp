@@ -391,15 +391,7 @@ void processClientSocketMessages()
     } while (parseReturnValue);
 }
 
-/*! \brief The thread which monitors the clientNotificationQueue for new events and informs the server about them.
- *
- * This thread runs on the client and acts as a "consumer" on the
- * clientNotificationQueue.  It takes an event out of the queue, determines
- * which clients need to be informed about that particular event, and
- * dispacthes TCP packets to inform the clients about the new information.
- */
-// THREAD - This function is meant to be called by pthread_create.
-void *clientNotificationProcessor(void *p)
+void processClientNotifications()
 {
     std::stringstream tempSS;
     Tile* tempTile = NULL;
@@ -411,10 +403,17 @@ void *clientNotificationProcessor(void *p)
     while (running)
     {
         // Wait until a message is place in the queue
-        sem_wait(&ClientNotification::mClientNotificationQueueSemaphore);
 
         // Take a message out of the front of the notification queue
         sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
+
+        // Test whether there is something left to deal with
+        if (ClientNotification::mClientNotificationQueue.empty())
+        {
+            sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
+            break;
+        }
+
         ClientNotification* event = ClientNotification::mClientNotificationQueue.front();
         ClientNotification::mClientNotificationQueue.pop_front();
         sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
@@ -482,5 +481,4 @@ void *clientNotificationProcessor(void *p)
                 break;
         }
     }
-    return NULL;
 }

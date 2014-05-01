@@ -153,7 +153,6 @@ public:
     // Multiplayer stuff
     // Move that in the future server class.
     std::vector<Socket*> mClientSockets;
-    pthread_t* mClientNotificationThread;
 
     //! \brief The console output
     void setConsoleCommandOutput(const std::string& output)

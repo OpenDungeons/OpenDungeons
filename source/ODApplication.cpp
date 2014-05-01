@@ -58,7 +58,6 @@ ODApplication::ODApplication() :
     {
         sem_init(&MapLight::mLightNumberLockSemaphore, 0, 1);
         sem_init(&MissileObject::mMissileObjectUniqueNumberLockSemaphore, 0, 1);
-        sem_init(&ClientNotification::mClientNotificationQueueSemaphore, 0, 0);
         sem_init(&ServerNotification::mServerNotificationQueueLockSemaphore, 0, 1);
         sem_init(&ClientNotification::mClientNotificationQueueLockSemaphore, 0, 1);
         sem_init(&GameMap::mCreatureAISemaphore, 0, 1);

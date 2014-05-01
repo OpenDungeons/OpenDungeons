@@ -77,7 +77,6 @@ template<> ODFrameListener* Ogre::Singleton<ODFrameListener>::msSingleton = 0;
  * up the OGRE system.
  */
 ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
-    mClientNotificationThread(NULL),
     cm(NULL),
     mInitialized(false),
     mWindow(win),
@@ -191,18 +190,6 @@ void ODFrameListener::exitApplication()
     ClientNotification::mClientNotificationQueue.push_back(exitClientNotification);
     sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
-    //Wait for threads to exit
-    if (mClientNotificationThread != NULL)
-    {
-        Ogre::LogManager::getSingleton().logMessage("Trying to close client notification thread..", Ogre::LML_NORMAL);
-        // TEST: Put this back to cancel if it makes things unbearable.
-        pthread_join(*mClientNotificationThread, NULL);
-        //TODO - change this back to join when we know what causes this to lock up sometimes.
-        //pthread_cancel(mClientNotificationThread);
-        delete mClientNotificationThread;
-        mClientNotificationThread = NULL;
-    }
-
     mGameMap->clearAll();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
 
@@ -298,6 +285,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     if (isClient())
     {
         processClientSocketMessages();
+        processClientNotifications();
     }
 
     // If we're not a server, we can't check or update what's next.

@@ -602,10 +602,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                     ClientNotification::mClientNotificationQueue.push_back(clientNotification);
                     sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
-                    sem_post(&ClientNotification::mClientNotificationQueueSemaphore);
-
                     currentTile->setMarkedForDigging(mDigSetBool, mGameMap->getLocalPlayer());
-
                 }
 
                 SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DIGSELECT, false);
