@@ -19,65 +19,46 @@
 #include "Seat.h"
 #include "GameMap.h"
 
-/*! \brief A thread function which runs on the server and listens for new connections from clients.
- *
- * A single instance of this thread is spawned by running the "host" command
- * from the in-game console.  The thread then binds annd listens on the
- * specified port and when clients connect a new socket, and a
- * clientHandlerThread are spawned to handle communications with that client.
- * This function currently has no way of breaking out of its primary loop, so
- * once it is started it never exits until the program is closed.
- */
-// THREAD - This function is meant to be called by pthread_create.
-void *serverSocketProcessor(void *p)
+void processServerSocketMessages()
 {
-    Socket *sock = static_cast<SSPStruct*>(p)->nSocket;
-    Socket *curSock;
-    ODFrameListener *frameListener = static_cast<SSPStruct*>(p)->nFrameListener;
-    delete static_cast<SSPStruct*>(p);
-    p = NULL;
+    Socket* sock = Socket::serverSocket;
 
-    // Set up the socket to listen on the specified port
-    if (!sock->create())
+    // Not a server
+    if (!sock)
+        return;
+
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
+    GameMap* gameMap = frameListener->getGameMap();
+
+    // Listen for connections and spawn a new socket+thread to handle them
+
+    // Wait until a client connects
+    if (!sock->listen())
     {
-        frameListener->setConsoleCommandOutput("ERROR:  Server could not create server socket!");
-        return NULL;
+        frameListener->setConsoleCommandOutput("ERROR:  Server could not listen!");
+        return;
     }
 
-    int port = ODApplication::PORT_NUMBER;
-    if (!sock->bind(port))
+    // FIXME: We return now as the socket only handles the dedicated server listening for now.
+    return;
+
+    // create a new socket to handle the connection with this client
+    Socket* curSock = new Socket;
+    if (!sock->accept(*curSock))
     {
-        frameListener->setConsoleCommandOutput("ERROR:  Server could not bind to port!");
-        return NULL;
+        delete curSock;
+        return;
     }
 
-    // Listen for connectections and spawn a new socket+thread to handle them
-    while (true)
-    {
-        //FIXME:  This function leaks memory as none of these structures are deleted.
+    //FIXME:  Also need to remove this pointer from the vector when the connection closes.
+    frameListener->mClientSockets.push_back(curSock);
 
-        // Wait until a client connects
-        if (!sock->listen())
-        {
-            frameListener->setConsoleCommandOutput("ERROR:  Server could not listen!");
-            return NULL;
-        }
-
-        // create a new socket to handle the connection with this client
-        curSock = new Socket;
-        sock->accept(*curSock);
-
-        //FIXME:  Also need to remove this pointer from the vector when the connection closes.
-        frameListener->mClientSockets.push_back(curSock);
-
-        pthread_t *clientThread = new pthread_t;
-        CHTStruct *params = new CHTStruct;
-        params->nSocket = curSock;
-        params->nFrameListener = frameListener;
-        pthread_create(clientThread, NULL, clientHandlerThread, (void*) params);
-        frameListener->mClientHandlerThreads.push_back(clientThread);
-    }
-    return NULL;
+    pthread_t* clientThread = new pthread_t;
+    CHTStruct* params = new CHTStruct;
+    params->nSocket = curSock;
+    params->nFrameListener = frameListener;
+    pthread_create(clientThread, NULL, clientHandlerThread, (void*) params);
+    frameListener->mClientHandlerThreads.push_back(clientThread);
 }
 
 /*! \brief A helper function to pack a message into a packet to send over the network.
@@ -122,7 +103,7 @@ bool parseCommand(std::string &command, std::string &commandName, std::string &a
  * parseCommand, this function then takes the argument of that message and
  * further unpacks a username and a chat message.
  */
-ChatMessage *processChatMessage(std::string arguments)
+ChatMessage* processChatMessage(std::string arguments)
 {
     int index = arguments.find(":");
     std::string messageNick = arguments.substr(0, index);
@@ -133,7 +114,7 @@ ChatMessage *processChatMessage(std::string arguments)
 
 void processServerNotifications()
 {
-    ODFrameListener *frameListener = ODFrameListener::getSingletonPtr();
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     GameMap* gameMap = frameListener->getGameMap();
 
     std::stringstream tempSS;

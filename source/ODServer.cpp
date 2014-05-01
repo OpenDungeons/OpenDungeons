@@ -21,16 +21,9 @@
 #include "Socket.h"
 #include "ServerNotification.h"
 #include "GameMap.h"
-#include "MapLight.h"
-#include "Seat.h"
-#include "Player.h"
+#include "ODApplication.h"
 #include "ODFrameListener.h"
 #include "LogManager.h"
-#include "CameraManager.h"
-
-#include <CEGUI/CEGUI.h>
-#include <CEGUI/WindowManager.h>
-#include <CEGUI/widgets/TabControl.h>
 
 //TODO: Make a server class.
 namespace ODServer {
@@ -57,20 +50,21 @@ bool startServer()
     }
 
     Socket::serverSocket = new Socket;
-
-    // Start the server thread which will listen for, and accept, connections
-    SSPStruct* ssps = new SSPStruct;
-    ssps->nSocket = Socket::serverSocket;
-    ssps->nFrameListener = frameListener;
-    if (frameListener->mServerThread == NULL)
+    // Set up the socket to listen on the specified port
+    if (!Socket::serverSocket->create())
     {
-        frameListener->mServerThread = new pthread_t;
-        pthread_create(frameListener->mServerThread,
-                       NULL, serverSocketProcessor, (void*) ssps);
+        delete Socket::serverSocket;
+        Socket::serverSocket == NULL;
+        logManager.logMessage("ERROR:  Server could not create server socket!");
+        return false;
     }
-    else
+
+    if (!Socket::serverSocket->bind(ODApplication::PORT_NUMBER))
     {
-        logManager.logMessage("Warning: Server thread already started when trying to create server.");
+        delete Socket::serverSocket;
+        Socket::serverSocket == NULL;
+        logManager.logMessage("ERROR:  Server could not bind to port!");
+        return false;
     }
 
     return true;
@@ -108,7 +102,7 @@ void processServerEvents()
         LogManager::getSingletonPtr()->logMessage("ERROR:  bad alloc in turnStarted", Ogre::LML_CRITICAL);
     }
 
-    // processServerReceivedMessages();
+    processServerSocketMessages();
     processServerNotifications();
 }
 

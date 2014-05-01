@@ -10,8 +10,16 @@ class Socket;
 
 #include "ChatMessage.h"
 
-// Functions called by pthread_create which run on the server
-void *serverSocketProcessor(void *p);
+/*! \brief A thread function which runs on the server and listens for new connections from clients.
+ *
+ * A single instance of this thread is spawned by running the "host" command
+ * from the in-game console.  The thread then binds annd listens on the
+ * specified port and when clients connect a new socket, and a
+ * clientHandlerThread are spawned to handle communications with that client.
+ * This function currently has no way of breaking out of its primary loop, so
+ * once it is started it never exits until the program is closed.
+ */
+void processServerSocketMessages();
 
 /*! \brief Monitors the serverNotificationQueue for new events and informs the clients about them.
  *
