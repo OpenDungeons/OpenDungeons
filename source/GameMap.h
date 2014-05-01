@@ -266,12 +266,6 @@ public:
     int getTotalGoldForColor(int color);
     int withdrawFromTreasuries(int gold, int color);
 
-    inline const unsigned int getMaxAIThreads() const
-    { return maxAIThreads; }
-
-    inline void setMaxAIThreads(const unsigned int maxThreads)
-    { maxAIThreads = maxThreads; }
-
     inline void setCullingManger(CullingManager* tempCulm)
     { culm = tempCulm; }
 
@@ -438,8 +432,6 @@ public:
     //! \brief Debug member used to know how many call to pathfinding has been made within the same turn.
     unsigned int numCallsTo_path;
 
-    unsigned int maxAIThreads;
-
     TileCoordinateMap* tileCoordinateMap;
 
     //! AI Handling manager
@@ -456,10 +448,6 @@ public:
 
     //! \brief Updates current creature actions
     unsigned long int doCreatureTurns();
-
-    //! THREAD - Those functions are meant to be called in pthread_create.
-    //! Thus, They are different threads.
-    static void *creatureDoTurnHelperThread(void *p);
 };
 
 #endif

@@ -59,19 +59,6 @@ using namespace std;
 ProtectedObject<long int> GameMap::turnNumber(1);
 sem_t GameMap::mCreatureAISemaphore;
 
-//! \brief A class used to get parameters from threaded functions below.
-class CDTHTStruct
-{
-public:
-    CDTHTStruct():
-        numCreatures(0),
-        creatures(NULL)
-    {}
-
-    int numCreatures;
-    Creature **creatures;
-};
-
 /*! \brief A helper class for the A* search in the GameMap::path function.
 *
 * This class stores the requisite information about a tile which is placed in
@@ -140,7 +127,6 @@ GameMap::GameMap() :
         creatureDefinitionFilename("levels/creatures.def"), // default name
         floodFillEnabled(false),
         numCallsTo_path(0),
-        maxAIThreads(1),
         tileCoordinateMap(new TileCoordinateMap(100)),
         aiManager(*this)
 {
@@ -900,55 +886,15 @@ unsigned long int GameMap::doCreatureTurns()
 
     // Prepare the arrays of creature pointers and parameters for the threads.
     sem_wait(&creaturesLockSemaphore);
-    unsigned int arraySize = creatures.size();
-    Creature **creatureArray = new Creature*[arraySize];
-    for (unsigned int i = 0; i < creatures.size() && i < arraySize; ++i)
-        creatureArray[i] = creatures[i];
+
+    for (unsigned int i = 0; i < creatures.size(); ++i)
+    {
+        if (creatures[i]->getHP() > 0.0)
+            creatures[i]->doTurn();
+    }
     sem_post(&creaturesLockSemaphore);
 
-    //FIXME: Currently this just spawns a single thread as spawning more than one causes a segfault, probably due to a race condition.
-    unsigned int numThreads = std::min(maxAIThreads, arraySize);
-    CDTHTStruct *threadParams = new CDTHTStruct[numThreads];
-    pthread_t *threads = new pthread_t[numThreads];
-    for (unsigned int i = 0; i < numThreads; ++i)
-    {
-        int startCreature = i * (arraySize / numThreads);
-        int endCreature = (i + 1 == numThreads)
-                          ? arraySize - 1
-                          : (i + 1) * (arraySize / numThreads) - 1;
-
-        threadParams[i].numCreatures = endCreature - startCreature + 1;
-        threadParams[i].creatures = &creatureArray[startCreature];
-
-        pthread_create(&threads[i], NULL, GameMap::creatureDoTurnHelperThread,
-                       &threadParams[i]);
-    }
-
-    for (unsigned int i = 0; i < numThreads; ++i)
-    {
-        pthread_join(threads[i], NULL);
-    }
-
-    delete[] creatureArray;
-    delete[] threadParams;
-    delete[] threads;
-
     return stopwatch.getMicroseconds();
-}
-
-void *GameMap::creatureDoTurnHelperThread(void *p)
-{
-    // Call the individual creature AI for each creature in this game map.
-    CDTHTStruct *params = static_cast<CDTHTStruct*>(p);
-
-    //cout << *params->creatures;
-    for (int i = 0; i < params->numCreatures; ++i)
-    {
-        if (params->creatures[i]->getHP() > 0.0)
-            params->creatures[i]->doTurn();
-    }
-
-    return NULL;
 }
 
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)

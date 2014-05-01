@@ -309,14 +309,6 @@ void ASWrapper::registerEverything()
             asMETHOD(GameMap, createAllEntities),
             asCALL_THISCALL); assert(r >= 0);
     r = mEngine->RegisterObjectMethod("GameMap",
-            "uint get_MaxAIThreads()",
-            asMETHOD(GameMap, getMaxAIThreads),
-            asCALL_THISCALL); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("GameMap",
-            "void set_MaxAIThreads(uint)",
-            asMETHOD(GameMap, setMaxAIThreads),
-            asCALL_THISCALL); assert(r >= 0);
-    r = mEngine->RegisterObjectMethod("GameMap",
             "string& get_LevelFileName()",
             asMETHOD(GameMap, getLevelFileName),
             asCALL_THISCALL); assert(r >= 0);

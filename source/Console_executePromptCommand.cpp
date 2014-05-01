@@ -304,39 +304,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
     }*/
 
-
-    // Set the max number of threads the gameMap should spawn when it does the creature AI.
-    else if (command.compare("aithreads") == 0)
-    {
-        //NOTE: converted to AS, but gameMap needs to be prepared
-        if (!arguments.empty())
-        {
-            tempSS.str(arguments);
-            unsigned int tempInt;
-            tempSS >> tempInt;
-            if (tempInt >= 1)
-            {
-                gameMap->setMaxAIThreads(tempInt);
-                frameListener->mCommandOutput
-                        += "\nMaximum number of creature AI threads set to "
-                        + Ogre::StringConverter::toString(
-                                        gameMap->getMaxAIThreads()) + "\n";
-            }
-            else
-            {
-                frameListener->mCommandOutput
-                        += "\nERROR: Maximum number of threads must be >= 1.\n";
-            }
-        }
-        else
-        {
-            frameListener->mCommandOutput
-                    += "\nCurrent maximum number of creature AI threads is "
-                    + Ogre::StringConverter::toString(gameMap->getMaxAIThreads())
-                    + "\n";
-        }
-    }
-
     // Set the turnsPerSecond variable to control the AI speed
     else if(command.compare("turnspersecond") == 0
             || command.compare("tps") == 0)
