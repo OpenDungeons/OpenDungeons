@@ -211,6 +211,9 @@ private:
     //! \brief Tells whether a server is running.
     bool isServer();
 
+    //! \brief Tells whether a client socket is active.
+    bool isClient();
+
     //! \brief Check for the time elapsed and open a server turn when needed.
     void checkForTurnUpdate(Ogre::Real timeSinceLastFrame);
 

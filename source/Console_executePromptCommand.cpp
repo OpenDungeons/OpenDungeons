@@ -716,22 +716,10 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     {
                         frameListener->mCommandOutput += "\nConnection successful.\n";
 
-                        // Start a thread to talk to the server
-                        if (frameListener->mClientThread == NULL)
-                        {
-                            CSPStruct *csps = new CSPStruct;
-                            csps->nSocket = Socket::clientSocket;
-                            csps->nFrameListener = frameListener;
-
-                            frameListener->mClientThread = new pthread_t;
-                            pthread_create(frameListener->mClientThread, NULL,
-                                    clientSocketProcessor, (void*) csps);
-                        }
-                        else
-                        {
-                            ODFrameListener::getSingletonPtr()->mCommandOutput
-                                += "\nERROR:  Client thread already started!\n";
-                        }
+                        // Send a hello request to start the conversation with the server
+                        sem_wait(&Socket::clientSocket->semaphore);
+                        Socket::clientSocket->send(formatCommand("hello", std::string("OpenDungeons V ") + ODApplication::VERSION));
+                        sem_post(&Socket::clientSocket->semaphore);
 
                         // Start the thread which will watch for local events to send to the server
                         if (frameListener->mClientNotificationThread == NULL)

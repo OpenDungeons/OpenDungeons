@@ -347,8 +347,13 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         mContinue = false;
     }
 
+    if (isClient())
+    {
+        processClientSocketMessages();
+    }
+
     // If we're not a server, we can't check or update what's next.
-    if (!isServer())
+    else if (!isServer())
         return mContinue;
 
     // Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
@@ -562,6 +567,12 @@ bool ODFrameListener::isServer()
 {
     //TODO - we should use a bool or something, not the sockets for this.
     return (Socket::serverSocket != NULL);
+}
+
+bool ODFrameListener::isClient()
+{
+    //TODO - we should use a bool or something, not the sockets for this.
+    return (Socket::clientSocket != NULL);
 }
 
 void ODFrameListener::printText(const std::string& text)

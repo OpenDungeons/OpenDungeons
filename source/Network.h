@@ -32,8 +32,14 @@ void processServerNotifications();
 
 void *clientHandlerThread(void *p);
 
+/*! \brief A function which runs on the client to handle communications with the server.
+ *
+ * A single instance of this thread is spawned by the client when it connects
+ * to a server.
+ */
+void processClientSocketMessages();
+
 // Functions called by pthread_create which run on the client
-void *clientSocketProcessor(void *p);
 void *clientNotificationProcessor(void *p);
 
 // Other functions  (these are defined in src/Server.cpp)
@@ -41,28 +47,6 @@ std::string formatCommand(std::string command, std::string arguments);
 bool parseCommand(std::string &command, std::string &commandName, std::string &arguments);
 ChatMessage *processChatMessage(std::string arguments);
 void sendToAllClients(ODFrameListener *frameListener, std::string str);
-
-/*! \brief Server Socket Processor Structure
- *
- * This is a data structure used for passing arguments to the serverSocketProcessor(void *p) defined in src/Server.cpp.
- */
-class SSPStruct
-{
-    public:
-        Socket *nSocket;
-        ODFrameListener *nFrameListener;
-};
-
-/*! \brief Client Socket Processor Structure
- *
- * This is a data structure used for passing arguments to the clientSocketProcessor(void *p) defined in src/Client.cpp.
- */
-class CSPStruct
-{
-    public:
-        Socket *nSocket;
-        ODFrameListener *nFrameListener;
-};
 
 /*! \brief Client Handler Thread Structure
  *
@@ -72,16 +56,6 @@ class CHTStruct
 {
     public:
         Socket *nSocket;
-        ODFrameListener *nFrameListener;
-};
-
-/*! \brief Server Notification Processor Structure
- *
- * This is a data structure used for passing arguments to the serverNotificationProcessor(void *p) defined in src/Server.cpp.
- */
-class SNPStruct
-{
-    public:
         ODFrameListener *nFrameListener;
 };
 
