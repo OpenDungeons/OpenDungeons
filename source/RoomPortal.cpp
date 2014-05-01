@@ -129,8 +129,8 @@ void RoomPortal::spawnCreature()
     newCreature->setColor(getColor());
 
     //NOTE:  This needs to be modified manually when the level file weapon format changes.
-    newCreature->setWeaponL(new Weapon("none", 5, 4, 0, "L", newCreature));
-    newCreature->setWeaponR(new Weapon("none", 5, 4, 0, "R", newCreature));
+    newCreature->setWeaponL(new Weapon("none", 0, 1.0, 0, "L", newCreature));
+    newCreature->setWeaponR(new Weapon("none", 0, 1.0, 0, "R", newCreature));
 
     // Add the creature to the gameMap and create meshes so it is visible.
     getGameMap()->addCreature(newCreature);

@@ -111,10 +111,13 @@ Creature::~Creature()
     mTracingCullingQuad->mortuaryInsert(this);
 
     if(mBattleField != NULL)
-    {
         delete mBattleField;
-        mBattleField = NULL;
-    }
+
+    // Delete weapons
+    if (mWeaponL)
+        delete mWeaponL;
+    if (mWeaponR)
+        delete mWeaponR;
 }
 
 //! \brief A function which returns a string describing the IO format of the << and >> operators.
@@ -128,15 +131,31 @@ std::string Creature::getFormat()
 //! \brief A matched function to transport creatures between files and over the network.
 std::ostream& operator<<(std::ostream& os, Creature *c)
 {
+    assert(c);
+
+    // Check creature weapons
+    Weapon* wL = c->mWeaponL;
+    if (wL == NULL)
+        wL = new Weapon("none", 0.0, 1.0, 0.0, "L", c);
+    Weapon* wR = c->mWeaponR;
+    if (wR == NULL)
+        wR = new Weapon("none", 0.0, 1.0, 0.0, "R", c);
+
     os << c->mDefinition->getClassName() << "\t" << c->getName() << "\t";
 
     os << c->getPosition().x << "\t";
     os << c->getPosition().y << "\t";
     os << c->getPosition().z << "\t";
     os << c->getColor() << "\t";
-    os << c->mWeaponL << "\t" << c->mWeaponR << "\t";
+    os << wL << "\t" << wR << "\t";
     os << c->getHP() << "\t";
     os << c->getMana();
+
+    // If we had to create dummy weapons for serialization, delete them now.
+    if (c->mWeaponL == NULL)
+        delete wL;
+    if (c->mWeaponR == NULL)
+        delete wR;
 
     return os;
 }
@@ -167,15 +186,11 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setColor(color);
 
     // TODO: Load weapon from a catalog file.
-    c->mWeaponL = new Weapon(std::string(), 0.0, 0.0, 0.0, std::string());
+    c->setWeaponL(new Weapon(std::string(), 0.0, 0.0, 0.0, std::string()));
     is >> c->mWeaponL;
-    c->mWeaponL->setParentCreature(c);
-    c->mWeaponL->setHandString("L");
 
-    c->mWeaponR = new Weapon(std::string(), 0.0, 0.0, 0.0, std::string());
+    c->setWeaponR(new Weapon(std::string(), 0.0, 0.0, 0.0, std::string()));
     is >> c->mWeaponR;
-    c->mWeaponR->setParentCreature(c);
-    c->mWeaponR->setHandString("R");
 
     // Copy the class based items
     CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(className);
@@ -219,11 +234,11 @@ void Creature::loadFromLine(const std::string& line, Creature* c)
     c->setColor(Helper::toInt(elems[5]));
 
     // TODO: Load weapons from a catalog file.
-    c->mWeaponL = new Weapon(elems[6], Helper::toDouble(elems[7]),
-                             Helper::toDouble(elems[8]), Helper::toDouble(elems[9]), "L", c);
+    c->setWeaponL(new Weapon(elems[6], Helper::toDouble(elems[7]),
+                             Helper::toDouble(elems[8]), Helper::toDouble(elems[9]), "L", c));
 
-    c->mWeaponR = new Weapon(elems[10], Helper::toDouble(elems[11]),
-                             Helper::toDouble(elems[12]), Helper::toDouble(elems[13]), "R", c);
+    c->setWeaponR(new Weapon(elems[10], Helper::toDouble(elems[11]),
+                             Helper::toDouble(elems[12]), Helper::toDouble(elems[13]), "R", c));
 
     c->setHP(Helper::toDouble(elems[14]));
     c->setMana(Helper::toDouble(elems[15]));
@@ -323,6 +338,30 @@ bool Creature::getIsOnMap() const
     sem_post(&mIsOnMapLockSemaphore);
 
     return tempBool;
+}
+
+void Creature::setWeaponL(Weapon* wL)
+{
+    if (mWeaponL)
+        delete mWeaponL;
+    mWeaponL = wL;
+    if (!mWeaponL)
+        return;
+
+    mWeaponL->setParentCreature(this);
+    mWeaponL->setHandString("L");
+}
+
+void Creature::setWeaponR(Weapon* wR)
+{
+    if (mWeaponR)
+        delete mWeaponR;
+    mWeaponR = wR;
+    if (!mWeaponR)
+        return;
+
+    mWeaponR->setParentCreature(this);
+    mWeaponR->setHandString("R");
 }
 
 void Creature::attach()
@@ -1728,7 +1767,8 @@ bool Creature::handleManeuverAction()
     // Pick a destination tile near the tile we got from the battlefield.
     clearDestinations();
     // Pick a true destination randomly within the max range of our weapons.
-    double tempDouble = std::max(mWeaponL->getRange(), mWeaponR->getRange());
+    double tempDouble = std::max(mWeaponL ? mWeaponL->getRange() : 0.0,
+                                 mWeaponR ? mWeaponR->getRange() : 0.0);
     tempDouble = sqrt(tempDouble);
 
     std::list<Tile*> tempPath = getGameMap()->path(positionTile()->x, positionTile()->y,
@@ -1811,9 +1851,9 @@ double Creature::getHitroll(double range)
 {
     double tempHitroll = 1.0;
 
-    if (mWeaponL != 0 && mWeaponL->getRange() >= range)
+    if (mWeaponL != NULL && mWeaponL->getRange() >= range)
         tempHitroll += mWeaponL->getDamage();
-    if (mWeaponR != 0 && mWeaponR->getRange() >= range)
+    if (mWeaponR != NULL && mWeaponR->getRange() >= range)
         tempHitroll += mWeaponR->getDamage();
     tempHitroll *= log((double) log((double) getLevel() + 1) + 1);
 
@@ -1954,7 +1994,8 @@ std::vector<GameEntity*> Creature::getEnemyObjectsInRange(const std::vector<Game
 
     // Find our location and calculate the square of the max weapon range we have.
     Tile *myTile = positionTile();
-    double weaponRangeSquared = std::max(mWeaponL->getRange(), mWeaponR->getRange());
+    double weaponRangeSquared = std::max(mWeaponL ? mWeaponL->getRange() : 0.0,
+                                         mWeaponR ? mWeaponR->getRange() : 0.0);
     weaponRangeSquared *= weaponRangeSquared;
 
     // Loop over the enemyObjectsToCheck and add any within range to the tempVector.

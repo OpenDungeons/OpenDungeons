@@ -47,7 +47,9 @@ public:
     }
 
     virtual ~Weapon()
-    {}
+    {
+        destroyMesh();
+    }
 
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Weapon *w);

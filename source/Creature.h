@@ -132,11 +132,10 @@ public:
     inline void setDeathCounter(unsigned int nC)
     { mDeathCounter = nC; }
 
-    inline void setWeaponL(Weapon* wL)
-    { mWeaponL = wL; }
-
-    inline void setWeaponR(Weapon* wR)
-    { mWeaponR = wR; }
+    //! \brief Attach a weapon mesh to the creature.
+    //! Don't forget to create the meshes afterwards if needed.
+    void setWeaponL(Weapon* wL);
+    void setWeaponR(Weapon* wR);
 
     inline void setHomeTile(Tile* ht)
     { mHomeTile = ht; }
@@ -202,10 +201,10 @@ public:
 private:
     CullingQuad* mTracingCullingQuad;
 
-    //! \brief The weapon the creature is holding in its left hand
+    //! \brief The weapon the creature is holding in its left hand or NULL if none.
     Weapon* mWeaponL;
 
-    //! \brief The weapon the creature is holding in its right hand
+    //! \brief The weapon the creature is holding in its right hand or NULL if none.
     Weapon* mWeaponR;
 
     //! \brief The creatures home tile (where its bed is located)
