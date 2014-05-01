@@ -54,7 +54,9 @@
 GameMode::GameMode(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::GAME),
     mDigSetBool(false),
-    mGameMap(ODFrameListener::getSingletonPtr()->getGameMap())
+    mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
+    mMouseX(0),
+    mMouseY(0)
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
@@ -906,5 +908,4 @@ void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
 
 void GameMode::onFrameEnded(const Ogre::FrameEvent& evt)
 {
-
 }

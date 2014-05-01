@@ -106,18 +106,6 @@ bool startServer()
         logManager.logMessage("Warning: Server notification thread already started when trying to create server.");
     }
 
-    // Start the creature AI thread
-    if (frameListener->mCreatureThread == NULL)
-    {
-        frameListener->mCreatureThread = new pthread_t;
-        pthread_create(frameListener->mCreatureThread,
-                       NULL, creatureAIThread, static_cast<void*>(gameMap));
-    }
-    else
-    {
-        logManager.logMessage("Warning: Creature AI thread already started when trying to create server.");
-    }
-
     return true;
 }
 

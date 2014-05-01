@@ -207,6 +207,15 @@ private:
 
     //! \brief Tells whether the client and or server are up and running.
     bool isConnected();
+
+    //! \brief Tells whether a server is running.
+    bool isServer();
+
+    //! \brief Check for the time elapsed and open a server turn when needed.
+    void checkForTurnUpdate(Ogre::Real timeSinceLastFrame);
+
+    //! \brief Updates server-turn independant creature animation, audio, and overall rendering.
+    void updateAnimations(Ogre::Real timeSinceLastFrame);
 };
 
 #endif // __ODFRAMELISTENER_H__

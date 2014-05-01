@@ -14,7 +14,6 @@ class Socket;
 void *serverSocketProcessor(void *p);
 void *serverNotificationProcessor(void *p);
 void *clientHandlerThread(void *p);
-void *creatureAIThread(void *p);
 
 // Functions called by pthread_create which run on the client
 void *clientSocketProcessor(void *p);

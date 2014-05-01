@@ -981,6 +981,33 @@ void *GameMap::creatureDoTurnHelperThread(void *p)
     return NULL;
 }
 
+void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
+{
+    // Update the animations on any AnimatedObjects which have them
+    unsigned int entities_number = numAnimatedObjects();
+    for (unsigned int i = 0; i < entities_number; ++i)
+    {
+        MovableGameEntity* currentAnimatedObject = getAnimatedObject(i);
+
+        if (!currentAnimatedObject)
+            continue;
+
+        currentAnimatedObject->update(timeSinceLastFrame);
+    }
+
+    // Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
+    entities_number = numMapLights();
+    for (unsigned int i = 0; i < entities_number; ++i)
+    {
+        MapLight* tempMapLight = getMapLight(i);
+
+        if (!tempMapLight)
+            continue;
+
+        tempMapLight->advanceFlicker(timeSinceLastFrame);
+    }
+}
+
 bool GameMap::pathExists(int x1, int y1, int x2, int y2,
                          Tile::TileClearType passability, int color)
 {

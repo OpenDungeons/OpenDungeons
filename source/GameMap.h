@@ -367,6 +367,9 @@ public:
     inline const Player* getLocalPlayer() const
     { return me; }
 
+    //! \brief Updates the different entities animations.
+    void updateAnimations(Ogre::Real timeSinceLastFrame);
+
     //! \brief Increments a semaphore for the given turn indicating how many outstanding references
     //! to game asssets have been copied by other functions.
     void threadLockForTurn(long int turn);

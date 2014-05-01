@@ -283,6 +283,29 @@ void ODFrameListener::requestStopThreads()
     mThreadStopRequested.set(true);
 }
 
+void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
+{
+    MusicPlayer::getSingletonPtr()->update();
+    RenderManager::getSingletonPtr()->processRenderRequests();
+
+    mGameMap->updateAnimations(timeSinceLastFrame);
+}
+
+void ODFrameListener::checkForTurnUpdate(Ogre::Real timeSinceLastFrame)
+{
+    static Ogre::Real timeElapsedSinceLastTurn = 0.0;
+
+    timeElapsedSinceLastTurn += timeSinceLastFrame;
+    if (timeElapsedSinceLastTurn < 1.0 / ODApplication::turnsPerSecond)
+        return;
+
+    timeElapsedSinceLastTurn = 0.0;
+
+    GameMap::turnNumber.lock();
+    GameMap::turnNumber.rawSet(GameMap::turnNumber.rawGet() + 1);
+    GameMap::turnNumber.unlock();
+}
+
 bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 {
     if (mWindow->isClosed())
@@ -290,14 +313,72 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
 
+    // Updates animations independant from the server new turn event
+    updateAnimations(evt.timeSinceLastFrame);
+
+    //Need to capture/update each device
+    mModeManager->checkModeChange();
+    AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
+    currentMode->getKeyboard()->capture();
+    currentMode->getMouse()->capture();
+
+    currentMode->onFrameStarted(evt);
+
+    if (cm != NULL)
+       cm->onFrameStarted();
+
+    // Sleep to limit the framerate to the max value
+    mFrameDelay -= evt.timeSinceLastFrame;
+    if (mFrameDelay > 0.0)
+    {
+        usleep(1e6 * mFrameDelay);
+    }
+    else
+    {
+        //FIXME: I think this 2.0 should be a 1.0 but this gives the
+        // correct result.  This probably indicates a bug.
+        mFrameDelay += 2.0 / ODApplication::MAX_FRAMES_PER_SECOND;
+    }
+
+    //If an exit has been requested, start cleaning up.
+    if(mExitRequested.get() || mContinue == false)
+    {
+        exitApplication();
+        mContinue = false;
+    }
+
+    // If we're not a server, we can't check or update what's next.
+    if (!isServer())
+        return mContinue;
+
     // Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     //NOTE:  If this function exits early the corresponding unlock function must be called.
     long int currentTurnNumber = GameMap::turnNumber.get();
 
+    checkForTurnUpdate(evt.timeSinceLastFrame);
+    if(mPreviousTurn >= currentTurnNumber)
+        return mContinue;
+
     mGameMap->threadLockForTurn(currentTurnNumber);
 
-    MusicPlayer::getSingletonPtr()->update();
-    RenderManager::getSingletonPtr()->processRenderRequests();
+    // If a new turn has started, we update events.
+    mPreviousTurn = currentTurnNumber;
+
+    // Place a message in the queue to inform the clients that a new turn has started
+    try
+    {
+        ServerNotification* serverNotification = new ServerNotification;
+        serverNotification->type = ServerNotification::turnStarted;
+
+        ODServer::queueServerNotification(serverNotification);
+    }
+    catch (bad_alloc&)
+    {
+        LogManager::getSingletonPtr()->logMessage("ERROR:  bad alloc in creatureAIThread at turnStarted", Ogre::LML_CRITICAL);
+        return mContinue;
+    }
+
+    mGameMap->doTurn();
 
     std::string chatBaseString = "\n---------- Chat ----------\n";
     mChatString = chatBaseString;
@@ -383,146 +464,80 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         }
     }
 
-    // Update the animations on any AnimatedObjects which have them
-    for (unsigned int i = 0; i < mGameMap->numAnimatedObjects(); ++i)
-    {
-        MovableGameEntity* currentAnimatedObject = mGameMap->getAnimatedObject(i);
-
-        if (!currentAnimatedObject)
-            continue;
-
-        currentAnimatedObject->update(evt.timeSinceLastFrame);
-    }
-
-    // Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
-    for (unsigned int i = 0; i < mGameMap->numMapLights(); ++i)
-    {
-        MapLight* tempMapLight = mGameMap->getMapLight(i);
-        tempMapLight->advanceFlicker(evt.timeSinceLastFrame);
-    }
-
-    std::stringstream tempSS("");
     // Update the CEGUI displays of gold, mana, etc.
-    if (isConnected())
+
+    /*
+    * We only need to recreate the info windows when each turn when
+    * the text updates.
+    */
+    mGameMap->doPlayerAITurn(evt.timeSinceLastFrame);
+
+    Seat* mySeat = mGameMap->getLocalPlayer()->getSeat();
+
+    //! \brief Updates common info on screen.
+    CEGUI::Window *tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_TERRITORY);
+    std::stringstream tempSS("");
+    tempSS << mySeat->getNumClaimedTiles();
+    tempWindow->setText(tempSS.str());
+
+    tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_GOLD);
+    tempSS.str("");
+    tempSS << mySeat->getGold();
+    tempWindow->setText(tempSS.str());
+
+    tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_MANA);
+    tempSS.str("");
+    tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
+            << mySeat->getManaDelta();
+    tempWindow->setText(tempSS.str());
+
+    mySeat->resetGoalsChanged();
+    // Update the goals display in the message window.
+    tempWindow =  Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu) ->getChild(Gui::MESSAGE_WINDOW);
+    tempSS.str("");
+    bool iAmAWinner = mGameMap->seatIsAWinner(mySeat);
+
+    if (mySeat->numGoals() > 0)
     {
-        /*
-        * We only need to recreate the info windows when each turn when
-        * the text updates.
-        * TODO Update these only when needed.
-        */
-        if(mPreviousTurn < currentTurnNumber)
+        // Loop over the list of unmet goals for the seat we are sitting in an print them.
+        tempSS << "Unfinished Goals:\n---------------------\n";
+        for (unsigned int i = 0; i < mySeat->numGoals(); ++i)
         {
-            mPreviousTurn = currentTurnNumber;
-
-            /*
-            * NOTE: currently running this in the main thread
-            *Once per turn. We could put this in it's own thread
-            *if proper locking is done.
-            */
-            mGameMap->doPlayerAITurn(evt.timeSinceLastFrame);
-
-            Seat* mySeat = mGameMap->getLocalPlayer()->getSeat();
-
-            //! \brief Updates common info on screen.
-            CEGUI::Window *tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_TERRITORY);
-            tempSS.str("");
-            tempSS << mySeat->getNumClaimedTiles();
-            tempWindow->setText(tempSS.str());
-
-            tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_GOLD);
-            tempSS.str("");
-            tempSS << mySeat->getGold();
-            tempWindow->setText(tempSS.str());
-
-            tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::DISPLAY_MANA);
-            tempSS.str("");
-            tempSS << mySeat->getMana() << " " << (mySeat->getManaDelta() >= 0 ? "+" : "-")
-                    << mySeat->getManaDelta();
-            tempWindow->setText(tempSS.str());
-
-            if (isConnected())// && gameMap->me->seat->getHasGoalsChanged())
-            {
-                mySeat->resetGoalsChanged();
-                // Update the goals display in the message window.
-                tempWindow =  Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu) ->getChild(Gui::MESSAGE_WINDOW);
-                tempSS.str("");
-                bool iAmAWinner = mGameMap->seatIsAWinner(mySeat);
-
-                if (mySeat->numGoals() > 0)
-                {
-                    // Loop over the list of unmet goals for the seat we are sitting in an print them.
-                    tempSS << "Unfinished Goals:\n---------------------\n";
-                    for (unsigned int i = 0; i < mySeat->numGoals(); ++i)
-                    {
-                        Goal *tempGoal = mySeat->getGoal(i);
-                        tempSS << tempGoal->getDescription() << "\n";
-                    }
-                }
-
-                if (mySeat->numCompletedGoals() > 0)
-                {
-                    // Loop over the list of completed goals for the seat we are sitting in an print them.
-                    tempSS << "\nCompleted Goals:\n---------------------\n";
-                    for (unsigned int i = 0; i < mySeat->numCompletedGoals(); ++i)
-                    {
-                        Goal *tempGoal = mySeat->getCompletedGoal(i);
-                        tempSS << tempGoal->getSuccessMessage() << "\n";
-                    }
-                }
-
-                if (mySeat->numFailedGoals() > 0)
-                {
-                    // Loop over the list of completed goals for the seat we are sitting in an print them.
-                    tempSS << "\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
-                    for (unsigned int i = 0; i < mySeat->numFailedGoals(); ++i)
-                    {
-                        Goal *tempGoal = mySeat->getFailedGoal(i);
-                        tempSS << tempGoal->getFailedMessage() << "\n";
-                    }
-                }
-
-                if (iAmAWinner)
-                {
-                    tempSS << "\nCongratulations, you have completed this level.";
-                }
-                tempWindow->setText(tempSS.str());
-            }
+            Goal *tempGoal = mySeat->getGoal(i);
+            tempSS << tempGoal->getDescription() << "\n";
         }
     }
 
+    if (mySeat->numCompletedGoals() > 0)
+    {
+        // Loop over the list of completed goals for the seat we are sitting in an print them.
+        tempSS << "\nCompleted Goals:\n---------------------\n";
+        for (unsigned int i = 0; i < mySeat->numCompletedGoals(); ++i)
+        {
+            Goal *tempGoal = mySeat->getCompletedGoal(i);
+            tempSS << tempGoal->getSuccessMessage() << "\n";
+        }
+    }
+
+    if (mySeat->numFailedGoals() > 0)
+    {
+        // Loop over the list of completed goals for the seat we are sitting in an print them.
+        tempSS << "\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
+        for (unsigned int i = 0; i < mySeat->numFailedGoals(); ++i)
+        {
+            Goal *tempGoal = mySeat->getFailedGoal(i);
+            tempSS << tempGoal->getFailedMessage() << "\n";
+        }
+    }
+
+    if (iAmAWinner)
+    {
+        tempSS << "\nCongratulations, you have completed this level.";
+    }
+    tempWindow->setText(tempSS.str());
+
     // Decrement the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     mGameMap->threadUnlockForTurn(currentTurnNumber);
-
-    //Need to capture/update each device
-    mModeManager->checkModeChange();
-    AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
-    currentMode->getKeyboard()->capture();
-    currentMode->getMouse()->capture();
-
-    currentMode->onFrameStarted(evt);
-
-    if (cm != NULL)
-       cm->onFrameStarted();
-
-    // Sleep to limit the framerate to the max value
-    mFrameDelay -= evt.timeSinceLastFrame;
-    if (mFrameDelay > 0.0)
-    {
-        usleep(1e6 * mFrameDelay);
-    }
-    else
-    {
-        //FIXME: I think this 2.0 should be a 1.0 but this gives the
-        // correct result.  This probably indicates a bug.
-        mFrameDelay += 2.0 / ODApplication::MAX_FRAMES_PER_SECOND;
-    }
-
-    //If an exit has been requested, start cleaning up.
-    if(mExitRequested.get() || mContinue == false)
-    {
-        exitApplication();
-        mContinue = false;
-    }
 
     return mContinue;
 }
@@ -561,6 +576,12 @@ bool ODFrameListener::isConnected()
 {
     //TODO - we should use a bool or something, not the sockets for this.
     return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
+}
+
+bool ODFrameListener::isServer()
+{
+    //TODO - we should use a bool or something, not the sockets for this.
+    return (Socket::serverSocket != NULL);
 }
 
 void ODFrameListener::printText(const std::string& text)
