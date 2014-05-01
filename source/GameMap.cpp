@@ -884,10 +884,10 @@ unsigned long int GameMap::doCreatureTurns()
 {
     Ogre::Timer stopwatch;
 
-    // Prepare the arrays of creature pointers and parameters for the threads.
     sem_wait(&creaturesLockSemaphore);
 
-    for (unsigned int i = 0; i < creatures.size(); ++i)
+    unsigned int numCreatures = creatures.size();
+    for (unsigned int i = 0; i < numCreatures; ++i)
     {
         if (creatures[i]->getHP() > 0.0)
             creatures[i]->doTurn();
