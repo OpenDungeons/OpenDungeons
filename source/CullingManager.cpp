@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-extern const int mPrecisionDigits = 10;
+extern const int mPrecisionDigits = 20;
 extern const int Unit = (1 << mPrecisionDigits);
 
 
@@ -214,26 +214,27 @@ int CullingManager::cullCreatures()
 }
 
 
-int CullingManager::newBashAndSplashTiles(int mode){
-    int xxLeftOld = oldWalk.getTopVertex().x;
-    int xxRightOld= oldWalk.getTopVertex().x;
-    int xxLeft = mWalk.getTopVertex().x;
-    int xxRight= mWalk.getTopVertex().x;
+int64_t CullingManager::newBashAndSplashTiles(int64_t mode){
+    int64_t xxLeftOld = oldWalk.getTopVertex().x;
+    int64_t xxRightOld= oldWalk.getTopVertex().x;
+    int64_t xxLeft = mWalk.getTopVertex().x;
+    int64_t xxRight= mWalk.getTopVertex().x;
 
-    int bb = std::min(mWalk.getBottomVertex().y , oldWalk.getBottomVertex().y);
+    int64_t bb = std::min(mWalk.getBottomVertex().y , oldWalk.getBottomVertex().y) ;
 
-    for (int yy = std::max(mWalk.getTopVertex().y, oldWalk.getTopVertex().y ) + Unit;
-         yy >= bb; yy -= Unit)
+    for (int64_t yy = ( (std::max(mWalk.getTopVertex().y , oldWalk.getTopVertex().y  ) >> mPrecisionDigits) + 2) << mPrecisionDigits;  yy >= bb; yy -= Unit)
     {
-
+	mWalk.notifyOnMoveDown(yy);
+	oldWalk.notifyOnMoveDown(yy);
 	xxLeft += mWalk.getCurrentDxLeft();
 	xxLeftOld += oldWalk.getCurrentDxLeft();
 	xxRight += mWalk.getCurrentDxRight();
 	xxRightOld += oldWalk.getCurrentDxRight(); 
+
 	cerr << (xxLeft  >> mPrecisionDigits )<< " " << (xxLeftOld  >> mPrecisionDigits )<< " " << (xxRight  >> mPrecisionDigits )<< " " << (xxRightOld  >> mPrecisionDigits )<< " " <<endl ; 
 	cerr << "DxLeft, DxRight: " << mWalk.getCurrentDxLeft() << " " << mWalk.getCurrentDxRight() << " " << endl;
 
-        for (int xx = std::min(xxLeft, xxLeftOld) ; xx <= max(xxRight,xxRightOld) ; xx+= Unit){
+        for (int64_t xx = std::min(xxLeft, xxLeftOld) ; xx <= max(xxRight,xxRightOld) ; xx+= Unit){
             bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= oldWalk.getBottomVertex().y) && yy <= oldWalk.getTopVertex().y);
             bool splash = (xx >= xxLeft && xx <= xxRight && (yy >= mWalk.getBottomVertex().y) && yy <= mWalk.getTopVertex().y);
 
@@ -249,8 +250,7 @@ int CullingManager::newBashAndSplashTiles(int mode){
             else if (gm && splash && (mode & SHOW))
                 gm->getTile(xx >> mPrecisionDigits, yy >> mPrecisionDigits)->show();
 	}
-	mWalk.notifyOnMoveDown(yy);
-	oldWalk.notifyOnMoveDown(yy);
+
     }    
 }
 
@@ -259,29 +259,29 @@ int CullingManager::newBashAndSplashTiles(int mode){
  *  which traces the new camera view ( the one which would show new Tiles). Mode parameter allows to only activate one of those processes, or activate both or none :)
  *  TODO : IMPLEMENT THE FLOOR AND CEIL MATH FUNCTIONS FOR FRACTURE VALUES, SO THAT THE EDGEING TILES ( IN CAMERA VIEW ) ARE NOT CULLED AWAY
  */
-int CullingManager::bashAndSplashTiles(int mode)
+int64_t CullingManager::bashAndSplashTiles(int64_t mode)
 {
-    int xxLeftOld = mOldTop.x;
-    int xxRightOld= mOldTop.x;
+    int64_t xxLeftOld = mOldTop.x;
+    int64_t xxRightOld= mOldTop.x;
 
-    int dxLeftOld1 = (int)(mOldMiddleLeft.x - mOldTop.x) * (1 << mPrecisionDigits) / (int)(mOldTop.y - mOldMiddleLeft.y);
-    int dxRightOld1 = (int)(mOldMiddleRight.x - mOldTop.x) * (1 << mPrecisionDigits) / (int)(mOldTop.y - mOldMiddleRight.y);
+    int64_t dxLeftOld1 = (int64_t)(mOldMiddleLeft.x - mOldTop.x) * (1 << mPrecisionDigits) / (int64_t)(mOldTop.y - mOldMiddleLeft.y);
+    int64_t dxRightOld1 = (int64_t)(mOldMiddleRight.x - mOldTop.x) * (1 << mPrecisionDigits) / (int64_t)(mOldTop.y - mOldMiddleRight.y);
 
-    int dxLeftOld2 = (int)(mOldBottom.x - mOldMiddleLeft.x) * (1 << mPrecisionDigits) / (int)(mOldMiddleLeft.y - mOldBottom.y);
-    int dxRightOld2 =(int)(mOldBottom.x - mOldMiddleRight.x) * (1 << mPrecisionDigits) / (int)(mOldMiddleRight.y - mOldBottom.y);
+    int64_t dxLeftOld2 = (int64_t)(mOldBottom.x - mOldMiddleLeft.x) * (1 << mPrecisionDigits) / (int64_t)(mOldMiddleLeft.y - mOldBottom.y);
+    int64_t dxRightOld2 =(int64_t)(mOldBottom.x - mOldMiddleRight.x) * (1 << mPrecisionDigits) / (int64_t)(mOldMiddleRight.y - mOldBottom.y);
 
-    int xxLeft = mTop.x;
-    int xxRight= mTop.x;
+    int64_t xxLeft = mTop.x;
+    int64_t xxRight= mTop.x;
 
-    int  dxLeft1 = (int)(mMiddleLeft.x - mTop.x) * (1 << mPrecisionDigits) / (int)(mTop.y - mMiddleLeft.y);
-    int  dxRight1 = (int)(mMiddleRight.x - mTop.x) * (1 << mPrecisionDigits) / (int)(mTop.y - mMiddleRight.y);
+    int64_t  dxLeft1 = (int64_t)(mMiddleLeft.x - mTop.x) * (1 << mPrecisionDigits) / (int64_t)(mTop.y - mMiddleLeft.y);
+    int64_t  dxRight1 = (int64_t)(mMiddleRight.x - mTop.x) * (1 << mPrecisionDigits) / (int64_t)(mTop.y - mMiddleRight.y);
 
-    int  dxLeft2 = (int)(mBottom.x - mMiddleLeft.x) * (1 << mPrecisionDigits) / (int)(mMiddleLeft.y - mBottom.y);
-    int  dxRight2 =(int)(mBottom.x - mMiddleRight.x) * (1 << mPrecisionDigits) / (int)(mMiddleRight.y - mBottom.y);
+    int64_t  dxLeft2 = (int64_t)(mBottom.x - mMiddleLeft.x) * (1 << mPrecisionDigits) / (int64_t)(mMiddleLeft.y - mBottom.y);
+    int64_t  dxRight2 =(int64_t)(mBottom.x - mMiddleRight.x) * (1 << mPrecisionDigits) / (int64_t)(mMiddleRight.y - mBottom.y);
 
-    int bb = std::min(mBottom.y, mOldBottom.y);
+    int64_t bb = std::min(mBottom.y, mOldBottom.y);
 
-    for (int yy = ((std::max(mTop.y, mOldTop.y) >> mPrecisionDigits) + 1) << mPrecisionDigits;
+    for (int64_t yy = ((std::max(mTop.y, mOldTop.y) >> mPrecisionDigits) + 1) << mPrecisionDigits;
          yy >= bb; yy -= (1 << mPrecisionDigits))
     {
     //  if(yy == top.y)splashY=!splashY;
@@ -324,16 +324,16 @@ int CullingManager::bashAndSplashTiles(int mode)
             xxRightOld += dxRightOld2;
         }
 
-        int rr =  max(xxRight,xxRightOld);
+        int64_t rr =  max(xxRight,xxRightOld);
 
-        for (int xx = ((std::min(xxLeft, xxLeftOld) >> mPrecisionDigits) - 1) << mPrecisionDigits;
+        for (int64_t xx = ((std::min(xxLeft, xxLeftOld) >> mPrecisionDigits) - 1) << mPrecisionDigits;
              xx <= rr; xx+= (1 << mPrecisionDigits))
         {
-        //  if(xx <=(int)xxLeft ) splashX=!splashX;
-        //  if(xx <=(int)xxLeftOld  && xx >(int)xxRightOld) ) bashX=true;
+        //  if(xx <=(int64_t)xxLeft ) splashX=!splashX;
+        //  if(xx <=(int64_t)xxLeftOld  && xx >(int64_t)xxRightOld) ) bashX=true;
 
-            bool splash = (xx >= (int)xxLeft && xx <= (int)xxRight && (yy >= (int)mBottom.y) && yy <= (int)mTop.y)  ;
-            bool bash = (xx >= (int)xxLeftOld && xx <= (int)xxRightOld && (yy >= (int)mOldBottom.y) && yy <= (int)mOldTop.y);
+            bool splash = (xx >= (int64_t)xxLeft && xx <= (int64_t)xxRight && (yy >= (int64_t)mBottom.y) && yy <= (int64_t)mTop.y)  ;
+            bool bash = (xx >= (int64_t)xxLeftOld && xx <= (int64_t)xxRightOld && (yy >= (int64_t)mOldBottom.y) && yy <= (int64_t)mOldTop.y);
 
         //  cerr<< " x" <<  xx  << " y" << yy << " " <<bash<<splash << endl;
             GameMap* gm = mCm->mGameMap;
@@ -346,12 +346,12 @@ int CullingManager::bashAndSplashTiles(int mode)
             else if (gm && splash && (mode & SHOW))
                 gm->getTile(xx >> mPrecisionDigits, yy >> mPrecisionDigits)->show();
 
-        //  if(xx >(int)xxRightOld) bashX=!bashX;
-        //  if(xx >(int)xxRight)splashX=!splashX;
+        //  if(xx >(int64_t)xxRightOld) bashX=!bashX;
+        //  if(xx >(int64_t)xxRight)splashX=!splashX;
         }
 
-    //  if(yy < (int)oldBottom.y)bashY=!bashY;
-    //  if(yy < (int)bottom.y)splashY=!splashY;
+    //  if(yy < (int64_t)oldBottom.y)bashY=!bashY;
+    //  if(yy < (int64_t)bottom.y)splashY=!splashY;
     }
     return 1;
 }

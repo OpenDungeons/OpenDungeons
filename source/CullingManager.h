@@ -57,8 +57,8 @@ public:
     bool onFrameEnded();
 
     // set the new tiles
-    int bashAndSplashTiles(int);
-    int newBashAndSplashTiles(int);
+    int64_t bashAndSplashTiles(int64_t);
+    int64_t newBashAndSplashTiles(int64_t);
 
     void sort(Vector3i& p1, Vector3i& p2, bool sortByX);
 
