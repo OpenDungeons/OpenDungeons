@@ -13,7 +13,6 @@
 #include <OgreSingleton.h>
 #include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
-#include <semaphore.h>
 
 using  std::string;
 
@@ -125,9 +124,6 @@ class RenderManager: public Ogre::Singleton<RenderManager>
     private:
         bool visibleCreatures;
 
-        //TODO -should we maybe encapsulate the semaphores somewhere?
-        sem_t renderQueueSemaphore;
-        sem_t renderQueueEmptySemaphore;
         std::deque<RenderRequest*> renderQueue;
 
         //! \brief The main scene manager reference. Don't delete it.

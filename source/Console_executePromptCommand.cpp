@@ -717,9 +717,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                         frameListener->mCommandOutput += "\nConnection successful.\n";
 
                         // Send a hello request to start the conversation with the server
-                        sem_wait(&Socket::clientSocket->semaphore);
                         Socket::clientSocket->send(formatCommand("hello", std::string("OpenDungeons V ") + ODApplication::VERSION));
-                        sem_post(&Socket::clientSocket->semaphore);
 
                         // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
                         gameMap->clearMapLightIndicators();
@@ -827,20 +825,16 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (Socket::clientSocket != NULL)
         {
-            sem_wait(&Socket::clientSocket->semaphore);
             Socket::clientSocket->send(formatCommand("chat", gameMap->me->getNick() + ":"
                     + arguments));
-            sem_post(&Socket::clientSocket->semaphore);
         }
         else if (Socket::serverSocket != NULL)
         {
             // Send the chat to all the connected clients
             for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
             {
-                sem_wait(&frameListener->mClientSockets[i]->semaphore);
                 ODFrameListener::getSingletonPtr()->mClientSockets[i]->send(formatCommand("chat", gameMap->me->getNick()
                         + ":" + arguments));
-                sem_post(&frameListener->mClientSockets[i]->semaphore);
             }
 
             // Display the chat message in our own message queue

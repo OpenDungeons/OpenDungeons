@@ -598,9 +598,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                     clientNotification->mP = currentTile;
                     clientNotification->mFlag = mDigSetBool;
 
-                    sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
                     ClientNotification::mClientNotificationQueue.push_back(clientNotification);
-                    sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
                     currentTile->setMarkedForDigging(mDigSetBool, mGameMap->getLocalPlayer());
                 }

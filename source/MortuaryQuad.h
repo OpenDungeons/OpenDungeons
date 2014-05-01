@@ -44,7 +44,6 @@ public:
 
 private:
     std::vector<Creature*> mMortuaryQuad;
-    mutable sem_t mCreaturesInCullingQuadLockSemaphore;
 };
 
 #endif // MORTUARY_QUAD_H

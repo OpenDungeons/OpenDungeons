@@ -24,7 +24,6 @@
 #include <string>
 
 #include <OgreVector3.h>
-#include <semaphore.h>
 
 class GameMap;
 
@@ -44,9 +43,9 @@ public:
     {
         return "";
     }
-    
+
     virtual bool doUpkeep();
-    
+
     //! \brief The missile reach the end of the travel and is destroyed.
     virtual void stopWalking();
 
@@ -65,12 +64,6 @@ public:
 
     std::vector<Tile*> getCoveredTiles()
     { return std::vector<Tile*>(); }
-
-    static sem_t mMissileObjectUniqueNumberLockSemaphore;
-
-private:
-    //! \brief Position lock semaphore
-    sem_t mPositionLockSemaphore;
 };
 
 #endif // MISSILEOBJECT_H

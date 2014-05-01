@@ -28,7 +28,6 @@
 #include <vector>
 #include <ostream>
 #include <istream>
-#include <semaphore.h>
 
 class Creature;
 class Player;
@@ -89,12 +88,6 @@ public:
         coveringTrap        (false),
         claimLight          (0)
     {
-        sem_init(&creaturesInCellLockSemaphore, 0, 1);
-        sem_init(&fullnessLockSemaphore, 0, 1);
-        sem_init(&coveringRoomLockSemaphore, 0, 1);
-        sem_init(&neighborsLockSemaphore, 0, 1);
-        sem_init(&claimLightLockSemaphore, 0, 1);
-
         setColor(0);
         setObjectType(GameEntity::tile);
     }
@@ -318,13 +311,6 @@ private:
     Room *coveringRoom;
     bool coveringTrap;
     MapLight *claimLight;
-
-    //! \brief Semaphores used to update tile members
-    mutable sem_t fullnessLockSemaphore;
-    mutable sem_t creaturesInCellLockSemaphore;
-    mutable sem_t coveringRoomLockSemaphore;
-    sem_t claimLightLockSemaphore;
-    sem_t neighborsLockSemaphore;
 
     /*! \brief Set the fullness value for the tile.
      *  This only sets the fullness variable. This function is here to change the value

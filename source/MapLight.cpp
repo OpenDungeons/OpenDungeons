@@ -27,8 +27,6 @@
 
 #include <sstream>
 
-sem_t MapLight::mLightNumberLockSemaphore;
-
 void MapLight::setLocation(const Ogre::Vector3& nPosition)
 {
     //TODO: This needs to make a RenderRequest to actually move the light.

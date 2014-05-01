@@ -29,7 +29,6 @@
 
 #include <sys/types.h>
 #include <string>
-#include <semaphore.h>
 #include <iostream>
 using namespace std;
 
@@ -61,7 +60,6 @@ class Socket
         {
             return m_sock != -1;
         }
-        sem_t semaphore;
 
         static Socket* serverSocket;
         static Socket* clientSocket;

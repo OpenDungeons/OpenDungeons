@@ -51,13 +51,10 @@
 #include <cmath>
 #include <cstdlib>
 
-#include <pthread.h>
-
 using namespace std;
 
 // Static GameMap members initialization
 ProtectedObject<long int> GameMap::turnNumber(1);
-sem_t GameMap::mCreatureAISemaphore;
 
 /*! \brief A helper class for the A* search in the GameMap::path function.
 *
@@ -130,12 +127,6 @@ GameMap::GameMap() :
         tileCoordinateMap(new TileCoordinateMap(100)),
         aiManager(*this)
 {
-    sem_init(&threadReferenceCountLockSemaphore, 0, 1);
-    sem_init(&creaturesLockSemaphore, 0, 1);
-    sem_init(&animatedObjectsLockSemaphore, 0, 1);
-    sem_init(&activeObjectsLockSemaphore, 0, 1);
-    sem_init(&newActiveObjectsLockSemaphore, 0, 1);
-
     // Init the player
     me = new Player();
     me->setNick("defaultNickName");
@@ -195,9 +186,7 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
             tempTile.setName(ss.str());
             tempTile.x = ii;
             tempTile.y = jj;
-            sem_wait(&tilesLockSemaphore);
             addTile(tempTile);
-            sem_post(&tilesLockSemaphore);
         }
     }
 
@@ -237,7 +226,6 @@ void GameMap::clearAll()
 
 void GameMap::clearCreatures()
 {
-    sem_wait(&creaturesLockSemaphore);
     for (unsigned int ii = 0; ii < creatures.size(); ++ii)
     {
         removeAnimatedObject(creatures[ii]);
@@ -245,7 +233,6 @@ void GameMap::clearCreatures()
     }
 
     creatures.clear();
-    sem_post(&creaturesLockSemaphore);
 }
 
 void GameMap::clearClasses()
@@ -278,24 +265,19 @@ void GameMap::addClassDescription(CreatureDefinition c)
 
 bool GameMap::doesCreatureNameExist(const std::string& entity_name)
 {
-    sem_wait(&creaturesLockSemaphore);
     for (unsigned int ii = 0; ii < creatures.size(); ++ii)
     {
         if (creatures[ii]->getName() == entity_name)
         {
-            sem_post(&creaturesLockSemaphore);
             return true;
         }
     }
-    sem_post(&creaturesLockSemaphore);
     return false;
 }
 
 void GameMap::addCreature(Creature *cc)
 {
-    sem_wait(&creaturesLockSemaphore);
     creatures.push_back(cc);
-    sem_post(&creaturesLockSemaphore);
 
     cc->positionTile()->addCreature(cc);
     culm->mMyCullingQuad.insert(cc);
@@ -306,8 +288,6 @@ void GameMap::addCreature(Creature *cc)
 
 void GameMap::removeCreature(Creature *c)
 {
-    sem_wait(&creaturesLockSemaphore);
-
     // Loop over the creatures looking for creature c
     for (unsigned int i = 0; i < creatures.size(); ++i)
     {
@@ -320,7 +300,6 @@ void GameMap::removeCreature(Creature *c)
             break;
         }
     }
-    sem_post(&creaturesLockSemaphore);
 
     removeAnimatedObject(c);
     c->setIsOnMap(false);
@@ -352,11 +331,7 @@ CreatureDefinition* GameMap::getClassDescription(std::string query)
 
 unsigned int GameMap::numCreatures() const
 {
-    sem_wait(&creaturesLockSemaphore);
-    unsigned int tempUnsigned = creatures.size();
-    sem_post(&creaturesLockSemaphore);
-
-    return tempUnsigned;
+    return creatures.size();
 }
 
 std::vector<Creature*> GameMap::getCreaturesByColor(int color)
@@ -364,35 +339,27 @@ std::vector<Creature*> GameMap::getCreaturesByColor(int color)
     std::vector<Creature*> tempVector;
 
     // Loop over all the creatures in the GameMap and add them to the temp vector if their color matches that of the desired seat.
-    sem_wait(&creaturesLockSemaphore);
     for (unsigned int i = 0; i < creatures.size(); ++i)
     {
         if (creatures[i]->getColor() == color)
             tempVector.push_back(creatures[i]);
     }
-    sem_post(&creaturesLockSemaphore);
 
     return tempVector;
 }
 
 void GameMap::clearAnimatedObjects()
 {
-    sem_wait(&animatedObjectsLockSemaphore);
     animatedObjects.clear();
-    sem_post(&animatedObjectsLockSemaphore);
 }
 
 void GameMap::addAnimatedObject(MovableGameEntity *a)
 {
-    sem_wait(&animatedObjectsLockSemaphore);
     animatedObjects.push_back(a);
-    sem_post(&animatedObjectsLockSemaphore);
 }
 
 void GameMap::removeAnimatedObject(MovableGameEntity *a)
 {
-    sem_wait(&animatedObjectsLockSemaphore);
-
     // Loop over the animatedObjects looking for animatedObject a
     for (unsigned int i = 0; i < animatedObjects.size(); ++i)
     {
@@ -403,15 +370,11 @@ void GameMap::removeAnimatedObject(MovableGameEntity *a)
             break;
         }
     }
-
-    sem_post(&animatedObjectsLockSemaphore);
 }
 
 MovableGameEntity* GameMap::getAnimatedObject(int index)
 {
-    sem_wait(&animatedObjectsLockSemaphore);
     MovableGameEntity* tempAnimatedObject = animatedObjects[index];
-    sem_post(&animatedObjectsLockSemaphore);
 
     return tempAnimatedObject;
 }
@@ -420,7 +383,6 @@ MovableGameEntity* GameMap::getAnimatedObject(std::string name)
 {
     MovableGameEntity* tempAnimatedObject = NULL;
 
-    sem_wait(&animatedObjectsLockSemaphore);
     for (unsigned int i = 0; i < animatedObjects.size(); ++i)
     {
         if (animatedObjects[i]->getName().compare(name) == 0)
@@ -429,36 +391,25 @@ MovableGameEntity* GameMap::getAnimatedObject(std::string name)
             break;
         }
     }
-    sem_post(&animatedObjectsLockSemaphore);
 
     return tempAnimatedObject;
 }
 
 unsigned int GameMap::numAnimatedObjects()
 {
-    sem_wait(&animatedObjectsLockSemaphore);
-    unsigned int tempUnsigned = animatedObjects.size();
-    sem_post(&animatedObjectsLockSemaphore);
-
-    return tempUnsigned;
+    return animatedObjects.size();
 }
 
 void GameMap::addActiveObject(GameEntity *a)
 {
     if (a->isActive())
-    {
-        sem_wait(&activeObjectsLockSemaphore);
         activeObjects.push_back(a);
-        sem_post(&activeObjectsLockSemaphore);
-    }
 }
 
 void GameMap::removeActiveObject(GameEntity *a)
 {
     if (a->isActive())
     {
-        sem_wait(&activeObjectsLockSemaphore);
-
         // Loop over the activeObjects looking for activeObject a
         for (unsigned int i = 0; i < activeObjects.size(); ++i)
         {
@@ -469,8 +420,6 @@ void GameMap::removeActiveObject(GameEntity *a)
                 break;
             }
         }
-
-        sem_post(&activeObjectsLockSemaphore);
     }
 }
 
@@ -481,19 +430,13 @@ unsigned int GameMap::numClassDescriptions()
 
 Creature* GameMap::getCreature(int index)
 {
-    sem_wait(&creaturesLockSemaphore);
     Creature *tempCreature = creatures[index];
-    sem_post(&creaturesLockSemaphore);
-
     return tempCreature;
 }
 
 const Creature* GameMap::getCreature(int index) const
 {
-    sem_wait(&creaturesLockSemaphore);
     const Creature *tempCreature = creatures[index];
-    sem_post(&creaturesLockSemaphore);
-
     return tempCreature;
 }
 
@@ -545,9 +488,6 @@ void GameMap::createAllEntities()
 void GameMap::destroyAllEntities()
 {
     // Destroy OGRE entities for map tiles
-    sem_wait(&tilesLockSemaphore);
-
-
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
@@ -556,8 +496,6 @@ void GameMap::destroyAllEntities()
             tile->destroyMesh();
         }
     }
-
-    sem_post(&tilesLockSemaphore);
 
     // Destroy OGRE entities for the creatures
     for (unsigned int i = 0; i < numCreatures(); ++i)
@@ -595,7 +533,6 @@ Creature* GameMap::getCreature(const std::string& cName)
     //TODO: This function should look the name up in a map of creature names onto pointers, care should also be taken to minimize calls to this function.
     Creature *returnValue = NULL;
 
-    sem_wait(&creaturesLockSemaphore);
     for (unsigned int i = 0; i < creatures.size(); ++i)
     {
         if (creatures[i]->getName().compare(cName) == 0)
@@ -604,7 +541,6 @@ Creature* GameMap::getCreature(const std::string& cName)
             break;
         }
     }
-    sem_post(&creaturesLockSemaphore);
 
     return returnValue;
 }
@@ -614,7 +550,6 @@ const Creature* GameMap::getCreature(const std::string& cName) const
     //TODO: This function should look the name up in a map of creature names onto pointers, care should also be taken to minimize calls to this function.
     Creature *returnValue = NULL;
 
-    sem_wait(&creaturesLockSemaphore);
     for (unsigned int i = 0; i < creatures.size(); ++i)
     {
         if (creatures[i]->getName().compare(cName) == 0)
@@ -623,15 +558,12 @@ const Creature* GameMap::getCreature(const std::string& cName) const
             break;
         }
     }
-    sem_post(&creaturesLockSemaphore);
 
     return returnValue;
 }
 
 void GameMap::doTurn()
 {
-    sem_wait(&mCreatureAISemaphore);
-
     std::cout << "\nStarting creature AI for turn " << turnNumber.get();
     unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
@@ -645,9 +577,7 @@ void GameMap::doTurn()
     while (count < numCreatures())
     {
         // Check to see if the creature has died.
-        sem_wait(&creaturesLockSemaphore);
         Creature *tempCreature = creatures[count];
-        sem_post(&creaturesLockSemaphore);
         if (tempCreature->getHP() <= 0.0)
         {
             // Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
@@ -695,8 +625,6 @@ void GameMap::doTurn()
 
     std::cout << "\nDuring this turn there were " << numCallsTo_path
               - numCallsTo_path_atStart << " calls to GameMap::path().";
-
-    sem_post(&mCreatureAISemaphore);
 }
 
 void GameMap::doPlayerAITurn(double frameTime)
@@ -741,9 +669,7 @@ unsigned long int GameMap::doMiscUpkeep()
     std::map<int, int> koboldColorCounts;
     for (unsigned int i = 0; i < numCreatures(); ++i)
     {
-        sem_wait(&creaturesLockSemaphore);
         Creature *tempCreature = creatures[i];
-        sem_post(&creaturesLockSemaphore);
 
         if (tempCreature->getDefinition()->isWorker())
         {
@@ -789,7 +715,6 @@ unsigned long int GameMap::doMiscUpkeep()
     }
 
     // Carry out the upkeep round of all the active objects in the game.
-    sem_wait(&activeObjectsLockSemaphore);
     unsigned int activeObjectCount = 0;
     while (activeObjectCount < activeObjects.size())
     {
@@ -802,14 +727,12 @@ unsigned long int GameMap::doMiscUpkeep()
             ++activeObjectCount;
         }
     }
-    sem_wait(&newActiveObjectsLockSemaphore);
+
     while (!newActiveObjects.empty()) // we create new active objects queued by active objects, such as cannon balls
     {
         activeObjects.push_back(newActiveObjects.front());
         newActiveObjects.pop();
     }
-    sem_post(&newActiveObjectsLockSemaphore);
-    sem_post(&activeObjectsLockSemaphore);
 
     // Remove empty rooms from the GameMap.
     //NOTE:  The auto-increment on this loop is canceled by a decrement in the if statement, changes to the loop structure will need to keep this consistent.
@@ -853,8 +776,6 @@ unsigned long int GameMap::doMiscUpkeep()
         emptySeats[i]->setNumClaimedTiles(0);
 
     // Now loop over all of the tiles, if the tile is claimed increment the given seats count.
-    sem_wait(&tilesLockSemaphore);
-
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
@@ -876,8 +797,6 @@ unsigned long int GameMap::doMiscUpkeep()
         }
     }
 
-    sem_post(&tilesLockSemaphore);
-
     timeTaken = stopwatch.getMicroseconds();
     return timeTaken;
 }
@@ -886,15 +805,12 @@ unsigned long int GameMap::doCreatureTurns()
 {
     Ogre::Timer stopwatch;
 
-    sem_wait(&creaturesLockSemaphore);
-
     unsigned int numCreatures = creatures.size();
     for (unsigned int i = 0; i < numCreatures; ++i)
     {
         if (creatures[i]->getHP() > 0.0)
             creatures[i]->doTurn();
     }
-    sem_post(&creaturesLockSemaphore);
 
     return stopwatch.getMicroseconds();
 }
@@ -1349,7 +1265,6 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
     int tileCounter = 0;
 
-    sem_wait(&tilesLockSemaphore);
     while (true)
     {
         int rSquared = tileCoordinateMap->getRadiusSquared(tileCounter);
@@ -1365,7 +1280,6 @@ std::vector<Tile*> GameMap::visibleTiles(Tile *startTile, double sightRadius)
 
         ++tileCounter;
     }
-    sem_post(&tilesLockSemaphore);
 
     //TODO: Loop backwards and remove any non-see through tiles until we get to one which permits vision (this cuts down the cost of walks toward the end when an opaque block is found).
 
@@ -2054,9 +1968,7 @@ void GameMap::addMissileObject(MissileObject *m)
 {
     //TODO - should we have a semaphore here?
     missileObjects.push_back(m);
-    sem_wait(&newActiveObjectsLockSemaphore);
     newActiveObjects.push(m);
-    sem_post(&newActiveObjectsLockSemaphore);
     addAnimatedObject(m);
 }
 
@@ -2145,7 +2057,6 @@ void GameMap::enableFloodFill()
 {
     // Carry out a flood fill of the whole level to make sure everything is good.
     // Start by setting the flood fill color for every tile on the map to -1.
-    sem_wait(&tilesLockSemaphore);
     for (int jj = 0; jj < getMapSizeY(); ++jj)
     {
         for (int ii = 0; ii < getMapSizeX(); ++ii)
@@ -2154,7 +2065,6 @@ void GameMap::enableFloodFill()
         }
 
     }
-    sem_post(&tilesLockSemaphore);
 
     // Loop over the tiles again, this time flood filling when the flood fill color is -1.
     // This will flood the map enough times to cover the whole map.
@@ -2193,9 +2103,6 @@ Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
 
 void GameMap::threadLockForTurn(long int turn)
 {
-    // Lock the thread reference count map to prevent race conditions.
-    sem_wait(&threadReferenceCountLockSemaphore);
-
     std::map<long int, ProtectedObject<unsigned int> >::iterator result =
         threadReferenceCount.find(turn);
     if (result != threadReferenceCount.end())
@@ -2210,14 +2117,10 @@ void GameMap::threadLockForTurn(long int turn)
     }
 
     // Unlock the thread reference count map.
-    sem_post(&threadReferenceCountLockSemaphore);
 }
 
 void GameMap::threadUnlockForTurn(long int turn)
 {
-    // Lock the thread reference count map to prevent race conditions.
-    sem_wait(&threadReferenceCountLockSemaphore);
-
     std::map<long int, ProtectedObject<unsigned int> >::iterator result =
         threadReferenceCount.find(turn);
     if (result != threadReferenceCount.end())
@@ -2232,9 +2135,6 @@ void GameMap::threadUnlockForTurn(long int turn)
             << "\n\n\nERROR:  Calling threadUnlockForTurn on a turn number which does not have any current locks, bailing out.\n\n\n";
         exit(1);
     }
-
-    // Unlock the thread reference count map.
-    sem_post(&threadReferenceCountLockSemaphore);
 }
 
 void GameMap::processDeletionQueues()
@@ -2243,9 +2143,6 @@ void GameMap::processDeletionQueues()
 
     std::cout << "\nProcessing deletion queues on turn " << turn << ":  ";
     long int latestTurnToBeRetired = -1;
-
-    // Lock the thread reference count map to prevent race conditions.
-    sem_wait(&threadReferenceCountLockSemaphore);
 
     // Loop over the thread reference count and find the first turn number which has 0 outstanding threads holding references for that turn.
     std::map<long int, ProtectedObject<unsigned int> >::iterator
@@ -2268,9 +2165,6 @@ void GameMap::processDeletionQueues()
             break;
         }
     }
-
-    // Unlock the thread reference count map.
-    sem_post(&threadReferenceCountLockSemaphore);
 
     // If we did not find any turns which have no threads locking them we are safe to retire this turn.
     if (latestTurnToBeRetired < 0)

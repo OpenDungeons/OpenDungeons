@@ -24,8 +24,6 @@
 #include <iostream>
 #include <sstream>
 
-sem_t MissileObject::mMissileObjectUniqueNumberLockSemaphore;
-
 MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap* gameMap)
 {
     setGameMap(gameMap);
@@ -33,12 +31,8 @@ MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& 
 
     setObjectType(GameEntity::missileobject);
 
-    sem_init(&mPositionLockSemaphore, 0, 1);
-
     std::stringstream tempSS;
-    sem_wait(&mMissileObjectUniqueNumberLockSemaphore);
     tempSS << "Missile_Object_" << ++uniqueNumber;
-    sem_post(&mMissileObjectUniqueNumberLockSemaphore);
     setName(tempSS.str());
 
     setMeshName(nMeshName);

@@ -27,7 +27,6 @@
 #include <deque>
 #include <list>
 #include <vector>
-#include <semaphore.h>
 
 class Tile;
 
@@ -79,7 +78,6 @@ public:
     void update(Ogre::Real timeSinceLastFrame);
 
     std::deque<Ogre::Vector3> mWalkQueue;
-    sem_t mWalkQueueLockSemaphore;
     bool mWalkQueueFirstEntryAdded;
     Ogre::Vector3 mWalkDirection;
 
@@ -96,8 +94,6 @@ protected:
     std::string mPrevAnimationState;
     bool mPrevAnimationStateLoop;
     double mAnimationSpeedFactor;
-
-    sem_t mAnimationSpeedFactorLockSemaphore;
 };
 
 #endif // MOVABLEGAMEENTITY_H

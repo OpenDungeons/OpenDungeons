@@ -64,9 +64,6 @@ RenderManager::RenderManager() :
     shaderGenerator(NULL),
     initialized(false)
 {
-    sem_init(&renderQueueSemaphore, 0, 1);
-    sem_init(&renderQueueEmptySemaphore, 0, 0);
-
     //Initialise RTshader system
     if (!Ogre::RTShader::ShaderGenerator::initialize())
     {
@@ -407,7 +404,6 @@ void RenderManager::processRenderRequests
     * FIXME: Noting is actually being done based on this, this should be used to implement
     * a function making it easy to allow functions to wait on this.
     */
-    sem_wait ( &renderQueueSemaphore );
     while (!renderQueue.empty())
     {
         // Remove the first item from the render queue
@@ -415,7 +411,6 @@ void RenderManager::processRenderRequests
 
         RenderRequest *curReq = renderQueue.front();
         renderQueue.pop_front();
-        sem_post ( &renderQueueSemaphore );
 
         // Handle the request
         handleRenderRequest ( *curReq );
@@ -427,21 +422,7 @@ void RenderManager::processRenderRequests
 
         delete curReq;
         curReq = NULL;
-
-        /* If we have finished processing the last renderRequest that was in the queue we
-        * can release all of the threads that were waiting for the queue to be flushed.
-        */
-        // FIXME - should this be here, or outside the while loop?
-        for (unsigned int i = 0, numThreadsWaiting = numThreadsWaitingOnRenderQueueEmpty.get();
-                i < numThreadsWaiting; ++i)
-        {
-            sem_post(&renderQueueEmptySemaphore);
-        }
-
-        sem_wait ( &renderQueueSemaphore );
     }
-    sem_post ( &renderQueueSemaphore );
-
 }
 
 /*! \brief Put a render request in the queue (implementation)
@@ -452,9 +433,7 @@ void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
     //Unlocked in processRenderRequests
     gameMap->threadLockForTurn(renderRequest->turnNumber);
 
-    sem_wait(&renderQueueSemaphore);
     renderQueue.push_back(renderRequest);
-    sem_post(&renderQueueSemaphore);
 }
 
 //NOTE: This function has not yet been tested.
@@ -465,8 +444,6 @@ void RenderManager::waitOnRenderQueueFlush()
     ++tempUnsigned;
     numThreadsWaitingOnRenderQueueEmpty.rawSet(tempUnsigned);
     numThreadsWaitingOnRenderQueueEmpty.unlock();
-
-    sem_wait(&renderQueueEmptySemaphore);
 }
 
 void RenderManager::rrRefreshTile(const RenderRequest& renderRequest)
@@ -754,7 +731,6 @@ void RenderManager::rrAttachCreature( const RenderRequest& renderRequest ) {
 
 
 void RenderManager::rrToggleCreaturesVisibility(){
-    sem_wait(&(gameMap->creaturesLockSemaphore));
     visibleCreatures  = !visibleCreatures;
     if(visibleCreatures ){
 	for(  std::vector<Creature*>::iterator it = gameMap->creatures.begin(); it != gameMap->creatures.end(); ++it){
@@ -780,7 +756,6 @@ void RenderManager::rrToggleCreaturesVisibility(){
 
 	}
     }
-    sem_post(&(gameMap->creaturesLockSemaphore));
 }
 
 

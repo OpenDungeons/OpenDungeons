@@ -2,7 +2,6 @@
 #define SEAT_H
 
 #include <OgreColourValue.h>
-#include <semaphore.h>
 #include <string>
 #include <vector>
 #include <ostream>
@@ -66,8 +65,6 @@ class Seat
         double alignmentOrder;
         double alignmentPeace;
 
-
-
         static std::string getFormat();
         friend std::ostream& operator<<(std::ostream& os, Seat *s);
         friend std::istream& operator>>(std::istream& is, Seat *s);
@@ -78,20 +75,14 @@ class Seat
         void goalsHasChanged();
 
         std::vector<Goal*> goals; /**< \brief The currently unmet goals for this seat, the first Seat to empty this wins. */
-        sem_t goalsLockSemaphore;
 
         std::vector<Goal*> completedGoals; /**< \brief The met goals for this seat. */
-        sem_t completedGoalsLockSemaphore;
 
         std::vector<Goal*> failedGoals; /**< \brief The unmet goals for this seat which cannot possibly be met in the future. */
-        sem_t failedGoalsLockSemaphore;
 
         unsigned int numClaimedTiles; /**< \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn(). */
 
         bool hasGoalsChanged;
-
-        mutable sem_t numClaimedTilesLockSemaphore;
 };
 
-#endif
-
+#endif // SEAT_H

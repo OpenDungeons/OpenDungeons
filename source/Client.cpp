@@ -94,9 +94,7 @@ void processClientSocketMessages()
 
         if (serverCommand.compare("picknick") == 0)
         {
-            sem_wait(&sock->semaphore);
             sock->send(formatCommand("setnick", gameMap->me->getNick()));
-            sem_post(&sock->semaphore);
         }
 
         /*
@@ -108,7 +106,6 @@ void processClientSocketMessages()
             cout.flush();
             tempSS >> tempSeat;
             gameMap.me->seat = tempSeat;
-            sem_wait(&sock->semaphore);
             }
             */
 
@@ -123,9 +120,7 @@ void processClientSocketMessages()
                 gameMap->me->setSeat(gameMap->popEmptySeat());
             }
 
-            sem_wait(&sock->semaphore);
             sock->send(formatCommand("ok", "addseat"));
-            sem_post(&sock->semaphore);
         }
 
         else if (serverCommand.compare("addplayer") == 0)
@@ -134,9 +129,7 @@ void processClientSocketMessages()
             tempPlayer->setNick(arguments);
             gameMap->addPlayer(tempPlayer);
 
-            sem_wait(&sock->semaphore);
             sock->send(formatCommand("ok", "addplayer"));
-            sem_post(&sock->semaphore);
         }
 
         else if (serverCommand.compare("chat") == 0)
@@ -162,9 +155,8 @@ void processClientSocketMessages()
             tempSS >> &newTile;
             newTile.setGameMap(gameMap);
             gameMap->addTile(newTile);
-            sem_wait(&sock->semaphore);
+
             sock->send(formatCommand("ok", "addtile"));
-            sem_post(&sock->semaphore);
 
             // Loop over the tile's neighbors to force them to recheck
             // their mesh to see if they can use an optimized one
@@ -199,9 +191,8 @@ void processClientSocketMessages()
             Room *newRoom = Room::createRoomFromStream(roomName, tempSS, gameMap);
             gameMap->addRoom(newRoom);
             newRoom->createMesh();
-            sem_wait(&sock->semaphore);
+
             sock->send(formatCommand("ok", "addroom"));
-            sem_post(&sock->semaphore);
         }
 
         else if (serverCommand.compare("addclass") == 0)
@@ -212,9 +203,7 @@ void processClientSocketMessages()
             tempSS >> tempClass;
 
             gameMap->addClassDescription(tempClass);
-            sem_wait(&sock->semaphore);
             sock->send(formatCommand("ok", "addclass"));
-            sem_post(&sock->semaphore);
         }
 
         else if (serverCommand.compare("addcreature") == 0)
@@ -231,9 +220,8 @@ void processClientSocketMessages()
             newCreature->createMesh();
             newCreature->getWeaponL()->createMesh();
             newCreature->getWeaponR()->createMesh();
-            sem_wait(&sock->semaphore);
+
             sock->send(formatCommand("ok", "addcreature"));
-            sem_post(&sock->semaphore);
         }
 
         else if (serverCommand.compare("newturn") == 0)
@@ -404,19 +392,12 @@ void processClientNotifications()
     {
         // Wait until a message is place in the queue
 
-        // Take a message out of the front of the notification queue
-        sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
-
         // Test whether there is something left to deal with
         if (ClientNotification::mClientNotificationQueue.empty())
-        {
-            sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
             break;
-        }
 
         ClientNotification* event = ClientNotification::mClientNotificationQueue.front();
         ClientNotification::mClientNotificationQueue.pop_front();
-        sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
         if (!event)
             continue;
@@ -430,9 +411,7 @@ void processClientNotifications()
                 tempSS.str("");
                 tempSS << tempPlayer->getNick() << ":" << tempCreature->getName();
 
-                sem_wait(&Socket::clientSocket->semaphore);
                 Socket::clientSocket->send(formatCommand("creaturePickUp", tempSS.str()));
-                sem_post(&Socket::clientSocket->semaphore);
                 break;
 
             case ClientNotification::creatureDrop:
@@ -443,9 +422,7 @@ void processClientNotifications()
                 tempSS << tempPlayer->getNick() << ":" << tempTile->x << ":"
                         << tempTile->y;
 
-                sem_wait(&Socket::clientSocket->semaphore);
                 Socket::clientSocket->send(formatCommand("creatureDrop", tempSS.str()));
-                sem_post(&Socket::clientSocket->semaphore);
                 break;
 
             case ClientNotification::markTile:
@@ -455,9 +432,7 @@ void processClientNotifications()
                 tempSS << tempTile->x << ":" << tempTile->y << ":"
                         << (flag ? "true" : "false");
 
-                sem_wait(&Socket::clientSocket->semaphore);
                 Socket::clientSocket->send(formatCommand("markTile", tempSS.str()));
-                sem_post(&Socket::clientSocket->semaphore);
                 break;
 
             case ClientNotification::exit:

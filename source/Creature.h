@@ -26,7 +26,6 @@
 #include "CreatureAction.h"
 #include "MovableGameEntity.h"
 
-#include <semaphore.h>
 #include <OgreVector2.h>
 #include <OgreVector3.h>
 #include <OgreSharedPtr.h>
@@ -212,12 +211,6 @@ private:
 
     //! \brief Pointer to the struct holding the general type of the creature with its values
     const CreatureDefinition* mDefinition;
-
-    mutable sem_t   mHpLockSemaphore;
-    mutable sem_t   mManaLockSemaphore;
-    mutable sem_t   mIsOnMapLockSemaphore;
-    sem_t           mActionQueueLockSemaphore;
-    sem_t           mStatsWindowLockSemaphore;
 
     bool            mIsOnMap;
     bool            mHasVisualDebuggingEntities;

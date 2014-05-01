@@ -11,7 +11,6 @@
 #include <cassert>
 #include <string>
 #include <vector>
-#include <semaphore.h>
 #include <OgreVector3.h>
 #include <OgreSceneNode.h>
 #include "RenderManager.h"
@@ -31,8 +30,6 @@ class Quadtree;
  */
 class GameEntity
 {
-
-
 
 /* TODO list:
  * - GameMap pointer should not be part of every object, since there is only one GameMap, at least let it set by ctor
@@ -61,9 +58,8 @@ class GameEntity
     active      (true),
     attackable  (true),
     objectType  (unknown),
-    gameMap     (0)
+    gameMap     (NULL)
     {
-        sem_init(&positionLockSemaphore, 0, 1);
     }
 
     virtual ~GameEntity(){}
@@ -95,11 +91,8 @@ class GameEntity
 
     virtual Ogre::Vector3       getPosition     ()
     {
-	sem_wait(&positionLockSemaphore);
-	Ogre::Vector3 tempVector = position;
-	sem_post(&positionLockSemaphore);
-
-	return tempVector;
+        Ogre::Vector3 tempVector = position;
+        return tempVector;
     }
 
     // ===== SETTERS =====
@@ -121,18 +114,13 @@ class GameEntity
     //! \brief set a pointer the MameMap
     inline virtual void         setGameMap                      (GameMap* gameMap)
     {
-	this->gameMap = gameMap;
-	assert(gameMap != 0);
+        this->gameMap = gameMap;
+        assert(gameMap != 0);
     }
-
-
-
 
     virtual void                setPosition                     (const Ogre::Vector3& v)
     {
-	sem_wait(&positionLockSemaphore);
-	position = v;
-	sem_post(&positionLockSemaphore);
+        position = v;
     }
 
     // ===== METHODS =====
@@ -146,31 +134,25 @@ class GameEntity
     virtual void    deleteYourself  ();
 
 
-    inline void show(){
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::attachTile;
-	request->p = static_cast<void*>(this);
+    inline void show()
+    {
+        RenderRequest *request = new RenderRequest;
+        request->type = RenderRequest::attachTile;
+        request->p = static_cast<void*>(this);
 
-	// Add the request to the queue of rendering operations to be performed before the next frame.
-	RenderManager::queueRenderRequest(request);
-
-
-
-
+        // Add the request to the queue of rendering operations to be performed before the next frame.
+        RenderManager::queueRenderRequest(request);
     };
 
-    inline void hide(){
+    inline void hide()
+    {
+        RenderRequest *request = new RenderRequest;
+        request->type = RenderRequest::detachTile;
+        request->p = static_cast<void*>(this);
 
-	RenderRequest *request = new RenderRequest;
-	request->type = RenderRequest::detachTile;
-	request->p = static_cast<void*>(this);
-
-	// Add the request to the queue of rendering operations to be performed before the next frame.
-	RenderManager::queueRenderRequest(request);
-
-
+        // Add the request to the queue of rendering operations to be performed before the next frame.
+        RenderManager::queueRenderRequest(request);
     };
-
 
     //! \brief defines what happens on each turn with this object
     virtual bool    doUpkeep        () = 0;
@@ -193,14 +175,14 @@ class GameEntity
 
     static std::vector<GameEntity*> removeDeadObjects(const std::vector<GameEntity*> &objects)
     {
-	std::vector<GameEntity*> ret;
-	for(unsigned int i = 0, size = objects.size(); i < size; ++i)
-	{
-	    if (objects[i]->getHP(NULL) > 0.0)
-		ret.push_back(objects[i]);
-	}
+        std::vector<GameEntity*> ret;
+        for(unsigned int i = 0, size = objects.size(); i < size; ++i)
+        {
+            if (objects[i]->getHP(NULL) > 0.0)
+            ret.push_back(objects[i]);
+        }
 
-	return ret;
+        return ret;
     }
 
   protected:
@@ -229,13 +211,8 @@ class GameEntity
     //! \brief What kind of object is it
     ObjectType      objectType;
 
-
-
     //! \brief Pointer to the GameMap object.
     GameMap*        gameMap;
-
-    //! \brief The semaphore to lock the position
-    sem_t           positionLockSemaphore;
 };
 
 #endif /* GAMEENTITY_H_ */

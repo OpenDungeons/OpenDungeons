@@ -82,9 +82,7 @@ void queueServerNotification(ServerNotification* n)
     n->turnNumber = GameMap::turnNumber.get();
     gameMap->threadLockForTurn(n->turnNumber);
 
-    sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
     ServerNotification::serverNotificationQueue.push_back(n);
-    sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
 }
 
 void processServerEvents()

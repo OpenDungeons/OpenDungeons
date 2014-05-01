@@ -31,7 +31,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <semaphore.h>
 #include <map>
 #include <string>
 
@@ -373,14 +372,12 @@ public:
      */
     void threadUnlockForTurn(long int turn);
 
-    mutable sem_t creaturesLockSemaphore;
     Player *me;
 
     CullingManager* culm;
 
     unsigned long int miscUpkeepTime, creatureTurnsTime;
 
-    static sem_t mCreatureAISemaphore;
     std::vector<Creature*> creatures;
     static ProtectedObject<long int> turnNumber;
 
@@ -398,9 +395,6 @@ public:
     //Mutable to allow locking in const functions.
     //TODO: Most of these other vectors should also probably have semaphore locks on them.
     std::vector<MovableGameEntity*> animatedObjects;
-    sem_t animatedObjectsLockSemaphore;
-    sem_t activeObjectsLockSemaphore;
-    sem_t newActiveObjectsLockSemaphore;
 
     //! \brief Map Entities
     std::vector<Room*> rooms;
@@ -427,7 +421,6 @@ public:
 
     std::map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
     std::map<long int, std::vector<Creature*> > creaturesToDelete;
-    sem_t threadReferenceCountLockSemaphore;
 
     //! \brief Debug member used to know how many call to pathfinding has been made within the same turn.
     unsigned int numCallsTo_path;
@@ -451,4 +444,3 @@ public:
 };
 
 #endif
-

@@ -119,20 +119,13 @@ void processServerNotifications()
 
     while (running)
     {
-        // Wait until a message is put into the serverNotificationQueue
-        sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
-
         // If the queue is empty, let's get out of the loop.
         if (ServerNotification::serverNotificationQueue.empty())
-        {
-            sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
             break;
-        }
 
         // Take a message out of the front of the notification queue
         ServerNotification *event = ServerNotification::serverNotificationQueue.front();
         ServerNotification::serverNotificationQueue.pop_front();
-        sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
 
         //FIXME:  This really should never happen but the queue does occasionally pop a NULL.
         //This is probably a bug somewhere else where a NULL is being place in the queue.
@@ -296,7 +289,6 @@ bool processClientNotifications(Socket* clientSocket)
                         + arguments, time(NULL)));
 
         // Tell the client to give us their nickname and to clear their map
-        sem_wait(&clientSocket->semaphore);
         clientSocket->send(formatCommand("picknick", ""));
 
         // Set the nickname that the client sends back, tempString2 is just used
@@ -412,8 +404,6 @@ bool processClientNotifications(Socket* clientSocket)
             // Throw away the ok response
             clientSocket->recv(tempString);
         }
-
-        sem_post(&clientSocket->semaphore);
     }
 
     else if (clientCommand.compare("chat") == 0)
@@ -423,10 +413,8 @@ bool processClientNotifications(Socket* clientSocket)
         // Send the message to all the connected clients
         for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
         {
-            sem_wait(&frameListener->mClientSockets[i]->semaphore);
             frameListener->mClientSockets[i]->send(formatCommand("chat",
                     newMessage->getClientNick() + ":" + newMessage->getMessage()));
-            sem_post(&frameListener->mClientSockets[i]->semaphore);
         }
 
         // Put the message in our own queue
@@ -531,8 +519,6 @@ void sendToAllClients(ODFrameListener *frameListener, std::string str)
         if (!frameListener->mClientSockets[i])
             continue;
 
-        sem_wait(&frameListener->mClientSockets[i]->semaphore);
         frameListener->mClientSockets[i]->send(str);
-        sem_post(&frameListener->mClientSockets[i]->semaphore);
     }
 }

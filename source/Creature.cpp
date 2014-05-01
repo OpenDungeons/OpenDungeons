@@ -86,16 +86,8 @@ Creature::Creature(GameMap* gameMap, const std::string& name) :
     mSound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
     setGameMap(gameMap);
-    sem_init(&mHpLockSemaphore, 0, 1);
-    sem_init(&mManaLockSemaphore, 0, 1);
-    sem_init(&mIsOnMapLockSemaphore, 0, 1);
-    sem_init(&mActionQueueLockSemaphore, 0, 1);
-    sem_init(&mStatsWindowLockSemaphore, 0, 1);
 
     setName(name);
-
-    sem_wait(&mStatsWindowLockSemaphore);
-    sem_post(&mStatsWindowLockSemaphore);
 
     setIsOnMap(false);
 
@@ -297,51 +289,39 @@ void Creature::setPosition(const Ogre::Vector3& v)
 
 void Creature::setHP(double nHP)
 {
-    sem_wait(&mHpLockSemaphore);
     mHp = nHP;
-    sem_post(&mHpLockSemaphore);
 
     updateStatsWindow();
 }
 
 double Creature::getHP() const
 {
-    sem_wait(&mHpLockSemaphore);
     double tempDouble = mHp;
-    sem_post(&mHpLockSemaphore);
     return tempDouble;
 }
 
 void Creature::setMana(double nMana)
 {
-    sem_wait(&mManaLockSemaphore);
     mMana = nMana;
-    sem_post(&mManaLockSemaphore);
 
     updateStatsWindow();
 }
 
 double Creature::getMana() const
 {
-    sem_wait(&mManaLockSemaphore);
     double tempDouble = mMana;
-    sem_post(&mManaLockSemaphore);
 
     return tempDouble;
 }
 
 void Creature::setIsOnMap(bool nIsOnMap)
 {
-    sem_wait(&mIsOnMapLockSemaphore);
     mIsOnMap = nIsOnMap;
-    sem_post(&mIsOnMapLockSemaphore);
 }
 
 bool Creature::getIsOnMap() const
 {
-    sem_wait(&mIsOnMapLockSemaphore);
     bool tempBool = mIsOnMap;
-    sem_post(&mIsOnMapLockSemaphore);
 
     return tempBool;
 }
@@ -433,18 +413,14 @@ void Creature::doTurn()
         doLevelUp();
 
     // Heal.
-    sem_wait(&mHpLockSemaphore);
     mHp += 0.1;
     if (mHp > getMaxHp())
         mHp = getMaxHp();
-    sem_post(&mHpLockSemaphore);
 
-    // Regenrate mana.
-    sem_wait(&mManaLockSemaphore);
+    // Regenerate mana.
     mMana += 0.45;
     if (mMana > mMaxMana)
         mMana = mMaxMana;
-    sem_post(&mManaLockSemaphore);
 
     mAwakeness -= 0.15;
 
@@ -475,11 +451,9 @@ void Creature::doTurn()
         loopBack = false;
 
         // Carry out the current task
-        sem_wait(&mActionQueueLockSemaphore);
         if (!mActionQueue.empty())
         {
             CreatureAction topActionItem = mActionQueue.front();
-            sem_post(&mActionQueueLockSemaphore);
 
             switch (topActionItem.getType())
             {
@@ -536,7 +510,6 @@ void Creature::doTurn()
         }
         else
         {
-            sem_post(&mActionQueueLockSemaphore);
             LogManager::getSingleton().logMessage("ERROR:  Creature has empty action queue in doTurn(), this should not happen.");
             loopBack = false;
         }
@@ -566,7 +539,6 @@ void Creature::decideNextAction()
     {
         // Check to see if there is any combat actions (maneuvering/attacking) in our action queue.
         bool alreadyFighting = false;
-        sem_wait(&mActionQueueLockSemaphore);
         for (unsigned int i = 0, size = mActionQueue.size(); i < size; ++i)
         {
             if (mActionQueue[i].getType() == CreatureAction::attackObject
@@ -576,7 +548,6 @@ void Creature::decideNextAction()
                 break;
             }
         }
-        sem_post(&mActionQueueLockSemaphore);
 
         // If we are not already fighting with a creature or maneuvering then start doing so.
         if (!alreadyFighting)
@@ -787,22 +758,17 @@ bool Creature::handleWalkToTileAction()
 
     //TODO: Peek at the item that caused us to walk
     // If we are walking toward a tile we are trying to dig out, check to see if it is still marked for digging.
-    sem_wait(&mActionQueueLockSemaphore);
     bool toDigTile = (mActionQueue[1].getType() == CreatureAction::digTile);
-    sem_post(&mActionQueueLockSemaphore);
     if (toDigTile)
     {
         Player* tempPlayer = getControllingPlayer();
 
         // Check to see if the tile is still marked for digging
-        sem_wait(&mWalkQueueLockSemaphore);
         unsigned int index = mWalkQueue.size();
         Tile *currentTile = NULL;
         if (index > 0)
             currentTile = getGameMap()->getTile((int) mWalkQueue[index - 1].x,
                     (int) mWalkQueue[index - 1].y);
-
-        sem_post(&mWalkQueueLockSemaphore);
 
         if (currentTile != NULL)
         {
@@ -816,17 +782,14 @@ bool Creature::handleWalkToTileAction()
     }
 
     //cout << "walkToTile ";
-    sem_wait(&mWalkQueueLockSemaphore);
     if (mWalkQueue.empty())
     {
         popAction();
 
         // This extra post is included here because if the break statement happens
         // the one at the end of the 'if' block will not happen.
-        sem_post(&mWalkQueueLockSemaphore);
         return true;
     }
-    sem_post(&mWalkQueueLockSemaphore); // If this is removed remove the one in the 'if' block as well.
     return false;
 }
 
@@ -1297,9 +1260,7 @@ bool Creature::handleDigTileAction()
 
     // If none of our neighbors are marked for digging we got here too late.
     // Finish digging
-    sem_wait(&mActionQueueLockSemaphore);
     bool isDigging = (mActionQueue.front().getType() == CreatureAction::digTile);
-    sem_post(&mActionQueueLockSemaphore);
     if (isDigging)
     {
         popAction();
@@ -1693,9 +1654,7 @@ bool Creature::handleManeuverAction()
         popAction();
 
         // If the next action down the stack is not an attackObject action, add it.
-        sem_wait(&mActionQueueLockSemaphore);
         bool tempBool = (mActionQueue.front().getType() != CreatureAction::attackObject);
-        sem_post(&mActionQueueLockSemaphore);
         if (tempBool)
             pushAction(CreatureAction::attackObject);
 
@@ -1721,9 +1680,7 @@ bool Creature::handleManeuverAction()
         //TODO:  This should be improved so it picks the closest tile rather than just the [0] tile.
         tempTile = nearestEnemyObject->getCoveredTiles()[0];
         tempVector = Ogre::Vector3(tempTile->x, tempTile->y, 0.0);
-        sem_wait(&positionLockSemaphore);
         tempVector -= position;
-        sem_post(&positionLockSemaphore);
         tempVector.normalise();
         tempVector *= randomDouble(0.0, 3.0);
         tempQuat.FromAngleAxis(Ogre::Degree((randomDouble(0.0, 1.0) < 0.5 ? 90 : 270)), Ogre::Vector3::UNIT_Z);
@@ -2156,26 +2113,19 @@ std::string Creature::getUniqueCreatureName()
 
 void Creature::createStatsWindow()
 {
-    sem_wait(&mStatsWindowLockSemaphore);
-
     if (mStatsWindow != NULL)
-    {
-        sem_post(&mStatsWindowLockSemaphore);
         return;
-    }
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
-
-    mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0.25, 0.3), CEGUI::UDim(0.25, 0.3)));
 
     mStatsWindow = wmgr->createWindow("OD/FrameWindow",
             std::string("Root/CreatureStatsWindows/") + getName());
     mStatsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.65, 0)));
 
+    mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0.25, 0.3), CEGUI::UDim(0.25, 0.3)));
     //mStatsWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
     mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.25, 0)));
-
     //mStatsWindow->setSize(CEGUI::Size<double>(0.25, 0.3));
 
     CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", mStatsWindow->getName() + "TextDisplay");
@@ -2189,30 +2139,23 @@ void Creature::createStatsWindow()
     mStatsWindow->addChild(textWindow);
     rootWindow->addChild(mStatsWindow);
     mStatsWindow->show();
-    sem_post(&mStatsWindowLockSemaphore);
 
     updateStatsWindow();
 }
 
 void Creature::destroyStatsWindow()
 {
-    sem_wait(&mStatsWindowLockSemaphore);
     if (mStatsWindow != NULL)
     {
         mStatsWindow->destroy();
         mStatsWindow = NULL;
     }
-    sem_post(&mStatsWindowLockSemaphore);
 }
 
 void Creature::updateStatsWindow()
 {
-    sem_wait(&mStatsWindowLockSemaphore);
-
     if (mStatsWindow != NULL)
         mStatsWindow->getChild(mStatsWindow->getName() + "TextDisplay")->setText(getStatsText());
-
-    sem_post(&mStatsWindowLockSemaphore);
 }
 
 std::string Creature::getStatsText()
@@ -2221,9 +2164,7 @@ std::string Creature::getStatsText()
     tempSS << "Creature name: " << getName() << "\n";
     tempSS << "HP: " << getHP() << " / " << mMaxHP << "\n";
     tempSS << "Mana: " << getMana() << " / " << mMaxMana << "\n";
-    sem_wait(&mActionQueueLockSemaphore);
     tempSS << "AI State: " << mActionQueue.front().toString() << "\n";
-    sem_post(&mActionQueueLockSemaphore);
     return tempSS.str();
 }
 
@@ -2254,9 +2195,7 @@ void Creature::setCreatureDefinition(const CreatureDefinition* def)
 //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
 void Creature::takeDamage(double damage, Tile *tileTakingDamage)
 {
-    sem_wait(&mHpLockSemaphore);
     mHp -= damage;
-    sem_post(&mHpLockSemaphore);
 }
 
 //! \brief Conform: AttackableObject - Adds experience to this creature.
@@ -2303,35 +2242,27 @@ Player* Creature::getControllingPlayer()
 //! \brief Clears the action queue, except for the Idle action at the end.
 void Creature::clearActionQueue()
 {
-    sem_wait(&mActionQueueLockSemaphore);
     mActionQueue.clear();
     mActionQueue.push_front(CreatureAction::idle);
-    sem_post(&mActionQueueLockSemaphore);
 }
 
 void Creature::pushAction(CreatureAction action)
 {
-    sem_wait(&mActionQueueLockSemaphore);
     mActionQueue.push_front(action);
-    sem_post(&mActionQueueLockSemaphore);
 
     updateStatsWindow();
 }
 
 void Creature::popAction()
 {
-    sem_wait(&mActionQueueLockSemaphore);
     mActionQueue.pop_front();
-    sem_post(&mActionQueueLockSemaphore);
 
     updateStatsWindow();
 }
 
 CreatureAction Creature::peekAction()
 {
-    sem_wait(&mActionQueueLockSemaphore);
     CreatureAction tempAction = mActionQueue.front();
-    sem_post(&mActionQueueLockSemaphore);
 
     return tempAction;
 }

@@ -28,7 +28,6 @@
 #include <stack>
 #include <list>
 #include <set>
-#include <semaphore.h>
 
 using std::string;
 using std::vector;

@@ -25,7 +25,6 @@
 #include <sys/types.h>
 #endif //mode_t
 #endif //mingw32
-#include <semaphore.h>
 
 /*! \brief A data structure used to pass messages to the clientNotificationProcessor thread.
  *
@@ -53,7 +52,6 @@ public:
     bool mFlag;
 
     static std::deque<ClientNotification*> mClientNotificationQueue;
-    static sem_t mClientNotificationQueueLockSemaphore;
 };
 
 #endif // CLIENTNOTIFICATION_H

@@ -167,20 +167,17 @@ void ODFrameListener::exitApplication()
 
     ServerNotification* exitServerNotification = new ServerNotification();
     exitServerNotification->type = ServerNotification::exit;
-    sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
     while(!ServerNotification::serverNotificationQueue.empty())
     {
         delete ServerNotification::serverNotificationQueue.front();
         ServerNotification::serverNotificationQueue.pop_front();
     }
     //serverNotificationQueue.push_back(exitServerNotification);
-    sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
     ODServer::queueServerNotification(exitServerNotification);
 
     ClientNotification* exitClientNotification = new ClientNotification();
     exitClientNotification->mType = ClientNotification::exit;
     //TODO: There should be a function to do this.
-    sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
     //Empty the queue so we don't get any crashes here.
     while(!ClientNotification::mClientNotificationQueue.empty())
     {
@@ -188,7 +185,6 @@ void ODFrameListener::exitApplication()
         ClientNotification::mClientNotificationQueue.pop_front();
     }
     ClientNotification::mClientNotificationQueue.push_back(exitClientNotification);
-    sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
 
     mGameMap->clearAll();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);

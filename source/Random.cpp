@@ -32,18 +32,14 @@
 #include <algorithm>
 #include <cmath>
 #include <ctime>
-#include <semaphore.h>
 
-sem_t randomGeneratorLockSemaphore;
 unsigned long myRandomSeed;
 const unsigned long MAX = 32768;
 
 unsigned long randgen()
 {
-    sem_wait(&randomGeneratorLockSemaphore);
     myRandomSeed = myRandomSeed * 1103515245 + 12345;
     unsigned long returnVal = (unsigned int) (myRandomSeed / 65536) % MAX;
-    sem_post(&randomGeneratorLockSemaphore);
 
     return returnVal;
 }
@@ -102,7 +98,6 @@ namespace Random
 
 void initialize()
 {
-    sem_init(&randomGeneratorLockSemaphore, 0, 1);
     myRandomSeed = static_cast<unsigned long>(time(0));
 }
 

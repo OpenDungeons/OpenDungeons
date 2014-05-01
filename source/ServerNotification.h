@@ -10,7 +10,6 @@
 #include <sys/types.h>
 #endif //mode_t
 #endif //mingw32
-#include <semaphore.h>
 
 class Tile;
 class Creature;
@@ -57,7 +56,6 @@ class ServerNotification
         long int turnNumber;
 
         static std::deque<ServerNotification*> serverNotificationQueue;
-        static sem_t mServerNotificationQueueLockSemaphore;
 };
 
 #endif

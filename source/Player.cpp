@@ -107,9 +107,7 @@ void Player::pickUpCreature(Creature *c)
             clientNotification->mP = c;
             clientNotification->mP2 = this;
 
-            sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
             ClientNotification::mClientNotificationQueue.push_back(clientNotification);
-            sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
         }
     }
     else // it is just a message indicating another player has picked up a creature
@@ -193,9 +191,7 @@ bool Player::dropCreature(Tile* t, unsigned int index)
             clientNotification->mP = this;
             clientNotification->mP2 = t;
 
-            sem_wait(&ClientNotification::mClientNotificationQueueLockSemaphore);
             ClientNotification::mClientNotificationQueue.push_back(clientNotification);
-            sem_post(&ClientNotification::mClientNotificationQueueLockSemaphore);
         }
     }
 

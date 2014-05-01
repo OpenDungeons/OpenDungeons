@@ -21,7 +21,6 @@
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
 #include <OgreColourValue.h>
-#include <semaphore.h>
 
 #include <iostream>
 #include <string>
@@ -51,9 +50,7 @@ public:
         static unsigned int lightNumber = 0;
 
         std::stringstream tempSS;
-        sem_wait(&mLightNumberLockSemaphore);
         tempSS << "Map_light_ " << ++lightNumber;
-        sem_post(&mLightNumberLockSemaphore);
         mName = tempSS.str();
 
         setPosition(nPosition);
@@ -117,9 +114,6 @@ public:
     static void loadFromLine(const std::string& line, MapLight* m);
 
     void setGameMap(GameMap* gm);
-
-    //! \brief Map number lock semaphore initialized in the ODApplication constructor.
-    static sem_t mLightNumberLockSemaphore;
 
 private:
     GameMap* mGameMap;

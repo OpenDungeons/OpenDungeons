@@ -17,5 +17,4 @@
 
 #include "ClientNotification.h"
 
-sem_t ClientNotification::mClientNotificationQueueLockSemaphore;
 std::deque<ClientNotification*> ClientNotification::mClientNotificationQueue;

@@ -6,7 +6,6 @@ TileContainer::TileContainer():
     rr(0),
     tiles(NULL)
 {
-    sem_init(&tilesLockSemaphore, 0, 1);
 }
 
 TileContainer::~TileContainer()
@@ -21,8 +20,6 @@ TileContainer::~TileContainer()
  */
 void TileContainer::clearTiles()
 {
-    sem_wait(&tilesLockSemaphore);
-
     for (int jj = 0; jj < mapSizeY; ++jj)
     {
         for (int ii = 0; ii < mapSizeX; ++ii)
@@ -31,8 +28,6 @@ void TileContainer::clearTiles()
             tiles[ii][jj].deleteYourself();
         }
     }
-
-    sem_post(&tilesLockSemaphore);
 }
 
 

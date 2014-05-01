@@ -34,9 +34,6 @@ MovableGameEntity::MovableGameEntity() :
         mMoveSpeed(1.0),
         mPrevAnimationStateLoop(true)
 {
-    sem_init(&mAnimationSpeedFactorLockSemaphore, 0, 1);
-    sem_init(&mWalkQueueLockSemaphore, 0, 1);
-
     setAnimationSpeedFactor(1.0);
 }
 
@@ -45,7 +42,6 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     Ogre::Vector3 destination(x, y, z);
 
     // if there are currently no destinations in the walk queue
-    sem_wait(&mWalkQueueLockSemaphore);
     if (mWalkQueue.empty())
     {
         // Add the destination and set the remaining distance counter
@@ -58,7 +54,6 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
         // Add the destination
         mWalkQueue.push_back(destination);
     }
-    sem_post(&mWalkQueueLockSemaphore);
 
     if (Socket::serverSocket != NULL)
     {
@@ -102,9 +97,7 @@ bool MovableGameEntity::setWalkPath(std::list<Tile*> path,
 
 void MovableGameEntity::clearDestinations()
 {
-    sem_wait(&mWalkQueueLockSemaphore);
     mWalkQueue.clear();
-    sem_post(&mWalkQueueLockSemaphore);
     stopWalking();
 
     if (Socket::serverSocket != NULL)
@@ -191,18 +184,13 @@ void MovableGameEntity::setAnimationState(const std::string& s, bool loop)
 
 double MovableGameEntity::getAnimationSpeedFactor()
 {
-    sem_wait(&mAnimationSpeedFactorLockSemaphore);
     double tempDouble = mAnimationSpeedFactor;
-    sem_post(&mAnimationSpeedFactorLockSemaphore);
-
     return tempDouble;
 }
 
 void MovableGameEntity::setAnimationSpeedFactor(double f)
 {
-    sem_wait(&mAnimationSpeedFactorLockSemaphore);
     mAnimationSpeedFactor = f;
-    sem_post(&mAnimationSpeedFactorLockSemaphore);
 }
 
 void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
@@ -219,7 +207,6 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
         return;
 
     // Move the creature
-    sem_wait(&mWalkQueueLockSemaphore);
 
     // If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
     if (mWalkQueueFirstEntryAdded)
@@ -263,5 +250,4 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
         // Move the object closer to its destination by the amount it should travel this frame.
         setPosition(getPosition() + mWalkDirection * (Ogre::Real)moveDist);
     }
-    sem_post(&mWalkQueueLockSemaphore);
 }

@@ -65,9 +65,6 @@ public:
     { return mapSizeY; }
 
 protected:
-    //! \brief Tile change semaphore
-    mutable sem_t tilesLockSemaphore;
-
     //! \brief The map size
     int mapSizeX;
     int mapSizeY;

@@ -41,8 +41,6 @@
 #include <deque>
 #include <vector>
 
-#include <pthread.h>
-
 class Socket;
 class RenderManager;
 class AbstractApplicationMode;

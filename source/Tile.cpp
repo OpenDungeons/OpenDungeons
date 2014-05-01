@@ -38,7 +38,6 @@ void Tile::setFullness(double f)
     int oldFullnessMeshNumber = fullnessMeshNumber;
     TileClearType oldTilePassability = getTilePassability();
 
-    sem_wait(&fullnessLockSemaphore);
     fullness = f;
 
     // If the tile was marked for digging and has been dug out, unmark it and set its fullness to 0.
@@ -58,8 +57,6 @@ void Tile::setFullness(double f)
      SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
      }
      */
-
-    sem_post(&fullnessLockSemaphore);
 
     // If we are a sever, the clients need to be told about the change to the tile's fullness.
     if (Socket::serverSocket != NULL)
@@ -348,18 +345,12 @@ void Tile::setFullness(double f)
 
 void Tile::setFullnessValue(double f)
 {
-    sem_wait(&fullnessLockSemaphore);
     fullness = f;
-    sem_post(&fullnessLockSemaphore);
 }
 
 double Tile::getFullness() const
 {
-    sem_wait(&fullnessLockSemaphore);
-    double tempDouble = fullness;
-    sem_post(&fullnessLockSemaphore);
-
-    return tempDouble;
+    return fullness;
 }
 
 int Tile::getFullnessMeshNumber() const
@@ -413,14 +404,9 @@ bool Tile::permitsVision() const
 bool Tile::isBuildableUpon() const
 {
     if(type != claimed || getFullness() > 0.01 || coveringTrap == true)
-    {
         return false;
-    }
-    sem_wait(&coveringRoomLockSemaphore);
-    Room *ret = coveringRoom;
-    sem_post(&coveringRoomLockSemaphore);
 
-    return ret==NULL;
+    return (coveringRoom == NULL);
 }
 
 bool Tile::getCoveringTrap() const
@@ -435,18 +421,12 @@ void Tile::setCoveringTrap(bool t)
 
 Room* Tile::getCoveringRoom()
 {
-    sem_wait(&coveringRoomLockSemaphore);
-    Room *ret = coveringRoom;
-    sem_post(&coveringRoomLockSemaphore);
-
-    return ret;
+    return coveringRoom;
 }
 
 void Tile::setCoveringRoom(Room *r)
 {
-    sem_wait(&coveringRoomLockSemaphore);
     coveringRoom = r;
-    sem_post(&coveringRoomLockSemaphore);
 }
 
 bool Tile::isDiggable(int team_color_id) const
@@ -494,7 +474,6 @@ bool Tile::isWallClaimable(int team_color_id)
     // Check whether at least one neighbor is a claimed ground tile of the given color
     // which is a condition to permit claiming the given wall tile.
     bool foundClaimedGroundTile = false;
-    sem_wait(&neighborsLockSemaphore);
     for (unsigned int j = 0; j < neighbors.size(); ++j)
     {
         if (neighbors[j]->getFullness() > 1)
@@ -508,7 +487,6 @@ bool Tile::isWallClaimable(int team_color_id)
             break;
         }
     }
-    sem_post(&neighborsLockSemaphore);
 
     if (foundClaimedGroundTile == false)
         return false;
@@ -532,7 +510,6 @@ bool Tile::isWallClaimable(int team_color_id)
     // Or whether the enemy player that claimed the wall tile has got any ground tiles permitting to keep claiming that wall tile.
     foundClaimedGroundTile = false;
     int enemy_color_id = getColor(); // NOTE: != team_color_id here.
-    sem_wait(&neighborsLockSemaphore);
     for (unsigned int j = 0; j < neighbors.size(); ++j)
     {
         if (neighbors[j]->getFullness() > 1)
@@ -546,7 +523,6 @@ bool Tile::isWallClaimable(int team_color_id)
             break;
         }
     }
-    sem_post(&neighborsLockSemaphore);
 
     if (!foundClaimedGroundTile)
         return true;
@@ -906,15 +882,11 @@ bool Tile::isMarkedForDiggingByAnySeat()
 
 void Tile::addCreature(Creature *c)
 {
-    sem_wait(&creaturesInCellLockSemaphore);
     creaturesInCell.push_back(c);
-    sem_post(&creaturesInCellLockSemaphore);
 }
 
 void Tile::removeCreature(Creature *c)
 {
-    sem_wait(&creaturesInCellLockSemaphore);
-
     // Check to see if the given crature is actually in this tile
     std::vector<Creature*>::iterator itr;
     for (itr = creaturesInCell.begin(); itr != creaturesInCell.end(); ++itr)
@@ -926,26 +898,18 @@ void Tile::removeCreature(Creature *c)
             break;
         }
     }
-
-    sem_post(&creaturesInCellLockSemaphore);
 }
 
 unsigned int Tile::numCreaturesInCell() const
 {
-    sem_wait(&creaturesInCellLockSemaphore);
-    unsigned int tempUnsigned = creaturesInCell.size();
-    sem_post(&creaturesInCellLockSemaphore);
-
-    return tempUnsigned;
+    return creaturesInCell.size();
 }
 
 Creature* Tile::getCreature(unsigned int index)
 {
-    sem_wait(&creaturesInCellLockSemaphore);
     Creature* creature = NULL;
     if (index < creaturesInCell.size())
         creature = creaturesInCell[index];
-    sem_post(&creaturesInCellLockSemaphore);
 
     return creature;
 }
@@ -979,9 +943,7 @@ Player* Tile::getPlayerMarkingTile(int index)
 
 void Tile::addNeighbor(Tile *n)
 {
-    sem_wait(&neighborsLockSemaphore);
     neighbors.push_back(n);
-    sem_post(&neighborsLockSemaphore);
 }
 
 void Tile::claimForColor(int nColor, double nDanceRate)
@@ -1004,12 +966,10 @@ void Tile::claimForColor(int nColor, double nDanceRate)
             refreshMesh();
 
             // Force all the neighbors to recheck their meshes as we have updated this tile.
-            sem_wait(&neighborsLockSemaphore);
             for (unsigned int j = 0; j < neighbors.size(); ++j)
             {
                 neighbors[j]->refreshMesh();
             }
-            sem_post(&neighborsLockSemaphore);
 
             //std::cout << "Claiming: color complete" << std::endl;
         }
@@ -1031,12 +991,10 @@ void Tile::claimForColor(int nColor, double nDanceRate)
                 refreshMesh();
 
                 // Force all the neighbors to recheck their meshes as we have updated this tile.
-                sem_wait(&neighborsLockSemaphore);
                 for (unsigned int j = 0; j < neighbors.size(); ++j)
                 {
                     neighbors[j]->refreshMesh();
                 }
-                sem_post(&neighborsLockSemaphore);
             }
         }
     }
@@ -1044,7 +1002,6 @@ void Tile::claimForColor(int nColor, double nDanceRate)
     /*
     // TODO: This should rather add lights along claimed walls, and not on every walls. Maybe each 5 ones?
     // If this is the first time this tile has been claimed, emit a flash of light indicating that the tile was claimed.
-    sem_wait(&claimLightLockSemaphore);
     if (amountClaimed > 0.0 && claimLight == NULL)
     {
         //Disabled claim lights for now, as they make things look rather ugly
@@ -1059,7 +1016,6 @@ void Tile::claimForColor(int nColor, double nDanceRate)
         SoundEffectsHelper::getSingleton().playInterfaceSound(
                 SoundEffectsHelper::CLAIM, this->x, this->y);
     }
-    sem_post(&claimLightLockSemaphore);
     */
 }
 
@@ -1075,29 +1031,24 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
     if (getFullness() < 1 || type == lava || type == water || type == rock)
         return 0.0;
 
-    sem_wait(&fullnessLockSemaphore);
     if (digRate >= fullness)
     {
         amountDug = fullness;
-        sem_post(&fullnessLockSemaphore);
         setFullness(0.0);
         setType(dirt);
     }
     else
     {
-        sem_post(&fullnessLockSemaphore);
         amountDug = digRate;
         setFullness(fullness - digRate);
     }
 
     // Force all the neighbors to recheck their meshes as we may have exposed
     // a new side that was not visible before.
-    sem_wait(&neighborsLockSemaphore);
     for (unsigned int j = 0; j < neighbors.size(); ++j)
     {
         neighbors[j]->setFullness(neighbors[j]->getFullness());
     }
-    sem_post(&neighborsLockSemaphore);
 
     if (amountDug > 0.0 && amountDug < digRate)
     {
@@ -1105,7 +1056,6 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
         if (amountToDig < 0.05)
             return amountDug;
 
-        sem_wait(&neighborsLockSemaphore);
         amountToDig /= (double) neighbors.size();
         for (unsigned int j = 0; j < neighbors.size(); ++j)
         {
@@ -1113,12 +1063,9 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
             {
                 tempTile = neighbors[j];
                 // Release and relock the semaphore since the digOut() routine will eventually need to lock it.
-                sem_post(&neighborsLockSemaphore);
                 amountDug += tempTile->digOut(amountToDig);
-                sem_wait(&neighborsLockSemaphore);
             }
         }
-        sem_post(&neighborsLockSemaphore);
     }
 
     return amountDug;
@@ -1138,20 +1085,12 @@ double Tile::scaleDigRate(double digRate)
 
 Tile* Tile::getNeighbor(unsigned int index)
 {
-    sem_wait(&neighborsLockSemaphore);
-    Tile *ret = neighbors[index];
-    sem_post(&neighborsLockSemaphore);
-
-    return ret;
+    return neighbors[index];
 }
 
 std::vector<Tile*> Tile::getAllNeighbors()
 {
-    sem_wait(&neighborsLockSemaphore);
-    std::vector<Tile*> ret = neighbors;
-    sem_post(&neighborsLockSemaphore);
-
-    return ret;
+    return neighbors;
 }
 
 void Tile::setGameMap(GameMap* gameMap)

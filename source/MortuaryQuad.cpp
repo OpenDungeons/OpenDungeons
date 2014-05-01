@@ -21,14 +21,11 @@
 
 MortuaryQuad::MortuaryQuad()
 {
-    sem_init(&mCreaturesInCullingQuadLockSemaphore, 0, 1);
 }
 
 MortuaryQuad::MortuaryQuad(const MortuaryQuad &qd):
     mMortuaryQuad(qd.mMortuaryQuad)
 {
-    sem_init(&mCreaturesInCullingQuadLockSemaphore, 0, 1);
-
     center = (qd.center);
     mRadius = qd.mRadius;
 
