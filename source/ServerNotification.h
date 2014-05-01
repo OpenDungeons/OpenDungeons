@@ -57,7 +57,6 @@ class ServerNotification
         long int turnNumber;
 
         static std::deque<ServerNotification*> serverNotificationQueue;
-        static sem_t mServerNotificationQueueSemaphore;
         static sem_t mServerNotificationQueueLockSemaphore;
 };
 

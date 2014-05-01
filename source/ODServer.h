@@ -24,9 +24,13 @@ class GameMap;
 namespace ODServer
 {
 
+bool startServer();
+
+// Adds a server notification to the server notification queue.
 void queueServerNotification(ServerNotification* n);
 
-bool startServer();
+// Process server events, such as server notifications and received messages.
+void processServerEvents();
 
 }
 

@@ -12,7 +12,16 @@ class Socket;
 
 // Functions called by pthread_create which run on the server
 void *serverSocketProcessor(void *p);
-void *serverNotificationProcessor(void *p);
+
+/*! \brief Monitors the serverNotificationQueue for new events and informs the clients about them.
+ *
+ * This function is used in server mode and acts as a "consumer" on the
+ * serverNotificationQueue.  It takes an event out of the queue, determines
+ * which clients need to be informed about that particular event, and
+ * dispacthes TCP packets to inform the clients about the new information.
+ */
+void processServerNotifications();
+
 void *clientHandlerThread(void *p);
 
 // Functions called by pthread_create which run on the client

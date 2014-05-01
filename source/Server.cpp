@@ -131,20 +131,10 @@ ChatMessage *processChatMessage(std::string arguments)
     return new ChatMessage(messageNick, message, time(NULL));
 }
 
-/*! \brief The thread which monitors the serverNotificationQueue for new events and informs the clients about them.
- *
- * This thread runs on the server and acts as a "consumer" on the
- * serverNotificationQueue.  It takes an event out of the queue, determines
- * which clients need to be informed about that particular event, and
- * dispacthes TCP packets to inform the clients about the new information.
- */
-// THREAD - This function is meant to be called by pthread_create.
-void *serverNotificationProcessor(void *p)
+void processServerNotifications()
 {
-    ODFrameListener *frameListener = static_cast<SNPStruct*>(p)->nFrameListener;
+    ODFrameListener *frameListener = ODFrameListener::getSingletonPtr();
     GameMap* gameMap = frameListener->getGameMap();
-    delete static_cast<SNPStruct*>(p);
-    p = NULL;
 
     std::stringstream tempSS;
     Tile *tempTile;
@@ -156,10 +146,17 @@ void *serverNotificationProcessor(void *p)
     while (running)
     {
         // Wait until a message is put into the serverNotificationQueue
-        sem_wait(&ServerNotification::mServerNotificationQueueSemaphore);
+        sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
+
+        // If the queue is empty, let's get out of the loop.
+        bool queueEmpty = ServerNotification::serverNotificationQueue.empty();
+        if (queueEmpty)
+        {
+            sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
+            break;
+        }
 
         // Take a message out of the front of the notification queue
-        sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
         ServerNotification *event = ServerNotification::serverNotificationQueue.front();
         ServerNotification::serverNotificationQueue.pop_front();
         sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
@@ -167,9 +164,7 @@ void *serverNotificationProcessor(void *p)
         //FIXME:  This really should never happen but the queue does occasionally pop a NULL.
         //This is probably a bug somewhere else where a NULL is being place in the queue.
         if (event == NULL)
-        {
             continue;
-        }
 
         switch (event->type)
         {
@@ -262,19 +257,11 @@ void *serverNotificationProcessor(void *p)
             case ServerNotification::exit:
             {
                 running = false;
-                //Ogre::LogManager::getSingleton().logMessage("Stopped server thread.", Ogre::LML_NORMAL);
                 break;
             }
 
             default:
-                cerr
-                        << "\n\nERROR:  Unhandled ServerNotification type encoutered!\n\n";
-
-                //TODO:  Remove me later - this is to force a core dump so I can debug why this happenened
-                Creature * throwAsegfault = NULL;
-                throwAsegfault->getPosition();
-
-                exit(1);
+                std::cout << "\n\nERROR:  Unhandled ServerNotification type encoutered!\n\n";
                 break;
         }
 
@@ -284,9 +271,6 @@ void *serverNotificationProcessor(void *p)
         delete event;
         event = NULL;
     }
-
-    // Return something to make the compiler happy
-    return NULL;
 }
 
 /*! \brief The thread running  on the server which listens for messages from an individual, already connected, client.

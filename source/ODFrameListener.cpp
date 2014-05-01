@@ -364,19 +364,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     // If a new turn has started, we update events.
     mPreviousTurn = currentTurnNumber;
 
-    // Place a message in the queue to inform the clients that a new turn has started
-    try
-    {
-        ServerNotification* serverNotification = new ServerNotification;
-        serverNotification->type = ServerNotification::turnStarted;
-
-        ODServer::queueServerNotification(serverNotification);
-    }
-    catch (bad_alloc&)
-    {
-        LogManager::getSingletonPtr()->logMessage("ERROR:  bad alloc in creatureAIThread at turnStarted", Ogre::LML_CRITICAL);
-        return mContinue;
-    }
+    ODServer::processServerEvents();
 
     mGameMap->doTurn();
 

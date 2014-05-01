@@ -35,25 +35,6 @@
 //TODO: Make a server class.
 namespace ODServer {
 
-void queueServerNotification(ServerNotification* n)
-{
-    if (n == NULL)
-        return;
-
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    if (gameMap == NULL)
-        return;
-
-    n->turnNumber = GameMap::turnNumber.get();
-    gameMap->threadLockForTurn(n->turnNumber);
-
-    sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
-    ServerNotification::serverNotificationQueue.push_back(n);
-    sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
-
-    sem_post(&ServerNotification::mServerNotificationQueueSemaphore);
-}
-
 bool startServer()
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
@@ -92,21 +73,43 @@ bool startServer()
         logManager.logMessage("Warning: Server thread already started when trying to create server.");
     }
 
-    // Start the thread which will watch for local events to send to the clients
-    SNPStruct* snps = new SNPStruct;
-    snps->nFrameListener = frameListener;
-    if (frameListener->mServerNotificationThread == NULL)
+    return true;
+}
+
+void queueServerNotification(ServerNotification* n)
+{
+    if (n == NULL)
+        return;
+
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    if (gameMap == NULL)
+        return;
+
+    n->turnNumber = GameMap::turnNumber.get();
+    gameMap->threadLockForTurn(n->turnNumber);
+
+    sem_wait(&ServerNotification::mServerNotificationQueueLockSemaphore);
+    ServerNotification::serverNotificationQueue.push_back(n);
+    sem_post(&ServerNotification::mServerNotificationQueueLockSemaphore);
+}
+
+void processServerEvents()
+{
+    // Place a message in the queue to inform the clients that a new turn has started
+    try
     {
-        frameListener->mServerNotificationThread = new pthread_t;
-        pthread_create(frameListener->mServerNotificationThread,
-                       NULL, serverNotificationProcessor, snps);
+        ServerNotification* serverNotification = new ServerNotification;
+        serverNotification->type = ServerNotification::turnStarted;
+
+        ODServer::queueServerNotification(serverNotification);
     }
-    else
+    catch (bad_alloc&)
     {
-        logManager.logMessage("Warning: Server notification thread already started when trying to create server.");
+        LogManager::getSingletonPtr()->logMessage("ERROR:  bad alloc in turnStarted", Ogre::LML_CRITICAL);
     }
 
-    return true;
+    // processServerReceivedMessages();
+    processServerNotifications();
 }
 
 } // namespace ODServer
