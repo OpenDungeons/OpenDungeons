@@ -438,14 +438,6 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     {
         if (mShowDebugInfo)
         {
-            turnString = "On average the creature AI is finishing ";
-            turnString += Ogre::StringConverter::toString((Ogre::Real) fabs(
-                    mGameMap->averageAILeftoverTime)).substr(0, 4) + " s ";
-            turnString += (mGameMap->averageAILeftoverTime >= 0.0 ? "early" : "late");
-            double maxTps = 1.0 / ((1.0 / ODApplication::turnsPerSecond)
-                - mGameMap->averageAILeftoverTime);
-            turnString += "\nMax tps est. at " + Ogre::StringConverter::toString(
-                static_cast<Ogre::Real>(maxTps)).substr(0, 4);
             turnString += "\nFPS: " + Ogre::StringConverter::toString(
                 mWindow->getStatistics().lastFPS);
             turnString += "\ntriangleCount: " + Ogre::StringConverter::toString(

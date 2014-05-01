@@ -135,7 +135,6 @@ private:
 
 GameMap::GameMap() :
         me(NULL),
-        averageAILeftoverTime(0.0),
         miscUpkeepTime(0),
         creatureTurnsTime(0),
         creatureDefinitionFilename("levels/creatures.def"), // default name
@@ -643,14 +642,6 @@ const Creature* GameMap::getCreature(const std::string& cName) const
 
 void GameMap::doTurn()
 {
-    // Compute the moving window average of how much extra time was left over after the previous doTurn() calls finished.
-    averageAILeftoverTime = 0.0;
-    for (unsigned int tempUnsigned = 0; tempUnsigned < previousLeftoverTimes.size(); ++tempUnsigned)
-        averageAILeftoverTime += previousLeftoverTimes[tempUnsigned];
-
-    if (!previousLeftoverTimes.empty())
-        averageAILeftoverTime /= (double) previousLeftoverTimes.size();
-
     sem_wait(&mCreatureAISemaphore);
 
     std::cout << "\nStarting creature AI for turn " << turnNumber.get();
@@ -658,15 +649,8 @@ void GameMap::doTurn()
 
     processDeletionQueues();
 
-    //TODO: Run a stopwatch during each of these threads to see how long they take to help with the load balancing.
-    pthread_t thread1, thread3;
-    pthread_create(&thread1, NULL, GameMap::creatureDoTurnThread, static_cast<void*>(this));
-    //pthread_create(&thread2, NULL, GameMap::tileUpkeepThread, NULL);
-    pthread_create(&thread3, NULL, GameMap::miscUpkeepThread, static_cast<void*>(this));
-
-    pthread_join(thread3, NULL);
-    //pthread_join(thread2, NULL);
-    pthread_join(thread1, NULL);
+    creatureTurnsTime = doCreatureTurns();
+    miscUpkeepTime = doMiscUpkeep();
 
     // Remove dead creatures from the map and put them into the deletion queue.
     unsigned int count = 0;
@@ -730,20 +714,6 @@ void GameMap::doTurn()
 void GameMap::doPlayerAITurn(double frameTime)
 {
     aiManager.doTurn(frameTime);
-}
-
-void *GameMap::miscUpkeepThread(void *p)
-{
-    GameMap* gameMap = static_cast<GameMap*>(p);
-    gameMap->miscUpkeepTime = gameMap->doMiscUpkeep();
-    return NULL;
-}
-
-void *GameMap::creatureDoTurnThread(void *p)
-{
-    GameMap* gameMap = static_cast<GameMap*>(p);
-    gameMap->creatureTurnsTime = gameMap->doCreatureTurns();
-    return NULL;
 }
 
 unsigned long int GameMap::doMiscUpkeep()

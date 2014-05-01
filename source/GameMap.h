@@ -384,10 +384,6 @@ public:
 
     CullingManager* culm;
 
-    double averageAILeftoverTime;
-
-    std::deque<double> previousLeftoverTimes;
-
     unsigned long int miscUpkeepTime, creatureTurnsTime;
 
     static sem_t mCreatureAISemaphore;
@@ -463,8 +459,6 @@ public:
 
     //! THREAD - Those functions are meant to be called in pthread_create.
     //! Thus, They are different threads.
-    static void *miscUpkeepThread(void *p);
-    static void *creatureDoTurnThread(void *p);
     static void *creatureDoTurnHelperThread(void *p);
 };
 

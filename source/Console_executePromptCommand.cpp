@@ -346,9 +346,6 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> ODApplication::turnsPerSecond;
 
-            // Clear the queue of early/late time counts to reset the moving window average in the AI time display.
-            gameMap->previousLeftoverTimes.clear();
-
             if (Socket::serverSocket != NULL)
             {
                 try
