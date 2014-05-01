@@ -52,13 +52,6 @@ void processServerSocketMessages()
 
     //FIXME:  Also need to remove this pointer from the vector when the connection closes.
     frameListener->mClientSockets.push_back(curSock);
-
-    pthread_t* clientThread = new pthread_t;
-    CHTStruct* params = new CHTStruct;
-    params->nSocket = curSock;
-    params->nFrameListener = frameListener;
-    pthread_create(clientThread, NULL, clientHandlerThread, (void*) params);
-    frameListener->mClientHandlerThreads.push_back(clientThread);
 }
 
 /*! \brief A helper function to pack a message into a packet to send over the network.
@@ -254,326 +247,293 @@ void processServerNotifications()
     }
 }
 
-/*! \brief The thread running  on the server which listens for messages from an individual, already connected, client.
- *
- * This thread recieves TCP packets one at a time from a connected client,
- * decodes them, and carries out requests for the client, returning any
- * results.  Since this is not the only thread which can send messages to the
- * client, a semaphore is used to control which thread talks to the client at
- * any given time.
- */
-// THREAD - This function is meant to be called by pthread_create.
-void *clientHandlerThread(void *p)
+bool processClientNotifications(Socket* clientSocket)
 {
-    Socket *curSock = static_cast<CHTStruct*>(p)->nSocket;
-    ODFrameListener *frameListener = static_cast<CHTStruct*>(p)->nFrameListener;
-    Player *curPlayer = NULL;
-    delete static_cast<CHTStruct*>(p);
-    p = NULL;
+    if (!clientSocket)
+        return false;
 
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     GameMap* gameMap = frameListener->getGameMap();
+    if (!gameMap)
+        return true;
+
+    Player *curPlayer = NULL;
+
     std::string clientNick = "UNSET_CLIENT_NICKNAME";
     std::string clientCommand, arguments;
     std::string tempString, tempString2;
 
-    while (true)
+    // Recieve a request from the client and store it in tempString
+    int charsRead = clientSocket->recv(tempString);
+
+    // If the client closed the connection
+    // FIXME: Hint the client socker container to delete this reference.
+    if (charsRead <= 0)
     {
-        // Recieve a request from the client and store it in tempString
-        int charsRead = curSock->recv(tempString);
-
-        // If the client closed the connection
-        if (charsRead <= 0)
-        {
-            frameListener->addChatMessage(new ChatMessage(
-                    "SERVER_INFORMATION: ", "Client disconnect: " + clientNick,
-                    time(NULL)));
-            break;
-        }
-
-        // If this command is not seperated by a colon into a
-        // command and an argument then don't process it.  Send
-        // the client an error message and move on to the next packet.
-        unsigned int index = tempString.find(":");
-        if (index == std::string::npos)
-        {
-            // Going back to the beginning of the loop effectively disregards this
-            // message from the client.  This may cause problems if the command is
-            // split up into many packets since the ":" might not be in the first packet.
-            continue;
-        }
-
-        // Split the packet into a command and an argument
-        parseCommand(tempString, clientCommand, arguments);
-        //clientCommand = tempString.substr(1, index-1);
-        //arguments = tempString.substr(index+1, tempString.size()-index-3);
-        //cout << "\n\n\n" << clientCommand << "\n" << arguments;
-        //cout.flush();
-
-        if (clientCommand.compare("hello") == 0)
-        {
-            std::stringstream tempSS;
-            frameListener->addChatMessage(new ChatMessage(
-                    "SERVER_INFORMATION: ", "Client connect with version: "
-                            + arguments, time(NULL)));
-
-            // Tell the client to give us their nickname and to clear their map
-            sem_wait(&curSock->semaphore);
-            curSock->send(formatCommand("picknick", ""));
-
-            // Set the nickname that the client sends back, tempString2 is just used
-            // to discard the command portion of the respone which should be "setnick"
-            //TODO:  verify that this really is true
-            curSock->recv(tempString);
-            parseCommand(tempString, tempString2, clientNick);
-            frameListener->addChatMessage(new ChatMessage(
-                    "SERVER_INFORMATION: ", "Client nick is: " + clientNick,
-                    time(NULL)));
-
-            // Create a player structure for the client
-            //TODO:  negotiate and set a color
-            curPlayer = new Player;
-            curPlayer->setNick(clientNick);
-            gameMap->addPlayer(curPlayer);
-
-            curSock->send(formatCommand("newmap", ""));
-
-            // Tell the player which seat it has
-            tempSS.str("");
-            tempSS << curPlayer->getSeat();
-            curSock->send(formatCommand("addseat", tempSS.str()));
-
-            tempSS.str("");
-            tempSS << ODApplication::turnsPerSecond;
-            curSock->send(formatCommand("turnsPerSecond", tempSS.str()));
-
-            // Send over the information about the players in the game
-            curSock->send(formatCommand("addplayer", gameMap->getLocalPlayer()->getNick()));
-            for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
-            {
-                // Don't tell the client about its own player structure
-                Player *tempPlayer = gameMap->getPlayer(i);
-                if (curPlayer != tempPlayer && tempPlayer != NULL)
-                {
-                    tempSS.str("");
-                    tempSS << tempPlayer->getSeat();
-                    curSock->send(formatCommand("addseat", tempSS.str()));
-                    // Throw away the ok response
-                    curSock->recv(tempString);
-
-                    curSock->send(formatCommand("addplayer", tempPlayer->getNick()));
-                    // Throw away the ok response
-                    curSock->recv(tempString);
-                }
-            }
-
-            // Send over the map tiles from the current game map.
-            //TODO: Only send the tiles which the client is supposed to see due to fog of war.
-
-
-
-
-	    for(int ii=0 ; ii < gameMap->getMapSizeX(); ii++ ){
-	      for(int jj=0 ; jj < gameMap->getMapSizeY(); jj++ ){
-                tempSS.str("");
-                tempSS << gameMap->getTile(ii,jj);
-                curSock->send(formatCommand("addtile", tempSS.str()));
-                // Throw away the ok response
-                curSock->recv(tempString);
-	      }
-	    }
-
-
-
-
-
-            // TileMap_t::iterator itr = gameMap->firstTile();
-            // while (itr != gameMap->lastTile())
-            // {
-            //     tempSS.str("");
-            //     tempSS << itr->second;
-            //     curSock->send(formatCommand("addtile", tempSS.str()));
-            //     // Throw away the ok response
-            //     curSock->recv(tempString);
-            //     ++itr;
-            // }
-
-            // Send over the map lights from the current game map.
-            //TODO: Only send the maplights which the client is supposed to see due to the fog of war.
-            for (unsigned int ii = 0; ii < gameMap->numMapLights(); ++ii)
-            {
-                tempSS.str("");
-                tempSS << gameMap->getMapLight(ii);
-                curSock->send(formatCommand("addmaplight", tempSS.str()));
-
-            }
-
-            // Send over the rooms in use on the current game map
-            //TODO: Only send the classes which the client is supposed to see due to fog of war.
-            for (unsigned int ii = 0; ii < gameMap->numRooms(); ++ii)
-            {
-                tempSS.str("");
-                tempSS << gameMap->getRoom(ii);
-                curSock->send(formatCommand("addroom", tempSS.str()));
-                // Throw away the ok response
-                curSock->recv(tempString);
-            }
-
-            // Send over the class descriptions in use on the current game map
-            //TODO: Only send the classes which the client is supposed to see due to fog of war.
-            for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
-            {
-                //NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
-                // Changes to this code should be reflected in that code as well
-                CreatureDefinition *tempClass = gameMap->getClassDescription(i);
-
-                tempSS.str("");
-
-                tempSS << tempClass;
-
-                curSock->send(formatCommand("addclass", tempSS.str()));
-                // Throw away the ok response
-                //TODO:  Actually check this.
-                curSock->recv(tempString);
-            }
-
-            // Send over the actual creatures in use on the current game map
-            //TODO: Only send the creatures which the client is supposed to see due to fog of war.
-            for (unsigned int i = 0; i < gameMap->numCreatures(); ++i)
-            {
-                Creature *tempCreature = gameMap->getCreature(i);
-
-                tempSS.str("");
-
-                tempSS << tempCreature;
-
-                curSock->send(formatCommand("addcreature", tempSS.str()));
-                // Throw away the ok response
-                curSock->recv(tempString);
-            }
-
-            sem_post(&curSock->semaphore);
-        }
-
-        else if (clientCommand.compare("chat") == 0)
-        {
-            ChatMessage *newMessage = processChatMessage(arguments);
-
-            // Send the message to all the connected clients
-            for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
-            {
-                sem_wait(&frameListener->mClientSockets[i]->semaphore);
-                frameListener->mClientSockets[i]->send(formatCommand("chat",
-                        newMessage->getClientNick() + ":" + newMessage->getMessage()));
-                sem_post(&frameListener->mClientSockets[i]->semaphore);
-            }
-
-            // Put the message in our own queue
-            frameListener->addChatMessage(newMessage);
-        }
-
-        //NOTE:  This code is duplicated in clientSocketProcessor()
-        else if (clientCommand.compare("creaturePickUp") == 0)
-        {
-            char array[255];
-
-            std::stringstream tempSS;
-            tempSS.str(arguments);
-
-            tempSS.getline(array, sizeof(array), ':');
-            std::string playerNick = array;
-            tempSS.getline(array, sizeof(array));
-            std::string creatureName = array;
-
-            Player *tempPlayer = gameMap->getPlayer(playerNick);
-            Creature *tempCreature = gameMap->getCreature(creatureName);
-
-            if (tempPlayer != NULL && tempCreature != NULL)
-            {
-                tempPlayer->pickUpCreature(tempCreature);
-            }
-        }
-
-        //NOTE:  This code is duplicated in clientSocketProcessor()
-        else if (clientCommand.compare("creatureDrop") == 0)
-        {
-            char array[255];
-
-            std::stringstream tempSS;
-            tempSS.str(arguments);
-
-            tempSS.getline(array, sizeof(array), ':');
-            std::string playerNick = array;
-            tempSS.getline(array, sizeof(array), ':');
-            int tempX = atoi(array);
-            tempSS.getline(array, sizeof(array));
-            int tempY = atoi(array);
-
-            Player *tempPlayer = gameMap->getPlayer(playerNick);
-            Tile *tempTile = gameMap->getTile(tempX, tempY);
-
-            if (tempPlayer != NULL && tempTile != NULL)
-            {
-                tempPlayer->dropCreature(tempTile);
-            }
-        }
-
-        else if (clientCommand.compare("markTile") == 0)
-        {
-            char array[255];
-            std::stringstream tempSS;
-            tempSS.str(arguments);
-
-            tempSS.getline(array, sizeof(array), ':');
-            int tempX = atoi(array);
-            tempSS.getline(array, sizeof(array), ':');
-            int tempY = atoi(array);
-            tempSS.getline(array, sizeof(array));
-            std::string flagName = array;
-
-            Tile *tempTile = gameMap->getTile(tempX, tempY);
-            if (tempTile != NULL)
-            {
-                Player *tempPlayer = gameMap->getPlayer(clientNick);
-                if (tempPlayer != NULL)
-                {
-                    bool flag;
-                    flagName.compare("true") == 0 ? flag = true : flag = false;
-                    tempTile->setMarkedForDigging(flag, tempPlayer);
-                }
-            }
-        }
-
-        else if (clientCommand.compare("ok") == 0)
-        {
-            cout << "\nIgnoring an ak message from a client: " << arguments;
-        }
-
-        else
-        {
-            cerr
-                    << "\n\nERROR:  Unhandled command recieved from client:\nCommand:  ";
-            cerr << clientCommand << "\nArguments:  " << arguments << "\n\n";
-            exit(1);
-        }
-
-        /*if(frameListener->getThreadStopRequested())
-        {
-            //TODO - log
-            break;
-        }*/
+        frameListener->addChatMessage(new ChatMessage("SERVER_INFORMATION: ", "Client disconnect: "
+                                                      + clientNick, time(NULL)));
+        return false;
     }
 
-    // Return something to make the compiler happy
-    return NULL;
+    // If this command is not seperated by a colon into a
+    // command and an argument then don't process it.
+    // TODO: Send the client an error message.
+    unsigned int index = tempString.find(":");
+    if (index == std::string::npos)
+        return true;
+
+    // Split the packet into a command and an argument
+    parseCommand(tempString, clientCommand, arguments);
+    //clientCommand = tempString.substr(1, index-1);
+    //arguments = tempString.substr(index+1, tempString.size()-index-3);
+    //cout << "\n\n\n" << clientCommand << "\n" << arguments;
+    //cout.flush();
+
+    if (clientCommand.compare("hello") == 0)
+    {
+        std::stringstream tempSS;
+        frameListener->addChatMessage(new ChatMessage(
+                "SERVER_INFORMATION: ", "Client connect with version: "
+                        + arguments, time(NULL)));
+
+        // Tell the client to give us their nickname and to clear their map
+        sem_wait(&clientSocket->semaphore);
+        clientSocket->send(formatCommand("picknick", ""));
+
+        // Set the nickname that the client sends back, tempString2 is just used
+        // to discard the command portion of the respone which should be "setnick"
+        //TODO:  verify that this really is true
+        clientSocket->recv(tempString);
+        parseCommand(tempString, tempString2, clientNick);
+        frameListener->addChatMessage(new ChatMessage(
+                "SERVER_INFORMATION: ", "Client nick is: " + clientNick,
+                time(NULL)));
+
+        // Create a player structure for the client
+        //TODO:  negotiate and set a color
+        curPlayer = new Player;
+        curPlayer->setNick(clientNick);
+        gameMap->addPlayer(curPlayer);
+
+        clientSocket->send(formatCommand("newmap", ""));
+
+        // Tell the player which seat it has
+        tempSS.str("");
+        tempSS << curPlayer->getSeat();
+        clientSocket->send(formatCommand("addseat", tempSS.str()));
+
+        tempSS.str("");
+        tempSS << ODApplication::turnsPerSecond;
+        clientSocket->send(formatCommand("turnsPerSecond", tempSS.str()));
+
+        // Send over the information about the players in the game
+        clientSocket->send(formatCommand("addplayer", gameMap->getLocalPlayer()->getNick()));
+        for (unsigned int i = 0; i < gameMap->numPlayers(); ++i)
+        {
+            // Don't tell the client about its own player structure
+            Player* tempPlayer = gameMap->getPlayer(i);
+            if (curPlayer != tempPlayer && tempPlayer != NULL)
+            {
+                tempSS.str("");
+                tempSS << tempPlayer->getSeat();
+                clientSocket->send(formatCommand("addseat", tempSS.str()));
+                // Throw away the ok response
+                clientSocket->recv(tempString);
+
+                clientSocket->send(formatCommand("addplayer", tempPlayer->getNick()));
+                // Throw away the ok response
+                clientSocket->recv(tempString);
+            }
+        }
+
+        // Send over the map tiles from the current game map.
+        //TODO: Only send the tiles which the client is supposed to see due to fog of war.
+        for(int ii = 0; ii < gameMap->getMapSizeX(); ++ii)
+        {
+            for(int jj = 0; jj < gameMap->getMapSizeY(); ++jj)
+            {
+                tempSS.str("");
+                tempSS << gameMap->getTile(ii,jj);
+                clientSocket->send(formatCommand("addtile", tempSS.str()));
+                // Throw away the ok response
+                clientSocket->recv(tempString);
+            }
+        }
+
+        // Send over the map lights from the current game map.
+        //TODO: Only send the maplights which the client is supposed to see due to the fog of war.
+        for (unsigned int ii = 0; ii < gameMap->numMapLights(); ++ii)
+        {
+            tempSS.str("");
+            tempSS << gameMap->getMapLight(ii);
+            clientSocket->send(formatCommand("addmaplight", tempSS.str()));
+
+        }
+
+        // Send over the rooms in use on the current game map
+        //TODO: Only send the classes which the client is supposed to see due to fog of war.
+        for (unsigned int ii = 0; ii < gameMap->numRooms(); ++ii)
+        {
+            tempSS.str("");
+            tempSS << gameMap->getRoom(ii);
+            clientSocket->send(formatCommand("addroom", tempSS.str()));
+            // Throw away the ok response
+            clientSocket->recv(tempString);
+        }
+
+        // Send over the class descriptions in use on the current game map
+        //TODO: Only send the classes which the client is supposed to see due to fog of war.
+        for (unsigned int i = 0; i < gameMap->numClassDescriptions(); ++i)
+        {
+            //NOTE: This code is duplicated in writeGameMapToFile defined in src/Functions.cpp
+            // Changes to this code should be reflected in that code as well
+            CreatureDefinition *tempClass = gameMap->getClassDescription(i);
+
+            tempSS.str("");
+
+            tempSS << tempClass;
+
+            clientSocket->send(formatCommand("addclass", tempSS.str()));
+            // Throw away the ok response
+            //TODO:  Actually check this.
+            clientSocket->recv(tempString);
+        }
+
+        // Send over the actual creatures in use on the current game map
+        //TODO: Only send the creatures which the client is supposed to see due to fog of war.
+        for (unsigned int i = 0; i < gameMap->numCreatures(); ++i)
+        {
+            Creature *tempCreature = gameMap->getCreature(i);
+
+            tempSS.str("");
+
+            tempSS << tempCreature;
+
+            clientSocket->send(formatCommand("addcreature", tempSS.str()));
+            // Throw away the ok response
+            clientSocket->recv(tempString);
+        }
+
+        sem_post(&clientSocket->semaphore);
+    }
+
+    else if (clientCommand.compare("chat") == 0)
+    {
+        ChatMessage *newMessage = processChatMessage(arguments);
+
+        // Send the message to all the connected clients
+        for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
+        {
+            sem_wait(&frameListener->mClientSockets[i]->semaphore);
+            frameListener->mClientSockets[i]->send(formatCommand("chat",
+                    newMessage->getClientNick() + ":" + newMessage->getMessage()));
+            sem_post(&frameListener->mClientSockets[i]->semaphore);
+        }
+
+        // Put the message in our own queue
+        frameListener->addChatMessage(newMessage);
+    }
+
+    //NOTE:  This code is duplicated in clientSocketProcessor()
+    else if (clientCommand.compare("creaturePickUp") == 0)
+    {
+        char array[255];
+
+        std::stringstream tempSS;
+        tempSS.str(arguments);
+
+        tempSS.getline(array, sizeof(array), ':');
+        std::string playerNick = array;
+        tempSS.getline(array, sizeof(array));
+        std::string creatureName = array;
+
+        Player *tempPlayer = gameMap->getPlayer(playerNick);
+        Creature *tempCreature = gameMap->getCreature(creatureName);
+
+        if (tempPlayer != NULL && tempCreature != NULL)
+        {
+            tempPlayer->pickUpCreature(tempCreature);
+        }
+    }
+
+    //NOTE:  This code is duplicated in clientSocketProcessor()
+    else if (clientCommand.compare("creatureDrop") == 0)
+    {
+        char array[255];
+
+        std::stringstream tempSS;
+        tempSS.str(arguments);
+
+        tempSS.getline(array, sizeof(array), ':');
+        std::string playerNick = array;
+        tempSS.getline(array, sizeof(array), ':');
+        int tempX = atoi(array);
+        tempSS.getline(array, sizeof(array));
+        int tempY = atoi(array);
+
+        Player *tempPlayer = gameMap->getPlayer(playerNick);
+        Tile *tempTile = gameMap->getTile(tempX, tempY);
+
+        if (tempPlayer != NULL && tempTile != NULL)
+        {
+            tempPlayer->dropCreature(tempTile);
+        }
+    }
+
+    else if (clientCommand.compare("markTile") == 0)
+    {
+        char array[255];
+        std::stringstream tempSS;
+        tempSS.str(arguments);
+
+        tempSS.getline(array, sizeof(array), ':');
+        int tempX = atoi(array);
+        tempSS.getline(array, sizeof(array), ':');
+        int tempY = atoi(array);
+        tempSS.getline(array, sizeof(array));
+        std::string flagName = array;
+
+        Tile *tempTile = gameMap->getTile(tempX, tempY);
+        if (tempTile != NULL)
+        {
+            Player *tempPlayer = gameMap->getPlayer(clientNick);
+            if (tempPlayer != NULL)
+            {
+                bool flag;
+                flagName.compare("true") == 0 ? flag = true : flag = false;
+                tempTile->setMarkedForDigging(flag, tempPlayer);
+            }
+        }
+    }
+
+    else if (clientCommand.compare("ok") == 0)
+    {
+        std::cout << "\nIgnoring an ak message from a client: " << arguments;
+    }
+
+    else
+    {
+        std::cerr << "\n\nERROR:  Unhandled command recieved from client:\nCommand:  ";
+        std::cerr << clientCommand << "\nArguments:  " << arguments << "\n\n";
+    }
+
+    /*if(frameListener->getThreadStopRequested())
+    {
+        //TODO - log
+        break;
+    }*/
+    return true;
 }
 
 void sendToAllClients(ODFrameListener *frameListener, std::string str)
 {
     for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
     {
+        if (!frameListener->mClientSockets[i])
+            continue;
+
         sem_wait(&frameListener->mClientSockets[i]->semaphore);
         frameListener->mClientSockets[i]->send(str);
         sem_post(&frameListener->mClientSockets[i]->semaphore);
     }
 }
-

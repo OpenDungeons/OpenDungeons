@@ -219,6 +219,8 @@ void GameMap::setAllFullnessAndNeighbors()
 
 void GameMap::clearAll()
 {
+    Ogre::LogManager::getSingleton().logMessage("Clearing game map..", Ogre::LML_NORMAL);
+
     clearCreatures();
     clearClasses();
     clearTraps();

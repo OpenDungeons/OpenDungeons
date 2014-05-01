@@ -104,6 +104,26 @@ void processServerEvents()
 
     processServerSocketMessages();
     processServerNotifications();
+
+    // Process each connected client notifications
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
+    std::vector<Socket*>::iterator it = frameListener->mClientSockets.begin();
+    while (it != frameListener->mClientSockets.end())
+    {
+        Socket* clientSocket = *it;
+        bool clientStillConnected = processClientNotifications(clientSocket);
+        if (clientStillConnected)
+        {
+            ++it;
+        }
+        else // erase the disconnected client references
+        {
+            if (clientSocket)
+                delete clientSocket;
+
+            frameListener->mClientSockets.erase(it);
+        }
+    }
 }
 
 } // namespace ODServer

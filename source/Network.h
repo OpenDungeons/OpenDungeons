@@ -10,6 +10,8 @@ class Socket;
 
 #include "ChatMessage.h"
 
+// SERVER
+
 /*! \brief A thread function which runs on the server and listens for new connections from clients.
  *
  * A single instance of this thread is spawned by running the "host" command
@@ -30,7 +32,17 @@ void processServerSocketMessages();
  */
 void processServerNotifications();
 
-void *clientHandlerThread(void *p);
+/*! \brief The function running in server-mode which listens for messages from an individual, already connected, client.
+ *
+ * This function recieves TCP packets one at a time from a connected client,
+ * decodes them, and carries out requests for the client, returning any
+ * results.
+ * \returns false When the client has disconnected.
+ */
+bool processClientNotifications(Socket* clientSocket);
+
+
+// CLIENT
 
 /*! \brief A function which runs on the client to handle communications with the server.
  *
@@ -48,17 +60,6 @@ bool parseCommand(std::string &command, std::string &commandName, std::string &a
 ChatMessage *processChatMessage(std::string arguments);
 void sendToAllClients(ODFrameListener *frameListener, std::string str);
 
-/*! \brief Client Handler Thread Structure
- *
- * This is a data structure used for passing arguments to the clientHandlerThread(void *p) defined in src/Server.cpp.
- */
-class CHTStruct
-{
-    public:
-        Socket *nSocket;
-        ODFrameListener *nFrameListener;
-};
-
 /*! \brief Client Notification Processor Structure
  *
  * This is a data structure used for passing arguments to the clientNotificationProcessor(void *p) defined in src/Client.cpp.
@@ -70,4 +71,3 @@ class CNPStruct
 };
 
 #endif
-
