@@ -149,7 +149,8 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
     os << c->getColor() << "\t";
     os << wL << "\t" << wR << "\t";
     os << c->getHP() << "\t";
-    os << c->getMana();
+    os << c->getMana() << "\t";
+    os << c->getLevel();
 
     // If we had to create dummy weapons for serialization, delete them now.
     if (c->mWeaponL == NULL)
@@ -192,6 +193,13 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setWeaponR(new Weapon(std::string(), 0.0, 0.0, 0.0, std::string()));
     is >> c->mWeaponR;
 
+    is >> tempDouble;
+    c->setHP(tempDouble);
+    is >> tempDouble;
+    c->setMana(tempDouble);
+    is >> tempDouble;
+    c->setLevel(tempDouble);
+
     // Copy the class based items
     CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(className);
     if (creatureClass != NULL)
@@ -200,25 +208,14 @@ std::istream& operator>>(std::istream& is, Creature *c)
     }
     assert(c->mDefinition);
 
-    is >> tempDouble;
-    c->setHP(tempDouble);
-    is >> tempDouble;
-    c->setMana(tempDouble);
-
     return is;
 }
 
 void Creature::loadFromLine(const std::string& line, Creature* c)
 {
-    std::vector<std::string> elems = Helper::split(line, '\t');
+    assert(c);
 
-    // Copy the class based items
-    CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(elems[0]);
-    if (creatureClass != 0)
-    {
-        c->mDefinition = creatureClass;
-    }
-    assert(c->mDefinition);
+    std::vector<std::string> elems = Helper::split(line, '\t');
 
     std::string creatureName = elems[1];
     if (creatureName.compare("autoname") == 0)
@@ -242,6 +239,15 @@ void Creature::loadFromLine(const std::string& line, Creature* c)
 
     c->setHP(Helper::toDouble(elems[14]));
     c->setMana(Helper::toDouble(elems[15]));
+    c->setLevel(Helper::toDouble(elems[16]));
+
+    // Copy the class based items
+    CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(elems[0]);
+    if (creatureClass != 0)
+    {
+        c->mDefinition = creatureClass;
+    }
+    assert(c->mDefinition);
 }
 
 /*! \brief Changes the creature's position to a new position.
