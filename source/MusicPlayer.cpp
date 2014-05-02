@@ -80,7 +80,6 @@ MusicPlayer::MusicPlayer() :
 
 MusicPlayer::~MusicPlayer()
 {
-    LogManager::getSingleton().logMessage("Destroying Music Player...");
 }
 
 void MusicPlayer::update()

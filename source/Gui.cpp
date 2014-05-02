@@ -78,7 +78,7 @@ Gui::Gui()
 
 Gui::~Gui()
 {
-    CEGUI::OgreRenderer::destroySystem();
+    //CEGUI::OgreRenderer::destroySystem();
 }
 
 //! \brief A required function to pass input to the OIS system.

@@ -17,8 +17,8 @@ TextRenderer::TextRenderer() :
 
 TextRenderer::~TextRenderer()
 {
-    _overlayMgr->destroyOverlayElement(_panel);
-    _overlayMgr->destroy(_overlay);
+    //_overlayMgr->destroyOverlayElement(_panel);
+    //_overlayMgr->destroy(_overlay);
 }
 
 void TextRenderer::addTextBox(const std::string& ID, const std::string& text,
