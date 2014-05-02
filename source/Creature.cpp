@@ -409,8 +409,7 @@ void Creature::doTurn()
         return;
 
     // Check to see if we have earned enough experience to level up.
-    while (mExp >= 5 * (getLevel() + std::pow(getLevel() / 3.0, 2)) && getLevel() < 100)
-        doLevelUp();
+    checkLevelUp();
 
     // Heal.
     mHp += 0.1;
@@ -1835,9 +1834,12 @@ double Creature::getDefense() const
 }
 
 //! \brief Increases the creature's level, adds bonuses to stat points, changes the mesh, etc.
-void Creature::doLevelUp()
+void Creature::checkLevelUp()
 {
     if (getLevel() >= MAX_LEVEL)
+        return;
+
+    if (mExp < 5 * (getLevel() + std::pow(getLevel() / 3.0, 2)))
         return;
 
     setLevel(getLevel() + 1);

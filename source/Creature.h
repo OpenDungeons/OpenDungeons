@@ -151,7 +151,10 @@ public:
 
     double getHitroll(double range);
     double getDefense() const;
-    void doLevelUp();
+
+    //! \brief Check whether a creature has earned one level.
+    void checkLevelUp();
+
     void updateVisibleTiles();
 
     std::vector<GameEntity*> getVisibleEnemyObjects();
