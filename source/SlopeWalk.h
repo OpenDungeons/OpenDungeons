@@ -5,7 +5,8 @@
 #include "DummyArrayClass.h"
 #include <deque>
 
-
+extern const int mPrecisionDigits;
+extern const int Unit;
 
 using std::deque;
 
@@ -32,7 +33,7 @@ private:
 
 public:
 
-    DummyArrayClass myArray;   
+    DummyArrayClass myArray;
     bool notifyOnMoveDown(long long);
     void prepareWalk();
 

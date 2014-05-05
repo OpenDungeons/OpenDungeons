@@ -23,11 +23,6 @@
 
 #include <algorithm>
 
-extern const int mPrecisionDigits = 20;
-extern const int Unit = (1 << mPrecisionDigits);
-
-
-
 using  std::set; using std::swap; using std::max; using std::min;
 using  std::cerr; using std::endl;
 
@@ -229,9 +224,9 @@ int64_t CullingManager::newBashAndSplashTiles(int64_t mode){
 	xxLeft += mWalk.getCurrentDxLeft();
 	xxLeftOld += oldWalk.getCurrentDxLeft();
 	xxRight += mWalk.getCurrentDxRight();
-	xxRightOld += oldWalk.getCurrentDxRight(); 
+	xxRightOld += oldWalk.getCurrentDxRight();
 
-	cerr << (xxLeft  >> mPrecisionDigits )<< " " << (xxLeftOld  >> mPrecisionDigits )<< " " << (xxRight  >> mPrecisionDigits )<< " " << (xxRightOld  >> mPrecisionDigits )<< " " <<endl ; 
+	cerr << (xxLeft  >> mPrecisionDigits )<< " " << (xxLeftOld  >> mPrecisionDigits )<< " " << (xxRight  >> mPrecisionDigits )<< " " << (xxRightOld  >> mPrecisionDigits )<< " " <<endl ;
 	cerr << "DxLeft, DxRight: " << mWalk.getCurrentDxLeft() << " " << mWalk.getCurrentDxRight() << " " << endl;
 
         for (int64_t xx = std::min(xxLeft, xxLeftOld) ; xx <= max(xxRight,xxRightOld) ; xx+= Unit){
@@ -251,7 +246,7 @@ int64_t CullingManager::newBashAndSplashTiles(int64_t mode){
                 gm->getTile(xx >> mPrecisionDigits, yy >> mPrecisionDigits)->show();
 	}
 
-    }    
+    }
 }
 
 /*! \brief Auxilary function, according to mode flags : SHOW and HIDE will try to show or hide a tile in single pass

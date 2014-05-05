@@ -30,9 +30,6 @@
 class CameraManager;
 class GameMap;
 
-extern const int mPrecisionDigits;
-extern const int Unit;
-
 class CullingManager
 {
     friend class GameMap;
@@ -71,7 +68,7 @@ private:
     std::set<Creature*> mCreaturesSet[2];
 
     SlopeWalk mWalk, oldWalk;
-    
+
     MortuaryQuad mMyCullingQuad;
     Ogre::Vector3 mOgreVectorsArray[4];
     Vector3i mTop, mBottom, mMiddleLeft, mMiddleRight;
