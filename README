@@ -42,14 +42,14 @@ README           - The file you are currently reading
 -- Coding Guideline ---
 Before you start coding you should take a glimpse at our guideline
 over at the wiki:
-  http://opendungeons.sourceforge.net/index.php/Code_Style_Guidelines
+  http://opendungeons.sourceforge.net/wiki/doku.php?id=code_style_guidelines
 
 It contains a rather deep introduction on how we name, indent, structure and
 extend our code. It also has some performance optimisation tips.
 
 --- Build Instructions ---
 More detailed, and usually up to date build instructions can be found at:
-http://opendungeons.sourceforge.net/index.php/Download
+  http://opendungeons.sourceforge.net/wiki/doku.php?id=building_from_source
 
 To build the game run the following commands from the directory where this
 README file is. You will need CMake for this (http://cmake.org/).
