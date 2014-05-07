@@ -49,14 +49,14 @@ public:
     void showAllTiles();
 
     int cullCreatures();
-    int cullTiles();
+    void cullTiles();
 
     bool onFrameStarted();
     bool onFrameEnded();
 
     // set the new tiles
     int64_t bashAndSplashTiles(int64_t);
-    int64_t newBashAndSplashTiles(int64_t);
+    void newBashAndSplashTiles(int64_t);
 
     void sort(Vector3i& p1, Vector3i& p2, bool sortByX);
 

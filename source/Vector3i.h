@@ -1,6 +1,7 @@
 #ifndef VECTOR3I_H_
 #define VECTOR3I_H_
 
+#include <cstdint>
 #include <iostream>
 #include <OgreVector3.h>
 

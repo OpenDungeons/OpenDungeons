@@ -262,7 +262,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     mFrameDelay -= evt.timeSinceLastFrame;
     if (mFrameDelay > 0.0)
     {
-        usleep(1e6 * mFrameDelay);
+        OD_USLEEP(1e6 * mFrameDelay);
     }
     else
     {

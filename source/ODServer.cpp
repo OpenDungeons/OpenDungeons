@@ -54,7 +54,7 @@ bool startServer()
     if (!Socket::serverSocket->create())
     {
         delete Socket::serverSocket;
-        Socket::serverSocket == NULL;
+        Socket::serverSocket = NULL;
         logManager.logMessage("ERROR:  Server could not create server socket!");
         return false;
     }
@@ -62,7 +62,7 @@ bool startServer()
     if (!Socket::serverSocket->bind(ODApplication::PORT_NUMBER))
     {
         delete Socket::serverSocket;
-        Socket::serverSocket == NULL;
+        Socket::serverSocket = NULL;
         logManager.logMessage("ERROR:  Server could not bind to port!");
         return false;
     }

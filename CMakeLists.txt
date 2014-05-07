@@ -377,7 +377,8 @@ target_link_libraries(
     ${OGRE_RTShaderSystem_LIBRARIES}
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
-    ${CEGUI_LIBRARIES}
+    ${CEGUI_LIBRARIES_RELEASE}
+    ${CEGUI_LIBRARIES_DEBUG}
 )
 
 # The name of the OGRE Overlay library is available as CMAKE variable, also discovering debug versions correctly; please leave it like that!
@@ -389,21 +390,16 @@ if(NOT MSVC)
 endif()
 
 # Link sfml
-# Use debug libraries if they exist
-if(${SFML_AUDIO_LIBRARY_SHARED_DEBUG})
-    target_link_libraries(
-        ${PROJECT_BINARY_NAME}
+# No need to make a difference when release/debug is found because even
+# if only one is found, the other is set to the same value 
+target_link_libraries(
+	${PROJECT_BINARY_NAME}
 
-        optimized ${SFML_AUDIO_LIBRARY_RELEASE}
-        optimized ${SFML_SYSTEM_LIBRARY_RELEASE}
-        debug ${SFML_AUDIO_LIBRARY_DEBUG}
-        debug ${SFML_SYSTEM_LIBRARY_DEBUG}
-    )
-else()
-    target_link_libraries(${PROJECT_BINARY_NAME}
-        ${SFML_AUDIO_LIBRARY_RELEASE}
-        ${SFML_SYSTEM_LIBRARY_RELEASE})
-endif()
+	optimized ${SFML_AUDIO_LIBRARY_RELEASE}
+	optimized ${SFML_SYSTEM_LIBRARY_RELEASE}
+	debug ${SFML_AUDIO_LIBRARY_DEBUG}
+	debug ${SFML_SYSTEM_LIBRARY_DEBUG}
+)
 
 # Link pthreads. (And also userenv if we are on windows.)
 if(WIN32)
@@ -440,6 +436,13 @@ else()
     target_link_libraries (${PROJECT_BINARY_NAME} ${CMAKE_THREAD_LIBS_INIT})
 endif()
 
+# We need to force output because of the boost lib used, defining two times the
+# same set of functions, once for Ogre, once for OD. It is harmless in our case
+# to select this option.
+# TODO : check if there is something like this for other platforms
+if(WIN32 AND MSVC_IDE)
+    SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
+endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     add_definitions("-DOD_DEBUG")

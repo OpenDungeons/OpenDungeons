@@ -8,7 +8,7 @@ extern const int Unit = (1 << mPrecisionDigits);
 
 
 void SlopeWalk::buildSlopes(){
-    int ii,jj;
+    int ii;
     myArray.sort();
     std::pair<std::array<Vector3i,4>::iterator,std::array<Vector3i,4>::iterator> minMax
 	= std::minmax_element(myArray.myArray.begin(), myArray.myArray.end(), [](Vector3i &vv, Vector3i &ww){ return vv.y < ww.y ; });

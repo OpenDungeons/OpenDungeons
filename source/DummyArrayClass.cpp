@@ -6,7 +6,7 @@ using std::vector;
 
 void DummyArrayClass::sort(){
     vector<Vector3i> ll[4];
-    Vector3i cc = { 0 , 0 , 0};
+    Vector3i cc( 0 , 0 , 0);
     cc = (cc + myArray[0] + myArray[1] + myArray[2] + myArray[3]) / 4;
 
     for(int ii = 0 ; ii < 4 ; ii++){

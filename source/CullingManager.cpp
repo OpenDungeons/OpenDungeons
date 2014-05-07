@@ -62,7 +62,7 @@ CullingManager::CullingManager(CameraManager* cameraManager):
     }
 }
 
-int CullingManager::cullTiles()
+void CullingManager::cullTiles()
 {
     // mOldTop = mTop ;
     // mOldBottom = mBottom ;
@@ -90,7 +90,7 @@ int CullingManager::cullTiles()
     oldWalk.prepareWalk();
     mWalk.prepareWalk();
 
-    return newBashAndSplashTiles(SHOW | HIDE);
+    newBashAndSplashTiles(SHOW | HIDE);
 }
 
 void CullingManager::startCreatureCulling()
@@ -233,7 +233,7 @@ int CullingManager::cullCreatures()
 }
 
 
-int64_t CullingManager::newBashAndSplashTiles(int64_t mode){
+void CullingManager::newBashAndSplashTiles(int64_t mode){
     int64_t xxLeftOld = oldWalk.getTopVertex().x;
     int64_t xxRightOld= oldWalk.getTopVertex().x;
     int64_t xxLeft = mWalk.getTopVertex().x;
