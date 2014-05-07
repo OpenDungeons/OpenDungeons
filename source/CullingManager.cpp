@@ -15,6 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <OgreVector3.h>
+
 #include "CullingManager.h"
 
 #include "Creature.h"
@@ -29,6 +31,10 @@ using  std::cerr; using std::endl;
 //! Values used to know whether to show and/or hide a mesh
 static const int HIDE =  1;
 static const int SHOW =  2;
+
+extern const int mPrecisionDigits ;
+extern const int Unit ;
+
 
 CullingManager::CullingManager(CameraManager* cameraManager):
     mCurrentVisibleCreatures(&mCreaturesSet[0]),
@@ -221,10 +227,10 @@ int64_t CullingManager::newBashAndSplashTiles(int64_t mode){
     {
 	mWalk.notifyOnMoveDown(yy);
 	oldWalk.notifyOnMoveDown(yy);
-	xxLeft += mWalk.getCurrentDxLeft();
-	xxLeftOld += oldWalk.getCurrentDxLeft();
-	xxRight += mWalk.getCurrentDxRight();
-	xxRightOld += oldWalk.getCurrentDxRight();
+	xxLeft -= mWalk.getCurrentDxLeft();
+	xxLeftOld -= oldWalk.getCurrentDxLeft();
+	xxRight -= mWalk.getCurrentDxRight();
+	xxRightOld -= oldWalk.getCurrentDxRight();
 
 	cerr << (xxLeft  >> mPrecisionDigits )<< " " << (xxLeftOld  >> mPrecisionDigits )<< " " << (xxRight  >> mPrecisionDigits )<< " " << (xxRightOld  >> mPrecisionDigits )<< " " <<endl ;
 	cerr << "DxLeft, DxRight: " << mWalk.getCurrentDxLeft() << " " << mWalk.getCurrentDxRight() << " " << endl;

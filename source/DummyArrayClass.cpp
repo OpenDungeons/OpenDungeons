@@ -44,5 +44,7 @@ void DummyArrayClass::sortByPhi(vector<Vector3i> &ll, Vector3i& cc){
 
 
 Vector3i& DummyArrayClass::operator[](int ii){
+    while(ii < 0 )
+	ii += 4;
     return myArray[ii%4];
 };
