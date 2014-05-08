@@ -59,9 +59,9 @@ bool SlopeWalk::passRightVertex(){
 bool SlopeWalk::notifyOnMoveDown(long long newy_index){
 
     bool bb = true; 
-    if(newy_index < getCurrentLeftVertex().y)
+    if(leftVerticesIndex != leftVertices.end() && newy_index < getCurrentLeftVertex().y)
 	bb = bb && passLeftVertex();
-    if(newy_index < getCurrentRightVertex().y)
+    if(rightVerticesIndex != rightVertices.end() && newy_index < getCurrentRightVertex().y)
 	bb=  bb && passRightVertex();
     return bb ; 
 }

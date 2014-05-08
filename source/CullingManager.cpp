@@ -221,9 +221,9 @@ int64_t CullingManager::newBashAndSplashTiles(int64_t mode){
     int64_t xxLeft = mWalk.getTopVertex().x;
     int64_t xxRight= mWalk.getTopVertex().x;
 
-    int64_t bb = std::min(mWalk.getBottomVertex().y , oldWalk.getBottomVertex().y) ;
+    int64_t bb = (( std::min(mWalk.getBottomVertex().y , oldWalk.getBottomVertex().y) >> mPrecisionDigits) - 2) << mPrecisionDigits;
 
-    for (int64_t yy = ( (std::max(mWalk.getTopVertex().y , oldWalk.getTopVertex().y  ) >> mPrecisionDigits) + 2) << mPrecisionDigits;  yy >= bb; yy -= Unit)
+    for (int64_t yy = ((std::max(mWalk.getTopVertex().y , oldWalk.getTopVertex().y  ) >> mPrecisionDigits) + 2) << mPrecisionDigits;  yy >= bb; yy -= Unit)
     {
 	mWalk.notifyOnMoveDown(yy);
 	oldWalk.notifyOnMoveDown(yy);
@@ -232,15 +232,17 @@ int64_t CullingManager::newBashAndSplashTiles(int64_t mode){
 	xxRight -= mWalk.getCurrentDxRight();
 	xxRightOld -= oldWalk.getCurrentDxRight();
 
-	cerr << (xxLeft  >> mPrecisionDigits )<< " " << (xxLeftOld  >> mPrecisionDigits )<< " " << (xxRight  >> mPrecisionDigits )<< " " << (xxRightOld  >> mPrecisionDigits )<< " " <<endl ;
-	cerr << "DxLeft, DxRight: " << mWalk.getCurrentDxLeft() << " " << mWalk.getCurrentDxRight() << " " << endl;
+	// cerr << (xxLeft  >> mPrecisionDigits )<< " " << (xxLeftOld  >> mPrecisionDigits )<< " " << (xxRight  >> mPrecisionDigits )<< " " << (xxRightOld  >> mPrecisionDigits )<< " " <<endl ;
+	// cerr << "DxLeft, DxRight: " << mWalk.getCurrentDxLeft() << " " << mWalk.getCurrentDxRight() << " " << endl;
 
-        for (int64_t xx = std::min(xxLeft, xxLeftOld) ; xx <= max(xxRight,xxRightOld) ; xx+= Unit){
+	int64_t mm = ((std::min(xxLeft, xxLeftOld) >> mPrecisionDigits) << mPrecisionDigits) ; 
+	if(std::min(xxLeft, xxLeftOld) < max(xxRight,xxRightOld) )
+        for (int64_t xx = mm ; xx <= max(xxRight,xxRightOld) ; xx+= Unit){
             bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= oldWalk.getBottomVertex().y) && yy <= oldWalk.getTopVertex().y);
             bool splash = (xx >= xxLeft && xx <= xxRight && (yy >= mWalk.getBottomVertex().y) && yy <= mWalk.getTopVertex().y);
 
 
-	    cerr<<"CullingManager "   << " x" <<  (xx >> mPrecisionDigits )<< " y" << (yy >> mPrecisionDigits ) << " " << (splash && (mode & SHOW)) << (bash && (mode & HIDE)) << endl;
+	    // cerr<<"CullingManager "   << " x" <<  (xx >> mPrecisionDigits )<< " y" << (yy >> mPrecisionDigits ) << " " << (splash && (mode & SHOW)) << (bash && (mode & HIDE)) << endl;
             GameMap* gm = mCm->mGameMap;
             if(bash && splash && (mode & HIDE) && (mode & SHOW))
             {
