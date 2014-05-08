@@ -439,7 +439,6 @@ endif()
 # We need to force output because of the boost lib used, defining two times the
 # same set of functions, once for Ogre, once for OD. It is harmless in our case
 # to select this option.
-# TODO : check if there is something like this for other platforms
 if(WIN32 AND MSVC_IDE)
     SET_TARGET_PROPERTIES(${PROJECT_BINARY_NAME} PROPERTIES LINK_FLAGS " /FORCE:MULTIPLE")
 endif()

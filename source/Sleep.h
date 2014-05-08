@@ -27,8 +27,10 @@
 # endif
 #else
 # include <unistd.h>
+# define OD_SLEEP(t) sleep(t)
 # ifndef _NEED_SLEEP_ONLY
 #  define OD_MSLEEP(t) usleep((t) * 1000)
+#  define OD_USLEEP(t) usleep(t)
 # endif
 #endif
 
