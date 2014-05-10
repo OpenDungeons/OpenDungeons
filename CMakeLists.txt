@@ -378,7 +378,7 @@ target_link_libraries(
     ${OPENAL_LIBRARY}
     ${OIS_LIBRARIES}
     ${CEGUI_LIBRARIES_RELEASE}
-    ${CEGUI_LIBRARIES_DEBUG}
+    #${CEGUI_LIBRARIES_DEBUG}
 )
 
 # The name of the OGRE Overlay library is available as CMAKE variable, also discovering debug versions correctly; please leave it like that!
