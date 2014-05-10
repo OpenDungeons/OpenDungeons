@@ -145,6 +145,13 @@ is built for currently installed OGRE3D package's version. For most well-maintai
 distros it means they are from the SAME REPOSITORY.
 
 
+-- Just after program start I get : 
+ "   An internal Ogre3D error ocurred: OGRE EXCEPTION(7:InternalErrorException): Could not load dynamic library RenderSystem_GL.  System Error: RenderSystem_GL.so.1.9.0: cannot open shared object file: No such file or directory in DynLib::load at /tmp/buildd/ogre-1.9-1.9.0+dfsg1/OgreMain/src/OgreDynLib.cpp (line 109)  "
+
+
+You'll have to edit the plugins.cfg and/or plugins_d.cfg files copied by CMake when imvoked and change the "PluginFolder=" line to where the GL Render system shared lib is located. (Usually the Ogre's libraries' native directory e.g. :  "PluginFolder=/usr/lib/x86_64-linux-gnu/OGRE-1.9.0/ " or "/usr/lib/OGRE") 
+
+
 3. Gameplay:
 ------------
 
