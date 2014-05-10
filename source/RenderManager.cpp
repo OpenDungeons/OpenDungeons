@@ -5,6 +5,8 @@
  *  \brief  handles the render requests
  */
 
+#include "RenderManager.h"
+
 #include "GameMap.h"
 #include "RenderRequest.h"
 #include "ODServer.h"
@@ -15,7 +17,6 @@
 #include "Weapon.h"
 #include "MissileObject.h"
 #include "Trap.h"
-#include "ProtectedObject.h"
 #include "BattleField.h"
 #include "Player.h"
 #include "ODApplication.h"
@@ -25,7 +26,6 @@
 #include "MapLoader.h"
 #include "MovableGameEntity.h"
 
-#include "RenderManager.h"
 #include "LogManager.h"
 #include "GameEntity.h"
 
@@ -51,7 +51,6 @@ using std::stringstream;
 template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = 0;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
-ProtectedObject<unsigned int> RenderManager::numThreadsWaitingOnRenderQueueEmpty(0);
 
 RenderManager::RenderManager() :
     visibleCreatures(true),
@@ -423,16 +422,6 @@ void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
     renderRequest->turnNumber = gameMap->getTurnNumber();
 
     renderQueue.push_back(renderRequest);
-}
-
-//NOTE: This function has not yet been tested.
-void RenderManager::waitOnRenderQueueFlush()
-{
-    numThreadsWaitingOnRenderQueueEmpty.lock();
-    unsigned int tempUnsigned = numThreadsWaitingOnRenderQueueEmpty.rawGet();
-    ++tempUnsigned;
-    numThreadsWaitingOnRenderQueueEmpty.rawSet(tempUnsigned);
-    numThreadsWaitingOnRenderQueueEmpty.unlock();
 }
 
 void RenderManager::rrRefreshTile(const RenderRequest& renderRequest)

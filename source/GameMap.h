@@ -42,7 +42,6 @@ class Trap;
 class Seat;
 class Goal;
 class MapLight;
-template<typename T> class ProtectedObject;
 class MissileObject;
 class MovableGameEntity;
 

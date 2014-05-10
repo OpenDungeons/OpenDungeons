@@ -23,8 +23,6 @@
 #ifndef __ODFRAMELISTENER_H__
 #define __ODFRAMELISTENER_H__
 
-#include "ProtectedObject.h"
-
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 #include <OgreSingleton.h>
@@ -76,9 +74,6 @@ public:
     virtual ~ODFrameListener();
 
     void requestExit();
-    bool getThreadStopRequested();
-    void setThreadStopRequested(bool value);
-    void requestStopThreads();
 
     inline bool isTerminalActive () const
     { return mTerminalActive; }
@@ -183,8 +178,7 @@ private:
     GameMap*                mGameMap;
 
     //! \brief To see if the frameListener wants to exit
-    ProtectedObject<bool>   mThreadStopRequested;
-    ProtectedObject<bool>   mExitRequested;
+    bool mExitRequested;
 
     // Console variables
     std::string mCommand, mArguments, mPrompt;

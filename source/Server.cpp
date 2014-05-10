@@ -11,7 +11,6 @@
 #include "Tile.h"
 #include "MapLight.h"
 #include "GameMap.h"
-#include "ProtectedObject.h"
 #include "Creature.h"
 #include "ODApplication.h"
 #include "LogManager.h"

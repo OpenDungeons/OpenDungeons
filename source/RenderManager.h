@@ -16,7 +16,6 @@
 
 using  std::string;
 
-template<typename T> class ProtectedObject;
 class RenderRequest;
 class GameMap;
 
@@ -46,7 +45,6 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         void triggerCompositor(string);
         void createScene(Ogre::Viewport*);
 
-        void waitOnRenderQueueFlush();
         /*! \brief Put a render request in the queue (helper function to avoid having to fetch the singleton)
         */
         static void queueRenderRequest(RenderRequest* renderRequest)
@@ -142,8 +140,6 @@ class RenderManager: public Ogre::Singleton<RenderManager>
         Ogre::Viewport* viewport;
         Ogre::RTShader::ShaderGenerator* shaderGenerator;
         bool initialized;
-
-        static ProtectedObject<unsigned int> numThreadsWaitingOnRenderQueueEmpty;
 };
 
 #endif // RENDERMANAGER_H_

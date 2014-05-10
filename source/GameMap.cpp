@@ -34,7 +34,6 @@
 #include "Trap.h"
 #include "Seat.h"
 #include "MapLight.h"
-#include "ProtectedObject.h"
 #include "TileCoordinateMap.h"
 #include "MissileObject.h"
 #include "Weapon.h"
@@ -2094,7 +2093,8 @@ std::list<Tile*> GameMap::path(Tile *t1, Tile *t2, Tile::TileClearType passabili
 Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
 {
     //TODO:  This is sub-optimal, improve it.
-    Tile *tempTile1 = c1->positionTile(), *tempTile2 = c2->positionTile();
+    Tile* tempTile1 = c1->positionTile();
+    Tile* tempTile2 = c2->positionTile();
     return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
 }
 
@@ -2107,8 +2107,7 @@ void GameMap::processDeletionQueues()
     std::map<long int, std::vector<Creature*> >::iterator
     currentTurnForCreatureRetirement = creaturesToDelete.begin();
     while (currentTurnForCreatureRetirement != creaturesToDelete.end()
-            && (*currentTurnForCreatureRetirement).first
-            < mTurnNumber)
+           && (*currentTurnForCreatureRetirement).first)
     {
         long int currentTurnToRetire =
             (*currentTurnForCreatureRetirement).first;

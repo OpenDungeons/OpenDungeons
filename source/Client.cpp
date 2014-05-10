@@ -25,7 +25,6 @@
 #include "MapLight.h"
 #include "Creature.h"
 #include "ClientNotification.h"
-#include "ProtectedObject.h"
 #include "Weapon.h"
 #include "ODApplication.h"
 #include "LogManager.h"

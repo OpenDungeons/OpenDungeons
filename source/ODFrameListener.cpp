@@ -111,8 +111,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
 
-    mThreadStopRequested.set(false);
-    mExitRequested.set(false);
+    mExitRequested = false;
 
     mInitialized = true;
 }
@@ -156,14 +155,12 @@ ODFrameListener::~ODFrameListener()
 
 void ODFrameListener::requestExit()
 {
-    mExitRequested.set(true);
+    mExitRequested = true;
 }
 
 void ODFrameListener::exitApplication()
 {
     LogManager::getSingleton().logMessage("Closing down.");
-    //Mark that we want the threads to stop.
-    requestStopThreads();
 
     ServerNotification* exitServerNotification = new ServerNotification();
     exitServerNotification->type = ServerNotification::exit;
@@ -197,21 +194,6 @@ void ODFrameListener::exitApplication()
 
     Ogre::LogManager::getSingleton().logMessage("Frame listener uninitialization done.", Ogre::LML_NORMAL);
     mInitialized = false;
-}
-
-bool ODFrameListener::getThreadStopRequested()
-{
-    return mThreadStopRequested.get();
-}
-
-void ODFrameListener::setThreadStopRequested(bool value)
-{
-    mThreadStopRequested.set(value);
-}
-
-void ODFrameListener::requestStopThreads()
-{
-    mThreadStopRequested.set(true);
 }
 
 void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
@@ -270,7 +252,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     }
 
     //If an exit has been requested, start cleaning up.
-    if(mExitRequested.get() || mContinue == false)
+    if(mExitRequested == true || mContinue == false)
     {
         exitApplication();
         mContinue = false;
