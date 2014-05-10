@@ -393,12 +393,12 @@ endif()
 # No need to make a difference when release/debug is found because even
 # if only one is found, the other is set to the same value 
 target_link_libraries(
-	${PROJECT_BINARY_NAME}
+    ${PROJECT_BINARY_NAME}
 
-	optimized ${SFML_AUDIO_LIBRARY_RELEASE}
-	optimized ${SFML_SYSTEM_LIBRARY_RELEASE}
-	debug ${SFML_AUDIO_LIBRARY_DEBUG}
-	debug ${SFML_SYSTEM_LIBRARY_DEBUG}
+    optimized ${SFML_AUDIO_LIBRARY_RELEASE}
+    optimized ${SFML_SYSTEM_LIBRARY_RELEASE}
+    debug ${SFML_AUDIO_LIBRARY_DEBUG}
+    debug ${SFML_SYSTEM_LIBRARY_DEBUG}
 )
 
 # Link pthreads. (And also userenv if we are on windows.)
