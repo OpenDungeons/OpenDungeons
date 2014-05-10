@@ -31,9 +31,6 @@ namespace ODServer {
 bool startServer()
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-    GameMap* gameMap = frameListener->getGameMap();
-    if (gameMap == NULL)
-        return false;
 
     LogManager& logManager = LogManager::getSingleton();
 
@@ -67,6 +64,12 @@ bool startServer()
         return false;
     }
 
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    if (gameMap == NULL)
+        return false;
+
+    gameMap->setTurnNumber(1);
+
     return true;
 }
 
@@ -79,7 +82,7 @@ void queueServerNotification(ServerNotification* n)
     if (gameMap == NULL)
         return;
 
-    n->turnNumber = GameMap::turnNumber.get();
+    n->turnNumber = gameMap->getTurnNumber();
 
     ServerNotification::serverNotificationQueue.push_back(n);
 }

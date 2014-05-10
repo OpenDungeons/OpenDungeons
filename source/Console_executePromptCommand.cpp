@@ -572,9 +572,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS
                             << "Unfinished Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
-                    for (unsigned int i = 0; i < gameMap->me->getSeat()->numGoals(); ++i)
+                    for (unsigned int i = 0; i < gameMap->getLocalPlayer()->getSeat()->numGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap->me->getSeat()->getGoal(i);
+                        Goal *tempGoal = gameMap->getLocalPlayer()->getSeat()->getGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
                                 << tempGoal->getDescription() << "\n";
                     }
@@ -583,9 +583,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     tempSS
                             << "\n\nCompleted Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
                     for (unsigned int i = 0; i
-                            < gameMap->me->getSeat()->numCompletedGoals(); ++i)
+                            < gameMap->getLocalPlayer()->getSeat()->numCompletedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap->me->getSeat()->getCompletedGoal(i);
+                        Goal *tempGoal = gameMap->getLocalPlayer()->getSeat()->getCompletedGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
                                 << tempGoal->getSuccessMessage() << "\n";
                     }
@@ -640,7 +640,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (!arguments.empty())
         {
-            gameMap->me->setNick(arguments);
+            gameMap->getLocalPlayer()->setNick(arguments);
             frameListener->mCommandOutput += "\nNickname set to:  ";
         }
         else
@@ -648,7 +648,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             frameListener->mCommandOutput += "\nCurrent nickname is:  ";
         }
 
-        frameListener->mCommandOutput += gameMap->me->getNick() + "\n";
+        frameListener->mCommandOutput += gameMap->getLocalPlayer()->getNick() + "\n";
     }
 
     /*
@@ -694,7 +694,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     else if (command.compare("connect") == 0)
     {
         // Make sure we have set a nickname.
-        if (!gameMap->me->getNick().empty())
+        if (!gameMap->getLocalPlayer()->getNick().empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
             if (!frameListener->isConnected())
@@ -825,7 +825,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (Socket::clientSocket != NULL)
         {
-            Socket::clientSocket->send(formatCommand("chat", gameMap->me->getNick() + ":"
+            Socket::clientSocket->send(formatCommand("chat", gameMap->getLocalPlayer()->getNick() + ":"
                     + arguments));
         }
         else if (Socket::serverSocket != NULL)
@@ -833,12 +833,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             // Send the chat to all the connected clients
             for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
             {
-                ODFrameListener::getSingletonPtr()->mClientSockets[i]->send(formatCommand("chat", gameMap->me->getNick()
+                ODFrameListener::getSingletonPtr()->mClientSockets[i]->send(formatCommand("chat", gameMap->getLocalPlayer()->getNick()
                         + ":" + arguments));
             }
 
             // Display the chat message in our own message queue
-            mChatMessages.push_back(new ChatMessage(gameMap->me->getNick(), arguments,
+            mChatMessages.push_back(new ChatMessage(gameMap->getLocalPlayer()->getNick(), arguments,
                     time(NULL), time(NULL)));
         }
         else

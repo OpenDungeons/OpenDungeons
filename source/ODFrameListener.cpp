@@ -232,9 +232,7 @@ void ODFrameListener::checkForTurnUpdate(Ogre::Real timeSinceLastFrame)
 
     timeElapsedSinceLastTurn = 0.0;
 
-    GameMap::turnNumber.lock();
-    GameMap::turnNumber.rawSet(GameMap::turnNumber.rawGet() + 1);
-    GameMap::turnNumber.unlock();
+    mGameMap->setTurnNumber(mGameMap->getTurnNumber() + 1);
 }
 
 bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
@@ -290,7 +288,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     // Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
     //NOTE:  If this function exits early the corresponding unlock function must be called.
-    long int currentTurnNumber = GameMap::turnNumber.get();
+    long int currentTurnNumber = mGameMap->getTurnNumber();
 
     checkForTurnUpdate(evt.timeSinceLastFrame);
     if(mPreviousTurn >= currentTurnNumber)
@@ -368,7 +366,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             turnString += "\nBatches: " + Ogre::StringConverter::toString(
                 mWindow->getStatistics().batchCount);
             turnString += "\nTurn number:  "
-                + Ogre::StringConverter::toString(GameMap::turnNumber.get());
+                + Ogre::StringConverter::toString(mGameMap->getTurnNumber());
 
             printText(ODApplication::MOTD + "\n" + turnString
                     + "\n" + (!mChatMessages.empty() ? mChatString : nullString));

@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef SERVER_FUNCTIONS_H
-#define SERVER_FUNCTIONS_H
+#ifndef ODSERVER_H
+#define ODSERVER_H
 
 class ServerNotification;
 class GameMap;
@@ -26,12 +26,11 @@ namespace ODServer
 
 bool startServer();
 
-// Adds a server notification to the server notification queue.
+//! \brief Adds a server notification to the server notification queue.
 void queueServerNotification(ServerNotification* n);
 
-// Process server events, such as server notifications and received messages.
+//! \brief Process server events, such as server notifications and received messages.
 void processServerEvents();
-
 }
 
-#endif // SERVER_FUNCTIONS_H
+#endif // ODSERVER_H

@@ -53,9 +53,6 @@
 
 using namespace std;
 
-// Static GameMap members initialization
-ProtectedObject<long int> GameMap::turnNumber(1);
-
 /*! \brief A helper class for the A* search in the GameMap::path function.
 *
 * This class stores the requisite information about a tile which is placed in
@@ -118,9 +115,11 @@ private:
 };
 
 GameMap::GameMap() :
-        me(NULL),
+        culm(NULL),
         miscUpkeepTime(0),
         creatureTurnsTime(0),
+        mLocalPlayer(NULL),
+        mTurnNumber(1),
         creatureDefinitionFilename("levels/creatures.def"), // default name
         floodFillEnabled(false),
         numCallsTo_path(0),
@@ -128,9 +127,9 @@ GameMap::GameMap() :
         aiManager(*this)
 {
     // Init the player
-    me = new Player();
-    me->setNick("defaultNickName");
-    me->setGameMap(this);
+    mLocalPlayer = new Player();
+    mLocalPlayer->setNick("defaultNickName");
+    mLocalPlayer->setGameMap(this);
 
     // Init the minimap
     miniMap = new MiniMap(this);
@@ -140,7 +139,7 @@ GameMap::~GameMap()
 {
     clearAll();
     delete tileCoordinateMap;
-    delete me;
+    delete mLocalPlayer;
     delete miniMap;
 }
 
@@ -313,7 +312,7 @@ void GameMap::queueCreatureForDeletion(Creature *c)
     removeCreature(c);
 
     //TODO: This needs to include the turn number that the creature was pushed so proper multithreaded locks can be by the threads to retire the creatures.
-    creaturesToDelete[turnNumber.get()].push_back(c);
+    creaturesToDelete[mTurnNumber].push_back(c);
 }
 
 CreatureDefinition* GameMap::getClassDescription(std::string query)
@@ -562,7 +561,7 @@ const Creature* GameMap::getCreature(const std::string& cName) const
 
 void GameMap::doTurn()
 {
-    std::cout << "\nStarting creature AI for turn " << turnNumber.get();
+    std::cout << "\nStarting creature AI for turn " << mTurnNumber;
     unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
     processDeletionQueues();
@@ -2101,9 +2100,7 @@ Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
 
 void GameMap::processDeletionQueues()
 {
-    long int turn = turnNumber.get();
-
-    std::cout << "\nProcessing deletion queues on turn " << turn << ":  ";
+    std::cout << "\nProcessing deletion queues on turn " << mTurnNumber << ":  ";
 
     // Loop over the creaturesToDeleteMap and delete all the creatures in any mapped vector whose
     // key value (the turn those creatures were added) is less than the latestTurnToBeRetired.
@@ -2111,7 +2108,7 @@ void GameMap::processDeletionQueues()
     currentTurnForCreatureRetirement = creaturesToDelete.begin();
     while (currentTurnForCreatureRetirement != creaturesToDelete.end()
             && (*currentTurnForCreatureRetirement).first
-            < turn)
+            < mTurnNumber)
     {
         long int currentTurnToRetire =
             (*currentTurnForCreatureRetirement).first;

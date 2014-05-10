@@ -44,7 +44,7 @@ std::string GoalMineNGold::getDescription()
         return std::string();
 
     std::stringstream tempSS;
-    tempSS << "Mined " << gameMap->me->getSeat()->goldMined << " of " << mGoldToMine
+    tempSS << "Mined " << gameMap->getLocalPlayer()->getSeat()->goldMined << " of " << mGoldToMine
             << " gold coins.";
     return tempSS.str();
 }

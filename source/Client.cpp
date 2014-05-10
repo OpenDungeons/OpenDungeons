@@ -94,7 +94,7 @@ void processClientSocketMessages()
 
         if (serverCommand.compare("picknick") == 0)
         {
-            sock->send(formatCommand("setnick", gameMap->me->getNick()));
+            sock->send(formatCommand("setnick", gameMap->getLocalPlayer()->getNick()));
         }
 
         /*
@@ -105,7 +105,7 @@ void processClientSocketMessages()
             cout << "\nAbout to read in seat.\n";
             cout.flush();
             tempSS >> tempSeat;
-            gameMap.me->seat = tempSeat;
+            gameMap->getLocalPlayer()->seat = tempSeat;
             }
             */
 
@@ -115,9 +115,9 @@ void processClientSocketMessages()
             Seat *tempSeat = new Seat;
             tempSS >> tempSeat;
             gameMap->addEmptySeat(tempSeat);
-            if (gameMap->me->getSeat() == NULL)
+            if (gameMap->getLocalPlayer()->getSeat() == NULL)
             {
-                gameMap->me->setSeat(gameMap->popEmptySeat());
+                gameMap->getLocalPlayer()->setSeat(gameMap->popEmptySeat());
             }
 
             sock->send(formatCommand("ok", "addseat"));
@@ -230,7 +230,7 @@ void processClientSocketMessages()
             tempSS.str(arguments);
             long int tempLongInt;
             tempSS >> tempLongInt;
-            GameMap::turnNumber.set(tempLongInt);
+            gameMap->setTurnNumber(tempLongInt);
         }
 
         else if (serverCommand.compare("animatedObjectAddDestination") == 0)

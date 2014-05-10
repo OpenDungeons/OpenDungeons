@@ -60,7 +60,7 @@ std::string GoalClaimNTiles::getDescription()
         return std::string();
 
     std::stringstream tempSS;
-    tempSS << "Claimed " << gameMap->me->getSeat()->getNumClaimedTiles() << " of "
+    tempSS << "Claimed " << gameMap->getLocalPlayer()->getSeat()->getNumClaimedTiles() << " of "
             << mNumberOfTiles << " tiles.";
     return tempSS.str();
 }

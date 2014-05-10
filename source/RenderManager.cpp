@@ -5,6 +5,29 @@
  *  \brief  handles the render requests
  */
 
+#include "GameMap.h"
+#include "RenderRequest.h"
+#include "ODServer.h"
+#include "Room.h"
+#include "RoomObject.h"
+#include "MapLight.h"
+#include "Creature.h"
+#include "Weapon.h"
+#include "MissileObject.h"
+#include "Trap.h"
+#include "ProtectedObject.h"
+#include "BattleField.h"
+#include "Player.h"
+#include "ODApplication.h"
+#include "ODFrameListener.h"
+#include "ResourceManager.h"
+#include "Seat.h"
+#include "MapLoader.h"
+#include "MovableGameEntity.h"
+
+#include "RenderManager.h"
+#include "LogManager.h"
+#include "GameEntity.h"
 
 // TODO the prefix Creature_ should be static field in some class then changing won't broke program
 
@@ -25,37 +48,10 @@
 
 using std::stringstream;
 
-
-#include "GameMap.h"
-#include "RenderRequest.h"
-#include "ODServer.h"
-#include "Room.h"
-#include "RoomObject.h"
-#include "MapLight.h"
-#include "Creature.h"
-#include "Weapon.h"
-#include "MissileObject.h"
-#include "Trap.h"
-#include "ProtectedObject.h"
-#include "BattleField.h"
-#include "Player.h"
-#include "ODApplication.h"
-#include "ResourceManager.h"
-#include "Seat.h"
-#include "MapLoader.h"
-#include "MovableGameEntity.h"
-
-#include "RenderManager.h"
-#include "LogManager.h"
-#include "GameEntity.h"
-
 template<> RenderManager* Ogre::Singleton<RenderManager>::msSingleton = 0;
 
 const Ogre::Real RenderManager::BLENDER_UNITS_PER_OGRE_UNIT = 10.0;
 ProtectedObject<unsigned int> RenderManager::numThreadsWaitingOnRenderQueueEmpty(0);
-
-
-
 
 RenderManager::RenderManager() :
     visibleCreatures(true),
@@ -424,7 +420,7 @@ void RenderManager::processRenderRequests
 */
 void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
 {
-    renderRequest->turnNumber = GameMap::turnNumber.get();
+    renderRequest->turnNumber = gameMap->getTurnNumber();
 
     renderQueue.push_back(renderRequest);
 }
@@ -1232,9 +1228,9 @@ void RenderManager::rrPickUpCreature ( const RenderRequest& renderRequest )
     creatureNode->scale(0.333, 0.333, 0.333);
 
     // Move the other creatures in the player's hand to make room for the one just picked up.
-    for (unsigned int i = 0; i < gameMap->me->numCreaturesInHand(); ++i)
+    for (unsigned int i = 0; i < gameMap->getLocalPlayer()->numCreaturesInHand(); ++i)
     {
-        curCreature = gameMap->me->getCreatureInHand(i);
+        curCreature = gameMap->getLocalPlayer()->getCreatureInHand(i);
         creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
         creatureNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
     }
@@ -1265,9 +1261,9 @@ void RenderManager::rrDropCreature ( const RenderRequest& renderRequest )
 void RenderManager::rrRotateCreaturesInHand ( const RenderRequest& )
 {
     // Loop over the creatures in our hand and redraw each of them in their new location.
-    for (unsigned int i = 0; i < gameMap->me->numCreaturesInHand(); ++i)
+    for (unsigned int i = 0; i < gameMap->getLocalPlayer()->numCreaturesInHand(); ++i)
     {
-        Creature* curCreature = gameMap->me->getCreatureInHand(i);
+        Creature* curCreature = gameMap->getLocalPlayer()->getCreatureInHand(i);
         Ogre::SceneNode* creatureNode = sceneManager->getSceneNode(curCreature->getName() + "_node");
         creatureNode->setPosition((Ogre::Real)(i % 6 + 1), (Ogre::Real)(i / (int)6), (Ogre::Real)0.0);
     }

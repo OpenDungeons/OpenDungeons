@@ -355,24 +355,37 @@ public:
     void enableFloodFill();
 
     inline Player* getLocalPlayer()
-    { return me; }
+    { return mLocalPlayer; }
 
     inline const Player* getLocalPlayer() const
-    { return me; }
+    { return mLocalPlayer; }
 
     //! \brief Updates the different entities animations.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
 
-    Player* me;
+    long int getTurnNumber() const
+    {
+        return mTurnNumber;
+    }
+
+    void setTurnNumber(long int turnNumber)
+    {
+        mTurnNumber = turnNumber;
+    }
 
     CullingManager* culm;
 
     unsigned long int miscUpkeepTime, creatureTurnsTime;
 
     std::vector<Creature*> creatures;
-    static ProtectedObject<long int> turnNumber;
 
- private:
+private:
+    //! \brief the Local player reference.
+    Player* mLocalPlayer;
+
+    //! \brief The current server turn number.
+    long int mTurnNumber;
+
     //! \brief The corresponding minimap.
     MiniMap* miniMap;
 
@@ -384,7 +397,6 @@ public:
     std::vector<boost::shared_ptr<CreatureDefinition> > classDescriptions;
 
     //Mutable to allow locking in const functions.
-    //TODO: Most of these other vectors should also probably have semaphore locks on them.
     std::vector<MovableGameEntity*> animatedObjects;
 
     //! \brief Map Entities

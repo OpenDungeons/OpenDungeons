@@ -135,7 +135,7 @@ void processServerNotifications()
         {
             case ServerNotification::turnStarted:
                 tempSS.str("");
-                tempSS << GameMap::turnNumber.get();
+                tempSS << gameMap->getTurnNumber();
 
                 sendToAllClients(frameListener, formatCommand("newturn", tempSS.str()));
                 break;
