@@ -2099,74 +2099,11 @@ Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
     return crowDistance(tempTile1->x, tempTile1->y, tempTile2->x, tempTile2->y);
 }
 
-void GameMap::threadLockForTurn(long int turn)
-{
-    std::map<long int, ProtectedObject<unsigned int> >::iterator result =
-        threadReferenceCount.find(turn);
-    if (result != threadReferenceCount.end())
-    {
-        (*result).second.lock();
-        (*result).second.rawSet((*result).second.rawGet() + 1);
-        (*result).second.unlock();
-    }
-    else
-    {
-        threadReferenceCount[turn].rawSet(1);
-    }
-
-    // Unlock the thread reference count map.
-}
-
-void GameMap::threadUnlockForTurn(long int turn)
-{
-    std::map<long int, ProtectedObject<unsigned int> >::iterator result =
-        threadReferenceCount.find(turn);
-    if (result != threadReferenceCount.end())
-    {
-        (*result).second.lock();
-        (*result).second.rawSet((*result).second.rawGet() - 1);
-        (*result).second.unlock();
-    }
-    else
-    {
-        std::cout
-            << "\n\n\nERROR:  Calling threadUnlockForTurn on a turn number which does not have any current locks, bailing out.\n\n\n";
-        exit(1);
-    }
-}
-
 void GameMap::processDeletionQueues()
 {
     long int turn = turnNumber.get();
 
     std::cout << "\nProcessing deletion queues on turn " << turn << ":  ";
-    long int latestTurnToBeRetired = -1;
-
-    // Loop over the thread reference count and find the first turn number which has 0 outstanding threads holding references for that turn.
-    std::map<long int, ProtectedObject<unsigned int> >::iterator
-    currentThreadReferenceCount = threadReferenceCount.begin();
-    while (currentThreadReferenceCount != threadReferenceCount.end())
-    {
-        std::cout << "(" << (*currentThreadReferenceCount).first << ", "
-                  << (*currentThreadReferenceCount).second.rawGet() << ")   ";
-        if ((*currentThreadReferenceCount).second.get() == 0)
-        {
-            // There are no threads which could be holding references to objects from the current turn so it is safe to retire.
-            latestTurnToBeRetired = (*currentThreadReferenceCount).first;
-            std::map<long int, ProtectedObject<unsigned int> >::iterator
-            tempIterator = currentThreadReferenceCount++;
-            threadReferenceCount.erase(tempIterator);
-        }
-        else
-        {
-            // There is one or more threads which could still be holding references to objects from the current turn so we cannot retire it.
-            break;
-        }
-    }
-
-    // If we did not find any turns which have no threads locking them we are safe to retire this turn.
-    if (latestTurnToBeRetired < 0)
-        return;
 
     // Loop over the creaturesToDeleteMap and delete all the creatures in any mapped vector whose
     // key value (the turn those creatures were added) is less than the latestTurnToBeRetired.
@@ -2174,7 +2111,7 @@ void GameMap::processDeletionQueues()
     currentTurnForCreatureRetirement = creaturesToDelete.begin();
     while (currentTurnForCreatureRetirement != creaturesToDelete.end()
             && (*currentTurnForCreatureRetirement).first
-            <= latestTurnToBeRetired)
+            < turn)
     {
         long int currentTurnToRetire =
             (*currentTurnForCreatureRetirement).first;

@@ -80,7 +80,6 @@ void queueServerNotification(ServerNotification* n)
         return;
 
     n->turnNumber = GameMap::turnNumber.get();
-    gameMap->threadLockForTurn(n->turnNumber);
 
     ServerNotification::serverNotificationQueue.push_back(n);
 }

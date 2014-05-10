@@ -296,8 +296,6 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     if(mPreviousTurn >= currentTurnNumber)
         return mContinue;
 
-    mGameMap->threadLockForTurn(currentTurnNumber);
-
     // If a new turn has started, we update events.
     mPreviousTurn = currentTurnNumber;
 
@@ -452,9 +450,6 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         tempSS << "\nCongratulations, you have completed this level.";
     }
     tempWindow->setText(tempSS.str());
-
-    // Decrement the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
-    mGameMap->threadUnlockForTurn(currentTurnNumber);
 
     return mContinue;
 }

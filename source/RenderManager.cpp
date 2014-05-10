@@ -415,11 +415,6 @@ void RenderManager::processRenderRequests
         // Handle the request
         handleRenderRequest ( *curReq );
 
-        /* Decrement the number of outstanding references to things from the turn number the event was queued on.
-        * (Locked in queueRenderRequest)
-        */
-        gameMap->threadUnlockForTurn ( curReq->turnNumber );
-
         delete curReq;
         curReq = NULL;
     }
@@ -430,8 +425,6 @@ void RenderManager::processRenderRequests
 void RenderManager::queueRenderRequest_priv(RenderRequest* renderRequest)
 {
     renderRequest->turnNumber = GameMap::turnNumber.get();
-    //Unlocked in processRenderRequests
-    gameMap->threadLockForTurn(renderRequest->turnNumber);
 
     renderQueue.push_back(renderRequest);
 }

@@ -230,9 +230,6 @@ void processServerNotifications()
                 break;
         }
 
-        // Decrement the number of outstanding references to things from the turn number the event was queued on.
-        gameMap->threadUnlockForTurn(event->turnNumber);
-
         delete event;
         event = NULL;
     }

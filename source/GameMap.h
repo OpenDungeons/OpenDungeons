@@ -363,16 +363,7 @@ public:
     //! \brief Updates the different entities animations.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
 
-    //! \brief Increments a semaphore for the given turn indicating how many outstanding references
-    //! to game asssets have been copied by other functions.
-    void threadLockForTurn(long int turn);
-
-    /** \brief Decrements a semaphore for the given turn indicating how many outstanding references to game asssets there are,
-     * when this reaches 0 the turn can be safely retired and assets queued for deletion then can be safely deleted.
-     */
-    void threadUnlockForTurn(long int turn);
-
-    Player *me;
+    Player* me;
 
     CullingManager* culm;
 
@@ -419,7 +410,7 @@ public:
     //! \brief  active objects that are created by other active object, i.e. : cannon balls
     std::queue<GameEntity*> newActiveObjects;
 
-    std::map<long int, ProtectedObject<unsigned int> > threadReferenceCount;
+    //! \brief Dead creatures to delete at each turn's ends.
     std::map<long int, std::vector<Creature*> > creaturesToDelete;
 
     //! \brief Debug member used to know how many call to pathfinding has been made within the same turn.
