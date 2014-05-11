@@ -9,7 +9,7 @@
 RoomDungeonTemple::RoomDungeonTemple() :
         waitTurns(0)
 {
-    type = dungeonTemple;
+    mType = dungeonTemple;
 }
 
 void RoomDungeonTemple::createMesh()
@@ -36,7 +36,7 @@ void RoomDungeonTemple::produceKobold()
 
         // If the room has been destroyed, or has not yet been assigned any tiles, then we
         // cannot determine where to place the new creature and we should just give up.
-        if (coveredTiles.size() == 0)
+        if (mCoveredTiles.size() == 0)
             return;
 
         // Create a new creature and copy over the class-based creature parameters.
@@ -47,8 +47,8 @@ void RoomDungeonTemple::produceKobold()
             Creature* newCreature = new Creature( getGameMap());
             newCreature->setCreatureDefinition(classToSpawn);
             newCreature->setName(newCreature->getUniqueCreatureName());
-            newCreature->setPosition(Ogre::Vector3((Ogre::Real)coveredTiles[0]->x,
-                                                   (Ogre::Real)coveredTiles[0]->y,
+            newCreature->setPosition(Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x,
+                                                   (Ogre::Real)mCoveredTiles[0]->y,
                                                    (Ogre::Real)0));
             newCreature->setColor(getColor());
 
@@ -71,4 +71,3 @@ void RoomDungeonTemple::produceKobold()
         --waitTurns;
     }
 }
-

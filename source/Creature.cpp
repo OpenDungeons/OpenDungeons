@@ -36,6 +36,9 @@
 #include "LogManager.h"
 #include "CullingQuad.h"
 #include "Helper.h"
+#include "RoomTreasury.h"
+#include "RoomQuarters.h"
+#include "RoomDojo.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/WindowManager.h>

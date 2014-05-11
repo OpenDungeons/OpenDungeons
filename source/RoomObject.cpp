@@ -43,4 +43,3 @@ std::istream& operator>>(std::istream& is, RoomObject *o)
 {
     return is;
 }
-

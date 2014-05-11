@@ -10,8 +10,8 @@ class RoomQuarters: public Room
 
         // Functions overriding virtual functions in the Room base class.
         void absorbRoom(Room *r);
-        bool doUpkeep(Room *r);
-        void addCoveredTile(Tile* t, double nHP = Room::defaultTileHP);
+        bool doUpkeep();
+        void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
         void removeCoveredTile(Tile* t);
         void clearCoveredTiles();
 

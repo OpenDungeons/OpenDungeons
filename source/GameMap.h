@@ -22,6 +22,7 @@
 #include "AIManager.h"
 #include "Room.h"
 #include "TileContainer.h"
+#include "CreatureDefinition.h"
 
 #ifdef __MINGW32__
 #ifndef mode_t

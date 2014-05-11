@@ -8,7 +8,7 @@
 
 RoomTreasury::RoomTreasury()
 {
-    type = treasury;
+    mType = treasury;
 }
 
 void RoomTreasury::absorbRoom(Room *r)
@@ -36,10 +36,10 @@ void RoomTreasury::absorbRoom(Room *r)
     createGoldMeshes();
 }
 
-bool RoomTreasury::doUpkeep(Room *r)
+bool RoomTreasury::doUpkeep()
 {
     // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
-    return Room::doUpkeep(this);
+    return Room::doUpkeep();
 }
 
 void RoomTreasury::addCoveredTile(Tile* t, double nHP)
@@ -242,4 +242,3 @@ void RoomTreasury::destroyGoldMeshes()
     for (unsigned int i = 0; i < numCoveredTiles(); ++i)
         destroyMeshesForTile(getCoveredTile(i));
 }
-

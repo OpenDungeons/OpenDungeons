@@ -7,7 +7,7 @@
 
 RoomQuarters::RoomQuarters()
 {
-    type = quarters;
+    mType = quarters;
 }
 
 void RoomQuarters::absorbRoom(Room *r)
@@ -51,10 +51,10 @@ void RoomQuarters::absorbRoom(Room *r)
     createRoomObjectMeshes();
 }
 
-bool RoomQuarters::doUpkeep(Room *r)
+bool RoomQuarters::doUpkeep()
 {
     // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
-    return Room::doUpkeep(this);
+    return Room::doUpkeep();
 }
 
 void RoomQuarters::addCoveredTile(Tile* t, double nHP)
@@ -155,7 +155,7 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
             }
 
             bedOrientationForTile[t] = normalDirection;
-            
+
             const CreatureDefinition* def = c->getDefinition();
             assert(def);
 
@@ -184,7 +184,7 @@ bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
 
         bedOrientationForTile.erase(t);
 
-        roomObjects[t]->destroyMesh();
+        mRoomObjects[t]->destroyMesh();
 
         return true;
     }
@@ -276,4 +276,3 @@ void RoomQuarters::destroyBedMeshes()
 {
     destroyRoomObjectMeshes();
 }
-

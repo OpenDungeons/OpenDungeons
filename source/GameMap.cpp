@@ -41,6 +41,9 @@
 #include "LogManager.h"
 #include "MortuaryQuad.h"
 #include "CullingManager.h"
+#include "RoomDungeonTemple.h"
+#include "RoomQuarters.h"
+#include "RoomTreasury.h"
 
 #include <iostream>
 #include <sstream>

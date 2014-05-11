@@ -19,7 +19,7 @@ RoomPortal::RoomPortal() :
         yCenter(0),
         portalObject(NULL)
 {
-    type = portal;
+    mType = portal;
 }
 
 void RoomPortal::createMesh()
@@ -47,10 +47,10 @@ void RoomPortal::removeCoveredTile(Tile* t)
 /*! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
  *
  */
-bool RoomPortal::doUpkeep(Room *r)
+bool RoomPortal::doUpkeep()
 {
     // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
-    Room::doUpkeep(this);
+    Room::doUpkeep();
 
     if (spawnCreatureCountdown > 0)
     {
@@ -93,7 +93,7 @@ void RoomPortal::spawnCreature()
 
     // If the room has been destroyed, or has not yet been assigned any tiles, then we
     // cannot determine where to place the new creature and we should just give up.
-    if (coveredTiles.size() == 0)
+    if (mCoveredTiles.size() == 0)
         return;
 
     // Compute and normalize the probabilities based on the current composition of creatures in the dungeon.
@@ -227,18 +227,17 @@ void RoomPortal::recomputeCenterPosition()
     xCenter = yCenter = 0.0;
 
     // Prevent a divide by 0 error, just leave the center position at (0, 0).
-    if (coveredTiles.size() == 0)
+    if (mCoveredTiles.size() == 0)
         return;
 
     // Loop over the covered tiles and compute the average location (i.e. the center) of the portal.
-    for (unsigned int i = 0; i < coveredTiles.size(); ++i)
+    for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
     {
-        Tile *tempTile = coveredTiles[i];
+        Tile *tempTile = mCoveredTiles[i];
         xCenter += tempTile->x;
         yCenter += tempTile->y;
     }
 
-    xCenter /= static_cast<double>(coveredTiles.size());
-    yCenter /= static_cast<double>(coveredTiles.size());
+    xCenter /= static_cast<double>(mCoveredTiles.size());
+    yCenter /= static_cast<double>(mCoveredTiles.size());
 }
-

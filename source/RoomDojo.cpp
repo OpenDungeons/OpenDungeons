@@ -5,7 +5,7 @@
 
 RoomDojo::RoomDojo()
 {
-    type = dojo;
+    mType = dojo;
 }
 
 void RoomDojo::createMesh()
@@ -27,8 +27,8 @@ void RoomDojo::createMesh()
     }
 
     loadRoomObject("TrainingDummy", centralTile);
-    
-    
+
+
     createRoomObjectMeshes();
 }
 

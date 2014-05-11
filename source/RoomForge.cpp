@@ -5,7 +5,7 @@
 
 RoomForge::RoomForge()
 {
-    type = forge;
+    mType = forge;
 }
 
 void RoomForge::createMesh()

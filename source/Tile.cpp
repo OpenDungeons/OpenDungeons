@@ -427,6 +427,19 @@ Room* Tile::getCoveringRoom()
 void Tile::setCoveringRoom(Room *r)
 {
     coveringRoom = r;
+
+    // Set the tile as claimed and of the team color of the room
+    if (coveringRoom == NULL)
+    {
+        setColor(0);
+        colorDouble = 0.0;
+        setType(dirt);
+        return;
+    }
+
+    setColor(coveringRoom->getColor());
+    colorDouble = 1.0;
+    setType(claimed);
 }
 
 bool Tile::isDiggable(int team_color_id) const
