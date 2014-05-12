@@ -46,6 +46,7 @@ public:
     bool getIntersectionPoints();
 
     void hideAllTiles();
+    void showAllTiles();
 
     int cullCreatures();
     int cullTiles();

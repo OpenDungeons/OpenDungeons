@@ -141,7 +141,7 @@ void CullingManager::stopTileCulling()
 
     oldWalk = mWalk;
     newBashAndSplashTiles(HIDE);
-
+    showAllTiles();
     mCullTilesFlag = false;
 }
 
@@ -159,6 +159,24 @@ void CullingManager::hideAllTiles(void)
         }
     }
 }
+
+
+
+void CullingManager::showAllTiles(void)
+{
+    GameMap* gm = mCm->mGameMap;
+    if (!gm)
+        return;
+
+    for (int jj = 0; jj < gm->getMapSizeY() ; ++jj)
+    {
+        for (int ii = 0; ii < gm->getMapSizeX(); ++ii)
+        {
+            gm->getTile(ii,jj)->show();
+        }
+    }
+}
+
 
 int CullingManager::cullCreatures()
 {

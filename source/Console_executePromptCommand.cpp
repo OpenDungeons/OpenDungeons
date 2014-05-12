@@ -1034,6 +1034,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
             gameMap->culm->startTileCulling();
     }
+    else if (command.compare("stoptileculling") == 0)
+    {
+            gameMap->culm->stopTileCulling();
+    }
+
     else if (command.compare("startcreatureculling") == 0)
     {
             gameMap->culm->startCreatureCulling();
