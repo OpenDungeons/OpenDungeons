@@ -125,7 +125,7 @@ Room* Room::buildRoom(GameMap* gameMap, Room::RoomType nType, const std::vector<
         {
             newRoom->absorbRoom(borderingRoom);
             gameMap->removeRoom(borderingRoom);
-            //FIXME:  Need to delete the bordering room to avoid a memory leak, the deletion should be done in a safe way though as there will still be outstanding RenderRequests.
+            borderingRoom->deleteYourself();
         }
     }
 
@@ -138,8 +138,6 @@ Room* Room::buildRoom(GameMap* gameMap, Room::RoomType nType, const std::vector<
 
 void Room::absorbRoom(Room *r)
 {
-    // Subclasses overriding this function can call this to do the generic stuff or they can reimplement it entirely.
-    //TODO: This should probably just use an insert statement like the RoomOnjects below.
     while (r->numCoveredTiles() > 0)
     {
         Tile *tempTile = r->getCoveredTile(0);

@@ -66,6 +66,7 @@ public:
 
     /*! \brief Moves all the covered tiles from room r into this one, the rooms should be of the same subtype.
      *  After this is called the other room should likely be removed from the game map and deleted.
+     *  Note that Room objects are moved to the absorbing room.
      */
     virtual void absorbRoom(Room* r);
 
