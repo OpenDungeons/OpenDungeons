@@ -265,7 +265,6 @@ endif()
 
 if(MINGW)
     # We need to specify the compiler here that Ogre used to compile boost
-    set(Boost_COMPILER -mgw45)
     find_package(Boost COMPONENTS thread system REQUIRED)
 endif()
 
