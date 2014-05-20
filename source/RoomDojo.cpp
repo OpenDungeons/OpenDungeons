@@ -26,20 +26,6 @@ RoomDojo::RoomDojo()
     mType = dojo;
 }
 
-bool sortCoveredTiles(Tile* i, Tile* j)
-{
-    if (i->getY() < j->getY())
-        return true;
-    else if (i->getY() > j->getY())
-        return false;
-
-    // i:y == j:y
-   if (i->getX() < j->getX())
-        return true;
-
-    return false;
-}
-
 void RoomDojo::createMesh()
 {
     Room::createMesh();
@@ -57,15 +43,10 @@ void RoomDojo::createMesh()
     if (mCoveredTiles.empty())
         return;
 
-    // Sort the tiles by coordinates
-    std::sort(mCoveredTiles.begin(), mCoveredTiles.end(), sortCoveredTiles);
 
-    bool place_it = false;
-    for(unsigned int i = 0, size = mCoveredTiles.size(); i < size; ++i)
+    for(unsigned int i = 0, size = mCentralActiveSpotTiles.size(); i < size; ++i)
     {
-        if (place_it)
-            loadRoomObject("TrainingDummy", mCoveredTiles[i]);
-        place_it = !place_it;
+        loadRoomObject("TrainingDummy", mCentralActiveSpotTiles[i]);
     }
 
     createRoomObjectMeshes();
@@ -73,5 +54,6 @@ void RoomDojo::createMesh()
 
 int RoomDojo::numOpenCreatureSlots()
 {
-    return 3 - numCreaturesUsingRoom();
+    // TODO: Later, add other active spots to the count.
+    return mCentralActiveSpotTiles.size() - numCreaturesUsingRoom();
 }

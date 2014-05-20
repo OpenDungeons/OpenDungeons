@@ -96,6 +96,8 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*>& nCoveredTiles, 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
         tempRoom->addCoveredTile(nCoveredTiles[i]);
 
+    tempRoom->updateActiveSpots();
+
     return tempRoom;
 }
 
@@ -147,6 +149,8 @@ void Room::absorbRoom(Room *r)
 
     mRoomObjects.insert(r->mRoomObjects.begin(), r->mRoomObjects.end());
     r->mRoomObjects.clear();
+
+    updateActiveSpots();
 }
 
 void Room::addCoveredTile(Tile* t, double nHP)
@@ -158,6 +162,7 @@ void Room::addCoveredTile(Tile* t, double nHP)
 
 void Room::removeCoveredTile(Tile* t)
 {
+    bool removedTile = false;
     for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
     {
         if (t == mCoveredTiles[i])
@@ -165,9 +170,13 @@ void Room::removeCoveredTile(Tile* t)
             mCoveredTiles.erase(mCoveredTiles.begin() + i);
             t->setCoveringRoom(NULL);
             mTileHP.erase(t);
+            removedTile = true;
             break;
         }
     }
+
+    if (!removedTile)
+        return;
 
     // Destroy the mesh for this tile.
     RenderRequest *request = new RenderRequest;
@@ -177,6 +186,8 @@ void Room::removeCoveredTile(Tile* t)
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
+
+    updateActiveSpots();
 }
 
 Tile* Room::getCoveredTile(int index)
@@ -296,13 +307,21 @@ bool Room::doUpkeep()
 {
     // Loop over the tiles in Room r and remove any whose HP has dropped to zero.
     unsigned int i = 0;
+    bool tileRemoved = false;
     while (i < mCoveredTiles.size())
     {
         if (mTileHP[mCoveredTiles[i]] <= 0.0)
+        {
             removeCoveredTile(mCoveredTiles[i]);
+            tileRemoved = true;
+        }
         else
             ++i;
     }
+
+    // updateActiveSpots
+    if (tileRemoved)
+        updateActiveSpots();
 
     //TODO: This could return false if the whole room has been destroyed and then the activeObject processor should destroy it.
     return true;
@@ -469,4 +488,84 @@ void Room::takeDamage(double damage, Tile* tileTakingDamage)
         return;
 
     mTileHP[tileTakingDamage] -= damage;
+}
+
+void Room::updateActiveSpots()
+{
+    mCentralActiveSpotTiles.clear();
+
+    // Detect the centers of 3x3 squares tiles
+    for(unsigned int i = 0, size = mCoveredTiles.size(); i < size; ++i)
+    {
+        // TODO: Later, add walls active spots.
+        bool foundTop = false;
+        bool foundTopLeft = false;
+        bool foundTopRight = false;
+        bool foundLeft = false;
+        bool foundRight = false;
+        bool foundBottomLeft = false;
+        bool foundBottomRight = false;
+        bool foundBottom = false;
+        Tile* tile = mCoveredTiles[i];
+        int tileX = tile->getX();
+        int tileY = tile->getY();
+
+        // Check all other tiles to know whether we have one center tile.
+        for(unsigned int j = 0; j < size; ++j)
+        {
+            // Don't check the tile itself
+            if (tile == mCoveredTiles[j])
+                continue;
+
+            // Check whether the tile around the tile checked is already a center spot
+            // as we can't have two center spots next to one another.
+            bool foundSpotNextToTile = false;
+            for(unsigned int k = 0; k < mCentralActiveSpotTiles.size(); ++k)
+            {
+                if (mCoveredTiles[j] == mCentralActiveSpotTiles[k])
+                {
+                    foundSpotNextToTile = true;
+                    break;
+                }
+            }
+            if (foundSpotNextToTile)
+                continue;
+
+            int tile2X = mCoveredTiles[j]->getX();
+            int tile2Y = mCoveredTiles[j]->getY();
+
+            if(tile2X == tileX - 1)
+            {
+                if (tile2Y == tileY + 1)
+                    foundBottomLeft = true;
+                else if (tile2Y == tileY)
+                    foundLeft = true;
+                else if (tile2Y == tileY - 1)
+                    foundTopLeft = true;
+            }
+            else if(tile2X == tileX)
+            {
+                if (tile2Y == tileY + 1)
+                    foundBottom = true;
+                else if (tile2Y == tileY - 1)
+                    foundTop = true;
+            }
+            else if(tile2X == tileX + 1)
+            {
+                if (tile2Y == tileY + 1)
+                    foundBottomRight = true;
+                else if (tile2Y == tileY)
+                    foundRight = true;
+                else if (tile2Y == tileY - 1)
+                    foundTopRight = true;
+            }
+        }
+
+        // Check whether we found a tile at the center of others
+        if (foundTop && foundTopLeft && foundTopRight && foundLeft && foundRight
+                && foundBottomLeft && foundBottomRight)
+        {
+            mCentralActiveSpotTiles.push_back(tile);
+        }
+    }
 }

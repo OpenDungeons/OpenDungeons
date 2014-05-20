@@ -163,13 +163,18 @@ public:
     void recieveExp(double /*experience*/)
     {}
 
-
 protected:
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;
     std::map<Tile*, RoomObject*> mRoomObjects;
     std::vector<Creature*> mCreaturesUsingRoom;
     RoomType mType;
+
+    //! \brief Lists the active spots in the middle of 3x3 squares.
+    std::vector<Tile*> mCentralActiveSpotTiles;
+
+    //! \brief Updates the active spot lists.
+    void updateActiveSpots();
 };
 
 #endif // ROOM_H
