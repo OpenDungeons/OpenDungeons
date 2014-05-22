@@ -28,6 +28,8 @@
 #include <list>
 #include <string>
 
+const std::string CONSOLE_COMMANDS = "./config/console_commands.txt";
+
 ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
     AbstractApplicationMode(modeManager, ModeManager::CONSOLE),
     mConsole(console),
@@ -37,7 +39,7 @@ ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
 {
     mPrefixTree = new PrefixTreeLL();
     mLl = new list<string>();
-    mPrefixTree->build(("./dictionary.txt"));
+    mPrefixTree->build((CONSOLE_COMMANDS.c_str()));
 }
 
 ConsoleMode::~ConsoleMode()
