@@ -165,7 +165,7 @@ set(OD_SOURCEFILES
     ${SRC}/ODServer.cpp
     ${SRC}/Player.cpp
     ${SRC}/ProximityTrap.cpp
-    ${SRC}/PrefixTreeLL.cpp
+    ${SRC}/PrefixTree.cpp
     ${SRC}/RadialVector2.cpp
     ${SRC}/Random.cpp
     ${SRC}/RenderManager.cpp

@@ -23,7 +23,7 @@
 #include "LogManager.h"
 #include "ASWrapper.h"
 #include "RenderManager.h"
-#include "PrefixTreeLL.h"
+#include "PrefixTree.h"
 
 #include <list>
 #include <string>
@@ -37,9 +37,9 @@ ConsoleMode::ConsoleMode(ModeManager* modeManager, Console* console):
     mLl(NULL),
     mNonTagKeyPressed(true)
 {
-    mPrefixTree = new PrefixTreeLL();
+    mPrefixTree = new PrefixTree();
     mLl = new list<string>();
-    mPrefixTree->build((CONSOLE_COMMANDS.c_str()));
+    mPrefixTree->readStringsFromFile(CONSOLE_COMMANDS.c_str());
 }
 
 ConsoleMode::~ConsoleMode()
