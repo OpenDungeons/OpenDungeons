@@ -91,7 +91,7 @@ PrefixTree* PrefixTree::findPrefixAux(string::const_iterator ii, string::const_i
 	    return nullptr;
 
 	else
-	    result->second->findPrefixAux(++ii,end_ii) ;
+	    return result->second->findPrefixAux(++ii,end_ii) ;
     }
 }
 
