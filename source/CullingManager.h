@@ -39,6 +39,7 @@ public:
 
     void startCreatureCulling();
     void startTileCulling();
+    void startDebugging();
 
     void stopCreatureCulling();
     void stopTileCulling();
@@ -83,6 +84,7 @@ private:
 
     bool mCullCreaturesFlag;
     bool mCullTilesFlag;
+    bool debug;
 };
 
 #endif // CULLINGMANAGER_H_

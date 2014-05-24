@@ -1043,6 +1043,11 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
             gameMap->culm->startCreatureCulling();
     }
+    else if (command.compare("startdb") == 0)
+    {
+            gameMap->culm->startDebugging();
+    }
+
     else if (command.compare("triggercompositor") == 0)
     {
         tempSS.str(arguments);

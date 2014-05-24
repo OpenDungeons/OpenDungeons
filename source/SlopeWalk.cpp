@@ -1,15 +1,20 @@
 #include "SlopeWalk.h"
 #include <algorithm>
-
+#include <iostream>
 
 
 extern const int mPrecisionDigits = 20;
 extern const int Unit = (1 << mPrecisionDigits);
-
+using std::cerr;
+using std::endl;
 
 void SlopeWalk::buildSlopes(){
     int ii;
     myArray.sort();
+    rightSlopes.clear();
+    leftSlopes.clear();
+    rightVertices.clear();
+    leftVertices.clear();
     std::pair<std::array<Vector3i,4>::iterator,std::array<Vector3i,4>::iterator> minMax
 	= std::minmax_element(myArray.myArray.begin(), myArray.myArray.end(), [](Vector3i &vv, Vector3i &ww){ return vv.y < ww.y ; });
     int top_index = minMax.second - myArray.myArray.begin() ;
@@ -99,4 +104,17 @@ Vector3i& SlopeWalk::getTopVertex(){
 Vector3i& SlopeWalk::getBottomVertex(){
     int ii = *(leftVertices.end() - 1);
     return myArray[ii];
+}
+
+void SlopeWalk::printState(){
+    cerr << "leftVertices" << endl;
+    for(auto ii = leftVertices.begin(); ii != leftVertices.end(); ii++)
+	cerr << myArray[*ii] << endl;
+    cerr << "rightVertices" << endl;
+    for(auto ii = rightVertices.begin(); ii != rightVertices.end(); ii++)
+	cerr << myArray[*ii] << endl;
+
+
+
+
 }

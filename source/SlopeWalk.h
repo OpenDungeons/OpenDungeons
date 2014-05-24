@@ -31,7 +31,7 @@ private:
 
 
 public:
-
+    void printState();
     DummyArrayClass myArray;   
     bool notifyOnMoveDown(long long);
     void prepareWalk();

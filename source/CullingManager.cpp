@@ -42,7 +42,8 @@ CullingManager::CullingManager(CameraManager* cameraManager):
     mFirstIter(false),
     mCm(cameraManager),
     mCullCreaturesFlag(false),
-    mCullTilesFlag(false)
+    mCullTilesFlag(false),
+    debug(false)
 {
     mMyplanes[0]=(Ogre::Plane(0, 0, 1, 0));
     mMyplanes[1]=(Ogre::Plane(0, 0, -1, 20));
@@ -126,6 +127,12 @@ void CullingManager::startTileCulling()
 
     mCullTilesFlag = true;
 }
+
+void CullingManager::startDebugging(){
+    debug = true;
+
+}
+
 
 void CullingManager::stopCreatureCulling()
 {
@@ -239,6 +246,10 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
     int64_t xxLeft = mWalk.getTopVertex().x;
     int64_t xxRight= mWalk.getTopVertex().x;
 
+    if(debug){
+	mWalk.printState();
+	debug = false;
+    }
     int64_t bb = (( std::min(mWalk.getBottomVertex().y , oldWalk.getBottomVertex().y) >> mPrecisionDigits) - 2) << mPrecisionDigits;
 
     for (int64_t yy = ((std::max(mWalk.getTopVertex().y , oldWalk.getTopVertex().y  ) >> mPrecisionDigits) + 2) << mPrecisionDigits;  yy >= bb; yy -= Unit)
