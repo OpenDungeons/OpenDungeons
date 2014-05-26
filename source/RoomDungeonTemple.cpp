@@ -1,4 +1,22 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "RoomDungeonTemple.h"
+
 #include "GameMap.h"
 #include "Creature.h"
 #include "Weapon.h"
@@ -6,8 +24,8 @@
 #include "CreatureSound.h"
 #include "RoomObject.h"
 
-RoomDungeonTemple::RoomDungeonTemple() :
-        waitTurns(0)
+RoomDungeonTemple::RoomDungeonTemple():
+        mWaitTurns(0)
 {
     mType = dungeonTemple;
 }
@@ -25,49 +43,44 @@ void RoomDungeonTemple::destroyMesh()
     Room::destroyMesh();
 }
 
-/*! \brief Counts down a timer until it reaches 0, then it spawns a kobold of the color of this dungeon temple at the center of the dungeon temple, and resets the timer.
- *
- */
 void RoomDungeonTemple::produceKobold()
 {
-    if (waitTurns <= 0)
+    if (mWaitTurns > 0)
     {
-        waitTurns = 30;
-
-        // If the room has been destroyed, or has not yet been assigned any tiles, then we
-        // cannot determine where to place the new creature and we should just give up.
-        if (mCoveredTiles.size() == 0)
-            return;
-
-        // Create a new creature and copy over the class-based creature parameters.
-        CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
-        if (classToSpawn != NULL)
-        {
-            //TODO: proper assignemt of creature definition through constrcutor
-            Creature* newCreature = new Creature( getGameMap());
-            newCreature->setCreatureDefinition(classToSpawn);
-            newCreature->setName(newCreature->getUniqueCreatureName());
-            newCreature->setPosition(Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x,
-                                                   (Ogre::Real)mCoveredTiles[0]->y,
-                                                   (Ogre::Real)0));
-            newCreature->setColor(getColor());
-
-            // Default weapon is empty
-            newCreature->setWeaponL(new Weapon("none", 0.0, 1.0, 0.0, "L", newCreature));
-            newCreature->setWeaponR(new Weapon("none", 0.0, 1.0, 0.0, "R", newCreature));
-
-            newCreature->createMesh();
-            newCreature->getWeaponL()->createMesh();
-            newCreature->getWeaponR()->createMesh();
-            getGameMap()->addCreature(newCreature);
-        }
-        else
-        {
-            std::cout << "Error: No 'Kobold' creature definition" << std::endl;
-        }
+        --mWaitTurns;
+        return;
     }
-    else
+
+    mWaitTurns = 30;
+
+    // If the room has been destroyed, or has not yet been assigned any tiles, then we
+    // cannot determine where to place the new creature and we should just give up.
+    if (mCoveredTiles.empty())
+        return;
+
+    // Create a new creature and copy over the class-based creature parameters.
+    CreatureDefinition *classToSpawn = getGameMap()->getClassDescription("Kobold");
+    if (classToSpawn == NULL)
     {
-        --waitTurns;
+        std::cout << "Error: No 'Kobold' creature definition" << std::endl;
+        return;
     }
+
+    //TODO: proper assignemt of creature definition through constrcutor
+    Creature* newCreature = new Creature(getGameMap());
+    newCreature->setCreatureDefinition(classToSpawn);
+    newCreature->setName(newCreature->getUniqueCreatureName());
+    newCreature->setPosition(Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x,
+                                            (Ogre::Real)mCoveredTiles[0]->y,
+                                            (Ogre::Real)0));
+    newCreature->setColor(getColor());
+
+    // Default weapon is empty
+    newCreature->setWeaponL(new Weapon("none", 0.0, 1.0, 0.0, "L", newCreature));
+    newCreature->setWeaponR(new Weapon("none", 0.0, 1.0, 0.0, "R", newCreature));
+
+    newCreature->createMesh();
+    newCreature->getWeaponL()->createMesh();
+    newCreature->getWeaponR()->createMesh();
+    getGameMap()->addCreature(newCreature);
 }
