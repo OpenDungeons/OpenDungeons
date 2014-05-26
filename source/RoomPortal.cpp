@@ -1,4 +1,21 @@
-#include <cmath>
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "RoomPortal.h"
 
 #include "ODServer.h"
 #include "Seat.h"
@@ -11,13 +28,13 @@
 #include "CreatureAction.h"
 #include "Random.h"
 
-#include "RoomPortal.h"
+#include <cmath>
 
 RoomPortal::RoomPortal() :
-        spawnCreatureCountdown(0),
-        xCenter(0),
-        yCenter(0),
-        portalObject(NULL)
+        mSpawnCreatureCountdown(0),
+        mXCenter(0),
+        mYCenter(0),
+        mPortalObject(NULL)
 {
     mType = portal;
 }
@@ -26,10 +43,10 @@ void RoomPortal::createMesh()
 {
     Room::createMesh();
 
-    portalObject = loadRoomObject("PortalObject");
+    mPortalObject = loadRoomObject("PortalObject");
     createRoomObjectMeshes();
 
-    portalObject->setAnimationState("Idle");
+    mPortalObject->setAnimationState("Idle");
 }
 
 void RoomPortal::addCoveredTile(Tile* t, double nHP)
@@ -44,17 +61,14 @@ void RoomPortal::removeCoveredTile(Tile* t)
     recomputeCenterPosition();
 }
 
-/*! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
- *
- */
 bool RoomPortal::doUpkeep()
 {
     // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
     Room::doUpkeep();
 
-    if (spawnCreatureCountdown > 0)
+    if (mSpawnCreatureCountdown > 0)
     {
-        --spawnCreatureCountdown;
+        --mSpawnCreatureCountdown;
         return true;
     }
 
@@ -72,28 +86,24 @@ bool RoomPortal::doUpkeep()
             numCreatures += tempPlayer->numCreaturesInHand();
     }
     const double maxCreatures = 15;
-    double targetProbability = powl((maxCreatures - numCreatures)
-            / maxCreatures, 1.5);
+    double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);
     if (Random::Double(0.0, 1.0) <= targetProbability)
         spawnCreature();
 
     return true;
 }
 
-/*! \brief Creates a new creature whose class is probabalistic and adds it to the game map at the center of the portal.
- *
- */
 void RoomPortal::spawnCreature()
 {
     std::cout << "Portal: " << getName() << "  spawn creature..." << std::endl;
     CreatureDefinition *classToSpawn = NULL;
 
-    if (portalObject != NULL)
-        portalObject->setAnimationState("Spawn", false);
+    if (mPortalObject != NULL)
+        mPortalObject->setAnimationState("Spawn", false);
 
     // If the room has been destroyed, or has not yet been assigned any tiles, then we
     // cannot determine where to place the new creature and we should just give up.
-    if (mCoveredTiles.size() == 0)
+    if (mCoveredTiles.empty())
         return;
 
     // Compute and normalize the probabilities based on the current composition of creatures in the dungeon.
@@ -101,9 +111,9 @@ void RoomPortal::spawnCreature()
 
     // Determine which class the creature we spawn will be.
     double randomValue = Random::Double(0.0, 1.0);
-    for (unsigned int i = 0; i < classProbabilities.size(); ++i)
+    for (unsigned int i = 0; i < mClassProbabilities.size(); ++i)
     {
-        randomValue -= classProbabilities[i].second;
+        randomValue -= mClassProbabilities[i].second;
 
         // When the randomValue drops below 0 it is because the cumulative probability values so far have
         // exceeded it and the one that finally made it negative is the one we choose.  This makes it more
@@ -111,7 +121,7 @@ void RoomPortal::spawnCreature()
         // one that pushed it into the negatives.
         if (randomValue <= 0.0)
         {
-            classToSpawn = classProbabilities[i].first;
+            classToSpawn = mClassProbabilities[i].first;
             break;
         }
     }
@@ -125,7 +135,7 @@ void RoomPortal::spawnCreature()
     // Set the creature specific parameters.
     //NOTE:  This needs to be modified manually when the level file creature format changes.
     newCreature->setName(newCreature->getUniqueCreatureName());
-    newCreature->setPosition(Ogre::Vector3((Ogre::Real)xCenter, (Ogre::Real)yCenter, (Ogre::Real)0.0));
+    newCreature->setPosition(Ogre::Vector3((Ogre::Real)mXCenter, (Ogre::Real)mYCenter, (Ogre::Real)0.0));
     newCreature->setColor(getColor());
 
     //NOTE:  This needs to be modified manually when the level file weapon format changes.
@@ -138,24 +148,21 @@ void RoomPortal::spawnCreature()
     newCreature->getWeaponL()->createMesh();
     newCreature->getWeaponR()->createMesh();
 
-    spawnCreatureCountdown = Random::Uint(15, 30);
+    mSpawnCreatureCountdown = Random::Uint(15, 30);
 
     //TODO: Inform the clients that this creature has been created by placing a newCreature message in the serverNotificationQueue.
 }
 
-/*! \brief Computes a probability for each creature class in the game map based on the player's alignment and the current set of creatures in the dungeon.
- *
- */
 void RoomPortal::recomputeClassProbabilities()
 {
     double probability, totalProbability = 0.0, tempDouble;
-    Seat *controllingSeat = getGameMap()->getSeatByColor(getColor());
+    Seat* controllingSeat = getGameMap()->getSeatByColor(getColor());
 
     // Normalize the faction and alignment coefficients.
     tempDouble = controllingSeat->factionHumans
-            + controllingSeat->factionCorpars + controllingSeat->factionUndead
-            + controllingSeat->factionConstructs
-            + controllingSeat->factionDenizens;
+                 + controllingSeat->factionCorpars + controllingSeat->factionUndead
+                 + controllingSeat->factionConstructs
+                 + controllingSeat->factionDenizens;
     if (std::fabs(tempDouble) > 0.000001)
     {
         controllingSeat->factionHumans /= tempDouble;
@@ -166,7 +173,7 @@ void RoomPortal::recomputeClassProbabilities()
     }
 
     tempDouble = controllingSeat->alignmentAltruism
-            + controllingSeat->alignmentOrder + controllingSeat->alignmentPeace;
+                 + controllingSeat->alignmentOrder + controllingSeat->alignmentPeace;
     if (std::fabs(tempDouble) > 0.000001)
     {
         controllingSeat->alignmentAltruism /= tempDouble;
@@ -176,7 +183,7 @@ void RoomPortal::recomputeClassProbabilities()
 
     // Loop over the CreatureClasses in the gameMap and for each one, compute
     // the probability that a creature of that type will be selected.
-    classProbabilities.clear();
+    mClassProbabilities.clear();
     for (unsigned int i = 0; i < getGameMap()->numClassDescriptions(); ++i)
     {
         CreatureDefinition *tempClass = getGameMap()->getClassDescription(i);
@@ -203,41 +210,36 @@ void RoomPortal::recomputeClassProbabilities()
                 * tempClass->getCoefficientPeace();
 
         // Store the computed probability and compute the sum of the probabilities to be used for renormalization.
-        classProbabilities.push_back(std::pair<CreatureDefinition*, double> (tempClass,
-                probability));
+        mClassProbabilities.push_back(std::pair<CreatureDefinition*, double> (tempClass, probability));
         totalProbability += probability;
     }
 
     // Loop over the stored probabilities and renormalise them (i.e. divide each by the total so the sum is 1.0).
     if (std::fabs(totalProbability) > 0.000001)
     {
-        for (unsigned int i = 0; i < classProbabilities.size(); ++i)
+        for (unsigned int i = 0; i < mClassProbabilities.size(); ++i)
         {
-            probability = classProbabilities[i].second / totalProbability;
-            classProbabilities[i].second = probability;
+            probability = mClassProbabilities[i].second / totalProbability;
+            mClassProbabilities[i].second = probability;
         }
     }
 }
 
-/*! \brief Finds the X,Y coordinates of the center of the tiles that make up the portal.
- *
- */
 void RoomPortal::recomputeCenterPosition()
 {
-    xCenter = yCenter = 0.0;
+    mXCenter = mYCenter = 0.0;
 
-    // Prevent a divide by 0 error, just leave the center position at (0, 0).
-    if (mCoveredTiles.size() == 0)
+    if (mCoveredTiles.empty())
         return;
 
     // Loop over the covered tiles and compute the average location (i.e. the center) of the portal.
     for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
     {
         Tile *tempTile = mCoveredTiles[i];
-        xCenter += tempTile->x;
-        yCenter += tempTile->y;
+        mXCenter += tempTile->x;
+        mYCenter += tempTile->y;
     }
 
-    xCenter /= static_cast<double>(mCoveredTiles.size());
-    yCenter /= static_cast<double>(mCoveredTiles.size());
+    mXCenter /= static_cast<double>(mCoveredTiles.size());
+    mYCenter /= static_cast<double>(mCoveredTiles.size());
 }
