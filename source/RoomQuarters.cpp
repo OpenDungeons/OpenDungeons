@@ -1,4 +1,22 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "RoomQuarters.h"
+
 #include "ODServer.h"
 #include "Tile.h"
 #include "GameMap.h"
@@ -27,19 +45,18 @@ void RoomQuarters::absorbRoom(Room *r)
     {
         Tile *tempTile = r->getCoveredTile(i);
 
-        if (static_cast<RoomQuarters*>(r)->creatureSleepingInTile[tempTile] != NULL)
+        if (static_cast<RoomQuarters*>(r)->mCreatureSleepingInTile[tempTile] != NULL)
             std::cout << "\nCreature sleeping in tile " << tempTile << "\n"
-                    << static_cast<RoomQuarters*>(r)->creatureSleepingInTile[tempTile];
+                    << static_cast<RoomQuarters*>(r)->mCreatureSleepingInTile[tempTile];
         else
             std::cout << "\nCreature sleeping in tile " << tempTile << "\nNULL";
 
         std::cout << "\n";
-        creatureSleepingInTile[tempTile] = static_cast<RoomQuarters*>(r)->creatureSleepingInTile[tempTile];
+        mCreatureSleepingInTile[tempTile] = static_cast<RoomQuarters*>(r)->mCreatureSleepingInTile[tempTile];
 
-        if (static_cast<RoomQuarters*>(r)->bedOrientationForTile.find(tempTile)
-                != static_cast<RoomQuarters*>(r)->bedOrientationForTile.end())
-            bedOrientationForTile[tempTile]
-                    = static_cast<RoomQuarters*>(r)->bedOrientationForTile[tempTile];
+        if (static_cast<RoomQuarters*>(r)->mBedOrientationForTile.find(tempTile)
+                != static_cast<RoomQuarters*>(r)->mBedOrientationForTile.end())
+            mBedOrientationForTile[tempTile] = static_cast<RoomQuarters*>(r)->mBedOrientationForTile[tempTile];
     }
 
     // Use the superclass function to copy over the covered tiles to this room and get rid of them in the other room.
@@ -63,24 +80,23 @@ void RoomQuarters::addCoveredTile(Tile* t, double nHP)
 
     // Only initialize the tile to NULL if it is a tile being added to a new room.  If it is being absorbed
     // from another room the map value will already have been set and we don't want to override it.
-    if (creatureSleepingInTile.find(t) == creatureSleepingInTile.end())
-        creatureSleepingInTile[t] = NULL;
+    if (mCreatureSleepingInTile.find(t) == mCreatureSleepingInTile.end())
+        mCreatureSleepingInTile[t] = NULL;
 }
 
 void RoomQuarters::removeCoveredTile(Tile* t)
 {
-    if (creatureSleepingInTile[t] != NULL)
+    if (mCreatureSleepingInTile[t] != NULL)
     {
-        Creature *c = creatureSleepingInTile[t];
+        Creature *c = mCreatureSleepingInTile[t];
         if (c != NULL) // This check is probably redundant but I don't think it is a problem.
         {
             // Inform the creature that it no longer has a place to sleep.
-            c->setHomeTile(0);
+            c->setHomeTile(NULL);
 
             // Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
-            for (std::map<Tile*, Creature*>::iterator itr =
-                    creatureSleepingInTile.begin(); itr
-                    != creatureSleepingInTile.end(); ++itr)
+            for (std::map<Tile*, Creature*>::iterator itr = mCreatureSleepingInTile.begin();
+                 itr != mCreatureSleepingInTile.end(); ++itr)
             {
                 if (itr->second == c)
                     itr->second = NULL;
@@ -90,23 +106,23 @@ void RoomQuarters::removeCoveredTile(Tile* t)
         //roomObjects[t]->destroyMesh();
     }
 
-    creatureSleepingInTile.erase(t);
-    bedOrientationForTile.erase(t);
+    mCreatureSleepingInTile.erase(t);
+    mBedOrientationForTile.erase(t);
     Room::removeCoveredTile(t);
 }
 
 void RoomQuarters::clearCoveredTiles()
 {
     Room::clearCoveredTiles();
-    creatureSleepingInTile.clear();
+    mCreatureSleepingInTile.clear();
 }
 
 std::vector<Tile*> RoomQuarters::getOpenTiles()
 {
     std::vector<Tile*> returnVector;
 
-    for (std::map<Tile*, Creature*>::iterator itr =
-            creatureSleepingInTile.begin(); itr != creatureSleepingInTile.end(); ++itr)
+    for (std::map<Tile*, Creature*>::iterator itr = mCreatureSleepingInTile.begin();
+         itr != mCreatureSleepingInTile.end(); ++itr)
     {
         if (itr->second == NULL)
             returnVector.push_back(itr->first);
@@ -118,7 +134,7 @@ std::vector<Tile*> RoomQuarters::getOpenTiles()
 bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 {
     // Check to see if there is already a creature which has claimed this tile for sleeping.
-    if (creatureSleepingInTile[t] == NULL)
+    if (mCreatureSleepingInTile[t] == NULL)
     {
         double xDim, yDim, rotationAngle;
         bool normalDirection, spaceIsBigEnough = false;
@@ -150,17 +166,17 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
                 for (int j = 0; j < yDim; ++j)
                 {
                     Tile *tempTile = getGameMap()->getTile(t->x + i, t->y + j);
-                    creatureSleepingInTile[tempTile] = c;
+                    mCreatureSleepingInTile[tempTile] = c;
                 }
             }
 
-            bedOrientationForTile[t] = normalDirection;
+            mBedOrientationForTile[t] = normalDirection;
 
             const CreatureDefinition* def = c->getDefinition();
             assert(def);
 
             loadRoomObject(def->getBedMeshName(), t, t->x + xDim / 2.0 - 0.5, t->y
-                    + yDim / 2.0 - 0.5, rotationAngle)->createMesh();
+                           + yDim / 2.0 - 0.5, rotationAngle)->createMesh();
 
             return true;
         }
@@ -171,27 +187,22 @@ bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
 
 bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
 {
-    if (creatureSleepingInTile[t] != NULL)
-    {
-        // Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
-        for (std::map<Tile*, Creature*>::iterator itr =
-                creatureSleepingInTile.begin(); itr
-                != creatureSleepingInTile.end(); ++itr)
-        {
-            if (itr->second == c)
-                itr->second = NULL;
-        }
-
-        bedOrientationForTile.erase(t);
-
-        mRoomObjects[t]->destroyMesh();
-
-        return true;
-    }
-    else
-    {
+    if (mCreatureSleepingInTile[t] == NULL)
         return false;
+
+    // Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
+    for (std::map<Tile*, Creature*>::iterator itr = mCreatureSleepingInTile.begin();
+         itr != mCreatureSleepingInTile.end(); ++itr)
+    {
+        if (itr->second == c)
+            itr->second = NULL;
     }
+
+    mBedOrientationForTile.erase(t);
+
+    mRoomObjects[t]->destroyMesh();
+
+    return true;
 }
 
 Tile* RoomQuarters::getLocationForBed(int xDim, int yDim)
