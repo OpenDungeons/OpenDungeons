@@ -5,7 +5,7 @@
  *
  * By Wu Yongwei
  *
- * All code here is considered in the public domain though I do wish my
+ * All code here is considered in the public domain (or CC0) though I do wish my
  * name could be retained if anyone uses them. :-)
  *
  */
