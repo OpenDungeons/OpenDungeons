@@ -999,6 +999,13 @@ void Tile::claimForColor(int nColor, double nDanceRate)
             for (unsigned int j = 0; j < neighbors.size(); ++j)
             {
                 neighbors[j]->refreshMesh();
+                // Update potential active spots.
+                Room* room = neighbors[j]->getCoveringRoom();
+                if (room != NULL)
+                {
+                    room->updateActiveSpots();
+                    room->createMesh();
+                }
             }
 
             //std::cout << "Claiming: color complete" << std::endl;
@@ -1024,6 +1031,13 @@ void Tile::claimForColor(int nColor, double nDanceRate)
                 for (unsigned int j = 0; j < neighbors.size(); ++j)
                 {
                     neighbors[j]->refreshMesh();
+                    // Update potential active spots.
+                    Room* room = neighbors[j]->getCoveringRoom();
+                    if (room != NULL)
+                    {
+                        room->updateActiveSpots();
+                        room->createMesh();
+                    }
                 }
             }
         }
@@ -1051,8 +1065,6 @@ void Tile::claimForColor(int nColor, double nDanceRate)
 
 double Tile::digOut(double digRate, bool doScaleDigRate)
 {
-    Tile *tempTile;
-
     if (doScaleDigRate)
         digRate = scaleDigRate(digRate);
 
@@ -1066,6 +1078,17 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
         amountDug = fullness;
         setFullness(0.0);
         setType(dirt);
+
+        for (unsigned int j = 0; j < neighbors.size(); ++j)
+        {
+            // Update potential active spots.
+            Room* room = neighbors[j]->getCoveringRoom();
+            if (room != NULL)
+            {
+                room->updateActiveSpots();
+                room->createMesh();
+            }
+        }
     }
     else
     {
@@ -1091,7 +1114,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
         {
             if (neighbors[j]->getType() == dirt)
             {
-                tempTile = neighbors[j];
+                Tile* tempTile = neighbors[j];
                 // Release and relock the semaphore since the digOut() routine will eventually need to lock it.
                 amountDug += tempTile->digOut(amountToDig);
             }

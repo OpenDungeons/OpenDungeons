@@ -163,6 +163,9 @@ public:
     void recieveExp(double /*experience*/)
     {}
 
+    //! \brief Updates the active spot lists.
+    void updateActiveSpots();
+
 protected:
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;
@@ -179,9 +182,6 @@ protected:
 
     //! \brief The number of active spots.
     unsigned int mNumActiveSpots;
-
-    //! \brief Updates the active spot lists.
-    void updateActiveSpots();
 };
 
 #endif // ROOM_H
