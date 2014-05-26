@@ -74,9 +74,9 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*>& nCoveredTiles, 
 
     if (tempRoom == NULL)
     {
-        std::cerr << "\n\n\nERROR: Trying to create a room of unknown type, bailing out.\n"
+        std::cerr << "ERROR: Trying to create a room of unknown type." << std::endl
                   << "Sourcefile: " << __FILE__ << "\tLine: " << __LINE__
-                  << "\n\n\n";
+                  << std::endl;
         return tempRoom;
     }
 
@@ -131,6 +131,8 @@ Room* Room::buildRoom(GameMap* gameMap, Room::RoomType nType, const std::vector<
             borderingRoom->deleteYourself();
         }
     }
+
+    newRoom->updateActiveSpots();
 
     newRoom->createMesh();
 
