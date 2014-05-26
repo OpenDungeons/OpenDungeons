@@ -22,20 +22,20 @@
 
 class RoomDungeonTemple: public Room
 {
-    public:
-        RoomDungeonTemple();
+public:
+    RoomDungeonTemple();
 
-        void createMesh();
-        void destroyMesh();
+    void createMesh();
+    void destroyMesh();
 
-        /*! \brief Counts down a timer until it reaches 0,
-         *  then it spawns a kobold of the color of this dungeon temple
-         *  at the center of the dungeon temple, and resets the timer.
-         */
-        void produceKobold();
+    /*! \brief Counts down a timer until it reaches 0,
+        *  then it spawns a kobold of the color of this dungeon temple
+        *  at the center of the dungeon temple, and resets the timer.
+        */
+    void produceKobold();
 
-    private:
-        int mWaitTurns;
+private:
+    int mWaitTurns;
 };
 
 #endif // ROOMDUNGEONTEMPLE_H

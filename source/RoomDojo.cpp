@@ -43,7 +43,6 @@ void RoomDojo::createMesh()
     if (mCoveredTiles.empty())
         return;
 
-
     for(unsigned int i = 0, size = mCentralActiveSpotTiles.size(); i < size; ++i)
     {
         loadRoomObject("TrainingDummy", mCentralActiveSpotTiles[i]);
