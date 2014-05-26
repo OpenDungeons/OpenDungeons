@@ -172,6 +172,13 @@ protected:
 
     //! \brief Lists the active spots in the middle of 3x3 squares.
     std::vector<Tile*> mCentralActiveSpotTiles;
+    std::vector<Tile*> mLeftWallsActiveSpotTiles;
+    std::vector<Tile*> mRightWallsActiveSpotTiles;
+    std::vector<Tile*> mTopWallsActiveSpotTiles;
+    std::vector<Tile*> mBottomWallsActiveSpotTiles;
+
+    //! \brief The number of active spots.
+    unsigned int mNumActiveSpots;
 
     //! \brief Updates the active spot lists.
     void updateActiveSpots();

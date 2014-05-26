@@ -85,16 +85,8 @@ void TileContainer::setTileNeighbors(Tile *t){
  */
 Tile* TileContainer::getTile(int xx, int yy) const
 {
-    Tile *returnValue = NULL;
-    // std::pair<int, int> location(x, y);
-
-    // sem_wait(&tilesLockSemaphore);
-    // const TileMap_t& constTiles = tiles;
-    // TileMap_t::const_iterator itr = constTiles.find(location);
-    // returnValue = (itr != tiles.end()) ? itr->second : NULL;
-    // sem_post(&tilesLockSemaphore);
-    if (xx < getMapSizeX() && yy < getMapSizeY() && xx >= 0 && yy >= 0 )
-        return returnValue = &(tiles[xx][yy]);
+    if (xx < getMapSizeX() && yy < getMapSizeY() && xx >= 0 && yy >= 0)
+        return &(tiles[xx][yy]);
     else {
         // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
         return NULL;

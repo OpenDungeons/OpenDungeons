@@ -35,9 +35,6 @@ class Room;
 class MapLight;
 class GameMap;
 
-//! \brief Mesh tile rotation enum
-enum RotationType{R0, R1, R2, R3};
-
 /*! \brief The tile class contains information about tile type and contents and is the basic level bulding block.
  *
  * A Tile is the basic building block for the GameMap.  It consists of a tile
@@ -234,6 +231,10 @@ public:
     //! \brief Tells whether the tile is a wall (fullness > 1) and can be claimed for the given team color.
     //! Reinforced walls by another team and hard rocks can't be claimed.
     bool isWallClaimable(int team_color_id);
+
+    //! \brief Tells whether the given tile is a claimed wall of the given color.
+    //! Used to discover active spots for rooms.
+    bool isWallClaimedForColor(int team_color_id);
 
     //! \brief Tells whether a room can be built upon this tile.
     bool isBuildableUpon() const;

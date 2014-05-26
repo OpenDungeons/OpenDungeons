@@ -48,12 +48,28 @@ void RoomDojo::createMesh()
     {
         loadRoomObject("TrainingDummy", mCentralActiveSpotTiles[i]);
     }
+    // Against walls
+    for(unsigned int i = 0, size = mLeftWallsActiveSpotTiles.size(); i < size; ++i)
+    {
+        loadRoomObject("TrainingDummy", mLeftWallsActiveSpotTiles[i], 270.0);
+    }
+    for(unsigned int i = 0, size = mRightWallsActiveSpotTiles.size(); i < size; ++i)
+    {
+        loadRoomObject("TrainingDummy", mRightWallsActiveSpotTiles[i], 90.0);
+    }
+    for(unsigned int i = 0, size = mTopWallsActiveSpotTiles.size(); i < size; ++i)
+    {
+        loadRoomObject("TrainingDummy", mTopWallsActiveSpotTiles[i], 180.0);
+    }
+    for(unsigned int i = 0, size = mBottomWallsActiveSpotTiles.size(); i < size; ++i)
+    {
+        loadRoomObject("TrainingDummy", mBottomWallsActiveSpotTiles[i], 0.0);
+    }
 
     createRoomObjectMeshes();
 }
 
 int RoomDojo::numOpenCreatureSlots()
 {
-    // TODO: Later, add other active spots to the count.
-    return mCentralActiveSpotTiles.size() - numCreaturesUsingRoom();
+    return mNumActiveSpots - numCreaturesUsingRoom();
 }

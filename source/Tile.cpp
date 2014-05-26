@@ -543,6 +543,23 @@ bool Tile::isWallClaimable(int team_color_id)
     return false;
 }
 
+bool Tile::isWallClaimedForColor(int team_color_id)
+{
+    if (getFullness() < 1)
+        return false;
+
+    if (type != claimed)
+        return false;
+
+    if (colorDouble <= 0.99)
+        return false;
+
+    if (getColor() != team_color_id)
+        return false;
+
+    return true;
+}
+
 const char* Tile::getFormat()
 {
     return "posX\tposY\ttype\tfullness";

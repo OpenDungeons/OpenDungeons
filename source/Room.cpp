@@ -36,7 +36,8 @@
 #include <sstream>
 
 Room::Room():
-    mType(nullRoomType)
+    mType(nullRoomType),
+    mNumActiveSpots(0)
 {
     setObjectType(GameEntity::room);
 }
@@ -497,7 +498,6 @@ void Room::updateActiveSpots()
     // Detect the centers of 3x3 squares tiles
     for(unsigned int i = 0, size = mCoveredTiles.size(); i < size; ++i)
     {
-        // TODO: Later, add walls active spots.
         bool foundTop = false;
         bool foundTopLeft = false;
         bool foundTopRight = false;
@@ -537,35 +537,99 @@ void Room::updateActiveSpots()
             if(tile2X == tileX - 1)
             {
                 if (tile2Y == tileY + 1)
-                    foundBottomLeft = true;
+                    foundTopLeft = true;
                 else if (tile2Y == tileY)
                     foundLeft = true;
                 else if (tile2Y == tileY - 1)
-                    foundTopLeft = true;
+                    foundBottomLeft = true;
             }
             else if(tile2X == tileX)
             {
                 if (tile2Y == tileY + 1)
-                    foundBottom = true;
-                else if (tile2Y == tileY - 1)
                     foundTop = true;
+                else if (tile2Y == tileY - 1)
+                    foundBottom = true;
             }
             else if(tile2X == tileX + 1)
             {
                 if (tile2Y == tileY + 1)
-                    foundBottomRight = true;
+                    foundTopRight = true;
                 else if (tile2Y == tileY)
                     foundRight = true;
                 else if (tile2Y == tileY - 1)
-                    foundTopRight = true;
+                    foundBottomRight = true;
             }
         }
 
         // Check whether we found a tile at the center of others
         if (foundTop && foundTopLeft && foundTopRight && foundLeft && foundRight
-                && foundBottomLeft && foundBottomRight)
+                && foundBottomLeft && foundBottomRight && foundBottom)
         {
             mCentralActiveSpotTiles.push_back(tile);
         }
     }
+
+    // Now that we've got the center tiles, we can test the tile around for walls.
+    mLeftWallsActiveSpotTiles.clear();
+    mRightWallsActiveSpotTiles.clear();
+    mBottomWallsActiveSpotTiles.clear();
+    mTopWallsActiveSpotTiles.clear();
+
+    GameMap* gameMap = getGameMap();
+    // The game map can be null at map load time.
+    if (gameMap == NULL)
+    {
+        // Updates the number of active spots.
+        mNumActiveSpots = mCentralActiveSpotTiles.size();
+        return;
+    }
+
+    for (unsigned int i = 0, size = mCentralActiveSpotTiles.size(); i < size; ++i)
+    {
+        Tile* centerTile = mCentralActiveSpotTiles[i];
+        if (centerTile == NULL)
+            continue;
+
+        // Test for walls around
+        // Up
+        Tile* testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 2);
+        if (testTile != NULL && testTile->isWallClaimedForColor(getColor()))
+        {
+            Tile* topTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 1);
+            if (topTile != NULL)
+                mTopWallsActiveSpotTiles.push_back(topTile);
+        }
+
+        // Down
+        testTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 2);
+        if (testTile != NULL && testTile->isWallClaimedForColor(getColor()))
+        {
+            Tile* bottomTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 1);
+            if (bottomTile != NULL)
+                mBottomWallsActiveSpotTiles.push_back(bottomTile);
+        }
+
+        // Left
+        testTile = getGameMap()->getTile(centerTile->getX() - 2, centerTile->getY());
+        if (testTile != NULL && testTile->isWallClaimedForColor(getColor()))
+        {
+            Tile* leftTile = getGameMap()->getTile(centerTile->getX() - 1, centerTile->getY());
+            if (leftTile != NULL)
+                mLeftWallsActiveSpotTiles.push_back(leftTile);
+        }
+
+        // Right
+        testTile = getGameMap()->getTile(centerTile->getX() + 2, centerTile->getY());
+        if (testTile != NULL && testTile->isWallClaimedForColor(getColor()))
+        {
+            Tile* rightTile = getGameMap()->getTile(centerTile->getX() + 1, centerTile->getY());
+            if (rightTile != NULL)
+                mRightWallsActiveSpotTiles.push_back(rightTile);
+        }
+    }
+
+    // Updates the number of active spots
+    mNumActiveSpots = mCentralActiveSpotTiles.size()
+                      + mLeftWallsActiveSpotTiles.size() + mRightWallsActiveSpotTiles.size()
+                      + mTopWallsActiveSpotTiles.size() + mBottomWallsActiveSpotTiles.size();
 }
