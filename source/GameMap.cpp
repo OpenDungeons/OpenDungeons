@@ -603,19 +603,19 @@ void GameMap::doTurn()
             {
                 Seat *tempSeat = tempPlayer->getSeat();
 
-                ++(tempSeat->numCreaturesControlled);
+                ++(tempSeat->mNumCreaturesControlled);
 
-                tempSeat->factionHumans += tempCreature->getDefinition()->getCoefficientHumans();
-                tempSeat->factionCorpars += tempCreature->getDefinition()->getCoefficientCorpars();
-                tempSeat->factionUndead += tempCreature->getDefinition()->getCoefficientUndead();
-                tempSeat->factionConstructs
+                tempSeat->mFactionHumans += tempCreature->getDefinition()->getCoefficientHumans();
+                tempSeat->mFactionCorpars += tempCreature->getDefinition()->getCoefficientCorpars();
+                tempSeat->mFactionUndead += tempCreature->getDefinition()->getCoefficientUndead();
+                tempSeat->mFactionConstructs
                 += tempCreature->getDefinition()->getCoefficientConstructs();
-                tempSeat->factionDenizens += tempCreature->getDefinition()->getCoefficientDenizens();
+                tempSeat->mFactionDenizens += tempCreature->getDefinition()->getCoefficientDenizens();
 
-                tempSeat->alignmentAltruism
+                tempSeat->mAlignmentAltruism
                 += tempCreature->getDefinition()->getCoefficientAltruism();
-                tempSeat->alignmentOrder += tempCreature->getDefinition()->getCoefficientOrder();
-                tempSeat->alignmentPeace += tempCreature->getDefinition()->getCoefficientPeace();
+                tempSeat->mAlignmentOrder += tempCreature->getDefinition()->getCoefficientOrder();
+                tempSeat->mAlignmentPeace += tempCreature->getDefinition()->getCoefficientPeace();
             }
 
             ++count;
@@ -653,15 +653,15 @@ unsigned long int GameMap::doMiscUpkeep()
 
         // Set all the alignment and faction coefficients for this seat to 0, they will be
         // filled up in the loop below which removes the dead creatures from the map.
-        filledSeats[i]->numCreaturesControlled = 0;
-        filledSeats[i]->factionHumans = 0.0;
-        filledSeats[i]->factionCorpars = 0.0;
-        filledSeats[i]->factionUndead = 0.0;
-        filledSeats[i]->factionConstructs = 0.0;
-        filledSeats[i]->factionDenizens = 0.0;
-        filledSeats[i]->alignmentAltruism = 0.0;
-        filledSeats[i]->alignmentOrder = 0.0;
-        filledSeats[i]->alignmentPeace = 0.0;
+        filledSeats[i]->mNumCreaturesControlled = 0;
+        filledSeats[i]->mFactionHumans = 0.0;
+        filledSeats[i]->mFactionCorpars = 0.0;
+        filledSeats[i]->mFactionUndead = 0.0;
+        filledSeats[i]->mFactionConstructs = 0.0;
+        filledSeats[i]->mFactionDenizens = 0.0;
+        filledSeats[i]->mAlignmentAltruism = 0.0;
+        filledSeats[i]->mAlignmentOrder = 0.0;
+        filledSeats[i]->mAlignmentPeace = 0.0;
     }
 
     // Count how many of each color kobold there are.
@@ -680,8 +680,7 @@ unsigned long int GameMap::doMiscUpkeep()
     // Count how many dungeon temples each color controls.
     std::vector<Room*> dungeonTemples = getRoomsByType(Room::dungeonTemple);
     std::map<int, int> dungeonTempleColorCounts;
-    for (unsigned int i = 0, size = dungeonTemples.size();
-            i < size; ++i)
+    for (unsigned int i = 0, size = dungeonTemples.size(); i < size; ++i)
     {
         ++dungeonTempleColorCounts[dungeonTemples[i]->getColor()];
     }
@@ -757,13 +756,13 @@ unsigned long int GameMap::doMiscUpkeep()
 
         // Add the amount of mana this seat accrued this turn.
         //cout << "\nSeat " << i << " has " << tempSeat->numClaimedTiles << " claimed tiles.";
-        tempSeat->manaDelta = 50 + tempSeat->getNumClaimedTiles();
-        tempSeat->mana += tempSeat->manaDelta;
-        if (tempSeat->mana > 250000)
-            tempSeat->mana = 250000;
+        tempSeat->mManaDelta = 50 + tempSeat->getNumClaimedTiles();
+        tempSeat->mMana += tempSeat->mManaDelta;
+        if (tempSeat->mMana > 250000)
+            tempSeat->mMana = 250000;
 
         // Update the count on how much gold is available in all of the treasuries claimed by the given seat.
-        tempSeat->gold = getTotalGoldForColor(tempSeat->color);
+        tempSeat->mGold = getTotalGoldForColor(tempSeat->mColor);
     }
 
     // Determine the number of tiles claimed by each seat.
@@ -1847,13 +1846,13 @@ Seat* GameMap::getSeatByColor(int color)
 {
     for (unsigned int i = 0; i < filledSeats.size(); ++i)
     {
-        if (filledSeats[i]->color == color)
+        if (filledSeats[i]->getColor() == color)
             return filledSeats[i];
     }
 
     for (unsigned int i = 0; i < emptySeats.size(); ++i)
     {
-        if (emptySeats[i]->color == color)
+        if (emptySeats[i]->getColor() == color)
             return emptySeats[i];
     }
 

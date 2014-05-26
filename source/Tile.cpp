@@ -825,7 +825,7 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
     /* If we are trying to mark a tile that is not dirt or gold
      * or is already dug out, ignore the request.
      */
-    if (ss && (!isDiggable(pp->getSeat()->color) || (getFullness() < 1)))
+    if (ss && (!isDiggable(pp->getSeat()->getColor()) || (getFullness() < 1)))
         return;
 
     RenderRequest *request;

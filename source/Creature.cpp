@@ -1140,7 +1140,7 @@ bool Creature::handleDigTileAction()
             // isn't stuck when making a way through gold.
             double tempDouble = 5 * std::min(mDefinition->getDigRate(), tempTile->getFullness());
             mGold += (int)tempDouble;
-            getGameMap()->getSeatByColor(getColor())->goldMined += (int)tempDouble;
+            getGameMap()->getSeatByColor(getColor())->mGoldMined += (int)tempDouble;
             recieveExp(5.0 * mDefinition->getDigRate() / 20.0);
         }
 

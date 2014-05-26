@@ -537,7 +537,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 tempSS << "Number:\tRed:\tGreen:\tBlue:\n";
                 for (unsigned int i = 0; i < gameMap->numFilledSeats(); ++i)
                 {
-                    Ogre::ColourValue color = gameMap->getFilledSeat(i)->colourValue;
+                    Ogre::ColourValue color = gameMap->getFilledSeat(i)->getColorValue();
 
                     tempSS << "\n" << i << "\t\t" << color.r
                            << "\t\t" << color.g << "\t\t" << color.b;

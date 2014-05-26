@@ -314,7 +314,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
         {
             t->addCoveredTile(tempTile);
             //FIXME: This next line will not be necessary when the the tile color is properly set by the tile load routine.
-            tempTile->setColor(t->getControllingSeat()->color);
+            tempTile->setColor(t->getControllingSeat()->getColor());
             tempTile->colorDouble = 1.0;
         }
     }
@@ -325,7 +325,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
 
 std::ostream& operator<<(std::ostream& os, Trap *t)
 {
-    os << t->getMeshName() << "\t" << t->getControllingSeat()->color << "\n";
+    os << t->getMeshName() << "\t" << t->getControllingSeat()->getColor() << "\n";
     os << t->coveredTiles.size() << "\n";
     for (unsigned int i = 0; i < t->coveredTiles.size(); ++i)
     {

@@ -159,26 +159,26 @@ void RoomPortal::recomputeClassProbabilities()
     Seat* controllingSeat = getGameMap()->getSeatByColor(getColor());
 
     // Normalize the faction and alignment coefficients.
-    tempDouble = controllingSeat->factionHumans
-                 + controllingSeat->factionCorpars + controllingSeat->factionUndead
-                 + controllingSeat->factionConstructs
-                 + controllingSeat->factionDenizens;
+    tempDouble = controllingSeat->mFactionHumans
+                 + controllingSeat->mFactionCorpars + controllingSeat->mFactionUndead
+                 + controllingSeat->mFactionConstructs
+                 + controllingSeat->mFactionDenizens;
     if (std::fabs(tempDouble) > 0.000001)
     {
-        controllingSeat->factionHumans /= tempDouble;
-        controllingSeat->factionCorpars /= tempDouble;
-        controllingSeat->factionUndead /= tempDouble;
-        controllingSeat->factionConstructs /= tempDouble;
-        controllingSeat->factionDenizens /= tempDouble;
+        controllingSeat->mFactionHumans /= tempDouble;
+        controllingSeat->mFactionCorpars /= tempDouble;
+        controllingSeat->mFactionUndead /= tempDouble;
+        controllingSeat->mFactionConstructs /= tempDouble;
+        controllingSeat->mFactionDenizens /= tempDouble;
     }
 
-    tempDouble = controllingSeat->alignmentAltruism
-                 + controllingSeat->alignmentOrder + controllingSeat->alignmentPeace;
+    tempDouble = controllingSeat->mAlignmentAltruism
+                 + controllingSeat->mAlignmentOrder + controllingSeat->mAlignmentPeace;
     if (std::fabs(tempDouble) > 0.000001)
     {
-        controllingSeat->alignmentAltruism /= tempDouble;
-        controllingSeat->alignmentOrder /= tempDouble;
-        controllingSeat->alignmentPeace /= tempDouble;
+        controllingSeat->mAlignmentAltruism /= tempDouble;
+        controllingSeat->mAlignmentOrder /= tempDouble;
+        controllingSeat->mAlignmentPeace /= tempDouble;
     }
 
     // Loop over the CreatureClasses in the gameMap and for each one, compute
@@ -192,21 +192,21 @@ void RoomPortal::recomputeClassProbabilities()
         //TODO:  Actually implement this probability calculation.
         probability = 1.0 / getGameMap()->numClassDescriptions();
 
-        probability += controllingSeat->factionHumans
+        probability += controllingSeat->mFactionHumans
                 * tempClass->getCoefficientHumans();
-        probability += controllingSeat->factionCorpars
+        probability += controllingSeat->mFactionCorpars
                 * tempClass->getCoefficientCorpars();
-        probability += controllingSeat->factionUndead
+        probability += controllingSeat->mFactionUndead
                 * tempClass->getCoefficientUndead();
-        probability += controllingSeat->factionConstructs
+        probability += controllingSeat->mFactionConstructs
                 * tempClass->getCoefficientConstructs();
-        probability += controllingSeat->factionDenizens
+        probability += controllingSeat->mFactionDenizens
                 * tempClass->getCoefficientDenizens();
-        probability += controllingSeat->alignmentAltruism
+        probability += controllingSeat->mAlignmentAltruism
                 * tempClass->getCoefficientAltruism();
-        probability += controllingSeat->alignmentOrder
+        probability += controllingSeat->mAlignmentOrder
                 * tempClass->getCoefficientOrder();
-        probability += controllingSeat->alignmentPeace
+        probability += controllingSeat->mAlignmentPeace
                 * tempClass->getCoefficientPeace();
 
         // Store the computed probability and compute the sum of the probabilities to be used for renormalization.

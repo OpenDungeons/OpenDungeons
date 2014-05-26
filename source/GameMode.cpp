@@ -97,7 +97,7 @@ bool GameMode::startLevel(const std::string& levelFilename)
     unsigned int uniqueAINumber = 1;
     while (i < mGameMap->numEmptySeats())
     {
-        std::string faction = mGameMap->getEmptySeat(i)->faction;
+        std::string faction = mGameMap->getEmptySeat(i)->mFaction;
 
         if (faction == "Player")
         {
@@ -144,8 +144,8 @@ bool GameMode::startLevel(const std::string& levelFilename)
         return false;
 
     // Move camera to starting position
-    Ogre::Real startX = (Ogre::Real)(localPlayerSeat->startingX);
-    Ogre::Real startY = (Ogre::Real)(localPlayerSeat->startingY);
+    Ogre::Real startX = (Ogre::Real)(localPlayerSeat->mStartingX);
+    Ogre::Real startY = (Ogre::Real)(localPlayerSeat->mStartingY);
     // We make the temple appear in the center of the game view
     startY = (Ogre::Real)(startY - 7.0);
     // Bound check
@@ -583,7 +583,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (inputManager->mDragType == tileSelection)
         {
             //See if the tile can be marked for digging.
-            if (currentTile->isDiggable(mGameMap->getLocalPlayer()->getSeat()->color))
+            if (currentTile->isDiggable(mGameMap->getLocalPlayer()->getSeat()->mColor))
             {
                 if (Socket::serverSocket != NULL)
                 {
@@ -619,7 +619,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             if (!(currentTile->getFullness() < 1
                     && currentTile->getType() == Tile::claimed
                     && currentTile->colorDouble > 0.99
-                    && currentTile->getColor() == mGameMap->getLocalPlayer()->getSeat()->color))
+                    && currentTile->getColor() == mGameMap->getLocalPlayer()->getSeat()->mColor))
             {
                 itr = affectedTiles.erase(itr);
                 continue;
@@ -756,8 +756,8 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
         if(isConnected()) // If we are in a game.
         {
             Seat* tempSeat = mGameMap->getLocalPlayer()->getSeat();
-            camMgr.flyTo(Ogre::Vector3((Ogre::Real)tempSeat->startingX,
-                                                   (Ogre::Real)tempSeat->startingY,
+            camMgr.flyTo(Ogre::Vector3((Ogre::Real)tempSeat->mStartingX,
+                                                   (Ogre::Real)tempSeat->mStartingY,
                                                    (Ogre::Real)0.0));
         }
         break;

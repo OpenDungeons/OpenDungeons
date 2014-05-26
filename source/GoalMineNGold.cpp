@@ -34,7 +34,7 @@ GoalMineNGold::GoalMineNGold(const std::string& nName, const std::string& nArgum
 
 bool GoalMineNGold::isMet(Seat *s)
 {
-    return (s->goldMined >= mGoldToMine);
+    return (s->getGoldMined() >= mGoldToMine);
 }
 
 std::string GoalMineNGold::getDescription()
@@ -44,7 +44,7 @@ std::string GoalMineNGold::getDescription()
         return std::string();
 
     std::stringstream tempSS;
-    tempSS << "Mined " << gameMap->getLocalPlayer()->getSeat()->goldMined << " of " << mGoldToMine
+    tempSS << "Mined " << gameMap->getLocalPlayer()->getSeat()->mGoldMined << " of " << mGoldToMine
             << " gold coins.";
     return tempSS.str();
 }

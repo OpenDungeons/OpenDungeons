@@ -33,7 +33,7 @@ GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName, const std::stri
 bool GoalKillAllEnemies::isMet(Seat *s)
 {
     bool enemiesFound = false;
-   
+
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     if (!gameMap)
         return true;
@@ -41,7 +41,7 @@ bool GoalKillAllEnemies::isMet(Seat *s)
     // Loop over all the creatures in the game map and check to see if any of them are of a different color than our seat.
     for (unsigned int i = 0, num = gameMap->numCreatures(); i < num; ++i)
     {
-        if (gameMap->getCreature(i)->getColor() != s->color)
+        if (gameMap->getCreature(i)->getColor() != s->getColor())
         {
             enemiesFound = true;
             break;

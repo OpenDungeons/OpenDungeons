@@ -93,7 +93,7 @@ bool KeeperAI::buildSleepRoom()
     std::vector<Tile*> tiles = mAiWrapper.getGameMap().rectangularRegion(central->getX() - 2, central->getY() + 5,
                                                                          central->getX() + 2, central->getY() + 3);
     unsigned int numClaimedTiles = 0;
-    int team_color_id = mAiWrapper.getPlayer().getSeat()->color;
+    int team_color_id = mAiWrapper.getPlayer().getSeat()->getColor();
     for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
     {
         Tile* tile = *it;
@@ -125,7 +125,7 @@ bool KeeperAI::buildDojoRoom()
     std::vector<Tile*> tiles = mAiWrapper.getGameMap().rectangularRegion(central->getX() - 2, central->getY() - 4,
                                                                          central->getX() + 2, central->getY() - 6);
     unsigned int numClaimedTiles = 0;
-    int team_color_id = mAiWrapper.getPlayer().getSeat()->color;
+    int team_color_id = mAiWrapper.getPlayer().getSeat()->getColor();
     for (std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
     {
         Tile* tile = *it;
@@ -185,7 +185,7 @@ bool KeeperAI::lookForGold()
     }
 
     // Set a diggable path up to the first gold spot for the given team color
-    int team_color_id = mAiWrapper.getPlayer().getSeat()->color;
+    int team_color_id = mAiWrapper.getPlayer().getSeat()->getColor();
     std::list<Tile*> goldPath = mAiWrapper.getGameMap().path(central, firstGoldTile, Tile::diggableTile, team_color_id);
     if (goldPath.empty())
     {

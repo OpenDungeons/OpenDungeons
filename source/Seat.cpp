@@ -1,153 +1,136 @@
-#include "Seat.h"
-#include "Goal.h"
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
+#include "Seat.h"
+
+#include "Goal.h"
 #include "Helper.h"
 
 Seat::Seat() :
-        color(0),
-        startingX(0),
-        startingY(0),
-        mana(1000),
-        manaDelta(0),
-        hp(1000),
-        gold(0),
-        goldMined(0),
-        numCreaturesControlled(0),
-        factionHumans(0.0),
-        factionCorpars(0.0),
-        factionUndead(0.0),
-        factionConstructs(0.0),
-        factionDenizens(0.0),
-        alignmentAltruism(0.0),
-        alignmentOrder(0.0),
-        alignmentPeace(0.0),
-        numClaimedTiles(0),
-        hasGoalsChanged(true)
+        mColor(0),
+        mStartingX(0),
+        mStartingY(0),
+        mMana(1000),
+        mManaDelta(0),
+        mHp(1000),
+        mGold(0),
+        mGoldMined(0),
+        mNumCreaturesControlled(0),
+        mFactionHumans(0.0),
+        mFactionCorpars(0.0),
+        mFactionUndead(0.0),
+        mFactionConstructs(0.0),
+        mFactionDenizens(0.0),
+        mAlignmentAltruism(0.0),
+        mAlignmentOrder(0.0),
+        mAlignmentPeace(0.0),
+        mNumClaimedTiles(0),
+        mHasGoalsChanged(true)
 {
 }
 
-/** \brief Adds a goal to the vector of goals which must be completed by this seat before it can be declared a winner.
- *
- */
-void Seat::addGoal(Goal *g)
+void Seat::addGoal(Goal* g)
 {
-    goals.push_back(g);
+    mGoals.push_back(g);
 }
 
-/** \brief A simple accessor function to return the number of goals which must be completed by this seat before it can be declared a winner.
- *
- */
 unsigned int Seat::numGoals()
 {
-    unsigned int tempUnsigned = goals.size();
+    unsigned int tempUnsigned = mGoals.size();
 
     return tempUnsigned;
 }
 
-/** \brief A simple accessor function to allow for looping over the goals which must be completed by this seat before it can be declared a winner.
- *
- */
 Goal* Seat::getGoal(unsigned int index)
 {
-    if (index >= goals.size())
+    if (index >= mGoals.size())
         return NULL;
 
-    return goals[index];
+    return mGoals[index];
 }
 
-/** \brief A simple mutator to clear the vector of unmet goals.
- *
- */
 void Seat::clearGoals()
 {
-    goals.clear();
+    mGoals.clear();
 }
 
-/** \brief A simple mutator to clear the vector of met goals.
- *
- */
 void Seat::clearCompletedGoals()
 {
-    completedGoals.clear();
+    mCompletedGoals.clear();
 }
 
-/** \brief A simple accessor function to return the number of goals completed by this seat.
- *
- */
 unsigned int Seat::numCompletedGoals()
 {
-    return completedGoals.size();
+    return mCompletedGoals.size();
 }
 
-/** \brief A simple accessor function to allow for looping over the goals completed by this seat.
- *
- */
 Goal* Seat::getCompletedGoal(unsigned int index)
 {
-    if (index >= completedGoals.size())
+    if (index >= mCompletedGoals.size())
         return NULL;
 
-    return completedGoals[index];
+    return mCompletedGoals[index];
 }
 
-/** \brief A simple accessor function to return the number of goals failed by this seat.
- *
- */
 unsigned int Seat::numFailedGoals()
 {
-    return failedGoals.size();
+    return mFailedGoals.size();
 }
 
-/** \brief A simple accessor function to allow for looping over the goals failed by this seat.
- *
- */
 Goal* Seat::getFailedGoal(unsigned int index)
 {
-    if (index >= failedGoals.size())
+    if (index >= mFailedGoals.size())
         return NULL;
 
-    return failedGoals[index];
+    return mFailedGoals[index];
 }
 
 unsigned int Seat::getNumClaimedTiles()
 {
-    return numClaimedTiles;
+    return mNumClaimedTiles;
 }
 
 void Seat::setNumClaimedTiles(const unsigned int& num)
 {
-    numClaimedTiles = num;
+    mNumClaimedTiles = num;
 }
 
-/** \brief Increment the number of claimed tiles by 1
- *
- */
 void Seat::incrementNumClaimedTiles()
 {
-    ++numClaimedTiles;
+    ++mNumClaimedTiles;
 }
 
-/** \brief Loop over the vector of unmet goals and call the isMet() and isFailed() functions on
- * each one, if it is met move it to the completedGoals vector.
- *
- */
 unsigned int Seat::checkAllGoals()
 {
     // Loop over the goals vector and move any goals that have been met to the completed goals vector.
-    std::vector<Goal*>::iterator currentGoal = goals.begin();
-    while (currentGoal != goals.end())
+    std::vector<Goal*>::iterator currentGoal = mGoals.begin();
+    while (currentGoal != mGoals.end())
     {
         // Start by checking if the goal has been met by this seat.
         if ((*currentGoal)->isMet(this))
         {
-            completedGoals.push_back(*currentGoal);
+            mCompletedGoals.push_back(*currentGoal);
 
             // Add any subgoals upon completion to the list of outstanding goals.
             for (unsigned int i = 0; i < (*currentGoal)->numSuccessSubGoals(); ++i)
-                goals.push_back((*currentGoal)->getSuccessSubGoal(i));
+                mGoals.push_back((*currentGoal)->getSuccessSubGoal(i));
 
             //FIXME: This is probably a memory leak since the goal is created on the heap and should probably be deleted here.
-            currentGoal = goals.erase(currentGoal);
+            currentGoal = mGoals.erase(currentGoal);
 
         }
         else
@@ -155,15 +138,14 @@ unsigned int Seat::checkAllGoals()
             // If the goal has not been met, check to see if it cannot be met in the future.
             if ((*currentGoal)->isFailed(this))
             {
-                failedGoals.push_back(*currentGoal);
+                mFailedGoals.push_back(*currentGoal);
 
                 // Add any subgoals upon completion to the list of outstanding goals.
-                for (unsigned int i = 0; i
-                        < (*currentGoal)->numFailureSubGoals(); ++i)
-                    goals.push_back((*currentGoal)->getFailureSubGoal(i));
+                for (unsigned int i = 0; i < (*currentGoal)->numFailureSubGoals(); ++i)
+                    mGoals.push_back((*currentGoal)->getFailureSubGoal(i));
 
                 //FIXME: This is probably a memory leak since the goal is created on the heap and should probably be deleted here.
-                currentGoal = goals.erase(currentGoal);
+                currentGoal = mGoals.erase(currentGoal);
             }
             else
             {
@@ -176,21 +158,18 @@ unsigned int Seat::checkAllGoals()
     return numGoals();
 }
 
-/** \brief Loop over the vector of met goals and call the isUnmet() function on each one, if any of them are no longer satisfied move them back to the goals vector.
- *
- */
 unsigned int Seat::checkAllCompletedGoals()
 {
     // Loop over the goals vector and move any goals that have been met to the completed goals vector.
-    std::vector<Goal*>::iterator currentGoal = completedGoals.begin();
-    while (currentGoal != completedGoals.end())
+    std::vector<Goal*>::iterator currentGoal = mCompletedGoals.begin();
+    while (currentGoal != mCompletedGoals.end())
     {
         // Start by checking if this previously met goal has now been unmet.
         if ((*currentGoal)->isUnmet(this))
         {
-            goals.push_back(*currentGoal);
+            mGoals.push_back(*currentGoal);
 
-            currentGoal = completedGoals.erase(currentGoal);
+            currentGoal = mCompletedGoals.erase(currentGoal);
 
             //Signal that the list of goals has changed.
             goalsHasChanged();
@@ -200,9 +179,9 @@ unsigned int Seat::checkAllCompletedGoals()
             // Next check to see if this previously met goal has now been failed.
             if ((*currentGoal)->isFailed(this))
             {
-                failedGoals.push_back(*currentGoal);
+                mFailedGoals.push_back(*currentGoal);
 
-                currentGoal = completedGoals.erase(currentGoal);
+                currentGoal = mCompletedGoals.erase(currentGoal);
 
                 //Signal that the list of goals has changed.
                 goalsHasChanged();
@@ -217,23 +196,20 @@ unsigned int Seat::checkAllCompletedGoals()
     return numCompletedGoals();
 }
 
-/** \brief See if the goals has changed since we last checked.
- *  For use with the goal window, to avoid having to update it on every frame.
- */
 bool Seat::getHasGoalsChanged()
 {
-    return hasGoalsChanged;
+    return mHasGoalsChanged;
 }
 
 void Seat::resetGoalsChanged()
 {
-    hasGoalsChanged = false;
+    mHasGoalsChanged = false;
 }
 
 void Seat::goalsHasChanged()
 {
     //Not locking here as this is supposed to be called from a function that already locks.
-    hasGoalsChanged = true;
+    mHasGoalsChanged = true;
 }
 
 std::string Seat::getFormat()
@@ -243,19 +219,19 @@ std::string Seat::getFormat()
 
 std::ostream& operator<<(std::ostream& os, Seat *s)
 {
-    os << s->color << "\t" << s->faction << "\t" << s->startingX << "\t"
-            << s->startingY << "\t";
-    os << s->colourValue.r << "\t" << s->colourValue.g << "\t"
-            << s->colourValue.b << "\n";
+    os << s->mColor << "\t" << s->mFaction << "\t" << s->mStartingX << "\t"
+       << s->mStartingY << "\t";
+    os << s->mColorValue.r << "\t" << s->mColorValue.g << "\t"
+       << s->mColorValue.b << "\n";
 
     return os;
 }
 
 std::istream& operator>>(std::istream& is, Seat *s)
 {
-    is >> s->color >> s->faction >> s->startingX >> s->startingY;
-    is >> s->colourValue.r >> s->colourValue.g >> s->colourValue.b;
-    s->colourValue.a = 1.0;
+    is >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
+    is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;
+    s->mColorValue.a = 1.0;
 
     return is;
 }
@@ -264,12 +240,12 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
 {
     std::vector<std::string> elems = Helper::split(line, '\t');
 
-    s->color = Helper::toInt(elems[0]);
-    s->faction = elems[1];
-    s->startingX = Helper::toInt(elems[2]);
-    s->startingY = Helper::toInt(elems[3]);
-    s->colourValue.r = Helper::toDouble(elems[4]);
-    s->colourValue.g = Helper::toDouble(elems[5]);
-    s->colourValue.b = Helper::toDouble(elems[6]);
-    s->colourValue.a = 1.0;
+    s->mColor = Helper::toInt(elems[0]);
+    s->mFaction = elems[1];
+    s->mStartingX = Helper::toInt(elems[2]);
+    s->mStartingY = Helper::toInt(elems[3]);
+    s->mColorValue.r = Helper::toDouble(elems[4]);
+    s->mColorValue.g = Helper::toDouble(elems[5]);
+    s->mColorValue.b = Helper::toDouble(elems[6]);
+    s->mColorValue.a = 1.0;
 }

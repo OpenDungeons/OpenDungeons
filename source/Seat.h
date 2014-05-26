@@ -1,3 +1,20 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef SEAT_H
 #define SEAT_H
 
@@ -11,78 +28,143 @@ class Goal;
 
 class Seat
 {
-    public:
-        // Constructors
-        Seat();
+public:
+    // Constructors
+    Seat();
 
-        // Public functions
-        void addGoal(Goal *g);
-        unsigned int numGoals();
-        Goal* getGoal(unsigned int index);
-        void clearGoals();
-        void clearCompletedGoals();
+    //! \brief Adds a goal to the vector of goals which must be completed by this seat before it can be declared a winner.
+    void addGoal(Goal* g);
 
-        unsigned int checkAllGoals();
-        unsigned int checkAllCompletedGoals();
+    /** \brief A simple accessor function to return the number of goals
+     * which must be completed by this seat before it can be declared a winner.
+     */
+    unsigned int numGoals();
 
-        unsigned int numCompletedGoals();
-        Goal* getCompletedGoal(unsigned int index);
+    /** \brief A simple accessor function to allow for looping over the goals
+     * which must be completed by this seat before it can be declared a winner.
+     */
+    Goal* getGoal(unsigned int index);
 
-        unsigned int numFailedGoals();
-        Goal* getFailedGoal(unsigned int index);
+    //! \brief A simple mutator to clear the vector of unmet goals.
+    void clearGoals();
 
-        unsigned int getNumClaimedTiles();
-        void setNumClaimedTiles(const unsigned int& num);
-        inline const unsigned int& rawGetNumClaimedTiles() const{return numClaimedTiles;}
-        void rawSetNumClaimedTiles(const unsigned int& num){numClaimedTiles = num;}
-        void incrementNumClaimedTiles();
-        bool getHasGoalsChanged();
-        void resetGoalsChanged();
-        inline int getColor() const { return color; }
-        inline int getGold() const { return gold; }
-        inline double getMana() const { return mana; }
-        inline double getManaDelta() const { return manaDelta; }
+    //! \brief A simple mutator to clear the vector of met goals.
+    void clearCompletedGoals();
 
+    /** \brief Loop over the vector of unmet goals and call the isMet() and isFailed() functions on
+     * each one, if it is met move it to the completedGoals vector.
+     */
+    unsigned int checkAllGoals();
 
-        // Public data members
-        int color; /**< \brief The color index of the players sitting in this seat. */
-        std::string faction; /**< \brief The name of the faction that this seat is playing as. */
-        int startingX; /**< \brief The starting camera location (in tile coordinates) of this seat. */
-        int startingY; /**< \brief The starting camera location (in tile coordinates) of this seat. */
-        Ogre::ColourValue colourValue; /**< \brief The actual color that this color index translates into. */
-        double mana; /**< \brief The amount of 'keeper mana' the player has. */
-        double manaDelta; /**< \brief The amount of 'keeper mana' the player gains/loses per turn, updated in GameMap::doTurn(). */
-        double hp; /**< \brief The amount of 'keeper HP' the player has. */
-        int gold; /**< \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart. */
-        int goldMined; /**< \brief The total amount of gold coins mined by workers under this seat's control. */
-        int numCreaturesControlled;
-        double factionHumans;
-        double factionCorpars;
-        double factionUndead;
-        double factionConstructs;
-        double factionDenizens;
-        double alignmentAltruism;
-        double alignmentOrder;
-        double alignmentPeace;
+    /** \brief Loop over the vector of met goals and call the isUnmet() function on each one,
+     * if any of them are no longer satisfied move them back to the goals vector.
+     */
+    unsigned int checkAllCompletedGoals();
 
-        static std::string getFormat();
-        friend std::ostream& operator<<(std::ostream& os, Seat *s);
-        friend std::istream& operator>>(std::istream& is, Seat *s);
+    //! \brief A simple accessor function to return the number of goals completed by this seat.
+    unsigned int numCompletedGoals();
 
-        static void loadFromLine(const std::string& line, Seat *s);
+    //! \brief A simple accessor function to allow for looping over the goals completed by this seat.
+    Goal* getCompletedGoal(unsigned int index);
 
-    private:
-        void goalsHasChanged();
+    //! \brief A simple accessor function to return the number of goals failed by this seat.
+    unsigned int numFailedGoals();
 
-        std::vector<Goal*> goals; /**< \brief The currently unmet goals for this seat, the first Seat to empty this wins. */
+    //! \brief A simple accessor function to allow for looping over the goals failed by this seat.
+    Goal* getFailedGoal(unsigned int index);
 
-        std::vector<Goal*> completedGoals; /**< \brief The met goals for this seat. */
+    unsigned int getNumClaimedTiles();
+    void setNumClaimedTiles(const unsigned int& num);
 
-        std::vector<Goal*> failedGoals; /**< \brief The unmet goals for this seat which cannot possibly be met in the future. */
+    //! \brief Increment the number of claimed tiles by 1.
+    void incrementNumClaimedTiles();
 
-        unsigned int numClaimedTiles; /**< \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn(). */
+    /** \brief See if the goals has changed since we last checked.
+     *  For use with the goal window, to avoid having to update it on every frame.
+     */
+    bool getHasGoalsChanged();
 
-        bool hasGoalsChanged;
+    void resetGoalsChanged();
+
+    int getColor() const
+    { return mColor; }
+
+    Ogre::ColourValue getColorValue() const
+    { return mColorValue; }
+
+    inline int getGold() const
+    { return mGold; }
+
+    inline int getGoldMined() const
+    { return mGoldMined; }
+
+    inline double getMana() const
+    { return mMana; }
+
+    inline double getManaDelta() const
+    { return mManaDelta; }
+
+    //! \brief The color index of the players sitting in this seat.
+    int mColor;
+
+    //! \brief The name of the faction that this seat is playing as.
+    std::string mFaction;
+
+    //! \brief The starting camera location (in tile coordinates) of this seat.
+    int mStartingX;
+    int mStartingY;
+
+    //! \brief The actual color that this color index translates into.
+    Ogre::ColourValue mColorValue;
+
+    //! \brief The amount of 'keeper mana' the player has.
+    double mMana;
+
+    //! \brief The amount of 'keeper mana' the player gains/loses per turn, updated in GameMap::doTurn().
+    double mManaDelta;
+
+    //! \brief The amount of 'keeper HP' the player has.
+    double mHp;
+
+    //! \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart.
+    int mGold;
+
+    //! \brief The total amount of gold coins mined by workers under this seat's control.
+    int mGoldMined;
+
+    int mNumCreaturesControlled;
+
+    double mFactionHumans;
+    double mFactionCorpars;
+    double mFactionUndead;
+    double mFactionConstructs;
+    double mFactionDenizens;
+    double mAlignmentAltruism;
+    double mAlignmentOrder;
+    double mAlignmentPeace;
+
+    static std::string getFormat();
+    friend std::ostream& operator<<(std::ostream& os, Seat *s);
+    friend std::istream& operator>>(std::istream& is, Seat *s);
+
+    static void loadFromLine(const std::string& line, Seat *s);
+
+private:
+    void goalsHasChanged();
+
+    //! \brief The currently unmet goals for this seat, the first Seat to empty this wins.
+    std::vector<Goal*> mGoals;
+
+    //! \brief The met goals for this seat.
+    std::vector<Goal*> mCompletedGoals;
+
+    //! \brief The unmet goals for this seat which cannot possibly be met in the future.
+    std::vector<Goal*> mFailedGoals;
+
+    //! \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn().
+    unsigned int mNumClaimedTiles;
+
+    bool mHasGoalsChanged;
 };
 
 #endif // SEAT_H

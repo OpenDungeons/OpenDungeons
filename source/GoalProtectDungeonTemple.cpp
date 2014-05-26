@@ -37,7 +37,7 @@ bool GoalProtectDungeonTemple::isMet(Seat *s)
     if (!gameMap)
         return false;
 
-    return (gameMap->numRoomsByTypeAndColor(Room::dungeonTemple, s->color) > 0);
+    return (gameMap->numRoomsByTypeAndColor(Room::dungeonTemple, s->getColor()) > 0);
 }
 
 bool GoalProtectDungeonTemple::isUnmet(Seat *s)

@@ -1490,7 +1490,7 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, in
             {
                 // Color the material with the Player's one.
                 tempPass = tempTechnique->getPass(0);
-                Ogre::ColourValue color = tempSeat->colourValue;
+                Ogre::ColourValue color = tempSeat->getColorValue();
                 color.a = 0.4;
                 tempPass->setEmissive(color);
                 tempPass->setSpecular(color);
