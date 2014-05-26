@@ -193,7 +193,7 @@ void Room::removeCoveredTile(Tile* t)
     updateActiveSpots();
 }
 
-Tile* Room::getCoveredTile(int index)
+Tile* Room::getCoveredTile(unsigned index)
 {
     if (index >= mCoveredTiles.size())
         return NULL;
@@ -221,7 +221,7 @@ void Room::removeCreatureUsingRoom(Creature *c)
     }
 }
 
-Creature* Room::getCreatureUsingRoom(int index)
+Creature* Room::getCreatureUsingRoom(unsigned index)
 {
     if (index >= mCreaturesUsingRoom.size())
         return NULL;

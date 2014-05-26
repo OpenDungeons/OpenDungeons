@@ -104,7 +104,7 @@ public:
 
     virtual void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
     virtual void removeCoveredTile(Tile* t);
-    virtual Tile* getCoveredTile(int index);
+    virtual Tile* getCoveredTile(unsigned index);
 
     /** \brief Returns all of the tiles which are part of this room,
      *  this is to conform to the AttackableObject interface.
@@ -132,7 +132,7 @@ public:
 
     virtual void addCreatureUsingRoom(Creature* c);
     virtual void removeCreatureUsingRoom(Creature* c);
-    virtual Creature* getCreatureUsingRoom(int index);
+    virtual Creature* getCreatureUsingRoom(unsigned index);
 
     virtual unsigned int numCreaturesUsingRoom()
     {

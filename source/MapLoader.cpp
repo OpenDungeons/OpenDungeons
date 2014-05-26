@@ -430,6 +430,7 @@ bool loadCreatureDefinition(const std::string& fileName, GameMap& gameMap)
 
         gameMap.addClassDescription(tempClass);
     }
+    return true;
 }
 
 } // Namespace MapLoader

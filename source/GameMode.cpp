@@ -153,6 +153,7 @@ bool GameMode::startLevel(const std::string& levelFilename)
         startY = 0.0;
 
     ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
+    return true;
 }
 
 void GameMode::activate()
