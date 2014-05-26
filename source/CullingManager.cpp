@@ -43,7 +43,7 @@ CullingManager::CullingManager(CameraManager* cameraManager):
     mCm(cameraManager),
     mCullCreaturesFlag(false),
     mCullTilesFlag(false),
-    debug(false)
+    mDebug(false)
 {
     mMyplanes[0]=(Ogre::Plane(0, 0, 1, 0));
     mMyplanes[1]=(Ogre::Plane(0, 0, -1, 20));
@@ -128,11 +128,10 @@ void CullingManager::startTileCulling()
     mCullTilesFlag = true;
 }
 
-void CullingManager::startDebugging(){
-    debug = true;
-
+void CullingManager::startDebugging()
+{
+    mDebug = true;
 }
-
 
 void CullingManager::stopCreatureCulling()
 {
@@ -246,9 +245,10 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
     int64_t xxLeft = mWalk.getTopVertex().x;
     int64_t xxRight= mWalk.getTopVertex().x;
 
-    if(debug){
-	mWalk.printState();
-	debug = false;
+    if(mDebug)
+    {
+        mWalk.printState();
+        mDebug = false;
     }
     int64_t bb = (( std::min(mWalk.getBottomVertex().y , oldWalk.getBottomVertex().y) >> mPrecisionDigits) - 2) << mPrecisionDigits;
 
@@ -264,7 +264,7 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
 	// cerr << (xxLeft  >> mPrecisionDigits )<< " " << (xxLeftOld  >> mPrecisionDigits )<< " " << (xxRight  >> mPrecisionDigits )<< " " << (xxRightOld  >> mPrecisionDigits )<< " " <<endl ;
 	// cerr << "DxLeft, DxRight: " << mWalk.getCurrentDxLeft() << " " << mWalk.getCurrentDxRight() << " " << endl;
 
-	int64_t mm = ((std::min(xxLeft, xxLeftOld) >> mPrecisionDigits) << mPrecisionDigits) ; 
+	int64_t mm = ((std::min(xxLeft, xxLeftOld) >> mPrecisionDigits) << mPrecisionDigits) ;
 	if(std::min(xxLeft, xxLeftOld) < max(xxRight,xxRightOld) )
         for (int64_t xx = mm ; xx <= max(xxRight,xxRightOld) ; xx+= Unit){
             bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= oldWalk.getBottomVertex().y) && yy <= oldWalk.getTopVertex().y);

@@ -45,7 +45,7 @@ class Viewport;
 
 // The min/max camera height in tile size
 const Ogre::Real MIN_CAMERA_Z = 3.0;
-const Ogre::Real MAX_CAMERA_Z = 102.0;
+const Ogre::Real MAX_CAMERA_Z = 12.0;
 
 using std::vector; using std::pair; using std::map;
 

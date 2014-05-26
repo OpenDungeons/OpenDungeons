@@ -84,7 +84,9 @@ private:
 
     bool mCullCreaturesFlag;
     bool mCullTilesFlag;
-    bool debug;
+
+    //! \brief Activate/deactivate debug output.
+    bool mDebug;
 };
 
 #endif // CULLINGMANAGER_H_
