@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef GAMEMAP_H
-#define GAMEMAP_H
+#ifndef _GAMEMAP_H_
+#define _GAMEMAP_H_
 
 #include "MiniMap.h"
 #include "AIManager.h"
@@ -446,4 +446,4 @@ private:
     unsigned long int doCreatureTurns();
 };
 
-#endif
+#endif // _GAMEMAP_H_

@@ -192,12 +192,6 @@ void GameMode::handleCursorPositionUpdate()
     RenderManager::queueRenderRequest(request); // NOTE: will delete the request member for us.
 }
 
-/*! \brief Process the mouse movement event.
- *
- * The function does a raySceneQuery to determine what object the mouse is over
- * to handle things like dragging out selections of tiles and selecting
- * creatures.
- */
 bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
 {
 
@@ -315,11 +309,6 @@ void GameMode::handleMouseWheel(const OIS::MouseEvent& arg)
     }
 }
 
-/*! \brief Handle mouse clicks.
- *
- * This function does a ray scene query to determine what is under the mouse
- * and determines whether a creature or a selection of tiles, is being dragged.
- */
 bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
@@ -509,10 +498,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     return true;
 }
 
-/*! \brief Handle mouse button releases.
- *
- * Finalize the selection of tiles or drop a creature when the user releases the mouse button.
- */
 bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::getSingletonPtr()->convertButton(id));
@@ -677,7 +662,6 @@ void GameMode::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
         (*itr)->refreshMesh();
 }
 
-//! \brief Handle the keyboard input.
 bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
@@ -793,10 +777,6 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
     return true;
 }
 
-/*! \brief Process the key up event.
- *
- * When a key is released during normal gamplay the camera movement may need to be stopped.
- */
 bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
@@ -865,12 +845,6 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
     return true;
 }
 
-/*! \brief defines what the hotkeys do
- *
- * currently the only thing the hotkeys do is moving the camera around.
- * If the shift key is pressed we store this hotkey location
- * otherwise we fly the camera to a stored position.
- */
 void GameMode::handleHotkeys(OIS::KeyCode keycode)
 {
     InputManager* inputManager = mModeManager->getInputManager();

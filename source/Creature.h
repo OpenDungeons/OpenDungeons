@@ -62,6 +62,9 @@ class Creature: public MovableGameEntity
 public:
     Creature(GameMap* gameMap = NULL, const std::string& name = std::string());
     virtual ~Creature();
+
+    //! \brief Creates a string with a unique number embedded into it
+    //! so the creature's name will not be the same as any other OGRE entity name.
     std::string getUniqueCreatureName();
 
     //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
@@ -73,9 +76,11 @@ public:
     void updateStatsWindow();
     std::string getStatsText();
 
+    //! \brief Sets the creature definition for this creature
     void setCreatureDefinition(const CreatureDefinition* def);
 
-    Ogre::Vector2 get2dPosition() {
+    Ogre::Vector2 get2dPosition()
+    {
         Ogre::Vector3 tmp = getPosition();
         return Ogre::Vector2(tmp.x,tmp.y);
     }
@@ -123,7 +128,11 @@ public:
     const CreatureDefinition* getDefinition() const
     { return mDefinition; }
 
+    /*! \brief Changes the creature's position to a new position.
+     *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
+     */
     void setPosition(const Ogre::Vector3& v);
+
     void setHP(double nHP);
     void setIsOnMap(bool nIsOnMap);
     void setMana(double nMana);
@@ -143,8 +152,38 @@ public:
     inline void setLevel(unsigned int nL)
     { mLevel = nL; }
 
-    // AI stuff
+    /*! \brief The main AI routine which decides what the creature will do and carries out that action.
+     *
+     * The doTurn routine is the heart of the Creature AI subsystem.  The other,
+     * higher level, functions such as GameMap::doTurn() ultimately just call this
+     * function to make the creatures act.
+     *
+     * The function begins in a pre-cognition phase which prepares the creature's
+     * brain state for decision making.  This involves generating lists of known
+     * about creatures, either through sight, hearing, keeper knowledge, etc, as
+     * well as some other bookkeeping stuff.
+     *
+     * Next the function enters the cognition phase where the creature's current
+     * state is examined and a decision is made about what to do.  The state of the
+     * creature is in the form of a queue, which is really used more like a stack.
+     * At the beginning of the game the 'idle' action is pushed onto each
+     * creature's actionQueue, this action is never removed from the tail end of
+     * the queue and acts as a "last resort" for when the creature completely runs
+     * out of things to do.  Other actions such as 'walkToTile' or 'attackObject'
+     * are then pushed onto the front of the queue and will determine the
+     * creature's future behavior.  When actions are complete they are popped off
+     * the front of the action queue, causing the creature to revert back into the
+     * state it was in when the actions was placed onto the queue.  This allows
+     * actions to be carried out recursively, i.e. if a creature is trying to dig a
+     * tile and it is not nearby it can begin walking toward the tile as a new
+     * action, and when it arrives at the tile it will revert to the 'digTile'
+     * action.
+     *
+     * In the future there should also be a post-cognition phase to do any
+     * additional checks after it tries to move, etc.
+     */
     void doTurn();
+
     //TODO: convert doTurn to doUpkeep();
     bool doUpkeep()
     { return true; }
@@ -155,12 +194,25 @@ public:
     //! \brief Check whether a creature has earned one level.
     void checkLevelUp();
 
+    /*! \brief Creates a list of Tile pointers in visibleTiles
+     *
+     * The tiles are currently determined to be visible or not, according only to
+     * the distance they are away from the creature.  Because of this they can
+     * currently see through walls, etc.
+     */
     void updateVisibleTiles();
 
+    //! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
     std::vector<GameEntity*> getVisibleEnemyObjects();
+
+    //! \brief Loops over objectsToCheck and returns a vector containing all the ones which can be reached via a valid path.
     std::vector<GameEntity*> getReachableAttackableObjects(const std::vector<GameEntity*> &objectsToCheck,
                                                            unsigned int *minRange, GameEntity **nearestObject);
+
+    //! \brief Loops over the enemyObjectsToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
     std::vector<GameEntity*> getEnemyObjectsInRange(const std::vector<GameEntity*> &enemyObjectsToCheck);
+
+    //! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
     std::vector<GameEntity*> getVisibleAlliedObjects();
 
     //! \brief Loops over the visibleTiles and adds any which are marked for digging to a vector which it returns.
@@ -169,19 +221,40 @@ public:
     //! \brief Loops over the visibleTiles and adds any which are claimable walls.
     std::vector<Tile*> getVisibleClaimableWallTiles();
 
+    //! \brief Loops over the visibleTiles and returns any creatures in those tiles
+    //! whose color matches (or if invert is true, does not match) the given color parameter.
     std::vector<GameEntity*> getVisibleForce(int color, bool invert);
+
+    //! \brief Returns a pointer to the tile the creature is currently standing in.
     Tile* positionTile();
+
+    //! \brief Conform: AttackableObject - Returns a vector containing the tile the creature is in.
     std::vector<Tile*> getCoveredTiles();
+
+    //! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
     void takeDamage(double damage, Tile* tileTakingDamage);
+
+    //! \brief Conform: AttackableObject - Adds experience to this creature.
     void recieveExp(double experience);
+
+    //! \brief Clears the action queue, except for the Idle action at the end.
     void clearActionQueue();
 
+    //! \brief Returns the first player whose color matches this creature's color.
     Player* getControllingPlayer();
+
+    /** \brief This function loops over the visible tiles and computes a score for each one indicating how
+     * friendly or hostile that tile is and stores it in the battleField variable.
+     */
     void computeBattlefield();
 
-    // Visual debugging routines
+    //! \brief Displays a mesh on all of the tiles visible to the creature.
     void createVisualDebugEntities();
+
+    //! \brief Destroy the meshes created by createVisualDebuggingEntities().
     void destroyVisualDebugEntities();
+
+    //! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
     bool getHasVisualDebuggingEntities();
 
     void attach();

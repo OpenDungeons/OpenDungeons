@@ -28,7 +28,6 @@ CreatureSound::CreatureSound()
     mSounds.assign(NUM_CREATURE_SOUNDS, sf::Sound());
 }
 
-//! \brief Play the wanted sound.
 void CreatureSound::play(SoundType type)
 {
     mSounds[type].stop();
@@ -40,9 +39,6 @@ void CreatureSound::setPosition(Ogre::Vector3 p)
     setPosition(p.x, p.y, p.z);
 }
 
-/*! \brief Set the play position for the sound source.
- *
- */
 void CreatureSound::setPosition(float x, float y, float z)
 {
     SoundEffectsHelper::SoundFXVector::iterator it;

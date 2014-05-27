@@ -50,10 +50,6 @@
 
 template<> Gui* Ogre::Singleton<Gui>::msSingleton = 0;
 
-/*! \brief Constructor that initializes the whole CEGUI system
- *  including renderer, system, resource provider, setting defaults,
- *  loading all sheets, assigning all event handler
- */
 Gui::Gui()
 {
     CEGUI::OgreRenderer::bootstrapSystem();
@@ -81,7 +77,6 @@ Gui::~Gui()
     //CEGUI::OgreRenderer::destroySystem();
 }
 
-//! \brief A required function to pass input to the OIS system.
 CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
 {
     switch (buttonID)
@@ -98,7 +93,6 @@ CEGUI::MouseButton Gui::convertButton(const OIS::MouseButtonID& buttonID)
     }
 }
 
-//! \brief loads the specified gui sheet
 void Gui::loadGuiSheet(const guiSheet& newSheet)
 {
     CEGUI::System::getSingletonPtr()->getDefaultGUIContext().setRootWindow(sheets[newSheet]);
@@ -115,7 +109,6 @@ CEGUI::Window* Gui::getGuiSheet(const guiSheet& sheet)
     return NULL;
 }
 
-//! \brief Assigns all event handlers to the GUI elements
 void Gui::assignEventHandlers()
 {
     //std::cout << "Gui::assignEventHandlers()" << std::endl;
@@ -338,7 +331,6 @@ bool Gui::editorClaimedButtonPressed(const CEGUI::EventArgs& e)
 
 // MAIN MENU
 
-//! \brief What happens after a click on New Game in the main menu
 bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
@@ -359,19 +351,16 @@ bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-//! \brief What happens after a click on Load Game in the main menu
 bool Gui::mMLoadButtonPressed(const CEGUI::EventArgs& e)
 {
     return true;
 }
 
-//! \brief What happens after a click on Options in the main menu
 bool Gui::mMOptionsButtonPressed(const CEGUI::EventArgs& e)
 {
     return true;
 }
 
-//! \brief What happens after a click on Quit in the main menu
 bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
 {
     ODFrameListener::getSingletonPtr()->requestExit();

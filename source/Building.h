@@ -56,4 +56,4 @@ private:
     Seat* mControllingSeat;
 };
 
-#endif /* BUILDING_H_ */
+#endif // BUILDING_H_

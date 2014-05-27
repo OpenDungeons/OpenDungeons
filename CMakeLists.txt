@@ -116,7 +116,6 @@ set(OD_SOURCEFILES
     ${SRC}/ASWrapper.cpp
     ${SRC}/BaseAI.cpp
     ${SRC}/BattleField.cpp
-    #{SRC}/Bspline.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
     ${SRC}/Client.cpp

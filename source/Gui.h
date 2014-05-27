@@ -52,11 +52,18 @@ public:
         editorMenu
     };
 
+    /*! \brief Constructor that initializes the whole CEGUI system
+     *  including renderer, system, resource provider, setting defaults,
+     *  loading all sheets, assigning all event handler
+     */
     Gui();
+
     ~Gui();
 
+    //! \brief loads the specified gui sheet
     void loadGuiSheet(const guiSheet& newSheet);
 
+    //! \brief A required function to pass input to the OIS system.
     CEGUI::MouseButton convertButton (const OIS::MouseButtonID& buttonID);
 
     CEGUI::Window* getGuiSheet(const guiSheet&);
@@ -98,15 +105,23 @@ public:
     static const  std::string EDITOR_CURSOR_POS;
 
 private:
+    //! \brief Assigns all event handlers to the GUI elements
     void assignEventHandlers();
 
     std::map<guiSheet, CEGUI::Window*> sheets;
 
     // Button handlers main menu
+    //! \brief What happens after a click on New Game in the main menu
     static bool mMNewGameButtonPressed  (const CEGUI::EventArgs& e);
     static bool mMMapEditorButtonPressed(const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Load Game in the main menu
     static bool mMLoadButtonPressed     (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Options in the main menu
     static bool mMOptionsButtonPressed  (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Quit in the main menu
     static bool mMQuitButtonPressed     (const CEGUI::EventArgs& e);
 
     // Button handlers game UI

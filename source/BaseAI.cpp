@@ -27,4 +27,3 @@ bool BaseAI::initialize(const std::string& parameters)
 {
     return true;
 }
-

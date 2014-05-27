@@ -29,11 +29,42 @@ class  GameMode: public AbstractApplicationMode
 
     virtual ~GameMode();
 
+    /*! \brief Process the mouse movement event.
+     *
+     * The function does a raySceneQuery to determine what object the mouse is over
+     * to handle things like dragging out selections of tiles and selecting
+     * creatures.
+     */
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
+
+    /*! \brief Handle mouse clicks.
+     *
+     * This function does a ray scene query to determine what is under the mouse
+     * and determines whether a creature or a selection of tiles, is being dragged.
+     */
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+
+    /*! \brief Handle mouse button releases.
+     *
+     * Finalize the selection of tiles or drop a creature when the user releases the mouse button.
+     */
     virtual bool mouseReleased  (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
+
+    //! \brief Handle the keyboard input.
     virtual bool keyPressed     (const OIS::KeyEvent &arg);
+
+    /*! \brief Process the key up event.
+     *
+     * When a key is released during normal gamplay the camera movement may need to be stopped.
+     */
     virtual bool keyReleased    (const OIS::KeyEvent &arg);
+
+    /*! \brief defines what the hotkeys do
+     *
+     * currently the only thing the hotkeys do is moving the camera around.
+     * If the shift key is pressed we store this hotkey location
+     * otherwise we fly the camera to a stored position.
+     */
     virtual void handleHotkeys  (OIS::KeyCode keycode);
 
     void onFrameStarted(const Ogre::FrameEvent& evt);

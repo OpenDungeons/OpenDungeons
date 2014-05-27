@@ -39,10 +39,15 @@ public:
         NUM_CREATURE_SOUNDS
     };
 
+    //! \brief Play the wanted sound.
     void play(SoundType type);
+
     void playDelayed(SoundType type);
+
+    //! \brief Set the play position for the sound source.
     void setPosition(Ogre::Vector3 p);
     void setPosition(float x, float y, float z);
+
 private:
     CreatureSound();
     CreatureSound(const CreatureSound&);

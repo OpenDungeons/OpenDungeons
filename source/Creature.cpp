@@ -245,10 +245,6 @@ void Creature::loadFromLine(const std::string& line, Creature* c)
     assert(c->mDefinition);
 }
 
-/*! \brief Changes the creature's position to a new position.
- *
- *  This is an overloaded function which just calls Creature::setPosition(double x, double y, double z).
- */
 void Creature::setPosition(const Ogre::Vector3& v)
 {
     // If we are on the gameMap we may need to update the tile we are in
@@ -374,37 +370,6 @@ void Creature::detach()
     RenderManager::queueRenderRequest(request);
 }
 
-
-/*! \brief The main AI routine which decides what the creature will do and carries out that action.
- *
- * The doTurn routine is the heart of the Creature AI subsystem.  The other,
- * higher level, functions such as GameMap::doTurn() ultimately just call this
- * function to make the creatures act.
- *
- * The function begins in a pre-cognition phase which prepares the creature's
- * brain state for decision making.  This involves generating lists of known
- * about creatures, either through sight, hearing, keeper knowledge, etc, as
- * well as some other bookkeeping stuff.
- *
- * Next the function enters the cognition phase where the creature's current
- * state is examined and a decision is made about what to do.  The state of the
- * creature is in the form of a queue, which is really used more like a stack.
- * At the beginning of the game the 'idle' action is pushed onto each
- * creature's actionQueue, this action is never removed from the tail end of
- * the queue and acts as a "last resort" for when the creature completely runs
- * out of things to do.  Other actions such as 'walkToTile' or 'attackObject'
- * are then pushed onto the front of the queue and will determine the
- * creature's future behavior.  When actions are complete they are popped off
- * the front of the action queue, causing the creature to revert back into the
- * state it was in when the actions was placed onto the queue.  This allows
- * actions to be carried out recursively, i.e. if a creature is trying to dig a
- * tile and it is not nearby it can begin walking toward the tile as a new
- * action, and when it arrives at the tile it will revert to the 'digTile'
- * action.
- *
- * In the future there should also be a post-cognition phase to do any
- * additional checks after it tries to move, etc.
- */
 void Creature::doTurn()
 {
     // If we are not standing somewhere on the map, do nothing.
@@ -1883,24 +1848,16 @@ void Creature::checkLevelUp()
     }
 }
 
-/*! \brief Creates a list of Tile pointers in visibleTiles
- *
- * The tiles are currently determined to be visible or not, according only to
- * the distance they are away from the creature.  Because of this they can
- * currently see through walls, etc.
- */
 void Creature::updateVisibleTiles()
 {
     mVisibleTiles = getGameMap()->visibleTiles(positionTile(), mDefinition->getSightRadius());
 }
 
-//! \brief Loops over the visibleTiles and adds all enemy creatures in each tile to a list which it returns.
 std::vector<GameEntity*> Creature::getVisibleEnemyObjects()
 {
     return getVisibleForce(getColor(), true);
 }
 
-//! \brief Loops over objectsToCheck and returns a vector containing all the ones which can be reached via a valid path.
 std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vector<GameEntity*>& objectsToCheck,
                                                                  unsigned int* minRange, GameEntity** nearestObject)
 {
@@ -1951,7 +1908,6 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
     return tempVector;
 }
 
-//! \brief Loops over the enemyObjectsToCheck vector and adds all enemy creatures within weapons range to a list which it returns.
 std::vector<GameEntity*> Creature::getEnemyObjectsInRange(const std::vector<GameEntity*> &enemyObjectsToCheck)
 {
     std::vector<GameEntity*> tempVector;
@@ -1984,7 +1940,6 @@ std::vector<GameEntity*> Creature::getEnemyObjectsInRange(const std::vector<Game
     return tempVector;
 }
 
-//! \brief Loops over the visibleTiles and adds all allied creatures in each tile to a list which it returns.
 std::vector<GameEntity*> Creature::getVisibleAlliedObjects()
 {
     return getVisibleForce(getColor(), false);
@@ -2006,7 +1961,6 @@ std::vector<Tile*> Creature::getVisibleMarkedTiles()
     return tempVector;
 }
 
-//! \brief Loops over the visibleTiles and adds any which are claimable walls.
 std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
 {
     std::vector<Tile*> claimableWallTiles;
@@ -2022,13 +1976,11 @@ std::vector<Tile*> Creature::getVisibleClaimableWallTiles()
     return claimableWallTiles;
 }
 
-//! \brief Loops over the visibleTiles and returns any creatures in those tiles whose color matches (or if invert is true, does not match) the given color parameter.
 std::vector<GameEntity*> Creature::getVisibleForce(int color, bool invert)
 {
     return getGameMap()->getVisibleForce(mVisibleTiles, color, invert);
 }
 
-//! \brief Displays a mesh on all of the tiles visible to the creature.
 void Creature::createVisualDebugEntities()
 {
     mHasVisualDebuggingEntities = true;
@@ -2056,7 +2008,6 @@ void Creature::createVisualDebugEntities()
     }
 }
 
-//! \brief Destroy the meshes created by createVisualDebuggingEntities().
 void Creature::destroyVisualDebugEntities()
 {
     mHasVisualDebuggingEntities = false;
@@ -2083,7 +2034,6 @@ void Creature::destroyVisualDebugEntities()
 
 }
 
-//! \brief Returns a pointer to the tile the creature is currently standing in.
 Tile* Creature::positionTile()
 {
     Ogre::Vector3 tempPosition = getPosition();
@@ -2091,7 +2041,6 @@ Tile* Creature::positionTile()
     return getGameMap()->getTile((int) (tempPosition.x), (int) (tempPosition.y));
 }
 
-//! \brief Conform: AttackableObject - Returns a vector containing the tile the creature is in.
 std::vector<Tile*> Creature::getCoveredTiles()
 {
     std::vector<Tile*> tempVector;
@@ -2099,7 +2048,6 @@ std::vector<Tile*> Creature::getCoveredTiles()
     return tempVector;
 }
 
-//! \brief Creates a string with a unique number embedded into it so the creature's name will not be the same as any other OGRE entity name.
 std::string Creature::getUniqueCreatureName()
 {
     static int uniqueNumber = 1;
@@ -2173,7 +2121,6 @@ std::string Creature::getStatsText()
     return tempSS.str();
 }
 
-//! \brief Sets the creature definition for this creature
 void Creature::setCreatureDefinition(const CreatureDefinition* def)
 {
     mDefinition = def;
@@ -2197,13 +2144,11 @@ void Creature::setCreatureDefinition(const CreatureDefinition* def)
     mDanceRate = def->getDanceRate();
 }
 
-//! \brief Conform: AttackableObject - Deducts a given amount of HP from this creature.
 void Creature::takeDamage(double damage, Tile *tileTakingDamage)
 {
     mHp -= damage;
 }
 
-//! \brief Conform: AttackableObject - Adds experience to this creature.
 void Creature::recieveExp(double experience)
 {
     if (experience < 0)
@@ -2212,13 +2157,11 @@ void Creature::recieveExp(double experience)
     mExp += experience;
 }
 
-//! \brief An accessor to return whether or not the creature has OGRE entities for its visual debugging entities.
 bool Creature::getHasVisualDebuggingEntities()
 {
     return mHasVisualDebuggingEntities;
 }
 
-//! \brief Returns the first player whose color matches this creature's color.
 //FIXME: This should be made into getControllingSeat(), when this is done it can simply be a call to GameMap::getSeatByColor().
 Player* Creature::getControllingPlayer()
 {
@@ -2244,7 +2187,6 @@ Player* Creature::getControllingPlayer()
     return NULL;
 }
 
-//! \brief Clears the action queue, except for the Idle action at the end.
 void Creature::clearActionQueue()
 {
     mActionQueue.clear();
@@ -2272,9 +2214,6 @@ CreatureAction Creature::peekAction()
     return tempAction;
 }
 
-/** \brief This function loops over the visible tiles and computes a score for each one indicating how
- * friendly or hostile that tile is and stores it in the battleField variable.
- */
 void Creature::computeBattlefield()
 {
     if (mBattleField == NULL)
