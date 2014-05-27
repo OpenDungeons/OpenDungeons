@@ -67,4 +67,3 @@ public:
 };
 
 #endif // MISSILEOBJECT_H
-

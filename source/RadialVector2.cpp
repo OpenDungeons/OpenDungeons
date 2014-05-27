@@ -70,4 +70,3 @@ void RadialVector2::normalizeTheta()
         mTheta += 2.0 * PI;
     }
 }
-

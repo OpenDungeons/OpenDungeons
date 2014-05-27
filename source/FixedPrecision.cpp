@@ -24,69 +24,69 @@ FixedPrecision::FixedPrecision()
 {}
 
 FixedPrecision::FixedPrecision(int ii):
-    value(ii << precisionDigits)
+    mValue(ii << mPrecisionDigits)
 {}
 
 FixedPrecision::FixedPrecision(long long  ii):
-    value(ii << precisionDigits)
+    mValue(ii << mPrecisionDigits)
 {}
 
 FixedPrecision::FixedPrecision(long long ii, int dummy):
-    value(ii)
+    mValue(ii)
 {}
 
 FixedPrecision::FixedPrecision(Ogre::Real rr):
-    value((1 << precisionDigits) * rr)
+    mValue((1 << mPrecisionDigits) * rr)
 {}
 
 FixedPrecision::operator int() const
 {
-    return value >> precisionDigits;
+    return mValue >> mPrecisionDigits;
 }
 
 FixedPrecision::operator long long() const
 {
-    return value >> precisionDigits;
+    return mValue >> mPrecisionDigits;
 }
 
-FixedPrecision  operator+(FixedPrecision const& l, FixedPrecision const& r)
+FixedPrecision operator+(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return FixedPrecision(l.value + r.value, 0);
+    return FixedPrecision(l.mValue + r.mValue, 0);
 }
 
 FixedPrecision  operator-(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return FixedPrecision(l.value - r.value, 0);
+    return FixedPrecision(l.mValue - r.mValue, 0);
 }
 
-// FixedPrecision  operator*( FixedPrecision const& l, FixedPrecision const& r )
+// FixedPrecision  operator*(FixedPrecision const& l, FixedPrecision const& r)
 
 FixedPrecision operator/(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return FixedPrecision(l.value << (FixedPrecision::precisionDigits) / r.value, 0);
+    return FixedPrecision(l.mValue << (FixedPrecision::mPrecisionDigits) / r.mValue, 0);
 }
 
 FixedPrecision& FixedPrecision::operator++()
 {
-    value++;
+    mValue++;
     return *this;
 }
 
 FixedPrecision& FixedPrecision::operator--()
 {
-    value--;
+    mValue--;
     return *this;
 }
 
 FixedPrecision& FixedPrecision::operator+=(FixedPrecision const& r)
 {
-    this->value += r.value;
+    this->mValue += r.mValue;
     return *this;
 }
 
 FixedPrecision& FixedPrecision::operator-=(FixedPrecision const& r)
 {
-    this->value -= r.value;
+    this->mValue -= r.mValue;
     return *this;
 }
 
@@ -95,53 +95,53 @@ FixedPrecision& FixedPrecision::operator-=(FixedPrecision const& r)
 
 FixedPrecision& FixedPrecision::operator/=(FixedPrecision const& r)
 {
-    this->value << (FixedPrecision::precisionDigits) / r.value;
+    this->mValue << (FixedPrecision::mPrecisionDigits) / r.mValue;
     return *this;
 }
 
 // nonmember comparison operators
 bool operator<(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return l.value < r.value;
+    return l.mValue < r.mValue;
 }
 
 bool operator>(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return l.value > r.value;
+    return l.mValue > r.mValue;
 }
 
 bool operator<=(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return l.value <= r.value;
+    return l.mValue <= r.mValue;
 }
 
 bool operator>=(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return l.value >= r.value;
+    return l.mValue >= r.mValue;
 }
 
 bool operator==(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return l.value == r.value;
+    return l.mValue == r.mValue;
 }
 
 bool operator!=(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return l.value != r.value;
+    return l.mValue != r.mValue;
 }
 
 FixedPrecision operator&&(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return FixedPrecision(l.value && r.value, 0);
+    return FixedPrecision(l.mValue && r.mValue, 0);
 }
 
 FixedPrecision operator||(FixedPrecision const& l, FixedPrecision const& r)
 {
-    return FixedPrecision(l.value || r.value, 0);
+    return FixedPrecision(l.mValue || r.mValue, 0);
 }
 
 // FixedPrecision operator<<(FixedPrecision const& l, int r)
-// { return l.value << r; }
+// { return l.mValue << r; }
 
 // FixedPrecision operator>>(FixedPrecision const& l, int r)
-// { return l.value >> r; }
+// { return l.mValue >> r; }
