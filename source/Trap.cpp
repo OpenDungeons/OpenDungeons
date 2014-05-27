@@ -1,3 +1,22 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "Trap.h"
+
 #include "ODServer.h"
 #include "Tile.h"
 #include "RenderRequest.h"
@@ -9,16 +28,15 @@
 #include "Random.h"
 #include "SoundEffectsHelper.h"
 #include "Player.h"
-#include "Trap.h"
 
-const double Trap::defaultTileHP = 10.0;
+const double Trap::mDefaultTileHP = 10.0;
 
 Trap::Trap() :
-        reloadTime(0),
-        reloadTimeCounter(0),
-        minDamage(0.0),
-        maxDamage(0.0),
-        type(nullTrapType)
+    mReloadTime(0),
+    mReloadTimeCounter(0),
+    mMinDamage(0.0),
+    mMaxDamage(0.0),
+    mType(nullTrapType)
 {
     setObjectType(GameEntity::trap);
 }
@@ -37,7 +55,8 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
             tempTrap = new TrapCannon();
             break;
         case boulder:
-            if(params != NULL) {
+            if(params != NULL)
+            {
                 int* p = (int*)params;
                 tempTrap = new TrapBoulder(p[0], p[1]);
             }
@@ -56,7 +75,7 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     tempTrap->setControllingSeat(nControllingSeat);
 
     tempTrap->setMeshName(getMeshNameFromTrapType(nType));
-    tempTrap->type = nType;
+    tempTrap->mType = nType;
 
     static int uniqueNumber = -1;
     std::stringstream tempSS;
@@ -72,16 +91,12 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     return tempTrap;
 }
 
-/** \brief Builds a trap for the current player.
- *  Builds a trap for the current player. Checks if the player has enough gold,
- *  if not, NULL is returned.
- *  \return The trap built, or NULL if the player does not have enough gold.
- */
-Trap* Trap::buildTrap(GameMap* gameMap, Trap::TrapType nType, const std::vector< Tile* >& coveredTiles, Player* player, bool inEditor, void* params)
+Trap* Trap::buildTrap(GameMap* gameMap, Trap::TrapType nType,
+                      const std::vector< Tile* >& coveredTiles, Player* player,
+                      bool inEditor, void* params)
 {
     //TODO: Use something better than a void pointer for this.
-    int goldRequired = coveredTiles.size() * Trap::costPerTile(
-                            nType);
+    int goldRequired = coveredTiles.size() * Trap::costPerTile(nType);
     Trap* newTrap = NULL;
     if(player->getSeat()->getGold() > goldRequired || inEditor)
     {
@@ -91,7 +106,6 @@ Trap* Trap::buildTrap(GameMap* gameMap, Trap::TrapType nType, const std::vector<
         {
             gameMap->withdrawFromTreasuries(goldRequired, player->getSeat()->getColor());
         }
-
 
         newTrap->createMesh();
 
@@ -109,7 +123,7 @@ Trap* Trap::createTrapFromStream(const std::string& trapName, std::istream &is, 
 
     is >> &tempTrap;
 
-    Trap *returnTrap = createTrap(tempTrap.type, tempTrap.coveredTiles,
+    Trap *returnTrap = createTrap(tempTrap.mType, tempTrap.mCoveredTiles,
                                   tempTrap.getControllingSeat());
     return returnTrap;
 }
@@ -170,9 +184,9 @@ int Trap::costPerTile(TrapType t)
 
 bool Trap::doUpkeep()
 {
-    if(reloadTimeCounter > 0)
+    if(mReloadTimeCounter > 0)
     {
-        reloadTimeCounter--;
+        mReloadTimeCounter--;
         return true;
     }
 
@@ -182,10 +196,10 @@ bool Trap::doUpkeep()
 
     if(!enemyAttacked.empty())
     {
-        if(reloadTime >= 0)
+        if(mReloadTime >= 0)
         {
             // Begin the reload countdown.
-            reloadTimeCounter = reloadTime;
+            mReloadTimeCounter = mReloadTime;
         }
         else
         {
@@ -202,9 +216,9 @@ bool Trap::doUpkeep(Trap* t)
 
 void Trap::damage(std::vector<GameEntity*> enemyAttacked)
 {
-    for(unsigned i=0;i<enemyAttacked.size();++i)
+    for(unsigned i = 0; i < enemyAttacked.size(); ++i)
     {
-        enemyAttacked[i]->takeDamage(Random::Double(minDamage, maxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
+        enemyAttacked[i]->takeDamage(Random::Double(mMinDamage, mMaxDamage), enemyAttacked[i]->getCoveredTiles()[0]);
     }
 }
 
@@ -215,20 +229,20 @@ std::vector<GameEntity*> Trap::aimEnemy()
 
 void Trap::addCoveredTile(Tile* t, double nHP)
 {
-    coveredTiles.push_back(t);
-    tileHP[t] = nHP;
+    mCoveredTiles.push_back(t);
+    mTileHP[t] = nHP;
     t->setCoveringTrap(true);
 }
 
 void Trap::removeCoveredTile(Tile* t)
 {
-    for (unsigned int i = 0; i < coveredTiles.size(); ++i)
+    for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
     {
-        if (t == coveredTiles[i])
+        if (t == mCoveredTiles[i])
         {
-            coveredTiles.erase(coveredTiles.begin() + i);
+            mCoveredTiles.erase(mCoveredTiles.begin() + i);
             t->setCoveringTrap(false);
-            tileHP.erase(t);
+            mTileHP.erase(t);
             break;
         }
     }
@@ -236,22 +250,22 @@ void Trap::removeCoveredTile(Tile* t)
 
 Tile* Trap::getCoveredTile(int index)
 {
-    return coveredTiles[index];
+    return mCoveredTiles[index];
 }
 
 std::vector<Tile*> Trap::getCoveredTiles()
 {
-    return coveredTiles;
+    return mCoveredTiles;
 }
 
 unsigned int Trap::numCoveredTiles()
 {
-    return coveredTiles.size();
+    return mCoveredTiles.size();
 }
 
 void Trap::clearCoveredTiles()
 {
-    coveredTiles.clear();
+    mCoveredTiles.clear();
 }
 
 double Trap::getHP(Tile *tile)
@@ -259,14 +273,14 @@ double Trap::getHP(Tile *tile)
     //NOTE: This function is the same as Room::getHP(), consider making a base class to inherit this from.
     if (tile != NULL)
     {
-        return tileHP[tile];
+        return mTileHP[tile];
     }
     else
     {
         // If the tile give was NULL, we add the total HP of all the tiles in the room and return that.
         double total = 0.0;
-        std::map<Tile*, double>::iterator itr = tileHP.begin();
-        while (itr != tileHP.end())
+        std::map<Tile*, double>::iterator itr = mTileHP.begin();
+        while (itr != mTileHP.end())
         {
             total += itr->second;
             ++itr;
@@ -283,7 +297,7 @@ double Trap::getDefense() const
 
 void Trap::takeDamage(double damage, Tile *tileTakingDamage)
 {
-    tileHP[tileTakingDamage] -= damage;
+    mTileHP[tileTakingDamage] -= damage;
 }
 
 std::string Trap::getFormat()
@@ -319,17 +333,17 @@ std::istream& operator>>(std::istream& is, Trap *t)
         }
     }
 
-    t->type = Trap::getTrapTypeFromMeshName(t->getMeshName());
+    t->mType = Trap::getTrapTypeFromMeshName(t->getMeshName());
     return is;
 }
 
 std::ostream& operator<<(std::ostream& os, Trap *t)
 {
     os << t->getMeshName() << "\t" << t->getControllingSeat()->getColor() << "\n";
-    os << t->coveredTiles.size() << "\n";
-    for (unsigned int i = 0; i < t->coveredTiles.size(); ++i)
+    os << t->mCoveredTiles.size() << "\n";
+    for (unsigned int i = 0; i < t->mCoveredTiles.size(); ++i)
     {
-        Tile *tempTile = t->coveredTiles[i];
+        Tile *tempTile = t->mCoveredTiles[i];
         os << tempTile->x << "\t" << tempTile->y << "\n";
     }
 

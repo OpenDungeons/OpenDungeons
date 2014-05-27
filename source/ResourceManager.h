@@ -3,6 +3,21 @@
  * \date   12 April 2011
  * \author StefanP.MUC
  * \brief  Header for the ResourceManager
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #ifndef RESOURCEMANAGER_H_
@@ -15,59 +30,100 @@
 
 class ResourceManager : public Ogre::Singleton<ResourceManager>
 {
-    public:
-        ResourceManager();
-        ~ResourceManager()
-        {}
+public:
+    ResourceManager();
+    ~ResourceManager()
+    {}
 
-        static bool hasFileEnding(const std::string& filename, const std::string& ending);
+    /*! \brief check if a filename has a specific extension
+     *
+     *  \param filename The filename, like "filename.ext"
+     *  \param ending   The extension, like ".ext"
+     *
+     *  \return true or false depending if the filename has the extension or not
+     */
+    static bool hasFileEnding(const std::string& filename, const std::string& ending);
 
-        void setupResources();
-        std::vector<std::string> listAllFiles(const std::string& directoryName);
-        Ogre::StringVectorPtr listAllMusicFiles();
-        void takeScreenshot();
+    void setupResources();
 
-        inline const std::string& getResourcePath() const{return resourcePath;}
-        inline const std::string& getHomePath() const{return homePath;}
-        inline const std::string& getPluginsPath() const{return pluginsPath;}
-        inline const std::string& getMusicPath() const{return musicPath;}
-        inline const std::string& getScriptPath() const{return scriptPath;}
-        inline const std::string& getSoundPath() const{return soundPath;}
-        inline const std::string& getLanguagePath() const{return languagePath;}
-        inline const std::string& getShaderCachePath() const{return shaderCachePath;}
-        inline const std::string& getCfgFile() const{return ogreCfgFile;}
-        inline const std::string& getLogFile() const{return ogreLogFile;}
+    /*! \brief gets all files within a directory
+     *
+     *  \param diretoryName the directory to scan for files
+     *
+     *  \return a vector with all file names
+     */
+    std::vector<std::string> listAllFiles(const std::string& directoryName);
 
-    protected:
-        static bool createFolderIfNotExists(const std::string& folderName);
-        static std::string locateHomeFolder();
+    /*! \brief returns all music files that Ogre knows of
+     *
+     *  \return a vector with all file names
+     */
+    Ogre::StringVectorPtr listAllMusicFiles();
 
-    private:
-        unsigned int screenshotCounter;
-        std::string resourcePath;
-        std::string homePath;
-        std::string pluginsPath;
-        std::string musicPath;
-        std::string soundPath;
-        std::string scriptPath;
-        std::string languagePath;
-        std::string macBundlePath;
-        std::string shaderCachePath;
-        std::string ogreCfgFile;
-        std::string ogreLogFile;
+    //! \brief saves a screenshot
+    void takeScreenshot();
 
-        static const std::string PLUGINSCFG;
-        static const std::string RESOURCECFG;
-        static const std::string MUSICSUBPATH;
-        static const std::string SOUNDSUBPATH;
-        static const std::string SCRIPTSUBPATH;
-        static const std::string LANGUAGESUBPATH;
-        static const std::string SHADERCACHESUBPATH;
-        static const std::string CONFIGFILENAME;
-        static const std::string LOGFILENAME;
+    inline const std::string& getResourcePath() const
+    { return mResourcePath; }
 
-        static const std::string RESOURCEGROUPMUSIC;
-        static const std::string RESOURCEGROUPSOUND;
+    inline const std::string& getHomePath() const
+    { return mHomePath; }
+
+    inline const std::string& getPluginsPath() const
+    { return mPluginsPath; }
+
+    inline const std::string& getMusicPath() const
+    { return mMusicPath; }
+
+    inline const std::string& getScriptPath() const
+    { return mScriptPath; }
+
+    inline const std::string& getSoundPath() const
+    { return mSoundPath; }
+
+    inline const std::string& getLanguagePath() const
+    { return mLanguagePath; }
+
+    inline const std::string& getShaderCachePath() const
+    { return mShaderCachePath; }
+
+    inline const std::string& getCfgFile() const
+    { return mOgreCfgFile; }
+
+    inline const std::string& getLogFile() const
+    { return mOgreLogFile; }
+
+protected:
+    //! \brief Creates a folder if it doesn't already exist.
+    static bool createFolderIfNotExists(const std::string& folderName);
+    static std::string locateHomeFolder();
+
+private:
+    unsigned int mScreenshotCounter;
+    std::string mResourcePath;
+    std::string mHomePath;
+    std::string mPluginsPath;
+    std::string mMusicPath;
+    std::string mSoundPath;
+    std::string mScriptPath;
+    std::string mLanguagePath;
+    std::string mMacBundlePath;
+    std::string mShaderCachePath;
+    std::string mOgreCfgFile;
+    std::string mOgreLogFile;
+
+    static const std::string PLUGINSCFG;
+    static const std::string RESOURCECFG;
+    static const std::string MUSICSUBPATH;
+    static const std::string SOUNDSUBPATH;
+    static const std::string SCRIPTSUBPATH;
+    static const std::string LANGUAGESUBPATH;
+    static const std::string SHADERCACHESUBPATH;
+    static const std::string CONFIGFILENAME;
+    static const std::string LOGFILENAME;
+
+    static const std::string RESOURCEGROUPMUSIC;
+    static const std::string RESOURCEGROUPSOUND;
 };
 
 #endif // RESOURCEMANAGER_H_

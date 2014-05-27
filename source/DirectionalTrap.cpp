@@ -29,7 +29,7 @@ DirectionalTrap::DirectionalTrap(int xdir, int ydir):
 std::pair<int, int> DirectionalTrap::projectionOnBorder(int xdir, int ydir)
 {
     GameMap* gm = getGameMap();
-    int a = (ydir - coveredTiles[0]->y) / (xdir - coveredTiles[0]->x);
+    int a = (ydir - mCoveredTiles[0]->y) / (xdir - mCoveredTiles[0]->x);
     int b = ydir - a * xdir;
 
     if(b >= 0 && b < gm->getMapSizeY())

@@ -4,6 +4,21 @@
  * \author StefanP.MUC
  * \brief  This class handles all the resources (pathes, files) needed by the
  *         sound and graphics facilities.
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <cstdlib>
@@ -35,7 +50,7 @@
 #include "ResourceManager.h"
 
 template<> ResourceManager* Ogre::Singleton<ResourceManager>::msSingleton = 0;
-#if defined(OD_DEBUG) 
+#if defined(OD_DEBUG)
 //On windows, if the application is compiled in debug mode, use the plugins with debug prefix.
 const std::string ResourceManager::PLUGINSCFG = "plugins_d.cfg";
 #else
@@ -53,13 +68,6 @@ const std::string ResourceManager::LOGFILENAME = "opendungeons.log";
 const std::string ResourceManager::RESOURCEGROUPMUSIC = "Music";
 const std::string ResourceManager::RESOURCEGROUPSOUND = "Sound";
 
-/*! \brief check if a filename has a specific extension
- *
- *  \param filename The filename, like "filename.ext"
- *  \param ending   The extension, like ".ext"
- *
- *  \return true or false depending if the filename has the extension or not
- */
 bool ResourceManager::hasFileEnding(const std::string& filename, const std::string& ending)
 {
     return (filename.length() < ending.length())
@@ -80,17 +88,17 @@ bool ResourceManager::hasFileEnding(const std::string& filename, const std::stri
  *  function macBundlePath does this for us.
  */
 ResourceManager::ResourceManager() :
-        screenshotCounter(0),
-        resourcePath("./"),
-        homePath("./"),
-        pluginsPath(""),
-        musicPath(""),
-        soundPath(""),
-        scriptPath(""),
-        languagePath(""),
-        macBundlePath(""),
-        ogreCfgFile(""),
-        ogreLogFile("")
+        mScreenshotCounter(0),
+        mResourcePath("./"),
+        mHomePath("./"),
+        mPluginsPath(""),
+        mMusicPath(""),
+        mSoundPath(""),
+        mScriptPath(""),
+        mLanguagePath(""),
+        mMacBundlePath(""),
+        mOgreCfgFile(""),
+        mOgreLogFile("")
 {
     bool success = false;
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
@@ -110,19 +118,19 @@ ResourceManager::ResourceManager() :
     CFRelease(mainBundleURL);
     CFRelease(cfStringRef);
 
-    macBundlePath = std::string(applePath + "/");
+    mMacBundlePath = std::string(applePath + "/");
 
-    resourcePath = macBundlePath + "Contents/Resources/";
+    mResourcePath = macBundlePath + "Contents/Resources/";
 #elif OGRE_PLATFORM == OGRE_PLATFORM_LINUX
 
     // getenv return value should not be touched/freed.
     char* path = std::getenv("OPENDUNGEONS_DATA_PATH");
     if(path != 0)
     {
-        resourcePath = path;
-        if (*resourcePath.end() != '/')
+        mResourcePath = path;
+        if (*mResourcePath.end() != '/')
         {
-            resourcePath.append("/");
+            mResourcePath.append("/");
         }
     }
 #endif
@@ -134,13 +142,13 @@ ResourceManager::ResourceManager() :
     char* useHomeDir = std::getenv("OPENDUNGEONS_DATA_PATH");
     if (useHomeDir != 0)
     {
-        homePath = locateHomeFolder() + "/.OpenDungeons/";
+        mHomePath = locateHomeFolder() + "/.OpenDungeons/";
 #else
-        homePath = locateHomeFolder() + "\\OpenDungeons\\";
+        mHomePath = locateHomeFolder() + "\\OpenDungeons\\";
 #endif
 
 
-        success = createFolderIfNotExists(homePath);
+        success = createFolderIfNotExists(mHomePath);
         if(!success)
         {
             //TODO - Exit gracefully
@@ -151,10 +159,10 @@ ResourceManager::ResourceManager() :
     }
 #endif
 
-    std::cout << "Home path is: " << homePath << std::endl;
+    std::cout << "Home path is: " << mHomePath << std::endl;
 
     //Create shader cache folder.
-    success = createFolderIfNotExists(homePath.c_str() + SHADERCACHESUBPATH);
+    success = createFolderIfNotExists(mHomePath.c_str() + SHADERCACHESUBPATH);
     if(!success)
     {
         std::cerr << "Fatal error creating shader cache folder" << std::endl;
@@ -162,25 +170,24 @@ ResourceManager::ResourceManager() :
     }
 
 #ifndef OGRE_STATIC_LIB
-    pluginsPath = resourcePath + PLUGINSCFG;
+    mPluginsPath = mResourcePath + PLUGINSCFG;
 #endif
 
-    ogreCfgFile = homePath + CONFIGFILENAME;
-    ogreLogFile = homePath + LOGFILENAME;
-    scriptPath = resourcePath + SCRIPTSUBPATH;
-    soundPath = resourcePath + SOUNDSUBPATH;
-    musicPath = resourcePath + MUSICSUBPATH;
-    languagePath = resourcePath + LANGUAGESUBPATH;
-    shaderCachePath = homePath + SHADERCACHESUBPATH;
+    mOgreCfgFile = mHomePath + CONFIGFILENAME;
+    mOgreLogFile = mHomePath + LOGFILENAME;
+    mScriptPath = mResourcePath + SCRIPTSUBPATH;
+    mSoundPath = mResourcePath + SOUNDSUBPATH;
+    mMusicPath = mResourcePath + MUSICSUBPATH;
+    mLanguagePath = mResourcePath + LANGUAGESUBPATH;
+    mShaderCachePath = mHomePath + SHADERCACHESUBPATH;
 
     //Make shader cache folder if it does not exist.
-
 }
 
 void ResourceManager::setupResources()
 {
     Ogre::ConfigFile cf;
-    cf.load(resourcePath + RESOURCECFG);
+    cf.load(mResourcePath + RESOURCECFG);
 
     // Go through all sections & settings in the file
     Ogre::ConfigFile::SectionIterator seci = cf.getSectionIterator();
@@ -196,7 +203,7 @@ void ResourceManager::setupResources()
         for (i = settings->begin(); i != settings->end(); ++i)
         {
             typeName = i->first;
-            archName = resourcePath + i->second;
+            archName = mResourcePath + i->second;
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE
             // OS X does not set the working directory relative to the app,
             // In order to make things portable on OS X we need to provide
@@ -205,7 +212,7 @@ void ResourceManager::setupResources()
             // for locating your configuration files and resources.
 
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
-                    Ogre::String(std::string(macBundlePath) + archName), typeName, secName, true);
+                    Ogre::String(std::string(mMacBundlePath) + archName), typeName, secName, true);
 #else
             Ogre::ResourceGroupManager::getSingleton().addResourceLocation(
                     archName, typeName, secName, true);
@@ -214,12 +221,6 @@ void ResourceManager::setupResources()
     }
 }
 
-/*! \brief gets all files within a directory
- *
- *  \param diretoryName the directory to scan for files
- *
- *  \return a vector with all file names
- */
 std::vector<std::string> ResourceManager::listAllFiles(const std::string& directoryName)
 {
     std::vector<std::string> files;
@@ -238,30 +239,20 @@ std::vector<std::string> ResourceManager::listAllFiles(const std::string& direct
     return files;
 }
 
-/*! \brief returns all music files that Ogre knows of
- *
- *  \return a vector with all file names
- */
 Ogre::StringVectorPtr ResourceManager::listAllMusicFiles()
 {
     return Ogre::ResourceGroupManager::getSingleton().
             listResourceNames(RESOURCEGROUPMUSIC);
 }
 
-/*! \brief saves a screenshot
- *
- */
 void ResourceManager::takeScreenshot()
 {
     //FIXME: the counter is reset after each start, this overwrites existing pictures
     std::ostringstream ss;
-    ss << "ODscreenshot_" << ++screenshotCounter << ".png";
+    ss << "ODscreenshot_" << ++mScreenshotCounter << ".png";
     ODApplication::getSingleton().getWindow()->writeContentsToFile(getHomePath() + ss.str());
 }
 
-/*! \brief Creates a folder if it doesn't already exist.
- *
- */
 bool ResourceManager::createFolderIfNotExists(const std::string& name)
 {
 #if OGRE_PLATFORM == OGRE_PLATFORM_APPLE

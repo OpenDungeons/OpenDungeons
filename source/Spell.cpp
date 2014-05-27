@@ -1,11 +1,28 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "Spell.h"
+
+#include "Creature.h"
+
 #include <algorithm>
 #include <cmath>
 
-#include "Spell.h"
-#include "Creature.h"
-
-double Spell::heal(int spellLevel, Creature *targetCreature, double hp,
-        double maxMana)
+double Spell::heal(int spellLevel, Creature *targetCreature, double hp, double maxMana)
 {
     const double manaPerHPHealed = 0.1;
     double manaCost = 5;
@@ -32,4 +49,3 @@ double Spell::heal(int spellLevel, Creature *targetCreature, double hp,
 
     return manaCost;
 }
-

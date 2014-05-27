@@ -34,5 +34,5 @@
 # endif
 #endif
 
-#endif /* _SLEEP_H */
+#endif // _SLEEP_H
 

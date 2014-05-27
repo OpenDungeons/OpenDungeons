@@ -1,3 +1,20 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef TRAP_H
 #define TRAP_H
 
@@ -16,70 +33,78 @@ class Tile;
 
 /*! \class Trap Trap.h
  *  \brief Defines a trap
- *
  */
 class Trap : public Building
 {
  /* TODO: Trap and room share a lot of things, so we might want to make a shared
  *  base-class, like "Building" or something.
  */
-    public:
-        enum TrapType
-        {
-            nullTrapType = 0, cannon, boulder
-        };
+public:
+    enum TrapType
+    {
+        nullTrapType = 0, cannon, boulder
+    };
 
-        Trap();
-        virtual ~Trap() {}
+    Trap();
+    virtual ~Trap()
+    {}
 
-        static Trap
-        * createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-                Seat *nControllingSeat, void* params = NULL);
-        static Trap* buildTrap(GameMap* gameMap, Trap::TrapType nType,
-                               const std::vector< Tile* >& coveredTiles,
-                               Player* player, bool inEditor = false, void* params = NULL);
-        static Trap* createTrapFromStream(const std::string& trapName, std::istream &is, GameMap* gameMap);
+    static Trap* createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
+                            Seat *nControllingSeat, void* params = NULL);
 
-        inline const TrapType& getType() const{return type;}
-        static std::string getMeshNameFromTrapType(TrapType t);
-        static TrapType getTrapTypeFromMeshName(std::string s);
+    /** \brief Builds a trap for the current player.
+     *  Builds a trap for the current player. Checks if the player has enough gold,
+     *  if not, NULL is returned.
+     *  \return The trap built, or NULL if the player does not have enough gold.
+     */
+    static Trap* buildTrap(GameMap* gameMap, Trap::TrapType nType,
+                           const std::vector< Tile* >& coveredTiles,
+                           Player* player, bool inEditor = false, void* params = NULL);
 
-        static int costPerTile(TrapType t);
+    static Trap* createTrapFromStream(const std::string& trapName, std::istream &is, GameMap* gameMap);
 
-        // Functions which can be overridden by child classes.
-        virtual bool doUpkeep();
-        virtual bool doUpkeep(Trap *t);
+    inline const TrapType& getType() const
+    { return mType; }
 
-        virtual std::vector<GameEntity*> aimEnemy();
-        virtual void damage(std::vector<GameEntity*>);
+    static std::string getMeshNameFromTrapType(TrapType t);
+    static TrapType getTrapTypeFromMeshName(std::string s);
 
-        virtual void addCoveredTile(Tile* t, double nHP = defaultTileHP);
-        virtual void removeCoveredTile(Tile* t);
-        virtual Tile* getCoveredTile(int index);
-        std::vector<Tile*> getCoveredTiles();virtual unsigned int numCoveredTiles();
-        virtual void clearCoveredTiles();
+    static int costPerTile(TrapType t);
 
-        static std::string getFormat();
-        friend std::istream& operator>>(std::istream& is, Trap *t);
-        friend std::ostream& operator<<(std::ostream& os, Trap *t);
+    // Functions which can be overridden by child classes.
+    virtual bool doUpkeep();
+    virtual bool doUpkeep(Trap *t);
 
-        // Methods inherited from AttackableObject.
-        //TODO:  Sort these into the proper places in the rest of the file.
-        double getHP(Tile *tile);
-        double getDefense() const;
-        void takeDamage(double damage, Tile *tileTakingDamage);
-        void recieveExp(double experience);
+    virtual std::vector<GameEntity*> aimEnemy();
+    virtual void damage(std::vector<GameEntity*>);
 
-    protected:
-        int reloadTime;
-        int reloadTimeCounter;
-        double minDamage, maxDamage;
-        const static double defaultTileHP;// = 10.0;
+    virtual void addCoveredTile(Tile* t, double nHP = mDefaultTileHP);
+    virtual void removeCoveredTile(Tile* t);
+    virtual Tile* getCoveredTile(int index);
+    std::vector<Tile*> getCoveredTiles();virtual unsigned int numCoveredTiles();
+    virtual void clearCoveredTiles();
 
-        std::vector<Tile*> coveredTiles;
-        std::map<Tile*, double> tileHP;
-        TrapType type;
+    static std::string getFormat();
+    friend std::istream& operator>>(std::istream& is, Trap *t);
+    friend std::ostream& operator<<(std::ostream& os, Trap *t);
+
+    // Methods inherited from AttackableObject.
+    //TODO:  Sort these into the proper places in the rest of the file.
+    double getHP(Tile *tile);
+    double getDefense() const;
+    void takeDamage(double damage, Tile *tileTakingDamage);
+    void recieveExp(double experience);
+
+protected:
+    int mReloadTime;
+    int mReloadTimeCounter;
+    double mMinDamage;
+    double mMaxDamage;
+    const static double mDefaultTileHP;// = 10.0;
+
+    std::vector<Tile*> mCoveredTiles;
+    std::map<Tile*, double> mTileHP;
+    TrapType mType;
 };
 
-#endif
-
+#endif // TRAP_H
