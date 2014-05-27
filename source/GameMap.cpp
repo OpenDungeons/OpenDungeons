@@ -170,9 +170,9 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
     if (!allocateMapMemory(sizeX, sizeY))
         return false;
 
-    for (int jj = 0; jj < mapSizeY; ++jj)
+    for (int jj = 0; jj < mMapSizeY; ++jj)
     {
-        for (int ii = 0; ii < mapSizeX; ++ii)
+        for (int ii = 0; ii < mMapSizeX; ++ii)
         {
             // Skip tiles already set up
             if ((getTile(ii, jj)->getGameMap()) != NULL)
@@ -196,9 +196,9 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
 
 void GameMap::setAllFullnessAndNeighbors()
 {
-    for (int ii = 0; ii < mapSizeX; ++ii)
+    for (int ii = 0; ii < mMapSizeX; ++ii)
     {
-        for (int jj = 0; jj < mapSizeY; ++jj)
+        for (int jj = 0; jj < mMapSizeY; ++jj)
         {
             Tile* tile = getTile(ii, jj);
             tile->setFullness(tile->getFullness());

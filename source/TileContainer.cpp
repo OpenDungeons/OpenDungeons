@@ -1,58 +1,67 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "TileContainer.h"
 
 TileContainer::TileContainer():
-    mapSizeX(0),
-    mapSizeY(0),
-    rr(0),
-    tiles(NULL)
+    mMapSizeX(0),
+    mMapSizeY(0),
+    mRr(0),
+    mTiles(NULL)
 {
 }
 
 TileContainer::~TileContainer()
 {
     clearTiles();
-    if (tiles)
-        delete [] tiles;
+    if (mTiles)
+        delete [] mTiles;
 }
 
-/*! \brief Clears the mesh and deletes the data structure for all the tiles in the TileContainer.
- *
- */
 void TileContainer::clearTiles()
 {
-    for (int jj = 0; jj < mapSizeY; ++jj)
+    for (int jj = 0; jj < mMapSizeY; ++jj)
     {
-        for (int ii = 0; ii < mapSizeX; ++ii)
+        for (int ii = 0; ii < mMapSizeX; ++ii)
         {
-            tiles[ii][jj].destroyMesh();
-            tiles[ii][jj].deleteYourself();
+            mTiles[ii][jj].destroyMesh();
+            mTiles[ii][jj].deleteYourself();
         }
     }
 }
-
 
 bool TileContainer::addTile(const Tile& t)
 {
     if (t.x < getMapSizeX() && t.y < getMapSizeY() && t.x >= 0 && t.y >= 0)
     {
-        tiles[t.x][t.y] = t;
+        mTiles[t.x][t.y] = t;
         return true;
     }
 
     return false;
 }
 
-/*! \brief Adds the address of a new tile to be stored in this TileContainer.
- *
- */
-
-void TileContainer::setTileNeighbors(Tile *t){
+void TileContainer::setTileNeighbors(Tile *t)
+{
     for (unsigned int i = 0; i < 2; ++i)
     {
         int tempX = t->x, tempY = t->y;
         switch (i)
         {
-
         case 0:
             --tempX;
             break;
@@ -67,27 +76,21 @@ void TileContainer::setTileNeighbors(Tile *t){
 
         // If the current neigbor tile exists, add the current tile as one of its
         // neighbors and add it as one of the current tile's neighbors.
-        if (tempX >=0 && tempY >= 0)
-	    {
-
-		Tile *tempTile = getTile(tempX, tempY);
-		tempTile->addNeighbor(t);
-		t->addNeighbor(tempTile);
-	    }
+        if (tempX >= 0 && tempY >= 0)
+        {
+            Tile *tempTile = getTile(tempX, tempY);
+            tempTile->addNeighbor(t);
+            t->addNeighbor(tempTile);
+        }
     }
 }
 
-/*! \brief Returns a pointer to the tile at location (x, y) (const version).
- *
- * The tile pointers are stored internally in a map so calls to this function
- * have a complexity O(log(N)) where N is the number of tiles in the map.
- * This function does not lock.
- */
 Tile* TileContainer::getTile(int xx, int yy) const
 {
     if (xx < getMapSizeX() && yy < getMapSizeY() && xx >= 0 && yy >= 0)
-        return &(tiles[xx][yy]);
-    else {
+        return &(mTiles[xx][yy]);
+    else
+    {
         // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
         return NULL;
     }
@@ -112,7 +115,6 @@ const Tile::TileType* TileContainer::getNeighborsTypes(Tile* curTile)
     return const_cast<Tile::TileType*>(neighborsType);
 }
 
-
 const bool* TileContainer::getNeighborsFullness(Tile* curTile)
 {
     static bool neighborsFullness[8];
@@ -132,32 +134,20 @@ const bool* TileContainer::getNeighborsFullness(Tile* curTile)
     return const_cast<bool*>(neighborsFullness);
 }
 
-
-/*! \brief Returns the number of tile pointers currently stored in this TileContainer.
- *
- */
 unsigned int TileContainer::numTiles()
 {
-    // sem_wait(&tilesLockSemaphore);
-    // unsigned int tempUnsigned = tiles.size();
-    // sem_post(&tilesLockSemaphore);
-
-    return mapSizeX * mapSizeY;
+    return mMapSizeX * mMapSizeY;
 }
 
 Tile* TileContainer::firstTile()
 {
-    return &tiles[0][0];
+    return &mTiles[0][0];
 }
 
-/*! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
- *
- */
 Tile* TileContainer::lastTile()
 {
-    return &tiles[getMapSizeX()][getMapSizeY()];
+    return &mTiles[getMapSizeX()][getMapSizeY()];
 }
-
 
 bool TileContainer::allocateMapMemory(int xSize, int ySize)
 {
@@ -168,29 +158,29 @@ bool TileContainer::allocateMapMemory(int xSize, int ySize)
     }
 
     // Set map size
-    mapSizeX = xSize;
-    mapSizeY = ySize;
+    mMapSizeX = xSize;
+    mMapSizeY = ySize;
 
     // Clear memory usage first
-    if (tiles)
-        delete [] tiles;
+    if (mTiles)
+        delete [] mTiles;
 
-    tiles = new Tile *[mapSizeX];
-    if(!tiles)
+    mTiles = new Tile *[mMapSizeX];
+    if(!mTiles)
     {
         std::cerr << "Failed to allocate map memory" << std::endl;
         return false;
     }
 
-    for (int i = 0; i < mapSizeX; ++i)
+    for (int i = 0; i < mMapSizeX; ++i)
     {
-        tiles[i] = new Tile[mapSizeY];
+        mTiles[i] = new Tile[mMapSizeY];
     }
 
     return true;
 }
 
-Tile::TileType TileContainer::getSafeTileType(Tile* tt )
+Tile::TileType TileContainer::getSafeTileType(Tile* tt)
 {
     return (tt == NULL) ? Tile::nullTileType : tt->getType();
 }

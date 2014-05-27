@@ -3,6 +3,21 @@
  * \date   27 April 2011
  * \author StefanP.MUC
  * \brief  handles the translation
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "ResourceManager.h"
@@ -11,9 +26,6 @@
 
 template<> Translation* Ogre::Singleton<Translation>::msSingleton = 0;
 
-/*! \brief Initializes tinygettext (loading available languages)
- *
- */
 Translation::Translation()
 {
 #if defined(WIN32) && !defined(__CYGWIN__)
@@ -25,15 +37,14 @@ Translation::Translation()
     ResourceManager* resMgr = ResourceManager::getSingletonPtr();
 
     std::string languagePath = resMgr->getLanguagePath();
-    std::vector<std::string> fileList = resMgr->
-            listAllFiles(languagePath);
+    std::vector<std::string> fileList = resMgr->listAllFiles(languagePath);
 
     //tell the dictionary manager where to find the .po files
-    dictMgr.add_directory(languagePath);
+    mDictMgr.add_directory(languagePath);
 
     //we have no .po file for en (default, hardcoded) so we add it manually
-    languageList.push_back("en");
-    languageNiceNames.push_back(tinygettext::Language::from_name("en") + " (en)");
+    mLanguageList.push_back("en");
+    mLanguageNiceNames.push_back(tinygettext::Language::from_name("en") + " (en)");
 
     /* check what .po files are available and put them into a list
      * and initializes the nice names list in the style of:
@@ -43,28 +54,28 @@ Translation::Translation()
      */
     std::string currentLang;
     for(std::vector<std::string>::iterator itr = fileList.begin(),
-            end = fileList.end(); itr != end; ++itr)
+        end = fileList.end(); itr != end; ++itr)
     {
         //only load .po files
         if(ResourceManager::hasFileEnding(*itr, ".po"))
         {
-            currentLang = dictMgr.convertFilenameToLanguage(*itr);
-            languageList.push_back(currentLang);
-            languageNiceNames.push_back(
+            currentLang = mDictMgr.convertFilenameToLanguage(*itr);
+            mLanguageList.push_back(currentLang);
+            mLanguageNiceNames.push_back(
                             tinygettext::Language::from_name(currentLang) +
                             " (" + currentLang + ")");
         }
     }
 
     //TODO: after we have a user cfg file, load his language at game start
-    dictionary = dictMgr.get_dictionary();
+    mDictionary = mDictMgr.get_dictionary();
 
     /* this is how STK does it but I think we won't need to hack
      * us through env vars after we have a config file
     const char* language = getenv("LANGUAGE");
-    dictionary = (language != NULL && strlen(language) > 0)
-            ? dictMgr.get_dictionary(tinygettext::Language::from_env(language))
-            : dictMgr.get_dictionary();
+    mDictionary = (language != NULL && strlen(language) > 0)
+            ? mDictMgr.get_dictionary(tinygettext::Language::from_env(language))
+            : mDictMgr.get_dictionary();
      */
 }
 

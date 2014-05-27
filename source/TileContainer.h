@@ -1,9 +1,26 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef TILECONTAINER_H
 #define TILECONTAINER_H
 
 #include "Tile.h"
-#include <sstream>
 
+#include <sstream>
 
 class TileContainer
 {
@@ -11,24 +28,34 @@ class TileContainer
 friend class TileContainersModificator;
 
 public:
-   TileContainer();
-  ~TileContainer();
+    TileContainer();
+    ~TileContainer();
 
-  // Game state methods
-  void clearTiles();
+    //! \brief Clears the mesh and deletes the data structure for all the tiles in the TileContainer.
+    void clearTiles();
 
     //! \brief Adds the given tile on map. The tile coordinates members must be ready.
     //! \returns true if added.
     bool addTile(const Tile& t);
 
-  void setTileNeighbors(Tile *t);
+    //! \brief Adds the address of a new tile to be stored in this TileContainer.
+    void setTileNeighbors(Tile *t);
 
-  Tile* getTile(int x, int y) const;
-  Tile::TileType getSafeTileType(Tile* tt );
-  bool getSafeTileFullness(Tile* tt );
+    /*! \brief Returns a pointer to the tile at location (x, y) (const version).
+     *
+     * The tile pointers are stored internally in a map so calls to this function
+     * have a complexity O(log(N)) where N is the number of tiles in the map.
+     * This function does not lock.
+     */
+    Tile* getTile(int x, int y) const;
 
-  Tile* firstTile();
-  Tile* lastTile();
+    Tile::TileType getSafeTileType(Tile* tt );
+    bool getSafeTileFullness(Tile* tt );
+
+    //! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
+    Tile* firstTile();
+
+    Tile* lastTile();
 
     //! \brief Gets the tile type of all neighbors
     //! \param tile The tile to be checked.
@@ -40,6 +67,7 @@ public:
     //! \returns a bool[8] array pointer where the info is stored.
     const bool* getNeighborsFullness(Tile* tile);
 
+    //! \brief Returns the number of tile pointers currently stored in this TileContainer.
     unsigned int numTiles();
 
     //! \brief Returns all the valid tiles in the rectangular region specified by the two corner points given.
@@ -59,22 +87,22 @@ public:
 
     //! \brief Gets the map size
     int getMapSizeX() const
-    { return mapSizeX; }
+    { return mMapSizeX; }
 
     int getMapSizeY() const
-    { return mapSizeY; }
+    { return mMapSizeY; }
 
 protected:
     //! \brief The map size
-    int mapSizeX;
-    int mapSizeY;
+    int mMapSizeX;
+    int mMapSizeY;
 
-    int rr;
+    int mRr;
 
     //! \brief Set the map size and memory
     bool allocateMapMemory(int xSize, int ySize);
 private:
-  Tile **tiles;
+    Tile** mTiles;
 };
 
 #endif //TILECONTAINER_H
