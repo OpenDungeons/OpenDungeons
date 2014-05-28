@@ -69,7 +69,7 @@ public:
     Ogre::uint getHeight() const
     { return mHeight; }
 
-    void setCamera_2dPosition(const Ogre::Vector3& vv);
+    void updateCameraInfos(const Ogre::Vector3& vv, const double& rotation);
 
     Ogre::Vector2 camera_2dPositionFromClick(int xx, int yy);
 
@@ -82,6 +82,7 @@ private:
     int mGrainSize;
 
     Ogre::Vector2 mCamera_2dPosition;
+    double mCosRotation, mSinRotation;
 
     Color** mTiles;
     GameMap* mGameMap;

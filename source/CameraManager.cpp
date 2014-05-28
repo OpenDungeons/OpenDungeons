@@ -371,7 +371,7 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     SoundEffectsHelper::getSingleton().setListenerPosition(
         newPosition,  getActiveCameraNode()->getOrientation());
 
-    mGameMap->getMiniMap()->setCamera_2dPosition(getCameraViewTarget());
+    mGameMap->getMiniMap()->updateCameraInfos(getCameraViewTarget(), getActiveCameraNode()->getOrientation().getRoll().valueRadians());
     mModeManager->getCurrentMode()->mouseMoved(
         OIS::MouseEvent(0 ,mModeManager->getCurrentMode()->getMouse()->getMouseState()));
 

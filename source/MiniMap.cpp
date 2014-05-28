@@ -102,9 +102,11 @@ void MiniMap::allocateMiniMapMemory()
     }
 }
 
-void MiniMap::setCamera_2dPosition(const Ogre::Vector3& vv)
+void MiniMap::updateCameraInfos(const Ogre::Vector3& vv, const double& rotation)
 {
     mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
+    mCosRotation = cos(rotation-(M_PI_2));
+    mSinRotation = sin(rotation-(M_PI_2));
 }
 
 Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
@@ -140,12 +142,15 @@ void MiniMap::draw()
     {
         for (Ogre::uint jj = 0, nn = mCamera_2dPosition.y - mHeight / (2 * mGrainSize); jj < mHeight; ++nn, jj += mGrainSize)
         {
+            // Applying rotation
+            int oo = mCamera_2dPosition.x + round((mm - mCamera_2dPosition.x) * mCosRotation - (nn - mCamera_2dPosition.y) * mSinRotation);
+            int pp = mCamera_2dPosition.y + round((mm - mCamera_2dPosition.x) * mSinRotation + (nn - mCamera_2dPosition.y) * mCosRotation);
             /*FIXME: even if we use a THREE byte pixel format (PF_R8G8B8),
              * for some reason it only works if we have FOUR increments
              * (the empty one is the unused alpha channel)
              * this is not how it is intended/expected
              */
-            Tile* tile = mGameMap->getTile(mm, nn);
+            Tile* tile = mGameMap->getTile(oo, pp);
             if(tile == NULL)
             {
                 drawPixel(ii, jj, 0x00, 0x00, 0x00);
