@@ -240,19 +240,19 @@ int CullingManager::cullCreatures()
 
 
 void CullingManager::newBashAndSplashTiles(int64_t mode){
-    int64_t xxLeftOld = oldWalk.getTopVertex().x;
-    int64_t xxRightOld= oldWalk.getTopVertex().x;
-    int64_t xxLeft = mWalk.getTopVertex().x;
-    int64_t xxRight= mWalk.getTopVertex().x;
+    int64_t xxLeftOld = oldWalk.getTopLeftVertex().x;
+    int64_t xxRightOld= oldWalk.getTopRightVertex().x;
+    int64_t xxLeft = mWalk.getTopLeftVertex().x;
+    int64_t xxRight= mWalk.getTopRightVertex().x;
 
     if(mDebug)
     {
         mWalk.printState();
         mDebug = false;
     }
-    int64_t bb = (( std::min(mWalk.getBottomVertex().y , oldWalk.getBottomVertex().y) >> mPrecisionDigits) - 2) << mPrecisionDigits;
+    int64_t bb = (( std::min(mWalk.getBottomLeftVertex().y , oldWalk.getBottomLeftVertex().y) >> mPrecisionDigits) - 2) << mPrecisionDigits;
 
-    for (int64_t yy = ((std::max(mWalk.getTopVertex().y , oldWalk.getTopVertex().y  ) >> mPrecisionDigits) + 2) << mPrecisionDigits;  yy >= bb; yy -= Unit)
+    for (int64_t yy = ((std::max(mWalk.getTopLeftVertex().y , oldWalk.getTopLeftVertex().y  ) >> mPrecisionDigits) + 2) << mPrecisionDigits;  yy >= bb; yy -= Unit)
     {
 	mWalk.notifyOnMoveDown(yy);
 	oldWalk.notifyOnMoveDown(yy);
@@ -267,8 +267,8 @@ void CullingManager::newBashAndSplashTiles(int64_t mode){
 	int64_t mm = ((std::min(xxLeft, xxLeftOld) >> mPrecisionDigits) << mPrecisionDigits) ;
 	if(std::min(xxLeft, xxLeftOld) < max(xxRight,xxRightOld) )
         for (int64_t xx = mm ; xx <= max(xxRight,xxRightOld) ; xx+= Unit){
-            bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= oldWalk.getBottomVertex().y) && yy <= oldWalk.getTopVertex().y);
-            bool splash = (xx >= xxLeft && xx <= xxRight && (yy >= mWalk.getBottomVertex().y) && yy <= mWalk.getTopVertex().y);
+            bool bash = (xx >= xxLeftOld && xx <= xxRightOld && (yy >= oldWalk.getBottomLeftVertex().y) && yy <= oldWalk.getTopLeftVertex().y);
+            bool splash = (xx >= xxLeft && xx <= xxRight && (yy >= mWalk.getBottomLeftVertex().y) && yy <= mWalk.getTopLeftVertex().y);
 
 
 	    // cerr<<"CullingManager "   << " x" <<  (xx >> mPrecisionDigits )<< " y" << (yy >> mPrecisionDigits ) << " " << (splash && (mode & SHOW)) << (bash && (mode & HIDE)) << endl;

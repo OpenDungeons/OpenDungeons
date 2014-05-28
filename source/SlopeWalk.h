@@ -4,10 +4,11 @@
 #include "Vector3i.h"
 #include "DummyArrayClass.h"
 #include <deque>
-
+#include <array>
 
 
 using std::deque;
+using std::array;
 
 class SlopeWalk{
 
@@ -28,6 +29,11 @@ private:
     std::deque<int>::iterator leftVerticesIndex;
     bool passLeftVertex();
     bool passRightVertex();
+    int down_right_index;
+    int top_right_index;
+    int down_left_index;
+    int top_left_index;
+
 
 
 public:
@@ -41,8 +47,12 @@ public:
 
     Vector3i getCurrentLeftVertex();
     Vector3i getCurrentRightVertex();
-    Vector3i& getTopVertex();
-    Vector3i& getBottomVertex();
+    Vector3i& getTopLeftVertex();
+    Vector3i& getBottomLeftVertex();
+    Vector3i& getTopRightVertex();
+    Vector3i& getBottomRightVertex();
+    void findMinMaxLeft(std::array<Vector3i,4>& );
+    void findMinMaxRight(std::array<Vector3i,4>& );
 
     void buildSlopes();
 
