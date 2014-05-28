@@ -104,7 +104,7 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
         else
         {
             mLl->clear();
-            mConsole->mPrompt += mPrefixTree->complete(mConsole->mPrompt.c_str(), mLl);
+            mPrefixTree->complete(mConsole->mPrompt.c_str(), mLl);
             mPrefix = mConsole->mPrompt ;
             mIt = mLl->begin();
         }
