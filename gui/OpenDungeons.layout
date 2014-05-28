@@ -76,7 +76,6 @@
             <Property name="Area" value="{{0,736},{0,2},{0,808},{0,35}}" />
             <Property name="Text" value="Options" />
             <Property name="AlwaysOnTop" value="True" />
-            <Property name="FrameEnabled" value="False" />
             <Property name="TooltipText" value="Options" />
             <Property name="ClippedByParent" value="False" />
         </Window>
