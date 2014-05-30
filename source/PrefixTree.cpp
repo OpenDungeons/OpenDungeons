@@ -7,13 +7,16 @@
 
 using std::cout ; using std::cin; using std::endl; using std::make_pair;
 
-PrefixTree::PrefixTree():validWord(false){}
-bool PrefixTree::addNewString(string ss){
-    return addNewStringAux(ss.begin(), ss.begin(), ss.end());
+PrefixTree::PrefixTree():validWord(false)
+{}
 
+void PrefixTree::addNewString(const std::string& ss)
+{
+    addNewStringAux(ss.begin(), ss.begin(), ss.end());
 }
 
-bool PrefixTree::addNewStringAux(string::const_iterator ii, string::const_iterator ssBegin, string::const_iterator ssEnd ){
+void PrefixTree::addNewStringAux(string::const_iterator ii, string::const_iterator ssBegin, string::const_iterator ssEnd)
+{
 
     if( ii != ssEnd){
 
@@ -38,14 +41,15 @@ bool PrefixTree::addNewStringAux(string::const_iterator ii, string::const_iterat
     }
 }
 
-bool PrefixTree::readStringsFromFile(string fileName){
-
+bool PrefixTree::readStringsFromFile(const std::string& fileName)
+{
     std::string str;
     std::fstream fileStream (fileName);
     cout << fileStream.good() << endl; 
     while (std::getline(fileStream, str)) {
 	addNewString(str);
     }
+    return true;
 }
 
 bool PrefixTree::complete(const char * word, list<string>* ll ){
@@ -68,6 +72,7 @@ bool PrefixTree::completePlusPrefix(string ss, list<string>* ll){
 	tt += ii->first;
 	ii->second->completePlusPrefix(tt, ll);
     }
+    return true;
 }
 
 
@@ -94,11 +99,3 @@ PrefixTree* PrefixTree::findPrefixAux(string::const_iterator ii, string::const_i
 	    return result->second->findPrefixAux(++ii,end_ii) ;
     }
 }
-
-
-
-
-
-
-
-

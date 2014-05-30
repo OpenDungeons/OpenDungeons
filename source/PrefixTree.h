@@ -14,14 +14,14 @@ private:
     char NodeChar;
     PrefixTree* parent;
     bool validWord;
-    bool addNewStringAux(string::const_iterator, string::const_iterator, string::const_iterator ) ;
+    void addNewStringAux(string::const_iterator, string::const_iterator, string::const_iterator ) ;
     PrefixTree* findPrefixAux(string::const_iterator , string::const_iterator );
     bool completePlusPrefix(string,  list<string>* ll);
 
 public: 
     PrefixTree();
-    bool addNewString(string);
-    bool readStringsFromFile(string);
+    void addNewString(const std::string&);
+    bool readStringsFromFile(const std::string&);
     bool printAll();
     PrefixTree* findPrefix(string );
     int build(const char *filename);
