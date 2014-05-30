@@ -106,8 +106,8 @@ void MiniMap::allocateMiniMapMemory()
 void MiniMap::updateCameraInfos(const Ogre::Vector3& vv, const double& rotation)
 {
     mCamera_2dPosition = Ogre::Vector2(vv.x, vv.y);
-    mCosRotation = cos(rotation - PI);
-    mSinRotation = sin(rotation - PI);
+    mCosRotation = cos(rotation - (PI/2.0));
+    mSinRotation = sin(rotation - (PI/2.0));
 }
 
 Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
