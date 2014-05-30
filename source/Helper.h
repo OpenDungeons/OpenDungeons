@@ -93,7 +93,7 @@ namespace Helper
 
     // Needed on MSVC <2012
     // http://social.msdn.microsoft.com/Forums/vstudio/en-US/260e04fc-dd05-4a96-8953-9c6ea1ad62fb/cant-find-stdround-in-cmath?forum=vclanguage
-    int round(double d)
+    static int round(double d)
     {
         return static_cast<int>(d + 0.5);
     }
