@@ -112,8 +112,16 @@ void MiniMap::updateCameraInfos(const Ogre::Vector3& vv, const double& rotation)
 
 Ogre::Vector2 MiniMap::camera_2dPositionFromClick(int xx, int yy)
 {
-    mCamera_2dPosition.x += (Ogre::Real)(((yy - mTopLeftCornerY) / double(mHeight) - 0.5) * mHeight / mGrainSize);
-    mCamera_2dPosition.y += (Ogre::Real)(((xx - mTopLeftCornerX) / double(mWidth) - 0.5) * mWidth / mGrainSize);
+    Ogre::Real mm, nn, oo, pp;
+    // Compute move
+    mm = ((yy - mTopLeftCornerY) / double(mHeight) - 0.5);
+    nn = ((xx - mTopLeftCornerX) / double(mWidth) - 0.5);
+    // Applying rotation
+    oo = mm * mCosRotation - nn * mSinRotation;
+    pp = mm * mSinRotation + nn * mCosRotation;
+    // Apply result to camera
+    mCamera_2dPosition.x += (Ogre::Real)(oo * mHeight / mGrainSize);
+    mCamera_2dPosition.y += (Ogre::Real)(pp * mWidth / mGrainSize);
 
     return mCamera_2dPosition;
 }
