@@ -158,6 +158,8 @@ void MiniMap::draw()
                 continue;
             }
 
+            Seat* tempSeat;
+            Ogre::ColourValue color;
             switch (tile->getType())
             {
             case Tile::water:
@@ -181,7 +183,13 @@ void MiniMap::draw()
                 break;
 
             case Tile::claimed:
-                drawPixel(ii, jj, 0x94, 0x00, 0xD3);
+                tempSeat = mGameMap->getSeatByColor(tile->getColor());
+                if (tempSeat != nullptr) {
+                    color = tempSeat->getColorValue();
+                    drawPixel(ii, jj, color.r*0xFF, color.g*0xFF, color.b*0xFF);
+                } else {
+                    drawPixel(ii, jj, 0x94, 0x00, 0xD3);
+                }
                 break;
 
             case Tile::nullTileType:
