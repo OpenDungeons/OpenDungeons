@@ -98,7 +98,6 @@ protected:
     void rrAttachTile(const RenderRequest& renderRequest);
     void rrToggleCreaturesVisibility();
     void rrColorTile(const RenderRequest& renderRequest);
-    void rrSetPickAxe(const RenderRequest& renderRequest);
     void rrTemporalMarkTile(const RenderRequest& renderRequest);
     void rrShowSquareSelector(const RenderRequest& renderRequest);
     void rrCreateRoom(const RenderRequest& renderRequest);

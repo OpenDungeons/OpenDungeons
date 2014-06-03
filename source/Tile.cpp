@@ -853,14 +853,6 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
         {
             request = new RenderRequest;
 
-            request->type = RenderRequest::setPickAxe;
-            request->p = static_cast<void*>(this);
-            request->p2 = static_cast<void*>(pp);
-            request->b = ss;
-            // Add the request to the queue of rendering operations to be performed before the next frame.
-            RenderManager::queueRenderRequest(request);
-            request = new RenderRequest;
-
             request->type = RenderRequest::colorTile;
             request->p = static_cast<void*>(this);
             request->p2 = static_cast<void*>(pp);

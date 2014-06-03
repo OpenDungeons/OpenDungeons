@@ -208,10 +208,6 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         rrShowSquareSelector(renderRequest);
         break;
 
-    case RenderRequest::setPickAxe:
-        rrSetPickAxe(renderRequest);
-        break;
-
     case RenderRequest::createRoom:
         rrCreateRoom(renderRequest);
         break;
@@ -571,49 +567,6 @@ void RenderManager::rrColorTile(const RenderRequest& renderRequest)
     curTile->refreshMesh();
 }
 
-
-void RenderManager::rrSetPickAxe(const RenderRequest& renderRequest)
-{
-    Tile* curTile = static_cast<Tile*>(renderRequest.p);
-    bool bb = renderRequest.b;
-    Ogre::Entity *ent = NULL;
-    Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
-    stringstream ss;
-    stringstream ss2;
-
-    if (mSceneManager->hasSceneNode(curTile->getName() + "_node"))
-    {
-        ss.str(std::string());
-        ss << "Level";
-        ss << "_";
-        ss <<  curTile->x;
-        ss << "_";
-        ss <<  curTile->y;
-        ss << "_digging_indicator";
-
-        if (mSceneMgr->hasEntity(ss.str()))
-        {
-            ent = mSceneMgr->getEntity(ss.str());
-        }
-        else
-        {
-            ent = mSceneMgr->createEntity(ss.str(), "DigSelector.mesh");
-            ss2.str(std::string());
-            ss2 << "Level";
-            ss2 << "_";
-            ss2 <<  curTile->x;
-            ss2 << "_";
-            ss2 <<  curTile->y;
-            ss2 << "_node";
-            Ogre::SceneNode *tempNode = mSceneMgr->getSceneNode(ss2.str());
-            tempNode->attachObject(ent);
-        }
-
-        if (ent != NULL)
-            ent->setVisible(bb);
-    }
-}
-
 void RenderManager::rrTemporalMarkTile(const RenderRequest& renderRequest)
 {
     Ogre::SceneManager* mSceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
@@ -653,7 +606,6 @@ void RenderManager::rrTemporalMarkTile(const RenderRequest& renderRequest)
         node->attachObject(ent);
     }
 
-    // Well this should go where the pick up axe shows up
     ent->setVisible(bb);
 }
 

@@ -44,7 +44,6 @@ public:
         attachCreature,
         detachCreature,
         toggleCreatureVisibility,
-        setPickAxe,
         showSquareSelector,
         createCreature,
         destroyCreature,
