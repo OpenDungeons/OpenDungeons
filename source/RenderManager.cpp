@@ -646,7 +646,11 @@ void RenderManager::rrTemporalMarkTile(const RenderRequest& renderRequest)
         ss2 << curTile->y;
         ss2 << "_node";
         ent = mSceneMgr->createEntity(ss.str(), "SquareSelector.mesh");
-        mSceneMgr->getSceneNode(ss2.str())->attachObject(ent);
+        Ogre::SceneNode* node = mSceneManager->getSceneNode(ss2.str())->createChildSceneNode(ss.str()+"Node");
+        node->setInheritScale(false);
+        node->scale(Ogre::Vector3(BLENDER_UNITS_PER_OGRE_UNIT,
+                                  BLENDER_UNITS_PER_OGRE_UNIT, 0.45 * BLENDER_UNITS_PER_OGRE_UNIT));
+        node->attachObject(ent);
     }
 
     // Well this should go where the pick up axe shows up
