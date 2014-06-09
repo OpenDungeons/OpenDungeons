@@ -1,5 +1,5 @@
 <Falagard version="7">
-    
+
     <WidgetLook name="OD/Button">
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
@@ -300,9 +300,9 @@
         </StateImagery>
     </WidgetLook>
 
-    
+
     <WidgetLook name="OD/RadioButton">
-	<PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF7F7F7F" name="DisabledTextColour" redrawOnWrite="true" />
@@ -333,7 +333,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-		<ImageProperty name="InitialImage" />
+        <ImageProperty name="InitialImage" />
 
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
@@ -425,10 +425,10 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/Checkbox">
-		<PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="HoverTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFFFFFFF" name="PushedTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF7F7F7F" name="DisabledTextColour" redrawOnWrite="true" />
@@ -545,8 +545,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/Editbox">
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF000000" name="SelectedTextColour" redrawOnWrite="true" />
@@ -632,8 +632,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/Titlebar">
         <PropertyDefinition initialValue="FFFFFFFF" name="CaptionColour" redrawOnWrite="true" />
         <ImagerySection name="main">
@@ -745,8 +745,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/FrameWindow">
         <PropertyLinkDefinition initialValue="FFFFFFFF" name="CaptionColour" targetProperty="CaptionColour" widget="__auto_titlebar__" />
         <PropertyLinkDefinition name="TitlebarFont" targetProperty="Font" widget="__auto_titlebar__" />
@@ -968,8 +968,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/ProgressBar">
         <NamedArea name="ProgressArea">
             <Area>
@@ -1034,8 +1034,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/AltProgressBar">
         <NamedArea name="ProgressArea">
             <Area>
@@ -1199,8 +1199,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/VUMeter">
         <Property name="VerticalProgress" value="True" />
         <NamedArea name="ProgressArea">
@@ -1266,8 +1266,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/SliderThumb">
         <Property name="VertFree" value="True" />
         <ImagerySection name="normal">
@@ -1319,8 +1319,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/Slider">
         <Property name="VerticalSlider" value="True" />
         <Property name="MouseAutoRepeatEnabled" value="True" />
@@ -1367,8 +1367,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/HorizontalScrollbarThumb">
         <Property name="HorzFree" value="True" />
         <ImagerySection name="normal">
@@ -1420,8 +1420,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/HorizontalScrollbar">
         <NamedArea name="ThumbTrackArea">
             <Area>
@@ -1497,8 +1497,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/VerticalScrollbarThumb">
         <Property name="VertFree" value="True" />
         <ImagerySection name="normal">
@@ -1550,8 +1550,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/VerticalScrollbar">
         <Property name="VerticalScrollbar" value="True" />
         <NamedArea name="ThumbTrackArea">
@@ -1628,8 +1628,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/Listbox">
         <NamedArea name="ItemRenderingArea">
             <Area>
@@ -1745,8 +1745,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/ComboDropList">
         <NamedArea name="ItemRenderingArea">
             <Area>
@@ -1862,8 +1862,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/ComboEditbox">
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF000000" name="SelectedTextColour" redrawOnWrite="true" />
@@ -1948,8 +1948,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/Combobox">
         <PropertyLinkDefinition initialValue="FFFFFFFF" name="NormalEditTextColour" targetProperty="NormalTextColour" widget="__auto_editbox__" />
         <PropertyLinkDefinition initialValue="FF000000" name="SelectedEditTextColour" targetProperty="SelectedTextColour" widget="__auto_editbox__" />
@@ -1996,8 +1996,8 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/Spinner">
         <Child nameSuffix="__auto_editbox__" type="OD/Editbox">
             <Area>
@@ -2038,8 +2038,8 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/StaticShared">
         <ImagerySection name="frame">
             <FrameComponent>
@@ -2077,7 +2077,7 @@
                         </Dim>
                 </Area>
                 <Image name="OpenDungeons/StaticBackdrop" />
-                
+
                 <Colours bottomLeft="FFFFFFFF" bottomRight="FFFFFFFF" topLeft="FFFFFFFF" topRight="FFFFFFFF" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
@@ -2092,19 +2092,19 @@
                     <Dim type="BottomEdge"><UnifiedDim scale="1" type="BottomEdge" /></Dim>
                 </Area>
                 <Image name="OpenDungeons/StaticBackdrop" />
-                
+
                 <Colours bottomLeft="FFFFFFFF" bottomRight="FFFFFFFF" topLeft="FFFFFFFF" topRight="FFFFFFFF" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
         </ImagerySection>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/StaticImage">
-		<PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="ImageColours" redrawOnWrite="true" />
-		<PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="FrameColours" redrawOnWrite="true" />
-		<PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="BackgroundColours" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="ImageColours" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="FrameColours" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="BackgroundColours" redrawOnWrite="true" />
         <PropertyDefinition initialValue="Stretched" name="VertFormatting" redrawOnWrite="true" />
         <PropertyDefinition initialValue="Stretched" name="HorzFormatting" redrawOnWrite="true" />
         <Property name="BackgroundEnabled" value="True" />
@@ -2112,19 +2112,19 @@
         <ImagerySection name="image_withframe">
             <ImageryComponent>
                 <Area>
-					<Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/StaticLeft" /></Dim>
-					<Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/StaticTop" /></Dim>
-					<Dim type="RightEdge">
-						<OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-					<ImageDim dimension="Width" name="OpenDungeons/StaticRight" />
-							</OperatorDim>
-						</Dim>
-					<Dim type="BottomEdge">
-						<OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-					<ImageDim dimension="Height" name="OpenDungeons/StaticBottom" />
-							</OperatorDim>
-						</Dim>
-				</Area>
+                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/StaticLeft" /></Dim>
+                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/StaticTop" /></Dim>
+                    <Dim type="RightEdge">
+                        <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
+                            <ImageDim dimension="Width" name="OpenDungeons/StaticRight" />
+                        </OperatorDim>
+                    </Dim>
+                    <Dim type="BottomEdge">
+                        <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
+                            <ImageDim dimension="Height" name="OpenDungeons/StaticBottom" />
+                        </OperatorDim>
+                    </Dim>
+                </Area>
                 <ImageProperty name="Image" />
                 <ColourRectProperty name="ImageColours" />
                 <VertFormatProperty name="VertFormatting" />
@@ -2134,11 +2134,11 @@
         <ImagerySection name="image_noframe">
             <ImageryComponent>
                 <Area>
-					<Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
-					<Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
-					<Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
-					<Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
-				</Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
                 <ImageProperty name="Image" />
                 <ColourRectProperty name="ImageColours" />
                 <VertFormatProperty name="VertFormatting" />
@@ -2189,10 +2189,10 @@
         </StateImagery>
       </WidgetLook>
 
-    
+
     <WidgetLook name="OD/StaticText">
-		<PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="FrameColours" redrawOnWrite="true" />
-		<PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="BackgroundColours" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="FrameColours" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="BackgroundColours" redrawOnWrite="true" />
         <Property name="FrameEnabled" value="True" />
         <Property name="BackgroundEnabled" value="True" />
         <NamedArea name="WithFrameTextRenderArea">
@@ -2358,8 +2358,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/ListHeaderSegment">
         <Property name="SizingCursorImage" value="OpenDungeons/MouseEsWeCursor" />
         <Property name="MovingCursorImage" value="OpenDungeons/MouseMoveCursor" />
@@ -2533,15 +2533,15 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/ListHeader">
         <Property name="SegmentWidgetType" value="OD/ListHeaderSegment" />
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/MultiColumnList">
         <NamedArea name="ItemRenderingArea">
             <Area>
@@ -2669,13 +2669,14 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/MultiLineEditbox">
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF000000" name="SelectedTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF607FFF" name="ActiveSelectionColour" redrawOnWrite="true" />
-        <PropertyDefinition initialValue="FF808080" name="InactiveSelectionColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="00808080" name="InactiveSelectionColour" redrawOnWrite="true" />
+        <PropertyDefinition redrawOnWrite="true" initialValue="tl:00FF0000 tr:00FF0000 bl:00FF0000 br:00FF0000" type="ColourRect" name="ImageColours"/>
         <Property name="MouseCursorImage" value="OpenDungeons/MouseTextBar" />
         <Property name="SelectionBrushImage" value="OpenDungeons/MultiLineEditboxSelectionBrush" />
         <NamedArea name="TextArea">
@@ -2781,6 +2782,7 @@
         </ImagerySection>
         <ImagerySection name="Caret">
             <ImageryComponent>
+                <ColourRectProperty name="ImageColours"/>
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
@@ -2810,8 +2812,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/Tooltip">
         <NamedArea name="TextArea">
             <Area>
@@ -2882,8 +2884,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/ScrollablePane">
         <NamedArea name="ViewableArea">
             <Area>
@@ -2954,8 +2956,8 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/TabButton">
         <PropertyDefinition initialValue="FFC0C0C0" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FFE0E0E0" name="HoverTextColour" redrawOnWrite="true" />
@@ -3017,7 +3019,7 @@
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
                 <Image component="TopLeftCorner" name="OpenDungeons/TabButtonUpperLeftNormal" />
-                <Image component="TopRightCorner" name="OpenDungeons/TabButtonUpperRightNormal" />                
+                <Image component="TopRightCorner" name="OpenDungeons/TabButtonUpperRightNormal" />
                 <Image component="TopEdge" name="OpenDungeons/TabButtonUpperNormal" />
             </FrameComponent>
         </ImagerySection>
@@ -3154,8 +3156,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/TabContentPane">
         <PropertyDefinition initialValue="0" layoutOnWrite="true" name="EnableTop" redrawOnWrite="true" />
         <PropertyDefinition initialValue="0" layoutOnWrite="true" name="EnableBottom" redrawOnWrite="true" />
@@ -3180,7 +3182,7 @@
                 <Image component="RightEdge" name="OpenDungeons/TabContentPaneRight" />
                 <Image component="TopEdge" name="OpenDungeons/TabContentPaneUpper" />
                 <Image component="BottomEdge" name="OpenDungeons/TabContentPaneLower" />
-				<Image component="Background" name="ODBackgrounds/Background1" />
+                <Image component="Background" name="ODBackgrounds/Background1" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
@@ -3196,8 +3198,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/TabButtonPane">
         <PropertyDefinition initialValue="1" layoutOnWrite="true" name="EnableTop" redrawOnWrite="true" />
         <PropertyDefinition initialValue="1" layoutOnWrite="true" name="EnableBottom" redrawOnWrite="true" />
@@ -3217,8 +3219,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/TabControl">
         <Property name="TabButtonType" value="OD/TabButton" />
         <Property name="TabTextPadding" value="{0,15}" />
@@ -3239,7 +3241,7 @@
             </Area>
         </Child>
         <Child nameSuffix="__auto_TabPane__Buttons" type="OD/TabButtonPane">
-			
+
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="16" /></Dim>
                 <Dim type="RightEdge"><UnifiedDim scale="1" type="Width" /></Dim>
@@ -3287,7 +3289,7 @@
                     <WidgetDim dimension="TopEdge" widget="__auto_TabPane__Buttons" />
                 </Dim>
                 <Dim type="Height"><AbsoluteDim value="0" />
-                    
+
                 </Dim>
             </Area>
             <Property name="AlwaysOnTop" value="True" />
@@ -3298,8 +3300,8 @@
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/MenuItem">
         <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF7F7F7F" name="DisabledTextColour" redrawOnWrite="true" />
@@ -3509,8 +3511,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/PopupMenu">
         <PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="BackgroundColours" redrawOnWrite="true" />
         <PropertyDefinition initialValue="0" layoutOnWrite="true" name="BorderWidth" />
@@ -3576,9 +3578,9 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
-    
+
+
+
     <WidgetLook name="OD/Menubar">
         <PropertyDefinition initialValue="tl:FFFFFFFF tr:FFFFFFFF bl:FFFFFFFF br:FFFFFFFF" name="BackgroundColours" redrawOnWrite="true" />
         <PropertyDefinition initialValue="5" layoutOnWrite="true" name="BorderWidth" />
@@ -3644,8 +3646,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/LargeVerticalScrollbarThumb">
         <Property name="VertFree" value="True" />
         <ImagerySection name="normal">
@@ -3697,8 +3699,8 @@
             </Layer>
         </StateImagery>
     </WidgetLook>
-    
-    
+
+
     <WidgetLook name="OD/LargeVerticalScrollbar">
         <Property name="VerticalScrollbar" value="True" />
         <NamedArea name="ThumbTrackArea">
@@ -3833,7 +3835,7 @@
         </StateImagery>
     </WidgetLook>
 
-    
+
     <WidgetLook name="OD/ImageButton">
         <PropertyDefinition initialValue="" name="NormalImage" redrawOnWrite="true" />
         <PropertyDefinition initialValue="OpenDungeonsIcons/ButtonHoverEffect" name="HoverImage" redrawOnWrite="true" />
@@ -3921,70 +3923,70 @@
         </ImagerySection>
         <StateImagery name="Normal">
             <Layer priority="0">
-				<Section section="background" />
-			</Layer>	
-			<Layer priority="1">
-				<Section section="normal" />
-			</Layer>
-			<Layer priority="2">
-				<Section section="frame" />
-			</Layer>				
+                <Section section="background" />
+            </Layer>
+            <Layer priority="1">
+                <Section section="normal" />
+            </Layer>
+            <Layer priority="2">
+                <Section section="frame" />
+            </Layer>
         </StateImagery>
         <StateImagery name="Hover">
-			<Layer priority="0">
-				<Section section="background" />
-			</Layer>	
-			<Layer priority="1">
-				<Section section="normal" />
-			</Layer>
-			<Layer priority="2">
-				<Section section="frame" />
-			</Layer>				
-			<Layer priority="3">
-				<Section section="hover" />
-			</Layer>
+            <Layer priority="0">
+                <Section section="background" />
+            </Layer>
+            <Layer priority="1">
+                <Section section="normal" />
+            </Layer>
+            <Layer priority="2">
+                <Section section="frame" />
+            </Layer>
+            <Layer priority="3">
+                <Section section="hover" />
+            </Layer>
         </StateImagery>
         <StateImagery name="Pushed">
-			<Layer priority="0">
-				<Section section="background" />
-			</Layer>	
-			<Layer priority="1">
-				<Section section="normal" />
-			</Layer>
-			<Layer priority="2">
-				<Section section="frame" />
-			</Layer>				
-			<Layer priority="3">
-				<Section section="pushed" />
-			</Layer>
+            <Layer priority="0">
+                <Section section="background" />
+            </Layer>
+            <Layer priority="1">
+                <Section section="normal" />
+            </Layer>
+            <Layer priority="2">
+                <Section section="frame" />
+            </Layer>
+            <Layer priority="3">
+                <Section section="pushed" />
+            </Layer>
         </StateImagery>
         <StateImagery name="PushedOff">
-			<Layer priority="0">
-				<Section section="background" />
-			</Layer>	
-			<Layer priority="1">
-				<Section section="normal" />
-			</Layer>
-			<Layer priority="2">
-				<Section section="frame" />
-			</Layer>				
-			<Layer priority="3">
-				<Section section="hover" />
-			</Layer>
+            <Layer priority="0">
+                <Section section="background" />
+            </Layer>
+            <Layer priority="1">
+                <Section section="normal" />
+            </Layer>
+            <Layer priority="2">
+                <Section section="frame" />
+            </Layer>
+            <Layer priority="3">
+                <Section section="hover" />
+            </Layer>
         </StateImagery>
         <StateImagery name="Disabled">
             <Layer priority="0">
-				<Section section="background" />
-			</Layer>	
-			<Layer priority="1">
-				<Section section="normal" />
-			</Layer>
-			<Layer priority="2">
-				<Section section="frame" />
-			</Layer>				
-			<Layer priority="3">
-				<Section section="disabled" />
-			</Layer>
+                <Section section="background" />
+            </Layer>
+            <Layer priority="1">
+                <Section section="normal" />
+            </Layer>
+            <Layer priority="2">
+                <Section section="frame" />
+            </Layer>
+            <Layer priority="3">
+                <Section section="disabled" />
+            </Layer>
         </StateImagery>
     </WidgetLook>
 
