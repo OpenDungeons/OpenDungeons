@@ -37,6 +37,7 @@
 #include "CameraManager.h"
 #include "MiniMap.h"
 #include "ModeManager.h"
+#include "GameMode.h"
 #include "EditorMode.h"
 #include "LogManager.h"
 
@@ -164,8 +165,16 @@ void Gui::assignEventHandlers()
             CEGUI::Event::Subscriber(&quitButtonPressed));
 
     sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
-        CEGUI:: Window::EventMouseClick,
-        CEGUI::Event::Subscriber(&miniMapclicked));
+            CEGUI:: Window::EventMouseClick,
+            CEGUI::Event::Subscriber(&miniMapclicked));
+
+    sheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_YES_BUTTON)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&confirmExitYesButtonPressed));
+
+    sheets[inGameMenu]->getChild(EXIT_CONFIRMATION_POPUP_NO_BUTTON)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&confirmExitNoButtonPressed));
 
     // Editor Mode controls
     sheets[editorMenu]->getChild(EDITOR_LAVA_BUTTON)->subscribeEvent(
@@ -264,6 +273,26 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 {
     return ODServer::startServer();
+}
+
+bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm)
+        return true;
+
+    mm->requestUnloadToParentGameMode();
+    return true;
+}
+
+bool Gui::confirmExitNoButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
+        return true;
+
+    static_cast<GameMode*>(mm->getCurrentMode())->popupPause(false);
+    return true;
 }
 
 
@@ -397,6 +426,9 @@ const std::string Gui::MM_WELCOME_MESSAGE = "WelcomeBanner";
 const std::string Gui::MM_BUTTON_START_NEW_GAME = "StartNewGameButton";
 const std::string Gui::MM_BUTTON_MAPEDITOR = "MapEditorButton";
 const std::string Gui::MM_BUTTON_QUIT = "QuitButton";
+const std::string Gui::EXIT_CONFIRMATION_POPUP = "ConfirmExit";
+const std::string Gui::EXIT_CONFIRMATION_POPUP_YES_BUTTON = "ConfirmExit/YesOption";
+const std::string Gui::EXIT_CONFIRMATION_POPUP_NO_BUTTON = "ConfirmExit/NoOption";
 
 const std::string Gui::EDITOR = "MainTabControl";
 const std::string Gui::EDITOR_LAVA_BUTTON = "MainTabControl/Tiles/LavaButton";

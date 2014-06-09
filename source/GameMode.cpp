@@ -56,7 +56,8 @@ GameMode::GameMode(ModeManager *modeManager):
     mDigSetBool(false),
     mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
     mMouseX(0),
-    mMouseY(0)
+    mMouseY(0),
+    mIsPaused(false)
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
@@ -160,6 +161,8 @@ void GameMode::activate()
 {
     // Loads the corresponding Gui sheet.
     Gui::getSingleton().loadGuiSheet(Gui::inGameMenu);
+
+    Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
 
     giveFocus();
 
@@ -329,6 +332,9 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     }
 
     inputManager->mMouseDownOnCEGUIWindow = false;
+
+    if(mIsPaused)
+        return true;
 
     Ogre::RaySceneQueryResult &result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
     Ogre::RaySceneQueryResult::iterator itr = result.begin();
@@ -749,7 +755,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
     // Quit the game
     case OIS::KC_ESCAPE:
-        regressMode();
+        popupPause(!mIsPaused);
         break;
 
     // Print a screenshot
@@ -878,4 +884,17 @@ void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
 
 void GameMode::onFrameEnded(const Ogre::FrameEvent& evt)
 {
+}
+
+void GameMode::popupPause(bool pause)
+{
+    if(pause)
+    {
+        Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->show();
+    }
+    else
+    {
+        Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
+    }
+    mIsPaused = pause;
 }

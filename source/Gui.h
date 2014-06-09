@@ -102,7 +102,11 @@ public:
     static const std::string EDITOR_DIRT_BUTTON;
     static const std::string EDITOR_CLAIMED_BUTTON;
     static const std::string EDITOR_FULLNESS;
-    static const  std::string EDITOR_CURSOR_POS;
+    static const std::string EDITOR_CURSOR_POS;
+    static const std::string EXIT_CONFIRMATION_POPUP;
+    static const std::string EXIT_CONFIRMATION_POPUP_YES_BUTTON;
+    static const std::string EXIT_CONFIRMATION_POPUP_NO_BUTTON;
+
 
 private:
     //! \brief Assigns all event handlers to the GUI elements
@@ -133,6 +137,8 @@ private:
     static bool dojoButtonPressed       (const CEGUI::EventArgs& e);
     static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
     static bool serverButtonPressed     (const CEGUI::EventArgs& e);
+    static bool confirmExitYesButtonPressed     (const CEGUI::EventArgs& e);
+    static bool confirmExitNoButtonPressed      (const CEGUI::EventArgs& e);
 
     // Editor Buttons
     static bool editorLavaButtonPressed(const CEGUI::EventArgs& e);

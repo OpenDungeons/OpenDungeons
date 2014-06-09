@@ -74,6 +74,13 @@ class  GameMode: public AbstractApplicationMode
     //! Used to call the corresponding Gui Sheet.
     void activate();
 
+    virtual bool shouldAllowUpdateAnimation()
+    {
+        return !mIsPaused;
+    }
+
+    void popupPause(bool pause);
+
 private:
     //! \brief Sets whether a tile must marked or unmarked for digging.
     //! this value is based on the first marked flag tile selected.
@@ -86,6 +93,8 @@ private:
     //! \brief Stores the lastest mouse cursor and light positions.
     int mMouseX;
     int mMouseY;
+
+    bool mIsPaused;
 
     //! \brief The Mouse environment light following the mouse, don't delete it.
     Ogre::Light* mMouseLight;

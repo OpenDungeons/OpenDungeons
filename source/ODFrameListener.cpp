@@ -87,7 +87,8 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20),
     mFrameDelay(0.0),
-    mPreviousTurn(-1)
+    mPreviousTurn(-1),
+    mExitRequested(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
     logManager->logMessage("Creating frame listener...", Ogre::LML_NORMAL);
@@ -110,8 +111,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
 
     //Register as a Window listener
     Ogre::WindowEventUtilities::addWindowEventListener(mWindow, this);
-
-    mExitRequested = false;
 
     mInitialized = true;
 }
@@ -224,12 +223,16 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
 
-    // Updates animations independant from the server new turn event
-    updateAnimations(evt.timeSinceLastFrame);
-
     //Need to capture/update each device
     mModeManager->checkModeChange();
     AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
+
+    if((currentMode->shouldAllowUpdateAnimation()) && (!mExitRequested))
+    {
+        // Updates animations independant from the server new turn event
+        updateAnimations(evt.timeSinceLastFrame);
+    }
+
     currentMode->getKeyboard()->capture();
     currentMode->getMouse()->capture();
 
@@ -237,6 +240,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     if (cm != NULL)
        cm->onFrameStarted();
+
+    if((!currentMode->shouldAllowUpdateAnimation()) && (!mExitRequested))
+        return true;
 
     // Sleep to limit the framerate to the max value
     mFrameDelay -= evt.timeSinceLastFrame;
@@ -514,3 +520,5 @@ void ODFrameListener::addChatMessage(ChatMessage *message)
 {
     mChatMessages.push_back(message);
 }
+
+

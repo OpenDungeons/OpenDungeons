@@ -43,7 +43,6 @@ class Socket;
 class RenderManager;
 class AbstractApplicationMode;
 class ModeManager;
-class GameMode;
 class CameraManager;
 class SoundEffectsHelper;
 class ChatMessage;

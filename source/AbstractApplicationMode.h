@@ -66,6 +66,11 @@ public:
     virtual bool keyReleased    (const OIS::KeyEvent &arg) = 0;
     virtual void handleHotkeys  (OIS::KeyCode keycode) = 0;
 
+    virtual bool shouldAllowUpdateAnimation()
+    {
+        return true;
+    }
+
     virtual OIS::Mouse* getMouse()
     {
         return mModeManager->getInputManager()->mMouse;
