@@ -63,16 +63,7 @@ public:
             double                  maxMana     = 100.0,
             double                  moveSpeed   = 1.0,
 
-            Tile::TileClearType     tilePassability = Tile::walkableTile,
-
-            double coefficientHumans    = 0.0,
-            double coefficientCorpars   = 0.0,
-            double coefficientUndead    = 0.0,
-            double coefficientConstructs= 0.0,
-            double coefficientDenizens  = 0.0,
-            double coefficientAltruism  = 0.0,
-            double coefficientOrder     = 0.0,
-            double coefficientPeace     = 0.0) :
+            Tile::TileClearType     tilePassability = Tile::walkableTile) :
         mCreatureJob (job),
         mClassName   (className),
         mMeshName    (meshName),
@@ -89,16 +80,7 @@ public:
         mMaxMana     (maxMana),
         mMoveSpeed   (moveSpeed),
 
-        mTilePassability         (tilePassability),
-
-        mCoefficientHumans       (coefficientHumans),
-        mCoefficientCorpars      (coefficientCorpars),
-        mCoefficientUndead       (coefficientUndead),
-        mCoefficientConstructs   (coefficientConstructs),
-        mCoefficientDenizens     (coefficientDenizens),
-        mCoefficientAltruism     (coefficientAltruism),
-        mCoefficientOrder        (coefficientOrder),
-        mCoefficientPeace        (coefficientPeace)
+        mTilePassability         (tilePassability)
     {}
 
     static CreatureJob creatureJobFromString(const std::string& s);
@@ -110,8 +92,7 @@ public:
     inline static std::string getFormat()
     {
         return "# className\tcreatureJob\tmeshName\tbedMeshName\tbedDim1\tbedDim2\tscaleX\tscaleY\tscaleZ\t"
-               "hp/level\tmana/level\tmaxHP\tmaxMana\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\ttilePassability\t"
-               "cHumans\tcCorpars\tcUndead\tcConstructs\tcDenizens\tcAltruism\tcOrder\tcPeace\n";
+               "hp/level\tmana/level\tmaxHP\tmaxMana\tsightRadius\tdigRate\tdanceRate\tmoveSpeed\ttilePassability\n";
     }
 
     friend std::ostream & operator <<(std::ostream & os, CreatureDefinition *c);
@@ -137,15 +118,6 @@ public:
     inline double               getSightRadius  () const    { return mSightRadius; }
 
     inline Tile::TileClearType  getTilePassability () const { return mTilePassability; }
-
-    inline double getCoefficientAltruism    () const    { return mCoefficientAltruism; }
-    inline double getCoefficientConstructs  () const    { return mCoefficientConstructs; }
-    inline double getCoefficientCorpars     () const    { return mCoefficientCorpars; }
-    inline double getCoefficientDenizens    () const    { return mCoefficientDenizens; }
-    inline double getCoefficientHumans      () const    { return mCoefficientHumans; }
-    inline double getCoefficientOrder       () const    { return mCoefficientOrder; }
-    inline double getCoefficientPeace       () const    { return mCoefficientPeace; }
-    inline double getCoefficientUndead      () const    { return mCoefficientUndead; }
 
 private:
     //NOTE: Anything added to this class must be included in the '=' operator for the Creature class.
@@ -197,16 +169,6 @@ private:
 
     //! \brief Tile passability (defines mostly if the creature is walking, flying, or etherreal)
     Tile::TileClearType mTilePassability;
-
-    //! \brief Probability coefficients to determine how likely a creature is to come through the portal.
-    double mCoefficientHumans;
-    double mCoefficientCorpars;
-    double mCoefficientUndead;
-    double mCoefficientConstructs;
-    double mCoefficientDenizens;
-    double mCoefficientAltruism;
-    double mCoefficientOrder;
-    double mCoefficientPeace;
 };
 
 #endif // CREATURECLASS_H

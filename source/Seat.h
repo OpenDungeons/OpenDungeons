@@ -143,15 +143,6 @@ public:
 
     int mNumCreaturesControlled;
 
-    double mFactionHumans;
-    double mFactionCorpars;
-    double mFactionUndead;
-    double mFactionConstructs;
-    double mFactionDenizens;
-    double mAlignmentAltruism;
-    double mAlignmentOrder;
-    double mAlignmentPeace;
-
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Seat *s);
     friend std::istream& operator>>(std::istream& is, Seat *s);

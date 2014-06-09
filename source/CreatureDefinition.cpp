@@ -122,12 +122,7 @@ std::ostream& operator<<(std::ostream& os, CreatureDefinition* c)
     os << c->mMaxHP << "\t" << c->mMaxMana << "\t";
     os << c->mSightRadius << "\t" << c->mDigRate << "\t" << c->mDanceRate << "\t"
        << c->mMoveSpeed << "\t";
-    os << Tile::tilePassabilityToString(c->mTilePassability) << "\t";
-    os << c->mCoefficientHumans << "\t" << c->mCoefficientCorpars << "\t"
-       << c->mCoefficientUndead << "\t";
-    os << c->mCoefficientConstructs << "\t" << c->mCoefficientDenizens << "\t";
-    os << c->mCoefficientAltruism << "\t" << c->mCoefficientOrder << "\t"
-       << c->mCoefficientPeace;
+    os << Tile::tilePassabilityToString(c->mTilePassability);
     return os;
 }
 
@@ -143,9 +138,6 @@ std::istream& operator>>(std::istream& is, CreatureDefinition* c)
     is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate >> c->mMoveSpeed;
     is >> tempString;
     c->mTilePassability = Tile::tilePassabilityFromString(tempString);
-    is >> c->mCoefficientHumans >> c->mCoefficientCorpars >> c->mCoefficientUndead;
-    is >> c->mCoefficientConstructs >> c->mCoefficientDenizens;
-    is >> c->mCoefficientAltruism >> c->mCoefficientOrder >> c->mCoefficientPeace;
 
     return is;
 }
@@ -176,13 +168,4 @@ void CreatureDefinition::loadFromLine(const std::string& line, CreatureDefinitio
     c->mDanceRate = Helper::toDouble(elems[15]);
     c->mMoveSpeed = Helper::toDouble(elems[16]);
     c->mTilePassability = Tile::tilePassabilityFromString(elems[17]);
-
-    c->mCoefficientHumans = Helper::toDouble(elems[18]);
-    c->mCoefficientCorpars = Helper::toDouble(elems[19]);
-    c->mCoefficientUndead = Helper::toDouble(elems[20]);
-    c->mCoefficientConstructs = Helper::toDouble(elems[21]);
-    c->mCoefficientDenizens = Helper::toDouble(elems[22]);
-    c->mCoefficientAltruism = Helper::toDouble(elems[23]);
-    c->mCoefficientOrder = Helper::toDouble(elems[24]);
-    c->mCoefficientPeace = Helper::toDouble(elems[25]);
 }

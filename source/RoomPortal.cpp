@@ -105,28 +105,6 @@ void RoomPortal::spawnCreature()
     if (mCoveredTiles.empty())
         return;
 
-    /*
-    // Compute and normalize the probabilities based on the current composition of creatures in the dungeon.
-    recomputeClassProbabilities();
-
-    // Determine which class the creature we spawn will be.
-    double randomValue = Random::Double(0.0, 1.0);
-    for (unsigned int i = 0; i < mClassProbabilities.size(); ++i)
-    {
-        randomValue -= mClassProbabilities[i].second;
-
-        // When the randomValue drops below 0 it is because the cumulative probability values so far have
-        // exceeded it and the one that finally made it negative is the one we choose.  This makes it more
-        // likely that classes with large probability will be chosen since they are likely to be the
-        // one that pushed it into the negatives.
-        if (randomValue <= 0.0)
-        {
-            classToSpawn = mClassProbabilities[i].first;
-            break;
-        }
-    }
-    */
-
     Seat* seat = getGameMap()->getSeatByColor(getColor());
     if (seat == NULL)
         return;
@@ -172,78 +150,6 @@ void RoomPortal::spawnCreature()
     mSpawnCreatureCountdown = Random::Uint(15, 30);
 
     //TODO: Inform the clients that this creature has been created by placing a newCreature message in the serverNotificationQueue.
-}
-
-void RoomPortal::recomputeClassProbabilities()
-{
-    double probability, totalProbability = 0.0, tempDouble;
-    Seat* controllingSeat = getGameMap()->getSeatByColor(getColor());
-
-    // Normalize the faction and alignment coefficients.
-    tempDouble = controllingSeat->mFactionHumans
-                 + controllingSeat->mFactionCorpars + controllingSeat->mFactionUndead
-                 + controllingSeat->mFactionConstructs
-                 + controllingSeat->mFactionDenizens;
-    if (std::fabs(tempDouble) > 0.000001)
-    {
-        controllingSeat->mFactionHumans /= tempDouble;
-        controllingSeat->mFactionCorpars /= tempDouble;
-        controllingSeat->mFactionUndead /= tempDouble;
-        controllingSeat->mFactionConstructs /= tempDouble;
-        controllingSeat->mFactionDenizens /= tempDouble;
-    }
-
-    tempDouble = controllingSeat->mAlignmentAltruism
-                 + controllingSeat->mAlignmentOrder + controllingSeat->mAlignmentPeace;
-    if (std::fabs(tempDouble) > 0.000001)
-    {
-        controllingSeat->mAlignmentAltruism /= tempDouble;
-        controllingSeat->mAlignmentOrder /= tempDouble;
-        controllingSeat->mAlignmentPeace /= tempDouble;
-    }
-
-    // Loop over the CreatureClasses in the gameMap and for each one, compute
-    // the probability that a creature of that type will be selected.
-    mClassProbabilities.clear();
-    for (unsigned int i = 0; i < getGameMap()->numClassDescriptions(); ++i)
-    {
-        CreatureDefinition *tempClass = getGameMap()->getClassDescription(i);
-
-        // Compute the probability that a creature of the current class will be chosen.
-        //TODO:  Actually implement this probability calculation.
-        probability = 1.0 / getGameMap()->numClassDescriptions();
-
-        probability += controllingSeat->mFactionHumans
-                * tempClass->getCoefficientHumans();
-        probability += controllingSeat->mFactionCorpars
-                * tempClass->getCoefficientCorpars();
-        probability += controllingSeat->mFactionUndead
-                * tempClass->getCoefficientUndead();
-        probability += controllingSeat->mFactionConstructs
-                * tempClass->getCoefficientConstructs();
-        probability += controllingSeat->mFactionDenizens
-                * tempClass->getCoefficientDenizens();
-        probability += controllingSeat->mAlignmentAltruism
-                * tempClass->getCoefficientAltruism();
-        probability += controllingSeat->mAlignmentOrder
-                * tempClass->getCoefficientOrder();
-        probability += controllingSeat->mAlignmentPeace
-                * tempClass->getCoefficientPeace();
-
-        // Store the computed probability and compute the sum of the probabilities to be used for renormalization.
-        mClassProbabilities.push_back(std::pair<CreatureDefinition*, double> (tempClass, probability));
-        totalProbability += probability;
-    }
-
-    // Loop over the stored probabilities and renormalise them (i.e. divide each by the total so the sum is 1.0).
-    if (std::fabs(totalProbability) > 0.000001)
-    {
-        for (unsigned int i = 0; i < mClassProbabilities.size(); ++i)
-        {
-            probability = mClassProbabilities[i].second / totalProbability;
-            mClassProbabilities[i].second = probability;
-        }
-    }
 }
 
 void RoomPortal::recomputeCenterPosition()

@@ -41,17 +41,11 @@ public:
     void spawnCreature();
 
 private:
-    /*! \brief Computes a probability for each creature class in the game map
-     *  based on the player's alignment and the current set of creatures in the dungeon.
-     */
-    void recomputeClassProbabilities();
-
     //! \brief Finds the X,Y coordinates of the center of the tiles that make up the portal.
     void recomputeCenterPosition();
 
     int mSpawnCreatureCountdown;
 
-    std::vector<std::pair<CreatureDefinition*, double> > mClassProbabilities;
     double mXCenter;
     double mYCenter;
 

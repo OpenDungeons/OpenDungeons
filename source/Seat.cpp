@@ -30,14 +30,6 @@ Seat::Seat() :
         mGold(0),
         mGoldMined(0),
         mNumCreaturesControlled(0),
-        mFactionHumans(0.0),
-        mFactionCorpars(0.0),
-        mFactionUndead(0.0),
-        mFactionConstructs(0.0),
-        mFactionDenizens(0.0),
-        mAlignmentAltruism(0.0),
-        mAlignmentOrder(0.0),
-        mAlignmentPeace(0.0),
         mNumClaimedTiles(0),
         mHasGoalsChanged(true)
 {

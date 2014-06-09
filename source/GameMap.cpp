@@ -596,26 +596,13 @@ void GameMap::doTurn()
         }
         else
         {
-            // Since the creature is still alive we should add its alignment and faction to
-            // its controlling seat to be used in the RoomPortal::spawnCreature routine.
+            // Since the creature is still alive we add it to the controlled creatures.
             Player *tempPlayer = tempCreature->getControllingPlayer();
             if (tempPlayer != NULL)
             {
                 Seat *tempSeat = tempPlayer->getSeat();
 
                 ++(tempSeat->mNumCreaturesControlled);
-
-                tempSeat->mFactionHumans += tempCreature->getDefinition()->getCoefficientHumans();
-                tempSeat->mFactionCorpars += tempCreature->getDefinition()->getCoefficientCorpars();
-                tempSeat->mFactionUndead += tempCreature->getDefinition()->getCoefficientUndead();
-                tempSeat->mFactionConstructs
-                += tempCreature->getDefinition()->getCoefficientConstructs();
-                tempSeat->mFactionDenizens += tempCreature->getDefinition()->getCoefficientDenizens();
-
-                tempSeat->mAlignmentAltruism
-                += tempCreature->getDefinition()->getCoefficientAltruism();
-                tempSeat->mAlignmentOrder += tempCreature->getDefinition()->getCoefficientOrder();
-                tempSeat->mAlignmentPeace += tempCreature->getDefinition()->getCoefficientPeace();
             }
 
             ++count;
@@ -651,17 +638,8 @@ unsigned long int GameMap::doMiscUpkeep()
                 && filledSeats[i]->numFailedGoals() == 0)
             addWinningSeat(filledSeats[i]);
 
-        // Set all the alignment and faction coefficients for this seat to 0, they will be
-        // filled up in the loop below which removes the dead creatures from the map.
+        // Set the creatures count to 0. It will be reset by the next count in doTurn()
         filledSeats[i]->mNumCreaturesControlled = 0;
-        filledSeats[i]->mFactionHumans = 0.0;
-        filledSeats[i]->mFactionCorpars = 0.0;
-        filledSeats[i]->mFactionUndead = 0.0;
-        filledSeats[i]->mFactionConstructs = 0.0;
-        filledSeats[i]->mFactionDenizens = 0.0;
-        filledSeats[i]->mAlignmentAltruism = 0.0;
-        filledSeats[i]->mAlignmentOrder = 0.0;
-        filledSeats[i]->mAlignmentPeace = 0.0;
     }
 
     // Count how many of each color kobold there are.
