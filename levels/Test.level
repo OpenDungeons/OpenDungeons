@@ -12,10 +12,9 @@ OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this fil
 [Goals]
 # goalName	arguments
 KillAllEnemies	NULL
-ProtectCreature	King
-- 1
-ClaimNTiles	1000
 ClaimNTiles	200
++ 1
+ClaimNTiles	1000
 MineNGold	20
 + 1
 MineNGold	5000
