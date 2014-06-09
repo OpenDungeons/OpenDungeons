@@ -419,7 +419,7 @@ Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
 {
     if (s.compare("DungeonTemple") == 0)
         return dungeonTemple;
-    else if (s.compare("Quarters") == 0)
+    else if (s.compare("Dormitory") == 0)
         return quarters;
     else if (s.compare("Treasury") == 0)
         return treasury;
