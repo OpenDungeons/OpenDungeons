@@ -190,7 +190,7 @@ void Room::removeCoveredTile(Tile* t)
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 
-    updateActiveSpots();
+    // NOTE: The active spot changes are done in upKeep()
 }
 
 Tile* Room::getCoveredTile(unsigned index)
@@ -310,21 +310,23 @@ bool Room::doUpkeep()
 {
     // Loop over the tiles in Room r and remove any whose HP has dropped to zero.
     unsigned int i = 0;
-    bool tileRemoved = false;
+    bool oneTileRemoved = false;
     while (i < mCoveredTiles.size())
     {
         if (mTileHP[mCoveredTiles[i]] <= 0.0)
         {
             removeCoveredTile(mCoveredTiles[i]);
-            tileRemoved = true;
+            oneTileRemoved = true;
         }
         else
             ++i;
     }
 
-    // updateActiveSpots
-    if (tileRemoved)
+    if (oneTileRemoved)
+    {
         updateActiveSpots();
+        createMesh();
+    }
 
     //TODO: This could return false if the whole room has been destroyed and then the activeObject processor should destroy it.
     return true;
