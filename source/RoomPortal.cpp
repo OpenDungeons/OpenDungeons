@@ -73,19 +73,19 @@ bool RoomPortal::doUpkeep()
     }
 
     // Randomly choose to spawn a creature.
+    const double maxCreatures = 15;
     //TODO:  Improve this probability calculation.
     // Count how many creatures are controlled by this color, count both the ones on
     // the gameMap and the ones in all the players of that colors' hands'.
     double numCreatures = getGameMap()->getCreaturesByColor(getColor()).size();
     Seat *controllingSeat = getGameMap()->getSeatByColor(getColor());
-    for(unsigned int i = 0, numPlayers = getGameMap()->numPlayers();
-    		i < numPlayers; ++i)
+    for(unsigned int i = 0, numPlayers = getGameMap()->numPlayers(); i < numPlayers; ++i)
     {
         Player *tempPlayer = getGameMap()->getPlayer(i);
         if (tempPlayer->getSeat() == controllingSeat)
             numCreatures += tempPlayer->numCreaturesInHand();
     }
-    const double maxCreatures = 15;
+
     double targetProbability = powl((maxCreatures - numCreatures) / maxCreatures, 1.5);
     if (Random::Double(0.0, 1.0) <= targetProbability)
         spawnCreature();
@@ -96,7 +96,6 @@ bool RoomPortal::doUpkeep()
 void RoomPortal::spawnCreature()
 {
     std::cout << "Portal: " << getName() << "  spawn creature..." << std::endl;
-    CreatureDefinition *classToSpawn = NULL;
 
     if (mPortalObject != NULL)
         mPortalObject->setAnimationState("Spawn", false);
@@ -106,6 +105,7 @@ void RoomPortal::spawnCreature()
     if (mCoveredTiles.empty())
         return;
 
+    /*
     // Compute and normalize the probabilities based on the current composition of creatures in the dungeon.
     recomputeClassProbabilities();
 
@@ -124,6 +124,27 @@ void RoomPortal::spawnCreature()
             classToSpawn = mClassProbabilities[i].first;
             break;
         }
+    }
+    */
+
+    Seat* seat = getGameMap()->getSeatByColor(getColor());
+    if (seat == NULL)
+        return;
+
+    const std::vector<std::string> spawnPool = seat->getSpawnPool();
+    if (spawnPool.empty())
+        return;
+
+    double randomValue = Random::Int(0, spawnPool.size() - 1);
+    std::string creatureClassName = spawnPool.at(randomValue);
+
+    //TODO: Later check conditions before spawning a creature
+    CreatureDefinition* classToSpawn = getGameMap()->getClassDescription(creatureClassName);
+    if (classToSpawn == NULL)
+    {
+        std::cout << "Warning: Invalid class name in spawn pool: " << creatureClassName
+            << ", for team: " << getColor() << std::endl;
+        return;
     }
 
     std::cout << "Spawning a creature of class " << classToSpawn->getClassName() << std::endl;

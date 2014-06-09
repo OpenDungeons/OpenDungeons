@@ -26,6 +26,7 @@
 #include "Seat.h"
 #include "MapLight.h"
 #include "LogManager.h"
+#include "Helper.h"
 
 
 #include <iostream>
@@ -291,6 +292,52 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
     levelFile >> nextParam;
     MapLoader::loadCreatureDefinition(nextParam, gameMap);
 
+    // Read in the creatures spawn pool for each team
+    levelFile >> nextParam;
+    if (nextParam != "[Spawn_Pools]")
+    {
+        std::cout << "Invalid 'Spawn Pools' start format." << std::endl;
+        std::cout << "Line was " << nextParam << std::endl;
+        return false;
+    }
+
+    while(true)
+    {
+        levelFile >> nextParam;
+        if (nextParam == "[/Spawn_Pools]")
+            break;
+
+        if (nextParam != "[Spawn_Pool]")
+        {
+            std::cout << "Invalid 'Spawn Pool' start format." << std::endl;
+            std::cout << "Line was " << nextParam << std::endl;
+            return false;
+        }
+
+        levelFile >> nextParam;
+        if (nextParam == "[/Spawn_Pool]")
+            continue;
+
+        // Get the corresponding seat
+        int team_color = Helper::toInt(nextParam);
+        Seat* seat = gameMap.getSeatByColor(team_color);
+        if (seat != NULL)
+            seat->resetSpawnPool();
+
+        std::cout << "Spawn pool for team: " << team_color << std::endl;
+
+        while(true)
+        {
+            levelFile >> nextParam;
+            if (nextParam == "[/Spawn_Pool]")
+                break;
+
+            if (seat != NULL)
+                seat->addSpawnableCreature(nextParam);
+            std::cout << "Added spawnable creature: " << nextParam << std::endl;
+        }
+    }
+
     // Read in the actual creatures themselves
     levelFile >> nextParam;
     if (nextParam != "[Creatures]")
@@ -410,6 +457,82 @@ void writeGameMapToFile(const std::string& fileName, GameMap& gameMap)
     levelFile << "\n# The file containing the creatures definition." << std::endl
     << "[Creatures_Definition]" << std::endl
     << gameMap.getCreatureDefinitionFileName() << std::endl;
+
+    // Write out the spawn pools
+    levelFile << "\n[Spawn_Pools]\n";
+    levelFile << "# Each team's spawn pool." << std::endl;
+    levelFile << "# Describes what each team can spawn." << std::endl << std::endl;
+
+    // Creates a common seat vector
+    std::vector<Seat*> seats;
+    for (unsigned int i = 0; i < gameMap.numFilledSeats(); ++i)
+    {
+        Seat* seat = gameMap.getFilledSeat(i);
+        if (seat == NULL)
+            continue;
+
+        bool foundDuplicate = false;
+        for (unsigned int j = 0; j < seats.size(); ++j)
+        {
+            if (seats[j] == seat)
+            {
+                foundDuplicate = true;
+                break;
+            }
+        }
+
+        if (!foundDuplicate)
+            seats.push_back(seat);
+    }
+
+    for (unsigned int i = 0; i < gameMap.numEmptySeats(); ++i)
+    {
+        Seat* seat = gameMap.getEmptySeat(i);
+        if (seat == NULL)
+            continue;
+
+        bool foundDuplicate = false;
+        for (unsigned int j = 0; j < seats.size(); ++j)
+        {
+            if (seats[j] == seat)
+            {
+                foundDuplicate = true;
+                break;
+            }
+        }
+
+        if (!foundDuplicate)
+            seats.push_back(seat);
+    }
+
+    // For each seat, add the spawn pool
+    for (unsigned int i = 0; i < seats.size(); ++i)
+    {
+        // Write out each spawn pools
+        Seat* seat = seats[i];
+        if (seat == NULL)
+            continue;
+
+        int team_color = seat->getColor();
+        if (team_color == 0)
+            continue;
+
+        const std::vector<std::string>& spawnPool = seat->getSpawnPool();
+        if (spawnPool.empty())
+            continue;
+
+        levelFile << "[Spawn_Pool]" << std::endl
+            << "# team id" << std::endl
+            << team_color << std::endl
+            << "# Creature list" << std::endl;
+
+        for (unsigned int j = 0; j < spawnPool.size(); ++j)
+            levelFile << spawnPool.at(j) << std::endl;
+
+        levelFile << "[/Spawn_Pool]" << std::endl << std::endl;
+    }
+
+    levelFile << "[/Spawn_Pools]" << std::endl;
 
     // Write out the individual creatures to the file
     levelFile << "\n[Creatures]\n";

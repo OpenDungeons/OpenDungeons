@@ -104,6 +104,15 @@ public:
     inline double getManaDelta() const
     { return mManaDelta; }
 
+    void resetSpawnPool()
+    { mSpawnPool.clear(); }
+
+    void addSpawnableCreature(const std::string& creature_name)
+    { mSpawnPool.push_back(creature_name); }
+
+    const std::vector<std::string>& getSpawnPool() const
+    { return mSpawnPool; }
+
     //! \brief The color index of the players sitting in this seat.
     int mColor;
 
@@ -160,6 +169,9 @@ private:
 
     //! \brief The unmet goals for this seat which cannot possibly be met in the future.
     std::vector<Goal*> mFailedGoals;
+
+    //! \brief The creatures the current seat is allowed to spawn (when following the conditions)
+    std::vector<std::string> mSpawnPool;
 
     //! \brief How many tiles have been claimed by this seat, updated in GameMap::doTurn().
     unsigned int mNumClaimedTiles;

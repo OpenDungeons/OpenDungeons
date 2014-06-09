@@ -1762,6 +1762,9 @@ void GameMap::clearEmptySeats()
 
 void GameMap::addEmptySeat(Seat *s)
 {
+    if (s == NULL)
+        return;
+
     emptySeats.push_back(s);
 
     // Add the goals for all seats to this seat.
@@ -1807,6 +1810,9 @@ void GameMap::clearFilledSeats()
 
 void GameMap::addFilledSeat(Seat *s)
 {
+    if (s == NULL)
+        return;
+
     filledSeats.push_back(s);
 
     // Add the goals for all seats to this seat.
