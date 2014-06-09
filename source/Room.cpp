@@ -396,7 +396,7 @@ const char* Room::getMeshNameFromRoomType(RoomType t)
         return "DungeonTemple";
 
     case quarters:
-        return "Quarters";
+        return "Dormitory";
 
     case treasury:
         return "Treasury";
