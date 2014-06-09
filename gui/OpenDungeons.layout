@@ -169,29 +169,31 @@
                     <Property name="TooltipText" value="Quits the game" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
-            </Window> 
+            </Window>
         </Window>
-		<Window type="OD/StaticImage" name="ConfirmExit" >
-			<Property name="Area" value="{{0,400},{0,150},{0,800},{0,550}}" />
-			<Property name="Image" value="ODMainMenuBackground/MainMenuBackground" />
-			<Property name="MaxSize" value="{{1,0},{1,0}}" />
-			<Property name="AlwaysOnTop" value="True" />
-			<Property name="Alpha" value="0.5" />
-			<Window type="OD/StaticText" name="ConfirmExitText" >
-				<Property name="BackgroundEnabled" value="False" />
-				<Property name="Text" value="Do you really want to leave the underworld ?" />
-				<Property name="InheritsAlpha" value="False" />
-			</Window>
-			<Window type="OD/Button" name="YesOption" >
-				<Property name="Area" value="{{0,125},{0,360},{0,198},{0,398}}" />
-				<Property name="Text" value="Yes" />
-				<Property name="TooltipText" value="Confirm exit" />
-			</Window>
-			<Window type="OD/Button" name="NoOption" >
-				<Property name="Area" value="{{0,203},{0,360},{0,276},{0,398}}" />
-				<Property name="Text" value="No" />
-				<Property name="TooltipText" value="Cancel exit" />
-			</Window>
-		</Window>
+        <Window type="OD/MainMenuButton" name="ConfirmExit" >
+            <Property name="Area" value="{{0,400},{0,150},{0,800},{0,350}}" />
+            <Property name="AlwaysOnTop" value="True" />
+            <Property name="Alpha" value="0.8" />
+            <Window type="OD/StaticText" name="ConfirmExitText" >
+                <Property name="Area" value="{{0.1,0},{0.1,0},{0.9,0},{0.4,0}}" />
+                <Property name="BackgroundEnabled" value="False" />
+                <Property name="FrameEnabled" value="False" />
+                <Property name="Text" value="Do you really want to leave the underworld?" />
+                <Property name="InheritsAlpha" value="False" />
+            </Window>
+            <Window type="OD/Button" name="YesOption" >
+                <Property name="Area" value="{{0,125},{0,140},{0,198},{0,178}}" />
+                <Property name="Text" value="Yes" />
+                <Property name="TooltipText" value="Confirm exit" />
+                <Property name="InheritsAlpha" value="False" />
+            </Window>
+            <Window type="OD/Button" name="NoOption" >
+                <Property name="Area" value="{{0,203},{0,140},{0,276},{0,178}}" />
+                <Property name="Text" value="No" />
+                <Property name="TooltipText" value="Cancel exit" />
+                <Property name="InheritsAlpha" value="False" />
+            </Window>
+        </Window>
     </Window>
 </GUILayout>
