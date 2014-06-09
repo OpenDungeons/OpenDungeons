@@ -114,7 +114,7 @@
                 <Window type="OD/ImageButton" name="DojoButton" >
                     <Property name="Area" value="{{0,140},{0,20},{0,200},{0,80}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/DojoButton" />
-                    <Property name="TooltipText" value="Build a dojo" />
+                    <Property name="TooltipText" value="Build a Training Hall" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="ForgeButton" >

@@ -257,7 +257,7 @@ bool Gui::dojoButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::dojo);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Dojo");
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Training Hall");
     return true;
 }
 
