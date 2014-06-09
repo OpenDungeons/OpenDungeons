@@ -230,7 +230,7 @@ bool Gui::quartersButtonPressed(const CEGUI::EventArgs& e)
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::quarters);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
-    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Quarters");
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Dormitory");
     return true;
 }
 
