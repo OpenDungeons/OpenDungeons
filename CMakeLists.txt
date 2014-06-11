@@ -174,6 +174,7 @@ set(OD_SOURCEFILES
     ${SRC}/RoomDojo.cpp
     ${SRC}/RoomDungeonTemple.cpp
     ${SRC}/RoomForge.cpp
+    ${SRC}/RoomLibrary.cpp
     ${SRC}/RoomObject.cpp
     ${SRC}/RoomPortal.cpp
     ${SRC}/RoomQuarters.cpp
@@ -391,7 +392,7 @@ endif()
 
 # Link sfml
 # No need to make a difference when release/debug is found because even
-# if only one is found, the other is set to the same value 
+# if only one is found, the other is set to the same value
 target_link_libraries(
     ${PROJECT_BINARY_NAME}
 

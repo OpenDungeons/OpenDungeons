@@ -123,6 +123,12 @@
                     <Property name="TooltipText" value="Build a Forge" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
+                <Window type="OD/ImageButton" name="LibraryButton" >
+                    <Property name="Area" value="{{0,260},{0,20},{0,320},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/LibraryButton" />
+                    <Property name="TooltipText" value="Build a Library" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
             </Window>
             <Window type="DefaultWindow" name="Traps" >
                 <Property name="Area" value="{{0,0},{0,0},{1,0},{1,0}}" />

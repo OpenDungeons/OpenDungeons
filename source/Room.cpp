@@ -20,6 +20,7 @@
 #include "RoomDojo.h"
 #include "RoomDungeonTemple.h"
 #include "RoomForge.h"
+#include "RoomLibrary.h"
 #include "RoomPortal.h"
 #include "RoomQuarters.h"
 #include "RoomTreasury.h"
@@ -69,6 +70,9 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*>& nCoveredTiles, 
         break;
     case dojo:
         tempRoom = new RoomDojo();
+        break;
+    case library:
+        tempRoom = new RoomLibrary();
         break;
     }
 
@@ -412,6 +416,9 @@ const char* Room::getMeshNameFromRoomType(RoomType t)
     case dojo:
         return "Dojo";
 
+    case library:
+        return "Library";
+
     default:
         return "UnknownRoomType";
     }
@@ -431,6 +438,8 @@ Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
         return forge;
     else if (s.compare("Dojo") == 0)
         return dojo;
+    else if (s.compare("Library") == 0)
+        return library;
     else
     {
         std::cerr << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";
@@ -463,6 +472,9 @@ int Room::costPerTile(RoomType t)
 
     case dojo:
         return 175;
+
+    case library:
+        return 200;
 
     default:
         return 0;

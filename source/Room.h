@@ -43,7 +43,8 @@ public:
         treasury,
         portal,
         forge,
-        dojo
+        dojo,
+        library
     };
 
     // Constructors and operators

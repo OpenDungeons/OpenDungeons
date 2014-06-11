@@ -152,6 +152,10 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&dojoButtonPressed));
 
+    sheets[inGameMenu]->getChild(BUTTON_LIBRARY)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&libraryButtonPressed));
+
     sheets[inGameMenu]->getChild(BUTTON_CANNON)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
@@ -258,6 +262,15 @@ bool Gui::dojoButtonPressed(const CEGUI::EventArgs& e)
     gameMap->getLocalPlayer()->setNewRoomType(Room::dojo);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Training Hall");
+    return true;
+}
+
+bool Gui::libraryButtonPressed(const CEGUI::EventArgs& e)
+{
+    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    gameMap->getLocalPlayer()->setNewRoomType(Room::library);
+    gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
+    TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Library");
     return true;
 }
 
@@ -411,6 +424,7 @@ const std::string Gui::TAB_ROOMS = "MainTabControl/Rooms";
 const std::string Gui::BUTTON_QUARTERS = "MainTabControl/Rooms/QuartersButton";
 const std::string Gui::BUTTON_FORGE = "MainTabControl/Rooms/ForgeButton";
 const std::string Gui::BUTTON_DOJO = "MainTabControl/Rooms/DojoButton";
+const std::string Gui::BUTTON_LIBRARY = "MainTabControl/Rooms/LibraryButton";
 const std::string Gui::BUTTON_TREASURY = "MainTabControl/Rooms/TreasuryButton";
 const std::string Gui::TAB_TRAPS = "MainTabControl/Traps";
 const std::string Gui::BUTTON_CANNON = "MainTabControl/Traps/CannonButton";
