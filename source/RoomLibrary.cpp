@@ -46,7 +46,10 @@ void RoomLibrary::createMesh()
 
     for(unsigned int i = 0, size = mCentralActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("Podium", mCentralActiveSpotTiles[i]);
+        if (Random::Int(0, 100) > 50)
+            loadRoomObject("Podium", mCentralActiveSpotTiles[i]);
+        else
+            loadRoomObject("Bookcase", mCentralActiveSpotTiles[i]);
     }
     // Against walls
     for(unsigned int i = 0, size = mLeftWallsActiveSpotTiles.size(); i < size; ++i)
