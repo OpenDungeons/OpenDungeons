@@ -128,6 +128,14 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         }
     }
 
+    else if (command.compare("saveGameMapToTgaFile") == 0)
+    {
+	MapLoader::readGameMapFromTgaFile(" a kuku", *gameMap);
+
+
+    }
+
+
     // Set the ambient light color
     else if (command.compare("ambientlight") == 0)
     {

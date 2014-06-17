@@ -32,6 +32,21 @@
 
 namespace MapLoader {
 
+bool readGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
+{
+    Ogre::Image mapImage;
+    Ogre::ColourValue cv;
+    // mapImage.resize(gameMap.getMapSizeX() , gameMap.getMapSizeY());
+    for(int ii = 0 ; ii < gameMap.getMapSizeX(); ii++)
+	for(int jj = 0 ; jj < gameMap.getMapSizeY(); jj++)
+	    {
+		cv.r = cv.g = cv.b = 0.1 * static_cast<float>(gameMap.getTile(ii, jj)->getType());
+		mapImage.setColourAt(cv, ii, jj, 0);
+	    }
+    mapImage.save("./MapPictures/ImageFromMap.tga");
+}
+
+
 bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 {
     // Try to open the input file for reading and throw an error if we can't.

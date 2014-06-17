@@ -153,8 +153,8 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
 
                 // Force command to lower case
                 //TODO: later do this only for params[0]
-                std::transform(command.begin(), command.end(), command.begin(), ::tolower);
-                std::transform(params[0].begin(), params[0].end(), params[0].begin(), ::tolower);
+                // std::transform(command.begin(), command.end(), command.begin(), ::tolower);
+                // std::transform(params[0].begin(), params[0].end(), params[0].begin(), ::tolower);
 
                 //TODO: remove executePromptCommand after it is fully converted
                 //for now try hardcoded commands, and if none is found try AS

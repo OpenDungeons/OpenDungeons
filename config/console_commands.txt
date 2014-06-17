@@ -33,6 +33,7 @@ possescreature
 refreshmesh
 rotatespeed
 save
+saveGameMapToTgaFile
 setcamerafovx
 setcamerafovy
 setcolor
