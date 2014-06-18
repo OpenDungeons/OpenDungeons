@@ -32,19 +32,27 @@ typedef struct _sig_ucontext {
 
 void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext)
 {
+    void *             array[50];
+    void *             caller_address;
     sig_ucontext_t * uc = (sig_ucontext_t *)ucontext;
 
+#if defined(__i386__) // gcc specific
+    caller_address = (void *) uc->uc_mcontext.eip; // EIP: x86 specific
+#elif defined(__x86_64__) // gcc specific
+    caller_address = (void *) uc->uc_mcontext.rip; // RIP: x86_64 specific
+#else
+#error Unsupported architecture. // TODO: Add support for other arch.
+#endif
     // void * caller_address = (void *) uc->uc_mcontext.eip; // x86 specific
 
     std::cerr << "signal " << sig_num 
               << " (" << strsignal(sig_num) << "), address is " 
-              << info->si_addr << " from " // << caller_address 
+              << info->si_addr << " from " << caller_address 
               << std::endl << std::endl;
 
-    void * array[50];
     int size = backtrace(array, 50);
 
-    array[1] = (void*)999999; // caller_address;
+    array[1] = caller_address;
 
     char ** messages = backtrace_symbols(array, size);    
 
