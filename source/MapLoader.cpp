@@ -27,23 +27,32 @@
 #include "MapLight.h"
 #include "LogManager.h"
 
+
 #include <iostream>
 #include <sstream>
 
+
+using Ogre::uchar;
+
 namespace MapLoader {
 
-bool readGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
+bool writeGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
 {
     Ogre::Image mapImage;
+    uchar* pictureBuffer;
+    int numFaces = 1;
+    pictureBuffer = new uchar [numFaces*Ogre::PixelUtil::getMemorySize( gameMap.getMapSizeX() , gameMap.getMapSizeY() , 1, Ogre::PF_R8G8B8 )];
+    mapImage.loadDynamicImage(pictureBuffer, gameMap.getMapSizeX() , gameMap.getMapSizeY() , 1, Ogre::PF_R8G8B8   );
+
     Ogre::ColourValue cv;
-    // mapImage.resize(gameMap.getMapSizeX() , gameMap.getMapSizeY());
-    for(int ii = 0 ; ii < gameMap.getMapSizeX(); ii++)
-	for(int jj = 0 ; jj < gameMap.getMapSizeY(); jj++)
+    for(int ii = 0 ; ii <  gameMap.getMapSizeX(); ii++)
+	for(int jj = 0 ; jj <  gameMap.getMapSizeY(); jj++)
 	    {
 		cv.r = cv.g = cv.b = 0.1 * static_cast<float>(gameMap.getTile(ii, jj)->getType());
 		mapImage.setColourAt(cv, ii, jj, 0);
 	    }
     mapImage.save("./MapPictures/ImageFromMap.tga");
+    delete [] pictureBuffer ;
 }
 
 

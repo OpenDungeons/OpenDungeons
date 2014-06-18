@@ -30,7 +30,7 @@ class GameMap;
 
 namespace MapLoader
 {
-    bool readGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap);
+    bool writeGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap);
 
     bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap);
 
