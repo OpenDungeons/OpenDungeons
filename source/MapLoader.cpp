@@ -55,6 +55,35 @@ bool writeGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
     delete [] pictureBuffer ;
 }
 
+bool readGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
+{
+    Ogre::Image img;
+    Ogre::ColourValue cv;
+    bool image_loaded = false;
+    std::ifstream ifs(fileName.c_str(), std::ios::binary|std::ios::in);
+    if (ifs.is_open())
+    {
+	Ogre::String tex_ext;
+	Ogre::String::size_type index_of_extension = fileName.find_last_of('.');
+	if (index_of_extension != Ogre::String::npos)
+	{
+	    tex_ext = fileName.substr(index_of_extension+1);
+	    Ogre::DataStreamPtr data_stream(new Ogre::FileStreamDataStream(fileName, &ifs, false));
+
+	    img.load(data_stream, tex_ext);
+	    image_loaded = true;
+	}
+	ifs.close();
+    }
+    for(int ii = 0 ; ii <  gameMap.getMapSizeX(); ii++)
+	for(int jj = 0 ; jj <  gameMap.getMapSizeY(); jj++)
+	    {
+		cv = img.getColourAt( ii , jj, 0);
+		gameMap.getTile(ii, jj)->setType(static_cast<Tile::TileType>(10.0*cv.r));
+
+	    }
+    return image_loaded;
+}
 
 bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
 {

@@ -19,6 +19,7 @@ help
 host
 list
 load
+loadGameMapFromTgaFile
 ls
 maxmessages
 maxtime
