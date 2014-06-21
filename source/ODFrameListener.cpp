@@ -182,6 +182,8 @@ void ODFrameListener::exitApplication()
     }
     ClientNotification::mClientNotificationQueue.push_back(exitClientNotification);
 
+    processServerNotifications();
+    RenderManager::getSingletonPtr()->processRenderRequests();
     mGameMap->clearAll();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
 
@@ -227,7 +229,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     mModeManager->checkModeChange();
     AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
 
-    if((currentMode->shouldAllowUpdateAnimation()) && (!mExitRequested))
+    if((currentMode->shouldAllowGameMapUpdateAnimation()) && (!mExitRequested))
     {
         // Updates animations independant from the server new turn event
         updateAnimations(evt.timeSinceLastFrame);
@@ -241,7 +243,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     if (cm != NULL)
        cm->onFrameStarted();
 
-    if((!currentMode->shouldAllowUpdateAnimation()) && (!mExitRequested))
+    if((!currentMode->shouldAllowGameMapUpdateAnimation()) && (!mExitRequested))
         return true;
 
     // Sleep to limit the framerate to the max value
@@ -262,6 +264,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     {
         exitApplication();
         mContinue = false;
+        return mContinue;
     }
 
     if (isClient())

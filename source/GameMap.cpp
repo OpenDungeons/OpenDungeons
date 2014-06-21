@@ -44,6 +44,7 @@
 #include "RoomDungeonTemple.h"
 #include "RoomQuarters.h"
 #include "RoomTreasury.h"
+#include "Network.h"
 
 #include <iostream>
 #include <sstream>
@@ -147,6 +148,8 @@ GameMap::~GameMap()
 
 bool GameMap::LoadLevel(const std::string& levelFilepath)
 {
+    processServerNotifications();
+    RenderManager::getSingletonPtr()->processRenderRequests();
     clearAll();
 
     // Read in the game map filepath
@@ -219,8 +222,11 @@ void GameMap::clearAll()
 
     clearGoalsForAllSeats();
     clearEmptySeats();
+    getLocalPlayer()->setSeat(NULL);
     clearPlayers();
     clearFilledSeats();
+
+    clearAiManager();
 }
 
 void GameMap::clearCreatures()
@@ -232,6 +238,11 @@ void GameMap::clearCreatures()
     }
 
     creatures.clear();
+}
+
+void GameMap::clearAiManager()
+{
+   aiManager.clearAIList();
 }
 
 void GameMap::clearClasses()

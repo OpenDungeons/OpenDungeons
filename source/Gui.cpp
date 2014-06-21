@@ -379,7 +379,10 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    mm->requestNewGameMode(ModeManager::GAME);
+    // TEMP: Start the default level
+    // TODO: Permit loading any level.
+    mm->requestGameMode("levels/Test.level");
+
     return true;
 }
 
@@ -389,7 +392,7 @@ bool Gui::mMMapEditorButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    mm->requestNewGameMode(ModeManager::EDITOR);
+    mm->requestEditorMode();
     return true;
 }
 

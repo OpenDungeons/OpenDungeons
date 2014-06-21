@@ -74,12 +74,14 @@ class  GameMode: public AbstractApplicationMode
     //! Used to call the corresponding Gui Sheet.
     void activate();
 
-    virtual bool shouldAllowUpdateAnimation()
+    bool shouldAllowGameMapUpdateAnimation()
     {
         return !mIsPaused;
     }
 
     void popupPause(bool pause);
+
+    void setLevel(const std::string& levelFilename);
 
 private:
     //! \brief Sets whether a tile must marked or unmarked for digging.
@@ -98,6 +100,14 @@ private:
 
     //! \brief The Mouse environment light following the mouse, don't delete it.
     Ogre::Light* mMouseLight;
+
+    //! \brief If true, the level set with setLevel will be launched when the
+    //! game mode will be activated
+    bool startLevelWhenActivated;
+    //! \brief The level set with setLevel that will be launched when the
+    //! game mode will be activated
+    std::string levelToLaunch;
+
 
     //! \brief Handle updating the selector position on screen
     void handleCursorPositionUpdate();

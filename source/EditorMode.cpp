@@ -682,7 +682,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
 
     case OIS::KC_GRAVE:
     case OIS::KC_F12:
-        progressMode(ModeManager::CONSOLE);
+        mModeManager->requestConsoleMode();
         frameListener->setTerminalActive(true);
         Console::getSingleton().setVisible(true);
         getKeyboard()->setTextTranslation(OIS::Keyboard::Ascii);

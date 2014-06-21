@@ -19,6 +19,7 @@
 #define MODEMANAGER_H
 
 #include <vector>
+#include <string>
 
 class AbstractApplicationMode;
 class ASWrapper;
@@ -50,11 +51,30 @@ public:
     AbstractApplicationMode* getCurrentMode();
     ModeType getCurrentModeType();
 
-    //! \brief Request loading a new game mode at next update
-    void requestNewGameMode(ModeType mm)
+    //! \brief Request loading editor mode at next update
+    void requestEditorMode()
     {
-        mRequestedMode = mm;
+        mRequestedMode = ModeManager::EDITOR;
     }
+
+    //! \brief Request loading console mode at next update
+    void requestConsoleMode()
+    {
+        mRequestedMode = ModeManager::CONSOLE;
+    }
+
+    //! \brief Request loading FPP mode at next update
+    void requestFppMode()
+    {
+        mRequestedMode = ModeManager::FPP;
+    }
+
+    //! \brief Request loading game mode at next update
+    void requestGameMode(const std::string& level)
+    {
+        levelToLaunch = level;
+        mRequestedMode = ModeType::GAME;
+     }
 
     //! \brief Request unloading the current new game mode and activate the parent one
     //! at next update
@@ -94,6 +114,9 @@ private:
 
     //! \brief The Angel Script wrapper, used in every game modes
     ASWrapper* mASWrapper;
+
+    //! \brief Saves the level to launch when the game mode will be launched
+    std::string levelToLaunch;
 
     void _addGameMode(ModeType);
     void _removeGameMode();

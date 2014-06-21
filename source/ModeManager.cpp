@@ -92,7 +92,12 @@ void ModeManager::_addGameMode(ModeType mt)
         mGameModes.push_back(new MenuMode(this));
         break;
     case GAME:
-        mGameModes.push_back(new GameMode(this));
+        {
+            GameMode* gm = new GameMode(this);
+            mGameModes.push_back(gm);
+            gm->setLevel(levelToLaunch);
+            break;
+        }
         break;
     case EDITOR:
         mGameModes.push_back(new EditorMode(this));

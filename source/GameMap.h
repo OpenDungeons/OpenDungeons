@@ -96,6 +96,7 @@ public:
     //! \brief Clears the mesh and deletes the data structure for all the creatures in the GameMap.
     void clearCreatures();
 
+
     //! \brief Tells whether the entity name already exists.
     //! \note Ogre entity names must be unique.
     bool doesCreatureNameExist(const std::string& entity_name);
@@ -240,6 +241,8 @@ public:
     unsigned int numEmptySeats() const;
 
     void clearFilledSeats();
+    void clearAiManager();
+
     void addFilledSeat(Seat *s);
 
     //! \brief A simple accessor method to return the given filled Seat.

@@ -66,7 +66,7 @@ public:
     virtual bool keyReleased    (const OIS::KeyEvent &arg) = 0;
     virtual void handleHotkeys  (OIS::KeyCode keycode) = 0;
 
-    virtual bool shouldAllowUpdateAnimation()
+    virtual bool shouldAllowGameMapUpdateAnimation()
     {
         return true;
     }
@@ -84,12 +84,6 @@ public:
     //! Called when activating the new game mode
     //! Used for instance, to load the corresponding Gui Sheet
     virtual void activate() = 0;
-
-    //! \brief Methods permitting to change the current game mode.
-    void progressMode (ModeManager::ModeType mm)
-    {
-        mModeManager->requestNewGameMode(mm);
-    }
 
     void regressMode()
     {

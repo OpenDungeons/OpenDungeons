@@ -57,7 +57,9 @@ GameMode::GameMode(ModeManager *modeManager):
     mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
     mMouseX(0),
     mMouseY(0),
-    mIsPaused(false)
+    mIsPaused(false),
+    startLevelWhenActivated(false),
+    levelToLaunch("")
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
@@ -65,14 +67,16 @@ GameMode::GameMode(ModeManager *modeManager):
     // Keep track of the mouse light object
     Ogre::SceneManager* sceneMgr = RenderManager::getSingletonPtr()->getSceneManager();
     mMouseLight = sceneMgr->getLight("MouseLight");
-
-    // TEMP: Start the default level
-    // TODO: Permit loading any level.
-    startLevel("levels/Test.level");
 }
 
 GameMode::~GameMode()
 {
+}
+
+void GameMode::setLevel(const std::string& levelFilename)
+{
+    levelToLaunch = levelFilename;
+    startLevelWhenActivated = true;
 }
 
 bool GameMode::startLevel(const std::string& levelFilename)
@@ -169,6 +173,12 @@ void GameMode::activate()
     // Play the game music.
     // TODO: Actually, the game music should be part of the game data
     MusicPlayer::getSingleton().start(1); // in game music
+
+    if(startLevelWhenActivated)
+    {
+        startLevelWhenActivated = false;
+        startLevel(levelToLaunch);
+    }
 }
 
 void GameMode::handleCursorPositionUpdate()
@@ -434,7 +444,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         // Pick the creature up and put it in our hand
         if(inputManager->mExpectCreatureClick)
         {
-            progressMode(ModeManager::FPP);
+            mModeManager->requestFppMode();
             const string& tmp_name =  (itr->movable->getName());
             std::cerr << tmp_name.substr(9, tmp_name.size()) << std::endl;
             cm->setFPPCamera(mGameMap->getCreature(tmp_name.substr(9, tmp_name.size())));
@@ -689,7 +699,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
     case OIS::KC_GRAVE:
     case OIS::KC_F12:
-        progressMode(ModeManager::CONSOLE);
+        mModeManager->requestConsoleMode();
         frameListener->setTerminalActive(true);
         Console::getSingleton().setVisible(true);
         getKeyboard()->setTextTranslation(OIS::Keyboard::Ascii);
