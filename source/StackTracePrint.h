@@ -1,3 +1,25 @@
+/*! \file   StackTracePrint.h
+ *  \author paul424
+ *  \date   Sun Jun 22 18:16:35 CEST 2014
+ *  \brief  Namespace StackTracePrint containing functions for call
+ *  stack printing ( by default after program crash).
+ *
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include <execinfo.h>
 #include <signal.h>
 #include <stdio.h>
@@ -9,6 +31,9 @@
 #include <cxxabi.h>
 #include <iostream>
 
+
+namespace StackTracePrint{
+
 /* This structure mirrors the one found in /usr/include/asm/ucontext.h */
 typedef struct _sig_ucontext {
     unsigned long     uc_flags;
@@ -19,3 +44,5 @@ typedef struct _sig_ucontext {
 } sig_ucontext_t;
 
 void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext);
+
+}
