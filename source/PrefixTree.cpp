@@ -77,10 +77,7 @@ bool PrefixTree::completePlusPrefix(string ss, list<string>* ll){
 
 
 PrefixTree* PrefixTree::findPrefix(string ss){
-
-
     return findPrefixAux(ss.begin(), ss.end());
-
 }
 
 
@@ -94,7 +91,6 @@ PrefixTree* PrefixTree::findPrefixAux(string::const_iterator ii, string::const_i
 	auto tmpDebug = siblingsList.end();
 	if( result == siblingsList.end())
 	    return nullptr;
-
 	else
 	    return result->second->findPrefixAux(++ii,end_ii) ;
     }
