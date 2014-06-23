@@ -1425,9 +1425,11 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, in
                 // Color the material with the Player's one.
                 tempPass = tempTechnique->getPass(0);
                 Ogre::ColourValue color = tempSeat->getColorValue();
-                color.a = 0.4;
+                color.a = 0.3;
                 tempPass->setEmissive(color);
                 tempPass->setSpecular(color);
+                tempPass->setAmbient(color);
+                tempPass->setDiffuse(color);
             }
         }
         generateRTSSShadersForMaterial(tempSS.str(), "Claimed6Nor.png");
