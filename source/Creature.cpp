@@ -2134,9 +2134,20 @@ void Creature::updateStatsWindow()
 std::string Creature::getStatsText()
 {
     std::stringstream tempSS;
-    tempSS << "HP: " << getHP() << " / " << mMaxHP << "\n";
-    tempSS << "Mana: " << getMana() << " / " << mMaxMana << "\n";
-    tempSS << "AI State: " << mActionQueue.front().toString() << "\n";
+    tempSS << "Level: " << getLevel() << std::endl;
+    tempSS << "Experience: " << mExp << std::endl;
+    tempSS << "HP: " << getHP() << " / " << mMaxHP << std::endl;
+    tempSS << "Awakeness: " << mAwakeness << std::endl;
+    tempSS << "Move speed: " << getMoveSpeed() << std::endl;
+    tempSS << "Left hand: Attack: " << mWeaponL->getDamage() << ", Range: " << mWeaponL->getRange() << std::endl;
+    tempSS << "Right hand: Attack: " << mWeaponR->getDamage() << ", Range: " << mWeaponR->getRange() << std::endl;
+    tempSS << "Total Defense: " << getDefense() << std::endl;
+    if (getDefinition()->isWorker())
+    {
+        tempSS << "Dig Rate: : " << getDigRate() << std::endl;
+        tempSS << "Dance Rate: : " << mDanceRate << std::endl;
+    }
+    tempSS << "Current Action: " << mActionQueue.front().toString() << std::endl;
     return tempSS.str();
 }
 
