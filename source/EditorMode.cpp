@@ -367,7 +367,6 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     if (id == OIS::MB_Middle)
     {
-        /* FIXME: This makes the game crash
         // See if the mouse is over any creatures
         for (itr = result.begin(); itr != result.end(); ++itr)
         {
@@ -387,7 +386,6 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
             return true;
         }
-        */
     }
     return true;
 }

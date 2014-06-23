@@ -29,6 +29,7 @@
 #include <OgreVector2.h>
 #include <OgreVector3.h>
 #include <OgreSharedPtr.h>
+#include <CEGUI/EventArgs.h>
 
 #include <string>
 #include <deque>
@@ -73,6 +74,7 @@ public:
 
     void createStatsWindow();
     void destroyStatsWindow();
+    bool CloseStatsWindow(const CEGUI::EventArgs& /*e*/);
     void updateStatsWindow();
     std::string getStatsText();
 

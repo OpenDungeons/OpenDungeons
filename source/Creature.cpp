@@ -43,6 +43,8 @@
 #include <CEGUI/System.h>
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/Window.h>
+#include <CEGUI/widgets/PushButton.h>
+#include <CEGUI/Event.h>
 #include <CEGUI/UDim.h>
 #include <CEGUI/Vector.h>
 
@@ -2064,6 +2066,12 @@ std::string Creature::getUniqueCreatureName()
     return tempString;
 }
 
+bool Creature::CloseStatsWindow(const CEGUI::EventArgs& /*e*/)
+{
+    destroyStatsWindow();
+    return true;
+}
+
 void Creature::createStatsWindow()
 {
     if (mStatsWindow != NULL)
@@ -2072,24 +2080,33 @@ void Creature::createStatsWindow()
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
-    mStatsWindow = wmgr->createWindow("OD/FrameWindow",
-            std::string("Root/CreatureStatsWindows/") + getName());
-    mStatsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.7, 0), CEGUI::UDim(0.65, 0)));
+    mStatsWindow = wmgr->createWindow("OD/FrameWindow", std::string("CreatureStatsWindows_") + getName());
+    mStatsWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.3, 0), CEGUI::UDim(0.3, 0)));
+    mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0, 300), CEGUI::UDim(0, 300)));
 
-    mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0.25, 0.3), CEGUI::UDim(0.25, 0.3)));
-    //mStatsWindow->setSize(CEGUI::UVector2(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.3, 0)));
-    mStatsWindow->setSize(CEGUI::USize(CEGUI::UDim(0.25, 0), CEGUI::UDim(0.25, 0)));
-    //mStatsWindow->setSize(CEGUI::Size<double>(0.25, 0.3));
-
-    CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", mStatsWindow->getName() + "TextDisplay");
-
-    //textWindow->setPosition(CEGUI::USize(0.05,0.0), CEGUI::USize(0.15,0.0));
+    CEGUI::Window* textWindow = wmgr->createWindow("OD/StaticText", "TextDisplay");
     textWindow->setPosition(CEGUI::UVector2(CEGUI::UDim(0.05, 0), CEGUI::UDim(0.15, 0)));
-
-    //textWindow->setSize(CEGUI::USize(0.9, 0.8));
     textWindow->setSize(CEGUI::USize(CEGUI::UDim(0.9, 0), CEGUI::UDim(0.8, 0)));
 
+    CEGUI::Window* closeButton = wmgr->createWindow("OD/Button", "CloseButton");
+    closeButton->setPosition(CEGUI::UVector2(CEGUI::UDim(0.75, 0),CEGUI::UDim(0.80, 0)));
+    closeButton->setSize(CEGUI::USize(CEGUI::UDim(0, 60), CEGUI::UDim(0, 45)));
+    closeButton->setText("Close");
+    // Make the button close the window
+    closeButton->subscribeEvent(CEGUI::PushButton::EventClicked,
+                                CEGUI::Event::Subscriber(&Creature::CloseStatsWindow, this));
+
+    // Search for the autoclose button and make it work
+    CEGUI::Window* childWindow = mStatsWindow->getChild("__auto_closebutton__");
+    childWindow->subscribeEvent(CEGUI::PushButton::EventClicked,
+                                        CEGUI::Event::Subscriber(&Creature::CloseStatsWindow, this));
+
+    // Set the window title
+    childWindow = mStatsWindow->getChild("__auto_titlebar__");
+    childWindow->setText(getName() + " (" + getDefinition()->getClassName() + ")");
+
     mStatsWindow->addChild(textWindow);
+    mStatsWindow->addChild(closeButton);
     rootWindow->addChild(mStatsWindow);
     mStatsWindow->show();
 
@@ -2107,14 +2124,16 @@ void Creature::destroyStatsWindow()
 
 void Creature::updateStatsWindow()
 {
-    if (mStatsWindow != NULL)
-        mStatsWindow->getChild(mStatsWindow->getName() + "TextDisplay")->setText(getStatsText());
+    if (mStatsWindow == NULL)
+        return;
+
+    CEGUI::Window* textWindow = mStatsWindow->getChild("TextDisplay");
+    textWindow->setText(getStatsText());
 }
 
 std::string Creature::getStatsText()
 {
     std::stringstream tempSS;
-    tempSS << "Creature name: " << getName() << "\n";
     tempSS << "HP: " << getHP() << " / " << mMaxHP << "\n";
     tempSS << "Mana: " << getMana() << " / " << mMaxMana << "\n";
     tempSS << "AI State: " << mActionQueue.front().toString() << "\n";
