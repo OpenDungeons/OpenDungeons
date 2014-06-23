@@ -41,8 +41,8 @@ bool writeGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
     Ogre::Image mapImage;
     uchar* pictureBuffer;
     int numFaces = 1;
-    pictureBuffer = new uchar [numFaces*Ogre::PixelUtil::getMemorySize( gameMap.getMapSizeX() , gameMap.getMapSizeY() , 1, Ogre::PF_R8G8B8 )];
-    mapImage.loadDynamicImage(pictureBuffer, gameMap.getMapSizeX() , gameMap.getMapSizeY() , 1, Ogre::PF_R8G8B8   );
+    pictureBuffer = new uchar [numFaces*Ogre::PixelUtil::getMemorySize( gameMap.getMapSizeX(), gameMap.getMapSizeY(), 1, Ogre::PF_R8G8B8 )];
+    mapImage.loadDynamicImage(pictureBuffer, gameMap.getMapSizeX(), gameMap.getMapSizeY(), 1, Ogre::PF_R8G8B8 );
 
     Ogre::ColourValue cv;
     for(int ii = 0 ; ii <  gameMap.getMapSizeX(); ii++)
@@ -51,7 +51,7 @@ bool writeGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
 		cv.r = cv.g = cv.b = 0.1 * static_cast<float>(gameMap.getTile(ii, jj)->getType());
 		mapImage.setColourAt(cv, ii, jj, 0);
 	    }
-    mapImage.save("./MapPictures/ImageFromMap.tga");
+    mapImage.save(fileName);
     delete [] pictureBuffer ;
 }
 
@@ -80,7 +80,6 @@ bool readGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
 	    {
 		cv = img.getColourAt( ii , jj, 0);
 		gameMap.getTile(ii, jj)->setType(static_cast<Tile::TileType>(10.0*cv.r));
-
 	    }
     return image_loaded;
 }

@@ -132,7 +132,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (!arguments.empty())
         {
-	MapLoader::writeGameMapFromTgaFile(arguments, *gameMap);
+	    MapLoader::writeGameMapFromTgaFile(arguments, *gameMap);
 	}
 
     }
@@ -140,7 +140,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (!arguments.empty())
         {	
-	MapLoader::readGameMapFromTgaFile(arguments, *gameMap);
+	    MapLoader::readGameMapFromTgaFile(arguments, *gameMap);
 	}
     }
 
