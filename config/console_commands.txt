@@ -19,6 +19,7 @@ help
 host
 list
 load
+loadGameMapFromTgaFile
 ls
 maxmessages
 maxtime
@@ -33,6 +34,7 @@ possescreature
 refreshmesh
 rotatespeed
 save
+saveGameMapToTgaFile
 setcamerafovx
 setcamerafovy
 setcolor
