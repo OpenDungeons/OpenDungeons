@@ -1,18 +1,14 @@
-import base_material from "general.material"
-material Dwarf1 : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Dwarf1 RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Dwarf1.png
             }
         }
     }
-
-    set_texture_alias diffuseMap Dwarf1.png
-    set_texture_alias specMap Dwarf1.png
-    //set_texture_alias normalMap Dwarf1.png
 }

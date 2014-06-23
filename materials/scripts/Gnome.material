@@ -1,35 +1,28 @@
-import base_material from "general.material"
-material Gnome : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Gnome RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Gnome.png
             }
         }
     }
-
-    set_texture_alias diffuseMap Gnome.png
-    set_texture_alias specMap Gnome.png
-    //set_texture_alias normalMap Gnome.png
 }
 
-material Gnome/TWOSIDE : base_material
+material Gnome/TWOSIDE RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Gnome.png
             }
         }
     }
-    set_texture_alias diffuseMap Gnome.png
-    set_texture_alias specMap Gnome.png
-    //set_texture_alias normalMap Gnome.png
 }

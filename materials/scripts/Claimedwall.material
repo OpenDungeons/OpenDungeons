@@ -1,13 +1,14 @@
-material Claimedwall
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Claimedwall RTSS/NormalMapping_MultiPass
 {
-	technique
-	{
-		pass
-		{
-			texture_unit
-			{
-				texture Claimedwall2B.png
-			}
-		}
-	}
+    technique
+    {
+        pass
+        {
+            texture_unit decalmap
+            {
+                texture Claimedwall2B.png
+            }
+        }
+    }
 }

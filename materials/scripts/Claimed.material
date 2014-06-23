@@ -1,14 +1,15 @@
-material Claimed
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Claimed RTSS/NormalMapping_MultiPass
 {
-	technique
-	{
-		pass
-		{
-		    specular 1.000000 1.000000 1.000000 1.000000 64
-			texture_unit
-			{
-				texture Claimed6c.png 
-			}
-		}
-	}
+    technique
+    {
+        pass
+        {
+            texture_unit decalmap
+            {
+                specular 1.000000 1.000000 1.000000 1.000000 64
+                texture Claimed6c.png
+            }
+        }
+    }
 }

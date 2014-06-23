@@ -1,20 +1,14 @@
-import base_material from "general.material"
-material Tentacle2 : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Tentacle2 RTSS/NormalMapping_MultiPass
 {
-    receive_shadows on
     technique
     {
         pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Tentakel_diff_green.png
             }
         }
     }
-
-    set_texture_alias DiffuseMap Tentakel_diff_green.png
-    set_texture_alias SpecMap Tentakel_diff_green.png
-    set_texture_alias NormalMap Tentakel_diff_nor.png
 }
-

@@ -1,15 +1,15 @@
-material TrainingPole
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material TrainingPole RTSS/NormalMapping_MultiPass
 {
-	technique
-	{
-		pass
-		{
-		    specular 0.3 0.3 0.3 1 20
-			texture_unit
-			{
-				texture trainingpole-tex.png
-			}
-		}
-	}
+    technique
+    {
+        pass
+        {
+            specular 0.3 0.3 0.3 1 20
+            texture_unit decalmap
+            {
+                texture trainingpole-tex.png
+            }
+        }
+    }
 }
-

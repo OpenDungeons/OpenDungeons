@@ -1,4 +1,5 @@
-material Pit_demon
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Pit_demon RTSS/NormalMapping_MultiPass
 {
     receive_shadows on
     technique
@@ -9,7 +10,8 @@ material Pit_demon
             diffuse 0.7 0.7 0.7 1.0
             specular 0.155866 0.149445 0.146546 1.000000 61.750000
             emissive 0.6 0.6 0.6 0.6
-            texture_unit
+
+            texture_unit decalmap
             {
                 texture Pit_Demon.png
             }

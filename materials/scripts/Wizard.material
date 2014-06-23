@@ -1,37 +1,28 @@
-import base_material from "general.material"
-material Wizard : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Wizard RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Wizard.png
             }
         }
     }
-
-    set_texture_alias DiffuseMap Wizard.png
-    set_texture_alias SpecMap Wizard.png
-    set_texture_alias NormalMap Wizard_nor.png
 }
 
-import base_material from "general.material"
-material Wizard/TWOSIDE : base_material
+material Wizard/TWOSIDE RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Wizard.png
             }
         }
     }
-
-    set_texture_alias DiffuseMap Wizard.png
-    set_texture_alias SpecMap Wizard.png
-    set_texture_alias NormalMap Wizard_nor.png
 }

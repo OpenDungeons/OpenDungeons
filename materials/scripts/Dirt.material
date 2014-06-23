@@ -1,15 +1,15 @@
-material Dirt
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Dirt RTSS/NormalMapping_MultiPass
 {
-	technique
-	{
-		pass
-		{
-		    specular 0.3 0.3 0.3 1 20
-			texture_unit
-			{
-				texture Dirt_darkE.png
-			}
-		}
-	}
+    technique
+    {
+        pass
+        {
+            specular 0.3 0.3 0.3 1 20
+            texture_unit decalmap
+            {
+                texture Dirt_darkE.png
+            }
+        }
+    }
 }
-

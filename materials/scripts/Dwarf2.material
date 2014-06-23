@@ -1,37 +1,28 @@
-import base_material from "general.material"
-material Dwarf2 : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Dwarf2 RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Dwarf2.png
             }
         }
     }
-
-    set_texture_alias diffuseMap Dwarf2.png
-    set_texture_alias specMap Dwarf2.png
-    //set_texture_alias normalMap Dwarf2.png
 }
 
-import base_material from "general.material"
-material Dwarf2/TWOSIDE : base_material
+material Dwarf2/TWOSIDE RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Dwarf2.png
             }
         }
     }
-
-    set_texture_alias diffuseMap Dwarf2.png
-    set_texture_alias specMap Dwarf2.png
-    //set_texture_alias normalMap Dwarf2.png
 }

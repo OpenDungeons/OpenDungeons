@@ -1,37 +1,28 @@
-import base_material from "general.material"
-material Knight : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Knight RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Knight.png
             }
         }
     }
-
-    set_texture_alias diffuseMap Knight.png
-    set_texture_alias specMap Knight.png
-    //set_texture_alias normalMap Knight.png
 }
 
-import base_material from "general.material"
-material Knight/TWOSIDE : base_material
+material Knight/TWOSIDE RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Knight.png
             }
         }
     }
-
-    set_texture_alias diffuseMap Knight.png
-    set_texture_alias specMap Knight.png
-    //set_texture_alias normalMap Knight.png
 }

@@ -1,36 +1,28 @@
-import base_material from "general.material"
-material Kobold_skin/TEXFACE/kobold_skin6.png : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Kobold_skin/TEXFACE/kobold_skin6.png RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture kobold_skin6.png
             }
         }
     }
-
-    set_texture_alias diffuseMap kobold_skin6.png
-    set_texture_alias specMap kobold_skin6.png
-    //set_texture_alias normalMap kobold_skin6.png
 }
 
-material Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png : base_material
+material Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture kobold_skin6.png
             }
         }
     }
-
-    set_texture_alias diffuseMap kobold_skin6.png
-    set_texture_alias specMap kobold_skin6.png
-    //set_texture_alias normalMap kobold_skin6.png
 }

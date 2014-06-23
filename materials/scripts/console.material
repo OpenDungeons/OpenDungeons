@@ -13,6 +13,5 @@ material console/background
             alpha_op_ex source1 src_manual src_current 0.6
          }
       }
-     
    }
 }

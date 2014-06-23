@@ -1,18 +1,14 @@
-import base_material from "general.material"
-material Orc : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Orc RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Orc_col.png
             }
         }
     }
-
-    set_texture_alias diffuseMap Orc_col.png
-    set_texture_alias specMap Orc_spec.png
-    set_texture_alias normalMap Orc_nor.png
 }

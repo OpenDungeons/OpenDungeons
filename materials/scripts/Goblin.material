@@ -1,11 +1,11 @@
-import base_material from "general.material"
-material Goblin : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Goblin RTSS/NormalMapping_MultiPass
 {
     technique
     {
         pass
-        {	
-            texture_unit
+        {
+            texture_unit decalmap
             {
                 texture Goblin.png
             }
@@ -13,9 +13,8 @@ material Goblin : base_material
     }
 }
 
-material Goblin_old
+material Goblin_old RTSS/NormalMapping_MultiPass
 {
-    receive_shadows on
     technique
     {
         pass
@@ -23,12 +22,9 @@ material Goblin_old
             ambient 0.00000 0.00000 0.00000 1.000000
             diffuse 0.8 0.8 0.8 1.000000
             emissive 0.000000 0.000000 0.000000 1.000000
-            texture_unit
+            texture_unit decalmap
             {
                 texture Goblin.png
-                tex_address_mode wrap
-                filtering bilinear
-                colour_op alpha_blend
             }
         }
     }

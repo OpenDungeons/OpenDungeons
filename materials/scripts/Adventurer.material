@@ -1,18 +1,14 @@
-import base_material from "general.material"
-material Adventurer : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Adventurer RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Adventurer.png
             }
         }
     }
-
-    set_texture_alias diffuseMap Adventurer.png
-    set_texture_alias specMap Adventurer.png
-    //set_texture_alias normalMap Adventurer.png
 }

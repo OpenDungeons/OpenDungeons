@@ -1,18 +1,14 @@
-import base_material from "general.material"
-material Wyvern : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+material Wyvern RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
-            texture_unit
+            texture_unit decalmap
             {
                 texture Wyvern_red_col5.png
             }
         }
     }
-
-    set_texture_alias DiffuseMap Wyvern_red_col5.png
-    set_texture_alias SpecMap Wyvern_red_col5.png
-    set_texture_alias NormalMap Wyvern_red_normalmap.png
 }

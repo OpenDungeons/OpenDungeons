@@ -1,27 +1,20 @@
-import base_material from "general.material"
-
-#TODO - fix this typo
-material TrainingDummmy : base_material
+import RTSS/NormalMapping_MultiPass from "RTShaderSystem.material"
+// TODO - fix this typo
+material TrainingDummmy RTSS/NormalMapping_MultiPass
 {
     technique
     {
-        pass 0
+        pass
         {
+            ambient 1.0 1.0 1.0
             // No diffuse to remove the metallic effect
-	    ambient 1.0 1.0 1.0
             diffuse 0.0 0.0 0.0
             specular 0.1 0.1 0.1
             emissive 0.6 0.6 0.6 0.6
-
-            texture_unit
+            texture_unit decalmap
             {
                 texture leatherdummy2.png
             }
         }
     }
-    
-    set_texture_alias DiffuseMap leatherdummy2.png
-    set_texture_alias SpecMap leatherdummy2.png
-    //set_texture_alias NormalMap leatherdummy2-nm.png
 }
-
