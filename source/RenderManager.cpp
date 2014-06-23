@@ -1432,7 +1432,6 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, in
                 tempPass->setDiffuse(color);
             }
         }
-        generateRTSSShadersForMaterial(tempSS.str(), "Claimed6Nor.png");
     }
 
     return tempSS.str();

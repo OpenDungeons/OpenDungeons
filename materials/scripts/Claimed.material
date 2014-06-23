@@ -19,6 +19,7 @@ material Claimed
             {
                 lighting on
                 texture Claimed6c.png
+                colour_op alpha_blend
             }
         }
     }
