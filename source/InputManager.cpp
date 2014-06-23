@@ -52,7 +52,6 @@ InputManager::InputManager():
     OIS::ParamList paramList;
     paramList.insert(std::make_pair(std::string("WINDOW"), windowHndStr.str()));
 #if defined OIS_WIN32_PLATFORM
-/* TODO: find out what is the best here (mouse/keyboard exclusiveness to OD or not) */
     paramList.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_FOREGROUND" )));
     paramList.insert(std::make_pair(std::string("w32_mouse"), std::string("DISCL_NONEXCLUSIVE")));
     paramList.insert(std::make_pair(std::string("w32_keyboard"), std::string("DISCL_FOREGROUND")));
