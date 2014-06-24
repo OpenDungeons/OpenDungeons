@@ -4,6 +4,11 @@ material Claimed
     {
         pass
         {
+            // make it dim
+            ambient 0.0 0.0 0.0
+            diffuse 0.0 0.0 0.0
+            specular 0.0 0.0 0.0
+
             texture_unit
             {
                 lighting on

@@ -1430,9 +1430,9 @@ std::string RenderManager::colourizeMaterial(const std::string& materialName, in
             Ogre::ColourValue color = tempSeat->getColorValue();
             color.a = 0.3;
             tempPass->setEmissive(color);
-            tempPass->setSpecular(color);
             tempPass->setAmbient(color);
-            tempPass->setDiffuse(color);
+            // Remove the diffuse light to avoid the fluorescent effect.
+            tempPass->setDiffuse(Ogre::ColourValue(0.0, 0.0, 0.0));
         }
     }
 
