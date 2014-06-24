@@ -37,7 +37,6 @@ public:
         refreshTile,
         destroyTile,
         deleteTile,
-        colorTile,
         temporalMarkTile,
         attachTile,
         detachTile,

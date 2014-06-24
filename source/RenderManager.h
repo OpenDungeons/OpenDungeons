@@ -78,7 +78,11 @@ public:
     }
 
     void rtssTest();
-    void colourizeEntity(Ogre::Entity *ent, int colour);
+
+    //! \brief Colorize an entity with the team id corresponding color.
+    //! \Note: if the entity is marked for digging (wall tiles only), then a yellow color
+    //! is added to the current colorization.
+    void colourizeEntity(Ogre::Entity *ent, int colour, bool markedForDigging = false);
 
     static const Ogre::Real BLENDER_UNITS_PER_OGRE_UNIT;
 
@@ -97,7 +101,6 @@ protected:
     void rrDetachTile(const RenderRequest& renderRequest);
     void rrAttachTile(const RenderRequest& renderRequest);
     void rrToggleCreaturesVisibility();
-    void rrColorTile(const RenderRequest& renderRequest);
     void rrTemporalMarkTile(const RenderRequest& renderRequest);
     void rrShowSquareSelector(const RenderRequest& renderRequest);
     void rrCreateRoom(const RenderRequest& renderRequest);
@@ -140,8 +143,10 @@ protected:
     Ogre::Entity* createEntity(const std::string& entityName, const std::string& meshName,
                                const std::string& normalMapTextureName = "");
 
-
-    std::string colourizeMaterial(const std::string& materialName, int color);
+    //! \brief Colorize the material with the corresponding team id color.
+    //! \note If the material (wall tiles only) is marked for digging, a yellow color is added
+    //! to the given color.
+    std::string colourizeMaterial(const std::string& materialName, int colour, bool markedForDigging = false);
 private:
     bool mVisibleCreatures;
 

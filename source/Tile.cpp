@@ -845,34 +845,16 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
     if (ss && (!isDiggable(pp->getSeat()->getColor()) || (getFullness() < 1)))
         return;
 
-    RenderRequest *request;
+    // If the tile was already in the given state, we can return
+    if (getMarkedForDigging(pp) == ss)
+        return;
 
-    if (getMarkedForDigging(pp) != ss)
-    {
-        if  (pp == getGameMap()->getLocalPlayer()) // if this request is for me
-        {
-            request = new RenderRequest;
+    if (ss)
+        addPlayerMarkingTile(pp);
+    else
+        removePlayerMarkingTile(pp);
 
-            request->type = RenderRequest::colorTile;
-            request->p = static_cast<void*>(this);
-            request->p2 = static_cast<void*>(pp);
-            request->b = ss;
-            // Add the request to the queue of rendering operations to be performed before the next frame.
-            RenderManager::queueRenderRequest(request);
-        }
-
-        if (ss)
-        {
-            //FIXME:  This code should be moved over to the rendering thread and called via a RenderRequest
-            addPlayerMarkingTile(pp);
-        }
-        else
-        {
-            removePlayerMarkingTile(pp);
-        }
-        // refreshMesh();
-
-    }
+    refreshMesh();
 }
 
 void Tile::setSelected(bool ss, Player* pp)
