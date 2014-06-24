@@ -30,42 +30,72 @@ RoomQuarters::RoomQuarters()
 
 void RoomQuarters::absorbRoom(Room *r)
 {
-    // Start by deleting the Ogre meshes associated with both rooms.
-    destroyMesh();
-    destroyBedMeshes();
-    r->destroyMesh();
-    //Added a check here - didn't look safe - oln 17/03/2011
-    if(r->getType() == quarters)
-    {
-        static_cast<RoomQuarters*>(r)->destroyBedMeshes();
-    }
+    RoomQuarters* oldRoom = static_cast<RoomQuarters*>(r);
+    if (oldRoom == NULL)
+        return;
 
-    // Copy over the information about the creatures that are sleeping in the other quarters before we remove its rooms.
-    for (unsigned int i = 0; i < r->numCoveredTiles(); ++i)
-    {
-        Tile *tempTile = r->getCoveredTile(i);
+    mBedRoomObjectsInfo.swap(oldRoom->mBedRoomObjectsInfo);
 
-        if (static_cast<RoomQuarters*>(r)->mCreatureSleepingInTile[tempTile] != NULL)
-            std::cout << "\nCreature sleeping in tile " << tempTile << "\n"
-                    << static_cast<RoomQuarters*>(r)->mCreatureSleepingInTile[tempTile];
-        else
-            std::cout << "\nCreature sleeping in tile " << tempTile << "\nNULL";
-
-        std::cout << "\n";
-        mCreatureSleepingInTile[tempTile] = static_cast<RoomQuarters*>(r)->mCreatureSleepingInTile[tempTile];
-
-        if (static_cast<RoomQuarters*>(r)->mBedOrientationForTile.find(tempTile)
-                != static_cast<RoomQuarters*>(r)->mBedOrientationForTile.end())
-            mBedOrientationForTile[tempTile] = static_cast<RoomQuarters*>(r)->mBedOrientationForTile[tempTile];
-    }
-
-    // Use the superclass function to copy over the covered tiles to this room and get rid of them in the other room.
+    // This function will copy the room objects (beds) into the new room
+    // and remove the old room covered tiles.
     Room::absorbRoom(r);
+}
 
-    // Recreate the meshes for this new room which contains both rooms.
-    createMesh();
+void RoomQuarters::createMesh()
+{
+    Room::createMesh();
 
-    createRoomObjectMeshes();
+    // Clean everything if not already done
+    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
+    while (itr != mRoomObjects.end())
+    {
+        itr->second->deleteYourself();
+        ++itr;
+    }
+    mRoomObjects.clear();
+    mCreatureSleepingInTile.clear();
+
+    // And recreate the meshes with the new size.
+    if (mCoveredTiles.empty())
+        return;
+
+    // Recreate every room objects
+    for (unsigned int i = 0; i < mBedRoomObjectsInfo.size(); ++i)
+    {
+        Creature* creature = mBedRoomObjectsInfo[i].getCreature();
+        if (creature == NULL)
+            continue;
+
+        const CreatureDefinition* def = creature->getDefinition();
+        if (def == NULL)
+            continue;
+
+        double x = mBedRoomObjectsInfo[i].getX();
+        double y = mBedRoomObjectsInfo[i].getY();
+        double rotationAngle = mBedRoomObjectsInfo[i].getRotation();
+        Tile* tile = mBedRoomObjectsInfo[i].getCentralTile();
+        // Tell the creature about its setHomeTile
+        creature->setHomeTile(tile);
+
+        // Reload the creature taking tiles data.
+        const std::vector<Tile*>& tilesTaken = mBedRoomObjectsInfo[i].getTilesTaken();
+        for (unsigned int j = 0; j < tilesTaken.size(); ++j)
+            mCreatureSleepingInTile[tilesTaken[j]] = creature;
+
+        // And recreate the bed room object
+        loadRoomObject(def->getBedMeshName(), tile, x, y, rotationAngle)->createMesh();
+    }
+
+    // Add NULL creature in the mCreatureSleepingInTile map where there a nobody,
+    // so that getOpenTiles() can later find empty slots for new beds.
+    for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
+    {
+        Tile* tile = mCoveredTiles[i];
+        if (mCreatureSleepingInTile.find(tile) != mCreatureSleepingInTile.end())
+            continue;
+
+        mCreatureSleepingInTile[tile] = NULL;
+    }
 }
 
 bool RoomQuarters::doUpkeep()
@@ -86,29 +116,19 @@ void RoomQuarters::addCoveredTile(Tile* t, double nHP)
 
 void RoomQuarters::removeCoveredTile(Tile* t)
 {
-    if (mCreatureSleepingInTile[t] != NULL)
+    if (t == NULL)
+        return;
+
+    Creature* c = mCreatureSleepingInTile[t];
+    if (c != NULL)
     {
-        Creature *c = mCreatureSleepingInTile[t];
-        if (c != NULL) // This check is probably redundant but I don't think it is a problem.
-        {
-            // Inform the creature that it no longer has a place to sleep.
-            c->setHomeTile(NULL);
-
-            // Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
-            for (std::map<Tile*, Creature*>::iterator itr = mCreatureSleepingInTile.begin();
-                 itr != mCreatureSleepingInTile.end(); ++itr)
-            {
-                if (itr->second == c)
-                    itr->second = NULL;
-            }
-        }
-
-        //roomObjects[t]->destroyMesh();
+        // Inform the creature that it no longer has a place to sleep
+        // an remove the bed tile.
+        releaseTileForSleeping(t, c);
     }
 
-    mCreatureSleepingInTile.erase(t);
-    mBedOrientationForTile.erase(t);
     Room::removeCoveredTile(t);
+    mCreatureSleepingInTile.erase(t);
 }
 
 void RoomQuarters::clearCoveredTiles()
@@ -131,63 +151,71 @@ std::vector<Tile*> RoomQuarters::getOpenTiles()
     return returnVector;
 }
 
-bool RoomQuarters::claimTileForSleeping(Tile *t, Creature *c)
+bool RoomQuarters::claimTileForSleeping(Tile* t, Creature* c)
 {
+    if (t == NULL || c == NULL)
+        return false;
+
     // Check to see if there is already a creature which has claimed this tile for sleeping.
-    if (mCreatureSleepingInTile[t] == NULL)
+    if (mCreatureSleepingInTile[t] != NULL)
+        return false;
+
+    const CreatureDefinition* def = c->getDefinition();
+    if (!def)
+        return false;
+
+    double xDim, yDim, rotationAngle = 0.0;
+    bool spaceIsBigEnough = false;
+
+    // Check to see whether the bed should be situated x-by-y or y-by-x tiles.
+    if (tileCanAcceptBed(t, def->getBedDim1(), def->getBedDim2()))
     {
-        double xDim, yDim, rotationAngle;
-        bool normalDirection, spaceIsBigEnough = false;
+        spaceIsBigEnough = true;
+        xDim = def->getBedDim1();
+        yDim = def->getBedDim2();
+        rotationAngle = 0.0;
+    }
 
-        // Check to see whether the bed should be situated x-by-y or y-by-x tiles.
-        if (tileCanAcceptBed(t, c->getDefinition()->getBedDim1(), c->getDefinition()->getBedDim2()))
+    if (!spaceIsBigEnough && tileCanAcceptBed(t, def->getBedDim2(), def->getBedDim1()))
+    {
+        spaceIsBigEnough = true;
+        xDim = def->getBedDim2();
+        yDim = def->getBedDim1();
+        rotationAngle = 90.0;
+    }
+
+    if (!spaceIsBigEnough)
+        return false;
+
+    BedRoomObjectInfo bedInfo(t->x + xDim / 2.0 - 0.5,
+                              t->y + yDim / 2.0 - 0.5,
+                              rotationAngle, c, t);
+
+    // Mark all of the affected tiles as having this creature sleeping in them.
+    for (int i = 0; i < xDim; ++i)
+    {
+        for (int j = 0; j < yDim; ++j)
         {
-            normalDirection = true;
-            spaceIsBigEnough = true;
-            xDim = c->getDefinition()->getBedDim1();
-            yDim = c->getDefinition()->getBedDim2();
-            rotationAngle = 0.0;
-        }
-
-        if (!spaceIsBigEnough && tileCanAcceptBed(t, c->getDefinition()->getBedDim2(), c->getDefinition()->getBedDim1()))
-        {
-            normalDirection = false;
-            spaceIsBigEnough = true;
-            xDim = c->getDefinition()->getBedDim2();
-            yDim = c->getDefinition()->getBedDim1();
-            rotationAngle = 90.0;
-        }
-
-        if (spaceIsBigEnough)
-        {
-            // Mark all of the affected tiles as having this creature sleeping in them.
-            for (int i = 0; i < xDim; ++i)
-            {
-                for (int j = 0; j < yDim; ++j)
-                {
-                    Tile *tempTile = getGameMap()->getTile(t->x + i, t->y + j);
-                    mCreatureSleepingInTile[tempTile] = c;
-                }
-            }
-
-            mBedOrientationForTile[t] = normalDirection;
-
-            const CreatureDefinition* def = c->getDefinition();
-            assert(def);
-
-            loadRoomObject(def->getBedMeshName(), t, t->x + xDim / 2.0 - 0.5, t->y
-                           + yDim / 2.0 - 0.5, rotationAngle)->createMesh();
-
-            return true;
+            Tile *tempTile = getGameMap()->getTile(t->x + i, t->y + j);
+            mCreatureSleepingInTile[tempTile] = c;
+            bedInfo.addTileTaken(tempTile);
         }
     }
 
-    return false;
+    // Add the model
+    loadRoomObject(def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle)->createMesh();
+    // Save the info for later...
+    mBedRoomObjectsInfo.push_back(bedInfo);
+
+    return true;
 }
 
-bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
+bool RoomQuarters::releaseTileForSleeping(Tile* t, Creature* c)
 {
-    if (mCreatureSleepingInTile[t] == NULL)
+    if (c == NULL)
+        return false;
+
+    if (mCreatureSleepingInTile.find(t) == mCreatureSleepingInTile.end())
         return false;
 
     // Loop over all the tiles in this room and if they are slept on by creature c then set them back to NULL.
@@ -195,12 +223,32 @@ bool RoomQuarters::releaseTileForSleeping(Tile *t, Creature *c)
          itr != mCreatureSleepingInTile.end(); ++itr)
     {
         if (itr->second == c)
+        {
             itr->second = NULL;
+        }
     }
 
-    mBedOrientationForTile.erase(t);
+    c->setHomeTile(NULL);
 
-    mRoomObjects[t]->destroyMesh();
+    // Make the room object delete itself and remove it from the map
+    std::map<Tile*, RoomObject*>::iterator it = mRoomObjects.find(t);
+    if (it != mRoomObjects.end() && it->second != NULL)
+        it->second->deleteYourself();
+    mRoomObjects.erase(t);
+
+    // Remove the bedinfo as well
+    std::vector<BedRoomObjectInfo>::iterator it2 = mBedRoomObjectsInfo.begin();
+    while (it2 != mBedRoomObjectsInfo.end())
+    {
+        if ((*it2).getCentralTile() == t)
+        {
+            it2 = mBedRoomObjectsInfo.erase(it2);
+        }
+        else
+        {
+            ++it2;
+        }
+    }
 
     return true;
 }
@@ -281,9 +329,4 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
     }
 
     return returnValue;
-}
-
-void RoomQuarters::destroyBedMeshes()
-{
-    destroyRoomObjectMeshes();
 }
