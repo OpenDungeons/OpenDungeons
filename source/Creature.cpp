@@ -521,14 +521,11 @@ void Creature::decideNextAction()
         // If we are not already fighting with a creature or maneuvering then start doing so.
         if (!alreadyFighting)
         {
-            if (Random::Double(0.0, 1.0) < (mDefinition->isWorker() ? 0.05 : 0.8))
-            {
-                mBattleFieldAgeCounter = 0;
-                pushAction(CreatureAction::maneuver);
-                // Jump immediately to the action processor since we don't want to decide to
-                //train or something if there are enemies around.
-                return;
-            }
+            mBattleFieldAgeCounter = 0;
+            pushAction(CreatureAction::maneuver);
+            // Jump immediately to the action processor since we don't want to decide to
+            //train or something if there are enemies around.
+            return;
         }
     }
 
