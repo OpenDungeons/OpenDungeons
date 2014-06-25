@@ -563,7 +563,6 @@ void Creature::decideNextAction()
              && peekAction().getType() != CreatureAction::train)
     {
         // Check to see if there is a Dojo we can train at.
-        //TODO: Check here to see if the controlling seat has any dojo's to train at, if not then don't try to train.
         pushAction(CreatureAction::train);
         mTrainWait = 0;
     }
@@ -1428,7 +1427,7 @@ bool Creature::handleTrainingAction()
         return true;
     }
     // Randomly decide to stop training, we are more likely to stop when we are tired.
-    else if (100.0 * std::pow(Random::Double(0.0, 1.0), 2) > mAwakeness)
+    else if (Random::Double(20.0, 100.0) > mAwakeness)
     {
         popAction();
         mTrainWait = 0;
@@ -1447,10 +1446,11 @@ bool Creature::handleTrainingAction()
     {
         // See if we are in a dojo now.
         Room* tempRoom = myTile->getCoveringRoom();
-        if (tempRoom != NULL && tempRoom->getType() == Room::dojo && tempRoom->numOpenCreatureSlots() > 0)
+        if (tempRoom != NULL && tempRoom->getType() == Room::dojo)
         {
+            RoomDojo* trainingHall = static_cast<RoomDojo*>(tempRoom);
             Tile* tempTile = tempRoom->getCentralTile();
-            if (tempTile != NULL)
+            if (tempTile != NULL && trainingHall != NULL && trainingHall->numOpenCreatureSlots() > 0)
             {
                 // Train at this dojo.
                 mTrainingDojo = static_cast<RoomDojo*>(tempRoom);
@@ -1463,7 +1463,7 @@ bool Creature::handleTrainingAction()
             }
         }
     }
-    else
+    else if (myTile == NULL)
     {
         // We are not on the map, don't do anything.
         popAction();
