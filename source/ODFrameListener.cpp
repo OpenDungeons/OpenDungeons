@@ -229,7 +229,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     mModeManager->checkModeChange();
     AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
 
-    if((currentMode->shouldAllowGameMapUpdateAnimation()) && (!mExitRequested))
+    if(!mExitRequested)
     {
         // Updates animations independant from the server new turn event
         updateAnimations(evt.timeSinceLastFrame);
@@ -243,7 +243,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     if (cm != NULL)
        cm->onFrameStarted();
 
-    if((!currentMode->shouldAllowGameMapUpdateAnimation()) && (!mExitRequested))
+    if((mGameMap->getGamePaused()) && (!mExitRequested))
         return true;
 
     // Sleep to limit the framerate to the max value

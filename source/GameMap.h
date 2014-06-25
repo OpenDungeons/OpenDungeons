@@ -382,6 +382,16 @@ public:
 
     std::vector<Creature*> creatures;
 
+    bool getGamePaused()
+    {
+        return mIsPaused;
+    }
+
+    void setGamePaused(bool b)
+    {
+        mIsPaused = b;
+    }
+
 private:
     //! \brief the Local player reference.
     Player* mLocalPlayer;
@@ -391,6 +401,9 @@ private:
 
     //! \brief The corresponding minimap.
     MiniMap* miniMap;
+
+    //! \brief When paused, the GameMap is not updated.
+    bool mIsPaused;
 
     //! \brief Level related filenames.
     std::string levelFileName;

@@ -57,7 +57,6 @@ GameMode::GameMode(ModeManager *modeManager):
     mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
     mMouseX(0),
     mMouseY(0),
-    mIsPaused(false),
     startLevelWhenActivated(false),
     levelToLaunch("")
 {
@@ -84,6 +83,8 @@ bool GameMode::startLevel(const std::string& levelFilename)
     // Read in the default game map
     if (!mGameMap->LoadLevel(levelFilename))
         return false;
+
+    mGameMap->setGamePaused(false);
 
     // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
     mGameMap->clearMapLightIndicators();
@@ -178,6 +179,12 @@ void GameMode::activate()
     {
         startLevelWhenActivated = false;
         startLevel(levelToLaunch);
+    }
+    else
+    {
+        /* The game has been resumed from another mode (like console).
+           Let's refresh the exit popup */
+        popupExit(mGameMap->getGamePaused());
     }
 }
 
@@ -343,7 +350,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
     inputManager->mMouseDownOnCEGUIWindow = false;
 
-    if(mIsPaused)
+    if(mGameMap->getGamePaused())
         return true;
 
     Ogre::RaySceneQueryResult &result = ODFrameListener::getSingleton().doRaySceneQuery(arg);
@@ -765,7 +772,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 
     // Quit the game
     case OIS::KC_ESCAPE:
-        popupPause(!mIsPaused);
+        popupExit(!mGameMap->getGamePaused());
         break;
 
     // Print a screenshot
@@ -896,7 +903,7 @@ void GameMode::onFrameEnded(const Ogre::FrameEvent& evt)
 {
 }
 
-void GameMode::popupPause(bool pause)
+void GameMode::popupExit(bool pause)
 {
     if(pause)
     {
@@ -906,5 +913,5 @@ void GameMode::popupPause(bool pause)
     {
         Gui::getSingleton().getGuiSheet(Gui::inGameMenu)->getChild(Gui::EXIT_CONFIRMATION_POPUP)->hide();
     }
-    mIsPaused = pause;
+    mGameMap->setGamePaused(pause);
 }

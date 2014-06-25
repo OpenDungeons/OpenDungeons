@@ -40,11 +40,6 @@ public:
     //! \brief Called when the game mode is activated
     //! Used to call the corresponding Gui Sheet.
     void activate();
-
-    bool shouldAllowGameMapUpdateAnimation()
-    {
-        return false;
-    }
 };
 
 #endif // MENUMODE_H

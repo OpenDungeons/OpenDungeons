@@ -127,7 +127,8 @@ GameMap::GameMap() :
         floodFillEnabled(false),
         numCallsTo_path(0),
         tileCoordinateMap(new TileCoordinateMap(100)),
-        aiManager(*this)
+        aiManager(*this),
+        mIsPaused(false)
 {
     // Init the player
     mLocalPlayer = new Player();
@@ -804,6 +805,9 @@ unsigned long int GameMap::doCreatureTurns()
 
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
+    if(mIsPaused)
+        return;
+
     // Update the animations on any AnimatedObjects which have them
     unsigned int entities_number = numAnimatedObjects();
     for (unsigned int i = 0; i < entities_number; ++i)

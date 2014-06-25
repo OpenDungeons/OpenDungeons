@@ -20,6 +20,8 @@
 #include "Gui.h"
 #include "ModeManager.h"
 #include "MusicPlayer.h"
+#include "GameMap.h"
+#include "ODFrameListener.h"
 
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
@@ -62,6 +64,9 @@ void MenuModeLevelSelect::activate()
 
     // Play the main menu music
     MusicPlayer::getSingleton().start(0);
+
+    GameMap* gameMap = ODFrameListener::getSingletonPtr()->getGameMap();
+    gameMap->setGamePaused(true);
 
     CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::levelSelectMenu)->getChild(Gui::LSM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);

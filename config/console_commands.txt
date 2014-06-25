@@ -30,6 +30,7 @@ newmap
 next
 nick
 quit
+pause
 possescreature
 refreshmesh
 rotatespeed

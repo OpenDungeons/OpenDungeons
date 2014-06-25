@@ -1077,6 +1077,24 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 ? "\nDisconnecting from server.\n"
                 : "\nYou are not connected to a server and you are not hosting a server.";
     }
+    else if (command.compare("pause") == 0)
+    {
+        if(!arguments.empty())
+        {
+            int tmp;
+
+            tempSS.str(arguments);
+            tempSS >> tmp;
+
+            gameMap->setGamePaused(tmp != 0);
+        }
+        else
+        {
+            tempSS.str("");
+            tempSS  << "Pause = " << (gameMap->getGamePaused() ? 1 : 0);
+            frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
+        }
+    }
     else
     {
         //try AngelScript interpreter

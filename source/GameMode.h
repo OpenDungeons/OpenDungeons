@@ -74,12 +74,8 @@ class  GameMode: public AbstractApplicationMode
     //! Used to call the corresponding Gui Sheet.
     void activate();
 
-    bool shouldAllowGameMapUpdateAnimation()
-    {
-        return !mIsPaused;
-    }
-
-    void popupPause(bool pause);
+    //! \brief Called when exit button is pressed
+    void popupExit(bool pause);
 
     void setLevel(const std::string& levelFilename);
 
@@ -95,8 +91,6 @@ private:
     //! \brief Stores the lastest mouse cursor and light positions.
     int mMouseX;
     int mMouseY;
-
-    bool mIsPaused;
 
     //! \brief The Mouse environment light following the mouse, don't delete it.
     Ogre::Light* mMouseLight;

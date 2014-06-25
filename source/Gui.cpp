@@ -319,7 +319,7 @@ bool Gui::confirmExitNoButtonPressed(const CEGUI::EventArgs& e)
     if (!mm || mm->getCurrentModeType() != ModeManager::GAME)
         return true;
 
-    static_cast<GameMode*>(mm->getCurrentMode())->popupPause(false);
+    static_cast<GameMode*>(mm->getCurrentMode())->popupExit(false);
     return true;
 }
 

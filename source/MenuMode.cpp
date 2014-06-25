@@ -18,6 +18,8 @@
 #include "MenuMode.h"
 
 #include "Gui.h"
+#include "GameMap.h"
+#include "ODFrameListener.h"
 #include "ModeManager.h"
 #include "MusicPlayer.h"
 
@@ -35,6 +37,9 @@ void MenuMode::activate()
 
     // Play the main menu music
     MusicPlayer::getSingleton().start(0);
+
+    GameMap* gameMap = ODFrameListener::getSingletonPtr()->getGameMap();
+    gameMap->setGamePaused(true);
 }
 
 MenuMode::~MenuMode()
