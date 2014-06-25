@@ -388,6 +388,8 @@ void Creature::doTurn()
         mMana = mMaxMana;
 
     mAwakeness -= 0.15;
+    if (mAwakeness < 0.0)
+        mAwakeness = 0.0;
 
     // Look at the surrounding area
     updateVisibleTiles();
