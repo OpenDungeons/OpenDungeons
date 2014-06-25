@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<GUILayout version="4" >
+    <Window type="OD/StaticImage" name="Background" >
+        <Property name="Area" value="{{0,0},{0,0},{1,2},{1,0}}" />
+        <Property name="Image" value="ODMainMenuBackground/MainMenuBackground" />
+        <Property name="MaxSize" value="{{1,0},{1,0}}" />
+        <Property name="FrameEnabled" value="False" />
+        <Property name="BackgroundEnabled" value="False" />
+        <Window type="OD/StaticImage" name="WelcomeBanner" >
+            <Property name="Area" value="{{0.5,-383},{0,50},{0.5,383},{0,200}}" />
+            <Property name="Image" value="ODLogo/Logo" />
+            <Property name="MaxSize" value="{{1,0},{1,0}}" />
+            <Property name="FrameEnabled" value="False" />
+            <Property name="BackgroundEnabled" value="False" />
+        </Window>
+        <Window type="OD/MainMenuListbox" name="LevelSelect" >
+			<Property name="ForceVertScrollbar" value="True" />
+            <Property name="Area" value="{{0.5,-383},{0,211},{0.5,383},{0,541}}" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="LaunchGameButton" >
+            <Property name="Area" value="{{0.5,10},{0,574},{0.5,174},{0,664}}" />
+            <Property name="Text" value="Launch" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="BackButton" >
+            <Property name="Area" value="{{0.5,-174},{0,574},{0.5,-10},{0,664}}" />
+            <Property name="Text" value="Back" />
+        </Window>
+		<Window type="OD/StaticText" name="LoadingText" >
+			<Property name="Area" value="{{0.5,-50},{0,550},{0.5,50},{0,570}}" />
+			<Property name="Text" value="Loading..." />
+			<Property name="BackgroundEnabled" value="False" />
+			<Property name="FrameEnabled" value="False" />
+		</Window>
+    </Window>
+</GUILayout>

@@ -39,6 +39,7 @@
 #include "ModeManager.h"
 #include "GameMode.h"
 #include "EditorMode.h"
+#include "MenuModeLevelSelect.h"
 #include "LogManager.h"
 
 #include <CEGUI/CEGUI.h>
@@ -68,6 +69,7 @@ Gui::Gui()
 
     sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
+	sheets[levelSelectMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuLevelSelect.layout");
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
 
     assignEventHandlers();
@@ -204,6 +206,19 @@ void Gui::assignEventHandlers()
     sheets[editorMenu]->getChild(EDITOR_CLAIMED_BUTTON)->subscribeEvent(
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
+
+    // Level select menu controls
+    sheets[levelSelectMenu]->getChild(LSM_BUTTON_LAUNCH)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&mLSMLoadButtonPressed));
+
+    sheets[levelSelectMenu]->getChild(LSM_BUTTON_BACK)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&mLSMBackButtonPressed));
+
+    sheets[levelSelectMenu]->getChild(LSM_LIST_LEVELS)->subscribeEvent(
+        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Event::Subscriber(&mLSMListClicked));
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
@@ -379,9 +394,7 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    // TEMP: Start the default level
-    // TODO: Permit loading any level.
-    mm->requestGameMode("levels/Test.level");
+    mm->requestMenuLevelSelectMode();
 
     return true;
 }
@@ -409,6 +422,38 @@ bool Gui::mMOptionsButtonPressed(const CEGUI::EventArgs& e)
 bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
 {
     ODFrameListener::getSingletonPtr()->requestExit();
+    return true;
+}
+
+bool Gui::mLSMBackButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm)
+        return true;
+    mm->requestUnloadToParentGameMode();
+
+    return true;
+}
+
+bool Gui::mLSMListClicked(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_LEVEL_SELECT)
+        return true;
+
+    static_cast<MenuModeLevelSelect*>(mm->getCurrentMode())->listLevelsClicked();
+
+    return true;
+}
+
+bool Gui::mLSMLoadButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_LEVEL_SELECT)
+        return true;
+
+    static_cast<MenuModeLevelSelect*>(mm->getCurrentMode())->launchSelectedButtonPressed();
+
     return true;
 }
 
@@ -446,6 +491,11 @@ const std::string Gui::MM_BUTTON_QUIT = "QuitButton";
 const std::string Gui::EXIT_CONFIRMATION_POPUP = "ConfirmExit";
 const std::string Gui::EXIT_CONFIRMATION_POPUP_YES_BUTTON = "ConfirmExit/YesOption";
 const std::string Gui::EXIT_CONFIRMATION_POPUP_NO_BUTTON = "ConfirmExit/NoOption";
+
+const std::string Gui::LSM_TEXT_LOADING = "LoadingText";
+const std::string Gui::LSM_BUTTON_LAUNCH = "LaunchGameButton";
+const std::string Gui::LSM_BUTTON_BACK = "BackButton";
+const std::string Gui::LSM_LIST_LEVELS = "LevelSelect";
 
 const std::string Gui::EDITOR = "MainTabControl";
 const std::string Gui::EDITOR_LAVA_BUTTON = "MainTabControl/Tiles/LavaButton";

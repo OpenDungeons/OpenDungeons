@@ -47,6 +47,7 @@ public:
     {
         hideGui,
         mainMenu,
+        levelSelectMenu,
         optionsMenu,
         inGameMenu,
         editorMenu
@@ -107,7 +108,10 @@ public:
     static const std::string EXIT_CONFIRMATION_POPUP;
     static const std::string EXIT_CONFIRMATION_POPUP_YES_BUTTON;
     static const std::string EXIT_CONFIRMATION_POPUP_NO_BUTTON;
-
+    static const std::string LSM_TEXT_LOADING;
+    static const std::string LSM_BUTTON_LAUNCH;
+    static const std::string LSM_BUTTON_BACK;
+    static const std::string LSM_LIST_LEVELS;
 
 private:
     //! \brief Assigns all event handlers to the GUI elements
@@ -128,6 +132,15 @@ private:
 
     //! \brief What happens after a click on Quit in the main menu
     static bool mMQuitButtonPressed     (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Back in the level selection menu
+    static bool mLSMBackButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Load in the level selection menu
+    static bool mLSMLoadButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on the level list in the level selection menu
+    static bool mLSMListClicked         (const CEGUI::EventArgs& e);
 
     // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);

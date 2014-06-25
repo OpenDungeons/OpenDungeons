@@ -20,6 +20,7 @@
 #include "ASWrapper.h"
 #include "InputManager.h"
 #include "MenuMode.h"
+#include "MenuModeLevelSelect.h"
 #include "GameMode.h"
 #include "EditorMode.h"
 #include "Console.h"
@@ -90,6 +91,9 @@ void ModeManager::_addGameMode(ModeType mt)
         break;
     case MENU:
         mGameModes.push_back(new MenuMode(this));
+        break;
+    case MENU_LEVEL_SELECT:
+        mGameModes.push_back(new MenuModeLevelSelect(this));
         break;
     case GAME:
         {

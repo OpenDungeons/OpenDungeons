@@ -38,6 +38,7 @@ public:
     {
         NONE = 0, // No change requested
         MENU = 1,
+        MENU_LEVEL_SELECT,
         GAME,
         EDITOR,
         CONSOLE,
@@ -50,6 +51,18 @@ public:
 
     AbstractApplicationMode* getCurrentMode();
     ModeType getCurrentModeType();
+
+    //! \brief Request loading main menu mode at next update
+    void requestMenuMode()
+    {
+        mRequestedMode = ModeManager::MENU;
+    }
+
+    //! \brief Request loading level selection menu mode at next update
+    void requestMenuLevelSelectMode()
+    {
+        mRequestedMode = ModeManager::MENU_LEVEL_SELECT;
+    }
 
     //! \brief Request loading editor mode at next update
     void requestEditorMode()

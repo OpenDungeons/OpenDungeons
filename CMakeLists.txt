@@ -152,6 +152,7 @@ set(OD_SOURCEFILES
     ${SRC}/MapLight.cpp
     ${SRC}/MapLoader.cpp
     ${SRC}/MenuMode.cpp
+	${SRC}/MenuModeLevelSelect.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
     ${SRC}/ModeManager.cpp
@@ -267,7 +268,7 @@ endif()
 
 if(MINGW)
     # We need to specify the compiler here that Ogre used to compile boost
-    find_package(Boost COMPONENTS thread system REQUIRED)
+    find_package(Boost COMPONENTS thread system filesystem REQUIRED)
 endif()
 
 #OpenAL
