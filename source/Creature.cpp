@@ -291,8 +291,6 @@ void Creature::setPosition(const Ogre::Vector3& v)
 void Creature::setHP(double nHP)
 {
     mHp = nHP;
-
-    updateStatsWindow();
 }
 
 double Creature::getHP() const
@@ -304,8 +302,6 @@ double Creature::getHP() const
 void Creature::setMana(double nMana)
 {
     mMana = nMana;
-
-    updateStatsWindow();
 }
 
 double Creature::getMana() const
@@ -499,6 +495,8 @@ void Creature::doTurn()
         destroyVisualDebugEntities();
         createVisualDebugEntities();
     }
+
+    updateStatsWindow();
 }
 
 void Creature::decideNextAction()
@@ -2137,7 +2135,8 @@ std::string Creature::getStatsText()
     tempSS << "Level: " << getLevel() << std::endl;
     tempSS << "Experience: " << mExp << std::endl;
     tempSS << "HP: " << getHP() << " / " << mMaxHP << std::endl;
-    tempSS << "Awakeness: " << mAwakeness << std::endl;
+    if (!getDefinition()->isWorker())
+        tempSS << "Awakeness: " << mAwakeness << std::endl;
     tempSS << "Move speed: " << getMoveSpeed() << std::endl;
     tempSS << "Left hand: Attack: " << mWeaponL->getDamage() << ", Range: " << mWeaponL->getRange() << std::endl;
     tempSS << "Right hand: Attack: " << mWeaponR->getDamage() << ", Range: " << mWeaponR->getRange() << std::endl;
@@ -2226,15 +2225,11 @@ void Creature::clearActionQueue()
 void Creature::pushAction(CreatureAction action)
 {
     mActionQueue.push_front(action);
-
-    updateStatsWindow();
 }
 
 void Creature::popAction()
 {
     mActionQueue.pop_front();
-
-    updateStatsWindow();
 }
 
 CreatureAction Creature::peekAction()
