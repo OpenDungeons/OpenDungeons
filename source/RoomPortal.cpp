@@ -43,6 +43,10 @@ void RoomPortal::createMesh()
 {
     Room::createMesh();
 
+    // Don't recreate the portal if it's already done.
+    if (mPortalObject != NULL)
+        return;
+
     mPortalObject = loadRoomObject("PortalObject");
     createRoomObjectMeshes();
 
@@ -58,7 +62,10 @@ void RoomPortal::addCoveredTile(Tile* t, double nHP)
 void RoomPortal::removeCoveredTile(Tile* t)
 {
     Room::removeCoveredTile(t);
-    recomputeCenterPosition();
+    // Don't recompute the position.
+    // Removing a portal tile usually means some creatures are attacking it.
+    // The portal shouldn't move in that case.
+    //recomputeCenterPosition();
 }
 
 bool RoomPortal::doUpkeep()
