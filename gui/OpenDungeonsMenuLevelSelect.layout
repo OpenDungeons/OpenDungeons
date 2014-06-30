@@ -14,9 +14,15 @@
             <Property name="FrameEnabled" value="False" />
             <Property name="BackgroundEnabled" value="False" />
         </Window>
+        <Window type="OD/StaticText" name="ChooseLevelText" >
+            <Property name="Area" value="{{0.5,-60},{0,200},{0.5,60},{0,220}}" />
+            <Property name="Text" value="Choose a level..." />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="FrameEnabled" value="False" />
+        </Window>
         <Window type="OD/MainMenuListbox" name="LevelSelect" >
-			<Property name="ForceVertScrollbar" value="True" />
-            <Property name="Area" value="{{0.5,-383},{0,211},{0.5,383},{0,541}}" />
+            <Property name="ForceVertScrollbar" value="True" />
+            <Property name="Area" value="{{0.5,-383},{0,220},{0.5,383},{0,541}}" />
         </Window>
         <Window type="OD/MainMenuButton" name="LaunchGameButton" >
             <Property name="Area" value="{{0.5,10},{0,574},{0.5,174},{0,664}}" />
@@ -26,11 +32,11 @@
             <Property name="Area" value="{{0.5,-174},{0,574},{0.5,-10},{0,664}}" />
             <Property name="Text" value="Back" />
         </Window>
-		<Window type="OD/StaticText" name="LoadingText" >
-			<Property name="Area" value="{{0.5,-50},{0,550},{0.5,50},{0,570}}" />
-			<Property name="Text" value="Loading..." />
-			<Property name="BackgroundEnabled" value="False" />
-			<Property name="FrameEnabled" value="False" />
-		</Window>
+        <Window type="OD/StaticText" name="LoadingText" >
+            <Property name="Area" value="{{0.5,-50},{0,550},{0.5,50},{0,570}}" />
+            <Property name="Text" value="Loading..." />
+            <Property name="BackgroundEnabled" value="False" />
+            <Property name="FrameEnabled" value="False" />
+        </Window>
     </Window>
 </GUILayout>
