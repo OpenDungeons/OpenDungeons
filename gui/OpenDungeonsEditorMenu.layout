@@ -53,7 +53,7 @@
             </Window>
         </Window>
         <Window type="OD/Button" name="OptionsButton" >
-            <Property name="Area" value="{{0,736},{0,2},{0,808},{0,35}}" />
+            <Property name="Area" value="{{1,-277},{0,2},{1,-205},{0,35}}" />
             <Property name="Text" value="Options" />
             <Property name="AlwaysOnTop" value="True" />
             <Property name="TooltipText" value="Options" />
