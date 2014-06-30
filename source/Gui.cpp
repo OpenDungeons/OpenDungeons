@@ -69,7 +69,7 @@ Gui::Gui()
 
     sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
-	sheets[levelSelectMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuLevelSelect.layout");
+    sheets[levelSelectMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuLevelSelect.layout");
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
 
     assignEventHandlers();

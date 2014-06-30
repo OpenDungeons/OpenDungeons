@@ -152,7 +152,7 @@ set(OD_SOURCEFILES
     ${SRC}/MapLight.cpp
     ${SRC}/MapLoader.cpp
     ${SRC}/MenuMode.cpp
-	${SRC}/MenuModeLevelSelect.cpp
+    ${SRC}/MenuModeLevelSelect.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
     ${SRC}/ModeManager.cpp
@@ -282,7 +282,7 @@ find_package(OpenAL REQUIRED)
 
 if(UNIX)
     find_package(Threads REQUIRED)
-    find_package(Boost COMPONENTS thread system REQUIRED)
+    find_package(Boost COMPONENTS thread system filesystem REQUIRED)
 endif()
 
 ##################################
