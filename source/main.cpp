@@ -19,7 +19,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 #include <iostream>
 #include <string.h>
 
@@ -32,19 +31,38 @@
 
 #include "ODApplication.h"
 #include "Socket.h"
+
+#if defined (__i386__) | defined (__x86_64__)  // Only for supported platforms
+
 #include "StackTracePrint.h"
+
+//! \brief Init the error hanlder used to get a full stacktrace when crashing
+void setErrorHandler()
+{
+    struct sigaction sigact;
+    sigact.sa_sigaction = StackTracePrint::critErrHandler;
+    sigact.sa_flags = SA_RESTART | SA_SIGINFO;
+    if (sigaction(SIGSEGV, &sigact, (struct sigaction *)NULL) != 0)
+    {
+        std::cerr << "error setting signal handler for: "
+            << SIGSEGV << strsignal(SIGSEGV) << std::endl;
+        exit(EXIT_FAILURE);
+    }
+}
+#else
+void setErrorHandler()
+{
+    std::cout << "No error handler for this platform" << std::endl;
+}
+#endif
 
 #if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
-
-using std::cerr, std::endl;
-using namespace StackTracePrint;
-
-INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
+INT WINAPI WinMain(HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT)
 #else
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 #endif
 
 {
@@ -55,26 +73,20 @@ int main(int argc, char **argv)
 
     if(WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
     {
-        cerr << "Couldn't not find a usable WinSock DLL.n";
+        std::cerr << "Couldn't not find a usable WinSock DLL." << std::endl;
         exit(1);
     }
 #endif
 
-    struct sigaction sigact;
-    sigact.sa_sigaction = StackTracePrint::crit_err_hdlr;
-    sigact.sa_flags = SA_RESTART | SA_SIGINFO;
-    if (sigaction(SIGSEGV, &sigact, (struct sigaction *)NULL) != 0)
-    {
-    cerr << "error setting signal handler for " << SIGSEGV << strsignal(SIGSEGV) <<endl;
-        exit(EXIT_FAILURE);
-    }
+    setErrorHandler();
+
     try
     {
         new ODApplication;
     }
     catch (Ogre::Exception& e)
     {
-#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32 
+#if OGRE_PLATFORM == OGRE_PLATFORM_WIN32
         MessageBox(0, e.what(), "An exception has occurred!", MB_OK | MB_ICONERROR | MB_TASKMODAL);
 #else
         fprintf(stderr, "An exception has occurred: %s\n", e.what());

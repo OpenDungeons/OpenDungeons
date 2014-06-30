@@ -20,6 +20,9 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#ifndef __STACKTRACE_H__
+#define __STACKTRACE_H__
+
 #include <execinfo.h>
 #include <signal.h>
 #include <stdio.h>
@@ -31,18 +34,22 @@
 #include <cxxabi.h>
 #include <iostream>
 
+namespace StackTracePrint
+{
 
-namespace StackTracePrint{
-
-/* This structure mirrors the one found in /usr/include/asm/ucontext.h */
-typedef struct _sig_ucontext {
+//! \brief This structure mirrors the one found in /usr/include/asm/ucontext.h
+typedef struct _sig_ucontext
+{
     unsigned long     uc_flags;
-    struct ucontext   *uc_link;
+    struct ucontext*  uc_link;
     stack_t           uc_stack;
     struct sigcontext uc_mcontext;
     sigset_t          uc_sigmask;
 } sig_ucontext_t;
 
-void crit_err_hdlr(int sig_num, siginfo_t * info, void * ucontext);
+//! \brief Handles critical error stack trace printing.
+void critErrHandler(int sig_num, siginfo_t * info, void * ucontext);
 
 }
+
+#endif // __STACKTRACE_H__
