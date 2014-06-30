@@ -39,6 +39,22 @@ RoomPortal::RoomPortal() :
     mType = portal;
 }
 
+void RoomPortal::absorbRoom(Room* room)
+{
+    Room::absorbRoom(room);
+
+    // Get back the portal mesh reference
+    if (!mRoomObjects.empty())
+    {
+        mPortalObject = mRoomObjects.begin()->second;
+    }
+    else
+    {
+        // Make sure the reference gets updated when createMesh() is called
+        mPortalObject = NULL;
+    }
+}
+
 void RoomPortal::createMesh()
 {
     Room::createMesh();

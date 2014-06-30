@@ -34,6 +34,9 @@ public:
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
     void removeCoveredTile(Tile* t);
 
+    //! \brief Get back a reference to the portal mesh after calling Room::absorbRoom()
+    void absorbRoom(Room* room);
+
     //! \brief In addition to the standard upkeep, check to see if a new creature should be spawned.
     bool doUpkeep();
 

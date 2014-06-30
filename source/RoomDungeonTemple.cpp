@@ -25,16 +25,37 @@
 #include "RoomObject.h"
 
 RoomDungeonTemple::RoomDungeonTemple():
-        mWaitTurns(0)
+    mWaitTurns(0),
+    mTempleObject(NULL)
 {
     mType = dungeonTemple;
+}
+
+void RoomDungeonTemple::absorbRoom(Room* room)
+{
+    Room::absorbRoom(room);
+
+    // Get back the temple mesh reference
+    if (!mRoomObjects.empty())
+    {
+        mTempleObject = mRoomObjects.begin()->second;
+    }
+    else
+    {
+        // Make sure the reference gets updated when createMesh() is called
+        mTempleObject = NULL;
+    }
 }
 
 void RoomDungeonTemple::createMesh()
 {
     Room::createMesh();
 
-    loadRoomObject("DungeonTempleObject");
+    // Don't recreate the portal if it's already done.
+    if (mTempleObject != NULL)
+        return;
+
+    mTempleObject = loadRoomObject("DungeonTempleObject");
     createRoomObjectMeshes();
 }
 

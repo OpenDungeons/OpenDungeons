@@ -28,14 +28,21 @@ public:
     void createMesh();
     void destroyMesh();
 
+    //! \brief Get back a reference to the temple mesh after calling Room::absorbRoom()
+    void absorbRoom(Room* room);
+
     /*! \brief Counts down a timer until it reaches 0,
-        *  then it spawns a kobold of the color of this dungeon temple
-        *  at the center of the dungeon temple, and resets the timer.
-        */
+    *  then it spawns a kobold of the color of this dungeon temple
+    *  at the center of the dungeon temple, and resets the timer.
+    */
     void produceKobold();
 
 private:
+    //! \brief The number of turns to wait before producing a worker
     int mWaitTurns;
+
+    //! \brief The reference of the temple room object
+    RoomObject* mTempleObject;
 };
 
 #endif // ROOMDUNGEONTEMPLE_H
