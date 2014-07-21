@@ -26,6 +26,8 @@
 #include <OgreFrameListener.h>
 #include <OgreWindowEventUtilities.h>
 
+#include <iostream>
+
 using std::endl; using std::cout;
 
 class AbstractApplicationMode :

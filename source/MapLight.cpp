@@ -21,7 +21,8 @@
 #include "RenderRequest.h"
 #include "GameMap.h"
 #include "Random.h"
-#include "Socket.h"
+#include "ODClient.h"
+#include "ODServer.h"
 
 #include "Helper.h"
 
@@ -64,7 +65,7 @@ void MapLight::createOgreEntity()
     request->type = RenderRequest::createMapLight;
     //TODO - this check should be put somewhere else / fixed
     request->p = static_cast<void*>(this);
-    request->b = (Socket::serverSocket == NULL && Socket::clientSocket == NULL);
+    request->b = (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected());
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
@@ -86,7 +87,7 @@ void MapLight::destroyOgreEntity()
     /* Check if we are in editor mode
      * TODO this check should be elsewhere / fixed
      */
-    request->b = (Socket::serverSocket == NULL && Socket::clientSocket == NULL);
+    request->b = (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected());
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
@@ -171,7 +172,7 @@ std::string MapLight::getFormat()
     return "posX\tposY\tposZ\tdiffuseR\tdiffuseG\tdiffuseB\tspecularR\tspecularG\tspecularB\tattenRange\tattenConst\tattenLin\tattenQuad";
 }
 
-std::ostream& operator<<(std::ostream& os, MapLight* m)
+ODPacket& operator<<(ODPacket& os, MapLight* m)
 {
     os << m->mPosition.x << "\t" << m->mPosition.y << "\t" << m->mPosition.z
             << "\t";
@@ -185,7 +186,7 @@ std::ostream& operator<<(std::ostream& os, MapLight* m)
     return os;
 }
 
-std::istream& operator>>(std::istream& is, MapLight* m)
+ODPacket& operator>>(ODPacket& is, MapLight* m)
 {
     is >> m->mPosition.x >> m->mPosition.y >> m->mPosition.z;
     is >> m->mDiffuseColor.r >> m->mDiffuseColor.g >> m->mDiffuseColor.b;

@@ -50,6 +50,8 @@ ModeManager::ModeManager()
 
     // Init the Angel Script wrapper for game modes
     mASWrapper = new ASWrapper();
+
+    mDiscardActualMode = false;
 }
 
 ModeManager::~ModeManager()
@@ -143,7 +145,16 @@ void ModeManager::checkModeChange()
     if(mRequestedMode == PREV)
         _removeGameMode();
     else
+    {
+        if(mDiscardActualMode)
+        {
+            AbstractApplicationMode* p = mGameModes.back();
+            delete mGameModes.back();
+            mGameModes.pop_back();
+        }
         _addGameMode(mRequestedMode);
+    }
 
     mRequestedMode = NONE;
+    mDiscardActualMode = false;
 }

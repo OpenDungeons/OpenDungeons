@@ -38,3 +38,19 @@ std::istream& operator>>(std::istream& is, Weapon *w)
 
     return is;
 }
+
+ODPacket& operator<<(ODPacket& os, Weapon *w)
+{
+    os << w->getName() << w->getDamage() << w->getRange() << w->getDefense();
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, Weapon *w)
+{
+    std::string name;
+    is >> name >> w->mDamage >> w->mRange >> w->mDefense;
+    w->setName(name);
+    w->setMeshName(name + ".mesh");
+
+    return is;
+}

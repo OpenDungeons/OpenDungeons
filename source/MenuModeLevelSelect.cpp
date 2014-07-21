@@ -101,7 +101,7 @@ void MenuModeLevelSelect::launchSelectedButtonPressed()
         CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
         int id = selItem->getID();
 
-        mModeManager->requestGameMode(LEVEL_PATH + listFiles[id] + LEVEL_EXTENSION);
+        mModeManager->requestGameMode(LEVEL_PATH + listFiles[id] + LEVEL_EXTENSION, true);
     }
 }
 

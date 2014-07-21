@@ -18,7 +18,6 @@
 #include "ConsoleMode.h"
 
 #include "Gui.h"
-#include "Socket.h"
 #include "Console.h"
 #include "LogManager.h"
 #include "ASWrapper.h"

@@ -18,8 +18,6 @@
 #include "EditorMode.h"
 
 #include "MapLoader.h"
-#include "Socket.h"
-#include "Network.h"
 #include "ClientNotification.h"
 #include "ODFrameListener.h"
 #include "LogManager.h"
@@ -519,7 +517,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                 }
 
                 // The current tile does not exist so we need to create it.
-                stringstream ss;
+                std::stringstream ss;
 
                 ss.str(std::string());
                 ss << "Level_";

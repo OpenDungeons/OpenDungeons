@@ -20,7 +20,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#if defined (__i386__) | defined (__x86_64__)  // Only for supported platforms
+#if defined WIN32
+// TODO : StackTracePrint do not work under windows (headers are different). We should try to find if
+// there is something equivalent
+#elif defined (__i386__) | defined (__x86_64__)  // Only for supported platforms
 
 #include "StackTracePrint.h"
 

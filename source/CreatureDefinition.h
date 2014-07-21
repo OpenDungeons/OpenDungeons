@@ -19,6 +19,7 @@
 #define CREATURECLASS_H
 
 #include "Tile.h"
+#include "ODPacket.h"
 
 #include <OgreVector3.h>
 
@@ -97,6 +98,8 @@ public:
 
     friend std::ostream & operator <<(std::ostream & os, CreatureDefinition *c);
     friend std::istream & operator >>(std::istream & is, CreatureDefinition *c);
+    friend ODPacket & operator <<(ODPacket & os, CreatureDefinition *c);
+    friend ODPacket & operator >>(ODPacket & is, CreatureDefinition *c);
 
     //! \brief Loads a definition from a line of the creature definition file.
     static void loadFromLine(const std::string& line, CreatureDefinition* c);

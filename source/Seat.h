@@ -18,6 +18,8 @@
 #ifndef SEAT_H
 #define SEAT_H
 
+#include "ODPacket.h"
+
 #include <OgreColourValue.h>
 #include <string>
 #include <vector>
@@ -144,8 +146,8 @@ public:
     int mNumCreaturesControlled;
 
     static std::string getFormat();
-    friend std::ostream& operator<<(std::ostream& os, Seat *s);
-    friend std::istream& operator>>(std::istream& is, Seat *s);
+    friend ODPacket& operator<<(ODPacket& os, Seat *s);
+    friend ODPacket& operator>>(ODPacket& is, Seat *s);
 
     static void loadFromLine(const std::string& line, Seat *s);
 

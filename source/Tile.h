@@ -19,6 +19,7 @@
 #define TILE_H
 
 #include "GameEntity.h"
+#include "ODPacket.h"
 
 #include <OgrePrerequisites.h>
 #include <OgreSceneNode.h>
@@ -249,14 +250,14 @@ public:
      * This operator is used in conjunction with the >> operator to standardize
      * tile format in the level files, as well as sending tiles over the network.
      */
-    friend std::ostream& operator<<(std::ostream& os, Tile *t);
+    friend ODPacket& operator<<(ODPacket& os, Tile *t);
 
     /*! \brief The >> operator is used for loading tiles from a file and for receiving them over the net.
      *
      * This operator is used in conjunction with the << operator to standardize
      * tile format in the level files, as well as sending tiles over the network.
      */
-    friend std::istream& operator>>(std::istream& is, Tile *t);
+    friend ODPacket& operator>>(ODPacket& is, Tile *t);
 
     /*! \brief This is a helper function which just converts the tile type enum into a string.
      *

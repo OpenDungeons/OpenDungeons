@@ -18,6 +18,7 @@
 #include "Player.h"
 
 #include "ODServer.h"
+#include "ODClient.h"
 #include "ServerNotification.h"
 #include "Creature.h"
 #include "GameMap.h"
@@ -26,7 +27,6 @@
 #include "ClientNotification.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
-#include "Socket.h"
 
 Player::Player() :
     mNewRoomType(Room::nullRoomType),
@@ -75,7 +75,7 @@ void Player::pickUpCreature(Creature *c)
 {
     assert(mGameMap != NULL);
 
-    if (Socket::serverSocket == NULL && Socket::clientSocket == NULL)
+    if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
         return;
 
     if (c->getHP() <= 0.0)
@@ -94,7 +94,7 @@ void Player::pickUpCreature(Creature *c)
         c->destroyVisualDebugEntities();
 
     // Inform the clients
-    if (Socket::serverSocket != NULL)
+    if (ODServer::getSingleton().isConnected())
     {
         // Place a message in the queue to inform the clients that we picked up this creature
         ServerNotification *serverNotification = new ServerNotification;
@@ -102,7 +102,7 @@ void Player::pickUpCreature(Creature *c)
         serverNotification->cre = c;
         serverNotification->player = this;
 
-        ODServer::queueServerNotification(serverNotification);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
     // If it is actually the user picking up a creature we move the scene node and inform
@@ -117,7 +117,7 @@ void Player::pickUpCreature(Creature *c)
         // Add the request to the queue of rendering operations to be performed before the next frame.
         RenderManager::queueRenderRequest(request);
 
-        if (Socket::clientSocket != NULL)
+        if (ODClient::getSingleton().isConnected())
         {
             // Send a message to the server telling it we picked up this creature
             ClientNotification *clientNotification = new ClientNotification;
@@ -191,7 +191,7 @@ bool Player::dropCreature(Tile* t, unsigned int index)
 
     if (this == mGameMap->getLocalPlayer() || mHasAI)
     {
-        if (Socket::serverSocket != NULL)
+        if (ODServer::getSingleton().isConnected())
         {
             // Place a message in the queue to inform the clients that we dropped this creature
             ServerNotification *serverNotification = new ServerNotification;
@@ -199,9 +199,9 @@ bool Player::dropCreature(Tile* t, unsigned int index)
             serverNotification->player = this;
             serverNotification->tile = t;
 
-            ODServer::queueServerNotification(serverNotification);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
-        else if (Socket::clientSocket != NULL && this == mGameMap->getLocalPlayer())
+        else if (ODClient::getSingleton().isConnected() && this == mGameMap->getLocalPlayer())
         {
             // Send a message to the server telling it we dropped this creature
             ClientNotification *clientNotification = new ClientNotification;

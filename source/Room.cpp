@@ -391,6 +391,61 @@ std::ostream& operator<<(std::ostream& os, Room *r)
     return os;
 }
 
+Room* Room::createRoomFromPacket(const std::string& roomName, ODPacket& is, GameMap* gameMap)
+{
+    Room tempRoom;
+    tempRoom.setMeshName(roomName);
+    tempRoom.setGameMap(gameMap);
+    is >> &tempRoom;
+
+    return createRoom(tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor());
+}
+
+ODPacket& operator>>(ODPacket& is, Room* r)
+{
+    assert(r);
+
+    static int uniqueNumber = 0;
+    int tilesToLoad, tempX, tempY;
+    std::stringstream tempSS;
+
+    int tempInt = 0;
+    is >> tempInt;
+    r->setColor(tempInt);
+
+    tempSS.str("");
+    tempSS << r->getMeshName() << "_" << ++uniqueNumber;
+    r->setName(tempSS.str());
+
+    is >> tilesToLoad;
+    for (int i = 0; i < tilesToLoad; ++i)
+    {
+        is >> tempX >> tempY;
+        Tile* tempTile = r->getGameMap()->getTile(tempX, tempY);
+        if (tempTile != NULL)
+            r->addCoveredTile(tempTile);
+    }
+
+    r->mType = Room::getRoomTypeFromMeshName(r->getMeshName());
+    return is;
+}
+
+ODPacket& operator<<(ODPacket& os, Room *r)
+{
+    if (r == NULL)
+        return os;
+
+    os << r->getMeshName() << "\t" << r->getColor() << "\n";
+    os << r->mCoveredTiles.size() << "\n";
+    for (unsigned int i = 0; i < r->mCoveredTiles.size(); ++i)
+    {
+        Tile *tempTile = r->mCoveredTiles[i];
+        os << tempTile->x << "\t" << tempTile->y << "\n";
+    }
+
+    return os;
+}
+
 const char* Room::getMeshNameFromRoomType(RoomType t)
 {
     switch (t)

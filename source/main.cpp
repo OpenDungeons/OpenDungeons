@@ -30,9 +30,15 @@
 #endif
 
 #include "ODApplication.h"
-#include "Socket.h"
 
-#if defined (__i386__) | defined (__x86_64__)  // Only for supported platforms
+#if defined WIN32
+// TODO : StackTracePrint do not work under windows (headers are different). We should try to find if
+// there is something equivalent
+void setErrorHandler()
+{
+    std::cout << "No error handler for windows" << std::endl;
+}
+#elif defined (__i386__) | defined (__x86_64__)  // Only for supported platforms
 
 #include "StackTracePrint.h"
 
@@ -66,18 +72,6 @@ int main(int argc, char** argv)
 #endif
 
 {
-
-#ifdef WIN32
-    // Set up windows sockets
-    WSADATA wsaData;
-
-    if(WSAStartup(MAKEWORD(2, 0), &wsaData) != 0)
-    {
-        std::cerr << "Couldn't not find a usable WinSock DLL." << std::endl;
-        exit(1);
-    }
-#endif
-
     setErrorHandler();
 
     try
@@ -94,8 +88,5 @@ int main(int argc, char** argv)
 
     }
 
-#ifdef WIN32
-    WSACleanup();
-#endif
     return 0;
 }

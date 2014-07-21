@@ -45,6 +45,12 @@
 
 // TODO the prefix Creature_ should be static field in some class then changing won't broke program
 
+#include <OgreMesh.h>
+#include <OgreBone.h>
+#include <OgreSkeleton.h>
+#include <OgreSkeletonInstance.h>
+#include <OgreMaterialManager.h>
+#include <OgreTechnique.h>
 #include <OgreSubEntity.h>
 #include <OgreSceneManager.h>
 #include <OgreSceneNode.h>

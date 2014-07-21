@@ -142,6 +142,38 @@ std::istream& operator>>(std::istream& is, CreatureDefinition* c)
     return is;
 }
 
+ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
+{
+    //TODO: Need to include maxHP/maxMana in the file format.
+    os << c->mClassName << "\t"
+       << CreatureDefinition::creatureJobToString(c->mCreatureJob)
+       << "\t" << c->mMeshName << "\t";
+    os << c->mBedMeshName << "\t" << c->mBedDim1 << "\t" << c->mBedDim2 << "\t";
+    os << c->mScale.x << "\t" << c->mScale.y << "\t" << c->mScale.z << "\t";
+    os << c->mHpPerLevel << "\t" << c->mManaPerLevel << "\t";
+    os << c->mMaxHP << "\t" << c->mMaxMana << "\t";
+    os << c->mSightRadius << "\t" << c->mDigRate << "\t" << c->mDanceRate << "\t"
+       << c->mMoveSpeed << "\t";
+    os << Tile::tilePassabilityToString(c->mTilePassability);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, CreatureDefinition* c)
+{
+    std::string tempString;
+    is >> c->mClassName >> tempString;
+    c->mCreatureJob = CreatureDefinition::creatureJobFromString(tempString);
+    is >> c->mMeshName;
+    is >> c->mBedMeshName >> c->mBedDim1 >> c->mBedDim2;
+    is >> c->mScale.x >> c->mScale.y >> c->mScale.z;
+    is >> c->mHpPerLevel >> c->mManaPerLevel >> c->mMaxHP >> c->mMaxMana;
+    is >> c->mSightRadius >> c->mDigRate >> c->mDanceRate >> c->mMoveSpeed;
+    is >> tempString;
+    c->mTilePassability = Tile::tilePassabilityFromString(tempString);
+
+    return is;
+}
+
 void CreatureDefinition::loadFromLine(const std::string& line, CreatureDefinition* c)
 {
     std::vector<std::string> elems = Helper::split(line, '\t');
