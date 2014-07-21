@@ -208,6 +208,89 @@ std::istream& operator>>(std::istream& is, Creature *c)
     return is;
 }
 
+//! \brief A matched function to transport creatures between files and over the network.
+ODPacket& operator<<(ODPacket& os, Creature *c)
+{
+    assert(c);
+
+    // Check creature weapons
+    Weapon* wL = c->mWeaponL;
+    if (wL == NULL)
+        wL = new Weapon("none", 0.0, 1.0, 0.0, "L", c);
+    Weapon* wR = c->mWeaponR;
+    if (wR == NULL)
+        wR = new Weapon("none", 0.0, 1.0, 0.0, "R", c);
+
+    os << c->mDefinition->getClassName() << "\t" << c->getName() << "\t";
+
+    os << c->getPosition().x << "\t";
+    os << c->getPosition().y << "\t";
+    os << c->getPosition().z << "\t";
+    os << c->getColor() << "\t";
+    os << wL << "\t" << wR << "\t";
+    os << c->getHP() << "\t";
+    os << c->getMana() << "\t";
+    os << c->getLevel();
+
+    // If we had to create dummy weapons for serialization, delete them now.
+    if (c->mWeaponL == NULL)
+        delete wL;
+    if (c->mWeaponR == NULL)
+        delete wR;
+
+    return os;
+}
+
+/*! \brief A matched function to transport creatures between files and over the network.
+ *
+ */
+ODPacket& operator>>(ODPacket& is, Creature *c)
+{
+    double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
+    double tempDouble = 0.0;
+    std::string className;
+    std::string tempString;
+
+    is >> className;
+    is >> tempString;
+
+    if (tempString.compare("autoname") == 0)
+        tempString = c->getUniqueCreatureName();
+
+    c->setName(tempString);
+
+    is >> xLocation >> yLocation >> zLocation;
+    c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
+
+    int color = 0;
+    is >> color;
+    c->setColor(color);
+
+    // TODO: Load weapon from a catalog file.
+    c->setWeaponL(new Weapon(std::string(), 0.0, 0.0, 0.0, std::string()));
+    is >> c->mWeaponL;
+
+    c->setWeaponR(new Weapon(std::string(), 0.0, 0.0, 0.0, std::string()));
+    is >> c->mWeaponR;
+
+    is >> tempDouble;
+    c->setHP(tempDouble);
+    is >> tempDouble;
+    c->setMana(tempDouble);
+    is >> tempDouble;
+    c->setLevel(tempDouble);
+
+    // Copy the class based items
+    CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(className);
+    if (creatureClass != NULL)
+    {
+        c->setCreatureDefinition(creatureClass);
+    }
+    assert(c->mDefinition);
+
+    return is;
+}
+
 void Creature::loadFromLine(const std::string& line, Creature* c)
 {
     assert(c);

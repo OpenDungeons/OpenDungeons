@@ -26,7 +26,6 @@
 #include "Seat.h"
 #include "SoundEffectsHelper.h"
 #include "RenderManager.h"
-#include "Socket.h"
 #include "Player.h"
 #include "Helper.h"
 
@@ -76,7 +75,7 @@ void Tile::setFullness(double f)
      */
 
     // If we are a sever, the clients need to be told about the change to the tile's fullness.
-    if (Socket::serverSocket != NULL)
+    if (ODServer::getSingleton().isConnected())
     {
         try
         {
@@ -85,7 +84,7 @@ void Tile::setFullness(double f)
             serverNotification->type = ServerNotification::tileFullnessChange;
             serverNotification->tile = this;
 
-            ODServer::queueServerNotification(serverNotification);
+            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
         {
@@ -582,19 +581,19 @@ const char* Tile::getFormat()
     return "posX\tposY\ttype\tfullness";
 }
 
-std::ostream& operator<<(std::ostream& os, Tile *t)
+ODPacket& operator<<(ODPacket& os, Tile *t)
 {
-    os << t->x << "\t" << t->y << "\t" << t->getType() << "\t"
-            << t->getFullness();
+    os << t->x << t->y << t->getType()
+       << t->getFullness();
 
     return os;
 }
 
-std::istream& operator>>(std::istream& is, Tile *t)
+ODPacket& operator>>(ODPacket& is, Tile *t)
 {
     int tempInt, xLocation, yLocation;
     double tempDouble;
-    stringstream ss;
+    std::stringstream ss;
 
     is >> xLocation >> yLocation;
 

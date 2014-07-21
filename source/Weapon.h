@@ -19,6 +19,7 @@
 #define WEAPON_H
 
 #include "GameEntity.h"
+#include "ODPacket.h"
 
 #include <string>
 #include <istream>
@@ -54,6 +55,8 @@ public:
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Weapon *w);
     friend std::istream& operator>>(std::istream& is, Weapon *w);
+    friend ODPacket& operator<<(ODPacket& os, Weapon *w);
+    friend ODPacket& operator>>(ODPacket& is, Weapon *w);
 
     inline double getDamage() const
     { return mDamage; }

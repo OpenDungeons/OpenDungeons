@@ -41,6 +41,8 @@
 #include "MissileObject.h"
 #include "ServerNotification.h"
 #include "ClientNotification.h"
+#include "ODServer.h"
+#include "ODClient.h"
 
 #include <OgreErrorDialog.h>
 
@@ -91,6 +93,9 @@ ODApplication::ODApplication() :
         logManager->setLogDetail(Ogre::LL_BOREME);
         new Translation();
 
+        new ODServer();
+        new ODClient();
+
         Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
         new MusicPlayer();
         new SoundEffectsHelper();
@@ -138,7 +143,9 @@ void ODApplication::cleanUp()
         delete mRoot;
     }
 
-    delete mFrameListener; // same as ODFrameListener::getSingletonPtr();
+    ODServer::getSingleton().stopServer();
+    ODClient::getSingleton().disconnect();
+    delete mFrameListener;
     delete MusicPlayer::getSingletonPtr();
     delete TextRenderer::getSingletonPtr();
     delete Gui::getSingletonPtr();
@@ -146,6 +153,8 @@ void ODApplication::cleanUp()
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
     delete ResourceManager::getSingletonPtr();
+    delete ODServer::getSingletonPtr();
+    delete ODClient::getSingletonPtr();
 }
 
 //TODO: find some better places for some of these

@@ -25,8 +25,6 @@
 #include "GameMode.h"
 
 #include "MapLoader.h"
-#include "Socket.h"
-#include "Network.h"
 #include "ClientNotification.h"
 #include "ODServer.h"
 #include "Gui.h"
@@ -103,20 +101,20 @@ bool GameMode::startLevel(const std::string& levelFilename)
     unsigned int uniqueAINumber = 1;
     while (i < mGameMap->numEmptySeats())
     {
-        std::string faction = mGameMap->getEmptySeat(i)->mFaction;
+        Seat* seat = mGameMap->getEmptySeat(i);
 
-        if (faction == "Player")
+        if (seat->mFaction == "Player")
         {
             // Add local player on first slot available.
             if (mGameMap->getLocalPlayer()->getSeat() == NULL)
             {
                 // The empty seat is removed, so we loop without incrementing i
-                mGameMap->getLocalPlayer()->setSeat(mGameMap->popEmptySeat());
+                mGameMap->getLocalPlayer()->setSeat(mGameMap->popEmptySeat(seat->getColor()));
                 logManager.logMessage("Adding local player.");
                 continue;
             }
         }
-        else if (faction == "KeeperAI")
+        else if (seat->mFaction == "KeeperAI")
         {
             // NOTE - AI should later have definable names maybe?.
             std::stringstream ss("");
@@ -125,7 +123,7 @@ bool GameMode::startLevel(const std::string& levelFilename)
             aiPlayer->setNick(ss.str());
 
             // The empty seat is removed by addPlayer(), so we loop without incrementing i
-            if (mGameMap->addPlayer(aiPlayer))
+            if (mGameMap->addPlayer(aiPlayer, mGameMap->popEmptySeat(seat->getColor())))
             {
                 mGameMap->assignAI(*aiPlayer, "KeeperAI");
                 continue;
@@ -146,7 +144,7 @@ bool GameMode::startLevel(const std::string& levelFilename)
     logManager.logMessage("Added: " + Ogre::StringConverter::toString(uniqueAINumber - 1) + " AI players");
 
     // For now, only the single player mode exists, so we start the server part.
-    if (!ODServer::startServer())
+    if (!ODServer::getSingleton().startServer())
         return false;
 
     // Move camera to starting position
@@ -594,7 +592,7 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             //See if the tile can be marked for digging.
             if (currentTile->isDiggable(mGameMap->getLocalPlayer()->getSeat()->mColor))
             {
-                if (Socket::serverSocket != NULL)
+                if (ODServer::getSingleton().isConnected())
                 {
                     // On the server: Just mark the tile for digging.
                     currentTile->setMarkedForDigging(mDigSetBool, mGameMap->getLocalPlayer());

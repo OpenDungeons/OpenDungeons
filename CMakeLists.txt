@@ -118,7 +118,6 @@ set(OD_SOURCEFILES
     ${SRC}/BattleField.cpp
     ${SRC}/CameraManager.cpp
     ${SRC}/ChatMessage.cpp
-    ${SRC}/Client.cpp
     ${SRC}/ClientNotification.cpp
     ${SRC}/Console.cpp
     ${SRC}/Console_executePromptCommand.cpp
@@ -161,8 +160,12 @@ set(OD_SOURCEFILES
     ${SRC}/MusicPlayer.cpp
     ${SRC}/NullAI.cpp
     ${SRC}/ODApplication.cpp
+    ${SRC}/ODClient.cpp
     ${SRC}/ODFrameListener.cpp
+    ${SRC}/ODPacket.cpp
     ${SRC}/ODServer.cpp
+    ${SRC}/ODSocketClient.cpp
+    ${SRC}/ODSocketServer.cpp
     ${SRC}/Player.cpp
     ${SRC}/ProximityTrap.cpp
     ${SRC}/PrefixTree.cpp
@@ -181,10 +184,8 @@ set(OD_SOURCEFILES
     ${SRC}/RoomQuarters.cpp
     ${SRC}/RoomTreasury.cpp
     ${SRC}/Seat.cpp
-    ${SRC}/Server.cpp
     ${SRC}/ServerNotification.cpp
     ${SRC}/SlopeWalk.cpp
-    ${SRC}/Socket.cpp
     ${SRC}/SoundEffectsHelper.cpp
     ${SRC}/Spell.cpp
     ${SRC}/StackTracePrint.cpp
@@ -229,7 +230,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 find_package(OIS REQUIRED)
 find_package(OGRE REQUIRED)
 find_package(CEGUI REQUIRED)
-find_package(SFML 2 REQUIRED COMPONENTS Audio System)
+find_package(SFML 2 REQUIRED COMPONENTS Audio System Network)
 
 if ((OGRE_VERSION_MAJOR LESS 1) AND (OGRE_VERSION_MINOR LESS 9))
     message(SEND_ERROR "OGRE version >= 1.9.0 required")
@@ -399,8 +400,10 @@ target_link_libraries(
 
     optimized ${SFML_AUDIO_LIBRARY_RELEASE}
     optimized ${SFML_SYSTEM_LIBRARY_RELEASE}
+    optimized ${SFML_NETWORK_LIBRARY_RELEASE}
     debug ${SFML_AUDIO_LIBRARY_DEBUG}
     debug ${SFML_SYSTEM_LIBRARY_DEBUG}
+    debug ${SFML_NETWORK_LIBRARY_DEBUG}
 )
 
 # Link pthreads. (And also userenv if we are on windows.)

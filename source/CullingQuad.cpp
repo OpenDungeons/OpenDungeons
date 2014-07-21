@@ -4,7 +4,7 @@
 #include "MortuaryQuad.h"
 
 #include <iostream>
-#include <cstdlib>
+#include <iomanip>
 #include <cstdlib> // for exit function
 
 using std::cerr;

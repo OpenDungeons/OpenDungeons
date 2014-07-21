@@ -265,6 +265,8 @@ public:
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Creature *c);
     friend std::istream& operator>>(std::istream& is, Creature *c);
+    friend ODPacket& operator<<(ODPacket& os, Creature *c);
+    friend ODPacket& operator>>(ODPacket& is, Creature *c);
 
     //! \brief Loads the map light data from a level line.
     static void loadFromLine(const std::string& line, Creature* c);

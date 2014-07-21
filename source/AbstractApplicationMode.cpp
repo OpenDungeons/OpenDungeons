@@ -17,13 +17,13 @@
 
 #include "AbstractApplicationMode.h"
 
-#include "Socket.h"
+#include "ODServer.h"
+#include "ODClient.h"
 
 bool AbstractApplicationMode::isConnected()
 {
-    //TODO: this exact function is also in ODFrameListener, replace it too after GameState works
-    //TODO - we should use a bool or something, not the sockets for this.
-    return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
+    //TODO: isConnected is used in some places to know if the game is started. We should use something better
+    return (ODServer::getSingleton().isConnected() || ODClient::getSingleton().isConnected());
 }
 
 void AbstractApplicationMode::giveFocus()

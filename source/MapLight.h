@@ -18,6 +18,8 @@
 #ifndef MAPLIGHT_H
 #define MAPLIGHT_H
 
+#include "ODPacket.h"
+
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
 #include <OgreColourValue.h>
@@ -107,8 +109,8 @@ public:
     void advanceFlicker(Ogre::Real time);
 
     static std::string getFormat();
-    friend std::ostream& operator<<(std::ostream& os, MapLight *m);
-    friend std::istream& operator>>(std::istream& is, MapLight *m);
+    friend ODPacket& operator<<(ODPacket& os, MapLight *m);
+    friend ODPacket& operator>>(ODPacket& is, MapLight *m);
 
     //! \brief Loads the map light data from a level line.
     static void loadFromLine(const std::string& line, MapLight* m);

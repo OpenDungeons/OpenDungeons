@@ -23,11 +23,10 @@
 #include "ODFrameListener.h"
 
 #include "Console.h"
-#include "Socket.h"
 #include "ODServer.h"
+#include "ODClient.h"
 #include "Creature.h"
 #include "ChatMessage.h"
-#include "Network.h"
 #include "Sleep.h"
 #include "BattleField.h"
 #include "Trap.h"
@@ -54,6 +53,7 @@
 #include "Seat.h"
 #include "ASWrapper.h"
 
+#include <OgreLogManager.h>
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/EventArgs.h>
 #include <CEGUI/Window.h>
@@ -87,7 +87,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20),
     mFrameDelay(0.0),
-    mPreviousTurn(-1),
+    mTimeElapsedSinceLastTurn(0),
     mExitRequested(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
@@ -169,7 +169,7 @@ void ODFrameListener::exitApplication()
         ServerNotification::serverNotificationQueue.pop_front();
     }
     //serverNotificationQueue.push_back(exitServerNotification);
-    ODServer::queueServerNotification(exitServerNotification);
+    ODServer::getSingleton().queueServerNotification(exitServerNotification);
 
     ClientNotification* exitClientNotification = new ClientNotification();
     exitClientNotification->mType = ClientNotification::exit;
@@ -182,7 +182,7 @@ void ODFrameListener::exitApplication()
     }
     ClientNotification::mClientNotificationQueue.push_back(exitClientNotification);
 
-    processServerNotifications();
+    ODServer::getSingleton().processServerNotifications();
     RenderManager::getSingletonPtr()->processRenderRequests();
     mGameMap->clearAll();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
@@ -203,19 +203,6 @@ void ODFrameListener::updateAnimations(Ogre::Real timeSinceLastFrame)
     RenderManager::getSingletonPtr()->processRenderRequests();
 
     mGameMap->updateAnimations(timeSinceLastFrame);
-}
-
-void ODFrameListener::checkForTurnUpdate(Ogre::Real timeSinceLastFrame)
-{
-    static Ogre::Real timeElapsedSinceLastTurn = 0.0;
-
-    timeElapsedSinceLastTurn += timeSinceLastFrame;
-    if (timeElapsedSinceLastTurn < 1.0 / ODApplication::turnsPerSecond)
-        return;
-
-    timeElapsedSinceLastTurn = 0.0;
-
-    mGameMap->setTurnNumber(mGameMap->getTurnNumber() + 1);
 }
 
 bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
@@ -269,8 +256,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     if (isClient())
     {
-        processClientSocketMessages();
-        processClientNotifications();
+        ODClient::getSingleton().processClientSocketMessages();
+        ODClient::getSingleton().processClientNotifications();
     }
 
     // If we're not a server, we can't check or update what's next.
@@ -281,14 +268,16 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     //NOTE:  If this function exits early the corresponding unlock function must be called.
     long int currentTurnNumber = mGameMap->getTurnNumber();
 
-    checkForTurnUpdate(evt.timeSinceLastFrame);
-    if(mPreviousTurn >= currentTurnNumber)
+    mTimeElapsedSinceLastTurn += evt.timeSinceLastFrame;
+    if (mTimeElapsedSinceLastTurn < 1.0 / ODApplication::turnsPerSecond)
         return mContinue;
 
     // If a new turn has started, we update events.
-    mPreviousTurn = currentTurnNumber;
+    mTimeElapsedSinceLastTurn = 0.0;
+    mGameMap->setTurnNumber(mGameMap->getTurnNumber() + 1);
 
-    ODServer::processServerEvents();
+    // When the server will have his own thread, there will be no need for this
+    ODServer::getSingleton().processServerEvents();
 
     mGameMap->doTurn();
 
@@ -341,7 +330,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     //TODO - we should call printText only when the text changes.
     bool isEditor = (mModeManager->getCurrentModeType() == ModeManager::EDITOR);
-    if (!isEditor && Socket::serverSocket == NULL)
+    if (!isEditor && !ODServer::getSingleton().isConnected())
     {
         // Tells the user the game is loading.
         printText("\nLoading...");
@@ -357,7 +346,7 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             turnString += "\nBatches: " + Ogre::StringConverter::toString(
                 mWindow->getStatistics().batchCount);
             turnString += "\nTurn number:  "
-                + Ogre::StringConverter::toString(mGameMap->getTurnNumber());
+                + Ogre::StringConverter::toString(static_cast<int32_t>(mGameMap->getTurnNumber()));
 
             printText(ODApplication::MOTD + "\n" + turnString
                     + "\n" + (!mChatMessages.empty() ? mChatString : nullString));
@@ -475,20 +464,17 @@ Ogre::RaySceneQueryResult& ODFrameListener::doRaySceneQuery(const OIS::MouseEven
 
 bool ODFrameListener::isConnected()
 {
-    //TODO - we should use a bool or something, not the sockets for this.
-    return (Socket::serverSocket != NULL || Socket::clientSocket != NULL);
+    return (ODServer::getSingleton().isConnected() || ODClient::getSingleton().isConnected());
 }
 
 bool ODFrameListener::isServer()
 {
-    //TODO - we should use a bool or something, not the sockets for this.
-    return (Socket::serverSocket != NULL);
+    return (ODServer::getSingleton().isConnected());
 }
 
 bool ODFrameListener::isClient()
 {
-    //TODO - we should use a bool or something, not the sockets for this.
-    return (Socket::clientSocket != NULL);
+    return (ODClient::getSingleton().isConnected());
 }
 
 void ODFrameListener::printText(const std::string& text)

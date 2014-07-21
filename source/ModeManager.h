@@ -53,40 +53,46 @@ public:
     ModeType getCurrentModeType();
 
     //! \brief Request loading main menu mode at next update
-    void requestMenuMode()
+    void requestMenuMode(bool discardActualMode = false)
     {
         mRequestedMode = ModeManager::MENU;
+        mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading level selection menu mode at next update
-    void requestMenuLevelSelectMode()
+    void requestMenuLevelSelectMode(bool discardActualMode = false)
     {
         mRequestedMode = ModeManager::MENU_LEVEL_SELECT;
+        mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading editor mode at next update
-    void requestEditorMode()
+    void requestEditorMode(bool discardActualMode = false)
     {
         mRequestedMode = ModeManager::EDITOR;
+        mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading console mode at next update
-    void requestConsoleMode()
+    void requestConsoleMode(bool discardActualMode = false)
     {
         mRequestedMode = ModeManager::CONSOLE;
+        mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading FPP mode at next update
-    void requestFppMode()
+    void requestFppMode(bool discardActualMode = false)
     {
         mRequestedMode = ModeManager::FPP;
+        mDiscardActualMode = discardActualMode;
     }
 
     //! \brief Request loading game mode at next update
-    void requestGameMode(const std::string& level)
+    void requestGameMode(const std::string& level, bool discardActualMode = false)
     {
         levelToLaunch = level;
         mRequestedMode = ModeType::GAME;
+        mDiscardActualMode = discardActualMode;
      }
 
     //! \brief Request unloading the current new game mode and activate the parent one
@@ -124,6 +130,10 @@ private:
 
     //! \brief Tells which new game mode is requested.
     ModeManager::ModeType mRequestedMode;
+
+    //! \brief When the new game mode will be set, if true, the actual one will be
+    //! discarded. That allows to use temporary menu
+    bool mDiscardActualMode;
 
     //! \brief The Angel Script wrapper, used in every game modes
     ASWrapper* mASWrapper;

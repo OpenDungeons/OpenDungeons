@@ -34,6 +34,7 @@
 
 #include <map>
 #include <string>
+#include <cstdint>
 
 class Tile;
 class TileCoordinateMap;
@@ -206,8 +207,9 @@ public:
     //! \brief Deletes the data structure for all the players in the GameMap.
     void clearPlayers();
 
-    //! \brief Adds a pointer to a player structure to the players stored by this GameMap.
-    bool addPlayer(Player *p);
+    //! \brief Adds a pointer to a player structure to the players stored by this GameMap. Assigns the
+    //! seat to the player
+    bool addPlayer(Player *p, Seat* seat);
 
     //! \brief Assigns an ai to the chosen player
     bool assignAI(Player& player, const std::string& aiType, const std::string& parameters = std::string());
@@ -233,9 +235,12 @@ public:
     Seat* getEmptySeat(int index);
     const Seat* getEmptySeat(int index) const;
 
-    //! \brief Removes the first empty Seat from the GameMap and returns a pointer to it,
+    //! \brief A simple accessor method to return the first Seat with the given faction.
+    Seat* getEmptySeat(std::string faction);
+
+    //! \brief Removes the Seat with given color from the GameMap and returns a pointer to it,
     //! this is used when a Player "sits down" at the GameMap.
-    Seat* popEmptySeat();
+    Seat* popEmptySeat(int color);
 
     //! \brief A simple accessor method to return the number of empty Seats on the GameMap.
     unsigned int numEmptySeats() const;
@@ -366,12 +371,12 @@ public:
     //! \brief Updates the different entities animations.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
 
-    long int getTurnNumber() const
+    int64_t getTurnNumber() const
     {
         return mTurnNumber;
     }
 
-    void setTurnNumber(long int turnNumber)
+    void setTurnNumber(int64_t turnNumber)
     {
         mTurnNumber = turnNumber;
     }
@@ -397,7 +402,7 @@ private:
     Player* mLocalPlayer;
 
     //! \brief The current server turn number.
-    long int mTurnNumber;
+    int64_t mTurnNumber;
 
     //! \brief The corresponding minimap.
     MiniMap* miniMap;

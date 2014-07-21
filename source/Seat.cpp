@@ -209,17 +209,17 @@ std::string Seat::getFormat()
     return "color\tfaction\tstartingX\tstartingY\tcolorR\tcolorG\tcolorB";
 }
 
-std::ostream& operator<<(std::ostream& os, Seat *s)
+ODPacket& operator<<(ODPacket& os, Seat *s)
 {
-    os << s->mColor << "\t" << s->mFaction << "\t" << s->mStartingX << "\t"
-       << s->mStartingY << "\t";
-    os << s->mColorValue.r << "\t" << s->mColorValue.g << "\t"
-       << s->mColorValue.b << "\n";
+    os << s->mColor << s->mFaction << s->mStartingX
+       << s->mStartingY;
+    os << s->mColorValue.r << s->mColorValue.g
+       << s->mColorValue.b;
 
     return os;
 }
 
-std::istream& operator>>(std::istream& is, Seat *s)
+ODPacket& operator>>(ODPacket& is, Seat *s)
 {
     is >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;

@@ -25,7 +25,6 @@
  */
 
 #include "Console.h"
-#include "Socket.h"
 #include "RenderManager.h"
 #include "MapLoader.h"
 #include "CameraManager.h"
@@ -35,12 +34,15 @@
 #include "AllGoals.h"
 #include "ODServer.h"
 #include "ResourceManager.h"
-#include "Network.h"
 #include "CullingManager.h"
 #include "Weapon.h"
+#include "ODClient.h"
 
+#include <OgreLogManager.h>
 #include <OgreSceneNode.h>
 #include <OgreEntity.h>
+
+#include <sstream>
 
 using std::min;
 using std::max;
@@ -100,7 +102,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             arguments = gameMap->getLevelFileName();
         }
 
-        if (Socket::clientSocket == NULL)
+        if (!ODClient::getSingleton().isConnected())
         {
             /* If the starting point of the string found is equal to the size
              * of the level name minus the extension (.level)
@@ -111,7 +113,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 tempString += ".level";
             }
 
-            if (Socket::serverSocket != NULL)
+            if (ODServer::getSingleton().isConnected())
             {
                 frameListener->mCommandOutput
                     += "ERROR:  Cannot load a level if you are a already running a server.";
@@ -226,7 +228,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             {
                 if (gameMap->getTile(i, j) == NULL)
                 {
-                    stringstream ss;
+                    std::stringstream ss;
 
                     ss.str(std::string());
                     ss << "Level";
@@ -329,7 +331,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str(arguments);
             tempSS >> ODApplication::turnsPerSecond;
 
-            if (Socket::serverSocket != NULL)
+            if (ODServer::getSingleton().isConnected())
             {
                 try
                 {
@@ -338,9 +340,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     serverNotification->type = ServerNotification::setTurnsPerSecond;
                     serverNotification->doub = ODApplication::turnsPerSecond;
 
-                    ODServer::queueServerNotification(serverNotification);
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
                 }
-                catch (bad_alloc&)
+                catch (std::bad_alloc&)
                 {
                     Ogre::LogManager::getSingleton().logMessage("\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n", Ogre::LML_CRITICAL);
                 }
@@ -519,12 +521,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
 
             else if (arguments.compare("network") == 0)
             {
-                if (Socket::clientSocket != NULL)
+                if (ODClient::getSingleton().isConnected())
                 {
                     tempSS << "You are currently connected to a server.";
                 }
 
-                if (Socket::serverSocket != NULL)
+                if (ODServer::getSingleton().isConnected())
                 {
                     tempSS << "You are currently acting as a server.";
                 }
@@ -718,29 +720,20 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 // Make sure an IP address to connect to was provided
                 if (!arguments.empty())
                 {
-                    Socket::clientSocket = new Socket;
-
-                    if (!Socket::clientSocket->create())
-                    {
-                        Socket::clientSocket = NULL;
-                        ODFrameListener::getSingletonPtr()->mCommandOutput
-                                += "\nERROR:  Could not create client socket!\n";
-                        goto ConnectEndLabel;
-                    }
-
-                    if (Socket::clientSocket->connect(arguments, ODApplication::PORT_NUMBER))
+                    if (ODClient::getSingleton().connect(arguments, ODApplication::PORT_NUMBER))
                     {
                         frameListener->mCommandOutput += "\nConnection successful.\n";
 
                         // Send a hello request to start the conversation with the server
-                        Socket::clientSocket->send(formatCommand("hello", std::string("OpenDungeons V ") + ODApplication::VERSION));
+                        ODPacket packSend;
+                        packSend << std::string("hello") << std::string("OpenDungeons V ") + ODApplication::VERSION;
+                        ODClient::getSingleton().sendToServer(packSend);
 
                         // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
                         gameMap->clearMapLightIndicators();
                     }
                     else
                     {
-                        Socket::clientSocket = NULL;
                         frameListener->mCommandOutput += "\nConnection failed!\n";
                     }
                 }
@@ -763,7 +756,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     += "\nYou must set a nick with the \"nick\" command before you can join a server.\n";
         }
 
-        ConnectEndLabel: frameListener->mCommandOutput += "\n";
+        frameListener->mCommandOutput += "\n";
 
     }
 
@@ -774,9 +767,10 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         if (!gameMap->getLocalPlayer()->getNick().empty())
         {
             // Make sure we are not already connected to a server or hosting a game.
-            if (!frameListener->isConnected())            {
+            if (!frameListener->isConnected())
+            {
 
-                if (ODServer::startServer())
+                if (ODServer::getSingleton().startServer())
                 {
                     frameListener->mCommandOutput += "\nServer started successfully.\n";
 
@@ -839,19 +833,20 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     // Send a chat message
     else if (command.compare("chat") == 0 || command.compare("c") == 0)
     {
-        if (Socket::clientSocket != NULL)
+        if (ODClient::getSingleton().isConnected())
         {
-            Socket::clientSocket->send(formatCommand("chat", gameMap->getLocalPlayer()->getNick() + ":"
-                    + arguments));
+            ODPacket packSend;
+            packSend << "chat" << gameMap->getLocalPlayer()->getNick()
+                << arguments;
+            ODClient::getSingleton().sendToServer(packSend);
         }
-        else if (Socket::serverSocket != NULL)
+        else if (ODServer::getSingleton().isConnected())
         {
             // Send the chat to all the connected clients
-            for (unsigned int i = 0; i < frameListener->mClientSockets.size(); ++i)
-            {
-                ODFrameListener::getSingletonPtr()->mClientSockets[i]->send(formatCommand("chat", gameMap->getLocalPlayer()->getNick()
-                        + ":" + arguments));
-            }
+            ODPacket packSend;
+            packSend << "chat" << gameMap->getLocalPlayer()->getNick()
+                << arguments;
+            ODServer::getSingleton().sendToAllClients(packSend);
 
             // Display the chat message in our own message queue
             mChatMessages.push_back(new ChatMessage(gameMap->getLocalPlayer()->getNick(), arguments,
@@ -867,7 +862,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     // Start the visual debugging indicators for a given creature
     else if (command.compare("visdebug") == 0)
     {
-        if (Socket::serverSocket != NULL)
+        if (ODServer::getSingleton().isConnected())
         {
             if (arguments.length() > 0)
             {
@@ -1071,9 +1066,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     }
     else if (command.compare("disconnect") == 0)
     {
-        frameListener->mCommandOutput += (Socket::serverSocket != NULL)
+        frameListener->mCommandOutput += (ODServer::getSingleton().isConnected())
             ? "\nStopping server.\n"
-            : (Socket::clientSocket != NULL)
+            : (ODClient::getSingleton().isConnected())
                 ? "\nDisconnecting from server.\n"
                 : "\nYou are not connected to a server and you are not hosting a server.";
     }

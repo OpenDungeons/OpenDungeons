@@ -300,7 +300,7 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 {
-    return ODServer::startServer();
+    return ODServer::getSingleton().startServer();
 }
 
 bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)

@@ -37,9 +37,7 @@
 #include <OISMouse.h>
 
 #include <deque>
-#include <vector>
 
-class Socket;
 class RenderManager;
 class AbstractApplicationMode;
 class ModeManager;
@@ -142,10 +140,6 @@ public:
 
     void addChatMessage(ChatMessage* message);
 
-    // Multiplayer stuff
-    // Move that in the future server class.
-    std::vector<Socket*> mClientSockets;
-
     //! \brief The console output
     void setConsoleCommandOutput(const std::string& output)
     {
@@ -168,7 +162,7 @@ private:
     unsigned int            mChatMaxMessages;
     unsigned int            mChatMaxTimeDisplay;
     double                  mFrameDelay;
-    long int                mPreviousTurn;
+    Ogre::Real              mTimeElapsedSinceLastTurn;
 
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
     Ogre::RaySceneQuery*    mRaySceneQuery;
@@ -199,9 +193,6 @@ private:
 
     //! \brief Tells whether a client socket is active.
     bool isClient();
-
-    //! \brief Check for the time elapsed and open a server turn when needed.
-    void checkForTurnUpdate(Ogre::Real timeSinceLastFrame);
 
     //! \brief Updates server-turn independant creature animation, audio, and overall rendering.
     void updateAnimations(Ogre::Real timeSinceLastFrame);

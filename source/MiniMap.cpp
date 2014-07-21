@@ -30,6 +30,7 @@
 #include "Helper.h"
 
 #include <OgrePrerequisites.h>
+#include <OgreTextureManager.h>
 
 #include <CEGUI/WindowManager.h>
 #include <CEGUI/Image.h>

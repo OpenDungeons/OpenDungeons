@@ -44,7 +44,8 @@
 #include "RoomDungeonTemple.h"
 #include "RoomQuarters.h"
 #include "RoomTreasury.h"
-#include "Network.h"
+
+#include <OgreTimer.h>
 
 #include <iostream>
 #include <sstream>
@@ -122,7 +123,7 @@ GameMap::GameMap() :
         miscUpkeepTime(0),
         creatureTurnsTime(0),
         mLocalPlayer(NULL),
-        mTurnNumber(1),
+        mTurnNumber(0),
         creatureDefinitionFilename("levels/creatures.def"), // default name
         floodFillEnabled(false),
         numCallsTo_path(0),
@@ -149,7 +150,7 @@ GameMap::~GameMap()
 
 bool GameMap::LoadLevel(const std::string& levelFilepath)
 {
-    processServerNotifications();
+    ODServer::getSingleton().processServerNotifications();
     RenderManager::getSingletonPtr()->processRenderRequests();
     clearAll();
 
@@ -228,6 +229,8 @@ void GameMap::clearAll()
     clearFilledSeats();
 
     clearAiManager();
+
+    mTurnNumber = 0;
 }
 
 void GameMap::clearCreatures()
@@ -1060,19 +1063,13 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
     return returnList;
 }
 
-bool GameMap::addPlayer(Player* p)
+bool GameMap::addPlayer(Player* p, Seat* seat)
 {
-    if (!emptySeats.empty())
-    {
-        p->setSeat(popEmptySeat());
-        p->setGameMap(this);
-        players.push_back(p);
-        LogManager::getSingleton().logMessage("Added player: " + p->getNick());
-        return true;
-    }
-
-    LogManager::getSingleton().logMessage("Couldn't add player: " + p->getNick());
-    return false;
+    p->setSeat(seat);
+    p->setGameMap(this);
+    players.push_back(p);
+    LogManager::getSingleton().logMessage("Added player: " + p->getNick());
+    return true;
 }
 
 bool GameMap::assignAI(Player& player, const std::string& aiType, const std::string& parameters)
@@ -1775,17 +1772,36 @@ const Seat* GameMap::getEmptySeat(int index) const
     return emptySeats[index];
 }
 
-Seat* GameMap::popEmptySeat()
+Seat* GameMap::getEmptySeat(std::string faction)
 {
-    Seat *s = NULL;
-    if (!emptySeats.empty())
+    Seat* seat = NULL;
+    for (std::vector<Seat*>::iterator it = emptySeats.begin(); it != emptySeats.end(); ++it)
     {
-        s = emptySeats[0];
-        emptySeats.erase(emptySeats.begin());
-        filledSeats.push_back(s);
+        if((*it)->mFaction == faction)
+        {
+            seat = *it;
+            break;
+        }
     }
 
-    return s;
+    return seat;
+}
+
+Seat* GameMap::popEmptySeat(int color)
+{
+    Seat* seat = NULL;
+    for (std::vector<Seat*>::iterator it = emptySeats.begin(); it != emptySeats.end(); ++it)
+    {
+        if((*it)->getColor() == color)
+        {
+            seat = *it;
+            emptySeats.erase(it);
+            filledSeats.push_back(seat);
+            break;
+        }
+    }
+
+    return seat;
 }
 
 unsigned int GameMap::numEmptySeats() const

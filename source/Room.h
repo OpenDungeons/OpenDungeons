@@ -20,6 +20,7 @@
 
 #include "Building.h"
 #include "Tile.h"
+#include "ODPacket.h"
 
 #include <string>
 #include <deque>
@@ -74,8 +75,11 @@ public:
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Room *r);
     friend std::istream& operator>>(std::istream& is, Room *r);
+    friend ODPacket& operator<<(ODPacket& os, Room *r);
+    friend ODPacket& operator>>(ODPacket& is, Room *r);
 
     static Room* createRoomFromStream(const std::string& roomName, std::istream &is, GameMap* gameMap);
+    static Room* createRoomFromPacket(const std::string& roomName, ODPacket &is, GameMap* gameMap);
 
     /*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile,
      *  if the tile is NULL the object appears in the room's center, the rotation angle is given in degrees.
