@@ -42,18 +42,22 @@ bool writeGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
     Ogre::Image mapImage;
     uchar* pictureBuffer;
     int numFaces = 1;
-    pictureBuffer = new uchar [numFaces*Ogre::PixelUtil::getMemorySize( gameMap.getMapSizeX(), gameMap.getMapSizeY(), 1, Ogre::PF_R8G8B8 )];
-    mapImage.loadDynamicImage(pictureBuffer, gameMap.getMapSizeX(), gameMap.getMapSizeY(), 1, Ogre::PF_R8G8B8 );
+    pictureBuffer = new uchar [numFaces*Ogre::PixelUtil::getMemorySize(gameMap.getMapSizeX(), gameMap.getMapSizeY(), 1, Ogre::PF_R8G8B8)];
+    mapImage.loadDynamicImage(pictureBuffer, gameMap.getMapSizeX(), gameMap.getMapSizeY(), 1, Ogre::PF_R8G8B8);
 
     Ogre::ColourValue cv;
-    for(int ii = 0 ; ii <  gameMap.getMapSizeX(); ii++)
-	for(int jj = 0 ; jj <  gameMap.getMapSizeY(); jj++)
+    for(int ii = 0; ii < gameMap.getMapSizeX(); ++ii)
+    {
+        for(int jj = 0; jj < gameMap.getMapSizeY(); ++jj)
 	    {
-		cv.r = cv.g = cv.b = 0.1 * static_cast<float>(gameMap.getTile(ii, jj)->getType());
-		mapImage.setColourAt(cv, ii, jj, 0);
+            cv.r = cv.g = cv.b = 0.1 * static_cast<float>(gameMap.getTile(ii, jj)->getType());
+            mapImage.setColourAt(cv, ii, jj, 0);
 	    }
+    }
+
     mapImage.save(fileName);
-    delete [] pictureBuffer ;
+    delete [] pictureBuffer;
+    return true;
 }
 
 bool readGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
@@ -64,24 +68,28 @@ bool readGameMapFromTgaFile(const std::string& fileName, GameMap& gameMap)
     std::ifstream ifs(fileName.c_str(), std::ios::binary|std::ios::in);
     if (ifs.is_open())
     {
-	Ogre::String tex_ext;
-	Ogre::String::size_type index_of_extension = fileName.find_last_of('.');
-	if (index_of_extension != Ogre::String::npos)
-	{
-	    tex_ext = fileName.substr(index_of_extension+1);
-	    Ogre::DataStreamPtr data_stream(new Ogre::FileStreamDataStream(fileName, &ifs, false));
+        Ogre::String tex_ext;
+        Ogre::String::size_type index_of_extension = fileName.find_last_of('.');
+        if (index_of_extension != Ogre::String::npos)
+        {
+            tex_ext = fileName.substr(index_of_extension + 1);
+            Ogre::DataStreamPtr data_stream(new Ogre::FileStreamDataStream(fileName, &ifs, false));
 
-	    img.load(data_stream, tex_ext);
-	    image_loaded = true;
-	}
-	ifs.close();
+            img.load(data_stream, tex_ext);
+            image_loaded = true;
+        }
+        ifs.close();
     }
-    for(int ii = 0 ; ii <  gameMap.getMapSizeX(); ii++)
-	for(int jj = 0 ; jj <  gameMap.getMapSizeY(); jj++)
-	    {
-		cv = img.getColourAt( ii , jj, 0);
-		gameMap.getTile(ii, jj)->setType(static_cast<Tile::TileType>(10.0*cv.r));
-	    }
+
+    for(int ii = 0; ii < gameMap.getMapSizeX(); ++ii)
+    {
+        for(int jj = 0; jj < gameMap.getMapSizeY(); ++jj)
+        {
+            cv = img.getColourAt(ii, jj, 0);
+            int tileType = (int)10.0 * cv.r;
+            gameMap.getTile(ii, jj)->setType((Tile::TileType)tileType);
+        }
+    }
     return image_loaded;
 }
 
