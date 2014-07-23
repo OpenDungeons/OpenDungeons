@@ -126,7 +126,7 @@ Dictionary& DictionaryManager::get_dictionary(const Language& language)
                 std::string pofile = *p + "/" + best_filename;
                 try
                 {
-                    std::auto_ptr<std::istream> in = std::auto_ptr<std::istream>(new std::ifstream(pofile.c_str()));
+                    std::unique_ptr<std::istream> in = std::unique_ptr<std::istream>(new std::ifstream(pofile.c_str()));
                     if (!in.get())
                     {
                         logMgr.logMessage("error: failure opening: " + pofile, Ogre::LML_CRITICAL);

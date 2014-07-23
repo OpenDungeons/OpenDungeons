@@ -77,7 +77,7 @@ class DictionaryManager
         /** Return a set of the available languages in their country code */
         std::set<Language> get_languages();
 
-    //    void set_filesystem(std::auto_ptr<FileSystem> filesystem);
+        //void set_filesystem(std::unique_ptr<FileSystem> filesystem);
         std::string convertFilenameToLanguage(const std::string &s_in) const;
 
     private:
