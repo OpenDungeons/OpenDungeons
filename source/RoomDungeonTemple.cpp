@@ -23,6 +23,8 @@
 #include "CreatureAction.h"
 #include "CreatureSound.h"
 #include "RoomObject.h"
+#include "ODServer.h"
+#include "ServerNotification.h"
 
 RoomDungeonTemple::RoomDungeonTemple():
     mWaitTurns(0),
@@ -104,4 +106,13 @@ void RoomDungeonTemple::produceKobold()
     newCreature->getWeaponL()->createMesh();
     newCreature->getWeaponR()->createMesh();
     getGameMap()->addCreature(newCreature);
+
+    // Inform the clients
+    if (ODServer::getSingleton().isConnected())
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::addCreature, newCreature->getControllingPlayer());
+        serverNotification->packet << newCreature;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }

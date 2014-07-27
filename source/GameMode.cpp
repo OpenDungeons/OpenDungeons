@@ -24,9 +24,8 @@
 
 #include "GameMode.h"
 
-#include "MapLoader.h"
-#include "ClientNotification.h"
 #include "ODServer.h"
+#include "ODClient.h"
 #include "Gui.h"
 #include "ODFrameListener.h"
 #include "LogManager.h"
@@ -54,9 +53,7 @@ GameMode::GameMode(ModeManager *modeManager):
     mDigSetBool(false),
     mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
     mMouseX(0),
-    mMouseY(0),
-    startLevelWhenActivated(false),
-    levelToLaunch("")
+    mMouseY(0)
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
@@ -68,96 +65,6 @@ GameMode::GameMode(ModeManager *modeManager):
 
 GameMode::~GameMode()
 {
-}
-
-void GameMode::setLevel(const std::string& levelFilename)
-{
-    levelToLaunch = levelFilename;
-    startLevelWhenActivated = true;
-}
-
-bool GameMode::startLevel(const std::string& levelFilename)
-{
-    // Read in the default game map
-    if (!mGameMap->LoadLevel(levelFilename))
-        return false;
-
-    mGameMap->setGamePaused(false);
-
-    // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
-    mGameMap->clearMapLightIndicators();
-
-    LogManager& logManager = LogManager::getSingleton();
-
-    // Check for empty seats
-    if (mGameMap->numEmptySeats() == 0)
-    {
-        logManager.logMessage("Can't start local game: There were no available seats.");
-        return false;
-    }
-
-    // Fill seats with either player, AIs or nothing depending on the given faction.
-    unsigned int i = 0;
-    unsigned int uniqueAINumber = 1;
-    while (i < mGameMap->numEmptySeats())
-    {
-        Seat* seat = mGameMap->getEmptySeat(i);
-
-        if (seat->mFaction == "Player")
-        {
-            // Add local player on first slot available.
-            if (mGameMap->getLocalPlayer()->getSeat() == NULL)
-            {
-                // The empty seat is removed, so we loop without incrementing i
-                mGameMap->getLocalPlayer()->setSeat(mGameMap->popEmptySeat(seat->getColor()));
-                logManager.logMessage("Adding local player.");
-                continue;
-            }
-        }
-        else if (seat->mFaction == "KeeperAI")
-        {
-            // NOTE - AI should later have definable names maybe?.
-            std::stringstream ss("");
-            ss << "Keeper AI " << uniqueAINumber++;
-            Player* aiPlayer = new Player();
-            aiPlayer->setNick(ss.str());
-
-            // The empty seat is removed by addPlayer(), so we loop without incrementing i
-            if (mGameMap->addPlayer(aiPlayer, mGameMap->popEmptySeat(seat->getColor())))
-            {
-                mGameMap->assignAI(*aiPlayer, "KeeperAI");
-                continue;
-            }
-        }
-        ++i;
-    }
-
-    // Check whether at least a local player was added.
-    Seat* localPlayerSeat = mGameMap->getLocalPlayer()->getSeat();
-    if (localPlayerSeat == NULL)
-    {
-        logManager.logMessage("Can't start the local game: No available seat for local player.");
-        return false;
-    }
-
-    logManager.logMessage("Player has colour: " + Ogre::StringConverter::toString(localPlayerSeat->getColor()));
-    logManager.logMessage("Added: " + Ogre::StringConverter::toString(uniqueAINumber - 1) + " AI players");
-
-    // For now, only the single player mode exists, so we start the server part.
-    if (!ODServer::getSingleton().startServer())
-        return false;
-
-    // Move camera to starting position
-    Ogre::Real startX = (Ogre::Real)(localPlayerSeat->mStartingX);
-    Ogre::Real startY = (Ogre::Real)(localPlayerSeat->mStartingY);
-    // We make the temple appear in the center of the game view
-    startY = (Ogre::Real)(startY - 7.0);
-    // Bound check
-    if (startY <= 0.0)
-        startY = 0.0;
-
-    ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
-    return true;
 }
 
 void GameMode::activate()
@@ -173,16 +80,15 @@ void GameMode::activate()
     // TODO: Actually, the game music should be part of the game data
     MusicPlayer::getSingleton().start(1); // in game music
 
-    if(startLevelWhenActivated)
-    {
-        startLevelWhenActivated = false;
-        startLevel(levelToLaunch);
-    }
-    else
+    if(mGameMap->getTurnNumber() != -1)
     {
         /* The game has been resumed from another mode (like console).
            Let's refresh the exit popup */
         popupExit(mGameMap->getGamePaused());
+    }
+    else
+    {
+        mGameMap->setGamePaused(false);
     }
 }
 
@@ -364,11 +270,11 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
             std::string resultName = itr->movable->getName();
 
-            if (resultName.find("Creature_") == std::string::npos)
+            if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
                 continue;
 
             Creature* tempCreature = mGameMap->getCreature(resultName.substr(
-                                            ((std::string) "Creature_").size(), resultName.size()));
+                Creature::CREATURE_PREFIX.length(), resultName.length()));
 
             if (tempCreature != NULL)
                 tempCreature->createStatsWindow();
@@ -398,10 +304,19 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         if (curTile == NULL)
             return true;
 
-        mGameMap->getLocalPlayer()->dropCreature(curTile);
-
-        if (mGameMap->getLocalPlayer()->numCreaturesInHand() > 0)
+        if (mGameMap->getLocalPlayer()->isDropCreaturePossible(curTile))
         {
+            if(ODClient::getSingleton().isConnected())
+            {
+                // Send a message to the server telling it we want to drop the creature
+                ClientNotification *clientNotification = new ClientNotification(
+                    ClientNotification::askCreatureDrop);
+                clientNotification->packet << curTile;
+                ODClient::getSingleton().queueClientNotification(clientNotification);
+                return true;
+            }
+
+            mGameMap->getLocalPlayer()->dropCreature(curTile);
             SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
         }
     }
@@ -443,7 +358,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
         std::string resultName = itr->movable->getName();
 
-        if (resultName.find("Creature_") == std::string::npos)
+        if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
             continue;
 
         // Pick the creature up and put it in our hand
@@ -460,19 +375,24 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         }
         else
         {
-            // through away everything before the '_' and then copy the rest into 'array'
-            char array[255];
-            std::stringstream tempSS;
-            tempSS.str(resultName);
-            tempSS.getline(array, sizeof(array), '_');
-            tempSS.getline(array, sizeof(array));
-
-            Creature* currentCreature = mGameMap->getCreature(array);
+            // The creature name is after the creature prefix
+            std::string creatureName = resultName.substr(Creature::CREATURE_PREFIX.length());
+            Creature* currentCreature = mGameMap->getCreature(creatureName);
             if (currentCreature == NULL)
                 continue;
 
             if (currentCreature->getColor() == player->getSeat()->getColor())
             {
+                if (ODClient::getSingleton().isConnected())
+                {
+                    // Send a message to the server telling it we want to pick up this creature
+                    ClientNotification *clientNotification = new ClientNotification(
+                        ClientNotification::askCreaturePickUp);
+                    clientNotification->packet << currentCreature->getName();
+                    ODClient::getSingleton().queueClientNotification(clientNotification);
+                    return true;
+                }
+
                 player->pickUpCreature(currentCreature);
                 SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::PICKUP);
                 return true;
@@ -524,6 +444,8 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(Gui::getSingletonPtr()->convertButton(id));
 
     InputManager* inputManager = mModeManager->getInputManager();
+    int dragType = inputManager->mDragType;
+    inputManager->mDragType = nullDragType;
 
     // If the mouse press was on a CEGUI window ignore it
     if (inputManager->mMouseDownOnCEGUIWindow)
@@ -554,12 +476,12 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     // Left mouse button up
     inputManager->mLMouseDown = false;
 
-    switch(inputManager->mDragType)
+    switch(dragType)
     {
         default:
         case creature:
         case mapLight:
-            inputManager->mDragType = nullDragType;
+            dragType = nullDragType;
             return true;
 
         // When either selecting a tile, adding room or a trap
@@ -570,117 +492,92 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             break;
     }
 
-
-    // Loop over the valid tiles in the affected region.  If we are doing a tileSelection (changing the tile type and fullness) this
-    // loop does that directly.  If, instead, we are doing an addNewRoom, this loop prunes out any tiles from the affectedTiles vector
-    // which cannot have rooms placed on them, then if the player has enough gold, etc to cover the selected tiles with the given room
-    // the next loop will actually create the room.  A similar pruning is done for traps.
-    std::vector<Tile*> affectedTiles = mGameMap->rectangularRegion(inputManager->mXPos,
-                                                                   inputManager->mYPos,
-                                                                   inputManager->mLStartDragX,
-                                                                   inputManager->mLStartDragY);
-    std::vector<Tile*>::iterator itr = affectedTiles.begin();
-
-    while (itr != affectedTiles.end())
+    // On the client:  Inform the server about our choice
+    if (!ODServer::getSingleton().isConnected())
     {
-        Tile *currentTile = *itr;
-
-        // If we are dragging out tiles.
-
-        if (inputManager->mDragType == tileSelection)
+        if(dragType == tileSelection)
         {
-            //See if the tile can be marked for digging.
-            if (currentTile->isDiggable(mGameMap->getLocalPlayer()->getSeat()->mColor))
-            {
-                if (ODServer::getSingleton().isConnected())
-                {
-                    // On the server: Just mark the tile for digging.
-                    currentTile->setMarkedForDigging(mDigSetBool, mGameMap->getLocalPlayer());
-                }
-                else
-                {
-                    // On the client:  Inform the server about our choice
-                    ClientNotification *clientNotification = new ClientNotification;
-                    clientNotification->mType = ClientNotification::markTile;
-                    clientNotification->mP = currentTile;
-                    clientNotification->mFlag = mDigSetBool;
-
-                    ClientNotification::mClientNotificationQueue.push_back(clientNotification);
-
-                    currentTile->setMarkedForDigging(mDigSetBool, mGameMap->getLocalPlayer());
-                }
-
-                SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DIGSELECT, false);
-            }
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askMarkTile);
+            clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->packet << mDigSetBool;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
         }
-        else // if(inputManager->mDragType == addNewRoom || inputManager->mDragType == addNewTrap)
+        else if(dragType == addNewRoom)
         {
-            // If the tile already contains a room, prune it from the list of affected tiles.
-            if (!currentTile->isBuildableUpon())
-            {
-                itr = affectedTiles.erase(itr);
-                continue;
-            }
-
-            // If the currentTile is not empty and claimed for my color, then remove it from the affectedTiles vector.
-            if (!(currentTile->getFullness() < 1
-                    && currentTile->getType() == Tile::claimed
-                    && currentTile->colorDouble > 0.99
-                    && currentTile->getColor() == mGameMap->getLocalPlayer()->getSeat()->mColor))
-            {
-                itr = affectedTiles.erase(itr);
-                continue;
-            }
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askBuildRoom);
+            clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->packet << static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
+            ODClient::getSingleton().queueClientNotification(clientNotification);
         }
-
-        ++itr;
+        else if(dragType == addNewTrap)
+        {
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::askBuildTrap);
+            clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
+            clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
+            clientNotification->packet << static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+        }
+        return true;
     }
 
-    // If we are adding new rooms the above loop will have pruned out the tiles not eligible
-    // for adding rooms to.  This block then actually adds rooms to the remaining tiles.
-    if (inputManager->mDragType == addNewRoom && !affectedTiles.empty())
+    if(dragType == tileSelection)
     {
-        Room* newRoom = Room::buildRoom(mGameMap, mGameMap->getLocalPlayer()->getNewRoomType(),
-                                        affectedTiles, mGameMap->getLocalPlayer(), false);
-
-        if (newRoom == NULL)
+        std::vector<Tile*> affectedTiles = mGameMap->getDiggableTilesForPlayerInArea(inputManager->mXPos,
+            inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY,
+            mGameMap->getLocalPlayer());
+        if(!affectedTiles.empty())
         {
-            //Not enough money
-            //TODO:  play sound or something.
+            mGameMap->markTilesForPlayer(affectedTiles, mDigSetBool, mGameMap->getLocalPlayer());
+            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DIGSELECT, false);
         }
     }
-
-    // If we are adding new traps the above loop will have pruned out the tiles not eligible
-    // for adding traps to.  This block then actually adds traps to the remaining tiles.
-    else if (inputManager->mDragType == addNewTrap && !affectedTiles.empty())
+    else if(dragType == addNewRoom)
     {
-        Trap* newTrap = Trap::buildTrap(mGameMap, mGameMap->getLocalPlayer()->getNewTrapType(),
-                                        affectedTiles, mGameMap->getLocalPlayer(), false);
-
-        if (newTrap == NULL)
+        std::vector<Tile*> affectedTiles = mGameMap->getBuildableTilesForPlayerInArea(
+            inputManager->mXPos, inputManager->mYPos, inputManager->mLStartDragX,
+            inputManager->mLStartDragY, mGameMap->getLocalPlayer());
+        if(!affectedTiles.empty())
         {
-            //Not enough money
-            //TODO:  play sound or something.
+            Room::RoomType type = mGameMap->getLocalPlayer()->getNewRoomType();
+            int goldRequired = affectedTiles.size() * Room::costPerTile(type);
+            if(mGameMap->withdrawFromTreasuries(goldRequired, mGameMap->getLocalPlayer()->getSeat()))
+            {
+                mGameMap->buildRoomForPlayer(affectedTiles, type, mGameMap->getLocalPlayer());
+            }
+            else
+            {
+                //Not enough money
+                //TODO:  play sound or something.
+            }
+        }
+    }
+    else if(dragType == addNewTrap)
+    {
+        std::vector<Tile*> affectedTiles = mGameMap->getBuildableTilesForPlayerInArea(
+            inputManager->mXPos, inputManager->mYPos, inputManager->mLStartDragX,
+            inputManager->mLStartDragY, mGameMap->getLocalPlayer());
+        if(!affectedTiles.empty())
+        {
+            Trap::TrapType type = mGameMap->getLocalPlayer()->getNewTrapType();
+            int goldRequired = affectedTiles.size() * Trap::costPerTile(type);
+            if(mGameMap->withdrawFromTreasuries(goldRequired, mGameMap->getLocalPlayer()->getSeat()))
+            {
+                mGameMap->buildTrapForPlayer(affectedTiles, type, mGameMap->getLocalPlayer());
+            }
+            else
+            {
+                //Not enough money
+                //TODO:  play sound or something.
+            }
         }
     }
 
-    refreshBorderingTilesOf(affectedTiles);
-
-    inputManager->mDragType = nullDragType;
     return true;
-}
-
-void GameMode::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
-{
-    // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
-    std::vector<Tile*> borderTiles = mGameMap->tilesBorderedByRegion(affectedTiles);
-
-    borderTiles.insert(borderTiles.end(), affectedTiles.begin(), affectedTiles.end());
-
-    // Loop over all the affected tiles and force them to examine their neighbors.  This allows
-    // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
-    for (std::vector<Tile*>::iterator itr = borderTiles.begin(); itr != borderTiles.end() ; ++itr)
-        (*itr)->refreshMesh();
 }
 
 bool GameMode::keyPressed(const OIS::KeyEvent &arg)

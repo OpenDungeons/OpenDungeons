@@ -18,6 +18,7 @@
 #include "RoomQuarters.h"
 
 #include "ODServer.h"
+#include "ServerNotification.h"
 #include "Tile.h"
 #include "GameMap.h"
 #include "RoomObject.h"
@@ -114,7 +115,7 @@ void RoomQuarters::addCoveredTile(Tile* t, double nHP)
         mCreatureSleepingInTile[t] = NULL;
 }
 
-void RoomQuarters::removeCoveredTile(Tile* t)
+void RoomQuarters::removeCoveredTile(Tile* t, bool isTileAbsorb)
 {
     if (t == NULL)
         return;
@@ -123,11 +124,11 @@ void RoomQuarters::removeCoveredTile(Tile* t)
     if (c != NULL)
     {
         // Inform the creature that it no longer has a place to sleep
-        // an remove the bed tile.
-        releaseTileForSleeping(t, c);
+        // and remove the bed tile.
+        releaseTileForSleeping(t, c, isTileAbsorb);
     }
 
-    Room::removeCoveredTile(t);
+    Room::removeCoveredTile(t, isTileAbsorb);
     mCreatureSleepingInTile.erase(t);
 }
 
@@ -187,6 +188,42 @@ bool RoomQuarters::claimTileForSleeping(Tile* t, Creature* c)
     if (!spaceIsBigEnough)
         return false;
 
+    if (ODServer::getSingleton().isConnected())
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::addCreatureBed, c->getControllingPlayer());
+        serverNotification->packet << getName() << c->getName() << t << xDim
+            << yDim << rotationAngle;
+
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
+    return installBed(t, c, xDim, yDim, rotationAngle);
+}
+
+bool RoomQuarters::releaseTileForSleeping(Tile* t, Creature* c, bool isTileAbsorb)
+{
+    // We only notify the bed deletion if it is not an absorbtion because in this case, the client
+    // will know how to handle it by himself
+    if (!isTileAbsorb && ODServer::getSingleton().isConnected())
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::removeCreatureBed, c->getControllingPlayer());
+        serverNotification->packet << getName() << c->getName() << t;
+
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+
+    return removeBed(t, c);
+}
+
+bool RoomQuarters::installBed(Tile* t, Creature* c, double xDim, double yDim,
+    double rotationAngle)
+{
+    const CreatureDefinition* def = c->getDefinition();
+    if(def == NULL)
+        return false;
+
     BedRoomObjectInfo bedInfo(t->x + xDim / 2.0 - 0.5,
                               t->y + yDim / 2.0 - 0.5,
                               rotationAngle, c, t);
@@ -206,11 +243,9 @@ bool RoomQuarters::claimTileForSleeping(Tile* t, Creature* c)
     loadRoomObject(def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle)->createMesh();
     // Save the info for later...
     mBedRoomObjectsInfo.push_back(bedInfo);
-
-    return true;
 }
 
-bool RoomQuarters::releaseTileForSleeping(Tile* t, Creature* c)
+bool RoomQuarters::removeBed(Tile* t, Creature* c)
 {
     if (c == NULL)
         return false;

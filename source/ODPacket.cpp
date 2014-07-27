@@ -17,17 +17,9 @@
 
 #include "ODPacket.h"
 
-#define OD_INT64TOINT32H(valInt64)              ((int32_t)(valInt64 >> 32))
-#define OD_INT64TOINT32L(valInt64)              ((int32_t)valInt64)
-#define OD_INT32TOINT64(valInt32h,valInt32l)    (((((int64_t)valInt32h) << 32) & (int64_t)0xFFFFFFFF00000000) + (((int64_t)valInt32l) & (int64_t)0x00000000FFFFFFFF))
-
-ODPacket::ODPacket()
-{
-}
-
-ODPacket::~ODPacket()
-{
-}
+#define OD_INT64TOINT32H(valInt64)              (static_cast<int32_t>(valInt64 >> 32))
+#define OD_INT64TOINT32L(valInt64)              (static_cast<int32_t>(valInt64))
+#define OD_INT32TOINT64(valInt32h,valInt32l)    ((((static_cast<int64_t>(valInt32h)) << 32) & static_cast<int64_t>(0xFFFFFFFF00000000)) + ((static_cast<int64_t>(valInt32l)) & static_cast<int64_t>(0x00000000FFFFFFFF)))
 
 ODPacket& ODPacket::operator >>(bool& data)
 {
@@ -129,6 +121,11 @@ ODPacket& ODPacket::operator >>(std::wstring& data)
     return *this;
 }
 
+ODPacket& ODPacket::operator >>(Ogre::Vector3& data)
+{
+    packet >> data.x >> data.y >> data.z;
+    return *this;
+}
 ODPacket& ODPacket::operator <<(bool data)
 {
     packet<<data;
@@ -224,6 +221,12 @@ ODPacket& ODPacket::operator <<(const wchar_t* data)
 ODPacket& ODPacket::operator <<(const std::wstring& data)
 {
     packet<<data;
+    return *this;
+}
+
+ODPacket& ODPacket::operator <<(const Ogre::Vector3&   data)
+{
+    packet << data.x << data.y << data.z;
     return *this;
 }
 

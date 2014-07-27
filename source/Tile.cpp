@@ -18,9 +18,9 @@
 #include "Tile.h"
 
 #include "ODServer.h"
+#include "ServerNotification.h"
 #include "Creature.h"
 #include "GameMap.h"
-#include "ServerNotification.h"
 #include "RenderRequest.h"
 #include "MapLight.h"
 #include "Seat.h"
@@ -28,6 +28,7 @@
 #include "RenderManager.h"
 #include "Player.h"
 #include "Helper.h"
+#include "LogManager.h"
 
 #include <cstddef>
 #include <bitset>
@@ -80,10 +81,9 @@ void Tile::setFullness(double f)
         try
         {
             // Inform the clients that the fullness has changed.
-            ServerNotification *serverNotification = new ServerNotification;
-            serverNotification->type = ServerNotification::tileFullnessChange;
-            serverNotification->tile = this;
-
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::tileFullnessChange, NULL);
+            serverNotification->packet << this;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -583,7 +583,7 @@ const char* Tile::getFormat()
 
 ODPacket& operator<<(ODPacket& os, Tile *t)
 {
-    os << t->x << t->y << t->getType()
+    os << t->getColor() << t->x << t->y << t->getType()
        << t->getFullness();
 
     return os;
@@ -594,6 +594,9 @@ ODPacket& operator>>(ODPacket& is, Tile *t)
     int tempInt, xLocation, yLocation;
     double tempDouble;
     std::stringstream ss;
+
+    is >> tempInt;
+    t->setColor(tempInt);
 
     is >> xLocation >> yLocation;
 
@@ -609,7 +612,7 @@ ODPacket& operator>>(ODPacket& is, Tile *t)
     t->y = yLocation;
 
     is >> tempInt;
-    t->setType((Tile::TileType) tempInt);
+    t->setType(static_cast<Tile::TileType>(tempInt));
 
     is >> tempDouble;
     t->setFullnessValue(tempDouble);
@@ -835,7 +838,6 @@ void Tile::refreshMesh()
     RenderManager::queueRenderRequest(request);
 }
 
-
 void Tile::setMarkedForDigging(bool ss, Player *pp)
 {
     /* If we are trying to mark a tile that is not dirt or gold
@@ -979,22 +981,24 @@ void Tile::claimForColor(int nColor, double nDanceRate)
         colorDouble += nDanceRate;
         if (colorDouble >= 1.0)
         {
-            // Claim the tile.
-            colorDouble = 1.0;
-            setType(Tile::claimed);
+            claimTile(nColor);
 
-            refreshMesh();
-
-            // Force all the neighbors to recheck their meshes as we have updated this tile.
-            for (unsigned int j = 0; j < neighbors.size(); ++j)
+            // We inform the clients that the tile has been claimed
+            if(ODServer::getSingleton().isConnected())
             {
-                neighbors[j]->refreshMesh();
-                // Update potential active spots.
-                Room* room = neighbors[j]->getCoveringRoom();
-                if (room != NULL)
+                try
                 {
-                    room->updateActiveSpots();
-                    room->createMesh();
+                    // Inform the clients that the fullness has changed.
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotification::tileClaimed, getGameMap()->getPlayerByColor(nColor));
+                    serverNotification->packet << this;
+
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
+                }
+                catch (std::bad_alloc&)
+                {
+                    std::cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
+                    exit(1);
                 }
             }
 
@@ -1051,6 +1055,31 @@ void Tile::claimForColor(int nColor, double nDanceRate)
                 SoundEffectsHelper::CLAIM, this->x, this->y);
     }
     */
+}
+
+void Tile::claimTile(int nColor)
+{
+    // Claim the tile.
+    // We need this because if we are a client, the tile may be
+    // from a different color
+    setColor(nColor);
+    colorDouble = 1.0;
+    setType(Tile::claimed);
+
+    refreshMesh();
+
+    // Force all the neighbors to recheck their meshes as we have updated this tile.
+    for (unsigned int j = 0; j < neighbors.size(); ++j)
+    {
+        neighbors[j]->refreshMesh();
+        // Update potential active spots.
+        Room* room = neighbors[j]->getCoveringRoom();
+        if (room != NULL)
+        {
+            room->updateActiveSpots();
+            room->createMesh();
+        }
+    }
 }
 
 double Tile::digOut(double digRate, bool doScaleDigRate)

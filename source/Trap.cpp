@@ -18,6 +18,7 @@
 #include "Trap.h"
 
 #include "ODServer.h"
+#include "ServerNotification.h"
 #include "Tile.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
@@ -28,6 +29,7 @@
 #include "Random.h"
 #include "SoundEffectsHelper.h"
 #include "Player.h"
+#include "LogManager.h"
 
 const double Trap::mDefaultTileHP = 10.0;
 
@@ -42,7 +44,7 @@ Trap::Trap() :
 }
 
 Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-                       Seat *nControllingSeat, void* params)
+    Seat *nControllingSeat, const std::string& nameToUse, void* params)
 {
     Trap *tempTrap = NULL;
 
@@ -77,13 +79,10 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     tempTrap->setMeshName(getMeshNameFromTrapType(nType));
     tempTrap->mType = nType;
 
-    static int uniqueNumber = -1;
-    std::stringstream tempSS;
-
-    tempSS.str("");
-    tempSS << tempTrap->getMeshName() << "_" << uniqueNumber;
-    --uniqueNumber;
-    tempTrap->setName(tempSS.str());
+    if(nameToUse.empty())
+        tempTrap->buildUniqueName();
+    else
+        tempTrap->setName(nameToUse);
 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
         tempTrap->addCoveredTile(nCoveredTiles[i]);
@@ -91,40 +90,54 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     return tempTrap;
 }
 
-Trap* Trap::buildTrap(GameMap* gameMap, Trap::TrapType nType,
-                      const std::vector< Tile* >& coveredTiles, Player* player,
-                      bool inEditor, void* params)
+void Trap::setupTrap(GameMap* gameMap, Trap* newTrap, Player* player)
 {
-    //TODO: Use something better than a void pointer for this.
-    int goldRequired = coveredTiles.size() * Trap::costPerTile(nType);
-    Trap* newTrap = NULL;
-    if(player->getSeat()->getGold() > goldRequired || inEditor)
+    gameMap->addTrap(newTrap);
+
+    if(ODServer::getSingleton().isConnected())
     {
-        newTrap = createTrap(nType, coveredTiles, player->getSeat(), params);
-        gameMap->addTrap(newTrap);
-        if(!inEditor)
+        std::vector<Tile*> coveredTiles = newTrap->getCoveredTiles();
+        int intType = static_cast<int32_t>(newTrap->getType());
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::buildTrap, player);
+        serverNotification->packet << intType << player->getSeat()->getColor() << coveredTiles.size();
+        for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
         {
-            gameMap->withdrawFromTreasuries(goldRequired, player->getSeat()->getColor());
+            Tile* tile = *it;
+            serverNotification->packet << tile;
         }
-
-        newTrap->createMesh();
-
-        SoundEffectsHelper::getSingleton().playInterfaceSound(
-                SoundEffectsHelper::BUILDTRAP, false);
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
-    return newTrap;
+
+    newTrap->createMesh();
+
+    SoundEffectsHelper::getSingleton().playInterfaceSound(
+            SoundEffectsHelper::BUILDTRAP, false);
 }
 
-Trap* Trap::createTrapFromStream(const std::string& trapName, std::istream &is, GameMap* gameMap)
+Trap* Trap::createTrapFromStream(const std::string& trapMeshName, std::istream &is, GameMap* gameMap,
+    const std::string& trapName)
 {
     Trap tempTrap;
     tempTrap.setGameMap(gameMap);
-    tempTrap.setMeshName(trapName);
-
+    tempTrap.setMeshName(trapMeshName);
     is >> &tempTrap;
 
     Trap *returnTrap = createTrap(tempTrap.mType, tempTrap.mCoveredTiles,
-                                  tempTrap.getControllingSeat());
+        tempTrap.getControllingSeat(), trapName);
+    return returnTrap;
+}
+
+Trap* Trap::createTrapFromPacket(const std::string& trapMeshName, ODPacket &is, GameMap* gameMap,
+    const std::string& trapName)
+{
+    Trap tempTrap;
+    tempTrap.setGameMap(gameMap);
+    tempTrap.setMeshName(trapMeshName);
+    is >> &tempTrap;
+
+    Trap *returnTrap = createTrap(tempTrap.mType, tempTrap.mCoveredTiles,
+        tempTrap.getControllingSeat(), trapName);
     return returnTrap;
 }
 
@@ -234,7 +247,7 @@ void Trap::addCoveredTile(Tile* t, double nHP)
     t->setCoveringTrap(true);
 }
 
-void Trap::removeCoveredTile(Tile* t)
+void Trap::removeCoveredTile(Tile* t, bool isTileAbsorb)
 {
     for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
     {
@@ -305,19 +318,20 @@ std::string Trap::getFormat()
     return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
 }
 
-std::istream& operator>>(std::istream& is, Trap *t)
+void Trap::buildUniqueName()
 {
     static int uniqueNumber = 0;
+    setName(getMeshName() + "_" + Ogre::StringConverter::toString(++uniqueNumber));
+}
+
+std::istream& operator>>(std::istream& is, Trap *t)
+{
+    // When we read map file, the mesh type is read before building the room. That's
+    // why we assume it is already set in the room
     int tilesToLoad, tempX, tempY, tempInt;
-    std::stringstream tempSS;
 
     is >> tempInt;
     t->setControllingSeat(t->getGameMap()->getSeatByColor(tempInt));
-
-    tempSS.str("");
-    tempSS << t->getMeshName() << "_" << ++uniqueNumber;
-
-    t->setName(tempSS.str());
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
@@ -327,7 +341,7 @@ std::istream& operator>>(std::istream& is, Trap *t)
         if (tempTile != NULL)
         {
             t->addCoveredTile(tempTile);
-            //FIXME: This next line will not be necessary when the the tile color is properly set by the tile load routine.
+            //FIXME: This next line will not be necessary when the tile color is properly set by the tile load routine.
             tempTile->setColor(t->getControllingSeat()->getColor());
             tempTile->colorDouble = 1.0;
         }
@@ -339,12 +353,57 @@ std::istream& operator>>(std::istream& is, Trap *t)
 
 std::ostream& operator<<(std::ostream& os, Trap *t)
 {
-    os << t->getMeshName() << "\t" << t->getControllingSeat()->getColor() << "\n";
-    os << t->mCoveredTiles.size() << "\n";
+    os << t->getMeshName() << "\t" << t->getName() << "\t";
+    os << t->getControllingSeat()->getColor() << "\n" << t->mCoveredTiles.size() << "\n";
     for (unsigned int i = 0; i < t->mCoveredTiles.size(); ++i)
     {
         Tile *tempTile = t->mCoveredTiles[i];
         os << tempTile->x << "\t" << tempTile->y << "\n";
+    }
+
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, Trap *t)
+{
+    // When we read map file, the mesh type is read before building the room. To have the
+    // same behaviour, we assume the same and that it is already set in the room
+    int tilesToLoad, tempX, tempY, tempInt;
+
+    is >> tempInt;
+    t->setControllingSeat(t->getGameMap()->getSeatByColor(tempInt));
+
+    is >> tilesToLoad;
+    for (int i = 0; i < tilesToLoad; ++i)
+    {
+        is >> tempX >> tempY;
+        Tile *tempTile = t->getGameMap()->getTile(tempX, tempY);
+        if (tempTile != NULL)
+        {
+            t->addCoveredTile(tempTile);
+            //FIXME: This next line will not be necessary when the tile color is properly set by the tile load routine.
+            tempTile->setColor(t->getControllingSeat()->getColor());
+            tempTile->colorDouble = 1.0;
+        }
+        else
+        {
+            LogManager::getSingleton().logMessage("ERROR : trying to add trap on unkown tile "
+                + Ogre::StringConverter::toString(tempX) + "," + Ogre::StringConverter::toString(tempY));
+        }
+    }
+
+    t->mType = Trap::getTrapTypeFromMeshName(t->getMeshName());
+    return is;
+}
+
+ODPacket& operator<<(ODPacket& os, Trap *t)
+{
+    os << t->getMeshName() << t->getName() << t->getControllingSeat()->getColor();
+    os << t->mCoveredTiles.size();
+    for (unsigned int i = 0; i < t->mCoveredTiles.size(); ++i)
+    {
+        Tile *tempTile = t->mCoveredTiles[i];
+        os << tempTile->x << tempTile->y;
     }
 
     return os;

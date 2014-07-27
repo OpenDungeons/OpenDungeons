@@ -38,7 +38,8 @@ public:
     {
         NONE = 0, // No change requested
         MENU = 1,
-        MENU_LEVEL_SELECT,
+        MENU_SINGLEPLAYER,
+        MENU_MULTIPLAYER,
         GAME,
         EDITOR,
         CONSOLE,
@@ -60,9 +61,16 @@ public:
     }
 
     //! \brief Request loading level selection menu mode at next update
-    void requestMenuLevelSelectMode(bool discardActualMode = false)
+    void requestMenuSingleplayerMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::MENU_LEVEL_SELECT;
+        mRequestedMode = ModeManager::MENU_SINGLEPLAYER;
+        mDiscardActualMode = discardActualMode;
+    }
+
+    //! \brief Request Multiplayer menu mode at next update
+    void requestMenuMultiplayerMode(bool discardActualMode = false)
+    {
+        mRequestedMode = ModeManager::MENU_MULTIPLAYER;
         mDiscardActualMode = discardActualMode;
     }
 
@@ -88,9 +96,8 @@ public:
     }
 
     //! \brief Request loading game mode at next update
-    void requestGameMode(const std::string& level, bool discardActualMode = false)
+    void requestGameMode(bool discardActualMode = false)
     {
-        levelToLaunch = level;
         mRequestedMode = ModeType::GAME;
         mDiscardActualMode = discardActualMode;
      }
@@ -137,9 +144,6 @@ private:
 
     //! \brief The Angel Script wrapper, used in every game modes
     ASWrapper* mASWrapper;
-
-    //! \brief Saves the level to launch when the game mode will be launched
-    std::string levelToLaunch;
 
     void _addGameMode(ModeType);
     void _removeGameMode();

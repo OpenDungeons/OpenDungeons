@@ -20,7 +20,8 @@
 #include "ASWrapper.h"
 #include "InputManager.h"
 #include "MenuMode.h"
-#include "MenuModeLevelSelect.h"
+#include "MenuModeSingleplayer.h"
+#include "MenuModeMultiplayer.h"
 #include "GameMode.h"
 #include "EditorMode.h"
 #include "Console.h"
@@ -94,16 +95,14 @@ void ModeManager::_addGameMode(ModeType mt)
     case MENU:
         mGameModes.push_back(new MenuMode(this));
         break;
-    case MENU_LEVEL_SELECT:
-        mGameModes.push_back(new MenuModeLevelSelect(this));
+    case MENU_SINGLEPLAYER:
+        mGameModes.push_back(new MenuModeSingleplayer(this));
+        break;
+    case MENU_MULTIPLAYER:
+        mGameModes.push_back(new MenuModeMultiplayer(this));
         break;
     case GAME:
-        {
-            GameMode* gm = new GameMode(this);
-            mGameModes.push_back(gm);
-            gm->setLevel(levelToLaunch);
-            break;
-        }
+        mGameModes.push_back(new GameMode(this));
         break;
     case EDITOR:
         mGameModes.push_back(new EditorMode(this));

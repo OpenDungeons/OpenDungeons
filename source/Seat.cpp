@@ -37,27 +37,27 @@ Seat::Seat() :
 
 void Seat::addGoal(Goal* g)
 {
-    mGoals.push_back(g);
+    mUncompleteGoals.push_back(g);
 }
 
-unsigned int Seat::numGoals()
+unsigned int Seat::numUncompleteGoals()
 {
-    unsigned int tempUnsigned = mGoals.size();
+    unsigned int tempUnsigned = mUncompleteGoals.size();
 
     return tempUnsigned;
 }
 
-Goal* Seat::getGoal(unsigned int index)
+Goal* Seat::getUncompleteGoal(unsigned int index)
 {
-    if (index >= mGoals.size())
+    if (index >= mUncompleteGoals.size())
         return NULL;
 
-    return mGoals[index];
+    return mUncompleteGoals[index];
 }
 
-void Seat::clearGoals()
+void Seat::clearUncompleteGoals()
 {
-    mGoals.clear();
+    mUncompleteGoals.clear();
 }
 
 void Seat::clearCompletedGoals()
@@ -109,8 +109,8 @@ void Seat::incrementNumClaimedTiles()
 unsigned int Seat::checkAllGoals()
 {
     // Loop over the goals vector and move any goals that have been met to the completed goals vector.
-    std::vector<Goal*>::iterator currentGoal = mGoals.begin();
-    while (currentGoal != mGoals.end())
+    std::vector<Goal*>::iterator currentGoal = mUncompleteGoals.begin();
+    while (currentGoal != mUncompleteGoals.end())
     {
         // Start by checking if the goal has been met by this seat.
         if ((*currentGoal)->isMet(this))
@@ -119,10 +119,9 @@ unsigned int Seat::checkAllGoals()
 
             // Add any subgoals upon completion to the list of outstanding goals.
             for (unsigned int i = 0; i < (*currentGoal)->numSuccessSubGoals(); ++i)
-                mGoals.push_back((*currentGoal)->getSuccessSubGoal(i));
+                mUncompleteGoals.push_back((*currentGoal)->getSuccessSubGoal(i));
 
-            //FIXME: This is probably a memory leak since the goal is created on the heap and should probably be deleted here.
-            currentGoal = mGoals.erase(currentGoal);
+            currentGoal = mUncompleteGoals.erase(currentGoal);
 
         }
         else
@@ -134,10 +133,9 @@ unsigned int Seat::checkAllGoals()
 
                 // Add any subgoals upon completion to the list of outstanding goals.
                 for (unsigned int i = 0; i < (*currentGoal)->numFailureSubGoals(); ++i)
-                    mGoals.push_back((*currentGoal)->getFailureSubGoal(i));
+                    mUncompleteGoals.push_back((*currentGoal)->getFailureSubGoal(i));
 
-                //FIXME: This is probably a memory leak since the goal is created on the heap and should probably be deleted here.
-                currentGoal = mGoals.erase(currentGoal);
+                currentGoal = mUncompleteGoals.erase(currentGoal);
             }
             else
             {
@@ -147,7 +145,7 @@ unsigned int Seat::checkAllGoals()
         }
     }
 
-    return numGoals();
+    return numUncompleteGoals();
 }
 
 unsigned int Seat::checkAllCompletedGoals()
@@ -159,7 +157,7 @@ unsigned int Seat::checkAllCompletedGoals()
         // Start by checking if this previously met goal has now been unmet.
         if ((*currentGoal)->isUnmet(this))
         {
-            mGoals.push_back(*currentGoal);
+            mUncompleteGoals.push_back(*currentGoal);
 
             currentGoal = mCompletedGoals.erase(currentGoal);
 
@@ -215,6 +213,8 @@ ODPacket& operator<<(ODPacket& os, Seat *s)
        << s->mStartingY;
     os << s->mColorValue.r << s->mColorValue.g
        << s->mColorValue.b;
+    os << s->mGold << s->mMana << s->mManaDelta << s->mNumClaimedTiles;
+    os << s->mHasGoalsChanged;
 
     return os;
 }
@@ -223,6 +223,8 @@ ODPacket& operator>>(ODPacket& is, Seat *s)
 {
     is >> s->mColor >> s->mFaction >> s->mStartingX >> s->mStartingY;
     is >> s->mColorValue.r >> s->mColorValue.g >> s->mColorValue.b;
+    is >> s->mGold >> s->mMana >> s->mManaDelta >> s->mNumClaimedTiles;
+    is >> s->mHasGoalsChanged;
     s->mColorValue.a = 1.0;
 
     return is;
@@ -240,4 +242,14 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
     s->mColorValue.g = Helper::toDouble(elems[5]);
     s->mColorValue.b = Helper::toDouble(elems[6]);
     s->mColorValue.a = 1.0;
+}
+
+void Seat::refreshFromSeat(Seat* s)
+{
+    // We only refresh data that changes over time (gold, mana, ...)
+    mGold = s->mGold;
+    mMana = s->mMana;
+    mManaDelta = s->mManaDelta;
+    mNumClaimedTiles = s->mNumClaimedTiles;
+    mHasGoalsChanged = s->mHasGoalsChanged;
 }

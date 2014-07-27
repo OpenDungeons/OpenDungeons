@@ -92,6 +92,8 @@ public:
         return mModeType;
     }
 
+    virtual bool waitForGameStart() { return false; }
+
     //! \brief Makes the handling of louse and keyboard interact with this mode.
     virtual void giveFocus();
 

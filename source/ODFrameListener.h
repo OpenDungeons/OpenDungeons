@@ -64,6 +64,7 @@ class ODFrameListener :
 {
 
 friend class Console;
+friend class ODClient;
 
 public:
     // Constructor takes a RenderWindow because it uses that to determine input context
@@ -196,6 +197,10 @@ private:
 
     //! \brief Updates server-turn independant creature animation, audio, and overall rendering.
     void updateAnimations(Ogre::Real timeSinceLastFrame);
+
+    void refreshChat();
+
+    void refreshPlayerDisplay(const std::string& goalsDisplayString);
 };
 
 #endif // __ODFRAMELISTENER_H__

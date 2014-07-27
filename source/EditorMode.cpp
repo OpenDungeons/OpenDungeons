@@ -18,7 +18,6 @@
 #include "EditorMode.h"
 
 #include "MapLoader.h"
-#include "ClientNotification.h"
 #include "ODFrameListener.h"
 #include "LogManager.h"
 #include "Gui.h"
@@ -272,7 +271,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
             resultName = itr->movable->getName();
 
-            if (resultName.find("Creature_") == std::string::npos)
+            if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
                 continue;
 
             // Begin dragging the creature
@@ -281,8 +280,8 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             sceneMgr->getEntity("SquareSelector")->setVisible(false);
 
             mDraggedCreature = resultName.substr(
-                                    ((std::string) "Creature_").size(),
-                                    resultName.size());
+                                    Creature::CREATURE_PREFIX.length(),
+                                    resultName.length());
             Ogre::SceneNode *node = sceneMgr->getSceneNode(mDraggedCreature + "_node");
             rdrMgr->getCreatureSceneNode()->removeChild(node);
             sceneMgr->getSceneNode("Hand_node")->addChild(node);
@@ -373,11 +372,11 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
             resultName = itr->movable->getName();
 
-            if (resultName.find("Creature_") == std::string::npos)
+            if (resultName.find(Creature::CREATURE_PREFIX) == std::string::npos)
                 continue;
 
             Creature* tempCreature = mGameMap->getCreature(resultName.substr(
-                                            ((std::string) "Creature_").size(), resultName.size()));
+                Creature::CREATURE_PREFIX.length(), resultName.length()));
 
             if (tempCreature != NULL)
                 tempCreature->createStatsWindow();
@@ -533,7 +532,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
             }
         }
 
-        refreshBorderingTilesOf(affectedTiles);
+        mGameMap->refreshBorderingTilesOf(affectedTiles);
         inputManager->mDragType = nullDragType;
         updateCursorText();
         return true;
@@ -577,45 +576,25 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     // for adding rooms to.  This block then actually adds rooms to the remaining tiles.
     if (inputManager->mDragType == addNewRoom && !affectedTiles.empty())
     {
-        Room* newRoom = Room::buildRoom(mGameMap, mGameMap->getLocalPlayer()->getNewRoomType(),
-                                        affectedTiles, mGameMap->getLocalPlayer(), true);
-
-        if (newRoom == NULL)
-        {
-            //TODO:  play sound or something.
-        }
+        Room* newRoom = Room::createRoom(mGameMap->getLocalPlayer()->getNewRoomType(), affectedTiles,
+            mGameMap->getLocalPlayer()->getSeat()->getColor());
+        Room::setupRoom(mGameMap, newRoom, mGameMap->getLocalPlayer());
     }
 
     // If we are adding new traps the above loop will have pruned out the tiles not eligible
     // for adding traps to.  This block then actually adds traps to the remaining tiles.
     else if (inputManager->mDragType == addNewTrap && !affectedTiles.empty())
     {
-        Trap* newTrap = Trap::buildTrap(mGameMap, mGameMap->getLocalPlayer()->getNewTrapType(),
-                                        affectedTiles, mGameMap->getLocalPlayer(), true);
+        Trap* newTrap = Trap::createTrap(mGameMap->getLocalPlayer()->getNewTrapType(),
+            affectedTiles, mGameMap->getLocalPlayer()->getSeat());
 
-        if (newTrap == NULL)
-        {
-            //TODO:  play sound or something.
-        }
+        Trap::setupTrap(mGameMap, newTrap, mGameMap->getLocalPlayer());
     }
 
-    refreshBorderingTilesOf(affectedTiles);
+    mGameMap->refreshBorderingTilesOf(affectedTiles);
     inputManager->mDragType = nullDragType;
     updateCursorText();
     return true;
-}
-
-void EditorMode::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
-{
-    // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
-    std::vector<Tile*> borderTiles = mGameMap->tilesBorderedByRegion(affectedTiles);
-
-    borderTiles.insert(borderTiles.end(), affectedTiles.begin(), affectedTiles.end());
-
-    // Loop over all the affected tiles and force them to examine their neighbors.  This allows
-    // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
-    for (std::vector<Tile*>::iterator itr = borderTiles.begin(); itr != borderTiles.end() ; ++itr)
-        (*itr)->refreshMesh();
 }
 
 void EditorMode::updateCursorText()

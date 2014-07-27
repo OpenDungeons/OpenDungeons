@@ -18,13 +18,12 @@
 #include "Player.h"
 
 #include "ODServer.h"
-#include "ODClient.h"
 #include "ServerNotification.h"
+#include "ODClient.h"
 #include "Creature.h"
 #include "GameMap.h"
 #include "Seat.h"
 #include "Weapon.h"
-#include "ClientNotification.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
 
@@ -97,16 +96,15 @@ void Player::pickUpCreature(Creature *c)
     if (ODServer::getSingleton().isConnected())
     {
         // Place a message in the queue to inform the clients that we picked up this creature
-        ServerNotification *serverNotification = new ServerNotification;
-        serverNotification->type = ServerNotification::creaturePickUp;
-        serverNotification->cre = c;
-        serverNotification->player = this;
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::creaturePickedUp, this);
+        serverNotification->packet << getSeat()->getColor() << c->getName();
 
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 
-    // If it is actually the user picking up a creature we move the scene node and inform
-    // the server, otherwise we just hide the creature from the map.
+    // If it is actually the user picking up a creature we move the scene node.
+    // Otherwise we just hide the creature from the map.
     if (this == mGameMap->getLocalPlayer())
     {
         // Send a render request to move the crature into the "hand"
@@ -116,22 +114,14 @@ void Player::pickUpCreature(Creature *c)
 
         // Add the request to the queue of rendering operations to be performed before the next frame.
         RenderManager::queueRenderRequest(request);
-
-        if (ODClient::getSingleton().isConnected())
-        {
-            // Send a message to the server telling it we picked up this creature
-            ClientNotification *clientNotification = new ClientNotification;
-            clientNotification->mType = ClientNotification::creaturePickUp;
-            clientNotification->mP = c;
-            clientNotification->mP2 = this;
-
-            ClientNotification::mClientNotificationQueue.push_back(clientNotification);
-        }
     }
     else // it is just a message indicating another player has picked up a creature
     {
         // Hide the creature
-        c->destroyMesh();
+        RenderRequest *request = new RenderRequest;
+        request->type = RenderRequest::detachCreature;
+        request->p = c;
+        RenderManager::queueRenderRequest(request);
     }
 }
 
@@ -140,7 +130,7 @@ void Player::removeCreatureFromHand(int i)
     mCreaturesInHand.erase(mCreaturesInHand.begin() + i);
 }
 
-bool Player::dropCreature(Tile* t, unsigned int index)
+bool Player::isDropCreaturePossible(Tile *t, unsigned int index)
 {
     // if we have a creature to drop
     if (mCreaturesInHand.empty())
@@ -149,7 +139,6 @@ bool Player::dropCreature(Tile* t, unsigned int index)
     Creature* tempCreature = mCreaturesInHand[index];
 
     // if the tile is a valid place to drop a creature
-    //FIXME: Those could be race conditions, if the tile state changes on the server before the client knows about it.
 
     // check whether the tile is a ground tile ...
     if (t->getFullness() >= 1.0)
@@ -160,6 +149,11 @@ bool Player::dropCreature(Tile* t, unsigned int index)
             && (t->getType() != Tile::claimed || t->getColor() != getSeat()->getColor()))
         return false;
 
+    return true;
+}
+
+void Player::dropCreature(Tile* t, unsigned int index)
+{
     // Add the creature to the map
     Creature *c = mCreaturesInHand[index];
     mCreaturesInHand.erase(mCreaturesInHand.begin() + index);
@@ -170,9 +164,10 @@ bool Player::dropCreature(Tile* t, unsigned int index)
     //cout.flush();
     if (this != mGameMap->getLocalPlayer())
     {
-        c->createMesh();
-        c->getWeaponL()->createMesh();
-        c->getWeaponR()->createMesh();
+        RenderRequest *request = new RenderRequest;
+        request->type = RenderRequest::attachCreature;
+        request->p = c;
+        RenderManager::queueRenderRequest(request);
     }
     else // This is the result of the player on the local computer dropping the creature
     {
@@ -189,31 +184,14 @@ bool Player::dropCreature(Tile* t, unsigned int index)
     c->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
         static_cast<Ogre::Real>(t->y), 0.0));
 
-    if (this == mGameMap->getLocalPlayer() || mHasAI)
+    if (ODServer::getSingleton().isConnected())
     {
-        if (ODServer::getSingleton().isConnected())
-        {
-            // Place a message in the queue to inform the clients that we dropped this creature
-            ServerNotification *serverNotification = new ServerNotification;
-            serverNotification->type = ServerNotification::creatureDrop;
-            serverNotification->player = this;
-            serverNotification->tile = t;
-
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        else if (ODClient::getSingleton().isConnected() && this == mGameMap->getLocalPlayer())
-        {
-            // Send a message to the server telling it we dropped this creature
-            ClientNotification *clientNotification = new ClientNotification;
-            clientNotification->mType = ClientNotification::creatureDrop;
-            clientNotification->mP = this;
-            clientNotification->mP2 = t;
-
-            ClientNotification::mClientNotificationQueue.push_back(clientNotification);
-        }
+        // Place a message in the queue to inform the clients that we dropped this creature
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::creatureDropped, this);
+        serverNotification->packet << getSeat()->getColor() << t;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
-
-    return true;
 }
 
 void Player::rotateCreaturesInHand(int n)

@@ -15,30 +15,31 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MenuModeLevelSelect.h"
+#include "MenuModeSingleplayer.h"
 
 #include "Gui.h"
 #include "ModeManager.h"
 #include "MusicPlayer.h"
 #include "GameMap.h"
 #include "ODFrameListener.h"
+#include "ODServer.h"
 
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
 
-const std::string MenuModeLevelSelect::LEVEL_PATH = "./levels/";
-const std::string MenuModeLevelSelect::LEVEL_EXTENSION = ".level";
+const std::string MenuModeSingleplayer::LEVEL_PATH = "./levels/";
+const std::string MenuModeSingleplayer::LEVEL_EXTENSION = ".level";
 
-MenuModeLevelSelect::MenuModeLevelSelect(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_LEVEL_SELECT)
+MenuModeSingleplayer::MenuModeSingleplayer(ModeManager *modeManager):
+    AbstractApplicationMode(modeManager, ModeManager::MENU_SINGLEPLAYER)
 {
 }
 
-MenuModeLevelSelect::~MenuModeLevelSelect()
+MenuModeSingleplayer::~MenuModeSingleplayer()
 {
 }
 
-bool MenuModeLevelSelect::fillFilesList(const std::string& path, std::vector<std::string>& listFiles)
+bool MenuModeSingleplayer::fillFilesList(const std::string& path, std::vector<std::string>& listFiles)
 {
     const boost::filesystem::path dir_path(path);
     if (!boost::filesystem::exists(dir_path))
@@ -55,23 +56,22 @@ bool MenuModeLevelSelect::fillFilesList(const std::string& path, std::vector<std
     return true;
 }
 
-void MenuModeLevelSelect::activate()
+void MenuModeSingleplayer::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::levelSelectMenu);
+    Gui::getSingleton().loadGuiSheet(Gui::singleplayerMenu);
 
     giveFocus();
 
     // Play the main menu music
     MusicPlayer::getSingleton().start(0);
 
-    GameMap* gameMap = ODFrameListener::getSingletonPtr()->getGameMap();
-    gameMap->setGamePaused(true);
+    ODFrameListener::getSingleton().getGameMap()->setGamePaused(true);
 
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::levelSelectMenu)->getChild(Gui::LSM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::singleplayerMenu)->getChild(Gui::SPM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::levelSelectMenu)->getChild(Gui::LSM_TEXT_LOADING);
+    tmpWin = Gui::getSingleton().getGuiSheet(Gui::singleplayerMenu)->getChild(Gui::SPM_TEXT_LOADING);
     tmpWin->hide();
     listFiles.clear();
     levelSelectList->resetList();
@@ -88,46 +88,51 @@ void MenuModeLevelSelect::activate()
     }
 }
 
-void MenuModeLevelSelect::launchSelectedButtonPressed()
+void MenuModeSingleplayer::launchSelectedButtonPressed()
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::levelSelectMenu)->getChild(Gui::LSM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::singleplayerMenu)->getChild(Gui::SPM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
     if(levelSelectList->getSelectedCount() > 0)
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::levelSelectMenu)->getChild(Gui::LSM_TEXT_LOADING);
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::singleplayerMenu)->getChild(Gui::SPM_TEXT_LOADING);
         tmpWin->show();
 
         CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
         int id = selItem->getID();
 
-        mModeManager->requestGameMode(LEVEL_PATH + listFiles[id] + LEVEL_EXTENSION, true);
+        std::string level = LEVEL_PATH + listFiles[id] + LEVEL_EXTENSION;
+        // In single player mode, we act as a server
+        ODServer::getSingleton().startServer(level, true);
+
+        mModeManager->requestGameMode(true);
     }
 }
 
-void MenuModeLevelSelect::listLevelsClicked()
+void MenuModeSingleplayer::listLevelsClicked()
 {
     launchSelectedButtonPressed();
 }
 
-bool MenuModeLevelSelect::mouseMoved(const OIS::MouseEvent &arg)
+bool MenuModeSingleplayer::mouseMoved(const OIS::MouseEvent &arg)
 {
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
 }
 
-bool MenuModeLevelSelect::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+bool MenuModeSingleplayer::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::getSingletonPtr()->convertButton(id));
 }
 
-bool MenuModeLevelSelect::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+bool MenuModeSingleplayer::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
         Gui::getSingletonPtr()->convertButton(id));
 }
 
-bool MenuModeLevelSelect::keyPressed(const OIS::KeyEvent &arg) {
+bool MenuModeSingleplayer::keyPressed(const OIS::KeyEvent &arg)
+{
     switch (arg.key)
     {
 
@@ -140,11 +145,11 @@ bool MenuModeLevelSelect::keyPressed(const OIS::KeyEvent &arg) {
     return true;
 }
 
-bool MenuModeLevelSelect::keyReleased(const OIS::KeyEvent &arg)
+bool MenuModeSingleplayer::keyReleased(const OIS::KeyEvent &arg)
 {
     return true;
 }
 
-void MenuModeLevelSelect::handleHotkeys(OIS::KeyCode keycode)
+void MenuModeSingleplayer::handleHotkeys(OIS::KeyCode keycode)
 {
 }

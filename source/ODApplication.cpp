@@ -39,8 +39,6 @@
 #include "Random.h"
 #include "MapLight.h"
 #include "MissileObject.h"
-#include "ServerNotification.h"
-#include "ClientNotification.h"
 #include "ODServer.h"
 #include "ODClient.h"
 

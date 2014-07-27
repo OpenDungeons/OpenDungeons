@@ -39,11 +39,12 @@ void GameEntity::createMesh()
 
     meshExists = true;
 
-    RenderRequest* request = new RenderRequest;
+    RenderRequest* request = NULL;
 
     switch(objectType)
     {
         case creature:
+            request = new RenderRequest;
             request->type   = RenderRequest::createCreature;
             request->str    = static_cast<Creature*>(this)->getDefinition()->getMeshName();
             request->vec    = static_cast<Creature*>(this)->getDefinition()->getScale();
@@ -62,8 +63,7 @@ void GameEntity::createMesh()
                 RenderManager::queueRenderRequest(r);
             }
 
-            //delete original request and return because rooms create every tile separately
-            delete request;
+            // return because rooms create every tile separately
             return;
         }
 
@@ -71,6 +71,7 @@ void GameEntity::createMesh()
         {
             Room* tempRoom = static_cast<RoomObject*>(this)->getParentRoom();
 
+            request = new RenderRequest;
             request->type   = RenderRequest::createRoomObject;
             request->p2     = tempRoom;
             request->str    = getName();
@@ -81,6 +82,7 @@ void GameEntity::createMesh()
         }
 
         case missileobject:
+            request = new RenderRequest;
             request->type = RenderRequest::createMissileObject;
             break;
 
@@ -97,12 +99,12 @@ void GameEntity::createMesh()
                 RenderManager::queueRenderRequest(r);
             }
 
-            //delete original request and return because traps create every tile separately
-            delete request;
+            // return because traps create every tile separately
             return;
         }
 
         case tile:
+            request = new RenderRequest;
             request->type = RenderRequest::createTile;
             break;
 
@@ -110,12 +112,11 @@ void GameEntity::createMesh()
         {
             if (getName().compare("none") == 0)
             {
-                delete request;
                 return;
             }
 
             Weapon* tempWeapon = static_cast<Weapon*>(this);
-
+            request = new RenderRequest;
             request->type   = RenderRequest::createWeapon;
             request->p      = static_cast<void*>(this);
             request->p2     = tempWeapon->getParentCreature();
@@ -125,11 +126,15 @@ void GameEntity::createMesh()
         }
 
         default:
+            request = new RenderRequest;
             request->type = RenderRequest::noRequest;
             break;
     }
-    request->p = static_cast<void*>(this);
-    RenderManager::queueRenderRequest(request);
+    if(request != NULL)
+    {
+        request->p = static_cast<void*>(this);
+        RenderManager::queueRenderRequest(request);
+    }
 }
 
 void GameEntity::destroyMesh()

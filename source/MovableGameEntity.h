@@ -40,8 +40,7 @@ public:
 
     /*! \brief Adds a position in 3d space to an animated object's walk queue and, if necessary, starts it walking.
      *
-     * This function also places a message in the serverNotificationQueue so that
-     * relevant clients are informed about the change.
+     * This function also notify the server so that relevant clients are informed about the change.
      */
     void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0);
 

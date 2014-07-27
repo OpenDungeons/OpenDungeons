@@ -236,7 +236,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Rooms]")
             break;
 
-        Room* tempRoom = Room::createRoomFromStream(nextParam, levelFile, &gameMap);
+        Room* tempRoom = Room::createRoomFromStream(nextParam, levelFile, &gameMap,
+            std::string());
 
         gameMap.addRoom(tempRoom);
     }
@@ -256,7 +257,8 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Traps]")
             break;
 
-        Trap* tempTrap = Trap::createTrapFromStream(nextParam, levelFile, &gameMap);
+        Trap* tempTrap = Trap::createTrapFromStream(nextParam, levelFile, &gameMap,
+            std::string());
         tempTrap->createMesh();
 
         gameMap.addTrap(tempTrap);

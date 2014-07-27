@@ -50,17 +50,17 @@ bool GoalProtectDungeonTemple::isFailed(Seat *s)
     return !isMet(s);
 }
 
-std::string GoalProtectDungeonTemple::getDescription()
+std::string GoalProtectDungeonTemple::getDescription(Seat *s)
 {
     return "Protect your dungeon temple.";
 }
 
-std::string GoalProtectDungeonTemple::getSuccessMessage()
+std::string GoalProtectDungeonTemple::getSuccessMessage(Seat *s)
 {
     return "Your dungeon temple is intact";
 }
 
-std::string GoalProtectDungeonTemple::getFailedMessage()
+std::string GoalProtectDungeonTemple::getFailedMessage(Seat *s)
 {
     return "Your dungeon temple has been destroyed";
 }

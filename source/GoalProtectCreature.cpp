@@ -78,17 +78,17 @@ bool GoalProtectCreature::isFailed(Seat *s)
     return !isMet(s);
 }
 
-std::string GoalProtectCreature::getSuccessMessage()
+std::string GoalProtectCreature::getSuccessMessage(Seat *s)
 {
     return mCreatureName + " is still alive";
 }
 
-std::string GoalProtectCreature::getFailedMessage()
+std::string GoalProtectCreature::getFailedMessage(Seat *s)
 {
     return mCreatureName + " is not alive";
 }
 
-std::string GoalProtectCreature::getDescription()
+std::string GoalProtectCreature::getDescription(Seat *s)
 {
     return "Protect the creature named " + mCreatureName + ".";
 }

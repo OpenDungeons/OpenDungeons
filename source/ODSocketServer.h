@@ -35,8 +35,9 @@ class ODSocketServer
 
         // Data Transimission
         virtual bool createServer(int listeningPort);
-        virtual void stopServer() { };
+        virtual void stopServer();
 
+    protected:
         /*! \brief Function called when a new client connects. If it returns true,
          * the new client will be keeped in the list. If false, the client will be discarded.
          * As this function is called from the doTask context, it shall return as soon as
@@ -51,10 +52,10 @@ class ODSocketServer
          * 3 - Save somewhere if we are waiting for something from the client
          * 4 - Return from the function. When new data will be available, notifyClientMessage
          *     will be called again
+         * If the function returns false, the client will be removed from the list and properly deleted
          */
-        virtual void notifyClientMessage(ODSocketClient *sock) = 0;
+        virtual bool notifyClientMessage(ODSocketClient *sock) = 0;
 
-    protected:
         /*! \brief Main function task. Checks if a new client connects. If so, notifyNewConnection
          * will be called with the client socket. If it returns true, the client is saved in the
          * client list. If not, the client is discarded. doTask also checks if a connected client sent
@@ -66,8 +67,7 @@ class ODSocketServer
         ODSocketClient::ODComStatus receiveMsgFromClient(ODSocketClient* client, ODPacket& packetReceived);
         ODSocketClient::ODComStatus sendMsgToClient(ODSocketClient* client, ODPacket& packetReceived);
         void sendMsgToAllClients(ODPacket& packetReceived);
-        void clearClientSocket(ODSocketClient* client);
-        void clearAllClientSockets();
+        std::vector<ODSocketClient*> mSockClients;
 
     private:
         sf::TcpListener mSockListener;
@@ -75,7 +75,6 @@ class ODSocketServer
         sf::Clock mClockMainTask;
         ODSocketClient* mNewClient;
         bool mIsConnected;
-        std::vector<ODSocketClient*> mSockClients;
 };
 
 #endif // ODSOCKETSERVER_H

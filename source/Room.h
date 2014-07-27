@@ -53,18 +53,17 @@ public:
     virtual ~Room()
     {}
 
-    /*! \brief Creates a type specific subclass of room (quarters, treasury, etc) and returns a pointer to it.  This function
-     *  also initializes a unique default name for the room and sets up some of the room's properties.
+    /*! \brief Creates a type specific subclass of room (quarters, treasury, etc) and returns a pointer to it.
+     * This function sets up some of the room's properties. If nameToUse is empty, a new unique name
+     * will be generated. If not, the given one will be used
      */
-    static Room* createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, int nColor);
+    static Room* createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, int nColor,
+        const std::string& nameToUse = "");
 
-    /** \brief Builds a room for the current player.
-     *  Builds a room for the current player. Checks if the player has enough gold,
-     *  if not, NULL is returned.
-     *  \return The room built, or NULL if the player does not have enough gold.
+    /** \brief Adds the room newRoom to the game map for the current player. If the border tiles
+     * contains another room of same type, it will absorb them
      */
-    static Room* buildRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*> &coveredTiles,
-                           Player* player, bool inEditor = false);
+    static void setupRoom(GameMap* gameMap, Room* newRoom, Player* player);
 
     /*! \brief Moves all the covered tiles from room r into this one, the rooms should be of the same subtype.
      *  After this is called the other room should likely be removed from the game map and deleted.
@@ -78,8 +77,10 @@ public:
     friend ODPacket& operator<<(ODPacket& os, Room *r);
     friend ODPacket& operator>>(ODPacket& is, Room *r);
 
-    static Room* createRoomFromStream(const std::string& roomName, std::istream &is, GameMap* gameMap);
-    static Room* createRoomFromPacket(const std::string& roomName, ODPacket &is, GameMap* gameMap);
+    static Room* createRoomFromStream(const std::string& roomMeshName, std::istream &is, GameMap* gameMap,
+        const std::string& roomName);
+    static Room* createRoomFromPacket(const std::string& roomMeshName, ODPacket &is, GameMap* gameMap,
+        const std::string& roomName);
 
     /*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile,
      *  if the tile is NULL the object appears in the room's center, the rotation angle is given in degrees.
@@ -108,7 +109,7 @@ public:
     virtual bool doUpkeep();
 
     virtual void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
-    virtual void removeCoveredTile(Tile* t);
+    virtual void removeCoveredTile(Tile* t, bool isTileAbsorb);
     virtual Tile* getCoveredTile(unsigned index);
 
     /** \brief Returns all of the tiles which are part of this room,
@@ -187,6 +188,14 @@ protected:
 
     //! \brief The number of active spots.
     unsigned int mNumActiveSpots;
+
+private :
+        /*! \brief This function makes sure the name of the room is unique. It shall be called after loading
+     * a room from the level file or when a new one is built.
+     */
+    void buildUniqueName();
+
+
 };
 
 #endif // ROOM_H

@@ -87,6 +87,7 @@ private:
 
 class RoomQuarters: public Room
 {
+    friend class ODClient;
 public:
     RoomQuarters();
 
@@ -95,13 +96,13 @@ public:
     void absorbRoom(Room *r);
     bool doUpkeep();
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
-    void removeCoveredTile(Tile* t);
+    void removeCoveredTile(Tile* t, bool isTileAbsorb);
     void clearCoveredTiles();
 
     // Functions specific to this class.
     std::vector<Tile*> getOpenTiles();
     bool claimTileForSleeping(Tile *t, Creature *c);
-    bool releaseTileForSleeping(Tile *t, Creature *c);
+    bool releaseTileForSleeping(Tile *t, Creature *c, bool isTileAbsorb);
     Tile* getLocationForBed(int xDim, int yDim);
 
 private:
@@ -109,6 +110,10 @@ private:
 
     //! \brief Keeps track of the tiles taken by a creature bed room object
     std::map<Tile*, Creature*> mCreatureSleepingInTile;
+
+    bool installBed(Tile* t, Creature* c, double xDim, double yDim,
+        double rotationAngle);
+    bool removeBed(Tile *t, Creature *c);
 
     //! \brief Keeps track of info about the bed room objects in order to be able
     //! to recreate them.

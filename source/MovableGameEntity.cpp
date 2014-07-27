@@ -18,8 +18,8 @@
 #include "MovableGameEntity.h"
 
 #include "ODServer.h"
-#include "ODApplication.h"
 #include "ServerNotification.h"
+#include "ODApplication.h"
 #include "Tile.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
@@ -57,11 +57,9 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     if (ODServer::getSingleton().isConnected())
     {
         // Place a message in the queue to inform the clients about the new destination
-        ServerNotification* serverNotification = new ServerNotification;
-        serverNotification->type = ServerNotification::animatedObjectAddDestination;
-        serverNotification->str = getName();
-        serverNotification->vec = destination;
-
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotification::animatedObjectAddDestination, NULL);
+        serverNotification->packet << getName() << destination;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -102,10 +100,9 @@ void MovableGameEntity::clearDestinations()
     if (ODServer::getSingleton().isConnected())
     {
         // Place a message in the queue to inform the clients about the clear
-        ServerNotification* serverNotification = new ServerNotification;
-        serverNotification->type = ServerNotification::animatedObjectClearDestinations;
-        serverNotification->ani = this;
-
+        ServerNotification* serverNotification = new ServerNotification(
+            ServerNotification::animatedObjectClearDestinations, NULL);
+        serverNotification->packet << getName();
        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
@@ -163,17 +160,14 @@ void MovableGameEntity::setAnimationState(const std::string& s, bool loop)
         try
         {
             // Place a message in the queue to inform the clients about the new animation state
-            ServerNotification* serverNotification = new ServerNotification;
-            serverNotification->type = ServerNotification::setObjectAnimationState;
-            serverNotification->str = s;
-            serverNotification->p = static_cast<void*>(this);
-            serverNotification->b = loop;
-
+            ServerNotification* serverNotification = new ServerNotification(
+                ServerNotification::setObjectAnimationState, NULL);
+            serverNotification->packet << getName() << s << loop;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
         {
-            LogManager::getSingleton().logMessage("\n\nERROR: Bad memory allocation in Creature::setAnimationState()\n\n");
+            LogManager::getSingleton().logMessage("ERROR: Bad memory allocation in Creature::setAnimationState()");
         }
     }
 

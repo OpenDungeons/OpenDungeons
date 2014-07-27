@@ -51,17 +51,17 @@ bool GoalKillAllEnemies::isMet(Seat *s)
     return !enemiesFound;
 }
 
-std::string GoalKillAllEnemies::getSuccessMessage()
+std::string GoalKillAllEnemies::getSuccessMessage(Seat *s)
 {
     return "You have killed all the enemy creatures.";
 }
 
-std::string GoalKillAllEnemies::getFailedMessage()
+std::string GoalKillAllEnemies::getFailedMessage(Seat *s)
 {
     return "You have failed to kill all the enemy creatures.";
 }
 
-std::string GoalKillAllEnemies::getDescription()
+std::string GoalKillAllEnemies::getDescription(Seat *s)
 {
     return "Kill all enemy creatures.";
 }

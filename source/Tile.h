@@ -213,6 +213,7 @@ public:
     std::vector<Tile*> getAllNeighbors();
 
     void claimForColor(int nColor, double nDanceRate);
+    void claimTile(int nColor);
     double digOut(double digRate, bool doScaleDigRate = false);
     double scaleDigRate(double digRate);
 

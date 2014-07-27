@@ -634,6 +634,93 @@
     </WidgetLook>
 
 
+    <WidgetLook name="OD/MainMenuEditbox">
+        <PropertyDefinition initialValue="FFFFFFFF" name="NormalTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FF000000" name="SelectedTextColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FF607FFF" name="ActiveSelectionColour" redrawOnWrite="true" />
+        <PropertyDefinition initialValue="FF808080" name="InactiveSelectionColour" redrawOnWrite="true" />
+        <Property name="MouseCursorImage" value="OpenDungeons/MouseTextBar" />
+        <NamedArea name="TextArea">
+            <Area>
+                <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
+                <Dim type="TopEdge"><AbsoluteDim value="5" /></Dim>
+                <Dim type="RightEdge"><UnifiedDim offset="-5" scale="1.0" type="RightEdge" /></Dim>
+                <Dim type="BottomEdge"><UnifiedDim offset="-5" scale="1.0" type="BottomEdge" /></Dim>
+            </Area>
+        </NamedArea>
+        <ImagerySection name="container_normal">
+            <FrameComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
+                    <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
+                </Area>
+                <Image component="LeftEdge" name="OpenDungeons/EditBoxLeft" />
+                <Image component="RightEdge" name="OpenDungeons/EditBoxRight" />
+                <Image component="Background" name="OpenDungeons/EditBoxMiddle" />
+            </FrameComponent>
+        </ImagerySection>
+        <ImagerySection name="selection">
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="RightEdge"><UnifiedDim scale="1.0" type="RightEdge" /></Dim>
+                    <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
+                </Area>
+                <Image name="OpenDungeons/TextSelectionBrush" />
+                <VertFormat type="Stretched" />
+                <HorzFormat type="Stretched" />
+            </ImageryComponent>
+        </ImagerySection>
+        <ImagerySection name="Caret">
+            <ImageryComponent>
+                <Area>
+                    <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
+                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/EditBoxCarat" /></Dim>
+                    <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
+                </Area>
+                <Image name="OpenDungeons/EditBoxCarat" />
+                <VertFormat type="Stretched" />
+                <HorzFormat type="Stretched" />
+            </ImageryComponent>
+        </ImagerySection>
+        <StateImagery name="Enabled">
+            <Layer>
+                <Section section="container_normal" />
+            </Layer>
+        </StateImagery>
+        <StateImagery name="ReadOnly">
+            <Layer>
+                <Section section="container_normal" />
+            </Layer>
+        </StateImagery>
+        <StateImagery name="Disabled">
+            <Layer>
+                <Section section="container_normal">
+                    <Colours bottomLeft="FF7F7F7F" bottomRight="FF7F7F7F" topLeft="FF7F7F7F" topRight="FF7F7F7F" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="ActiveSelection">
+            <Layer>
+                <Section section="selection">
+                    <ColourProperty name="ActiveSelectionColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+        <StateImagery name="InactiveSelection">
+            <Layer>
+                <Section section="selection">
+                    <ColourProperty name="InactiveSelectionColour" />
+                </Section>
+            </Layer>
+        </StateImagery>
+    </WidgetLook>
+
+
     <WidgetLook name="OD/Titlebar">
         <PropertyDefinition initialValue="FFFFFFFF" name="CaptionColour" redrawOnWrite="true" />
         <ImagerySection name="main">

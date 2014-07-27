@@ -47,7 +47,8 @@ public:
     {
         hideGui,
         mainMenu,
-        levelSelectMenu,
+        singleplayerMenu,
+        multiplayertMenu,
         optionsMenu,
         inGameMenu,
         editorMenu
@@ -94,6 +95,7 @@ public:
     static const std::string MM_BACKGROUND;
     static const std::string MM_WELCOME_MESSAGE;
     static const std::string MM_BUTTON_START_NEW_GAME;
+    static const std::string MM_BUTTON_START_NEW_GAME_MULTI;
     static const std::string MM_BUTTON_MAPEDITOR;
     static const std::string MM_BUTTON_QUIT;
     static const std::string EDITOR;
@@ -108,10 +110,17 @@ public:
     static const std::string EXIT_CONFIRMATION_POPUP;
     static const std::string EXIT_CONFIRMATION_POPUP_YES_BUTTON;
     static const std::string EXIT_CONFIRMATION_POPUP_NO_BUTTON;
-    static const std::string LSM_TEXT_LOADING;
-    static const std::string LSM_BUTTON_LAUNCH;
-    static const std::string LSM_BUTTON_BACK;
-    static const std::string LSM_LIST_LEVELS;
+    static const std::string SPM_TEXT_LOADING;
+    static const std::string SPM_BUTTON_LAUNCH;
+    static const std::string SPM_BUTTON_BACK;
+    static const std::string SPM_LIST_LEVELS;
+    static const std::string MPM_TEXT_LOADING;
+    static const std::string MPM_BUTTON_SERVER;
+    static const std::string MPM_BUTTON_CLIENT;
+    static const std::string MPM_BUTTON_BACK;
+    static const std::string MPM_LIST_LEVELS;
+    static const std::string MPM_EDIT_IP;
+    static const std::string MPM_EDIT_NICK;
 
 private:
     //! \brief Assigns all event handlers to the GUI elements
@@ -122,6 +131,11 @@ private:
     // Button handlers main menu
     //! \brief What happens after a click on New Game in the main menu
     static bool mMNewGameButtonPressed  (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Multiplayer button in the main menu
+    static bool mMNewGameMultiButtonPressed  (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Editor button in the main menu
     static bool mMMapEditorButtonPressed(const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Load Game in the main menu
@@ -134,13 +148,25 @@ private:
     static bool mMQuitButtonPressed     (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Back in the level selection menu
-    static bool mLSMBackButtonPressed   (const CEGUI::EventArgs& e);
+    static bool mSPMBackButtonPressed   (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Load in the level selection menu
-    static bool mLSMLoadButtonPressed   (const CEGUI::EventArgs& e);
+    static bool mSPMLoadButtonPressed   (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on the level list in the level selection menu
-    static bool mLSMListClicked         (const CEGUI::EventArgs& e);
+    static bool mSPMListClicked         (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Back in the multiplayer menu
+    static bool mMPMBackButtonPressed   (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Server button in the multiplayer menu
+    static bool mMPMServerButtonPressed (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on Client button in the multiplayer menu
+    static bool mMPMClientButtonPressed (const CEGUI::EventArgs& e);
+
+    //! \brief What happens after a click on the level list in the multiplayer menu
+    static bool mMPMListClicked         (const CEGUI::EventArgs& e);
 
     // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);

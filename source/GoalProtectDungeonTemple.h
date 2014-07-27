@@ -32,9 +32,9 @@ public:
     bool isMet(Seat *s);
     bool isUnmet(Seat *s);
     bool isFailed(Seat *s);
-    std::string getDescription();
-    std::string getSuccessMessage();
-    std::string getFailedMessage();
+    std::string getDescription(Seat *s);
+    std::string getSuccessMessage(Seat *s);
+    std::string getFailedMessage(Seat *s);
 };
 
 #endif // GOALPROTECTDUNGEONTEMPLE_H

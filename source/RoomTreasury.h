@@ -22,6 +22,7 @@
 
 class RoomTreasury: public Room
 {
+    friend class ODClient;
 public:
     RoomTreasury();
 
@@ -29,7 +30,7 @@ public:
     void absorbRoom(Room *r);
     bool doUpkeep();
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
-    void removeCoveredTile(Tile* t);
+    void removeCoveredTile(Tile* t, bool isTileAbsorb);
     void clearCoveredTiles();
 
     // Functions specific to this class.
@@ -48,8 +49,8 @@ private:
     const char* getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
 
     void updateMeshesForTile(Tile *t);
-    void createMeshesForTile(Tile *t);
-    void destroyMeshesForTile(Tile *t);
+    void createMeshesForTile(Tile *t, const std::string& indicatorMeshName);
+    void destroyMeshesForTile(Tile *t, const std::string& indicatorMeshName);
     void createGoldMeshes();
     void destroyGoldMeshes();
 

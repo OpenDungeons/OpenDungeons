@@ -29,14 +29,14 @@
 #include "MapLoader.h"
 #include "CameraManager.h"
 #include "ODApplication.h"
-#include "ServerNotification.h"
 #include "Player.h"
 #include "AllGoals.h"
 #include "ODServer.h"
+#include "ServerNotification.h"
+#include "ODClient.h"
 #include "ResourceManager.h"
 #include "CullingManager.h"
 #include "Weapon.h"
-#include "ODClient.h"
 
 #include <OgreLogManager.h>
 #include <OgreSceneNode.h>
@@ -141,7 +141,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     else if (command.compare("loadGameMapFromTgaFile") == 0)
     {
         if (!arguments.empty())
-        {	
+        {
 	    MapLoader::readGameMapFromTgaFile(arguments, *gameMap);
 	}
     }
@@ -336,10 +336,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 try
                 {
                     // Inform any connected clients about the change
-                    ServerNotification *serverNotification = new ServerNotification;
-                    serverNotification->type = ServerNotification::setTurnsPerSecond;
-                    serverNotification->doub = ODApplication::turnsPerSecond;
-
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotification::setTurnsPerSecond, NULL);
+                    serverNotification->packet << ODApplication::turnsPerSecond;
                     ODServer::getSingleton().queueServerNotification(serverNotification);
                 }
                 catch (std::bad_alloc&)
@@ -590,11 +589,12 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     // Loop over the list of unmet goals for the seat we are sitting in an print them.
                     tempSS
                             << "Unfinished Goals:\nGoal Name:\tDescription\n----------\t-----------\n";
-                    for (unsigned int i = 0; i < gameMap->getLocalPlayer()->getSeat()->numGoals(); ++i)
+                    for (unsigned int i = 0; i < gameMap->getLocalPlayer()->getSeat()->numUncompleteGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap->getLocalPlayer()->getSeat()->getGoal(i);
+                        Seat* s = gameMap->getLocalPlayer()->getSeat();
+                        Goal* tempGoal = s->getUncompleteGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
-                                << tempGoal->getDescription() << "\n";
+                                << tempGoal->getDescription(s) << "\n";
                     }
 
                     // Loop over the list of completed goals for the seat we are sitting in an print them.
@@ -603,9 +603,10 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     for (unsigned int i = 0; i
                             < gameMap->getLocalPlayer()->getSeat()->numCompletedGoals(); ++i)
                     {
-                        Goal *tempGoal = gameMap->getLocalPlayer()->getSeat()->getCompletedGoal(i);
+                        Seat* s = gameMap->getLocalPlayer()->getSeat();
+                        Goal *tempGoal = s->getCompletedGoal(i);
                         tempSS << tempGoal->getName() << ":\t"
-                                << tempGoal->getSuccessMessage() << "\n";
+                                << tempGoal->getSuccessMessage(s) << "\n";
                     }
                 }
                 else
@@ -720,17 +721,18 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 // Make sure an IP address to connect to was provided
                 if (!arguments.empty())
                 {
-                    if (ODClient::getSingleton().connect(arguments, ODApplication::PORT_NUMBER))
+                    tempSS.str(arguments);
+                    std::string ip;
+                    std::string level;
+
+                    tempSS >> ip >> level;
+
+                    // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
+                    gameMap->clearMapLightIndicators();
+
+                    if (ODClient::getSingleton().connect(ip, ODApplication::PORT_NUMBER, level))
                     {
                         frameListener->mCommandOutput += "\nConnection successful.\n";
-
-                        // Send a hello request to start the conversation with the server
-                        ODPacket packSend;
-                        packSend << std::string("hello") << std::string("OpenDungeons V ") + ODApplication::VERSION;
-                        ODClient::getSingleton().sendToServer(packSend);
-
-                        // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
-                        gameMap->clearMapLightIndicators();
                     }
                     else
                     {
@@ -740,7 +742,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 else
                 {
                     frameListener->mCommandOutput
-                            += "\nYou must specify the IP address of the server you want to connect to.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1\n";
+                            += "\nYou must specify the IP address of the server you want to connect to and the level map.  Any IP address which is not a properly formed IP address will resolve to 127.0.0.1\n";
                 }
 
             }
@@ -764,13 +766,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     else if (command.compare("host") == 0)
     {
         // Make sure we have set a nickname.
-        if (!gameMap->getLocalPlayer()->getNick().empty())
+        if ((!gameMap->getLocalPlayer()->getNick().empty()) &&
+            (!arguments.empty()))
         {
             // Make sure we are not already connected to a server or hosting a game.
             if (!frameListener->isConnected())
             {
-
-                if (ODServer::getSingleton().startServer())
+                if (ODServer::getSingleton().startServer(arguments, false))
                 {
                     frameListener->mCommandOutput += "\nServer started successfully.\n";
 

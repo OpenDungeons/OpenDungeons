@@ -18,6 +18,7 @@
 #ifndef ODPACKET_H
 #define ODPACKET_H
 
+#include <OgreVector3.h>
 #include <SFML/Network.hpp>
 
 #include <string>
@@ -34,8 +35,10 @@ class ODPacket
     friend class ODSocketClient;
 
     public:
-        ODPacket();
-        ~ODPacket();
+        ODPacket()
+        {}
+        ~ODPacket()
+        {}
 
         /*! \brief Export data operators.
          * The behaviour is the same as standard C++ streams
@@ -55,6 +58,7 @@ class ODPacket
         ODPacket& operator >>(std::string&  data);
         ODPacket& operator >>(wchar_t*      data);
         ODPacket& operator >>(std::wstring& data);
+        ODPacket& operator >>(Ogre::Vector3& data);
 
         /*! \brief Import data operators
          * The behaviour is the same as standard C++ streams
@@ -74,6 +78,7 @@ class ODPacket
         ODPacket& operator <<(const std::string&    data);
         ODPacket& operator <<(const wchar_t*        data);
         ODPacket& operator <<(const std::wstring&   data);
+        ODPacket& operator <<(const Ogre::Vector3&   data);
 
         /*! \brief Return true if there were no error exporting data (operator >>).
          * This behaviour is the same as standard C++ streams :

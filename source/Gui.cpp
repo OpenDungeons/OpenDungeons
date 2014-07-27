@@ -34,12 +34,14 @@
 #include "TextRenderer.h"
 #include "ODApplication.h"
 #include "ODServer.h"
+#include "ODClient.h"
 #include "CameraManager.h"
 #include "MiniMap.h"
 #include "ModeManager.h"
 #include "GameMode.h"
 #include "EditorMode.h"
-#include "MenuModeLevelSelect.h"
+#include "MenuModeSingleplayer.h"
+#include "MenuModeMultiplayer.h"
 #include "LogManager.h"
 
 #include <CEGUI/CEGUI.h>
@@ -69,7 +71,8 @@ Gui::Gui()
 
     sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
-    sheets[levelSelectMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuLevelSelect.layout");
+    sheets[singleplayerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSingleplayer.layout");
+    sheets[multiplayertMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayer.layout");
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
 
     assignEventHandlers();
@@ -128,6 +131,10 @@ void Gui::assignEventHandlers()
     sheets[mainMenu]->getChild(MM_BUTTON_START_NEW_GAME)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
+
+    sheets[mainMenu]->getChild(MM_BUTTON_START_NEW_GAME_MULTI)->subscribeEvent(
+            CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&mMNewGameMultiButtonPressed));
 
     sheets[mainMenu]->getChild(MM_BUTTON_MAPEDITOR)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -208,17 +215,34 @@ void Gui::assignEventHandlers()
         CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
 
     // Level select menu controls
-    sheets[levelSelectMenu]->getChild(LSM_BUTTON_LAUNCH)->subscribeEvent(
+    sheets[singleplayerMenu]->getChild(SPM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mLSMLoadButtonPressed));
+            CEGUI::Event::Subscriber(&mSPMLoadButtonPressed));
 
-    sheets[levelSelectMenu]->getChild(LSM_BUTTON_BACK)->subscribeEvent(
+    sheets[singleplayerMenu]->getChild(SPM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mLSMBackButtonPressed));
+        CEGUI::Event::Subscriber(&mSPMBackButtonPressed));
 
-    sheets[levelSelectMenu]->getChild(LSM_LIST_LEVELS)->subscribeEvent(
+    sheets[singleplayerMenu]->getChild(SPM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
-        CEGUI::Event::Subscriber(&mLSMListClicked));
+        CEGUI::Event::Subscriber(&mSPMListClicked));
+
+    // Multiplayer menu controls
+    sheets[multiplayertMenu]->getChild(MPM_BUTTON_SERVER)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&mMPMServerButtonPressed));
+
+    sheets[multiplayertMenu]->getChild(MPM_BUTTON_CLIENT)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+            CEGUI::Event::Subscriber(&mMPMClientButtonPressed));
+
+    sheets[multiplayertMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
+        CEGUI::PushButton::EventClicked,
+        CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
+
+    sheets[multiplayertMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
+        CEGUI::Listbox::EventMouseDoubleClick,
+        CEGUI::Event::Subscriber(&mMPMListClicked));
 }
 
 bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
@@ -232,6 +256,17 @@ bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
     frameListener.cm->onMiniMapClick(cc);
 
     //std::cerr<< xx <<" "<< yy << " " <<std::endl;
+    return true;
+}
+
+bool Gui::mMNewGameMultiButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm)
+        return true;
+
+    mm->requestMenuMultiplayerMode();
+
     return true;
 }
 
@@ -300,7 +335,10 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
 {
-    return ODServer::getSingleton().startServer();
+    // TODO : is this function really needed ? It seems to be used from an ingame menu
+    // but I could find no way to show it.
+    //return ODServer::getSingleton().startServer();
+    return true;
 }
 
 bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
@@ -308,6 +346,11 @@ bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm)
         return true;
+
+    if(ODServer::getSingleton().isConnected())
+        ODServer::getSingleton().stopServer();
+    if(ODClient::getSingleton().isConnected())
+        ODClient::getSingleton().disconnect();
 
     mm->requestUnloadToParentGameMode();
     return true;
@@ -394,7 +437,7 @@ bool Gui::mMNewGameButtonPressed(const CEGUI::EventArgs& e)
     if (!mm)
         return true;
 
-    mm->requestMenuLevelSelectMode();
+    mm->requestMenuSingleplayerMode();
 
     return true;
 }
@@ -425,7 +468,7 @@ bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::mLSMBackButtonPressed(const CEGUI::EventArgs& e)
+bool Gui::mSPMBackButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm)
@@ -435,24 +478,67 @@ bool Gui::mLSMBackButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::mLSMListClicked(const CEGUI::EventArgs& e)
+bool Gui::mSPMListClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_LEVEL_SELECT)
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SINGLEPLAYER)
         return true;
 
-    static_cast<MenuModeLevelSelect*>(mm->getCurrentMode())->listLevelsClicked();
+    static_cast<MenuModeSingleplayer*>(mm->getCurrentMode())->listLevelsClicked();
 
     return true;
 }
 
-bool Gui::mLSMLoadButtonPressed(const CEGUI::EventArgs& e)
+bool Gui::mSPMLoadButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_LEVEL_SELECT)
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SINGLEPLAYER)
         return true;
 
-    static_cast<MenuModeLevelSelect*>(mm->getCurrentMode())->launchSelectedButtonPressed();
+    static_cast<MenuModeSingleplayer*>(mm->getCurrentMode())->launchSelectedButtonPressed();
+
+    return true;
+}
+
+bool Gui::mMPMBackButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm)
+        return true;
+    mm->requestUnloadToParentGameMode();
+
+    return true;
+}
+
+bool Gui::mMPMListClicked(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER)
+        return true;
+
+    static_cast<MenuModeMultiplayer*>(mm->getCurrentMode())->listLevelsClicked();
+
+    return true;
+}
+
+bool Gui::mMPMServerButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER)
+        return true;
+
+    static_cast<MenuModeMultiplayer*>(mm->getCurrentMode())->serverButtonPressed();
+
+    return true;
+}
+
+bool Gui::mMPMClientButtonPressed(const CEGUI::EventArgs& e)
+{
+    ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_MULTIPLAYER)
+        return true;
+
+    static_cast<MenuModeMultiplayer*>(mm->getCurrentMode())->clientButtonPressed();
 
     return true;
 }
@@ -486,16 +572,25 @@ const std::string Gui::BUTTON_QUIT = "MainTabControl/System/QuitButton";
 const std::string Gui::MM_BACKGROUND = "Background";
 const std::string Gui::MM_WELCOME_MESSAGE = "WelcomeBanner";
 const std::string Gui::MM_BUTTON_START_NEW_GAME = "StartNewGameButton";
+const std::string Gui::MM_BUTTON_START_NEW_GAME_MULTI = "StartNewGameButtonMulti";
 const std::string Gui::MM_BUTTON_MAPEDITOR = "MapEditorButton";
 const std::string Gui::MM_BUTTON_QUIT = "QuitButton";
 const std::string Gui::EXIT_CONFIRMATION_POPUP = "ConfirmExit";
 const std::string Gui::EXIT_CONFIRMATION_POPUP_YES_BUTTON = "ConfirmExit/YesOption";
 const std::string Gui::EXIT_CONFIRMATION_POPUP_NO_BUTTON = "ConfirmExit/NoOption";
 
-const std::string Gui::LSM_TEXT_LOADING = "LoadingText";
-const std::string Gui::LSM_BUTTON_LAUNCH = "LaunchGameButton";
-const std::string Gui::LSM_BUTTON_BACK = "BackButton";
-const std::string Gui::LSM_LIST_LEVELS = "LevelSelect";
+const std::string Gui::SPM_TEXT_LOADING = "LoadingText";
+const std::string Gui::SPM_BUTTON_LAUNCH = "LaunchGameButton";
+const std::string Gui::SPM_BUTTON_BACK = "BackButton";
+const std::string Gui::SPM_LIST_LEVELS = "LevelSelect";
+
+const std::string Gui::MPM_TEXT_LOADING = "LoadingText";
+const std::string Gui::MPM_BUTTON_SERVER = "ServerButton";
+const std::string Gui::MPM_BUTTON_CLIENT = "ClientButton";
+const std::string Gui::MPM_BUTTON_BACK = "BackButton";
+const std::string Gui::MPM_LIST_LEVELS = "LevelSelect";
+const std::string Gui::MPM_EDIT_IP = "IpEdit";
+const std::string Gui::MPM_EDIT_NICK = "NickEdit";
 
 const std::string Gui::EDITOR = "MainTabControl";
 const std::string Gui::EDITOR_LAVA_BUTTON = "MainTabControl/Tiles/LavaButton";

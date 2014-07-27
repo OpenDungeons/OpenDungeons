@@ -77,7 +77,7 @@ class  GameMode: public AbstractApplicationMode
     //! \brief Called when exit button is pressed
     void popupExit(bool pause);
 
-    void setLevel(const std::string& levelFilename);
+    bool waitForGameStart() { return true; }
 
 private:
     //! \brief Sets whether a tile must marked or unmarked for digging.
@@ -95,26 +95,12 @@ private:
     //! \brief The Mouse environment light following the mouse, don't delete it.
     Ogre::Light* mMouseLight;
 
-    //! \brief If true, the level set with setLevel will be launched when the
-    //! game mode will be activated
-    bool startLevelWhenActivated;
-    //! \brief The level set with setLevel that will be launched when the
-    //! game mode will be activated
-    std::string levelToLaunch;
-
-
     //! \brief Handle updating the selector position on screen
     void handleCursorPositionUpdate();
 
     //! \brief A sub-function called by mouseMoved()
     //! It will handle the potential mouse wheel logic
     void handleMouseWheel(const OIS::MouseEvent& arg);
-
-    //! \brief Refresh the tiles borders based a recent change on the map
-    void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
-
-    //! \brief Loads the given level file, and setup a single player local game.
-    bool startLevel(const std::string& levelFilename);
 };
 
 #endif // GAMEMODE_H

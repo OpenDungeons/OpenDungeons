@@ -181,6 +181,7 @@ public:
                       int color) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, Tile::TileClearType passability);
+    Room* getRoomByName(std::string& name);
 
     //! \brief Traps related functions.
     void clearTraps();
@@ -221,6 +222,9 @@ public:
     //! \brief Returns a pointer to the player structure stored by this GameMap whose name matches pName.
     Player* getPlayer(const std::string& cName);
     const Player* getPlayer(const std::string& cName) const;
+
+    //! \brief Returns a pointer to the player with corresponding color stored by this GameMap.
+    Player* getPlayerByColor(int color);
 
     //! \brief Returns the number of player structures stored in this GameMap.
     unsigned int numPlayers() const;
@@ -271,7 +275,7 @@ public:
     void clearGoalsForAllSeats();
 
     int getTotalGoldForColor(int color);
-    int withdrawFromTreasuries(int gold, int color);
+    bool withdrawFromTreasuries(int gold, Seat* seat);
 
     inline void setCullingManger(CullingManager* tempCulm)
     { culm = tempCulm; }
@@ -290,6 +294,8 @@ public:
 
     void createTilesMeshes(void);
     void hideAllTiles(void);
+
+    std::string getGoalsStringForPlayer(Player* player);
 
     //! \brief Loops over all the creatures and calls their individual doTurn methods,
     //! also check goals and do the upkeep.
@@ -396,6 +402,17 @@ public:
     {
         mIsPaused = b;
     }
+
+    //! \brief Refresh the tiles borders based a recent change on the map
+    void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
+
+    std::vector<Tile*> getDiggableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
+        Player* player);
+    std::vector<Tile*> getBuildableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
+        Player* player);
+    void markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Player* player);
+    void buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player);
+    void buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player);
 
 private:
     //! \brief the Local player reference.

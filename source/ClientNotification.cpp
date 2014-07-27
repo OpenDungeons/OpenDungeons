@@ -16,5 +16,42 @@
  */
 
 #include "ClientNotification.h"
+#include "LogManager.h"
 
-std::deque<ClientNotification*> ClientNotification::mClientNotificationQueue;
+#include <OgreStringConverter.h>
+
+ClientNotification::ClientNotification(ClientNotificationType type):
+        mType(type)
+{
+    packet << typeString(type);
+}
+
+std::string ClientNotification::typeString(ClientNotificationType type)
+{
+    switch(type)
+    {
+        case ClientNotificationType::hello:
+            return "hello";
+        case ClientNotificationType::setNick:
+            return "setNick";
+        case ClientNotificationType::chat:
+            return "chat";
+        case ClientNotificationType::askCreaturePickUp:
+            return "askCreaturePickUp";
+        case ClientNotificationType::askCreatureDrop:
+            return "askCreatureDrop";
+        case ClientNotificationType::askMarkTile:
+            return "askMarkTile";
+        case ClientNotificationType::askBuildRoom:
+            return "askBuildRoom";
+        case ClientNotificationType::askBuildTrap:
+            return "askBuildTrap";
+        case ClientNotificationType::ackNewTurn:
+            return "ackNewTurn";
+        case ClientNotificationType::exit:
+            return "exit";
+        default:
+            LogManager::getSingleton().logMessage("ERROR: Unknown enum for ClientNotificationType="
+                + Ogre::StringConverter::toString(static_cast<int>(type)));
+    }
+}

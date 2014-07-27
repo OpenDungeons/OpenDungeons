@@ -34,9 +34,9 @@ public:
 
     // Functions which must be overridden by child classes
     virtual bool isMet(Seat *s) = 0;
-    virtual std::string getDescription() = 0;
-    virtual std::string getSuccessMessage() = 0;
-    virtual std::string getFailedMessage() = 0;
+    virtual std::string getDescription(Seat *s) = 0;
+    virtual std::string getSuccessMessage(Seat *s) = 0;
+    virtual std::string getFailedMessage(Seat *s) = 0;
 
     // Functions which can be overridden (but do not have to be) by child classes
     virtual void doSuccessAction();
