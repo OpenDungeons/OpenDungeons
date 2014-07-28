@@ -15,17 +15,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MENUMODELEVELSELECT_H
-#define MENUMODELEVELSELECT_H
+#ifndef MENUMODESINGLEPLAYER_H
+#define MENUMODESINGLEPLAYER_H
 
 #include "AbstractApplicationMode.h"
 
-class MenuModeLevelSelect: public AbstractApplicationMode
+class MenuModeSingleplayer: public AbstractApplicationMode
 {
 public:
-    MenuModeLevelSelect(ModeManager*);
+    MenuModeSingleplayer(ModeManager*);
 
-    virtual ~MenuModeLevelSelect();
+    virtual ~MenuModeSingleplayer();
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
@@ -41,11 +41,6 @@ public:
     //! Used to call the corresponding Gui Sheet.
     void activate();
 
-    bool shouldAllowGameMapUpdateAnimation()
-    {
-        return false;
-    }
-
     void launchSelectedButtonPressed();
     void listLevelsClicked();
 
@@ -57,4 +52,4 @@ private:
     bool fillFilesList(const std::string& dir_path, std::vector<std::string>& listFiles);
 };
 
-#endif // MENUMODELEVELSELECT_H
+#endif // MENUMODESINGLEPLAYER_H

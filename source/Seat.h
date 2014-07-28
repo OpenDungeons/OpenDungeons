@@ -31,6 +31,8 @@ class Goal;
 class Seat
 {
 public:
+    friend class GameMap;
+    friend class ODClient;
     // Constructors
     Seat();
 
@@ -40,15 +42,15 @@ public:
     /** \brief A simple accessor function to return the number of goals
      * which must be completed by this seat before it can be declared a winner.
      */
-    unsigned int numGoals();
+    unsigned int numUncompleteGoals();
 
     /** \brief A simple accessor function to allow for looping over the goals
      * which must be completed by this seat before it can be declared a winner.
      */
-    Goal* getGoal(unsigned int index);
+    Goal* getUncompleteGoal(unsigned int index);
 
     //! \brief A simple mutator to clear the vector of unmet goals.
-    void clearGoals();
+    void clearUncompleteGoals();
 
     //! \brief A simple mutator to clear the vector of met goals.
     void clearCompletedGoals();
@@ -87,6 +89,8 @@ public:
     bool getHasGoalsChanged();
 
     void resetGoalsChanged();
+
+    void refreshFromSeat(Seat* s);
 
     int getColor() const
     { return mColor; }
@@ -128,6 +132,7 @@ public:
     //! \brief The actual color that this color index translates into.
     Ogre::ColourValue mColorValue;
 
+	// TODO : most of these should be private
     //! \brief The amount of 'keeper mana' the player has.
     double mMana;
 
@@ -136,9 +141,6 @@ public:
 
     //! \brief The amount of 'keeper HP' the player has.
     double mHp;
-
-    //! \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart.
-    int mGold;
 
     //! \brief The total amount of gold coins mined by workers under this seat's control.
     int mGoldMined;
@@ -154,13 +156,13 @@ public:
 private:
     void goalsHasChanged();
 
-    //! \brief The currently unmet goals for this seat, the first Seat to empty this wins.
-    std::vector<Goal*> mGoals;
+    //! \brief Currently unmet goals, the first Seat to empty this wins.
+    std::vector<Goal*> mUncompleteGoals;
 
-    //! \brief The met goals for this seat.
+    //! \brief Currently met goals.
     std::vector<Goal*> mCompletedGoals;
 
-    //! \brief The unmet goals for this seat which cannot possibly be met in the future.
+    //! \brief Currently failed goals which cannot possibly be met in the future.
     std::vector<Goal*> mFailedGoals;
 
     //! \brief The creatures the current seat is allowed to spawn (when following the conditions)
@@ -170,6 +172,9 @@ private:
     unsigned int mNumClaimedTiles;
 
     bool mHasGoalsChanged;
+
+    //! \brief The total amount of gold coins in the keeper's treasury and in the dungeon heart.
+    int mGold;
 };
 
 #endif // SEAT_H

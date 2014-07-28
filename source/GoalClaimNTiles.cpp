@@ -38,14 +38,14 @@ bool GoalClaimNTiles::isMet(Seat *s)
     return (s->getNumClaimedTiles() >= mNumberOfTiles);
 }
 
-std::string GoalClaimNTiles::getSuccessMessage()
+std::string GoalClaimNTiles::getSuccessMessage(Seat *s)
 {
     std::stringstream tempSS;
     tempSS << "You have claimed more than " << mNumberOfTiles << " tiles.";
     return tempSS.str();
 }
 
-std::string GoalClaimNTiles::getFailedMessage()
+std::string GoalClaimNTiles::getFailedMessage(Seat *s)
 {
     std::stringstream tempSS;
     tempSS << "You have failed to claim more than " << mNumberOfTiles
@@ -53,14 +53,14 @@ std::string GoalClaimNTiles::getFailedMessage()
     return tempSS.str();
 }
 
-std::string GoalClaimNTiles::getDescription()
+std::string GoalClaimNTiles::getDescription(Seat *s)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
     if (!gameMap)
         return std::string();
 
     std::stringstream tempSS;
-    tempSS << "Claimed " << gameMap->getLocalPlayer()->getSeat()->getNumClaimedTiles() << " of "
+    tempSS << "Claimed " << s->getNumClaimedTiles() << " of "
             << mNumberOfTiles << " tiles.";
     return tempSS.str();
 }

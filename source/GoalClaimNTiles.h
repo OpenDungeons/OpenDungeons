@@ -29,9 +29,9 @@ public:
 
     // Inherited functions
     bool isMet(Seat *s);
-    std::string getDescription();
-    std::string getSuccessMessage();
-    std::string getFailedMessage();
+    std::string getDescription(Seat *s);
+    std::string getSuccessMessage(Seat *s);
+    std::string getFailedMessage(Seat *s);
 
 private:
     unsigned int mNumberOfTiles;

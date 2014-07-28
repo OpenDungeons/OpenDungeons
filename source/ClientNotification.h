@@ -18,40 +18,46 @@
 #ifndef CLIENTNOTIFICATION_H
 #define CLIENTNOTIFICATION_H
 
-#include <deque>
+#include "ODPacket.h"
 
-#ifdef __MINGW32__
-#ifndef mode_t
-#include <sys/types.h>
-#endif //mode_t
-#endif //mingw32
+#include <deque>
 
 /*! \brief A data structure used to pass messages to the clientNotificationProcessor thread.
  *
  */
-//TODO:  Make this class a base class and let specific messages be subclasses of this type with each having its own data structure so they don't need the unused fields
 class ClientNotification
 {
-public:
-    ClientNotification():
-        mType(invalidType),
-        mP(0),
-        mP2(0),
-        mFlag(false)
-    {}
+    friend class ODClient;
 
+public:
     enum ClientNotificationType
     {
-        invalidType, creaturePickUp, creatureDrop, markTile, exit
+        // Communication with server
+        hello,
+        setNick,
+
+        chat,
+
+        // Notification in game
+        askCreaturePickUp,
+        askCreatureDrop,
+        askMarkTile,
+        askBuildRoom,
+        askBuildTrap,
+        ackNewTurn,
+        exit
     };
 
+    ClientNotification(ClientNotificationType type);
+    virtual ~ClientNotification()
+    {}
+
+    ODPacket packet;
+
+    static std::string typeString(ClientNotificationType type);
+
+private:
     ClientNotificationType mType;
-
-    void *mP;
-    void *mP2;
-    bool mFlag;
-
-    static std::deque<ClientNotification*> mClientNotificationQueue;
 };
 
 #endif // CLIENTNOTIFICATION_H

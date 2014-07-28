@@ -44,7 +44,7 @@ public:
 
     //! \brief Log a message to the game log.
     void logMessage(const std::string& message, Ogre::LogMessageLevel lml = Ogre::LML_NORMAL,
-                    bool maskDebug = false);
+                    bool maskDebug = false, bool addTimeStamp = false);
 
     //! \brief Set the log detail level.
     void setLogDetail(Ogre::LoggingLevel ll);

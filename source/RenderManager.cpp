@@ -43,8 +43,6 @@
 #include "LogManager.h"
 #include "GameEntity.h"
 
-// TODO the prefix Creature_ should be static field in some class then changing won't broke program
-
 #include <OgreMesh.h>
 #include <OgreBone.h>
 #include <OgreSkeleton.h>
@@ -841,8 +839,7 @@ void RenderManager::rrCreateCreature(const RenderRequest& renderRequest)
     //assert(curCreature->getDefinition() != 0);
 
     // Load the mesh for the creature
-    // TODO the prefix Creature_ should be static field in some class then changing won't broke program
-    Ogre::Entity* ent = mSceneManager->createEntity("Creature_" + curCreature->getName(), meshName);
+    Ogre::Entity* ent = mSceneManager->createEntity(Creature::CREATURE_PREFIX + curCreature->getName(), meshName);
     Ogre::MeshPtr meshPtr = ent->getMesh();
 
     unsigned short src, dest;
@@ -866,9 +863,9 @@ void RenderManager::rrCreateCreature(const RenderRequest& renderRequest)
 void RenderManager::rrDestroyCreature(const RenderRequest& renderRequest)
 {
     Creature* curCreature = static_cast<Creature*>(renderRequest.p);
-    if (mSceneManager->hasEntity("Creature_" + curCreature->getName()))
+    if (mSceneManager->hasEntity(Creature::CREATURE_PREFIX + curCreature->getName()))
     {
-        Ogre::Entity* ent = mSceneManager->getEntity("Creature_" + curCreature->getName());
+        Ogre::Entity* ent = mSceneManager->getEntity(Creature::CREATURE_PREFIX + curCreature->getName());
         Ogre::SceneNode* node = mSceneManager->getSceneNode(curCreature->getName() + "_node");
         node->detachObject(ent);
         mCreatureSceneNode->removeChild(node);
@@ -919,7 +916,7 @@ void RenderManager::rrCreateWeapon(const RenderRequest& renderRequest)
     Weapon* curWeapon = static_cast<Weapon*>( renderRequest.p);
     Creature* curCreature = static_cast<Creature*>(renderRequest.p2);
 
-    Ogre::Entity* ent = mSceneManager->getEntity("Creature_" + curCreature->getName());
+    Ogre::Entity* ent = mSceneManager->getEntity(Creature::CREATURE_PREFIX + curCreature->getName());
     //colourizeEntity(ent, curCreature->color);
     Ogre::Entity* weaponEntity = mSceneManager->createEntity("Weapon_"
                                  + curWeapon->getHandString() + "_" + curCreature->getName(),

@@ -63,6 +63,8 @@ static const int MAX_LEVEL = 30;
 //TODO: make this read from definition file?
 static const int MaxGoldCarriedByWorkers = 1500;
 
+const std::string Creature::CREATURE_PREFIX = "Creature_";
+
 Creature::Creature(GameMap* gameMap, const std::string& name) :
     mTracingCullingQuad      (NULL),
     mWeaponL                 (NULL),
@@ -221,15 +223,16 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
     if (wR == NULL)
         wR = new Weapon("none", 0.0, 1.0, 0.0, "R", c);
 
-    os << c->mDefinition->getClassName() << "\t" << c->getName() << "\t";
+    os << c->mDefinition->getClassName() << c->getName();
 
-    os << c->getPosition().x << "\t";
-    os << c->getPosition().y << "\t";
-    os << c->getPosition().z << "\t";
-    os << c->getColor() << "\t";
-    os << wL << "\t" << wR << "\t";
-    os << c->getHP() << "\t";
-    os << c->getMana() << "\t";
+    Ogre::Vector3 position = c->getPosition();
+    os << position.x;
+    os << position.y;
+    os << position.z;
+    os << c->getColor();
+    os << wL << wR;
+    os << c->getHP();
+    os << c->getMana();
     os << c->getLevel();
 
     // If we had to create dummy weapons for serialization, delete them now.
@@ -246,7 +249,7 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
  */
 ODPacket& operator>>(ODPacket& is, Creature *c)
 {
-    double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
+    Ogre::Vector3 position;
     double tempDouble = 0.0;
     std::string className;
     std::string tempString;
@@ -259,8 +262,8 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
 
     c->setName(tempString);
 
-    is >> xLocation >> yLocation >> zLocation;
-    c->setPosition(Ogre::Vector3((Ogre::Real)xLocation, (Ogre::Real)yLocation, (Ogre::Real)zLocation));
+    is >> position.x >> position.y >> position.z;
+    c->setPosition(position);
 
     int color = 0;
     is >> color;
@@ -277,8 +280,10 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
     c->setHP(tempDouble);
     is >> tempDouble;
     c->setMana(tempDouble);
-    is >> tempDouble;
-    c->setLevel(tempDouble);
+
+    unsigned int level;
+    is >> level;
+    c->setLevel(level);
 
     // Copy the class based items
     CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(className);
@@ -1945,7 +1950,6 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
 {
     std::vector<GameEntity*> tempVector;
     Tile* myTile = positionTile();
-    Tile* objectTile = NULL;
     std::list<Tile*> tempPath;
     bool minRangeSet = false;
 
@@ -1954,7 +1958,8 @@ std::vector<GameEntity*> Creature::getReachableAttackableObjects(const std::vect
     {
         // Try to find a valid path from the tile this creature is in to the nearest tile where the current target object is.
         // TODO: This should be improved so it picks the closest tile rather than just the [0] tile.
-        objectTile = objectsToCheck[i]->getCoveredTiles()[0];
+        GameEntity* entity = objectsToCheck[i];
+        Tile* objectTile = entity->getCoveredTiles()[0];
         if (getGameMap()->pathExists(myTile->x, myTile->y, objectTile->x,
                 objectTile->y, mDefinition->getTilePassability()))
         {
@@ -2276,26 +2281,7 @@ bool Creature::getHasVisualDebuggingEntities()
 //FIXME: This should be made into getControllingSeat(), when this is done it can simply be a call to GameMap::getSeatByColor().
 Player* Creature::getControllingPlayer()
 {
-    Player *tempPlayer = NULL;
-
-    if (getGameMap()->getLocalPlayer()->getSeat()->getColor() == getColor())
-    {
-        return getGameMap()->getLocalPlayer();
-    }
-
-    // Try to find and return a player with color equal to this creature's
-    for (unsigned int i = 0, numPlayers = getGameMap()->numPlayers();
-            i < numPlayers; ++i)
-    {
-        tempPlayer = getGameMap()->getPlayer(i);
-        if (tempPlayer->getSeat()->getColor() == getColor())
-        {
-            return tempPlayer;
-        }
-    }
-
-    // No player found, return NULL
-    return NULL;
+    return getGameMap()->getPlayerByColor(getColor());
 }
 
 void Creature::clearActionQueue()

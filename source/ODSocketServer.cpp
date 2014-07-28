@@ -16,6 +16,7 @@
  */
 
 #include "ODSocketServer.h"
+#include "Player.h"
 
 #include "LogManager.h"
 
@@ -25,16 +26,12 @@ ODSocketServer::ODSocketServer()
 {
     mNewClient = NULL;
     mIsConnected = false;
-    mSockSelector.add(mSockListener);
 }
 
 ODSocketServer::~ODSocketServer()
 {
-    clearAllClientSockets();
-    if(mNewClient != NULL)
-    {
-        delete mNewClient;
-    }
+    if(mIsConnected)
+        stopServer();
 }
 
 bool ODSocketServer::createServer(int listeningPort)
@@ -50,6 +47,10 @@ bool ODSocketServer::createServer(int listeningPort)
             + Ogre::StringConverter::toString(status));
         return false;
     }
+
+    mSockSelector.add(mSockListener);
+
+    LogManager::getSingleton().logMessage("Server connected and listening");
     mIsConnected = true;
     return true;
 }
@@ -66,23 +67,32 @@ void ODSocketServer::doTask(int timeoutMs)
           (timeoutMs > mClockMainTask.getElapsedTime().asMilliseconds()))
     {
         int timeoutMsAdjusted = 0;
+        bool isSockReady;
         if(timeoutMs != 0)
         {
             // We adapt the timeout so that the function returns after timeoutMs
             // even if events occured
-            timeoutMsAdjusted = timeoutMs - mClockMainTask.getElapsedTime().asMilliseconds();
+            int timeoutMsAdjusted = std::max(1, timeoutMs - mClockMainTask.getElapsedTime().asMilliseconds());
+            isSockReady = mSockSelector.wait(sf::milliseconds(timeoutMsAdjusted));
         }
+        else
+        {
+            isSockReady = mSockSelector.wait(sf::Time::Zero);
+        }
+
         // Check if a client tries to connect or to communicate
-        if(mSockSelector.wait(sf::milliseconds(timeoutMsAdjusted)))
+        if(isSockReady)
         {
             if(mSockSelector.isReady(mSockListener))
             {
                 // New connection
                 sf::Socket::Status status = mSockListener.accept(
                     mNewClient->mSockClient);
+
                 if (status == sf::Socket::Done)
                 {
                     // New connection
+                    LogManager::getSingleton().logMessage("New client connected");
                     if(notifyNewConnection(mNewClient))
                     {
                         // The server wants to keep the client
@@ -91,6 +101,11 @@ void ODSocketServer::doTask(int timeoutMs)
                         mSockClients.push_back(mNewClient);
 
                         mNewClient = new ODSocketClient;
+                        LogManager::getSingleton().logMessage("New client accepted");
+                    }
+                    else
+                    {
+                        LogManager::getSingleton().logMessage("New client refused");
                     }
                 }
                 else
@@ -102,18 +117,21 @@ void ODSocketServer::doTask(int timeoutMs)
             }
             else
             {
-                // TODO : How to know if a client disconnect ?
-                // In forum threads, I have seen people using last communication time to check
-                // if clients are still connected. We should check if there is no better way.
-                for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+                std::vector<ODSocketClient*>::iterator it = mSockClients.begin();
+                while (it != mSockClients.end())
                 {
                     ODSocketClient* client = *it;
-                    if (!client)
-                        continue;
-
-                    if(mSockSelector.isReady(client->mSockClient))
+                    if((mSockSelector.isReady(client->mSockClient)) &&
+                       (!notifyClientMessage(client)))
                     {
-                        notifyClientMessage(client);
+                        // The server wants to remove the client
+                        it = mSockClients.erase(it);
+                        client->disconnect();
+                        delete client;
+                    }
+                    else
+                    {
+                        ++it;
                     }
                 }
             }
@@ -143,22 +161,12 @@ void ODSocketServer::sendMsgToAllClients(ODPacket& packetReceived)
     }
 }
 
-void ODSocketServer::clearClientSocket(ODSocketClient* client)
+void ODSocketServer::stopServer()
 {
-    for(std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
-    {
-        if(*it == client)
-        {
-            mSockClients.erase(it);
-            break;
-        }
-    }
-    client->disconnect();
-    delete client;
-}
-
-void ODSocketServer::clearAllClientSockets()
-{
+    // TODO : if there is a server thread, wait for the end of its task
+    mIsConnected = false;
+    mSockListener.close();
+    mSockSelector.clear();
     for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
     {
         ODSocketClient* client = *it;
@@ -167,4 +175,9 @@ void ODSocketServer::clearAllClientSockets()
     }
 
     mSockClients.clear();
+    if(mNewClient != NULL)
+    {
+        delete mNewClient;
+        mNewClient = NULL;
+    }
 }

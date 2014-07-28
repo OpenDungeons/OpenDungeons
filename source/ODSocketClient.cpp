@@ -22,28 +22,26 @@
 
 #include <OgreStringConverter.h>
 
-ODSocketClient::ODSocketClient(bool isBlocking)
-{
-    mIsConnected = false;
-    mSockClient.setBlocking(isBlocking);
-}
-
-ODSocketClient::~ODSocketClient()
-{
-}
-
 bool ODSocketClient::connect(const std::string& host, const int port)
 {
     mIsConnected = false;
 
     // As we use selector, there is no need to set the socket as not-blocking
-    if (mSockClient.connect(host, port) != sf::Socket::Done)
+    sf::Socket::Status status = mSockClient.connect(host, port);
+    if (status != sf::Socket::Done)
     {
-        LogManager::getSingleton().logMessage("ERROR : Could not connect to distant server");
+        LogManager::getSingleton().logMessage("ERROR : Could not connect to distant server status="
+            + Ogre::StringConverter::toString(status));
         return false;
     }
+    LogManager::getSingleton().logMessage("Connected to server successfully");
     mIsConnected = true;
     return true;
+}
+
+void ODSocketClient::setBlocking(bool blocking)
+{
+    mSockClient.setBlocking(blocking);
 }
 
 void ODSocketClient::disconnect()
@@ -58,10 +56,6 @@ ODSocketClient::ODComStatus ODSocketClient::send(ODPacket& s)
     if (status == sf::Socket::Done)
     {
         return ODComStatus::OK;
-    }
-    else if(status == sf::Socket::NotReady)
-    {
-        return ODComStatus::NotReady;
     }
     LogManager::getSingleton().logMessage("ERROR : Could not send data from client status="
         + Ogre::StringConverter::toString(status));

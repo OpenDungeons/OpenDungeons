@@ -20,6 +20,9 @@
 #include "RenderRequest.h"
 #include "Tile.h"
 #include "RenderManager.h"
+#include "GameMap.h"
+#include "ODServer.h"
+#include "ServerNotification.h"
 
 #include <string>
 
@@ -71,9 +74,9 @@ void RoomTreasury::addCoveredTile(Tile* t, double nHP)
     }
 }
 
-void RoomTreasury::removeCoveredTile(Tile* t)
+void RoomTreasury::removeCoveredTile(Tile* t, bool isTileAbsorb)
 {
-    Room::removeCoveredTile(t);
+    Room::removeCoveredTile(t, isTileAbsorb);
     mGoldInTile.erase(t);
     mFullnessOfTile.erase(t);
 
@@ -204,19 +207,22 @@ void RoomTreasury::updateMeshesForTile(Tile* t)
         return;
 
     // Since the fullness level has changed we need to destroy the existing indicator mesh (if it exists) and create a new one.
-    destroyMeshesForTile(t);
+    if (mFullnessOfTile[t] != empty)
+    {
+        std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
+        destroyMeshesForTile(t, indicatorMeshName);
+    }
+
     mFullnessOfTile[t] = newFullness;
-    createMeshesForTile(t);
+    if (mFullnessOfTile[t] != empty)
+    {
+        std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
+        createMeshesForTile(t, indicatorMeshName);
+    }
 }
 
-void RoomTreasury::createMeshesForTile(Tile* t)
+void RoomTreasury::createMeshesForTile(Tile* t, const std::string& indicatorMeshName)
 {
-    // If the tile is empty, there is no indicator mesh to create so we just return.
-    if (mFullnessOfTile[t] == empty)
-        return;
-
-    std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
-
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createTreasuryIndicator;
     request->p = t;
@@ -225,16 +231,20 @@ void RoomTreasury::createMeshesForTile(Tile* t)
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
+
+    if (ODServer::getSingleton().isConnected())
+    {
+        Player* player = getGameMap()->getPlayerByColor(getColor());
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::createTreasuryIndicator, player);
+        serverNotification->packet << player->getSeat()->getColor() << getName() << t << indicatorMeshName;
+
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }
 
-void RoomTreasury::destroyMeshesForTile(Tile* t)
+void RoomTreasury::destroyMeshesForTile(Tile* t, const std::string& indicatorMeshName)
 {
-    // If the tile is empty, there is no indicator mesh to destroy so we just return.
-    if (mFullnessOfTile[t] == empty)
-        return;
-
-    std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
-
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyTreasuryIndicator;
     request->p = t;
@@ -243,16 +253,41 @@ void RoomTreasury::destroyMeshesForTile(Tile* t)
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
+
+    if (ODServer::getSingleton().isConnected())
+    {
+        Player* player = getGameMap()->getPlayerByColor(getColor());
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::destroyTreasuryIndicator, player);
+        serverNotification->packet << player->getSeat()->getColor() << getName() << t << indicatorMeshName;
+
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }
 
 void RoomTreasury::createGoldMeshes()
 {
     for (unsigned int i = 0; i < numCoveredTiles(); ++i)
-        createMeshesForTile(getCoveredTile(i));
+    {
+        Tile* t = getCoveredTile(i);
+        if (mFullnessOfTile[t] == empty)
+            continue;
+
+        std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
+        createMeshesForTile(t, indicatorMeshName);
+    }
 }
 
 void RoomTreasury::destroyGoldMeshes()
 {
     for (unsigned int i = 0; i < numCoveredTiles(); ++i)
-        destroyMeshesForTile(getCoveredTile(i));
+    {
+        // If the tile is empty, there is no indicator mesh to create.
+        Tile* t = getCoveredTile(i);
+        if (mFullnessOfTile[t] == empty)
+            continue;
+
+        std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
+        destroyMeshesForTile(t, indicatorMeshName);
+    }
 }

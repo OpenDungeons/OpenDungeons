@@ -24,6 +24,8 @@
 
 #include <string>
 
+class Player;
+
 class ODSocketClient
 {
     friend class ODSocketServer;
@@ -34,15 +36,27 @@ class ODSocketClient
             OK, NotReady, Error
         };
 
-        ODSocketClient(bool isBlocking = true);
-        ~ODSocketClient();
+        ODSocketClient():
+            mIsConnected(false),
+            mPlayer(NULL),
+            mLastTurnAck(-1)
+        {}
+
+        ~ODSocketClient()
+        {}
 
         // Client initialization
-        virtual bool connect(const std::string& host, const int port);
-        virtual void disconnect();
         bool isConnected();
+        virtual void disconnect();
+        Player* getPlayer() { return mPlayer; }
+        void setPlayer(Player* player) { mPlayer = player; }
+        int64_t getLastTurnAck() { return mLastTurnAck; }
+        void setLastTurnAck(int64_t lastTurnAck) { mLastTurnAck = lastTurnAck; }
 
     protected:
+        virtual bool connect(const std::string& host, const int port);
+        void setBlocking(bool block);
+
         // Data Transimission
         /*! \brief Sends a packet through the network
          * ODPacket should preserve integrity. That means that if an ODSocketClient
@@ -60,6 +74,8 @@ class ODSocketClient
     private :
         sf::TcpSocket mSockClient;
         bool mIsConnected;
+        Player* mPlayer;
+        int64_t mLastTurnAck;
 };
 
 #endif // ODSOCKETCLIENT_H

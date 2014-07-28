@@ -18,6 +18,7 @@
 #include "RoomPortal.h"
 
 #include "ODServer.h"
+#include "ServerNotification.h"
 #include "Seat.h"
 #include "Player.h"
 #include "Creature.h"
@@ -75,9 +76,9 @@ void RoomPortal::addCoveredTile(Tile* t, double nHP)
     recomputeCenterPosition();
 }
 
-void RoomPortal::removeCoveredTile(Tile* t)
+void RoomPortal::removeCoveredTile(Tile* t, bool isTileAbsorb)
 {
-    Room::removeCoveredTile(t);
+    Room::removeCoveredTile(t, isTileAbsorb);
     // Don't recompute the position.
     // Removing a portal tile usually means some creatures are attacking it.
     // The portal shouldn't move in that case.
@@ -172,7 +173,14 @@ void RoomPortal::spawnCreature()
 
     mSpawnCreatureCountdown = Random::Uint(15, 30);
 
-    //TODO: Inform the clients that this creature has been created by placing a newCreature message in the serverNotificationQueue.
+    // Inform the clients
+    if (ODServer::getSingleton().isConnected())
+    {
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::addCreature, newCreature->getControllingPlayer());
+        serverNotification->packet << newCreature;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 }
 
 void RoomPortal::recomputeCenterPosition()

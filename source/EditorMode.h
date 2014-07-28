@@ -87,11 +87,8 @@ private:
     //! \brief Handle updating the selector position on screen
     void handleCursorPositionUpdate();
 
-    // Refresh the tiles borders based a recent change on the map
-    void refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles);
-
-    // Updates the text seen next to the cursor position.
-    // This text gives the tile position, and the current left-click action
+    //! \brief Updates the text seen next to the cursor position.
+    //! This text gives the tile position, and the current left-click action
     void updateCursorText();
 };
 

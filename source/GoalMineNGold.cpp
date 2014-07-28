@@ -37,26 +37,22 @@ bool GoalMineNGold::isMet(Seat *s)
     return (s->getGoldMined() >= mGoldToMine);
 }
 
-std::string GoalMineNGold::getDescription()
+std::string GoalMineNGold::getDescription(Seat *s)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    if (!gameMap)
-        return std::string();
-
     std::stringstream tempSS;
-    tempSS << "Mined " << gameMap->getLocalPlayer()->getSeat()->mGoldMined << " of " << mGoldToMine
+    tempSS << "Mined " << s->mGoldMined << " of " << mGoldToMine
             << " gold coins.";
     return tempSS.str();
 }
 
-std::string GoalMineNGold::getSuccessMessage()
+std::string GoalMineNGold::getSuccessMessage(Seat *s)
 {
     std::stringstream tempSS;
     tempSS << "You have mined more than " << mGoldToMine << " gold coins.";
     return tempSS.str();
 }
 
-std::string GoalMineNGold::getFailedMessage()
+std::string GoalMineNGold::getFailedMessage(Seat *s)
 {
     std::stringstream tempSS;
     tempSS << "You have failed to mine more than " << mGoldToMine

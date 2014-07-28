@@ -49,4 +49,5 @@
 	<FalagardMapping lookNFeel="OD/StaticImage" renderer="Core/StaticImage" targetType="DefaultWindow" windowType="OD/StaticImage" />
 	<FalagardMapping lookNFeel="OD/StaticText" renderer="Core/StaticText" targetType="DefaultWindow" windowType="OD/StaticText" />
 	<FalagardMapping lookNFeel="OD/MainMenuListbox" renderer="Core/Listbox" targetType="CEGUI/Listbox" windowType="OD/MainMenuListbox" />
+	<FalagardMapping lookNFeel="OD/MainMenuEditbox" renderer="Core/Editbox" targetType="CEGUI/Editbox" windowType="OD/MainMenuEditbox" />
 </GUIScheme>

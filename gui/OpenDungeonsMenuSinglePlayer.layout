@@ -33,7 +33,7 @@
             <Property name="Text" value="Back" />
         </Window>
         <Window type="OD/StaticText" name="LoadingText" >
-            <Property name="Area" value="{{0.5,-50},{0,550},{0.5,50},{0,570}}" />
+            <Property name="Area" value="{{0.5,-80},{0,550},{0.5,80},{0,570}}" />
             <Property name="Text" value="Loading..." />
             <Property name="BackgroundEnabled" value="False" />
             <Property name="FrameEnabled" value="False" />

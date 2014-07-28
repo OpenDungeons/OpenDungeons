@@ -25,6 +25,8 @@
 #include "GameMap.h"
 
 #include "ODServer.h"
+#include "ODFrameListener.h"
+#include "ServerNotification.h"
 #include "RadialVector2.h"
 #include "Tile.h"
 #include "Creature.h"
@@ -44,6 +46,7 @@
 #include "RoomDungeonTemple.h"
 #include "RoomQuarters.h"
 #include "RoomTreasury.h"
+#include "Goal.h"
 
 #include <OgreTimer.h>
 
@@ -123,7 +126,7 @@ GameMap::GameMap() :
         miscUpkeepTime(0),
         creatureTurnsTime(0),
         mLocalPlayer(NULL),
-        mTurnNumber(0),
+        mTurnNumber(-1),
         creatureDefinitionFilename("levels/creatures.def"), // default name
         floodFillEnabled(false),
         numCallsTo_path(0),
@@ -150,7 +153,6 @@ GameMap::~GameMap()
 
 bool GameMap::LoadLevel(const std::string& levelFilepath)
 {
-    ODServer::getSingleton().processServerNotifications();
     RenderManager::getSingletonPtr()->processRenderRequests();
     clearAll();
 
@@ -162,8 +164,6 @@ bool GameMap::LoadLevel(const std::string& levelFilepath)
     MapLoader::readGameMapFromFile(levelPath, *this);
     setLevelFileName(levelFilepath);
 
-    // Create ogre entities for the tiles, rooms, and creatures
-    createAllEntities();
     return true;
 }
 
@@ -195,6 +195,8 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
             addTile(tempTile);
         }
     }
+
+    mTurnNumber = -1;
 
     return true;
 }
@@ -230,7 +232,7 @@ void GameMap::clearAll()
 
     clearAiManager();
 
-    mTurnNumber = 0;
+    mTurnNumber = -1;
 }
 
 void GameMap::clearCreatures()
@@ -323,7 +325,7 @@ void GameMap::queueCreatureForDeletion(Creature *c)
 {
     // If the creature has a homeTile where they sleep, their bed needs to be destroyed.
     if (c->getHomeTile() != 0)
-        static_cast<RoomQuarters*>(c->getHomeTile()->getCoveringRoom())->releaseTileForSleeping(c->getHomeTile(), c);
+        static_cast<RoomQuarters*>(c->getHomeTile()->getCoveringRoom())->releaseTileForSleeping(c->getHomeTile(), c, false);
 
     // Remove the creature from the GameMap in case the caller forgot to do so.
     removeCreature(c);
@@ -578,13 +580,29 @@ const Creature* GameMap::getCreature(const std::string& cName) const
 
 void GameMap::doTurn()
 {
-    std::cout << "\nStarting creature AI for turn " << mTurnNumber;
+    std::cout << "\nComputing turn " << mTurnNumber;
     unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
     processDeletionQueues();
 
     creatureTurnsTime = doCreatureTurns();
     miscUpkeepTime = doMiscUpkeep();
+
+    // We notify the clients about what they got
+    if(ODServer::getSingleton().isConnected())
+    {
+        for (std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
+        {
+            Player* player = *it;
+            if((player != getLocalPlayer()) && (player->getSeat()->mFaction == "Player"))
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::refreshPlayerSeat, player);
+                serverNotification->packet << player->getSeat() << getGoalsStringForPlayer(player);
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+        }
+    }
 
     // Remove dead creatures from the map and put them into the deletion queue.
     unsigned int count = 0;
@@ -808,6 +826,38 @@ unsigned long int GameMap::doCreatureTurns()
 
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
+    // During the first turn, we setup everything
+    if(getTurnNumber() == 0)
+    {
+        LogManager::getSingleton().logMessage("Starting game map");
+        setGamePaused(false);
+
+        // Destroy the meshes associated with the map lights that allow you to see/drag them in the map editor.
+        clearMapLightIndicators();
+
+        // Check whether at least a local player was added.
+        Seat* localPlayerSeat = getLocalPlayer()->getSeat();
+        if (localPlayerSeat == NULL)
+        {
+            LogManager::getSingleton().logMessage("FATAL ERROR : Can't start the game: No seat set for local player");
+            exit(1);
+        }
+
+        // Move camera to starting position
+        Ogre::Real startX = (Ogre::Real)(localPlayerSeat->mStartingX);
+        Ogre::Real startY = (Ogre::Real)(localPlayerSeat->mStartingY);
+        // We make the temple appear in the center of the game view
+        startY = (Ogre::Real)(startY - 7.0);
+        // Bound check
+        if (startY <= 0.0)
+            startY = 0.0;
+
+        ODFrameListener::getSingleton().cm->setCameraPosition(Ogre::Vector3(startX, startY, MAX_CAMERA_Z));
+
+        // Create ogre entities for the tiles, rooms, and creatures
+        createAllEntities();
+    }
+
     if(mIsPaused)
         return;
 
@@ -1124,6 +1174,20 @@ const Player* GameMap::getPlayer(const std::string& pName) const
 unsigned int GameMap::numPlayers() const
 {
     return players.size();
+}
+
+Player* GameMap::getPlayerByColor(int color)
+{
+    if(getLocalPlayer()->getSeat()->getColor() == color)
+        return getLocalPlayer();
+
+    for (std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
+    {
+        Player* player = *it;
+        if(player->getSeat()->getColor() == color)
+            return player;
+    }
+    return NULL;
 }
 
 bool GameMap::walkablePathExists(int x1, int y1, int x2, int y2)
@@ -1585,13 +1649,29 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec,
 
     for (unsigned int i = 0; i < vec.size(); ++i)
     {
+        Room* room = vec[i];
+        Tile* coveredTile = room->getCoveredTile(0);
         if (pathExists(startTile->x, startTile->y,
-                       vec[i]->getCoveredTile(0)->x, vec[i]->getCoveredTile(0)->y,
-                       passability))
-            returnVector.push_back(vec[i]);
+            coveredTile->x, coveredTile->y,
+            passability))
+        {
+            returnVector.push_back(room);
+        }
     }
 
     return returnVector;
+}
+
+Room* GameMap::getRoomByName(std::string& name)
+{
+    for (std::vector<Room*>::const_iterator it = rooms.begin(); it != rooms.end(); ++it)
+    {
+        Room* room = *it;
+        if(room->getName().compare(name) == 0)
+            return room;
+    }
+
+    return NULL;
 }
 
 void GameMap::clearTraps()
@@ -1651,22 +1731,21 @@ int GameMap::getTotalGoldForColor(int color)
     return tempInt;
 }
 
-int GameMap::withdrawFromTreasuries(int gold, int color)
+bool GameMap::withdrawFromTreasuries(int gold, Seat* seat)
 {
     // Check to see if there is enough gold available in all of the treasuries owned by the given color.
-    int totalGold = getTotalGoldForColor(color);
-    if (totalGold < gold)
-        return 0;
+    if (seat->getGold() < gold)
+        return false;
 
     // Loop over the treasuries withdrawing gold until the full amount has been withdrawn.
     int goldStillNeeded = gold;
-    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, seat->getColor());
     for (unsigned int i = 0; i < treasuriesOwned.size() && goldStillNeeded > 0; ++i)
     {
         goldStillNeeded -= static_cast<RoomTreasury*>(treasuriesOwned[i])->withdrawGold(goldStillNeeded);
     }
 
-    return gold;
+    return true;
 }
 
 void GameMap::clearMapLights()
@@ -1707,10 +1786,9 @@ void GameMap::removeMapLight(MapLight *m)
         {
             /*
             // Place a message in the queue to inform the clients about the destruction of this MapLight.
-            ServerNotification *serverNotification = new ServerNotification;
-            serverNotification->type = ServerNotification::removeMapLight;
-            serverNotification->p = m;
-
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::removeMapLight);
+            serverNotification->packet << m;
             queueServerNotification(serverNotification);
             */
 
@@ -1946,14 +2024,14 @@ void GameMap::clearGoalsForAllSeats()
     // Add the goal to each of the empty seats currently in the game.
     for (unsigned int i = 0; i < numEmptySeats(); ++i)
     {
-        emptySeats[i]->clearGoals();
+        emptySeats[i]->clearUncompleteGoals();
         emptySeats[i]->clearCompletedGoals();
     }
 
     // Add the goal to each of the filled seats currently in the game.
     for (unsigned int i = 0; i < numFilledSeats(); ++i)
     {
-        filledSeats[i]->clearGoals();
+        filledSeats[i]->clearUncompleteGoals();
         filledSeats[i]->clearCompletedGoals();
     }
 }
@@ -2143,4 +2221,131 @@ void GameMap::processDeletionQueues()
 
         ++currentTurnForCreatureRetirement;
     }
+}
+
+void GameMap::refreshBorderingTilesOf(const std::vector<Tile*>& affectedTiles)
+{
+    // Add the tiles which border the affected region to the affectedTiles vector since they may need to have their meshes changed.
+    std::vector<Tile*> borderTiles = tilesBorderedByRegion(affectedTiles);
+
+    borderTiles.insert(borderTiles.end(), affectedTiles.begin(), affectedTiles.end());
+
+    // Loop over all the affected tiles and force them to examine their neighbors.  This allows
+    // them to switch to a mesh with fewer polygons if some are hidden by the neighbors, etc.
+    for (std::vector<Tile*>::iterator itr = borderTiles.begin(); itr != borderTiles.end() ; ++itr)
+        (*itr)->refreshMesh();
+}
+
+std::vector<Tile*> GameMap::getDiggableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
+    Player* player)
+{
+    std::vector<Tile*> tiles = rectangularRegion(x1, y1, x2, y2);
+    std::vector<Tile*>::iterator it = tiles.begin();
+    while (it != tiles.end())
+    {
+        Tile* tile = *it;
+        if (!tile->isDiggable(player->getSeat()->mColor))
+        {
+            it = tiles.erase(it);
+        }
+        else
+            ++it;
+    }
+    return tiles;
+}
+
+std::vector<Tile*> GameMap::getBuildableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
+    Player* player)
+{
+    std::vector<Tile*> tiles = rectangularRegion(x1, y1, x2, y2);
+    std::vector<Tile*>::iterator it = tiles.begin();
+    while (it != tiles.end())
+    {
+        Tile* tile = *it;
+        if (!tile->isBuildableUpon())
+        {
+            it = tiles.erase(it);
+        }
+        else if (!(tile->getFullness() < 1
+                    && tile->getType() == Tile::claimed
+                    && tile->colorDouble > 0.99
+                    && tile->getColor() == player->getSeat()->mColor))
+        {
+            it = tiles.erase(it);
+        }
+        else
+            ++it;
+    }
+    return tiles;
+}
+
+void GameMap::markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Player* player)
+{
+    for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
+    {
+        Tile* tile = *it;
+        tile->setMarkedForDigging(isDigSet, player);
+    }
+    refreshBorderingTilesOf(tiles);
+}
+
+void GameMap::buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player)
+{
+    Room* newRoom = Room::createRoom(roomType, tiles, player->getSeat()->getColor());
+    Room::setupRoom(this, newRoom, player);
+    refreshBorderingTilesOf(tiles);
+}
+
+void GameMap::buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player)
+{
+    Trap* newTrap = Trap::createTrap(typeTrap, tiles, player->getSeat());
+    Trap::setupTrap(this, newTrap, player);
+    refreshBorderingTilesOf(tiles);
+}
+
+std::string GameMap::getGoalsStringForPlayer(Player* player)
+{
+    bool playerIsAWinner = seatIsAWinner(player->getSeat());
+    std::stringstream tempSS("");
+    Seat* seat = player->getSeat();
+    seat->resetGoalsChanged();
+    if (seat->numUncompleteGoals() > 0)
+    {
+        // Loop over the list of unmet goals for the seat we are sitting in an print them.
+        tempSS << "Unfinished Goals:\n---------------------\n";
+        for (unsigned int i = 0; i < seat->numUncompleteGoals(); ++i)
+        {
+            Goal *tempGoal = seat->getUncompleteGoal(i);
+            tempSS << tempGoal->getDescription(seat) << "\n";
+        }
+    }
+
+    if (seat->numCompletedGoals() > 0)
+    {
+        // Loop over the list of completed goals for the seat we are sitting in an print them.
+        tempSS << "\nCompleted Goals:\n---------------------\n";
+        for (unsigned int i = 0; i < seat->numCompletedGoals(); ++i)
+        {
+            Goal *tempGoal = seat->getCompletedGoal(i);
+            tempSS << tempGoal->getSuccessMessage(seat) << "\n";
+        }
+    }
+
+    if (seat->numFailedGoals() > 0)
+    {
+        // Loop over the list of completed goals for the seat we are sitting in an print them.
+        tempSS << "\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
+        for (unsigned int i = 0; i < seat->numFailedGoals(); ++i)
+        {
+            Goal *tempGoal = seat->getFailedGoal(i);
+            tempSS << tempGoal->getFailedMessage(seat) << "\n";
+        }
+    }
+
+    if (playerIsAWinner)
+    {
+        tempSS << "\nCongratulations, you have completed this level.";
+    }
+
+    return tempSS.str();
 }

@@ -18,14 +18,12 @@
 #ifndef ODSERVER_H
 #define ODSERVER_H
 
-#include "ChatMessage.h"
-#include "ODFrameListener.h"
 #include "ODSocketServer.h"
 
+#include <OgreFrameListener.h>
 #include <OgreSingleton.h>
 
 class ServerNotification;
-class Socket;
 
 class ODServer: public Ogre::Singleton<ODServer>,
     public ODSocketServer
@@ -34,7 +32,8 @@ class ODServer: public Ogre::Singleton<ODServer>,
     ODServer();
     ~ODServer();
 
-    bool startServer();
+    bool startServer(std::string& levelFilename, bool replaceHumanPlayersByAi);
+    void stopServer();
 
     //! \brief Adds a server notification to the server notification queue.
     void queueServerNotification(ServerNotification* n);
@@ -42,10 +41,13 @@ class ODServer: public Ogre::Singleton<ODServer>,
     //! \brief Process server events, such as server notifications and received messages.
     void processServerEvents();
 
-    /*! \brief Monitors the serverNotificationQueue for new events and informs the clients about them.
+    //! \brief Called when a new turn started.
+    void startNewTurn(const Ogre::FrameEvent& evt);
+
+    /*! \brief Monitors mServerNotificationQueue for new events and informs the clients about them.
      *
-     * This function is used in server mode and acts as a "consumer" on the
-     * serverNotificationQueue.  It takes an event out of the queue, determines
+     * This function is used in server mode and acts as a "consumer" on
+     * mServerNotificationQueue.  It takes an event out of the queue, determines
      * which clients need to be informed about that particular event, and
      * dispacthes TCP packets to inform the clients about the new information.
      */
@@ -60,14 +62,24 @@ class ODServer: public Ogre::Singleton<ODServer>,
      */
     bool processClientNotifications(ODSocketClient* clientSocket);
 
+    void notifyExit();
+
     // TODO : this has to be public for chat messages. When implementation will allow it, it should be private
     // TODO : check if it can be removed
     void sendToAllClients(ODPacket& packetSend);
 
+protected:
     bool notifyNewConnection(ODSocketClient *sock);
-    void notifyClientMessage(ODSocketClient *sock);
+    bool notifyClientMessage(ODSocketClient *sock);
 
+private:
+    ODSocketClient* getClientFromPlayer(Player* player);
 
+    std::string mLevelFilename;
+
+    int32_t mNbClientsNotReady;
+
+    std::deque<ServerNotification*> mServerNotificationQueue;
 };
 
 #endif // ODSERVER_H

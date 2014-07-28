@@ -174,14 +174,11 @@ std::string MapLight::getFormat()
 
 ODPacket& operator<<(ODPacket& os, MapLight* m)
 {
-    os << m->mPosition.x << "\t" << m->mPosition.y << "\t" << m->mPosition.z
-            << "\t";
-    os << m->mDiffuseColor.r << "\t" << m->mDiffuseColor.g << "\t"
-            << m->mDiffuseColor.b << "\t";
-    os << m->mSpecularColor.r << "\t" << m->mSpecularColor.g << "\t"
-            << m->mSpecularColor.b << "\t";
-    os << m->mAttenuationRange << "\t" << m->mAttenuationConstant << "\t";
-    os << m->mAttenuationLinear << "\t" << m->mAttenuationQuadratic;
+    os << m->mPosition.x << m->mPosition.y << m->mPosition.z;
+    os << m->mDiffuseColor.r << m->mDiffuseColor.g << m->mDiffuseColor.b;
+    os << m->mSpecularColor.r << m->mSpecularColor.g << m->mSpecularColor.b;
+    os << m->mAttenuationRange << m->mAttenuationConstant;
+    os << m->mAttenuationLinear << m->mAttenuationQuadratic;
 
     return os;
 }

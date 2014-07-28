@@ -151,7 +151,8 @@ set(OD_SOURCEFILES
     ${SRC}/MapLight.cpp
     ${SRC}/MapLoader.cpp
     ${SRC}/MenuMode.cpp
-    ${SRC}/MenuModeLevelSelect.cpp
+    ${SRC}/MenuModeMultiplayer.cpp
+    ${SRC}/MenuModeSingleplayer.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
     ${SRC}/ModeManager.cpp

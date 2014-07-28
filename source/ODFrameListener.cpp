@@ -24,6 +24,7 @@
 
 #include "Console.h"
 #include "ODServer.h"
+#include "ServerNotification.h"
 #include "ODClient.h"
 #include "Creature.h"
 #include "ChatMessage.h"
@@ -37,10 +38,8 @@
 #include "Weapon.h"
 #include "MapLight.h"
 #include "AllGoals.h"
-#include "ClientNotification.h"
 #include "CreatureAction.h"
 #include "CreatureSound.h"
-#include "ServerNotification.h"
 #include "TextRenderer.h"
 #include "MusicPlayer.h"
 #include "RenderManager.h"
@@ -161,27 +160,10 @@ void ODFrameListener::exitApplication()
 {
     LogManager::getSingleton().logMessage("Closing down.");
 
-    ServerNotification* exitServerNotification = new ServerNotification();
-    exitServerNotification->type = ServerNotification::exit;
-    while(!ServerNotification::serverNotificationQueue.empty())
-    {
-        delete ServerNotification::serverNotificationQueue.front();
-        ServerNotification::serverNotificationQueue.pop_front();
-    }
-    //serverNotificationQueue.push_back(exitServerNotification);
-    ODServer::getSingleton().queueServerNotification(exitServerNotification);
+    ODClient::getSingleton().notifyExit();
+    ODClient::getSingleton().processClientNotifications();
 
-    ClientNotification* exitClientNotification = new ClientNotification();
-    exitClientNotification->mType = ClientNotification::exit;
-    //TODO: There should be a function to do this.
-    //Empty the queue so we don't get any crashes here.
-    while(!ClientNotification::mClientNotificationQueue.empty())
-    {
-        delete ClientNotification::mClientNotificationQueue.front();
-        ClientNotification::mClientNotificationQueue.pop_front();
-    }
-    ClientNotification::mClientNotificationQueue.push_back(exitClientNotification);
-
+    ODServer::getSingleton().notifyExit();
     ODServer::getSingleton().processServerNotifications();
     RenderManager::getSingletonPtr()->processRenderRequests();
     mGameMap->clearAll();
@@ -214,36 +196,41 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     //Need to capture/update each device
     mModeManager->checkModeChange();
+
+    // If game is started, we update the game
     AbstractApplicationMode* currentMode = mModeManager->getCurrentMode();
 
-    if(!mExitRequested)
+    if ((mGameMap->getTurnNumber() != -1) || (!currentMode->waitForGameStart()))
     {
-        // Updates animations independant from the server new turn event
-        updateAnimations(evt.timeSinceLastFrame);
-    }
+        if(!mExitRequested)
+        {
+            // Updates animations independant from the server new turn event
+            updateAnimations(evt.timeSinceLastFrame);
+        }
 
-    currentMode->getKeyboard()->capture();
-    currentMode->getMouse()->capture();
+        currentMode->getKeyboard()->capture();
+        currentMode->getMouse()->capture();
 
-    currentMode->onFrameStarted(evt);
+        currentMode->onFrameStarted(evt);
 
-    if (cm != NULL)
-       cm->onFrameStarted();
+        if (cm != NULL)
+           cm->onFrameStarted();
 
-    if((mGameMap->getGamePaused()) && (!mExitRequested))
-        return true;
+        if((mGameMap->getGamePaused()) && (!mExitRequested))
+            return true;
 
-    // Sleep to limit the framerate to the max value
-    mFrameDelay -= evt.timeSinceLastFrame;
-    if (mFrameDelay > 0.0)
-    {
-        OD_USLEEP(1e6 * mFrameDelay);
-    }
-    else
-    {
-        //FIXME: I think this 2.0 should be a 1.0 but this gives the
-        // correct result.  This probably indicates a bug.
-        mFrameDelay += 2.0 / ODApplication::MAX_FRAMES_PER_SECOND;
+        // Sleep to limit the framerate to the max value
+        mFrameDelay -= evt.timeSinceLastFrame;
+        if (mFrameDelay > 0.0)
+        {
+            OD_USLEEP(1e6 * mFrameDelay);
+        }
+        else
+        {
+            //FIXME: I think this 2.0 should be a 1.0 but this gives the
+            // correct result.  This probably indicates a bug.
+            mFrameDelay += 2.0 / ODApplication::MAX_FRAMES_PER_SECOND;
+        }
     }
 
     //If an exit has been requested, start cleaning up.
@@ -261,12 +248,20 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     }
 
     // If we're not a server, we can't check or update what's next.
-    else if (!isServer())
+    if (!isServer())
         return mContinue;
 
-    // Increment the number of threads locking this turn for the gameMap to allow for proper deletion of objects.
-    //NOTE:  If this function exits early the corresponding unlock function must be called.
-    long int currentTurnNumber = mGameMap->getTurnNumber();
+    // When the server will have his own thread, there will be no need for this
+    int64_t turnNumber = mGameMap->getTurnNumber();
+    // processServerEvents may set turn number to 0 if every player is ready to start the map.
+    // But in this case, we want to wait for updateAnimations before going to next turn
+    ODServer::getSingleton().processServerEvents();
+
+    refreshChat();
+
+    // If the game is not started, return here
+    if(turnNumber == -1)
+        return mContinue;
 
     mTimeElapsedSinceLastTurn += evt.timeSinceLastFrame;
     if (mTimeElapsedSinceLastTurn < 1.0 / ODApplication::turnsPerSecond)
@@ -274,12 +269,23 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     // If a new turn has started, we update events.
     mTimeElapsedSinceLastTurn = 0.0;
-    mGameMap->setTurnNumber(mGameMap->getTurnNumber() + 1);
 
-    // When the server will have his own thread, there will be no need for this
-    ODServer::getSingleton().processServerEvents();
+    ODServer::getSingleton().startNewTurn(evt);
 
-    mGameMap->doTurn();
+    // Update the CEGUI displays of gold, mana, etc.
+    /*
+     * We only need to recreate the info windows when each turn when
+     * the text updates.
+     */
+    std::string goalsString = mGameMap->getGoalsStringForPlayer(
+        mGameMap->getLocalPlayer());
+    refreshPlayerDisplay(goalsString);
+
+    return mContinue;
+}
+
+void ODFrameListener::refreshChat()
+{
 
     std::string chatBaseString = "\n---------- Chat ----------\n";
     mChatString = chatBaseString;
@@ -330,10 +336,10 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     //TODO - we should call printText only when the text changes.
     bool isEditor = (mModeManager->getCurrentModeType() == ModeManager::EDITOR);
-    if (!isEditor && !ODServer::getSingleton().isConnected())
+    if (!isEditor && mGameMap->getTurnNumber() == -1)
     {
         // Tells the user the game is loading.
-        printText("\nLoading...");
+        printText("\nWaiting for players...");
     }
     else
     {
@@ -356,15 +362,10 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             printText("");
         }
     }
+}
 
-    // Update the CEGUI displays of gold, mana, etc.
-
-    /*
-    * We only need to recreate the info windows when each turn when
-    * the text updates.
-    */
-    mGameMap->doPlayerAITurn(evt.timeSinceLastFrame);
-
+void ODFrameListener::refreshPlayerDisplay(const std::string& goalsDisplayString)
+{
     Seat* mySeat = mGameMap->getLocalPlayer()->getSeat();
 
     //! \brief Updates common info on screen.
@@ -384,52 +385,9 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
             << mySeat->getManaDelta();
     tempWindow->setText(tempSS.str());
 
-    mySeat->resetGoalsChanged();
-    // Update the goals display in the message window.
-    tempWindow =  Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu) ->getChild(Gui::MESSAGE_WINDOW);
-    tempSS.str("");
-    bool iAmAWinner = mGameMap->seatIsAWinner(mySeat);
+    tempWindow = Gui::getSingletonPtr()->getGuiSheet(Gui::inGameMenu)->getChild(Gui::MESSAGE_WINDOW);
 
-    if (mySeat->numGoals() > 0)
-    {
-        // Loop over the list of unmet goals for the seat we are sitting in an print them.
-        tempSS << "Unfinished Goals:\n---------------------\n";
-        for (unsigned int i = 0; i < mySeat->numGoals(); ++i)
-        {
-            Goal *tempGoal = mySeat->getGoal(i);
-            tempSS << tempGoal->getDescription() << "\n";
-        }
-    }
-
-    if (mySeat->numCompletedGoals() > 0)
-    {
-        // Loop over the list of completed goals for the seat we are sitting in an print them.
-        tempSS << "\nCompleted Goals:\n---------------------\n";
-        for (unsigned int i = 0; i < mySeat->numCompletedGoals(); ++i)
-        {
-            Goal *tempGoal = mySeat->getCompletedGoal(i);
-            tempSS << tempGoal->getSuccessMessage() << "\n";
-        }
-    }
-
-    if (mySeat->numFailedGoals() > 0)
-    {
-        // Loop over the list of completed goals for the seat we are sitting in an print them.
-        tempSS << "\nFailed Goals: (You cannot complete this level!)\n---------------------\n";
-        for (unsigned int i = 0; i < mySeat->numFailedGoals(); ++i)
-        {
-            Goal *tempGoal = mySeat->getFailedGoal(i);
-            tempSS << tempGoal->getFailedMessage() << "\n";
-        }
-    }
-
-    if (iAmAWinner)
-    {
-        tempSS << "\nCongratulations, you have completed this level.";
-    }
-    tempWindow->setText(tempSS.str());
-
-    return mContinue;
+    tempWindow->setText(goalsDisplayString);
 }
 
 bool ODFrameListener::frameEnded(const Ogre::FrameEvent& evt)

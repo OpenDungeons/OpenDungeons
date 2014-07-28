@@ -64,13 +64,15 @@ public:
     Creature(GameMap* gameMap = NULL, const std::string& name = std::string());
     virtual ~Creature();
 
+    static const std::string CREATURE_PREFIX;
+
     //! \brief Creates a string with a unique number embedded into it
     //! so the creature's name will not be the same as any other OGRE entity name.
     std::string getUniqueCreatureName();
 
     //! \brief Conform: AttackableEntity - Returns the prefix used in the OGRE identifier for this object.
     std::string getOgreNamePrefix()
-    { return "Creature_"; }
+    { return CREATURE_PREFIX; }
 
     void createStatsWindow();
     void destroyStatsWindow();

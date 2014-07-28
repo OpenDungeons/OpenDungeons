@@ -21,6 +21,8 @@
 
 #include <OgreLogManager.h>
 
+#include "boost/date_time/posix_time/posix_time.hpp"
+
 template<> LogManager* Ogre::Singleton<LogManager>::msSingleton = 0;
 
 //! \brief Log filename used when OD Application throws errors without using Ogre default logger.
@@ -41,12 +43,25 @@ LogManager::LogManager()
 }
 
 void LogManager::logMessage(const std::string& message, Ogre::LogMessageLevel lml,
-                            bool maskDebug)
+                            bool maskDebug, bool addTimeStamp)
 {
 #ifdef LOGMANAGER_USE_LOCKS
     sem_wait(&logLockSemaphore);
 #endif
-    mGameLog->logMessage(message, lml, maskDebug);
+    if(addTimeStamp)
+    {
+        static std::locale loc(std::wcout.getloc(),
+            new boost::posix_time::wtime_facet(L"%Y%m%d_%H%M%S"));
+
+        std::stringstream ss;
+        ss.imbue(loc);
+        ss << "[" << boost::posix_time::second_clock::universal_time() << "] " << message;
+        mGameLog->logMessage(ss.str(), lml, maskDebug);
+    }
+    else
+    {
+        mGameLog->logMessage(message, lml, maskDebug);
+    }
 #ifdef LOGMANAGER_USE_LOCKS
     sem_post(&logLockSemaphore);
 #endif

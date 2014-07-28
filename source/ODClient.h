@@ -18,6 +18,7 @@
 #ifndef ODCLIENT_H
 #define ODCLIENT_H
 
+#include "ClientNotification.h"
 #include "ODSocketClient.h"
 #include "ODPacket.h"
 #include "ChatMessage.h"
@@ -28,7 +29,7 @@
 #define OD_STRING_S(x) #x
 #define OD_STRING_S_(x) OD_STRING_S(x)
 #define S__LINE__ OD_STRING_S_(__LINE__)
-#define OD_ASSERT_TRUE(a)        if(!(a)) LogManager::getSingleton().logMessage("False Assert file " + std::string(__FILE__) + " line " + std::string(S__LINE__))
+#define OD_ASSERT_TRUE(a)        if(!(a)) LogManager::getSingleton().logMessage("Assert failed file " + std::string(__FILE__) + " line " + std::string(S__LINE__))
 
 class ODClient: public Ogre::Singleton<ODClient>,
     public ODSocketClient
@@ -56,10 +57,25 @@ class ODClient: public Ogre::Singleton<ODClient>,
      */
     void processClientNotifications();
 
+    //! \brief Connects to the server host:port after loading the map levelFilename
+    bool connect(const std::string& host, const int port, const std::string& levelFilename);
+
+    //! \brief Adds a client notification to the client notification queue.
+    void queueClientNotification(ClientNotification* n);
+
+    //! \brief Adds a client notification to the client notification queue.
+    void notifyExit();
+
  private:
+    bool processOneClientSocketMessage(bool& isNewTurn);
+
     void sendToServer(ODPacket& packetToSend);
 
     std::string mTmpReceivedString;
+    std::string mLevelFilename;
+
+    std::deque<ClientNotification*> mClientNotificationQueue;
+
 };
 
 #endif // ODCLIENT_H

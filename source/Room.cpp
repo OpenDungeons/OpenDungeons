@@ -25,7 +25,8 @@
 #include "RoomQuarters.h"
 #include "RoomTreasury.h"
 #include "RoomObject.h"
-
+#include "ODServer.h"
+#include "ServerNotification.h"
 #include "Player.h"
 #include "Tile.h"
 #include "Creature.h"
@@ -43,7 +44,8 @@ Room::Room():
     setObjectType(GameEntity::room);
 }
 
-Room* Room::createRoom(RoomType nType, const std::vector<Tile*>& nCoveredTiles, int nColor)
+Room* Room::createRoom(RoomType nType, const std::vector<Tile*>& nCoveredTiles, int nColor,
+    const std::string& nameToUse)
 {
     Room* tempRoom = NULL;
 
@@ -91,12 +93,10 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*>& nCoveredTiles, 
     tempRoom->setMeshName(getMeshNameFromRoomType(nType));
     tempRoom->mType = nType;
 
-    static int uniqueNumber = 0;
-    std::stringstream tempSS;
-
-    tempSS.str("");
-    tempSS << tempRoom->getMeshName() << "_" << --uniqueNumber;
-    tempRoom->setName(tempSS.str());
+    if(nameToUse.empty())
+        tempRoom->buildUniqueName();
+    else
+        tempRoom->setName(nameToUse);
 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
         tempRoom->addCoveredTile(nCoveredTiles[i]);
@@ -106,20 +106,27 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*>& nCoveredTiles, 
     return tempRoom;
 }
 
-Room* Room::buildRoom(GameMap* gameMap, Room::RoomType nType, const std::vector< Tile* >& coveredTiles,
-                      Player* player, bool inEditor)
+void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
 {
-    int goldRequired = coveredTiles.size() * Room::costPerTile(nType);
-    Room* newRoom = NULL;
-
-    if(!inEditor && player->getSeat()->getGold() < goldRequired)
-        return newRoom;
-
-    newRoom = createRoom(nType, coveredTiles, player->getSeat()->getColor());
     gameMap->addRoom(newRoom);
+    newRoom->setControllingSeat(player->getSeat());
+    std::vector<Tile*> coveredTiles = newRoom->getCoveredTiles();
 
-    if(!inEditor)
-        gameMap->withdrawFromTreasuries(goldRequired, player->getSeat()->getColor());
+    // We build the message for the new room creation here with the original room size because
+    // it may change if a room is absorbed
+    if(ODServer::getSingleton().isConnected())
+    {
+        int intType = static_cast<int32_t>(newRoom->getType());
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::buildRoom, player);
+        serverNotification->packet << intType << player->getSeat()->getColor() << coveredTiles.size();
+        for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
+        {
+            Tile* tile = *it;
+            serverNotification->packet << tile;
+        }
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
 
     // Check all the tiles that border the newly created room and see if they
     // contain rooms which can be absorbed into this newly created room.
@@ -141,8 +148,6 @@ Room* Room::buildRoom(GameMap* gameMap, Room::RoomType nType, const std::vector<
     newRoom->createMesh();
 
     SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::BUILDROOM, false);
-
-    return newRoom;
 }
 
 void Room::absorbRoom(Room *r)
@@ -150,7 +155,7 @@ void Room::absorbRoom(Room *r)
     while (r->numCoveredTiles() > 0)
     {
         Tile *tempTile = r->getCoveredTile(0);
-        r->removeCoveredTile(tempTile);
+        r->removeCoveredTile(tempTile, true);
         addCoveredTile(tempTile);
     }
 
@@ -167,7 +172,7 @@ void Room::addCoveredTile(Tile* t, double nHP)
     t->setCoveringRoom(this);
 }
 
-void Room::removeCoveredTile(Tile* t)
+void Room::removeCoveredTile(Tile* t, bool isTileAbsorb)
 {
     bool removedTile = false;
     for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
@@ -319,7 +324,7 @@ bool Room::doUpkeep()
     {
         if (mTileHP[mCoveredTiles[i]] <= 0.0)
         {
-            removeCoveredTile(mCoveredTiles[i]);
+            removeCoveredTile(mCoveredTiles[i], false);
             oneTileRemoved = true;
         }
         else
@@ -336,31 +341,31 @@ bool Room::doUpkeep()
     return true;
 }
 
-Room* Room::createRoomFromStream(const std::string& roomName, std::istream& is, GameMap* gameMap)
+Room* Room::createRoomFromStream(const std::string& roomMeshName, std::istream& is, GameMap* gameMap,
+    const std::string& roomName)
 {
     Room tempRoom;
-    tempRoom.setMeshName(roomName);
+    tempRoom.setMeshName(roomMeshName);
     tempRoom.setGameMap(gameMap);
     is >> &tempRoom;
 
-    return createRoom(tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor());
+    return createRoom(tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor(), roomName);
+}
+
+void Room::buildUniqueName()
+{
+    static int uniqueNumber = 0;
+    setName(getMeshName() + "_" + Ogre::StringConverter::toString(++uniqueNumber));
 }
 
 std::istream& operator>>(std::istream& is, Room* r)
 {
     assert(r);
 
-    static int uniqueNumber = 0;
     int tilesToLoad, tempX, tempY;
-    std::stringstream tempSS;
-
     int tempInt = 0;
     is >> tempInt;
     r->setColor(tempInt);
-
-    tempSS.str("");
-    tempSS << r->getMeshName() << "_" << ++uniqueNumber;
-    r->setName(tempSS.str());
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
@@ -380,7 +385,7 @@ std::ostream& operator<<(std::ostream& os, Room *r)
     if (r == NULL)
         return os;
 
-    os << r->getMeshName() << "\t" << r->getColor() << "\n";
+    os << r->getMeshName() << "\t" << r->getName() << "\t" << r->getColor() << "\n";
     os << r->mCoveredTiles.size() << "\n";
     for (unsigned int i = 0; i < r->mCoveredTiles.size(); ++i)
     {
@@ -391,31 +396,26 @@ std::ostream& operator<<(std::ostream& os, Room *r)
     return os;
 }
 
-Room* Room::createRoomFromPacket(const std::string& roomName, ODPacket& is, GameMap* gameMap)
+Room* Room::createRoomFromPacket(const std::string& roomMeshName, ODPacket& is, GameMap* gameMap,
+    const std::string& roomName)
 {
     Room tempRoom;
-    tempRoom.setMeshName(roomName);
+    tempRoom.setMeshName(roomMeshName);
     tempRoom.setGameMap(gameMap);
     is >> &tempRoom;
 
-    return createRoom(tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor());
+    return createRoom(tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor(), roomName);
 }
 
 ODPacket& operator>>(ODPacket& is, Room* r)
 {
     assert(r);
 
-    static int uniqueNumber = 0;
     int tilesToLoad, tempX, tempY;
-    std::stringstream tempSS;
 
     int tempInt = 0;
     is >> tempInt;
     r->setColor(tempInt);
-
-    tempSS.str("");
-    tempSS << r->getMeshName() << "_" << ++uniqueNumber;
-    r->setName(tempSS.str());
 
     is >> tilesToLoad;
     for (int i = 0; i < tilesToLoad; ++i)
@@ -435,12 +435,12 @@ ODPacket& operator<<(ODPacket& os, Room *r)
     if (r == NULL)
         return os;
 
-    os << r->getMeshName() << "\t" << r->getColor() << "\n";
-    os << r->mCoveredTiles.size() << "\n";
+    os << r->getMeshName() << r->getName() << r->getColor();
+    os << r->mCoveredTiles.size();
     for (unsigned int i = 0; i < r->mCoveredTiles.size(); ++i)
     {
         Tile *tempTile = r->mCoveredTiles[i];
-        os << tempTile->x << "\t" << tempTile->y << "\n";
+        os << tempTile->x << tempTile->y;
     }
 
     return os;

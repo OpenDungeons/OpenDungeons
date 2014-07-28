@@ -8,11 +8,15 @@
         <Property name="FrameEnabled" value="False" />
         <Property name="BackgroundEnabled" value="False" />
         <Window type="OD/MainMenuButton" name="StartNewGameButton" >
-            <Property name="Area" value="{{0.5,-82},{0,281},{0.5,82},{0,371}}" />
-            <Property name="Text" value="New Game" />
+            <Property name="Area" value="{{0.5,-82},{0,211},{0.5,82},{0,301}}" />
+            <Property name="Text" value="Single Player" />
+        </Window>
+        <Window type="OD/MainMenuButton" name="StartNewGameButtonMulti" >
+            <Property name="Area" value="{{0.5,-82},{0,331},{0.5,82},{0,421}}" />
+            <Property name="Text" value="Multi Player" />
         </Window>
         <Window type="OD/MainMenuButton" name="MapEditorButton" >
-            <Property name="Area" value="{{0.5,-82},{0,401},{0.5,82},{0,491}}" />
+            <Property name="Area" value="{{0.5,-82},{0,451},{0.5,82},{0,541}}" />
             <Property name="Text" value="Map Editor" />
         </Window>
         <Window type="OD/StaticImage" name="WelcomeBanner" >
@@ -23,7 +27,7 @@
             <Property name="BackgroundEnabled" value="False" />
         </Window>
         <Window type="OD/MainMenuButton" name="QuitButton" >
-            <Property name="Area" value="{{0.5,-82},{0,524},{0.5,82},{0,614}}" />
+            <Property name="Area" value="{{0.5,-82},{0,574},{0.5,82},{0,664}}" />
             <Property name="Text" value="Quit" />
         </Window>
     </Window>

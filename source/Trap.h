@@ -18,6 +18,8 @@
 #ifndef TRAP_H
 #define TRAP_H
 
+#include "ODPacket.h"
+
 #include <string>
 #include <vector>
 #include <istream>
@@ -49,19 +51,22 @@ public:
     virtual ~Trap()
     {}
 
-    static Trap* createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-                            Seat *nControllingSeat, void* params = NULL);
-
-    /** \brief Builds a trap for the current player.
-     *  Builds a trap for the current player. Checks if the player has enough gold,
-     *  if not, NULL is returned.
-     *  \return The trap built, or NULL if the player does not have enough gold.
+    /*! \brief Creates a type specific subclass of trap and returns a pointer to it.
+     * This function also sets up some of the room's properties. If nameToUse is empty,
+     * a new unique name will be generated. If not, the given one will be used
      */
-    static Trap* buildTrap(GameMap* gameMap, Trap::TrapType nType,
-                           const std::vector< Tile* >& coveredTiles,
-                           Player* player, bool inEditor = false, void* params = NULL);
+    //TODO: Use something better than a void pointer for params.
+    static Trap* createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
+        Seat *nControllingSeat, const std::string& nameToUse = "", void* params = NULL);
 
-    static Trap* createTrapFromStream(const std::string& trapName, std::istream &is, GameMap* gameMap);
+    /** \brief Adds the trap newTrap to the game map for the current player
+     */
+    static void setupTrap(GameMap* gameMap, Trap* newTrap, Player* player);
+
+    static Trap* createTrapFromStream(const std::string& trapMeshName, std::istream &is, GameMap* gameMap,
+        const std::string& trapName);
+    static Trap* createTrapFromPacket(const std::string& trapMeshName, ODPacket &is, GameMap* gameMap,
+        const std::string& trapName);
 
     inline const TrapType& getType() const
     { return mType; }
@@ -78,15 +83,23 @@ public:
     virtual std::vector<GameEntity*> aimEnemy();
     virtual void damage(std::vector<GameEntity*>);
 
+    /*! \brief This function makes sure the name of the trap is unique. It shall be called after loading
+     * a trap from the level file or when a new one is built.
+     */
+    void buildUniqueName();
+
     virtual void addCoveredTile(Tile* t, double nHP = mDefaultTileHP);
-    virtual void removeCoveredTile(Tile* t);
+    virtual void removeCoveredTile(Tile* t, bool isTileAbsorb);
     virtual Tile* getCoveredTile(int index);
-    std::vector<Tile*> getCoveredTiles();virtual unsigned int numCoveredTiles();
+    std::vector<Tile*> getCoveredTiles();
+    virtual unsigned int numCoveredTiles();
     virtual void clearCoveredTiles();
 
     static std::string getFormat();
     friend std::istream& operator>>(std::istream& is, Trap *t);
     friend std::ostream& operator<<(std::ostream& os, Trap *t);
+    friend ODPacket& operator>>(ODPacket& is, Trap *t);
+    friend ODPacket& operator<<(ODPacket& os, Trap *t);
 
     // Methods inherited from AttackableObject.
     //TODO:  Sort these into the proper places in the rest of the file.
