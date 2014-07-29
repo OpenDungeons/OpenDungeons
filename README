@@ -5,9 +5,8 @@ Welcome into the Open Dungeons (OD) project README file.
 
 Website: http://opendungeons.sourceforge.net/
 Forums: http://forum.freegamedev.net/viewforum.php?f=15
-Official repository: http://sourceforge.net/p/opendungeons/git/ci/master/tree/ ('development' branch)
-Official Media files SVN repository: http://sourceforge.net/p/opendungeons/svn/HEAD/tree/
-
+Official repository: https://github.com/OpenDungeons/OpenDungeons ('development' branch)
+Media source files: https://github.com/OpenDungeons/OpenDungeons-media-source
 
 --- Folders structure ---
 Data files :
@@ -69,4 +68,4 @@ On windows, make sure you have the MSVC corresponding SDK, or either compile fro
 
 Then, use CMake-Gui to generate project files for your IDE.
 
-You can also have a look at our FAQ.txt file for more intformation.
+You can also have a look at our FAQ.txt file for more information.
