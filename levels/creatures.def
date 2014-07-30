@@ -18,8 +18,9 @@ Spider	WeakFighter	Spider.mesh	Bed	1	2	0.5	0.5	0.5	2	2	50	50	15	0	0	1.5	walkable
 Wizard	WeakFighter	Wizard.mesh	Bed	1	2	0.5	0.5	0.5	3	3	70	70	15	0	0	0.7	walkableTile
 Tentacle1	WeakFighter	Tentacle.mesh	ForgeAnvilObject	1	1	0.6	0.6	0.6	2	2	50	50	15	0	0	1	walkableTile
 Tentacle2	WeakFighter	Tentacle2.mesh	ForgeAnvilObject	1	1	0.6	0.6	0.6	3	3	90	90	15	0	0	1.1	walkableTile
-Troll	StrongFighter	Troll.mesh	Bed	2	3	0.6	0.6	0.6	5	5	150	150	15	0	0	0.8	walkableTile
+Troll	StrongFighter	Troll.mesh	Bed	2	3	0.2	0.2	0.2	5	5	150	150	15	0	0	0.4	walkableTile
 Adventurer	WeakFighter	Adventurer.mesh	Bed	1	2	0.5	0.5	0.5	2	2	60	60	15	0	0	1.2	walkableTile
 LizardMan	StrongFighter	Lizardman.mesh	Bed	1	2	0.5	0.5	0.5	5	5	150	150	15	0	0	1	walkableTile
 CaveHornet	StrongFighter	Cavehornet.mesh	Bed	1	2	0.4	0.4	0.4	2	2	40	40	15	0	0	2	flyableTile
+Scarab	StrongFighter	Scarab.mesh	Bed	4	4	0.2	0.2	0.2	6	6	180	180	15	0	0	0.7	walkableTile
 [/Creatures_definition]
