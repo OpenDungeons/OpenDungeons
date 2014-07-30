@@ -71,7 +71,7 @@ Gui::Gui()
 
     sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
-    sheets[singleplayerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSingleplayer.layout");
+    sheets[singleplayerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSinglePlayer.layout");
     sheets[multiplayertMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayer.layout");
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
 
