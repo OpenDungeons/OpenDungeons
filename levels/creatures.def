@@ -4,7 +4,7 @@ Wyvern	WeakFighter	Wyvern.mesh	Bed	2	2	0.35	0.35	0.35	2	2	60	60	15	0	0	1.5	flyab
 Knight	WeakFighter	Knight.mesh	Bed	1	2	0.5	0.5	0.5	3	3	90	90	15	0	0	1	walkableTile
 BigKnight	StrongFighter	Knight.mesh	ForgeForgeObject	3	3	0.5	0.5	0.5	5	5	150	150	15	0	0	0.8	walkableTile
 Kobold	BasicWorker	Kobold.mesh	Bed	1	2	0.04	0.04	0.04	1	1	30	30	15	20	0.42	2	flyableTile
-Dragon	StrongFighter	Dragon.mesh	GoldChest	4	4	0.4	0.4	0.4	8	8	240	240	15	0	0	0.5	flyableTile
+Dragon	StrongFighter	Dragon.mesh	GoldstackLv4	4	4	0.4	0.4	0.4	8	8	240	240	15	0	0	0.5	flyableTile
 Dwarf1	WeakFighter	Dwarf1.mesh	Bed	1	2	0.55	0.55	0.55	2	2	60	60	15	0	0	0.8	walkableTile
 Dwarf2	WeakFighter	Dwarf2.mesh	Bed	1	2	0.55	0.55	0.55	2	2	60	60	15	0	0	0.8	walkableTile
 Dwarf3	StrongFighter	Dwarf3.mesh	Bed	1	2	0.5	0.5	0.5	5	5	150	150	15	0	0	0.8	walkableTile
