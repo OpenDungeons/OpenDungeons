@@ -100,7 +100,7 @@ public:
 
     //! \brief Tells whether the entity name already exists.
     //! \note Ogre entity names must be unique.
-    bool doesCreatureNameExist(const std::string& entity_name);
+    bool doesCreatureNameExist(const std::string& entityName);
 
     //! \brief Adds the address of a new creature to be stored in this GameMap.
     void addCreature(Creature *c);
@@ -130,7 +130,7 @@ public:
     void addAnimatedObject(MovableGameEntity *a);
     void removeAnimatedObject(MovableGameEntity *a);
     MovableGameEntity* getAnimatedObject(int index);
-    MovableGameEntity* getAnimatedObject(std::string name);
+    MovableGameEntity* getAnimatedObject(const std::string& name);
     unsigned int numAnimatedObjects();
 
     void addActiveObject(GameEntity* a);
@@ -153,7 +153,7 @@ public:
 
     //! \brief Returns a pointer to the first class description whose 'name' or index parameter matches the query.
     CreatureDefinition* getClassDescription(int index);
-    CreatureDefinition* getClassDescription(std::string query);
+    CreatureDefinition* getClassDescription(const std::string& className);
 
     //! \brief Returns the total number of class descriptions stored in this game map.
     unsigned int numClassDescriptions();
@@ -181,7 +181,7 @@ public:
                       int color) const;
     std::vector<Room*> getReachableRooms(const std::vector<Room*> &vec,
                        Tile *startTile, Tile::TileClearType passability);
-    Room* getRoomByName(std::string& name);
+    Room* getRoomByName(const std::string& name);
 
     //! \brief Traps related functions.
     void clearTraps();
@@ -202,7 +202,7 @@ public:
     void addMapLight(MapLight *m);
     void removeMapLight(MapLight *m);
     MapLight* getMapLight(int index);
-    MapLight* getMapLight(std::string name);
+    MapLight* getMapLight(const std::string& name);
     unsigned int numMapLights();
 
     //! \brief Deletes the data structure for all the players in the GameMap.
@@ -240,7 +240,7 @@ public:
     const Seat* getEmptySeat(int index) const;
 
     //! \brief A simple accessor method to return the first Seat with the given faction.
-    Seat* getEmptySeat(std::string faction);
+    Seat* getEmptySeat(const std::string& faction);
 
     //! \brief Removes the Seat with given color from the GameMap and returns a pointer to it,
     //! this is used when a Player "sits down" at the GameMap.

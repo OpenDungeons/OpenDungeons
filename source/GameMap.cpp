@@ -279,11 +279,11 @@ void GameMap::addClassDescription(CreatureDefinition c)
     classDescriptions.push_back(ptr);
 }
 
-bool GameMap::doesCreatureNameExist(const std::string& entity_name)
+bool GameMap::doesCreatureNameExist(const std::string& entityName)
 {
     for (unsigned int ii = 0; ii < creatures.size(); ++ii)
     {
-        if (creatures[ii]->getName() == entity_name)
+        if (creatures[ii]->getName() == entityName)
         {
             return true;
         }
@@ -334,11 +334,11 @@ void GameMap::queueCreatureForDeletion(Creature *c)
     creaturesToDelete[mTurnNumber].push_back(c);
 }
 
-CreatureDefinition* GameMap::getClassDescription(std::string query)
+CreatureDefinition* GameMap::getClassDescription(const std::string& className)
 {
     for (unsigned int i = 0; i < classDescriptions.size(); ++i)
     {
-        if (classDescriptions[i]->getClassName().compare(query) == 0)
+        if (classDescriptions[i]->getClassName().compare(className) == 0)
             return classDescriptions[i].get();
     }
 
@@ -395,7 +395,7 @@ MovableGameEntity* GameMap::getAnimatedObject(int index)
     return tempAnimatedObject;
 }
 
-MovableGameEntity* GameMap::getAnimatedObject(std::string name)
+MovableGameEntity* GameMap::getAnimatedObject(const std::string& name)
 {
     MovableGameEntity* tempAnimatedObject = NULL;
 
@@ -1605,8 +1605,7 @@ std::vector<Room*> GameMap::getRoomsByType(Room::RoomType type)
     return returnList;
 }
 
-std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type,
-        int color)
+std::vector<Room*> GameMap::getRoomsByTypeAndColor(Room::RoomType type, int color)
 {
     std::vector<Room*> returnList;
     for (unsigned int i = 0; i < rooms.size(); ++i)
@@ -1642,8 +1641,9 @@ unsigned int GameMap::numRoomsByTypeAndColor(Room::RoomType type, int color) con
     return count;
 }
 
-std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec,
-        Tile *startTile, Tile::TileClearType passability)
+std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*>& vec,
+                                              Tile* startTile,
+                                              Tile::TileClearType passability)
 {
     std::vector<Room*> returnVector;
 
@@ -1662,7 +1662,7 @@ std::vector<Room*> GameMap::getReachableRooms(const std::vector<Room*> &vec,
     return returnVector;
 }
 
-Room* GameMap::getRoomByName(std::string& name)
+Room* GameMap::getRoomByName(const std::string& name)
 {
     for (std::vector<Room*>::const_iterator it = rooms.begin(); it != rooms.end(); ++it)
     {
@@ -1804,7 +1804,7 @@ MapLight* GameMap::getMapLight(int index)
     return mapLights[index];
 }
 
-MapLight* GameMap::getMapLight(std::string name)
+MapLight* GameMap::getMapLight(const std::string& name)
 {
     for (unsigned int i = 0; i < mapLights.size(); ++i)
     {
@@ -1850,7 +1850,7 @@ const Seat* GameMap::getEmptySeat(int index) const
     return emptySeats[index];
 }
 
-Seat* GameMap::getEmptySeat(std::string faction)
+Seat* GameMap::getEmptySeat(const std::string& faction)
 {
     Seat* seat = NULL;
     for (std::vector<Seat*>::iterator it = emptySeats.begin(); it != emptySeats.end(); ++it)
