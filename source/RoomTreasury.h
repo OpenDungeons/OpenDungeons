@@ -40,9 +40,10 @@ public:
     int withdrawGold(int gold);
 
 private:
+    //! \brief Tells which room object is used to show how much the tile is full of gold.
     enum TreasuryTileFullness
     {
-        empty, bag, chest, overfull
+        noGold = 0, quarter, half, threeQuarters, fullOfGold
     };
 
     static TreasuryTileFullness getTreasuryTileFullness(int gold);
@@ -53,9 +54,6 @@ private:
     void destroyMeshesForTile(Tile *t, const std::string& indicatorMeshName);
     void createGoldMeshes();
     void destroyGoldMeshes();
-
-    static const int maxGoldWhichCanBeStoredInABag = 3000;
-    static const int maxGoldWhichCanBeStoredInAChest = 5000;
 
     std::map<Tile*, int> mGoldInTile;
     std::map<Tile*, TreasuryTileFullness> mFullnessOfTile;

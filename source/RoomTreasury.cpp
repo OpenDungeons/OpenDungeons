@@ -26,6 +26,8 @@
 
 #include <string>
 
+static const int maxGoldinTile = 5000;
+
 RoomTreasury::RoomTreasury()
 {
     mType = treasury;
@@ -70,7 +72,7 @@ void RoomTreasury::addCoveredTile(Tile* t, double nHP)
     if (mGoldInTile.find(t) == mGoldInTile.end())
     {
         mGoldInTile[t] = 0;
-        mFullnessOfTile[t] = empty;
+        mFullnessOfTile[t] = noGold;
     }
 }
 
@@ -103,7 +105,7 @@ int RoomTreasury::getTotalGold()
 
 int RoomTreasury::emptyStorageSpace()
 {
-    return numCoveredTiles() * maxGoldWhichCanBeStoredInAChest - getTotalGold();
+    return numCoveredTiles() * maxGoldinTile - getTotalGold();
 }
 
 int RoomTreasury::depositGold(int gold, Tile *tile)
@@ -111,7 +113,7 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     int goldDeposited, goldToDeposit = gold, emptySpace;
 
     // Start by trying to deposit the gold in the requested tile.
-    emptySpace = maxGoldWhichCanBeStoredInAChest - mGoldInTile[tile];
+    emptySpace = maxGoldinTile - mGoldInTile[tile];
     goldDeposited = std::min(emptySpace, goldToDeposit);
     mGoldInTile[tile] += goldDeposited;
     goldToDeposit -= goldDeposited;
@@ -122,7 +124,7 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
          itr != mGoldInTile.end() && goldToDeposit > 0; ++itr)
     {
         // Store as much gold as we can in this tile.
-        emptySpace = maxGoldWhichCanBeStoredInAChest - itr->second;
+        emptySpace = maxGoldinTile - itr->second;
         goldDeposited = std::min(emptySpace, goldToDeposit);
         itr->second += goldDeposited;
         goldToDeposit -= goldDeposited;
@@ -164,35 +166,39 @@ int RoomTreasury::withdrawGold(int gold)
 RoomTreasury::TreasuryTileFullness RoomTreasury::getTreasuryTileFullness(int gold)
 {
     if (gold <= 0)
-        return empty;
+        return noGold;
 
-    if (gold <= maxGoldWhichCanBeStoredInABag)
-        return bag;
+    if (gold <= maxGoldinTile / 4)
+        return quarter;
 
-    if (gold <= maxGoldWhichCanBeStoredInAChest)
-        return chest;
+    if (gold <= maxGoldinTile / 2)
+        return half;
 
-    return overfull;
+    if (gold <= maxGoldinTile / 4 * 3)
+        return threeQuarters;
+
+    if (gold <= maxGoldinTile)
+        return fullOfGold;
 }
 
-const char* RoomTreasury::getMeshNameForTreasuryTileFullness(
-        TreasuryTileFullness fullness)
+const char* RoomTreasury::getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness)
 {
     switch (fullness)
     {
+        case quarter:
+            return "GoldstackLv1";
+
+        case half:
+            return "GoldstackLv2";
+
+        case threeQuarters:
+            return "GoldstackLv3";
+
+        case fullOfGold:
+            return "GoldstackLv4";
+
         // The empty case should really never happen since we shouldn't be creating meshes for an empty tile anyway.
-        case empty:
-            return "TreasuryTileEmptyError";
-
-        case bag:
-            return "GoldBag";
-
-        case chest:
-            return "GoldChest";
-
-        case overfull:
-            return "TreasuryTileOverfullError";
-
+        case noGold:
         default:
             return "TreasuryTileFullnessMeshError";
     }
@@ -207,14 +213,14 @@ void RoomTreasury::updateMeshesForTile(Tile* t)
         return;
 
     // Since the fullness level has changed we need to destroy the existing indicator mesh (if it exists) and create a new one.
-    if (mFullnessOfTile[t] != empty)
+    if (mFullnessOfTile[t] != noGold)
     {
         std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
         destroyMeshesForTile(t, indicatorMeshName);
     }
 
     mFullnessOfTile[t] = newFullness;
-    if (mFullnessOfTile[t] != empty)
+    if (mFullnessOfTile[t] != noGold)
     {
         std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
         createMeshesForTile(t, indicatorMeshName);
@@ -270,7 +276,7 @@ void RoomTreasury::createGoldMeshes()
     for (unsigned int i = 0; i < numCoveredTiles(); ++i)
     {
         Tile* t = getCoveredTile(i);
-        if (mFullnessOfTile[t] == empty)
+        if (mFullnessOfTile[t] == noGold)
             continue;
 
         std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
@@ -284,7 +290,7 @@ void RoomTreasury::destroyGoldMeshes()
     {
         // If the tile is empty, there is no indicator mesh to create.
         Tile* t = getCoveredTile(i);
-        if (mFullnessOfTile[t] == empty)
+        if (mFullnessOfTile[t] == noGold)
             continue;
 
         std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
