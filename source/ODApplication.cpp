@@ -94,6 +94,20 @@ ODApplication::ODApplication() :
         new ODServer();
         new ODClient();
 
+        //Initialise RTshader system
+        // IMPORTANT: This needs to be initialized BEFORE the resource groups.
+        // eg: Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
+        // but after the render window, eg: mRoot->initialise();
+        // This advice was taken from here:
+        // http://www.ogre3d.org/forums/viewtopic.php?p=487445#p487445
+        if (!Ogre::RTShader::ShaderGenerator::initialize())
+        {
+            //TODO - exit properly
+            LogManager::getSingletonPtr()->logMessage("FATAL:"
+                    "Failed to initialize the Real Time Shader System, exiting", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+
         Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
         new MusicPlayer();
         new SoundEffectsHelper();
