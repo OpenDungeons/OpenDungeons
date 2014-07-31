@@ -253,6 +253,13 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         break;
     }
 
+    case RenderRequest::deleteRoomObject:
+    {
+        RoomObject* curRoomObject = static_cast<RoomObject*>(renderRequest.p);
+        delete curRoomObject;
+        break;
+    }
+
     case RenderRequest::createCreature:
         rrCreateCreature(renderRequest);
         break;
@@ -373,8 +380,7 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         break;
 
     default:
-        std::cerr << "\n\n\nERROR:"
-                  "Unhandled render request!\n\n\n";
+        std::cerr << "WARNING: Unhandled render request! Request type number: " << renderRequest.type << std::endl;
         return false;
     }
     return true;

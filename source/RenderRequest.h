@@ -33,7 +33,7 @@ class RenderRequest
 public:
     enum RequestType
     {
-        createTile,
+        createTile = 0,
         refreshTile,
         destroyTile,
         deleteTile,
