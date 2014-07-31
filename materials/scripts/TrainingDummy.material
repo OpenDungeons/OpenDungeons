@@ -9,7 +9,7 @@ material TrainingDummmy RTSS/NormalMapping_MultiPass
             ambient 1.0 1.0 1.0
             // No diffuse to remove the metallic effect
             diffuse 0.0 0.0 0.0
-            specular 0.1 0.1 0.1
+            specular 0.1 0.1 0.1 1.0
             emissive 0.6 0.6 0.6 0.6
             texture_unit decalmap
             {
