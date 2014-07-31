@@ -77,15 +77,6 @@ RenderManager::RenderManager() :
     mShaderGenerator(NULL),
     mInitialized(false)
 {
-    //Initialise RTshader system
-    if (!Ogre::RTShader::ShaderGenerator::initialize())
-    {
-        //TODO - exit properly
-        LogManager::getSingletonPtr()->logMessage("FATAL:"
-                "Failed to initialise shader generator, exiting", Ogre::LML_CRITICAL);
-        exit(1);
-    }
-
     // Use Ogre::SceneType enum instead of string to identify the scene manager type; this is more robust!
     mSceneManager = ODApplication::getSingletonPtr()->getRoot()->createSceneManager(Ogre::ST_INTERIOR, "SceneManager");
     mSceneManager->addRenderQueueListener(ODApplication::getSingletonPtr()->getOverlaySystem());

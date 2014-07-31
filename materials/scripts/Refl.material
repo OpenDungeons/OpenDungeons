@@ -1,19 +1,19 @@
 material Refl
 {
-	technique
-	{	
-		pass
-		{
-			ambient 0.0 0.0 0.0
-			diffuse 1.0 1.0 1.0
-			specular 0.2 0.2 0.2 9800.0
-			emissive 0.0 0.0 0.0 1
-			texture_unit
-			{
-				texture Envmap_metal2B.png
-				color_op_ex blend_manual src_texture src_current 0.5
-				env_map spherical
-			}
-		}
-	}
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0
+            diffuse 1.0 1.0 1.0
+            specular 0.2 0.2 0.2 9800.0
+            emissive 0.0 0.0 0.0 1
+            texture_unit
+            {
+                texture Envmap_metal2B.png
+                colour_op_ex blend_manual src_texture src_current 0.5
+                env_map spherical
+            }
+        }
+    }
 }

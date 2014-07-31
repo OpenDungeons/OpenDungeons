@@ -5,7 +5,26 @@ material Claimedwall RTSS/NormalMapping_MultiPass
     {
         pass
         {
-            texture_unit decalmap
+            lighting on
+
+            // make it dim
+            ambient 0.8 0.5 0.0
+            diffuse 0.0 0.0 0.0
+            specular 0.8 0.5 0.0 0.0
+
+            texture_unit
+            {
+                texture White.png
+            }
+        }
+        pass
+        {
+            // We use blending, so that we can see the underlying texture.
+            scene_blend alpha_blend
+
+            lighting on
+
+            texture_unit
             {
                 texture Claimedwall2B.png
             }

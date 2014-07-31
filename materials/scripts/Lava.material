@@ -1,24 +1,24 @@
 material Lava
 {
-	receive_shadows on
-	technique
-	{
-		pass
-		{
-			ambient 0.0 0.0 0.0 1.000000
-			diffuse 0.8 0.8 0.8 1.000000
-			specular 0.0 0.0 0.0 1.000000 0.250000
-			emissive 0.99 0.99 0.99 1.000000
-			texture_unit
-			{
-				texture Lava_anim_0.png
-				wave_xform scroll_x sine 0.1 0.2 0.0 0.1
-				wave_xform scroll_y sine 0.01 0.22 0.0 0.18
-				scroll_anim 0.1 0.2
-				scale_anim 0.7 0.9
-				tex_address_mode wrap
-				filtering trilinear
-			}
-		}
-	}
+    receive_shadows on
+    technique
+    {
+        pass
+        {
+            ambient 0.0 0.0 0.0 1.000000
+            diffuse 0.8 0.8 0.8 1.000000
+            specular 0.0 0.0 0.0 1.000000 0.250000
+            emissive 0.99 0.99 0.99 1.000000
+            texture_unit
+            {
+                texture Lava_anim_0.png
+                wave_xform scroll_x sine 0.1 0.2 0.0 0.1
+                wave_xform scroll_y sine 0.01 0.22 0.0 0.18
+                scroll_anim 0.1 0.2
+                //scale_anim 0.7 0.9
+                tex_address_mode wrap
+                filtering trilinear
+            }
+        }
+    }
 }
