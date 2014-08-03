@@ -1,7 +1,8 @@
 [Graphics]
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/materials
-FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/GLSL/
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/GLSL
+FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/RTShaderLib/Cg
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/scripts
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/materials/textures
 FileSystem=@OPENDUNGEONS_MEDIA_DIR@/models
