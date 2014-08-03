@@ -23,6 +23,7 @@
 #include "GameMap.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
+#include "LogManager.h"
 
 #include <string>
 
@@ -168,18 +169,22 @@ RoomTreasury::TreasuryTileFullness RoomTreasury::getTreasuryTileFullness(int gol
 {
     if (gold <= 0)
         return noGold;
-
     if (gold <= maxGoldinTile / 4)
         return quarter;
-
     if (gold <= maxGoldinTile / 2)
         return half;
-
     if (gold <= maxGoldinTile / 4 * 3)
         return threeQuarters;
 
-    if (gold <= maxGoldinTile)
-        return fullOfGold;
+    if (gold > maxGoldinTile)
+    {
+        std::stringstream str("");
+        str << "Warning invalid amount of gold on treasury tile (" << gold
+            << "/" << maxGoldinTile << ")";
+        LogManager::getSingleton().logMessage(str.str());
+    }
+
+    return fullOfGold;
 }
 
 const char* RoomTreasury::getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness)
