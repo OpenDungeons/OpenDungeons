@@ -524,11 +524,11 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                 ss << "_";
                 ss << y;
 
-                Tile myTile(x, y, mCurrentTileType, mCurrentFullness);
-                myTile.setName(ss.str());
-                myTile.createMesh();
+                Tile* myTile = new Tile(mGameMap, x, y, mCurrentTileType, mCurrentFullness);
+                myTile->setName(ss.str());
+                myTile->createMesh();
                 mGameMap->addTile(myTile);
-                affectedTiles.push_back(&myTile);
+                affectedTiles.push_back(myTile);
             }
         }
 
@@ -576,8 +576,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     // for adding rooms to.  This block then actually adds rooms to the remaining tiles.
     if (inputManager->mDragType == addNewRoom && !affectedTiles.empty())
     {
-        Room* newRoom = Room::createRoom(mGameMap->getLocalPlayer()->getNewRoomType(), affectedTiles,
-            mGameMap->getLocalPlayer()->getSeat()->getColor());
+        Room* newRoom = Room::createRoom(mGameMap, mGameMap->getLocalPlayer()->getNewRoomType(),
+            affectedTiles, mGameMap->getLocalPlayer()->getSeat()->getColor());
         Room::setupRoom(mGameMap, newRoom, mGameMap->getLocalPlayer());
     }
 
@@ -585,7 +585,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
     // for adding traps to.  This block then actually adds traps to the remaining tiles.
     else if (inputManager->mDragType == addNewTrap && !affectedTiles.empty())
     {
-        Trap* newTrap = Trap::createTrap(mGameMap->getLocalPlayer()->getNewTrapType(),
+        Trap* newTrap = Trap::createTrap(mGameMap, mGameMap->getLocalPlayer()->getNewTrapType(),
             affectedTiles, mGameMap->getLocalPlayer()->getSeat());
 
         Trap::setupTrap(mGameMap, newTrap, mGameMap->getLocalPlayer());
@@ -853,8 +853,9 @@ void EditorMode::onFrameStarted(const Ogre::FrameEvent& evt)
     CameraManager* cm = ODFrameListener::getSingletonPtr()->cm;
     cm->moveCamera(evt.timeSinceLastFrame);
 
-    mGameMap->getMiniMap()->draw();
-    mGameMap->getMiniMap()->swap();
+    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
+    minimap->draw();
+    minimap->swap();
 }
 
 void EditorMode::onFrameEnded(const Ogre::FrameEvent& evt)

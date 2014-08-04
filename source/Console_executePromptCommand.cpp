@@ -237,9 +237,9 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     ss << "_";
                     ss << j;
 
-                    Tile t(i, j, Tile::dirt, 100);
-                    t.setName(ss.str());
-                    t.createMesh();
+                    Tile* t = new Tile(gameMap, i, j, Tile::dirt, 100);
+                    t->setName(ss.str());
+                    t->createMesh();
                     gameMap->addTile(t);
                 }
             }
@@ -343,7 +343,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                 }
                 catch (std::bad_alloc&)
                 {
-                    Ogre::LogManager::getSingleton().logMessage("\n\nERROR:  bad alloc in terminal command \'turnspersecond\'\n\n", Ogre::LML_CRITICAL);
+                    Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in terminal command \'turnspersecond\'\n\n", Ogre::LML_CRITICAL);
+                    exit(1);
                 }
             }
 
@@ -434,7 +435,8 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         if (!arguments.empty())
         {
             // Creature the creature and add it to the gameMap
-            Creature *tempCreature = new Creature(gameMap);
+            // TODO : ask the server to do that
+            Creature *tempCreature = new Creature(gameMap, true);
             std::stringstream tempSS(arguments);
             CreatureDefinition *tempClass = gameMap->getClassDescription(tempCreature->getDefinition()->getClassName());
             if (tempClass != NULL)

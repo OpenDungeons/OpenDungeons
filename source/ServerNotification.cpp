@@ -25,7 +25,7 @@ ServerNotification::ServerNotification(ServerNotificationType type,
 {
     mType = type;
     mConcernedPlayer = concernedPlayer;
-    packet << typeString(type);
+    packet << type;
 }
 
 std::string ServerNotification::typeString(ServerNotificationType type)
@@ -62,6 +62,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "tileFullnessChange";
         case ServerNotificationType::buildRoom:
             return "buildRoom";
+        case ServerNotificationType::removeRoomTile:
+            return "removeRoomTile";
         case ServerNotificationType::buildTrap:
             return "buildTrap";
         case ServerNotificationType::animatedObjectAddDestination:
@@ -70,20 +72,34 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "animatedObjectClearDestinations";
         case ServerNotificationType::setObjectAnimationState:
             return "setObjectAnimationState";
+        case ServerNotificationType::pickupCreature:
+            return "pickupCreature";
+        case ServerNotificationType::dropCreature:
+            return "dropCreature";
         case ServerNotificationType::creaturePickedUp:
             return "creaturePickedUp";
         case ServerNotificationType::creatureDropped:
             return "creatureDropped";
         case ServerNotificationType::addCreature:
             return "addCreature";
+        case ServerNotificationType::removeCreature:
+            return "removeCreature";
+        case ServerNotificationType::creatureRefresh:
+            return "creatureRefresh";
         case ServerNotificationType::tileClaimed:
             return "tileClaimed";
         case ServerNotificationType::refreshPlayerSeat:
             return "refreshPlayerSeat";
-        case ServerNotificationType::addCreatureBed:
-            return "addCreatureBed";
-        case ServerNotificationType::removeCreatureBed:
-            return "removeCreatureBed";
+        case ServerNotificationType::addMissileObject:
+            return "addMissileObject";
+        case ServerNotificationType::removeMissileObject:
+            return "removeMissileObject";
+        case ServerNotificationType::addRoomObject:
+            return "addRoomObject";
+        case ServerNotificationType::removeRoomObject:
+            return "removeRoomObject";
+        case ServerNotificationType::removeAllRoomObjectFromRoom:
+            return "removeAllRoomObjectFromRoom";
         case ServerNotificationType::createTreasuryIndicator:
             return "createTreasuryIndicator";
         case ServerNotificationType::destroyTreasuryIndicator:
@@ -95,4 +111,18 @@ std::string ServerNotification::typeString(ServerNotificationType type)
                 + Ogre::StringConverter::toString(static_cast<int>(type)));
     }
     return "";
+}
+
+ODPacket& operator<<(ODPacket& os, const ServerNotification::ServerNotificationType& nt)
+{
+    os << static_cast<int32_t>(nt);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, ServerNotification::ServerNotificationType& nt)
+{
+    int32_t tmp;
+    is >> tmp;
+    nt = static_cast<ServerNotification::ServerNotificationType>(tmp);
+    return is;
 }

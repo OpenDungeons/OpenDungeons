@@ -64,9 +64,10 @@ class GameMap : public TileContainer
 
 friend class MiniMap;
 friend class RenderManager;
+friend class ODServer;
 
 public:
-    GameMap();
+    GameMap(bool isServerGameMap);
     ~GameMap();
 
     //! \brief Load a level file (Part of the resource paths)
@@ -91,16 +92,8 @@ public:
     //! \brief Clears the mesh and deletes the data structure for all the tiles, creatures, classes, and players in the GameMap.
     void clearAll();
 
-    MiniMap* getMiniMap()
-    { return miniMap; }
-
     //! \brief Clears the mesh and deletes the data structure for all the creatures in the GameMap.
     void clearCreatures();
-
-
-    //! \brief Tells whether the entity name already exists.
-    //! \note Ogre entity names must be unique.
-    bool doesCreatureNameExist(const std::string& entityName);
 
     //! \brief Adds the address of a new creature to be stored in this GameMap.
     void addCreature(Creature *c);
@@ -108,10 +101,11 @@ public:
     //! \brief Removes the creature from the game map but does not delete its data structure.
     void removeCreature(Creature *c);
 
-    /** \brief Adds the given creature to the queue of creatures to be deleted in a future turn
-     * when it is safe to do so after all references to the creature have been cleared.
-     */
-    void queueCreatureForDeletion(Creature *c);
+    /** \brief Adds the given entity to the queue to be deleted at the end of the turn. */
+    void queueEntityForDeletion(GameEntity *ge);
+
+    /** \brief Adds the given map light to the queue to be deleted at the end of the turn. */
+    void queueMapLightForDeletion(MapLight *ml);
 
     //! \brief Returns a pointer to the creature whose name matches name or number.
     Creature* getCreature(int index);
@@ -194,6 +188,7 @@ public:
     void addMissileObject(MissileObject *m);
     void removeMissileObject(MissileObject *m);
     MissileObject* getMissileObject(int index);
+    MissileObject* getMissileObject(const std::string& name);
     unsigned int numMissileObjects();
 
     //! \brief Map Lights related functions.
@@ -210,7 +205,7 @@ public:
 
     //! \brief Adds a pointer to a player structure to the players stored by this GameMap. Assigns the
     //! seat to the player
-    bool addPlayer(Player *p, Seat* seat);
+    void addPlayer(Player *player, Seat* seat);
 
     //! \brief Assigns an ai to the chosen player
     bool assignAI(Player& player, const std::string& aiType, const std::string& parameters = std::string());
@@ -393,6 +388,8 @@ public:
 
     std::vector<Creature*> creatures;
 
+    bool isServerGameMap() {return mIsServerGameMap;}
+
     bool getGamePaused()
     {
         return mIsPaused;
@@ -413,16 +410,32 @@ public:
     void markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Player* player);
     void buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player);
     void buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player);
+    int nextUniqueNumberBattlefield() {return ++mUniqueNumberBattlefield;}
+    int nextUniqueNumberCreature() {return ++mUniqueNumberCreature;}
+    int nextUniqueNumberFloodFilling() {return ++mUniqueNumberFloodFilling;}
+    int nextUniqueNumberMissileObj() {return ++mUniqueNumberMissileObj;}
+    int nextUniqueNumberRoom() {return ++mUniqueNumberRoom;}
+    int nextUniqueNumberRoomObj() {return ++mUniqueNumberRoomObj;}
+    int nextUniqueNumberTrap() {return ++mUniqueNumberTrap;}
+    int nextUniqueNumberMapLight() {return ++mUniqueNumberMapLight;}
 
 private:
+    bool mIsServerGameMap;
     //! \brief the Local player reference.
     Player* mLocalPlayer;
 
     //! \brief The current server turn number.
     int64_t mTurnNumber;
 
-    //! \brief The corresponding minimap.
-    MiniMap* miniMap;
+    //! \brief Unique numbers to ensure names are unique
+    int mUniqueNumberBattlefield;
+    int mUniqueNumberCreature;
+    int mUniqueNumberFloodFilling;
+    int mUniqueNumberMissileObj;
+    int mUniqueNumberRoom;
+    int mUniqueNumberRoomObj;
+    int mUniqueNumberTrap;
+    int mUniqueNumberMapLight;
 
     //! \brief When paused, the GameMap is not updated.
     bool mIsPaused;
@@ -460,8 +473,11 @@ private:
     //! \brief  active objects that are created by other active object, i.e. : cannon balls
     std::queue<GameEntity*> newActiveObjects;
 
-    //! \brief Dead creatures to delete at each turn's ends.
-    std::map<long int, std::vector<Creature*> > creaturesToDelete;
+    //! \brief Useless entities that need to be deleted. They will be deleted when processDeletionQueues is called
+    std::vector<GameEntity*> entitiesToDelete;
+
+    //! \brief Useless MapLights that need to be deleted. They will be deleted when processDeletionQueues is called
+    std::vector<MapLight*> mapLightsToDelete;
 
     //! \brief Debug member used to know how many call to pathfinding has been made within the same turn.
     unsigned int numCallsTo_path;
@@ -471,6 +487,13 @@ private:
     //! AI Handling manager
     AIManager aiManager;
 
+    //! \brief Deletes the entities that have been marked to delete. This function should only be called once the
+    //! RenderManager has finished to render every object inside.
+    // TODO : at this time, this function is only used on the server GameMap because the RenderManager is responsible for
+    // deleting most of the entities of the client GameMap (and the server GameMap do not use RenderManager since it is not
+    // rendered). It could be nice to have the same behaviour and move the entities deletion from the RenderManager to the
+    // GameMap (which will not be hard since they are called within the same thread context - a call to processDeletionQueues
+    // after processing rendering messages will be enough)
     void processDeletionQueues();
 
     //! \brief Tells whether a path is existing between the two coordinate points.

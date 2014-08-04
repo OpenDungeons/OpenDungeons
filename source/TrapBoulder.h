@@ -23,7 +23,7 @@
 class TrapBoulder : public DirectionalTrap
 {
 public:
-    TrapBoulder(int, int);
+    TrapBoulder(GameMap* gameMap, int x, int y);
 
     std::vector<GameEntity*> aimEnemy();
     virtual void damage(std::vector<GameEntity*>);

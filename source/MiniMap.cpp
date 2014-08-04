@@ -56,8 +56,6 @@ MiniMap::MiniMap(GameMap* gm) :
      * to change cameras from outside (for example to recalculate it after a
      * new level was loaded)
      */
-
-    mGameMap->miniMap = this;
     allocateMiniMapMemory();
 
     // Image blank_image( Geometry(400, 300), Color(MaxRGB, MaxRGB, MaxRGB, 0));

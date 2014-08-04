@@ -23,7 +23,7 @@
 ClientNotification::ClientNotification(ClientNotificationType type):
         mType(type)
 {
-    packet << typeString(type);
+    packet << type;
 }
 
 std::string ClientNotification::typeString(ClientNotificationType type)
@@ -48,10 +48,22 @@ std::string ClientNotification::typeString(ClientNotificationType type)
             return "askBuildTrap";
         case ClientNotificationType::ackNewTurn:
             return "ackNewTurn";
-        case ClientNotificationType::exit:
-            return "exit";
         default:
             LogManager::getSingleton().logMessage("ERROR: Unknown enum for ClientNotificationType="
                 + Ogre::StringConverter::toString(static_cast<int>(type)));
     }
+}
+
+ODPacket& operator<<(ODPacket& os, const ClientNotification::ClientNotificationType& nt)
+{
+    os << static_cast<int32_t>(nt);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, ClientNotification::ClientNotificationType& nt)
+{
+    int32_t tmp;
+    is >> tmp;
+    nt = static_cast<ClientNotification::ClientNotificationType>(tmp);
+    return is;
 }

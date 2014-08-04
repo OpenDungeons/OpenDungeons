@@ -31,7 +31,8 @@
 
 #include <cmath>
 
-RoomPortal::RoomPortal() :
+RoomPortal::RoomPortal(GameMap* gameMap) :
+        Room(gameMap),
         mSpawnCreatureCountdown(0),
         mXCenter(0),
         mYCenter(0),
@@ -45,15 +46,7 @@ void RoomPortal::absorbRoom(Room* room)
     Room::absorbRoom(room);
 
     // Get back the portal mesh reference
-    if (!mRoomObjects.empty())
-    {
-        mPortalObject = mRoomObjects.begin()->second;
-    }
-    else
-    {
-        // Make sure the reference gets updated when createMesh() is called
-        mPortalObject = NULL;
-    }
+    mPortalObject = getFirstRoomObject();
 }
 
 void RoomPortal::createMesh()
@@ -64,7 +57,13 @@ void RoomPortal::createMesh()
     if (mPortalObject != NULL)
         return;
 
-    mPortalObject = loadRoomObject("PortalObject");
+    // The client game map should not load room objects. They will be created
+    // by the messages sent by the server because some of them are randomly
+    // created
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    mPortalObject = loadRoomObject(getGameMap(), "PortalObject");
     createRoomObjectMeshes();
 
     mPortalObject->setAnimationState("Idle");
@@ -76,9 +75,9 @@ void RoomPortal::addCoveredTile(Tile* t, double nHP)
     recomputeCenterPosition();
 }
 
-void RoomPortal::removeCoveredTile(Tile* t, bool isTileAbsorb)
+void RoomPortal::removeCoveredTile(Tile* t)
 {
-    Room::removeCoveredTile(t, isTileAbsorb);
+    Room::removeCoveredTile(t);
     // Don't recompute the position.
     // Removing a portal tile usually means some creatures are attacking it.
     // The portal shouldn't move in that case.
@@ -122,7 +121,7 @@ void RoomPortal::spawnCreature()
     std::cout << "Portal: " << getName() << "  spawn creature..." << std::endl;
 
     if (mPortalObject != NULL)
-        mPortalObject->setAnimationState("Spawn", false);
+        mPortalObject->setAnimationState("Spawn", false, false);
 
     // If the room has been destroyed, or has not yet been assigned any tiles, then we
     // cannot determine where to place the new creature and we should just give up.
@@ -152,18 +151,17 @@ void RoomPortal::spawnCreature()
     std::cout << "Spawning a creature of class " << classToSpawn->getClassName() << std::endl;
 
     // Create a new creature and copy over the class-based creature parameters.
-    Creature *newCreature = new Creature(getGameMap());
+    Creature *newCreature = new Creature(getGameMap(), true);
     newCreature->setCreatureDefinition(classToSpawn);
 
     // Set the creature specific parameters.
     //NOTE:  This needs to be modified manually when the level file creature format changes.
-    newCreature->setName(newCreature->getUniqueCreatureName());
     newCreature->setPosition(Ogre::Vector3((Ogre::Real)mXCenter, (Ogre::Real)mYCenter, (Ogre::Real)0.0));
     newCreature->setColor(getColor());
 
     //NOTE:  This needs to be modified manually when the level file weapon format changes.
-    newCreature->setWeaponL(new Weapon("none", 0, 1.0, 0, "L", newCreature));
-    newCreature->setWeaponR(new Weapon("none", 0, 1.0, 0, "R", newCreature));
+    newCreature->setWeaponL(new Weapon(getGameMap(), "none", 0, 1.0, 0, "L", newCreature));
+    newCreature->setWeaponR(new Weapon(getGameMap(), "none", 0, 1.0, 0, "R", newCreature));
 
     // Add the creature to the gameMap and create meshes so it is visible.
     getGameMap()->addCreature(newCreature);
@@ -174,12 +172,20 @@ void RoomPortal::spawnCreature()
     mSpawnCreatureCountdown = Random::Uint(15, 30);
 
     // Inform the clients
-    if (ODServer::getSingleton().isConnected())
+    if (getGameMap()->isServerGameMap())
     {
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::addCreature, newCreature->getControllingPlayer());
-        serverNotification->packet << newCreature;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+        try
+        {
+           ServerNotification *serverNotification = new ServerNotification(
+               ServerNotification::addCreature, newCreature->getControllingPlayer());
+           serverNotification->packet << newCreature;
+           ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomDungeonTemple::produceKobold", Ogre::LML_CRITICAL);
+            exit(1);
+        }
     }
 }
 

@@ -17,6 +17,24 @@
 
 #include "Weapon.h"
 
+Weapon::Weapon(GameMap* gameMap,
+       const std::string& name,
+       double             damage,
+       double             range,
+       double             defense,
+       const std::string& handString,
+       Creature*          parent):
+    GameEntity     (gameMap, name, std::string(), 0),
+    mHandString    (handString),
+    mDamage        (damage),
+    mRange         (range),
+    mDefense       (defense),
+    mParentCreature(parent)
+{
+    // TODO: Makes this obtained with a true parameter
+    setMeshName(name + ".mesh");
+}
+
 std::string Weapon::getFormat()
 {
     //NOTE:  When this format changes changes to RoomPortal::spawnCreature() may be necessary.

@@ -89,19 +89,11 @@ void Player::pickUpCreature(Creature *c)
     addCreatureToHand(c);
 
     // Destroy the creature's visual debugging entities if it has them
-    if (c->getHasVisualDebuggingEntities())
+    if (!mGameMap->isServerGameMap() && c->getHasVisualDebuggingEntities())
         c->destroyVisualDebugEntities();
 
-    // Inform the clients
-    if (ODServer::getSingleton().isConnected())
-    {
-        // Place a message in the queue to inform the clients that we picked up this creature
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::creaturePickedUp, this);
-        serverNotification->packet << getSeat()->getColor() << c->getName();
-
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
+    if (c->getGameMap()->isServerGameMap())
+        return;
 
     // If it is actually the user picking up a creature we move the scene node.
     // Otherwise we just hide the creature from the map.
@@ -158,6 +150,11 @@ void Player::dropCreature(Tile* t, unsigned int index)
     Creature *c = mCreaturesInHand[index];
     mCreaturesInHand.erase(mCreaturesInHand.begin() + index);
     mGameMap->addCreature(c);
+    c->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
+        static_cast<Ogre::Real>(t->y), 0.0));
+
+    if(c->getGameMap()->isServerGameMap())
+        return;
 
     // If this is the result of another player dropping the creature it is currently not visible so we need to create a mesh for it
     //cout << "\nthis:  " << this << "\nme:  " << gameMap->getLocalPlayer() << endl;
@@ -176,21 +173,7 @@ void Player::dropCreature(Tile* t, unsigned int index)
         request->type = RenderRequest::dropCreature;
         request->p = c;
         request->p2 = this;
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
         RenderManager::queueRenderRequest(request);
-    }
-
-    c->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
-        static_cast<Ogre::Real>(t->y), 0.0));
-
-    if (ODServer::getSingleton().isConnected())
-    {
-        // Place a message in the queue to inform the clients that we dropped this creature
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::creatureDropped, this);
-        serverNotification->packet << getSeat()->getColor() << t;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
     }
 }
 

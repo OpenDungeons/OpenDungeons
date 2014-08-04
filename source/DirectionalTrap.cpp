@@ -20,8 +20,8 @@
 #include "Tile.h"
 #include "GameMap.h"
 
-DirectionalTrap::DirectionalTrap(int xdir, int ydir):
-    Trap()
+DirectionalTrap::DirectionalTrap(GameMap* gameMap, int xdir, int ydir):
+    Trap(gameMap)
 {
     mDir = std::pair<int, int>(xdir, ydir);
 }

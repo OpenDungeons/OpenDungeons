@@ -20,6 +20,7 @@
 #include "ODPacket.h"
 #include "ServerNotification.h"
 #include "ODFrameListener.h"
+#include "RenderManager.h"
 #include "ChatMessage.h"
 #include "GameMap.h"
 #include "Seat.h"
@@ -30,6 +31,8 @@
 #include "ODApplication.h"
 #include "RoomQuarters.h"
 #include "RoomTreasury.h"
+#include "MissileObject.h"
+#include "RoomObject.h"
 #include "LogManager.h"
 
 #include <string>
@@ -68,6 +71,9 @@ bool ODClient::processOneClientSocketMessage(bool& isNewTurn)
     if (!gameMap)
         return false;
 
+    if(!isDataAvailable())
+        return false;
+
     // Get a reference to the LogManager
     LogManager& logMgr = LogManager::getSingleton();
 
@@ -75,11 +81,7 @@ bool ODClient::processOneClientSocketMessage(bool& isNewTurn)
 
     // Check if data available
     ODComStatus comStatus = recv(packetReceived);
-    if(comStatus == ODComStatus::NotReady)
-    {
-        return false;
-    }
-    else if(comStatus == ODComStatus::Error)
+    if(comStatus != ODComStatus::OK)
     {
         // Place a chat message in the queue to inform
         // the user about the disconnect
@@ -89,374 +91,526 @@ bool ODClient::processOneClientSocketMessage(bool& isNewTurn)
         return false;
     }
 
-    std::string serverCommand;
+    ServerNotification::ServerNotificationType serverCommand;
     OD_ASSERT_TRUE(packetReceived >> serverCommand);
 
-    // This if-else chain functions like a switch statement
-    // on the command recieved from the server.
-
-    if (serverCommand.compare(ServerNotification::typeString(ServerNotification::pickNick)) == 0)
+    switch(serverCommand)
     {
-        ODPacket packSend;
-        packSend << ClientNotification::typeString(ClientNotification::setNick) << gameMap->getLocalPlayer()->getNick();
-        send(packSend);
-    }
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::yourSeat)) == 0)
-    {
-        int color;
-        OD_ASSERT_TRUE(packetReceived >> color);
-        Seat *tempSeat = gameMap->popEmptySeat(color);
-        OD_ASSERT_TRUE(tempSeat != NULL);
-        gameMap->getLocalPlayer()->setSeat(tempSeat);
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::addPlayer)) == 0)
-    {
-        Player *tempPlayer = new Player();
-        std::string nick;
-        int seatColor;
-        OD_ASSERT_TRUE(packetReceived >> nick >> seatColor);
-        tempPlayer->setNick(nick);
-        Seat* seat = gameMap->popEmptySeat(seatColor);
-        OD_ASSERT_TRUE(seat != NULL);
-        gameMap->addPlayer(tempPlayer, seat);
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::chat)) == 0)
-    {
-        std::string chatNick;
-        std::string chatMsg;
-        OD_ASSERT_TRUE(packetReceived >> chatNick >> chatMsg);
-        ChatMessage *newMessage = new ChatMessage(chatNick, chatMsg, time(NULL));
-        frameListener->addChatMessage(newMessage);
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::newMap)) == 0)
-    {
-        gameMap->clearAll();
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::turnsPerSecond)) == 0)
-    {
-        OD_ASSERT_TRUE(packetReceived >> ODApplication::turnsPerSecond);
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::addTile)) == 0)
-    {
-        Tile newTile;
-        OD_ASSERT_TRUE(packetReceived >> &newTile);
-        newTile.setGameMap(gameMap);
-        gameMap->addTile(newTile);
-
-        // Loop over the tile's neighbors to force them to recheck
-        // their mesh to see if they can use an optimized one
-        std::vector<Tile*> neighbors = newTile.getAllNeighbors();
-        for (unsigned int i = 0; i < neighbors.size(); ++i)
+        case ServerNotification::pickNick:
         {
-            neighbors[i]->setFullness(neighbors[i]->getFullness());
+            ODPacket packSend;
+            packSend << ClientNotification::setNick << gameMap->getLocalPlayer()->getNick();
+            send(packSend);
+            break;
         }
-    }
 
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::addMapLight)) == 0)
-    {
-        MapLight *newMapLight = new MapLight;
-        OD_ASSERT_TRUE(packetReceived >> newMapLight);
-        gameMap->addMapLight(newMapLight);
-        newMapLight->createOgreEntity();
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::removeMapLight)) == 0)
-    {
-        std::string nameMapLight;
-        OD_ASSERT_TRUE(packetReceived >> nameMapLight);
-        MapLight *tempMapLight = gameMap->getMapLight(nameMapLight);
-        tempMapLight->destroyOgreEntity();
-        gameMap->removeMapLight(tempMapLight);
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::addClass)) == 0)
-    {
-        CreatureDefinition *tempClass = new CreatureDefinition;
-        OD_ASSERT_TRUE(packetReceived >> tempClass);
-        gameMap->addClassDescription(tempClass);
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::addCreature)) == 0)
-    {
-        //NOTE: This code is duplicated in readGameMapFromFile defined in src/Functions.cpp
-        // Changes to this code should be reflected in that code as well
-        Creature *newCreature = new Creature(gameMap);
-        OD_ASSERT_TRUE(packetReceived >> newCreature);
-        gameMap->addCreature(newCreature);
-        newCreature->createMesh();
-        newCreature->getWeaponL()->createMesh();
-        newCreature->getWeaponR()->createMesh();
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::turnStarted)) == 0)
-    {
-        int64_t turnNum;
-        OD_ASSERT_TRUE(packetReceived >> turnNum);
-        logMgr.logMessage("Client received turnStarted="
-            + Ogre::StringConverter::toString((int32_t)turnNum));
-        gameMap->setTurnNumber(turnNum);
-
-        isNewTurn = true;
-        ODPacket packSend;
-        packSend << ClientNotification::typeString(ClientNotification::ackNewTurn) << turnNum;
-        send(packSend);
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::animatedObjectAddDestination)) == 0)
-    {
-        std::string objName;
-        Ogre::Vector3 vect;
-        OD_ASSERT_TRUE(packetReceived >> objName >> vect);
-        MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
-
-        if (tempAnimatedObject != NULL)
-            tempAnimatedObject->addDestination(vect.x, vect.y);
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::animatedObjectClearDestinations)) == 0)
-    {
-        std::string objName;
-        OD_ASSERT_TRUE(packetReceived >> objName);
-        MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
-
-        if (tempAnimatedObject != NULL)
-            tempAnimatedObject->clearDestinations();
-    }
-
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::creaturePickedUp)) == 0)
-    {
-        int playerColor;
-        std::string creatureName;
-        OD_ASSERT_TRUE(packetReceived >> playerColor >> creatureName);
-        Player *tempPlayer = gameMap->getPlayerByColor(playerColor);
-        Creature *tempCreature = gameMap->getCreature(creatureName);
-
-        if (tempPlayer != NULL && tempCreature != NULL)
+        case ServerNotification::yourSeat:
         {
-            tempPlayer->pickUpCreature(tempCreature);
+            int color;
+            OD_ASSERT_TRUE(packetReceived >> color);
+            Seat *tempSeat = gameMap->popEmptySeat(color);
+            OD_ASSERT_TRUE(tempSeat != NULL);
+            gameMap->getLocalPlayer()->setSeat(tempSeat);
+            break;
         }
-        else
-        {
-            logMgr.logMessage("Error while picking creature " + creatureName
-                + " for player color=" + Ogre::StringConverter::toString(playerColor));
-        }
-    }
 
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::creatureDropped)) == 0)
-    {
-        int playerColor;
-        Tile tmpTile;
-        OD_ASSERT_TRUE(packetReceived >> playerColor >> &tmpTile);
-        Player *tempPlayer = gameMap->getPlayerByColor(playerColor);
-        Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-        if (tempPlayer != NULL && tile != NULL)
+        case ServerNotification::addPlayer:
         {
-            tempPlayer->dropCreature(tile);
+            Player *tempPlayer = new Player();
+            std::string nick;
+            int seatColor;
+            OD_ASSERT_TRUE(packetReceived >> nick >> seatColor);
+            tempPlayer->setNick(nick);
+            Seat* seat = gameMap->popEmptySeat(seatColor);
+            OD_ASSERT_TRUE(seat != NULL);
+            gameMap->addPlayer(tempPlayer, seat);
+            break;
         }
-        else
+
+        case ServerNotification::chat:
         {
-            logMgr.logMessage("Error while dropping creature for player color="
-                + Ogre::StringConverter::toString(playerColor)
-                + " on tile " + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            std::string chatNick;
+            std::string chatMsg;
+            OD_ASSERT_TRUE(packetReceived >> chatNick >> chatMsg);
+            ChatMessage *newMessage = new ChatMessage(chatNick, chatMsg, time(NULL));
+            frameListener->addChatMessage(newMessage);
+            break;
         }
-    }
 
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::setObjectAnimationState)) == 0)
-    {
-        std::string objName;
-        std::string animState;
-        bool tempBool;
-        OD_ASSERT_TRUE(packetReceived >> objName >> animState >> tempBool);
-        MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
-        if (obj != NULL)
+        case ServerNotification::newMap:
         {
-            obj->setAnimationState(animState, tempBool);
+            gameMap->clearAll();
+            break;
         }
-        else
+
+        case ServerNotification::turnsPerSecond:
         {
-            logMgr.logMessage("ERROR: Server told us to change animations for a nonexistent object="
-                + objName);
+            OD_ASSERT_TRUE(packetReceived >> ODApplication::turnsPerSecond);
+            break;
         }
-    }
 
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::tileFullnessChange)) == 0)
-    {
-        Tile tmpTile;
-
-        OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-
-        Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-        if (tempTile != NULL)
+        case ServerNotification::addTile:
         {
-            tempTile->setFullness(tmpTile.getFullness());
+            Tile* newTile = new Tile(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> newTile);
+            gameMap->addTile(newTile);
+            newTile->setFullness(newTile->getFullness());
+
+            // Loop over the tile's neighbors to force them to recheck
+            // their mesh to see if they can use an optimized one
+            std::vector<Tile*> neighbors = newTile->getAllNeighbors();
+            for (unsigned int i = 0; i < neighbors.size(); ++i)
+            {
+                neighbors[i]->setFullness(neighbors[i]->getFullness());
+            }
+            break;
         }
-        else
+
+        case ServerNotification::addMapLight:
         {
-            logMgr.logMessage("ERROR: Server told us to set the fullness for a nonexistent tile"
-                + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            MapLight *newMapLight = new MapLight(gameMap, false);
+            OD_ASSERT_TRUE(packetReceived >> newMapLight);
+            gameMap->addMapLight(newMapLight);
+            newMapLight->createOgreEntity();
+            break;
         }
-    }
 
-    else if (serverCommand.compare(ServerNotification::typeString(ServerNotification::tileClaimed)) == 0)
-    {
-        Tile tmpTile;
-        OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-
-        Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-        if (tempTile != NULL)
+        case ServerNotification::removeMapLight:
         {
-            tempTile->claimTile(tmpTile.getColor());
+            std::string nameMapLight;
+            OD_ASSERT_TRUE(packetReceived >> nameMapLight);
+            MapLight *tempMapLight = gameMap->getMapLight(nameMapLight);
+            gameMap->removeMapLight(tempMapLight);
+            tempMapLight->deleteYourself();
+            break;
         }
-        else
+
+        case ServerNotification::addClass:
         {
-            logMgr.logMessage("ERROR: Server told us to set the color for a nonexistent tile="
-                + Ogre::StringConverter::toString(tmpTile.getX()) + ","
-                + Ogre::StringConverter::toString(tmpTile.getY()));
+            CreatureDefinition *tempClass = new CreatureDefinition;
+            OD_ASSERT_TRUE(packetReceived >> tempClass);
+            gameMap->addClassDescription(tempClass);
+            break;
         }
-    }
 
-    else if(serverCommand.compare(ServerNotification::typeString(ServerNotification::refreshPlayerSeat)) == 0)
-    {
-        Seat tmpSeat;
-        std::string goalsString;
-        OD_ASSERT_TRUE(packetReceived >> &tmpSeat >> goalsString);
-        getPlayer()->getSeat()->refreshFromSeat(&tmpSeat);
-        ODFrameListener::getSingleton().refreshPlayerDisplay(goalsString);
-    }
-
-    else if(serverCommand.compare(ServerNotification::typeString(ServerNotification::markTiles)) == 0)
-    {
-        bool isDigSet;
-        int nbTiles;
-        OD_ASSERT_TRUE(packetReceived >> isDigSet >> nbTiles);
-        std::vector<Tile*> tiles;
-        for(int i = 0; i < nbTiles; i++)
+        case ServerNotification::addCreature:
         {
-            Tile tmpTile;
+            Creature *newCreature = new Creature(gameMap, false);
+            OD_ASSERT_TRUE(packetReceived >> newCreature);
+            gameMap->addCreature(newCreature);
+            newCreature->createMesh();
+            newCreature->getWeaponL()->createMesh();
+            newCreature->getWeaponR()->createMesh();
+            break;
+        }
+
+        case ServerNotification::removeCreature:
+        {
+            std::string creatureName;
+            OD_ASSERT_TRUE(packetReceived >> creatureName);
+            Creature* creature = gameMap->getCreature(creatureName);
+            OD_ASSERT_TRUE(creature != NULL);
+            if(creature != NULL)
+            {
+                gameMap->removeCreature(creature);
+                creature->deleteYourself();
+            }
+            break;
+        }
+
+        case ServerNotification::turnStarted:
+        {
+            int64_t turnNum;
+            OD_ASSERT_TRUE(packetReceived >> turnNum);
+            logMgr.logMessage("Client received turnStarted="
+                + Ogre::StringConverter::toString((int32_t)turnNum));
+            gameMap->setTurnNumber(turnNum);
+
+            // We acknowledge the new turn to the server so that he knows we are
+            // ready for next one
+            isNewTurn = true;
+            ODPacket packSend;
+            packSend << ClientNotification::ackNewTurn << turnNum;
+            send(packSend);
+            break;
+        }
+
+        case ServerNotification::animatedObjectAddDestination:
+        {
+            std::string objName;
+            Ogre::Vector3 vect;
+            OD_ASSERT_TRUE(packetReceived >> objName >> vect);
+            MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
+
+            if (tempAnimatedObject != NULL)
+                tempAnimatedObject->addDestination(vect.x, vect.y);
+
+            break;
+        }
+
+        case ServerNotification::animatedObjectClearDestinations:
+        {
+            std::string objName;
+            OD_ASSERT_TRUE(packetReceived >> objName);
+            MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
+
+            if (tempAnimatedObject != NULL)
+                tempAnimatedObject->clearDestinations();
+
+            break;
+        }
+
+        case ServerNotification::pickupCreature:
+        {
+            std::string creatureName;
+            OD_ASSERT_TRUE(packetReceived >> creatureName);
+            Player *tempPlayer = gameMap->getLocalPlayer();
+            Creature *tempCreature = gameMap->getCreature(creatureName);
+
+            if (tempCreature != NULL)
+            {
+                tempPlayer->pickUpCreature(tempCreature);
+            }
+            else
+            {
+                logMgr.logMessage("Error while pickupCreature creature " + creatureName
+                    + " for local player");
+            }
+            break;
+        }
+
+        case ServerNotification::dropCreature:
+        {
+            Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-            Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            tiles.push_back(gameTile);
-        }
-        gameMap->markTilesForPlayer(tiles, isDigSet, gameMap->getLocalPlayer());
-        SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DIGSELECT, false);
-    }
+            Player *tempPlayer = gameMap->getLocalPlayer();
+            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
 
-    else if(serverCommand.compare(ServerNotification::typeString(ServerNotification::buildRoom)) == 0)
-    {
-        int intType, color;
-        Room::RoomType type;
-        int nbTiles;
-        OD_ASSERT_TRUE(packetReceived >> intType>> color >> nbTiles);
-        type = static_cast<Room::RoomType>(intType);
-        std::vector<Tile*> tiles;
-        for(int i = 0; i < nbTiles; i++)
+            if (tile != NULL)
+            {
+                tempPlayer->dropCreature(tile);
+                SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
+            }
+            else
+            {
+                logMgr.logMessage("Error while dropCreature for local player on tile "
+                    + Ogre::StringConverter::toString(tmpTile.getX())
+                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            }
+            break;
+        }
+
+        case ServerNotification::creaturePickedUp:
         {
-            Tile tmpTile;
-            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-            Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            tiles.push_back(gameTile);
-        }
-        Player* player = gameMap->getPlayerByColor(color);
-        OD_ASSERT_TRUE(player != NULL);
-        gameMap->buildRoomForPlayer(tiles, type, player);
-    }
+            int playerColor;
+            std::string creatureName;
+            OD_ASSERT_TRUE(packetReceived >> playerColor >> creatureName);
+            Player *tempPlayer = gameMap->getPlayerByColor(playerColor);
+            OD_ASSERT_TRUE(tempPlayer != NULL);
+            Creature *tempCreature = gameMap->getCreature(creatureName);
+            OD_ASSERT_TRUE(tempCreature != NULL);
 
-    else if(serverCommand.compare(ServerNotification::typeString(ServerNotification::buildTrap)) == 0)
-    {
-        int intType, color;
-        Trap::TrapType type;
-        int nbTiles;
-        OD_ASSERT_TRUE(packetReceived >> intType >> color >> nbTiles);
-        type = static_cast<Trap::TrapType>(intType);
-        std::vector<Tile*> tiles;
-        for(int i = 0; i < nbTiles; i++)
+            if (tempPlayer != NULL && tempCreature != NULL)
+            {
+                tempPlayer->pickUpCreature(tempCreature);
+            }
+            else
+            {
+                logMgr.logMessage("Error while creaturePickedUp creature " + creatureName
+                    + " for player color=" + Ogre::StringConverter::toString(playerColor));
+            }
+            break;
+        }
+
+        case ServerNotification::creatureDropped:
         {
-            Tile tmpTile;
-            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
-            Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            tiles.push_back(gameTile);
+            int playerColor;
+            Tile tmpTile(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> playerColor >> &tmpTile);
+            Player *tempPlayer = gameMap->getPlayerByColor(playerColor);
+            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+            if (tempPlayer != NULL && tile != NULL)
+            {
+                tempPlayer->dropCreature(tile);
+            }
+            else
+            {
+                logMgr.logMessage("Error while creatureDropped for player color="
+                    + Ogre::StringConverter::toString(playerColor)
+                    + " on tile " + Ogre::StringConverter::toString(tmpTile.getX())
+                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            }
+            break;
         }
-        Player* player = gameMap->getPlayerByColor(color);
-        OD_ASSERT_TRUE(player != NULL);
-        gameMap->buildTrapForPlayer(tiles, type, player);
-    }
 
-    else if(serverCommand.compare(ServerNotification::typeString(ServerNotification::addCreatureBed)) == 0)
-    {
-        Tile tmpTile;
-        double xDim, yDim, rotationAngle;
-        std::string roomName;
-        std::string creatureName;
-        OD_ASSERT_TRUE(packetReceived >> roomName >> creatureName >> &tmpTile
-            >> xDim >> yDim >> rotationAngle);
-        Room* room = gameMap->getRoomByName(roomName);
-        OD_ASSERT_TRUE(room != NULL);
-        Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-        OD_ASSERT_TRUE(tile != NULL);
-        Creature* creature = gameMap->getCreature(creatureName);
-        OD_ASSERT_TRUE(creature != NULL);
-        RoomQuarters* rq = static_cast<RoomQuarters*>(room);
-        OD_ASSERT_TRUE(rq->installBed(tile, creature, xDim, yDim, rotationAngle));
-    }
+        case ServerNotification::setObjectAnimationState:
+        {
+            std::string objName;
+            std::string animState;
+            bool tempBool;
+            bool shouldSetWalkDirection;
+            OD_ASSERT_TRUE(packetReceived >> objName >> animState
+                >> tempBool >> shouldSetWalkDirection);
+            MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
+            if (obj != NULL)
+            {
+                if(shouldSetWalkDirection)
+                {
+                    Ogre::Vector3 walkDirection;
+                    OD_ASSERT_TRUE(packetReceived >> walkDirection);
+                    obj->setWalkDirection(walkDirection);
+                }
+                obj->setAnimationState(animState, false, tempBool);
+            }
+            else
+            {
+                logMgr.logMessage("ERROR: Server told us to change animations for a nonexistent object="
+                    + objName);
+            }
+            break;
+        }
 
-    else if(serverCommand.compare(ServerNotification::typeString(ServerNotification::removeCreatureBed)) == 0)
-    {
-        Tile tmpTile;
-        std::string roomName;
-        std::string creatureName;
-        OD_ASSERT_TRUE(packetReceived >> roomName >> creatureName >> &tmpTile);
-        Room* room = gameMap->getRoomByName(roomName);
-        OD_ASSERT_TRUE(room != NULL);
-        Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-        OD_ASSERT_TRUE(tile != NULL);
-        Creature* creature = gameMap->getCreature(creatureName);
-        OD_ASSERT_TRUE(creature != NULL);
-        RoomQuarters* rq = static_cast<RoomQuarters*>(room);
-        OD_ASSERT_TRUE(rq->removeBed(tile, creature));
-    }
+        case ServerNotification::tileFullnessChange:
+        {
+            Tile tmpTile(gameMap);
 
-    else if(serverCommand.compare(ServerNotification::typeString(ServerNotification::createTreasuryIndicator)) == 0)
-    {
-        int color;
-        std::string roomName;
-        Tile tmpTile;
-        std::string indicatorMeshName;
-        OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
-        Room* room = gameMap->getRoomByName(roomName);
-        OD_ASSERT_TRUE(room != NULL);
-        Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-        OD_ASSERT_TRUE(tile != NULL);
-        RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-        OD_ASSERT_TRUE(rt->getColor() == color);
-        rt->createMeshesForTile(tile, indicatorMeshName);
-    }
+            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
 
-    else if(serverCommand.compare(ServerNotification::typeString(ServerNotification::destroyTreasuryIndicator)) == 0)
-    {
-        int color;
-        std::string roomName;
-        Tile tmpTile;
-        std::string indicatorMeshName;
-        OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
-        Room* room = gameMap->getRoomByName(roomName);
-        OD_ASSERT_TRUE(room != NULL);
-        Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-        OD_ASSERT_TRUE(tile != NULL);
-        RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-        OD_ASSERT_TRUE(rt->getColor() == color);
-        rt->destroyMeshesForTile(tile, indicatorMeshName);
-    }
+            Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+            if (tempTile != NULL)
+            {
+                tempTile->setFullness(tmpTile.getFullness());
+            }
+            else
+            {
+                logMgr.logMessage("ERROR: Server told us to set the fullness for a nonexistent tile"
+                    + Ogre::StringConverter::toString(tmpTile.getX())
+                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
+            }
+            break;
+        }
 
-    else
-    {
-        logMgr.logMessage("ERROR:  Unknown server command:" + serverCommand);
+        case ServerNotification::tileClaimed:
+        {
+            Tile tmpTile(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
+
+            Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+            if (tempTile != NULL)
+            {
+                tempTile->claimTile(tmpTile.getColor());
+            }
+            else
+            {
+                logMgr.logMessage("ERROR: Server told us to set the color for a nonexistent tile="
+                    + Ogre::StringConverter::toString(tmpTile.getX()) + ","
+                    + Ogre::StringConverter::toString(tmpTile.getY()));
+            }
+            break;
+        }
+
+        case ServerNotification::refreshPlayerSeat:
+        {
+            Seat tmpSeat;
+            std::string goalsString;
+            OD_ASSERT_TRUE(packetReceived >> &tmpSeat >> goalsString);
+            getPlayer()->getSeat()->refreshFromSeat(&tmpSeat);
+            ODFrameListener::getSingleton().refreshPlayerDisplay(goalsString);
+            break;
+        }
+
+        case ServerNotification::markTiles:
+        {
+            bool isDigSet;
+            int nbTiles;
+            OD_ASSERT_TRUE(packetReceived >> isDigSet >> nbTiles);
+            std::vector<Tile*> tiles;
+            for(int i = 0; i < nbTiles; i++)
+            {
+                Tile tmpTile(gameMap);
+                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
+                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+                tiles.push_back(gameTile);
+            }
+            gameMap->markTilesForPlayer(tiles, isDigSet, gameMap->getLocalPlayer());
+            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DIGSELECT, false);
+            break;
+        }
+
+        case ServerNotification::buildRoom:
+        {
+            int intType, color;
+            Room::RoomType type;
+            int nbTiles;
+            OD_ASSERT_TRUE(packetReceived >> intType>> color >> nbTiles);
+            type = static_cast<Room::RoomType>(intType);
+            std::vector<Tile*> tiles;
+            for(int i = 0; i < nbTiles; i++)
+            {
+                Tile tmpTile(gameMap);
+                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
+                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+                tiles.push_back(gameTile);
+            }
+            Player* player = gameMap->getPlayerByColor(color);
+            OD_ASSERT_TRUE(player != NULL);
+            gameMap->buildRoomForPlayer(tiles, type, player);
+            break;
+        }
+
+        case ServerNotification::removeRoomTile:
+        {
+            std::string roomName;
+            Tile tmpTile(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> roomName>> &tmpTile);
+            Room* room = gameMap->getRoomByName(roomName);
+            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+            OD_ASSERT_TRUE(room != NULL);
+            OD_ASSERT_TRUE(tile != NULL);
+            if((room != NULL) && (tile != NULL))
+                room->removeCoveredTile(tile);
+
+            break;
+        }
+
+        case ServerNotification::buildTrap:
+        {
+            int intType, color;
+            Trap::TrapType type;
+            int nbTiles;
+            OD_ASSERT_TRUE(packetReceived >> intType >> color >> nbTiles);
+            type = static_cast<Trap::TrapType>(intType);
+            std::vector<Tile*> tiles;
+            for(int i = 0; i < nbTiles; i++)
+            {
+                Tile tmpTile(gameMap);
+                OD_ASSERT_TRUE(packetReceived >> &tmpTile);
+                Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+                tiles.push_back(gameTile);
+            }
+            Player* player = gameMap->getPlayerByColor(color);
+            OD_ASSERT_TRUE(player != NULL);
+            gameMap->buildTrapForPlayer(tiles, type, player);
+            break;
+        }
+
+        case ServerNotification::creatureRefresh:
+        {
+            Creature tmpCreature(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> &tmpCreature);
+            Creature* creature = gameMap->getCreature(tmpCreature.getName());
+            OD_ASSERT_TRUE(creature != NULL);
+            if(creature != NULL)
+                creature->refreshFromCreature(&tmpCreature);
+            break;
+        }
+
+        case ServerNotification::addMissileObject:
+        {
+            MissileObject* missile = new MissileObject(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> missile);
+            gameMap->addMissileObject(missile);
+            missile->createMesh();
+            break;
+        }
+
+        case ServerNotification::removeMissileObject:
+        {
+            std::string name;
+            OD_ASSERT_TRUE(packetReceived >> name);
+            MissileObject* missile = gameMap->getMissileObject(name);
+            OD_ASSERT_TRUE(missile != NULL);
+            if(missile != NULL)
+            {
+                gameMap->removeMissileObject(missile);
+                missile->deleteYourself();
+            }
+            break;
+        }
+
+        case ServerNotification::createTreasuryIndicator:
+        {
+            int color;
+            std::string roomName;
+            Tile tmpTile(gameMap);
+            std::string indicatorMeshName;
+            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
+            Room* room = gameMap->getRoomByName(roomName);
+            OD_ASSERT_TRUE(room != NULL);
+            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+            OD_ASSERT_TRUE(tile != NULL);
+            RoomTreasury* rt = static_cast<RoomTreasury*>(room);
+            OD_ASSERT_TRUE(rt->getColor() == color);
+            rt->createMeshesForTile(tile, indicatorMeshName);
+            break;
+        }
+
+        case ServerNotification::destroyTreasuryIndicator:
+        {
+            int color;
+            std::string roomName;
+            Tile tmpTile(gameMap);
+            std::string indicatorMeshName;
+            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
+            Room* room = gameMap->getRoomByName(roomName);
+            OD_ASSERT_TRUE(room != NULL);
+            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+            OD_ASSERT_TRUE(tile != NULL);
+            RoomTreasury* rt = static_cast<RoomTreasury*>(room);
+            OD_ASSERT_TRUE(rt->getColor() == color);
+            rt->destroyMeshesForTile(tile, indicatorMeshName);
+            break;
+        }
+
+        case ServerNotification::addRoomObject:
+        {
+            std::string roomName;
+            OD_ASSERT_TRUE(packetReceived >> roomName);
+            Room* room = gameMap->getRoomByName(roomName);
+            OD_ASSERT_TRUE(room != NULL);
+            Tile tmpTile(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> &tmpTile);
+            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+            OD_ASSERT_TRUE(tile != NULL);
+            RoomObject* tempRoomObject = new RoomObject(gameMap, room);
+            OD_ASSERT_TRUE(packetReceived >> tempRoomObject);
+            room->addRoomObject(tile, tempRoomObject);
+            tempRoomObject->createMesh();
+            break;
+        }
+
+        case ServerNotification::removeRoomObject:
+        {
+            std::string roomName;
+            Tile tmpTile(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> roomName >> &tmpTile);
+            Room* room = gameMap->getRoomByName(roomName);
+            OD_ASSERT_TRUE(room != NULL);
+            Tile *tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
+            OD_ASSERT_TRUE(tile != NULL);
+            RoomObject* tempRoomObject = room->getRoomObjectFromTile(tile);
+            OD_ASSERT_TRUE(tempRoomObject != NULL);
+            tempRoomObject->deleteYourself();
+            break;
+        }
+
+        case ServerNotification::removeAllRoomObjectFromRoom:
+        {
+            std::string roomName;
+            Tile tmpTile(gameMap);
+            OD_ASSERT_TRUE(packetReceived >> roomName);
+            Room* room = gameMap->getRoomByName(roomName);
+            OD_ASSERT_TRUE(room != NULL);
+            room->removeAllRoomObject();
+            break;
+        }
+
+        default:
+        {
+            logMgr.logMessage("ERROR:  Unknown server command:"
+                + Ogre::StringConverter::toString(serverCommand));
+            break;
+        }
     }
 
     return true;
@@ -469,9 +623,8 @@ void ODClient::processClientNotifications()
     Creature* tempCreature = NULL;
     Player* tempPlayer = NULL;
     bool flag = false;
-    bool running = true;
 
-    while (running)
+    while (isConnected())
     {
         // Wait until a message is place in the queue
 
@@ -507,11 +660,6 @@ void ODClient::processClientNotifications()
                 sendToServer(event->packet);
                 break;
 
-            case ClientNotification::exit:
-                running = false;
-                disconnect();
-                break;
-
             default:
                 LogManager& logMgr = LogManager::getSingleton();
                 ODApplication::displayErrorMessage("Unhandled ClientNotification type encountered:"
@@ -540,11 +688,6 @@ bool ODClient::connect(const std::string& host, const int port, const std::strin
 
     LogManager& logManager = LogManager::getSingleton();
     // Start the server socket listener as well as the server socket thread
-    if (ODServer::getSingleton().isConnected())
-    {
-        logManager.logMessage("Couldn't try to connect: The server is already connected");
-        return false;
-    }
     if (ODClient::getSingleton().isConnected())
     {
         logManager.logMessage("Couldn't try to connect: The client is already connected");
@@ -561,8 +704,10 @@ bool ODClient::connect(const std::string& host, const int port, const std::strin
 
     // Read in the map. The map loading should be happen here and not in the server thread to
     // make sure it is valid before launching the server.
+    RenderManager::getSingletonPtr()->processRenderRequests();
     if (!gameMap->LoadLevel(levelFilename))
         return false;
+
 
     // Fill seats with either player, AIs or nothing depending on the given faction.
     uint32_t i = 0;
@@ -595,13 +740,10 @@ bool ODClient::connect(const std::string& host, const int port, const std::strin
 
     // Send a hello request to start the conversation with the server
     ODPacket packSend;
-    packSend << ClientNotification::typeString(ClientNotification::hello)
+    packSend << ClientNotification::hello
         << std::string("OpenDungeons V ") + ODApplication::VERSION << mLevelFilename;
     sendToServer(packSend);
 
-    // Setup is finished. We can set the client to not blocking to allow to check
-    // if the server sent a message
-    setBlocking(false);
     return true;
 }
 
@@ -609,14 +751,18 @@ void ODClient::queueClientNotification(ClientNotification* n)
 {
     mClientNotificationQueue.push_back(n);
 }
-void ODClient::notifyExit()
+
+void ODClient::disconnect()
 {
+    ODSocketClient::disconnect();
     while(!mClientNotificationQueue.empty())
     {
         delete mClientNotificationQueue.front();
         mClientNotificationQueue.pop_front();
     }
-    ClientNotification* exitClientNotification = new ClientNotification(
-        ClientNotification::exit);
-    queueClientNotification(exitClientNotification);
+}
+
+void ODClient::notifyExit()
+{
+    disconnect();
 }

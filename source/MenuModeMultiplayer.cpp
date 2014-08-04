@@ -25,11 +25,12 @@
 #include "ODServer.h"
 #include "ODClient.h"
 #include "ODApplication.h"
+#include "LogManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
 
-const std::string MenuModeMultiplayer::LEVEL_PATH = "./levels/";
+const std::string MenuModeMultiplayer::LEVEL_PATH = "./levels/multiplayer/";
 const std::string MenuModeMultiplayer::LEVEL_EXTENSION = ".level";
 
 MenuModeMultiplayer::MenuModeMultiplayer(ModeManager *modeManager):
@@ -61,7 +62,7 @@ bool MenuModeMultiplayer::fillFilesList(const std::string& path, std::vector<std
 void MenuModeMultiplayer::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::multiplayertMenu);
+    Gui::getSingleton().loadGuiSheet(Gui::multiplayerMenu);
 
     giveFocus();
 
@@ -70,10 +71,10 @@ void MenuModeMultiplayer::activate()
 
     ODFrameListener::getSingleton().getGameMap()->setGamePaused(true);
 
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_TEXT_LOADING);
+    tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
     tmpWin->hide();
     listFiles.clear();
     levelSelectList->resetList();
@@ -88,27 +89,20 @@ void MenuModeMultiplayer::activate()
             levelSelectList->addItem(item);
         }
     }
-
-#ifdef OD_SET_IP_MULTIPLAYER_LOCALHOST
-    CEGUI::Window* tmpWin;
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_EDIT_IP);
-    CEGUI::Editbox* editIp = static_cast<CEGUI::Editbox*>(tmpWin);
-    editIp->setText("127.0.0.1");
-#endif // OD_SET_IP_MULTIPLAYER_LOCALHOST
 }
 
 void MenuModeMultiplayer::serverButtonPressed()
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
     if(levelSelectList->getSelectedCount() > 0)
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Loading");
         tmpWin->show();
 
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_EDIT_NICK);
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_NICK);
         CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
         const std::string& nick = editNick->getText().c_str();
         Player *p = ODFrameListener::getSingleton().getGameMap()->getLocalPlayer();
@@ -122,26 +116,34 @@ void MenuModeMultiplayer::serverButtonPressed()
         std::string level = LEVEL_PATH + listFiles[id] + LEVEL_EXTENSION;
         ODServer::getSingleton().startServer(level, false);
 
-        mModeManager->requestGameMode();
+        // We connect ourself
+        if(ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER, level))
+        {
+            mModeManager->requestGameMode(true);
+        }
+        else
+        {
+            LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
+        }
     }
 }
 
 void MenuModeMultiplayer::clientButtonPressed()
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
     if(levelSelectList->getSelectedCount() > 0)
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_TEXT_LOADING);
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
         tmpWin->setText("Loading");
         tmpWin->show();
 
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_EDIT_IP);
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_IP);
         CEGUI::Editbox* editIp = static_cast<CEGUI::Editbox*>(tmpWin);
         const std::string ip = editIp->getText().c_str();
 
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_EDIT_NICK);
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_NICK);
         CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
         const std::string nick = editNick->getText().c_str();
         ODFrameListener::getSingleton().getGameMap()->getLocalPlayer()->setNick(nick);
@@ -157,7 +159,7 @@ void MenuModeMultiplayer::clientButtonPressed()
         else
         {
             // Error while connecting
-            tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayertMenu)->getChild(Gui::MPM_TEXT_LOADING);
+            tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
             tmpWin->setText("Could not connect to " + ip);
         }
     }

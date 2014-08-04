@@ -60,8 +60,11 @@ class Window;
 class Creature: public MovableGameEntity
 {
     friend class CullingQuad;
+    friend class ODClient;
 public:
-    Creature(GameMap* gameMap = NULL, const std::string& name = std::string());
+    //! \brief Constructor for creatures. If generateUniqueName is false, the name should be set with
+    //! setName()
+    Creature(GameMap* gameMap, bool generateUniqueName);
     virtual ~Creature();
 
     static const std::string CREATURE_PREFIX;
@@ -196,7 +199,9 @@ public:
     double getDefense() const;
 
     //! \brief Check whether a creature has earned one level.
-    void checkLevelUp();
+    bool checkLevelUp();
+    //! \brief Refreshes current creature with creatureNewState (hp, mana, scale, level, ...)
+    void refreshFromCreature(Creature *creatureNewState);
 
     /*! \brief Creates a list of Tile pointers in visibleTiles
      *
@@ -279,7 +284,12 @@ public:
     inline CullingQuad* getQuad()
     { return mTracingCullingQuad; }
 
+    virtual void deleteYourself();
+
 private:
+    //! \brief Constructor for sending creatures through network. It should not be used in game.
+    Creature(GameMap* gameMap);
+
     CullingQuad* mTracingCullingQuad;
 
     //! \brief The weapon the creature is holding in its left hand or NULL if none.

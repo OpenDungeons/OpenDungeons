@@ -47,7 +47,7 @@ public:
         nullTrapType = 0, cannon, boulder
     };
 
-    Trap();
+    Trap(GameMap* gameMap);
     virtual ~Trap()
     {}
 
@@ -56,16 +56,16 @@ public:
      * a new unique name will be generated. If not, the given one will be used
      */
     //TODO: Use something better than a void pointer for params.
-    static Trap* createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
+    static Trap* createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*> &nCoveredTiles,
         Seat *nControllingSeat, const std::string& nameToUse = "", void* params = NULL);
 
     /** \brief Adds the trap newTrap to the game map for the current player
      */
     static void setupTrap(GameMap* gameMap, Trap* newTrap, Player* player);
 
-    static Trap* createTrapFromStream(const std::string& trapMeshName, std::istream &is, GameMap* gameMap,
+    static Trap* createTrapFromStream(GameMap* gameMap, const std::string& trapMeshName, std::istream &is,
         const std::string& trapName);
-    static Trap* createTrapFromPacket(const std::string& trapMeshName, ODPacket &is, GameMap* gameMap,
+    static Trap* createTrapFromPacket(GameMap* gameMap, const std::string& trapMeshName, ODPacket &is,
         const std::string& trapName);
 
     inline const TrapType& getType() const
@@ -78,6 +78,7 @@ public:
 
     // Functions which can be overridden by child classes.
     virtual bool doUpkeep();
+    // TODO : what is this function for ??
     virtual bool doUpkeep(Trap *t);
 
     virtual std::vector<GameEntity*> aimEnemy();
@@ -89,7 +90,7 @@ public:
     void buildUniqueName();
 
     virtual void addCoveredTile(Tile* t, double nHP = mDefaultTileHP);
-    virtual void removeCoveredTile(Tile* t, bool isTileAbsorb);
+    virtual void removeCoveredTile(Tile* t);
     virtual Tile* getCoveredTile(int index);
     std::vector<Tile*> getCoveredTiles();
     virtual unsigned int numCoveredTiles();

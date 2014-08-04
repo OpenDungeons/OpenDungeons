@@ -68,8 +68,11 @@ class ODSocketServer
         ODSocketClient::ODComStatus sendMsgToClient(ODSocketClient* client, ODPacket& packetReceived);
         void sendMsgToAllClients(ODPacket& packetReceived);
         std::vector<ODSocketClient*> mSockClients;
+        void setClientState(ODSocketClient* client, const std::string& state);
+        virtual void serverThread() = 0;
 
     private:
+        sf::Thread* mThread;
         sf::TcpListener mSockListener;
         sf::SocketSelector mSockSelector;
         sf::Clock mClockMainTask;

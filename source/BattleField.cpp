@@ -17,6 +17,7 @@
 
 #include "BattleField.h"
 
+#include "GameMap.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
 
@@ -24,12 +25,11 @@
 
 #include <iostream>
 
-BattleField::BattleField() :
+BattleField::BattleField(GameMap* gameMap) :
     mHasMeshes(false)
 {
-    static int uniqueNumber = 0; // So that no creature has got the same node name
-
-    mName = "field_" + Ogre::StringConverter::toString(++uniqueNumber);
+    mName = "field_" + Ogre::StringConverter::toString(
+        gameMap->nextUniqueNumberBattlefield());
 }
 
 double BattleField::getTileSecurityLevel(int x, int y)

@@ -61,6 +61,11 @@ void MapLight::createOgreEntity()
     if (mOgreEntityExists)
         return;
 
+    mOgreEntityExists = true;
+
+    if(mGameMap->isServerGameMap())
+        return;
+
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::createMapLight;
     //TODO - this check should be put somewhere else / fixed
@@ -70,13 +75,17 @@ void MapLight::createOgreEntity()
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 
-    mOgreEntityExists = true;
     mOgreEntityVisualIndicatorExists = true;
 }
 
 void MapLight::destroyOgreEntity()
 {
     if (!mOgreEntityExists)
+        return;
+
+    mOgreEntityExists = false;
+
+    if(mGameMap->isServerGameMap())
         return;
 
     destroyOgreEntityVisualIndicator();
@@ -91,8 +100,6 @@ void MapLight::destroyOgreEntity()
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
-
-    mOgreEntityExists = false;
 }
 
 void MapLight::destroyOgreEntityVisualIndicator()
@@ -113,6 +120,12 @@ void MapLight::destroyOgreEntityVisualIndicator()
 void MapLight::deleteYourself()
 {
     destroyOgreEntity();
+
+    if(mGameMap->isServerGameMap())
+    {
+        mGameMap->queueMapLightForDeletion(this);
+        return;
+    }
 
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::deleteMapLight;
@@ -214,9 +227,4 @@ void MapLight::loadFromLine(const std::string& line, MapLight* m)
     m->mAttenuationConstant = Helper::toDouble(elems[10]);
     m->mAttenuationLinear = Helper::toDouble(elems[11]);
     m->mAttenuationQuadratic = Helper::toDouble(elems[12]);
-}
-
-void MapLight::setGameMap(GameMap* gm)
-{
-    mGameMap = gm;
 }

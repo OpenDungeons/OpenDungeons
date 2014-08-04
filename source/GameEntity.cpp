@@ -33,11 +33,12 @@
 void GameEntity::createMesh()
 {
     if (meshExists)
-    {
         return;
-    }
 
     meshExists = true;
+
+    if(getGameMap()->isServerGameMap())
+        return;
 
     RenderRequest* request = NULL;
 
@@ -52,15 +53,14 @@ void GameEntity::createMesh()
 
         case room:
         {
-            for (unsigned int i = 0, size = getCoveredTiles().size(); i < size; ++i)
+            std::vector<Tile*> coveredTiles = getCoveredTiles();
+            for (unsigned int i = 0, size = coveredTiles.size(); i < size; ++i)
             {
-                RenderRequest* r = new RenderRequest;
-
-                r->type = RenderRequest::createRoom;
-                r->p    = static_cast<void*>(this);
-                r->p2   = getCoveredTiles()[i];
-
-                RenderManager::queueRenderRequest(r);
+                request = new RenderRequest;
+                request->type = RenderRequest::createRoom;
+                request->p    = static_cast<void*>(this);
+                request->p2   = coveredTiles[i];
+                RenderManager::queueRenderRequest(request);
             }
 
             // return because rooms create every tile separately
@@ -75,9 +75,7 @@ void GameEntity::createMesh()
             request->type   = RenderRequest::createRoomObject;
             request->p2     = tempRoom;
             request->str    = getName();
-            request->p3     = new std::string(getMeshName());
-
-            tempRoom->getGameMap()->addAnimatedObject(static_cast<MovableGameEntity*>(this));
+            request->str2   = getMeshName();
             break;
         }
 
@@ -111,9 +109,7 @@ void GameEntity::createMesh()
         case weapon:
         {
             if (getName().compare("none") == 0)
-            {
                 return;
-            }
 
             Weapon* tempWeapon = static_cast<Weapon*>(this);
             request = new RenderRequest;
@@ -145,6 +141,9 @@ void GameEntity::destroyMesh()
     }
 
     meshExists = false;
+
+    if(getGameMap()->isServerGameMap())
+        return;
 
     RenderRequest* request = new RenderRequest;
 
@@ -186,8 +185,6 @@ void GameEntity::destroyMesh()
 
             request->type   = RenderRequest::destroyRoomObject;
             request->p2     = parent;
-
-            parent->getGameMap()->removeAnimatedObject(static_cast<MovableGameEntity*>(this));
             break;
         }
 
@@ -234,13 +231,18 @@ void GameEntity::destroyMesh()
 
 void GameEntity::deleteYourself()
 {
-    RenderRequest* request = new RenderRequest;
-
     if(meshExists)
     {
         destroyMesh();
     }
 
+    if(getGameMap()->isServerGameMap())
+    {
+        getGameMap()->queueEntityForDeletion(this);
+        return;
+    }
+
+    RenderRequest* request = NULL;
     switch(objectType)
     {
         case creature:
@@ -249,53 +251,48 @@ void GameEntity::deleteYourself()
             tempCreature->getWeaponL()->deleteYourself();
             tempCreature->getWeaponR()->deleteYourself();
 
-            // If standing on a valid tile, notify that tile we are no longer there.
-            if (tempCreature->positionTile() != 0)
-                tempCreature->positionTile()->removeCreature(tempCreature);
-
+            request = new RenderRequest;
             request->type = RenderRequest::deleteCreature;
-
             break;
         }
 
         case room:
+            request = new RenderRequest;
             request->type = RenderRequest::deleteRoom;
             break;
 
         case roomobject:
+            request = new RenderRequest;
             request->type = RenderRequest::deleteRoomObject;
             break;
 
         case missileobject:
+            request = new RenderRequest;
             request->type = RenderRequest::deleteMissileObject;
             break;
 
         case trap:
+            request = new RenderRequest;
             request->type = RenderRequest::deleteTrap;
             break;
 
         case tile:
-        {
-            request->type = RenderRequest::destroyTile;
-
-            RenderRequest* request2 = new RenderRequest;
-            request2->type = RenderRequest::deleteTile;
-            request2->p = static_cast<void*>(this);
-            RenderManager::queueRenderRequest(request2);
-
+            request = new RenderRequest;
+            request->type = RenderRequest::deleteTile;
             break;
-        }
 
         case weapon:
+            request = new RenderRequest;
             request->type = RenderRequest::deleteWeapon;
             break;
 
         default:
-            request->type = RenderRequest::noRequest;
             break;
     }
 
-    request->p = static_cast<void*>(this);
-
-    RenderManager::queueRenderRequest(request);
+    if(request != NULL)
+    {
+        request->p = static_cast<void*>(this);
+        RenderManager::queueRenderRequest(request);
+    }
 }

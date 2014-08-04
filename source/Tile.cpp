@@ -76,7 +76,7 @@ void Tile::setFullness(double f)
      */
 
     // If we are a sever, the clients need to be told about the change to the tile's fullness.
-    if (ODServer::getSingleton().isConnected())
+    if (getGameMap()->isServerGameMap())
     {
         try
         {
@@ -830,11 +830,12 @@ void Tile::refreshMesh()
     if (!isMeshExisting())
         return;
 
+    if(getGameMap()->isServerGameMap())
+        return;
+
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::refreshTile;
     request->p = static_cast<void*>(this);
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 }
 
@@ -984,7 +985,7 @@ void Tile::claimForColor(int nColor, double nDanceRate)
             claimTile(nColor);
 
             // We inform the clients that the tile has been claimed
-            if(ODServer::getSingleton().isConnected())
+            if(getGameMap()->isServerGameMap())
             {
                 try
                 {
@@ -1165,8 +1166,3 @@ std::vector<Tile*> Tile::getAllNeighbors()
     return neighbors;
 }
 
-void Tile::setGameMap(GameMap* gameMap)
-{
-    GameEntity::setGameMap(gameMap);
-    setFullness(fullness);
-}

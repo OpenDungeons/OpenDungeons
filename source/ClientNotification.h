@@ -44,8 +44,7 @@ public:
         askMarkTile,
         askBuildRoom,
         askBuildTrap,
-        ackNewTurn,
-        exit
+        ackNewTurn
     };
 
     ClientNotification(ClientNotificationType type);
@@ -55,6 +54,9 @@ public:
     ODPacket packet;
 
     static std::string typeString(ClientNotificationType type);
+
+    friend ODPacket& operator<<(ODPacket& os, const ClientNotification::ClientNotificationType& nt);
+    friend ODPacket& operator>>(ODPacket& is, ClientNotification::ClientNotificationType& nt);
 
 private:
     ClientNotificationType mType;

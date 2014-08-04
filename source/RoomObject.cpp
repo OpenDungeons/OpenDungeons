@@ -24,16 +24,23 @@
 
 #include <iostream>
 
-RoomObject::RoomObject(Room* nParentRoom, const std::string& nMeshName) :
+RoomObject::RoomObject(GameMap* gameMap, Room* nParentRoom, const std::string& nMeshName) :
+    MovableGameEntity(gameMap),
     mParentRoom(nParentRoom)
 {
     setObjectType(GameEntity::roomobject);
     setMeshName(nMeshName);
     // Set a unique name for the room.
-    static int uniqueNumber = 0;
     std::stringstream tempSS;
-    tempSS << "Room_" << mParentRoom->getName() << "_Object_" << ++uniqueNumber;
+    tempSS << "Room_" << mParentRoom->getName() << "_Object_" << gameMap->nextUniqueNumberRoomObj();
     setName(tempSS.str());
+}
+
+RoomObject::RoomObject(GameMap* gameMap, Room* nParentRoom) :
+    MovableGameEntity(gameMap),
+    mParentRoom(nParentRoom)
+{
+    setObjectType(GameEntity::roomobject);
 }
 
 Room* RoomObject::getParentRoom()
@@ -51,12 +58,26 @@ const char* RoomObject::getFormat()
     return "name\tmeshName";
 }
 
-std::ostream& operator<<(std::ostream& os, RoomObject *o)
+ODPacket& operator<<(ODPacket& os, RoomObject* o)
 {
+    os << o->getName() << o->getMeshName();
+    os << o->mX << o->mY << o->mRotationAngle;
     return os;
 }
 
-std::istream& operator>>(std::istream& is, RoomObject *o)
+ODPacket& operator>>(ODPacket& is, RoomObject* o)
 {
+    std::string name;
+    Ogre::Real tmpReal;
+    is >> name;
+    o->setName(name);
+    is >> name;
+    o->setMeshName(name);
+    is >> tmpReal;
+    o->mX = tmpReal;
+    is >> tmpReal;
+    o->mY = tmpReal;
+    is >> tmpReal;
+    o->mRotationAngle = tmpReal;
     return is;
 }

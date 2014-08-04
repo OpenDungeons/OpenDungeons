@@ -27,12 +27,12 @@
 class RoomPortal: public Room
 {
 public:
-    RoomPortal();
+    RoomPortal(GameMap* gameMap);
 
     // Functions overriding virtual functions in the Room base class.
     void createMesh();
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
-    void removeCoveredTile(Tile* t, bool isTileAbsorb);
+    void removeCoveredTile(Tile* t);
 
     //! \brief Get back a reference to the portal mesh after calling Room::absorbRoom()
     void absorbRoom(Room* room);

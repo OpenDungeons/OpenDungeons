@@ -17,7 +17,8 @@
 
 #include "ProximityTrap.h"
 
-ProximityTrap::ProximityTrap() :
-        mRange(0.0)
+ProximityTrap::ProximityTrap(GameMap* gameMap) :
+    Trap(gameMap),
+    mRange(0.0)
 {
 }

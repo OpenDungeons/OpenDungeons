@@ -61,7 +61,6 @@
 //#include <RTShaderSystem/OgreShaderGenerator.h>
 #include <RTShaderSystem/OgreShaderExPerPixelLighting.h>
 #include <RTShaderSystem/OgreShaderExNormalMapLighting.h>
-#include <boost/scoped_ptr.hpp>
 #include <sstream>
 
 using std::stringstream;
@@ -246,10 +245,8 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
 
     case RenderRequest::deleteTile:
     {
-        //Tile* curTile = static_cast<Tile*> (renderRequest.p);
-        // curTile->~Tile();
-        // delete curTile;
-
+        Tile* curTile = static_cast<Tile*> (renderRequest.p);
+        delete curTile;
         break;
     }
 
@@ -717,10 +714,10 @@ void RenderManager::rrCreateRoomObject(const RenderRequest& renderRequest)
 {
     RoomObject* curRoomObject = static_cast<RoomObject*> (renderRequest.p);
     std::string name = renderRequest.str;
-    boost::scoped_ptr<std::string> meshName(static_cast<std::string*>(renderRequest.p3));
+    std::string meshName = renderRequest.str2;
     std::string tempString = curRoomObject->getOgreNamePrefix() + name;
 
-    Ogre::Entity* ent = mSceneManager->createEntity(tempString, *meshName.get() + ".mesh");
+    Ogre::Entity* ent = mSceneManager->createEntity(tempString, meshName + ".mesh");
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempString + "_node");
 
     node->setPosition(Ogre::Vector3(curRoomObject->mX, curRoomObject->mY, 0.0));

@@ -23,7 +23,7 @@
 class RoomDungeonTemple: public Room
 {
 public:
-    RoomDungeonTemple();
+    RoomDungeonTemple(GameMap* gameMap);
 
     void createMesh();
     void destroyMesh();

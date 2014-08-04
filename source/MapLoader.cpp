@@ -196,9 +196,6 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         return false;
 
     // Read in the map tiles from disk
-    Tile tempTile;
-    tempTile.setGameMap(&gameMap);
-
     gameMap.disableFloodFill();
 
     while (true)
@@ -213,7 +210,9 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         entire_line += nextParam;
         //std::cout << "Entire line: " << entire_line << std::endl;
 
-        Tile::loadFromLine(entire_line, &tempTile);
+        Tile* tempTile = new Tile(&gameMap);
+
+        Tile::loadFromLine(entire_line, tempTile);
 
         gameMap.addTile(tempTile);
     }
@@ -236,7 +235,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Rooms]")
             break;
 
-        Room* tempRoom = Room::createRoomFromStream(nextParam, levelFile, &gameMap,
+        Room* tempRoom = Room::createRoomFromStream(&gameMap,nextParam, levelFile,
             std::string());
 
         gameMap.addRoom(tempRoom);
@@ -257,7 +256,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Traps]")
             break;
 
-        Trap* tempTrap = Trap::createTrapFromStream(nextParam, levelFile, &gameMap,
+        Trap* tempTrap = Trap::createTrapFromStream(&gameMap, nextParam, levelFile,
             std::string());
         tempTrap->createMesh();
 
@@ -284,8 +283,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         entire_line += nextParam;
         //std::cout << "Entire line: " << entire_line << std::endl;
 
-        MapLight* tempLight = new MapLight;
-        tempLight->setGameMap(&gameMap);
+        MapLight* tempLight = new MapLight(&gameMap, true);
         MapLight::loadFromLine(entire_line, tempLight);
 
         gameMap.addMapLight(tempLight);
@@ -368,7 +366,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         entire_line += nextParam;
         //std::cout << "Entire line: " << entire_line << std::endl;
 
-        Creature* tempCreature = new Creature(&gameMap);
+        Creature* tempCreature = new Creature(&gameMap, false);
         Creature::loadFromLine(entire_line, tempCreature);
 
         gameMap.addCreature(tempCreature);

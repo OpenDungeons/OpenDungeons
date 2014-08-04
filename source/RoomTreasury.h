@@ -24,13 +24,13 @@ class RoomTreasury: public Room
 {
     friend class ODClient;
 public:
-    RoomTreasury();
+    RoomTreasury(GameMap* gameMap);
 
     // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r);
     bool doUpkeep();
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
-    void removeCoveredTile(Tile* t, bool isTileAbsorb);
+    void removeCoveredTile(Tile* t);
     void clearCoveredTiles();
 
     // Functions specific to this class.

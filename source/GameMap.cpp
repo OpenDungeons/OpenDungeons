@@ -31,7 +31,6 @@
 #include "Tile.h"
 #include "Creature.h"
 #include "Player.h"
-#include "RenderManager.h"
 #include "ResourceManager.h"
 #include "Trap.h"
 #include "Seat.h"
@@ -121,7 +120,8 @@ private:
     double      h;
 };
 
-GameMap::GameMap() :
+GameMap::GameMap(bool isServerGameMap) :
+        mIsServerGameMap(isServerGameMap),
         culm(NULL),
         miscUpkeepTime(0),
         creatureTurnsTime(0),
@@ -132,15 +132,19 @@ GameMap::GameMap() :
         numCallsTo_path(0),
         tileCoordinateMap(new TileCoordinateMap(100)),
         aiManager(*this),
+        mUniqueNumberBattlefield(0),
+        mUniqueNumberCreature(0),
+        mUniqueNumberFloodFilling(0),
+        mUniqueNumberMissileObj(0),
+        mUniqueNumberRoom(0),
+        mUniqueNumberRoomObj(0),
+        mUniqueNumberTrap(0),
         mIsPaused(false)
 {
     // Init the player
     mLocalPlayer = new Player();
     mLocalPlayer->setNick("defaultNickName");
     mLocalPlayer->setGameMap(this);
-
-    // Init the minimap
-    miniMap = new MiniMap(this);
 }
 
 GameMap::~GameMap()
@@ -148,14 +152,10 @@ GameMap::~GameMap()
     clearAll();
     delete tileCoordinateMap;
     delete mLocalPlayer;
-    delete miniMap;
 }
 
 bool GameMap::LoadLevel(const std::string& levelFilepath)
 {
-    RenderManager::getSingletonPtr()->processRenderRequests();
-    clearAll();
-
     // Read in the game map filepath
     std::string levelPath = ResourceManager::getSingletonPtr()->getResourcePath()
                             + levelFilepath;
@@ -169,7 +169,6 @@ bool GameMap::LoadLevel(const std::string& levelFilepath)
 
 bool GameMap::createNewMap(int sizeX, int sizeY)
 {
-    Tile tempTile;
     stringstream ss;
 
     if (!allocateMapMemory(sizeX, sizeY))
@@ -179,20 +178,15 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
     {
         for (int ii = 0; ii < mMapSizeX; ++ii)
         {
-            // Skip tiles already set up
-            if ((getTile(ii, jj)->getGameMap()) != NULL)
-                continue;
-
+            Tile* tile = new Tile(this, ii, jj);
             ss.str(std::string());
             ss << "Level_" << ii << "_" << jj;
 
-            tempTile.setGameMap(this);
-            tempTile.setType(Tile::dirt);
+            tile->setFullness(tile->getFullness());
+            tile->setType(Tile::dirt);
 
-            tempTile.setName(ss.str());
-            tempTile.x = ii;
-            tempTile.y = jj;
-            addTile(tempTile);
+            tile->setName(ss.str());
+            addTile(tile);
         }
     }
 
@@ -219,6 +213,7 @@ void GameMap::clearAll()
     clearCreatures();
     clearClasses();
     clearTraps();
+    clearMissileObjects();
 
     clearMapLights();
     clearRooms();
@@ -279,24 +274,13 @@ void GameMap::addClassDescription(CreatureDefinition c)
     classDescriptions.push_back(ptr);
 }
 
-bool GameMap::doesCreatureNameExist(const std::string& entityName)
-{
-    for (unsigned int ii = 0; ii < creatures.size(); ++ii)
-    {
-        if (creatures[ii]->getName() == entityName)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 void GameMap::addCreature(Creature *cc)
 {
     creatures.push_back(cc);
 
     cc->positionTile()->addCreature(cc);
-    culm->mMyCullingQuad.insert(cc);
+    if(!mIsServerGameMap)
+        culm->mMyCullingQuad.insert(cc);
 
     addAnimatedObject(cc);
     cc->setIsOnMap(true);
@@ -321,17 +305,14 @@ void GameMap::removeCreature(Creature *c)
     c->setIsOnMap(false);
 }
 
-void GameMap::queueCreatureForDeletion(Creature *c)
+void GameMap::queueEntityForDeletion(GameEntity *ge)
 {
-    // If the creature has a homeTile where they sleep, their bed needs to be destroyed.
-    if (c->getHomeTile() != 0)
-        static_cast<RoomQuarters*>(c->getHomeTile()->getCoveringRoom())->releaseTileForSleeping(c->getHomeTile(), c, false);
+    entitiesToDelete.push_back(ge);
+}
 
-    // Remove the creature from the GameMap in case the caller forgot to do so.
-    removeCreature(c);
-
-    //TODO: This needs to include the turn number that the creature was pushed so proper multithreaded locks can be by the threads to retire the creatures.
-    creaturesToDelete[mTurnNumber].push_back(c);
+void GameMap::queueMapLightForDeletion(MapLight *ml)
+{
+    mapLightsToDelete.push_back(ml);
 }
 
 CreatureDefinition* GameMap::getClassDescription(const std::string& className)
@@ -397,18 +378,16 @@ MovableGameEntity* GameMap::getAnimatedObject(int index)
 
 MovableGameEntity* GameMap::getAnimatedObject(const std::string& name)
 {
-    MovableGameEntity* tempAnimatedObject = NULL;
-
     for (unsigned int i = 0; i < animatedObjects.size(); ++i)
     {
-        if (animatedObjects[i]->getName().compare(name) == 0)
+        MovableGameEntity* mge = animatedObjects[i];
+        if (mge->getName().compare(name) == 0)
         {
-            tempAnimatedObject = animatedObjects[i];
-            break;
+            return mge;
         }
     }
 
-    return tempAnimatedObject;
+    return NULL;
 }
 
 unsigned int GameMap::numAnimatedObjects()
@@ -583,23 +562,29 @@ void GameMap::doTurn()
     std::cout << "\nComputing turn " << mTurnNumber;
     unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
-    processDeletionQueues();
-
     creatureTurnsTime = doCreatureTurns();
     miscUpkeepTime = doMiscUpkeep();
 
     // We notify the clients about what they got
-    if(ODServer::getSingleton().isConnected())
+    if(isServerGameMap())
     {
         for (std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
         {
             Player* player = *it;
             if((player != getLocalPlayer()) && (player->getSeat()->mFaction == "Player"))
             {
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::refreshPlayerSeat, player);
-                serverNotification->packet << player->getSeat() << getGoalsStringForPlayer(player);
-                ODServer::getSingleton().queueServerNotification(serverNotification);
+                try
+                {
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotification::refreshPlayerSeat, player);
+                    serverNotification->packet << player->getSeat() << getGoalsStringForPlayer(player);
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
+                }
+                catch (std::bad_alloc&)
+                {
+                    Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::doTurn", Ogre::LML_CRITICAL);
+                    exit(1);
+                }
             }
         }
     }
@@ -614,12 +599,30 @@ void GameMap::doTurn()
         {
             // Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
             tempCreature->clearDestinations();
-            tempCreature->setAnimationState("Die", false);
+            tempCreature->setAnimationState("Die", false, false);
             if (tempCreature->getDeathCounter() <= 0)
             {
+                try
+                {
+                    Player* player = tempCreature->getControllingPlayer();
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotification::removeCreature, player);
+                    serverNotification->packet << tempCreature->getName();
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
+                }
+                catch (std::bad_alloc&)
+                {
+                    Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::doTurn", Ogre::LML_CRITICAL);
+                    exit(1);
+                }
+                // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
+                if (tempCreature->getHomeTile() != 0)
+                    static_cast<RoomQuarters*>(tempCreature->getHomeTile()->getCoveringRoom())->releaseTileForSleeping(tempCreature->getHomeTile(), tempCreature);
+
                 // Remove the creature from the game map and into the deletion queue, it will be deleted
                 // when it is safe, i.e. all other pointers to it have been wiped from the program.
-                queueCreatureForDeletion(tempCreature);
+                removeCreature(tempCreature);
+                tempCreature->deleteYourself();
             }
             else
             {
@@ -827,7 +830,7 @@ unsigned long int GameMap::doCreatureTurns()
 void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 {
     // During the first turn, we setup everything
-    if(getTurnNumber() == 0)
+    if(!isServerGameMap() && getTurnNumber() == 0)
     {
         LogManager::getSingleton().logMessage("Starting game map");
         setGamePaused(false);
@@ -872,6 +875,9 @@ void GameMap::updateAnimations(Ogre::Real timeSinceLastFrame)
 
         currentAnimatedObject->update(timeSinceLastFrame);
     }
+
+    if(isServerGameMap())
+        return;
 
     // Advance the "flickering" of the lights by the amount of time that has passed since the last frame.
     entities_number = numMapLights();
@@ -1113,13 +1119,12 @@ std::list<Tile*> GameMap::path(int x1, int y1, int x2, int y2, Tile::TileClearTy
     return returnList;
 }
 
-bool GameMap::addPlayer(Player* p, Seat* seat)
+void GameMap::addPlayer(Player* player, Seat* seat)
 {
-    p->setSeat(seat);
-    p->setGameMap(this);
-    players.push_back(p);
-    LogManager::getSingleton().logMessage("Added player: " + p->getNick());
-    return true;
+    player->setSeat(seat);
+    player->setGameMap(this);
+    players.push_back(player);
+    LogManager::getSingleton().logMessage("Added player: " + player->getNick());
 }
 
 bool GameMap::assignAI(Player& player, const std::string& aiType, const std::string& parameters)
@@ -1178,7 +1183,7 @@ unsigned int GameMap::numPlayers() const
 
 Player* GameMap::getPlayerByColor(int color)
 {
-    if(getLocalPlayer()->getSeat()->getColor() == color)
+    if(!mIsServerGameMap && getLocalPlayer()->getSeat()->getColor() == color)
         return getLocalPlayer();
 
     for (std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
@@ -1555,6 +1560,7 @@ void GameMap::clearRooms()
     {
         Room *tempRoom = getRoom(i);
         removeActiveObject(tempRoom);
+        tempRoom->removeAllRoomObject();
         tempRoom->deleteYourself();
     }
 
@@ -1564,12 +1570,13 @@ void GameMap::clearRooms()
 void GameMap::addRoom(Room *r)
 {
     rooms.push_back(r);
-    r->setGameMap(this);
     addActiveObject(r);
 }
 
 void GameMap::removeRoom(Room *r)
 {
+    // For now, rooms are removed when absorbed by another room or when they have no more tile
+    // In both cases, the client have enough information to do that alone so no need to notify him
     removeActiveObject(r);
 
     for (unsigned int i = 0; i < rooms.size(); ++i)
@@ -1577,6 +1584,7 @@ void GameMap::removeRoom(Room *r)
         if (r == rooms[i])
         {
             //TODO:  Loop over the tiles and make any whose coveringRoom variable points to this room point to NULL.
+            r->removeAllRoomObject();
             rooms.erase(rooms.begin() + i);
             break;
         }
@@ -1678,7 +1686,9 @@ void GameMap::clearTraps()
 {
     for (unsigned int i = 0; i < traps.size(); ++i)
     {
-        removeActiveObject(traps[i]);
+        Trap* trap = traps[i];
+        removeActiveObject(trap);
+        trap->deleteYourself();
     }
 
     traps.clear();
@@ -1687,23 +1697,20 @@ void GameMap::clearTraps()
 void GameMap::addTrap(Trap *t)
 {
     traps.push_back(t);
-    t->setGameMap(this);
     addActiveObject(t);
 }
 
 void GameMap::removeTrap(Trap *t)
 {
-    //FIXME: The objects are probably not deleted. This might
-    //be the case for missileobjects as well.
     removeActiveObject(t);
 
-    for (unsigned int i = 0; i < traps.size(); ++i)
+    for (std::vector<Trap*>::iterator it = traps.begin(); it != traps.end(); ++it)
     {
-        if (t == traps[i])
+        Trap* trap = *it;
+        if (trap == t)
         {
-            t->setGameMap(NULL);
-            traps.erase(traps.begin() + i);
-            //TODO: Are the traps actually being deleted?
+            t->deleteYourself();
+            traps.erase(it);
             break;
         }
     }
@@ -2040,16 +2047,19 @@ void GameMap::clearMissileObjects()
 {
     for (unsigned int i = 0; i < missileObjects.size(); ++i)
     {
-        removeActiveObject(missileObjects[i]);
+        MissileObject* mo = missileObjects[i];
+        removeActiveObject(mo);
 
-        for (unsigned int j = 0; j < animatedObjects.size(); ++j)
+        for (std::vector<MovableGameEntity*>::iterator it = animatedObjects.begin(); it != animatedObjects.end(); ++it)
         {
-            if (missileObjects[i] == animatedObjects[j])
+            MovableGameEntity* ao = *it;
+            if (mo == ao)
             {
-                animatedObjects.erase(animatedObjects.begin() + j);
+                animatedObjects.erase(it);
                 break;
             }
         }
+        mo->deleteYourself();
     }
 
     missileObjects.clear();
@@ -2057,7 +2067,22 @@ void GameMap::clearMissileObjects()
 
 void GameMap::addMissileObject(MissileObject *m)
 {
-    //TODO - should we have a semaphore here?
+    if(isServerGameMap())
+    {
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::addMissileObject, NULL);
+            serverNotification->packet << m;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::addMissileObject", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+    }
+
     missileObjects.push_back(m);
     newActiveObjects.push(m);
     addAnimatedObject(m);
@@ -2065,6 +2090,22 @@ void GameMap::addMissileObject(MissileObject *m)
 
 void GameMap::removeMissileObject(MissileObject *m)
 {
+    if(isServerGameMap())
+    {
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::removeMissileObject, NULL);
+            serverNotification->packet << m->getName();
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::removeMissileObject", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+    }
+
     removeActiveObject(m);
 
     for (unsigned int i = 0; i < missileObjects.size(); ++i)
@@ -2083,6 +2124,17 @@ void GameMap::removeMissileObject(MissileObject *m)
 MissileObject* GameMap::getMissileObject(int index)
 {
     return missileObjects[index];
+}
+
+MissileObject* GameMap::getMissileObject(const std::string& name)
+{
+    for(std::vector<MissileObject*>::iterator it = missileObjects.begin(); it != missileObjects.end(); ++it)
+    {
+        MissileObject* mo = *it;
+        if(mo->getName().compare(name) == 0)
+            return mo;
+    }
+    return NULL;
 }
 
 unsigned int GameMap::numMissileObjects()
@@ -2107,15 +2159,13 @@ Ogre::Real GameMap::crowDistance(int x1, int x2, int y1, int y2)
 unsigned int GameMap::doFloodFill(int startX, int startY, Tile::TileClearType passability, int color)
 {
     unsigned int tilesFlooded = 1;
-    static int uniqueFloodFillingColor = 0;
 
     if (!floodFillEnabled)
         return 0;
 
     if (color < 0)
     {
-        ++uniqueFloodFillingColor;
-        color = uniqueFloodFillingColor;
+        color = nextUniqueNumberFloodFilling();
     }
 
     // Check to see if we should color the current tile.
@@ -2195,31 +2245,26 @@ Ogre::Real GameMap::crowDistance(Creature *c1, Creature *c2)
 
 void GameMap::processDeletionQueues()
 {
-    std::cout << "\nProcessing deletion queues on turn " << mTurnNumber << ":  ";
+    LogManager::getSingleton().logMessage("Processing deletion queues on turn "
+        + Ogre::StringConverter::toString(static_cast<int32_t>(mTurnNumber)));
 
-    // Loop over the creaturesToDeleteMap and delete all the creatures in any mapped vector whose
-    // key value (the turn those creatures were added) is less than the latestTurnToBeRetired.
-    std::map<long int, std::vector<Creature*> >::iterator
-    currentTurnForCreatureRetirement = creaturesToDelete.begin();
-    while (currentTurnForCreatureRetirement != creaturesToDelete.end()
-           && (*currentTurnForCreatureRetirement).first)
+    while (entitiesToDelete.size() > 0)
     {
-        long int currentTurnToRetire =
-            (*currentTurnForCreatureRetirement).first;
+        GameEntity* entity = *entitiesToDelete.begin();
+        LogManager::getSingleton().logMessage("Deleting entity "
+            + entity->getName());
+        entitiesToDelete.erase(entitiesToDelete.begin());
+        delete entity;
+    }
 
-        // Check to see if any creatures can be deleted.
-        while (creaturesToDelete[currentTurnToRetire].size() > 0)
-        {
-            std::cout << "\nSending message to delete creature "
-                      << (*creaturesToDelete[currentTurnToRetire].begin())->getName();
-            std::cout.flush();
+    while (mapLightsToDelete.size() > 0)
+    {
+        MapLight* ml = *mapLightsToDelete.begin();
+        LogManager::getSingleton().logMessage("Deleting MapLight "
+            + ml->getName());
 
-            (*creaturesToDelete[currentTurnToRetire].begin())->deleteYourself();
-            creaturesToDelete[currentTurnToRetire].erase(
-                creaturesToDelete[currentTurnToRetire].begin());
-        }
-
-        ++currentTurnForCreatureRetirement;
+        mapLightsToDelete.erase(mapLightsToDelete.begin());
+        delete ml;
     }
 }
 
@@ -2291,14 +2336,14 @@ void GameMap::markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Playe
 
 void GameMap::buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player)
 {
-    Room* newRoom = Room::createRoom(roomType, tiles, player->getSeat()->getColor());
+    Room* newRoom = Room::createRoom(this, roomType, tiles, player->getSeat()->getColor());
     Room::setupRoom(this, newRoom, player);
     refreshBorderingTilesOf(tiles);
 }
 
 void GameMap::buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player)
 {
-    Trap* newTrap = Trap::createTrap(typeTrap, tiles, player->getSeat());
+    Trap* newTrap = Trap::createTrap(this, typeTrap, tiles, player->getSeat());
     Trap::setupTrap(this, newTrap, player);
     refreshBorderingTilesOf(tiles);
 }

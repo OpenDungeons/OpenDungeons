@@ -86,7 +86,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20),
     mFrameDelay(0.0),
-    mTimeElapsedSinceLastTurn(0),
     mExitRequested(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
@@ -94,7 +93,10 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
 
     RenderManager* renderManager = new RenderManager();
 
-    mGameMap = new GameMap;
+    mGameMap = new GameMap(false);
+
+    mMiniMap = new MiniMap(mGameMap);
+
     cm = new CameraManager(renderManager->getSceneManager(), mGameMap);
 
     renderManager->setGameMap(mGameMap);
@@ -147,6 +149,7 @@ ODFrameListener::~ODFrameListener()
         delete mModeManager;
     delete cm;
     delete mGameMap;
+    delete mMiniMap;
     // We deinit it here since it was also created in this class.
     delete RenderManager::getSingletonPtr();
 }
@@ -161,10 +164,7 @@ void ODFrameListener::exitApplication()
     LogManager::getSingleton().logMessage("Closing down.");
 
     ODClient::getSingleton().notifyExit();
-    ODClient::getSingleton().processClientNotifications();
-
     ODServer::getSingleton().notifyExit();
-    ODServer::getSingleton().processServerNotifications();
     RenderManager::getSingletonPtr()->processRenderRequests();
     mGameMap->clearAll();
     RenderManager::getSingletonPtr()->getSceneManager()->destroyQuery(mRaySceneQuery);
@@ -241,45 +241,8 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
         return mContinue;
     }
 
-    if (isClient())
-    {
-        ODClient::getSingleton().processClientSocketMessages();
-        ODClient::getSingleton().processClientNotifications();
-    }
-
-    // If we're not a server, we can't check or update what's next.
-    if (!isServer())
-        return mContinue;
-
-    // When the server will have his own thread, there will be no need for this
-    int64_t turnNumber = mGameMap->getTurnNumber();
-    // processServerEvents may set turn number to 0 if every player is ready to start the map.
-    // But in this case, we want to wait for updateAnimations before going to next turn
-    ODServer::getSingleton().processServerEvents();
-
-    refreshChat();
-
-    // If the game is not started, return here
-    if(turnNumber == -1)
-        return mContinue;
-
-    mTimeElapsedSinceLastTurn += evt.timeSinceLastFrame;
-    if (mTimeElapsedSinceLastTurn < 1.0 / ODApplication::turnsPerSecond)
-        return mContinue;
-
-    // If a new turn has started, we update events.
-    mTimeElapsedSinceLastTurn = 0.0;
-
-    ODServer::getSingleton().startNewTurn(evt);
-
-    // Update the CEGUI displays of gold, mana, etc.
-    /*
-     * We only need to recreate the info windows when each turn when
-     * the text updates.
-     */
-    std::string goalsString = mGameMap->getGoalsStringForPlayer(
-        mGameMap->getLocalPlayer());
-    refreshPlayerDisplay(goalsString);
+    ODClient::getSingleton().processClientSocketMessages();
+    ODClient::getSingleton().processClientNotifications();
 
     return mContinue;
 }

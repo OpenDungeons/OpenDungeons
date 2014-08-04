@@ -23,7 +23,7 @@
 class RoomForge: public Room
 {
 public:
-    RoomForge();
+    RoomForge(GameMap* gameMap);
 
     void createMesh();
 

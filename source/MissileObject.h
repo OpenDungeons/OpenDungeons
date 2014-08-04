@@ -19,6 +19,7 @@
 #define MISSILEOBJECT_H
 
 #include "MovableGameEntity.h"
+#include "ODPacket.h"
 
 #include <deque>
 #include <string>
@@ -30,8 +31,10 @@ class GameMap;
 //! \brief This class implements missile object launched by traps when they're triggered.
 class MissileObject: public MovableGameEntity
 {
+friend class ODClient;
+
 public:
-    MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap* gameMap);
+    MissileObject(GameMap* gameMap, const std::string& nMeshName, const Ogre::Vector3& nPosition);
 
     /*! \brief Changes the missile's position to a new position.
      *  Moves the creature to a new location in 3d space.  This function is
@@ -64,6 +67,13 @@ public:
 
     std::vector<Tile*> getCoveredTiles()
     { return std::vector<Tile*>(); }
+
+    friend ODPacket& operator<<(ODPacket& os, MissileObject *mo);
+    friend ODPacket& operator>>(ODPacket& is, MissileObject *mo);
+
+private:
+    //!\brief  For copy in ODClient
+    MissileObject(GameMap* gameMap);
 };
 
 #endif // MISSILEOBJECT_H

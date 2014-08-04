@@ -33,7 +33,7 @@ class Tile;
 class MovableGameEntity : public GameEntity
 {
 public:
-    MovableGameEntity();
+    MovableGameEntity(GameMap* gameMap);
 
     virtual ~MovableGameEntity()
     {}
@@ -67,7 +67,7 @@ public:
     virtual void setMoveSpeed(double s)
     { mMoveSpeed = s; }
 
-    virtual void setAnimationState(const std::string& s, bool loop = true);
+    virtual void setAnimationState(const std::string& state, bool setWalkDirection = false, bool loop = true);
 
     virtual double getAnimationSpeedFactor();
     virtual void setAnimationSpeedFactor(double f);
@@ -76,23 +76,26 @@ public:
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
     void update(Ogre::Real timeSinceLastFrame);
 
-    std::deque<Ogre::Vector3> mWalkQueue;
-    bool mWalkQueueFirstEntryAdded;
-    Ogre::Vector3 mWalkDirection;
-
-    double mShortestDistance;
-
-    Ogre::AnimationState* mAnimationState;
-    std::string mDestinationAnimationState;
-    Ogre::SceneNode* mSceneNode;
+    void setWalkDirection(Ogre::Vector3& direction);
 
     virtual std::string getOgreNamePrefix() = 0;
 
+    Ogre::AnimationState* mAnimationState;
+    Ogre::SceneNode* mSceneNode;
+
 protected:
+    std::deque<Ogre::Vector3> mWalkQueue;
     double mMoveSpeed;
+
+private:
     std::string mPrevAnimationState;
     bool mPrevAnimationStateLoop;
     double mAnimationSpeedFactor;
+    bool mWalkQueueFirstEntryAdded;
+    Ogre::Vector3 mWalkDirection;
+    double mShortestDistance;
+    std::string mDestinationAnimationState;
 };
+
 
 #endif // MOVABLEGAMEENTITY_H

@@ -33,7 +33,8 @@
 
 const double Trap::mDefaultTileHP = 10.0;
 
-Trap::Trap() :
+Trap::Trap(GameMap* gameMap) :
+    Building(gameMap),
     mReloadTime(0),
     mReloadTimeCounter(0),
     mMinDamage(0.0),
@@ -43,7 +44,7 @@ Trap::Trap() :
     setObjectType(GameEntity::trap);
 }
 
-Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
+Trap* Trap::createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     Seat *nControllingSeat, const std::string& nameToUse, void* params)
 {
     Trap *tempTrap = NULL;
@@ -54,13 +55,13 @@ Trap* Trap::createTrap(TrapType nType, const std::vector<Tile*> &nCoveredTiles,
             tempTrap = NULL;
             break;
         case cannon:
-            tempTrap = new TrapCannon();
+            tempTrap = new TrapCannon(gameMap);
             break;
         case boulder:
             if(params != NULL)
             {
                 int* p = (int*)params;
-                tempTrap = new TrapBoulder(p[0], p[1]);
+                tempTrap = new TrapBoulder(gameMap, p[0], p[1]);
             }
             break;
     }
@@ -94,19 +95,27 @@ void Trap::setupTrap(GameMap* gameMap, Trap* newTrap, Player* player)
 {
     gameMap->addTrap(newTrap);
 
-    if(ODServer::getSingleton().isConnected())
+    if(gameMap->isServerGameMap())
     {
-        std::vector<Tile*> coveredTiles = newTrap->getCoveredTiles();
-        int intType = static_cast<int32_t>(newTrap->getType());
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::buildTrap, player);
-        serverNotification->packet << intType << player->getSeat()->getColor() << coveredTiles.size();
-        for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
+        try
         {
-            Tile* tile = *it;
-            serverNotification->packet << tile;
+            std::vector<Tile*> coveredTiles = newTrap->getCoveredTiles();
+            int intType = static_cast<int32_t>(newTrap->getType());
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::buildTrap, player);
+            serverNotification->packet << intType << player->getSeat()->getColor() << coveredTiles.size();
+            for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                serverNotification->packet << tile;
+            }
+            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomTreasury::destroyMeshesForTile", Ogre::LML_CRITICAL);
+            exit(1);
+        }
     }
 
     newTrap->createMesh();
@@ -115,28 +124,26 @@ void Trap::setupTrap(GameMap* gameMap, Trap* newTrap, Player* player)
             SoundEffectsHelper::BUILDTRAP, false);
 }
 
-Trap* Trap::createTrapFromStream(const std::string& trapMeshName, std::istream &is, GameMap* gameMap,
+Trap* Trap::createTrapFromStream(GameMap* gameMap, const std::string& trapMeshName, std::istream &is,
     const std::string& trapName)
 {
-    Trap tempTrap;
-    tempTrap.setGameMap(gameMap);
+    Trap tempTrap(gameMap);
     tempTrap.setMeshName(trapMeshName);
     is >> &tempTrap;
 
-    Trap *returnTrap = createTrap(tempTrap.mType, tempTrap.mCoveredTiles,
+    Trap *returnTrap = createTrap(gameMap, tempTrap.mType, tempTrap.mCoveredTiles,
         tempTrap.getControllingSeat(), trapName);
     return returnTrap;
 }
 
-Trap* Trap::createTrapFromPacket(const std::string& trapMeshName, ODPacket &is, GameMap* gameMap,
+Trap* Trap::createTrapFromPacket(GameMap* gameMap, const std::string& trapMeshName, ODPacket &is,
     const std::string& trapName)
 {
-    Trap tempTrap;
-    tempTrap.setGameMap(gameMap);
+    Trap tempTrap(gameMap);
     tempTrap.setMeshName(trapMeshName);
     is >> &tempTrap;
 
-    Trap *returnTrap = createTrap(tempTrap.mType, tempTrap.mCoveredTiles,
+    Trap *returnTrap = createTrap(gameMap, tempTrap.mType, tempTrap.mCoveredTiles,
         tempTrap.getControllingSeat(), trapName);
     return returnTrap;
 }
@@ -247,7 +254,7 @@ void Trap::addCoveredTile(Tile* t, double nHP)
     t->setCoveringTrap(true);
 }
 
-void Trap::removeCoveredTile(Tile* t, bool isTileAbsorb)
+void Trap::removeCoveredTile(Tile* t)
 {
     for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
     {
@@ -320,8 +327,8 @@ std::string Trap::getFormat()
 
 void Trap::buildUniqueName()
 {
-    static int uniqueNumber = 0;
-    setName(getMeshName() + "_" + Ogre::StringConverter::toString(++uniqueNumber));
+    setName(getMeshName() + "_" + Ogre::StringConverter::toString(
+        getGameMap()->nextUniqueNumberTrap()));
 }
 
 std::istream& operator>>(std::istream& is, Trap *t)

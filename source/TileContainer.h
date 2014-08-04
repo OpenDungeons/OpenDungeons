@@ -36,7 +36,7 @@ public:
 
     //! \brief Adds the given tile on map. The tile coordinates members must be ready.
     //! \returns true if added.
-    bool addTile(const Tile& t);
+    bool addTile(Tile* t);
 
     //! \brief Adds the address of a new tile to be stored in this TileContainer.
     void setTileNeighbors(Tile *t);
@@ -51,11 +51,6 @@ public:
 
     Tile::TileType getSafeTileType(Tile* tt );
     bool getSafeTileFullness(Tile* tt );
-
-    //! \brief Returns an iterator to be used for the purposes of looping over the tiles stored in this GameMap.
-    Tile* firstTile();
-
-    Tile* lastTile();
 
     //! \brief Gets the tile type of all neighbors
     //! \param tile The tile to be checked.
@@ -102,7 +97,7 @@ protected:
     //! \brief Set the map size and memory
     bool allocateMapMemory(int xSize, int ySize);
 private:
-    Tile** mTiles;
+    Tile*** mTiles;
 };
 
 #endif //TILECONTAINER_H

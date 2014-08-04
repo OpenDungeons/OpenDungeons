@@ -21,8 +21,8 @@
 #include "GameMap.h"
 #include "MissileObject.h"
 
-TrapBoulder::TrapBoulder(int x, int y) :
-    DirectionalTrap(x, y)
+TrapBoulder::TrapBoulder(GameMap* gameMap, int x, int y) :
+    DirectionalTrap(gameMap, x, y)
 {
     mReloadTime = -1;
     mReloadTimeCounter = mReloadTime;

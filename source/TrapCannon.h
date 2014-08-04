@@ -23,7 +23,7 @@
 class TrapCannon : public ProximityTrap
 {
 public:
-    TrapCannon();
+    TrapCannon(GameMap* gameMap);
 
     std::vector<GameEntity*> aimEnemy();
     void damage(std::vector<GameEntity*>);
