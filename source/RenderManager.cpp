@@ -1316,7 +1316,6 @@ void RenderManager::rtssTest()
     generateRTSSShadersForMaterial("Kobold_skin/TWOSIDE/TEXFACE/kobold_skin6.png");
     generateRTSSShadersForMaterial("Wizard/TWOSIDE", "Wizard_nor.png");
     generateRTSSShadersForMaterial("Wizard", "Wizard_nor.png");
-    generateRTSSShadersForMaterial("TrainingDummmy", "leatherdummy2-nm.png");
     generateRTSSShadersForMaterial("TrainingPole", "trainingpole-tex-nm.png");
     generateRTSSShadersForMaterial("Kreatur", "Kreatur_nor2.png");
     generateRTSSShadersForMaterial("Wyvern", "Wyvern_red_normalmap.png");
