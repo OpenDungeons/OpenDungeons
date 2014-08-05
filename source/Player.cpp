@@ -137,7 +137,7 @@ bool Player::isDropCreaturePossible(Tile *t, unsigned int index)
         return false;
 
     // ... and that the creature can dig, or we're putting it on a claimed tile of the team color.
-    if ((tempCreature->getDigRate() < 0.1 || t->getType() != Tile::dirt)
+    if ((tempCreature->getDigRate() < 0.1 || (t->getType() != Tile::dirt && t->getType() != Tile::gold))
             && (t->getType() != Tile::claimed || t->getColor() != getSeat()->getColor()))
         return false;
 
@@ -150,7 +150,7 @@ void Player::dropCreature(Tile* t, unsigned int index)
     Creature *c = mCreaturesInHand[index];
     mCreaturesInHand.erase(mCreaturesInHand.begin() + index);
     mGameMap->addCreature(c);
-    c->setPosition(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
+    c->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
         static_cast<Ogre::Real>(t->y), 0.0));
 
     if(c->getGameMap()->isServerGameMap())
