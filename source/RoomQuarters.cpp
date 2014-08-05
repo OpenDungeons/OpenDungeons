@@ -230,6 +230,7 @@ bool RoomQuarters::installBed(Tile* t, Creature* c, double xDim, double yDim,
     loadRoomObject(getGameMap(), def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle)->createMesh();
     // Save the info for later...
     mBedRoomObjectsInfo.push_back(bedInfo);
+    return true;
 }
 
 bool RoomQuarters::removeBed(Tile* t, Creature* c)
