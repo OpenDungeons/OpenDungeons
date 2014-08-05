@@ -34,20 +34,27 @@ bool ODSocketClient::connect(const std::string& host, const int port)
             + Ogre::StringConverter::toString(status));
         return false;
     }
+    mSockSelector.add(mSockClient);
     LogManager::getSingleton().logMessage("Connected to server successfully");
     mIsConnected = true;
     return true;
 }
 
-void ODSocketClient::setBlocking(bool blocking)
-{
-    mSockClient.setBlocking(blocking);
-}
-
 void ODSocketClient::disconnect()
 {
     mIsConnected = false;
+    mSockSelector.remove(mSockClient);
     mSockClient.disconnect();
+}
+
+bool ODSocketClient::isDataAvailable()
+{
+    // There is only 1 socket in the selector so it ld be ready if
+    // wait returns true but it doesn't hurt to return isReady...
+    if(mSockSelector.wait(sf::milliseconds(5)))
+        return mSockSelector.isReady(mSockClient);
+    else
+        return false;
 }
 
 ODSocketClient::ODComStatus ODSocketClient::send(ODPacket& s)

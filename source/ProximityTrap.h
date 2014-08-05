@@ -20,11 +20,13 @@
 
 #include "Trap.h"
 
+class GameMap;
+
 class ProximityTrap : public Trap
 {
 public:
-    ProximityTrap();
-    
+    ProximityTrap(GameMap* gameMap);
+
 protected:
     double mRange;
 };

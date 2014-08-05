@@ -48,7 +48,7 @@ public:
         hideGui,
         mainMenu,
         singleplayerMenu,
-        multiplayertMenu,
+        multiplayerMenu,
         optionsMenu,
         inGameMenu,
         editorMenu
@@ -90,7 +90,6 @@ public:
     static const std::string TAB_CREATURES;
     static const std::string TAB_COMBAT;
     static const std::string TAB_SYSTEM;
-    static const std::string BUTTON_HOST;
     static const std::string BUTTON_QUIT;
     static const std::string MM_BACKGROUND;
     static const std::string MM_WELCOME_MESSAGE;
@@ -177,7 +176,6 @@ private:
     static bool dojoButtonPressed       (const CEGUI::EventArgs& e);
     static bool libraryButtonPressed    (const CEGUI::EventArgs& e);
     static bool cannonButtonPressed     (const CEGUI::EventArgs& e);
-    static bool serverButtonPressed     (const CEGUI::EventArgs& e);
     static bool confirmExitYesButtonPressed     (const CEGUI::EventArgs& e);
     static bool confirmExitNoButtonPressed      (const CEGUI::EventArgs& e);
 

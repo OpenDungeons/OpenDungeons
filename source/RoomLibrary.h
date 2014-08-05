@@ -23,7 +23,7 @@
 class RoomLibrary: public Room
 {
 public:
-    RoomLibrary();
+    RoomLibrary(GameMap* gameMap);
 
     void createMesh();
 

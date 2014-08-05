@@ -37,15 +37,16 @@
 
 #include <sstream>
 
-Room::Room():
+Room::Room(GameMap* gameMap):
+    Building(gameMap),
     mType(nullRoomType),
     mNumActiveSpots(0)
 {
     setObjectType(GameEntity::room);
 }
 
-Room* Room::createRoom(RoomType nType, const std::vector<Tile*>& nCoveredTiles, int nColor,
-    const std::string& nameToUse)
+Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*>& nCoveredTiles,
+    int nColor, const std::string& nameToUse)
 {
     Room* tempRoom = NULL;
 
@@ -56,25 +57,25 @@ Room* Room::createRoom(RoomType nType, const std::vector<Tile*>& nCoveredTiles, 
         tempRoom = NULL;
         break;
     case quarters:
-        tempRoom = new RoomQuarters();
+        tempRoom = new RoomQuarters(gameMap);
         break;
     case treasury:
-        tempRoom = new RoomTreasury();
+        tempRoom = new RoomTreasury(gameMap);
         break;
     case portal:
-        tempRoom = new RoomPortal();
+        tempRoom = new RoomPortal(gameMap);
         break;
     case dungeonTemple:
-        tempRoom = new RoomDungeonTemple();
+        tempRoom = new RoomDungeonTemple(gameMap);
         break;
     case forge:
-        tempRoom = new RoomForge();
+        tempRoom = new RoomForge(gameMap);
         break;
     case dojo:
-        tempRoom = new RoomDojo();
+        tempRoom = new RoomDojo(gameMap);
         break;
     case library:
-        tempRoom = new RoomLibrary();
+        tempRoom = new RoomLibrary(gameMap);
         break;
     }
 
@@ -114,18 +115,26 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
 
     // We build the message for the new room creation here with the original room size because
     // it may change if a room is absorbed
-    if(ODServer::getSingleton().isConnected())
+    if(gameMap->isServerGameMap())
     {
-        int intType = static_cast<int32_t>(newRoom->getType());
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::buildRoom, player);
-        serverNotification->packet << intType << player->getSeat()->getColor() << coveredTiles.size();
-        for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
+        try
         {
-            Tile* tile = *it;
-            serverNotification->packet << tile;
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::buildRoom, player);
+            int intType = static_cast<int32_t>(newRoom->getType());
+            serverNotification->packet << intType << player->getSeat()->getColor() << coveredTiles.size();
+            for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                serverNotification->packet << tile;
+            }
+            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::setupRoom", Ogre::LML_CRITICAL);
+            exit(1);
+        }
     }
 
     // Check all the tiles that border the newly created room and see if they
@@ -145,6 +154,9 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
 
     newRoom->updateActiveSpots();
 
+    if(gameMap->isServerGameMap())
+        return;
+
     newRoom->createMesh();
 
     SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::BUILDROOM, false);
@@ -152,15 +164,16 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
 
 void Room::absorbRoom(Room *r)
 {
+    mRoomObjects.insert(r->mRoomObjects.begin(), r->mRoomObjects.end());
+    r->mRoomObjects.clear();
+
     while (r->numCoveredTiles() > 0)
     {
         Tile *tempTile = r->getCoveredTile(0);
-        r->removeCoveredTile(tempTile, true);
-        addCoveredTile(tempTile);
+        double hp = r->getHP(tempTile);
+        r->removeCoveredTile(tempTile);
+        addCoveredTile(tempTile, hp);
     }
-
-    mRoomObjects.insert(r->mRoomObjects.begin(), r->mRoomObjects.end());
-    r->mRoomObjects.clear();
 
     updateActiveSpots();
 }
@@ -172,7 +185,7 @@ void Room::addCoveredTile(Tile* t, double nHP)
     t->setCoveringRoom(this);
 }
 
-void Room::removeCoveredTile(Tile* t, bool isTileAbsorb)
+void Room::removeCoveredTile(Tile* t)
 {
     bool removedTile = false;
     for (unsigned int i = 0; i < mCoveredTiles.size(); ++i)
@@ -188,6 +201,9 @@ void Room::removeCoveredTile(Tile* t, bool isTileAbsorb)
     }
 
     if (!removedTile)
+        return;
+
+    if(getGameMap()->isServerGameMap())
         return;
 
     // Destroy the mesh for this tile.
@@ -265,27 +281,153 @@ Tile* Room::getCentralTile()
     return getGameMap()->getTile((minX + maxX) / 2, (minY + maxY) / 2);
 }
 
-RoomObject* Room::loadRoomObject(const std::string& meshName, Tile* targetTile,
-                                 double rotationAngle)
+RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,
+    Tile* targetTile, double rotationAngle)
 {
     // TODO - proper random distrubition of room objects
     if (targetTile == NULL)
         targetTile = getCentralTile();
 
-    return loadRoomObject(meshName, targetTile, targetTile->x, targetTile->y,
-            rotationAngle);
+    return loadRoomObject(gameMap, meshName, targetTile, targetTile->x,
+        targetTile->y, rotationAngle);
 }
 
-RoomObject* Room::loadRoomObject(const std::string& meshName, Tile* targetTile,
-                                 double x, double y, double rotationAngle)
+RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,
+    Tile* targetTile, double x, double y, double rotationAngle)
 {
-    RoomObject* tempRoomObject = new RoomObject(this, meshName);
-    mRoomObjects[targetTile] = tempRoomObject;
+    RoomObject* tempRoomObject = new RoomObject(gameMap, this, meshName);
     tempRoomObject->mX = (Ogre::Real)x;
     tempRoomObject->mY = (Ogre::Real)y;
     tempRoomObject->mRotationAngle = (Ogre::Real)rotationAngle;
+    addRoomObject(targetTile, tempRoomObject);
 
     return tempRoomObject;
+}
+
+void Room::addRoomObject(Tile* targetTile, RoomObject* roomObject)
+{
+    if(getGameMap()->isServerGameMap())
+    {
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::addRoomObject, NULL);
+            serverNotification->packet << this->getName() << targetTile << roomObject;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::addRoomObject", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+    }
+    mRoomObjects[targetTile] = roomObject;
+    getGameMap()->addAnimatedObject(roomObject);
+}
+
+void Room::removeRoomObject(Tile* tile)
+{
+    RoomObject* roomObject = mRoomObjects[tile];
+    if(roomObject != NULL)
+    {
+        if(getGameMap()->isServerGameMap())
+        {
+            try
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::removeRoomObject, NULL);
+                serverNotification->packet << this->getName() << tile;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRoomObject", Ogre::LML_CRITICAL);
+                exit(1);
+            }
+        }
+        getGameMap()->removeAnimatedObject(roomObject);
+        roomObject->deleteYourself();
+        mRoomObjects.erase(tile);
+    }
+}
+
+void Room::removeRoomObject(RoomObject* roomObject)
+{
+    std::map<Tile*, RoomObject*>::iterator it;
+
+    for (it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
+    {
+        if(it->second == roomObject)
+            break;
+    }
+
+    if(it != mRoomObjects.end())
+    {
+        if(getGameMap()->isServerGameMap())
+        {
+            try
+            {
+                Tile* tile = it->first;
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::removeRoomObject, NULL);
+                serverNotification->packet << this->getName() << tile;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRoomObject", Ogre::LML_CRITICAL);
+                exit(1);
+            }
+        }
+        getGameMap()->removeAnimatedObject(roomObject);
+        roomObject->deleteYourself();
+        mRoomObjects.erase(it);
+    }
+}
+
+void Room::removeAllRoomObject()
+{
+    if(mRoomObjects.size() == 0)
+        return;
+
+    if(getGameMap()->isServerGameMap())
+    {
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::removeAllRoomObjectFromRoom, NULL);
+            serverNotification->packet << this->getName();
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeAllRoomObject", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+    }
+    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
+    while (itr != mRoomObjects.end())
+    {
+        RoomObject* roomObject = itr->second;
+        getGameMap()->removeAnimatedObject(roomObject);
+        roomObject->deleteYourself();
+        ++itr;
+    }
+    mRoomObjects.clear();
+}
+
+RoomObject* Room::getRoomObjectFromTile(Tile* tile)
+{
+    RoomObject* tempRoomObject = mRoomObjects[tile];
+    return tempRoomObject;
+}
+
+RoomObject* Room::getFirstRoomObject()
+{
+    if (!mRoomObjects.empty())
+        return mRoomObjects.begin()->second;
+    else
+        return NULL;
 }
 
 void Room::createRoomObjectMeshes()
@@ -322,9 +464,25 @@ bool Room::doUpkeep()
     bool oneTileRemoved = false;
     while (i < mCoveredTiles.size())
     {
-        if (mTileHP[mCoveredTiles[i]] <= 0.0)
+        Tile* t = mCoveredTiles[i];
+        if (mTileHP[t] <= 0.0)
         {
-            removeCoveredTile(mCoveredTiles[i], false);
+            if(getGameMap()->isServerGameMap())
+            {
+                try
+                {
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotification::removeRoomTile, NULL);
+                    serverNotification->packet << this->getName() << t;
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
+                }
+                catch (std::bad_alloc&)
+                {
+                    Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeCoveredTile", Ogre::LML_CRITICAL);
+                    exit(1);
+                }
+            }
+            removeCoveredTile(t);
             oneTileRemoved = true;
         }
         else
@@ -341,21 +499,20 @@ bool Room::doUpkeep()
     return true;
 }
 
-Room* Room::createRoomFromStream(const std::string& roomMeshName, std::istream& is, GameMap* gameMap,
+Room* Room::createRoomFromStream(GameMap* gameMap, const std::string& roomMeshName, std::istream& is,
     const std::string& roomName)
 {
-    Room tempRoom;
+    Room tempRoom(gameMap);
     tempRoom.setMeshName(roomMeshName);
-    tempRoom.setGameMap(gameMap);
     is >> &tempRoom;
 
-    return createRoom(tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor(), roomName);
+    return createRoom(gameMap, tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor(), roomName);
 }
 
 void Room::buildUniqueName()
 {
-    static int uniqueNumber = 0;
-    setName(getMeshName() + "_" + Ogre::StringConverter::toString(++uniqueNumber));
+    setName(getMeshName() + "_" + Ogre::StringConverter::toString(
+        getGameMap()->nextUniqueNumberRoom()));
 }
 
 std::istream& operator>>(std::istream& is, Room* r)
@@ -396,15 +553,14 @@ std::ostream& operator<<(std::ostream& os, Room *r)
     return os;
 }
 
-Room* Room::createRoomFromPacket(const std::string& roomMeshName, ODPacket& is, GameMap* gameMap,
+Room* Room::createRoomFromPacket(GameMap* gameMap, const std::string& roomMeshName, ODPacket& is,
     const std::string& roomName)
 {
-    Room tempRoom;
+    Room tempRoom(gameMap);
     tempRoom.setMeshName(roomMeshName);
-    tempRoom.setGameMap(gameMap);
     is >> &tempRoom;
 
-    return createRoom(tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor(), roomName);
+    return createRoom(gameMap, tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor(), roomName);
 }
 
 ODPacket& operator>>(ODPacket& is, Room* r)

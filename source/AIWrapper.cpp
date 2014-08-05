@@ -37,7 +37,8 @@ bool AIWrapper::buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, in
     int goldRequired = coveredTiles.size() * Room::costPerTile(newRoomType);
     if(gameMap.withdrawFromTreasuries(goldRequired, player.getSeat()))
     {
-        Room* newRoom = Room::createRoom(newRoomType, coveredTiles, player.getSeat()->getColor());
+        Room* newRoom = Room::createRoom(&gameMap, newRoomType, coveredTiles,
+            player.getSeat()->getColor());
         Room::setupRoom(&gameMap, newRoom, &player);
         return true;
     }
@@ -51,7 +52,7 @@ bool AIWrapper::buildTrap(Trap::TrapType newTrapType, int x1, int y1, int x2, in
     int goldRequired = coveredTiles.size() * Trap::costPerTile(newTrapType);
     if(gameMap.withdrawFromTreasuries(goldRequired, player.getSeat()))
     {
-        Trap* newTrap = Trap::createTrap(newTrapType, coveredTiles, player.getSeat());
+        Trap* newTrap = Trap::createTrap(&gameMap, newTrapType, coveredTiles, player.getSeat());
         Trap::setupTrap(&gameMap, newTrap, &player);
         return true;
     }

@@ -24,7 +24,8 @@
 #include "RoomObject.h"
 #include "Creature.h"
 
-RoomQuarters::RoomQuarters()
+RoomQuarters::RoomQuarters(GameMap* gameMap) :
+    Room(gameMap)
 {
     mType = quarters;
 }
@@ -35,7 +36,13 @@ void RoomQuarters::absorbRoom(Room *r)
     if (oldRoom == NULL)
         return;
 
-    mBedRoomObjectsInfo.swap(oldRoom->mBedRoomObjectsInfo);
+    // We transfert the room objects
+    mCreatureSleepingInTile.insert(oldRoom->mCreatureSleepingInTile.begin(), oldRoom->mCreatureSleepingInTile.end());
+    oldRoom->mCreatureSleepingInTile.clear();
+
+    mBedRoomObjectsInfo.insert(mBedRoomObjectsInfo.end(),
+        oldRoom->mBedRoomObjectsInfo.begin(), oldRoom->mBedRoomObjectsInfo.end());
+    oldRoom->mBedRoomObjectsInfo.clear();
 
     // This function will copy the room objects (beds) into the new room
     // and remove the old room covered tiles.
@@ -46,17 +53,13 @@ void RoomQuarters::createMesh()
 {
     Room::createMesh();
 
-    // Clean everything if not already done
-    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
-    while (itr != mRoomObjects.end())
-    {
-        itr->second->deleteYourself();
-        ++itr;
-    }
-    mRoomObjects.clear();
-    mCreatureSleepingInTile.clear();
+    // The client game map should not load room objects. They will be created
+    // by the messages sent by the server because some of them are randomly
+    // created
+    if(!getGameMap()->isServerGameMap())
+        return;
 
-    // And recreate the meshes with the new size.
+    // Recreate the meshes with the new size.
     if (mCoveredTiles.empty())
         return;
 
@@ -84,7 +87,7 @@ void RoomQuarters::createMesh()
             mCreatureSleepingInTile[tilesTaken[j]] = creature;
 
         // And recreate the bed room object
-        loadRoomObject(def->getBedMeshName(), tile, x, y, rotationAngle)->createMesh();
+        loadRoomObject(getGameMap(), def->getBedMeshName(), tile, x, y, rotationAngle)->createMesh();
     }
 
     // Add NULL creature in the mCreatureSleepingInTile map where there a nobody,
@@ -115,7 +118,7 @@ void RoomQuarters::addCoveredTile(Tile* t, double nHP)
         mCreatureSleepingInTile[t] = NULL;
 }
 
-void RoomQuarters::removeCoveredTile(Tile* t, bool isTileAbsorb)
+void RoomQuarters::removeCoveredTile(Tile* t)
 {
     if (t == NULL)
         return;
@@ -125,10 +128,10 @@ void RoomQuarters::removeCoveredTile(Tile* t, bool isTileAbsorb)
     {
         // Inform the creature that it no longer has a place to sleep
         // and remove the bed tile.
-        releaseTileForSleeping(t, c, isTileAbsorb);
+        releaseTileForSleeping(t, c);
     }
 
-    Room::removeCoveredTile(t, isTileAbsorb);
+    Room::removeCoveredTile(t);
     mCreatureSleepingInTile.erase(t);
 }
 
@@ -188,31 +191,15 @@ bool RoomQuarters::claimTileForSleeping(Tile* t, Creature* c)
     if (!spaceIsBigEnough)
         return false;
 
-    if (ODServer::getSingleton().isConnected())
-    {
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::addCreatureBed, c->getControllingPlayer());
-        serverNotification->packet << getName() << c->getName() << t << xDim
-            << yDim << rotationAngle;
-
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
-
     return installBed(t, c, xDim, yDim, rotationAngle);
 }
 
-bool RoomQuarters::releaseTileForSleeping(Tile* t, Creature* c, bool isTileAbsorb)
+bool RoomQuarters::releaseTileForSleeping(Tile* t, Creature* c)
 {
-    // We only notify the bed deletion if it is not an absorbtion because in this case, the client
-    // will know how to handle it by himself
-    if (!isTileAbsorb && ODServer::getSingleton().isConnected())
-    {
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::removeCreatureBed, c->getControllingPlayer());
-        serverNotification->packet << getName() << c->getName() << t;
-
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
+    // If the creature is not in the gamemap anymore, no need to notify that its bed
+    // is to be removed as the clients will handle that by themselves
+    if(getGameMap()->getCreature(c->getName()) == NULL)
+        return true;
 
     return removeBed(t, c);
 }
@@ -240,7 +227,7 @@ bool RoomQuarters::installBed(Tile* t, Creature* c, double xDim, double yDim,
     }
 
     // Add the model
-    loadRoomObject(def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle)->createMesh();
+    loadRoomObject(getGameMap(), def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle)->createMesh();
     // Save the info for later...
     mBedRoomObjectsInfo.push_back(bedInfo);
 }
@@ -266,10 +253,8 @@ bool RoomQuarters::removeBed(Tile* t, Creature* c)
     c->setHomeTile(NULL);
 
     // Make the room object delete itself and remove it from the map
-    std::map<Tile*, RoomObject*>::iterator it = mRoomObjects.find(t);
-    if (it != mRoomObjects.end() && it->second != NULL)
-        it->second->deleteYourself();
-    mRoomObjects.erase(t);
+    RoomObject* roomObject = getRoomObjectFromTile(t);
+    removeRoomObject(roomObject);
 
     // Remove the bedinfo as well
     std::vector<BedRoomObjectInfo>::iterator it2 = mBedRoomObjectsInfo.begin();

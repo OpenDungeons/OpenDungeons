@@ -26,6 +26,8 @@
 #include "GameEntity.h"
 #include "Seat.h"
 
+class GameMap;
+
 /*! \class GameEntity GameEntity.h
  *  \brief This class holds elements that are common to every object placed in the game
  *
@@ -37,7 +39,8 @@ class Building : public GameEntity
 {
 public:
     //! \brief Default constructor with default values
-    Building() :
+    Building(GameMap* gameMap) :
+        GameEntity(gameMap),
         mControllingSeat(NULL)
     {}
 

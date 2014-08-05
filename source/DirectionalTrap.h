@@ -24,7 +24,7 @@
 class DirectionalTrap : public Trap
 {
 public:
-    DirectionalTrap(int, int);
+    DirectionalTrap(GameMap* gameMap, int xdir, int ydir);
 
 protected:
     std::pair<int, int> mDir;

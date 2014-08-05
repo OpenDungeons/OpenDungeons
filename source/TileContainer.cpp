@@ -28,27 +28,33 @@ TileContainer::TileContainer():
 TileContainer::~TileContainer()
 {
     clearTiles();
-    if (mTiles)
-        delete [] mTiles;
 }
 
 void TileContainer::clearTiles()
 {
-    for (int jj = 0; jj < mMapSizeY; ++jj)
+    if (mTiles)
     {
         for (int ii = 0; ii < mMapSizeX; ++ii)
         {
-            mTiles[ii][jj].destroyMesh();
-            mTiles[ii][jj].deleteYourself();
+            for (int jj = 0; jj < mMapSizeY; ++jj)
+            {
+                mTiles[ii][jj]->deleteYourself();
+            }
+            delete[] mTiles[ii];
         }
+        delete[] mTiles;
+        mTiles = NULL;
     }
 }
 
-bool TileContainer::addTile(const Tile& t)
+#include "LogManager.h"
+bool TileContainer::addTile(Tile* t)
 {
-    if (t.x < getMapSizeX() && t.y < getMapSizeY() && t.x >= 0 && t.y >= 0)
+    if (t->x < getMapSizeX() && t->y < getMapSizeY() && t->x >= 0 && t->y >= 0)
     {
-        mTiles[t.x][t.y] = t;
+        if(mTiles[t->x][t->y] != NULL)
+            mTiles[t->x][t->y]->deleteYourself();
+        mTiles[t->x][t->y] = t;
         return true;
     }
 
@@ -87,8 +93,11 @@ void TileContainer::setTileNeighbors(Tile *t)
 
 Tile* TileContainer::getTile(int xx, int yy) const
 {
+    if(mTiles == NULL)
+        return NULL;
+
     if (xx < getMapSizeX() && yy < getMapSizeY() && xx >= 0 && yy >= 0)
-        return &(mTiles[xx][yy]);
+        return mTiles[xx][yy];
     else
     {
         // std :: cerr << " invalid x,y coordinates to getTile" << std :: endl;
@@ -139,16 +148,6 @@ unsigned int TileContainer::numTiles()
     return mMapSizeX * mMapSizeY;
 }
 
-Tile* TileContainer::firstTile()
-{
-    return &mTiles[0][0];
-}
-
-Tile* TileContainer::lastTile()
-{
-    return &mTiles[getMapSizeX()][getMapSizeY()];
-}
-
 bool TileContainer::allocateMapMemory(int xSize, int ySize)
 {
     if (xSize <= 0 || ySize <= 0)
@@ -157,24 +156,37 @@ bool TileContainer::allocateMapMemory(int xSize, int ySize)
         return false;
     }
 
+    // Clear memory usage first
+    if (mTiles)
+    {
+        for(int ii = 0; ii < mMapSizeX; ++ii)
+        {
+            for(int jj = 0; jj < mMapSizeY; ++jj)
+            {
+                delete  mTiles[ii][jj];
+            }
+            delete [] mTiles[ii];
+        }
+        delete [] mTiles;
+    }
+
     // Set map size
     mMapSizeX = xSize;
     mMapSizeY = ySize;
 
-    // Clear memory usage first
-    if (mTiles)
-        delete [] mTiles;
-
-    mTiles = new Tile *[mMapSizeX];
+    mTiles = new Tile **[mMapSizeX];
     if(!mTiles)
     {
         std::cerr << "Failed to allocate map memory" << std::endl;
         return false;
     }
-
-    for (int i = 0; i < mMapSizeX; ++i)
+    for(int ii = 0; ii < mMapSizeX; ++ii)
     {
-        mTiles[i] = new Tile[mMapSizeY];
+        mTiles[ii] = new Tile *[mMapSizeY];
+        for(int jj = 0; jj < mMapSizeY; ++jj)
+        {
+            mTiles[ii][jj] = NULL;
+        }
     }
 
     return true;

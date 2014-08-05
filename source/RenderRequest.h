@@ -94,6 +94,7 @@ public:
     void *p2;
     void *p3;
     std::string str;
+    std::string str2;
     Ogre::Vector3 vec;
     Ogre::Quaternion quaternion;
     bool b;

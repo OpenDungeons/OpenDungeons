@@ -72,7 +72,7 @@ Gui::Gui()
     sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
     sheets[singleplayerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSinglePlayer.layout");
-    sheets[multiplayertMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayer.layout");
+    sheets[multiplayerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayer.layout");
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
 
     assignEventHandlers();
@@ -169,10 +169,6 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_HOST)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&serverButtonPressed));
-
     sheets[inGameMenu]->getChild(BUTTON_QUIT)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&quitButtonPressed));
@@ -228,19 +224,19 @@ void Gui::assignEventHandlers()
         CEGUI::Event::Subscriber(&mSPMListClicked));
 
     // Multiplayer menu controls
-    sheets[multiplayertMenu]->getChild(MPM_BUTTON_SERVER)->subscribeEvent(
+    sheets[multiplayerMenu]->getChild(MPM_BUTTON_SERVER)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMPMServerButtonPressed));
 
-    sheets[multiplayertMenu]->getChild(MPM_BUTTON_CLIENT)->subscribeEvent(
+    sheets[multiplayerMenu]->getChild(MPM_BUTTON_CLIENT)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMPMClientButtonPressed));
 
-    sheets[multiplayertMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
+    sheets[multiplayerMenu]->getChild(MPM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
         CEGUI::Event::Subscriber(&mMPMBackButtonPressed));
 
-    sheets[multiplayertMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
+    sheets[multiplayerMenu]->getChild(MPM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
         CEGUI::Event::Subscriber(&mMPMListClicked));
 }
@@ -251,8 +247,8 @@ bool Gui::miniMapclicked(const CEGUI::EventArgs& e)
 
     ODFrameListener& frameListener = ODFrameListener::getSingleton();
 
-    Ogre::Vector2 cc = frameListener.getGameMap()->getMiniMap()->camera_2dPositionFromClick((int)ee.position.d_x,
-                                                                                            (int)ee.position.d_y);
+    Ogre::Vector2 cc = frameListener.getMiniMap()->camera_2dPositionFromClick((int)ee.position.d_x,
+        (int)ee.position.d_y);
     frameListener.cm->onMiniMapClick(cc);
 
     //std::cerr<< xx <<" "<< yy << " " <<std::endl;
@@ -333,26 +329,25 @@ bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::serverButtonPressed(const CEGUI::EventArgs& e)
-{
-    // TODO : is this function really needed ? It seems to be used from an ingame menu
-    // but I could find no way to show it.
-    //return ODServer::getSingleton().startServer();
-    return true;
-}
-
 bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm)
         return true;
 
-    if(ODServer::getSingleton().isConnected())
-        ODServer::getSingleton().stopServer();
+    mm->requestUnloadToParentGameMode();
+
     if(ODClient::getSingleton().isConnected())
         ODClient::getSingleton().disconnect();
+    if(ODServer::getSingleton().isConnected())
+        ODServer::getSingleton().stopServer();
 
-    mm->requestUnloadToParentGameMode();
+    // Now that the server is stopped, we can clear the client game map
+    // We process RenderRequests in case there is graphical things pending
+    RenderManager::getSingleton().processRenderRequests();
+    ODFrameListener::getSingleton().getGameMap()->clearAll();
+    // We process again RenderRequests to destroy/delete what clearAll has put in the queue
+    RenderManager::getSingleton().processRenderRequests();
     return true;
 }
 
@@ -566,7 +561,6 @@ const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
 const std::string Gui::TAB_COMBAT = "MainTabControl/Combat";
 const std::string Gui::TAB_SYSTEM = "MainTabControl/System";
-const std::string Gui::BUTTON_HOST = "MainTabControl/System/HostButton";
 const std::string Gui::BUTTON_QUIT = "MainTabControl/System/QuitButton";
 
 const std::string Gui::MM_BACKGROUND = "Background";

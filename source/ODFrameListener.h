@@ -147,6 +147,8 @@ public:
         mCommandOutput = output;
     }
 
+    MiniMap* getMiniMap() {return mMiniMap;}
+
 private:
     //! \brief Tells whether the frame listener is initialized.
     bool mInitialized;
@@ -163,13 +165,15 @@ private:
     unsigned int            mChatMaxMessages;
     unsigned int            mChatMaxTimeDisplay;
     double                  mFrameDelay;
-    Ogre::Real              mTimeElapsedSinceLastTurn;
 
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
     Ogre::RaySceneQuery*    mRaySceneQuery;
 
     Ogre::Timer             mStatsDisplayTimer;
     GameMap*                mGameMap;
+
+    //! \brief The minimap corresponding to the GameMap.
+    MiniMap*                mMiniMap;
 
     //! \brief To see if the frameListener wants to exit
     bool mExitRequested;

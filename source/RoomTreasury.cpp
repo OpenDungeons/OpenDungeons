@@ -28,7 +28,8 @@
 
 static const int maxGoldinTile = 5000;
 
-RoomTreasury::RoomTreasury()
+RoomTreasury::RoomTreasury(GameMap* gameMap) :
+    Room(gameMap)
 {
     mType = treasury;
 }
@@ -76,9 +77,9 @@ void RoomTreasury::addCoveredTile(Tile* t, double nHP)
     }
 }
 
-void RoomTreasury::removeCoveredTile(Tile* t, bool isTileAbsorb)
+void RoomTreasury::removeCoveredTile(Tile* t)
 {
-    Room::removeCoveredTile(t, isTileAbsorb);
+    Room::removeCoveredTile(t);
     mGoldInTile.erase(t);
     mFullnessOfTile.erase(t);
 
@@ -229,46 +230,58 @@ void RoomTreasury::updateMeshesForTile(Tile* t)
 
 void RoomTreasury::createMeshesForTile(Tile* t, const std::string& indicatorMeshName)
 {
+    if (getGameMap()->isServerGameMap())
+    {
+        try
+        {
+            Player* player = getGameMap()->getPlayerByColor(getColor());
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::createTreasuryIndicator, player);
+            serverNotification->packet << player->getSeat()->getColor() << getName() << t << indicatorMeshName;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomTreasury::createMeshesForTile", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+        return;
+    }
+
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::createTreasuryIndicator;
     request->p = t;
     request->p2 = this;
     request->str = indicatorMeshName;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
-
-    if (ODServer::getSingleton().isConnected())
-    {
-        Player* player = getGameMap()->getPlayerByColor(getColor());
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::createTreasuryIndicator, player);
-        serverNotification->packet << player->getSeat()->getColor() << getName() << t << indicatorMeshName;
-
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
 }
 
 void RoomTreasury::destroyMeshesForTile(Tile* t, const std::string& indicatorMeshName)
 {
+    if (getGameMap()->isServerGameMap())
+    {
+        try
+        {
+            Player* player = getGameMap()->getPlayerByColor(getColor());
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::destroyTreasuryIndicator, player);
+            serverNotification->packet << player->getSeat()->getColor() << getName() << t << indicatorMeshName;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomTreasury::destroyMeshesForTile", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+        return;
+    }
+
     RenderRequest *request = new RenderRequest;
     request->type = RenderRequest::destroyTreasuryIndicator;
     request->p = t;
     request->p2 = this;
     request->str = indicatorMeshName;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
-
-    if (ODServer::getSingleton().isConnected())
-    {
-        Player* player = getGameMap()->getPlayerByColor(getColor());
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::destroyTreasuryIndicator, player);
-        serverNotification->packet << player->getSeat()->getColor() << getName() << t << indicatorMeshName;
-
-        ODServer::getSingleton().queueServerNotification(serverNotification);
-    }
 }
 
 void RoomTreasury::createGoldMeshes()

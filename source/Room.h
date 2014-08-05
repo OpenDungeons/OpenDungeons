@@ -49,7 +49,7 @@ public:
     };
 
     // Constructors and operators
-    Room();
+    Room(GameMap* gameMap);
     virtual ~Room()
     {}
 
@@ -57,7 +57,7 @@ public:
      * This function sets up some of the room's properties. If nameToUse is empty, a new unique name
      * will be generated. If not, the given one will be used
      */
-    static Room* createRoom(RoomType nType, const std::vector<Tile*> &nCoveredTiles, int nColor,
+    static Room* createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*> &nCoveredTiles, int nColor,
         const std::string& nameToUse = "");
 
     /** \brief Adds the room newRoom to the game map for the current player. If the border tiles
@@ -77,18 +77,24 @@ public:
     friend ODPacket& operator<<(ODPacket& os, Room *r);
     friend ODPacket& operator>>(ODPacket& is, Room *r);
 
-    static Room* createRoomFromStream(const std::string& roomMeshName, std::istream &is, GameMap* gameMap,
+    static Room* createRoomFromStream(GameMap* gameMap, const std::string& roomMeshName, std::istream& is,
         const std::string& roomName);
-    static Room* createRoomFromPacket(const std::string& roomMeshName, ODPacket &is, GameMap* gameMap,
+    static Room* createRoomFromPacket(GameMap* gameMap, const std::string& roomMeshName, ODPacket& is,
         const std::string& roomName);
 
     /*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile,
      *  if the tile is NULL the object appears in the room's center, the rotation angle is given in degrees.
      */
-    RoomObject* loadRoomObject(const std::string& meshName, Tile *targetTile = NULL,
-                               double rotationAngle = 0.0);
-    RoomObject* loadRoomObject(const std::string& meshName, Tile *targetTile,
-                               double x, double y, double rotationAngle);
+    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName, Tile *targetTile = NULL,
+        double rotationAngle = 0.0);
+    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName, Tile *targetTile,
+        double x, double y, double rotationAngle);
+    void addRoomObject(Tile* targetTile, RoomObject* roomObject);
+    void removeRoomObject(Tile* tile);
+    void removeRoomObject(RoomObject* roomObject);
+    void removeAllRoomObject();
+    RoomObject* getRoomObjectFromTile(Tile* tile);
+    RoomObject* getFirstRoomObject();
 
     void createRoomObjectMeshes();
     void destroyRoomObjectMeshes();
@@ -109,7 +115,7 @@ public:
     virtual bool doUpkeep();
 
     virtual void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
-    virtual void removeCoveredTile(Tile* t, bool isTileAbsorb);
+    virtual void removeCoveredTile(Tile* t);
     virtual Tile* getCoveredTile(unsigned index);
 
     /** \brief Returns all of the tiles which are part of this room,
@@ -175,7 +181,6 @@ public:
 protected:
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;
-    std::map<Tile*, RoomObject*> mRoomObjects;
     std::vector<Creature*> mCreaturesUsingRoom;
     RoomType mType;
 
@@ -190,11 +195,11 @@ protected:
     unsigned int mNumActiveSpots;
 
 private :
-        /*! \brief This function makes sure the name of the room is unique. It shall be called after loading
+    /*! \brief This function makes sure the name of the room is unique. It shall be called after loading
      * a room from the level file or when a new one is built.
      */
     void buildUniqueName();
-
+    std::map<Tile*, RoomObject*> mRoomObjects;
 
 };
 

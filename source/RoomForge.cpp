@@ -22,7 +22,8 @@
 #include "RoomObject.h"
 #include "Random.h"
 
-RoomForge::RoomForge()
+RoomForge::RoomForge(GameMap* gameMap) :
+    Room(gameMap)
 {
     mType = forge;
 }
@@ -31,14 +32,14 @@ void RoomForge::createMesh()
 {
     Room::createMesh();
 
-    // Clean everything
-    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
-    while (itr != mRoomObjects.end())
-    {
-        itr->second->deleteYourself();
-        ++itr;
-    }
-    mRoomObjects.clear();
+    // The client game map should not load room objects. They will be created
+    // by the messages sent by the server because some of them are randomly
+    // created
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    // Clean room objects
+    removeAllRoomObject();
 
     // And recreate the meshes with the new size.
     if (mCoveredTiles.empty())
@@ -46,24 +47,24 @@ void RoomForge::createMesh()
 
     for(unsigned int i = 0, size = mCentralActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("ForgeAnvilObject", mCentralActiveSpotTiles[i]);
+        loadRoomObject(getGameMap(), "ForgeAnvilObject", mCentralActiveSpotTiles[i]);
     }
     // Against walls
     for(unsigned int i = 0, size = mLeftWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("ForgeForgeObject", mLeftWallsActiveSpotTiles[i], 270.0);
+        loadRoomObject(getGameMap(), "ForgeForgeObject", mLeftWallsActiveSpotTiles[i], 270.0);
     }
     for(unsigned int i = 0, size = mRightWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("ForgeForgeObject", mRightWallsActiveSpotTiles[i], 90.0);
+        loadRoomObject(getGameMap(), "ForgeForgeObject", mRightWallsActiveSpotTiles[i], 90.0);
     }
     for(unsigned int i = 0, size = mTopWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("ForgeTableObject", mTopWallsActiveSpotTiles[i], 180.0);
+        loadRoomObject(getGameMap(), "ForgeTableObject", mTopWallsActiveSpotTiles[i], 180.0);
     }
     for(unsigned int i = 0, size = mBottomWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("ForgeTableObject", mBottomWallsActiveSpotTiles[i], 0.0);
+        loadRoomObject(getGameMap(), "ForgeTableObject", mBottomWallsActiveSpotTiles[i], 0.0);
     }
 
     createRoomObjectMeshes();

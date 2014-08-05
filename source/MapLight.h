@@ -19,6 +19,7 @@
 #define MAPLIGHT_H
 
 #include "ODPacket.h"
+#include "GameMap.h"
 
 #include <OgrePrerequisites.h>
 #include <OgreVector3.h>
@@ -32,7 +33,10 @@ class GameMap;
 class MapLight
 {
 public:
-    MapLight(const Ogre::Vector3&  nPosition   = Ogre::Vector3(0, 0, 0),
+    //! \brief Constructor for making Map lights. If useUniqueName is false, setName() should be called
+    MapLight(GameMap*              gameMap,
+             bool                  generateUniqueName,
+             const Ogre::Vector3&  nPosition   = Ogre::Vector3(0, 0, 0),
              Ogre::Real            red         = 0.0,
              Ogre::Real            green       = 0.0,
              Ogre::Real            blue        = 0.0,
@@ -49,11 +53,13 @@ public:
         mFactorY                         (0),
         mFactorZ                         (0)
     {
-        static unsigned int lightNumber = 0;
-
-        std::stringstream tempSS;
-        tempSS << "Map_light_ " << ++lightNumber;
-        mName = tempSS.str();
+        mGameMap = gameMap;
+        if(generateUniqueName)
+        {
+            std::stringstream tempSS;
+            tempSS << "Map_light_ " << mGameMap->nextUniqueNumberMapLight();
+            mName = tempSS.str();
+        }
 
         setPosition(nPosition);
         setDiffuseColor(red, green, blue);
@@ -114,8 +120,6 @@ public:
 
     //! \brief Loads the map light data from a level line.
     static void loadFromLine(const std::string& line, MapLight* m);
-
-    void setGameMap(GameMap* gm);
 
 private:
     GameMap* mGameMap;

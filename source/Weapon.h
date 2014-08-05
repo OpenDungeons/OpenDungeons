@@ -30,22 +30,13 @@ class Creature;
 class Weapon : public GameEntity
 {
 public:
-    Weapon(const std::string& name,
+    Weapon(GameMap*           gameMap,
+           const std::string& name,
            double             damage,
            double             range,
            double             defense,
            const std::string& handString,
-           Creature*          parent = NULL):
-        GameEntity     (name, std::string(), 0),
-        mHandString    (handString),
-        mDamage        (damage),
-        mRange         (range),
-        mDefense       (defense),
-        mParentCreature(parent)
-    {
-        // TODO: Makes this obtained with a true parameter
-        setMeshName(name + ".mesh");
-    }
+           Creature*          parent = NULL);
 
     virtual ~Weapon()
     {

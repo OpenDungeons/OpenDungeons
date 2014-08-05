@@ -20,12 +20,14 @@
 
 #include "LogManager.h"
 
+#include <SFML/System.hpp>
 #include <OgreStringConverter.h>
 
-ODSocketServer::ODSocketServer()
+ODSocketServer::ODSocketServer():
+    mThread(NULL),
+    mNewClient(NULL),
+    mIsConnected(false)
 {
-    mNewClient = NULL;
-    mIsConnected = false;
 }
 
 ODSocketServer::~ODSocketServer()
@@ -50,8 +52,11 @@ bool ODSocketServer::createServer(int listeningPort)
 
     mSockSelector.add(mSockListener);
 
-    LogManager::getSingleton().logMessage("Server connected and listening");
     mIsConnected = true;
+    LogManager::getSingleton().logMessage("Server connected and listening");
+    mThread = new sf::Thread(&ODSocketServer::serverThread, this);
+    mThread->launch();
+
     return true;
 }
 
@@ -163,8 +168,10 @@ void ODSocketServer::sendMsgToAllClients(ODPacket& packetReceived)
 
 void ODSocketServer::stopServer()
 {
-    // TODO : if there is a server thread, wait for the end of its task
     mIsConnected = false;
+    if(mThread != NULL)
+        delete mThread; // Delete waits for the thread to finish
+    mThread = NULL;
     mSockListener.close();
     mSockSelector.clear();
     for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
@@ -180,4 +187,9 @@ void ODSocketServer::stopServer()
         delete mNewClient;
         mNewClient = NULL;
     }
+}
+
+void ODSocketServer::setClientState(ODSocketClient* client, const std::string& state)
+{
+    client->setState(state);
 }

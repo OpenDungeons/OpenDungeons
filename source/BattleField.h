@@ -21,6 +21,8 @@
 #include <vector>
 #include <string>
 
+class GameMap;
+
 //! \brief A structure storing the security level of the creature visible tiles
 struct SecurityTile {
 public:
@@ -65,7 +67,7 @@ typedef std::vector<SecurityTile> FieldType;
 class BattleField
 {
 public:
-    BattleField();
+    BattleField(GameMap* gameMap);
 
     ~BattleField()
     {}

@@ -22,7 +22,8 @@
 #include "MissileObject.h"
 #include "Random.h"
 
-TrapCannon::TrapCannon() :
+TrapCannon::TrapCannon(GameMap* gameMap) :
+    ProximityTrap(gameMap),
     mCannonHeight(1.5)
 {
     mReloadTime = 5;
@@ -61,16 +62,16 @@ void TrapCannon::damage(std::vector<GameEntity*> enemyAttacked)
         << " to " << enemyAttacked[0]->getCoveredTiles()[0]->x << "," << enemyAttacked[0]->getCoveredTiles()[0]->y << std::endl;
 
     // Create the cannonball to move toward the enemy creature.
-    MissileObject *tempMissileObject = new MissileObject(
+    MissileObject *tempMissileObject = new MissileObject(getGameMap(),
         "Cannonball", Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x, (Ogre::Real)mCoveredTiles[0]->y,
-                                    (Ogre::Real)mCannonHeight), getGameMap());
+                                    (Ogre::Real)mCannonHeight));
 
     tempMissileObject->setMoveSpeed(8.0);
     tempMissileObject->createMesh();
     //TODO: Make this a pseudo newtonian mechanics solver which computes a parabola passing through the cannon
     // and the enemy it is shooting at, add this as 10 or so destinations in the queue instead of just one.
+    getGameMap()->addMissileObject(tempMissileObject);
     tempMissileObject->addDestination((Ogre::Real)enemyAttacked[0]->getCoveredTiles()[0]->x,
                                     (Ogre::Real)enemyAttacked[0]->getCoveredTiles()[0]->y,
                                     (Ogre::Real)mCannonHeight);
-    getGameMap()->addMissileObject(tempMissileObject);
 }

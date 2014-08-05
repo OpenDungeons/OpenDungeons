@@ -53,6 +53,7 @@ class ServerNotification
 
             markTiles,
             buildRoom,
+            removeRoomTile,
             buildTrap,
             turnStarted,
             setTurnsPerSecond,
@@ -62,14 +63,23 @@ class ServerNotification
             animatedObjectAddDestination,
             animatedObjectClearDestinations,
             setObjectAnimationState,
+            // Pickup/drop creature for concerned player
+            pickupCreature,
+            dropCreature,
+            // Pickup/drop creature for other players
             creaturePickedUp,
             creatureDropped,
 
             addCreature,
+            removeCreature,
+            creatureRefresh,
             tileClaimed,
             refreshPlayerSeat,
-            addCreatureBed,
-            removeCreatureBed,
+            addMissileObject,
+            removeMissileObject,
+            addRoomObject,
+            removeRoomObject,
+            removeAllRoomObjectFromRoom,
 
             createTreasuryIndicator,
             destroyTreasuryIndicator,
@@ -85,6 +95,8 @@ class ServerNotification
         ODPacket packet;
 
         static std::string typeString(ServerNotificationType type);
+        friend ODPacket& operator<<(ODPacket& os, const ServerNotification::ServerNotificationType& nt);
+        friend ODPacket& operator>>(ODPacket& is, ServerNotification::ServerNotificationType& nt);
 
     private:
         ServerNotificationType mType;

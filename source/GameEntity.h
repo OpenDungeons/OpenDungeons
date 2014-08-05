@@ -46,7 +46,6 @@ class GameEntity
 {
 
 /* TODO list:
- * - GameMap pointer should not be part of every object, since there is only one GameMap, at least let it set by ctor
  * - complete the constructor
  * - add semaphores if/where needed
  * - static removeDeadObjects should not be in here (maybe in GameMap?)
@@ -60,6 +59,7 @@ class GameEntity
 
     //! \brief Default constructor with default values
     GameEntity(
+          GameMap*        gameMap,
           std::string     nName       = std::string(),
           std::string     nMeshName   = std::string(),
           int             nColor      = 0
@@ -74,6 +74,8 @@ class GameEntity
     objectType  (unknown),
     gameMap     (NULL)
     {
+        assert(gameMap !=  NULL);
+        this->gameMap = gameMap;
     }
 
     virtual ~GameEntity(){}
@@ -124,13 +126,6 @@ class GameEntity
 
     //! \brief Set the type of the object. Should be done in all final derived constructors
     inline void setObjectType   (ObjectType nType)              { objectType = nType; }
-
-    //! \brief set a pointer the MameMap
-    inline virtual void         setGameMap                      (GameMap* gameMap)
-    {
-        this->gameMap = gameMap;
-        assert(gameMap != 0);
-    }
 
     virtual void                setPosition                     (const Ogre::Vector3& v)
     {

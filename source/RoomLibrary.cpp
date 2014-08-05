@@ -22,7 +22,8 @@
 #include "RoomObject.h"
 #include "Random.h"
 
-RoomLibrary::RoomLibrary()
+RoomLibrary::RoomLibrary(GameMap* gameMap) :
+    Room(gameMap)
 {
     mType = library;
 }
@@ -31,14 +32,14 @@ void RoomLibrary::createMesh()
 {
     Room::createMesh();
 
-    // Clean everything
-    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
-    while (itr != mRoomObjects.end())
-    {
-        itr->second->deleteYourself();
-        ++itr;
-    }
-    mRoomObjects.clear();
+    // The client game map should not load room objects. They will be created
+    // by the messages sent by the server because some of them are randomly
+    // created
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    // Clean room objects
+    removeAllRoomObject();
 
     // And recreate the meshes with the new size.
     if (mCoveredTiles.empty())
@@ -47,26 +48,26 @@ void RoomLibrary::createMesh()
     for(unsigned int i = 0, size = mCentralActiveSpotTiles.size(); i < size; ++i)
     {
         if (Random::Int(0, 100) > 50)
-            loadRoomObject("Podium", mCentralActiveSpotTiles[i]);
+            loadRoomObject(getGameMap(), "Podium", mCentralActiveSpotTiles[i]);
         else
-            loadRoomObject("Bookcase", mCentralActiveSpotTiles[i]);
+            loadRoomObject(getGameMap(), "Bookcase", mCentralActiveSpotTiles[i]);
     }
     // Against walls
     for(unsigned int i = 0, size = mLeftWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("Bookshelf", mLeftWallsActiveSpotTiles[i], 90.0);
+        loadRoomObject(getGameMap(), "Bookshelf", mLeftWallsActiveSpotTiles[i], 90.0);
     }
     for(unsigned int i = 0, size = mRightWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("Bookshelf", mRightWallsActiveSpotTiles[i], 270.0);
+        loadRoomObject(getGameMap(), "Bookshelf", mRightWallsActiveSpotTiles[i], 270.0);
     }
     for(unsigned int i = 0, size = mTopWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("Bookshelf", mTopWallsActiveSpotTiles[i], 0.0);
+        loadRoomObject(getGameMap(), "Bookshelf", mTopWallsActiveSpotTiles[i], 0.0);
     }
     for(unsigned int i = 0, size = mBottomWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject("Bookshelf", mBottomWallsActiveSpotTiles[i], 180.0);
+        loadRoomObject(getGameMap(), "Bookshelf", mBottomWallsActiveSpotTiles[i], 180.0);
     }
 
     createRoomObjectMeshes();

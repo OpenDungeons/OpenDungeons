@@ -72,7 +72,8 @@ public:
         diggableTile = 3
     };
 
-    Tile(int nX = 0, int nY = 0, TileType nType = dirt, double nFullness = 100.0) :
+    Tile(GameMap* gameMap, int nX = 0, int nY = 0, TileType nType = dirt, double nFullness = 100.0) :
+        GameEntity          (gameMap),
         x                   (nX),
         y                   (nY),
         colorDouble         (0.0),
@@ -274,13 +275,6 @@ public:
 
     //! \brief Gives the tile passability from the given string
     static TileClearType tilePassabilityFromString(const::string& t);
-
-    /**
-     * \brief Sets the gameMap and resets the tile fullness.
-     * FIXME: The fullness should be set at load time more properly.
-     * This will then permit to remove the game map from the game entities.
-     */
-    void setGameMap(GameMap* gameMap);
 
     int getX() const
     { return x; }

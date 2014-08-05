@@ -24,20 +24,25 @@
 #include <iostream>
 #include <sstream>
 
-MissileObject::MissileObject(const std::string& nMeshName, const Ogre::Vector3& nPosition, GameMap* gameMap)
+MissileObject::MissileObject(GameMap* gameMap, const std::string& nMeshName, const Ogre::Vector3& nPosition) :
+    MovableGameEntity(gameMap)
 {
-    setGameMap(gameMap);
-    static int uniqueNumber = 0;
-
     setObjectType(GameEntity::missileobject);
 
     std::stringstream tempSS;
-    tempSS << "Missile_Object_" << ++uniqueNumber;
+    tempSS << "Missile_Object_" << gameMap->nextUniqueNumberMissileObj();
     setName(tempSS.str());
 
     setMeshName(nMeshName);
     setMeshExisting(false);
     setPosition(nPosition);
+}
+
+MissileObject::MissileObject(GameMap* gameMap) :
+    MovableGameEntity(gameMap)
+{
+    setObjectType(GameEntity::missileobject);
+    setMeshExisting(false);
 }
 
 bool MissileObject::doUpkeep()
@@ -49,20 +54,50 @@ bool MissileObject::doUpkeep()
 void MissileObject::stopWalking()
 {
     MovableGameEntity::stopWalking();
-    getGameMap()->removeMissileObject(this);
-    deleteYourself();
+    if(getGameMap()->isServerGameMap())
+    {
+        // On the client side, this will be done after receiving the
+        // corresponding message
+        getGameMap()->removeMissileObject(this);
+        deleteYourself();
+    }
 }
 
 void MissileObject::setPosition(const Ogre::Vector3& v)
 {
     MovableGameEntity::setPosition(v);
+    if(getGameMap()->isServerGameMap())
+        return;
 
-    // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
     request->str = getName() + "_node";
     request->vec = v;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
+}
+
+ODPacket& operator<<(ODPacket& os, MissileObject *mo)
+{
+    std::string nMeshName;
+    os << mo->getMeshName() << mo->getPosition() << mo->getName()
+        << mo->getMoveSpeed();
+
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, MissileObject *mo)
+{
+    std::string name;
+    std::string meshName;
+    Ogre::Vector3 position;
+    double moveSpeed;
+    is >> meshName;
+    mo->setMeshName(meshName);
+    is >> position;
+    mo->setPosition(position);
+    is >> name;
+    mo->setName(name);
+    is >> moveSpeed;
+    mo->setMoveSpeed(moveSpeed);
+    return is;
 }

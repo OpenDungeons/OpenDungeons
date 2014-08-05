@@ -21,11 +21,13 @@
 #include "ServerNotification.h"
 #include "ODApplication.h"
 #include "Tile.h"
+#include "GameMap.h"
 #include "RenderRequest.h"
 #include "RenderManager.h"
 #include "LogManager.h"
 
-MovableGameEntity::MovableGameEntity() :
+MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
+        GameEntity(gameMap),
         mWalkQueueFirstEntryAdded(false),
         mAnimationState(NULL),
         mDestinationAnimationState("Idle"),
@@ -54,13 +56,20 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
         mWalkQueue.push_back(destination);
     }
 
-    if (ODServer::getSingleton().isConnected())
+    if (getGameMap()->isServerGameMap())
     {
-        // Place a message in the queue to inform the clients about the new destination
-        ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::animatedObjectAddDestination, NULL);
-        serverNotification->packet << getName() << destination;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+        try
+        {
+            ServerNotification* serverNotification = new ServerNotification(
+                ServerNotification::animatedObjectAddDestination, NULL);
+            serverNotification->packet << getName() << destination;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in MovableGameEntity::addDestination", Ogre::LML_CRITICAL);
+            exit(1);
+        }
     }
 }
 
@@ -97,13 +106,20 @@ void MovableGameEntity::clearDestinations()
     mWalkQueue.clear();
     stopWalking();
 
-    if (ODServer::getSingleton().isConnected())
+    if (getGameMap()->isServerGameMap())
     {
-        // Place a message in the queue to inform the clients about the clear
-        ServerNotification* serverNotification = new ServerNotification(
-            ServerNotification::animatedObjectClearDestinations, NULL);
-        serverNotification->packet << getName();
-       ODServer::getSingleton().queueServerNotification(serverNotification);
+        try
+        {
+            ServerNotification* serverNotification = new ServerNotification(
+                ServerNotification::animatedObjectClearDestinations, NULL);
+            serverNotification->packet << getName();
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in MovableGameEntity::clearDestinations", Ogre::LML_CRITICAL);
+            exit(1);
+        }
     }
 }
 
@@ -119,59 +135,67 @@ void MovableGameEntity::faceToward(int x, int y)
 {
     // Rotate the object to face the direction of the destination
     Ogre::Vector3 tempPosition = getPosition();
-    mWalkDirection = Ogre::Vector3(
+    tempPosition = Ogre::Vector3(
         static_cast<Ogre::Real>(x),
         static_cast<Ogre::Real>(y),
         tempPosition.z) - tempPosition;
-    mWalkDirection.normalise();
+    tempPosition.normalise();
+    setWalkDirection(tempPosition);
+}
+
+void MovableGameEntity::setWalkDirection(Ogre::Vector3& direction)
+{
+    mWalkDirection = direction;
+
+    if(getGameMap()->isServerGameMap())
+        return;
 
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::orientSceneNodeToward;
     request->vec = mWalkDirection;
     request->str = getName() + "_node";
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
     RenderManager::queueRenderRequest(request);
 }
 
-void MovableGameEntity::setAnimationState(const std::string& s, bool loop)
+void MovableGameEntity::setAnimationState(const std::string& state, bool setWalkDirection, bool loop)
 {
     // Ignore the command if the command is exactly the same as what we did last time,
     // this is not only faster it prevents non-looped actions
     // like 'die' from being inadvertantly repeated.
-    if (s.compare(mPrevAnimationState) == 0 && loop == mPrevAnimationStateLoop)
+    if (state.compare(mPrevAnimationState) == 0 && loop == mPrevAnimationStateLoop)
         return;
 
-    mPrevAnimationState = s;
+    mPrevAnimationState = state;
 
-    if (s.compare("Walk") == 0 || s.compare("Flee") == 0)
+    if (state.compare("Walk") == 0 || state.compare("Flee") == 0)
         setAnimationSpeedFactor(mMoveSpeed);
     else
         setAnimationSpeedFactor(1.0);
 
-    RenderRequest* request = new RenderRequest;
-    request->type = RenderRequest::setObjectAnimationState;
-    request->p = static_cast<void*>(this);
-    request->str = s;
-    request->b = loop;
-
-    if (ODServer::getSingleton().isConnected())
+    if (getGameMap()->isServerGameMap())
     {
         try
         {
-            // Place a message in the queue to inform the clients about the new animation state
             ServerNotification* serverNotification = new ServerNotification(
                 ServerNotification::setObjectAnimationState, NULL);
-            serverNotification->packet << getName() << s << loop;
+            serverNotification->packet << getName() << state << loop << setWalkDirection;
+            if(setWalkDirection)
+                serverNotification->packet << mWalkDirection;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
         {
             LogManager::getSingleton().logMessage("ERROR: Bad memory allocation in Creature::setAnimationState()");
         }
+        return;
     }
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::setObjectAnimationState;
+    request->p = static_cast<void*>(this);
+    request->str = state;
+    request->b = loop;
     RenderManager::queueRenderRequest(request);
 }
 

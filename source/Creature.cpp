@@ -33,6 +33,8 @@
 #include "Seat.h"
 #include "RenderManager.h"
 #include "Random.h"
+#include "ODServer.h"
+#include "ServerNotification.h"
 #include "LogManager.h"
 #include "CullingQuad.h"
 #include "Helper.h"
@@ -65,7 +67,8 @@ static const int MaxGoldCarriedByWorkers = 1500;
 
 const std::string Creature::CREATURE_PREFIX = "Creature_";
 
-Creature::Creature(GameMap* gameMap, const std::string& name) :
+Creature::Creature(GameMap* gameMap, bool generateUniqueName) :
+    MovableGameEntity        (gameMap),
     mTracingCullingQuad      (NULL),
     mWeaponL                 (NULL),
     mWeaponR                 (NULL),
@@ -87,14 +90,13 @@ Creature::Creature(GameMap* gameMap, const std::string& name) :
     mBattleFieldAgeCounter   (0),
     mTrainWait               (0),
     mPreviousPositionTile    (NULL),
-    mBattleField             (new BattleField()),
+    mBattleField             (new BattleField(gameMap)),
     mTrainingDojo            (NULL),
     mStatsWindow             (NULL),
     mSound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
-    setGameMap(gameMap);
-
-    setName(name);
+    if(generateUniqueName)
+        setName(getUniqueCreatureName());
 
     setIsOnMap(false);
 
@@ -103,11 +105,44 @@ Creature::Creature(GameMap* gameMap, const std::string& name) :
     pushAction(CreatureAction::idle);
 }
 
+Creature::Creature(GameMap* gameMap) :
+    MovableGameEntity        (gameMap),
+    mTracingCullingQuad      (NULL),
+    mWeaponL                 (NULL),
+    mWeaponR                 (NULL),
+    mHomeTile                (NULL),
+    mDefinition              (NULL),
+    mIsOnMap                 (false),
+    mHasVisualDebuggingEntities (false),
+    mAwakeness               (100.0),
+    mMaxHP                   (100.0),
+    mMaxMana                 (100.0),
+    mLevel                   (1),
+    mHp                      (100.0),
+    mMana                    (100.0),
+    mExp                     (0.0),
+    mDigRate                 (1.0),
+    mDanceRate               (1.0),
+    mDeathCounter            (10),
+    mGold                    (0),
+    mBattleFieldAgeCounter   (0),
+    mTrainWait               (0),
+    mPreviousPositionTile    (NULL),
+    mBattleField             (NULL),
+    mTrainingDojo            (NULL),
+    mStatsWindow             (NULL)
+{
+    setObjectType(GameEntity::creature);
+}
+
 /* Destructor is needed when removing from Quadtree */
 Creature::~Creature()
 {
-    mTracingCullingQuad->entry->creature_list.remove(this);
-    mTracingCullingQuad->mortuaryInsert(this);
+    if(mTracingCullingQuad != NULL)
+    {
+        mTracingCullingQuad->entry->creature_list.remove(this);
+        mTracingCullingQuad->mortuaryInsert(this);
+    }
 
     if(mBattleField != NULL)
         delete mBattleField;
@@ -117,6 +152,15 @@ Creature::~Creature()
         delete mWeaponL;
     if (mWeaponR)
         delete mWeaponR;
+}
+
+void Creature::deleteYourself()
+{
+    // If standing on a valid tile, notify that tile we are no longer there.
+    if(positionTile() != 0)
+        positionTile()->removeCreature(this);
+
+    MovableGameEntity::deleteYourself();
 }
 
 //! \brief A function which returns a string describing the IO format of the << and >> operators.
@@ -135,10 +179,10 @@ std::ostream& operator<<(std::ostream& os, Creature *c)
     // Check creature weapons
     Weapon* wL = c->mWeaponL;
     if (wL == NULL)
-        wL = new Weapon("none", 0.0, 1.0, 0.0, "L", c);
+        wL = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "L", c);
     Weapon* wR = c->mWeaponR;
     if (wR == NULL)
-        wR = new Weapon("none", 0.0, 1.0, 0.0, "R", c);
+        wR = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "R", c);
 
     os << c->mDefinition->getClassName() << "\t" << c->getName() << "\t";
 
@@ -186,10 +230,10 @@ std::istream& operator>>(std::istream& is, Creature *c)
     c->setColor(color);
 
     // TODO: Load weapon from a catalog file.
-    c->setWeaponL(new Weapon(std::string(), 0.0, 0.0, 0.0, std::string()));
+    c->setWeaponL(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
     is >> c->mWeaponL;
 
-    c->setWeaponR(new Weapon(std::string(), 0.0, 0.0, 0.0, std::string()));
+    c->setWeaponR(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
     is >> c->mWeaponR;
 
     is >> tempDouble;
@@ -218,22 +262,25 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
     // Check creature weapons
     Weapon* wL = c->mWeaponL;
     if (wL == NULL)
-        wL = new Weapon("none", 0.0, 1.0, 0.0, "L", c);
+        wL = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "L", c);
     Weapon* wR = c->mWeaponR;
     if (wR == NULL)
-        wR = new Weapon("none", 0.0, 1.0, 0.0, "R", c);
+        wR = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "R", c);
 
     os << c->mDefinition->getClassName() << c->getName();
 
     Ogre::Vector3 position = c->getPosition();
-    os << position.x;
-    os << position.y;
-    os << position.z;
+    os << c->getPosition();
     os << c->getColor();
     os << wL << wR;
-    os << c->getHP();
-    os << c->getMana();
-    os << c->getLevel();
+    os << c->mHp;
+    os << c->mMana;
+    os << c->mLevel;
+    os << c->mDigRate;
+    os << c->mDanceRate;
+    os << c->mMoveSpeed;
+    os << c->mMaxHP;
+    os << c->mMaxMana;
 
     // If we had to create dummy weapons for serialization, delete them now.
     if (c->mWeaponL == NULL)
@@ -249,7 +296,6 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
  */
 ODPacket& operator>>(ODPacket& is, Creature *c)
 {
-    Ogre::Vector3 position;
     double tempDouble = 0.0;
     std::string className;
     std::string tempString;
@@ -262,29 +308,6 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
 
     c->setName(tempString);
 
-    is >> position.x >> position.y >> position.z;
-    c->setPosition(position);
-
-    int color = 0;
-    is >> color;
-    c->setColor(color);
-
-    // TODO: Load weapon from a catalog file.
-    c->setWeaponL(new Weapon(std::string(), 0.0, 0.0, 0.0, std::string()));
-    is >> c->mWeaponL;
-
-    c->setWeaponR(new Weapon(std::string(), 0.0, 0.0, 0.0, std::string()));
-    is >> c->mWeaponR;
-
-    is >> tempDouble;
-    c->setHP(tempDouble);
-    is >> tempDouble;
-    c->setMana(tempDouble);
-
-    unsigned int level;
-    is >> level;
-    c->setLevel(level);
-
     // Copy the class based items
     CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(className);
     if (creatureClass != NULL)
@@ -292,6 +315,29 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
         c->setCreatureDefinition(creatureClass);
     }
     assert(c->mDefinition);
+
+    Ogre::Vector3 position;
+    is >> position;
+    c->setPosition(position);
+
+    int color = 0;
+    is >> color;
+    c->setColor(color);
+
+    // TODO: Load weapon from a catalog file.
+    c->setWeaponL(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    is >> c->mWeaponL;
+
+    c->setWeaponR(new Weapon(c->getGameMap(), std::string(), 0.0, 0.0, 0.0, std::string()));
+    is >> c->mWeaponR;
+    is >> c->mHp;
+    is >> c->mMana;
+    is >> c->mLevel;
+    is >> c->mDigRate;
+    is >> c->mDanceRate;
+    is >> c->mMoveSpeed;
+    is >> c->mMaxHP;
+    is >> c->mMaxMana;
 
     return is;
 }
@@ -316,10 +362,10 @@ void Creature::loadFromLine(const std::string& line, Creature* c)
     c->setColor(Helper::toInt(elems[5]));
 
     // TODO: Load weapons from a catalog file.
-    c->setWeaponL(new Weapon(elems[6], Helper::toDouble(elems[7]),
+    c->setWeaponL(new Weapon(c->getGameMap(), elems[6], Helper::toDouble(elems[7]),
                              Helper::toDouble(elems[8]), Helper::toDouble(elems[9]), "L", c));
 
-    c->setWeaponR(new Weapon(elems[10], Helper::toDouble(elems[11]),
+    c->setWeaponR(new Weapon(c->getGameMap(), elems[10], Helper::toDouble(elems[11]),
                              Helper::toDouble(elems[12]), Helper::toDouble(elems[13]), "R", c));
 
     c->setHP(Helper::toDouble(elems[14]));
@@ -358,13 +404,17 @@ void Creature::setPosition(const Ogre::Vector3& v)
                 positionTile()->addCreature(this);
         }
 
-        mTracingCullingQuad->moveEntryDelta(this,get2dPosition());
+        if(!getGameMap()->isServerGameMap())
+            mTracingCullingQuad->moveEntryDelta(this,get2dPosition());
     }
     else
     {
         // We are not on the map
         MovableGameEntity::setPosition(v);
     }
+
+    if(getGameMap()->isServerGameMap())
+        return;
 
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
     RenderRequest *request = new RenderRequest;
@@ -463,8 +513,47 @@ void Creature::doTurn()
         return;
 
     // Check to see if we have earned enough experience to level up.
-    checkLevelUp();
+    if(checkLevelUp())
+    {
+        setLevel(getLevel() + 1);
+        //std::cout << "\n\n" << getName() << " has reached level " << getLevel() << "\n";
 
+        if (mDefinition->isWorker())
+        {
+            mDigRate += 4.0 * getLevel() / (getLevel() + 5.0);
+            mDanceRate += 0.12 * getLevel() / (getLevel() + 5.0);
+            //std::cout << "New dig rate: " << mDigRate << "\tnew dance rate: " << mDanceRate << "\n";
+        }
+
+        mMoveSpeed += 0.4 / (getLevel() + 2.0);
+
+        mMaxHP += mDefinition->getHpPerLevel();
+        mMaxMana += mDefinition->getManaPerLevel();
+
+        // Test the max HP/mana against their absolute class maximums
+        if (mMaxHP > mDefinition->getMaxHp())
+            mMaxHP = mDefinition->getMaxHp();
+        if (mMaxMana > mDefinition->getMaxMana())
+            mMaxMana = mDefinition->getMaxMana();
+
+        if(getGameMap()->isServerGameMap())
+        {
+            try
+            {
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::creatureRefresh, getControllingPlayer());
+                serverNotification->packet << this;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Creature::doTurn", Ogre::LML_CRITICAL);
+                exit(1);
+            }
+        }
+    }
+
+    // TODO : this is auto heal. It could be done on client side
     // Heal.
     mHp += 0.1;
     if (mHp > getMaxHp())
@@ -1072,7 +1161,7 @@ bool Creature::handleClaimWallTileAction()
         faceToward(tempTile->x, tempTile->y);
 
         // Dig out the tile by decreasing the tile's fullness.
-        setAnimationState("Claim");
+        setAnimationState("Claim", true);
         tempTile->claimForColor(getColor(), mDefinition->getDanceRate());
         recieveExp(1.5 * mDefinition->getDanceRate() / 20.0);
 
@@ -1199,7 +1288,7 @@ bool Creature::handleDigTileAction()
         faceToward(tempTile->x, tempTile->y);
 
         // Dig out the tile by decreasing the tile's fullness.
-        setAnimationState("Dig");
+        setAnimationState("Dig", true);
         double amountDug = tempTile->digOut(mDefinition->getDigRate(), true);
         if(amountDug > 0.0)
         {
@@ -1543,7 +1632,7 @@ bool Creature::handleTrainingAction()
                 mTrainingDojo = static_cast<RoomDojo*>(tempRoom);
                 mTrainingDojo->addCreatureUsingRoom(this);
                 faceToward(tempTile->x, tempTile->y);
-                setAnimationState("Attack1");
+                setAnimationState("Attack1", true);
                 recieveExp(5.0);
                 mAwakeness -= 5.0;
                 mTrainWait = Random::Uint(3, 8);
@@ -1647,7 +1736,7 @@ bool Creature::handleAttackAction()
     Tile* tempTile = tempAttackableObject->getCoveredTiles()[0];
     clearDestinations();
     faceToward(tempTile->x, tempTile->y);
-    setAnimationState("Attack1");
+    setAnimationState("Attack1", true);
 
     //Play attack sound
     //TODO - syncronise with animation
@@ -1889,50 +1978,51 @@ double Creature::getDefense() const
 }
 
 //! \brief Increases the creature's level, adds bonuses to stat points, changes the mesh, etc.
-void Creature::checkLevelUp()
+bool Creature::checkLevelUp()
 {
     if (getLevel() >= MAX_LEVEL)
-        return;
+        return false;
 
     if (mExp < 5 * (getLevel() + std::pow(getLevel() / 3.0, 2)))
-        return;
+        return false;
 
-    setLevel(getLevel() + 1);
-    //std::cout << "\n\n" << getName() << " has reached level " << getLevel() << "\n";
+    return true;
+}
 
-    if (mDefinition->isWorker())
-    {
-        mDigRate += 4.0 * getLevel() / (getLevel() + 5.0);
-        mDanceRate += 0.12 * getLevel() / (getLevel() + 5.0);
-        //std::cout << "New dig rate: " << mDigRate << "\tnew dance rate: " << mDanceRate << "\n";
-    }
-
-    mMoveSpeed += 0.4 / (getLevel() + 2.0);
-
-    mMaxHP += mDefinition->getHpPerLevel();
-    mMaxMana += mDefinition->getManaPerLevel();
-
-    // Test the max HP/mana against their absolute class maximums
-    if (mMaxHP > mDefinition->getMaxHp())
-        mMaxHP = mDefinition->getMaxHp();
-    if (mMaxMana > mDefinition->getMaxMana())
-        mMaxMana = mDefinition->getMaxMana();
+void Creature::refreshFromCreature(Creature *creatureNewState)
+{
+    // We save the actual level to check if there is a levelup
+    unsigned int oldLevel = mLevel;
+    // TODO : send a messageServerNotification::creatureRefresh each time we want
+    // to refresh a creature (when loss HP from combat, level up or whatever).
+    // The creature update should be here and the data should be transfered
+    // in the transfert functions in this file using ODPacket
+    mLevel          = creatureNewState->mLevel;
+    mDigRate        = creatureNewState->mDigRate;
+    mDanceRate      = creatureNewState->mDanceRate;
+    mMoveSpeed      = creatureNewState->mMoveSpeed;
+    mMaxHP          = creatureNewState->mMaxHP;
+    mMaxMana        = creatureNewState->mMaxMana;
+    mHp             = creatureNewState->mHp;
+    mMana           = creatureNewState->mMana;
 
     // Scale up the mesh.
-    if (isMeshExisting() && ((getLevel() <= 30 && getLevel() % 2 == 0) || (getLevel() > 30 && getLevel()
+    if ((oldLevel != getLevel()) && isMeshExisting() && ((getLevel() <= 30 && getLevel() % 2 == 0) || (getLevel() > 30 && getLevel()
             % 3 == 0)))
     {
         Ogre::Real scaleFactor = (Ogre::Real)(1.0 + static_cast<double>(getLevel()) / 250.0);
         if (scaleFactor > 1.03)
             scaleFactor = 1.04;
+
         RenderRequest *request = new RenderRequest;
         request->type = RenderRequest::scaleSceneNode;
         request->p = mSceneNode;
         request->vec = Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor);
-
-        // Add the request to the queue of rendering operations to be performed before the next frame.
         RenderManager::queueRenderRequest(request);
     }
+
+    if(!getGameMap()->isServerGameMap())
+        updateStatsWindow();
 }
 
 void Creature::updateVisibleTiles()
@@ -2137,18 +2227,11 @@ std::vector<Tile*> Creature::getCoveredTiles()
 
 std::string Creature::getUniqueCreatureName()
 {
-    static int uniqueNumber = 1;
     std::string className = mDefinition ? mDefinition->getClassName() : std::string();
-    std::string tempString = className + Ogre::StringConverter::toString(uniqueNumber);
-    ++uniqueNumber;
+    std::string name = className + Ogre::StringConverter::toString(
+        getGameMap()->nextUniqueNumberCreature());
 
-    while (getGameMap()->doesCreatureNameExist(tempString))
-    {
-        tempString = className + Ogre::StringConverter::toString(uniqueNumber);
-        ++uniqueNumber;
-    }
-
-    return tempString;
+    return name;
 }
 
 bool Creature::CloseStatsWindow(const CEGUI::EventArgs& /*e*/)
@@ -2263,6 +2346,21 @@ void Creature::setCreatureDefinition(const CreatureDefinition* def)
 void Creature::takeDamage(double damage, Tile *tileTakingDamage)
 {
     mHp -= damage;
+    if(getGameMap()->isServerGameMap())
+    {
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::creatureRefresh, getControllingPlayer());
+            serverNotification->packet << this;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Creature::takeDamage", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+    }
 }
 
 void Creature::recieveExp(double experience)

@@ -52,10 +52,11 @@ class ODSocketClient
         void setPlayer(Player* player) { mPlayer = player; }
         int64_t getLastTurnAck() { return mLastTurnAck; }
         void setLastTurnAck(int64_t lastTurnAck) { mLastTurnAck = lastTurnAck; }
+        const std::string& getState() {return mState;}
+        bool isDataAvailable();
 
     protected:
         virtual bool connect(const std::string& host, const int port);
-        void setBlocking(bool block);
 
         // Data Transimission
         /*! \brief Sends a packet through the network
@@ -72,10 +73,13 @@ class ODSocketClient
         ODComStatus recv(ODPacket& s);
 
     private :
+        void setState(const std::string& state) {mState = state;}
+        sf::SocketSelector mSockSelector;
         sf::TcpSocket mSockClient;
         bool mIsConnected;
         Player* mPlayer;
         int64_t mLastTurnAck;
+        std::string mState;
 };
 
 #endif // ODSOCKETCLIENT_H

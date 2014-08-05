@@ -392,10 +392,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                     return true;
                 }
-
-                player->pickUpCreature(currentCreature);
-                SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::PICKUP);
-                return true;
             }
         }
     }
@@ -493,90 +489,33 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     }
 
     // On the client:  Inform the server about our choice
-    if (!ODServer::getSingleton().isConnected())
-    {
-        if(dragType == tileSelection)
-        {
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askMarkTile);
-            clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->packet << mDigSetBool;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-        }
-        else if(dragType == addNewRoom)
-        {
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askBuildRoom);
-            clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->packet << static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-        }
-        else if(dragType == addNewTrap)
-        {
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::askBuildTrap);
-            clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
-            clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
-            clientNotification->packet << static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-        }
-        return true;
-    }
-
     if(dragType == tileSelection)
     {
-        std::vector<Tile*> affectedTiles = mGameMap->getDiggableTilesForPlayerInArea(inputManager->mXPos,
-            inputManager->mYPos, inputManager->mLStartDragX, inputManager->mLStartDragY,
-            mGameMap->getLocalPlayer());
-        if(!affectedTiles.empty())
-        {
-            mGameMap->markTilesForPlayer(affectedTiles, mDigSetBool, mGameMap->getLocalPlayer());
-            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DIGSELECT, false);
-        }
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotification::askMarkTile);
+        clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
+        clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
+        clientNotification->packet << mDigSetBool;
+        ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     else if(dragType == addNewRoom)
     {
-        std::vector<Tile*> affectedTiles = mGameMap->getBuildableTilesForPlayerInArea(
-            inputManager->mXPos, inputManager->mYPos, inputManager->mLStartDragX,
-            inputManager->mLStartDragY, mGameMap->getLocalPlayer());
-        if(!affectedTiles.empty())
-        {
-            Room::RoomType type = mGameMap->getLocalPlayer()->getNewRoomType();
-            int goldRequired = affectedTiles.size() * Room::costPerTile(type);
-            if(mGameMap->withdrawFromTreasuries(goldRequired, mGameMap->getLocalPlayer()->getSeat()))
-            {
-                mGameMap->buildRoomForPlayer(affectedTiles, type, mGameMap->getLocalPlayer());
-            }
-            else
-            {
-                //Not enough money
-                //TODO:  play sound or something.
-            }
-        }
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotification::askBuildRoom);
+        clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
+        clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
+        clientNotification->packet << static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
+        ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     else if(dragType == addNewTrap)
     {
-        std::vector<Tile*> affectedTiles = mGameMap->getBuildableTilesForPlayerInArea(
-            inputManager->mXPos, inputManager->mYPos, inputManager->mLStartDragX,
-            inputManager->mLStartDragY, mGameMap->getLocalPlayer());
-        if(!affectedTiles.empty())
-        {
-            Trap::TrapType type = mGameMap->getLocalPlayer()->getNewTrapType();
-            int goldRequired = affectedTiles.size() * Trap::costPerTile(type);
-            if(mGameMap->withdrawFromTreasuries(goldRequired, mGameMap->getLocalPlayer()->getSeat()))
-            {
-                mGameMap->buildTrapForPlayer(affectedTiles, type, mGameMap->getLocalPlayer());
-            }
-            else
-            {
-                //Not enough money
-                //TODO:  play sound or something.
-            }
-        }
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotification::askBuildTrap);
+        clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
+        clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
+        clientNotification->packet << static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
+        ODClient::getSingleton().queueClientNotification(clientNotification);
     }
-
     return true;
 }
 
@@ -790,8 +729,9 @@ void GameMode::onFrameStarted(const Ogre::FrameEvent& evt)
     CameraManager* cm = ODFrameListener::getSingletonPtr()->cm;
     cm->moveCamera(evt.timeSinceLastFrame);
 
-    mGameMap->getMiniMap()->draw();
-    mGameMap->getMiniMap()->swap();
+    MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();
+    minimap->draw();
+    minimap->swap();
 }
 
 void GameMode::onFrameEnded(const Ogre::FrameEvent& evt)

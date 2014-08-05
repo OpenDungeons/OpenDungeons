@@ -26,7 +26,8 @@
 #include "ODServer.h"
 #include "ServerNotification.h"
 
-RoomDungeonTemple::RoomDungeonTemple():
+RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
+    Room(gameMap),
     mWaitTurns(0),
     mTempleObject(NULL)
 {
@@ -38,15 +39,7 @@ void RoomDungeonTemple::absorbRoom(Room* room)
     Room::absorbRoom(room);
 
     // Get back the temple mesh reference
-    if (!mRoomObjects.empty())
-    {
-        mTempleObject = mRoomObjects.begin()->second;
-    }
-    else
-    {
-        // Make sure the reference gets updated when createMesh() is called
-        mTempleObject = NULL;
-    }
+    mTempleObject = getFirstRoomObject();
 }
 
 void RoomDungeonTemple::createMesh()
@@ -57,7 +50,13 @@ void RoomDungeonTemple::createMesh()
     if (mTempleObject != NULL)
         return;
 
-    mTempleObject = loadRoomObject("DungeonTempleObject");
+    // The client game map should not load room objects. They will be created
+    // by the messages sent by the server because some of them are randomly
+    // created
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    mTempleObject = loadRoomObject(getGameMap(), "DungeonTempleObject");
     createRoomObjectMeshes();
 }
 
@@ -90,17 +89,16 @@ void RoomDungeonTemple::produceKobold()
     }
 
     //TODO: proper assignemt of creature definition through constrcutor
-    Creature* newCreature = new Creature(getGameMap());
+    Creature* newCreature = new Creature(getGameMap(), true);
     newCreature->setCreatureDefinition(classToSpawn);
-    newCreature->setName(newCreature->getUniqueCreatureName());
     newCreature->setPosition(Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x,
                                             (Ogre::Real)mCoveredTiles[0]->y,
                                             (Ogre::Real)0));
     newCreature->setColor(getColor());
 
     // Default weapon is empty
-    newCreature->setWeaponL(new Weapon("none", 0.0, 1.0, 0.0, "L", newCreature));
-    newCreature->setWeaponR(new Weapon("none", 0.0, 1.0, 0.0, "R", newCreature));
+    newCreature->setWeaponL(new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "L", newCreature));
+    newCreature->setWeaponR(new Weapon(getGameMap(), "none", 0.0, 1.0, 0.0, "R", newCreature));
 
     newCreature->createMesh();
     newCreature->getWeaponL()->createMesh();
@@ -108,11 +106,19 @@ void RoomDungeonTemple::produceKobold()
     getGameMap()->addCreature(newCreature);
 
     // Inform the clients
-    if (ODServer::getSingleton().isConnected())
+    if (getGameMap()->isServerGameMap())
     {
-        ServerNotification *serverNotification = new ServerNotification(
-            ServerNotification::addCreature, newCreature->getControllingPlayer());
-        serverNotification->packet << newCreature;
-        ODServer::getSingleton().queueServerNotification(serverNotification);
+        try
+        {
+           ServerNotification *serverNotification = new ServerNotification(
+               ServerNotification::addCreature, newCreature->getControllingPlayer());
+           serverNotification->packet << newCreature;
+           ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomDungeonTemple::produceKobold", Ogre::LML_CRITICAL);
+            exit(1);
+        }
     }
 }

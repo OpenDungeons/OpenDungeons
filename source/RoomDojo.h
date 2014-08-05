@@ -23,7 +23,7 @@
 class RoomDojo: public Room
 {
 public:
-    RoomDojo();
+    RoomDojo(GameMap* gameMap);
 
     ~RoomDojo()
     {}

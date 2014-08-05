@@ -23,11 +23,14 @@
 #include "GameMap.h"
 #include "ODFrameListener.h"
 #include "ODServer.h"
+#include "ODClient.h"
+#include "ODApplication.h"
+#include "LogManager.h"
 
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
 
-const std::string MenuModeSingleplayer::LEVEL_PATH = "./levels/";
+const std::string MenuModeSingleplayer::LEVEL_PATH = "./levels/singleplayer/";
 const std::string MenuModeSingleplayer::LEVEL_EXTENSION = ".level";
 
 MenuModeSingleplayer::MenuModeSingleplayer(ModeManager *modeManager):
@@ -105,7 +108,14 @@ void MenuModeSingleplayer::launchSelectedButtonPressed()
         // In single player mode, we act as a server
         ODServer::getSingleton().startServer(level, true);
 
-        mModeManager->requestGameMode(true);
+        if(ODClient::getSingleton().connect("", ODApplication::PORT_NUMBER, level))
+        {
+            mModeManager->requestGameMode(true);
+        }
+        else
+        {
+            LogManager::getSingleton().logMessage("ERROR: Could not connect to server for single player game !!!");
+        }
     }
 }
 

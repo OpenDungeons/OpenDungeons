@@ -89,20 +89,20 @@ class RoomQuarters: public Room
 {
     friend class ODClient;
 public:
-    RoomQuarters();
+    RoomQuarters(GameMap* gameMap);
 
     // Functions overriding virtual functions in the Room base class.
     void createMesh();
     void absorbRoom(Room *r);
     bool doUpkeep();
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
-    void removeCoveredTile(Tile* t, bool isTileAbsorb);
+    void removeCoveredTile(Tile* t);
     void clearCoveredTiles();
 
     // Functions specific to this class.
     std::vector<Tile*> getOpenTiles();
     bool claimTileForSleeping(Tile *t, Creature *c);
-    bool releaseTileForSleeping(Tile *t, Creature *c, bool isTileAbsorb);
+    bool releaseTileForSleeping(Tile *t, Creature *c);
     Tile* getLocationForBed(int xDim, int yDim);
 
 private:
