@@ -93,6 +93,7 @@ Creature::Creature(GameMap* gameMap, bool generateUniqueName) :
     mBattleField             (new BattleField(gameMap)),
     mTrainingDojo            (NULL),
     mStatsWindow             (NULL),
+    mForceAction             (forcedActionNone),
     mSound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
     if(generateUniqueName)
@@ -130,6 +131,7 @@ Creature::Creature(GameMap* gameMap) :
     mPreviousPositionTile    (NULL),
     mBattleField             (NULL),
     mTrainingDojo            (NULL),
+    mForceAction             (forcedActionNone),
     mStatsWindow             (NULL)
 {
     setObjectType(GameEntity::creature);
@@ -426,6 +428,12 @@ void Creature::setPosition(const Ogre::Vector3& v)
     RenderManager::queueRenderRequest(request);
 }
 
+void Creature::drop(const Ogre::Vector3& v)
+{
+    setPosition(v);
+    mForceAction = forcedActionSearchAction;
+}
+
 void Creature::setHP(double nHP)
 {
     mHp = nHP;
@@ -646,7 +654,8 @@ void Creature::doTurn()
                     break;
 
                 default:
-                    LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doTurn().");
+                    LogManager::getSingleton().logMessage("ERROR:  Unhandled action type in Creature::doTurn():"
+                        + Ogre::StringConverter::toString(topActionItem.getType()));
                     popAction();
                     loopBack = false;
                     break;
@@ -750,6 +759,118 @@ bool Creature::handleIdleAction()
     bool loopBack = false;
 
     setAnimationState("Idle");
+
+    if(mDefinition->isWorker() && mForceAction == forcedActionSearchAction)
+    {
+        // If a worker is dropped, he will search in the tile he is and in the 4 neighboor tiles.
+        // 1 - If the tile he is in is treasury and he is carrying gold, he should deposit it
+        // 2 - if one of the 4 neighboor tiles is marked, he will dig
+        // 3 - if the the tile he is in is not claimed and one of the neigbboor tiles is claimed, he will claim
+        // 4 - if the the tile he is in is claimed and one of the neigbboor tiles is not claimed, he will claim
+        // 5 - If the tile he is in is claimed and one of the neigbboor tiles is a not claimed wall, he will claim
+        Tile* position = positionTile();
+        int playerColor = getControllingPlayer()->getSeat()->getColor();
+        Tile* tileMarkedDig = NULL;
+        Tile* tileToClaim = NULL;
+        Tile* tileWallNotClaimed = NULL;
+        std::vector<Tile*> creatureNeighbors = position->getAllNeighbors();
+        for (std::vector<Tile*>::iterator it = creatureNeighbors.begin(); it != creatureNeighbors.end(); ++it)
+        {
+            Tile* tile = *it;
+
+            if(tileMarkedDig == NULL &&
+                tile->getMarkedForDigging(getControllingPlayer())
+                )
+            {
+                tileMarkedDig = tile;
+            }
+            else if(tileToClaim == NULL &&
+                tile->getType() == Tile::claimed &&
+                tile->getColor() == playerColor &&
+                position->getType() == Tile::dirt &&
+                !position->isWallClaimable(playerColor)
+                )
+            {
+                tileToClaim = position;
+            }
+            else if(tileToClaim == NULL &&
+                position->getType() == Tile::claimed &&
+                position->getColor() == playerColor &&
+                tile->getType() == Tile::dirt &&
+                !tile->isWallClaimable(playerColor)
+                )
+            {
+                tileToClaim = tile;
+            }
+            else if(tileWallNotClaimed == NULL &&
+                position->getType() == Tile::claimed &&
+                position->getColor() == playerColor &&
+                tile->isWallClaimable(playerColor)
+                )
+            {
+                tileWallNotClaimed = tile;
+            }
+        }
+        bool forceGoldDeposit = false;
+        if(mGold > 0)
+        {
+            Room* room = position->getCoveringRoom();
+            if((room != NULL) && (room->getType() == Room::treasury))
+            {
+                forceGoldDeposit = true;
+            }
+        }
+
+        // Now, we can decide
+        if(forceGoldDeposit)
+        {
+            // Deposing gold is one shot, no need to remind that we
+            // were dropped on treasury
+            mForceAction = forcedActionNone;
+            pushAction(CreatureAction::depositGold);
+            return true;
+        }
+        else if(tileMarkedDig != NULL)
+        {
+            mForceAction = forcedActionDigTile;
+        }
+        else if(tileToClaim != NULL)
+        {
+            mForceAction = forcedActionClaimTile;
+        }
+        else if(tileWallNotClaimed != NULL)
+        {
+            mForceAction = forcedActionClaimWallTile;
+        }
+        else
+        {
+            // We couldn't find why we were dropped here. Let's behave as usual
+            mForceAction = forcedActionNone;
+        }
+    }
+
+    // Handle if worker was dropped
+    if(mDefinition->isWorker() && mForceAction != forcedActionNone)
+    {
+        switch(mForceAction)
+        {
+            case forcedActionDigTile:
+            {
+                pushAction(CreatureAction::digTile);
+                return true;
+            }
+            case forcedActionClaimTile:
+            {
+                pushAction(CreatureAction::claimTile);
+                return true;
+            }
+            case forcedActionClaimWallTile:
+            {
+                pushAction(CreatureAction::claimWallTile);
+                return true;
+            }
+        }
+    }
 
     // Decide to check for diggable tiles
     if (mDefinition->getDigRate() > 0.0 && !getVisibleMarkedTiles().empty())
@@ -946,16 +1067,19 @@ bool Creature::handleClaimTileAction()
         return false;
     }
 
-    // Randomly decide to stop claiming with a small probability
-    std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
-    if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
+    if(mForceAction != forcedActionClaimTile)
     {
-        // If there are any visible tiles marked for digging start working on that.
-        if (!markedTiles.empty())
+        // Randomly decide to stop claiming with a small probability
+        std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
+        if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
         {
-            popAction();
-            pushAction(CreatureAction::digTile);
-            return true;
+            // If there are any visible tiles marked for digging start working on that.
+            if (!markedTiles.empty())
+            {
+                popAction();
+                pushAction(CreatureAction::digTile);
+                return true;
+            }
         }
     }
 
@@ -1112,6 +1236,7 @@ bool Creature::handleClaimTileAction()
     }
 
     // We couldn't find a tile to try to claim so we start searching for claimable walls
+    mForceAction = forcedActionNone;
     popAction();
     pushAction(CreatureAction::claimWallTile);
     return true;
@@ -1129,15 +1254,18 @@ bool Creature::handleClaimWallTileAction()
     }
 
     // Randomly decide to stop claiming with a small probability
-    std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
-    if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
+    if(mForceAction != forcedActionClaimWallTile)
     {
-        // If there are any visible tiles marked for digging start working on that.
-        if (!markedTiles.empty())
+        std::vector<Tile*> markedTiles = getVisibleMarkedTiles();
+        if (Random::Double(0.0, 1.0) < 0.1 + 0.2 * markedTiles.size())
         {
-            popAction();
-            pushAction(CreatureAction::digTile);
-            return true;
+            // If there are any visible tiles marked for digging start working on that.
+            if (!markedTiles.empty())
+            {
+                popAction();
+                pushAction(CreatureAction::digTile);
+                return true;
+            }
         }
     }
 
@@ -1244,6 +1372,7 @@ bool Creature::handleClaimWallTileAction()
     }
 
     // If we found no path, let's stop doing this
+    mForceAction = forcedActionNone;
     popAction();
     return true;
 }
@@ -1402,6 +1531,7 @@ bool Creature::handleDigTileAction()
 
     // If none of our neighbors are marked for digging we got here too late.
     // Finish digging
+    mForceAction = forcedActionNone;
     bool isDigging = (mActionQueue.front().getType() == CreatureAction::digTile);
     if (isDigging)
     {

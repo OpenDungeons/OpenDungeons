@@ -140,6 +140,8 @@ public:
      */
     void setPosition(const Ogre::Vector3& v);
 
+    void drop(const Ogre::Vector3& v);
+
     void setHP(double nHP);
     void setIsOnMap(bool nIsOnMap);
     void setMana(double nMana);
@@ -287,6 +289,15 @@ public:
     virtual void deleteYourself();
 
 private:
+    enum ForceAction
+    {
+        forcedActionNone,
+        forcedActionSearchAction,
+        forcedActionDigTile,
+        forcedActionClaimTile,
+        forcedActionClaimWallTile
+    };
+
     //! \brief Constructor for sending creatures through network. It should not be used in game.
     Creature(GameMap* gameMap);
 
@@ -338,6 +349,7 @@ private:
     std::deque<CreatureAction>      mActionQueue;
     std::list<Tile*>                mVisualDebugEntityTiles;
     Ogre::SharedPtr<CreatureSound>  mSound;
+    ForceAction                     mForceAction;
 
     void pushAction(CreatureAction action);
     void popAction();
