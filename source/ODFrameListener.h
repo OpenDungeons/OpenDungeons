@@ -164,7 +164,6 @@ private:
     int                     mTerminalWordWrap;
     unsigned int            mChatMaxMessages;
     unsigned int            mChatMaxTimeDisplay;
-    double                  mFrameDelay;
 
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
     Ogre::RaySceneQuery*    mRaySceneQuery;

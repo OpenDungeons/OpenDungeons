@@ -85,7 +85,6 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20),
-    mFrameDelay(0.0),
     mExitRequested(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
@@ -194,6 +193,14 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
     CEGUI::System::getSingleton().injectTimePulse(evt.timeSinceLastFrame);
 
+    // Sleep to limit the framerate to the max value
+    // FIXME: This 2.0 should be a 1.0 but this gives the correct result.  This probably indicates a bug.
+    double frameDelay = (2.0 / ODApplication::MAX_FRAMES_PER_SECOND) - evt.timeSinceLastFrame;
+    if (frameDelay > 0.0)
+    {
+        OD_USLEEP(1e6 * frameDelay);
+    }
+
     //Need to capture/update each device
     mModeManager->checkModeChange();
 
@@ -218,19 +225,6 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
 
         if((mGameMap->getGamePaused()) && (!mExitRequested))
             return true;
-
-        // Sleep to limit the framerate to the max value
-        mFrameDelay -= evt.timeSinceLastFrame;
-        if (mFrameDelay > 0.0)
-        {
-            OD_USLEEP(1e6 * mFrameDelay);
-        }
-        else
-        {
-            //FIXME: I think this 2.0 should be a 1.0 but this gives the
-            // correct result.  This probably indicates a bug.
-            mFrameDelay += 2.0 / ODApplication::MAX_FRAMES_PER_SECOND;
-        }
     }
 
     //If an exit has been requested, start cleaning up.
