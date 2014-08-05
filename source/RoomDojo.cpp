@@ -46,24 +46,24 @@ void RoomDojo::createMesh()
 
     for(unsigned int i = 0, size = mCentralActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject(getGameMap(), "TrainingDummy", mCentralActiveSpotTiles[i]);
+        loadRoomObject(getGameMap(), "TrainingDummy1", mCentralActiveSpotTiles[i]);
     }
     // Against walls
     for(unsigned int i = 0, size = mLeftWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject(getGameMap(), "TrainingDummy", mLeftWallsActiveSpotTiles[i], 270.0);
+        loadRoomObject(getGameMap(), "TrainingDummy1", mLeftWallsActiveSpotTiles[i], 90.0);
     }
     for(unsigned int i = 0, size = mRightWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject(getGameMap(), "TrainingDummy", mRightWallsActiveSpotTiles[i], 90.0);
+        loadRoomObject(getGameMap(), "TrainingDummy1", mRightWallsActiveSpotTiles[i], 270.0);
     }
     for(unsigned int i = 0, size = mTopWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject(getGameMap(), "TrainingDummy", mTopWallsActiveSpotTiles[i], 180.0);
+        loadRoomObject(getGameMap(), "TrainingDummy1", mTopWallsActiveSpotTiles[i], 0.0);
     }
     for(unsigned int i = 0, size = mBottomWallsActiveSpotTiles.size(); i < size; ++i)
     {
-        loadRoomObject(getGameMap(), "TrainingDummy", mBottomWallsActiveSpotTiles[i], 0.0);
+        loadRoomObject(getGameMap(), "TrainingDummy1", mBottomWallsActiveSpotTiles[i], 180.0);
     }
 
     createRoomObjectMeshes();
