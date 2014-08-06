@@ -25,9 +25,9 @@ class RoomForge: public Room
 public:
     RoomForge(GameMap* gameMap);
 
-    void createMesh();
-
     int numOpenCreatureSlots();
+protected:
+    virtual void createMeshLocal();
 };
 
 #endif // ROOMFORGE_H

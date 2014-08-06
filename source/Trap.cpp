@@ -44,6 +44,54 @@ Trap::Trap(GameMap* gameMap) :
     setObjectType(GameEntity::trap);
 }
 
+void Trap::createMeshLocal()
+{
+    Building::createMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    std::vector<Tile*> coveredTiles = getCoveredTiles();
+    for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
+    {
+        RenderRequest* request = new RenderRequest;
+        request->type = RenderRequest::createTrap;
+        request->p    = static_cast<void*>(this);
+        request->p2   = coveredTiles[i];
+        RenderManager::queueRenderRequest(request);
+    }
+}
+
+void Trap::destroyMeshLocal()
+{
+    Building::destroyMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    std::vector<Tile*> coveredTiles = getCoveredTiles();
+    for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
+    {
+        RenderRequest *request = new RenderRequest;
+        request->type = RenderRequest::destroyTrap;
+        request->p    = static_cast<void*>(this);
+        request->p2   = coveredTiles[i];
+        RenderManager::queueRenderRequest(request);
+    }
+}
+
+void Trap::deleteYourselfLocal()
+{
+    Building::deleteYourselfLocal();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::deleteTrap;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
 Trap* Trap::createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*> &nCoveredTiles,
     Seat *nControllingSeat, const std::string& nameToUse, void* params)
 {

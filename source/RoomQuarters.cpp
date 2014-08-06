@@ -49,9 +49,9 @@ void RoomQuarters::absorbRoom(Room *r)
     Room::absorbRoom(r);
 }
 
-void RoomQuarters::createMesh()
+void RoomQuarters::createMeshLocal()
 {
-    Room::createMesh();
+    Room::createMeshLocal();
 
     // The client game map should not load room objects. They will be created
     // by the messages sent by the server because some of them are randomly

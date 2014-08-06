@@ -42,9 +42,9 @@ void RoomDungeonTemple::absorbRoom(Room* room)
     mTempleObject = getFirstRoomObject();
 }
 
-void RoomDungeonTemple::createMesh()
+void RoomDungeonTemple::createMeshLocal()
 {
-    Room::createMesh();
+    Room::createMeshLocal();
 
     // Don't recreate the portal if it's already done.
     if (mTempleObject != NULL)
@@ -58,11 +58,6 @@ void RoomDungeonTemple::createMesh()
 
     mTempleObject = loadRoomObject(getGameMap(), "DungeonTempleObject");
     createRoomObjectMeshes();
-}
-
-void RoomDungeonTemple::destroyMesh()
-{
-    Room::destroyMesh();
 }
 
 void RoomDungeonTemple::produceKobold()

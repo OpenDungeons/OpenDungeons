@@ -110,6 +110,9 @@ public:
     void recieveExp(double experience);
 
 protected:
+    virtual void createMeshLocal();
+    virtual void destroyMeshLocal();
+    virtual void deleteYourselfLocal();
     int mReloadTime;
     int mReloadTimeCounter;
     double mMinDamage;

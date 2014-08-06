@@ -28,11 +28,11 @@ public:
     ~RoomDojo()
     {}
 
+    int numOpenCreatureSlots();
+protected:
     //! \brief This function properly resets the room objects places
     //! by deleting the former and readding everything at the right place.
-    void createMesh();
-
-    int numOpenCreatureSlots();
+    virtual void createMeshLocal();
 };
 
 #endif // ROOMDOJO_H

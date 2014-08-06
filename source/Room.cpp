@@ -45,6 +45,55 @@ Room::Room(GameMap* gameMap):
     setObjectType(GameEntity::room);
 }
 
+void Room::createMeshLocal()
+{
+    Building::createMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    std::vector<Tile*> coveredTiles = getCoveredTiles();
+    for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
+    {
+        RenderRequest* request = new RenderRequest;
+        request->type = RenderRequest::createRoom;
+        request->p    = static_cast<void*>(this);
+        request->p2   = coveredTiles[i];
+        RenderManager::queueRenderRequest(request);
+    }
+}
+
+void Room::destroyMeshLocal()
+{
+    Building::destroyMeshLocal();
+
+    destroyRoomObjectMeshes();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    std::vector<Tile*> coveredTiles = getCoveredTiles();
+    for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
+    {
+        RenderRequest* request = new RenderRequest;
+        request->type = RenderRequest::destroyRoom;
+        request->p    = static_cast<void*>(this);
+        request->p2   = coveredTiles[i];
+        RenderManager::queueRenderRequest(request);
+    }
+}
+
+void Room::deleteYourselfLocal()
+{
+    Building::deleteYourselfLocal();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::deleteRoom;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
 Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*>& nCoveredTiles,
     int nColor, const std::string& nameToUse)
 {

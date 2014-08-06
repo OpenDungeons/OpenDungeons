@@ -39,6 +39,44 @@
 
 static Ogre::MeshManager *myOgreMeshManger = Ogre:: MeshManager::getSingletonPtr();
 
+void Tile::createMeshLocal()
+{
+    GameEntity::createMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type   = RenderRequest::createTile;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void Tile::destroyMeshLocal()
+{
+    GameEntity::destroyMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::destroyTile;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void Tile::deleteYourselfLocal()
+{
+    GameEntity::deleteYourselfLocal();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::deleteTile;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
 void Tile::setType(TileType t)
 {
     // If the type has changed from its previous value we need to see if

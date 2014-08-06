@@ -92,7 +92,6 @@ public:
     RoomQuarters(GameMap* gameMap);
 
     // Functions overriding virtual functions in the Room base class.
-    void createMesh();
     void absorbRoom(Room *r);
     bool doUpkeep();
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
@@ -104,6 +103,9 @@ public:
     bool claimTileForSleeping(Tile *t, Creature *c);
     bool releaseTileForSleeping(Tile *t, Creature *c);
     Tile* getLocationForBed(int xDim, int yDim);
+
+protected:
+    void createMeshLocal();
 
 private:
     bool tileCanAcceptBed(Tile *tile, int xDim, int yDim);

@@ -49,9 +49,9 @@ void RoomPortal::absorbRoom(Room* room)
     mPortalObject = getFirstRoomObject();
 }
 
-void RoomPortal::createMesh()
+void RoomPortal::createMeshLocal()
 {
-    Room::createMesh();
+    Room::createMeshLocal();
 
     // Don't recreate the portal if it's already done.
     if (mPortalObject != NULL)

@@ -25,9 +25,6 @@ class RoomDungeonTemple: public Room
 public:
     RoomDungeonTemple(GameMap* gameMap);
 
-    void createMesh();
-    void destroyMesh();
-
     //! \brief Get back a reference to the temple mesh after calling Room::absorbRoom()
     void absorbRoom(Room* room);
 
@@ -37,6 +34,8 @@ public:
     */
     void produceKobold();
 
+protected:
+    virtual void createMeshLocal();
 private:
     //! \brief The number of turns to wait before producing a worker
     int mWaitTurns;
