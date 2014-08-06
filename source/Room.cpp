@@ -203,10 +203,10 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
 
     newRoom->updateActiveSpots();
 
+    newRoom->createMesh();
+
     if(gameMap->isServerGameMap())
         return;
-
-    newRoom->createMesh();
 
     SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::BUILDROOM, false);
 }
