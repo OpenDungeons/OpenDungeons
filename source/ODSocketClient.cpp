@@ -43,7 +43,11 @@ bool ODSocketClient::connect(const std::string& host, const int port)
 void ODSocketClient::disconnect()
 {
     mIsConnected = false;
-    mSockSelector.remove(mSockClient);
+
+    // Remove any remaining client sockets from the socket selector,
+    // if there is any left.
+    mSockSelector.clear();
+
     mSockClient.disconnect();
 }
 
