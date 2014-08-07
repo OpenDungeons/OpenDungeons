@@ -85,7 +85,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20),
-    mIsChatMode(false),
+    mIsChatInputMode(false),
     mExitRequested(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
@@ -256,7 +256,7 @@ void ODFrameListener::refreshChat()
 {
     std::stringstream chatSS;
 
-    if(mIsChatMode)
+    if(mIsChatInputMode)
     {
         chatSS << "\nTo all : " + mChatString;
     }
@@ -406,9 +406,10 @@ void ODFrameListener::printText(const std::string& text)
     TextRenderer::getSingleton().setText("DebugMessages", tempString);
 }
 
-void ODFrameListener::notifyChatMode(bool isChatMode)
+void ODFrameListener::notifyChatInputMode(bool isChatInputMode)
 {
-    mIsChatMode = isChatMode;
+    mIsChatInputMode = isChatInputMode;
+    mChatString.clear();
 }
 
 void ODFrameListener::notifyChatChar(const OIS::KeyEvent &arg)

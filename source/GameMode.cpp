@@ -53,7 +53,7 @@ GameMode::GameMode(ModeManager *modeManager):
     mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
     mMouseX(0),
     mMouseY(0),
-    mCurrentMode(ModeNormal)
+    mCurrentInputMode(InputModeNormal)
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
@@ -537,7 +537,7 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
 
-    if((mCurrentMode == ModeChat) && isChatKey(arg))
+    if((mCurrentInputMode == InputModeChat) && isChatKey(arg))
         return keyPressedChat(arg);
 
     return keyPressedNormal(arg);
@@ -632,8 +632,8 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_RETURN:
-        mCurrentMode = ModeChat;
-        ODFrameListener::getSingleton().notifyChatMode(true);
+        mCurrentInputMode = InputModeChat;
+        ODFrameListener::getSingleton().notifyChatInputMode(true);
         break;
 
     case OIS::KC_1:
@@ -662,8 +662,8 @@ bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
     ODFrameListener::getSingleton().notifyChatChar(arg);
     if(arg.key == OIS::KC_RETURN || arg.key == OIS::KC_ESCAPE)
     {
-        mCurrentMode = ModeNormal;
-        ODFrameListener::getSingleton().notifyChatMode(false);
+        mCurrentInputMode = InputModeNormal;
+        ODFrameListener::getSingleton().notifyChatInputMode(false);
     }
     return true;
 }
@@ -676,7 +676,7 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
     if (frameListener->isTerminalActive())
         return true;
 
-    if((mCurrentMode == ModeChat) && mKeyCodeChatLast == arg.key)
+    if((mCurrentInputMode == InputModeChat) && mKeyCodeChatLast == arg.key)
         return keyReleasedChat(arg);
 
     return keyReleasedNormal(arg);

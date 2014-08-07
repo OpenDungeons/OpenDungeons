@@ -98,10 +98,10 @@ class  GameMode: public AbstractApplicationMode
     virtual bool keyReleasedChat    (const OIS::KeyEvent &arg);
 
 private:
-    enum Mode
+    enum InputMode
     {
-        ModeNormal,
-        ModeChat
+        InputModeNormal,
+        InputModeChat
     };
     //! \brief Sets whether a tile must marked or unmarked for digging.
     //! this value is based on the first marked flag tile selected.
@@ -120,7 +120,7 @@ private:
     //! \brief The Mouse environment light following the mouse, don't delete it.
     Ogre::Light* mMouseLight;
 
-    Mode mCurrentMode;
+    InputMode mCurrentInputMode;
 
     //! \brief Handle updating the selector position on screen
     void handleCursorPositionUpdate();

@@ -150,7 +150,7 @@ public:
 
     MiniMap* getMiniMap() {return mMiniMap;}
 
-    void notifyChatMode(bool isChatMode);
+    void notifyChatInputMode(bool isChatInputMode);
     void notifyChatChar(const OIS::KeyEvent &arg);
 
 private:
@@ -192,7 +192,7 @@ private:
 
     //! \brief The chat string for the local player
     std::string mChatString;
-    bool mIsChatMode;
+    bool mIsChatInputMode;
 
     //! \brief Actually exit application
     void exitApplication();
