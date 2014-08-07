@@ -30,7 +30,6 @@ public:
     RoomPortal(GameMap* gameMap);
 
     // Functions overriding virtual functions in the Room base class.
-    void createMesh();
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
     void removeCoveredTile(Tile* t);
 
@@ -42,6 +41,9 @@ public:
 
     //! \brief Creates a new creature whose class is probabalistic and adds it to the game map at the center of the portal.
     void spawnCreature();
+
+protected:
+    void createMeshLocal();
 
 private:
     //! \brief Finds the X,Y coordinates of the center of the tiles that make up the portal.

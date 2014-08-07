@@ -43,6 +43,48 @@ RoomObject::RoomObject(GameMap* gameMap, Room* nParentRoom) :
     setObjectType(GameEntity::roomobject);
 }
 
+void RoomObject::createMeshLocal()
+{
+    MovableGameEntity::createMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type   = RenderRequest::createRoomObject;
+    request->p2     = getParentRoom();
+    request->str    = getName();
+    request->str2   = getMeshName();
+    request->p      = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void RoomObject::destroyMeshLocal()
+{
+    MovableGameEntity::destroyMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type   = RenderRequest::destroyRoomObject;
+    request->p2     = getParentRoom();
+    request->p      = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void RoomObject::deleteYourselfLocal()
+{
+    MovableGameEntity::deleteYourselfLocal();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type   = RenderRequest::deleteRoomObject;
+    request->p      = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
 Room* RoomObject::getParentRoom()
 {
     return mParentRoom;

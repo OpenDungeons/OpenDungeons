@@ -380,6 +380,12 @@ bool ODClient::processOneClientSocketMessage(bool& isNewTurn)
             if (tempTile != NULL)
             {
                 tempTile->setFullness(tmpTile.getFullness());
+                std::vector<Tile*> neighbors = tempTile->getAllNeighbors();
+                for (std::vector<Tile*>::iterator it = neighbors.begin(); it != neighbors.end(); ++it)
+                {
+                    Tile* neighbor = *it;
+                    neighbor->setFullness(neighbor->getFullness());
+                }
             }
             else
             {

@@ -71,6 +71,10 @@ public:
     friend ODPacket& operator<<(ODPacket& os, MissileObject *mo);
     friend ODPacket& operator>>(ODPacket& is, MissileObject *mo);
 
+protected:
+    virtual void createMeshLocal();
+    virtual void destroyMeshLocal();
+    virtual void deleteYourselfLocal();
 private:
     //!\brief  For copy in ODClient
     MissileObject(GameMap* gameMap);

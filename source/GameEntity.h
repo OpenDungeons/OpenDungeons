@@ -72,6 +72,7 @@ class GameEntity
     active      (true),
     attackable  (true),
     objectType  (unknown),
+    mIsDeleteRequested (false),
     gameMap     (NULL)
     {
         assert(gameMap !=  NULL);
@@ -133,15 +134,12 @@ class GameEntity
     }
 
     // ===== METHODS =====
-    //! \brief Function that implements the mesh creation
-    virtual void    createMesh      ();
-
-    //! \brief Function that implements the mesh deletion
-    virtual void    destroyMesh     ();
-
-    //! \brief Function that implements code for the removal from the map
-    virtual void    deleteYourself  ();
-
+    //! \brief Function that calls the mesh creation. If the mesh is already created, does nothing
+    void    createMesh      ();
+    //! \brief Function that calls the mesh destruction. If the mesh is not created, does nothing
+    void    destroyMesh     ();
+    //! \brief Function that schedules the object destruction. This function should not be called twice
+    void    deleteYourself  ();
 
     inline void show()
     {
@@ -195,6 +193,15 @@ class GameEntity
     }
 
   protected:
+    //! \brief Function that implements the mesh creation
+    virtual void    createMeshLocal      () {};
+
+    //! \brief Function that implements the mesh deletion
+    virtual void    destroyMeshLocal     () {};
+
+    //! \brief Function that implements the mesh deletion
+    virtual void    deleteYourselfLocal  () {};
+
     //! \brief The position of this object
     Ogre::Vector3   position;
 
@@ -216,6 +223,9 @@ class GameEntity
 
     //! \brief A flag saying whether the object can be attacked or not
     bool            attackable;
+
+    //! \brief A flag saying whether the object has been requested to delete
+    bool            mIsDeleteRequested;
 
     //! \brief What kind of object is it
     ObjectType      objectType;

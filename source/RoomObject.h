@@ -65,6 +65,11 @@ public:
     Ogre::Real mY;
     Ogre::Real mRotationAngle;
 
+protected:
+    virtual void createMeshLocal();
+    virtual void destroyMeshLocal();
+    virtual void deleteYourselfLocal();
+
 private:
     Room* mParentRoom;
 };

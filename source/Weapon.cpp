@@ -16,6 +16,7 @@
  */
 
 #include "Weapon.h"
+#include "GameMap.h"
 
 Weapon::Weapon(GameMap* gameMap,
        const std::string& name,
@@ -33,6 +34,53 @@ Weapon::Weapon(GameMap* gameMap,
 {
     // TODO: Makes this obtained with a true parameter
     setMeshName(name + ".mesh");
+}
+
+void Weapon::createMeshLocal()
+{
+    GameEntity::createMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    if(getName().compare("none") == 0)
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type   = RenderRequest::createWeapon;
+    request->p      = static_cast<void*>(this);
+    request->p2     = getParentCreature();
+    request->p3     = new std::string(getHandString());
+    RenderManager::queueRenderRequest(request);
+}
+
+void Weapon::destroyMeshLocal()
+{
+    GameEntity::destroyMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    if (getName().compare("none") == 0)
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type   = RenderRequest::destroyWeapon;
+    request->p      = static_cast<void*>(this);
+    request->p2     = getParentCreature();
+    RenderManager::queueRenderRequest(request);
+}
+
+void Weapon::deleteYourselfLocal()
+{
+    GameEntity::deleteYourselfLocal();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::deleteWeapon;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
 }
 
 std::string Weapon::getFormat()

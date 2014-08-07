@@ -194,6 +194,10 @@ protected:
     //! \brief The number of active spots.
     unsigned int mNumActiveSpots;
 
+protected:
+    virtual void createMeshLocal();
+    virtual void destroyMeshLocal();
+    virtual void deleteYourselfLocal();
 private :
     /*! \brief This function makes sure the name of the room is unique. It shall be called after loading
      * a room from the level file or when a new one is built.

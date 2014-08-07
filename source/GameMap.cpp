@@ -2251,8 +2251,6 @@ void GameMap::processDeletionQueues()
     while (entitiesToDelete.size() > 0)
     {
         GameEntity* entity = *entitiesToDelete.begin();
-        LogManager::getSingleton().logMessage("Deleting entity "
-            + entity->getName());
         entitiesToDelete.erase(entitiesToDelete.begin());
         delete entity;
     }
@@ -2260,9 +2258,6 @@ void GameMap::processDeletionQueues()
     while (mapLightsToDelete.size() > 0)
     {
         MapLight* ml = *mapLightsToDelete.begin();
-        LogManager::getSingleton().logMessage("Deleting MapLight "
-            + ml->getName());
-
         mapLightsToDelete.erase(mapLightsToDelete.begin());
         delete ml;
     }

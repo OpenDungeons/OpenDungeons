@@ -148,21 +148,53 @@ Creature::~Creature()
 
     if(mBattleField != NULL)
         delete mBattleField;
-
-    // Delete weapons
-    if (mWeaponL)
-        delete mWeaponL;
-    if (mWeaponR)
-        delete mWeaponR;
 }
 
-void Creature::deleteYourself()
+void Creature::createMeshLocal()
 {
+    MovableGameEntity::createMeshLocal();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type   = RenderRequest::createCreature;
+    request->str    = static_cast<Creature*>(this)->getDefinition()->getMeshName();
+    request->vec    = static_cast<Creature*>(this)->getDefinition()->getScale();
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void Creature::destroyMeshLocal()
+{
+    MovableGameEntity::destroyMeshLocal();
+    getWeaponL()->destroyMesh();
+    getWeaponR()->destroyMesh();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    destroyStatsWindow();
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::destroyCreature;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void Creature::deleteYourselfLocal()
+{
+    MovableGameEntity::deleteYourselfLocal();
     // If standing on a valid tile, notify that tile we are no longer there.
     if(positionTile() != 0)
         positionTile()->removeCreature(this);
 
-    MovableGameEntity::deleteYourself();
+    getWeaponL()->deleteYourself();
+    getWeaponR()->deleteYourself();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::deleteCreature;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
 }
 
 //! \brief A function which returns a string describing the IO format of the << and >> operators.

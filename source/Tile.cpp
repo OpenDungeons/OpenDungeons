@@ -39,6 +39,44 @@
 
 static Ogre::MeshManager *myOgreMeshManger = Ogre:: MeshManager::getSingletonPtr();
 
+void Tile::createMeshLocal()
+{
+    GameEntity::createMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type   = RenderRequest::createTile;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void Tile::destroyMeshLocal()
+{
+    GameEntity::destroyMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::destroyTile;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void Tile::deleteYourselfLocal()
+{
+    GameEntity::deleteYourselfLocal();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::deleteTile;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
 void Tile::setType(TileType t)
 {
     // If the type has changed from its previous value we need to see if
@@ -52,6 +90,7 @@ void Tile::setType(TileType t)
 
 void Tile::setFullness(double f)
 {
+    int oldFullness = getFullness();
     int oldFullnessMeshNumber = fullnessMeshNumber;
     TileClearType oldTilePassability = getTilePassability();
 
@@ -74,24 +113,6 @@ void Tile::setFullness(double f)
      SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
      }
      */
-
-    // If we are a sever, the clients need to be told about the change to the tile's fullness.
-    if (getGameMap()->isServerGameMap())
-    {
-        try
-        {
-            // Inform the clients that the fullness has changed.
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::tileFullnessChange, NULL);
-            serverNotification->packet << this;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            std::cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
-            exit(1);
-        }
-    }
 
     // If the passability has changed we may have opened up new paths on the gameMap.
     if (oldTilePassability != getTilePassability())
@@ -489,7 +510,7 @@ bool Tile::isDiggable(int team_color_id) const
 
 bool Tile::isGroundClaimable() const
 {
-    return ((type == dirt || type == claimed) && getFullness() < 1);
+    return ((type == dirt || type == gold || type == claimed) && getFullness() < 1);
 }
 
 bool Tile::isWallClaimable(int team_color_id)
@@ -844,7 +865,7 @@ void Tile::setMarkedForDigging(bool ss, Player *pp)
     /* If we are trying to mark a tile that is not dirt or gold
      * or is already dug out, ignore the request.
      */
-    if (ss && (!isDiggable(pp->getSeat()->getColor()) || (getFullness() < 1)))
+    if (ss && !isDiggable(pp->getSeat()->getColor()))
         return;
 
     // If the tile was already in the given state, we can return
@@ -1097,7 +1118,24 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
     {
         amountDug = fullness;
         setFullness(0.0);
-        setType(dirt);
+
+        // If we are a sever, the clients need to be told about the change to the tile's fullness.
+        if (getGameMap()->isServerGameMap())
+        {
+            try
+            {
+                // Inform the clients that the fullness has changed.
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::tileFullnessChange, NULL);
+                serverNotification->packet << this;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                std::cerr << "\n\nERROR:  bad alloc in Tile::setFullness\n\n";
+                exit(1);
+            }
+        }
 
         for (unsigned int j = 0; j < neighbors.size(); ++j)
         {
@@ -1114,13 +1152,6 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
     {
         amountDug = digRate;
         setFullness(fullness - digRate);
-    }
-
-    // Force all the neighbors to recheck their meshes as we may have exposed
-    // a new side that was not visible before.
-    for (unsigned int j = 0; j < neighbors.size(); ++j)
-    {
-        neighbors[j]->setFullness(neighbors[j]->getFullness());
     }
 
     if (amountDug > 0.0 && amountDug < digRate)

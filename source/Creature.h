@@ -286,8 +286,10 @@ public:
     inline CullingQuad* getQuad()
     { return mTracingCullingQuad; }
 
-    virtual void deleteYourself();
-
+protected:
+    virtual void createMeshLocal();
+    virtual void destroyMeshLocal();
+    virtual void deleteYourselfLocal();
 private:
     enum ForceAction
     {

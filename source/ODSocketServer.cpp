@@ -172,8 +172,8 @@ void ODSocketServer::stopServer()
     if(mThread != NULL)
         delete mThread; // Delete waits for the thread to finish
     mThread = NULL;
-    mSockListener.close();
     mSockSelector.clear();
+    mSockListener.close();
     for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
     {
         ODSocketClient* client = *it;

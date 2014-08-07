@@ -45,6 +45,44 @@ MissileObject::MissileObject(GameMap* gameMap) :
     setMeshExisting(false);
 }
 
+void MissileObject::createMeshLocal()
+{
+    MovableGameEntity::createMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type   = request->type = RenderRequest::createMissileObject;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void MissileObject::destroyMeshLocal()
+{
+    MovableGameEntity::destroyMeshLocal();
+
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::destroyMissileObject;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
+void MissileObject::deleteYourselfLocal()
+{
+    MovableGameEntity::deleteYourselfLocal();
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    RenderRequest* request = new RenderRequest;
+    request->type = RenderRequest::deleteMissileObject;
+    request->p = static_cast<void*>(this);
+    RenderManager::queueRenderRequest(request);
+}
+
 bool MissileObject::doUpkeep()
 {
     // TODO: check if we collide with a creature, if yes, do some damage and delete ourselves
