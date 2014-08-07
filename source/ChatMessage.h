@@ -18,8 +18,8 @@
 #ifndef CHATMESSAGE_H
 #define CHATMESSAGE_H
 
+#include <SFML/System.hpp>
 #include <string>
-#include <ctime>
 
 /*! \brief A data structure to store a chat message and its relevant time stamps.
  *
@@ -32,9 +32,7 @@
 class ChatMessage
 {
 public:
-    ChatMessage();
-    ChatMessage(const std::string& nNick, const std::string& nMessage,
-                const time_t& nRecvTime, time_t nSendTime = 0);
+    ChatMessage(const std::string& nNick, const std::string& nMessage);
 
     inline const std::string& getMessage() const
     { return mMessage; }
@@ -42,14 +40,12 @@ public:
     inline const std::string& getClientNick() const
     { return mClientNick; }
 
-    inline const time_t& getRecvTime() const
-    { return mRecvTime; }
+    bool isMessageTooOld(float maxTimeDisplay);
 
 private:
     std::string mMessage;
     std::string mClientNick;
-    time_t      mSendTime;
-    time_t      mRecvTime;
+    sf::Clock   clockCreation;
 };
 
 #endif // CHATMESSAGE_H

@@ -50,6 +50,7 @@ class ServerNotification
             addClass,
 
             chat,
+            chatServer,
 
             markTiles,
             buildRoom,

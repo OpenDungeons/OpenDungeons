@@ -43,6 +43,8 @@ class ODServer: public Ogre::Singleton<ODServer>,
 
     void notifyExit();
 
+    static const std::string SERVER_INFORMATION;
+
 protected:
     bool notifyNewConnection(ODSocketClient *sock);
     bool notifyClientMessage(ODSocketClient *sock);

@@ -24,7 +24,6 @@
 
 #include "GameMode.h"
 
-#include "ODServer.h"
 #include "ODClient.h"
 #include "Gui.h"
 #include "ODFrameListener.h"
@@ -53,7 +52,8 @@ GameMode::GameMode(ModeManager *modeManager):
     mDigSetBool(false),
     mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
     mMouseX(0),
-    mMouseY(0)
+    mMouseY(0),
+    mCurrentMode(ModeNormal)
 {
     // Set per default the input on the map
     mModeManager->getInputManager()->mMouseDownOnCEGUIWindow = false;
@@ -519,6 +519,14 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     return true;
 }
 
+bool GameMode::isChatKey(const OIS::KeyEvent &arg)
+{
+    if(arg.key != OIS::KC_RETURN && arg.key != OIS::KC_ESCAPE && arg.key != OIS::KC_BACK && arg.text == 0)
+        return false;
+
+    return true;
+}
+
 bool GameMode::keyPressed(const OIS::KeyEvent &arg)
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
@@ -529,6 +537,15 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyDown((CEGUI::Key::Scan) arg.key);
     CEGUI::System::getSingleton().getDefaultGUIContext().injectChar(arg.text);
 
+    if((mCurrentMode == ModeChat) && isChatKey(arg))
+        return keyPressedChat(arg);
+
+    return keyPressedNormal(arg);
+}
+
+bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
+{
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     CameraManager& camMgr = *(frameListener->cm);
     InputManager* inputManager = mModeManager->getInputManager();
 
@@ -614,6 +631,11 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
         ResourceManager::getSingleton().takeScreenshot();
         break;
 
+    case OIS::KC_RETURN:
+        mCurrentMode = ModeChat;
+        ODFrameListener::getSingleton().notifyChatMode(true);
+        break;
+
     case OIS::KC_1:
     case OIS::KC_2:
     case OIS::KC_3:
@@ -634,6 +656,18 @@ bool GameMode::keyPressed(const OIS::KeyEvent &arg)
     return true;
 }
 
+bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
+{
+    mKeyCodeChatLast = arg.key;
+    ODFrameListener::getSingleton().notifyChatChar(arg);
+    if(arg.key == OIS::KC_RETURN || arg.key == OIS::KC_ESCAPE)
+    {
+        mCurrentMode = ModeNormal;
+        ODFrameListener::getSingleton().notifyChatMode(false);
+    }
+    return true;
+}
+
 bool GameMode::keyReleased(const OIS::KeyEvent &arg)
 {
     CEGUI::System::getSingleton().getDefaultGUIContext().injectKeyUp((CEGUI::Key::Scan) arg.key);
@@ -642,6 +676,15 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
     if (frameListener->isTerminalActive())
         return true;
 
+    if((mCurrentMode == ModeChat) && mKeyCodeChatLast == arg.key)
+        return keyReleasedChat(arg);
+
+    return keyReleasedNormal(arg);
+}
+
+bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
+{
+    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     CameraManager& camMgr = *(frameListener->cm);
     InputManager* inputManager = mModeManager->getInputManager();
 
@@ -699,6 +742,14 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
         break;
     }
 
+    return true;
+}
+
+bool GameMode::keyReleasedChat(const OIS::KeyEvent &arg)
+{
+    // KC_RETURN would make us go to non chat mode. By setting mKeyCodeChatLast
+    // to KC_RETURN, we are sure to not interfer with normal control
+    mKeyCodeChatLast = OIS::KC_RETURN;
     return true;
 }
 

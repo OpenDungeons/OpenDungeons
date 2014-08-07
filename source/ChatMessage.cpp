@@ -17,19 +17,13 @@
 
 #include "ChatMessage.h"
 
-ChatMessage::ChatMessage() :
-    mMessage     ("UNSET_MESSAGE"),
-    mClientNick  ("UNSET_CLIENT_NICK"),
-    mSendTime    (time(0)),
-    mRecvTime    (time(0))
+ChatMessage::ChatMessage(const std::string& nNick, const std::string& nMessage) :
+    mMessage     (nMessage),
+    mClientNick  (nNick)
 {
 }
 
-ChatMessage::ChatMessage(const std::string& nNick, const std::string& nMessage,
-                         const time_t& nRecvTime, time_t nSendTime) :
-    mMessage     (nMessage),
-    mClientNick  (nNick),
-    mSendTime    (nSendTime),
-    mRecvTime    (nRecvTime)
+bool ChatMessage::isMessageTooOld(float maxTimeDisplay)
 {
+    return clockCreation.getElapsedTime().asSeconds() > maxTimeDisplay;
 }

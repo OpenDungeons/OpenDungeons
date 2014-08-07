@@ -53,17 +53,11 @@ void ODClient::processClientSocketMessages()
 {
     // If we receive message for a new turn, after processing every message,
     // we will refresh what is needed
-    bool isNewTurn = false;
     // We loop until no more data is available
-    while(isConnected() && processOneClientSocketMessage(isNewTurn));
-
-   if(isNewTurn)
-    {
-        ODFrameListener::getSingleton().refreshChat();
-    }
+    while(isConnected() && processOneClientSocketMessage());
 }
 
-bool ODClient::processOneClientSocketMessage(bool& isNewTurn)
+bool ODClient::processOneClientSocketMessage()
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
 
@@ -85,8 +79,8 @@ bool ODClient::processOneClientSocketMessage(bool& isNewTurn)
     {
         // Place a chat message in the queue to inform
         // the user about the disconnect
-        frameListener->addChatMessage(new ChatMessage("SERVER_INFORMATION: ",
-            "Disconnected from server.", time(NULL)));
+        frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
+            "Disconnected from server."));
         // TODO : try to reconnect to the server
         return false;
     }
@@ -124,6 +118,8 @@ bool ODClient::processOneClientSocketMessage(bool& isNewTurn)
             Seat* seat = gameMap->popEmptySeat(seatColor);
             OD_ASSERT_TRUE(seat != NULL);
             gameMap->addPlayer(tempPlayer, seat);
+            frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
+                "New player connected:" + tempPlayer->getNick()));
             break;
         }
 
@@ -132,7 +128,17 @@ bool ODClient::processOneClientSocketMessage(bool& isNewTurn)
             std::string chatNick;
             std::string chatMsg;
             OD_ASSERT_TRUE(packetReceived >> chatNick >> chatMsg);
-            ChatMessage *newMessage = new ChatMessage(chatNick, chatMsg, time(NULL));
+            ChatMessage *newMessage = new ChatMessage(chatNick, chatMsg);
+            frameListener->addChatMessage(newMessage);
+            break;
+        }
+
+        case ServerNotification::chatServer:
+        {
+            std::string chatMsg;
+            OD_ASSERT_TRUE(packetReceived >> chatMsg);
+            ChatMessage *newMessage = new ChatMessage(ODServer::SERVER_INFORMATION,
+                chatMsg);
             frameListener->addChatMessage(newMessage);
             break;
         }
@@ -228,7 +234,6 @@ bool ODClient::processOneClientSocketMessage(bool& isNewTurn)
 
             // We acknowledge the new turn to the server so that he knows we are
             // ready for next one
-            isNewTurn = true;
             ODPacket packSend;
             packSend << ClientNotification::ackNewTurn << turnNum;
             send(packSend);
@@ -663,6 +668,10 @@ void ODClient::processClientNotifications()
                 break;
 
             case ClientNotification::askBuildTrap:
+                sendToServer(event->packet);
+                break;
+
+            case ClientNotification::chat:
                 sendToServer(event->packet);
                 break;
 

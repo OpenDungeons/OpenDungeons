@@ -35,6 +35,7 @@
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
 #include <OISMouse.h>
+#include <OISKeyboard.h>
 
 #include <deque>
 
@@ -149,6 +150,9 @@ public:
 
     MiniMap* getMiniMap() {return mMiniMap;}
 
+    void notifyChatMode(bool isChatMode);
+    void notifyChatChar(const OIS::KeyEvent &arg);
+
 private:
     //! \brief Tells whether the frame listener is initialized.
     bool mInitialized;
@@ -163,7 +167,7 @@ private:
     bool                    mTerminalActive;
     int                     mTerminalWordWrap;
     unsigned int            mChatMaxMessages;
-    unsigned int            mChatMaxTimeDisplay;
+    float                   mChatMaxTimeDisplay;
 
     //! \brief Reference to the Ogre ray scene query handler. Don't delete it.
     Ogre::RaySceneQuery*    mRaySceneQuery;
@@ -184,7 +188,11 @@ private:
     std::string mCommandOutput;
 
     std::deque<ChatMessage*> mChatMessages;
-    std::string mPromptCommand, mChatString;
+    std::string mPromptCommand;
+
+    //! \brief The chat string for the local player
+    std::string mChatString;
+    bool mIsChatMode;
 
     //! \brief Actually exit application
     void exitApplication();

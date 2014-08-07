@@ -52,6 +52,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "addClass";
         case ServerNotificationType::chat:
             return "chat";
+        case ServerNotificationType::chatServer:
+            return "chatServer";
         case ServerNotificationType::markTiles:
             return "markTiles";
         case ServerNotificationType::turnStarted:

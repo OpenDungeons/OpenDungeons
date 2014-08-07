@@ -21,13 +21,14 @@
 #include "ServerNotification.h"
 #include "GameMap.h"
 #include "ODApplication.h"
-#include "ODFrameListener.h"
 #include "MapLight.h"
-#include "RenderManager.h"
+#include "ChatMessage.h"
 #include "LogManager.h"
 
 #include <SFML/Network.hpp>
 #include <SFML/System.hpp>
+
+const std::string ODServer::SERVER_INFORMATION = "SERVER_INFORMATION";
 
 template<> ODServer* Ogre::Singleton<ODServer>::msSingleton = 0;
 
@@ -39,12 +40,11 @@ ODServer::ODServer() :
 
 ODServer::~ODServer()
 {
+    delete mGameMap;
 }
 
 bool ODServer::startServer(const std::string& levelFilename, bool replaceHumanPlayersByAi)
 {
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
-
     LogManager& logManager = LogManager::getSingleton();
 
     mLevelFilename = levelFilename;
@@ -359,7 +359,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
     if (!clientSocket)
         return false;
 
-    ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
     GameMap* gameMap = mGameMap;
 
     ODPacket packetReceived;
@@ -385,9 +384,6 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             std::string version;
             std::string levelFilename;
             OD_ASSERT_TRUE(packetReceived >> version >> levelFilename);
-            frameListener->addChatMessage(new ChatMessage(
-                    "SERVER_INFORMATION: ", "Client connect with version: "
-                            + version + ", levelFilename=" + levelFilename, time(NULL)));
 
             // If the levelFilename is different, we refuse the client
             if(levelFilename.compare(mLevelFilename) != 0)
@@ -412,13 +408,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
             ODPacket packetSend;
             // Pick nick
-            std::string clientCmd;
             std::string clientNick;
             OD_ASSERT_TRUE(packetReceived >> clientNick);
-
-            frameListener->addChatMessage(new ChatMessage(
-                    "SERVER_INFORMATION: ", "Client nick is: " + clientNick,
-                    time(NULL)));
 
             // Create a player structure for the client
             Player *curPlayer;
@@ -488,17 +479,16 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
 
         case ClientNotification::chat:
         {
-            std::string chatNick;
+            // TODO : handle chat for everybody/allies/player
+            // As chat message do not interfere with GameMap, it is OK to send
+            // them directly to the clients instead of queuing a ServerNotification
+            // to the Server
             std::string chatMsg;
-            OD_ASSERT_TRUE(packetReceived >> chatNick >> chatMsg);
-            ChatMessage *newMessage = new ChatMessage(chatNick, chatMsg, time(NULL));
-
+            OD_ASSERT_TRUE(packetReceived >> chatMsg);
+            Player* player = clientSocket->getPlayer();
             ODPacket packetSend;
-            packetSend << ServerNotification::chat << newMessage->getClientNick() << newMessage->getMessage();
+            packetSend << ServerNotification::chat << player->getNick() << chatMsg;
             sendToAllClients(packetSend);
-
-            // Put the message in our own queue
-            frameListener->addChatMessage(newMessage);
             break;
         }
 
@@ -701,9 +691,20 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
     bool ret = processClientNotifications(clientSocket);
     if(!ret)
     {
-        // TODO : send a message to every client
-        ODFrameListener::getSingletonPtr()->addChatMessage(new ChatMessage("SERVER_INFORMATION: ",
-            "Client disconnected", time(NULL)));
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::chatServer, clientSocket->getPlayer());
+            std::string msg = clientSocket->getPlayer()->getNick()
+                + " disconnected";
+            serverNotification->packet << msg;
+            queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in ODServer::processClientNotifications", Ogre::LML_CRITICAL);
+            exit(1);
+        }
         // TODO : wait at least 1 minute if the client reconnects
     }
     return ret;

@@ -100,7 +100,6 @@ public:
 
 private:
     // Console variables
-    std::deque<ChatMessage*> mChatMessages;
     std::string mPromptCommand;
     std::string mChatString;
 
