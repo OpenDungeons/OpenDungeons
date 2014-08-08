@@ -505,6 +505,9 @@ private:
 
     //! \brief Updates current creature actions
     unsigned long int doCreatureTurns();
+
+    //! \brief Resets the unique numbers
+    void resetUniqueNumbers();
 };
 
 #endif // _GAMEMAP_H_

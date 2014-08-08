@@ -590,7 +590,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 {
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotification::markTiles, player);
-                    serverNotification->packet << isDigSet << tiles.size();
+                    int nbTiles = tiles.size();
+                    serverNotification->packet << isDigSet << nbTiles;
                     for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
                     {
                         Tile* tile = *it;

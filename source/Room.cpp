@@ -171,7 +171,8 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::buildRoom, player);
             int intType = static_cast<int32_t>(newRoom->getType());
-            serverNotification->packet << intType << player->getSeat()->getColor() << coveredTiles.size();
+            int nbTiles = coveredTiles.size();
+            serverNotification->packet << intType << player->getSeat()->getColor() << nbTiles;
             for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
             {
                 Tile* tile = *it;

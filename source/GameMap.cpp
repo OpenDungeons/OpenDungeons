@@ -132,19 +132,13 @@ GameMap::GameMap(bool isServerGameMap) :
         numCallsTo_path(0),
         tileCoordinateMap(new TileCoordinateMap(100)),
         aiManager(*this),
-        mUniqueNumberBattlefield(0),
-        mUniqueNumberCreature(0),
-        mUniqueNumberFloodFilling(0),
-        mUniqueNumberMissileObj(0),
-        mUniqueNumberRoom(0),
-        mUniqueNumberRoomObj(0),
-        mUniqueNumberTrap(0),
         mIsPaused(false)
 {
     // Init the player
     mLocalPlayer = new Player();
     mLocalPlayer->setNick("defaultNickName");
     mLocalPlayer->setGameMap(this);
+    resetUniqueNumbers();
 }
 
 GameMap::~GameMap()
@@ -228,6 +222,7 @@ void GameMap::clearAll()
     clearAiManager();
 
     mTurnNumber = -1;
+    resetUniqueNumbers();
 }
 
 void GameMap::clearCreatures()
@@ -260,6 +255,18 @@ void GameMap::clearPlayers()
     }
 
     players.clear();
+}
+
+void GameMap::resetUniqueNumbers()
+{
+    mUniqueNumberBattlefield = 0;
+    mUniqueNumberCreature = 0;
+    mUniqueNumberFloodFilling = 0;
+    mUniqueNumberMissileObj = 0;
+    mUniqueNumberRoom = 0;
+    mUniqueNumberRoomObj = 0;
+    mUniqueNumberTrap = 0;
+    mUniqueNumberMapLight = 0;
 }
 
 void GameMap::addClassDescription(CreatureDefinition *c)
