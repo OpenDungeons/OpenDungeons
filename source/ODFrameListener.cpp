@@ -85,6 +85,7 @@ ODFrameListener::ODFrameListener(Ogre::RenderWindow* win) :
     mTerminalWordWrap(78),
     mChatMaxMessages(10),
     mChatMaxTimeDisplay(20),
+    mIsChatInputMode(false),
     mExitRequested(false)
 {
     LogManager* logManager = LogManager::getSingletonPtr();
@@ -151,6 +152,14 @@ ODFrameListener::~ODFrameListener()
     delete mMiniMap;
     // We deinit it here since it was also created in this class.
     delete RenderManager::getSingletonPtr();
+
+    std::deque<ChatMessage*>::iterator it = mChatMessages.end();
+    while(mChatMessages.size() > 0)
+    {
+        ChatMessage* msg = *mChatMessages.begin();
+        mChatMessages.erase(mChatMessages.begin());
+        delete msg;
+    }
 }
 
 void ODFrameListener::requestExit()
@@ -238,87 +247,64 @@ bool ODFrameListener::frameStarted(const Ogre::FrameEvent& evt)
     ODClient::getSingleton().processClientSocketMessages();
     ODClient::getSingleton().processClientNotifications();
 
+    refreshChat();
+
     return mContinue;
 }
 
 void ODFrameListener::refreshChat()
 {
+    std::stringstream chatSS;
 
-    std::string chatBaseString = "\n---------- Chat ----------\n";
-    mChatString = chatBaseString;
-
-    // Delete any chat messages older than the maximum allowable age
-    //TODO:  Lock this queue before doing this stuff
-    time_t now;
-    time(&now);
-    ChatMessage* currentMessage;
-    unsigned int i = 0;
-    while (i < mChatMessages.size())
+    if(mIsChatInputMode)
     {
-        std::deque<ChatMessage*>::iterator itr = mChatMessages.begin() + i;
-        currentMessage = *itr;
-        if (difftime(now, currentMessage->getRecvTime()) > mChatMaxTimeDisplay)
+        chatSS << "\nTo all : " + mChatString;
+    }
+
+    int nbMsg = 0;
+    std::deque<ChatMessage*>::iterator it = mChatMessages.end();
+    while (it != mChatMessages.begin())
+    {
+        --it;
+        ChatMessage* msg = *it;
+        if ((msg->isMessageTooOld(mChatMaxTimeDisplay)) ||
+            (nbMsg > mChatMaxMessages))
         {
-            mChatMessages.erase(itr);
+            it = mChatMessages.erase(it);
+            delete msg;
         }
         else
         {
-            ++i;
+            ++nbMsg;
         }
     }
 
-    // Only keep the N newest chat messages of the ones that remain
-    while (mChatMessages.size() > mChatMaxMessages)
+    for (it = mChatMessages.begin(); it != mChatMessages.end(); ++it)
     {
-        delete mChatMessages.front();
-        mChatMessages.pop_front();
+        ChatMessage* msg = *it;
+        chatSS << "\n" + msg->getClientNick() << ": " << msg->getMessage();
     }
 
-    // Fill up the chat window with the arrival time and contents of all the chat messages left in the queue.
-    for (unsigned int i = 0; i < mChatMessages.size(); ++i)
-    {
-        std::stringstream chatSS("");
-        struct tm *friendlyTime = localtime(&mChatMessages[i]->getRecvTime());
-        chatSS << friendlyTime->tm_hour << ":" << friendlyTime->tm_min << ":"
-                << friendlyTime->tm_sec << "  " << mChatMessages[i]->getClientNick()
-                << ":  " << mChatMessages[i]->getMessage();
-        mChatString += chatSS.str() + "\n";
-    }
-
-    // Display the terminal, the current turn number, and the
-    // visible chat messages at the top of the screen
-    string nullString = "";
-    string turnString = "";
-    turnString.reserve(100);
-
-    //TODO - we should call printText only when the text changes.
     bool isEditor = (mModeManager->getCurrentModeType() == ModeManager::EDITOR);
     if (!isEditor && mGameMap->getTurnNumber() == -1)
     {
         // Tells the user the game is loading.
-        printText("\nWaiting for players...");
+        chatSS << "\nWaiting for players...";
     }
-    else
-    {
-        if (mShowDebugInfo)
-        {
-            turnString += "\nFPS: " + Ogre::StringConverter::toString(
-                mWindow->getStatistics().lastFPS);
-            turnString += "\ntriangleCount: " + Ogre::StringConverter::toString(
-                mWindow->getStatistics().triangleCount);
-            turnString += "\nBatches: " + Ogre::StringConverter::toString(
-                mWindow->getStatistics().batchCount);
-            turnString += "\nTurn number:  "
-                + Ogre::StringConverter::toString(static_cast<int32_t>(mGameMap->getTurnNumber()));
 
-            printText(ODApplication::MOTD + "\n" + turnString
-                    + "\n" + (!mChatMessages.empty() ? mChatString : nullString));
-        }
-        else
-        {
-            printText("");
-        }
+    if (mShowDebugInfo)
+    {
+        chatSS << "\nFPS: " << mWindow->getStatistics().lastFPS;
+        chatSS << "\ntriangleCount: " << mWindow->getStatistics().triangleCount;
+        chatSS << "\nBatches: " << mWindow->getStatistics().batchCount;
+        chatSS << "\nTurn number:  " <<  static_cast<int32_t>(mGameMap->getTurnNumber());
     }
+
+    std::string strDisplay = chatSS.str();
+    if(strDisplay.size() > 0)
+        printText("---------- Chat ----------" + strDisplay);
+    else
+        printText("");
 }
 
 void ODFrameListener::refreshPlayerDisplay(const std::string& goalsDisplayString)
@@ -418,6 +404,42 @@ void ODFrameListener::printText(const std::string& text)
     }
 
     TextRenderer::getSingleton().setText("DebugMessages", tempString);
+}
+
+void ODFrameListener::notifyChatInputMode(bool isChatInputMode)
+{
+    mIsChatInputMode = isChatInputMode;
+    mChatString.clear();
+}
+
+void ODFrameListener::notifyChatChar(const OIS::KeyEvent &arg)
+{
+    if(arg.key == OIS::KC_RETURN)
+    {
+        if(!mChatString.empty() && ODClient::getSingleton().isConnected())
+        {
+            // Send a message to the server telling it we want to drop the creature
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::chat);
+            clientNotification->packet << mChatString;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
+        }
+
+        mChatString.clear();
+    }
+    else if(arg.key == OIS::KC_ESCAPE)
+    {
+        mChatString.clear();
+    }
+    else if(arg.key == OIS::KC_BACK)
+    {
+        if(mChatString.size() > 0)
+            mChatString.resize(mChatString.size() - 1);
+    }
+    else
+    {
+        mChatString.append(1, (char)arg.text);
+    }
 }
 
 void ODFrameListener::addChatMessage(ChatMessage *message)

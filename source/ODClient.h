@@ -21,7 +21,6 @@
 #include "ClientNotification.h"
 #include "ODSocketClient.h"
 #include "ODPacket.h"
-#include "ChatMessage.h"
 
 #include <OgreSingleton.h>
 
@@ -71,7 +70,7 @@ class ODClient: public Ogre::Singleton<ODClient>,
     const std::string& getLevelFilename() {return mLevelFilename;}
 
  private:
-    bool processOneClientSocketMessage(bool& isNewTurn);
+    bool processOneClientSocketMessage();
 
     void sendToServer(ODPacket& packetToSend);
 

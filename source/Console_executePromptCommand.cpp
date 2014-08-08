@@ -839,27 +839,10 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
     {
         if (ODClient::getSingleton().isConnected())
         {
-            ODPacket packSend;
-            packSend << "chat" << gameMap->getLocalPlayer()->getNick()
-                << arguments;
-            ODClient::getSingleton().sendToServer(packSend);
-        }
-        else if (ODServer::getSingleton().isConnected())
-        {
-            // Send the chat to all the connected clients
-            ODPacket packSend;
-            packSend << "chat" << gameMap->getLocalPlayer()->getNick()
-                << arguments;
-            ODServer::getSingleton().sendToAllClients(packSend);
-
-            // Display the chat message in our own message queue
-            mChatMessages.push_back(new ChatMessage(gameMap->getLocalPlayer()->getNick(), arguments,
-                    time(NULL), time(NULL)));
-        }
-        else
-        {
-            frameListener->mCommandOutput
-                    += "\nYou must be either connected to a server, or hosting a server to use chat.\n";
+            ClientNotification *clientNotification = new ClientNotification(
+                ClientNotification::chat);
+            clientNotification->packet << arguments;
+            ODClient::getSingleton().queueClientNotification(clientNotification);
         }
     }
 
