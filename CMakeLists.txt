@@ -1,6 +1,29 @@
 cmake_minimum_required(VERSION 2.8)
 
 ##################################
+#### Project settings ############
+##################################
+
+project(OpenDungeons)
+
+#postfix bin if we are on linux as we want to launch with a script
+if(WIN32)
+    set(PROJECT_BINARY_NAME "OpenDungeons")
+else()
+    set(PROJECT_BINARY_NAME "OpenDungeons.bin")
+endif()
+
+# Project version
+# TODO - make this set version string in source file automatically.
+set(${PROJECT_NAME}_MAJOR_VERSION 0)
+set(${PROJECT_NAME}_MINOR_VERSION 4)
+set(${PROJECT_NAME}_PATCH_LEVEL   9)
+
+# Where we want the binary
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
+
+
+##################################
 #### Useful variables ############
 ##################################
 
@@ -202,28 +225,6 @@ set(OD_SOURCEFILES
     ${SRC}/Vector3i.cpp
     ${SRC}/Weapon.cpp
 )
-
-##################################
-#### Project settings ############
-##################################
-
-project(OpenDungeons)
-
-#postfix bin if we are on linux as we want to launch with a script
-if(WIN32)
-    set(PROJECT_BINARY_NAME "OpenDungeons")
-else()
-    set(PROJECT_BINARY_NAME "OpenDungeons.bin")
-endif()
-
-# Project version
-# TODO - make this set version string in source file automatically.
-set(${PROJECT_NAME}_MAJOR_VERSION 0)
-set(${PROJECT_NAME}_MINOR_VERSION 4)
-set(${PROJECT_NAME}_PATCH_LEVEL   9)
-
-# Where we want the binary
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 
 ##################################
 #### Find packages ###############
