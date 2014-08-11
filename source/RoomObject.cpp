@@ -100,26 +100,28 @@ const char* RoomObject::getFormat()
     return "name\tmeshName";
 }
 
-ODPacket& operator<<(ODPacket& os, RoomObject* o)
+ODPacket& operator<<(ODPacket& os, RoomObject* ro)
 {
-    os << o->getName() << o->getMeshName();
-    os << o->mX << o->mY << o->mRotationAngle;
+    std::string name = ro->getName();
+    std::string meshName = ro->getMeshName();
+    os << name << meshName;
+    os << ro->mX << ro->mY << ro->mRotationAngle;
     return os;
 }
 
-ODPacket& operator>>(ODPacket& is, RoomObject* o)
+ODPacket& operator>>(ODPacket& is, RoomObject* ro)
 {
     std::string name;
     Ogre::Real tmpReal;
     is >> name;
-    o->setName(name);
+    ro->setName(name);
     is >> name;
-    o->setMeshName(name);
+    ro->setMeshName(name);
     is >> tmpReal;
-    o->mX = tmpReal;
+    ro->mX = tmpReal;
     is >> tmpReal;
-    o->mY = tmpReal;
+    ro->mY = tmpReal;
     is >> tmpReal;
-    o->mRotationAngle = tmpReal;
+    ro->mRotationAngle = tmpReal;
     return is;
 }

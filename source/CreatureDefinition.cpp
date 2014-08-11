@@ -145,8 +145,10 @@ std::istream& operator>>(std::istream& is, CreatureDefinition* c)
 ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
 {
     //TODO: Need to include maxHP/maxMana in the file format.
+    std::string creatureJob = CreatureDefinition::creatureJobToString(c->mCreatureJob);
+    std::string tilePassability = Tile::tilePassabilityToString(c->mTilePassability);
     os << c->mClassName
-       << CreatureDefinition::creatureJobToString(c->mCreatureJob)
+       << creatureJob
        << c->mMeshName;
     os << c->mBedMeshName << c->mBedDim1 << c->mBedDim2;
     os << c->mScale.x << c->mScale.y << c->mScale.z;
@@ -154,7 +156,7 @@ ODPacket& operator<<(ODPacket& os, CreatureDefinition* c)
     os << c->mMaxHP << c->mMaxMana;
     os << c->mSightRadius << c->mDigRate << c->mDanceRate
        << c->mMoveSpeed;
-    os << Tile::tilePassabilityToString(c->mTilePassability);
+    os << tilePassability;
     return os;
 }
 

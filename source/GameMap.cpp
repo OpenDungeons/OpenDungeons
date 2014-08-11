@@ -584,7 +584,9 @@ void GameMap::doTurn()
                 {
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotification::refreshPlayerSeat, player);
-                    serverNotification->packet << player->getSeat() << getGoalsStringForPlayer(player);
+                    std::string goals = getGoalsStringForPlayer(player);
+                    Seat* seat = player->getSeat();
+                    serverNotification->packet << seat << goals;
                     ODServer::getSingleton().queueServerNotification(serverNotification);
                 }
                 catch (std::bad_alloc&)
@@ -614,7 +616,8 @@ void GameMap::doTurn()
                     Player* player = tempCreature->getControllingPlayer();
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotification::removeCreature, player);
-                    serverNotification->packet << tempCreature->getName();
+                    std::string name = tempCreature->getName();
+                    serverNotification->packet << name;
                     ODServer::getSingleton().queueServerNotification(serverNotification);
                 }
                 catch (std::bad_alloc&)
@@ -2103,7 +2106,8 @@ void GameMap::removeMissileObject(MissileObject *m)
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeMissileObject, NULL);
-            serverNotification->packet << m->getName();
+            std::string name = m->getName();
+            serverNotification->packet << name;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

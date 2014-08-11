@@ -151,7 +151,9 @@ void Trap::setupTrap(GameMap* gameMap, Trap* newTrap, Player* player)
             int intType = static_cast<int32_t>(newTrap->getType());
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::buildTrap, player);
-            serverNotification->packet << intType << player->getSeat()->getColor() << coveredTiles.size();
+            int nbTiles = coveredTiles.size();
+            int color = player->getSeat()->getColor();
+            serverNotification->packet << intType << color << nbTiles;
             for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
             {
                 Tile* tile = *it;
@@ -453,11 +455,15 @@ ODPacket& operator>>(ODPacket& is, Trap *t)
 
 ODPacket& operator<<(ODPacket& os, Trap *t)
 {
-    os << t->getMeshName() << t->getName() << t->getControllingSeat()->getColor();
-    os << t->mCoveredTiles.size();
-    for (unsigned int i = 0; i < t->mCoveredTiles.size(); ++i)
+    int nbTiles = t->mCoveredTiles.size();
+    std::string meshName = t->getMeshName();
+    std::string name = t->getName();
+    int color = t->getControllingSeat()->getColor();
+    os << meshName << name << color;
+    os << nbTiles;
+    for(std::vector<Tile*>::iterator it = t->mCoveredTiles.begin(); it != t->mCoveredTiles.end(); ++it)
     {
-        Tile *tempTile = t->mCoveredTiles[i];
+        Tile *tempTile = *it;
         os << tempTile->x << tempTile->y;
     }
 

@@ -116,9 +116,11 @@ void MissileObject::setPosition(const Ogre::Vector3& v)
 
 ODPacket& operator<<(ODPacket& os, MissileObject *mo)
 {
-    std::string nMeshName;
-    os << mo->getMeshName() << mo->getPosition() << mo->getName()
-        << mo->getMoveSpeed();
+    std::string name =  mo->getName();
+    std::string meshName = mo->getMeshName();
+    double moveSpeed = mo->getMoveSpeed();
+    Ogre::Vector3 position = mo->getPosition();
+    os << meshName << position << name << moveSpeed;
 
     return os;
 }
