@@ -45,7 +45,7 @@ public:
     AbstractApplicationMode(ModeManager *modeManager, ModeManager::ModeType modeType):
         mModeManager(modeManager),
         mModeType(modeType)
-    {};
+    {}
 
     virtual ~AbstractApplicationMode()
     {};
@@ -106,6 +106,12 @@ public:
     virtual void onFrameEnded(const Ogre::FrameEvent& evt) = 0;
 
 protected:
+    //! \brief Returns true if the key is to be processed by the chat.
+    //! False otherwise. If false is returned, the key will be processed
+    //! by the normal function even if in chat mode
+    virtual bool isChatKey          (const OIS::KeyEvent &arg);
+    virtual int getChatChar         (const OIS::KeyEvent &arg);
+
     // The game mode type;
     ModeManager::ModeType mModeType;
 };

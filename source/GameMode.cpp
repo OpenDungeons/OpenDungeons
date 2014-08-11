@@ -388,7 +388,8 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                     // Send a message to the server telling it we want to pick up this creature
                     ClientNotification *clientNotification = new ClientNotification(
                         ClientNotification::askCreaturePickUp);
-                    clientNotification->packet << currentCreature->getName();
+                    std::string name = currentCreature->getName();
+                    clientNotification->packet << name;
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                     return true;
                 }
@@ -500,30 +501,24 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     }
     else if(dragType == addNewRoom)
     {
+        int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
         ClientNotification *clientNotification = new ClientNotification(
             ClientNotification::askBuildRoom);
         clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
         clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->packet << static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
+        clientNotification->packet << intRoomType;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     else if(dragType == addNewTrap)
     {
         ClientNotification *clientNotification = new ClientNotification(
             ClientNotification::askBuildTrap);
+        int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
         clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
         clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->packet << static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
+        clientNotification->packet << intTrapType;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
-    return true;
-}
-
-bool GameMode::isChatKey(const OIS::KeyEvent &arg)
-{
-    if(arg.key != OIS::KC_RETURN && arg.key != OIS::KC_ESCAPE && arg.key != OIS::KC_BACK && arg.text == 0)
-        return false;
-
     return true;
 }
 
@@ -560,7 +555,6 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
         mModeManager->requestConsoleMode();
         frameListener->setTerminalActive(true);
         Console::getSingleton().setVisible(true);
-        getKeyboard()->setTextTranslation(OIS::Keyboard::Ascii);
         break;
 
     case OIS::KC_LEFT:
@@ -658,12 +652,19 @@ bool GameMode::keyPressedNormal(const OIS::KeyEvent &arg)
 
 bool GameMode::keyPressedChat(const OIS::KeyEvent &arg)
 {
-    mKeyCodeChatLast = arg.key;
-    ODFrameListener::getSingleton().notifyChatChar(arg);
+    mKeysChatPressed.push_back(arg.key);
     if(arg.key == OIS::KC_RETURN || arg.key == OIS::KC_ESCAPE)
     {
         mCurrentInputMode = InputModeNormal;
-        ODFrameListener::getSingleton().notifyChatInputMode(false);
+        ODFrameListener::getSingleton().notifyChatInputMode(false, arg.key == OIS::KC_RETURN);
+    }
+    else if(arg.key == OIS::KC_BACK)
+    {
+        ODFrameListener::getSingleton().notifyChatCharDel();
+    }
+    else
+    {
+        ODFrameListener::getSingleton().notifyChatChar(getChatChar(arg));
     }
     return true;
 }
@@ -676,7 +677,7 @@ bool GameMode::keyReleased(const OIS::KeyEvent &arg)
     if (frameListener->isTerminalActive())
         return true;
 
-    if((mCurrentInputMode == InputModeChat) && mKeyCodeChatLast == arg.key)
+    if(std::find(mKeysChatPressed.begin(), mKeysChatPressed.end(), arg.key) != mKeysChatPressed.end())
         return keyReleasedChat(arg);
 
     return keyReleasedNormal(arg);
@@ -747,9 +748,9 @@ bool GameMode::keyReleasedNormal(const OIS::KeyEvent &arg)
 
 bool GameMode::keyReleasedChat(const OIS::KeyEvent &arg)
 {
-    // KC_RETURN would make us go to non chat mode. By setting mKeyCodeChatLast
-    // to KC_RETURN, we are sure to not interfer with normal control
-    mKeyCodeChatLast = OIS::KC_RETURN;
+    std::vector<OIS::KeyCode>::iterator it = std::find(mKeysChatPressed.begin(), mKeysChatPressed.end(), arg.key);
+    if(it != mKeysChatPressed.end())
+        mKeysChatPressed.erase(it);
     return true;
 }
 

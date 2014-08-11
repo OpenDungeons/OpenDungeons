@@ -270,7 +270,7 @@ endif()
 
 if(MINGW)
     # We need to specify the compiler here that Ogre used to compile boost
-    find_package(Boost COMPONENTS thread system filesystem REQUIRED)
+    find_package(Boost COMPONENTS thread system filesystem locale REQUIRED)
 endif()
 
 #OpenAL

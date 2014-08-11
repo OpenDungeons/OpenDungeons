@@ -31,6 +31,8 @@
 ModeManager::ModeManager()
 {
     mInputManager = new InputManager();
+    mInputManager->mKeyboard->setTextTranslation(OIS::Keyboard::Unicode);
+
 
     // Loads the main menu
     mGameModes.push_back(new MenuMode(this));
