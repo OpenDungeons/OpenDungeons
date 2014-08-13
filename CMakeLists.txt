@@ -284,7 +284,7 @@ find_package(OpenAL REQUIRED)
 
 if(UNIX)
     find_package(Threads REQUIRED)
-    find_package(Boost COMPONENTS thread system filesystem REQUIRED)
+    find_package(Boost COMPONENTS thread system filesystem locale REQUIRED)
 endif()
 
 ##################################
