@@ -660,7 +660,6 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
         mModeManager->requestConsoleMode();
         frameListener->setTerminalActive(true);
         Console::getSingleton().setVisible(true);
-        getKeyboard()->setTextTranslation(OIS::Keyboard::Ascii);
         break;
 
     case OIS::KC_LEFT:

@@ -604,9 +604,10 @@ const char* Tile::getFormat()
 
 ODPacket& operator<<(ODPacket& os, Tile *t)
 {
+    int color = t->getColor();
     int intType =static_cast<Tile::TileType>(t->getType());
-    os << t->getColor() << t->x << t->y << intType
-       << t->getFullness();
+    double fullness = t->getFullness();
+    os << color << t->x << t->y << intType << fullness;
 
     return os;
 }

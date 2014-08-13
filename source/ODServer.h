@@ -25,6 +25,24 @@
 class ServerNotification;
 class GameMap;
 
+/**
+ * When playing single player or multiplayer, there is always one reference gamemap. It is
+ * the one on ODServer. There is also a client gamemap in ODFrameListener which is supposed to be
+ * a "copy" from the server gamemap containing only the usefull information for the player.
+ * The server has its own thread to update the server gamemap. When a relevant change occurs,
+ * the server sends messages to the clients so that they know they should update the client gamemaps.
+ * The server gamemap should only be accessed from the server thread because it is not thread safe.
+ * and the server thread should never be used for calling functions from the client gamemap.
+ * As a consequence, ODFrameListener.h should not be included is ODServer.cpp
+ * Interactions between client and server gamemaps should only occur through client/server messages
+ * by queuing messages (calling queueServerNotification).
+ * Moreover, in processServerNotifications, no message should be sent directly to the clients (by
+ * creating an ODPacket and sending it to the clients) because it would break the queue order. Instead,
+ * queueServerNotification should be called with the message.
+ * Note that this rule is not followed when dealing with client connexions or chat because there
+ * is no need to synchronize such messages with the gamemap.
+ */
+
 class ODServer: public Ogre::Singleton<ODServer>,
     public ODSocketServer
 {

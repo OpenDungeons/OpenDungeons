@@ -121,7 +121,6 @@ bool ConsoleMode::keyPressed(const OIS::KeyEvent &arg)
             regressMode();
             mConsole->setVisible(false);
             ODFrameListener::getSingleton().setTerminalActive(false);
-            getKeyboard()->setTextTranslation(OIS::Keyboard::Off);
             break;
 
         case OIS::KC_RETURN:

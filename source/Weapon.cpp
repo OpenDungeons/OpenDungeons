@@ -107,7 +107,8 @@ std::istream& operator>>(std::istream& is, Weapon *w)
 
 ODPacket& operator<<(ODPacket& os, Weapon *w)
 {
-    os << w->getName() << w->getDamage() << w->getRange() << w->getDefense();
+    std::string name = w->getName();
+    os << name << w->mDamage << w->mRange << w->mDefense;
     return os;
 }
 

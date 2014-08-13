@@ -28,7 +28,8 @@
 #include "LogManager.h"
 
 #include <CEGUI/CEGUI.h>
-#include "boost/filesystem.hpp"
+#include <boost/filesystem.hpp>
+#include <boost/locale.hpp>
 
 const std::string MenuModeMultiplayer::LEVEL_PATH = "./levels/multiplayer/";
 const std::string MenuModeMultiplayer::LEVEL_EXTENSION = ".level";
@@ -104,10 +105,10 @@ void MenuModeMultiplayer::serverButtonPressed()
 
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_NICK);
         CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
-        const std::string& nick = editNick->getText().c_str();
+        const std::string& str = editNick->getText().c_str();
+        std::string nick = boost::locale::conv::to_utf<char>(str, "Ascii");
         Player *p = ODFrameListener::getSingleton().getGameMap()->getLocalPlayer();
         p->setNick(nick);
-
 
         CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
         int id = selItem->getID();

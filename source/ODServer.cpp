@@ -419,12 +419,13 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             // The seat should be available since it has been checked before accepting the client connexion
             if(seat != NULL)
             {
+                int color = seat->getColor();
                 clientSocket->setPlayer(curPlayer);
-                gameMap->addPlayer(curPlayer, gameMap->popEmptySeat(seat->getColor()));
+                gameMap->addPlayer(curPlayer, gameMap->popEmptySeat(color));
                 // We notify the newly connected player to the others
                 packetSend.clear();
-                packetSend << ServerNotification::addPlayer << curPlayer->getNick()
-                    << seat->getColor();
+                packetSend << ServerNotification::addPlayer << clientNick
+                    << color;
                 for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
                 {
                     ODSocketClient *client = *it;
@@ -451,7 +452,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             sendMsgToClient(clientSocket, packetSend);
 
             packetSend.clear();
-            packetSend << ServerNotification::yourSeat << seat->getColor();
+            int color = seat->getColor();
+            packetSend << ServerNotification::yourSeat << color;
             sendMsgToClient(clientSocket, packetSend);
 
             // We notify the pending players to the new one
@@ -462,8 +464,9 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 if (curPlayer != tempPlayer && tempPlayer != NULL)
                 {
                     packetSend.clear();
-                    packetSend << ServerNotification::addPlayer << tempPlayer->getNick()
-                        << tempPlayer->getSeat()->getColor();
+                    int color = tempPlayer->getSeat()->getColor();
+                    std::string nick = tempPlayer->getNick();
+                    packetSend << ServerNotification::addPlayer << nick << color;
                     sendMsgToClient(clientSocket, packetSend);
                 }
             }
@@ -487,7 +490,8 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             OD_ASSERT_TRUE(packetReceived >> chatMsg);
             Player* player = clientSocket->getPlayer();
             ODPacket packetSend;
-            packetSend << ServerNotification::chat << player->getNick() << chatMsg;
+            std::string nick = player->getNick();
+            packetSend << ServerNotification::chat << nick << chatMsg;
             sendToAllClients(packetSend);
             break;
         }
@@ -507,9 +511,10 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     player->pickUpCreature(creature);
                     try
                     {
+                        int color = player->getSeat()->getColor();
                         ServerNotification *serverNotification = new ServerNotification(
                             ServerNotification::creaturePickedUp, player);
-                        serverNotification->packet << player->getSeat()->getColor() << creatureName;
+                        serverNotification->packet << color << creatureName;
                         queueServerNotification(serverNotification);
                     }
                     catch (std::bad_alloc&)
@@ -543,11 +548,12 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                 if(player->isDropCreaturePossible(tile))
                 {
                     player->dropCreature(tile);
+                    int color = player->getSeat()->getColor();
                     try
                     {
                         ServerNotification *serverNotification = new ServerNotification(
                             ServerNotification::creatureDropped, player);
-                        serverNotification->packet << player->getSeat()->getColor() << tile;
+                        serverNotification->packet << color << tile;
                         queueServerNotification(serverNotification);
                     }
                     catch (std::bad_alloc&)

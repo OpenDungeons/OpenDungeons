@@ -172,7 +172,8 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
                 ServerNotification::buildRoom, player);
             int intType = static_cast<int32_t>(newRoom->getType());
             int nbTiles = coveredTiles.size();
-            serverNotification->packet << intType << player->getSeat()->getColor() << nbTiles;
+            int color = player->getSeat()->getColor();
+            serverNotification->packet << intType << color << nbTiles;
             for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
             {
                 Tile* tile = *it;
@@ -362,7 +363,8 @@ void Room::addRoomObject(Tile* targetTile, RoomObject* roomObject)
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::addRoomObject, NULL);
-            serverNotification->packet << this->getName() << targetTile << roomObject;
+            std::string name = getName();
+            serverNotification->packet << name << targetTile << roomObject;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -386,7 +388,8 @@ void Room::removeRoomObject(Tile* tile)
             {
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::removeRoomObject, NULL);
-                serverNotification->packet << this->getName() << tile;
+                std::string name = getName();
+                serverNotification->packet << name << tile;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
             catch (std::bad_alloc&)
@@ -420,7 +423,8 @@ void Room::removeRoomObject(RoomObject* roomObject)
                 Tile* tile = it->first;
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::removeRoomObject, NULL);
-                serverNotification->packet << this->getName() << tile;
+                std::string name = getName();
+                serverNotification->packet << name << tile;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
             catch (std::bad_alloc&)
@@ -446,7 +450,8 @@ void Room::removeAllRoomObject()
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeAllRoomObjectFromRoom, NULL);
-            serverNotification->packet << this->getName();
+            std::string name = getName();
+            serverNotification->packet << name;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -523,7 +528,8 @@ bool Room::doUpkeep()
                 {
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotification::removeRoomTile, NULL);
-                    serverNotification->packet << this->getName() << t;
+                    std::string name = getName();
+                    serverNotification->packet << name << t;
                     ODServer::getSingleton().queueServerNotification(serverNotification);
                 }
                 catch (std::bad_alloc&)
@@ -641,11 +647,14 @@ ODPacket& operator<<(ODPacket& os, Room *r)
     if (r == NULL)
         return os;
 
-    os << r->getMeshName() << r->getName() << r->getColor();
-    os << r->mCoveredTiles.size();
-    for (unsigned int i = 0; i < r->mCoveredTiles.size(); ++i)
+    std::string meshName = r->getMeshName();
+    std::string name = r->getName();
+    int color = r->getColor();
+    int nbTiles = r->mCoveredTiles.size();
+    os << meshName << name << color << nbTiles;
+    for (std::vector<Tile*>::iterator it = r->mCoveredTiles.begin(); it != r->mCoveredTiles.end(); ++it)
     {
-        Tile *tempTile = r->mCoveredTiles[i];
+        Tile* tempTile = *it;
         os << tempTile->x << tempTile->y;
     }
 

@@ -35,7 +35,6 @@
 //(so that dll import/export macros are in effect)
 #define OIS_DYNAMIC_LIB
 #include <OISMouse.h>
-#include <OISKeyboard.h>
 
 #include <deque>
 
@@ -150,8 +149,9 @@ public:
 
     MiniMap* getMiniMap() {return mMiniMap;}
 
-    void notifyChatInputMode(bool isChatInputMode);
-    void notifyChatChar(const OIS::KeyEvent &arg);
+    void notifyChatInputMode(bool isChatInputMode, bool sendChatMsg = false);
+    void notifyChatChar(int text);
+    void notifyChatCharDel();
 
 private:
     //! \brief Tells whether the frame listener is initialized.

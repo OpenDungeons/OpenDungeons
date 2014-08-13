@@ -80,11 +80,6 @@ class  GameMode: public AbstractApplicationMode
     bool waitForGameStart() { return true; }
 
  protected:
-    //! \brief Returns true if the key is to be processed by the chat.
-    //! False otherwise. If false is returned, the key will be processed
-    //! by the normal function even if in chat mode
-    virtual bool isChatKey          (const OIS::KeyEvent &arg);
-
     //! \brief Handle the keyboard input in normal mode
     virtual bool keyPressedNormal   (const OIS::KeyEvent &arg);
 
@@ -107,8 +102,6 @@ private:
     //! this value is based on the first marked flag tile selected.
     bool mDigSetBool;
 
-    OIS::KeyCode mKeyCodeChatLast;
-
     //! \brief A reference to the game map used by the game mode
     //! For now, handled by the frame listener, don't delete it.
     GameMap* mGameMap;
@@ -121,6 +114,7 @@ private:
     Ogre::Light* mMouseLight;
 
     InputMode mCurrentInputMode;
+    std::vector<OIS::KeyCode> mKeysChatPressed;
 
     //! \brief Handle updating the selector position on screen
     void handleCursorPositionUpdate();

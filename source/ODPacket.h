@@ -29,6 +29,39 @@
  * ODPacket should preserve integrity. That means that if an ODSocketClient
  * sends an ODPacket, the server should receive exactly 1 similar ODPacket (same data,
  * nothing less, nothing more)
+ * IMPORTANT : ODPacket can handle different types of data the same way. For that, when we receive
+ * data, we have to know its type (when an int is sent, we know an int will be received). The typical
+ * use of ODPacket is :
+ * Emission : int myInt;
+ *            ODPacket packet;
+ *            packet << myInt;
+ *            send(packet);
+ * Reception : ODPacket packet;
+ *             receive(packet);
+ *             int myInt;
+ *             packet >> myInt;
+ * As we can see in this example, we have to know the data type within the packet before reading it.
+ * But depending on architecture, default datatype can be different between the server and the client.
+ * For this reason, the data returned by a function should never be used directly as ODPacket data. Instead,
+ * a temporary variable should be used and sent to ODPacket (sized variables such as int32_t, int8_t, ...
+ * should be as used as possible for the same reason).
+ * For example : You should NOT do :
+ * packet << getName();
+ * You should do :
+ * std::string name = getName();
+ * packet << name;
+ * This way, if the function signature changes or if the data type is different (int vs long for example) on
+ * different platforms, there will be an error when compiling instead of a probable buggy behaviour at runtime.
+ * When dealing with class/structure, the best is to use directly the variables themselves, no getter/setter.
+ * For exemple, You should NOT do :
+ * Emission : packet << creature->getHp();
+ * Reception : double hp;
+ *             packet >> hp;
+ *             creature->setHp(hp);
+ * You should do :
+ * Emission : packet << creature->mHp;
+ * Reception : packet >> creature->mHp;
+ * This way, if mHp changes (from float to double for example), it will still work.
  */
 class ODPacket
 {

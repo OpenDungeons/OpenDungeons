@@ -301,11 +301,14 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
     if (wR == NULL)
         wR = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "R", c);
 
-    os << c->mDefinition->getClassName() << c->getName();
+    std::string className = c->mDefinition->getClassName();
+    std::string name = c->getName();
+    os << className << name;
 
     Ogre::Vector3 position = c->getPosition();
-    os << c->getPosition();
-    os << c->getColor();
+    int color = c->getColor();
+    os << position;
+    os << color;
     os << wL << wR;
     os << c->mHp;
     os << c->mMana;
@@ -354,7 +357,7 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
     is >> position;
     c->setPosition(position);
 
-    int color = 0;
+    int color;
     is >> color;
     c->setColor(color);
 

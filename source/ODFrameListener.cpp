@@ -60,6 +60,7 @@
 #include <CEGUI/System.h>
 #include <CEGUI/MouseCursor.h>
 
+#include <boost/locale.hpp>
 #include <iostream>
 #include <algorithm>
 #include <cstdlib>
@@ -406,40 +407,33 @@ void ODFrameListener::printText(const std::string& text)
     TextRenderer::getSingleton().setText("DebugMessages", tempString);
 }
 
-void ODFrameListener::notifyChatInputMode(bool isChatInputMode)
+void ODFrameListener::notifyChatInputMode(bool isChatInputMode, bool sendChatMsg)
 {
+    if(mIsChatInputMode && sendChatMsg && !mChatString.empty() && ODClient::getSingleton().isConnected())
+    {
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotification::chat);
+        clientNotification->packet << mChatString;
+        ODClient::getSingleton().queueClientNotification(clientNotification);
+    }
     mIsChatInputMode = isChatInputMode;
     mChatString.clear();
 }
 
-void ODFrameListener::notifyChatChar(const OIS::KeyEvent &arg)
+void ODFrameListener::notifyChatChar(int text)
 {
-    if(arg.key == OIS::KC_RETURN)
-    {
-        if(!mChatString.empty() && ODClient::getSingleton().isConnected())
-        {
-            // Send a message to the server telling it we want to drop the creature
-            ClientNotification *clientNotification = new ClientNotification(
-                ClientNotification::chat);
-            clientNotification->packet << mChatString;
-            ODClient::getSingleton().queueClientNotification(clientNotification);
-        }
+    // Ogre::Overlay do not work with special characters. We have to convert
+    // the String to make sure no such characters are used
+    string str;
+    str.append(1, (char)text);
+    mChatString = mChatString + boost::locale::conv::to_utf<char>(
+        str, "Ascii");
+}
 
-        mChatString.clear();
-    }
-    else if(arg.key == OIS::KC_ESCAPE)
-    {
-        mChatString.clear();
-    }
-    else if(arg.key == OIS::KC_BACK)
-    {
-        if(mChatString.size() > 0)
-            mChatString.resize(mChatString.size() - 1);
-    }
-    else
-    {
-        mChatString.append(1, (char)arg.text);
-    }
+void ODFrameListener::notifyChatCharDel()
+{
+    if(mChatString.size() > 0)
+        mChatString.resize(mChatString.size() - 1);
 }
 
 void ODFrameListener::addChatMessage(ChatMessage *message)

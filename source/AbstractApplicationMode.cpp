@@ -31,3 +31,17 @@ void AbstractApplicationMode::giveFocus()
     mModeManager->getInputManager()->mMouse->setEventCallback(this);
     mModeManager->getInputManager()->mKeyboard->setEventCallback(this);
 }
+
+bool AbstractApplicationMode::isChatKey(const OIS::KeyEvent &arg)
+{
+    if(arg.key == OIS::KeyCode::KC_RETURN || arg.key == OIS::KeyCode::KC_ESCAPE ||
+       arg.key == OIS::KeyCode::KC_BACK || arg.text != 0)
+        return true;
+
+    return false;
+}
+
+int AbstractApplicationMode::getChatChar(const OIS::KeyEvent &arg)
+{
+    return arg.text;
+}
