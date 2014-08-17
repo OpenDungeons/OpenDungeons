@@ -201,7 +201,10 @@ bool ODClient::processOneClientSocketMessage()
 
         case ServerNotification::addCreature:
         {
-            Creature *newCreature = new Creature(gameMap, false);
+            std::string className;
+            OD_ASSERT_TRUE(packetReceived >> className);
+            CreatureDefinition *creatureClass = gameMap->getClassDescription(className);
+            Creature *newCreature = new Creature(gameMap, creatureClass, false);
             OD_ASSERT_TRUE(packetReceived >> newCreature);
             gameMap->addCreature(newCreature);
             newCreature->createMesh();
@@ -352,10 +355,10 @@ bool ODClient::processOneClientSocketMessage()
         {
             std::string objName;
             std::string animState;
-            bool tempBool;
+            bool loop;
             bool shouldSetWalkDirection;
             OD_ASSERT_TRUE(packetReceived >> objName >> animState
-                >> tempBool >> shouldSetWalkDirection);
+                >> loop >> shouldSetWalkDirection);
             MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
             if (obj != NULL)
             {
@@ -365,7 +368,7 @@ bool ODClient::processOneClientSocketMessage()
                     OD_ASSERT_TRUE(packetReceived >> walkDirection);
                     obj->setWalkDirection(walkDirection);
                 }
-                obj->setAnimationState(animState, false, tempBool);
+                obj->setAnimationState(animState, false, loop);
             }
             else
             {
@@ -601,7 +604,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(tile != NULL);
             RoomObject* tempRoomObject = room->getRoomObjectFromTile(tile);
             OD_ASSERT_TRUE(tempRoomObject != NULL);
-            tempRoomObject->deleteYourself();
+            room->removeRoomObject(tempRoomObject);
             break;
         }
 
