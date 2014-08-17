@@ -33,6 +33,13 @@
 #include <semaphore.h>
 #endif
 
+// TODO : put this into some better header
+#define OD_STRING_S(x) #x
+#define OD_STRING_S_(x) OD_STRING_S(x)
+#define S__LINE__ OD_STRING_S_(__LINE__)
+#define OD_ASSERT_TRUE(a)        if(!(a)) LogManager::getSingleton().logMessage("ERROR: Assert failed file " + std::string(__FILE__) + " line " + std::string(S__LINE__))
+
+
 //! \brief Helper/wrapper class to provide thread-safe logging when ogre is compiled without threads.
 class LogManager : public Ogre::Singleton<LogManager>
 {

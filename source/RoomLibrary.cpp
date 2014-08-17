@@ -28,52 +28,34 @@ RoomLibrary::RoomLibrary(GameMap* gameMap) :
     mType = library;
 }
 
-void RoomLibrary::createMeshLocal()
+RoomObject* RoomLibrary::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
-    Room::createMeshLocal();
-
-    // The client game map should not load room objects. They will be created
-    // by the messages sent by the server because some of them are randomly
-    // created
-    if(!getGameMap()->isServerGameMap())
-        return;
-
-    // Clean room objects
-    removeAllRoomObject();
-
-    // And recreate the meshes with the new size.
-    if (mCoveredTiles.empty())
-        return;
-
-    for(unsigned int i = 0, size = mCentralActiveSpotTiles.size(); i < size; ++i)
+    switch(place)
     {
+        case ActiveSpotPlace::activeSpotCenter:
+        {
         if (Random::Int(0, 100) > 50)
-            loadRoomObject(getGameMap(), "Podium", mCentralActiveSpotTiles[i]);
+            return loadRoomObject(getGameMap(), "Podium", tile);
         else
-            loadRoomObject(getGameMap(), "Bookcase", mCentralActiveSpotTiles[i]);
+            return loadRoomObject(getGameMap(), "Bookcase", tile);
+        }
+        case ActiveSpotPlace::activeSpotLeft:
+        {
+            return loadRoomObject(getGameMap(), "Bookshelf", tile, 90.0);
+        }
+        case ActiveSpotPlace::activeSpotRight:
+        {
+            return loadRoomObject(getGameMap(), "Bookshelf", tile, 270.0);
+        }
+        case ActiveSpotPlace::activeSpotTop:
+        {
+            return loadRoomObject(getGameMap(), "Bookshelf", tile, 0.0);
+        }
+        case ActiveSpotPlace::activeSpotBottom:
+        {
+            return loadRoomObject(getGameMap(), "Bookshelf", tile, 180.0);
+        }
     }
-    // Against walls
-    for(unsigned int i = 0, size = mLeftWallsActiveSpotTiles.size(); i < size; ++i)
-    {
-        loadRoomObject(getGameMap(), "Bookshelf", mLeftWallsActiveSpotTiles[i], 90.0);
-    }
-    for(unsigned int i = 0, size = mRightWallsActiveSpotTiles.size(); i < size; ++i)
-    {
-        loadRoomObject(getGameMap(), "Bookshelf", mRightWallsActiveSpotTiles[i], 270.0);
-    }
-    for(unsigned int i = 0, size = mTopWallsActiveSpotTiles.size(); i < size; ++i)
-    {
-        loadRoomObject(getGameMap(), "Bookshelf", mTopWallsActiveSpotTiles[i], 0.0);
-    }
-    for(unsigned int i = 0, size = mBottomWallsActiveSpotTiles.size(); i < size; ++i)
-    {
-        loadRoomObject(getGameMap(), "Bookshelf", mBottomWallsActiveSpotTiles[i], 180.0);
-    }
-
-    createRoomObjectMeshes();
+    return NULL;
 }
 
-int RoomLibrary::numOpenCreatureSlots()
-{
-    return mNumActiveSpots - numCreaturesUsingRoom();
-}

@@ -55,9 +55,6 @@ class ODServer: public Ogre::Singleton<ODServer>,
 
     //! \brief Adds a server notification to the server notification queue.
     void queueServerNotification(ServerNotification* n);
-    // TODO : this has to be public for chat messages. When implementation will allow it, it should be private
-    // TODO : check if it can be removed
-    void sendToAllClients(ODPacket& packetSend);
 
     void notifyExit();
 
@@ -98,6 +95,7 @@ private:
      */
     bool processClientNotifications(ODSocketClient* clientSocket);
 
+    void sendToAllClients(ODPacket& packetSend);
 };
 
 #endif // ODSERVER_H

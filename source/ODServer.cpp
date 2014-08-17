@@ -164,6 +164,28 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
     }
 
     gameMap->updateAnimations(timeSinceLastFrame);
+
+    // We notify the clients about what they got
+    for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
+    {
+        ODSocketClient* sock = *it;
+        Player* player = sock->getPlayer();
+        try
+        {
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::refreshPlayerSeat, player);
+            std::string goals = gameMap->getGoalsStringForPlayer(player);
+            Seat* seat = player->getSeat();
+            serverNotification->packet << seat << goals;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::doTurn", Ogre::LML_CRITICAL);
+            exit(1);
+        }
+    }
+
     gameMap->doTurn();
     gameMap->processDeletionQueues();
     gameMap->doPlayerAITurn(timeSinceLastFrame);

@@ -34,6 +34,12 @@ RoomDungeonTemple::RoomDungeonTemple(GameMap* gameMap) :
     mType = dungeonTemple;
 }
 
+void RoomDungeonTemple::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+{
+    // This Room keeps its room object until it is destroyed (it will be released when
+    // the room is destroyed)
+}
+
 void RoomDungeonTemple::absorbRoom(Room* room)
 {
     Room::absorbRoom(room);
@@ -56,8 +62,15 @@ void RoomDungeonTemple::createMeshLocal()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mTempleObject = loadRoomObject(getGameMap(), "DungeonTempleObject");
+    mTempleObject = loadRoomObject(getGameMap(), "DungeonTempleObject", getCentralTile());
+    addRoomObject(getCentralTile(), mTempleObject);
     createRoomObjectMeshes();
+}
+
+void RoomDungeonTemple::destroyMeshLocal()
+{
+    Room::destroyMeshLocal();
+    mTempleObject = NULL;
 }
 
 void RoomDungeonTemple::produceKobold()
@@ -83,9 +96,7 @@ void RoomDungeonTemple::produceKobold()
         return;
     }
 
-    //TODO: proper assignemt of creature definition through constrcutor
-    Creature* newCreature = new Creature(getGameMap(), true);
-    newCreature->setCreatureDefinition(classToSpawn);
+    Creature* newCreature = new Creature(getGameMap(), classToSpawn, true);
     newCreature->setPosition(Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x,
                                             (Ogre::Real)mCoveredTiles[0]->y,
                                             (Ogre::Real)0));
@@ -107,7 +118,8 @@ void RoomDungeonTemple::produceKobold()
         {
            ServerNotification *serverNotification = new ServerNotification(
                ServerNotification::addCreature, newCreature->getControllingPlayer());
-           serverNotification->packet << newCreature;
+           std::string className = newCreature->getDefinition()->getClassName();
+           serverNotification->packet << className << newCreature;
            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

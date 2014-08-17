@@ -135,12 +135,14 @@ void MovableGameEntity::stopWalking()
 
 void MovableGameEntity::faceToward(int x, int y)
 {
+    faceToward(static_cast<Ogre::Real>(x), static_cast<Ogre::Real>(y));
+}
+
+void MovableGameEntity::faceToward(Ogre::Real x, Ogre::Real y)
+{
     // Rotate the object to face the direction of the destination
     Ogre::Vector3 tempPosition = getPosition();
-    tempPosition = Ogre::Vector3(
-        static_cast<Ogre::Real>(x),
-        static_cast<Ogre::Real>(y),
-        tempPosition.z) - tempPosition;
+    tempPosition = Ogre::Vector3(x, y, tempPosition.z) - tempPosition;
     tempPosition.normalise();
     setWalkDirection(tempPosition);
 }

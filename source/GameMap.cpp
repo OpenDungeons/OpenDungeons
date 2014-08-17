@@ -569,78 +569,17 @@ void GameMap::doTurn()
     std::cout << "\nComputing turn " << mTurnNumber;
     unsigned int numCallsTo_path_atStart = numCallsTo_path;
 
+    // Creatures turn should occur before miscUpkeep
     creatureTurnsTime = doCreatureTurns();
     miscUpkeepTime = doMiscUpkeep();
 
-    // We notify the clients about what they got
-    if(isServerGameMap())
-    {
-        for (std::vector<Player*>::iterator it = players.begin(); it != players.end(); ++it)
-        {
-            Player* player = *it;
-            if((player != getLocalPlayer()) && (player->getSeat()->mFaction == "Player"))
-            {
-                try
-                {
-                    ServerNotification *serverNotification = new ServerNotification(
-                        ServerNotification::refreshPlayerSeat, player);
-                    std::string goals = getGoalsStringForPlayer(player);
-                    Seat* seat = player->getSeat();
-                    serverNotification->packet << seat << goals;
-                    ODServer::getSingleton().queueServerNotification(serverNotification);
-                }
-                catch (std::bad_alloc&)
-                {
-                    Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::doTurn", Ogre::LML_CRITICAL);
-                    exit(1);
-                }
-            }
-        }
-    }
-
     // Remove dead creatures from the map and put them into the deletion queue.
-    unsigned int count = 0;
-    while (count < numCreatures())
+    unsigned int cptCreature = 0;
+    while (cptCreature < numCreatures())
     {
         // Check to see if the creature has died.
-        Creature *tempCreature = creatures[count];
-        if (tempCreature->getHP() <= 0.0)
-        {
-            // Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
-            tempCreature->clearDestinations();
-            tempCreature->setAnimationState("Die", false, false);
-            if (tempCreature->getDeathCounter() <= 0)
-            {
-                try
-                {
-                    Player* player = tempCreature->getControllingPlayer();
-                    ServerNotification *serverNotification = new ServerNotification(
-                        ServerNotification::removeCreature, player);
-                    std::string name = tempCreature->getName();
-                    serverNotification->packet << name;
-                    ODServer::getSingleton().queueServerNotification(serverNotification);
-                }
-                catch (std::bad_alloc&)
-                {
-                    Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::doTurn", Ogre::LML_CRITICAL);
-                    exit(1);
-                }
-                // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
-                if (tempCreature->getHomeTile() != 0)
-                    static_cast<RoomQuarters*>(tempCreature->getHomeTile()->getCoveringRoom())->releaseTileForSleeping(tempCreature->getHomeTile(), tempCreature);
-
-                // Remove the creature from the game map and into the deletion queue, it will be deleted
-                // when it is safe, i.e. all other pointers to it have been wiped from the program.
-                removeCreature(tempCreature);
-                tempCreature->deleteYourself();
-            }
-            else
-            {
-                tempCreature->setDeathCounter(tempCreature->getDeathCounter() - 1);
-                ++count;
-            }
-        }
-        else
+        Creature *tempCreature = creatures[cptCreature];
+        if (tempCreature->getHP() > 0.0)
         {
             // Since the creature is still alive we add it to the controlled creatures.
             Player *tempPlayer = tempCreature->getControllingPlayer();
@@ -650,9 +589,9 @@ void GameMap::doTurn()
 
                 ++(tempSeat->mNumCreaturesControlled);
             }
-
-            ++count;
         }
+
+        ++cptCreature;
     }
 
     std::cout << "\nDuring this turn there were " << numCallsTo_path
@@ -740,7 +679,8 @@ unsigned long int GameMap::doMiscUpkeep()
     unsigned int activeObjectCount = 0;
     while (activeObjectCount < activeObjects.size())
     {
-        if (!activeObjects[activeObjectCount]->doUpkeep())
+        GameEntity* ge = activeObjects[activeObjectCount];
+        if (!ge->doUpkeep())
         {
             activeObjects.erase(activeObjects.begin() + activeObjectCount);
         }
@@ -830,8 +770,7 @@ unsigned long int GameMap::doCreatureTurns()
     unsigned int numCreatures = creatures.size();
     for (unsigned int i = 0; i < numCreatures; ++i)
     {
-        if (creatures[i]->getHP() > 0.0)
-            creatures[i]->doTurn();
+        creatures[i]->doTurn();
     }
 
     return stopwatch.getMicroseconds();

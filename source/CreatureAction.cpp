@@ -64,8 +64,11 @@ std::string CreatureAction::toString() const
     case sleep:
         return "sleep";
 
-    case train:
-        return "train";
+    case workdecided:
+        return "workdecided";
+
+    case workforced:
+        return "workforced";
 
     case idle:
         return "idle";

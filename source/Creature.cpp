@@ -61,19 +61,21 @@
 #define snprintf_is_banned_in_OD_code _snprintf
 #endif
 
+#define NB_COUNTER_DEATH        10
+
 static const int MAX_LEVEL = 30;
 //TODO: make this read from definition file?
 static const int MaxGoldCarriedByWorkers = 1500;
 
 const std::string Creature::CREATURE_PREFIX = "Creature_";
 
-Creature::Creature(GameMap* gameMap, bool generateUniqueName) :
+Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool generateUniqueName) :
     MovableGameEntity        (gameMap),
     mTracingCullingQuad      (NULL),
     mWeaponL                 (NULL),
     mWeaponR                 (NULL),
     mHomeTile                (NULL),
-    mDefinition              (NULL),
+    mDefinition              (definition),
     mIsOnMap                 (false),
     mHasVisualDebuggingEntities (false),
     mAwakeness               (100.0),
@@ -85,17 +87,18 @@ Creature::Creature(GameMap* gameMap, bool generateUniqueName) :
     mExp                     (0.0),
     mDigRate                 (1.0),
     mDanceRate               (1.0),
-    mDeathCounter            (10),
+    mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mBattleFieldAgeCounter   (0),
-    mTrainWait               (0),
+    mWorkWait                (0),
     mPreviousPositionTile    (NULL),
     mBattleField             (new BattleField(gameMap)),
-    mTrainingDojo            (NULL),
+    mWorkingRoom             (NULL),
     mStatsWindow             (NULL),
     mForceAction             (forcedActionNone),
     mSound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
+    assert(definition);
     if(generateUniqueName)
         setName(getUniqueCreatureName());
 
@@ -104,6 +107,18 @@ Creature::Creature(GameMap* gameMap, bool generateUniqueName) :
     setObjectType(GameEntity::creature);
 
     pushAction(CreatureAction::idle);
+
+    // Note: We reset the creature to level 1 in that case.
+    setLevel(1);
+    mExp = 0.0;
+
+    mMaxHP = mDefinition->getHpPerLevel();
+    setHP(mMaxHP);
+    mMaxMana = mDefinition->getManaPerLevel();
+    setMana(mMaxMana);
+    setMoveSpeed(mDefinition->getMoveSpeed());
+    mDigRate = mDefinition->getDigRate();
+    mDanceRate = mDefinition->getDanceRate();
 }
 
 Creature::Creature(GameMap* gameMap) :
@@ -124,13 +139,13 @@ Creature::Creature(GameMap* gameMap) :
     mExp                     (0.0),
     mDigRate                 (1.0),
     mDanceRate               (1.0),
-    mDeathCounter            (10),
+    mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mBattleFieldAgeCounter   (0),
-    mTrainWait               (0),
+    mWorkWait                (0),
     mPreviousPositionTile    (NULL),
     mBattleField             (NULL),
-    mTrainingDojo            (NULL),
+    mWorkingRoom             (NULL),
     mForceAction             (forcedActionNone),
     mStatsWindow             (NULL)
 {
@@ -245,10 +260,8 @@ std::istream& operator>>(std::istream& is, Creature *c)
 {
     double xLocation = 0.0, yLocation = 0.0, zLocation = 0.0;
     double tempDouble = 0.0;
-    std::string className;
     std::string tempString;
 
-    is >> className;
     is >> tempString;
 
     if (tempString.compare("autoname") == 0)
@@ -277,14 +290,6 @@ std::istream& operator>>(std::istream& is, Creature *c)
     is >> tempDouble;
     c->setLevel(tempDouble);
 
-    // Copy the class based items
-    CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(className);
-    if (creatureClass != NULL)
-    {
-        c->setCreatureDefinition(creatureClass);
-    }
-    assert(c->mDefinition);
-
     return is;
 }
 
@@ -301,9 +306,8 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
     if (wR == NULL)
         wR = new Weapon(c->getGameMap(), "none", 0.0, 1.0, 0.0, "R", c);
 
-    std::string className = c->mDefinition->getClassName();
     std::string name = c->getName();
-    os << className << name;
+    os << name;
 
     Ogre::Vector3 position = c->getPosition();
     int color = c->getColor();
@@ -318,6 +322,7 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
     os << c->mMoveSpeed;
     os << c->mMaxHP;
     os << c->mMaxMana;
+    os << c->mAwakeness;
 
     // If we had to create dummy weapons for serialization, delete them now.
     if (c->mWeaponL == NULL)
@@ -334,24 +339,14 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
 ODPacket& operator>>(ODPacket& is, Creature *c)
 {
     double tempDouble = 0.0;
-    std::string className;
     std::string tempString;
 
-    is >> className;
     is >> tempString;
 
     if (tempString.compare("autoname") == 0)
         tempString = c->getUniqueCreatureName();
 
     c->setName(tempString);
-
-    // Copy the class based items
-    CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(className);
-    if (creatureClass != NULL)
-    {
-        c->setCreatureDefinition(creatureClass);
-    }
-    assert(c->mDefinition);
 
     Ogre::Vector3 position;
     is >> position;
@@ -375,15 +370,17 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
     is >> c->mMoveSpeed;
     is >> c->mMaxHP;
     is >> c->mMaxMana;
+    is >> c->mAwakeness;
 
     return is;
 }
 
-void Creature::loadFromLine(const std::string& line, Creature* c)
+Creature* Creature::loadFromLine(const std::string& line, GameMap* gameMap)
 {
-    assert(c);
-
+    assert(gameMap);
     std::vector<std::string> elems = Helper::split(line, '\t');
+    CreatureDefinition *creatureClass = gameMap->getClassDescription(elems[0]);
+    Creature* c = new Creature(gameMap, creatureClass, false);
 
     std::string creatureName = elems[1];
     if (creatureName.compare("autoname") == 0)
@@ -409,13 +406,7 @@ void Creature::loadFromLine(const std::string& line, Creature* c)
     c->setMana(Helper::toDouble(elems[15]));
     c->setLevel(Helper::toDouble(elems[16]));
 
-    // Copy the class based items
-    CreatureDefinition *creatureClass = c->getGameMap()->getClassDescription(elems[0]);
-    if (creatureClass != 0)
-    {
-        c->mDefinition = creatureClass;
-    }
-    assert(c->mDefinition);
+    return c;
 }
 
 void Creature::setPosition(const Ogre::Vector3& v)
@@ -551,6 +542,50 @@ void Creature::detach()
 
 void Creature::doTurn()
 {
+    // Check if the creature is alive
+    if (getHP() <= 0.0)
+    {
+        // Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
+        if (mDeathCounter == NB_COUNTER_DEATH)
+        {
+            stopWorking();
+            clearDestinations();
+            setAnimationState("Die", false, false);
+        }
+        else if (mDeathCounter <= 0)
+        {
+            try
+            {
+                Player* player = getControllingPlayer();
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::removeCreature, player);
+                std::string name = getName();
+                serverNotification->packet << name;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::doTurn", Ogre::LML_CRITICAL);
+                exit(1);
+            }
+
+            // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
+            if (getHomeTile() != 0)
+            {
+                RoomQuarters* home = static_cast<RoomQuarters*>(getHomeTile()->getCoveringRoom());
+                home->releaseTileForSleeping(getHomeTile(), this);
+            }
+
+            // Remove the creature from the game map and into the deletion queue, it will be deleted
+            // when it is safe, i.e. all other pointers to it have been wiped from the program.
+            getGameMap()->removeCreature(this);
+            deleteYourself();
+        }
+
+        --mDeathCounter;
+        return;
+    }
+
     // If we are not standing somewhere on the map, do nothing.
     if (positionTile() == NULL)
         return;
@@ -676,8 +711,12 @@ void Creature::doTurn()
                     loopBack = handleSleepAction();
                     break;
 
-                case CreatureAction::train:
-                    loopBack = handleTrainingAction();
+                case CreatureAction::workdecided:
+                    loopBack = handleWorkingAction(false);
+                    break;
+
+                case CreatureAction::workforced:
+                    loopBack = handleWorkingAction(true);
                     break;
 
                 case CreatureAction::attackObject:
@@ -719,7 +758,7 @@ void Creature::doTurn()
         createVisualDebugEntities();
     }
 
-    updateStatsWindow();
+    updateStatsWindow(getStatsText());
 }
 
 void Creature::decideNextAction()
@@ -780,11 +819,10 @@ void Creature::decideNextAction()
         pushAction(CreatureAction::sleep);
     }
     else if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0) < mAwakeness / 100.0
-             && peekAction().getType() != CreatureAction::train)
+             && peekAction().getType() != CreatureAction::workdecided)
     {
-        // Check to see if there is a Dojo we can train at.
-        pushAction(CreatureAction::train);
-        mTrainWait = 0;
+        // Check to see if we can work
+        pushAction(CreatureAction::workdecided);
     }
 }
 
@@ -926,6 +964,22 @@ bool Creature::handleIdleAction()
         // so the creature won't get confused if we are out of space.
         loopBack = true;
         pushAction(CreatureAction::depositGold);
+    }
+
+    // Fighters
+    if(!mDefinition->isWorker() && mForceAction == forcedActionSearchAction)
+    {
+        mForceAction = forcedActionNone;
+        Tile* tile = positionTile();
+        if(tile != NULL)
+        {
+            Room* room = tile->getCoveringRoom();
+            if((room != NULL) && (room->hasOpenCreatureSpot(this)))
+            {
+                pushAction(CreatureAction::workforced);
+                return true;
+            }
+        }
     }
 
     // Any creature.
@@ -1752,55 +1806,44 @@ bool Creature::handleFindHomeAction()
     return true;
 }
 
-bool Creature::handleTrainingAction()
+bool Creature::handleWorkingAction(bool isWorkForced)
 {
     // Current creature tile position
     Tile* myTile = positionTile();
 
-    // Creatures can only train to level 10 at a dojo.
-    //TODO: Check to see if the dojo has been upgraded to allow training to a higher level.
-    if (getLevel() > 10)
+    // Randomly decide to stop working, we are more likely to stop when we are tired.
+    if (Random::Double(20.0, 50.0) > mAwakeness)
     {
         popAction();
-        mTrainWait = 0;
 
-        stopUsingDojo();
+        stopWorking();
         return true;
-    }
-    // Randomly decide to stop training, we are more likely to stop when we are tired.
-    else if (Random::Double(20.0, 100.0) > mAwakeness)
-    {
-        popAction();
-        mTrainWait = 0;
-
-        stopUsingDojo();
-        return true;
-    }
-    // Decrement a counter each turn until it reaches 0, if it reaches 0 we try to train this turn.
-    else if (mTrainWait > 0)
-    {
-        setAnimationState("Idle");
-        --mTrainWait;
     }
     // Make sure we are on the map.
     else if (myTile != NULL)
     {
-        // See if we are in a dojo now.
+        // If we are already working, nothing to do
+        if(mWorkingRoom != NULL)
+            return false;
+
+        // See if we are in a room where we can work. If so, we try to add the creature. If it is ok, the room
+        // will handle the creature from here to make it go where it should
         Room* tempRoom = myTile->getCoveringRoom();
-        if (tempRoom != NULL && tempRoom->getType() == Room::dojo)
+        if (tempRoom != NULL)
         {
-            RoomDojo* trainingHall = static_cast<RoomDojo*>(tempRoom);
-            Tile* tempTile = tempRoom->getCentralTile();
-            if (tempTile != NULL && trainingHall != NULL && trainingHall->numOpenCreatureSlots() > 0)
+            bool useRoom = true;
+            if(!isWorkForced)
             {
-                // Train at this dojo.
-                mTrainingDojo = static_cast<RoomDojo*>(tempRoom);
-                mTrainingDojo->addCreatureUsingRoom(this);
-                faceToward(tempTile->x, tempTile->y);
-                setAnimationState("Attack1", true);
-                recieveExp(5.0);
-                mAwakeness -= 5.0;
-                mTrainWait = Random::Uint(3, 8);
+                // TODO : check in the creature def if the room is suited for the creature
+                // For now, we use whichever room where we can work
+                useRoom = true;
+            }
+
+            if(useRoom && tempRoom->hasOpenCreatureSpot(this) && tempRoom->addCreatureUsingRoom(this))
+            {
+                setWorkWait(0);
+                mWorkingRoom = tempRoom;
+                return false;
             }
         }
     }
@@ -1809,9 +1852,12 @@ bool Creature::handleTrainingAction()
         // We are not on the map, don't do anything.
         popAction();
 
-        stopUsingDojo();
+        stopWorking();
         return false;
     }
+
+    // TODO : We should decide which room to use depending on the creatures preferences (library
+    // for wizards, ...)
 
     // Get the list of dojos controlled by our seat and make sure there is at least one.
     std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dojo, getColor());
@@ -1820,31 +1866,30 @@ bool Creature::handleTrainingAction()
     {
         popAction();
 
-        stopUsingDojo();
+        stopWorking();
         return true;
     }
 
-    // Pick a dojo to train at and try to walk to it.
-    //TODO: Pick a close dojo, not necessarily the closest just a somewhat closer than average one.
-    int tempInt = 0;
+    // Pick a room we want to work in and try to walk to it.
     double maxTrainDistance = 40.0;
     Room* tempRoom = NULL;
+    int nbTry = 5;
     do
     {
-        tempInt = Random::Uint(0, tempRooms.size() - 1);
+        int tempInt = Random::Uint(0, tempRooms.size() - 1);
         tempRoom = tempRooms[tempInt];
         tempRooms.erase(tempRooms.begin() + tempInt);
         double tempDouble = 1.0 / (maxTrainDistance - getGameMap()->crowDistance(myTile, tempRoom->getCoveredTile(0)));
         if (Random::Double(0.0, 1.0) < tempDouble)
             break;
-        ++tempInt;
-    } while (tempInt < 5 && tempRoom->numOpenCreatureSlots() == 0 && !tempRooms.empty());
+        --nbTry;
+    } while (nbTry > 0 && !tempRoom->hasOpenCreatureSpot(this) && !tempRooms.empty());
 
-    if (tempRoom && tempRoom->numOpenCreatureSlots() == 0)
+    if (!tempRoom || !tempRoom->hasOpenCreatureSpot(this))
     {
-        // The room is already being used, stop trying to train.
+        // The room is already being used, stop trying to work.
         popAction();
-        stopUsingDojo();
+        stopWorking();
         return true;
     }
 
@@ -1858,22 +1903,34 @@ bool Creature::handleTrainingAction()
     }
     else
     {
-        // We could not find a dojo to train at so stop trying to find one.
+        // We could not find a room where we can work so stop trying to find one.
         popAction();
     }
 
     // Default action
-    stopUsingDojo();
+    stopWorking();
     return true;
 }
 
-void Creature::stopUsingDojo()
+void Creature::stopWorking()
 {
-    if (mTrainingDojo == NULL)
+    if (mWorkingRoom == NULL)
         return;
 
-    mTrainingDojo->removeCreatureUsingRoom(this);
-    mTrainingDojo = NULL;
+    mWorkingRoom->removeCreatureUsingRoom(this);
+    mWorkingRoom = NULL;
+}
+
+void Creature::changeWorkingRoom(Room* newRoom)
+{
+    if (mWorkingRoom != NULL)
+        mWorkingRoom->removeCreatureUsingRoom(this);
+
+
+    if(newRoom != NULL && newRoom->addCreatureUsingRoom(this))
+        mWorkingRoom = newRoom;
+    else
+        mWorkingRoom = NULL;
 }
 
 bool Creature::handleAttackAction()
@@ -2170,6 +2227,7 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
     mMaxMana        = creatureNewState->mMaxMana;
     mHp             = creatureNewState->mHp;
     mMana           = creatureNewState->mMana;
+    mAwakeness      = creatureNewState->mAwakeness;
 
     // Scale up the mesh.
     if ((oldLevel != getLevel()) && isMeshExisting() && ((getLevel() <= 30 && getLevel() % 2 == 0) || (getLevel() > 30 && getLevel()
@@ -2186,8 +2244,7 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
         RenderManager::queueRenderRequest(request);
     }
 
-    if(!getGameMap()->isServerGameMap())
-        updateStatsWindow();
+    updateStatsWindow(getStatsText());
 }
 
 void Creature::updateVisibleTiles()
@@ -2443,7 +2500,7 @@ void Creature::createStatsWindow()
     rootWindow->addChild(mStatsWindow);
     mStatsWindow->show();
 
-    updateStatsWindow();
+    updateStatsWindow(getStatsText());
 }
 
 void Creature::destroyStatsWindow()
@@ -2455,13 +2512,13 @@ void Creature::destroyStatsWindow()
     }
 }
 
-void Creature::updateStatsWindow()
+void Creature::updateStatsWindow(const std::string& txt)
 {
     if (mStatsWindow == NULL)
         return;
 
     CEGUI::Window* textWindow = mStatsWindow->getChild("TextDisplay");
-    textWindow->setText(getStatsText());
+    textWindow->setText(txt);
 }
 
 std::string Creature::getStatsText()
@@ -2483,29 +2540,6 @@ std::string Creature::getStatsText()
     }
     tempSS << "Current Action: " << mActionQueue.front().toString() << std::endl;
     return tempSS.str();
-}
-
-void Creature::setCreatureDefinition(const CreatureDefinition* def)
-{
-    mDefinition = def;
-
-    if (mDefinition == NULL)
-    {
-        std::cout << "Invalid creature definition for creature: " << getName() << std::endl;
-        return;
-    }
-
-    // Note: We reset the creature to level 1 in that case.
-    setLevel(1);
-    mExp = 0.0;
-
-    mMaxHP = def->getHpPerLevel();
-    setHP(mMaxHP);
-    mMaxMana = def->getManaPerLevel();
-    setMana(mMaxMana);
-    setMoveSpeed(def->getMoveSpeed());
-    mDigRate = def->getDigRate();
-    mDanceRate = def->getDanceRate();
 }
 
 void Creature::takeDamage(double damage, Tile *tileTakingDamage)
@@ -2568,6 +2602,20 @@ CreatureAction Creature::peekAction()
     CreatureAction tempAction = mActionQueue.front();
 
     return tempAction;
+}
+
+bool Creature::tryPickup()
+{
+    if (getHP() <= 0.0)
+        return false;
+
+    // Stop the creature walking and take it off the gameMap to prevent the AI from running on it.
+    getGameMap()->removeCreature(this);
+    clearDestinations();
+    clearActionQueue();
+    stopWorking();
+
+    return true;
 }
 
 void Creature::computeBattlefield()

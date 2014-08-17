@@ -38,7 +38,8 @@ public:
         attackObject, // Do damage to an attackableObject withing range, if not in range begin maneuvering.
         findHome, // Try to find a "home" tile in a quarters somewhere where the creature can sleep.
         sleep, // Try to go to its home tile to and sleep when it gets there.
-        train, // Check to see if our seat controls a dojo, and if so go there to train.
+        workdecided, // Check to see if our seat controls a room where we can work (train, forge, search, ...)
+        workforced, // Check to see if we have been dropped on a room where we can work
         idle // Stand around doing nothing.
     };
 

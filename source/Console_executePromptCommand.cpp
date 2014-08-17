@@ -436,12 +436,13 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         {
             // Creature the creature and add it to the gameMap
             // TODO : ask the server to do that
-            Creature *tempCreature = new Creature(gameMap, true);
             std::stringstream tempSS(arguments);
-            CreatureDefinition *tempClass = gameMap->getClassDescription(tempCreature->getDefinition()->getClassName());
-            if (tempClass != NULL)
+            std::string className;
+            tempSS >> className;
+            CreatureDefinition *creatureClass = gameMap->getClassDescription(className);
+            if (creatureClass != NULL)
             {
-                tempCreature->setCreatureDefinition(tempClass);
+                Creature *tempCreature = new Creature(gameMap, creatureClass, true);
                 tempSS >> tempCreature;
 
                 tempCreature->createMesh();

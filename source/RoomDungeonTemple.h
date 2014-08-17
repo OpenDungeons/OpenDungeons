@@ -36,6 +36,8 @@ public:
 
 protected:
     virtual void createMeshLocal();
+    virtual void destroyMeshLocal();
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private:
     //! \brief The number of turns to wait before producing a worker
     int mWaitTurns;

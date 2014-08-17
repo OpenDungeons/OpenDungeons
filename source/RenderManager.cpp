@@ -680,6 +680,7 @@ void RenderManager::rrCreateRoom(const RenderRequest& renderRequest)
     std::stringstream tempSS;
     tempSS << curRoom->getName() << "_" << curTile->x << "_" << curTile->y;
     // Create the room ground tile
+
     Ogre::Entity* ent = mSceneManager->createEntity(tempSS.str(), curRoom->getMeshName() + ".mesh");
     Ogre::SceneNode* node = mRoomSceneNode->createChildSceneNode(tempSS.str() + "_node");
 
@@ -696,6 +697,7 @@ void RenderManager::rrDestroyRoom(const RenderRequest& renderRequest)
 {
     Room* curRoom = static_cast<Room*>(renderRequest.p);
     Tile* curTile = static_cast<Tile*>(renderRequest.p2);
+
     std::stringstream tempSS;
     tempSS << curRoom->getName() << "_" << curTile->x << "_" << curTile->y;
 
@@ -1237,6 +1239,7 @@ void RenderManager::rrSetObjectAnimationState(const RenderRequest& renderRequest
         // FIXME:, make a function rather than using a public var
         curAnimatedObject->mAnimationState = objectEntity->getAnimationState(
                                                 renderRequest.str);
+        curAnimatedObject->mAnimationState->setTimePosition(0);
         curAnimatedObject->mAnimationState->setLoop(renderRequest.b);
         curAnimatedObject->mAnimationState->setEnabled(true);
     }

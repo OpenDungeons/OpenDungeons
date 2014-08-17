@@ -60,6 +60,7 @@ public:
 
     //! \brief Rotates the object so that it is facing toward the given x-y location.
     void faceToward(int x, int y);
+    void faceToward(Ogre::Real x, Ogre::Real y);
 
     virtual double getMoveSpeed() const
     { return mMoveSpeed; }

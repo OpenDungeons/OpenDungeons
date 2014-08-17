@@ -41,6 +41,12 @@ RoomPortal::RoomPortal(GameMap* gameMap) :
     mType = portal;
 }
 
+void RoomPortal::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+{
+    // This Room keeps its room object until it is destroyed (it will be released when
+    // the room is destroyed)
+}
+
 void RoomPortal::absorbRoom(Room* room)
 {
     Room::absorbRoom(room);
@@ -63,10 +69,17 @@ void RoomPortal::createMeshLocal()
     if(!getGameMap()->isServerGameMap())
         return;
 
-    mPortalObject = loadRoomObject(getGameMap(), "PortalObject");
+    mPortalObject = loadRoomObject(getGameMap(), "PortalObject", getCentralTile());
+    addRoomObject(getCentralTile(), mPortalObject);
     createRoomObjectMeshes();
 
     mPortalObject->setAnimationState("Idle");
+}
+
+void RoomPortal::destroyMeshLocal()
+{
+    Room::destroyMeshLocal();
+    mPortalObject = NULL;
 }
 
 void RoomPortal::addCoveredTile(Tile* t, double nHP)
@@ -151,8 +164,7 @@ void RoomPortal::spawnCreature()
     std::cout << "Spawning a creature of class " << classToSpawn->getClassName() << std::endl;
 
     // Create a new creature and copy over the class-based creature parameters.
-    Creature *newCreature = new Creature(getGameMap(), true);
-    newCreature->setCreatureDefinition(classToSpawn);
+    Creature *newCreature = new Creature(getGameMap(), classToSpawn, true);
 
     // Set the creature specific parameters.
     //NOTE:  This needs to be modified manually when the level file creature format changes.
@@ -178,7 +190,8 @@ void RoomPortal::spawnCreature()
         {
            ServerNotification *serverNotification = new ServerNotification(
                ServerNotification::addCreature, newCreature->getControllingPlayer());
-           serverNotification->packet << newCreature;
+           std::string className = newCreature->getDefinition()->getClassName();
+           serverNotification->packet << className << newCreature;
            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

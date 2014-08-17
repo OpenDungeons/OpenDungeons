@@ -49,8 +49,81 @@ void Room::createMeshLocal()
 {
     Building::createMeshLocal();
 
+    // We create the room objects on the server side
     if(getGameMap()->isServerGameMap())
+    {
+        for(std::vector<Tile*>::const_iterator it = mCentralActiveSpotTiles.begin(); it != mCentralActiveSpotTiles.end(); ++it)
+        {
+            Tile* tile = *it;
+            // We check if the room object already exists. This can happen when absorbing a room
+            if(getRoomObjectFromTile(tile) != NULL)
+                continue;
+
+            RoomObject* ro = notifyActiveSpotCreated(ActiveSpotPlace::activeSpotCenter, tile);
+            if(ro != NULL)
+            {
+                // The room wants to build a room onject. We add it to the gamemap
+                addRoomObject(tile, ro);
+            }
+        }
+        for(std::vector<Tile*>::const_iterator it = mLeftWallsActiveSpotTiles.begin(); it != mLeftWallsActiveSpotTiles.end(); ++it)
+        {
+            Tile* tile = *it;
+            // We check if the room object already exists. This can happen when absorbing a room
+            if(getRoomObjectFromTile(tile) != NULL)
+                continue;
+
+            RoomObject* ro = notifyActiveSpotCreated(ActiveSpotPlace::activeSpotLeft, tile);
+            if(ro != NULL)
+            {
+                // The room wants to build a room onject. We add it to the gamemap
+                addRoomObject(tile, ro);
+            }
+        }
+        for(std::vector<Tile*>::const_iterator it = mRightWallsActiveSpotTiles.begin(); it != mRightWallsActiveSpotTiles.end(); ++it)
+        {
+            Tile* tile = *it;
+            // We check if the room object already exists. This can happen when absorbing a room
+            if(getRoomObjectFromTile(tile))
+                continue;
+
+            RoomObject* ro = notifyActiveSpotCreated(ActiveSpotPlace::activeSpotRight, tile);
+            if(ro != NULL)
+            {
+                // The room wants to build a room onject. We add it to the gamemap
+                addRoomObject(tile, ro);
+            }
+        }
+        for(std::vector<Tile*>::const_iterator it = mTopWallsActiveSpotTiles.begin(); it != mTopWallsActiveSpotTiles.end(); ++it)
+        {
+            Tile* tile = *it;
+            // We check if the room object already exists. This can happen when absorbing a room
+            if(getRoomObjectFromTile(tile))
+                continue;
+
+            RoomObject* ro = notifyActiveSpotCreated(ActiveSpotPlace::activeSpotTop, tile);
+            if(ro != NULL)
+            {
+                // The room wants to build a room onject. We add it to the gamemap
+                addRoomObject(tile, ro);
+            }
+        }
+        for(std::vector<Tile*>::const_iterator it = mBottomWallsActiveSpotTiles.begin(); it != mBottomWallsActiveSpotTiles.end(); ++it)
+        {
+            Tile* tile = *it;
+            // We check if the room object already exists. This can happen when absorbing a room
+            if(getRoomObjectFromTile(tile))
+                continue;
+
+            RoomObject* ro = notifyActiveSpotCreated(ActiveSpotPlace::activeSpotBottom, tile);
+            if(ro != NULL)
+            {
+                // The room wants to build a room onject. We add it to the gamemap
+                addRoomObject(tile, ro);
+            }
+        }
         return;
+    }
 
     std::vector<Tile*> coveredTiles = getCoveredTiles();
     for (unsigned int i = 0, nb = coveredTiles.size(); i < nb; ++i)
@@ -215,8 +288,30 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
 
 void Room::absorbRoom(Room *r)
 {
+    mCentralActiveSpotTiles.insert(mCentralActiveSpotTiles.end(), r->mCentralActiveSpotTiles.begin(), r->mCentralActiveSpotTiles.end());
+    r->mCentralActiveSpotTiles.clear();
+    mLeftWallsActiveSpotTiles.insert(mLeftWallsActiveSpotTiles.end(), r->mLeftWallsActiveSpotTiles.begin(), r->mLeftWallsActiveSpotTiles.end());
+    r->mLeftWallsActiveSpotTiles.clear();
+    mRightWallsActiveSpotTiles.insert(mRightWallsActiveSpotTiles.end(), r->mRightWallsActiveSpotTiles.begin(), r->mRightWallsActiveSpotTiles.end());
+    r->mRightWallsActiveSpotTiles.clear();
+    mTopWallsActiveSpotTiles.insert(mTopWallsActiveSpotTiles.end(), r->mTopWallsActiveSpotTiles.begin(), r->mTopWallsActiveSpotTiles.end());
+    r->mTopWallsActiveSpotTiles.clear();
+    mBottomWallsActiveSpotTiles.insert(mBottomWallsActiveSpotTiles.end(), r->mBottomWallsActiveSpotTiles.begin(), r->mBottomWallsActiveSpotTiles.end());
+    r->mBottomWallsActiveSpotTiles.clear();
+
     mRoomObjects.insert(r->mRoomObjects.begin(), r->mRoomObjects.end());
     r->mRoomObjects.clear();
+
+    // Every creature working in this room should go to the new one (this is used
+    // in the server map only)
+    if(getGameMap()->isServerGameMap())
+    {
+        while(r->mCreaturesUsingRoom.size() > 0)
+        {
+            Creature* creature = r->mCreaturesUsingRoom[0];
+            creature->changeWorkingRoom(this);
+        }
+    }
 
     while (r->numCoveredTiles() > 0)
     {
@@ -254,6 +349,8 @@ void Room::removeCoveredTile(Tile* t)
     if (!removedTile)
         return;
 
+    updateActiveSpots();
+
     if(getGameMap()->isServerGameMap())
         return;
 
@@ -277,12 +374,13 @@ Tile* Room::getCoveredTile(unsigned index)
     return mCoveredTiles[index];
 }
 
-void Room::addCreatureUsingRoom(Creature* c)
+bool Room::addCreatureUsingRoom(Creature* c)
 {
-    //FIXME: When the room is destroyed, any creatures holding pointers to this room
-    // should be notified so they can purge them.
-    // This is a somewhat non-trivial task.
+    if(!hasOpenCreatureSpot(c))
+        return false;
+
     mCreaturesUsingRoom.push_back(c);
+    return true;
 }
 
 void Room::removeCreatureUsingRoom(Creature *c)
@@ -335,7 +433,6 @@ Tile* Room::getCentralTile()
 RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,
     Tile* targetTile, double rotationAngle)
 {
-    // TODO - proper random distrubition of room objects
     if (targetTile == NULL)
         targetTile = getCentralTile();
 
@@ -350,13 +447,15 @@ RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,
     tempRoomObject->mX = (Ogre::Real)x;
     tempRoomObject->mY = (Ogre::Real)y;
     tempRoomObject->mRotationAngle = (Ogre::Real)rotationAngle;
-    addRoomObject(targetTile, tempRoomObject);
 
     return tempRoomObject;
 }
 
 void Room::addRoomObject(Tile* targetTile, RoomObject* roomObject)
 {
+    if(roomObject == NULL)
+        return;
+
     if(getGameMap()->isServerGameMap())
     {
         try
@@ -379,29 +478,29 @@ void Room::addRoomObject(Tile* targetTile, RoomObject* roomObject)
 
 void Room::removeRoomObject(Tile* tile)
 {
+    if(mRoomObjects.count(tile) == 0)
+        return;
+
     RoomObject* roomObject = mRoomObjects[tile];
-    if(roomObject != NULL)
+    if(getGameMap()->isServerGameMap())
     {
-        if(getGameMap()->isServerGameMap())
+        try
         {
-            try
-            {
-                ServerNotification *serverNotification = new ServerNotification(
-                    ServerNotification::removeRoomObject, NULL);
-                std::string name = getName();
-                serverNotification->packet << name << tile;
-                ODServer::getSingleton().queueServerNotification(serverNotification);
-            }
-            catch (std::bad_alloc&)
-            {
-                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRoomObject", Ogre::LML_CRITICAL);
-                exit(1);
-            }
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::removeRoomObject, NULL);
+            std::string name = getName();
+            serverNotification->packet << name << tile;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
-        getGameMap()->removeAnimatedObject(roomObject);
-        roomObject->deleteYourself();
-        mRoomObjects.erase(tile);
+        catch (std::bad_alloc&)
+        {
+            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Room::removeRoomObject", Ogre::LML_CRITICAL);
+            exit(1);
+        }
     }
+    getGameMap()->removeAnimatedObject(roomObject);
+    roomObject->deleteYourself();
+    mRoomObjects.erase(tile);
 }
 
 void Room::removeRoomObject(RoomObject* roomObject)
@@ -473,6 +572,9 @@ void Room::removeAllRoomObject()
 
 RoomObject* Room::getRoomObjectFromTile(Tile* tile)
 {
+    if(mRoomObjects.count(tile) == 0)
+        return NULL;
+
     RoomObject* tempRoomObject = mRoomObjects[tile];
     return tempRoomObject;
 }
@@ -488,11 +590,10 @@ RoomObject* Room::getFirstRoomObject()
 void Room::createRoomObjectMeshes()
 {
     // Loop over all the RoomObjects that are children of this room and create each mesh individually.
-    std::map<Tile*, RoomObject*>::iterator itr = mRoomObjects.begin();
-    while (itr != mRoomObjects.end())
+    for(std::map<Tile*, RoomObject*>::iterator it = mRoomObjects.begin(); it != mRoomObjects.end(); ++it)
     {
-        itr->second->createMesh();
-        ++itr;
+        RoomObject* ro = it->second;
+        ro->createMesh();
     }
 }
 
@@ -551,7 +652,6 @@ bool Room::doUpkeep()
         createMesh();
     }
 
-    //TODO: This could return false if the whole room has been destroyed and then the activeObject processor should destroy it.
     return true;
 }
 
@@ -779,7 +879,15 @@ void Room::takeDamage(double damage, Tile* tileTakingDamage)
 
 void Room::updateActiveSpots()
 {
-    mCentralActiveSpotTiles.clear();
+    // Active spots are handled by the server only
+    if(!getGameMap()->isServerGameMap())
+        return;
+
+    std::vector<Tile*> centralActiveSpotTiles;
+    std::vector<Tile*> leftWallsActiveSpotTiles;
+    std::vector<Tile*> rightWallsActiveSpotTiles;
+    std::vector<Tile*> topWallsActiveSpotTiles;
+    std::vector<Tile*> bottomWallsActiveSpotTiles;
 
     // Detect the centers of 3x3 squares tiles
     for(unsigned int i = 0, size = mCoveredTiles.size(); i < size; ++i)
@@ -806,9 +914,9 @@ void Room::updateActiveSpots()
             // Check whether the tile around the tile checked is already a center spot
             // as we can't have two center spots next to one another.
             bool foundSpotNextToTile = false;
-            for(unsigned int k = 0; k < mCentralActiveSpotTiles.size(); ++k)
+            for(unsigned int k = 0; k < centralActiveSpotTiles.size(); ++k)
             {
-                if (mCoveredTiles[j] == mCentralActiveSpotTiles[k])
+                if (mCoveredTiles[j] == centralActiveSpotTiles[k])
                 {
                     foundSpotNextToTile = true;
                     break;
@@ -851,28 +959,15 @@ void Room::updateActiveSpots()
         if (foundTop && foundTopLeft && foundTopRight && foundLeft && foundRight
                 && foundBottomLeft && foundBottomRight && foundBottom)
         {
-            mCentralActiveSpotTiles.push_back(tile);
+            centralActiveSpotTiles.push_back(tile);
         }
     }
 
     // Now that we've got the center tiles, we can test the tile around for walls.
-    mLeftWallsActiveSpotTiles.clear();
-    mRightWallsActiveSpotTiles.clear();
-    mBottomWallsActiveSpotTiles.clear();
-    mTopWallsActiveSpotTiles.clear();
-
     GameMap* gameMap = getGameMap();
-    // The game map can be null at map load time.
-    if (gameMap == NULL)
+    for (unsigned int i = 0, size = centralActiveSpotTiles.size(); i < size; ++i)
     {
-        // Updates the number of active spots.
-        mNumActiveSpots = mCentralActiveSpotTiles.size();
-        return;
-    }
-
-    for (unsigned int i = 0, size = mCentralActiveSpotTiles.size(); i < size; ++i)
-    {
-        Tile* centerTile = mCentralActiveSpotTiles[i];
+        Tile* centerTile = centralActiveSpotTiles[i];
         if (centerTile == NULL)
             continue;
 
@@ -883,7 +978,7 @@ void Room::updateActiveSpots()
         {
             Tile* topTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() + 1);
             if (topTile != NULL)
-                mTopWallsActiveSpotTiles.push_back(topTile);
+                topWallsActiveSpotTiles.push_back(topTile);
         }
 
         // Down
@@ -892,7 +987,7 @@ void Room::updateActiveSpots()
         {
             Tile* bottomTile = getGameMap()->getTile(centerTile->getX(), centerTile->getY() - 1);
             if (bottomTile != NULL)
-                mBottomWallsActiveSpotTiles.push_back(bottomTile);
+                bottomWallsActiveSpotTiles.push_back(bottomTile);
         }
 
         // Left
@@ -901,7 +996,7 @@ void Room::updateActiveSpots()
         {
             Tile* leftTile = getGameMap()->getTile(centerTile->getX() - 1, centerTile->getY());
             if (leftTile != NULL)
-                mLeftWallsActiveSpotTiles.push_back(leftTile);
+                leftWallsActiveSpotTiles.push_back(leftTile);
         }
 
         // Right
@@ -910,12 +1005,70 @@ void Room::updateActiveSpots()
         {
             Tile* rightTile = getGameMap()->getTile(centerTile->getX() + 1, centerTile->getY());
             if (rightTile != NULL)
-                mRightWallsActiveSpotTiles.push_back(rightTile);
+                rightWallsActiveSpotTiles.push_back(rightTile);
         }
     }
+
+    // If the mesh exists, we create the new room objets and we remove the deleted
+    // active spots
+    if(isMeshExisting())
+    {
+        activeSpotCheckChange(activeSpotCenter, mCentralActiveSpotTiles, centralActiveSpotTiles);
+        activeSpotCheckChange(activeSpotLeft, mLeftWallsActiveSpotTiles, leftWallsActiveSpotTiles);
+        activeSpotCheckChange(activeSpotRight, mRightWallsActiveSpotTiles, rightWallsActiveSpotTiles);
+        activeSpotCheckChange(activeSpotTop, mTopWallsActiveSpotTiles, topWallsActiveSpotTiles);
+        activeSpotCheckChange(activeSpotBottom, mBottomWallsActiveSpotTiles, bottomWallsActiveSpotTiles);
+    }
+
+    mCentralActiveSpotTiles = centralActiveSpotTiles;
+    mLeftWallsActiveSpotTiles = leftWallsActiveSpotTiles;
+    mRightWallsActiveSpotTiles = rightWallsActiveSpotTiles;
+    mTopWallsActiveSpotTiles = topWallsActiveSpotTiles;
+    mBottomWallsActiveSpotTiles = bottomWallsActiveSpotTiles;
 
     // Updates the number of active spots
     mNumActiveSpots = mCentralActiveSpotTiles.size()
                       + mLeftWallsActiveSpotTiles.size() + mRightWallsActiveSpotTiles.size()
                       + mTopWallsActiveSpotTiles.size() + mBottomWallsActiveSpotTiles.size();
+}
+
+void Room::activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,
+    const std::vector<Tile*>& newSpotTiles)
+{
+    // We create the non existing tiles
+    for(std::vector<Tile*>::const_iterator it = newSpotTiles.begin(); it != newSpotTiles.end(); ++it)
+    {
+        Tile* tile = *it;
+        if(std::find(originalSpotTiles.begin(), originalSpotTiles.end(), tile) == originalSpotTiles.end())
+        {
+            // The tile do not exist
+            RoomObject* ro = notifyActiveSpotCreated(place, tile);
+            if(ro != NULL)
+            {
+                // The room wants to build a room onject. We add it to the gamemap
+                addRoomObject(tile, ro);
+                ro->createMesh();
+            }
+        }
+    }
+    // We remove the suppressed tiles
+    for(std::vector<Tile*>::const_iterator it = originalSpotTiles.begin(); it != originalSpotTiles.end(); ++it)
+    {
+        Tile* tile = *it;
+        if(std::find(newSpotTiles.begin(), newSpotTiles.end(), tile) == newSpotTiles.end())
+        {
+            // The tile has been removed
+            notifyActiveSpotRemoved(place, tile);
+        }
+    }
+}
+
+RoomObject* Room::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+{
+    return NULL;
+}
+
+void Room::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+{
+    removeRoomObject(tile);
 }

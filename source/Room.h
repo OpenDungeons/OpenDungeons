@@ -85,7 +85,7 @@ public:
     /*! \brief Creates a child RoomObject mesh using the given mesh name and placing on the target tile,
      *  if the tile is NULL the object appears in the room's center, the rotation angle is given in degrees.
      */
-    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName, Tile *targetTile = NULL,
+    RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName, Tile *targetTile,
         double rotationAngle = 0.0);
     RoomObject* loadRoomObject(GameMap* gameMap, const std::string& meshName, Tile *targetTile,
         double x, double y, double rotationAngle);
@@ -142,22 +142,11 @@ public:
     }
 
 
-    virtual void addCreatureUsingRoom(Creature* c);
+    //! \brief Adds a creature using the room. If the creature is allowed, true is returned
+    virtual bool addCreatureUsingRoom(Creature* c);
     virtual void removeCreatureUsingRoom(Creature* c);
     virtual Creature* getCreatureUsingRoom(unsigned index);
-
-    virtual unsigned int numCreaturesUsingRoom()
-    {
-        return mCreaturesUsingRoom.size();
-    }
-
-    /** \brief Returns how many creatures could use this room for its intended purpose:
-     *  negative numbers indicate there is no limit to the number of creatures.
-     */
-    int numOpenCreatureSlots()
-    {
-        return -1;
-    }
+    virtual bool hasOpenCreatureSpot(Creature* c) { return false; }
 
     Tile* getCentralTile();
 
@@ -179,6 +168,14 @@ public:
     void updateActiveSpots();
 
 protected:
+    enum ActiveSpotPlace
+    {
+        activeSpotCenter,
+        activeSpotTop,
+        activeSpotBottom,
+        activeSpotLeft,
+        activeSpotRight
+    };
     std::vector<Tile*> mCoveredTiles;
     std::map<Tile*, double> mTileHP;
     std::vector<Creature*> mCreaturesUsingRoom;
@@ -198,11 +195,15 @@ protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
     virtual void deleteYourselfLocal();
+    virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private :
     /*! \brief This function makes sure the name of the room is unique. It shall be called after loading
      * a room from the level file or when a new one is built.
      */
     void buildUniqueName();
+    void activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,
+        const std::vector<Tile*>& newSpotTiles);
     std::map<Tile*, RoomObject*> mRoomObjects;
 
 };
