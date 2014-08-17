@@ -37,6 +37,10 @@ KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& paramete
 
 bool KeeperAI::doTurn(double frameTime)
 {
+    // If we have no dungeon temple, we are dead
+    if(mAiWrapper.getDungeonTemple() == NULL)
+        return false;
+
     if (MakeSomePlace())
         return true;
 
