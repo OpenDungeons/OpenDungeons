@@ -309,7 +309,7 @@ void Room::absorbRoom(Room *r)
         while(r->mCreaturesUsingRoom.size() > 0)
         {
             Creature* creature = r->mCreaturesUsingRoom[0];
-            creature->changeWorkingRoom(this);
+            creature->changeJobRoom(this);
         }
     }
 
@@ -436,8 +436,8 @@ RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,
     if (targetTile == NULL)
         targetTile = getCentralTile();
 
-    return loadRoomObject(gameMap, meshName, targetTile, targetTile->x,
-        targetTile->y, rotationAngle);
+    return loadRoomObject(gameMap, meshName, targetTile, static_cast<double>(targetTile->x),
+        static_cast<double>(targetTile->y), rotationAngle);
 }
 
 RoomObject* Room::loadRoomObject(GameMap* gameMap, const std::string& meshName,

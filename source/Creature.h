@@ -281,11 +281,11 @@ public:
     bool tryPickup();
 
     inline void decreaseAwakeness(double val) { mAwakeness -= val; }
-    inline void setWorkWait(int val) { mWorkWait = val; }
-    inline int getWorkWait() { return mWorkWait; }
+    inline void setJobWait(int val) { mJobWait = val; }
+    inline int getJobWait() { return mJobWait; }
 
-    //! \brief Allows to change the working room (when room absorbtion)
-    void changeWorkingRoom(Room* newRoom);
+    //! \brief Allows to change the room the creature is using (when room absorbtion for example)
+    void changeJobRoom(Room* newRoom);
 
 protected:
     virtual void createMeshLocal();
@@ -336,11 +336,11 @@ private:
     unsigned int    mDeathCounter;
     int             mGold;
     int             mBattleFieldAgeCounter;
-    int             mWorkWait;
+    int             mJobWait;
 
     Tile*           mPreviousPositionTile;
     BattleField*    mBattleField;
-    Room*           mWorkingRoom;
+    Room*           mJobRoom;
     CEGUI::Window*  mStatsWindow;
 
     std::vector<Tile*>              mVisibleTiles;

@@ -90,10 +90,10 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool genera
     mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mBattleFieldAgeCounter   (0),
-    mWorkWait                (0),
+    mJobWait                 (0),
     mPreviousPositionTile    (NULL),
     mBattleField             (new BattleField(gameMap)),
-    mWorkingRoom             (NULL),
+    mJobRoom                 (NULL),
     mStatsWindow             (NULL),
     mForceAction             (forcedActionNone),
     mSound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
@@ -142,10 +142,10 @@ Creature::Creature(GameMap* gameMap) :
     mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mBattleFieldAgeCounter   (0),
-    mWorkWait                (0),
+    mJobWait                 (0),
     mPreviousPositionTile    (NULL),
     mBattleField             (NULL),
-    mWorkingRoom             (NULL),
+    mJobRoom                 (NULL),
     mForceAction             (forcedActionNone),
     mStatsWindow             (NULL)
 {
@@ -1823,7 +1823,7 @@ bool Creature::handleWorkingAction(bool isWorkForced)
     else if (myTile != NULL)
     {
         // If we are already working, nothing to do
-        if(mWorkingRoom != NULL)
+        if(mJobRoom != NULL)
             return false;
 
         // See if we are in a room where we can work. If so, we try to add the creature. If it is ok, the room
@@ -1841,8 +1841,8 @@ bool Creature::handleWorkingAction(bool isWorkForced)
 
             if(useRoom && tempRoom->hasOpenCreatureSpot(this) && tempRoom->addCreatureUsingRoom(this))
             {
-                setWorkWait(0);
-                mWorkingRoom = tempRoom;
+                setJobWait(0);
+                mJobRoom = tempRoom;
                 return false;
             }
         }
@@ -1914,23 +1914,23 @@ bool Creature::handleWorkingAction(bool isWorkForced)
 
 void Creature::stopWorking()
 {
-    if (mWorkingRoom == NULL)
+    if (mJobRoom == NULL)
         return;
 
-    mWorkingRoom->removeCreatureUsingRoom(this);
-    mWorkingRoom = NULL;
+    mJobRoom->removeCreatureUsingRoom(this);
+    mJobRoom = NULL;
 }
 
-void Creature::changeWorkingRoom(Room* newRoom)
+void Creature::changeJobRoom(Room* newRoom)
 {
-    if (mWorkingRoom != NULL)
-        mWorkingRoom->removeCreatureUsingRoom(this);
+    if (mJobRoom != NULL)
+        mJobRoom->removeCreatureUsingRoom(this);
 
 
     if(newRoom != NULL && newRoom->addCreatureUsingRoom(this))
-        mWorkingRoom = newRoom;
+        mJobRoom = newRoom;
     else
-        mWorkingRoom = NULL;
+        mJobRoom = NULL;
 }
 
 bool Creature::handleAttackAction()

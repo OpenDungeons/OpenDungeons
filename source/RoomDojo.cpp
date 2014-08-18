@@ -99,8 +99,8 @@ void RoomDojo::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
         if(tmpTile == tile)
         {
             Creature* creature = it->first;
-            creature->changeWorkingRoom(NULL);
-            // changeWorkingRoom should have released mCreaturesDummies[creature]. Now, we just need to release the unused dummy
+            creature->changeJobRoom(NULL);
+            // changeJobRoom should have released mCreaturesDummies[creature]. Now, we just need to release the unused dummy
             break;
         }
     }
@@ -226,10 +226,10 @@ bool RoomDojo::doUpkeep()
         if(creaturePosition.x == wantedX &&
            creaturePosition.y == wantedY)
         {
-            if (creature->getWorkWait() > 0)
+            if (creature->getJobWait() > 0)
             {
                 creature->setAnimationState("Idle");
-                creature->setWorkWait(creature->getWorkWait() - 1);
+                creature->setJobWait(creature->getJobWait() - 1);
             }
             else
             {
@@ -239,7 +239,7 @@ bool RoomDojo::doUpkeep()
                 ro->setAnimationState("Triggered", false, false);
                 creature->recieveExp(5.0);
                 creature->decreaseAwakeness(5.0);
-                creature->setWorkWait(Random::Uint(3, 8));
+                creature->setJobWait(Random::Uint(3, 8));
             }
         }
     }
