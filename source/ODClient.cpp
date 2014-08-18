@@ -490,7 +490,10 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(room != NULL);
             OD_ASSERT_TRUE(tile != NULL);
             if((room != NULL) && (tile != NULL))
+            {
                 room->removeCoveredTile(tile);
+                room->updateActiveSpots();
+            }
 
             break;
         }

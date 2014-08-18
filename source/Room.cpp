@@ -239,13 +239,15 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
     // it may change if a room is absorbed
     if(gameMap->isServerGameMap())
     {
+        int nbTiles = coveredTiles.size();
+        int color = player->getSeat()->getColor();
+        LogManager::getSingleton().logMessage("Adding room " + newRoom->getName() + ", nbTiles="
+            + Ogre::StringConverter::toString(nbTiles) + ", color=" + Ogre::StringConverter::toString(color));
         try
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::buildRoom, player);
             int intType = static_cast<int32_t>(newRoom->getType());
-            int nbTiles = coveredTiles.size();
-            int color = player->getSeat()->getColor();
             serverNotification->packet << intType << color << nbTiles;
             for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
             {
@@ -320,8 +322,6 @@ void Room::absorbRoom(Room *r)
         r->removeCoveredTile(tempTile);
         addCoveredTile(tempTile, hp);
     }
-
-    updateActiveSpots();
 }
 
 void Room::addCoveredTile(Tile* t, double nHP)
@@ -348,8 +348,6 @@ void Room::removeCoveredTile(Tile* t)
 
     if (!removedTile)
         return;
-
-    updateActiveSpots();
 
     if(getGameMap()->isServerGameMap())
         return;
@@ -458,6 +456,8 @@ void Room::addRoomObject(Tile* targetTile, RoomObject* roomObject)
 
     if(getGameMap()->isServerGameMap())
     {
+        LogManager::getSingleton().logMessage("Adding room object " + roomObject->getName()
+            + " in room " + getName());
         try
         {
             ServerNotification *serverNotification = new ServerNotification(
