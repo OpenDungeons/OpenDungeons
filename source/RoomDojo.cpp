@@ -126,7 +126,9 @@ void RoomDojo::refreshCreaturesDummies()
     if(mUnusedDummies.size() == 0 || mCreaturesUsingRoom.size() == 0)
         return;
 
-    OD_ASSERT_TRUE(mUnusedDummies.size() >= mCreaturesUsingRoom.size());
+    OD_ASSERT_TRUE_MSG(mUnusedDummies.size() >= mCreaturesUsingRoom.size(),
+        "mUnusedDummies.size()=" + Ogre::StringConverter::toString(static_cast<int>(mUnusedDummies.size()))
+        + "mCreaturesUsingRoom.size()=" + Ogre::StringConverter::toString(static_cast<int>(mCreaturesUsingRoom.size())));
 
     for(std::vector<Creature*>::iterator it = mCreaturesUsingRoom.begin(); it != mCreaturesUsingRoom.end(); ++it)
     {

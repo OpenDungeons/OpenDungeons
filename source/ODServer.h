@@ -66,13 +66,16 @@ protected:
     void serverThread();
 
 private:
-    ODSocketClient* getClientFromPlayer(Player* player);
     GameMap *mGameMap;
     std::string mLevelFilename;
 
     int32_t mNbClientsNotReady;
 
     std::deque<ServerNotification*> mServerNotificationQueue;
+
+    std::map<ODSocketClient*, std::vector<std::string>> mCreaturesInfoWanted;
+
+    ODSocketClient* getClientFromPlayer(Player* player);
 
     //! \brief Called when a new turn started.
     void startNewTurn(double timeSinceLastFrame);

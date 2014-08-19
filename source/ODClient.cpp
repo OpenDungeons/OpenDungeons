@@ -610,6 +610,18 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotification::notifyCreatureInfo:
+        {
+            std::string name;
+            std::string infos;
+            OD_ASSERT_TRUE(packetReceived >> name >> infos);
+            Creature* creature = gameMap->getCreature(name);
+            OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + name);
+            if(creature != NULL)
+                creature->updateStatsWindow(infos);
+            break;
+        }
+
         default:
         {
             logMgr.logMessage("ERROR:  Unknown server command:"
@@ -666,6 +678,10 @@ void ODClient::processClientNotifications()
                 break;
 
             case ClientNotification::chat:
+                sendToServer(event->packet);
+                break;
+
+            case ClientNotification::askCreatureInfos:
                 sendToServer(event->packet);
                 break;
 

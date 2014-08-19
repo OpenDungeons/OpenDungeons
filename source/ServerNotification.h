@@ -85,6 +85,8 @@ class ServerNotification
             createTreasuryIndicator,
             destroyTreasuryIndicator,
 
+            notifyCreatureInfo,
+
             exit
         };
 

@@ -44,7 +44,8 @@ public:
         askMarkTile,
         askBuildRoom,
         askBuildTrap,
-        ackNewTurn
+        ackNewTurn,
+        askCreatureInfos
     };
 
     ClientNotification(ClientNotificationType type);
