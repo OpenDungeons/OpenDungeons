@@ -279,7 +279,8 @@ void ODServer::processServerNotifications()
                 int color;
                 std::string creatureName;
                 OD_ASSERT_TRUE(event->packet >> type >> color >> creatureName);
-                OD_ASSERT_TRUE(type == event->mType);
+                OD_ASSERT_TRUE_MSG(type == event->mType, "type=" + Ogre::StringConverter::toString(type)
+                    + ",event->mType=" + Ogre::StringConverter::toString(event->mType));
                 for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
                 {
                     ODSocketClient* tmpClient = *it;
@@ -310,7 +311,8 @@ void ODServer::processServerNotifications()
                 int color;
                 Tile tmpTile(gameMap);
                 OD_ASSERT_TRUE(event->packet >> type >> color >> &tmpTile);
-                OD_ASSERT_TRUE(type == event->mType);
+                OD_ASSERT_TRUE_MSG(type == event->mType, "type=" + Ogre::StringConverter::toString(type)
+                    + ",event->mType=" + Ogre::StringConverter::toString(event->mType));
                 for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
                 {
                     ODSocketClient* tmpClient = *it;
