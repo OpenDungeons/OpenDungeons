@@ -90,11 +90,6 @@ Room* RoomObject::getParentRoom()
     return mParentRoom;
 }
 
-std::string RoomObject::getOgreNamePrefix()
-{
-    return "RoomObject_";
-}
-
 const char* RoomObject::getFormat()
 {
     return "name\tmeshName";

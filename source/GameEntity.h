@@ -82,6 +82,8 @@ class GameEntity
     virtual ~GameEntity(){}
 
     // ===== GETTERS =====
+    virtual std::string getOgreNamePrefix() = 0;
+
     //! \brief Get the name of the object
     inline const std::string&   getName         () const    { return name; }
 

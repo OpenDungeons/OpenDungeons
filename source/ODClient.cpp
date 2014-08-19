@@ -103,7 +103,7 @@ bool ODClient::processOneClientSocketMessage()
             int color;
             OD_ASSERT_TRUE(packetReceived >> color);
             Seat *tempSeat = gameMap->popEmptySeat(color);
-            OD_ASSERT_TRUE(tempSeat != NULL);
+            OD_ASSERT_TRUE_MSG(tempSeat != NULL, "color=" + Ogre::StringConverter::toString(color));
             gameMap->getLocalPlayer()->setSeat(tempSeat);
             break;
         }
@@ -116,7 +116,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> nick >> seatColor);
             tempPlayer->setNick(nick);
             Seat* seat = gameMap->popEmptySeat(seatColor);
-            OD_ASSERT_TRUE(seat != NULL);
+            OD_ASSERT_TRUE_MSG(seat != NULL, "color=" + Ogre::StringConverter::toString(seatColor));
             gameMap->addPlayer(tempPlayer, seat);
             frameListener->addChatMessage(new ChatMessage(ODServer::SERVER_INFORMATION,
                 "New player connected:" + tempPlayer->getNick()));
@@ -186,7 +186,7 @@ bool ODClient::processOneClientSocketMessage()
             std::string nameMapLight;
             OD_ASSERT_TRUE(packetReceived >> nameMapLight);
             MapLight *tempMapLight = gameMap->getMapLight(nameMapLight);
-            OD_ASSERT_TRUE(tempMapLight != NULL);
+            OD_ASSERT_TRUE_MSG(tempMapLight != NULL, "nameMapLight=" + nameMapLight);
             gameMap->removeMapLight(tempMapLight);
             tempMapLight->deleteYourself();
             break;
@@ -219,7 +219,7 @@ bool ODClient::processOneClientSocketMessage()
             std::string creatureName;
             OD_ASSERT_TRUE(packetReceived >> creatureName);
             Creature* creature = gameMap->getCreature(creatureName);
-            OD_ASSERT_TRUE(creature != NULL);
+            OD_ASSERT_TRUE_MSG(creature != NULL, "creatureName=" + creatureName);
             if(creature != NULL)
             {
                 gameMap->removeCreature(creature);
@@ -250,7 +250,7 @@ bool ODClient::processOneClientSocketMessage()
             Ogre::Vector3 vect;
             OD_ASSERT_TRUE(packetReceived >> objName >> vect);
             MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE(tempAnimatedObject != NULL);
+            OD_ASSERT_TRUE_MSG(tempAnimatedObject != NULL, "objName=" + objName);
             if (tempAnimatedObject != NULL)
                 tempAnimatedObject->addDestination(vect.x, vect.y);
 
@@ -262,7 +262,7 @@ bool ODClient::processOneClientSocketMessage()
             std::string objName;
             OD_ASSERT_TRUE(packetReceived >> objName);
             MovableGameEntity *tempAnimatedObject = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE(tempAnimatedObject != NULL);
+            OD_ASSERT_TRUE_MSG(tempAnimatedObject != NULL, "objName=" + objName);
             if (tempAnimatedObject != NULL)
                 tempAnimatedObject->clearDestinations();
 
@@ -275,15 +275,10 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> creatureName);
             Player *tempPlayer = gameMap->getLocalPlayer();
             Creature *tempCreature = gameMap->getCreature(creatureName);
-            OD_ASSERT_TRUE(tempCreature != NULL);
+            OD_ASSERT_TRUE_MSG(tempCreature != NULL, "creatureName=" + creatureName);
             if (tempCreature != NULL)
             {
                 tempPlayer->pickUpCreature(tempCreature);
-            }
-            else
-            {
-                logMgr.logMessage("Error while pickupCreature creature " + creatureName
-                    + " for local player");
             }
             break;
         }
@@ -294,17 +289,12 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Player *tempPlayer = gameMap->getLocalPlayer();
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE(tile != NULL);
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tmpTile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             if (tile != NULL)
             {
                 tempPlayer->dropCreature(tile);
                 SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
-            }
-            else
-            {
-                logMgr.logMessage("Error while dropCreature for local player on tile "
-                    + Ogre::StringConverter::toString(tmpTile.getX())
-                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             }
             break;
         }
@@ -315,17 +305,12 @@ bool ODClient::processOneClientSocketMessage()
             std::string creatureName;
             OD_ASSERT_TRUE(packetReceived >> playerColor >> creatureName);
             Player *tempPlayer = gameMap->getPlayerByColor(playerColor);
-            OD_ASSERT_TRUE(tempPlayer != NULL);
+            OD_ASSERT_TRUE_MSG(tempPlayer != NULL, "playerColor=" + Ogre::StringConverter::toString(playerColor));
             Creature *tempCreature = gameMap->getCreature(creatureName);
-            OD_ASSERT_TRUE(tempCreature != NULL);
+            OD_ASSERT_TRUE_MSG(tempCreature != NULL, "creatureName=" + creatureName);
             if (tempPlayer != NULL && tempCreature != NULL)
             {
                 tempPlayer->pickUpCreature(tempCreature);
-            }
-            else
-            {
-                logMgr.logMessage("Error while creaturePickedUp creature " + creatureName
-                    + " for player color=" + Ogre::StringConverter::toString(playerColor));
             }
             break;
         }
@@ -336,19 +321,13 @@ bool ODClient::processOneClientSocketMessage()
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> playerColor >> &tmpTile);
             Player *tempPlayer = gameMap->getPlayerByColor(playerColor);
-            OD_ASSERT_TRUE(tempPlayer != NULL);
+            OD_ASSERT_TRUE_MSG(tempPlayer != NULL, "playerColor=" + Ogre::StringConverter::toString(playerColor));
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE(tile != NULL);
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             if (tempPlayer != NULL && tile != NULL)
             {
                 tempPlayer->dropCreature(tile);
-            }
-            else
-            {
-                logMgr.logMessage("Error while creatureDropped for player color="
-                    + Ogre::StringConverter::toString(playerColor)
-                    + " on tile " + Ogre::StringConverter::toString(tmpTile.getX())
-                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             }
             break;
         }
@@ -362,7 +341,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> objName >> animState
                 >> loop >> shouldSetWalkDirection);
             MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE(obj != NULL);
+            OD_ASSERT_TRUE_MSG(obj != NULL, "objName=" + objName);
             if (obj != NULL)
             {
                 if(shouldSetWalkDirection)
@@ -388,7 +367,8 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
 
             Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE(tempTile != NULL);
+            OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             if (tempTile != NULL)
             {
                 tempTile->setFullness(tmpTile.getFullness());
@@ -399,12 +379,6 @@ bool ODClient::processOneClientSocketMessage()
                     neighbor->setFullness(neighbor->getFullness());
                 }
             }
-            else
-            {
-                logMgr.logMessage("ERROR: Server told us to set the fullness for a nonexistent tile"
-                    + Ogre::StringConverter::toString(tmpTile.getX())
-                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
-            }
             break;
         }
 
@@ -413,16 +387,11 @@ bool ODClient::processOneClientSocketMessage()
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Tile *tempTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE(tempTile != NULL);
+            OD_ASSERT_TRUE_MSG(tempTile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             if (tempTile != NULL)
             {
                 tempTile->claimTile(tmpTile.getColor());
-            }
-            else
-            {
-                logMgr.logMessage("ERROR: Server told us to set the color for a nonexistent tile="
-                    + Ogre::StringConverter::toString(tmpTile.getX()) + ","
-                    + Ogre::StringConverter::toString(tmpTile.getY()));
             }
             break;
         }
@@ -448,7 +417,8 @@ bool ODClient::processOneClientSocketMessage()
                 Tile tmpTile(gameMap);
                 OD_ASSERT_TRUE(packetReceived >> &tmpTile);
                 Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE(gameTile != NULL);
+                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
                 if(gameTile != NULL)
                     tiles.push_back(gameTile);
             }
@@ -470,12 +440,13 @@ bool ODClient::processOneClientSocketMessage()
                 Tile tmpTile(gameMap);
                 OD_ASSERT_TRUE(packetReceived >> &tmpTile);
                 Tile* gameTile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-                OD_ASSERT_TRUE(gameTile != NULL);
+                OD_ASSERT_TRUE_MSG(gameTile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                    + "," + Ogre::StringConverter::toString(tmpTile.getY()));
                 if(gameTile != NULL)
                     tiles.push_back(gameTile);
             }
             Player* player = gameMap->getPlayerByColor(color);
-            OD_ASSERT_TRUE(player != NULL);
+            OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
             gameMap->buildRoomForPlayer(tiles, type, player);
             break;
         }
@@ -486,9 +457,10 @@ bool ODClient::processOneClientSocketMessage()
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> roomName>> &tmpTile);
             Room* room = gameMap->getRoomByName(roomName);
+            OD_ASSERT_TRUE_MSG(room != NULL, "roomName=" + roomName);
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE(room != NULL);
-            OD_ASSERT_TRUE(tile != NULL);
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             if((room != NULL) && (tile != NULL))
             {
                 room->removeCoveredTile(tile);
@@ -514,7 +486,7 @@ bool ODClient::processOneClientSocketMessage()
                 tiles.push_back(gameTile);
             }
             Player* player = gameMap->getPlayerByColor(color);
-            OD_ASSERT_TRUE(player != NULL);
+            OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
             gameMap->buildTrapForPlayer(tiles, type, player);
             break;
         }
@@ -524,7 +496,7 @@ bool ODClient::processOneClientSocketMessage()
             Creature tmpCreature(gameMap);
             OD_ASSERT_TRUE(packetReceived >> &tmpCreature);
             Creature* creature = gameMap->getCreature(tmpCreature.getName());
-            OD_ASSERT_TRUE(creature != NULL);
+            OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + tmpCreature.getName());
             if(creature != NULL)
                 creature->refreshFromCreature(&tmpCreature);
             break;
@@ -544,7 +516,7 @@ bool ODClient::processOneClientSocketMessage()
             std::string name;
             OD_ASSERT_TRUE(packetReceived >> name);
             MissileObject* missile = gameMap->getMissileObject(name);
-            OD_ASSERT_TRUE(missile != NULL);
+            OD_ASSERT_TRUE_MSG(missile != NULL, "name=" + name);
             if(missile != NULL)
             {
                 gameMap->removeMissileObject(missile);
@@ -561,11 +533,13 @@ bool ODClient::processOneClientSocketMessage()
             std::string indicatorMeshName;
             OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
             Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE(room != NULL);
+            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE(tile != NULL);
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-            OD_ASSERT_TRUE(rt->getColor() == color);
+            OD_ASSERT_TRUE_MSG(rt->getColor() == color, "roomColor=" + Ogre::StringConverter::toString(rt->getColor())
+                + ",color=" + Ogre::StringConverter::toString(color));
             rt->createMeshesForTile(tile, indicatorMeshName);
             break;
         }
@@ -578,11 +552,13 @@ bool ODClient::processOneClientSocketMessage()
             std::string indicatorMeshName;
             OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
             Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE(room != NULL);
+            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE(tile != NULL);
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-            OD_ASSERT_TRUE(rt->getColor() == color);
+            OD_ASSERT_TRUE_MSG(rt->getColor() == color, "roomColor=" + Ogre::StringConverter::toString(rt->getColor())
+                + ",color=" + Ogre::StringConverter::toString(color));
             rt->destroyMeshesForTile(tile, indicatorMeshName);
             break;
         }
@@ -592,11 +568,12 @@ bool ODClient::processOneClientSocketMessage()
             std::string roomName;
             OD_ASSERT_TRUE(packetReceived >> roomName);
             Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE(room != NULL);
+            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> &tmpTile);
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE(tile != NULL);
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             RoomObject* tempRoomObject = new RoomObject(gameMap, room);
             OD_ASSERT_TRUE(packetReceived >> tempRoomObject);
             room->addRoomObject(tile, tempRoomObject);
@@ -610,11 +587,14 @@ bool ODClient::processOneClientSocketMessage()
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> roomName >> &tmpTile);
             Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE(room != NULL);
+            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
             Tile *tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE(tile != NULL);
+            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             RoomObject* tempRoomObject = room->getRoomObjectFromTile(tile);
-            OD_ASSERT_TRUE(tempRoomObject != NULL);
+            OD_ASSERT_TRUE_MSG(tempRoomObject != NULL, "roomName=" + roomName + ",tile="
+                + Ogre::StringConverter::toString(tmpTile.getX())
+                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
             room->removeRoomObject(tempRoomObject);
             break;
         }
@@ -625,7 +605,7 @@ bool ODClient::processOneClientSocketMessage()
             Tile tmpTile(gameMap);
             OD_ASSERT_TRUE(packetReceived >> roomName);
             Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE(room != NULL);
+            OD_ASSERT_TRUE_MSG(room != NULL, "roomName=" + roomName);
             room->removeAllRoomObject();
             break;
         }

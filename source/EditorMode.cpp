@@ -188,11 +188,10 @@ void EditorMode::handleMouseMovedDragType(const OIS::MouseEvent &arg)
             // Check to see if the current query result is a tile.
             std::string resultName = itr->movable->getName();
 
-            if (resultName.find("Level_") == std::string::npos)
+            // Checks which tile we are on (if any)
+            if (!Tile::checkTileName(resultName, inputManager->mXPos, inputManager->mYPos))
                 continue;
 
-            // Updates the x-y coordinates of the tile.
-            sscanf(resultName.c_str(), "Level_%i_%i", &inputManager->mXPos, &inputManager->mYPos);
             handleCursorPositionUpdate();
 
             // If we don't drag anything, there is no affected tiles to compute.
@@ -516,16 +515,8 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
                 }
 
                 // The current tile does not exist so we need to create it.
-                std::stringstream ss;
-
-                ss.str(std::string());
-                ss << "Level_";
-                ss << x;
-                ss << "_";
-                ss << y;
-
                 Tile* myTile = new Tile(mGameMap, x, y, mCurrentTileType, mCurrentFullness);
-                myTile->setName(ss.str());
+                myTile->setName(Tile::buildName(x, y));
                 myTile->createMesh();
                 mGameMap->addTile(myTile);
                 affectedTiles.push_back(myTile);

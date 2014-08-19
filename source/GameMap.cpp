@@ -173,13 +173,9 @@ bool GameMap::createNewMap(int sizeX, int sizeY)
         for (int ii = 0; ii < mMapSizeX; ++ii)
         {
             Tile* tile = new Tile(this, ii, jj);
-            ss.str(std::string());
-            ss << "Level_" << ii << "_" << jj;
-
+            tile->setName(Tile::buildName(ii, jj));
             tile->setFullness(tile->getFullness());
             tile->setType(Tile::dirt);
-
-            tile->setName(ss.str());
             addTile(tile);
         }
     }

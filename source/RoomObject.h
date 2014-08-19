@@ -34,6 +34,8 @@ public:
     RoomObject(GameMap* gameMap, Room* nParentRoom, const std::string& nMeshName);
     RoomObject(GameMap* gameMap, Room* nParentRoom);
 
+    virtual std::string getOgreNamePrefix() { return "RoomObject_"; }
+
     Room* getParentRoom();
 
     //TODO: implment these in a good way
@@ -54,8 +56,6 @@ public:
 
     std::vector<Tile*> getCoveredTiles()
     { return std::vector<Tile*>(); }
-
-    std::string getOgreNamePrefix();
 
     static const char* getFormat();
     friend ODPacket& operator<<(ODPacket& os, RoomObject* o);

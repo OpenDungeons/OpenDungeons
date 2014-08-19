@@ -109,7 +109,7 @@ void MissileObject::setPosition(const Ogre::Vector3& v)
 
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
-    request->str = getName() + "_node";
+    request->str = getOgreNamePrefix() + "_node";
     request->vec = v;
     RenderManager::queueRenderRequest(request);
 }

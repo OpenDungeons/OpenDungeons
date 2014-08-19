@@ -24,6 +24,7 @@
 #include "RoomPortal.h"
 #include "RoomQuarters.h"
 #include "RoomTreasury.h"
+#include "RoomHatchery.h"
 #include "RoomObject.h"
 #include "ODServer.h"
 #include "ServerNotification.h"
@@ -199,6 +200,9 @@ Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*
         break;
     case library:
         tempRoom = new RoomLibrary(gameMap);
+        break;
+    case hatchery:
+        tempRoom = new RoomHatchery(gameMap);
         break;
     }
 
@@ -473,6 +477,8 @@ void Room::addRoomObject(Tile* targetTile, RoomObject* roomObject)
             exit(1);
         }
     }
+    Ogre::Vector3 objPos(static_cast<Ogre::Real>(targetTile->x), static_cast<Ogre::Real>(targetTile->y), 0);
+    roomObject->setPosition(objPos);
     mRoomObjects[targetTile] = roomObject;
     getGameMap()->addAnimatedObject(roomObject);
 }
@@ -790,6 +796,9 @@ const char* Room::getMeshNameFromRoomType(RoomType t)
     case library:
         return "Library";
 
+    case hatchery:
+        return "Farm";
+
     default:
         return "UnknownRoomType";
     }
@@ -811,6 +820,8 @@ Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
         return dojo;
     else if (s.compare("Library") == 0)
         return library;
+    else if (s.compare("Hatchery") == 0)
+        return hatchery;
     else
     {
         std::cerr << "\n\n\nERROR:  Trying to get room type from unknown mesh name, bailing out.\n";
@@ -846,6 +857,9 @@ int Room::costPerTile(RoomType t)
 
     case library:
         return 200;
+
+    case hatchery:
+        return 100;
 
     default:
         return 0;

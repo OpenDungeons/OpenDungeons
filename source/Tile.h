@@ -91,6 +91,8 @@ public:
         setObjectType(GameEntity::tile);
     }
 
+    std::string getOgreNamePrefix() { return "Tile_"; }
+
     /*! \brief A mutator to set the type (rock, claimed, etc.) of the tile.
      *
      * In addition to setting the tile type this function also reloads the new mesh
@@ -281,6 +283,9 @@ public:
 
     int getY() const
     { return y; }
+
+    static std::string buildName(int x, int y);
+    static bool checkTileName(const std::string& tileName, int& x, int& y);
 
     int x, y;
     double colorDouble;

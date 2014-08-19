@@ -163,11 +163,10 @@ bool GameMode::mouseMoved(const OIS::MouseEvent &arg)
         // Check to see if the current query result is a tile.
         resultName = itr->movable->getName();
 
-        if (resultName.find("Level_") == std::string::npos)
+        // Checks which tile we are on (if any)
+        if (!Tile::checkTileName(resultName, inputManager->mXPos, inputManager->mYPos))
             continue;
 
-        // Updates the x-y coordinates of the tile.
-        sscanf(resultName.c_str(), "Level_%i_%i", &inputManager->mXPos, &inputManager->mYPos);
         handleCursorPositionUpdate();
 
         // If we don't drag anything, there is no affected tiles to compute.

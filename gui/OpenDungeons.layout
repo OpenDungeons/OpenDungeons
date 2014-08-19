@@ -111,22 +111,28 @@
                     <Property name="TooltipText" value="Build sleeping places for your creatures" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
-                <Window type="OD/ImageButton" name="DojoButton" >
+                <Window type="OD/ImageButton" name="HatcheryButton" >
                     <Property name="Area" value="{{0,140},{0,20},{0,200},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/HatcheryButton" />
+                    <Property name="TooltipText" value="Build a Hatchery" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
+                <Window type="OD/ImageButton" name="DojoButton" >
+                    <Property name="Area" value="{{0,200},{0,20},{0,260},{0,80}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/DojoButton" />
                     <Property name="TooltipText" value="Build a Training Hall" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="ForgeButton" >
-                    <Property name="Area" value="{{0,200},{0,20},{0,260},{0,80}}" />
+                    <Property name="Area" value="{{0,260},{0,20},{0,320},{0,80}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/ForgeButton" />
                     <Property name="TooltipText" value="Build a Forge" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="LibraryButton" >
-                    <Property name="Area" value="{{0,260},{0,20},{0,320},{0,80}}" />
+                    <Property name="Area" value="{{0,320},{0,20},{0,380},{0,80}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/LibraryButton" />
-                    <Property name="TooltipText" value="Build a Library" />
+                    <Property name="TooltipText" value="Build a Hatchery" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
             </Window>

@@ -280,12 +280,28 @@ public:
     //! Returns true if the creature can be picked up
     bool tryPickup();
 
-    inline void decreaseAwakeness(double val) { mAwakeness -= val; }
-    inline void setJobWait(int val) { mJobWait = val; }
-    inline int getJobWait() { return mJobWait; }
+    inline void jobDone(double val)
+    {
+        mAwakeness -= val;
+        if(mAwakeness < 0.0)
+            mAwakeness = 0.0;
+    }
+    inline void setJobCooldown(int val) { mJobCooldown = val; }
+    inline int getJobCooldown() { return mJobCooldown; }
+    inline void foodEaten(double val)
+    {
+        mHunger -= val;
+        if(mHunger < 0.0)
+            mHunger = 0.0;
+    }
+    inline void setEatCooldown(int val) { mEatCooldown = val; }
+    inline int getEatCooldown() { return mEatCooldown; }
 
     //! \brief Allows to change the room the creature is using (when room absorbtion for example)
     void changeJobRoom(Room* newRoom);
+
+    //! \brief Allows to change the room the creature is using (when room absorbtion for example)
+    void changeEatRoom(Room* newRoom);
 
 protected:
     virtual void createMeshLocal();
@@ -321,6 +337,7 @@ private:
     bool            mIsOnMap;
     bool            mHasVisualDebuggingEntities;
     double          mAwakeness;
+    double          mHunger;
     double          mMaxHP;
     double          mMaxMana;
 
@@ -336,11 +353,13 @@ private:
     unsigned int    mDeathCounter;
     int             mGold;
     int             mBattleFieldAgeCounter;
-    int             mJobWait;
+    int             mJobCooldown;
+    int             mEatCooldown;
 
     Tile*           mPreviousPositionTile;
     BattleField*    mBattleField;
     Room*           mJobRoom;
+    Room*           mEatRoom;
     CEGUI::Window*  mStatsWindow;
 
     std::vector<Tile*>              mVisibleTiles;
@@ -399,12 +418,20 @@ private:
     bool handleFindHomeAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature working action logic.
+    //! This functions will hanlde the creature job action logic.
     //! \return true when another action should handled after that one.
-    bool handleWorkingAction(bool isWorkForced);
+    bool handleJobAction(bool isForced);
 
-    //! \brief Makes the creature stop working (releases the working room)
-    void stopWorking();
+    //! \brief A sub-function called by doTurn()
+    //! This functions will hanlde the creature eating action logic.
+    //! \return true when another action should handled after that one.
+    bool handleEatingAction(bool isForced);
+
+    //! \brief Makes the creature stop its job (releases the job room)
+    void stopJob();
+
+    //! \brief Makes the creature stop eating (releases the hatchery)
+    void stopEating();
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature attack action logic.

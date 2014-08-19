@@ -14,6 +14,7 @@
 	<Image height="60" name="ForgeButton" width="60" xPos="125" yPos="97" />
 	<Image height="60" name="TreasuryButton" width="60" xPos="187" yPos="97" />
 	<Image height="60" name="LibraryButton" width="60" xPos="249" yPos="97" />
+	<Image height="60" name="HatcheryButton" width="60" xPos="322" yPos="97" />
 
 	<Image height="60" name="CannonButton" width="60" xPos="125" yPos="159" />
 
