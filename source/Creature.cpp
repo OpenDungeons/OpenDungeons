@@ -544,7 +544,7 @@ void Creature::doTurn()
         // Let the creature lay dead on the ground for a few turns before removing it from the GameMap.
         if (mDeathCounter == NB_COUNTER_DEATH)
         {
-            stopWorking();
+            stopJob();
             stopEating();
             clearDestinations();
             setAnimationState("Die", false, false);
@@ -712,12 +712,12 @@ void Creature::doTurn()
                     loopBack = handleSleepAction();
                     break;
 
-                case CreatureAction::workdecided:
-                    loopBack = handleWorkingAction(false);
+                case CreatureAction::jobdecided:
+                    loopBack = handleJobAction(false);
                     break;
 
-                case CreatureAction::workforced:
-                    loopBack = handleWorkingAction(true);
+                case CreatureAction::jobforced:
+                    loopBack = handleJobAction(true);
                     break;
 
                 case CreatureAction::eatdecided:
@@ -836,10 +836,10 @@ void Creature::decideNextAction()
     }
     // Otherwise, we try to work
     else if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(50.0, 100.0) < mAwakeness
-             && peekAction().getType() != CreatureAction::workdecided)
+             && peekAction().getType() != CreatureAction::jobdecided)
     {
         // Check to see if we can work
-        pushAction(CreatureAction::workdecided);
+        pushAction(CreatureAction::jobdecided);
     }
 }
 
@@ -1000,7 +1000,7 @@ bool Creature::handleIdleAction()
             // If not, can we work in this room ?
             else if((room != NULL) && (room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
             {
-                pushAction(CreatureAction::workforced);
+                pushAction(CreatureAction::jobforced);
                 return true;
             }
         }
@@ -1830,7 +1830,7 @@ bool Creature::handleFindHomeAction()
     return true;
 }
 
-bool Creature::handleWorkingAction(bool isForced)
+bool Creature::handleJobAction(bool isForced)
 {
     // Current creature tile position
     Tile* myTile = positionTile();
@@ -1840,7 +1840,7 @@ bool Creature::handleWorkingAction(bool isForced)
     {
         popAction();
 
-        stopWorking();
+        stopJob();
         return true;
     }
     // Make sure we are on the map.
@@ -1868,7 +1868,7 @@ bool Creature::handleWorkingAction(bool isForced)
         // We are not on the map, don't do anything.
         popAction();
 
-        stopWorking();
+        stopJob();
         return false;
     }
 
@@ -1882,7 +1882,7 @@ bool Creature::handleWorkingAction(bool isForced)
     {
         popAction();
 
-        stopWorking();
+        stopJob();
         return true;
     }
 
@@ -1905,7 +1905,7 @@ bool Creature::handleWorkingAction(bool isForced)
     {
         // The room is already being used, stop trying to work.
         popAction();
-        stopWorking();
+        stopJob();
         return true;
     }
 
@@ -1924,7 +1924,7 @@ bool Creature::handleWorkingAction(bool isForced)
     }
 
     // Default action
-    stopWorking();
+    stopJob();
     return true;
 }
 
@@ -2026,7 +2026,7 @@ bool Creature::handleEatingAction(bool isForced)
     return true;
 }
 
-void Creature::stopWorking()
+void Creature::stopJob()
 {
     if (mJobRoom == NULL)
         return;
@@ -2752,7 +2752,7 @@ bool Creature::tryPickup()
     getGameMap()->removeCreature(this);
     clearDestinations();
     clearActionQueue();
-    stopWorking();
+    stopJob();
     stopEating();
 
     return true;

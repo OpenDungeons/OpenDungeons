@@ -38,8 +38,8 @@ public:
         attackObject, // Do damage to an attackableObject withing range, if not in range begin maneuvering.
         findHome, // Try to find a "home" tile in a quarters somewhere where the creature can sleep.
         sleep, // Try to go to its home tile to and sleep when it gets there.
-        workdecided, // (fighters only) Check to see if our seat controls a room where we can work (train, forge, search, ...)
-        workforced, // (fighters only)Check to see if we have been dropped on a room where we can work
+        jobdecided, // (fighters only) Check to see if our seat controls a room where we can work (train, forge, search, ...)
+        jobforced, // (fighters only)Check to see if we have been dropped on a room where we can work
         eatdecided, // (fighters only) Try to find a hatchery to eat
         eatforced, // (fighters only) Force eating if the creature is dropped in a hatchery
         idle // Stand around doing nothing.

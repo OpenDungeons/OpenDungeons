@@ -238,7 +238,7 @@ bool RoomDojo::doUpkeep()
 
                 ro->setAnimationState("Triggered", false, false);
                 creature->recieveExp(5.0);
-                creature->workDone(5.0);
+                creature->jobDone(5.0);
                 creature->setJobCooldown(Random::Uint(3, 8));
             }
         }

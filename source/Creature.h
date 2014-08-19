@@ -280,7 +280,7 @@ public:
     //! Returns true if the creature can be picked up
     bool tryPickup();
 
-    inline void workDone(double val)
+    inline void jobDone(double val)
     {
         mAwakeness -= val;
         if(mAwakeness < 0.0)
@@ -418,17 +418,17 @@ private:
     bool handleFindHomeAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature working action logic.
+    //! This functions will hanlde the creature job action logic.
     //! \return true when another action should handled after that one.
-    bool handleWorkingAction(bool isForced);
+    bool handleJobAction(bool isForced);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature eating action logic.
     //! \return true when another action should handled after that one.
     bool handleEatingAction(bool isForced);
 
-    //! \brief Makes the creature stop working (releases the working room)
-    void stopWorking();
+    //! \brief Makes the creature stop its job (releases the job room)
+    void stopJob();
 
     //! \brief Makes the creature stop eating (releases the hatchery)
     void stopEating();
