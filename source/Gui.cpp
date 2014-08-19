@@ -173,10 +173,6 @@ void Gui::assignEventHandlers()
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&cannonButtonPressed));
 
-    sheets[inGameMenu]->getChild(BUTTON_QUIT)->subscribeEvent(
-            CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&quitButtonPressed));
-
     sheets[inGameMenu]->getChild(MINIMAP)->subscribeEvent(
             CEGUI:: Window::EventMouseClick,
             CEGUI::Event::Subscriber(&miniMapclicked));
@@ -267,15 +263,6 @@ bool Gui::mMNewGameMultiButtonPressed(const CEGUI::EventArgs& e)
 
     mm->requestMenuMultiplayerMode();
 
-    return true;
-}
-
-bool Gui::quitButtonPressed(const CEGUI::EventArgs& e)
-{
-    // TODO: Move this within the editor gui
-    //GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    //MapLoader::writeGameMapToFile(std::string("levels/Test.level") + std::string(".out"), *gameMap);
-    ODFrameListener::getSingletonPtr()->requestExit();
     return true;
 }
 
@@ -574,8 +561,6 @@ const std::string Gui::BUTTON_CANNON = "MainTabControl/Traps/CannonButton";
 const std::string Gui::TAB_SPELLS = "MainTabControl/Spells";
 const std::string Gui::TAB_CREATURES = "MainTabControl/Creatures";
 const std::string Gui::TAB_COMBAT = "MainTabControl/Combat";
-const std::string Gui::TAB_SYSTEM = "MainTabControl/System";
-const std::string Gui::BUTTON_QUIT = "MainTabControl/System/QuitButton";
 
 const std::string Gui::MM_BACKGROUND = "Background";
 const std::string Gui::MM_WELCOME_MESSAGE = "WelcomeBanner";

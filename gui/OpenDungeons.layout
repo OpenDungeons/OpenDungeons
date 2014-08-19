@@ -163,25 +163,6 @@
                 <Property name="Visible" value="False" />
                 <Property name="RiseOnClickEnabled" value="False" />
             </Window>
-            <Window type="DefaultWindow" name="System" >
-                <Property name="Area" value="{{0,0},{0,0},{1,0},{1,1}}" />
-                <Property name="Text" value="System" />
-                <Property name="MaxSize" value="{{1,0},{1,0}}" />
-                <Property name="Visible" value="False" />
-                <Property name="RiseOnClickEnabled" value="False" />
-                <Window type="OD/ImageButton" name="HostButton" >
-                    <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsIcons/HostButton" />
-                    <Property name="TooltipText" value="Starts the game" />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-                <Window type="OD/ImageButton" name="QuitButton" >
-                    <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsIcons/QuitButton" />
-                    <Property name="TooltipText" value="Quits the game" />
-                    <Property name="InheritsAlpha" value="False" />
-                </Window>
-            </Window>
         </Window>
         <Window type="OD/MainMenuButton" name="ConfirmExit" >
             <Property name="Area" value="{{0.5,-200},{0.5,-100},{0.5,200},{0.5,100}}" />
