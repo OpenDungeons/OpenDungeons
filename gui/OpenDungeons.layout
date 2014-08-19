@@ -126,6 +126,12 @@
                 <Window type="OD/ImageButton" name="LibraryButton" >
                     <Property name="Area" value="{{0,260},{0,20},{0,320},{0,80}}" />
                     <Property name="NormalImage" value="OpenDungeonsIcons/LibraryButton" />
+                    <Property name="TooltipText" value="Build a Hatchery" />
+                    <Property name="InheritsAlpha" value="False" />
+                </Window>
+                <Window type="OD/ImageButton" name="HatcheryButton" >
+                    <Property name="Area" value="{{0,320},{0,20},{0,380},{0,80}}" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/HatcheryButton" />
                     <Property name="TooltipText" value="Build a Library" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>

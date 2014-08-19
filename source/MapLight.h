@@ -84,6 +84,8 @@ public:
     void setPosition(Ogre::Real nX, Ogre::Real nY, Ogre::Real nZ);
     void setPosition(const Ogre::Vector3& nPosition);
 
+    virtual std::string getOgreNamePrefix() { return "MapLight_"; }
+
     const std::string& getName() const
     { return mName; }
 

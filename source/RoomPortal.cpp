@@ -28,6 +28,7 @@
 #include "Weapon.h"
 #include "CreatureAction.h"
 #include "Random.h"
+#include "LogManager.h"
 
 #include <cmath>
 
@@ -161,10 +162,11 @@ void RoomPortal::spawnCreature()
         return;
     }
 
-    std::cout << "Spawning a creature of class " << classToSpawn->getClassName() << std::endl;
-
     // Create a new creature and copy over the class-based creature parameters.
     Creature *newCreature = new Creature(getGameMap(), classToSpawn, true);
+
+    LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
+        + ", name=" + newCreature->getName() + ", color=" + Ogre::StringConverter::toString(getColor()));
 
     // Set the creature specific parameters.
     //NOTE:  This needs to be modified manually when the level file creature format changes.

@@ -51,6 +51,8 @@ public:
     virtual ~Trap()
     {}
 
+    virtual std::string getOgreNamePrefix() { return "Trap_"; }
+
     /*! \brief Creates a type specific subclass of trap and returns a pointer to it.
      * This function also sets up some of the room's properties. If nameToUse is empty,
      * a new unique name will be generated. If not, the given one will be used

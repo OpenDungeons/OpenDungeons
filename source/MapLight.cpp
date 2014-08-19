@@ -147,7 +147,7 @@ void MapLight::setPosition(const Ogre::Vector3& nPosition)
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
-    request->str = std::string("MapLight_") + mName + "_node";
+    request->str = getOgreNamePrefix() + mName + "_node";
     request->vec = mPosition;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.
@@ -173,7 +173,7 @@ void MapLight::advanceFlicker(Ogre::Real time)
     // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::moveSceneNode;
-    request->str = std::string("MapLight_") + mName + "_flicker_node";
+    request->str = getOgreNamePrefix() + mName + "_flicker_node";
     request->vec = mFlickerPosition;
 
     // Add the request to the queue of rendering operations to be performed before the next frame.

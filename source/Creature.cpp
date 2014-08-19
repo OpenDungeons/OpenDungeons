@@ -40,7 +40,7 @@
 #include "Helper.h"
 #include "RoomTreasury.h"
 #include "RoomQuarters.h"
-#include "RoomDojo.h"
+#include "RoomHatchery.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/WindowManager.h>
@@ -79,6 +79,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool genera
     mIsOnMap                 (false),
     mHasVisualDebuggingEntities (false),
     mAwakeness               (100.0),
+    mHunger                  (0.0),
     mMaxHP                   (100.0),
     mMaxMana                 (100.0),
     mLevel                   (1),
@@ -90,10 +91,12 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool genera
     mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mBattleFieldAgeCounter   (0),
-    mJobWait                 (0),
+    mJobCooldown             (0),
+    mEatCooldown             (0),
     mPreviousPositionTile    (NULL),
     mBattleField             (new BattleField(gameMap)),
     mJobRoom                 (NULL),
+    mEatRoom                 (NULL),
     mStatsWindow             (NULL),
     mForceAction             (forcedActionNone),
     mSound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
@@ -131,6 +134,7 @@ Creature::Creature(GameMap* gameMap) :
     mIsOnMap                 (false),
     mHasVisualDebuggingEntities (false),
     mAwakeness               (100.0),
+    mHunger                  (0.0),
     mMaxHP                   (100.0),
     mMaxMana                 (100.0),
     mLevel                   (1),
@@ -142,10 +146,12 @@ Creature::Creature(GameMap* gameMap) :
     mDeathCounter            (NB_COUNTER_DEATH),
     mGold                    (0),
     mBattleFieldAgeCounter   (0),
-    mJobWait                 (0),
+    mJobCooldown             (0),
+    mEatCooldown             (0),
     mPreviousPositionTile    (NULL),
     mBattleField             (NULL),
     mJobRoom                 (NULL),
+    mEatRoom                 (NULL),
     mForceAction             (forcedActionNone),
     mStatsWindow             (NULL)
 {
@@ -323,6 +329,7 @@ ODPacket& operator<<(ODPacket& os, Creature *c)
     os << c->mMaxHP;
     os << c->mMaxMana;
     os << c->mAwakeness;
+    os << c->mHunger;
 
     // If we had to create dummy weapons for serialization, delete them now.
     if (c->mWeaponL == NULL)
@@ -371,6 +378,7 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
     is >> c->mMaxHP;
     is >> c->mMaxMana;
     is >> c->mAwakeness;
+    is >> c->mHunger;
 
     return is;
 }
@@ -440,18 +448,6 @@ void Creature::setPosition(const Ogre::Vector3& v)
         // We are not on the map
         MovableGameEntity::setPosition(v);
     }
-
-    if(getGameMap()->isServerGameMap())
-        return;
-
-    // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::moveSceneNode;
-    request->str = getName() + "_node";
-    request->vec = v;
-
-    // Add the request to the queue of rendering operations to be performed before the next frame.
-    RenderManager::queueRenderRequest(request);
 }
 
 void Creature::drop(const Ogre::Vector3& v)
@@ -549,6 +545,7 @@ void Creature::doTurn()
         if (mDeathCounter == NB_COUNTER_DEATH)
         {
             stopWorking();
+            stopEating();
             clearDestinations();
             setAnimationState("Die", false, false);
         }
@@ -646,6 +643,10 @@ void Creature::doTurn()
     if (mAwakeness < 0.0)
         mAwakeness = 0.0;
 
+    mHunger += 0.15;
+    if (mHunger > 100.0)
+        mHunger = 100.0;
+
     // Look at the surrounding area
     updateVisibleTiles();
     mVisibleEnemyObjects         = getVisibleEnemyObjects();
@@ -717,6 +718,14 @@ void Creature::doTurn()
 
                 case CreatureAction::workforced:
                     loopBack = handleWorkingAction(true);
+                    break;
+
+                case CreatureAction::eatdecided:
+                    loopBack = handleEatingAction(false);
+                    break;
+
+                case CreatureAction::eatforced:
+                    loopBack = handleEatingAction(true);
                     break;
 
                 case CreatureAction::attackObject:
@@ -818,7 +827,15 @@ void Creature::decideNextAction()
     {
         pushAction(CreatureAction::sleep);
     }
-    else if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(0.5, 1.0) < mAwakeness / 100.0
+    // If we are hungry, we go to eat
+    else if (Random::Double(50.0, 100.0) <= mHunger
+             && peekAction().getType() != CreatureAction::eatdecided)
+    {
+        // Check to see if we can work
+        pushAction(CreatureAction::eatdecided);
+    }
+    // Otherwise, we try to work
+    else if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(50.0, 100.0) < mAwakeness
              && peekAction().getType() != CreatureAction::workdecided)
     {
         // Check to see if we can work
@@ -974,7 +991,14 @@ bool Creature::handleIdleAction()
         if(tile != NULL)
         {
             Room* room = tile->getCoveringRoom();
-            if((room != NULL) && (room->hasOpenCreatureSpot(this)))
+            // we see if we are in an hatchery
+            if((room != NULL) && (room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
+            {
+                pushAction(CreatureAction::eatforced);
+                return true;
+            }
+            // If not, can we work in this room ?
+            else if((room != NULL) && (room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
             {
                 pushAction(CreatureAction::workforced);
                 return true;
@@ -1806,7 +1830,7 @@ bool Creature::handleFindHomeAction()
     return true;
 }
 
-bool Creature::handleWorkingAction(bool isWorkForced)
+bool Creature::handleWorkingAction(bool isForced)
 {
     // Current creature tile position
     Tile* myTile = positionTile();
@@ -1831,17 +1855,9 @@ bool Creature::handleWorkingAction(bool isWorkForced)
         Room* tempRoom = myTile->getCoveringRoom();
         if (tempRoom != NULL)
         {
-            bool useRoom = true;
-            if(!isWorkForced)
+            // It is the room responsability to test if the creature is suited for working in it
+            if(tempRoom->hasOpenCreatureSpot(this) && (tempRoom->getType() != Room::hatchery) && tempRoom->addCreatureUsingRoom(this))
             {
-                // TODO : check in the creature def if the room is suited for the creature
-                // For now, we use whichever room where we can work
-                useRoom = true;
-            }
-
-            if(useRoom && tempRoom->hasOpenCreatureSpot(this) && tempRoom->addCreatureUsingRoom(this))
-            {
-                setJobWait(0);
                 mJobRoom = tempRoom;
                 return false;
             }
@@ -1857,7 +1873,7 @@ bool Creature::handleWorkingAction(bool isWorkForced)
     }
 
     // TODO : We should decide which room to use depending on the creatures preferences (library
-    // for wizards, ...)
+    // for wizards, ...).
 
     // Get the list of dojos controlled by our seat and make sure there is at least one.
     std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dojo, getColor());
@@ -1912,6 +1928,104 @@ bool Creature::handleWorkingAction(bool isWorkForced)
     return true;
 }
 
+bool Creature::handleEatingAction(bool isForced)
+{
+    // Current creature tile position
+    Tile* myTile = positionTile();
+
+    if ((isForced && mHunger > 0) ||
+        (!isForced && mHunger > Random::Double(70.0, 100.0)))
+    {
+        popAction();
+
+        stopEating();
+        return true;
+    }
+    // Make sure we are on the map.
+    else if (myTile != NULL)
+    {
+        // If we are already eating, nothing to do
+        if(mEatRoom != NULL)
+            return false;
+
+        // See if we are in a hatchery. If so, we try to add the creature. If it is ok, the room
+        // will handle the creature from here to make it go where it should
+        Room* tempRoom = myTile->getCoveringRoom();
+        if ((tempRoom != NULL) && (tempRoom->getType() == Room::hatchery && tempRoom->hasOpenCreatureSpot(this)))
+        {
+            if(tempRoom->addCreatureUsingRoom(this))
+            {
+                mEatRoom = tempRoom;
+                return false;
+            }
+        }
+    }
+    else if (myTile == NULL)
+    {
+        // We are not on the map, don't do anything.
+        popAction();
+
+        stopEating();
+        return false;
+    }
+
+    // TODO : We should decide which room to use depending on the creatures preferences (library
+    // for wizards, ...)
+
+    // Get the list of hatchery controlled by our seat and make sure there is at least one.
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::hatchery, getColor());
+
+    if (tempRooms.empty())
+    {
+        popAction();
+
+        stopEating();
+        return true;
+    }
+
+    // Pick a hatchery and try to walk to it.
+    // TODO : do we need a max distance for hatchery ?
+    double maxDistance = 40.0;
+    Room* tempRoom = NULL;
+    int nbTry = 5;
+    do
+    {
+        int tempInt = Random::Uint(0, tempRooms.size() - 1);
+        tempRoom = tempRooms[tempInt];
+        tempRooms.erase(tempRooms.begin() + tempInt);
+        double tempDouble = 1.0 / (maxDistance - getGameMap()->crowDistance(myTile, tempRoom->getCoveredTile(0)));
+        if (Random::Double(0.0, 1.0) < tempDouble)
+            break;
+        --nbTry;
+    } while (nbTry > 0 && !tempRoom->hasOpenCreatureSpot(this) && !tempRooms.empty());
+
+    if (!tempRoom || !tempRoom->hasOpenCreatureSpot(this))
+    {
+        // The room is already being used, stop trying to eat
+        popAction();
+        stopEating();
+        return true;
+    }
+
+    Tile* tempTile = tempRoom->getCoveredTile(Random::Uint(0, tempRoom->numCoveredTiles() - 1));
+    std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition->getTilePassability());
+    if (tempPath.size() < maxDistance && setWalkPath(tempPath, 2, false))
+    {
+        setAnimationState("Walk");
+        pushAction(CreatureAction::walkToTile);
+        return false;
+    }
+    else
+    {
+        // We could not find a room where we can eat so stop trying to find one.
+        popAction();
+    }
+
+    // Default action
+    stopEating();
+    return true;
+}
+
 void Creature::stopWorking()
 {
     if (mJobRoom == NULL)
@@ -1919,6 +2033,15 @@ void Creature::stopWorking()
 
     mJobRoom->removeCreatureUsingRoom(this);
     mJobRoom = NULL;
+}
+
+void Creature::stopEating()
+{
+    if (mEatRoom == NULL)
+        return;
+
+    mEatRoom->removeCreatureUsingRoom(this);
+    mEatRoom = NULL;
 }
 
 void Creature::changeJobRoom(Room* newRoom)
@@ -1931,6 +2054,18 @@ void Creature::changeJobRoom(Room* newRoom)
         mJobRoom = newRoom;
     else
         mJobRoom = NULL;
+}
+
+void Creature::changeEatRoom(Room* newRoom)
+{
+    if (mEatRoom != NULL)
+        mEatRoom->removeCreatureUsingRoom(this);
+
+
+    if(newRoom != NULL && newRoom->addCreatureUsingRoom(this))
+        mEatRoom = newRoom;
+    else
+        mEatRoom = NULL;
 }
 
 bool Creature::handleAttackAction()
@@ -2228,6 +2363,7 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
     mHp             = creatureNewState->mHp;
     mMana           = creatureNewState->mMana;
     mAwakeness      = creatureNewState->mAwakeness;
+    mHunger         = creatureNewState->mHunger;
 
     // Scale up the mesh.
     if ((oldLevel != getLevel()) && isMeshExisting() && ((getLevel() <= 30 && getLevel() % 2 == 0) || (getLevel() > 30 && getLevel()
@@ -2528,7 +2664,10 @@ std::string Creature::getStatsText()
     tempSS << "Experience: " << mExp << std::endl;
     tempSS << "HP: " << getHP() << " / " << mMaxHP << std::endl;
     if (!getDefinition()->isWorker())
+    {
         tempSS << "Awakeness: " << mAwakeness << std::endl;
+        tempSS << "Hunger: " << mHunger << std::endl;
+    }
     tempSS << "Move speed: " << getMoveSpeed() << std::endl;
     tempSS << "Left hand: Attack: " << mWeaponL->getDamage() << ", Range: " << mWeaponL->getRange() << std::endl;
     tempSS << "Right hand: Attack: " << mWeaponR->getDamage() << ", Range: " << mWeaponR->getRange() << std::endl;
@@ -2614,6 +2753,7 @@ bool Creature::tryPickup()
     clearDestinations();
     clearActionQueue();
     stopWorking();
+    stopEating();
 
     return true;
 }

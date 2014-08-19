@@ -72,6 +72,8 @@ public:
     ~BattleField()
     {}
 
+    virtual std::string getOgreNamePrefix() { return "Field_"; }
+
     const std::string& getName() const
     { return mName; }
 

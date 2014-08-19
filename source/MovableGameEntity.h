@@ -44,6 +44,9 @@ public:
      */
     void addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z = 0.0);
 
+    //! \brief Checks if the destination queue is empty
+    bool isMoving();
+
 
     /*! \brief Replaces a object's current walk queue with a new path.
      *
@@ -75,11 +78,11 @@ public:
 
     //! \brief Updates the entity path, movement, and direction
     //! \param timeSinceLastFrame the elapsed time since last displayed frame in seconds.
-    void update(Ogre::Real timeSinceLastFrame);
+    virtual void update(Ogre::Real timeSinceLastFrame);
 
     void setWalkDirection(Ogre::Vector3& direction);
 
-    virtual std::string getOgreNamePrefix() = 0;
+    void setPosition(const Ogre::Vector3& v);
 
     Ogre::AnimationState* mAnimationState;
     Ogre::SceneNode* mSceneNode;

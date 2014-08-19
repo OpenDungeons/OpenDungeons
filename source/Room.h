@@ -45,13 +45,16 @@ public:
         portal,
         forge,
         dojo,
-        library
+        library,
+        hatchery
     };
 
     // Constructors and operators
     Room(GameMap* gameMap);
     virtual ~Room()
     {}
+
+    virtual std::string getOgreNamePrefix() { return "Room_"; }
 
     /*! \brief Creates a type specific subclass of room (quarters, treasury, etc) and returns a pointer to it.
      * This function sets up some of the room's properties. If nameToUse is empty, a new unique name

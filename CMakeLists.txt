@@ -179,6 +179,7 @@ set(OD_SOURCEFILES
     ${SRC}/RoomDojo.cpp
     ${SRC}/RoomDungeonTemple.cpp
     ${SRC}/RoomForge.cpp
+    ${SRC}/RoomHatchery.cpp
     ${SRC}/RoomLibrary.cpp
     ${SRC}/RoomObject.cpp
     ${SRC}/RoomPortal.cpp

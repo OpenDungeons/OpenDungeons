@@ -1199,3 +1199,23 @@ std::vector<Tile*> Tile::getAllNeighbors()
     return neighbors;
 }
 
+std::string Tile::buildName(int x, int y)
+{
+    std::stringstream ss;
+    ss << "Level_";
+    ss << x;
+    ss << "_";
+    ss << y;
+    return ss.str();
+}
+
+bool Tile::checkTileName(const std::string& tileName, int& x, int& y)
+{
+    if (tileName.find("Tile_Level_") == std::string::npos)
+        return false;
+
+    if(sscanf(tileName.c_str(), "Tile_Level_%i_%i", &x, &y) != 2)
+        return false;
+
+    return true;
+}

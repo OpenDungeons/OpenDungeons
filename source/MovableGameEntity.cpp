@@ -74,6 +74,11 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
     }
 }
 
+bool MovableGameEntity::isMoving()
+{
+    return !mWalkQueue.empty();
+}
+
 bool MovableGameEntity::setWalkPath(std::list<Tile*> path,
                                     unsigned int minDestinations, bool addFirstStop)
 {
@@ -106,7 +111,6 @@ void MovableGameEntity::clearDestinations()
 {
     mWalkQueue.clear();
     stopWalking();
-
     if (getGameMap()->isServerGameMap())
     {
         try
@@ -157,7 +161,7 @@ void MovableGameEntity::setWalkDirection(Ogre::Vector3& direction)
     RenderRequest* request = new RenderRequest;
     request->type = RenderRequest::orientSceneNodeToward;
     request->vec = mWalkDirection;
-    request->str = getName() + "_node";
+    request->p = static_cast<void*>(this);
     RenderManager::queueRenderRequest(request);
 }
 
@@ -228,17 +232,17 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
     if (mWalkQueue.empty())
         return;
 
-    // Move the creature
+    // Move the entity
 
-    // If the previously empty walk queue has had a destination added to it we need to rotate the creature to face its initial walk direction.
+    // If the previously empty walk queue has had a destination added to it we need to rotate the entity to face its initial walk direction.
     if (mWalkQueueFirstEntryAdded)
     {
         mWalkQueueFirstEntryAdded = false;
         faceToward((int)mWalkQueue.front().x, (int)mWalkQueue.front().y);
     }
 
-    //FIXME: The moveDist should probably be tied to the scale of the creature as well
-    //FIXME: When the client and the server are using different frame rates, the creatures walk at different speeds
+    //FIXME: The moveDist should probably be tied to the scale of the entity as well
+    //FIXME: When the client and the server are using different frame rates, the entities walk at different speeds
     double moveDist = ODApplication::turnsPerSecond
                       * getMoveSpeed()
                       * timeSinceLastFrame;
@@ -272,4 +276,19 @@ void MovableGameEntity::update(Ogre::Real timeSinceLastFrame)
         // Move the object closer to its destination by the amount it should travel this frame.
         setPosition(getPosition() + mWalkDirection * (Ogre::Real)moveDist);
     }
+}
+
+void MovableGameEntity::setPosition(const Ogre::Vector3& v)
+{
+    GameEntity::setPosition(v);
+    if(getGameMap()->isServerGameMap())
+        return;
+
+    // Create a RenderRequest to notify the render queue that the scene node for this creature needs to be moved.
+    RenderRequest *request = new RenderRequest;
+    request->type = RenderRequest::moveSceneNode;
+    request->str = getOgreNamePrefix() + getName() + "_node";
+    request->vec = v;
+    RenderManager::queueRenderRequest(request);
+
 }

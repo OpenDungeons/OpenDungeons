@@ -226,10 +226,10 @@ bool RoomDojo::doUpkeep()
         if(creaturePosition.x == wantedX &&
            creaturePosition.y == wantedY)
         {
-            if (creature->getJobWait() > 0)
+            if (creature->getJobCooldown() > 0)
             {
                 creature->setAnimationState("Idle");
-                creature->setJobWait(creature->getJobWait() - 1);
+                creature->setJobCooldown(creature->getJobCooldown() - 1);
             }
             else
             {
@@ -238,8 +238,8 @@ bool RoomDojo::doUpkeep()
 
                 ro->setAnimationState("Triggered", false, false);
                 creature->recieveExp(5.0);
-                creature->decreaseAwakeness(5.0);
-                creature->setJobWait(Random::Uint(3, 8));
+                creature->workDone(5.0);
+                creature->setJobCooldown(Random::Uint(3, 8));
             }
         }
     }
