@@ -6680,7 +6680,7 @@ Dwarf3
 
 [Creatures]
 # className	name	posX	posY	posZ	color	weaponLname	damage	range	defense	weaponRname	damage	range	defense	HP	mana	Level
-Adventurer	Adventurer_001	196	200	0	1	Shield_small	7	4	0	Shortsword	8	3	0	155	2	1
+Adventurer	Adventurer_001	196	200	0	1	none	7	4	0	Shortsword	8	3	0	155	2	1
 ConstructWorker	ConstructWorker1	196	230	0	1	none	1	4	3	none	8	4	0	125	3	1
 Gnome	Gnome2	192	229	0	2	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
 Goblin	Goblin3	183	229	0	3	Roundshield	1	4	3	Longsword	8	4	0	125	3	1
