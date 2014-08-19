@@ -44,6 +44,9 @@ public:
 
 protected:
     void createMeshLocal();
+    void destroyMeshLocal();
+
+    void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 
 private:
     //! \brief Finds the X,Y coordinates of the center of the tiles that make up the portal.

@@ -60,8 +60,6 @@ private:
     GameMap& gameMap;
     Player& player;
     Seat& seat;
-
-    Room* dungeonTemple;
 };
 
 #endif // AIWRAPPER_H

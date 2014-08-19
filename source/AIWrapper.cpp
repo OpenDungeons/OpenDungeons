@@ -23,7 +23,7 @@
 #include "LogManager.h"
 
 AIWrapper::AIWrapper(GameMap& gameMap, Player& player)
-    : gameMap(gameMap), player(player), seat(*player.getSeat()), dungeonTemple(NULL)
+    : gameMap(gameMap), player(player), seat(*player.getSeat())
 {
 }
 
@@ -87,20 +87,11 @@ std::vector<const Room*> AIWrapper::getOwnedRoomsByType(Room::RoomType type)
 
 Room* AIWrapper::getDungeonTemple()
 {
-    if(dungeonTemple == NULL)
-    {
-        std::vector<Room*> dt = gameMap.getRoomsByTypeAndColor(Room::dungeonTemple, seat.getColor());
-        if(!dt.empty())
-        {
-            dungeonTemple = dt.front();
-        }
-        else
-        {
-            LogManager::getSingleton().logMessage("Warning: AI wants dungeon temple, but it doesn't exist!");
-            dungeonTemple = NULL;
-        }
-    }
-    return dungeonTemple;
+    std::vector<Room*> dt = gameMap.getRoomsByTypeAndColor(Room::dungeonTemple, seat.getColor());
+    if(!dt.empty())
+        return dt.front();
+    else
+        return NULL;
 }
 
 void AIWrapper::markTileForDigging(Tile* tile)

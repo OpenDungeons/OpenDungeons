@@ -36,7 +36,6 @@
 
 class GameMap;
 class Creature;
-class RoomDojo;
 class Weapon;
 class Player;
 class BattleField;
@@ -64,7 +63,7 @@ class Creature: public MovableGameEntity
 public:
     //! \brief Constructor for creatures. If generateUniqueName is false, the name should be set with
     //! setName()
-    Creature(GameMap* gameMap, bool generateUniqueName);
+    Creature(GameMap* gameMap, CreatureDefinition* definition, bool generateUniqueName);
     virtual ~Creature();
 
     static const std::string CREATURE_PREFIX;
@@ -80,11 +79,8 @@ public:
     void createStatsWindow();
     void destroyStatsWindow();
     bool CloseStatsWindow(const CEGUI::EventArgs& /*e*/);
-    void updateStatsWindow();
+    void updateStatsWindow(const std::string& txt);
     std::string getStatsText();
-
-    //! \brief Sets the creature definition for this creature
-    void setCreatureDefinition(const CreatureDefinition* def);
 
     Ogre::Vector2 get2dPosition()
     {
@@ -115,10 +111,6 @@ public:
     double getDigRate() const
     { return mDigRate; }
 
-    //! \brief Gets the death counter
-    int getDeathCounter() const
-    { return mDeathCounter; }
-
     //! \brief Gets pointer to the Weapon in left hand
     Weapon* getWeaponL() const
     { return mWeaponL; }
@@ -145,9 +137,6 @@ public:
     void setHP(double nHP);
     void setIsOnMap(bool nIsOnMap);
     void setMana(double nMana);
-
-    inline void setDeathCounter(unsigned int nC)
-    { mDeathCounter = nC; }
 
     //! \brief Attach a weapon mesh to the creature.
     //! Don't forget to create the meshes afterwards if needed.
@@ -278,13 +267,25 @@ public:
     friend ODPacket& operator>>(ODPacket& is, Creature *c);
 
     //! \brief Loads the map light data from a level line.
-    static void loadFromLine(const std::string& line, Creature* c);
+    static Creature* loadFromLine(const std::string& line, GameMap* gameMap);
 
     inline void setQuad(CullingQuad* cq)
     { mTracingCullingQuad = cq; }
 
     inline CullingQuad* getQuad()
     { return mTracingCullingQuad; }
+
+    //! \brief Checks if the creature can be picked up. If yes, this function does the needed
+    //! to prepare for the pickup (removing creature from GameMap, changing states, ...).
+    //! Returns true if the creature can be picked up
+    bool tryPickup();
+
+    inline void decreaseAwakeness(double val) { mAwakeness -= val; }
+    inline void setJobWait(int val) { mJobWait = val; }
+    inline int getJobWait() { return mJobWait; }
+
+    //! \brief Allows to change the room the creature is using (when room absorbtion for example)
+    void changeJobRoom(Room* newRoom);
 
 protected:
     virtual void createMeshLocal();
@@ -331,14 +332,15 @@ private:
     double          mExp;
     double          mDigRate;
     double          mDanceRate;
+    //! \brief Counter to let the creature stay some turns after its death
     unsigned int    mDeathCounter;
     int             mGold;
     int             mBattleFieldAgeCounter;
-    int             mTrainWait;
+    int             mJobWait;
 
     Tile*           mPreviousPositionTile;
     BattleField*    mBattleField;
-    RoomDojo*       mTrainingDojo;
+    Room*           mJobRoom;
     CEGUI::Window*  mStatsWindow;
 
     std::vector<Tile*>              mVisibleTiles;
@@ -397,12 +399,12 @@ private:
     bool handleFindHomeAction();
 
     //! \brief A sub-function called by doTurn()
-    //! This functions will hanlde the creature training action logic.
+    //! This functions will hanlde the creature working action logic.
     //! \return true when another action should handled after that one.
-    bool handleTrainingAction();
+    bool handleWorkingAction(bool isWorkForced);
 
-    //! \brief Makes the creature stop using the Dojo (Training room)
-    void stopUsingDojo();
+    //! \brief Makes the creature stop working (releases the working room)
+    void stopWorking();
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature attack action logic.

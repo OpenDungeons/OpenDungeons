@@ -77,13 +77,8 @@ void Player::pickUpCreature(Creature *c)
     if (!ODServer::getSingleton().isConnected() && !ODClient::getSingleton().isConnected())
         return;
 
-    if (c->getHP() <= 0.0)
-        return;
-
-    // Stop the creature walking and take it off the gameMap to prevent the AI from running on it.
-    mGameMap->removeCreature(c);
-    c->clearDestinations();
-    c->clearActionQueue();
+    if(!c->tryPickup())
+       return;
 
     // Start tracking this creature as being in this player's hand
     addCreatureToHand(c);

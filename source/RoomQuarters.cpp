@@ -87,7 +87,9 @@ void RoomQuarters::createMeshLocal()
             mCreatureSleepingInTile[tilesTaken[j]] = creature;
 
         // And recreate the bed room object
-        loadRoomObject(getGameMap(), def->getBedMeshName(), tile, x, y, rotationAngle)->createMesh();
+        RoomObject* ro = loadRoomObject(getGameMap(), def->getBedMeshName(), tile, x, y, rotationAngle);
+        addRoomObject(tile, ro);
+        ro->createMesh();
     }
 
     // Add NULL creature in the mCreatureSleepingInTile map where there a nobody,
@@ -227,7 +229,9 @@ bool RoomQuarters::installBed(Tile* t, Creature* c, double xDim, double yDim,
     }
 
     // Add the model
-    loadRoomObject(getGameMap(), def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle)->createMesh();
+    RoomObject* ro = loadRoomObject(getGameMap(), def->getBedMeshName(), t, bedInfo.getX(), bedInfo.getY(), rotationAngle);
+    addRoomObject(t, ro);
+    ro->createMesh();
     // Save the info for later...
     mBedRoomObjectsInfo.push_back(bedInfo);
     return true;

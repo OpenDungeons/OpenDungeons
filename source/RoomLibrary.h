@@ -25,9 +25,8 @@ class RoomLibrary: public Room
 public:
     RoomLibrary(GameMap* gameMap);
 
-    int numOpenCreatureSlots();
 protected:
-    virtual void createMeshLocal();
+    virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
 };
 
 #endif // ROOMLIBRARY_H

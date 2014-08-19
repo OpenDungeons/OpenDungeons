@@ -366,8 +366,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         entire_line += nextParam;
         //std::cout << "Entire line: " << entire_line << std::endl;
 
-        Creature* tempCreature = new Creature(&gameMap, false);
-        Creature::loadFromLine(entire_line, tempCreature);
+        Creature* tempCreature = Creature::loadFromLine(entire_line, &gameMap);
 
         gameMap.addCreature(tempCreature);
     }

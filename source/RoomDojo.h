@@ -20,6 +20,8 @@
 
 #include "Room.h"
 
+class Creature;
+
 class RoomDojo: public Room
 {
 public:
@@ -28,11 +30,24 @@ public:
     ~RoomDojo()
     {}
 
-    int numOpenCreatureSlots();
+    virtual bool doUpkeep();
+    virtual bool hasOpenCreatureSpot(Creature* c);
+    virtual bool addCreatureUsingRoom(Creature* c);
+    virtual void removeCreatureUsingRoom(Creature* c);
+    virtual void absorbRoom(Room *r);
+
 protected:
-    //! \brief This function properly resets the room objects places
-    //! by deleting the former and readding everything at the right place.
-    virtual void createMeshLocal();
+    virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
+    virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
+private:
+    static const Ogre::Real OFFSET_CREATURE;
+    static const Ogre::Real OFFSET_DUMMY;
+    int32_t nbTurnsNoChangeDummies;
+    void refreshCreaturesDummies();
+    void getCreatureWantedPos(Creature* creature, Tile* tileDummy,
+        Ogre::Real& wantedX, Ogre::Real& wantedY);
+    std::vector<Tile*> mUnusedDummies;
+    std::map<Creature*,Tile*> mCreaturesDummies;
 };
 
 #endif // ROOMDOJO_H
