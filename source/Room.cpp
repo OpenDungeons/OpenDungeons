@@ -34,6 +34,7 @@
 #include "GameMap.h"
 #include "RenderManager.h"
 #include "Seat.h"
+#include "LogManager.h"
 
 #include <sstream>
 
