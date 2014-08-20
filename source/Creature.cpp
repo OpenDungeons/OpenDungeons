@@ -1944,8 +1944,8 @@ bool Creature::handleJobAction(bool isForced)
     // TODO : We should decide which room to use depending on the creatures preferences (library
     // for wizards, ...).
 
-    // Get the list of dojos controlled by our seat and make sure there is at least one.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dojo, getColor());
+    // Get the list of trainingHalls controlled by our seat and make sure there is at least one.
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::trainingHall, getColor());
 
     if (tempRooms.empty())
     {

@@ -44,7 +44,7 @@ public:
         treasury,
         portal,
         forge,
-        dojo,
+        trainingHall,
         library,
         hatchery
     };

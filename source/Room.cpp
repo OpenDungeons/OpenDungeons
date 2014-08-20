@@ -195,7 +195,7 @@ Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*
     case forge:
         tempRoom = new RoomForge(gameMap);
         break;
-    case dojo:
+    case trainingHall:
         tempRoom = new RoomTrainingHall(gameMap);
         break;
     case library:
@@ -790,7 +790,7 @@ const char* Room::getMeshNameFromRoomType(RoomType t)
     case forge:
         return "Forge";
 
-    case dojo:
+    case trainingHall:
         return "Dojo";
 
     case library:
@@ -817,7 +817,7 @@ Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
     else if (s.compare("Forge") == 0)
         return forge;
     else if (s.compare("Dojo") == 0)
-        return dojo;
+        return trainingHall;
     else if (s.compare("Library") == 0)
         return library;
     else if (s.compare("Hatchery") == 0)
@@ -852,7 +852,7 @@ int Room::costPerTile(RoomType t)
     case forge:
         return 150;
 
-    case dojo:
+    case trainingHall:
         return 175;
 
     case library:

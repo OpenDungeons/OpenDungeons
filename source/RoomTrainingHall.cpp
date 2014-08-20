@@ -31,7 +31,7 @@ RoomTrainingHall::RoomTrainingHall(GameMap* gameMap) :
     Room(gameMap),
     nbTurnsNoChangeDummies(0)
 {
-    mType = dojo;
+    mType = trainingHall;
 }
 
 void RoomTrainingHall::absorbRoom(Room *r)
@@ -154,8 +154,8 @@ void RoomTrainingHall::refreshCreaturesDummies()
 
 bool RoomTrainingHall::hasOpenCreatureSpot(Creature* c)
 {
-    // Creatures can only train to level 10 at a dojo.
-    //TODO: Check to see if the dojo has been upgraded to allow training to a higher level.
+    // Creatures can only train to level 10 at a trainingHall.
+    //TODO: Check to see if the trainingHall has been upgraded to allow training to a higher level.
     if (c->getLevel() > 10)
         return false;
 
