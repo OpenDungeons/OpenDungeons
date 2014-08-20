@@ -621,6 +621,18 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotification::playCreatureSound:
+        {
+            std::string name;
+            CreatureSound::SoundType soundType;
+            OD_ASSERT_TRUE(packetReceived >> name >> soundType);
+            Creature* creature = gameMap->getCreature(name);
+            OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + name);
+            if(creature != NULL)
+                creature->playSound(soundType);
+            break;
+        }
+
         default:
         {
             logMgr.logMessage("ERROR:  Unknown server command:"

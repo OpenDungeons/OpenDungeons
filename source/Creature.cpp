@@ -562,7 +562,7 @@ void Creature::doTurn()
             }
             catch (std::bad_alloc&)
             {
-                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::doTurn", Ogre::LML_CRITICAL);
+                OD_ASSERT_TRUE(false);
                 exit(1);
             }
 
@@ -622,7 +622,7 @@ void Creature::doTurn()
             }
             catch (std::bad_alloc&)
             {
-                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Creature::doTurn", Ogre::LML_CRITICAL);
+                OD_ASSERT_TRUE(false);
                 exit(1);
             }
         }
@@ -1560,8 +1560,19 @@ bool Creature::handleDigTileAction()
                 pushAction(CreatureAction::walkToTile);
             }
             //Set sound position and play dig sound.
-            mSound->setPosition(getPosition());
-            mSound->play(CreatureSound::DIG);
+            try
+            {
+                std::string name = getName();
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::playCreatureSound, getControllingPlayer());
+                serverNotification->packet << name << CreatureSound::DIG;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                OD_ASSERT_TRUE(false);
+                exit(1);
+            }
         }
         else
         {
@@ -2153,10 +2164,19 @@ bool Creature::handleAttackAction()
     faceToward(tempTile->x, tempTile->y);
     setAnimationState("Attack1", true);
 
-    //Play attack sound
-    //TODO - syncronise with animation
-    mSound->setPosition(getPosition());
-    mSound->play(CreatureSound::ATTACK);
+    try
+    {
+        std::string name = getName();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::playCreatureSound, getControllingPlayer());
+        serverNotification->packet << name << CreatureSound::ATTACK;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    catch (std::bad_alloc&)
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
 
     // Calculate how much damage we do.
     Tile* myTile = positionTile();
@@ -2772,7 +2792,7 @@ void Creature::takeDamage(double damage, Tile *tileTakingDamage)
         }
         catch (std::bad_alloc&)
         {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Creature::takeDamage", Ogre::LML_CRITICAL);
+            OD_ASSERT_TRUE(false);
             exit(1);
         }
     }
@@ -2898,4 +2918,10 @@ void Creature::computeBattlefield()
         mBattleField->setTileSecurityLevel(tempTile->x, tempTile->y,
                                            (tileValue + Random::Double(-1.0 * jitter, jitter)) * tileScaleFactor);
     }
+}
+
+void Creature::playSound(CreatureSound::SoundType soundType)
+{
+    mSound->setPosition(getPosition());
+    mSound->play(soundType);
 }

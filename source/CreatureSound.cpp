@@ -48,3 +48,17 @@ void CreatureSound::setPosition(float x, float y, float z)
     }
 }
 
+ODPacket& operator<<(ODPacket& os, const CreatureSound::SoundType& nt)
+{
+    os << static_cast<int32_t>(nt);
+    return os;
+}
+
+ODPacket& operator>>(ODPacket& is, CreatureSound::SoundType& nt)
+{
+    int32_t tmp;
+    is >> tmp;
+    nt = static_cast<CreatureSound::SoundType>(tmp);
+    return is;
+}
+
