@@ -181,8 +181,37 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
         }
         catch (std::bad_alloc&)
         {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::doTurn", Ogre::LML_CRITICAL);
+            OD_ASSERT_TRUE(false);
             exit(1);
+        }
+
+        // Here, the creature list is pulled. It could be possible that the creature dies before the stat window is
+        // closed. So, if we cannot find the creature, we just erase it.
+        std::vector<std::string>& creatures = mCreaturesInfoWanted[sock];
+        std::vector<std::string>::iterator itCreatures = creatures.begin();
+        while(itCreatures != creatures.end())
+        {
+            std::string& name = *itCreatures;
+            Creature* creature = gameMap->getCreature(name);
+            if(creature == NULL)
+                itCreatures = creatures.erase(itCreatures);
+            else
+            {
+                std::string creatureInfos = creature->getStatsText();
+                try
+                {
+                    ServerNotification *serverNotification = new ServerNotification(
+                        ServerNotification::notifyCreatureInfo, player);
+                    serverNotification->packet << name << creatureInfos;
+                    ODServer::getSingleton().queueServerNotification(serverNotification);
+                }
+                catch (std::bad_alloc&)
+                {
+                    OD_ASSERT_TRUE(false);
+                    exit(1);
+                }
+                ++itCreatures;
+            }
         }
     }
 
@@ -286,7 +315,7 @@ void ODServer::processServerNotifications()
                     ODSocketClient* tmpClient = *it;
                     if(tmpClient->getPlayer() == event->mConcernedPlayer)
                     {
-                        // We notify the player that he dropped the creature
+                        // We notify the player that he pickedup the creature
                         ODPacket packetSend;
                         packetSend << ServerNotification::pickupCreature;
                         packetSend << creatureName;
@@ -294,7 +323,7 @@ void ODServer::processServerNotifications()
                     }
                     else
                     {
-                        // We notify the other players that a creature has been dropped
+                        // We notify the other players that a creature has been picked up
                         ODPacket packetSend;
                         packetSend << ServerNotification::creaturePickedUp;
                         packetSend << color << creatureName;
@@ -342,24 +371,18 @@ void ODServer::processServerNotifications()
                 // we could send the event to every player so that they can see how far from
                 // the goals the other players are
                 ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
+                OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
                 if(client != NULL)
                     sendMsgToClient(client, event->packet);
-                else
-                    LogManager::getSingleton().logMessage(
-                        std::string("ERROR : getClientFromPlayer returned NULL for player ")
-                        + event->mConcernedPlayer->getNick());
                 break;
             }
 
             case ServerNotification::markTiles:
             {
                 ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
+                OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
                 if(client != NULL)
                     sendMsgToClient(client, event->packet);
-                else
-                    LogManager::getSingleton().logMessage(
-                        std::string("ERROR : getClientFromPlayer returned NULL for player ")
-                        + event->mConcernedPlayer->getNick());
                 break;
             }
 
@@ -683,6 +706,24 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
             int64_t turn;
             OD_ASSERT_TRUE(packetReceived >> turn);
             clientSocket->setLastTurnAck(turn);
+            break;
+        }
+
+        case ClientNotification::askCreatureInfos:
+        {
+            std::string name;
+            bool refreshEachTurn;
+            OD_ASSERT_TRUE(packetReceived >> name >> refreshEachTurn);
+            std::vector<std::string>& creatures = mCreaturesInfoWanted[clientSocket];
+
+            std::vector<std::string>::iterator it = std::find(creatures.begin(), creatures.end(), name);
+            if(refreshEachTurn && (it == creatures.end()))
+            {
+                creatures.push_back(name);
+            }
+            else if(!refreshEachTurn && (it != creatures.end()))
+                creatures.erase(it);
+
             break;
         }
 

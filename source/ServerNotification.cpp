@@ -106,6 +106,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "createTreasuryIndicator";
         case ServerNotificationType::destroyTreasuryIndicator:
             return "destroyTreasuryIndicator";
+        case ServerNotificationType::notifyCreatureInfo:
+            return "notifyCreatureInfo";
         case ServerNotificationType::exit:
             return "exit";
         default:

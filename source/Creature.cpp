@@ -40,7 +40,7 @@
 #include "Helper.h"
 #include "RoomTreasury.h"
 #include "RoomQuarters.h"
-#include "RoomHatchery.h"
+#include "ODClient.h"
 
 #include <CEGUI/System.h>
 #include <CEGUI/WindowManager.h>
@@ -766,8 +766,6 @@ void Creature::doTurn()
         destroyVisualDebugEntities();
         createVisualDebugEntities();
     }
-
-    updateStatsWindow(getStatsText());
 }
 
 void Creature::decideNextAction()
@@ -1933,7 +1931,7 @@ bool Creature::handleEatingAction(bool isForced)
     // Current creature tile position
     Tile* myTile = positionTile();
 
-    if ((isForced && mHunger > 0) ||
+    if ((isForced && mHunger < 5.0) ||
         (!isForced && mHunger > Random::Double(70.0, 100.0)))
     {
         popAction();
@@ -2379,8 +2377,6 @@ void Creature::refreshFromCreature(Creature *creatureNewState)
         request->vec = Ogre::Vector3(scaleFactor, scaleFactor, scaleFactor);
         RenderManager::queueRenderRequest(request);
     }
-
-    updateStatsWindow(getStatsText());
 }
 
 void Creature::updateVisibleTiles()
@@ -2603,6 +2599,12 @@ void Creature::createStatsWindow()
     if (mStatsWindow != NULL)
         return;
 
+    ClientNotification *clientNotification = new ClientNotification(
+        ClientNotification::askCreatureInfos);
+    std::string name = getName();
+    clientNotification->packet << name << true;
+    ODClient::getSingleton().queueClientNotification(clientNotification);
+
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
     CEGUI::Window* rootWindow = CEGUI::System::getSingleton().getDefaultGUIContext().getRootWindow();
 
@@ -2636,13 +2638,19 @@ void Creature::createStatsWindow()
     rootWindow->addChild(mStatsWindow);
     mStatsWindow->show();
 
-    updateStatsWindow(getStatsText());
+    updateStatsWindow("Loading...");
 }
 
 void Creature::destroyStatsWindow()
 {
     if (mStatsWindow != NULL)
     {
+        ClientNotification *clientNotification = new ClientNotification(
+            ClientNotification::askCreatureInfos);
+        std::string name = getName();
+        clientNotification->packet << name << false;
+        ODClient::getSingleton().queueClientNotification(clientNotification);
+
         mStatsWindow->destroy();
         mStatsWindow = NULL;
     }
@@ -2659,6 +2667,8 @@ void Creature::updateStatsWindow(const std::string& txt)
 
 std::string Creature::getStatsText()
 {
+    // The creatures are not refreshed at each turn so this information is relevant in the server
+    // GameMap only
     std::stringstream tempSS;
     tempSS << "Level: " << getLevel() << std::endl;
     tempSS << "Experience: " << mExp << std::endl;
@@ -2678,6 +2688,8 @@ std::string Creature::getStatsText()
         tempSS << "Dance Rate: : " << mDanceRate << std::endl;
     }
     tempSS << "Current Action: " << mActionQueue.front().toString() << std::endl;
+    tempSS << "Color: " << getColor() << std::endl;
+    tempSS << "Position: " << Ogre::StringConverter::toString(getPosition()) << std::endl;
     return tempSS.str();
 }
 
