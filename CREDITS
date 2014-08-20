@@ -1,29 +1,107 @@
-Training pole: CC-BY-SA p0ss http://opengameart.org/content/wooden-training-pole
-Training dummy: CC-BY-SA p0ss http://opengameart.org/content/leather-training-dummy
+Author's Credit file
+====================
 
---
+This file is listing each files present in this repository, its author and its corresponding license.
 
-Pal Zoltan Illes - OpenDungeons - MAIN THEME 01 - start.flac
-Pal Zoltan Illes - OpenDungeons - MAIN THEME 02 - loop.flac
-Pal Zoltan Illes - OpenDungeons - MAIN THEME 03 - end.flac
-Pal Zoltan Illes - OpenDungeons - maintheme.flac
 
-CC-BY-SA 3.0 unported- Pal Zoltan Illes - http://www.illespalzoltan.com
+==============
+==  MODELS  ==
+==============
 
-music/yd_Searching_ingame.ogg
-CC0 yd - http://opengameart.org/content/searching
+Name                    Author                  License                 URL
+------------------------------------------------------------------------------------------------------------------------
+Adventurer              Danimal                 CC-BY-SA 3.0
+Axe                     Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Bed                     Clint Bellanger         CC0                     http://opengameart.org/content/bed-low-poly
+big_wood_barrel         Nobiax/yughues          CC0
+Cannon                  Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Cannonball              Andrew Buck             CC-BY-SA 3.0
+Chair                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Claimed Walls           Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Con_worker              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Cre_vision_indicator    Andrew Buck             CC-BY-SA 3.0
+DigSelector             Andrew Buck             CC-BY-SA 3.0
+Dirt Walls              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dojo                    p0ss                    CC-BY-SA 3.0
+DojoRockObject          p0ss                    CC-BY-SA 3.0
+Dragon                  Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+DungeonTemple           Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dwarf1                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dwarf2                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Fire                    Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Forge                   riidom
+Gnome                   Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Goblin                  Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Goldnugget              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Gold Walls              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Keeperhand              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Knight                  surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
+Kobold                  surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
+Kreatur                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Lava                    Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Lizardman               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Longsword               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+mini_wood_barrel        Nobiax/yughues          CC0
+Orc                     Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Pit Demon               Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Portal                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Quarters                Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Rock Walls              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Round Shield            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Sabre                   Andrew Buck             CC-BY-SA 3.0
+Shield_small            Danimal                 CC-BY-SA 3.0
+Shortsword              Danimal                 CC-BY-SA 3.0
+Spider                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Staff                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Stool                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Table                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Tentacle1+2             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Torch                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Training Dummy          p0ss                    CC-BY-SA 3.0            http://opengameart.org/content/leather-training-dummy
+Training Pole           p0ss                    CC-BY-SA 3.0            http://opengameart.org/content/wooden-training-pole
+Treasury                Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Troll                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Water                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Wizard                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Wyvern                  Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+
+==============
+==  MUSIC   ==
+==============
+
+Name                    Author                  License                 URL
+------------------------------------------------------------------------------------------------------------------------
+Pal_Zoltan_Illes_OpenDungeons_maintheme
+ \                      Pal Zoltan Illes        CC-BY-SA 3.0            http://www.illespalzoltan.com
+yd_Searching_ingame     yd                      CCO                     http://opengameart.org/content/searching
+
+==============
+==  SOUNDS  ==
+==============
+
+Name                    Author                  License                 URL
+------------------------------------------------------------------------------------------------------------------------
+bump                    remaxim                 CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/falling-body
+(Other sounds)          Svenskmand              CC-BY-SA 3.0
+
+==============
+==   GUI    ==
+==============
+
+Name                    Author                  License                 URL
+------------------------------------------------------------------------------------------------------------------------
+Main menu background    Vagner                  CC-BY-SA 3.0            http://opengameart.org/content/mammon-angel-of-darkness
+Main menu buttons       StumpyStrust            CC-BY-SA 3.0            http://opengameart.org/content/fantasy-ui-box
+
+
+
+----
+
+Unsorted content
 
 --
 
 Reiner Flassig - Obsidian photo source - CC-by-sa/de 2.0 - http://de.wikipedia.org/w/index.php?title=Datei:Obsi.jpg&filetimestamp=20070905143430
-
---
-
-Clint Bellanger "pfunked" - Bed - CC0 - http://opengameart.org/content/bed-low-poly
-
---
-
-Surt - Knight, Kobold - CC0 - http://opengameart.org/forumtopic/cc0-scraps
 
 --
 
@@ -39,69 +117,3 @@ Skorpio
 http://www.burningwell.org/ - Titus Tscharntke - photo sources for textures - Public Domain
 
 matthew.pablo - Theme of Com-Mecha (currently renamed - replacementmusic.ogg) - CC-BY 3.0 - http://opengameart.org/content/theme-of-com-mecha
-
-MODELS:
-
-Adventurer	Danimal		CC-BY-SA 3.0
-Axe	Skorpio		CC-BY-SA 3.0, GPL 3.0
-Bed	Clint Bellanger	CC0
-big_wood_barrel		Nobiax/yughues		CC0
-Cannon		Andrew Buck, Skorpio	CC-BY-SA 3.0, GPL 3.0
-Cannonball	Andrew Buck	CC-BY-SA 3.0
-Chair	Skorpio		CC-BY-SA 3.0, GPL 3.0
-Claimed Walls	Skorpio		CC-BY-SA 3.0, GPL 3.0
-Con_worker	Skorpio		CC-BY-SA 3.0, GPL 3.0
-Cre_vision_indicator	Andrew Buck	CC-BY-SA 3.0
-DigSelector Andrew Buck	CC-BY-SA 3.0
-Dirt Walls	Skorpio		CC-BY-SA 3.0, GPL 3.0
-Dojo	p0ss	CC-BY-SA 3.0
-DojoRockObject		p0ss	CC-BY-SA 3.0
-Dragon		Andrew Buck, Skorpio	CC-BY-SA 3.0, GPL 3.0
-DungeonTemple		Skorpio		CC-BY-SA 3.0, GPL 3.0
-Dwarf1	Skorpio		CC-BY-SA 3.0, GPL 3.0
-Dwarf2	Skorpio		CC-BY-SA 3.0, GPL 3.0
-Fire	Skorpio		CC-BY-SA 3.0, GPL 3.0
-Forge	riidom
-Gnome	Andrew Buck, Skorpio	CC-BY-SA 3.0, GPL 3.0
-Goblin	Andrew Buck, Skorpio	CC-BY-SA 3.0, GPL 3.0
-Goldnugget Skorpio	CC-BY-SA 3.0, GPL 3.0
-Gold Walls	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Keeperhand	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Knight	surt	CC0
-Kobold	surt	CC0
-Kreatur	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Lava	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Lizardman	Andrew Buck, Skorpio	CC-BY-SA 3.0, GPL 3.0
-Longsword	Andrew Buck, Skorpio	CC-BY-SA 3.0, GPL 3.0
-mini_wood_barrel	Nobiax/yughues		CC0
-Orc	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Pit Demon	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Portal	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Quarters	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Rock Walls	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Round Shield	Andrew Buck, Skorpio	CC-BY-SA 3.0, GPL 3.0
-Sabre	Andrew Buck	CC-BY-SA 3.0
-Shield_small	Danimal		CC-BY-SA 3.0
-Shortsword	Danimal		CC-BY-SA 3.0
-Spider	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Staff	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Stool	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Table	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Tentacle1+2	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Torch	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Training Dummy		p0ss	CC-BY-SA 3.0
-Training Pole	p0ss	CC-BY-SA 3.0
-Treasury	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Troll	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Water	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Wizard	Skorpio	CC-BY-SA 3.0, GPL 3.0
-Wyvern	Andrew Buck, Skorpio	CC-BY-SA 3.0, GPL 3.0
-
-SOUNDS:
-
-Svenskmand CC-BY-SA 3.0
-
-GUI:
-
-Main menu background  Vagner                CC by 3.0        http://opengameart.org/content/mammon-angel-of-darkness
-Main menu buttons     StumpyStrust          CC by 3.0        http://opengameart.org/content/fantasy-ui-box
