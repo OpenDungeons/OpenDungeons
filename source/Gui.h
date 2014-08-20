@@ -90,8 +90,6 @@ public:
     static const std::string TAB_SPELLS;
     static const std::string TAB_CREATURES;
     static const std::string TAB_COMBAT;
-    static const std::string TAB_SYSTEM;
-    static const std::string BUTTON_QUIT;
     static const std::string MM_BACKGROUND;
     static const std::string MM_WELCOME_MESSAGE;
     static const std::string MM_BUTTON_START_NEW_GAME;
@@ -170,7 +168,6 @@ private:
 
     // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);
-    static bool quitButtonPressed       (const CEGUI::EventArgs& e);
     static bool quartersButtonPressed   (const CEGUI::EventArgs& e);
     static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);
     static bool forgeButtonPressed      (const CEGUI::EventArgs& e);
