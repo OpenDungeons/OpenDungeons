@@ -705,7 +705,11 @@ void Creature::doTurn()
                     break;
 
                 case CreatureAction::findHome:
-                    loopBack = handleFindHomeAction();
+                    loopBack = handleFindHomeAction(false);
+                    break;
+
+                case CreatureAction::findHomeForced:
+                    loopBack = handleFindHomeAction(true);
                     break;
 
                 case CreatureAction::sleep:
@@ -989,17 +993,26 @@ bool Creature::handleIdleAction()
         if(tile != NULL)
         {
             Room* room = tile->getCoveringRoom();
-            // we see if we are in an hatchery
-            if((room != NULL) && (room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
+            if(room != NULL)
             {
-                pushAction(CreatureAction::eatforced);
-                return true;
-            }
-            // If not, can we work in this room ?
-            else if((room != NULL) && (room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
-            {
-                pushAction(CreatureAction::jobforced);
-                return true;
+                // we see if we are in an hatchery
+                if((room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
+                {
+                    pushAction(CreatureAction::eatforced);
+                    return true;
+                }
+                else if(room->getType() == Room::dormitory)
+                {
+                    pushAction(CreatureAction::sleep);
+                    pushAction(CreatureAction::findHomeForced);
+                    return true;
+                }
+                // If not, can we work in this room ?
+                else if((room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
+                {
+                    pushAction(CreatureAction::jobforced);
+                    return true;
+                }
             }
         }
     }
@@ -1744,22 +1757,66 @@ bool Creature::handleDepositGoldAction()
     return true;
 }
 
-bool Creature::handleFindHomeAction()
+bool Creature::handleFindHomeAction(bool isForced)
 {
     // Check to see if we are standing in an open dormitory tile that we can claim as our home.
     Tile* myTile = positionTile();
     if (myTile == NULL)
+    {
+        popAction();
         return false;
+    }
+
+    if((mHomeTile != NULL) && !isForced)
+    {
+        popAction();
+        return false;
+    }
 
     Room* tempRoom = myTile->getCoveringRoom();
     if (tempRoom != NULL && tempRoom->getType() == Room::dormitory)
     {
+        Room* roomHomeTile = NULL;
+        if(mHomeTile != NULL)
+        {
+            roomHomeTile = mHomeTile->getCoveringRoom();
+            // Same dormitory nothing to do
+            if(roomHomeTile == tempRoom)
+            {
+                popAction();
+                return true;
+            }
+        }
+
         if (static_cast<RoomDormitory*>(tempRoom)->claimTileForSleeping(myTile, this))
+        {
+            // We could install the bed in the dormitory. If we already had one, we remove it
+            if(roomHomeTile != NULL)
+                static_cast<RoomDormitory*>(roomHomeTile)->releaseTileForSleeping(mHomeTile, this);
+
             mHomeTile = myTile;
+            popAction();
+            return true;
+        }
+
+        // The tile where we are is not claimable. We search if there is another in this dormitory
+        Tile* tempTile = static_cast<RoomDormitory*>(tempRoom)->getLocationForBed(
+            mDefinition->getBedDim1(), mDefinition->getBedDim2());
+        if(tempTile != NULL)
+        {
+            std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition->getTilePassability());
+            if (setWalkPath(tempPath, 1, false))
+            {
+                setAnimationState("Walk");
+                pushAction(CreatureAction::walkToTile);
+                return false;
+            }
+        }
     }
 
-    // If we found a tile to claim as our home in the above block.
-    if (mHomeTile != NULL)
+    // If we found a tile to claim as our home in the above block
+    // If we have been forced, we do not search in another dormitory
+    if ((mHomeTile != NULL) || isForced)
     {
         popAction();
         return true;
@@ -2282,7 +2339,6 @@ bool Creature::handleSleepAction()
         if (setWalkPath(tempPath, 2, false))
         {
             setAnimationState("Walk");
-            popAction();
             pushAction(CreatureAction::walkToTile);
             return false;
         }
@@ -2292,7 +2348,7 @@ bool Creature::handleSleepAction()
         // We are at the home tile so sleep.
         setAnimationState("Sleep");
         // Improve awakeness
-        mAwakeness += 4.0;
+        mAwakeness += 1.5;
         if (mAwakeness > 100.0)
             mAwakeness = 100.0;
         // Improve HP but a bit slower.
