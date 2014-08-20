@@ -2687,7 +2687,13 @@ std::string Creature::getStatsText()
         tempSS << "Dig Rate: : " << getDigRate() << std::endl;
         tempSS << "Dance Rate: : " << mDanceRate << std::endl;
     }
-    tempSS << "Current Action: " << mActionQueue.front().toString() << std::endl;
+    tempSS << "Current Action:";
+    for(std::deque<CreatureAction>::iterator it = mActionQueue.begin(); it != mActionQueue.end(); ++it)
+    {
+        CreatureAction& ca = *it;
+        tempSS << " " << ca.toString();
+    }
+    tempSS << std::endl;
     tempSS << "Color: " << getColor() << std::endl;
     tempSS << "Position: " << Ogre::StringConverter::toString(getPosition()) << std::endl;
     return tempSS.str();
