@@ -39,7 +39,7 @@
 #include "CullingQuad.h"
 #include "Helper.h"
 #include "RoomTreasury.h"
-#include "RoomQuarters.h"
+#include "RoomDormitory.h"
 #include "ODClient.h"
 
 #include <CEGUI/System.h>
@@ -569,7 +569,7 @@ void Creature::doTurn()
             // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
             if (getHomeTile() != 0)
             {
-                RoomQuarters* home = static_cast<RoomQuarters*>(getHomeTile()->getCoveringRoom());
+                RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringRoom());
                 home->releaseTileForSleeping(getHomeTile(), this);
             }
 
@@ -809,8 +809,8 @@ void Creature::decideNextAction()
     if (isWeak || (Random::Double(0.0, 1.0) < 0.03 && mHomeTile == NULL
         && peekAction().getType() != CreatureAction::findHome))
     {
-        // Check to see if there are any quarters owned by our color that we can reach.
-        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::quarters, getColor());
+        // Check to see if there are any dormitory owned by our color that we can reach.
+        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dormitory, getColor());
         tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition->getTilePassability());
         if (!tempRooms.empty())
         {
@@ -1743,15 +1743,15 @@ bool Creature::handleDepositGoldAction()
 
 bool Creature::handleFindHomeAction()
 {
-    // Check to see if we are standing in an open quarters tile that we can claim as our home.
+    // Check to see if we are standing in an open dormitory tile that we can claim as our home.
     Tile* myTile = positionTile();
     if (myTile == NULL)
         return false;
 
     Room* tempRoom = myTile->getCoveringRoom();
-    if (tempRoom != NULL && tempRoom->getType() == Room::quarters)
+    if (tempRoom != NULL && tempRoom->getType() == Room::dormitory)
     {
-        if (static_cast<RoomQuarters*>(tempRoom)->claimTileForSleeping(myTile, this))
+        if (static_cast<RoomDormitory*>(tempRoom)->claimTileForSleeping(myTile, this))
             mHomeTile = myTile;
     }
 
@@ -1762,22 +1762,22 @@ bool Creature::handleFindHomeAction()
         return true;
     }
 
-    // Check to see if we can walk to a quarters that does have an open tile.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::quarters, getColor());
+    // Check to see if we can walk to a dormitory that does have an open tile.
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dormitory, getColor());
     std::random_shuffle(tempRooms.begin(), tempRooms.end());
-    unsigned int nearestQuartersDistance = 0;
+    unsigned int nearestDormitoryDistance = 0;
     bool validPathFound = false;
     std::list<Tile*> tempPath;
     for (unsigned int i = 0; i < tempRooms.size(); ++i)
     {
-        // Get the list of open rooms at the current quarters and check to see if
+        // Get the list of open rooms at the current dormitory and check to see if
         // there is a place where we could put a bed big enough to sleep in.
-        Tile* tempTile = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
+        Tile* tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(
                         mDefinition->getBedDim1(), mDefinition->getBedDim2());
 
-        // If the previous attempt to place the bed in this quarters failed, try again with the bed the other way.
+        // If the previous attempt to place the bed in this dormitory failed, try again with the bed the other way.
         if (tempTile == NULL)
-            tempTile = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
+            tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(
                                                                      mDefinition->getBedDim2(), mDefinition->getBedDim1());
 
         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
@@ -1793,7 +1793,7 @@ bool Creature::handleFindHomeAction()
                 if (tempPath2.size() >= 2)
                 {
                     tempPath = tempPath2;
-                    nearestQuartersDistance = tempPath.size();
+                    nearestDormitoryDistance = tempPath.size();
                     validPathFound = true;
                 }
             }
@@ -1802,16 +1802,16 @@ bool Creature::handleFindHomeAction()
                 // If the current path is long enough to be valid but shorter than the
                 // shortest path seen so far, then record the path and the distance.
                 if (tempPath2.size() >= 2 && tempPath2.size()
-                        < nearestQuartersDistance)
+                        < nearestDormitoryDistance)
                 {
                     tempPath = tempPath2;
-                    nearestQuartersDistance = tempPath.size();
+                    nearestDormitoryDistance = tempPath.size();
                 }
             }
         }
     }
 
-    // If we found a valid path to an open room in a quarters, then start walking along it.
+    // If we found a valid path to an open room in a dormitory, then start walking along it.
     if (validPathFound)
     {
         getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
@@ -1823,7 +1823,7 @@ bool Creature::handleFindHomeAction()
         }
     }
 
-    // If we got here there are no reachable quarters that are unclaimed so we quit trying to find one.
+    // If we got here there are no reachable dormitory that are unclaimed so we quit trying to find one.
     popAction();
     return true;
 }

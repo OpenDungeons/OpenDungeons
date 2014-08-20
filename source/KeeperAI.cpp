@@ -109,7 +109,7 @@ bool KeeperAI::buildSleepRoom()
     if (numClaimedTiles < 15)
         return false;
 
-    mAiWrapper.buildRoom(Room::quarters, central->getX() - 2, central->getY() + 5,
+    mAiWrapper.buildRoom(Room::dormitory, central->getX() - 2, central->getY() + 5,
                                          central->getX() + 2, central->getY() + 3);
     mSleepRoomMade = true;
     return true;

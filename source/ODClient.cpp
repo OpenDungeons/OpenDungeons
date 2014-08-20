@@ -29,7 +29,6 @@
 #include "Creature.h"
 #include "Weapon.h"
 #include "ODApplication.h"
-#include "RoomQuarters.h"
 #include "RoomTreasury.h"
 #include "MissileObject.h"
 #include "RoomObject.h"

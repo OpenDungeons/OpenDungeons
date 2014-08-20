@@ -15,19 +15,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ROOMDOJO_H
-#define ROOMDOJO_H
+#ifndef ROOMTRAININGHALL_H
+#define ROOMTRAININGHALL_H
 
 #include "Room.h"
 
 class Creature;
 
-class RoomDojo: public Room
+class RoomTrainingHall: public Room
 {
 public:
-    RoomDojo(GameMap* gameMap);
+    RoomTrainingHall(GameMap* gameMap);
 
-    ~RoomDojo()
+    ~RoomTrainingHall()
     {}
 
     virtual bool doUpkeep();
@@ -50,4 +50,4 @@ private:
     std::map<Creature*,Tile*> mCreaturesDummies;
 };
 
-#endif // ROOMDOJO_H
+#endif // ROOMTRAININGHALL_H

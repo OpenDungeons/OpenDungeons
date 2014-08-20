@@ -79,7 +79,7 @@ public:
     static const std::string MESSAGE_WINDOW;
     static const std::string MAIN_TABCONTROL;
     static const std::string TAB_ROOMS;
-    static const std::string BUTTON_QUARTERS;
+    static const std::string BUTTON_DORMITORY;
     static const std::string BUTTON_FORGE;
     static const std::string BUTTON_DOJO;
     static const std::string BUTTON_LIBRARY;
@@ -168,7 +168,7 @@ private:
 
     // Button handlers game UI
     static bool miniMapclicked          (const CEGUI::EventArgs& e);
-    static bool quartersButtonPressed   (const CEGUI::EventArgs& e);
+    static bool dormitoryButtonPressed  (const CEGUI::EventArgs& e);
     static bool treasuryButtonPressed   (const CEGUI::EventArgs& e);
     static bool forgeButtonPressed      (const CEGUI::EventArgs& e);
     static bool dojoButtonPressed       (const CEGUI::EventArgs& e);

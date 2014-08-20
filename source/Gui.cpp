@@ -145,9 +145,9 @@ void Gui::assignEventHandlers()
             CEGUI::Event::Subscriber(&mMQuitButtonPressed));
 
     // Game Mode controls
-    sheets[inGameMenu]->getChild(BUTTON_QUARTERS)->subscribeEvent(
+    sheets[inGameMenu]->getChild(BUTTON_DORMITORY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&quartersButtonPressed));
+            CEGUI::Event::Subscriber(&dormitoryButtonPressed));
 
     sheets[inGameMenu]->getChild(BUTTON_TREASURY)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
@@ -266,10 +266,10 @@ bool Gui::mMNewGameMultiButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::quartersButtonPressed(const CEGUI::EventArgs& e)
+bool Gui::dormitoryButtonPressed(const CEGUI::EventArgs& e)
 {
     GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    gameMap->getLocalPlayer()->setNewRoomType(Room::quarters);
+    gameMap->getLocalPlayer()->setNewRoomType(Room::dormitory);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Dormitory");
     return true;
@@ -550,7 +550,7 @@ const std::string Gui::MINIMAP = "MiniMap";
 const std::string Gui::MESSAGE_WINDOW = "MessagesDisplayWindow";
 const std::string Gui::MAIN_TABCONTROL = "MainTabControl";
 const std::string Gui::TAB_ROOMS = "MainTabControl/Rooms";
-const std::string Gui::BUTTON_QUARTERS = "MainTabControl/Rooms/QuartersButton";
+const std::string Gui::BUTTON_DORMITORY = "MainTabControl/Rooms/DormitoryButton";
 const std::string Gui::BUTTON_FORGE = "MainTabControl/Rooms/ForgeButton";
 const std::string Gui::BUTTON_DOJO = "MainTabControl/Rooms/DojoButton";
 const std::string Gui::BUTTON_LIBRARY = "MainTabControl/Rooms/LibraryButton";

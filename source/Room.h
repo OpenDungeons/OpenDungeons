@@ -40,7 +40,7 @@ public:
     {
         nullRoomType = 0,
         dungeonTemple,
-        quarters,
+        dormitory,
         treasury,
         portal,
         forge,
@@ -56,7 +56,7 @@ public:
 
     virtual std::string getOgreNamePrefix() { return "Room_"; }
 
-    /*! \brief Creates a type specific subclass of room (quarters, treasury, etc) and returns a pointer to it.
+    /*! \brief Creates a type specific subclass of room (dormitory, treasury, etc) and returns a pointer to it.
      * This function sets up some of the room's properties. If nameToUse is empty, a new unique name
      * will be generated. If not, the given one will be used
      */
