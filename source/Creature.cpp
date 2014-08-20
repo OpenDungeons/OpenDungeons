@@ -1647,6 +1647,9 @@ bool Creature::handleDigTileAction()
     if (isDigging)
     {
         popAction();
+        if(mGold > 0)
+            pushAction(CreatureAction::depositGold);
+
         return true;
     }
     return false;
