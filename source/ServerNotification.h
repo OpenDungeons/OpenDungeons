@@ -87,6 +87,8 @@ class ServerNotification
 
             notifyCreatureInfo,
 
+            playCreatureSound,
+
             exit
         };
 

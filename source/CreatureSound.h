@@ -22,6 +22,7 @@
 #define CREATURESOUND_H_
 
 #include "SoundEffectsHelper.h"
+#include "ODPacket.h"
 
 //! \brief Class to store the sound sources for an individual creature and handle sound playback.
 class CreatureSound
@@ -47,6 +48,9 @@ public:
     //! \brief Set the play position for the sound source.
     void setPosition(Ogre::Vector3 p);
     void setPosition(float x, float y, float z);
+
+    friend ODPacket& operator<<(ODPacket& os, const SoundType& nt);
+    friend ODPacket& operator>>(ODPacket& is, SoundType& nt);
 
 private:
     CreatureSound();

@@ -176,14 +176,14 @@ set(OD_SOURCEFILES
     ${SRC}/RenderRequest.cpp
     ${SRC}/ResourceManager.cpp
     ${SRC}/Room.cpp
-    ${SRC}/RoomDojo.cpp
+    ${SRC}/RoomDormitory.cpp
     ${SRC}/RoomDungeonTemple.cpp
     ${SRC}/RoomForge.cpp
     ${SRC}/RoomHatchery.cpp
     ${SRC}/RoomLibrary.cpp
     ${SRC}/RoomObject.cpp
     ${SRC}/RoomPortal.cpp
-    ${SRC}/RoomQuarters.cpp
+    ${SRC}/RoomTrainingHall.cpp
     ${SRC}/RoomTreasury.cpp
     ${SRC}/Seat.cpp
     ${SRC}/ServerNotification.cpp

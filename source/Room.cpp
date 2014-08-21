@@ -17,12 +17,12 @@
 
 #include "Room.h"
 
-#include "RoomDojo.h"
+#include "RoomTrainingHall.h"
 #include "RoomDungeonTemple.h"
 #include "RoomForge.h"
 #include "RoomLibrary.h"
 #include "RoomPortal.h"
-#include "RoomQuarters.h"
+#include "RoomDormitory.h"
 #include "RoomTreasury.h"
 #include "RoomHatchery.h"
 #include "RoomObject.h"
@@ -180,8 +180,8 @@ Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*
     case nullRoomType:
         tempRoom = NULL;
         break;
-    case quarters:
-        tempRoom = new RoomQuarters(gameMap);
+    case dormitory:
+        tempRoom = new RoomDormitory(gameMap);
         break;
     case treasury:
         tempRoom = new RoomTreasury(gameMap);
@@ -195,8 +195,8 @@ Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*
     case forge:
         tempRoom = new RoomForge(gameMap);
         break;
-    case dojo:
-        tempRoom = new RoomDojo(gameMap);
+    case trainingHall:
+        tempRoom = new RoomTrainingHall(gameMap);
         break;
     case library:
         tempRoom = new RoomLibrary(gameMap);
@@ -778,7 +778,7 @@ const char* Room::getMeshNameFromRoomType(RoomType t)
     case dungeonTemple:
         return "DungeonTemple";
 
-    case quarters:
+    case dormitory:
         return "Dormitory";
 
     case treasury:
@@ -790,7 +790,7 @@ const char* Room::getMeshNameFromRoomType(RoomType t)
     case forge:
         return "Forge";
 
-    case dojo:
+    case trainingHall:
         return "Dojo";
 
     case library:
@@ -809,7 +809,7 @@ Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
     if (s.compare("DungeonTemple") == 0)
         return dungeonTemple;
     else if (s.compare("Dormitory") == 0)
-        return quarters;
+        return dormitory;
     else if (s.compare("Treasury") == 0)
         return treasury;
     else if (s.compare("Portal") == 0)
@@ -817,7 +817,7 @@ Room::RoomType Room::getRoomTypeFromMeshName(const std::string& s)
     else if (s.compare("Forge") == 0)
         return forge;
     else if (s.compare("Dojo") == 0)
-        return dojo;
+        return trainingHall;
     else if (s.compare("Library") == 0)
         return library;
     else if (s.compare("Hatchery") == 0)
@@ -843,7 +843,7 @@ int Room::costPerTile(RoomType t)
     case portal:
         return 0;
 
-    case quarters:
+    case dormitory:
         return 75;
 
     case treasury:
@@ -852,7 +852,7 @@ int Room::costPerTile(RoomType t)
     case forge:
         return 150;
 
-    case dojo:
+    case trainingHall:
         return 175;
 
     case library:

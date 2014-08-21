@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RoomQuarters.h"
+#include "RoomDormitory.h"
 
 #include "ODServer.h"
 #include "ServerNotification.h"
@@ -24,15 +24,15 @@
 #include "RoomObject.h"
 #include "Creature.h"
 
-RoomQuarters::RoomQuarters(GameMap* gameMap) :
+RoomDormitory::RoomDormitory(GameMap* gameMap) :
     Room(gameMap)
 {
-    mType = quarters;
+    mType = dormitory;
 }
 
-void RoomQuarters::absorbRoom(Room *r)
+void RoomDormitory::absorbRoom(Room *r)
 {
-    RoomQuarters* oldRoom = static_cast<RoomQuarters*>(r);
+    RoomDormitory* oldRoom = static_cast<RoomDormitory*>(r);
     if (oldRoom == NULL)
         return;
 
@@ -49,7 +49,7 @@ void RoomQuarters::absorbRoom(Room *r)
     Room::absorbRoom(r);
 }
 
-void RoomQuarters::createMeshLocal()
+void RoomDormitory::createMeshLocal()
 {
     Room::createMeshLocal();
 
@@ -104,13 +104,13 @@ void RoomQuarters::createMeshLocal()
     }
 }
 
-bool RoomQuarters::doUpkeep()
+bool RoomDormitory::doUpkeep()
 {
     // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
     return Room::doUpkeep();
 }
 
-void RoomQuarters::addCoveredTile(Tile* t, double nHP)
+void RoomDormitory::addCoveredTile(Tile* t, double nHP)
 {
     Room::addCoveredTile(t, nHP);
 
@@ -120,7 +120,7 @@ void RoomQuarters::addCoveredTile(Tile* t, double nHP)
         mCreatureSleepingInTile[t] = NULL;
 }
 
-void RoomQuarters::removeCoveredTile(Tile* t)
+void RoomDormitory::removeCoveredTile(Tile* t)
 {
     if (t == NULL)
         return;
@@ -137,13 +137,13 @@ void RoomQuarters::removeCoveredTile(Tile* t)
     mCreatureSleepingInTile.erase(t);
 }
 
-void RoomQuarters::clearCoveredTiles()
+void RoomDormitory::clearCoveredTiles()
 {
     Room::clearCoveredTiles();
     mCreatureSleepingInTile.clear();
 }
 
-std::vector<Tile*> RoomQuarters::getOpenTiles()
+std::vector<Tile*> RoomDormitory::getOpenTiles()
 {
     std::vector<Tile*> returnVector;
 
@@ -157,7 +157,7 @@ std::vector<Tile*> RoomQuarters::getOpenTiles()
     return returnVector;
 }
 
-bool RoomQuarters::claimTileForSleeping(Tile* t, Creature* c)
+bool RoomDormitory::claimTileForSleeping(Tile* t, Creature* c)
 {
     if (t == NULL || c == NULL)
         return false;
@@ -196,7 +196,7 @@ bool RoomQuarters::claimTileForSleeping(Tile* t, Creature* c)
     return installBed(t, c, xDim, yDim, rotationAngle);
 }
 
-bool RoomQuarters::releaseTileForSleeping(Tile* t, Creature* c)
+bool RoomDormitory::releaseTileForSleeping(Tile* t, Creature* c)
 {
     // If the creature is not in the gamemap anymore, no need to notify that its bed
     // is to be removed as the clients will handle that by themselves
@@ -206,7 +206,7 @@ bool RoomQuarters::releaseTileForSleeping(Tile* t, Creature* c)
     return removeBed(t, c);
 }
 
-bool RoomQuarters::installBed(Tile* t, Creature* c, double xDim, double yDim,
+bool RoomDormitory::installBed(Tile* t, Creature* c, double xDim, double yDim,
     double rotationAngle)
 {
     const CreatureDefinition* def = c->getDefinition();
@@ -237,7 +237,7 @@ bool RoomQuarters::installBed(Tile* t, Creature* c, double xDim, double yDim,
     return true;
 }
 
-bool RoomQuarters::removeBed(Tile* t, Creature* c)
+bool RoomDormitory::removeBed(Tile* t, Creature* c)
 {
     if (c == NULL)
         return false;
@@ -278,7 +278,7 @@ bool RoomQuarters::removeBed(Tile* t, Creature* c)
     return true;
 }
 
-Tile* RoomQuarters::getLocationForBed(int xDim, int yDim)
+Tile* RoomDormitory::getLocationForBed(int xDim, int yDim)
 {
     // Force the dimensions to be positive.
     if (xDim < 0)
@@ -292,7 +292,7 @@ Tile* RoomQuarters::getLocationForBed(int xDim, int yDim)
     if (tempVector.size() < area)
         return NULL;
 
-    // Randomly shuffle the open tiles in tempVector so that the quarters are filled up in a random order.
+    // Randomly shuffle the open tiles in tempVector so that the dormitory are filled up in a random order.
     std::random_shuffle(tempVector.begin(), tempVector.end());
 
     // Loop over each of the open tiles in tempVector and for each one, check to see if it
@@ -306,7 +306,7 @@ Tile* RoomQuarters::getLocationForBed(int xDim, int yDim)
     return NULL;
 }
 
-bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
+bool RoomDormitory::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
 {
     //TODO: This function could be made more efficient by making it take the list of open tiles as an argument so if it is called repeatedly the tempTiles vecotor below only has to be computed once in the calling function rather than N times in this function.
 
@@ -331,7 +331,7 @@ bool RoomQuarters::tileCanAcceptBed(Tile *tile, int xDim, int yDim)
         tileOpen[i].resize(yDim, false);
     }
 
-    // Now loop over the list of all the open tiles in this quarters.  For each tile, if it falls within
+    // Now loop over the list of all the open tiles in this dormitory.  For each tile, if it falls within
     // the xDim by yDim area from the starting tile we set the corresponding tileOpen entry to true.
     std::vector<Tile*> tempTiles = getOpenTiles();
     for (unsigned int i = 0; i < tempTiles.size(); ++i)

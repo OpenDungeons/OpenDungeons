@@ -29,7 +29,6 @@
 #include "Creature.h"
 #include "Weapon.h"
 #include "ODApplication.h"
-#include "RoomQuarters.h"
 #include "RoomTreasury.h"
 #include "MissileObject.h"
 #include "RoomObject.h"
@@ -619,6 +618,18 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + name);
             if(creature != NULL)
                 creature->updateStatsWindow(infos);
+            break;
+        }
+
+        case ServerNotification::playCreatureSound:
+        {
+            std::string name;
+            CreatureSound::SoundType soundType;
+            OD_ASSERT_TRUE(packetReceived >> name >> soundType);
+            Creature* creature = gameMap->getCreature(name);
+            OD_ASSERT_TRUE_MSG(creature != NULL, "name=" + name);
+            if(creature != NULL)
+                creature->playSound(soundType);
             break;
         }
 

@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RoomDojo.h"
+#include "RoomTrainingHall.h"
 
 #include "RoomObject.h"
 #include "Tile.h"
@@ -24,24 +24,24 @@
 
 #include <Random.h>
 
-const Ogre::Real RoomDojo::OFFSET_CREATURE = 0.3;
-const Ogre::Real RoomDojo::OFFSET_DUMMY = 0.3;
+const Ogre::Real RoomTrainingHall::OFFSET_CREATURE = 0.3;
+const Ogre::Real RoomTrainingHall::OFFSET_DUMMY = 0.3;
 
-RoomDojo::RoomDojo(GameMap* gameMap) :
+RoomTrainingHall::RoomTrainingHall(GameMap* gameMap) :
     Room(gameMap),
     nbTurnsNoChangeDummies(0)
 {
-    mType = dojo;
+    mType = trainingHall;
 }
 
-void RoomDojo::absorbRoom(Room *r)
+void RoomTrainingHall::absorbRoom(Room *r)
 {
     Room::absorbRoom(r);
-    RoomDojo* rd = static_cast<RoomDojo*>(r);
+    RoomTrainingHall* rd = static_cast<RoomTrainingHall*>(r);
     mUnusedDummies.insert(mUnusedDummies.end(), rd->mUnusedDummies.begin(), rd->mUnusedDummies.end());
 }
 
-RoomObject* RoomDojo::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
+RoomObject* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
     switch(place)
     {
@@ -89,7 +89,7 @@ RoomObject* RoomDojo::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
     return NULL;
 }
 
-void RoomDojo::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
+void RoomTrainingHall::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
     Room::notifyActiveSpotRemoved(place, tile);
 
@@ -111,7 +111,7 @@ void RoomDojo::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
         mUnusedDummies.erase(itEr);
 }
 
-void RoomDojo::refreshCreaturesDummies()
+void RoomTrainingHall::refreshCreaturesDummies()
 {
     mCreaturesDummies.clear();
     mUnusedDummies.clear();
@@ -152,10 +152,10 @@ void RoomDojo::refreshCreaturesDummies()
     }
 }
 
-bool RoomDojo::hasOpenCreatureSpot(Creature* c)
+bool RoomTrainingHall::hasOpenCreatureSpot(Creature* c)
 {
-    // Creatures can only train to level 10 at a dojo.
-    //TODO: Check to see if the dojo has been upgraded to allow training to a higher level.
+    // Creatures can only train to level 10 at a trainingHall.
+    //TODO: Check to see if the trainingHall has been upgraded to allow training to a higher level.
     if (c->getLevel() > 10)
         return false;
 
@@ -163,7 +163,7 @@ bool RoomDojo::hasOpenCreatureSpot(Creature* c)
     return mUnusedDummies.size() > 0;
 }
 
-bool RoomDojo::addCreatureUsingRoom(Creature* creature)
+bool RoomTrainingHall::addCreatureUsingRoom(Creature* creature)
 {
     if(!Room::addCreatureUsingRoom(creature))
         return false;
@@ -186,7 +186,7 @@ bool RoomDojo::addCreatureUsingRoom(Creature* creature)
     return true;
 }
 
-void RoomDojo::removeCreatureUsingRoom(Creature* c)
+void RoomTrainingHall::removeCreatureUsingRoom(Creature* c)
 {
     Room::removeCreatureUsingRoom(c);
     if(mCreaturesDummies.count(c) > 0)
@@ -200,7 +200,7 @@ void RoomDojo::removeCreatureUsingRoom(Creature* c)
     }
 }
 
-bool RoomDojo::doUpkeep()
+bool RoomTrainingHall::doUpkeep()
 {
     if(!Room::doUpkeep())
         return false;
@@ -249,7 +249,7 @@ bool RoomDojo::doUpkeep()
     return true;
 }
 
-void RoomDojo::getCreatureWantedPos(Creature* creature, Tile* tileDummy,
+void RoomTrainingHall::getCreatureWantedPos(Creature* creature, Tile* tileDummy,
     Ogre::Real& wantedX, Ogre::Real& wantedY)
 {
     RoomObject* ro = getRoomObjectFromTile(tileDummy);

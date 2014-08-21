@@ -15,8 +15,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef ROOMQUARTERS_H
-#define ROOMQUARTERS_H
+#ifndef ROOMDORMITORY_H
+#define ROOMDORMITORY_H
 
 #include "Room.h"
 
@@ -85,11 +85,11 @@ private:
     std::vector<Tile*> mTilesTaken;
 };
 
-class RoomQuarters: public Room
+class RoomDormitory: public Room
 {
     friend class ODClient;
 public:
-    RoomQuarters(GameMap* gameMap);
+    RoomDormitory(GameMap* gameMap);
 
     // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r);
@@ -122,4 +122,4 @@ private:
     std::vector<BedRoomObjectInfo> mBedRoomObjectsInfo;
 };
 
-#endif // ROOMQUARTERS_H
+#endif // ROOMDORMITORY_H

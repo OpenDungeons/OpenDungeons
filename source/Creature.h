@@ -415,7 +415,7 @@ private:
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature finding home action logic.
     //! \return true when another action should handled after that one.
-    bool handleFindHomeAction();
+    bool handleFindHomeAction(bool isForced);
 
     //! \brief A sub-function called by doTurn()
     //! This functions will hanlde the creature job action logic.
@@ -447,6 +447,8 @@ private:
     //! This functions will hanlde the creature sleeping action logic.
     //! \return true when another action should handled after that one.
     bool handleSleepAction();
+
+    void playSound(CreatureSound::SoundType soundType);
 };
 
 #endif // CREATURE_H

@@ -39,10 +39,10 @@ protected:
     //! It will also return false once it's done.
     bool buildSleepRoom();
 
-    //! \brief Create a dojo room once we've got enough gold
+    //! \brief Create a trainingHall room once we've got enough gold
     //! \brief Returns whether the action could succeed.
     //! It will also return false once it's done.
-    bool buildDojoRoom();
+    bool buildTrainingHallRoom();
 
     //! \brief Look for gold and make way up to it.
     //! \brief Returns whether the action could succeed.
@@ -54,7 +54,7 @@ private:
 
     bool mSomePlaceMade;
     bool mSleepRoomMade;
-    bool mDojoRoomMade;
+    bool mTrainingHallRoomMade;
     bool mNoMoreReachableGold;
     double mLastTimeLookingForGold;
 };

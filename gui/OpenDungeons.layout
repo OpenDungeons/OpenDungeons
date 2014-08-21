@@ -105,9 +105,9 @@
                     <Property name="TooltipText" value="Build a treasury" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
-                <Window type="OD/ImageButton" name="QuartersButton" >
+                <Window type="OD/ImageButton" name="DormitoryButton" >
                     <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeonsIcons/QuartersButton" />
+                    <Property name="NormalImage" value="OpenDungeonsIcons/DormitoryButton" />
                     <Property name="TooltipText" value="Build sleeping places for your creatures" />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>

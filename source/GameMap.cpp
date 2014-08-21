@@ -43,7 +43,6 @@
 #include "MortuaryQuad.h"
 #include "CullingManager.h"
 #include "RoomDungeonTemple.h"
-#include "RoomQuarters.h"
 #include "RoomTreasury.h"
 #include "Goal.h"
 

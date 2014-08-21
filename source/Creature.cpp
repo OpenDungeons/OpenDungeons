@@ -39,7 +39,7 @@
 #include "CullingQuad.h"
 #include "Helper.h"
 #include "RoomTreasury.h"
-#include "RoomQuarters.h"
+#include "RoomDormitory.h"
 #include "ODClient.h"
 
 #include <CEGUI/System.h>
@@ -562,14 +562,14 @@ void Creature::doTurn()
             }
             catch (std::bad_alloc&)
             {
-                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in GameMap::doTurn", Ogre::LML_CRITICAL);
+                OD_ASSERT_TRUE(false);
                 exit(1);
             }
 
             // If the creature has a homeTile where it sleeps, its bed needs to be destroyed.
             if (getHomeTile() != 0)
             {
-                RoomQuarters* home = static_cast<RoomQuarters*>(getHomeTile()->getCoveringRoom());
+                RoomDormitory* home = static_cast<RoomDormitory*>(getHomeTile()->getCoveringRoom());
                 home->releaseTileForSleeping(getHomeTile(), this);
             }
 
@@ -622,7 +622,7 @@ void Creature::doTurn()
             }
             catch (std::bad_alloc&)
             {
-                Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Creature::doTurn", Ogre::LML_CRITICAL);
+                OD_ASSERT_TRUE(false);
                 exit(1);
             }
         }
@@ -705,7 +705,11 @@ void Creature::doTurn()
                     break;
 
                 case CreatureAction::findHome:
-                    loopBack = handleFindHomeAction();
+                    loopBack = handleFindHomeAction(false);
+                    break;
+
+                case CreatureAction::findHomeForced:
+                    loopBack = handleFindHomeAction(true);
                     break;
 
                 case CreatureAction::sleep:
@@ -809,8 +813,8 @@ void Creature::decideNextAction()
     if (isWeak || (Random::Double(0.0, 1.0) < 0.03 && mHomeTile == NULL
         && peekAction().getType() != CreatureAction::findHome))
     {
-        // Check to see if there are any quarters owned by our color that we can reach.
-        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::quarters, getColor());
+        // Check to see if there are any dormitory owned by our color that we can reach.
+        std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dormitory, getColor());
         tempRooms = getGameMap()->getReachableRooms(tempRooms, positionTile(), mDefinition->getTilePassability());
         if (!tempRooms.empty())
         {
@@ -989,17 +993,26 @@ bool Creature::handleIdleAction()
         if(tile != NULL)
         {
             Room* room = tile->getCoveringRoom();
-            // we see if we are in an hatchery
-            if((room != NULL) && (room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
+            if(room != NULL)
             {
-                pushAction(CreatureAction::eatforced);
-                return true;
-            }
-            // If not, can we work in this room ?
-            else if((room != NULL) && (room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
-            {
-                pushAction(CreatureAction::jobforced);
-                return true;
+                // we see if we are in an hatchery
+                if((room->getType() == Room::hatchery) && room->hasOpenCreatureSpot(this))
+                {
+                    pushAction(CreatureAction::eatforced);
+                    return true;
+                }
+                else if(room->getType() == Room::dormitory)
+                {
+                    pushAction(CreatureAction::sleep);
+                    pushAction(CreatureAction::findHomeForced);
+                    return true;
+                }
+                // If not, can we work in this room ?
+                else if((room->getType() != Room::hatchery) && room->hasOpenCreatureSpot(this))
+                {
+                    pushAction(CreatureAction::jobforced);
+                    return true;
+                }
             }
         }
     }
@@ -1547,8 +1560,19 @@ bool Creature::handleDigTileAction()
                 pushAction(CreatureAction::walkToTile);
             }
             //Set sound position and play dig sound.
-            mSound->setPosition(getPosition());
-            mSound->play(CreatureSound::DIG);
+            try
+            {
+                std::string name = getName();
+                ServerNotification *serverNotification = new ServerNotification(
+                    ServerNotification::playCreatureSound, getControllingPlayer());
+                serverNotification->packet << name << CreatureSound::DIG;
+                ODServer::getSingleton().queueServerNotification(serverNotification);
+            }
+            catch (std::bad_alloc&)
+            {
+                OD_ASSERT_TRUE(false);
+                exit(1);
+            }
         }
         else
         {
@@ -1647,6 +1671,9 @@ bool Creature::handleDigTileAction()
     if (isDigging)
     {
         popAction();
+        if(mGold > 0)
+            pushAction(CreatureAction::depositGold);
+
         return true;
     }
     return false;
@@ -1741,43 +1768,87 @@ bool Creature::handleDepositGoldAction()
     return true;
 }
 
-bool Creature::handleFindHomeAction()
+bool Creature::handleFindHomeAction(bool isForced)
 {
-    // Check to see if we are standing in an open quarters tile that we can claim as our home.
+    // Check to see if we are standing in an open dormitory tile that we can claim as our home.
     Tile* myTile = positionTile();
     if (myTile == NULL)
-        return false;
-
-    Room* tempRoom = myTile->getCoveringRoom();
-    if (tempRoom != NULL && tempRoom->getType() == Room::quarters)
     {
-        if (static_cast<RoomQuarters*>(tempRoom)->claimTileForSleeping(myTile, this))
-            mHomeTile = myTile;
+        popAction();
+        return false;
     }
 
-    // If we found a tile to claim as our home in the above block.
-    if (mHomeTile != NULL)
+    if((mHomeTile != NULL) && !isForced)
+    {
+        popAction();
+        return false;
+    }
+
+    Room* tempRoom = myTile->getCoveringRoom();
+    if (tempRoom != NULL && tempRoom->getType() == Room::dormitory)
+    {
+        Room* roomHomeTile = NULL;
+        if(mHomeTile != NULL)
+        {
+            roomHomeTile = mHomeTile->getCoveringRoom();
+            // Same dormitory nothing to do
+            if(roomHomeTile == tempRoom)
+            {
+                popAction();
+                return true;
+            }
+        }
+
+        if (static_cast<RoomDormitory*>(tempRoom)->claimTileForSleeping(myTile, this))
+        {
+            // We could install the bed in the dormitory. If we already had one, we remove it
+            if(roomHomeTile != NULL)
+                static_cast<RoomDormitory*>(roomHomeTile)->releaseTileForSleeping(mHomeTile, this);
+
+            mHomeTile = myTile;
+            popAction();
+            return true;
+        }
+
+        // The tile where we are is not claimable. We search if there is another in this dormitory
+        Tile* tempTile = static_cast<RoomDormitory*>(tempRoom)->getLocationForBed(
+            mDefinition->getBedDim1(), mDefinition->getBedDim2());
+        if(tempTile != NULL)
+        {
+            std::list<Tile*> tempPath = getGameMap()->path(myTile, tempTile, mDefinition->getTilePassability());
+            if (setWalkPath(tempPath, 1, false))
+            {
+                setAnimationState("Walk");
+                pushAction(CreatureAction::walkToTile);
+                return false;
+            }
+        }
+    }
+
+    // If we found a tile to claim as our home in the above block
+    // If we have been forced, we do not search in another dormitory
+    if ((mHomeTile != NULL) || isForced)
     {
         popAction();
         return true;
     }
 
-    // Check to see if we can walk to a quarters that does have an open tile.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::quarters, getColor());
+    // Check to see if we can walk to a dormitory that does have an open tile.
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dormitory, getColor());
     std::random_shuffle(tempRooms.begin(), tempRooms.end());
-    unsigned int nearestQuartersDistance = 0;
+    unsigned int nearestDormitoryDistance = 0;
     bool validPathFound = false;
     std::list<Tile*> tempPath;
     for (unsigned int i = 0; i < tempRooms.size(); ++i)
     {
-        // Get the list of open rooms at the current quarters and check to see if
+        // Get the list of open rooms at the current dormitory and check to see if
         // there is a place where we could put a bed big enough to sleep in.
-        Tile* tempTile = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
+        Tile* tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(
                         mDefinition->getBedDim1(), mDefinition->getBedDim2());
 
-        // If the previous attempt to place the bed in this quarters failed, try again with the bed the other way.
+        // If the previous attempt to place the bed in this dormitory failed, try again with the bed the other way.
         if (tempTile == NULL)
-            tempTile = static_cast<RoomQuarters*>(tempRooms[i])->getLocationForBed(
+            tempTile = static_cast<RoomDormitory*>(tempRooms[i])->getLocationForBed(
                                                                      mDefinition->getBedDim2(), mDefinition->getBedDim1());
 
         // Check to see if either of the two possible bed orientations tried above resulted in a successful placement.
@@ -1793,7 +1864,7 @@ bool Creature::handleFindHomeAction()
                 if (tempPath2.size() >= 2)
                 {
                     tempPath = tempPath2;
-                    nearestQuartersDistance = tempPath.size();
+                    nearestDormitoryDistance = tempPath.size();
                     validPathFound = true;
                 }
             }
@@ -1802,16 +1873,16 @@ bool Creature::handleFindHomeAction()
                 // If the current path is long enough to be valid but shorter than the
                 // shortest path seen so far, then record the path and the distance.
                 if (tempPath2.size() >= 2 && tempPath2.size()
-                        < nearestQuartersDistance)
+                        < nearestDormitoryDistance)
                 {
                     tempPath = tempPath2;
-                    nearestQuartersDistance = tempPath.size();
+                    nearestDormitoryDistance = tempPath.size();
                 }
             }
         }
     }
 
-    // If we found a valid path to an open room in a quarters, then start walking along it.
+    // If we found a valid path to an open room in a dormitory, then start walking along it.
     if (validPathFound)
     {
         getGameMap()->cutCorners(tempPath, mDefinition->getTilePassability());
@@ -1823,7 +1894,7 @@ bool Creature::handleFindHomeAction()
         }
     }
 
-    // If we got here there are no reachable quarters that are unclaimed so we quit trying to find one.
+    // If we got here there are no reachable dormitory that are unclaimed so we quit trying to find one.
     popAction();
     return true;
 }
@@ -1873,8 +1944,8 @@ bool Creature::handleJobAction(bool isForced)
     // TODO : We should decide which room to use depending on the creatures preferences (library
     // for wizards, ...).
 
-    // Get the list of dojos controlled by our seat and make sure there is at least one.
-    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::dojo, getColor());
+    // Get the list of trainingHalls controlled by our seat and make sure there is at least one.
+    std::vector<Room*> tempRooms = getGameMap()->getRoomsByTypeAndColor(Room::trainingHall, getColor());
 
     if (tempRooms.empty())
     {
@@ -2093,10 +2164,19 @@ bool Creature::handleAttackAction()
     faceToward(tempTile->x, tempTile->y);
     setAnimationState("Attack1", true);
 
-    //Play attack sound
-    //TODO - syncronise with animation
-    mSound->setPosition(getPosition());
-    mSound->play(CreatureSound::ATTACK);
+    try
+    {
+        std::string name = getName();
+        ServerNotification *serverNotification = new ServerNotification(
+            ServerNotification::playCreatureSound, getControllingPlayer());
+        serverNotification->packet << name << CreatureSound::ATTACK;
+        ODServer::getSingleton().queueServerNotification(serverNotification);
+    }
+    catch (std::bad_alloc&)
+    {
+        OD_ASSERT_TRUE(false);
+        exit(1);
+    }
 
     // Calculate how much damage we do.
     Tile* myTile = positionTile();
@@ -2279,7 +2359,6 @@ bool Creature::handleSleepAction()
         if (setWalkPath(tempPath, 2, false))
         {
             setAnimationState("Walk");
-            popAction();
             pushAction(CreatureAction::walkToTile);
             return false;
         }
@@ -2289,7 +2368,7 @@ bool Creature::handleSleepAction()
         // We are at the home tile so sleep.
         setAnimationState("Sleep");
         // Improve awakeness
-        mAwakeness += 4.0;
+        mAwakeness += 1.5;
         if (mAwakeness > 100.0)
             mAwakeness = 100.0;
         // Improve HP but a bit slower.
@@ -2687,7 +2766,13 @@ std::string Creature::getStatsText()
         tempSS << "Dig Rate: : " << getDigRate() << std::endl;
         tempSS << "Dance Rate: : " << mDanceRate << std::endl;
     }
-    tempSS << "Current Action: " << mActionQueue.front().toString() << std::endl;
+    tempSS << "Current Action:";
+    for(std::deque<CreatureAction>::iterator it = mActionQueue.begin(); it != mActionQueue.end(); ++it)
+    {
+        CreatureAction& ca = *it;
+        tempSS << " " << ca.toString();
+    }
+    tempSS << std::endl;
     tempSS << "Color: " << getColor() << std::endl;
     tempSS << "Position: " << Ogre::StringConverter::toString(getPosition()) << std::endl;
     return tempSS.str();
@@ -2707,7 +2792,7 @@ void Creature::takeDamage(double damage, Tile *tileTakingDamage)
         }
         catch (std::bad_alloc&)
         {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in Creature::takeDamage", Ogre::LML_CRITICAL);
+            OD_ASSERT_TRUE(false);
             exit(1);
         }
     }
@@ -2833,4 +2918,10 @@ void Creature::computeBattlefield()
         mBattleField->setTileSecurityLevel(tempTile->x, tempTile->y,
                                            (tileValue + Random::Double(-1.0 * jitter, jitter)) * tileScaleFactor);
     }
+}
+
+void Creature::playSound(CreatureSound::SoundType soundType)
+{
+    mSound->setPosition(getPosition());
+    mSound->play(soundType);
 }

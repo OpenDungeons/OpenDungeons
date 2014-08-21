@@ -30,7 +30,7 @@ KeeperAI::KeeperAI(GameMap& gameMap, Player& player, const std::string& paramete
 {
     mSomePlaceMade = false;
     mSleepRoomMade = false;
-    mDojoRoomMade = false;
+    mTrainingHallRoomMade = false;
     mNoMoreReachableGold = false;
     mLastTimeLookingForGold = 0.0;
 }
@@ -47,7 +47,7 @@ bool KeeperAI::doTurn(double frameTime)
     if (buildSleepRoom())
         return true;
 
-    if (buildDojoRoom())
+    if (buildTrainingHallRoom())
         return true;
 
     mLastTimeLookingForGold += frameTime * 10.0;
@@ -109,19 +109,19 @@ bool KeeperAI::buildSleepRoom()
     if (numClaimedTiles < 15)
         return false;
 
-    mAiWrapper.buildRoom(Room::quarters, central->getX() - 2, central->getY() + 5,
+    mAiWrapper.buildRoom(Room::dormitory, central->getX() - 2, central->getY() + 5,
                                          central->getX() + 2, central->getY() + 3);
     mSleepRoomMade = true;
     return true;
 }
 
-bool KeeperAI::buildDojoRoom()
+bool KeeperAI::buildTrainingHallRoom()
 {
     // Wait for some money to come in.
     if(mAiWrapper.getGoldInTreasury() < 5000)
         return false;
 
-    if (mDojoRoomMade)
+    if (mTrainingHallRoomMade)
         return false;
 
     Tile* central = mAiWrapper.getDungeonTemple()->getCentralTile();
@@ -141,9 +141,9 @@ bool KeeperAI::buildDojoRoom()
     if (numClaimedTiles < 15)
         return false;
 
-    mAiWrapper.buildRoom(Room::dojo, central->getX() - 2, central->getY() - 4,
+    mAiWrapper.buildRoom(Room::trainingHall, central->getX() - 2, central->getY() - 4,
                                      central->getX() + 2, central->getY() - 6);
-    mDojoRoomMade = true;
+    mTrainingHallRoomMade = true;
     return true;
 }
 
