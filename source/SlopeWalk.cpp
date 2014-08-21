@@ -1,7 +1,24 @@
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "SlopeWalk.h"
+
 #include <algorithm>
 #include <iostream>
-
 
 extern const int mPrecisionDigits = 20;
 extern const int Unit = (1 << mPrecisionDigits);
@@ -21,12 +38,12 @@ void SlopeWalk::buildSlopes(){
     // 	= std::minmax_element(myArray.myArray.begin(), myArray.myArray.end(), [](Vector3i &vv, Vector3i &ww){ return vv.y < ww.y ; });
     // std::pair<std::array<Vector3i,4>::reverse_iterator,std::array<Vector3i,4>::reverse_iterator> minMaxR
     // 	= std::minmax_element(myArray.myArray.rbegin(), myArray.myArray.rend(), [](Vector3i &vv, Vector3i &ww){ return vv.y < ww.y ; });
-    
-    
+
+
     // top_left_index = minMaxL.second - myArray.myArray.begin() ;
     // down_left_index = minMaxL.first - myArray.myArray.begin() ;
-    findMinMaxLeft(myArray.myArray);
-    findMinMaxRight(myArray.myArray);
+    findMinMaxLeft(myArray.mMyArray);
+    findMinMaxRight(myArray.mMyArray);
 
     cout << top_left_index  << endl;
     cout << down_left_index << endl;
@@ -39,11 +56,11 @@ void SlopeWalk::buildSlopes(){
     cout << top_right_index  << endl;
     cout << down_right_index << endl;
 
-    
+
 
     rightSlopes.push_back(0);
     for(ii = top_right_index; ii != down_right_index ; ++ii, ii%=4  ){
-	rightSlopes.push_back((myArray[ii].x - myArray[ii+1].x) * Unit / (myArray[ii].y - myArray[ii+1].y )); 
+	rightSlopes.push_back((myArray[ii].x - myArray[ii+1].x) * Unit / (myArray[ii].y - myArray[ii+1].y ));
 	rightVertices.push_back(ii);
 
     }
@@ -53,11 +70,11 @@ void SlopeWalk::buildSlopes(){
 
     leftSlopes.push_back(0);
     for(ii = top_left_index; ii != down_left_index ; ii+=3, ii%=4  ){
-	leftSlopes.push_back((myArray[ii].x - myArray[ii-1].x) * Unit / (myArray[ii].y - myArray[ii-1].y )); 
+	leftSlopes.push_back((myArray[ii].x - myArray[ii-1].x) * Unit / (myArray[ii].y - myArray[ii-1].y ));
 	leftVertices.push_back(ii);
     }
     leftSlopes.push_back(0);
-    leftVertices.push_back(ii);	
+    leftVertices.push_back(ii);
 }
 
 
@@ -66,11 +83,11 @@ void SlopeWalk::prepareWalk(){
     rightSlopeIndex = rightSlopes.begin();
     leftVerticesIndex = leftVertices.begin();
     rightVerticesIndex = rightVertices.begin();
-    
+
 }
 
 
-bool SlopeWalk::passLeftVertex(){ 
+bool SlopeWalk::passLeftVertex(){
     leftVerticesIndex++;
     leftSlopeIndex++;
     return leftVerticesIndex == leftVertices.end();
@@ -85,12 +102,12 @@ bool SlopeWalk::passRightVertex(){
 
 bool SlopeWalk::notifyOnMoveDown(long long newy_index){
 
-    bool bb = true; 
+    bool bb = true;
     if(leftVerticesIndex != leftVertices.end() && newy_index < getCurrentLeftVertex().y)
 	bb = bb && passLeftVertex();
     if(rightVerticesIndex != rightVertices.end() && newy_index < getCurrentRightVertex().y)
 	bb=  bb && passRightVertex();
-    return bb ; 
+    return bb ;
 }
 
 
@@ -155,7 +172,7 @@ void SlopeWalk::findMinMaxLeft(std::array<Vector3i,4> &aa)
 	    min = ii;
 	if(ii->y >= max->y)
 	    max = ii;
-	
+
     }
     top_left_index = max - aa.begin();
     down_left_index = min - aa.begin();
@@ -172,7 +189,7 @@ void SlopeWalk::findMinMaxRight(std::array<Vector3i,4> &aa)
 	    min = ii;
 	if(ii->y > max->y)
 	    max = ii;
-	
+
     }
     top_right_index = max - aa.begin();
     down_right_index = min - aa.begin();
