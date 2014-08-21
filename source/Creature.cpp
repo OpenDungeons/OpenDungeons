@@ -557,7 +557,7 @@ void Creature::doTurn()
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::removeCreature, player);
                 std::string name = getName();
-                serverNotification->packet << name;
+                serverNotification->mPacket << name;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
             catch (std::bad_alloc&)
@@ -617,7 +617,7 @@ void Creature::doTurn()
             {
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::creatureRefresh, getControllingPlayer());
-                serverNotification->packet << this;
+                serverNotification->mPacket << this;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
             catch (std::bad_alloc&)
@@ -1565,7 +1565,7 @@ bool Creature::handleDigTileAction()
                 std::string name = getName();
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::playCreatureSound, getControllingPlayer());
-                serverNotification->packet << name << CreatureSound::DIG;
+                serverNotification->mPacket << name << CreatureSound::DIG;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
             catch (std::bad_alloc&)
@@ -2169,7 +2169,7 @@ bool Creature::handleAttackAction()
         std::string name = getName();
         ServerNotification *serverNotification = new ServerNotification(
             ServerNotification::playCreatureSound, getControllingPlayer());
-        serverNotification->packet << name << CreatureSound::ATTACK;
+        serverNotification->mPacket << name << CreatureSound::ATTACK;
         ODServer::getSingleton().queueServerNotification(serverNotification);
     }
     catch (std::bad_alloc&)
@@ -2681,7 +2681,7 @@ void Creature::createStatsWindow()
     ClientNotification *clientNotification = new ClientNotification(
         ClientNotification::askCreatureInfos);
     std::string name = getName();
-    clientNotification->packet << name << true;
+    clientNotification->mPacket << name << true;
     ODClient::getSingleton().queueClientNotification(clientNotification);
 
     CEGUI::WindowManager* wmgr = CEGUI::WindowManager::getSingletonPtr();
@@ -2727,7 +2727,7 @@ void Creature::destroyStatsWindow()
         ClientNotification *clientNotification = new ClientNotification(
             ClientNotification::askCreatureInfos);
         std::string name = getName();
-        clientNotification->packet << name << false;
+        clientNotification->mPacket << name << false;
         ODClient::getSingleton().queueClientNotification(clientNotification);
 
         mStatsWindow->destroy();
@@ -2787,7 +2787,7 @@ void Creature::takeDamage(double damage, Tile *tileTakingDamage)
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::creatureRefresh, getControllingPlayer());
-            serverNotification->packet << this;
+            serverNotification->mPacket << this;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

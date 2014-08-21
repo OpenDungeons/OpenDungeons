@@ -244,7 +244,7 @@ void RoomTreasury::createMeshesForTile(Tile* t, const std::string& indicatorMesh
                 ServerNotification::createTreasuryIndicator, player);
             int color = player->getSeat()->getColor();
             std::string name = getName();
-            serverNotification->packet << color << name << t << indicatorMeshName;
+            serverNotification->mPacket << color << name << t << indicatorMeshName;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -274,7 +274,7 @@ void RoomTreasury::destroyMeshesForTile(Tile* t, const std::string& indicatorMes
                 ServerNotification::destroyTreasuryIndicator, player);
             int color = player->getSeat()->getColor();
             std::string name = getName();
-            serverNotification->packet << color << name << t << indicatorMeshName;
+            serverNotification->mPacket << color << name << t << indicatorMeshName;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

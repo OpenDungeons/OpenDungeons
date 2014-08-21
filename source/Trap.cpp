@@ -153,11 +153,11 @@ void Trap::setupTrap(GameMap* gameMap, Trap* newTrap, Player* player)
                 ServerNotification::buildTrap, player);
             int nbTiles = coveredTiles.size();
             int color = player->getSeat()->getColor();
-            serverNotification->packet << intType << color << nbTiles;
+            serverNotification->mPacket << intType << color << nbTiles;
             for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
             {
                 Tile* tile = *it;
-                serverNotification->packet << tile;
+                serverNotification->mPacket << tile;
             }
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }

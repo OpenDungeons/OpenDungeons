@@ -669,31 +669,31 @@ void ODClient::processClientNotifications()
         switch (event->mType)
         {
             case ClientNotification::askCreaturePickUp:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askCreatureDrop:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askMarkTile:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askBuildRoom:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askBuildTrap:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::chat:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askCreatureInfos:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             default:

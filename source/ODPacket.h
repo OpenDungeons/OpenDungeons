@@ -126,7 +126,7 @@ class ODPacket
         void clear();
 
     private:
-        sf::Packet packet;
+        sf::Packet mPacket;
 
 };
 

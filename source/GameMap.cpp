@@ -1739,7 +1739,7 @@ void GameMap::removeMapLight(MapLight *m)
             // Place a message in the queue to inform the clients about the destruction of this MapLight.
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeMapLight);
-            serverNotification->packet << m;
+            serverNotification->mPacket << m;
             queueServerNotification(serverNotification);
             */
 
@@ -2017,7 +2017,7 @@ void GameMap::addMissileObject(MissileObject *m)
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::addMissileObject, NULL);
-            serverNotification->packet << m;
+            serverNotification->mPacket << m;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -2041,7 +2041,7 @@ void GameMap::removeMissileObject(MissileObject *m)
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeMissileObject, NULL);
             std::string name = m->getName();
-            serverNotification->packet << name;
+            serverNotification->mPacket << name;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

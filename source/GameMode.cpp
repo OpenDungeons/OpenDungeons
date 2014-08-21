@@ -310,7 +310,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                 // Send a message to the server telling it we want to drop the creature
                 ClientNotification *clientNotification = new ClientNotification(
                     ClientNotification::askCreatureDrop);
-                clientNotification->packet << curTile;
+                clientNotification->mPacket << curTile;
                 ODClient::getSingleton().queueClientNotification(clientNotification);
                 return true;
             }
@@ -388,7 +388,7 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                     ClientNotification *clientNotification = new ClientNotification(
                         ClientNotification::askCreaturePickUp);
                     std::string name = currentCreature->getName();
-                    clientNotification->packet << name;
+                    clientNotification->mPacket << name;
                     ODClient::getSingleton().queueClientNotification(clientNotification);
                     return true;
                 }
@@ -493,9 +493,9 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
     {
         ClientNotification *clientNotification = new ClientNotification(
             ClientNotification::askMarkTile);
-        clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
-        clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->packet << mDigSetBool;
+        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+        clientNotification->mPacket << mDigSetBool;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     else if(dragType == addNewRoom)
@@ -503,9 +503,9 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         int intRoomType = static_cast<int>(mGameMap->getLocalPlayer()->getNewRoomType());
         ClientNotification *clientNotification = new ClientNotification(
             ClientNotification::askBuildRoom);
-        clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
-        clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->packet << intRoomType;
+        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+        clientNotification->mPacket << intRoomType;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     else if(dragType == addNewTrap)
@@ -513,9 +513,9 @@ bool GameMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
         ClientNotification *clientNotification = new ClientNotification(
             ClientNotification::askBuildTrap);
         int intTrapType = static_cast<int>(mGameMap->getLocalPlayer()->getNewTrapType());
-        clientNotification->packet << inputManager->mXPos << inputManager->mYPos;
-        clientNotification->packet << inputManager->mLStartDragX << inputManager->mLStartDragY;
-        clientNotification->packet << intTrapType;
+        clientNotification->mPacket << inputManager->mXPos << inputManager->mYPos;
+        clientNotification->mPacket << inputManager->mLStartDragX << inputManager->mLStartDragY;
+        clientNotification->mPacket << intTrapType;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     return true;

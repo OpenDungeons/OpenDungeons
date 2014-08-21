@@ -253,11 +253,11 @@ void Room::setupRoom(GameMap* gameMap, Room* newRoom, Player* player)
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::buildRoom, player);
             int intType = static_cast<int32_t>(newRoom->getType());
-            serverNotification->packet << intType << color << nbTiles;
+            serverNotification->mPacket << intType << color << nbTiles;
             for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
             {
                 Tile* tile = *it;
-                serverNotification->packet << tile;
+                serverNotification->mPacket << tile;
             }
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
@@ -468,7 +468,7 @@ void Room::addRoomObject(Tile* targetTile, RoomObject* roomObject)
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::addRoomObject, NULL);
             std::string name = getName();
-            serverNotification->packet << name << targetTile << roomObject;
+            serverNotification->mPacket << name << targetTile << roomObject;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -496,7 +496,7 @@ void Room::removeRoomObject(Tile* tile)
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeRoomObject, NULL);
             std::string name = getName();
-            serverNotification->packet << name << tile;
+            serverNotification->mPacket << name << tile;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -530,7 +530,7 @@ void Room::removeRoomObject(RoomObject* roomObject)
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::removeRoomObject, NULL);
                 std::string name = getName();
-                serverNotification->packet << name << tile;
+                serverNotification->mPacket << name << tile;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
             catch (std::bad_alloc&)
@@ -557,7 +557,7 @@ void Room::removeAllRoomObject()
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeAllRoomObjectFromRoom, NULL);
             std::string name = getName();
-            serverNotification->packet << name;
+            serverNotification->mPacket << name;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -637,7 +637,7 @@ bool Room::doUpkeep()
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotification::removeRoomTile, NULL);
                     std::string name = getName();
-                    serverNotification->packet << name << t;
+                    serverNotification->mPacket << name << t;
                     ODServer::getSingleton().queueServerNotification(serverNotification);
                 }
                 catch (std::bad_alloc&)

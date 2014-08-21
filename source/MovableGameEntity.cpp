@@ -63,7 +63,7 @@ void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
             ServerNotification* serverNotification = new ServerNotification(
                 ServerNotification::animatedObjectAddDestination, NULL);
             std::string name = getName();
-            serverNotification->packet << name << destination;
+            serverNotification->mPacket << name << destination;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -118,7 +118,7 @@ void MovableGameEntity::clearDestinations()
             ServerNotification* serverNotification = new ServerNotification(
                 ServerNotification::animatedObjectClearDestinations, NULL);
             std::string name = getName();
-            serverNotification->packet << name;
+            serverNotification->mPacket << name;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -187,9 +187,9 @@ void MovableGameEntity::setAnimationState(const std::string& state, bool setWalk
             ServerNotification* serverNotification = new ServerNotification(
                 ServerNotification::setObjectAnimationState, NULL);
             std::string name = getName();
-            serverNotification->packet << name << state << loop << setWalkDirection;
+            serverNotification->mPacket << name << state << loop << setWalkDirection;
             if(setWalkDirection)
-                serverNotification->packet << mWalkDirection;
+                serverNotification->mPacket << mWalkDirection;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

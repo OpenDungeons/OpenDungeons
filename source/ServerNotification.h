@@ -97,7 +97,7 @@ class ServerNotification
         virtual ~ServerNotification()
         {}
 
-        ODPacket packet;
+        ODPacket mPacket;
 
         static std::string typeString(ServerNotificationType type);
         friend ODPacket& operator<<(ODPacket& os, const ServerNotification::ServerNotificationType& nt);

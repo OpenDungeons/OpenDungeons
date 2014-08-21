@@ -25,7 +25,7 @@ ServerNotification::ServerNotification(ServerNotificationType type,
 {
     mType = type;
     mConcernedPlayer = concernedPlayer;
-    packet << type;
+    mPacket << type;
 }
 
 std::string ServerNotification::typeString(ServerNotificationType type)

@@ -154,7 +154,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
     {
         ServerNotification* serverNotification = new ServerNotification(
             ServerNotification::turnStarted, NULL);
-        serverNotification->packet << turn;
+        serverNotification->mPacket << turn;
         queueServerNotification(serverNotification);
     }
     catch (std::bad_alloc&)
@@ -176,7 +176,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
                 ServerNotification::refreshPlayerSeat, player);
             std::string goals = gameMap->getGoalsStringForPlayer(player);
             Seat* seat = player->getSeat();
-            serverNotification->packet << seat << goals;
+            serverNotification->mPacket << seat << goals;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -202,7 +202,7 @@ void ODServer::startNewTurn(double timeSinceLastFrame)
                 {
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotification::notifyCreatureInfo, player);
-                    serverNotification->packet << name << creatureInfos;
+                    serverNotification->mPacket << name << creatureInfos;
                     ODServer::getSingleton().queueServerNotification(serverNotification);
                 }
                 catch (std::bad_alloc&)
@@ -241,7 +241,7 @@ void ODServer::serverThread()
                     // Send turn 0 to init the map
                     ServerNotification* serverNotification = new ServerNotification(
                         ServerNotification::turnStarted, NULL);
-                    serverNotification->packet << static_cast<int64_t>(0);
+                    serverNotification->mPacket << static_cast<int64_t>(0);
                     queueServerNotification(serverNotification);
                 }
                 catch (std::bad_alloc&)
@@ -261,6 +261,9 @@ void ODServer::serverThread()
             }
         }
 
+        // After starting a new turn, we should process server notifications
+        // before processing client messages. Otherwise, we could have weird issues
+        // like allow picking up a dead creature for example.
         startNewTurn(turnLengthMs / 1000.0);
 
         processServerNotifications();
@@ -293,12 +296,12 @@ void ODServer::processServerNotifications()
             case ServerNotification::turnStarted:
                 LogManager::getSingleton().logMessage("Server sends newturn="
                     + Ogre::StringConverter::toString((int32_t)gameMap->getTurnNumber()));
-                sendToAllClients(event->packet);
+                sendToAllClients(event->mPacket);
                 break;
 
             case ServerNotification::setTurnsPerSecond:
                 // This one is not used on client side. Shall we remove it?
-                sendToAllClients(event->packet);
+                sendToAllClients(event->mPacket);
                 break;
 
             case ServerNotification::creaturePickedUp:
@@ -307,7 +310,7 @@ void ODServer::processServerNotifications()
                 ServerNotification::ServerNotificationType type;
                 int color;
                 std::string creatureName;
-                OD_ASSERT_TRUE(event->packet >> type >> color >> creatureName);
+                OD_ASSERT_TRUE(event->mPacket >> type >> color >> creatureName);
                 OD_ASSERT_TRUE_MSG(type == event->mType, "type=" + Ogre::StringConverter::toString(type)
                     + ",event->mType=" + Ogre::StringConverter::toString(event->mType));
                 for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
@@ -339,7 +342,7 @@ void ODServer::processServerNotifications()
                 ServerNotification::ServerNotificationType type;
                 int color;
                 Tile tmpTile(gameMap);
-                OD_ASSERT_TRUE(event->packet >> type >> color >> &tmpTile);
+                OD_ASSERT_TRUE(event->mPacket >> type >> color >> &tmpTile);
                 OD_ASSERT_TRUE_MSG(type == event->mType, "type=" + Ogre::StringConverter::toString(type)
                     + ",event->mType=" + Ogre::StringConverter::toString(event->mType));
                 for (std::vector<ODSocketClient*>::iterator it = mSockClients.begin(); it != mSockClients.end(); ++it)
@@ -373,7 +376,7 @@ void ODServer::processServerNotifications()
                 ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
                 OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
                 if(client != NULL)
-                    sendMsgToClient(client, event->packet);
+                    sendMsgToClient(client, event->mPacket);
                 break;
             }
 
@@ -382,7 +385,7 @@ void ODServer::processServerNotifications()
                 ODSocketClient* client = getClientFromPlayer(event->mConcernedPlayer);
                 OD_ASSERT_TRUE_MSG(client != NULL, "name=" + event->mConcernedPlayer->getNick());
                 if(client != NULL)
-                    sendMsgToClient(client, event->packet);
+                    sendMsgToClient(client, event->mPacket);
                 break;
             }
 
@@ -392,7 +395,7 @@ void ODServer::processServerNotifications()
                 break;
 
             default:
-                sendToAllClients(event->packet);
+                sendToAllClients(event->mPacket);
                 break;
         }
 
@@ -561,7 +564,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                         int color = player->getSeat()->getColor();
                         ServerNotification *serverNotification = new ServerNotification(
                             ServerNotification::creaturePickedUp, player);
-                        serverNotification->packet << color << creatureName;
+                        serverNotification->mPacket << color << creatureName;
                         queueServerNotification(serverNotification);
                     }
                     catch (std::bad_alloc&)
@@ -600,7 +603,7 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     {
                         ServerNotification *serverNotification = new ServerNotification(
                             ServerNotification::creatureDropped, player);
-                        serverNotification->packet << color << tile;
+                        serverNotification->mPacket << color << tile;
                         queueServerNotification(serverNotification);
                     }
                     catch (std::bad_alloc&)
@@ -644,11 +647,11 @@ bool ODServer::processClientNotifications(ODSocketClient* clientSocket)
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotification::markTiles, player);
                     int nbTiles = tiles.size();
-                    serverNotification->packet << isDigSet << nbTiles;
+                    serverNotification->mPacket << isDigSet << nbTiles;
                     for(std::vector<Tile*>::iterator it = tiles.begin(); it != tiles.end(); ++it)
                     {
                         Tile* tile = *it;
-                        serverNotification->packet << tile;
+                        serverNotification->mPacket << tile;
                         // We also update the server game map
                         tile->setMarkedForDigging(isDigSet, player);
                     }
@@ -769,7 +772,7 @@ bool ODServer::notifyClientMessage(ODSocketClient *clientSocket)
                 ServerNotification::chatServer, clientSocket->getPlayer());
             std::string msg = clientSocket->getPlayer()->getNick()
                 + " disconnected";
-            serverNotification->packet << msg;
+            serverNotification->mPacket << msg;
             queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
