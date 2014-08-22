@@ -3,117 +3,232 @@ Author's Credit file
 
 This file is listing each files present in this repository, its author and its corresponding license.
 
+Each corresponding license is fully described in the licenses/ folder.
+Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-==============
-==  MODELS  ==
-==============
+Latest update: 2014/08/20
 
-Name                    Author                  License                 URL
+=============================
+==  Configuration: config/ ==
+=============================
+
+Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-Adventurer              Danimal                 CC-BY-SA 3.0
-Axe                     Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Bed                     Clint Bellanger         CC0                     http://opengameart.org/content/bed-low-poly
-big_wood_barrel         Nobiax/yughues          CC0
-Cannon                  Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-Cannonball              Andrew Buck             CC-BY-SA 3.0
-Chair                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Claimed Walls           Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Con_worker              Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Cre_vision_indicator    Andrew Buck             CC-BY-SA 3.0
-DigSelector             Andrew Buck             CC-BY-SA 3.0
-Dirt Walls              Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Dojo                    p0ss                    CC-BY-SA 3.0
-DojoRockObject          p0ss                    CC-BY-SA 3.0
-Dragon                  Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-DungeonTemple           Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Dwarf1                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Dwarf2                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Fire                    Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Forge                   riidom
-Gnome                   Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-Goblin                  Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-Goldnugget              Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Gold Walls              Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Keeperhand              Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Knight                  surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
-Kobold                  surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
-Kreatur                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Lava                    Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Lizardman               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-Longsword               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-mini_wood_barrel        Nobiax/yughues          CC0
-Orc                     Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Pit Demon               Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Portal                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Quarters                Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Rock Walls              Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Round Shield            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
-Sabre                   Andrew Buck             CC-BY-SA 3.0
-Shield_small            Danimal                 CC-BY-SA 3.0
-Shortsword              Danimal                 CC-BY-SA 3.0
-Spider                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Staff                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Stool                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Table                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Tentacle1+2             Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Torch                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Training Dummy          p0ss                    CC-BY-SA 3.0            http://opengameart.org/content/leather-training-dummy
-Training Pole           p0ss                    CC-BY-SA 3.0            http://opengameart.org/content/wooden-training-pole
-Treasury                Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Troll                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Water                   Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Wizard                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
-Wyvern                  Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+console_commands.txt                   Tom Luchowski           GPL 3.0
 
-==============
-==  MUSIC   ==
-==============
 
-Name                    Author                  License                 URL
+===================
+==   GUI: gui/   ==
+===================
+
+Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-Pal_Zoltan_Illes_OpenDungeons_maintheme
- \                      Pal Zoltan Illes        CC-BY-SA 3.0            http://www.illespalzoltan.com
-yd_Searching_ingame     yd                      CCO                     http://opengameart.org/content/searching
+bluehigh.ttf
+bluehighway.font
+FreeMono.ttf
+OD-Logo.ico
+OD.project
+ODBackgrounds.imageset
+ODBackgrounds.png
+ODLogo.imageset
+ODLogo.png
+ODMainMenuBackground.imageset
+ODMainMenuBackground.png               Vagner                  CC-BY-SA 3.0            http://opengameart.org/content/mammon-angel-of-darkness
+ODMainMenuButtons.imageset
+ODMainMenuButtons.png                  StumpyStrust            CC-BY-SA 3.0            http://opengameart.org/content/fantasy-ui-box
+ogrefonts.fontdef
+OpenDungeons.imageset
+OpenDungeons.layout
+OpenDungeons.looknfeel
+OpenDungeons.png
+OpenDungeonsEditorMenu.layout
+OpenDungeonsIcons.imageset
+OpenDungeonsIcons.png
+OpenDungeonsMainMenu.layout
+OpenDungeonsMenuMultiplayer.layout
+OpenDungeonsMenuSinglePlayer.layout
+OpenDungeonsSkin.scheme
 
-==============
-==  SOUNDS  ==
-==============
+schemas/
+-> Animation.xsd
+-> CEGUIConfig.xsd
+-> Falagard.xsd
+-> Font.xsd
+-> GUILayout.xsd
+-> GUIScheme.xsd
+-> Imageset.xsd
 
-Name                    Author                  License                 URL
+
+=========================
+==   Levels: levels/   ==
+=========================
+
+Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-bump                    remaxim                 CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/falling-body
-(Other sounds)          Svenskmand              CC-BY-SA 3.0
+creatures.def                          Bertram                 GPL 3.0
 
-==============
-==   GUI    ==
-==============
+multiplayer/
+-> TestMultiplayer.level               hwoarangmy              GPL 3.0
+-> TestMultiplayerSmall.level          hwoarangmy              GPL 3.0
 
-Name                    Author                  License                 URL
+singleplayer/
+-> oldTest.level
+-> TestSingleplayer.level              hwoarangmy              GPL 3.0
+-> TestSingleplayerSmall.level         hwoarangmy              GPL 3.0
+
+
+=================================================
+==  Ogre material files & textures: materials/ ==
+=================================================
+
+Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-Main menu background    Vagner                  CC-BY-SA 3.0            http://opengameart.org/content/mammon-angel-of-darkness
-Main menu buttons       StumpyStrust            CC-BY-SA 3.0            http://opengameart.org/content/fantasy-ui-box
+RTShaderLib/*                          The Ogre 3D Team        MIT                     http://www.ogre3d.org/licensing
+
+scripts/
+-> *.material                          The OD Team             GPL 3.0
+
+textures/
+-> *.png                               Titus Tscharntke        CC0                     http://www.burningwell.org/ - photo sources for textures
+-> Obsidian.png                        Reiner Flassig          CC-BY-SA/DE 2.0         Obsidian photo source - http://de.wikipedia.org/w/index.php?title=Datei:Obsi.jpg&filetimestamp=20070905143430
+-> Axe.tga                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+
+======================
+==  Models: models/ ==
+======================
+
+Name                                   Author                  License                 Source URL
+------------------------------------------------------------------------------------------------------------------------
+Adventurer.*                           Danimal                 CC-BY-SA 3.0
+Axe1.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+barrel_destroyed.mesh                  Nobiax/yughues          CC0
+Bed.mesh                               Clint Bellanger         CC0                     http://opengameart.org/content/bed-low-poly
+BeetleGolem.mesh        
+big_wood_barrel.mesh                   Nobiax/yughues          CC0
+Bookcase.mesh
+Bookshelf.mesh
+Cannon.mesh                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Cannonball.mesh                        Andrew Buck             CC-BY-SA 3.0
+Cavehornet.mesh
+Chair.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Chicken.*
+Claimed*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Con_worker.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Cre_vision_indicator.mesh              Andrew Buck             CC-BY-SA 3.0
+Dirt*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dojo.mesh                              p0ss                    CC-BY-SA 3.0
+DojoRockObject.mesh                    p0ss                    CC-BY-SA 3.0
+Dormitory.mesh                         Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dragon.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+DungeonTemple*                         Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dwarf1.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dwarf2.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Dwarf3
+Farm.mesh
+Field_indicator.mesh
+Fire.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Forge.mesh                             riidom
+ForgeAnvilObject.mesh                  riidom
+ForgeForgeObject.mesh                  riidom
+ForgeTableObject.mesh                  riidom
+Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Goblin.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Gold*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
+GoldstackLv*.mesh                      
+golem.*
+Insect_low.003.skeleton
+Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Knight.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
+Kobold.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
+Kreatur.*                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Lava*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
+LavaGolem.mesh
+Library.mesh
+Light.mesh
+Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+mini_wood_barrel.mesh                  Nobiax/yughues          CC0
+Orc.*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Pit_demon.*                            Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Podium.mesh
+Portal*                                Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Rock*                                  Skorpio                 CC-BY-SA 3.0, GPL 3.0
+RoundShield.mesh                       Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
+RuinEntrance.mesh
+Sabre.mesh                             Andrew Buck             CC-BY-SA 3.0
+??->>Shield_small                      Danimal                 CC-BY-SA 3.0 (file missing)
+??->>Shortsword                        Danimal                 CC-BY-SA 3.0 (file missing)
+Scarab.*
+Shelf.mesh
+Skeleton.*
+Spider.mesh                            Skorpio                 CC-BY-SA 3.0, GPL 3.0
+SquareSelector.mesh
+Staff.*                                Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Stool.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Table.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Tentacle*                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Torch.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+TrainingDummy1.mesh
+Trainingdummy1.skeleton
+TrainingPole.mesh                      p0ss                    CC-BY-SA 3.0            http://opengameart.org/content/wooden-training-pole
+Treasury.mesh                          Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Troll.*                                Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Troll_Rock.mesh
+Water*                                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
+Wizard.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
+WoodWatchTower.mesh
+Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 
 
+====================
+==  Music: music/ ==
+====================
 
-----
+Name                                   Author                  License                 Source URL
+------------------------------------------------------------------------------------------------------------------------
+Pal_Zoltan_Illes_OpenDungeons_maintheme.ogg
+ \                                     Pal Zoltan Illes        CC-BY-SA 3.0            http://www.illespalzoltan.com
+yd_Searching_ingame.ogg                yd                      CC0                     http://opengameart.org/content/searching
 
-Unsorted content
 
---
+====================================
+== Ogre config pack files: packs/ ==
+====================================
 
-Reiner Flassig - Obsidian photo source - CC-by-sa/de 2.0 - http://de.wikipedia.org/w/index.php?title=Datei:Obsi.jpg&filetimestamp=20070905143430
+Name                                   Author                  License                 Source URL
+------------------------------------------------------------------------------------------------------------------------
+OgreCore.zip                           The Ogre 3D Team        MIT                     http://www.ogre3d.org/licensing
 
---
 
-riidom - Ghoul, Forge
-Andrew Buck
-Svenskmand
-Danimal - Adventurer, concept art - CC-BY-SA 3.0
-StefanP.MUC (GUI)
-Oln
-paul424
-Skorpio
+====================================
+== Angel scripts: scripts/ ==
+====================================
 
-http://www.burningwell.org/ - Titus Tscharntke - photo sources for textures - Public Domain
+Name                                   Author                  License                 Source URL
+------------------------------------------------------------------------------------------------------------------------
+*.as                                   OD Team                 GPLv3
 
-matthew.pablo - Theme of Com-Mecha (currently renamed - replacementmusic.ogg) - CC-BY 3.0 - http://opengameart.org/content/theme-of-com-mecha
+
+=======================
+==  Sounds: sounds/  ==
+=======================
+
+Name                                   Author                  License                 Source URL
+------------------------------------------------------------------------------------------------------------------------
+ClaimTile/
+-> Claim*.ogg                          Svenskmand              CC-BY-SA 3.0
+
+Click/
+-> Click.ogg                           Svenskmand              CC-BY-SA 3.0
+
+Digging/
+-> Digging*.ogg                        Svenskmand              CC-BY-SA 3.0
+
+RocksFalling/
+-> RocksFalling*.ogg                   Svenskmand              CC-BY-SA 3.0
+
+RoomBuild/
+-> bump.ogg                            remaxim                 CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/falling-body
+
+Sword/
+-> SwordBlock*.ogg                     Svenskmand              CC-BY-SA 3.0
