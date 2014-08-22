@@ -1,13 +1,28 @@
-#include <iostream>
-#include <fstream>
-#include <list>
-#include <string>
-#include <algorithm>
+/*
+ *  Copyright (C) 2011-2014  OpenDungeons Team
+ *
+ *  This program is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "PrefixTree.h"
 
-using std::cout ; using std::cin; using std::endl; using std::make_pair;
+#include <fstream>
+#include <algorithm>
 
-PrefixTree::PrefixTree():validWord(false)
+PrefixTree::PrefixTree():
+    mParent(NULL),
+    mValidWord(false)
 {}
 
 void PrefixTree::addNewString(const std::string& ss)
@@ -15,83 +30,96 @@ void PrefixTree::addNewString(const std::string& ss)
     addNewStringAux(ss.begin(), ss.begin(), ss.end());
 }
 
-void PrefixTree::addNewStringAux(string::const_iterator ii, string::const_iterator ssBegin, string::const_iterator ssEnd)
+void PrefixTree::addNewStringAux(std::string::const_iterator it,
+                                 std::string::const_iterator ssBegin,
+                                 std::string::const_iterator ssEnd)
 {
-
-    if( ii != ssEnd){
-
-        PrefixTree* tmpPtr;
-	auto result = std::find_if(siblingsList.begin(), siblingsList.end(), [ii](pair<char,PrefixTree*> pp){  return (*ii == pp.first );} );
-
-	if(result != siblingsList.end()){
-	    ii++;
-	    result->second->addNewStringAux(ii, ssBegin, ssEnd);
-
-	}
-	else{
-	    tmpPtr = new PrefixTree();
-	    siblingsList.push_back(make_pair(*ii, tmpPtr));
-	    ii++;
-	    tmpPtr->addNewStringAux(ii, ssBegin, ssEnd);
-	}	
+    if(it == ssEnd)
+    {
+        mValidWord = true;
+        return;
     }
-    else{
-	validWord = true;
+
+    std::list<std::pair<char, PrefixTree*> >::iterator result;
+    result = std::find_if(mSiblingsList.begin(), mSiblingsList.end(),
+                            [it](std::pair<char,PrefixTree*> pp)
+                            {
+                                return (*it == pp.first);
+                            });
+
+    if(result != mSiblingsList.end())
+    {
+        ++it;
+        result->second->addNewStringAux(it, ssBegin, ssEnd);
 
     }
+    else
+    {
+        PrefixTree* prefixTree = new PrefixTree();
+        mSiblingsList.push_back(std::make_pair(*it, prefixTree));
+        ++it;
+        prefixTree->addNewStringAux(it, ssBegin, ssEnd);
+    }
+
 }
 
 bool PrefixTree::readStringsFromFile(const std::string& fileName)
 {
     std::string str;
-    std::fstream fileStream (fileName);
-    cout << fileStream.good() << endl; 
-    while (std::getline(fileStream, str)) {
-	addNewString(str);
+    std::fstream fileStream(fileName);
+    //std::cout << fileStream.good() << std::endl;
+    while (std::getline(fileStream, str))
+        addNewString(str);
+
+    return true;
+}
+
+bool PrefixTree::complete(const char* word, std::list<std::string>* ll)
+{
+    std::string wordString(word);
+    //std::cout << wordString << std::endl;
+
+    PrefixTree* ff = findPrefix(wordString);
+    if(ff != NULL)
+        return ff->completePlusPrefix(std::string(), ll);
+    else
+        return false;
+}
+
+bool PrefixTree::completePlusPrefix(const std::string& ss, std::list<std::string>* ll)
+{
+    if(mValidWord)
+        ll->push_back(ss);
+
+    std::list<std::pair<char, PrefixTree*> >::iterator it;
+    for(it = mSiblingsList.begin(); it != mSiblingsList.end(); ++it)
+    {
+        std::string tt = ss;
+        tt += it->first;
+        it->second->completePlusPrefix(tt, ll);
     }
     return true;
 }
 
-bool PrefixTree::complete(const char * word, list<string>* ll ){
-
-    string wordString(word );
-    cout << wordString << endl;
-    auto ff = findPrefix(wordString);
-    if( ff !=nullptr)
-	return ff->completePlusPrefix(string(""), ll );
-    else 
-	return false;
-}
-
-bool PrefixTree::completePlusPrefix(string ss, list<string>* ll){
-    if(validWord)
-	ll->push_back(ss);
-
-    for(auto ii = siblingsList.begin(); ii != siblingsList.end(); ii++ ){
-	std::string tt = ss;
-	tt += ii->first;
-	ii->second->completePlusPrefix(tt, ll);
-    }
-    return true;
-}
-
-
-PrefixTree* PrefixTree::findPrefix(string ss){
+PrefixTree* PrefixTree::findPrefix(const std::string& ss)
+{
     return findPrefixAux(ss.begin(), ss.end());
 }
 
+PrefixTree* PrefixTree::findPrefixAux(std::string::const_iterator it, std::string::const_iterator end_it)
+{
+    if(it == end_it)
+        return this;
 
-PrefixTree* PrefixTree::findPrefixAux(string::const_iterator ii, string::const_iterator end_ii){
+    std::list<std::pair<char, PrefixTree*> >::iterator result;
+    result = std::find_if(mSiblingsList.begin(), mSiblingsList.end(),
+                            [it](std::pair<char, PrefixTree*> pp)
+                            {
+                                return (*it == pp.first);
+                            } );
 
-    if(ii == end_ii)
-	return this;
-    else{
-	auto result = std::find_if(siblingsList.begin(), siblingsList.end(), [ii](pair<char,PrefixTree*> pp){  return (*ii == pp.first );} );	
-	int nn = 2 + 2;
-	auto tmpDebug = siblingsList.end();
-	if( result == siblingsList.end())
-	    return nullptr;
-	else
-	    return result->second->findPrefixAux(++ii,end_ii) ;
-    }
+    if(result == mSiblingsList.end())
+        return NULL;
+
+    return result->second->findPrefixAux(++it, end_it) ;
 }
