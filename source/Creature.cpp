@@ -69,7 +69,7 @@ static const int MaxGoldCarriedByWorkers = 1500;
 
 const std::string Creature::CREATURE_PREFIX = "Creature_";
 
-Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool generateUniqueName) :
+Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceName, const std::string& name) :
     MovableGameEntity        (gameMap),
     mTracingCullingQuad      (NULL),
     mWeaponL                 (NULL),
@@ -94,7 +94,6 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool genera
     mJobCooldown             (0),
     mEatCooldown             (0),
     mPreviousPositionTile    (NULL),
-    mBattleField             (new BattleField(gameMap)),
     mJobRoom                 (NULL),
     mEatRoom                 (NULL),
     mStatsWindow             (NULL),
@@ -102,9 +101,12 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool genera
     mSound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
 {
     assert(definition);
-    if(generateUniqueName)
+    if(forceName)
+        setName(name);
+    else
         setName(getUniqueCreatureName());
 
+    mBattleField = new BattleField(getGameMap(), getName());
     setIsOnMap(false);
 
     setObjectType(GameEntity::creature);
@@ -349,10 +351,6 @@ ODPacket& operator>>(ODPacket& is, Creature *c)
     std::string tempString;
 
     is >> tempString;
-
-    if (tempString.compare("autoname") == 0)
-        tempString = c->getUniqueCreatureName();
-
     c->setName(tempString);
 
     Ogre::Vector3 position;
@@ -388,9 +386,9 @@ Creature* Creature::loadFromLine(const std::string& line, GameMap* gameMap)
     assert(gameMap);
     std::vector<std::string> elems = Helper::split(line, '\t');
     CreatureDefinition *creatureClass = gameMap->getClassDescription(elems[0]);
-    Creature* c = new Creature(gameMap, creatureClass, false);
-
     std::string creatureName = elems[1];
+    Creature* c = new Creature(gameMap, creatureClass, true, creatureName);
+
     if (creatureName.compare("autoname") == 0)
         creatureName = c->getUniqueCreatureName();
     c->setName(creatureName);
@@ -452,6 +450,7 @@ void Creature::setPosition(const Ogre::Vector3& v)
 
 void Creature::drop(const Ogre::Vector3& v)
 {
+    setIsOnMap(true);
     setPosition(v);
     mForceAction = forcedActionSearchAction;
 }
@@ -486,9 +485,7 @@ void Creature::setIsOnMap(bool nIsOnMap)
 
 bool Creature::getIsOnMap() const
 {
-    bool tempBool = mIsOnMap;
-
-    return tempBool;
+    return mIsOnMap;
 }
 
 void Creature::setWeaponL(Weapon* wL)
@@ -538,6 +535,10 @@ void Creature::detach()
 
 void Creature::doTurn()
 {
+    // if creature is not on map, we do nothing
+    if(!getIsOnMap())
+        return;
+
     // Check if the creature is alive
     if (getHP() <= 0.0)
     {
@@ -2246,7 +2247,7 @@ bool Creature::handleManeuverAction()
         return true;
     }
 
-    // Should not happen
+    OD_ASSERT_TRUE(mBattleField != NULL);
     if (mBattleField == NULL)
         return true;
 
@@ -2845,12 +2846,16 @@ bool Creature::tryPickup()
     if (getHP() <= 0.0)
         return false;
 
-    // Stop the creature walking and take it off the gameMap to prevent the AI from running on it.
-    getGameMap()->removeCreature(this);
+    // Stop the creature walking and set it off the map to prevent the AI from running on it.
+    setIsOnMap(false);
     clearDestinations();
     clearActionQueue();
     stopJob();
     stopEating();
+
+    Tile* tile = positionTile();
+    if(tile != NULL)
+        tile->removeCreature(this);
 
     return true;
 }

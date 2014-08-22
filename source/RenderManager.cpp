@@ -946,7 +946,7 @@ void RenderManager::rrCreateMissileObject(const RenderRequest& renderRequest)
     //TODO:  Make a new subroot scene node for these so lookups are faster
     // since only a few missile objects should be onscreen at once.
     Ogre::SceneNode* node = mCreatureSceneNode->createChildSceneNode(
-                                curMissileObject->getName() + "_node");
+                                ent->getName() + "_node");
     node->setPosition(curMissileObject->getPosition());
     node->attachObject(ent);
 }

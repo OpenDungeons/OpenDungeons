@@ -202,9 +202,10 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::addCreature:
         {
             std::string className;
-            OD_ASSERT_TRUE(packetReceived >> className);
+            std::string name;
+            OD_ASSERT_TRUE(packetReceived >> className >> name);
             CreatureDefinition *creatureClass = gameMap->getClassDescription(className);
-            Creature *newCreature = new Creature(gameMap, creatureClass, false);
+            Creature *newCreature = new Creature(gameMap, creatureClass, true, name);
             OD_ASSERT_TRUE(packetReceived >> newCreature);
             gameMap->addCreature(newCreature);
             newCreature->createMesh();
@@ -340,7 +341,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> objName >> animState
                 >> loop >> shouldSetWalkDirection);
             MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE_MSG(obj != NULL, "objName=" + objName);
+            OD_ASSERT_TRUE_MSG(obj != NULL, "objName=" + objName + ", state=" + animState);
             if (obj != NULL)
             {
                 if(shouldSetWalkDirection)
@@ -431,7 +432,8 @@ bool ODClient::processOneClientSocketMessage()
             int intType, color;
             Room::RoomType type;
             int nbTiles;
-            OD_ASSERT_TRUE(packetReceived >> intType>> color >> nbTiles);
+            std::string name;
+            OD_ASSERT_TRUE(packetReceived >> name >> intType>> color >> nbTiles);
             type = static_cast<Room::RoomType>(intType);
             std::vector<Tile*> tiles;
             for(int i = 0; i < nbTiles; i++)
@@ -446,7 +448,8 @@ bool ODClient::processOneClientSocketMessage()
             }
             Player* player = gameMap->getPlayerByColor(color);
             OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
-            gameMap->buildRoomForPlayer(tiles, type, player);
+            gameMap->buildRoomForPlayer(tiles, type, player, true, name);
+            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::BUILDROOM, false);
             break;
         }
 
@@ -474,7 +477,8 @@ bool ODClient::processOneClientSocketMessage()
             int intType, color;
             Trap::TrapType type;
             int nbTiles;
-            OD_ASSERT_TRUE(packetReceived >> intType >> color >> nbTiles);
+            std::string name;
+            OD_ASSERT_TRUE(packetReceived >> name >> intType >> color >> nbTiles);
             type = static_cast<Trap::TrapType>(intType);
             std::vector<Tile*> tiles;
             for(int i = 0; i < nbTiles; i++)
@@ -486,7 +490,8 @@ bool ODClient::processOneClientSocketMessage()
             }
             Player* player = gameMap->getPlayerByColor(color);
             OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
-            gameMap->buildTrapForPlayer(tiles, type, player);
+            gameMap->buildTrapForPlayer(tiles, type, player, true, name);
+            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::BUILDTRAP, false);
             break;
         }
 
@@ -529,8 +534,8 @@ bool ODClient::processOneClientSocketMessage()
             int color;
             std::string roomName;
             Tile tmpTile(gameMap);
-            std::string indicatorMeshName;
-            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
+            RoomTreasury::TreasuryTileFullness fullness;
+            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> fullness);
             Room* room = gameMap->getRoomByName(roomName);
             OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
@@ -539,7 +544,7 @@ bool ODClient::processOneClientSocketMessage()
             RoomTreasury* rt = static_cast<RoomTreasury*>(room);
             OD_ASSERT_TRUE_MSG(rt->getColor() == color, "roomColor=" + Ogre::StringConverter::toString(rt->getColor())
                 + ",color=" + Ogre::StringConverter::toString(color));
-            rt->createMeshesForTile(tile, indicatorMeshName);
+            rt->createMeshesForTile(tile, fullness);
             break;
         }
 
@@ -548,8 +553,8 @@ bool ODClient::processOneClientSocketMessage()
             int color;
             std::string roomName;
             Tile tmpTile(gameMap);
-            std::string indicatorMeshName;
-            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
+            RoomTreasury::TreasuryTileFullness fullness;
+            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> fullness);
             Room* room = gameMap->getRoomByName(roomName);
             OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
             Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
@@ -558,7 +563,7 @@ bool ODClient::processOneClientSocketMessage()
             RoomTreasury* rt = static_cast<RoomTreasury*>(room);
             OD_ASSERT_TRUE_MSG(rt->getColor() == color, "roomColor=" + Ogre::StringConverter::toString(rt->getColor())
                 + ",color=" + Ogre::StringConverter::toString(color));
-            rt->destroyMeshesForTile(tile, indicatorMeshName);
+            rt->destroyMeshesForTile(tile, fullness);
             break;
         }
 
@@ -743,7 +748,6 @@ bool ODClient::connect(const std::string& host, const int port, const std::strin
     RenderManager::getSingletonPtr()->processRenderRequests();
     if (!gameMap->LoadLevel(levelFilename))
         return false;
-
 
     // Fill seats with either player, AIs or nothing depending on the given faction.
     uint32_t i = 0;

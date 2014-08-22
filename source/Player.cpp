@@ -144,7 +144,6 @@ void Player::dropCreature(Tile* t, unsigned int index)
     // Add the creature to the map
     Creature *c = mCreaturesInHand[index];
     mCreaturesInHand.erase(mCreaturesInHand.begin() + index);
-    mGameMap->addCreature(c);
     c->drop(Ogre::Vector3(static_cast<Ogre::Real>(t->x),
         static_cast<Ogre::Real>(t->y), 0.0));
 

@@ -19,6 +19,7 @@
 #define ROOMTREASURY_H
 
 #include "Room.h"
+#include "ODPacket.h"
 
 class RoomTreasury: public Room
 {
@@ -38,7 +39,9 @@ public:
     int emptyStorageSpace();
     int depositGold(int gold, Tile *tile);
     int withdrawGold(int gold);
-
+protected:
+    virtual void destroyMeshLocal();
+    virtual void deleteYourselfLocal();
 private:
     //! \brief Tells which room object is used to show how much the tile is full of gold.
     enum TreasuryTileFullness
@@ -50,10 +53,13 @@ private:
     const char* getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
 
     void updateMeshesForTile(Tile *t);
-    void createMeshesForTile(Tile *t, const std::string& indicatorMeshName);
-    void destroyMeshesForTile(Tile *t, const std::string& indicatorMeshName);
+    void createMeshesForTile(Tile *t, TreasuryTileFullness fullness);
+    void destroyMeshesForTile(Tile *t, TreasuryTileFullness fullness);
     void createGoldMeshes();
-    void destroyGoldMeshes();
+    void destroyGoldMeshes(bool resetValues);
+
+    friend ODPacket& operator<<(ODPacket& os, const TreasuryTileFullness& tf);
+    friend ODPacket& operator>>(ODPacket& is, TreasuryTileFullness& tf);
 
     std::map<Tile*, int> mGoldInTile;
     std::map<Tile*, TreasuryTileFullness> mFullnessOfTile;

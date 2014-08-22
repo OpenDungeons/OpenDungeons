@@ -111,6 +111,7 @@ void MovableGameEntity::clearDestinations()
 {
     mWalkQueue.clear();
     stopWalking();
+
     if (getGameMap()->isServerGameMap())
     {
         try
@@ -123,7 +124,7 @@ void MovableGameEntity::clearDestinations()
         }
         catch (std::bad_alloc&)
         {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in MovableGameEntity::clearDestinations", Ogre::LML_CRITICAL);
+            OD_ASSERT_TRUE(false);
             exit(1);
         }
     }

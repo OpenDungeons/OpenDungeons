@@ -67,7 +67,7 @@ typedef std::vector<SecurityTile> FieldType;
 class BattleField
 {
 public:
-    BattleField(GameMap* gameMap);
+    BattleField(GameMap* gameMap, const std::string& creatureName);
 
     ~BattleField()
     {}

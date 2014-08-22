@@ -1219,3 +1219,10 @@ bool Tile::checkTileName(const std::string& tileName, int& x, int& y)
 
     return true;
 }
+
+// TODO : use this function where tiles are displayed in logs (mostly in ODClient and ODServer)
+std::string Tile::displayAsString(Tile* tile)
+{
+    return "[" + Ogre::StringConverter::toString(tile->x) + ","
+         + Ogre::StringConverter::toString(tile->y)+ "]";
+}

@@ -442,7 +442,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             CreatureDefinition *creatureClass = gameMap->getClassDescription(className);
             if (creatureClass != NULL)
             {
-                Creature *tempCreature = new Creature(gameMap, creatureClass, true);
+                Creature *tempCreature = new Creature(gameMap, creatureClass);
                 tempSS >> tempCreature;
 
                 tempCreature->createMesh();

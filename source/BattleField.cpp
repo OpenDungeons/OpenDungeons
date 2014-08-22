@@ -25,11 +25,10 @@
 
 #include <iostream>
 
-BattleField::BattleField(GameMap* gameMap) :
+BattleField::BattleField(GameMap* gameMap, const std::string& creatureName) :
     mHasMeshes(false)
 {
-    mName = "field_" + Ogre::StringConverter::toString(
-        gameMap->nextUniqueNumberBattlefield());
+    mName = creatureName + "_battlefield";
 }
 
 double BattleField::getTileSecurityLevel(int x, int y)

@@ -63,7 +63,7 @@ class Creature: public MovableGameEntity
 public:
     //! \brief Constructor for creatures. If generateUniqueName is false, the name should be set with
     //! setName()
-    Creature(GameMap* gameMap, CreatureDefinition* definition, bool generateUniqueName);
+    Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceName = false, const std::string& name = "");
     virtual ~Creature();
 
     static const std::string CREATURE_PREFIX;

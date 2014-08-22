@@ -20,6 +20,8 @@
 #include "Seat.h"
 #include "Player.h"
 #include "GameMap.h"
+#include "ODServer.h"
+#include "ServerNotification.h"
 #include "LogManager.h"
 
 AIWrapper::AIWrapper(GameMap& gameMap, Player& player)
@@ -37,8 +39,28 @@ bool AIWrapper::buildRoom(Room::RoomType newRoomType, int x1, int y1, int x2, in
     int goldRequired = coveredTiles.size() * Room::costPerTile(newRoomType);
     if(gameMap.withdrawFromTreasuries(goldRequired, player.getSeat()))
     {
-        Room* newRoom = Room::createRoom(&gameMap, newRoomType, coveredTiles,
-            player.getSeat()->getColor());
+        int color = player.getSeat()->getColor();
+        Room* newRoom = Room::createRoom(&gameMap, newRoomType, coveredTiles, color);
+        int nbTiles = coveredTiles.size();
+        try
+        {
+            const std::string& name = newRoom->getName();
+            ServerNotification *serverNotification = new ServerNotification(
+                ServerNotification::buildRoom, &player);
+            int intType = static_cast<int32_t>(newRoom->getType());
+            serverNotification->mPacket << name << intType << color << nbTiles;
+            for(std::vector<Tile*>::iterator it = coveredTiles.begin(); it != coveredTiles.end(); ++it)
+            {
+                Tile* tile = *it;
+                serverNotification->mPacket << tile;
+            }
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            OD_ASSERT_TRUE(false);
+            exit(1);
+        }
         Room::setupRoom(&gameMap, newRoom, &player);
         return true;
     }

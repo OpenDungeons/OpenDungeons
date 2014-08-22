@@ -59,7 +59,7 @@ public:
      */
     //TODO: Use something better than a void pointer for params.
     static Trap* createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*> &nCoveredTiles,
-        Seat *nControllingSeat, const std::string& nameToUse = "", void* params = NULL);
+        Seat *nControllingSeat, bool forceName = false, const std::string& name = "", void* params = NULL);
 
     /** \brief Adds the trap newTrap to the game map for the current player
      */
