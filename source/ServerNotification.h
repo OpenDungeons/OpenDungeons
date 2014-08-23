@@ -82,9 +82,6 @@ class ServerNotification
             removeRoomObject,
             removeAllRoomObjectFromRoom,
 
-            createTreasuryIndicator,
-            destroyTreasuryIndicator,
-
             notifyCreatureInfo,
 
             playCreatureSound,

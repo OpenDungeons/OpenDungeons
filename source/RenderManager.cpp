@@ -221,14 +221,6 @@ bool RenderManager::handleRenderRequest(const RenderRequest& renderRequest)
         rrDestroyTrap(renderRequest);
         break;
 
-    case RenderRequest::createTreasuryIndicator:
-        rrCreateTreasuryIndicator(renderRequest);
-        break;
-
-    case RenderRequest::destroyTreasuryIndicator:
-        rrDestroyTreasuryIndicator(renderRequest);
-        break;
-
     case RenderRequest::deleteRoom:
     {
         Room* curRoom = static_cast<Room*> (renderRequest.p);
@@ -766,57 +758,6 @@ void RenderManager::rrDestroyTrap(const RenderRequest& renderRequest)
     node->detachObject(ent);
     mSceneManager->destroySceneNode(node->getName());
     mSceneManager->destroyEntity(ent);
-}
-
-void RenderManager::rrCreateTreasuryIndicator(const RenderRequest& renderRequest)
-{
-    Tile* curTile = static_cast<Tile*>(renderRequest.p);
-    Room* curRoom = static_cast<Room*>(renderRequest.p2);
-    std::stringstream tempSS;
-
-    tempSS << curRoom->getOgreNamePrefix() << curRoom->getName() << "_" << curTile->x << "_"
-        << curTile->y;
-    Ogre::Entity* ent = mSceneManager->createEntity(tempSS.str()
-                        + "_treasury_indicator", renderRequest.str + ".mesh");
-    Ogre::SceneNode* node = mSceneManager->getSceneNode(tempSS.str() + "_node");
-
-    //FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT,
-    // it can be gotten rid of when that hack is fixed.
-    node = node->createChildSceneNode(node->getName()
-                                      + "_hack_node");
-    node->setScale(Ogre::Vector3((Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                                 (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT),
-                                 (Ogre::Real)(1.0 / BLENDER_UNITS_PER_OGRE_UNIT)));
-    node->attachObject(ent);
-}
-
-void RenderManager::rrDestroyTreasuryIndicator(const RenderRequest& renderRequest)
-{
-    Tile* curTile = static_cast<Tile*>(renderRequest.p);
-    Room* curRoom = static_cast<Room*>(renderRequest.p2);
-
-    std::stringstream tempSS;
-    tempSS << curRoom->getOgreNamePrefix() << curRoom->getName() << "_" << curTile->x << "_"
-        << curTile->y;
-    if (mSceneManager->hasEntity(tempSS.str() + "_treasury_indicator"))
-    {
-        Ogre::Entity* ent = mSceneManager->getEntity(tempSS.str()
-                            + "_treasury_indicator");
-
-        //FIXME: This second scene node is purely to cancel out the effects of BLENDER_UNITS_PER_OGRE_UNIT,
-        // it can be gotten rid of when that hack is fixed.
-        Ogre::SceneNode* node = mSceneManager->getSceneNode(tempSS.str() + "_node" + "_hack_node");
-
-        /*  The proper code once the above hack is fixed.
-        node = sceneManager->getSceneNode(tempSS.str() + "_node");
-        */
-        node->detachObject(ent);
-
-        //FIXME: This line is not needed once the above hack is fixed.
-        mSceneManager->destroySceneNode(node->getName());
-
-        mSceneManager->destroyEntity(ent);
-    }
 }
 
 void RenderManager::rrCreateCreature(const RenderRequest& renderRequest)

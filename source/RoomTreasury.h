@@ -19,7 +19,6 @@
 #define ROOMTREASURY_H
 
 #include "Room.h"
-#include "ODPacket.h"
 
 class RoomTreasury: public Room
 {
@@ -29,19 +28,15 @@ public:
 
     // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r);
-    bool doUpkeep();
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
     void removeCoveredTile(Tile* t);
-    void clearCoveredTiles();
 
     // Functions specific to this class.
     int getTotalGold();
     int emptyStorageSpace();
     int depositGold(int gold, Tile *tile);
     int withdrawGold(int gold);
-protected:
-    virtual void destroyMeshLocal();
-    virtual void deleteYourselfLocal();
+    virtual bool doUpkeep();
 private:
     //! \brief Tells which room object is used to show how much the tile is full of gold.
     enum TreasuryTileFullness
@@ -53,16 +48,10 @@ private:
     const char* getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
 
     void updateMeshesForTile(Tile *t);
-    void createMeshesForTile(Tile *t, TreasuryTileFullness fullness);
-    void destroyMeshesForTile(Tile *t, TreasuryTileFullness fullness);
-    void createGoldMeshes();
-    void destroyGoldMeshes(bool resetValues);
-
-    friend ODPacket& operator<<(ODPacket& os, const TreasuryTileFullness& tf);
-    friend ODPacket& operator>>(ODPacket& is, TreasuryTileFullness& tf);
 
     std::map<Tile*, int> mGoldInTile;
     std::map<Tile*, TreasuryTileFullness> mFullnessOfTile;
+    bool mGoldChanged;
 };
 
 #endif // ROOMTREASURY_H

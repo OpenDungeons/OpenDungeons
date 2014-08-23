@@ -39,33 +39,9 @@ bool GoalProtectCreature::isMet(Seat *s)
     // Check to see if the creature exists on the game map.
     const Creature *tempCreature = gameMap->getCreature(mCreatureName);
     if (tempCreature != NULL)
-    {
         return (tempCreature->getHP() > 0.0);
-    }
-    else
-    {
-        // The creature is not on the gameMap but it could be in one of the players hands.
-        for (unsigned int i = 0, numP = gameMap->numPlayers(); i < numP; ++i)
-        {
-            const Player *tempPlayer = gameMap->getPlayer(i);
-            for (unsigned int j = 0, numC = tempPlayer->numCreaturesInHand();
-                    j < numC; ++j)
-            {
-                if (tempPlayer->getCreatureInHand(j)->getName() == mCreatureName)
-                    return true;
-            }
-        }
 
-        // The creature could be in my hand.
-        const Player *localPlayer = gameMap->getLocalPlayer();
-        for (unsigned int j = 0, numC = localPlayer->numCreaturesInHand(); j < numC; ++j)
-        {
-            if (localPlayer->getCreatureInHand(j)->getName() == mCreatureName)
-                return true;
-        }
-
-        return false;
-    }
+    return false;
 }
 
 bool GoalProtectCreature::isUnmet(Seat *s)

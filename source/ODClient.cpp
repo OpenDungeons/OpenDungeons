@@ -529,44 +529,6 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
-        case ServerNotification::createTreasuryIndicator:
-        {
-            int color;
-            std::string roomName;
-            Tile tmpTile(gameMap);
-            RoomTreasury::TreasuryTileFullness fullness;
-            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> fullness);
-            Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
-            RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-            OD_ASSERT_TRUE_MSG(rt->getColor() == color, "roomColor=" + Ogre::StringConverter::toString(rt->getColor())
-                + ",color=" + Ogre::StringConverter::toString(color));
-            rt->createMeshesForTile(tile, fullness);
-            break;
-        }
-
-        case ServerNotification::destroyTreasuryIndicator:
-        {
-            int color;
-            std::string roomName;
-            Tile tmpTile(gameMap);
-            RoomTreasury::TreasuryTileFullness fullness;
-            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> fullness);
-            Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
-            RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-            OD_ASSERT_TRUE_MSG(rt->getColor() == color, "roomColor=" + Ogre::StringConverter::toString(rt->getColor())
-                + ",color=" + Ogre::StringConverter::toString(color));
-            rt->destroyMeshesForTile(tile, fullness);
-            break;
-        }
-
         case ServerNotification::addRoomObject:
         {
             std::string roomName;

@@ -109,8 +109,6 @@ protected:
     void rrDestroyRoomObject(const RenderRequest& renderRequest);
     void rrCreateTrap(const RenderRequest& renderRequest);
     void rrDestroyTrap(const RenderRequest& renderRequest);
-    void rrCreateTreasuryIndicator(const RenderRequest& renderRequest);
-    void rrDestroyTreasuryIndicator(const RenderRequest& renderRequest);
     void rrCreateCreature(const RenderRequest& renderRequest);
     void rrDestroyCreature(const RenderRequest& renderRequest);
     void rrOrientSceneNodeToward(const RenderRequest& renderRequest);
