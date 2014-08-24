@@ -23,4 +23,5 @@ Adventurer	WeakFighter	Adventurer.mesh	Bed	1	2	0.5	0.5	0.5	2	2	60	60	15	0	0	1.2	
 LizardMan	StrongFighter	Lizardman.mesh	Bed	1	2	0.5	0.5	0.5	5	5	150	150	15	0	0	1	walkableTile
 CaveHornet	StrongFighter	Cavehornet.mesh	Bed	1	2	0.4	0.4	0.4	2	2	40	40	15	0	0	2	flyableTile
 Scarab	StrongFighter	Scarab.mesh	Bed	4	4	0.2	0.2	0.2	6	6	180	180	15	0	0	0.7	walkableTile
+Slime	WeakFighter	Slime.mesh	Bed	1	1	0.15	0.15	0.15	6	6	180	180	15	0	0	0.6	walkableTile
 [/Creatures_definition]

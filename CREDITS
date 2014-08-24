@@ -6,7 +6,7 @@ This file is listing each files present in this repository, its author and its c
 Each corresponding license is fully described in the licenses/ folder.
 Other text files (.txt, .cpp, .h., ...), except licensing, are licensed using the GPL 3.0 license.
 
-Latest update: 2014/08/20
+Latest update: 2014/08/24
 
 =============================
 ==  Configuration: config/ ==
@@ -92,6 +92,7 @@ textures/
 -> *.png                               Titus Tscharntke        CC0                     http://www.burningwell.org/ - photo sources for textures
 -> Obsidian.png                        Reiner Flassig          CC-BY-SA/DE 2.0         Obsidian photo source - http://de.wikipedia.org/w/index.php?title=Datei:Obsi.jpg&filetimestamp=20070905143430
 -> Axe.tga                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
+-> slimeDiffuse.png                    Grefuntor               CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 
 ======================
 ==  Models: models/ ==
@@ -103,7 +104,7 @@ Adventurer.*                           Danimal                 CC-BY-SA 3.0
 Axe1.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 barrel_destroyed.mesh                  Nobiax/yughues          CC0
 Bed.mesh                               Clint Bellanger         CC0                     http://opengameart.org/content/bed-low-poly
-BeetleGolem.mesh        
+BeetleGolem.mesh
 big_wood_barrel.mesh                   Nobiax/yughues          CC0
 Bookcase.mesh
 Bookshelf.mesh
@@ -134,7 +135,7 @@ ForgeTableObject.mesh                  riidom
 Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Goblin.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Gold*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
-GoldstackLv*.mesh                      
+GoldstackLv*.mesh
 golem.*
 Insect_low.003.skeleton
 Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
@@ -161,6 +162,7 @@ Sabre.mesh                             Andrew Buck             CC-BY-SA 3.0
 Scarab.*
 Shelf.mesh
 Skeleton.*
+Slime.*                                Grefuntor, D3dm         CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 Spider.mesh                            Skorpio                 CC-BY-SA 3.0, GPL 3.0
 SquareSelector.mesh
 Staff.*                                Skorpio                 CC-BY-SA 3.0, GPL 3.0
