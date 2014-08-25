@@ -408,9 +408,10 @@ public:
     std::vector<Tile*> getBuildableTilesForPlayerInArea(int x1, int y1, int x2, int y2,
         Player* player);
     void markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Player* player);
-    void buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player);
-    void buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player);
-    int nextUniqueNumberBattlefield() {return ++mUniqueNumberBattlefield;}
+    Room* buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player, bool forceName = false,
+        const std::string& name = "");
+    Trap* buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player, bool forceName = false,
+        const std::string& name = "");
     int nextUniqueNumberCreature() {return ++mUniqueNumberCreature;}
     int nextUniqueNumberFloodFilling() {return ++mUniqueNumberFloodFilling;}
     int nextUniqueNumberMissileObj() {return ++mUniqueNumberMissileObj;}
@@ -428,7 +429,6 @@ private:
     int64_t mTurnNumber;
 
     //! \brief Unique numbers to ensure names are unique
-    int mUniqueNumberBattlefield;
     int mUniqueNumberCreature;
     int mUniqueNumberFloodFilling;
     int mUniqueNumberMissileObj;

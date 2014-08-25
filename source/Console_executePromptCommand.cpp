@@ -338,7 +338,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
                     // Inform any connected clients about the change
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotification::setTurnsPerSecond, NULL);
-                    serverNotification->packet << ODApplication::turnsPerSecond;
+                    serverNotification->mPacket << ODApplication::turnsPerSecond;
                     ODServer::getSingleton().queueServerNotification(serverNotification);
                 }
                 catch (std::bad_alloc&)
@@ -442,7 +442,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             CreatureDefinition *creatureClass = gameMap->getClassDescription(className);
             if (creatureClass != NULL)
             {
-                Creature *tempCreature = new Creature(gameMap, creatureClass, true);
+                Creature *tempCreature = new Creature(gameMap, creatureClass);
                 tempSS >> tempCreature;
 
                 tempCreature->createMesh();
@@ -842,7 +842,7 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
         {
             ClientNotification *clientNotification = new ClientNotification(
                 ClientNotification::chat);
-            clientNotification->packet << arguments;
+            clientNotification->mPacket << arguments;
             ODClient::getSingleton().queueClientNotification(clientNotification);
         }
     }

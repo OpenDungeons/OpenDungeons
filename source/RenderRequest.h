@@ -65,8 +65,6 @@ public:
         createTrap,
         destroyTrap,
         deleteTrap,
-        createTreasuryIndicator,
-        destroyTreasuryIndicator,
         createMapLight,
         updateMapLight,
         destroyMapLight,

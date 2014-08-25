@@ -25,7 +25,7 @@ ServerNotification::ServerNotification(ServerNotificationType type,
 {
     mType = type;
     mConcernedPlayer = concernedPlayer;
-    packet << type;
+    mPacket << type;
 }
 
 std::string ServerNotification::typeString(ServerNotificationType type)
@@ -102,10 +102,6 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "removeRoomObject";
         case ServerNotificationType::removeAllRoomObjectFromRoom:
             return "removeAllRoomObjectFromRoom";
-        case ServerNotificationType::createTreasuryIndicator:
-            return "createTreasuryIndicator";
-        case ServerNotificationType::destroyTreasuryIndicator:
-            return "destroyTreasuryIndicator";
         case ServerNotificationType::notifyCreatureInfo:
             return "notifyCreatureInfo";
         case ServerNotificationType::playCreatureSound:

@@ -96,7 +96,7 @@ void RoomDungeonTemple::produceKobold()
         return;
     }
 
-    Creature* newCreature = new Creature(getGameMap(), classToSpawn, true);
+    Creature* newCreature = new Creature(getGameMap(), classToSpawn);
     newCreature->setPosition(Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x,
                                             (Ogre::Real)mCoveredTiles[0]->y,
                                             (Ogre::Real)0));
@@ -118,8 +118,9 @@ void RoomDungeonTemple::produceKobold()
         {
            ServerNotification *serverNotification = new ServerNotification(
                ServerNotification::addCreature, newCreature->getControllingPlayer());
-           std::string className = newCreature->getDefinition()->getClassName();
-           serverNotification->packet << className << newCreature;
+           const std::string& className = newCreature->getDefinition()->getClassName();
+           const std::string& name = newCreature->getName();
+           serverNotification->mPacket << className << name << newCreature;
            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

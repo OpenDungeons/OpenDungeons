@@ -254,7 +254,6 @@ void GameMap::clearPlayers()
 
 void GameMap::resetUniqueNumbers()
 {
-    mUniqueNumberBattlefield = 0;
     mUniqueNumberCreature = 0;
     mUniqueNumberFloodFilling = 0;
     mUniqueNumberMissileObj = 0;
@@ -568,7 +567,7 @@ void GameMap::doTurn()
     creatureTurnsTime = doCreatureTurns();
     miscUpkeepTime = doMiscUpkeep();
 
-    // Remove dead creatures from the map and put them into the deletion queue.
+    // Count how many creatures the player controls
     unsigned int cptCreature = 0;
     while (cptCreature < numCreatures())
     {
@@ -689,22 +688,6 @@ unsigned long int GameMap::doMiscUpkeep()
     {
         activeObjects.push_back(newActiveObjects.front());
         newActiveObjects.pop();
-    }
-
-    // Remove empty rooms from the GameMap.
-    //NOTE:  The auto-increment on this loop is canceled by a decrement in the if statement, changes to the loop structure will need to keep this consistent.
-    for (unsigned int i = 0; i < numRooms(); ++i)
-    {
-        Room *tempRoom = getRoom(i);
-        //tempRoom->doUpkeep(tempRoom);
-
-        // Check to see if the room now has 0 covered tiles, if it does we can remove it from the map.
-        if (tempRoom->numCoveredTiles() == 0)
-        {
-            removeRoom(tempRoom);
-            tempRoom->deleteYourself();
-            --i; //NOTE:  This decrement is to cancel out the increment that will happen on the next loop iteration.
-        }
     }
 
     // Carry out the upkeep round for each seat.  This means recomputing how much gold is
@@ -1739,7 +1722,7 @@ void GameMap::removeMapLight(MapLight *m)
             // Place a message in the queue to inform the clients about the destruction of this MapLight.
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeMapLight);
-            serverNotification->packet << m;
+            serverNotification->mPacket << m;
             queueServerNotification(serverNotification);
             */
 
@@ -2017,7 +2000,7 @@ void GameMap::addMissileObject(MissileObject *m)
         {
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::addMissileObject, NULL);
-            serverNotification->packet << m;
+            serverNotification->mPacket << m;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -2041,7 +2024,7 @@ void GameMap::removeMissileObject(MissileObject *m)
             ServerNotification *serverNotification = new ServerNotification(
                 ServerNotification::removeMissileObject, NULL);
             std::string name = m->getName();
-            serverNotification->packet << name;
+            serverNotification->mPacket << name;
             ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)
@@ -2274,18 +2257,20 @@ void GameMap::markTilesForPlayer(std::vector<Tile*>& tiles, bool isDigSet, Playe
     refreshBorderingTilesOf(tiles);
 }
 
-void GameMap::buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player)
+Room* GameMap::buildRoomForPlayer(std::vector<Tile*>& tiles, Room::RoomType roomType, Player* player, bool forceName, const std::string& name)
 {
-    Room* newRoom = Room::createRoom(this, roomType, tiles, player->getSeat()->getColor());
+    Room* newRoom = Room::createRoom(this, roomType, tiles, player->getSeat()->getColor(), forceName, name);
     Room::setupRoom(this, newRoom, player);
     refreshBorderingTilesOf(tiles);
+    return newRoom;
 }
 
-void GameMap::buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player)
+Trap* GameMap::buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player, bool forceName, const std::string& name)
 {
-    Trap* newTrap = Trap::createTrap(this, typeTrap, tiles, player->getSeat());
+    Trap* newTrap = Trap::createTrap(this, typeTrap, tiles, player->getSeat(), forceName, name);
     Trap::setupTrap(this, newTrap, player);
     refreshBorderingTilesOf(tiles);
+    return newTrap;
 }
 
 std::string GameMap::getGoalsStringForPlayer(Player* player)

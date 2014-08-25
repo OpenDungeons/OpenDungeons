@@ -163,7 +163,7 @@ void RoomPortal::spawnCreature()
     }
 
     // Create a new creature and copy over the class-based creature parameters.
-    Creature *newCreature = new Creature(getGameMap(), classToSpawn, true);
+    Creature *newCreature = new Creature(getGameMap(), classToSpawn);
 
     LogManager::getSingleton().logMessage("Spawning a creature class=" + classToSpawn->getClassName()
         + ", name=" + newCreature->getName() + ", color=" + Ogre::StringConverter::toString(getColor()));
@@ -192,8 +192,9 @@ void RoomPortal::spawnCreature()
         {
            ServerNotification *serverNotification = new ServerNotification(
                ServerNotification::addCreature, newCreature->getControllingPlayer());
-           std::string className = newCreature->getDefinition()->getClassName();
-           serverNotification->packet << className << newCreature;
+           const std::string& className = newCreature->getDefinition()->getClassName();
+           const std::string& name = newCreature->getName();
+           serverNotification->mPacket << className << name << newCreature;
            ODServer::getSingleton().queueServerNotification(serverNotification);
         }
         catch (std::bad_alloc&)

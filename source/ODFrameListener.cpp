@@ -413,7 +413,7 @@ void ODFrameListener::notifyChatInputMode(bool isChatInputMode, bool sendChatMsg
     {
         ClientNotification *clientNotification = new ClientNotification(
             ClientNotification::chat);
-        clientNotification->packet << mChatString;
+        clientNotification->mPacket << mChatString;
         ODClient::getSingleton().queueClientNotification(clientNotification);
     }
     mIsChatInputMode = isChatInputMode;

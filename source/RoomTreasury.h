@@ -28,17 +28,15 @@ public:
 
     // Functions overriding virtual functions in the Room base class.
     void absorbRoom(Room *r);
-    bool doUpkeep();
     void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
     void removeCoveredTile(Tile* t);
-    void clearCoveredTiles();
 
     // Functions specific to this class.
     int getTotalGold();
     int emptyStorageSpace();
     int depositGold(int gold, Tile *tile);
     int withdrawGold(int gold);
-
+    virtual bool doUpkeep();
 private:
     //! \brief Tells which room object is used to show how much the tile is full of gold.
     enum TreasuryTileFullness
@@ -50,13 +48,10 @@ private:
     const char* getMeshNameForTreasuryTileFullness(TreasuryTileFullness fullness);
 
     void updateMeshesForTile(Tile *t);
-    void createMeshesForTile(Tile *t, const std::string& indicatorMeshName);
-    void destroyMeshesForTile(Tile *t, const std::string& indicatorMeshName);
-    void createGoldMeshes();
-    void destroyGoldMeshes();
 
     std::map<Tile*, int> mGoldInTile;
     std::map<Tile*, TreasuryTileFullness> mFullnessOfTile;
+    bool mGoldChanged;
 };
 
 #endif // ROOMTREASURY_H

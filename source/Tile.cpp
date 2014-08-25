@@ -1015,7 +1015,7 @@ void Tile::claimForColor(int nColor, double nDanceRate)
                     // Inform the clients that the fullness has changed.
                     ServerNotification *serverNotification = new ServerNotification(
                         ServerNotification::tileClaimed, getGameMap()->getPlayerByColor(nColor));
-                    serverNotification->packet << this;
+                    serverNotification->mPacket << this;
 
                     ODServer::getSingleton().queueServerNotification(serverNotification);
                 }
@@ -1129,7 +1129,7 @@ double Tile::digOut(double digRate, bool doScaleDigRate)
                 // Inform the clients that the fullness has changed.
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::tileFullnessChange, NULL);
-                serverNotification->packet << this;
+                serverNotification->mPacket << this;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
             catch (std::bad_alloc&)
@@ -1218,4 +1218,11 @@ bool Tile::checkTileName(const std::string& tileName, int& x, int& y)
         return false;
 
     return true;
+}
+
+// TODO : use this function where tiles are displayed in logs (mostly in ODClient and ODServer)
+std::string Tile::displayAsString(Tile* tile)
+{
+    return "[" + Ogre::StringConverter::toString(tile->x) + ","
+         + Ogre::StringConverter::toString(tile->y)+ "]";
 }

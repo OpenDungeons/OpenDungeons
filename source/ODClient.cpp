@@ -202,9 +202,10 @@ bool ODClient::processOneClientSocketMessage()
         case ServerNotification::addCreature:
         {
             std::string className;
-            OD_ASSERT_TRUE(packetReceived >> className);
+            std::string name;
+            OD_ASSERT_TRUE(packetReceived >> className >> name);
             CreatureDefinition *creatureClass = gameMap->getClassDescription(className);
-            Creature *newCreature = new Creature(gameMap, creatureClass, false);
+            Creature *newCreature = new Creature(gameMap, creatureClass, true, name);
             OD_ASSERT_TRUE(packetReceived >> newCreature);
             gameMap->addCreature(newCreature);
             newCreature->createMesh();
@@ -340,7 +341,7 @@ bool ODClient::processOneClientSocketMessage()
             OD_ASSERT_TRUE(packetReceived >> objName >> animState
                 >> loop >> shouldSetWalkDirection);
             MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
-            OD_ASSERT_TRUE_MSG(obj != NULL, "objName=" + objName);
+            OD_ASSERT_TRUE_MSG(obj != NULL, "objName=" + objName + ", state=" + animState);
             if (obj != NULL)
             {
                 if(shouldSetWalkDirection)
@@ -431,7 +432,8 @@ bool ODClient::processOneClientSocketMessage()
             int intType, color;
             Room::RoomType type;
             int nbTiles;
-            OD_ASSERT_TRUE(packetReceived >> intType>> color >> nbTiles);
+            std::string name;
+            OD_ASSERT_TRUE(packetReceived >> name >> intType>> color >> nbTiles);
             type = static_cast<Room::RoomType>(intType);
             std::vector<Tile*> tiles;
             for(int i = 0; i < nbTiles; i++)
@@ -446,7 +448,8 @@ bool ODClient::processOneClientSocketMessage()
             }
             Player* player = gameMap->getPlayerByColor(color);
             OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
-            gameMap->buildRoomForPlayer(tiles, type, player);
+            gameMap->buildRoomForPlayer(tiles, type, player, true, name);
+            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::BUILDROOM, false);
             break;
         }
 
@@ -474,7 +477,8 @@ bool ODClient::processOneClientSocketMessage()
             int intType, color;
             Trap::TrapType type;
             int nbTiles;
-            OD_ASSERT_TRUE(packetReceived >> intType >> color >> nbTiles);
+            std::string name;
+            OD_ASSERT_TRUE(packetReceived >> name >> intType >> color >> nbTiles);
             type = static_cast<Trap::TrapType>(intType);
             std::vector<Tile*> tiles;
             for(int i = 0; i < nbTiles; i++)
@@ -486,7 +490,8 @@ bool ODClient::processOneClientSocketMessage()
             }
             Player* player = gameMap->getPlayerByColor(color);
             OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
-            gameMap->buildTrapForPlayer(tiles, type, player);
+            gameMap->buildTrapForPlayer(tiles, type, player, true, name);
+            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::BUILDTRAP, false);
             break;
         }
 
@@ -521,44 +526,6 @@ bool ODClient::processOneClientSocketMessage()
                 gameMap->removeMissileObject(missile);
                 missile->deleteYourself();
             }
-            break;
-        }
-
-        case ServerNotification::createTreasuryIndicator:
-        {
-            int color;
-            std::string roomName;
-            Tile tmpTile(gameMap);
-            std::string indicatorMeshName;
-            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
-            Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
-            RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-            OD_ASSERT_TRUE_MSG(rt->getColor() == color, "roomColor=" + Ogre::StringConverter::toString(rt->getColor())
-                + ",color=" + Ogre::StringConverter::toString(color));
-            rt->createMeshesForTile(tile, indicatorMeshName);
-            break;
-        }
-
-        case ServerNotification::destroyTreasuryIndicator:
-        {
-            int color;
-            std::string roomName;
-            Tile tmpTile(gameMap);
-            std::string indicatorMeshName;
-            OD_ASSERT_TRUE(packetReceived >> color >> roomName >> &tmpTile >> indicatorMeshName);
-            Room* room = gameMap->getRoomByName(roomName);
-            OD_ASSERT_TRUE_MSG(room != NULL, "name=" + roomName);
-            Tile* tile = gameMap->getTile(tmpTile.getX(), tmpTile.getY());
-            OD_ASSERT_TRUE_MSG(tile != NULL, "tile=" + Ogre::StringConverter::toString(tmpTile.getX())
-                + "," + Ogre::StringConverter::toString(tmpTile.getY()));
-            RoomTreasury* rt = static_cast<RoomTreasury*>(room);
-            OD_ASSERT_TRUE_MSG(rt->getColor() == color, "roomColor=" + Ogre::StringConverter::toString(rt->getColor())
-                + ",color=" + Ogre::StringConverter::toString(color));
-            rt->destroyMeshesForTile(tile, indicatorMeshName);
             break;
         }
 
@@ -669,31 +636,31 @@ void ODClient::processClientNotifications()
         switch (event->mType)
         {
             case ClientNotification::askCreaturePickUp:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askCreatureDrop:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askMarkTile:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askBuildRoom:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askBuildTrap:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::chat:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             case ClientNotification::askCreatureInfos:
-                sendToServer(event->packet);
+                sendToServer(event->mPacket);
                 break;
 
             default:
@@ -743,7 +710,6 @@ bool ODClient::connect(const std::string& host, const int port, const std::strin
     RenderManager::getSingletonPtr()->processRenderRequests();
     if (!gameMap->LoadLevel(levelFilename))
         return false;
-
 
     // Fill seats with either player, AIs or nothing depending on the given faction.
     uint32_t i = 0;

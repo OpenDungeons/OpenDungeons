@@ -61,7 +61,7 @@ public:
      * will be generated. If not, the given one will be used
      */
     static Room* createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*> &nCoveredTiles, int nColor,
-        const std::string& nameToUse = "");
+        bool forceName = false, const std::string& name = "");
 
     /** \brief Adds the room newRoom to the game map for the current player. If the border tiles
      * contains another room of same type, it will absorb them

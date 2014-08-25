@@ -23,7 +23,7 @@
 ClientNotification::ClientNotification(ClientNotificationType type):
         mType(type)
 {
-    packet << type;
+    mPacket << type;
 }
 
 std::string ClientNotification::typeString(ClientNotificationType type)

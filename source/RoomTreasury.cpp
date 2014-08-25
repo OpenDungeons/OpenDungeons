@@ -17,12 +17,8 @@
 
 #include "RoomTreasury.h"
 
-#include "RenderRequest.h"
 #include "Tile.h"
-#include "RenderManager.h"
-#include "GameMap.h"
-#include "ODServer.h"
-#include "ServerNotification.h"
+#include "RoomObject.h"
 #include "LogManager.h"
 
 #include <string>
@@ -30,40 +26,50 @@
 static const int maxGoldinTile = 5000;
 
 RoomTreasury::RoomTreasury(GameMap* gameMap) :
-    Room(gameMap)
+    Room(gameMap),
+    mGoldChanged(false)
 {
     mType = treasury;
 }
 
-void RoomTreasury::absorbRoom(Room *r)
-{
-    // Start by deleting the Ogre meshes associated with both rooms.
-    destroyMesh();
-    destroyGoldMeshes();
-    r->destroyMesh();
-
-    // Copy over the information about the gold that is stored in the other treasury before we remove its rooms.
-    for (unsigned int i = 0; i < r->numCoveredTiles(); ++i)
-    {
-        Tile *tempTile = r->getCoveredTile(i);
-        mGoldInTile[tempTile] = static_cast<RoomTreasury*>(r)->mGoldInTile[tempTile];
-        mFullnessOfTile[tempTile] = static_cast<RoomTreasury*>(r)->mFullnessOfTile[tempTile];
-    }
-
-    // Use the superclass function to copy over the covered tiles to this room and get rid of them in the other room.
-    Room::absorbRoom(r);
-
-    // Recreate the meshes for this new room which contains both rooms.
-    createMesh();
-
-    // Recreate the gold indicators which were destroyed when the meshes were cleared.
-    createGoldMeshes();
-}
-
 bool RoomTreasury::doUpkeep()
 {
-    // Call the super class Room::doUpkeep() function to do any generic upkeep common to all rooms.
-    return Room::doUpkeep();
+    if(!Room::doUpkeep())
+        return false;
+
+    if(mGoldChanged)
+    {
+        for (std::map<Tile*, int>::iterator itr = mGoldInTile.begin(); itr != mGoldInTile.end(); ++itr)
+        {
+            Tile* tile = itr->first;
+            updateMeshesForTile(tile);
+        }
+        mGoldChanged = false;
+    }
+
+    return true;
+}
+
+void RoomTreasury::absorbRoom(Room *r)
+{
+    RoomTreasury* rt = static_cast<RoomTreasury*>(r);
+    for(std::map<Tile*, int>::iterator it = rt->mGoldInTile.begin(); it != rt->mGoldInTile.end(); ++it)
+    {
+        Tile* tile = it->first;
+        int gold = it->second;
+        mGoldInTile[tile] = gold;
+    }
+    rt->mGoldInTile.clear();
+
+    for(std::map<Tile*, TreasuryTileFullness>::iterator it = rt->mFullnessOfTile.begin(); it != rt->mFullnessOfTile.end(); ++it)
+    {
+        Tile* tile = it->first;
+        TreasuryTileFullness fullness = it->second;
+        mFullnessOfTile[tile] = fullness;
+    }
+    rt->mFullnessOfTile.clear();
+
+    Room::absorbRoom(r);
 }
 
 void RoomTreasury::addCoveredTile(Tile* t, double nHP)
@@ -80,18 +86,15 @@ void RoomTreasury::addCoveredTile(Tile* t, double nHP)
 
 void RoomTreasury::removeCoveredTile(Tile* t)
 {
-    Room::removeCoveredTile(t);
+    // if the mesh has gold, we erase the mesh
+    if((mFullnessOfTile.count(t) > 0) && (mFullnessOfTile[t] != noGold))
+        removeRoomObject(t);
+
     mGoldInTile.erase(t);
     mFullnessOfTile.erase(t);
+    Room::removeCoveredTile(t);
 
     //TODO:  When the tile contains gold we need to put it on the map as an item which can be picked up.
-}
-
-void RoomTreasury::clearCoveredTiles()
-{
-    Room::clearCoveredTiles();
-    mGoldInTile.clear();
-    mFullnessOfTile.clear();
 }
 
 int RoomTreasury::getTotalGold()
@@ -112,6 +115,8 @@ int RoomTreasury::emptyStorageSpace()
 
 int RoomTreasury::depositGold(int gold, Tile *tile)
 {
+    mGoldChanged = true;
+
     int goldDeposited, goldToDeposit = gold, emptySpace;
 
     // Start by trying to deposit the gold in the requested tile.
@@ -119,18 +124,15 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
     goldDeposited = std::min(emptySpace, goldToDeposit);
     mGoldInTile[tile] += goldDeposited;
     goldToDeposit -= goldDeposited;
-    updateMeshesForTile(tile);
 
     // If there is still gold left to deposit after the first tile, loop over all of the tiles and see if we can put the gold in another tile.
-    for (std::map<Tile*, int>::iterator itr = mGoldInTile.begin();
-         itr != mGoldInTile.end() && goldToDeposit > 0; ++itr)
+    for (std::map<Tile*, int>::iterator itr = mGoldInTile.begin(); itr != mGoldInTile.end() && goldToDeposit > 0; ++itr)
     {
         // Store as much gold as we can in this tile.
         emptySpace = maxGoldinTile - itr->second;
         goldDeposited = std::min(emptySpace, goldToDeposit);
         itr->second += goldDeposited;
         goldToDeposit -= goldDeposited;
-        updateMeshesForTile(itr->first);
     }
 
     // Return the amount we were actually able to deposit (i.e. the amount we wanted to deposit minus the amount we were unable to deposit).
@@ -139,9 +141,10 @@ int RoomTreasury::depositGold(int gold, Tile *tile)
 
 int RoomTreasury::withdrawGold(int gold)
 {
+    mGoldChanged = true;
+
     int withdrawlAmount = 0;
-    for (std::map<Tile*, int>::iterator itr = mGoldInTile.begin();
-         itr != mGoldInTile.end(); ++itr)
+    for (std::map<Tile*, int>::iterator itr = mGoldInTile.begin(); itr != mGoldInTile.end(); ++itr)
     {
         // Check to see if the current room tile has enough gold in it to fill the amount we still need to pick up.
         int goldStillNeeded = gold - withdrawlAmount;
@@ -150,7 +153,6 @@ int RoomTreasury::withdrawGold(int gold)
             // There is enough to satisfy the request so we do so and exit the loop.
             withdrawlAmount += goldStillNeeded;
             itr->second -= goldStillNeeded;
-            updateMeshesForTile(itr->first);
             break;
         }
         else
@@ -158,7 +160,6 @@ int RoomTreasury::withdrawGold(int gold)
             // There is not enough to satisfy the request so take everything there is and move on to the next tile.
             withdrawlAmount += itr->second;
             itr->second = 0;
-            updateMeshesForTile(itr->first);
         }
     }
 
@@ -212,110 +213,24 @@ const char* RoomTreasury::getMeshNameForTreasuryTileFullness(TreasuryTileFullnes
 
 void RoomTreasury::updateMeshesForTile(Tile* t)
 {
+    if(mGoldInTile.count(t) == 0)
+        return;
+
     TreasuryTileFullness newFullness = getTreasuryTileFullness(mGoldInTile[t]);
 
     // If the mesh has not changed we do not need to do anything.
     if (mFullnessOfTile[t] == newFullness)
         return;
 
-    // Since the fullness level has changed we need to destroy the existing indicator mesh (if it exists) and create a new one.
+    // If the fullness level has changed we need to destroy the existing treasury
     if (mFullnessOfTile[t] != noGold)
+        removeRoomObject(t);
+
+    if (newFullness != noGold)
     {
-        std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
-        destroyMeshesForTile(t, indicatorMeshName);
+        RoomObject* ro = loadRoomObject(getGameMap(), getMeshNameForTreasuryTileFullness(newFullness), t);
+        addRoomObject(t, ro);
     }
 
     mFullnessOfTile[t] = newFullness;
-    if (mFullnessOfTile[t] != noGold)
-    {
-        std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
-        createMeshesForTile(t, indicatorMeshName);
-    }
-}
-
-void RoomTreasury::createMeshesForTile(Tile* t, const std::string& indicatorMeshName)
-{
-    if (getGameMap()->isServerGameMap())
-    {
-        try
-        {
-            Player* player = getGameMap()->getPlayerByColor(getColor());
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::createTreasuryIndicator, player);
-            int color = player->getSeat()->getColor();
-            std::string name = getName();
-            serverNotification->packet << color << name << t << indicatorMeshName;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomTreasury::createMeshesForTile", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-        return;
-    }
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::createTreasuryIndicator;
-    request->p = t;
-    request->p2 = this;
-    request->str = indicatorMeshName;
-    RenderManager::queueRenderRequest(request);
-}
-
-void RoomTreasury::destroyMeshesForTile(Tile* t, const std::string& indicatorMeshName)
-{
-    if (getGameMap()->isServerGameMap())
-    {
-        try
-        {
-            Player* player = getGameMap()->getPlayerByColor(getColor());
-            ServerNotification *serverNotification = new ServerNotification(
-                ServerNotification::destroyTreasuryIndicator, player);
-            int color = player->getSeat()->getColor();
-            std::string name = getName();
-            serverNotification->packet << color << name << t << indicatorMeshName;
-            ODServer::getSingleton().queueServerNotification(serverNotification);
-        }
-        catch (std::bad_alloc&)
-        {
-            Ogre::LogManager::getSingleton().logMessage("ERROR: bad alloc in RoomTreasury::destroyMeshesForTile", Ogre::LML_CRITICAL);
-            exit(1);
-        }
-        return;
-    }
-
-    RenderRequest *request = new RenderRequest;
-    request->type = RenderRequest::destroyTreasuryIndicator;
-    request->p = t;
-    request->p2 = this;
-    request->str = indicatorMeshName;
-    RenderManager::queueRenderRequest(request);
-}
-
-void RoomTreasury::createGoldMeshes()
-{
-    for (unsigned int i = 0; i < numCoveredTiles(); ++i)
-    {
-        Tile* t = getCoveredTile(i);
-        if (mFullnessOfTile[t] == noGold)
-            continue;
-
-        std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
-        createMeshesForTile(t, indicatorMeshName);
-    }
-}
-
-void RoomTreasury::destroyGoldMeshes()
-{
-    for (unsigned int i = 0; i < numCoveredTiles(); ++i)
-    {
-        // If the tile is empty, there is no indicator mesh to create.
-        Tile* t = getCoveredTile(i);
-        if (mFullnessOfTile[t] == noGold)
-            continue;
-
-        std::string indicatorMeshName = getMeshNameForTreasuryTileFullness(mFullnessOfTile[t]);
-        destroyMeshesForTile(t, indicatorMeshName);
-    }
 }

@@ -52,7 +52,7 @@ public:
     virtual ~ClientNotification()
     {}
 
-    ODPacket packet;
+    ODPacket mPacket;
 
     static std::string typeString(ClientNotificationType type);
 

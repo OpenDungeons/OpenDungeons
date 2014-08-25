@@ -63,7 +63,7 @@ bool ODSocketClient::isDataAvailable()
 
 ODSocketClient::ODComStatus ODSocketClient::send(ODPacket& s)
 {
-    sf::Socket::Status status = mSockClient.send(s.packet);
+    sf::Socket::Status status = mSockClient.send(s.mPacket);
     if (status == sf::Socket::Done)
     {
         return ODComStatus::OK;
@@ -75,7 +75,7 @@ ODSocketClient::ODComStatus ODSocketClient::send(ODPacket& s)
 
 ODSocketClient::ODComStatus ODSocketClient::recv(ODPacket& s)
 {
-    sf::Socket::Status status = mSockClient.receive(s.packet);
+    sf::Socket::Status status = mSockClient.receive(s.mPacket);
     if (status == sf::Socket::Done)
     {
         return ODComStatus::OK;
