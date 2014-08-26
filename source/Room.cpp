@@ -287,7 +287,15 @@ void Room::absorbRoom(Room *r)
         while(r->mCreaturesUsingRoom.size() > 0)
         {
             Creature* creature = r->mCreaturesUsingRoom[0];
-            creature->changeJobRoom(this);
+            if(creature->isJobRoom(r))
+                creature->changeJobRoom(this);
+            else if(creature->isEatRoom(r))
+                creature->changeEatRoom(this);
+            else
+            {
+                OD_ASSERT_TRUE(false);
+                r->mCreaturesUsingRoom.erase(r->mCreaturesUsingRoom.begin());
+            }
         }
     }
 

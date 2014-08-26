@@ -26,22 +26,81 @@
 
 RoomHatchery::RoomHatchery(GameMap* gameMap) :
     Room(gameMap),
-    mSpawnChickenCooldown(0)
+    mSpawnChickenCooldown(0),
+    mNbChickensEaten(0)
 {
     mType = hatchery;
 }
 
+void RoomHatchery::addCoveredTile(Tile* t, double nHP)
+{
+    Room::addCoveredTile(t, nHP);
+    mUnusedTiles.push_back(t);
+}
+
+void RoomHatchery::removeCoveredTile(Tile* tile)
+{
+    Room::removeCoveredTile(tile);
+
+    for(std::map<Creature*,Tile*>::iterator it = mCreaturesChickens.begin(); it != mCreaturesChickens.end(); ++it)
+    {
+        Tile* tmpTile = it->second;
+        if(tmpTile == tile)
+        {
+            // A creature was hunting the chicken. We remove it. Removing the creature from the hatchery will
+            // release the chicken. Then, we will remove it from the list of free chickens
+            Creature* creature = it->first;
+            creature->changeEatRoom(NULL);
+            break;
+        }
+    }
+
+    std::vector<Tile*>::iterator it;
+
+    it = std::find(mChickensFree.begin(), mChickensFree.end(), tile);
+    if(it != mChickensFree.end())
+    {
+        // There is a chicken associated with this tile. We remove it
+        ++mNbChickensEaten;
+        Tile* tile = *it;
+        removeRoomObject(tile);
+        mChickensFree.erase(it);
+        return;
+    }
+
+    it = std::find(mUnusedTiles.begin(), mUnusedTiles.end(), tile);
+    if(it != mUnusedTiles.end())
+    {
+        // This tile was not used, no need to do anything else
+        mUnusedTiles.erase(it);
+        return;
+    }
+}
+
 void RoomHatchery::absorbRoom(Room *r)
 {
-    Room::absorbRoom(r);
     RoomHatchery* rd = static_cast<RoomHatchery*>(r);
+    mNbChickensEaten += rd->mNbChickensEaten;
     mChickensFree.insert(mChickensFree.end(), rd->mChickensFree.begin(), rd->mChickensFree.end());
-    mChickensEaten.insert(mChickensEaten.end(), rd->mChickensEaten.begin(), rd->mChickensEaten.end());
+    rd->mChickensFree.clear();
+
+    Room::absorbRoom(r);
 }
 
 RoomObject* RoomHatchery::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)
 {
-    mChickensEaten.push_back(tile);
+    ++mNbChickensEaten;
+    OD_ASSERT_TRUE(mUnusedTiles.size() >= mNbChickensEaten);
+    if(place == ActiveSpotPlace::activeSpotCenter)
+    {
+        // The tile where the chicken coop is cannot hold a chicken
+        std::vector<Tile*>::iterator it = std::find(mUnusedTiles.begin(), mUnusedTiles.end(), tile);
+        OD_ASSERT_TRUE(it != mUnusedTiles.end());
+        if(it != mUnusedTiles.end())
+            mUnusedTiles.erase(it);
+
+        return loadRoomObject(getGameMap(), "ChickenCoop", tile);
+    }
     return NULL;
 }
 
@@ -49,34 +108,44 @@ void RoomHatchery::notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile)
 {
     Room::notifyActiveSpotRemoved(place, tile);
 
-    for(std::map<Creature*,Tile*>::iterator it = mCreaturesChickens.begin(); it != mCreaturesChickens.end(); ++it)
+    if(place == ActiveSpotPlace::activeSpotCenter)
     {
-        Tile* tmpTile = it->second;
-        if(tmpTile == tile)
+        // We remove the chicken coop
+        removeRoomObject(tile);
+    }
+
+    // We try to remove one of the pending chickens. If there is not, we try to remove one free chicken. If there is
+    // not, we remove a chicken hunted by a creature
+    if(mNbChickensEaten > 0)
+    {
+        --mNbChickensEaten;
+        return;
+    }
+
+    if(mChickensFree.size() == 0)
+    {
+        for(std::map<Creature*,Tile*>::iterator it = mCreaturesChickens.begin(); it != mCreaturesChickens.end(); ++it)
         {
+            Tile* tmpTile = it->second;
+            // A creature is hunting a chicken. We remove it. Removing the creature from the hatchery will
+            // release the chicken. Then, we will remove it from the list of free chickens
             Creature* creature = it->first;
             creature->changeEatRoom(NULL);
             break;
         }
     }
 
-    std::vector<Tile*>::iterator itEr1 = std::find(mChickensFree.begin(), mChickensFree.end(), tile);
-    std::vector<Tile*>::iterator itEr2 = std::find(mChickensEaten.begin(), mChickensEaten.end(), tile);
-    // We assert one and only one chicken has been removed on 1 tile
-    OD_ASSERT_TRUE(itEr1 != mChickensFree.end() || itEr2 != mChickensEaten.end());
-    OD_ASSERT_TRUE(itEr1 == mChickensFree.end() || itEr2 == mChickensEaten.end());
-    if(itEr1 != mChickensFree.end())
+    std::vector<Tile*>::iterator it = std::find(mChickensFree.begin(), mChickensFree.end(), tile);
+    if(it != mChickensFree.end())
     {
-        Tile* tile = *itEr1;
+        Tile* tile = *it;
         removeRoomObject(tile);
-        mChickensFree.erase(itEr1);
+        mChickensFree.erase(it);
+        return;
     }
-    if(itEr2 != mChickensEaten.end())
-    {
-        Tile* tile = *itEr2;
-        removeRoomObject(tile);
-        mChickensEaten.erase(itEr2);
-    }
+
+    // We should never come here
+    OD_ASSERT_TRUE(false);
 }
 
 bool RoomHatchery::hasOpenCreatureSpot(Creature* c)
@@ -90,7 +159,7 @@ bool RoomHatchery::addCreatureUsingRoom(Creature* creature)
     if(!Room::addCreatureUsingRoom(creature))
         return false;
 
-    int index = Random::Int(0, mChickensFree.size() - 1);
+    int index = Random::Uint(0, mChickensFree.size() - 1);
     Tile* tileChicken = mChickensFree[index];
     mChickensFree.erase(mChickensFree.begin() + index);
     mCreaturesChickens[creature] = tileChicken;
@@ -157,15 +226,15 @@ bool RoomHatchery::doUpkeep()
     if(!Room::doUpkeep())
         return false;
 
-    if(mChickensEaten.size() > 0)
+    if(mNbChickensEaten > 0)
     {
         // Chickens have been eaten. We check when we will spawn another one
         ++mSpawnChickenCooldown;
         if(mSpawnChickenCooldown >= 10)
         {
             mSpawnChickenCooldown = 0;
-            Tile* tileChicken = mChickensEaten.back();
-            mChickensEaten.pop_back();
+            Tile* tileChicken = mUnusedTiles[Random::Uint(0, mUnusedTiles.size() - 1)];
+            --mNbChickensEaten;
             mChickensFree.push_back(tileChicken);
             RoomObject* chicken = loadRoomObject(getGameMap(), "Chicken", tileChicken);
             addRoomObject(tileChicken, chicken);
@@ -213,7 +282,8 @@ bool RoomHatchery::doUpkeep()
         {
             creature->faceToward(chickenPosition.x, chickenPosition.y);
             creature->setAnimationState("Attack1", true, false);
-            mChickensEaten.push_back(tileChicken);
+            ++mNbChickensEaten;
+            mUnusedTiles.push_back(tileChicken);
             removeRoomObject(tileChicken);
             // We remove the link between the creature and the chicken because
             // removeCreatureUsingRoom would expect the chicken to exist

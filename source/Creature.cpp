@@ -2114,6 +2114,16 @@ void Creature::stopEating()
     mEatRoom = NULL;
 }
 
+bool Creature::isJobRoom(Room* room)
+{
+    return mJobRoom == room;
+}
+
+bool Creature::isEatRoom(Room* room)
+{
+    return mEatRoom == room;
+}
+
 void Creature::changeJobRoom(Room* newRoom)
 {
     if (mJobRoom != NULL)
