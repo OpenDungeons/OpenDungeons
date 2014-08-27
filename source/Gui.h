@@ -47,7 +47,7 @@ public:
     {
         hideGui,
         mainMenu,
-        singleplayerMenu,
+        skirmishMenu,
         multiplayerMenu,
         optionsMenu,
         inGameMenu,
@@ -92,8 +92,8 @@ public:
     static const std::string TAB_COMBAT;
     static const std::string MM_BACKGROUND;
     static const std::string MM_WELCOME_MESSAGE;
-    static const std::string MM_BUTTON_START_NEW_GAME;
-    static const std::string MM_BUTTON_START_NEW_GAME_MULTI;
+    static const std::string MM_BUTTON_START_SKIRMISH;
+    static const std::string MM_BUTTON_START_MULTIPLAYER;
     static const std::string MM_BUTTON_MAPEDITOR;
     static const std::string MM_BUTTON_QUIT;
     static const std::string EDITOR;
@@ -108,10 +108,10 @@ public:
     static const std::string EXIT_CONFIRMATION_POPUP;
     static const std::string EXIT_CONFIRMATION_POPUP_YES_BUTTON;
     static const std::string EXIT_CONFIRMATION_POPUP_NO_BUTTON;
-    static const std::string SPM_TEXT_LOADING;
-    static const std::string SPM_BUTTON_LAUNCH;
-    static const std::string SPM_BUTTON_BACK;
-    static const std::string SPM_LIST_LEVELS;
+    static const std::string SKM_TEXT_LOADING;
+    static const std::string SKM_BUTTON_LAUNCH;
+    static const std::string SKM_BUTTON_BACK;
+    static const std::string SKM_LIST_LEVELS;
     static const std::string MPM_TEXT_LOADING;
     static const std::string MPM_BUTTON_SERVER;
     static const std::string MPM_BUTTON_CLIENT;
@@ -146,13 +146,13 @@ private:
     static bool mMQuitButtonPressed     (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Back in the level selection menu
-    static bool mSPMBackButtonPressed   (const CEGUI::EventArgs& e);
+    static bool mSKMBackButtonPressed   (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Load in the level selection menu
-    static bool mSPMLoadButtonPressed   (const CEGUI::EventArgs& e);
+    static bool mSKMLoadButtonPressed   (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on the level list in the level selection menu
-    static bool mSPMListClicked         (const CEGUI::EventArgs& e);
+    static bool mSKMListClicked         (const CEGUI::EventArgs& e);
 
     //! \brief What happens after a click on Back in the multiplayer menu
     static bool mMPMBackButtonPressed   (const CEGUI::EventArgs& e);

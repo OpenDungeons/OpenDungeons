@@ -152,7 +152,7 @@ set(OD_SOURCEFILES
     ${SRC}/MapLoader.cpp
     ${SRC}/MenuMode.cpp
     ${SRC}/MenuModeMultiplayer.cpp
-    ${SRC}/MenuModeSingleplayer.cpp
+    ${SRC}/MenuModeSkirmish.cpp
     ${SRC}/MiniMap.cpp
     ${SRC}/MissileObject.cpp
     ${SRC}/ModeManager.cpp

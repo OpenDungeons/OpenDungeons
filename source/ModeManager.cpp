@@ -20,7 +20,7 @@
 #include "ASWrapper.h"
 #include "InputManager.h"
 #include "MenuMode.h"
-#include "MenuModeSingleplayer.h"
+#include "MenuModeSkirmish.h"
 #include "MenuModeMultiplayer.h"
 #include "GameMode.h"
 #include "EditorMode.h"
@@ -97,8 +97,8 @@ void ModeManager::_addGameMode(ModeType mt)
     case MENU:
         mGameModes.push_back(new MenuMode(this));
         break;
-    case MENU_SINGLEPLAYER:
-        mGameModes.push_back(new MenuModeSingleplayer(this));
+    case MENU_SKIRMISH:
+        mGameModes.push_back(new MenuModeSkirmish(this));
         break;
     case MENU_MULTIPLAYER:
         mGameModes.push_back(new MenuModeMultiplayer(this));
