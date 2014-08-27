@@ -58,6 +58,7 @@
             <Property name="AlwaysOnTop" value="True" />
             <Property name="TooltipText" value="Options" />
             <Property name="ClippedByParent" value="False" />
+            <Property name="Visible" value="False" />
         </Window>
         <Window type="OD/StaticImage" name="MiniMap" >
             <Property name="Area" value="{{1,-201},{0,2},{1,-1},{0,202}}" />
