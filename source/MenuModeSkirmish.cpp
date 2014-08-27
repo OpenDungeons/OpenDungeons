@@ -15,7 +15,7 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MenuModeSingleplayer.h"
+#include "MenuModeSkirmish.h"
 
 #include "Gui.h"
 #include "ModeManager.h"
@@ -30,19 +30,19 @@
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
 
-const std::string MenuModeSingleplayer::LEVEL_PATH = "./levels/singleplayer/";
-const std::string MenuModeSingleplayer::LEVEL_EXTENSION = ".level";
+const std::string MenuModeSkirmish::LEVEL_PATH = "./levels/skirmish/";
+const std::string MenuModeSkirmish::LEVEL_EXTENSION = ".level";
 
-MenuModeSingleplayer::MenuModeSingleplayer(ModeManager *modeManager):
-    AbstractApplicationMode(modeManager, ModeManager::MENU_SINGLEPLAYER)
+MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
+    AbstractApplicationMode(modeManager, ModeManager::MENU_SKIRMISH)
 {
 }
 
-MenuModeSingleplayer::~MenuModeSingleplayer()
+MenuModeSkirmish::~MenuModeSkirmish()
 {
 }
 
-bool MenuModeSingleplayer::fillFilesList(const std::string& path, std::vector<std::string>& listFiles)
+bool MenuModeSkirmish::fillFilesList(const std::string& path, std::vector<std::string>& listFiles)
 {
     const boost::filesystem::path dir_path(path);
     if (!boost::filesystem::exists(dir_path))
@@ -59,10 +59,10 @@ bool MenuModeSingleplayer::fillFilesList(const std::string& path, std::vector<st
     return true;
 }
 
-void MenuModeSingleplayer::activate()
+void MenuModeSkirmish::activate()
 {
     // Loads the corresponding Gui sheet.
-    Gui::getSingleton().loadGuiSheet(Gui::singleplayerMenu);
+    Gui::getSingleton().loadGuiSheet(Gui::skirmishMenu);
 
     giveFocus();
 
@@ -71,10 +71,10 @@ void MenuModeSingleplayer::activate()
 
     ODFrameListener::getSingleton().getGameMap()->setGamePaused(true);
 
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::singleplayerMenu)->getChild(Gui::SPM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
-    tmpWin = Gui::getSingleton().getGuiSheet(Gui::singleplayerMenu)->getChild(Gui::SPM_TEXT_LOADING);
+    tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
     tmpWin->hide();
     listFiles.clear();
     levelSelectList->resetList();
@@ -91,14 +91,14 @@ void MenuModeSingleplayer::activate()
     }
 }
 
-void MenuModeSingleplayer::launchSelectedButtonPressed()
+void MenuModeSkirmish::launchSelectedButtonPressed()
 {
-    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::singleplayerMenu)->getChild(Gui::SPM_LIST_LEVELS);
+    CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
 
     if(levelSelectList->getSelectedCount() > 0)
     {
-        tmpWin = Gui::getSingleton().getGuiSheet(Gui::singleplayerMenu)->getChild(Gui::SPM_TEXT_LOADING);
+        tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
         tmpWin->show();
 
         CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
@@ -119,29 +119,29 @@ void MenuModeSingleplayer::launchSelectedButtonPressed()
     }
 }
 
-void MenuModeSingleplayer::listLevelsClicked()
+void MenuModeSkirmish::listLevelsClicked()
 {
     launchSelectedButtonPressed();
 }
 
-bool MenuModeSingleplayer::mouseMoved(const OIS::MouseEvent &arg)
+bool MenuModeSkirmish::mouseMoved(const OIS::MouseEvent &arg)
 {
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMousePosition((float)arg.state.X.abs, (float)arg.state.Y.abs);
 }
 
-bool MenuModeSingleplayer::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+bool MenuModeSkirmish::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonDown(
         Gui::getSingletonPtr()->convertButton(id));
 }
 
-bool MenuModeSingleplayer::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
+bool MenuModeSkirmish::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 {
     return CEGUI::System::getSingleton().getDefaultGUIContext().injectMouseButtonUp(
         Gui::getSingletonPtr()->convertButton(id));
 }
 
-bool MenuModeSingleplayer::keyPressed(const OIS::KeyEvent &arg)
+bool MenuModeSkirmish::keyPressed(const OIS::KeyEvent &arg)
 {
     switch (arg.key)
     {
@@ -155,11 +155,11 @@ bool MenuModeSingleplayer::keyPressed(const OIS::KeyEvent &arg)
     return true;
 }
 
-bool MenuModeSingleplayer::keyReleased(const OIS::KeyEvent &arg)
+bool MenuModeSkirmish::keyReleased(const OIS::KeyEvent &arg)
 {
     return true;
 }
 
-void MenuModeSingleplayer::handleHotkeys(OIS::KeyCode keycode)
+void MenuModeSkirmish::handleHotkeys(OIS::KeyCode keycode)
 {
 }

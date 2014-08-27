@@ -15,17 +15,17 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef MENUMODESINGLEPLAYER_H
-#define MENUMODESINGLEPLAYER_H
+#ifndef MENUMODESKIRMISH_H
+#define MENUMODESKIRMISH_H
 
 #include "AbstractApplicationMode.h"
 
-class MenuModeSingleplayer: public AbstractApplicationMode
+class MenuModeSkirmish: public AbstractApplicationMode
 {
 public:
-    MenuModeSingleplayer(ModeManager*);
+    MenuModeSkirmish(ModeManager*);
 
-    virtual ~MenuModeSingleplayer();
+    virtual ~MenuModeSkirmish();
 
     virtual bool mouseMoved     (const OIS::MouseEvent &arg);
     virtual bool mousePressed   (const OIS::MouseEvent &arg, OIS::MouseButtonID id);
@@ -52,4 +52,4 @@ private:
     bool fillFilesList(const std::string& dir_path, std::vector<std::string>& listFiles);
 };
 
-#endif // MENUMODESINGLEPLAYER_H
+#endif // MENUMODESKIRMISH_H

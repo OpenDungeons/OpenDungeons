@@ -38,7 +38,7 @@ public:
     {
         NONE = 0, // No change requested
         MENU = 1,
-        MENU_SINGLEPLAYER,
+        MENU_SKIRMISH,
         MENU_MULTIPLAYER,
         GAME,
         EDITOR,
@@ -63,7 +63,7 @@ public:
     //! \brief Request loading level selection menu mode at next update
     void requestMenuSingleplayerMode(bool discardActualMode = false)
     {
-        mRequestedMode = ModeManager::MENU_SINGLEPLAYER;
+        mRequestedMode = ModeManager::MENU_SKIRMISH;
         mDiscardActualMode = discardActualMode;
     }
 

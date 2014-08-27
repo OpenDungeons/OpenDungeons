@@ -7,13 +7,13 @@
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Property name="FrameEnabled" value="False" />
         <Property name="BackgroundEnabled" value="False" />
-        <Window type="OD/MainMenuButton" name="StartNewGameButton" >
+        <Window type="OD/MainMenuButton" name="StartSkirmishButton" >
             <Property name="Area" value="{{0.5,-82},{0,211},{0.5,82},{0,301}}" />
-            <Property name="Text" value="Single Player" />
+            <Property name="Text" value="Skirmish" />
         </Window>
-        <Window type="OD/MainMenuButton" name="StartNewGameButtonMulti" >
+        <Window type="OD/MainMenuButton" name="StartMultiplayerButton" >
             <Property name="Area" value="{{0.5,-82},{0,331},{0.5,82},{0,421}}" />
-            <Property name="Text" value="Multi Player" />
+            <Property name="Text" value="Multiplayer" />
         </Window>
         <Window type="OD/MainMenuButton" name="MapEditorButton" >
             <Property name="Area" value="{{0.5,-82},{0,451},{0.5,82},{0,541}}" />

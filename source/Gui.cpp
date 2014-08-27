@@ -40,7 +40,7 @@
 #include "ModeManager.h"
 #include "GameMode.h"
 #include "EditorMode.h"
-#include "MenuModeSingleplayer.h"
+#include "MenuModeSkirmish.h"
 #include "MenuModeMultiplayer.h"
 #include "LogManager.h"
 
@@ -71,7 +71,7 @@ Gui::Gui()
 
     sheets[inGameMenu] = wmgr->loadLayoutFromFile("OpenDungeons.layout");
     sheets[mainMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMainMenu.layout");
-    sheets[singleplayerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSinglePlayer.layout");
+    sheets[skirmishMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuSkirmish.layout");
     sheets[multiplayerMenu] = wmgr->loadLayoutFromFile("OpenDungeonsMenuMultiplayer.layout");
     sheets[editorMenu] =  wmgr->loadLayoutFromFile("OpenDungeonsEditorMenu.layout");
 
@@ -128,11 +128,11 @@ void Gui::assignEventHandlers()
     }
 
     // Main menu controls
-    sheets[mainMenu]->getChild(MM_BUTTON_START_NEW_GAME)->subscribeEvent(
+    sheets[mainMenu]->getChild(MM_BUTTON_START_SKIRMISH)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameButtonPressed));
 
-    sheets[mainMenu]->getChild(MM_BUTTON_START_NEW_GAME_MULTI)->subscribeEvent(
+    sheets[mainMenu]->getChild(MM_BUTTON_START_MULTIPLAYER)->subscribeEvent(
             CEGUI::PushButton::EventClicked,
             CEGUI::Event::Subscriber(&mMNewGameMultiButtonPressed));
 
@@ -210,18 +210,18 @@ void Gui::assignEventHandlers()
         CEGUI:: Window::EventMouseClick,
         CEGUI::Event::Subscriber(&editorClaimedButtonPressed));
 
-    // Level select menu controls
-    sheets[singleplayerMenu]->getChild(SPM_BUTTON_LAUNCH)->subscribeEvent(
+    // Skirmish level select menu controls
+    sheets[skirmishMenu]->getChild(SKM_BUTTON_LAUNCH)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
-            CEGUI::Event::Subscriber(&mSPMLoadButtonPressed));
+            CEGUI::Event::Subscriber(&mSKMLoadButtonPressed));
 
-    sheets[singleplayerMenu]->getChild(SPM_BUTTON_BACK)->subscribeEvent(
+    sheets[skirmishMenu]->getChild(SKM_BUTTON_BACK)->subscribeEvent(
         CEGUI::PushButton::EventClicked,
-        CEGUI::Event::Subscriber(&mSPMBackButtonPressed));
+        CEGUI::Event::Subscriber(&mSKMBackButtonPressed));
 
-    sheets[singleplayerMenu]->getChild(SPM_LIST_LEVELS)->subscribeEvent(
+    sheets[skirmishMenu]->getChild(SKM_LIST_LEVELS)->subscribeEvent(
         CEGUI::Listbox::EventMouseDoubleClick,
-        CEGUI::Event::Subscriber(&mSPMListClicked));
+        CEGUI::Event::Subscriber(&mSKMListClicked));
 
     // Multiplayer menu controls
     sheets[multiplayerMenu]->getChild(MPM_BUTTON_SERVER)->subscribeEvent(
@@ -463,7 +463,7 @@ bool Gui::mMQuitButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::mSPMBackButtonPressed(const CEGUI::EventArgs& e)
+bool Gui::mSKMBackButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
     if (!mm)
@@ -473,24 +473,24 @@ bool Gui::mSPMBackButtonPressed(const CEGUI::EventArgs& e)
     return true;
 }
 
-bool Gui::mSPMListClicked(const CEGUI::EventArgs& e)
+bool Gui::mSKMListClicked(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SINGLEPLAYER)
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
         return true;
 
-    static_cast<MenuModeSingleplayer*>(mm->getCurrentMode())->listLevelsClicked();
+    static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->listLevelsClicked();
 
     return true;
 }
 
-bool Gui::mSPMLoadButtonPressed(const CEGUI::EventArgs& e)
+bool Gui::mSKMLoadButtonPressed(const CEGUI::EventArgs& e)
 {
     ModeManager* mm = ODFrameListener::getSingleton().getModeManager();
-    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SINGLEPLAYER)
+    if (!mm || mm->getCurrentModeType() != ModeManager::MENU_SKIRMISH)
         return true;
 
-    static_cast<MenuModeSingleplayer*>(mm->getCurrentMode())->launchSelectedButtonPressed();
+    static_cast<MenuModeSkirmish*>(mm->getCurrentMode())->launchSelectedButtonPressed();
 
     return true;
 }
@@ -564,18 +564,18 @@ const std::string Gui::TAB_COMBAT = "MainTabControl/Combat";
 
 const std::string Gui::MM_BACKGROUND = "Background";
 const std::string Gui::MM_WELCOME_MESSAGE = "WelcomeBanner";
-const std::string Gui::MM_BUTTON_START_NEW_GAME = "StartNewGameButton";
-const std::string Gui::MM_BUTTON_START_NEW_GAME_MULTI = "StartNewGameButtonMulti";
+const std::string Gui::MM_BUTTON_START_SKIRMISH = "StartSkirmishButton";
+const std::string Gui::MM_BUTTON_START_MULTIPLAYER = "StartMultiplayerButton";
 const std::string Gui::MM_BUTTON_MAPEDITOR = "MapEditorButton";
 const std::string Gui::MM_BUTTON_QUIT = "QuitButton";
 const std::string Gui::EXIT_CONFIRMATION_POPUP = "ConfirmExit";
 const std::string Gui::EXIT_CONFIRMATION_POPUP_YES_BUTTON = "ConfirmExit/YesOption";
 const std::string Gui::EXIT_CONFIRMATION_POPUP_NO_BUTTON = "ConfirmExit/NoOption";
 
-const std::string Gui::SPM_TEXT_LOADING = "LoadingText";
-const std::string Gui::SPM_BUTTON_LAUNCH = "LaunchGameButton";
-const std::string Gui::SPM_BUTTON_BACK = "BackButton";
-const std::string Gui::SPM_LIST_LEVELS = "LevelSelect";
+const std::string Gui::SKM_TEXT_LOADING = "LoadingText";
+const std::string Gui::SKM_BUTTON_LAUNCH = "LaunchGameButton";
+const std::string Gui::SKM_BUTTON_BACK = "BackButton";
+const std::string Gui::SKM_LIST_LEVELS = "LevelSelect";
 
 const std::string Gui::MPM_TEXT_LOADING = "LoadingText";
 const std::string Gui::MPM_BUTTON_SERVER = "ServerButton";
