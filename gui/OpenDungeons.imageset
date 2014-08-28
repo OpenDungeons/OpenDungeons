@@ -66,39 +66,39 @@
     <Image height="10" name="VertScrollBarSegment" width="4" xPos="205" yPos="2" />
     <Image height="24" name="VertScrollThumbNormal" width="8" xPos="213" yPos="2" />
     <Image height="24" name="VertScrollThumbHover" width="8" xPos="223" yPos="2" />
-    <Image height="12" name="VertScrollUpNormal" width="12" xPos="195" yPos="32" />
-    <Image height="12" name="VertScrollDownNormal" width="12" xPos="181" yPos="32" />
-    <Image height="12" name="VertScrollUpHover" width="12" xPos="195" yPos="46" />
-    <Image height="12" name="VertScrollDownHover" width="12" xPos="181" yPos="46" />
-    <Image height="10" name="MiniVertScrollBarSegment" width="4" xPos="207" yPos="60" />
-    <Image height="22" name="MiniVertScrollThumbNormal" width="7" xPos="213" yPos="59" />
-    <Image height="5" name="MiniVertScrollThumbTopNormal" width="7" xPos="213" yPos="59" />
-    <Image height="5" name="MiniVertScrollThumbMiddleNormal" width="7" xPos="213" yPos="65" />
-    <Image height="5" name="MiniVertScrollThumbBottomNormal" width="7" xPos="213" yPos="76" />
-    <Image height="5" name="MiniVertScrollThumbTopHover" width="7" xPos="222" yPos="59" />
-    <Image height="5" name="MiniVertScrollThumbMiddleHover" width="7" xPos="222" yPos="65" />
-    <Image height="5" name="MiniVertScrollThumbBottomHover" width="7" xPos="222" yPos="76" />
-    <Image height="22" name="MiniVertScrollThumbHover" width="7" xPos="222" yPos="59" />
-    <Image height="9" name="MiniVertScrollUpNormal" width="10" xPos="193" yPos="60" />
-    <Image height="9" name="MiniVertScrollDownNormal" width="10" xPos="181" yPos="59" />
-    <Image height="9" name="MiniVertScrollUpHover" width="10" xPos="193" yPos="70" />
-    <Image height="9" name="MiniVertScrollDownHover" width="10" xPos="181" yPos="69" />
+    <Image height="18" name="VertScrollUpNormal" width="21" xPos="429" yPos="67" />
+    <Image height="18" name="VertScrollDownNormal" width="21" xPos="429" yPos="46" />
+    <Image height="18" name="VertScrollUpHover" width="21" xPos="404" yPos="67" />
+    <Image height="18" name="VertScrollDownHover" width="21" xPos="404" yPos="46" />
+    <Image height="6" name="MiniVertScrollBarSegment" width="11" xPos="434" yPos="86" />
+    <Image height="32" name="MiniVertScrollThumbNormal" width="21" xPos="429" yPos="9" />
+    <Image height="13" name="MiniVertScrollThumbTopNormal" width="21" xPos="429" yPos="9" />
+    <Image height="6" name="MiniVertScrollThumbMiddleNormal" width="21" xPos="429" yPos="22" />
+    <Image height="13" name="MiniVertScrollThumbBottomNormal" width="21" xPos="429" yPos="28" />
+    <Image height="13" name="MiniVertScrollThumbTopHover" width="21" xPos="404" yPos="9" />
+    <Image height="6" name="MiniVertScrollThumbMiddleHover" width="21" xPos="404" yPos="22" />
+    <Image height="13" name="MiniVertScrollThumbBottomHover" width="21" xPos="404" yPos="28" />
+    <Image height="32" name="MiniVertScrollThumbHover" width="21" xPos="404" yPos="9" />
+    <Image height="18" name="MiniVertScrollUpNormal" width="21" xPos="429" yPos="67" />
+    <Image height="18" name="MiniVertScrollDownNormal" width="21" xPos="429" yPos="46" />
+    <Image height="18" name="MiniVertScrollUpHover" width="21" xPos="404" yPos="67" />
+    <Image height="18" name="MiniVertScrollDownHover" width="21" xPos="404" yPos="46" />
     <Image height="48" name="VertSliderBody" width="9" xPos="233" yPos="2" />
     <Image height="6" name="VertSliderThumbNormal" width="15" xPos="216" yPos="28" />
     <Image height="6" name="VertSliderThumbHover" width="15" xPos="216" yPos="36" />
-    <Image height="4" name="MiniHorzScrollBarSegment" width="10" xPos="243" yPos="80" />
-    <Image height="7" name="MiniHorzScrollThumbNormal" width="22" xPos="233" yPos="87" />
-    <Image height="7" name="MiniHorzScrollThumbLeftNormal" width="5" xPos="233" yPos="87" />
-    <Image height="7" name="MiniHorzScrollThumbMiddleNormal" width="5" xPos="239" yPos="87" />
-    <Image height="7" name="MiniHorzScrollThumbRightNormal" width="5" xPos="250" yPos="87" />
-    <Image height="7" name="MiniHorzScrollThumbHover" width="22" xPos="233" yPos="96" />
-    <Image height="7" name="MiniHorzScrollThumbLeftHover" width="5" xPos="233" yPos="96" />
-    <Image height="7" name="MiniHorzScrollThumbMiddleHover" width="5" xPos="239" yPos="96" />
-    <Image height="7" name="MiniHorzScrollThumbRightHover" width="5" xPos="250" yPos="96" />
-    <Image height="10" name="MiniHorzScrollLeftNormal" width="9" xPos="245" yPos="55" />
-    <Image height="10" name="MiniHorzScrollRightNormal" width="9" xPos="244" yPos="67" />
-    <Image height="10" name="MiniHorzScrollLeftHover" width="9" xPos="235" yPos="55" />
-    <Image height="10" name="MiniHorzScrollRightHover" width="9" xPos="234" yPos="67" />
+    <Image height="11" name="MiniHorzScrollBarSegment" width="6" xPos="496" yPos="87" />
+    <Image height="21" name="MiniHorzScrollThumbNormal" width="32" xPos="463" yPos="82" />
+    <Image height="21" name="MiniHorzScrollThumbLeftNormal" width="13" xPos="463" yPos="82" />
+    <Image height="21" name="MiniHorzScrollThumbMiddleNormal" width="6" xPos="476" yPos="82" />
+    <Image height="21" name="MiniHorzScrollThumbRightNormal" width="13" xPos="482" yPos="82" />
+    <Image height="21" name="MiniHorzScrollThumbHover" width="32" xPos="463" yPos="57" />
+    <Image height="21" name="MiniHorzScrollThumbLeftHover" width="13" xPos="463" yPos="57" />
+    <Image height="21" name="MiniHorzScrollThumbMiddleHover" width="6" xPos="476" yPos="57" />
+    <Image height="21" name="MiniHorzScrollThumbRightHover" width="13" xPos="482" yPos="57" />
+    <Image height="21" name="MiniHorzScrollLeftNormal" width="18" xPos="480" yPos="9" />
+    <Image height="21" name="MiniHorzScrollRightNormal" width="18" xPos="459" yPos="9" />
+    <Image height="21" name="MiniHorzScrollLeftHover" width="18" xPos="480" yPos="33" />
+    <Image height="21" name="MiniHorzScrollRightHover" width="18" xPos="459" yPos="33" />
     <Image height="8" name="ListboxLeft" width="6" xPos="42" yPos="88" />
     <Image height="8" name="ListboxRight" width="7" xPos="60" yPos="88" />
     <Image height="7" name="ListboxTop" width="8" xPos="50" yPos="79" />
