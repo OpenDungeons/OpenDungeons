@@ -35,14 +35,16 @@ public:
     virtual bool addCreatureUsingRoom(Creature* c);
     virtual void removeCreatureUsingRoom(Creature* c);
     virtual void absorbRoom(Room *r);
-    virtual void addCoveredTile(Tile* t, double nHP);
-    virtual void removeCoveredTile(Tile* t);
+    virtual void addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb);
+    virtual void removeCoveredTile(Tile* t, bool isRoomAbsorb);
 
 protected:
     virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private:
     void moveChickens();
+    void handleMoveChicken(RoomObject* chicken);
+
     std::vector<Tile*> mUnusedTiles;
     std::vector<Tile*> mChickensFree;
     int mNbChickensEaten;

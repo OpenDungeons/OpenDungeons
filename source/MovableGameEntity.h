@@ -68,8 +68,7 @@ public:
     virtual double getMoveSpeed() const
     { return mMoveSpeed; }
 
-    virtual void setMoveSpeed(double s)
-    { mMoveSpeed = s; }
+    virtual void setMoveSpeed(double s);
 
     virtual void setAnimationState(const std::string& state, bool setWalkDirection = false, bool loop = true);
 

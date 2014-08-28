@@ -38,6 +38,28 @@ MovableGameEntity::MovableGameEntity(GameMap* gameMap) :
     setAnimationSpeedFactor(1.0);
 }
 
+void MovableGameEntity::setMoveSpeed(double s)
+{
+    mMoveSpeed = s;
+
+    if (getGameMap()->isServerGameMap())
+    {
+        try
+        {
+            ServerNotification* serverNotification = new ServerNotification(
+                ServerNotification::setMoveSpeed, NULL);
+            std::string name = getName();
+            serverNotification->mPacket << name << s;
+            ODServer::getSingleton().queueServerNotification(serverNotification);
+        }
+        catch (std::bad_alloc&)
+        {
+            OD_ASSERT_TRUE(false);
+            exit(1);
+        }
+    }
+}
+
 void MovableGameEntity::addDestination(Ogre::Real x, Ogre::Real y, Ogre::Real z)
 {
     Ogre::Vector3 destination(x, y, z);

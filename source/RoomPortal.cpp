@@ -83,15 +83,15 @@ void RoomPortal::destroyMeshLocal()
     mPortalObject = NULL;
 }
 
-void RoomPortal::addCoveredTile(Tile* t, double nHP)
+void RoomPortal::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
 {
-    Room::addCoveredTile(t, nHP);
+    Room::addCoveredTile(t, nHP, isRoomAbsorb);
     recomputeCenterPosition();
 }
 
-void RoomPortal::removeCoveredTile(Tile* t)
+void RoomPortal::removeCoveredTile(Tile* t, bool isRoomAbsorb)
 {
-    Room::removeCoveredTile(t);
+    Room::removeCoveredTile(t, isRoomAbsorb);
     // Don't recompute the position.
     // Removing a portal tile usually means some creatures are attacking it.
     // The portal shouldn't move in that case.

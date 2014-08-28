@@ -74,6 +74,8 @@ std::string ServerNotification::typeString(ServerNotificationType type)
             return "animatedObjectClearDestinations";
         case ServerNotificationType::setObjectAnimationState:
             return "setObjectAnimationState";
+        case ServerNotificationType::setMoveSpeed:
+            return "setMoveSpeed";
         case ServerNotificationType::pickupCreature:
             return "pickupCreature";
         case ServerNotificationType::dropCreature:

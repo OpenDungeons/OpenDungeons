@@ -66,11 +66,11 @@ void TrapCannon::damage(std::vector<GameEntity*> enemyAttacked)
         "Cannonball", Ogre::Vector3((Ogre::Real)mCoveredTiles[0]->x, (Ogre::Real)mCoveredTiles[0]->y,
                                     (Ogre::Real)mCannonHeight));
 
-    tempMissileObject->setMoveSpeed(8.0);
-    tempMissileObject->createMesh();
     //TODO: Make this a pseudo newtonian mechanics solver which computes a parabola passing through the cannon
     // and the enemy it is shooting at, add this as 10 or so destinations in the queue instead of just one.
     getGameMap()->addMissileObject(tempMissileObject);
+    tempMissileObject->setMoveSpeed(8.0);
+    tempMissileObject->createMesh();
     tempMissileObject->addDestination((Ogre::Real)enemyAttacked[0]->getCoveredTiles()[0]->x,
                                     (Ogre::Real)enemyAttacked[0]->getCoveredTiles()[0]->y,
                                     (Ogre::Real)mCannonHeight);

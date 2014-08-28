@@ -360,6 +360,20 @@ bool ODClient::processOneClientSocketMessage()
             break;
         }
 
+        case ServerNotification::setMoveSpeed:
+        {
+            std::string objName;
+            double moveSpeed;
+            OD_ASSERT_TRUE(packetReceived >> objName >> moveSpeed);
+            MovableGameEntity *obj = gameMap->getAnimatedObject(objName);
+            OD_ASSERT_TRUE_MSG(obj != NULL, "objName=" + objName + ", moveSpeed=" + Ogre::StringConverter::toString(moveSpeed));
+            if (obj != NULL)
+            {
+                obj->setMoveSpeed(moveSpeed);
+            }
+            break;
+        }
+
         case ServerNotification::tileFullnessChange:
         {
             Tile tmpTile(gameMap);

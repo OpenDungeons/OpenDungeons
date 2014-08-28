@@ -72,9 +72,9 @@ void RoomTreasury::absorbRoom(Room *r)
     Room::absorbRoom(r);
 }
 
-void RoomTreasury::addCoveredTile(Tile* t, double nHP)
+void RoomTreasury::addCoveredTile(Tile* t, double nHP, bool isRoomAbsorb)
 {
-    Room::addCoveredTile(t, nHP);
+    Room::addCoveredTile(t, nHP, isRoomAbsorb);
 
     // Only initialize the tile to empty if it has not already been set by the absorbRoom() function.
     if (mGoldInTile.find(t) == mGoldInTile.end())
@@ -84,7 +84,7 @@ void RoomTreasury::addCoveredTile(Tile* t, double nHP)
     }
 }
 
-void RoomTreasury::removeCoveredTile(Tile* t)
+void RoomTreasury::removeCoveredTile(Tile* t, bool isRoomAbsorb)
 {
     // if the mesh has gold, we erase the mesh
     if((mFullnessOfTile.count(t) > 0) && (mFullnessOfTile[t] != noGold))
@@ -92,7 +92,7 @@ void RoomTreasury::removeCoveredTile(Tile* t)
 
     mGoldInTile.erase(t);
     mFullnessOfTile.erase(t);
-    Room::removeCoveredTile(t);
+    Room::removeCoveredTile(t, isRoomAbsorb);
 
     //TODO:  When the tile contains gold we need to put it on the map as an item which can be picked up.
 }
