@@ -50,13 +50,13 @@ OpenDungeonsMenuSkirmish.layout        hwoarangmy              GPL 3.0
 OpenDungeonsSkin.scheme                OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 
 schemas/
--> Animation.xsd
--> CEGUIConfig.xsd
--> Falagard.xsd
--> Font.xsd
--> GUILayout.xsd
--> GUIScheme.xsd
--> Imageset.xsd
+-> Animation.xsd                       OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+-> CEGUIConfig.xsd                     OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+-> Falagard.xsd                        OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+-> Font.xsd                            OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+-> GUILayout.xsd                       OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+-> GUIScheme.xsd                       OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+-> Imageset.xsd                        OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 
 
 =========================
@@ -127,7 +127,7 @@ Dwarf2.*                               Skorpio                 CC-BY-SA 3.0, GPL
 Dwarf3.*                               thecubber (OGA), MrBeast (OGA), Skorpio
  ->                                                            CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/dwarf-fixed
 Farm.mesh                              Danimal                 CC-BY-SA 3.0            (Texture by nobiax - CC0) - http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
-Field_indicator.mesh
+Field_indicator.mesh                   ???
 Fire.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Forge.mesh                             riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
 ForgeAnvilObject.mesh                  riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
@@ -137,14 +137,12 @@ Gnome.*                                Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL
 Goblin.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Gold*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
 GoldstackLv*.mesh                      Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
-golem.*                                <---- To remove
 Insect_low.003.skeleton                Skorpio                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
 Keeperhand.*                           Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Knight.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
 Kobold.*                               surt                    CC0                     http://opengameart.org/forumtopic/cc0-scraps
 Kreatur.*                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Lava*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
-LavaGolem.mesh                         <---- To remove
 Library.mesh                           Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
 Light.mesh                             ?????
 Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
@@ -158,11 +156,8 @@ Rock*                                  Skorpio                 CC-BY-SA 3.0, GPL
 RoundShield.mesh                       Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 RuinEntrance.mesh                      zerberros (OGA)         CC0                     http://opengameart.org/content/cementery-gate
 Sabre.mesh                             Andrew Buck             CC-BY-SA 3.0
-??->>Shield_small                      Danimal                 CC-BY-SA 3.0 (file missing)
-??->>Shortsword                        Danimal                 CC-BY-SA 3.0 (file missing)
-Scarab.*                               <--- Same as Cave hornet???
+Scarab.*                               killyoverdrive (OGA)    CC-BY-SA 3.0            http://opengameart.org/content/beetle-golem-animated
 Shelf.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
-Skeleton.*                             <-- To remove
 Slime.*                                Grefuntor, D3dm         CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 Spider.mesh                            Skorpio                 CC-BY-SA 3.0, GPL 3.0
 SquareSelector.mesh                    ????
@@ -178,7 +173,6 @@ Troll.*                                Dm3d                    CC-BY-SA 3.0     
 Troll_Rock.mesh                        Dm3d                    CC-BY-SA 3.0            http://opengameart.org/content/rock-golem
 Water*                                 Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Wizard.*                               Skorpio                 CC-BY-SA 3.0, GPL 3.0
-WoodWatchTower.mesh                    <- To remove
 Wyvern.*                               Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 
 
