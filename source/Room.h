@@ -112,13 +112,15 @@ public:
 
     static int costPerTile(RoomType t);
 
+    static bool compareTile(Tile* tile1, Tile* tile2);
+
     //! \brief Carry out per turn upkeep on the room.
     //! Do any generic upkeep here (i.e. any upkeep that all room types should do).
     //! All derived classes of room should call this function first during their doUpkeep() routine.
     virtual bool doUpkeep();
 
-    virtual void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP);
-    virtual void removeCoveredTile(Tile* t);
+    virtual void addCoveredTile(Tile* t, double nHP = defaultRoomTileHP, bool isRoomAbsorb = false);
+    virtual void removeCoveredTile(Tile* t, bool isRoomAbsorb = false);
     virtual Tile* getCoveredTile(unsigned index);
 
     /** \brief Returns all of the tiles which are part of this room,

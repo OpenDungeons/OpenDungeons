@@ -36,9 +36,11 @@ RoomTrainingHall::RoomTrainingHall(GameMap* gameMap) :
 
 void RoomTrainingHall::absorbRoom(Room *r)
 {
-    Room::absorbRoom(r);
     RoomTrainingHall* rd = static_cast<RoomTrainingHall*>(r);
     mUnusedDummies.insert(mUnusedDummies.end(), rd->mUnusedDummies.begin(), rd->mUnusedDummies.end());
+    rd->mUnusedDummies.clear();
+
+    Room::absorbRoom(r);
 }
 
 RoomObject* RoomTrainingHall::notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile)

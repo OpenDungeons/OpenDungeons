@@ -121,7 +121,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     setHP(mMaxHP);
     mMaxMana = mDefinition->getManaPerLevel();
     setMana(mMaxMana);
-    setMoveSpeed(mDefinition->getMoveSpeed());
+    mMoveSpeed = mDefinition->getMoveSpeed();
     mDigRate = mDefinition->getDigRate();
     mDanceRate = mDefinition->getDanceRate();
 }
@@ -832,14 +832,16 @@ void Creature::decideNextAction()
     }
     // If we are hungry, we go to eat
     else if (Random::Double(50.0, 100.0) <= mHunger
-             && peekAction().getType() != CreatureAction::eatdecided)
+             && peekAction().getType() != CreatureAction::eatdecided
+             && peekAction().getType() != CreatureAction::eatforced)
     {
         // Check to see if we can work
         pushAction(CreatureAction::eatdecided);
     }
     // Otherwise, we try to work
     else if (Random::Double(0.0, 1.0) < 0.1 && Random::Double(50.0, 100.0) < mAwakeness
-             && peekAction().getType() != CreatureAction::jobdecided)
+             && peekAction().getType() != CreatureAction::jobdecided
+             && peekAction().getType() != CreatureAction::jobforced)
     {
         // Check to see if we can work
         pushAction(CreatureAction::jobdecided);
@@ -2112,6 +2114,16 @@ void Creature::stopEating()
 
     mEatRoom->removeCreatureUsingRoom(this);
     mEatRoom = NULL;
+}
+
+bool Creature::isJobRoom(Room* room)
+{
+    return mJobRoom == room;
+}
+
+bool Creature::isEatRoom(Room* room)
+{
+    return mEatRoom == room;
 }
 
 void Creature::changeJobRoom(Room* newRoom)

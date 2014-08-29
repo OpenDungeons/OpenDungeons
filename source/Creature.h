@@ -297,6 +297,9 @@ public:
     inline void setEatCooldown(int val) { mEatCooldown = val; }
     inline int getEatCooldown() { return mEatCooldown; }
 
+    bool isJobRoom(Room* room);
+    bool isEatRoom(Room* room);
+
     //! \brief Allows to change the room the creature is using (when room absorbtion for example)
     void changeJobRoom(Room* newRoom);
 

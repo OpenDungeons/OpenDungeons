@@ -64,6 +64,7 @@ class ServerNotification
             animatedObjectAddDestination,
             animatedObjectClearDestinations,
             setObjectAnimationState,
+            setMoveSpeed,
             // Pickup/drop creature for concerned player
             pickupCreature,
             dropCreature,
