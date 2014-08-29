@@ -40,7 +40,7 @@ ogrefonts.fontdef                      OD Team                 GPL 3.0
 OpenDungeons.imageset                  OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeons.layout                    OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeons.looknfeel                 OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
-OpenDungeons.png                       OD Team                 MIT                     Own made GUI + CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+OpenDungeons.png                       OD Team                 !!MIT / CC-BY-SA 3.0!!  Own made GUI + CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeonsEditorMenu.layout          OD Team                 GPL 3.0
 OpenDungeonsIcons.imageset             OD Team                 GPL 3.0
 OpenDungeonsIcons.png                  OD Team                 CC-BY-SA 3.0
@@ -129,7 +129,7 @@ Dwarf2.*                               Skorpio                 CC-BY-SA 3.0, GPL
 Dwarf3.*                               thecubber (OGA), MrBeast (OGA), Skorpio
  ->                                                            CC-BY-SA 3.0, GPL 3.0   http://opengameart.org/content/dwarf-fixed
 Farm.mesh                              Danimal                 CC-BY-SA 3.0            (Texture by nobiax - CC0) - http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
-Field_indicator.mesh                   ???
+Field_indicator.mesh                   OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
 Fire.mesh                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Forge.mesh                             riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
 ForgeAnvilObject.mesh                  riidom                  CC-BY 3.0               http://opengameart.org/content/medieval-forge-v2
@@ -146,7 +146,7 @@ Kobold.*                               surt                    CC0              
 Kreatur.*                              Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Lava*[0-9].mesh                        Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Library.mesh                           Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
-Light.mesh                             ?????
+Light.mesh                             OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
 Lizardman.*                            Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 Longsword.mesh                         Andrew Buck, Skorpio    CC-BY-SA 3.0, GPL 3.0
 mini_wood_barrel.mesh                  Nobiax/yughues          CC0
@@ -162,7 +162,7 @@ Scarab.*                               killyoverdrive (OGA)    CC-BY-SA 3.0     
 Shelf.mesh                             Danimal                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59058&sid=6f85d2bd3e4fbc933b186a696f033167#p59058
 Slime.*                                Grefuntor, D3dm         CC-BY 3.0, CC-BY-SA 3.0, GPL 2.0+ - http://opengameart.org/content/slime-mold
 Spider.mesh                            Skorpio                 CC-BY-SA 3.0, GPL 3.0
-SquareSelector.mesh                    ????
+SquareSelector.mesh                    OD Team                 CC-BY-SA 3.0            http://forum.freegamedev.net/viewtopic.php?p=59066#p59066
 Staff.*                                Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Stool.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
 Table.mesh                             Skorpio                 CC-BY-SA 3.0, GPL 3.0
