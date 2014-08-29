@@ -37,6 +37,7 @@
 #include "ResourceManager.h"
 #include "CullingManager.h"
 #include "Weapon.h"
+#include "ODFrameListener.h"
 
 #include <OgreLogManager.h>
 #include <OgreSceneNode.h>

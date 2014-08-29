@@ -26,6 +26,7 @@
 
 #include "Console.h"
 #include "ODApplication.h"
+#include "ODFrameListener.h"
 
 //TODO: make rest of commands scriptable
 /*! \brief Process the commandline from the terminal and carry out the actions

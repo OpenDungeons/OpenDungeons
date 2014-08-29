@@ -341,6 +341,7 @@ void ASWrapper::registerEverything()
             "void requestExit()",
             asMETHOD(ODFrameListener, requestExit),
             asCALL_THISCALL); assert(r >= 0);
+    // TODO : what is it for ? It is likely that it should use the server gamemap instead.
     r = mEngine->RegisterObjectMethod("ODFrameListener",
             "GameMap@ get_GameMap()",
             asMETHODPR(ODFrameListener, getGameMap, (), GameMap*),

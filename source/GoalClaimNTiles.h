@@ -23,7 +23,7 @@
 class GoalClaimNTiles: public Goal
 {
 public:
-    GoalClaimNTiles(const std::string& nName, const std::string& nArguments);
+    GoalClaimNTiles(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
     virtual ~GoalClaimNTiles()
     {}
 

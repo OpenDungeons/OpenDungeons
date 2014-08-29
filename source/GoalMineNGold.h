@@ -23,7 +23,7 @@
 class GoalMineNGold: public Goal
 {
 public:
-    GoalMineNGold(const std::string& nName, const std::string& nArguments);
+    GoalMineNGold(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
     virtual ~GoalMineNGold()
     {}
 
