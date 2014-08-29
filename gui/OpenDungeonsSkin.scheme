@@ -6,7 +6,7 @@
     <Imageset filename="ODBackgrounds.imageset" name="ODBackgrounds" />
     <Imageset filename="ODMainMenuButtons.imageset" name="ODMainMenuButtons" />
     <Imageset filename="ODMainMenuBackground.imageset" name="ODMainMenuBackground" />
-    <Font filename="bluehighway.font" name="BlueHighway" />
+    <Font filename="medievalsharp.font" name="MedievalSharp" />
     <LookNFeel filename="OpenDungeons.looknfeel" />
     <WindowRendererSet filename="CEGUICoreWindowRendererSet" />
     <FalagardMapping lookNFeel="OD/Button" renderer="Core/Button" targetType="CEGUI/PushButton" windowType="OD/Button" />

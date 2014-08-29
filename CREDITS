@@ -23,9 +23,9 @@ console_commands.txt                   Tom Luchowski           GPL 3.0
 
 Name                                   Author                  License                 Source URL
 ------------------------------------------------------------------------------------------------------------------------
-bluehigh.ttf                           LarabieFonts            **Closed!!**            http://www.ultimatefontdownload.com/licenseagreement.php
-bluehighway.font                       OD Team                 GPL 3.0
 FreeMono.ttf                           GNU Free Fonts          GPL 2.0+                http://www.fontspace.com/gnu-freefont/freemono - http://savannah.gnu.org/projects/freefont/
+MedievalSharp-Bold.ttf                 wmk69 (wmk69@o2.pl)     OFL (Open Font License) http://openfontlibrary.org/en/font/medievalsharp
+medievalsharp.font                     OD Team                 GPL 3.0
 OD-Logo.ico                            Svenskmand              CC-BY-SA 3.0
 OD.project                             Bertram                 GPL 3.0                 CEED Project file.
 ODBackgrounds.imageset                 OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
