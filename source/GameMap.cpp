@@ -44,6 +44,7 @@
 #include "CullingManager.h"
 #include "RoomDungeonTemple.h"
 #include "RoomTreasury.h"
+#include "RoomObject.h"
 #include "Goal.h"
 
 #include <OgreTimer.h>
@@ -2318,4 +2319,71 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
     }
 
     return tempSS.str();
+}
+
+std::string GameMap::nextUniqueNameCreature(const std::string& className)
+{
+    ++mUniqueNumberCreature;
+    std::string ret = className + Ogre::StringConverter::toString(mUniqueNumberCreature);
+    return ret;
+}
+
+int GameMap::nextUniqueNumberFloodFilling()
+{
+    return ++mUniqueNumberFloodFilling;
+}
+
+std::string GameMap::nextUniqueNameMissileObj()
+{
+    std::string ret;
+    do
+    {
+        ++mUniqueNumberMissileObj;
+        ret = MissileObject::MISSILEOBJECT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMissileObj);
+    } while(getAnimatedObject(ret) != NULL);
+    return ret;
+}
+
+std::string GameMap::nextUniqueNameRoom(const std::string& meshName)
+{
+    std::string ret;
+    do
+    {
+        ++mUniqueNumberRoom;
+        ret = meshName + Ogre::StringConverter::toString(mUniqueNumberRoom);
+    } while(getAnimatedObject(ret) != NULL);
+    return ret;
+}
+
+std::string GameMap::nextUniqueNameRoomObj(const std::string& parentRoom)
+{
+    std::string ret;
+    do
+    {
+        ++mUniqueNumberRoomObj;
+        ret = RoomObject::ROOMOBJECT_PREFIX + parentRoom + "_" + Ogre::StringConverter::toString(mUniqueNumberRoomObj);
+    } while(getAnimatedObject(ret) != NULL);
+    return ret;
+}
+
+std::string GameMap::nextUniqueNameTrap(const std::string& meshName)
+{
+    std::string ret;
+    do
+    {
+        ++mUniqueNumberTrap;
+        ret = meshName + "_" + Ogre::StringConverter::toString(mUniqueNumberTrap);
+    } while(getAnimatedObject(ret) != NULL);
+    return ret;
+}
+
+std::string GameMap::nextUniqueNameMapLight()
+{
+    std::string ret;
+    do
+    {
+        ++mUniqueNumberMapLight;
+        ret = MapLight::MAPLIGHT_NAME_PREFIX + Ogre::StringConverter::toString(mUniqueNumberMapLight);
+    } while(getAnimatedObject(ret) != NULL);
+    return ret;
 }

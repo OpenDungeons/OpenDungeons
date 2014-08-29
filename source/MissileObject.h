@@ -36,6 +36,8 @@ friend class ODClient;
 public:
     MissileObject(GameMap* gameMap, const std::string& nMeshName, const Ogre::Vector3& nPosition);
 
+    static const std::string MISSILEOBJECT_NAME_PREFIX;
+
     /*! \brief Changes the missile's position to a new position.
      *  Moves the creature to a new location in 3d space.  This function is
      *  responsible for informing OGRE anything it needs to know.

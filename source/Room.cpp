@@ -151,7 +151,7 @@ Room* Room::createRoom(GameMap* gameMap, RoomType nType, const std::vector<Tile*
     if(forceName)
         tempRoom->setName(name);
     else
-        tempRoom->buildUniqueName();
+        tempRoom->setName(gameMap->nextUniqueNameRoom(tempRoom->getMeshName()));
 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
         tempRoom->addCoveredTile(nCoveredTiles[i]);
@@ -605,12 +605,6 @@ Room* Room::createRoomFromStream(GameMap* gameMap, const std::string& roomMeshNa
 
     return createRoom(gameMap, tempRoom.mType, tempRoom.mCoveredTiles, tempRoom.getColor(),
         !roomName.empty(), roomName);
-}
-
-void Room::buildUniqueName()
-{
-    setName(getMeshName() + "_" + Ogre::StringConverter::toString(
-        getGameMap()->nextUniqueNumberRoom()));
 }
 
 std::istream& operator>>(std::istream& is, Room* r)

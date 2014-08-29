@@ -24,14 +24,14 @@
 #include <iostream>
 #include <sstream>
 
+const std::string MissileObject::MISSILEOBJECT_NAME_PREFIX = "Missile_Object_";
+
 MissileObject::MissileObject(GameMap* gameMap, const std::string& nMeshName, const Ogre::Vector3& nPosition) :
     MovableGameEntity(gameMap)
 {
     setObjectType(GameEntity::missileobject);
 
-    std::stringstream tempSS;
-    tempSS << "Missile_Object_" << gameMap->nextUniqueNumberMissileObj();
-    setName(tempSS.str());
+    setName(gameMap->nextUniqueNameMissileObj());
 
     setMeshName(nMeshName);
     setMeshExisting(false);

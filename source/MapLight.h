@@ -56,9 +56,7 @@ public:
         mGameMap = gameMap;
         if(generateUniqueName)
         {
-            std::stringstream tempSS;
-            tempSS << "Map_light_ " << mGameMap->nextUniqueNumberMapLight();
-            mName = tempSS.str();
+            mName = mGameMap->nextUniqueNameMapLight();
         }
 
         setPosition(nPosition);
@@ -69,6 +67,8 @@ public:
 
     virtual ~MapLight()
     {}
+
+    static const std::string MAPLIGHT_NAME_PREFIX;
 
     void setLocation(const Ogre::Vector3& nPosition);
     void setDiffuseColor(Ogre::Real red, Ogre::Real green, Ogre::Real blue);
