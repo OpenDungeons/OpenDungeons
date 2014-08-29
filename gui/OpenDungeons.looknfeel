@@ -33,9 +33,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/ButtonLeftNormal" />
-                <Image component="RightEdge" name="OpenDungeons/ButtonRightNormal" />
-                <Image component="Background" name="OpenDungeons/ButtonMiddleNormal" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftNormal" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightNormal" />
+                <Image component="Background" name="OpenDungeonsSkin/ButtonMiddleNormal" />
             </FrameComponent>
             <ImageryComponent>
                 <Area>
@@ -57,9 +57,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/ButtonLeftHighlight" />
-                <Image component="RightEdge" name="OpenDungeons/ButtonRightHighlight" />
-                <Image component="Background" name="OpenDungeons/ButtonMiddleHighlight" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftHighlight" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightHighlight" />
+                <Image component="Background" name="OpenDungeonsSkin/ButtonMiddleHighlight" />
             </FrameComponent>
             <ImageryComponent>
                 <Area>
@@ -81,9 +81,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/ButtonLeftPushed" />
-                <Image component="RightEdge" name="OpenDungeons/ButtonRightPushed" />
-                <Image component="Background" name="OpenDungeons/ButtonMiddlePushed" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/ButtonLeftPushed" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/ButtonRightPushed" />
+                <Image component="Background" name="OpenDungeonsSkin/ButtonMiddlePushed" />
             </FrameComponent>
             <ImageryComponent>
                 <Area>
@@ -454,7 +454,7 @@
             <TextComponent>
                 <Area>
                     <Dim type="LeftEdge">
-                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/RadioButtonNormal" />
+                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/RadioButtonNormal" />
                     <AbsoluteDim value="3" />
                             </OperatorDim>
                         </Dim>
@@ -490,7 +490,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/RadioButtonHover" />
+                <Image name="OpenDungeonsOldSkin/RadioButtonHover" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -503,7 +503,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/RadioButtonMark" />
+                <Image name="OpenDungeonsOldSkin/RadioButtonMark" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -577,7 +577,7 @@
             <TextComponent>
                 <Area>
                     <Dim type="LeftEdge">
-                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/CheckboxNormal" />
+                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/CheckboxNormal" />
                     <AbsoluteDim value="3" />
                             </OperatorDim>
                         </Dim>
@@ -597,7 +597,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/CheckboxNormal" />
+                <Image name="OpenDungeonsOldSkin/CheckboxNormal" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -610,7 +610,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/CheckboxHover" />
+                <Image name="OpenDungeonsOldSkin/CheckboxHover" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -623,7 +623,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/CheckboxMark" />
+                <Image name="OpenDungeonsOldSkin/CheckboxMark" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="LeftAligned" />
             </ImageryComponent>
@@ -693,7 +693,7 @@
         <PropertyDefinition initialValue="FF000000" name="SelectedTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF607FFF" name="ActiveSelectionColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF808080" name="InactiveSelectionColour" redrawOnWrite="true" />
-        <Property name="MouseCursorImage" value="OpenDungeons/MouseTextBar" />
+        <Property name="MouseCursorImage" value="OpenDungeonsOldSkin/MouseTextBar" />
         <NamedArea name="TextArea">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
@@ -710,9 +710,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/EditBoxLeft" />
-                <Image component="RightEdge" name="OpenDungeons/EditBoxRight" />
-                <Image component="Background" name="OpenDungeons/EditBoxMiddle" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/EditBoxLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/EditBoxRight" />
+                <Image component="Background" name="OpenDungeonsOldSkin/EditBoxMiddle" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="selection">
@@ -723,7 +723,7 @@
                     <Dim type="RightEdge"><UnifiedDim scale="1.0" type="RightEdge" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/TextSelectionBrush" />
+                <Image name="OpenDungeonsOldSkin/TextSelectionBrush" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -733,10 +733,10 @@
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
-                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/EditBoxCarat" /></Dim>
+                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/EditBoxCarat" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/EditBoxCarat" />
+                <Image name="OpenDungeonsOldSkin/EditBoxCarat" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -780,7 +780,7 @@
         <PropertyDefinition initialValue="FF000000" name="SelectedTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF607FFF" name="ActiveSelectionColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF808080" name="InactiveSelectionColour" redrawOnWrite="true" />
-        <Property name="MouseCursorImage" value="OpenDungeons/MouseTextBar" />
+        <Property name="MouseCursorImage" value="OpenDungeonsOldSkin/MouseTextBar" />
         <NamedArea name="TextArea">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
@@ -797,9 +797,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/EditBoxLeft" />
-                <Image component="RightEdge" name="OpenDungeons/EditBoxRight" />
-                <Image component="Background" name="OpenDungeons/EditBoxMiddle" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/EditBoxLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/EditBoxRight" />
+                <Image component="Background" name="OpenDungeonsOldSkin/EditBoxMiddle" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="selection">
@@ -810,7 +810,7 @@
                     <Dim type="RightEdge"><UnifiedDim scale="1.0" type="RightEdge" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/TextSelectionBrush" />
+                <Image name="OpenDungeonsOldSkin/TextSelectionBrush" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -820,10 +820,10 @@
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
-                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/EditBoxCarat" /></Dim>
+                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/EditBoxCarat" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/EditBoxCarat" />
+                <Image name="OpenDungeonsOldSkin/EditBoxCarat" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -872,7 +872,7 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/NewTitlebarLeft" />
+                <Image name="OpenDungeonsOldSkin/NewTitlebarLeft" />
                 <VertFormat type="Stretched" />
             </ImageryComponent>
             <ImageryComponent>
@@ -881,14 +881,14 @@
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                    <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/SysAreaRight" />
-                            <ImageDim dimension="Width" name="OpenDungeons/SysAreaMiddle" />
+                    <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/SysAreaRight" />
+                            <ImageDim dimension="Width" name="OpenDungeonsOldSkin/SysAreaMiddle" />
                                     </OperatorDim>
                                 </OperatorDim>
                         </Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/NewTitlebarRight" />
+                <Image name="OpenDungeonsOldSkin/NewTitlebarRight" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="RightAligned" />
             </ImageryComponent>
@@ -898,12 +898,12 @@
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                    <ImageDim dimension="Width" name="OpenDungeons/SysAreaRight" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/SysAreaRight" />
                             </OperatorDim>
                         </Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/SysAreaMiddle" />
+                <Image name="OpenDungeonsOldSkin/SysAreaMiddle" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="RightAligned" />
             </ImageryComponent>
@@ -914,26 +914,26 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/SysAreaRight" />
+                <Image name="OpenDungeonsOldSkin/SysAreaRight" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="RightAligned" />
             </ImageryComponent>
             <ImageryComponent>
                 <Area>
-                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/NewTitlebarLeft" /></Dim>
+                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/NewTitlebarLeft" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                    <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/SysAreaRight" />
-                            <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/SysAreaMiddle" />
-                                    <ImageDim dimension="Width" name="OpenDungeons/NewTitlebarRight" />
+                    <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/SysAreaRight" />
+                            <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/SysAreaMiddle" />
+                                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/NewTitlebarRight" />
                                             </OperatorDim>
                                         </OperatorDim>
                                 </OperatorDim>
                         </Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/NewTitlebarMiddle" />
+                <Image name="OpenDungeonsOldSkin/NewTitlebarMiddle" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -941,7 +941,7 @@
         <ImagerySection name="caption">
             <TextComponent>
                 <Area>
-                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/NewTitlebarLeft" /></Dim>
+                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/NewTitlebarLeft" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="Width"><UnifiedDim offset="-75" scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
@@ -978,22 +978,22 @@
     <WidgetLook name="OD/FrameWindow">
         <PropertyLinkDefinition initialValue="FFFFFFFF" name="CaptionColour" targetProperty="CaptionColour" widget="__auto_titlebar__" />
         <PropertyLinkDefinition name="TitlebarFont" targetProperty="Font" widget="__auto_titlebar__" />
-        <Property name="NSSizingCursorImage" value="OpenDungeons/MouseNoSoCursor" />
-        <Property name="EWSizingCursorImage" value="OpenDungeons/MouseEsWeCursor" />
-        <Property name="NWSESizingCursorImage" value="OpenDungeons/MouseNwSeCursor" />
-        <Property name="NESWSizingCursorImage" value="OpenDungeons/MouseNeSwCursor" />
+        <Property name="NSSizingCursorImage" value="OpenDungeonsOldSkin/MouseNoSoCursor" />
+        <Property name="EWSizingCursorImage" value="OpenDungeonsOldSkin/MouseEsWeCursor" />
+        <Property name="NWSESizingCursorImage" value="OpenDungeonsOldSkin/MouseNwSeCursor" />
+        <Property name="NESWSizingCursorImage" value="OpenDungeonsOldSkin/MouseNeSwCursor" />
         <NamedArea name="ClientWithTitleWithFrame">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/WindowTopLeft" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/WindowTopLeft" /></Dim>
                 <Dim type="TopEdge"><WidgetDim dimension="BottomEdge" widget="__auto_titlebar__" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/WindowTopRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/WindowTopRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/WindowBottomEdge" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/WindowBottomEdge" />
                         </OperatorDim>
                     </Dim>
             </Area>
@@ -1008,16 +1008,16 @@
         </NamedArea>
         <NamedArea name="ClientNoTitleWithFrame">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/WindowTopLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/WindowTopEdge" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/WindowTopLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/WindowTopEdge" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/WindowTopRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/WindowTopRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/WindowBottomEdge" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/WindowBottomEdge" />
                         </OperatorDim>
                     </Dim>
             </Area>
@@ -1043,25 +1043,25 @@
             <Area>
                 <Dim type="LeftEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="LeftEdge" />
-                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/SysAreaRight" />
-                        <ImageDim dimension="Width" name="OpenDungeons/SysAreaMiddle" />
+                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/SysAreaRight" />
+                        <ImageDim dimension="Width" name="OpenDungeonsOldSkin/SysAreaMiddle" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
                 <Dim type="TopEdge">
                     <OperatorDim op="Multiply"><AbsoluteDim value="0.5" />
                 <OperatorDim op="Subtract"><WidgetDim dimension="Height" widget="__auto_titlebar__" />
-                        <ImageDim dimension="Width" name="OpenDungeons/NewCloseButtonNormal" />
+                        <ImageDim dimension="Width" name="OpenDungeonsOldSkin/NewCloseButtonNormal" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
-                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/NewCloseButtonNormal" /></Dim>
-                <Dim type="Height"><ImageDim dimension="Width" name="OpenDungeons/NewCloseButtonNormal" /></Dim>
+                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/NewCloseButtonNormal" /></Dim>
+                <Dim type="Height"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/NewCloseButtonNormal" /></Dim>
             </Area>
             <Property name="AlwaysOnTop" value="True" />
-            <Property name="NormalImage" value="OpenDungeons/NewCloseButtonNormal" />
-            <Property name="HoverImage" value="OpenDungeons/NewCloseButtonHover" />
-            <Property name="PushedImage" value="OpenDungeons/NewCloseButtonPressed" />
+            <Property name="NormalImage" value="OpenDungeonsOldSkin/NewCloseButtonNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/NewCloseButtonHover" />
+            <Property name="PushedImage" value="OpenDungeonsOldSkin/NewCloseButtonPressed" />
         </Child>
         <ImagerySection name="withtitle_frame">
             <FrameComponent>
@@ -1071,12 +1071,12 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1" type="BottomEdge" /></Dim>
                 </Area>
-                <Image component="BottomLeftCorner" name="OpenDungeons/WindowBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/WindowBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/WindowLeftEdge" />
-                <Image component="RightEdge" name="OpenDungeons/WindowRightEdge" />
-                <Image component="BottomEdge" name="OpenDungeons/WindowBottomEdge" />
-                <Image component="Background" name="OpenDungeons/ClientBrush" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/WindowBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/WindowBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/WindowLeftEdge" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/WindowRightEdge" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/WindowBottomEdge" />
+                <Image component="Background" name="OpenDungeonsOldSkin/ClientBrush" />
                 <VertFormat type="Tiled" />
                 <HorzFormat type="Tiled" />
             </FrameComponent>
@@ -1089,14 +1089,14 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/WindowTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/WindowTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/WindowBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/WindowBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/WindowLeftEdge" />
-                <Image component="RightEdge" name="OpenDungeons/WindowRightEdge" />
-                <Image component="BottomEdge" name="OpenDungeons/WindowBottomEdge" />
-                <Image component="Background" name="OpenDungeons/ClientBrush" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/WindowTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/WindowTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/WindowBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/WindowBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/WindowLeftEdge" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/WindowRightEdge" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/WindowBottomEdge" />
+                <Image component="Background" name="OpenDungeonsOldSkin/ClientBrush" />
                 <VertFormat type="Tiled" />
                 <HorzFormat type="Tiled" />
             </FrameComponent>
@@ -1109,7 +1109,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/ClientBrush" />
+                <Image name="OpenDungeonsOldSkin/ClientBrush" />
                 <VertFormat type="Tiled" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1122,7 +1122,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/ClientBrush" />
+                <Image name="OpenDungeonsOldSkin/ClientBrush" />
                 <VertFormat type="Tiled" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1201,11 +1201,11 @@
     <WidgetLook name="OD/ProgressBar">
         <NamedArea name="ProgressArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ProgressBarLeft" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ProgressBarLeft" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/ProgressBarRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ProgressBarRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
@@ -1219,9 +1219,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/ProgressBarLeft" />
-                <Image component="RightEdge" name="OpenDungeons/ProgressBarRight" />
-                <Image component="Background" name="OpenDungeons/ProgressBarMiddle" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/ProgressBarLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/ProgressBarRight" />
+                <Image component="Background" name="OpenDungeonsOldSkin/ProgressBarMiddle" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="progress_lights">
@@ -1232,7 +1232,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/ProgressBarLitSegment" />
+                <Image name="OpenDungeonsOldSkin/ProgressBarLitSegment" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1267,11 +1267,11 @@
     <WidgetLook name="OD/AltProgressBar">
         <NamedArea name="ProgressArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/AltProgressLeft" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/AltProgressLeft" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="2" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/AltProgressRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/AltProgressRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="Height"><UnifiedDim offset="-4" scale="1" type="Height" /></Dim>
@@ -1285,9 +1285,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/AltProgressLeft" />
-                <Image component="RightEdge" name="OpenDungeons/AltProgressRight" />
-                <Image component="Background" name="OpenDungeons/AltProgressMiddle" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/AltProgressLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/AltProgressRight" />
+                <Image component="Background" name="OpenDungeonsOldSkin/AltProgressMiddle" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="progress_lights">
@@ -1298,7 +1298,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight1" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight1" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1309,7 +1309,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight2" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight2" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1320,7 +1320,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight3" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight3" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1331,7 +1331,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight4" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight4" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1342,7 +1342,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight5" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight5" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1353,7 +1353,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight6" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight6" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1364,7 +1364,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight7" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight7" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1375,7 +1375,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight8" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight8" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1386,7 +1386,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight9" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight9" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1397,7 +1397,7 @@
                     <Dim type="Width"><UnifiedDim scale="0.1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/AltProgressLight10" />
+                <Image name="OpenDungeonsOldSkin/AltProgressLight10" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Tiled" />
             </ImageryComponent>
@@ -1447,7 +1447,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="0.5" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/TextSelectionBrush" />
+                <Image name="OpenDungeonsOldSkin/TextSelectionBrush" />
                 <Colours bottomLeft="FF00FF00" bottomRight="FF00FF00" topLeft="FF00FF00" topRight="FF00FF00" />
                 <VertFormat type="Tiled" />
                 <HorzFormat type="Stretched" />
@@ -1459,7 +1459,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="0.3" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/TextSelectionBrush" />
+                <Image name="OpenDungeonsOldSkin/TextSelectionBrush" />
                 <Colours bottomLeft="FFFFFF00" bottomRight="FFFFFF00" topLeft="FFFFFF00" topRight="FFFFFF00" />
                 <VertFormat type="Tiled" />
                 <HorzFormat type="Stretched" />
@@ -1471,7 +1471,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="0.2" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/TextSelectionBrush" />
+                <Image name="OpenDungeonsOldSkin/TextSelectionBrush" />
                 <Colours bottomLeft="FFFF0000" bottomRight="FFFF0000" topLeft="FFFF0000" topRight="FFFF0000" />
                 <VertFormat type="Tiled" />
                 <HorzFormat type="Stretched" />
@@ -1506,7 +1506,7 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/VertSliderThumbNormal" />
+                <Image name="OpenDungeonsOldSkin/VertSliderThumbNormal" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -1519,7 +1519,7 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/VertSliderThumbHover" />
+                <Image name="OpenDungeonsOldSkin/VertSliderThumbHover" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -1566,7 +1566,7 @@
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
-                <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeons/VertSliderThumbNormal" /></Dim>
+                <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertSliderThumbNormal" /></Dim>
             </Area>
         </Child>
         <ImagerySection name="main">
@@ -1577,7 +1577,7 @@
                     <Dim type="Width"><UnifiedDim offset="-6" scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/VertSliderBody" />
+                <Image name="OpenDungeonsOldSkin/VertSliderBody" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -1607,9 +1607,9 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/MiniHorzScrollThumbLeftNormal" />
-                <Image component="RightEdge" name="OpenDungeons/MiniHorzScrollThumbRightNormal" />
-                <Image component="Background" name="OpenDungeons/MiniHorzScrollThumbMiddleNormal" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/MiniHorzScrollThumbLeftNormal" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/MiniHorzScrollThumbRightNormal" />
+                <Image component="Background" name="OpenDungeonsSkin/MiniHorzScrollThumbMiddleNormal" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="hover">
@@ -1620,9 +1620,9 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/MiniHorzScrollThumbLeftHover" />
-                <Image component="RightEdge" name="OpenDungeons/MiniHorzScrollThumbRightHover" />
-                <Image component="Background" name="OpenDungeons/MiniHorzScrollThumbMiddleHover" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/MiniHorzScrollThumbLeftHover" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/MiniHorzScrollThumbRightHover" />
+                <Image component="Background" name="OpenDungeonsSkin/MiniHorzScrollThumbMiddleHover" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Normal">
@@ -1653,11 +1653,11 @@
     <WidgetLook name="OD/HorizontalScrollbar">
         <NamedArea name="ThumbTrackArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MiniHorzScrollLeftNormal" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsSkin/MiniHorzScrollLeftNormal" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1.0" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/MiniHorzScrollRightNormal" />
+                <ImageDim dimension="Width" name="OpenDungeonsSkin/MiniHorzScrollRightNormal" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
@@ -1667,24 +1667,24 @@
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
-                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/MiniHorzScrollRightNormal" /></Dim>
+                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsSkin/MiniHorzScrollRightNormal" /></Dim>
                 <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
             </Area>
             <HorzAlignment type="RightAligned" />
-            <Property name="NormalImage" value="OpenDungeons/MiniHorzScrollRightNormal" />
-            <Property name="HoverImage" value="OpenDungeons/MiniHorzScrollRightHover" />
-            <Property name="PushedImage" value="OpenDungeons/MiniHorzScrollRightNormal" />
+            <Property name="NormalImage" value="OpenDungeonsSkin/MiniHorzScrollRightNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/MiniHorzScrollRightHover" />
+            <Property name="PushedImage" value="OpenDungeonsSkin/MiniHorzScrollRightNormal" />
         </Child>
         <Child nameSuffix="__auto_decbtn__" type="OD/ImageButton">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
-                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/MiniHorzScrollLeftNormal" /></Dim>
+                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsSkin/MiniHorzScrollLeftNormal" /></Dim>
                 <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
             </Area>
-            <Property name="NormalImage" value="OpenDungeons/MiniHorzScrollLeftNormal" />
-            <Property name="HoverImage" value="OpenDungeons/MiniHorzScrollLeftHover" />
-            <Property name="PushedImage" value="OpenDungeons/MiniHorzScrollLeftNormal" />
+            <Property name="NormalImage" value="OpenDungeonsSkin/MiniHorzScrollLeftNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/MiniHorzScrollLeftHover" />
+            <Property name="PushedImage" value="OpenDungeonsSkin/MiniHorzScrollLeftNormal" />
         </Child>
         <Child nameSuffix="__auto_thumb__" type="OD/HorizontalScrollbarThumb">
             <Area>
@@ -1698,16 +1698,16 @@
         <ImagerySection name="main">
             <ImageryComponent>
                 <Area>
-                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MiniHorzScrollLeftNormal" /></Dim>
+                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsSkin/MiniHorzScrollLeftNormal" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1.0" type="RightEdge" />
-                    <ImageDim dimension="Width" name="OpenDungeons/MiniHorzScrollRightNormal" />
+                    <ImageDim dimension="Width" name="OpenDungeonsSkin/MiniHorzScrollRightNormal" />
                             </OperatorDim>
                         </Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/MiniHorzScrollBarSegment" />
+                <Image name="OpenDungeonsSkin/MiniHorzScrollBarSegment" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -1737,9 +1737,9 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image component="TopEdge" name="OpenDungeons/MiniVertScrollThumbTopNormal" />
-                <Image component="BottomEdge" name="OpenDungeons/MiniVertScrollThumbBottomNormal" />
-                <Image component="Background" name="OpenDungeons/MiniVertScrollThumbMiddleNormal" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/MiniVertScrollThumbTopNormal" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/MiniVertScrollThumbBottomNormal" />
+                <Image component="Background" name="OpenDungeonsSkin/MiniVertScrollThumbMiddleNormal" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="hover">
@@ -1750,9 +1750,9 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image component="TopEdge" name="OpenDungeons/MiniVertScrollThumbTopHover" />
-                <Image component="BottomEdge" name="OpenDungeons/MiniVertScrollThumbBottomHover" />
-                <Image component="Background" name="OpenDungeons/MiniVertScrollThumbMiddleHover" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/MiniVertScrollThumbTopHover" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/MiniVertScrollThumbBottomHover" />
+                <Image component="Background" name="OpenDungeonsSkin/MiniVertScrollThumbMiddleHover" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Normal">
@@ -1784,11 +1784,11 @@
         <NamedArea name="ThumbTrackArea">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/MiniVertScrollUpNormal" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsSkin/MiniVertScrollUpNormal" /></Dim>
                 <Dim type="RightEdge"><UnifiedDim scale="1.0" type="RightEdge" /></Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1.0" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/MiniVertScrollDownNormal" />
+                <ImageDim dimension="Height" name="OpenDungeonsSkin/MiniVertScrollDownNormal" />
                         </OperatorDim>
                     </Dim>
             </Area>
@@ -1798,23 +1798,23 @@
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
-                <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeons/MiniVertScrollDownNormal" /></Dim>
+                <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeonsSkin/MiniVertScrollDownNormal" /></Dim>
             </Area>
             <VertAlignment type="BottomAligned" />
-            <Property name="NormalImage" value="OpenDungeons/MiniVertScrollDownNormal" />
-            <Property name="HoverImage" value="OpenDungeons/MiniVertScrollDownHover" />
-            <Property name="PushedImage" value="OpenDungeons/MiniVertScrollDownNormal" />
+            <Property name="NormalImage" value="OpenDungeonsSkin/MiniVertScrollDownNormal" />
+            <Property name="HoverImage" value="OpenDungeonsSkin/MiniVertScrollDownHover" />
+            <Property name="PushedImage" value="OpenDungeonsSkin/MiniVertScrollDownNormal" />
         </Child>
         <Child nameSuffix="__auto_decbtn__" type="OD/InvisibleButton">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
-                <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeons/MiniVertScrollUpNormal" /></Dim>
+                <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeonsSkin/MiniVertScrollUpNormal" /></Dim>
             </Area>
-            <Property name="NormalImage" value="OpenDungeons/MiniVertScrollUpNormal" />
-            <Property name="HoverImage" value="OpenDungeons/MiniVertScrollUpHover" />
-            <Property name="PushedImage" value="OpenDungeons/MiniVertScrollUpNormal" />
+            <Property name="NormalImage" value="OpenDungeonsSkin/MiniVertScrollUpNormal" />
+            <Property name="HoverImage" value="OpenDungeonsSkin/MiniVertScrollUpHover" />
+            <Property name="PushedImage" value="OpenDungeonsSkin/MiniVertScrollUpNormal" />
         </Child>
         <Child nameSuffix="__auto_thumb__" type="OD/VerticalScrollbarThumb">
             <Area>
@@ -1829,15 +1829,15 @@
             <ImageryComponent>
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
-                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/MiniVertScrollUpNormal" /></Dim>
+                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsSkin/MiniVertScrollUpNormal" /></Dim>
                     <Dim type="RightEdge"><UnifiedDim scale="1.0" type="RightEdge" /></Dim>
                     <Dim type="BottomEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1.0" type="BottomEdge" />
-                            <ImageDim dimension="Height" name="OpenDungeons/MiniVertScrollDownNormal" />
+                            <ImageDim dimension="Height" name="OpenDungeonsSkin/MiniVertScrollDownNormal" />
                         </OperatorDim>
                     </Dim>
                 </Area>
-                <Image name="OpenDungeons/MiniVertScrollBarSegment" />
+                <Image name="OpenDungeonsSkin/MiniVertScrollBarSegment" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="CentreAligned" />
             </ImageryComponent>
@@ -1859,27 +1859,27 @@
     <WidgetLook name="OD/Listbox">
         <NamedArea name="ItemRenderingArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ListboxLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ListboxTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/ListboxRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/ListboxBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="ItemRenderingAreaHScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ListboxLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ListboxTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/ListboxRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
@@ -1891,8 +1891,8 @@
         </NamedArea>
         <NamedArea name="ItemRenderingAreaVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ListboxLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ListboxTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -1900,15 +1900,15 @@
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/ListboxBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="ItemRenderingAreaHVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ListboxLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ListboxTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -1947,15 +1947,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/ListboxTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/ListboxTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/ListboxBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/ListboxBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/ListboxLeft" />
-                <Image component="RightEdge" name="OpenDungeons/ListboxRight" />
-                <Image component="TopEdge" name="OpenDungeons/ListboxTop" />
-                <Image component="BottomEdge" name="OpenDungeons/ListboxBottom" />
-                <Image component="Background" name="OpenDungeons/ListboxBackdrop" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/ListboxTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/ListboxTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/ListboxBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/ListboxBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/ListboxLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/ListboxRight" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/ListboxTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/ListboxBottom" />
+                <Image component="Background" name="OpenDungeonsOldSkin/ListboxBackdrop" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
@@ -1980,13 +1980,13 @@
         <NamedArea name="ItemRenderingArea">
             <Area>
                 <Dim type="LeftEdge">
-                    <ImageDim dimension="Width" name="OpenDungeons/ListboxLeft" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxLeft" />
                     <DimOperator op="Add">
                         <PropertyDim name="LeftPadding" />
                     </DimOperator>
                 </Dim>
                 <Dim type="TopEdge">
-                    <ImageDim dimension="Height" name="OpenDungeons/ListboxTop" />
+                    <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxTop" />
                     <DimOperator op="Add">
                         <PropertyDim name="TopPadding" />
                     </DimOperator>
@@ -1994,12 +1994,12 @@
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract">
                         <UnifiedDim scale="1" type="RightEdge" />
-                        <ImageDim dimension="Width" name="OpenDungeons/ListboxRight" />
+                        <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxRight" />
                     </OperatorDim>
                 </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                        <ImageDim dimension="Height" name="OpenDungeons/ListboxBottom" />
+                        <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxBottom" />
                     </OperatorDim>
                 </Dim>
             </Area>
@@ -2007,13 +2007,13 @@
         <NamedArea name="ItemRenderingAreaHScroll">
             <Area>
                 <Dim type="LeftEdge">
-                    <ImageDim dimension="Width" name="OpenDungeons/ListboxLeft" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxLeft" />
                     <DimOperator op="Add">
                         <PropertyDim name="LeftPadding" />
                     </DimOperator>
                 </Dim>
                 <Dim type="TopEdge">
-                    <ImageDim dimension="Height" name="OpenDungeons/ListboxTop" />
+                    <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxTop" />
                     <DimOperator op="Add">
                         <PropertyDim name="TopPadding" />
                     </DimOperator>
@@ -2021,7 +2021,7 @@
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract">
                         <UnifiedDim scale="1" type="RightEdge" />
-                        <ImageDim dimension="Width" name="OpenDungeons/ListboxRight" />
+                        <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxRight" />
                     </OperatorDim>
                 </Dim>
                 <Dim type="BottomEdge">
@@ -2034,13 +2034,13 @@
         <NamedArea name="ItemRenderingAreaVScroll">
             <Area>
                 <Dim type="LeftEdge">
-                    <ImageDim dimension="Width" name="OpenDungeons/ListboxLeft" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxLeft" />
                     <DimOperator op="Add">
                         <PropertyDim name="LeftPadding" />
                     </DimOperator>
                 </Dim>
                 <Dim type="TopEdge">
-                    <ImageDim dimension="Height" name="OpenDungeons/ListboxTop" />
+                    <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxTop" />
                     <DimOperator op="Add">
                         <PropertyDim name="TopPadding" />
                     </DimOperator>
@@ -2053,7 +2053,7 @@
                 </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                        <ImageDim dimension="Height" name="OpenDungeons/ListboxBottom" />
+                        <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxBottom" />
                     </OperatorDim>
                 </Dim>
             </Area>
@@ -2061,13 +2061,13 @@
         <NamedArea name="ItemRenderingAreaHVScroll">
             <Area>
                 <Dim type="LeftEdge">
-                    <ImageDim dimension="Width" name="OpenDungeons/ListboxLeft" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ListboxLeft" />
                     <DimOperator op="Add">
                         <PropertyDim name="LeftPadding" />
                     </DimOperator>
                 </Dim>
                 <Dim type="TopEdge">
-                    <ImageDim dimension="Height" name="OpenDungeons/ListboxTop" />
+                    <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ListboxTop" />
                     <DimOperator op="Add">
                         <PropertyDim name="TopPadding" />
                     </DimOperator>
@@ -2140,27 +2140,27 @@
     <WidgetLook name="OD/ComboDropList">
         <NamedArea name="ItemRenderingArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ComboboxListLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ComboboxListTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/ComboboxListRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/ComboboxListBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="ItemRenderingAreaHScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ComboboxListLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ComboboxListTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/ComboboxListRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
@@ -2172,8 +2172,8 @@
         </NamedArea>
         <NamedArea name="ItemRenderingAreaVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ComboboxListLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ComboboxListTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -2181,15 +2181,15 @@
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/ComboboxListBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="ItemRenderingAreaHVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ComboboxListLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ComboboxListTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -2228,15 +2228,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/ComboboxListTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/ComboboxListTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/ComboboxListBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/ComboboxListBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/ComboboxListLeft" />
-                <Image component="RightEdge" name="OpenDungeons/ComboboxListRight" />
-                <Image component="TopEdge" name="OpenDungeons/ComboboxListTop" />
-                <Image component="BottomEdge" name="OpenDungeons/ComboboxListBottom" />
-                <Image component="Background" name="OpenDungeons/ComboboxListBackdrop" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/ComboboxListTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/ComboboxListTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/ComboboxListBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/ComboboxListBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/ComboboxListLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/ComboboxListRight" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/ComboboxListTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/ComboboxListBottom" />
+                <Image component="Background" name="OpenDungeonsOldSkin/ComboboxListBackdrop" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
@@ -2257,27 +2257,27 @@
     <WidgetLook name="OD/ComboDropList">
         <NamedArea name="ItemRenderingArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ComboboxListLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ComboboxListTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/ComboboxListRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/ComboboxListBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="ItemRenderingAreaHScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ComboboxListLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ComboboxListTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/ComboboxListRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
@@ -2289,8 +2289,8 @@
         </NamedArea>
         <NamedArea name="ItemRenderingAreaVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ComboboxListLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ComboboxListTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -2298,15 +2298,15 @@
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/ComboboxListBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="ItemRenderingAreaHVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/ComboboxListLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/ComboboxListTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/ComboboxListLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/ComboboxListTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -2345,15 +2345,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/ComboboxListTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/ComboboxListTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/ComboboxListBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/ComboboxListBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/ComboboxListLeft" />
-                <Image component="RightEdge" name="OpenDungeons/ComboboxListRight" />
-                <Image component="TopEdge" name="OpenDungeons/ComboboxListTop" />
-                <Image component="BottomEdge" name="OpenDungeons/ComboboxListBottom" />
-                <Image component="Background" name="OpenDungeons/ComboboxListBackdrop" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/ComboboxListTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/ComboboxListTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/ComboboxListBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/ComboboxListBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/ComboboxListLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/ComboboxListRight" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/ComboboxListTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/ComboboxListBottom" />
+                <Image component="Background" name="OpenDungeonsOldSkin/ComboboxListBackdrop" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
@@ -2376,7 +2376,7 @@
         <PropertyDefinition initialValue="FF000000" name="SelectedTextColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF607FFF" name="ActiveSelectionColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="FF808080" name="InactiveSelectionColour" redrawOnWrite="true" />
-        <Property name="MouseCursorImage" value="OpenDungeons/MouseTextBar" />
+        <Property name="MouseCursorImage" value="OpenDungeonsOldSkin/MouseTextBar" />
         <NamedArea name="TextArea">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="5" /></Dim>
@@ -2393,8 +2393,8 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/ComboboxEditLeft" />
-                <Image component="Background" name="OpenDungeons/ComboboxEditMiddle" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/ComboboxEditLeft" />
+                <Image component="Background" name="OpenDungeonsOldSkin/ComboboxEditMiddle" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="selection">
@@ -2405,7 +2405,7 @@
                     <Dim type="RightEdge"><UnifiedDim scale="1.0" type="RightEdge" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/TextSelectionBrush" />
+                <Image name="OpenDungeonsOldSkin/TextSelectionBrush" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -2415,10 +2415,10 @@
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
-                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/EditBoxCarat" /></Dim>
+                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/EditBoxCarat" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/EditBoxCarat" />
+                <Image name="OpenDungeonsOldSkin/EditBoxCarat" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -2496,9 +2496,9 @@
                 <Dim type="Height"><WidgetDim dimension="Height" widget="__auto_editbox__" /></Dim>
             </Area>
             <HorzAlignment type="RightAligned" />
-            <Property name="NormalImage" value="OpenDungeons/ComboboxListButtonNormal" />
-            <Property name="HoverImage" value="OpenDungeons/ComboboxListButtonHover" />
-            <Property name="PushedImage" value="OpenDungeons/ComboboxListButtonNormal" />
+            <Property name="NormalImage" value="OpenDungeonsOldSkin/ComboboxListButtonNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/ComboboxListButtonHover" />
+            <Property name="PushedImage" value="OpenDungeonsOldSkin/ComboboxListButtonNormal" />
         </Child>
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
@@ -2512,7 +2512,7 @@
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/VertScrollUpNormal" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/VertScrollUpNormal" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
@@ -2522,25 +2522,25 @@
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
-                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/VertScrollUpNormal" /></Dim>
+                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/VertScrollUpNormal" /></Dim>
                 <Dim type="Height"><UnifiedDim scale="0.5" type="Height" /></Dim>
             </Area>
             <HorzAlignment type="RightAligned" />
-            <Property name="NormalImage" value="OpenDungeons/VertScrollUpNormal" />
-            <Property name="HoverImage" value="OpenDungeons/VertScrollUpHover" />
-            <Property name="PushedImage" value="OpenDungeons/VertScrollUpNormal" />
+            <Property name="NormalImage" value="OpenDungeonsOldSkin/VertScrollUpNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/VertScrollUpHover" />
+            <Property name="PushedImage" value="OpenDungeonsOldSkin/VertScrollUpNormal" />
         </Child>
         <Child nameSuffix="__auto_decbtn__" type="OD/ImageButton">
             <Area>
                 <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="TopEdge"><UnifiedDim scale="0.5" type="TopEdge" /></Dim>
-                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/VertScrollUpNormal" /></Dim>
+                <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/VertScrollUpNormal" /></Dim>
                 <Dim type="Height"><UnifiedDim scale="0.5" type="Height" /></Dim>
             </Area>
             <HorzAlignment type="RightAligned" />
-            <Property name="NormalImage" value="OpenDungeons/VertScrollDownNormal" />
-            <Property name="HoverImage" value="OpenDungeons/VertScrollDownHover" />
-            <Property name="PushedImage" value="OpenDungeons/VertScrollDownNormal" />
+            <Property name="NormalImage" value="OpenDungeonsOldSkin/VertScrollDownNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/VertScrollDownHover" />
+            <Property name="PushedImage" value="OpenDungeonsOldSkin/VertScrollDownNormal" />
         </Child>
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
@@ -2556,34 +2556,34 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/StaticTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/StaticTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/StaticBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/StaticBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/StaticLeft" />
-                <Image component="RightEdge" name="OpenDungeons/StaticRight" />
-                <Image component="TopEdge" name="OpenDungeons/StaticTop" />
-                <Image component="BottomEdge" name="OpenDungeons/StaticBottom" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/StaticTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/StaticTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/StaticBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/StaticBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/StaticLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/StaticRight" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/StaticTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/StaticBottom" />
                 <ColourRectProperty name="FrameColours" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="background">
             <ImageryComponent>
                 <Area>
-                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/StaticLeft" /></Dim>
-                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/StaticTop" /></Dim>
+                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticLeft" /></Dim>
+                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticTop" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                    <ImageDim dimension="Width" name="OpenDungeons/StaticRight" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticRight" />
                             </OperatorDim>
                         </Dim>
                     <Dim type="BottomEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                    <ImageDim dimension="Height" name="OpenDungeons/StaticBottom" />
+                    <ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticBottom" />
                             </OperatorDim>
                         </Dim>
                 </Area>
-                <Image name="OpenDungeons/StaticBackdrop" />
+                <Image name="OpenDungeonsOldSkin/StaticBackdrop" />
 
                 <Colours bottomLeft="FFFFFFFF" bottomRight="FFFFFFFF" topLeft="FFFFFFFF" topRight="FFFFFFFF" />
                 <VertFormat type="Stretched" />
@@ -2598,7 +2598,7 @@
                     <Dim type="RightEdge"><UnifiedDim scale="1" type="RightEdge" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/StaticBackdrop" />
+                <Image name="OpenDungeonsOldSkin/StaticBackdrop" />
 
                 <Colours bottomLeft="FFFFFFFF" bottomRight="FFFFFFFF" topLeft="FFFFFFFF" topRight="FFFFFFFF" />
                 <VertFormat type="Stretched" />
@@ -2619,16 +2619,16 @@
         <ImagerySection name="image_withframe">
             <ImageryComponent>
                 <Area>
-                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/StaticLeft" /></Dim>
-                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/StaticTop" /></Dim>
+                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticLeft" /></Dim>
+                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticTop" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                            <ImageDim dimension="Width" name="OpenDungeons/StaticRight" />
+                            <ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticRight" />
                         </OperatorDim>
                     </Dim>
                     <Dim type="BottomEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                            <ImageDim dimension="Height" name="OpenDungeons/StaticBottom" />
+                            <ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticBottom" />
                         </OperatorDim>
                     </Dim>
                 </Area>
@@ -2704,27 +2704,27 @@
         <Property name="BackgroundEnabled" value="True" />
         <NamedArea name="WithFrameTextRenderArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/StaticLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/StaticTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/StaticRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/StaticBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="WithFrameTextRenderAreaHScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/StaticLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/StaticTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/StaticRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
@@ -2736,8 +2736,8 @@
         </NamedArea>
         <NamedArea name="WithFrameTextRenderAreaVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/StaticLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/StaticTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -2745,15 +2745,15 @@
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/StaticBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="WithFrameTextRenderAreaHVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/StaticLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/StaticTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/StaticLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/StaticTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -2868,8 +2868,8 @@
 
 
     <WidgetLook name="OD/ListHeaderSegment">
-        <Property name="SizingCursorImage" value="OpenDungeons/MouseEsWeCursor" />
-        <Property name="MovingCursorImage" value="OpenDungeons/MouseMoveCursor" />
+        <Property name="SizingCursorImage" value="OpenDungeonsOldSkin/MouseEsWeCursor" />
+        <Property name="MovingCursorImage" value="OpenDungeonsOldSkin/MouseMoveCursor" />
         <ImagerySection name="segment_normal">
             <Colours bottomLeft="FFDDDDDD" bottomRight="FFDDDDDD" topLeft="FFDDDDDD" topRight="FFDDDDDD" />
             <ImageryComponent>
@@ -2878,12 +2878,12 @@
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                    <ImageDim dimension="Width" name="OpenDungeons/HeaderBarSplitterNormal" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/HeaderBarSplitterNormal" />
                             </OperatorDim>
                         </Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/HeaderBarBackdropNormal" />
+                <Image name="OpenDungeonsOldSkin/HeaderBarBackdropNormal" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -2895,12 +2895,12 @@
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                    <ImageDim dimension="Width" name="OpenDungeons/HeaderBarSplitterNormal" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/HeaderBarSplitterNormal" />
                             </OperatorDim>
                         </Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/HeaderBarBackdropHover" />
+                <Image name="OpenDungeonsOldSkin/HeaderBarBackdropHover" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -2913,7 +2913,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/HeaderBarSplitterNormal" />
+                <Image name="OpenDungeonsOldSkin/HeaderBarSplitterNormal" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="RightAligned" />
             </ImageryComponent>
@@ -2926,7 +2926,7 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/HeaderBarSplitterHover" />
+                <Image name="OpenDungeonsOldSkin/HeaderBarSplitterHover" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="RightAligned" />
             </ImageryComponent>
@@ -2936,10 +2936,10 @@
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="3" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="3" /></Dim>
-                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/HeaderBarSortUp" /></Dim>
-                    <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeons/HeaderBarSortUp" /></Dim>
+                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/HeaderBarSortUp" /></Dim>
+                    <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/HeaderBarSortUp" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/HeaderBarSortUp" />
+                <Image name="OpenDungeonsOldSkin/HeaderBarSortUp" />
             </ImageryComponent>
         </ImagerySection>
         <ImagerySection name="descend_icon">
@@ -2947,17 +2947,17 @@
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="3" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="3" /></Dim>
-                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/HeaderBarSortDown" /></Dim>
-                    <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeons/HeaderBarSortDown" /></Dim>
+                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/HeaderBarSortDown" /></Dim>
+                    <Dim type="Height"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/HeaderBarSortDown" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/HeaderBarSortDown" />
+                <Image name="OpenDungeonsOldSkin/HeaderBarSortDown" />
             </ImageryComponent>
         </ImagerySection>
         <ImagerySection name="label">
             <TextComponent>
                 <Area>
                     <Dim type="LeftEdge">
-                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/HeaderBarSortUp" />
+                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/HeaderBarSortUp" />
                     <AbsoluteDim value="5" />
                             </OperatorDim>
                         </Dim>
@@ -3052,27 +3052,27 @@
     <WidgetLook name="OD/MultiColumnList">
         <NamedArea name="ItemRenderingArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MultiListLeft" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiListLeft" /></Dim>
                 <Dim type="TopEdge"><WidgetDim dimension="BottomEdge" widget="__auto_listheader__" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/MultiListRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiListRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/MultiListBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/MultiListBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="ItemRenderingAreaHScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MultiListLeft" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiListLeft" /></Dim>
                 <Dim type="TopEdge"><WidgetDim dimension="BottomEdge" widget="__auto_listheader__" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/MultiListRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiListRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
@@ -3084,7 +3084,7 @@
         </NamedArea>
         <NamedArea name="ItemRenderingAreaVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MultiListLeft" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiListLeft" /></Dim>
                 <Dim type="TopEdge"><WidgetDim dimension="BottomEdge" widget="__auto_listheader__" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
@@ -3093,14 +3093,14 @@
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/MultiListBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/MultiListBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="ItemRenderingAreaHVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MultiListLeft" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiListLeft" /></Dim>
                 <Dim type="TopEdge"><WidgetDim dimension="BottomEdge" widget="__auto_listheader__" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
@@ -3152,15 +3152,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/MultiListTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/MultiListTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/MultiListBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/MultiListBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/MultiListLeft" />
-                <Image component="RightEdge" name="OpenDungeons/MultiListRight" />
-                <Image component="TopEdge" name="OpenDungeons/MultiListTop" />
-                <Image component="BottomEdge" name="OpenDungeons/MultiListBottom" />
-                <Image component="Background" name="OpenDungeons/MultiListBackdrop" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/MultiListTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/MultiListTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/MultiListBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/MultiListBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/MultiListLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/MultiListRight" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/MultiListTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/MultiListBottom" />
+                <Image component="Background" name="OpenDungeonsOldSkin/MultiListBackdrop" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
@@ -3184,31 +3184,31 @@
         <PropertyDefinition initialValue="FF607FFF" name="ActiveSelectionColour" redrawOnWrite="true" />
         <PropertyDefinition initialValue="00808080" name="InactiveSelectionColour" redrawOnWrite="true" />
         <PropertyDefinition redrawOnWrite="true" initialValue="tl:00FF0000 tr:00FF0000 bl:00FF0000 br:00FF0000" type="ColourRect" name="ImageColours"/>
-        <Property name="MouseCursorImage" value="OpenDungeons/MouseTextBar" />
-        <Property name="SelectionBrushImage" value="OpenDungeons/MultiLineEditboxSelectionBrush" />
+        <Property name="MouseCursorImage" value="OpenDungeonsOldSkin/MouseTextBar" />
+        <Property name="SelectionBrushImage" value="OpenDungeonsOldSkin/MultiLineEditboxSelectionBrush" />
         <NamedArea name="TextArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MultiLineEditboxLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/MultiLineEditboxTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiLineEditboxLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/MultiLineEditboxTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/MultiLineEditboxRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiLineEditboxRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/MultiLineEditboxBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/MultiLineEditboxBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="TextAreaHScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MultiLineEditboxLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/MultiLineEditboxTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiLineEditboxLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/MultiLineEditboxTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/MultiLineEditboxRight" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiLineEditboxRight" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
@@ -3220,8 +3220,8 @@
         </NamedArea>
         <NamedArea name="TextAreaVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MultiLineEditboxLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/MultiLineEditboxTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiLineEditboxLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/MultiLineEditboxTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -3229,15 +3229,15 @@
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/MultiLineEditboxBottom" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/MultiLineEditboxBottom" />
                         </OperatorDim>
                     </Dim>
             </Area>
         </NamedArea>
         <NamedArea name="TextAreaHVScroll">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MultiLineEditboxLeft" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/MultiLineEditboxTop" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MultiLineEditboxLeft" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/MultiLineEditboxTop" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
                 <WidgetDim dimension="Width" widget="__auto_vscrollbar__" />
@@ -3276,15 +3276,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/MultiLineEditboxTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/MultiLineEditboxTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/MultiLineEditboxBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/MultiLineEditboxBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/MultiLineEditboxLeft" />
-                <Image component="RightEdge" name="OpenDungeons/MultiLineEditboxRight" />
-                <Image component="TopEdge" name="OpenDungeons/MultiLineEditboxTop" />
-                <Image component="BottomEdge" name="OpenDungeons/MultiLineEditboxBottom" />
-                <Image component="Background" name="OpenDungeons/MultiLineEditboxBackdrop" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/MultiLineEditboxTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/MultiLineEditboxTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/MultiLineEditboxBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/MultiLineEditboxBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/MultiLineEditboxLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/MultiLineEditboxRight" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/MultiLineEditboxTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/MultiLineEditboxBottom" />
+                <Image component="Background" name="OpenDungeonsOldSkin/MultiLineEditboxBackdrop" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="Caret">
@@ -3293,10 +3293,10 @@
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
-                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeons/EditBoxCarat" /></Dim>
+                    <Dim type="Width"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/EditBoxCarat" /></Dim>
                     <Dim type="BottomEdge"><UnifiedDim scale="1.0" type="BottomEdge" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/EditBoxCarat" />
+                <Image name="OpenDungeonsOldSkin/EditBoxCarat" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -3324,16 +3324,16 @@
     <WidgetLook name="OD/Tooltip">
         <NamedArea name="TextArea">
             <Area>
-                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/TooltipLeftEdge" /></Dim>
-                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/TooltipTopEdge" /></Dim>
+                <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/TooltipLeftEdge" /></Dim>
+                <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/TooltipTopEdge" /></Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <ImageDim dimension="Width" name="OpenDungeons/TooltipRightEdge" />
+                <ImageDim dimension="Width" name="OpenDungeonsOldSkin/TooltipRightEdge" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <ImageDim dimension="Height" name="OpenDungeons/TooltipBottomEdge" />
+                <ImageDim dimension="Height" name="OpenDungeonsOldSkin/TooltipBottomEdge" />
                         </OperatorDim>
                     </Dim>
             </Area>
@@ -3346,30 +3346,30 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/TooltipTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/TooltipTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/TooltipBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/TooltipBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/TooltipLeftEdge" />
-                <Image component="RightEdge" name="OpenDungeons/TooltipRightEdge" />
-                <Image component="TopEdge" name="OpenDungeons/TooltipTopEdge" />
-                <Image component="BottomEdge" name="OpenDungeons/TooltipBottomEdge" />
-                <Image component="Background" name="OpenDungeons/TooltipMiddle" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/TooltipTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/TooltipTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/TooltipBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/TooltipBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/TooltipLeftEdge" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/TooltipRightEdge" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/TooltipTopEdge" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/TooltipBottomEdge" />
+                <Image component="Background" name="OpenDungeonsOldSkin/TooltipMiddle" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="label">
             <TextComponent>
                 <Area>
-                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/TooltipLeftEdge" /></Dim>
-                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/TooltipTopEdge" /></Dim>
+                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/TooltipLeftEdge" /></Dim>
+                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/TooltipTopEdge" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                    <ImageDim dimension="Width" name="OpenDungeons/TooltipRightEdge" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/TooltipRightEdge" />
                             </OperatorDim>
                         </Dim>
                     <Dim type="BottomEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                    <ImageDim dimension="Height" name="OpenDungeons/TooltipBottomEdge" />
+                    <ImageDim dimension="Height" name="OpenDungeonsOldSkin/TooltipBottomEdge" />
                             </OperatorDim>
                         </Dim>
                 </Area>
@@ -3491,9 +3491,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/TabButtonUpperLeftNormal" />
-                <Image component="TopRightCorner" name="OpenDungeons/TabButtonUpperRightNormal" />
-                <Image component="TopEdge" name="OpenDungeons/TabButtonUpperNormal" />
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabButtonUpperLeftNormal" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabButtonUpperRightNormal" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/TabButtonUpperNormal" />
                 <VertFormat type="Tiled" />
                 <HorzFormat type="Tiled" />
             </FrameComponent>
@@ -3506,15 +3506,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/TabButtonUpperLeftNormal" />
-                <Image component="TopRightCorner" name="OpenDungeons/TabButtonUpperRightNormal" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/TabButtonLowerLeftNormal" />
-                <Image component="BottomRightCorner" name="OpenDungeons/TabButtonLowerRightNormal" />
-                <Image component="LeftEdge" name="OpenDungeons/TabButtonLeftNormal" />
-                <Image component="RightEdge" name="OpenDungeons/TabButtonRightNormal" />
-                <Image component="TopEdge" name="OpenDungeons/TabButtonUpperNormal" />
-                <Image component="BottomEdge" name="OpenDungeons/TabButtonLowerNormal" />
-                <Image component="Background" name="OpenDungeons/TabButtonMiddleNormal" />
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabButtonUpperLeftNormal" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabButtonUpperRightNormal" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/TabButtonLowerLeftNormal" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/TabButtonLowerRightNormal" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/TabButtonLeftNormal" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/TabButtonRightNormal" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/TabButtonUpperNormal" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/TabButtonLowerNormal" />
+                <Image component="Background" name="OpenDungeonsOldSkin/TabButtonMiddleNormal" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="top_hover">
@@ -3525,9 +3525,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/TabButtonUpperLeftNormal" />
-                <Image component="TopRightCorner" name="OpenDungeons/TabButtonUpperRightNormal" />
-                <Image component="TopEdge" name="OpenDungeons/TabButtonUpperNormal" />
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabButtonUpperLeftNormal" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabButtonUpperRightNormal" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/TabButtonUpperNormal" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="bot_hover">
@@ -3538,15 +3538,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/TabButtonUpperLeftNormal" />
-                <Image component="TopRightCorner" name="OpenDungeons/TabButtonUpperRightNormal" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/TabButtonLowerLeftNormal" />
-                <Image component="BottomRightCorner" name="OpenDungeons/TabButtonLowerRightNormal" />
-                <Image component="LeftEdge" name="OpenDungeons/TabButtonLeftNormal" />
-                <Image component="RightEdge" name="OpenDungeons/TabButtonRightNormal" />
-                <Image component="TopEdge" name="OpenDungeons/TabButtonUpperNormal" />
-                <Image component="BottomEdge" name="OpenDungeons/TabButtonLowerNormal" />
-                <Image component="Background" name="OpenDungeons/TabButtonMiddleNormal" />
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabButtonUpperLeftNormal" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabButtonUpperRightNormal" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/TabButtonLowerLeftNormal" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/TabButtonLowerRightNormal" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/TabButtonLeftNormal" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/TabButtonRightNormal" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/TabButtonUpperNormal" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/TabButtonLowerNormal" />
+                <Image component="Background" name="OpenDungeonsOldSkin/TabButtonMiddleNormal" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="top_selected">
@@ -3557,9 +3557,9 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/TabButtonUpperLeftSelected" />
-                <Image component="TopEdge" name="OpenDungeons/TabButtonUpperSelected" />
-                <Image component="TopRightCorner" name="OpenDungeons/TabButtonUpperRightSelected" />
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabButtonUpperLeftSelected" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/TabButtonUpperSelected" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabButtonUpperRightSelected" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="bot_selected">
@@ -3570,12 +3570,12 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="LeftEdge" name="OpenDungeons/TabButtonLeftSelected" />
-                <Image component="Background" name="OpenDungeons/TabButtonMiddleSelected" />
-                <Image component="RightEdge" name="OpenDungeons/TabButtonRightSelected" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/TabButtonLowerLeftNormal" />
-                <Image component="BottomEdge" name="OpenDungeons/TabButtonLowerNormal" />
-                <Image component="BottomRightCorner" name="OpenDungeons/TabButtonLowerRightNormal" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/TabButtonLeftSelected" />
+                <Image component="Background" name="OpenDungeonsOldSkin/TabButtonMiddleSelected" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/TabButtonRightSelected" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/TabButtonLowerLeftNormal" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/TabButtonLowerNormal" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/TabButtonLowerRightNormal" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="TopNormal">
@@ -3673,7 +3673,7 @@
                 <Area>
                     <Dim type="LeftEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="TopEdge">
-                        <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeons/TabContentPaneUpperLeft" />
+                        <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeonsSkin/TabContentPaneUpperLeft" />
                     <PropertyDim name="EnableTop" />
                             </OperatorDim>
                         </Dim>
@@ -3681,14 +3681,14 @@
                     <Dim type="BottomEdge"><UnifiedDim scale="1" type="Height" />
                     </Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/TabContentPaneUpperLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/TabContentPaneUpperRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/TabContentPaneLowerLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/TabContentPaneLowerRight" />
-                <Image component="LeftEdge" name="OpenDungeons/TabContentPaneLeft" />
-                <Image component="RightEdge" name="OpenDungeons/TabContentPaneRight" />
-                <Image component="TopEdge" name="OpenDungeons/TabContentPaneUpper" />
-                <Image component="BottomEdge" name="OpenDungeons/TabContentPaneLower" />
+                <Image component="TopLeftCorner" name="OpenDungeonsSkin/TabContentPaneUpperLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsSkin/TabContentPaneUpperRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsSkin/TabContentPaneLowerLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsSkin/TabContentPaneLowerRight" />
+                <Image component="LeftEdge" name="OpenDungeonsSkin/TabContentPaneLeft" />
+                <Image component="RightEdge" name="OpenDungeonsSkin/TabContentPaneRight" />
+                <Image component="TopEdge" name="OpenDungeonsSkin/TabContentPaneUpper" />
+                <Image component="BottomEdge" name="OpenDungeonsSkin/TabContentPaneLower" />
                 <Image component="Background" name="ODBackgrounds/Background1" />
             </FrameComponent>
         </ImagerySection>
@@ -3764,8 +3764,8 @@
                 </Dim>
                 <Dim type="Width">
                     <OperatorDim op="Multiply"><WidgetDim dimension="Height" widget="__auto_TabPane__Buttons" />
-                <OperatorDim op="Divide"><ImageDim dimension="Width" name="OpenDungeons/TabButtonScrollLeftNormal" />
-                        <ImageDim dimension="Height" name="OpenDungeons/TabButtonScrollLeftNormal" />
+                <OperatorDim op="Divide"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/TabButtonScrollLeftNormal" />
+                        <ImageDim dimension="Height" name="OpenDungeonsOldSkin/TabButtonScrollLeftNormal" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
@@ -3774,16 +3774,16 @@
                 </Dim>
             </Area>
             <Property name="AlwaysOnTop" value="True" />
-            <Property name="NormalImage" value="OpenDungeons/TabButtonScrollLeftNormal" />
-            <Property name="HoverImage" value="OpenDungeons/TabButtonScrollLeftHover" />
-            <Property name="PushedImage" value="OpenDungeons/TabButtonScrollLeftHover" />
+            <Property name="NormalImage" value="OpenDungeonsOldSkin/TabButtonScrollLeftNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/TabButtonScrollLeftHover" />
+            <Property name="PushedImage" value="OpenDungeonsOldSkin/TabButtonScrollLeftHover" />
         </Child>
         <Child nameSuffix="__auto_TabPane__ScrollRight" type="OD/SystemButton">
             <Area>
                 <Dim type="Width">
                     <OperatorDim op="Multiply"><WidgetDim dimension="Height" widget="__auto_TabPane__Buttons" />
-                <OperatorDim op="Divide"><ImageDim dimension="Width" name="OpenDungeons/TabButtonScrollRightNormal" />
-                        <ImageDim dimension="Height" name="OpenDungeons/TabButtonScrollRightNormal" />
+                <OperatorDim op="Divide"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/TabButtonScrollRightNormal" />
+                        <ImageDim dimension="Height" name="OpenDungeonsOldSkin/TabButtonScrollRightNormal" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
@@ -3800,9 +3800,9 @@
                 </Dim>
             </Area>
             <Property name="AlwaysOnTop" value="True" />
-            <Property name="NormalImage" value="OpenDungeons/TabButtonScrollRightNormal" />
-            <Property name="HoverImage" value="OpenDungeons/TabButtonScrollRightHover" />
-            <Property name="PushedImage" value="OpenDungeons/TabButtonScrollRightHover" />
+            <Property name="NormalImage" value="OpenDungeonsOldSkin/TabButtonScrollRightNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/TabButtonScrollRightHover" />
+            <Property name="PushedImage" value="OpenDungeonsOldSkin/TabButtonScrollRightHover" />
         </Child>
         <StateImagery name="Enabled" />
         <StateImagery name="Disabled" />
@@ -3822,15 +3822,15 @@
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="Width">
                     <OperatorDim op="Add"><FontDim type="HorzExtent" />
-                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/MenuLeft" />
-                        <ImageDim dimension="Width" name="OpenDungeons/MenuRight" />
+                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MenuLeft" />
+                        <ImageDim dimension="Width" name="OpenDungeonsOldSkin/MenuRight" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
                 <Dim type="Height">
                     <OperatorDim op="Add"><FontDim type="LineSpacing" />
-                <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeons/MenuTop" />
-                        <ImageDim dimension="Height" name="OpenDungeons/MenuBottom" />
+                <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/MenuTop" />
+                        <ImageDim dimension="Height" name="OpenDungeonsOldSkin/MenuBottom" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
@@ -3842,9 +3842,9 @@
                 <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                 <Dim type="Width">
                     <OperatorDim op="Add"><FontDim type="HorzExtent" />
-                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/MenuLeft" />
-                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/MenuRight" />
-                                <OperatorDim op="Multiply"><ImageDim dimension="Width" name="OpenDungeons/PopupMenuArrowLeft" />
+                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MenuLeft" />
+                        <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MenuRight" />
+                                <OperatorDim op="Multiply"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/PopupMenuArrowLeft" />
                                         <AbsoluteDim value="3" />
                                                 </OperatorDim>
                                             </OperatorDim>
@@ -3853,8 +3853,8 @@
                     </Dim>
                 <Dim type="Height">
                     <OperatorDim op="Add"><FontDim type="LineSpacing" />
-                <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeons/MenuTop" />
-                        <ImageDim dimension="Height" name="OpenDungeons/MenuBottom" />
+                <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/MenuTop" />
+                        <ImageDim dimension="Height" name="OpenDungeonsOldSkin/MenuBottom" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
@@ -3863,16 +3863,16 @@
         <ImagerySection name="label">
             <TextComponent>
                 <Area>
-                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeons/MenuLeft" /></Dim>
-                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeons/MenuTop" /></Dim>
+                    <Dim type="LeftEdge"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/MenuLeft" /></Dim>
+                    <Dim type="TopEdge"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/MenuTop" /></Dim>
                     <Dim type="RightEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                    <ImageDim dimension="Width" name="OpenDungeons/MenuRight" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/MenuRight" />
                             </OperatorDim>
                         </Dim>
                     <Dim type="BottomEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                    <ImageDim dimension="Height" name="OpenDungeons/MenuBottom" />
+                    <ImageDim dimension="Height" name="OpenDungeonsOldSkin/MenuBottom" />
                             </OperatorDim>
                         </Dim>
                 </Area>
@@ -3888,15 +3888,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/MenuTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/MenuTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/MenuBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/MenuBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/MenuLeft" />
-                <Image component="RightEdge" name="OpenDungeons/MenuRight" />
-                <Image component="TopEdge" name="OpenDungeons/MenuTop" />
-                <Image component="BottomEdge" name="OpenDungeons/MenuBottom" />
-                <Image component="Background" name="OpenDungeons/MenuMiddle" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/MenuTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/MenuTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/MenuBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/MenuBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/MenuLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/MenuRight" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/MenuTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/MenuBottom" />
+                <Image component="Background" name="OpenDungeonsOldSkin/MenuMiddle" />
             </FrameComponent>
         </ImagerySection>
         <ImagerySection name="popup_arrow_right">
@@ -3906,12 +3906,12 @@
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="Width">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="Width" />
-                    <ImageDim dimension="Width" name="OpenDungeons/PopupMenuArrowRight" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/PopupMenuArrowRight" />
                             </OperatorDim>
                         </Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/PopupMenuArrowRight" />
+                <Image name="OpenDungeonsOldSkin/PopupMenuArrowRight" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="RightAligned" />
             </ImageryComponent>
@@ -3923,12 +3923,12 @@
                     <Dim type="TopEdge"><AbsoluteDim value="0" /></Dim>
                     <Dim type="Width">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1" type="Width" />
-                    <ImageDim dimension="Width" name="OpenDungeons/PopupMenuArrowLeft" />
+                    <ImageDim dimension="Width" name="OpenDungeonsOldSkin/PopupMenuArrowLeft" />
                             </OperatorDim>
                         </Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/PopupMenuArrowLeft" />
+                <Image name="OpenDungeonsOldSkin/PopupMenuArrowLeft" />
                 <VertFormat type="CentreAligned" />
                 <HorzFormat type="RightAligned" />
             </ImageryComponent>
@@ -4026,25 +4026,25 @@
         <NamedArea name="ItemRenderArea">
             <Area>
                 <Dim type="LeftEdge">
-                    <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/PopupMenuFrameLeft" />
+                    <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/PopupMenuFrameLeft" />
                 <PropertyDim name="BorderWidth" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="TopEdge">
-                    <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeons/PopupMenuFrameTop" />
+                    <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/PopupMenuFrameTop" />
                 <PropertyDim name="BorderWidth" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/PopupMenuFrameRight" />
+                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/PopupMenuFrameRight" />
                         <PropertyDim name="BorderWidth" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeons/PopupMenuFrameBottom" />
+                <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/PopupMenuFrameBottom" />
                         <PropertyDim name="BorderWidth" />
                                 </OperatorDim>
                             </OperatorDim>
@@ -4059,15 +4059,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/PopupMenuFrameTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/PopupMenuFrameTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/PopupMenuFrameBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/PopupMenuFrameBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/PopupMenuFrameLeft" />
-                <Image component="RightEdge" name="OpenDungeons/PopupMenuFrameRight" />
-                <Image component="TopEdge" name="OpenDungeons/PopupMenuFrameTop" />
-                <Image component="BottomEdge" name="OpenDungeons/PopupMenuFrameBottom" />
-                <Image component="Background" name="OpenDungeons/PopupMenuMiddle" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/PopupMenuFrameTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/PopupMenuFrameTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/PopupMenuFrameBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/PopupMenuFrameBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/PopupMenuFrameLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/PopupMenuFrameRight" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/PopupMenuFrameTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/PopupMenuFrameBottom" />
+                <Image component="Background" name="OpenDungeonsOldSkin/PopupMenuMiddle" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
@@ -4094,25 +4094,25 @@
         <NamedArea name="ItemRenderArea">
             <Area>
                 <Dim type="LeftEdge">
-                    <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/PopupMenuFrameLeft" />
+                    <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/PopupMenuFrameLeft" />
                 <PropertyDim name="BorderWidth" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="TopEdge">
-                    <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeons/PopupMenuFrameTop" />
+                    <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/PopupMenuFrameTop" />
                 <PropertyDim name="BorderWidth" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="RightEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="RightEdge" />
-                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeons/PopupMenuFrameRight" />
+                <OperatorDim op="Add"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/PopupMenuFrameRight" />
                         <PropertyDim name="BorderWidth" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1" type="BottomEdge" />
-                <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeons/PopupMenuFrameBottom" />
+                <OperatorDim op="Add"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/PopupMenuFrameBottom" />
                         <PropertyDim name="BorderWidth" />
                                 </OperatorDim>
                             </OperatorDim>
@@ -4127,15 +4127,15 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopLeftCorner" name="OpenDungeons/PopupMenuFrameTopLeft" />
-                <Image component="TopRightCorner" name="OpenDungeons/PopupMenuFrameTopRight" />
-                <Image component="BottomLeftCorner" name="OpenDungeons/PopupMenuFrameBottomLeft" />
-                <Image component="BottomRightCorner" name="OpenDungeons/PopupMenuFrameBottomRight" />
-                <Image component="LeftEdge" name="OpenDungeons/PopupMenuFrameLeft" />
-                <Image component="RightEdge" name="OpenDungeons/PopupMenuFrameRight" />
-                <Image component="TopEdge" name="OpenDungeons/PopupMenuFrameTop" />
-                <Image component="BottomEdge" name="OpenDungeons/PopupMenuFrameBottom" />
-                <Image component="Background" name="OpenDungeons/PopupMenuMiddle" />
+                <Image component="TopLeftCorner" name="OpenDungeonsOldSkin/PopupMenuFrameTopLeft" />
+                <Image component="TopRightCorner" name="OpenDungeonsOldSkin/PopupMenuFrameTopRight" />
+                <Image component="BottomLeftCorner" name="OpenDungeonsOldSkin/PopupMenuFrameBottomLeft" />
+                <Image component="BottomRightCorner" name="OpenDungeonsOldSkin/PopupMenuFrameBottomRight" />
+                <Image component="LeftEdge" name="OpenDungeonsOldSkin/PopupMenuFrameLeft" />
+                <Image component="RightEdge" name="OpenDungeonsOldSkin/PopupMenuFrameRight" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/PopupMenuFrameTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/PopupMenuFrameBottom" />
+                <Image component="Background" name="OpenDungeonsOldSkin/PopupMenuMiddle" />
             </FrameComponent>
         </ImagerySection>
         <StateImagery name="Enabled">
@@ -4165,7 +4165,7 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/VertScrollThumbNormal" />
+                <Image name="OpenDungeonsOldSkin/VertScrollThumbNormal" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -4178,7 +4178,7 @@
                     <Dim type="Width"><UnifiedDim scale="1.0" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1.0" type="Height" /></Dim>
                 </Area>
-                <Image name="OpenDungeons/VertScrollThumbHover" />
+                <Image name="OpenDungeonsOldSkin/VertScrollThumbHover" />
                 <VertFormat type="Stretched" />
                 <HorzFormat type="Stretched" />
             </ImageryComponent>
@@ -4215,7 +4215,7 @@
                 <Dim type="LeftEdge"><UnifiedDim scale="0.325" type="LeftEdge" /></Dim>
                 <Dim type="TopEdge">
                     <OperatorDim op="Add"><WidgetDim dimension="Height" widget="__auto_decbtn__" />
-                <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeons/VertScrollTop" />
+                <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertScrollTop" />
                         <AbsoluteDim value="0.5" />
                                 </OperatorDim>
                             </OperatorDim>
@@ -4224,7 +4224,7 @@
                 <Dim type="BottomEdge">
                     <OperatorDim op="Subtract"><UnifiedDim scale="1.0" type="BottomEdge" />
                 <OperatorDim op="Add"><WidgetDim dimension="Height" widget="__auto_decbtn__" />
-                        <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeons/VertScrollTop" />
+                        <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertScrollTop" />
                                 <AbsoluteDim value="0.5" />
                                         </OperatorDim>
                                     </OperatorDim>
@@ -4237,7 +4237,7 @@
                 <Dim type="LeftEdge"><UnifiedDim scale="0.25" type="LeftEdge" /></Dim>
                 <Dim type="TopEdge">
                     <OperatorDim op="Multiply"><AbsoluteDim value="-1" />
-                <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeons/VertScrollTop" />
+                <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertScrollTop" />
                         <AbsoluteDim value="0.5" />
                                 </OperatorDim>
                             </OperatorDim>
@@ -4245,37 +4245,37 @@
                 <Dim type="Width"><UnifiedDim scale="0.6" type="Width" /></Dim>
                 <Dim type="Height">
                     <OperatorDim op="Multiply"><UnifiedDim scale="0.6" type="Width" />
-                <OperatorDim op="Divide"><ImageDim dimension="Width" name="OpenDungeons/VertScrollUpNormal" />
-                        <ImageDim dimension="Height" name="OpenDungeons/VertScrollUpNormal" />
+                <OperatorDim op="Divide"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/VertScrollUpNormal" />
+                        <ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertScrollUpNormal" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
             </Area>
             <VertAlignment type="BottomAligned" />
-            <Property name="NormalImage" value="OpenDungeons/VertScrollDownNormal" />
-            <Property name="HoverImage" value="OpenDungeons/VertScrollDownHover" />
-            <Property name="PushedImage" value="OpenDungeons/VertScrollDownNormal" />
+            <Property name="NormalImage" value="OpenDungeonsOldSkin/VertScrollDownNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/VertScrollDownHover" />
+            <Property name="PushedImage" value="OpenDungeonsOldSkin/VertScrollDownNormal" />
         </Child>
         <Child nameSuffix="__auto_decbtn__" type="OD/ImageButton">
             <Area>
                 <Dim type="LeftEdge"><UnifiedDim scale="0.25" type="LeftEdge" /></Dim>
                 <Dim type="TopEdge">
-                    <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeons/VertScrollTop" />
+                    <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertScrollTop" />
                 <AbsoluteDim value="0.5" />
                         </OperatorDim>
                     </Dim>
                 <Dim type="Width"><UnifiedDim scale="0.6" type="Width" /></Dim>
                 <Dim type="Height">
                     <OperatorDim op="Multiply"><UnifiedDim scale="0.6" type="Width" />
-                <OperatorDim op="Divide"><ImageDim dimension="Width" name="OpenDungeons/VertScrollUpNormal" />
-                        <ImageDim dimension="Height" name="OpenDungeons/VertScrollUpNormal" />
+                <OperatorDim op="Divide"><ImageDim dimension="Width" name="OpenDungeonsOldSkin/VertScrollUpNormal" />
+                        <ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertScrollUpNormal" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
             </Area>
-            <Property name="NormalImage" value="OpenDungeons/VertScrollUpNormal" />
-            <Property name="HoverImage" value="OpenDungeons/VertScrollUpHover" />
-            <Property name="PushedImage" value="OpenDungeons/VertScrollUpNormal" />
+            <Property name="NormalImage" value="OpenDungeonsOldSkin/VertScrollUpNormal" />
+            <Property name="HoverImage" value="OpenDungeonsOldSkin/VertScrollUpHover" />
+            <Property name="PushedImage" value="OpenDungeonsOldSkin/VertScrollUpNormal" />
         </Child>
         <Child nameSuffix="__auto_thumb__" type="OD/LargeVerticalScrollbarThumb">
             <Area>
@@ -4284,8 +4284,8 @@
                 <Dim type="Width"><UnifiedDim scale="0.4" type="Width" /></Dim>
                 <Dim type="Height">
                     <OperatorDim op="Multiply"><UnifiedDim scale="0.4" type="Width" />
-                <OperatorDim op="Divide"><ImageDim dimension="Height" name="OpenDungeons/VertScrollThumbNormal" />
-                        <ImageDim dimension="Width" name="OpenDungeons/VertScrollThumbNormal" />
+                <OperatorDim op="Divide"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertScrollThumbNormal" />
+                        <ImageDim dimension="Width" name="OpenDungeonsOldSkin/VertScrollThumbNormal" />
                                 </OperatorDim>
                             </OperatorDim>
                     </Dim>
@@ -4299,16 +4299,16 @@
                     <Dim type="Width"><UnifiedDim scale="1" type="Width" /></Dim>
                     <Dim type="Height"><UnifiedDim scale="1" type="Height" /></Dim>
                 </Area>
-                <Image component="TopEdge" name="OpenDungeons/VertScrollTop" />
-                <Image component="BottomEdge" name="OpenDungeons/VertScrollBottom" />
-                <Image component="Background" name="OpenDungeons/VertScrollMiddle" />
+                <Image component="TopEdge" name="OpenDungeonsOldSkin/VertScrollTop" />
+                <Image component="BottomEdge" name="OpenDungeonsOldSkin/VertScrollBottom" />
+                <Image component="Background" name="OpenDungeonsOldSkin/VertScrollMiddle" />
             </FrameComponent>
             <ImageryComponent>
                 <Area>
                     <Dim type="LeftEdge"><UnifiedDim scale="0.45" type="LeftEdge" /></Dim>
                     <Dim type="TopEdge">
                         <OperatorDim op="Add"><WidgetDim dimension="Height" widget="__auto_decbtn__" />
-                    <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeons/VertScrollTop" />
+                    <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertScrollTop" />
                             <AbsoluteDim value="0.5" />
                                     </OperatorDim>
                                 </OperatorDim>
@@ -4317,14 +4317,14 @@
                     <Dim type="BottomEdge">
                         <OperatorDim op="Subtract"><UnifiedDim scale="1.0" type="BottomEdge" />
                     <OperatorDim op="Add"><WidgetDim dimension="Height" widget="__auto_decbtn__" />
-                            <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeons/VertScrollTop" />
+                            <OperatorDim op="Multiply"><ImageDim dimension="Height" name="OpenDungeonsOldSkin/VertScrollTop" />
                                     <AbsoluteDim value="0.5" />
                                             </OperatorDim>
                                         </OperatorDim>
                                 </OperatorDim>
                         </Dim>
                 </Area>
-                <Image name="OpenDungeons/VertScrollBarSegment" />
+                <Image name="OpenDungeonsOldSkin/VertScrollBarSegment" />
                 <VertFormat type="Tiled" />
             </ImageryComponent>
         </ImagerySection>

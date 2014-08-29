@@ -37,10 +37,8 @@ ODMainMenuBackground.png               Vagner                  CC-BY-SA 3.0     
 ODMainMenuButtons.imageset             Bertram                 GPL 3.0
 ODMainMenuButtons.png                  StumpyStrust            CC-BY-SA 3.0            http://opengameart.org/content/fantasy-ui-box
 ogrefonts.fontdef                      OD Team                 GPL 3.0
-OpenDungeons.imageset                  OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeons.layout                    OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeons.looknfeel                 OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
-OpenDungeons.png                       OD Team                 !!MIT / CC-BY-SA 3.0!!  Own made GUI + CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
 OpenDungeonsEditorMenu.layout          OD Team                 GPL 3.0
 OpenDungeonsIcons.imageset             OD Team                 GPL 3.0
 OpenDungeonsIcons.png                  OD Team                 CC-BY-SA 3.0
@@ -48,6 +46,10 @@ OpenDungeonsMainMenu.layout            Bertram                 GPL 3.0
 OpenDungeonsMenuMultiplayer.layout     hwoarangmy              GPL 3.0
 OpenDungeonsMenuSkirmish.layout        hwoarangmy              GPL 3.0
 OpenDungeonsSkin.scheme                OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+gui/OpenDungeonsOldSkin.imageset       OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+gui/OpenDungeonsOldSkin.png            OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+gui/OpenDungeonsSkin.imageset          OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk
+gui/OpenDungeonsSkin.png               Bertram, StumpyStrust   CC-BY-SA 3.0            Own made GUI based on: http://opengameart.org/content/fantasy-ui-box
 
 schemas/
 -> Animation.xsd                       OD Team                 MIT                     CEGUI file based on the TaharezLook gui sample - http://cegui.org.uk

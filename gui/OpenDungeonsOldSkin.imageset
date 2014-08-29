@@ -1,10 +1,4 @@
-<Imageset autoScaled="false" imagefile="OpenDungeons.png" name="OpenDungeons" nativeHorzRes="800" nativeVertRes="600" version="2">
-    <Image height="64" name="GoldButton" width="63" xPos="0" yPos="433" />
-    <Image height="64" name="LavaButton" width="64" xPos="63" yPos="433" />
-    <Image height="64" name="RockButton" width="64" xPos="127" yPos="433" />
-    <Image height="64" name="WaterButton" width="64" xPos="191" yPos="433" />
-    <Image height="64" name="DirtButton" width="64" xPos="255" yPos="433" />
-    <Image height="64" name="ClaimedButton" width="64" xPos="319" yPos="433" />
+<Imageset autoScaled="false" imagefile="OpenDungeonsOldSkin.png" name="OpenDungeonsOldSkin" nativeHorzRes="800" nativeVertRes="600" version="2">
     <Image height="66" name="ClientBrush" width="66" xPos="0" yPos="1" />
     <Image height="24" name="WindowLeftEdge" width="1" xPos="5" yPos="94" />
     <Image height="24" name="WindowRightEdge" width="1" xPos="33" yPos="94" />
@@ -14,15 +8,6 @@
     <Image height="24" name="WindowTopRight" width="6" xPos="32" yPos="68" />
     <Image height="24" name="WindowBottomLeft" width="6" xPos="1" yPos="120" />
     <Image height="24" name="WindowBottomRight" width="6" xPos="32" yPos="120" />
-    <Image height="16" name="ButtonLeftNormal" width="12" xPos="67" yPos="20" />
-    <Image height="16" name="ButtonMiddleNormal" width="16" xPos="79" yPos="20" />
-    <Image height="16" name="ButtonRightNormal" width="12" xPos="95" yPos="20" />
-    <Image height="16" name="ButtonLeftPushed" width="12" xPos="67" yPos="38" />
-    <Image height="16" name="ButtonMiddlePushed" width="16" xPos="79" yPos="38" />
-    <Image height="16" name="ButtonRightPushed" width="12" xPos="95" yPos="38" />
-    <Image height="16" name="ButtonLeftHighlight" width="12" xPos="67" yPos="56" />
-    <Image height="16" name="ButtonMiddleHighlight" width="16" xPos="79" yPos="56" />
-    <Image height="16" name="ButtonRightHighlight" width="12" xPos="95" yPos="56" />
     <Image height="12" name="CheckboxNormal" width="12" xPos="109" yPos="2" />
     <Image height="12" name="CheckboxHover" width="12" xPos="109" yPos="30" />
     <Image height="12" name="CheckboxMark" width="12" xPos="109" yPos="16" />
@@ -66,39 +51,9 @@
     <Image height="10" name="VertScrollBarSegment" width="4" xPos="205" yPos="2" />
     <Image height="24" name="VertScrollThumbNormal" width="8" xPos="213" yPos="2" />
     <Image height="24" name="VertScrollThumbHover" width="8" xPos="223" yPos="2" />
-    <Image height="18" name="VertScrollUpNormal" width="21" xPos="429" yPos="67" />
-    <Image height="18" name="VertScrollDownNormal" width="21" xPos="429" yPos="46" />
-    <Image height="18" name="VertScrollUpHover" width="21" xPos="404" yPos="67" />
-    <Image height="18" name="VertScrollDownHover" width="21" xPos="404" yPos="46" />
-    <Image height="6" name="MiniVertScrollBarSegment" width="11" xPos="434" yPos="86" />
-    <Image height="32" name="MiniVertScrollThumbNormal" width="21" xPos="429" yPos="9" />
-    <Image height="13" name="MiniVertScrollThumbTopNormal" width="21" xPos="429" yPos="9" />
-    <Image height="6" name="MiniVertScrollThumbMiddleNormal" width="21" xPos="429" yPos="22" />
-    <Image height="13" name="MiniVertScrollThumbBottomNormal" width="21" xPos="429" yPos="28" />
-    <Image height="13" name="MiniVertScrollThumbTopHover" width="21" xPos="404" yPos="9" />
-    <Image height="6" name="MiniVertScrollThumbMiddleHover" width="21" xPos="404" yPos="22" />
-    <Image height="13" name="MiniVertScrollThumbBottomHover" width="21" xPos="404" yPos="28" />
-    <Image height="32" name="MiniVertScrollThumbHover" width="21" xPos="404" yPos="9" />
-    <Image height="18" name="MiniVertScrollUpNormal" width="21" xPos="429" yPos="67" />
-    <Image height="18" name="MiniVertScrollDownNormal" width="21" xPos="429" yPos="46" />
-    <Image height="18" name="MiniVertScrollUpHover" width="21" xPos="404" yPos="67" />
-    <Image height="18" name="MiniVertScrollDownHover" width="21" xPos="404" yPos="46" />
     <Image height="48" name="VertSliderBody" width="9" xPos="233" yPos="2" />
     <Image height="6" name="VertSliderThumbNormal" width="15" xPos="216" yPos="28" />
     <Image height="6" name="VertSliderThumbHover" width="15" xPos="216" yPos="36" />
-    <Image height="11" name="MiniHorzScrollBarSegment" width="6" xPos="496" yPos="87" />
-    <Image height="21" name="MiniHorzScrollThumbNormal" width="32" xPos="463" yPos="82" />
-    <Image height="21" name="MiniHorzScrollThumbLeftNormal" width="13" xPos="463" yPos="82" />
-    <Image height="21" name="MiniHorzScrollThumbMiddleNormal" width="6" xPos="476" yPos="82" />
-    <Image height="21" name="MiniHorzScrollThumbRightNormal" width="13" xPos="482" yPos="82" />
-    <Image height="21" name="MiniHorzScrollThumbHover" width="32" xPos="463" yPos="57" />
-    <Image height="21" name="MiniHorzScrollThumbLeftHover" width="13" xPos="463" yPos="57" />
-    <Image height="21" name="MiniHorzScrollThumbMiddleHover" width="6" xPos="476" yPos="57" />
-    <Image height="21" name="MiniHorzScrollThumbRightHover" width="13" xPos="482" yPos="57" />
-    <Image height="21" name="MiniHorzScrollLeftNormal" width="18" xPos="480" yPos="9" />
-    <Image height="21" name="MiniHorzScrollRightNormal" width="18" xPos="459" yPos="9" />
-    <Image height="21" name="MiniHorzScrollLeftHover" width="18" xPos="480" yPos="33" />
-    <Image height="21" name="MiniHorzScrollRightHover" width="18" xPos="459" yPos="33" />
     <Image height="8" name="ListboxLeft" width="6" xPos="42" yPos="88" />
     <Image height="8" name="ListboxRight" width="7" xPos="60" yPos="88" />
     <Image height="7" name="ListboxTop" width="8" xPos="50" yPos="79" />
@@ -182,14 +137,6 @@
     <Image height="16" name="MouseNwSeCursor" width="14" xPos="229" yPos="126" />
     <Image height="18" name="MouseTextBar" width="7" xPos="172" yPos="127" />
     <Image height="1" name="TabHorizontalFiller" width="8" xPos="195" yPos="201" />
-    <Image height="17" name="TabContentPaneUpperLeft" width="16" xPos="265" yPos="0" />
-    <Image height="17" name="TabContentPaneUpper" width="16" xPos="281" yPos="0" />
-    <Image height="17" name="TabContentPaneUpperRight" width="16" xPos="297" yPos="0" />
-    <Image height="16" name="TabContentPaneLeft" width="16" xPos="265" yPos="17" />
-    <Image height="16" name="TabContentPaneRight" width="16" xPos="297" yPos="17" />
-    <Image height="17" name="TabContentPaneLower" width="16" xPos="281" yPos="33" />
-    <Image height="17" name="TabContentPaneLowerLeft" width="16" xPos="265" yPos="33" />
-    <Image height="17" name="TabContentPaneLowerRight" width="16" xPos="297" yPos="33" />
     <Image height="8" name="TabContentPaneMiddle" width="8" xPos="50" yPos="88" />
     <Image height="17" name="TabButtonScrollLeftNormal" width="16" xPos="96" yPos="108" />
     <Image height="17" name="TabButtonScrollRightNormal" width="16" xPos="111" yPos="108" />
@@ -197,19 +144,13 @@
     <Image height="17" name="TabButtonScrollRightHover" width="16" xPos="141" yPos="108" />
     <Image height="8" name="TabButtonLeftNormal" width="6" xPos="42" yPos="88" />
     <Image height="8" name="TabButtonRightNormal" width="7" xPos="60" yPos="88" />
-    <Image height="24" name="TabButtonUpperNormal" width="16" xPos="281" yPos="62" />
     <Image height="7" name="TabButtonLowerNormal" width="8" xPos="50" yPos="98" />
-    <Image height="24" name="TabButtonUpperLeftNormal" width="16" xPos="265" yPos="62" />
-    <Image height="24" name="TabButtonUpperRightNormal" width="15" xPos="297" yPos="62" />
     <Image height="7" name="TabButtonLowerLeftNormal" width="7" xPos="41" yPos="99" />
     <Image height="7" name="TabButtonLowerRightNormal" width="7" xPos="60" yPos="98" />
     <Image height="8" name="TabButtonMiddleNormal" width="8" xPos="50" yPos="88" />
     <Image height="8" name="TabButtonLeftSelected" width="6" xPos="42" yPos="88" />
     <Image height="8" name="TabButtonRightSelected" width="7" xPos="60" yPos="88" />
-    <Image height="24" name="TabButtonUpperSelected" width="16" xPos="281" yPos="62" />
     <Image height="8" name="TabButtonLowerSelected" width="8" xPos="50" yPos="88" />
-    <Image height="24" name="TabButtonUpperLeftSelected" width="16" xPos="265" yPos="62" />
-    <Image height="24" name="TabButtonUpperRightSelected" width="15" xPos="297" yPos="62" />
     <Image height="7" name="TabButtonLowerLeftSelected" width="7" xPos="41" yPos="98" />
     <Image height="7" name="TabButtonLowerRightSelected" width="7" xPos="60" yPos="98" />
     <Image height="8" name="TabButtonMiddleSelected" width="8" xPos="50" yPos="88" />
@@ -242,7 +183,4 @@
     <Image height="3" name="PopupMenuMiddle" width="3" xPos="189" yPos="208" />
     <Image height="5" name="PopupMenuArrowRight" width="5" xPos="178" yPos="204" />
     <Image height="5" name="PopupMenuArrowLeft" width="5" xPos="178" yPos="210" />
-    <Image height="12" name="HorizontalPipe" width="58" xPos="266" yPos="163" />
-    <Image height="65" name="VerticalPipe" width="13" xPos="266" yPos="178" />
-    <Image height="34" name="VerticalPipeBig" width="22" xPos="281" yPos="178" />
 </Imageset>
