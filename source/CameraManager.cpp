@@ -21,7 +21,7 @@
 
 #include "CameraManager.h"
 
-#include "SoundEffectsHelper.h"
+#include "SoundEffectsManager.h"
 #include "CullingQuad.h"
 #include "ModeManager.h"
 #include "HermiteCatmullSpline.h"
@@ -369,7 +369,7 @@ void CameraManager::moveCamera(const Ogre::Real frameTime)
     // Move the camera to the new location
     getActiveCameraNode()->setPosition(newPosition);
 
-    SoundEffectsHelper::getSingleton().setListenerPosition(
+    SoundEffectsManager::getSingleton().setListenerPosition(
         newPosition,  getActiveCameraNode()->getOrientation());
 
     MiniMap* minimap = ODFrameListener::getSingleton().getMiniMap();

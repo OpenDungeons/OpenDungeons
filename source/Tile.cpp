@@ -24,7 +24,7 @@
 #include "RenderRequest.h"
 #include "MapLight.h"
 #include "Seat.h"
-#include "SoundEffectsHelper.h"
+#include "SoundEffectsManager.h"
 #include "RenderManager.h"
 #include "Player.h"
 #include "Helper.h"
@@ -103,16 +103,8 @@ void Tile::setFullness(double f)
         fullness = 0.0;
 
         //Play block destroy sound
-        //TODO - play this if it's marked for any player.
-        SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
+        SoundEffectsManager::getSingleton().playRockFallingSound(x, y);
     }
-
-    /*
-     if(fullness < 1 && gameMap.)
-     {
-     SoundEffectsHelper::getSingleton().playBlockDestroySound(x, y);
-     }
-     */
 
     // If the passability has changed we may have opened up new paths on the gameMap.
     if (oldTilePassability != getTilePassability())
@@ -1075,8 +1067,6 @@ void Tile::claimForColor(int nColor, double nDanceRate)
                 tempColour.r, tempColour.g, tempColour.b, 1.0, 0.1, 0.5, 0.5);
         gameMap->addMapLight(claimLight);
         claimLight->createOgreEntity();
-        SoundEffectsHelper::getSingleton().playInterfaceSound(
-                SoundEffectsHelper::CLAIM, this->x, this->y);
     }
     */
 }

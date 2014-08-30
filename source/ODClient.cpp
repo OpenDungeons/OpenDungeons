@@ -294,7 +294,6 @@ bool ODClient::processOneClientSocketMessage()
             if (tile != NULL)
             {
                 tempPlayer->dropCreature(tile);
-                SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
             }
             break;
         }
@@ -406,6 +405,7 @@ bool ODClient::processOneClientSocketMessage()
             if (tempTile != NULL)
             {
                 tempTile->claimTile(tmpTile.getColor());
+                SoundEffectsManager::getSingleton().playClaimedSound(tmpTile.getX(), tmpTile.getY());
             }
             break;
         }
@@ -437,7 +437,7 @@ bool ODClient::processOneClientSocketMessage()
                     tiles.push_back(gameTile);
             }
             gameMap->markTilesForPlayer(tiles, isDigSet, gameMap->getLocalPlayer());
-            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DIGSELECT, false);
+            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::DIGSELECT);
             break;
         }
 
@@ -463,7 +463,7 @@ bool ODClient::processOneClientSocketMessage()
             Player* player = gameMap->getPlayerByColor(color);
             OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
             gameMap->buildRoomForPlayer(tiles, type, player, true, name);
-            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::BUILDROOM, false);
+            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDROOM);
             break;
         }
 
@@ -505,7 +505,7 @@ bool ODClient::processOneClientSocketMessage()
             Player* player = gameMap->getPlayerByColor(color);
             OD_ASSERT_TRUE_MSG(player != NULL, "color=" + Ogre::StringConverter::toString(color));
             gameMap->buildTrapForPlayer(tiles, type, player, true, name);
-            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::BUILDTRAP, false);
+            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUILDTRAP);
             break;
         }
 

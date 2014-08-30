@@ -2,7 +2,7 @@
  *  CreatureSound.cpp
  *
  *  Created on: 24. feb. 2011
- *  Author: oln
+ *  Author: oln, hwoarangmy, Bertram
  *
  *  Copyright (C) 2011-2014  OpenDungeons Team
  *
@@ -22,16 +22,39 @@
 
 #include "CreatureSound.h"
 
+#include "Random.h"
+
 CreatureSound::CreatureSound()
 {
-    //Reserve space for sound objects
-    mSounds.assign(NUM_CREATURE_SOUNDS, sf::Sound());
+    // Reserve space for sound objects
+    for (unsigned int i = 0; i < NUM_CREATURE_SOUNDS; ++i)
+    {
+        mSoundsPerType.push_back(std::vector<GameSound*>());
+        // Init the last played sound with invalid values.
+        mLastSoundPlayedPerTypeId.push_back(-1);
+    }
 }
 
 void CreatureSound::play(SoundType type)
 {
-    mSounds[type].stop();
-    mSounds[type].play();
+    std::vector<GameSound*>& soundList = mSoundsPerType[type];
+    if (soundList.empty())
+        return;
+
+    int newSoundIdPlayed = Random::Int(0, soundList.size() - 1);
+    if (newSoundIdPlayed == -1)
+        return;
+
+    // We set a new sound index value at random if possible.
+    if (soundList.size() > 1)
+    {
+        while(newSoundIdPlayed == mLastSoundPlayedPerTypeId[type])
+            newSoundIdPlayed = Random::Int(0, soundList.size() - 1);
+    }
+
+    // Then play the new sound
+    soundList[newSoundIdPlayed]->play();
+    mLastSoundPlayedPerTypeId[type] = newSoundIdPlayed;
 }
 
 void CreatureSound::setPosition(Ogre::Vector3 p)
@@ -41,10 +64,16 @@ void CreatureSound::setPosition(Ogre::Vector3 p)
 
 void CreatureSound::setPosition(float x, float y, float z)
 {
-    SoundEffectsHelper::SoundFXVector::iterator it;
-    for (it = mSounds.begin(); it != mSounds.end(); ++it)
+    std::vector<std::vector<GameSound*> >::iterator it;
+    for (it = mSoundsPerType.begin(); it != mSoundsPerType.end(); ++it)
     {
-        it->setPosition(x, y, z);
+        std::vector<GameSound*>& soundList = *it;
+        for (unsigned int i = 0; i < soundList.size(); ++i)
+        {
+            GameSound* gm = soundList[i];
+            if (gm != NULL)
+                gm->setPosition(x, y, z);
+        }
     }
 }
 
@@ -61,4 +90,3 @@ ODPacket& operator>>(ODPacket& is, CreatureSound::SoundType& nt)
     nt = static_cast<CreatureSound::SoundType>(tmp);
     return is;
 }
-

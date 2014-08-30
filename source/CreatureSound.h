@@ -21,29 +21,29 @@
 #ifndef CREATURESOUND_H_
 #define CREATURESOUND_H_
 
-#include "SoundEffectsHelper.h"
+#include "SoundEffectsManager.h"
 #include "ODPacket.h"
 
 //! \brief Class to store the sound sources for an individual creature and handle sound playback.
 class CreatureSound
 {
-    friend class SoundEffectsHelper;
+    friend class SoundEffectsManager;
 public:
 
     // The various sound types used.
     enum SoundType
     {
-        ATTACK,
-        DIG,
-        //DROP,
-        //IDLE1,
+        ATTACK = 0,
+        DIGGING,
+        PICKUP,
+        DROP,
+        IDLE,
         NUM_CREATURE_SOUNDS
     };
 
-    //! \brief Play the wanted sound.
+    //! \brief Play the wanted sound
+    //! taken within the list of available sounds at random.
     void play(SoundType type);
-
-    void playDelayed(SoundType type);
 
     //! \brief Set the play position for the sound source.
     void setPosition(Ogre::Vector3 p);
@@ -53,11 +53,20 @@ public:
     friend ODPacket& operator>>(ODPacket& is, SoundType& nt);
 
 private:
+    //! \brief prevents unwanted creation or copy of the object.
     CreatureSound();
     CreatureSound(const CreatureSound&);
     CreatureSound& operator=(const CreatureSound&);
 
-    SoundEffectsHelper::SoundFXVector mSounds;
+    //! \brief The list of available sound to play per type.
+    //! \warning The GameSound objects are handled by the SoundEffectsManager class,
+    //! do not delete them here.
+    std::vector< std::vector<GameSound*> > mSoundsPerType;
+
+    //! \brief Keeps the last index of sound played per type.
+    //! This permit to force the variety in the sounds heard.
+    std::vector<int> mLastSoundPlayedPerTypeId;
+
 };
 
 #endif // CREATURESOUND_H_

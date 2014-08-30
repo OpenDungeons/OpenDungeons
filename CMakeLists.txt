@@ -188,7 +188,7 @@ set(OD_SOURCEFILES
     ${SRC}/Seat.cpp
     ${SRC}/ServerNotification.cpp
     ${SRC}/SlopeWalk.cpp
-    ${SRC}/SoundEffectsHelper.cpp
+    ${SRC}/SoundEffectsManager.cpp
     ${SRC}/Spell.cpp
     ${SRC}/StackTracePrint.cpp
     ${SRC}/TextRenderer.cpp
