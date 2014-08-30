@@ -268,7 +268,7 @@ bool Gui::mMNewGameMultiButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::dormitoryButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::dormitory);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Dormitory");
@@ -277,7 +277,7 @@ bool Gui::dormitoryButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::treasury);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Treasury");
@@ -286,7 +286,7 @@ bool Gui::treasuryButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::forge);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Forge");
@@ -295,7 +295,7 @@ bool Gui::forgeButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::trainingHallButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::trainingHall);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Training Hall");
@@ -304,7 +304,7 @@ bool Gui::trainingHallButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::libraryButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::library);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Library");
@@ -313,7 +313,7 @@ bool Gui::libraryButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::hatcheryButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::hatchery);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::nullTrapType);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Hatchery");
@@ -322,7 +322,7 @@ bool Gui::hatcheryButtonPressed(const CEGUI::EventArgs& e)
 
 bool Gui::cannonButtonPressed(const CEGUI::EventArgs& e)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     gameMap->getLocalPlayer()->setNewRoomType(Room::nullRoomType);
     gameMap->getLocalPlayer()->setNewTrapType(Trap::cannon);
     TextRenderer::getSingleton().setText(ODApplication::POINTER_INFO_STRING, "Cannon");
@@ -345,7 +345,7 @@ bool Gui::confirmExitYesButtonPressed(const CEGUI::EventArgs& e)
     // Now that the server is stopped, we can clear the client game map
     // We process RenderRequests in case there is graphical things pending
     RenderManager::getSingleton().processRenderRequests();
-    ODFrameListener::getSingleton().getGameMap()->clearAll();
+    ODFrameListener::getSingleton().getClientGameMap()->clearAll();
     // We process again RenderRequests to destroy/delete what clearAll has put in the queue
     RenderManager::getSingleton().processRenderRequests();
     return true;

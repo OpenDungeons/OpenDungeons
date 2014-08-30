@@ -344,7 +344,7 @@ void ASWrapper::registerEverything()
     // TODO : what is it for ? It is likely that it should use the server gamemap instead.
     r = mEngine->RegisterObjectMethod("ODFrameListener",
             "GameMap@ get_GameMap()",
-            asMETHODPR(ODFrameListener, getGameMap, (), GameMap*),
+            asMETHODPR(ODFrameListener, getClientGameMap, (), GameMap*),
             asCALL_THISCALL); assert(r >= 0);
     r = mEngine->RegisterObjectMethod("ODFrameListener",
             "uint get_ChatMaxTimeDisplay()",

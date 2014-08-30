@@ -69,7 +69,7 @@ void MenuModeSingleplayer::activate()
     // Play the main menu music
     MusicPlayer::getSingleton().start(0);
 
-    ODFrameListener::getSingleton().getGameMap()->setGamePaused(true);
+    ODFrameListener::getSingleton().getClientGameMap()->setGamePaused(true);
 
     CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::singleplayerMenu)->getChild(Gui::SPM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);

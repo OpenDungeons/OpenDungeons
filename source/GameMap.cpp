@@ -2323,8 +2323,12 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
 
 std::string GameMap::nextUniqueNameCreature(const std::string& className)
 {
-    ++mUniqueNumberCreature;
-    std::string ret = className + Ogre::StringConverter::toString(mUniqueNumberCreature);
+    std::string ret;
+    do
+    {
+        ++mUniqueNumberCreature;
+        ret = className + Ogre::StringConverter::toString(mUniqueNumberCreature);
+    } while(getAnimatedObject(ret) != NULL);
     return ret;
 }
 

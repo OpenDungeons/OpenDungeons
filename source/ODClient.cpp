@@ -60,7 +60,7 @@ bool ODClient::processOneClientSocketMessage()
 {
     ODFrameListener* frameListener = ODFrameListener::getSingletonPtr();
 
-    GameMap* gameMap = frameListener->getGameMap();
+    GameMap* gameMap = frameListener->getClientGameMap();
     if (!gameMap)
         return false;
 
@@ -712,7 +712,7 @@ bool ODClient::connect(const std::string& host, const int port, const std::strin
     }
 
     // Start by loading map
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
+    GameMap* gameMap = ODFrameListener::getSingleton().getClientGameMap();
     if (gameMap == NULL)
         return false;
 
