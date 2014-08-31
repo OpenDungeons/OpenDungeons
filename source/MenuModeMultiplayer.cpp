@@ -70,7 +70,7 @@ void MenuModeMultiplayer::activate()
     // Play the main menu music
     MusicPlayer::getSingleton().start(0);
 
-    ODFrameListener::getSingleton().getGameMap()->setGamePaused(true);
+    ODFrameListener::getSingleton().getClientGameMap()->setGamePaused(true);
 
     CEGUI::Window* tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_LIST_LEVELS);
     CEGUI::Listbox* levelSelectList = static_cast<CEGUI::Listbox*>(tmpWin);
@@ -107,7 +107,7 @@ void MenuModeMultiplayer::serverButtonPressed()
         CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
         const std::string& str = editNick->getText().c_str();
         std::string nick = boost::locale::conv::to_utf<char>(str, "Ascii");
-        Player *p = ODFrameListener::getSingleton().getGameMap()->getLocalPlayer();
+        Player *p = ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer();
         p->setNick(nick);
 
         CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
@@ -147,7 +147,7 @@ void MenuModeMultiplayer::clientButtonPressed()
         tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_EDIT_NICK);
         CEGUI::Editbox* editNick = static_cast<CEGUI::Editbox*>(tmpWin);
         const std::string nick = editNick->getText().c_str();
-        ODFrameListener::getSingleton().getGameMap()->getLocalPlayer()->setNick(nick);
+        ODFrameListener::getSingleton().getClientGameMap()->getLocalPlayer()->setNick(nick);
 
         CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
         int id = selItem->getID();

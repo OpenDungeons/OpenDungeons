@@ -20,12 +20,12 @@
 #include "GameMap.h"
 #include "Creature.h"
 #include "Seat.h"
-#include "ODFrameListener.h"
 
 #include <iostream>
 
-GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName, const std::string& nArguments) :
-    Goal(nName, nArguments)
+GoalKillAllEnemies::GoalKillAllEnemies(const std::string& nName,
+    const std::string& nArguments, GameMap* gameMap) :
+    Goal(nName, nArguments, gameMap)
 {
     std::cout << "\nAdding goal " << getName();
 }
@@ -34,14 +34,10 @@ bool GoalKillAllEnemies::isMet(Seat *s)
 {
     bool enemiesFound = false;
 
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    if (!gameMap)
-        return true;
-
     // Loop over all the creatures in the game map and check to see if any of them are of a different color than our seat.
-    for (unsigned int i = 0, num = gameMap->numCreatures(); i < num; ++i)
+    for (unsigned int i = 0, num = mGameMap->numCreatures(); i < num; ++i)
     {
-        if (gameMap->getCreature(i)->getColor() != s->getColor())
+        if (mGameMap->getCreature(i)->getColor() != s->getColor())
         {
             enemiesFound = true;
             break;

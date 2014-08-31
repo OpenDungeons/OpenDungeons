@@ -34,6 +34,8 @@ public:
     RoomObject(GameMap* gameMap, Room* nParentRoom, const std::string& nMeshName);
     RoomObject(GameMap* gameMap, Room* nParentRoom);
 
+    static const std::string ROOMOBJECT_PREFIX;
+
     virtual std::string getOgreNamePrefix() { return "RoomObject_"; }
 
     Room* getParentRoom();

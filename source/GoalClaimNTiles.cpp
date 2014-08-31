@@ -20,14 +20,13 @@
 #include "GameMap.h"
 #include "Player.h"
 #include "Seat.h"
-#include "ODFrameListener.h"
 
 #include <sstream>
 #include <iostream>
 
 GoalClaimNTiles::GoalClaimNTiles(const std::string& nName,
-        const std::string& nArguments) :
-        Goal(nName, nArguments),
+        const std::string& nArguments, GameMap* gameMap) :
+        Goal(nName, nArguments, gameMap),
         mNumberOfTiles(atoi(nArguments.c_str()))
 {
     std::cout << "\nAdding goal " << getName();
@@ -55,10 +54,6 @@ std::string GoalClaimNTiles::getFailedMessage(Seat *s)
 
 std::string GoalClaimNTiles::getDescription(Seat *s)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    if (!gameMap)
-        return std::string();
-
     std::stringstream tempSS;
     tempSS << "Claimed " << s->getNumClaimedTiles() << " of "
             << mNumberOfTiles << " tiles.";

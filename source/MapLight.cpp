@@ -28,6 +28,8 @@
 
 #include <sstream>
 
+const std::string MapLight::MAPLIGHT_NAME_PREFIX = "Map_light_";
+
 void MapLight::setLocation(const Ogre::Vector3& nPosition)
 {
     //TODO: This needs to make a RenderRequest to actually move the light.

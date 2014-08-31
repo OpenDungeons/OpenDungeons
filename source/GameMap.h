@@ -412,13 +412,16 @@ public:
         const std::string& name = "");
     Trap* buildTrapForPlayer(std::vector<Tile*>& tiles, Trap::TrapType typeTrap, Player* player, bool forceName = false,
         const std::string& name = "");
-    int nextUniqueNumberCreature() {return ++mUniqueNumberCreature;}
-    int nextUniqueNumberFloodFilling() {return ++mUniqueNumberFloodFilling;}
-    int nextUniqueNumberMissileObj() {return ++mUniqueNumberMissileObj;}
-    int nextUniqueNumberRoom() {return ++mUniqueNumberRoom;}
-    int nextUniqueNumberRoomObj() {return ++mUniqueNumberRoomObj;}
-    int nextUniqueNumberTrap() {return ++mUniqueNumberTrap;}
-    int nextUniqueNumberMapLight() {return ++mUniqueNumberMapLight;}
+    std::string nextUniqueNameCreature(const std::string& className);
+    int nextUniqueNumberFloodFilling();
+
+    //! \brief This functions create unique names. They check that there
+    //! is no entity with the same name before returning
+    std::string nextUniqueNameMissileObj();
+    std::string nextUniqueNameRoom(const std::string& meshName);
+    std::string nextUniqueNameRoomObj(const std::string& parentRoom);
+    std::string nextUniqueNameTrap(const std::string& meshName);
+    std::string nextUniqueNameMapLight();
 
 private:
     bool mIsServerGameMap;

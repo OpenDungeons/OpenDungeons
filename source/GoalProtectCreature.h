@@ -23,7 +23,7 @@
 class GoalProtectCreature: public Goal
 {
 public:
-    GoalProtectCreature(const std::string& nName, const std::string& nArguments);
+    GoalProtectCreature(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
     virtual ~GoalProtectCreature()
     {}
 

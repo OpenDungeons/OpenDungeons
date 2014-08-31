@@ -126,10 +126,10 @@ public:
      */
     void printText(const std::string& text);
 
-    inline GameMap* getGameMap()
+    inline GameMap* getClientGameMap()
     { return mGameMap; }
 
-    inline const GameMap* getGameMap() const
+    inline const GameMap* getClientGameMap() const
     { return mGameMap; }
 
     inline ModeManager* getModeManager() const

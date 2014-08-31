@@ -20,24 +20,19 @@
 #include "GameMap.h"
 #include "Room.h"
 #include "Seat.h"
-#include "ODFrameListener.h"
 
 #include <vector>
 #include <iostream>
 
-GoalProtectDungeonTemple::GoalProtectDungeonTemple(const std::string& nName, const std::string& nArguments) :
-    Goal(nName, nArguments)
+GoalProtectDungeonTemple::GoalProtectDungeonTemple(const std::string& nName, const std::string& nArguments, GameMap* gameMap) :
+    Goal(nName, nArguments, gameMap)
 {
     std::cout << "\nAdding goal " << getName();
 }
 
 bool GoalProtectDungeonTemple::isMet(Seat *s)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    if (!gameMap)
-        return false;
-
-    return (gameMap->numRoomsByTypeAndColor(Room::dungeonTemple, s->getColor()) > 0);
+    return (mGameMap->numRoomsByTypeAndColor(Room::dungeonTemple, s->getColor()) > 0);
 }
 
 bool GoalProtectDungeonTemple::isUnmet(Seat *s)

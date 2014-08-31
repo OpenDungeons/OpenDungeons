@@ -203,10 +203,6 @@ protected:
     virtual RoomObject* notifyActiveSpotCreated(ActiveSpotPlace place, Tile* tile);
     virtual void notifyActiveSpotRemoved(ActiveSpotPlace place, Tile* tile);
 private :
-    /*! \brief This function makes sure the name of the room is unique. It shall be called after loading
-     * a room from the level file or when a new one is built.
-     */
-    void buildUniqueName();
     void activeSpotCheckChange(ActiveSpotPlace place, const std::vector<Tile*>& originalSpotTiles,
         const std::vector<Tile*>& newSpotTiles);
     std::map<Tile*, RoomObject*> mRoomObjects;
