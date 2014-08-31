@@ -372,7 +372,11 @@ private:
     std::vector<GameEntity*>        mReachableAlliedObjects;
     std::deque<CreatureAction>      mActionQueue;
     std::list<Tile*>                mVisualDebugEntityTiles;
+
+    //! \brief The creature sounds library reference.
+    //! \warning Do not delete it. The pointer in handled in SoundEffectsManager.
     CreatureSound*                  mSound;
+
     ForceAction                     mForceAction;
 
     void pushAction(CreatureAction action);

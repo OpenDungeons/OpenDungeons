@@ -42,8 +42,6 @@ void CreatureSound::play(SoundType type)
         return;
 
     int newSoundIdPlayed = Random::Int(0, soundList.size() - 1);
-    if (newSoundIdPlayed == -1)
-        return;
 
     // We set a new sound index value at random if possible.
     if (soundList.size() > 1)

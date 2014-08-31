@@ -86,7 +86,6 @@ SoundEffectsManager::SoundEffectsManager()
 SoundEffectsManager::~SoundEffectsManager()
 {
     // Clear up every cached sounds...
-    // Interface sounds are auto-deleted.
     std::map<std::string, GameSound*>::iterator it = mGameSoundCache.begin();
     std::map<std::string, GameSound*>::iterator it_end = mGameSoundCache.begin();
     for (; it != it_end; ++it)
@@ -239,7 +238,6 @@ void SoundEffectsManager::setListenerPosition(const Ogre::Vector3& position, con
                               static_cast<float> (position.y),
                               static_cast<float> (position.z));
 
-    // TODO - verify if this is right
     Ogre::Vector3 vDir = orientation.zAxis();
     sf::Listener::setDirection(-vDir.x, -vDir.y, -vDir.z);
 }

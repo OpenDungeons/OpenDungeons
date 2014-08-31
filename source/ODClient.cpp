@@ -273,12 +273,13 @@ bool ODClient::processOneClientSocketMessage()
         {
             std::string creatureName;
             OD_ASSERT_TRUE(packetReceived >> creatureName);
-            Player *tempPlayer = gameMap->getLocalPlayer();
-            Creature *tempCreature = gameMap->getCreature(creatureName);
-            OD_ASSERT_TRUE_MSG(tempCreature != NULL, "creatureName=" + creatureName);
-            if (tempCreature != NULL)
+            Player *localPlayer = gameMap->getLocalPlayer();
+            Creature *pickedCreature = gameMap->getCreature(creatureName);
+            OD_ASSERT_TRUE_MSG(pickedCreature != NULL, "creatureName=" + creatureName);
+            if (pickedCreature != NULL)
             {
-                tempPlayer->pickUpCreature(tempCreature);
+                pickedCreature->playSound(CreatureSound::PICKUP);
+                localPlayer->pickUpCreature(pickedCreature);
             }
             break;
         }
@@ -294,6 +295,9 @@ bool ODClient::processOneClientSocketMessage()
             if (tile != NULL)
             {
                 tempPlayer->dropCreature(tile);
+                Creature* droppedCreature = tile->getCreature(0);
+                if (droppedCreature != NULL)
+                    droppedCreature->playSound(CreatureSound::DROP);
             }
             break;
         }

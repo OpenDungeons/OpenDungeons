@@ -1069,7 +1069,6 @@ void RenderManager::rrPickUpCreature(const RenderRequest& renderRequest)
     mSceneManager->getSceneNode("Hand_node")->addChild(creatureNode);
     //FIXME we should probably use setscale for this, because of rounding.
     creatureNode->scale(0.333, 0.333, 0.333);
-    curCreature->playSound(CreatureSound::PICKUP);
 
     // Move the other creatures in the player's hand to make room for the one just picked up.
     for (unsigned int i = 0; i < mGameMap->getLocalPlayer()->numCreaturesInHand(); ++i)
@@ -1092,7 +1091,6 @@ void RenderManager::rrDropCreature(const RenderRequest& renderRequest)
     mCreatureSceneNode->addChild(creatureNode);
     creatureNode->setPosition(curCreature->getPosition());
     creatureNode->scale(3.0, 3.0, 3.0);
-    curCreature->playSound(CreatureSound::DROP);
 
     // Move the other creatures in the player's hand to replace the dropped one
     for (unsigned int i = 0; i < curPlayer->numCreaturesInHand(); ++i)
