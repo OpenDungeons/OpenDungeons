@@ -23,7 +23,7 @@
 class GoalKillAllEnemies: public Goal
 {
 public:
-    GoalKillAllEnemies(const std::string& nName, const std::string& nArguments);
+    GoalKillAllEnemies(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
     virtual ~GoalKillAllEnemies()
     {}
 

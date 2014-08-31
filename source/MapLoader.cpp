@@ -172,7 +172,7 @@ bool readGameMapFromFile(const std::string& fileName, GameMap& gameMap)
         if (nextParam == "[/Goals]")
             break;
 
-        Goal* tempGoal = Goal::instantiateFromStream(nextParam, levelFile);
+        Goal* tempGoal = Goal::instantiateFromStream(nextParam, levelFile, &gameMap);
 
         if (tempGoal != NULL)
             gameMap.addGoalForAllSeats(tempGoal);

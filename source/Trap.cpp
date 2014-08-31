@@ -130,7 +130,7 @@ Trap* Trap::createTrap(GameMap* gameMap, TrapType nType, const std::vector<Tile*
     if(forceName)
         tempTrap->setName(name);
     else
-        tempTrap->buildUniqueName();
+        tempTrap->setName(gameMap->nextUniqueNameTrap(tempTrap->getMeshName()));
 
     for (unsigned int i = 0; i < nCoveredTiles.size(); ++i)
         tempTrap->addCoveredTile(nCoveredTiles[i]);
@@ -349,12 +349,6 @@ void Trap::takeDamage(double damage, Tile *tileTakingDamage)
 std::string Trap::getFormat()
 {
     return "meshName\tcolor\t\tNextLine: numTiles\t\tSubsequent Lines: tileX\ttileY";
-}
-
-void Trap::buildUniqueName()
-{
-    setName(getMeshName() + "_" + Ogre::StringConverter::toString(
-        getGameMap()->nextUniqueNumberTrap()));
 }
 
 std::istream& operator>>(std::istream& is, Trap *t)

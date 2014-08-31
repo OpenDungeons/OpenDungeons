@@ -50,7 +50,7 @@
 GameMode::GameMode(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::GAME),
     mDigSetBool(false),
-    mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
+    mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mMouseX(0),
     mMouseY(0),
     mCurrentInputMode(InputModeNormal)

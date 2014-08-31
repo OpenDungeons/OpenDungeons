@@ -104,7 +104,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     if(forceName)
         setName(name);
     else
-        setName(getUniqueCreatureName());
+        setName(getGameMap()->nextUniqueNameCreature(definition->getClassName()));
 
     mBattleField = new BattleField(getGameMap(), getName());
     setIsOnMap(false);
@@ -273,7 +273,7 @@ std::istream& operator>>(std::istream& is, Creature *c)
     is >> tempString;
 
     if (tempString.compare("autoname") == 0)
-        tempString = c->getUniqueCreatureName();
+        tempString = c->getGameMap()->nextUniqueNameCreature(c->getDefinition()->getClassName());
 
     c->setName(tempString);
 
@@ -390,7 +390,7 @@ Creature* Creature::loadFromLine(const std::string& line, GameMap* gameMap)
     Creature* c = new Creature(gameMap, creatureClass, true, creatureName);
 
     if (creatureName.compare("autoname") == 0)
-        creatureName = c->getUniqueCreatureName();
+        creatureName = gameMap->nextUniqueNameCreature(creatureClass->getClassName());
     c->setName(creatureName);
 
     double xLocation = Helper::toDouble(elems[2]);
@@ -2669,15 +2669,6 @@ std::vector<Tile*> Creature::getCoveredTiles()
     std::vector<Tile*> tempVector;
     tempVector.push_back(positionTile());
     return tempVector;
-}
-
-std::string Creature::getUniqueCreatureName()
-{
-    std::string className = mDefinition ? mDefinition->getClassName() : std::string();
-    std::string name = className + Ogre::StringConverter::toString(
-        getGameMap()->nextUniqueNumberCreature());
-
-    return name;
 }
 
 bool Creature::CloseStatsWindow(const CEGUI::EventArgs& /*e*/)

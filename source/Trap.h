@@ -86,11 +86,6 @@ public:
     virtual std::vector<GameEntity*> aimEnemy();
     virtual void damage(std::vector<GameEntity*>);
 
-    /*! \brief This function makes sure the name of the trap is unique. It shall be called after loading
-     * a trap from the level file or when a new one is built.
-     */
-    void buildUniqueName();
-
     virtual void addCoveredTile(Tile* t, double nHP = mDefaultTileHP);
     virtual void removeCoveredTile(Tile* t);
     virtual Tile* getCoveredTile(int index);

@@ -38,7 +38,7 @@ void MenuMode::activate()
     // Play the main menu music
     MusicPlayer::getSingleton().start(0);
 
-    GameMap* gameMap = ODFrameListener::getSingletonPtr()->getGameMap();
+    GameMap* gameMap = ODFrameListener::getSingletonPtr()->getClientGameMap();
     gameMap->setGamePaused(true);
 }
 

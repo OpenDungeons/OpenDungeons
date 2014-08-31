@@ -24,7 +24,7 @@ class GoalProtectDungeonTemple: public Goal
 {
 public:
     // Constructors
-    GoalProtectDungeonTemple(const std::string& nName, const std::string& nArguments);
+    GoalProtectDungeonTemple(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
     virtual ~GoalProtectDungeonTemple()
     {}
 

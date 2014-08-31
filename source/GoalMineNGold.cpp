@@ -20,13 +20,12 @@
 #include "GameMap.h"
 #include "Player.h"
 #include "Seat.h"
-#include "ODFrameListener.h"
 
 #include <sstream>
 #include <iostream>
 
-GoalMineNGold::GoalMineNGold(const std::string& nName, const std::string& nArguments) :
-        Goal(nName, nArguments),
+GoalMineNGold::GoalMineNGold(const std::string& nName, const std::string& nArguments, GameMap* gameMap) :
+        Goal(nName, nArguments, gameMap),
         mGoldToMine(atoi(nArguments.c_str()))
 {
     std::cout << "\nAdding goal " << getName();

@@ -46,7 +46,7 @@ EditorMode::EditorMode(ModeManager* modeManager):
     AbstractApplicationMode(modeManager, ModeManager::EDITOR),
     mCurrentTileType(Tile::dirt),
     mCurrentFullness(100.0),
-    mGameMap(ODFrameListener::getSingletonPtr()->getGameMap()),
+    mGameMap(ODFrameListener::getSingletonPtr()->getClientGameMap()),
     mMouseX(0),
     mMouseY(0),
     mMouseLight(NULL)
@@ -721,7 +721,7 @@ bool EditorMode::keyPressed(const OIS::KeyEvent &arg)
         break;
 
     case OIS::KC_F8:
-        MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *frameListener->getGameMap());
+        MapLoader::writeGameMapToFile(std::string("levels/Test.level") + ".out", *frameListener->getClientGameMap());
         break;
 
     // Print a screenshot

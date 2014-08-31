@@ -24,12 +24,13 @@
 #include <istream>
 
 class Seat;
+class GameMap;
 
 class Goal
 {
 public:
     // Constructors
-    Goal(const std::string& nName, const std::string& nArguments);
+    Goal(const std::string& nName, const std::string& nArguments, GameMap* gameMap);
     virtual ~Goal() {}
 
     // Functions which must be overridden by child classes
@@ -58,13 +59,14 @@ public:
 
     static std::string getFormat();
     friend std::ostream& operator<<(std::ostream& os, Goal *g);
-    static Goal* instantiateFromStream(const std::string& goalName, std::istream& is);
+    static Goal* instantiateFromStream(const std::string& goalName, std::istream& is, GameMap* gameMap);
 
 protected:
     std::string mName;
     std::string mArguments;
     std::vector<Goal*> mSuccessSubGoals;
     std::vector<Goal*> mFailureSubGoals;
+    GameMap* mGameMap;
 };
 
 #endif // GOAL_H

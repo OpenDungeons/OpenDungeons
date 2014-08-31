@@ -20,10 +20,9 @@
 #include "Player.h"
 #include "GameMap.h"
 #include "Creature.h"
-#include "ODFrameListener.h"
 
-GoalProtectCreature::GoalProtectCreature(const std::string& nName, const std::string& nArguments) :
-    Goal(nName, nArguments),
+GoalProtectCreature::GoalProtectCreature(const std::string& nName, const std::string& nArguments, GameMap* gameMap) :
+    Goal(nName, nArguments, gameMap),
     mCreatureName(nArguments)
 {
     std::cout << "\nAdding goal " << getName() << "\tCreature name: "
@@ -32,12 +31,8 @@ GoalProtectCreature::GoalProtectCreature(const std::string& nName, const std::st
 
 bool GoalProtectCreature::isMet(Seat *s)
 {
-    GameMap* gameMap = ODFrameListener::getSingleton().getGameMap();
-    if (!gameMap)
-        return false;
-
     // Check to see if the creature exists on the game map.
-    const Creature *tempCreature = gameMap->getCreature(mCreatureName);
+    const Creature *tempCreature = mGameMap->getCreature(mCreatureName);
     if (tempCreature != NULL)
         return (tempCreature->getHP() > 0.0);
 

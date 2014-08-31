@@ -24,6 +24,8 @@
 
 #include <iostream>
 
+const std::string RoomObject::ROOMOBJECT_PREFIX = "Room_Object_";
+
 RoomObject::RoomObject(GameMap* gameMap, Room* nParentRoom, const std::string& nMeshName) :
     MovableGameEntity(gameMap),
     mParentRoom(nParentRoom)
@@ -31,9 +33,7 @@ RoomObject::RoomObject(GameMap* gameMap, Room* nParentRoom, const std::string& n
     setObjectType(GameEntity::roomobject);
     setMeshName(nMeshName);
     // Set a unique name for the room.
-    std::stringstream tempSS;
-    tempSS << "Room_" << mParentRoom->getName() << "_Object_" << gameMap->nextUniqueNumberRoomObj();
-    setName(tempSS.str());
+    setName(gameMap->nextUniqueNameRoomObj(mParentRoom->getName()));
 }
 
 RoomObject::RoomObject(GameMap* gameMap, Room* nParentRoom) :
