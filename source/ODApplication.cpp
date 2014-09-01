@@ -192,6 +192,7 @@ For information on how to use a particular command, type help followed by the co
 \n\ttermwidth - set the terminal width\
 \n\taddcreature - load a creature into the file.\
 \n\taddclass - Define a creature class\
+\n\taddgold - Gives gold to one player\
 \n\taddtiles - adds a rectangular region of tiles\
 \n\tnewmap - Creates a new rectangular map\
 \n\trefreshmesh - Reloads the meshes for all the objects in the game\

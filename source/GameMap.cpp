@@ -2321,6 +2321,23 @@ std::string GameMap::getGoalsStringForPlayer(Player* player)
     return tempSS.str();
 }
 
+int GameMap::addGoldToSeat(int gold, int color)
+{
+    std::vector<Room*> treasuriesOwned = getRoomsByTypeAndColor(Room::treasury, color);
+    for (std::vector<Room*>::iterator it = treasuriesOwned.begin(); it != treasuriesOwned.end(); ++it)
+    {
+        RoomTreasury* treasury = static_cast<RoomTreasury*>(*it);
+        if(treasury->numCoveredTiles() == 0)
+            continue;
+
+        gold -= treasury->depositGold(gold, treasury->getCoveredTile(0));
+        if(gold <= 0)
+            break;
+    }
+
+    return gold;
+}
+
 std::string GameMap::nextUniqueNameCreature(const std::string& className)
 {
     std::string ret;

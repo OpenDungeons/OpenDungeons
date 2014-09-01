@@ -147,6 +147,8 @@ public:
 
     int mNumCreaturesControlled;
 
+    int mStartingGold;
+
     static std::string getFormat();
     friend ODPacket& operator<<(ODPacket& os, Seat *s);
     friend ODPacket& operator>>(ODPacket& is, Seat *s);

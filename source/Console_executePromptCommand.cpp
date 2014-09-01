@@ -37,6 +37,7 @@
 #include "ResourceManager.h"
 #include "CullingManager.h"
 #include "Weapon.h"
+#include "ODConsoleCommand.h"
 #include "ODFrameListener.h"
 
 #include <OgreLogManager.h>
@@ -995,6 +996,21 @@ bool Console::executePromptCommand(const std::string& command, std::string argum
             tempSS.str("");
             tempSS  << "ERROR:  you need to specify an angle in radians ";
             frameListener->mCommandOutput += "\n" + tempSS.str() + "\n";
+        }
+    }
+    else if (command.compare("addgold") == 0)
+    {
+        int color, gold;
+        tempSS.str(arguments);
+        tempSS >> color >> gold;
+        if(ODServer::getSingleton().isConnected())
+        {
+            ODConsoleCommand* cc = new ODConsoleCommandAddGold(gold, color);
+            ODServer::getSingleton().queueConsoleCommand(cc);
+        }
+        else
+        {
+            frameListener->mCommandOutput += "\nERROR : This command is available on the server only\n";
         }
     }
     else if (command.compare("possescreature") == 0)

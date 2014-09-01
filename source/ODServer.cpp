@@ -23,6 +23,7 @@
 #include "ODApplication.h"
 #include "MapLight.h"
 #include "ChatMessage.h"
+#include "ODConsoleCommand.h"
 #include "LogManager.h"
 
 #include <SFML/Network.hpp>
@@ -133,6 +134,37 @@ void ODServer::queueServerNotification(ServerNotification* n)
     if ((n == NULL) || (!isConnected()))
         return;
     mServerNotificationQueue.push_back(n);
+}
+
+void ODServer::queueConsoleCommand(ODConsoleCommand* cc)
+{
+    if ((cc == NULL) || (!isConnected()))
+        return;
+    mConsoleCommandQueue.push_back(cc);
+}
+
+void ODServer::processServerCommandQueue()
+{
+    bool running = true;
+    GameMap* gameMap = mGameMap;
+
+    while(running)
+    {
+        // If the queue is empty, let's get out of the loop.
+        if (mConsoleCommandQueue.empty())
+            break;
+
+        // Take a message out of the front of the notification queue
+        ODConsoleCommand *command = mConsoleCommandQueue.front();
+        mConsoleCommandQueue.pop_front();
+
+        if (command == NULL)
+            continue;
+
+        command->execute(gameMap);
+
+        delete command;
+    }
 }
 
 void ODServer::startNewTurn(double timeSinceLastFrame)
@@ -253,6 +285,14 @@ void ODServer::serverThread()
                 gameMap->setTurnNumber(0);
                 gameMap->setGamePaused(false);
                 gameMap->createAllEntities();
+
+                // Fill starting gold
+                for(std::vector<Seat*>::iterator it = gameMap->filledSeats.begin(); it != gameMap->filledSeats.end(); ++it)
+                {
+                    Seat* seat = *it;
+                    if(seat->mStartingGold > 0)
+                        gameMap->addGoldToSeat(seat->mStartingGold, seat->mColor);
+                }
             }
             else
             {
@@ -267,6 +307,8 @@ void ODServer::serverThread()
         startNewTurn(turnLengthMs / 1000.0);
 
         processServerNotifications();
+
+        processServerCommandQueue();
     }
 }
 
