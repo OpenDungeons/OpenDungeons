@@ -241,6 +241,7 @@ void Seat::loadFromLine(const std::string& line, Seat *s)
     s->mColorValue.r = Helper::toDouble(elems[4]);
     s->mColorValue.g = Helper::toDouble(elems[5]);
     s->mColorValue.b = Helper::toDouble(elems[6]);
+    s->mStartingGold = Helper::toInt(elems[7]);
     s->mColorValue.a = 1.0;
 }
 

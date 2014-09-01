@@ -24,6 +24,7 @@
 
 class ServerNotification;
 class GameMap;
+class ODConsoleCommand;
 
 /**
  * When playing single player or multiplayer, there is always one reference gamemap. It is
@@ -56,6 +57,9 @@ class ODServer: public Ogre::Singleton<ODServer>,
     //! \brief Adds a server notification to the server notification queue.
     void queueServerNotification(ServerNotification* n);
 
+    //! \brief Adds a console command to the queue.
+    void queueConsoleCommand(ODConsoleCommand* cc);
+
     void notifyExit();
 
     static const std::string SERVER_INFORMATION;
@@ -72,6 +76,7 @@ private:
     int32_t mNbClientsNotReady;
 
     std::deque<ServerNotification*> mServerNotificationQueue;
+    std::deque<ODConsoleCommand*> mConsoleCommandQueue;
 
     std::map<ODSocketClient*, std::vector<std::string>> mCreaturesInfoWanted;
 
@@ -97,6 +102,8 @@ private:
      * \returns false When the client has disconnected.
      */
     bool processClientNotifications(ODSocketClient* clientSocket);
+
+    void processServerCommandQueue();
 
     void sendToAllClients(ODPacket& packetSend);
 };

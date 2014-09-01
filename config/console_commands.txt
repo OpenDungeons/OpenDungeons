@@ -1,6 +1,7 @@
 addclass
 addcolor
 addcreature
+addgold
 addtiles
 aithreads
 ambientlight

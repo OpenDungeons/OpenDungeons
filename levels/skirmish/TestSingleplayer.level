@@ -1,12 +1,12 @@
 OpenDungeons_Version:0.4.9  # The version of OpenDungeons which created this file (for compatibility reasons).
 
 [Seats]
-# color	faction	startingX	startingY	colorR	colorG	colorB
-1	Player	195	207	0	0.4	0
-2	KeeperAI	200	200	0.4	0	0
-3	KeeperAI	200	200	0	0	0.4
-4	KeeperAI	266	95	0.4	0.4	0.1
-5	none	200	200	0.4	0.1	0.4
+# color	faction	startingX	startingY	colorR	colorG	colorB	startingGold
+1	Player	195	207	0	0.4	0	1000
+2	KeeperAI	200	200	0.4	0	0	1000
+3	KeeperAI	200	200	0	0	0.4	1000
+4	KeeperAI	266	95	0.4	0.4	0.1	1000
+5	none	200	200	0.4	0.1	0.4	1000
 [/Seats]
 
 [Goals]
