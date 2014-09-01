@@ -6,7 +6,7 @@
         <Property name="MaxSize" value="{{1,0},{1,0}}" />
         <Window type="OD/StaticImage" name="HorizontalPipe" >
             <Property name="Area" value="{{0,4},{0,11},{1,-220},{0,23}}" />
-            <Property name="Image" value="OpenDungeons/HorizontalPipe" />
+            <Property name="Image" value="OpenDungeonsSkin/HorizontalPipe" />
             <Property name="MaxSize" value="{{1,0},{1,0}}" />
             <Property name="FrameEnabled" value="False" />
             <Property name="HorzFormatting" value="Tiled" />
@@ -76,37 +76,37 @@
                 <Property name="RiseOnClickEnabled" value="False" />
                 <Window type="OD/ImageButton" name="DirtButton" >
                     <Property name="Area" value="{{0,20},{0,20},{0,80},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeons/DirtButton" />
+                    <Property name="NormalImage" value="OpenDungeonsSkin/DirtButton" />
                     <Property name="TooltipText" value="Place dirt tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="RockButton" >
                     <Property name="Area" value="{{0,80},{0,20},{0,140},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeons/RockButton" />
+                    <Property name="NormalImage" value="OpenDungeonsSkin/RockButton" />
                     <Property name="TooltipText" value="Place undiggable rock tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="GoldButton" >
                     <Property name="Area" value="{{0,140},{0,20},{0,200},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeons/GoldButton" />
+                    <Property name="NormalImage" value="OpenDungeonsSkin/GoldButton" />
                     <Property name="TooltipText" value="Place gold tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="WaterButton" >
                     <Property name="Area" value="{{0,200},{0,20},{0,260},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeons/WaterButton" />
+                    <Property name="NormalImage" value="OpenDungeonsSkin/WaterButton" />
                     <Property name="TooltipText" value="Place some water." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="LavaButton" >
                     <Property name="Area" value="{{0,260},{0,20},{0,320},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeons/LavaButton" />
+                    <Property name="NormalImage" value="OpenDungeonsSkin/LavaButton" />
                     <Property name="TooltipText" value="Place some lava." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
                 <Window type="OD/ImageButton" name="ClaimedButton" >
                     <Property name="Area" value="{{0,320},{0,20},{0,380},{0,80}}" />
-                    <Property name="NormalImage" value="OpenDungeons/ClaimedButton" />
+                    <Property name="NormalImage" value="OpenDungeonsSkin/ClaimedButton" />
                     <Property name="TooltipText" value="Place some claimed/dungeon tiles." />
                     <Property name="InheritsAlpha" value="False" />
                 </Window>
