@@ -18,10 +18,9 @@
 #include "SoundEffectsManager.h"
 
 #include "CreatureSound.h"
+#include "Helper.h"
 #include "ResourceManager.h"
 #include "Random.h"
-
-#include "boost/filesystem.hpp"
 
 #include <map>
 
@@ -87,7 +86,7 @@ SoundEffectsManager::~SoundEffectsManager()
 {
     // Clear up every cached sounds...
     std::map<std::string, GameSound*>::iterator it = mGameSoundCache.begin();
-    std::map<std::string, GameSound*>::iterator it_end = mGameSoundCache.begin();
+    std::map<std::string, GameSound*>::iterator it_end = mGameSoundCache.end();
     for (; it != it_end; ++it)
     {
         if (it->second != NULL)
@@ -95,7 +94,7 @@ SoundEffectsManager::~SoundEffectsManager()
     }
 
     std::map<std::string, CreatureSound*>::iterator it2 = mCreatureSoundCache.begin();
-    std::map<std::string, CreatureSound*>::iterator it2_end = mCreatureSoundCache.begin();
+    std::map<std::string, CreatureSound*>::iterator it2_end = mCreatureSoundCache.end();
     for (; it2 != it2_end; ++it2)
     {
         if (it2->second != NULL)
@@ -109,26 +108,6 @@ SoundEffectsManager::~SoundEffectsManager()
         delete mRocksFallSounds[i];
     for (unsigned int i = 0; i < mInterfaceSounds.size(); ++i)
         delete mInterfaceSounds[i];
-}
-
-//! \brief blunt copy of the menu code listing files in a directory adapted to custom needs
-//! \TODO: Might want to push all that in a common Helper function.
-static bool fillFilesList(const std::string& path, std::vector<std::string>& listFiles,
-                          const std::string& fileExtension)
-{
-    const boost::filesystem::path dir_path(path);
-    if (!boost::filesystem::exists(dir_path))
-        return false;
-    boost::filesystem::directory_iterator end_itr;
-    for (boost::filesystem::directory_iterator itr(dir_path); itr != end_itr; ++itr)
-    {
-        if(!boost::filesystem::is_directory(itr->status()))
-        {
-            if(itr->path().filename().extension().string() == fileExtension)
-                listFiles.push_back(itr->path().string());
-        }
-    }
-    return true;
 }
 
 void SoundEffectsManager::initializeInterfaceSounds()
@@ -150,7 +129,7 @@ void SoundEffectsManager::initializeInterfaceSounds()
 
     // Rock fall sounds
     std::vector<std::string> soundFilenames;
-    fillFilesList(soundFolderPath + "RocksFalling/", soundFilenames, ".ogg");
+    Helper::fillFilesList(soundFolderPath + "RocksFalling/", soundFilenames, ".ogg");
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
         mRocksFallSounds.push_back(new GameSound(soundFilenames[i], true));
@@ -161,7 +140,7 @@ void SoundEffectsManager::initializeInterfaceSounds()
 
     // Claim sounds
     soundFilenames.clear();
-    fillFilesList(soundFolderPath + "ClaimTile/", soundFilenames, ".ogg");
+    Helper::fillFilesList(soundFolderPath + "ClaimTile/", soundFilenames, ".ogg");
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
         mClaimedSounds.push_back(new GameSound(soundFilenames[i], true));
@@ -181,7 +160,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
 
     // Attack sounds
     std::vector<std::string> soundFilenames;
-    fillFilesList(soundFolderPath + "Sword/", soundFilenames, ".ogg");
+    Helper::fillFilesList(soundFolderPath + "Sword/", soundFilenames, ".ogg");
     std::vector<GameSound*>& attackSounds = crSound->mSoundsPerType[CreatureSound::ATTACK];
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {
@@ -196,7 +175,7 @@ void SoundEffectsManager::initializeDefaultCreatureSounds()
 
     // Digging sounds
     soundFilenames.clear();
-    fillFilesList(soundFolderPath + "Digging/", soundFilenames, ".ogg");
+    Helper::fillFilesList(soundFolderPath + "Digging/", soundFilenames, ".ogg");
     std::vector<GameSound*>& diggingSounds = crSound->mSoundsPerType[CreatureSound::DIGGING];
     for (unsigned int i = 0; i < soundFilenames.size(); ++i)
     {

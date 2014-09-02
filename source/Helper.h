@@ -28,6 +28,8 @@
 #include <sstream>
 #include <vector>
 
+#include "boost/filesystem.hpp"
+
 //! \brief Math constant pi. Always use this one, never M_PI from <cmath> (it's not portable)
 const double PI = 3.141592653589793238462643;
 
@@ -96,6 +98,47 @@ namespace Helper
     static int round(double d)
     {
         return static_cast<int>(d + 0.5);
+    }
+
+    //! \brief Returns the filenames of the given directory.
+    //! \note The folder parameter given is part of the returned filenames.
+    static bool fillFilesList(const std::string& path,
+                              std::vector<std::string>& listFiles,
+                              const std::string& fileExtension)
+    {
+        const boost::filesystem::path dir_path(path);
+        if (!boost::filesystem::exists(dir_path))
+            return false;
+        boost::filesystem::directory_iterator end_itr;
+        for (boost::filesystem::directory_iterator itr(dir_path); itr != end_itr; ++itr)
+        {
+            if(!boost::filesystem::is_directory(itr->status()))
+            {
+                if(itr->path().filename().extension().string() == fileExtension)
+                    listFiles.push_back(itr->path().string());
+            }
+        }
+        return true;
+    }
+
+    //! \brief Returns the file stem (filename alone without the extension) of the given directory.
+    static bool fillFileStemsList(const std::string& path,
+                                  std::vector<std::string>& listFiles,
+                                  const std::string& fileExtension)
+    {
+        const boost::filesystem::path dir_path(path);
+        if (!boost::filesystem::exists(dir_path))
+            return false;
+        boost::filesystem::directory_iterator end_itr;
+        for (boost::filesystem::directory_iterator itr(dir_path); itr != end_itr; ++itr )
+        {
+            if(!boost::filesystem::is_directory(itr->status()))
+            {
+                if(itr->path().filename().extension().string() == fileExtension)
+                    listFiles.push_back(itr->path().filename().stem().string());
+            }
+        }
+        return true;
     }
 }
 

@@ -17,6 +17,7 @@
 
 #include "MenuModeSkirmish.h"
 
+#include "Helper.h"
 #include "Gui.h"
 #include "ModeManager.h"
 #include "MusicPlayer.h"
@@ -30,8 +31,8 @@
 #include <CEGUI/CEGUI.h>
 #include "boost/filesystem.hpp"
 
-const std::string MenuModeSkirmish::LEVEL_PATH = "./levels/skirmish/";
-const std::string MenuModeSkirmish::LEVEL_EXTENSION = ".level";
+const std::string LEVEL_PATH = "./levels/skirmish/";
+const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_SKIRMISH)
@@ -40,23 +41,6 @@ MenuModeSkirmish::MenuModeSkirmish(ModeManager *modeManager):
 
 MenuModeSkirmish::~MenuModeSkirmish()
 {
-}
-
-bool MenuModeSkirmish::fillFilesList(const std::string& path, std::vector<std::string>& listFiles)
-{
-    const boost::filesystem::path dir_path(path);
-    if (!boost::filesystem::exists(dir_path))
-        return false;
-    boost::filesystem::directory_iterator end_itr;
-    for (boost::filesystem::directory_iterator itr(dir_path); itr != end_itr; ++itr )
-    {
-        if(!boost::filesystem::is_directory(itr->status()))
-        {
-            if(itr->path().filename().extension().string() == LEVEL_EXTENSION)
-                listFiles.push_back(itr->path().filename().stem().string());
-        }
-    }
-    return true;
 }
 
 void MenuModeSkirmish::activate()
@@ -76,14 +60,14 @@ void MenuModeSkirmish::activate()
 
     tmpWin = Gui::getSingleton().getGuiSheet(Gui::skirmishMenu)->getChild(Gui::SKM_TEXT_LOADING);
     tmpWin->hide();
-    listFiles.clear();
+    mListFiles.clear();
     levelSelectList->resetList();
 
-    if(fillFilesList(LEVEL_PATH, listFiles))
+    if(Helper::fillFileStemsList(LEVEL_PATH, mListFiles, LEVEL_EXTENSION))
     {
-        for (int n = 0; n < listFiles.size(); n++)
+        for (int n = 0; n < mListFiles.size(); ++n)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(listFiles[n]);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mListFiles[n]);
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsOldSkin/ListboxSelectionBrush");
             levelSelectList->addItem(item);
@@ -104,7 +88,7 @@ void MenuModeSkirmish::launchSelectedButtonPressed()
         CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
         int id = selItem->getID();
 
-        std::string level = LEVEL_PATH + listFiles[id] + LEVEL_EXTENSION;
+        std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
         // In single player mode, we act as a server
         ODServer::getSingleton().startServer(level, true);
 

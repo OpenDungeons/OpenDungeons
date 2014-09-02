@@ -46,11 +46,7 @@ public:
     void listLevelsClicked();
 
 private:
-    static const std::string LEVEL_PATH;
-    static const std::string LEVEL_EXTENSION;
-    std::vector<std::string> listFiles;
-
-    bool fillFilesList(const std::string& dir_path, std::vector<std::string>& listFiles);
+    std::vector<std::string> mListFiles;
 };
 
 #endif // MENUMODEMULTIPLAYER_H
