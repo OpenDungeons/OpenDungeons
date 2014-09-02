@@ -3864,34 +3864,7 @@ Forge	4
 55	83															
 55	84															
 55	85															
-Forge	4															
-25																
-51	81															
-51	82															
-51	83															
-51	84															
-51	85															
-52	81															
-52	82															
-52	83															
-52	84															
-52	85															
-53	81															
-53	82															
-53	83															
-53	84															
-53	85															
-54	81															
-54	82															
-54	83															
-54	84															
-54	85															
-55	81															
-55	82															
-55	83															
-55	84															
-55	85															
-Forge	4															
+Hatchery	4															
 25																
 43	68															
 43	69															
@@ -3918,7 +3891,7 @@ Forge	4
 47	70															
 47	71															
 47	72															
-Forge	4															
+Hatchery	4															
 25																
 51	68															
 51	69															
@@ -3951,6 +3924,70 @@ Forge	4
 																
 [Traps]																
 # meshName	color		NextLine: numTiles		Subsequent Lines: tileX	tileY										
+Cannon	5															
+1																
+48	37															
+Cannon	5															
+1																
+50	37															
+Cannon	5															
+1																
+17	16															
+Cannon	5															
+1																
+17	20															
+Cannon	5															
+1																
+46	47															
+Cannon	5															
+1																
+48	47															
+Cannon	5															
+1																
+50	47															
+Cannon	5															
+1																
+52	47															
+																
+Cannon	5															
+1																
+43	66															
+Cannon	5															
+1																
+46	66															
+Cannon	5															
+1																
+48	66															
+Cannon	5															
+1																
+50	66															
+Cannon	5															
+1																
+52	66															
+Cannon	5															
+1																
+55	66															
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
+																
 [/Traps]																
 																
 [Lights]																
@@ -3971,7 +4008,6 @@ levels/creatures.def
 # team id																
 1																
 # Creature list																
-ConstructWorker																
 CaveHornet																
 Wyvern																
 Dragon																
@@ -3992,7 +4028,6 @@ LizardMan
 # team id																
 2																
 # Creature list																
-ConstructWorker																
 CaveHornet																
 Wyvern																
 Dragon																
@@ -4013,7 +4048,6 @@ LizardMan
 # team id																
 3																
 # Creature list																
-ConstructWorker																
 CaveHornet																
 Wyvern																
 Dragon																
@@ -4052,40 +4086,40 @@ Kobold	Kobold94	91	55	0	3	none	1	1	0	none	0	1	0	5	3	1
 Kobold	Kobold95	91	55	0	3	none	1	1	0	none	0	1	0	5	3	1
 Kobold	Kobold96	47	94	0	4	none	1	1	0	none	0	1	0	5	3	1
 Kobold	Kobold97	47	94	0	4	none	1	1	0	none	0	1	0	5	3	1
-Dwarf3	Dwarf99	9	15	0	4	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf98	9	16	0	4	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf97	9	17	0	4	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf96	9	18	0	4	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf95	9	19	0	4	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf94	9	20	0	4	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Dwarf3	Dwarf93	9	21	0	4	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
-Knight	Knight90	46	42	0	4	Roundshield	0	2	3	Longsword	2	2	0	40	3	1
-Knight	Knight91	47	42	0	4	Roundshield	0	2	3	Longsword	2	2	0	40	3	1
-Knight	Knight92	48	42	0	4	Roundshield	0	2	3	Sabre	2	2	0	40	3	1
-Knight	Knight93	49	42	0	4	Roundshield	0	2	3	Sabre	2	2	0	40	3	1
-Knight	Knight94	50	42	0	4	Roundshield	0	2	3	Sabre	2	2	0	40	3	1
-Knight	Knight95	51	42	0	4	Roundshield	0	2	3	Longsword	2	2	0	40	3	1
-Knight	Knight96	52	42	0	4	Longsword	2	2	0	Longsword	2	2	0	40	3	1
-Knight	Knight97	49	41	0	4	Longsword	2	2	0	Longsword	2	2	0	40	3	1
+Dwarf3	Dwarf99	9	15	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
+Dwarf3	Dwarf98	9	16	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
+Dwarf3	Dwarf97	9	17	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
+Dwarf3	Dwarf96	9	18	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
+Dwarf3	Dwarf95	9	19	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
+Dwarf3	Dwarf94	9	20	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
+Dwarf3	Dwarf93	9	21	0	5	Roundshield	0	1	1	Longsword	2	2	0	30	7	1
+Knight	Knight90	46	42	0	5	Roundshield	0	2	3	Longsword	2	2	0	40	3	1
+Knight	Knight91	47	42	0	5	Roundshield	0	2	3	Longsword	2	2	0	40	3	1
+Knight	Knight92	48	42	0	5	Roundshield	0	2	3	Sabre	2	2	0	40	3	1
+Knight	Knight93	49	42	0	5	Roundshield	0	2	3	Sabre	2	2	0	40	3	1
+Knight	Knight94	50	42	0	5	Roundshield	0	2	3	Sabre	2	2	0	40	3	1
+Knight	Knight95	51	42	0	5	Roundshield	0	2	3	Longsword	2	2	0	40	3	1
+Knight	Knight96	52	42	0	5	Longsword	2	2	0	Longsword	2	2	0	40	3	1
+Knight	Knight97	49	41	0	5	Longsword	2	2	0	Longsword	2	2	0	40	3	1
 Dragon	Dragon90	86	20	0	5	none	3	2	0	none	3	2	0	100	3	1
 Dragon	Dragon91	92	20	0	5	none	3	2	0	none	3	2	0	100	3	1
 Dragon	Dragon92	89	25	0	5	none	3	2	0	none	3	2	0	100	3	1
 Dragon	Dragon93	96	18	0	5	none	3	2	0	none	3	2	0	100	3	1
-Tentacle1	Tentacle90	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle91	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle92	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle93	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle94	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle95	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle96	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle97	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle98	72	5	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle99	72	5	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle100	69	37	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle101	69	37	0	5	none	1	2	0	none	1	2	0	20	3	1
-Tentacle1	Tentacle102	69	37	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle90	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle91	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle92	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle93	73	23	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle94	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle95	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle96	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle97	75	12	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle98	72	5	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle99	72	5	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle100	69	37	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle101	69	37	0	5	none	1	2	0	none	1	2	0	20	3	1
+Tentacle2	Tentacle102	69	37	0	5	none	1	2	0	none	1	2	0	20	3	1
 PitDemon	PitDemon90	49	57	0	5	none	4	2	0	none	4	2	0	125	3	1
-PitDemon	PitDemon91	49	57	0	5	none	4	2	0	none	4	2	0	125	3	1
+PitDemon	PitDemon91	49	57	0	5	none	4	2	0	none	4	2	0	125	3	10
 																
 																
 [/Creatures]																
