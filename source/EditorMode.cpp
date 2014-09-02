@@ -289,7 +289,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
 
             updateCursorText();
 
-            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::PICKUP);
+            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
 
             return true;
         }
@@ -311,7 +311,7 @@ bool EditorMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
                                                     resultName.size());
             updateCursorText();
 
-            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::PICKUP);
+            SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
 
             return true;
         }
@@ -445,7 +445,7 @@ bool EditorMode::mouseReleased(const OIS::MouseEvent &arg, OIS::MouseButtonID id
         inputManager->mDragType = nullDragType;
         droppedCreature->setPosition(Ogre::Vector3(newXPos, newYPos, (Ogre::Real)0.0));
         updateCursorText();
-        SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
+        SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::BUTTONCLICK);
         return true;
     }
 

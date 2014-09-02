@@ -34,7 +34,6 @@
 #include "GameMap.h"
 #include "MiniMap.h"
 #include "Player.h"
-#include "SoundEffectsHelper.h"
 #include "Weapon.h"
 #include "MapLight.h"
 #include "AllGoals.h"

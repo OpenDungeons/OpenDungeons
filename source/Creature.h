@@ -28,7 +28,6 @@
 
 #include <OgreVector2.h>
 #include <OgreVector3.h>
-#include <OgreSharedPtr.h>
 #include <CEGUI/EventArgs.h>
 
 #include <string>
@@ -302,6 +301,9 @@ public:
     //! \brief Allows to change the room the creature is using (when room absorbtion for example)
     void changeEatRoom(Room* newRoom);
 
+    //! \brief Play a spatial sound at the creature position of the corresponding type.
+    void playSound(CreatureSound::SoundType soundType);
+
 protected:
     virtual void createMeshLocal();
     virtual void destroyMeshLocal();
@@ -370,7 +372,11 @@ private:
     std::vector<GameEntity*>        mReachableAlliedObjects;
     std::deque<CreatureAction>      mActionQueue;
     std::list<Tile*>                mVisualDebugEntityTiles;
-    Ogre::SharedPtr<CreatureSound>  mSound;
+
+    //! \brief The creature sounds library reference.
+    //! \warning Do not delete it. The pointer in handled in SoundEffectsManager.
+    CreatureSound*                  mSound;
+
     ForceAction                     mForceAction;
 
     void pushAction(CreatureAction action);
@@ -446,8 +452,6 @@ private:
     //! This functions will hanlde the creature sleeping action logic.
     //! \return true when another action should handled after that one.
     bool handleSleepAction();
-
-    void playSound(CreatureSound::SoundType soundType);
 };
 
 #endif // CREATURE_H

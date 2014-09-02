@@ -316,7 +316,6 @@ bool GameMode::mousePressed(const OIS::MouseEvent &arg, OIS::MouseButtonID id)
             }
 
             mGameMap->getLocalPlayer()->dropCreature(curTile);
-            SoundEffectsHelper::getSingleton().playInterfaceSound(SoundEffectsHelper::DROP);
         }
     }
 

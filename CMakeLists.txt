@@ -143,6 +143,7 @@ set(OD_SOURCEFILES
     ${SRC}/GoalProtectCreature.cpp
     ${SRC}/GoalProtectDungeonTemple.cpp
     ${SRC}/Gui.cpp
+    ${SRC}/Helper.cpp
     ${SRC}/HermiteCatmullSpline.cpp
     ${SRC}/InputManager.cpp
     ${SRC}/KeeperAI.cpp
@@ -188,7 +189,7 @@ set(OD_SOURCEFILES
     ${SRC}/Seat.cpp
     ${SRC}/ServerNotification.cpp
     ${SRC}/SlopeWalk.cpp
-    ${SRC}/SoundEffectsHelper.cpp
+    ${SRC}/SoundEffectsManager.cpp
     ${SRC}/Spell.cpp
     ${SRC}/StackTracePrint.cpp
     ${SRC}/TextRenderer.cpp

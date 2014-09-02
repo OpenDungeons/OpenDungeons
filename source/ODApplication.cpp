@@ -26,7 +26,7 @@
 #include "TextRenderer.h"
 #include "RenderManager.h"
 #include "MusicPlayer.h"
-#include "SoundEffectsHelper.h"
+#include "SoundEffectsManager.h"
 #include "Gui.h"
 #include "ResourceManager.h"
 #include "MiniMap.h"
@@ -110,7 +110,7 @@ ODApplication::ODApplication() :
 
         Ogre::ResourceGroupManager::getSingletonPtr()->initialiseAllResourceGroups();
         new MusicPlayer();
-        new SoundEffectsHelper();
+        new SoundEffectsManager();
 
         new Gui();
         TextRenderer* textRenderer = new TextRenderer();
@@ -161,7 +161,7 @@ void ODApplication::cleanUp()
     delete MusicPlayer::getSingletonPtr();
     delete TextRenderer::getSingletonPtr();
     delete Gui::getSingletonPtr();
-    delete SoundEffectsHelper::getSingletonPtr();
+    delete SoundEffectsManager::getSingletonPtr();
     delete Translation::getSingletonPtr();
     delete LogManager::getSingletonPtr();
     delete ResourceManager::getSingletonPtr();

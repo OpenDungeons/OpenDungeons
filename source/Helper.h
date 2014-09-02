@@ -1,7 +1,7 @@
 /*!
  * \file   Helper.h
  * \date   10 September 2011
- * \author StefanP.MUC
+ * \author StefanP.MUC, hwoarangmy, Bertram
  * \brief  Provides helper functions, constants and defines
  *
  *  Copyright (C) 2011-2014  OpenDungeons Team
@@ -61,42 +61,27 @@ namespace Helper
         return (stream >> t);
     }
 
-    static std::vector<std::string> split(const std::string& line, char delimiter)
-    {
-        //std::cout << line << std::endl;
-        std::stringstream ss(line);
-        std::vector<std::string> elems;
-        std::string item;
-        while (std::getline(ss, item, '\t'))
-        {
-            elems.push_back(item);
-            //std::cout << item << std::endl;
-        }
-        return elems;
-    }
+    //! \brief Split a line based on a delimiter.
+    std::vector<std::string> split(const std::string& line, char delimiter);
 
-    static int toInt(const std::string& text)
-    {
-        std::stringstream ss(text);
-        int number = 0;
-        ss >> number;
-        return number;
-    }
+    int toInt(const std::string& text);
 
-    static double toDouble(const std::string& text)
-    {
-        std::stringstream ss(text);
-        double number = 0.0;
-        ss >> number;
-        return number;
-    }
+    double toDouble(const std::string& text);
 
     // Needed on MSVC <2012
     // http://social.msdn.microsoft.com/Forums/vstudio/en-US/260e04fc-dd05-4a96-8953-9c6ea1ad62fb/cant-find-stdround-in-cmath?forum=vclanguage
-    static int round(double d)
-    {
-        return static_cast<int>(d + 0.5);
-    }
+    int round(double d);
+
+    //! \brief Returns the filenames of the given directory.
+    //! \note The folder parameter given is part of the returned filenames.
+    bool fillFilesList(const std::string& path,
+                       std::vector<std::string>& listFiles,
+                       const std::string& fileExtension);
+
+    //! \brief Returns the file stem (filename alone without the extension) of the given directory.
+    bool fillFileStemsList(const std::string& path,
+                           std::vector<std::string>& listFiles,
+                           const std::string& fileExtension);
 }
 
 #endif // HELPER_H_

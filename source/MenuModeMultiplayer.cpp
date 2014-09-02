@@ -17,6 +17,7 @@
 
 #include "MenuModeMultiplayer.h"
 
+#include "Helper.h"
 #include "Gui.h"
 #include "ModeManager.h"
 #include "MusicPlayer.h"
@@ -31,8 +32,8 @@
 #include <boost/filesystem.hpp>
 #include <boost/locale.hpp>
 
-const std::string MenuModeMultiplayer::LEVEL_PATH = "./levels/multiplayer/";
-const std::string MenuModeMultiplayer::LEVEL_EXTENSION = ".level";
+const std::string LEVEL_PATH = "./levels/multiplayer/";
+const std::string LEVEL_EXTENSION = ".level";
 
 MenuModeMultiplayer::MenuModeMultiplayer(ModeManager *modeManager):
     AbstractApplicationMode(modeManager, ModeManager::MENU_MULTIPLAYER)
@@ -41,23 +42,6 @@ MenuModeMultiplayer::MenuModeMultiplayer(ModeManager *modeManager):
 
 MenuModeMultiplayer::~MenuModeMultiplayer()
 {
-}
-
-bool MenuModeMultiplayer::fillFilesList(const std::string& path, std::vector<std::string>& listFiles)
-{
-    const boost::filesystem::path dir_path(path);
-    if (!boost::filesystem::exists(dir_path))
-        return false;
-    boost::filesystem::directory_iterator end_itr;
-    for (boost::filesystem::directory_iterator itr(dir_path); itr != end_itr; ++itr )
-    {
-        if(!boost::filesystem::is_directory(itr->status()))
-        {
-            if(itr->path().filename().extension().string() == LEVEL_EXTENSION)
-                listFiles.push_back(itr->path().filename().stem().string());
-        }
-    }
-    return true;
 }
 
 void MenuModeMultiplayer::activate()
@@ -77,14 +61,14 @@ void MenuModeMultiplayer::activate()
 
     tmpWin = Gui::getSingleton().getGuiSheet(Gui::multiplayerMenu)->getChild(Gui::MPM_TEXT_LOADING);
     tmpWin->hide();
-    listFiles.clear();
+    mListFiles.clear();
     levelSelectList->resetList();
 
-    if(fillFilesList(LEVEL_PATH, listFiles))
+    if(Helper::fillFileStemsList(LEVEL_PATH, mListFiles, LEVEL_EXTENSION))
     {
-        for (int n = 0; n < listFiles.size(); n++)
+        for (int n = 0; n < mListFiles.size(); ++n)
         {
-            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(listFiles[n]);
+            CEGUI::ListboxTextItem* item = new CEGUI::ListboxTextItem(mListFiles[n]);
             item->setID(n);
             item->setSelectionBrushImage("OpenDungeonsOldSkin/ListboxSelectionBrush");
             levelSelectList->addItem(item);
@@ -114,7 +98,7 @@ void MenuModeMultiplayer::serverButtonPressed()
         int id = selItem->getID();
 
         // We are a server
-        std::string level = LEVEL_PATH + listFiles[id] + LEVEL_EXTENSION;
+        std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
         ODServer::getSingleton().startServer(level, false);
 
         // We connect ourself
@@ -152,7 +136,7 @@ void MenuModeMultiplayer::clientButtonPressed()
         CEGUI::ListboxItem*	selItem = levelSelectList->getFirstSelectedItem();
         int id = selItem->getID();
 
-        std::string level = LEVEL_PATH + listFiles[id] + LEVEL_EXTENSION;
+        std::string level = LEVEL_PATH + mListFiles[id] + LEVEL_EXTENSION;
         if(ODClient::getSingleton().connect(ip, ODApplication::PORT_NUMBER, level))
         {
             mModeManager->requestGameMode();

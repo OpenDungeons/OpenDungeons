@@ -27,7 +27,7 @@
 #include "Weapon.h"
 #include "GameMap.h"
 #include "RenderRequest.h"
-#include "SoundEffectsHelper.h"
+#include "SoundEffectsManager.h"
 #include "CreatureSound.h"
 #include "Player.h"
 #include "Seat.h"
@@ -98,7 +98,7 @@ Creature::Creature(GameMap* gameMap, CreatureDefinition* definition, bool forceN
     mEatRoom                 (NULL),
     mStatsWindow             (NULL),
     mForceAction             (forcedActionNone),
-    mSound                   (SoundEffectsHelper::getSingleton().createCreatureSound(getName()))
+    mSound                   (SoundEffectsManager::getSingleton().getCreatureClassSounds(getName()))
 {
     assert(definition);
     if(forceName)
@@ -1568,7 +1568,7 @@ bool Creature::handleDigTileAction()
                 std::string name = getName();
                 ServerNotification *serverNotification = new ServerNotification(
                     ServerNotification::playCreatureSound, getControllingPlayer());
-                serverNotification->mPacket << name << CreatureSound::DIG;
+                serverNotification->mPacket << name << CreatureSound::DIGGING;
                 ODServer::getSingleton().queueServerNotification(serverNotification);
             }
             catch (std::bad_alloc&)
