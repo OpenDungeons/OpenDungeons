@@ -103,7 +103,7 @@ void Tile::setFullness(double f)
         fullness = 0.0;
 
         //Play block destroy sound
-        SoundEffectsManager::getSingleton().playRockFallingSound(x, y);
+        SoundEffectsManager::getSingleton().playInterfaceSound(SoundEffectsManager::ROCKFALLING, x, y);
     }
 
     // If the passability has changed we may have opened up new paths on the gameMap.

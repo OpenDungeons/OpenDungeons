@@ -28,6 +28,11 @@
 class CreatureDefinition;
 class CreatureSound;
 
+// The Z value to use for tile positioned sounds.
+// Tiles are from -0.25 to 3.0 in z value, the floor is at 0,
+// and we're using an pseudo-average value.
+const float TILE_ZPOS = 2.5;
+
 //! \brief A small object used to contain both the sound and its buffer,
 //! as both  must have the same life-cycle.
 class GameSound
@@ -88,6 +93,8 @@ public:
         DIGSELECT,
         BUILDROOM,
         BUILDTRAP,
+        ROCKFALLING,
+        CLAIMED,
         NUM_INTERFACE_SOUNDS
     };
 
@@ -99,40 +106,44 @@ public:
 
     void setListenerPosition(const Ogre::Vector3& position, const Ogre::Quaternion& orientation);
 
-    void playInterfaceSound(InterfaceSound soundType);
-    void playInterfaceSound(InterfaceSound soundType, const Ogre::Vector3& position);
-    void playInterfaceSound(InterfaceSound soundType, int tileX, int tileY);
+    //! \brief Plays a spatial sound at the given tile position.
+    void playInterfaceSound(InterfaceSound soundType, float XPos, float YPos, float height = TILE_ZPOS);
 
-    //! \brief Play a random rock falling sound at the given position.
-    void playRockFallingSound(int tileX, int tileY);
+    //! \brief Proxy used for sounds that aren't spatial and can be heard everywhere.
+    void playInterfaceSound(InterfaceSound soundType)
+    { playInterfaceSound(soundType, 0.0f, 0.0f); }
 
-    //! \brief Play a random claimed sound at the given position.
-    void playClaimedSound(int tileX, int tileY);
+    void playInterfaceSound(InterfaceSound soundType, const Ogre::Vector3& position)
+    { playInterfaceSound(soundType, static_cast<float>(position.x), static_cast<float>(position.y), static_cast<float>(position.z)); }
 
     //! \brief Gives the creature sounds list relative to the creature class.
     //! \warning The CreatureSound* object is to be deleted only by the sound manager.
     CreatureSound* getCreatureClassSounds(const std::string& className);
 
 private:
-    //! \brief Independent interface sounds, such as clicks.
-    std::vector<GameSound*> mInterfaceSounds;
-
-    //! \brief Independant rocks fall sounds
-    std::vector<GameSound*> mRocksFallSounds;
-
-    //! \brief Independant claimed tile sounds
-    std::vector<GameSound*> mClaimedSounds;
-
-    //! \brief The sound cache, containing the spatial sound references, used by game entities.
-    //! \brief The GameSounds here must be deleted at destruction.
-    std::map<std::string, GameSound*> mGameSoundCache;
+    //! \brief Every interface or genric in game sounds
+    //! \note the GameSound here are handled by the game sound cache.
+    std::map<InterfaceSound, std::vector<GameSound*> > mInterfaceSounds;
 
     //! \brief The list of available sound effects per creature class.
     //! \brief The CreatureSounds here must be deleted at destruction.
     std::map<std::string, CreatureSound*> mCreatureSoundCache;
 
+    //! \brief The sound cache, containing the sound references, used by game entities.
+    //! \brief The GameSounds here must be deleted at destruction.
+    std::map<std::string, GameSound*> mGameSoundCache;
+
     //! \brief Create a new creature sound list for the given class and register it to the cache.
     void createCreatureClassSounds(const std::string& className);
+
+    //! \brief Returns a game sounds from the cache.
+    //! \param filename The sound filename.
+    //! \param spatialSound Whether the sound is a spatial sound.
+    //! If an unexisting file is given, a new cache instance is returned.
+    //! \note Use this function only to create new game sounds as it is the only way to make sure
+    //! the GameSound* instance is correclty cleared up when quitting.
+    //! \warning Returns NULL if the filename is an invalid/unreadable sound.
+    GameSound* getGameSound(const std::string& filename, bool spatialSound = false);
 };
 
 #endif // SOUNDEFFECTSMANAGER_H_

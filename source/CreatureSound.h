@@ -38,6 +38,9 @@ public:
         PICKUP,
         DROP,
         IDLE,
+        WALK,
+        HURT,
+        DYING,
         NUM_CREATURE_SOUNDS
     };
 
